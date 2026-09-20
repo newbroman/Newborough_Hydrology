@@ -78,7 +78,14 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-20. Cross-references are painted
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-20. Linked to the PDFs: every
+#   paragraph carries a "p.N" link to the page of the published PDF it is printed
+#   on (tools/pdf_page_index.csv, built by tools/pdf_page_index.py from the PDF's
+#   own text), every popover offers "open PDF p.N", and a Figure/Table/Section
+#   reference opens the PDF at its TARGET's page. A paragraph the PDF build does
+#   not contain is marked — the PDF is behind the text there. Martin: "would it
+#   be possible to link the proof reading tool to the relevant parts of the pdfs?"
+# v1.11.0  2026-09-20. Cross-references are painted
 #   too: every "Figure N", "Table N", "Section x.y" and "§x.y" is resolved against
 #   figure_map.csv, reference_index_table.csv and section_map.csv, and checked by
 #   meaning the way ref_audit and section_ref_audit do — a script or PNG named in
@@ -1647,6 +1654,9 @@ p{margin:.7em 0} pre{font:12px/1.35 Menlo,Consolas,monospace;overflow-x:auto;bac
 .untraced{background:#ffd6d6;border-color:#d00;font-weight:bold}
 .count{background:#f0f0f0;border-color:#bbb;color:#555}
 .xref{background:#e8eefc;border-color:#6d8fe6;border-bottom-style:dotted}
+a.pg{font:10px Helvetica,Arial,sans-serif;color:#6d8fe6;text-decoration:none;margin-right:.5em;vertical-align:super;white-space:nowrap}
+a.pgno{color:#c60}
+#pop .pl{margin-top:.4em;font-size:12px}
 .xbad{background:#ffd6d6;border-color:#d00;font-weight:bold;border-bottom-style:double}
 .xmean{background:#fde2c8;border-color:#e0700d;border-bottom-style:double}
 #legend{font:13px Helvetica,Arial,sans-serif;background:#f6f6f6;border:1px solid #ddd;padding:.6em 1em;margin-bottom:1em}
@@ -1682,6 +1692,11 @@ button{font:13px Helvetica,Arial,sans-serif}
 
 JS = r"""
 function toggleFocus(){document.body.classList.toggle('focus');}
+// the published PDFs: GitHub Pages when this page is hosted, the repo's own copy when
+// it is served from scratch/proof/ or opened as a file (two levels up)
+const PAGES_BASE = 'PAGES_BASE_PLACEHOLDER';
+function pdfUrl(rel){ const local = (location.protocol === 'file:' || /^(127\.|localhost|192\.168\.|10\.)/.test(location.hostname)); return (local ? '../../' : PAGES_BASE) + rel; }
+document.addEventListener('click', e => { const a = e.target.closest('a.pg'); if (a && a.dataset.pdf) { e.preventDefault(); window.open(pdfUrl(a.dataset.pdf), '_blank', 'noopener'); } });
 
 // ---- corrections: click a number, say what it should be, queue it ---------
 // Two transports. Served by tools/proof_serve.py the queue POSTs to /__correct and
@@ -1704,6 +1719,7 @@ function openPop(span){
   const v = span.textContent, det = span.title;
   pop.innerHTML = `<div class=pt><b>${v}</b> <span class='n ${span.dataset.v}'>${span.dataset.v}</span></div>
     <div class=pd>${det.replace(/</g,'&lt;')}</div>
+    ${span.dataset.pdf ? `<div class=pl><a href="${pdfUrl(span.dataset.pdf)}" target=_blank rel=noopener>open the PDF at this page ↗</a></div>` : ''}
     <label>should read <input id=sug placeholder='value, or leave blank if only a note'></label>
     <label>note <input id=note placeholder='why / where it comes from'></label>
     <div class=pb><button id=qb>queue</button> <button onclick='closePop()'>cancel</button></div>`;
@@ -1821,7 +1837,13 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
                         if sc else "sources: none declared — checked against everything")
             body.append(f"<div class=secbar>{bar or 'no numbers'}<br><span class=src>{src_line}</span></div>")
             continue
-        painted = paint_line(line, by_line.get(i, []), f"{sec[0]} {sec[1]}".strip())
+        pg = page_of_line(_DOC_STEM[0], line)
+        href = pdf_href(_DOC_STEM[0], pg)
+        painted = paint_line(line, by_line.get(i, []), f"{sec[0]} {sec[1]}".strip(), href)
+        if href:
+            painted = f"<a class=pg data-pdf='{html.escape(href, quote=True)}' href='#' title='this paragraph is on page {pg} of the published PDF'>p.{pg}</a>" + painted
+        elif line.strip() and _page_index().get(_DOC_STEM[0]) and len(_para_fp(line)) >= 24 and not line.startswith(("|", "  ", "!")):
+            painted = "<a class='pg pgno' href='#' title='this paragraph is not in the published PDF as built — the PDF is behind the text here'>p.?</a>" + painted
         is_table = line.startswith(("|", "+--", "  ---", "  ==")) or re.match(r"^\s{2,}\S.*\s{3,}\S", line)
         if is_table:
             if not in_pre:
@@ -1848,7 +1870,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
     legend = " ".join(f"<span class='n {k}'>{LEGEND_NAME[k]}</span>" for k, _ in LEGEND)
     head = (f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width, initial-scale=1'>"
             f"<title>{html.escape(title)} — proof copy</title>"
-            f"<style>{CSS}</style><script>{JS}</script><body>"
+            f"<style>{CSS}</style><script>{JS.replace('PAGES_BASE_PLACEHOLDER', PAGES_BASE)}</script><body>"
             f"<h1>{html.escape(title)} — proof copy</h1>"
             f"<div id=legend>{legend}<br>"
             f"<b>{tot['untraced']} untraced</b>, <b>{tot['stale']} stale</b>, <b>{tot['elsewhere']} elsewhere</b>, {tot['rounding']} rounding, "
@@ -1872,13 +1894,20 @@ _SPAN_SEQ = [0]
 _DOC_STEM = [""]
 
 
-def paint_line(line: str, ms, sec: str = "") -> str:
+_PDF_TAG = re.compile(r" @@pdf=([^@]*)@@")
+
+
+def paint_line(line: str, ms, sec: str = "", pdf: str = "") -> str:
     out, pos = [], 0
     for s, e, v, d in sorted(ms):
         out.append(html.escape(line[pos:s]))
         _SPAN_SEQ[0] += 1
+        tm = _PDF_TAG.search(d)
+        own = tm.group(1) if tm else pdf                  # a reference opens its target's page; a number its own
+        d = _PDF_TAG.sub("", d)
         out.append(f"<span class='n {v}' id='n_{_DOC_STEM[0]}_{_SPAN_SEQ[0]}' data-v='{v}' data-sec='{html.escape(sec, quote=True)}' "
-                   f"title='{html.escape(v + ': ' + d, quote=True)}'>"
+                   + (f"data-pdf='{html.escape(own, quote=True)}' " if own else "")
+                   + f"title='{html.escape(v + ': ' + d, quote=True)}'>"
                    f"{html.escape(line[s:e])}</span>")
         pos = e
     out.append(html.escape(line[pos:]))
@@ -2030,6 +2059,62 @@ def history_of(value: str, clause: str = "") -> str:
 
 
 # ---------------------------------------------------------------------------
+# the published PDF: which page each paragraph, figure, table and heading is on
+# ---------------------------------------------------------------------------
+PAGE_INDEX = REPO / "tools" / "pdf_page_index.csv"
+PAGES_BASE = "https://newbroman.github.io/Newborough_Hydrology/"   # GitHub Pages serves the repo
+_PAGES: dict | None = None
+_PARA_MARKUP = re.compile(r"!\[[^\]]*\]\([^)]*\)(\{[^}]*\})?|\[\]\{#[^}]*\}|\{[^}]*\}|\*\*|\\(.)")
+
+
+def _page_index() -> dict:
+    """{doc: {"para": {fp24: page}, "heading": {...}, "figure": {...}, "table": {...},
+    "pdf": rel, "built": iso}} from tools/pdf_page_index.csv (pdf_page_index.py)."""
+    global _PAGES
+    if _PAGES is not None:
+        return _PAGES
+    idx: dict = {}
+    if PAGE_INDEX.exists():
+        for r in csv.DictReader(PAGE_INDEX.open(encoding="utf8")):
+            d = idx.setdefault(r["document"], {"para": {}, "heading": {}, "figure": {}, "table": {},
+                                               "pdf": r["pdf"], "built": r["pdf_built"]})
+            d[r["kind"]][r["key"]] = int(r["page"])
+    _PAGES = idx
+    return idx
+
+
+def _para_fp(line: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", _PARA_MARKUP.sub(lambda m: m.group(2) or "", line).lower())[:24]
+
+
+def page_of_line(doc: str, line: str) -> int:
+    d = _page_index().get(doc)
+    return d["para"].get(_para_fp(line), 0) if d else 0
+
+
+def page_of_target(kind: str, key: str) -> int:
+    """A figure's or table's page in the report PDF; a section's page is its first
+    paragraph's (the heading index carries the heading text, so look it up by number
+    through section_map)."""
+    rep = _page_index().get("report") or {}
+    if kind in ("figure", "table"):
+        return rep.get(kind, {}).get(str(key).rstrip("abcd"), 0)
+    if kind == "section":
+        row = _xref_tables()["sec"].get(key)
+        if not row:
+            return 0
+        stem = pathlib.Path(row.get("document", "")).stem
+        d = _page_index().get(stem) or {}
+        return d.get("heading", {}).get(row.get("heading", ""), 0)
+    return 0
+
+
+def pdf_href(doc: str, page: int) -> str:
+    d = _page_index().get(doc)
+    return f"{d['pdf']}#page={page}" if d and page else ""
+
+
+# ---------------------------------------------------------------------------
 # cross-references: does "Figure 27" exist, and is it the figure the sentence means?
 # ---------------------------------------------------------------------------
 # Martin, 2026-09-20: "the other thing that needs adding to the proof reading tool
@@ -2167,7 +2252,13 @@ def xref_marks(text: str, masked: str, taken: list) -> list:
                 parts.append(p)
         if not parts:
             continue
-        out.append((m.start(), m.end(), verdict, "; ".join(parts)))
+        det = "; ".join(parts)
+        # the TARGET's page in the report PDF, for the popover's "open PDF" link
+        tkind = "figure" if kind.startswith("fig") else "table" if kind.startswith("tab") else "section"
+        tp = page_of_target(tkind, items[0]) if items else 0
+        if tp:
+            det += f" @@pdf={pdf_href('report', tp)}@@"
+        out.append((m.start(), m.end(), verdict, det))
     return out
 
 
@@ -2276,7 +2367,7 @@ def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof
             "#chapters a{padding:.25em .6em;border:1px solid #ccc;border-radius:12px;text-decoration:none;color:#036;background:#fafafa}"
             "#chapters a.cur{background:#036;color:#fff;border-color:#036}#chapters .red{color:#f88;font-weight:bold}#chapters .amb{color:#fc8;font-weight:bold}"
             "#chapters a.cur .red{color:#ffb3b3}#chapters a.cur .amb{color:#ffe0a8}"
-            f"</style><script>{JS}{BUNDLE_JS}</script><body>"
+            f"</style><script>{JS.replace('PAGES_BASE_PLACEHOLDER', PAGES_BASE)}{BUNDLE_JS}</script><body>"
             f"<h1>{name} — proof copies</h1>"
             f"<div id=legend>{legend}<br>click a number to queue a correction — <span id=qcount>0</span> queued. "
             f"<button onclick='toggleFocus()'>show only red / amber</button><br>"

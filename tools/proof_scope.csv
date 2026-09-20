@@ -1,0 +1,6 @@
+document,section,sources,note
+report9,4.1,outputs/00_climate_summary;outputs/01_data_prep;outputs/01_*.csv;data/RAF_Valley_Climate.csv;data/Newborough_Cleaned_For_Model.csv;data/well_metadata.csv,"Climate and well-network characterization: the climate data, the cleaned well file and Scripts 00/01 only (Martin, 2026-09-20)"
+report9,4.2.1,outputs/02_clustering;outputs/03_regional_averages.csv;outputs/01_wells_reference.csv;data/Newborough_Cleaned_For_Model.csv,"Cluster hydrographs and amplitudes: Script 02 and the cluster-mean series"
+report9,4.2.2,outputs/03_state_space_model;outputs/03_master_data.csv;outputs/07_spatial_coefficients;outputs/07_coefficient_summary.csv;outputs/30_c4_drainage_identifiability,"Cluster mechanistic coefficients: Table 1.3/1.4 from 03_03 and 07; the C4 identifiability check from Script 30 (Martin, 2026-09-20: most stats here trace to 03_03)"
+report9,4.2.3,outputs/16_water_balance;outputs/03_state_space_model;outputs/07_spatial_coefficients,"Cluster water balance: Script 16 on the 03_03 coefficients"
+report9,4.2.4,outputs/17_wtf_specific_yield;outputs/18_wtf_spatial,"Specific yield: Scripts 17 (cluster) and 18 (per well)"

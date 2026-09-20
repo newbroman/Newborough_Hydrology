@@ -45,7 +45,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-04. T7: check_claims
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-09-20. _CONSTANT_RE admits a
+#   lowercase letter in a constant's name: SD15b, SD15b_REC and SD15b_WINTER
+#   (the wet-slack thresholds) join the value map. Three names in config.py
+#   are affected, no other file. (The stray second `__version__` below still
+#   shadows this one at runtime — flagged by 1.18.0, still not fixed here.)
+# v1.18.0  # Hollingham (2026) — 2026-09-04. T7: check_claims
 #   now searches a claim's phrase (asserted-and-false) and its `contradicts`
 #   wordings in the outputs' note-like CSV columns, not only in documents — a
 #   retired claim written into a report_numbers Note is the D-011 failure one
@@ -362,7 +367,12 @@ def _excluded(rel: str) -> bool:
 # Inputs live in config.py; results live in report-numbers files. That is the
 # same line the report draws between Methods and Results (D-075).
 CONSTANT_SOURCES = ["src/utils/config.py", "src/utils/pipeline_params.py"]
-_CONSTANT_RE = re.compile(r"(?m)^([A-Z][A-Z0-9_]{2,})\s*=\s*(-?\d+(?:\.\d+)?)\s*(?:#|$)")
+# A constant is a module-level name beginning with a capital that is assigned a
+# bare number. It used to require ALL CAPS, which silently dropped the wet-slack
+# threshold family — `SD15b = 0.61`, `SD15b_REC`, `SD15b_WINTER` — from the value
+# map, so the most-quoted threshold in the corpus was in no citation check
+# (found 2026-09-20 by proof_copy; Martin: "can you correct for SD15b?").
+_CONSTANT_RE = re.compile(r"(?m)^([A-Z][A-Za-z0-9_]{2,})\s*=\s*(-?\d+(?:\.\d+)?)\s*(?:#|$)")
 
 
 HEADLINE_TABLES = [

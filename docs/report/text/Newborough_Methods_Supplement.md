@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_8.odt — do not edit. source-sha256=36628ea5490990fe pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_9.odt — do not edit. source-sha256=b3c3e085cb5ddcba pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.8 (September 2026).
+Document version: 2.0.9 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1452,7 +1452,7 @@ Spring-mean companion metric (Script 09c v1.5.0). Alongside the summer minimum, 
 
 Step 10 / 30 (sub-scripts 10a--10m). Phase 3 --- Model Diagnostics and Intervention Analysis.
 
-The Script 10 suite is the second of the two management-intervention analyses at the warren. Where Script 09 (S.6) analyses the April 2015 scraping at CEH36, Script 10 analyses the December 2017 clearfell of approximately 0.6 ha of Corsican pine (*Pinus nigra* var. *maritima*) inside the western forest block. The intervention removed canopy interception and transpiration over a single compartment with the explicit aim of restoring dune-slack hydrology in the post-felled compartment and the adjacent slacks. The suite is the entire methodological evaluation of that intervention: thirteen sub-scripts orchestrated by *run_10_clearfell.py*. Eleven contribute to the main results chain; two sit outside it --- 10c, which produces supplementary spatial diagnostics of the C4--C5 forest partition, and 10m, a display figure that presents the WMC3 impact well against the forest-control mean across all three interventions.
+The Script 10 suite is the second of the two management-intervention analyses at the warren. Where Script 09 (S.6) analyses the April 2015 scraping at CEH36, Script 10 analyses the December 2017 clearfell of approximately 4.4 ha of Corsican pine (*Pinus nigra* var. *maritima*) inside the western forest block. The intervention removed canopy interception and transpiration over a single compartment with the explicit aim of restoring dune-slack hydrology in the post-felled compartment and the adjacent slacks. The suite is the entire methodological evaluation of that intervention: thirteen sub-scripts orchestrated by *run_10_clearfell.py*. Eleven contribute to the main results chain; two sit outside it --- 10c, which produces supplementary spatial diagnostics of the C4--C5 forest partition, and 10m, a display figure that presents the WMC3 impact well against the forest-control mean across all three interventions.
 
 The published BACI design uses a five-tier comparison network of 17 wells: one impact well inside the felled compartment (WMC3), four edge wells immediately adjacent (CEH31, CEH20, CEH30, CEH16), five C4 Main Forest interior controls (CEH32, CEH34, CEH33, NW10, CEH2), two C5 Coastal Forest controls (CEH19, CEH17), and five C3 Western Residual climate-only controls (CEH9, NW7, NW6, NW5, WMC2). The four FE wells inside the felled compartment (FE1--FE4) are not in the canonical network because they lack pre-intervention baseline records; FE1 and FE2 are reintroduced by 10h via donor-regression synthetic extension. NW8 and NW8B are excluded from all analyses because of data-quality issues in their pre-intervention records. CEH42 was considered for the climate tier but its 3.4-year pre-felling baseline is too short, so it is excluded as well.
 

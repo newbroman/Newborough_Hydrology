@@ -407,6 +407,9 @@ def _cell_nodes(inner: str, base: int):
     return nodes
 
 
+TAGS = re.compile(r"<[^>]+>")
+
+
 def read_cells(xml: str, start: int, end: int):
     """[(row_index, [cell | None]), ...] — None for a covered cell.
 
@@ -448,6 +451,21 @@ def read_cells(xml: str, start: int, end: int):
                 cells.append((a, a + len(pm.group(1)), pm.group(1), [], value))
                 continue
             nodes = _cell_nodes(inner, base)
+            if nodes is None and ri == 0:
+                # A HEADER cell may hold more than one <text:p>. Martin split the
+                # unit onto its own line in the volumetric table's five
+                # unit-bearing headers on 2026-09-20 — a deliberate, consistent
+                # reformat — and this parser refused the whole table, dropping
+                # 25 data cells out of table_cells' reach. The header is only
+                # ever READ (plan() compares it and writes rows[1:]), so its
+                # text is enough: the paragraphs' text joined by one space.
+                # Offsets -1 mark it as never-written, as an empty <text:p/> is.
+                txt = " ".join(
+                    t for t in (TAGS.sub("", m.group(1)).strip()
+                                for m in re.finditer(r"<text:p\b[^>]*>(.*?)</text:p>",
+                                                     inner, re.S)) if t)
+                cells.append((-1, -1, txt, [], value))
+                continue
             if nodes is None:
                 raise ValueError(
                     f"row {ri} cell {len(cells)}: not text and <text:span> runs "
@@ -491,7 +509,15 @@ def plan(cfg: dict, xml: str):
     # 2026-09-19). The configs stay plain ASCII and the comparison ignores it.
     header = [unescape(c[2]).replace("\u200b", "") if c else None
               for c in rows[0][1]]
-    if header != cfg["header"]:
+    # A header split across paragraphs joins with a space, and the break does not
+    # always fall at one: "I (" + " mm/yr)" reads as "I ( mm/yr)". Where the line
+    # falls inside a header is a layout choice, so the COMPARISON ignores it —
+    # the parser above still reports what is actually in the cell.
+    def _h(t):
+        if t is None:
+            return None
+        return re.sub(r"\s+", " ", t).replace("( ", "(").replace(" )", ")").strip()
+    if [_h(x) for x in header] != [_h(x) for x in cfg["header"]]:
         raise ValueError(f"header mismatch\n    odt: {header}\n    cfg: {cfg['header']}")
     data = rows[1:]
     grid = expected_grid(cfg)

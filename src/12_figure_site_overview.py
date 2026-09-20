@@ -31,7 +31,15 @@ The northern break in slope (v1.4.0, D-099)
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-20. Figure 1 no longer draws
+#   the scrape footprint outlines (Martin: "the scraped kml's need to be removed";
+#   they belong to Figure 2 and the scrape figures), the legend calls the points what
+#   they are — measuring points, since well_metadata.csv carries the lake gauge and a
+#   point with no series — and the count plotted is EMITTED
+#   (site_overview_points_plotted in 12_report_numbers.csv) because the caption said
+#   "117-point network" while the map showed 99 and the text said 89: three typed
+#   counts, none of them read from a file.
+# v1.6.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
 #   removed. It hid every DeprecationWarning and RuntimeWarning this script
 #   raised, which is the class of signal that would have flagged the fiona
@@ -205,7 +213,7 @@ def generate_dem_map():
     # 4. KML Site Features (via map_utils — includes broadleaf restock block)
     # =======================================================
     info("Adding KML site features...")
-    site_handles = add_kml_features(ax, DATA_DIR)
+    site_handles = add_kml_features(ax, DATA_DIR, include_scrapes=False)   # scrapes are Figure 2's
 
     # 5. Overlay the Monitoring Wells
     info("Plotting Monitoring Wells...")
@@ -258,7 +266,7 @@ def generate_dem_map():
     from matplotlib.lines import Line2D
     well_handle = Line2D([0], [0], marker='o', color='w', markerfacecolor='red',
                          markeredgecolor='black', markersize=8,
-                         label=f'Monitoring Wells (n={len(gdf_wells)})')
+                         label=f'Measuring points (n={len(gdf_wells)})')
     ax.legend(handles=[well_handle] + list(site_handles),
               loc='lower left', framealpha=0.9, edgecolor='black')
 
@@ -283,6 +291,7 @@ def generate_dem_map():
     render_figure(plt.gcf(), output_filename)
     print(f"  [SUCCESS] Map saved locally as {output_filename}")
     plt.close()
+    return len(gdf_wells)
 
 # ======================================================================
 # The northern break in slope (D-099)
@@ -413,6 +422,9 @@ def _break_gate(df):
     return (len(reasons) == 0), reasons, sd
 
 
+_POINTS_PLOTTED = [None]          # set by generate_dem_map(); read by _break_report_numbers()
+
+
 def _break_report_numbers(df, sd, lake):
     """The citable values. Every one read from the frame this run produced."""
     e = df["easting_m"].to_numpy()
@@ -421,6 +433,9 @@ def _break_report_numbers(df, sd, lake):
     k = int(np.argmin(np.abs(e - lake["E"])))
     lake_break_n, lake_break_z = float(nf[k]), float(z[k])
     rows = [
+        ("site_overview_points_plotted", _POINTS_PLOTTED[0], "count",
+         "measuring points drawn on Figure 1 = rows of well_metadata.csv (dipwells, the lake gauge, "
+         "and any located point without a series)"),
         ("break_n_columns", len(df), "count",
          "easting columns of the 2 m DEM resolving a break inside the window"),
         ("break_elevation_median_m", float(np.median(z)), "m AOD",
@@ -554,6 +569,6 @@ if __name__ == "__main__":
     banner("12", "Figure — Site Overview", version=__version__)
     make_all_dirs()
     phase(1, "Site overview map (report Figure 1)")
-    generate_dem_map()
+    _POINTS_PLOTTED[0] = generate_dem_map()
     measure_break_in_slope()
     done("12")

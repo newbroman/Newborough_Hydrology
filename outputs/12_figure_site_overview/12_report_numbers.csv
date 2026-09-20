@@ -1,8 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
+site_overview_points_plotted,,,99.0,count,"measuring points drawn on Figure 1 = rows of well_metadata.csv (dipwells, the lake gauge, and any located point without a series)"
 break_n_columns,,,835.0,count,easting columns of the 2 m DEM resolving a break inside the window
 break_elevation_median_m,,,11.387250945681616,m AOD,median elevation of the northern break in slope
 break_elevation_p10_m,,,8.918849277496339,m AOD,10th percentile
-break_elevation_p90_m,,,13.714214306785946,m AOD,90th percentile
+break_elevation_p90_m,,,13.714214306785948,m AOD,90th percentile
 break_elevation_sd_m,,,1.6829264112979108,m,coherence statistic; the gate withholds above config.BREAK_ELEV_SD_TOL_M = 3.0
 break_northing_min_m,,,364623.0,m OSGB36,median-filtered
 break_northing_max_m,,,365505.0,m OSGB36,median-filtered

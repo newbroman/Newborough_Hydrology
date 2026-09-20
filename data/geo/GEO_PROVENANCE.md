@@ -604,6 +604,7 @@ so each file states its own origin:
 | `forest_boundary.geojson` | GeoJSON | yes | `paths.py` (`DATA_FOREST_BOUNDARY`) |
 | `clearfell.kml` | **QGIS export** | yes | `13`, `19`, `11b`, `map_utils`, `living/` |
 | `broadleaf_restock.kml` | Google Earth | yes | `19`, `20`, `config.py`, `living/` |
+| `hydrological study area.kml` | Google Earth (Martin, 2026-09-20 — the study-area polygon, added after E27 found report7's 1,172 ha to be the site boundary's bounding box) | yes | **nothing yet** — E27: the study-area emission should read it |
 | `streams.kml` — **derived from `site_boundary.kml`**, not an independent input | | | |
 | `clay.kml` | Google Earth | yes | **nothing** |
 | `moad.kml` | Google Earth | yes | **legacy only** — `--coast-source moad` (D-175); **see below** |

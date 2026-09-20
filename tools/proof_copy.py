@@ -78,7 +78,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-20. From the first artifact queue:
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-20. From the third artifact queue:
+#   a quantity letter gates its candidates ("p = 0.25" is a probability, not a
+#   slope; "n =", "r =", "R² =", "k =" likewise); a p with no gated candidate is
+#   checked against the p of the row its neighbours cite; well counts are derived
+#   from the 01_wells_* column sets (88 = 66 reference + 22 extended; the lake is
+#   not a well); k is the number of distinct clusters in Script 02's membership
+#   CSV; polygon areas of data/geo/*.kml are candidates in hectares (the 8.4 ha
+#   clearfell traces to nothing — the KML polygon is 4.4 ha).
+# v1.7.0  2026-09-20. From the first artifact queue:
 #   identifiers (ORCID, DOI) are not numbers; "n of N" takes N from n's file;
 #   threshold differences (SD16 − SD15b = 37 cm) are derived values; each span
 #   carries its section and the pasted block names doc and section.
@@ -347,6 +355,131 @@ def _renderings(x: float):
             yield cc.render(abs(x) * 100, dp), "%"
 
 
+_LAKE = re.compile(r"(?i)llyn|lake|rhos")
+_WELL_FILES = ("outputs/01_wells_reference.csv", "outputs/01_wells_extended.csv",
+               "outputs/01_wells_clean.csv", "outputs/01_wells_all.csv")
+_NET_ANC = {"col": ["wells", "dipwells", "well", "network", "boreholes", "points", "sites"],
+            "file": [], "stat": ["wells", "dipwells", "network", "measuring", "points", "reference",
+                                 "extended", "boreholes", "sites", "across", "covers", "comprises"]}
+
+
+def _well_columns(rel: str) -> tuple[list[str], list[str]]:
+    """(well columns, lake columns) of a wide 01_wells_* matrix."""
+    f = REPO / rel
+    if not f.exists():
+        return [], []
+    with open(f, encoding="utf8", newline="") as fh:
+        head = next(csv.reader(fh))
+    wells = [c for c in head[1:] if not _LAKE.search(c)]
+    lakes = [c for c in head[1:] if _LAKE.search(c)]
+    return wells, lakes
+
+
+def _network_counts(look) -> None:
+    """Well counts are COUNTS OF COLUMNS, not cells (Martin, 2026-09-20: "88 should
+    relate to the well count minus the lake"). 66 reference + 22 extended = 88
+    dipwells; the lake gauge is a measuring point, not a well, so wells_clean's
+    column set less its lake column is another count, and plus it is the
+    "measuring points" figure. Every derived count names its arithmetic."""
+    counts = {}
+    for rel in _WELL_FILES:
+        wells, lakes = _well_columns(rel)
+        if not wells:
+            continue
+        stem = pathlib.Path(rel).stem.replace("01_wells_", "")
+        counts[stem] = (rel, len(wells), len(lakes))
+        _add_net(look, rel, f"{len(wells)} well columns in {stem} (lake excluded)", len(wells))
+        if lakes:
+            _add_net(look, rel, f"{len(wells)} wells + {len(lakes)} lake column in {stem} = measuring points", len(wells) + len(lakes))
+    if "reference" in counts and "extended" in counts:
+        r, e = counts["reference"], counts["extended"]
+        _add_net(look, "outputs/01_wells_reference.csv",
+                 f"{r[1]} reference + {e[1]} extended well columns = {r[1] + e[1]} dipwells", r[1] + e[1])
+        _add_net(look, "outputs/01_wells_reference.csv",
+                 f"{r[1]} reference + {e[1]} extended + 1 lake gauge = {r[1] + e[1] + 1} measuring points", r[1] + e[1] + 1)
+
+
+def _add_net(look, rel, label, n) -> None:
+    for r, form in _renderings(float(n)):
+        if form == "":
+            _add(look, r, Cand(rel, label, "", float(n), _NET_ANC, form, "net"))
+
+
+def _cluster_count(look) -> None:
+    """k is the number of distinct clusters in Script 02's membership CSV (Martin,
+    2026-09-20: "k = 5 should be relating to the clustering script 02 csvs")."""
+    import pandas as pd
+    anc = {"col": ["k", "clusters", "cluster", "partition", "clustering", "solution"], "file": [],
+           "stat": ["k", "clusters", "partition", "solution", "clustering", "identified", "five", "into"]}
+    for rel, col in (("outputs/02_clustering/02_07_cluster_membership_k5.csv", "cluster_k5"),
+                     ("outputs/02_cluster_stats.csv", "Cluster")):
+        f = REPO / rel
+        if not f.exists():
+            continue
+        try:
+            k = int(pd.read_csv(f)[col].nunique())
+        except Exception:
+            continue
+        for r, form in _renderings(float(k)):
+            if form == "":
+                _add(look, r, Cand(rel, f"distinct clusters in {col} (k = {k})", col, float(k), anc, form, "net"))
+
+
+KML_MAX_POLYGONS = 8              # a boundary file; the DEM-basin and flood-extent KMLs run to thousands
+
+
+def _kml_areas(look) -> None:
+    """Polygon areas of data/geo/*.kml in hectares (Martin, 2026-09-20: "the source
+    is the clearfell kml"). Equirectangular at the polygon's mean latitude —
+    within 0.1% of the OSGB36 figure at this size — so no geopandas is needed.
+    Anchored on the file's and placemark's words and a hectare unit."""
+    import math
+    geo = REPO / "data" / "geo"
+    if not geo.is_dir():
+        return
+    for p in sorted(geo.glob("*.kml")):
+        try:
+            txt = p.read_text(encoding="utf8", errors="ignore")
+        except OSError:
+            continue
+        polys = re.findall(r"<Polygon>.*?<coordinates>(.*?)</coordinates>", txt, re.S)
+        if not polys or len(polys) > KML_MAX_POLYGONS:
+            continue                          # a basin or flood-extent file, not a boundary anyone quotes
+        names = [n.strip() for n in re.findall(r"<name>(.*?)</name>", txt, re.S)]
+        words = sorted({w for n in [p.stem] + names for w in _deep_words(n.replace("_", " ").replace("-", " "))} - WEAK_ANCHORS)
+        if not words:
+            continue
+        areas = []
+        for coords in polys:
+            pts = []
+            for tok in coords.split():
+                try:
+                    x, y = (float(v) for v in tok.split(",")[:2])
+                except ValueError:
+                    continue
+                pts.append((x, y))
+            if len(pts) < 3:
+                continue
+            lat0 = sum(q[1] for q in pts) / len(pts)
+            R = 6371000.0
+            xy = [(math.radians(x) * R * math.cos(math.radians(lat0)), math.radians(y) * R) for x, y in pts]
+            a = 0.0
+            for i in range(len(xy)):
+                x1, y1 = xy[i]
+                x2, y2 = xy[(i + 1) % len(xy)]
+                a += x1 * y2 - x2 * y1
+            areas.append(abs(a) / 2 / 1e4)
+        if not areas:
+            continue
+        rel = str(p.relative_to(REPO))
+        anc = {"col": words, "file": [], "stat": ["ha", "hectare", "hectares", "area"]}
+        vals = [("polygon area", sum(areas))] + ([(f"polygon {i + 1} area", a) for i, a in enumerate(areas)] if len(areas) > 1 else [])
+        for lab, v in vals:
+            for r, form in _renderings(v):
+                if form == "":
+                    _add(look, r, Cand(rel, f"{p.name} {lab} = {v:.2f} ha", "area_ha", v, anc, form, "geo"))
+
+
 def build_index(values, deep: bool = True) -> dict:
     import pandas as pd
     look: dict[str, list] = defaultdict(list)
@@ -380,6 +513,9 @@ def build_index(values, deep: bool = True) -> dict:
                 _add(look, r, Cand("src/utils/config.py", f"{la} − {lb} = {dv:g} m", "", dv, anc, form, "stat"))
             for r, form in (("%d" % round(dv * 100), ""), ("%.0f" % (dv * 100), "")):
                 _add(look, r, Cand("src/utils/config.py", f"{la} − {lb} = {dv * 100:g} cm", "", dv * 100, anc, "", "stat"))
+    _network_counts(look)
+    _cluster_count(look)
+    _kml_areas(look)
     if not deep:
         return look
     for root in DEEP_ROOTS:
@@ -614,8 +750,8 @@ def in_scope(c: Cand, scope: set[str]) -> bool:
     """config.py's constants and the manifest counts are cited from every section;
     a threshold like SD16 = 0.98 is in scope everywhere."""
     rel = c.rel
-    if rel in ALWAYS_IN_SCOPE:
-        return True
+    if rel in ALWAYS_IN_SCOPE or c.tier in ("net", "geo"):
+        return True                      # network counts and site geometry are cited everywhere
     d = _PARENT.get(rel)
     if d is None:
         d = _PARENT[rel] = str(pathlib.Path(rel).parent)
@@ -633,9 +769,35 @@ _GLUE_AFTER = re.compile(r"[\-‑][A-Za-z]")
 _LIST_MARKER = re.compile(r"^\d+\.\s")
 _IDENT_CHAIN = re.compile(r"\d+[-‐]\d+[-‐]\d+")          # three digit groups joined by hyphens
 _PCT_AFTER = re.compile(r"(?i)^\s*(?:%|per cent|percent)")
+_HA_AFTER = re.compile(r"(?i)^\s*(?:ha|hectares?)\b")
+_AREA_KEY = re.compile(r"(?i)area|_ha\b|hectare")
 _RANGE_AFTER = re.compile(r"^\s*(?:--|[\-\u2013\u2014]|to|and)\s*[+\-\u2212]?\d+(?:[.,]\d+)*")
 _BOUND_BEFORE = re.compile(r"(p|n|r²|R²)?\s*\\?([<>≤≥])\s*$")
 _PCOL = re.compile(r"(?i)^(p|p_?val(ue)?|pvalue|p_value_.*|.*_p)$")
+# "p = 0.25" is a probability, not a slope (Martin, 2026-09-20): the letter before
+# "=" names the quantity, and only a candidate whose column or key is that quantity
+# may be cited for it. Applied to p, r, R², n, k.
+_QTY_BEFORE = re.compile(r"(?i)(?<![a-z0-9²_])(p|r²|r2|r|n|k)\s*=\s*$")   # not m_P = 2.5
+_QTY_PAT = {
+    "p": re.compile(r"(?i)(^|_)(p|pval|pvalue|p_value|p_val|prob|significance)(_|$)|_p$|^p_"),
+    "r": re.compile(r"(?i)(^|_)(r|rho|pearson|spearman|corr|correlation|affinity)(_|$)"),
+    "r²": re.compile(r"(?i)(^|_)(r2|rsq|r_squared|rsquared|r²|adj_r2|r2_adj)(_|$)|r2|r_squared"),
+    "n": re.compile(r"(?i)(^|_)(n|n_wells|n_obs|n_months|n_years|count|total|nobs|wells|columns|events)(_|$)|^n_|_n$|\bwell columns\b|dipwells|measuring points"),
+    "k": re.compile(r"(?i)(^|_)(k|n_clusters|clusters)(_|$)|distinct clusters|clusters in"),
+}
+
+
+def _qty_of(masked: str, s: int) -> str | None:
+    m = _QTY_BEFORE.search(masked[max(0, s - 8):s])
+    if not m:
+        return None
+    q = m.group(1).lower()
+    return "r²" if q in ("r2", "r²") else q
+
+
+def _qty_ok(q: str, c: Cand) -> bool:
+    pat = _QTY_PAT[q]
+    return bool(pat.search(c.col or "") or pat.search(c.label or ""))
 COHERENCE_WINDOW = 260          # characters: a sentence and its neighbour
 
 
@@ -656,7 +818,11 @@ def _hit(a: str, w: str, ws: set) -> bool:
     return a in w
 
 
-def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, inside: bool, scoped: bool = False) -> float:
+_NONLEN = re.compile(r"(?i)pct|percent|ratio|fraction|_p$|pvalue|r2|rsq|count|_n$|index|years?|months?|days?")
+
+
+def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, inside: bool, scoped: bool = False,
+            unit: str = "") -> float:
     """Score a candidate at this position; 0 = not a citation. A registered value
     scores 3 when its key anchors here. A CSV cell scores 2 for its row label,
     1 for a column word, 0.5 for a file word; a derived statistic needs its
@@ -676,7 +842,7 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         return score
     a = c.anchors
     score = 0.0
-    if c.tier in ("stat", "roll", "gstat"):
+    if c.tier in ("stat", "roll", "gstat", "net", "geo"):
         colhits = sum(1 for x in set(a["col"]) if _hit(x, w, ws))
         stathit = any(x in w for x in a["stat"])
         rollhit = any(x in w for x in a.get("roll", []))
@@ -698,8 +864,10 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
             score += 1
         if any(_hit(x, w, ws) for x in a["file"]):
             score += 0.5
-    if c.form:
-        score -= 0.5
+    if c.form and c.form != unit:
+        score -= 0.5                          # a converted rendering with no unit in the text
+    elif unit == "mm" and not c.form and _NONLEN.search(c.label + " " + (c.col or "")):
+        score -= 1.0                          # "+113 mm" is a length: a percentage sharing the digits is not it
     need = 1 if inside else 2
     if short:
         need += 0 if inside else 1
@@ -761,18 +929,24 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         after = _RANGE_AFTER.sub("", after)                # "50--55 mm": look past the range
         pct = bool(_PCT_AFTER.match(after))
         mm = bool(cc._MM_SUFFIX.match(after))
+        unit = "mm" if mm else "%" if pct else ""
         short = "." not in unsigned and len(unsigned) <= 3
         w = masked[max(0, s - cc.ANCHOR_WINDOW): e + cc.ANCHOR_WINDOW].lower()
         ws = set(_WORD.findall(w))
         cands = [c for c in look.get(unsigned, [])
                  if (c.form == "") or (c.form == "%" and pct) or (c.form == "mm" and mm)]
+        qty = _qty_of(masked, s)
+        if qty:
+            cands = [c for c in cands if _qty_ok(qty, c)]
+        if _HA_AFTER.match(after):                         # "8.4 ha" is an area: geometry or an area key only
+            cands = [c for c in cands if c.tier == "geo" or _AREA_KEY.search((c.col or "") + " " + c.label)]
         inside, outside = [], []
         of_prev = None
         if re.search(r"\bof\s*$", masked[max(0, s - 4):s]) and prelim and prelim[-1][2] == "in" and abs(prelim[-1][1] - s) <= 12:
             of_prev = prelim[-1][4][0][1].rel if prelim[-1][4] else None
         for c in cands:
             if not scope or in_scope(c, scope):
-                sc = _accept(c, masked, s, e, short, w, ws, True, bool(scope))
+                sc = _accept(c, masked, s, e, short, w, ws, True, bool(scope), unit)
                 if sc == 0 and of_prev and c.rel == of_prev and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
                     sc = 2                             # the N of "n of N", from the n's file
                 if sc > 0:
@@ -780,13 +954,16 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         if not inside and len(cands) <= 4000:
             for c in cands:
                 if scope and not in_scope(c, scope):
-                    sc = _accept(c, masked, s, e, short, w, ws, False)
+                    sc = _accept(c, masked, s, e, short, w, ws, False, unit=unit)
                     if sc > 0:
                         outside.append((sc, c))
         if inside:
             inside.sort(key=lambda t: (-t[0], t[1].tier != "reg"))
-            prelim.append((s, e, "in", "", inside))
+            prelim.append((s, e, "in", qty or "", inside))
             continue
+        if qty and not outside:
+            prelim.append((s, e, "qty", f"{qty} {unsigned}", []))
+            continue                                   # resolved against the neighbours' row below
         if outside:
             outside.sort(key=lambda t: (-t[0], t[1].tier != "reg"))
             sc, c = outside[0]
@@ -839,6 +1016,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 bonus = (1.5 if same else 0.5 if samefile else 0) if sc >= 2 else 0
                 if of_n and c.rel == prev_rel and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
                     bonus += 3
+                if d and c.tier == "net":
+                    bonus += 2                       # "k = 5": Script 02's partition, not the constant that asked for it
                 return (-(sc + bonus), c.tier != "reg")
             options.sort(key=key)
             sc, c = options[0]
@@ -848,18 +1027,25 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             det = (f"{c.label}{(' · ' + c.col) if c.col else ''} = {c.value:g} [{pathlib.Path(c.rel).name}]"
                    + (f" as {c.form}" if c.form else "")
                    + (" — same row as its neighbours" if same else "")
-                   + ("" if verdict == "traced" else " — UNREGISTERED: in no value table; register this file"))
+                   + ("" if verdict == "traced" else
+                      " — DERIVED from the file's geometry/columns; no script emits it (emit list)" if c.tier in ("net", "geo") else
+                      " — UNREGISTERED: in no value table; register this file"))
             if len(options) > 1 and (options[1][1].rel, options[1][1].label) != (c.rel, c.label):
                 det += f"; also matches {options[1][1].label} [{pathlib.Path(options[1][1].rel).name}]"
             marks.append((s, e, verdict, det))
         else:
             marks.append((s, e, v, d))
-    # --- bounds: "p < 0.001" against the p-value of the row its neighbours came from
+    # --- bounds: "p < 0.001" against the p-value of the row its neighbours came from;
+    # --- and "p = 0.25" with no p-like candidate of its own: the same row's p
     out = []
     for s, e, v, d in marks:
-        if v != "bound":
+        if v not in ("bound", "qty"):
             out.append((s, e, v, d)); continue
-        what, op, bound = d.split(" ", 2)
+        if v == "qty":
+            what, bound = d.split(" ", 1)
+            op = "="
+        else:
+            what, op, bound = d.split(" ", 2)
         try:
             b = float(bound)
         except ValueError:
@@ -893,9 +1079,23 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                         col, val = next(iter(vals.items()))
                         found = (rel, l2, col, val); break
         if not found:
-            out.append((s, e, "count", f"inequality bound ({what} {op} {bound}); no neighbouring row carries a p-value to check it against"))
+            if op == "=":
+                out.append((s, e, "untraced", f"quoted as {what} = {bound}: no {what}-like column or key in scope carries it, "
+                                               f"and no neighbouring row supplies a {what} to check it against"))
+            else:
+                out.append((s, e, "count", f"inequality bound ({what} {op} {bound}); no neighbouring row carries a p-value to check it against"))
             continue
         rel, lab, col, val = found
+        if op == "=":
+            dp = _dp_of(bound)
+            holds = cc.render(val, dp) == bound or abs(val - b) < 0.5 * 10 ** -dp
+            # a disagreement is not proof of staleness: the sentence's other numbers may
+            # come from a row whose p is not this p (a curvature term's p beside a step's
+            # row), so it is UNTRACED with the neighbour's p named, not STALE
+            out.append((s, e, "traced" if holds else "untraced",
+                        f"{what} = {bound}: the row its neighbours cite ({pathlib.Path(rel).name} · {lab}) has "
+                        f"{col} = {val:.3g}, which {'agrees at this precision' if holds else 'does not agree — either the p is stale or its quantity is unregistered'}"))
+            continue
         holds = (val < b) if op in "<≤" else (val > b)
         out.append((s, e, "traced" if holds else "stale",
                     f"{what} {op} {bound}: the row its neighbours cite ({pathlib.Path(rel).name} · {lab}) has "

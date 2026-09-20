@@ -78,7 +78,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-20. From the third artifact queue:
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-20. Every match is TYPED. The
+#   token gets a dimension from the unit beside it (°C, mm, m, %, ha, months, "p =",
+#   "×") and a season from its clause; the candidate gets both from its column or
+#   key name (_mm, _m, pct, temp, _p, months, summer). A KNOWN mismatch is a veto,
+#   not a penalty: "+0.94°C" can no longer be a p-value, "+6.0 mm" cannot be
+#   COAST_RETREAT_M, an "annual" figure cannot come from a summer column. Until
+#   now the tool admitted any candidate with an anchor and bolted on one filter
+#   per complaint (mm, %, ha, p =); this replaces those with one rule. Nominal
+#   percentages ("above 100 %") are statements, not values.
+# v1.8.0  2026-09-20. From the third artifact queue:
 #   a quantity letter gates its candidates ("p = 0.25" is a probability, not a
 #   slope; "n =", "r =", "R² =", "k =" likewise); a p with no gated candidate is
 #   checked against the p of the row its neighbours cite; well counts are derived
@@ -537,7 +546,7 @@ def build_index(values, deep: bool = True) -> dict:
                 col = pd.to_numeric(df[c], errors="coerce")
                 cw = _col_anchors(c)
                 good = col.dropna()
-                if len(good) >= 3 and cw:
+                if len(good) >= 3 and cw and not _CAND_DIM_RULES[0][1].search(c):
                     colw = _col_anchors(c)
                     for stat, val in (("min", float(good.min())), ("max", float(good.max())),
                                       ("median", float(good.median())), ("mean", float(good.mean()))):
@@ -558,6 +567,7 @@ def build_index(values, deep: bool = True) -> dict:
             # column: mean, median, min, max, anchored on the cluster's names and
             # the column's words.
             ccol = next((c for c in df.columns if c.lower() in ("cluster", "cluster_id", "cluster_label")), None)
+            scol = next((c for c in df.columns if c.lower() in ("season", "period", "window")), None)
             if ccol is not None and len(df) >= 10:
                 try:
                     groups = df.groupby(ccol)
@@ -614,6 +624,11 @@ def build_index(values, deep: bool = True) -> dict:
                     if mcl and (cl.lower().startswith("c") or cl.replace(".0", "").isdigit()):
                         lab = f"{lab} · C{mcl.group()}"
                         la = la + CLUSTER_NAMES["c" + mcl.group()]
+                if scol is not None:                  # "clearfell · annual · C4": and its season
+                    sv = str(r_[scol]).strip().lower()
+                    if sv in _SEASON_WORDS or sv in ("msl5", "spring"):
+                        lab = f"{lab} · {sv}"
+                        la = la + [sv]
                 notew = [w for w in _deep_words(r_[notecol]) if len(w) >= 5 and w not in WEAK_ANCHORS][:12] \
                     if notecol is not None and isinstance(r_[notecol], str) else []
                 rowvals = {}
@@ -826,6 +841,134 @@ def _hit(a: str, w: str, ws: set) -> bool:
 
 
 _NONLEN = re.compile(r"(?i)pct|percent|ratio|fraction|_p$|pvalue|r2|rsq|count|_n$|index|years?|months?|days?")
+
+# ---------------------------------------------------------------------------
+# DIMENSIONS — what kind of quantity each side is
+# ---------------------------------------------------------------------------
+# Martin, 2026-09-20, after the fourth queue: "I have repeatedly said check units
+# and context and you repeatedly make the same mistakes." Every earlier rule
+# (mm, %, ha, "p =") was one unit bolted on after one complaint; a match is now
+# admissible only when the dimension the TEXT gives the number and the dimension
+# the CANDIDATE's own name gives its value are compatible. Unknown on either side
+# is allowed (soft); a KNOWN mismatch is a veto.
+_CAND_DIM_RULES = [
+    ("id",       re.compile(r"(?i)(^|_)(id|cluster|cluster_k\d|k\d|code|well_id|match_id|date)(_|$)")),   # a label, never a quantity
+    ("m",        re.compile(r"^(P|P_m|PET|PET_m|P_bar|PET_bar|P_(winter|summer|annual|total|w|s)|PET_(winter|summer|annual|total))$")),   # rainfall and PET in metres, before "P" reads as a p-value
+    ("prob",     re.compile(r"(?i)(^|_)(p|pval|pvalue|p_value|p_val|prob|significance)(_|$)|_p$")),
+    ("r2",       re.compile(r"(?i)(^|_)(r2|rsq|r_squared|rsquared|adj_r2|r2_adj)(_|$)|r²")),
+    ("corr",     re.compile(r"(?i)(^|_)(r|rho|pearson|spearman|corr|correlation|affinity)(_|$)")),
+    ("ratio",    re.compile(r"(?i)ratio|amplif|(^|_)amp(_|$)|(^|_)mult|factor|(^|_)x$|_scale|swing_ratio|(^|_)m_p$")),
+    ("coef",     re.compile(r"(?i)beta|coef|(^|_)b[123]?(_|$)|intercept|gamma|lambda|kappa|alpha|delta0|(^|_)sy(_|$)|specific_yield|(^|_)nse|(^|_)d?nse|aic|bic|silhouette|stability")),
+    ("pct",      re.compile(r"(?i)pct|percent|(^|_)share|fraction|proportion|(^|_)frac")),
+    ("temp",     re.compile(r"(?i)temp|(^|_)t_mean|(^|_)c$|degc|°c|warming|anomaly|tmax|tmin|max_temp|min_temp")),
+    ("area",     re.compile(r"(?i)area|(^|_)ha$|hectare")),
+    ("volume",   re.compile(r"(?i)m3|m³|volume")),
+    ("mm",       re.compile(r"(?i)(^|_)mm(_|$)|_mm$|mm_per|mm_yr|mm_month|(^|_)mm ")),
+    ("m",        re.compile(r"(?i)(^|_)m(_|$)|_m$|_M$|_M(_|$)|metre|meter|(^|_)depth|(^|_)head|_wl|level|elevation|(^|_)dh_|(^|_)h_")),
+    ("duration", re.compile(r"(?i)months?(_|$)|years?(_|$)|_yr$|(^|_)yr(_|$)|days?(_|$)|halflife|half_life|t_half|(^|_)tau|residence|recession_time|(^|_)lag")),
+    ("count",    re.compile(r"(?i)(^|_)(n|count|total|n_wells|n_obs|nobs|wells|events|columns|crossings|singletons)(_|$)|^n_|_n$|dipwells|measuring points|distinct clusters|_worsen$|_improve$")),
+]
+_PER_MONTH = re.compile(r"(?i)month|mo(_|$)")
+_PER_YEAR = re.compile(r"(?i)_yr|yr(_|$)|year|per_a|a⁻¹")      # not "annual": that is a season word (the annual scenario is still per month)
+_SEASON_WORDS = ("annual", "summer", "winter", "spring", "autumn")
+_DIM_CACHE: dict[tuple, tuple] = {}
+
+
+def _cand_dim(c: Cand) -> tuple:
+    """(dimension, per, seasons) of a candidate from its own name. `per` is
+    'month', 'yr' or ''. A registered key is read whole; a CSV cell reads its
+    column first and its row label only for the season."""
+    key = (c.rel, c.label, c.col, c.form, c.tier)
+    hit = _DIM_CACHE.get(key)
+    if hit is not None:
+        return hit
+    if c.tier == "geo":
+        dim, per = "area", ""
+    elif c.tier == "net":
+        dim, per = "count", ""
+    else:
+        name = re.sub(r"[ ·/()]+", "_", c.col if c.col else c.label)
+        dim = ""
+        for d, rx in _CAND_DIM_RULES:
+            if rx.search(name):
+                dim = d
+                break
+        if not dim and c.col and c.tier in ("cell",):
+            pass                                       # a row label says WHICH, not WHAT
+        per = "month" if _PER_MONTH.search(name) else "yr" if _PER_YEAR.search(name) else ""
+    if c.form == "mm":
+        if dim in ("m", ""):
+            dim = "mm"                                 # a length in metres, rendered in mm
+        # any other dimension keeps its name: a p-value "as mm" is still a p-value
+    elif c.form == "%":
+        if dim in ("", "ratio", "pct", "coef"):
+            dim = "pct"                                # a fraction rendered as a percentage
+        # a metre or a temperature rendered "as %" is nonsense: keep the base dimension
+    low = (c.label + " " + (c.col or "")).lower()
+    seasons = frozenset(sw for sw in _SEASON_WORDS if sw in low)
+    hit = _DIM_CACHE[key] = (dim, per, seasons)
+    return hit
+
+
+_TOK_UNIT = [
+    ("temp",     re.compile(r"^\s*(?:°\s*C|℃|deg\s*C|degrees)")),
+    ("pct",      re.compile(r"(?i)^\s*(?:%|per cent|percent|percentage points)")),
+    ("area",     re.compile(r"(?i)^\s*(?:ha|hectares?)\b")),
+    ("volume",   re.compile(r"^\s*(?:m³|m3)\b")),
+    ("mm",       re.compile(r"(?i)^\s*mm(?![a-z])")),
+    ("m",        re.compile(r"(?i)^\s*m(?![a-z0-9³²])")),
+    ("duration", re.compile(r"(?i)^\s*(?:months?|years?|yrs?|days?|hours?)\b")),
+    ("ratio",    re.compile(r"(?i)^\s*(?:×|x\b|-fold|times\b)")),
+]
+_TOK_PER = re.compile(r"(?i)^\s*(?:mm|m)\s*(?:w\.e\.)?\s*(?:/|per|·)?\s*(month|yr|year|a)\b|^\s*(?:mm|m)\s*(?:w\.e\.)?\s*(month|yr|a)⁻¹")
+_QTY_DIM = {"p": "prob", "r": "corr", "r²": "r2", "n": "count", "k": "count"}
+
+
+def _tok_dim(after: str, qty: str | None, clause: str, before: str) -> tuple:
+    """(dimension, per, seasons) the TEXT gives a number: the unit after it, the
+    quantity letter before it, and the season words of its clause (falling back
+    to the paragraph only when the clause names none)."""
+    dim, per = "", ""
+    if qty:
+        dim = _QTY_DIM.get(qty, "")
+    else:
+        for d, rx in _TOK_UNIT:
+            if rx.match(after):
+                dim = d
+                break
+        m = _TOK_PER.match(after)
+        if m:
+            q = (m.group(1) or m.group(2) or "").lower()
+            per = "month" if q.startswith("month") else "yr"
+    seasons = frozenset(sw for sw in _SEASON_WORDS if sw in clause)
+    if not seasons and before:
+        # the season the paragraph has ESTABLISHED before the number decides: the
+        # nearest season word BEFORE it in the same paragraph ("net annual
+        # responses … (C4 −12.2 mm)" is annual even when the next paragraph opens
+        # with "the summer season"). `before` is the paragraph up to the number.
+        best = None
+        for sw in _SEASON_WORDS:
+            i = before.rfind(sw)
+            if i >= 0 and (best is None or i > best[0]):
+                best = (i, sw)
+        if best:
+            seasons = frozenset([best[1]])
+    return dim, per, seasons
+
+
+def _dims_clash(tok: tuple, cand: tuple) -> str:
+    """'' when compatible, else the reason. Unknown on either side is compatible."""
+    td, tp, ts = tok
+    cd, cp, cs = cand
+    if cd == "id" and (td or tp):
+        return "an identifier column"
+    if td and cd and td != cd:
+        return f"{td} vs {cd}"
+    if tp and cp and tp != cp:
+        return f"per {tp} vs per {cp}"
+    if ts and cs and not (ts & cs):
+        return f"{'/'.join(sorted(ts))} vs {'/'.join(sorted(cs))}"
+    return ""
 _CLUSTER_ID = re.compile(r"(?i)(?<![a-z0-9])c([1-5])(?![0-9])")
 _CLUSTER_WORDS = {"lake edge": "1", "western residual": "3", "main forest": "4", "coastal forest": "5"}   # "dune" alone is a landform
 
@@ -846,7 +989,8 @@ def _clusters_in(text: str) -> frozenset:
     return hit
 
 
-_SENT_END = re.compile(r"[.!?;]\s|\n")
+_SENT_END = re.compile(r"[.!?;]\s|\n")          # a CLAUSE: list items split at ';'
+_FULL_END = re.compile(r"[.!?]\s|\n")           # a SENTENCE
 
 
 def _rowkey(label: str) -> str:
@@ -860,10 +1004,10 @@ def _rowkey(label: str) -> str:
 _SENT_CACHE: dict[tuple, str] = {}
 
 
-def _sentence(masked: str, s: int, e: int) -> str:
-    hit = _SENT_CACHE.get((s, e))
+def _sentence(masked: str, s: int, e: int, full: bool = False) -> str:
+    hit = _SENT_CACHE.get((s, e, full))
     if hit is None:
-        hit = _SENT_CACHE[(s, e)] = _sentence_uncached(masked, s, e)
+        hit = _SENT_CACHE[(s, e, full)] = _sentence_uncached(masked, s, e, _FULL_END if full else _SENT_END)
     return hit
 
 
@@ -879,16 +1023,17 @@ def _sent_words(sent: str) -> set:
     return hit
 
 
-def _sentence_uncached(masked: str, s: int, e: int) -> str:
+def _sentence_uncached(masked: str, s: int, e: int, rx=None) -> str:
     """The clause the token sits in — from the previous sentence end (or ';' / ':',
     which in this corpus separate the items of a list) to the next. The anchor
     window is a paragraph wide, which is right for finding a key's words but
     wrong for choosing between keys: in the abstract every scenario name sits
     within 300 characters of every scenario number."""
+    rx = rx or _SENT_END
     lo = 0
-    for m in _SENT_END.finditer(masked, max(0, s - 400), s):
+    for m in rx.finditer(masked, max(0, s - 400), s):
         lo = m.end()
-    m2 = _SENT_END.search(masked, e, e + 400)
+    m2 = rx.search(masked, e, e + 400)
     hi = m2.start() if m2 else e + 400
     return masked[lo:hi].lower()
 
@@ -921,16 +1066,21 @@ def _label_words(label: str) -> tuple:
     return hit
 
 
-def _label_hits(label: str, w: str, ws: set) -> int:
+_CLUSTER_TOKENS = {"c1", "c2", "c3", "c4", "c5", "lake", "edge", "dune", "western", "residual", "main", "forest", "coastal"}
+
+
+def _label_hits(label: str, w: str, ws: set, noncluster: bool = False) -> int:
     n = 0
     for wd in _label_words(label):
+        if noncluster and wd in _CLUSTER_TOKENS:
+            continue
         if wd in ws or (len(wd) >= 5 and wd in w):
             n += 1
     return n
 
 
 def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, inside: bool, scoped: bool = False,
-            unit: str = "") -> float:
+            unit: str = "", tok: tuple | None = None) -> float:
     """Score a candidate at this position; 0 = not a citation. A registered value
     scores 3 when its key anchors here. A CSV cell scores 2 for its row label,
     1 for a column word, 0.5 for a file word; a derived statistic needs its
@@ -938,8 +1088,10 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
     'rolling'. In scope a short whole number needs 1, outside it needs 2; unit
     conversions (mm, %) lose 0.5 so a plain rendering wins a tie."""
     sent = _sentence(masked, s, e)
-    if _cluster_clash(c, sent):
+    if _cluster_clash(c, _sentence(masked, s, e, full=True)):
         return 0
+    if tok is not None and _dims_clash(tok, _cand_dim(c)):
+        return 0                              # "+0.94°C" is not a p-value; "+6.0 mm" is not a constant in metres
     if c.tier == "reg":
         weak = not cc.searchable(cc.render(abs(c.value), _dp_of(masked[s:e].lstrip("+-\u2212\u2013"))), c.label)
         if not anchored_here(masked, s, e, c.label, strict=weak or short, w=w):
@@ -956,6 +1108,8 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         # render — which is how the abstract's thinning figure was painted against a
         # climate-scenario winter row (2026-09-20).
         score += 0.1 * min(5, _label_hits(c.label, sent, _sent_words(sent)))
+        if _clusters_in(c.label) and not _label_hits(c.label, w, ws, noncluster=True):
+            score -= 1.5                          # "ceh20 · C4 · D_C4" anchored on nothing but the C4
         return score
     a = c.anchors
     score = 0.0
@@ -975,8 +1129,11 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         if ok and any(_hit(x, w, ws) for x in a["file"]):
             score += 0.5
     else:
-        if any(_hit(x, w, ws) for x in a["label"]):
+        lab_hits = [x for x in a["label"] if _hit(x, w, ws)]
+        if any(x not in _CLUSTER_TOKENS and x not in CLUSTER_NAMES.get(x[:2], []) for x in lab_hits):
             score += 2
+        elif lab_hits:
+            score += 1                            # the row is named only by its cluster
         if any(_hit(x, w, ws) for x in a["col"]):
             score += 1
         if any(_hit(x, w, ws) for x in a["file"]):
@@ -1015,13 +1172,14 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             continue
         if _GLUE_BEFORE.search(masked[max(0, s - 2):s]) or _GLUE_AFTER.match(masked[e:e + 2]):
             continue
-        if _IDENT_CHAIN.search(masked[max(0, s - 12):e + 12]) or re.search(r"(?i)\b(orcid|doi|isbn|issn|tel)\b", masked[max(0, s - 24):s]):
+        if _IDENT_CHAIN.search(masked[max(0, s - 12):e + 12]) or re.search(r"(?i)\b(orcid|doi|isbn|issn|tel|epsg|issn|grid ref)\b", masked[max(0, s - 24):s]):
             continue                                   # ORCID 0000-0003-…, DOI 10.1016/…
         bol = masked.rfind("\n", 0, s) + 1
         if masked[bol:s].strip() == "" and _LIST_MARKER.match(masked[s:e + 2]):
             continue
         core = _norm_num(tok).replace(",", "")
         unsigned = core.lstrip("-")
+        tok_text_plus = tok.startswith("+")
         if _YEAR.match(unsigned):
             continue
         scope, how = scope_map.get(sec_of(s), (set(), ""))
@@ -1033,8 +1191,13 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             # section's scope is ignored; a confirmed row is believed but noted.
             src = row["source_csv"]
             row_in = (not scope) or src in ALWAYS_IN_SCOPE or src in scope or str(pathlib.Path(src).parent) in scope
-            if row["status"] != "confirmed" and _cluster_clash(Cand(src, row["key"], "", 0.0, None, "", "reg"), _sentence(masked, s, e)):
-                row = None                                 # a C3 key for a sentence about C4: not believed
+            _rc = Cand(src, row["key"], "", 0.0, None, "", "reg")
+            _after0 = _RANGE_AFTER.sub("", masked[e:e + 16])
+            if row["status"] != "confirmed" and (_cluster_clash(_rc, _sentence(masked, s, e, full=True))
+                                                 or _dims_clash(_tok_dim(_after0, _qty_of(masked, s), _sentence(masked, s, e),
+                                                                         masked[masked.rfind("\n", 0, s) + 1:s].lower()),
+                                                                _cand_dim(_rc))):
+                row = None                                 # a C3 key for a sentence about C4, or a p for a °C: not believed
             if row is not None and (row["status"] == "confirmed" or row_in):
                 det = (f"{row['key']} · {pathlib.Path(src).name} · "
                        f"committed {row['committed']!r} · index {row['status']}"
@@ -1061,15 +1224,28 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         qty = _qty_of(masked, s)
         if qty:
             cands = [c for c in cands if _qty_ok(qty, c)]
-        if _HA_AFTER.match(after):                         # "8.4 ha" is an area: geometry or an area key only
-            cands = [c for c in cands if c.tier == "geo" or _AREA_KEY.search((c.col or "") + " " + c.label)]
+        # a SIGNED number is not matched by a value of the opposite sign: "−12.2 mm"
+        # is not a +12.18 slope, "+6.0 mm" is not a −5.95 projection (Martin, 2026-09-20)
+        if core.startswith("-"):
+            cands = [c for c in cands if c.value <= 0]
+        elif tok_text_plus:
+            cands = [c for c in cands if c.value >= 0]
+        tok = _tok_dim(after, qty, _sentence(masked, s, e), masked[masked.rfind("\n", 0, s) + 1:s].lower())
+        if "." in unsigned:
+            # "6.0 mm" is not the integer 6 of a count or of a column nobody has typed:
+            # a whole-number value matches a decimal rendering only when its own name
+            # says it is a continuous quantity
+            cands = [c for c in cands if not (float(c.value).is_integer() and _cand_dim(c)[0] in ("", "count", "id"))]
+        if tok[0] == "pct" and unsigned in ("100", "0"):
+            prelim.append((s, e, "count", "nominal percentage — a statement, not a value", []))
+            continue
         inside, outside = [], []
         of_prev = None
         if re.search(r"\bof\s*$", masked[max(0, s - 4):s]) and prelim and prelim[-1][2] == "in" and abs(prelim[-1][1] - s) <= 12:
             of_prev = prelim[-1][4][0][1].rel if prelim[-1][4] else None
         for c in cands:
             if not scope or in_scope(c, scope):
-                sc = _accept(c, masked, s, e, short, w, ws, True, bool(scope), unit)
+                sc = _accept(c, masked, s, e, short, w, ws, True, bool(scope), unit, tok)
                 if sc == 0 and of_prev and c.rel == of_prev and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
                     sc = 2                             # the N of "n of N", from the n's file
                 if sc > 0:
@@ -1077,7 +1253,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         if not inside and len(cands) <= 4000:
             for c in cands:
                 if scope and not in_scope(c, scope):
-                    sc = _accept(c, masked, s, e, short, w, ws, False, unit=unit)
+                    sc = _accept(c, masked, s, e, short, w, ws, False, unit=unit, tok=tok)
                     if sc > 0:
                         outside.append((sc, c))
         if inside:
@@ -1117,7 +1293,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             prelim.append((s, e, "count", "whole number; no committed value to check against", []))
             continue
         cites = ", ".join(sorted(pathlib.Path(x).name for x in scope)[:4]) if scope else "everything"
-        prelim.append((s, e, "untraced", f"not in this section's sources ({cites}) at any precision, "
+        what = f" as a {tok[0]}{' per ' + tok[1] if tok[1] else ''}" if tok[0] else ""
+        prelim.append((s, e, "untraced", f"not in this section's sources ({cites}) at any precision{what}, "
                                          f"and anchored nowhere else", []))
 
     # --- coherence pass: a sentence's numbers come from one row --------------

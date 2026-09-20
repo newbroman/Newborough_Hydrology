@@ -1,0 +1,33 @@
+Parameter,Well,Era,Value,Unit,Note
+study_area_ha,,,306.97,ha,"phase-29 slack-floor mask, forest excluded: 30697 cells of 10 m; the area the wet-area curves are scaled to"
+study_area_cells,,,30697.0,cells,floor cells in cell_thresholds.npz
+wet_floor_ever_cells,,,11703.0,cells,floor cells with a switching level for wet_floor (seen in >= 10 scenes)
+wet_floor_ever_ha,,,117.03,ha,wet_floor_ever_cells as hectares
+open_water_ever_cells,,,4483.0,cells,floor cells with a switching level for open_water (seen in >= 10 scenes)
+open_water_ever_ha,,,44.83,ha,open_water_ever_cells as hectares
+fit_open_water_rho,,,0.804832929459964,,"Spearman rho of open_water area against the scene-date median level, 43 scenes"
+fit_open_water_r2_log,,,0.711665718293242,,"R² of the log-linear fit a·exp(b·h) for open_water, in ln(area); Figure 45_01's label"
+fit_open_water_n_scenes,,,43.0,scenes,"winter Sentinel-2 scenes in the fit (D-178, no vet)"
+fit_wet_floor_rho,,,0.8498942917547568,,"Spearman rho of wet_floor area against the scene-date median level, 43 scenes"
+fit_wet_floor_r2_log,,,0.7674518664643438,,"R² of the log-linear fit a·exp(b·h) for wet_floor, in ln(area); Figure 45_01's label"
+fit_wet_floor_n_scenes,,,43.0,scenes,"winter Sentinel-2 scenes in the fit (D-178, no vet)"
+oos_C_open_water_r2,,mode C,0.637190677814445,,"R² of SSM-modelled open_water area against the observed-level area, months with >= 20 reporting wells"
+oos_C_open_water_n_months,,mode C,238.0,months,well-months in the out-of-sample comparison
+oos_C_open_water_median_ratio,,mode C,0.808341300838874,,median modelled:observed area ratio
+oos_C_open_water_ratio_p16,,mode C,0.37187131523603406,,16th percentile of the modelled:observed ratio
+oos_C_open_water_ratio_p84,,mode C,1.629558685366119,,84th percentile of the modelled:observed ratio
+oos_C_wet_floor_r2,,mode C,0.8021245986911107,,"R² of SSM-modelled wet_floor area against the observed-level area, months with >= 20 reporting wells"
+oos_C_wet_floor_n_months,,mode C,238.0,months,well-months in the out-of-sample comparison
+oos_C_wet_floor_median_ratio,,mode C,0.9552332655755418,,median modelled:observed area ratio
+oos_C_wet_floor_ratio_p16,,mode C,0.8082123136479585,,16th percentile of the modelled:observed ratio
+oos_C_wet_floor_ratio_p84,,mode C,1.1108331697696432,,84th percentile of the modelled:observed ratio
+oos_R_open_water_r2,,mode R,0.6200094195361313,,"R² of SSM-modelled open_water area against the observed-level area, months with >= 20 reporting wells"
+oos_R_open_water_n_months,,mode R,238.0,months,well-months in the out-of-sample comparison
+oos_R_open_water_median_ratio,,mode R,0.843108182522337,,median modelled:observed area ratio
+oos_R_open_water_ratio_p16,,mode R,0.46653180381596054,,16th percentile of the modelled:observed ratio
+oos_R_open_water_ratio_p84,,mode R,1.8772386362055837,,84th percentile of the modelled:observed ratio
+oos_R_wet_floor_r2,,mode R,0.7782702512487819,,"R² of SSM-modelled wet_floor area against the observed-level area, months with >= 20 reporting wells"
+oos_R_wet_floor_n_months,,mode R,238.0,months,well-months in the out-of-sample comparison
+oos_R_wet_floor_median_ratio,,mode R,0.9639313650289083,,median modelled:observed area ratio
+oos_R_wet_floor_ratio_p16,,mode R,0.8486438860467292,,16th percentile of the modelled:observed ratio
+oos_R_wet_floor_ratio_p84,,mode R,1.1451860868796078,,84th percentile of the modelled:observed ratio

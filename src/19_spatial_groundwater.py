@@ -23,7 +23,12 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.19.0"  # Hollingham (2026) - 2026-09-18 (T-38, D-178): the wet-area panel
+__version__ = "2.20.0"  # Hollingham (2026) - 2026-09-20 (E16). The wet-area panel's
+#   "warren study area, 306.97 ha" was a LITERAL in the JS string; it now comes from
+#   the feed's cells.floor_ha (living/wet_area_model.json), embedded beside the curves
+#   as study_area_ha and rendered to two decimals — no hardcoded values (CLAUDE.md).
+#   Nothing else in the viewer changes.
+# v2.19.0  Hollingham (2026) - 2026-09-18 (T-38, D-178): the wet-area panel
 #   gains a WINTER (Nov-Mar) readout beside the spring one, on the curves' native frame, so the
 #   flood-season extent is shown, not only the climate-insulated spring baseline; _msl5One is
 #   parametrised by month-window (WINTER_DH added), and a note points to the summer-minimum /
@@ -1129,7 +1134,8 @@ def _wa_js(embed: str) -> str:
         "var winter=_waLevels('wh',typeof WINTER_DH!=='undefined'?WINTER_DH:null);"
         "var spring=_waLevels('ph',typeof MSL5!=='undefined'?MSL5:null);"
         "var scrape=(typeof CUR_SC!=='undefined'&&/scrape/i.test(CUR_SC));"
-        "var html='<div style=\"font-weight:600;margin:6px 0 2px\">Slack-floor wet area — warren study area, 306.97 ha</div>'"
+        "var html='<div style=\"font-weight:600;margin:6px 0 2px\">Slack-floor wet area — warren study area'"
+        "+(WET_AREA.study_area_ha!=null?', '+WET_AREA.study_area_ha.toFixed(2)+' ha':'')+'</div>'"
         "+_waTable('Winter (Nov–Mar) — when the slacks flood',winter,'On the curves’ native winter frame.')"
         "+_waTable('Spring (Mar–May) — the ecological baseline (MSL5)',spring,'Curves are winter-fitted, so spring areas are indicative.')"
         "+'<div style=\"font-size:11px;color:#666;margin-top:6px\">" + NOTE + "'"
@@ -2596,7 +2602,9 @@ def main(out_path=None):
                    else [float(x) for x in _wr])
         _wc = {k: {kk: (float(vv) if isinstance(vv, str) else vv) for kk, vv in v.items()}
                for k, v in _wa["curves"].items()}   # coerce any stringised curve params
-        _wa_embed = json.dumps({"curves": _wc, "fitted_range_m": _wrange},
+        _wa_area = (_wa.get("cells") or {}).get("floor_ha")
+        _wa_embed = json.dumps({"curves": _wc, "fitted_range_m": _wrange,
+                                "study_area_ha": (float(_wa_area) if _wa_area is not None else None)},
                                separators=(",", ":"))
     else:
         _wa_embed = "null"

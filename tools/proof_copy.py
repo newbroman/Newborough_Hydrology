@@ -78,7 +78,18 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-20. Linked to the PDFs: every
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-20. From the fifth queue (report6
+#   §1, the front matter): a number is what the sentence makes it. A two-digit number
+#   after "1951--" is a YEAR-RANGE END; "p. 17" is a PAGE; "SH 406 636" is a GRID
+#   REFERENCE; "(1) … (2) …" are LIST MARKERS; "66-well" is a COUNT and no longer glued
+#   to its noun. A number in a clause that carries an author-year citation and matches
+#   no committed value is CITED (grey-blue), not untraced — "1,300 hectares (Stratford
+#   et al., 2007)" is the literature's figure. The two ends of a range ("r 0.74--0.91")
+#   and "n = 18" beside "r = 0.83" are LINKED: the second takes the first's file, and a
+#   quantity letter other than p (n, r, R², k) is now checked against the neighbours'
+#   row as p already was. "r 0.74" (no "=") is still an r; "n = 5" at the cluster scale
+#   is the partition count.
+# v1.12.0  2026-09-20. Linked to the PDFs: every
 #   paragraph carries a "p.N" link to the page of the published PDF it is printed
 #   on (tools/pdf_page_index.csv, built by tools/pdf_page_index.py from the PDF's
 #   own text), every popover offers "open PDF p.N", and a Figure/Table/Section
@@ -321,6 +332,7 @@ COLUMN_SYNONYMS = {
     "min": ["minimum", "minima", "min"], "max": ["maximum", "maxima", "max"],
     "wl": ["water level", "water-level", "water table"], "amplitude": ["amplitude"],
     "mean": ["mean", "average"], "median": ["median"], "std": ["standard deviation", "sd"],
+    "nse": ["nse", "efficiency"], "offset": ["offset", "bias-removed", "bias removed"], "r": ["r ", "(r", "correlation"],
 }
 # a column's own words are informative even when they are generic elsewhere:
 # "Mean_Summer_Min_m" anchors on mean, summer and minimum; the row stop-list is
@@ -443,8 +455,8 @@ def _cluster_count(look) -> None:
     """k is the number of distinct clusters in Script 02's membership CSV (Martin,
     2026-09-20: "k = 5 should be relating to the clustering script 02 csvs")."""
     import pandas as pd
-    anc = {"col": ["k", "clusters", "cluster", "partition", "clustering", "solution"], "file": [],
-           "stat": ["k", "clusters", "partition", "solution", "clustering", "identified", "five", "into"]}
+    anc = {"col": ["k", "n", "clusters", "cluster", "partition", "clustering", "solution", "scale"], "file": [],
+           "stat": ["k", "clusters", "cluster", "partition", "solution", "clustering", "identified", "five", "into", "scale"]}
     for rel, col in (("outputs/02_clustering/02_07_cluster_membership_k5.csv", "cluster_k5"),
                      ("outputs/02_cluster_stats.csv", "Cluster")):
         f = REPO / rel
@@ -459,6 +471,8 @@ def _cluster_count(look) -> None:
                 _add(look, r, Cand(rel, f"distinct clusters in {col} (k = {k})", col, float(k), anc, form, "net"))
 
 
+_KML_SYNONYMS = {"clearfell": ["clearance", "clearfelled", "felled", "felling", "cleared"], "scrape": ["scraped", "scraping"],
+                 "forest": ["plantation", "afforested", "pine"], "warren": ["dune", "dunes"], "restock": ["conversion", "broadleaf"]}
 KML_MAX_POLYGONS = 8              # a boundary file; the DEM-basin and flood-extent KMLs run to thousands
 
 
@@ -481,6 +495,9 @@ def _kml_areas(look) -> None:
             continue                          # a basin or flood-extent file, not a boundary anyone quotes
         names = [n.strip() for n in re.findall(r"<name>(.*?)</name>", txt, re.S)]
         words = sorted({w for n in [p.stem] + names for w in _deep_words(n.replace("_", " ").replace("-", " "))} - WEAK_ANCHORS)
+        # the prose's words for the same feature: "clearance", "felled", "felling" for the
+        # clearfell polygon (report7 §2: "a partial clearance of approximately 4.4 ha")
+        words += [alt for w in list(words) for alt in _KML_SYNONYMS.get(w, [])]
         if not words:
             continue
         areas = []
@@ -816,6 +833,15 @@ _NUM = re.compile(r"(?:(?<![\w.\-−–—])[+\-−–]?|(?<=[\-−–—]))"
 _YEAR = re.compile(r"^(?:18|19|20)\d\d$")
 _GLUE_BEFORE = re.compile(r"[A-Za-z][\-‑]$")
 _GLUE_AFTER = re.compile(r"[\-‑][A-Za-z]")
+_COUNT_COMPOUND = re.compile(r"(?i)^[\-‑](wells?|dipwells?|clusters?|sites?|stations?|members?|points?|boreholes?)\b")   # "66-well network" is a count
+_YEAR_RANGE_BEFORE = re.compile(r"(?:18|19|20)\d\d\s*(?:--|–|—|-)\s*$")      # "1951--53": the 53 is a year
+_PAGE_BEFORE = re.compile(r"(?i)\bpp?\.\s*(?:\d+\s*(?:--|–|—|-)\s*)?$")        # "p. 17", "pp. 17--19"
+_GRIDREF = re.compile(r"\b[A-Z]{2}\s?\d{3}\s?\d{3}\b")                        # "SH 406 636"
+_ENUM_MARK = re.compile(r"\(\d{1,2}\)")                                             # "(1) … (2) …"
+_RANGE_BEFORE = re.compile(r"\d\s*(?:--|–|—|-|to)\s*$")
+_ORDINAL_BEFORE = re.compile(r"(?i)\b(tier|site|phase|step|option|batch|zone|level|method|approach|type|class|group|stage|round|part|panel|check|objective|hypothesis|quadrat|transect|era|sketch|slack)\s+$")   # "Tier 1": a name                        # the second end of a range
+_CITATION = re.compile(r"[A-Z][A-Za-z'’\-]+(?:\s+(?:et al\.?|and|&)\s*[A-Z]?[A-Za-z'’\-]*)*,?\s*\(?(?:18|19|20)\d\d[a-z]?\)?"
+                       r"|\((?:[^()]*?,\s*)?(?:18|19|20)\d\d[a-z]?(?:[;,][^()]*)?\)")   # "Stratford et al., 2007", "Ranwell (1959)", "(Davy et al., 2010, p. 17)"
 _LIST_MARKER = re.compile(r"^\d+\.\s")
 _IDENT_CHAIN = re.compile(r"\d+[-‐]\d+[-‐]\d+")          # three digit groups joined by hyphens
 _PCT_AFTER = re.compile(r"(?i)^\s*(?:%|per cent|percent)")
@@ -828,12 +854,12 @@ _PCOL = re.compile(r"(?i)^(p|p_?val(ue)?|pvalue|p_value_.*|.*_p)$")
 # "p = 0.25" is a probability, not a slope (Martin, 2026-09-20): the letter before
 # "=" names the quantity, and only a candidate whose column or key is that quantity
 # may be cited for it. Applied to p, r, R², n, k.
-_QTY_BEFORE = re.compile(r"(?i)(?<![a-z0-9²_])(p|r²|r2|r|n|k)\s*=\s*$")   # not m_P = 2.5
+_QTY_BEFORE = re.compile(r"(?i)(?<![a-z0-9²_])(?:(p|r²|r2|r|n|k)\s*=\s*|(p|r²|r2|r)\s+)$")   # not m_P = 2.5; "(r 0.74" is an r
 _QTY_PAT = {
     "p": re.compile(r"(?i)(^|_)(p|pval|pvalue|p_value|p_val|prob|significance)(_|$)|_p$|^p_"),
     "r": re.compile(r"(?i)(^|_)(r|rho|pearson|spearman|corr|correlation|affinity)(_|$)"),
     "r²": re.compile(r"(?i)(^|_)(r2|rsq|r_squared|rsquared|r²|adj_r2|r2_adj)(_|$)|r2|r_squared"),
-    "n": re.compile(r"(?i)(^|_)(n|n_wells|n_obs|n_months|n_years|count|total|nobs|wells|columns|events)(_|$)|^n_|_n$|\bwell columns\b|dipwells|measuring points"),
+    "n": re.compile(r"(?i)(^|_)(n|n_wells|n_obs|n_months|n_years|count|total|nobs|wells|columns|events)(_|$)|^n_|_n$|\bwell columns\b|dipwells|measuring points|distinct clusters"),   # "n = 5" at the cluster scale
     "k": re.compile(r"(?i)(^|_)(k|n_clusters|clusters)(_|$)|distinct clusters|clusters in"),
 }
 
@@ -902,7 +928,7 @@ def _qty_of(masked: str, s: int) -> str | None:
     m = _QTY_BEFORE.search(masked[max(0, s - 8):s])
     if not m:
         return None
-    q = m.group(1).lower()
+    q = (m.group(1) or m.group(2)).lower()
     return "r²" if q in ("r2", "r²") else q
 
 
@@ -1005,7 +1031,12 @@ _TOK_UNIT = [
     ("area",     re.compile(r"(?i)^\s*(?:ha|hectares?)\b")),
     ("volume",   re.compile(r"^\s*(?:m³|m3)\b")),
     ("mm",       re.compile(r"(?i)^\s*mm(?![a-z])")),
+    ("cm",       re.compile(r"(?i)^\s*cm(?![a-z])")),
+    ("km",       re.compile(r"(?i)^\s*km(?![a-z])")),
     ("m",        re.compile(r"(?i)^\s*m(?![a-z0-9³²])")),
+    ("count",    re.compile(r"(?i)^\s*(?:(?:donor|focal|control|treatment|reference|extended|paired|matched|levelled|dip)\s+)?"
+                            r"(?:wells?|dipwells?|sites?|stations?|boreholes?|clusters?|members?|events?|slacks?|hollows?|pipes?|piezometers?|observations?|readings?)\b"
+                            r"|^[\-‑](?:wells?|dipwells?|clusters?|sites?|stations?|members?|points?|boreholes?)\b")),
     ("duration", re.compile(r"(?i)^\s*(?:months?|years?|yrs?|days?|hours?)\b")),
     ("ratio",    re.compile(r"(?i)^\s*(?:×|x\b|-fold|times\b)")),
 ]
@@ -1037,13 +1068,12 @@ def _tok_dim(after: str, qty: str | None, clause: str, before: str) -> tuple:
         # nearest season word BEFORE it in the same paragraph ("net annual
         # responses … (C4 −12.2 mm)" is annual even when the next paragraph opens
         # with "the summer season"). `before` is the paragraph up to the number.
-        best = None
-        for sw in _SEASON_WORDS:
-            i = before.rfind(sw)
-            if i >= 0 and (best is None or i > best[0]):
-                best = (i, sw)
-        if best:
-            seasons = frozenset([best[1]])
+        found = {sw for sw in _SEASON_WORDS if sw in before}
+        if len(found) == 1:
+            seasons = frozenset(found)
+        # a paragraph that has named MORE than one season ("net annual responses …
+        # lower winter transpiration … (UKCP18 at C4: −6.2 …)") does not settle the
+        # number's season: no constraint, and the candidate's own words decide
     return dim, per, seasons
 
 
@@ -1094,6 +1124,15 @@ def _script_of(rel: str) -> str:
     name = pathlib.Path(rel).name
     m = _SCRIPT_PREFIX.match(name) or _SCRIPT_PREFIX.match(pathlib.Path(rel).parent.name)
     return m.group(1) if m else rel
+
+
+def _row_of(rel: str, lab: str) -> dict:
+    """The cells of the row a candidate names. A REGISTERED candidate's label is
+    "key · column" while ROWS is keyed on the key alone, so both are tried."""
+    hit = ROWS.get((rel, lab))
+    if hit is None and " · " in lab:
+        hit = ROWS.get((rel, lab.rsplit(" · ", 1)[0]))
+    return hit or {}
 
 
 def _rowkey(label: str) -> str:
@@ -1285,14 +1324,17 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         return cur
 
     prelim = []           # (s, e, verdict, detail, options) — options for the coherence pass
+    chosen_idx = []       # (pos, rel, key) of numbers the citation index settled — they anchor their sentence too
     for m in _NUM.finditer(masked):
         s, e = m.start(), m.end()
         tok = m.group()
         if not cc._is_whole_number(masked, s, e) or not cc._citable_context(masked, s, e):
             continue
-        if _GLUE_BEFORE.search(masked[max(0, s - 2):s]) or _GLUE_AFTER.match(masked[e:e + 2]):
+        if _GLUE_BEFORE.search(masked[max(0, s - 2):s]) or (_GLUE_AFTER.match(masked[e:e + 2]) and not _COUNT_COMPOUND.match(masked[e:e + 12])):
             continue
-        if _IDENT_CHAIN.search(masked[max(0, s - 12):e + 12]) or re.search(r"(?i)\b(orcid|doi|isbn|issn|tel|epsg|issn|grid ref)\b", masked[max(0, s - 24):s]):
+        if _GRIDREF.search(masked[max(0, s - 8):e + 8]) or _PAGE_BEFORE.search(masked[max(0, s - 12):s]):
+            continue                                   # "SH 406 636"; "Davy et al., 2010, p. 17"
+        if _IDENT_CHAIN.search(masked[max(0, s - 12):e + 12]) or re.search(r"(?i)\b(orcid|doi|isbn|issn|tel|epsg|grid ref(erence)?)\b", masked[max(0, s - 24):s]):
             continue                                   # ORCID 0000-0003-…, DOI 10.1016/…
         bol = masked.rfind("\n", 0, s) + 1
         if masked[bol:s].strip() == "" and _LIST_MARKER.match(masked[s:e + 2]):
@@ -1302,6 +1344,13 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         tok_text_plus = tok.startswith("+")
         if _YEAR.match(unsigned):
             continue
+        if len(unsigned) == 2 and _YEAR_RANGE_BEFORE.search(masked[max(0, s - 8):s]):
+            continue                                   # "1951--53", "1989--96": the second year
+        if _ORDINAL_BEFORE.search(masked[max(0, s - 12):s]) and len(unsigned) <= 2 and "." not in unsigned:
+            continue                                   # "Tier 1", "site 4": names, not values
+        if len(unsigned) <= 2 and masked[max(0, s - 1):s] == "(" and masked[e:e + 1] == ")" \
+                and len(_ENUM_MARK.findall(masked[bol:masked.find("\n", e) if masked.find("\n", e) > 0 else len(masked)])) >= 2:
+            continue                                   # "(1) classify … (2) derive …": list markers
         scope, how = scope_map.get(sec_of(s), (set(), ""))
         row = idx_by_start.get(s)
         if row and (row["status"] == "confirmed" or row["verdict"] in ("traced", "rounding")):
@@ -1323,6 +1372,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                        f"committed {row['committed']!r} · index {row['status']}"
                        + ("" if row_in else " — NB outside this section's sources"))
                 prelim.append((s, e, row["verdict"], det, []))
+                chosen_idx.append((s, src, row["key"]))
                 continue
         if _NOMINAL_AFTER.match(masked[e:e + 24]):
             prelim.append((s, e, "count", "nominal scenario parameter (Martin: 'it doesn't trace')", []))
@@ -1363,6 +1413,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             # a whole-number value matches a decimal rendering only when its own name
             # says it is a continuous quantity
             cands = [c for c in cands if not (float(c.value).is_integer() and _cand_dim(c)[0] in ("", "count", "id"))]
+        if tok[0] == "count" and "." not in unsigned:
+            cands = [c for c in cands if float(c.value).is_integer()]   # "11 donor wells" is not 11.4587 of anything
         if tok[0] == "pct" and unsigned in ("100", "0"):
             prelim.append((s, e, "count", "nominal percentage — a statement, not a value", []))
             continue
@@ -1371,7 +1423,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         if re.search(r"\bof\s*$", masked[max(0, s - 4):s]) and prelim and prelim[-1][2] == "in" and abs(prelim[-1][1] - s) <= 12:
             of_prev = prelim[-1][4][0][1].rel if prelim[-1][4] else None
         for c in cands:
-            if not scope or in_scope(c, scope):
+            if not scope or in_scope(c, scope) or c.tier in ("net", "geo"):   # a derived count or a KML area belongs to every section
                 sc = _accept(c, masked, s, e, short, w, ws, bool(scope) or c.rel in ALWAYS_IN_SCOPE or c.tier in ("net", "geo", "reg"),
                              bool(scope), unit, tok)
                 if sc == 0 and of_prev and c.rel == of_prev and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
@@ -1415,7 +1467,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             for k in (-1, 1):
                 for c in look.get(cc.render(x + k * 10 ** -dp, dp), []):
                     if c.tier == "reg" and c.form == "" and (not scope or in_scope(c, scope)) \
-                            and anchored_here(masked, s, e, c.label, strict=True):
+                            and anchored_here(masked, s, e, c.label, strict=True) \
+                            and not _dims_clash(tok, _cand_dim(c)):
                         near = c
         if near:
             prelim.append((s, e, "rounding", f"one unit off {near.label} = {near.value:g} "
@@ -1430,7 +1483,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                                          f"and anchored nowhere else", weak))
 
     # --- coherence pass: a sentence's numbers come from one row --------------
-    chosen_rows = []                     # (pos, rel, label)
+    chosen_rows = list(chosen_idx)       # (pos, rel, label); index-settled numbers count as the sentence's rows
     marks = []
     for s, e, v, d, options in prelim:
         if v in ("count", "untraced") and options:
@@ -1453,13 +1506,29 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 if (wc.rel, _rowkey(wc.label)) in near_rows:
                     options = options + [(wsc + 3.0, wc)]
                 elif _script_of(wc.rel) in near_scripts:
-                    options = options + [(wsc + 1.0, wc)]
+                    options = options + [(wsc + 2.0, wc)]
+            if near_scripts:
+                # Martin: "the previous figure's source governs the sentence". A candidate
+                # from the sentence's script outranks one from anywhere else unless the
+                # other is anchored in its own right (report6 §1: "r 0.74--0.91; efficiency
+                # 0.32--0.80" had gone to Scripts 26, 31, 10 and 10d beside Script 44's −0.09)
+                same_s = [(sc, c) for sc, c in options if _script_of(c.rel) in near_scripts]
+                if same_s:
+                    options = same_s + [(sc, c) for sc, c in options if _script_of(c.rel) not in near_scripts and sc >= 2.5]
             # "65 of 66 wells": the N belongs to the file the n came from (Martin:
             # "you should be referring to the previous number source when talking
             # about n out of N"), so a same-file candidate that reads as a total
             # outranks everything else for the number after "of"
             of_n = bool(re.search(r"\bof\s*$", masked[max(0, s - 4):s])) and chosen_rows and abs(chosen_rows[-1][0] - s) <= 12
-            prev_rel = chosen_rows[-1][1] if of_n else None
+            # "r 0.74--0.91": the second end of a range comes from the first end's file
+            # (Martin: "if two numbers are separated by a - or + they are probably linked")
+            range_prev = bool(_RANGE_BEFORE.search(masked[max(0, s - 6):s])) and chosen_rows and abs(chosen_rows[-1][0] - s) <= 14
+            prev_rel = chosen_rows[-1][1] if (of_n or range_prev) else None
+            if range_prev:
+                for wsc, wc in WEAK.get((s, e), []):
+                    if wc.rel == prev_rel and all(x[1] is not wc for x in options):
+                        options = options + [(wsc + 2.0, wc)]
+            ms_hint = ms_scripts(masked[s:e]) if len(options) > 1 else set()
             def key(t):
                 sc, c = t
                 same = (c.rel, _rowkey(c.label)) in near_rows
@@ -1468,8 +1537,12 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 bonus = (1.5 if same else 0.5 if samefile else 0.4 if samescript else 0) if sc >= 1.5 else 0
                 if of_n and c.rel == prev_rel and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
                     bonus += 3
+                if range_prev and c.rel == prev_rel:
+                    bonus += 2                       # the other end of the range, same file
                 if d and c.tier == "net":
                     bonus += 2                       # "k = 5": Script 02's partition, not the constant that asked for it
+                if ms_hint and _script_of(c.rel) in ms_hint:
+                    bonus += 1.5                     # the Methods Supplement quotes this number under that script
                 return (-(sc + bonus), c.tier != "reg")
             options.sort(key=key)
             sc, c = options[0]
@@ -1479,12 +1552,22 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             det = (f"{c.label}{(' · ' + c.col) if c.col else ''} = {c.value:g} [{pathlib.Path(c.rel).name}]"
                    + (f" as {c.form}" if c.form else "")
                    + (" — same row as its neighbours" if same else "")
+                   + (" — the other end of the range, from its file" if range_prev and c.rel == prev_rel else "")
+                   + (f" — the Methods Supplement quotes it under Script {_script_of(c.rel)}" if ms_hint and _script_of(c.rel) in ms_hint else "")
                    + ("" if verdict == "traced" else
                       " — DERIVED from the file's geometry/columns; no script emits it (emit list)" if c.tier in ("net", "geo") else
                       " — UNREGISTERED: in no value table; register this file"))
             if len(options) > 1 and (options[1][1].rel, options[1][1].label) != (c.rel, c.label):
                 det += f"; also matches {options[1][1].label} [{pathlib.Path(options[1][1].rel).name}]"
             marks.append((s, e, verdict, det))
+        elif v in ("untraced", "count") and not options:
+            cite = _CITATION.search(_sentence(masked, s, e))
+            if cite and not (v == "count" and len(_norm_num(masked[s:e]).lstrip("-+")) <= 1):
+                # "approximately 1,300 hectares … (Stratford et al., 2007)": the literature's
+                # figure, not the pipeline's (Martin, 2026-09-20). Only when nothing traces.
+                marks.append((s, e, "cited", f"literature value — the clause cites {cite.group(0).strip()}; no committed value carries it"))
+            else:
+                marks.append((s, e, v, d))
         else:
             marks.append((s, e, v, d))
     # --- bounds: "p < 0.001" against the p-value of the row its neighbours came from;
@@ -1502,15 +1585,39 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             b = float(bound)
         except ValueError:
             out.append((s, e, "count", "inequality bound")); continue
-        near = [(rel, lab) for pos, rel, lab in chosen_rows if abs(pos - s) <= 150]   # the same sentence
+        # the same sentence, NEAREST number first: "Forest (p < 0.001, R² = 0.885)" — the
+        # R² twelve characters on is the p's row, not the previous cluster's p
+        near = [(rel, lab) for pos, rel, lab in sorted(chosen_rows, key=lambda t: abs(t[0] - s)) if abs(pos - s) <= 150]
         found = None
-        if what == "p":
+        if what in ("n", "r", "r²", "k") and op == "=":
+            # "r = 0.83, n = 18": the n of the row the r came from (Martin, 2026-09-20)
+            qpat = _QTY_PAT[what]
             for rel, lab in near:
-                for col, val in ROWS.get((rel, lab), {}).items():
-                    if _PCOL.match(col):
+                for col, val in _row_of(rel, lab).items():
+                    if qpat.search(col) and isinstance(val, (int, float)):
                         found = (rel, lab, col, val); break
                 if found:
                     break
+        if what == "p":
+            clause_w = _sent_words(_sentence(masked, s, e))
+            for rel, lab in near:
+                pcols = [(col, val) for col, val in _row_of(rel, lab).items() if _PCOL.match(col)]
+                if not pcols:
+                    continue
+                # several p columns (p_value_P_winter, p_value_h_min): the one whose own
+                # words the clause uses, else the one that satisfies the bound, else the first
+                def _pw(col):
+                    return len(clause_w & set(_LABEL_WORD.findall(col.lower().replace("p_value", "").replace("pvalue", ""))))
+                pcols.sort(key=lambda cv: -_pw(cv[0]))
+                if op != "=" and len(pcols) > 1:
+                    # a row with several p columns: the bound holds if any of them satisfies
+                    # it, and the detail names which — a STALE verdict needs every p to fail
+                    sat = [cv for cv in pcols if ((cv[1] < b) if op in "<≤" else (cv[1] > b))]
+                    if sat:
+                        pcols = sat + [cv for cv in pcols if cv not in sat]
+                col, val = pcols[0]
+                found = (rel, lab, col, val)
+                break
             if not found:                        # stacked files: p_value is a ROW
                 for rel, nlab in near:
                     prows = [(l2, vals) for (r2, l2), vals in ROWS.items()
@@ -1552,6 +1659,14 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         out.append((s, e, "traced" if holds else "stale",
                     f"{what} {op} {bound}: the row its neighbours cite ({pathlib.Path(rel).name} · {lab}) has "
                     f"{col} = {val:.3g}, which {'satisfies' if holds else 'CONTRADICTS'} the bound"))
+    # --- a range is one quantity: "70--100 cm (Jennings, 1990)" — the second end takes the
+    # --- first end's literature verdict rather than a rounding coincidence of its own
+    for i in range(1, len(out)):
+        s0, e0, v0, d0 = out[i - 1]
+        s1, e1, v1, d1 = out[i]
+        if v0 == "cited" and v1 in ("rounding", "count", "untraced", "deep") and s1 - e0 <= 6 \
+                and _RANGE_BEFORE.search(masked[max(0, s1 - 6):s1]):
+            out[i] = (s1, e1, "cited", d0 + " — the other end of the range")
     return out
 
 
@@ -1653,6 +1768,7 @@ p{margin:.7em 0} pre{font:12px/1.35 Menlo,Consolas,monospace;overflow-x:auto;bac
 .stale{background:#ffe4b8;border-color:#e07000;font-weight:bold}
 .untraced{background:#ffd6d6;border-color:#d00;font-weight:bold}
 .count{background:#f0f0f0;border-color:#bbb;color:#555}
+.cited{background:#eceaf6;border-color:#8f86c9;color:#444;border-bottom-style:dotted}
 .xref{background:#e8eefc;border-color:#6d8fe6;border-bottom-style:dotted}
 a.pg{font:10px Helvetica,Arial,sans-serif;color:#6d8fe6;text-decoration:none;margin-right:.5em;vertical-align:super;white-space:nowrap}
 a.pgno{color:#c60}
@@ -1686,7 +1802,7 @@ a.pgno{color:#c60}
   #legend{font-size:13px}
 }
 .src{color:#2a9d8f}
-body.focus .traced,body.focus .deep,body.focus .unanchored,body.focus .rounding,body.focus .count{background:none;border-color:transparent;color:inherit;font-weight:inherit}
+body.focus .traced,body.focus .deep,body.focus .unanchored,body.focus .rounding,body.focus .count,body.focus .cited{background:none;border-color:transparent;color:inherit;font-weight:inherit}
 button{font:13px Helvetica,Arial,sans-serif}
 """
 
@@ -1784,7 +1900,7 @@ window.addEventListener('load', async () => {
 LEGEND = [("traced", "traced"), ("deep", "in a source CSV, unregistered"),
           ("elsewhere", "only OUTSIDE the section's sources"),
           ("rounding", "rounding (±1 last digit)"), ("stale", "stale"),
-          ("untraced", "untraced"), ("count", "count"),
+          ("untraced", "untraced"), ("count", "count"), ("cited", "literature value (the clause cites a source)"),
           ("xref", "cross-reference resolves"), ("xmean", "cross-reference points at the WRONG thing"),
           ("xbad", "cross-reference does not resolve")]
 
@@ -1829,7 +1945,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             num, h = sec
             c = counts[sec]
             bar = " · ".join(f"<span class='{k}'>{c[k]} {LEGEND_NAME[k]}</span>"
-                             for k in ("untraced", "stale", "elsewhere", "rounding", "traced", "deep", "unanchored", "count") if c[k])
+                             for k in ("untraced", "stale", "elsewhere", "rounding", "traced", "deep", "unanchored", "count", "cited") if c[k])
             body.append(f"<h{lvl} id='s{num or i}'>{html.escape((num + ' ') if num else '')}{html.escape(h)}</h{lvl}>")
             sc, how = (scope_map or {}).get(sec, (set(), ""))
             srcs = ", ".join(sorted(pathlib.Path(x).name for x in sc)[:8]) + (" …" if len(sc) > 8 else "")
@@ -1874,7 +1990,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             f"<h1>{html.escape(title)} — proof copy</h1>"
             f"<div id=legend>{legend}<br>"
             f"<b>{tot['untraced']} untraced</b>, <b>{tot['stale']} stale</b>, <b>{tot['elsewhere']} elsewhere</b>, {tot['rounding']} rounding, "
-            f"{tot['traced']} traced, {tot['deep']} in an unregistered CSV, {tot['unanchored']} unanchored, {tot['count']} counts. "
+            f"{tot['traced']} traced, {tot['deep']} in an unregistered CSV, {tot['unanchored']} unanchored, {tot['count']} counts, {tot['cited']} literature. "
             f"Hover a number for what it was matched to. "
             f"<button onclick='toggleFocus()'>show only red / amber</button> "
             f"<span>click a number to queue a correction — <span id=qcount>0</span> queued</span><br>"
@@ -1886,7 +2002,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
 
 
 LEGEND_NAME = {"traced": "traced", "deep": "unregistered", "elsewhere": "ELSEWHERE", "unanchored": "unanchored", "rounding": "rounding",
-               "stale": "STALE", "untraced": "UNTRACED", "count": "count",
+               "stale": "STALE", "untraced": "UNTRACED", "count": "count", "cited": "cited",
                "xref": "xref", "xmean": "XREF-MEANING", "xbad": "XREF-BAD"}
 
 
@@ -1962,7 +2078,12 @@ def main() -> int:
 # sees where it came from before deciding what should emit it.
 HISTORY_GLOBS = ("working/changelogs/*.md", "working/updates/*.md", "working/DECISION_LOG.md",
                  "working/WORK_REGISTER.md", "working/PROJECT_DIARY.md", "notes/**/*.md",
-                 "DECISIONS_PUBLIC.md", "CLAUDE.md", "src/*.py", "src/utils/*.py")
+                 "DECISIONS_PUBLIC.md", "CLAUDE.md", "src/*.py", "src/utils/*.py",
+                 "docs/report/text/Newborough_Methods_Supplement.md", "docs/papers/paper_1/text/PAPER1_SI_methods.md")
+# Martin, 2026-09-20: "using the methods supplement would also resolve the origins of some
+# of the numbers". The Supplement documents each script's method and declares its
+# sources, so a sentence of it that quotes the same number and names a file or a
+# script is the number's provenance, and is shown first.
 HISTORY_MAX = 3
 _HIST: dict[str, list] | None = None
 _HIST_NUM = re.compile(r"(?<![\w.\-])\d[\d,]*\.\d+|(?<![\w.\-])\d{3,}(?![\w.])")
@@ -1990,6 +2111,15 @@ def _history_index() -> dict:
                     continue
                 seen.add(key)
                 snip = " ".join(txt[max(0, m.start() - 70):m.end() + 50].split())
+                if "Methods_Supplement" in rel or "SI_methods" in rel:
+                    # the Supplement's sentence, and the source it declares or the script it names
+                    a = max(txt.rfind(". ", 0, m.start()), txt.rfind("\n", 0, m.start())) + 1
+                    b = txt.find(". ", m.end()); b = len(txt) if b < 0 else b + 1
+                    sent = txt[a:b]
+                    src = _SRC_RE.search(txt[a:min(len(txt), b + 400)]) or _SRC_RE.search(txt[max(0, a - 1500):b])
+                    scr = _SCRIPT_RE.search(sent)
+                    where = (f" → {src.group(1).strip()}" if src else "") + (f" [Script {scr.group(1)}]" if scr else "")
+                    snip = " ".join(sent.split())[:160] + where
                 idx[key].append((rel, snip))
     _HIST = idx
     return idx
@@ -2036,6 +2166,16 @@ def ledger_of(clause: str) -> str:
     return f" ‖ ledger {nid}: {qty} — lives in {src}"
 
 
+_MS_SCRIPT = re.compile(r"\[Script (\d{2}[a-z]?)\]")
+
+
+def ms_scripts(value: str) -> set:
+    """The scripts the Methods Supplement names in sentences quoting this number."""
+    key = _norm_num(value).replace(",", "").lstrip("-")
+    return {m.group(1) for f, snip in _history_index().get(key, [])
+            if ("Methods_Supplement" in f or "SI_methods" in f) for m in _MS_SCRIPT.finditer(snip)}
+
+
 def history_of(value: str, clause: str = "") -> str:
     key = _norm_num(value).replace(",", "").lstrip("-")
     hits = _history_index().get(key, [])
@@ -2046,7 +2186,8 @@ def history_of(value: str, clause: str = "") -> str:
     # Changelogs and decisions before notes and scripts; the proof-copy changelog
     # itself last, since it quotes every red number it discusses
     cw = {w for w in _WORD.findall(clause.lower()) if len(w) >= 5 and w not in cc._STOPWORDS}
-    order = {"working/changelogs": 0, "working/DECISION_LOG.md": 1, "working/updates": 2, "notes": 3}
+    order = {"docs/report/text/Newborough_Methods_Supplement.md": -1, "docs/papers/paper_1/text/PAPER1_SI_methods.md": -1,
+             "working/changelogs": 0, "working/DECISION_LOG.md": 1, "working/updates": 2, "notes": 3}
     def rank(h):
         f, s = h
         shared = len(cw & {w for w in _WORD.findall(s.lower()) if len(w) >= 5})
@@ -2055,7 +2196,9 @@ def history_of(value: str, clause: str = "") -> str:
     hits = sorted(hits, key=rank)
     shown = hits[:HISTORY_MAX]
     more = f" (+{len(hits) - HISTORY_MAX} more)" if len(hits) > HISTORY_MAX else ""
-    return " ‖ history: " + " | ".join(f"{pathlib.Path(f).name}: …{s}…" for f, s in shown) + more
+    return " ‖ history: " + " | ".join(
+        (f"Methods Supplement: {s}" if "Methods_Supplement" in f else f"Paper 1 SI: {s}" if "SI_methods" in f
+         else f"{pathlib.Path(f).name}: …{s}…") for f, s in shown) + more
 
 
 # ---------------------------------------------------------------------------

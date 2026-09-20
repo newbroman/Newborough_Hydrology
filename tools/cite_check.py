@@ -45,7 +45,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-09-20. Registration pass, batches 2-5
+__version__ = "1.25.0"  # Hollingham (2026) — 2026-09-20. E22 closed: report9 §4.8.3 and
+#   §4.9.6's interannual spring-level SDs (175/251/315/277/404 mm) and the five-year
+#   window SEs are `26_index_precision_by_cluster.csv`, REFERENCE scope (the "all"
+#   scope gives C5 273/122) — batch 3 reported them as tracing to no file. Keyed on
+#   (network_scope, cluster_label). Also 44_04_hindcast_metrics keyed (site_no, well): report6
+#   §1 quotes its headline-pairing r and NSE as ranges.
+# 1.24.0 — 2026-09-20. Registration pass, batches 2-5
 #   (scripts 07-11b, 14-29, 24-26, 30-47; four Sonnet subagents under the same brief,
 #   proposals in working/updates/registration_pass_2026-09-20/, applied by the
 #   orchestrator after verifying every key unique and every column present): 51
@@ -544,6 +550,10 @@ EXTRA_VALUE_TABLES = [
      ["d_delta_0_mm_yr", "d_delta_ref_mm_yr"]),
     ("outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv", "metric",    # report (front matter), report10 5.7.6, report12 7
      ["n", "pearson_r", "williams_p_vs_ewi_annual"]),
+    ("outputs/26_van_willegen_msl/26_index_precision_by_cluster.csv",    # report9 4.8.3, 4.9.6 (reference scope)
+     ("network_scope", "cluster_label"),
+     ["n_wells_with_springs", "t_R_months_median", "rho_lag1_mean", "spring_sd_mm_median",
+      "msl5_window_se_mm_median"]),
     ("outputs/26_van_willegen_msl/26_msl_5yr_cluster_threshold_summary.csv", "cluster_label",    # report9 4.8.3
      ["MSL5_current_m_bg", "n_windows_below_SD15b", "n_windows_below_SD16"]),
     ("outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv", ("cluster_label", "window_end_year"),    # report9 4.8.3
@@ -566,6 +576,8 @@ EXTRA_VALUE_TABLES = [
      ["median_abs_m", "p90_abs_m", "p95_abs_m", "max_abs_m", "n"]),
     ("outputs/41_canopy_cover/41_01_canopy_index.csv", ("region", "imagery_date", "frame"),    # report9 §4.6.8, report10 §5.5
      ["index", "ratio_to_conifer"]),
+    ("outputs/44_ranwell_hindcast/44_04_hindcast_metrics.csv", ("site_no", "well"),    # report6 §1, report10 §5.7.9 (r 0.74--0.91; NSE 0.32--0.80)
+     ["r", "nse_after_offset", "offset_m", "n", "range_obs_m", "range_model_m"]),
     ("outputs/44_ranwell_hindcast/44_05_level_change.csv", ("row", "site_no"),    # report10 §5.7.9
      ["nearest_well_m", "delta_m", "z", "sigma_total_m", "chi2_per_dof"]),
     ("outputs/45_wet_area/45_01_wet_area_model.csv", "cls",    # report9 §4.8.5

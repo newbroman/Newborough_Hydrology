@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v20.odt — do not edit. source-sha256=370107c666e3e2dd pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v21.odt — do not edit. source-sha256=9f9ba6b19d94e942 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record
@@ -97,7 +97,7 @@ Era-specific drainage coefficients (β₃) increased directionally at both treat
 
 ### []{#anchor-1}4.1.4 Scenario context at the scraped well
 
-To place the measured benefit in context, alternative interventions were computed at CEH36 using its own SSM coefficients. The observed scraping benefit (+45.2 mm water-equivalent per month) substantially exceeds any modelled alternative at the same well: hypothetical clearfell +13.6, 50% thinning +6.8, broadleaf +2.9, and a wet-climate scenario +7.8 mm/month, against −14.4 mm/month under a dry-climate scenario. These modelled alternatives are equilibrium volumetric responses and cannot resolve a summer minimum, so the ecologically decisive comparison rests on the directly observed record: scraping delivered a measured paired-BACI summer-minimum benefit at CEH36 of +0.195 m against CEH4 (Section 4.1.2), a gain none of the modelled forest-management or climate alternatives approaches. This confirms that scraping operates through a fundamentally different mechanism, creating a topographic drain rather than modifying the surface energy balance.
+To place the measured benefit in context, alternative interventions were computed at CEH36 using its own SSM coefficients. The observed scraping benefit (+46.4 mm water-equivalent per month) substantially exceeds any modelled alternative at the same well: hypothetical clearfell +14.9, 50% thinning +7.4, broadleaf +3.6, and a wet-climate scenario +7.9 mm/month, against −14.4 mm/month under a dry-climate scenario. These modelled alternatives are equilibrium volumetric responses and cannot resolve a summer minimum, so the ecologically decisive comparison rests on the directly observed record: scraping delivered a measured paired-BACI summer-minimum benefit at CEH36 of +0.195 m against CEH4 (Section 4.1.2), a gain none of the modelled forest-management or climate alternatives approaches. This confirms that scraping operates through a fundamentally different mechanism, creating a topographic drain rather than modifying the surface energy balance.
 
 ## []{#anchor-1}4.2 The December 2017 clearfell
 

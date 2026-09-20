@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_6.odt — do not edit. source-sha256=1547f7aa2ae47377 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_7.odt — do not edit. source-sha256=c21520b5955e5ad4 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.6 (September 2026).
+Document version: 2.0.7 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1975,7 +1975,7 @@ Script 14b was added on 2026-05-29 following the post-review pass on the main re
 
 **Procedure.** For each of the five clusters, the per-cluster annual summer-minimum series (*outputs/14_climate_projections/14_annual_extremes.csv* from Script 14) is fitted as a linear trend over the observed years. A non-parametric bootstrap (n = 1000 replicates) resamples years with replacement; for each resample the trend is refitted and the year at which the linear extrapolation crosses each Curreli threshold (SD15b = 0.61 m below ground, SD16 = 0.98 m below ground) is computed. The script tabulates 5th, 50th and 95th percentile crossing years per cluster × threshold and renders a five-panel figure showing observed minima, the OLS trend with 90% bootstrap CI cone, threshold lines and crossing-year CI bands.
 
-**Headline result (2026-05-29).** The C1 SD16 crossing year, central to Conclusion 11, has a median of 2022 with a 90% confidence interval of 2017--2042 (5th--95th percentile of the bootstrap distribution). Four of the eight most recent observed C1 summer minima have already exceeded the SD16 depth (2018, 2019, 2022, 2025); 2023 sits just above the threshold at −0.92 m. The cluster is no longer approaching the threshold but oscillating across it. The wide confidence interval reflects substantial year-to-year variability in summer minima against a shallow trend slope of −9.7 mm yr⁻¹, not measurement uncertainty in the underlying slope estimate. C2 has crossed SD16 in the trend sense around 2011, with the CI extending into the pre-monitoring period (the cluster's observed minima have been below SD16 throughout the record). C3 lies above SD16 and its non-significant trend reaches the threshold beyond the 2080 horizon. C4 and C5 sat below SD16 throughout the observed record --- the forest-zone clusters do not host slack vegetation, so the threshold projection is reported for completeness rather than as an ecological signal.
+**Headline result (2026-05-29; values refreshed 2026-09-20 to the committed 14b_year_of_crossing.csv).** The C1 SD16 crossing year, central to Conclusion 11, has a median of 2028 with a 90% confidence interval of 2022--2049 (5th--95th percentile of the bootstrap distribution). Three of the eight most recent observed C1 summer minima have already exceeded the SD16 depth (2018, 2022, 2025); 2023 sits above the threshold at −0.86 m. The cluster is no longer approaching the threshold but oscillating across it. The wide confidence interval reflects substantial year-to-year variability in summer minima against a shallow trend slope of −10.9 mm yr⁻¹, not measurement uncertainty in the underlying slope estimate. C2 has crossed SD16 in the trend sense around 2015, with the CI extending into the pre-monitoring period (the cluster's observed minima have been below SD16 throughout the record). C3 lies above SD16 and its non-significant trend reaches the threshold beyond the 2080 horizon. C4 and C5 sat below SD16 throughout the observed record --- the forest-zone clusters do not host slack vegetation, so the threshold projection is reported for completeness rather than as an ecological signal.
 
 **Inputs.** *outputs/14_climate_projections/14_annual_extremes.csv* (Script 14 output); Curreli thresholds from *utils.config* (*SD15b*, *SD16*).
 
@@ -1987,7 +1987,7 @@ No new path constants were added in *paths.py*; Script 14b shares *paths.DIR_14*
 
 Cross-references.
 
--   §7 Conclusion 11 of the main report --- the "around 2030--2032" qualitative date band is replaced by the bootstrap CI from this script (median 2022, 90% CI 2017--2042 for C1 SD16).
+-   §7 Conclusion 11 of the main report --- the "around 2030--2032" qualitative date band is replaced by the bootstrap CI from this script (median 2028, 90% CI 2022--2049 for C1 SD16).
 -   §4.13.1 of the main report --- the figure *15b_year_of_crossing.png* lands here as supporting evidence for the seasonal-prediction discussion in §5.2.4.
 
 Spring-mean centroid trend (Script 14 v1.4.x). Script 14 gains a spring-mean (Mar--May) cluster-centroid trend alongside its summer-minimum and winter-maximum trends, on the same descriptive-OLS footing from 03_regional_averages.csv, emitting 14_spring_trend_stats.csv (same columns as 14_summer_trend_stats.csv) and a trajectory figure 15_climate_trajectory_spring.png (observed means with per-cluster OLS trends; no projection and no threshold bands). Unlike the summer minimum and winter maximum --- indexed by the October-start hydrology year --- the spring mean sits wholly inside a calendar year and is indexed by calendar year (as Script 36 does, S.20). The spring trend is flat for every cluster except C5 (Coastal Forest, −0.038 m yr⁻¹, p = 0.020); see Supplementary Note S8.

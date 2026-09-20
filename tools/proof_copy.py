@@ -78,7 +78,21 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-20. From the sixth queue (report7 §2,
+__version__ = "1.16.0"  # Hollingham (2026) — 2026-09-20. After the reading pilot (Sonnet, 113
+#   rows of the front matter, report6, report7: 15 denials, five patterns): a "%" token
+#   no longer accepts a COEFFICIENT rendered as a percentage (24% had gone to α_B);
+#   a registered key's ROW is its stem — ANCOVA_C_…_clearfell_step and …_clearfell_p are
+#   one row, so a p beside its estimate takes the estimate's model, not a sibling
+#   model's; the same-row bonus is decisive (+3) rather than a tie-breaker; "sites"
+#   is a count word (~11 mm had gone to a count of Ranwell sites).
+# v1.15.0  2026-09-20. Green is no longer a verdict without
+#   a margin (Martin: "even the green ones you seem to be misattributing because you are
+#   greping rather than reading"): every traced number carries its runner-up and the score
+#   margin, and a margin of half a point or less is a TIE — a fourth colour, in the
+#   red/amber focus view, so a near-coincidence is never hidden behind a confident green.
+#   A one- or two-digit whole number cannot be a fraction rounded to nothing ("1" had
+#   matched an ANOVA statistic of 0.629); "Phases 1--11", "Scripts 09--10" are labels.
+# v1.14.0  2026-09-20. From the sixth queue (report7 §2,
 #   the front matter): a literature citation in an EARLIER sentence of the same paragraph
 #   still covers an untraced number ("The northern 700 hectares …" after Stratford et al.,
 #   2007); "(about 0.6% of the plantation)" is the RATIO of two numbers in its own
@@ -243,12 +257,30 @@ def _cluster_subjects(label: str) -> list[str]:
     return out
 
 
+_QUANT_SYNONYMS = {"sd": ["standard deviation"], "std": ["standard deviation"], "se": ["standard error"], "stderr": ["standard error"],
+                   "ci": ["confidence interval", "95%", "95 %"], "nse": ["efficiency"], "spread": ["spread", "range"],
+                   "msl5": ["five-year", "msl5"], "window": ["five-year", "window"], "spring": ["spring"],
+                   "rmse": ["root-mean-square", "rms"], "iqr": ["interquartile"], "cv": ["coefficient of variation"]}
+
+
 def _anchor_sets(label: str):
     """(subject anchors, quantity anchors) for a registered key, cached: the same
     few thousand keys are asked about tens of thousands of times per chapter."""
     if label not in _ANCHOR_CACHE:
         subj, quant = cc.anchor_groups(label)
         quant = [q for q in quant if q.lower() not in WEAK_ANCHORS]
+        # the prose's words for a column's abbreviations: "standard deviation" for sd,
+        # "standard error" for se — report9 §4.8.3's SD/SE lists anchored on nothing
+        quant = quant + [alt for q in list(quant) for alt in _QUANT_SYNONYMS.get(q.lower(), [])]
+        if not quant and " · " in label:
+            # cite_check found no quantity word in "reference / C1 · spring_sd_mm_median": read
+            # the column's own tokens, through the synonyms (sd -> "standard deviation")
+            for t in re.split(r"[_\W]+", label.rsplit(" · ", 1)[1]):
+                tl = t.lower()
+                if tl in _QUANT_SYNONYMS:
+                    quant.extend(_QUANT_SYNONYMS[tl])
+                elif len(tl) >= 4 and tl not in WEAK_ANCHORS and tl not in ("mean", "median"):
+                    quant.append(tl)
         for t in re.split(r"[_\W]+", label):
             if t and t.lower() in GLYPH_FORMS:
                 quant.extend(GLYPH_FORMS[t.lower()])
@@ -850,7 +882,7 @@ _PAGE_BEFORE = re.compile(r"(?i)\bpp?\.\s*(?:\d+\s*(?:--|–|—|-)\s*)?$")     
 _GRIDREF = re.compile(r"\b[A-Z]{2}\s?\d{3}\s?\d{3}\b")                        # "SH 406 636"
 _ENUM_MARK = re.compile(r"\(\d{1,2}\)")                                             # "(1) … (2) …"
 _RANGE_BEFORE = re.compile(r"\d\s*(?:--|–|—|-|to)\s*$")
-_ORDINAL_BEFORE = re.compile(r"(?i)\b(tier|site|phase|step|option|batch|zone|level|method|approach|type|class|group|stage|round|part|panel|check|objective|hypothesis|quadrat|transect|era|sketch|slack)\s+$")   # "Tier 1": a name                        # the second end of a range
+_ORDINAL_BEFORE = re.compile(r"(?i)\b(tiers?|sites?|phases?|steps?|scripts?|options?|batch(es)?|zones?|levels?|methods?|approach(es)?|types?|class(es)?|groups?|stages?|rounds?|parts?|panels?|checks?|objectives?|hypothes[ie]s|quadrats?|transects?|eras?|sketch(es)?|slacks?|models?|runs?|versions?)\s+(?:\d{1,2}[a-z]?\s*(?:--|–|—|-|,|and|to)\s*)*$")   # "Tier 1": a name                        # the second end of a range
 _CITATION = re.compile(r"[A-Z][A-Za-z'’\-]+(?:\s+(?:et al\.?|and|&)\s*[A-Z]?[A-Za-z'’\-]*)*,?\s*\(?(?:18|19|20)\d\d[a-z]?\)?"
                        r"|\((?:[^()]*?,\s*)?(?:18|19|20)\d\d[a-z]?(?:[;,][^()]*)?\)")   # "Stratford et al., 2007", "Ranwell (1959)", "(Davy et al., 2010, p. 17)"
 _LIST_MARKER = re.compile(r"^\d+\.\s")
@@ -945,7 +977,8 @@ def _qty_of(masked: str, s: int) -> str | None:
 
 def _qty_ok(q: str, c: Cand) -> bool:
     pat = _QTY_PAT[q]
-    return bool(pat.search(c.col or "") or pat.search(c.label or ""))
+    col = c.col or (c.label.rsplit(" · ", 1)[1] if " · " in c.label else "")   # a registered "key · column"
+    return bool(pat.search(col) or pat.search(c.label or ""))
 COHERENCE_WINDOW = 260          # characters: a sentence and its neighbour
 
 
@@ -1003,7 +1036,8 @@ _CAND_DIM_RULES = [
     ("mm",       re.compile(r"(?i)(^|_)mm(_|$)|_mm$|mm_per|mm_yr|mm_month|(^|_)mm ")),
     ("m",        re.compile(r"(?i)(^|_)m(_|$)|_m$|_M$|_M(_|$)|metre|meter|(^|_)depth|(^|_)head|_wl|level|elevation|(^|_)dh_|(^|_)h_")),
     ("duration", re.compile(r"(?i)months?(_|$)|years?(_|$)|_yr$|(^|_)yr(_|$)|days?(_|$)|halflife|half_life|t_half|(^|_)tau|residence|recession_time|(^|_)lag")),
-    ("count",    re.compile(r"(?i)(^|_)(n|count|total|n_wells|n_obs|nobs|wells|events|columns|crossings|singletons)(_|$)|^n_|_n$|dipwells|measuring points|distinct clusters|_worsen$|_improve$")),
+    ("count",    re.compile(r"(?i)(^|_)(n|count|total|n_wells|n_obs|nobs|wells|sites|events|columns|crossings|singletons)(_|$)|^n_|_n$|dipwells|measuring points|distinct clusters|_worsen$|_improve$")),
+    ("stat",     re.compile(r"(?i)(^|_)(se|sd|stderr|std|ci_lo|ci_hi|ci)(_|$)|_se$|_sd$")),   # LAST: an unitless standard error is never "as %"; spring_sd_mm is mm
 ]
 _PER_MONTH = re.compile(r"(?i)month|mo(_|$)")
 _PER_YEAR = re.compile(r"(?i)_yr|yr(_|$)|year|per_a|a⁻¹")      # not "annual": that is a season word (the annual scenario is still per month)
@@ -1034,12 +1068,14 @@ def _cand_dim(c: Cand) -> tuple:
             pass                                       # a row label says WHICH, not WHAT
         per = "month" if _PER_MONTH.search(name) else "yr" if _PER_YEAR.search(name) else ""
     if c.form == "mm":
-        if dim in ("m", ""):
-            dim = "mm"                                 # a length in metres, rendered in mm
+        if dim in ("m", "", "stat"):
+            dim = "mm"                                 # a length (or its standard error) in metres, rendered in mm
         # any other dimension keeps its name: a p-value "as mm" is still a p-value
     elif c.form == "%":
-        if dim in ("", "ratio", "pct", "coef"):
+        if dim in ("", "ratio", "pct"):
             dim = "pct"                                # a fraction rendered as a percentage
+        # a COEFFICIENT (β, α, Sy, NSE) rendered "as %" keeps its dimension and so clashes
+        # with a "%" token: "24%" is FOREST_INTERCEPTION, not α_B = 0.237 (reading pilot)
         # a metre or a temperature rendered "as %" is nonsense: keep the base dimension
     low = (c.label + " " + (c.col or "")).lower()
     seasons = frozenset(sw for sw in _SEASON_WORDS if sw in low)
@@ -1062,6 +1098,7 @@ _TOK_UNIT = [
     ("duration", re.compile(r"(?i)^\s*(?:months?|years?|yrs?|days?|hours?)\b")),
     ("ratio",    re.compile(r"(?i)^\s*(?:×|x\b|-fold|times\b)")),
 ]
+_LIST_UNIT = re.compile(r"^(?:\s*,\s*[+\-−]?\d[\d.]*(?:,\d{3})*)*(?:\s*,?\s*(?:and|to|--|–)\s*[+\-−]?\d[\d.]*(?:,\d{3})*)?\s*((?:mm|cm|km|m|%|ha|°C|months?|years?)\b)")
 _TOK_PER = re.compile(r"(?i)^\s*(?:mm|m)\s*(?:w\.e\.)?\s*(?:/|per|·)?\s*(month|yr|year|a)\b|^\s*(?:mm|m)\s*(?:w\.e\.)?\s*(month|yr|a)⁻¹")
 _QTY_DIM = {"p": "prob", "r": "corr", "r²": "r2", "n": "count", "k": "count"}
 
@@ -1078,6 +1115,14 @@ def _tok_dim(after: str, qty: str | None, clause: str, before: str) -> tuple:
             if rx.match(after):
                 dim = d
                 break
+        if not dim:
+            # "78, 112, 141, 124 and 181 mm": the unit at the end of a list is every member's
+            ml = _LIST_UNIT.match(after)
+            if ml:
+                for d, rx in _TOK_UNIT:
+                    if rx.match(ml.group(1)):
+                        dim = d
+                        break
         m = _TOK_PER.match(after)
         if m:
             q = (m.group(1) or m.group(2) or "").lower()
@@ -1157,9 +1202,7 @@ def _derived_ratio(masked: str, s: int, e: int, marks) -> str:
         x = float(_norm_num(masked[s:e]).replace(",", "").lstrip("+"))
     except ValueError:
         return ""
-    lo = masked.rfind("\n", 0, s) + 1
-    for m in _FULL_END.finditer(masked, max(lo, s - 400), s):
-        lo = m.end()
+    lo = max(masked.rfind("\n", 0, s) + 1, s - 700)   # the paragraph so far: "700 hectares … 4.4 ha (about 0.6% of"
     nums = []
     for m in _NUM.finditer(masked, lo, s):
         try:
@@ -1173,7 +1216,7 @@ def _derived_ratio(masked: str, s: int, e: int, marks) -> str:
         for tb, b in nums[i + 1:]:
             for num, den, tn, td in ((a, b, ta, tb), (b, a, tb, ta)):
                 if den and abs(100 * num / den - x) <= 0.5 * 10 ** -dp + 1e-9:
-                    return f"derived: {tn} / {td} = {100 * num / den:.{dp + 1}f} % — a ratio of two numbers in this sentence"
+                    return f"derived: {tn} / {td} = {100 * num / den:.{dp + 1}f} % — a ratio of two numbers in this paragraph"
     return ""
 
 
@@ -1193,6 +1236,9 @@ def _rowkey(label: str) -> str:
     table across."""
     out = _CLUSTER_ID.sub("", label)
     out = re.sub(r"(?i)\(?\b(lake edge|dune|western residual|main forest|coastal forest)\b\)?", "", out)
+    # a registered key and its statistics are one row: ANCOVA_C_WMC3_only_Forest_clearfell_step,
+    # …_clearfell_p, …_clearfell_se, …_ci_lo all read as the ANCOVA_C_… row
+    out = re.sub(r"(?i)_(p|pvalue|p_value|step|slope|coeff|coef|se|sd|ci_lo|ci_hi|ci|t|r2|rsq|n|median|mean|min|max|lo|hi)$", "", out)
     return re.sub(r"\s+", " ", out).strip(" /·")
 
 
@@ -1307,7 +1353,7 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         # present) outranks "ukcp18_2080s / winter / C4" (one) for a 6.1 that both
         # render — which is how the abstract's thinning figure was painted against a
         # climate-scenario winter row (2026-09-20).
-        score += 0.1 * min(5, _label_hits(c.label, sent, _sent_words(sent)))
+        score += 0.3 * min(5, _label_hits(c.label, sent, _sent_words(sent)))   # "SSM forward residual +73 mm": the key that says so
         if _clusters_in(c.label) and not _label_hits(c.label, w, ws, noncluster=True):
             score -= 1.5                          # "ceh20 · C4 · D_C4" anchored on nothing but the C4
         return score
@@ -1357,11 +1403,13 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
 
 
 WEAK: dict[tuple, list] = {}
+OUTSIDE_OK: set = set()                    # registered candidates admitted from outside the declared scope
 
 
 def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
     _SENT_CACHE.clear()
     WEAK.clear()
+    OUTSIDE_OK.clear()
     masked = mask_markup(text)
     idx_by_start = {k[0]: v for k, v in idx.items()}
     line_starts = [0] + [m.end() for m in re.finditer("\n", text)]
@@ -1412,7 +1460,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             src = row["source_csv"]
             row_in = (not scope) or src in ALWAYS_IN_SCOPE or src in scope or str(pathlib.Path(src).parent) in scope
             _rc = Cand(src, row["key"], "", 0.0, None, "", "reg")
-            _after0 = _RANGE_AFTER.sub("", masked[e:e + 16])
+            _after0 = _RANGE_AFTER.sub("", masked[e:e + 64])
             if row["status"] != "confirmed" and (_cluster_clash(_rc, _sentence(masked, s, e, full=True))
                                                  or _dims_clash(_tok_dim(_after0, _qty_of(masked, s), _sentence(masked, s, e),
                                                                          masked[masked.rfind("\n", 0, s) + 1:s].lower()),
@@ -1432,7 +1480,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         if bm:
             prelim.append((s, e, "bound", f"{(bm.group(1) or '').strip()} {bm.group(2)} {unsigned}", []))
             continue
-        after = masked[e:e + 16]
+        after = masked[e:e + 64]
         after = _RANGE_AFTER.sub("", after)                # "50--55 mm": look past the range
         pct = bool(_PCT_AFTER.match(after))
         mm = bool(cc._MM_SUFFIX.match(after))
@@ -1466,11 +1514,19 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             cands = [c for c in cands if not (float(c.value).is_integer() and _cand_dim(c)[0] in ("", "count", "id"))]
         if tok[0] == "count" and "." not in unsigned:
             cands = [c for c in cands if float(c.value).is_integer()]   # "11 donor wells" is not 11.4587 of anything
+        if "." not in unsigned and len(unsigned) <= 2 and not tok[0]:
+            # "1" is not an ANOVA statistic of 0.629 rounded to nothing, "11" is not −10.7:
+            # a bare one- or two-digit whole number matches a whole-number value, or a
+            # converted form ("−55 mm" from −0.0552 m)
+            cands = [c for c in cands if float(c.value).is_integer() or c.form]
         if tok[0] == "pct" and re.match(r"(?i)\s*(?:%|per cent|percent)\s+of\b", masked[e:e + 14]):
             ratio = _derived_ratio(masked, s, e, prelim)
             if ratio:
                 prelim.append((s, e, "count", ratio, []))   # "(about 0.6% of the plantation)" = 4.4 / 700
                 continue
+        if tok[0] == "pct" and re.match(r"(?i)\s*(?:%|per cent|percent)\s*(?:CI\b|confidence|credible|prediction interval)", masked[e:e + 24]):
+            prelim.append((s, e, "count", "nominal confidence level — a statement, not a value", []))
+            continue
         if tok[0] == "pct" and unsigned in ("100", "0"):
             prelim.append((s, e, "count", "nominal percentage — a statement, not a value", []))
             continue
@@ -1482,12 +1538,28 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             if not scope or in_scope(c, scope) or c.tier in ("net", "geo"):   # a derived count or a KML area belongs to every section
                 sc = _accept(c, masked, s, e, short, w, ws, bool(scope) or c.rel in ALWAYS_IN_SCOPE or c.tier in ("net", "geo", "reg"),
                              bool(scope), unit, tok)
-                if sc == 0 and of_prev and c.rel == of_prev and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
-                    sc = 2                             # the N of "n of N", from the n's file
-                if sc > 0:
-                    inside.append((sc, c))
-                elif _LAST[0] >= 1.0:
-                    weak.append((_LAST[0], c))         # below the bar alone; the neighbours' script may vouch for it
+            elif c.tier == "reg":
+                # a REGISTERED key outside the section's declared sources is admitted when it
+                # anchors on both its subject and its quantity (strictly, score 4+): the
+                # declared scope comes from figure captions and misses the prose's sources
+                # (§4.8.4 declares Script 03 while quoting Script 26's precision table)
+                sc = _accept(c, masked, s, e, short, w, ws, True, True, unit, tok)
+                if sc >= 4.0:
+                    sc -= 0.3                          # a declared source of the same strength still wins
+                    OUTSIDE_OK.add(id(c))
+                else:
+                    sc = 0
+                    if _LAST[0] >= 1.0:
+                        weak.append((_LAST[0], c))
+                    continue
+            else:
+                continue
+            if sc == 0 and of_prev and c.rel == of_prev and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
+                sc = 2                             # the N of "n of N", from the n's file
+            if sc > 0:
+                inside.append((sc, c))
+            elif _LAST[0] >= 1.0:
+                weak.append((_LAST[0], c))         # below the bar alone; the neighbours' script may vouch for it
         if not inside and len(cands) <= 4000:
             for c in cands:
                 if scope and not in_scope(c, scope):
@@ -1590,7 +1662,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 same = (c.rel, _rowkey(c.label)) in near_rows
                 samefile = any(r == c.rel for r, _ in near_rows)
                 samescript = any(_script_of(r) == _script_of(c.rel) for r, _ in near_rows)
-                bonus = (1.5 if same else 0.5 if samefile else 0.4 if samescript else 0) if sc >= 1.5 else 0
+                bonus = (3.0 if same else 0.5 if samefile else 0.4 if samescript else 0) if sc >= 1.5 else 0
                 if of_n and c.rel == prev_rel and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
                     bonus += 3
                 if range_prev and c.rel == prev_rel:
@@ -1604,17 +1676,35 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             sc, c = options[0]
             chosen_rows.append((s, c.rel, c.label))
             verdict = "traced" if (c.tier == "reg" or c.rel in REG_FILES) else "deep"
+            # the runner-up and the margin: a green with a rival half a point behind is a
+            # coincidence as often as a citation, and the reader must see it (Martin, 2026-09-20)
+            best_sc = -key(options[0])[0]
+            # a rival carrying the SAME value (a consolidated copy, the same row in another
+            # file) is not a rival: whichever is chosen, the sentence quotes that quantity
+            rival = next(((t, -key(t)[0]) for t in options[1:]
+                          if (t[1].rel, _rowkey(t[1].label)) != (c.rel, _rowkey(c.label))
+                          and abs(t[1].value - c.value) > 1e-6 * max(1.0, abs(c.value))), None)
+            margin = (best_sc - rival[1]) if rival else None
+            base_verdict = verdict
+            if rival is not None and margin <= 0.5:
+                verdict = "tie"
             same = (c.rel, _rowkey(c.label)) in near_rows
             det = (f"{c.label}{(' · ' + c.col) if c.col else ''} = {c.value:g} [{pathlib.Path(c.rel).name}]"
                    + (f" as {c.form}" if c.form else "")
                    + (" — same row as its neighbours" if same else "")
+                   + (" — outside this section's declared sources, admitted on its own words" if id(c) in OUTSIDE_OK else "")
                    + (" — the other end of the range, from its file" if range_prev and c.rel == prev_rel else "")
                    + (f" — the Methods Supplement quotes it under Script {_script_of(c.rel)}" if ms_hint and _script_of(c.rel) in ms_hint else "")
-                   + ("" if verdict == "traced" else
+                   + ("" if base_verdict == "traced" else
                       " — DERIVED from the file's geometry/columns; no script emits it (emit list)" if c.tier in ("net", "geo") else
                       " — UNREGISTERED: in no value table; register this file"))
-            if len(options) > 1 and (options[1][1].rel, options[1][1].label) != (c.rel, c.label):
-                det += f"; also matches {options[1][1].label} [{pathlib.Path(options[1][1].rel).name}]"
+            if rival is not None:
+                rc = rival[0][1]
+                det += (f" ‖ runner-up: {rc.label}{(' · ' + rc.col) if rc.col else ''} = {rc.value:g} [{pathlib.Path(rc.rel).name}]"
+                        f" — margin {margin:.1f} ({best_sc:.1f} vs {rival[1]:.1f})"
+                        + (" — A NEAR TIE: read the sentence, the tool cannot choose" if margin <= 0.5 else ""))
+            else:
+                det += " ‖ no rival candidate"
             marks.append((s, e, verdict, det))
         elif v in ("untraced", "count") and not options:
             ratio = _derived_ratio(masked, s, e, marks)
@@ -1834,6 +1924,7 @@ p{margin:.7em 0} pre{font:12px/1.35 Menlo,Consolas,monospace;overflow-x:auto;bac
 .untraced{background:#ffd6d6;border-color:#d00;font-weight:bold}
 .count{background:#f0f0f0;border-color:#bbb;color:#555}
 .cited{background:#eceaf6;border-color:#8f86c9;color:#444;border-bottom-style:dotted}
+.tie{background:#f3f0c8;border-color:#b8a500;font-weight:bold;border-bottom-style:double}
 .xref{background:#e8eefc;border-color:#6d8fe6;border-bottom-style:dotted}
 a.pg{font:10px Helvetica,Arial,sans-serif;color:#6d8fe6;text-decoration:none;margin-right:.5em;vertical-align:super;white-space:nowrap}
 a.pgno{color:#c60}
@@ -1966,6 +2057,7 @@ LEGEND = [("traced", "traced"), ("deep", "in a source CSV, unregistered"),
           ("elsewhere", "only OUTSIDE the section's sources"),
           ("rounding", "rounding (±1 last digit)"), ("stale", "stale"),
           ("untraced", "untraced"), ("count", "count"), ("cited", "literature value (the clause cites a source)"),
+          ("tie", "NEAR TIE — two candidates within half a point; read the sentence"),
           ("xref", "cross-reference resolves"), ("xmean", "cross-reference points at the WRONG thing"),
           ("xbad", "cross-reference does not resolve")]
 
@@ -2010,7 +2102,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             num, h = sec
             c = counts[sec]
             bar = " · ".join(f"<span class='{k}'>{c[k]} {LEGEND_NAME[k]}</span>"
-                             for k in ("untraced", "stale", "elsewhere", "rounding", "traced", "deep", "unanchored", "count", "cited") if c[k])
+                             for k in ("untraced", "stale", "elsewhere", "tie", "rounding", "traced", "deep", "unanchored", "count", "cited") if c[k])
             body.append(f"<h{lvl} id='s{num or i}'>{html.escape((num + ' ') if num else '')}{html.escape(h)}</h{lvl}>")
             sc, how = (scope_map or {}).get(sec, (set(), ""))
             srcs = ", ".join(sorted(pathlib.Path(x).name for x in sc)[:8]) + (" …" if len(sc) > 8 else "")
@@ -2054,7 +2146,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             f"<style>{CSS}</style><script>{JS.replace('PAGES_BASE_PLACEHOLDER', PAGES_BASE)}</script><body>"
             f"<h1>{html.escape(title)} — proof copy</h1>"
             f"<div id=legend>{legend}<br>"
-            f"<b>{tot['untraced']} untraced</b>, <b>{tot['stale']} stale</b>, <b>{tot['elsewhere']} elsewhere</b>, {tot['rounding']} rounding, "
+            f"<b>{tot['untraced']} untraced</b>, <b>{tot['stale']} stale</b>, <b>{tot['elsewhere']} elsewhere</b>, <b>{tot['tie']} near-ties</b>, {tot['rounding']} rounding, "
             f"{tot['traced']} traced, {tot['deep']} in an unregistered CSV, {tot['unanchored']} unanchored, {tot['count']} counts, {tot['cited']} literature. "
             f"Hover a number for what it was matched to. "
             f"<button onclick='toggleFocus()'>show only red / amber</button> "
@@ -2067,7 +2159,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
 
 
 LEGEND_NAME = {"traced": "traced", "deep": "unregistered", "elsewhere": "ELSEWHERE", "unanchored": "unanchored", "rounding": "rounding",
-               "stale": "STALE", "untraced": "UNTRACED", "count": "count", "cited": "cited",
+               "stale": "STALE", "untraced": "UNTRACED", "count": "count", "cited": "cited", "tie": "NEAR-TIE",
                "xref": "xref", "xmean": "XREF-MEANING", "xbad": "XREF-BAD"}
 
 
@@ -2470,6 +2562,13 @@ def xref_marks(text: str, masked: str, taken: list) -> list:
     return out
 
 
+def _reading_id(num: str, sentence: str, offset: int) -> str:
+    """A stable id for a number in its sentence: survives regeneration, moves only
+    when the sentence or the number changes. The offset separates repeats."""
+    import hashlib
+    return hashlib.sha1(f"{num}|{sentence[:160]}|{offset}".encode("utf8")).hexdigest()[:10]
+
+
 def one(name, values, look, out_dir, a):
     global TEXT_CACHE
     _SPAN_SEQ[0] = 0
@@ -2483,7 +2582,7 @@ def one(name, values, look, out_dir, a):
     idx = index_spans(mask_markup(text), rel, values)
     marks = add_corpus_echo(classify(text, look, idx, secs, scope_map), rel)
     _m = mask_markup(text)
-    marks = [(s, e, v, d + (history_of(text[s:e], _sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale") else "")
+    marks = [(s, e, v, d + (history_of(text[s:e], _sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale", "tie") else "")
               + (ledger_of(_sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale", "count") else ""))
              for s, e, v, d in marks]
     xm = xref_marks(text, _m, marks)
@@ -2513,12 +2612,35 @@ def one(name, values, look, out_dir, a):
     with open(out_dir / f"{mirror.stem}_untraced.csv", "w", encoding="utf8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=["document", "section", "value", "verdict", "scripts", "detail", "context"])
         w.writeheader(); w.writerows(rows)
+    # the READING list: every number the tool attributed (green, teal, tie), with the
+    # whole sentence and the runner-up, for a reader — a person or a subagent — to
+    # confirm or deny the attribution (Martin, 2026-09-20: "you are greping rather
+    # than reading the sense around the numbers")
+    rrows = []
+    for i, (s, e, v, d) in enumerate(marks):
+        if v not in ("traced", "deep", "tie"):
+            continue
+        ln = bisect.bisect_right(line_starts, s) - 1
+        sec = ""
+        for hl, num, h in secs:
+            if hl <= ln:
+                sec = f"{num} {h}".strip()
+        parts = d.split(" ‖ ")
+        sent_full = " ".join(_sentence(_m, s, e, full=True).split())
+        rid = f"{mirror.stem}:{_reading_id(text[s:e], sent_full, s - _m.rfind(chr(10), 0, s))}"
+        rrows.append({"id": rid, "section": sec, "number": text[s:e], "verdict": v,
+                      "attribution": parts[0][:400],
+                      "runner_up": next((x for x in parts[1:] if x.startswith("runner-up")), "")[:300],
+                      "sentence": sent_full[:700]})
+    with open(out_dir / f"{mirror.stem}_reading.csv", "w", encoding="utf8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["id", "section", "number", "verdict", "attribution", "runner_up", "sentence"])
+        w.writeheader(); w.writerows(rrows)
 
     tot = defaultdict(int)
     for c in counts.values():
         for k, n in c.items():
             tot[k] += n
-    summary = (f"{sum(tot.values()) - tot['xref'] - tot['xbad'] - tot['xmean']} numbers — {tot['untraced']} UNTRACED, {tot['stale']} STALE, {tot['elsewhere']} ELSEWHERE, "
+    summary = (f"{sum(tot.values()) - tot['xref'] - tot['xbad'] - tot['xmean']} numbers — {tot['untraced']} UNTRACED, {tot['stale']} STALE, {tot['elsewhere']} ELSEWHERE, {tot['tie']} NEAR-TIES, "
                f"{tot['rounding']} rounding, {tot['traced']} traced, {tot['deep']} unregistered-CSV, "
                f"{tot['count']} counts; {tot['xref'] + tot['xbad'] + tot['xmean']} cross-references — "
                f"{tot['xbad']} unresolved, {tot['xmean']} pointing at the wrong thing")

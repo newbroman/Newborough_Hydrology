@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_13.odt — do not edit. source-sha256=a9709f4102f7613f pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_14.odt — do not edit. source-sha256=1ef34dc05e4e59e9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -97,8 +97,8 @@ Prif ganfyddiadau meintiol
   Ffynhonnau a ddyfnhaodd \>25 mm (o 59 dilys)             56 (95%)                   Script 20
   Tuedd wahaniaethol C4 2011--2025                         \+ 14.9 mm/yr (cymedr)     Script 32
   Tuedd wahaniaethol C5 2011--2025                         − 6.8 mm/yr (cymedr)       Script 32
-  Cyfernod mwyhau C4 (canonaidd)                           1.72× cymedr y safle       Script 33/35
-  Cyfernod mwyhau C1                                       0.61× cymedr y safle       Script 33/35
+  Cyfernod mwyhau C4 (canonaidd)                           1.65× cymedr y safle       Script 33/35
+  Cyfernod mwyhau C1                                       0.66× cymedr y safle       Script 33/35
   Tuedd CEH22 (ymyl arfordirol)                            − 26.5 mm/yr p \< 0.001    Script 32
   Croesiad trothwy C1 (isafswm haf)                        \~2030--2032               Script 14
   Dyfnhau isafswm haf UKCP18 2080au                        71--134 mm                 Script 14/26b

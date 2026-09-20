@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_7.odt — do not edit. source-sha256=c21520b5955e5ad4 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_8.odt — do not edit. source-sha256=36628ea5490990fe pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.7 (September 2026).
+Document version: 2.0.8 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -3971,7 +3971,7 @@ Phase 15 (steps 36--41/57; 32/33/35 analytical-default, 36/37/37b also analytica
 
 **Methodology.** Spring values are formed as for Script 32. Dry and wet extreme states are the per-well mean spring level over fixed extreme-year sets selected by site-mean spring extremity and antecedent-rainfall consistency --- dry {2011, 2012, 2019} and wet {2014, 2016, 2021, 2024}. The year 2006 is excluded as a wet extreme because its 2004--2005 antecedent was the driest in the record, so the slow-recession forest wells had not refilled by that spring (it is not an antecedent-matched wet state). Each well's swing is its wet state minus its dry state; its amplification coefficient (Figure 71) is that swing divided by the network-mean swing, with the common-mode swing removed, so values above one magnify and below one damp the shared forcing. The drought-floor surface (Figure 72) is the dry-state depth to water, kept in absolute depth below ground and contoured against the Curreli et al. (2013) SD15b (0.61 m) and SD16 (0.98 m) thresholds, which are absolute distances to surface. Only the lake gauge is excluded; CEH13 and CEH14 are included (*config ENVELOPE_METRIC_EXCLUDE = lake only*) because the coefficient is observational. The amplification field is interpolated to a 50 m grid by linear interpolation (*scipy griddata*), masked beyond 450 m; the drought-floor surface is likewise linearly interpolated with a ridge mask, and the single raised inter-slack well CEH10 is shown as a distinct slack-edge marker but excluded from the interpolated slack-floor surface, which would otherwise smear its raised-ground depth across the neighbouring slacks.
 
-**Headline result.** The site-mean dry-to-wet spring swing is ≈ 752 mm (0.75 m). The slow-draining C4 forest interior amplifies it to ≈ 1.72× (≈ 1.7×), the lake edge damps it to ≈ 0.61× (≈ 0.6×), and the open dune is close to unity. The amplification field correlates with the per-well β₂ coefficient, a marker of the deep, slow-recession store. In the dry years the forest interior and western residual block already sit below the SD16 dry-slack threshold.
+**Headline result.** The site-mean dry-to-wet spring swing is ≈ 652 mm (0.65 m). The slow-draining C4 forest interior amplifies it to ≈ 1.65× (≈ 1.6×), the lake edge damps it to ≈ 0.66× (≈ 0.7×), and the open dune is close to unity. The amplification field correlates with the per-well β₂ coefficient, a marker of the deep, slow-recession store. In the dry years the forest interior and western residual block already sit below the SD16 dry-slack threshold.
 
 **Outputs.** *outputs/33_envelope_amplification/*: *33_envelope_per_well.csv* (dry/wet state, swing, amplification, cluster); *33_amplification_field.png* (Figure 71); *33_dry_spring_depth.png* (Figure 72); *33_results.txt*. A recent-window companion re-runs the same construction on recent extreme years (dry {2019, 2020, 2025}, wet {2021, 2024}) so that late-installed wells absent from the 2011/2014 extremes can be placed on the field: *33_envelope_per_well_recent.csv*, *33_amplification_field_recent.png* and *33_dry_spring_depth_recent.png*. Its dry extreme is milder than 2011/12, so the recent panel is a conservative recent lower bound (site-mean swing ≈ 604 mm) and is not magnitude-comparable to the canonical panel.
 

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_18.odt — do not edit. source-sha256=c38dbbb30ba4c7df pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_19.odt — do not edit. source-sha256=5e29bdd4b60ccd75 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -97,8 +97,8 @@ Key quantitative findings
   Wells deepened \>25 mm (of 59 valid)              56 (95%)                   Script 20
   C4 differential trend 2011--2025                  \+ 14.9 mm/yr (mean)       Script 32
   C5 differential trend 2011--2025                  − 6.8 mm/yr (mean)         Script 32
-  C4 amplification coefficient (canonical)          1.72× site mean            Script 33/35
-  C1 amplification coefficient                      0.61× site mean            Script 33/35
+  C4 amplification coefficient (canonical)          1.65× site mean            Script 33/35
+  C1 amplification coefficient                      0.66× site mean            Script 33/35
   CEH22 (coastal margin) trend                      − 26.5 mm/yr p \< 0.001    Script 32
   C1 threshold crossing (summer min)                \~2030--2032               Script 14
   UKCP18 2080s summer min deepening                 71--134 mm                 Script 14/26b

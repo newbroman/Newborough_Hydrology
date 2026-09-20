@@ -95,7 +95,7 @@ A small lake acting as a near-fixed head body, receiving groundwater in winter a
 
 ## The Corsican Pine Plantation
 
-The northern ~700 ha were afforested with Corsican pine (*Pinus nigra* var. *laricio*) between 1948 and 1965. An experimental clearfell of approximately 8.4 ha was completed in December 2017 at the plantation–open dune transition. Natural slack conditions — including winter flooding — existed within the forest footprint before afforestation, as documented by Ranwell (1959) and Hill and Wallace (1989).
+The northern ~700 ha were afforested with Corsican pine (*Pinus nigra* var. *laricio*) between 1948 and 1965. An experimental clearfell of approximately 4.4 ha (the `clearfell.kml` polygon; 8.4 ha until 2026-09-20) was completed in December 2017 at the plantation–open dune transition. Natural slack conditions — including winter flooding — existed within the forest footprint before afforestation, as documented by Ranwell (1959) and Hill and Wallace (1989).
 
 ## Key Spatial Reference Constants (OSGB36)
 

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_19.odt — do not edit. source-sha256=5e29bdd4b60ccd75 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_20.odt — do not edit. source-sha256=4eb8043711ea47f6 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -58,7 +58,7 @@ CEH36: Three independent estimators yield consistent scraping effects --- raw pa
 
 CEH18/CEH21 (October 2023): Insufficient post-intervention record (\<2 years) for statistical inference. Both sites occupy more seaward positions where the coastal-retreat gradient is a confounding factor. No significant post-scraping signal is detectable at either well against the backdrop of year-to-year variability.
 
-Clearfell BACI --- December 2017 (8.4 ha)
+Clearfell BACI --- December 2017 (4.4 ha)
 
 Five-tier ANCOVA-BACI design: 17 wells, three independent control definitions (Forest, Climate, Combined). Headline result (Forest control, WMC3 impact well): clearfell step +0.113 m (p = 0.002, CI \[0.042, 0.184\]). Forest Edge: +0.030 m (p = 0.249). Synthetic extension (10h, WMC3+FE1+FE2 centroid): +0.085 m (p \< 0.001). Summer-only ANCOVA (Jun--Sep subset): +0.046 m (p = 0.436) --- not significant. The summer non-result is robust across all control definitions.
 

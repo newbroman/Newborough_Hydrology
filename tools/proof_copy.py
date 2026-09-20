@@ -608,6 +608,12 @@ def build_index(values, deep: bool = True) -> dict:
             for _, r_ in df.iterrows():
                 lab = str(r_[kcol])
                 la = _label_anchors(lab)
+                if ccol is not None:                  # "clearfell · C4": the row's cluster is part of its name
+                    cl = str(r_[ccol]).strip()
+                    mcl = re.search(r"[1-5]", cl)
+                    if mcl and (cl.lower().startswith("c") or cl.replace(".0", "").isdigit()):
+                        lab = f"{lab} · C{mcl.group()}"
+                        la = la + CLUSTER_NAMES["c" + mcl.group()]
                 notew = [w for w in _deep_words(r_[notecol]) if len(w) >= 5 and w not in WEAK_ANCHORS][:12] \
                     if notecol is not None and isinstance(r_[notecol], str) else []
                 rowvals = {}
@@ -770,6 +776,7 @@ _LIST_MARKER = re.compile(r"^\d+\.\s")
 _IDENT_CHAIN = re.compile(r"\d+[-‐]\d+[-‐]\d+")          # three digit groups joined by hyphens
 _PCT_AFTER = re.compile(r"(?i)^\s*(?:%|per cent|percent)")
 _HA_AFTER = re.compile(r"(?i)^\s*(?:ha|hectares?)\b")
+_NOMINAL_AFTER = re.compile(r"(?i)^\s*%?\s*(?:thinning|thinned|canopy removal|felling scenario)")   # "50% thinning" names a scenario
 _AREA_KEY = re.compile(r"(?i)area|_ha\b|hectare")
 _RANGE_AFTER = re.compile(r"^\s*(?:--|[\-\u2013\u2014]|to|and)\s*[+\-\u2212]?\d+(?:[.,]\d+)*")
 _BOUND_BEFORE = re.compile(r"(p|n|r²|R²)?\s*\\?([<>≤≥])\s*$")
@@ -819,6 +826,107 @@ def _hit(a: str, w: str, ws: set) -> bool:
 
 
 _NONLEN = re.compile(r"(?i)pct|percent|ratio|fraction|_p$|pvalue|r2|rsq|count|_n$|index|years?|months?|days?")
+_CLUSTER_ID = re.compile(r"(?i)(?<![a-z0-9])c([1-5])(?![0-9])")
+_CLUSTER_WORDS = {"lake edge": "1", "western residual": "3", "main forest": "4", "coastal forest": "5"}   # "dune" alone is a landform
+
+
+_CL_CACHE: dict[str, frozenset] = {}
+_CAND_CL: dict[tuple, frozenset] = {}
+
+
+def _clusters_in(text: str) -> frozenset:
+    hit = _CL_CACHE.get(text)
+    if hit is None:
+        if len(_CL_CACHE) > 20000:
+            _CL_CACHE.clear()
+        out = {m.group(1) for m in _CLUSTER_ID.finditer(text)}
+        low = text.lower()
+        out |= {k for w, k in _CLUSTER_WORDS.items() if w in low}
+        hit = _CL_CACHE[text] = frozenset(out)
+    return hit
+
+
+_SENT_END = re.compile(r"[.!?;]\s|\n")
+
+
+def _rowkey(label: str) -> str:
+    """A row's name with its cluster removed, so 'thinning / annual / C4' and
+    'thinning / annual / C5' count as the SAME row for the coherence pass: a
+    sentence that quotes C4 then C5 from one scenario is reading one line of the
+    table across."""
+    return _CLUSTER_ID.sub("", label).replace("  ", " ").strip(" /·")
+
+
+_SENT_CACHE: dict[tuple, str] = {}
+
+
+def _sentence(masked: str, s: int, e: int) -> str:
+    hit = _SENT_CACHE.get((s, e))
+    if hit is None:
+        hit = _SENT_CACHE[(s, e)] = _sentence_uncached(masked, s, e)
+    return hit
+
+
+_SW_CACHE: dict[str, set] = {}
+
+
+def _sent_words(sent: str) -> set:
+    hit = _SW_CACHE.get(sent)
+    if hit is None:
+        if len(_SW_CACHE) > 4000:
+            _SW_CACHE.clear()
+        hit = _SW_CACHE[sent] = set(_WORD.findall(sent))
+    return hit
+
+
+def _sentence_uncached(masked: str, s: int, e: int) -> str:
+    """The clause the token sits in — from the previous sentence end (or ';' / ':',
+    which in this corpus separate the items of a list) to the next. The anchor
+    window is a paragraph wide, which is right for finding a key's words but
+    wrong for choosing between keys: in the abstract every scenario name sits
+    within 300 characters of every scenario number."""
+    lo = 0
+    for m in _SENT_END.finditer(masked, max(0, s - 400), s):
+        lo = m.end()
+    m2 = _SENT_END.search(masked, e, e + 400)
+    hi = m2.start() if m2 else e + 400
+    return masked[lo:hi].lower()
+
+
+def _cluster_clash(c: Cand, w: str) -> bool:
+    """The sentence names C4 and C5; a candidate from a C2 row is not it (Martin,
+    2026-09-20: "the C4 reference prior should have caught this"). Only vetoes
+    when BOTH the text and the candidate name clusters and they share none."""
+    key = (c.label, c.col)
+    mine = _CAND_CL.get(key)
+    if mine is None:
+        mine = _CAND_CL[key] = _clusters_in(c.label + " " + (c.col or ""))
+    if not mine:
+        return False
+    theirs = _clusters_in(w)
+    return bool(theirs) and not (mine & theirs)
+
+
+_LABEL_WORD = re.compile(r"[a-z0-9]+")
+
+
+_LW_CACHE: dict[str, tuple] = {}
+
+
+def _label_words(label: str) -> tuple:
+    hit = _LW_CACHE.get(label)
+    if hit is None:
+        hit = _LW_CACHE[label] = tuple(wd for wd in set(_LABEL_WORD.findall(label.lower()))
+                                       if wd not in cc._STOPWORDS and len(wd) >= 2)
+    return hit
+
+
+def _label_hits(label: str, w: str, ws: set) -> int:
+    n = 0
+    for wd in _label_words(label):
+        if wd in ws or (len(wd) >= 5 and wd in w):
+            n += 1
+    return n
 
 
 def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, inside: bool, scoped: bool = False,
@@ -829,6 +937,9 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
     column AND its statistic word; a rolling-mean extreme needs the column and
     'rolling'. In scope a short whole number needs 1, outside it needs 2; unit
     conversions (mm, %) lose 0.5 so a plain rendering wins a tie."""
+    sent = _sentence(masked, s, e)
+    if _cluster_clash(c, sent):
+        return 0
     if c.tier == "reg":
         weak = not cc.searchable(cc.render(abs(c.value), _dp_of(masked[s:e].lstrip("+-\u2212\u2013"))), c.label)
         if not anchored_here(masked, s, e, c.label, strict=weak or short, w=w):
@@ -839,6 +950,12 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         score = 4 if anchored_here(masked, s, e, c.label, strict=True, w=w) else 3
         if c.rel in ALWAYS_IN_SCOPE and inside and scoped:
             score -= 0.5
+        # tie-breaker among registered keys that all anchor: the one MORE of whose
+        # own words sit in the sentence. "thinning / annual / C5" (three words
+        # present) outranks "ukcp18_2080s / winter / C4" (one) for a 6.1 that both
+        # render — which is how the abstract's thinning figure was painted against a
+        # climate-scenario winter row (2026-09-20).
+        score += 0.1 * min(5, _label_hits(c.label, sent, _sent_words(sent)))
         return score
     a = c.anchors
     score = 0.0
@@ -866,8 +983,8 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
             score += 0.5
     if c.form and c.form != unit:
         score -= 0.5                          # a converted rendering with no unit in the text
-    elif unit == "mm" and not c.form and _NONLEN.search(c.label + " " + (c.col or "")):
-        score -= 1.0                          # "+113 mm" is a length: a percentage sharing the digits is not it
+    elif unit == "mm" and not c.form and (_NONLEN.search(c.label + " " + (c.col or "")) or re.search(r"_M$|_m$|_M\b", c.label)):
+        score -= 1.0                          # "+113 mm" is a length: a percentage, or a constant in METRES, sharing the digits is not it
     need = 1 if inside else 2
     if short:
         need += 0 if inside else 1
@@ -877,6 +994,7 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
 
 
 def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
+    _SENT_CACHE.clear()
     masked = mask_markup(text)
     idx_by_start = {k[0]: v for k, v in idx.items()}
     line_starts = [0] + [m.end() for m in re.finditer("\n", text)]
@@ -915,12 +1033,17 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             # section's scope is ignored; a confirmed row is believed but noted.
             src = row["source_csv"]
             row_in = (not scope) or src in ALWAYS_IN_SCOPE or src in scope or str(pathlib.Path(src).parent) in scope
-            if row["status"] == "confirmed" or row_in:
+            if row["status"] != "confirmed" and _cluster_clash(Cand(src, row["key"], "", 0.0, None, "", "reg"), _sentence(masked, s, e)):
+                row = None                                 # a C3 key for a sentence about C4: not believed
+            if row is not None and (row["status"] == "confirmed" or row_in):
                 det = (f"{row['key']} · {pathlib.Path(src).name} · "
                        f"committed {row['committed']!r} · index {row['status']}"
                        + ("" if row_in else " — NB outside this section's sources"))
                 prelim.append((s, e, row["verdict"], det, []))
                 continue
+        if _NOMINAL_AFTER.match(masked[e:e + 24]):
+            prelim.append((s, e, "count", "nominal scenario parameter (Martin: 'it doesn't trace')", []))
+            continue
         bm = _BOUND_BEFORE.search(masked[max(0, s - 6):s])
         if bm:
             prelim.append((s, e, "bound", f"{(bm.group(1) or '').strip()} {bm.group(2)} {unsigned}", []))
@@ -1002,7 +1125,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
     marks = []
     for s, e, v, d, options in prelim:
         if v == "in":
-            near_rows = [(rel, lab) for pos, rel, lab in chosen_rows if abs(pos - s) <= COHERENCE_WINDOW]
+            near_rows = [(rel, _rowkey(lab)) for pos, rel, lab in chosen_rows if abs(pos - s) <= COHERENCE_WINDOW]
             # "65 of 66 wells": the N belongs to the file the n came from (Martin:
             # "you should be referring to the previous number source when talking
             # about n out of N"), so a same-file candidate that reads as a total
@@ -1011,7 +1134,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             prev_rel = chosen_rows[-1][1] if of_n else None
             def key(t):
                 sc, c = t
-                same = (c.rel, c.label) in near_rows
+                same = (c.rel, _rowkey(c.label)) in near_rows
                 samefile = any(r == c.rel for r, _ in near_rows)
                 bonus = (1.5 if same else 0.5 if samefile else 0) if sc >= 2 else 0
                 if of_n and c.rel == prev_rel and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
@@ -1023,7 +1146,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             sc, c = options[0]
             chosen_rows.append((s, c.rel, c.label))
             verdict = "traced" if (c.tier == "reg" or c.rel in REG_FILES) else "deep"
-            same = (c.rel, c.label) in near_rows
+            same = (c.rel, _rowkey(c.label)) in near_rows
             det = (f"{c.label}{(' · ' + c.col) if c.col else ''} = {c.value:g} [{pathlib.Path(c.rel).name}]"
                    + (f" as {c.form}" if c.form else "")
                    + (" — same row as its neighbours" if same else "")

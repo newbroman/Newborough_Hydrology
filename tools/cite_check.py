@@ -45,7 +45,14 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-09-20. _CONSTANT_RE admits a
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-20. 19_scenario_summary is
+#   keyed on (scenario, season, cluster), not cluster alone: keyed on "C4" its
+#   25 rows per cluster collapsed under one label, so the abstract's stale
+#   "+8.6 mm" clearfell figure could match ANY C4 cell and its corrected "+6.1"
+#   (C5 thinning, annual) matched a C4 winter row and read as "same row". The
+#   stray second `__version__` assignment below is retired to a comment: it had
+#   shadowed this one at runtime since 1.10.0.
+# v1.19.0  # Hollingham (2026) — 2026-09-20. _CONSTANT_RE admits a
 #   lowercase letter in a constant's name: SD15b, SD15b_REC and SD15b_WINTER
 #   (the wet-slack thresholds) join the value map. Three names in config.py
 #   are affected, no other file. (The stray second `__version__` below still
@@ -185,7 +192,7 @@ __version__ = "1.19.0"  # Hollingham (2026) — 2026-09-20. _CONSTANT_RE admits 
 #   The unit token is also required: the matched number must be followed by mm.
 #   Without that the pass is a bare 1000x sweep, which is the collision trap.
 #
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-08-22. near_misses() was
+# v1.10.0  # Hollingham (2026) — 2026-08-22. near_misses() was
 #   generating the value's own rendering as a near miss of itself. It excluded
 #   k = 0 but not the STRING: 2.0865 renders at 3 dp as "2.087", and so does
 #   2.0865 + 0.001, because in binary that sum is 2.08749999999999991. Every
@@ -404,7 +411,7 @@ EXTRA_VALUE_TABLES = [
     # documents — none of it visible to any check, because this file has no
     # report-numbers counterpart and was in no value table. The forestry
     # scenarios moved 23-118%; nothing would have said so.
-    ("outputs/19_spatial_groundwater/19_scenario_summary.csv", "cluster",
+    ("outputs/19_spatial_groundwater/19_scenario_summary.csv", ("scenario", "season", "cluster"),
      ["dh_mean_m", "dh_median_m", "we_mean_mm", "we_median_mm"]),
     ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", "Cluster_Label",
      ["R2"]),

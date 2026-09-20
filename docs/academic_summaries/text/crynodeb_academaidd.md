@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_14.odt — do not edit. source-sha256=1ef34dc05e4e59e9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_15.odt — do not edit. source-sha256=23944c72effda2ea pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -58,7 +58,7 @@ CEH36: Mae tri amcangyfrifwr annibynnol yn cynhyrchu effeithiau crafu cyson --- 
 
 CEH18/CEH21 (Hydref 2023): Cofnod ôl-ymyrraeth annigonol (\<2 flynedd) ar gyfer casgliad ystadegol. Mae\'r ddau safle mewn safleoedd mwy tua\'r môr lle mae graddiant cilio\'r arfordir yn ffactor cymysglyd. Nid oes signal ôl-grafu arwyddocaol yn ganfyddadwy yn y naill ffynnon na\'r llall yn erbyn cefndir amrywioldeb o flwyddyn i flwyddyn.
 
-BACI clirdorri --- Rhagfyr 2017 (8.4 ha)
+BACI clirdorri --- Rhagfyr 2017 (4.4 ha)
 
 Cynllun ANCOVA-BACI pum haen: 17 ffynnon, tri diffiniad rheoli annibynnol (Coedwig, Hinsawdd, Cyfunol). Prif ganlyniad (rheolydd Coedwig, ffynnon effaith WMC3): cam clirdorri +0.113 m (p = 0.002, CI \[0.042, 0.184\]). Ymyl y Goedwig: +0.030 m (p = 0.249). Estyniad synthetig (10h, centroid WMC3+FE1+FE2): +0.085 m (p \< 0.001). ANCOVA haf yn unig (is-set Meh--Medi): +0.046 m (p = 0.436) --- heb fod yn arwyddocaol. Mae\'r di-ganlyniad haf yn gadarn ar draws pob diffiniad rheoli.
 

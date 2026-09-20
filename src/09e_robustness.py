@@ -28,7 +28,9 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.2.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "2.3.0"  # Hollingham (2026) — 2026-09-20. Emits CEH36_synthetic_control_n_donors:
+#   report6 §1 quotes "11 donor wells" and the count lived only in a Note string (E25).
+# 2.2.0 — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v2.1.0  # Hollingham (2026) — modularised from monolithic 09
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
@@ -204,6 +206,8 @@ def main():
         {"Parameter": "CEH36_SSM_forward_residual_step",
          "Value": round(ssm_step, 4) if pd.notna(ssm_step) else "",
          "Unit": "m", "Note": "SSM calibrated on pre-2015 baseline"},
+        {"Parameter": "CEH36_synthetic_control_n_donors", "Value": len(donors),
+         "Unit": "count", "Note": "donor wells in the synthetic-control composite (DONOR_CANDIDATES present in the record)"},
     ]
     pd.DataFrame(report_rows).to_csv(OUT_09E_REPORT_NUMBERS, index=False)
     saved(f"{OUT_09E_REPORT_NUMBERS.name}")

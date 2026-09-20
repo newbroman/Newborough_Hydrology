@@ -294,7 +294,17 @@ def _context(text: str, a: int, b: int) -> str:
         # pairs a reference with the neighbouring bullet's CSV, which is how
         # the supplement's (correct) Table 10 bullet read as WRONG.
         return line
-    return text[max(0, a - WINDOW):b + WINDOW].replace("\n", " ")
+    # Otherwise the SENTENCE, not a fixed window. A reference and a CSV belong
+    # together only when one sentence names both. +/- 200 characters reaches
+    # into the caption of the table next door: two report9 sentences about the
+    # volumetric balance (Table 6) sat beside the recession table's caption and
+    # were read as citing 16_water_bal_rec_table.csv, which is Table 5.
+    ls = max(text.rfind(". ", 0, a), text.rfind("\n", 0, a),
+             text.rfind("; ", 0, a), text.rfind(") ", 0, a))
+    ls = 0 if ls < 0 else ls + 1
+    m = re.search(r"[.;]\s|\n", text[b:b + WINDOW])
+    le = b + (m.end() if m else WINDOW)
+    return text[ls:le].replace("\n", " ")
 
 
 TABLE_SOURCES: dict[str, set[str]] = {}
@@ -375,6 +385,19 @@ def main() -> int:
                 # numbered table. Reading the "Table 14" in its prose as a claim
                 # about `nm` inverts what the row is for.
                 tally["DISCLAIMED"] = tally.get("DISCLAIMED", 0) + 1
+                continue
+            named = re.search(r"(?i)paper\s*([12])", rowtext)
+            if named:
+                # The row says which document it means. "17_wtf_01_sy_estimates
+                # .csv | ... | Paper 1 Table 4" is a claim about Paper 1, and
+                # reading it against the report's numbering made it a fault.
+                lbl, mp = f"paper{named.group(1)}", (p1map, p2map)[int(named.group(1)) - 1]
+                tag = (f"PAPER {named.group(1)}" if cited in mp.get(nm, set())
+                       else f"PAPER {named.group(1)}?")
+                note = f"{nm} -> {lbl} {'/'.join(sorted(mp.get(nm, {'?'})))}"
+                tally[tag] = tally.get(tag, 0) + 1
+                if args.faults or not args.unclear:
+                    rows.append((cited + letter, tag, note, rowtext[:150]))
                 continue
             nums = rmap.get(nm)
             if nums is None:

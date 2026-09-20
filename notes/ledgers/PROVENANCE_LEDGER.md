@@ -5,7 +5,7 @@
 
 *Derived live from the ODT captions, `tools/table_configs.py`, `tools/figure_map.csv` and the papers' own exhibit manifests. Keyed by OUTPUT FILE, so the question it answers is: this script's output changed — which exhibits, in which documents, have to be re-checked?*
 
-**144 exhibit(s)** across the corpus, drawing on **146 output file(s)**.
+**145 exhibit(s)** across the corpus, drawing on **146 output file(s)**.
 
 | Output file | Document | Exhibit | Caption |
 |---|---|---|---|
@@ -49,6 +49,7 @@
 | `07_coeff_03_beta3_drainage.png` | Paper 1 | Figure 13 | β₃ drainage-rate surface |
 | `07_coeff_04_r2_quality.png` | report9.odt | Figure 51 | Figure 1.47: Spatial SSM coefficient atlas for the 66-well reference network, Ne |
 | `07_coeff_05_cluster_ranges.csv` | Paper 1 | Table 6 | Per-well SSM coefficient ranges by cluster |
+|  | report9.odt | Table 1.4 | Within-cluster range of the per-well SSM coefficients, reference network (Script |
 | `07_coeff_maps_data.csv` | Paper 1 | Figure 11 | β₁ recharge-sensitivity surface |
 |  | Paper 1 | Figure 12 | β₂ atmospheric-draw surface |
 |  | Paper 1 | Figure 13 | β₃ drainage-rate surface |
@@ -56,11 +57,11 @@
 | `08_lcsc_02_r2_improvement_map.png` | Paper 1 | Figure 9 | SSM-over-TLM iterative NSE gain |
 |  | report9.odt | Figure 17 | Figure 1.13a: SSM gain over TLM across all 66 reference wells. Panel (a): iterat |
 | `08_lcsc_04_table3_benchmark_summary.csv` | Paper 1 | Table 5 | SSM (B) vs traditional linear model (A) benchmarking |
-|  | report9.odt | Table 1.8 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
-| `08_lcsc_model_stats.csv` | report9.odt | Table 1.8 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
+|  | report9.odt | Table 1.9 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
+| `08_lcsc_model_stats.csv` | report9.odt | Table 1.9 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
 | `08_perwell_nse.csv` | Paper 1 | Figure 15 | Aquifer diagnostic synthesis (t½ vs ΔNSE, sized by Sy) |
 |  | Paper 1 | Figure 9 | SSM-over-TLM iterative NSE gain |
-| `09_scrape_04b_beta3_era_summary.csv` | report9.odt | Table 1.9 | Era-specific β₃ storage decay coefficients at scraping treatment and control wel |
+| `09_scrape_04b_beta3_era_summary.csv` | report9.odt | Table 1.10 | Era-specific β₃ storage decay coefficients at scraping treatment and control wel |
 | `09_scrape_05_tier1_background_drift.png` | report9.odt | Figure 18 | Figure 1.14: Tier 1 background environmental drift analysis. CUSUM time series f |
 | `09_scrape_06_tier2_scraping_signal.png` | report9.odt | Figure 19 | Figure 1.15: Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 |
 | `09_scrape_07_beta3_confidence.png` | report9.odt | Figure 21 | Figure 1.17: Era-specific β₃ storage decay coefficients with 95% confidence inte |
@@ -75,7 +76,7 @@
 | `09f_management_effects.png` | report10.odt | Figure 79 | Figure 1.3: Spatial reach and development timescale of the management interventi |
 | `09g_coastal_vs_climate_reach.png` | Paper 1 | Figure 21 | Conceptual coastal-vs-climate reach |
 | `09g_mechanism_grid.png` | report10.odt | Figure 80 | Figure 1.4: Four drivers of the Newborough water table — schematic cross-section |
-| `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.10 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
+| `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.11 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
 | `10a_06_climate_sensitivity.png` | report9.odt | Figure 29 | Figure 1.25: Climate sensitivity: cumulative water balance (CWB) vs BACI displac |
 | `10a_07_cusum_impact.png` | Paper 2 | Figure 3 | Forest-control BACI + CUSUM (Impact) |
 |  | report9.odt | Figure 31 | Figure 1.27: Forest control BACI timeseries and CUSUM for the Impact tier (WMC3) |
@@ -85,24 +86,24 @@
 | `10b_spatial_fell_corrected.png` | report9.odt | Figure 35 | Figure 1.31: Climate-corrected spatial step-change map for the clearfell era (De |
 | `10b_spatial_scrape_corrected.png` | report9.odt | Figure 26 | Figure 1.22: Climate-corrected spatial step-change map for the scraping era (Apr |
 | `10c_forest_zone_correlations.csv` | Paper 1 | Table 8 | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r ( |
-|  | report9.odt | Table 1.22 | Per-well spatial predictors of SSM coefficient variation within the forest zone |
-| `10d_02_summer_minima_shifts.csv` | report9.odt | Table 1.12 | Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well mi |
-| `10d_03_mixed_model_results.csv` | report9.odt | Table 1.13 | Mixed-effects model results: pooled clearfell step by tier against Forest contro |
+|  | report9.odt | Table 1.23 | Per-well spatial predictors of SSM coefficient variation within the forest zone |
+| `10d_02_summer_minima_shifts.csv` | report9.odt | Table 1.13 | Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well mi |
+| `10d_03_mixed_model_results.csv` | report9.odt | Table 1.14 | Mixed-effects model results: pooled clearfell step by tier against Forest contro |
 | `10d_04_summer_minima_forest_ctrl.png` | report9.odt | Figure 33 | Figure 1.29: Summer minima analysis against the Forest control. (a) Raw annual s |
-| `10e_01_coefficient_shifts.csv` | report9.odt | Table 1.14 | Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BA |
+| `10e_01_coefficient_shifts.csv` | report9.odt | Table 1.15 | Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BA |
 | `10e_03_coefficient_shifts.png` | Paper 2 | Figure 5 | Before/after SSM coefficient dumbbells by tier; β₁/β₂ %-shift summary |
 |  | report9.odt | Figure 36 | Figure 1.32: Before- and after-clearfell SSM coefficient estimates with 95% CI f |
 | `10g_02_clearfell_transect.png` | report9.odt | Figure 37 | Figure 1.33: Clearfell transect: post-felling step change vs distance from felli |
 | `10m_02_wmc3_baci_dual.png` | report9.odt | Figure 30 | Figure 1.26: WMC3 (Impact well) and the forest-control mean across the three int |
-| `11_forecast_pflood_summary.csv` | report9.odt | Table 1.18 | Cluster-specific linear forms derived from the iterated closed-form P_flood solu |
-| `11_forecast_summer_transfer_functions.csv` | report9.odt | Table 1.16 | Summer drought prediction equations (Section 3.6.2). P_summer = total April–Sept |
-| `11_forecast_winter_transfer_functions.csv` | report9.odt | Table 1.15 | Winter peak prediction equations fitted at hydrological-year resolution (Section |
+| `11_forecast_pflood_summary.csv` | report9.odt | Table 1.19 | Cluster-specific linear forms derived from the iterated closed-form P_flood solu |
+| `11_forecast_summer_transfer_functions.csv` | report9.odt | Table 1.17 | Summer drought prediction equations (Section 3.6.2). P_summer = total April–Sept |
+| `11_forecast_winter_transfer_functions.csv` | report9.odt | Table 1.16 | Winter peak prediction equations fitted at hydrological-year resolution (Section |
 | `11b_01_summer_minima_depth.png` | report9.odt | Figure 40 | Figure 1.36: Spatial distribution of mean annual summer minimum water table dept |
 | `11b_02_winter_maxima_depth.png` | report9.odt | Figure 42 | Figure 1.38: Spatial distribution of mean annual winter maximum water table dept |
 | `11b_03_pflood.png` | report9.odt | Figure 41 | Figure 1.37: Spatial distribution of P_flood — the minimum cumulative winter rai |
-| `11b_03_pflood_per_well.csv` | report9.odt | Table 1.17 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
+| `11b_03_pflood_per_well.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
 | `11b_04_flood_frequency.png` | report9.odt | Figure 43 | Figure 1.39: Winter flooding frequency across the full dipwell network (66 refer |
-| `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.17 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
+| `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
 | `11c_pflood_achievability.png` | report10.odt | Figure 81 | Figure 1.5: Per-well achievability categorization against the P_flood rainfall m |
 | `12_01_dem_site_overview.png` | Paper 1 | Figure 1 | Site topography, geology & monitoring network |
 |  | report7.odt | Figure 1 | Figure 1.1: Site topography and hydrogeological features. Digital elevation mode |
@@ -111,14 +112,14 @@
 | `14b_year_of_crossing.png` | report10.odt | Figure 76 | Figure 1.1: Bootstrap year-of-crossing for the five-cluster summer-minimum trend |
 | `16_water_bal_bar_ms.png` | Paper 1 | Figure 7 | Water-balance decomposition by cluster |
 |  | report9.odt | Figure 11 | Figure 1.8: Water balance decomposition by hydrogeological cluster, Newborough W |
-| `16_water_bal_rec_table.csv` | report9.odt | Table 1.5 | Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). W |
+| `16_water_bal_rec_table.csv` | report9.odt | Table 1.6 | Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). W |
 | `16_water_bal_table.csv` | Paper 1 | Figure 7 | Water-balance decomposition by cluster |
 |  | Paper 1 | Table 2 | Mean monthly head-space water balance (m/month) |
-|  | report9.odt | Table 1.4 | Mean monthly head-space water balance decomposition by hydrogeological cluster, |
+|  | report9.odt | Table 1.5 | Mean monthly head-space water balance decomposition by hydrogeological cluster, |
 | `16_water_bal_vol_table.csv` | Paper 1 | Table 3 | Indicative annual volumetric water balance (mm/yr) |
-|  | report9.odt | Table 1.6 | Indicative annual volumetric water balance by cluster, 2005–2026. At steady stat |
+|  | report9.odt | Table 1.7 | Indicative annual volumetric water balance by cluster, 2005–2026. At steady stat |
 | `17_wtf_01_sy_estimates.csv` | Paper 1 | Table 4 | Specific yield by cluster, WTF method — event-median (Approach B) |
-|  | report9.odt | Table 1.7 | Specific yield (Sy) estimates by hydrogeological cluster derived from the water |
+|  | report9.odt | Table 1.8 | Specific yield (Sy) estimates by hydrogeological cluster derived from the water |
 | `17_wtf_03_event_boxplot.png` | report9.odt | Figure 12 | Figure 0: Distribution of event-level specific yield (Sy) from monthly rising-li |
 | `18_wtf_01_well_sy_estimates.csv` | Paper 1 | Figure 15 | Aquifer diagnostic synthesis (t½ vs ΔNSE, sized by Sy) |
 |  | Paper 1 | Figure 8 | Interception-corrected WTF specific-yield surface |
@@ -158,8 +159,8 @@
 | `25_01_panel_fit_parameters.csv` | Paper 1 | Figure 21 | Conceptual coastal-vs-climate reach |
 | `25_03_cluster_partition.csv` | Paper 1 | Figure 18 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | Paper 1 | Table 9 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate ( |
-|  | report9.odt | Table 1.23 | Per-cluster decomposition of the observed summer-minimum decline under the fores |
-| `25_04_baci_corroboration.csv` | report9.odt | Table 1.11 | The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the |
+|  | report9.odt | Table 1.24 | Per-cluster decomposition of the observed summer-minimum decline under the fores |
+| `25_04_baci_corroboration.csv` | report9.odt | Table 1.12 | The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the |
 | `25_05_fit_diagnostic.jpg` | Paper 1 | Figure 18 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | report9.odt | Figure 56 | Figure 1.52: Network-scale coastal-retreat gradient. Per-well summer-minimum slo |
 | `25_06_baci_corroboration_chart.jpg` | Paper 1 | Figure 18 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
@@ -167,10 +168,10 @@
 | `25_13_rolling_window.png` | report9.odt | Figure 57 | Figure 1.53: Fixed-length rolling-window sensitivity of the cross-shore decay fi |
 | `25_report_numbers.csv` | Paper 1 | Figure 18 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | Paper 1 | Figure 20 | Episodic coastal-retreat reach |
-| `26_ebf_band_summary.csv` | report9.odt | Table 1.21 | Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetne |
+| `26_ebf_band_summary.csv` | report9.odt | Table 1.22 | Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetne |
 | `26_ebf_prediction_scatter.png` | report9.odt | Figure 47 | Figure 1.43: Between-well prediction of mean Ellenberg-F moisture by three water |
-| `26_ebf_prediction_summary.csv` | report9.odt | Table 1.20 | Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the |
-| `26_msl_5yr_cluster_threshold_summary.csv` | report9.odt | Table 1.19 | Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with coun |
+| `26_ebf_prediction_summary.csv` | report9.odt | Table 1.21 | Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the |
+| `26_msl_5yr_cluster_threshold_summary.csv` | report9.odt | Table 1.20 | Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with coun |
 | `26_msl_5yr_map.png` | report9.odt | Figure 45 | Figure 1.41: Spatial pattern of the latest available 5-year mean spring water le |
 | `32_differential_movement_2011_2025.png` | report9.odt | Figure 69 | Figure 1.65: Secular differential movement of the spring (March,April, May) wate |
 | `33_amplification_field.png` | report9.odt | Figure 71 | Figure 1.67: The climate-response envelope of the spring water table. Relative a |

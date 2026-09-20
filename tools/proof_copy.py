@@ -78,7 +78,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-20. Every red number carries its
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-20. Cross-references are painted
+#   too: every "Figure N", "Table N", "Section x.y" and "§x.y" is resolved against
+#   figure_map.csv, reference_index_table.csv and section_map.csv, and checked by
+#   meaning the way ref_audit and section_ref_audit do — a script or PNG named in
+#   the sentence must be the figure's own, a figure cited beside a § must live in
+#   that section. The NUMBER_LEDGER and the symbol register are consulted: a red
+#   number whose sentence matches a ledger row shows where the ledger says it
+#   lives, and a number introduced by a registered glyph (β₃, λ, δ₀, τ…) is
+#   admitted only from that sense's own keys, in that sense's units.
+# v1.10.0  2026-09-20. Every red number carries its
 #   HISTORY: the changelogs, decision log, working notes, ledgers and scripts are
 #   indexed once, and a number no CSV holds shows where it has been discussed or
 #   hard-coded, ranked by the words it shares with the sentence (Martin: "grep the
@@ -822,6 +831,66 @@ _QTY_PAT = {
 }
 
 
+SYMBOLS = REPO / "tools" / "symbol_register.csv"
+_SYMS: list | None = None
+_GLYPH_BEFORE = re.compile(r"([βδλτκσφψξηαε][₀₁₂₃0-9]?|t½|Sy|R²)\s*(?:=|≈|of|is|~)\s*$")
+_UNIT_DIM = {"m": "m", "mm": "mm", "m month-1": "m", "mm month-1": "mm", "mm yr-1": "mm", "m yr-1": "m", "mm/yr": "mm",
+             "dimensionless": "ratio", "-": "ratio", "months": "duration", "month": "duration", "years": "duration",
+             "m2 d-1": "", "d": "duration", "days": "duration", "%": "pct", "ha": "area"}
+
+
+def _symbol_senses() -> list:
+    global _SYMS
+    if _SYMS is not None:
+        return _SYMS
+    out = []
+    if SYMBOLS.exists():
+        for r in csv.DictReader(SYMBOLS.open(encoding="utf8")):
+            idents = {r.get("sense_id", "").strip().lower()}
+            ctx = []
+            for tok in (r.get("context_any") or "").split("|"):
+                tok = tok.strip()
+                if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{2,}", tok):
+                    idents.add(tok.lower())
+                elif tok:
+                    ctx.append(tok.lower())
+            out.append({"glyph": r.get("glyph", "").strip(), "sense": r.get("sense_id", "").strip(),
+                        "idents": {i for i in idents if len(i) >= 3}, "ctx": ctx,
+                        "units": (r.get("units") or "").strip(), "status": r.get("status", "")})
+    _SYMS = out
+    return out
+
+
+def _symbol_gate(masked: str, s: int, clause: str):
+    """(sense, admissible-key regex, dimension) when a registered glyph introduces the
+    number ("β₃ = 0.089", "λ ≈ 230 m", "δ₀ = −31 mm/yr"); the sense is chosen by
+    which sense's context words the clause carries. None when no glyph applies."""
+    m = _GLYPH_BEFORE.search(masked[max(0, s - 12):s])
+    if not m:
+        return None
+    g = m.group(1)
+    base = g[0]
+    senses = [x for x in _symbol_senses() if x["glyph"] == base or x["glyph"] == g]
+    if not senses:
+        return None
+    low = clause.lower()
+    senses.sort(key=lambda x: -sum(1 for c in x["ctx"] if c in low))
+    best = senses[0]
+    sub_ = g[1:] if len(g) > 1 and g[1] in "₀₁₂₃0123" else ""
+    idents = set(best["idents"])
+    if base == "β" and sub_:
+        n = "₀₁₂₃".find(sub_) if sub_ in "₀₁₂₃" else int(sub_)
+        idents = {f"beta_{n}", f"beta{n}", f"b{n}", f"beta_{n}_"}
+    if base == "δ" and sub_ in ("₀", "0"):
+        idents |= {"delta0", "delta_0", "coastal_decline"}
+    if base == "λ":
+        idents |= {"lambda", "reach"}
+    if base == "τ":
+        idents |= {"tau", "storage_drainage"}
+    pat = re.compile("|".join(re.escape(i) for i in sorted(idents, key=len, reverse=True)), re.I) if idents else None
+    return best["sense"], pat, _UNIT_DIM.get(best["units"], "")
+
+
 def _qty_of(masked: str, s: int) -> str | None:
     m = _QTY_BEFORE.search(masked[max(0, s - 8):s])
     if not m:
@@ -1275,6 +1344,13 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         elif tok_text_plus or masked[max(0, s - 1):s] == "±":
             cands = [c for c in cands if c.value >= 0]   # "+6.0" and "±25" are not matched by a negative value
         tok = _tok_dim(after, qty, _sentence(masked, s, e), masked[masked.rfind("\n", 0, s) + 1:s].lower())
+        sym = _symbol_gate(masked, s, _sentence(masked, s, e))
+        if sym:
+            sense, spat, sdim = sym
+            if spat:
+                cands = [c for c in cands if spat.search((c.col or "") + " " + c.label)]
+            if sdim and not tok[0]:
+                tok = (sdim, tok[1], tok[2])              # the register's units stand in for a unit the text omits
         if "." in unsigned:
             # "6.0 mm" is not the integer 6 of a count or of a column nobody has typed:
             # a whole-number value matches a decimal rendering only when its own name
@@ -1570,6 +1646,9 @@ p{margin:.7em 0} pre{font:12px/1.35 Menlo,Consolas,monospace;overflow-x:auto;bac
 .stale{background:#ffe4b8;border-color:#e07000;font-weight:bold}
 .untraced{background:#ffd6d6;border-color:#d00;font-weight:bold}
 .count{background:#f0f0f0;border-color:#bbb;color:#555}
+.xref{background:#e8eefc;border-color:#6d8fe6;border-bottom-style:dotted}
+.xbad{background:#ffd6d6;border-color:#d00;font-weight:bold;border-bottom-style:double}
+.xmean{background:#fde2c8;border-color:#e0700d;border-bottom-style:double}
 #legend{font:13px Helvetica,Arial,sans-serif;background:#f6f6f6;border:1px solid #ddd;padding:.6em 1em;margin-bottom:1em}
 #legend span.n{margin-right:.8em}
 #toc{font:13px Helvetica,Arial,sans-serif;columns:2;margin:1em 0 2em}
@@ -1674,7 +1753,10 @@ window.addEventListener('load', async () => {
       if (db) {
         dbq = db.collection('corrections');
         const all = (await dbq.limit(1000).get()).docs.map(d => d.data());
-        retire(all.filter(it => it.done));
+        // the store is the truth: whatever it no longer holds as open — marked done,
+        // or deleted when a session cleared the queue — leaves this browser too
+        const open = new Set(all.filter(it => !it.done).map(it => it.id + '@' + it.ts));
+        retire(load().filter(it => !open.has(it.id + '@' + it.ts)));
         merge(all.filter(it => !it.done));
         badge(); drawer();
       }
@@ -1686,7 +1768,9 @@ window.addEventListener('load', async () => {
 LEGEND = [("traced", "traced"), ("deep", "in a source CSV, unregistered"),
           ("elsewhere", "only OUTSIDE the section's sources"),
           ("rounding", "rounding (±1 last digit)"), ("stale", "stale"),
-          ("untraced", "untraced"), ("count", "count")]
+          ("untraced", "untraced"), ("count", "count"),
+          ("xref", "cross-reference resolves"), ("xmean", "cross-reference points at the WRONG thing"),
+          ("xbad", "cross-reference does not resolve")]
 
 
 def paint(text: str, marks, secs, title: str, only_section: str | None, scope_map=None):
@@ -1780,7 +1864,8 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
 
 
 LEGEND_NAME = {"traced": "traced", "deep": "unregistered", "elsewhere": "ELSEWHERE", "unanchored": "unanchored", "rounding": "rounding",
-               "stale": "STALE", "untraced": "UNTRACED", "count": "count"}
+               "stale": "STALE", "untraced": "UNTRACED", "count": "count",
+               "xref": "xref", "xmean": "XREF-MEANING", "xbad": "XREF-BAD"}
 
 
 _SPAN_SEQ = [0]
@@ -1881,6 +1966,47 @@ def _history_index() -> dict:
     return idx
 
 
+LEDGER = REPO / "notes" / "ledgers" / "NUMBER_LEDGER.md"
+_LEDGER: list | None = None
+
+
+def _ledger_rows() -> list:
+    """(id, quantity, source, cited_in, notes, words) from NUMBER_LEDGER.md's tables."""
+    global _LEDGER
+    if _LEDGER is not None:
+        return _LEDGER
+    rows = []
+    if LEDGER.exists():
+        for line in LEDGER.read_text(encoding="utf8").splitlines():
+            if not line.startswith("| N-"):
+                continue
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if len(cells) < 4:
+                continue
+            nid, qty, src = cells[0], cells[1], cells[2]
+            notes = cells[5] if len(cells) > 5 else ""
+            words = {w for w in _WORD.findall((qty + " " + notes).lower()) if len(w) >= 5 and w not in cc._STOPWORDS}
+            rows.append((nid, qty, src, cells[4] if len(cells) > 4 else "", notes, words))
+    _LEDGER = rows
+    return rows
+
+
+def ledger_of(clause: str) -> str:
+    """The NUMBER_LEDGER row whose quantity the sentence is talking about, if any:
+    where the ledger says this number LIVES (Martin: "don't we have a number and
+    symbols ledger?"). Two shared content words or more; the best row only."""
+    cw = {w for w in _WORD.findall(clause.lower()) if len(w) >= 5 and w not in cc._STOPWORDS}
+    best = None
+    for nid, qty, src, cited, notes, words in _ledger_rows():
+        k = len(cw & words)
+        if k >= 2 and (best is None or k > best[0]):
+            best = (k, nid, qty, src)
+    if not best:
+        return ""
+    k, nid, qty, src = best
+    return f" ‖ ledger {nid}: {qty} — lives in {src}"
+
+
 def history_of(value: str, clause: str = "") -> str:
     key = _norm_num(value).replace(",", "").lstrip("-")
     hits = _history_index().get(key, [])
@@ -1903,6 +2029,148 @@ def history_of(value: str, clause: str = "") -> str:
     return " ‖ history: " + " | ".join(f"{pathlib.Path(f).name}: …{s}…" for f, s in shown) + more
 
 
+# ---------------------------------------------------------------------------
+# cross-references: does "Figure 27" exist, and is it the figure the sentence means?
+# ---------------------------------------------------------------------------
+# Martin, 2026-09-20: "the other thing that needs adding to the proof reading tool
+# is the cross references". Resolution comes from the maps the reference gates
+# already keep (figure_map.csv from each caption's Source: marker, reference_index_
+# table.csv, section_map.csv). Meaning is checked the way ref_audit and
+# section_ref_audit do, on evidence the sentence itself carries: a script id or
+# PNG named in the sentence must be the cited figure's own; a figure cited in the
+# same sentence as a §/Section must live in that section (an ancestor agrees).
+FIG_MAP = REPO / "tools" / "figure_map.csv"
+TAB_MAP = REPO / "tools" / "reference_index_table.csv"
+_XREF = re.compile(r"(?<![A-Za-z])(Figures?|Figs?\.?|Tables?|Sections?|§)\s?(\d+(?:\.\d+)*[a-d]?)"
+                   r"((?:\s*(?:--|–|—|-|,|and|&)\s*\d+(?:\.\d+)*[a-d]?)*)")
+_XREF_ITEM = re.compile(r"\d+(?:\.\d+)*[a-d]?")
+_XREF_RANGE = re.compile(r"(\d+)([a-d]?)\s*(?:--|–|—|-)\s*(\d+)([a-d]?)")
+_SCRIPT_MENTION = re.compile(r"(?i)\bscript\s+(\d{2}[a-z]?)\b|\b(\d{2}[a-z]?)_[a-z0-9_]+\.(?:py|png|jpg|csv)\b")
+_XREF_SEP = re.compile(r"\s*(?:--|–|—|-|,|\band\b|&)\s*")
+_XREF_TABLES: dict | None = None
+
+
+def _xref_tables() -> dict:
+    global _XREF_TABLES
+    if _XREF_TABLES is not None:
+        return _XREF_TABLES
+    figs, tabs, secs = {}, {}, {}
+    if FIG_MAP.exists():
+        for r in csv.DictReader(FIG_MAP.open(encoding="utf8")):
+            figs[r["number"].strip()] = r
+    if TAB_MAP.exists():
+        for r in csv.DictReader(TAB_MAP.open(encoding="utf8")):
+            tabs[r["number"].strip()] = r
+    if SECTION_MAP.exists():
+        for r in csv.DictReader(SECTION_MAP.open(encoding="utf8")):
+            secs[r["number"].strip()] = r
+    _XREF_TABLES = {"fig": figs, "tab": tabs, "sec": secs}
+    return _XREF_TABLES
+
+
+def _fig_script(row) -> str:
+    m = re.match(r"(\d{2}[a-z]?)_", pathlib.Path(row.get("source") or "").name)
+    return m.group(1) if m else ""
+
+
+def xref_marks(text: str, masked: str, taken: list) -> list:
+    """(s, e, verdict, detail) for every cross-reference; `taken` spans (numbers
+    already painted) inside a reference are dropped by the caller."""
+    T = _xref_tables()
+    out = []
+    for m in _XREF.finditer(masked):
+        kind = m.group(1).lower()
+        if kind.startswith("fig") and re.search(r"(?i)\bscript\s*$", masked[max(0, m.start() - 8):m.start()]):
+            continue                                           # "script figures 21-03": a pipeline output id
+        if re.match(r"[a-z_0-9]", masked[m.end():m.end() + 1]):
+            continue                                           # "figure 14b_year_crossing.csv": a filename
+        bol = masked.rfind("\n", 0, m.start()) + 1
+        if masked[bol:m.start()].strip() == "" and masked[m.start():m.start() + 12].startswith(m.group(1)) \
+                and re.match(r"\s*:", masked[m.end():m.end() + 3]):
+            continue                                           # a caption's own "Figure N:" — not a reference
+        sent = _sentence(masked, m.start(), m.end(), full=True)
+        # the numbers this reference names, ranges expanded
+        items = []
+        rest = m.group(2) + (m.group(3) or "")
+        toks = [x for x in _XREF_SEP.split(rest) if x]
+        seps = _XREF_SEP.findall(rest)
+        for i, tk in enumerate(toks):
+            items.append(tk)
+            # "Figures 7--9": an integer range expands; "Sections 4.8.1--4.8.2" names its two ends
+            if i + 1 < len(toks) and i < len(seps) and re.search(r"--|–|—|-", seps[i]) \
+                    and tk.isdigit() and toks[i + 1].isdigit() and 0 < int(toks[i + 1]) - int(tk) <= 12:
+                items += [str(k) for k in range(int(tk) + 1, int(toks[i + 1]))]
+        items = list(dict.fromkeys(items))
+        verdict, det = "xref", ""
+        parts = []
+        for it in items:
+            if kind.startswith("fig"):
+                row = T["fig"].get(it.rstrip("abcd")) or T["fig"].get(it)
+                if not row:
+                    verdict = "xbad"; parts.append(f"Figure {it}: no such figure in figure_map.csv"); continue
+                cap = (row.get("caption") or "")[:90]
+                src = pathlib.Path(row.get("source") or "").name
+                p = f"Figure {it} → §{row.get('section', '')} ({row.get('document', '')}) · {cap} · {src}"
+                # meaning: a script or PNG the sentence names must be this figure's
+                own = _fig_script(row)
+                # the script mentioned in the SAME CLAUSE, a preceding mention first (ref_audit's
+                # rule: the governing script precedes its figure; a following one counts only
+                # when nothing precedes) — never a mention from the next sentence
+                cl_lo = max(0, m.start() - 400)
+                for cm in _SENT_END.finditer(masked, cl_lo, m.start()):
+                    cl_lo = cm.end()
+                cm2 = _SENT_END.search(masked, m.end(), m.end() + 400)
+                cl_hi = cm2.start() if cm2 else m.end() + 400
+                before = [(m.start() - mm.end(), g) for mm in _SCRIPT_MENTION.finditer(masked, cl_lo, m.start()) for g in mm.groups() if g]
+                after_ = [(mm.start() - m.end(), g) for mm in _SCRIPT_MENTION.finditer(masked, m.end(), cl_hi) for g in mm.groups() if g]
+                near = sorted(before) or sorted(after_)
+                if near and own:
+                    named = {g for _d, g in near}
+                    if own in named or (len(own) > 2 and own[:2] in named) or any(g.startswith(own) for g in named):
+                        pass
+                    else:
+                        verdict = "xmean" if verdict != "xbad" else verdict
+                        p += f" — but the sentence names Script {near[0][1]} beside it and this figure is Script {own}'s"
+                parts.append(p)
+            elif kind.startswith("tab"):
+                key = it.rstrip("abcd")
+                row = T["tab"].get(key)
+                note = ""
+                if not row and re.match(r"^1\.\d+$", key):
+                    row = T["tab"].get(key[2:])                    # "Table 1.4a": the caption's chapter-numbered form of Table 4
+                    note = " (written in the caption's chapter-numbered form; the text elsewhere says Table N)"
+                if not row:
+                    verdict = "xbad"; parts.append(f"Table {it}: no such table in reference_index_table.csv"); continue
+                parts.append(f"Table {it} ({row.get('document', '')}) · {(row.get('title') or '')[:90]}{note}")
+            else:
+                row = T["sec"].get(it)
+                if not row:
+                    verdict = "xbad"; parts.append(f"Section {it}: no such heading in section_map.csv"); continue
+                p = f"Section {it} → {row.get('heading', '')} ({row.get('document', '')})"
+                # meaning: a figure cited in the same sentence lives in this section (or a descendant)
+                # only "(Section 4.9.6, Figure 50)" — the two inside ONE bracket — pairs them;
+                # a figure merely nearby is another sentence's business
+                loc = masked[max(0, m.start() - 40): m.end() + 40]
+                paired = re.findall(r"(?i)\(\s*sections?\s+" + re.escape(it) + r"\s*[,;]\s*figures?\s+(\d{1,3})(?!\d)", loc) \
+                    + re.findall(r"(?i)\(\s*figures?\s+(\d{1,3})\s*[,;]\s*sections?\s+" + re.escape(it) + r"(?![\d.])", loc)
+                for fig in paired:
+                    fm = type("M", (), {"group": (lambda self, i=1, f=fig: f)})()
+                    frow = T["fig"].get(fm.group(1))
+                    if not frow:
+                        continue
+                    fsec = frow.get("section", "")
+                    if fsec.split(".")[0] != it.split(".")[0]:
+                        continue                              # a methods section beside a results figure: not compared
+                    if not (fsec == it or fsec.startswith(it + ".") or it.startswith(fsec + ".")):
+                        verdict = "xmean" if verdict != "xbad" else verdict
+                        p += f" — but Figure {fm.group(1)}, cited beside it, lives in §{fsec}"
+                parts.append(p)
+        if not parts:
+            continue
+        out.append((m.start(), m.end(), verdict, "; ".join(parts)))
+    return out
+
+
 def one(name, values, look, out_dir, a):
     global TEXT_CACHE
     _SPAN_SEQ[0] = 0
@@ -1916,15 +2184,21 @@ def one(name, values, look, out_dir, a):
     idx = index_spans(mask_markup(text), rel, values)
     marks = add_corpus_echo(classify(text, look, idx, secs, scope_map), rel)
     _m = mask_markup(text)
-    marks = [(s, e, v, d + (history_of(text[s:e], _sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale") else ""))
+    marks = [(s, e, v, d + (history_of(text[s:e], _sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale") else "")
+              + (ledger_of(_sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale", "count") else ""))
              for s, e, v, d in marks]
+    xm = xref_marks(text, _m, marks)
+    if xm:
+        spans = [(s, e) for s, e, _v, _d in xm]
+        marks = [mk for mk in marks if not any(s <= mk[0] and mk[1] <= e for s, e in spans)]
+        marks = sorted(marks + xm)
     page, counts = paint(text, marks, secs, mirror.stem, a.section, scope_map)
     (out_dir / f"{mirror.stem}.html").write_text(page, encoding="utf8")
 
     line_starts = [0] + [m.end() for m in re.finditer("\n", text)]
     rows = []
     for s, e, v, d in marks:
-        if v not in ("untraced", "stale", "elsewhere"):
+        if v not in ("untraced", "stale", "elsewhere", "xbad", "xmean"):
             continue
         ln = bisect.bisect_right(line_starts, s) - 1
         sec = ""
@@ -1945,9 +2219,10 @@ def one(name, values, look, out_dir, a):
     for c in counts.values():
         for k, n in c.items():
             tot[k] += n
-    summary = (f"{sum(tot.values())} numbers — {tot['untraced']} UNTRACED, {tot['stale']} STALE, {tot['elsewhere']} ELSEWHERE, "
+    summary = (f"{sum(tot.values()) - tot['xref'] - tot['xbad'] - tot['xmean']} numbers — {tot['untraced']} UNTRACED, {tot['stale']} STALE, {tot['elsewhere']} ELSEWHERE, "
                f"{tot['rounding']} rounding, {tot['traced']} traced, {tot['deep']} unregistered-CSV, "
-               f"{tot['count']} counts")
+               f"{tot['count']} counts; {tot['xref'] + tot['xbad'] + tot['xmean']} cross-references — "
+               f"{tot['xbad']} unresolved, {tot['xmean']} pointing at the wrong thing")
     (out_dir / f"{mirror.stem}.summary").write_text(summary, encoding="utf8")
     print(f"proof_copy {__version__}: {rel}\n  {summary}")
     print(f"  wrote {out_dir.relative_to(REPO) / (mirror.stem + '.html')} and "

@@ -78,7 +78,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-20. Portable: --bundle writes one
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-20. From the first artifact queue:
+#   identifiers (ORCID, DOI) are not numbers; "n of N" takes N from n's file;
+#   threshold differences (SD16 − SD15b = 37 cm) are derived values; each span
+#   carries its section and the pasted block names doc and section.
+# v1.6.0  2026-09-20. Portable: --bundle writes one
 #   page with every chapter; published as a claude.ai artifact with the db
 #   capability, the queue lives in the artifact store (third transport) and a
 #   session reads it with ArtifactData — no laptop, no Wi-Fi.
@@ -361,6 +365,21 @@ def build_index(values, deep: bool = True) -> dict:
     for src, lab, v in values:                       # the registered tier
         for r, form in _renderings(v):
             _add(look, r, Cand(src, lab, "", v, None, form, "reg"))
+    # DERIVED from the thresholds: "spans only 37 cm" is SD16 − SD15b (Martin: "it's
+    # the difference in the current thresholds; you should be able to read the
+    # context and derive these numbers"). Every pairwise difference of the SD
+    # constants, labelled by both names so the tooltip says what was subtracted.
+    sds = [(lab, v) for src, lab, v in values if src.endswith("config.py") and lab.upper().startswith("SD1")]
+    for i, (la, va) in enumerate(sds):
+        for lb, vb in sds[i + 1:]:
+            dv = abs(va - vb)
+            if dv <= 0:
+                continue
+            anc = {"col": [la.lower(), lb.lower(), "threshold", "thresholds", "spans", "gradient", "between"], "file": [], "stat": ["spans", "between", "from", "to", "difference", "gradient", "only", "wide"]}
+            for r, form in _renderings(dv):
+                _add(look, r, Cand("src/utils/config.py", f"{la} − {lb} = {dv:g} m", "", dv, anc, form, "stat"))
+            for r, form in (("%d" % round(dv * 100), ""), ("%.0f" % (dv * 100), "")):
+                _add(look, r, Cand("src/utils/config.py", f"{la} − {lb} = {dv * 100:g} cm", "", dv * 100, anc, "", "stat"))
     if not deep:
         return look
     for root in DEEP_ROOTS:
@@ -397,6 +416,35 @@ def build_index(values, deep: bool = True) -> dict:
                                 for r, form in _renderings(val):
                                     _add(look, r, Cand(rel, f"rolling-12 {stat} of {c}", c, val, anc, form, "roll"))
             notecol = next((c for c in df.columns if c.lower() in ("note", "notes", "description")), None)
+            # A PER-WELL TABLE WITH A CLUSTER COLUMN: the prose quotes cluster-level
+            # statistics of it — "C4 mean 1.65×, range 1.36–2.20×" of
+            # 35_per_well_amplification's amp_coefficient. Per cluster, per numeric
+            # column: mean, median, min, max, anchored on the cluster's names and
+            # the column's words.
+            ccol = next((c for c in df.columns if c.lower() in ("cluster", "cluster_id", "cluster_label")), None)
+            if ccol is not None and len(df) >= 10:
+                try:
+                    groups = df.groupby(ccol)
+                except Exception:
+                    groups = None
+                if groups is not None:
+                    for gkey, g in groups:
+                        m = re.search(r"[1-5]", str(gkey))
+                        if not m or not (str(gkey).strip().lower().startswith("c") or str(gkey).strip().replace(".0", "").isdigit()):
+                            continue
+                        cname = "c" + m.group()
+                        for c in df.columns[1:]:
+                            if c == ccol:
+                                continue
+                            col = pd.to_numeric(g[c], errors="coerce").dropna()
+                            colw = _col_anchors(c)
+                            if len(col) < 3 or not colw:
+                                continue
+                            for stat, val in (("mean", float(col.mean())), ("median", float(col.median())),
+                                              ("min", float(col.min())), ("max", float(col.max()))):
+                                anc = {"col": colw, "file": fw, "stat": STAT_WORDS[stat], "label": CLUSTER_NAMES[cname]}
+                                for r, form in _renderings(val):
+                                    _add(look, r, Cand(rel, f"{cname.upper()} {stat} of {c}", c, val, anc, form, "gstat"))
             # A WIDE MONTHLY MATRIX (wells as columns): the sentence quotes statistics
             # of statistics — "individual well means ranging from 0.26 m to 2.07 m",
             # "the network mean across all wells and months was 0.77 m" (Martin,
@@ -583,6 +631,7 @@ _YEAR = re.compile(r"^(?:18|19|20)\d\d$")
 _GLUE_BEFORE = re.compile(r"[A-Za-z][\-‑]$")
 _GLUE_AFTER = re.compile(r"[\-‑][A-Za-z]")
 _LIST_MARKER = re.compile(r"^\d+\.\s")
+_IDENT_CHAIN = re.compile(r"\d+[-‐]\d+[-‐]\d+")          # three digit groups joined by hyphens
 _PCT_AFTER = re.compile(r"(?i)^\s*(?:%|per cent|percent)")
 _RANGE_AFTER = re.compile(r"^\s*(?:--|[\-\u2013\u2014]|to|and)\s*[+\-\u2212]?\d+(?:[.,]\d+)*")
 _BOUND_BEFORE = re.compile(r"(p|n|r²|R²)?\s*\\?([<>≤≥])\s*$")
@@ -627,15 +676,19 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         return score
     a = c.anchors
     score = 0.0
-    if c.tier in ("stat", "roll"):
-        colhit = any(_hit(x, w, ws) for x in a["col"])
+    if c.tier in ("stat", "roll", "gstat"):
+        colhits = sum(1 for x in set(a["col"]) if _hit(x, w, ws))
         stathit = any(x in w for x in a["stat"])
         rollhit = any(x in w for x in a.get("roll", []))
         if c.tier == "roll":
-            ok = colhit and rollhit
+            ok = colhits > 0 and rollhit
+        elif c.tier == "gstat":
+            ok = colhits > 0 and stathit and any(_hit(x, w, ws) for x in a["label"])
         else:
-            ok = colhit and stathit
-        score = 2.0 if ok else 0.0
+            ok = colhits > 0 and stathit
+        score = (2.0 + min(colhits - 1, 2) * 0.5) if ok else 0.0
+        if c.tier == "gstat" and ok:
+            score += 1.0                          # cluster + column + statistic all present
         if ok and any(_hit(x, w, ws) for x in a["file"]):
             score += 0.5
     else:
@@ -676,6 +729,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             continue
         if _GLUE_BEFORE.search(masked[max(0, s - 2):s]) or _GLUE_AFTER.match(masked[e:e + 2]):
             continue
+        if _IDENT_CHAIN.search(masked[max(0, s - 12):e + 12]) or re.search(r"(?i)\b(orcid|doi|isbn|issn|tel)\b", masked[max(0, s - 24):s]):
+            continue                                   # ORCID 0000-0003-…, DOI 10.1016/…
         bol = masked.rfind("\n", 0, s) + 1
         if masked[bol:s].strip() == "" and _LIST_MARKER.match(masked[s:e + 2]):
             continue
@@ -712,9 +767,14 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         cands = [c for c in look.get(unsigned, [])
                  if (c.form == "") or (c.form == "%" and pct) or (c.form == "mm" and mm)]
         inside, outside = [], []
+        of_prev = None
+        if re.search(r"\bof\s*$", masked[max(0, s - 4):s]) and prelim and prelim[-1][2] == "in" and abs(prelim[-1][1] - s) <= 12:
+            of_prev = prelim[-1][4][0][1].rel if prelim[-1][4] else None
         for c in cands:
             if not scope or in_scope(c, scope):
                 sc = _accept(c, masked, s, e, short, w, ws, True, bool(scope))
+                if sc == 0 and of_prev and c.rel == of_prev and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
+                    sc = 2                             # the N of "n of N", from the n's file
                 if sc > 0:
                     inside.append((sc, c))
         if not inside and len(cands) <= 4000:
@@ -766,11 +826,19 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
     for s, e, v, d, options in prelim:
         if v == "in":
             near_rows = [(rel, lab) for pos, rel, lab in chosen_rows if abs(pos - s) <= COHERENCE_WINDOW]
+            # "65 of 66 wells": the N belongs to the file the n came from (Martin:
+            # "you should be referring to the previous number source when talking
+            # about n out of N"), so a same-file candidate that reads as a total
+            # outranks everything else for the number after "of"
+            of_n = bool(re.search(r"\bof\s*$", masked[max(0, s - 4):s])) and chosen_rows and abs(chosen_rows[-1][0] - s) <= 12
+            prev_rel = chosen_rows[-1][1] if of_n else None
             def key(t):
                 sc, c = t
                 same = (c.rel, c.label) in near_rows
                 samefile = any(r == c.rel for r, _ in near_rows)
                 bonus = (1.5 if same else 0.5 if samefile else 0) if sc >= 2 else 0
+                if of_n and c.rel == prev_rel and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
+                    bonus += 3
                 return (-(sc + bonus), c.tier != "reg")
             options.sort(key=key)
             sc, c = options[0]
@@ -976,7 +1044,7 @@ const DOC = document.title.replace(/ — proof copy$/, '');
 const KEY = 'proof_queue_' + DOC;
 let served = false, dbq = null;   // dbq: the artifact's own store, when this page is a claude.ai artifact
 function docOf(el){ const sec = el.closest('section.chapter'); return sec ? sec.dataset.doc : DOC; }
-function sectionOf(el){ let h = el; while (h && !(h.tagName && /^H[1-4]$/.test(h.tagName))) { h = h.previousElementSibling || h.parentElement; } return h ? h.textContent.trim() : ''; }
+function sectionOf(el){ return el.dataset.sec || ''; }
 function contextOf(span){ const p = span.closest('p,pre'); if(!p) return ''; const t = p.textContent; const i = t.indexOf(span.textContent); return t.slice(Math.max(0,i-80), i+span.textContent.length+80).replace(/\s+/g,' '); }
 function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } }
 function save(q){ try { localStorage.setItem(KEY, JSON.stringify(q)); } catch(e){} }
@@ -1018,7 +1086,7 @@ function drawer(){
 }
 function drop(i){ const q = load(); const it = q.splice(i,1)[0]; save(q); const el = document.getElementById(it.id); if (el) el.classList.remove('queued'); badge(); drawer(); }
 function clearQ(){ if (!confirm('Clear the queue held in this browser? (the server copy, if any, is kept)')) return; load().forEach(it => { const el = document.getElementById(it.id); if (el) el.classList.remove('queued'); }); save([]); badge(); drawer(); }
-function copyQ(){ const q = load(); const txt = 'PROOF CORRECTIONS ' + DOC + '\n' + q.map(it => `- [${it.section}] "${it.value}" → ${it.suggested || '(no value)'}${it.note ? ' — ' + it.note : ''}\n    context: …${it.context}…`).join('\n'); navigator.clipboard.writeText(txt).then(() => alert('Copied ' + q.length + ' item(s) — paste into the chat.')); }
+function copyQ(){ const q = load(); const txt = 'PROOF CORRECTIONS\n' + q.map(it => `- [${it.doc} §${it.section}] "${it.value}" → ${it.suggested || '(no value)'}${it.note ? ' — ' + it.note : ''}\n    context: …${it.context}…`).join('\n'); navigator.clipboard.writeText(txt).then(() => alert('Copied ' + q.length + ' item(s) — paste into the chat.')); }
 document.addEventListener('click', e => { const sp = e.target.closest('span.n'); if (sp) { e.preventDefault(); openPop(sp); } else if (!e.target.closest('#pop')) closePop(); });
 function merge(items){ const q = load(); const ids = new Set(q.map(x => x.id + '@' + x.ts)); items.forEach(it => { if (!it.done && !ids.has(it.id + '@' + it.ts)) q.push(it); }); save(q); }
 window.addEventListener('load', async () => {
@@ -1090,7 +1158,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
                         if sc else "sources: none declared — checked against everything")
             body.append(f"<div class=secbar>{bar or 'no numbers'}<br><span class=src>{src_line}</span></div>")
             continue
-        painted = paint_line(line, by_line.get(i, []))
+        painted = paint_line(line, by_line.get(i, []), f"{sec[0]} {sec[1]}".strip())
         is_table = line.startswith(("|", "+--", "  ---", "  ==")) or re.match(r"^\s{2,}\S.*\s{3,}\S", line)
         if is_table:
             if not in_pre:
@@ -1140,12 +1208,12 @@ _SPAN_SEQ = [0]
 _DOC_STEM = [""]
 
 
-def paint_line(line: str, ms) -> str:
+def paint_line(line: str, ms, sec: str = "") -> str:
     out, pos = [], 0
     for s, e, v, d in sorted(ms):
         out.append(html.escape(line[pos:s]))
         _SPAN_SEQ[0] += 1
-        out.append(f"<span class='n {v}' id='n_{_DOC_STEM[0]}_{_SPAN_SEQ[0]}' data-v='{v}' "
+        out.append(f"<span class='n {v}' id='n_{_DOC_STEM[0]}_{_SPAN_SEQ[0]}' data-v='{v}' data-sec='{html.escape(sec, quote=True)}' "
                    f"title='{html.escape(v + ': ' + d, quote=True)}'>"
                    f"{html.escape(line[s:e])}</span>")
         pos = e

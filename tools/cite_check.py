@@ -45,7 +45,30 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-20. 00_06_pet_monthly_trends joins
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-09-20. Registration pass, batches 2-5
+#   (scripts 07-11b, 14-29, 24-26, 30-47; four Sonnet subagents under the same brief,
+#   proposals in working/updates/registration_pass_2026-09-20/, applied by the
+#   orchestrator after verifying every key unique and every column present): 51
+#   more tables the report quotes cell by cell. Batch 1 below. The same check found
+#   six EXISTING registrations keyed on a column that does not name a row —
+#   10a_01 on Control alone (Forest Impact and Forest Edge collapsed under "Forest",
+#   which is how "Forest · Clearfell_p" was ambiguous on the proof page), 10a_09 and
+#   10a_10 on control_tier, 10k_03 on zone, 03_04 on Cluster_Label (four lags per
+#   cluster), 32_site_mean_trend on period (two bases) — re-keyed on the pair that is
+#   unique; no confirmed citation_index row referenced any of them.
+#   10c_forest_zone_correlations stays on Coefficient: its two stacked blocks
+#   populate disjoint columns, so labels collide but values do not (see 1.8.x note).
+# v1.23.0  # Hollingham (2026) — 2026-09-20. Registration pass, batch 1
+#   (scripts 00-03; proposals from a Sonnet subagent under
+#   working/updates/NRG_brief_registration_pass_2026-09-20.md, applied by the
+#   orchestrator): nine tables the report quotes and the value map did not know —
+#   00_01 annual climate (both windows) by Year, 00_03 summer warming by year (its
+#   trailing stat rows included), 00_04 climatology by month, 01_locations and
+#   01_dist_coast_validation by Name, 02_09 amplitude summary by cluster_name,
+#   03_09 optimal datums by well, 03_16 Model B persistence by (level, Cluster_Label,
+#   well). 02_04_bootstrap_stability_summary was NOT registered: its cluster column
+#   is the raw Ward id, non-canonical (as 02_07's is) — E17.
+# v1.22.0  # Hollingham (2026) — 2026-09-20. 00_06_pet_monthly_trends joins
 #   the value map keyed (window, month): the May/June/July PET trends the abstract
 #   and report10 §5.6 quote, emitted by Script 00 1.7.0 (E12).
 # v1.21.0  # Hollingham (2026) — 2026-09-20. 09b_04_scenario_comparison
@@ -424,9 +447,132 @@ EXTRA_VALUE_TABLES = [
      ["Delta_vol_mm_per_month"]),
     ("outputs/00_climate_summary/00_06_pet_monthly_trends.csv", ("window", "month"),
      ["slope_mm_per_yr", "p_value", "r2", "n_years"]),
-    ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", "Cluster_Label",
+    # --- registration pass batch 1 (2026-09-20): tables the report quotes cell by cell
+    ("outputs/00_climate_summary/00_01_annual_climate_summary.csv", "Year",            # report9 §4.1.1 wettest/driest years
+     ["Annual_P_mm", "Annual_PET_mm", "P_PET_ratio", "Months_complete"]),
+    ("outputs/00_climate_summary/00_01_annual_climate_summary_short.csv", "Year",
+     ["Annual_P_mm", "Annual_PET_mm", "P_PET_ratio", "Months_complete"]),
+    ("outputs/00_climate_summary/00_03_summer_warming_stats.csv", "year",             # abstract, §4.1.1: post-2013 anomaly; stat rows keyed by name
+     ["summer_max_mean", "anomaly_vs_pre2013"]),
+    ("outputs/00_climate_summary/00_04_climatology.csv", "month",                     # §4.1.1 monthly P / PET climatology
+     ["P_mm", "PET_mm"]),
+    ("outputs/01_dist_coast_validation.csv", "Name",                                  # report8 §3.5.3
+     ["dist_coast_m", "dist_recomputed_m", "abs_diff_m"]),
+    ("outputs/01_locations.csv", "Name",                                              # report8 §3.1.1, §3.2.3, §3.5.5 (no coordinates)
+     ["DEM_Ground_Elev", "Upstand_m", "dist_1998_replant_m", "dist_broadleaf_restock_m"]),
+    ("outputs/02_clustering/02_09_cluster_amplitude_summary.csv", "cluster_name",     # report9 §4.2.1
+     ["amplitude_damping_pct", "amplitude_damping_pct_climnorm", "median_summer_min_post2018"]),
+    ("outputs/03_state_space_model/03_09_well_optimal_datums.csv", "well",            # report10 §5.6.3
+     ["optimal_datum_primary", "beta_1_at_max", "beta_2_at_max", "beta_3_at_max", "beta_3_at_uniform",
+      "R2_gain_max_vs_uniform", "optimal_datum_secondary", "beta_3_at_secondary"]),
+    ("outputs/03_state_space_model/03_16_model_b_persistence.csv", ("level", "Cluster_Label", "well"),   # report12 §7
+     ["t_half_A_months", "t_efold_B_months", "t_half_B_months", "alpha_B"]),
+    # --- registration pass batches 2-5 (2026-09-20): tables the report quotes cell by cell
+    ("outputs/07_spatial_coefficients/07_coeff_maps_data.csv", "Name_Original",    # report8 3.2.3, report9 4.2.2, report9 4.9.2
+     ["dem", "beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "pvalue_beta_1", "pvalue_beta_2", "pvalue_beta_3", "Model_R2"]),
+    ("outputs/08_model_benchmarking/08_cluster_nse_medians.csv", "Cluster",    # report9 4.4, report10 5.2.4
+     ["median_dNSE", "median_TLM_NSE"]),
+    ("outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv", "Metric",    # report9 4.4, report10 5.2.4, report10 5.7.8
+     ["Traditional_Model_A", "StateSpace_Model_B", "Delta_B_minus_A"]),
+    ("outputs/08_model_benchmarking/08_perwell_nse.csv", "Well",    # report6 1, report9 4.4
+     ["TLM_NSE", "SSM_NSE", "dNSE"]),
+    ("outputs/09_scraping_intervention/09_scrape_02_beta3_significance.csv", ("Well", "Era"),    # report9 4.5.3, report10 5.8.2
+     ["beta_3_drainage", "P_Value", "Conf_Low", "Conf_High"]),
+    ("outputs/09_scraping_intervention/09b_01_individual_well_baci.csv", "well",    # report10 5.3.1, report10 5.4.3, report10 5.8.2
+     ["dist_m"]),
+    ("outputs/09_scraping_intervention/09c_01_summer_minima.csv", ("Well", "Year"),    # report9 4.11, report10 5.4.1
+     ["Summer_min_m", "Climate_ctrl_centroid_m", "Gap_climate_m", "Paired_ctrl_m", "Gap_paired_m"]),
+    ("outputs/09_scraping_intervention/09c_02_summer_minima_shifts.csv", ("Well", "Control"),    # report8 3.5.3, report9 4.5.4
+     ["Pre_mean_gap_m", "Post_mean_gap_m", "Shift_m", "Shift_mm", "t_stat", "p_value"]),
+    ("outputs/09_scraping_intervention/09c_05_spring_means.csv", ("Well", "Year"),    # report9 4.5.2, report9 4.5.4, report10 5.7.2
+     ["Spring_mean_m", "Climate_ctrl_centroid_m", "Gap_climate_m", "Paired_ctrl_m", "Gap_paired_m"]),
+    ("outputs/09_scraping_intervention/09c_06_spring_means_shifts.csv", ("Well", "Control"),    # report8 3.1.1, report9 4.11
+     ["Pre_mean_gap_m", "Post_mean_gap_m", "Shift_m", "Shift_mm", "t_stat", "p_value"]),
+    ("outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv", "Scenario",    # report9 4.5.6
+     ["Delta_vol_summer_mm_per_month"]),
+    ("outputs/10_clearfell_baci/10a_12_control_subset_sensitivity.csv", ("subset", "drift_variant"),    # report8 3.5.4, report9 4.6.8
+     ["step_mm", "se_mm", "p"]),
+    ("outputs/10_clearfell_baci/10a_13_era_split.csv", ("contrast", "drift_mode", "era"),    # report9 4.6.8
+     ["step_mm", "se_mm", "p"]),
+    ("outputs/10_clearfell_baci/10d_02_summer_minima_shifts.csv", ("Well", "Tier", "Control"),    # report9 4.6.4
+     ["Pre_mean_gap_m", "Post_mean_gap_m", "Shift_m", "Shift_mm", "t_stat", "p_value"]),
+    ("outputs/10_clearfell_baci/10d_08_spring_mixed_model_results.csv", ("Control", "Tier"),    # report9 4.6.7
+     ["Clearfell_coef_m", "Clearfell_SE_m", "Clearfell_p", "Scraping_coef_m", "Scraping_p"]),
+    ("outputs/10_clearfell_baci/10g_03_clearfell_transect_steps.csv", "Well",    # report8 3.5.4
+     ["Distance_m", "Scrape_era_mean_m", "Post_fell_mean_m", "Step_change_m"]),
+    ("outputs/10_clearfell_baci/10h_01_synthetic_calibration.csv", "Well",    # report8 3.5.4
+     ["N_cal", "R2_cal", "RMSE_mm", "Hindcast_months", "PreScraping_months_gained", "PostFell_divergence_mm", "PostFell_divergence_p", "PostFell_divergence_n"]),
+    ("outputs/10_clearfell_baci/10j_01_monthly_contrast_results.csv", "estimator",    # report9 4.6.3
+     ["clearfell_step_m", "clearfell_step_se_m", "clearfell_ci_lo_m", "clearfell_ci_hi_m", "clearfell_p", "scraping_step_m", "scraping_step_se_m", "scraping_p", "edge_post_b_m", "edge_post_p", "edge_scraping_b_m", "edge_scraping_p"]),
+    ("outputs/10_clearfell_baci/10l_01_four_zone_summer_results.csv", "zone",    # report9 4.6.4
+     ["clearfell_step_m", "clearfell_step_se_m", "clearfell_ci_lo_m", "clearfell_ci_hi_m", "clearfell_p", "R2", "N"]),
+    ("outputs/10_clearfell_baci/10l_06_four_zone_spring_results.csv", "zone",    # report9 4.6.4
+     ["clearfell_step_m", "clearfell_step_se_m", "clearfell_ci_lo_m", "clearfell_ci_hi_m", "clearfell_p", "R2", "N"]),
+    ("outputs/10_clearfell_baci/10l_08_c3warren_spring_means.csv", ("Well", "Year"),    # report9 4.12
+     ["Spring_mean_m"]),
+    ("outputs/11b_spatial_thresholds/11b_03_pflood_per_well.csv", "well",    # report9 4.7.4, report10 5.9
+     ["depth_bg", "pflood_mm"]),
+    ("outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv", "Cluster_Label",    # report9 4.7.4, report10 5.9
+     ["pflood_min", "pflood_max", "pflood_median", "m_P"]),
+    ("outputs/16_water_balance/16_water_bal_rec_table.csv", "Label",    # report9 4.2.3
+     ["Winter_dh_mm_month", "N_winter", "Summer_dh_mm_month", "N_summer", "ET_mm_month", "Rec_drain_frac", "Rec_ET_frac", "SSM_drain_frac", "SSM_ET_frac", "Mid_drain_frac", "Spread_pp"]),
+    ("outputs/16_water_balance/16_water_bal_vol_table.csv", "Label",    # report9 4.2.3
+     ["P_mm_yr", "PET_mm_yr", "I_mm_yr", "P_net_mm_yr", "P_minus_PET_mm_yr", "ET_mid_mm_yr", "ET_lo_mm_yr", "ET_hi_mm_yr", "Drain_mid_mm_yr", "Drain_lo_mm_yr", "Drain_hi_mm_yr"]),
+    ("outputs/15_depth_dependent_pet/15_03_benchmark_table.csv", "Cluster",    # report10 5.2.2
+     ["Delta_NSE"]),
+    ("outputs/20_spatial_figures/20_drawdown_perwell.csv", "well",    # report9 4.11
+     ["dd_mm", "dist_forest_m", "dist_cost_m"]),
+    ("outputs/20_spatial_figures/20_msl5_change_perwell.csv", "well",    # report9 4.12, report8 3.8.1, report (front matter)
+     ["MSL5_bg_2017_m", "MSL5_bg_2023_m", "raw_change_mm"]),
+    ("outputs/20_spatial_figures/20_residual_perwell.csv", "well",    # report9 4.9.6
+     ["residual_wb"]),
+    ("outputs/21_forestry_scenarios/21_forestry_02_distributions_means.csv", ("Group", "Phase"),    # report10 5.8.1
+     ["N_summers", "Mean_depth_m", "Median_depth_m", "SD_depth_m", "Min_depth_m", "Max_depth_m", "Pct_below_SD16"]),
+    ("outputs/21_forestry_scenarios/21_forestry_03_scraping_era_means.csv", ("Well", "Era"),    # report9 4.5.4
+     ["N_summers", "Mean_depth_m", "SD_depth_m", "Min_depth_m", "Max_depth_m"]),
+    ("outputs/29_within_c3_variance/29_within_c3_variance.csv", "Match_ID",    # report10 5.4.2
+     ["dist_ceh36_m", "dist_forest_m", "slope_m_yr", "slope_r2", "delta_coast_exp_m_yr", "model_R2", "recession_time_months", "mean_head_maod", "depth_to_water_m", "summer_min_mean_maod", "winter_max_mean_maod", "seasonal_amplitude_m", "summer_min_depth_m", "winter_max_depth_m"]),
+    ("outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv", ("source", "model"),    # report9 4.10.2, report12 7, report8 3.7.4
+     ["n_obs", "n_wells", "delta_0_mm_yr", "delta_0_se", "L_m", "L_se", "c_mm_yr", "beta_forest_mm_yr", "beta_forest_se_mm_yr", "ref_distance_m", "delta_ref_mm_yr", "delta_ref_se"]),
+    ("outputs/25_coastal_gradient/25_03_cluster_partition.csv", "cluster_label",    # report9 4.10.2, report9 4.10.3, report12 7
+     ["coastal_gradient_mm_yr", "climate_cwb_mm_yr", "far_field_offset_mm_yr", "climate_plus_far_field_mm_yr", "unexplained_mm_yr"]),
+    ("outputs/25_coastal_gradient/25_04_baci_corroboration.csv", ("control_tier", "impact_zone"),    # report9 4.10.2
+     ["drift_scale"]),
+    ("outputs/25_coastal_gradient/25_14_correction_diagnostic_spring.csv", ("fit_label", "tier"),    # report10 5.7.5, report10 5.7.7
+     ["n_slopes_used", "predicted_diff_vs_impact_mm_yr"]),
+    ("outputs/25_coastal_gradient/25_16_delta0_leave_one_out.csv", "well",    # report9 4.10.2
+     ["d_delta_0_mm_yr", "d_delta_ref_mm_yr"]),
+    ("outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv", "metric",    # report (front matter), report10 5.7.6, report12 7
+     ["n", "pearson_r", "williams_p_vs_ewi_annual"]),
+    ("outputs/26_van_willegen_msl/26_msl_5yr_cluster_threshold_summary.csv", "cluster_label",    # report9 4.8.3
+     ["MSL5_current_m_bg", "n_windows_below_SD15b", "n_windows_below_SD16"]),
+    ("outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv", ("cluster_label", "window_end_year"),    # report9 4.8.3
+     ["MSL5_m_bg_mean", "MSL5_m_bg_median", "MAX5_m_bg_mean", "MAX5_m_bg_median"]),
+    ("outputs/30_c4_drainage_identifiability/30_c4_centroid_sensitivity.csv", "basis",    # report10 §5.2.3
+     ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "se_beta_3", "pvalue_beta_3", "recession_1_over_b3_months", "half_life_months", "R2"]),
+    ("outputs/30_c4_drainage_identifiability/30_c4_identifiability_by_cluster.csv", "cluster",    # report10 §5.2.3
+     ["beta3", "se3", "p3", "VIF", "corr_PET_hd", "cond", "hd_mean", "hd_sd", "hd_range", "rec_headdep", "rec_p"]),
+    ("outputs/30_c4_drainage_identifiability/30_c4_perwell_beta3.csv", "well",    # report10 §5.2.3
+     ["beta3", "se3", "p3", "VIF", "hd_sd", "beta3_full", "se3_full", "p3_full", "VIF_full", "hd_sd_full"]),
+    ("outputs/32_differential_movement/32_differential_movement_per_well.csv", "key",    # report8 §3.1, report9 §4.12
+     ["slope_mm_yr_2011_2025", "p_ar_2011_2025", "boot_lo_mm_yr_2011_2025", "boot_hi_mm_yr_2011_2025", "slope_mm_yr_2005_2025", "p_ar_2005_2025", "boot_lo_mm_yr_2005_2025", "boot_hi_mm_yr_2005_2025"]),
+    ("outputs/33_envelope_amplification/33_envelope_per_well.csv", "key",    # report9 §4.12, report10 §5.3.2
+     ["dry_m", "wet_m", "swing_mm", "amplification"]),
+    ("outputs/33_envelope_amplification/33_envelope_per_well_recent.csv", "key",    # report9 §4.12
+     ["dry_m", "wet_m", "swing_mm", "amplification"]),
+    ("outputs/40_shoreline_retreat/40_01_epoch_series.csv", ("from_epoch", "to_epoch", "basis"),    # report8 §3.8.2
+     ["rate_m_yr", "min_rate_m_yr", "years", "n"]),
+    ("outputs/40_shoreline_retreat/40_03_control.csv", "pair",    # report8 §3.8.2
+     ["median_abs_m", "p90_abs_m", "p95_abs_m", "max_abs_m", "n"]),
+    ("outputs/41_canopy_cover/41_01_canopy_index.csv", ("region", "imagery_date", "frame"),    # report9 §4.6.8, report10 §5.5
+     ["index", "ratio_to_conifer"]),
+    ("outputs/44_ranwell_hindcast/44_05_level_change.csv", ("row", "site_no"),    # report10 §5.7.9
+     ["nearest_well_m", "delta_m", "z", "sigma_total_m", "chi2_per_dof"]),
+    ("outputs/45_wet_area/45_01_wet_area_model.csv", "cls",    # report9 §4.8.5
+     ["a", "b", "h_min", "h_max"]),
+    ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", ("Cluster_Label", "Lag_months"),
      ["R2"]),
-    ("outputs/32_differential_movement/32_site_mean_trend.csv", "period",
+    ("outputs/32_differential_movement/32_site_mean_trend.csv", ("basis", "period"),
      ["slope_mm_yr", "resid_sd_mm", "min_detectable_mm_yr"]),
     ("outputs/22_residual_lag_analysis/22_06_ssm_cluster_mean_inference.csv",
      "Cluster_Label", ["R2", "durbin_watson", "ar1_phi"]),
@@ -649,15 +795,15 @@ EXTRA_VALUE_TABLES = [
     # +28 against 24.1, and six report9 four-zone values whose R2 and N matched
     # the committed run while every coefficient and p-value did not. A full
     # cite_check run would have caught none of them.
-    ("outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv", "Control",
+    ("outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv", ("Control", "Zone"),
      ["Clearfell_step_m", "Clearfell_CI_lo_m", "Clearfell_CI_hi_m", "Clearfell_p"]),
     ("outputs/10_clearfell_baci/10k_01_four_zone_results.csv", "zone",
      ["clearfell_step_m", "clearfell_ci_lo_m", "clearfell_ci_hi_m", "clearfell_p"]),
-    ("outputs/10_clearfell_baci/10k_03_easting_sensitivity.csv", "zone",
+    ("outputs/10_clearfell_baci/10k_03_easting_sensitivity.csv", ("zone", "specification"),
      ["clearfell_step_m", "clearfell_p"]),
-    ("outputs/10_clearfell_baci/10a_09_coastal_scale_factor.csv", "control_tier",
+    ("outputs/10_clearfell_baci/10a_09_coastal_scale_factor.csv", ("control_tier", "zone"),
      ["s_coast", "s_coast_se", "coastal_differential_mm_yr"]),
-    ("outputs/10_clearfell_baci/10a_10_coastal_fixed1_sensitivity.csv", "control_tier",
+    ("outputs/10_clearfell_baci/10a_10_coastal_fixed1_sensitivity.csv", ("control_tier", "zone"),
      ["clearfell_step_free_m", "clearfell_step_fixed1_m", "s_coast_fitted"]),
 
     # ── Added 2026-08-31 by the coverage sweep described in the v1.12.0 note.

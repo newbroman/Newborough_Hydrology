@@ -17,7 +17,9 @@ Standard library only. Ctrl-C stops it. Not a gate, not part of the pipeline.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-20.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-20. /__queue returns done items
+#   too (flagged done=true), so the page can retire them from the browser's queue.
+# v1.0.0  # Hollingham (2026) — 2026-09-20.
 
 import argparse
 import json
@@ -65,7 +67,7 @@ class Handler(SimpleHTTPRequestHandler):
         u = urlparse(self.path)
         if u.path == "/__queue":
             doc = parse_qs(u.query).get("doc", [None])[0]
-            items = [it for it in _read_queue() if not it.get("done") and (doc is None or it.get("doc") == doc)]
+            items = [it for it in _read_queue() if (doc is None or it.get("doc") == doc)]   # done ones included: the page retires them
             return self._json(items)
         if u.path == "/":
             self.path = "/index.html"

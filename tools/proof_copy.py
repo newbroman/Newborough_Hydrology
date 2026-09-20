@@ -615,6 +615,8 @@ def build_index(values, deep: bool = True) -> dict:
                 for r, form in _renderings(grand):
                     _add(look, r, Cand(rel, "mean over all columns and rows", "", grand,
                                        {"col": colw, "file": fw, "stat": ["mean", "average", "across all"]}, form, "stat"))
+            if (monthly and len(numcols) >= 10) or rel.startswith("data/"):
+                continue                          # a wells-by-months matrix, or a raw input: its cells are never quoted, its statistics are (above)
             for _, r_ in df.iterrows():
                 lab = str(r_[kcol])
                 la = _label_anchors(lab)
@@ -633,6 +635,8 @@ def build_index(values, deep: bool = True) -> dict:
                     if notecol is not None and isinstance(r_[notecol], str) else []
                 rowvals = {}
                 for c in df.columns[1:]:
+                    if str(c).startswith("Unnamed"):
+                        continue
                     try:
                         x = float(r_[c])
                     except (TypeError, ValueError):
@@ -940,6 +944,8 @@ def _tok_dim(after: str, qty: str | None, clause: str, before: str) -> tuple:
         if m:
             q = (m.group(1) or m.group(2) or "").lower()
             per = "month" if q.startswith("month") else "yr"
+            if re.search(r"(?i)month", after[:24]) and re.search(r"(?i)yr|year|a⁻¹", after[:24]):
+                per = ""                              # "mm month⁻¹ yr⁻¹": a trend in a monthly total — compound, unconstrained
     seasons = frozenset(sw for sw in _SEASON_WORDS if sw in clause)
     if not seasons and before:
         # the season the paragraph has ESTABLISHED before the number decides: the
@@ -993,12 +999,26 @@ _SENT_END = re.compile(r"[.!?;]\s|\n")          # a CLAUSE: list items split at 
 _FULL_END = re.compile(r"[.!?]\s|\n")           # a SENTENCE
 
 
+_SCRIPT_PREFIX = re.compile(r"^(\d{2}[a-z]?)[_\s]")
+
+
+def _script_of(rel: str) -> str:
+    """The script an output belongs to: '20' for outputs/20_spatial_figures/20_msl5_…
+    (Martin: 'it should trace to the previous figure's source' — a sentence's
+    numbers come from one script's outputs even when from two of its files)."""
+    name = pathlib.Path(rel).name
+    m = _SCRIPT_PREFIX.match(name) or _SCRIPT_PREFIX.match(pathlib.Path(rel).parent.name)
+    return m.group(1) if m else rel
+
+
 def _rowkey(label: str) -> str:
     """A row's name with its cluster removed, so 'thinning / annual / C4' and
     'thinning / annual / C5' count as the SAME row for the coherence pass: a
     sentence that quotes C4 then C5 from one scenario is reading one line of the
     table across."""
-    return _CLUSTER_ID.sub("", label).replace("  ", " ").strip(" /·")
+    out = _CLUSTER_ID.sub("", label)
+    out = re.sub(r"(?i)\(?\b(lake edge|dune|western residual|main forest|coastal forest)\b\)?", "", out)
+    return re.sub(r"\s+", " ", out).strip(" /·")
 
 
 _SENT_CACHE: dict[tuple, str] = {}
@@ -1030,7 +1050,7 @@ def _sentence_uncached(masked: str, s: int, e: int, rx=None) -> str:
     wrong for choosing between keys: in the abstract every scenario name sits
     within 300 characters of every scenario number."""
     rx = rx or _SENT_END
-    lo = 0
+    lo = max(0, s - 400)                   # a sentence longer than the lookback starts AT the lookback, not at the document
     for m in rx.finditer(masked, max(0, s - 400), s):
         lo = m.end()
     m2 = rx.search(masked, e, e + 400)
@@ -1053,6 +1073,8 @@ def _cluster_clash(c: Cand, w: str) -> bool:
 
 
 _LABEL_WORD = re.compile(r"[a-z0-9]+")
+_LAST = [0.0]                                     # raw score of the last _accept call (for the weak list)
+_INDEX_LABEL = re.compile(r"^[\d.\-–]+(\s|$)")
 
 
 _LW_CACHE: dict[str, tuple] = {}
@@ -1094,7 +1116,10 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         return 0                              # "+0.94°C" is not a p-value; "+6.0 mm" is not a constant in metres
     if c.tier == "reg":
         weak = not cc.searchable(cc.render(abs(c.value), _dp_of(masked[s:e].lstrip("+-\u2212\u2013"))), c.label)
+        _LAST[0] = 0.0
         if not anchored_here(masked, s, e, c.label, strict=weak or short, w=w):
+            if (weak or short) and anchored_here(masked, s, e, c.label, strict=False, w=w):
+                _LAST[0] = 1.5                # anchored, but not strictly: the neighbours' script may vouch for it
             return 0
         # a key whose SUBJECT (cluster, well) and QUANTITY both sit in the window
         # outranks one that merely shares a word; a global constant outranks
@@ -1130,7 +1155,12 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
             score += 0.5
     else:
         lab_hits = [x for x in a["label"] if _hit(x, w, ws)]
-        if any(x not in _CLUSTER_TOKENS and x not in CLUSTER_NAMES.get(x[:2], []) for x in lab_hits):
+        if _INDEX_LABEL.match(c.label):
+            # "2017 · change_mm", "1.0 · C5", "1969-10-01 · site_sd_m": a row keyed by a
+            # year, a sweep value or a date. The text's "window end 2017" is a date,
+            # not a citation of that row — worth 1 at most, 0.5 by its cluster alone
+            score += 1 if any(x not in _CLUSTER_TOKENS for x in lab_hits) else 0.5 if lab_hits else 0
+        elif any(x not in _CLUSTER_TOKENS and x not in CLUSTER_NAMES.get(x[:2], []) for x in lab_hits):
             score += 2
         elif lab_hits:
             score += 1                            # the row is named only by its cluster
@@ -1147,11 +1177,16 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
         need += 0 if inside else 1
         if len(masked[s:e].strip("+-\u2212\u2013")) <= 2:
             need += 1.5                            # "12", "n = 5": label and column both
+    _LAST[0] = score
     return score if score >= need else 0.0
+
+
+WEAK: dict[tuple, list] = {}
 
 
 def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
     _SENT_CACHE.clear()
+    WEAK.clear()
     masked = mask_markup(text)
     idx_by_start = {k[0]: v for k, v in idx.items()}
     line_starts = [0] + [m.end() for m in re.finditer("\n", text)]
@@ -1228,8 +1263,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         # is not a +12.18 slope, "+6.0 mm" is not a −5.95 projection (Martin, 2026-09-20)
         if core.startswith("-"):
             cands = [c for c in cands if c.value <= 0]
-        elif tok_text_plus:
-            cands = [c for c in cands if c.value >= 0]
+        elif tok_text_plus or masked[max(0, s - 1):s] == "±":
+            cands = [c for c in cands if c.value >= 0]   # "+6.0" and "±25" are not matched by a negative value
         tok = _tok_dim(after, qty, _sentence(masked, s, e), masked[masked.rfind("\n", 0, s) + 1:s].lower())
         if "." in unsigned:
             # "6.0 mm" is not the integer 6 of a count or of a column nobody has typed:
@@ -1239,17 +1274,20 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         if tok[0] == "pct" and unsigned in ("100", "0"):
             prelim.append((s, e, "count", "nominal percentage — a statement, not a value", []))
             continue
-        inside, outside = [], []
+        inside, outside, weak = [], [], []
         of_prev = None
         if re.search(r"\bof\s*$", masked[max(0, s - 4):s]) and prelim and prelim[-1][2] == "in" and abs(prelim[-1][1] - s) <= 12:
             of_prev = prelim[-1][4][0][1].rel if prelim[-1][4] else None
         for c in cands:
             if not scope or in_scope(c, scope):
-                sc = _accept(c, masked, s, e, short, w, ws, True, bool(scope), unit, tok)
+                sc = _accept(c, masked, s, e, short, w, ws, bool(scope) or c.rel in ALWAYS_IN_SCOPE or c.tier in ("net", "geo", "reg"),
+                             bool(scope), unit, tok)
                 if sc == 0 and of_prev and c.rel == of_prev and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
                     sc = 2                             # the N of "n of N", from the n's file
                 if sc > 0:
                     inside.append((sc, c))
+                elif _LAST[0] >= 1.0:
+                    weak.append((_LAST[0], c))         # below the bar alone; the neighbours' script may vouch for it
         if not inside and len(cands) <= 4000:
             for c in cands:
                 if scope and not in_scope(c, scope):
@@ -1258,6 +1296,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                         outside.append((sc, c))
         if inside:
             inside.sort(key=lambda t: (-t[0], t[1].tier != "reg"))
+            if weak:
+                WEAK[(s, e)] = weak                # considered again once the sentence's row is known
             prelim.append((s, e, "in", qty or "", inside))
             continue
         if qty and not outside:
@@ -1290,19 +1330,38 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                                              f"[{pathlib.Path(near.rel).name}]", []))
             continue
         if short:
-            prelim.append((s, e, "count", "whole number; no committed value to check against", []))
+            prelim.append((s, e, "count", "whole number; no committed value to check against", weak))
             continue
         cites = ", ".join(sorted(pathlib.Path(x).name for x in scope)[:4]) if scope else "everything"
         what = f" as a {tok[0]}{' per ' + tok[1] if tok[1] else ''}" if tok[0] else ""
         prelim.append((s, e, "untraced", f"not in this section's sources ({cites}) at any precision{what}, "
-                                         f"and anchored nowhere else", []))
+                                         f"and anchored nowhere else", weak))
 
     # --- coherence pass: a sentence's numbers come from one row --------------
     chosen_rows = []                     # (pos, rel, label)
     marks = []
     for s, e, v, d, options in prelim:
+        if v in ("count", "untraced") and options:
+            # Martin: "it should trace to the previous figure's source". A candidate
+            # that fell short alone is accepted when the script its file belongs to is
+            # the one the sentence's other numbers came from
+            near_scripts = {_script_of(rel) for pos, rel, lab in chosen_rows if abs(pos - s) <= COHERENCE_WINDOW}
+            vouched = [(sc, c) for sc, c in options if _script_of(c.rel) in near_scripts]
+            if vouched:
+                vouched.sort(key=lambda t: -t[0])
+                options = vouched
+                v, d = "in", ""
         if v == "in":
             near_rows = [(rel, _rowkey(lab)) for pos, rel, lab in chosen_rows if abs(pos - s) <= COHERENCE_WINDOW]
+            # a candidate that fell short alone but sits in the ROW the sentence is
+            # reading ("21--39 mm": the C4 cell of the row C1's 21 came from) outranks a
+            # strongly-anchored key from elsewhere; one from the same SCRIPT is admitted
+            near_scripts = {_script_of(r) for r, _ in near_rows}
+            for wsc, wc in WEAK.get((s, e), []):
+                if (wc.rel, _rowkey(wc.label)) in near_rows:
+                    options = options + [(wsc + 3.0, wc)]
+                elif _script_of(wc.rel) in near_scripts:
+                    options = options + [(wsc + 1.0, wc)]
             # "65 of 66 wells": the N belongs to the file the n came from (Martin:
             # "you should be referring to the previous number source when talking
             # about n out of N"), so a same-file candidate that reads as a total
@@ -1313,7 +1372,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 sc, c = t
                 same = (c.rel, _rowkey(c.label)) in near_rows
                 samefile = any(r == c.rel for r, _ in near_rows)
-                bonus = (1.5 if same else 0.5 if samefile else 0) if sc >= 2 else 0
+                samescript = any(_script_of(r) == _script_of(c.rel) for r, _ in near_rows)
+                bonus = (1.5 if same else 0.5 if samefile else 0.4 if samescript else 0) if sc >= 1.5 else 0
                 if of_n and c.rel == prev_rel and re.search(r"(?i)(^|_)(n|n_wells|total|count)(_|$)|n_wells|_n$", c.label):
                     bonus += 3
                 if d and c.tier == "net":
@@ -1589,16 +1649,26 @@ function clearQ(){ if (!confirm('Clear the queue held in this browser? (the serv
 function copyQ(){ const q = load(); const txt = 'PROOF CORRECTIONS\n' + q.map(it => `- [${it.doc} §${it.section}] "${it.value}" → ${it.suggested || '(no value)'}${it.note ? ' — ' + it.note : ''}\n    context: …${it.context}…`).join('\n'); navigator.clipboard.writeText(txt).then(() => alert('Copied ' + q.length + ' item(s) — paste into the chat.')); }
 document.addEventListener('click', e => { const sp = e.target.closest('span.n'); if (sp) { e.preventDefault(); openPop(sp); } else if (!e.target.closest('#pop')) closePop(); });
 function merge(items){ const q = load(); const ids = new Set(q.map(x => x.id + '@' + x.ts)); items.forEach(it => { if (!it.done && !ids.has(it.id + '@' + it.ts)) q.push(it); }); save(q); }
+// the store is the truth about what has been PROCESSED: an item a session marked
+// done there leaves this browser's queue too (Martin, 2026-09-20: "the page
+// doesn't clear my previous flags")
+function retire(doneItems){ const gone = new Set(doneItems.map(x => x.id + '@' + x.ts)); const q = load().filter(it => !gone.has(it.id + '@' + it.ts)); load().forEach(it => { if (gone.has(it.id + '@' + it.ts)) { const el = document.getElementById(it.id); if (el) el.classList.remove('queued'); } }); save(q); }
 window.addEventListener('load', async () => {
   if (location.protocol !== 'file:') {
-    try { const r = await fetch('/__queue?doc=' + encodeURIComponent(DOC)); if (r.ok) { served = true; merge(await r.json()); } } catch(e) {}
+    try { const r = await fetch('/__queue?doc=' + encodeURIComponent(DOC)); if (r.ok) { served = true; const items = await r.json(); retire(items.filter(it => it.done)); merge(items); } } catch(e) {}
   }
   badge(); drawer();
   // a claude.ai artifact: the queue lives in the artifact's own store
   try {
     if (!served && window.claude && typeof claude.use === 'function') {
       const db = await claude.use('db');
-      if (db) { dbq = db.collection('corrections'); const snap = await dbq.where('done', '==', false).limit(500).get(); merge(snap.docs.map(d => d.data())); badge(); drawer(); }
+      if (db) {
+        dbq = db.collection('corrections');
+        const all = (await dbq.limit(1000).get()).docs.map(d => d.data());
+        retire(all.filter(it => it.done));
+        merge(all.filter(it => !it.done));
+        badge(); drawer();
+      }
     }
   } catch(e) { console.log('no artifact db', e); }
 });

@@ -45,7 +45,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-20. 19_scenario_summary is
+__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-20. 09b_04_scenario_comparison
+#   joins the value map, keyed (Scenario, Cluster): the abstract's forestry and
+#   dry/wet climate figures come from it (Martin: "take the current csvs as
+#   up-to-date, revert to 09b numbers"), and it was registered nowhere.
+# v1.20.0  # Hollingham (2026) — 2026-09-20. 19_scenario_summary is
 #   keyed on (scenario, season, cluster), not cluster alone: keyed on "C4" its
 #   25 rows per cluster collapsed under one label, so the abstract's stale
 #   "+8.6 mm" clearfell figure could match ANY C4 cell and its corrected "+6.1"
@@ -413,6 +417,8 @@ EXTRA_VALUE_TABLES = [
     # scenarios moved 23-118%; nothing would have said so.
     ("outputs/19_spatial_groundwater/19_scenario_summary.csv", ("scenario", "season", "cluster"),
      ["dh_mean_m", "dh_median_m", "we_mean_mm", "we_median_mm"]),
+    ("outputs/09_scraping_intervention/09b_04_scenario_comparison.csv", ("Scenario", "Cluster"),
+     ["Delta_vol_mm_per_month"]),
     ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", "Cluster_Label",
      ["R2"]),
     ("outputs/32_differential_movement/32_site_mean_trend.csv", "period",

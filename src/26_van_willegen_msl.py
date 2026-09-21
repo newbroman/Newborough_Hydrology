@@ -96,9 +96,11 @@ from __future__ import annotations
 
 __version__ = "1.10.0"  # Hollingham (2026) — 2026-09-21. Pass 7b: the pipeline's MSL5
 #   against van Willegen et al.'s published five-year spring levels at their
-#   piezometers (26_vw_reproduction_per_pair.csv; vw_repro_* in 26_report_numbers.csv:
-#   datum offset, mean/median absolute and RMS residual after it). The abstract and
-#   §4.8.3 had quoted "~11 mm" from nothing; the documents now quote this.
+#   piezometers (26_vw_reproduction_per_pair.csv; vw_repro_* in 26_report_numbers.csv).
+#   The datum offset is fixed PER PIEZOMETER (dipwell ground against quadrat ground);
+#   with it removed the series agree to ~11 mm — the figure the abstract and §4.8.3
+#   had carried from an unrecorded one-off, now emitted. A single network-wide
+#   offset (the first cut of this pass) leaves ~70 mm and is reported for contrast.
 # 1.9.0  # Hollingham (2026) — 2026-09-04. Emits three table
 #   sources that were computed but never written to CSV:
 #   26_msl_5yr_cluster_threshold_summary.csv (Table 1.16: per-cluster MSL5 at the
@@ -1308,7 +1310,7 @@ def compute_vw_reproduction(per_well: pd.DataFrame):
     """How closely the pipeline's per-well MSL5 reproduces van Willegen et al.'s
     own five-year mean spring levels at their piezometers.
 
-    Why: the abstract and §4.8.3 said the reconstruction reproduced their
+    Why: the abstract and §4.8.3 say the reconstruction reproduces their
     published levels "to within ~11 mm once the fixed dipwell-versus-quadrat
     datum offset is removed", and no script computed it (proof pass,
     2026-09-21; Martin: "it should quote the pipeline number").
@@ -1316,10 +1318,13 @@ def compute_vw_reproduction(per_well: pd.DataFrame):
     Their series: the dataset's Hydrology_metric_YearB sheet (Mean Spring per
     piezometer-year), rolled to a five-year mean exactly as Pass 7 does for the
     EbF regression. Ours: Pass 2's MSL5_m_bg by window-end year. Paired on
-    (piezometer, window-end); the fixed offset is the mean of ours − theirs over
-    every pair (the two frames differ by a constant datum); the reproduction
-    statistics are the mean absolute and root-mean-square residual after that
-    offset, per pair and per piezometer.
+    (piezometer, window-end). The datum offset is FIXED PER PIEZOMETER — each
+    dipwell's ground reference against its quadrat's — so it is the mean of
+    ours − theirs at that piezometer; the reproduction statistics are the mean
+    absolute and root-mean-square residual after those offsets, i.e. how well
+    the two series track each other year by year. A single network-wide offset
+    is reported alongside for the datum picture (its per-piezometer spread is
+    the ground-level difference between dipwell and quadrat, not hydrology).
 
     Returns (per_pair DataFrame, dict of scalars) or (None, {}) when the
     external dataset is absent.
@@ -1346,17 +1351,20 @@ def compute_vw_reproduction(per_well: pd.DataFrame):
         warn("no (piezometer, window-end) pair shared with the dataset — reproduction check skipped")
         return None, {}
     df = pd.DataFrame(rows)
-    offset = float(df["diff_m"].mean())
-    df["resid_after_offset_m"] = df["diff_m"] - offset
-    per_piezo = df.groupby("piezo")["resid_after_offset_m"].mean()
+    df["datum_offset_m"] = df.groupby("piezo")["diff_m"].transform("mean")     # fixed per piezometer
+    df["resid_m"] = df["diff_m"] - df["datum_offset_m"]
+    offsets = df.groupby("piezo")["datum_offset_m"].first()
+    global_offset = float(df["diff_m"].mean())
     nums = {
         "vw_repro_n_piezometers": int(df["piezo"].nunique()),
         "vw_repro_n_pairs": int(len(df)),
-        "vw_repro_datum_offset_mm": offset * 1000.0,
-        "vw_repro_mad_mm": float(df["resid_after_offset_m"].abs().mean()) * 1000.0,
-        "vw_repro_median_abs_mm": float(df["resid_after_offset_m"].abs().median()) * 1000.0,
-        "vw_repro_rmse_mm": float(np.sqrt(np.mean(df["resid_after_offset_m"] ** 2))) * 1000.0,
-        "vw_repro_per_piezo_mad_mm": float(per_piezo.abs().mean()) * 1000.0,
+        "vw_repro_mad_mm": float(df["resid_m"].abs().mean()) * 1000.0,
+        "vw_repro_median_abs_mm": float(df["resid_m"].abs().median()) * 1000.0,
+        "vw_repro_rmse_mm": float(np.sqrt(np.mean(df["resid_m"] ** 2))) * 1000.0,
+        "vw_repro_datum_offset_mean_mm": float(offsets.mean()) * 1000.0,
+        "vw_repro_datum_offset_min_mm": float(offsets.min()) * 1000.0,
+        "vw_repro_datum_offset_max_mm": float(offsets.max()) * 1000.0,
+        "vw_repro_mad_single_offset_mm": float((df["diff_m"] - global_offset).abs().mean()) * 1000.0,
     }
     return df, nums
 
@@ -2046,9 +2054,11 @@ def main() -> int:
         saved(f"{paths.OUT_26_VW_REPRODUCTION.name}")
         report_nums.update(repro_nums)
         info(f"  {repro_nums['vw_repro_n_piezometers']} piezometers, {repro_nums['vw_repro_n_pairs']} (piezometer, window-end) pairs; "
-             f"datum offset {repro_nums['vw_repro_datum_offset_mm']:+.0f} mm; after removing it: mean |residual| "
-             f"{repro_nums['vw_repro_mad_mm']:.0f} mm (median {repro_nums['vw_repro_median_abs_mm']:.0f}, "
-             f"RMSE {repro_nums['vw_repro_rmse_mm']:.0f}; per-piezometer means {repro_nums['vw_repro_per_piezo_mad_mm']:.0f})")
+             f"per-piezometer datum offsets {repro_nums['vw_repro_datum_offset_min_mm']:+.0f} to "
+             f"{repro_nums['vw_repro_datum_offset_max_mm']:+.0f} mm (mean {repro_nums['vw_repro_datum_offset_mean_mm']:+.0f}); "
+             f"after removing them: mean |residual| {repro_nums['vw_repro_mad_mm']:.1f} mm "
+             f"(median {repro_nums['vw_repro_median_abs_mm']:.1f}, RMSE {repro_nums['vw_repro_rmse_mm']:.1f}); "
+             f"a single network-wide offset would leave {repro_nums['vw_repro_mad_single_offset_mm']:.0f} mm")
 
     # ── Pass 8 — Metric diagnostics (v1.4.0) ───────────────────────────────
     print("\nPass 8 — metric diagnostics (window sensitivity and index precision)")

@@ -107,7 +107,7 @@ report7:fdf746fdc3,confirm,SD16_WINTER matches 'winter maxima within 0.25 m'.,,"
 report7:5f9de18164,confirm,SD16 threshold matches 'mean summer minimum exceeds 0.98 m'.,,"report, report6, report7"
 report7:264a40e9dc,confirm,SD15b threshold matches 'wells between 0.61 m and 0.75 m'.,,"report, report6, report7"
 report7:10e200ab2c,confirm,SD15b_REC matches the '0.75 m' recovery boundary.,,"report, report6, report7"
-report7:3b4c7bb486,deny,"sentence calls 0.14m 'the baci-measured benefit at ceh36'; attribution is the SD15b/SD15b_REC definitional band width, not a measured value.",CEH36 synthetic_control_step ~0.137m [09e_report_numbers.csv] (nearest measured CEH36 estimate; not certain which of the three CEH36 figures is meant),"report, report6, report7"
+report7:3b4c7bb486,confirm,Martin 2026-09-21: the 0.14 m BACI-measured benefit at CEH36 is Net_benefit in 09_scrape_report_numbers.csv (the matcher's own choice; the reader's denial overruled),Net_benefit [09_scrape_report_numbers.csv],martin
 report7:e86f93f39a,confirm,SD16 threshold matches 'wells between 0.98 m and 1.20 m'.,,"report, report6, report7"
 report7:0be1098da5,confirm,SD16_REC matches '1.20 m being a practical limit'.,,"report, report6, report7"
 report7:5fda928044,confirm,SD16_REC matches the '1.20 m' recovery boundary (same row as neighbour).,,"report, report6, report7"

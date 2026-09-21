@@ -98,7 +98,14 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "1.5.0"  # 2026-09-09. CEH13 and CEH14 are EXCLUDED from the
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-22. EMITS 32_cluster_summary.csv:
+#   per (period, cluster) the mean, min and max per-well differential slope, the
+#   well count, the count and names of wells significant after the AR(1)
+#   correction, and the network's most negative well — the figures report9 §4.12
+#   quotes as cluster means and had no committed source for. Wells without a
+#   cluster id (extended, unclustered) are summarised under cluster 0. No analysis
+#   changes.
+# 1.5.0  # 2026-09-09. CEH13 and CEH14 are EXCLUDED from the
 #   mapped differential trends (D-148, W144), via the script's own
 #   config.DIFF_EXCLUDED_WELLS and NOT by inheriting MSL5_EXCLUDED_WELLS, which
 #   D-146 scopes to the MSL5 analysis. The 2026-06-27 blanket-include is
@@ -163,6 +170,7 @@ OUT_DIR = paths.DIR_32
 OUT_CSV = paths.OUT_32_PER_WELL
 OUT_SITE_MEAN = paths.OUT_32_SITE_MEAN_TREND
 OUT_TXT = paths.OUT_32_RESULTS
+OUT_CLUSTER_SUMMARY = paths.OUT_32_CLUSTER_SUMMARY
 OUT_FIG = {"2011_2025": paths.OUT_32_FIG_PRIMARY, "2005_2025": paths.OUT_32_FIG_ROBUST}
 
 # Inputs are read directly through utils.paths constants in load_inputs() so the
@@ -550,6 +558,45 @@ def main() -> int:
         base = base.merge(df[cols].rename(columns=ren), on="key", how="outer")
     base.to_csv(OUT_CSV, index=False)
     saved(OUT_CSV)
+
+    # per-cluster summary of the per-well slopes (v1.6.0): what §4.12 quotes
+    summ = []
+    for plabel, df in all_results.items():
+        d = df.merge(base[["key", "Cluster"]], on="key", how="left", suffixes=("", "_b"))
+        if "Cluster_b" in d.columns:
+            d["Cluster"] = d["Cluster"].fillna(d["Cluster_b"])
+        d["cid"] = d["Cluster"].fillna(0).astype(int)
+        for cid, g in d.groupby("cid"):
+            g = g.dropna(subset=["slope_mm_yr"])
+            if g.empty:
+                continue
+            sig = g[g["sig"].fillna(False).astype(bool)]
+            summ.append({
+                "period": plabel, "cluster_id": cid,
+                "cluster_label": config.CLUSTER_LABELS.get(cid, "extended (unclustered)"),
+                "n_wells": int(len(g)),
+                "slope_mean_mm_yr": float(g["slope_mm_yr"].mean()),
+                "slope_min_mm_yr": float(g["slope_mm_yr"].min()),
+                "slope_max_mm_yr": float(g["slope_mm_yr"].max()),
+                "well_min": str(g.loc[g["slope_mm_yr"].idxmin(), "key"]),
+                "well_max": str(g.loc[g["slope_mm_yr"].idxmax(), "key"]),
+                "n_sig_ar": int(len(sig)),
+                "sig_wells": ";".join(f"{k}:{p:.3f}" for k, p in zip(sig["key"], sig["p_ar"])),
+            })
+        dd = d.dropna(subset=["slope_mm_yr"])
+        summ.append({
+            "period": plabel, "cluster_id": -1, "cluster_label": "network (mapped wells)",
+            "n_wells": int(len(dd)),
+            "slope_mean_mm_yr": float(dd["slope_mm_yr"].mean()),
+            "slope_min_mm_yr": float(dd["slope_mm_yr"].min()),
+            "slope_max_mm_yr": float(dd["slope_mm_yr"].max()),
+            "well_min": str(dd.loc[dd["slope_mm_yr"].idxmin(), "key"]),
+            "well_max": str(dd.loc[dd["slope_mm_yr"].idxmax(), "key"]),
+            "n_sig_ar": int(dd["sig"].fillna(False).astype(bool).sum()),
+            "sig_wells": ";".join(f"{k}:{p:.3f}" for k, p in zip(dd[dd["sig"].fillna(False).astype(bool)]["key"], dd[dd["sig"].fillna(False).astype(bool)]["p_ar"])),
+        })
+    pd.DataFrame(summ).to_csv(OUT_CLUSTER_SUMMARY, index=False)
+    saved(OUT_CLUSTER_SUMMARY)
 
     # site-mean spring-level trend, one row per period (canonical secular figure)
     phase(5, "Write site-mean trend CSV")

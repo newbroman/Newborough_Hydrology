@@ -83,7 +83,13 @@ from utils.console_utils import banner, phase, step, info, saved, note, result, 
 from utils.pipeline_params import get_cluster_ids
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"  # 2026-08-13: wrap over-long map titles (_wrap_title) so the two-line
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-22. EMITS 33_cluster_summary.csv:
+#   per (panel: canonical / recent; cluster) the mean dry-year depth, wet-year
+#   depth, swing and amplification with the well count, over the unflagged wells
+#   — the cluster means report9 §4.12 sets FE1/FE2 against and had no committed
+#   source for. Wells without a cluster id are summarised under cluster 0. No
+#   analysis changes.
+# 1.4.0  # 2026-08-13: wrap over-long map titles (_wrap_title) so the two-line
 #   titles no longer overrun the axes and distort the maps; amplification-field legend
 #   moved lower left → upper left. Figures only; no data/among-figure value change.
 # 1.3.0  # 2026-07-04: amplification colourmap RdBu_r → PiYG (avoids wet/dry connotation;
@@ -120,6 +126,7 @@ ROBUSTNESS_SETS = {
 OUT_DIR = paths.DIR_33
 OUT_CSV = paths.OUT_33_PER_WELL
 OUT_TXT = paths.OUT_33_RESULTS
+OUT_CLUSTER_SUMMARY = paths.OUT_33_CLUSTER_SUMMARY
 OUT_FIG_AMP = paths.OUT_33_FIG_AMP
 OUT_FIG_DRY_SPRING = paths.OUT_33_FIG_DRY_SPRING
 OUT_CSV_RECENT = paths.OUT_33_PER_WELL_RECENT
@@ -488,6 +495,24 @@ def main() -> int:
             "n_dry", "n_wet", "flagged"]
     df[[c for c in keep if c in df.columns]].to_csv(OUT_CSV, index=False); saved(OUT_CSV)
     rdf[[c for c in keep if c in rdf.columns]].to_csv(OUT_CSV_RECENT, index=False); saved(OUT_CSV_RECENT)
+    # per-cluster summary (v1.5.0): the means §4.12 quotes
+    summ = []
+    for panel, d in (("canonical", df), ("recent", rdf)):
+        u = d[~d.get("flagged", pd.Series(False, index=d.index)).fillna(False).astype(bool)].copy()
+        u["cid"] = u["Cluster"].fillna(0).astype(int)
+        for cid, g in u.groupby("cid"):
+            summ.append({"panel": panel, "cluster_id": cid,
+                         "cluster_label": config.CLUSTER_LABELS.get(cid, "extended (unclustered)"),
+                         "n_wells": int(len(g)),
+                         "dry_m_mean": float(g["dry_m"].mean()), "wet_m_mean": float(g["wet_m"].mean()),
+                         "swing_mm_mean": float(g["swing_mm"].mean()),
+                         "amplification_mean": float(g["amplification"].mean())})
+        summ.append({"panel": panel, "cluster_id": -1, "cluster_label": "network (unflagged wells)",
+                     "n_wells": int(len(u)),
+                     "dry_m_mean": float(u["dry_m"].mean()), "wet_m_mean": float(u["wet_m"].mean()),
+                     "swing_mm_mean": float(u["swing_mm"].mean()),
+                     "amplification_mean": float(u["amplification"].mean())})
+    pd.DataFrame(summ).to_csv(OUT_CLUSTER_SUMMARY, index=False); saved(OUT_CLUSTER_SUMMARY)
     OUT_TXT.write_text(
         f"CANONICAL amplification — CO-TEMPORAL coefficient over driest/wettest extremes "
         f"(dry {DRY_YEARS}, wet {WET_YEARS})\n"

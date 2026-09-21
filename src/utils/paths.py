@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-09-20. DATA_KML_STUDY_AREA (Script 12, E27).
+__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-21. OUT_01_REPORT_NUMBERS (Script 01, E34).
+# 1.20.0 - 2026-09-20. DATA_KML_STUDY_AREA (Script 12, E27).
 # 1.19.0 - 2026-09-20. OUT_45_REPORT_NUMBERS: Script 45
 #   emits the wet-area analysis's report numbers (study area, fit and out-of-sample
 #   statistics) that the abstract and §4.8.5 quote (E16). Additive.
@@ -377,6 +378,7 @@ INT_OBS_STATE_CONFLICTS = OUT_DIR / "01_observation_state_conflicts.csv"
 INT_WELLS_REFERENCE = OUT_DIR / "01_wells_reference.csv"
 INT_WELLS_EXTENDED  = OUT_DIR / "01_wells_extended.csv"
 INT_WELL_ELEVATIONS = OUT_DIR / "01_well_elevations.csv"
+OUT_01_REPORT_NUMBERS = DIR_01 / "01_report_numbers.csv"   # E34: the DEM-vs-DGPS elevation check (report8 §3.1.2)
 INT_PIPELINE_PARAMS = DIR_01 / "pipeline_scenario_params.csv"
 INT_SITE_OBSERVATIONS = DIR_01 / "pipeline_site_observations.csv"
 

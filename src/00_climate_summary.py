@@ -73,7 +73,10 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.9.0"  # Hollingham (2026) -- 2026-09-21. MIN_RECORD_MONTHS is imported from
+__version__ = "1.10.0"  # Hollingham (2026) -- 2026-09-21. Emits mean_annual_rain_well_record
+#   (complete calendar years of the well record, from felling_split_rainfall_context),
+#   the report8 §3.1.2 "891 mm" that traced to nothing. No other output moves.
+# 1.9.0  # Hollingham (2026) -- 2026-09-21. MIN_RECORD_MONTHS is imported from
 #   config (shared with Scripts 01 and 02) instead of typed here (E32). No output moves.
 # 1.8.0  # Hollingham (2026) -- 2026-09-21. The reference network's record-length
 #   statistics are EMITTED (reference_n_wells, reference_record_months_median/min/max in
@@ -1052,6 +1055,12 @@ def _run_all() -> None:
     # so report section 4.1's "no rainfall difference either side of the fell" is
     # traceable rather than a hand mean of the annual table.
     _fsr = felling_split_rainfall_context(table1_short, int(CLEARFELL_DATE_ISO[:4]))
+    rr.add("mean_annual_rain_well_record", _fsr["all_mean"], unit="mm",
+           era=_fsr["all_era"],
+           note=f"mean annual precipitation over the complete calendar years of the "
+                f"well record (n={_fsr['all_n']}); the report8 §3.1.2 headline, which "
+                f"until 2026-09-21 traced to nothing (the 2000s decade mean happens to "
+                f"round the same).")
     rr.add("mean_annual_rain_pre_felling", _fsr["pre_mean"], unit="mm",
            era=_fsr["pre_era"],
            note=f"mean annual precipitation over complete well-record years up "
@@ -1349,6 +1358,8 @@ def felling_split_rainfall_context(annual: pd.DataFrame, clearfell_year: int) ->
     return dict(
         pre_mean=pre_mean, post_mean=post_mean, diff=post_mean - pre_mean,
         pre_n=int(len(pre)), post_n=int(len(post)),
+        all_mean=float(a["Annual_P_mm"].mean()), all_n=int(len(a)),
+        all_era=f"{int(a['Year'].min())}-{int(a['Year'].max())}",
         pre_era=f"{int(pre['Year'].min())}-{int(pre['Year'].max())}",
         post_era=f"{int(post['Year'].min())}-{int(post['Year'].max())}",
         clearfell_year=clearfell_year,

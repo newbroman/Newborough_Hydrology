@@ -14,7 +14,20 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-21. MIN_RECORD_MONTHS is imported
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-21. The partition diagnostics report8
+#   §3.2.3 quotes now trace: the k-sweep range, the bootstrap k set and the resample
+#   count are config constants (CLUSTER_K_SWEEP_MIN/MAX, CLUSTER_BOOT_K_RANGE,
+#   CLUSTER_BOOT_N — values unchanged); 02_04_bootstrap_stability_summary.csv gains
+#   cluster_canonical / cluster_label columns (canonical at the chosen k, marked
+#   non-canonical elsewhere — the raw fcluster ids were the only key, and the
+#   proof copy matched "Main Forest 1.00" to the wrong raw cluster); the chosen-k
+#   medians, the resample count and the k set join 02_report_numbers.csv, and
+#   calinski_harabasz_peak_k joins silhouette_peak_k. Per-cluster geography rows
+#   (elevation range, the most isolated member, its nearest-member distance and
+#   elevation, and the range without it) are emitted after the canonical
+#   assignment — the CEH11 passage's 8.5-10.9 m, 3.5 m and 1.7 km were read off
+#   01_locations.csv by hand. No analytical output moves.
+# 1.7.0  # Hollingham (2026) — 2026-09-21. MIN_RECORD_MONTHS is imported
 #   from config (shared with Scripts 00 and 01) instead of typed here (E32). No output moves.
 # 1.6.0  # Hollingham (2026) — 2026-08-19. Three fixes to the
 #        month-wise stability block, all following from the finding that the
@@ -87,6 +100,7 @@ from sklearn.metrics import (silhouette_score, calinski_harabasz_score,
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS,
     REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES, MIN_RECORD_MONTHS,
+    CLUSTER_K_SWEEP_MIN, CLUSTER_K_SWEEP_MAX, CLUSTER_BOOT_K_RANGE, CLUSTER_BOOT_N,
     CLUSTER_BOOT_SEED,
     CLUSTER_MONTH_BOOT_N, CLUSTER_MONTH_BLOCK_MONTHS,
     CLUSTER_MONTH_SPLIT_N, CLUSTER_MONTH_BOOT_SEED,
@@ -95,7 +109,7 @@ from utils.config import (
 from utils.data_utils import normalize_well_name
 from utils.paths import (
     make_all_dirs,
-    INT_CLIMATE, INT_WELLS_CLEAN, INT_CLUSTER_STATS,
+    INT_CLIMATE, INT_WELLS_CLEAN, INT_CLUSTER_STATS, INT_LOCATIONS,
     INT_WELLS_REFERENCE,
     OUT_02_DENDROGRAM, OUT_02_VALIDATION, OUT_02_CLUSTER_HYDRO_WB,
     OUT_02_SPAGHETTI,
@@ -242,8 +256,8 @@ del _anchor_ids, _label_ids
 # minutes on a typical laptop. Reduce N_BOOTSTRAP for faster iteration; reduce
 # K_RANGE_BOOTSTRAP if only interested in a specific k.
 # ──────────────────────────────────────────────────────────────────────────────
-N_BOOTSTRAP = 1000
-K_RANGE_BOOTSTRAP = (4, 5, 6, 7)
+N_BOOTSTRAP = CLUSTER_BOOT_N                 # config (2026-09-21); value unchanged
+K_RANGE_BOOTSTRAP = CLUSTER_BOOT_K_RANGE     # config (2026-09-21); value unchanged
 BOOTSTRAP_SEED = CLUSTER_BOOT_SEED   # canonical seed lives in utils.config (value unchanged: 20260424)
 
 # Local styling for cluster hydrograph panel. Colours and labels come from
@@ -733,7 +747,7 @@ def plot_month_stability(well_stab: pd.Series, month_stab: pd.Series,
     plt.close(fig)
 
 
-def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
+def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
     """
     Runs the full stability-diagnostics block:
 
@@ -749,8 +763,8 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
     print("\n--- Cluster Stability Diagnostics ---")
 
     # 1. k-sweep
-    step("k-sweep validation (k=2..10)...")
-    sweep = k_sweep_validation(wells_ref, range(2, 11))
+    step(f"k-sweep validation (k={CLUSTER_K_SWEEP_MIN}..{CLUSTER_K_SWEEP_MAX})...")
+    sweep = k_sweep_validation(wells_ref, range(CLUSTER_K_SWEEP_MIN, CLUSTER_K_SWEEP_MAX + 1))
     print(sweep.round(3).to_string())
     best_sil_k = int(sweep["silhouette"].idxmax())
     best_ch_k  = int(sweep["calinski_harabasz"].idxmax())
@@ -772,7 +786,11 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
            era=f"k={NUM_CLUSTERS}", note="Ward merge distance at chosen k")
     rr.add("silhouette_peak_k", best_sil_k, unit="",
            note=f"k maximising silhouette (={float(sweep['silhouette'].max()):.3f})")
+    rr.add("calinski_harabasz_peak_k", best_ch_k, unit="",
+           note=f"k maximising Calinski-Harabasz (={float(sweep['calinski_harabasz'].max()):.2f})")
     for _k in sweep.index:
+        if _k == NUM_CLUSTERS:
+            continue                                   # silhouette_k5 is the row above; one key, one row
         rr.add(f"silhouette_k{_k}", float(sweep.loc[_k, "silhouette"]), unit="",
                era=f"k={_k}", note="per-k silhouette (Fig 6 series)")
     # --- month-wise stability (D-030) ---------------------------------------
@@ -947,13 +965,21 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
         plot_coassignment_heatmap(coassign, ref_labels, k, hm_path)
         print(f"    Saved heatmap:    {hm_path}")
 
-        # Per-cluster summary stats.
+        # Per-cluster summary stats. At the chosen k the raw fcluster ids are
+        # remapped to the canonical ids and labelled from config.CLUSTER_LABELS, so
+        # the summary can be cited by name (report8 §3.2.3 quotes it per cluster);
+        # at any other k there is no canonical partition and the label says so.
+        if k == NUM_CLUSTERS:
+            _raw2can = _remap_cluster_ids_by_anchor(ref_labels.values, wells_ref.columns.tolist(), CLUSTER_ID_ANCHORS)
         for cid, grp in membership.groupby(f"cluster_k{k}"):
             median_stab = grp["stability"].median()
             min_stab    = grp["stability"].min()
+            canon = _raw2can[int(cid)] if k == NUM_CLUSTERS else None
             summary_rows.append({
                 "k": k,
                 "cluster": int(cid),
+                "cluster_canonical": canon if canon is not None else "",
+                "cluster_label": CLUSTER_LABELS.get(canon, f"C{canon}") if canon is not None else f"k{k} raw {int(cid)} (non-canonical)",
                 "n_wells": len(grp),
                 "median_stability": median_stab,
                 "min_stability": min_stab,
@@ -971,6 +997,16 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
     summary = pd.DataFrame(summary_rows)
     summary.to_csv(OUT_02_STABILITY_SUMMARY, index=False)
     step(f"Saved stability summary: {OUT_02_STABILITY_SUMMARY.name}")
+    # the per-cluster medians report8 §3.2.3 quotes, by canonical label
+    for _, r in summary[summary["k"] == NUM_CLUSTERS].iterrows():
+        rr.add("cluster_stability_median", float(r["median_stability"]), well=str(r["cluster_label"]),
+               era=f"k={NUM_CLUSTERS}", unit="",
+               note=f"median per-well co-assignment over {N_BOOTSTRAP} well resamples; n = {int(r['n_wells'])}")
+    rr.add("bootstrap_n_resamples", N_BOOTSTRAP, unit="count", note="config.CLUSTER_BOOT_N")
+    rr.add("bootstrap_k_min", min(K_RANGE_BOOTSTRAP), unit="", note="config.CLUSTER_BOOT_K_RANGE")
+    rr.add("bootstrap_k_max", max(K_RANGE_BOOTSTRAP), unit="", note="config.CLUSTER_BOOT_K_RANGE")
+    n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the bootstrap rows added
+    step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the bootstrap medians)")
 
     # 4. Per-well stability across k (long form)
     per_well_long = pd.concat(
@@ -993,6 +1029,62 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> None:
               f"borderline (0.7-0.9): {frac_borderline:.0%}  "
               f"fragile (<0.7): {frac_fragile:.0%}")
     print("-----------------------------------------\n")
+    return rr
+
+
+def add_cluster_geography_numbers(rr: ReportNumbers, cluster_df: pd.DataFrame) -> None:
+    """
+    Emit, per canonical cluster, the ground-elevation range of its members and
+    the member that sits furthest from any other member of the same cluster —
+    its distance to that nearest member, its elevation, and the elevation range
+    of the cluster without it.
+
+    Why: report8 §3.2.3 describes CEH11 as C1's geographically isolated member
+    ("8.5--10.9 m AOD ... 3.5 m AOD ... approximately 1.7 km from the nearest
+    C1 well"), and none of those figures was emitted by any script — they were
+    read off 01_locations.csv by hand. The partition is behavioural, so the
+    geography is a property to REPORT about each cluster, not an input to it;
+    computing it for every cluster keeps the passage honest if a rerun moves
+    the isolated member. Distances are planar (E, N in metres); elevations are
+    ground_elev_m from Script 01 (DGPS where surveyed).
+    """
+    loc = pd.read_csv(INT_LOCATIONS)
+    loc = loc.set_index(loc["Match_ID"].map(normalize_well_name))
+    for cid, grp in cluster_df.groupby("Cluster"):
+        label = CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
+        members = [normalize_well_name(m) for m in grp["Match_ID"]]
+        sub = loc.reindex(members)
+        missing = sub.index[sub["E"].isna() | sub["ground_elev_m"].isna()].tolist()
+        if missing:
+            warn(f"  {label}: no location or elevation for {missing}; geography rows skip them")
+            sub = sub.dropna(subset=["E", "N", "ground_elev_m"])
+        if len(sub) < 2:
+            continue
+        rr.add("cluster_ground_elev_min_m", float(sub["ground_elev_m"].min()), unit="m AOD", well=label,
+               note=f"lowest member: {sub['ground_elev_m'].idxmin()} (01_locations.csv ground_elev_m)")
+        rr.add("cluster_ground_elev_max_m", float(sub["ground_elev_m"].max()), unit="m AOD", well=label,
+               note=f"highest member: {sub['ground_elev_m'].idxmax()}")
+        e, n = sub["E"].to_numpy(), sub["N"].to_numpy()
+        d = np.hypot(e[:, None] - e[None, :], n[:, None] - n[None, :])
+        np.fill_diagonal(d, np.inf)
+        nearest = d.min(axis=1)
+        i = int(np.argmax(nearest))
+        iso, near = sub.index[i], sub.index[int(np.argmin(d[i]))]
+        rest = sub.drop(index=iso)
+        rr.add("cluster_isolated_well", iso, unit="", well=label,
+               note="member furthest from any other member of the same cluster (planar E/N)")
+        # the two rows ABOUT the isolated well carry its name as the Well and the
+        # cluster as the Era, so a sentence naming "CEH11" reaches them
+        rr.add("cluster_isolated_nearest_dist_m", float(nearest[i]), unit="m", well=iso, era=label,
+               note=f"{iso} to its nearest {label} member, {near}")
+        rr.add("cluster_isolated_ground_elev_m", float(sub.loc[iso, "ground_elev_m"]), unit="m AOD",
+               well=iso, era=label, note=f"ground elevation of {iso}, {label}'s most isolated member")
+        rr.add("cluster_others_ground_elev_min_m", float(rest["ground_elev_m"].min()), unit="m AOD",
+               well=label, note=f"the cluster without {iso}")
+        rr.add("cluster_others_ground_elev_max_m", float(rest["ground_elev_m"].max()), unit="m AOD",
+               well=label, note=f"the cluster without {iso}")
+        info(f"  {label}: elevations {sub['ground_elev_m'].min():.3f}-{sub['ground_elev_m'].max():.3f} m AOD; "
+             f"most isolated {iso} ({nearest[i]:.0f} m from {near})")
 
 
 def make_cluster_hydrograph_wb_figure() -> None:
@@ -1541,7 +1633,7 @@ if __name__ == "__main__":
     # Added per rebuild plan: bootstrap stability across candidate k values,
     # plus extended k-sweep (silhouette + Calinski-Harabasz + merge distance).
     # Runs once per invocation; figures and tables land in outputs/02_clustering/.
-    run_stability_diagnostics(wells_ref)
+    rr = run_stability_diagnostics(wells_ref)
 
     # --- Cluster assignments -----------------------------------------------
     # Run Ward's at WARDS_K. fcluster returns arbitrary integer IDs; we then
@@ -1571,6 +1663,11 @@ if __name__ == "__main__":
     )
     cluster_df.to_csv(INT_CLUSTER_STATS, index=False)
     step(f"Saved cluster stats: {INT_CLUSTER_STATS.name}")
+    add_cluster_geography_numbers(rr, cluster_df)
+    rr.add("amplitude_min_obs_per_window", AMP_MIN_OBS_PER_WIN, unit="count",
+           note="months a well needs in a window for its p90-p10 amplitude: two annual cycles")
+    n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the cluster geography rows
+    step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the cluster geography)")
     print("     Cluster sizes (canonical IDs):")
     for cid, grp in cluster_df.groupby("Cluster"):
         print(f"       {CLUSTER_LABELS.get(int(cid), f'C{int(cid)}'):30s} n={len(grp)}")

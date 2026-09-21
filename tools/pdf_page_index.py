@@ -32,7 +32,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-20.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-21. A caption is fingerprinted from its
+#   body — the mirror renders an unfilled sequence field as "Table :" while the PDF
+#   says "Table 12:", so every caption read as absent — and a block carrying display
+#   maths is not fingerprinted at all (pdftotext lays equations out differently, and
+#   a miss there says nothing about the PDF). para_key() is shared with proof_copy so
+#   the two tools cannot fingerprint differently. Martin, 2026-09-21: "a lot of the
+#   red notes are p?" — 77 of 88 were equations, captions and one-line sub-headings.
+#   --only now keeps the other documents' rows instead of dropping them.
+# 1.0.0  # Hollingham (2026) — 2026-09-20.
 
 import argparse
 import csv
@@ -70,8 +78,21 @@ _MARKUP = re.compile(r"!\[[^\]]*\]\([^)]*\)(\{[^}]*\})?|\[\]\{#[^}]*\}|\{[^}]*\}
 _HEAD = re.compile(r"^(#{1,4})\s+(.*)$")
 
 
+_CAPTION = re.compile(r"^\*?\s*(Table|Figure|Fig\.)\s*[\d.]*[a-z]?\s*:\s*", re.I)
+
+
 def norm(s: str) -> str:
     return re.sub(r"[^a-z0-9]", "", s.lower())
+
+
+def para_key(block: str) -> str:
+    """The normalised text a paragraph is looked up by: markup stripped, a caption's
+    "Table N:" label dropped (the mirror may render the field empty), lower-case
+    alphanumerics only. "" for a block that cannot be matched (display maths)."""
+    if "$$" in block:
+        return ""
+    clean = _MARKUP.sub(lambda m: m.group(2) or "", block)
+    return norm(_CAPTION.sub("", clean.strip()))
 
 
 def pdf_pages(pdf: pathlib.Path) -> list[str]:
@@ -99,8 +120,7 @@ def paragraphs(mirror: pathlib.Path):
             cur_head = _MARKUP.sub(r"\2", hm.group(2)).strip()
             out.append(("heading", cur_head, "", ""))
             continue
-        clean = _MARKUP.sub(lambda m: m.group(2) or "", block)
-        fp = norm(clean)[:FINGERPRINT]
+        fp = para_key(block)[:FINGERPRINT]
         if len(fp) < 30:
             continue
         out.append(("para", fp[:24], fp, cur_head))
@@ -162,6 +182,14 @@ def main() -> int:
                     rows.append([stem, "table", r["number"], page, rel, built, n])
         print(f"  {stem:32} {pathlib.Path(rel).name:40} {len(pages):4} pages  "
               f"{n_ok} paragraph(s) placed, {n_amb} on more than one page, {n_miss} not found")
+    if a.only and OUT.exists():
+        # --only rebuilds the selected documents; the others keep their rows (1.0.0
+        # rewrote the file with the selection alone and silently dropped the rest)
+        done = {r[0] for r in rows}
+        with OUT.open(encoding="utf8", newline="") as fh:
+            kept = [r for r in csv.DictReader(fh) if r["document"] not in done]
+        rows = [[r["document"], r["kind"], r["key"], r["page"], r["pdf"], r["pdf_built"], r["n_matches"]]
+                for r in kept] + rows
     with OUT.open("w", encoding="utf8", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["document", "kind", "key", "page", "pdf", "pdf_built", "n_matches"])

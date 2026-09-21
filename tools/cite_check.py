@@ -45,7 +45,19 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.26.0"  # Hollingham (2026) — 2026-09-21. 03_17_upstand_frame_sensitivity
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-21. A report-numbers Parameter that
+#   repeats within its file (one row per cluster or well: cluster_stability_median,
+#   Tier2_BACI_shift, water_balance_residual_pct) is labelled "Parameter · Well · Era"
+#   so each row is its own value. Until now the five rows shared one label and
+#   check_index kept the FIRST — "Main Forest (stability 1.00)" was checked against
+#   C1, and the proof copy could not tell C1's elevation range from C4's.
+#   Single-row Parameters keep their bare label; nothing already indexed moves.
+# 1.27.0  # Hollingham (2026) — 2026-09-21. Script 02's partition diagnostics
+#   registered: 02_04_bootstrap_stability_summary keyed (k, cluster_label) — the
+#   new canonical label column, so "Main Forest (stability 1.00)" reaches the right
+#   row — and 02_06_k_sweep_validation keyed k (report8 §3.2.3; Martin: "these are
+#   all to do with the clustering, the numbers cant be that hard to allocate").
+# 1.26.0  # Hollingham (2026) — 2026-09-21. 03_17_upstand_frame_sensitivity
 #   registered, keyed (block, key): report8 §3.1.1 quotes its summary row
 #   corr_upstand_vs_d_beta_3 (−0.853) and it traced to nothing (Martin: "I am most
 #   concerned about" it). Recomputed from the per-well block: −0.8527, n = 66.
@@ -479,6 +491,10 @@ EXTRA_VALUE_TABLES = [
      ["t_half_A_months", "t_efold_B_months", "t_half_B_months", "alpha_B"]),
     ("outputs/03_state_space_model/03_17_upstand_frame_sensitivity.csv", ("block", "key"),   # report8 §3.1.1 (RB-03c)
      ["value", "upstand_m", "d_beta_1", "d_beta_2", "d_beta_3", "beta_3_ground_frame"]),
+    ("outputs/02_clustering/02_04_bootstrap_stability_summary.csv", ("k", "cluster_label"),   # report8 §3.2.3
+     ["n_wells", "median_stability", "min_stability"]),
+    ("outputs/02_clustering/02_06_k_sweep_validation.csv", "k",                             # report8 §3.2.3, Figure 6
+     ["silhouette", "calinski_harabasz", "merge_distance", "min_cluster_size", "max_cluster_size", "n_singletons"]),
     # --- registration pass batches 2-5 (2026-09-20): tables the report quotes cell by cell
     ("outputs/07_spatial_coefficients/07_coeff_maps_data.csv", "Name_Original",    # report8 3.2.3, report9 4.2.2, report9 4.9.2
      ["dem", "beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "pvalue_beta_1", "pvalue_beta_2", "pvalue_beta_3", "Model_R2"]),
@@ -1389,6 +1405,10 @@ def collect_values() -> list[tuple[str, str, float]]:
         kcol = cols.get("key") or df.columns[0]
         ucol = cols.get("unit")
         vcol = cols.get("value")
+        # a Parameter emitted once per well or cluster is one label per ROW, not one
+        # label for the file: the Well and Era cells distinguish them (1.28.0)
+        repeated = set(df[kcol][df[kcol].duplicated(keep=False)].astype(str))
+        qual = [c for c in (cols.get("well"), cols.get("era"), cols.get("control"), cols.get("tier")) if c]
         if vcol is None:
             num = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
             if not num:
@@ -1398,6 +1418,10 @@ def collect_values() -> list[tuple[str, str, float]]:
             try:
                 rel = str(p.relative_to(REPO))
                 lab = str(r[kcol])
+                if lab in repeated:
+                    parts = [str(r[c]).strip() for c in qual if pd.notna(r[c]) and str(r[c]).strip()]
+                    if parts:
+                        lab = " · ".join([lab] + parts)
                 vals.append((rel, lab, float(r[vcol])))
                 if ucol is not None:
                     u = str(r[ucol]).strip()

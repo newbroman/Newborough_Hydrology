@@ -1001,6 +1001,13 @@ REFERENCE_CUTOFF_DATE = "2026-02-01"
 # RAF Valley climate station, Anglesey — latitude for Thornthwaite day-length
 # correction. Confirmed 53°14′32″N → 53.242° ≈ 53.25.
 RAF_VALLEY_LAT_DEG = 53.25
+# The station's Ordnance Survey grid reference, as report8 §3.1.2 prints it
+# ("SH 30691 75549"): the five-figure easting and northing within the SH
+# 100 km square. Full OSGB coordinates are 230691 E, 375549 N. A reference
+# datum quoted in prose, not read by any script (Martin, 2026-09-21).
+RAF_VALLEY_OSGB_SQUARE = "SH"
+RAF_VALLEY_OSGB_E = 30691
+RAF_VALLEY_OSGB_N = 75549
 
 # ── Ecological thresholds — Curreli et al. (2013) ────────────────────────────
 # Dune slack community viability limits, expressed as depth below ground
@@ -2022,6 +2029,13 @@ FULL_HINDCAST_SMOOTH_MONTHS = 12
 # mirrored). Values are unchanged from their original per-script definitions —
 # relocation only, so no committed output moves.
 CLUSTER_BOOT_SEED       = 20260424   # Script 02 cluster bootstrap (was module-local)
+# Script 02's partition diagnostics, relocated from module locals on 2026-09-21
+# so the report's "k = 2 to k = 10", "k in {4, 5, 6, 7}" and "1000 resamples"
+# (report8 §3.2.3) are candidates the proof copy can trace. Values unchanged.
+CLUSTER_K_SWEEP_MIN     = 2          # the k-sweep evaluated for silhouette, CH and merge distance
+CLUSTER_K_SWEEP_MAX     = 10
+CLUSTER_BOOT_K_RANGE    = (4, 5, 6, 7)   # candidate k for the well-resampling bootstrap
+CLUSTER_BOOT_N          = 1000       # resamples per k (the rebuild handover's value)
 SSM_BOOT_SEED           = 20260424   # Script 03 centroid-fit bootstrap. Same VALUE as
                                      # CLUSTER_BOOT_SEED and deliberately a separate
                                      # constant: they seed different resamplings, and

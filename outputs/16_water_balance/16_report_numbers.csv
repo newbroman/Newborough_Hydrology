@@ -1,0 +1,7 @@
+Parameter,Well,Era,Value,Unit,Note
+water_balance_residual_pct,C1 (Lake Edge),,1.2002447669881346,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_residual_pct,C2 (Dune),,1.0072407384509015,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_residual_pct,C3 (Western Residual),,0.07993880797315218,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_residual_pct,C4 (Main Forest),,0.019919940318065286,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_residual_pct,C5 (Coastal Forest),,1.788421375556902,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_closure_max_pct,,,1.788421375556902,%,largest per-cluster residual as a share of total losses (C5 (Coastal Forest)): the balance closes to within this at every cluster

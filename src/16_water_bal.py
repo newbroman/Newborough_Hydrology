@@ -79,7 +79,13 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-19. save_recession_table
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. Emits 16_report_numbers.csv:
+#   the closure of the head-space balance, |Residual| / Total_loss in per cent, per
+#   cluster and its maximum. The front matter, report11 §4.9 and report12 quote
+#   "closes to within 1.8%" and the figure was a ratio of two table cells nothing
+#   emitted (proof pass, 2026-09-21). No existing output moves.
+#
+# v1.4.0  # Hollingham (2026) - 2026-09-19. save_recession_table
 #   gains ET_mm_month = |summer| - |winter|, the drainage/ET split in depth
 #   units rather than as a ratio. Report Table 4b showed winter, summer and
 #   a fraction; the subtraction between them was left to the reader and was
@@ -129,9 +135,10 @@ import matplotlib.patches as mpatches
 
 from utils.paths import (
     make_all_dirs, INT_REGIONAL_AVG, OUT_16_TABLE, OUT_16_VOL_TABLE,
-    OUT_16_REC_TABLE,
+    OUT_16_REC_TABLE, OUT_16_REPORT_NUMBERS,
     OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
     SUMMER_MINIMUM_MONTHS,
     WINTER_RECESSION_MONTHS,
@@ -703,6 +710,26 @@ def make_figure(summary, recession, ms=True):
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def save_report_numbers(summary, path):
+    """The closure of the head-space balance: |residual| as a percentage of total
+    losses, per cluster, and the largest of them — the "closes to within N%" the
+    documents quote."""
+    rr = ReportNumbers()
+    worst = None
+    for cid in sorted(summary.keys()):
+        s = summary[cid]
+        pct = abs(s["residual"]) / s["total_loss"] * 100.0
+        rr.add("water_balance_residual_pct", pct, unit="%", well=_CFG_LABELS[cid],
+               note="|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv")
+        if worst is None or pct > worst[1]:
+            worst = (_CFG_LABELS[cid], pct)
+    rr.add("water_balance_closure_max_pct", worst[1], unit="%",
+           note=f"largest per-cluster residual as a share of total losses ({worst[0]}): "
+                f"the balance closes to within this at every cluster")
+    n = rr.save(path)
+    saved(f"{path.name} ({n} rows)")
+
+
 def main():
     banner("16", "Water Balance", version=__version__)
     print("Starting 16: Water Balance Decomposition...")
@@ -723,6 +750,7 @@ def main():
               f"{s['drain_pct']:>4.0f}% {s['et_pct']:>4.0f}%")
 
     save_headspace_table(summary, OUT_16_TABLE)
+    save_report_numbers(summary, OUT_16_REPORT_NUMBERS)
 
     # ── Recession analysis ──
     recession = compute_recession_partition(df)

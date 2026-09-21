@@ -19,6 +19,7 @@ from their publishers.
 | `ranwell_1960_iii_myxomatosis.pdf` | Ranwell, D. (1960) Newborough Warren, Anglesey: III. Changes in the vegetation after the loss of rabbits by myxomatosis. *Journal of Ecology* 48(2), 385–395. | JSTOR | as above |
 | `curreli_2013_dune_slack_ecohydrology.pdf` | Curreli, A. et al. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. *Science of the Total Environment* 443, 910–919. | Elsevier | publisher terms |
 | `van_willegen_2025_msl5_ecological_indicators.pdf` | van Willegen, L., Wallace, H., Curreli, A., Dwyer, C., Ratcliffe, J., Jones, D. L., Williams, G., Hollingham, M. & Jones, L. (2025) Five-year carry-over effects in dune slack vegetation response to hydrology. *Ecological Indicators* 170, 113016. doi:10.1016/j.ecolind.2024.113016 | Elsevier (open access, CC BY 4.0); companion quadrat dataset Mendeley Data doi:10.17632/p4xvb6xxp9.1 | CC BY 4.0 — storable; supplied 2026-09-21 |
+| `davy_2010_ecohydrological_guidelines_wet_dunes_ea.pdf` | Davy, A.J., Hiscock, K.M., Jones, M.L.M., Low, R., Robins, N.S. & Stratford, C. (2010) *Ecohydrological guidelines for wet dune habitats, Phase 2* — Protecting the plant communities and rare species of dune wetland systems. Environment Agency, Bristol, GEHO0310BSGV-E-P, May 2010. 116 pp. | GOV.UK (assets.publishing.service.gov.uk/…/geho0310bsgv-e-e.pdf); uploaded 2026-09-21 as `geho0310bsgv-e-e.pdf`, renamed | © Environment Agency, "All rights reserved … may be reproduced with prior permission" — NOT open-licensed as the Wanted entry below assumed; untracked like the rest |
 
 Rows above describe documents supplied to the 2026-08-22 session. Update this
 table when a document is added or removed; the filename column is the contract
@@ -32,6 +33,3 @@ between this manifest and whatever cites it.
 - Hill, M.O. & Wallace, H.A. (1989) Vegetation and environment in afforested sand
   dunes at Newborough, Anglesey. *Forestry* 62(3), 249–267; and their 1987
   *Survey of Newborough Forest* to the Forestry Commission.
-- Davy, A.J. et al. (2010) *Protecting the plant communities and rare species of
-  dune wetland systems*, Environment Agency GEHO0310BSGV-E-E — open access, so
-  this one may be freely stored.

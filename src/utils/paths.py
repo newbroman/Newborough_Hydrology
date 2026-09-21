@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.23.0"  # Hollingham (2026) - 2026-09-21. OUT_26_VW_REPRODUCTION (Script 26 Pass 7b). Additive.
+__version__ = "1.24.0"  # Hollingham (2026) - 2026-09-21. OUT_26_TABLE_S7_2_CSV/MD (Script 26, Table S7.2). Additive.
+# 1.23.0 - 2026-09-21. OUT_26_VW_REPRODUCTION (Script 26 Pass 7b). Additive.
 # 1.22.0 - 2026-09-21. OUT_16_REPORT_NUMBERS (Script 16): the
 #   water-balance closure the front matter and report11/12 quote ("within 1.8%"). Additive.
 # 1.21.0 - 2026-09-21. OUT_01_REPORT_NUMBERS (Script 01, E34).
@@ -1322,6 +1323,8 @@ OUT_26_METRIC_DIAG_FIG    = DIR_26 / "26_metric_diagnostics.png"
 # Paste Special > Unformatted text, the Markdown for review before pasting.
 OUT_26_TABLE_S7_1_CSV     = DIR_26 / "26_table_s7_1_ewi_per_well.csv"
 OUT_26_TABLE_S7_1_MD      = DIR_26 / "26_table_s7_1_ewi_per_well.md"
+OUT_26_TABLE_S7_2_CSV     = DIR_26 / "26_table_s7_2_vw_datum_offsets.csv"   # per-piezometer datum offset vs van Willegen (Pass 7b)
+OUT_26_TABLE_S7_2_MD      = DIR_26 / "26_table_s7_2_vw_datum_offsets.md"
 
 # Script 26b — Van Willegen MSL UKCP18 climate projections (Phase 13, Tool B)
 # Pairs with Script 11 Section 5 (Tool A) and Script 26 (observational MSL5).

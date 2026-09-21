@@ -1469,7 +1469,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             continue
         if len(unsigned) == 2 and _YEAR_RANGE_BEFORE.search(masked[max(0, s - 8):s]):
             continue                                   # "1951--53", "1989--96": the second year
-        if _ORDINAL_BEFORE.search(masked[max(0, s - 12):s]) and len(unsigned) <= 2 and "." not in unsigned:
+        if _ORDINAL_BEFORE.search(masked[max(0, s - 48):s]) and len(unsigned) <= 2 and "." not in unsigned:
             continue                                   # "Tier 1", "site 4": names, not values
         if len(unsigned) <= 2 and masked[max(0, s - 1):s] == "(" and masked[e:e + 1] == ")" \
                 and len(_ENUM_MARK.findall(masked[bol:masked.find("\n", e) if masked.find("\n", e) > 0 else len(masked)])) >= 2:

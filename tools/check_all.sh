@@ -18,8 +18,15 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.13.0 - 2026-09-08
+# VERSION 1.14.0 - 2026-09-21
 # CHANGELOG
+#   1.14.0 (2026-09-21): cross-reference gate. xref_lint fails on any report
+#     chapter that sends its reader to the Methods Supplement - CLAUDE.md's rule
+#     since the Supplement existed, checked by nothing until two edit batches
+#     added six such pointers in one morning and Martin found them reading the
+#     proof copy. Pre-existing pointers sit in xref_allow.csv with the reason,
+#     each awaiting his ruling; a new one fails. The Supplement's own
+#     self-references by chapter are counted, advisory.
 #   1.13.0 (2026-09-08): bibliography gate. bib_lint checks report13's entries
 #     against the report corpus in both directions (an entry nobody cites; a
 #     citation with no entry), with a reasoned allowlist in bib_exemptions.csv.
@@ -249,6 +256,15 @@ echo "── pipeline counts (does the corpus agree with the manifest?) ──�
 # stamps the two plain-text files; this gates the ones inside ODTs, which no
 # script can rewrite safely.
 python3 tools/pipeline_count_lint.py || rc=1
+echo
+
+echo "── cross-references (does any chapter send the reader to the Supplement?) ──"
+# CLAUDE.md: "Do not send a reader to the Methods Supplement. Say the thing, or
+# name the script that does it." A rule in a prose file is re-broken by every
+# fresh session; this is what checks it. xref_allow.csv lists the pointers
+# Martin has chosen, or has yet to rule on, each with its reason.
+python3 tools/xref_lint.py --selftest >/dev/null || rc=1
+python3 tools/xref_lint.py --quiet || rc=1
 
 echo "── document media (does every stripped ODT still rebuild?) ──────────"
 # Superseded versions carry their images in docs/media_store rather than inside

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_29.odt — do not edit. source-sha256=e202c42160032465 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_30.odt — do not edit. source-sha256=0931b95dc19fa3ea pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -551,3 +551,41 @@ Figure S11.1 (34_window_sensitivity.png). The 2017→2023 MSL5 comparison placed
 ## S11.4 Sources
 
 Script 34 (two-window sensitivity), reading the committed per-well annual spring MSL from Script 26 (26_msl_annual_per_well.csv). Window-mean rainfall annotations trace to 00_01_annual_climate_summary.csv. All values trace to committed CSVs.
+
+# Supplementary Note S12: Community Reference Values for MSL5 --- Specification for Further Work
+
+## S12.1 Why the values do not yet exist
+
+Van Willegen et al. (2025) established the five-year mean spring water level as the hydrological metric most strongly related to dune-slack community moisture at Newborough --- mean Ellenberg F, with Pearson r of 0.84 to 0.89 across their relevés --- and named reference values, or a community \"status\", on the five-year MSL as the next step. Curreli et al. (2013) supplied community reference values, but for a different quantity: their Table 4 gives, for each National Vegetation Classification community, the mean, standard error and range of the four-year (2006--09) average annual minimum and maximum water level across the quadrats assigned to that community, over a 1 June--31 May hydrological year. The report applies those values to the annual-minimum series (report Sections 4.8.1 and 4.8.3, Table 20, Figure 44b) and not to MSL5. No published source gives a community reference value for a spring mean, and the report does not construct one by transfer. This note specifies how such values would be derived on the same footing as Curreli\'s, what is already in hand, and the one input that is not.
+
+## S12.2 What would be computed
+
+The counterpart of Curreli\'s Table 4 for the spring metric: for each NVC community, the mean, standard error, range and count of (a) the annual mean spring water level and (b) the five-year mean spring water level at the permanent vegetation quadrats assigned to that community, over a stated period and a stated survey year. Two companion rows would be computed first: the four-year mean annual minimum and the four-year mean annual maximum at the same quadrats over Curreli\'s period, which must reproduce her Table 4 within its standard errors. That reproduction is the test that the quadrats, the datum treatment and the period are the ones her values rest on; only if it passes do the spring rows inherit the same standing. The product is a set of characteristic values with ranges --- where each community was found to sit on the metric --- and is reported as such, never as a viability limit.
+
+## S12.3 Data in hand
+
+Three of the four inputs exist in the pipeline. First, the monthly water-level record at every van Willegen piezometer, 2005 to date (Script 01), from which Script 26 already computes the annual spring mean, the five-year MSL and, since D-190, the annual minimum and its four-year mean per well. Second, the fixed datum offset between each permanent quadrat\'s ground surface and its piezometer\'s, tabulated in Supplementary Table S7.2 (Script 26, Pass 7b): van Willegen\'s per-quadrat series are this network\'s readings shifted by that constant, so any hydrological metric at a quadrat is the piezometer\'s metric plus the offset, and every quadrat-level value in S12.2 is available from the committed outputs without new measurement. Third, the mean Ellenberg F of each relevé in each survey year, from the deposited dataset (van Willegen et al., Mendeley Data), which Script 26 reads for the vegetation cross-validation of report Section 4.8.4.
+
+## S12.4 The missing input
+
+The deposited dataset carries no NVC community per quadrat. It is the only input the specification lacks, and it exists in three places. (i) Curreli et al.\'s 2010 classification of the 453 relevés, from which Table 4\'s counts per community are drawn; one column keyed by permanent-quadrat identifier would suffice, and the survey team (Bangor University, UK Centre for Ecology & Hydrology) holds it. (ii) The classification of the repeat relevés of 2012--2019 by the same surveyor, which would give the community per quadrat per survey year and so identify the quadrats whose community did not change over the decade --- the subset on which a multi-year reference value is cleanly defined, since van Willegen et al. showed that communities moved with the hydrology. (iii) As a coarse fallback only, the NVC map of the site (Dargie 1995, National Sand Dune Vegetation Survey; any later resurvey held by Natural Resources Wales) sampled at the quadrat coordinates: a polygon-scale community fifteen years before the relevés, usable to check a classification but not to supply one, because slack-margin quadrats straddle polygon boundaries and communities moved in the interval. Assigning a community from mean Ellenberg F is not an option: Ellenberg F is the quantity MSL5 is calibrated against, and a class derived from it would make the reference values circular.
+
+## S12.5 Method
+
+Periods. Two are needed. For the reproduction rows, Curreli\'s 2006--09 window, which is the pipeline\'s hydrological years 2007--2010 at these piezometers --- the earliest window for which every summer month is present, the record beginning in 2005. For the spring rows, every window-end the record admits, with the community per quadrat taken from the survey year nearest the window-end, or restricted to the stable-community subset of S12.4(ii).
+
+Quadrat values. Each quadrat\'s metric is its piezometer\'s metric plus the Table S7.2 offset. Because the offset is a constant it enters every metric additively and leaves the piezometer\'s admission rules (three of three spring readings for an annual spring mean; every summer month present and the year closed for an annual minimum; every year present for a multi-year mean) unchanged.
+
+Community statistics. For each community, metric and period: the mean, standard error, minimum, maximum and count over quadrats, exactly as Curreli\'s Table 4 reports them, so that the reproduction rows are comparable cell for cell. Beside them, the count of distinct piezometers in the community and a second standard error computed on piezometer-level means. Quadrats that share a piezometer differ only by a constant and are not independent samples of the hydrology; the quadrat-level standard error is the comparable one and the piezometer-level standard error is the honest one, and the table carries both.
+
+Reproduction test. The four-year mean annual minimum and maximum per community over 2007--2010 are set against Curreli\'s Table 4 means and standard errors for the same communities. Agreement within two standard errors for the communities that both datasets populate admits the spring rows; disagreement is reported with the rows withheld, because it would mean the quadrats, the datum or the period differ from hers and the transfer of standing has no basis.
+
+Outputs. A committed table, one row per community, metric and period, with the columns named above, written by a new pass of Script 26 alongside the annual-minimum series; a supplementary table generated from it; the path of the community file and the reproduction tolerance held in the configuration module; and a task-register row whose check reads the committed table. The values enter the report only through that table, and the report\'s Table 20 MSL5 column would then carry counts against them as its annual-minimum column now does against Curreli\'s.
+
+## S12.6 What it would and would not settle
+
+It would give MSL5 the reference table it lacks, on Curreli\'s own quadrats and by her own method, so that a spring-level status could be stated for a well or a slack and the operational spring-level forecast could report it. It would not turn the values into viability limits: they would describe where each community was found on the metric, at one site, in one decade, with ranges that overlap --- as Curreli\'s do --- and they would inherit the small counts of the source, of the order of fifteen quadrats at two to six piezometers per community. Nor would it change the cluster-level readings of the report: a cluster mean averages dipwells at every topographic position, and remains deeper than any slack community by construction, so community status would be read at the quadrat or the slack floor and not at the cluster.
+
+## S12.7 Status
+
+Specified 2026-09-21 under decision D-190; not built. The one outstanding input is the NVC community of each permanent quadrat by survey year (S12.4). The code, the datum offsets and the hydrological metrics are in place; the pass is a short addition to Script 26 once the column exists.

@@ -127,7 +127,15 @@ from utils.data_utils import normalize_well_name
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 from utils.render_utils import render_figure
 
-__version__ = "1.6.1"  # Hollingham (2026) — 2026-09-21. Comment only: the spring window is
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-22. EMITS the decomposition
+#   the documents quote beside the trend and had no committed source for: the
+#   AR(1)-corrected absolute slope of each anchor over the window
+#   (transect_coast_abs_slope_mm_yr, transect_inland_abs_slope_mm_yr) and the
+#   leave-one-out range of the difference trend (transect_trend_loo_min/max_mm_yr).
+#   Under D-189 the inland anchor RISES over the window while the coast falls, so
+#   "the inland anchor is near-flat" (report9 §4.10.4, MS) is a claim these rows
+#   now carry or refute. No analysis changes.
+# 1.6.1  # Hollingham (2026) — 2026-09-21. Comment only: the spring window is
 #   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
 # 1.6.0  # Hollingham (2026) — 2026-09-03. EMITS
 #   38_report_numbers.csv. The transect trend the documents quote — the
@@ -565,6 +573,34 @@ def main() -> int:
                  "MAM points in the window"),
         ):
             report_rows.append(_rn(_k, _v, _u, _n))
+        # The decomposition of the difference trend into its two anchors, and
+        # the leave-one-out range of the difference trend (v1.7.0). Each anchor
+        # slope is the same AR(1)-corrected OLS on the same window, so the two
+        # sum to the difference trend up to the AR correction.
+        fit_coast = ar_corrected_slope(years_arr, sub[COAST_ANCHOR].to_numpy(dtype=float))
+        fit_inland = ar_corrected_slope(years_arr, sub[INLAND_ANCHOR].to_numpy(dtype=float))
+        loo = [ar_corrected_slope(np.delete(years_arr, i), np.delete(diff_arr, i)) for i in range(n_pts)]
+        loo_slopes = [f["slope_mm_yr"] for f in loo if f is not None]
+        for _k, _v, _u, _n in (
+                ("transect_coast_abs_slope_mm_yr",
+                 fit_coast["slope_mm_yr"] if fit_coast else float("nan"), "mm/yr",
+                 f"AR(1)-corrected OLS slope of the coastal anchor {COAST_ANCHOR.upper()}'s "
+                 "absolute MAM level over the window (common-mode climate still in it)"),
+                ("transect_inland_abs_slope_mm_yr",
+                 fit_inland["slope_mm_yr"] if fit_inland else float("nan"), "mm/yr",
+                 f"AR(1)-corrected OLS slope of the inland anchor {INLAND_ANCHOR.upper()}'s "
+                 "absolute MAM level over the window; the difference trend is coast minus this"),
+                ("transect_trend_loo_min_mm_yr", min(loo_slopes) if loo_slopes else float("nan"), "mm/yr",
+                 "most negative leave-one-out slope of the difference trend (one MAM point dropped)"),
+                ("transect_trend_loo_max_mm_yr", max(loo_slopes) if loo_slopes else float("nan"), "mm/yr",
+                 "least negative leave-one-out slope of the difference trend"),
+        ):
+            report_rows.append(_rn(_k, _v, _u, _n))
+        if fit_coast and fit_inland:
+            lines.append(f"  Decomposition: coast {COAST_ANCHOR.upper()} {fit_coast['slope_mm_yr']:+.1f} mm/yr, "
+                         f"inland {INLAND_ANCHOR.upper()} {fit_inland['slope_mm_yr']:+.1f} mm/yr (absolute, AR-corrected)")
+        if loo_slopes:
+            lines.append(f"  Leave-one-out range of the difference trend: {min(loo_slopes):+.1f} to {max(loo_slopes):+.1f} mm/yr")
         lines.append(f"TREND (AR(1)-corrected OLS): {fit['slope_mm_yr']:+.2f} mm/yr")
         lines.append(f"  AR p-value: {fit['p_ar']:.4f}   OLS p-value: {fit['p_ols']:.4f}")
         lines.append(f"  rho (lag-1 residual autocorr): {fit['rho']:.3f}   n_eff: {fit['n_eff']:.1f}")

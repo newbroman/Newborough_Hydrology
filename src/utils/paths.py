@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.25.0"  # Hollingham (2026) - 2026-09-21. OUT_26_CURRELI_MIN_PER_WELL /
+__version__ = "1.26.0"  # Hollingham (2026) - 2026-09-22. OUT_32_CLUSTER_SUMMARY, OUT_33_CLUSTER_SUMMARY:
+#   the cluster means report9 §4.12 quotes, emitted (Phase B of D-189). Additive.
+# 1.25.0  # Hollingham (2026) - 2026-09-21. OUT_26_CURRELI_MIN_PER_WELL /
 #   _PER_CLUSTER / _THRESHOLD_SUMMARY (Script 26, D-190); OUT_26_MSL5_THRESHOLD_SUMMARY
 #   retired with the file it named (26_msl_5yr_cluster_threshold_summary.csv).
 # 1.24.0 - 2026-09-21. OUT_26_TABLE_S7_2_CSV/MD (Script 26, Table S7.2). Additive.
@@ -850,6 +852,7 @@ OUT_32_SITE_MEAN_TREND      = DIR_32 / "32_site_mean_trend.csv"
 OUT_32_FIG_PRIMARY          = DIR_32 / "32_differential_movement_2011_2025.png"
 OUT_32_FIG_ROBUST           = DIR_32 / "32_differential_movement_2005_2025.png"
 OUT_32_RESULTS              = DIR_32 / "32_results.txt"
+OUT_32_CLUSTER_SUMMARY      = DIR_32 / "32_cluster_summary.csv"      # per (period, cluster): mean/min/max slope, n, significant wells (v1.6.0)
 
 # Script 33 — climate-swing amplification + dry-year spring depth (standalone figures; Fig 60)
 DIR_33 = OUT_DIR / "33_envelope_amplification"
@@ -857,6 +860,7 @@ OUT_33_PER_WELL             = DIR_33 / "33_envelope_per_well.csv"
 OUT_33_FIG_AMP              = DIR_33 / "33_amplification_field.png"
 OUT_33_FIG_DRY_SPRING       = DIR_33 / "33_dry_spring_depth.png"
 OUT_33_RESULTS              = DIR_33 / "33_results.txt"
+OUT_33_CLUSTER_SUMMARY      = DIR_33 / "33_cluster_summary.csv"      # per (panel, cluster): mean dry/wet/swing/amplification, n (v1.5.0)
 # Recent (extended-network) window panels — separate files, canonical handles unchanged.
 OUT_33_PER_WELL_RECENT      = DIR_33 / "33_envelope_per_well_recent.csv"
 OUT_33_FIG_AMP_RECENT       = DIR_33 / "33_amplification_field_recent.png"

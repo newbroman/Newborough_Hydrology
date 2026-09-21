@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.24.0"  # Hollingham (2026) - 2026-09-21. OUT_26_TABLE_S7_2_CSV/MD (Script 26, Table S7.2). Additive.
+__version__ = "1.25.0"  # Hollingham (2026) - 2026-09-21. OUT_26_CURRELI_MIN_PER_WELL /
+#   _PER_CLUSTER / _THRESHOLD_SUMMARY (Script 26, D-190); OUT_26_MSL5_THRESHOLD_SUMMARY
+#   retired with the file it named (26_msl_5yr_cluster_threshold_summary.csv).
+# 1.24.0 - 2026-09-21. OUT_26_TABLE_S7_2_CSV/MD (Script 26, Table S7.2). Additive.
 # 1.23.0 - 2026-09-21. OUT_26_VW_REPRODUCTION (Script 26 Pass 7b). Additive.
 # 1.22.0 - 2026-09-21. OUT_16_REPORT_NUMBERS (Script 16): the
 #   water-balance closure the front matter and report11/12 quote ("within 1.8%"). Additive.
@@ -1306,7 +1309,13 @@ OUT_26_EWI_MSL5_COMPARISON = DIR_26 / "26_ewi_msl5_comparison.csv"
 # external Ellenberg dataset (DATA_ELLENBERG_EXT); skipped if that file is absent.
 OUT_26_EBF_COMPARISON     = DIR_26 / "26_ebf_comparison.csv"
 OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
-OUT_26_MSL5_THRESHOLD_SUMMARY = DIR_26 / "26_msl_5yr_cluster_threshold_summary.csv"
+# Curreli annual-minimum series (D-190): the thresholds' own quantity. One row per
+# (well or cluster, window_years, window_end_year); the threshold summary is the
+# Table 1.20 source, filtered to window_years == config.CURRELI_MIN_WINDOW_YEARS.
+# 26_msl_5yr_cluster_threshold_summary.csv (MSL5 against SD15b/SD16) retired here.
+OUT_26_CURRELI_MIN_PER_WELL          = DIR_26 / "26_curreli_min_per_well.csv"
+OUT_26_CURRELI_MIN_PER_CLUSTER       = DIR_26 / "26_curreli_min_per_cluster.csv"
+OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY = DIR_26 / "26_curreli_min_cluster_threshold_summary.csv"
 OUT_26_EBF_PREDICTION_SUMMARY = DIR_26 / "26_ebf_prediction_summary.csv"
 OUT_26_EBF_BAND_SUMMARY       = DIR_26 / "26_ebf_band_summary.csv"
 OUT_26_VW_REPRODUCTION        = DIR_26 / "26_vw_reproduction_per_pair.csv"   # pipeline MSL5 vs van Willegen's published, per (piezometer, window-end)

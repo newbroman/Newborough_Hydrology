@@ -110,7 +110,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-04. Methods Supplement
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-21. Table 1.20 regenerates from
+#   26_curreli_min_cluster_threshold_summary.csv (D-190): thresholds counted on the
+#   rolling annual minimum, MSL5 a reference column, headline window filtered.
+# 1.7.0  # Hollingham (2026) — 2026-09-04. Methods Supplement
 #   batch 2: ms/Table5 and ms/Table45 (Script 17 Sy by cluster, Approaches A
 #   and B, the forest rows joined to their interception-corrected variants
 #   via lookup key_re), ms/Table46 (Approach C rapid-event Sy) and ms/Table31
@@ -654,18 +657,22 @@ TABLES = [
         "id": "report9/Table19",
         "doc": 9,
         "table_name": "Table19",
-        "caption": "Table 1.20 — cluster-mean MSL5 at the latest window-end, with counts of "
-                   "window-ends below the SD15b / SD16 thresholds (Script 26)",
-        "sources": {"th": "outputs/26_van_willegen_msl/26_msl_5yr_cluster_threshold_summary.csv"},
-        "rows": {"source": "th"},
+        "caption": "Table 1.20 — cluster-mean rolling annual minimum at the latest window-end, "
+                   "with counts of window-ends below the Curreli SD15b / SD16 reference values, "
+                   "and the cluster-mean MSL5 at the same window-end for reference (Script 26, D-190)",
+        "sources": {"th": "outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv"},
+        # the headline window only; the five-year sensitivity rows stay in the CSV
+        "rows": {"source": "th", "filter": {"window_years": ["4"]}},
         # the header hard-types the window-end year the CSV carries as
         # window_end_current: a later window-end fails this assertion rather
-        # than refreshing the cells under a stale "(2025)"
-        "header": ["Cluster", "n wells (2025)", "Current MSL5 (m)", "below SD15b", "below SD16"],
+        # than refreshing the cells under a stale "(2025)". MSL5 carries no
+        # threshold count: neither paper applies one to it.
+        "header": ["Cluster", "n wells (2025)", "MSL5 (m)", "4-yr mean annual minimum (m)", "below SD15b", "below SD16"],
         "columns": [
             {"col": "cluster_label", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},   # "C4 (Main Forest)" -> "C4 Main Forest"
             {"col": "n_wells_current",       "fmt": "int"},
             {"col": "MSL5_current_m_bg",     "fmt": "fixed", "dp": 3},
+            {"col": "MINw_current_m_bg",     "fmt": "fixed", "dp": 3},
             {"col": "n_windows_below_SD15b", "fmt": "int"},
             {"col": "n_windows_below_SD16",  "fmt": "int"},
         ],

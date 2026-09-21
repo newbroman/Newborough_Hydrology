@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.45.0"  # Hollingham (2026) - 2026-09-21. MSL_SPRING_MONTHS (3, 4, 5) -> (2, 3, 4):
+__version__ = "1.46.0"  # Hollingham (2026) - 2026-09-21. CURRELI_MIN_WINDOW_YEARS = 4 and
+#   CURRELI_MIN_WINDOW_SENSITIVITY_YEARS = (5,): the rolling mean of the annual
+#   minimum that the SD15b/SD16 reference values were derived from (D-190). Additive.
+# 1.45.0  # Hollingham (2026) - 2026-09-21. MSL_SPRING_MONTHS (3, 4, 5) -> (2, 3, 4):
 #   the readings dated March-May are the bucketed frame's February-April levels, which
 #   is what van Willegen (2025) and Curreli (2013) mean by spring (D-189). Every spring
 #   quantity in the pipeline moves one month earlier; a full rerun follows.
@@ -1083,6 +1086,25 @@ MSL_MIN_YEARS_IN_WINDOW    = 5
 # trajectory and quadrat-wells figures are clipped.
 # Consistent with van Willegen's 2010–2019 analysis period.
 MSL_TRAJECTORY_START_YEAR = 2014
+
+# ── Curreli et al. (2013) annual-minimum metric — D-190 ──────────────────────
+# SD15b and SD16 above are community means of the FOUR-YEAR (2006-09) average
+# annual MINIMUM water level (Curreli 2013, Table 4 "average Minimum"), over the
+# same 1 June-31 May hydrological year as MSL (MSL_HYDRO_YEAR_START_MONTH), from
+# monthly manual readings. Until 2026-09-21 the report drew them across MSL5
+# (report9 Section 4.8.3, Table 20, Figure 44): a spring mean read against a
+# reference derived from the annual trough, which neither paper does (van
+# Willegen 2025 applies no thresholds; Curreli 2013 defines none for MSL).
+# Script 26 computes the like-for-like series: per-well annual minimum over the
+# hydrological year, admitted only when every SUMMER_MINIMUM_MONTHS month is in
+# the QC record (a summer gap cannot miss the trough), then the rolling mean over
+# CURRELI_MIN_WINDOW_YEARS with every year required, as the MSL5 window is. The
+# thresholds are applied to that series only. Each window length in
+# CURRELI_MIN_WINDOW_SENSITIVITY_YEARS is emitted beside it in the same files
+# (Martin, 2026-09-21: "does 5 yrs refine?" - a longer window smooths, it does
+# not sharpen; the file records whether any threshold count moves with it).
+CURRELI_MIN_WINDOW_YEARS             = 4
+CURRELI_MIN_WINDOW_SENSITIVITY_YEARS = (5,)
 
 # Van Willegen et al. (2025) used these 17 piezometers with co-located
 # permanent vegetation quadrats (their Table 1). MSL5 at these wells is

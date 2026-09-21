@@ -41,7 +41,10 @@ Strictness (per scoping decision 2026-05-20):
     the 5-year mean to be reported.
 
 Outputs (DIR_26 / "26_van_willegen_msl/"):
-  * 26_msl_annual_per_well.csv      Per (well, hydro_year) annual MSL, MAX
+  * 26_msl_annual_per_well.csv      Per (well, hydro_year) annual MSL, MAX, MIN
+  * 26_curreli_min_per_well.csv     Rolling mean of the annual minimum per well (D-190)
+  * 26_curreli_min_per_cluster.csv  ... cluster-mean, one row per (cluster, window_years, end)
+  * 26_curreli_min_cluster_threshold_summary.csv  Table 20: SD15b/SD16 counts on that series
   * 26_msl_5yr_per_well.csv         Per (well, end_year) MSL5, MAX5
   * 26_msl_5yr_per_cluster.csv      Cluster-mean trajectory
   * 26_msl_5yr_latest_per_well.csv  Most-recent valid MSL5, used for the map
@@ -97,7 +100,20 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-21. Pass 7b and Table S7.2 are PER QUADRAT
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-21. D-190: the Curreli SD15b/SD16
+#   reference values are four-year means of the annual MINIMUM (Curreli 2013 Table 4),
+#   not spring means, so Table 20 and Figure 44 are rebuilt on that quantity. Pass 1
+#   adds the per-well annual minimum over the same 1 June-31 May hydrological year
+#   (MIN_m_bg, admitted only with every SUMMER_MINIMUM_MONTHS month present); new
+#   Pass 3c rolls it over config.CURRELI_MIN_WINDOW_YEARS (headline) and each
+#   CURRELI_MIN_WINDOW_SENSITIVITY_YEARS length, aggregates per cluster, and writes
+#   26_curreli_min_per_well.csv, 26_curreli_min_per_cluster.csv and
+#   26_curreli_min_cluster_threshold_summary.csv (Table 20 source; MSL5 carried as a
+#   reference column with no threshold count). msl5_cluster_threshold_summary() and
+#   26_msl_5yr_cluster_threshold_summary.csv retire. MSL5_EXCLUDED_WELLS is NOT
+#   applied to the minimum series: D-146 scopes it to the MSL5 analysis, and an
+#   observed trough is not an SSM product.
+# 1.12.0  # Hollingham (2026) — 2026-09-21. Pass 7b and Table S7.2 are PER QUADRAT
 #   (van Willegen publish one series per vegetation quadrat, each an exact constant
 #   shift of the dipwell's readings); vw_repro_n_quadrats and
 #   vw_repro_quadrat_relief_max_mm join the report numbers, the single-offset
@@ -184,7 +200,9 @@ OUT_MAP       = paths.OUT_26_MAP
 OUT_TRAJ      = paths.OUT_26_TRAJECTORY
 OUT_QUADRAT   = paths.OUT_26_QUADRAT_WELLS
 OUT_TXT       = paths.OUT_26_RESULTS_TXT
-OUT_MSL5_THRESHOLD_SUMMARY = paths.OUT_26_MSL5_THRESHOLD_SUMMARY
+OUT_CURRELI_MIN_PER_WELL   = paths.OUT_26_CURRELI_MIN_PER_WELL
+OUT_CURRELI_MIN_PER_CLUSTER = paths.OUT_26_CURRELI_MIN_PER_CLUSTER
+OUT_CURRELI_MIN_THRESHOLD_SUMMARY = paths.OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY
 # EWI outputs (v1.3.0) — canonical paths from utils.paths.
 OUT_EWI       = paths.OUT_26_EWI_PER_WELL
 OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
@@ -302,8 +320,14 @@ def annual_msl_max(long: pd.DataFrame,
             single-month gap-fills count as present and are tracked via
             n_interpolated_spring)
       MAX = max of level over full hydro year (1 Jun y-1 to 31 May y)
+      MIN = min of level over the same hydro year — Curreli et al. (2013)'s
+            annual minimum, the quantity behind SD15b/SD16 (D-190); admitted
+            (min_valid) only when every config.SUMMER_MINIMUM_MONTHS month of
+            that hydro year is present, so a summer gap cannot miss the trough,
+            and the well reports the year's closing (May) level, so a year
+            still open at the record's end is not counted
 
-    Both expressed in the depth-below-ground frame (paper convention).
+    All expressed in the depth-below-ground frame (paper convention).
     """
     spring_mask = long["month"].isin(MSL_SPRING_MONTHS)
     spring = long[spring_mask]
@@ -321,6 +345,25 @@ def annual_msl_max(long: pd.DataFrame,
                                               "count": "n_hydroyear_months"})
 
     annual = pd.merge(msl_records, max_records, on=["well", "hydro_year"], how="outer")
+
+    # MIN — over full hydrology year, with summer completeness (D-190)
+    min_records = max_g["level_bg"].min().rename("MIN_m_bg").reset_index()
+    summer = long[long["month"].isin(config.SUMMER_MINIMUM_MONTHS)]
+    n_summer = (summer.groupby(["well", "hydro_year"])["month"].nunique()
+                .rename("n_summer_months").reset_index())
+    annual = annual.merge(min_records, on=["well", "hydro_year"], how="left")
+    annual = annual.merge(n_summer, on=["well", "hydro_year"], how="left")
+    annual["n_summer_months"] = annual["n_summer_months"].fillna(0).astype(int)
+    # ... and only for hydro years the well's record has reached the end of:
+    # the year ending May y is admitted when the well reports the May y level,
+    # so a year still open at the record's end cannot enter with its trough.
+    last_month = long.groupby("well")["date"].max().rename("last_date")
+    annual = annual.merge(last_month, left_on="well", right_index=True, how="left")
+    year_closed = annual["last_date"] >= pd.to_datetime(
+        annual["hydro_year"].astype(int).astype(str) + f"-{MSL_HYDRO_YEAR_START_MONTH - 1:02d}-01")
+    annual["min_valid"] = ((annual["n_summer_months"] >= len(config.SUMMER_MINIMUM_MONTHS))
+                           & year_closed)
+    annual = annual.drop(columns=["last_date"])
 
     # interpolation flags via provenance (optional)
     if provenance_long is not None and not provenance_long.empty:
@@ -342,7 +385,8 @@ def annual_msl_max(long: pd.DataFrame,
                    "MSL_m_bg", "n_spring_months",
                    "n_interpolated_spring",
                    "MAX_m_bg", "n_hydroyear_months",
-                   "valid"]].sort_values(["well", "hydro_year"]).reset_index(drop=True)
+                   "valid",
+                   "MIN_m_bg", "n_summer_months", "min_valid"]].sort_values(["well", "hydro_year"]).reset_index(drop=True)
 
 
 # ── Pass 2: 5-year rolling MSL and MAX per well ──────────────────────────────
@@ -446,35 +490,84 @@ def attach_cluster_ids(per_well: pd.DataFrame,
     return df.drop(columns=["cluster_id_ref", "cluster_id_ext", "Network"])
 
 
-def msl5_cluster_threshold_summary(per_cluster: pd.DataFrame, start_year: int) -> pd.DataFrame:
-    """Per-cluster MSL5 at the latest window-end plus threshold-crossing counts.
+# ── Pass 3c: Curreli annual-minimum series (D-190) ───────────────────────────
+def rolling_min(annual: pd.DataFrame, windows: tuple[int, ...]) -> pd.DataFrame:
+    """Rolling mean of the annual minimum per well, one block per window length.
 
-    Table 1.16 source. For each cluster, over window-ends from `start_year`
-    (config.MSL_TRAJECTORY_START_YEAR, the trajectory figure's span) to the
-    latest available: the current (latest) window-end with its cluster-mean MSL5
-    and well count, and the number of those window-ends in which the cluster-mean
-    MSL5 sat below the Curreli et al. (2013) SD15b and SD16 thresholds. MSL5 is in
-    the depth-below-ground frame (negative below surface), so "below SD15b" is
-    MSL5 < -config.SD15b. Counts and current values are read straight off the
-    committed per-cluster trajectory; nothing new is computed.
+    For each well, window length w and end year y: MINw(y) = mean of
+    {MIN_{y-w+1} ... MIN_y}, admitted only when all w annual minima are valid
+    (min_valid) — the same all-years rule as MSL5. This is the quantity Curreli
+    et al. (2013) averaged over 2006-09 to characterise each community, and so
+    the only series in this script the SD15b/SD16 values are applied to.
     """
-    w = per_cluster[per_cluster["window_end_year"] >= start_year].copy()
     rows = []
-    for cid, g in w.groupby("cluster_id"):
+    valid = annual[annual["min_valid"]]
+    for well, sub in valid.groupby("well"):
+        sub = sub.set_index("hydro_year").sort_index()
+        for w in windows:
+            for end_y in range(int(sub.index.min()), int(sub.index.max()) + 1):
+                present = sub["MIN_m_bg"].reindex(range(end_y - w + 1, end_y + 1))
+                if present.notna().sum() < w:
+                    continue
+                rows.append({"well": well, "window_years": w, "window_end_year": end_y,
+                             "MINw_m_bg": float(present.mean())})
+    return (pd.DataFrame(rows, columns=["well", "window_years", "window_end_year", "MINw_m_bg"])
+            .sort_values(["window_years", "well", "window_end_year"]).reset_index(drop=True))
+
+
+def cluster_min_trajectory(per_well_min_with_cluster: pd.DataFrame) -> pd.DataFrame:
+    """Cluster-mean of the per-well rolling annual minimum, per (cluster, window_years, end)."""
+    g = per_well_min_with_cluster.dropna(subset=["cluster_id"]).groupby(
+        ["cluster_id", "window_years", "window_end_year"])
+    return g.agg(
+        cluster_label=("cluster_label", "first"),
+        n_wells=("well", "nunique"),
+        MINw_m_bg_mean=("MINw_m_bg", "mean"),
+        MINw_m_bg_median=("MINw_m_bg", "median"),
+        MINw_m_bg_std=("MINw_m_bg", "std"),
+    ).reset_index().sort_values(["window_years", "cluster_id", "window_end_year"])
+
+
+def curreli_min_cluster_threshold_summary(per_cluster_min: pd.DataFrame,
+                                          per_cluster_msl5: pd.DataFrame,
+                                          start_year: int) -> pd.DataFrame:
+    """Table 20 source: per cluster and window length, the rolling annual
+    minimum at the latest window-end and the count of window-ends from
+    `start_year` (config.MSL_TRAJECTORY_START_YEAR) in which the cluster-mean
+    sat below the Curreli et al. (2013) SD15b and SD16 values — which are
+    themselves four-year means of this quantity (D-190). Levels are in the
+    depth-below-ground frame, so "below SD15b" is MINw < -config.SD15b.
+
+    The cluster-mean MSL5 at the same window-end rides along as a reference
+    column (MSL5_current_m_bg, with its own well count) and carries NO
+    threshold count: it is the vegetation-baseline metric of van Willegen et al.
+    (2025), who apply no threshold to it, and a spring mean is not the quantity
+    the thresholds describe.
+    """
+    m = per_cluster_min[per_cluster_min["window_end_year"] >= start_year]
+    msl5 = per_cluster_msl5.set_index(["cluster_id", "window_end_year"])
+    rows = []
+    for (w, cid), g in m.groupby(["window_years", "cluster_id"]):
         g = g.sort_values("window_end_year")
         cur = g.iloc[-1]
+        key = (int(cid), int(cur["window_end_year"]))
+        ref = msl5.loc[key] if key in msl5.index else None
         rows.append(dict(
+            window_years=int(w),
             cluster_id=int(cid),
             cluster_label=cur["cluster_label"],
             window_start=int(g["window_end_year"].min()),
             window_end_current=int(cur["window_end_year"]),
             n_windows=int(len(g)),
             n_wells_current=int(cur["n_wells"]),
-            MSL5_current_m_bg=float(cur["MSL5_m_bg_mean"]),
-            n_windows_below_SD15b=int((g["MSL5_m_bg_mean"] < -config.SD15b).sum()),
-            n_windows_below_SD16=int((g["MSL5_m_bg_mean"] < -config.SD16).sum()),
+            MINw_current_m_bg=float(cur["MINw_m_bg_mean"]),
+            n_windows_below_SD15b=int((g["MINw_m_bg_mean"] < -config.SD15b).sum()),
+            n_windows_below_SD16=int((g["MINw_m_bg_mean"] < -config.SD16).sum()),
+            MSL5_current_m_bg=(float(ref["MSL5_m_bg_mean"]) if ref is not None else np.nan),
+            n_wells_msl5_current=(int(ref["n_wells"]) if ref is not None else 0),
         ))
-    return pd.DataFrame(rows).sort_values("cluster_id").reset_index(drop=True)
+    return (pd.DataFrame(rows).sort_values(["window_years", "cluster_id"])
+            .reset_index(drop=True))
 
 
 def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
@@ -1974,9 +2067,29 @@ def main() -> int:
     print(f"\nPass 3 — cluster trajectories (Method A, per-well aggregation): "
           f"{len(per_cluster)} (cluster, year) rows")
     saved(f"{OUT_CLUSTER.name}")
-    _msl5_thr = msl5_cluster_threshold_summary(per_cluster, TRAJECTORY_START_YEAR)
-    _msl5_thr.to_csv(OUT_MSL5_THRESHOLD_SUMMARY, index=False)
-    saved(f"{OUT_MSL5_THRESHOLD_SUMMARY.name}")
+
+    # ── Pass 3c — Curreli annual-minimum series (D-190) ────────────────────
+    # The SD15b/SD16 values are four-year means of the annual minimum; this is
+    # the like-for-like series they are applied to (Table 20, Figure 44b). No
+    # MSL5 exclusion: D-146 scopes that set to the MSL5 analysis.
+    _windows = (config.CURRELI_MIN_WINDOW_YEARS, *config.CURRELI_MIN_WINDOW_SENSITIVITY_YEARS)
+    per_well_min = attach_cluster_ids(rolling_min(annual, _windows), ref_clusters, ext_clusters)
+    per_well_min.to_csv(OUT_CURRELI_MIN_PER_WELL, index=False)
+    per_cluster_min = cluster_min_trajectory(per_well_min)
+    per_cluster_min.to_csv(OUT_CURRELI_MIN_PER_CLUSTER, index=False)
+    _min_thr = curreli_min_cluster_threshold_summary(per_cluster_min, per_cluster, TRAJECTORY_START_YEAR)
+    _min_thr.to_csv(OUT_CURRELI_MIN_THRESHOLD_SUMMARY, index=False)
+    print(f"\nPass 3c — rolling annual minimum (Curreli 2013 quantity, windows {_windows}): "
+          f"{len(per_well_min)} (well, window, end) rows; "
+          f"{int(annual['min_valid'].sum())} valid annual minima "
+          f"(all {len(config.SUMMER_MINIMUM_MONTHS)} summer months present)")
+    for _, r in _min_thr[_min_thr["window_years"] == config.CURRELI_MIN_WINDOW_YEARS].iterrows():
+        print(f"    {r['cluster_label']:<22s} MIN{int(r['window_years'])} {r['MINw_current_m_bg']:+.3f} m "
+              f"({r['window_end_current']}, n={r['n_wells_current']})  below SD15b {r['n_windows_below_SD15b']}/{r['n_windows']}  "
+              f"below SD16 {r['n_windows_below_SD16']}/{r['n_windows']}   MSL5 {r['MSL5_current_m_bg']:+.3f} m")
+    saved(f"{OUT_CURRELI_MIN_PER_WELL.name}")
+    saved(f"{OUT_CURRELI_MIN_PER_CLUSTER.name}")
+    saved(f"{OUT_CURRELI_MIN_THRESHOLD_SUMMARY.name}")
 
     # ── Pass 3b — Cluster-centroid trajectory (Method B) ───────────────────
     # Aggregates from Script 03's cluster-centroid monthly series (reference
@@ -2034,6 +2147,27 @@ def main() -> int:
             int(len(per_well)),
         "msl5_n_windows_with_interp":
             int((per_well["n_interp_in_window"] > 0).sum()),
+    })
+    # Curreli annual-minimum series (D-190): completeness, and the per-well
+    # rolling minimum at the seventeen van Willegen / Curreli piezometers over
+    # the earliest full headline window — the check that the metric rebuilt
+    # here lands where Curreli's Table 4 puts those slacks. Cluster means of a
+    # network that includes dune-flank wells sit deeper than slack-floor
+    # quadrats by construction; these per-well values are the like-for-like.
+    _hw = config.CURRELI_MIN_WINDOW_YEARS
+    _qw = per_well_min[(per_well_min["window_years"] == _hw)
+                       & per_well_min["well"].isin([w.lower() for w in VW_QUADRAT_WELLS])]
+    _first_end = int(_qw["window_end_year"].min()) if not _qw.empty else 0
+    _q0 = _qw[_qw["window_end_year"] == _first_end]["MINw_m_bg"]
+    report_nums.update({
+        "curreli_min_window_years": _hw,
+        "curreli_min_n_annual_valid": int(annual["min_valid"].sum()),
+        "curreli_min_n_windows_admitted": int((per_well_min["window_years"] == _hw).sum()),
+        "curreli_min_quadrat_wells_first_window_end": _first_end,
+        "curreli_min_quadrat_wells_first_window_n": int(len(_q0)),
+        "curreli_min_quadrat_wells_first_window_median_m_bg": float(_q0.median()) if len(_q0) else np.nan,
+        "curreli_min_quadrat_wells_first_window_min_m_bg": float(_q0.min()) if len(_q0) else np.nan,
+        "curreli_min_quadrat_wells_first_window_max_m_bg": float(_q0.max()) if len(_q0) else np.nan,
     })
     if not ewi.empty:
         comp, calib = compute_ewi_msl5_comparison(ewi, latest)

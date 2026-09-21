@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-21. A report-numbers Parameter that
+__version__ = "1.28.1"  # Hollingham (2026) — 2026-09-21. Table 20 source is
+#   26_curreli_min_cluster_threshold_summary.csv, keyed (window_years, cluster_label) (D-190).
+# 1.28.0  # Hollingham (2026) — 2026-09-21. A report-numbers Parameter that
 #   repeats within its file (one row per cluster or well: cluster_stability_median,
 #   Tier2_BACI_shift, water_balance_residual_pct) is labelled "Parameter · Well · Era"
 #   so each row is its own value. Until now the five rows shared one label and
@@ -576,8 +578,9 @@ EXTRA_VALUE_TABLES = [
      ("network_scope", "cluster_label"),
      ["n_wells_with_springs", "t_R_months_median", "rho_lag1_mean", "spring_sd_mm_median",
       "msl5_window_se_mm_median"]),
-    ("outputs/26_van_willegen_msl/26_msl_5yr_cluster_threshold_summary.csv", "cluster_label",    # report9 4.8.3
-     ["MSL5_current_m_bg", "n_windows_below_SD15b", "n_windows_below_SD16"]),
+    ("outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv",    # report9 4.8.3, Table 20 (D-190)
+     ("window_years", "cluster_label"),
+     ["MINw_current_m_bg", "MSL5_current_m_bg", "n_windows_below_SD15b", "n_windows_below_SD16"]),
     ("outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv", ("cluster_label", "window_end_year"),    # report9 4.8.3
      ["MSL5_m_bg_mean", "MSL5_m_bg_median", "MAX5_m_bg_mean", "MAX5_m_bg_median"]),
     ("outputs/30_c4_drainage_identifiability/30_c4_centroid_sensitivity.csv", "basis",    # report10 §5.2.3

@@ -168,10 +168,10 @@
 | `25_13_rolling_window.png` | report9.odt | Figure 57 | Figure 1.53: Fixed-length rolling-window sensitivity of the cross-shore decay fi |
 | `25_report_numbers.csv` | Paper 1 | Figure 18 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | Paper 1 | Figure 20 | Episodic coastal-retreat reach |
+| `26_curreli_min_cluster_threshold_summary.csv` | report9.odt | Table 1.20 | Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with coun |
 | `26_ebf_band_summary.csv` | report9.odt | Table 1.22 | Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetne |
 | `26_ebf_prediction_scatter.png` | report9.odt | Figure 47 | Figure 1.43: Between-well prediction of mean Ellenberg-F moisture by three water |
 | `26_ebf_prediction_summary.csv` | report9.odt | Table 1.21 | Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the |
-| `26_msl_5yr_cluster_threshold_summary.csv` | report9.odt | Table 1.20 | Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with coun |
 | `26_msl_5yr_map.png` | report9.odt | Figure 45 | Figure 1.41: Spatial pattern of the latest available 5-year mean spring water le |
 | `32_differential_movement_2011_2025.png` | report9.odt | Figure 69 | Figure 1.65: Secular differential movement of the spring (March,April, May) wate |
 | `33_amplification_field.png` | report9.odt | Figure 71 | Figure 1.67: The climate-response envelope of the spring water table. Relative a |
@@ -196,7 +196,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (371)
+## Outputs no exhibit renders (375)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -280,6 +280,7 @@
 - `09b_04_scenario_comparison.csv`
 - `09b_05_summer_scenario_comparison.csv`
 - `09b_05_summer_scenario_comparison.png`
+- `09b_report_numbers.csv`
 - `09c_01_summer_minima.csv`
 - `09c_02_summer_minima_shifts.csv`
 - `09c_05_spring_means.csv`
@@ -390,6 +391,7 @@
 - `15_02_fit_comparison.png`
 - `15_03_benchmark_table.csv`
 - `15_04_best_params.csv`
+- `16_report_numbers.csv`
 - `16_water_bal_bar_lay.png`
 - `17_wtf_02_regression.png`
 - `17_wtf_05_rapid_events.png`
@@ -460,12 +462,15 @@
 - `25_15_covariate_specification_range.csv`
 - `25_16_delta0_leave_one_out.csv`
 - `25_16_delta0_leave_one_out.png`
+- `26_curreli_min_per_cluster.csv`
+- `26_curreli_min_per_well.csv`
 - `26_ebf_comparison.csv`
 - `26_equilibrium_wetness_index_per_well.csv`
 - `26_ewi_msl5_comparison.csv`
 - `26_index_precision_by_cluster.csv`
 - `26_metric_diagnostics.png`
 - `26_metric_diagnostics_per_well.csv`
+- `26_msl_5yr_cluster_threshold_summary.csv`
 - `26_msl_5yr_latest_per_well.csv`
 - `26_msl_5yr_per_cluster.csv`
 - `26_msl_5yr_per_cluster_centroid.csv`
@@ -567,7 +572,6 @@
 - `47_02_quantile_map.csv`
 - `47_04_hindcast_still_2001-02.png`
 - `figure_placement.csv`
-- `number_index.csv`
 - `number_ledger.csv`
 - `pipeline_scenario_params.csv`
 - `pipeline_site_observations.csv`

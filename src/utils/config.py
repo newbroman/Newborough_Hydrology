@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-13. New:
+__version__ = "1.45.0"  # Hollingham (2026) - 2026-09-21. MSL_SPRING_MONTHS (3, 4, 5) -> (2, 3, 4):
+#   the readings dated March-May are the bucketed frame's February-April levels, which
+#   is what van Willegen (2025) and Curreli (2013) mean by spring (D-189). Every spring
+#   quantity in the pipeline moves one month earlier; a full rerun follows.
+# 1.44.0  # Hollingham (2026) - 2026-09-13. New:
 #   SLACK_WET_SCORE_MIN = 2.17, the slack-edge classifier's cut, set from
 #   the dry controls' 99th percentile before any wet date was read.
 # 1.43.0  Hollingham (2026) - 2026-09-11. W94 phase 8: the cut
@@ -1035,9 +1039,9 @@ SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
 # 2025 Ecological Indicators 170, 113016. Used by Script 26.
 #
 # Definitions (van Willegen 2025, paper's "hydrology year B"):
-#   * Spring window  : 1 March – 31 May  (calendar months 3, 4, 5)
+#   * Spring window  : the readings DATED March, April and May
 #   * Hydrology year : 1 June (y-1) to 31 May (y)
-#   * Annual MSL_y   : unweighted mean of {Mar, Apr, May} levels in hy y
+#   * Annual MSL_y   : unweighted mean of the three spring readings in hy y
 #   * 5-year MSL5(y) : unweighted mean of {MSL_{y-4} ... MSL_y}
 #
 # Strictness (orchestrator decision 2026-05-20):
@@ -1046,7 +1050,25 @@ SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
 #
 # These match van Willegen's "3 months per spring as a minimum requirement"
 # recommendation; the 5/5 rule eliminates ambiguous partial windows.
-MSL_SPRING_MONTHS          = (3, 4, 5)
+#
+# WHICH MONTH LABELS (D-189, 2026-09-21). The literature labels a reading by its
+# DATE; Script 01 labels it by the month it MEASURES (a reading on or before the
+# 15th is the previous month's end-of-month level). Van Willegen's March, April
+# and May readings are therefore this pipeline's February, March and April
+# levels — verified exactly: their per-quadrat spring means equal the mean of
+# our months 2-4 to 0.0 mm at every piezometer tested, and differ from our
+# months 3-5 by 30-64 mm, one month of spring recession. Curreli et al. (2013)
+# label the same way (monthly manual readings, "spring months March, April, May
+# and June"). Until 2026-09-21 this tuple was (3, 4, 5), so every "spring"
+# quantity in the project sat one month later in the recession than the
+# metric it was named after. Every consumer — MSL5 (26, 26b, 26c, 19, the
+# living MSL5 feed), the spring transfer functions (11, 14) and the spring-mean
+# robustness analyses (09c/10d/10l via clearfell_common, 25, 32, 33, 35, 36, 38)
+# — reads this tuple, so "spring" means one thing: the readings dated March to
+# May, in the bucketed frame months 2-4. Prose that says "March-May" stays
+# true by reading date; prose that says "end-of-March to end-of-May levels"
+# is stale.
+MSL_SPRING_MONTHS          = (2, 3, 4)
 MSL_HYDRO_YEAR_START_MONTH = 6
 MSL_DEFAULT_WINDOW_YEARS   = 5
 MSL_MIN_MONTHS_PER_SPRING  = 3

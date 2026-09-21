@@ -99,7 +99,9 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.3.4"  # Hollingham (2026) - 2026-09-10. The reviewer summary's
+__version__ = "1.3.5"  # Hollingham (2026) - 2026-09-21. Comment only: the spring window is
+#   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
+# 1.3.4  # Hollingham (2026) - 2026-09-10. The reviewer summary's
 #   horizon label came from a hand-written {2:'Feb',3:'Mar',4:'Apr'} dict, written
 #   when the cluster peaks WERE February and March. C1 and C2 have since moved to
 #   January, so the label fell through to the f"M{peak_month}" fallback and shipped
@@ -281,10 +283,10 @@ SUMMER_MONTHS  = list(SUMMER_DROUGHT_MONTHS)   # Apr-Sep drought/recession
 WINTER_MONTHS  = list(WINTER_RECHARGE_MONTHS)
 # Spring transfer function (Section 5) — single-year MSL prediction.
 # SPRING_MONTHS matches utils.config.MSL_SPRING_MONTHS (the van Willegen
-# 2025 spring window: March-May). Listed here separately so Script 11's
+# 2025 spring window: the readings dated March-May). Listed here separately so Script 11's
 # seasonal definitions remain self-contained and visually parallel to the
 # winter / summer windows above.
-SPRING_MONTHS = list(MSL_SPRING_MONTHS)            # [3, 4, 5] — van Willegen 2025
+SPRING_MONTHS = list(MSL_SPRING_MONTHS)            # the readings dated March-May (config; D-189)
 # Winter-to-spring antecedent window used by the winter-peak input variant:
 # October of year y-1 through May of year y, inclusive of the spring window.
 # This is the "everything since the previous autumn" forcing that drives the

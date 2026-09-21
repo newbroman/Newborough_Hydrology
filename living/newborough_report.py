@@ -102,8 +102,14 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.4.0"
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. The spring months are the readings dated
+#   March-May, i.e. the end-of-month labels 2-4 (SPRING_MONTHS_BY_LABEL; D-189).
+# __version__ = "1.4.0"
 
+# The readings dated March, April and May carry the end-of-month labels February,
+# March and April in this tool's `_find_spring_reading` (nearest the month end):
+# mirrors config.MSL_SPRING_MONTHS (D-189).
+SPRING_MONTHS_BY_LABEL = (2, 3, 4)
 import argparse
 import sys
 import os
@@ -1894,7 +1900,7 @@ def compute_msl_summary(wells, dates, coords, current_year,
         ref_msls = []
         for year in range(ref_start, ref_end + 1):
             year_depths = []
-            for month in [3, 4, 5]:
+            for month in SPRING_MONTHS_BY_LABEL:
                 dt, val = _find_spring_reading(readings, year, month)
                 if dt is not None:
                     year_depths.append(-val)  # negate: positive = below ground
@@ -1903,7 +1909,7 @@ def compute_msl_summary(wells, dates, coords, current_year,
 
         cur_depths = []
         cur_months = 0
-        for month in [3, 4, 5]:
+        for month in SPRING_MONTHS_BY_LABEL:
             dt, val = _find_spring_reading(readings, current_year, month)
             if dt is not None:
                 cur_depths.append(-val)
@@ -2193,7 +2199,7 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     # ── 8. Compile report ──
     # ── 8. Mean Spring Water Level ──
     msl_summary = None
-    if month in (3, 4, 5):
+    if month in SPRING_MONTHS_BY_LABEL:
         print("\n8. Computing Mean Spring Water Level (MSL)...")
 
         # Load depth-from-surface data directly from ODS

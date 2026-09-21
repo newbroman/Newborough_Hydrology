@@ -126,7 +126,9 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-09. Panel SIZE becomes a
+__version__ = "1.28.1"  # Hollingham (2026) — 2026-09-21. Comment only: the spring window is
+#   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
+# 1.28.0  # Hollingham (2026) — 2026-09-09. Panel SIZE becomes a
 #   committed cell: 25_01_panel_fit_parameters.csv gains n_wells beside n_obs,
 #   the count of distinct wells actually fitted in that row's panel. fit_panel()
 #   has returned n_wells since the matched-window subsets needed it (25_11); the
@@ -672,7 +674,7 @@ MATCHED_WINDOW_RECORD_START = "2007-01-01"
 # config so "spring" has one definition across the pipeline.  The summer minimum
 # is indexed by the Oct-start hydrological year; the spring mean sits wholly
 # inside a calendar year and is indexed by calendar year (as Script 36 does).
-SPRING_MONTHS = list(MSL_SPRING_MONTHS)          # (3, 4, 5)
+SPRING_MONTHS = list(MSL_SPRING_MONTHS)          # the readings dated March-May (config; D-189)
 SPRING_MIN_MONTHS = MSL_MIN_MONTHS_PER_SPRING    # 3-of-3
 
 # ── Figure label sets (per metric) ─────────────────────────────────────────────

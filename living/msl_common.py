@@ -8,8 +8,9 @@ verbatim from Script 26 (26_van_willegen_msl.py) so the *living* forecaster
 metric uses exactly the published method and cannot drift from it.
 
 Method (van Willegen et al. 2025, Ecological Indicators 170, 113016):
-  * Spring window : 1 Mar – 31 May  (months 3, 4, 5)
-  * Annual MSL_y  : unweighted mean of {Mar, Apr, May} in hydrology year y,
+  * Spring window : the readings dated March-May — end-of-month labels 2, 3, 4
+                    in the hub's bucketed frame (D-189, 2026-09-21)
+  * Annual MSL_y  : unweighted mean of those three readings in hydrology year y,
                     valid only if all 3 spring months are present.
   * Hydrology yr  : "year B" — starts 1 Jun; a date in Jun(y-1)..May(y) is
                     hydro-year y. Spring months (<6) therefore map to their
@@ -27,7 +28,7 @@ Constants mirror utils/config.py (paper-defined, stable).
 
 import pandas as pd
 
-SPRING_MONTHS = (3, 4, 5)
+SPRING_MONTHS = (2, 3, 4)   # the readings dated March-May under end-of-month labelling — mirrors config.MSL_SPRING_MONTHS (D-189, 2026-09-21)
 HYDRO_YEAR_START_MONTH = 6
 WINDOW_YEARS = 5
 MIN_MONTHS_PER_SPRING = 3

@@ -127,7 +127,9 @@ from utils.data_utils import normalize_well_name
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
 from utils.render_utils import render_figure
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-03. EMITS
+__version__ = "1.6.1"  # Hollingham (2026) — 2026-09-21. Comment only: the spring window is
+#   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
+# 1.6.0  # Hollingham (2026) — 2026-09-03. EMITS
 #   38_report_numbers.csv. The transect trend the documents quote — the
 #   AR(1)-corrected -28.16 mm/yr that is one of the three grounds of D-105 —
 #   was published ONLY into 38_results.txt, and cite_check reads CSVs, not
@@ -144,7 +146,7 @@ VERSION = __version__
 SCRIPT_ID = "38"
 
 # --- method constants (from utils.config) -----------------------------------------
-SPRING_MONTHS      = config.MSL_SPRING_MONTHS         # (3, 4, 5) — MAM
+SPRING_MONTHS      = config.MSL_SPRING_MONTHS         # the readings dated March-May (config; D-189)
 PER_WELL_MIN_YEARS = config.ACT_PER_WELL_MIN_YEARS     # min years for a trend fit
 BOOT_N             = config.DIFF_BOOT_N
 BOOT_BLOCK         = config.DIFF_BOOT_BLOCK

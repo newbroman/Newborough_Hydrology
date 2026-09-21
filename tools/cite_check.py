@@ -45,7 +45,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.25.0"  # Hollingham (2026) — 2026-09-20. E22 closed: report9 §4.8.3 and
+__version__ = "1.26.0"  # Hollingham (2026) — 2026-09-21. 03_17_upstand_frame_sensitivity
+#   registered, keyed (block, key): report8 §3.1.1 quotes its summary row
+#   corr_upstand_vs_d_beta_3 (−0.853) and it traced to nothing (Martin: "I am most
+#   concerned about" it). Recomputed from the per-well block: −0.8527, n = 66.
+# 1.25.0  # Hollingham (2026) — 2026-09-20. E22 closed: report9 §4.8.3 and
 #   §4.9.6's interannual spring-level SDs (175/251/315/277/404 mm) and the five-year
 #   window SEs are `26_index_precision_by_cluster.csv`, REFERENCE scope (the "all"
 #   scope gives C5 273/122) — batch 3 reported them as tracing to no file. Keyed on
@@ -473,6 +477,8 @@ EXTRA_VALUE_TABLES = [
       "R2_gain_max_vs_uniform", "optimal_datum_secondary", "beta_3_at_secondary"]),
     ("outputs/03_state_space_model/03_16_model_b_persistence.csv", ("level", "Cluster_Label", "well"),   # report12 §7
      ["t_half_A_months", "t_efold_B_months", "t_half_B_months", "alpha_B"]),
+    ("outputs/03_state_space_model/03_17_upstand_frame_sensitivity.csv", ("block", "key"),   # report8 §3.1.1 (RB-03c)
+     ["value", "upstand_m", "d_beta_1", "d_beta_2", "d_beta_3", "beta_3_ground_frame"]),
     # --- registration pass batches 2-5 (2026-09-20): tables the report quotes cell by cell
     ("outputs/07_spatial_coefficients/07_coeff_maps_data.csv", "Name_Original",    # report8 3.2.3, report9 4.2.2, report9 4.9.2
      ["dem", "beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "pvalue_beta_1", "pvalue_beta_2", "pvalue_beta_3", "Model_R2"]),

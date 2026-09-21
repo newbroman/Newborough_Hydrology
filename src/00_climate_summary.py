@@ -62,7 +62,7 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.paths import OUT_00_PET_WARMING, OUT_00_PET_MONTHLY_TRENDS
-from utils.config import REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO
+from utils.config import REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO, MIN_RECORD_MONTHS
 from utils.render_utils import render_figure
 
 import pandas as pd
@@ -73,7 +73,9 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.8.0"  # Hollingham (2026) -- 2026-09-21. The reference network's record-length
+__version__ = "1.9.0"  # Hollingham (2026) -- 2026-09-21. MIN_RECORD_MONTHS is imported from
+#   config (shared with Scripts 01 and 02) instead of typed here (E32). No output moves.
+# 1.8.0  # Hollingham (2026) -- 2026-09-21. The reference network's record-length
 #   statistics are EMITTED (reference_n_wells, reference_record_months_median/min/max in
 #   00_report_numbers.csv): report8 §3.1.1 quotes "median 191 months, range 139 to 250"
 #   and they lived only as column statistics of 00_02_well_network_summary.csv (E33).
@@ -141,7 +143,6 @@ CB_RED = "#D55E00"
 CB_BROWN = "#8C564B"
 CB_GREY = "#9E9E9E"
 CUTOFF_DATE = pd.Timestamp(REFERENCE_CUTOFF_DATE)
-MIN_RECORD_MONTHS = 100
 DETREND_START = pd.Timestamp("2004-12-01")
 DETREND_END = pd.Timestamp("2025-12-01")
 

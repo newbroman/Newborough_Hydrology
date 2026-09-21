@@ -19,7 +19,7 @@ import numpy as np
 # water level above the pipe rim. These are real flood-month observations
 # and must be retained for the SSM, the cluster analysis, and the flooding
 # thresholds. There are >1,400 such readings in the current dataset.
-MIN_PHYSICAL_DEPTH = -4.0   # signed floor; readings below this are masked
+from utils.config import MIN_PHYSICAL_DEPTH   # signed floor; readings below this are masked (config, 2026-09-21)
 
 # Legacy alias retained for any external code that imported the old name.
 # The old constant (MAX_PHYSICAL_DEPTH = 4.0) referred to the magnitude of

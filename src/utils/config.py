@@ -2278,3 +2278,10 @@ BREAK_ELEV_SD_TOL_M = BREAK_RELATIVE_M
 # instead: a run shorter than a few filter widths is mostly the filter's own
 # edge handling, not a boundary. 5 x 61 = 305 columns = 610 m.
 BREAK_MIN_COLUMNS = 5 * BREAK_MEDIAN_COLUMNS
+
+# ---------------------------------------------------------------------------
+# DEM-vs-DGPS ground-elevation check (Script 01, report8 §3.1.2; E34, 2026-09-21).
+# A well whose |DGPS − DEM| exceeds this is reported as an outlier and excluded
+# from the "remaining wells" RMSE/bias; the paragraph had typed 0.5 m.
+# ---------------------------------------------------------------------------
+DGPS_DEM_OUTLIER_M = 0.5

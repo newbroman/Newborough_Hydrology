@@ -16,7 +16,12 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-16. T-32: both month
+__version__ = "1.18.0"  # Hollingham (2026) - 2026-09-21. The DEM-vs-DGPS elevation check
+#   is EMITTED (01_report_numbers.csv): n with both, R², RMSE, mean bias, the outliers
+#   beyond config.DGPS_DEM_OUTLIER_M and the statistics without them, and the
+#   dgps/lidar/total counts — report8 §3.1.2 quotes all of them and every one lived
+#   only as arithmetic on 01_well_elevations.csv (E34; Martin, 2026-09-21).
+# 1.17.0 - 2026-09-16. T-32: both month
 #   bucketing sites now call utils.buckets.month_bucket instead of carrying their
 #   own copy of the day<=15 rule. NO OUTPUT CAN MOVE - tools/month_bucket_lint.py
 #   proves the helper identical to both of this script's former forms on every
@@ -103,7 +108,7 @@ import numpy as np
 from utils.paths import (
     make_all_dirs,
     DATA_WELLS_RAW, DATA_LOCATIONS_RAW, DATA_CLIMATE_RAW,
-    DATA_WELL_ELEVATIONS,
+    DATA_WELL_ELEVATIONS, OUT_01_REPORT_NUMBERS,
     DATA_DIR,
     INT_LOCATIONS, DATA_FOREST_BOUNDARY, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_ALL, INT_WELLS_CLEAN_MAOD,
     DATA_FELLING_1998_1, DATA_FELLING_1998_2, DATA_FELLING_1998_3,
@@ -826,6 +831,38 @@ def _render_coverage_figure(wells_scope, states):
            f"{span}  (Source: 01_data_prep.py)")
 
 
+def _report_elevation_check(elev_df, src):
+    """The DEM-vs-DGPS comparison report8 §3.1.2 quotes, read out of the frame just
+    written: n with both elevations, R², RMSE and mean bias (DGPS minus DEM), the
+    wells beyond config.DGPS_DEM_OUTLIER_M, the statistics without them, and the
+    dgps / lidar / total counts (E34)."""
+    from utils.report_numbers_utils import ReportNumbers
+    from utils.config import DGPS_DEM_OUTLIER_M
+    both = elev_df.dropna(subset=["DEM_Ground_Elev", "DGPS_Ground_Elev"])
+    diff = both["DGPS_Ground_Elev"] - both["DEM_Ground_Elev"]
+    rr = ReportNumbers()
+    rr.add("elev_n_both", int(len(both)), unit="count", note="wells with both a DEM and a DGPS ground elevation")
+    if len(both) >= 3:
+        r2 = float(np.corrcoef(both["DEM_Ground_Elev"], both["DGPS_Ground_Elev"])[0, 1] ** 2)
+        rr.add("elev_r2", r2, unit="", note="R² of DGPS against DEM ground elevation")
+        rr.add("elev_rmse_m", float(np.sqrt((diff ** 2).mean())), unit="m", note="RMSE of DGPS minus DEM")
+        rr.add("elev_bias_m", float(diff.mean()), unit="m", note="mean bias, DGPS minus DEM")
+        out = both[diff.abs() > DGPS_DEM_OUTLIER_M]
+        rr.add("elev_outlier_threshold_m", float(DGPS_DEM_OUTLIER_M), unit="m", note="config.DGPS_DEM_OUTLIER_M")
+        rr.add("elev_n_outliers", int(len(out)), unit="count",
+               note="wells with |DGPS - DEM| beyond the threshold: " + ", ".join(out["Name"].astype(str)))
+        rest = both[diff.abs() <= DGPS_DEM_OUTLIER_M]
+        dr = rest["DGPS_Ground_Elev"] - rest["DEM_Ground_Elev"]
+        rr.add("elev_n_remaining", int(len(rest)), unit="count", note="wells within the threshold")
+        rr.add("elev_rmse_remaining_m", float(np.sqrt((dr ** 2).mean())), unit="m", note="RMSE without the outliers")
+        rr.add("elev_bias_remaining_m", float(dr.mean()), unit="m", note="mean bias without the outliers")
+    rr.add("elev_n_dgps", int(src.eq("dgps").sum()), unit="count", note="wells whose ground elevation is the DGPS survey")
+    rr.add("elev_n_lidar", int(src.eq("lidar").sum()), unit="count", note="wells whose ground elevation is the LiDAR DEM")
+    rr.add("elev_n_total", int(len(elev_df)), unit="count", note="located wells in well_metadata.csv")
+    n = rr.save(OUT_01_REPORT_NUMBERS)
+    saved(f"{OUT_01_REPORT_NUMBERS.name} ({n} value(s))")
+
+
 if __name__ == "__main__":
     banner("01", "Data Preparation", version=__version__)
     make_all_dirs()
@@ -1100,6 +1137,7 @@ if __name__ == "__main__":
 
         elev_df.to_csv(INT_WELL_ELEVATIONS, index=False)
         saved(f"{INT_WELL_ELEVATIONS.name}")
+        _report_elevation_check(elev_df, src)
     else:
         elev_df = None
         warn(f"Elevation file not found: {_WELL_ELEV_FILE}")

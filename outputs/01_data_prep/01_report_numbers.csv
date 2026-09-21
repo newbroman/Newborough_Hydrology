@@ -1,0 +1,13 @@
+Parameter,Well,Era,Value,Unit,Note
+elev_n_both,,,81.0,count,wells with both a DEM and a DGPS ground elevation
+elev_r2,,,0.9987780401039409,,R² of DGPS against DEM ground elevation
+elev_rmse_m,,,0.16287426037087013,m,RMSE of DGPS minus DEM
+elev_bias_m,,,-0.07661728395061737,m,"mean bias, DGPS minus DEM"
+elev_outlier_threshold_m,,,0.5,m,config.DGPS_DEM_OUTLIER_M
+elev_n_outliers,,,3.0,count,"wells with |DGPS - DEM| beyond the threshold: nw2, ceh2, L1"
+elev_n_remaining,,,78.0,count,wells within the threshold
+elev_rmse_remaining_m,,,0.10204033893137933,m,RMSE without the outliers
+elev_bias_remaining_m,,,-0.07182051282051291,m,mean bias without the outliers
+elev_n_dgps,,,78.0,count,wells whose ground elevation is the DGPS survey
+elev_n_lidar,,,21.0,count,wells whose ground elevation is the LiDAR DEM
+elev_n_total,,,99.0,count,located wells in well_metadata.csv

@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**111 output file(s)** supply **1200 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**113 output file(s)** supply **1319 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -132,7 +132,7 @@
 |  | nw5 · beta_3_at_uniform | Supplementary_Material.md |
 |  | wmc2 · beta_3_at_uniform | Supplementary_Material.md |
 | `03_14_centroid_window_sensitivity.csv` | C1 (Lake Edge) / comparison_window · LCSC_percent | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | C1 (Lake Edge) / comparison_window · R2 | VALUE_LEDGER_report.md, report9.md |
+|  | C1 (Lake Edge) / comparison_window · R2 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
 |  | C1 (Lake Edge) / full_record · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | C1 (Lake Edge) / full_record · R2 | Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER_report.md, report10.md, report9.md |
 |  | C2 (Dune) / comparison_window · LCSC_percent | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
@@ -188,6 +188,7 @@
 |  | summary / corr_upstand_vs_d_beta_2 · value | Newborough_Methods_Supplement.md |
 |  | summary / corr_upstand_vs_d_beta_3 · value | report8.md |
 | `07_coeff_maps_data.csv` | Ceh32 · beta_2_atmospheric_draw | Hollingham_2026_Paper2_amended.md |
+|  | D38 · Model_R2 | Newborough_Methods_Supplement.md |
 |  | D5 · Model_R2 | VALUE_LEDGER_report.md, report9.md |
 |  | L7 · Model_R2 | Newborough_Methods_Supplement.md |
 |  | L7 · beta_2_atmospheric_draw | Paper1.md, VALUE_LEDGER_report.md, report.md, report9.md |
@@ -342,19 +343,29 @@
 |  | CEH21 / Climate · Pre_mean_gap_m | report9.md |
 |  | CEH36 / Climate · Shift_m | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | CEH36 / Paired · Shift_m | Hollingham_2026_Paper2_amended.md |
-| `09c_05_spring_means.csv` | CEH18 / 2018 · Climate_ctrl_centroid_m | Supplementary_Material.md |
+| `09c_05_spring_means.csv` | CEH18 / 2011 · Paired_ctrl_m | Supplementary_Material.md |
+|  | CEH18 / 2013 · Climate_ctrl_centroid_m | Supplementary_Material.md |
+|  | CEH18 / 2018 · Climate_ctrl_centroid_m | Supplementary_Material.md |
 |  | CEH21 / 2018 · Climate_ctrl_centroid_m | Supplementary_Material.md |
 |  | CEH21 / 2025 · Climate_ctrl_centroid_m | Supplementary_Material.md |
 |  | CEH22 / 2015 · Gap_climate_m | Newborough_Methods_Supplement.md, report10.md |
 |  | CEH22 / 2018 · Gap_climate_m | report9.md |
-|  | CEH22 / 2020 · Gap_climate_m | Newborough_Methods_Supplement.md |
+|  | CEH22 / 2020 · Gap_climate_m | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | CEH22 / 2023 · Gap_climate_m | VALUE_LEDGER_report.md |
+|  | CEH36 / 2011 · Gap_climate_m | report9.md |
 |  | CEH36 / 2017 · Gap_climate_m | Newborough_Methods_Supplement.md, report10.md |
-|  | CEH36 / 2018 · Gap_climate_m | Newborough_Methods_Supplement.md |
+|  | CEH36 / 2018 · Gap_climate_m | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report12.md |
+|  | CEH36 / 2019 · Gap_climate_m | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER_report.md, report9.md |
+|  | CEH36 / 2020 · Gap_climate_m | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | CEH36 / 2022 · Gap_paired_m | Newborough_Methods_Supplement.md, report9.md |
 |  | CEH36 / 2025 · Climate_ctrl_centroid_m | Supplementary_Material.md |
+|  | CEH4 / 2011 · Gap_climate_m | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | CEH4 / 2012 · Gap_climate_m | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER_report.md, report9.md |
 |  | CEH4 / 2016 · Climate_ctrl_centroid_m | Supplementary_Material.md |
 |  | CEH4 / 2021 · Gap_climate_m | Supplementary_Material.md |
+|  | CEH4 / 2022 · Gap_climate_m | VALUE_LEDGER_report.md |
 | `09c_06_spring_means_shifts.csv` | CEH21 / Climate · Shift_m | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER_report.md, report9.md |
+|  | CEH21 / Climate · t_stat | report10.md |
 |  | CEH22 / Climate · Pre_mean_gap_m | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER_report.md, report9.md |
 |  | CEH4 / Climate · p_value | Supplementary_Material.md |
 | `09c_report_numbers.csv` | Scrape_equilibration_peak_spring · CEH36 · Climate | Newborough_Methods_Supplement.md, report10.md |
@@ -618,9 +629,11 @@
 |  | CEH31 / Edge / Forest · p_value | VALUE_LEDGER_report.md, report9.md |
 |  | CEH34 / Forest Ctrl / Forest · p_value | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | CEH5 / Far-field Ctrl / Forest · p_value | Supplementary_Material.md |
+|  | CEH6 / Far-field Ctrl / Forest · Post_mean_gap_m | Newborough_Methods_Supplement.md |
 |  | CEH9 / Climate Ctrl / Climate · Pre_mean_gap_m | report9.md |
 |  | CEH9 / Climate Ctrl / Forest · p_value | Supplementary_Material.md |
 |  | L7 / Far-field Ctrl / Forest · p_value | report9.md |
+|  | NW4B / Far-field Ctrl / Forest · Pre_mean_gap_m | Newborough_Methods_Supplement.md |
 |  | NW5 / Climate Ctrl / Climate · p_value | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | NW6 / Climate Ctrl / Climate · Pre_mean_gap_m | Supplementary_Material.md |
 |  | WMC1 / Far-field Ctrl / Climate · Post_mean_gap_m | Supplementary_Material.md |
@@ -629,6 +642,7 @@
 |  | WMC3 / Impact / Forest · p_value | report9.md |
 | `10d_08_spring_mixed_model_results.csv` | Climate / Forest Ctrl · Clearfell_coef_m | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | Climate / Forest Ctrl · Scraping_p | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, academic_Summary.md, crynodeb_academaidd.md, report9.md |
+|  | Forest / Climate Ctrl · Clearfell_SE_m | report9.md |
 |  | Forest / Climate Ctrl · Scraping_p | VALUE_LEDGER_report.md |
 |  | Forest / Coastal Ctrl · Clearfell_p | Supplementary_Material.md, VALUE_LEDGER_report.md |
 |  | Forest / Coastal Ctrl · Scraping_p | Supplementary_Material.md |
@@ -671,7 +685,7 @@
 |  | Edge · clearfell_p | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | Impact · R2 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
 | `10l_06_four_zone_spring_results.csv` | C3/Warren · R2 | report9.md |
-|  | C3/Warren · clearfell_p | Supplementary_Material.md |
+|  | C3/Warren · clearfell_p | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | Edge · clearfell_p | Supplementary_Material.md, VALUE_LEDGER_report.md |
 |  | Impact · clearfell_p | VALUE_LEDGER_report.md |
 | `10l_08_c3warren_spring_means.csv` | CEH1 / 2024 · Spring_mean_m | Supplementary_Material.md |
@@ -684,6 +698,7 @@
 |  | C2 · intercept_B | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | C2 · lambda_multiplier | Newborough_Methods_Supplement.md |
 |  | C2 · slope_A | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | C3 · alpha | Newborough_Methods_Supplement.md |
 |  | C3 · intercept_B | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | C3 · slope_A | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | C4 · intercept_B | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
@@ -694,6 +709,8 @@
 |  | Coastal_Forest · p_value_intercept | Supplementary_Material.md |
 |  | Eastern_Block · p_value_PET_win_to_spr | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER_report.md |
 |  | Forest · p_value_PET_win_to_spr | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, Newborough_Methods_Supplement.md, readme.md |
+|  | Forest · p_value_P_win_to_spr | Supplementary_Material.md, VALUE_LEDGER_report.md |
+|  | Lake_Edge · R2 | VALUE_LEDGER_report.md |
 |  | Lake_Edge · p_value_PET_win_to_spr | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER_report.md |
 |  | Western_Block · p_value_PET_win_to_spr | Newborough_Methods_Supplement.md |
 | `11_forecast_summer_transfer_functions.csv` | Coastal_Forest · R2 | VALUE_LEDGER_report.md, report9.md |
@@ -823,7 +840,7 @@
 |  | SITE · we_mean_mm | VALUE_LEDGER_report.md, report9.md |
 |  | broadleaf / annual / C4 · dh_mean_m | report9.md |
 |  | broadleaf / summer / C3 · we_mean_mm | Supplementary_Material.md, VALUE_LEDGER_report.md |
-|  | broadleaf / summer / C5 · we_median_mm | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | broadleaf / summer / C5 · we_median_mm | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
 |  | broadleaf / summer / SITE · we_mean_mm | VALUE_LEDGER_report.md, report9.md |
 |  | broadleaf / winter / SITE · we_mean_mm | VALUE_LEDGER_report.md |
 |  | clearfell / annual / C5 · dh_median_m | Supplementary_Material.md, VALUE_LEDGER_report.md |
@@ -833,8 +850,10 @@
 |  | thinning / winter / C3 · we_mean_mm | VALUE_LEDGER_report.md, report9.md |
 |  | ukcp18_2050s / annual / C5 · dh_median_m | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | ukcp18_2050s / winter / C4 · dh_median_m | VALUE_LEDGER_report.md |
-| `20_msl5_change_perwell.csv` | ceh26 · MSL5_bg_2023_m | Supplementary_Material.md |
+| `20_msl5_change_perwell.csv` | ceh1 · MSL5_bg_2017_m | Supplementary_Material.md |
+|  | ceh26 · MSL5_bg_2023_m | Supplementary_Material.md |
 |  | d10 · MSL5_bg_2017_m | Supplementary_Material.md |
+|  | l7 · MSL5_bg_2017_m | VALUE_LEDGER_report.md |
 | `20_report_numbers.csv` | coastal_retreat_rate | Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER_report.md, report8.md, report9.md |
 | `20_residual_perwell.csv` | ceh14 · residual_wb | PAPER1_SI_methods.md, Paper1.md, report9.md |
 |  | d7 · residual_wb | PAPER1_SI_methods.md, Paper1.md, report9.md |
@@ -858,10 +877,12 @@
 |  | C4 Main forest / Post-felling 2018+ · Mean_depth_m | Paper1.md, report12.md, report9.md |
 |  | C4 Main forest / Post-felling 2018+ · Min_depth_m | report9.md |
 |  | C4 Main forest / Pre-scrape 2005–14 · Max_depth_m | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER_report.md, report9.md, site_geography.md |
+|  | C4 Main forest / Pre-scrape 2005–14 · Median_depth_m | report9.md |
 |  | C4 Main forest / Scraping era 2015–17 · Mean_depth_m | Paper1.md, report12.md, report9.md |
 |  | C4 Main forest / Scraping era 2015–17 · Min_depth_m | Paper1.md |
 |  | C4 Main forest / Scraping era 2015–17 · N_summers | Newborough_Methods_Supplement.md |
 |  | C4 Main forest / Scraping era 2015–17 · SD_depth_m | VALUE_LEDGER_report.md, report9.md |
+|  | C5 Coastal forest / Post-felling 2018+ · Max_depth_m | report9.md |
 |  | C5 Coastal forest / Post-felling 2018+ · Mean_depth_m | VALUE_LEDGER_report.md, report10.md |
 |  | C5 Coastal forest / Post-felling 2018+ · Min_depth_m | Newborough_Methods_Supplement.md |
 |  | C5 Coastal forest / Post-felling 2018+ · SD_depth_m | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
@@ -881,7 +902,9 @@
 |  | c3_only / exponential_cfix · delta_0_mm_yr | PAPER1_SI_methods.md |
 |  | c3_only / exponential_cfix · delta_0_se | PAPER1_SI_methods.md |
 |  | c3_only / exponential_cfix · delta_ref_se | Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER_report.md, report8.md, report9.md |
-|  | c3_only_mam / linear_capped_cfix · c_mm_yr | report9.md |
+|  | c3_only_mam / exponential_cfix · delta_ref_se | report10.md |
+|  | c3_only_mam / linear_capped_cfix · c_mm_yr | Newborough_Methods_Supplement.md, report9.md, site_geography.md |
+|  | c3_only_mam / linear_capped_cfix · delta_0_mm_yr | PAPER1_SI_methods.md |
 |  | forest_free / exponential · c_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, VALUE_LEDGER_report.md |
 |  | forest_free / exponential · delta_0_mm_yr | PAPER1_SI_methods.md |
 |  | forest_free / exponential · delta_0_se | PAPER1_SI_methods.md |
@@ -900,6 +923,7 @@
 |  | full_canopy / linear_capped · delta_0_mm_yr | Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER_report.md |
 |  | full_canopy / linear_capped · delta_0_se | PAPER1_SI_methods.md |
 |  | full_canopy / linear_capped · delta_ref_se | Newborough_Methods_Supplement.md, report9.md |
+|  | full_mam / linear_capped · c_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md |
 | `25_03_cluster_partition.csv` | C1 (Lake Edge) · climate_plus_far_field_mm_yr | report9.md |
 |  | C1 (Lake Edge) · unexplained_mm_yr | report9.md |
 |  | C2 (Dune) · climate_plus_far_field_mm_yr | report9.md |
@@ -919,27 +943,52 @@
 |  | delta_ref_well_basis_ci_hi_mm_yr | Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md |
 |  | delta_ref_well_basis_ci_lo_mm_yr | Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md |
 |  | delta_ref_well_basis_se_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, VALUE_LEDGER_report.md, report9.md |
+| `26_curreli_min_cluster_threshold_summary.csv` | 4 / C1 (Lake Edge) · MINw_current_m_bg | report9.md |
+|  | 4 / C1 (Lake Edge) · MSL5_current_m_bg | report9.md |
+|  | 4 / C2 (Dune) · MINw_current_m_bg | report9.md |
+|  | 4 / C2 (Dune) · MSL5_current_m_bg | report9.md |
+|  | 4 / C3 (Western Residual) · MINw_current_m_bg | report9.md |
+|  | 4 / C3 (Western Residual) · MSL5_current_m_bg | report9.md |
+|  | 4 / C4 (Main Forest) · MINw_current_m_bg | Newborough_Methods_Supplement.md, report9.md |
+|  | 4 / C4 (Main Forest) · MSL5_current_m_bg | report9.md |
+|  | 4 / C5 (Coastal Forest) · MINw_current_m_bg | report9.md |
+|  | 4 / C5 (Coastal Forest) · MSL5_current_m_bg | report9.md |
+|  | 5 / C1 (Lake Edge) · MSL5_current_m_bg | report9.md |
+|  | 5 / C2 (Dune) · MSL5_current_m_bg | report9.md |
+|  | 5 / C2 (Dune) · n_windows_below_SD16 | Newborough_Methods_Supplement.md |
+|  | 5 / C3 (Western Residual) · MSL5_current_m_bg | report9.md |
+|  | 5 / C4 (Main Forest) · MSL5_current_m_bg | report9.md |
+|  | 5 / C5 (Coastal Forest) · MSL5_current_m_bg | report9.md |
 | `26_index_precision_by_cluster.csv` | all / C1 (Lake Edge) · n_wells_with_springs | VALUE_LEDGER_report.md, report9.md |
+|  | all / C2 (Dune) · rho_lag1_mean | Supplementary_Material.md |
 |  | reference / C1 (Lake Edge) · n_wells_with_springs | VALUE_LEDGER_report.md, report9.md |
 | `26_msl_5yr_per_cluster.csv` | C1 (Lake Edge) / 2017 · MAX5_m_bg_median | Supplementary_Material.md |
+|  | C1 (Lake Edge) / 2018 · MSL5_m_bg_mean | VALUE_LEDGER_report.md |
 |  | C1 (Lake Edge) / 2024 · MAX5_m_bg_mean | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | C1 (Lake Edge) / 2025 · MSL5_m_bg_mean | report9.md |
+|  | C1 (Lake Edge) / 2025 · MSL5_m_bg_median | VALUE_LEDGER_report.md |
 |  | C2 (Dune) / 2010 · MSL5_m_bg_mean | Supplementary_Material.md |
 |  | C2 (Dune) / 2010 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C2 (Dune) / 2012 · MAX5_m_bg_median | Supplementary_Material.md |
 |  | C2 (Dune) / 2012 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C2 (Dune) / 2015 · MAX5_m_bg_median | Supplementary_Material.md |
+|  | C2 (Dune) / 2015 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C2 (Dune) / 2016 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C2 (Dune) / 2018 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C2 (Dune) / 2021 · MAX5_m_bg_mean | Supplementary_Material.md |
 |  | C2 (Dune) / 2021 · MSL5_m_bg_mean | Supplementary_Material.md |
-|  | C2 (Dune) / 2022 · MAX5_m_bg_mean | VALUE_LEDGER_report.md |
+|  | C2 (Dune) / 2022 · MAX5_m_bg_mean | Paper1.md, VALUE_LEDGER_report.md, report9.md |
 |  | C2 (Dune) / 2023 · MAX5_m_bg_mean | VALUE_LEDGER_report.md |
+|  | C2 (Dune) / 2023 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C2 (Dune) / 2024 · MSL5_m_bg_mean | Supplementary_Material.md |
 |  | C2 (Dune) / 2025 · MSL5_m_bg_mean | report9.md |
 |  | C3 (Western Residual) / 2010 · MAX5_m_bg_median | VALUE_LEDGER_report.md |
+|  | C3 (Western Residual) / 2013 · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Residual) / 2013 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2015 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Residual) / 2015 · MAX5_m_bg_median | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2017 · MAX5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Residual) / 2017 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2020 · MAX5_m_bg_mean | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2021 · MAX5_m_bg_mean | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2023 · MAX5_m_bg_mean | Supplementary_Material.md |
@@ -950,27 +999,39 @@
 |  | C4 (Main Forest) / 2013 · MSL5_m_bg_mean | VALUE_LEDGER_report.md, report9.md |
 |  | C4 (Main Forest) / 2013 · MSL5_m_bg_median | VALUE_LEDGER_report.md, report9.md |
 |  | C4 (Main Forest) / 2015 · MAX5_m_bg_mean | VALUE_LEDGER_report.md, report9.md |
+|  | C4 (Main Forest) / 2015 · MSL5_m_bg_median | report9.md |
 |  | C4 (Main Forest) / 2019 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) / 2019 · MSL5_m_bg_median | VALUE_LEDGER_report.md, report9.md |
 |  | C4 (Main Forest) / 2020 · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C4 (Main Forest) / 2020 · MSL5_m_bg_median | VALUE_LEDGER_report.md, report9.md |
 |  | C4 (Main Forest) / 2021 · MSL5_m_bg_median | VALUE_LEDGER_report.md, report9.md |
+|  | C4 (Main Forest) / 2023 · MSL5_m_bg_mean | report9.md |
 |  | C4 (Main Forest) / 2025 · MSL5_m_bg_mean | report9.md |
 |  | C4 (Main Forest) / 2025 · MSL5_m_bg_median | Supplementary_Material.md |
 |  | C5 (Coastal Forest) / 2013 · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C5 (Coastal Forest) / 2015 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2016 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
+|  | C5 (Coastal Forest) / 2019 · MSL5_m_bg_mean | VALUE_LEDGER_report.md, report9.md |
 |  | C5 (Coastal Forest) / 2021 · MAX5_m_bg_mean | VALUE_LEDGER_report.md, report9.md |
 |  | C5 (Coastal Forest) / 2021 · MAX5_m_bg_median | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2022 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
+|  | C5 (Coastal Forest) / 2022 · MSL5_m_bg_median | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | C5 (Coastal Forest) / 2023 · MAX5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2023 · MAX5_m_bg_median | report9.md |
 |  | C5 (Coastal Forest) / 2024 · MSL5_m_bg_mean | VALUE_LEDGER_report.md, report9.md |
 |  | C5 (Coastal Forest) / 2025 · MSL5_m_bg_mean | VALUE_LEDGER_report.md, report9.md |
 |  | C5 (Coastal Forest) / 2025 · MSL5_m_bg_median | Supplementary_Material.md, report9.md |
-| `26b_msl5_ukcp18_projection_summary.csv` | C3 (Western Residual) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |
+| `26_report_numbers.csv` | curreli_min_quadrat_wells_first_window_min_m_bg | report9.md |
+| `26b_msl5_ukcp18_projection_summary.csv` | C2 (Dune) / 2050s · msl5_observed_window_mean_m | Supplementary_Material.md |
+|  | C2 (Dune) / 2080s · msl5_observed_window_mean_m | Supplementary_Material.md |
+|  | C3 (Western Residual) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) / 2050s · msl5_observed_window_mean_m | VALUE_LEDGER_report.md, report9.md |
 |  | C4 (Main Forest) / 2080s · msl5_observed_window_mean_m | VALUE_LEDGER_report.md, report9.md |
+|  | C5 (Coastal Forest) / 2050s · msl5_observed_window_mean_m | VALUE_LEDGER_report.md, report9.md |
 |  | C5 (Coastal Forest) / 2050s · msl5_shift_mean_m | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | C5 (Coastal Forest) / 2050s · spring_delta_h_mean_m | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | C5 (Coastal Forest) / 2080s · msl5_observed_window_mean_m | VALUE_LEDGER_report.md, report9.md |
+|  | C5 (Coastal Forest) / 2080s · msl5_perturbed_window_mean_m | report9.md |
 | `26b_msl5_ukcp18_projection_summary_perwell.csv` | C1 (Lake Edge) / 2050s / perwell · n_wells | VALUE_LEDGER_report.md, report9.md |
 |  | C1 (Lake Edge) / 2080s / perwell · n_wells | VALUE_LEDGER_report.md, report9.md |
 | `28_c3_detrend.csv` | ceh24 · obs_years | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report10.md, report9.md |
@@ -1045,85 +1106,143 @@
 |  | 1 external / Moran's I (C3 indicator) / C3 spatial autocorr · statisti | Newborough_Methods_Supplement.md |
 |  | 3 convergent / ANOVA / SSM beta3 · statistic | VALUE_LEDGER_report.md |
 | `31b_separation_vs_recoverability.csv` | Distance to coast (Caernarfon Bay) / dist_coast_m · eta2_separation | Supplementary_Material.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md |
-| `32_differential_movement_per_well.csv` | ceh10 · p_ar_2005_2025 | report10.md, report9.md |
+| `32_differential_movement_per_well.csv` | ceh1 · slope_mm_yr_2005_2025 | VALUE_LEDGER_report.md |
+|  | ceh10 · p_ar_2005_2025 | report10.md, report9.md |
+|  | ceh16 · p_ar_2011_2025 | Supplementary_Material.md |
 |  | ceh2 · p_ar_2011_2025 | Supplementary_Material.md |
+|  | ceh20 · p_ar_2011_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | ceh23 · p_ar_2005_2025 | Supplementary_Material.md |
 |  | ceh23 · p_ar_2011_2025 | report10.md |
+|  | ceh26 · p_ar_2005_2025 | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, VALUE_LEDGER_report.md |
+|  | ceh27 · p_ar_2011_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | ceh3 · p_ar_2011_2025 | PAPER1_SI_methods.md, report10.md, report9.md |
 |  | ceh33 · p_ar_2005_2025 | report9.md |
+|  | ceh33 · p_ar_2011_2025 | Hollingham_2026_Paper2_amended.md |
 |  | ceh34 · p_ar_2005_2025 | Supplementary_Material.md |
 |  | ceh34 · p_ar_2011_2025 | Newborough_Methods_Supplement.md, Supplementary_Material.md, VALUE_LEDGER_report.md |
 |  | ceh37 · p_ar_2005_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | ceh40 · p_ar_2011_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | ceh41 · p_ar_2011_2025 | report9.md |
+|  | ceh41 · slope_mm_yr_2005_2025 | Supplementary_Material.md |
+|  | ceh5 · p_ar_2005_2025 | VALUE_LEDGER_report.md |
 |  | ceh6 · p_ar_2011_2025 | report9.md |
 |  | d38 · p_ar_2011_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | d44 · p_ar_2005_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | fe1 · p_ar_2005_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | fe1 · p_ar_2011_2025 | VALUE_LEDGER_report.md |
-|  | nw10 · p_ar_2011_2025 | Newborough_Methods_Supplement.md |
+|  | nw10 · p_ar_2011_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | nw13 · p_ar_2005_2025 | report9.md |
 |  | nw13 · p_ar_2011_2025 | Newborough_Methods_Supplement.md |
 |  | nw3 · p_ar_2005_2025 | VALUE_LEDGER_report.md, report9.md |
 |  | nw4b · p_ar_2011_2025 | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | nw7 · p_ar_2005_2025 | VALUE_LEDGER_report.md, report9.md |
 |  | wmc2 · p_ar_2011_2025 | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, VALUE_LEDGER_report.md |
-| `33_envelope_per_well.csv` | ceh37 · amplification | report9.md |
+|  | wmc3 · p_ar_2005_2025 | report9.md |
+| `33_envelope_per_well.csv` | ceh1 · dry_m | Supplementary_Material.md |
+|  | ceh24 · amplification | VALUE_LEDGER_report.md |
+|  | ceh37 · amplification | report9.md |
 |  | ceh9 · amplification | VALUE_LEDGER_report.md |
+|  | d15 · amplification | VALUE_LEDGER_report.md |
 |  | d25 · amplification | VALUE_LEDGER_report.md |
 |  | d38 · amplification | VALUE_LEDGER_report.md |
 |  | d43 · amplification | VALUE_LEDGER_report.md |
+|  | d7 · amplification | VALUE_LEDGER_report.md |
 |  | fe2 · dry_m | VALUE_LEDGER_report.md, report9.md |
 |  | fe2 · wet_m | VALUE_LEDGER_report.md, report9.md |
+|  | fe3 · amplification | VALUE_LEDGER_report.md |
 |  | nw1 · amplification | VALUE_LEDGER_report.md |
-| `33_envelope_per_well_recent.csv` | ceh16 · amplification | VALUE_LEDGER_report.md |
+|  | nw6 · amplification | VALUE_LEDGER_report.md |
+|  | wmc1 · dry_m | Supplementary_Material.md |
+| `33_envelope_per_well_recent.csv` | ceh14 · wet_m | Supplementary_Material.md |
+|  | ceh16 · amplification | VALUE_LEDGER_report.md |
+|  | ceh26 · dry_m | Supplementary_Material.md |
 |  | ceh42 · amplification | VALUE_LEDGER_report.md |
 |  | ceh42 · wet_m | Supplementary_Material.md |
 |  | ceh9 · amplification | VALUE_LEDGER_report.md |
+|  | d15 · dry_m | Supplementary_Material.md |
+|  | d17 · amplification | VALUE_LEDGER_report.md |
 |  | d25 · amplification | VALUE_LEDGER_report.md |
+|  | nw10 · wet_m | Supplementary_Material.md |
 |  | nw6 · wet_m | Supplementary_Material.md |
 | `34_window_matrix.csv` | 2019 / 2021 · change_mm | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md |
-| `35_per_well_amplification.csv` | ceh11 · se | Newborough_Methods_Supplement.md, report9.md |
+| `35_per_well_amplification.csv` | ceh11 · se | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
+|  | ceh13 · se | VALUE_LEDGER_report.md |
 |  | ceh14 · amp_coefficient | report10.md |
 |  | ceh14 · se | Supplementary_Material.md, VALUE_LEDGER_report.md, report10.md |
 |  | ceh18 · amp_coefficient | VALUE_LEDGER_report.md, report9.md |
 |  | ceh18 · ci_hi | VALUE_LEDGER_report.md |
 |  | ceh19 · amp_coefficient | VALUE_LEDGER_report.md |
+|  | ceh19 · se | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
 |  | ceh2 · amp_coefficient | VALUE_LEDGER_report.md, academic_Summary.md |
 |  | ceh2 · se | Supplementary_Material.md, VALUE_LEDGER_report.md, report9.md |
+|  | ceh20 · se | Newborough_Methods_Supplement.md |
+|  | ceh21 · ci_hi | VALUE_LEDGER_report.md |
 |  | ceh22 · se | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
 |  | ceh26 · ci_lo | Supplementary_Material.md, VALUE_LEDGER_report.md |
 |  | ceh3 · ci_lo | Supplementary_Material.md, VALUE_LEDGER_report.md |
-|  | ceh3 · se | Hollingham_2026_Paper2_amended.md, Paper1.md, VALUE_LEDGER_report.md, report12.md, report9.md |
+|  | ceh3 · se | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, Paper1.md, VALUE_LEDGER_report.md, report12.md, report9.md |
 |  | ceh32 · se | VALUE_LEDGER_report.md, report10.md, report9.md |
+|  | ceh33 · se | VALUE_LEDGER_report.md |
+|  | ceh34 · se | VALUE_LEDGER_report.md, wtf_interception_methodology.md |
+|  | ceh37 · amp_coefficient | VALUE_LEDGER_report.md |
 |  | ceh37 · se | VALUE_LEDGER_report.md, report9.md |
-|  | ceh41 · se | VALUE_LEDGER_report.md |
+|  | ceh4 · amp_coefficient | Paper1.md |
+|  | ceh40 · amp_coefficient | Supplementary_Material.md, VALUE_LEDGER_report.md |
+|  | ceh41 · ci_lo | Supplementary_Material.md |
+|  | ceh41 · se | VALUE_LEDGER_report.md, report9.md |
 |  | ceh42 · se | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
 |  | ceh6 · amp_coefficient | Supplementary_Material.md, VALUE_LEDGER_report.md |
 |  | ceh6 · se | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
 |  | ceh9 · amp_coefficient | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md |
+|  | d17 · amp_coefficient | VALUE_LEDGER_report.md |
+|  | d17 · se | VALUE_LEDGER_report.md |
 |  | d41 · amp_coefficient | VALUE_LEDGER_report.md |
 |  | d44 · amp_coefficient | VALUE_LEDGER_report.md |
+|  | d5 · amp_coefficient | VALUE_LEDGER_report.md, report8.md |
+|  | d6 · amp_coefficient | VALUE_LEDGER_report.md |
 |  | d9 · amp_coefficient | VALUE_LEDGER_report.md |
+|  | fe1 · se | report9.md |
+|  | fe2 · se | Supplementary_Material.md, VALUE_LEDGER_report.md |
+|  | fe3 · amp_coefficient | VALUE_LEDGER_report.md |
+|  | fe3 · se | VALUE_LEDGER_report.md |
+|  | l7 · amp_coefficient | VALUE_LEDGER_report.md |
 |  | nw1 · ci_lo | VALUE_LEDGER_report.md |
 |  | nw10 · amp_coefficient | VALUE_LEDGER_report.md, academic_Summary.md |
 |  | nw13 · amp_coefficient | VALUE_LEDGER_report.md |
 |  | nw6 · amp_coefficient | Paper1.md, VALUE_LEDGER_report.md |
 |  | nw8 · se | VALUE_LEDGER_report.md |
 |  | nw8b · amp_coefficient | VALUE_LEDGER_report.md, report.md, report12.md, report9.md |
+|  | wmc2 · se | Newborough_Methods_Supplement.md, VALUE_LEDGER_report.md, report9.md |
+|  | wmc4 · amp_coefficient | VALUE_LEDGER_report.md |
 | `37_scale_factors_by_window.csv` | 2005_2025 / primary · n | report9.md |
+|  | 2005_2025 / primary · s_cf | report9.md |
+|  | 2005_2025 / primary · s_cf_ci_hi | report9.md |
+|  | 2005_2025 / primary · s_cf_ci_lo | report9.md |
 |  | 2005_2025 / primary · s_coast | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | 2005_2025 / primary · s_coast_ci_hi | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2005_2025 / primary · s_coast_ci_hi | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report8.md, report9.md |
 |  | 2005_2025 / primary · s_coast_ci_lo | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | 2006_2012 / primary · c | Newborough_Methods_Supplement.md |
+|  | 2006_2012 / primary · c | Newborough_Methods_Supplement.md, report9.md |
 |  | 2006_2012 / primary · c_ci_hi | report9.md |
 |  | 2006_2012 / primary · c_ci_lo | report9.md |
-|  | 2006_2012 / primary · s_coast | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | 2006_2012 / primary · s_coast_ci_hi | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | 2006_2012 / primary · s_coast_ci_lo | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | 2018_2025 / primary · c | Newborough_Methods_Supplement.md |
+|  | 2006_2012 / primary · s_coast | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2006_2012 / primary · s_coast_ci_hi | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2006_2012 / primary · s_coast_ci_lo | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2018_2025 / primary · c | Newborough_Methods_Supplement.md, report9.md |
+|  | 2018_2025 / primary · c_ci_hi | report9.md |
+|  | 2018_2025 / primary · c_ci_lo | report9.md |
 |  | 2018_2025 / primary · n | report9.md |
 |  | 2018_2025 / primary · r_squared | Hollingham_2026_Paper2_amended.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md |
-|  | 2018_2025 / primary · s_cf | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | 2018_2025 / primary · s_cf_ci_hi | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
-|  | 2018_2025 / primary · s_cf_ci_lo | VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2018_2025 / primary · s_cf | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2018_2025 / primary · s_cf_ci_hi | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2018_2025 / primary · s_cf_ci_lo | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2018_2025 / primary · s_coast | VALUE_LEDGER_report.md |
+|  | 2018_2025 / primary · s_coast_ci_hi | Newborough_Methods_Supplement.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_bl | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_bl_ci_hi | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_bl_ci_lo | Newborough_Methods_Supplement.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
+|  | 2018_2025 / with_broadleaf_covariate · s_cf | report9.md |
+|  | 2018_2025 / with_broadleaf_covariate · s_cf_ci_hi | report9.md |
+|  | 2018_2025 / with_broadleaf_covariate · s_cf_ci_lo | report9.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_coast_ci_hi | VALUE_LEDGER_report.md, report9.md |
 | `38_report_numbers.csv` | transect_trend_ci_hi | Newborough_Methods_Supplement.md, PIPELINE_README.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md |
 |  | transect_trend_ci_lo | Newborough_Methods_Supplement.md, PIPELINE_README.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md |
@@ -1194,7 +1313,7 @@
 | `pipeline_scenario_params.csv` | C1 · broadleaf_b2_summer | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, Supplementary_Material.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report10.md, report9.md |
 |  | C1 · broadleaf_b2_winter | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | C1 · clearfell_b2_mult | Supplementary_Material.md, VALUE_LEDGER_report.md, report10.md, report9.md |
-|  | C1 · thinning_b2_mult | Supplementary_Material.md, VALUE_LEDGER_report.md |
+|  | C1 · thinning_b2_mult | Supplementary_Material.md, VALUE_LEDGER_report.md, report9.md |
 |  | C2 · broadleaf_b2_summer | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, Supplementary_Material.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report10.md, report9.md |
 |  | C2 · broadleaf_b2_winter | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, Supplementary_Material.md, VALUE_LEDGER.md, VALUE_LEDGER_report.md, report9.md |
 |  | C2 · clearfell_b2_mult | Supplementary_Material.md, VALUE_LEDGER_report.md, report10.md, report9.md |
@@ -1227,7 +1346,7 @@
 | β | `beta_transfer` | OLS slopes of the Script 11 Section 2/4 forecast transfer fu | `11_forecast_summer_transfer_functions.csv`, `11_forecast_winter_transfer_functions.csv` |
 | δ | `delta_cwb` | coefficient on CWB in the BACI ANCOVA, the centred cumulativ | `10a_03_baci_timeseries.csv`, `10h_04_baci_timeseries.csv`, `10k_01_four_zone_results.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` … |
 | δ | `delta_cwb_zone_interaction` | zone x CWB interaction coefficient in the two-zone scrape pa | `09f_01_reach_profile.csv`, `10b_spatial_step_data.csv`, `10f_01_ssm_residual_results.csv`, `10f_02_synthetic_control_results.csv`, `10g_03_clearfell_transect_steps.csv`, `10k_01_four_zone_results.csv` … |
-| ε | `epsilon_resid` | the residual (error) term of the BACI ANCOVA and of the two- | `16_water_bal_table.csv`, `20_residual_perwell.csv`, `24b_01_cluster_climatology.csv`, `26_ewi_msl5_comparison.csv`, `37_driver_validation_per_well.csv`, `39_01_hindcast_per_well.csv` … |
+| ε | `epsilon_resid` | the residual (error) term of the BACI ANCOVA and of the two- | `16_water_bal_table.csv`, `20_residual_perwell.csv`, `24b_01_cluster_climatology.csv`, `26_ewi_msl5_comparison.csv`, `26_table_s7_2_vw_datum_offsets.csv`, `37_driver_validation_per_well.csv` … |
 | η | `eta_interaction` | CWB x D_fell interaction coefficient in the BACI ANCOVA (rep | `10k_01_four_zone_results.csv` |
 | λ | `lambda_pflood` | rainfall multiplier in the P_flood calculation | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_03_pflood_per_well.csv`, `11b_05_table10_pflood_spreadsheet.csv` |
 | ξ | `xi_drift` | coefficient on Drift(t) in the BACI ANCOVA — the fraction of | `09b_01_individual_well_baci.csv`, `09b_02_centroid_summaries.csv`, `10a_01_ancova_comparison_table.csv`, `10a_02b_drift_design_equivalence.csv`, `10a_03_baci_timeseries.csv`, `10a_09_coastal_scale_factor.csv` … |

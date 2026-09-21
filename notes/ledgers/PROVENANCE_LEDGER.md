@@ -168,7 +168,7 @@
 | `25_13_rolling_window.png` | report9.odt | Figure 57 | Figure 1.53: Fixed-length rolling-window sensitivity of the cross-shore decay fi |
 | `25_report_numbers.csv` | Paper 1 | Figure 18 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | Paper 1 | Figure 20 | Episodic coastal-retreat reach |
-| `26_curreli_min_cluster_threshold_summary.csv` | report9.odt | Table 1.20 | Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with coun |
+| `26_curreli_min_cluster_threshold_summary.csv` | report9.odt | Table 1.20 | Cluster-mean four-year mean annual minimum water level at window-end 2025, with |
 | `26_ebf_band_summary.csv` | report9.odt | Table 1.22 | Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetne |
 | `26_ebf_prediction_scatter.png` | report9.odt | Figure 47 | Figure 1.43: Between-well prediction of mean Ellenberg-F moisture by three water |
 | `26_ebf_prediction_summary.csv` | report9.odt | Table 1.21 | Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the |
@@ -196,7 +196,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (375)
+## Outputs no exhibit renders (377)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -470,7 +470,6 @@
 - `26_index_precision_by_cluster.csv`
 - `26_metric_diagnostics.png`
 - `26_metric_diagnostics_per_well.csv`
-- `26_msl_5yr_cluster_threshold_summary.csv`
 - `26_msl_5yr_latest_per_well.csv`
 - `26_msl_5yr_per_cluster.csv`
 - `26_msl_5yr_per_cluster_centroid.csv`
@@ -480,6 +479,8 @@
 - `26_msl_annual_per_well.csv`
 - `26_report_numbers.csv`
 - `26_table_s7_1_ewi_per_well.csv`
+- `26_table_s7_2_vw_datum_offsets.csv`
+- `26_vw_reproduction_per_pair.csv`
 - `26b_monthly_delta_h_per_cluster.csv`
 - `26b_msl5_ukcp18_projection.png`
 - `26b_msl5_ukcp18_projection_summary.csv`
@@ -572,6 +573,7 @@
 - `47_02_quantile_map.csv`
 - `47_04_hindcast_still_2001-02.png`
 - `figure_placement.csv`
+- `number_index.csv`
 - `number_ledger.csv`
 - `pipeline_scenario_params.csv`
 - `pipeline_site_observations.csv`

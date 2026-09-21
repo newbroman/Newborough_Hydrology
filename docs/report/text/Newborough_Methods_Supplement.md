@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_12.odt — do not edit. source-sha256=a99901c19cffb950 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_13.odt — do not edit. source-sha256=0c423c7942bc4de9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.12 (September 2026).
+Document version: 2.0.13 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -3613,11 +3613,11 @@ The five-cluster table of fitted coefficients is reproduced below (full numerica
 
   --------------------- ------------------ -------------- ---------------- --------------- ------- ----
   Cluster               β(h_max, winter)   β(P_win→spr)   β(PET_win→spr)   Intercept (m)   R²      n
-  C1 Lake Edge          +0.131             +0.00120       −0.00149         −0.658          0.771   19
-  C2 Dune               +0.367             +0.00143       −0.00180         −0.733          0.867   20
-  C3 Western Residual   +0.633             +0.00103       −0.00115         −0.706          0.896   20
-  C4 Main Forest        +0.842             +0.00089       +0.00010         −0.875          0.959   19
-  C5 Coastal Forest     +0.754             +0.00042       −0.00047         −0.558          0.960   19
+  C1 Lake Edge          +0.476             +0.00085       +0.00023         −0.792          0.783   19
+  C2 Dune               +0.617             +0.00092       −0.00052         −0.617          0.903   20
+  C3 Western Residual   +0.781             +0.00068       −0.00011         −0.616          0.943   20
+  C4 Main Forest        +0.904             +0.00062       +0.00052         −0.695          0.977   19
+  C5 Coastal Forest     +0.798             +0.00042       −0.00014         −0.531          0.972   19
   --------------------- ------------------ -------------- ---------------- --------------- ------- ----
 
 Coefficients on h_max_winter, P_win_to_spr are positive everywhere and statistically significant (p \< 0.05) at all clusters except two: the winter-peak coefficient (h_max_winter) is small (+0.14) and non-significant at Lake Edge (p = 0.45), and the rainfall coefficient (P_win_to_spr) is non-significant at Coastal Forest (p = 0.06). PET_win_to_spr coefficients are negative at all clusters except Main Forest, where the value (+0.00001) is essentially zero and statistically non-significant (p = 0.995). Physical interpretation: rainfall over the October-to-May window raises the next spring's MSL; potential evapotranspiration lowers it; and the previous winter peak --- when statistically distinguishable from zero --- carries information about the antecedent groundwater state.

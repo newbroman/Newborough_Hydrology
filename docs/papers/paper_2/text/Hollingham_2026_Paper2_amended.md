@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v21.odt — do not edit. source-sha256=9f9ba6b19d94e942 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v22.odt — do not edit. source-sha256=63547094e229fc2b pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record
@@ -113,7 +113,7 @@ The CWB × clearfell interaction was non-significant in all six models, indicati
 
 **Figure 3.** Forest-control BACI time series and CUSUM for the Impact tier (WMC3) (measured). Upper panel: monthly BACI gap with climate-corrected series and era means. Lower panel: cumulative sum of the climate-corrected series demeaned on the pre-felling baseline; sustained positive accumulation after December 2017 confirms the clearfell step. Vertical lines: April 2015 scraping (dashed), December 2017 clearfell (solid), October 2023 re-scraping (dotted). Source: 10a_07_cusum_impact.
 
-The absorbed differential is not an independent estimate of the coastal gradient: the covariate is that gradient, so setting the two against each other is an internal consistency check rather than corroboration (Hollingham, 2026a). The coastal-retreat premise underlying the correction is independently corroborated by a model-free coast-to-inland transect, in which the coast-minus-inland head difference deepens at −28.2 mm yr⁻¹ (95% CI \[−34.2, −22.0\]), within error of the network-scale gradient anomaly of −29.2 mm yr⁻¹ recovered from an entirely independent construction (Hollingham, 2026a). The Edge comparison absorbs more drift than coastal retreat alone justifies, so any felling-attributable Edge signal is a lower bound rather than an inflated estimate.
+The absorbed differential is not an independent estimate of the coastal gradient: the covariate is that gradient, so setting the two against each other is an internal consistency check rather than corroboration (Hollingham, 2026a). The coastal-retreat premise underlying the correction is independently corroborated by a model-free coast-to-inland transect, in which the coast-minus-inland head difference deepens at −27.8 mm yr⁻¹ (95% CI \[−36.1, −19.3\]), within error of the network-scale gradient anomaly of −29.2 mm yr⁻¹ recovered from an entirely independent construction (Hollingham, 2026a). The Edge comparison absorbs more drift than coastal retreat alone justifies, so any felling-attributable Edge signal is a lower bound rather than an inflated estimate.
 
 ### []{#anchor-1}4.2.2 Summer minima
 

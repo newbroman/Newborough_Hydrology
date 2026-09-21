@@ -1,0 +1,100 @@
+| Quadrat | Piezometer | Cluster | n | Datum offset (mm) | Residual MAD (mm) |
+|---|---|---|---|---|---|
+| CEH1-1 | CEH1 | C3 (Western Residual) | 9 | -104 | 0.0 |
+| CEH1-2 | CEH1 | C3 (Western Residual) | 9 | 240 | 0.0 |
+| CEH1-3 | CEH1 | C3 (Western Residual) | 9 | 75 | 0.0 |
+| CEH1-4 | CEH1 | C3 (Western Residual) | 9 | 93 | 0.0 |
+| CEH1-5 | CEH1 | C3 (Western Residual) | 9 | -134 | 0.0 |
+| CEH1-6 | CEH1 | C3 (Western Residual) | 9 | -191 | 0.0 |
+| CEH22-1 | CEH22 | Extended | 6 | -47 | 0.0 |
+| CEH22-2 | CEH22 | Extended | 6 | 202 | 0.0 |
+| CEH22-3 | CEH22 | Extended | 6 | 69 | 0.0 |
+| CEH22-4 | CEH22 | Extended | 6 | 372 | 0.0 |
+| CEH22-5 | CEH22 | Extended | 6 | 124 | 0.0 |
+| CEH22-6 | CEH22 | Extended | 6 | 74 | 0.0 |
+| CEH22-7 | CEH22 | Extended | 6 | -87 | 0.0 |
+| CEH23-1 | CEH23 | C1 (Lake Edge) | 2 | -67 | 0.0 |
+| CEH23-2 | CEH23 | C1 (Lake Edge) | 2 | -15 | 0.0 |
+| CEH23-3 | CEH23 | C1 (Lake Edge) | 2 | 52 | 0.0 |
+| CEH23-4 | CEH23 | C1 (Lake Edge) | 2 | -22 | 0.0 |
+| CEH23-5 | CEH23 | C1 (Lake Edge) | 2 | 51 | 0.0 |
+| CEH24-1 | CEH24 | C2 (Dune) | 5 | -34 | 0.0 |
+| CEH24-2 | CEH24 | C2 (Dune) | 5 | -100 | 0.0 |
+| CEH24-4 | CEH24 | C2 (Dune) | 5 | -207 | 0.0 |
+| CEH24-5 | CEH24 | C2 (Dune) | 5 | -146 | 0.0 |
+| CEH26-1 | CEH26 | C1 (Lake Edge) | 5 | -32 | 0.0 |
+| CEH26-2 | CEH26 | C1 (Lake Edge) | 5 | -42 | 0.0 |
+| CEH26-3 | CEH26 | C1 (Lake Edge) | 5 | 16 | 0.0 |
+| CEH26-4 | CEH26 | C1 (Lake Edge) | 5 | 66 | 0.0 |
+| CEH26-5 | CEH26 | C1 (Lake Edge) | 5 | -71 | 0.0 |
+| CEH4-1 | CEH4 | C3 (Western Residual) | 9 | -73 | 0.0 |
+| CEH4-2 | CEH4 | C3 (Western Residual) | 9 | 59 | 0.0 |
+| CEH4-3 | CEH4 | C3 (Western Residual) | 9 | 81 | 0.0 |
+| CEH5-1 | CEH5 | C1 (Lake Edge) | 9 | -43 | 3.2 |
+| CEH5-2 | CEH5 | C1 (Lake Edge) | 9 | -30 | 3.2 |
+| CEH5-3 | CEH5 | C1 (Lake Edge) | 9 | -40 | 3.2 |
+| CEH5-4 | CEH5 | C1 (Lake Edge) | 9 | -95 | 3.2 |
+| CEH5-5 | CEH5 | C1 (Lake Edge) | 9 | -39 | 3.2 |
+| CEH6-1 | CEH6 | C1 (Lake Edge) | 9 | 64 | 0.0 |
+| CEH6-2 | CEH6 | C1 (Lake Edge) | 9 | 157 | 0.0 |
+| CEH6-3 | CEH6 | C1 (Lake Edge) | 9 | 77 | 0.0 |
+| CEH8-1 | CEH8 | Extended | 9 | 154 | 2.6 |
+| CEH8-2 | CEH8 | Extended | 9 | -27 | 2.6 |
+| CEH8-3 | CEH8 | Extended | 9 | 375 | 2.6 |
+| CEH9-1 | CEH9 | C3 (Western Residual) | 4 | -80 | 0.0 |
+| CEH9-10 | CEH9 | C3 (Western Residual) | 4 | -88 | 0.0 |
+| CEH9-2 | CEH9 | C3 (Western Residual) | 4 | -217 | 0.0 |
+| CEH9-3 | CEH9 | C3 (Western Residual) | 4 | -384 | 0.0 |
+| CEH9-4 | CEH9 | C3 (Western Residual) | 4 | -403 | 0.0 |
+| CEH9-5 | CEH9 | C3 (Western Residual) | 4 | -402 | 0.0 |
+| CEH9-6 | CEH9 | C3 (Western Residual) | 4 | 5 | 0.0 |
+| CEH9-7 | CEH9 | C3 (Western Residual) | 4 | 94 | 0.0 |
+| CEH9-8 | CEH9 | C3 (Western Residual) | 4 | -130 | 0.0 |
+| CEH9-9 | CEH9 | C3 (Western Residual) | 4 | -106 | 0.0 |
+| NW2-1 | NW2 | C3 (Western Residual) | 9 | 169 | 0.0 |
+| NW2-2 | NW2 | C3 (Western Residual) | 9 | 383 | 0.0 |
+| NW2-3 | NW2 | C3 (Western Residual) | 9 | 288 | 0.0 |
+| NW2-4 | NW2 | C3 (Western Residual) | 9 | 44 | 0.0 |
+| NW2-5 | NW2 | C3 (Western Residual) | 9 | -78 | 0.0 |
+| NW3-1 | NW3 | C2 (Dune) | 4 | 70 | 0.0 |
+| NW3-2 | NW3 | C2 (Dune) | 4 | -19 | 0.0 |
+| NW3-3 | NW3 | C2 (Dune) | 4 | 33 | 0.0 |
+| NW3-4 | NW3 | C2 (Dune) | 4 | 34 | 0.0 |
+| NW4-1 | NW4 | C2 (Dune) | 9 | 20 | 0.0 |
+| NW4-10 | NW4 | C2 (Dune) | 9 | 203 | 0.0 |
+| NW4-2 | NW4 | C2 (Dune) | 9 | -23 | 0.0 |
+| NW4-3 | NW4 | C2 (Dune) | 9 | -88 | 0.0 |
+| NW4-4 | NW4 | C2 (Dune) | 9 | -32 | 0.0 |
+| NW4-5 | NW4 | C2 (Dune) | 9 | -50 | 0.0 |
+| NW4-6 | NW4 | C2 (Dune) | 9 | 43 | 0.0 |
+| NW4-7 | NW4 | C2 (Dune) | 9 | 84 | 0.0 |
+| NW4-8 | NW4 | C2 (Dune) | 9 | 147 | 0.0 |
+| NW4-9 | NW4 | C2 (Dune) | 9 | 234 | 0.0 |
+| NW5-1 | NW5 | C3 (Western Residual) | 9 | 7 | 0.0 |
+| NW5-2 | NW5 | C3 (Western Residual) | 9 | -31 | 0.0 |
+| NW5-3 | NW5 | C3 (Western Residual) | 9 | -54 | 0.0 |
+| NW5-4 | NW5 | C3 (Western Residual) | 9 | 29 | 0.0 |
+| NW5-5 | NW5 | C3 (Western Residual) | 9 | 65 | 0.0 |
+| NW6-1 | NW6 | C3 (Western Residual) | 4 | 87 | 0.0 |
+| NW6-2 | NW6 | C3 (Western Residual) | 4 | 207 | 0.0 |
+| NW6-3 | NW6 | C3 (Western Residual) | 4 | 5 | 0.0 |
+| NW6-4 | NW6 | C3 (Western Residual) | 4 | 68 | 0.0 |
+| NW6-5 | NW6 | C3 (Western Residual) | 4 | -42 | 0.0 |
+| NW7-1 | NW7 | C3 (Western Residual) | 4 | 143 | 0.0 |
+| NW7-2 | NW7 | C3 (Western Residual) | 4 | -11 | 0.0 |
+| NW7-3 | NW7 | C3 (Western Residual) | 4 | -19 | 0.0 |
+| NW7-4 | NW7 | C3 (Western Residual) | 4 | -19 | 0.0 |
+| NW7-5 | NW7 | C3 (Western Residual) | 4 | -15 | 0.0 |
+| T41A-4 | T41A | C2 (Dune) | 5 | 88 | 0.0 |
+| T41B-2 | T41B | C2 (Dune) | 5 | 74 | 4.8 |
+| T41B-5 | T41B | C2 (Dune) | 5 | 5 | 4.8 |
+| T41B-7 | T41B | C2 (Dune) | 5 | 191 | 4.8 |
+| T41B-8 | T41B | C2 (Dune) | 5 | 413 | 4.8 |
+| T41C-3 | T41C | C2 (Dune) | 5 | 48 | 0.0 |
+| T41D-1 | T41D | C2 (Dune) | 5 | 24 | 0.0 |
+| T41D-6 | T41D | C2 (Dune) | 5 | -173 | 0.0 |
+| WMC2-1 | WMC2 | C3 (Western Residual) | 7 | 30 | 3.8 |
+| WMC2-2 | WMC2 | C3 (Western Residual) | 7 | 10 | 3.8 |
+| WMC2-3 | WMC2 | C3 (Western Residual) | 7 | 4 | 3.8 |
+
+*Table S7.2: Fixed datum offset between each van Willegen et al. (2025) vegetation quadrat's ground surface and its dipwell's, from the pipeline's five-year mean spring level (MSL5) against their published per-quadrat series at the same piezometer, paired on window-end year (n = window-ends). Their series are this network's readings re-referenced to quadrat ground, so the offset is the quadrat's height above (negative: below) the dipwell's ground datum; offset = mean of pipeline minus published. Residual MAD is after the offset. 96 quadrats at 21 piezometers, 614 pairs; offsets -403 to +413 mm, up to 497 mm of relief between one dipwell's quadrats; residual MAD 0.6 mm. A level quoted in this report cannot be compared with one referenced to quadrat ground without applying that quadrat's offset.*

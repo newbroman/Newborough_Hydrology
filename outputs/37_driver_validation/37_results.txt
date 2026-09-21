@@ -9,52 +9,52 @@ LIVE PARAMETERS
 SCALE-FACTOR TABLE (HC3 robust SEs, 95% CI)
 ----------------------------------------------------------------------
   window=2006_2012    variant=primary                n=40
-    s_coast =   1.247  95%CI [-1.274, 3.767]
-    c       =  -592.9 mm  95%CI [-635.8, -550.1]
-    R²      = 0.038
+    s_coast =   3.060  95%CI [0.267, 5.853]
+    c       =  -520.1 mm  95%CI [-588.8, -451.4]
+    R²      = 0.096
 
   window=2018_2025    variant=primary                n=40
-    s_coast =   0.209  95%CI [-1.502, 1.920]
-    s_cf    =   1.651  95%CI [-1.943, 5.245]
-    c       =   108.4 mm  95%CI [69.5, 147.2]
-    R²      = 0.113
+    s_coast =   1.122  95%CI [-0.107, 2.351]
+    s_cf    =   2.207  95%CI [0.673, 3.740]
+    c       =   268.6 mm  95%CI [222.2, 315.1]
+    R²      = 0.111
 
   window=2005_2025    variant=primary                n=20
-    s_coast =   0.507  95%CI [-0.102, 1.117]
-    s_cf    =  -0.420  95%CI [-4.864, 4.024]
-    c       =    92.8 mm  95%CI [22.2, 163.3]
-    R²      = 0.303
+    s_coast =   0.484  95%CI [-0.035, 1.003]
+    s_cf    =  -0.469  95%CI [-3.248, 2.310]
+    c       =    -5.3 mm  95%CI [-68.1, 57.4]
+    R²      = 0.349
 
   window=2018_2025    variant=with_broadleaf_covariate n=40
-    s_coast =  -0.449  95%CI [-2.026, 1.128]
-    s_cf    =   1.153  95%CI [-1.571, 3.878]
-    s_bl    =  -4.164  95%CI [-6.432, -1.897]  (robustness only — NOT headline)
-    c       =    77.0 mm  95%CI [42.5, 111.6]
-    R²      = 0.365
+    s_coast =   0.574  95%CI [-0.603, 1.750]
+    s_cf    =   1.792  95%CI [0.832, 2.751]
+    s_bl    =  -3.471  95%CI [-6.170, -0.773]  (robustness only — NOT headline)
+    c       =   242.5 mm  95%CI [192.2, 292.9]
+    R²      = 0.245
 
 NEGATIVE CONTROL — C2 (Dune) (included in fit, ADDENDUM 1 2026-07-06)
 ----------------------------------------------------------------------
-  2006_2012    n=24  mean coast_i=+0.0  mean clearfell_i=n/a (no clearfell regressor this window)  mean dh_corr=-567.4  mean residual=-25.5
-  2018_2025    n=24  mean coast_i=+0.0  mean clearfell_i=+0.9  mean dh_corr=+61.7  mean residual=+48.1
-  2005_2025    n=6  mean coast_i=+0.0  mean clearfell_i=+0.9  mean dh_corr=+91.4  mean residual=+1.0
+  2006_2012    n=24  mean coast_i=+0.0  mean clearfell_i=n/a (no clearfell regressor this window)  mean dh_corr=-473.3  mean residual=-46.8
+  2018_2025    n=24  mean coast_i=+0.0  mean clearfell_i=+0.9  mean dh_corr=+233.1  mean residual=+37.5
+  2005_2025    n=6  mean coast_i=+0.0  mean clearfell_i=+0.9  mean dh_corr=-5.1  mean residual=-0.6
   C2 (Dune) wells feel no coastal or clearfell field (all covered wells carry a modelled amplitude below 5 mm) — a near-zero mean residual here is CONSISTENT WITH an unbiased climate correction on driver-free wells (not 'confirms'; see ADDENDUM 1 for the n=6 caveat).
 
 EXCLUDED FROM FIT — sluice (C1, Lake Edge; ADDENDUM 1)
 ----------------------------------------------------------------------
   reason: management-controlled lake level (sluice)
-  2006_2012    n=7  mean coast_i=-3.1  mean clearfell_i=n/a (no clearfell regressor this window)  mean dh_corr=-305.4  mean residual=-291.4
-  2018_2025    n=7  mean coast_i=-3.1  mean clearfell_i=+0.5  mean dh_corr=+39.2  mean residual=+69.4
-  2005_2025    n=3  mean coast_i=-20.4  mean clearfell_i=+0.1  mean dh_corr=+71.8  mean residual=+10.6
+  2006_2012    n=7  mean coast_i=-2.4  mean clearfell_i=n/a (no clearfell regressor this window)  mean dh_corr=-236.8  mean residual=-290.8
+  2018_2025    n=7  mean coast_i=-3.1  mean clearfell_i=+0.5  mean dh_corr=+139.6  mean residual=+126.7
+  2005_2025    n=3  mean coast_i=-20.4  mean clearfell_i=+0.1  mean dh_corr=+20.9  mean residual=-36.2
   C1's level is management-set (sluice on Llyn Rhos-Ddu), not a read on natural hydrology — shown here for transparency (e.g. 2006–2012: held near a −269 mm mean against a uniform background well below it), not because C1 is anomalous. Excluding it from the fit moves every coefficient by ≲0.15 of its SE (see ADDENDUM 1).
 
 INDEPENDENT TEST — implied δ₀(t) expanding-window trajectory
 ----------------------------------------------------------------------
-  2005–2010  n=18  implied δ₀ = +11.3 mm/yr  95%CI [-106.3, +129.0]
-  2005–2013  n=40  implied δ₀ = +153.7 mm/yr  95%CI [+87.8, +219.7]
-  2005–2016  n=40  implied δ₀ = +40.1 mm/yr  95%CI [+15.5, +64.8]
-  2005–2019  n=40  implied δ₀ = +62.5 mm/yr  95%CI [+36.4, +88.7] †
-  2005–2022  n=40  implied δ₀ = +45.6 mm/yr  95%CI [+24.6, +66.6] †
-  2005–2025  n=20  implied δ₀ = +17.5 mm/yr  95%CI [+4.7, +30.3] †
+  2005–2010  n=18  implied δ₀ = -41.8 mm/yr  95%CI [-212.9, +129.4]
+  2005–2013  n=40  implied δ₀ = +84.0 mm/yr  95%CI [+16.6, +151.4]
+  2005–2016  n=40  implied δ₀ = +14.7 mm/yr  95%CI [-15.7, +45.0]
+  2005–2019  n=40  implied δ₀ = +19.8 mm/yr  95%CI [-3.6, +43.2] †
+  2005–2022  n=40  implied δ₀ = +44.3 mm/yr  95%CI [+26.2, +62.4] †
+  2005–2025  n=20  implied δ₀ = +17.0 mm/yr  95%CI [+5.7, +28.2] †
   Assumed δ₀ = 31.4 mm/yr. A flat trajectory near this value supports the chronic-linear coastal-drying assumption; a rising or falling trajectory would not.
   † Per spec this test is COAST-ONLY (no clearfell regressor). Windows whose end year is >= 2019 span the Dec-2017 clearfell without a term to absorb its wetting signal, so their implied δ₀ may be inflated upward by un-modelled clearfell recovery, not genuine coastal-drying acceleration. Only 2005–2010/2013/2016 (fully pre-clearfell) are clean coast-only reads; treat 2005–2019/2022/2025 as upper bounds on the coastal signal alone.
 

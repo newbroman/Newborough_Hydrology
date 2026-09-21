@@ -1,6 +1,6 @@
 Parameter,Well,Era,Value,Unit,Note
-study_area_ha,,,306.97,ha,"phase-29 slack-floor mask, forest excluded: 30697 cells of 10 m; the area the wet-area curves are scaled to"
-study_area_cells,,,30697.0,cells,floor cells in cell_thresholds.npz
+floor_mask_area_ha,,,306.97,ha,"phase-29 slack-floor mask, forest excluded: 30697 cells of 10 m; the area the wet-area curves are scaled to (the report's 'study area' for the Sentinel analysis; distinct from Script 12's study_area_ha)"
+floor_mask_cells,,,30697.0,cells,floor cells in cell_thresholds.npz
 wet_floor_ever_cells,,,11703.0,cells,floor cells with a switching level for wet_floor (seen in >= 10 scenes)
 wet_floor_ever_ha,,,117.03,ha,wet_floor_ever_cells as hectares
 open_water_ever_cells,,,4483.0,cells,floor cells with a switching level for open_water (seen in >= 10 scenes)

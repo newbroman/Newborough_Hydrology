@@ -1,0 +1,6 @@
+name,reason,allow_docs,allow_context
+_report_numbers.csv,"Prose describing the shared per-script naming convention (*_report_numbers.csv), not a literal filename; the leading glob is stripped by the token regex.",,
+17_wtf_well_sy.csv,"Retired 2026-08-19 (D-038); the name survives only in the retirement notes that say so (MS output table, SM Note). Any other mention is stale.",Newborough_Methods_Supplement;Supplementary_Material,retired
+Well_locations_height.csv,"Consolidated into well_metadata.csv. Paper 1 SI is numbers-only until the report is finalized (T-49) — pending that pass.",PAPER1_SI_methods,
+05_affinity_per_well.csv,"Script 05 writes two PNGs and no CSV; the Paper 1 SI names a per-well affinity table that does not exist. Pending the T-49 papers pass — ruling: emit it or drop the sentence.",PAPER1_SI_methods,
+00_well_network_table.csv,"The file is 00_02_well_network_summary.csv (OUT_00_WELL_NETWORK_TABLE). Web Tools Technical Note ODT not edited in this batch — pending.",NRG_Web_Tools_Technical_Note,

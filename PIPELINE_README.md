@@ -51,7 +51,7 @@ python run_analysis.py --from 9
 - Script 18 (WTF spatial) must run before Script 19 (spatial groundwater — uses well-level Sy).
 - Script 11b requires outputs from Scripts 11 (P_flood equations) and 06 (extended Pearson audit).
 - Script 21 requires `03_regional_averages_maod.csv` from Script 03, plus Scripts 10a (BACI step) and 10e (β₂ multiplier). The summer-minimum companion (`21_forestry_06`) additionally reads `03_regional_averages.csv` (cluster-centroid hydrographs, for the amplification factors) and the Script 17 WTF Sy table (`17_wtf_01_sy_estimates.csv`).
-- Script 14 requires `00_well_network_summary.csv` from Script 00 and `02_cluster_stats.csv` from Script 02.
+- Script 14 requires `00_02_well_network_summary.csv` from Script 00 and `02_cluster_stats.csv` from Script 02.
 - Sub-script 10i (CEH34 hindcast) is a prerequisite for 10a / 10b / 10e / 10h and must run first within the Script 10 suite; 10d, 10f, 10j, 10k, and 10l do not consume the hindcast.
 - Sub-script 10j (direct Impact-vs-Edge contrast) reads `10d_01_summer_minima.csv` from Script 10d and must run after 10d within the Script 10 suite.
 - Sub-scripts 10k / 10l (four-zone pooled-panel BACI) run last within the Script 10 suite; 10l reads `10d_01_summer_minima.csv` from Script 10d and must run after 10d.
@@ -210,7 +210,7 @@ src/
 | File | Description | Used by |
 |---|---|---|
 | `Newborough_Cleaned_For_Model.csv` | Raw dipwell records | 01 |
-| `Well_locations_height.csv` | Well coordinates and pipe-top elevations | 01 |
+| `well_metadata.csv` | Well coordinates, ground (DEM and DGPS) and pipe-top elevations, upstands, distance to coast | 01 |
 | `RAF_Valley_Climate.csv` | Monthly P, max/min T, sun hours | 01 |
 | `newborough_dem.tif` | LiDAR DEM | 04, 05, 06, 07, 08, 12, 13, 19, 20 (via `map_utils.load_dem_hillshade`) |
 | `Features.kml` | Site features (slack boundaries, broadleaf restock, etc.) | 04, 06, 07, 08, 12, 13 (via `map_utils.add_kml_features`) |
@@ -233,7 +233,7 @@ src/
 **Reads.**
 
 - `RAF_Valley_Climate.csv` (raw data)
-- `Well_locations_height.csv` (raw data)
+- `well_metadata.csv` (raw data)
 - `Newborough_Cleaned_For_Model.csv` (raw data)
 
 **Writes.**
@@ -516,7 +516,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 **Reads.**
 
 - `data` (raw data)
-- `Well_locations_height.csv` (raw data)
+- `well_metadata.csv` (raw data)
 - `03_master_data.csv` (Script 03 (step 3))
 - `01_wells_clean.csv` (Script 01 (step 1))
 - `01_wells_extended.csv` (Script 01 (step 1))
@@ -909,7 +909,7 @@ Two guards are worth knowing about. **Only covered decades are ranked** — the 
 **Reads.**
 
 - `data` (raw data)
-- `Well_locations_height.csv` (raw data)
+- `well_metadata.csv` (raw data)
 
 **Other.**
 

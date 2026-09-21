@@ -38,7 +38,7 @@ Caveats
   before scraping, and the donors are nearby Forest Control wells under the
   same canopy conditions.
 - FE well locations are not in the reference-network master data.  Locations
-  are taken from Well_info.csv for scraping distance calculations.
+  are taken from 01_locations.csv (Script 01) for scraping distance calculations.
 
 Outputs
 -------
@@ -61,7 +61,12 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-21. FE1/FE2 coordinates are READ
+#   from 01_locations.csv (Script 01, from data/well_metadata.csv) instead of being
+#   typed here "from Well_info.csv" — a file that does not exist in the tree. The
+#   values are identical (E35; Martin: "10h should have no hard codes of the FE
+#   wells"). No output moves.
+# v1.6.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
 #   removed. It hid every DeprecationWarning and RuntimeWarning this script
 #   raised, which is the class of signal that would have flagged the fiona
@@ -98,7 +103,7 @@ from utils.clearfell_common import (
     compute_baci_displacement, compute_cwb, build_scraping_covariate_centroid,
     ReportNumbers, print_network_summary,
 )
-from utils.paths import make_all_dirs, DIR_10
+from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS
 from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
@@ -153,17 +158,22 @@ def main():
     # ============================================================================
     # FE WELL CONFIGURATION
     # ============================================================================
-    # FE well locations from Well_info.csv (not in reference-network master data)
-    FE_LOCATIONS = {
-        'fe1': {'easting': 241338.0, 'northing': 363744.0},
-        'fe2': {'easting': 241135.0, 'northing': 363595.0},
-    }
-
     # Donor wells: Forest Control wells unaffected by clearfell
     DONOR_WELLS = ['ceh34', 'ceh2', 'ceh33']
 
     # Wells to extend synthetically
     FE_SYNTH_WELLS = ['fe1', 'fe2']
+
+    # FE well locations from Script 01's location table (01_locations.csv, built
+    # from data/well_metadata.csv) — no coordinates are typed here (E35).
+    _loc = pd.read_csv(INT_LOCATIONS)
+    _loc["Name"] = _loc["Name"].astype(str).str.strip().str.lower()
+    _loc = _loc.set_index("Name")
+    _missing = [w for w in FE_SYNTH_WELLS if w not in _loc.index]
+    if _missing:
+        raise KeyError(f"{INT_LOCATIONS.name} has no row for {_missing}; the FE wells must be located there")
+    FE_LOCATIONS = {w: {'easting': float(_loc.at[w, 'E']), 'northing': float(_loc.at[w, 'N'])}
+                    for w in FE_SYNTH_WELLS}
 
 
     # ============================================================================

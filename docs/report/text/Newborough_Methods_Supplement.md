@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_11.odt — do not edit. source-sha256=978789557592718a pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_12.odt — do not edit. source-sha256=a99901c19cffb950 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.11 (September 2026).
+Document version: 2.0.12 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -3521,7 +3521,7 @@ No UKCP18 forward projection of MSL5 is produced by this chapter. The predictive
   outputs/26_van_willegen_msl/26_msl_5yr_per_cluster_centroid.csv         **Method B** cluster-centroid trajectory from *03_regional_averages.csv*. SSM-consistent companion to Tools A and B.
   outputs/26_van_willegen_msl/26_msl_5yr_latest_per_well.csv              Most-recent valid MSL5 per well --- input to the spatial map
   outputs/26_van_willegen_msl/26_equilibrium_wetness_index_per_well.csv   Per-well EWI (pipe and bg frames, β coefficients, cluster, *network* tier) (v1.3.2)
-  outputs/26_van_willegen_msl/26_ewi_msl5_comparison.csv                  Per-well observed vs EWI-predicted MSL5, residual, 95 % bootstrap prediction interval, *open_dune_scope* and *in_van_willegen* flags --- the weighable prediction table (v1.3.2)
+  outputs/26_van_willegen_msl/26_ewi_msl5_comparison.csv                  Per-well observed vs EWI-predicted MSL5, residual, *open_dune_scope* and *in_van_willegen* flags --- the weighable prediction table (v1.3.2)
   outputs/26_van_willegen_msl/26_report_numbers.csv                       OLS calibration fit: slope, intercept, n, r, R², RMSE (the ewi_msl5\_\* keys)
   outputs/26_van_willegen_msl/26_ebf_comparison.csv                       Per-piezometer Ellenberg-F with MSL5 and EWI predictions and residuals --- vegetation cross-validation; produced when *data/Ecohydrology_dataset.xlsx* is present (v1.3.3)
   outputs/26_van_willegen_msl/26_ebf_prediction_scatter.png               Three-panel between-well Ellenberg-F scatter (MSL5 / annual EWI / spring EWI); produced when dataset present (v1.3.3)
@@ -3560,18 +3560,18 @@ From v1.3.2 the script computes an equilibrium wetness index (EWI): the steady-s
 
 **Consistency with the withdrawn equilibrium form.** §F.5 records that an equilibrium Δh/β₃ formulation was withdrawn from the Script 21 scenario engine for producing physically implausible magnitudes. The EWI is an equilibrium form, and its raw magnitudes are indeed systematically too deep --- a mean bias of about −0.37 m against observed MSL5. This is acknowledged rather than contradicted: the raw equilibrium level is never reported. The index is used only after calibration onto the MSL5 scale by ordinary least squares, MSL5 = a + b · EWI, which absorbs the magnitude bias; the equilibrium form is retained only as the *shape* that orders wells by intrinsic wetness. The calibration is scoped to the open-dune network (clusters C1--C3), consistent with MSL5's own open-dune character and with the forest coefficients being least constrained (§S.19); C4/C5 forest wells are predicted but flagged *open_dune_scope = False*. Verified fit: MSL5 = 0.195 + 0.924 · EWI (n = 62, r = 0.94, RMSE = 107 mm). The relationship is assessed at three levels: 100 mm RMSE on the 46 open-dune wells outside the van Willegen quadrat set; 160 mm RMSE on the calibration wells; 227 mm RMSE on the out-of-scope forest set (n = 20, *open_dune_scope = False*).
 
-**EWI prediction uncertainty.** The *26_ewi_msl5_comparison.csv* output carries a per-well 95 % prediction interval, estimated by a bootstrap residual re-sampling procedure (n = 500 resamples from the calibration-well residuals, applied per well, seeded for reproducibility). The typical open-dune interval width is ≈ ±220 mm; interval width is not constant --- it narrows where the calibration regression is densely supported and widens in sparse regions of EWI space. The forest-well intervals are wider still (≈ ±370 mm) because the *open_dune_scope = False* flag propagates the full extrapolation uncertainty. These intervals are carried in the output CSV for downstream consumers (report table, web forecaster) and should be reported wherever a single EWI value is cited. The calibration fit itself is carried as its slope, intercept, n, r, R² and RMSE (the ewi_msl5\_\* keys of *26_report_numbers.csv*, written at the same pass).
+**EWI calibration precision.** The calibration fit is carried as its slope, intercept, n, r, R² and RMSE (the ewi_msl5\_\* keys of *26_report_numbers.csv*, written at the same pass); the RMSE is the precision to quote wherever a single EWI-predicted MSL5 is cited, and it applies to the open-dune scope the calibration was fitted on --- for wells outside it (*open_dune_scope = False*) the prediction is an extrapolation and carries no stated precision. No per-well prediction interval is computed.
 
 **Vegetation cross-validation.** To test both metrics against the ecological target directly, co-located Ellenberg-F moisture indicator values (wetness scale 1--12; Hill et al., 1999) from the van Willegen open dataset (van Willegen et al., 2024) are aggregated to a mean per piezometer. Observed MSL5 and the EWI are each regressed on mean Ellenberg-F between wells; the difference between the two dependent correlations is tested by Williams' test (Williams, 1959). The two are statistically indistinguishable --- MSL5 r = +0.83 \[0.59, 0.93\], RMSE 0.337 Ellenberg-F units; EWI r = +0.79 \[0.51, 0.92\], RMSE 0.371; Williams p = 0.45 (n = 18) --- with the two broadly comparable band by band, the equilibrium index placing marginally more wells in both the closest and the poorest bands. From v1.3.3 this cross-validation is generated by the pipeline (Script 26 Pass 7) from the documented external dataset (*paths.DATA_ELLENBERG_EXT*, *data/Ecohydrology_dataset.xlsx*, gitignored and not redistributed); it runs when the dataset is present and is skipped otherwise, writing *26_ebf_comparison.csv* and the three-panel scatter *26_ebf_prediction_scatter.png*. No spatial EWI surface is produced: a standalone map overstated the (modest) local coverage advantage, so the weighable per-well comparison table replaces it.
 
 Outputs.
 
-  ------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------
-  Output file                                 Contents                                                                                                                               paths constant
-  26_equilibrium_wetness_index_per_well.csv   Per-well EWI (pipe and bg frames, β coefficients, cluster, network tier)                                                               paths.OUT_26_EWI_PER_WELL
-  26_ewi_msl5_comparison.csv                  Per-well observed vs EWI-predicted MSL5, residual, 95 % bootstrap prediction interval, *open_dune_scope* and *in_van_willegen* flags   paths.OUT_26_EWI_MSL5_COMPARISON
-  26_report_numbers.csv                       OLS calibration fit: slope, intercept, n, r, R², RMSE (the ewi_msl5\_\* keys)                                                          paths.OUT_26_REPORT_NUMBERS
-  ------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------
+  ------------------------------------------- -------------------------------------------------------------------------------------------------- ----------------------------------
+  Output file                                 Contents                                                                                           paths constant
+  26_equilibrium_wetness_index_per_well.csv   Per-well EWI (pipe and bg frames, β coefficients, cluster, network tier)                           paths.OUT_26_EWI_PER_WELL
+  26_ewi_msl5_comparison.csv                  Per-well observed vs EWI-predicted MSL5, residual, *open_dune_scope* and *in_van_willegen* flags   paths.OUT_26_EWI_MSL5_COMPARISON
+  26_report_numbers.csv                       OLS calibration fit: slope, intercept, n, r, R², RMSE (the ewi_msl5\_\* keys)                      paths.OUT_26_REPORT_NUMBERS
+  ------------------------------------------- -------------------------------------------------------------------------------------------------- ----------------------------------
 
 References added (Script 26 v1.3.2).
 
@@ -3735,7 +3735,7 @@ The EWI is documented in full in chapter S.18 (§*Equilibrium wetness index and 
 
 The EWI answers a different question from Tools A and B. Tool A is a forward-predictor --- given this winter's climate, what will next spring's MSL5 be? Tool B is a climate-scenario overlay --- how does the MSL5 trajectory shift under UKCP18? Tool C (EWI) is a structural diagnostic --- given a well's SSM coefficients and the long-term mean climate, what is its intrinsic wetness equilibrium? It requires no MSL5 observations, only an SSM fit (order 30 months minimum). This makes it available at wells that lack five complete consecutive springs and therefore cannot carry an observed MSL5 value.
 
-Tool C is complementary, not a replacement: where both MSL5 and EWI are available, the two should be read together --- EWI narrows the structural band; MSL5 tracks the recent observed departure from it. The 95 % prediction intervals in *26_ewi_msl5_comparison.csv* (§S.18) carry this relationship explicitly: the interval is the calibration-transfer uncertainty, not a process uncertainty, and it is wider for forest-zone wells where the calibration does not apply directly.
+Tool C is complementary, not a replacement: where both MSL5 and EWI are available, the two should be read together --- EWI narrows the structural band; MSL5 tracks the recent observed departure from it. The calibration RMSE of §S.18 is the transfer uncertainty of that relationship, not a process uncertainty, and it does not apply to forest-zone wells, where the calibration is an extrapolation.
 
 Cross-reference: §S.18 (full EWI methodology, calibration statistics, vegetation cross-validation); §4.8.4 of the main report (EWI results and comparison table); §5.7.6 (monitoring complement framing).
 

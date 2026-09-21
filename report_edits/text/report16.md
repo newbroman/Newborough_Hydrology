@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report16.odt — do not edit. source-sha256=b67e4a622486c290 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report16.odt — do not edit. source-sha256=69139c8236c6aea3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Notation
@@ -7,7 +7,7 @@ This chapter lists the mathematical symbols, abbreviations and statistics used i
 
 ## []{#anchor}Mathematical symbols
 
-  --------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------- -------------------------------------------------------------------
+  --------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------- --------------------------------------------------------------------------------
   Δh              Change in water-table level during month *t*; the SSM response variable                                                                                                               m/month                    Report §3.4; `build_ssm_frame()`
   h               Water-table level, negative-below-ground convention                                                                                                                                   m                          Report §3.4; `build_ssm_frame()` col `h`
   h_prev          Level at the end of the preceding month, `h.shift(1)`                                                                                                                                 m                          `build_ssm_frame()` col `h_prev`
@@ -20,7 +20,7 @@ This chapter lists the mathematical symbols, abbreviations and statistics used i
   β₂              Atmospheric-draw coefficient (`beta_2_atmospheric_draw`)                                                                                                                              dimensionless              Report §3.4; `03_master_data.csv`
   β₃              Drainage coefficient (`beta_3_drainage`)                                                                                                                                              per month                  Report §3.4; `03_master_data.csv`
   Δβ₁, Δβ₂, Δβ₃   Era-to-era change in the coefficient, before vs after an intervention                                                                                                                 as the coefficient         Report §3.5.4; Script 10e
-  Sy              Specific yield (drainable porosity)                                                                                                                                                   dimensionless              Report §3.7.3; `17_wtf_01_sy_estimates.csv`, `17_wtf_well_sy.csv`
+  Sy              Specific yield (drainable porosity)                                                                                                                                                   dimensionless              Report §3.7.3; `17_wtf_01_sy_estimates.csv`, `18_wtf_01_well_sy_estimates.csv`
   λ               Drawdown e-folding reach, `√(Kb/(Sy·β₃))`; distance over which a forest/clearfell/scrape drawdown decays                                                                              m                          Report §3.8.2; `20_report_numbers.csv` `drawdown_lambda`
   κ               Depth-coupling decay rate in the depth-dependent PET term `β₂·exp(−κ·d_w)`; larger = PET draw attenuates faster with depth                                                            per m                      Report §3.7.1; `15_04_best_params.csv` col `Best_Kappa`
   m_P             Rainfall multiplier in the P_flood calculation: multiple of climatological winter rainfall to lift a well to target                                                                   dimensionless              Report §3.6.3; `model_utils.pflood`
@@ -45,7 +45,7 @@ This chapter lists the mathematical symbols, abbreviations and statistics used i
   Σ               Summation operator                                                                                                                                                                    ---                        Standard usage
   P̄, PET̄, h̄       Long-term monthly means of rainfall, PET and level                                                                                                                                    as the quantity            Report §3.4
   *n*, *N*        Sample size (wells, months or panel observations, as stated at use)                                                                                                                   count                      Standard usage
-  --------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------- -------------------------------------------------------------------
+  --------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------- --------------------------------------------------------------------------------
 
 ## []{#anchor}Abbreviations and acronyms
 
@@ -96,12 +96,12 @@ This chapter lists the mathematical symbols, abbreviations and statistics used i
 
 ## []{#anchor}Identifier conventions
 
-  ------------------------------- ----------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------
-  `cehNN`                         Reference-network dipwell, the CEH monitoring series                                                                          `Well_locations_height.csv`; `02_07_cluster_membership_k5.csv`
+  ------------------------------- ----------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------
+  `cehNN`                         Reference-network dipwell, the CEH monitoring series                                                                          `well_metadata.csv`; `02_07_cluster_membership_k5.csv`
   `nwNN`, `feN`, `lisN`, `wmcN`   Extended-network dipwells, classified by Pearson affinity rather than by fitted membership                                    Report §4.3
   `llynrhos`                      Llyn Rhos-Ddu lake gauge. Not a classified dipwell; excluded from the 88-dipwell network                                      `config.LAKE_GAUGE_KEYS`; `config.LAKE_GAUGE_REASON`
   `YYYY-MM-01`                    Monthly timestamp. The `-01` is a pandas formatting convention, not the first of the month; the row is the month as a whole   Report §3.1
-  ------------------------------- ----------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------
+  ------------------------------- ----------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------
 
 ## []{#anchor}Statistics, and how to read them
 

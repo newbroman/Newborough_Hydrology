@@ -35,7 +35,7 @@ OUTPUTS — outputs/45_wet_area/
                                         level, modelled and observed; Step 46's
                                         history block reads this.
   45_02_ssm_through_nir_curves.png .... the SSM-through-curves figure.
-  45_report_numbers.csv ............... study_area_ha / _cells, wet_floor_ever_* and
+  45_report_numbers.csv ............... floor_mask_area_ha / _cells, wet_floor_ever_* and
                                         open_water_ever_*, fit_<class>_rho / _r2_log /
                                         _n_scenes, oos_<mode>_<class>_r2 / _n_months /
                                         _median_ratio / _ratio_p16 / _ratio_p84 (E16).
@@ -47,7 +47,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-20 (E16). 45_report_numbers.csv:
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-21. The slack-floor mask area is
+#   emitted as floor_mask_area_ha / floor_mask_cells, not study_area_ha / _cells:
+#   Script 12 emits study_area_ha for the 845.6 ha hydrological study area, and
+#   build_number_ledger --check (gated today) rightly read the same key carrying
+#   306.97 and 845.6 as a collision. Two quantities, two names. Values unchanged.
+# 1.2.0  Hollingham (2026) - 2026-09-20 (E16). 45_report_numbers.csv:
 #   every number the abstract and report9 §4.8.5 quote from this analysis had been
 #   computed here and written into FIGURE LABELS only — the log-space fit R^2 per
 #   class, the SSM-vs-observed R^2, n and median modelled:observed ratio per mode
@@ -274,7 +279,7 @@ def floor_cells() -> dict:
     z = np.load(SENTINEL_CELL_THRESHOLDS)
     floor = z["floor"].astype(bool)
     ha_per_cell = (WET_AREA_GRID["res"] ** 2) / 1e4
-    out = {"study_area_cells": int(floor.sum()), "study_area_ha": float(floor.sum() * ha_per_cell)}
+    out = {"floor_mask_cells": int(floor.sum()), "floor_mask_area_ha": float(floor.sum() * ha_per_cell)}
     for cls in ("wet_floor", "open_water"):
         ever = floor & np.isfinite(z[f"h_{cls}"])
         out[f"{cls}_ever_cells"] = int(ever.sum())
@@ -285,10 +290,11 @@ def floor_cells() -> dict:
 def write_report_numbers(R: pd.DataFrame, fits: dict, oos: dict, cells: dict) -> None:
     rr = ReportNumbers()
     if cells:
-        rr.add("study_area_ha", cells["study_area_ha"], unit="ha",
-               note=f"phase-29 slack-floor mask, forest excluded: {cells['study_area_cells']} cells of "
-                    f"{WET_AREA_GRID['res']} m; the area the wet-area curves are scaled to")
-        rr.add("study_area_cells", cells["study_area_cells"], unit="cells", note="floor cells in cell_thresholds.npz")
+        rr.add("floor_mask_area_ha", cells["floor_mask_area_ha"], unit="ha",
+               note=f"phase-29 slack-floor mask, forest excluded: {cells['floor_mask_cells']} cells of "
+                    f"{WET_AREA_GRID['res']} m; the area the wet-area curves are scaled to (the report's "
+                    f"'study area' for the Sentinel analysis; distinct from Script 12's study_area_ha)")
+        rr.add("floor_mask_cells", cells["floor_mask_cells"], unit="cells", note="floor cells in cell_thresholds.npz")
         for cls in ("wet_floor", "open_water"):
             rr.add(f"{cls}_ever_cells", cells[f"{cls}_ever_cells"], unit="cells",
                    note=f"floor cells with a switching level for {cls} (seen in >= {CELL_MIN_SCENES} scenes)")

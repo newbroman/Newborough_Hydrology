@@ -30,6 +30,17 @@ WHAT IT ANSWERS
   project working rules).
 
   Regenerate with: python3 tools/build_doc_ledger.py
+  Check only (no write, non-zero on stale):
+      python3 tools/build_doc_ledger.py --check
+
+CHANGELOG
+  1.1.0  2026-09-21  --check added (R22, tools/rule_gate_matrix.csv): this was
+                     one of three generated ledgers with no --check in
+                     check_all, the failure mode CLAUDE.md §4d documents for
+                     TABLE_LEDGER. Regenerates in memory (including a live
+                     export_lag.py call) and diffs against the committed file,
+                     ignoring only the "*Generated" stamp line.
+  1.0.0             Initial version.
 """
 from __future__ import annotations
 
@@ -40,7 +51,7 @@ import subprocess
 import sys
 import datetime
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-21. See CHANGELOG above.
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 MANIFEST = REPO / "docs" / "PDF_MANIFEST.txt"
@@ -158,8 +169,21 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stdout", action="store_true", help="print, write nothing")
     ap.add_argument("--out", help="write somewhere other than the default")
+    ap.add_argument("--check", action="store_true",
+                    help="fail if the committed ledger is stale against the live lag state; write nothing")
     a = ap.parse_args()
     text = build()
+    if a.check:
+        have = DEFAULT_OUT.read_text(encoding="utf-8") if DEFAULT_OUT.exists() else ""
+        # The footer carries the generation date and tool version; neither is a
+        # fact about the documents, so the comparison ignores that line.
+        strip = lambda t: "\n".join(l for l in t.splitlines() if not l.startswith("*Generated "))
+        if strip(have) != strip(text):
+            print(f"  doc_ledger: {DEFAULT_OUT.relative_to(REPO)} is STALE against "
+                  f"the manifest/export_lag state — regenerate with python3 tools/build_doc_ledger.py")
+            return 1
+        print(f"  doc_ledger: OK — {DEFAULT_OUT.relative_to(REPO)} matches the manifest/export_lag state")
+        return 0
     if a.stdout:
         print(text)
         return 0

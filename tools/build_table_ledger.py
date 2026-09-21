@@ -22,6 +22,26 @@ WHAT IT ANSWERS
   tools/reference_index_table.csv. Pure stdlib.
 
   Regenerate with: python3 tools/build_table_ledger.py
+  Check only (no write, non-zero on stale):
+      python3 tools/build_table_ledger.py --check
+
+CHANGELOG
+  1.2.0  2026-09-21  Honours the ledger's retirement. TABLE_LEDGER.md was retired
+                     on 2026-09-19 (superseded by PROVENANCE_LEDGER.md) but this
+                     builder was not told: a plain run overwrote the retirement
+                     banner with the old, drifted ledger. A run now REFUSES while
+                     the committed file carries the RETIRED banner, and --check
+                     passes only while that banner is intact -- so the gate
+                     asserts "still retired", and un-retiring is a deliberate
+                     edit to the file, not a side effect of running a tool.
+  1.1.0  2026-09-21  --check added (R22, tools/rule_gate_matrix.csv): this was
+                     the generated ledger CLAUDE.md §4d names as having rotted
+                     silently (19 empty sources, a five-versions-old document
+                     list) for want of a gate that FIGURE_LEDGER, built
+                     identically, had. Regenerates in memory and diffs against
+                     the committed file, ignoring only the "*Generated" stamp
+                     line (date + version, not a fact about the tables).
+  1.0.0             Seeded from figure_table_manifest.csv.
 """
 from __future__ import annotations
 
@@ -30,7 +50,7 @@ import csv
 import pathlib
 import datetime
 
-__version__ = "1.0.0"
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-21. See CHANGELOG above.
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 MANIFEST = REPO / "tools" / "figure_table_manifest.csv"
@@ -112,12 +132,38 @@ def build() -> str:
     return "\n".join(out)
 
 
+RETIRED_BANNER = "<!-- RETIRED"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stdout", action="store_true", help="print, write nothing")
     ap.add_argument("--out", help="write somewhere other than the default")
+    ap.add_argument("--check", action="store_true",
+                    help="fail if the committed ledger is stale against the manifest; write nothing")
     a = ap.parse_args()
+    have0 = DEFAULT_OUT.read_text(encoding="utf-8") if DEFAULT_OUT.exists() else ""
+    if have0.lstrip().startswith(RETIRED_BANNER):
+        if a.check:
+            print(f"  table_ledger: OK — {DEFAULT_OUT.relative_to(REPO)} is retired "
+                  f"(2026-09-19, superseded by PROVENANCE_LEDGER.md) and the banner is intact")
+            return 0
+        print(f"  table_ledger: REFUSED — {DEFAULT_OUT.relative_to(REPO)} is retired "
+              f"(2026-09-19, superseded by PROVENANCE_LEDGER.md); remove the RETIRED banner "
+              f"by hand, with a decision, before regenerating")
+        return 1
     text = build()
+    if a.check:
+        have = DEFAULT_OUT.read_text(encoding="utf-8") if DEFAULT_OUT.exists() else ""
+        # The footer carries the generation date and tool version; neither is a
+        # fact about the tables, so the comparison ignores that line.
+        strip = lambda t: "\n".join(l for l in t.splitlines() if not l.startswith("*Generated "))
+        if strip(have) != strip(text):
+            print(f"  table_ledger: {DEFAULT_OUT.relative_to(REPO)} is STALE against "
+                  f"the manifest — regenerate with python3 tools/build_table_ledger.py")
+            return 1
+        print(f"  table_ledger: OK — {DEFAULT_OUT.relative_to(REPO)} matches the manifest")
+        return 0
     if a.stdout:
         print(text)
         return 0

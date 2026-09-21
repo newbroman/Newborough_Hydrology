@@ -18,8 +18,16 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.15.0 - 2026-09-21
+# VERSION 1.16.0 - 2026-09-21
 # CHANGELOG
+#   1.16.0 (2026-09-21): five gates from the rule -> gate matrix's work list.
+#     retired_phrase_lint (retired wordings and numbers in every mirror),
+#     docglob_lint (every ODT and mirror inside the drift net), csv_mention_lint
+#     (every CSV/JSON a document names exists), table_provenance_lint (R23 -
+#     CLAUDE.md named it as the enforcer and nothing ran it), and --check for
+#     DOC_LEDGER, NUMBER_LEDGER (collisions) and VALUE_LEDGER, with the retired
+#     TABLE_LEDGER asserted still retired (R22). record_basis_claims_lint: each
+#     methods section states the record its analysis uses (option B, R39).
 #   1.15.0 (2026-09-21): rule -> gate matrix. rule_gate_lint checks that
 #     tools/rule_gate_matrix.csv - one row per CLAUDE.md / project-box rule
 #     and the gate that enforces it - still describes the tree: every named
@@ -213,6 +221,11 @@ python3 tools/defaults_lint.py || rc=1
 echo
 echo "── record basis (does §F.6 still describe the code?) ─────────────────"
 python3 tools/record_basis_lint.py --quiet || rc=1
+# ... and does each methods section STATE it? Option B (Martin, 2026-09-21): a
+# statement per method, gated — tools/record_basis_claims.csv carries the
+# fragment each section must contain; code -> register -> sentence.
+python3 tools/record_basis_claims_lint.py --selftest >/dev/null || rc=1
+python3 tools/record_basis_claims_lint.py --quiet || rc=1
 
 echo
 echo "── month bucketing (one implementation of Script 01's day<=15 rule?) ──"
@@ -229,6 +242,12 @@ python3 tools/month_bucket_lint.py || rc=1
 echo
 echo "── table sources (config, map and caption agree on number->source?) ──"
 python3 tools/table_source_lint.py || rc=1
+echo
+
+echo "── table provenance (does every table trace to a committed CSV?) ─────"
+# R23: table_provenance_lint.py is the enforcer CLAUDE.md §4e names ("a table
+# cannot have no CSV") but was run by nothing until 2026-09-21.
+python3 tools/table_provenance_lint.py --quiet || rc=1
 
 echo
 echo "── table cells (does every generated table cell match its source CSV?) ──"
@@ -270,6 +289,28 @@ echo "── cross-references (does any chapter send the reader to the Supplemen
 # Martin has chosen, or has yet to rule on, each with its reason.
 python3 tools/xref_lint.py --selftest >/dev/null || rc=1
 python3 tools/xref_lint.py --quiet || rc=1
+echo
+
+echo "── retired wording (does any retired phrase or number reappear?) ─────"
+# tau as a residence time, 117 measuring points, 8.4 ha, 1,172 ha, 53.15, the
+# stale step counts, an em space, a Pye & Blott figure: tools/retired_phrases.csv
+# is the list, each row with its reason; YYYY-MM-DD dates are advisory.
+python3 tools/retired_phrase_lint.py --selftest >/dev/null || rc=1
+python3 tools/retired_phrase_lint.py --quiet || rc=1
+echo
+
+echo "── document net (is every ODT and mirror inside the drift net?) ──────"
+# The gap that has appeared three times: a glob that does not match the
+# filename hides a document from cite_check and audit_number_drift.
+python3 tools/docglob_lint.py --selftest >/dev/null || rc=1
+python3 tools/docglob_lint.py --quiet || rc=1
+echo
+
+echo "── file mentions (does every CSV or JSON a document names exist?) ────"
+# 17_wtf_well_sy.csv was retired on 2026-08-19 and four documents still named
+# it as current on 2026-09-21; nine more names were typos one script over.
+python3 tools/csv_mention_lint.py --selftest >/dev/null || rc=1
+python3 tools/csv_mention_lint.py --quiet || rc=1
 
 echo "── document media (does every stripped ODT still rebuild?) ──────────"
 # Superseded versions carry their images in docs/media_store rather than inside
@@ -482,6 +523,14 @@ python3 tools/build_figure_ledger.py --check || rc=1
 # carried 19 empty sources and named a supplement version five bumps old.
 python3 tools/build_provenance_ledger.py --check || rc=1
 python3 tools/build_value_register.py --check || rc=1
+# R22 (2026-09-21): the three generated ledgers that had no --check, and the
+# one whose --check nothing ran. TABLE_LEDGER is retired (2026-09-19) and its
+# check asserts the retirement banner is intact; NUMBER_LEDGER's is the
+# collision test (one key, two values across scripts — study_area_ha was).
+python3 tools/build_doc_ledger.py --check || rc=1
+python3 tools/build_number_ledger.py --check || rc=1
+python3 tools/build_value_ledger.py --check || rc=1
+python3 tools/build_table_ledger.py --check || rc=1
 
 echo
 echo "── references by meaning (does a number point at what the text names?) ─"

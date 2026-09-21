@@ -1,0 +1,4 @@
+Parameter,Well,Era,Value,Unit,Note
+scrape_window_months_post,,Apr 2015-Dec 2017,31.0,months,fitted months in the post-scrape window at CEH36 (scrape to clearfell): the 'N-month post-scraping record' the documents quote
+scrape_window_months_pre,,record start-Apr 2015,49.0,months,fitted months in the pre-scrape window at CEH36
+scrape_propagation_n_wells,,,18.0,count,"CEH36, the uphill transect and the controls fitted in both windows"

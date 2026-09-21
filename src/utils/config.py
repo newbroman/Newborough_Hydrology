@@ -461,6 +461,12 @@ UKCP18_SCENARIOS = {
 #
 # See INTERCEPTION_TREATMENT.md for the full derivation.
 FOREST_INTERCEPTION = 0.24
+# The thinning scenario (Scripts 19 and 21): a heavy thin removes this fraction of
+# the canopy, so its interception is FOREST_INTERCEPTION * (1 - THINNING_FRACTION)
+# ... written as FOREST_INTERCEPTION * THINNING_FRACTION where the two are equal.
+# Was the literal 0.5 in both scripts until 2026-09-21; the documents call it
+# "50% thinning".
+THINNING_FRACTION = 0.5
 
 # Interception-fraction sweep (Script 17, 17_wtf_06). FOREST_INTERCEPTION is a
 # literature value (Freeman 2008), not a fitted one, so the Approach-B result

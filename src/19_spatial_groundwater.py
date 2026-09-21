@@ -23,7 +23,11 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.20.0"  # Hollingham (2026) - 2026-09-20 (E16). The wet-area panel's
+__version__ = "2.21.0"  # Hollingham (2026) - 2026-09-21. The thinning scenario's 0.5
+#   (the fraction of canopy a heavy thin removes) is config.THINNING_FRACTION in the
+#   Python scenarios and a THINNING_FRACTION constant in the viewer JS, both from
+#   config (value unchanged; the documents' "50% thinning" now traces).
+# 2.20.0  # Hollingham (2026) - 2026-09-20 (E16). The wet-area panel's
 #   "warren study area, 306.97 ha" was a LITERAL in the JS string; it now comes from
 #   the feed's cells.floor_ha (living/wet_area_model.json), embedded beside the curves
 #   as study_area_ha and rendered to two decimals — no hardcoded values (CLAUDE.md).
@@ -291,7 +295,7 @@ from utils.config import (
     CLUSTER_COLOURS,
     FOREST_CIDS,
     UKCP18_SCENARIOS,
-    FOREST_INTERCEPTION,
+    FOREST_INTERCEPTION, THINNING_FRACTION,
     BROADLEAF_INTERCEPTION,
     BROADLEAF_B2_WINTER,
     BROADLEAF_B2_SUMMER,
@@ -460,7 +464,7 @@ def _init_scenario_params():
                         # sB2: deciduous phenology — Script 21 monthly profile
                         "sB2_w": BROADLEAF_B2_WINTER, "sB2_s": BROADLEAF_B2_SUMMER},
         "thinning":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                        "sI_c4": FOREST_INTERCEPTION * 0.5, "sI_c5": FOREST_INTERCEPTION * 0.5,
+                        "sI_c4": FOREST_INTERCEPTION * THINNING_FRACTION, "sI_c5": FOREST_INTERCEPTION * THINNING_FRACTION,
                         # sB2: half the clearfell perturbation, non-seasonal
                         "sB2_w": THINNING_B2_MULT, "sB2_s": THINNING_B2_MULT},
     }
@@ -1617,6 +1621,7 @@ var SY_FLOOR={sy_floor_json};
 var SY_LOWER={sy_lower_json};
 var FOREST_INTERCEPTION={forest_interception};
 var BROADLEAF_INTERCEPTION={broadleaf_interception};
+var THINNING_FRACTION={thinning_fraction};
 var DEM_GRID={dem_grid_json};
 var RIDGE_THRESH={ridge_threshold};
 </script>
@@ -1644,7 +1649,7 @@ var SCEN={{
   ukcp18_2080s: {{sP_w:1.20, sP_s:0.70, sPET_w:1.10, sPET_s:1.35, sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:1,    sB2_s:1}},
   clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:0,                       sI_c5:0,                       sB2_w:{clearfell_b2_mult}, sB2_s:{clearfell_b2_mult}}},
   broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:BROADLEAF_INTERCEPTION,  sI_c5:BROADLEAF_INTERCEPTION,  sB2_w:{broadleaf_b2_winter}, sB2_s:{broadleaf_b2_summer}}},
-  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION*0.5, sI_c5:FOREST_INTERCEPTION*0.5, sB2_w:{thinning_b2_mult}, sB2_s:{thinning_b2_mult}}},
+  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION*THINNING_FRACTION, sI_c5:FOREST_INTERCEPTION*THINNING_FRACTION, sB2_w:{thinning_b2_mult}, sB2_s:{thinning_b2_mult}}},
 }};
 var WARN={{
   clearfell:    'Post-felling: canopy interception removed, \u03b2\u2082 increases. Study finding: clearfell deepens summer minima \u2014 the dominant control on winter flooding probability.',
@@ -2619,6 +2624,7 @@ def main(out_path=None):
         sy_lower_json=json.dumps(sy_lower_js, separators=(",", ":")),
         forest_interception=FOREST_INTERCEPTION,
         broadleaf_interception=BROADLEAF_INTERCEPTION,
+        thinning_fraction=THINNING_FRACTION,
         clearfell_b2_mult=round(CLEARFELL_B2_MULT, 4),
         thinning_b2_mult=round(THINNING_B2_MULT, 4),
         broadleaf_b2_winter=BROADLEAF_B2_WINTER,

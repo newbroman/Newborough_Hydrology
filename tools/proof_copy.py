@@ -78,7 +78,17 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-21. The reading pass's BETTER source is
+__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-21. Vetted verdicts (Martin: "I'm sure I
+#   have vetted all the values in the abstract before"): proof_vet.py records his queue
+#   rulings in proof_reading_verdicts.csv as `vetted`, keyed by number + sentence, and
+#   they paint green until either changes. A reading-pass confirm is green from any
+#   tier; a literature value that config carries as a constant is traced; a bare
+#   "n = 3" / "p = 0.45" resolves against a row the sentence names (25_03's C5,
+#   26_ebf_prediction_summary's MSL5); an R² quoted as "% of variance" is a
+#   percentage; a p-value's comparator season does not veto it; two files carrying
+#   one value at the quoted precision are not rivals; a constant beats the nominal
+#   scenario rule; a better source may be written "~180.6mm".
+# 1.20.0  # Hollingham (2026) — 2026-09-21. The reading pass's BETTER source is
 #   verified and, when it holds the quoted value, painted as the trace (Martin: "there
 #   are several altogether, and it should be obvious which is the right source") —
 #   the wrong attribution becomes history in the note. A zero with a unit ("at or
@@ -1394,8 +1404,16 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
     _LAST[0] = 0.0                            # a vetoed candidate must not inherit the previous one's weak score
     if _cluster_clash(c, _sentence(masked, s, e, full=True)):
         return 0
-    if tok is not None and _dims_clash(tok, _cand_dim(c)):
-        return 0                              # "+0.94°C" is not a p-value; "+6.0 mm" is not a constant in metres
+    if tok is not None:
+        clash = _dims_clash(tok, _cand_dim(c))
+        if clash and tok[0] == "pct" and c.form == "%" and _cand_dim(c)[0] == "r2" and re.search(r"varian|explain", sent):
+            clash = ""                        # "explains 97% of β₂ variance" IS an R² of 0.967 rendered as a percentage
+        if clash and tok[0] == "prob" and _cand_dim(c)[0] == "prob" and "vs" in clash and \
+                _label_hits(c.label, sent, _sent_words(sent), noncluster=True):
+            clash = ""                        # "Williams p = 0.45" against MSL5 · williams_p_vs_ewi_ANNUAL in a sentence about
+                                              # SPRING levels: the season in a p-value's key names its comparator, not the p
+        if clash:
+            return 0                          # "+0.94°C" is not a p-value; "+6.0 mm" is not a constant in metres
     if c.tier == "reg":
         weak = not cc.searchable(cc.render(abs(c.value), _dp_of(masked[s:e].lstrip("+-\u2212\u2013"))), c.label)
         _LAST[0] = 0.0
@@ -1545,9 +1563,10 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         if _qty_of(masked, s) and unsigned in ("0", "1", "0.0", "1.0", "0.00", "1.00"):
             prelim.append((s, e, "count", "definitional value (r = 1, NSE = 1, d = 0): a statement, not a measurement", []))
             continue
-        if _NOMINAL_AFTER.match(masked[e:e + 24]):
+        if _NOMINAL_AFTER.match(masked[e:e + 24]) and not any(
+                c.rel in cc.CONSTANT_SOURCES for c in look.get(unsigned, []) if c.form in ("", "%")):
             prelim.append((s, e, "count", "nominal scenario parameter (Martin: 'it doesn't trace')", []))
-            continue
+            continue                                   # "50% thinning" now traces to config.THINNING_FRACTION
         if _ILLUSTRATIVE.search(masked[max(masked.rfind(". ", 0, s), masked.rfind("\n", 0, s)) + 1:s]) and not idx_by_start.get(s):
             prelim.append((s, e, "count", "an illustrative example in a conditional sentence, not a measured value "
                                           "(Martin, 2026-09-21: '0.5 m is an illustrative example seasonal range')", []))
@@ -1771,12 +1790,19 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             # file) is not a rival: whichever is chosen, the sentence quotes that quantity
             rival = next(((t, -key(t)[0]) for t in options[1:]
                           if (t[1].rel, _rowkey(t[1].label)) != (c.rel, _rowkey(c.label))
-                          and abs(t[1].value - c.value) > 1e-6 * max(1.0, abs(c.value))), None)
+                          and abs(t[1].value - c.value) > 5e-3 * max(1e-9, abs(c.value))), None)   # 0.129426 and 0.1294: one value, two files
             margin = (best_sc - rival[1]) if rival else None
             base_verdict = verdict
             if rival is not None and margin <= 0.5:
                 verdict = "tie"
             cite = _CITATION.search(_sentence(masked, s, e))
+            if cite and best_sc < 3.5 and c.rel in cc.CONSTANT_SOURCES and best_sc >= 3.0:
+                # "spans only 37 cm … (Curreli et al., 2013)" where config carries SD15b − SD16 = 37:
+                # the literature value IS the constant the pipeline uses — both are right, and
+                # the constant is the thing to check the prose against (Martin, 2026-09-21)
+                marks.append((s, e, "traced", f"{c.label} = {c.value:g} [{pathlib.Path(c.rel).name}] — a literature value "
+                                              f"({cite.group(0).strip()}) carried as a config constant; both hold"))
+                continue
             if cite and best_sc < 3.5:
                 # "(Stratford et al., 2006) … 100–200 mm/yr": a clause that cites a source and a
                 # match that is not strongly anchored — the literature's figure, the match set aside
@@ -1888,6 +1914,46 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                         l2, vals = same[0]
                         col, val = next(iter(vals.items()))
                         found = (rel, l2, col, val); break
+        if not found and what in ("n", "k", "p", "r", "r²") and op == "=":
+            # "n = 3 in the gradient subset" with no neighbouring value: a row whose NAME the
+            # sentence uses (its cluster, its well) and whose n-column holds the bound —
+            # 25_03_cluster_partition's C5 row, n_wells = 3 (Martin, 2026-09-21: "n is the
+            # sample size of the c5 coastal retreat analysis")
+            full = _sentence(masked, s, e, full=True)
+            fw = _sent_words(full)
+            scope_here, _how = scope_map.get(sec_of(s), (set(), ""))
+            qpat = _QTY_PAT[what] if what != "p" else _PCOL
+            _dpq = _dp_of(bound)
+            hits = {}
+            for (rel, lab), vals in ROWS.items():
+                if scope_here and not in_scope(Cand(rel, lab, "", 0.0, None, "", "cell"), scope_here):
+                    continue
+                mine = _clusters_in(lab)
+                named = bool(mine and (mine & _clusters_in(full))) or any(
+                    len(wd) >= 4 and wd not in _DEEP_STOP and wd in fw for wd in _label_words(lab) if not re.fullmatch(r"c[1-5]", wd))
+                if not named or (mine and not (mine & _clusters_in(full))):
+                    continue
+                for col, val in vals.items():
+                    if (qpat.search(col) if what == "p" else qpat.search(col)) and isinstance(val, (int, float)) \
+                            and (cc.render(val, _dpq) == bound or abs(val - b) < 0.5 * 10 ** -_dpq):
+                        hits[(rel, lab)] = (col, val)
+            if len(hits) > 1:
+                # every hit holds the same n, so this is attribution, not disagreement: a file
+                # whose name carries a season the sentence does not ("_spring" against
+                # "summer-minimum slopes") steps aside, then a registered file outranks a deep one
+                def _season_clash(rel):
+                    stem_w = set(re.split(r"[_\W]+", pathlib.Path(rel).stem.lower()))
+                    return any(sw in stem_w and sw not in fw for sw in _SEASON_WORDS)
+                keep = {k: v for k, v in hits.items() if not _season_clash(k[0])} or hits
+                keep = {k: v for k, v in keep.items() if k[0] in REG_FILES} or keep
+                (rel, lab), (col, val) = next(iter(keep.items()))
+                others = ", ".join(pathlib.Path(r).name for r, _ in hits if r != rel)
+                found = (rel, lab, col, val)
+                if others:
+                    d = d + f" (also {others})"
+            elif hits:
+                (rel, lab), (col, val) = next(iter(hits.items()))
+                found = (rel, lab, col, val)
         if not found:
             if op == "=":
                 out.append((s, e, "untraced", f"quoted as {what} = {bound}: no {what}-like column or key in scope carries it, "
@@ -2019,6 +2085,7 @@ p{margin:.7em 0} pre{font:12px/1.35 Menlo,Consolas,monospace;overflow-x:auto;bac
 .stale{background:#ffe4b8;border-color:#e07000;font-weight:bold}
 .untraced{background:#ffd6d6;border-color:#d00;font-weight:bold}
 .count{background:#f0f0f0;border-color:#bbb;color:#555}
+.vetted{background:#e4f1e4;border-color:#4a8a4a;color:#2a5a2a;border-bottom-style:double}
 .cited{background:#eceaf6;border-color:#8f86c9;color:#444;border-bottom-style:dotted}
 .tie{background:#f3f0c8;border-color:#b8a500;font-weight:bold;border-bottom-style:double}
 .denied{background:#ffd6d6;border-color:#a00;font-weight:bold;border-bottom-style:double}
@@ -2055,7 +2122,7 @@ a.pgno{color:#c60}
   #legend{font-size:13px}
 }
 .src{color:#2a9d8f}
-body.focus .traced,body.focus .deep,body.focus .unanchored,body.focus .rounding,body.focus .count,body.focus .cited{background:none;border-color:transparent;color:inherit;font-weight:inherit}
+body.focus .traced,body.focus .vetted,body.focus .deep,body.focus .unanchored,body.focus .rounding,body.focus .count,body.focus .cited{background:none;border-color:transparent;color:inherit;font-weight:inherit}
 button{font:13px Helvetica,Arial,sans-serif}
 """
 
@@ -2165,6 +2232,7 @@ LEGEND = [("traced", "traced"), ("deep", "in a source CSV, unregistered"),
           ("untraced", "untraced"), ("count", "count"), ("cited", "literature value (the clause cites a source)"),
           ("tie", "NEAR TIE — two candidates within half a point; read the sentence"),
           ("denied", "DENIED by the reading pass — the sentence does not quote the attributed quantity"),
+          ("vetted", "vetted — Martin read this occurrence; holds until the number or its sentence changes"),
           ("xref", "cross-reference resolves"), ("xmean", "cross-reference points at the WRONG thing"),
           ("xbad", "cross-reference does not resolve")]
 
@@ -2209,7 +2277,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             num, h = sec
             c = counts[sec]
             bar = " · ".join(f"<span class='{k}'>{c[k]} {LEGEND_NAME[k]}</span>"
-                             for k in ("denied", "untraced", "stale", "elsewhere", "tie", "rounding", "traced", "deep", "unanchored", "count", "cited") if c[k])
+                             for k in ("denied", "untraced", "stale", "elsewhere", "tie", "rounding", "traced", "vetted", "deep", "unanchored", "count", "cited") if c[k])
             body.append(f"<h{lvl} id='s{num or i}'>{html.escape((num + ' ') if num else '')}{html.escape(h)}</h{lvl}>")
             sc, how = (scope_map or {}).get(sec, (set(), ""))
             srcs = ", ".join(sorted(pathlib.Path(x).name for x in sc)[:8]) + (" …" if len(sc) > 8 else "")
@@ -2259,7 +2327,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             f"<h1>{html.escape(title)} — proof copy</h1>"
             f"<div id=legend>{legend}<br>"
             f"<b>{tot['denied']} denied by the reading pass</b>, <b>{tot['untraced']} untraced</b>, <b>{tot['stale']} stale</b>, <b>{tot['elsewhere']} elsewhere</b>, <b>{tot['tie']} near-ties</b>, {tot['rounding']} rounding, "
-            f"{tot['traced']} traced, {tot['deep']} in an unregistered CSV, {tot['unanchored']} unanchored, {tot['count']} counts, {tot['cited']} literature. "
+            f"{tot['traced']} traced, {tot['vetted']} vetted, {tot['deep']} in an unregistered CSV, {tot['unanchored']} unanchored, {tot['count']} counts, {tot['cited']} literature. "
             f"Hover a number for what it was matched to. "
             f"<button onclick='toggleFocus()'>show only red / amber</button> "
             f"<span>click a number to queue a correction — <span id=qcount>0</span> queued</span><br>"
@@ -2271,7 +2339,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
 
 
 LEGEND_NAME = {"traced": "traced", "deep": "unregistered", "elsewhere": "ELSEWHERE", "unanchored": "unanchored", "rounding": "rounding",
-               "stale": "STALE", "untraced": "UNTRACED", "count": "count", "cited": "cited", "tie": "NEAR-TIE", "denied": "DENIED",
+               "stale": "STALE", "untraced": "UNTRACED", "count": "count", "cited": "cited", "tie": "NEAR-TIE", "denied": "DENIED", "vetted": "vetted",
                "xref": "xref", "xmean": "XREF-MEANING", "xbad": "XREF-BAD"}
 
 
@@ -2689,7 +2757,7 @@ def reading_verdicts() -> dict:
     return _READ
 
 
-_BETTER = re.compile(r"^\s*(.+?)\s*=\s*([-+−]?\d[\d.,]*(?:e-?\d+)?)\s*%?\s*\[([^\]]+)\]")
+_BETTER = re.compile(r"^\s*(.+?)\s*(?:=|~|≈|about)\s*([-+−]?\d[\d.,]*(?:e-?\d+)?)\s*[a-z%°/⁻¹²]*\s*\[([^\]]+)\]")
 
 
 def _better_cand(better: str, tok: str, look: dict):
@@ -2744,10 +2812,21 @@ def one(name, values, look, out_dir, a):
     if rv:
         new_marks = []
         for s, e, v, d in marks:
-            if v in ("traced", "deep", "tie"):
+            if v in ("traced", "deep", "tie", "untraced", "elsewhere", "stale", "denied", "count", "cited", "rounding", "unanchored"):
                 sent_full = " ".join(_sentence(_m, s, e, full=True).split())
                 rid = f"{mirror.stem}:{_reading_id(text[s:e], sent_full, s - _m.rfind(chr(10), 0, s))}"
                 hit = rv.get(rid)
+                if hit and hit[0] == "vetted":
+                    # Martin read this occurrence and said what it is. The id is the number
+                    # in its sentence, so the verdict holds until either changes — and a
+                    # changed value comes back red on its own (Martin, 2026-09-21: "I'm sure
+                    # I have vetted all the values in the abstract before")
+                    _, reason, better, _ = hit
+                    v, d = "vetted", f"vetted by Martin — {reason}" + (f" — source: {better}" if better else "") + " ‖ the matcher had: " + d.split(" ‖ ")[0]
+                    new_marks.append((s, e, v, d))
+                    continue
+                if hit and v not in ("traced", "deep", "tie"):
+                    hit = None                        # deny/confirm/unsure speak to an attribution; these marks have none
                 if hit:
                     verdict, reason, better, read_attr = hit
                     # a verdict is about the attribution the reader SAW: when the matcher has
@@ -2773,7 +2852,10 @@ def one(name, values, look, out_dir, a):
                     elif verdict == "confirm" and not same_attr:
                         d = d + f" ‖ an earlier attribution ({read_attr[:80]}) was confirmed by the reading pass; this is a new one, unread"
                     elif verdict == "confirm":
-                        v = "traced" if v in ("traced", "tie") and "UNREGISTERED" not in d else v
+                        # a confirmed attribution is green whatever tier it came from: the reader
+                        # checked the KML polygon, the ratio or the cell (Martin, 2026-09-21:
+                        # "this should be green if its confirmed")
+                        v = "traced"
                         d = "read: confirmed ✓ — " + d
                     else:
                         v, d = "tie", f"reading pass unsure — {reason} ‖ " + d

@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-21. OUT_01_REPORT_NUMBERS (Script 01, E34).
+__version__ = "1.22.0"  # Hollingham (2026) - 2026-09-21. OUT_16_REPORT_NUMBERS (Script 16): the
+#   water-balance closure the front matter and report11/12 quote ("within 1.8%"). Additive.
+# 1.21.0 - 2026-09-21. OUT_01_REPORT_NUMBERS (Script 01, E34).
 # 1.20.0 - 2026-09-20. DATA_KML_STUDY_AREA (Script 12, E27).
 # 1.19.0 - 2026-09-20. OUT_45_REPORT_NUMBERS: Script 45
 #   emits the wet-area analysis's report numbers (study area, fit and out-of-sample
@@ -801,6 +803,7 @@ DIR_01_CLIMATE              = DIR_00          # climate summary shares DIR_00
 OUT_16_TABLE                = DIR_16 / "16_water_bal_table.csv"
 OUT_16_VOL_TABLE            = DIR_16 / "16_water_bal_vol_table.csv"
 OUT_16_REC_TABLE            = DIR_16 / "16_water_bal_rec_table.csv"
+OUT_16_REPORT_NUMBERS       = DIR_16 / "16_report_numbers.csv"        # closure: |residual| / total loss, per cluster and the max
 OUT_16_BAR_LAY              = DIR_16 / "16_water_bal_bar_lay.png"
 OUT_16_BAR_MS               = DIR_16 / "16_water_bal_bar_ms.png"
 # (removed 2026-05-17: OUT_16_VOL_MS, OUT_16_VOL_LAY, OUT_16_VOL_WTF_TABLE,

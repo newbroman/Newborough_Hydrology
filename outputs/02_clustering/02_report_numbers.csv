@@ -3,10 +3,10 @@ silhouette_k5,,k=5,0.3960885554629213,,silhouette at chosen k on the 66-well ref
 calinski_harabasz_k5,,k=5,15.285050083068422,,Calinski-Harabasz at chosen k
 merge_distance_k5,,k=5,0.15810655418181432,,Ward merge distance at chosen k
 silhouette_peak_k,,,2.0,,k maximising silhouette (=0.459)
+calinski_harabasz_peak_k,,,2.0,,k maximising Calinski-Harabasz (=25.55)
 silhouette_k2,,k=2,0.45909033050837167,,per-k silhouette (Fig 6 series)
 silhouette_k3,,k=3,0.44217045167335073,,per-k silhouette (Fig 6 series)
 silhouette_k4,,k=4,0.40849898781737254,,per-k silhouette (Fig 6 series)
-silhouette_k5,,k=5,0.3960885554629213,,per-k silhouette (Fig 6 series)
 silhouette_k6,,k=6,0.35780522217171384,,per-k silhouette (Fig 6 series)
 silhouette_k7,,k=7,0.38781718736808807,,per-k silhouette (Fig 6 series)
 silhouette_k8,,k=8,0.36252997479720184,,per-k silhouette (Fig 6 series)
@@ -19,3 +19,47 @@ cluster_splithalf_ari_p05,,k=5,0.3898505934918896,,5th percentile of the split-h
 cluster_splithalf_ari_p95,,k=5,0.742075300798176,,95th percentile of the split-half ARI
 cluster_month_merge_rate,,k=5,0.993,,fraction of month-bootstrap replicates in which two or more reference clusters collapsed into one; median co-assignment is blind to this
 cluster_month_clusters_surviving_mean,,k=5,1.714,,mean count of reference clusters surviving a month-bootstrap replicate both intact and unmerged
+cluster_stability_median,C1 (Lake Edge),k=5,0.980251380483399,,median per-well co-assignment over 1000 well resamples; n = 7
+cluster_stability_median,C2 (Dune),k=5,0.9753096446700508,,median per-well co-assignment over 1000 well resamples; n = 24
+cluster_stability_median,C4 (Main Forest),k=5,1.0,,median per-well co-assignment over 1000 well resamples; n = 9
+cluster_stability_median,C5 (Coastal Forest),k=5,0.991566265060241,,median per-well co-assignment over 1000 well resamples; n = 5
+cluster_stability_median,C3 (Western Residual),k=5,0.49018346554152514,,median per-well co-assignment over 1000 well resamples; n = 21
+bootstrap_n_resamples,,,1000.0,count,config.CLUSTER_BOOT_N
+bootstrap_k_min,,,4.0,,config.CLUSTER_BOOT_K_RANGE
+bootstrap_k_max,,,7.0,,config.CLUSTER_BOOT_K_RANGE
+cluster_ground_elev_min_m,C1 (Lake Edge),,3.534,m AOD,lowest member: ceh11 (01_locations.csv ground_elev_m)
+cluster_ground_elev_max_m,C1 (Lake Edge),,10.9,m AOD,highest member: ceh27
+cluster_isolated_well,C1 (Lake Edge),,ceh11,,member furthest from any other member of the same cluster (planar E/N)
+cluster_isolated_nearest_dist_m,ceh11,C1 (Lake Edge),1732.4409528711114,m,"ceh11 to its nearest C1 (Lake Edge) member, ceh26"
+cluster_isolated_ground_elev_m,ceh11,C1 (Lake Edge),3.534,m AOD,"ground elevation of ceh11, C1 (Lake Edge)'s most isolated member"
+cluster_others_ground_elev_min_m,C1 (Lake Edge),,8.461,m AOD,the cluster without ceh11
+cluster_others_ground_elev_max_m,C1 (Lake Edge),,10.9,m AOD,the cluster without ceh11
+cluster_ground_elev_min_m,C2 (Dune),,4.661,m AOD,lowest member: d38 (01_locations.csv ground_elev_m)
+cluster_ground_elev_max_m,C2 (Dune),,10.86,m AOD,highest member: l7
+cluster_isolated_well,C2 (Dune),,l7,,member furthest from any other member of the same cluster (planar E/N)
+cluster_isolated_nearest_dist_m,l7,C2 (Dune),277.07623755204736,m,"l7 to its nearest C2 (Dune) member, d7"
+cluster_isolated_ground_elev_m,l7,C2 (Dune),10.86,m AOD,"ground elevation of l7, C2 (Dune)'s most isolated member"
+cluster_others_ground_elev_min_m,C2 (Dune),,4.661,m AOD,the cluster without l7
+cluster_others_ground_elev_max_m,C2 (Dune),,10.825,m AOD,the cluster without l7
+cluster_ground_elev_min_m,C3 (Western Residual),,3.62,m AOD,lowest member: ceh42 (01_locations.csv ground_elev_m)
+cluster_ground_elev_max_m,C3 (Western Residual),,12.363,m AOD,highest member: nw1
+cluster_isolated_well,C3 (Western Residual),,ceh42,,member furthest from any other member of the same cluster (planar E/N)
+cluster_isolated_nearest_dist_m,ceh42,C3 (Western Residual),260.9503757518002,m,"ceh42 to its nearest C3 (Western Residual) member, wmc2"
+cluster_isolated_ground_elev_m,ceh42,C3 (Western Residual),3.62,m AOD,"ground elevation of ceh42, C3 (Western Residual)'s most isolated member"
+cluster_others_ground_elev_min_m,C3 (Western Residual),,4.172,m AOD,the cluster without ceh42
+cluster_others_ground_elev_max_m,C3 (Western Residual),,12.363,m AOD,the cluster without ceh42
+cluster_ground_elev_min_m,C4 (Main Forest),,8.61,m AOD,lowest member: ceh30 (01_locations.csv ground_elev_m)
+cluster_ground_elev_max_m,C4 (Main Forest),,14.42,m AOD,highest member: ceh14
+cluster_isolated_well,C4 (Main Forest),,nw10,,member furthest from any other member of the same cluster (planar E/N)
+cluster_isolated_nearest_dist_m,nw10,C4 (Main Forest),216.81755146895375,m,"nw10 to its nearest C4 (Main Forest) member, ceh14"
+cluster_isolated_ground_elev_m,nw10,C4 (Main Forest),11.66,m AOD,"ground elevation of nw10, C4 (Main Forest)'s most isolated member"
+cluster_others_ground_elev_min_m,C4 (Main Forest),,8.61,m AOD,the cluster without nw10
+cluster_others_ground_elev_max_m,C4 (Main Forest),,14.42,m AOD,the cluster without nw10
+cluster_ground_elev_min_m,C5 (Coastal Forest),,4.65,m AOD,lowest member: ceh19 (01_locations.csv ground_elev_m)
+cluster_ground_elev_max_m,C5 (Coastal Forest),,6.32,m AOD,highest member: ceh31
+cluster_isolated_well,C5 (Coastal Forest),,ceh31,,member furthest from any other member of the same cluster (planar E/N)
+cluster_isolated_nearest_dist_m,ceh31,C5 (Coastal Forest),115.95239715072007,m,"ceh31 to its nearest C5 (Coastal Forest) member, ceh16"
+cluster_isolated_ground_elev_m,ceh31,C5 (Coastal Forest),6.32,m AOD,"ground elevation of ceh31, C5 (Coastal Forest)'s most isolated member"
+cluster_others_ground_elev_min_m,C5 (Coastal Forest),,4.65,m AOD,the cluster without ceh31
+cluster_others_ground_elev_max_m,C5 (Coastal Forest),,6.097,m AOD,the cluster without ceh31
+amplitude_min_obs_per_window,,,24.0,count,months a well needs in a window for its p90-p10 amplitude: two annual cycles

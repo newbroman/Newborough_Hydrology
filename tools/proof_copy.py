@@ -78,7 +78,22 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-21. The reading pass is painted: eight
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-21. The reading pass's BETTER source is
+#   verified and, when it holds the quoted value, painted as the trace (Martin: "there
+#   are several altogether, and it should be obvious which is the right source") —
+#   the wrong attribution becomes history in the note. A zero with a unit ("at or
+#   below 0°C") is a threshold of a formula; a number in a "regardless of whether one…
+#   and the other…" clause is an illustration; p.? is shown only for a prose paragraph
+#   the PDF should hold (equations, captions, list items and one-line headings were
+#   77 of the 88), and the fingerprint is pdf_page_index.para_key so the two tools
+#   cannot drift. --out accepts a relative path.
+# 1.19.0  # Hollingham (2026) — 2026-09-21. Copying the queue is the hand-over:
+#   each copied item is marked `handed` in the artifact store and leaves the page; a
+#   handed item no longer returns to the browser queue on load (Martin: "the queue is
+#   still visible … even though I have passed it to you. The list keeps growing and
+#   obscures my reading"). The store keeps handed items until the session marks them
+#   done; each browser item now carries its store id (dbid) so the update can reach it.
+# 1.18.0  # Hollingham (2026) — 2026-09-21. The reading pass is painted: eight
 #   Sonnet subagents read every attributed number of the report (2,912 rows, brief in
 #   scratch/reading/BRIEF.md) and their verdicts (tools/proof_reading_verdicts.csv) now
 #   override the matcher — a DENIED attribution is red with the reader's reason and the
@@ -203,6 +218,7 @@ from collections import defaultdict, namedtuple
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 import cite_check as cc  # noqa: E402  the authoritative value map and anchors
+import pdf_page_index as _ppi  # noqa: E402  the paragraph fingerprint the page index is keyed by
 
 OUT_DIR = REPO / "scratch" / "proof"
 SECTION_MAP = REPO / "tools" / "section_map.csv"
@@ -274,7 +290,10 @@ def _cluster_subjects(label: str) -> list[str]:
 _QUANT_SYNONYMS = {"sd": ["standard deviation"], "std": ["standard deviation"], "se": ["standard error"], "stderr": ["standard error"],
                    "ci": ["confidence interval", "95%", "95 %"], "nse": ["efficiency"], "spread": ["spread", "range"],
                    "msl5": ["five-year", "msl5"], "window": ["five-year", "window"], "spring": ["spring"],
-                   "rmse": ["root-mean-square", "rms"], "iqr": ["interquartile"], "cv": ["coefficient of variation"]}
+                   "rmse": ["root-mean-square", "rms"], "iqr": ["interquartile"], "cv": ["coefficient of variation"],
+                   "ground": ["ground", "aod", "elevation"], "elev": ["elevation", "aod"],          # "sits at 3.5 m AOD"
+                   "isolated": ["isolated", "isolation", "sits at"], "nearest": ["nearest", "closest"],
+                   "centring": ["centring", "centred", "centering"]}
 
 
 def _anchor_sets(label: str):
@@ -456,6 +475,9 @@ def _renderings(x: float):
     if 0 < abs(x) <= 1:
         for dp in (0, 1):
             yield cc.render(abs(x) * 100, dp), "%"
+    if abs(x) >= 100:
+        for dp in (1, 2):
+            yield cc.render(abs(x) / 1000.0, dp), "km"      # "1732 m" quoted as "1.7 km"
 
 
 _LAKE = re.compile(r"(?i)llyn|lake|rhos")
@@ -716,9 +738,20 @@ def build_index(values, deep: bool = True) -> dict:
                                        {"col": colw, "file": fw, "stat": ["mean", "average", "across all"]}, form, "stat"))
             if (monthly and len(numcols) >= 10) or rel.startswith("data/"):
                 continue                          # a wells-by-months matrix, or a raw input: its cells are never quoted, its statistics are (above)
+            qual = [c for c in df.columns if c.lower() in ("well", "era", "control", "tier")] if "report_numbers" in p.name else []
+            repeated = set(df[kcol][df[kcol].duplicated(keep=False)].astype(str)) if qual else set()
             for _, r_ in df.iterrows():
                 lab = str(r_[kcol])
                 la = _label_anchors(lab)
+                if qual and lab in repeated:
+                    # a report-numbers Parameter emitted per cluster or well: the Well and Era
+                    # cells are the row's name too — "cluster_ground_elev_max_m · C1 (Lake Edge)",
+                    # not five rows called cluster_ground_elev_max_m (cite_check 1.28.0 labels
+                    # the registered value the same way)
+                    parts = [str(r_[c]).strip() for c in qual if isinstance(r_[c], str) and str(r_[c]).strip()]
+                    if parts:
+                        lab = " · ".join([lab] + parts)
+                        la = la + _label_anchors(" ".join(parts))
                 if ccol is not None:                  # "clearfell · C4": the row's cluster is part of its name
                     cl = str(r_[ccol]).strip()
                     mcl = re.search(r"[1-5]", cl)
@@ -893,7 +926,7 @@ _GLUE_AFTER = re.compile(r"[\-‑][A-Za-z]")
 _COUNT_COMPOUND = re.compile(r"(?i)^[\-‑](wells?|dipwells?|clusters?|sites?|stations?|members?|points?|boreholes?|months?|years?|days?)\b")   # "66-well network" is a count; "100-month" a duration
 _YEAR_RANGE_BEFORE = re.compile(r"(?:18|19|20)\d\d\s*(?:--|–|—|-)\s*$")      # "1951--53": the 53 is a year
 _PAGE_BEFORE = re.compile(r"(?i)\bpp?\.\s*(?:\d+\s*(?:--|–|—|-)\s*)?$")        # "p. 17", "pp. 17--19"
-_GRIDREF = re.compile(r"\b[A-Z]{2}\s?\d{3}\s?\d{3}\b")                        # "SH 406 636"
+_GRIDREF = re.compile(r"\b[A-Z]{2}\s?\d{3,5}\s?\d{3,5}\b")                    # "SH 406 636", "SH 30691 75549"
 _ENUM_MARK = re.compile(r"\(\d{1,2}\)")                                             # "(1) … (2) …"
 _RANGE_BEFORE = re.compile(r"\d\s*(?:--|–|—|-|to)\s*$")
 _ORDINAL_BEFORE = re.compile(r"(?i)\b(tiers?|sites?|phases?|steps?|scripts?|options?|batch(es)?|zones?|levels?|methods?|approach(es)?|types?|class(es)?|groups?|stages?|rounds?|parts?|panels?|checks?|objectives?|hypothes[ie]s|quadrats?|transects?|eras?|sketch(es)?|slacks?|models?|runs?|versions?)\s+(?:\d{1,2}[a-z]?\s*(?:--|–|—|-|,|and|to)\s*)*$")   # "Tier 1": a name                        # the second end of a range
@@ -904,6 +937,7 @@ _LIST_MARKER = re.compile(r"^\d+[.)]\s")
 _IDENT_CHAIN = re.compile(r"\d+[-‐]\d+[-‐]\d+")          # three digit groups joined by hyphens
 _PCT_AFTER = re.compile(r"(?i)^\s*(?:%|per cent|percent)")
 _HA_AFTER = re.compile(r"(?i)^\s*(?:ha|hectares?)\b")
+_ILLUSTRATIVE = re.compile(r"(?i)\b(regardless of whether|whether one|for example|for instance|e\.g\.|say,|suppose|hypothetical(ly)?|illustrat\w*|imagine|consider a)\b")   # "whether one exhibits a seasonal range of 0.5 m and the other 2.0 m"
 _NOMINAL_AFTER = re.compile(r"(?i)^\s*%?\s*(?:thinning|thinned|canopy removal|felling scenario)")   # "50% thinning" names a scenario
 _AREA_KEY = re.compile(r"(?i)area|_ha\b|hectare")
 _RANGE_AFTER = re.compile(r"^\s*(?:--|[\-\u2013\u2014]|to|and)\s*[+\-\u2212]?\d+(?:[.,]\d+)*")
@@ -1040,8 +1074,11 @@ _NONLEN = re.compile(r"(?i)pct|percent|ratio|fraction|_p$|pvalue|r2|rsq|count|_n
 # admissible only when the dimension the TEXT gives the number and the dimension
 # the CANDIDATE's own name gives its value are compatible. Unknown on either side
 # is allowed (soft); a KNOWN mismatch is a veto.
+_UNIT_DIMS = {"m": "m", "m aod": "m", "maod": "m", "metres": "m", "mm": "mm", "km": "km", "%": "pct", "percent": "pct",
+              "count": "count", "n": "count", "months": "duration", "month": "duration", "years": "duration", "yr": "duration",
+              "°c": "temp", "degc": "temp", "ha": "area", "m3": "volume", "m³": "volume"}
 _CAND_DIM_RULES = [
-    ("id",       re.compile(r"(?i)(^|_)(id|cluster|cluster_k\d|k\d|code|well_id|match_id|date)(_|$)")),   # a label, never a quantity
+    ("id",       re.compile(r"(?i)(^|_)(id|code|well_id|match_id|date)(_|$)|^(cluster|cluster_k\d|k\d)$")),   # a label, never a quantity — but cluster_stability_median is a quantity ABOUT clusters
     ("m",        re.compile(r"^(P|P_m|PET|PET_m|P_bar|PET_bar|P_(winter|summer|annual|total|w|s)|PET_(winter|summer|annual|total))$")),   # rainfall and PET in metres, before "P" reads as a p-value
     ("prob",     re.compile(r"(?i)(^|_)(p|pval|pvalue|p_value|p_val|prob|significance)(_|$)|_p$")),
     ("r2",       re.compile(r"(?i)(^|_)(r2|rsq|r_squared|rsquared|adj_r2|r2_adj)(_|$)|r²")),
@@ -1078,8 +1115,12 @@ def _cand_dim(c: Cand) -> tuple:
         dim, per = "count", ""
     else:
         name = re.sub(r"[ ·/()]+", "_", c.col if c.col else c.label)
-        dim = ""
+        # a registered value declares its unit: "m AOD" is a length whatever its key is called
+        dim = _UNIT_DIMS.get(re.sub(r"\s+", " ", str(cc.VALUE_UNITS.get((c.rel, c.label), "") or "")).strip().lower(), "") \
+            if c.tier == "reg" else ""
         for d, rx in _CAND_DIM_RULES:
+            if dim:
+                break
             if rx.search(name):
                 dim = d
                 break
@@ -1350,6 +1391,7 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
     'rolling'. In scope a short whole number needs 1, outside it needs 2; unit
     conversions (mm, %) lose 0.5 so a plain rendering wins a tie."""
     sent = _sentence(masked, s, e)
+    _LAST[0] = 0.0                            # a vetoed candidate must not inherit the previous one's weak score
     if _cluster_clash(c, _sentence(masked, s, e, full=True)):
         return 0
     if tok is not None and _dims_clash(tok, _cand_dim(c)):
@@ -1413,6 +1455,8 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
             score += 0.5
     if c.form and c.form != unit:
         score -= 0.5                          # a converted rendering with no unit in the text
+    elif c.form == "km" and unit == "km":
+        score += 0.5                          # "1.7 km" from a distance in metres: the text's unit is the conversion's
     elif unit == "mm" and not c.form and (_NONLEN.search(c.label + " " + (c.col or "")) or re.search(r"_M$|_m$|_M\b", c.label)):
         score -= 1.0                          # "+113 mm" is a length: a percentage, or a constant in METRES, sharing the digits is not it
     need = 1 if inside else 2
@@ -1504,6 +1548,10 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         if _NOMINAL_AFTER.match(masked[e:e + 24]):
             prelim.append((s, e, "count", "nominal scenario parameter (Martin: 'it doesn't trace')", []))
             continue
+        if _ILLUSTRATIVE.search(masked[max(masked.rfind(". ", 0, s), masked.rfind("\n", 0, s)) + 1:s]) and not idx_by_start.get(s):
+            prelim.append((s, e, "count", "an illustrative example in a conditional sentence, not a measured value "
+                                          "(Martin, 2026-09-21: '0.5 m is an illustrative example seasonal range')", []))
+            continue
         bm = _BOUND_BEFORE.search(masked[max(0, s - 6):s])
         if bm:
             prelim.append((s, e, "bound", f"{(bm.group(1) or '').strip()} {bm.group(2)} {unsigned}", []))
@@ -1512,12 +1560,13 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         after = _RANGE_AFTER.sub("", after)                # "50--55 mm": look past the range
         pct = bool(_PCT_AFTER.match(after))
         mm = bool(cc._MM_SUFFIX.match(after))
-        unit = "mm" if mm else "%" if pct else ""
+        km = bool(re.match(r"\s*km\b", after))
+        unit = "mm" if mm else "%" if pct else "km" if km else ""
         short = "." not in unsigned and len(unsigned) <= 3
         w = masked[max(0, s - cc.ANCHOR_WINDOW): e + cc.ANCHOR_WINDOW].lower()
         ws = set(_WORD.findall(w))
         cands = [c for c in look.get(unsigned, [])
-                 if (c.form == "") or (c.form == "%" and pct) or (c.form == "mm" and mm)]
+                 if (c.form == "") or (c.form == "%" and pct) or (c.form == "mm" and mm) or (c.form == "km" and km)]
         qty = _qty_of(masked, s)
         if qty:
             cands = [c for c in cands if _qty_ok(qty, c)]
@@ -1549,6 +1598,11 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             cands = [c for c in cands if float(c.value).is_integer() or c.form]
         if unsigned in ("0", "1") and not qty and not tok[0]:
             prelim.append((s, e, "count", "a bare 0 or 1: a statement, an index or a flag, not a value", []))
+            continue
+        if unsigned == "0" and not qty and tok[0] in ("temp", "count", "duration", "pct", "mm", "cm", "m", "km"):
+            # "clipped to zero for months at or below 0°C": a threshold of a formula,
+            # not a value anything computed (Martin, 2026-09-21: "Thornthwaite formulae restraint")
+            prelim.append((s, e, "count", f"a zero threshold ({tok[0]}): a constraint of the formula, not a computed value", []))
             continue
         if tok[0] == "pct" and re.match(r"(?i)\s*(?:%|per cent|percent)\s+of\b", masked[e:e + 14]):
             ratio = _derived_ratio(masked, s, e, prelim)
@@ -1661,7 +1715,10 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             # reading ("21--39 mm": the C4 cell of the row C1's 21 came from) outranks a
             # strongly-anchored key from elsewhere; one from the same SCRIPT is admitted
             near_scripts = {_script_of(r) for r, _ in near_rows}
+            _full = _sentence(masked, s, e, full=True)
             for wsc, wc in WEAK.get((s, e), []):
+                if _cluster_clash(wc, _full):
+                    continue                          # C2's row is not re-admitted into a sentence about C1
                 if (wc.rel, _rowkey(wc.label)) in near_rows:
                     options = options + [(wsc + 3.0, wc)]
                 elif _script_of(wc.rel) in near_scripts:
@@ -1685,7 +1742,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             prev_rel = chosen_rows[-1][1] if (of_n or range_prev) else None
             if range_prev:
                 for wsc, wc in WEAK.get((s, e), []):
-                    if wc.rel == prev_rel and all(x[1] is not wc for x in options):
+                    if wc.rel == prev_rel and all(x[1] is not wc for x in options) and not _cluster_clash(wc, _full):
                         options = options + [(wsc + 2.0, wc)]
             ms_hint = ms_scripts(masked[s:e]) if len(options) > 1 else set()
             def key(t):
@@ -2047,7 +2104,7 @@ function openPop(span){
     item.done = false;
     const q = load(); q.push(item); save(q);
     if (served) await post(item);
-    else if (dbq) { try { await dbq.add(item); } catch(e) { console.log('db add failed', e); } }
+    else if (dbq) { try { const ref = await dbq.add(item); item.dbid = ref.id; const q2 = load(); const k = q2.findIndex(x => x.id === item.id && x.ts === item.ts); if (k >= 0) { q2[k].dbid = ref.id; save(q2); } } catch(e) { console.log('db add failed', e); } }
     closePop(); badge(); drawer();
   };
   document.getElementById('qb').onclick = submit;
@@ -2062,7 +2119,16 @@ function drawer(){
 }
 function drop(i){ const q = load(); const it = q.splice(i,1)[0]; save(q); const el = document.getElementById(it.id); if (el) el.classList.remove('queued'); badge(); drawer(); }
 function clearQ(){ if (!confirm('Clear the queue held in this browser? (the server copy, if any, is kept)')) return; load().forEach(it => { const el = document.getElementById(it.id); if (el) el.classList.remove('queued'); }); save([]); badge(); drawer(); }
-function copyQ(){ const q = load(); const txt = 'PROOF CORRECTIONS\n' + q.map(it => `- [${it.doc} §${it.section}] "${it.value}" → ${it.suggested || '(no value)'}${it.note ? ' — ' + it.note : ''}\n    context: …${it.context}…`).join('\n'); navigator.clipboard.writeText(txt).then(() => alert('Copied ' + q.length + ' item(s) — paste into the chat.')); }
+function copyQ(){ const q = load(); const txt = 'PROOF CORRECTIONS\n' + q.map(it => `- [${it.doc} §${it.section}] "${it.value}" → ${it.suggested || '(no value)'}${it.note ? ' — ' + it.note : ''}\n    context: …${it.context}…`).join('\n');
+  navigator.clipboard.writeText(txt).then(async () => {
+    // copying IS the hand-over (Martin, 2026-09-21: "the queue is still visible … even
+    // though I have passed it to you"): each copied item is marked handed in the store
+    // and leaves this browser's list; the session reads handed-but-not-done items.
+    let handed = 0;
+    if (dbq) { for (const it of q) { if (it.dbid) { try { await dbq.doc(it.dbid).update({ handed: new Date().toISOString() }); handed++; } catch(e) { console.log('hand-over failed', e); } } } }
+    retire(q); badge(); drawer();
+    alert('Copied ' + q.length + ' item(s) — paste into the chat.' + (dbq ? ' Handed over and cleared from this page (' + handed + ' recorded in the store).' : ''));
+  }); }
 document.addEventListener('click', e => { const sp = e.target.closest('span.n'); if (sp) { e.preventDefault(); openPop(sp); } else if (!e.target.closest('#pop')) closePop(); });
 function merge(items){ const q = load(); const ids = new Set(q.map(x => x.id + '@' + x.ts)); items.forEach(it => { if (!it.done && !ids.has(it.id + '@' + it.ts)) q.push(it); }); save(q); }
 // the store is the truth about what has been PROCESSED: an item a session marked
@@ -2080,12 +2146,12 @@ window.addEventListener('load', async () => {
       const db = await claude.use('db');
       if (db) {
         dbq = db.collection('corrections');
-        const all = (await dbq.limit(1000).get()).docs.map(d => d.data());
+        const all = (await dbq.limit(1000).get()).docs.map(d => Object.assign({ dbid: d.id }, d.data()));
         // the store is the truth: whatever it no longer holds as open — marked done,
         // or deleted when a session cleared the queue — leaves this browser too
-        const open = new Set(all.filter(it => !it.done).map(it => it.id + '@' + it.ts));
+        const open = new Set(all.filter(it => !it.done && !it.handed).map(it => it.id + '@' + it.ts));
         retire(load().filter(it => !open.has(it.id + '@' + it.ts)));
-        merge(all.filter(it => !it.done));
+        merge(all.filter(it => !it.done && !it.handed));
         badge(); drawer();
       }
     }
@@ -2156,7 +2222,12 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
         painted = paint_line(line, by_line.get(i, []), f"{sec[0]} {sec[1]}".strip(), href)
         if href:
             painted = f"<a class=pg data-pdf='{html.escape(href, quote=True)}' href='#' title='this paragraph is on page {pg} of the published PDF'>p.{pg}</a>" + painted
-        elif line.strip() and _page_index().get(_DOC_STEM[0]) and len(_para_fp(line)) >= 24 and not line.startswith(("|", "  ", "!")):
+        elif line.strip() and _page_index().get(_DOC_STEM[0]) and len(_para_fp(line)) >= 24 \
+                and not line.startswith(("|", "  ", "!", "-", ">")) and not _LIST_MARKER.match(line) \
+                and len(_WORD.findall(line.lower())) >= 12:
+            # p.? only for a prose paragraph the PDF SHOULD contain: a list item, a one-line
+            # sub-heading or a display equation is laid out differently by pdftotext and its
+            # miss says nothing about the PDF's age
             painted = "<a class='pg pgno' href='#' title='this paragraph is not in the published PDF as built — the PDF is behind the text here'>p.?</a>" + painted
         is_table = line.startswith(("|", "+--", "  ---", "  ==")) or re.match(r"^\s{2,}\S.*\s{3,}\S", line)
         if is_table:
@@ -2250,7 +2321,7 @@ def main() -> int:
     a = ap.parse_args()
     values = cc.collect_values()
     look = build_index(values, deep=not a.no_deep)
-    out_dir = pathlib.Path(a.out) if a.out else OUT_DIR
+    out_dir = pathlib.Path(a.out).resolve() if a.out else OUT_DIR   # relative --out crashed write_index's relative_to
     out_dir.mkdir(parents=True, exist_ok=True)
     for name in a.doc:
         one(name, values, look, out_dir, a)
@@ -2405,7 +2476,6 @@ def history_of(value: str, clause: str = "") -> str:
 PAGE_INDEX = REPO / "tools" / "pdf_page_index.csv"
 PAGES_BASE = "https://newbroman.github.io/Newborough_Hydrology/"   # GitHub Pages serves the repo
 _PAGES: dict | None = None
-_PARA_MARKUP = re.compile(r"!\[[^\]]*\]\([^)]*\)(\{[^}]*\})?|\[\]\{#[^}]*\}|\{[^}]*\}|\*\*|\\(.)")
 
 
 def _page_index() -> dict:
@@ -2425,7 +2495,7 @@ def _page_index() -> dict:
 
 
 def _para_fp(line: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", _PARA_MARKUP.sub(lambda m: m.group(2) or "", line).lower())[:24]
+    return _ppi.para_key(line)[:24]         # the index's own fingerprint, so the two cannot drift
 
 
 def page_of_line(doc: str, line: str) -> int:
@@ -2619,6 +2689,32 @@ def reading_verdicts() -> dict:
     return _READ
 
 
+_BETTER = re.compile(r"^\s*(.+?)\s*=\s*([-+−]?\d[\d.,]*(?:e-?\d+)?)\s*%?\s*\[([^\]]+)\]")
+
+
+def _better_cand(better: str, tok: str, look: dict):
+    """The candidate a reading-pass denial names as the BETTER source, when it is
+    real: "CEH36_SSM_forward_residual_step = 0.0734 [09e_report_numbers.csv]" is
+    looked up among the candidates whose renderings match the quoted token (so the
+    m→mm and fraction→% forms apply), in that file, under that label. None when the
+    better source is a ratio, a sum or a file the value map does not hold — the
+    denial then stands with its suggestion. Martin, 2026-09-21: "there are several
+    altogether, and it should be obvious which is the right source"."""
+    m = _BETTER.match(better or "")
+    if not m:
+        return None
+    label, fname = m.group(1), m.group(3).strip()
+    lab = re.sub(r"[\s·/]+", " ", label).strip().lower()
+    core = _norm_num(tok).replace(",", "").lstrip("-+")
+    for c in look.get(core, []):
+        if pathlib.Path(c.rel).name != fname:
+            continue
+        cl = re.sub(r"[\s·/]+", " ", f"{c.label} {c.col or ''}".strip()).lower()
+        if lab == cl or lab in cl or cl in lab or lab.split(" ")[-1] == (c.col or c.label).lower():
+            return c
+    return None
+
+
 def _reading_id(num: str, sentence: str, offset: int) -> str:
     """A stable id for a number in its sentence: survives regeneration, moves only
     when the sentence or the number changes. The offset separates repeats."""
@@ -2663,8 +2759,19 @@ def one(name, values, look, out_dir, a):
                     if verdict == "deny" and not same_attr:
                         d = d + f" ‖ an earlier attribution ({read_attr[:80]}) was denied by the reading pass; this is a new one, unread"
                     elif verdict == "deny":
-                        v, d = "denied", (f"DENIED by the reading pass — {reason}" + (f" — better: {better}" if better else "")
-                                          + " ‖ the matcher had: " + d.split(" ‖ ")[0])
+                        bc = _better_cand(better, text[s:e], look)
+                        if bc is not None:
+                            # the reader named the right source and it holds the quoted value:
+                            # that IS the trace, and the wrong attribution is history
+                            v = "traced"
+                            d = (f"read: better source ✓ — {bc.label}{(' · ' + bc.col) if bc.col else ''} = {bc.value:g}"
+                                 f"{(' as ' + bc.form) if bc.form else ''} [{pathlib.Path(bc.rel).name}]"
+                                 f" ‖ the matcher had {d.split(' ‖ ')[0]} — denied: {reason}")
+                        else:
+                            v, d = "denied", (f"DENIED by the reading pass — {reason}" + (f" — better: {better}" if better else "")
+                                              + " ‖ the matcher had: " + d.split(" ‖ ")[0])
+                    elif verdict == "confirm" and not same_attr:
+                        d = d + f" ‖ an earlier attribution ({read_attr[:80]}) was confirmed by the reading pass; this is a new one, unread"
                     elif verdict == "confirm":
                         v = "traced" if v in ("traced", "tie") and "UNREGISTERED" not in d else v
                         d = "read: confirmed ✓ — " + d

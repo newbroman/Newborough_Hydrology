@@ -2771,6 +2771,7 @@ report10,para,thepracticallimitsofthes,278,docs/report/report.pdf,2026-09-21T09:
 report10,para,thescenarioframeworkspre,279,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,heading,Forest Scenario Predictions Against the Observed Record,279,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,broadleafconversionprodu,279,docs/report/report.pdf,2026-09-21T09:42Z,1
+report10,para,syntheticmeanyearhydrogr,280,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,theparametricnetstatemap,281,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,heading,Parametric Prediction and Observed Network Change,281,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thestandingcanopyeffecti,281,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -2834,6 +2835,7 @@ report10,para,thetestthereforedoeswhat,292,docs/report/report.pdf,2026-09-21T09:
 report10,para,theonlyobservationofthis,292,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,heading,The 1951--53 Record: Fifty-Four Years Before Calibration,292,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,twotestsfollowandtheyare,293,docs/report/report.pdf,2026-09-21T09:42Z,1
+report10,para,ranwells195153watertable,294,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thesecondtestaskswhether,294,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,therecordthereforesuppor,295,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,theprecedingsectionshave,295,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -2849,6 +2851,7 @@ report10,heading,Climate Trajectory as the Binding Constraint,297,docs/report/re
 report10,para,whetherthisseasonalasymm,297,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,atnewboroughspecifically,298,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thesereachescanbeconsoli,298,docs/report/report.pdf,2026-09-21T09:42Z,1
+report10,para,spatialreachanddevelopme,299,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thefourdriversactonthewa,300,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,aclearfellliftsthecanopy,300,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,coastalretreatlowersthes,300,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -2857,6 +2860,7 @@ report10,para,thatmagnitudeisacentrale,300,docs/report/report.pdf,2026-09-21T09:
 report10,para,thetermiscarriedonthecom,301,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,expressedasanequivalentd,301,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,unexplaineduniform220mm2,301,docs/report/report.pdf,2026-09-21T09:42Z,1
+report10,para,sitewidefootingofeachwat,301,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thissitewiderankingdiffe,301,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,themanagementchallengeat,301,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,summerminimaaretheprimar,304,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -2869,6 +2873,7 @@ report10,para,plantationclearanceasimp,305,docs/report/report.pdf,2026-09-21T09:
 report10,para,theevidencedoesnotsuppor,305,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thecorrectedscenarioproj,305,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thepredictionequationspf,305,docs/report/report.pdf,2026-09-21T09:42Z,1
+report10,para,perwellachievabilitycate,306,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,fourprioritiesforfuturer,307,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,secondthec5coastalforest,307,docs/report/report.pdf,2026-09-21T09:42Z,1
 report10,para,thirdtherelationshipbetw,307,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3094,7 +3099,6 @@ report8,para,monthlytotalprecipitatio,25,docs/report/report.pdf,2026-09-21T09:42
 report8,heading,Climate Data,25,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,potentialevapotranspirat,26,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,wheretismeanmonthlytempe,26,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,formonthswheremeantemper,26,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,wherenisthemaximumpossib,26,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thornthwaitesumsthetwelv,26,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thornthwaitepetisknownto,27,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3105,17 +3109,14 @@ report8,para,tocharacterizethespatial,28,docs/report/report.pdf,2026-09-21T09:42
 report8,heading,Hierarchical Clustering,28,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,becausetheabsoluteelevat,28,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,heading,Data Pre-processing and the Pearson Correlation Distance,28,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,pairwisedissimilaritybet,28,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,synchronizedslacksr1wher,28,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,byutilizingthepearsoncor,28,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thedissimilaritymatrixwa,29,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,heading,Agglomeration Strategy,29,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,foranygivenclustercconta,29,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,whenevaluatingthepotenti,29,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,whichsimplifiestotheobje,29,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,wherenaandnbrepresentthe,29,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thisspecificalgebraicfor,29,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,wardsmathematicalobjecti,29,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,theoptimalnumberofcluste,30,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,heading,Cluster Determination and Robustness Assessment,30,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,atk5fourofthefivecluster,30,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3156,8 +3157,6 @@ report8,para,thestatespacemodeldefine,37,docs/report/report.pdf,2026-09-21T09:42
 report8,heading,Modelling the Cluster water levels,37,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,clusterscaleversusperwel,37,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thetradeoffrunsinbothdir,37,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,signconventionisdefineda,38,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,interceptconstraintthecl,38,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,physicalinterpretationof,38,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,lumpedcatchmentstorageco,38,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,modelconfigurationsbothm,39,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3183,9 +3182,8 @@ report8,heading,Spatial Coefficient Mapping,41,docs/report/report.pdf,2026-09-21
 report8,para,summaryofssmfittingwindo,42,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,totestwhetherwithinfores,42,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,heading,Within-Forest Spatial Coefficient Analysis,42,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,whichisthetimeforexcessg,42,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,heading,Drainage Timescales and Aquifer Diagnostic Synthesis,42,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thestoragedrainageindexs,43,docs/report/report.pdf,2026-09-21T09:42Z,1
+report8,heading,Drainage Timescales and Aquifer Diagnostic Synthesis,43,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thehalflifemapisreadalon,43,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,ateachwellwithmarkerarea,43,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,toevaluatethehydrologica,43,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3396,9 +3394,8 @@ report8,para,thesealevelrisefieldmode,85,docs/report/report.pdf,2026-09-21T09:42
 report8,para,thenetcoastalfieldisthec,85,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,thedunescrapedrawdownfie,85,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,theclearfellprefellbasel,85,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,para,thedrainagedecayhalflife,86,docs/report/report.pdf,2026-09-21T09:42Z,1
-report8,heading,Drainage Half-life Field,86,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,awelllevelscenarioframew,86,docs/report/report.pdf,2026-09-21T09:42Z,1
+report8,heading,Drainage Half-life Field,86,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,heading,Scenario Framework and Interactive Viewer,86,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,wherepeffappliestherelev,86,docs/report/report.pdf,2026-09-21T09:42Z,1
 report8,para,underbroadleafconversion,86,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3432,6 +3429,7 @@ report9,para,petshowsstrongseasonalit,91,docs/report/report.pdf,2026-09-21T09:42
 report9,para,thelevelledcumulativewat,91,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theseasonalstructureofth,91,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,yearannualpmmannualpetmm,94,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,annualclimatesummaryforr,94,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,therafvalleyrecordalsosh,95,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,the66wellreferencenetwor,95,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,4.1.2 Well Network,95,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3445,6 +3443,7 @@ report9,para,thenetworkmeanwatertable,99,docs/report/report.pdf,2026-09-21T09:42
 report9,para,separatingthereferencewe,100,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,perwellseasonalamplitude,102,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,c1lakeedge70841001915c2d,102,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,negativevaluesindicateam,102,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,threepatternsemergefirst,102,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theamplitudeanalysisconf,102,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thefiveclustersarecharac,103,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3453,19 +3452,27 @@ report9,para,therechargesensitivityco,103,docs/report/report.pdf,2026-09-21T09:4
 report9,para,thec1clustermeancoeffici,104,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,anextendedformofthestate,104,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theelevatedc4atmospheric,104,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,clustermechanisticcharac,105,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,c1lakeedge74269624003881,105,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Recharge and Losses: A Cluster-Level Water Balance,105,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,withinclusterrangeofthep,105,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,waterbalancedecompositio,106,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,rechargeintothewatertabl,106,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,meanmonthlyheadspacewate,106,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theheadspacedecompositio,106,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,seasonalrecessionpartiti,107,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,anindicativevolumetricex,107,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,clusterlabelpipnetetmidd,108,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,indicativeannualvolumetr,108,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,waterbalancedecompositio,109,docs/report/report.pdf,2026-09-21T09:42Z,2
 report9,para,wtfeventbasedmediansyest,110,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Specific Yield Estimation,110,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,distributionofeventlevel,111,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,anindependentcrosschecko,111,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,athirdindependentwtfesti,112,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,individualwellsyvaluesun,112,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,c1lakeedge00802105703483,113,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,specificyieldsyestimates,113,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,individualwellwtfsyestim,113,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,ofthe66wellsinthereferen,115,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Checking the Clusters: Pearson Affinity Analysis,115,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3475,7 +3482,10 @@ report9,para,withintheextendednetwork,115,docs/report/report.pdf,2026-09-21T09:4
 report9,para,thessmwascomparedtoatlma,119,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Model Benchmarking: State-Space Model Comparison with Traditional Linear Models,119,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thedepthdependentpetgrid,119,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,dualmodelperformancecomp,120,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,metrictlmssmimprovementm,120,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,modelbenchmarkingsummary,120,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,ssmgainovertlmacrossall6,122,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,threedipwellswithinthedu,122,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Dune Scraping Intervention Analysis,122,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Background Environmental Drift,122,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3487,16 +3497,22 @@ report9,para,theannualsummerminimumre,124,docs/report/report.pdf,2026-09-21T09:4
 report9,para,eraspecificestimatesshow,127,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Drainage Coefficient Response,127,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,wellroleera95cipvaluesig,127,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,eraspecificstoragedecayc,127,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theannualsummerminimumde,128,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Summer Minima,128,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thepairedbacisummerminim,129,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thesamepairedcomparisono,130,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,summerminimaanalysisfort,131,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,pairedbacisummerminimuma,132,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,climatecorrectedanomalyt,133,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,asupplementaryanalysiste,133,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Scraping Propagation into the Surrounding Aquifer,133,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,firsttheuphillwellstrave,133,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,secondtheaquiferdiffusiv,133,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,tocontextualizetheobserv,135,docs/report/report.pdf,2026-09-21T09:42Z,2
 report9,heading,Scenario Contextualization,135,docs/report/report.pdf,2026-09-21T09:42Z,2
+report9,para,scenariocomparisonatceh3,136,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,scenariocomparisonatceh3,137,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,threefeaturesofthemonito,138,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,The December 2017 Experimental Clearfell: Monitoring and Retrospective Analysis,138,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Interpretive Context,138,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3505,12 +3521,15 @@ report9,heading,Climate Sensitivity,138,docs/report/report.pdf,2026-09-21T09:42Z
 report9,para,alinearslopeishoweverabl,138,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thisisreportedasaprelimi,139,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theclimatecontrolmodelsw,139,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,climatesensitivitycumula,139,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theancovabacimodelsectio,140,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,ANCOVA-BACI Results,140,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,threecounterfactualancov,140,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,againsttheforestcontrolt,140,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thescrapingcovariatewass,140,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,therawbeforeandafterevid,141,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thecoastaldriftcovariate,144,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,thecoastaldrifttermfitte,144,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,fourzonepooledpanelcross,144,docs/report/report.pdf,2026-09-21T09:42Z,2
 report9,para,thejointfitreturnsthreep,145,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theimpactedgedifferenceo,145,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3518,13 +3537,16 @@ report9,para,theannualsummerminimumde,145,docs/report/report.pdf,2026-09-21T09:4
 report9,heading,Summer Minima,145,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,perwellsummerminimumshif,145,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,wmc3impactforest67012701,146,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,perwellprevspostfellings,146,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,pooledmixedeffectsmodela,146,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,forestimpactolssinglewel,146,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,mixedeffectsmodelresults,146,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,directlyfittedjunsepanco,146,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,distributionalcomparison,147,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,fourzonepooledpanelcross,147,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thefoursummerwindowanaly,147,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,fiveyearmeanspringwaterl,147,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,summerminimumdepthdistri,149,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,climatecorrectedstepchan,149,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Spatial Step-Change Maps,149,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thessmwasfittedindepende,150,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3534,7 +3556,9 @@ report9,para,atmosphericdrawincreased,151,docs/report/report.pdf,2026-09-21T09:4
 report9,para,drainageshiftsweresmalla,151,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,individualwellsdepartedf,151,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thedecompositiontherefor,151,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,beforeandafterclearfells,152,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,welltierbeforeafterbefor,153,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,beforeandafterclearfells,153,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,threeindependentmethodsw,153,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Robustness,153,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,ssmresidualnormalization,153,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3554,21 +3578,27 @@ report9,para,intheeasternblockwinterr,158,docs/report/report.pdf,2026-09-21T09:4
 report9,para,inthewesternresidualandf,158,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,twoindividualcoefficient,158,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,blockequationrnppwinterp,158,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,winterpeakpredictionequa,158,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thesummerdroughtpredicti,159,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Summer Drought Prediction Equations,159,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,blockequationrppsummerph,159,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,summerdroughtpredictione,159,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,applicationoftheclusterl,159,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Spatial Distribution of P_flood and Flooding Status Across the Well Network,159,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thesummerminimumdepthmap,159,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thepfloodmapfigure41quan,160,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,c1lakeedge8422486431108c,160,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,perclusterpfloodsummarya,160,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thewintermaximumdepthmap,160,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,spatialdistributionofmea,161,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theeasternblockc1andc2th,162,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,spatialdistributionofmea,163,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thestructuraldifferenceb,164,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Critical Rainfall Threshold Equations (P_flood),164,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theiteratedderivationred,165,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,asaworkedexampleatatypic,165,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,clusterlabelhorizonpfloo,166,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,clusterspecificlinearfor,166,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thespatialdistributionof,166,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Climate Trajectory and Threshold Exceedance,166,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,summerminimumtrendsweref,166,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3590,11 +3620,16 @@ report9,para,themostrecentwindowendsc,169,docs/report/report.pdf,2026-09-21T09:4
 report9,para,themsl5metricrequiresafi,169,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theheadlineecologicalrea,169,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,c1lakeedge8028900c2dune2,170,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,clustermean5yearmeanspri,170,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,clustermean5yearmeanspri,171,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,climatetrajectoryandthre,173,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,msl5section483definedsec,174,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Equilibrium Wetness Index and Vegetation Cross-Validation,174,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thestatespacecoefficient,288,docs/report/report.pdf,2026-09-21T09:42Z,2
 report9,para,msl5equilibriumwetnessin,175,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,betweenwellpredictionofm,175,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,matchbandabsoluteerrorel,175,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,ellenbergfpredictionaccu,175,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,beyondpredictingvegetati,175,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thetwoindicesdifferinwha,176,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theequilibriumindexisthe,176,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3623,15 +3658,18 @@ report9,para,elevationisoverwhelmingl,189,docs/report/report.pdf,2026-09-21T09:4
 report9,para,c4andc5formtwoclearlydis,189,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,twoindividualwellsmeritc,189,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,coefficientvselevationrp,190,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,perwellspatialpredictors,190,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theperwellanalysisconfir,190,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,themeanannualwatertables,190,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Mean Water Table Surface and Groundwater Flow Direction,190,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,meanannualwatertableelev,191,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thessmwaterbalanceresidu,191,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Water Balance Residual Field,191,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,grossratherthanintercept,191,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,positivevaluesindicatelo,192,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,nowellexceeds002mmonthan,192,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theresidualfieldistheref,192,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,ssmwaterbalanceresiduala,193,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thespatialanalysisofsect,193,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,Coastal erosion and the cross-shore section,193,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,everyquantityinthissecti,194,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3642,6 +3680,7 @@ report9,para,thethirdcandidatemechani,194,docs/report/report.pdf,2026-09-21T09:4
 report9,heading,Network-scale partition of the summer-minimum decline.,194,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,appliedtoc5smeancoastpro,195,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,c1lakeedge71819m10972830,196,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,perclusterdecompositiono,196,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thedecaymodelcarriesathi,197,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,heading,What the fit cannot resolve: the far-field level,197,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theconstantisseparatelyi,197,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3670,7 +3709,9 @@ report9,heading,Combined Driver Assessment and Observed Network Change,207,docs/
 report9,para,fourfurtherspatialfigure,208,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,measuredclearfellspatial,208,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theclearfellstepchangema,208,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,clearfellstepchangemapcl,210,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,figure66methodsection381,211,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,netwatertablestateparame,211,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,the20052025driverchangem,212,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,figure68presentstheconve,214,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,themsl5changemapfigure68,214,docs/report/report.pdf,2026-09-21T09:42Z,1
@@ -3683,8 +3724,11 @@ report9,para,thedifferentialsignaliss,217,docs/report/report.pdf,2026-09-21T09:4
 report9,para,absolutemovementwiththec,219,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,figure69measureseachwell,219,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,theabsolutemaptellsaquie,219,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,absoluteclimateremovedse,220,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,wherefigure69measuresslo,221,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thesecondpanelfigure72ma,221,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,theclimateresponseenvelo,222,docs/report/report.pdf,2026-09-21T09:42Z,1
+report9,para,theclimateresponseenvelo,223,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,figure66predictsalargene,286,docs/report/report.pdf,2026-09-21T09:42Z,2
 report9,para,figure71showstheforestam,224,docs/report/report.pdf,2026-09-21T09:42Z,1
 report9,para,thefelledwellfe2insideth,224,docs/report/report.pdf,2026-09-21T09:42Z,1

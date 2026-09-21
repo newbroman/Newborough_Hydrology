@@ -1,5 +1,5 @@
 id,analysis,scripts,wells,fit_basis,expect,evaluation_or_aggregation,verify,notes
-RB-01,Network admission,01_data_prep.py,88 -> 66,none,,,manual,"a well is admitted at more than MIN_MONTHS_THRESH months of valid record and must still report after REFERENCE_CUTOFF_DATE; an admission rule, not a fitting window"
+RB-01,Network admission,01_data_prep.py,88 -> 66,none,,,manual,"a well is admitted at more than config.MIN_RECORD_MONTHS months of valid record (was a Script 01 local MIN_MONTHS_THRESH until 2026-09-21) and must still report after REFERENCE_CUTOFF_DATE; an admission rule, not a fitting window"
 RB-02,Behavioural clustering,02_clustering.py,66,full_record,,pairwise-complete correlation,manual,"distance is 1 - wells.corr(); each pair is correlated on the months the two share, so pair overlap ranges 113-250 months (median 185). Not an SSM fit, so not mechanically checkable here"
 RB-03,Cluster-centroid SSM,03_state_space_model.py,5 centroids,full_record,window=None,same,ast_window,the headline mechanistic table; n = 236-248
 RB-04,Per-well SSM,03_state_space_model.py,66,window,window=LCSC_DATA_LIMIT,same,ast_window,the per-well coefficient store; n = 100 at every well

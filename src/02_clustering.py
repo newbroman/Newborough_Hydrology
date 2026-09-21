@@ -14,7 +14,9 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-19. Three fixes to the
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-21. MIN_RECORD_MONTHS is imported
+#   from config (shared with Scripts 00 and 01) instead of typed here (E32). No output moves.
+# 1.6.0  # Hollingham (2026) — 2026-08-19. Three fixes to the
 #        month-wise stability block, all following from the finding that the
 #        two published statistics diverge because median co-assignment cannot
 #        see whole-cluster merging. (a) The split-half start grid was pinned to
@@ -84,7 +86,7 @@ from sklearn.metrics import (silhouette_score, calinski_harabasz_score,
 
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS,
-    REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES,
+    REFERENCE_CUTOFF_DATE, BW_MODE, BW_LINESTYLES, MIN_RECORD_MONTHS,
     CLUSTER_BOOT_SEED,
     CLUSTER_MONTH_BOOT_N, CLUSTER_MONTH_BLOCK_MONTHS,
     CLUSTER_MONTH_SPLIT_N, CLUSTER_MONTH_BOOT_SEED,
@@ -119,7 +121,6 @@ NUM_CLUSTERS = get_requested_n_clusters()
 # how this partition was arrived at.
 WARDS_K = NUM_CLUSTERS
 REFERENCE_CUTOFF = pd.Timestamp(REFERENCE_CUTOFF_DATE)
-MIN_RECORD_MONTHS = 100
 DETREND_START = pd.Timestamp("2004-12-01")
 DETREND_END = pd.Timestamp("2025-12-01")
 

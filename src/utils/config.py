@@ -878,10 +878,26 @@ SSM_MIN_OBS = 30
 # writes 08_lcsc_model_stats.csv) and Script 30 (the C4 identifiability
 # diagnostic, which reports it against the full record as a sensitivity).
 #
-# Distinct from MIN_MONTHS_THRESH, which is an admission threshold for the
+# Distinct from MIN_RECORD_MONTHS, which is an admission threshold for the
 # reference network, not a fitting window. Previously declared independently in
 # model_utils.py and in Scripts 03 and 08 (D-016).
 LCSC_DATA_LIMIT = 100
+
+# Reference-network admission threshold: a well is admitted at more than this
+# many months of valid record (and must still report after REFERENCE_CUTOFF_DATE).
+# One number, three consumers — Script 01 admits, Script 02 clusters the admitted
+# wells, Script 00 draws the gate on the record-length figure — and until
+# 2026-09-21 each carried its own copy (MIN_MONTHS_THRESH in 01, MIN_RECORD_MONTHS
+# in 00 and 02; E32). An admission rule, NOT a fitting window: that is
+# LCSC_DATA_LIMIT above, which happens to share the value.
+MIN_RECORD_MONTHS = 100
+
+# Physical depth floor for the raw dipwell readings, signed and relative to
+# ground (metres): a reading deeper than this is masked as implausible for this
+# dune system (report8 §3.1.1). A chosen quality-control threshold, not a
+# measurement — Martin (2026-09-21): "this is a chosen number, could be set at
+# 3.5 m". Lived in data_utils.py until 2026-09-21.
+MIN_PHYSICAL_DEPTH = -4.0
 
 # Reference date for the centroid composition sensitivity (Script 03, output
 # 03_13). Cluster centroids are the mean of their member wells, and members came

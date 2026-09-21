@@ -3603,7 +3603,7 @@ def _model_flood_kml(date, EE, NN, wet, res, path):
 def _level_frame():
     """The monthly level frame, preferring the UNTHRESHOLDED one.
 
-    `01_wells_clean.csv` is cut at Script 01's MIN_MONTHS_THRESH, which is an
+    `01_wells_clean.csv` is cut at config.MIN_RECORD_MONTHS (Script 01's admission threshold), which is an
     admission criterion for the clustering and the SSM. Phase 13 fits nothing —
     it interpolates OBSERVED head — so the threshold costs it five DGPS-surveyed
     south-eastern wells (D31, D33, D34, D39, D45; 17-18 months, 2010-03 to
@@ -3710,7 +3710,7 @@ def _tidal_control(site):
     higher, and where five surveyed wells (D31, D33, D34, D39, D45, at 2.75-4.61 m) are
     absent from `01_wells_clean.csv` — NOT for want of readings. CORRECTED
     2026-09-13 (Martin): all five carry 17-18 months of measured head
-    (2010-03 to 2011-08) in the raw record; Script 01's MIN_MONTHS_THRESH and
+    (2010-03 to 2011-08) in the raw record; config.MIN_RECORD_MONTHS and
     MIN_EXTENDED_MONTHS, both SSM/clustering admission criteria, drop them from
     every emitted file. `pe` was never missing at all — it is in the extended
     network. Script 01 >= 1.16.0 emits `01_wells_all.csv` for exactly this, and

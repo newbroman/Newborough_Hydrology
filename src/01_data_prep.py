@@ -16,7 +16,17 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-09-21. The DEM-vs-DGPS comparison is
+__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-21. The trailing-vs-calendar Thornthwaite
+#   comparison report8 §3.1.2 quotes is EMITTED (pet_trailing_vs_calendar_* and
+#   pet_calendar_undefined_n_months in 01_report_numbers.csv) instead of typed from
+#   the 2026-08-16 one-off ("median 0.00 %", which Martin called "so rounded it is
+#   meaningless"). thornthwaite_pet_m gains heat_index="calendar" for the comparison
+#   only; the pipeline PET is unchanged. No output but 01_report_numbers moves.
+# 1.20.0 - 2026-09-21. The 100-month admission
+#   threshold is config.MIN_RECORD_MONTHS, shared with Scripts 00 and 02, instead
+#   of a local MIN_MONTHS_THRESH (E32). The depth floor MIN_PHYSICAL_DEPTH moved
+#   from data_utils to config the same day. No output moves.
+# 1.19.0 - 2026-09-21. The DEM-vs-DGPS comparison is
 #   WITHDRAWN (Martin, 2026-09-21). 1.18.0 emitted it faithfully, and faithfully
 #   reproduced an artefact: in well_metadata.csv the recorded DEM elevation equals
 #   the DGPS elevation plus the upstand at 75 of the 77 surveyed wells, so "DGPS
@@ -39,7 +49,7 @@ __version__ = "1.19.0"  # Hollingham (2026) - 2026-09-21. The DEM-vs-DGPS compar
 #   01_wells_all.csv - the cleaned monthly frame with NO record-length threshold,
 #   alongside the existing thresholded files. Purely additive: wells_clean, the
 #   reference/extended split, the provenance file and every downstream consumer are
-#   unchanged. Exists because MIN_MONTHS_THRESH and MIN_EXTENDED_MONTHS are
+#   unchanged. Exists because MIN_RECORD_MONTHS and MIN_EXTENDED_MONTHS are
 #   SSM/clustering admission criteria and were silently excluding five DGPS-surveyed
 #   south-eastern wells (D31, D33, D34, D39, D45; 17-18 months, 2010-03 to 2011-08)
 #   from analyses that interpolate observed levels and fit nothing. Not to be used to
@@ -131,7 +141,7 @@ from utils.paths import (
 from utils.buckets import month_bucket
 from utils.data_utils import normalize_well_name, parse_met_date, clean_well_series
 from utils.comment_states import parse_comment_states, assemble_observation_states
-from utils.config import (REFERENCE_CUTOFF_DATE, RAF_VALLEY_LAT_DEG, CLUSTER_LABELS,
+from utils.config import (REFERENCE_CUTOFF_DATE, RAF_VALLEY_LAT_DEG, CLUSTER_LABELS, MIN_RECORD_MONTHS,
     RECORD_START_DISPLAY, EXCLUDED_STUDY_AREA_WELLS, LAKE_GAUGE_REASON,
     get_cluster_colour, get_obs_state_colours, get_obs_state_hatches)
 from utils.render_utils import render_figure
@@ -141,7 +151,6 @@ from utils.render_utils import render_figure
 # so the maOD step could silently use a stale elevation source).
 _WELL_ELEV_FILE = DATA_WELL_ELEVATIONS
 
-MIN_MONTHS_THRESH   = 100
 RECENCY_DATE        = pd.Timestamp(REFERENCE_CUTOFF_DATE)
 MIN_EXTENDED_MONTHS = 24
 
@@ -195,7 +204,7 @@ MIN_EXTENDED_MONTHS = 24
 #     extended-network analyses.
 #
 # To restore the fully automatic reference-network selection (i.e., let
-# any well meeting MIN_MONTHS_THRESH and RECENCY_DATE into the reference
+# any well meeting MIN_RECORD_MONTHS and RECENCY_DATE into the reference
 # network), set REFERENCE_NETWORK_WHITELIST = None.
 # ──────────────────────────────────────────────────────────────────────────────
 REFERENCE_NETWORK_WHITELIST = frozenset({
@@ -283,7 +292,8 @@ def _derive_canonical_geometry(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -> pd.Series:
+def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG,
+                       heat_index: str = "trailing") -> pd.Series:
     """
     Compute monthly PET in metres using the Thornthwaite (1948) method with the
     Thornthwaite & Mather (1955) day-length and month-length correction factor.
@@ -331,11 +341,19 @@ def thornthwaite_pet_m(t_mean: pd.Series, lat_deg: float = RAF_VALLEY_LAT_DEG) -
     # calendar-year form (5th-95th +/-5.5%), so it is centred on what it
     # replaces. Months with missing temperature contribute zero (conservative).
     i_monthly = (temps_pos / 5) ** 1.514
-    I = i_monthly.rolling(window=12, min_periods=12).sum()
-    # The first 11 months have no complete trailing window; back-fill them with
-    # the first one that does, so the series has no holes. These months precede
-    # any well record by 70 years.
-    I = I.bfill()
+    if heat_index == "calendar":
+        # the published form, kept ONLY for the comparison emitted to
+        # 01_report_numbers.csv: the calendar-year sum, undefined (NaN) for any
+        # year the record does not hold in full
+        _yr = t_mean.index.year
+        _full = pd.Series(_yr, index=t_mean.index).map(pd.Series(_yr).value_counts()) == 12
+        I = i_monthly.groupby(_yr).transform("sum").where(_full)
+    else:
+        I = i_monthly.rolling(window=12, min_periods=12).sum()
+        # The first 11 months have no complete trailing window; back-fill them with
+        # the first one that does, so the series has no holes. These months precede
+        # any well record by 70 years.
+        I = I.bfill()
     I = I.replace(0, np.nan)  # guard against an all-zero-temperature window
 
     alpha = (6.75e-7 * I**3) - (7.71e-5 * I**2) + (1.792e-2 * I) + 0.49239
@@ -838,7 +856,7 @@ def _render_coverage_figure(wells_scope, states):
            f"{span}  (Source: 01_data_prep.py)")
 
 
-def _report_elevation_check(elev_df, src):
+def _report_elevation_check(elev_df, src, pet_cmp=None):
     """The ground-source counts report8 §3.1.2 states, read out of the frame just
     written: how many wells take their ground elevation from the DGPS survey, how
     many from the LiDAR DTM, and the total located. The DEM-vs-DGPS comparison that
@@ -849,6 +867,16 @@ def _report_elevation_check(elev_df, src):
     rr.add("elev_n_dgps", int(src.eq("dgps").sum()), unit="count", note="wells whose ground elevation is the DGPS survey (author and Curreli, 2010)")
     rr.add("elev_n_lidar", int(src.eq("lidar").sum()), unit="count", note="wells whose ground elevation is the LiDAR DTM")
     rr.add("elev_n_total", int(len(elev_df)), unit="count", note="located wells in well_metadata.csv")
+    if pet_cmp:
+        rr.add("pet_trailing_vs_calendar_n_months", pet_cmp["n_months"], unit="count",
+               note="well-record months where both the trailing-window (D-036) and the calendar-year Thornthwaite heat index are defined")
+        rr.add("pet_trailing_vs_calendar_median_pct", pet_cmp["median_pct"], unit="%",
+               note="median of (trailing - calendar)/calendar monthly PET over those months")
+        rr.add("pet_trailing_vs_calendar_p05_pct", pet_cmp["p05_pct"], unit="%", note="5th percentile of the same")
+        rr.add("pet_trailing_vs_calendar_p95_pct", pet_cmp["p95_pct"], unit="%", note="95th percentile of the same")
+        rr.add("pet_trailing_vs_calendar_mean_abs_pct", pet_cmp["mean_abs_pct"], unit="%", note="mean absolute difference")
+        rr.add("pet_calendar_undefined_n_months", pet_cmp["n_undefined"], unit="count",
+               note="well-record months for which the calendar-year form cannot be computed (the year is incomplete): " + pet_cmp["undefined_months"])
     n = rr.save(OUT_01_REPORT_NUMBERS)
     saved(f"{OUT_01_REPORT_NUMBERS.name} ({n} value(s))")
 
@@ -938,6 +966,20 @@ if __name__ == "__main__":
     ) / 2
     climate["PET"] = thornthwaite_pet_m(t_mean)
     climate[["P_m", "PET"]].to_csv(INT_CLIMATE)
+    # How far the trailing-window heat index (D-036) moves PET from the published
+    # calendar-year form over the well record, and where the published form is
+    # undefined — the figures report8 §3.1.2 quotes (emitted 1.21.0; they had been
+    # typed from a one-off on 2026-08-16).
+    _pet_cal = thornthwaite_pet_m(t_mean, heat_index="calendar")
+    _span = (climate.index >= pd.Timestamp(RECORD_START_DISPLAY)) & (climate.index <= pd.Timestamp(REFERENCE_CUTOFF_DATE))
+    _both = _span & climate["PET"].notna() & _pet_cal.notna() & (_pet_cal > 0)
+    _pct = ((climate["PET"] - _pet_cal) / _pet_cal * 100.0)[_both]
+    _undef = climate.index[_span & climate["PET"].notna() & _pet_cal.isna()]
+    pet_cmp = {"n_months": int(_both.sum()), "median_pct": float(_pct.median()),
+               "p05_pct": float(_pct.quantile(0.05)), "p95_pct": float(_pct.quantile(0.95)),
+               "mean_abs_pct": float(_pct.abs().mean()),
+               "n_undefined": int(len(_undef)),
+               "undefined_months": ", ".join(d.strftime("%Y-%m") for d in _undef)}
 
     # Wells
     wells = wells_raw.set_index(wells_raw.columns[0]).transpose()
@@ -979,7 +1021,7 @@ if __name__ == "__main__":
         provenance[col] = prov_col
 
     # EVERY well in the cleaned frame, before any record-length threshold.
-    # MIN_MONTHS_THRESH (below) and MIN_EXTENDED_MONTHS (the network split) are
+    # MIN_RECORD_MONTHS (below) and MIN_EXTENDED_MONTHS (the network split) are
     # both admission criteria for the clustering and the SSM, which cannot fit a
     # short record (SSM_MIN_OBS = 30). An analysis that interpolates OBSERVED
     # levels and fits nothing needs neither threshold, and is actively harmed by
@@ -999,7 +1041,7 @@ if __name__ == "__main__":
                   if normalize_well_name(c) not in EXTENDED_NETWORK_BLACKLIST]]
     _all.to_csv(INT_WELLS_ALL)
 
-    wells_clean = wells.dropna(axis=1, thresh=MIN_MONTHS_THRESH)
+    wells_clean = wells.dropna(axis=1, thresh=MIN_RECORD_MONTHS)
     wells_clean.to_csv(INT_WELLS_CLEAN)
 
     # Write the provenance file restricted to the same column set as the
@@ -1024,7 +1066,7 @@ if __name__ == "__main__":
             blacklisted_wells.append(col)
             continue
         meets_reference_criteria = (
-            len(series) >= MIN_MONTHS_THRESH
+            len(series) >= MIN_RECORD_MONTHS
             and series.index.max() >= RECENCY_DATE
         )
         if meets_reference_criteria:
@@ -1127,7 +1169,7 @@ if __name__ == "__main__":
 
         elev_df.to_csv(INT_WELL_ELEVATIONS, index=False)
         saved(f"{INT_WELL_ELEVATIONS.name}")
-        _report_elevation_check(elev_df, src)
+        _report_elevation_check(elev_df, src, pet_cmp)
     else:
         elev_df = None
         warn(f"Elevation file not found: {_WELL_ELEV_FILE}")

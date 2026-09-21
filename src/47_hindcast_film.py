@@ -54,7 +54,9 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-17. First cut: T-39, the
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-21. The int16 sentinel fallback was
+#   the literal 32767; it is config.WET_AREA_CELL_NEVER (pipeline_lint --check literals).
+# 1.0.0  # Hollingham (2026) - 2026-09-17. First cut: T-39, the
 #   prototype tools/hindcast_calibrate.py 1.0.0 moved into the pipeline with its
 #   quantile map, curves, renderer and slide text unchanged in substance. The
 #   recurrence now comes from committed inputs (01_climate.csv, not
@@ -84,6 +86,7 @@ from utils.paths import (                                     # noqa: E402
     out_47_still,
 )
 from utils.config import (                                    # noqa: E402
+    WET_AREA_CELL_NEVER,
     DRAINAGE_DATUM, HINDCAST_SEED_MONTHS, HINDCAST_SPIN_UP_YEARS,
     QMAP_MIN_WELLS, QMAP_MIN_MONTHS, QMAP_TAIL_FRACTION,
     FILM_FPS, FILM_WORDS_PER_MINUTE, FILM_SLIDE_LEAD_S,
@@ -214,7 +217,7 @@ def decode_cells(feed: dict):
     """
     g, c = feed["grid"], feed["cells"]
     rows, cols = int(g["rows"]), int(g["cols"])
-    never = int(c.get("never", 32767))
+    never = int(c.get("never", WET_AREA_CELL_NEVER))   # the feed carries it; config is the fallback, not a retyping
 
     def lvl(key):
         a = np.frombuffer(base64.b64decode(c[key]), dtype="<i2").astype(np.float64)

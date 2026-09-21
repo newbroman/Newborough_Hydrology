@@ -3,6 +3,7 @@ Script 26c — MSL5 report-format figures
 
 Sources:
   /home/john/projects/NRG/outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv
+  /home/john/projects/NRG/outputs/26_van_willegen_msl/26_curreli_min_per_cluster.csv
   /home/john/projects/NRG/outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv
   /home/john/projects/NRG/outputs/19_spatial_groundwater/19_scenario_summary.csv
 
@@ -10,7 +11,7 @@ Outputs:
   /home/john/projects/NRG/outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png
   /home/john/projects/NRG/outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png
 
-Curreli (2013) reference values:
+Curreli (2013) reference values (four-year means of the annual minimum; drawn on the 4-year mean annual minimum, panel b — D-190):
   SD15b (wet slack)  : -0.61 m below ground
   SD16  (dry slack)  : -0.98 m below ground
 

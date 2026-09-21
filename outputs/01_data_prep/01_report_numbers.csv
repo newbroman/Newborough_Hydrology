@@ -3,8 +3,8 @@ elev_n_dgps,,,78.0,count,"wells whose ground elevation is the DGPS survey (autho
 elev_n_lidar,,,21.0,count,wells whose ground elevation is the LiDAR DTM
 elev_n_total,,,99.0,count,located wells in well_metadata.csv
 pet_trailing_vs_calendar_n_months,,,249.0,count,well-record months where both the trailing-window (D-036) and the calendar-year Thornthwaite heat index are defined
-pet_trailing_vs_calendar_median_pct,,,0.0,%,median of (trailing - calendar)/calendar monthly PET over those months
-pet_trailing_vs_calendar_p05_pct,,,-5.394832827060543,%,5th percentile of the same
+pet_trailing_vs_calendar_median_pct,,,1.2007013403308527e-14,%,median of (trailing - calendar)/calendar monthly PET over those months
+pet_trailing_vs_calendar_p05_pct,,,-5.394832827060519,%,5th percentile of the same
 pet_trailing_vs_calendar_p95_pct,,,5.490899857883839,%,95th percentile of the same
-pet_trailing_vs_calendar_mean_abs_pct,,,2.139459593601281,%,mean absolute difference
+pet_trailing_vs_calendar_mean_abs_pct,,,2.1394595936012797,%,mean absolute difference
 pet_calendar_undefined_n_months,,,2.0,count,"well-record months for which the calendar-year form cannot be computed (the year is incomplete): 2026-01, 2026-02"

@@ -1,0 +1,1553 @@
+well,window_years,window_end_year,MINw_m_bg,cluster_id,cluster_label,network
+ceh1,4,2010,-0.8374999999999999,3,C3 (Western Residual),Reference
+ceh1,4,2011,-0.9299999999999999,3,C3 (Western Residual),Reference
+ceh1,4,2012,-1.1275,3,C3 (Western Residual),Reference
+ceh1,4,2013,-1.33,3,C3 (Western Residual),Reference
+ceh1,4,2014,-1.3075,3,C3 (Western Residual),Reference
+ceh1,4,2015,-1.2874999999999999,3,C3 (Western Residual),Reference
+ceh1,4,2016,-1.2425,3,C3 (Western Residual),Reference
+ceh1,4,2017,-1.1024999999999998,3,C3 (Western Residual),Reference
+ceh1,4,2018,-1.1775,3,C3 (Western Residual),Reference
+ceh1,4,2019,-1.245,3,C3 (Western Residual),Reference
+ceh1,4,2020,-1.2675,3,C3 (Western Residual),Reference
+ceh1,4,2021,-1.3075,3,C3 (Western Residual),Reference
+ceh1,4,2022,-1.1925,3,C3 (Western Residual),Reference
+ceh1,4,2023,-1.185,3,C3 (Western Residual),Reference
+ceh1,4,2024,-1.0899999999999999,3,C3 (Western Residual),Reference
+ceh1,4,2025,-1.0125,3,C3 (Western Residual),Reference
+ceh10,4,2014,-1.8125,2,C2 (Dune),Reference
+ceh10,4,2015,-1.8225,2,C2 (Dune),Reference
+ceh10,4,2016,-1.7974999999999999,2,C2 (Dune),Reference
+ceh10,4,2017,-1.7625000000000002,2,C2 (Dune),Reference
+ceh10,4,2018,-1.8199999999999998,2,C2 (Dune),Reference
+ceh10,4,2019,-1.875,2,C2 (Dune),Reference
+ceh10,4,2024,-1.8125,2,C2 (Dune),Reference
+ceh10,4,2025,-1.7874999999999999,2,C2 (Dune),Reference
+ceh11,4,2010,-0.8362499999999999,1,C1 (Lake Edge),Reference
+ceh11,4,2011,-0.8374999999999999,1,C1 (Lake Edge),Reference
+ceh11,4,2012,-0.9199999999999999,1,C1 (Lake Edge),Reference
+ceh11,4,2013,-0.9425000000000001,1,C1 (Lake Edge),Reference
+ceh11,4,2014,-0.9175000000000001,1,C1 (Lake Edge),Reference
+ceh11,4,2015,-0.9525,1,C1 (Lake Edge),Reference
+ceh11,4,2016,-0.9500000000000001,1,C1 (Lake Edge),Reference
+ceh11,4,2017,-0.9650000000000001,1,C1 (Lake Edge),Reference
+ceh11,4,2018,-1.0150000000000001,1,C1 (Lake Edge),Reference
+ceh11,4,2019,-1.05,1,C1 (Lake Edge),Reference
+ceh11,4,2020,-1.0425,1,C1 (Lake Edge),Reference
+ceh11,4,2021,-1.04,1,C1 (Lake Edge),Reference
+ceh11,4,2022,-1.0025,1,C1 (Lake Edge),Reference
+ceh11,4,2023,-1.0175,1,C1 (Lake Edge),Reference
+ceh11,4,2024,-0.995,1,C1 (Lake Edge),Reference
+ceh11,4,2025,-0.9925,1,C1 (Lake Edge),Reference
+ceh13,4,2010,-1.2325,4,C4 (Main Forest),Reference
+ceh13,4,2011,-1.43,4,C4 (Main Forest),Reference
+ceh13,4,2017,-1.4425000000000001,4,C4 (Main Forest),Reference
+ceh13,4,2018,-1.6025,4,C4 (Main Forest),Reference
+ceh13,4,2019,-1.7225000000000001,4,C4 (Main Forest),Reference
+ceh13,4,2024,-1.4899999999999998,4,C4 (Main Forest),Reference
+ceh13,4,2025,-1.3375,4,C4 (Main Forest),Reference
+ceh14,4,2010,-1.35,4,C4 (Main Forest),Reference
+ceh14,4,2011,-1.5499999999999998,4,C4 (Main Forest),Reference
+ceh14,4,2017,-1.485,4,C4 (Main Forest),Reference
+ceh14,4,2018,-1.645,4,C4 (Main Forest),Reference
+ceh14,4,2019,-1.775,4,C4 (Main Forest),Reference
+ceh14,4,2020,-1.7974999999999999,4,C4 (Main Forest),Reference
+ceh14,4,2021,-1.84,4,C4 (Main Forest),Reference
+ceh14,4,2022,-1.6025,4,C4 (Main Forest),Reference
+ceh14,4,2023,-1.6,4,C4 (Main Forest),Reference
+ceh14,4,2024,-1.5374999999999999,4,C4 (Main Forest),Reference
+ceh14,4,2025,-1.4425000000000001,4,C4 (Main Forest),Reference
+ceh15,4,2012,-1.38375,4,C4 (Main Forest),Extended
+ceh15,4,2013,-1.6035,4,C4 (Main Forest),Extended
+ceh15,4,2014,-1.6035000000000001,4,C4 (Main Forest),Extended
+ceh15,4,2015,-1.546,4,C4 (Main Forest),Extended
+ceh15,4,2016,-1.4885000000000002,4,C4 (Main Forest),Extended
+ceh15,4,2017,-1.3535000000000001,4,C4 (Main Forest),Extended
+ceh16,4,2012,-1.08,5,C5 (Coastal Forest),Reference
+ceh16,4,2013,-1.285,5,C5 (Coastal Forest),Reference
+ceh16,4,2014,-1.31,5,C5 (Coastal Forest),Reference
+ceh16,4,2015,-1.31,5,C5 (Coastal Forest),Reference
+ceh16,4,2016,-1.2200000000000002,5,C5 (Coastal Forest),Reference
+ceh16,4,2017,-1.1225,5,C5 (Coastal Forest),Reference
+ceh16,4,2018,-1.1925,5,C5 (Coastal Forest),Reference
+ceh16,4,2019,-1.2675,5,C5 (Coastal Forest),Reference
+ceh16,4,2020,-1.3425,5,C5 (Coastal Forest),Reference
+ceh16,4,2021,-1.3925,5,C5 (Coastal Forest),Reference
+ceh16,4,2022,-1.3025000000000002,5,C5 (Coastal Forest),Reference
+ceh16,4,2023,-1.3,5,C5 (Coastal Forest),Reference
+ceh16,4,2024,-1.25,5,C5 (Coastal Forest),Reference
+ceh16,4,2025,-1.175,5,C5 (Coastal Forest),Reference
+ceh17,4,2012,-2.2125,5,C5 (Coastal Forest),Reference
+ceh17,4,2013,-2.395,5,C5 (Coastal Forest),Reference
+ceh17,4,2014,-2.4325,5,C5 (Coastal Forest),Reference
+ceh17,4,2015,-2.4175,5,C5 (Coastal Forest),Reference
+ceh17,4,2016,-2.3925,5,C5 (Coastal Forest),Reference
+ceh17,4,2017,-2.3275,5,C5 (Coastal Forest),Reference
+ceh17,4,2018,-2.3825000000000003,5,C5 (Coastal Forest),Reference
+ceh17,4,2019,-2.4525,5,C5 (Coastal Forest),Reference
+ceh17,4,2024,-2.44,5,C5 (Coastal Forest),Reference
+ceh17,4,2025,-2.3600000000000003,5,C5 (Coastal Forest),Reference
+ceh18,4,2012,-1.0675000000000001,3,C3 (Western Residual),Reference
+ceh18,4,2013,-1.225,3,C3 (Western Residual),Reference
+ceh18,4,2014,-1.26,3,C3 (Western Residual),Reference
+ceh18,4,2015,-1.2725,3,C3 (Western Residual),Reference
+ceh18,4,2016,-1.2799999999999998,3,C3 (Western Residual),Reference
+ceh18,4,2017,-1.2149999999999999,3,C3 (Western Residual),Reference
+ceh18,4,2018,-1.24,3,C3 (Western Residual),Reference
+ceh18,4,2019,-1.2925,3,C3 (Western Residual),Reference
+ceh18,4,2020,-1.3025,3,C3 (Western Residual),Reference
+ceh18,4,2021,-1.3399999999999999,3,C3 (Western Residual),Reference
+ceh18,4,2022,-1.305,3,C3 (Western Residual),Reference
+ceh18,4,2023,-1.3275,3,C3 (Western Residual),Reference
+ceh18,4,2024,-1.2850000000000001,3,C3 (Western Residual),Reference
+ceh18,4,2025,-1.2475,3,C3 (Western Residual),Reference
+ceh19,4,2012,-1.0825,5,C5 (Coastal Forest),Reference
+ceh19,4,2013,-1.21,5,C5 (Coastal Forest),Reference
+ceh19,4,2014,-1.2375000000000003,5,C5 (Coastal Forest),Reference
+ceh19,4,2015,-1.2325,5,C5 (Coastal Forest),Reference
+ceh19,4,2016,-1.2075,5,C5 (Coastal Forest),Reference
+ceh19,4,2017,-1.15,5,C5 (Coastal Forest),Reference
+ceh19,4,2018,-1.2025000000000001,5,C5 (Coastal Forest),Reference
+ceh19,4,2019,-1.2675,5,C5 (Coastal Forest),Reference
+ceh19,4,2020,-1.2925,5,C5 (Coastal Forest),Reference
+ceh19,4,2021,-1.3425,5,C5 (Coastal Forest),Reference
+ceh19,4,2022,-1.3075,5,C5 (Coastal Forest),Reference
+ceh19,4,2023,-1.2999999999999998,5,C5 (Coastal Forest),Reference
+ceh19,4,2024,-1.2575,5,C5 (Coastal Forest),Reference
+ceh19,4,2025,-1.1925000000000001,5,C5 (Coastal Forest),Reference
+ceh2,4,2010,-1.39,4,C4 (Main Forest),Reference
+ceh2,4,2011,-1.5050000000000001,4,C4 (Main Forest),Reference
+ceh2,4,2012,-1.66,4,C4 (Main Forest),Reference
+ceh2,4,2017,-1.6275,4,C4 (Main Forest),Reference
+ceh2,4,2018,-1.7325,4,C4 (Main Forest),Reference
+ceh2,4,2019,-1.8275,4,C4 (Main Forest),Reference
+ceh2,4,2020,-1.8424999999999998,4,C4 (Main Forest),Reference
+ceh2,4,2021,-1.915,4,C4 (Main Forest),Reference
+ceh2,4,2022,-1.7675,4,C4 (Main Forest),Reference
+ceh2,4,2023,-1.7574999999999998,4,C4 (Main Forest),Reference
+ceh2,4,2024,-1.72,4,C4 (Main Forest),Reference
+ceh2,4,2025,-1.605,4,C4 (Main Forest),Reference
+ceh20,4,2013,-1.8525,4,C4 (Main Forest),Reference
+ceh20,4,2014,-1.8599999999999999,4,C4 (Main Forest),Reference
+ceh20,4,2015,-1.8024999999999998,4,C4 (Main Forest),Reference
+ceh20,4,2016,-1.7374999999999998,4,C4 (Main Forest),Reference
+ceh20,4,2017,-1.575,4,C4 (Main Forest),Reference
+ceh20,4,2018,-1.6824999999999999,4,C4 (Main Forest),Reference
+ceh20,4,2019,-1.7825,4,C4 (Main Forest),Reference
+ceh20,4,2020,-1.8175,4,C4 (Main Forest),Reference
+ceh20,4,2021,-1.8800000000000001,4,C4 (Main Forest),Reference
+ceh20,4,2022,-1.7325000000000002,4,C4 (Main Forest),Reference
+ceh20,4,2023,-1.72,4,C4 (Main Forest),Reference
+ceh20,4,2024,-1.6375000000000002,4,C4 (Main Forest),Reference
+ceh21,4,2014,-1.3324999999999998,3,C3 (Western Residual),Reference
+ceh21,4,2015,-1.3225,3,C3 (Western Residual),Reference
+ceh21,4,2016,-1.315,3,C3 (Western Residual),Reference
+ceh21,4,2017,-1.2725,3,C3 (Western Residual),Reference
+ceh21,4,2018,-1.2875,3,C3 (Western Residual),Reference
+ceh21,4,2019,-1.3499999999999999,3,C3 (Western Residual),Reference
+ceh21,4,2020,-1.36,3,C3 (Western Residual),Reference
+ceh21,4,2021,-1.4,3,C3 (Western Residual),Reference
+ceh21,4,2022,-1.3875,3,C3 (Western Residual),Reference
+ceh21,4,2023,-1.415,3,C3 (Western Residual),Reference
+ceh21,4,2024,-1.3825,3,C3 (Western Residual),Reference
+ceh21,4,2025,-1.3475000000000001,3,C3 (Western Residual),Reference
+ceh22,4,2014,-0.79,2,C2 (Dune),Extended
+ceh22,4,2015,-0.8175,2,C2 (Dune),Extended
+ceh22,4,2016,-0.8099999999999999,2,C2 (Dune),Extended
+ceh22,4,2017,-0.7925,2,C2 (Dune),Extended
+ceh22,4,2018,-0.785,2,C2 (Dune),Extended
+ceh22,4,2019,-0.8125,2,C2 (Dune),Extended
+ceh22,4,2020,-0.8325,2,C2 (Dune),Extended
+ceh22,4,2021,-0.8674999999999999,2,C2 (Dune),Extended
+ceh22,4,2022,-0.8849999999999999,2,C2 (Dune),Extended
+ceh23,4,2014,-0.7875000000000001,1,C1 (Lake Edge),Reference
+ceh23,4,2015,-0.84,1,C1 (Lake Edge),Reference
+ceh23,4,2016,-0.8225,1,C1 (Lake Edge),Reference
+ceh23,4,2022,-0.9025,1,C1 (Lake Edge),Reference
+ceh23,4,2023,-0.895,1,C1 (Lake Edge),Reference
+ceh23,4,2024,-0.87,1,C1 (Lake Edge),Reference
+ceh23,4,2025,-0.88,1,C1 (Lake Edge),Reference
+ceh24,4,2014,-0.8775000000000001,2,C2 (Dune),Reference
+ceh24,4,2015,-0.91,2,C2 (Dune),Reference
+ceh24,4,2016,-0.8925000000000001,2,C2 (Dune),Reference
+ceh24,4,2017,-0.8700000000000001,2,C2 (Dune),Reference
+ceh24,4,2018,-0.9125,2,C2 (Dune),Reference
+ceh24,4,2019,-0.9475,2,C2 (Dune),Reference
+ceh24,4,2020,-0.9325000000000001,2,C2 (Dune),Reference
+ceh24,4,2021,-0.9299999999999999,2,C2 (Dune),Reference
+ceh24,4,2022,-0.8900000000000001,2,C2 (Dune),Reference
+ceh24,4,2023,-0.9099999999999999,2,C2 (Dune),Reference
+ceh24,4,2024,-0.875,2,C2 (Dune),Reference
+ceh24,4,2025,-0.83,2,C2 (Dune),Reference
+ceh25,4,2014,-0.8724999999999999,1,C1 (Lake Edge),Reference
+ceh25,4,2015,-0.9149999999999999,1,C1 (Lake Edge),Reference
+ceh25,4,2016,-0.8975,1,C1 (Lake Edge),Reference
+ceh25,4,2017,-0.9225,1,C1 (Lake Edge),Reference
+ceh25,4,2018,-0.9075,1,C1 (Lake Edge),Reference
+ceh25,4,2019,-0.94,1,C1 (Lake Edge),Reference
+ceh25,4,2020,-0.93,1,C1 (Lake Edge),Reference
+ceh25,4,2021,-0.9550000000000001,1,C1 (Lake Edge),Reference
+ceh25,4,2022,-0.9925,1,C1 (Lake Edge),Reference
+ceh25,4,2023,-0.9824999999999999,1,C1 (Lake Edge),Reference
+ceh25,4,2024,-0.9675,1,C1 (Lake Edge),Reference
+ceh25,4,2025,-0.9675,1,C1 (Lake Edge),Reference
+ceh26,4,2014,-0.7899999999999999,1,C1 (Lake Edge),Reference
+ceh26,4,2015,-0.8374999999999999,1,C1 (Lake Edge),Reference
+ceh26,4,2016,-0.82,1,C1 (Lake Edge),Reference
+ceh26,4,2017,-0.8174999999999999,1,C1 (Lake Edge),Reference
+ceh26,4,2018,-0.845,1,C1 (Lake Edge),Reference
+ceh26,4,2019,-0.8799999999999999,1,C1 (Lake Edge),Reference
+ceh26,4,2020,-0.875,1,C1 (Lake Edge),Reference
+ceh26,4,2021,-0.8925,1,C1 (Lake Edge),Reference
+ceh26,4,2022,-0.8875,1,C1 (Lake Edge),Reference
+ceh26,4,2023,-0.8849999999999999,1,C1 (Lake Edge),Reference
+ceh26,4,2024,-0.8599999999999999,1,C1 (Lake Edge),Reference
+ceh26,4,2025,-0.87,1,C1 (Lake Edge),Reference
+ceh27,4,2014,-0.8125,1,C1 (Lake Edge),Reference
+ceh27,4,2015,-0.8475,1,C1 (Lake Edge),Reference
+ceh27,4,2016,-0.8225,1,C1 (Lake Edge),Reference
+ceh27,4,2017,-0.8,1,C1 (Lake Edge),Reference
+ceh27,4,2018,-0.8325,1,C1 (Lake Edge),Reference
+ceh27,4,2019,-0.8674999999999999,1,C1 (Lake Edge),Reference
+ceh27,4,2020,-0.8650000000000001,1,C1 (Lake Edge),Reference
+ceh27,4,2021,-0.8925000000000001,1,C1 (Lake Edge),Reference
+ceh27,4,2022,-0.8775,1,C1 (Lake Edge),Reference
+ceh27,4,2023,-0.8775,1,C1 (Lake Edge),Reference
+ceh27,4,2024,-0.845,1,C1 (Lake Edge),Reference
+ceh27,4,2025,-0.8374999999999999,1,C1 (Lake Edge),Reference
+ceh28,4,2016,-1.0,2,C2 (Dune),Reference
+ceh28,4,2017,-0.985,2,C2 (Dune),Reference
+ceh3,4,2010,-0.8375,5,C5 (Coastal Forest),Extended
+ceh3,4,2011,-0.96,5,C5 (Coastal Forest),Extended
+ceh3,4,2012,-1.115,5,C5 (Coastal Forest),Extended
+ceh3,4,2013,-1.22,5,C5 (Coastal Forest),Extended
+ceh3,4,2014,-1.275,5,C5 (Coastal Forest),Extended
+ceh3,4,2015,-1.295,5,C5 (Coastal Forest),Extended
+ceh3,4,2016,-1.2675,5,C5 (Coastal Forest),Extended
+ceh3,4,2017,-1.2525,5,C5 (Coastal Forest),Extended
+ceh3,4,2018,-1.3075,5,C5 (Coastal Forest),Extended
+ceh3,4,2019,-1.365,5,C5 (Coastal Forest),Extended
+ceh3,4,2020,-1.4175,5,C5 (Coastal Forest),Extended
+ceh3,4,2021,-1.4625000000000001,5,C5 (Coastal Forest),Extended
+ceh3,4,2022,-1.44,5,C5 (Coastal Forest),Extended
+ceh3,4,2023,-1.42,5,C5 (Coastal Forest),Extended
+ceh3,4,2024,-1.3800000000000001,5,C5 (Coastal Forest),Extended
+ceh3,4,2025,-1.3250000000000002,5,C5 (Coastal Forest),Extended
+ceh30,4,2014,-2.2625,4,C4 (Main Forest),Reference
+ceh30,4,2015,-2.2175000000000002,4,C4 (Main Forest),Reference
+ceh30,4,2016,-2.1624999999999996,4,C4 (Main Forest),Reference
+ceh30,4,2017,-2.0175,4,C4 (Main Forest),Reference
+ceh30,4,2018,-2.115,4,C4 (Main Forest),Reference
+ceh30,4,2019,-2.1999999999999997,4,C4 (Main Forest),Reference
+ceh30,4,2020,-2.235,4,C4 (Main Forest),Reference
+ceh30,4,2021,-2.2924999999999995,4,C4 (Main Forest),Reference
+ceh30,4,2022,-2.17,4,C4 (Main Forest),Reference
+ceh30,4,2023,-2.13,4,C4 (Main Forest),Reference
+ceh30,4,2024,-2.0375,4,C4 (Main Forest),Reference
+ceh30,4,2025,-1.9549999999999998,4,C4 (Main Forest),Reference
+ceh31,4,2014,-1.9625,5,C5 (Coastal Forest),Reference
+ceh31,4,2015,-1.9525000000000001,5,C5 (Coastal Forest),Reference
+ceh31,4,2016,-1.9275,5,C5 (Coastal Forest),Reference
+ceh31,4,2017,-1.8375000000000001,5,C5 (Coastal Forest),Reference
+ceh31,4,2018,-1.9,5,C5 (Coastal Forest),Reference
+ceh31,4,2019,-1.9699999999999998,5,C5 (Coastal Forest),Reference
+ceh31,4,2020,-1.9975,5,C5 (Coastal Forest),Reference
+ceh31,4,2021,-2.0475,5,C5 (Coastal Forest),Reference
+ceh31,4,2022,-1.97,5,C5 (Coastal Forest),Reference
+ceh32,4,2015,-2.3274999999999997,4,C4 (Main Forest),Reference
+ceh32,4,2016,-2.2275,4,C4 (Main Forest),Reference
+ceh32,4,2017,-2.01,4,C4 (Main Forest),Reference
+ceh32,4,2018,-2.17,4,C4 (Main Forest),Reference
+ceh32,4,2019,-2.2800000000000002,4,C4 (Main Forest),Reference
+ceh32,4,2020,-2.3200000000000003,4,C4 (Main Forest),Reference
+ceh32,4,2021,-2.4099999999999997,4,C4 (Main Forest),Reference
+ceh32,4,2022,-2.2175000000000002,4,C4 (Main Forest),Reference
+ceh32,4,2023,-2.1925,4,C4 (Main Forest),Reference
+ceh32,4,2024,-2.105,4,C4 (Main Forest),Reference
+ceh32,4,2025,-1.965,4,C4 (Main Forest),Reference
+ceh33,4,2015,-2.2475,4,C4 (Main Forest),Reference
+ceh33,4,2016,-2.1725000000000003,4,C4 (Main Forest),Reference
+ceh33,4,2017,-2.0025,4,C4 (Main Forest),Reference
+ceh33,4,2018,-2.12,4,C4 (Main Forest),Reference
+ceh33,4,2019,-2.2775,4,C4 (Main Forest),Reference
+ceh33,4,2020,-2.3150000000000004,4,C4 (Main Forest),Reference
+ceh33,4,2021,-2.3775000000000004,4,C4 (Main Forest),Reference
+ceh33,4,2022,-2.23,4,C4 (Main Forest),Reference
+ceh33,4,2023,-2.1725000000000003,4,C4 (Main Forest),Reference
+ceh33,4,2024,-2.0925000000000002,4,C4 (Main Forest),Reference
+ceh33,4,2025,-1.98,4,C4 (Main Forest),Reference
+ceh34,4,2015,-1.435,4,C4 (Main Forest),Reference
+ceh34,4,2016,-1.3599999999999999,4,C4 (Main Forest),Reference
+ceh34,4,2017,-1.185,4,C4 (Main Forest),Reference
+ceh34,4,2018,-1.3025,4,C4 (Main Forest),Reference
+ceh34,4,2019,-1.4075,4,C4 (Main Forest),Reference
+ceh34,4,2020,-1.4474999999999998,4,C4 (Main Forest),Reference
+ceh34,4,2021,-1.5124999999999997,4,C4 (Main Forest),Reference
+ceh34,4,2022,-1.3449999999999998,4,C4 (Main Forest),Reference
+ceh34,4,2023,-1.3375,4,C4 (Main Forest),Reference
+ceh34,4,2024,-1.25,4,C4 (Main Forest),Reference
+ceh34,4,2025,-1.1525,4,C4 (Main Forest),Reference
+ceh35,4,2015,-0.95,2,C2 (Dune),Extended
+ceh36,4,2015,-1.1175000000000002,3,C3 (Western Residual),Reference
+ceh36,4,2016,-1.085,3,C3 (Western Residual),Reference
+ceh36,4,2017,-0.9825,3,C3 (Western Residual),Reference
+ceh36,4,2018,-0.97,3,C3 (Western Residual),Reference
+ceh36,4,2019,-0.9875,3,C3 (Western Residual),Reference
+ceh36,4,2020,-0.985,3,C3 (Western Residual),Reference
+ceh36,4,2021,-1.03,3,C3 (Western Residual),Reference
+ceh36,4,2022,-0.9900000000000001,3,C3 (Western Residual),Reference
+ceh36,4,2023,-0.9974999999999999,3,C3 (Western Residual),Reference
+ceh36,4,2024,-0.9675,3,C3 (Western Residual),Reference
+ceh36,4,2025,-0.9199999999999999,3,C3 (Western Residual),Reference
+ceh37,4,2015,-1.0,2,C2 (Dune),Extended
+ceh37,4,2016,-0.9824999999999999,2,C2 (Dune),Extended
+ceh37,4,2023,-1.0125000000000002,2,C2 (Dune),Extended
+ceh37,4,2024,-0.9725,2,C2 (Dune),Extended
+ceh38,4,2015,-0.9175,3,C3 (Western Residual),Extended
+ceh38,4,2016,-0.915,3,C3 (Western Residual),Extended
+ceh39,4,2018,-0.9624999999999999,3,C3 (Western Residual),Reference
+ceh39,4,2019,-1.0350000000000001,3,C3 (Western Residual),Reference
+ceh39,4,2020,-1.045,3,C3 (Western Residual),Reference
+ceh39,4,2021,-1.07,3,C3 (Western Residual),Reference
+ceh39,4,2022,-0.9550000000000001,3,C3 (Western Residual),Reference
+ceh39,4,2023,-0.97,3,C3 (Western Residual),Reference
+ceh39,4,2024,-0.89,3,C3 (Western Residual),Reference
+ceh39,4,2025,-0.8425,3,C3 (Western Residual),Reference
+ceh4,4,2010,-0.59,3,C3 (Western Residual),Reference
+ceh4,4,2011,-0.7124999999999999,3,C3 (Western Residual),Reference
+ceh4,4,2012,-0.8800000000000001,3,C3 (Western Residual),Reference
+ceh4,4,2013,-1.0150000000000001,3,C3 (Western Residual),Reference
+ceh4,4,2014,-1.0575,3,C3 (Western Residual),Reference
+ceh4,4,2015,-1.075,3,C3 (Western Residual),Reference
+ceh4,4,2016,-1.08,3,C3 (Western Residual),Reference
+ceh4,4,2017,-1.0474999999999999,3,C3 (Western Residual),Reference
+ceh4,4,2018,-1.07,3,C3 (Western Residual),Reference
+ceh4,4,2019,-1.115,3,C3 (Western Residual),Reference
+ceh4,4,2020,-1.1325,3,C3 (Western Residual),Reference
+ceh4,4,2021,-1.1575,3,C3 (Western Residual),Reference
+ceh4,4,2022,-1.1150000000000002,3,C3 (Western Residual),Reference
+ceh4,4,2023,-1.1400000000000001,3,C3 (Western Residual),Reference
+ceh4,4,2024,-1.0975,3,C3 (Western Residual),Reference
+ceh4,4,2025,-1.08,3,C3 (Western Residual),Reference
+ceh40,4,2019,-1.065,3,C3 (Western Residual),Reference
+ceh40,4,2020,-1.0525,3,C3 (Western Residual),Reference
+ceh40,4,2021,-1.0675,3,C3 (Western Residual),Reference
+ceh40,4,2022,-0.9775,3,C3 (Western Residual),Reference
+ceh40,4,2023,-1.0025,3,C3 (Western Residual),Reference
+ceh40,4,2024,-0.94,3,C3 (Western Residual),Reference
+ceh40,4,2025,-0.9125000000000001,3,C3 (Western Residual),Reference
+ceh41,4,2019,-1.0075,3,C3 (Western Residual),Reference
+ceh41,4,2020,-0.9925,3,C3 (Western Residual),Reference
+ceh41,4,2021,-1.01,3,C3 (Western Residual),Reference
+ceh41,4,2022,-0.94,3,C3 (Western Residual),Reference
+ceh41,4,2023,-0.9625000000000001,3,C3 (Western Residual),Reference
+ceh41,4,2024,-0.905,3,C3 (Western Residual),Reference
+ceh41,4,2025,-0.87,3,C3 (Western Residual),Reference
+ceh42,4,2019,-0.8900000000000001,3,C3 (Western Residual),Reference
+ceh42,4,2020,-0.8975,3,C3 (Western Residual),Reference
+ceh42,4,2021,-0.9099999999999999,3,C3 (Western Residual),Reference
+ceh42,4,2022,-0.8625,3,C3 (Western Residual),Reference
+ceh42,4,2023,-0.8625,3,C3 (Western Residual),Reference
+ceh42,4,2024,-0.8200000000000001,3,C3 (Western Residual),Reference
+ceh42,4,2025,-0.775,3,C3 (Western Residual),Reference
+ceh5,4,2010,-0.7462500000000001,1,C1 (Lake Edge),Reference
+ceh5,4,2011,-0.7475,1,C1 (Lake Edge),Reference
+ceh5,4,2012,-0.8800000000000001,1,C1 (Lake Edge),Reference
+ceh5,4,2013,-0.8875,1,C1 (Lake Edge),Reference
+ceh5,4,2014,-0.8725,1,C1 (Lake Edge),Reference
+ceh5,4,2015,-0.9324999999999999,1,C1 (Lake Edge),Reference
+ceh5,4,2016,-0.9125000000000001,1,C1 (Lake Edge),Reference
+ceh5,4,2017,-0.9375,1,C1 (Lake Edge),Reference
+ceh5,4,2018,-0.9700000000000001,1,C1 (Lake Edge),Reference
+ceh5,4,2019,-1.0025,1,C1 (Lake Edge),Reference
+ceh5,4,2020,-0.9849999999999999,1,C1 (Lake Edge),Reference
+ceh5,4,2021,-1.005,1,C1 (Lake Edge),Reference
+ceh5,4,2022,-0.995,1,C1 (Lake Edge),Reference
+ceh5,4,2023,-1.0074999999999998,1,C1 (Lake Edge),Reference
+ceh5,4,2024,-0.98,1,C1 (Lake Edge),Reference
+ceh5,4,2025,-0.965,1,C1 (Lake Edge),Reference
+ceh6,4,2010,-0.65,1,C1 (Lake Edge),Reference
+ceh6,4,2011,-0.62,1,C1 (Lake Edge),Reference
+ceh6,4,2012,-0.7025,1,C1 (Lake Edge),Reference
+ceh6,4,2013,-0.6775,1,C1 (Lake Edge),Reference
+ceh6,4,2014,-0.6675000000000001,1,C1 (Lake Edge),Reference
+ceh6,4,2015,-0.7025,1,C1 (Lake Edge),Reference
+ceh6,4,2016,-0.675,1,C1 (Lake Edge),Reference
+ceh6,4,2017,-0.6975,1,C1 (Lake Edge),Reference
+ceh6,4,2018,-0.7224999999999999,1,C1 (Lake Edge),Reference
+ceh6,4,2019,-0.7525,1,C1 (Lake Edge),Reference
+ceh6,4,2020,-0.7550000000000001,1,C1 (Lake Edge),Reference
+ceh6,4,2021,-0.7775,1,C1 (Lake Edge),Reference
+ceh6,4,2022,-0.7725,1,C1 (Lake Edge),Reference
+ceh6,4,2023,-0.7575,1,C1 (Lake Edge),Reference
+ceh6,4,2024,-0.75,1,C1 (Lake Edge),Reference
+ceh6,4,2025,-0.7474999999999999,1,C1 (Lake Edge),Reference
+ceh7,4,2010,-0.8075,2,C2 (Dune),Extended
+ceh7,4,2011,-0.8225,2,C2 (Dune),Extended
+ceh7,4,2012,-0.8725,2,C2 (Dune),Extended
+ceh8,4,2010,-0.755,2,C2 (Dune),Extended
+ceh8,4,2011,-0.7725,2,C2 (Dune),Extended
+ceh8,4,2012,-0.8775000000000001,2,C2 (Dune),Extended
+ceh8,4,2013,-0.9275,2,C2 (Dune),Extended
+ceh8,4,2014,-0.9,2,C2 (Dune),Extended
+ceh8,4,2015,-0.9349999999999999,2,C2 (Dune),Extended
+ceh8,4,2016,-0.93,2,C2 (Dune),Extended
+ceh8,4,2017,-0.9025,2,C2 (Dune),Extended
+ceh8,4,2018,-0.9375,2,C2 (Dune),Extended
+ceh8,4,2019,-0.9775,2,C2 (Dune),Extended
+ceh9,4,2010,-0.8425,3,C3 (Western Residual),Reference
+ceh9,4,2011,-0.9175,3,C3 (Western Residual),Reference
+ceh9,4,2012,-1.0925,3,C3 (Western Residual),Reference
+ceh9,4,2013,-1.27,3,C3 (Western Residual),Reference
+ceh9,4,2014,-1.2399999999999998,3,C3 (Western Residual),Reference
+ceh9,4,2015,-1.235,3,C3 (Western Residual),Reference
+ceh9,4,2016,-1.22,3,C3 (Western Residual),Reference
+ceh9,4,2017,-1.105,3,C3 (Western Residual),Reference
+ceh9,4,2018,-1.2,3,C3 (Western Residual),Reference
+ceh9,4,2019,-1.27,3,C3 (Western Residual),Reference
+ceh9,4,2020,-1.2725,3,C3 (Western Residual),Reference
+ceh9,4,2021,-1.3,3,C3 (Western Residual),Reference
+ceh9,4,2022,-1.1849999999999998,3,C3 (Western Residual),Reference
+ceh9,4,2023,-1.2,3,C3 (Western Residual),Reference
+ceh9,4,2024,-1.1275,3,C3 (Western Residual),Reference
+ceh9,4,2025,-1.08,3,C3 (Western Residual),Reference
+d10,4,2016,-0.895,2,C2 (Dune),Reference
+d10,4,2017,-0.8625,2,C2 (Dune),Reference
+d10,4,2018,-0.9075000000000001,2,C2 (Dune),Reference
+d10,4,2019,-0.9550000000000001,2,C2 (Dune),Reference
+d10,4,2020,-0.9325,2,C2 (Dune),Reference
+d10,4,2021,-0.9775,2,C2 (Dune),Reference
+d10,4,2022,-0.9299999999999999,2,C2 (Dune),Reference
+d10,4,2023,-0.94,2,C2 (Dune),Reference
+d10,4,2024,-0.875,2,C2 (Dune),Reference
+d10,4,2025,-0.81,2,C2 (Dune),Reference
+d15,4,2014,-0.885,2,C2 (Dune),Reference
+d15,4,2015,-0.915,2,C2 (Dune),Reference
+d15,4,2016,-0.9,2,C2 (Dune),Reference
+d15,4,2017,-0.8175,2,C2 (Dune),Reference
+d15,4,2018,-0.8725,2,C2 (Dune),Reference
+d15,4,2019,-0.9175,2,C2 (Dune),Reference
+d15,4,2020,-0.915,2,C2 (Dune),Reference
+d15,4,2021,-0.935,2,C2 (Dune),Reference
+d15,4,2022,-0.8650000000000001,2,C2 (Dune),Reference
+d15,4,2023,-0.8825000000000001,2,C2 (Dune),Reference
+d15,4,2024,-0.8075,2,C2 (Dune),Reference
+d15,4,2025,-0.77,2,C2 (Dune),Reference
+d17,4,2014,-0.8175,2,C2 (Dune),Reference
+d17,4,2015,-0.8425,2,C2 (Dune),Reference
+d17,4,2016,-0.8200000000000001,2,C2 (Dune),Reference
+d17,4,2017,-0.765,2,C2 (Dune),Reference
+d17,4,2018,-0.8175,2,C2 (Dune),Reference
+d17,4,2019,-0.8625,2,C2 (Dune),Reference
+d17,4,2020,-0.8600000000000001,2,C2 (Dune),Reference
+d17,4,2021,-0.8699999999999999,2,C2 (Dune),Reference
+d17,4,2022,-0.82,2,C2 (Dune),Reference
+d17,4,2023,-0.8325,2,C2 (Dune),Reference
+d17,4,2024,-0.7725,2,C2 (Dune),Reference
+d17,4,2025,-0.76,2,C2 (Dune),Reference
+d25,4,2014,-1.005,3,C3 (Western Residual),Reference
+d25,4,2015,-1.0175,3,C3 (Western Residual),Reference
+d25,4,2016,-1.0,3,C3 (Western Residual),Reference
+d25,4,2017,-0.9550000000000001,3,C3 (Western Residual),Reference
+d25,4,2018,-1.0025,3,C3 (Western Residual),Reference
+d25,4,2019,-1.0575,3,C3 (Western Residual),Reference
+d25,4,2020,-1.0875,3,C3 (Western Residual),Reference
+d25,4,2021,-1.0925,3,C3 (Western Residual),Reference
+d25,4,2022,-1.04,3,C3 (Western Residual),Reference
+d25,4,2023,-1.0550000000000002,3,C3 (Western Residual),Reference
+d38,4,2016,-1.125,2,C2 (Dune),Reference
+d38,4,2017,-1.135,2,C2 (Dune),Reference
+d38,4,2018,-1.185,2,C2 (Dune),Reference
+d38,4,2019,-1.23,2,C2 (Dune),Reference
+d38,4,2020,-1.22,2,C2 (Dune),Reference
+d38,4,2021,-1.22,2,C2 (Dune),Reference
+d38,4,2022,-1.18,2,C2 (Dune),Reference
+d38,4,2023,-1.1925,2,C2 (Dune),Reference
+d38,4,2024,-1.17,2,C2 (Dune),Reference
+d38,4,2025,-1.1475,2,C2 (Dune),Reference
+d41,4,2016,-0.8625,2,C2 (Dune),Reference
+d41,4,2017,-0.8374999999999999,2,C2 (Dune),Reference
+d41,4,2018,-0.8825000000000001,2,C2 (Dune),Reference
+d41,4,2019,-0.925,2,C2 (Dune),Reference
+d41,4,2020,-0.9125000000000001,2,C2 (Dune),Reference
+d41,4,2021,-0.93,2,C2 (Dune),Reference
+d41,4,2022,-0.895,2,C2 (Dune),Reference
+d41,4,2023,-0.9175,2,C2 (Dune),Reference
+d41,4,2024,-0.8775000000000001,2,C2 (Dune),Reference
+d41,4,2025,-0.8575,2,C2 (Dune),Reference
+d43,4,2014,-1.0825,2,C2 (Dune),Reference
+d43,4,2015,-1.1150000000000002,2,C2 (Dune),Reference
+d43,4,2016,-1.0975000000000001,2,C2 (Dune),Reference
+d43,4,2017,-1.06,2,C2 (Dune),Reference
+d43,4,2018,-1.11,2,C2 (Dune),Reference
+d43,4,2019,-1.155,2,C2 (Dune),Reference
+d43,4,2020,-1.1475,2,C2 (Dune),Reference
+d43,4,2021,-1.1425,2,C2 (Dune),Reference
+d43,4,2022,-1.095,2,C2 (Dune),Reference
+d43,4,2023,-1.115,2,C2 (Dune),Reference
+d43,4,2024,-1.0575,2,C2 (Dune),Reference
+d43,4,2025,-1.0625,2,C2 (Dune),Reference
+d44,4,2014,-1.115,2,C2 (Dune),Reference
+d44,4,2015,-1.1500000000000001,2,C2 (Dune),Reference
+d44,4,2016,-1.1400000000000001,2,C2 (Dune),Reference
+d44,4,2017,-1.1225,2,C2 (Dune),Reference
+d44,4,2018,-1.1775000000000002,2,C2 (Dune),Reference
+d44,4,2019,-1.23,2,C2 (Dune),Reference
+d44,4,2020,-1.2125,2,C2 (Dune),Reference
+d44,4,2021,-1.2275,2,C2 (Dune),Reference
+d44,4,2022,-1.18,2,C2 (Dune),Reference
+d44,4,2023,-1.1875,2,C2 (Dune),Reference
+d44,4,2024,-1.1425,2,C2 (Dune),Reference
+d44,4,2025,-1.12,2,C2 (Dune),Reference
+d5,4,2014,-1.0275,2,C2 (Dune),Reference
+d5,4,2015,-1.0575,2,C2 (Dune),Reference
+d5,4,2016,-1.0375,2,C2 (Dune),Reference
+d5,4,2017,-0.97,2,C2 (Dune),Reference
+d5,4,2018,-1.0275,2,C2 (Dune),Reference
+d5,4,2019,-1.0725,2,C2 (Dune),Reference
+d5,4,2020,-1.0625,2,C2 (Dune),Reference
+d5,4,2021,-1.075,2,C2 (Dune),Reference
+d5,4,2022,-1.0175,2,C2 (Dune),Reference
+d5,4,2023,-1.0299999999999998,2,C2 (Dune),Reference
+d5,4,2024,-0.9625,2,C2 (Dune),Reference
+d5,4,2025,-0.945,2,C2 (Dune),Reference
+d6,4,2014,-1.0350000000000001,2,C2 (Dune),Reference
+d6,4,2015,-1.0675,2,C2 (Dune),Reference
+d6,4,2016,-1.0474999999999999,2,C2 (Dune),Reference
+d6,4,2017,-0.9974999999999999,2,C2 (Dune),Reference
+d6,4,2018,-1.0325,2,C2 (Dune),Reference
+d6,4,2019,-1.075,2,C2 (Dune),Reference
+d6,4,2020,-1.0675,2,C2 (Dune),Reference
+d6,4,2021,-1.0875,2,C2 (Dune),Reference
+d6,4,2022,-1.0525,2,C2 (Dune),Reference
+d6,4,2023,-1.0675,2,C2 (Dune),Reference
+d6,4,2024,-1.0075,2,C2 (Dune),Reference
+d6,4,2025,-0.9974999999999999,2,C2 (Dune),Reference
+d7,4,2016,-1.0025,2,C2 (Dune),Reference
+d7,4,2017,-0.985,2,C2 (Dune),Reference
+d7,4,2018,-0.9925,2,C2 (Dune),Reference
+d8,4,2014,-0.8374999999999999,2,C2 (Dune),Reference
+d8,4,2015,-0.8875,2,C2 (Dune),Reference
+d8,4,2016,-0.875,2,C2 (Dune),Reference
+d8,4,2017,-0.8375,2,C2 (Dune),Reference
+d8,4,2018,-0.8825,2,C2 (Dune),Reference
+d8,4,2019,-0.9025000000000001,2,C2 (Dune),Reference
+d8,4,2020,-0.88,2,C2 (Dune),Reference
+d8,4,2021,-0.875,2,C2 (Dune),Reference
+d8,4,2022,-0.8200000000000001,2,C2 (Dune),Reference
+d8,4,2023,-0.8375,2,C2 (Dune),Reference
+d8,4,2024,-0.7825,2,C2 (Dune),Reference
+d8,4,2025,-0.7675,2,C2 (Dune),Reference
+d9,4,2014,-1.04,2,C2 (Dune),Reference
+d9,4,2015,-1.0675000000000001,2,C2 (Dune),Reference
+d9,4,2016,-1.0575,2,C2 (Dune),Reference
+d9,4,2017,-1.0025,2,C2 (Dune),Reference
+d9,4,2018,-1.0550000000000002,2,C2 (Dune),Reference
+d9,4,2019,-1.095,2,C2 (Dune),Reference
+d9,4,2020,-1.0725,2,C2 (Dune),Reference
+d9,4,2021,-1.0625,2,C2 (Dune),Reference
+d9,4,2022,-0.9924999999999999,2,C2 (Dune),Reference
+d9,4,2023,-1.0225,2,C2 (Dune),Reference
+d9,4,2024,-0.96,2,C2 (Dune),Reference
+d9,4,2025,-0.9424999999999999,2,C2 (Dune),Reference
+fe1,4,2020,-1.3575,4,C4 (Main Forest),Extended
+fe1,4,2021,-1.4,4,C4 (Main Forest),Extended
+fe1,4,2022,-1.2574999999999998,4,C4 (Main Forest),Extended
+fe1,4,2023,-1.2475,4,C4 (Main Forest),Extended
+fe1,4,2024,-1.1724999999999999,4,C4 (Main Forest),Extended
+fe1,4,2025,-1.0875000000000001,4,C4 (Main Forest),Extended
+fe2,4,2020,-2.0999999999999996,5,C5 (Coastal Forest),Extended
+fe2,4,2021,-2.14,5,C5 (Coastal Forest),Extended
+fe2,4,2022,-2.025,5,C5 (Coastal Forest),Extended
+fe2,4,2023,-2.015,5,C5 (Coastal Forest),Extended
+fe2,4,2024,-1.9425,5,C5 (Coastal Forest),Extended
+fe2,4,2025,-1.87,5,C5 (Coastal Forest),Extended
+fe3,4,2021,-2.4325,5,C5 (Coastal Forest),Extended
+fe3,4,2022,-2.36,5,C5 (Coastal Forest),Extended
+fe3,4,2023,-2.3525,5,C5 (Coastal Forest),Extended
+fe3,4,2024,-2.3000000000000003,5,C5 (Coastal Forest),Extended
+fe3,4,2025,-2.2225,5,C5 (Coastal Forest),Extended
+fe4,4,2022,-1.9925,5,C5 (Coastal Forest),Extended
+fe4,4,2023,-1.985,5,C5 (Coastal Forest),Extended
+fe4,4,2024,-1.89,5,C5 (Coastal Forest),Extended
+fe4,4,2025,-1.7999999999999998,5,C5 (Coastal Forest),Extended
+l7,4,2014,-2.0975,2,C2 (Dune),Reference
+l7,4,2015,-2.1525,2,C2 (Dune),Reference
+l7,4,2016,-2.1325,2,C2 (Dune),Reference
+l7,4,2017,-2.135,2,C2 (Dune),Reference
+l7,4,2018,-2.175,2,C2 (Dune),Reference
+l7,4,2019,-2.21,2,C2 (Dune),Reference
+l7,4,2020,-2.1875,2,C2 (Dune),Reference
+l7,4,2021,-2.1825,2,C2 (Dune),Reference
+l7,4,2022,-2.1525,2,C2 (Dune),Reference
+l7,4,2023,-2.1725,2,C2 (Dune),Reference
+l7,4,2024,-2.0949999999999998,2,C2 (Dune),Reference
+l7,4,2025,-2.0875,2,C2 (Dune),Reference
+lis1,4,2022,-1.2975,4,C4 (Main Forest),Extended
+lis1,4,2023,-1.29,4,C4 (Main Forest),Extended
+lis1,4,2024,-1.19,4,C4 (Main Forest),Extended
+lis1,4,2025,-1.1025,4,C4 (Main Forest),Extended
+llynrhos,4,2015,0.335,,,Reference
+llynrhos,4,2016,0.35500000000000004,,,Reference
+llynrhos,4,2017,0.34,,,Reference
+llynrhos,4,2018,0.3275,,,Reference
+llynrhos,4,2019,0.2975,,,Reference
+llynrhos,4,2020,0.2725,,,Reference
+llynrhos,4,2021,0.25,,,Reference
+llynrhos,4,2022,0.235,,,Reference
+llynrhos,4,2023,0.27,,,Reference
+llynrhos,4,2024,0.315,,,Reference
+llynrhos,4,2025,0.36,,,Reference
+nw1,4,2010,-1.785,3,C3 (Western Residual),Reference
+nw1,4,2011,-1.8499999999999999,3,C3 (Western Residual),Reference
+nw1,4,2012,-2.0275,3,C3 (Western Residual),Reference
+nw1,4,2013,-2.1875,3,C3 (Western Residual),Reference
+nw1,4,2014,-2.1625,3,C3 (Western Residual),Reference
+nw1,4,2015,-2.1624999999999996,3,C3 (Western Residual),Reference
+nw1,4,2016,-2.13,3,C3 (Western Residual),Reference
+nw1,4,2017,-2.0075000000000003,3,C3 (Western Residual),Reference
+nw1,4,2018,-2.07,3,C3 (Western Residual),Reference
+nw1,4,2019,-2.13,3,C3 (Western Residual),Reference
+nw1,4,2020,-2.16,3,C3 (Western Residual),Reference
+nw1,4,2021,-2.2075,3,C3 (Western Residual),Reference
+nw1,4,2022,-2.1275000000000004,3,C3 (Western Residual),Reference
+nw1,4,2023,-2.13,3,C3 (Western Residual),Reference
+nw1,4,2024,-2.0324999999999998,3,C3 (Western Residual),Reference
+nw1,4,2025,-1.9649999999999999,3,C3 (Western Residual),Reference
+nw10,4,2011,-1.3875,4,C4 (Main Forest),Reference
+nw10,4,2017,-1.4525,4,C4 (Main Forest),Reference
+nw10,4,2018,-1.595,4,C4 (Main Forest),Reference
+nw10,4,2019,-1.6724999999999999,4,C4 (Main Forest),Reference
+nw10,4,2024,-1.51,4,C4 (Main Forest),Reference
+nw10,4,2025,-1.41,4,C4 (Main Forest),Reference
+nw11,4,2011,-1.0975,3,C3 (Western Residual),Reference
+nw11,4,2012,-1.2774999999999999,3,C3 (Western Residual),Reference
+nw11,4,2013,-1.45,3,C3 (Western Residual),Reference
+nw11,4,2014,-1.425,3,C3 (Western Residual),Reference
+nw11,4,2015,-1.4225,3,C3 (Western Residual),Reference
+nw11,4,2016,-1.3900000000000001,3,C3 (Western Residual),Reference
+nw11,4,2017,-1.255,3,C3 (Western Residual),Reference
+nw11,4,2018,-1.32,3,C3 (Western Residual),Reference
+nw11,4,2019,-1.3775,3,C3 (Western Residual),Reference
+nw11,4,2020,-1.395,3,C3 (Western Residual),Reference
+nw11,4,2021,-1.4425000000000001,3,C3 (Western Residual),Reference
+nw11,4,2022,-1.3575000000000002,3,C3 (Western Residual),Reference
+nw11,4,2023,-1.355,3,C3 (Western Residual),Reference
+nw11,4,2024,-1.2625,3,C3 (Western Residual),Reference
+nw11,4,2025,-1.1925000000000001,3,C3 (Western Residual),Reference
+nw12,4,2011,-1.505,4,C4 (Main Forest),Extended
+nw13,4,2017,-1.1775,3,C3 (Western Residual),Reference
+nw13,4,2018,-1.2225,3,C3 (Western Residual),Reference
+nw13,4,2019,-1.2725,3,C3 (Western Residual),Reference
+nw13,4,2020,-1.3025,3,C3 (Western Residual),Reference
+nw13,4,2021,-1.3525,3,C3 (Western Residual),Reference
+nw13,4,2022,-1.2925,3,C3 (Western Residual),Reference
+nw13,4,2023,-1.2925,3,C3 (Western Residual),Reference
+nw13,4,2024,-1.2025000000000001,3,C3 (Western Residual),Reference
+nw13,4,2025,-1.135,3,C3 (Western Residual),Reference
+nw2,4,2010,-0.9625,3,C3 (Western Residual),Reference
+nw2,4,2011,-1.0325,3,C3 (Western Residual),Reference
+nw2,4,2012,-1.2125,3,C3 (Western Residual),Reference
+nw2,4,2013,-1.3775,3,C3 (Western Residual),Reference
+nw2,4,2014,-1.355,3,C3 (Western Residual),Reference
+nw2,4,2015,-1.3550000000000002,3,C3 (Western Residual),Reference
+nw2,4,2016,-1.32,3,C3 (Western Residual),Reference
+nw2,4,2017,-1.2075,3,C3 (Western Residual),Reference
+nw2,4,2018,-1.27,3,C3 (Western Residual),Reference
+nw2,4,2019,-1.3175000000000001,3,C3 (Western Residual),Reference
+nw2,4,2020,-1.35,3,C3 (Western Residual),Reference
+nw2,4,2021,-1.3825,3,C3 (Western Residual),Reference
+nw2,4,2022,-1.3025,3,C3 (Western Residual),Reference
+nw2,4,2023,-1.3125,3,C3 (Western Residual),Reference
+nw2,4,2024,-1.2149999999999999,3,C3 (Western Residual),Reference
+nw2,4,2025,-1.145,3,C3 (Western Residual),Reference
+nw3,4,2010,-0.79,2,C2 (Dune),Reference
+nw3,4,2011,-0.8125,2,C2 (Dune),Reference
+nw3,4,2017,-0.965,2,C2 (Dune),Reference
+nw4,4,2010,-0.56,2,C2 (Dune),Reference
+nw4,4,2011,-0.585,2,C2 (Dune),Reference
+nw4,4,2012,-0.705,2,C2 (Dune),Reference
+nw4,4,2013,-0.8025,2,C2 (Dune),Reference
+nw4,4,2014,-0.7825,2,C2 (Dune),Reference
+nw4,4,2015,-0.8174999999999999,2,C2 (Dune),Reference
+nw4,4,2016,-0.795,2,C2 (Dune),Reference
+nw4,4,2017,-0.7450000000000001,2,C2 (Dune),Reference
+nw4,4,2018,-0.7875,2,C2 (Dune),Reference
+nw4,4,2019,-0.8175,2,C2 (Dune),Reference
+nw4,4,2020,-0.815,2,C2 (Dune),Reference
+nw4,4,2021,-0.8150000000000001,2,C2 (Dune),Reference
+nw4,4,2022,-0.7775,2,C2 (Dune),Reference
+nw4,4,2023,-0.8,2,C2 (Dune),Reference
+nw4,4,2024,-0.7575,2,C2 (Dune),Reference
+nw4,4,2025,-0.7525000000000001,2,C2 (Dune),Reference
+nw4b,4,2010,-0.60875,2,C2 (Dune),Reference
+nw4b,4,2011,-0.64,2,C2 (Dune),Reference
+nw4b,4,2012,-0.7625,2,C2 (Dune),Reference
+nw4b,4,2013,-0.86,2,C2 (Dune),Reference
+nw4b,4,2014,-0.84,2,C2 (Dune),Reference
+nw4b,4,2015,-0.8625,2,C2 (Dune),Reference
+nw4b,4,2016,-0.84,2,C2 (Dune),Reference
+nw4b,4,2017,-0.785,2,C2 (Dune),Reference
+nw4b,4,2018,-0.8300000000000001,2,C2 (Dune),Reference
+nw4b,4,2019,-0.8625,2,C2 (Dune),Reference
+nw4b,4,2020,-0.8550000000000001,2,C2 (Dune),Reference
+nw4b,4,2021,-0.8550000000000001,2,C2 (Dune),Reference
+nw4b,4,2022,-0.8175000000000001,2,C2 (Dune),Reference
+nw4b,4,2023,-0.8375,2,C2 (Dune),Reference
+nw4b,4,2024,-0.79,2,C2 (Dune),Reference
+nw4b,4,2025,-0.8,2,C2 (Dune),Reference
+nw5,4,2010,-0.8225,3,C3 (Western Residual),Reference
+nw5,4,2011,-0.9,3,C3 (Western Residual),Reference
+nw5,4,2012,-1.0475,3,C3 (Western Residual),Reference
+nw5,4,2013,-1.1675000000000002,3,C3 (Western Residual),Reference
+nw5,4,2014,-1.1525,3,C3 (Western Residual),Reference
+nw5,4,2015,-1.1475,3,C3 (Western Residual),Reference
+nw5,4,2023,-1.13,3,C3 (Western Residual),Reference
+nw5,4,2024,-1.055,3,C3 (Western Residual),Reference
+nw5,4,2025,-1.0325,3,C3 (Western Residual),Reference
+nw6,4,2010,-0.63,3,C3 (Western Residual),Reference
+nw6,4,2011,-0.7424999999999999,3,C3 (Western Residual),Reference
+nw7,4,2010,-1.3775,3,C3 (Western Residual),Reference
+nw7,4,2011,-1.475,3,C3 (Western Residual),Reference
+nw7,4,2017,-1.7025000000000001,3,C3 (Western Residual),Reference
+nw7,4,2018,-1.745,3,C3 (Western Residual),Reference
+nw8,4,2010,-1.4025,5,C5 (Coastal Forest),Extended
+nw8,4,2011,-1.5150000000000001,5,C5 (Coastal Forest),Extended
+nw8b,4,2019,-1.9825000000000002,3,C3 (Western Residual),Extended
+nw8b,4,2020,-1.995,3,C3 (Western Residual),Extended
+nw8b,4,2021,-2.04,3,C3 (Western Residual),Extended
+nw8b,4,2022,-1.96,3,C3 (Western Residual),Extended
+nw8b,4,2023,-1.96,3,C3 (Western Residual),Extended
+nw8b,4,2024,-1.8800000000000001,3,C3 (Western Residual),Extended
+nw8b,4,2025,-1.815,3,C3 (Western Residual),Extended
+nw9,4,2010,-0.5814999999999999,5,C5 (Coastal Forest),Reference
+nw9,4,2011,-0.724,5,C5 (Coastal Forest),Reference
+nw9,4,2012,-0.9514999999999999,5,C5 (Coastal Forest),Reference
+nw9,4,2013,-1.1465,5,C5 (Coastal Forest),Reference
+nw9,4,2014,-1.1915,5,C5 (Coastal Forest),Reference
+nw9,4,2015,-1.179,5,C5 (Coastal Forest),Reference
+nw9,4,2016,-1.1415000000000002,5,C5 (Coastal Forest),Reference
+nw9,4,2017,-1.0614999999999999,5,C5 (Coastal Forest),Reference
+nw9,4,2018,-1.1215,5,C5 (Coastal Forest),Reference
+nw9,4,2019,-1.194,5,C5 (Coastal Forest),Reference
+nw9,4,2020,-1.2265,5,C5 (Coastal Forest),Reference
+nw9,4,2021,-1.3014999999999999,5,C5 (Coastal Forest),Reference
+nw9,4,2022,-1.239,5,C5 (Coastal Forest),Reference
+nw9,4,2023,-1.244,5,C5 (Coastal Forest),Reference
+nw9,4,2024,-1.2165,5,C5 (Coastal Forest),Reference
+nw9,4,2025,-1.119,5,C5 (Coastal Forest),Reference
+p2,4,2024,-0.8,1,C1 (Lake Edge),Extended
+p2,4,2025,-0.8200000000000001,1,C1 (Lake Edge),Extended
+pe,4,2024,-1.1949999999999998,2,C2 (Dune),Extended
+pe,4,2025,-1.1875,2,C2 (Dune),Extended
+pw,4,2024,-1.07,3,C3 (Western Residual),Extended
+pw,4,2025,-1.035,3,C3 (Western Residual),Extended
+t41a,4,2016,-0.9425,2,C2 (Dune),Reference
+t41a,4,2017,-0.9199999999999999,2,C2 (Dune),Reference
+t41a,4,2018,-0.9650000000000001,2,C2 (Dune),Reference
+t41a,4,2019,-1.0025000000000002,2,C2 (Dune),Reference
+t41a,4,2020,-0.9975,2,C2 (Dune),Reference
+t41a,4,2021,-1.0150000000000001,2,C2 (Dune),Reference
+t41a,4,2022,-0.9725000000000001,2,C2 (Dune),Reference
+t41a,4,2023,-0.99,2,C2 (Dune),Reference
+t41a,4,2024,-0.945,2,C2 (Dune),Reference
+t41a,4,2025,-0.9249999999999999,2,C2 (Dune),Reference
+t41b,4,2014,-0.8224999999999999,2,C2 (Dune),Reference
+t41b,4,2015,-0.8524999999999999,2,C2 (Dune),Reference
+t41b,4,2016,-0.8049999999999999,2,C2 (Dune),Reference
+t41b,4,2017,-0.7849999999999999,2,C2 (Dune),Reference
+t41b,4,2018,-0.835,2,C2 (Dune),Reference
+t41b,4,2019,-0.8775,2,C2 (Dune),Reference
+t41b,4,2020,-0.8724999999999999,2,C2 (Dune),Reference
+t41b,4,2021,-0.885,2,C2 (Dune),Reference
+t41b,4,2022,-0.84,2,C2 (Dune),Reference
+t41b,4,2023,-0.835,2,C2 (Dune),Reference
+t41b,4,2024,-0.79,2,C2 (Dune),Reference
+t41b,4,2025,-0.7825,2,C2 (Dune),Reference
+t41c,4,2016,-0.8475,2,C2 (Dune),Reference
+t41c,4,2017,-0.82,2,C2 (Dune),Reference
+t41c,4,2018,-0.865,2,C2 (Dune),Reference
+t41c,4,2019,-0.9075,2,C2 (Dune),Reference
+t41c,4,2020,-0.8999999999999999,2,C2 (Dune),Reference
+t41c,4,2021,-0.9175,2,C2 (Dune),Reference
+t41c,4,2022,-0.875,2,C2 (Dune),Reference
+t41c,4,2023,-0.8899999999999999,2,C2 (Dune),Reference
+t41c,4,2024,-0.845,2,C2 (Dune),Reference
+t41c,4,2025,-0.8275,2,C2 (Dune),Reference
+t41d,4,2016,-1.0625,2,C2 (Dune),Reference
+t41d,4,2017,-1.0425,2,C2 (Dune),Reference
+t41d,4,2018,-1.085,2,C2 (Dune),Reference
+t41d,4,2019,-1.085,2,C2 (Dune),Reference
+t41d,4,2020,-1.0725,2,C2 (Dune),Reference
+t41d,4,2021,-1.085,2,C2 (Dune),Reference
+t41d,4,2022,-1.0474999999999999,2,C2 (Dune),Reference
+t41d,4,2023,-1.065,2,C2 (Dune),Reference
+t41d,4,2024,-1.0225,2,C2 (Dune),Reference
+t41d,4,2025,-1.0025,2,C2 (Dune),Reference
+wmc1,4,2013,-1.0099999999999998,2,C2 (Dune),Reference
+wmc1,4,2014,-0.9825,2,C2 (Dune),Reference
+wmc1,4,2015,-1.0050000000000001,2,C2 (Dune),Reference
+wmc1,4,2016,-1.0025,2,C2 (Dune),Reference
+wmc1,4,2017,-0.9475,2,C2 (Dune),Reference
+wmc1,4,2018,-1.0025,2,C2 (Dune),Reference
+wmc1,4,2019,-1.0499999999999998,2,C2 (Dune),Reference
+wmc1,4,2020,-1.0150000000000001,2,C2 (Dune),Reference
+wmc1,4,2021,-1.0274999999999999,2,C2 (Dune),Reference
+wmc1,4,2022,-0.9675,2,C2 (Dune),Reference
+wmc1,4,2023,-0.9924999999999999,2,C2 (Dune),Reference
+wmc1,4,2024,-0.9425000000000001,2,C2 (Dune),Reference
+wmc1,4,2025,-0.9199999999999999,2,C2 (Dune),Reference
+wmc2,4,2013,-1.07,3,C3 (Western Residual),Reference
+wmc2,4,2014,-1.0699999999999998,3,C3 (Western Residual),Reference
+wmc2,4,2015,-1.0875,3,C3 (Western Residual),Reference
+wmc2,4,2016,-1.0775,3,C3 (Western Residual),Reference
+wmc2,4,2017,-1.0350000000000001,3,C3 (Western Residual),Reference
+wmc2,4,2018,-1.0875,3,C3 (Western Residual),Reference
+wmc2,4,2019,-1.135,3,C3 (Western Residual),Reference
+wmc2,4,2020,-1.1324999999999998,3,C3 (Western Residual),Reference
+wmc2,4,2021,-1.14,3,C3 (Western Residual),Reference
+wmc2,4,2022,-1.045,3,C3 (Western Residual),Reference
+wmc2,4,2023,-1.0675,3,C3 (Western Residual),Reference
+wmc2,4,2024,-1.0075,3,C3 (Western Residual),Reference
+wmc2,4,2025,-0.9674999999999999,3,C3 (Western Residual),Reference
+wmc3,4,2017,-1.54,3,C3 (Western Residual),Reference
+wmc3,4,2018,-1.6175,3,C3 (Western Residual),Reference
+wmc3,4,2019,-1.7,3,C3 (Western Residual),Reference
+wmc3,4,2024,-1.6275,3,C3 (Western Residual),Reference
+wmc3,4,2025,-1.565,3,C3 (Western Residual),Reference
+wmc4,4,2016,-1.3074999999999999,3,C3 (Western Residual),Reference
+wmc4,4,2017,-1.2075,3,C3 (Western Residual),Reference
+wmc4,4,2018,-1.265,3,C3 (Western Residual),Reference
+wmc4,4,2019,-1.315,3,C3 (Western Residual),Reference
+wmc4,4,2020,-1.3425,3,C3 (Western Residual),Reference
+wmc4,4,2021,-1.385,3,C3 (Western Residual),Reference
+wmc4,4,2022,-1.32,3,C3 (Western Residual),Reference
+wmc4,4,2023,-1.3275,3,C3 (Western Residual),Reference
+wmc4,4,2024,-1.2425,3,C3 (Western Residual),Reference
+wmc4,4,2025,-1.18,3,C3 (Western Residual),Reference
+ceh1,5,2011,-0.8959999999999999,3,C3 (Western Residual),Reference
+ceh1,5,2012,-1.058,3,C3 (Western Residual),Reference
+ceh1,5,2013,-1.216,3,C3 (Western Residual),Reference
+ceh1,5,2014,-1.256,3,C3 (Western Residual),Reference
+ceh1,5,2015,-1.256,3,C3 (Western Residual),Reference
+ceh1,5,2016,-1.3079999999999998,3,C3 (Western Residual),Reference
+ceh1,5,2017,-1.196,3,C3 (Western Residual),Reference
+ceh1,5,2018,-1.134,3,C3 (Western Residual),Reference
+ceh1,5,2019,-1.206,3,C3 (Western Residual),Reference
+ceh1,5,2020,-1.2920000000000003,3,C3 (Western Residual),Reference
+ceh1,5,2021,-1.248,3,C3 (Western Residual),Reference
+ceh1,5,2022,-1.206,3,C3 (Western Residual),Reference
+ceh1,5,2023,-1.212,3,C3 (Western Residual),Reference
+ceh1,5,2024,-1.168,3,C3 (Western Residual),Reference
+ceh1,5,2025,-1.044,3,C3 (Western Residual),Reference
+ceh10,5,2015,-1.8079999999999998,2,C2 (Dune),Reference
+ceh10,5,2016,-1.842,2,C2 (Dune),Reference
+ceh10,5,2017,-1.768,2,C2 (Dune),Reference
+ceh10,5,2018,-1.794,2,C2 (Dune),Reference
+ceh10,5,2019,-1.8579999999999999,2,C2 (Dune),Reference
+ceh10,5,2025,-1.778,2,C2 (Dune),Reference
+ceh11,5,2011,-0.845,1,C1 (Lake Edge),Reference
+ceh11,5,2012,-0.892,1,C1 (Lake Edge),Reference
+ceh11,5,2013,-0.9019999999999999,1,C1 (Lake Edge),Reference
+ceh11,5,2014,-0.924,1,C1 (Lake Edge),Reference
+ceh11,5,2015,-0.9380000000000001,1,C1 (Lake Edge),Reference
+ceh11,5,2016,-0.982,1,C1 (Lake Edge),Reference
+ceh11,5,2017,-0.9380000000000001,1,C1 (Lake Edge),Reference
+ceh11,5,2018,-0.982,1,C1 (Lake Edge),Reference
+ceh11,5,2019,-1.044,1,C1 (Lake Edge),Reference
+ceh11,5,2020,-1.054,1,C1 (Lake Edge),Reference
+ceh11,5,2021,-1.01,1,C1 (Lake Edge),Reference
+ceh11,5,2022,-1.012,1,C1 (Lake Edge),Reference
+ceh11,5,2023,-1.0459999999999998,1,C1 (Lake Edge),Reference
+ceh11,5,2024,-1.0100000000000002,1,C1 (Lake Edge),Reference
+ceh11,5,2025,-0.97,1,C1 (Lake Edge),Reference
+ceh13,5,2011,-1.342,4,C4 (Main Forest),Reference
+ceh13,5,2018,-1.514,4,C4 (Main Forest),Reference
+ceh13,5,2019,-1.636,4,C4 (Main Forest),Reference
+ceh13,5,2025,-1.4179999999999997,4,C4 (Main Forest),Reference
+ceh14,5,2011,-1.4600000000000002,4,C4 (Main Forest),Reference
+ceh14,5,2018,-1.574,4,C4 (Main Forest),Reference
+ceh14,5,2019,-1.686,4,C4 (Main Forest),Reference
+ceh14,5,2020,-1.8039999999999998,4,C4 (Main Forest),Reference
+ceh14,5,2021,-1.77,4,C4 (Main Forest),Reference
+ceh14,5,2022,-1.668,4,C4 (Main Forest),Reference
+ceh14,5,2023,-1.65,4,C4 (Main Forest),Reference
+ceh14,5,2024,-1.614,4,C4 (Main Forest),Reference
+ceh14,5,2025,-1.486,4,C4 (Main Forest),Reference
+ceh15,5,2013,-1.4832,4,C4 (Main Forest),Extended
+ceh15,5,2014,-1.527,4,C4 (Main Forest),Extended
+ceh15,5,2015,-1.5250000000000001,4,C4 (Main Forest),Extended
+ceh15,5,2016,-1.565,4,C4 (Main Forest),Extended
+ceh15,5,2017,-1.459,4,C4 (Main Forest),Extended
+ceh16,5,2013,-1.1720000000000002,5,C5 (Coastal Forest),Reference
+ceh16,5,2014,-1.244,5,C5 (Coastal Forest),Reference
+ceh16,5,2015,-1.262,5,C5 (Coastal Forest),Reference
+ceh16,5,2016,-1.286,5,C5 (Coastal Forest),Reference
+ceh16,5,2017,-1.2060000000000002,5,C5 (Coastal Forest),Reference
+ceh16,5,2018,-1.1700000000000002,5,C5 (Coastal Forest),Reference
+ceh16,5,2019,-1.228,5,C5 (Coastal Forest),Reference
+ceh16,5,2020,-1.312,5,C5 (Coastal Forest),Reference
+ceh16,5,2021,-1.344,5,C5 (Coastal Forest),Reference
+ceh16,5,2022,-1.314,5,C5 (Coastal Forest),Reference
+ceh16,5,2023,-1.3140000000000003,5,C5 (Coastal Forest),Reference
+ceh16,5,2024,-1.298,5,C5 (Coastal Forest),Reference
+ceh16,5,2025,-1.21,5,C5 (Coastal Forest),Reference
+ceh17,5,2013,-2.286,5,C5 (Coastal Forest),Reference
+ceh17,5,2014,-2.37,5,C5 (Coastal Forest),Reference
+ceh17,5,2015,-2.394,5,C5 (Coastal Forest),Reference
+ceh17,5,2016,-2.43,5,C5 (Coastal Forest),Reference
+ceh17,5,2017,-2.378,5,C5 (Coastal Forest),Reference
+ceh17,5,2018,-2.3600000000000003,5,C5 (Coastal Forest),Reference
+ceh17,5,2019,-2.41,5,C5 (Coastal Forest),Reference
+ceh17,5,2025,-2.3920000000000003,5,C5 (Coastal Forest),Reference
+ceh18,5,2013,-1.1280000000000001,3,C3 (Western Residual),Reference
+ceh18,5,2014,-1.216,3,C3 (Western Residual),Reference
+ceh18,5,2015,-1.242,3,C3 (Western Residual),Reference
+ceh18,5,2016,-1.298,3,C3 (Western Residual),Reference
+ceh18,5,2017,-1.246,3,C3 (Western Residual),Reference
+ceh18,5,2018,-1.228,3,C3 (Western Residual),Reference
+ceh18,5,2019,-1.268,3,C3 (Western Residual),Reference
+ceh18,5,2020,-1.3219999999999998,3,C3 (Western Residual),Reference
+ceh18,5,2021,-1.294,3,C3 (Western Residual),Reference
+ceh18,5,2022,-1.2999999999999998,3,C3 (Western Residual),Reference
+ceh18,5,2023,-1.3379999999999999,3,C3 (Western Residual),Reference
+ceh18,5,2024,-1.316,3,C3 (Western Residual),Reference
+ceh18,5,2025,-1.2500000000000002,3,C3 (Western Residual),Reference
+ceh19,5,2013,-1.1380000000000001,5,C5 (Coastal Forest),Reference
+ceh19,5,2014,-1.188,5,C5 (Coastal Forest),Reference
+ceh19,5,2015,-1.2060000000000002,5,C5 (Coastal Forest),Reference
+ceh19,5,2016,-1.244,5,C5 (Coastal Forest),Reference
+ceh19,5,2017,-1.192,5,C5 (Coastal Forest),Reference
+ceh19,5,2018,-1.182,5,C5 (Coastal Forest),Reference
+ceh19,5,2019,-1.23,5,C5 (Coastal Forest),Reference
+ceh19,5,2020,-1.292,5,C5 (Coastal Forest),Reference
+ceh19,5,2021,-1.3,5,C5 (Coastal Forest),Reference
+ceh19,5,2022,-1.308,5,C5 (Coastal Forest),Reference
+ceh19,5,2023,-1.3080000000000003,5,C5 (Coastal Forest),Reference
+ceh19,5,2024,-1.2839999999999998,5,C5 (Coastal Forest),Reference
+ceh19,5,2025,-1.2200000000000002,5,C5 (Coastal Forest),Reference
+ceh2,5,2011,-1.46,4,C4 (Main Forest),Reference
+ceh2,5,2012,-1.59,4,C4 (Main Forest),Reference
+ceh2,5,2018,-1.688,4,C4 (Main Forest),Reference
+ceh2,5,2019,-1.7719999999999998,4,C4 (Main Forest),Reference
+ceh2,5,2020,-1.85,4,C4 (Main Forest),Reference
+ceh2,5,2021,-1.8459999999999996,4,C4 (Main Forest),Reference
+ceh2,5,2022,-1.8,4,C4 (Main Forest),Reference
+ceh2,5,2023,-1.7920000000000003,4,C4 (Main Forest),Reference
+ceh2,5,2024,-1.764,4,C4 (Main Forest),Reference
+ceh2,5,2025,-1.656,4,C4 (Main Forest),Reference
+ceh20,5,2014,-1.77,4,C4 (Main Forest),Reference
+ceh20,5,2015,-1.7739999999999998,4,C4 (Main Forest),Reference
+ceh20,5,2016,-1.8199999999999998,4,C4 (Main Forest),Reference
+ceh20,5,2017,-1.6979999999999997,4,C4 (Main Forest),Reference
+ceh20,5,2018,-1.634,4,C4 (Main Forest),Reference
+ceh20,5,2019,-1.7119999999999997,4,C4 (Main Forest),Reference
+ceh20,5,2020,-1.832,4,C4 (Main Forest),Reference
+ceh20,5,2021,-1.8119999999999998,4,C4 (Main Forest),Reference
+ceh20,5,2022,-1.7600000000000002,4,C4 (Main Forest),Reference
+ceh20,5,2023,-1.7420000000000002,4,C4 (Main Forest),Reference
+ceh20,5,2024,-1.716,4,C4 (Main Forest),Reference
+ceh21,5,2015,-1.2979999999999998,3,C3 (Western Residual),Reference
+ceh21,5,2016,-1.34,3,C3 (Western Residual),Reference
+ceh21,5,2017,-1.298,3,C3 (Western Residual),Reference
+ceh21,5,2018,-1.2879999999999998,3,C3 (Western Residual),Reference
+ceh21,5,2019,-1.312,3,C3 (Western Residual),Reference
+ceh21,5,2020,-1.3699999999999999,3,C3 (Western Residual),Reference
+ceh21,5,2021,-1.366,3,C3 (Western Residual),Reference
+ceh21,5,2022,-1.38,3,C3 (Western Residual),Reference
+ceh21,5,2023,-1.4140000000000001,3,C3 (Western Residual),Reference
+ceh21,5,2024,-1.3960000000000001,3,C3 (Western Residual),Reference
+ceh21,5,2025,-1.356,3,C3 (Western Residual),Reference
+ceh22,5,2015,-0.786,2,C2 (Dune),Extended
+ceh22,5,2016,-0.826,2,C2 (Dune),Extended
+ceh22,5,2017,-0.7959999999999999,2,C2 (Dune),Extended
+ceh22,5,2018,-0.788,2,C2 (Dune),Extended
+ceh22,5,2019,-0.804,2,C2 (Dune),Extended
+ceh22,5,2020,-0.8379999999999999,2,C2 (Dune),Extended
+ceh22,5,2021,-0.842,2,C2 (Dune),Extended
+ceh22,5,2022,-0.8619999999999999,2,C2 (Dune),Extended
+ceh23,5,2015,-0.8160000000000001,1,C1 (Lake Edge),Reference
+ceh23,5,2016,-0.8619999999999999,1,C1 (Lake Edge),Reference
+ceh23,5,2023,-0.924,1,C1 (Lake Edge),Reference
+ceh23,5,2024,-0.8859999999999999,1,C1 (Lake Edge),Reference
+ceh23,5,2025,-0.86,1,C1 (Lake Edge),Reference
+ceh24,5,2015,-0.884,2,C2 (Dune),Reference
+ceh24,5,2016,-0.9380000000000001,2,C2 (Dune),Reference
+ceh24,5,2017,-0.8640000000000001,2,C2 (Dune),Reference
+ceh24,5,2018,-0.884,2,C2 (Dune),Reference
+ceh24,5,2019,-0.9400000000000001,2,C2 (Dune),Reference
+ceh24,5,2020,-0.9560000000000001,2,C2 (Dune),Reference
+ceh24,5,2021,-0.8940000000000001,2,C2 (Dune),Reference
+ceh24,5,2022,-0.9,2,C2 (Dune),Reference
+ceh24,5,2023,-0.9380000000000001,2,C2 (Dune),Reference
+ceh24,5,2024,-0.8979999999999999,2,C2 (Dune),Reference
+ceh24,5,2025,-0.812,2,C2 (Dune),Reference
+ceh25,5,2015,-0.8989999999999998,1,C1 (Lake Edge),Reference
+ceh25,5,2016,-0.9369999999999999,1,C1 (Lake Edge),Reference
+ceh25,5,2017,-0.8789999999999999,1,C1 (Lake Edge),Reference
+ceh25,5,2018,-0.897,1,C1 (Lake Edge),Reference
+ceh25,5,2019,-0.953,1,C1 (Lake Edge),Reference
+ceh25,5,2020,-0.9490000000000001,1,C1 (Lake Edge),Reference
+ceh25,5,2021,-0.925,1,C1 (Lake Edge),Reference
+ceh25,5,2022,-0.9530000000000001,1,C1 (Lake Edge),Reference
+ceh25,5,2023,-1.0130000000000001,1,C1 (Lake Edge),Reference
+ceh25,5,2024,-0.9709999999999999,1,C1 (Lake Edge),Reference
+ceh25,5,2025,-0.9550000000000001,1,C1 (Lake Edge),Reference
+ceh26,5,2015,-0.8109999999999999,1,C1 (Lake Edge),Reference
+ceh26,5,2016,-0.859,1,C1 (Lake Edge),Reference
+ceh26,5,2017,-0.7949999999999999,1,C1 (Lake Edge),Reference
+ceh26,5,2018,-0.8229999999999998,1,C1 (Lake Edge),Reference
+ceh26,5,2019,-0.883,1,C1 (Lake Edge),Reference
+ceh26,5,2020,-0.8889999999999999,1,C1 (Lake Edge),Reference
+ceh26,5,2021,-0.853,1,C1 (Lake Edge),Reference
+ceh26,5,2022,-0.8789999999999999,1,C1 (Lake Edge),Reference
+ceh26,5,2023,-0.9149999999999998,1,C1 (Lake Edge),Reference
+ceh26,5,2024,-0.8729999999999999,1,C1 (Lake Edge),Reference
+ceh26,5,2025,-0.8489999999999999,1,C1 (Lake Edge),Reference
+ceh27,5,2015,-0.8240000000000001,1,C1 (Lake Edge),Reference
+ceh27,5,2016,-0.866,1,C1 (Lake Edge),Reference
+ceh27,5,2017,-0.794,1,C1 (Lake Edge),Reference
+ceh27,5,2018,-0.808,1,C1 (Lake Edge),Reference
+ceh27,5,2019,-0.868,1,C1 (Lake Edge),Reference
+ceh27,5,2020,-0.8799999999999999,1,C1 (Lake Edge),Reference
+ceh27,5,2021,-0.85,1,C1 (Lake Edge),Reference
+ceh27,5,2022,-0.8700000000000001,1,C1 (Lake Edge),Reference
+ceh27,5,2023,-0.9039999999999999,1,C1 (Lake Edge),Reference
+ceh27,5,2024,-0.8619999999999999,1,C1 (Lake Edge),Reference
+ceh27,5,2025,-0.828,1,C1 (Lake Edge),Reference
+ceh28,5,2017,-0.97,2,C2 (Dune),Reference
+ceh3,5,2011,-0.906,5,C5 (Coastal Forest),Extended
+ceh3,5,2012,-1.0459999999999998,5,C5 (Coastal Forest),Extended
+ceh3,5,2013,-1.15,5,C5 (Coastal Forest),Extended
+ceh3,5,2014,-1.224,5,C5 (Coastal Forest),Extended
+ceh3,5,2015,-1.2719999999999998,5,C5 (Coastal Forest),Extended
+ceh3,5,2016,-1.292,5,C5 (Coastal Forest),Extended
+ceh3,5,2017,-1.2600000000000002,5,C5 (Coastal Forest),Extended
+ceh3,5,2018,-1.294,5,C5 (Coastal Forest),Extended
+ceh3,5,2019,-1.344,5,C5 (Coastal Forest),Extended
+ceh3,5,2020,-1.3900000000000001,5,C5 (Coastal Forest),Extended
+ceh3,5,2021,-1.416,5,C5 (Coastal Forest),Extended
+ceh3,5,2022,-1.4440000000000002,5,C5 (Coastal Forest),Extended
+ceh3,5,2023,-1.434,5,C5 (Coastal Forest),Extended
+ceh3,5,2024,-1.402,5,C5 (Coastal Forest),Extended
+ceh3,5,2025,-1.342,5,C5 (Coastal Forest),Extended
+ceh30,5,2015,-2.188,4,C4 (Main Forest),Reference
+ceh30,5,2016,-2.2340000000000004,4,C4 (Main Forest),Reference
+ceh30,5,2017,-2.126,4,C4 (Main Forest),Reference
+ceh30,5,2018,-2.072,4,C4 (Main Forest),Reference
+ceh30,5,2019,-2.1380000000000003,4,C4 (Main Forest),Reference
+ceh30,5,2020,-2.2479999999999998,4,C4 (Main Forest),Reference
+ceh30,5,2021,-2.2299999999999995,4,C4 (Main Forest),Reference
+ceh30,5,2022,-2.194,4,C4 (Main Forest),Reference
+ceh30,5,2023,-2.15,4,C4 (Main Forest),Reference
+ceh30,5,2024,-2.118,4,C4 (Main Forest),Reference
+ceh30,5,2025,-2.0060000000000002,4,C4 (Main Forest),Reference
+ceh31,5,2015,-1.92,5,C5 (Coastal Forest),Reference
+ceh31,5,2016,-1.9700000000000002,5,C5 (Coastal Forest),Reference
+ceh31,5,2017,-1.9,5,C5 (Coastal Forest),Reference
+ceh31,5,2018,-1.874,5,C5 (Coastal Forest),Reference
+ceh31,5,2019,-1.9259999999999997,5,C5 (Coastal Forest),Reference
+ceh31,5,2020,-2.006,5,C5 (Coastal Forest),Reference
+ceh31,5,2021,-1.996,5,C5 (Coastal Forest),Reference
+ceh31,5,2022,-1.9799999999999998,5,C5 (Coastal Forest),Reference
+ceh32,5,2016,-2.344,4,C4 (Main Forest),Reference
+ceh32,5,2017,-2.182,4,C4 (Main Forest),Reference
+ceh32,5,2018,-2.088,4,C4 (Main Forest),Reference
+ceh32,5,2019,-2.198,4,C4 (Main Forest),Reference
+ceh32,5,2020,-2.338,4,C4 (Main Forest),Reference
+ceh32,5,2021,-2.3280000000000003,4,C4 (Main Forest),Reference
+ceh32,5,2022,-2.254,4,C4 (Main Forest),Reference
+ceh32,5,2023,-2.216,4,C4 (Main Forest),Reference
+ceh32,5,2024,-2.198,4,C4 (Main Forest),Reference
+ceh32,5,2025,-2.044,4,C4 (Main Forest),Reference
+ceh33,5,2016,-2.266,4,C4 (Main Forest),Reference
+ceh33,5,2017,-2.136,4,C4 (Main Forest),Reference
+ceh33,5,2018,-2.068,4,C4 (Main Forest),Reference
+ceh33,5,2019,-2.186,4,C4 (Main Forest),Reference
+ceh33,5,2020,-2.32,4,C4 (Main Forest),Reference
+ceh33,5,2021,-2.3000000000000003,4,C4 (Main Forest),Reference
+ceh33,5,2022,-2.2500000000000004,4,C4 (Main Forest),Reference
+ceh33,5,2023,-2.228,4,C4 (Main Forest),Reference
+ceh33,5,2024,-2.172,4,C4 (Main Forest),Reference
+ceh33,5,2025,-2.032,4,C4 (Main Forest),Reference
+ceh34,5,2016,-1.452,4,C4 (Main Forest),Reference
+ceh34,5,2017,-1.3159999999999998,4,C4 (Main Forest),Reference
+ceh34,5,2018,-1.25,4,C4 (Main Forest),Reference
+ceh34,5,2019,-1.334,4,C4 (Main Forest),Reference
+ceh34,5,2020,-1.462,4,C4 (Main Forest),Reference
+ceh34,5,2021,-1.438,4,C4 (Main Forest),Reference
+ceh34,5,2022,-1.3779999999999997,4,C4 (Main Forest),Reference
+ceh34,5,2023,-1.3619999999999997,4,C4 (Main Forest),Reference
+ceh34,5,2024,-1.3359999999999999,4,C4 (Main Forest),Reference
+ceh34,5,2025,-1.202,4,C4 (Main Forest),Reference
+ceh36,5,2016,-1.116,3,C3 (Western Residual),Reference
+ceh36,5,2017,-1.03,3,C3 (Western Residual),Reference
+ceh36,5,2018,-0.982,3,C3 (Western Residual),Reference
+ceh36,5,2019,-0.986,3,C3 (Western Residual),Reference
+ceh36,5,2020,-1.0100000000000002,3,C3 (Western Residual),Reference
+ceh36,5,2021,-0.986,3,C3 (Western Residual),Reference
+ceh36,5,2022,-0.9880000000000001,3,C3 (Western Residual),Reference
+ceh36,5,2023,-1.0080000000000002,3,C3 (Western Residual),Reference
+ceh36,5,2024,-0.994,3,C3 (Western Residual),Reference
+ceh36,5,2025,-0.9339999999999999,3,C3 (Western Residual),Reference
+ceh37,5,2016,-1.026,2,C2 (Dune),Extended
+ceh37,5,2024,-0.9960000000000001,2,C2 (Dune),Extended
+ceh38,5,2016,-0.9339999999999999,3,C3 (Western Residual),Extended
+ceh39,5,2019,-0.992,3,C3 (Western Residual),Reference
+ceh39,5,2020,-1.07,3,C3 (Western Residual),Reference
+ceh39,5,2021,-1.0139999999999998,3,C3 (Western Residual),Reference
+ceh39,5,2022,-0.9780000000000001,3,C3 (Western Residual),Reference
+ceh39,5,2023,-0.998,3,C3 (Western Residual),Reference
+ceh39,5,2024,-0.954,3,C3 (Western Residual),Reference
+ceh39,5,2025,-0.852,3,C3 (Western Residual),Reference
+ceh4,5,2011,-0.6619999999999999,3,C3 (Western Residual),Reference
+ceh4,5,2012,-0.8019999999999999,3,C3 (Western Residual),Reference
+ceh4,5,2013,-0.9240000000000002,3,C3 (Western Residual),Reference
+ceh4,5,2014,-1.016,3,C3 (Western Residual),Reference
+ceh4,5,2015,-1.05,3,C3 (Western Residual),Reference
+ceh4,5,2016,-1.0959999999999999,3,C3 (Western Residual),Reference
+ceh4,5,2017,-1.058,3,C3 (Western Residual),Reference
+ceh4,5,2018,-1.06,3,C3 (Western Residual),Reference
+ceh4,5,2019,-1.096,3,C3 (Western Residual),Reference
+ceh4,5,2020,-1.142,3,C3 (Western Residual),Reference
+ceh4,5,2021,-1.12,3,C3 (Western Residual),Reference
+ceh4,5,2022,-1.114,3,C3 (Western Residual),Reference
+ceh4,5,2023,-1.1520000000000001,3,C3 (Western Residual),Reference
+ceh4,5,2024,-1.1280000000000001,3,C3 (Western Residual),Reference
+ceh4,5,2025,-1.0779999999999998,3,C3 (Western Residual),Reference
+ceh40,5,2020,-1.084,3,C3 (Western Residual),Reference
+ceh40,5,2021,-1.02,3,C3 (Western Residual),Reference
+ceh40,5,2022,-1.002,3,C3 (Western Residual),Reference
+ceh40,5,2023,-1.026,3,C3 (Western Residual),Reference
+ceh40,5,2024,-0.984,3,C3 (Western Residual),Reference
+ceh40,5,2025,-0.908,3,C3 (Western Residual),Reference
+ceh41,5,2020,-1.0260000000000002,3,C3 (Western Residual),Reference
+ceh41,5,2021,-0.96,3,C3 (Western Residual),Reference
+ceh41,5,2022,-0.952,3,C3 (Western Residual),Reference
+ceh41,5,2023,-0.992,3,C3 (Western Residual),Reference
+ceh41,5,2024,-0.9440000000000002,3,C3 (Western Residual),Reference
+ceh41,5,2025,-0.8620000000000001,3,C3 (Western Residual),Reference
+ceh42,5,2020,-0.9040000000000001,3,C3 (Western Residual),Reference
+ceh42,5,2021,-0.8779999999999999,3,C3 (Western Residual),Reference
+ceh42,5,2022,-0.8719999999999999,3,C3 (Western Residual),Reference
+ceh42,5,2023,-0.884,3,C3 (Western Residual),Reference
+ceh42,5,2024,-0.8480000000000001,3,C3 (Western Residual),Reference
+ceh42,5,2025,-0.78,3,C3 (Western Residual),Reference
+ceh5,5,2011,-0.7550000000000001,1,C1 (Lake Edge),Reference
+ceh5,5,2012,-0.8300000000000001,1,C1 (Lake Edge),Reference
+ceh5,5,2013,-0.8460000000000001,1,C1 (Lake Edge),Reference
+ceh5,5,2014,-0.876,1,C1 (Lake Edge),Reference
+ceh5,5,2015,-0.9040000000000001,1,C1 (Lake Edge),Reference
+ceh5,5,2016,-0.962,1,C1 (Lake Edge),Reference
+ceh5,5,2017,-0.8920000000000001,1,C1 (Lake Edge),Reference
+ceh5,5,2018,-0.942,1,C1 (Lake Edge),Reference
+ceh5,5,2019,-1.008,1,C1 (Lake Edge),Reference
+ceh5,5,2020,-1.004,1,C1 (Lake Edge),Reference
+ceh5,5,2021,-0.9659999999999999,1,C1 (Lake Edge),Reference
+ceh5,5,2022,-0.9879999999999999,1,C1 (Lake Edge),Reference
+ceh5,5,2023,-1.0379999999999998,1,C1 (Lake Edge),Reference
+ceh5,5,2024,-0.986,1,C1 (Lake Edge),Reference
+ceh5,5,2025,-0.95,1,C1 (Lake Edge),Reference
+ceh6,5,2011,-0.65,1,C1 (Lake Edge),Reference
+ceh6,5,2012,-0.6719999999999999,1,C1 (Lake Edge),Reference
+ceh6,5,2013,-0.662,1,C1 (Lake Edge),Reference
+ceh6,5,2014,-0.67,1,C1 (Lake Edge),Reference
+ceh6,5,2015,-0.6920000000000001,1,C1 (Lake Edge),Reference
+ceh6,5,2016,-0.716,1,C1 (Lake Edge),Reference
+ceh6,5,2017,-0.658,1,C1 (Lake Edge),Reference
+ceh6,5,2018,-0.7060000000000001,1,C1 (Lake Edge),Reference
+ceh6,5,2019,-0.76,1,C1 (Lake Edge),Reference
+ceh6,5,2020,-0.758,1,C1 (Lake Edge),Reference
+ceh6,5,2021,-0.7400000000000001,1,C1 (Lake Edge),Reference
+ceh6,5,2022,-0.766,1,C1 (Lake Edge),Reference
+ceh6,5,2023,-0.788,1,C1 (Lake Edge),Reference
+ceh6,5,2024,-0.756,1,C1 (Lake Edge),Reference
+ceh6,5,2025,-0.734,1,C1 (Lake Edge),Reference
+ceh7,5,2011,-0.8240000000000001,2,C2 (Dune),Extended
+ceh7,5,2012,-0.844,2,C2 (Dune),Extended
+ceh8,5,2011,-0.76,2,C2 (Dune),Extended
+ceh8,5,2012,-0.842,2,C2 (Dune),Extended
+ceh8,5,2013,-0.8780000000000001,2,C2 (Dune),Extended
+ceh8,5,2014,-0.906,2,C2 (Dune),Extended
+ceh8,5,2015,-0.9040000000000001,2,C2 (Dune),Extended
+ceh8,5,2016,-0.968,2,C2 (Dune),Extended
+ceh8,5,2017,-0.898,2,C2 (Dune),Extended
+ceh8,5,2018,-0.914,2,C2 (Dune),Extended
+ceh8,5,2019,-0.966,2,C2 (Dune),Extended
+ceh9,5,2011,-0.89,3,C3 (Western Residual),Reference
+ceh9,5,2012,-1.028,3,C3 (Western Residual),Reference
+ceh9,5,2013,-1.17,3,C3 (Western Residual),Reference
+ceh9,5,2014,-1.202,3,C3 (Western Residual),Reference
+ceh9,5,2015,-1.204,3,C3 (Western Residual),Reference
+ceh9,5,2016,-1.27,3,C3 (Western Residual),Reference
+ceh9,5,2017,-1.1800000000000002,3,C3 (Western Residual),Reference
+ceh9,5,2018,-1.1460000000000001,3,C3 (Western Residual),Reference
+ceh9,5,2019,-1.228,3,C3 (Western Residual),Reference
+ceh9,5,2020,-1.3,3,C3 (Western Residual),Reference
+ceh9,5,2021,-1.244,3,C3 (Western Residual),Reference
+ceh9,5,2022,-1.21,3,C3 (Western Residual),Reference
+ceh9,5,2023,-1.2279999999999998,3,C3 (Western Residual),Reference
+ceh9,5,2024,-1.186,3,C3 (Western Residual),Reference
+ceh9,5,2025,-1.0899999999999999,3,C3 (Western Residual),Reference
+d10,5,2017,-0.8640000000000001,2,C2 (Dune),Reference
+d10,5,2018,-0.8780000000000001,2,C2 (Dune),Reference
+d10,5,2019,-0.9360000000000002,2,C2 (Dune),Reference
+d10,5,2020,-0.9640000000000001,2,C2 (Dune),Reference
+d10,5,2021,-0.93,2,C2 (Dune),Reference
+d10,5,2022,-0.932,2,C2 (Dune),Reference
+d10,5,2023,-0.962,2,C2 (Dune),Reference
+d10,5,2024,-0.9,2,C2 (Dune),Reference
+d10,5,2025,-0.8320000000000001,2,C2 (Dune),Reference
+d15,5,2015,-0.874,2,C2 (Dune),Reference
+d15,5,2016,-0.9440000000000002,2,C2 (Dune),Reference
+d15,5,2017,-0.8560000000000001,2,C2 (Dune),Reference
+d15,5,2018,-0.8380000000000001,2,C2 (Dune),Reference
+d15,5,2019,-0.9,2,C2 (Dune),Reference
+d15,5,2020,-0.944,2,C2 (Dune),Reference
+d15,5,2021,-0.884,2,C2 (Dune),Reference
+d15,5,2022,-0.876,2,C2 (Dune),Reference
+d15,5,2023,-0.9080000000000001,2,C2 (Dune),Reference
+d15,5,2024,-0.8560000000000001,2,C2 (Dune),Reference
+d15,5,2025,-0.768,2,C2 (Dune),Reference
+d17,5,2015,-0.8160000000000001,2,C2 (Dune),Reference
+d17,5,2016,-0.866,2,C2 (Dune),Reference
+d17,5,2017,-0.782,2,C2 (Dune),Reference
+d17,5,2018,-0.786,2,C2 (Dune),Reference
+d17,5,2019,-0.852,2,C2 (Dune),Reference
+d17,5,2020,-0.8800000000000001,2,C2 (Dune),Reference
+d17,5,2021,-0.8220000000000001,2,C2 (Dune),Reference
+d17,5,2022,-0.8299999999999998,2,C2 (Dune),Reference
+d17,5,2023,-0.8640000000000001,2,C2 (Dune),Reference
+d17,5,2024,-0.808,2,C2 (Dune),Reference
+d17,5,2025,-0.742,2,C2 (Dune),Reference
+d25,5,2015,-0.9979999999999999,3,C3 (Western Residual),Reference
+d25,5,2016,-1.048,3,C3 (Western Residual),Reference
+d25,5,2017,-0.974,3,C3 (Western Residual),Reference
+d25,5,2018,-0.9640000000000001,3,C3 (Western Residual),Reference
+d25,5,2019,-1.0399999999999998,3,C3 (Western Residual),Reference
+d25,5,2020,-1.104,3,C3 (Western Residual),Reference
+d25,5,2021,-1.0479999999999998,3,C3 (Western Residual),Reference
+d25,5,2022,-1.032,3,C3 (Western Residual),Reference
+d25,5,2023,-1.082,3,C3 (Western Residual),Reference
+d38,5,2017,-1.116,2,C2 (Dune),Reference
+d38,5,2018,-1.15,2,C2 (Dune),Reference
+d38,5,2019,-1.218,2,C2 (Dune),Reference
+d38,5,2020,-1.232,2,C2 (Dune),Reference
+d38,5,2021,-1.192,2,C2 (Dune),Reference
+d38,5,2022,-1.186,2,C2 (Dune),Reference
+d38,5,2023,-1.2239999999999998,2,C2 (Dune),Reference
+d38,5,2024,-1.184,2,C2 (Dune),Reference
+d38,5,2025,-1.134,2,C2 (Dune),Reference
+d41,5,2017,-0.8300000000000001,2,C2 (Dune),Reference
+d41,5,2018,-0.8539999999999999,2,C2 (Dune),Reference
+d41,5,2019,-0.9179999999999999,2,C2 (Dune),Reference
+d41,5,2020,-0.9339999999999999,2,C2 (Dune),Reference
+d41,5,2021,-0.884,2,C2 (Dune),Reference
+d41,5,2022,-0.9,2,C2 (Dune),Reference
+d41,5,2023,-0.9460000000000001,2,C2 (Dune),Reference
+d41,5,2024,-0.8960000000000001,2,C2 (Dune),Reference
+d41,5,2025,-0.8400000000000001,2,C2 (Dune),Reference
+d43,5,2015,-1.0859999999999999,2,C2 (Dune),Reference
+d43,5,2016,-1.1440000000000001,2,C2 (Dune),Reference
+d43,5,2017,-1.062,2,C2 (Dune),Reference
+d43,5,2018,-1.08,2,C2 (Dune),Reference
+d43,5,2019,-1.1440000000000001,2,C2 (Dune),Reference
+d43,5,2020,-1.17,2,C2 (Dune),Reference
+d43,5,2021,-1.098,2,C2 (Dune),Reference
+d43,5,2022,-1.108,2,C2 (Dune),Reference
+d43,5,2023,-1.1480000000000001,2,C2 (Dune),Reference
+d43,5,2024,-1.092,2,C2 (Dune),Reference
+d43,5,2025,-1.03,2,C2 (Dune),Reference
+d44,5,2015,-1.124,2,C2 (Dune),Reference
+d44,5,2016,-1.1860000000000002,2,C2 (Dune),Reference
+d44,5,2017,-1.11,2,C2 (Dune),Reference
+d44,5,2018,-1.1440000000000001,2,C2 (Dune),Reference
+d44,5,2019,-1.2160000000000002,2,C2 (Dune),Reference
+d44,5,2020,-1.236,2,C2 (Dune),Reference
+d44,5,2021,-1.18,2,C2 (Dune),Reference
+d44,5,2022,-1.19,2,C2 (Dune),Reference
+d44,5,2023,-1.2239999999999998,2,C2 (Dune),Reference
+d44,5,2024,-1.166,2,C2 (Dune),Reference
+d44,5,2025,-1.106,2,C2 (Dune),Reference
+d5,5,2015,-1.022,2,C2 (Dune),Reference
+d5,5,2016,-1.086,2,C2 (Dune),Reference
+d5,5,2017,-0.998,2,C2 (Dune),Reference
+d5,5,2018,-0.99,2,C2 (Dune),Reference
+d5,5,2019,-1.058,2,C2 (Dune),Reference
+d5,5,2020,-1.09,2,C2 (Dune),Reference
+d5,5,2021,-1.028,2,C2 (Dune),Reference
+d5,5,2022,-1.028,2,C2 (Dune),Reference
+d5,5,2023,-1.06,2,C2 (Dune),Reference
+d5,5,2024,-1.0019999999999998,2,C2 (Dune),Reference
+d5,5,2025,-0.9339999999999999,2,C2 (Dune),Reference
+d6,5,2015,-1.036,2,C2 (Dune),Reference
+d6,5,2016,-1.0919999999999999,2,C2 (Dune),Reference
+d6,5,2017,-1.0059999999999998,2,C2 (Dune),Reference
+d6,5,2018,-1.01,2,C2 (Dune),Reference
+d6,5,2019,-1.068,2,C2 (Dune),Reference
+d6,5,2020,-1.092,2,C2 (Dune),Reference
+d6,5,2021,-1.0379999999999998,2,C2 (Dune),Reference
+d6,5,2022,-1.0539999999999998,2,C2 (Dune),Reference
+d6,5,2023,-1.096,2,C2 (Dune),Reference
+d6,5,2024,-1.0379999999999998,2,C2 (Dune),Reference
+d6,5,2025,-0.982,2,C2 (Dune),Reference
+d7,5,2017,-0.982,2,C2 (Dune),Reference
+d7,5,2018,-0.9800000000000001,2,C2 (Dune),Reference
+d8,5,2015,-0.852,2,C2 (Dune),Reference
+d8,5,2016,-0.916,2,C2 (Dune),Reference
+d8,5,2017,-0.8379999999999999,2,C2 (Dune),Reference
+d8,5,2018,-0.85,2,C2 (Dune),Reference
+d8,5,2019,-0.9039999999999999,2,C2 (Dune),Reference
+d8,5,2020,-0.9100000000000001,2,C2 (Dune),Reference
+d8,5,2021,-0.8380000000000001,2,C2 (Dune),Reference
+d8,5,2022,-0.836,2,C2 (Dune),Reference
+d8,5,2023,-0.868,2,C2 (Dune),Reference
+d8,5,2024,-0.8140000000000001,2,C2 (Dune),Reference
+d8,5,2025,-0.748,2,C2 (Dune),Reference
+d9,5,2015,-1.034,2,C2 (Dune),Reference
+d9,5,2016,-1.102,2,C2 (Dune),Reference
+d9,5,2017,-1.02,2,C2 (Dune),Reference
+d9,5,2018,-1.0219999999999998,2,C2 (Dune),Reference
+d9,5,2019,-1.078,2,C2 (Dune),Reference
+d9,5,2020,-1.1059999999999999,2,C2 (Dune),Reference
+d9,5,2021,-1.024,2,C2 (Dune),Reference
+d9,5,2022,-1.014,2,C2 (Dune),Reference
+d9,5,2023,-1.052,2,C2 (Dune),Reference
+d9,5,2024,-0.998,2,C2 (Dune),Reference
+d9,5,2025,-0.9199999999999999,2,C2 (Dune),Reference
+fe1,5,2021,-1.334,4,C4 (Main Forest),Extended
+fe1,5,2022,-1.2899999999999998,4,C4 (Main Forest),Extended
+fe1,5,2023,-1.2819999999999998,4,C4 (Main Forest),Extended
+fe1,5,2024,-1.242,4,C4 (Main Forest),Extended
+fe1,5,2025,-1.1179999999999999,4,C4 (Main Forest),Extended
+fe2,5,2021,-2.0839999999999996,5,C5 (Coastal Forest),Extended
+fe2,5,2022,-2.048,5,C5 (Coastal Forest),Extended
+fe2,5,2023,-2.034,5,C5 (Coastal Forest),Extended
+fe2,5,2024,-2.012,5,C5 (Coastal Forest),Extended
+fe2,5,2025,-1.9,5,C5 (Coastal Forest),Extended
+fe3,5,2022,-2.368,5,C5 (Coastal Forest),Extended
+fe3,5,2023,-2.368,5,C5 (Coastal Forest),Extended
+fe3,5,2024,-2.346,5,C5 (Coastal Forest),Extended
+fe3,5,2025,-2.2520000000000002,5,C5 (Coastal Forest),Extended
+fe4,5,2023,-2.002,5,C5 (Coastal Forest),Extended
+fe4,5,2024,-1.9740000000000002,5,C5 (Coastal Forest),Extended
+fe4,5,2025,-1.8399999999999999,5,C5 (Coastal Forest),Extended
+l7,5,2015,-2.12,2,C2 (Dune),Reference
+l7,5,2016,-2.19,2,C2 (Dune),Reference
+l7,5,2017,-2.102,2,C2 (Dune),Reference
+l7,5,2018,-2.142,2,C2 (Dune),Reference
+l7,5,2019,-2.21,2,C2 (Dune),Reference
+l7,5,2020,-2.218,2,C2 (Dune),Reference
+l7,5,2021,-2.1420000000000003,2,C2 (Dune),Reference
+l7,5,2022,-2.156,2,C2 (Dune),Reference
+l7,5,2023,-2.2079999999999997,2,C2 (Dune),Reference
+l7,5,2024,-2.126,2,C2 (Dune),Reference
+l7,5,2025,-2.062,2,C2 (Dune),Reference
+lis1,5,2023,-1.316,4,C4 (Main Forest),Extended
+lis1,5,2024,-1.268,4,C4 (Main Forest),Extended
+lis1,5,2025,-1.144,4,C4 (Main Forest),Extended
+llynrhos,5,2016,0.336,,,Reference
+llynrhos,5,2017,0.35200000000000004,,,Reference
+llynrhos,5,2018,0.338,,,Reference
+llynrhos,5,2019,0.298,,,Reference
+llynrhos,5,2020,0.286,,,Reference
+llynrhos,5,2021,0.268,,,Reference
+llynrhos,5,2022,0.254,,,Reference
+llynrhos,5,2023,0.252,,,Reference
+llynrhos,5,2024,0.3,,,Reference
+llynrhos,5,2025,0.33799999999999997,,,Reference
+nw1,5,2011,-1.8299999999999996,3,C3 (Western Residual),Reference
+nw1,5,2012,-1.9599999999999997,3,C3 (Western Residual),Reference
+nw1,5,2013,-2.096,3,C3 (Western Residual),Reference
+nw1,5,2014,-2.124,3,C3 (Western Residual),Reference
+nw1,5,2015,-2.132,3,C3 (Western Residual),Reference
+nw1,5,2016,-2.1839999999999997,3,C3 (Western Residual),Reference
+nw1,5,2017,-2.0799999999999996,3,C3 (Western Residual),Reference
+nw1,5,2018,-2.0300000000000002,3,C3 (Western Residual),Reference
+nw1,5,2019,-2.106,3,C3 (Western Residual),Reference
+nw1,5,2020,-2.182,3,C3 (Western Residual),Reference
+nw1,5,2021,-2.1420000000000003,3,C3 (Western Residual),Reference
+nw1,5,2022,-2.1260000000000003,3,C3 (Western Residual),Reference
+nw1,5,2023,-2.1540000000000004,3,C3 (Western Residual),Reference
+nw1,5,2024,-2.104,3,C3 (Western Residual),Reference
+nw1,5,2025,-1.986,3,C3 (Western Residual),Reference
+nw10,5,2018,-1.528,4,C4 (Main Forest),Reference
+nw10,5,2019,-1.614,4,C4 (Main Forest),Reference
+nw10,5,2025,-1.458,4,C4 (Main Forest),Reference
+nw11,5,2012,-1.212,3,C3 (Western Residual),Reference
+nw11,5,2013,-1.3559999999999999,3,C3 (Western Residual),Reference
+nw11,5,2014,-1.3820000000000001,3,C3 (Western Residual),Reference
+nw11,5,2015,-1.3880000000000001,3,C3 (Western Residual),Reference
+nw11,5,2016,-1.4460000000000002,3,C3 (Western Residual),Reference
+nw11,5,2017,-1.338,3,C3 (Western Residual),Reference
+nw11,5,2018,-1.278,3,C3 (Western Residual),Reference
+nw11,5,2019,-1.35,3,C3 (Western Residual),Reference
+nw11,5,2020,-1.424,3,C3 (Western Residual),Reference
+nw11,5,2021,-1.3800000000000001,3,C3 (Western Residual),Reference
+nw11,5,2022,-1.36,3,C3 (Western Residual),Reference
+nw11,5,2023,-1.3780000000000001,3,C3 (Western Residual),Reference
+nw11,5,2024,-1.332,3,C3 (Western Residual),Reference
+nw11,5,2025,-1.218,3,C3 (Western Residual),Reference
+nw13,5,2018,-1.192,3,C3 (Western Residual),Reference
+nw13,5,2019,-1.26,3,C3 (Western Residual),Reference
+nw13,5,2020,-1.3199999999999998,3,C3 (Western Residual),Reference
+nw13,5,2021,-1.29,3,C3 (Western Residual),Reference
+nw13,5,2022,-1.284,3,C3 (Western Residual),Reference
+nw13,5,2023,-1.316,3,C3 (Western Residual),Reference
+nw13,5,2024,-1.264,3,C3 (Western Residual),Reference
+nw13,5,2025,-1.1560000000000001,3,C3 (Western Residual),Reference
+nw2,5,2011,-1.01,3,C3 (Western Residual),Reference
+nw2,5,2012,-1.144,3,C3 (Western Residual),Reference
+nw2,5,2013,-1.284,3,C3 (Western Residual),Reference
+nw2,5,2014,-1.314,3,C3 (Western Residual),Reference
+nw2,5,2015,-1.324,3,C3 (Western Residual),Reference
+nw2,5,2016,-1.374,3,C3 (Western Residual),Reference
+nw2,5,2017,-1.28,3,C3 (Western Residual),Reference
+nw2,5,2018,-1.2280000000000002,3,C3 (Western Residual),Reference
+nw2,5,2019,-1.294,3,C3 (Western Residual),Reference
+nw2,5,2020,-1.37,3,C3 (Western Residual),Reference
+nw2,5,2021,-1.33,3,C3 (Western Residual),Reference
+nw2,5,2022,-1.304,3,C3 (Western Residual),Reference
+nw2,5,2023,-1.3279999999999998,3,C3 (Western Residual),Reference
+nw2,5,2024,-1.2879999999999998,3,C3 (Western Residual),Reference
+nw2,5,2025,-1.166,3,C3 (Western Residual),Reference
+nw3,5,2011,-0.8099999999999999,2,C2 (Dune),Reference
+nw4,5,2011,-0.5800000000000001,2,C2 (Dune),Reference
+nw4,5,2012,-0.6679999999999999,2,C2 (Dune),Reference
+nw4,5,2013,-0.728,2,C2 (Dune),Reference
+nw4,5,2014,-0.772,2,C2 (Dune),Reference
+nw4,5,2015,-0.7859999999999999,2,C2 (Dune),Reference
+nw4,5,2016,-0.836,2,C2 (Dune),Reference
+nw4,5,2017,-0.76,2,C2 (Dune),Reference
+nw4,5,2018,-0.76,2,C2 (Dune),Reference
+nw4,5,2019,-0.8140000000000001,2,C2 (Dune),Reference
+nw4,5,2020,-0.834,2,C2 (Dune),Reference
+nw4,5,2021,-0.776,2,C2 (Dune),Reference
+nw4,5,2022,-0.786,2,C2 (Dune),Reference
+nw4,5,2023,-0.8240000000000001,2,C2 (Dune),Reference
+nw4,5,2024,-0.786,2,C2 (Dune),Reference
+nw4,5,2025,-0.726,2,C2 (Dune),Reference
+nw4b,5,2011,-0.635,2,C2 (Dune),Reference
+nw4b,5,2012,-0.7220000000000001,2,C2 (Dune),Reference
+nw4b,5,2013,-0.7859999999999999,2,C2 (Dune),Reference
+nw4b,5,2014,-0.826,2,C2 (Dune),Reference
+nw4b,5,2015,-0.8379999999999999,2,C2 (Dune),Reference
+nw4b,5,2016,-0.882,2,C2 (Dune),Reference
+nw4b,5,2017,-0.8039999999999999,2,C2 (Dune),Reference
+nw4b,5,2018,-0.8019999999999999,2,C2 (Dune),Reference
+nw4b,5,2019,-0.8560000000000001,2,C2 (Dune),Reference
+nw4b,5,2020,-0.876,2,C2 (Dune),Reference
+nw4b,5,2021,-0.8160000000000001,2,C2 (Dune),Reference
+nw4b,5,2022,-0.8280000000000001,2,C2 (Dune),Reference
+nw4b,5,2023,-0.8620000000000001,2,C2 (Dune),Reference
+nw4b,5,2024,-0.818,2,C2 (Dune),Reference
+nw4b,5,2025,-0.772,2,C2 (Dune),Reference
+nw5,5,2011,-0.866,3,C3 (Western Residual),Reference
+nw5,5,2012,-0.992,3,C3 (Western Residual),Reference
+nw5,5,2013,-1.086,3,C3 (Western Residual),Reference
+nw5,5,2014,-1.1280000000000001,3,C3 (Western Residual),Reference
+nw5,5,2015,-1.1260000000000001,3,C3 (Western Residual),Reference
+nw5,5,2024,-1.1219999999999999,3,C3 (Western Residual),Reference
+nw5,5,2025,-1.026,3,C3 (Western Residual),Reference
+nw6,5,2011,-0.692,3,C3 (Western Residual),Reference
+nw7,5,2011,-1.428,3,C3 (Western Residual),Reference
+nw7,5,2018,-1.7260000000000002,3,C3 (Western Residual),Reference
+nw8,5,2011,-1.468,5,C5 (Coastal Forest),Extended
+nw8b,5,2020,-2.024,3,C3 (Western Residual),Extended
+nw8b,5,2021,-1.982,3,C3 (Western Residual),Extended
+nw8b,5,2022,-1.968,3,C3 (Western Residual),Extended
+nw8b,5,2023,-1.9759999999999998,3,C3 (Western Residual),Extended
+nw8b,5,2024,-1.9420000000000002,3,C3 (Western Residual),Extended
+nw8b,5,2025,-1.8380000000000003,3,C3 (Western Residual),Extended
+nw9,5,2011,-0.6709999999999999,5,C5 (Coastal Forest),Reference
+nw9,5,2012,-0.8550000000000001,5,C5 (Coastal Forest),Reference
+nw9,5,2013,-1.033,5,C5 (Coastal Forest),Reference
+nw9,5,2014,-1.117,5,C5 (Coastal Forest),Reference
+nw9,5,2015,-1.149,5,C5 (Coastal Forest),Reference
+nw9,5,2016,-1.189,5,C5 (Coastal Forest),Reference
+nw9,5,2017,-1.121,5,C5 (Coastal Forest),Reference
+nw9,5,2018,-1.097,5,C5 (Coastal Forest),Reference
+nw9,5,2019,-1.151,5,C5 (Coastal Forest),Reference
+nw9,5,2020,-1.2269999999999999,5,C5 (Coastal Forest),Reference
+nw9,5,2021,-1.2489999999999999,5,C5 (Coastal Forest),Reference
+nw9,5,2022,-1.2389999999999999,5,C5 (Coastal Forest),Reference
+nw9,5,2023,-1.249,5,C5 (Coastal Forest),Reference
+nw9,5,2024,-1.2449999999999999,5,C5 (Coastal Forest),Reference
+nw9,5,2025,-1.1629999999999998,5,C5 (Coastal Forest),Reference
+p2,5,2025,-0.794,1,C1 (Lake Edge),Extended
+pe,5,2025,-1.166,2,C2 (Dune),Extended
+pw,5,2025,-1.032,3,C3 (Western Residual),Extended
+t41a,5,2017,-0.914,2,C2 (Dune),Reference
+t41a,5,2018,-0.9359999999999999,2,C2 (Dune),Reference
+t41a,5,2019,-0.9940000000000001,2,C2 (Dune),Reference
+t41a,5,2020,-1.0180000000000002,2,C2 (Dune),Reference
+t41a,5,2021,-0.9720000000000001,2,C2 (Dune),Reference
+t41a,5,2022,-0.9780000000000001,2,C2 (Dune),Reference
+t41a,5,2023,-1.014,2,C2 (Dune),Reference
+t41a,5,2024,-0.9720000000000001,2,C2 (Dune),Reference
+t41a,5,2025,-0.914,2,C2 (Dune),Reference
+t41b,5,2015,-0.8219999999999998,2,C2 (Dune),Reference
+t41b,5,2016,-0.8739999999999999,2,C2 (Dune),Reference
+t41b,5,2017,-0.7779999999999999,2,C2 (Dune),Reference
+t41b,5,2018,-0.8059999999999998,2,C2 (Dune),Reference
+t41b,5,2019,-0.866,2,C2 (Dune),Reference
+t41b,5,2020,-0.8899999999999999,2,C2 (Dune),Reference
+t41b,5,2021,-0.842,2,C2 (Dune),Reference
+t41b,5,2022,-0.85,2,C2 (Dune),Reference
+t41b,5,2023,-0.866,2,C2 (Dune),Reference
+t41b,5,2024,-0.82,2,C2 (Dune),Reference
+t41b,5,2025,-0.77,2,C2 (Dune),Reference
+t41c,5,2017,-0.8160000000000001,2,C2 (Dune),Reference
+t41c,5,2018,-0.8379999999999999,2,C2 (Dune),Reference
+t41c,5,2019,-0.898,2,C2 (Dune),Reference
+t41c,5,2020,-0.9199999999999999,2,C2 (Dune),Reference
+t41c,5,2021,-0.8719999999999999,2,C2 (Dune),Reference
+t41c,5,2022,-0.882,2,C2 (Dune),Reference
+t41c,5,2023,-0.9179999999999999,2,C2 (Dune),Reference
+t41c,5,2024,-0.8699999999999999,2,C2 (Dune),Reference
+t41c,5,2025,-0.8140000000000001,2,C2 (Dune),Reference
+t41d,5,2017,-1.03,2,C2 (Dune),Reference
+t41d,5,2018,-1.052,2,C2 (Dune),Reference
+t41d,5,2019,-1.0959999999999999,2,C2 (Dune),Reference
+t41d,5,2020,-1.1,2,C2 (Dune),Reference
+t41d,5,2021,-1.048,2,C2 (Dune),Reference
+t41d,5,2022,-1.0559999999999998,2,C2 (Dune),Reference
+t41d,5,2023,-1.0799999999999998,2,C2 (Dune),Reference
+t41d,5,2024,-1.05,2,C2 (Dune),Reference
+t41d,5,2025,-0.992,2,C2 (Dune),Reference
+wmc1,5,2014,-0.9739999999999999,2,C2 (Dune),Reference
+wmc1,5,2015,-0.976,2,C2 (Dune),Reference
+wmc1,5,2016,-1.046,2,C2 (Dune),Reference
+wmc1,5,2017,-0.962,2,C2 (Dune),Reference
+wmc1,5,2018,-0.968,2,C2 (Dune),Reference
+wmc1,5,2019,-1.0299999999999998,2,C2 (Dune),Reference
+wmc1,5,2020,-1.0539999999999998,2,C2 (Dune),Reference
+wmc1,5,2021,-0.982,2,C2 (Dune),Reference
+wmc1,5,2022,-0.984,2,C2 (Dune),Reference
+wmc1,5,2023,-1.022,2,C2 (Dune),Reference
+wmc1,5,2024,-0.968,2,C2 (Dune),Reference
+wmc1,5,2025,-0.906,2,C2 (Dune),Reference
+wmc2,5,2014,-1.052,3,C3 (Western Residual),Reference
+wmc2,5,2015,-1.0559999999999998,3,C3 (Western Residual),Reference
+wmc2,5,2016,-1.1139999999999999,3,C3 (Western Residual),Reference
+wmc2,5,2017,-1.05,3,C3 (Western Residual),Reference
+wmc2,5,2018,-1.066,3,C3 (Western Residual),Reference
+wmc2,5,2019,-1.1079999999999999,3,C3 (Western Residual),Reference
+wmc2,5,2020,-1.15,3,C3 (Western Residual),Reference
+wmc2,5,2021,-1.0999999999999999,3,C3 (Western Residual),Reference
+wmc2,5,2022,-1.0739999999999998,3,C3 (Western Residual),Reference
+wmc2,5,2023,-1.092,3,C3 (Western Residual),Reference
+wmc2,5,2024,-1.0479999999999998,3,C3 (Western Residual),Reference
+wmc2,5,2025,-0.968,3,C3 (Western Residual),Reference
+wmc3,5,2018,-1.59,3,C3 (Western Residual),Reference
+wmc3,5,2019,-1.65,3,C3 (Western Residual),Reference
+wmc3,5,2025,-1.5959999999999999,3,C3 (Western Residual),Reference
+wmc4,5,2017,-1.2639999999999998,3,C3 (Western Residual),Reference
+wmc4,5,2018,-1.226,3,C3 (Western Residual),Reference
+wmc4,5,2019,-1.3,3,C3 (Western Residual),Reference
+wmc4,5,2020,-1.3599999999999999,3,C3 (Western Residual),Reference
+wmc4,5,2021,-1.326,3,C3 (Western Residual),Reference
+wmc4,5,2022,-1.316,3,C3 (Western Residual),Reference
+wmc4,5,2023,-1.35,3,C3 (Western Residual),Reference
+wmc4,5,2024,-1.302,3,C3 (Western Residual),Reference
+wmc4,5,2025,-1.196,3,C3 (Western Residual),Reference

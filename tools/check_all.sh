@@ -18,8 +18,13 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.14.0 - 2026-09-21
+# VERSION 1.15.0 - 2026-09-21
 # CHANGELOG
+#   1.15.0 (2026-09-21): rule -> gate matrix. rule_gate_lint checks that
+#     tools/rule_gate_matrix.csv - one row per CLAUDE.md / project-box rule
+#     and the gate that enforces it - still describes the tree: every named
+#     gate exists and every 'gated' row names a tool this file runs. Gates the
+#     MATRIX, not the rules; the 'none' and 'partial' rows are the work list.
 #   1.14.0 (2026-09-21): cross-reference gate. xref_lint fails on any report
 #     chapter that sends its reader to the Methods Supplement - CLAUDE.md's rule
 #     since the Supplement existed, checked by nothing until two edit batches
@@ -358,6 +363,10 @@ echo "── records (did the last session leave the records a session needs?) �
 # If this fails, the fix is to WRITE the record it names, never to skip it.
 python3 tools/session_handover.py --selftest >/dev/null || rc=1
 python3 tools/session_handover.py --check || rc=1
+# Which rules have a gate at all. Martin, 2026-09-21: "now I am worried we
+# dont have adequate checks to ensure the project rules are followed" - after
+# a CLAUDE.md rule with no gate was broken six times in a morning.
+python3 tools/rule_gate_lint.py --quiet || rc=1
 
 echo
 echo "── phases (which document is live; is every frozen write reasoned?) ──"

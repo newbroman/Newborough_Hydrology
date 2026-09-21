@@ -87,7 +87,9 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-21. The thinning scenario's 0.5 is
+#   config.THINNING_FRACTION (value unchanged) so the documents' "50% thinning" traces.
+# 1.8.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -135,6 +137,7 @@ from utils.paths import (
     OUT_09C_SUMMER_MINIMA,
 )
 from utils.config import (
+    THINNING_FRACTION,
     SUMMER_MINIMUM_MONTHS,
     BW_MODE, FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
     REFERENCE_CUTOFF_DATE, CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS, SD15b,
@@ -473,7 +476,7 @@ def build_scenarios(master, climate):
     # P_eff variants
     P_base = monthly_P * (1 - FOREST_INTERCEPTION)
     P_cf   = monthly_P.copy()
-    P_thin = monthly_P * (1 - FOREST_INTERCEPTION * 0.5)
+    P_thin = monthly_P * (1 - FOREST_INTERCEPTION * THINNING_FRACTION)
     P_bl   = monthly_P * (1 - BROADLEAF_INTERCEPTION)
 
     # β₂ arrays — uniform for pine/clearfell/thinning

@@ -30,7 +30,12 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-29. FELL_DATE, SCRAPE_DATE
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-21. Emits 09b_report_numbers.csv:
+#   the post-scrape fitting window in months (post_n at CEH36 — April 2015 to the
+#   December 2017 clearfell; the "31-month post-scraping record" the front matter
+#   and report9 §4.5 quote, which lived only as a repeated column) and the
+#   pre-scrape window. OUT_09B_REPORT_NUMBERS had been declared and never written.
+# 1.7.0  # Hollingham (2026) — 2026-08-29. FELL_DATE, SCRAPE_DATE
 #   and SCRAPE2_DATE were private literals; now imported from clearfell_common
 #   (D-084). No value changes.
 # v1.6.0  # Hollingham (2026) — 2026-07-02
@@ -49,7 +54,9 @@ from utils.paths import (
     INT_MASTER_DATA, OUT_09B_INDIVIDUAL, OUT_09B_CENTROIDS,
     OUT_09B_TRAJECTORY, OUT_09B_SCENARIO, OUT_09B_SCENARIO_CSV,
     OUT_09B_SUMMER_SCENARIO, OUT_09B_SUMMER_SCENARIO_CSV, OUT_17_SY_TABLE,
+    OUT_09B_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.config import FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
@@ -314,6 +321,19 @@ def main():
     print(f"   \u2192 {OUT_09B_INDIVIDUAL.name}")
     centroids_df.to_csv(OUT_09B_CENTROIDS, index=False, float_format="%.4f")
     print(f"   \u2192 {OUT_09B_CENTROIDS.name}")
+    rr = ReportNumbers()
+    _c36 = df.loc[df["well"] == "ceh36"].iloc[0]
+    rr.add("scrape_window_months_post", int(_c36["post_n"]), unit="months",
+           era=f"{SCRAPE_DATE.strftime('%b %Y')}-{FELL_DATE.strftime('%b %Y')}",
+           note="fitted months in the post-scrape window at CEH36 (scrape to clearfell): "
+                "the 'N-month post-scraping record' the documents quote")
+    rr.add("scrape_window_months_pre", int(_c36["pre_n"]), unit="months",
+           era=f"record start-{SCRAPE_DATE.strftime('%b %Y')}",
+           note="fitted months in the pre-scrape window at CEH36")
+    rr.add("scrape_propagation_n_wells", int(len(df)), unit="count",
+           note="CEH36, the uphill transect and the controls fitted in both windows")
+    n_rr = rr.save(OUT_09B_REPORT_NUMBERS)
+    print(f"   \u2192 {OUT_09B_REPORT_NUMBERS.name} ({n_rr} rows)")
 
     # 6. Equilibration figure
     phase(6, "Generating CEH36 equilibration figure")

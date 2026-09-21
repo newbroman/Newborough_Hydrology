@@ -69,6 +69,11 @@ SKIP_PARTS = {".git", ".git-working", "backups", "_recovered_2026-08-25",
 EXEMPT = {
     # glob patterns in tool configuration, not filenames
     "*.md", "**/*.md", "*.py", "text/*.md",
+    # --selftest fixtures of the 2026-09-21 gates: written to a TemporaryDirectory
+    # and deleted with it; they are not documents and never existed on disk
+    # (xref_lint, retired_phrase_lint, csv_mention_lint, docglob_lint,
+    # record_basis_claims_lint)
+    "report99.md", "fixture.md", "doc.md", "t.md", "Paper.md", "docs/paper/text/Paper.md",
     # the *_results.md memo pattern (scripts build a <script>_results.md memo);
     # written as prose in apply_main_guards.py and DECISION_LOG.md, not a filename
     "_results.md",

@@ -78,7 +78,21 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.16.0"  # Hollingham (2026) — 2026-09-20. After the reading pilot (Sonnet, 113
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-21. The reading pass is painted: eight
+#   Sonnet subagents read every attributed number of the report (2,912 rows, brief in
+#   scratch/reading/BRIEF.md) and their verdicts (tools/proof_reading_verdicts.csv) now
+#   override the matcher — a DENIED attribution is red with the reader's reason and the
+#   better source, a confirmed one says so, an unsure one is a tie. 843 of 2,912 were
+#   denied (29 %): the honest measure of the digit-matcher, and the list of what to fix.
+# v1.17.0  2026-09-21. After report8 part 1 of the reading pass
+#   (Sonnet: 128 of 202 attributions denied). Formulas are masked — nothing inside
+#   $…$ or $$…$$ is a citation (summation bounds, subscripts t−1, exponents had matched
+#   config constants and cells); "1)" list markers are markers; a CSV CELL needs its ROW
+#   named in the sentence — a column word alone ("rmse", "bias") had let any well's row
+#   stand in for a Methods-chapter threshold; a quantity letter equal to 0 or 1 exactly
+#   (r = 1, d = 0, NSE = 1) is definitional; a clause that cites a source outranks a
+#   weak match (Stratford's 100–200 mm/yr, NRW's ±0.15 m are the literature's).
+# v1.16.0  2026-09-20. After the reading pilot (Sonnet, 113
 #   rows of the front matter, report6, report7: 15 denials, five patterns): a "%" token
 #   no longer accepts a COEFFICIENT rendered as a percentage (24% had gone to α_B);
 #   a registered key's ROW is its stem — ANCOVA_C_…_clearfell_step and …_clearfell_p are
@@ -885,7 +899,7 @@ _RANGE_BEFORE = re.compile(r"\d\s*(?:--|–|—|-|to)\s*$")
 _ORDINAL_BEFORE = re.compile(r"(?i)\b(tiers?|sites?|phases?|steps?|scripts?|options?|batch(es)?|zones?|levels?|methods?|approach(es)?|types?|class(es)?|groups?|stages?|rounds?|parts?|panels?|checks?|objectives?|hypothes[ie]s|quadrats?|transects?|eras?|sketch(es)?|slacks?|models?|runs?|versions?)\s+(?:\d{1,2}[a-z]?\s*(?:--|–|—|-|,|and|to)\s*)*$")   # "Tier 1": a name                        # the second end of a range
 _CITATION = re.compile(r"[A-Z][A-Za-z'’\-]+(?:\s+(?:et al\.?|and|&)\s*[A-Z]?[A-Za-z'’\-]*)*,?\s*\(?(?:18|19|20)\d\d[a-z]?\)?"
                        r"|\((?:[^()]*?,\s*)?(?:18|19|20)\d\d[a-z]?(?:[;,][^()]*)?\)")   # "Stratford et al., 2007", "Ranwell (1959)", "(Davy et al., 2010, p. 17)"
-_LIST_MARKER = re.compile(r"^\d+\.\s")
+_LIST_MARKER = re.compile(r"^\d+[.)]\s")
 _IDENT_CHAIN = re.compile(r"\d+[-‐]\d+[-‐]\d+")          # three digit groups joined by hyphens
 _PCT_AFTER = re.compile(r"(?i)^\s*(?:%|per cent|percent)")
 _HA_AFTER = re.compile(r"(?i)^\s*(?:ha|hectares?)\b")
@@ -982,9 +996,13 @@ def _qty_ok(q: str, c: Cand) -> bool:
 COHERENCE_WINDOW = 260          # characters: a sentence and its neighbour
 
 
+_MATH = re.compile(r"\$\$.*?\$\$|(?<!\$)\$(?!\$)[^$\n]{1,300}\$", re.S)
+
+
 def mask_markup(text: str) -> str:
     f = lambda m: " " * len(m.group())
-    return cc._IMGREF.sub(f, cc._MARKUP.sub(f, text)).replace("*", " ")
+    # formulas are not citations: $h_{t-1}$, $$\sum_{m=1}^{12} …$$ carry indices and bounds
+    return _MATH.sub(f, cc._IMGREF.sub(f, cc._MARKUP.sub(f, text))).replace("*", " ")
 
 
 _WORD = re.compile(r"[a-z0-9²½₀₁₂₃βδλκτ]+")
@@ -1385,6 +1403,9 @@ def _accept(c: Cand, masked: str, s: int, e: int, short: bool, w: str, ws: set, 
             score += 2
         elif lab_hits:
             score += 1                            # the row is named only by its cluster
+        elif c.tier == "cell":
+            _LAST[0] = 0.0
+            return 0                              # a cell whose ROW the sentence never names is not a citation of it (report8 reading)
         if any(_hit(x, w, ws) for x in a["col"]):
             score += 1
         if any(_hit(x, w, ws) for x in a["file"]):
@@ -1438,6 +1459,9 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
         bol = masked.rfind("\n", 0, s) + 1
         if masked[bol:s].strip() == "" and _LIST_MARKER.match(masked[s:e + 2]):
             continue
+        if (e - s) <= 2 and masked[e:e + 2] in (") ", ")\n") and masked[max(0, s - 2):s].strip() in ("", ";", ":") \
+                and len(re.findall(r"(?:^|[;:]\s*)\d{1,2}\)\s", masked[bol:masked.find("\n", e) if masked.find("\n", e) > 0 else len(masked)], re.M)) >= 2:
+            continue                                   # "1) … 2) … 3)": list markers mid-paragraph
         core = _norm_num(tok).replace(",", "")
         unsigned = core.lstrip("-")
         tok_text_plus = tok.startswith("+")
@@ -1473,6 +1497,9 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 prelim.append((s, e, row["verdict"], det, []))
                 chosen_idx.append((s, src, row["key"]))
                 continue
+        if _qty_of(masked, s) and unsigned in ("0", "1", "0.0", "1.0", "0.00", "1.00"):
+            prelim.append((s, e, "count", "definitional value (r = 1, NSE = 1, d = 0): a statement, not a measurement", []))
+            continue
         if _NOMINAL_AFTER.match(masked[e:e + 24]):
             prelim.append((s, e, "count", "nominal scenario parameter (Martin: 'it doesn't trace')", []))
             continue
@@ -1514,11 +1541,14 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             cands = [c for c in cands if not (float(c.value).is_integer() and _cand_dim(c)[0] in ("", "count", "id"))]
         if tok[0] == "count" and "." not in unsigned:
             cands = [c for c in cands if float(c.value).is_integer()]   # "11 donor wells" is not 11.4587 of anything
-        if "." not in unsigned and len(unsigned) <= 2 and not tok[0]:
-            # "1" is not an ANOVA statistic of 0.629 rounded to nothing, "11" is not −10.7:
-            # a bare one- or two-digit whole number matches a whole-number value, or a
-            # converted form ("−55 mm" from −0.0552 m)
+        if "." not in unsigned and len(unsigned) <= 2:
+            # "1" is not an ANOVA statistic of 0.629 rounded to nothing, "11" is not −10.7,
+            # "2 m" is not a canopy ratio of 1.51: a one- or two-digit whole number matches a
+            # whole-number value, or a converted form ("−55 mm" from −0.0552 m)
             cands = [c for c in cands if float(c.value).is_integer() or c.form]
+        if unsigned in ("0", "1") and not qty and not tok[0]:
+            prelim.append((s, e, "count", "a bare 0 or 1: a statement, an index or a flag, not a value", []))
+            continue
         if tok[0] == "pct" and re.match(r"(?i)\s*(?:%|per cent|percent)\s+of\b", masked[e:e + 14]):
             ratio = _derived_ratio(masked, s, e, prelim)
             if ratio:
@@ -1688,6 +1718,14 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             base_verdict = verdict
             if rival is not None and margin <= 0.5:
                 verdict = "tie"
+            cite = _CITATION.search(_sentence(masked, s, e))
+            if cite and best_sc < 3.5:
+                # "(Stratford et al., 2006) … 100–200 mm/yr": a clause that cites a source and a
+                # match that is not strongly anchored — the literature's figure, the match set aside
+                marks.append((s, e, "cited", f"literature value — the clause cites {cite.group(0).strip()}; a weak match "
+                                             f"({c.label}{(' · ' + c.col) if c.col else ''} = {c.value:g} [{pathlib.Path(c.rel).name}], score {best_sc:.1f}) was set aside"))
+                chosen_rows.pop()
+                continue
             same = (c.rel, _rowkey(c.label)) in near_rows
             det = (f"{c.label}{(' · ' + c.col) if c.col else ''} = {c.value:g} [{pathlib.Path(c.rel).name}]"
                    + (f" as {c.form}" if c.form else "")
@@ -1925,6 +1963,7 @@ p{margin:.7em 0} pre{font:12px/1.35 Menlo,Consolas,monospace;overflow-x:auto;bac
 .count{background:#f0f0f0;border-color:#bbb;color:#555}
 .cited{background:#eceaf6;border-color:#8f86c9;color:#444;border-bottom-style:dotted}
 .tie{background:#f3f0c8;border-color:#b8a500;font-weight:bold;border-bottom-style:double}
+.denied{background:#ffd6d6;border-color:#a00;font-weight:bold;border-bottom-style:double}
 .xref{background:#e8eefc;border-color:#6d8fe6;border-bottom-style:dotted}
 a.pg{font:10px Helvetica,Arial,sans-serif;color:#6d8fe6;text-decoration:none;margin-right:.5em;vertical-align:super;white-space:nowrap}
 a.pgno{color:#c60}
@@ -2058,6 +2097,7 @@ LEGEND = [("traced", "traced"), ("deep", "in a source CSV, unregistered"),
           ("rounding", "rounding (±1 last digit)"), ("stale", "stale"),
           ("untraced", "untraced"), ("count", "count"), ("cited", "literature value (the clause cites a source)"),
           ("tie", "NEAR TIE — two candidates within half a point; read the sentence"),
+          ("denied", "DENIED by the reading pass — the sentence does not quote the attributed quantity"),
           ("xref", "cross-reference resolves"), ("xmean", "cross-reference points at the WRONG thing"),
           ("xbad", "cross-reference does not resolve")]
 
@@ -2102,7 +2142,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             num, h = sec
             c = counts[sec]
             bar = " · ".join(f"<span class='{k}'>{c[k]} {LEGEND_NAME[k]}</span>"
-                             for k in ("untraced", "stale", "elsewhere", "tie", "rounding", "traced", "deep", "unanchored", "count", "cited") if c[k])
+                             for k in ("denied", "untraced", "stale", "elsewhere", "tie", "rounding", "traced", "deep", "unanchored", "count", "cited") if c[k])
             body.append(f"<h{lvl} id='s{num or i}'>{html.escape((num + ' ') if num else '')}{html.escape(h)}</h{lvl}>")
             sc, how = (scope_map or {}).get(sec, (set(), ""))
             srcs = ", ".join(sorted(pathlib.Path(x).name for x in sc)[:8]) + (" …" if len(sc) > 8 else "")
@@ -2146,7 +2186,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             f"<style>{CSS}</style><script>{JS.replace('PAGES_BASE_PLACEHOLDER', PAGES_BASE)}</script><body>"
             f"<h1>{html.escape(title)} — proof copy</h1>"
             f"<div id=legend>{legend}<br>"
-            f"<b>{tot['untraced']} untraced</b>, <b>{tot['stale']} stale</b>, <b>{tot['elsewhere']} elsewhere</b>, <b>{tot['tie']} near-ties</b>, {tot['rounding']} rounding, "
+            f"<b>{tot['denied']} denied by the reading pass</b>, <b>{tot['untraced']} untraced</b>, <b>{tot['stale']} stale</b>, <b>{tot['elsewhere']} elsewhere</b>, <b>{tot['tie']} near-ties</b>, {tot['rounding']} rounding, "
             f"{tot['traced']} traced, {tot['deep']} in an unregistered CSV, {tot['unanchored']} unanchored, {tot['count']} counts, {tot['cited']} literature. "
             f"Hover a number for what it was matched to. "
             f"<button onclick='toggleFocus()'>show only red / amber</button> "
@@ -2159,7 +2199,7 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
 
 
 LEGEND_NAME = {"traced": "traced", "deep": "unregistered", "elsewhere": "ELSEWHERE", "unanchored": "unanchored", "rounding": "rounding",
-               "stale": "STALE", "untraced": "UNTRACED", "count": "count", "cited": "cited", "tie": "NEAR-TIE",
+               "stale": "STALE", "untraced": "UNTRACED", "count": "count", "cited": "cited", "tie": "NEAR-TIE", "denied": "DENIED",
                "xref": "xref", "xmean": "XREF-MEANING", "xbad": "XREF-BAD"}
 
 
@@ -2562,6 +2602,22 @@ def xref_marks(text: str, masked: str, taken: list) -> list:
     return out
 
 
+READING_VERDICTS = REPO / "tools" / "proof_reading_verdicts.csv"
+_READ: dict | None = None
+
+
+def reading_verdicts() -> dict:
+    """id -> (verdict, reason, better) from the reading pass, built once."""
+    global _READ
+    if _READ is None:
+        _READ = {}
+        if READING_VERDICTS.exists():
+            with READING_VERDICTS.open(encoding="utf8") as fh:
+                for r in csv.DictReader(fh):
+                    _READ[r["id"]] = (r["verdict"], r.get("reason", ""), r.get("better", ""))
+    return _READ
+
+
 def _reading_id(num: str, sentence: str, offset: int) -> str:
     """A stable id for a number in its sentence: survives regeneration, moves only
     when the sentence or the number changes. The offset separates repeats."""
@@ -2585,6 +2641,28 @@ def one(name, values, look, out_dir, a):
     marks = [(s, e, v, d + (history_of(text[s:e], _sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale", "tie") else "")
               + (ledger_of(_sentence(_m, s, e)) if v in ("untraced", "elsewhere", "stale", "count") else ""))
              for s, e, v, d in marks]
+    # the reading pass overrides the matcher: a person (or a subagent reading as one)
+    # decided whether the sentence quotes the attributed quantity
+    rv = reading_verdicts()
+    if rv:
+        new_marks = []
+        for s, e, v, d in marks:
+            if v in ("traced", "deep", "tie"):
+                sent_full = " ".join(_sentence(_m, s, e, full=True).split())
+                rid = f"{mirror.stem}:{_reading_id(text[s:e], sent_full, s - _m.rfind(chr(10), 0, s))}"
+                hit = rv.get(rid)
+                if hit:
+                    verdict, reason, better = hit
+                    if verdict == "deny":
+                        v, d = "denied", (f"DENIED by the reading pass — {reason}" + (f" — better: {better}" if better else "")
+                                          + " ‖ the matcher had: " + d.split(" ‖ ")[0])
+                    elif verdict == "confirm":
+                        v = "traced" if v in ("traced", "tie") and "UNREGISTERED" not in d else v
+                        d = "read: confirmed ✓ — " + d
+                    else:
+                        v, d = "tie", f"reading pass unsure — {reason} ‖ " + d
+            new_marks.append((s, e, v, d))
+        marks = new_marks
     xm = xref_marks(text, _m, marks)
     if xm:
         spans = [(s, e) for s, e, _v, _d in xm]
@@ -2596,7 +2674,7 @@ def one(name, values, look, out_dir, a):
     line_starts = [0] + [m.end() for m in re.finditer("\n", text)]
     rows = []
     for s, e, v, d in marks:
-        if v not in ("untraced", "stale", "elsewhere", "xbad", "xmean"):
+        if v not in ("untraced", "stale", "elsewhere", "xbad", "xmean", "denied"):
             continue
         ln = bisect.bisect_right(line_starts, s) - 1
         sec = ""
@@ -2640,7 +2718,7 @@ def one(name, values, look, out_dir, a):
     for c in counts.values():
         for k, n in c.items():
             tot[k] += n
-    summary = (f"{sum(tot.values()) - tot['xref'] - tot['xbad'] - tot['xmean']} numbers — {tot['untraced']} UNTRACED, {tot['stale']} STALE, {tot['elsewhere']} ELSEWHERE, {tot['tie']} NEAR-TIES, "
+    summary = (f"{sum(tot.values()) - tot['xref'] - tot['xbad'] - tot['xmean']} numbers — {tot['denied']} DENIED, {tot['untraced']} UNTRACED, {tot['stale']} STALE, {tot['elsewhere']} ELSEWHERE, {tot['tie']} NEAR-TIES, "
                f"{tot['rounding']} rounding, {tot['traced']} traced, {tot['deep']} unregistered-CSV, "
                f"{tot['count']} counts; {tot['xref'] + tot['xbad'] + tot['xmean']} cross-references — "
                f"{tot['xbad']} unresolved, {tot['xmean']} pointing at the wrong thing")

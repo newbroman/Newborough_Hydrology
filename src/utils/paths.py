@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.22.0"  # Hollingham (2026) - 2026-09-21. OUT_16_REPORT_NUMBERS (Script 16): the
+__version__ = "1.23.0"  # Hollingham (2026) - 2026-09-21. OUT_26_VW_REPRODUCTION (Script 26 Pass 7b). Additive.
+# 1.22.0 - 2026-09-21. OUT_16_REPORT_NUMBERS (Script 16): the
 #   water-balance closure the front matter and report11/12 quote ("within 1.8%"). Additive.
 # 1.21.0 - 2026-09-21. OUT_01_REPORT_NUMBERS (Script 01, E34).
 # 1.20.0 - 2026-09-20. DATA_KML_STUDY_AREA (Script 12, E27).
@@ -1307,6 +1308,7 @@ OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
 OUT_26_MSL5_THRESHOLD_SUMMARY = DIR_26 / "26_msl_5yr_cluster_threshold_summary.csv"
 OUT_26_EBF_PREDICTION_SUMMARY = DIR_26 / "26_ebf_prediction_summary.csv"
 OUT_26_EBF_BAND_SUMMARY       = DIR_26 / "26_ebf_band_summary.csv"
+OUT_26_VW_REPRODUCTION        = DIR_26 / "26_vw_reproduction_per_pair.csv"   # pipeline MSL5 vs van Willegen's published, per (piezometer, window-end)
 # Metric diagnostics (v1.4.0) — window sensitivity of MSL5 and the precision of
 # the two indices, per well and rolled up per cluster. Supplies the cited
 # statistics for report §4.8.6 / §6.9 (spring autocorrelation, interannual

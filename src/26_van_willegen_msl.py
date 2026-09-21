@@ -94,7 +94,12 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-04. Emits three table
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-21. Pass 7b: the pipeline's MSL5
+#   against van Willegen et al.'s published five-year spring levels at their
+#   piezometers (26_vw_reproduction_per_pair.csv; vw_repro_* in 26_report_numbers.csv:
+#   datum offset, mean/median absolute and RMS residual after it). The abstract and
+#   §4.8.3 had quoted "~11 mm" from nothing; the documents now quote this.
+# 1.9.0  # Hollingham (2026) — 2026-09-04. Emits three table
 #   sources that were computed but never written to CSV:
 #   26_msl_5yr_cluster_threshold_summary.csv (Table 1.16: per-cluster MSL5 at the
 #   latest window-end plus counts below SD15b/SD16 over window-ends >=
@@ -1298,6 +1303,64 @@ def _partial_spearman(frame: pd.DataFrame, x: str, y: str, z: str):
     return float(r), float(p), len(d)
 
 
+# ── Pass 7b: reproduction of van Willegen's published spring levels ──────────
+def compute_vw_reproduction(per_well: pd.DataFrame):
+    """How closely the pipeline's per-well MSL5 reproduces van Willegen et al.'s
+    own five-year mean spring levels at their piezometers.
+
+    Why: the abstract and §4.8.3 said the reconstruction reproduced their
+    published levels "to within ~11 mm once the fixed dipwell-versus-quadrat
+    datum offset is removed", and no script computed it (proof pass,
+    2026-09-21; Martin: "it should quote the pipeline number").
+
+    Their series: the dataset's Hydrology_metric_YearB sheet (Mean Spring per
+    piezometer-year), rolled to a five-year mean exactly as Pass 7 does for the
+    EbF regression. Ours: Pass 2's MSL5_m_bg by window-end year. Paired on
+    (piezometer, window-end); the fixed offset is the mean of ours − theirs over
+    every pair (the two frames differ by a constant datum); the reproduction
+    statistics are the mean absolute and root-mean-square residual after that
+    offset, per pair and per piezometer.
+
+    Returns (per_pair DataFrame, dict of scalars) or (None, {}) when the
+    external dataset is absent.
+    """
+    xlsx = paths.DATA_ELLENBERG_EXT
+    if not xlsx.exists():
+        warn(f"external Ellenberg dataset not found at {xlsx} — reproduction check skipped")
+        return None, {}
+    try:
+        yb = pd.read_excel(xlsx, "Hydrology_metric_YearB")
+    except Exception as e:
+        warn(f"Ellenberg dataset unreadable ({type(e).__name__}) — reproduction check skipped")
+        return None, {}
+    yb["piezo"] = yb["Statistic"].astype(str).str.replace(r"-\d+$", "", regex=True).str.lower()
+    theirs = yb.pivot_table(index="Year", columns="piezo", values="Mean Spring").rolling(5, min_periods=5).mean()
+    ours = per_well.pivot_table(index="window_end_year", columns="well", values="MSL5_m_bg")
+    rows = []
+    for w in [c for c in theirs.columns if c in ours.columns]:
+        j = pd.concat([ours[w], theirs[w]], axis=1, keys=["ours", "theirs"]).dropna()
+        for yr, r in j.iterrows():
+            rows.append(dict(piezo=w.upper(), window_end_year=int(yr), msl5_pipeline_m=float(r["ours"]),
+                             msl5_published_m=float(r["theirs"]), diff_m=float(r["ours"] - r["theirs"])))
+    if not rows:
+        warn("no (piezometer, window-end) pair shared with the dataset — reproduction check skipped")
+        return None, {}
+    df = pd.DataFrame(rows)
+    offset = float(df["diff_m"].mean())
+    df["resid_after_offset_m"] = df["diff_m"] - offset
+    per_piezo = df.groupby("piezo")["resid_after_offset_m"].mean()
+    nums = {
+        "vw_repro_n_piezometers": int(df["piezo"].nunique()),
+        "vw_repro_n_pairs": int(len(df)),
+        "vw_repro_datum_offset_mm": offset * 1000.0,
+        "vw_repro_mad_mm": float(df["resid_after_offset_m"].abs().mean()) * 1000.0,
+        "vw_repro_median_abs_mm": float(df["resid_after_offset_m"].abs().median()) * 1000.0,
+        "vw_repro_rmse_mm": float(np.sqrt(np.mean(df["resid_after_offset_m"] ** 2))) * 1000.0,
+        "vw_repro_per_piezo_mad_mm": float(per_piezo.abs().mean()) * 1000.0,
+    }
+    return df, nums
+
+
 # ── Pass 8: metric diagnostics ────────────────────────────────────────────────
 def compute_metric_diagnostics(annual: pd.DataFrame,
                                per_well: pd.DataFrame,
@@ -1974,6 +2037,18 @@ def main() -> int:
         except Exception as e:
             warn(f"EbF scatter (Fig XX) render failed ({type(e).__name__}: "
                  f"{str(e)[:80]}) — comparison CSV was written; figure not produced")
+
+    # ── Pass 7b — reproduction of van Willegen's published MSL5 (v1.10.0) ──
+    print("\nPass 7b — pipeline MSL5 against van Willegen's published five-year spring levels")
+    repro_df, repro_nums = compute_vw_reproduction(per_well)
+    if repro_df is not None:
+        repro_df.to_csv(paths.OUT_26_VW_REPRODUCTION, index=False)
+        saved(f"{paths.OUT_26_VW_REPRODUCTION.name}")
+        report_nums.update(repro_nums)
+        info(f"  {repro_nums['vw_repro_n_piezometers']} piezometers, {repro_nums['vw_repro_n_pairs']} (piezometer, window-end) pairs; "
+             f"datum offset {repro_nums['vw_repro_datum_offset_mm']:+.0f} mm; after removing it: mean |residual| "
+             f"{repro_nums['vw_repro_mad_mm']:.0f} mm (median {repro_nums['vw_repro_median_abs_mm']:.0f}, "
+             f"RMSE {repro_nums['vw_repro_rmse_mm']:.0f}; per-piezometer means {repro_nums['vw_repro_per_piezo_mad_mm']:.0f})")
 
     # ── Pass 8 — Metric diagnostics (v1.4.0) ───────────────────────────────
     print("\nPass 8 — metric diagnostics (window sensitivity and index precision)")

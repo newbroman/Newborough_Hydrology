@@ -1495,6 +1495,62 @@ Each slack's floor is compared with **its own rim**, inside one tile, in three c
 
 **Revisit if** a per-slack (rather than aggregate) spatial validation becomes resolvable, or RB-18 is ever registered in the pipeline.
 
+### D-181 — The record each analysis uses is STATED in its own methods section and gated — not tabulated in the report
+
+*2026-09-21*
+
+(Martin, 2026-09-21: *"B with a gate is better than A with a table renumber"*) **Option B.** Each methods section states the record its analysis uses, and `tools/record_basis_claims.csv` names, for every register row, the document, the section and the fragment of the statement that must be present; `record_basis_claims_lint` (check_all 1.16.0) fails when a fragment is gone, a register row has no claims row, or a claims row names a departed analysis. Analyses no document presents (the W94 working phases, Script 39's unpresented full-record series) are explicit `doc=none` rows with a reason, so silence is never the default. 21 sections already stated their basis; two clauses were added to report8 (§3.1.1 upstand sensitivity "each refitted on its comparison window"; §3.4.3 the atlas "fits nothing itself and interpolates the per-well store"); the §3.1.1 sentence names the register itself.
+
+**Revisit if** the register grows past what a per-section statement can carry legibly, or the Methods Supplement's F.6 table is made generated and gated, in which case a report table could be generated from the same source.
+
+### D-182 — The DEM-vs-DGPS elevation check is withdrawn; report8 §3.1.2 states the ground rule and the survey's provenance
+
+*2026-09-21*
+
+(Martin, 2026-09-21: *"withdraw the comparison and state the ground rule plainly, the dgps survey was done by myself, and curreli in 2010"*) The comparison is **withdrawn**. In `data/well_metadata.csv` the recorded DEM elevation equals the DGPS elevation plus the upstand at 75 of the 77 DGPS-source wells, and `Pipe_Top_Elev` equals the recorded DEM elevation, so "DGPS minus DEM" was minus the upstand (r = −0.77 across the 81), its RMSE was the RMS upstand, and the three "outliers" were the two tallest upstands (CEH2 0.71 m, NW2 0.59 m) and L1. The metadata holds no LiDAR sample at a surveyed well that is independent of the survey, so there is nothing to compare. §3.1.2 now states the ground rule — differential-GPS survey (the author and Curreli, 2010) at 78 wells, LiDAR DTM at 21, the source recorded per well by Script 01, pipe top = ground + measured upstand — and quotes NRW's stated DTM accuracy (±0.15 m RMSE) for the LiDAR-derived elevations. Script 01 1.19.0 emits only the ground-source counts (`elev_n_dgps`/`elev_n_lidar`/`elev_n_total`); `DGPS_DEM_OUTLIER_M` is retired from config.
+
+**Revisit if** the origin of `DEM_Ground_Elev` at the surveyed wells is established, or an independent DTM sample at those wells (from the product the column came from) is produced — then a genuine accuracy check can be written and emitted.
+
+### D-183 — Figure 1 maps the active network — 89 measuring points, the scrape polygons kept
+
+*2026-09-21*
+
+(Martin, 2026-09-20/21: *"the map option a, unless we are including the other 9 in the spatial analysis, exclude L4, I think I do need the scraping polygons, as otherwise they aren't mapped"*) **Option (a): the active network only.** Script 12 1.8.0 plots the reference and extended columns of `01_wells_reference/extended.csv` plus the lake gauge from `well_metadata.csv` — 89 points; L4 and the nine short-record dipwells that enter no spatial analysis are dropped (`located_points_not_shown` = 10, emitted); the scrape KMLs stay because Figure 1 is their only map. report7 §2 was rewritten to the emitted counts (`site_overview_points_plotted`) and the abstract names WMC3.
+
+**Revisit if** any of the nine short-record dipwells or L4 enters a spatial analysis — then they return to the map and the count follows the emission.
+
+### D-184 — The study area is Martin's `hydrological study area.kml` — 845.6 ha, quoted from Script 12; 1,172 ha and 720 ha are retired as bounding boxes
+
+*2026-09-21*
+
+(Martin, 2026-09-20: *"lets research this, it conflicts with the 1300ha in report 6"* → ruling on 2026-09-20/21: 1,172 → 850 "measured", 3.0 → 3.5, 3.3/2.2 measured, 700 → Stratford 2007) The study area is the polygon Martin drew, committed as `data/geo/hydrological study area.kml` with a `GEO_PROVENANCE.md` row. Script 12 1.8.0 reads it and emits `study_area_ha` (845.6, planar OSGB), `study_area_envelope_e/n_km` (4.29 × 3.53) and `network_envelope_e/n_km` (3.05 × 2.13) to `12_report_numbers.csv`; report7 §2 quotes those (846 ha; 4.3 × 3.5 km; network 3.0 × 2.1 km). The ~700 ha of dune slack and the ~1,300 ha of blown sand are literature figures and cite Stratford et al. (2007). The Sentinel wet-area analysis's 306.97 ha slack-floor mask is a different quantity and is emitted under its own name (`floor_mask_area_ha`, Script 45 1.3.0) after the number-ledger collision check found both under `study_area_ha`.
+
+**Revisit if** the polygon is redrawn (the number follows Script 12), or a published NRW study-area figure is adopted instead.
+
+### D-185 — The report never points at the Methods Supplement; the Supplement keeps the detail, the report names the script or its own section, and the Supplementary Material may carry Supplement material where the report needs a citable home
+
+*2026-09-21*
+
+(Martin, 2026-09-21: *"we dont cite the methods supplement. this is in the project rules"*; *"remove the methods supplement pointers — the only way around is to place references to these in the supplementary methods instead, they would still need to be included in the supplementary methods"*; *"Supplementary methods can include the methods supplement material, the purpose of the methods sup is to give greater detail"*) All 22 pointers are out of the report (reasons 21g, 21r): each names the script or a report section instead, and where the report had relied on the Supplement for a definition it now carries the sentence itself (§3.4.1 gains Model B, so report10 §5.7.5 has something to point at). The two bibliographic mentions in report15 stay — they cite the document, they do not send a reader into it. The **Methods Supplement keeps every method at full detail**; the **Supplementary Material may carry Supplement material** where the report needs a citable home for it; the report may cite Supplementary Notes. `xref_lint` (check_all 1.14.0) fails on any Supplement pointer in a report chapter; `tools/xref_allow.csv` lists the two bibliographic mentions; the Supplement's 128 self-references by chapter are counted, advisory.
+
+**Revisit if** the Methods Supplement becomes a published companion with stable section numbers that a journal expects to be cited — then the rule is re-argued, not quietly relaxed.
+
+### D-186 — The interpolated surfaces are described as the code draws them — piecewise-linear (Delaunay) — and the code is not changed; the five genuine IDW routines keep their wording
+
+*2026-09-21*
+
+(Martin, 2026-09-21: *"re the plotting reword rather than change code"*) **Reword.** Every passage was traced to the function that drew its figure (rule-gate matrix R54; reason 21p): 26 passages that described `add_idw_surface`/`idw_surface` output now say "piecewise-linear (Delaunay) interpolation"; the five that are inverse-distance weighted — Script 20 `plot_msl5_change` (power 2, one-cell Gaussian), Script 32 (`config.DIFF_IDW_POWER`), the Script 19 viewer (power 1, eight neighbours) — keep their wording; Figures 50a/b are marker maps with no interpolated surface and their captions say so; Figure 65's claimed power and blur, which its function never applies, are removed. `retired_phrases` RP-13 (advisory) flags any new "IDW"/"inverse-distance" for a check against the producing function. Paper 1's three and Paper 2's three wordings wait for the papers' pass (T-49). Two passages describe code that does not exist at all — report8 §3.9.2's transmissivity/Dirichlet model with `b` "IDW-interpolated from four borehole constraints" and Figure 54's "IDW aquifer thickness surface" (config: `DRAWDOWN_B_M` is a single assumed scalar, no borehole logs) — and are **T-50/T-51**, not reworded.
+
+**Revisit if** `add_idw_surface` is ever changed to true inverse-distance weighting (then the wording follows the code again, and RP-13 flips), or T-50/T-51 establish that the PDE passage describes an analysis that was run and should be reinstated.
+
+### D-187 — The EWI bootstrap prediction interval is deleted from the Methods Supplement; the calibration RMSE is the stated precision
+
+*2026-09-21*
+
+(Martin, 2026-09-21: *"check the changelogs and decision logs for why this might have been dropped. I think best delete if no mention found"*) Nothing found; **deleted** (MS v2_0_12, reason 21q). The paragraph now says the calibration fit is carried as its slope, intercept, n, r, R² and RMSE (`ewi_msl5_*` keys of `26_report_numbers.csv`), that the RMSE is the precision to quote for an EWI-predicted MSL5 within the open-dune scope, that a well outside that scope is an extrapolation with no stated precision, and that no per-well prediction interval is computed. The two output-table rows and the Tool C sentence that echoed the interval were corrected with it.
+
+**Revisit if** a per-well EWI precision is wanted downstream (the forecaster, Paper 1) — then Script 26 computes and emits one, registered, before any document mentions it.
+
 ---
 
-180 decisions. Generated by `tools/build_public_decisions.py`.
+187 decisions. Generated by `tools/build_public_decisions.py`.

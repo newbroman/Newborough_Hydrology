@@ -94,7 +94,11 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-21. Pass 7b: the pipeline's MSL5
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-21. Supplementary Table S7.2: the fixed
+#   dipwell-versus-quadrat datum offset per van Willegen piezometer, from Pass 7b
+#   (26_table_s7_2_vw_datum_offsets.csv/.md) — so a reader can compare a level here
+#   with one referenced to quadrat ground rather than be warned off it (Martin).
+# 1.10.0  # Hollingham (2026) — 2026-09-21. Pass 7b: the pipeline's MSL5
 #   against van Willegen et al.'s published five-year spring levels at their
 #   piezometers (26_vw_reproduction_per_pair.csv; vw_repro_* in 26_report_numbers.csv).
 #   The datum offset is fixed PER PIEZOMETER (dipwell ground against quadrat ground);
@@ -178,6 +182,8 @@ OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
 # Supplementary Table S7.1 renderings (v1.5.0).
 OUT_TABLE_S7_1_CSV = paths.OUT_26_TABLE_S7_1_CSV
 OUT_TABLE_S7_1_MD  = paths.OUT_26_TABLE_S7_1_MD
+OUT_TABLE_S7_2_CSV = paths.OUT_26_TABLE_S7_2_CSV
+OUT_TABLE_S7_2_MD  = paths.OUT_26_TABLE_S7_2_MD
 
 # ── Methodological constants from utils.config ────────────────────────────────
 # Convention: no methodological numbers are hardcoded in this script. The
@@ -1789,6 +1795,47 @@ def write_supplementary_table_s7_1(out: pd.DataFrame, caption: str,
     md_path.write_text(f"{md}\n\n*{caption}*\n", encoding="utf-8")
 
 
+TABLE_S7_2_COLUMNS = ["Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)", "Residual RMSE (mm)"]
+
+
+def emit_supplementary_table_s7_2(repro: pd.DataFrame, nums: dict, clusters: pd.DataFrame):
+    """
+    Render Supplementary Table S7.2 — the fixed dipwell-versus-quadrat datum
+    offset at each van Willegen piezometer, from Pass 7b (v1.11.0).
+
+    Why (Martin, 2026-09-21): the two MSL5 frames agree in their dynamics to
+    ~11 mm but differ by a constant of up to a quarter of a metre at some
+    piezometers; a reader comparing a level published here with one in van
+    Willegen et al. (2025), or with any dataset referenced to quadrat ground,
+    needs that well's own offset. This table is the offset, per piezometer, so
+    the comparison can be made rather than warned against.
+
+    Computes nothing beyond the per-piezometer roll-up of the Pass 7b frame:
+    offset = mean of (pipeline − published) at that piezometer; MAD and RMSE of
+    the residual after it. The caption carries the network-wide figures.
+    """
+    g = repro.groupby("piezo")
+    cl = clusters.set_index(clusters["Match_ID"].str.upper())["Cluster_Label"] if "Match_ID" in clusters.columns else pd.Series(dtype=str)
+    out = pd.DataFrame({
+        TABLE_S7_2_COLUMNS[0]: g.size().index,
+        TABLE_S7_2_COLUMNS[1]: [str(cl.get(p, "Extended")) for p in g.size().index],   # extended-network wells carry no reference cluster
+        TABLE_S7_2_COLUMNS[2]: g.size().values,
+        TABLE_S7_2_COLUMNS[3]: [_fmt(v * 1000.0, 0) for v in g["datum_offset_m"].first().values],
+        TABLE_S7_2_COLUMNS[4]: [_fmt(v * 1000.0, 1) for v in g["resid_m"].apply(lambda x: x.abs().mean()).values],
+        TABLE_S7_2_COLUMNS[5]: [_fmt(v * 1000.0, 1) for v in g["resid_m"].apply(lambda x: np.sqrt(np.mean(x ** 2))).values],
+    })
+    caption = (f"Table S7.2: Fixed datum offset between each dipwell's ground reference and its quadrat's, "
+               f"from the pipeline's five-year mean spring level (MSL5) against the published series of van Willegen "
+               f"et al. (2025) at the same piezometer, paired on window-end year (n = window-ends). Offset = mean of "
+               f"pipeline minus published; a negative offset means the pipeline level is the deeper. Residual MAD and "
+               f"RMSE are after the offset. Network: {nums['vw_repro_n_piezometers']} piezometers, "
+               f"{nums['vw_repro_n_pairs']} pairs; offsets {nums['vw_repro_datum_offset_min_mm']:+.0f} to "
+               f"{nums['vw_repro_datum_offset_max_mm']:+.0f} mm (mean {nums['vw_repro_datum_offset_mean_mm']:+.0f} mm); "
+               f"residual MAD {nums['vw_repro_mad_mm']:.1f} mm. A level quoted in this report cannot be compared with "
+               f"one referenced to quadrat ground without applying that piezometer's offset.")
+    return out, caption
+
+
 def main() -> int:
     banner("26", "van Willegen MSL Projection", version=__version__)
     print("=" * 72)
@@ -2059,6 +2106,12 @@ def main() -> int:
              f"after removing them: mean |residual| {repro_nums['vw_repro_mad_mm']:.1f} mm "
              f"(median {repro_nums['vw_repro_median_abs_mm']:.1f}, RMSE {repro_nums['vw_repro_rmse_mm']:.1f}); "
              f"a single network-wide offset would leave {repro_nums['vw_repro_mad_single_offset_mm']:.0f} mm")
+
+        # Supplementary Table S7.2 — the per-piezometer datum offsets (v1.11.0)
+        s7_2, s7_2_caption = emit_supplementary_table_s7_2(repro_df, repro_nums, ref_clusters)
+        write_supplementary_table_s7_1(s7_2, s7_2_caption, OUT_TABLE_S7_2_CSV, OUT_TABLE_S7_2_MD)
+        saved(f"{OUT_TABLE_S7_2_CSV.name}")
+        saved(f"{OUT_TABLE_S7_2_MD.name}")
 
     # ── Pass 8 — Metric diagnostics (v1.4.0) ───────────────────────────────
     print("\nPass 8 — metric diagnostics (window sensitivity and index precision)")

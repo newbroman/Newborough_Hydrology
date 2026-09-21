@@ -73,7 +73,9 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.10.0"  # Hollingham (2026) -- 2026-09-21. Emits mean_annual_rain_well_record
+__version__ = "1.10.1"  # Hollingham (2026) - 2026-09-21. Comment only: the spring window is
+#   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
+# 1.10.0  # Hollingham (2026) -- 2026-09-21. Emits mean_annual_rain_well_record
 #   (complete calendar years of the well record, from felling_split_rainfall_context),
 #   the report8 §3.1.2 "891 mm" that traced to nothing. No other output moves.
 # 1.9.0  # Hollingham (2026) -- 2026-09-21. MIN_RECORD_MONTHS is imported from
@@ -1181,7 +1183,8 @@ def seasonal_redistribution_trends(climate, year_first: int = 2007,
       the latter at all. Oct-Mar is the recharge season at this site, which is
       the quantity the water balance is about.
 
-      Note the overlap with MSL_SPRING_MONTHS = (3, 4, 5): March belongs to both
+      Note the overlap with MSL_SPRING_MONTHS (the readings dated March-May, which the
+      bucketed frame carries as months 2-4; D-189): March belongs to both
       the hydrological winter and the MSL5 spring. That is not double counting —
       they answer different questions, a winter recharge total against a spring
       mean level — but a reader comparing the two should know the month is in

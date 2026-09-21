@@ -8,10 +8,13 @@ of Ellenberg EbF community response.
 
 Method (van Willegen et al. 2025, Ecological Indicators 170, 113016):
 
-  * Spring window  : 1st March – 31st May
-  * Annual MSL_y   : unweighted mean of {Mar, Apr, May} water levels in
-                     hydrology year y. Hydrology year y runs from 1 Jun y-1
-                     to 31 May y (paper's "hydrology year B", their default).
+  * Spring window  : the readings DATED March, April and May — in this
+                     pipeline's end-of-month labelling the months
+                     config.MSL_SPRING_MONTHS = (2, 3, 4) (D-189; verified
+                     exact against the paper's own per-quadrat series)
+  * Annual MSL_y   : unweighted mean of those three readings in hydrology
+                     year y. Hydrology year y runs from 1 Jun y-1 to 31 May y
+                     (paper's "hydrology year B", their default).
   * MSL5(end=y)    : unweighted mean of {MSL_{y-4}, MSL_{y-3}, ..., MSL_y}.
   * MAX_y / MAX5   : annual maximum water level over the same hydrology
                      year, and the 5-year mean of those. The paper notes
@@ -32,7 +35,7 @@ the duplicate `_m_pipe` columns entirely: every level here is ground-referenced
 and carries a single `_m_bg` name. Per GEOMETRY_ARCHITECTURE_SPEC.md.
 
 Strictness (per scoping decision 2026-05-20):
-  * MSL_MIN_MONTHS_PER_SPRING = 3 — all three of {Mar, Apr, May} must be
+  * MSL_MIN_MONTHS_PER_SPRING = 3 — all three spring readings must be
     present; one-month interpolation (S.1 limit=1) is allowed to count.
   * MSL_MIN_YEARS_IN_WINDOW   = 5 — all five annual MSLs must be valid for
     the 5-year mean to be reported.
@@ -94,7 +97,13 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-21. Supplementary Table S7.2: the fixed
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-21. Pass 7b and Table S7.2 are PER QUADRAT
+#   (van Willegen publish one series per vegetation quadrat, each an exact constant
+#   shift of the dipwell's readings); vw_repro_n_quadrats and
+#   vw_repro_quadrat_relief_max_mm join the report numbers, the single-offset
+#   contrast key goes. Runs under config.MSL_SPRING_MONTHS = (2, 3, 4) (D-189), the
+#   paper's own month labelling, so the residual is expected at the rounding floor.
+# 1.11.0  # Hollingham (2026) — 2026-09-21. Supplementary Table S7.2: the fixed
 #   dipwell-versus-quadrat datum offset per van Willegen piezometer, from Pass 7b
 #   (26_table_s7_2_vw_datum_offsets.csv/.md) — so a reader can compare a level here
 #   with one referenced to quadrat ground rather than be warned off it (Martin).
@@ -1314,23 +1323,24 @@ def _partial_spearman(frame: pd.DataFrame, x: str, y: str, z: str):
 # ── Pass 7b: reproduction of van Willegen's published spring levels ──────────
 def compute_vw_reproduction(per_well: pd.DataFrame):
     """How closely the pipeline's per-well MSL5 reproduces van Willegen et al.'s
-    own five-year mean spring levels at their piezometers.
+    own five-year mean spring levels — per QUADRAT, which is how they publish.
 
-    Why: the abstract and §4.8.3 say the reconstruction reproduces their
-    published levels "to within ~11 mm once the fixed dipwell-versus-quadrat
-    datum offset is removed", and no script computed it (proof pass,
-    2026-09-21; Martin: "it should quote the pipeline number").
+    What their data are (found 2026-09-21): each piezometer carries several
+    quadrat series (CEH9-1 … CEH9-10), and within a piezometer they are exact
+    constant shifts of one another — the same dipwell readings re-referenced to
+    each quadrat's own ground surface, with up to half a metre of relief between
+    a dipwell's quadrats. So the comparison is not an independent measurement of
+    the water table; it is a check that the two processing chains (month
+    labelling, spring definition, windowing) agree, and the per-quadrat
+    constant is the number a reader needs to set a level quoted here against a
+    quadrat-referenced one.
 
-    Their series: the dataset's Hydrology_metric_YearB sheet (Mean Spring per
-    piezometer-year), rolled to a five-year mean exactly as Pass 7 does for the
-    EbF regression. Ours: Pass 2's MSL5_m_bg by window-end year. Paired on
-    (piezometer, window-end). The datum offset is FIXED PER PIEZOMETER — each
-    dipwell's ground reference against its quadrat's — so it is the mean of
-    ours − theirs at that piezometer; the reproduction statistics are the mean
-    absolute and root-mean-square residual after those offsets, i.e. how well
-    the two series track each other year by year. A single network-wide offset
-    is reported alongside for the datum picture (its per-piezometer spread is
-    the ground-level difference between dipwell and quadrat, not hydrology).
+    Their series: Hydrology_metric_YearB, Mean Spring per quadrat-year, rolled
+    to a five-year mean as Pass 7 does. Ours: Pass 2's MSL5_m_bg by window-end
+    year at the quadrat's piezometer. Paired on window-end; the datum offset is
+    the mean of ours − theirs at that quadrat; the reproduction statistics are
+    the mean absolute and RMS residual after it. Under config.MSL_SPRING_MONTHS
+    = (2, 3, 4) the residual is expected to be at the rounding floor (D-189).
 
     Returns (per_pair DataFrame, dict of scalars) or (None, {}) when the
     external dataset is absent.
@@ -1344,25 +1354,29 @@ def compute_vw_reproduction(per_well: pd.DataFrame):
     except Exception as e:
         warn(f"Ellenberg dataset unreadable ({type(e).__name__}) — reproduction check skipped")
         return None, {}
-    yb["piezo"] = yb["Statistic"].astype(str).str.replace(r"-\d+$", "", regex=True).str.lower()
-    theirs = yb.pivot_table(index="Year", columns="piezo", values="Mean Spring").rolling(5, min_periods=5).mean()
+    yb["quadrat"] = yb["Statistic"].astype(str).str.upper()
+    theirs = yb.pivot_table(index="Year", columns="quadrat", values="Mean Spring").rolling(5, min_periods=5).mean()
     ours = per_well.pivot_table(index="window_end_year", columns="well", values="MSL5_m_bg")
     rows = []
-    for w in [c for c in theirs.columns if c in ours.columns]:
-        j = pd.concat([ours[w], theirs[w]], axis=1, keys=["ours", "theirs"]).dropna()
+    for q in theirs.columns:
+        p = q.rsplit("-", 1)[0].lower()
+        if p not in ours.columns:
+            continue
+        j = pd.concat([ours[p], theirs[q]], axis=1, keys=["ours", "theirs"]).dropna()
         for yr, r in j.iterrows():
-            rows.append(dict(piezo=w.upper(), window_end_year=int(yr), msl5_pipeline_m=float(r["ours"]),
+            rows.append(dict(quadrat=q, piezo=p.upper(), window_end_year=int(yr), msl5_pipeline_m=float(r["ours"]),
                              msl5_published_m=float(r["theirs"]), diff_m=float(r["ours"] - r["theirs"])))
     if not rows:
-        warn("no (piezometer, window-end) pair shared with the dataset — reproduction check skipped")
+        warn("no (quadrat, window-end) pair shared with the dataset — reproduction check skipped")
         return None, {}
     df = pd.DataFrame(rows)
-    df["datum_offset_m"] = df.groupby("piezo")["diff_m"].transform("mean")     # fixed per piezometer
+    df["datum_offset_m"] = df.groupby("quadrat")["diff_m"].transform("mean")     # fixed per quadrat
     df["resid_m"] = df["diff_m"] - df["datum_offset_m"]
-    offsets = df.groupby("piezo")["datum_offset_m"].first()
-    global_offset = float(df["diff_m"].mean())
+    offsets = df.groupby("quadrat")["datum_offset_m"].first()
+    relief = df.groupby("piezo")["datum_offset_m"].agg(lambda x: x.max() - x.min())
     nums = {
         "vw_repro_n_piezometers": int(df["piezo"].nunique()),
+        "vw_repro_n_quadrats": int(df["quadrat"].nunique()),
         "vw_repro_n_pairs": int(len(df)),
         "vw_repro_mad_mm": float(df["resid_m"].abs().mean()) * 1000.0,
         "vw_repro_median_abs_mm": float(df["resid_m"].abs().median()) * 1000.0,
@@ -1370,7 +1384,7 @@ def compute_vw_reproduction(per_well: pd.DataFrame):
         "vw_repro_datum_offset_mean_mm": float(offsets.mean()) * 1000.0,
         "vw_repro_datum_offset_min_mm": float(offsets.min()) * 1000.0,
         "vw_repro_datum_offset_max_mm": float(offsets.max()) * 1000.0,
-        "vw_repro_mad_single_offset_mm": float((df["diff_m"] - global_offset).abs().mean()) * 1000.0,
+        "vw_repro_quadrat_relief_max_mm": float(relief.max()) * 1000.0,
     }
     return df, nums
 
@@ -1795,44 +1809,45 @@ def write_supplementary_table_s7_1(out: pd.DataFrame, caption: str,
     md_path.write_text(f"{md}\n\n*{caption}*\n", encoding="utf-8")
 
 
-TABLE_S7_2_COLUMNS = ["Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)", "Residual RMSE (mm)"]
+TABLE_S7_2_COLUMNS = ["Quadrat", "Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)"]
 
 
 def emit_supplementary_table_s7_2(repro: pd.DataFrame, nums: dict, clusters: pd.DataFrame):
     """
-    Render Supplementary Table S7.2 — the fixed dipwell-versus-quadrat datum
-    offset at each van Willegen piezometer, from Pass 7b (v1.11.0).
+    Render Supplementary Table S7.2 — the fixed datum offset between each van
+    Willegen quadrat's ground surface and its dipwell's, from Pass 7b (v1.12.0).
 
-    Why (Martin, 2026-09-21): the two MSL5 frames agree in their dynamics to
-    ~11 mm but differ by a constant of up to a quarter of a metre at some
-    piezometers; a reader comparing a level published here with one in van
-    Willegen et al. (2025), or with any dataset referenced to quadrat ground,
-    needs that well's own offset. This table is the offset, per piezometer, so
-    the comparison can be made rather than warned against.
+    Why (Martin, 2026-09-21): van Willegen et al.'s published levels are this
+    network's readings re-referenced to each quadrat's ground surface, with up
+    to half a metre of relief between a dipwell's quadrats. A reader comparing
+    a level quoted here with one referenced to quadrat ground — theirs, or any
+    later vegetation study's — needs that quadrat's constant. This table is it,
+    per quadrat, so the comparison can be made rather than warned against.
 
-    Computes nothing beyond the per-piezometer roll-up of the Pass 7b frame:
-    offset = mean of (pipeline − published) at that piezometer; MAD and RMSE of
-    the residual after it. The caption carries the network-wide figures.
+    Computes nothing beyond the per-quadrat roll-up of the Pass 7b frame.
     """
-    g = repro.groupby("piezo")
+    g = repro.groupby("quadrat", sort=True)
     cl = clusters.set_index(clusters["Match_ID"].str.upper())["Cluster_Label"] if "Match_ID" in clusters.columns else pd.Series(dtype=str)
+    piezo = g["piezo"].first()
     out = pd.DataFrame({
         TABLE_S7_2_COLUMNS[0]: g.size().index,
-        TABLE_S7_2_COLUMNS[1]: [str(cl.get(p, "Extended")) for p in g.size().index],   # extended-network wells carry no reference cluster
-        TABLE_S7_2_COLUMNS[2]: g.size().values,
-        TABLE_S7_2_COLUMNS[3]: [_fmt(v * 1000.0, 0) for v in g["datum_offset_m"].first().values],
-        TABLE_S7_2_COLUMNS[4]: [_fmt(v * 1000.0, 1) for v in g["resid_m"].apply(lambda x: x.abs().mean()).values],
-        TABLE_S7_2_COLUMNS[5]: [_fmt(v * 1000.0, 1) for v in g["resid_m"].apply(lambda x: np.sqrt(np.mean(x ** 2))).values],
+        TABLE_S7_2_COLUMNS[1]: piezo.values,
+        TABLE_S7_2_COLUMNS[2]: [str(cl.get(p, "Extended")) for p in piezo.values],   # extended-network wells carry no reference cluster
+        TABLE_S7_2_COLUMNS[3]: g.size().values,
+        TABLE_S7_2_COLUMNS[4]: [_fmt(v * 1000.0, 0) for v in g["datum_offset_m"].first().values],
+        TABLE_S7_2_COLUMNS[5]: [_fmt(v * 1000.0, 1) for v in g["resid_m"].apply(lambda x: x.abs().mean()).values],
     })
-    caption = (f"Table S7.2: Fixed datum offset between each dipwell's ground reference and its quadrat's, "
-               f"from the pipeline's five-year mean spring level (MSL5) against the published series of van Willegen "
-               f"et al. (2025) at the same piezometer, paired on window-end year (n = window-ends). Offset = mean of "
-               f"pipeline minus published; a negative offset means the pipeline level is the deeper. Residual MAD and "
-               f"RMSE are after the offset. Network: {nums['vw_repro_n_piezometers']} piezometers, "
-               f"{nums['vw_repro_n_pairs']} pairs; offsets {nums['vw_repro_datum_offset_min_mm']:+.0f} to "
-               f"{nums['vw_repro_datum_offset_max_mm']:+.0f} mm (mean {nums['vw_repro_datum_offset_mean_mm']:+.0f} mm); "
-               f"residual MAD {nums['vw_repro_mad_mm']:.1f} mm. A level quoted in this report cannot be compared with "
-               f"one referenced to quadrat ground without applying that piezometer's offset.")
+    caption = (f"Table S7.2: Fixed datum offset between each van Willegen et al. (2025) vegetation quadrat's ground "
+               f"surface and its dipwell's, from the pipeline's five-year mean spring level (MSL5) against their "
+               f"published per-quadrat series at the same piezometer, paired on window-end year (n = window-ends). "
+               f"Their series are this network's readings re-referenced to quadrat ground, so the offset is the "
+               f"quadrat's height above (negative: below) the dipwell's ground datum; offset = mean of pipeline "
+               f"minus published. Residual MAD is after the offset. {nums['vw_repro_n_quadrats']} quadrats at "
+               f"{nums['vw_repro_n_piezometers']} piezometers, {nums['vw_repro_n_pairs']} pairs; offsets "
+               f"{nums['vw_repro_datum_offset_min_mm']:+.0f} to {nums['vw_repro_datum_offset_max_mm']:+.0f} mm, up to "
+               f"{nums['vw_repro_quadrat_relief_max_mm']:.0f} mm of relief between one dipwell's quadrats; residual MAD "
+               f"{nums['vw_repro_mad_mm']:.1f} mm. A level quoted in this report cannot be compared with one referenced "
+               f"to quadrat ground without applying that quadrat's offset.")
     return out, caption
 
 
@@ -2100,12 +2115,13 @@ def main() -> int:
         repro_df.to_csv(paths.OUT_26_VW_REPRODUCTION, index=False)
         saved(f"{paths.OUT_26_VW_REPRODUCTION.name}")
         report_nums.update(repro_nums)
-        info(f"  {repro_nums['vw_repro_n_piezometers']} piezometers, {repro_nums['vw_repro_n_pairs']} (piezometer, window-end) pairs; "
-             f"per-piezometer datum offsets {repro_nums['vw_repro_datum_offset_min_mm']:+.0f} to "
-             f"{repro_nums['vw_repro_datum_offset_max_mm']:+.0f} mm (mean {repro_nums['vw_repro_datum_offset_mean_mm']:+.0f}); "
-             f"after removing them: mean |residual| {repro_nums['vw_repro_mad_mm']:.1f} mm "
-             f"(median {repro_nums['vw_repro_median_abs_mm']:.1f}, RMSE {repro_nums['vw_repro_rmse_mm']:.1f}); "
-             f"a single network-wide offset would leave {repro_nums['vw_repro_mad_single_offset_mm']:.0f} mm")
+        info(f"  {repro_nums['vw_repro_n_quadrats']} quadrats at {repro_nums['vw_repro_n_piezometers']} piezometers, "
+             f"{repro_nums['vw_repro_n_pairs']} (quadrat, window-end) pairs; per-quadrat datum offsets "
+             f"{repro_nums['vw_repro_datum_offset_min_mm']:+.0f} to {repro_nums['vw_repro_datum_offset_max_mm']:+.0f} mm "
+             f"(mean {repro_nums['vw_repro_datum_offset_mean_mm']:+.0f}; up to {repro_nums['vw_repro_quadrat_relief_max_mm']:.0f} mm "
+             f"of relief between one dipwell's quadrats); after removing them: mean |residual| "
+             f"{repro_nums['vw_repro_mad_mm']:.1f} mm (median {repro_nums['vw_repro_median_abs_mm']:.1f}, "
+             f"RMSE {repro_nums['vw_repro_rmse_mm']:.1f})")
 
         # Supplementary Table S7.2 — the per-piezometer datum offsets (v1.11.0)
         s7_2, s7_2_caption = emit_supplementary_table_s7_2(repro_df, repro_nums, ref_clusters)

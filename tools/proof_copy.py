@@ -890,14 +890,15 @@ _NUM = re.compile(r"(?:(?<![\w.\-−–—])[+\-−–]?|(?<=[\-−–—]))"
 _YEAR = re.compile(r"^(?:18|19|20)\d\d$")
 _GLUE_BEFORE = re.compile(r"[A-Za-z][\-‑]$")
 _GLUE_AFTER = re.compile(r"[\-‑][A-Za-z]")
-_COUNT_COMPOUND = re.compile(r"(?i)^[\-‑](wells?|dipwells?|clusters?|sites?|stations?|members?|points?|boreholes?)\b")   # "66-well network" is a count
+_COUNT_COMPOUND = re.compile(r"(?i)^[\-‑](wells?|dipwells?|clusters?|sites?|stations?|members?|points?|boreholes?|months?|years?|days?)\b")   # "66-well network" is a count; "100-month" a duration
 _YEAR_RANGE_BEFORE = re.compile(r"(?:18|19|20)\d\d\s*(?:--|–|—|-)\s*$")      # "1951--53": the 53 is a year
 _PAGE_BEFORE = re.compile(r"(?i)\bpp?\.\s*(?:\d+\s*(?:--|–|—|-)\s*)?$")        # "p. 17", "pp. 17--19"
 _GRIDREF = re.compile(r"\b[A-Z]{2}\s?\d{3}\s?\d{3}\b")                        # "SH 406 636"
 _ENUM_MARK = re.compile(r"\(\d{1,2}\)")                                             # "(1) … (2) …"
 _RANGE_BEFORE = re.compile(r"\d\s*(?:--|–|—|-|to)\s*$")
 _ORDINAL_BEFORE = re.compile(r"(?i)\b(tiers?|sites?|phases?|steps?|scripts?|options?|batch(es)?|zones?|levels?|methods?|approach(es)?|types?|class(es)?|groups?|stages?|rounds?|parts?|panels?|checks?|objectives?|hypothes[ie]s|quadrats?|transects?|eras?|sketch(es)?|slacks?|models?|runs?|versions?)\s+(?:\d{1,2}[a-z]?\s*(?:--|–|—|-|,|and|to)\s*)*$")   # "Tier 1": a name                        # the second end of a range
-_CITATION = re.compile(r"[A-Z][A-Za-z'’\-]+(?:\s+(?:et al\.?|and|&)\s*[A-Z]?[A-Za-z'’\-]*)*,?\s*\(?(?:18|19|20)\d\d[a-z]?\)?"
+_NOT_AUTHOR = r"(?!(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|Section|Figure|Table|Phase|Script|Since|Before|After|During|Until|From|In|By|Of|The|Between|Post|Pre|Winter|Summer|Spring|Autumn)\b)"
+_CITATION = re.compile(_NOT_AUTHOR + r"[A-Z][A-Za-z'’\-]+(?:\s+(?:et al\.?|and|&)\s*[A-Z]?[A-Za-z'’\-]*)*,?\s*\(?(?:18|19|20)\d\d[a-z]?\)?"
                        r"|\((?:[^()]*?,\s*)?(?:18|19|20)\d\d[a-z]?(?:[;,][^()]*)?\)")   # "Stratford et al., 2007", "Ranwell (1959)", "(Davy et al., 2010, p. 17)"
 _LIST_MARKER = re.compile(r"^\d+[.)]\s")
 _IDENT_CHAIN = re.compile(r"\d+[-‐]\d+[-‐]\d+")          # three digit groups joined by hyphens
@@ -1113,7 +1114,7 @@ _TOK_UNIT = [
     ("count",    re.compile(r"(?i)^\s*(?:(?:donor|focal|control|treatment|reference|extended|paired|matched|levelled|dip)\s+)?"
                             r"(?:wells?|dipwells?|sites?|stations?|boreholes?|clusters?|members?|events?|slacks?|hollows?|pipes?|piezometers?|observations?|readings?)\b"
                             r"|^[\-‑](?:wells?|dipwells?|clusters?|sites?|stations?|members?|points?|boreholes?)\b")),
-    ("duration", re.compile(r"(?i)^\s*(?:months?|years?|yrs?|days?|hours?)\b")),
+    ("duration", re.compile(r"(?i)^\s*[\-‑]?(?:months?|years?|yrs?|days?|hours?)\b")),   # "100-month" is a duration too
     ("ratio",    re.compile(r"(?i)^\s*(?:×|x\b|-fold|times\b)")),
 ]
 _LIST_UNIT = re.compile(r"^(?:\s*,\s*[+\-−]?\d[\d.]*(?:,\d{3})*)*(?:\s*,?\s*(?:and|to|--|–)\s*[+\-−]?\d[\d.]*(?:,\d{3})*)?\s*((?:mm|cm|km|m|%|ha|°C|months?|years?)\b)")
@@ -1697,8 +1698,8 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                     bonus += 3
                 if range_prev and c.rel == prev_rel:
                     bonus += 2                       # the other end of the range, same file
-                if d and c.tier == "net":
-                    bonus += 2                       # "k = 5": Script 02's partition, not the constant that asked for it
+                if c.tier == "net" and (d or ("." not in _norm_num(masked[s:e]) and len(_norm_num(masked[s:e]).lstrip("+-")) <= 3)):
+                    bonus += 2                       # "k = 5", "66 wells": the network's own count outranks a column statistic that equals it
                 if ms_hint and _script_of(c.rel) in ms_hint:
                     bonus += 1.5                     # the Methods Supplement quotes this number under that script
                 return (-(sc + bonus), c.tier != "reg")
@@ -2614,7 +2615,7 @@ def reading_verdicts() -> dict:
         if READING_VERDICTS.exists():
             with READING_VERDICTS.open(encoding="utf8") as fh:
                 for r in csv.DictReader(fh):
-                    _READ[r["id"]] = (r["verdict"], r.get("reason", ""), r.get("better", ""))
+                    _READ[r["id"]] = (r["verdict"], r.get("reason", ""), r.get("better", ""), r.get("attribution_read", ""))
     return _READ
 
 
@@ -2652,8 +2653,16 @@ def one(name, values, look, out_dir, a):
                 rid = f"{mirror.stem}:{_reading_id(text[s:e], sent_full, s - _m.rfind(chr(10), 0, s))}"
                 hit = rv.get(rid)
                 if hit:
-                    verdict, reason, better = hit
-                    if verdict == "deny":
+                    verdict, reason, better, read_attr = hit
+                    # a verdict is about the attribution the reader SAW: when the matcher has
+                    # since chosen a different key or file, the denial does not carry over
+                    cur = d.split(" ‖ ")[0].split(" — ")[0]
+                    def _key(a):
+                        return re.sub(r"\s*=\s*[-−+\d.eE]+", "", a).replace("read: confirmed ✓ — ", "").strip()[:120]
+                    same_attr = (not read_attr) or _key(read_attr) == _key(cur) or (read_attr.rsplit("[", 1)[-1] == cur.rsplit("[", 1)[-1] and read_attr[:25] == cur[:25])
+                    if verdict == "deny" and not same_attr:
+                        d = d + f" ‖ an earlier attribution ({read_attr[:80]}) was denied by the reading pass; this is a new one, unread"
+                    elif verdict == "deny":
                         v, d = "denied", (f"DENIED by the reading pass — {reason}" + (f" — better: {better}" if better else "")
                                           + " ‖ the matcher had: " + d.split(" ‖ ")[0])
                     elif verdict == "confirm":

@@ -73,7 +73,11 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.7.0"  # Hollingham (2026) -- 2026-09-20. pet_monthly_trends():
+__version__ = "1.8.0"  # Hollingham (2026) -- 2026-09-21. The reference network's record-length
+#   statistics are EMITTED (reference_n_wells, reference_record_months_median/min/max in
+#   00_report_numbers.csv): report8 §3.1.1 quotes "median 191 months, range 139 to 250"
+#   and they lived only as column statistics of 00_02_well_network_summary.csv (E33).
+# 1.7.0 -- 2026-09-20. pet_monthly_trends():
 #   the OLS trend of each calendar month's PET against year, over the full record
 #   and over the well record, to 00_06_pet_monthly_trends.csv. The abstract and
 #   report10 §5.6 quote "significant increases in May (+0.066 mm month⁻¹ yr⁻¹,
@@ -1101,6 +1105,17 @@ def _run_all() -> None:
                note=f"R^2, network-mean WL vs cumulative balance, lag 0, n={fig1_stats['cumbal_wl_n']}")
         rr.add("cumbal_wl_slope", fig1_stats["cumbal_wl_slope"], unit="m/mm",
                note="regression slope (well level per mm cumulative balance)")
+    # The reference network's record lengths (report8 §3.1.1): the admission threshold is
+    # Script 01's, the records admitted are these — derived from the full-record table2
+    _nm = pd.to_numeric(table2_full["N_months"], errors="coerce").dropna()
+    rr.add("reference_n_wells", int(len(_nm)), unit="count",
+           note="reference-network wells in 00_02_well_network_summary.csv (full record)")
+    rr.add("reference_record_months_median", float(_nm.median()), unit="months",
+           note="median record length of the reference network")
+    rr.add("reference_record_months_min", float(_nm.min()), unit="months",
+           note="shortest admitted record")
+    rr.add("reference_record_months_max", float(_nm.max()), unit="months",
+           note="longest record")
     n_saved = rr.save(OUT_00_REPORT_NUMBERS)
     print(f"  Saved → {os.path.basename(OUT_00_REPORT_NUMBERS)} ({n_saved} report numbers)")
 

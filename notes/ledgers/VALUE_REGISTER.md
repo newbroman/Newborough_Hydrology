@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**116 output file(s)** supply **1240 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**118 output file(s)** supply **1251 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -108,17 +108,13 @@
 | `03_04_lag_diagnostic.csv` | C1 (Lake Edge) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md, report10.md |
 |  | C2 (Dune) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md |
 |  | C2 (Dune) / 1 · R2 | Newborough_Methods_Supplement.md |
-|  | C2 (Dune) / 2 · R2 | Newborough_Methods_Supplement.md |
-|  | C2 (Dune) · R2 | Newborough_Methods_Supplement.md, report9.md |
+|  | C2 (Dune) / 2 · R2 | Newborough_Methods_Supplement.md, report9.md |
 |  | C3 (Western Residual) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
-|  | C3 (Western Residual) / 1 · R2 | Newborough_Methods_Supplement.md |
-|  | C3 (Western Residual) · R2 | Newborough_Methods_Supplement.md, report9.md |
+|  | C3 (Western Residual) / 1 · R2 | Newborough_Methods_Supplement.md, report9.md |
 |  | C4 (Main Forest) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
 |  | C4 (Main Forest) / 1 · R2 | Newborough_Methods_Supplement.md |
-|  | C4 (Main Forest) · R2 | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 0 · R2 | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report9.md |
 |  | C5 (Coastal Forest) / 1 · R2 | Newborough_Methods_Supplement.md |
-|  | C5 (Coastal Forest) · R2 | Newborough_Methods_Supplement.md |
 | `03_09_well_optimal_datums.csv` | ceh1 · beta_3_at_secondary | Supplementary_Material.md |
 |  | ceh6 · beta_3_at_uniform | Supplementary_Material.md |
 |  | d10 · beta_3_at_max | Supplementary_Material.md |
@@ -676,8 +672,10 @@
 | `11_forecast_spring_transfer_functions.csv` | Coastal_Forest · R2 | Newborough_Methods_Supplement.md |
 |  | Coastal_Forest · p_value_intercept | Supplementary_Material.md |
 |  | Eastern_Block · p_value_PET_win_to_spr | Hollingham_2026_Paper2_amended.md |
+|  | Forest · R2 | Newborough_Methods_Supplement.md |
 |  | Forest · p_value_PET_win_to_spr | NRG_Web_Tools_Technical_Note.md, NRG_Web_Tools_User_Manual.md, Newborough_Methods_Supplement.md, readme.md |
 |  | Forest · p_value_P_win_to_spr | Supplementary_Material.md |
+|  | Lake_Edge · R2 | Newborough_Methods_Supplement.md |
 |  | Lake_Edge · p_value_PET_win_to_spr | Hollingham_2026_Paper2_amended.md |
 |  | Western_Block · p_value_PET_win_to_spr | Newborough_Methods_Supplement.md |
 | `11_forecast_summer_transfer_functions.csv` | Coastal_Forest · R2 | report9.md |
@@ -857,8 +855,9 @@
 | `24b_02_peak_winter_minus_summer.csv` | C1 (Lake Edge) · n_wells | report9.md |
 | `25_01_panel_fit_parameters.csv` | c3_only / exponential_cfix · c_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | c3_only / exponential_cfix · delta_0_mm_yr | PAPER1_SI_methods.md |
-|  | c3_only / exponential_cfix · delta_0_se | PAPER1_SI_methods.md |
-|  | c3_only / exponential_cfix · delta_ref_se | Newborough_Methods_Supplement.md, Paper1.md, report12.md, report8.md, report9.md |
+|  | c3_only / exponential_cfix · delta_0_se | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md |
+|  | c3_only / exponential_cfix · delta_ref_se | Newborough_Methods_Supplement.md, Paper1.md, report10.md, report12.md, report8.md, report9.md |
+|  | c3_only / linear_capped_cfix · delta_0_se | Newborough_Methods_Supplement.md |
 |  | c3_only_mam / exponential_cfix · delta_ref_se | report10.md |
 |  | c3_only_mam / linear_capped_cfix · c_mm_yr | Newborough_Methods_Supplement.md, report9.md, site_geography.md |
 |  | c3_only_mam / linear_capped_cfix · delta_0_mm_yr | PAPER1_SI_methods.md |
@@ -892,6 +891,18 @@
 |  | C4 (Main Forest) · unexplained_mm_yr | report9.md |
 |  | C5 (Coastal Forest) · climate_plus_far_field_mm_yr | report9.md |
 |  | C5 (Coastal Forest) · coastal_gradient_mm_yr | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+| `25_08_spring_vs_summer_comparison.csv` | C1 (Lake Edge) · observed_balanced_annual_mean_mm_yr_summer | report9.md |
+|  | C2 (Dune) · observed_balanced_annual_mean_mm_yr_summer | report9.md |
+|  | C3 (Western Residual) · coastal_gradient_mm_yr_spring | report9.md |
+|  | C3 (Western Residual) · observed_balanced_annual_mean_mm_yr_summer | Newborough_Methods_Supplement.md, report9.md |
+|  | C4 (Main Forest) · observed_balanced_annual_mean_mm_yr_summer | report9.md |
+|  | C5 (Coastal Forest) · coastal_gradient_mm_yr_spring | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+|  | C5 (Coastal Forest) · observed_balanced_annual_mean_mm_yr_spring | Supplementary_Material.md |
+|  | C5 (Coastal Forest) · observed_balanced_annual_mean_mm_yr_summer | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
+| `25_09_season_interaction_test.csv` | exponential · gamma_spring_modulation | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, Supplementary_Material.md |
+|  | exponential · gamma_t | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md |
+|  | linear_capped · gamma_spring_modulation | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, Supplementary_Material.md |
+|  | linear_capped · gamma_t | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md |
 | `25_16_delta0_leave_one_out.csv` | ceh28 · d_delta_0_mm_yr | Supplementary_Material.md |
 | `25_report_numbers.csv` | Canopy_controlled_delta_0 | Newborough_Methods_Supplement.md, Paper1.md |
 |  | delta0_well_basis_ci_hi_mm_yr | PAPER1_SI_methods.md |
@@ -1096,7 +1107,7 @@
 |  | recent / C4 (Main Forest) · amplification_mean | PAPER1_SI_methods.md, report12.md, report9.md |
 |  | recent / C4 (Main Forest) · dry_m_mean | report9.md |
 | `33_envelope_per_well.csv` | ceh1 · dry_m | Supplementary_Material.md |
-|  | ceh14 · amplification | report9.md |
+|  | ceh14 · amplification | report10.md, report9.md |
 |  | ceh30 · amplification | report9.md |
 |  | ceh37 · amplification | report9.md |
 |  | fe1 · amplification | report9.md |

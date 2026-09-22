@@ -110,7 +110,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-21. Table 1.20 regenerates from
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-22. sm/TableS82: the Supplementary
+#   Material's Table S8.2 becomes a generated table (25_08_spring_vs_summer_comparison.csv).
+# 1.8.0  # Hollingham (2026) — 2026-09-21. Table 1.20 regenerates from
 #   26_curreli_min_cluster_threshold_summary.csv (D-190): thresholds counted on the
 #   rolling annual minimum, MSL5 a reference column, headline window filtered.
 # 1.7.0  # Hollingham (2026) — 2026-09-04. Methods Supplement
@@ -650,6 +652,27 @@ TABLES = [
                      "2": "Oct–Feb ({horizon_n_months} mo)"}},
             {"fmt": "template", "template": "{slope_A:.2f}·d_w + {intercept_B:.2f}"},   # PRECISION: 2 dp; d_w per symbol register (2026-09-19)
             {"col": "P_clim_mm", "fmt": "fixed", "dp": 0},   # PRECISION: 0 dp as published (mm)
+        ],
+    },
+    # ── 2026-09-22: Supplementary Material Table S8.2 (Script 25_08) ──────────
+    # The SM had no generated tables; this one had been hand-typed from an
+    # earlier run and disagreed with its own text (Phase B of D-189).
+    {
+        "id": "sm/TableS82",
+        "doc": "docs/report/Supplementary_Material_v*.odt",
+        "table_name": "TableS82",
+        "caption": "Table S8.2 — observed cluster slope on the balanced basis, summer minimum "
+                   "versus spring mean, with the spring decomposition under the all-season "
+                   "forest-free linear-capped gradient (Script 25_08)",
+        "sources": {"s": "outputs/25_coastal_gradient/25_08_spring_vs_summer_comparison.csv"},
+        "rows": {"source": "s"},
+        "header": ["Cluster", "Summer obs (basis)", "Spring obs (basis)", "Spring coastal gradient", "Spring unexplained"],
+        "columns": [
+            {"col": "cluster_label", "fmt": "text"},
+            {"col": "observed_balanced_annual_mean_mm_yr_summer", "fmt": "fixed", "dp": 1, "sign": True, "zero_text": "0.0"},
+            {"col": "observed_balanced_annual_mean_mm_yr_spring", "fmt": "fixed", "dp": 1, "sign": True, "zero_text": "0.0"},
+            {"col": "coastal_gradient_mm_yr_spring",              "fmt": "fixed", "dp": 1, "sign": True, "zero_text": "0.0"},
+            {"col": "unexplained_mm_yr_spring",                   "fmt": "fixed", "dp": 1, "sign": True, "zero_text": "0.0"},
         ],
     },
     # ── 2026-09-04 batch 6: report9 Tables 1.16, 1.17, 1.18 (Script 26 1.9.0) ──

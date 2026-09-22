@@ -51,7 +51,7 @@ SCHEMA (one dict per table)
                 an optional "key_re": both keys are reduced to the pattern's
                 first group before comparison, so a row can join its own
                 variant in the same CSV ("C4 (Main Forest)" to
-                "C4 (Main Forest) (corrected)" on ^(C\d)) — matching, not
+                "C4 (Main Forest) (corrected)" on ^(C\\d)) — matching, not
                 maths
       fmt       "text" | "int" | "fixed" | "pvalue" | "stars" | "map" |
                 "template" | "ci" | "val_p"

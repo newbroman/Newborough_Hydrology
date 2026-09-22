@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**118 output file(s)** supply **1251 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**119 output file(s)** supply **1267 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -213,6 +213,7 @@
 |  | C3_beta2_mean | report10.md |
 |  | C4_beta1_mean | Supplementary_Material.md, report10.md, report9.md |
 |  | C4_beta2_mean | report10.md |
+|  | C4_beta3_pct_mean | Newborough_Methods_Supplement.md |
 |  | C5_beta2_mean | report9.md |
 |  | C5_beta3_pct_mean | INTERCEPTION_TREATMENT.md, report9.md, site_geography.md |
 | `08_cluster_nse_medians.csv` | C1 · median_dNSE | report9.md |
@@ -924,12 +925,22 @@
 |  | 5 / C1 (Lake Edge) · MSL5_current_m_bg | report9.md |
 |  | 5 / C2 (Dune) · MSL5_current_m_bg | report9.md |
 |  | 5 / C2 (Dune) · n_windows_below_SD16 | Newborough_Methods_Supplement.md |
+|  | 5 / C3 (Western Residual) · MINw_current_m_bg | Newborough_Methods_Supplement.md |
 |  | 5 / C3 (Western Residual) · MSL5_current_m_bg | report9.md |
 |  | 5 / C4 (Main Forest) · MSL5_current_m_bg | report9.md |
+|  | 5 / C5 (Coastal Forest) · MINw_current_m_bg | Newborough_Methods_Supplement.md |
 |  | 5 / C5 (Coastal Forest) · MSL5_current_m_bg | report9.md |
 | `26_index_precision_by_cluster.csv` | all / C1 (Lake Edge) · n_wells_with_springs | report9.md |
 |  | all / C2 (Dune) · rho_lag1_mean | Supplementary_Material.md |
 |  | reference / C1 (Lake Edge) · n_wells_with_springs | report9.md |
+| `26_msl5_vs_min5_per_cluster.csv` | C1 (Lake Edge) · MSL5_m_bg_mean | report9.md |
+|  | C2 (Dune) · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C3 (Western Residual) · MIN5_m_bg_mean | Newborough_Methods_Supplement.md |
+|  | C3 (Western Residual) · MIN5_minus_MSL5_m | Supplementary_Material.md |
+|  | C3 (Western Residual) · MSL5_m_bg_mean | Supplementary_Material.md |
+|  | C4 (Main Forest) · MIN5_m_bg_mean | Newborough_Methods_Supplement.md |
+|  | C5 (Coastal Forest) · MIN5_m_bg_mean | Newborough_Methods_Supplement.md |
+|  | C5 (Coastal Forest) · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
 | `26_msl_5yr_per_cluster.csv` | C1 (Lake Edge) / 2017 · MAX5_m_bg_median | Supplementary_Material.md |
 |  | C1 (Lake Edge) / 2024 · MAX5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C1 (Lake Edge) / 2025 · MSL5_m_bg_mean | report9.md |
@@ -964,6 +975,7 @@
 |  | C4 (Main Forest) / 2013 · MSL5_m_bg_median | report9.md |
 |  | C4 (Main Forest) / 2015 · MAX5_m_bg_mean | report9.md |
 |  | C4 (Main Forest) / 2015 · MSL5_m_bg_median | report9.md |
+|  | C4 (Main Forest) / 2016 · MAX5_m_bg_median | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) / 2019 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) / 2019 · MSL5_m_bg_median | report9.md |
 |  | C4 (Main Forest) / 2020 · MSL5_m_bg_mean | Supplementary_Material.md |
@@ -976,6 +988,7 @@
 |  | C5 (Coastal Forest) / 2015 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2016 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2019 · MSL5_m_bg_mean | report9.md |
+|  | C5 (Coastal Forest) / 2020 · MAX5_m_bg_mean | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2021 · MAX5_m_bg_mean | report9.md |
 |  | C5 (Coastal Forest) / 2021 · MAX5_m_bg_median | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2022 · MSL5_m_bg_mean | Newborough_Methods_Supplement.md |
@@ -986,11 +999,13 @@
 |  | C5 (Coastal Forest) / 2025 · MSL5_m_bg_mean | report9.md |
 |  | C5 (Coastal Forest) / 2025 · MSL5_m_bg_median | Supplementary_Material.md, report9.md |
 | `26_report_numbers.csv` | curreli_min_quadrat_wells_first_window_min_m_bg | report9.md |
+|  | msl5_min5_window_r | Newborough_Methods_Supplement.md |
 | `26b_msl5_ukcp18_projection_summary.csv` | C2 (Dune) / 2050s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C2 (Dune) / 2080s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |
 |  | C4 (Main Forest) / 2050s · msl5_observed_window_mean_m | report9.md |
 |  | C4 (Main Forest) / 2080s · msl5_observed_window_mean_m | report9.md |
+|  | C4 (Main Forest) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2050s · msl5_observed_window_mean_m | report9.md |
 |  | C5 (Coastal Forest) / 2050s · msl5_shift_mean_m | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2050s · spring_delta_h_mean_m | Newborough_Methods_Supplement.md |
@@ -1175,6 +1190,7 @@
 |  | 2018_2025 / primary · s_cf | Newborough_Methods_Supplement.md, report9.md |
 |  | 2018_2025 / primary · s_cf_ci_hi | Newborough_Methods_Supplement.md, report9.md |
 |  | 2018_2025 / primary · s_cf_ci_lo | Newborough_Methods_Supplement.md, report9.md |
+|  | 2018_2025 / primary · s_coast | Newborough_Methods_Supplement.md |
 |  | 2018_2025 / primary · s_coast_ci_hi | Newborough_Methods_Supplement.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_bl | Newborough_Methods_Supplement.md, report9.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_bl_ci_hi | Newborough_Methods_Supplement.md, report9.md |

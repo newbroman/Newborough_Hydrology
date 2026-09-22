@@ -131,7 +131,7 @@ __version__ = "1.14.0"  # Hollingham (2026) — 2026-09-22. T-64: Pass 3d emits 
 #   paper's own month labelling, so the residual is expected at the rounding floor.
 # 1.11.0  # Hollingham (2026) — 2026-09-21. Supplementary Table S7.2: the fixed
 #   dipwell-versus-quadrat datum offset per van Willegen piezometer, from Pass 7b
-#   (26_table_s7_2_vw_datum_offsets.csv/.md) — so a reader can compare a level here
+#   (26_table_s7_2_vw_datum_offsets.csv and its .md twin) — so a reader can compare a level here
 #   with one referenced to quadrat ground rather than be warned off it (Martin).
 # 1.10.0  # Hollingham (2026) — 2026-09-21. Pass 7b: the pipeline's MSL5
 #   against van Willegen et al.'s published five-year spring levels at their

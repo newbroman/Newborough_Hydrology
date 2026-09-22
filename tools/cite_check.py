@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.3"  # Hollingham (2026) — 2026-09-22. check_index resolves a row's
+__version__ = "1.28.4"  # Hollingham (2026) — 2026-09-22. 25_09_season_interaction_test.csv
+#   (γ) and 25_08_spring_vs_summer_comparison.csv registered: the spring modulation
+#   of the coastal gradient went 0.126 -> 0.323 under D-189 and nothing gated it.
+# 1.28.3  # Hollingham (2026) — 2026-09-22. check_index resolves a row's
 #   value by (source_csv, key) before falling back to the key alone: a label
 #   repeated across files (the seasonal trend and transfer-function tables) no
 #   longer reads as drifted because another file's row won the label-only map.
@@ -618,6 +621,12 @@ EXTRA_VALUE_TABLES = [
      ["R2"]),
     ("outputs/32_differential_movement/32_site_mean_trend.csv", ("basis", "period"),
      ["slope_mm_yr", "resid_sd_mm", "min_detectable_mm_yr", "p_ar", "boot_lo_mm_yr", "boot_hi_mm_yr"]),
+    ("outputs/25_coastal_gradient/25_09_season_interaction_test.csv", "model",    # MS S.15, SM S8.4, Paper 1 §4, SI (the γ nobody gated: 0.126 -> 0.323 under D-189)
+     ["gamma_spring_modulation", "gamma_se", "gamma_t", "gamma_p"]),
+    ("outputs/25_coastal_gradient/25_08_spring_vs_summer_comparison.csv", "cluster_label",    # SM S8.4 / Table S8.2
+     ["observed_centroid_mm_yr_summer", "observed_centroid_mm_yr_spring", "observed_balanced_annual_mean_mm_yr_summer",
+      "observed_balanced_annual_mean_mm_yr_spring", "coastal_gradient_mm_yr_spring", "unexplained_mm_yr_spring",
+      "coastal_gradient_pct_of_basis_spring"]),
     ("outputs/32_differential_movement/32_cluster_summary.csv", ("period", "cluster_label"),    # report9 §4.12, report10 §5.7.5 (Script 32 1.6.0)
      ["slope_mean_mm_yr", "slope_min_mm_yr", "slope_max_mm_yr", "n_wells", "n_sig_ar"]),
     ("outputs/33_envelope_amplification/33_cluster_summary.csv", ("panel", "cluster_label"),    # report9 §4.12, report10 §5.1, report12 (Script 33 1.5.0)

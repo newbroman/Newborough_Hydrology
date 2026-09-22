@@ -20,6 +20,16 @@ ewi_msl5_scope,open_dune_C1_C3
 ewi_msl5_slope_b,0.964458953112241
 extended_relSE_beta3_vs_nobs_spearman_p,0.5881978141285003
 extended_relSE_beta3_vs_nobs_spearman_r,-0.1288624242554073
+msl5_min5_annual_n,1177
+msl5_min5_annual_r,0.7981019153618587
+msl5_min5_cluster_offset_max_m,-0.5420833333333333
+msl5_min5_cluster_offset_min_m,-0.78725
+msl5_min5_cluster_window_end,2025
+msl5_min5_offset_mean_m,-0.6882184157379108
+msl5_min5_offset_sd_m,0.15988097679140045
+msl5_min5_window_n,648
+msl5_min5_window_r,0.9428748351656104
+msl5_min5_window_start,2014
 msl5_n_annual_valid,1274
 msl5_n_annual_valid_with_interp,10
 msl5_n_windows_admitted,869

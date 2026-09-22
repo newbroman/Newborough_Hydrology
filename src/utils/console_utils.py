@@ -43,7 +43,10 @@ Usage quick-reference
 
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-09-15: progress() — Martin's rule that a long run
+__version__ = "1.2.0"  # 2026-09-23: track() — wrap any loop in one word and get
+#   progress() for free, so the twelve scripts that run past 30 s can show they are
+#   running (Martin, 2026-09-23). The bar ends its own line when the loop ends.
+# 1.1.0  # 2026-09-15: progress() — Martin's rule that a long run
 #   must show it is running (CLAUDE.md "SHOW PROGRESS"). Additive; nothing else changed.
 
 import sys
@@ -250,6 +253,47 @@ def progress(n: int, total: int, label: str = "", started: float | None = None,
         timing = f"  {el / 60:.0f}m elapsed, ~{eta / 60:.0f}m left"
     sys.stdout.write(f"\r  [{bar}] {pct:3.0f} %  {n}/{total}  {label}{timing}   ")
     sys.stdout.flush()
+
+
+def track(items, label: str = "", total: int | None = None, min_seconds: float = 0.0,
+          lines: bool = False):
+    """
+    Iterate `items`, reporting completion after each one.
+
+    Default: the in-place progress() bar, ended with a newline when the loop
+    finishes. `lines=True` prints one full line per item instead — use it when
+    the loop body prints its own output (a "Saved:" per figure, say), which
+    would otherwise overwrite the bar mid-line:
+        [ 24 %   4/17   0m elapsed, ~1m left ]  Figure 2b — ridge hillslope gradient
+
+    `total` is needed for a generator; `min_seconds` suppresses the report for
+    loops that finish faster than that, so a two-second step on one machine does
+    not shout on another. The label can be a callable of the current item.
+
+        for name, build in track(figures, lambda f: f[0], lines=True):
+            build()
+    """
+    import time                                               # noqa: PLC0415
+    seq = list(items) if total is None else items
+    n_total = total if total is not None else len(seq)
+    started = time.time()
+    shown = False
+    for i, item in enumerate(seq, 1):
+        yield item
+        if not shown and time.time() - started < min_seconds and i < n_total:
+            continue
+        shown = True
+        text = label(item) if callable(label) else label
+        if lines:
+            el = time.time() - started
+            eta = el / i * (n_total - i)
+            print(f"  [{100.0 * i / n_total:3.0f} %  {i:3d}/{n_total}  "
+                  f"{el / 60:.0f}m elapsed, ~{eta / 60:.0f}m left ]  {text}")
+        else:
+            progress(i, n_total, text, started)
+    if shown and not lines:
+        sys.stdout.write("\n")
+        sys.stdout.flush()
 
 
 def result(label: str, value: str) -> None:

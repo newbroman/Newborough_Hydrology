@@ -64,7 +64,7 @@
 | 41 | 4.7.4 | Spatial distribution of P_flood — the minimum cumulative winter rainfa | `outputs/11b_spatial_thresholds/11b_03_pflood.png` | yes |
 | 42 | 4.7.4 | Spatial distribution of mean annual winter maximum water table depth b | `outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png` | yes |
 | 43 | 4.7.4 | Winter flooding frequency across the full dipwell network (66 referenc | `outputs/11b_spatial_thresholds/11b_04_flood_frequency.png` | yes |
-| 44 | 4.8.3 | Cluster-mean 5-year mean spring water level (MSL5) trajectory, window- | `outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png` | yes |
+| 44 | 4.8.3 | Cluster-mean five-year mean spring water level (MSL5), window-ends 201 | `outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png` | yes |
 | 45 | 4.8.3 | Spatial pattern of the latest available 5-year mean spring water level | `outputs/26_van_willegen_msl/26_msl_5yr_map.png` | yes |
 | 46 | 4.8.3 | Climate trajectory and threshold exceedance analysis for Newborough Wa | `outputs/14_climate_projections/14_climate_trajectory_stacked.png` | yes |
 | 47 | 4.8.4 | Between-well prediction of mean Ellenberg-F moisture by three water-ta | `outputs/26_van_willegen_msl/26_ebf_prediction_scatter.png` | yes |
@@ -108,4 +108,4 @@
 | 80 | 5.8.2 | Four drivers of the Newborough water table — schematic cross-sections  | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 81 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-09-19 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-09-22 by `tools/build_figure_ledger.py` v2.3.0.*

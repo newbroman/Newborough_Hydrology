@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_13.odt — do not edit. source-sha256=43ab5bacdeb93e79 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_15.odt — do not edit. source-sha256=cb90504f6dc88cc8 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.13 (September 2026).
+Document version: 2.0.15 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -3440,20 +3440,20 @@ Three editorial decisions warrant explicit defence in this chapter, since they d
 
 ### []{#anchor-502}[]{#anchor-503}[]{#anchor-504}Empirical relationship to summer minima
 
-A direct cross-check between MSL5 and the parallel 5-year mean of summer minima (5-yr SM5) was run as part of script verification. At the individual-year scale (annual MSL vs annual summer minimum, per well), the Pearson correlation across all valid (well, year) rows is 0.77. At the 5-year window scale (MSL5 vs the corresponding 5-year mean summer minimum, per well across window-ends 2014 onwards), the correlation rises to 0.945 (n = 829 (well, end-year) rows where both metrics are valid). The constant offset between the two metrics, computed as the mean of (5-yr SM5 − MSL5) across the same rows, is 0.54 m with a standard deviation of 0.15 m. The 5-yr SM5 is roughly 0.54 m deeper than MSL5 --- the seasonal amplitude of a typical Newborough water table between spring and the late-summer minimum.
+Script 26 cross-checks MSL5 against the five-year mean annual minimum (MIN5) --- the hydrological-year minimum of D-190\'s Pass 3c rolled over the five-year sensitivity window, so that the two metrics share their window and their admission rules (Pass 3d; 26_msl5_vs_min5_per_cluster.csv and the msl5_min5\_\* rows of 26_report_numbers.csv). At the individual-year scale (annual MSL against the annual minimum, per well), the Pearson correlation across the (well, hydrological year) rows both series admit is 0.80 (n = 1177). At the five-year window scale (MSL5 against MIN5, per well across window-ends from 2014), the correlation rises to 0.943 (n = 648 (well, window-end) rows where both are valid). The offset between the two, computed as the mean of (MIN5 − MSL5) across the same rows, is −0.69 m with a standard deviation of 0.16 m: MIN5 sits roughly 0.69 m below MSL5, the recession from the spring level to the year\'s trough at a typical Newborough well.
 
-The offset is approximately constant across clusters, varying only over the range 0.51 to 0.67 m at window-end 2025:
+The offset is approximately constant across clusters, varying only over the range 0.54 to 0.79 m at window-end 2025:
 
-  --------------------- ---- ---------- -------------- ----------------
-  Cluster               n    MSL5 (m)   5-yr SM5 (m)   SM5 − MSL5 (m)
-  C1 Lake Edge          8    −0.24      −0.82          −0.58
-  C2 Dune               30   −0.27      −0.89          −0.62
-  C3 Western Residual   12   −0.78      −1.50          −0.72
-  C4 Main Forest        8    −0.83      −1.35          −0.52
-  C5 Coastal Forest     26   −0.62      −1.18          −0.56
-  --------------------- ---- ---------- -------------- ----------------
+  --------------------- ---- ---------- ------------------------------ -----------------
+  Cluster               n    MSL5 (m)   5-yr mean annual minimum (m)   MIN5 − MSL5 (m)
+  C1 Lake Edge          8    −0.13      −0.87                          −0.73
+  C2 Dune               22   −0.22      −0.99                          −0.77
+  C3 Western Residual   20   −0.45      −1.17                          −0.71
+  C4 Main Forest        8    −0.80      −1.58                          −0.79
+  C5 Coastal Forest     8    −1.12      −1.66                          −0.54
+  --------------------- ---- ---------- ------------------------------ -----------------
 
-The two metrics measure essentially the same multi-year hydrological state through different seasonal windows. MSL5 is shallower because spring water tables, refreshed by winter recharge, sit roughly half a metre above the late-summer minimum at each cluster. The implication for the report's analytical structure is that MSL5 does not add new *predictive* capacity beyond the existing summer-minimum forecasting framework --- the two are essentially co-linear at the 5-year window scale. What MSL5 does add is the *calibrated link to the van Willegen vegetation framework* at the 17 quadrat wells, plus a metric that can be computed from spring readings alone for managers who prefer that monitoring cadence.
+The two metrics measure essentially the same multi-year hydrological state through different seasonal windows. MSL5 is shallower because spring water tables, refreshed by winter recharge, sit roughly 0.7 m above the year\'s minimum at each cluster. The implication for the report's analytical structure is that MSL5 does not add new *predictive* capacity beyond the existing summer-minimum forecasting framework --- the two are essentially co-linear at the 5-year window scale. What MSL5 does add is the *calibrated link to the van Willegen vegetation framework* at the 17 quadrat wells, plus a metric that can be computed from spring readings alone for managers who prefer that monitoring cadence.
 
 This complementarity is not a contradiction. The two frameworks describe the same hydrological state through different seasonal windows, and a reader who encounters substantial summer-minimum threshold-crossing predictions in §4.13.1 of the report alongside more modest MSL5 climate projections in §S.18b should not interpret the contrast as one framework overturning the other. Section S.18b.3.7 expands on this point in the context of the UKCP18 climate scenarios: the spring window's structural cancellation between increased winter rainfall and increased summer PET produces a smaller projected climate shift than the summer-minimum window, which has no compensating winter-rainfall effect. Both readings are correct; they sample the climate signal at different points of its seasonal structure.
 

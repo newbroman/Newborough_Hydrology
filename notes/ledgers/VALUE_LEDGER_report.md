@@ -913,7 +913,6 @@
 - **floor_mask_area_ha**  — quoted 306.97 vs committed 306.97  ·  `45_report_numbers.csv`
 - **oos_C_wet_floor_ratio_p84**  — quoted 1.11 vs committed 1.11083  ·  `45_report_numbers.csv`
 - **ukcp18_2050s / annual / C5 · dh_median_m** [Δh] — quoted -0.0118 vs committed -0.0118  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **broadleaf / summer / C5 · we_median_mm** [Δh] — quoted 1.50 vs committed 1.49524  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **well_record / 9 · p_value** [p] — quoted 0.994 vs committed 0.993861  ·  `00_06_pet_monthly_trends.csv`  — _significance probability_
 - **1937 · P_PET_ratio** [p] — quoted 1.35 vs committed 1.35075  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
 - **1941 · P_PET_ratio** [p] — quoted 1.11 vs committed 1.11422  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
@@ -993,8 +992,6 @@
 - **full_canopy / linear_capped · delta_ref_se**  — quoted 1.44 vs committed 1.4437  ·  `25_01_panel_fit_parameters.csv`
 - **C5 (Coastal Forest) · coastal_gradient_mm_yr**  — quoted -18.30 vs committed -18.2968  ·  `25_03_cluster_partition.csv`
 - **C1 (Lake Edge) / 2024 · MAX5_m_bg_mean**  — quoted 0.137 vs committed 0.13675  ·  `26_msl_5yr_per_cluster.csv`
-- **C5 (Coastal Forest) / 2021 · MAX5_m_bg_median**  — quoted -1.18 vs committed -1.177  ·  `26_msl_5yr_per_cluster.csv`
-- **C5 (Coastal Forest) / 2023 · MAX5_m_bg_mean**  — quoted -1.18 vs committed -1.17589  ·  `26_msl_5yr_per_cluster.csv`
 - **all_members · beta_1_recharge** [β₁] — quoted 2.48 vs committed 2.47707  ·  `30_c4_centroid_sensitivity.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **all_members · R2** [R²] — quoted 0.722 vs committed 0.72153  ·  `30_c4_centroid_sensitivity.csv`  — _coefficient of determination_
 - **drop_ceh14 · R2** [R²] — quoted 0.737 vs committed 0.736529  ·  `30_c4_centroid_sensitivity.csv`  — _coefficient of determination_
@@ -1031,10 +1028,7 @@
 - **NW4B / Far-field Ctrl / Forest · Pre_mean_gap_m**  — quoted 1.00 vs committed 0.996  ·  `10d_02_summer_minima_shifts.csv`
 - **CEH6 / Far-field Ctrl / Forest · Post_mean_gap_m**  — quoted 1.00 vs committed 0.9972  ·  `10d_02_summer_minima_shifts.csv`
 - **c3_only_mam / linear_capped_cfix · c_mm_yr**  — quoted 2.48 vs committed 2.48  ·  `25_01_panel_fit_parameters.csv`
-- **4 / C4 (Main Forest) · MINw_current_m_bg**  — quoted -1.50 vs committed -1.50375  ·  `26_curreli_min_cluster_threshold_summary.csv`
 - **5 / C2 (Dune) · n_windows_below_SD16**  — quoted 11.00 vs committed 11  ·  `26_curreli_min_cluster_threshold_summary.csv`
-- **C5 (Coastal Forest) / 2015 · MSL5_m_bg_mean**  — quoted -1.18 vs committed -1.18157  ·  `26_msl_5yr_per_cluster.csv`
-- **C5 (Coastal Forest) / 2022 · MSL5_m_bg_median**  — quoted -1.35 vs committed -1.34867  ·  `26_msl_5yr_per_cluster.csv`
 - **ceh20 · p_ar_2011_2025** [p] — quoted 0.128 vs committed 0.128069  ·  `32_differential_movement_per_well.csv`  — _significance probability_
 - **ceh27 · p_ar_2011_2025** [p] — quoted 0.853 vs committed 0.853423  ·  `32_differential_movement_per_well.csv`  — _significance probability_
 - **ceh40 · p_ar_2011_2025** [p] — quoted 0.647 vs committed 0.647302  ·  `32_differential_movement_per_well.csv`  — _significance probability_
@@ -1077,6 +1071,18 @@
 - **C3 (Western Residual) · observed_balanced_annual_mean_mm_yr_summer**  — quoted -14.15 vs committed -14.1507  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C5 (Coastal Forest) · observed_balanced_annual_mean_mm_yr_summer**  — quoted -16.15 vs committed -16.1472  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C5 (Coastal Forest) · coastal_gradient_mm_yr_spring**  — quoted -18.30 vs committed -18.2968  ·  `25_08_spring_vs_summer_comparison.csv`
+- **C4_beta3_pct_mean** [β₃] — quoted 1.58 vs committed 1.57699  ·  `07_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **msl5_min5_window_r**  — quoted 0.943 vs committed 0.942875  ·  `26_report_numbers.csv`
+- **5 / C3 (Western Residual) · MINw_current_m_bg**  — quoted -1.17 vs committed -1.1668  ·  `26_curreli_min_cluster_threshold_summary.csv`
+- **5 / C5 (Coastal Forest) · MINw_current_m_bg**  — quoted -1.66 vs committed -1.66488  ·  `26_curreli_min_cluster_threshold_summary.csv`
+- **C4 (Main Forest) / 2016 · MAX5_m_bg_median**  — quoted -1.17 vs committed -1.17  ·  `26_msl_5yr_per_cluster.csv`
+- **C5 (Coastal Forest) / 2020 · MAX5_m_bg_mean**  — quoted -1.12 vs committed -1.119  ·  `26_msl_5yr_per_cluster.csv`
+- **C3 (Western Residual) · MIN5_m_bg_mean**  — quoted -1.17 vs committed -1.1668  ·  `26_msl5_vs_min5_per_cluster.csv`
+- **C4 (Main Forest) · MIN5_m_bg_mean**  — quoted -1.58 vs committed -1.5825  ·  `26_msl5_vs_min5_per_cluster.csv`
+- **C5 (Coastal Forest) · MSL5_m_bg_mean**  — quoted -1.12 vs committed -1.12279  ·  `26_msl5_vs_min5_per_cluster.csv`
+- **C5 (Coastal Forest) · MIN5_m_bg_mean**  — quoted -1.66 vs committed -1.66488  ·  `26_msl5_vs_min5_per_cluster.csv`
+- **C4 (Main Forest) / 2080s · msl5_perturbed_window_mean_m**  — quoted -1.17 vs committed -1.16784  ·  `26b_msl5_ukcp18_projection_summary.csv`
+- **2018_2025 / primary · s_coast** [δ(d)] — quoted 1.12 vs committed 1.1221  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
 
 ### § (unsectioned)
 
@@ -1502,7 +1508,11 @@
 - _(untracked)_ 91 % — …ear) annual rows, of which 1,304 (91 %) pass the strict 3/3 rule. Fr…
 - _(untracked)_ 84 wells — …ear) 5-year window rows, covering 84 wells (66 reference + 18 extended).…
 - _(untracked)_ 60 wells — …d from the post-2010 network of \~60 wells, and any cluster-mean traject…
-- _(untracked)_ 0.15 m — …54 m with a standard deviation of 0.15 m. The 5-yr SM5 is roughly 0.54…
+- _(untracked)_ −0.69 m — …− MSL5) across the same rows, is −0.69 m with a standard deviation of…
+- _(untracked)_ 0.16 m — …69 m with a standard deviation of 0.16 m: MIN5 sits roughly 0.69 m bel…
+- _(untracked)_ 0.69 m — …tion of 0.16 m: MIN5 sits roughly 0.69 m below MSL5, the recession fro…
+- _(untracked)_ 0.79 m — …rying only over the range 0.54 to 0.79 m at window-end 2025:…
+- _(untracked)_ 0.7 m — …d by winter recharge, sit roughly 0.7 m above the year\'s minimum at…
 - _(untracked)_ 2026 record — …r 2024 is the wettest in the 2007--2026 record at Newborough --- 1,143 mm an…
 - _(untracked)_ 1,143 mm — …07--2026 record at Newborough --- 1,143 mm annual rainfall against a lon…
 - _(untracked)_ 855 mm — …nfall against a long-term mean of 855 mm (+34 %), and 234 mm spring ra…
@@ -1797,6 +1807,9 @@
 - **C5 (Coastal Forest) · observed_balanced_annual_mean_mm_yr_summer**  — quoted -16.15 vs committed -16.1472  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C5 (Coastal Forest) · observed_balanced_annual_mean_mm_yr_spring**  — quoted -15.10 vs committed -15.1028  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C5 (Coastal Forest) · coastal_gradient_mm_yr_spring**  — quoted -18.30 vs committed -18.2968  ·  `25_08_spring_vs_summer_comparison.csv`
+- **C2 (Dune) · MSL5_m_bg_mean**  — quoted -0.215 vs committed -0.215242  ·  `26_msl5_vs_min5_per_cluster.csv`
+- **C3 (Western Residual) · MSL5_m_bg_mean**  — quoted -0.454 vs committed -0.454436  ·  `26_msl5_vs_min5_per_cluster.csv`
+- **C3 (Western Residual) · MIN5_minus_MSL5_m**  — quoted -0.712 vs committed -0.712364  ·  `26_msl5_vs_min5_per_cluster.csv`
 
 ### § (unsectioned)
 
@@ -3209,7 +3222,7 @@
 - **reference / C1 (Lake Edge) · n_wells_with_springs**  — quoted 7.00 vs committed 7  ·  `26_index_precision_by_cluster.csv`
 - **C5 (Coastal Forest) / 2023 · MAX5_m_bg_median**  — quoted -1.25 vs committed -1.246  ·  `26_msl_5yr_per_cluster.csv`
 - **C3 (Western Residual) · hd_range**  — quoted 1.47 vs committed 1.46738  ·  `30_c4_identifiability_by_cluster.csv`
-- **C1 (Lake Edge) · n_wells**  — quoted 7.00 vs committed 7  ·  `24b_02_peak_winter_minus_summer.csv`
+- **C1 (Lake Edge) · n_wells**  — quoted 7.00 vs committed 8 ⚠  ·  `26_msl5_vs_min5_per_cluster.csv`
 - **C1 (Lake Edge) / 2050s / perwell · n_wells**  — quoted 7.00 vs committed 7  ·  `26b_msl5_ukcp18_projection_summary_perwell.csv`
 - **C1 (Lake Edge) / 2080s / perwell · n_wells**  — quoted 7.00 vs committed 7  ·  `26b_msl5_ukcp18_projection_summary_perwell.csv`
 - **5 / C1 (Lake Edge) · n_wells**  — quoted 7.00 vs committed 7  ·  `02_04_bootstrap_stability_summary.csv`
@@ -3981,8 +3994,8 @@
 ### §4.8.3 Five-Year Mean Spring Water Level (MSL5)
 
 - **C1 · thinning_b2_mult**  — quoted 1.01 vs committed 1.00943  ·  `pipeline_scenario_params.csv`
-- **broadleaf / summer / C5 · we_median_mm** [Δh] — quoted 1.50 vs committed 1.49524  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **curreli_min_quadrat_wells_first_window_min_m_bg**  — quoted -1.38 vs committed -1.3775  ·  `26_report_numbers.csv`
+- **broadleaf / summer / C5 · we_median_mm** [Δh] — quoted 1.50 vs committed 1.49524  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **C5 Coastal forest / Post-felling 2018+ · Max_depth_m**  — quoted 1.73 vs committed 1.7349  ·  `21_forestry_02_distributions_means.csv`
 - **C4 Main forest / Pre-scrape 2005–14 · Median_depth_m**  — quoted 1.46 vs committed 1.4556  ·  `21_forestry_02_distributions_means.csv`
 - **4 / C2 (Dune) · MSL5_current_m_bg**  — quoted -0.216 vs committed -0.216256  ·  `26_curreli_min_cluster_threshold_summary.csv`
@@ -4440,6 +4453,7 @@
 - **C4 (Main Forest) · observed_balanced_annual_mean_mm_yr_summer**  — quoted -6.53 vs committed -6.52605  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C5 (Coastal Forest) · observed_balanced_annual_mean_mm_yr_summer**  — quoted -16.15 vs committed -16.1472  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C5 (Coastal Forest) · coastal_gradient_mm_yr_spring**  — quoted -18.30 vs committed -18.2968  ·  `25_08_spring_vs_summer_comparison.csv`
+- **C1 (Lake Edge) · MSL5_m_bg_mean**  — quoted -0.133 vs committed -0.132833  ·  `26_msl5_vs_min5_per_cluster.csv`
 - _(untracked)_ −0.018 m/month — …, the site-wide mean annual Δh is −0.018 m/month, with cluster-level annual re…
 - _(untracked)_ −0.026 m/month — …vel annual responses ranging from −0.026 m/month at C4 (Main Forest) to −0.009…
 - _(untracked)_ −0.009 m/month — …26 m/month at C4 (Main Forest) to −0.009 m/month at C1 (Lake Edge). Under UKCP…

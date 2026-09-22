@@ -110,7 +110,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-22. sm/TableS82: the Supplementary
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-22. ms/Table66: the S.18 MSL5-vs-MIN5
+#   cluster table regenerates from 26_msl5_vs_min5_per_cluster.csv (T-64).
+# 1.9.0  # Hollingham (2026) — 2026-09-22. sm/TableS82: the Supplementary
 #   Material's Table S8.2 becomes a generated table (25_08_spring_vs_summer_comparison.csv).
 # 1.8.0  # Hollingham (2026) — 2026-09-21. Table 1.20 regenerates from
 #   26_curreli_min_cluster_threshold_summary.csv (D-190): thresholds counted on the
@@ -652,6 +654,23 @@ TABLES = [
                      "2": "Oct–Feb ({horizon_n_months} mo)"}},
             {"fmt": "template", "template": "{slope_A:.2f}·d_w + {intercept_B:.2f}"},   # PRECISION: 2 dp; d_w per symbol register (2026-09-19)
             {"col": "P_clim_mm", "fmt": "fixed", "dp": 0},   # PRECISION: 0 dp as published (mm)
+        ],
+    },
+    # ── 2026-09-22: Methods Supplement S.18 MSL5 vs five-year mean annual minimum (T-64) ──
+    {
+        "id": "ms/Table66",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table66",
+        "caption": "Methods Supplement — MSL5 against the five-year mean annual minimum per cluster at the latest common window-end (Script 26 Pass 3d)",
+        "sources": {"m": "outputs/26_van_willegen_msl/26_msl5_vs_min5_per_cluster.csv"},
+        "rows": {"source": "m"},
+        "header": ["Cluster", "n", "MSL5 (m)", "5-yr mean annual minimum (m)", "MIN5 − MSL5 (m)"],
+        "columns": [
+            {"col": "cluster_label", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},
+            {"col": "n_wells", "fmt": "int"},
+            {"col": "MSL5_m_bg_mean", "fmt": "fixed", "dp": 2},
+            {"col": "MIN5_m_bg_mean", "fmt": "fixed", "dp": 2},
+            {"col": "MIN5_minus_MSL5_m", "fmt": "fixed", "dp": 2},
         ],
     },
     # ── 2026-09-22: Supplementary Material Table S8.2 (Script 25_08) ──────────

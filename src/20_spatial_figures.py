@@ -122,7 +122,11 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.43.0"  # Hollingham (2026) - 2026-09-22. T-66: does the water
+__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-23. main() runs its seventeen
+#   builders through console_utils.track(lines=True): one completion line per
+#   figure with elapsed and remaining time (Martin, 2026-09-23: a script over 30 s
+#   shows progress). No output changes.
+# 1.43.0  # Hollingham (2026) - 2026-09-22. T-66: does the water
 #   table follow the ground surface, and at what scale? Laurence Jones (2026-09-22)
 #   read Figure 54's "broadly consistent with the DEM-derived flow network" as
 #   validating groundwater flow against a surface-runoff product, which it cannot
@@ -306,6 +310,7 @@ def quote_reach_m(length_m: float) -> float:
     return round(float(length_m) / step) * step
 
 from utils.render_utils import render_figure
+from utils.console_utils import track
 from utils.coastal_utils import coastal_edge_h0, load_measured_retreat_rate
 from utils.kml_io import read_kml
 
@@ -4876,56 +4881,31 @@ def main(preview=False):
     features = load_kml_features()
     print(f"  KML features: {len(features)}")
 
-    print("\nGenerating Figure 1 — Head surface + stream network...")
-    plot_head_streams(wt, stream_polys, features, dpi=dpi)
-
-    print("Comparing the head surface with the DEM (T-66)...")
-    compare_head_with_dem(wt, dpi=dpi)
-
-    print("Generating Figure 2a — SSM water balance residual...")
-    plot_residual_ssm(wt, features, dpi=dpi)
-
-    print("Generating Figure 2b — Ridge hillslope gradient...")
-    plot_slope_gradient(wt, features, dpi=dpi)
-
-    print("Generating Figure 3 — Forest drawdown propagation...")
-    plot_drawdown_propagation(wt, features, dpi=dpi, show_head=False)
-
-    print("Generating Figure 4 — Coastal-erosion drawdown...")
-    plot_coastal_erosion(wt, features, dpi=dpi)
-
-    print("Generating Figure 5 — Sea-level-rise head response...")
-    plot_slr_response(wt, features, dpi=dpi)
-
-    print("Generating Figure 6 — Net coastal head change (SLR − erosion)...")
-    plot_coastal_net_effect(wt, features, dpi=dpi)
-
-    print("Generating Figure 7 — Scrape-drain drawdown...")
-    plot_scrape_drawdown(wt, features, dpi=dpi, show_head=False)
-
-    print("Generating clearfell-baseline drawdown map (scrape + Storm Brendan)...")
-    plot_scrape_coastal_net(wt, features, dpi=dpi)
-
-    print("Generating public-summary three-driver panel...")
-    plot_public_panel(wt, features, dpi=dpi)
-
-    print("Generating MSL5 change map (window end 2017 vs 2023)...")
-    plot_msl5_change(wt, features, dpi=dpi)
-
-    print("Generating observed water-table change map (2012–2015 vs 2024–2026)...")
-    plot_observed_change(wt, features, dpi=dpi)
-
-    print("Generating net water-table state map (all five drivers)...")
-    plot_net_state_map(wt, features, dpi=dpi)
-
-    print("Generating 2005→2025 modelled driver-change map (5-yr chronic coastal)...")
-    plot_driver_change_2005_2025(wt, features, dpi=dpi)
-
-    print("Generating 2005→2025 driver-change map (20-yr coastal, log scale)...")
-    plot_driver_change_20yr(wt, features, dpi=dpi)
-
-    print("Generating clearfell gain map...")
-    plot_clearfell_gain(wt, features, dpi=dpi)
+    # Every builder in one tracked sequence (console_utils.track 1.2.0): a script
+    # that runs past 30 s prints a completion line per figure with elapsed and
+    # remaining time, per Martin's rule that a long run must show it is running.
+    builders = [
+        ("Figure 1 — Head surface + stream network", lambda: plot_head_streams(wt, stream_polys, features, dpi=dpi)),
+        ("comparing the head surface with the DEM (T-66)", lambda: compare_head_with_dem(wt, dpi=dpi)),
+        ("Figure 2a — SSM water balance residual", lambda: plot_residual_ssm(wt, features, dpi=dpi)),
+        ("Figure 2b — Ridge hillslope gradient", lambda: plot_slope_gradient(wt, features, dpi=dpi)),
+        ("Figure 3 — Forest drawdown propagation", lambda: plot_drawdown_propagation(wt, features, dpi=dpi, show_head=False)),
+        ("Figure 4 — Coastal-erosion drawdown", lambda: plot_coastal_erosion(wt, features, dpi=dpi)),
+        ("Figure 5 — Sea-level-rise head response", lambda: plot_slr_response(wt, features, dpi=dpi)),
+        ("Figure 6 — Net coastal head change (SLR − erosion)", lambda: plot_coastal_net_effect(wt, features, dpi=dpi)),
+        ("Figure 7 — Scrape-drain drawdown", lambda: plot_scrape_drawdown(wt, features, dpi=dpi, show_head=False)),
+        ("clearfell-baseline drawdown map (scrape + Storm Brendan)", lambda: plot_scrape_coastal_net(wt, features, dpi=dpi)),
+        ("public-summary three-driver panel", lambda: plot_public_panel(wt, features, dpi=dpi)),
+        ("MSL5 change map (window end 2017 vs 2023)", lambda: plot_msl5_change(wt, features, dpi=dpi)),
+        ("observed water-table change map (2012–2015 vs 2024–2026)", lambda: plot_observed_change(wt, features, dpi=dpi)),
+        ("net water-table state map (all five drivers)", lambda: plot_net_state_map(wt, features, dpi=dpi)),
+        ("2005→2025 modelled driver-change map (5-yr chronic coastal)", lambda: plot_driver_change_2005_2025(wt, features, dpi=dpi)),
+        ("2005→2025 driver-change map (20-yr coastal, log scale)", lambda: plot_driver_change_20yr(wt, features, dpi=dpi)),
+        ("clearfell gain map", lambda: plot_clearfell_gain(wt, features, dpi=dpi)),
+    ]
+    print(f"\nBuilding {len(builders)} figure sets...")
+    for _label, build in track(builders, lambda b: b[0], lines=True):
+        build()
 
     print("\n=== Script 20 complete ===")
 

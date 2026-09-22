@@ -6,1457 +6,1177 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 
 | Quantity (key) | Symbol | Definition / § | Source CSV | Committed | Volatility | Cited in | Drift |
 |---|---|---|---|---|---|---|---|
-| (CEH32+CEH33)-(CEH34+CEH2) / fixed_s25 / 2017-12..2020-12 · p |  |  | `10a_13_era_split.csv` | 0.177553 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| (CEH32+CEH33)-(CEH34+CEH2) / fixed_s25 / 2021-01..2026-02 · p |  |  | `10a_13_era_split.csv` | 0.521918 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| (CEH32+CEH33)-(CEH34+CEH2) / free_per_era / 2017-12..2020-12 · p |  |  | `10a_13_era_split.csv` | 0.171604 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| (CEH32+CEH33)-(CEH34+CEH2) / none / 2017-12..2020-12 · p |  |  | `10a_13_era_split.csv` | 0.177553 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| (CEH32+CEH33)-(CEH34+CEH2) / none / 2021-01..2026-02 · p |  |  | `10a_13_era_split.csv` | 0.521918 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| 1 / ceh6 · range_model_m |  |  | `44_04_hindcast_metrics.csv` | 1.07128 |  | VALUE_LEDGER_report | ok |
-| 1 external / ANOVA / Kruskal / distance to coast · statistic |  |  | `31_validation_summary.csv` | 0.629 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| 1930 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| 1931 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.36631 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| 1937 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.35075 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| 1938 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.51179 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| 1939 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.35826 |  | Paper1, VALUE_LEDGER_report, report10 | ok |
-| 1941 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 11 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| 1941 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.11422 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| 1943 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.30927 |  | VALUE_LEDGER_report, report9 | ok |
-| 1947 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.63943 |  | VALUE_LEDGER_report, report9 | ok |
-| 1949 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.04866 |  | Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER, VALUE_LEDGER_report, report8 | ok |
-| 1950 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.50706 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| 1951 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.58649 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| 1952 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.2638 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 1954 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.73828 |  | Paper1, VALUE_LEDGER_report, report10 | ok |
-| 1955 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.00832 |  | Paper1, Supplementary_Material, VALUE_LEDGER_report | ok |
-| 1957 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.5864 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| 1958 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.68115 |  | VALUE_LEDGER_report | ok |
+| (CEH32+CEH33)-(CEH34+CEH2) / fixed_s25 / 2017-12..2020-12 · p |  |  | `10a_13_era_split.csv` | 0.177553 |  | Supplementary_Material | ok |
+| (CEH32+CEH33)-(CEH34+CEH2) / fixed_s25 / 2021-01..2026-02 · p |  |  | `10a_13_era_split.csv` | 0.521918 |  | Supplementary_Material | ok |
+| (CEH32+CEH33)-(CEH34+CEH2) / free_per_era / 2017-12..2020-12 · p |  |  | `10a_13_era_split.csv` | 0.171604 |  | Supplementary_Material | ok |
+| (CEH32+CEH33)-(CEH34+CEH2) / none / 2017-12..2020-12 · p |  |  | `10a_13_era_split.csv` | 0.177553 |  | Supplementary_Material | ok |
+| (CEH32+CEH33)-(CEH34+CEH2) / none / 2021-01..2026-02 · p |  |  | `10a_13_era_split.csv` | 0.521918 |  | Supplementary_Material | ok |
+| 1 external / ANOVA / Kruskal / distance to coast · statistic |  |  | `31_validation_summary.csv` | 0.629 |  | Supplementary_Material | ok |
+| 1931 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.36631 |  | report10, report9 | ok |
+| 1937 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.35075 |  | Newborough_Methods_Supplement | ok |
+| 1938 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.51179 |  | report10, report9 | ok |
+| 1939 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.35826 |  | Paper1, report10 | ok |
+| 1941 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 11 |  | Newborough_Methods_Supplement | ok |
+| 1941 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.11422 |  | Newborough_Methods_Supplement, report9 | ok |
+| 1943 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.30927 |  | report9 | ok |
+| 1947 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.63943 |  | report9 | ok |
+| 1949 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.04866 |  | Newborough_Methods_Supplement, PIPELINE_README, report8 | ok |
+| 1950 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.50706 |  | report10, report9 | ok |
+| 1951 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.58649 |  | Hollingham_2026_Paper2_amended | ok |
+| 1952 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.2638 |  | report9 | ok |
+| 1954 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.73828 |  | Paper1, report10 | ok |
+| 1955 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.00832 |  | Paper1, Supplementary_Material | ok |
+| 1957 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.5864 |  | Hollingham_2026_Paper2_amended | ok |
 | 1961 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.67392 |  | report9 | ok |
-| 1962 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.22429 |  | VALUE_LEDGER_report, report9 | ok |
-| 1965 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.63662 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| 1969 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37196 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| 1970 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.38137 |  | Paper1, VALUE_LEDGER_report | ok |
-| 1971 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.00915 |  | Paper1, VALUE_LEDGER_report | ok |
-| 1975 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.10369 |  | Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER_report | ok |
-| 1978 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.21595 |  | VALUE_LEDGER_report, report9 | ok |
-| 1982 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.26247 |  | VALUE_LEDGER_report, report9 | ok |
-| 1983 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.24967 |  | VALUE_LEDGER_report, report10 | ok |
-| 1986 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.49653 |  | NRG_Web_Tools_User_Manual, VALUE_LEDGER_report | ok |
-| 1990 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.18489 |  | VALUE_LEDGER_report, report9 | ok |
-| 1992 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37116 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| 1994 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37946 |  | Paper1, VALUE_LEDGER_report | ok |
-| 1999 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37295 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| 2005 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.19377 |  | VALUE_LEDGER_report | ok |
-| 2005_2025 / C1 (Lake Edge) · n_wells |  |  | `32_cluster_summary.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| 2005_2025 / C4 (Main Forest) · n_wells |  |  | `32_cluster_summary.csv` | 7 |  | VALUE_LEDGER_report | ok |
-| 2005_2025 / C5 (Coastal Forest) · n_sig_ar |  |  | `32_cluster_summary.csv` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
+| 1962 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.22429 |  | report9 | ok |
+| 1965 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.63662 |  | Supplementary_Material | ok |
+| 1969 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37196 |  | report10, report9 | ok |
+| 1970 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.38137 |  | Paper1 | ok |
+| 1971 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.00915 |  | Paper1 | ok |
+| 1975 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.10369 |  | Newborough_Methods_Supplement, PIPELINE_README | ok |
+| 1978 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.21595 |  | report9 | ok |
+| 1982 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.26247 |  | report9 | ok |
+| 1983 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.24967 |  | report10 | ok |
+| 1986 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.49653 |  | NRG_Web_Tools_User_Manual | ok |
+| 1990 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.18489 |  | report9 | ok |
+| 1992 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37116 |  | report10, report9 | ok |
+| 1994 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37946 |  | Paper1 | ok |
+| 1999 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37295 |  | report10, report9 | ok |
+| 2005_2025 / C1 (Lake Edge) · n_wells |  |  | `32_cluster_summary.csv` | 7 |  | report9 | ok |
+| 2005_2025 / C5 (Coastal Forest) · n_sig_ar |  |  | `32_cluster_summary.csv` | 3 |  | Newborough_Methods_Supplement | ok |
 | 2005_2025 / primary · n |  |  | `37_scale_factors_by_window.csv` | 20 |  | report9 | ok |
-| 2005_2025 / primary · s_cf |  |  | `37_scale_factors_by_window.csv` | -0.4692 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2005_2025 / primary · s_cf_ci_hi |  |  | `37_scale_factors_by_window.csv` | 2.3097 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2005_2025 / primary · s_cf_ci_lo |  |  | `37_scale_factors_by_window.csv` | -3.2481 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2005_2025 / primary · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 0.4842 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| 2005_2025 / primary · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 1.0033 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER_report, report8, report9 | ok |
-| 2005_2025 / primary · s_coast_ci_lo | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | -0.0349 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2006 / 2017 / modern_common_frontage · rate_m_yr |  |  | `40_01_epoch_series.csv` | 1.80899 |  | VALUE_LEDGER_report, report8 | ok |
+| 2005_2025 / primary · s_cf |  |  | `37_scale_factors_by_window.csv` | -0.4692 |  | report9 | ok |
+| 2005_2025 / primary · s_cf_ci_hi |  |  | `37_scale_factors_by_window.csv` | 2.3097 |  | report9 | ok |
+| 2005_2025 / primary · s_cf_ci_lo |  |  | `37_scale_factors_by_window.csv` | -3.2481 |  | report9 | ok |
+| 2005_2025 / primary · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 0.4842 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2005_2025 / primary · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 1.0033 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report8, report9 | ok |
+| 2005_2025 / primary · s_coast_ci_lo | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | -0.0349 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2006 / 2017 / modern_common_frontage · rate_m_yr |  |  | `40_01_epoch_series.csv` | 1.80899 |  | report8 | ok |
 | 2006_2012 / primary · c |  |  | `37_scale_factors_by_window.csv` | -520.1 |  | Newborough_Methods_Supplement | ok |
 | 2006_2012 / primary · c_ci_hi |  |  | `37_scale_factors_by_window.csv` | -451.4 |  | report9 | ok |
 | 2006_2012 / primary · c_ci_lo |  |  | `37_scale_factors_by_window.csv` | -588.8 |  | report9 | ok |
-| 2006_2012 / primary · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 3.0598 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| 2006_2012 / primary · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 5.8525 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| 2006_2012 / primary · s_coast_ci_lo | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 0.2672 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| 2007 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.21633 |  | VALUE_LEDGER_report, report9 | ok |
-| 2010 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.20214 |  | Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER_report, report9 | ok |
-| 2011 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.12885 |  | VALUE_LEDGER_report | ok |
-| 2011_2025 / C1 (Lake Edge) · n_sig_ar |  |  | `32_cluster_summary.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER_report, report9 | ok |
-| 2011_2025 / C1 (Lake Edge) · n_wells |  |  | `32_cluster_summary.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| 2011_2025 / C4 (Main Forest) · n_wells |  |  | `32_cluster_summary.csv` | 7 |  | VALUE_LEDGER_report | ok |
-| 2011_2025 / C5 (Coastal Forest) · n_sig_ar |  |  | `32_cluster_summary.csv` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| 2016 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.31462 |  | VALUE_LEDGER_report, report9 | ok |
-| 2017 / 2021 / modern_common_frontage · rate_m_yr |  |  | `40_01_epoch_series.csv` | 2.37119 |  | VALUE_LEDGER_report, report8 | ok |
+| 2006_2012 / primary · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 3.0598 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2006_2012 / primary · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 5.8525 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2006_2012 / primary · s_coast_ci_lo | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 0.2672 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2007 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.21633 |  | report9 | ok |
+| 2010 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.20214 |  | Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| 2011_2025 / C1 (Lake Edge) · n_sig_ar |  |  | `32_cluster_summary.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
+| 2011_2025 / C1 (Lake Edge) · n_wells |  |  | `32_cluster_summary.csv` | 7 |  | report9 | ok |
+| 2011_2025 / C5 (Coastal Forest) · n_sig_ar |  |  | `32_cluster_summary.csv` | 3 |  | Newborough_Methods_Supplement | ok |
+| 2016 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.31462 |  | report9 | ok |
+| 2017 / 2021 / modern_common_frontage · rate_m_yr |  |  | `40_01_epoch_series.csv` | 2.37119 |  | report8 | ok |
 | 2018_2025 / primary · c |  |  | `37_scale_factors_by_window.csv` | 268.6 |  | Newborough_Methods_Supplement, report9 | ok |
 | 2018_2025 / primary · c_ci_hi |  |  | `37_scale_factors_by_window.csv` | 315.1 |  | report9 | ok |
 | 2018_2025 / primary · c_ci_lo |  |  | `37_scale_factors_by_window.csv` | 222.2 |  | report9 | ok |
 | 2018_2025 / primary · n |  |  | `37_scale_factors_by_window.csv` | 40 |  | report9 | ok |
-| 2018_2025 / primary · r_squared | R² | coefficient of determination | `37_scale_factors_by_window.csv` | 0.111 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| 2018_2025 / primary · s_cf |  |  | `37_scale_factors_by_window.csv` | 2.2068 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / primary · s_cf_ci_hi |  |  | `37_scale_factors_by_window.csv` | 3.7401 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / primary · s_cf_ci_lo |  |  | `37_scale_factors_by_window.csv` | 0.6735 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / primary · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 1.1221 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| 2018_2025 / primary · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 2.3512 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| 2018_2025 / with_broadleaf_covariate · s_bl |  |  | `37_scale_factors_by_window.csv` | -3.4714 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / with_broadleaf_covariate · s_bl_ci_hi |  |  | `37_scale_factors_by_window.csv` | -0.7733 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / with_broadleaf_covariate · s_bl_ci_lo |  |  | `37_scale_factors_by_window.csv` | -6.1696 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / with_broadleaf_covariate · s_cf |  |  | `37_scale_factors_by_window.csv` | 1.7915 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / with_broadleaf_covariate · s_cf_ci_hi |  |  | `37_scale_factors_by_window.csv` | 2.7507 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / with_broadleaf_covariate · s_cf_ci_lo |  |  | `37_scale_factors_by_window.csv` | 0.8323 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 2018_2025 / with_broadleaf_covariate · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 1.7504 |  | VALUE_LEDGER_report, report9 | ok |
-| 2019 / 2021 · change_mm | Δh | water-level change / amplitude | `34_window_matrix.csv` | 40.5019 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| 2021 / 2026 / modern_common_frontage · rate_m_yr |  |  | `40_01_epoch_series.csv` | 2.14312 |  | VALUE_LEDGER_report, report8 | ok |
-| 2021 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37259 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| 2022 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.11248 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| 2022 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.77276 |  | VALUE_LEDGER_report, report9 | ok |
-| 2023 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.63943 |  | VALUE_LEDGER_report, report9 | ok |
-| 2026 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| 2026 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 4.58221 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| 3 convergent / ANOVA / SSM beta3 · statistic |  |  | `31_validation_summary.csv` | 0.67 |  | VALUE_LEDGER_report | ok |
-| 4 / C1 (Lake Edge) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.885 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 4 / C1 (Lake Edge) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.132833 |  | VALUE_LEDGER_report, report9 | ok |
-| 4 / C2 (Dune) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.00375 |  | VALUE_LEDGER_report, report9 | ok |
-| 4 / C2 (Dune) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.216256 |  | VALUE_LEDGER_report, report9 | ok |
-| 4 / C3 (Western Residual) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.156 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 4 / C3 (Western Residual) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.464093 |  | VALUE_LEDGER_report, report9 | ok |
-| 4 / C4 (Main Forest) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.50375 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| 4 / C4 (Main Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.802074 |  | VALUE_LEDGER_report, report9 | ok |
-| 4 / C5 (Coastal Forest) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.633 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| 4 / C5 (Coastal Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.14248 |  | VALUE_LEDGER_report, report9 | ok |
-| 4 / k4 raw 3 (non-canonical) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | VALUE_LEDGER_report, report8 | ok |
-| 4 / nw11 · nse_after_offset |  |  | `44_04_hindcast_metrics.csv` | 0.637976 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| 5 / C1 (Lake Edge) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.132833 |  | VALUE_LEDGER_report, report9 | ok |
-| 5 / C1 (Lake Edge) · n_wells |  |  | `02_04_bootstrap_stability_summary.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| 5 / C2 (Dune) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.216256 |  | VALUE_LEDGER_report, report9 | ok |
-| 5 / C2 (Dune) · n_windows_below_SD16 |  |  | `26_curreli_min_cluster_threshold_summary.csv` | 11 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| 5 / C3 (Western Residual) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.464093 |  | VALUE_LEDGER_report, report9 | ok |
-| 5 / C4 (Main Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.802074 |  | VALUE_LEDGER_report, report9 | ok |
-| 5 / C4 (Main Forest) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | NRG_Web_Tools_Technical_Note, PAPER1_SI_methods, VALUE_LEDGER_report, report8, report9 | ok |
-| 5 / C4 (Main Forest) · min_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 0.909385 |  | VALUE_LEDGER_report, report9 | ok |
-| 5 / C5 (Coastal Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.14248 |  | VALUE_LEDGER_report, report9 | ok |
-| 6 / k6 raw 4 (non-canonical) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | VALUE_LEDGER_report, report8 | ok |
-| 7 / k7 raw 4 (non-canonical) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | VALUE_LEDGER_report, report8 | ok |
-| ANCOVA_A_WMC3+FE1+FE2_Forest_net_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.138637 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ANCOVA_B_WMC3+FE2_Climate_clearfell_p |  |  | `10_consolidated_report_numbers.csv` | 0.183746 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report9 | ok |
-| ANCOVA_B_WMC3+FE2_Forest_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.310631 |  | VALUE_LEDGER_report | ok |
-| ANCOVA_C_WMC3_only_Climate_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.206158 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_C_WMC3_only_Climate_clearfell_p |  |  | `10_consolidated_report_numbers.csv` | 0.555145 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_C_WMC3_only_Combined_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.256263 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_C_WMC3_only_Forest_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.240599 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ANCOVA_C_WMC3_only_Forest_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd | ok |
-| ANCOVA_Climate_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.240833 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Climate_Edge_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Climate_Edge_coeff_clearfell |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Climate_Edge_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 45.6708 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Climate_Edge_coeff_scraping |  |  | `10_consolidated_report_numbers.csv` | 0.289181 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Climate_Edge_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.289181 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Climate_Impact_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.206158 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Climate_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | -7.71443 |  | VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Combined_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.483835 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Combined_Edge_coeff_scraping |  |  | `10_consolidated_report_numbers.csv` | 0.3115 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Combined_Edge_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.3115 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Combined_Impact_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.256263 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| ANCOVA_Combined_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 1.33808 |  | VALUE_LEDGER_report, report11, report8 | ok |
-| ANCOVA_Combined_Impact_s_coast |  |  | `10_consolidated_report_numbers.csv` | 1.33808 |  | VALUE_LEDGER_report, report11, report8 | ok |
-| ANCOVA_FarField_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | -1.50833 |  | VALUE_LEDGER_report | ok |
-| ANCOVA_FarField_Impact_s_coast |  |  | `10_consolidated_report_numbers.csv` | -1.50833 |  | VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.456846 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.240599 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary | ok |
-| ANCOVA_Forest_Impact_clearfell_step_summer_noCWB |  |  | `10_consolidated_report_numbers.csv` | 0.122867 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_coeff_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary | ok |
-| ANCOVA_Forest_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_coeff_scraping |  |  | `10_consolidated_report_numbers.csv` | 0.324177 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_curv_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.256158 |  | VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_curv_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | 0.126948 |  | VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_s_coast |  |  | `10_consolidated_report_numbers.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| ANCOVA_Forest_Impact_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.324177 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| BACI_step_below_floor · CEH18 · CEH18 vs CEH4, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 1 |  | VALUE_LEDGER_report, readme | ok |
-| BACI_step_below_floor · CEH21 · CEH21 vs CEH22, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 1 |  | VALUE_LEDGER_report, readme | ok |
-| BROADLEAF_B2_SUMMER |  |  | `config.py` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| BROADLEAF_B2_WINTER |  |  | `config.py` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.732221 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10 | ok |
-| C1 (Lake Edge) / 2017 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | 0.104667 |  | VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / 2017 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | 0.116 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / 2018 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.131778 |  | VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / 2024 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | 0.13675 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / 2024 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | 0.107 |  | VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / 2024 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.107 |  | VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.132833 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / 2025 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.1315 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / 2050s / perwell · n_wells |  |  | `26b_msl5_ukcp18_projection_summary_perwell.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / 2080s / perwell · n_wells |  |  | `26b_msl5_ukcp18_projection_summary_perwell.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.590185 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.347663 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.126696 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / False · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.255119 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.210147 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.220113 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.180411 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 20.0066 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.783335 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 21.8413 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.732221 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C1 (Lake Edge) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.294048 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 21.8413 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.732221 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10 | ok |
-| C1 (Lake Edge) · Rec_ET_frac |  |  | `16_water_bal_rec_table.csv` | 0.3976 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C1 (Lake Edge) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.340408 |  | Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C1 (Lake Edge) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.344544 |  | Paper1, Supplementary_Material, VALUE_LEDGER_report, report10, report9 | ok |
-| C1 (Lake Edge) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 4.57848 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report10, report12, report9, site_geography | ok |
-| C1 (Lake Edge) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 0.922837 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, report9 | ok |
-| C1 (Lake Edge) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.07841 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) · n_wells |  |  | `24b_02_peak_winter_minus_summer.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 (Lake Edge) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -13.8043 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C1 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01088 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01088 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 Eastern lake-buffer / Post-felling 2018+ · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1067 |  | VALUE_LEDGER_report | ok |
-| C1 Eastern lake-buffer / Pre-scrape 2005–14 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1166 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C1 Eastern lake-buffer / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C1 · Best_Kappa |  |  | `15_04_best_params.csv` | 2.25 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C1 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.184 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C1 · R2 | R² | coefficient of determination | `14_spring_trend_stats.csv` | 0.07 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 · SSM_NSE |  |  | `15_04_best_params.csv` | 0.693981 |  | VALUE_LEDGER_report, readme | ok |
-| C1 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | 0.0078 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C1 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C1 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, VALUE_LEDGER_report, report10, report9 | ok |
-| C1 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 311.214 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
+| 2018_2025 / primary · r_squared | R² | coefficient of determination | `37_scale_factors_by_window.csv` | 0.111 |  | Hollingham_2026_Paper2_amended | ok |
+| 2018_2025 / primary · s_cf |  |  | `37_scale_factors_by_window.csv` | 2.2068 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2018_2025 / primary · s_cf_ci_hi |  |  | `37_scale_factors_by_window.csv` | 3.7401 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2018_2025 / primary · s_cf_ci_lo |  |  | `37_scale_factors_by_window.csv` | 0.6735 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2018_2025 / primary · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 2.3512 |  | Newborough_Methods_Supplement | ok |
+| 2018_2025 / with_broadleaf_covariate · s_bl |  |  | `37_scale_factors_by_window.csv` | -3.4714 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2018_2025 / with_broadleaf_covariate · s_bl_ci_hi |  |  | `37_scale_factors_by_window.csv` | -0.7733 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2018_2025 / with_broadleaf_covariate · s_bl_ci_lo |  |  | `37_scale_factors_by_window.csv` | -6.1696 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2018_2025 / with_broadleaf_covariate · s_cf |  |  | `37_scale_factors_by_window.csv` | 1.7915 |  | report9 | ok |
+| 2018_2025 / with_broadleaf_covariate · s_cf_ci_hi |  |  | `37_scale_factors_by_window.csv` | 2.7507 |  | report9 | ok |
+| 2018_2025 / with_broadleaf_covariate · s_cf_ci_lo |  |  | `37_scale_factors_by_window.csv` | 0.8323 |  | report9 | ok |
+| 2018_2025 / with_broadleaf_covariate · s_coast_ci_hi | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 1.7504 |  | report9 | ok |
+| 2019 / 2021 · change_mm | Δh | water-level change / amplitude | `34_window_matrix.csv` | 40.5019 |  | Newborough_Methods_Supplement | ok |
+| 2021 / 2026 / modern_common_frontage · rate_m_yr |  |  | `40_01_epoch_series.csv` | 2.14312 |  | report8 | ok |
+| 2021 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37259 |  | report10, report9 | ok |
+| 2022 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.11248 |  | Newborough_Methods_Supplement, report9 | ok |
+| 2022 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.77276 |  | report9 | ok |
+| 2023 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.63943 |  | report9 | ok |
+| 2026 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| 2026 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 4.58221 |  | Newborough_Methods_Supplement | ok |
+| 4 / C1 (Lake Edge) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.885 |  | report9 | ok |
+| 4 / C1 (Lake Edge) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.132833 |  | report9 | ok |
+| 4 / C2 (Dune) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.00375 |  | report9 | ok |
+| 4 / C2 (Dune) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.216256 |  | report9 | ok |
+| 4 / C3 (Western Residual) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.156 |  | report9 | ok |
+| 4 / C3 (Western Residual) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.464093 |  | report9 | ok |
+| 4 / C4 (Main Forest) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.50375 |  | Newborough_Methods_Supplement, report9 | ok |
+| 4 / C4 (Main Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.802074 |  | report9 | ok |
+| 4 / C5 (Coastal Forest) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.633 |  | report9 | ok |
+| 4 / C5 (Coastal Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.14248 |  | report9 | ok |
+| 4 / k4 raw 3 (non-canonical) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | report8 | ok |
+| 4 / nw11 · nse_after_offset |  |  | `44_04_hindcast_metrics.csv` | 0.637976 |  | Paper1, report9 | ok |
+| 5 / C1 (Lake Edge) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.132833 |  | report9 | ok |
+| 5 / C1 (Lake Edge) · n_wells |  |  | `02_04_bootstrap_stability_summary.csv` | 7 |  | report9 | ok |
+| 5 / C2 (Dune) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.216256 |  | report9 | ok |
+| 5 / C2 (Dune) · n_windows_below_SD16 |  |  | `26_curreli_min_cluster_threshold_summary.csv` | 11 |  | Newborough_Methods_Supplement | ok |
+| 5 / C3 (Western Residual) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.464093 |  | report9 | ok |
+| 5 / C4 (Main Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.802074 |  | report9 | ok |
+| 5 / C4 (Main Forest) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | NRG_Web_Tools_Technical_Note, PAPER1_SI_methods, report8, report9 | ok |
+| 5 / C4 (Main Forest) · min_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 0.909385 |  | report9 | ok |
+| 5 / C5 (Coastal Forest) · MSL5_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -1.14248 |  | report9 | ok |
+| 6 / k6 raw 4 (non-canonical) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | report8 | ok |
+| 7 / k7 raw 4 (non-canonical) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 1 |  | report8 | ok |
+| ANCOVA_A_WMC3+FE1+FE2_Forest_net_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.138637 |  | Newborough_Methods_Supplement | ok |
+| ANCOVA_B_WMC3+FE2_Climate_clearfell_p |  |  | `10_consolidated_report_numbers.csv` | 0.183746 |  | Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd, report9 | ok |
+| ANCOVA_C_WMC3_only_Climate_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.206158 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_C_WMC3_only_Climate_clearfell_p |  |  | `10_consolidated_report_numbers.csv` | 0.555145 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_C_WMC3_only_Combined_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.256263 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_C_WMC3_only_Forest_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.240599 |  | Newborough_Methods_Supplement | ok |
+| ANCOVA_C_WMC3_only_Forest_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd | ok |
+| ANCOVA_Climate_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.240833 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report9 | ok |
+| ANCOVA_Climate_Edge_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Climate_Edge_coeff_clearfell |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Climate_Edge_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 45.6708 |  | report9 | ok |
+| ANCOVA_Climate_Edge_coeff_scraping |  |  | `10_consolidated_report_numbers.csv` | 0.289181 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Climate_Edge_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.289181 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Climate_Impact_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.206158 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Climate_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | -7.71443 |  | report9 | ok |
+| ANCOVA_Combined_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.483835 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Combined_Edge_coeff_scraping |  |  | `10_consolidated_report_numbers.csv` | 0.3115 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Combined_Edge_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.3115 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Combined_Impact_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.256263 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| ANCOVA_Combined_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 1.33808 |  | report11, report8 | ok |
+| ANCOVA_Combined_Impact_s_coast |  |  | `10_consolidated_report_numbers.csv` | 1.33808 |  | report11, report8 | ok |
+| ANCOVA_Forest_Edge_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.456846 |  | Newborough_Methods_Supplement | ok |
+| ANCOVA_Forest_Impact_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.240599 |  | Newborough_Methods_Supplement | ok |
+| ANCOVA_Forest_Impact_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary | ok |
+| ANCOVA_Forest_Impact_clearfell_step_summer_noCWB |  |  | `10_consolidated_report_numbers.csv` | 0.122867 |  | Newborough_Methods_Supplement | ok |
+| ANCOVA_Forest_Impact_coeff_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary | ok |
+| ANCOVA_Forest_Impact_coeff_coastal_x_time |  |  | `10_consolidated_report_numbers.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended | ok |
+| ANCOVA_Forest_Impact_coeff_scraping |  |  | `10_consolidated_report_numbers.csv` | 0.324177 |  | Hollingham_2026_Paper2_amended | ok |
+| ANCOVA_Forest_Impact_s_coast |  |  | `10_consolidated_report_numbers.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended | ok |
+| ANCOVA_Forest_Impact_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.324177 |  | Hollingham_2026_Paper2_amended | ok |
+| BACI_step_below_floor · CEH18 · CEH18 vs CEH4, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 1 |  | readme | ok |
+| BACI_step_below_floor · CEH21 · CEH21 vs CEH22, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 1 |  | readme | ok |
+| BROADLEAF_B2_SUMMER |  |  | `config.py` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
+| BROADLEAF_B2_WINTER |  |  | `config.py` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C1 (Lake Edge) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.732221 |  | Newborough_Methods_Supplement, Paper1, report10 | ok |
+| C1 (Lake Edge) / 2017 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | 0.116 |  | Supplementary_Material | ok |
+| C1 (Lake Edge) / 2024 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | 0.13675 |  | Newborough_Methods_Supplement | ok |
+| C1 (Lake Edge) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.132833 |  | report9 | ok |
+| C1 (Lake Edge) / 2050s / perwell · n_wells |  |  | `26b_msl5_ukcp18_projection_summary_perwell.csv` | 7 |  | report9 | ok |
+| C1 (Lake Edge) / 2080s / perwell · n_wells |  |  | `26b_msl5_ukcp18_projection_summary_perwell.csv` | 7 |  | report9 | ok |
+| C1 (Lake Edge) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.590185 |  | Newborough_Methods_Supplement | ok |
+| C1 (Lake Edge) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.347663 |  | Newborough_Methods_Supplement, report9 | ok |
+| C1 (Lake Edge) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.126696 |  | Newborough_Methods_Supplement, report9 | ok |
+| C1 (Lake Edge) / False · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.255119 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| C1 (Lake Edge) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.210147 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C1 (Lake Edge) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.220113 |  | Newborough_Methods_Supplement, report9 | ok |
+| C1 (Lake Edge) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.180411 |  | Newborough_Methods_Supplement, report9 | ok |
+| C1 (Lake Edge) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 20.0066 |  | report9 | ok |
+| C1 (Lake Edge) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.783335 |  | Newborough_Methods_Supplement, report9 | ok |
+| C1 (Lake Edge) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 21.8413 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C1 (Lake Edge) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.732221 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C1 (Lake Edge) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.294048 |  | Paper1, report9 | ok |
+| C1 (Lake Edge) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 21.8413 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C1 (Lake Edge) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.732221 |  | Newborough_Methods_Supplement, Paper1, report10 | ok |
+| C1 (Lake Edge) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.340408 |  | Paper1, report10, report9 | ok |
+| C1 (Lake Edge) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.344544 |  | Paper1, Supplementary_Material, report10, report9 | ok |
+| C1 (Lake Edge) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 4.57848 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report10, report12, report9, site_geography | ok |
+| C1 (Lake Edge) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 0.922837 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, report9 | ok |
+| C1 (Lake Edge) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | report9 | ok |
+| C1 (Lake Edge) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.07841 |  | report9 | ok |
+| C1 (Lake Edge) · n_wells |  |  | `24b_02_peak_winter_minus_summer.csv` | 7 |  | report9 | ok |
+| C1 (Lake Edge) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -13.8043 |  | report9 | ok |
+| C1 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01088 |  | report9 | ok |
+| C1 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01088 |  | report9 | ok |
+| C1 Eastern lake-buffer / Pre-scrape 2005–14 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1166 |  | Supplementary_Material | ok |
+| C1 Eastern lake-buffer / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement | ok |
+| C1 · Best_Kappa |  |  | `15_04_best_params.csv` | 2.25 |  | Newborough_Methods_Supplement, Supplementary_Material, report10, report9 | ok |
+| C1 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.184 |  | Newborough_Methods_Supplement, report10, report9 | ok |
+| C1 · R2 | R² | coefficient of determination | `14_spring_trend_stats.csv` | 0.07 |  | report9 | ok |
+| C1 · SSM_NSE |  |  | `15_04_best_params.csv` | 0.693981 |  | readme | ok |
+| C1 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | 0.0078 |  | report9 | ok |
+| C1 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
+| C1 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C1 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, report10, report9 | ok |
+| C1 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 311.214 |  | report9 | ok |
 | C1 · lambda_multiplier | m_P | P_flood rainfall multiplier (λ_pflood) | `11_forecast_pflood_summary.csv` | 1.10607 |  | Newborough_Methods_Supplement | ok |
-| C1 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 1.52435 |  | VALUE_LEDGER_report, report9 | ok |
-| C1 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.2722 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd | ok |
-| C1 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 173.971 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C1 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C1_beta3_mean | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 0.102959 |  | VALUE_LEDGER_report | ok |
-| C1_median_dNSE |  |  | `08_report_numbers.csv` | 1.52435 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.746992 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 (Dune) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.136641 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C2 (Dune) / 2 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.127034 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
+| C1 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 1.52435 |  | report9 | ok |
+| C1 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.2722 |  | Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd | ok |
+| C1 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 173.971 |  | report9 | ok |
+| C1 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, report9 | ok |
+| C1_median_dNSE |  |  | `08_report_numbers.csv` | 1.52435 |  | report9 | ok |
+| C2 (Dune) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.746992 |  | Newborough_Methods_Supplement, Paper1 | ok |
+| C2 (Dune) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.136641 |  | Newborough_Methods_Supplement | ok |
+| C2 (Dune) / 2 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.127034 |  | Newborough_Methods_Supplement | ok |
 | C2 (Dune) / 2010 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.0943741 |  | Supplementary_Material | ok |
 | C2 (Dune) / 2010 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.0787111 |  | Supplementary_Material | ok |
-| C2 (Dune) / 2012 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.215 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
+| C2 (Dune) / 2012 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.215 |  | Supplementary_Material | ok |
 | C2 (Dune) / 2012 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.325217 |  | Supplementary_Material | ok |
-| C2 (Dune) / 2015 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.159 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 (Dune) / 2015 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.347333 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| C2 (Dune) / 2015 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.159 |  | Supplementary_Material | ok |
+| C2 (Dune) / 2015 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.347333 |  | Supplementary_Material | ok |
 | C2 (Dune) / 2016 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.230667 |  | Supplementary_Material | ok |
 | C2 (Dune) / 2018 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.176333 |  | Supplementary_Material | ok |
-| C2 (Dune) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.167833 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| C2 (Dune) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.167833 |  | Supplementary_Material | ok |
 | C2 (Dune) / 2021 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.305142 |  | Supplementary_Material | ok |
-| C2 (Dune) / 2022 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.108083 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / 2023 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.10248 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 (Dune) / 2023 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.215333 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
+| C2 (Dune) / 2022 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.108083 |  | Paper1, report9 | ok |
+| C2 (Dune) / 2023 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.215333 |  | Supplementary_Material | ok |
 | C2 (Dune) / 2024 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.175128 |  | Supplementary_Material | ok |
-| C2 (Dune) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.216256 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / 2050s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.314187 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) / 2080s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.314187 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.68956 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C2 (Dune) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.36208 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.195421 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) / False · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.369611 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.268703 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.332942 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.179636 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report10, report9 | ok |
-| C2 (Dune) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.259527 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 23.587 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.801307 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 25.1758 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.746992 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.20371 |  | Paper1, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 25.1758 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.746992 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.295306 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) · SSM_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.6829 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 (Dune) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.298311 |  | Paper1, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 3.97206 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report12, report9, site_geography | ok |
-| C2 (Dune) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.74193 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report10, report12, report9 | ok |
-| C2 (Dune) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) · corr_PET_hd |  |  | `30_c4_identifiability_by_cluster.csv` | -0.432211 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) · hd_sd |  |  | `30_c4_identifiability_by_cluster.csv` | 0.367507 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.17324 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 (Dune) · rec_headdep |  |  | `30_c4_identifiability_by_cluster.csv` | 0.163517 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 (Dune) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -13.9282 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01123 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01123 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 Eastern mature dune / Post-felling 2018+ · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.2661 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report10, report12, report9 | ok |
-| C2 Eastern mature dune / Post-felling 2018+ · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.0389 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 Eastern mature dune / Post-felling 2018+ · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.039 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 Eastern mature dune / Post-felling 2018+ · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1521 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 Eastern mature dune / Pre-scrape 2005–14 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.6225 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 Eastern mature dune / Pre-scrape 2005–14 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1586 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C2 Eastern mature dune / Scraping era 2015–17 · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.1613 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 Eastern mature dune / Scraping era 2015–17 · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.008 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 Eastern mature dune / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C2 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.094 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C2 · R2 | R² | coefficient of determination | `14_spring_trend_stats.csv` | 0.021 |  | VALUE_LEDGER_report | ok |
-| C2 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | 0.0061 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 · alpha |  |  | `11_forecast_pflood_summary.csv` | 0.935675 |  | VALUE_LEDGER_report, report8 | ok |
-| C2 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C2 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, VALUE_LEDGER_report, report10, report9 | ok |
-| C2 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 289.559 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
+| C2 (Dune) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.216256 |  | report9 | ok |
+| C2 (Dune) / 2050s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.314187 |  | Supplementary_Material | ok |
+| C2 (Dune) / 2080s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.314187 |  | Supplementary_Material | ok |
+| C2 (Dune) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.68956 |  | Newborough_Methods_Supplement | ok |
+| C2 (Dune) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.36208 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C2 (Dune) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | report9 | ok |
+| C2 (Dune) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.195421 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| C2 (Dune) / False · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.369611 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| C2 (Dune) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.268703 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, report9 | ok |
+| C2 (Dune) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.332942 |  | Newborough_Methods_Supplement, report9 | ok |
+| C2 (Dune) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.179636 |  | Newborough_Methods_Supplement, report10, report9 | ok |
+| C2 (Dune) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.259527 |  | Newborough_Methods_Supplement, report9 | ok |
+| C2 (Dune) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 23.587 |  | report9 | ok |
+| C2 (Dune) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.801307 |  | report9 | ok |
+| C2 (Dune) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 25.1758 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C2 (Dune) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.746992 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C2 (Dune) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.20371 |  | Paper1, Supplementary_Material, report9 | ok |
+| C2 (Dune) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 25.1758 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C2 (Dune) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.746992 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C2 (Dune) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.295306 |  | Paper1, report9 | ok |
+| C2 (Dune) · SSM_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.6829 |  | Newborough_Methods_Supplement | ok |
+| C2 (Dune) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.298311 |  | Paper1, Supplementary_Material | ok |
+| C2 (Dune) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 3.97206 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report12, report9, site_geography | ok |
+| C2 (Dune) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.74193 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report10, report12, report9 | ok |
+| C2 (Dune) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | report9 | ok |
+| C2 (Dune) · corr_PET_hd |  |  | `30_c4_identifiability_by_cluster.csv` | -0.432211 |  | Supplementary_Material | ok |
+| C2 (Dune) · hd_sd |  |  | `30_c4_identifiability_by_cluster.csv` | 0.367507 |  | Supplementary_Material | ok |
+| C2 (Dune) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.17324 |  | report9 | ok |
+| C2 (Dune) · rec_headdep |  |  | `30_c4_identifiability_by_cluster.csv` | 0.163517 |  | Supplementary_Material | ok |
+| C2 (Dune) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -13.9282 |  | report9 | ok |
+| C2 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01123 |  | report9 | ok |
+| C2 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01123 |  | report9 | ok |
+| C2 Eastern mature dune / Post-felling 2018+ · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.2661 |  | Paper1, report10, report12, report9 | ok |
+| C2 Eastern mature dune / Post-felling 2018+ · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.0389 |  | Supplementary_Material | ok |
+| C2 Eastern mature dune / Post-felling 2018+ · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.039 |  | Supplementary_Material | ok |
+| C2 Eastern mature dune / Post-felling 2018+ · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1521 |  | Newborough_Methods_Supplement | ok |
+| C2 Eastern mature dune / Pre-scrape 2005–14 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.6225 |  | Supplementary_Material, report9 | ok |
+| C2 Eastern mature dune / Pre-scrape 2005–14 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1586 |  | Supplementary_Material | ok |
+| C2 Eastern mature dune / Scraping era 2015–17 · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.1613 |  | report9 | ok |
+| C2 Eastern mature dune / Scraping era 2015–17 · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.008 |  | report9 | ok |
+| C2 Eastern mature dune / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement | ok |
+| C2 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.094 |  | Supplementary_Material | ok |
+| C2 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | 0.0061 |  | report9 | ok |
+| C2 · alpha |  |  | `11_forecast_pflood_summary.csv` | 0.935675 |  | report8 | ok |
+| C2 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
+| C2 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report9 | ok |
+| C2 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, report10, report9 | ok |
+| C2 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 289.559 |  | report9 | ok |
 | C2 · lambda_multiplier | m_P | P_flood rainfall multiplier (λ_pflood) | `11_forecast_pflood_summary.csv` | 1.20639 |  | Newborough_Methods_Supplement | ok |
-| C2 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.909267 |  | VALUE_LEDGER_report, report9 | ok |
-| C2 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.5394 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 214.113 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C2 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C2_median_dNSE |  |  | `08_report_numbers.csv` | 0.909267 |  | VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.812171 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 (Western Residual) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.195565 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2010 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.102 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2013 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.712244 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2013 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.599333 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2015 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.5492 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2015 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.4536 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2017 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.3186 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2017 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.423933 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2020 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.495091 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.480545 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2023 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.424818 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.464093 |  | VALUE_LEDGER_report, report9 | ok |
+| C2 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.909267 |  | report9 | ok |
+| C2 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.5394 |  | report9 | ok |
+| C2 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 214.113 |  | report9 | ok |
+| C2 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, report9 | ok |
+| C2_median_dNSE |  |  | `08_report_numbers.csv` | 0.909267 |  | report9 | ok |
+| C3 (Western Residual) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.812171 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C3 (Western Residual) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.195565 |  | Newborough_Methods_Supplement | ok |
+| C3 (Western Residual) / 2013 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.712244 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2013 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.599333 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2015 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.5492 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2015 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.4536 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2017 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.3186 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2017 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.423933 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2020 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.495091 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.480545 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2023 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.424818 |  | Supplementary_Material | ok |
+| C3 (Western Residual) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.464093 |  | report9 | ok |
 | C3 (Western Residual) / 2025 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.37 |  | Supplementary_Material | ok |
-| C3 (Western Residual) / 3 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.136064 |  | VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.864258 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.372635 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.286085 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) / False · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.397594 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.327797 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.409159 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.273625 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.319365 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 28.4355 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.829769 |  | VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 27.9889 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.812171 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 (Western Residual) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.166825 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 27.9889 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.812171 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 (Western Residual) · Rec_ET_frac |  |  | `16_water_bal_rec_table.csv` | 0.3578 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C3 (Western Residual) · Rec_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.6422 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.265326 |  | Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 (Western Residual) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.265114 |  | Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 (Western Residual) · VIF |  |  | `30_c4_identifiability_by_cluster.csv` | 1.26903 |  | Paper1, VALUE_LEDGER_report, report10, report12, report9 | ok |
-| C3 (Western Residual) · amplitude_damping_pct | Δh | water-level change / amplitude | `02_09_cluster_amplitude_summary.csv` | 1.365 |  | VALUE_LEDGER_report | ok |
-| C3 (Western Residual) · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_identifiability_by_cluster.csv` | 0.0569351 |  | VALUE_LEDGER_report | ok |
-| C3 (Western Residual) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 3.57284 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report10, report9, site_geography | ok |
-| C3 (Western Residual) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.80728 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report10, report12, report9 | ok |
-| C3 (Western Residual) · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 0.0569351 |  | VALUE_LEDGER_report, report8 | ok |
-| C3 (Western Residual) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · coastal_gradient_mm_yr |  |  | `25_03_cluster_partition.csv` | -3.1941 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · hd_range |  |  | `30_c4_identifiability_by_cluster.csv` | 1.46738 |  | VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.28183 |  | VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · median_summer_min_post2018 |  |  | `02_09_cluster_amplitude_summary.csv` | -1.42 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 (Western Residual) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -13.786 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 / SD15b · current_depth_2025 |  |  | `14b_year_of_crossing.csv` | -1.251 |  | VALUE_LEDGER_report | ok |
-| C3 / SD16 · current_depth_2025 |  |  | `14b_year_of_crossing.csv` | -1.251 |  | VALUE_LEDGER_report | ok |
-| C3 Warren interior / Post-felling 2018+ · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.3763 |  | VALUE_LEDGER_report | ok |
-| C3 Warren interior / Post-felling 2018+ · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.2397 |  | VALUE_LEDGER_report | ok |
-| C3 Warren interior / Post-felling 2018+ · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1709 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 Warren interior / Pre-scrape 2005–14 · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.435 |  | VALUE_LEDGER_report | ok |
-| C3 Warren interior / Pre-scrape 2005–14 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.826 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 Warren interior / Pre-scrape 2005–14 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1949 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C3 Warren interior / Scraping era 2015–17 · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.2738 |  | Paper1, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report12, report9 | ok |
-| C3 Warren interior / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C3 · alpha |  |  | `11_forecast_pflood_summary.csv` | 0.943065 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C3 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 365.473 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 · lambda_multiplier | m_P | P_flood rainfall multiplier (λ_pflood) | `11_forecast_pflood_summary.csv` | 1.36425 |  | VALUE_LEDGER_report | ok |
-| C3 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.622502 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C3 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.9778 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C3 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 237.594 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C3/Warren / with_easting · clearfell_p |  |  | `10k_03_easting_sensitivity.csv` | 0.485432 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C3/Warren · R2 | R² | coefficient of determination | `10l_01_four_zone_summer_results.csv` | 0.7242 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3/Warren · clearfell_p |  |  | `10l_01_four_zone_summer_results.csv` | 0.257214 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9, wtf_interception_methodology | ok |
-| C3/Warren · clearfell_step_se_m |  |  | `10l_01_four_zone_summer_results.csv` | 0.0106 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C3_Sy_max |  |  | `29_report_numbers.csv` | 0.397824 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C3_Sy_min |  |  | `29_report_numbers.csv` | 0.245514 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C3_beta1_vs_inland_r | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `29_report_numbers.csv` | 0.848324 |  | VALUE_LEDGER_report, report9 | ok |
-| C3_beta3_mean | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 0.056856 |  | VALUE_LEDGER_report | ok |
-| C3_median_dNSE |  |  | `08_report_numbers.csv` | 0.622502 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) (corrected) / True · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | VALUE_LEDGER_report | ok |
-| C4 (Main Forest) (corrected) / True · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.182185 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) (corrected) / True · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.329936 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C4 (Main Forest) (corrected) / True · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.260305 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report12, report9, wtf_interception_methodology | ok |
-| C4 (Main Forest) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.72153 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 (Main Forest) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.415905 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / 2012 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.9506 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / 2012 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.9506 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / 2013 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.09953 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / 2013 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.09953 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / 2014 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.07983 |  | VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / 2014 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.07983 |  | VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / 2015 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.19517 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / 2015 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.45733 |  | VALUE_LEDGER_report, report9 | ok |
+| C3 (Western Residual) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.864258 |  | Newborough_Methods_Supplement | ok |
+| C3 (Western Residual) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.372635 |  | Newborough_Methods_Supplement, report9 | ok |
+| C3 (Western Residual) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | report9 | ok |
+| C3 (Western Residual) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.286085 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| C3 (Western Residual) / False · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.397594 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C3 (Western Residual) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.327797 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, report9 | ok |
+| C3 (Western Residual) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.409159 |  | Newborough_Methods_Supplement, report9 | ok |
+| C3 (Western Residual) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.273625 |  | Newborough_Methods_Supplement, report9 | ok |
+| C3 (Western Residual) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.319365 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C3 (Western Residual) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 28.4355 |  | report9 | ok |
+| C3 (Western Residual) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.829769 |  | report9 | ok |
+| C3 (Western Residual) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 27.9889 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C3 (Western Residual) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.812171 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C3 (Western Residual) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.166825 |  | Paper1, report9 | ok |
+| C3 (Western Residual) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 27.9889 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C3 (Western Residual) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.812171 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C3 (Western Residual) · Rec_ET_frac |  |  | `16_water_bal_rec_table.csv` | 0.3578 |  | Supplementary_Material | ok |
+| C3 (Western Residual) · Rec_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.6422 |  | report9 | ok |
+| C3 (Western Residual) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.265326 |  | Paper1, report10, report9 | ok |
+| C3 (Western Residual) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.265114 |  | Paper1, report10, report9 | ok |
+| C3 (Western Residual) · VIF |  |  | `30_c4_identifiability_by_cluster.csv` | 1.26903 |  | Paper1, report10, report12, report9 | ok |
+| C3 (Western Residual) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 3.57284 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report10, report9, site_geography | ok |
+| C3 (Western Residual) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.80728 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report10, report12, report9 | ok |
+| C3 (Western Residual) · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 0.0569351 |  | report8 | ok |
+| C3 (Western Residual) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | report9 | ok |
+| C3 (Western Residual) · coastal_gradient_mm_yr |  |  | `25_03_cluster_partition.csv` | -3.1941 |  | report9 | ok |
+| C3 (Western Residual) · hd_range |  |  | `30_c4_identifiability_by_cluster.csv` | 1.46738 |  | report9 | ok |
+| C3 (Western Residual) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.28183 |  | report9 | ok |
+| C3 (Western Residual) · median_summer_min_post2018 |  |  | `02_09_cluster_amplitude_summary.csv` | -1.42 |  | report9 | ok |
+| C3 (Western Residual) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -13.786 |  | report9 | ok |
+| C3 Warren interior / Post-felling 2018+ · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1709 |  | report9 | ok |
+| C3 Warren interior / Pre-scrape 2005–14 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.826 |  | report9 | ok |
+| C3 Warren interior / Pre-scrape 2005–14 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1949 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement | ok |
+| C3 Warren interior / Scraping era 2015–17 · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.2738 |  | Paper1, Supplementary_Material, report10, report12, report9 | ok |
+| C3 Warren interior / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement | ok |
+| C3 · alpha |  |  | `11_forecast_pflood_summary.csv` | 0.943065 |  | Newborough_Methods_Supplement | ok |
+| C3 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
+| C3 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report9 | ok |
+| C3 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, report10, report9 | ok |
+| C3 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 365.473 |  | report9 | ok |
+| C3 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.622502 |  | Supplementary_Material, report9 | ok |
+| C3 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.9778 |  | report10, report9 | ok |
+| C3 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 237.594 |  | report9 | ok |
+| C3 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, report9 | ok |
+| C3/Warren / with_easting · clearfell_p |  |  | `10k_03_easting_sensitivity.csv` | 0.485432 |  | Supplementary_Material, report9 | ok |
+| C3/Warren · R2 | R² | coefficient of determination | `10l_01_four_zone_summer_results.csv` | 0.7242 |  | Newborough_Methods_Supplement, report9 | ok |
+| C3/Warren · clearfell_p |  |  | `10l_01_four_zone_summer_results.csv` | 0.257214 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, Supplementary_Material, report9, wtf_interception_methodology | ok |
+| C3/Warren · clearfell_step_se_m |  |  | `10l_01_four_zone_summer_results.csv` | 0.0106 |  | report9 | ok |
+| C3_Sy_max |  |  | `29_report_numbers.csv` | 0.397824 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C3_Sy_min |  |  | `29_report_numbers.csv` | 0.245514 |  | Supplementary_Material | ok |
+| C3_beta1_vs_inland_r | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `29_report_numbers.csv` | 0.848324 |  | report9 | ok |
+| C3_median_dNSE |  |  | `08_report_numbers.csv` | 0.622502 |  | Supplementary_Material, report9 | ok |
+| C4 (Main Forest) (corrected) / True · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.182185 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C4 (Main Forest) (corrected) / True · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.329936 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| C4 (Main Forest) (corrected) / True · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.260305 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, report12, report9, wtf_interception_methodology | ok |
+| C4 (Main Forest) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.72153 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C4 (Main Forest) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.415905 |  | Newborough_Methods_Supplement | ok |
+| C4 (Main Forest) / 2013 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.09953 |  | report9 | ok |
+| C4 (Main Forest) / 2013 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.09953 |  | report9 | ok |
+| C4 (Main Forest) / 2015 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.19517 |  | report9 | ok |
+| C4 (Main Forest) / 2015 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.45733 |  | report9 | ok |
 | C4 (Main Forest) / 2019 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.30324 |  | Newborough_Methods_Supplement | ok |
-| C4 (Main Forest) / 2019 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.19133 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / 2020 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.238 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / 2020 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.19933 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / 2021 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.13 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / 2023 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.05519 |  | VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.802074 |  | VALUE_LEDGER_report, report9 | ok |
+| C4 (Main Forest) / 2019 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.19133 |  | report9 | ok |
+| C4 (Main Forest) / 2020 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.238 |  | Supplementary_Material | ok |
+| C4 (Main Forest) / 2020 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.19933 |  | report9 | ok |
+| C4 (Main Forest) / 2021 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.13 |  | report9 | ok |
+| C4 (Main Forest) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.802074 |  | report9 | ok |
 | C4 (Main Forest) / 2025 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -0.732667 |  | Supplementary_Material | ok |
-| C4 (Main Forest) / 2050s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.12911 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / 2080s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.12911 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.852872 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.30486 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | VALUE_LEDGER_report | ok |
-| C4 (Main Forest) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.255697 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.31323 |  | INTERCEPTION_TREATMENT, Paper1, VALUE_LEDGER_report, report9, wtf_interception_methodology | ok |
-| C4 (Main Forest) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.359587 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.24487 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.305884 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 41.5373 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.747245 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 40.3703 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.72153 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 (Main Forest) · ET_draw_m_month |  |  | `16_water_bal_table.csv` | 0.14022 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 40.3703 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.72153 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 (Main Forest) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.184169 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 (Main Forest) · SSM_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.2388 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C4 (Main Forest) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.184206 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 (Main Forest) · VIF |  |  | `30_c4_identifiability_by_cluster.csv` | 1.09524 |  | VALUE_LEDGER_report | ok |
-| C4 (Main Forest) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 2.47707 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report10, report9, site_geography | ok |
-| C4 (Main Forest) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 2.5626 |  | Newborough_Methods_Supplement, PIPELINE_README, Paper1, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report, report10, report12, report9 | ok |
-| C4 (Main Forest) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.78339 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 (Main Forest) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -9.18272 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01777 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01777 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 Main forest / Post-felling 2018+ · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 2.1521 |  | VALUE_LEDGER_report | ok |
-| C4 Main forest / Post-felling 2018+ · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.7419 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report12, report9 | ok |
-| C4 Main forest / Post-felling 2018+ · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.2813 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 Main forest / Pre-scrape 2005–14 · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 2.426 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9, site_geography | ok |
-| C4 Main forest / Pre-scrape 2005–14 · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.4556 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 Main forest / Pre-scrape 2005–14 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.1025 |  | VALUE_LEDGER_report | ok |
-| C4 Main forest / Scraping era 2015–17 · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.7396 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report12, report9 | ok |
-| C4 Main forest / Scraping era 2015–17 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.3778 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C4 Main forest / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C4 Main forest / Scraping era 2015–17 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.256 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.134 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 · NSE_Iterative |  |  | `15_04_best_params.csv` | 0.733055 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | -0.0036 |  | VALUE_LEDGER_report, report9 | ok |
-| C4 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 274.929 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 · median_TLM_NSE |  |  | `08_cluster_nse_medians.csv` | 0.249275 |  | VALUE_LEDGER_report | ok |
-| C4 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.410435 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| C4 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.8657 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C4 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 383.485 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C4 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C4_median_TLM_NSE |  |  | `08_report_numbers.csv` | 0.249275 |  | VALUE_LEDGER_report | ok |
-| C4_median_dNSE |  |  | `08_report_numbers.csv` | 0.410435 |  | VALUE_LEDGER_report, report10, report9 | ok |
-| C5 (Coastal Forest) (corrected) / True · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) (corrected) / True · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.247018 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) (corrected) / True · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.391367 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) (corrected) / True · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.325808 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report12, report9 | ok |
-| C5 (Coastal Forest) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.682808 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C5 (Coastal Forest) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.216921 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.135501 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2012 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.08287 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2013 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.08161 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2014 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.0755 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2015 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.18157 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2016 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.08428 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2018 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.06383 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2019 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.20006 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / 2020 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.13467 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.19637 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / 2021 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.177 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
+| C4 (Main Forest) / 2050s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.12911 |  | report9 | ok |
+| C4 (Main Forest) / 2080s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.12911 |  | report9 | ok |
+| C4 (Main Forest) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.852872 |  | Newborough_Methods_Supplement | ok |
+| C4 (Main Forest) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.30486 |  | Newborough_Methods_Supplement, report9 | ok |
+| C4 (Main Forest) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.255697 |  | report9 | ok |
+| C4 (Main Forest) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.31323 |  | INTERCEPTION_TREATMENT, Paper1, report9, wtf_interception_methodology | ok |
+| C4 (Main Forest) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.359587 |  | Newborough_Methods_Supplement, report9 | ok |
+| C4 (Main Forest) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.24487 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C4 (Main Forest) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.305884 |  | Newborough_Methods_Supplement, report9 | ok |
+| C4 (Main Forest) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 41.5373 |  | report9 | ok |
+| C4 (Main Forest) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.747245 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C4 (Main Forest) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 40.3703 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C4 (Main Forest) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.72153 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C4 (Main Forest) · ET_draw_m_month |  |  | `16_water_bal_table.csv` | 0.14022 |  | Paper1, report9 | ok |
+| C4 (Main Forest) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 40.3703 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C4 (Main Forest) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.72153 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C4 (Main Forest) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.184169 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C4 (Main Forest) · SSM_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.2388 |  | Supplementary_Material | ok |
+| C4 (Main Forest) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.184206 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C4 (Main Forest) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 2.47707 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report10, report9, site_geography | ok |
+| C4 (Main Forest) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 2.5626 |  | Newborough_Methods_Supplement, PIPELINE_README, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report, report10, report12, report9 | ok |
+| C4 (Main Forest) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | report9 | ok |
+| C4 (Main Forest) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.78339 |  | report9 | ok |
+| C4 (Main Forest) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -9.18272 |  | report9 | ok |
+| C4 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01777 |  | report9 | ok |
+| C4 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.01777 |  | report9 | ok |
+| C4 Main forest / Post-felling 2018+ · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.7419 |  | Paper1, report12, report9 | ok |
+| C4 Main forest / Post-felling 2018+ · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.2813 |  | report9 | ok |
+| C4 Main forest / Pre-scrape 2005–14 · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 2.426 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, report9, site_geography | ok |
+| C4 Main forest / Pre-scrape 2005–14 · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.4556 |  | report9 | ok |
+| C4 Main forest / Scraping era 2015–17 · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.7396 |  | Paper1, report12, report9 | ok |
+| C4 Main forest / Scraping era 2015–17 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.3778 |  | Paper1 | ok |
+| C4 Main forest / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement | ok |
+| C4 Main forest / Scraping era 2015–17 · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.256 |  | report9 | ok |
+| C4 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.134 |  | report10, report9 | ok |
+| C4 · NSE_Iterative |  |  | `15_04_best_params.csv` | 0.733055 |  | report9 | ok |
+| C4 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | -0.0036 |  | report9 | ok |
+| C4 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
+| C4 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C4 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, report10, report9 | ok |
+| C4 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 274.929 |  | report9 | ok |
+| C4 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.410435 |  | report10, report9 | ok |
+| C4 · p_value | p | significance probability | `14_spring_trend_stats.csv` | 0.8657 |  | report10, report9 | ok |
+| C4 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 383.485 |  | report9 | ok |
+| C4 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, report9 | ok |
+| C4_median_dNSE |  |  | `08_report_numbers.csv` | 0.410435 |  | report10, report9 | ok |
+| C5 (Coastal Forest) (corrected) / True · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.247018 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| C5 (Coastal Forest) (corrected) / True · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.391367 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) (corrected) / True · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.325808 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, report12, report9 | ok |
+| C5 (Coastal Forest) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.682808 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C5 (Coastal Forest) / 1 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.216921 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) / 2013 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.08161 |  | Supplementary_Material | ok |
+| C5 (Coastal Forest) / 2015 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.18157 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) / 2016 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.08428 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) / 2019 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.20006 |  | report9 | ok |
+| C5 (Coastal Forest) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.19637 |  | report9 | ok |
+| C5 (Coastal Forest) / 2021 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.177 |  | Newborough_Methods_Supplement | ok |
 | C5 (Coastal Forest) / 2022 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.27974 |  | Newborough_Methods_Supplement | ok |
-| C5 (Coastal Forest) / 2022 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.34867 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2023 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.17589 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2023 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.246 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / 2024 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.05033 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2024 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.082 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2024 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.16026 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.14248 |  | VALUE_LEDGER_report, report9 | ok |
+| C5 (Coastal Forest) / 2022 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.34867 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| C5 (Coastal Forest) / 2023 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.17589 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) / 2023 · MAX5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.246 |  | report9 | ok |
+| C5 (Coastal Forest) / 2024 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.16026 |  | report9 | ok |
+| C5 (Coastal Forest) / 2025 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.14248 |  | report9 | ok |
 | C5 (Coastal Forest) / 2025 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.15267 |  | Supplementary_Material, report9 | ok |
-| C5 (Coastal Forest) / 2050s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.05414 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / 2050s · msl5_shift_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.011811 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2050s · spring_delta_h_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.011811 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / 2080s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.05414 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / 2080s · msl5_perturbed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.07568 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.864779 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.417544 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.319028 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.357947 |  | INTERCEPTION_TREATMENT, Paper1, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.375856 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.270071 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.311345 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 44.4419 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.715157 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 41.1871 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.682808 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C5 (Coastal Forest) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.114297 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 41.1871 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.682808 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C5 (Coastal Forest) · Rec_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.7363 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.18038 |  | Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C5 (Coastal Forest) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.183665 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report10, report9 | ok |
-| C5 (Coastal Forest) · VIF |  |  | `30_c4_identifiability_by_cluster.csv` | 1.0751 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 2.42795 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report9, site_geography | ok |
-| C5 (Coastal Forest) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.27431 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report, report10, report12, report9 | ok |
-| C5 (Coastal Forest) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) · coastal_gradient_mm_yr |  |  | `25_03_cluster_partition.csv` | -18.2968 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 (Coastal Forest) · hd_mean |  |  | `30_c4_identifiability_by_cluster.csv` | 2.5473 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 (Coastal Forest) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 2.26538 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.03594 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.03594 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 Coastal forest / Post-felling 2018+ · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.7349 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 Coastal forest / Post-felling 2018+ · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.6021 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| C5 Coastal forest / Post-felling 2018+ · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.3478 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 Coastal forest / Post-felling 2018+ · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1288 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5 Coastal forest / Pre-scrape 2005–14 · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.251 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C5 Coastal forest / Pre-scrape 2005–14 · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.4018 |  | VALUE_LEDGER_report | ok |
-| C5 Coastal forest / Scraping era 2015–17 · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.5958 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| C5 Coastal forest / Scraping era 2015–17 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.3698 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| C5 Coastal forest / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| C5 · Dry_Slack_Exceedances |  |  | `14_winter_exceedance.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER_report | ok |
-| C5 · R2 | R² | coefficient of determination | `14_spring_trend_stats.csv` | 0.263 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | -0.0376 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 · Wet_Slack_Exceedances |  |  | `14_winter_exceedance.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER_report | ok |
-| C5 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| C5 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, VALUE_LEDGER_report, report10 | ok |
-| C5 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 414.645 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 · median_TLM_NSE |  |  | `08_cluster_nse_medians.csv` | 0.306045 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C5 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.498571 |  | VALUE_LEDGER_report, report9 | ok |
-| C5 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 362.492 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C5_beta1_mean | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 2.33853 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| C5_beta2_mean | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 1.13385 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| C5_beta3_pct_mean | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 4.5834 |  | INTERCEPTION_TREATMENT, VALUE_LEDGER, VALUE_LEDGER_report, site_geography | ok |
-| C5_median_TLM_NSE |  |  | `08_report_numbers.csv` | 0.306045 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| C5_median_dNSE |  |  | `08_report_numbers.csv` | 0.498571 |  | VALUE_LEDGER_report, report9 | ok |
-| CANOPY_CHANGE_GRID_M |  |  | `config.py` | 2 |  | VALUE_LEDGER_report | ok |
-| CANOPY_MAX_GSD_M |  |  | `config.py` | 2 |  | VALUE_LEDGER_report | ok |
-| CCW_PIPE_BASE_M |  |  | `config.py` | -2 |  | Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER_report | ok |
-| CEH1 / 2014 · Spring_mean_m |  |  | `10l_08_c3warren_spring_means.csv` | 0.1667 |  | VALUE_LEDGER_report | ok |
-| CEH1 / 2024 · Spring_mean_m |  |  | `10l_08_c3warren_spring_means.csv` | 0.2767 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH1 / 2025 · Spring_mean_m |  |  | `10l_08_c3warren_spring_means.csv` | -0.4833 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH14 iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -6.81688 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| CEH14 iterative NSE · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -6.41858 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH14 iterative NSE · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.398298 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH14 · SSM_NSE |  |  | `08_perwell_nse.csv` | -6.41858 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH14 · TLM_NSE |  |  | `08_perwell_nse.csv` | 0.398298 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH14 · dNSE |  |  | `08_perwell_nse.csv` | -6.81688 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| CEH16 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.506 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH16 / Edge / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.6031 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH16 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.296722 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH16 · TLM_NSE |  |  | `08_perwell_nse.csv` | 0.306045 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| CEH16 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1792 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH16 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.0524 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH17 / Coastal Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.248569 |  | VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd | ok |
-| CEH17 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.3999 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH17 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1212 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH18 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.112996 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| CEH18 / 2011 · Paired_ctrl_m |  |  | `09c_01_summer_minima.csv` | -1.16 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH18 / 2013 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.066 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH18 / 2013 · Summer_min_m |  |  | `09c_01_summer_minima.csv` | -1.18 |  | VALUE_LEDGER_report | ok |
-| CEH18 / 2015 · Paired_ctrl_m |  |  | `09c_01_summer_minima.csv` | -1.18 |  | VALUE_LEDGER_report | ok |
-| CEH18 / 2015–17 · N_summers |  |  | `21_forestry_03_scraping_era_means.csv` | 3 |  | VALUE_LEDGER_report | ok |
-| CEH18 / 2016 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -0.942 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH18 / 2018 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.2925 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH18 / 2025 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.314 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH18 / 2_Felling_Pulse · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.185599 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| CEH18 / 2_Felling_Pulse · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.103418 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH18 / 3_After_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.310731 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH18 / 3_After_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.17667 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH18 / Climate · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.0222 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH18 / Climate · p_value | p | significance probability | `09c_02_summer_minima_shifts.csv` | 0.567622 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| CEH18 / Post-fell 2018–23 · SD_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 0.1146 |  | VALUE_LEDGER_report | ok |
-| CEH18 / Pre-2015 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.2725 |  | VALUE_LEDGER_report | ok |
-| CEH19 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1727 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH19 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1896 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH2 / Forest Ctrl / Climate · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.579148 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH2 · Step_change_m |  |  | `10g_03_clearfell_transect_steps.csv` | 0.1073 |  | VALUE_LEDGER_report | ok |
-| CEH2 · db1 |  |  | `10e_01_coefficient_shifts.csv` | 0.0909 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH2 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.2192 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH20 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1114 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH20 / Edge / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1217 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH20 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.73943 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH20 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.698531 |  | VALUE_LEDGER_report | ok |
-| CEH20 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1825 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH21 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.153668 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH21 / 1_Baseline · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.102911 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH21 / 2013 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.066 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH21 / 2013 · Gap_paired_m |  |  | `09c_01_summer_minima.csv` | -0.49 |  | VALUE_LEDGER_report | ok |
-| CEH21 / 2015–17 · N_summers |  |  | `21_forestry_03_scraping_era_means.csv` | 3 |  | VALUE_LEDGER_report | ok |
-| CEH21 / 2016 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -0.942 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH21 / 2018 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.2925 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH21 / 2021 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | -0.4 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH21 / 2025 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.314 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH21 / 2025 · Gap_paired_m |  |  | `09c_01_summer_minima.csv` | -0.5 |  | VALUE_LEDGER_report | ok |
-| CEH21 / 2_Coastal_Drawdown · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.117069 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH21 / 3_After_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.208745 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH21 / Climate · Pre_mean_gap_m |  |  | `09c_02_summer_minima_shifts.csv` | -0.121 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH21 / Climate · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | -0.0596 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH21 / Climate · t_stat |  |  | `09c_02_summer_minima_shifts.csv` | -0.952 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| CEH21 / Post-fell 2018–23 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.3983 |  | VALUE_LEDGER_report | ok |
-| CEH21 / Post-rescrape 2024+ · Min_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.25 |  | VALUE_LEDGER_report | ok |
-| CEH21 / Pre-2015 · Max_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.4 |  | VALUE_LEDGER_report | ok |
-| CEH21 / Pre-2015 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.2925 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.189239 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 1_Baseline · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.136032 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 2013 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.066 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2013 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.266 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2015 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.396 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| CEH22 / 2016 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -0.942 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2016 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.302 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 2018 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.2925 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2018 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.4125 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 2019 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.4 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 2020 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.266 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2022 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.332 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2023 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.332 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2025 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.314 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH22 / 2_Coastal_Drawdown · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.229801 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 2_Coastal_Drawdown · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.151551 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 3_After_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.39877 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH22 / 3_After_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.239029 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH22 / Climate · Pre_mean_gap_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.3765 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH22 / Climate · p_value | p | significance probability | `09c_02_summer_minima_shifts.csv` | 0.448639 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH27 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.680403 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH27 · TLM_NSE |  |  | `08_perwell_nse.csv` | -2.18438 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| CEH27 · dNSE |  |  | `08_perwell_nse.csv` | 2.86478 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH30 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.3203 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH30 / Edge / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.3111 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH30 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.858565 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH30 / Edge / Forest · t_stat |  |  | `10d_02_summer_minima_shifts.csv` | -0.182 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH30 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.2619 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH31 / Edge / Climate · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.998823 |  | NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual, VALUE_LEDGER_report | ok |
-| CEH31 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.1315 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH31 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.580957 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH31 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.5813 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH31 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.2556 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH32 / Forest Ctrl / Climate · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.9522 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH32 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1486 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH32 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.1295 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH33 · TLM_NSE |  |  | `08_perwell_nse.csv` | 0.249275 |  | VALUE_LEDGER_report | ok |
-| CEH33 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.2455 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH33 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.0625 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH34 / Forest Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.646843 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| CEH34 · TLM_NSE |  |  | `08_perwell_nse.csv` | 0.3143 |  | VALUE_LEDGER_report | ok |
-| CEH34 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.256 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH34 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.266 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH34_hindcast_alpha |  |  | `10_consolidated_report_numbers.csv` | -0.14851 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.161253 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 2011 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.0675 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 2011 · Paired_ctrl_m |  |  | `09c_01_summer_minima.csv` | -1.16 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36 / 2013 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.066 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36 / 2015–17 · N_summers |  |  | `21_forestry_03_scraping_era_means.csv` | 3 |  | VALUE_LEDGER_report | ok |
-| CEH36 / 2016 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -0.942 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36 / 2017 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.4225 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| CEH36 / 2018 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.2925 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36 / 2018 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.2425 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report12 | ok |
-| CEH36 / 2019 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.24 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 2020 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.156 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 2021 · Gap_paired_m |  |  | `09c_01_summer_minima.csv` | 0.12 |  | VALUE_LEDGER_report | ok |
-| CEH36 / 2022 · Gap_paired_m |  |  | `09c_01_summer_minima.csv` | 0.22 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 2024 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.166 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36 / 2025 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.314 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36 / 2_Pure_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.220418 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 2_Pure_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.139043 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 3_Felling_Pulse · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.17101 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH36 / 3_Felling_Pulse · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.112846 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / Climate · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.161 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH36 / Paired · Post_mean_gap_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.1545 |  | VALUE_LEDGER_report | ok |
-| CEH36 / Paired · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.1945 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36 / Pre-2015 · SD_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 0.1115 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH36_raw_BACI_step |  |  | `09e_report_numbers.csv` | 0.1294 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report12, report9 | ok |
-| CEH36_synthetic_control_step |  |  | `09e_report_numbers.csv` | 0.1368 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report12, report9 | ok |
-| CEH4 (control) / 2015–17 · Max_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.18 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH4 (control) / 2015–17 · N_summers |  |  | `21_forestry_03_scraping_era_means.csv` | 3 |  | VALUE_LEDGER_report | ok |
-| CEH4 (control) / Post-fell 2018–23 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.14 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH4 (control) / Post-rescrape 2024+ · Max_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.4 |  | VALUE_LEDGER_report | ok |
-| CEH4 (control) / Pre-2015 · Max_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.16 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH4 (control) / Pre-2015 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.075 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH4 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.114173 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH4 / 2011 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.1375 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH4 / 2011 · Summer_min_m |  |  | `09c_01_summer_minima.csv` | -1.16 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH4 / 2012 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.1025 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH4 / 2013 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.066 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH4 / 2015 · Summer_min_m |  |  | `09c_01_summer_minima.csv` | -1.18 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH4 / 2016 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -0.942 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH4 / 2018 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.2925 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
+| C5 (Coastal Forest) / 2050s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.05414 |  | report9 | ok |
+| C5 (Coastal Forest) / 2050s · msl5_shift_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.011811 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) / 2050s · spring_delta_h_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -0.011811 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) / 2080s · msl5_observed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.05414 |  | report9 | ok |
+| C5 (Coastal Forest) / 2080s · msl5_perturbed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.07568 |  | report9 | ok |
+| C5 (Coastal Forest) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.864779 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.417544 |  | Newborough_Methods_Supplement, report9 | ok |
+| C5 (Coastal Forest) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.319028 |  | report9 | ok |
+| C5 (Coastal Forest) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.357947 |  | INTERCEPTION_TREATMENT, Paper1, report9 | ok |
+| C5 (Coastal Forest) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.375856 |  | Newborough_Methods_Supplement, report9 | ok |
+| C5 (Coastal Forest) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.270071 |  | Newborough_Methods_Supplement, report9 | ok |
+| C5 (Coastal Forest) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.311345 |  | Newborough_Methods_Supplement, report9 | ok |
+| C5 (Coastal Forest) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 44.4419 |  | report9 | ok |
+| C5 (Coastal Forest) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.715157 |  | Supplementary_Material, report9 | ok |
+| C5 (Coastal Forest) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 41.1871 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C5 (Coastal Forest) / full_record · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.682808 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C5 (Coastal Forest) · Drainage_m_month |  |  | `16_water_bal_table.csv` | 0.114297 |  | Paper1, report9 | ok |
+| C5 (Coastal Forest) · LCSC_percent |  |  | `03_03_cluster_mechanistic_coefficients.csv` | 41.1871 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| C5 (Coastal Forest) · R2 | R² | coefficient of determination | `03_03_cluster_mechanistic_coefficients.csv` | 0.682808 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C5 (Coastal Forest) · Rec_drain_frac |  |  | `16_water_bal_rec_table.csv` | 0.7363 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) · Recharge_m_month |  |  | `16_water_bal_table.csv` | 0.18038 |  | Paper1, report10, report9 | ok |
+| C5 (Coastal Forest) · Total_loss_m_month |  |  | `16_water_bal_table.csv` | 0.183665 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| C5 (Coastal Forest) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 2.42795 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report9, site_geography | ok |
+| C5 (Coastal Forest) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.27431 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, academic_Summary, crynodeb_academaidd, report, report10, report12, report9 | ok |
+| C5 (Coastal Forest) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.82941 |  | report9 | ok |
+| C5 (Coastal Forest) · coastal_gradient_mm_yr |  |  | `25_03_cluster_partition.csv` | -18.2968 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C5 (Coastal Forest) · hd_mean |  |  | `30_c4_identifiability_by_cluster.csv` | 2.5473 |  | Newborough_Methods_Supplement | ok |
+| C5 (Coastal Forest) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 2.26538 |  | report9 | ok |
+| C5 / SD15b · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.03594 |  | report9 | ok |
+| C5 / SD16 · slope_pt_m_per_yr |  |  | `14b_year_of_crossing.csv` | -0.03594 |  | report9 | ok |
+| C5 Coastal forest / Post-felling 2018+ · Max_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.7349 |  | report9 | ok |
+| C5 Coastal forest / Post-felling 2018+ · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.6021 |  | report10 | ok |
+| C5 Coastal forest / Post-felling 2018+ · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.3478 |  | Newborough_Methods_Supplement | ok |
+| C5 Coastal forest / Post-felling 2018+ · SD_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.1288 |  | Newborough_Methods_Supplement | ok |
+| C5 Coastal forest / Pre-scrape 2005–14 · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.251 |  | report10, report9 | ok |
+| C5 Coastal forest / Scraping era 2015–17 · Median_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.5958 |  | report10 | ok |
+| C5 Coastal forest / Scraping era 2015–17 · Min_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 1.3698 |  | report10 | ok |
+| C5 Coastal forest / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement | ok |
+| C5 · Dry_Slack_Exceedances |  |  | `14_winter_exceedance.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
+| C5 · R2 | R² | coefficient of determination | `14_spring_trend_stats.csv` | 0.263 |  | report9 | ok |
+| C5 · Slope_m_per_yr |  |  | `14_spring_trend_stats.csv` | -0.0376 |  | report9 | ok |
+| C5 · Wet_Slack_Exceedances |  |  | `14_winter_exceedance.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
+| C5 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
+| C5 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C5 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.01885 |  | Supplementary_Material, report10 | ok |
+| C5 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 414.645 |  | report9 | ok |
+| C5 · median_TLM_NSE |  |  | `08_cluster_nse_medians.csv` | 0.306045 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C5 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.498571 |  | report9 | ok |
+| C5 · slope_A |  |  | `11_forecast_pflood_summary.csv` | 362.492 |  | report9 | ok |
+| C5 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.00943 |  | Supplementary_Material, report9 | ok |
+| C5_beta2_mean | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 1.13385 |  | report9 | ok |
+| C5_beta3_pct_mean | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 4.5834 |  | INTERCEPTION_TREATMENT, site_geography | ok |
+| C5_median_TLM_NSE |  |  | `08_report_numbers.csv` | 0.306045 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
+| C5_median_dNSE |  |  | `08_report_numbers.csv` | 0.498571 |  | report9 | ok |
+| CCW_PIPE_BASE_M |  |  | `config.py` | -2 |  | Newborough_Methods_Supplement, PIPELINE_README | ok |
+| CEH1 / 2024 · Spring_mean_m |  |  | `10l_08_c3warren_spring_means.csv` | 0.2767 |  | Supplementary_Material | ok |
+| CEH1 / 2025 · Spring_mean_m |  |  | `10l_08_c3warren_spring_means.csv` | -0.4833 |  | Supplementary_Material | ok |
+| CEH14 iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -6.81688 |  | Newborough_Methods_Supplement, report9 | ok |
+| CEH14 iterative NSE · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -6.41858 |  | report9 | ok |
+| CEH14 iterative NSE · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.398298 |  | report9 | ok |
+| CEH14 · SSM_NSE |  |  | `08_perwell_nse.csv` | -6.41858 |  | report9 | ok |
+| CEH14 · TLM_NSE |  |  | `08_perwell_nse.csv` | 0.398298 |  | report9 | ok |
+| CEH14 · dNSE |  |  | `08_perwell_nse.csv` | -6.81688 |  | Newborough_Methods_Supplement, report9 | ok |
+| CEH16 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.506 |  | report9 | ok |
+| CEH16 / Edge / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.6031 |  | report9 | ok |
+| CEH16 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.296722 |  | report9 | ok |
+| CEH16 · TLM_NSE |  |  | `08_perwell_nse.csv` | 0.306045 |  | Newborough_Methods_Supplement | ok |
+| CEH16 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1792 |  | report9 | ok |
+| CEH17 / Coastal Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.248569 |  | academic_Summary, crynodeb_academaidd | ok |
+| CEH17 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.3999 |  | report9 | ok |
+| CEH17 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1212 |  | report9 | ok |
+| CEH18 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.112996 |  | Newborough_Methods_Supplement, report9 | ok |
+| CEH18 / 2011 · Paired_ctrl_m |  |  | `09c_01_summer_minima.csv` | -1.16 |  | Supplementary_Material | ok |
+| CEH18 / 2013 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.066 |  | Supplementary_Material | ok |
+| CEH18 / 2018 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.2925 |  | Supplementary_Material | ok |
+| CEH18 / 2_Felling_Pulse · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.185599 |  | Newborough_Methods_Supplement, report9 | ok |
+| CEH18 / 2_Felling_Pulse · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.103418 |  | report9 | ok |
+| CEH18 / 3_After_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.310731 |  | report9 | ok |
+| CEH18 / 3_After_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.17667 |  | report9 | ok |
+| CEH18 / Climate · p_value | p | significance probability | `09c_02_summer_minima_shifts.csv` | 0.567622 |  | Hollingham_2026_Paper2_amended | ok |
+| CEH19 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1727 |  | report9 | ok |
+| CEH19 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1896 |  | report9 | ok |
+| CEH2 / Forest Ctrl / Climate · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.579148 |  | report9 | ok |
+| CEH2 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.2192 |  | report9 | ok |
+| CEH20 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1114 |  | report9 | ok |
+| CEH20 / Edge / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1217 |  | report9 | ok |
+| CEH20 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.73943 |  | report9 | ok |
+| CEH20 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1825 |  | report9 | ok |
+| CEH21 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.153668 |  | report9 | ok |
+| CEH21 / 1_Baseline · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.102911 |  | report9 | ok |
+| CEH21 / 2018 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.2925 |  | Supplementary_Material | ok |
+| CEH21 / 2021 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | -0.4 |  | report9 | ok |
+| CEH21 / 2025 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.314 |  | Supplementary_Material | ok |
+| CEH21 / 2_Coastal_Drawdown · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.117069 |  | report9 | ok |
+| CEH21 / 3_After_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.208745 |  | report9 | ok |
+| CEH21 / Climate · Pre_mean_gap_m |  |  | `09c_02_summer_minima_shifts.csv` | -0.121 |  | report9 | ok |
+| CEH21 / Climate · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | -0.0596 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH21 / Climate · t_stat |  |  | `09c_02_summer_minima_shifts.csv` | -0.952 |  | report10 | ok |
+| CEH22 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.189239 |  | report9 | ok |
+| CEH22 / 1_Baseline · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.136032 |  | report9 | ok |
+| CEH22 / 2015 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.396 |  | Newborough_Methods_Supplement, report10 | ok |
+| CEH22 / 2016 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.302 |  | report9 | ok |
+| CEH22 / 2018 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.4125 |  | report9 | ok |
+| CEH22 / 2019 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.4 |  | report9 | ok |
+| CEH22 / 2020 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.266 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement | ok |
+| CEH22 / 2_Coastal_Drawdown · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.229801 |  | report9 | ok |
+| CEH22 / 2_Coastal_Drawdown · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.151551 |  | report9 | ok |
+| CEH22 / 3_After_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.39877 |  | report9 | ok |
+| CEH22 / 3_After_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.239029 |  | report9 | ok |
+| CEH22 / Climate · Pre_mean_gap_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.3765 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH27 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.680403 |  | report9 | ok |
+| CEH27 · TLM_NSE |  |  | `08_perwell_nse.csv` | -2.18438 |  | Paper1, report9 | ok |
+| CEH27 · dNSE |  |  | `08_perwell_nse.csv` | 2.86478 |  | report9 | ok |
+| CEH30 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.3203 |  | report9 | ok |
+| CEH30 / Edge / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.3111 |  | report9 | ok |
+| CEH30 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.858565 |  | report9 | ok |
+| CEH30 / Edge / Forest · t_stat |  |  | `10d_02_summer_minima_shifts.csv` | -0.182 |  | report9 | ok |
+| CEH30 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.2619 |  | report9 | ok |
+| CEH31 / Edge / Climate · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.998823 |  | NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual | ok |
+| CEH31 / Edge / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.1315 |  | report9 | ok |
+| CEH31 / Edge / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.580957 |  | report9 | ok |
+| CEH31 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.5813 |  | report9 | ok |
+| CEH31 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.2556 |  | report9 | ok |
+| CEH32 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1486 |  | report9 | ok |
+| CEH32 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.1295 |  | report9 | ok |
+| CEH33 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.2455 |  | report9 | ok |
+| CEH34 / Forest Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.646843 |  | Newborough_Methods_Supplement | ok |
+| CEH34 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.256 |  | report9 | ok |
+| CEH34 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.266 |  | report9 | ok |
+| CEH34_hindcast_alpha |  |  | `10_consolidated_report_numbers.csv` | -0.14851 |  | report9 | ok |
+| CEH36 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.161253 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH36 / 2011 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.0675 |  | report9 | ok |
+| CEH36 / 2017 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.4225 |  | Newborough_Methods_Supplement, report10 | ok |
+| CEH36 / 2018 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.2425 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12 | ok |
+| CEH36 / 2019 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.24 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH36 / 2020 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.156 |  | Newborough_Methods_Supplement, report9 | ok |
+| CEH36 / 2022 · Gap_paired_m |  |  | `09c_01_summer_minima.csv` | 0.22 |  | Newborough_Methods_Supplement, report9 | ok |
+| CEH36 / 2024 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.166 |  | Newborough_Methods_Supplement | ok |
+| CEH36 / 2025 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.314 |  | Supplementary_Material | ok |
+| CEH36 / 2_Pure_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.220418 |  | report9 | ok |
+| CEH36 / 2_Pure_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.139043 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report9 | ok |
+| CEH36 / 3_Felling_Pulse · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.17101 |  | report9 | ok |
+| CEH36 / 3_Felling_Pulse · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.112846 |  | Newborough_Methods_Supplement, report9 | ok |
+| CEH36 / Climate · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.161 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH36 / Paired · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.1945 |  | Hollingham_2026_Paper2_amended | ok |
+| CEH36 / Pre-2015 · SD_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 0.1115 |  | Newborough_Methods_Supplement | ok |
+| CEH36_raw_BACI_step |  |  | `09e_report_numbers.csv` | 0.1294 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report9 | ok |
+| CEH36_synthetic_control_step |  |  | `09e_report_numbers.csv` | 0.1368 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report9 | ok |
+| CEH4 (control) / 2015–17 · Max_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.18 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH4 (control) / Post-fell 2018–23 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.14 |  | report9 | ok |
+| CEH4 (control) / Pre-2015 · Max_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.16 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH4 (control) / Pre-2015 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.075 |  | report9 | ok |
+| CEH4 / 1_Baseline · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.114173 |  | report9 | ok |
+| CEH4 / 2011 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.1375 |  | Newborough_Methods_Supplement | ok |
+| CEH4 / 2011 · Summer_min_m |  |  | `09c_01_summer_minima.csv` | -1.16 |  | Hollingham_2026_Paper2_amended | ok |
+| CEH4 / 2012 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.1025 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH4 / 2015 · Summer_min_m |  |  | `09c_01_summer_minima.csv` | -1.18 |  | Hollingham_2026_Paper2_amended | ok |
+| CEH4 / 2016 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -0.942 |  | Supplementary_Material | ok |
 | CEH4 / 2021 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | -0.04 |  | Supplementary_Material | ok |
-| CEH4 / 2022 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.042 |  | VALUE_LEDGER_report | ok |
-| CEH4 / 2023 · Gap_climate_m |  |  | `09c_01_summer_minima.csv` | 0.112 |  | VALUE_LEDGER_report | ok |
-| CEH4 / 2025 · Climate_ctrl_centroid_m |  |  | `09c_01_summer_minima.csv` | -1.314 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH4 / 2025 · Summer_min_m |  |  | `09c_01_summer_minima.csv` | -1.4 |  | VALUE_LEDGER_report | ok |
-| CEH4 / 2_Pure_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.244474 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH4 / 2_Pure_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.161719 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| CEH4 / 3_Felling_Pulse · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.165971 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH4 / 3_Felling_Pulse · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.115475 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH4 / Climate · p_value | p | significance probability | `09c_02_summer_minima_shifts.csv` | 0.332136 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH5 / Far-field Ctrl / Climate · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1741 |  | VALUE_LEDGER_report | ok |
-| CEH5 / Far-field Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.459396 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| CEH6 / Far-field Ctrl / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.9972 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CEH6 iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 2.55858 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH6 iterative NSE · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.673556 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH6 iterative NSE · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -1.88503 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report9 | ok |
-| CEH6 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.673556 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH6 · TLM_NSE |  |  | `08_perwell_nse.csv` | -1.88503 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report9 | ok |
-| CEH6 · dNSE |  |  | `08_perwell_nse.csv` | 2.55858 |  | VALUE_LEDGER_report, report9 | ok |
-| CEH9 / Climate Ctrl / Climate · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.0191 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH9 / Climate Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.711761 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| CEH9 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1858 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CEH9 · db2 |  |  | `10e_01_coefficient_shifts.csv` | 0.0683 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| COMBINED_CONSTRAINED / nan · sigma_total_m |  |  | `44_05_level_change.csv` | 0.104985 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Canopy_controlled_delta_0 |  |  | `25_report_numbers.csv` | -32.3991 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Canopy_n_controls_in_block |  |  | `10_consolidated_report_numbers.csv` | 2 |  | NRG_Web_Tools_User_Manual, VALUE_LEDGER_report | ok |
-| Ceh32 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.51951 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| Climate / Coastal Ctrl · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.265605 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Climate / Edge · Clearfell_CI_lo_m |  |  | `10a_01_ancova_comparison_table.csv` | -0.167432 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| Climate / Edge · Clearfell_step_m |  |  | `10a_01_ancova_comparison_table.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| Climate / Edge · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 45.6708 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Climate / Edge · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 15.2081 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Climate / Forest Ctrl · Clearfell_coef_m |  |  | `10d_08_spring_mixed_model_results.csv` | 0.0947 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Climate / Forest Ctrl · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.241502 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd, report9 | ok |
-| Climate / Impact · Clearfell_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.48259 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| Climate / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | -7.71443 |  | VALUE_LEDGER_report, report9 | ok |
-| Climate / Impact · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 3.30727 |  | VALUE_LEDGER_report, report9 | ok |
-| Climate Ctrl (CEH9, NW / 2015–17 · Max_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.3725 |  | VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / 2015–17 · Median_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.256 |  | VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / 2015–17 · Min_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 0.942 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / 2015–17 · SD_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 0.1818 |  | VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / Post-fell 2018+ · Mean_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.1828 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / Post-fell 2018+ · Median_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.2422 |  | VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / Post-fell 2018+ · SD_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 0.1664 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / Pre-2015 · Mean_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.1715 |  | VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / Pre-2015 · Median_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.1612 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Climate Ctrl (CEH9, NW / Pre-2015 · Min_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.066 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Coastal_Forest · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.971732 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
+| CEH4 / 2_Pure_Scraping · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.244474 |  | report9 | ok |
+| CEH4 / 2_Pure_Scraping · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.161719 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| CEH4 / 3_Felling_Pulse · Conf_High |  |  | `09_scrape_02_beta3_significance.csv` | 0.165971 |  | report9 | ok |
+| CEH4 / 3_Felling_Pulse · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.115475 |  | report9 | ok |
+| CEH4 / Climate · p_value | p | significance probability | `09c_02_summer_minima_shifts.csv` | 0.332136 |  | Supplementary_Material | ok |
+| CEH5 / Far-field Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.459396 |  | Supplementary_Material | ok |
+| CEH6 / Far-field Ctrl / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.9972 |  | Newborough_Methods_Supplement | ok |
+| CEH6 iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 2.55858 |  | report9 | ok |
+| CEH6 iterative NSE · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.673556 |  | report9 | ok |
+| CEH6 iterative NSE · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -1.88503 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| CEH6 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.673556 |  | report9 | ok |
+| CEH6 · TLM_NSE |  |  | `08_perwell_nse.csv` | -1.88503 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| CEH6 · dNSE |  |  | `08_perwell_nse.csv` | 2.55858 |  | report9 | ok |
+| CEH9 / Climate Ctrl / Climate · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | -0.0191 |  | report9 | ok |
+| CEH9 / Climate Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.711761 |  | Supplementary_Material | ok |
+| CEH9 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.1858 |  | report9 | ok |
+| COMBINED_CONSTRAINED / nan · sigma_total_m |  |  | `44_05_level_change.csv` | 0.104985 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Canopy_controlled_delta_0 |  |  | `25_report_numbers.csv` | -32.3991 |  | Newborough_Methods_Supplement, Paper1 | ok |
+| Canopy_n_controls_in_block |  |  | `10_consolidated_report_numbers.csv` | 2 |  | NRG_Web_Tools_User_Manual | ok |
+| Ceh32 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.51951 |  | Hollingham_2026_Paper2_amended | ok |
+| Climate / Edge · Clearfell_CI_lo_m |  |  | `10a_01_ancova_comparison_table.csv` | -0.167432 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Climate / Edge · Clearfell_step_m |  |  | `10a_01_ancova_comparison_table.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Climate / Edge · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 45.6708 |  | report9 | ok |
+| Climate / Edge · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 15.2081 |  | report9 | ok |
+| Climate / Forest Ctrl · Clearfell_coef_m |  |  | `10d_08_spring_mixed_model_results.csv` | 0.0947 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Climate / Forest Ctrl · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.241502 |  | Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd, report9 | ok |
+| Climate / Impact · Clearfell_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.48259 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Climate / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | -7.71443 |  | report9 | ok |
+| Climate / Impact · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 3.30727 |  | report9 | ok |
+| Coastal_Forest · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.971732 |  | Newborough_Methods_Supplement, report9 | ok |
 | Coastal_Forest · p_value_P_winter | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.338197 |  | report9 | ok |
 | Coastal_Forest · p_value_intercept | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.0943212 |  | Supplementary_Material | ok |
-| CoeffShift_CEH16_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.4803 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH16_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.6595 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH16_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.3688 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH16_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.3165 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH16_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0463 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH16_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1792 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH16_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.0524 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH17_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.0397 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH17_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.4396 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH17_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.0856 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH17_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.2067 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH17_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0771 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH17_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.3999 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH17_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1212 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH19_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.2087 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH19_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.3815 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH19_b2_after |  |  | `10_consolidated_report_numbers.csv` | 0.7761 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH19_b2_before |  |  | `10_consolidated_report_numbers.csv` | 0.9657 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH19_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0462 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH19_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1727 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH19_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1896 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH20_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.5146 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH20_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.57 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH20_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.9769 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH20_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.1594 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH20_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0309 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH20_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1825 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH2_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.7182 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH2_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.6272 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH2_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.8014 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH2_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.5822 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH2_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0228 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH2_db1 |  |  | `10_consolidated_report_numbers.csv` | 0.0909 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH2_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.2192 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH30_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.2594 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH30_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.5212 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH30_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.0743 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH30_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0865 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH30_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0389 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH30_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.2619 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH31_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.0943 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH31_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.6757 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH31_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.2318 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH31_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.4874 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH31_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0568 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH31_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.5813 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH31_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.2556 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH32_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.3196 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH32_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.4682 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH32_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.4999 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH32_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.3704 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH32_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0265 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH32_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1486 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH32_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.1295 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH33_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.2011 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH33_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.4466 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH33_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.1388 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH33_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0763 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH33_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0355 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH33_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.2455 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH33_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.0625 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH34_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.3202 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH34_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.5762 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH34_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.6078 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH34_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.3418 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH34_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0231 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH34_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.256 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH34_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.266 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH6_b3_after |  |  | `10_consolidated_report_numbers.csv` | 0.1223 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CoeffShift_CEH9_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.0262 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH9_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.2119 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH9_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.1579 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH9_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0897 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH9_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0365 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH9_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1858 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_CEH9_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.0683 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_Impact_mean_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.3062 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CoeffShift_NW10_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.4993 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW10_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.2349 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW10_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.4809 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW10_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.6055 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW10_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0366 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW10_db1 |  |  | `10_consolidated_report_numbers.csv` | 0.2644 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW10_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1246 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW4B_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.534 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CoeffShift_NW4B_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.0993 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CoeffShift_NW5_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.4965 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW5_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.4829 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW5_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.9378 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW5_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0581 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW5_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0507 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW5_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1204 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW6_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.3044 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW6_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.3673 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW6_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.1228 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW6_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.3589 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW6_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0562 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW6_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.2361 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW7_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.8179 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW7_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.1197 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW7_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.9093 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW7_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.9885 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW7_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0538 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_NW7_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.3018 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC1_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.4805 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| CoeffShift_WMC2_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.2975 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC2_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.3794 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC2_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.7647 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC2_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.1215 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC2_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0457 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC2_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.3568 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC3_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.4251 |  | INTERCEPTION_TREATMENT, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC3_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.521 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC3_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.6898 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC3_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.9959 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC3_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0343 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| CoeffShift_WMC3_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.3062 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Combined / Edge · Clearfell_p |  |  | `10a_01_ancova_comparison_table.csv` | 0.128941 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| Combined / Edge · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 0.670232 |  | VALUE_LEDGER_report, report9 | ok |
-| Combined / Impact · Clearfell_CI_hi_m |  |  | `10a_01_ancova_comparison_table.csv` | 0.105 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Combined / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 1.33808 |  | VALUE_LEDGER_report, report11, report8 | ok |
-| Combined / Impact · s_coast_fitted | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_10_coastal_fixed1_sensitivity.csv` | 1.33808 |  | VALUE_LEDGER_report, report11, report8 | ok |
-| D38 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.792057 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| D38 · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.108089 |  | VALUE_LEDGER_report | ok |
-| D38 · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.433345 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| D41 · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.35461 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| D44 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.721882 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| D5 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.732923 |  | VALUE_LEDGER_report, report9 | ok |
-| D7 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.380714 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| D8 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.673703 |  | VALUE_LEDGER_report, report9 | ok |
-| Distance to coast (Caernarfon Bay) / dist_coast_m · eta2_separation |  |  | `31b_separation_vs_recoverability.csv` | 0.629 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ENVELOPE_METRIC_REF_MIN_WET |  |  | `config.py` | 2 |  | PIPELINE_README, VALUE_LEDGER_report | ok |
-| ENVELOPE_MIN_YEARS_PER_EXTREME |  |  | `config.py` | 2 |  | VALUE_LEDGER_report | ok |
-| Eastern_Block · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.90265 |  | VALUE_LEDGER_report, report9 | ok |
-| Eastern_Block · p_value_PET_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.631951 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| Eastern_Block · p_value_h_min | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.575101 |  | VALUE_LEDGER_report, report9 | ok |
-| Edge · R2 | R² | coefficient of determination | `10l_01_four_zone_summer_results.csv` | 0.7242 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Edge · clearfell_p |  |  | `10l_01_four_zone_summer_results.csv` | 0.162246 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| Elevation_m · C4_max |  |  | `10c_forest_zone_cluster_summary.csv` | 14.42 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report9, site_geography | ok |
-| Elevation_m · C4_mean |  |  | `10c_forest_zone_cluster_summary.csv` | 10.601 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| FE1 · R2_cal |  |  | `10h_01_synthetic_calibration.csv` | 0.997837 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| FE2 · R2_cal |  |  | `10h_01_synthetic_calibration.csv` | 0.994378 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| FILM_SLIDE_LEAD_S |  |  | `config.py` | 1.5 |  | NRG_Web_Tools_User_Manual, VALUE_LEDGER_report | ok |
-| FarField / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | -1.50833 |  | VALUE_LEDGER_report | ok |
-| FarField / Impact · s_coast_fitted | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_10_coastal_fixed1_sensitivity.csv` | -1.50833 |  | VALUE_LEDGER_report | ok |
-| Forest / Climate Ctrl · Clearfell_SE_m |  |  | `10d_08_spring_mixed_model_results.csv` | 0.0428 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Forest / Climate Ctrl · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.260006 |  | VALUE_LEDGER_report | ok |
-| Forest / Coastal Ctrl · Clearfell_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.00828112 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| CoeffShift_CEH16_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.4803 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, Paper1, report9 | ok |
+| CoeffShift_CEH16_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.6595 |  | report9 | ok |
+| CoeffShift_CEH16_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.3688 |  | report9 | ok |
+| CoeffShift_CEH16_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.3165 |  | report9 | ok |
+| CoeffShift_CEH16_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0463 |  | report9 | ok |
+| CoeffShift_CEH16_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1792 |  | report9 | ok |
+| CoeffShift_CEH16_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.0524 |  | report9 | ok |
+| CoeffShift_CEH17_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.0397 |  | report9 | ok |
+| CoeffShift_CEH17_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.4396 |  | report9 | ok |
+| CoeffShift_CEH17_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.0856 |  | report9 | ok |
+| CoeffShift_CEH17_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.2067 |  | report9 | ok |
+| CoeffShift_CEH17_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0771 |  | report9 | ok |
+| CoeffShift_CEH17_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.3999 |  | report9 | ok |
+| CoeffShift_CEH17_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1212 |  | report9 | ok |
+| CoeffShift_CEH19_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.2087 |  | report9 | ok |
+| CoeffShift_CEH19_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.3815 |  | report9 | ok |
+| CoeffShift_CEH19_b2_after |  |  | `10_consolidated_report_numbers.csv` | 0.7761 |  | report9 | ok |
+| CoeffShift_CEH19_b2_before |  |  | `10_consolidated_report_numbers.csv` | 0.9657 |  | report9 | ok |
+| CoeffShift_CEH19_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0462 |  | report9 | ok |
+| CoeffShift_CEH19_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1727 |  | report9 | ok |
+| CoeffShift_CEH19_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1896 |  | report9 | ok |
+| CoeffShift_CEH20_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.5146 |  | report9 | ok |
+| CoeffShift_CEH20_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.57 |  | Newborough_Methods_Supplement, report9 | ok |
+| CoeffShift_CEH20_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.9769 |  | report9 | ok |
+| CoeffShift_CEH20_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.1594 |  | report9 | ok |
+| CoeffShift_CEH20_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0309 |  | report9 | ok |
+| CoeffShift_CEH20_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1825 |  | report9 | ok |
+| CoeffShift_CEH2_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.7182 |  | report9 | ok |
+| CoeffShift_CEH2_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.6272 |  | report9 | ok |
+| CoeffShift_CEH2_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.8014 |  | report9 | ok |
+| CoeffShift_CEH2_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.5822 |  | report9 | ok |
+| CoeffShift_CEH2_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0228 |  | report9 | ok |
+| CoeffShift_CEH2_db1 |  |  | `10_consolidated_report_numbers.csv` | 0.0909 |  | report9 | ok |
+| CoeffShift_CEH2_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.2192 |  | report9 | ok |
+| CoeffShift_CEH30_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.2594 |  | report9 | ok |
+| CoeffShift_CEH30_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.5212 |  | report9 | ok |
+| CoeffShift_CEH30_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.0743 |  | report9 | ok |
+| CoeffShift_CEH30_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0865 |  | report9 | ok |
+| CoeffShift_CEH30_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0389 |  | report9 | ok |
+| CoeffShift_CEH30_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.2619 |  | report9 | ok |
+| CoeffShift_CEH31_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.0943 |  | report9 | ok |
+| CoeffShift_CEH31_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.6757 |  | report9 | ok |
+| CoeffShift_CEH31_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.2318 |  | Newborough_Methods_Supplement, report9 | ok |
+| CoeffShift_CEH31_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.4874 |  | report9 | ok |
+| CoeffShift_CEH31_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0568 |  | report9 | ok |
+| CoeffShift_CEH31_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.5813 |  | report9 | ok |
+| CoeffShift_CEH31_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.2556 |  | report9 | ok |
+| CoeffShift_CEH32_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.3196 |  | report9 | ok |
+| CoeffShift_CEH32_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.4682 |  | report9 | ok |
+| CoeffShift_CEH32_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.4999 |  | report9 | ok |
+| CoeffShift_CEH32_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.3704 |  | report9 | ok |
+| CoeffShift_CEH32_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0265 |  | report9 | ok |
+| CoeffShift_CEH32_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1486 |  | report9 | ok |
+| CoeffShift_CEH32_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.1295 |  | report9 | ok |
+| CoeffShift_CEH33_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.2011 |  | Newborough_Methods_Supplement, report9 | ok |
+| CoeffShift_CEH33_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.4466 |  | report9 | ok |
+| CoeffShift_CEH33_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.1388 |  | report9 | ok |
+| CoeffShift_CEH33_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0763 |  | report9 | ok |
+| CoeffShift_CEH33_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0355 |  | report9 | ok |
+| CoeffShift_CEH33_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.2455 |  | report9 | ok |
+| CoeffShift_CEH33_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.0625 |  | report9 | ok |
+| CoeffShift_CEH34_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.3202 |  | report9 | ok |
+| CoeffShift_CEH34_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.5762 |  | report9 | ok |
+| CoeffShift_CEH34_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.6078 |  | report9 | ok |
+| CoeffShift_CEH34_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.3418 |  | report9 | ok |
+| CoeffShift_CEH34_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0231 |  | report9 | ok |
+| CoeffShift_CEH34_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.256 |  | report9 | ok |
+| CoeffShift_CEH34_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.266 |  | report9 | ok |
+| CoeffShift_CEH6_b3_after |  |  | `10_consolidated_report_numbers.csv` | 0.1223 |  | Supplementary_Material | ok |
+| CoeffShift_CEH9_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.0262 |  | report9 | ok |
+| CoeffShift_CEH9_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.2119 |  | report9 | ok |
+| CoeffShift_CEH9_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.1579 |  | report9 | ok |
+| CoeffShift_CEH9_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0897 |  | report9 | ok |
+| CoeffShift_CEH9_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0365 |  | report9 | ok |
+| CoeffShift_CEH9_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.1858 |  | report9 | ok |
+| CoeffShift_CEH9_db2 |  |  | `10_consolidated_report_numbers.csv` | 0.0683 |  | report9 | ok |
+| CoeffShift_NW10_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.4993 |  | report9 | ok |
+| CoeffShift_NW10_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.2349 |  | report9 | ok |
+| CoeffShift_NW10_b2_after |  |  | `10_consolidated_report_numbers.csv` | 2.4809 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| CoeffShift_NW10_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.6055 |  | report9 | ok |
+| CoeffShift_NW10_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0366 |  | report9 | ok |
+| CoeffShift_NW10_db1 |  |  | `10_consolidated_report_numbers.csv` | 0.2644 |  | report9 | ok |
+| CoeffShift_NW10_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1246 |  | report9 | ok |
+| CoeffShift_NW4B_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.534 |  | Hollingham_2026_Paper2_amended | ok |
+| CoeffShift_NW4B_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.0993 |  | Newborough_Methods_Supplement | ok |
+| CoeffShift_NW5_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.4965 |  | report9 | ok |
+| CoeffShift_NW5_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.4829 |  | report9 | ok |
+| CoeffShift_NW5_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.9378 |  | report9 | ok |
+| CoeffShift_NW5_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.0581 |  | report9 | ok |
+| CoeffShift_NW5_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0507 |  | report9 | ok |
+| CoeffShift_NW5_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.1204 |  | report9 | ok |
+| CoeffShift_NW6_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.3044 |  | report9 | ok |
+| CoeffShift_NW6_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.3673 |  | report9 | ok |
+| CoeffShift_NW6_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.1228 |  | report9 | ok |
+| CoeffShift_NW6_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.3589 |  | report9 | ok |
+| CoeffShift_NW6_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0562 |  | report9 | ok |
+| CoeffShift_NW6_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.2361 |  | report9 | ok |
+| CoeffShift_NW7_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.8179 |  | report9 | ok |
+| CoeffShift_NW7_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.1197 |  | report9 | ok |
+| CoeffShift_NW7_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.9093 |  | report9 | ok |
+| CoeffShift_NW7_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.9885 |  | report9 | ok |
+| CoeffShift_NW7_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0538 |  | report9 | ok |
+| CoeffShift_NW7_db1 |  |  | `10_consolidated_report_numbers.csv` | -0.3018 |  | report9 | ok |
+| CoeffShift_WMC2_b1_after |  |  | `10_consolidated_report_numbers.csv` | 3.2975 |  | report9 | ok |
+| CoeffShift_WMC2_b1_before |  |  | `10_consolidated_report_numbers.csv` | 3.3794 |  | report9 | ok |
+| CoeffShift_WMC2_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.7647 |  | report9 | ok |
+| CoeffShift_WMC2_b2_before |  |  | `10_consolidated_report_numbers.csv` | 2.1215 |  | report9 | ok |
+| CoeffShift_WMC2_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0457 |  | report9 | ok |
+| CoeffShift_WMC2_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.3568 |  | report9 | ok |
+| CoeffShift_WMC3_b1_after |  |  | `10_consolidated_report_numbers.csv` | 2.4251 |  | INTERCEPTION_TREATMENT, report9 | ok |
+| CoeffShift_WMC3_b1_before |  |  | `10_consolidated_report_numbers.csv` | 2.521 |  | report9 | ok |
+| CoeffShift_WMC3_b2_after |  |  | `10_consolidated_report_numbers.csv` | 1.6898 |  | report9 | ok |
+| CoeffShift_WMC3_b2_before |  |  | `10_consolidated_report_numbers.csv` | 1.9959 |  | report9 | ok |
+| CoeffShift_WMC3_b3_before |  |  | `10_consolidated_report_numbers.csv` | 0.0343 |  | report9 | ok |
+| CoeffShift_WMC3_db2 |  |  | `10_consolidated_report_numbers.csv` | -0.3062 |  | report9 | ok |
+| Combined / Edge · Clearfell_p |  |  | `10a_01_ancova_comparison_table.csv` | 0.128941 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Combined / Edge · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 0.670232 |  | report9 | ok |
+| Combined / Impact · Clearfell_CI_hi_m |  |  | `10a_01_ancova_comparison_table.csv` | 0.105 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Combined / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 1.33808 |  | report11, report8 | ok |
+| Combined / Impact · s_coast_fitted | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_10_coastal_fixed1_sensitivity.csv` | 1.33808 |  | report11, report8 | ok |
+| D38 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.792057 |  | Newborough_Methods_Supplement | ok |
+| D38 · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.433345 |  | Supplementary_Material | ok |
+| D41 · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.35461 |  | Supplementary_Material | ok |
+| D44 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.721882 |  | Newborough_Methods_Supplement | ok |
+| D5 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.732923 |  | report9 | ok |
+| D7 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.380714 |  | Supplementary_Material | ok |
+| D8 · SSM_NSE |  |  | `08_perwell_nse.csv` | 0.673703 |  | report9 | ok |
+| Distance to coast (Caernarfon Bay) / dist_coast_m · eta2_separation |  |  | `31b_separation_vs_recoverability.csv` | 0.629 |  | Supplementary_Material | ok |
+| ENVELOPE_METRIC_REF_MIN_WET |  |  | `config.py` | 2 |  | PIPELINE_README | ok |
+| Eastern_Block · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.90265 |  | report9 | ok |
+| Eastern_Block · p_value_PET_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.631951 |  | Hollingham_2026_Paper2_amended | ok |
+| Eastern_Block · p_value_h_min | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.575101 |  | report9 | ok |
+| Edge · R2 | R² | coefficient of determination | `10l_01_four_zone_summer_results.csv` | 0.7242 |  | Newborough_Methods_Supplement, report9 | ok |
+| Edge · clearfell_p |  |  | `10l_01_four_zone_summer_results.csv` | 0.162246 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| Elevation_m · C4_max |  |  | `10c_forest_zone_cluster_summary.csv` | 14.42 |  | Newborough_Methods_Supplement, Supplementary_Material, report9, site_geography | ok |
+| Elevation_m · C4_mean |  |  | `10c_forest_zone_cluster_summary.csv` | 10.601 |  | Paper1, report9 | ok |
+| FE1 · R2_cal |  |  | `10h_01_synthetic_calibration.csv` | 0.997837 |  | Newborough_Methods_Supplement | ok |
+| FE2 · R2_cal |  |  | `10h_01_synthetic_calibration.csv` | 0.994378 |  | Newborough_Methods_Supplement | ok |
+| FILM_SLIDE_LEAD_S |  |  | `config.py` | 1.5 |  | NRG_Web_Tools_User_Manual | ok |
+| Forest / Climate Ctrl · Clearfell_SE_m |  |  | `10d_08_spring_mixed_model_results.csv` | 0.0428 |  | report9 | ok |
+| Forest / Coastal Ctrl · Clearfell_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.00828112 |  | Supplementary_Material | ok |
 | Forest / Coastal Ctrl · Scraping_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.123888 |  | Supplementary_Material | ok |
-| Forest / Edge · Clearfell_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.00135607 |  | VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd | ok |
-| Forest / Edge · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 0.35999 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| Forest / Impact · Clearfell_CI_hi_m |  |  | `10a_01_ancova_comparison_table.csv` | 0.183919 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary | ok |
-| Forest / Impact · Clearfell_step_m |  |  | `10a_01_ancova_comparison_table.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary | ok |
-| Forest / Impact · clearfell_step_free_m |  |  | `10a_10_coastal_fixed1_sensitivity.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary | ok |
-| Forest / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| Forest / Impact · s_coast_fitted | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_10_coastal_fixed1_sensitivity.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report10 | ok |
-| Forest · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.97715 |  | VALUE_LEDGER_report, report10, report9 | ok |
+| Forest / Edge · Clearfell_p |  |  | `10d_08_spring_mixed_model_results.csv` | 0.00135607 |  | academic_Summary, crynodeb_academaidd | ok |
+| Forest / Edge · s_coast_se | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 0.35999 |  | Newborough_Methods_Supplement | ok |
+| Forest / Impact · Clearfell_CI_hi_m |  |  | `10a_01_ancova_comparison_table.csv` | 0.183919 |  | Newborough_Methods_Supplement, academic_Summary | ok |
+| Forest / Impact · Clearfell_step_m |  |  | `10a_01_ancova_comparison_table.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary | ok |
+| Forest / Impact · clearfell_step_free_m |  |  | `10a_10_coastal_fixed1_sensitivity.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary | ok |
+| Forest / Impact · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_09_coastal_scale_factor.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended | ok |
+| Forest / Impact · s_coast_fitted | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `10a_10_coastal_fixed1_sensitivity.csv` | 1.59224 |  | Hollingham_2026_Paper2_amended, report10 | ok |
+| Forest · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.97715 |  | report10, report9 | ok |
 | Forest · p_value_PET_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.626401 |  | NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual, Newborough_Methods_Supplement, readme | ok |
-| Forest · p_value_P_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.0109627 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| Forest · p_value_P_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.0109627 |  | Supplementary_Material | ok |
 | Forest · p_value_P_winter | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.923608 |  | report10, report9 | ok |
-| FourZoneSummer_C3Warren_clearfell_step_se |  |  | `10_consolidated_report_numbers.csv` | 0.0105913 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| FourZoneSummer_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.724187 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| FourZone_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.847846 |  | VALUE_LEDGER_report, report9 | ok |
-| HINDCAST_SPIN_UP_YEARS |  |  | `config.py` | 2 |  | VALUE_LEDGER_report | ok |
-| Impact (WMC3) / Post-fell 2018+ · Mean_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.6 |  | VALUE_LEDGER_report | ok |
-| Impact (WMC3) / Pre-2015 · Mean_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.5733 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| Impact · R2 | R² | coefficient of determination | `10l_01_four_zone_summer_results.csv` | 0.7242 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Impact · clearfell_p |  |  | `10l_01_four_zone_summer_results.csv` | 0.357584 |  | VALUE_LEDGER_report | ok |
-| ImpactVsEdge_summer_clearfell_step_se |  |  | `10j_report_numbers.csv` | 0.0203292 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| L7 / Far-field Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.699884 |  | VALUE_LEDGER_report, report9 | ok |
-| L7 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.856 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| L7 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.56093 |  | Paper1, VALUE_LEDGER_report, report, report9 | ok |
-| Lake_Edge · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.783139 |  | VALUE_LEDGER_report, report9 | ok |
-| Lake_Edge · p_value_PET_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.836841 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
+| FourZoneSummer_C3Warren_clearfell_step_se |  |  | `10_consolidated_report_numbers.csv` | 0.0105913 |  | report9 | ok |
+| FourZoneSummer_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.724187 |  | Newborough_Methods_Supplement, report9 | ok |
+| FourZone_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.847846 |  | report9 | ok |
+| Impact (WMC3) / Pre-2015 · Mean_depth_m |  |  | `21_forestry_04_baci_zone_means.csv` | 1.5733 |  | report10 | ok |
+| Impact · R2 | R² | coefficient of determination | `10l_01_four_zone_summer_results.csv` | 0.7242 |  | Newborough_Methods_Supplement, report9 | ok |
+| ImpactVsEdge_summer_clearfell_step_se |  |  | `10j_report_numbers.csv` | 0.0203292 |  | Newborough_Methods_Supplement | ok |
+| L7 / Far-field Ctrl / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.699884 |  | report9 | ok |
+| L7 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.856 |  | Newborough_Methods_Supplement | ok |
+| L7 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.56093 |  | Paper1, report, report9 | ok |
+| Lake_Edge · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.783139 |  | report9 | ok |
+| Lake_Edge · p_value_PET_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.836841 |  | Hollingham_2026_Paper2_amended | ok |
 | Lake_Edge · p_value_h_min | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.780119 |  | report9 | ok |
-| Long-term mean · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.34779 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report10, report9 | ok |
-| MSL_MIN_MONTHS_PER_SPRING |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| Max NSE improvement (CEH27) · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 2.86478 |  | VALUE_LEDGER_report, report9 | ok |
-| Max NSE improvement (CEH27) · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.680403 |  | VALUE_LEDGER_report, report9 | ok |
-| Max NSE improvement (CEH27) · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -2.18438 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| Median iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.82444 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| Median iterative NSE · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.71941 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| Median iterative R2 · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.137441 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report9 | ok |
-| Median iterative R2 · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.773059 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| Median iterative R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.638349 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| Median one-step R2 · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.918602 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| Median one-step R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.914272 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| MixedModelSpring_Climate_Forest Ctrl_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.0947 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| MixedModel_Climate_Edge_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.0507 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Model_R² · C5_max |  |  | `10c_forest_zone_cluster_summary.csv` | 0.747 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| NIR_DARK_RATIO |  |  | `config.py` | 0.8 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| Long-term mean · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.34779 |  | Newborough_Methods_Supplement, report10, report9 | ok |
+| MSL_MIN_MONTHS_PER_SPRING |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement | ok |
+| Max NSE improvement (CEH27) · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 2.86478 |  | report9 | ok |
+| Max NSE improvement (CEH27) · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.680403 |  | report9 | ok |
+| Max NSE improvement (CEH27) · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | -2.18438 |  | Paper1, report9 | ok |
+| Median iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.82444 |  | Paper1, report9 | ok |
+| Median iterative NSE · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.71941 |  | Paper1, report9 | ok |
+| Median iterative R2 · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.137441 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| Median iterative R2 · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.773059 |  | Paper1, report9 | ok |
+| Median iterative R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.638349 |  | Paper1, report9 | ok |
+| Median one-step R2 · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.918602 |  | Paper1, report9 | ok |
+| Median one-step R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.914272 |  | Paper1, report9 | ok |
+| MixedModelSpring_Climate_Forest Ctrl_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.0947 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| MixedModel_Climate_Edge_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.0507 |  | report9 | ok |
+| Model_R² · C5_max |  |  | `10c_forest_zone_cluster_summary.csv` | 0.747 |  | Newborough_Methods_Supplement, report9 | ok |
+| NIR_DARK_RATIO |  |  | `config.py` | 0.8 |  | Supplementary_Material | ok |
 | NW1 / 2013 · Spring_mean_m |  |  | `10l_08_c3warren_spring_means.csv` | -1.1 |  | Supplementary_Material | ok |
-| NW10 · db1 |  |  | `10e_01_coefficient_shifts.csv` | 0.2644 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| NW10 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1246 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| NW4B / Far-field Ctrl / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.996 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| NW5 / Climate Ctrl / Climate · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.569296 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| NW5 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1204 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| NW6 / Climate Ctrl / Climate · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.259 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| NW6 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.2361 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| NW7 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.3018 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Net_benefit · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.143532 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| Pearson / ward / 5 · ARI_vs_canonical |  |  | `31_method_robustness_ari.csv` | 1 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| RAF_VALLEY_LAT_DEG |  |  | `config.py` | 53.25 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, PIPELINE_README, VALUE_LEDGER, VALUE_LEDGER_report, report8 | ok |
-| ROLLING_WINDOW_STEP_MONTHS |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| Rolling_b1_impact_post |  |  | `10_consolidated_report_numbers.csv` | 2.561 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| SD16_REC |  |  | `config.py` | 1.2 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report7, report9 | ok |
-| Scrape_equilibration_peak · CEH36 · Climate |  |  | `09c_report_numbers.csv` | 0.4225 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Scrape_equilibration_peak_spring · CEH36 · Climate |  |  | `09c_report_numbers.csv` | 0.216 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| Scraping (nearby) / C3 · Delta_vol_mm_per_month |  |  | `09b_04_scenario_comparison.csv` | 0.2 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| Scraping_distance_weight · CEH30 |  |  | `10_consolidated_report_numbers.csv` | 0.213923 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| Sensitivity_lambda200_Climate_Edge_clearfell |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| Sensitivity_lambda200_Forest_Impact_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary | ok |
-| Sensitivity_lambda500_Climate_Edge_clearfell |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| Sensitivity_lambda500_Forest_Impact_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary | ok |
-| Spring_mean_BACI_shift · CEH21 · Climate |  |  | `09c_report_numbers.csv` | -0.1232 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Summer_min_BACI_shift · CEH18 · Climate |  |  | `09c_report_numbers.csv` | 0.0222 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Summer_min_BACI_shift · CEH21 · Climate |  |  | `09c_report_numbers.csv` | -0.0596 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Summer_min_BACI_shift · CEH36 · Climate |  |  | `09c_report_numbers.csv` | 0.161 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Summer_min_BACI_shift · CEH36 · Paired |  |  | `09c_report_numbers.csv` | 0.1945 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Summer_minimum_depth · CEH4 · 1_Baseline |  |  | `09_scrape_report_numbers.csv` | -1.16 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Summer_minimum_depth · CEH4 · 2_Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | -1.18 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| Summer_minimum_depth · CEH4 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | -1.4 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| T41b · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 1.2697 |  | VALUE_LEDGER_report, report, report12 | ok |
-| T41d · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.722134 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| T41d · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 3.96788 |  | Paper1, VALUE_LEDGER_report, report12 | ok |
-| Tier1_CUSUM_terminal · CEH22 |  |  | `09_scrape_report_numbers.csv` | -19.022 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Tier1_CUSUM_terminal · CEH4 |  |  | `09_scrape_report_numbers.csv` | -10.5527 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| Tier2_BACI_shift · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.129426 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report12, report9 | ok |
-| UKCP18_DRY_PET_SUMMER |  |  | `config.py` | 1.12 |  | VALUE_LEDGER_report | ok |
-| UKCP18_DRY_PET_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PIPELINE_README, VALUE_LEDGER, VALUE_LEDGER_report, readme | ok |
-| UKCP18_DRY_P_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, readme, report8 | ok |
-| UKCP18_WET_P_SUMMER |  |  | `config.py` | 1.1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, VALUE_LEDGER_report, readme | ok |
-| WMC1 / Far-field Ctrl / Climate · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1978 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| WMC2 / Climate Ctrl / Climate · t_stat |  |  | `10d_02_summer_minima_shifts.csv` | 1.167 |  | VALUE_LEDGER_report | ok |
-| WMC2 · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.0468729 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| WMC2 · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.0468729 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| WMC2 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.3568 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| WMC3 / Impact / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1197 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| WMC3 / Impact / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.127 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| WMC3 / Impact / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.905232 |  | VALUE_LEDGER_report, report9 | ok |
-| WMC3 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.3062 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| WMC3_ANCOVA_clearfell_step_ref |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, academic_Summary, crynodeb_academaidd | ok |
-| WTF_C_DRY_BASELINE |  |  | `config.py` | 2 |  | NRG_Web_Tools_User_Manual, VALUE_LEDGER_report | ok |
-| WTF_C_MAX_DURATION |  |  | `config.py` | 2 |  | VALUE_LEDGER_report | ok |
-| Western_Block · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.943304 |  | VALUE_LEDGER_report, report9 | ok |
+| NW10 · db1 |  |  | `10e_01_coefficient_shifts.csv` | 0.2644 |  | report9 | ok |
+| NW10 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1246 |  | report9 | ok |
+| NW4B / Far-field Ctrl / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.996 |  | Newborough_Methods_Supplement | ok |
+| NW5 / Climate Ctrl / Climate · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.569296 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| NW5 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.1204 |  | report9 | ok |
+| NW6 / Climate Ctrl / Climate · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.259 |  | Supplementary_Material | ok |
+| NW6 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.2361 |  | report9 | ok |
+| NW7 · db1 |  |  | `10e_01_coefficient_shifts.csv` | -0.3018 |  | report9 | ok |
+| Net_benefit · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.143532 |  | Newborough_Methods_Supplement | ok |
+| Pearson / ward / 5 · ARI_vs_canonical |  |  | `31_method_robustness_ari.csv` | 1 |  | Newborough_Methods_Supplement | ok |
+| RAF_VALLEY_LAT_DEG |  |  | `config.py` | 53.25 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, PIPELINE_README, report8 | ok |
+| ROLLING_WINDOW_STEP_MONTHS |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement | ok |
+| Rolling_b1_impact_post |  |  | `10_consolidated_report_numbers.csv` | 2.561 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| SD16_REC |  |  | `config.py` | 1.2 |  | Newborough_Methods_Supplement, report7, report9 | ok |
+| Scrape_equilibration_peak_spring · CEH36 · Climate |  |  | `09c_report_numbers.csv` | 0.216 |  | Newborough_Methods_Supplement, report10 | ok |
+| Scraping (nearby) / C3 · Delta_vol_mm_per_month |  |  | `09b_04_scenario_comparison.csv` | 0.2 |  | Supplementary_Material | ok |
+| Scraping_distance_weight · CEH30 |  |  | `10_consolidated_report_numbers.csv` | 0.213923 |  | Supplementary_Material | ok |
+| Sensitivity_lambda200_Climate_Edge_clearfell |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Sensitivity_lambda200_Forest_Impact_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary | ok |
+| Sensitivity_lambda500_Climate_Edge_clearfell |  |  | `10_consolidated_report_numbers.csv` | -0.106793 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Sensitivity_lambda500_Forest_Impact_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary | ok |
+| Spring_mean_BACI_shift · CEH21 · Climate |  |  | `09c_report_numbers.csv` | -0.1232 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Summer_min_BACI_shift · CEH36 · Climate |  |  | `09c_report_numbers.csv` | 0.161 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| Summer_min_BACI_shift · CEH36 · Paired |  |  | `09c_report_numbers.csv` | 0.1945 |  | Hollingham_2026_Paper2_amended | ok |
+| Summer_minimum_depth · CEH4 · 1_Baseline |  |  | `09_scrape_report_numbers.csv` | -1.16 |  | Hollingham_2026_Paper2_amended | ok |
+| Summer_minimum_depth · CEH4 · 2_Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | -1.18 |  | Hollingham_2026_Paper2_amended | ok |
+| Summer_minimum_depth · CEH4 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | -1.4 |  | Hollingham_2026_Paper2_amended | ok |
+| T41b · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 1.2697 |  | report, report12 | ok |
+| T41d · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.722134 |  | Newborough_Methods_Supplement, report9 | ok |
+| T41d · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 3.96788 |  | Paper1, report12 | ok |
+| Tier1_CUSUM_terminal · CEH22 |  |  | `09_scrape_report_numbers.csv` | -19.022 |  | Newborough_Methods_Supplement, report9 | ok |
+| Tier1_CUSUM_terminal · CEH4 |  |  | `09_scrape_report_numbers.csv` | -10.5527 |  | Newborough_Methods_Supplement, report9 | ok |
+| Tier2_BACI_shift · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.129426 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report9 | ok |
+| UKCP18_DRY_PET_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PIPELINE_README, readme | ok |
+| UKCP18_DRY_P_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, readme, report8 | ok |
+| UKCP18_WET_P_SUMMER |  |  | `config.py` | 1.1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, readme | ok |
+| WMC1 / Far-field Ctrl / Climate · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1978 |  | Supplementary_Material | ok |
+| WMC2 · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.0468729 |  | Supplementary_Material | ok |
+| WMC2 · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.0468729 |  | Supplementary_Material | ok |
+| WMC2 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.3568 |  | report9 | ok |
+| WMC3 / Impact / Forest · Post_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.1197 |  | report9 | ok |
+| WMC3 / Impact / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.127 |  | report9 | ok |
+| WMC3 / Impact / Forest · p_value | p | significance probability | `10d_02_summer_minima_shifts.csv` | 0.905232 |  | report9 | ok |
+| WMC3 · db2 |  |  | `10e_01_coefficient_shifts.csv` | -0.3062 |  | report9 | ok |
+| WMC3_ANCOVA_clearfell_step_ref |  |  | `10_consolidated_report_numbers.csv` | 0.113095 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd | ok |
+| WTF_C_DRY_BASELINE |  |  | `config.py` | 2 |  | NRG_Web_Tools_User_Manual | ok |
+| Western_Block · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.943304 |  | report9 | ok |
 | Western_Block · p_value_PET_win_to_spr | p | significance probability | `11_forecast_spring_transfer_functions.csv` | 0.918425 |  | Newborough_Methods_Supplement | ok |
-| all / C1 (Lake Edge) · n_wells_with_springs |  |  | `26_index_precision_by_cluster.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| all / C2 (Dune) · rho_lag1_mean |  |  | `26_index_precision_by_cluster.csv` | -0.139095 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| all / C4 (Main Forest) · n_wells_with_springs |  |  | `26_index_precision_by_cluster.csv` | 7 |  | VALUE_LEDGER_report | ok |
-| all_members · R2 | R² | coefficient of determination | `30_c4_centroid_sensitivity.csv` | 0.72153 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| all_members · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_centroid_sensitivity.csv` | 2.47707 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report9 | ok |
-| all_members · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_centroid_sensitivity.csv` | 2.5626 |  | Paper1, VALUE_LEDGER_report, report, report9 | ok |
+| all / C1 (Lake Edge) · n_wells_with_springs |  |  | `26_index_precision_by_cluster.csv` | 7 |  | report9 | ok |
+| all / C2 (Dune) · rho_lag1_mean |  |  | `26_index_precision_by_cluster.csv` | -0.139095 |  | Supplementary_Material | ok |
+| all_members · R2 | R² | coefficient of determination | `30_c4_centroid_sensitivity.csv` | 0.72153 |  | Newborough_Methods_Supplement, report9 | ok |
+| all_members · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_centroid_sensitivity.csv` | 2.47707 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| all_members · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_centroid_sensitivity.csv` | 2.5626 |  | Paper1, report, report9 | ok |
 | annual_all_month / 2005_2025 · p_ar | p | significance probability | `32_site_mean_trend.csv` | 0.2318 |  | report10, report9 | ok |
-| benchmark_median_NSE_SSM |  |  | `08_report_numbers.csv` | 0.71941 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
+| benchmark_median_NSE_SSM |  |  | `08_report_numbers.csv` | 0.71941 |  | Paper1, report9 | ok |
 | benchmark_median_NSE_TLM |  |  | `08_report_numbers.csv` | -0.0254394 |  | report9 | ok |
-| benchmark_median_dNSE |  |  | `08_report_numbers.csv` | 0.82444 |  | VALUE_LEDGER_report, report9 | ok |
+| benchmark_median_dNSE |  |  | `08_report_numbers.csv` | 0.82444 |  | report9 | ok |
 | benchmark_positive_NSE_SSM |  |  | `08_report_numbers.csv` | 65 |  | report9 | ok |
 | benchmark_positive_NSE_TLM |  |  | `08_report_numbers.csv` | 30 |  | report9 | ok |
-| beta3_era · CEH18 · 2_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.103418 |  | VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH18 · 3_After_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.17667 |  | VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH21 · 1_Baseline |  |  | `09_scrape_report_numbers.csv` | 0.102911 |  | VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH22 · 1_Baseline |  |  | `09_scrape_report_numbers.csv` | 0.136032 |  | VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH22 · 2_Coastal_Drawdown |  |  | `09_scrape_report_numbers.csv` | 0.151551 |  | VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH22 · 3_After_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.239029 |  | VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH36 · 2_Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.139043 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH36 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.112846 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH4 · 2_Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.161719 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report, report9 | ok |
-| beta3_era · CEH4 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.115475 |  | VALUE_LEDGER_report, report9 | ok |
-| bootstrap_k_max |  |  | `02_report_numbers.csv` | 7 |  | VALUE_LEDGER_report | ok |
-| broadleaf / annual / C4 · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.0112 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| broadleaf / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.205595 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| broadleaf / summer / C5 · we_median_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 1.49524 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| broadleaf / summer / SITE · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.120747 |  | VALUE_LEDGER_report, report9 | ok |
-| broadleaf / winter / SITE · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 1.58814 |  | VALUE_LEDGER_report | ok |
-| broadleaf_restock / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.22052 |  | VALUE_LEDGER_report, report9 | ok |
-| broadleaf_restock / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.04473 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| broadleaf_restock / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 1.13081 |  | VALUE_LEDGER_report | ok |
-| broadleaf_restock / 2019-09-11 / aerial11-9-2019.png · index |  |  | `41_01_canopy_index.csv` | 1.05465 |  | VALUE_LEDGER_report | ok |
-| broadleaf_restock / 2020-04-24 / aerial24-4-2020.png · index |  |  | `41_01_canopy_index.csv` | 1.13049 |  | VALUE_LEDGER_report | ok |
-| broadleaf_restock / 2020-04-24 / aerial24-4-2020.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.12762 |  | VALUE_LEDGER_report | ok |
-| broadleaf_restock / 2026-03-31 / aerial31-3-2026.png · index |  |  | `41_01_canopy_index.csv` | 0.85322 |  | VALUE_LEDGER_report | ok |
-| broadleaf_restock / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.85263 |  | VALUE_LEDGER_report, report8 | ok |
-| c3_only / exponential_cfix · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.12 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| c3_only / exponential_cfix · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -32.15 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| c3_only / exponential_cfix · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 3.71 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| c3_only / exponential_cfix · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 2.32404 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report12, report8, report9 | ok |
-| c3_only_mam / exponential_cfix · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 5.33052 |  | VALUE_LEDGER_report, report10 | ok |
-| c3_only_mam / linear_capped_cfix · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.48 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9, site_geography | ok |
-| c3_only_mam / linear_capped_cfix · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -31.73 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| c4_closure_min_beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_report_numbers.csv` | 0.019 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| c4_perwell_sig_fullrecord |  |  | `30_c4_report_numbers.csv` | 7 |  | VALUE_LEDGER_report | ok |
-| c4_perwell_sig_window100 |  |  | `30_c4_report_numbers.csv` | 3 |  | VALUE_LEDGER_report | ok |
-| c4_vif |  |  | `30_c4_report_numbers.csv` | 1.09524 |  | VALUE_LEDGER_report | ok |
-| canonical / C1 (Lake Edge) · n_wells |  |  | `33_cluster_summary.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| canonical / C3 (Western Residual) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.2023 |  | VALUE_LEDGER_report | ok |
-| canonical / C3 (Western Residual) · dry_m_mean |  |  | `33_cluster_summary.csv` | -1.04157 |  | VALUE_LEDGER_report, report9 | ok |
+| beta3_era · CEH18 · 2_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.103418 |  | report9 | ok |
+| beta3_era · CEH18 · 3_After_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.17667 |  | report9 | ok |
+| beta3_era · CEH21 · 1_Baseline |  |  | `09_scrape_report_numbers.csv` | 0.102911 |  | report9 | ok |
+| beta3_era · CEH22 · 1_Baseline |  |  | `09_scrape_report_numbers.csv` | 0.136032 |  | report9 | ok |
+| beta3_era · CEH22 · 2_Coastal_Drawdown |  |  | `09_scrape_report_numbers.csv` | 0.151551 |  | report9 | ok |
+| beta3_era · CEH22 · 3_After_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.239029 |  | report9 | ok |
+| beta3_era · CEH36 · 2_Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.139043 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report9 | ok |
+| beta3_era · CEH36 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.112846 |  | Newborough_Methods_Supplement, report9 | ok |
+| beta3_era · CEH4 · 2_Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.161719 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| beta3_era · CEH4 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.115475 |  | report9 | ok |
+| broadleaf / annual / C4 · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.0112 |  | report9 | ok |
+| broadleaf / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.205595 |  | Supplementary_Material | ok |
+| broadleaf / summer / C5 · we_median_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 1.49524 |  | Newborough_Methods_Supplement, report9 | ok |
+| broadleaf / summer / SITE · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.120747 |  | report9 | ok |
+| broadleaf_restock / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.22052 |  | report9 | ok |
+| broadleaf_restock / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.04473 |  | Newborough_Methods_Supplement | ok |
+| broadleaf_restock / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.85263 |  | report8 | ok |
+| c3_only / exponential_cfix · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.12 |  | Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
+| c3_only / exponential_cfix · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -32.15 |  | PAPER1_SI_methods | ok |
+| c3_only / exponential_cfix · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 3.71 |  | PAPER1_SI_methods | ok |
+| c3_only / exponential_cfix · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 2.32404 |  | Newborough_Methods_Supplement, Paper1, report12, report8, report9 | ok |
+| c3_only_mam / exponential_cfix · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 5.33052 |  | report10 | ok |
+| c3_only_mam / linear_capped_cfix · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.48 |  | Newborough_Methods_Supplement, report9, site_geography | ok |
+| c3_only_mam / linear_capped_cfix · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -31.73 |  | PAPER1_SI_methods | ok |
+| c4_closure_min_beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_report_numbers.csv` | 0.019 |  | Supplementary_Material | ok |
+| canonical / C1 (Lake Edge) · n_wells |  |  | `33_cluster_summary.csv` | 7 |  | report9 | ok |
+| canonical / C3 (Western Residual) · dry_m_mean |  |  | `33_cluster_summary.csv` | -1.04157 |  | report9 | ok |
 | canonical / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.66267 |  | PAPER1_SI_methods, report12, report9 | ok |
 | canonical / C4 (Main Forest) · dry_m_mean |  |  | `33_cluster_summary.csv` | -1.6741 |  | report9 | ok |
 | canonical / C4 (Main Forest) · wet_m_mean |  |  | `33_cluster_summary.csv` | -0.538933 |  | Supplementary_Material | ok |
-| canonical / network (unflagged wells) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.07687 |  | VALUE_LEDGER_report | ok |
-| canopy_index_clearfell_full_leaf_median |  |  | `41_report_numbers.csv` | 0.138638 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| canopy_ratio_restock_conifer_full_leaf_median |  |  | `41_report_numbers.csv` | 1.17167 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh1 · MSL5_bg_2017_m |  |  | `20_msl5_change_perwell.csv` | -0.23 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh1 · beta_3_at_secondary | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.122476 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh1 · dry_m |  |  | `33_envelope_per_well.csv` | -1.02 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh1 · slope_mm_yr_2005_2025 |  |  | `32_differential_movement_per_well.csv` | 2.68423 |  | VALUE_LEDGER_report | ok |
-| ceh1 · summer_min_depth_m |  |  | `29_within_c3_variance.csv` | 1.103 |  | VALUE_LEDGER_report | ok |
-| ceh10 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -1.048 |  | VALUE_LEDGER_report | ok |
+| canopy_index_clearfell_full_leaf_median |  |  | `41_report_numbers.csv` | 0.138638 |  | Newborough_Methods_Supplement | ok |
+| canopy_ratio_restock_conifer_full_leaf_median |  |  | `41_report_numbers.csv` | 1.17167 |  | Newborough_Methods_Supplement | ok |
+| ceh1 · MSL5_bg_2017_m |  |  | `20_msl5_change_perwell.csv` | -0.23 |  | Supplementary_Material | ok |
+| ceh1 · beta_3_at_secondary | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.122476 |  | Supplementary_Material | ok |
+| ceh1 · dry_m |  |  | `33_envelope_per_well.csv` | -1.02 |  | Supplementary_Material | ok |
 | ceh10 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.0932813 |  | report10, report9 | ok |
-| ceh11 · dem |  |  | `07_coeff_maps_data.csv` | 3.534 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh11 · se |  |  | `35_per_well_amplification.csv` | 0.123144 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh13 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.06896 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh13 · se |  |  | `35_per_well_amplification.csv` | 0.256121 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh14 · DEM_Ground_Elev |  |  | `01_locations.csv` | 14.42 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh14 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.585714 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh14 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 2.3518 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
+| ceh11 · se |  |  | `35_per_well_amplification.csv` | 0.123144 |  | Newborough_Methods_Supplement | ok |
+| ceh14 · DEM_Ground_Elev |  |  | `01_locations.csv` | 14.42 |  | Newborough_Methods_Supplement | ok |
+| ceh14 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.585714 |  | report9 | ok |
+| ceh14 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 2.3518 |  | report10 | ok |
 | ceh14 · amplification |  |  | `33_envelope_per_well.csv` | 2.31873 |  | report9 | ok |
-| ceh14 · dem |  |  | `07_coeff_maps_data.csv` | 14.42 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh14 · residual_wb |  |  | `20_residual_perwell.csv` | -0.0109697 |  | PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report9 | ok |
-| ceh14 · se |  |  | `35_per_well_amplification.csv` | 0.298603 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh14 · wet_m |  |  | `33_envelope_per_well.csv` | -0.0841667 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh16 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.746794 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh16 · amplification |  |  | `33_envelope_per_well.csv` | 1.09024 |  | VALUE_LEDGER_report | ok |
-| ceh16 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.194152 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh17 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.06201 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh18 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.10247 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh18 · amplification |  |  | `33_envelope_per_well.csv` | 1.06188 |  | VALUE_LEDGER_report | ok |
-| ceh18 · ci_hi |  |  | `35_per_well_amplification.csv` | 1.25628 |  | VALUE_LEDGER_report | ok |
-| ceh18 · summer_min_depth_m |  |  | `29_within_c3_variance.csv` | 1.17737 |  | VALUE_LEDGER_report | ok |
-| ceh19 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.728954 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh19 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.802701 |  | VALUE_LEDGER_report | ok |
-| ceh19 · se |  |  | `35_per_well_amplification.csv` | 0.104481 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh2 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.81953 |  | VALUE_LEDGER_report | ok |
-| ceh2 · depth_bg |  |  | `11b_03_pflood_per_well.csv` | 1.62053 |  | VALUE_LEDGER_report | ok |
-| ceh2 · p3 |  |  | `30_c4_perwell_beta3.csv` | 0.117192 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
+| ceh14 · residual_wb |  |  | `20_residual_perwell.csv` | -0.0109697 |  | PAPER1_SI_methods, Paper1, report9 | ok |
+| ceh14 · se |  |  | `35_per_well_amplification.csv` | 0.298603 |  | Supplementary_Material | ok |
+| ceh14 · wet_m |  |  | `33_envelope_per_well.csv` | -0.0841667 |  | Supplementary_Material | ok |
+| ceh16 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.746794 |  | Newborough_Methods_Supplement | ok |
+| ceh16 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.194152 |  | Supplementary_Material | ok |
+| ceh18 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.10247 |  | report9 | ok |
+| ceh19 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.728954 |  | Newborough_Methods_Supplement | ok |
+| ceh19 · se |  |  | `35_per_well_amplification.csv` | 0.104481 |  | Newborough_Methods_Supplement | ok |
+| ceh2 · p3 |  |  | `30_c4_perwell_beta3.csv` | 0.117192 |  | Supplementary_Material, report9 | ok |
 | ceh2 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.262239 |  | Supplementary_Material | ok |
-| ceh2 · pvalue_beta_3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.117192 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| ceh2 · se |  |  | `35_per_well_amplification.csv` | 0.261511 |  | Supplementary_Material, VALUE_LEDGER_report, report9 | ok |
-| ceh20 · VIF |  |  | `30_c4_perwell_beta3.csv` | 1.23259 |  | VALUE_LEDGER_report | ok |
-| ceh20 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.128069 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh20 · se |  |  | `35_per_well_amplification.csv` | 0.112075 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh21 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 1.0707 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh21 · ci_hi |  |  | `35_per_well_amplification.csv` | 1.15831 |  | VALUE_LEDGER_report | ok |
-| ceh21 · depth_to_water_m |  |  | `29_within_c3_variance.csv` | 1.06917 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report10 | ok |
-| ceh21 · mean_head_maod |  |  | `29_within_c3_variance.csv` | 3.10283 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh22 · se |  |  | `35_per_well_amplification.csv` | 0.158372 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| ceh23 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.693821 |  | VALUE_LEDGER_report, readme | ok |
-| ceh23 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.529623 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| ceh2 · pvalue_beta_3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.117192 |  | Supplementary_Material, report9 | ok |
+| ceh2 · se |  |  | `35_per_well_amplification.csv` | 0.261511 |  | Supplementary_Material, report9 | ok |
+| ceh20 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.128069 |  | Newborough_Methods_Supplement | ok |
+| ceh20 · se |  |  | `35_per_well_amplification.csv` | 0.112075 |  | Newborough_Methods_Supplement | ok |
+| ceh21 · depth_to_water_m |  |  | `29_within_c3_variance.csv` | 1.06917 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, report10 | ok |
+| ceh21 · mean_head_maod |  |  | `29_within_c3_variance.csv` | 3.10283 |  | report9 | ok |
+| ceh22 · se |  |  | `35_per_well_amplification.csv` | 0.158372 |  | Newborough_Methods_Supplement, report9 | ok |
+| ceh23 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.693821 |  | readme | ok |
+| ceh23 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.529623 |  | Supplementary_Material | ok |
 | ceh23 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.433724 |  | report10 | ok |
-| ceh24 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.0723 |  | VALUE_LEDGER_report | ok |
-| ceh24 · amplification |  |  | `33_envelope_per_well.csv` | 1.07738 |  | VALUE_LEDGER_report | ok |
-| ceh24 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| ceh25 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.722062 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| ceh25 · beta3_full | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.117265 |  | VALUE_LEDGER_report | ok |
-| ceh25 · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.133793 |  | VALUE_LEDGER_report | ok |
-| ceh26 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -0.199 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh26 · ci_lo |  |  | `35_per_well_amplification.csv` | 0.436068 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh26 · dry_m |  |  | `33_envelope_per_well.csv` | -0.407222 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh26 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.998546 |  | NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual, VALUE_LEDGER_report | ok |
-| ceh27 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.853423 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh28 · d_delta_0_mm_yr |  |  | `25_16_delta0_leave_one_out.csv` | 0.314458 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh28 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| ceh3 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -1.16333 |  | VALUE_LEDGER_report | ok |
-| ceh3 · ci_lo |  |  | `35_per_well_amplification.csv` | 0.279475 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| ceh24 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| ceh25 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.722062 |  | Newborough_Methods_Supplement, report9 | ok |
+| ceh26 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -0.199 |  | Supplementary_Material | ok |
+| ceh26 · ci_lo |  |  | `35_per_well_amplification.csv` | 0.436068 |  | Supplementary_Material | ok |
+| ceh26 · dry_m |  |  | `33_envelope_per_well.csv` | -0.407222 |  | Supplementary_Material | ok |
+| ceh26 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.998546 |  | NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual | ok |
+| ceh27 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.853423 |  | Newborough_Methods_Supplement | ok |
+| ceh28 · d_delta_0_mm_yr |  |  | `25_16_delta0_leave_one_out.csv` | 0.314458 |  | Supplementary_Material | ok |
+| ceh28 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| ceh3 · ci_lo |  |  | `35_per_well_amplification.csv` | 0.279475 |  | Supplementary_Material | ok |
 | ceh3 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.0745904 |  | PAPER1_SI_methods, report10, report9 | ok |
-| ceh3 · se |  |  | `35_per_well_amplification.csv` | 0.139038 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report12, report9 | ok |
+| ceh3 · se |  |  | `35_per_well_amplification.csv` | 0.139038 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, Paper1, report12, report9 | ok |
 | ceh30 · amplification |  |  | `33_envelope_per_well.csv` | 1.30609 |  | report9 | ok |
-| ceh32 · se |  |  | `35_per_well_amplification.csv` | 0.172459 |  | VALUE_LEDGER_report, report10, report9 | ok |
+| ceh32 · se |  |  | `35_per_well_amplification.csv` | 0.172459 |  | report10, report9 | ok |
 | ceh33 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.165326 |  | report9 | ok |
-| ceh33 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.194519 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| ceh33 · se |  |  | `35_per_well_amplification.csv` | 0.107049 |  | VALUE_LEDGER_report | ok |
-| ceh34 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.33936 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
+| ceh33 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.194519 |  | Hollingham_2026_Paper2_amended | ok |
+| ceh34 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.33936 |  | Hollingham_2026_Paper2_amended, report10 | ok |
 | ceh34 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.139742 |  | Supplementary_Material | ok |
-| ceh34 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.15881 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh34 · se |  |  | `35_per_well_amplification.csv` | 0.131706 |  | VALUE_LEDGER_report, wtf_interception_methodology | ok |
-| ceh36 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.718739 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| ceh36 · VIF_full |  |  | `30_c4_perwell_beta3.csv` | 1.26608 |  | VALUE_LEDGER_report | ok |
-| ceh36 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.76706 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh36 · depth_to_water_m |  |  | `29_within_c3_variance.csv` | 0.683448 |  | VALUE_LEDGER_report | ok |
-| ceh36 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.718739 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| ceh37 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.10299 |  | VALUE_LEDGER_report | ok |
-| ceh37 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.193151 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh37 · se |  |  | `35_per_well_amplification.csv` | 0.0938001 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh39 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.0673 |  | VALUE_LEDGER_report | ok |
-| ceh39 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.35779 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh4 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.01085 |  | Paper1, VALUE_LEDGER_report | ok |
-| ceh40 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.623165 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh40 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.81271 |  | VALUE_LEDGER_report, report10 | ok |
-| ceh40 · obs_years |  |  | `28_c3_detrend.csv` | 11.5893 |  | VALUE_LEDGER, VALUE_LEDGER_report, report8 | ok |
-| ceh40 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.647302 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh41 · ci_lo |  |  | `35_per_well_amplification.csv` | 0.477761 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh41 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.349591 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh41 · obs_years |  |  | `28_c3_detrend.csv` | 11.5893 |  | VALUE_LEDGER, VALUE_LEDGER_report, report8 | ok |
-| ceh41 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.96847 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh41 · se |  |  | `35_per_well_amplification.csv` | 0.15385 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh41 · slope_mm_yr_2005_2025 |  |  | `32_differential_movement_per_well.csv` | 0.308081 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh42 · amplification |  |  | `33_envelope_per_well.csv` | 1.4673 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ceh42 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.355291 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh42 · obs_years |  |  | `28_c3_detrend.csv` | 11.5893 |  | VALUE_LEDGER, VALUE_LEDGER_report, report8 | ok |
-| ceh42 · se |  |  | `35_per_well_amplification.csv` | 0.223085 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
+| ceh34 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.15881 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| ceh34 · se |  |  | `35_per_well_amplification.csv` | 0.131706 |  | wtf_interception_methodology | ok |
+| ceh36 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.718739 |  | Paper1, report9 | ok |
+| ceh36 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.76706 |  | report9 | ok |
+| ceh36 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.718739 |  | Paper1, report9 | ok |
+| ceh37 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.193151 |  | Newborough_Methods_Supplement | ok |
+| ceh37 · se |  |  | `35_per_well_amplification.csv` | 0.0938001 |  | report9 | ok |
+| ceh39 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.35779 |  | Supplementary_Material | ok |
+| ceh4 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.01085 |  | Paper1 | ok |
+| ceh40 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.623165 |  | Supplementary_Material | ok |
+| ceh40 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.81271 |  | report10 | ok |
+| ceh40 · obs_years |  |  | `28_c3_detrend.csv` | 11.5893 |  | report8 | ok |
+| ceh40 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.647302 |  | Newborough_Methods_Supplement | ok |
+| ceh41 · ci_lo |  |  | `35_per_well_amplification.csv` | 0.477761 |  | Supplementary_Material | ok |
+| ceh41 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.349591 |  | Supplementary_Material | ok |
+| ceh41 · obs_years |  |  | `28_c3_detrend.csv` | 11.5893 |  | report8 | ok |
+| ceh41 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.96847 |  | report9 | ok |
+| ceh41 · se |  |  | `35_per_well_amplification.csv` | 0.15385 |  | report9 | ok |
+| ceh41 · slope_mm_yr_2005_2025 |  |  | `32_differential_movement_per_well.csv` | 0.308081 |  | Supplementary_Material | ok |
+| ceh42 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.355291 |  | Supplementary_Material | ok |
+| ceh42 · obs_years |  |  | `28_c3_detrend.csv` | 11.5893 |  | report8 | ok |
+| ceh42 · se |  |  | `35_per_well_amplification.csv` | 0.223085 |  | Newborough_Methods_Supplement, report9 | ok |
 | ceh42 · wet_m |  |  | `33_envelope_per_well.csv` | 0.371111 |  | Supplementary_Material | ok |
-| ceh5 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.788221 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| ceh5 · beta_3_at_secondary | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.335662 |  | VALUE_LEDGER_report | ok |
-| ceh5 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.336125 |  | VALUE_LEDGER_report | ok |
-| ceh6 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.549989 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh6 · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.121652 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh6 · beta3_full | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.10298 |  | VALUE_LEDGER_report | ok |
-| ceh6 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 5.3331 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| ceh6 · beta_3_at_uniform | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.121652 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| ceh6 · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.121652 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
+| ceh5 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.788221 |  | Paper1, report9 | ok |
+| ceh6 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.549989 |  | Supplementary_Material | ok |
+| ceh6 · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.121652 |  | Supplementary_Material | ok |
+| ceh6 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 5.3331 |  | report10 | ok |
+| ceh6 · beta_3_at_uniform | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.121652 |  | Supplementary_Material | ok |
+| ceh6 · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.121652 |  | Supplementary_Material | ok |
 | ceh6 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.651606 |  | report9 | ok |
-| ceh6 · se |  |  | `35_per_well_amplification.csv` | 0.108545 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh9 · VIF_full |  |  | `30_c4_perwell_beta3.csv` | 1.20676 |  | VALUE_LEDGER_report, report9 | ok |
-| ceh9 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.12627 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| ceh9 · amplification |  |  | `33_envelope_per_well.csv` | 1.14429 |  | VALUE_LEDGER_report | ok |
-| ceh9 · ci_hi |  |  | `35_per_well_amplification.csv` | 1.23816 |  | VALUE_LEDGER_report | ok |
-| ceh9 · depth_bg |  |  | `11b_03_pflood_per_well.csv` | 1.083 |  | VALUE_LEDGER_report | ok |
-| ceh9 · slope_r2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.126526 |  | VALUE_LEDGER_report | ok |
-| ceh9 · summer_min_depth_m |  |  | `29_within_c3_variance.csv` | 1.101 |  | VALUE_LEDGER_report | ok |
-| centring_constant |  |  | `00_report_numbers.csv` | 19.5095 |  | VALUE_LEDGER, VALUE_LEDGER_report, report8 | ok |
-| centroid / C1 (Lake Edge) / nan · alpha_B |  |  | `03_16_model_b_persistence.csv` | 1.06808 |  | VALUE_LEDGER_report, report10 | ok |
-| centroid / C1 (Lake Edge) / nan · t_efold_B_months | λ | drawdown e-folding reach √(Kb/(S_y·β₃)) (def. report9 §4.9.3) | `03_16_model_b_persistence.csv` | 2.82678 |  | VALUE_LEDGER_report, report9 | ok |
-| clearfell / 2006-01-01 / aerial 1-1-2006.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.51281 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| clearfell / 2009-04-20 / aerial20-4-2009.png · index |  |  | `41_01_canopy_index.csv` | 1.27309 |  | VALUE_LEDGER_report, report9 | ok |
-| clearfell / 2009-04-20 / aerial20-4-2009.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.2689 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| clearfell / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.05316 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| clearfell / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.23527 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report10, report8 | ok |
-| clearfell / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.14085 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report8 | ok |
-| clearfell / annual / C5 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.0385 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| clearfell / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 1.42489 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| cluster_ground_elev_max_m · C4 (Main Forest) |  |  | `02_report_numbers.csv` | 14.42 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| cluster_ground_elev_min_m · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 3.534 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| cluster_isolated_ground_elev_m · ceh11 · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 3.534 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| cluster_others_ground_elev_max_m · C4 (Main Forest) |  |  | `02_report_numbers.csv` | 14.42 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| cluster_others_ground_elev_min_m · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 8.461 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| cluster_stability_median · C4 (Main Forest) · k=5 |  |  | `02_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, PAPER1_SI_methods, VALUE_LEDGER_report, report8, report9 | ok |
-| cluster_stability_months_median |  |  | `02_report_numbers.csv` | 0.9855 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| coastal_retreat_rate |  |  | `20_report_numbers.csv` | 2.32071 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report8, report9 | ok |
-| cumbal_wl_r2 | R² | coefficient of determination | `00_report_numbers.csv` | 0.526538 |  | VALUE_LEDGER_report, report8, report9 | ok |
-| curreli_min_quadrat_wells_first_window_min_m_bg |  |  | `26_report_numbers.csv` | -1.3775 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| curreli_min_quadrat_wells_first_window_n |  |  | `26_report_numbers.csv` | 11 |  | VALUE_LEDGER_report | ok |
+| ceh6 · se |  |  | `35_per_well_amplification.csv` | 0.108545 |  | Newborough_Methods_Supplement | ok |
+| ceh9 · VIF_full |  |  | `30_c4_perwell_beta3.csv` | 1.20676 |  | report9 | ok |
+| ceh9 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.12627 |  | Newborough_Methods_Supplement | ok |
+| centring_constant |  |  | `00_report_numbers.csv` | 19.5095 |  | report8 | ok |
+| centroid / C1 (Lake Edge) / nan · alpha_B |  |  | `03_16_model_b_persistence.csv` | 1.06808 |  | report10 | ok |
+| centroid / C1 (Lake Edge) / nan · t_efold_B_months | λ | drawdown e-folding reach √(Kb/(S_y·β₃)) (def. report9 §4.9.3) | `03_16_model_b_persistence.csv` | 2.82678 |  | report9 | ok |
+| clearfell / 2006-01-01 / aerial 1-1-2006.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.51281 |  | Newborough_Methods_Supplement | ok |
+| clearfell / 2009-04-20 / aerial20-4-2009.png · index |  |  | `41_01_canopy_index.csv` | 1.27309 |  | report9 | ok |
+| clearfell / 2009-04-20 / aerial20-4-2009.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.2689 |  | report9 | ok |
+| clearfell / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.05316 |  | Newborough_Methods_Supplement, report9 | ok |
+| clearfell / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.23527 |  | Newborough_Methods_Supplement, report10, report8 | ok |
+| clearfell / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.14085 |  | Newborough_Methods_Supplement, report8 | ok |
+| clearfell / annual / C5 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.0385 |  | Supplementary_Material | ok |
+| clearfell / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 1.42489 |  | report9 | ok |
+| cluster_ground_elev_max_m · C4 (Main Forest) |  |  | `02_report_numbers.csv` | 14.42 |  | Newborough_Methods_Supplement | ok |
+| cluster_ground_elev_min_m · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 3.534 |  | Newborough_Methods_Supplement | ok |
+| cluster_isolated_ground_elev_m · ceh11 · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 3.534 |  | Newborough_Methods_Supplement | ok |
+| cluster_others_ground_elev_max_m · C4 (Main Forest) |  |  | `02_report_numbers.csv` | 14.42 |  | Newborough_Methods_Supplement | ok |
+| cluster_others_ground_elev_min_m · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 8.461 |  | report9 | ok |
+| cluster_stability_median · C4 (Main Forest) · k=5 |  |  | `02_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, PAPER1_SI_methods, report8, report9 | ok |
+| cluster_stability_months_median |  |  | `02_report_numbers.csv` | 0.9855 |  | report10 | ok |
+| coastal_retreat_rate |  |  | `20_report_numbers.csv` | 2.32071 |  | Newborough_Methods_Supplement, Paper1, report8, report9 | ok |
+| cumbal_wl_r2 | R² | coefficient of determination | `00_report_numbers.csv` | 0.526538 |  | report8, report9 | ok |
+| curreli_min_quadrat_wells_first_window_min_m_bg |  |  | `26_report_numbers.csv` | -1.3775 |  | report9 | ok |
 | d10 · MSL5_bg_2017_m |  |  | `20_msl5_change_perwell.csv` | -0.0913333 |  | Supplementary_Material | ok |
-| d10 · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.172098 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| d10 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d15 · amplification |  |  | `33_envelope_per_well.csv` | 1.08494 |  | VALUE_LEDGER_report | ok |
-| d15 · dry_m |  |  | `33_envelope_per_well.csv` | -0.538889 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| d15 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d17 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.788031 |  | VALUE_LEDGER_report | ok |
-| d17 · amplification |  |  | `33_envelope_per_well.csv` | 0.856236 |  | VALUE_LEDGER_report | ok |
-| d17 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d17 · se |  |  | `35_per_well_amplification.csv` | 0.107011 |  | VALUE_LEDGER_report | ok |
-| d25 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.24945 |  | VALUE_LEDGER_report | ok |
-| d25 · amplification |  |  | `33_envelope_per_well.csv` | 1.25279 |  | VALUE_LEDGER_report | ok |
-| d25 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d38 · amplification |  |  | `33_envelope_per_well.csv` | 1.2388 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| d38 · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.199287 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| d38 · ci_lo |  |  | `35_per_well_amplification.csv` | 1.09722 |  | VALUE_LEDGER_report | ok |
-| d38 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d38 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.861677 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| d41 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -0.158667 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| d41 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.73461 |  | VALUE_LEDGER_report | ok |
-| d41 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d43 · amplification |  |  | `33_envelope_per_well.csv` | 1.05319 |  | VALUE_LEDGER_report | ok |
-| d43 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d44 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.884909 |  | VALUE_LEDGER_report | ok |
-| d44 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d44 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.852911 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| d5 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.853078 |  | VALUE_LEDGER_report, report8 | ok |
-| d5 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d6 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.86498 |  | VALUE_LEDGER_report | ok |
-| d6 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d7 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -0.215333 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| d7 · amplification |  |  | `33_envelope_per_well.csv` | 1.00178 |  | VALUE_LEDGER_report | ok |
-| d7 · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.260808 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| d7 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| d7 · residual_wb |  |  | `20_residual_perwell.csv` | -0.0133053 |  | PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report9 | ok |
-| d9 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.1927 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| d9 · beta_3_at_secondary | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.180611 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| d9 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
+| d10 · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.172098 |  | Supplementary_Material | ok |
+| d10 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d15 · dry_m |  |  | `33_envelope_per_well.csv` | -0.538889 |  | Supplementary_Material | ok |
+| d15 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d17 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d25 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d38 · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.199287 |  | Supplementary_Material | ok |
+| d38 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d38 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.861677 |  | Newborough_Methods_Supplement | ok |
+| d41 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d43 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d44 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d44 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.852911 |  | Newborough_Methods_Supplement | ok |
+| d5 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 0.853078 |  | report8 | ok |
+| d5 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d6 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d7 · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.260808 |  | Supplementary_Material | ok |
+| d7 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| d7 · residual_wb |  |  | `20_residual_perwell.csv` | -0.0133053 |  | PAPER1_SI_methods, Paper1, report9 | ok |
+| d9 · beta_3_at_secondary | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.180611 |  | Supplementary_Material | ok |
+| d9 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
 | dNSE_vs_beta2_r | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `08_report_numbers.csv` | -0.616866 |  | report9 | ok |
 | dNSE_vs_beta3_r | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `08_report_numbers.csv` | 0.596795 |  | report9 | ok |
-| delta0_well_basis_ci_hi_mm_yr | δ₀ | coast-edge decline rate at zero distance (def. report8 §3.6) | `25_report_numbers.csv` | -21.7181 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| delta0_well_basis_ci_lo_mm_yr | δ₀ | coast-edge decline rate at zero distance (def. report8 §3.6) | `25_report_numbers.csv` | -40.9743 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| delta0_well_basis_se_mm_yr | δ₀ | coast-edge decline rate at zero distance (def. report8 §3.6) | `25_report_numbers.csv` | 4.9123 |  | PAPER1_SI_methods, Paper1, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| delta_ref_well_basis_ci_hi_mm_yr |  |  | `25_report_numbers.csv` | -19.1911 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| delta_ref_well_basis_ci_lo_mm_yr |  |  | `25_report_numbers.csv` | -33.1881 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| delta_ref_well_basis_se_mm_yr |  |  | `25_report_numbers.csv` | 3.57067 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report9 | ok |
-| drop_NW10 / no_trend · p |  |  | `10a_12_control_subset_sensitivity.csv` | 0.250563 |  | VALUE_LEDGER_report, report9 | ok |
-| drop_ceh14 · R2 | R² | coefficient of determination | `30_c4_centroid_sensitivity.csv` | 0.736529 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
+| delta0_well_basis_ci_hi_mm_yr | δ₀ | coast-edge decline rate at zero distance (def. report8 §3.6) | `25_report_numbers.csv` | -21.7181 |  | PAPER1_SI_methods | ok |
+| delta0_well_basis_ci_lo_mm_yr | δ₀ | coast-edge decline rate at zero distance (def. report8 §3.6) | `25_report_numbers.csv` | -40.9743 |  | PAPER1_SI_methods | ok |
+| delta0_well_basis_se_mm_yr | δ₀ | coast-edge decline rate at zero distance (def. report8 §3.6) | `25_report_numbers.csv` | 4.9123 |  | PAPER1_SI_methods, Paper1 | ok |
+| delta_ref_well_basis_ci_hi_mm_yr |  |  | `25_report_numbers.csv` | -19.1911 |  | Newborough_Methods_Supplement, Paper1 | ok |
+| delta_ref_well_basis_ci_lo_mm_yr |  |  | `25_report_numbers.csv` | -33.1881 |  | Newborough_Methods_Supplement, Paper1 | ok |
+| delta_ref_well_basis_se_mm_yr |  |  | `25_report_numbers.csv` | 3.57067 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, report9 | ok |
+| drop_NW10 / no_trend · p |  |  | `10a_12_control_subset_sensitivity.csv` | 0.250563 |  | report9 | ok |
+| drop_ceh14 · R2 | R² | coefficient of determination | `30_c4_centroid_sensitivity.csv` | 0.736529 |  | Newborough_Methods_Supplement | ok |
 | fe1 · amplification |  |  | `33_envelope_per_well.csv` | 1.53608 |  | report9 | ok |
-| fe1 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.313806 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| fe1 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.34539 |  | VALUE_LEDGER_report | ok |
-| fe1 · se |  |  | `35_per_well_amplification.csv` | 0.215597 |  | VALUE_LEDGER_report, report9 | ok |
-| fe2 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.22571 |  | VALUE_LEDGER_report | ok |
-| fe2 · amplification |  |  | `33_envelope_per_well.csv` | 1.21158 |  | VALUE_LEDGER_report, report9 | ok |
-| fe2 · dry_m |  |  | `33_envelope_per_well.csv` | -1.76667 |  | VALUE_LEDGER_report, report9 | ok |
-| fe2 · se |  |  | `35_per_well_amplification.csv` | 0.143109 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| fe2 · wet_m |  |  | `33_envelope_per_well.csv` | -1.00333 |  | VALUE_LEDGER_report, report9 | ok |
-| fe3 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.12926 |  | VALUE_LEDGER_report | ok |
-| fe3 · amplification |  |  | `33_envelope_per_well.csv` | 1.09981 |  | VALUE_LEDGER_report | ok |
-| fe3 · se |  |  | `35_per_well_amplification.csv` | 0.106812 |  | VALUE_LEDGER_report | ok |
-| felling_1998_2 / 2026-03-31 / aerial31-3-2026.png · index |  |  | `41_01_canopy_index.csv` | 1.01197 |  | VALUE_LEDGER_report | ok |
-| felling_1998_2 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.01127 |  | Paper1, VALUE_LEDGER_report | ok |
-| felling_1998_3 / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.855504 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| felling_1998_3 / 2018-06-28 / aerial28-6-2018.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.60342 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| felling_1998_3 / 2019-07-29 / aerial29-7-2019.png · index |  |  | `41_01_canopy_index.csv` | 0.735179 |  | VALUE_LEDGER_report | ok |
-| felling_1998_3 / 2019-07-29 / aerial29-7-2019.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.734738 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| felling_1998_3 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.01496 |  | Paper1, VALUE_LEDGER_report | ok |
-| felling_experiment / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.09798 |  | VALUE_LEDGER_report | ok |
-| felling_experiment / 2017-03-24 / aerial24-3-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.34833 |  | VALUE_LEDGER_report | ok |
-| felling_experiment / 2017-03-24 / aerial24-3-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.3456 |  | VALUE_LEDGER_report | ok |
-| felling_experiment / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.24764 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report10 | ok |
-| felling_experiment / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.23874 |  | Paper1, VALUE_LEDGER_report | ok |
-| felling_experiment / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.122667 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report10 | ok |
-| felling_experiment / 2018-07-08 / aerial8-7-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.122558 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report10 | ok |
-| felling_experiment / 2020-04-24 / aerial24-4-2020.png · index |  |  | `41_01_canopy_index.csv` | 0.137105 |  | VALUE_LEDGER_report | ok |
-| fit_open_water_r2_log |  |  | `45_report_numbers.csv` | 0.711666 |  | VALUE_LEDGER_report | ok |
-| floor_mask_area_ha |  |  | `45_report_numbers.csv` | 306.97 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report, report8, report9 | ok |
-| forest_control / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.2442 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| forest_control / 2017-03-24 / aerial24-3-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.25519 |  | VALUE_LEDGER_report | ok |
-| forest_control / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.21958 |  | VALUE_LEDGER_report | ok |
-| forest_free / exponential · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.12 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| forest_free / exponential · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -40.63 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| forest_free / exponential · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 3.15 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| forest_free / linear_capped · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -31.35 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| forest_free / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.97 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| forest_free / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.44869 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER_report | ok |
-| forest_free_mam / linear_capped · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.48 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| forest_free_mam / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 3.71 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
+| fe1 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.313806 |  | Newborough_Methods_Supplement | ok |
+| fe1 · se |  |  | `35_per_well_amplification.csv` | 0.215597 |  | report9 | ok |
+| fe2 · amplification |  |  | `33_envelope_per_well.csv` | 1.21158 |  | report9 | ok |
+| fe2 · dry_m |  |  | `33_envelope_per_well.csv` | -1.76667 |  | report9 | ok |
+| fe2 · se |  |  | `35_per_well_amplification.csv` | 0.143109 |  | Supplementary_Material | ok |
+| fe2 · wet_m |  |  | `33_envelope_per_well.csv` | -1.00333 |  | report9 | ok |
+| felling_1998_2 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.01127 |  | Paper1 | ok |
+| felling_1998_3 / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.855504 |  | Newborough_Methods_Supplement | ok |
+| felling_1998_3 / 2018-06-28 / aerial28-6-2018.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.60342 |  | Supplementary_Material | ok |
+| felling_1998_3 / 2019-07-29 / aerial29-7-2019.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 0.734738 |  | Supplementary_Material | ok |
+| felling_1998_3 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.01496 |  | Paper1 | ok |
+| felling_experiment / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.24764 |  | Newborough_Methods_Supplement, report10 | ok |
+| felling_experiment / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.23874 |  | Paper1 | ok |
+| felling_experiment / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.122667 |  | Newborough_Methods_Supplement, report10 | ok |
+| felling_experiment / 2018-07-08 / aerial8-7-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.122558 |  | Newborough_Methods_Supplement, report10 | ok |
+| floor_mask_area_ha |  |  | `45_report_numbers.csv` | 306.97 |  | Newborough_Methods_Supplement, report, report8, report9 | ok |
+| forest_control / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.2442 |  | Paper1 | ok |
+| forest_free / exponential · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.12 |  | Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
+| forest_free / exponential · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -40.63 |  | PAPER1_SI_methods | ok |
+| forest_free / exponential · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 3.15 |  | PAPER1_SI_methods | ok |
+| forest_free / linear_capped · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -31.35 |  | Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
+| forest_free / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.97 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material, report10 | ok |
+| forest_free / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.44869 |  | Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
+| forest_free_mam / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 3.71 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material | ok |
 | forest_free_mam / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 2.73869 |  | Newborough_Methods_Supplement, PIPELINE_README, Paper1, report, report10, report12, report9 | ok |
-| forest_in_view / 2006-01-01 / aerial 1-1-2006.png · index |  |  | `41_01_canopy_index.csv` | 1.00569 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2006-01-01 / aerial 1-1-2006.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2009-04-20 / aerial20-4-2009.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2012-05-26 / aerial26-5-2012.png · index |  |  | `41_01_canopy_index.csv` | 1.0083 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2017-03-24 / aerial24-3-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.00719 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| forest_in_view / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 1.00706 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| forest_in_view / 2018-06-28 / aerial28-6-2018.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2018-07-08 / aerial8-7-2018.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2019-07-29 / aerial29-7-2019.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2019-09-11 / aerial11-9-2019.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2020-03-31 / aerial31-3-2020.png · index |  |  | `41_01_canopy_index.csv` | 1.007 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| forest_in_view / 2020-03-31 / aerial31-3-2020.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2020-04-24 / aerial24-4-2020.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| forest_in_view / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| full / exponential · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 3.28 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| full / exponential · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -41.3 |  | PAPER1_SI_methods, VALUE_LEDGER_report | ok |
-| full / exponential · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 2.58 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| full / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.95 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| full / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.44188 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| full_canopy / exponential · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.8108 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report8 | ok |
-| full_canopy / linear_capped · beta_forest_se_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.52077 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| full_canopy / linear_capped · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -32.4 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report | ok |
-| full_canopy / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.95 |  | PAPER1_SI_methods, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| full_canopy / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.4437 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| full_mam / linear_capped · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.15 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| full_record / 2 · p_value | p | significance probability | `00_06_pet_monthly_trends.csv` | 0.141883 |  | VALUE_LEDGER_report, report9 | ok |
-| l7 · MSL5_bg_2017_m |  |  | `20_msl5_change_perwell.csv` | -1.20267 |  | VALUE_LEDGER_report | ok |
-| l7 · R2_gain_max_vs_uniform |  |  | `03_09_well_optimal_datums.csv` | 0.0109014 |  | VALUE_LEDGER_report, report9 | ok |
-| l7 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.00476 |  | VALUE_LEDGER_report | ok |
-| mean_annual_rain_well_record |  |  | `00_report_numbers.csv` | 890.87 |  | VALUE_LEDGER, VALUE_LEDGER_report, report8 | ok |
-| n_years_annual_rain_incomplete |  |  | `00_report_numbers.csv` | 1 |  | VALUE_LEDGER_report, report9 | ok |
-| nw1 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.712908 |  | VALUE_LEDGER_report | ok |
-| nw1 · amplification |  |  | `33_envelope_per_well.csv` | 1.22444 |  | VALUE_LEDGER_report | ok |
-| nw1 · ci_lo |  |  | `35_per_well_amplification.csv` | 1.07147 |  | VALUE_LEDGER_report | ok |
-| nw1 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.712908 |  | VALUE_LEDGER_report | ok |
-| nw1 · seasonal_amplitude_m | Δh | water-level change / amplitude | `29_within_c3_variance.csv` | 1.0171 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw10 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.7835 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw10 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 3.48071 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw10 · optimal_datum_primary |  |  | `03_09_well_optimal_datums.csv` | 0.7 |  | VALUE_LEDGER_report | ok |
-| nw10 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.264418 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| nw10 · wet_m |  |  | `33_envelope_per_well.csv` | -0.269167 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw11 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.80074 |  | VALUE_LEDGER_report | ok |
-| nw11 · VIF_full |  |  | `30_c4_perwell_beta3.csv` | 1.26914 |  | VALUE_LEDGER_report | ok |
+| forest_in_view / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.00719 |  | report10 | ok |
+| forest_in_view / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 1.00706 |  | report10 | ok |
+| forest_in_view / 2020-03-31 / aerial31-3-2020.png · index |  |  | `41_01_canopy_index.csv` | 1.007 |  | report10 | ok |
+| full / exponential · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 3.28 |  | PAPER1_SI_methods | ok |
+| full / exponential · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -41.3 |  | PAPER1_SI_methods | ok |
+| full / exponential · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 2.58 |  | PAPER1_SI_methods | ok |
+| full / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.95 |  | PAPER1_SI_methods | ok |
+| full / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.44188 |  | Newborough_Methods_Supplement, report9 | ok |
+| full_canopy / exponential · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.8108 |  | report10, report8 | ok |
+| full_canopy / linear_capped · beta_forest_se_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.52077 |  | Hollingham_2026_Paper2_amended | ok |
+| full_canopy / linear_capped · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -32.4 |  | Newborough_Methods_Supplement, Paper1 | ok |
+| full_canopy / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.95 |  | PAPER1_SI_methods | ok |
+| full_canopy / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.4437 |  | Newborough_Methods_Supplement, report9 | ok |
+| full_mam / linear_capped · c_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | 2.15 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material | ok |
+| full_record / 2 · p_value | p | significance probability | `00_06_pet_monthly_trends.csv` | 0.141883 |  | report9 | ok |
+| l7 · R2_gain_max_vs_uniform |  |  | `03_09_well_optimal_datums.csv` | 0.0109014 |  | report9 | ok |
+| mean_annual_rain_well_record |  |  | `00_report_numbers.csv` | 890.87 |  | report8 | ok |
+| n_years_annual_rain_incomplete |  |  | `00_report_numbers.csv` | 1 |  | report9 | ok |
+| nw10 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.264418 |  | Newborough_Methods_Supplement, report9 | ok |
+| nw10 · wet_m |  |  | `33_envelope_per_well.csv` | -0.269167 |  | Supplementary_Material | ok |
 | nw11 · amplification |  |  | `33_envelope_per_well.csv` | 1.30836 |  | report9 | ok |
-| nw11 · depth_to_water_m |  |  | `29_within_c3_variance.csv` | 0.834977 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report10 | ok |
-| nw11 · epoch_shift_m |  |  | `39_01_hindcast_per_well.csv` | -0.834901 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| nw11 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.80074 |  | VALUE_LEDGER_report | ok |
-| nw11 · pearson_r |  |  | `39_01_hindcast_per_well.csv` | 0.659824 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| nw11 · seasonal_amplitude_m | Δh | water-level change / amplitude | `29_within_c3_variance.csv` | 1.00863 |  | VALUE_LEDGER_report | ok |
-| nw11 · summer_min_depth_m |  |  | `29_within_c3_variance.csv` | 1.28263 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw13 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.06358 |  | VALUE_LEDGER_report | ok |
+| nw11 · depth_to_water_m |  |  | `29_within_c3_variance.csv` | 0.834977 |  | Newborough_Methods_Supplement, report10 | ok |
+| nw11 · epoch_shift_m |  |  | `39_01_hindcast_per_well.csv` | -0.834901 |  | Newborough_Methods_Supplement | ok |
+| nw11 · pearson_r |  |  | `39_01_hindcast_per_well.csv` | 0.659824 |  | Newborough_Methods_Supplement | ok |
+| nw11 · summer_min_depth_m |  |  | `29_within_c3_variance.csv` | 1.28263 |  | Supplementary_Material | ok |
 | nw13 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.02301 |  | report9 | ok |
 | nw13 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.0283495 |  | Newborough_Methods_Supplement | ok |
-| nw13 · seasonal_amplitude_m | Δh | water-level change / amplitude | `29_within_c3_variance.csv` | 1.0981 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw2 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.745764 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw2 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 4.58282 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report12, report9 | ok |
-| nw2 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.745764 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw2 · seasonal_amplitude_m | Δh | water-level change / amplitude | `29_within_c3_variance.csv` | 1.00333 |  | VALUE_LEDGER_report | ok |
-| nw3 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.175179 |  | VALUE_LEDGER_report | ok |
-| nw4 · bias_m |  |  | `39_01_hindcast_per_well.csv` | -0.211258 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw4b · abs_diff_m |  |  | `01_dist_coast_validation.csv` | 0.173861 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw4b · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 3.56734 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| nw4b · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 1.1295 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw4b · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.256501 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw4b · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.321786 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw4b · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.698838 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| nw5 · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.0498449 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw5 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 3.52664 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| nw5 · beta_3_at_uniform | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.0498449 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw5 · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.0498449 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw5 · nse |  |  | `39_01_hindcast_per_well.csv` | 0.205572 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw5 · pearson_r |  |  | `39_01_hindcast_per_well.csv` | 0.944681 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| nw6 · MSL5_bg_2017_m |  |  | `20_msl5_change_perwell.csv` | -0.201333 |  | VALUE_LEDGER_report | ok |
-| nw6 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.642486 |  | VALUE_LEDGER_report, report9 | ok |
-| nw6 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.29545 |  | Paper1, VALUE_LEDGER_report | ok |
-| nw6 · amplification |  |  | `33_envelope_per_well.csv` | 1.26968 |  | VALUE_LEDGER_report | ok |
-| nw6 · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.306415 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw6 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.642486 |  | VALUE_LEDGER_report, report9 | ok |
-| nw6 · wet_m |  |  | `33_envelope_per_well.csv` | 0.105 |  | Supplementary_Material, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw7 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -1.12533 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw7 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.275197 |  | VALUE_LEDGER_report | ok |
-| nw8 · se |  |  | `35_per_well_amplification.csv` | 0.213266 |  | VALUE_LEDGER_report | ok |
-| nw8b · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.25779 |  | VALUE_LEDGER_report, report, report12, report9 | ok |
-| nw9 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.737042 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| nw9 · beta3_full | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.048938 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| nw9 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 2.75349 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| nw9 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 1.06723 |  | VALUE_LEDGER_report | ok |
-| oos_C_wet_floor_ratio_p84 |  |  | `45_report_numbers.csv` | 1.11083 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| open_water · b |  |  | `45_01_wet_area_model.csv` | 4.43273 |  | VALUE_LEDGER_report, report9 | ok |
-| per_well / D7 · d_beta_2 | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | -0.0110161 |  | PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report9 | ok |
-| per_well / WMC2 · beta_3_ground_frame | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | 0.0468729 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| per_well / ceh6 · beta_3_ground_frame | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | 0.121652 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| per_well / nw5 · beta_3_ground_frame | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | 0.0498449 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| pet_calendar_undefined_n_months |  |  | `01_report_numbers.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material, VALUE_LEDGER_report | ok |
-| rain_months_missing_in_source |  |  | `00_report_numbers.csv` | 1 |  | VALUE_LEDGER_report | ok |
-| ranwell_sigma_m_combined_constrained |  |  | `44_report_numbers.csv` | 0.104985 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| recent / C1 (Lake Edge) · n_wells |  |  | `33_cluster_summary.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
+| nw2 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.745764 |  | Supplementary_Material | ok |
+| nw2 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 4.58282 |  | Newborough_Methods_Supplement, Paper1, report12, report9 | ok |
+| nw2 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.745764 |  | Supplementary_Material | ok |
+| nw4 · bias_m |  |  | `39_01_hindcast_per_well.csv` | -0.211258 |  | Supplementary_Material | ok |
+| nw4b · abs_diff_m |  |  | `01_dist_coast_validation.csv` | 0.173861 |  | Supplementary_Material | ok |
+| nw4b · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 3.56734 |  | Paper1, report9 | ok |
+| nw4b · beta_3_at_max | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.256501 |  | Supplementary_Material | ok |
+| nw4b · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.321786 |  | Supplementary_Material | ok |
+| nw4b · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.698838 |  | Newborough_Methods_Supplement | ok |
+| nw5 · beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.0498449 |  | Supplementary_Material | ok |
+| nw5 · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 3.52664 |  | Hollingham_2026_Paper2_amended | ok |
+| nw5 · beta_3_at_uniform | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.0498449 |  | Supplementary_Material | ok |
+| nw5 · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 0.0498449 |  | Supplementary_Material | ok |
+| nw5 · nse |  |  | `39_01_hindcast_per_well.csv` | 0.205572 |  | Supplementary_Material | ok |
+| nw5 · pearson_r |  |  | `39_01_hindcast_per_well.csv` | 0.944681 |  | Newborough_Methods_Supplement | ok |
+| nw6 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.642486 |  | report9 | ok |
+| nw6 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.29545 |  | Paper1 | ok |
+| nw6 · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.306415 |  | Supplementary_Material | ok |
+| nw6 · model_R2 | R² | coefficient of determination | `29_within_c3_variance.csv` | 0.642486 |  | report9 | ok |
+| nw6 · wet_m |  |  | `33_envelope_per_well.csv` | 0.105 |  | Supplementary_Material | ok |
+| nw8b · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.25779 |  | report, report12, report9 | ok |
+| nw9 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.737042 |  | Newborough_Methods_Supplement | ok |
+| nw9 · beta3_full | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_perwell_beta3.csv` | 0.048938 |  | Supplementary_Material | ok |
+| oos_C_wet_floor_ratio_p84 |  |  | `45_report_numbers.csv` | 1.11083 |  | Newborough_Methods_Supplement, report9 | ok |
+| open_water · b |  |  | `45_01_wet_area_model.csv` | 4.43273 |  | report9 | ok |
+| per_well / D7 · d_beta_2 | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | -0.0110161 |  | PAPER1_SI_methods, Paper1, report9 | ok |
+| per_well / WMC2 · beta_3_ground_frame | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | 0.0468729 |  | Supplementary_Material | ok |
+| per_well / ceh6 · beta_3_ground_frame | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | 0.121652 |  | Supplementary_Material | ok |
+| per_well / nw5 · beta_3_ground_frame | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_17_upstand_frame_sensitivity.csv` | 0.0498449 |  | Supplementary_Material | ok |
+| pet_calendar_undefined_n_months |  |  | `01_report_numbers.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| ranwell_sigma_m_combined_constrained |  |  | `44_report_numbers.csv` | 0.104985 |  | Hollingham_2026_Paper2_amended, report9 | ok |
+| recent / C1 (Lake Edge) · n_wells |  |  | `33_cluster_summary.csv` | 7 |  | report9 | ok |
 | recent / C2 (Dune) · dry_m_mean |  |  | `33_cluster_summary.csv` | -0.3882 |  | Paper1, report9 | ok |
 | recent / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.66205 |  | PAPER1_SI_methods, report12, report9 | ok |
-| recent / C4 (Main Forest) · dry_m_mean |  |  | `33_cluster_summary.csv` | -1.31178 |  | VALUE_LEDGER_report, report9 | ok |
-| recent / network (unflagged wells) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.00191 |  | VALUE_LEDGER_report | ok |
-| reference / C1 (Lake Edge) · n_wells_with_springs |  |  | `26_index_precision_by_cluster.csv` | 7 |  | VALUE_LEDGER_report, report9 | ok |
-| reference / C4 (Main Forest) · n_wells_with_springs |  |  | `26_index_precision_by_cluster.csv` | 7 |  | VALUE_LEDGER_report | ok |
-| residual_ceh14 |  |  | `20_residual_report_numbers.csv` | -0.0109697 |  | PAPER1_SI_methods, Paper1, VALUE_LEDGER_report, report9 | ok |
+| recent / C4 (Main Forest) · dry_m_mean |  |  | `33_cluster_summary.csv` | -1.31178 |  | report9 | ok |
+| reference / C1 (Lake Edge) · n_wells_with_springs |  |  | `26_index_precision_by_cluster.csv` | 7 |  | report9 | ok |
+| residual_ceh14 |  |  | `20_residual_report_numbers.csv` | -0.0109697 |  | PAPER1_SI_methods, Paper1, report9 | ok |
 | spring_mam / 2011_2025 · p_ar | p | significance probability | `32_site_mean_trend.csv` | 0.2844 |  | report9 | ok |
-| summary / corr_upstand_vs_d_beta_1 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | 0.793193 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| summary / corr_upstand_vs_d_beta_2 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | -0.72842 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| summary / corr_upstand_vs_d_beta_3 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | -0.852732 |  | VALUE_LEDGER_report, report8 | ok |
-| synth_FE1_R2_cal |  |  | `10_consolidated_report_numbers.csv` | 0.997837 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| synth_FE2_R2_cal |  |  | `10_consolidated_report_numbers.csv` | 0.994378 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| synthetic / synthetic / synthetic_translation_anchor · years |  |  | `40_01_epoch_series.csv` | 1 |  | VALUE_LEDGER_report, report9 | ok |
+| summary / corr_upstand_vs_d_beta_1 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | 0.793193 |  | Newborough_Methods_Supplement | ok |
+| summary / corr_upstand_vs_d_beta_2 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | -0.72842 |  | Newborough_Methods_Supplement | ok |
+| summary / corr_upstand_vs_d_beta_3 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | -0.852732 |  | report8 | ok |
+| synth_FE1_R2_cal |  |  | `10_consolidated_report_numbers.csv` | 0.997837 |  | Newborough_Methods_Supplement | ok |
+| synth_FE2_R2_cal |  |  | `10_consolidated_report_numbers.csv` | 0.994378 |  | Newborough_Methods_Supplement | ok |
+| synthetic / synthetic / synthetic_translation_anchor · years |  |  | `40_01_epoch_series.csv` | 1 |  | report9 | ok |
 | t41a · amplification |  |  | `33_envelope_per_well.csv` | 1.373 |  | report9 | ok |
-| t41a · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| t41b · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| t41c · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| t41d · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | VALUE_LEDGER, VALUE_LEDGER_report, report10, report9 | ok |
-| thinning / annual / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.836589 |  | VALUE_LEDGER_report | ok |
-| thinning / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.712445 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| thinning / winter / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.960733 |  | VALUE_LEDGER_report, report9 | ok |
+| t41a · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| t41b · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| t41c · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| t41d · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10, report9 | ok |
+| thinning / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.712445 |  | Supplementary_Material | ok |
+| thinning / winter / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.960733 |  | report9 | ok |
 | transect_coastal_end_spearman_anchored |  |  | `38_report_numbers.csv` | -0.793407 |  | Newborough_Methods_Supplement | ok |
 | transect_coastal_end_spearman_raw |  |  | `38_report_numbers.csv` | -0.208791 |  | Newborough_Methods_Supplement | ok |
-| transect_trend_ci_hi |  |  | `38_report_numbers.csv` | -19.2674 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| transect_trend_ci_lo |  |  | `38_report_numbers.csv` | -36.1164 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| transect_trend_mm_yr |  |  | `38_report_numbers.csv` | -27.8022 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| trend_annual_pet_1931_2025_t |  |  | `00_report_numbers.csv` | 4.5132 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| trend_annual_pet_1960_2025_t |  |  | `00_report_numbers.csv` | 5.03105 |  | VALUE_LEDGER_report, report9 | ok |
-| trend_summer_balance |  |  | `00_report_numbers.csv` | -4.18561 |  | VALUE_LEDGER_report, report9 | ok |
-| trend_summer_balance_t |  |  | `00_report_numbers.csv` | -1.28168 |  | VALUE_LEDGER_report, report9 | ok |
-| trend_winter_balance |  |  | `00_report_numbers.csv` | 3.73963 |  | VALUE_LEDGER_report, report9 | ok |
-| trend_winter_rainfall_t |  |  | `00_report_numbers.csv` | 1.04804 |  | VALUE_LEDGER_report, report9 | ok |
-| ukcp18_2050s / annual / C5 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.0118 |  | Newborough_Methods_Supplement, VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ukcp18_2050s / winter / C4 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.0118 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| ukcp18_2080s / summer / C1 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.1075 |  | VALUE_LEDGER_report | ok |
-| water_balance_closure_max_pct |  |  | `16_report_numbers.csv` | 1.78842 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| water_balance_residual_pct · C1 (Lake Edge) |  |  | `16_report_numbers.csv` | 1.20024 |  | VALUE_LEDGER_report | ok |
-| water_balance_residual_pct · C2 (Dune) |  |  | `16_report_numbers.csv` | 1.00724 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, VALUE_LEDGER_report, report9 | ok |
-| water_balance_residual_pct · C5 (Coastal Forest) |  |  | `16_report_numbers.csv` | 1.78842 |  | VALUE_LEDGER_report | ok |
-| well / C1 (Lake Edge) / ceh11 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.71937 |  | VALUE_LEDGER_report | ok |
-| well / C1 (Lake Edge) / ceh11 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.57461 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| well / C1 (Lake Edge) / ceh25 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 1.20205 |  | VALUE_LEDGER_report | ok |
-| well / C1 (Lake Edge) / ceh27 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.34846 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
+| transect_trend_ci_hi |  |  | `38_report_numbers.csv` | -19.2674 |  | Newborough_Methods_Supplement | ok |
+| transect_trend_ci_lo |  |  | `38_report_numbers.csv` | -36.1164 |  | Newborough_Methods_Supplement | ok |
+| transect_trend_mm_yr |  |  | `38_report_numbers.csv` | -27.8022 |  | Newborough_Methods_Supplement | ok |
+| trend_annual_pet_1931_2025_t |  |  | `00_report_numbers.csv` | 4.5132 |  | report9 | ok |
+| trend_annual_pet_1960_2025_t |  |  | `00_report_numbers.csv` | 5.03105 |  | report9 | ok |
+| trend_summer_balance |  |  | `00_report_numbers.csv` | -4.18561 |  | report9 | ok |
+| trend_summer_balance_t |  |  | `00_report_numbers.csv` | -1.28168 |  | report9 | ok |
+| trend_winter_balance |  |  | `00_report_numbers.csv` | 3.73963 |  | report9 | ok |
+| trend_winter_rainfall_t |  |  | `00_report_numbers.csv` | 1.04804 |  | report9 | ok |
+| ukcp18_2050s / annual / C5 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.0118 |  | Newborough_Methods_Supplement | ok |
+| water_balance_closure_max_pct |  |  | `16_report_numbers.csv` | 1.78842 |  | Newborough_Methods_Supplement | ok |
+| water_balance_residual_pct · C2 (Dune) |  |  | `16_report_numbers.csv` | 1.00724 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
+| well / C1 (Lake Edge) / ceh11 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.57461 |  | Newborough_Methods_Supplement | ok |
+| well / C1 (Lake Edge) / ceh27 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.34846 |  | Newborough_Methods_Supplement | ok |
 | well / C1 (Lake Edge) / ceh6 · t_efold_B_months | λ | drawdown e-folding reach √(Kb/(S_y·β₃)) (def. report9 §4.9.3) | `03_16_model_b_persistence.csv` | 2.31898 |  | report9 | ok |
-| well / C2 (Dune) / D15 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 4.57636 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, crynodeb_academaidd, report12, site_geography | ok |
-| well / C2 (Dune) / D43 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.415726 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| well / C2 (Dune) / D44 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.50097 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C2 (Dune) / D5 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 3.56616 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER_report, report9, site_geography | ok |
-| well / C2 (Dune) / D9 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.279384 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C2 (Dune) / T41a · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.436558 |  | VALUE_LEDGER_report, report9 | ok |
-| well / C2 (Dune) / ceh28 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.49609 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C2 (Dune) / nw3 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.49795 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C2 (Dune) / nw4 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.772469 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C2 (Dune) / nw4 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.83315 |  | VALUE_LEDGER_report, report9 | ok |
-| well / C3 (Western Residual) / ceh18 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.322932 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C3 (Western Residual) / ceh4 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.25879 |  | Supplementary_Material, VALUE_LEDGER_report, wtf_interception_methodology | ok |
-| well / C3 (Western Residual) / ceh41 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.439929 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C3 (Western Residual) / ceh42 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.36973 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| well / C3 (Western Residual) / ceh9 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.15558 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER_report | ok |
-| well / C3 (Western Residual) / nw11 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.126963 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| well / C3 (Western Residual) / nw11 · t_efold_B_months | λ | drawdown e-folding reach √(Kb/(S_y·β₃)) (def. report9 §4.9.3) | `03_16_model_b_persistence.csv` | 9.36719 |  | VALUE_LEDGER_report, report9 | ok |
-| well / C3 (Western Residual) / nw13 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.253956 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C3 (Western Residual) / nw2 · t_half_A_months |  |  | `03_16_model_b_persistence.csv` | 8.4601 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| well / C3 (Western Residual) / nw6 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.436745 |  | VALUE_LEDGER_report | ok |
-| well / C3 (Western Residual) / wmc4 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.211836 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| well / C4 (Main Forest) / ceh14 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.167085 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| well / C5 (Coastal Forest) / ceh17 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.112092 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| well / C5 (Coastal Forest) / ceh19 · t_efold_B_months | λ | drawdown e-folding reach √(Kb/(S_y·β₃)) (def. report9 §4.9.3) | `03_16_model_b_persistence.csv` | 8.45734 |  | VALUE_LEDGER_report | ok |
-| well / C5 (Coastal Forest) / ceh31 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.261947 |  | VALUE_LEDGER, VALUE_LEDGER_report | ok |
-| well / C5 (Coastal Forest) / nw9 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.186011 |  | VALUE_LEDGER_report | ok |
-| well_record / 3 · p_value | p | significance probability | `00_06_pet_monthly_trends.csv` | 0.191712 |  | VALUE_LEDGER_report, report9 | ok |
-| well_record / 9 · p_value | p | significance probability | `00_06_pet_monthly_trends.csv` | 0.993861 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| wmc1 · dry_m |  |  | `33_envelope_per_well.csv` | -0.662222 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| wmc2 · R2_gain_max_vs_uniform |  |  | `03_09_well_optimal_datums.csv` | 0.0106002 |  | VALUE_LEDGER_report | ok |
-| wmc2 · beta_3_at_uniform | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.0468729 |  | Supplementary_Material, VALUE_LEDGER_report | ok |
-| wmc2 · epoch_shift_m |  |  | `39_01_hindcast_per_well.csv` | -0.131861 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report | ok |
-| wmc2 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.935008 |  | NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual, VALUE_LEDGER_report | ok |
-| wmc2 · se |  |  | `35_per_well_amplification.csv` | 0.128707 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| wmc3 · MSL5_bg_2023_m |  |  | `20_msl5_change_perwell.csv` | -1.04667 |  | VALUE_LEDGER_report | ok |
-| wmc3 · depth_to_water_m |  |  | `29_within_c3_variance.csv` | 1.25033 |  | VALUE_LEDGER_report | ok |
-| wmc3 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.115717 |  | VALUE_LEDGER_report, report9 | ok |
-| wmc4 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.08163 |  | VALUE_LEDGER_report | ok |
-| wmc4 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 1.7384 |  | VALUE_LEDGER_report, report9 | ok |
-| wmc4 · seasonal_amplitude_m | Δh | water-level change / amplitude | `29_within_c3_variance.csv` | 1.10129 |  | VALUE_LEDGER_report | ok |
-| β₁_recharge · C4_max |  |  | `10c_forest_zone_cluster_summary.csv` | 3.481 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₁_recharge · C4_min |  |  | `10c_forest_zone_cluster_summary.csv` | 2.069 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₁_recharge · C5_max |  |  | `10c_forest_zone_cluster_summary.csv` | 2.753 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₁_recharge · C5_mean |  |  | `10c_forest_zone_cluster_summary.csv` | 2.339 |  | Hollingham_2026_Paper2_amended, VALUE_LEDGER, VALUE_LEDGER_report, report10 | ok |
-| β₁_recharge · C5_min |  |  | `10c_forest_zone_cluster_summary.csv` | 2.062 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₁_recharge · p_vs_Elevation | p | significance probability | `10c_forest_zone_correlations.csv` | 0.5118 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₁_recharge · r_vs_Dist_from_ridge |  |  | `10c_forest_zone_correlations.csv` | -0.512 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₁_recharge · r_vs_Easting |  |  | `10c_forest_zone_correlations.csv` | 0.579 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₁_recharge · r_vs_Elevation |  |  | `10c_forest_zone_correlations.csv` | 0.192 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · C4_max |  |  | `10c_forest_zone_cluster_summary.csv` | 3.828 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · C4_min |  |  | `10c_forest_zone_cluster_summary.csv` | 2.038 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · C5_max |  |  | `10c_forest_zone_cluster_summary.csv` | 1.384 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · C5_mean |  |  | `10c_forest_zone_cluster_summary.csv` | 1.134 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · C5_min |  |  | `10c_forest_zone_cluster_summary.csv` | 0.797 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · R2_elevation_only |  |  | `10c_forest_zone_correlations.csv` | 0.967 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · R2_elevation_only_LOO |  |  | `10c_forest_zone_correlations.csv` | 0.954538 |  | Newborough_Methods_Supplement, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · R2_elevation_plus_dist |  |  | `10c_forest_zone_correlations.csv` | 0.967 |  | Newborough_Methods_Supplement, Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₂_atm_draw · r_vs_Elevation |  |  | `10c_forest_zone_correlations.csv` | 0.983 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₃_drainage · R2_elevation_only |  |  | `10c_forest_zone_correlations.csv` | 0.691 |  | VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₃_drainage · R2_elevation_plus_dist |  |  | `10c_forest_zone_correlations.csv` | 0.788 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₃_drainage · r_vs_Dist_from_ridge |  |  | `10c_forest_zone_correlations.csv` | 0.644 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
-| β₃_drainage · r_vs_Easting |  |  | `10c_forest_zone_correlations.csv` | -0.48 |  | Paper1, VALUE_LEDGER_report, report9 | ok |
-| β₃_drainage · r_vs_Elevation |  |  | `10c_forest_zone_correlations.csv` | -0.831 |  | Paper1, VALUE_LEDGER, VALUE_LEDGER_report, report9 | ok |
+| well / C2 (Dune) / D15 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 4.57636 |  | Newborough_Methods_Supplement, crynodeb_academaidd, report12, site_geography | ok |
+| well / C2 (Dune) / D43 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.415726 |  | Newborough_Methods_Supplement | ok |
+| well / C2 (Dune) / D44 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.50097 |  | Supplementary_Material | ok |
+| well / C2 (Dune) / D5 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 3.56616 |  | Newborough_Methods_Supplement, Paper1, report9, site_geography | ok |
+| well / C2 (Dune) / D9 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.279384 |  | Supplementary_Material | ok |
+| well / C2 (Dune) / T41a · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.436558 |  | report9 | ok |
+| well / C2 (Dune) / ceh28 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.49609 |  | Supplementary_Material | ok |
+| well / C2 (Dune) / nw3 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.49795 |  | Supplementary_Material | ok |
+| well / C2 (Dune) / nw4 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.772469 |  | Supplementary_Material | ok |
+| well / C2 (Dune) / nw4 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.83315 |  | report9 | ok |
+| well / C3 (Western Residual) / ceh18 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.322932 |  | Supplementary_Material | ok |
+| well / C3 (Western Residual) / ceh4 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.25879 |  | Supplementary_Material, wtf_interception_methodology | ok |
+| well / C3 (Western Residual) / ceh41 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.439929 |  | Supplementary_Material | ok |
+| well / C3 (Western Residual) / ceh42 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.36973 |  | Newborough_Methods_Supplement | ok |
+| well / C3 (Western Residual) / ceh9 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.15558 |  | Hollingham_2026_Paper2_amended | ok |
+| well / C3 (Western Residual) / nw11 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.126963 |  | report9 | ok |
+| well / C3 (Western Residual) / nw11 · t_efold_B_months | λ | drawdown e-folding reach √(Kb/(S_y·β₃)) (def. report9 §4.9.3) | `03_16_model_b_persistence.csv` | 9.36719 |  | report9 | ok |
+| well / C3 (Western Residual) / nw13 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.253956 |  | Supplementary_Material | ok |
+| well / C3 (Western Residual) / nw2 · t_half_A_months |  |  | `03_16_model_b_persistence.csv` | 8.4601 |  | report9 | ok |
+| well / C3 (Western Residual) / wmc4 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.211836 |  | Supplementary_Material | ok |
+| well / C4 (Main Forest) / ceh14 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.167085 |  | Paper1, report9 | ok |
+| well / C5 (Coastal Forest) / ceh17 · alpha_B |  |  | `03_16_model_b_persistence.csv` | 0.112092 |  | Newborough_Methods_Supplement | ok |
+| well_record / 3 · p_value | p | significance probability | `00_06_pet_monthly_trends.csv` | 0.191712 |  | report9 | ok |
+| well_record / 9 · p_value | p | significance probability | `00_06_pet_monthly_trends.csv` | 0.993861 |  | Newborough_Methods_Supplement | ok |
+| wmc1 · dry_m |  |  | `33_envelope_per_well.csv` | -0.662222 |  | Supplementary_Material | ok |
+| wmc2 · beta_3_at_uniform | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.0468729 |  | Supplementary_Material | ok |
+| wmc2 · epoch_shift_m |  |  | `39_01_hindcast_per_well.csv` | -0.131861 |  | Newborough_Methods_Supplement | ok |
+| wmc2 · p_ar_2011_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.935008 |  | NRG_Web_Tools_Technical_Note, NRG_Web_Tools_User_Manual | ok |
+| wmc2 · se |  |  | `35_per_well_amplification.csv` | 0.128707 |  | Newborough_Methods_Supplement, report9 | ok |
+| wmc3 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.115717 |  | report9 | ok |
+| wmc4 · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_coeff_maps_data.csv` | 1.7384 |  | report9 | ok |
+| β₁_recharge · C4_max |  |  | `10c_forest_zone_cluster_summary.csv` | 3.481 |  | Paper1, report9 | ok |
+| β₁_recharge · C4_min |  |  | `10c_forest_zone_cluster_summary.csv` | 2.069 |  | Paper1, report9 | ok |
+| β₁_recharge · C5_max |  |  | `10c_forest_zone_cluster_summary.csv` | 2.753 |  | Paper1, report9 | ok |
+| β₁_recharge · C5_mean |  |  | `10c_forest_zone_cluster_summary.csv` | 2.339 |  | Hollingham_2026_Paper2_amended, report10 | ok |
+| β₁_recharge · C5_min |  |  | `10c_forest_zone_cluster_summary.csv` | 2.062 |  | Paper1, report9 | ok |
+| β₁_recharge · p_vs_Elevation | p | significance probability | `10c_forest_zone_correlations.csv` | 0.5118 |  | Paper1, report9 | ok |
+| β₁_recharge · r_vs_Dist_from_ridge |  |  | `10c_forest_zone_correlations.csv` | -0.512 |  | Paper1, report9 | ok |
+| β₁_recharge · r_vs_Easting |  |  | `10c_forest_zone_correlations.csv` | 0.579 |  | Paper1, report9 | ok |
+| β₁_recharge · r_vs_Elevation |  |  | `10c_forest_zone_correlations.csv` | 0.192 |  | Paper1, report9 | ok |
+| β₂_atm_draw · C4_max |  |  | `10c_forest_zone_cluster_summary.csv` | 3.828 |  | Paper1, report9 | ok |
+| β₂_atm_draw · C4_min |  |  | `10c_forest_zone_cluster_summary.csv` | 2.038 |  | Paper1, report9 | ok |
+| β₂_atm_draw · C5_max |  |  | `10c_forest_zone_cluster_summary.csv` | 1.384 |  | Paper1, report9 | ok |
+| β₂_atm_draw · C5_mean |  |  | `10c_forest_zone_cluster_summary.csv` | 1.134 |  | report9 | ok |
+| β₂_atm_draw · C5_min |  |  | `10c_forest_zone_cluster_summary.csv` | 0.797 |  | Paper1, report9 | ok |
+| β₂_atm_draw · R2_elevation_only |  |  | `10c_forest_zone_correlations.csv` | 0.967 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| β₂_atm_draw · R2_elevation_only_LOO |  |  | `10c_forest_zone_correlations.csv` | 0.954538 |  | Newborough_Methods_Supplement, report9 | ok |
+| β₂_atm_draw · R2_elevation_plus_dist |  |  | `10c_forest_zone_correlations.csv` | 0.967 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| β₂_atm_draw · r_vs_Elevation |  |  | `10c_forest_zone_correlations.csv` | 0.983 |  | Paper1, report9 | ok |
+| β₃_drainage · R2_elevation_only |  |  | `10c_forest_zone_correlations.csv` | 0.691 |  | report9 | ok |
+| β₃_drainage · R2_elevation_plus_dist |  |  | `10c_forest_zone_correlations.csv` | 0.788 |  | Paper1, report9 | ok |
+| β₃_drainage · r_vs_Dist_from_ridge |  |  | `10c_forest_zone_correlations.csv` | 0.644 |  | Paper1, report9 | ok |
+| β₃_drainage · r_vs_Easting |  |  | `10c_forest_zone_correlations.csv` | -0.48 |  | Paper1, report9 | ok |
+| β₃_drainage · r_vs_Elevation |  |  | `10c_forest_zone_correlations.csv` | -0.831 |  | Paper1, report9 | ok |

@@ -45,7 +45,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.2"  # Hollingham (2026) — 2026-09-22. 32_cluster_summary.csv and
+__version__ = "1.28.3"  # Hollingham (2026) — 2026-09-22. check_index resolves a row's
+#   value by (source_csv, key) before falling back to the key alone: a label
+#   repeated across files (the seasonal trend and transfer-function tables) no
+#   longer reads as drifted because another file's row won the label-only map.
+# 1.28.2  # Hollingham (2026) — 2026-09-22. 32_cluster_summary.csv and
 #   33_cluster_summary.csv registered (the §4.12 cluster means, Scripts 32 1.6.0 /
 #   33 1.5.0); 32_site_mean_trend's p_ar and bootstrap bounds join its columns.
 # 1.28.1  # Hollingham (2026) — 2026-09-21. Table 20 source is
@@ -1562,7 +1566,13 @@ LARGE_VALUE_MIN = 100.0
 HISTORY_DOCS = ("DECISION_LOG.md", "NUMBER_LEDGER.md",
                 "SCRIPT_LEDGER.md", "FIGURE_LEDGER.md",
                 "TABLE_LEDGER.md", "DOC_LEDGER.md",
-                "PARTITION_HISTORY.md")
+                "PARTITION_HISTORY.md",
+                # The value ledgers are generated FROM the citation index and
+                # record each document's quoted value beside the committed one:
+                # a "quoted 2.56 vs committed 2.5626" line is a record of a
+                # citation, not a citation, and indexing it doubled every
+                # genuine drift row (112 of 266 advisory rows on 2026-09-22).
+                "VALUE_LEDGER.md", "VALUE_LEDGER_report.md")
 
 # Kept as an alias: the spread check reads this name, and the two exclusions are
 # the same idea rather than a coincidence.
@@ -1916,9 +1926,20 @@ def check_index(docs, values) -> int:
               "tools/build_citation_index.py")
         return 0
 
-    current = {}
+    # Two maps. A label is unique WITHIN a source file but not across the
+    # corpus: the three seasonal trend tables (14_spring/summer/winter_trend_stats)
+    # and the three transfer-function tables (11_forecast_*_transfer_functions)
+    # each carry "C3 · p_value" or "Forest · R2", and under a label-only map the
+    # first file in glob order shadowed the others — every summer trend read as
+    # drifted the day the spring file appeared (1.28.3). The index row names its
+    # source_csv, so the lookup is by (source, label) first and by label alone
+    # only for a row that predates the column or whose source no longer
+    # publishes the key.
+    current: dict[str, float] = {}
+    by_source: dict[tuple[str, str], float] = {}
     for _src, label, v in values:
         current.setdefault(label, v)
+        by_source.setdefault((_src, label), v)
 
     ok = drifted = moved = unknown = advisory = 0
     # (key, stale string, current string, document the index row named). Filled
@@ -1939,11 +1960,16 @@ def check_index(docs, values) -> int:
         text = docs.get(doc)
         if text is None:
             continue
-        if key not in current:
+        src = (row.get("source_csv") or "").strip()
+        if (src, key) in by_source:
+            cur_v = by_source[(src, key)]
+        elif key in current:
+            cur_v = current[key]
+        else:
             unknown += 1
             continue
         dp = len(quoted.split(".")[1]) if "." in quoted else 0
-        want = render(current[key], dp)
+        want = render(cur_v, dp)
         # Compare NUMBERS, not glyphs. Two of the drifted rows were never drift:
         # report9 quotes "−0.03" with U+2212 against a rendered "-0.03", and
         # "+0.82" with an explicit plus against a rendered "0.82". Both are the

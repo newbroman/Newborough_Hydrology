@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.27.0"  # Hollingham (2026) - 2026-09-22. OUT_26_MSL5_MIN5_PER_CLUSTER (Script 26 Pass 3d, T-64). Additive.
+__version__ = "1.28.0"  # Hollingham (2026) - 2026-09-22. OUT_20_HEAD_VS_DEM, OUT_20_HEAD_DEM_REPORT_NUMBERS,
+#   OUT_20_HEAD_VS_DEM_FIG (Script 20 head-versus-DEM comparison, T-66). Additive.
+# 1.27.0  # Hollingham (2026) - 2026-09-22. OUT_26_MSL5_MIN5_PER_CLUSTER (Script 26 Pass 3d, T-64). Additive.
 # 1.26.0  # Hollingham (2026) - 2026-09-22. OUT_32_CLUSTER_SUMMARY, OUT_33_CLUSTER_SUMMARY:
 #   the cluster means report9 §4.12 quotes, emitted (Phase B of D-189). Additive.
 # 1.25.0  # Hollingham (2026) - 2026-09-21. OUT_26_CURRELI_MIN_PER_WELL /
@@ -997,6 +999,8 @@ OUT_20_RESIDUAL_PERWELL     = DIR_20 / "20_residual_perwell.csv"      # Fig 56 p
 OUT_20_RESIDUAL_REPORT_NUMBERS = DIR_20 / "20_residual_report_numbers.csv"  # Fig 56 cited residual stats
 OUT_20_MSL5_CHANGE_PERWELL  = DIR_20 / "20_msl5_change_perwell.csv"   # Fig 54 per-well MSL5 change (below-ground, raw)
 OUT_20_MSL5_REPORT_NUMBERS  = DIR_20 / "20_msl5_report_numbers.csv"   # Fig 54 cited MSL5-change stats
+OUT_20_HEAD_VS_DEM          = DIR_20 / "20_head_vs_dem.csv"            # head surface vs DEM: r and slope per smoothing width (T-66)
+OUT_20_HEAD_DEM_REPORT_NUMBERS = DIR_20 / "20_head_dem_report_numbers.csv"  # the cited head-vs-DEM and at-well numbers (T-66)
 OUT_20_COASTAL_EROSION      = DIR_20 / "20_coastal_erosion.png"
 OUT_20_SLR_RESPONSE         = DIR_20 / "20_slr_response.png"
 OUT_20_COASTAL_NET          = DIR_20 / "20_coastal_net_effect.png"
@@ -1014,6 +1018,7 @@ OUT_20_DRIVER_CHANGE_20YR   = DIR_20 / "20_driver_change_20yr.png"       # Scrip
 OUT_20_CLEARFELL_GAIN       = DIR_20 / "20_clearfell_gain.png"
 OUT_20_OBSERVED_CHANGE      = DIR_20 / "20_observed_change_2012_2026.png"
 OUT_20_MSL5_CHANGE          = DIR_20 / "20_msl5_change_2017_2023.png"
+OUT_20_HEAD_VS_DEM_FIG      = DIR_20 / "20_head_vs_dem.png"            # three-panel head-vs-DEM figure (T-66)
 
 # Script 21 — Forestry scenarios
 OUT_21_HYDROGRAPH        = DIR_21 / "21_forestry_01_hydrograph.png"

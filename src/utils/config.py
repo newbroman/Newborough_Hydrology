@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.46.0"  # Hollingham (2026) - 2026-09-21. CURRELI_MIN_WINDOW_YEARS = 4 and
+__version__ = "1.47.0"  # Hollingham (2026) - 2026-09-22. HEAD_DEM_SMOOTHING_M and
+#   HEAD_DEM_HEADLINE_SMOOTHING_M: the scale sweep behind Script 20's head-versus-DEM
+#   comparison (T-66; the Figure 54 stream-overlay question). Additive.
+# 1.46.0  # Hollingham (2026) - 2026-09-21. CURRELI_MIN_WINDOW_YEARS = 4 and
 #   CURRELI_MIN_WINDOW_SENSITIVITY_YEARS = (5,): the rolling mean of the annual
 #   minimum that the SD15b/SD16 reference values were derived from (D-190). Additive.
 # 1.45.0  # Hollingham (2026) - 2026-09-21. MSL_SPRING_MONTHS (3, 4, 5) -> (2, 3, 4):
@@ -1105,6 +1108,22 @@ MSL_TRAJECTORY_START_YEAR = 2014
 # not sharpen; the file records whether any threshold count moves with it).
 CURRELI_MIN_WINDOW_YEARS             = 4
 CURRELI_MIN_WINDOW_SENSITIVITY_YEARS = (5,)
+
+# How closely does the mean water-table surface follow the ground surface, and at
+# what scale? Script 20 regresses its Figure 54 head surface on the LiDAR DEM
+# after smoothing the DEM with a square mean filter of each width below (metres;
+# 0 = the DEM at native resolution), and emits r and slope per width to
+# 20_head_vs_dem.csv. The headline pair quoted in the documents is the raw DEM and
+# HEAD_DEM_HEADLINE_SMOOTHING_M, which is the first width in the sweep at or beyond
+# which the head surface tracks the smoothed ground 1:1 - roughly the network's
+# own resolution (median nearest-well spacing, also emitted), so the figure and
+# caption state that the scale is bounded by the network as much as by the
+# aquifer. The at-well regression of mean head on ground elevation is emitted
+# beside it and is NOT the same quantity: dipwells sit on slack floors, which are
+# deflation surfaces cut to the water table, so at the wells the ground follows
+# the water table rather than the reverse (Ranwell, 1959). T-66, 2026-09-22.
+HEAD_DEM_SMOOTHING_M          = (0, 50, 100, 200, 300, 400, 600, 800)
+HEAD_DEM_HEADLINE_SMOOTHING_M = 300
 
 # Van Willegen et al. (2025) used these 17 piezometers with co-located
 # permanent vegetation quadrats (their Table 1). MSL5 at these wells is

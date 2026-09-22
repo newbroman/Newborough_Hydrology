@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-22T08:04:52",
+ "generated": "2026-09-22T10:03:19",
  "orchestrator": "2.18.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1337,7 +1337,7 @@
     "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "10da1c33c63008cb48be15be9fda03b30feac4f38cd28778e1acec82408e8bc1",
     "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "f7829770d22ba8fac0efb68c61f51f98e6ebcfa2b71fb96bb7f5e7dc8cf2fe6e",
     "outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png": "3ba76846b62fad6cf758f30d5f91544cc9721beb1571f13d83b8c24d75d43074",
-    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "2acace248bd5af563994c025e855596c067ade0d5a2557528751df931abb7077"
+    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "a5467643912f1fd1036a1c2cd7339e40a4bbbb3160ce10b07f4897f7d1084fce"
    },
    "fallbacks": [],
    "inputs": {
@@ -1352,9 +1352,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 147.8,
-   "started": "2026-09-17T22:52:18",
-   "version": "1.0.0"
+   "seconds": 146.7,
+   "started": "2026-09-22T10:00:52",
+   "version": "1.0.1"
   },
   "run_09_scraping.py": {
    "emitted": {

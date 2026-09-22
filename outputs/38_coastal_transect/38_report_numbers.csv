@@ -7,5 +7,9 @@ transect_trend_p_ols,,,0.0011378724762343094,,"uncorrected OLS p-value, reported
 transect_resid_rho_lag1,,,0.0,,lag-1 residual autocorrelation; 0 means the AR correction changed nothing and the two p-values agree
 transect_n_eff,,,14.0,,effective sample size after the AR(1) correction
 transect_n_points,,,14.0,,MAM points in the window
+transect_coast_abs_slope_mm_yr,,,-14.615384615385059,mm/yr,AR(1)-corrected OLS slope of the coastal anchor CEH22's absolute MAM level over the window (common-mode climate still in it)
+transect_inland_abs_slope_mm_yr,,,13.186813186812504,mm/yr,AR(1)-corrected OLS slope of the inland anchor NW4's absolute MAM level over the window; the difference trend is coast minus this
+transect_trend_loo_min_mm_yr,,,-32.247569184741145,mm/yr,most negative leave-one-out slope of the difference trend (one MAM point dropped)
+transect_trend_loo_max_mm_yr,,,-25.482423335828187,mm/yr,least negative leave-one-out slope of the difference trend
 transect_coastal_end_spearman_raw,,,-0.2087912087912088,,Spearman rho of the RAW coastal-anchor spring level against year. The weaker of the pair by design: common-mode climate is still in it.
 transect_coastal_end_spearman_anchored,,,-0.7934065934065934,,Spearman rho of the ANCHOR-REFERENCED coast-minus-inland difference against year. Referencing to the erosion-free inland anchor removes common-mode climate model-free; closer to -1 is a cleaner monotonic coastal drawdown.

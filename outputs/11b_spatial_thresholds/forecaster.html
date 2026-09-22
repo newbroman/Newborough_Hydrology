@@ -827,10 +827,10 @@ const DATA = {
   "wet_area": {
     "schema": "nw-wet-area-1",
     "decision": "D-178",
-    "source": "sentinel_wet_floor.py 1.10.0 --two-class",
+    "source": "46_wet_area_feed.py 1.0.0",
     "source_hash": "42ace095fa40a709",
     "source_cells_hash": "3f3613ff1af1c410",
-    "generated": "2026-09-17T11:09:41+00:00",
+    "generated": "2026-09-17T17:55:40+00:00",
     "level_definition": "median of the monthly dipwell readings across the recorded network (01_wells_all + D-166 months), m, 0 at ground",
     "area_definition": "hectares on the slack floors, scaled to the whole warren by the scene's clear fraction; NOT a flood map (D-177)",
     "curve_form": "area_ha = a * exp(b * h); sigma is a log-space factor (x/div sigma_factor)",

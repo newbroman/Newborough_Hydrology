@@ -32,7 +32,7 @@ from __future__ import annotations
 import argparse, csv, html, pathlib, re, sys
 from collections import defaultdict
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"  # 2026-09-23: a thousands separator is a rendering (1,269 == 1269), as cite_check 1.28.6
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 import cite_check as cc  # noqa: E402  reuse the authoritative value/drift logic
@@ -51,7 +51,7 @@ def _f(x):
     except (TypeError, ValueError): return None
 
 def _same(a, b):
-    f = lambda x: x.replace("−", "-").lstrip("+")
+    f = lambda x: x.replace("−", "-").lstrip("+").replace(",", "")
     return f(a) == f(b)
 
 def load_symbols():
@@ -149,7 +149,7 @@ _U_RULE = re.compile(r"^\s*[-─]{3,}(?:[ \t]+[-─]{3,})*\s*$")
 _U_DASHES = "−-–—"
 
 def _norm_num(s):
-    return s.replace("−", "-").lstrip("+")
+    return s.replace("−", "-").lstrip("+").replace(",", "")
 
 def extract_untracked(text):
     """Numeric prose values in `text`; table cells and citation refs excluded.

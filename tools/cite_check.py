@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.5"  # Hollingham (2026) — 2026-09-22. 26_msl5_vs_min5_per_cluster.csv registered (T-64).
+__version__ = "1.28.6"  # Hollingham (2026) — 2026-09-23. A quoted value with a thousands
+#   separator (1,269) compares equal to the pipeline's 1269: the separator is a rendering.
+# 1.28.5  # Hollingham (2026) — 2026-09-22. 26_msl5_vs_min5_per_cluster.csv registered (T-64).
 # 1.28.4  # Hollingham (2026) — 2026-09-22. 25_09_season_interaction_test.csv
 #   (γ) and 25_08_spring_vs_summer_comparison.csv registered: the spring modulation
 #   of the coastal gradient went 0.126 -> 0.323 under D-189 and nothing gated it.
@@ -1988,7 +1990,10 @@ def check_index(docs, values) -> int:
         # same value written differently, and reporting them as stale citations
         # is how a gating check teaches its reader to ignore it.
         def _same(a: str, b: str) -> bool:
-            f = lambda x: x.replace("\u2212", "-").lstrip("+")
+            # A thousands separator is a rendering, not a value: the report
+            # writes 1,269 grid cells and 12,006 observations, and the pipeline
+            # renders 1269 (1.28.6).
+            f = lambda x: x.replace("\u2212", "-").lstrip("+").replace(",", "")
             return f(a) == f(b)
         # The row's own before/after slices pick which occurrence it means.
         span = locate(text, quoted, row.get("before", ""), row.get("after", ""))

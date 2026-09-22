@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**119 output file(s)** supply **1267 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**120 output file(s)** supply **1277 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -808,6 +808,16 @@
 |  | thinning / summer / C3 · we_mean_mm | Supplementary_Material.md |
 |  | thinning / winter / C3 · we_mean_mm | report9.md |
 |  | ukcp18_2050s / annual / C5 · dh_median_m | Newborough_Methods_Supplement.md |
+| `20_head_dem_report_numbers.csv` | head_dem_headline_smoothing_m | report9.md |
+|  | head_dem_n_cells | report9.md |
+|  | head_dem_r_raw | report9.md |
+|  | head_dem_r_smoothed | report9.md |
+|  | head_dem_slope_raw | report9.md |
+|  | head_dem_slope_smoothed | report9.md |
+|  | well_spacing_median_m | report9.md |
+|  | wells_wt_ground_n | report9.md |
+|  | wells_wt_ground_r | report9.md |
+|  | wells_wt_ground_slope | Newborough_Methods_Supplement.md, report9.md |
 | `20_msl5_change_perwell.csv` | ceh1 · MSL5_bg_2017_m | Supplementary_Material.md |
 |  | ceh26 · MSL5_bg_2023_m | Supplementary_Material.md |
 |  | d10 · MSL5_bg_2017_m | Supplementary_Material.md |

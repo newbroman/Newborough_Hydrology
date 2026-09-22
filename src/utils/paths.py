@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.26.0"  # Hollingham (2026) - 2026-09-22. OUT_32_CLUSTER_SUMMARY, OUT_33_CLUSTER_SUMMARY:
+__version__ = "1.27.0"  # Hollingham (2026) - 2026-09-22. OUT_26_MSL5_MIN5_PER_CLUSTER (Script 26 Pass 3d, T-64). Additive.
+# 1.26.0  # Hollingham (2026) - 2026-09-22. OUT_32_CLUSTER_SUMMARY, OUT_33_CLUSTER_SUMMARY:
 #   the cluster means report9 §4.12 quotes, emitted (Phase B of D-189). Additive.
 # 1.25.0  # Hollingham (2026) - 2026-09-21. OUT_26_CURRELI_MIN_PER_WELL /
 #   _PER_CLUSTER / _THRESHOLD_SUMMARY (Script 26, D-190); OUT_26_MSL5_THRESHOLD_SUMMARY
@@ -1320,6 +1321,9 @@ OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
 OUT_26_CURRELI_MIN_PER_WELL          = DIR_26 / "26_curreli_min_per_well.csv"
 OUT_26_CURRELI_MIN_PER_CLUSTER       = DIR_26 / "26_curreli_min_per_cluster.csv"
 OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY = DIR_26 / "26_curreli_min_cluster_threshold_summary.csv"
+# MSL5 against the five-year mean annual minimum (T-64): the Methods Supplement's
+# S.18 cross-check, emitted rather than "run as part of script verification".
+OUT_26_MSL5_MIN5_PER_CLUSTER         = DIR_26 / "26_msl5_vs_min5_per_cluster.csv"
 OUT_26_EBF_PREDICTION_SUMMARY = DIR_26 / "26_ebf_prediction_summary.csv"
 OUT_26_EBF_BAND_SUMMARY       = DIR_26 / "26_ebf_band_summary.csv"
 OUT_26_VW_REPRODUCTION        = DIR_26 / "26_vw_reproduction_per_pair.csv"   # pipeline MSL5 vs van Willegen's published, per (piezometer, window-end)

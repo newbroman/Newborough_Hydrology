@@ -2,6 +2,8 @@
 Wells: coastal anchor CEH22, inland anchor NW4, interior NW5, scraped profile-only CEH40, CEH41
 Window: 2010–2023  (n = 14 MAM points)
 
+  Decomposition: coast CEH22 -14.6 mm/yr, inland NW4 +13.2 mm/yr (absolute, AR-corrected)
+  Leave-one-out range of the difference trend: -32.2 to -25.5 mm/yr
 TREND (AR(1)-corrected OLS): -27.80 mm/yr
   AR p-value: 0.0011   OLS p-value: 0.0011
   rho (lag-1 residual autocorr): 0.000   n_eff: 14.0

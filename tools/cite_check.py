@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.1"  # Hollingham (2026) — 2026-09-21. Table 20 source is
+__version__ = "1.28.2"  # Hollingham (2026) — 2026-09-22. 32_cluster_summary.csv and
+#   33_cluster_summary.csv registered (the §4.12 cluster means, Scripts 32 1.6.0 /
+#   33 1.5.0); 32_site_mean_trend's p_ar and bootstrap bounds join its columns.
+# 1.28.1  # Hollingham (2026) — 2026-09-21. Table 20 source is
 #   26_curreli_min_cluster_threshold_summary.csv, keyed (window_years, cluster_label) (D-190).
 # 1.28.0  # Hollingham (2026) — 2026-09-21. A report-numbers Parameter that
 #   repeats within its file (one row per cluster or well: cluster_stability_median,
@@ -610,7 +613,11 @@ EXTRA_VALUE_TABLES = [
     ("outputs/03_state_space_model/03_04_lag_diagnostic.csv", ("Cluster_Label", "Lag_months"),
      ["R2"]),
     ("outputs/32_differential_movement/32_site_mean_trend.csv", ("basis", "period"),
-     ["slope_mm_yr", "resid_sd_mm", "min_detectable_mm_yr"]),
+     ["slope_mm_yr", "resid_sd_mm", "min_detectable_mm_yr", "p_ar", "boot_lo_mm_yr", "boot_hi_mm_yr"]),
+    ("outputs/32_differential_movement/32_cluster_summary.csv", ("period", "cluster_label"),    # report9 §4.12, report10 §5.7.5 (Script 32 1.6.0)
+     ["slope_mean_mm_yr", "slope_min_mm_yr", "slope_max_mm_yr", "n_wells", "n_sig_ar"]),
+    ("outputs/33_envelope_amplification/33_cluster_summary.csv", ("panel", "cluster_label"),    # report9 §4.12, report10 §5.1, report12 (Script 33 1.5.0)
+     ["dry_m_mean", "wet_m_mean", "swing_mm_mean", "amplification_mean", "n_wells"]),
     ("outputs/22_residual_lag_analysis/22_06_ssm_cluster_mean_inference.csv",
      "Cluster_Label", ["R2", "durbin_watson", "ar1_phi"]),
     ("outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv", "well",

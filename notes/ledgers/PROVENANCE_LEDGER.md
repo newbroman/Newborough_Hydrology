@@ -196,7 +196,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (377)
+## Outputs no exhibit renders (379)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -507,10 +507,12 @@
 - `31_validation_summary.csv`
 - `31b_separation_vs_recoverability.csv`
 - `31b_separation_vs_recoverability.png`
+- `32_cluster_summary.csv`
 - `32_differential_movement_2005_2025.png`
 - `32_differential_movement_per_well.csv`
 - `32_site_mean_trend.csv`
 - `33_amplification_field_recent.png`
+- `33_cluster_summary.csv`
 - `33_dry_spring_depth_recent.png`
 - `33_envelope_per_well.csv`
 - `33_envelope_per_well_recent.csv`

@@ -1498,7 +1498,7 @@ Step 50 — `09f_management_effects.py` — the spatial-reach synthesis figure (
 | Table 17 | Summer drought prediction equations | 11 | `11_forecast_summer_transfer_functions.csv` |
 | Table 18 | Per-cluster P_flood summary (88-well network) | 11b | `11b_06_pflood_cluster_summary.csv` |
 | Table 19 | P_flood linear forms | 11 | `11_forecast_pflood_summary.csv` |
-| Table 20 | Cluster-mean MSL5 at window-end | 26 | `26_msl_5yr_cluster_threshold_summary.csv` |
+| Table 20 | Cluster-mean four-year mean annual minimum against the Curreli values, MSL5 for reference (D-190) | 26 | `26_curreli_min_cluster_threshold_summary.csv` |
 | Table 21 | Between-well Ellenberg-F prediction | 26 | `26_ebf_prediction_summary.csv` |
 | Table 22 | Ellenberg-F accuracy by match band | 26 | `26_ebf_band_summary.csv` |
 | Table 23 | Forest zone spatial predictors | 10c | `10c_forest_zone_correlations.csv` |

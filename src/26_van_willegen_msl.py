@@ -100,7 +100,17 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-21. D-190: the Curreli SD15b/SD16
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-22. T-64: Pass 3d emits the MSL5-versus-
+#   annual-minimum cross-check the Methods Supplement (S.18, "Empirical relationship to
+#   summer minima") had carried from an unrecorded verification run: the per-well
+#   Pearson r between annual MSL and the annual minimum, the r between MSL5 and the
+#   five-year mean annual minimum (MIN5, the D-190 sensitivity window) over window-ends
+#   from MSL_TRAJECTORY_START_YEAR with the mean and SD of (MIN5 - MSL5), and the
+#   per-cluster pair at the latest common window-end (26_msl5_vs_min5_per_cluster.csv;
+#   msl5_min5_* in 26_report_numbers.csv). MIN5 is the hydrological-year minimum, not a
+#   summer-window statistic, so the passage's "5-yr SM5" becomes "five-year mean annual
+#   minimum". No analysis changes elsewhere.
+# 1.13.0  # Hollingham (2026) — 2026-09-21. D-190: the Curreli SD15b/SD16
 #   reference values are four-year means of the annual MINIMUM (Curreli 2013 Table 4),
 #   not spring means, so Table 20 and Figure 44 are rebuilt on that quantity. Pass 1
 #   adds the per-well annual minimum over the same 1 June-31 May hydrological year
@@ -203,6 +213,7 @@ OUT_TXT       = paths.OUT_26_RESULTS_TXT
 OUT_CURRELI_MIN_PER_WELL   = paths.OUT_26_CURRELI_MIN_PER_WELL
 OUT_CURRELI_MIN_PER_CLUSTER = paths.OUT_26_CURRELI_MIN_PER_CLUSTER
 OUT_CURRELI_MIN_THRESHOLD_SUMMARY = paths.OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY
+OUT_MSL5_MIN5_PER_CLUSTER = paths.OUT_26_MSL5_MIN5_PER_CLUSTER
 # EWI outputs (v1.3.0) — canonical paths from utils.paths.
 OUT_EWI       = paths.OUT_26_EWI_PER_WELL
 OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
@@ -568,6 +579,52 @@ def curreli_min_cluster_threshold_summary(per_cluster_min: pd.DataFrame,
         ))
     return (pd.DataFrame(rows).sort_values(["window_years", "cluster_id"])
             .reset_index(drop=True))
+
+
+def msl5_vs_min5(annual: pd.DataFrame, per_well_msl5: pd.DataFrame,
+                 per_well_min: pd.DataFrame, start_year: int) -> tuple[pd.DataFrame, dict]:
+    """MSL5 against the five-year mean annual minimum, per well (T-64).
+
+    Two scales. Annual: Pearson r between the annual spring mean (valid rows)
+    and the annual minimum (min_valid rows) over every (well, hydro_year) both
+    admit. Five-year: r between MSL5 and MIN5 — the annual minimum rolled over
+    the five-year sensitivity window of Pass 3c — over (well, window_end_year)
+    pairs from `start_year`, with the mean and SD of the offset MIN5 - MSL5.
+    Returns the per-cluster pair at the latest window-end both series reach in
+    every cluster, and the scalars for 26_report_numbers.csv. MSL5 rows are the
+    MSL5-analysis subset (the D-146 exclusion applied); MIN5 rows are not.
+    """
+    a = annual[annual["valid"] & annual["min_valid"]]
+    r_annual = float(a["MSL_m_bg"].corr(a["MIN_m_bg"])) if len(a) > 2 else np.nan
+    m5 = per_well_min[per_well_min["window_years"] == 5][["well", "window_end_year", "MINw_m_bg"]]
+    j = per_well_msl5.merge(m5, on=["well", "window_end_year"], how="inner")
+    j = j[j["window_end_year"] >= start_year]
+    off = j["MINw_m_bg"] - j["MSL5_m_bg"]
+    nums = {
+        "msl5_min5_annual_r": r_annual, "msl5_min5_annual_n": int(len(a)),
+        "msl5_min5_window_r": float(j["MSL5_m_bg"].corr(j["MINw_m_bg"])) if len(j) > 2 else np.nan,
+        "msl5_min5_window_n": int(len(j)), "msl5_min5_window_start": start_year,
+        "msl5_min5_offset_mean_m": float(off.mean()) if len(j) else np.nan,
+        "msl5_min5_offset_sd_m": float(off.std()) if len(j) > 1 else np.nan,
+    }
+    rows = []
+    if len(j):
+        jc = j.dropna(subset=["cluster_id"]).copy()
+        jc["cluster_id"] = jc["cluster_id"].astype(int)
+        common_end = int(jc.groupby("cluster_id")["window_end_year"].max().min())
+        latest = jc[jc["window_end_year"] == common_end]
+        for cid, g in latest.groupby("cluster_id"):
+            rows.append({"cluster_id": cid, "cluster_label": config.CLUSTER_LABELS.get(cid, f"C{cid}"),
+                         "window_end_year": common_end, "n_wells": int(len(g)),
+                         "MSL5_m_bg_mean": float(g["MSL5_m_bg"].mean()),
+                         "MIN5_m_bg_mean": float(g["MINw_m_bg"].mean()),
+                         "MIN5_minus_MSL5_m": float((g["MINw_m_bg"] - g["MSL5_m_bg"]).mean())})
+        nums["msl5_min5_cluster_window_end"] = common_end
+        if rows:
+            d = [r["MIN5_minus_MSL5_m"] for r in rows]
+            nums["msl5_min5_cluster_offset_min_m"] = float(min(d))
+            nums["msl5_min5_cluster_offset_max_m"] = float(max(d))
+    return pd.DataFrame(rows), nums
 
 
 def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
@@ -2091,6 +2148,15 @@ def main() -> int:
     saved(f"{OUT_CURRELI_MIN_PER_CLUSTER.name}")
     saved(f"{OUT_CURRELI_MIN_THRESHOLD_SUMMARY.name}")
 
+    # ── Pass 3d — MSL5 against the five-year mean annual minimum (T-64) ────
+    _m5_tbl, msl5_min5_nums = msl5_vs_min5(annual, per_well_incl, per_well_min, TRAJECTORY_START_YEAR)
+    _m5_tbl.to_csv(OUT_MSL5_MIN5_PER_CLUSTER, index=False)
+    print(f"\nPass 3d — MSL5 vs five-year mean annual minimum: annual r={msl5_min5_nums['msl5_min5_annual_r']:.3f} "
+          f"(n={msl5_min5_nums['msl5_min5_annual_n']}); window r={msl5_min5_nums['msl5_min5_window_r']:.3f} "
+          f"(n={msl5_min5_nums['msl5_min5_window_n']}, ends >= {TRAJECTORY_START_YEAR}); "
+          f"MIN5 - MSL5 = {msl5_min5_nums['msl5_min5_offset_mean_m']:+.3f} ± {msl5_min5_nums['msl5_min5_offset_sd_m']:.3f} m")
+    saved(f"{OUT_MSL5_MIN5_PER_CLUSTER.name}")
+
     # ── Pass 3b — Cluster-centroid trajectory (Method B) ───────────────────
     # Aggregates from Script 03's cluster-centroid monthly series (reference
     # network, LCSC partition) — internally consistent with the SSM
@@ -2169,6 +2235,7 @@ def main() -> int:
         "curreli_min_quadrat_wells_first_window_min_m_bg": float(_q0.min()) if len(_q0) else np.nan,
         "curreli_min_quadrat_wells_first_window_max_m_bg": float(_q0.max()) if len(_q0) else np.nan,
     })
+    report_nums.update(msl5_min5_nums)   # Pass 3d (T-64)
     if not ewi.empty:
         comp, calib = compute_ewi_msl5_comparison(ewi, latest)
         if not comp.empty:

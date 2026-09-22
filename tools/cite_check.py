@@ -45,7 +45,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.4"  # Hollingham (2026) — 2026-09-22. 25_09_season_interaction_test.csv
+__version__ = "1.28.5"  # Hollingham (2026) — 2026-09-22. 26_msl5_vs_min5_per_cluster.csv registered (T-64).
+# 1.28.4  # Hollingham (2026) — 2026-09-22. 25_09_season_interaction_test.csv
 #   (γ) and 25_08_spring_vs_summer_comparison.csv registered: the spring modulation
 #   of the coastal gradient went 0.126 -> 0.323 under D-189 and nothing gated it.
 # 1.28.3  # Hollingham (2026) — 2026-09-22. check_index resolves a row's
@@ -621,6 +622,8 @@ EXTRA_VALUE_TABLES = [
      ["R2"]),
     ("outputs/32_differential_movement/32_site_mean_trend.csv", ("basis", "period"),
      ["slope_mm_yr", "resid_sd_mm", "min_detectable_mm_yr", "p_ar", "boot_lo_mm_yr", "boot_hi_mm_yr"]),
+    ("outputs/26_van_willegen_msl/26_msl5_vs_min5_per_cluster.csv", "cluster_label",    # MS S.18 (Script 26 1.14.0, T-64)
+     ["n_wells", "MSL5_m_bg_mean", "MIN5_m_bg_mean", "MIN5_minus_MSL5_m"]),
     ("outputs/25_coastal_gradient/25_09_season_interaction_test.csv", "model",    # MS S.15, SM S8.4, Paper 1 §4, SI (the γ nobody gated: 0.126 -> 0.323 under D-189)
      ["gamma_spring_modulation", "gamma_se", "gamma_t", "gamma_p"]),
     ("outputs/25_coastal_gradient/25_08_spring_vs_summer_comparison.csv", "cluster_label",    # SM S8.4 / Table S8.2

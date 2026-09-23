@@ -43,7 +43,9 @@ Usage quick-reference
 
 from __future__ import annotations
 
-__version__ = "1.2.0"  # 2026-09-23: track() — wrap any loop in one word and get
+__version__ = "1.2.1"  # 2026-09-23: durations under two minutes print in seconds —
+#   "0m elapsed, ~0m left" over a 40 s loop said nothing (seen on Script 32).
+# 1.2.0  # 2026-09-23: track() — wrap any loop in one word and get
 #   progress() for free, so the twelve scripts that run past 30 s can show they are
 #   running (Martin, 2026-09-23). The bar ends its own line when the loop ends.
 # 1.1.0  # 2026-09-15: progress() — Martin's rule that a long run
@@ -228,6 +230,14 @@ def done(script_id: str | None = None) -> None:
     print()
 
 
+def _span(seconds: float) -> str:
+    """A duration for a progress line: seconds below two minutes, else minutes.
+    A 40-second loop that reads "0m elapsed, ~0m left" says nothing (1.2.1)."""
+    if seconds < 120:
+        return f"{seconds:.0f} s"
+    return f"{seconds / 60:.0f} min"
+
+
 def progress(n: int, total: int, label: str = "", started: float | None = None,
              width: int = 30) -> None:
     """
@@ -250,7 +260,7 @@ def progress(n: int, total: int, label: str = "", started: float | None = None,
     if started is not None and n > 0:
         el = time.time() - started
         eta = el / n * (total - n)
-        timing = f"  {el / 60:.0f}m elapsed, ~{eta / 60:.0f}m left"
+        timing = f"  {_span(el)} elapsed, ~{_span(eta)} left"
     sys.stdout.write(f"\r  [{bar}] {pct:3.0f} %  {n}/{total}  {label}{timing}   ")
     sys.stdout.flush()
 
@@ -288,7 +298,7 @@ def track(items, label: str = "", total: int | None = None, min_seconds: float =
             el = time.time() - started
             eta = el / i * (n_total - i)
             print(f"  [{100.0 * i / n_total:3.0f} %  {i:3d}/{n_total}  "
-                  f"{el / 60:.0f}m elapsed, ~{eta / 60:.0f}m left ]  {text}")
+                  f"{_span(el)} elapsed, ~{_span(eta)} left ]  {text}")
         else:
             progress(i, n_total, text, started)
     if shown and not lines:

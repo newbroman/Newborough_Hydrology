@@ -95,10 +95,16 @@ from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
-from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
+from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr, track
 from utils.render_utils import render_figure
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-22. EMITS 32_cluster_summary.csv:
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+#   (T-76): the main() loop over PERIODS (console_utils.track, lines=True — the
+#   body already prints via phase()/result()/note()) and the per-well loop in
+#   per_well_trends() (console_utils.track, bar) — the loop whose AR(1)/bootstrap
+#   fits dominate the run. No output changes. Martin, 2026-09-23: a script
+#   that runs past 30 s shows progress (T-76).
+# 1.6.0  # Hollingham (2026) — 2026-09-22. EMITS 32_cluster_summary.csv:
 #   per (period, cluster) the mean, min and max per-well differential slope, the
 #   well count, the count and names of wells significant after the AR(1)
 #   correction, and the network's most negative well — the figures report9 §4.12
@@ -340,7 +346,7 @@ def per_well_trends(yr: pd.DataFrame, loc: pd.DataFrame, master: pd.DataFrame,
                     first: int, last: int, excluded: set) -> pd.DataFrame:
     anom, panel = build_anomalies(yr, first, last)
     rows = []
-    for col in anom.columns:
+    for col in track(anom.columns, lambda c: c):
         key = col.lower().strip()
         if key in excluded:
             continue
@@ -459,7 +465,7 @@ def main() -> int:
     all_results: dict[str, pd.DataFrame] = {}
     site_trend_rows: list[dict] = []
     lines: list[str] = []
-    for plabel, (first, last) in PERIODS.items():
+    for plabel, (first, last) in track(list(PERIODS.items()), lambda p: p[0], lines=True):
         phase(2, f"Per-well anomaly trends {first}-{last}")
         df, panel = per_well_trends(yr, loc, master, first, last, excluded)
         all_results[plabel] = df

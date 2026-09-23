@@ -79,7 +79,12 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.14.1"  # Hollingham (2026) — 2026-09-16. Corrects 1.14.0 the
+__version__ = "1.15.0"  # Martin, 2026-09-23: a script that runs past 30 s shows
+#   progress (T-76). Two loops now report: well_datum_sensitivity's per-well
+#   datum sweep (~66 wells, in-place bar — the loop body prints nothing) and
+#   bootstrap_centroid_fits's n_boot resampling draw (1000 per cluster,
+#   in-place bar — also silent per iteration). No output changes.
+# v1.14.1  # Hollingham (2026) — 2026-09-16. Corrects 1.14.0 the
 #   same day: the outer join was unclipped, so it pulled in the WHOLE of
 #   01_climate.csv back to 1930-12 and the file went from 250 rows to 1,143, 893
 #   of them climate with no head. Script 14 fits trends on this file and Script 16
@@ -197,7 +202,7 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
-    hr, skipped,
+    hr, skipped, track,
 )
 del _sys, _os
 
@@ -1049,7 +1054,7 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
 
         beta_1s, beta_2s, beta_3s, r2s, lcscs = [], [], [], [], []
         n_success = 0
-        for _ in range(n_boot):
+        for _ in track(range(n_boot), f"{label} bootstrap"):
             idx = rng.integers(0, len(resolved), size=len(resolved))
             sampled = [resolved[i] for i in idx]
 
@@ -1556,7 +1561,8 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
     full_rows = []
     optimal_rows = []
 
-    for _, row in cluster_df.iterrows():
+    for _, row in track(cluster_df.iterrows(), lambda item: item[1]["Match_ID"],
+                        total=len(cluster_df)):
         well_name = str(row["Match_ID"])
         well_norm = normalize_well_name(well_name)
         target_col = well_col_lookup.get(well_norm)

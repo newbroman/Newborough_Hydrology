@@ -53,7 +53,12 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-05. Emits
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-23. The per-well
+#   loops in wtf_individual_wells() and wtf_extended_wells() now report
+#   progress through console_utils.track() (in-place bar; their bodies print
+#   nothing per well) — Martin, 2026-09-23: a script that runs past 30 s
+#   shows progress (T-76). No output changes.
+# 1.10.0  # Hollingham (2026) — 2026-09-05. Emits
 #   18_wtf_08_cluster_half_life_summary.csv: per-cluster t half min/median/max
 #   and n over the non-excluded wells (Paper 1 Table 7). Emission only; the
 #   per-well 18_wtf_05 is unchanged. Full precision (D-035).
@@ -89,7 +94,7 @@ from scipy import stats as scipy_stats
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
-    hr, skipped,
+    hr, skipped, track,
 )
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -183,7 +188,7 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations,
     """
     rows = []
 
-    for well in wells_df.columns:
+    for well in track(wells_df.columns, lambda w: w):
         well_norm = well.lower().strip().replace(" ", "")
 
         # Cluster lookup
@@ -536,7 +541,7 @@ def wtf_extended_wells(climate, locations, out_root):
     ext_only = membership[membership['Network'] == 'Extended'].copy()
 
     rows = []
-    for well in wells_ext.columns:
+    for well in track(wells_ext.columns, lambda w: w):
         well_norm = well.lower().strip().replace(' ','')
 
         # Cluster from sitewide membership audit

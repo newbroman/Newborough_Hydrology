@@ -126,7 +126,15 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.28.1"  # Hollingham (2026) — 2026-09-21. Comment only: the spring window is
+__version__ = "1.29.0"  # Hollingham (2026) — 2026-09-23. The three sweep-grid
+#   loops that dominate this script's runtime now report progress through
+#   console_utils.track(): the per-window refit loop in window_sweep()
+#   (in-place bar), the per-window refit loop in rolling_window_sweep()
+#   (in-place bar), and the per-well refit loop in delta0_leave_one_out()
+#   (in-place bar, total=len(meta)) — none of their bodies print per
+#   iteration. Martin, 2026-09-23: a script that runs past 30 s shows
+#   progress (T-76). No output changes.
+# 1.28.1  # Hollingham (2026) — 2026-09-21. Comment only: the spring window is
 #   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
 # 1.28.0  # Hollingham (2026) — 2026-09-09. Panel SIZE becomes a
 #   committed cell: 25_01_panel_fit_parameters.csv gains n_wells beside n_obs,
@@ -579,7 +587,7 @@ sys.path.insert(0, str(_HERE))
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
-    hr, skipped,
+    hr, skipped, track,
 )
 from utils import paths  # noqa: E402
 from utils.config import (  # noqa: E402
@@ -1805,7 +1813,7 @@ def window_sweep(specs: dict, cwb: pd.Series, decay_func, p0, bounds) -> pd.Data
         end = design["date"].max()
         starts = pd.date_range(design["date"].min(), end, freq="MS")
 
-        for start in starts:
+        for start in track(starts, lambda s: f"{label}@{s:%Y-%m}"):
             years = (end - start).days / 365.25
             if years < WINDOW_SWEEP_MIN_YEARS:
                 continue
@@ -1986,7 +1994,8 @@ def rolling_window_sweep(specs: dict, cwb: pd.Series, decay_func, p0, bounds,
             # observations wherever it sits; a day-count length would drift
             # across month boundaries and change the row count with position.
             n_months = int(round(float(years) * MONTHS_PER_YEAR))
-            for start in pd.date_range(first, last, freq=f"{int(step_months)}MS"):
+            for start in track(pd.date_range(first, last, freq=f"{int(step_months)}MS"),
+                               lambda s: f"{label}@{s:%Y-%m}+{years:g}y"):
                 end = start + pd.DateOffset(months=n_months - 1)
                 if end > last:
                     break
@@ -3215,7 +3224,7 @@ def delta0_leave_one_out(df: pd.DataFrame, fit_ref: dict, decay_func, p0, bounds
                    n_obs=("h_depth", "size"))
               .reset_index())
     rows = []
-    for _, m in meta.iterrows():
+    for _, m in track(meta.iterrows(), lambda im: im[1]["well"], total=len(meta)):
         w = m["well"]
         sub = df[df["well"] != w]
         fit = fit_panel(sub, decay_func, p0=p0, bounds=bounds, label=f"loo_{w}")

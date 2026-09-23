@@ -88,10 +88,16 @@ from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface
-from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn
+from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn, track
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-31. The per-well CSV's
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+#   (T-76): the main() loop over PERIODS (console_utils.track, lines=True — the
+#   body already prints via phase()/result()/note()) and the per-well loop in
+#   per_well_trends() (console_utils.track, bar) — the loop whose bootstrap
+#   fits dominate the run. No output changes. Martin, 2026-09-23: a script
+#   that runs past 30 s shows progress (T-76).
+# 1.4.0  # Hollingham (2026) — 2026-08-31. The per-well CSV's
 #   identity block (key, col, Cluster, E, N) now comes from the UNION of every
 #   period, not from ACT_PRIMARY_PERIOD alone. Under the old basis a well with a
 #   trend in some other window but not in the primary window was appended by the
@@ -483,7 +489,7 @@ def per_well_trends(
 
     rows = []
     n_dropped_coverage = 0
-    for col in sub.columns:
+    for col in track(sub.columns, lambda c: c):
         h      = sub[col].dropna()
         common = h.index.intersection(cwb_sub.dropna().index)
         if len(common) < min_obs:
@@ -683,7 +689,7 @@ def main() -> int:
     # sequential/coverage relaxation.
     _EMIT_DH_CORR_EXTRA = {PRIMARY_PERIOD}
 
-    for plabel, (first, last) in PERIODS.items():
+    for plabel, (first, last) in track(list(PERIODS.items()), lambda p: p[0], lines=True):
         phase(2, f"Per-well climate-removed trends {first}–{last}")
         is_seq = plabel in _SEQUENTIAL_PERIODS
         emit_dh = is_seq or (plabel in _EMIT_DH_CORR_EXTRA)

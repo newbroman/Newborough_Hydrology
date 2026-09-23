@@ -38,7 +38,13 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-16
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+#   (T-76): the four sequential make_coefficient_map() calls (beta_1, beta_2,
+#   beta_3, R2) turned into a tracked builder list (console_utils.track,
+#   lines=True — each builder already prints its own "Saved ..." step()), the
+#   Script 20 precedent for a script whose time is a sequence of builder calls.
+#   No output changes. Martin, 2026-09-23: a script that runs past 30 s shows
+#   progress (T-76).
 #
 # 1.2.1 (2026-08-16): map-extent note only, no behaviour change (GRID_YI
 #   northern edge 365800 vs config.SITE_MAP_NORTH_MAX 365500; see the note
@@ -83,7 +89,7 @@ import matplotlib
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
-    hr, skipped,
+    hr, skipped, track,
 )
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -382,76 +388,83 @@ if __name__ == "__main__":
     summary_df.to_csv(OUT_SUMMARY_CSV, index=False)
     step(f"Exported cluster summary to {OUT_SUMMARY_CSV.name}")
 
-    # ------------------------------------------------------------------
-    # Map 1: β₁ Recharge Sensitivity
-    # ------------------------------------------------------------------
-    make_coefficient_map(
-        df, "beta_1_recharge",
-        title=(
-            "β₁ Recharge Sensitivity (mm water-table rise per mm rainfall)\n"
-            "Per-well SSM coefficient — Newborough Warren"
-        ),
-        output_path=OUT_BETA1_MAP,
-        cmap=get_cmap("YlGnBu"),
-        cbar_label="β₁ (mm / mm rainfall)",
-        contour_levels=np.arange(2.0, 6.5, 0.5),
-        contour_fmt="%.1f",
-    )
-
-    # ------------------------------------------------------------------
-    # Map 2: β₂ Atmospheric Draw (ET sensitivity)
-    # ------------------------------------------------------------------
-    make_coefficient_map(
-        df, "beta_2_atmospheric_draw",
-        title=(
-            "β₂ Atmospheric Draw (mm water-table decline per mm PET)\n"
-            "Per-well SSM coefficient — Newborough Warren"
-        ),
-        output_path=OUT_BETA2_MAP,
-        cmap=get_cmap("YlOrRd"),
-        cbar_label="β₂ (mm / mm PET)",
-        contour_levels=np.arange(0.5, 3.5, 0.5),
-        contour_fmt="%.1f",
-    )
-
-    # ------------------------------------------------------------------
-    # Map 3: β₃ Drainage Rate (log scale, expressed as %)
-    # ------------------------------------------------------------------
     # β₃ spans nearly two orders of magnitude (C4 Forest: ~0.8%; C1 Lake
     # Edge: ~9–12%). Log scale gives proper visual separation.
-    # Convert to percentage for intuitive reading.
+    # Convert to percentage for intuitive reading. (Computed ahead of the
+    # builder list below so Map 3's builder can be a plain lambda.)
     df["beta_3_pct"] = df["beta_3_drainage"] * 100
-    make_coefficient_map(
-        df, "beta_3_pct",
-        title=(
-            "β₃ Drainage Rate (% head drained / month, log scale)\n"
-            "Per-well SSM coefficient — Newborough Warren"
-        ),
-        output_path=OUT_BETA3_MAP,
-        cmap=get_cmap("plasma"),
-        cbar_label="β₃ (% head drained / month)",
-        log_scale=True,
-        contour_levels=[0.5, 1.0, 2.0, 5.0, 10.0],
-        contour_fmt="%.1f",
-    )
 
-    # ------------------------------------------------------------------
-    # Map 4: R² Model Quality
-    # ------------------------------------------------------------------
-    make_coefficient_map(
-        df, "Model_R2",
-        title=(
-            "Per-Well SSM Fit Quality (R²)\n"
-            "Newborough Warren"
-        ),
-        output_path=OUT_R2_MAP,
-        cmap=get_cmap("RdYlGn"),
-        cbar_label="R²",
-        vmin=0.40,
-        vmax=0.90,
-        contour_levels=np.arange(0.50, 0.90, 0.10),
-        contour_fmt="%.2f",
-    )
+    # Four map builders in one tracked sequence (console_utils.track 1.2.0,
+    # T-76): a script past 30 s prints a completion line per map with elapsed
+    # and remaining time, per Martin's rule that a long run must show it is
+    # running.
+    map_builders = [
+        # ------------------------------------------------------------------
+        # Map 1: β₁ Recharge Sensitivity
+        # ------------------------------------------------------------------
+        ("β1 recharge sensitivity", lambda: make_coefficient_map(
+            df, "beta_1_recharge",
+            title=(
+                "β₁ Recharge Sensitivity (mm water-table rise per mm rainfall)\n"
+                "Per-well SSM coefficient — Newborough Warren"
+            ),
+            output_path=OUT_BETA1_MAP,
+            cmap=get_cmap("YlGnBu"),
+            cbar_label="β₁ (mm / mm rainfall)",
+            contour_levels=np.arange(2.0, 6.5, 0.5),
+            contour_fmt="%.1f",
+        )),
+        # ------------------------------------------------------------------
+        # Map 2: β₂ Atmospheric Draw (ET sensitivity)
+        # ------------------------------------------------------------------
+        ("β2 atmospheric draw", lambda: make_coefficient_map(
+            df, "beta_2_atmospheric_draw",
+            title=(
+                "β₂ Atmospheric Draw (mm water-table decline per mm PET)\n"
+                "Per-well SSM coefficient — Newborough Warren"
+            ),
+            output_path=OUT_BETA2_MAP,
+            cmap=get_cmap("YlOrRd"),
+            cbar_label="β₂ (mm / mm PET)",
+            contour_levels=np.arange(0.5, 3.5, 0.5),
+            contour_fmt="%.1f",
+        )),
+        # ------------------------------------------------------------------
+        # Map 3: β₃ Drainage Rate (log scale, expressed as %)
+        # ------------------------------------------------------------------
+        ("β3 drainage rate (log scale)", lambda: make_coefficient_map(
+            df, "beta_3_pct",
+            title=(
+                "β₃ Drainage Rate (% head drained / month, log scale)\n"
+                "Per-well SSM coefficient — Newborough Warren"
+            ),
+            output_path=OUT_BETA3_MAP,
+            cmap=get_cmap("plasma"),
+            cbar_label="β₃ (% head drained / month)",
+            log_scale=True,
+            contour_levels=[0.5, 1.0, 2.0, 5.0, 10.0],
+            contour_fmt="%.1f",
+        )),
+        # ------------------------------------------------------------------
+        # Map 4: R² Model Quality
+        # ------------------------------------------------------------------
+        ("R² model quality", lambda: make_coefficient_map(
+            df, "Model_R2",
+            title=(
+                "Per-Well SSM Fit Quality (R²)\n"
+                "Newborough Warren"
+            ),
+            output_path=OUT_R2_MAP,
+            cmap=get_cmap("RdYlGn"),
+            cbar_label="R²",
+            vmin=0.40,
+            vmax=0.90,
+            contour_levels=np.arange(0.50, 0.90, 0.10),
+            contour_fmt="%.2f",
+        )),
+    ]
+    for _label, _build in track(map_builders, lambda b: b[0], lines=True):
+        _build()
 
     # ------------------------------------------------------------------
     # Export map data

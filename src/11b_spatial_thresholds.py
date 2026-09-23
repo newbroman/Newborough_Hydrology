@@ -74,7 +74,16 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-17. The wet_area
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-23. Progress reporting
+#   (T-76): main()'s sequence of six builder calls (the four plot_* map
+#   builders, export_table10_spreadsheet, build_forecaster_html) turned into a
+#   tracked list (console_utils.track, lines=True — each builder already
+#   prints its own progress line), the Script 20 precedent for a script whose
+#   time is a sequence of builder calls; and the per-well P_flood loop in
+#   plot_pflood_map (console_utils.track, bar) — the "iterated" per-well fit
+#   loop that dominates that builder's time. No output changes. Martin,
+#   2026-09-23: a script that runs past 30 s shows progress (T-76).
+# v1.11.0  # Hollingham (2026) - 2026-09-17. The wet_area
 #   block gains `mask_outline` - data/geo/warren.kml as OSGB rings - so the page can
 #   draw the boundary of the ground the Sentinel cells cover whenever the layer is
 #   on. Martin: nothing on the page said the wet-cell data is the WARREN only, and
@@ -172,7 +181,7 @@ from utils.model_utils import pflood_lambda
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
-    hr, skipped,
+    hr, skipped, track,
 )
 from utils.render_utils import bump_fig_fonts, render_figure
 from utils.forecaster_engine import emit_engine
@@ -1093,7 +1102,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     unreachable_n = 0
     skipped_cluster = 0
     skipped_beta = 0
-    for _, row in df.iterrows():
+    for _, row in track(df.iterrows(), lambda r: r[1]["well"], total=len(df)):
         cluster = int(row["cluster"])
         if cluster not in CLUSTER_PEAK_MONTH:
             skipped_cluster += 1
@@ -2156,18 +2165,20 @@ def main(preview: bool = False) -> None:
     print("\n=== 11b_spatial_thresholds.py ===")
     print("Loading well data...")
     df = load_well_data()
-    print("Generating summer minima depth map...")
-    plot_summer_minima_map(df, dpi=dpi)
-    print("Generating winter maxima depth map...")
-    plot_winter_maxima_map(df, dpi=dpi)
-    print("Generating P_flood map (iterated, Section 3.6.3)...")
-    plot_pflood_map(df, dpi=dpi)
-    print("Generating flood frequency map...")
-    plot_flood_frequency_map(df, dpi=dpi)
-    print("Exporting Table 10 (spreadsheet-ready P_flood equations)...")
-    export_table10_spreadsheet()
-    print("Building interactive forecaster HTML...")
-    build_forecaster_html()
+
+    # Six builders in one tracked sequence (console_utils.track 1.2.0, T-76): a
+    # script past 30 s prints a completion line per builder with elapsed and
+    # remaining time, per Martin's rule that a long run must show it is running.
+    builders = [
+        ("Summer minima depth map", lambda: plot_summer_minima_map(df, dpi=dpi)),
+        ("Winter maxima depth map", lambda: plot_winter_maxima_map(df, dpi=dpi)),
+        ("P_flood map (iterated, Section 3.6.3)", lambda: plot_pflood_map(df, dpi=dpi)),
+        ("Flood frequency map", lambda: plot_flood_frequency_map(df, dpi=dpi)),
+        ("Table 10 (spreadsheet-ready P_flood equations)", lambda: export_table10_spreadsheet()),
+        ("Interactive forecaster HTML", lambda: build_forecaster_html()),
+    ]
+    for _label, _build in track(builders, lambda b: b[0], lines=True):
+        _build()
     done()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

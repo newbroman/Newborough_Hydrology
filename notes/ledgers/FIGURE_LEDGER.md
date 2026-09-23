@@ -109,4 +109,4 @@
 | 81 | 5.8.2 | Four drivers of the Newborough water table — schematic cross-sections  | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 82 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-09-22 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-09-23 by `tools/build_figure_ledger.py` v2.3.0.*

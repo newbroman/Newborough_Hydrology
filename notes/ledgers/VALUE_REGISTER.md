@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**120 output file(s)** supply **1279 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**120 output file(s)** supply **1278 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -223,7 +223,6 @@
 |  | C5 · median_TLM_NSE | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md |
 |  | C5 · median_dNSE | report9.md |
 | `08_lcsc_04_table3_benchmark_summary.csv` | CEH14 iterative NSE · Delta_B_minus_A | Newborough_Methods_Supplement.md, report9.md |
-|  | CEH14 iterative NSE · StateSpace_Model_B | report9.md |
 |  | CEH14 iterative NSE · Traditional_Model_A | report9.md |
 |  | CEH6 iterative NSE · Delta_B_minus_A | report9.md |
 |  | CEH6 iterative NSE · StateSpace_Model_B | report9.md |
@@ -238,7 +237,7 @@
 |  | Median iterative R2 · Traditional_Model_A | Paper1.md, report9.md |
 |  | Median one-step R2 · StateSpace_Model_B | Paper1.md, report9.md |
 |  | Median one-step R2 · Traditional_Model_A | Paper1.md, report9.md |
-| `08_perwell_nse.csv` | CEH14 · SSM_NSE | report9.md |
+| `08_perwell_nse.csv` | CEH14 · SSM_NSE | report10.md, report9.md |
 |  | CEH14 · TLM_NSE | report9.md |
 |  | CEH14 · dNSE | Newborough_Methods_Supplement.md, report9.md |
 |  | CEH16 · TLM_NSE | Newborough_Methods_Supplement.md |

@@ -35,10 +35,25 @@ Outputs:
     - outputs/07_spatial_coefficients/07_coeff_04_r2_quality.png
     - outputs/07_spatial_coefficients/07_coeff_maps_data.csv
     - outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv  (per-cluster beta ranges; Paper 1 Table 6)
+    - outputs/07_spatial_coefficients/07_cluster_coeff_means.csv  (per-cluster mean β₁/β₂/β₃; §4.9)
+    - outputs/07_spatial_coefficients/07_report_numbers.csv
+    - outputs/07_spatial_coefficients/07_05_clusters_vs_covariates.csv  (T-73: per-well β
+      regressed on six site covariates with and without the cluster dummies —
+      nested F-test, ΔR²adj, ΔAIC; "all" and "forest_free" panels)
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-23. Clusters vs covariates
+#   (T-73): new clusters_vs_covariates() regresses each per-well SSM
+#   coefficient (β₁, β₂, β₃; the reference wells in 03_master_data.csv) on six
+#   site covariates from 01_locations.csv (dist_coast_m, dist_lake_m,
+#   ground_elev_m, in_forest, E, N) with and without C(Cluster), and emits the
+#   nested F-test, ΔR²adj and ΔAIC per coefficient for the full panel and the
+#   forest-free panel (six rows) to 07_05_clusters_vs_covariates.csv. The three
+#   full-panel F p-values and ΔAIC also go to 07_report_numbers.csv (the CSV is
+#   the primary artefact). Existing outputs unchanged.
+#
+# 1.3.0 (2026-09-23): Progress reporting
 #   (T-76): the four sequential make_coefficient_map() calls (beta_1, beta_2,
 #   beta_3, R2) turned into a tracked builder list (console_utils.track,
 #   lines=True — each builder already prints its own "Saved ..." step()), the
@@ -65,8 +80,10 @@ from utils.paths import (
     OUT_DIR,
     INT_MASTER_DATA,
     INT_WELL_ELEVATIONS,
+    INT_LOCATIONS,
     OUT_07_CLUSTER_COEFF_MEANS,
     OUT_07_REPORT_NUMBERS,
+    OUT_07_CLUSTERS_VS_COVARIATES,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.map_utils import (
@@ -78,6 +95,7 @@ from utils.map_utils import (
 from utils.data_utils import normalize_well_name
 from utils.config import (
     DRAINAGE_DATUM,
+    LAKE_GAUGE_KEYS,
     CLUSTER_LABELS,
     CLUSTER_COLOURS,
     CLUSTER_MARKERS,
@@ -97,6 +115,7 @@ import matplotlib.colors as mcolors
 from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
+import statsmodels.formula.api as smf
 
 # ==========================================
 # OUTPUT PATHS
@@ -369,6 +388,131 @@ def make_cluster_summary(master):
 
 
 # ------------------------------------------------------------------
+# CLUSTERS VS COVARIATES (T-73)
+# ------------------------------------------------------------------
+
+# Per-well SSM coefficient columns of 03_master_data.csv, in the order the
+# rows of 07_05_clusters_vs_covariates.csv are emitted.
+_CVC_COEFFICIENTS = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")
+
+# The six site covariates of Model 0 (formula terms, in column order) and the
+# short names their covariate-only p-values are emitted under.
+_CVC_COVARIATES = (
+    ("dist_coast_m",  "p_dist_coast"),
+    ("dist_lake_m",   "p_dist_lake"),
+    ("ground_elev_m", "p_ground_elev"),
+    ("in_forest",     "p_in_forest"),
+    ("E",             "p_easting"),
+    ("N",             "p_northing"),
+)
+
+
+def load_well_covariates(master):
+    """
+    Attach the six Model 0 covariates from 01_locations.csv to the per-well
+    SSM coefficient table.
+
+    Wells are matched on normalize_well_name(Name_Original) against the
+    location file's Match_ID. dist_lake_m is the Euclidean distance from the
+    well to the Llyn Rhos-Ddu gauge row of the same file (found through
+    config.LAKE_GAUGE_KEYS, the Script 12 precedent — its coordinates are never
+    typed). in_forest is carried as 0/1.
+    """
+    loc = pd.read_csv(INT_LOCATIONS)
+    loc["wn"] = loc["Match_ID"].astype(str).apply(normalize_well_name)
+
+    lake_key = loc["Name"].astype(str).str.strip().str.lower()
+    lake = loc[lake_key.isin({k.lower() for k in LAKE_GAUGE_KEYS})]
+    if lake.empty:
+        raise ValueError(
+            f"Llyn Rhos-Ddu gauge not found in {INT_LOCATIONS.name} "
+            f"(config.LAKE_GAUGE_KEYS); dist_lake_m cannot be computed"
+        )
+    lake_e = float(lake["E"].iloc[0])
+    lake_n = float(lake["N"].iloc[0])
+    loc["dist_lake_m"] = np.hypot(loc["E"] - lake_e, loc["N"] - lake_n)
+    loc["in_forest"] = loc["in_forest"].astype(bool).astype(int)
+
+    cov_cols = ["wn", "E", "N", "ground_elev_m", "dist_coast_m", "dist_lake_m", "in_forest"]
+    df = master.copy()
+    df["wn"] = df["Name_Original"].apply(normalize_well_name)
+    df = df.merge(loc[cov_cols], on="wn", how="left", validate="one_to_one")
+
+    missing = df[df[cov_cols[1:]].isna().any(axis=1)]
+    if len(missing):
+        warn(f"{len(missing)} well(s) lack a covariate in {INT_LOCATIONS.name} "
+             f"and are dropped from the covariate comparison: "
+             f"{', '.join(missing['Name_Original'].astype(str))}")
+        df = df.drop(missing.index)
+    return df
+
+
+def clusters_vs_covariates(df):
+    """
+    Do the cluster labels carry structure in the per-well SSM coefficients
+    beyond six continuous / land-cover covariates?
+
+    For each of β₁, β₂, β₃:
+        Model 0:  β ~ 1 + dist_coast_m + dist_lake_m + ground_elev_m
+                        + in_forest + E + N
+        Model 1:  Model 0 + C(Cluster)
+    and the nested F-test of the cluster dummies (statsmodels
+    compare_f_test), ΔR²adj and ΔAIC (Model 1 − Model 0). Run on the full
+    reference panel ("all") and again on the forest-free panel
+    (in_forest == 0, "forest_free"), where in_forest is constant and so drops
+    out of both models — the reviewer's question of whether the cluster
+    effect is only the forest flag. Nothing is centred or scaled: a nested
+    comparison is invariant to it.
+
+    Returns the six-row DataFrame written to 07_05_clusters_vs_covariates.csv.
+    """
+    panels = [
+        ("all", df),
+        ("forest_free", df[df["in_forest"] == 0]),
+    ]
+    rows = []
+    for panel, sub in panels:
+        sub = sub.copy()
+        if panel == "forest_free":
+            # in_forest is identically zero here; keep the design full-rank.
+            sub = sub.drop(columns=["in_forest"])
+            terms = [(t, p) for t, p in _CVC_COVARIATES if t != "in_forest"]
+        else:
+            terms = list(_CVC_COVARIATES)
+        rhs0 = " + ".join(t for t, _ in terms)
+        for coef in _CVC_COEFFICIENTS:
+            m0 = smf.ols(f"{coef} ~ {rhs0}", data=sub).fit()
+            m1 = smf.ols(f"{coef} ~ {rhs0} + C(Cluster)", data=sub).fit()
+            f_stat, f_p, df_num = m1.compare_f_test(m0)
+            row = {
+                "panel": panel,
+                "coefficient": coef,
+                "n": int(m1.nobs),
+                "n_clusters": int(sub["Cluster"].nunique()),
+                "R2_adj_covariates": float(m0.rsquared_adj),
+                "R2_adj_with_clusters": float(m1.rsquared_adj),
+                "delta_R2_adj": float(m1.rsquared_adj - m0.rsquared_adj),
+                "AIC_covariates": float(m0.aic),
+                "AIC_with_clusters": float(m1.aic),
+                "delta_AIC": float(m1.aic - m0.aic),
+                "F_stat": float(f_stat),
+                "F_pvalue": float(f_p),
+                "df_num": int(df_num),
+                "df_den": int(m1.df_resid),
+            }
+            for term, pcol in _CVC_COVARIATES:
+                row[pcol] = float(m0.pvalues[term]) if term in m0.pvalues.index else np.nan
+            rows.append(row)
+            step(
+                f"{panel:<11s} {coef:<24s} n={row['n']:2d}  "
+                f"R²adj {row['R2_adj_covariates']:.3f} → {row['R2_adj_with_clusters']:.3f}  "
+                f"ΔAIC {row['delta_AIC']:+.1f}  "
+                f"F({row['df_num']},{row['df_den']}) = {row['F_stat']:.2f}, p = {row['F_pvalue']:.3g}"
+            )
+    return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------
 # MAIN
 # ------------------------------------------------------------------
 
@@ -523,6 +667,19 @@ if __name__ == "__main__":
     _means_df.to_csv(OUT_07_CLUSTER_COEFF_MEANS, index=False)
     step(f"Exported per-cluster coefficient means to {OUT_07_CLUSTER_COEFF_MEANS.name}")
 
+    # ------------------------------------------------------------------
+    # Clusters vs covariates (T-73): do the cluster labels explain the
+    # per-well β beyond six site covariates? Nested F-test per coefficient,
+    # full panel and forest-free panel.
+    # ------------------------------------------------------------------
+    hr()
+    info("Clusters vs covariates (T-73): per-well β on six site covariates, "
+         "with and without C(Cluster)")
+    cvc_df = clusters_vs_covariates(load_well_covariates(master))
+    cvc_df.to_csv(OUT_07_CLUSTERS_VS_COVARIATES, index=False)
+    saved(OUT_07_CLUSTERS_VS_COVARIATES)
+    hr()
+
     rpt = ReportNumbers()
     for _, _r in _means_df.iterrows():
         _cl = f"C{int(_r['Cluster_ID'])}"
@@ -541,6 +698,20 @@ if __name__ == "__main__":
                 well="CEH14", note="negative β₃ — lateral recharge from rock ridge (C4)")
         rpt.add("CEH14_beta3_pct", float(_ceh14["beta_3_drainage"].iloc[0]) * 100.0,
                 unit="%/month", well="CEH14", note="negative β₃ as %")
+    # T-73: clusters vs covariates, full panel only — the nested F-test p-value
+    # and ΔAIC for C(Cluster) over the six covariates, per coefficient. The
+    # primary artefact is 07_05_clusters_vs_covariates.csv.
+    _cvc_short = {"beta_1_recharge": "beta_1", "beta_2_atmospheric_draw": "beta_2",
+                  "beta_3_drainage": "beta_3"}
+    for _, _r in cvc_df[cvc_df["panel"] == "all"].iterrows():
+        _b = _cvc_short[_r["coefficient"]]
+        rpt.add(f"clusters_vs_covariates_F_p_{_b}", _r["F_pvalue"], unit="",
+                note=(f"nested F-test p, C(Cluster) over six site covariates, per-well "
+                      f"{_r['coefficient']}, n={int(_r['n'])}, "
+                      f"F({int(_r['df_num'])},{int(_r['df_den'])}); 07_05_clusters_vs_covariates.csv"))
+        rpt.add(f"clusters_vs_covariates_dAIC_{_b}", _r["delta_AIC"], unit="",
+                note=(f"AIC(covariates + C(Cluster)) − AIC(covariates), per-well "
+                      f"{_r['coefficient']}, n={int(_r['n'])}; negative favours clusters"))
     n_saved = rpt.save(OUT_07_REPORT_NUMBERS)
     step(f"Exported {n_saved} report numbers to {OUT_07_REPORT_NUMBERS.name}")
 

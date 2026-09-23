@@ -52,9 +52,10 @@ Outputs (final — outputs/03_state_space_model/):
     03_05_bootstrap_ci.csv                 — B=1000 bootstrap CIs per cluster
     03_06_leave_one_out.csv                — per-cluster leave-one-well-out fits
     03_07_c1_split_window.csv              — C1 pre/post-2018 split-window fits
-    03_08_datum_sensitivity.csv            — cluster-level datum sweep (0.5–8.0 m)
+    03_08_datum_sensitivity.csv            — cluster-level datum sweep (DATUM_SWEEP_MIN_M
+                                             to DATUM_SWEEP_MAX_M in DATUM_SWEEP_STEP_M steps)
     03_08_datum_sensitivity.png            — 3-panel datum sensitivity figure
-    03_09_well_datum_sensitivity.csv       — per-well datum sweep (66 wells × 76 depths)
+    03_09_well_datum_sensitivity.csv       — per-well datum sweep (reference wells × swept depths)
     03_09_well_optimal_datums.csv          — per-well optimal datums (primary, secondary, R²-max)
     03_09_well_optimal_datums.png          — 4-panel per-well datum figure
     03_11_datum_confound_diagnostics.csv   — optimal datum vs mean water-table
@@ -63,6 +64,12 @@ Outputs (final — outputs/03_state_space_model/):
     03_10_well_r2_gain_map.png             — spatial map: R² gain vs uniform datum (report Fig.)
     03_12_partition_vs_datum.csv           — drainage flux and loss-partition share vs datum (regime diagnostic)
     03_12_datum_regime.png                 — 2-panel datum-regime figure (flux plateau + partition share)
+    03_18_datum_invariance.csv             — the datum sweep summarised per cluster (T-74):
+                                             AIC-optimal datum, cost of DRAINAGE_DATUM (ΔR², ΔAIC),
+                                             β₃ and drainage flux at the datum vs the deepest swept
+                                             datum, flux-fraction plateau onset, Model B zero-drainage
+                                             level, per-well R²-max datum spread; one all-clusters row
+                                             with the β₃ / flux ranking-invariance onsets
 
 Phase 1 validation (rebuild priorities):
     * beta_1 > 0 and beta_2 > 0 asserted on every centroid fit (hard-fail).
@@ -79,7 +86,20 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.15.0"  # Martin, 2026-09-23: a script that runs past 30 s shows
+__version__ = "1.16.0"  # Hollingham (2026) — 2026-09-23. T-74: the datum sweep
+#   summarised per cluster into 03_18_datum_invariance.csv — the AIC-optimal
+#   datum and the cost of DRAINAGE_DATUM against it (ΔR², ΔAIC), β₃ and the
+#   drainage flux at the datum against the deepest swept datum, the shallowest
+#   datum from which the flux fraction stays ≥ 0.8 / ≥ 0.9, the zero-drainage
+#   level Model B's intercept implies, and the per-well R²-max datum spread;
+#   plus one all-clusters row carrying the datum from which the β₃ and flux
+#   rankings of the five clusters no longer change and the datum from which
+#   every β₃ is positive and significant (the DRAINAGE_DATUM selection rule,
+#   re-derived). The two np.arange sweep literals in datum_sensitivity_analysis
+#   and well_datum_sensitivity are replaced by _datum_sweep(), built from the
+#   config DATUM_SWEEP_* constants and numerically identical to the old grid, so
+#   03_08 / 03_09 do not move. Existing outputs unchanged.
+# v1.15.0  # Martin, 2026-09-23: a script that runs past 30 s shows
 #   progress (T-76). Two loops now report: well_datum_sensitivity's per-well
 #   datum sweep (~66 wells, in-place bar — the loop body prints nothing) and
 #   bootstrap_centroid_fits's n_boot resampling draw (1000 per cluster,
@@ -223,6 +243,7 @@ from utils.paths import (
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
     OUT_03_MODEL_B_PERSISTENCE, OUT_03_UPSTAND_FRAME_SENS,
+    OUT_03_DATUM_INVARIANCE,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -232,6 +253,7 @@ from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
     LCSC_DATA_LIMIT, SSM_MIN_OBS,
+    DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M,
 )
 from utils.model_utils import (fit_ssm, fit_ssm_intercept, assert_physical_signs,
                                build_ssm_frame)
@@ -1258,10 +1280,25 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
 # DATUM SENSITIVITY ANALYSIS
 # ==========================================================================
 
+def _datum_sweep() -> np.ndarray:
+    """
+    The swept datum grid shared by the centroid sweep (03_08) and the per-well
+    sweep (03_09): DATUM_SWEEP_MIN_M to DATUM_SWEEP_MAX_M inclusive in steps of
+    DATUM_SWEEP_STEP_M (config). The half-step added to the stop is what makes
+    np.arange include the endpoint; with the config values it reproduces the
+    grid the two sweeps carried as literals before v1.16.0 exactly (same
+    length, np.array_equal True), so 03_08 / 03_09 do not move.
+    """
+    return np.arange(DATUM_SWEEP_MIN_M,
+                     DATUM_SWEEP_MAX_M + DATUM_SWEEP_STEP_M / 2,
+                     DATUM_SWEEP_STEP_M)
+
+
 def datum_sensitivity_analysis(centroids: dict[int, pd.Series],
                                 climate: pd.DataFrame) -> pd.DataFrame:
     """
-    Sweep reference datum depths from 0.5 to 8.0 m in 0.1 m steps.
+    Sweep reference datum depths from DATUM_SWEEP_MIN_M to DATUM_SWEEP_MAX_M
+    in DATUM_SWEEP_STEP_M steps (_datum_sweep()).
     At each depth, fit the centroid SSM for all five clusters and record
     β₁, β₂, β₃, p-values, R², AIC.
 
@@ -1271,7 +1308,7 @@ def datum_sensitivity_analysis(centroids: dict[int, pd.Series],
     Output: DataFrame with columns (ref_depth, Cluster, Cluster_Label,
     beta_1..3, pvalue_beta_1..3, R2, AIC, beta_3_positive, beta_3_sig).
     """
-    datums = np.arange(0.5, 8.05, 0.1)
+    datums = _datum_sweep()
     rows = []
     for d in datums:
         for cid in sorted(centroids):
@@ -1545,7 +1582,8 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
                             well_col_lookup: dict[str, str]
                             ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Sweep reference datum depths from 0.5 to 8.0 m per individual well.
+    Sweep reference datum depths over _datum_sweep() (DATUM_SWEEP_MIN_M to
+    DATUM_SWEEP_MAX_M) per individual well.
 
     For each well, finds:
       - primary optimal datum: minimum depth where β₃ > 0 AND p < 0.05
@@ -1556,7 +1594,7 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
       full_df    — all (well × depth) results
       optimal_df — one row per well with all three datum measures
     """
-    datums = np.arange(0.5, 8.05, 0.1)
+    datums = _datum_sweep()
 
     full_rows = []
     optimal_rows = []
@@ -1906,6 +1944,197 @@ def datum_confound_diagnostics(optimal_df: pd.DataFrame,
     result("Optimum below mean water table",
            f"{int(below.sum())}/{len(d)} wells")
 
+    return pd.DataFrame(rows)
+
+
+def _invariant_from(depths: np.ndarray, ok: np.ndarray) -> float:
+    """
+    The shallowest swept datum from which a per-depth condition holds at
+    EVERY deeper datum, the deepest included. `depths` ascending, `ok` the
+    condition at each. NaN when the condition fails at the deepest datum
+    itself (there is then no such onset).
+    """
+    if len(depths) == 0 or not bool(ok[-1]):
+        return np.nan
+    onset = depths[-1]
+    for d, flag in zip(depths[::-1], ok[::-1]):
+        if not bool(flag):
+            break
+        onset = d
+    return float(onset)
+
+
+def datum_invariance_summary(sens_df: pd.DataFrame,
+                             part_df: pd.DataFrame,
+                             mb_df: pd.DataFrame,
+                             well_opt_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    The datum sweep summarised per cluster (T-74, v1.16.0). Nothing here is
+    fitted afresh: every value is read off the four sweep products already in
+    memory — 03_08 (sens_df: β, p, R², AIC per swept datum and centroid),
+    03_12 (part_df: fitted drainage flux per swept datum and centroid), 03_16
+    (mb_df: the Model B centroid rows) and 03_09 (well_opt_df: per-well
+    optimal datums) — and the swept grid is the one those products carry.
+
+    One row per cluster, plus a Cluster = 0 "all clusters" row for the
+    network-wide invariance onsets. Per cluster:
+
+      * aic_optimal_datum_m — the swept datum minimising the centroid AIC;
+        R2 / AIC there and at DRAINAGE_DATUM, and their differences
+        (delta_R2_datum_vs_optimum ≤ 0, delta_AIC_datum_vs_optimum ≥ 0: the
+        fit cost of the shared datum against the cluster's own optimum).
+      * beta_3 and the fitted drainage flux at DRAINAGE_DATUM against their
+        values at the deepest swept datum (DATUM_SWEEP_MAX_M), with
+        flux_fraction_of_deepest = flux(datum) / flux(deepest); the plateau
+        onsets flux_frac_ge_80pct_from_m / flux_frac_ge_90pct_from_m are the
+        shallowest datum from which that fraction stays ≥ 0.8 / ≥ 0.9 at
+        every deeper datum.
+      * model_b_zero_drainage_level_m — the level (m below ground) at which
+        Model B's fitted drainage α − β₃·(D + h) is zero, D − α_B/β₃_B: the
+        datum the freed intercept implies, set beside the AIC optimum as
+        model_b_minus_aic_optimum_m.
+      * the spread of the per-well R²-max datum in the cluster (median, min,
+        max), the largest and median R² gain over the shared datum, n_wells.
+
+    All-clusters row only (NaN elsewhere): beta3_order_invariant_from_m and
+    flux_order_invariant_from_m, the shallowest datum from which the ranking
+    of the clusters by β₃ / by drainage flux is the same at every deeper datum;
+    beta3_order_at_datum, that ranking at DRAINAGE_DATUM as "1>2>3>5>4"; and
+    all_beta3_pos_sig_from_m, the shallowest datum from which every cluster's
+    β₃ is positive with p < 0.05 at every deeper datum — the DRAINAGE_DATUM
+    selection rule re-derived from the sweep.
+    """
+    depths = np.array(sorted(sens_df["ref_depth"].unique()), dtype=float)
+    d_datum = round(float(DRAINAGE_DATUM), 1)
+    d_deep = round(float(DATUM_SWEEP_MAX_M), 1)
+    if not np.isclose(depths, d_datum).any():
+        warn(f"DRAINAGE_DATUM ({DRAINAGE_DATUM} m) is not on the swept grid; "
+             "03_18 at-datum columns will be NaN")
+    if not np.isclose(depths, d_deep).any():
+        warn(f"DATUM_SWEEP_MAX_M ({DATUM_SWEEP_MAX_M} m) is not in the sweep; "
+             "03_18 at-deepest columns will be NaN")
+
+    def _at(df: pd.DataFrame, depth: float, col: str) -> float:
+        hit = df[np.isclose(df["ref_depth"].astype(float), depth)]
+        return float(hit[col].iloc[0]) if len(hit) and pd.notna(hit[col].iloc[0]) else np.nan
+
+    # Per-depth β₃ / flux tables, clusters as columns, ascending depth.
+    b3_wide = (sens_df.pivot(index="ref_depth", columns="Cluster",
+                             values="beta_3_drainage").sort_index())
+    flux_wide = (part_df.pivot(index="ref_depth", columns="Cluster",
+                               values="drainage_flux_m_month").sort_index())
+    b3_wide.index = b3_wide.index.astype(float)
+    flux_wide.index = flux_wide.index.astype(float)
+
+    mb_cent = mb_df[mb_df["level"] == "centroid"].set_index("Cluster")
+
+    rows = []
+    for cid in sorted(sens_df["Cluster"].unique()):
+        cid = int(cid)
+        sub = sens_df[sens_df["Cluster"] == cid].sort_values("ref_depth")
+        psub = part_df[part_df["Cluster"] == cid].sort_values("ref_depth")
+        wsub = well_opt_df[well_opt_df["Cluster"] == cid]
+
+        aic_ok = sub.dropna(subset=["AIC"])
+        d_opt = (round(float(aic_ok.loc[aic_ok["AIC"].idxmin(), "ref_depth"]), 1)
+                 if len(aic_ok) else np.nan)
+
+        r2_opt, r2_dat = _at(sub, d_opt, "R2"), _at(sub, d_datum, "R2")
+        aic_opt, aic_dat = _at(sub, d_opt, "AIC"), _at(sub, d_datum, "AIC")
+        b3_dat, b3_deep = _at(sub, d_datum, "beta_3_drainage"), _at(sub, d_deep, "beta_3_drainage")
+        fl_dat = _at(psub, d_datum, "drainage_flux_m_month")
+        fl_deep = _at(psub, d_deep, "drainage_flux_m_month")
+
+        # Flux fraction vs the deepest swept datum, at every swept datum.
+        pdepths = psub["ref_depth"].astype(float).to_numpy()
+        frac = psub["drainage_flux_m_month"].to_numpy(dtype=float) / fl_deep \
+            if np.isfinite(fl_deep) and fl_deep != 0 else np.full(len(psub), np.nan)
+        frac_ok = np.isfinite(frac)
+        ge80 = _invariant_from(pdepths, frac_ok & (frac >= 0.8))
+        ge90 = _invariant_from(pdepths, frac_ok & (frac >= 0.9))
+
+        if cid in mb_cent.index:
+            a_b = float(mb_cent.loc[cid, "alpha_B"])
+            b3_b = float(mb_cent.loc[cid, "beta_3_B"])
+            d_b = float(mb_cent.loc[cid, "drainage_datum_m"])
+            zero_lvl = (d_b - a_b / b3_b) if (np.isfinite(b3_b) and b3_b != 0) else np.nan
+        else:
+            zero_lvl = np.nan
+
+        rows.append({
+            "Cluster": cid,
+            "Cluster_Label": CLUSTER_LABELS.get(cid, f"C{cid}"),
+            "datum_sweep_min_m": DATUM_SWEEP_MIN_M,
+            "datum_sweep_max_m": DATUM_SWEEP_MAX_M,
+            "datum_sweep_step_m": DATUM_SWEEP_STEP_M,
+            "drainage_datum_m": DRAINAGE_DATUM,
+            "aic_optimal_datum_m": d_opt,
+            "R2_at_optimum": r2_opt,
+            "R2_at_datum": r2_dat,
+            "delta_R2_datum_vs_optimum": r2_dat - r2_opt,
+            "AIC_at_optimum": aic_opt,
+            "AIC_at_datum": aic_dat,
+            "delta_AIC_datum_vs_optimum": aic_dat - aic_opt,
+            "beta_3_at_datum": b3_dat,
+            "beta_3_at_deepest": b3_deep,
+            "flux_at_datum_m_month": fl_dat,
+            "flux_at_deepest_m_month": fl_deep,
+            "flux_fraction_of_deepest": (fl_dat / fl_deep
+                                         if np.isfinite(fl_deep) and fl_deep != 0 else np.nan),
+            "flux_frac_ge_80pct_from_m": ge80,
+            "flux_frac_ge_90pct_from_m": ge90,
+            "model_b_zero_drainage_level_m": zero_lvl,
+            "model_b_minus_aic_optimum_m": zero_lvl - d_opt,
+            "well_median_max_R2_datum_m": float(wsub["max_R2_datum"].median()) if len(wsub) else np.nan,
+            "well_min_max_R2_datum_m": float(wsub["max_R2_datum"].min()) if len(wsub) else np.nan,
+            "well_max_max_R2_datum_m": float(wsub["max_R2_datum"].max()) if len(wsub) else np.nan,
+            "well_max_R2_gain": float(wsub["R2_gain_max_vs_uniform"].max()) if len(wsub) else np.nan,
+            "well_median_R2_gain": float(wsub["R2_gain_max_vs_uniform"].median()) if len(wsub) else np.nan,
+            "n_wells": int(len(wsub)),
+            "beta3_order_invariant_from_m": np.nan,
+            "flux_order_invariant_from_m": np.nan,
+            "beta3_order_at_datum": "",
+            "all_beta3_pos_sig_from_m": np.nan,
+        })
+
+    # ---- All-clusters row: ranking invariance and the selection rule ----
+    def _order(wide: pd.DataFrame, depth: float) -> tuple:
+        r = wide.loc[np.isclose(wide.index.to_numpy(), depth)]
+        if len(r) == 0 or r.iloc[0].isna().any():
+            return ()
+        return tuple(int(c) for c in r.iloc[0].sort_values(ascending=False).index)
+
+    def _order_invariant_from(wide: pd.DataFrame) -> float:
+        wd = wide.index.to_numpy(dtype=float)
+        ref = _order(wide, wd[-1])
+        if not ref:
+            return np.nan
+        ok = np.array([_order(wide, d) == ref for d in wd], dtype=bool)
+        return _invariant_from(wd, ok)
+
+    valid_by_depth = (sens_df.groupby("ref_depth")
+                      .agg(all_pos=("beta_3_positive", "all"),
+                           all_sig=("beta_3_sig", "all"))
+                      .sort_index())
+    vd = valid_by_depth.index.to_numpy(dtype=float)
+    all_valid = (valid_by_depth["all_pos"] & valid_by_depth["all_sig"]).to_numpy()
+
+    order_at_datum = _order(b3_wide, d_datum)
+    all_row = {k: np.nan for k in rows[0]} if rows else {}
+    all_row.update({
+        "Cluster": 0,
+        "Cluster_Label": "all clusters",
+        "datum_sweep_min_m": DATUM_SWEEP_MIN_M,
+        "datum_sweep_max_m": DATUM_SWEEP_MAX_M,
+        "datum_sweep_step_m": DATUM_SWEEP_STEP_M,
+        "drainage_datum_m": DRAINAGE_DATUM,
+        "n_wells": int(len(well_opt_df)),
+        "beta3_order_invariant_from_m": _order_invariant_from(b3_wide),
+        "flux_order_invariant_from_m": _order_invariant_from(flux_wide),
+        "beta3_order_at_datum": ">".join(str(c) for c in order_at_datum),
+        "all_beta3_pos_sig_from_m": _invariant_from(vd, all_valid),
+    })
+    rows.append(all_row)
     return pd.DataFrame(rows)
 
 
@@ -2538,8 +2767,8 @@ def main() -> None:
     saved(f"{lag_path.name}")
 
     # ---- Datum sensitivity analysis ----
-    print(f"\n -> Datum sensitivity analysis (0.5–8.0 m, 0.1 m steps, "
-          f"selected = {DRAINAGE_DATUM} m)...")
+    print(f"\n -> Datum sensitivity analysis ({DATUM_SWEEP_MIN_M}–{DATUM_SWEEP_MAX_M} m, "
+          f"{DATUM_SWEEP_STEP_M} m steps, selected = {DRAINAGE_DATUM} m)...")
     sens_df = datum_sensitivity_analysis(centroids, climate)
     sens_path = DIR_03 / "03_08_datum_sensitivity.csv"
     sens_df.to_csv(sens_path, index=False)
@@ -2572,7 +2801,8 @@ def main() -> None:
     make_datum_regime_figure(part_df, DRAINAGE_DATUM, OUT_03_DATUM_REGIME_FIG)
 
     # ---- Per-well datum sensitivity ----
-    print("\n -> Per-well datum sensitivity (0.5–8.0 m, 0.1 m steps)...")
+    print(f"\n -> Per-well datum sensitivity ({DATUM_SWEEP_MIN_M}–{DATUM_SWEEP_MAX_M} m, "
+          f"{DATUM_SWEEP_STEP_M} m steps)...")
     well_sens_df, well_opt_df = well_datum_sensitivity(
         wells_clean, climate, cluster_df, upstand_lookup, well_col_lookup
     )
@@ -2665,6 +2895,34 @@ def main() -> None:
     if not confound_df.empty:
         confound_df.to_csv(OUT_03_DATUM_CONFOUND, index=False)
         saved(f"{OUT_03_DATUM_CONFOUND.name}")
+
+    # ---- Datum invariance summary (T-74): the sweep, one row per cluster ----
+    print("\n -> Datum invariance summary (sweep per cluster, ranking onsets)...")
+    inv_df = datum_invariance_summary(sens_df, part_df, mb_df, well_opt_df)
+    inv_df.to_csv(OUT_03_DATUM_INVARIANCE, index=False)
+    saved(f"{OUT_03_DATUM_INVARIANCE.name}")
+    for _, r in inv_df.iterrows():
+        if int(r["Cluster"]) == 0:
+            step(f"{r['Cluster_Label']:25s}: β₃ order fixed from "
+                 f"{r['beta3_order_invariant_from_m']:.1f} m, flux order from "
+                 f"{r['flux_order_invariant_from_m']:.1f} m, all β₃ > 0 & sig from "
+                 f"{r['all_beta3_pos_sig_from_m']:.1f} m; order at datum "
+                 f"{r['beta3_order_at_datum']}")
+            continue
+        step(f"{r['Cluster_Label']:25s}: AIC-optimal {r['aic_optimal_datum_m']:.1f} m, "
+             f"ΔAIC at datum {r['delta_AIC_datum_vs_optimum']:+.1f}, "
+             f"R² {r['R2_at_optimum']:.3f} → {r['R2_at_datum']:.3f}, "
+             f"flux fraction {r['flux_fraction_of_deepest']:.3f} "
+             f"(≥ 0.8 from {r['flux_frac_ge_80pct_from_m']:.1f} m), "
+             f"Model B zero-drainage level {r['model_b_zero_drainage_level_m']:.2f} m")
+    all_row_rule = float(inv_df.loc[inv_df["Cluster"] == 0,
+                                    "all_beta3_pos_sig_from_m"].iloc[0])
+    if np.isfinite(all_row_rule):
+        # DRAINAGE_DATUM is set by D-007 (the Darcy-regime argument, SI Note S9),
+        # not by this significance rule; the rule's onset is emitted so the
+        # documents can say how far below the datum it lies.
+        info(f"every cluster's β₃ is positive and significant from {all_row_rule:.1f} m; "
+             f"DRAINAGE_DATUM = {DRAINAGE_DATUM} m is set by D-007, not by that rule")
 
     # ---- Spatial datum maps (DEM + KML overlay) ----
     print("\n -> Generating spatial datum maps...")

@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**120 output file(s)** supply **1277 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**120 output file(s)** supply **1279 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -1250,7 +1250,9 @@
 |  | canopy_ratio_restock_conifer_full_leaf_median | Newborough_Methods_Supplement.md |
 | `44_04_hindcast_metrics.csv` | 4 / nw11 · nse_after_offset | Paper1.md, report9.md |
 | `44_05_level_change.csv` | COMBINED_CONSTRAINED / nan · sigma_total_m | Hollingham_2026_Paper2_amended.md, report9.md |
-| `44_report_numbers.csv` | ranwell_sigma_m_combined_constrained | Hollingham_2026_Paper2_amended.md, report9.md |
+| `44_report_numbers.csv` | ranwell_forcing_r_1951_53 | report11.md |
+|  | ranwell_forcing_ratio_1951_53 | report11.md |
+|  | ranwell_sigma_m_combined_constrained | Hollingham_2026_Paper2_amended.md, report9.md |
 | `45_01_wet_area_model.csv` | open_water · b | report9.md |
 | `45_report_numbers.csv` | floor_mask_area_ha | Newborough_Methods_Supplement.md, report.md, report8.md, report9.md |
 |  | oos_C_wet_floor_ratio_p84 | Newborough_Methods_Supplement.md, report9.md |

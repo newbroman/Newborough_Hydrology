@@ -32,4 +32,4 @@
 
 > `report.pdf` is deliberately **absent** from `PDF_MANIFEST.txt` and from this ledger: it is built from the `report.odm` master via `tools/export_master_pdf.py`, not `build_pdfs.sh`. See the project working rules.
 
-*Generated 2026-09-22 by `tools/build_doc_ledger.py` v1.1.0.*
+*Generated 2026-09-23 by `tools/build_doc_ledger.py` v1.1.0.*

@@ -40,7 +40,12 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.47.0"  # Hollingham (2026) - 2026-09-22. HEAD_DEM_SMOOTHING_M and
+__version__ = "1.48.0"  # Hollingham (2026) - 2026-09-23. DATUM_SWEEP_MIN_M,
+#   DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M: the datum sweep Script 03 runs at the
+#   centroids (03_08) and per well (03_09), previously two np.arange(0.5, 8.05, 0.1)
+#   literals; the datum-invariance summary (03_18, T-74) and the Figure 50 captions
+#   cite the bounds. Same values, so no output moves. Additive.
+# 1.47.0  # Hollingham (2026) - 2026-09-22. HEAD_DEM_SMOOTHING_M and
 #   HEAD_DEM_HEADLINE_SMOOTHING_M: the scale sweep behind Script 20's head-versus-DEM
 #   comparison (T-66; the Figure 54 stream-overlay question). Additive.
 # 1.46.0  # Hollingham (2026) - 2026-09-21. CURRELI_MIN_WINDOW_YEARS = 4 and
@@ -409,10 +414,27 @@ CLUSTER_LABELS = {
 # means "higher head above the drainage base drives faster drainage" —
 # Darcy-consistent.
 #
-# Value selected by sensitivity analysis (Script 03, output 03_08): 3.7 m
-# is the minimum reference depth at which all five clusters produce positive
-# AND significant (p < 0.05) β₃. See HANDOVER_SCRIPT03_DATUM.md.
+# Set by D-007 on the Darcy-regime argument (SI Note S9): a physical reference
+# within the 3–8 m saturated-thickness bracket at which the drainage term is
+# evaluated. It is NOT the minimum depth at which every cluster's β₃ is positive
+# and significant — Script 03's sweep (03_08, summarised in 03_18) puts that
+# onset shallower, and the cluster-wise AIC optima shallower still; 03_18 carries
+# both, and report8 §3.4.1 states why the shared physical datum is published.
+# The comment here said "the minimum depth at which all five clusters produce
+# positive and significant β₃" until 2026-09-23; that described an earlier
+# record and the sweep no longer reproduces it. Read the value from here, the
+# reasoning from D-007 / D-109, the numbers from 03_18_datum_invariance.csv.
 DRAINAGE_DATUM = 3.7  # metres below ground surface
+
+# The datum sweep behind 03_08 (centroids) and 03_09 (per well): DATUM_SWEEP_MIN_M
+# to DATUM_SWEEP_MAX_M inclusive in steps of DATUM_SWEEP_STEP_M, metres below
+# ground. 03_18_datum_invariance.csv (T-74) summarises the sweep — the range over
+# which the cluster ordering of β₃ and of the drainage flux is unchanged, and the
+# cost of DRAINAGE_DATUM against each cluster's own AIC optimum — and the Figure 50
+# captions quote these bounds rather than typing them.
+DATUM_SWEEP_MIN_M  = 0.5
+DATUM_SWEEP_MAX_M  = 8.0
+DATUM_SWEEP_STEP_M = 0.1
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.

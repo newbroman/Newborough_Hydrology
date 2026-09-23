@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.28.0"  # Hollingham (2026) - 2026-09-22. OUT_20_HEAD_VS_DEM, OUT_20_HEAD_DEM_REPORT_NUMBERS,
+__version__ = "1.29.0"  # Hollingham (2026) - 2026-09-23. OUT_03_DATUM_INVARIANCE (03_18, T-74),
+#   OUT_07_CLUSTERS_VS_COVARIATES (07_05, T-73), OUT_45_SWITCHING_LEVELS_MAP and
+#   OUT_45_PHASE_HYSTERESIS (45_03 / 45_04, T-77). Additive.
+# 1.28.0  # Hollingham (2026) - 2026-09-22. OUT_20_HEAD_VS_DEM, OUT_20_HEAD_DEM_REPORT_NUMBERS,
 #   OUT_20_HEAD_VS_DEM_FIG (Script 20 head-versus-DEM comparison, T-66). Additive.
 # 1.27.0  # Hollingham (2026) - 2026-09-22. OUT_26_MSL5_MIN5_PER_CLUSTER (Script 26 Pass 3d, T-64). Additive.
 # 1.26.0  # Hollingham (2026) - 2026-09-22. OUT_32_CLUSTER_SUMMARY, OUT_33_CLUSTER_SUMMARY:
@@ -490,6 +493,7 @@ OUT_03_PER_WELL_WINDOW_SENS = DIR_03 / "03_15_per_well_window_sensitivity.csv"
 OUT_03_MODEL_B_PERSISTENCE  = DIR_03 / "03_16_model_b_persistence.csv"   # datum-free persistence (Model B), 2026-09-07
 OUT_03_UPSTAND_FRAME_SENS   = DIR_03 / "03_17_upstand_frame_sensitivity.csv"  # datum/upstand frame sensitivity, 2026-09-09
 OUT_03_DATUM_REGIME_FIG    = DIR_03 / "03_12_datum_regime.png"
+OUT_03_DATUM_INVARIANCE    = DIR_03 / "03_18_datum_invariance.csv"   # T-74: the sweep summarised per cluster (order invariance, flux fraction, cost of DRAINAGE_DATUM)
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
@@ -510,6 +514,7 @@ OUT_07_R2_MAP               = DIR_07 / "07_coeff_04_r2_quality.png"
 OUT_07_MAPS_DATA            = DIR_07 / "07_coeff_maps_data.csv"
 OUT_07_CLUSTER_COEFF_MEANS  = DIR_07 / "07_cluster_coeff_means.csv"   # §4.9 per-cluster mean β₁/β₂/β₃ (3.7 m datum)
 OUT_07_REPORT_NUMBERS       = DIR_07 / "07_report_numbers.csv"        # §4.9 cited coefficient stats
+OUT_07_CLUSTERS_VS_COVARIATES = DIR_07 / "07_05_clusters_vs_covariates.csv"  # T-73: per-well β on six covariates, with and without cluster labels
 
 # Script 08 — Model benchmarking
 OUT_08_SHOWDOWN             = DIR_08 / "08_lcsc_01_ceh6_showdown.png"
@@ -1229,6 +1234,8 @@ OUT_45_MODEL_FIG      = DIR_45 / "45_01_wet_area_model.png"
 OUT_45_SSM_CURVES     = DIR_45 / "45_02_ssm_through_nir_curves.csv"
 OUT_45_SSM_CURVES_FIG = DIR_45 / "45_02_ssm_through_nir_curves.png"
 OUT_45_REPORT_NUMBERS = DIR_45 / "45_report_numbers.csv"   # study area, fit R², out-of-sample R²/n/ratio (E16)
+OUT_45_SWITCHING_LEVELS_MAP = DIR_45 / "45_03_switching_levels_map.png"   # T-77: per-cell switching levels, wet floor and open water
+OUT_45_PHASE_HYSTERESIS     = DIR_45 / "45_04_phase_hysteresis.csv"       # T-77: wetting-vs-drying phase term and the scene-month rain term, per class
 
 # ── Script 47 — the century hindcast film (T-39, D-178) ──────────────────────
 # Display tier, on demand only. DIR_47 is NOT mkdir'd here: the directory is

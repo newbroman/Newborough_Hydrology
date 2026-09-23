@@ -35,10 +35,22 @@ OUTPUTS — outputs/45_wet_area/
                                         level, modelled and observed; Step 46's
                                         history block reads this.
   45_02_ssm_through_nir_curves.png .... the SSM-through-curves figure.
+  45_03_switching_levels_map.png ...... the per-cell switching levels from
+                                        cell_thresholds.npz, two panels (wet floor,
+                                        open water): the network-median level at
+                                        which each floor cell first reads the class,
+                                        never-wet floor in grey, site boundary and
+                                        the reference wells overlaid (T-77).
+  45_04_phase_hysteresis.csv .......... the wetting-versus-drying phase term and the
+                                        scene-month rain term, one row per class:
+                                        log(area) on h_scene alone, plus dh_month,
+                                        plus the scene month's rainfall (T-77).
   45_report_numbers.csv ............... floor_mask_area_ha / _cells, wet_floor_ever_* and
                                         open_water_ever_*, fit_<class>_rho / _r2_log /
                                         _n_scenes, oos_<mode>_<class>_r2 / _n_months /
-                                        _median_ratio / _ratio_p16 / _ratio_p84 (E16).
+                                        _median_ratio / _ratio_p16 / _ratio_p84 (E16);
+                                        hysteresis_ratio_<class>, hysteresis_dh_p_<class>
+                                        and rain_term_p_<class> (T-77).
 
 USAGE
   python3 run_analysis.py                     # runs under --full
@@ -47,7 +59,19 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-21. The slack-floor mask area is
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-23 (T-77). Two new artefacts and
+#   a new Phase 4 between the SSM drive and the report numbers. 45_03: the per-cell
+#   switching levels in cell_thresholds.npz drawn as two map panels (wet floor, open
+#   water) — the network-median level at which a floor cell first reads the class,
+#   never-wet floor in grey, non-floor transparent, the site boundary (kml_io) and
+#   the reference wells overlaid, E/N axes from map_utils. 45_04: the phase term —
+#   per class, log(area) on h_scene alone (M0), with dh_month (M1) and with the
+#   scene month's rainfall (M2; the calendar month containing the scene date, with
+#   the field-convention month_bucket variant beside it), the wetting-versus-drying
+#   ratio from M0's residuals, and n. Three report numbers per class join
+#   45_report_numbers.csv (hysteresis_ratio_, hysteresis_dh_p_, rain_term_p_).
+#   Existing outputs unchanged.
+# 1.3.0  Hollingham (2026) - 2026-09-21. The slack-floor mask area is
 #   emitted as floor_mask_area_ha / floor_mask_cells, not study_area_ha / _cells:
 #   Script 12 emits study_area_ha for the 845.6 ha hydrological study area, and
 #   build_number_ledger --check (gated today) rightly read the same key carrying
@@ -86,12 +110,19 @@ import pandas as pd                                           # noqa: E402
 
 from utils.paths import (                                     # noqa: E402
     DIR_45, OUT_45_MODEL, OUT_45_MODEL_FIG, OUT_45_SSM_CURVES, OUT_45_SSM_CURVES_FIG,
-    OUT_45_REPORT_NUMBERS, SENTINEL_TWO_CLASS_SERIES, SENTINEL_HINDCAST_MONTHLY,
-    SENTINEL_CELL_THRESHOLDS,
+    OUT_45_REPORT_NUMBERS, OUT_45_SWITCHING_LEVELS_MAP, OUT_45_PHASE_HYSTERESIS,
+    SENTINEL_TWO_CLASS_SERIES, SENTINEL_HINDCAST_MONTHLY, SENTINEL_CELL_THRESHOLDS,
+    INT_CLIMATE, INT_LOCATIONS, INT_MASTER_DATA, DATA_KML_SITE_BOUNDARY,
 )
 from utils.config import WET_AREA_CLASSES, WET_AREA_GRID, CELL_MIN_SCENES   # noqa: E402
+from utils.buckets import month_bucket                        # noqa: E402
+from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 from utils.console_utils import banner, done, info, phase, result, saved, step, warn  # noqa: E402
+
+# The two classes the curves, the maps and the phase term are reported for;
+# WET_AREA_CLASSES also carries dark_total, which is their sum.
+CURVE_CLASSES = ("open_water", "wet_floor")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -266,6 +297,160 @@ def _plot_ssm(Hc: pd.DataFrame) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# THE SWITCHING-LEVEL MAPS — cell_thresholds.npz drawn (T-77)
+# ─────────────────────────────────────────────────────────────────────────────
+def _reference_well_points() -> pd.DataFrame:
+    """E, N of the reference network: the wells in 03_master_data.csv, located
+    through 01_locations.csv on the normalised name."""
+    ref = {normalize_well_name(n) for n in pd.read_csv(INT_MASTER_DATA)["Name_Original"]}
+    loc = pd.read_csv(INT_LOCATIONS)
+    loc["Match_ID"] = loc["Match_ID"].map(normalize_well_name)
+    pts = loc[loc["Match_ID"].isin(ref)]
+    if len(pts) != len(ref):
+        warn(f"{len(ref) - len(pts)} reference well(s) not found in {INT_LOCATIONS.name}")
+    return pts[["E", "N"]]
+
+
+def plot_switching_levels() -> None:
+    """Two panels, one per class, of the per-cell switching level: the reference-
+    network median level (m, 0 = ground) at which the cell first reads the class
+    in the winter scene stack. Floor cells never in the class are light grey;
+    cells off the floor are transparent. The site boundary is read through
+    kml_io (never re-parsed here) and the reference wells are drawn as points.
+    The grid is the npz's own: [left, bottom, right, top, res] in EPSG:27700
+    with row 0 at the top, so the image is drawn origin='upper'."""
+    if not SENTINEL_CELL_THRESHOLDS.exists():
+        warn(f"no {SENTINEL_CELL_THRESHOLDS.name}: switching-level map not drawn")
+        return
+    import matplotlib                                          # noqa: PLC0415
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt                            # noqa: PLC0415
+    from matplotlib.colors import ListedColormap, Normalize    # noqa: PLC0415
+    from matplotlib.lines import Line2D                        # noqa: PLC0415
+    from matplotlib.patches import Patch                       # noqa: PLC0415
+    from utils.kml_io import read_kml                          # noqa: PLC0415
+    from utils.map_utils import add_en_axes                    # noqa: PLC0415
+
+    z = np.load(SENTINEL_CELL_THRESHOLDS)
+    floor = z["floor"].astype(bool)
+    left, bottom, right, top, _res = (float(v) for v in z["grid"])
+    extent = (left, right, bottom, top)
+    ever = {cls: floor & np.isfinite(z[f"h_{cls}"]) for cls in CURVE_CLASSES}
+    finite_levels = np.concatenate([z[f"h_{cls}"][ever[cls]] for cls in CURVE_CLASSES])
+    norm = Normalize(vmin=float(finite_levels.min()), vmax=float(finite_levels.max()))
+    wells = _reference_well_points()
+    boundary = None
+    if DATA_KML_SITE_BOUNDARY.exists():
+        # site_boundary.kml is thousands of small polygons; dissolved and lightly
+        # simplified into the one outline, as Script 20's load_site_polygon does.
+        from shapely.ops import unary_union                    # noqa: PLC0415
+        import geopandas as gpd                                # noqa: PLC0415
+        pieces = [g for g in read_kml(DATA_KML_SITE_BOUNDARY, quiet=True).geometry if g is not None]
+        boundary = gpd.GeoSeries([unary_union(pieces).simplify(20, preserve_topology=True)],
+                                 crs="EPSG:27700")
+    else:
+        warn(f"no {DATA_KML_SITE_BOUNDARY.name}: map drawn without the site boundary")
+
+    grey = ListedColormap(["#d9d9d9"])
+    fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.2), sharex=True, sharey=True,
+                             constrained_layout=True)
+    im = None
+    panels = (("wet_floor", "wet floor", "wet"), ("open_water", "open water", "open water"))
+    for ax, (cls, title, state) in zip(axes, panels):
+        h = z[f"h_{cls}"]
+        never = floor & ~ever[cls]
+        ax.imshow(np.ma.masked_where(~never, np.ones_like(h)), extent=extent, origin="upper",
+                  cmap=grey, vmin=0, vmax=1, interpolation="nearest", zorder=1)
+        im = ax.imshow(np.ma.masked_where(~ever[cls], h), extent=extent, origin="upper",
+                       cmap="YlGnBu_r", norm=norm, interpolation="nearest", zorder=2)
+        if boundary is not None:
+            boundary.boundary.plot(ax=ax, color="black", linewidth=0.9, zorder=3)
+        ax.scatter(wells["E"], wells["N"], s=7, color="black", linewidths=0, zorder=4)
+        ax.set_title(f"{title}: {int(ever[cls].sum())} of {int(floor.sum())} floor cells ever {state}",
+                     fontsize=10)
+        add_en_axes(ax, apply_extent=False)
+        ax.set_xlim(left, right)
+        ax.set_ylim(bottom, top)
+    axes[0].legend(handles=[Patch(facecolor="#d9d9d9", label="floor, never in the class"),
+                            Line2D([0], [0], color="black", lw=0.9, label="site boundary"),
+                            Line2D([0], [0], marker="o", color="black", lw=0, markersize=3,
+                                   label="reference dipwells")],
+                   fontsize=7.5, loc="upper left")
+    fig.colorbar(im, ax=axes.tolist(), shrink=0.85, pad=0.015,
+                 label="switching level: network-median level at first wetting (m, 0 = ground)")
+    fig.savefig(OUT_45_SWITCHING_LEVELS_MAP, dpi=160)
+    plt.close(fig)
+    saved(OUT_45_SWITCHING_LEVELS_MAP.name)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# THE PHASE TERM — wetting versus drying at the same level, and the rain (T-77)
+# ─────────────────────────────────────────────────────────────────────────────
+def _scene_month_rain_mm(dates: pd.Series) -> dict[str, pd.Series]:
+    """The scene month's rainfall in mm, two ways: the calendar month containing
+    the scene date (the primary), and the field-convention month that
+    month_bucket assigns the scene — the one its h_scene was joined on. The climate
+    record can end before the last scenes; those carry NaN and drop out of M2."""
+    C = pd.read_csv(INT_CLIMATE, float_precision="round_trip")
+    P_mm = C.set_index(pd.to_datetime(C["Date"]))["P_m"] * 1000.0   # metres -> mm
+    d = pd.to_datetime(dates)
+    months = {"calendar": pd.DatetimeIndex(d.dt.to_period("M").dt.to_timestamp()),
+              "field": month_bucket(d)}
+    return {k: pd.Series(P_mm.reindex(m).values, index=dates.index) for k, m in months.items()}
+
+
+def phase_hysteresis(R: pd.DataFrame) -> pd.DataFrame:
+    """Per class: does a scene in a wetting month carry more area at the same
+    level than one in a drying month, and does the scene month's rain add to it?
+    M0 log(area) ~ h_scene; M1 + dh_month; M2 + P_scene_month_mm. The ratio is
+    exp(mean M0 residual, wetting scenes − mean, drying scenes). statsmodels OLS,
+    imported here so the fit and the SSM drive above still run without it."""
+    import statsmodels.api as sm                               # noqa: PLC0415
+    rain = _scene_month_rain_mm(R["date"])
+    one_cell_ha = (WET_AREA_GRID["res"] ** 2) / 1e4
+    wetting, drying = R["phase"] == "wetting", R["phase"] == "drying"
+    rows = []
+    for cls in CURVE_CLASSES:
+        area = R[f"{cls}_ha"].astype(float)
+        clipped = bool((area <= 0).any())
+        if clipped:
+            warn(f"{cls}: {(area <= 0).sum()} scene(s) with zero area clipped to one cell "
+                 f"({one_cell_ha} ha) before the log")
+            area = area.clip(lower=one_cell_ha)
+        ly = np.log(area)
+        m0 = sm.OLS(ly, sm.add_constant(R[["h_scene"]])).fit()
+        m1 = sm.OLS(ly, sm.add_constant(R[["h_scene", "dh_month"]])).fit()
+        row = {"class": cls, "n_scenes": int(len(R)),
+               "R2_h_only": float(m0.rsquared), "R2_h_dh": float(m1.rsquared),
+               "dh_coef": float(m1.params["dh_month"]), "dh_p": float(m1.pvalues["dh_month"]),
+               "wetting_vs_drying_ratio": float(np.exp(m0.resid[wetting].mean() - m0.resid[drying].mean())),
+               "n_wetting": int(wetting.sum()), "n_drying": int(drying.sum())}
+        for key, suffix in (("calendar", ""), ("field", "_field_month")):
+            X = R[["h_scene", "dh_month"]].assign(P_scene_month_mm=rain[key])
+            ok = X["P_scene_month_mm"].notna()
+            m2 = sm.OLS(ly[ok], sm.add_constant(X[ok])).fit()
+            row[f"R2_h_dh_P{suffix}"] = float(m2.rsquared)
+            row[f"P_coef_per_100mm{suffix}"] = float(m2.params["P_scene_month_mm"] * 100.0)
+            row[f"P_p{suffix}"] = float(m2.pvalues["P_scene_month_mm"])
+            row[f"n_scenes_P{suffix}"] = int(ok.sum())
+        row["zero_area_clipped"] = clipped
+        rows.append(row)
+        step(f"{cls}: R² {row['R2_h_only']:.2f} -> {row['R2_h_dh']:.2f} with dh (coef "
+             f"{row['dh_coef']:+.2f} per m/month, p {row['dh_p']:.3f}); wetting:drying x"
+             f"{row['wetting_vs_drying_ratio']:.2f} ({row['n_wetting']} vs {row['n_drying']}); "
+             f"rain {row['P_coef_per_100mm']:+.2f} per 100 mm, p {row['P_p']:.3f} "
+             f"(n {row['n_scenes_P']}; field month p {row['P_p_field_month']:.3f})")
+    short = int(rain["calendar"].isna().sum())
+    if short:
+        info(f"{short} scene(s) fall after the end of {INT_CLIMATE.name} and carry no rain: M2 is "
+             f"fitted on the rest")
+    H = pd.DataFrame(rows)
+    H.to_csv(OUT_45_PHASE_HYSTERESIS, index=False)
+    saved(OUT_45_PHASE_HYSTERESIS.name)
+    return H
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # THE REPORT NUMBERS — what the documents quote from this analysis (E16)
 # ─────────────────────────────────────────────────────────────────────────────
 def floor_cells() -> dict:
@@ -287,7 +472,8 @@ def floor_cells() -> dict:
     return out
 
 
-def write_report_numbers(R: pd.DataFrame, fits: dict, oos: dict, cells: dict) -> None:
+def write_report_numbers(R: pd.DataFrame, fits: dict, oos: dict, cells: dict,
+                         hyst: pd.DataFrame | None = None) -> None:
     rr = ReportNumbers()
     if cells:
         rr.add("floor_mask_area_ha", cells["floor_mask_area_ha"], unit="ha",
@@ -313,6 +499,24 @@ def write_report_numbers(R: pd.DataFrame, fits: dict, oos: dict, cells: dict) ->
         rr.add(f"oos_{m}_{cls}_median_ratio", s["median_ratio"], unit="", era=era, note="median modelled:observed area ratio")
         rr.add(f"oos_{m}_{cls}_ratio_p16", s["ratio_p16"], unit="", era=era, note="16th percentile of the modelled:observed ratio")
         rr.add(f"oos_{m}_{cls}_ratio_p84", s["ratio_p84"], unit="", era=era, note="84th percentile of the modelled:observed ratio")
+    if hyst is not None:
+        for _, h in hyst.iterrows():
+            cls = h["class"]
+            clip_note = (" (zero-area scenes clipped to one cell before the log)"
+                         if h["zero_area_clipped"] else "")
+            rr.add(f"hysteresis_ratio_{cls}", h["wetting_vs_drying_ratio"], unit="",
+                   note=f"factor by which a wetting-phase scene carries more {cls} area than a "
+                        f"drying-phase scene at the same level: exp(mean residual of log(area) ~ "
+                        f"h_scene, wetting minus drying), {int(h['n_wetting'])} wetting vs "
+                        f"{int(h['n_drying'])} drying of {int(h['n_scenes'])} scenes{clip_note}")
+            rr.add(f"hysteresis_dh_p_{cls}", h["dh_p"], unit="",
+                   note=f"p of dh_month in log({cls} area) ~ h_scene + dh_month, coefficient "
+                        f"{h['dh_coef']:+.3f} per m/month over {int(h['n_scenes'])} scenes{clip_note}")
+            rr.add(f"rain_term_p_{cls}", h["P_p"], unit="",
+                   note=f"p of the scene month's rainfall (calendar month containing the scene "
+                        f"date) in log({cls} area) ~ h_scene + dh_month + P, coefficient "
+                        f"{h['P_coef_per_100mm']:+.3f} per 100 mm over {int(h['n_scenes_P'])} scenes "
+                        f"with a climate row; field-month variant p {h['P_p_field_month']:.3f}{clip_note}")
     n = rr.save(OUT_45_REPORT_NUMBERS)
     saved(f"{OUT_45_REPORT_NUMBERS.name} ({n} report numbers)")
 
@@ -336,8 +540,13 @@ def main(no_fig: bool = False) -> int:
     phase(3, "The SSM's monthly level through the two curves")
     oos = ssm_through_curves(fits, make_fig=not no_fig)
 
-    phase(4, "The report numbers (E16)")
-    write_report_numbers(R, fits, oos, floor_cells())
+    phase(4, "The switching-level maps and the phase term (T-77)")
+    if not no_fig:
+        plot_switching_levels()
+    hyst = phase_hysteresis(R)
+
+    phase(5, "The report numbers (E16)")
+    write_report_numbers(R, fits, oos, floor_cells(), hyst)
 
     done("45")
     return 0

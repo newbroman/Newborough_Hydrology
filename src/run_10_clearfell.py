@@ -67,7 +67,13 @@ Dependencies
        It is a display figure and runs last in the suite.
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-23. The sub-script launch
+#   loop in main() now reports through console_utils.track(lines=True) — one
+#   completion line per sub-script as it finishes, since each launch already
+#   prints its own banner/output and the subprocess inherits stdout (Martin,
+#   2026-09-23: a script that runs past 30 s shows progress (T-76)). No output
+#   changes.
+# 1.0.0  # Hollingham (2026) — 2026-08-12
 #
 # This module previously carried no __version__ constant; 1.0.0 marks its
 # introduction, not the start of the module's history. Prior revisions are the
@@ -81,7 +87,7 @@ from pathlib import Path
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
-    hr, skipped,
+    hr, skipped, track,
 )
 
 # ── Paths ────────────────────────────────────────────────────────────────────
@@ -233,7 +239,7 @@ def main():
     # Run
     DIR_10.mkdir(parents=True, exist_ok=True)
     failed = []
-    for script_name, sid, desc in targets:
+    for script_name, sid, desc in track(targets, lambda t: t[1], lines=True):
         ok = run_subscript(script_name, sid, desc)
         if not ok:
             failed.append(sid)

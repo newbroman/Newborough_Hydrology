@@ -150,11 +150,18 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.11.0
+__version__ : 2.12.0
 """
 from __future__ import annotations
 
-__version__ = "2.11.0"  # Hollingham (2026) - 2026-09-11. THE REPORT BASIS IS A
+__version__ = "2.12.0"  # Martin, 2026-09-23: a script that runs past 30 s shows
+#   progress (T-76). Two loops now report: _register_all's per-frame marker
+#   detection (in-place bar — the loop body prints nothing) and main()'s
+#   phase-2 per-frame texture-index loop (lines=True — the body prints via
+#   _masks_for whenever a frame is the first of a new constellation group,
+#   which would otherwise overwrite an in-place bar mid-line). No output
+#   changes.
+# v2.11.0  # Hollingham (2026) - 2026-09-11. THE REPORT BASIS IS A
 #   MANIFEST VIEWPOINT LABEL, NOT THE LITERAL "aerial" — a 2.6.0 regression that
 #   emptied a committed file in silence. 2.6.0 moved viewpoint labelling to the
 #   manifest, where the aerial series is `vp1`. Four places still filtered on
@@ -320,7 +327,7 @@ from utils.config import (                                   # noqa: E402
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
     LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO,
 )
-from utils.console_utils import banner, phase, step, info, warn, saved  # noqa: E402
+from utils.console_utils import banner, phase, step, info, warn, saved, track  # noqa: E402
 from utils.render_utils import render_figure                 # noqa: E402
 from utils.kml_io import read_kml                            # noqa: E402
 
@@ -767,7 +774,7 @@ def _register_all(paths, ctrl_geom, E, N):
     """
     from PIL import Image
     tips_by = {}
-    for p in paths:
+    for p in track(paths, lambda p: p.name):
         a = np.asarray(Image.open(p).convert("RGB")).astype(int)
         tips_by[p.name] = _detect_markers(a)
 
@@ -1074,7 +1081,8 @@ def main() -> int:
 
     phase(2, "Texture index per frame")
     reg_rows, idx_rows, cache, transforms = [], [], {}, {}
-    for p, d in zip(paths, man["imagery_date"]):
+    for p, d in track(zip(paths, man["imagery_date"]), lambda item: item[0].name,
+                       total=len(paths), lines=True):
         r = reg.get(p.name, {})
         fitted, med, p95 = r.get("fitted"), r.get("median_m", np.nan), r.get("p95_m", np.nan)
         nmatch = int(r.get("n", 0))

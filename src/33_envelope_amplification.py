@@ -79,11 +79,18 @@ from matplotlib.colors import TwoSlopeNorm
 from utils import config, paths
 from utils import envelope_metric as em
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface, add_en_axes
-from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
+from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr, track
 from utils.pipeline_params import get_cluster_ids
 from utils.render_utils import render_figure
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-22. EMITS 33_cluster_summary.csv:
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+#   (T-76): the canonical and recent figure-builder pairs (fig_amplification +
+#   fig_dry_spring_depth) each turned into a tracked list (console_utils.track,
+#   lines=True — each builder already prints via saved()), the Script 20
+#   precedent for a script whose time is a sequence of builder calls (DEM
+#   hillshade + IDW/griddata render per figure). No output changes. Martin,
+#   2026-09-23: a script that runs past 30 s shows progress (T-76).
+# 1.5.0  # Hollingham (2026) — 2026-09-22. EMITS 33_cluster_summary.csv:
 #   per (panel: canonical / recent; cluster) the mean dry-year depth, wet-year
 #   depth, swing and amplification with the well count, over the unflagged wells
 #   — the cluster means report9 §4.12 sets FE1/FE2 against and had no committed
@@ -466,8 +473,16 @@ def main() -> int:
     GX, GY = _grid(loc)
     amp_title = ("Newborough Warren: climate-swing amplification field (co-temporal, common-mode removed)\n"
                  "Forest interior amplifies; lake edge damps. Artefact-free co-temporal coefficient. Lake gauge excluded.")
-    fig_amplification(df[~df.flagged], GX, GY, OUT_FIG_AMP, title=amp_title); saved(OUT_FIG_AMP)
-    fig_dry_spring_depth(dep_df, GX, GY, OUT_FIG_DRY_SPRING); saved(OUT_FIG_DRY_SPRING)
+    canonical_figs = [
+        ("canonical amplification field", lambda: (
+            fig_amplification(df[~df.flagged], GX, GY, OUT_FIG_AMP, title=amp_title),
+            saved(OUT_FIG_AMP))),
+        ("canonical dry-spring depth", lambda: (
+            fig_dry_spring_depth(dep_df, GX, GY, OUT_FIG_DRY_SPRING),
+            saved(OUT_FIG_DRY_SPRING))),
+    ]
+    for _label, _build in track(canonical_figs, lambda b: b[0], lines=True):
+        _build()
 
     # ---- Recent (extended-network) panels -----------------------------------------
     phase(5, "Recent-window panels (extended network)")
@@ -486,8 +501,16 @@ def main() -> int:
         f"Newborough Warren (recent, extended network): dry-spring water-table depth\n"
         f"springs {'/'.join(str(y)[2:] for y in RECENT_DRY_YEARS)}. RECENT minimum (milder than "
         f"2011/12) — a conservative lower bound. Curreli SD15b/SD16 contours. Ridges masked.")
-    fig_amplification(rdf[~rdf.flagged], GX, GY, OUT_FIG_AMP_RECENT, title=amp_recent_title); saved(OUT_FIG_AMP_RECENT)
-    fig_dry_spring_depth(rdep_df, GX, GY, OUT_FIG_DRY_SPRING_RECENT, title=dry_recent_title); saved(OUT_FIG_DRY_SPRING_RECENT)
+    recent_figs = [
+        ("recent amplification field", lambda: (
+            fig_amplification(rdf[~rdf.flagged], GX, GY, OUT_FIG_AMP_RECENT, title=amp_recent_title),
+            saved(OUT_FIG_AMP_RECENT))),
+        ("recent dry-spring depth", lambda: (
+            fig_dry_spring_depth(rdep_df, GX, GY, OUT_FIG_DRY_SPRING_RECENT, title=dry_recent_title),
+            saved(OUT_FIG_DRY_SPRING_RECENT))),
+    ]
+    for _label, _build in track(recent_figs, lambda b: b[0], lines=True):
+        _build()
 
     # ---- Write outputs -----------------------------------------------------------
     phase(6, "Write outputs")

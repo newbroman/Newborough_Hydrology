@@ -98,12 +98,21 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pins the nineteen packages the pipeline actually runs on —
-numpy 2.4.6, pandas 3.0.3, scipy 1.17.1, matplotlib 3.10.9, scikit-learn 1.9.0,
-geopandas 1.1.3, shapely 2.1.2, pyproj 3.7.2, statsmodels 0.14.6, and the figure
-dependencies adjustText, contextily and cairosvg. Its own header used to
-disclaim it as *"a pip freeze from an environment this project has never run
-in"*; that disclaimer was backwards and has been corrected.
+`requirements.txt` is the venv's full freeze: the packages the pipeline imports
+directly — the ones `tools/env_audit.py` probes and `tools/environment.json`
+records (numpy, pandas, scipy, matplotlib, scikit-learn, geopandas, shapely,
+pyproj, rasterio, statsmodels, pastas, and the figure dependencies adjustText,
+contextily and cairosvg) — together with their dependencies, so that an install
+from it reproduces the venv exactly. Versions live in the file, not here. Its
+own header used to disclaim it as *"a pip freeze from an environment this
+project has never run in"*; that disclaimer was backwards and has been
+corrected. When a script gains a dependency: `pip install` it in the venv, run
+`python3 tools/freeze_requirements.py --write` (regenerates the pins from the
+venv's `*.dist-info`; `--check` is a `check_all` gate and found 42 unpinned
+packages and a scrambled header on 2026-09-24), add it to `env_audit.py`'s
+`LIBRARIES` if a script imports it directly, and re-record with
+`python3 tools/env_audit.py --record`. Never edit the pins by hand and never
+sort the whole file — a whole-file sort on 2026-09-17 scrambled the header.
 
 **KML reading must not depend on a GDAL driver, and `utils/kml_io.py` is how.**
 The pipeline reads a dozen `.kml` inputs, and whether GDAL can open them is a

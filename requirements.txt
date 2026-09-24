@@ -1,64 +1,91 @@
+# THE PROJECT'S DEPENDENCY LIST. See MACHINE_SETUP.md ("The libraries").
 #
+# This file pins the environment the pipeline runs in: `venv/` at the repository
+# root, python 3.12.3, installed with `pip install -r requirements.txt`. It is
+# the venv's full freeze (pip itself excepted) — the packages the scripts and
+# tools import directly (the ones `tools/env_audit.py` probes and
+# `tools/environment.json` records, plus cv2, imageio, pystac-client, openpyxl
+# and pytesseract for the film, the Sentinel read and the capture tools) and
+# their dependencies — so that an install from it reproduces the venv exactly.
 #
+# CORRECTED 2026-08-29. Between 2026-08-27 and that date this header said the
+# opposite — that the list was "a pip freeze from an environment this project has
+# never run in", and that the real environment was Ubuntu 24.04's apt packages
+# (numpy 1.26.4, pandas 2.1.4, scipy 1.11.4, matplotlib 3.6.3, and so on). That
+# was wrong, and the audit that produced it compared this file against a
+# `tools/environment.json` recorded before the venv existed.
 #
+# Three things settle it:
 #
-#
-#
-#
-#
-#
-#      03_state_space_model.py calls ax.boxplot(tick_labels=...), added in
-#      exactly this file, all nineteen packages.
-#      matplotlib 3.9, and noble ships 3.6.3.
+#   1. The `*.dist-info` directories under venv/lib/python3.12/site-packages are
+#      exactly this file.
+#   2. The pipeline run log of 2026-08-29 carries a warning emitted from
 #      venv/lib/python3.12/site-packages/geopandas/plotting.py.
+#   3. The apt environment CANNOT RUN THE PIPELINE. Built to the old apt line and
 #      verified library-for-library against the old record, it dies at Step 3:
+#      03_state_space_model.py calls ax.boxplot(tick_labels=...), added in
+#      matplotlib 3.9, and noble ships 3.6.3.
+#
+# So the caution the old header raised — that installing this file would "run and
+# quietly give different numbers" — applies to the apt list instead. Every
+# published number came from the versions below.
+#
+# statsmodels 0.14.6 is the one package that also matches noble; that is a
+# coincidence of versions, not evidence of the apt route.
+#
+# RESTORED 2026-09-24. On 2026-09-17 (commit 3dd74e3) the whole file was sorted
+# line by line, which scrambled this header into alphabetical order while
+# leaving the pins intact; env_audit reads only the `==` lines, so nothing
+# noticed. Keep the header above the `--- the pinned list ---` line and sort
+# only the pins. The pins had also lagged the venv: on 2026-09-24 the list held
+# 52 of the 94 packages installed — llvmlite (numba's backend), the cairosvg
+# and jsonschema dependency chains, opencv-python-headless, openpyxl, pystac and
+# its extensions, pytesseract and typing-extensions were installed for Scripts
+# 45/47 (the film), the Sentinel tools and the capture tools and never pinned.
+# The list is now regenerated from the venv's `*.dist-info` directories by
+# `tools/freeze_requirements.py --write`, and its `--check` gates in check_all;
+# after any `pip install` on the publishing machine run --write, never edit the
+# pins by hand.
+#
+# VERIFY RATHER THAN TRUST
 #     python3 tools/env_audit.py       # against tools/environment.json
 #     python3 tools/import_audit.py    # MISSING-DEP names anything absent
-#   1. The `*.dist-info` directories under venv/lib/python3.12/site-packages are
-#   2. The pipeline run log of 2026-08-29 carries a warning emitted from
-#   3. The apt environment CANNOT RUN THE PIPELINE. Built to the old apt line and
-# (numpy 1.26.4, pandas 2.1.4, scipy 1.11.4, matplotlib 3.6.3, and so on). That
-# --- the pinned list ---
-# `tools/environment.json` recorded before the venv existed.
-# apt, not from here.
-# coincidence of versions, not evidence of the apt route.
-# CORRECTED 2026-08-29. Between 2026-08-27 and that date this header said the
-# never run in", and that the real environment was Ubuntu 24.04's apt packages
-# opposite — that the list was "a pip freeze from an environment this project has
+#
 # pandoc must be 3.x (3.1.3 reproduces the mirrors byte for byte) and comes from
-# published number came from the versions below.
-# quietly give different numbers" — applies to the apt list instead. Every
-# root, python 3.12.3, installed with `pip install -r requirements.txt`.
-# So the caution the old header raised — that installing this file would "run and
-# statsmodels 0.14.6 is the one package that also matches noble; that is a
-# THE PROJECT'S DEPENDENCY LIST. See BOOTSTRAP.md §1.
-# This file pins the environment the pipeline runs in: `venv/` at the repository
-# Three things settle it:
-# VERIFY RATHER THAN TRUST
-# was wrong, and the audit that produced it compared this file against a
+# apt, not from here.
+#
+# --- the pinned list ---
 adjustText==1.4.0
 affine==2.4.0
 attrs==26.1.0
+cairocffi==1.7.1
 cairosvg==2.9.0
 certifi==2026.5.20
+cffi==2.1.0
 charset-normalizer==3.4.7
-click-plugins==1.1.1.2
 click==8.4.1
+click-plugins==1.1.1.2
 cligj==0.7.2
 contextily==1.7.0
 contourpy==1.3.3
+cssselect2==0.9.0
 cycler==0.12.1
+defusedxml==0.7.1
+et-xmlfile==2.0.0
 fiona==1.10.1
 fonttools==4.63.0
 geographiclib==2.1
 geopandas==1.1.3
 geopy==2.4.1
 idna==3.18
-imageio-ffmpeg==0.6.0
 ImageIO==2.37.3
+imageio-ffmpeg==0.6.0
 joblib==1.5.3
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
 kiwisolver==1.5.0
 lazy-loader==0.5
+llvmlite==0.49.0
 matplotlib==3.10.9
 mercantile==1.2.1
 narwhals==2.22.1
@@ -66,17 +93,48 @@ networkx==3.6.1
 numba==0.67.0
 numpy==2.4.6
 odfpy==1.4.1
+opencv-python-headless==5.0.0.93
+openpyxl==3.1.5
 packaging==26.2
 pandas==3.0.3
 pastas==2.0.0
 patsy==1.0.2
 pillow==12.2.0
+pycparser==3.0
 pyogrio==0.12.1
 pyparsing==3.3.2
 pyproj==3.7.2
+pystac==1.15.2
+pystac-client==0.9.0
+pystac-core==1.15.2
+pystac-ext-classification==2.0.1
+pystac-ext-datacube==2.2.1
+pystac-ext-eo==1.1.1
+pystac-ext-file==2.1.1
+pystac-ext-grid==1.1.1
+pystac-ext-item-assets==1.0.1
+pystac-ext-label==1.0.2
+pystac-ext-mgrs==1.0.1
+pystac-ext-mlm==1.4.1
+pystac-ext-pointcloud==1.0.1
+pystac-ext-projection==2.0.1
+pystac-ext-raster==1.1.1
+pystac-ext-render==2.0.0
+pystac-ext-sar==1.0.1
+pystac-ext-sat==1.0.1
+pystac-ext-scientific==1.0.1
+pystac-ext-storage==2.0.1
+pystac-ext-table==1.2.1
+pystac-ext-timestamps==1.1.1
+pystac-ext-version==1.2.1
+pystac-ext-view==1.0.1
+pystac-ext-xarray-assets==1.0.1
+pytesseract==0.3.13
 python-dateutil==2.9.0.post0
 rasterio==1.5.0
+referencing==0.37.0
 requests==2.34.2
+rpds-py==2026.6.3
 scikit-image==0.26.0
 scikit-learn==1.9.0
 scipy==1.17.1
@@ -85,6 +143,9 @@ six==1.17.0
 statsmodels==0.14.6
 threadpoolctl==3.6.0
 tifffile==2026.6.1
+tinycss2==1.5.1
 tqdm==4.70.1
+typing-extensions==4.16.0
 urllib3==2.7.0
+webencodings==0.5.1
 xyzservices==2026.3.0

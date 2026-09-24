@@ -464,6 +464,11 @@ PASTAS_WARMUP_YEARS = 15
 # response times of 20-70 months on a 100-month window, is where this bites.
 PASTAS_IDENT_EFOLD_WINDOW_FRAC = 0.5
 PASTAS_IDENT_MAX_REL_SE        = 0.5
+# Script 48 fits every well on two bases — the report's comparison window and the
+# full record — and the figure shows one of them; the full record is where a slow
+# (forest) response can be identified, the comparison window is what the report's
+# per-well coefficients stand on. Both are in the CSVs and the report numbers.
+PASTAS_FIGURE_BASIS = "full_record"
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.

@@ -18,8 +18,11 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.16.0 - 2026-09-21
+# VERSION 1.17.0 - 2026-09-24
 # CHANGELOG
+#   1.17.0 (2026-09-24): freeze_requirements --check after env_audit: the pins
+#     in requirements.txt must equal venv/'s dist-info (pip excepted). Found 42
+#     unpinned packages and a scrambled header that env_audit could not see.
 #   1.16.0 (2026-09-21): five gates from the rule -> gate matrix's work list.
 #     retired_phrase_lint (retired wordings and numbers in every mirror),
 #     docglob_lint (every ODT and mirror inside the drift net), csv_mention_lint
@@ -165,6 +168,13 @@ fi
 # CANNOT RUN THE PIPELINE sat here for weeks with every gate green (D-093).
 echo "── environment (is this the machine the pipeline runs on?) ──────────"
 python3 tools/env_audit.py --quiet --gate || rc=1
+# requirements.txt must equal venv/ (D-093). env_audit compares the RECORD
+# against the pins but probes only the libraries the pipeline imports directly;
+# 42 packages installed for the film, the Sentinel and capture tools sat
+# unpinned for weeks and a whole-file sort scrambled the header (2026-09-17) with
+# every gate green. Reads the venv's dist-info directly; passes where there is
+# no venv/ (a clone), because it cannot see the environment it would compare.
+python3 tools/freeze_requirements.py --check --quiet || rc=1
 
 echo
 echo "── document versions (does the text agree with the filename?) ───────"

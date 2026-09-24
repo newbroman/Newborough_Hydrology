@@ -1,0 +1,39 @@
+Parameter,Well,Era,Value,Unit,Note
+scenario_sy_used,C4 (Main Forest),,0.2520191133098513,-,specific yield the water-equivalent conversion uses (pipeline_scenario_params.csv)
+scenario_head_shift_m,C4 (Main Forest),clearfell · annual,0.04147409603748515,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),clearfell · annual,10.452264908694625,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),clearfell · winter,0.05031860199277896,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),clearfell · winter,12.681249457211468,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),clearfell · summer,0.035615650278705724,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),clearfell · summer,8.975824603193175,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),thinning_50pct · annual,0.02073704801874257,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),thinning_50pct · annual,5.2261324543473116,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),thinning_50pct · winter,0.02515930099638948,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),thinning_50pct · winter,6.340624728605734,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),thinning_50pct · summer,0.017807825139352848,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),thinning_50pct · summer,4.487912301596584,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),broadleaf · annual,0.011533570847948427,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),broadleaf · annual,2.906680298396312,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),broadleaf · winter,0.02489834785072631,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),broadleaf · winter,6.274859548220286,mm/month,head shift × Sy (0.252) × 1000
+scenario_head_shift_m,C4 (Main Forest),broadleaf · summer,-0.011686057556145359,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
+scenario_water_equivalent_mm_per_month,C4 (Main Forest),broadleaf · summer,-2.945109863387641,mm/month,head shift × Sy (0.252) × 1000
+scenario_sy_used,C5 (Coastal Forest),,0.30571098107419814,-,specific yield the water-equivalent conversion uses (pipeline_scenario_params.csv)
+scenario_head_shift_m,C5 (Coastal Forest),clearfell · annual,0.041920002087514834,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),clearfell · annual,12.815404964806593,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),clearfell · winter,0.049955348859707226,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),clearfell · winter,15.27189870980492,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),clearfell · summer,0.03705135312331824,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),clearfell · summer,11.327005513456175,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · annual,0.020960001043757406,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),thinning_50pct · annual,6.407702482403294,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · winter,0.024977674429853602,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),thinning_50pct · winter,7.635949354902458,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · summer,0.018525676561659106,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),thinning_50pct · summer,5.663502756728083,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),broadleaf · annual,0.013721354416811571,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · annual,4.194768720430248,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),broadleaf · winter,0.02173124991393653,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · winter,6.643481731158121,mm/month,head shift × Sy (0.306) × 1000
+scenario_head_shift_m,C5 (Coastal Forest),broadleaf · summer,0.001441588641402153,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
+scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · summer,0.4407094778684726,mm/month,head shift × Sy (0.306) × 1000

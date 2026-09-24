@@ -6,16 +6,16 @@ main-report editorial review (gap C: per-well operational priority map for
 
 ## Categorical scheme
 
-Three bins on the rainfall multiplier λ from Script 11b (`11b_03_pflood_per_well.csv`).
-λ is the cumulative winter-rainfall multiplier required to lift the cluster
+Three bins on the rainfall multiplier m_P from Script 11b (`11b_03_pflood_per_well.csv`).
+m_P is the cumulative winter-rainfall multiplier required to lift the cluster
 summer minimum back above the relevant Curreli (2013) threshold by the end of
 the recharge season.
 
-| Category | λ band | Operational meaning |
+| Category | m_P band | Operational meaning |
 |---|---|---|
-| **Achievable** | λ < 1.5 | Reachable in normal-to-mildly-wet winters |
-| **Marginal** | 1.5 ≤ λ < 2.5 | Reachable only in wet winters |
-| **Unreachable** | λ ≥ 2.5 | Effectively unreachable under current climate |
+| **Achievable** | m_P < 1.5 | Reachable in normal-to-mildly-wet winters |
+| **Marginal** | 1.5 ≤ m_P < 2.5 | Reachable only in wet winters |
+| **Unreachable** | m_P ≥ 2.5 | Effectively unreachable under current climate |
 
 ## Counts by category and cluster
 
@@ -48,15 +48,15 @@ Insert as a new paragraph in §5.9 after the topographic-scraping discussion,
 between the existing "the operational zone for this intervention" sentence and
 the prediction-equations paragraph:
 
-> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 4. Of 57 wells across the open-dune clusters C1, C2 and C3, all but 8 are in the achievable category (λ < 1.5); none are unreachable. By contrast, of the 23 forest-zone wells in C4 and C5, only 1 sit in the achievable band and 5 are in the unreachable band (λ ≥ 2.5): 3 in C5 Coastal Forest (CEH17, FE3 and CEH31) and 2 in C4 Main Forest (CEH33 and CEH30). The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = 8) define the upper edge of the operational envelope under current climate.*
+> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 4. Of 57 wells across the open-dune clusters C1, C2 and C3, all but 8 are in the achievable category (m_P < 1.5); none are unreachable. By contrast, of the 23 forest-zone wells in C4 and C5, only 1 sit in the achievable band and 5 are in the unreachable band (m_P ≥ 2.5): 3 in C5 Coastal Forest (CEH17, FE3 and CEH31) and 2 in C4 Main Forest (CEH33 and CEH30). The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = 8) define the upper edge of the operational envelope under current climate.*
 
 ## Suggested figure caption
 
-> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (λ), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (λ < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ λ < 2.5, amber) only in wet winters; unreachable wells (λ ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3 dominated by achievable; forest C4/C5 dominated by marginal-to-unreachable) operationalises Conclusion 4's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*
+> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (m_P), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (m_P < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ m_P < 2.5, amber) only in wet winters; unreachable wells (m_P ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3 dominated by achievable; forest C4/C5 dominated by marginal-to-unreachable) operationalises Conclusion 4's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*
 
 ## Caveats
 
-- The λ values come from Script 11b's per-well calculation; they inherit Script 11b's assumptions about the cluster β coefficients and the climatological winter rainfall baseline. The categorical bin edges (1.5 and 2.5) are operational choices, not derived from any natural break in the data. Conclusion 4's text explicitly identifies the λ < 1.5 boundary; the marginal-vs-unreachable boundary at λ = 2.5 is selected to match the abstract's reference to a 1.5–2.5× rainfall multiplier band as the conservatively wet-winter zone.
+- The m_P values come from Script 11b's per-well calculation; they inherit Script 11b's assumptions about the cluster β coefficients and the climatological winter rainfall baseline. The categorical bin edges (1.5 and 2.5) are operational choices, not derived from any natural break in the data. Conclusion 4's text explicitly identifies the λ < 1.5 boundary; the marginal-vs-unreachable boundary at λ = 2.5 is selected to match the abstract's reference to a 1.5–2.5× rainfall multiplier band as the conservatively wet-winter zone.
 - The achievability category describes whether the cluster summer minimum can be raised above the Curreli threshold by winter recharge alone. It does not account for scrape-as-drainage geometry effects (Section 4.5.3) or for forest-management interventions; these are separate degrees of freedom in the scenario framework (Section 4.10).
 - Wells flagged as scraped in the existing per-well CSV (CEH36, CEH18, CEH21) retain their categorical assignment based on present-day λ; the category reflects post-intervention behaviour where applicable.
 

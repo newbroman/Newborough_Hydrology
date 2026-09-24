@@ -19,8 +19,8 @@
    "step": "2/57  Behavioural clustering"
   },
   "03_state_space_model.py": {
-   "last_run": "2026-09-24T10:55:22",
-   "seconds": 81.6,
+   "last_run": "2026-09-24T15:56:23",
+   "seconds": 77.8,
    "status": "ok",
    "step": "3/58  State-space regression + LCSC"
   },
@@ -79,10 +79,10 @@
    "step": "12/57  Spatial eco-hydrological threshold maps"
   },
   "11c_pflood_achievability.py": {
-   "last_run": "2026-09-23T09:33:30",
-   "seconds": 5.9,
+   "last_run": "2026-09-24T15:54:59",
+   "seconds": 6.0,
    "status": "ok",
-   "step": "13/57  P_flood achievability categorical map (\u00a75.9 / Conclusion 4)"
+   "step": "13/58  P_flood achievability categorical map (\u00a75.9 / Conclusion 4)"
   },
   "12_figure_site_overview.py": {
    "last_run": "2026-09-23T09:34:08",
@@ -97,10 +97,10 @@
    "step": "18/57  Figure: Experimental design GIS map"
   },
   "14_climate_projections.py": {
-   "last_run": "2026-09-23T09:33:42",
-   "seconds": 3.8,
+   "last_run": "2026-09-24T15:55:04",
+   "seconds": 3.7,
    "status": "ok",
-   "step": "15/57  Figure: Climate trajectory projections"
+   "step": "15/58  Figure: Climate trajectory projections"
   },
   "14b_year_of_crossing.py": {
    "last_run": "2026-09-23T09:33:44",
@@ -127,10 +127,10 @@
    "step": "20/57  WTF cluster Sy estimation"
   },
   "18_wtf_spatial.py": {
-   "last_run": "2026-09-23T09:35:36",
+   "last_run": "2026-09-24T15:54:45",
    "seconds": 64.4,
    "status": "ok",
-   "step": "22/57  WTF spatial analysis and Sy mapping"
+   "step": "22/58  WTF spatial analysis and Sy mapping"
   },
   "19_spatial_groundwater.py": {
    "last_run": "2026-09-23T09:35:41",
@@ -145,10 +145,10 @@
    "step": "24/57  Spatial paper figures"
   },
   "21_forestry_scenarios.py": {
-   "last_run": "2026-09-23T09:37:17",
-   "seconds": 5.7,
+   "last_run": "2026-09-24T15:54:52",
+   "seconds": 5.6,
    "status": "ok",
-   "step": "25/57  Forestry scenarios and management figures"
+   "step": "25/58  Forestry scenarios and management figures"
   },
   "22_residual_lag_analysis.py": {
    "last_run": "2026-09-23T09:38:32",
@@ -343,5 +343,5 @@
    "step": "10/57  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-09-24T10:56:04"
+ "updated": "2026-09-24T15:56:23"
 }

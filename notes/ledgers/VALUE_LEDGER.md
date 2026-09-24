@@ -996,6 +996,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | delta_ref_well_basis_se_mm_yr |  |  | `25_report_numbers.csv` | 3.57067 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, report9 | ok |
 | drop_NW10 / no_trend · p |  |  | `10a_12_control_subset_sensitivity.csv` | 0.250563 |  | report9 | ok |
 | drop_ceh14 · R2 | R² | coefficient of determination | `30_c4_centroid_sensitivity.csv` | 0.736529 |  | Newborough_Methods_Supplement | ok |
+| ewi_msl5_rmse_mm_open_dune |  |  | `26_report_numbers.csv` | 66.2194 |  | report, report10, report12 | ok |
 | exponential · gamma_spring_modulation |  |  | `25_09_season_interaction_test.csv` | 0.323 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Paper1, Supplementary_Material | ok |
 | exponential · gamma_t |  |  | `25_09_season_interaction_test.csv` | 5.35 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material | ok |
 | fe1 · amplification |  |  | `33_envelope_per_well.csv` | 1.53608 |  | report9 | ok |

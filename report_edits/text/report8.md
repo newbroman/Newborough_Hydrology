@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=800176d1d7ecd29e pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=59e026391856bc8e pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -806,7 +806,7 @@ The clearfell pre-fell baseline field combines the two non-felling drawdown driv
 
 ### Drainage Half-life Field
 
-The drainage decay half-life t½ = ln 2/β₃, defined in Section 3.4.5, is computed at every reference well for which a positive $$\beta_{3}$$ is available. Two wells are withheld: CEH14 (negative $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ undefined) and CEH13 (near-zero $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ approximately 526 months, an order of magnitude beyond all other wells), both ridge-flank settings where the displacement formulation does not apply. The per-well values are interpolated to the standard site grid by piecewise-linear (Delaunay) interpolation and rendered over the LiDAR hillshade on the same convention as the coefficient atlas (Section 3.4.3).
+The drainage decay half-life t½ = ln 2/β₃, defined in Section 3.4.5, is computed at every reference well for which a positive $$\beta_{3}$$ is available. Two wells are withheld: CEH14 (negative $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ undefined) and CEH13 (near-zero $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ approximately 224 months, nearly three times the next-longest in the network), both ridge-flank settings where the displacement formulation does not apply. The per-well values are interpolated to the standard site grid by piecewise-linear (Delaunay) interpolation and rendered over the LiDAR hillshade on the same convention as the coefficient atlas (Section 3.4.3).
 
 ### Scenario Framework and Interactive Viewer
 

@@ -53,7 +53,15 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-23. The per-well
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-24. D-192: the per-well β₃ behind
+#   the half-life map, the 1/β₃ map, the storage–drainage index (Table 7) and the
+#   §4.9.3 cluster summaries is read under config.PER_WELL_RECESSION_BASIS —
+#   "full_record" from Script 03's 03_19 (its full-record fit), "comparison_window"
+#   from 03_master_data as before. One loader, _per_well_beta3(); every consumer
+#   carries a `basis` column, the map titles name it, and the report-number notes
+#   say which. The near-zero-β₃ exclusion of CEH13 no longer quotes a number
+#   ("≈ 526 months" was the window value of an earlier run and was in two docstrings).
+# 1.11.0  # Hollingham (2026) — 2026-09-23. The per-well
 #   loops in wtf_individual_wells() and wtf_extended_wells() now report
 #   progress through console_utils.track() (in-place bar; their bodies print
 #   nothing per well) — Martin, 2026-09-23: a script that runs past 30 s
@@ -102,6 +110,7 @@ import matplotlib.pyplot as plt
 from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_18, INT_WELLS_CLEAN, INT_CLIMATE,
     INT_LOCATIONS, INT_CLUSTER_STATS, INT_MASTER_DATA, INT_WELLS_EXTENDED,
+    OUT_03_PER_WELL_RECESSION,
     INT_PEAR_AUDIT_SITEWIDE, DATA_DIR, DATA_KML_SITE_BOUNDARY, DATA_KML_STREAMS,
     INT_LCSC_MODEL_STATS,
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
@@ -116,7 +125,7 @@ from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_MARKERS,
     FOREST_INTERCEPTION, FOREST_CIDS,
     BW_MODE, get_cmap, REFERENCE_CUTOFF_DATE,
-    RIDGE_REF_E, RIDGE_REF_N,
+    RIDGE_REF_E, RIDGE_REF_N, PER_WELL_RECESSION_BASIS,
 )
 from utils.render_utils import render_figure
 make_all_dirs()
@@ -767,6 +776,36 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
     print(f"  Extended contour map saved → {out_path.name}")
 
 
+def _per_well_beta3() -> pd.DataFrame:
+    """
+    The per-well β₃ every recession product in this script reads (D-192).
+
+    PER_WELL_RECESSION_BASIS == "full_record": Script 03's 03_19 table — the
+    full-record half of the 03_15 fit — because a recession slower than the
+    100-month comparison window cannot be seen in the window (none of the nine
+    C4 wells identifies a response time on it; six do on the full record).
+    "comparison_window": 03_master_data.csv, the store the atlas and the
+    benchmark keep (D-002). Returns Name_Original, Cluster, Easting, Northing,
+    beta_3_drainage, basis, well_norm.
+    """
+    if PER_WELL_RECESSION_BASIS == "full_record":
+        if not OUT_03_PER_WELL_RECESSION.exists():
+            raise FileNotFoundError(
+                f"{OUT_03_PER_WELL_RECESSION.name} is absent: run Script 03 (1.18.0+) first, "
+                "or set PER_WELL_RECESSION_BASIS = 'comparison_window'")
+        rec = pd.read_csv(OUT_03_PER_WELL_RECESSION)
+        df = rec[["Name_Original", "Cluster", "Easting", "Northing", "beta_3_drainage"]].copy()
+    elif PER_WELL_RECESSION_BASIS == "comparison_window":
+        m = pd.read_csv(INT_MASTER_DATA)
+        df = m[["Name_Original", "Cluster", "Easting", "Northing", "beta_3_drainage"]].copy()
+    else:
+        raise ValueError(f"PER_WELL_RECESSION_BASIS = {PER_WELL_RECESSION_BASIS!r}: "
+                         "expected 'full_record' or 'comparison_window'")
+    df["basis"] = PER_WELL_RECESSION_BASIS
+    df["well_norm"] = df["Name_Original"].str.lower().str.strip()
+    return df
+
+
 def compute_storage_drainage_index(well_results):
     """
     Compute the per-well storage–drainage index τ = Sy / β₃ (months).
@@ -777,12 +816,13 @@ def compute_storage_drainage_index(well_results):
     are t_R = 1/β₃ and t½ = ln(2)/β₃, both Sy-independent. Both τ and t½ are
     emitted here; only t½ is mapped, and only t½ / t_R may be cited as durations.
 
-    Joins WTF-derived Sy (from well_results) with SSM β₃ (from 03_master_data.csv).
+    Joins WTF-derived Sy (from well_results) with the per-well SSM β₃ on the
+    D-192 basis (_per_well_beta3: the full record by default).
     Excludes:
       - CEH12 (bedrock ridge — Sy not representative of sand aquifer)
       - CEH15 (forest slack floor — anomalous Sy)
       - CEH14 (negative β₃ — index undefined)
-      - CEH13 (near-zero β₃ — index ≈ 124 months, >10× outlier)
+      - CEH13 (near-zero β₃ — an outlier on either basis)
       - Any well where β₃ ≤ 0
 
     Returns
@@ -792,9 +832,8 @@ def compute_storage_drainage_index(well_results):
                  half_life_months, storage_drainage_index_months,
                  n_events, Corrected, Confidence, Excluded, Exclude_Reason
     """
-    # Load β₃ from master data
-    master = pd.read_csv(INT_MASTER_DATA)
-    master["well_norm"] = master["Name_Original"].str.lower().str.strip()
+    # β₃ on the D-192 basis (full record by default; see _per_well_beta3)
+    master = _per_well_beta3()
 
     # Build normalised key on well_results
     wr = well_results.copy()
@@ -802,7 +841,7 @@ def compute_storage_drainage_index(well_results):
 
     # Merge on normalised well name
     merged = wr.merge(
-        master[["well_norm", "beta_3_drainage"]],
+        master[["well_norm", "beta_3_drainage", "basis"]],
         on="well_norm", how="inner"
     )
 
@@ -844,7 +883,7 @@ def compute_storage_drainage_index(well_results):
     # Tidy up output columns. t½ precedes the storage–drainage index so the
     # headline decay quantity reads first and is the natural one to pick up.
     sdi_df = merged[[
-        "Well", "Cluster", "Easting", "Northing",
+        "Well", "Cluster", "Easting", "Northing", "basis",
         "Sy_median", "beta_3_drainage",
         "half_life_months", "storage_drainage_index_months",
         "n_events", "Corrected", "Confidence",
@@ -882,10 +921,11 @@ def compute_recip_beta3():
     """
     Compute per-well recession e-folding time t_R = 1 / β₃ (months).
 
-    Loads β₃, Easting, Northing, and Cluster directly from 03_master_data.csv.
+    Loads β₃, Easting, Northing, and Cluster on the D-192 basis (_per_well_beta3:
+    the full record by default; 03_master_data under "comparison_window").
     Excludes:
       - CEH14 (negative β₃ — 1/β₃ undefined)
-      - CEH13 (near-zero β₃ — 1/β₃ ≈ 526 months, extreme outlier)
+      - CEH13 (near-zero β₃ — an outlier on either basis)
       - Any well where β₃ ≤ 0
 
     Returns
@@ -894,11 +934,10 @@ def compute_recip_beta3():
         Columns: Well, Cluster, Easting, Northing, beta_3, recip_beta3_months,
                  Excluded, Exclude_Reason
     """
-    master = pd.read_csv(INT_MASTER_DATA)
-    master["well_norm"] = master["Name_Original"].str.lower().str.strip()
+    master = _per_well_beta3()
 
     rb3_df = master[[
-        "Name_Original", "Cluster", "Easting", "Northing", "beta_3_drainage", "well_norm"
+        "Name_Original", "Cluster", "Easting", "Northing", "beta_3_drainage", "basis", "well_norm"
     ]].copy()
     rb3_df = rb3_df.rename(columns={"Name_Original": "Well", "beta_3_drainage": "beta_3"})
 
@@ -910,12 +949,11 @@ def compute_recip_beta3():
     rb3_df.loc[neg_mask, "Excluded"] = True
     rb3_df.loc[neg_mask, "Exclude_Reason"] = "negative or zero β₃"
 
-    # CEH13 outlier (near-zero β₃ → 1/β₃ ≈ 526 months)
+    # CEH13 outlier (near-zero β₃ on either basis; not identified in either code, Script 48)
     ceh13_mask = rb3_df["well_norm"] == "ceh13"
-    rb3_df.loc[ceh13_mask & ~rb3_df["Excluded"], "Excluded"] = True
-    rb3_df.loc[ceh13_mask & ~rb3_df["Excluded"], "Exclude_Reason"] = (
-        "near-zero β₃ (1/β₃ ≈ 526 months outlier)"
-    )
+    ceh13_new = ceh13_mask & ~rb3_df["Excluded"]
+    rb3_df.loc[ceh13_new, "Excluded"] = True
+    rb3_df.loc[ceh13_new, "Exclude_Reason"] = "near-zero β₃ (recession outlier)"
 
     # Compute t_R and t½ for non-excluded wells
     rb3_df["recip_beta3_months"] = np.nan
@@ -926,7 +964,7 @@ def compute_recip_beta3():
 
     rb3_df = rb3_df.rename(columns={"beta_3_drainage": "beta_3"})
     rb3_df = rb3_df[[
-        "Well", "Cluster", "Easting", "Northing",
+        "Well", "Cluster", "Easting", "Northing", "basis",
         "beta_3", "recip_beta3_months", "half_life_months",
         "Excluded", "Exclude_Reason",
     ]]
@@ -1066,7 +1104,8 @@ def plot_halflife_map(rb3_df, out_path):
 
     ax.set_title(
         f"Drainage Decay Half-life  t½ = ln(2)/β₃  — Newborough Warren 2005–{_END_YEAR}\n"
-        "Linear griddata interpolation  |  β₃ from SSM per-well fit (Section 3.4.3)\n"
+        f"Linear griddata interpolation  |  β₃ from the SSM per-well fit, "
+        f"{PER_WELL_RECESSION_BASIS.replace('_', ' ')} basis (D-192)\n"
         "High t½ (red): excess groundwater persists longer after recharge  |  "
         "CEH13, CEH14 excluded",
         fontsize=9, fontweight="bold", pad=10)
@@ -1363,6 +1402,12 @@ def main(supplementary=True):
                         era="excluded" if bool(wr["Excluded"].iloc[0]) else "",
                         note=why)
 
+        # Per-well t½ at the Main Forest wells (D-192: the slow wells, by name)
+        for _, wr in rb3_df[(rb3_df["Cluster"] == 4) & (~rb3_df["Excluded"])].iterrows():
+            rpt.add(f"halflife_{wr['Well'].lower()}", float(wr["half_life_months"]),
+                    unit="months", well=str(wr["Well"]).upper(),
+                    note=f"t½ = ln(2)/β₃ at the well, basis {PER_WELL_RECESSION_BASIS} (D-192)")
+
         # Per-cluster t½ min/max
         rb3_ok = rb3_df[~rb3_df["Excluded"]]
         for cid, grp in rb3_ok.groupby("Cluster"):
@@ -1371,13 +1416,13 @@ def main(supplementary=True):
             n   = len(hl)
             if n:
                 rpt.add(f"C{int(cid)}_halflife_min", float(hl.min()), unit="months",
-                        note=f"min t½, C{int(cid)}, reference network, n={n}")
+                        note=f"min t½, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
                 rpt.add(f"C{int(cid)}_halflife_max", float(hl.max()), unit="months",
-                        note=f"max t½, C{int(cid)}, reference network, n={n}")
+                        note=f"max t½, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
                 rpt.add(f"C{int(cid)}_halflife_mean", float(hl.mean()), unit="months",
-                        note=f"mean t½, C{int(cid)}, reference network, n={n}")
+                        note=f"mean t½, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
                 rpt.add(f"C{int(cid)}_recip_b3_mean", float(rb3.mean()), unit="months",
-                        note=f"mean 1/β₃, C{int(cid)}, reference network, n={n}")
+                        note=f"mean 1/β₃, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
 
         # Per-cluster τ min/max keys REMOVED in v1.8.0. The storage–drainage
         # index is not a duration and must not be cited as one, but it was

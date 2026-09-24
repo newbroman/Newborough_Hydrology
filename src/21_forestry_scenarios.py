@@ -87,7 +87,16 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-21. The thinning scenario's 0.5 is
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-24. Conclusion 7's numbers get a source:
+#   emit_scenario_report_numbers() writes 21_report_numbers.csv — for each scenario
+#   (clearfell, 50 % thinning, broadleaf) × forest cluster (C4, C5) × season (annual,
+#   winter Oct–Mar, summer Jun–Sep) the mean monthly head perturbation (m) and its
+#   water-equivalent (mm/month, × the cluster's pipeline-params Sy), with the Sy used.
+#   build_scenarios() takes a cluster (it was C4 only; the C5 head shifts §4.13.2
+#   quoted had no live source). The broadleaf monthly β₂ multipliers move to
+#   config.BROADLEAF_B2_MONTHLY_MULT (values unchanged). Martin 2026-09-24:
+#   "conclusion 7 needs annual and summer figures. the BL complicates."
+# 1.9.0  # Hollingham (2026) - 2026-09-21. The thinning scenario's 0.5 is
 #   config.THINNING_FRACTION (value unchanged) so the documents' "50% thinning" traces.
 # 1.8.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_MINIMUM_MONTHS.
 #   Batch two of the seasonal-windows migration (D-100): the window's
@@ -134,11 +143,12 @@ from utils.paths import (
     OUT_21_DISTRIBUTIONS_CSV, OUT_21_SCRAPING, OUT_21_SCRAPING_CSV,
     OUT_21_BACI_VIOLIN, OUT_21_BACI_CSV, OUT_21_SCENARIO_COMPARE,
     OUT_21_SCENARIO_CSV, OUT_10A_REPORT, OUT_10E_COEFF_SHIFTS,
-    OUT_09C_SUMMER_MINIMA,
+    OUT_09C_SUMMER_MINIMA, OUT_21_REPORT_NUMBERS,
 )
 from utils.config import (
     THINNING_FRACTION,
-    SUMMER_MINIMUM_MONTHS,
+    SUMMER_MINIMUM_MONTHS, WINTER_RECHARGE_MONTHS, BROADLEAF_B2_MONTHLY_MULT,
+    CLUSTER_LABELS,
     BW_MODE, FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION,
     REFERENCE_CUTOFF_DATE, CLUSTER_COLOURS as CONFIG_CLUSTER_COLOURS, SD15b,
     SD16, SD16_REC,
@@ -146,6 +156,7 @@ from utils.config import (
     SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
 )
 from utils.model_utils import monthly_perturbation
+from utils.report_numbers_utils import ReportNumbers
 
 
 # ============================================================================
@@ -445,27 +456,29 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
 # ============================================================================
 
 
-def build_scenarios(master, climate):
-    """Build scenario equilibrium shifts and apply to observed C4 seasonal cycle.
+def build_scenarios(master, climate, cluster="C4"):
+    """Build scenario monthly head perturbations for a forest cluster (C4 by
+    default — the hydrograph figure; C5 for the report numbers).
 
     Reads β coefficients from pipeline_scenario_params.csv (single source
     of truth) with fallback to 03_master_data.csv for backward compatibility.
     Monthly climate is always computed from the climate CSV (pipeline params
     only stores summer means).
     """
+    cid = int(cluster[1])
     # ── β coefficients: prefer pipeline params ────────────────────────────
     try:
         from utils.pipeline_params import load_params
         _p = load_params(warn_defaults=False)
-        c4 = _p["clusters"]["C4"]
-        b1, b2, b3 = c4["b1"], c4["b2"], c4["b3"]
-        print(f"  Scenario β from pipeline params: "
+        cp = _p["clusters"][cluster]
+        b1, b2, b3 = cp["b1"], cp["b2"], cp["b3"]
+        print(f"  {cluster} scenario β from pipeline params: "
               f"β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
     except Exception:
-        b1 = master[master["Cluster"] == 4]["beta_1_recharge"].mean()
-        b2 = master[master["Cluster"] == 4]["beta_2_atmospheric_draw"].mean()
-        b3 = master[master["Cluster"] == 4]["beta_3_drainage"].mean()
-        print(f"  Scenario β from master CSV (fallback): "
+        b1 = master[master["Cluster"] == cid]["beta_1_recharge"].mean()
+        b2 = master[master["Cluster"] == cid]["beta_2_atmospheric_draw"].mean()
+        b3 = master[master["Cluster"] == cid]["beta_3_drainage"].mean()
+        print(f"  {cluster} scenario β from master CSV (fallback): "
               f"β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
 
     # ── Monthly climate (full 12-month profile needed for perturbation) ───
@@ -487,20 +500,9 @@ def build_scenarios(master, climate):
     # higher ET May-Oct (leaves on, full LAI). The 12-month profile below
     # averages to BROADLEAF_B2_WINTER=0.8817 over Nov-Apr and
     # BROADLEAF_B2_SUMMER=1.0750 over May-Oct (canonical config values).
-    b2_bl = np.array([
-        b2 * 0.85,   # Jan — leaves off
-        b2 * 0.85,   # Feb
-        b2 * 0.88,   # Mar — bud burst beginning
-        b2 * 0.92,   # Apr — partial leaf
-        b2 * 0.98,   # May — approaching full leaf
-        b2 * 1.08,   # Jun — full leaf, high ET
-        b2 * 1.12,   # Jul
-        b2 * 1.15,   # Aug — peak ET draw
-        b2 * 1.10,   # Sep — late season, leaves turning
-        b2 * 1.02,   # Oct — early leaf fall
-        b2 * 0.92,   # Nov — mostly bare
-        b2 * 0.87,   # Dec — dormant
-    ])
+    # Broadleaf phenology: config.BROADLEAF_B2_MONTHLY_MULT, Jan..Dec (leaves
+    # off in winter below pine; full leaf in summer above it)
+    b2_bl = b2 * np.asarray(BROADLEAF_B2_MONTHLY_MULT, dtype=float)
 
     scenario_shifts = {
         "Baseline (Corsican pine)": np.zeros(12),
@@ -513,6 +515,58 @@ def build_scenarios(master, climate):
     }
 
     return scenario_shifts, monthly_P, monthly_PET, b1, b2, b3
+
+
+def emit_scenario_report_numbers(master, climate):
+    """
+    The scenario numbers the report quotes (§4.13.2, the abstract, Conclusion 7),
+    with a committed source at last: for each scenario × forest cluster (C4, C5)
+    × season, the mean monthly head perturbation (m, positive = shallower) and
+    its water-equivalent (mm/month = head × Sy × 1000, the cluster's
+    pipeline-params Sy). Seasons: annual (all twelve months), winter
+    (WINTER_RECHARGE_MONTHS, Oct–Mar) and summer (SUMMER_MINIMUM_MONTHS,
+    Jun–Sep). Broadleaf is the reason for the triplet — its β₂ varies by month
+    (BROADLEAF_B2_MONTHLY_MULT), so its winter and summer responses have
+    opposite signs and an annual figure alone hides the summer cost.
+
+    The head shifts are the same series plot_hydrograph() draws for C4 (so the
+    C4 annual clearfell value here equals the hydrograph-derived +0.041 m the
+    report carries); the water-equivalents are those shifts × Sy, which is the
+    conversion the documents used but never registered. 21_forestry_05 keeps
+    its summer-flux definition (byte-identical with 09b by construction).
+    """
+    from utils.pipeline_params import load_params
+    params = load_params(warn_defaults=False)
+    rpt = ReportNumbers()
+    seasons = {"annual": tuple(range(1, 13)),
+               "winter": tuple(WINTER_RECHARGE_MONTHS),
+               "summer": tuple(SUMMER_MINIMUM_MONTHS)}
+    names = {"Full clearfell": "clearfell", "50% thinning": "thinning_50pct",
+             "Broadleaf conversion": "broadleaf"}
+    print("  Scenario head shifts and water-equivalents (mean monthly, m / mm w.e. per month):")
+    for cluster in ("C4", "C5"):
+        shifts, _, _, _, _, _ = build_scenarios(master, climate, cluster=cluster)
+        sy = float(params["clusters"][cluster]["Sy"])
+        label = CLUSTER_LABELS.get(int(cluster[1]), cluster)
+        rpt.add("scenario_sy_used", sy, unit="-", well=label,
+                note="specific yield the water-equivalent conversion uses (pipeline_scenario_params.csv)")
+        for scen, key in names.items():
+            arr = np.asarray(shifts[scen], dtype=float)
+            for season, months in seasons.items():
+                idx = [m - 1 for m in months]
+                head = float(np.mean(arr[idx]))
+                rpt.add("scenario_head_shift_m", head, unit="m", well=label,
+                        era=f"{key} · {season}",
+                        note="mean monthly head perturbation, positive = shallower; "
+                             f"months {','.join(str(m) for m in months)}")
+                rpt.add("scenario_water_equivalent_mm_per_month", head * sy * 1000.0,
+                        unit="mm/month", well=label, era=f"{key} · {season}",
+                        note=f"head shift × Sy ({sy:.3f}) × 1000")
+                if season == "annual" or key == "broadleaf":
+                    print(f"    {label:22s} {key:15s} {season:6s}  "
+                          f"{head:+.3f} m  {head * sy * 1000:+6.1f} mm w.e.")
+    n = rpt.save(OUT_21_REPORT_NUMBERS)
+    print(f"  Saved → {OUT_21_REPORT_NUMBERS.name} ({n} rows)")
 
 
 def get_observed_seasonal_cycle(reg, elev, master):
@@ -2020,6 +2074,7 @@ def main(preview=False):
     print(f"  C4 mean DEM: {c4_dem:.2f} m AOD")
     print(f"  β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
     print(f"  Scenarios: {list(scenario_shifts.keys())}")
+    emit_scenario_report_numbers(master, climate)
 
     print("\n[3/6] Plotting hydrograph figure...")
     plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,

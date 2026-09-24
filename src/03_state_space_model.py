@@ -86,7 +86,14 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-24. datum_confound_diagnostics()
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-24. D-192: per_well_recession_table()
+#   emits 03_19_per_well_recession_full_record.csv — every reference well's β₃, its
+#   p-value, t½ = ln(2)/β₃ and 1/β₃ on the FULL record (the full_record rows of the
+#   03_15 fit, so it is the same fit), with n, fit span, the significance flag and,
+#   when Script 48 has run, its identifiability flag (read live from 48_01; NaN with
+#   a warning on a first pass). Script 18 reads it under PER_WELL_RECESSION_BASIS.
+#   A well with β₃ ≤ 0 carries NaN constants and a reason. Existing outputs unchanged.
+# v1.17.0  # Hollingham (2026) — 2026-09-24. datum_confound_diagnostics()
 #   emits the datum-frame test to 03_11: each well's R²-max datum as an elevation
 #   regressed on its ground elevation (block datum_vs_elevation: slope, p, r², the
 #   elevation range). report8 §3.4.1 has quoted the slope (+0.864) since the frame
@@ -248,7 +255,7 @@ from utils.paths import (
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
     OUT_03_MODEL_B_PERSISTENCE, OUT_03_UPSTAND_FRAME_SENS,
-    OUT_03_DATUM_INVARIANCE,
+    OUT_03_DATUM_INVARIANCE, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -2591,6 +2598,54 @@ def upstand_frame_sensitivity(wells_clean, climate, well_col_lookup,
 
 
 
+def per_well_recession_table(pw_df: pd.DataFrame, master_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    D-192: the per-well recession constants on the FULL record.
+
+    A recession slower than the comparison window cannot be seen in the window —
+    on 100 months none of the nine C4 wells identifies a response time, on the
+    full record six do (Script 48) — so t½ = ln(2)/β₃ and 1/β₃ are reported at
+    each well on its own record. This is the full_record half of the 03_15 fit,
+    not a new fit: the same rows, with the constants derived and the Script 48
+    identifiability flag joined when 48_01 exists. Script 18 reads this file
+    for its half-life map, its cluster summaries and the storage–drainage index
+    when PER_WELL_RECESSION_BASIS == "full_record" (config). Wells whose β₃ is
+    not positive carry NaN constants and a reason rather than a number.
+    """
+    full = pw_df[pw_df["basis"] == "full_record"].copy()
+    if full.empty:
+        return full
+    out = full[["Name_Original", "Cluster", "n", "fit_start", "fit_end",
+                "beta_3_drainage", "se_beta_3", "pvalue_beta_3",
+                "beta_3_significant_positive"]].copy()
+    out["basis"] = "full_record"
+    out["Cluster_Label"] = out["Cluster"].map(lambda c: CLUSTER_LABELS.get(int(c), f"C{c}"))
+    geo = master_df.set_index("Name_Original")[["Easting", "Northing"]]
+    out = out.join(geo, on="Name_Original")
+    pos = out["beta_3_drainage"] > 0
+    out["t_half_months"] = np.where(pos, np.log(2) / out["beta_3_drainage"], np.nan)
+    out["t_efold_months"] = np.where(pos, 1.0 / out["beta_3_drainage"], np.nan)
+    out["reason"] = np.where(pos, "", "beta_3 <= 0: recession undefined")
+    # Script 48's identifiability flag (a second-pass read: 48 runs after 03)
+    out["pastas_identified"] = np.nan
+    if OUT_48_PER_WELL.exists():
+        try:
+            p48 = pd.read_csv(OUT_48_PER_WELL)
+            p48 = p48[p48["basis"] == "full_record"]
+            flag = p48.set_index(p48["well"].astype(str).str.lower().str.strip())["identified"]
+            out["pastas_identified"] = out["Name_Original"].str.lower().str.strip().map(flag).astype("float")
+        except (OSError, KeyError, ValueError) as exc:
+            warn(f"  48_01 present but unreadable ({exc}); pastas_identified left NaN")
+    else:
+        warn("  48_01_pastas_per_well.csv absent (first pass): pastas_identified left NaN — "
+             "run Script 48, then Script 03 again, for the flag")
+    cols = ["Name_Original", "Cluster", "Cluster_Label", "Easting", "Northing", "basis",
+            "n", "fit_start", "fit_end", "beta_3_drainage", "se_beta_3", "pvalue_beta_3",
+            "beta_3_significant_positive", "t_half_months", "t_efold_months",
+            "pastas_identified", "reason"]
+    return out[cols].sort_values(["Cluster", "Name_Original"]).reset_index(drop=True)
+
+
 def main() -> None:
     banner("03", "State-Space Regression & LCSC", version=__version__)
     make_all_dirs()
@@ -2659,6 +2714,24 @@ def main() -> None:
             else:
                 info("  window basis reproduces 03_master_data.csv exactly")
     saved(f"{pw_path.name}")
+
+    # ---- Per-well recession constants on the full record (D-192) ----------
+    step("Per-well recession constants on the full record (D-192)...")
+    rec_df = per_well_recession_table(pw_df, master_df)
+    rec_df.to_csv(OUT_03_PER_WELL_RECESSION, index=False)
+    if not rec_df.empty:
+        for cid in sorted(rec_df["Cluster"].unique()):
+            sub = rec_df[(rec_df["Cluster"] == cid) & rec_df["t_half_months"].notna()]
+            if len(sub):
+                info(f"  {CLUSTER_LABELS.get(int(cid), cid):22s} t½ full record: "
+                     f"mean {sub['t_half_months'].mean():5.1f}, range "
+                     f"{sub['t_half_months'].min():5.1f}–{sub['t_half_months'].max():5.1f} months "
+                     f"(n = {len(sub)})")
+        n_undef = int(rec_df["t_half_months"].isna().sum())
+        if n_undef:
+            info(f"  {n_undef} well(s) with beta_3 <= 0 carry no recession constant: "
+                 f"{', '.join(rec_df.loc[rec_df['t_half_months'].isna(), 'Name_Original'])}")
+    saved(f"{OUT_03_PER_WELL_RECESSION.name}")
 
     n_bad_b1 = int((master_df["beta_1_recharge"] < 0).sum())
     n_bad_b2 = int((master_df["beta_2_atmospheric_draw"] < 0).sum())

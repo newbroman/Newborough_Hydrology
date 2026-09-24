@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.30.0"  # Hollingham (2026) - 2026-09-24. DIR_48 and the Script 48 outputs
+__version__ = "1.31.0"  # Hollingham (2026) - 2026-09-24. OUT_03_PER_WELL_RECESSION (03_19,
+#   D-192: the per-well recession constants on the full record) and OUT_21_REPORT_NUMBERS
+#   (the scenario head shifts and water-equivalents Conclusion 7 quotes). Additive.
+# 1.30.0  # Hollingham (2026) - 2026-09-24. DIR_48 and the Script 48 outputs
 #   (the Pastas cross-check: OUT_48_PER_WELL, OUT_48_AGREEMENT, OUT_48_SYNTHETIC, OUT_48_FIG,
 #   OUT_48_REPORT_NUMBERS). Additive.
 # 1.29.0  # Hollingham (2026) - 2026-09-23. OUT_03_DATUM_INVARIANCE (03_18, T-74),
@@ -497,6 +500,7 @@ OUT_03_MODEL_B_PERSISTENCE  = DIR_03 / "03_16_model_b_persistence.csv"   # datum
 OUT_03_UPSTAND_FRAME_SENS   = DIR_03 / "03_17_upstand_frame_sensitivity.csv"  # datum/upstand frame sensitivity, 2026-09-09
 OUT_03_DATUM_REGIME_FIG    = DIR_03 / "03_12_datum_regime.png"
 OUT_03_DATUM_INVARIANCE    = DIR_03 / "03_18_datum_invariance.csv"   # T-74: the sweep summarised per cluster (order invariance, flux fraction, cost of DRAINAGE_DATUM)
+OUT_03_PER_WELL_RECESSION  = DIR_03 / "03_19_per_well_recession_full_record.csv"  # D-192: β₃, t½, 1/β₃ per well on the FULL record; Script 18 reads it
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
@@ -1040,6 +1044,7 @@ OUT_21_BACI_CSV          = DIR_21 / "21_forestry_04_baci_zone_means.csv"
 OUT_21_SCENARIO_COMPARE  = DIR_21 / "21_forestry_05_scenario_comparison.jpg"
 OUT_21_SCENARIO_CSV      = DIR_21 / "21_forestry_05_scenario_comparison.csv"
 OUT_21_SUMMER_SCENARIO_CSV = DIR_21 / "21_forestry_06_summer_scenario.csv"
+OUT_21_REPORT_NUMBERS    = DIR_21 / "21_report_numbers.csv"   # scenario head shifts and water-equivalents per scenario × cluster × season (Conclusion 7)
 
 # Script 22 — SSM residuals and lag analysis (ridge-subsidy mechanistic test)
 INT_22_RESIDUALS_WIDE    = OUT_DIR / "22_residuals_wide.csv"

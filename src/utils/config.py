@@ -40,7 +40,14 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.50.0"  # Hollingham (2026) - 2026-09-24. TRAJECTORY_OBS_END,
+__version__ = "1.52.0"  # Hollingham (2026) - 2026-09-24. BROADLEAF_B2_MONTHLY_MULT: the
+#   twelve monthly β₂ multipliers of the broadleaf-conversion scenario, which sat as
+#   literals inside Script 21's build_scenarios() (values unchanged). Additive.
+# 1.51.0  # Hollingham (2026) - 2026-09-24. PER_WELL_RECESSION_BASIS
+#   (D-192): the record Script 18's per-well recession constants (t½, 1/β₃, τ) are
+#   read on — "full_record" from 03_19, "comparison_window" from 03_master_data.
+#   Additive; the atlas and the benchmark keep the window (D-002).
+# 1.50.0  # Hollingham (2026) - 2026-09-24. TRAJECTORY_OBS_END,
 #   TRAJECTORY_PROJ_END, TRAJECTORY_YEAR_MIN: the climate-trajectory horizons Script 14
 #   carried as module literals (OBS_END 2025, PROJ_END 2040, YEAR_MAX 2045). Martin, on
 #   the proof pass's Figure 46: "extrapolate to 2035"; the shaded 2030–2039
@@ -1945,6 +1952,25 @@ SUMMER_DROUGHT_MONTHS        = (4, 5, 6, 7, 8, 9)     # Apr-Sep
 TRAJECTORY_OBS_END           = 2025
 TRAJECTORY_PROJ_END          = 2035
 TRAJECTORY_YEAR_MIN          = 2000
+
+# Per-well recession constants (D-192). A recession slower than the comparison
+# window cannot be seen in the window — on the 100 months none of the nine C4
+# wells identifies a response time, on the full record six do (Script 48) — so
+# t½ = ln(2)/β₃, 1/β₃ and the storage–drainage index τ are reported at each
+# well on its FULL record ("full_record": Script 03's 03_19 table, fitted with
+# window=None). Quantities that compare or rank wells — the coefficient atlas,
+# the SSM-vs-TLM benchmark, the per-well coefficient tables — stay on the
+# comparison window (D-002). "comparison_window" reads 03_master_data instead.
+PER_WELL_RECESSION_BASIS     = "full_record"
+
+# Broadleaf-conversion scenario: β₂ by calendar month as a multiple of the pine
+# β₂ (Script 21). Leaf-off winter below pine (a deciduous canopy transpires
+# little), full leaf above it (comparable transpiration, no winter interception
+# saving). Jan..Dec. Moved from Script 21 literals on 2026-09-24, values unchanged;
+# the seasonality is why the scenario is quoted as a winter / summer / annual
+# triplet rather than one number (Conclusion 7).
+BROADLEAF_B2_MONTHLY_MULT    = (0.85, 0.85, 0.88, 0.92, 0.98, 1.08,
+                                1.12, 1.15, 1.10, 1.02, 0.92, 0.87)
 
 # Dry-season climate, May-Sep. THIS WINDOW IS NOT OURS TO CHANGE, for the same
 # reason as WINTER_WET_CLIMATE_MONTHS: the UKCP18 seasonal multipliers are

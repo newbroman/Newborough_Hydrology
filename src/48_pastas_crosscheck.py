@@ -34,7 +34,9 @@ INPUTS — all committed
 OUTPUTS — outputs/48_pastas_crosscheck/
   48_01_pastas_per_well.csv ........ per well: Pastas (no noise / AR1 noise) gain,
                                      response time, f, base level, R2, standard
-                                     errors; SSM Model B and Model A counterparts
+                                     errors, and the SSM coefficients they imply
+                                     (beta_3 = 1 - exp(-1/a), beta_1 = gain*beta_3,
+                                     beta_2 = -f*beta_1); Model B and Model A beside them
   48_02_pastas_agreement.csv ....... per comparison and quantity: Pearson r,
                                      Spearman rho, median Pastas:SSM ratio with
                                      p16/p84, n — overall and per cluster
@@ -42,8 +44,9 @@ OUTPUTS — outputs/48_pastas_crosscheck/
                                      synthesised from each cluster centroid's
                                      committed coefficients on the real climate,
                                      refitted by Pastas; true against recovered
-  48_01_pastas_vs_ssm.png .......... four panels, Pastas (AR1) against Model B,
-                                     Model A hollow, 1:1 lines
+  48_01_pastas_vs_ssm.png .......... seven panels: beta_1, beta_2, beta_3 (top) and
+                                     gain, response time, f, base level (bottom),
+                                     Pastas (AR1) against Model B, Model A hollow
   48_report_numbers.csv ............ the headline agreement (r, median ratio) for
                                      the four quantities, n, the Pastas version
 
@@ -53,7 +56,12 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-24. First issue (Martin: "lets
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-24. Martin: "no beta_3 comparison" -
+#   the figure and the agreement table now carry beta_1, beta_2, beta_3 as well as
+#   Pastas's native four, with Pastas's parameters converted exactly to the SSM's
+#   coefficients (beta_3 = 1 - exp(-1/a), beta_1 = gain*beta_3, beta_2 = -f*beta_1);
+#   three synthetic ratios more in the report numbers. Same fits, same numbers.
+# 1.0.0  # Hollingham (2026) - 2026-09-24. First issue (Martin: "lets
 #   implement the pastas check"; default tier, Model A and Model B both compared).
 #   Pastas 2.0: stress models take the Model as their first argument; the noise
 #   model is added with add_noisemodel(ArNoiseModel(model)). No output of any
@@ -87,7 +95,9 @@ from utils.console_utils import (                             # noqa: E402
 )
 
 # The four quantities compared, with the SSM columns they are read from.
-QUANTITIES = ("gain", "efold_months", "f_evap", "base_level_m")
+QUANTITIES = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage",
+              "gain", "efold_months", "f_evap", "base_level_m")
+BETAS = QUANTITIES[:3]
 FITS = ("pastas", "pastas_ar1")
 
 
@@ -150,8 +160,17 @@ def fit_pastas(ps, head: pd.Series, P: pd.Series, E: pd.Series, name: str,
         ml.solve(tmin=tmin, tmax=tmax, report=False)
     p = ml.parameters
     opt, se = p["optimal"], p["stderr"]
+    gain = float(opt["rch_A"]) / DAYS_PER_MONTH
+    efold = float(opt["rch_a"]) / DAYS_PER_MONTH
+    f = float(opt["rch_f"])
+    # The SSM's coefficients implied by Pastas's parameters: the monthly
+    # reservoir with e-fold a months loses the fraction 1 - exp(-1/a) per month
+    # (beta_3); the steady gain is beta_1/beta_3; f = -beta_2/beta_1.
+    beta_3 = 1.0 - np.exp(-1.0 / efold) if efold > 0 else np.nan
+    beta_1 = gain * beta_3
+    beta_2 = -f * beta_1
     out = {
-        "gain": float(opt["rch_A"]) / DAYS_PER_MONTH,          # m per (m/month)
+        "gain": gain,                                           # m per (m/month)
         "gain_se": float(se["rch_A"]) / DAYS_PER_MONTH,
         "efold_months": float(opt["rch_a"]) / DAYS_PER_MONTH,
         "efold_months_se": float(se["rch_a"]) / DAYS_PER_MONTH,
@@ -159,6 +178,9 @@ def fit_pastas(ps, head: pd.Series, P: pd.Series, E: pd.Series, name: str,
         "f_evap_se": float(se["rch_f"]),
         "base_level_m": float(opt["constant_d"]),
         "base_level_m_se": float(se["constant_d"]),
+        "beta_1_recharge": beta_1,
+        "beta_2_atmospheric_draw": beta_2,
+        "beta_3_drainage": beta_3,
         "R2": float(ml.stats.rsq()),
         "n_obs": int(ml.observations().shape[0]),
     }
@@ -176,6 +198,7 @@ def ssm_counterparts(master_row: pd.Series, mb_row: pd.Series | None) -> dict:
                   float(master_row["beta_2_atmospheric_draw"]),
                   float(master_row["beta_3_drainage"]))
     out.update({
+        "ssmA_beta_1_recharge": b1, "ssmA_beta_2_atmospheric_draw": b2, "ssmA_beta_3_drainage": b3,
         "ssmA_gain": b1 / b3 if b3 > 0 else np.nan,
         "ssmA_efold_months": -1.0 / np.log1p(-b3) if 0 < b3 < 1 else np.nan,
         "ssmA_inv_beta3_months": 1.0 / b3 if b3 > 0 else np.nan,
@@ -184,13 +207,15 @@ def ssm_counterparts(master_row: pd.Series, mb_row: pd.Series | None) -> dict:
         "ssmA_R2": float(master_row.get("Model_R2", np.nan)),
     })
     if mb_row is None:
-        out.update({k: np.nan for k in ("ssmB_gain", "ssmB_efold_months", "ssmB_inv_beta3_months",
+        out.update({k: np.nan for k in ("ssmB_beta_1_recharge", "ssmB_beta_2_atmospheric_draw", "ssmB_beta_3_drainage",
+                                        "ssmB_gain", "ssmB_efold_months", "ssmB_inv_beta3_months",
                                         "ssmB_f_evap", "ssmB_base_level_m", "ssmB_R2")})
         return out
     a, c1, c2, c3 = (float(mb_row["alpha_B"]), float(mb_row["beta_1_B"]),
                      float(mb_row["beta_2_B"]), float(mb_row["beta_3_B"]))
     z0 = float(mb_row["drainage_datum_m"])
     out.update({
+        "ssmB_beta_1_recharge": c1, "ssmB_beta_2_atmospheric_draw": c2, "ssmB_beta_3_drainage": c3,
         "ssmB_gain": c1 / c3 if c3 > 0 else np.nan,
         "ssmB_efold_months": -1.0 / np.log1p(-c3) if 0 < c3 < 1 else np.nan,
         "ssmB_inv_beta3_months": 1.0 / c3 if c3 > 0 else np.nan,
@@ -256,7 +281,8 @@ def synthetic_recovery(ps, cl: pd.DataFrame, mb_all: pd.DataFrame, P: pd.Series,
         H = pd.Series(h, index=cl.index).reindex(head_index).dropna()
         H.index = H.index + pd.offsets.MonthEnd(0)
         r = fit_pastas(ps, H, P, E, f"synthetic_C{int(c['Cluster'])}", noise=False)
-        true = {"gain": b1 / b3, "efold_months": -1.0 / np.log1p(-b3), "f_evap": -b2 / b1,
+        true = {"beta_1_recharge": b1, "beta_2_atmospheric_draw": b2, "beta_3_drainage": b3,
+                "gain": b1 / b3, "efold_months": -1.0 / np.log1p(-b3), "f_evap": -b2 / b1,
                 "base_level_m": -(z0 - a / b3)}
         row = {"Cluster": int(c["Cluster"]), "Cluster_Label": c["Cluster_Label"], "n_months": len(H)}
         for q in QUANTITIES:
@@ -309,31 +335,44 @@ def plot(df: pd.DataFrame, agree: pd.DataFrame) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     plt.rcParams.update(MPL_DEFAULTS)
-    titles = {"gain": "steady gain (m per m/month)", "efold_months": "response time (months, e-fold)",
-              "f_evap": "evaporation factor f", "base_level_m": "base level (m, 0 = ground)"}
-    fig, axes = plt.subplots(2, 2, figsize=(9.5, 9), dpi=160)
-    for ax, q in zip(axes.ravel(), QUANTITIES):
+    titles = {"beta_1_recharge": "β₁ recharge (m per m of rain)",
+              "beta_2_atmospheric_draw": "β₂ atmospheric draw (m per m of PET)",
+              "beta_3_drainage": "β₃ drainage (month⁻¹)",
+              "gain": "steady gain β₁/β₃ (m per m/month)",
+              "efold_months": "response time −1/ln(1−β₃) (months)",
+              "f_evap": "evaporation factor f = −β₂/β₁",
+              "base_level_m": "base level (m, 0 = ground)"}
+    logscale = {"beta_3_drainage", "gain", "efold_months"}
+    fig, axes = plt.subplots(2, 4, figsize=(17, 8.6), dpi=160)
+    panels = list(zip(axes.ravel()[:3], BETAS)) + list(zip(axes.ravel()[4:], QUANTITIES[3:]))
+    for ax, q in panels:
         for c, g in df.groupby("Cluster"):
             col = CLUSTER_COLOURS.get(int(c), "0.3")
-            ax.scatter(g[f"ssmB_{q}"], g[f"pastas_ar1_{q}"], s=26, color=col, edgecolors="k",
+            ax.scatter(g[f"ssmB_{q}"], g[f"pastas_ar1_{q}"], s=24, color=col, edgecolors="k",
                        linewidths=0.4, label=CLUSTER_LABELS.get(int(c), f"C{c}"), zorder=3)
             if q != "base_level_m":
-                ax.scatter(g[f"ssmA_{q}"], g[f"pastas_ar1_{q}"], s=26, facecolors="none",
+                ax.scatter(g[f"ssmA_{q}"], g[f"pastas_ar1_{q}"], s=24, facecolors="none",
                            edgecolors=col, linewidths=0.8, zorder=2)
         both = pd.concat([df[f"ssmB_{q}"], df[f"pastas_ar1_{q}"]]).replace([np.inf, -np.inf], np.nan).dropna()
+        both = both[both > 0] if q in logscale else both
         lo, hi = np.nanpercentile(both, [1, 99])
         pad = 0.05 * (hi - lo)
         ax.plot([lo - pad, hi + pad], [lo - pad, hi + pad], "k--", lw=0.8, zorder=1)
         a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == "ssmB") & (agree.quantity == q) & (agree.group == "all")]
         if len(a):
             r = a.iloc[0]
-            ax.set_title(f"{titles[q]}\nPastas (AR1) vs Model B: r = {r.pearson_r:.2f}, n = {int(r.n)}"
+            ax.set_title(f"{titles[q]}\nvs Model B: ρ = {r.spearman_rho:.2f}, n = {int(r.n)}"
                          + ("" if q == "base_level_m" else f", median ratio {r.median_ratio_pastas_over_ssm:.2f}"),
-                         fontsize=9)
-        ax.set_xlabel("SSM — Model B filled, Model A hollow"); ax.set_ylabel("Pastas, AR(1) noise model")
-        if q in ("gain", "efold_months"):
+                         fontsize=8.5)
+        ax.set_xlabel("SSM — Model B filled, Model A hollow", fontsize=8)
+        ax.set_ylabel("Pastas (AR1 noise), SSM-equivalent", fontsize=8)
+        if q in logscale:
             ax.set_xscale("log"); ax.set_yscale("log")
-    axes[0, 0].legend(fontsize=7, ncol=2)
+    # the spare cell carries the legend and the reading
+    ax = axes.ravel()[3]; ax.axis("off")
+    h, l = axes.ravel()[0].get_legend_handles_labels()
+    ax.legend(h, l, loc="upper left", fontsize=8, title="cluster", title_fontsize=8)
+    ax.text(0.02, 0.42, "Top: the SSM's coefficients, Pastas's\nparameters converted exactly\n(β₃ = 1 − e^(−1/a), β₁ = gain·β₃,\nβ₂ = −f·β₁).\nBottom: Pastas's own parameters.\nDashed: 1:1. Model A's β₃ carries\nthe datum; Model B is the exact\ncounterpart.", fontsize=8, va="top", transform=ax.transAxes)
     fig.suptitle("The per-well SSM against Pastas on the same monthly record", fontsize=11)
     fig.tight_layout()
     fig.savefig(OUT_48_FIG, dpi=160)
@@ -384,7 +423,7 @@ def main(no_fig: bool = False) -> int:
         a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == "ssmB") & (agree.quantity == q) & (agree.group == "all")]
         if len(a):
             r = a.iloc[0]
-            step(f"{q:14s} Pastas(AR1) vs Model B: r = {r.pearson_r:+.3f}, ρ = {r.spearman_rho:+.3f}, "
+            step(f"{q:24s} Pastas(AR1) vs Model B: r = {r.pearson_r:+.3f}, ρ = {r.spearman_rho:+.3f}, "
                  + (f"median ratio {r.median_ratio_pastas_over_ssm:.3f} [{r.ratio_p16:.2f}, {r.ratio_p84:.2f}]"
                     if q != "base_level_m" else f"median difference {r.median_difference:+.3f} m")
                  + f", n = {int(r.n)}")
@@ -408,7 +447,7 @@ def main(no_fig: bool = False) -> int:
             else:
                 rr.add(f"pastas_vs_{model}_{q}_median_diff", r.median_difference, unit="m",
                        note=f"median Pastas minus {model} base level")
-    for q in ("gain", "efold_months", "f_evap"):
+    for q in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "gain", "efold_months", "f_evap"):
         rr.add(f"pastas_synthetic_{q}_ratio_median", float(syn[f"ratio_{q}"].median()), unit="",
                note=f"median over the five synthetic centroid wells of Pastas-recovered / generating {q}: the unit conversion check")
     rr.add("pastas_synthetic_base_level_diff_median", float(syn["diff_base_level_m"].median()), unit="m",

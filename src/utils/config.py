@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.48.0"  # Hollingham (2026) - 2026-09-23. DATUM_SWEEP_MIN_M,
+__version__ = "1.49.0"  # Hollingham (2026) - 2026-09-24. DAYS_PER_MONTH, PASTAS_RESPONSE,
+#   PASTAS_WARMUP_YEARS: the Pastas cross-check (Script 48) — the per-day-to-per-month
+#   conversion of its parameters, the response function, and the climate warm-up it
+#   runs before the first head. Additive.
+# 1.48.0  # Hollingham (2026) - 2026-09-23. DATUM_SWEEP_MIN_M,
 #   DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M: the datum sweep Script 03 runs at the
 #   centroids (03_08) and per well (03_09), previously two np.arange(0.5, 8.05, 0.1)
 #   literals; the datum-invariance summary (03_18, T-74) and the Figure 50 captions
@@ -435,6 +439,20 @@ DRAINAGE_DATUM = 3.7  # metres below ground surface
 DATUM_SWEEP_MIN_M  = 0.5
 DATUM_SWEEP_MAX_M  = 8.0
 DATUM_SWEEP_STEP_M = 0.1
+
+# ── Script 48: the Pastas cross-check of the per-well SSM ─────────────────────
+# Pastas is a daily engine. The monthly SSM record enters it with heads stamped
+# at month-end and the monthly RAF Valley totals spread evenly over each month's
+# days, and Pastas's per-day parameters (gain in m per m/day, response time in
+# days) are converted to the SSM's per-month units with DAYS_PER_MONTH — the mean
+# Gregorian month, not any particular month's length. PASTAS_RESPONSE is the
+# response function: Exponential is the continuous-time form of the SSM's
+# one-month linear reservoir (e-fold = -1/ln(1 - beta_3) months), which is what
+# makes the comparison term for term. PASTAS_WARMUP_YEARS of climate precede the
+# first head so the convolution has settled by the first observation.
+DAYS_PER_MONTH      = 30.4375
+PASTAS_RESPONSE     = "Exponential"
+PASTAS_WARMUP_YEARS = 15
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.

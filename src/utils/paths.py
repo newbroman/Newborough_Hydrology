@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.29.0"  # Hollingham (2026) - 2026-09-23. OUT_03_DATUM_INVARIANCE (03_18, T-74),
+__version__ = "1.30.0"  # Hollingham (2026) - 2026-09-24. DIR_48 and the Script 48 outputs
+#   (the Pastas cross-check: OUT_48_PER_WELL, OUT_48_AGREEMENT, OUT_48_SYNTHETIC, OUT_48_FIG,
+#   OUT_48_REPORT_NUMBERS). Additive.
+# 1.29.0  # Hollingham (2026) - 2026-09-23. OUT_03_DATUM_INVARIANCE (03_18, T-74),
 #   OUT_07_CLUSTERS_VS_COVARIATES (07_05, T-73), OUT_45_SWITCHING_LEVELS_MAP and
 #   OUT_45_PHASE_HYSTERESIS (45_03 / 45_04, T-77). Additive.
 # 1.28.0  # Hollingham (2026) - 2026-09-22. OUT_20_HEAD_VS_DEM, OUT_20_HEAD_DEM_REPORT_NUMBERS,
@@ -1249,6 +1252,15 @@ OUT_47_PRESENTATION    = DIR_47 / "47_03_hindcast_presentation.mp4"   # tracked
 OUT_47_FILM            = DIR_47 / "47_03_hindcast_film.mp4"           # gitignored
 OUT_47_CAVEATS         = DIR_47 / "47_05_frame_caveats.txt"
 OUT_47_BACKGROUND      = DIR_47 / "47_00_background_2021-04-04.png"
+
+# ── Script 48 — the Pastas cross-check of the per-well SSM (2026-09-24) ──────
+# Analytical tier, default. Created by the script when it runs (the DIR_43/44/47 rule).
+DIR_48 = OUT_DIR / "48_pastas_crosscheck"
+OUT_48_PER_WELL       = DIR_48 / "48_01_pastas_per_well.csv"     # Pastas (no noise / AR1) beside Model B and Model A, per well
+OUT_48_AGREEMENT      = DIR_48 / "48_02_pastas_agreement.csv"    # r, rho, median ratio per fit x model x quantity x group
+OUT_48_SYNTHETIC      = DIR_48 / "48_03_synthetic_recovery.csv"  # the unit conversion checked on SSM-generated wells
+OUT_48_FIG            = DIR_48 / "48_01_pastas_vs_ssm.png"
+OUT_48_REPORT_NUMBERS = DIR_48 / "48_report_numbers.csv"
 
 
 def out_47_still(month: str):

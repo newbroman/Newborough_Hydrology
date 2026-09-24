@@ -57,7 +57,7 @@
 | 34 | 4.6.4 | Summer minimum depth distributions by BACI tier, Newborough Warren 201 | `outputs/21_forestry_scenarios/21_forestry_04_baci_zone_violin.png` | yes |
 | 35 | 4.6.5 | Climate-corrected spatial step-change map for the clearfell era (Decem | `outputs/10_clearfell_baci/10b_spatial_fell_corrected.png` | yes |
 | 36 | 4.6.6 | Before- and after-clearfell SSM coefficient estimates with 95% CI for  | `outputs/10_clearfell_baci/10e_03_coefficient_shifts.png` | yes |
-| 37 | 4.6.7 | Clearfell transect: post-felling step change vs distance from felling  | `outputs/10_clearfell_baci/10g_02_clearfell_transect.png` | yes |
+| 37 | 4.6.7 | Clearfell transect. (a) Monthly depth anomaly against each well's scra | `outputs/10_clearfell_baci/10g_02_clearfell_transect.png` | yes |
 | 38 | 4.6.8 | Canopy-texture trajectories from the dated aerial series, 2006 to 2026 | `outputs/41_canopy_cover/41_05_canopy_trajectory.png` | yes |
 | 39 | 4.6.8 | Early versus late clearfell BACI step against the Forest control, spli | `outputs/10_clearfell_baci/10a_14_era_split_decay.png` | yes |
 | 40 | 4.7.4 | Spatial distribution of mean annual summer minimum water table depth b | `outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png` | yes |
@@ -107,7 +107,7 @@
 | 79 | 5.7.4 | Synthetic mean-year hydrograph for the C4 Forest cluster under four ma | `outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png` | yes |
 | 80 | 5.7.9 | Ranwell&apos;s 1951–53 water-table readings against the SSM hindcast,  | `outputs/44_ranwell_hindcast/44_07b_hindcast_report.png` | yes |
 | 81 | 5.8.2 | Spatial reach and development timescale of the management intervention | `outputs/09_scraping_intervention/09f_management_effects.png` | yes |
-| 82 | 5.8.2 | Four drivers of the Newborough water table — schematic cross-sections  | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
+| 82 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 83 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
 *Generated 2026-09-24 by `tools/build_figure_ledger.py` v2.3.0.*

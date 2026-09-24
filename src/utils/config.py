@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.49.0"  # Hollingham (2026) - 2026-09-24. DAYS_PER_MONTH, PASTAS_RESPONSE,
+__version__ = "1.50.0"  # Hollingham (2026) - 2026-09-24. TRAJECTORY_OBS_END,
+#   TRAJECTORY_PROJ_END, TRAJECTORY_YEAR_MIN: the climate-trajectory horizons Script 14
+#   carried as module literals (OBS_END 2025, PROJ_END 2040, YEAR_MAX 2045). Martin, on
+#   the proof pass's Figure 46: "extrapolate to 2035"; the shaded 2030–2039
+#   "intervention window" bands leave the renders — the C1 bootstrap (§5.2) puts the
+#   SD16 crossing median at 2028, so a 2030s band contradicted the text. Additive.
+# 1.49.0  # Hollingham (2026) - 2026-09-24. DAYS_PER_MONTH, PASTAS_RESPONSE,
 #   PASTAS_WARMUP_YEARS: the Pastas cross-check (Script 48) — the per-day-to-per-month
 #   conversion of its parameters, the response function, and the climate warm-up it
 #   runs before the first head; PASTAS_IDENT_EFOLD_WINDOW_FRAC and
@@ -1927,6 +1933,18 @@ WET_AREA_LEVEL_DEFINITION = ("median of the monthly dipwell readings across the 
 # changing either without the other would leave months belonging to both seasons
 # or to neither. The dry half-year over which the water table draws down.
 SUMMER_DROUGHT_MONTHS        = (4, 5, 6, 7, 8, 9)     # Apr-Sep
+
+# Climate-trajectory horizons (Script 14). OBS_END is the last COMPLETE
+# observational year for the annual summer-minimum / winter-maximum fits — a
+# different quantity from REFERENCE_CUTOFF_DATE, which is the last observed
+# month; 2026 has only Jan–Feb and is excluded from the annual fits. Bump it once
+# 2026 has its full Jun–Sep and Oct–Mar. PROJ_END is where the OLS trend lines
+# and their confidence cones stop (Martin 2026-09-24: 2035, not 2045; the render
+# is a labelled projection, not a quoted extrapolation). YEAR_MIN is the left
+# edge of the time axes.
+TRAJECTORY_OBS_END           = 2025
+TRAJECTORY_PROJ_END          = 2035
+TRAJECTORY_YEAR_MIN          = 2000
 
 # Dry-season climate, May-Sep. THIS WINDOW IS NOT OURS TO CHANGE, for the same
 # reason as WINTER_WET_CLIMATE_MONTHS: the UKCP18 seasonal multipliers are

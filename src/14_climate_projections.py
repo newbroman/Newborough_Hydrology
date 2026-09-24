@@ -35,7 +35,13 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DROUGHT_MONTHS.
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-24. The 2030–2039 "intervention window"
+#   bands are gone from all three trajectory renders (Martin, proof pass Figure 46:
+#   the C1 SD16 crossing median is 2028, §5.2 says the cluster is oscillating across
+#   the threshold now, and a shaded 2030s band contradicted it); trend lines and
+#   cones project to config.TRAJECTORY_PROJ_END (2035, was 2040 with the axis to
+#   2045); OBS_END / PROJ_END / YEAR_MIN now come from config, not module literals.
+# 1.5.0  # 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DROUGHT_MONTHS.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -106,6 +112,7 @@ from utils.config import (
     CLUSTER_COLOURS_BW as _CFG_COLOURS_BW, CLUSTER_MARKERS as _CFG_MARKERS,
     BW_LINESTYLES, SD15b, SD16, SD15b_WINTER, SD16_WINTER,
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
+    TRAJECTORY_OBS_END, TRAJECTORY_PROJ_END, TRAJECTORY_YEAR_MIN,
 )
 from utils.render_utils import render_figure
 
@@ -121,10 +128,10 @@ OBS_START = 2004
 # of complete observation and is the right ceiling for OBS_END.
 # Bump OBS_END once 2026 has its full Jun–Sep summer and Oct–Mar
 # winter recorded.
-OBS_END = 2025
-PROJ_END = 2040
-YEAR_MIN = 2000
-YEAR_MAX = 2045
+OBS_END = TRAJECTORY_OBS_END        # config 1.50.0; see the note there
+PROJ_END = TRAJECTORY_PROJ_END
+YEAR_MIN = TRAJECTORY_YEAR_MIN
+YEAR_MAX = PROJ_END + 1
 SUMMER_MONTHS = list(SUMMER_DROUGHT_MONTHS)    # Apr-Sep drought/recession season (D-100)
 WINTER_MONTHS = list(WINTER_RECHARGE_MONTHS)   # Oct-Mar recharge/flood season (D-100)
 MIN_MONTHS = 3
@@ -239,7 +246,6 @@ def add_winter_background(ax: plt.Axes) -> None:
         zorder=3,
         label=f"Dry slack winter limit SD16 ({DRY_SLACK_WINTER} m)",
     )
-    ax.axvspan(2030, 2039, color="#888888", alpha=0.07, zorder=1, label="2030s intervention window")
 
 
 def add_winter_exceedance_box(ax: plt.Axes, exceedance: dict) -> None:
@@ -420,8 +426,6 @@ def render_summer_figure(
         label=f"Dry slack summer limit SD16 ({DRY_SLACK_SUMMER} m)",
     )
 
-    # Intervention window
-    ax.axvspan(2030, 2039, color="#cc3333", alpha=0.07, zorder=1, label="Critical intervention window (2030\u20132039)")
 
     # Threshold annotations
     ax.text(
@@ -671,7 +675,6 @@ def render_stacked_figure(
         zorder=3,
         label=f"Dry slack summer limit SD16 ({DRY_SLACK_SUMMER} m)",
     )
-    ax_top.axvspan(2030, 2039, color="#cc3333", alpha=0.07, zorder=1, label="Critical intervention window (2030\u20132039)")
     ax_top.set_xlim(YEAR_MIN, YEAR_MAX)
     ax_top.set_ylim(-2.10, 0.10)
     ax_top.set_ylabel("Summer Minimum Depth (m)", fontsize=11)

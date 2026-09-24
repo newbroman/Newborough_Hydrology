@@ -78,7 +78,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-21. Vetted verdicts (Martin: "I'm sure I
+__version__ = "1.21.1"  # Hollingham (2026) — 2026-09-24. A confirmed row whose quoted
+#   string carries a thousands separator ("1,269", allowed since cite_check 1.28.6) crashed
+#   index_spans on float(); the separator is stripped as it is everywhere else in this file.
+# 1.21.0  # Hollingham (2026) — 2026-09-21. Vetted verdicts (Martin: "I'm sure I
 #   have vetted all the values in the abstract before"): proof_vet.py records his queue
 #   rulings in proof_reading_verdicts.csv as `vetted`, keyed by number + sentence, and
 #   they paint green until either changes. A reading-pass confirm is green from any
@@ -2008,7 +2011,7 @@ def index_spans(text: str, rel: str, values):
                 if cc.render(v, dp) == q or cc.render(abs(v), dp) == q.lstrip("-"):
                     verdict = "traced"
                 else:
-                    diff = abs(abs(v) - abs(float(q))) / (10 ** -dp)
+                    diff = abs(abs(v) - abs(float(q.replace(",", "")))) / (10 ** -dp)
                     verdict = "rounding" if diff <= 1.0001 else "stale"
             out[sp] = dict(row, committed=v, verdict=verdict)
     return out

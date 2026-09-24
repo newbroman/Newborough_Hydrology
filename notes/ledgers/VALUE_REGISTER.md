@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**123 output file(s)** supply **1340 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**123 output file(s)** supply **1342 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -126,6 +126,8 @@
 |  | nw5 · beta_3_at_uniform | Supplementary_Material.md |
 |  | wmc2 · beta_3_at_uniform | Supplementary_Material.md |
 | `03_11_datum_confound_diagnostics.csv` | corr_datum_meandepth · r | report9.md |
+|  | datum_vs_elevation · ground_elev_range_m | report8.md |
+|  | datum_vs_elevation · slope_base_on_ground | report8.md |
 | `03_14_centroid_window_sensitivity.csv` | C1 (Lake Edge) / comparison_window · LCSC_percent | report9.md |
 |  | C1 (Lake Edge) / comparison_window · R2 | Newborough_Methods_Supplement.md, report9.md |
 |  | C1 (Lake Edge) / full_record · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, report9.md |

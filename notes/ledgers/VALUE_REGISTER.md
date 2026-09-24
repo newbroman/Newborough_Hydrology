@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**127 output file(s)** supply **1392 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**128 output file(s)** supply **1410 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -14,7 +14,7 @@
 | `00_01_annual_climate_summary.csv` | 1931 · P_PET_ratio | report10.md, report9.md |
 |  | 1937 · P_PET_ratio | Newborough_Methods_Supplement.md |
 |  | 1938 · P_PET_ratio | report10.md, report9.md |
-|  | 1939 · P_PET_ratio | Paper1.md, report10.md |
+|  | 1939 · P_PET_ratio | Paper1.md |
 |  | 1941 · Months_complete | Newborough_Methods_Supplement.md |
 |  | 1941 · P_PET_ratio | Newborough_Methods_Supplement.md, report9.md |
 |  | 1943 · P_PET_ratio | report9.md |
@@ -226,6 +226,8 @@
 |  | all clusters · beta3_order_invariant_from_m | report8.md |
 |  | all clusters · flux_order_invariant_from_m | report8.md |
 | `03_19_per_well_recession_full_record.csv` | ceh13 · t_half_months | report8.md |
+| `03_master_data.csv` | ceh2 · beta_1_recharge | report10.md |
+|  | nw10 · beta_1_recharge | report10.md |
 | `07_05_clusters_vs_covariates.csv` | all / beta_1_recharge · F_pvalue | report8.md |
 |  | all / beta_1_recharge · R2_adj_covariates | report8.md |
 |  | all / beta_1_recharge · R2_adj_with_clusters | report8.md |
@@ -745,12 +747,15 @@
 |  | Lake_Edge · R2 | report9.md |
 |  | Western_Block · R2 | report9.md |
 | `11_forecast_winter_transfer_functions.csv` | Coastal_Forest · R2 | report9.md |
-|  | Coastal_Forest · p_value_P_winter | report9.md |
+|  | Coastal_Forest · p_value_P_winter | report10.md, report9.md |
+|  | Eastern_Block · p_value_P_winter | report10.md, report9.md |
 |  | Eastern_Block · p_value_h_min | report9.md |
 |  | Forest · R2 | report10.md, report9.md |
 |  | Forest · p_value_P_winter | report10.md, report9.md |
 |  | Lake_Edge · p_value_h_min | report9.md |
 |  | Western_Block · R2 | report9.md |
+|  | Western_Block · p_value_P_winter | report10.md |
+|  | Western_Block · p_value_h_min | report10.md |
 | `11b_06_pflood_cluster_summary.csv` | C1 (Lake Edge) · m_P | report9.md |
 |  | C2 (Dune) · m_P | report9.md |
 |  | C3 (Western Residual) · m_P | report9.md |
@@ -776,6 +781,9 @@
 |  | C5 · Slope_m_per_yr | report9.md |
 | `14b_year_of_crossing.csv` | C1 / SD15b · slope_pt_m_per_yr | report9.md |
 |  | C1 / SD16 · slope_pt_m_per_yr | report9.md |
+|  | C1 / SD16 · year_crossing_5 | report9.md |
+|  | C1 / SD16 · year_crossing_50 | report9.md |
+|  | C1 / SD16 · year_crossing_95 | report9.md |
 |  | C2 / SD15b · slope_pt_m_per_yr | report9.md |
 |  | C2 / SD16 · slope_pt_m_per_yr | report9.md |
 |  | C4 / SD15b · slope_pt_m_per_yr | report9.md |
@@ -788,7 +796,8 @@
 | `15_04_best_params.csv` | C1 · Best_Kappa | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C1 · SSM_NSE | readme.md |
 |  | C4 · NSE_Iterative | report9.md |
-| `16_report_numbers.csv` | water_balance_closure_max_pct | Newborough_Methods_Supplement.md |
+| `16_report_numbers.csv` | C4 (Main Forest) · water_balance_residual_pct | report9.md |
+|  | water_balance_closure_max_pct | Newborough_Methods_Supplement.md |
 |  | water_balance_residual_pct · C2 (Dune) | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, report9.md |
 | `16_water_bal_rec_table.csv` | C2 (Dune) · SSM_drain_frac | Newborough_Methods_Supplement.md |
 |  | C3 (Western Residual) · Rec_ET_frac | Supplementary_Material.md |
@@ -1159,11 +1168,19 @@
 |  | all_members · beta_1_recharge | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
 |  | all_members · beta_2_atmospheric_draw | Paper1.md, report.md, report9.md |
 |  | drop_ceh14 · R2 | Newborough_Methods_Supplement.md |
-| `30_c4_identifiability_by_cluster.csv` | C2 (Dune) · corr_PET_hd | Supplementary_Material.md |
+| `30_c4_identifiability_by_cluster.csv` | C1 (Lake Edge) · VIF | report9.md |
+|  | C1 (Lake Edge) · corr_PET_hd | report9.md |
+|  | C2 (Dune) · VIF | report9.md |
+|  | C2 (Dune) · corr_PET_hd | Supplementary_Material.md, report9.md |
 |  | C2 (Dune) · hd_sd | Supplementary_Material.md |
 |  | C2 (Dune) · rec_headdep | Supplementary_Material.md |
 |  | C3 (Western Residual) · VIF | Paper1.md, report10.md, report12.md, report9.md |
+|  | C3 (Western Residual) · corr_PET_hd | report9.md |
 |  | C3 (Western Residual) · hd_range | report9.md |
+|  | C4 (Main Forest) · VIF | report9.md |
+|  | C4 (Main Forest) · corr_PET_hd | report9.md |
+|  | C5 (Coastal Forest) · VIF | report9.md |
+|  | C5 (Coastal Forest) · corr_PET_hd | report9.md |
 |  | C5 (Coastal Forest) · hd_mean | Newborough_Methods_Supplement.md |
 | `30_c4_perwell_beta3.csv` | D38 · hd_sd | Supplementary_Material.md |
 |  | D41 · hd_sd | Supplementary_Material.md |
@@ -1179,7 +1196,8 @@
 |  | nw5 · beta3 | Supplementary_Material.md |
 |  | nw6 · hd_sd | Supplementary_Material.md |
 |  | nw9 · beta3_full | Supplementary_Material.md |
-| `30_c4_report_numbers.csv` | c4_closure_min_beta3 | Supplementary_Material.md |
+| `30_c4_report_numbers.csv` | c4_centroid_beta3_excl | report9.md |
+|  | c4_closure_min_beta3 | Supplementary_Material.md, report9.md |
 |  | c4_hd_sd | report9.md |
 |  | c4_perwell_sig_window100 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | c4_vif | Supplementary_Material.md, report9.md |

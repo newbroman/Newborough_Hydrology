@@ -200,7 +200,7 @@ colours and labels are centralised in `src/utils/config.py`.
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 | 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.3 / §4.13.1 (26c) |
 | 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and the C4 drainage identifiability diagnostic (30, `30_c4_drainage_identifiability.py`; the constrained-β₃ triangulation it replaced is retired, D-001) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
-| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 71); climate-swing amplification + drought-floor surface (33, report Figs 73 and 59); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 72); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
+| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 72); climate-swing amplification + drought-floor surface (33, report Figs 74 and 59); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 73); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
 | 16 | 24b, 31, 31b (opt-in), 34, 38, 39, 40, 41 (analytical-default) | 42–49 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34), the coast-to-inland MAM transect observational δ₀ diagnostic for §4.10.4 (38), the SSM hindcast against the 1989–96 CCW record (39), shoreline retreat from the digitised coastline epochs (40) and canopy-cover change from the dated aerial series (41) — analytical-default |
 | 17 | 09f, 09g, 27, 43, 44 | 50–54 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W, on demand); Ranwell's 1959 water-table sites placed and basin-tested (43, display/utility) and his 1951–53 record set against the modern network and the SSM hindcast (44, analytical) |
 | 18 | 45, 46, 47 | 55–57 | Sentinel-2 wet-area model (D-178), all display tier: the two Band-8 slack-floor area curves against the median well level (45), its public feed `living/wet_area_model.json` (46), and the century hindcast film rendered on demand (47) — an illustration of the area–level relationship, not a flood map |
@@ -220,10 +220,10 @@ drainage identifiability diagnostic (Script 30, step 35) testing whether C4's lo
 β₃ is a β₂/β₃ degeneracy artefact — it is not; the constrained-β₃ triangulation
 this script replaced is retired (D-001) — where the unconstrained monthly
 fit is degenerate. Phase 15 runs the observed-change figure suite: secular
-differential water-table drift (Script 32, step 36, report Fig 71), climate-swing
-amplification and drought-floor surface (Script 33, step 37, report Figs 73 and 59), the
+differential water-table drift (Script 32, step 36, report Fig 72), climate-swing
+amplification and drought-floor surface (Script 33, step 37, report Figs 74 and 59), the
 per-well climate-sensitivity coefficient (Script 35, step 38), the absolute
-climate-removed secular trend map (Script 36, step 39, Figure 72), the
+climate-removed secular trend map (Script 36, step 39, Figure 73), the
 predicted-vs-observed driver-change validation (Script 37, step 40), and the
 comparative driver footing across forest/scrape/coast on common currencies
 (Script 37b, step 41). All six run at analytical-default tier.

@@ -18,9 +18,9 @@ RB-11,report8,Specific Yield Estimation,computes a per-month Sy = R / Δh for ea
 RB-12,report8,Five-Year Mean Spring,"The five-year mean spring water level MSL5, indexed by its closing year, is the unweighted mean of five consecutive annual spring means",an aggregation over the record; not a fitting window
 RB-13,report8,Network-Scale Coastal-Retreat,a non-linear panel regression was fitted to the full 21-year monthly record,
 RB-13,report8,Network-Scale Coastal-Retreat,Three nested specifications were fitted to test robustness to forest-cover inclusion: the full network (67 wells,25_01_panel_fit_parameters n_wells
-RB-14,report10,Out-of-Sample Test Against the 1989,"uses each well's own coefficients from the modern per-well fit, driven by the RAF Valley climate record for 1989–96, with no refitting",
+RB-14,report9,The 1989–96 record,"uses each well's own coefficients from the modern per-well fit, driven by the RAF Valley climate record for 1989–96, with no refitting",
 RB-15,none,,,Script 39's full-record climate-only series (open-ground panel) is not presented in any document; nothing to state until it is
-RB-44,report10,The 1951–53 Record,"each paired well's own coefficients from the modern fit are driven by the RAF Valley record from 1930, with no refitting",
+RB-44,report9,The 1951–53 record,"each paired well's own coefficients from the modern fit are driven by the RAF Valley record from 1930, with no refitting",
 RB-16,none,,,W94 phase 13 — a working analysis in tools/warren_flood_prep.py that led to D-178; not presented in any document
 RB-17,none,,,W94 phase 14 — as RB-16
 RB-18,none,,,W94 phase 21 — as RB-16

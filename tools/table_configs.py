@@ -110,7 +110,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-22. ms/Table66: the S.18 MSL5-vs-MIN5
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-24. report10/Table1 becomes
+#   report9/Table25 (TableFooting, four columns) — the driver-footing table moved into §4.12.1
+#   under T-85, the results/discussion register pass.
+# 1.10.0  2026-09-22. ms/Table66: the S.18 MSL5-vs-MIN5
 #   cluster table regenerates from 26_msl5_vs_min5_per_cluster.csv (T-64).
 # 1.9.0  # Hollingham (2026) — 2026-09-22. sm/TableS82: the Supplementary
 #   Material's Table S8.2 becomes a generated table (25_08_spring_vs_summer_comparison.csv).
@@ -1082,10 +1085,13 @@ TABLES = [
         ],
     },
     {
-        "id": "report10/Table1",
-        "doc": 10,
-        "table_name": "Table1",
-        "caption": "Table 1 - driver footing: site-mean equivalent depth and share of coastal retreat (Script 37b)",
+        # Moved from report10 (Table 1, §5.8.2) to report9 §4.12.1 on 2026-09-24 (T-85: a
+        # results table lived only in the Discussion). Inserted with odt_edit.insert_table,
+        # styled from Table7; the fourth column carries the source's mechanism_type.
+        "id": "report9/Table25",
+        "doc": 9,
+        "table_name": "TableFooting",
+        "caption": "Table 25 - driver footing: site-mean equivalent depth, share of coastal retreat and character (Script 37b)",
         "sources": {"df": "outputs/37b_driver_footing/37b_driver_footing.csv"},
         # the five drivers the table shows, in published order; slr and the two
         # scrape sub-rows are dropped (the net scrape is shown).
@@ -1096,7 +1102,7 @@ TABLES = [
                            "values": ["climate", "coast_erosion", "scrape_net",
                                       "clearfell", "broadleaf"]}},
         "header": ["Driver", "Equivalent depth (site-mean, 20 yr)",
-                   "Relative to coastal retreat"],
+                   "Relative to coastal retreat", "Character"],
         "columns": [
             {"col": "component", "fmt": "map", "map": {
                 "climate": "Unexplained (uniform)", "coast_erosion": "Coastal retreat",
@@ -1108,6 +1114,7 @@ TABLES = [
             # same-direction losses unsigned (plus_if on gain_or_loss; D-132)
             {"col": "pct_of_coast", "fmt": "fixed", "dp": 0,
              "plus_if": {"gain_or_loss": "gain"}, "re": [r"$", "%"]},
+            {"col": "mechanism_type", "fmt": "text"},
         ],
     },
     {

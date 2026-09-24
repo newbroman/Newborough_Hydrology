@@ -33,3 +33,4 @@ RB-24,MS,D. The Sentinel wet-area model,"Each reference-network well is seeded o
 RB-25,report8,Wet Area from Sentinel,The state-space model driving these curves is fitted to 2005–February 2026,Script 45
 RB-26,MS,D. The Sentinel wet-area model,"assembles those curves, the per-cell switching levels and the level history into the public feed living/wet_area_model.json (schema nw-wet-area-1) that the scenario viewer and the film read, fitting nothing",Script 46 inherits
 RB-27,report8,Using Models to derive the Aquifer Architecture,fits Pastas at each of the 66 reference wells on exactly the months that well,Script 48
+RB-04b,report8,Using Models to derive the Aquifer Architecture,The per-well recession constants are fitted on each well's full record rather than the 100-month comparison window,D-192 sentence in the Drainage Timescales subsection

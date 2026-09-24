@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**124 output file(s)** supply **1351 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**127 output file(s)** supply **1392 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -225,6 +225,7 @@
 |  | C5 (Coastal Forest) · well_median_max_R2_datum_m | report9.md |
 |  | all clusters · beta3_order_invariant_from_m | report8.md |
 |  | all clusters · flux_order_invariant_from_m | report8.md |
+| `03_19_per_well_recession_full_record.csv` | ceh13 · t_half_months | report8.md |
 | `07_05_clusters_vs_covariates.csv` | all / beta_1_recharge · F_pvalue | report8.md |
 |  | all / beta_1_recharge · R2_adj_covariates | report8.md |
 |  | all / beta_1_recharge · R2_adj_with_clusters | report8.md |
@@ -854,6 +855,21 @@
 |  | C5 (Coastal Forest) / False · Sy_rapid_CI_hi | Newborough_Methods_Supplement.md, report9.md |
 |  | C5 (Coastal Forest) / False · Sy_rapid_CI_lo | Newborough_Methods_Supplement.md, report9.md |
 |  | C5 (Coastal Forest) / False · Sy_rapid_median | Newborough_Methods_Supplement.md, report9.md |
+| `18_report_numbers.csv` | C1_halflife_max | report9.md |
+|  | C1_halflife_mean | report9.md |
+|  | C1_halflife_min | report9.md |
+|  | C2_halflife_max | report9.md |
+|  | C2_halflife_mean | report9.md |
+|  | C2_halflife_min | report9.md |
+|  | C3_halflife_max | report9.md |
+|  | C3_halflife_mean | report9.md |
+|  | C3_halflife_min | report9.md |
+|  | C4_halflife_max | report10.md, report9.md |
+|  | C4_halflife_mean | report10.md, report9.md |
+|  | C4_halflife_min | report10.md, report9.md |
+|  | C5_halflife_max | report9.md |
+|  | C5_halflife_mean | report9.md |
+|  | C5_halflife_min | report9.md |
 | `19_scenario_summary.csv` | C3 · we_mean_mm | Supplementary_Material.md, report9.md |
 |  | C5 · dh_median_m | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | C5 · we_median_mm | Newborough_Methods_Supplement.md |
@@ -922,6 +938,31 @@
 |  | CEH4 (control) / Pre-2015 · Max_depth_m | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | CEH4 (control) / Pre-2015 · Mean_depth_m | report9.md |
 | `21_forestry_04_baci_zone_means.csv` | Impact (WMC3) / Pre-2015 · Mean_depth_m | report10.md |
+| `21_report_numbers.csv` | scenario_head_shift_m · C4 (Main Forest) · broadleaf · annual | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · broadleaf · summer | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · broadleaf · winter | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · clearfell · annual | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · clearfell · summer | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · clearfell · winter | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · thinning_50pct · annual | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · broadleaf · annual | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · broadleaf · summer | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · broadleaf · winter | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · clearfell · annual | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · clearfell · summer | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · clearfell · winter | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · thinning_50pct · annual | report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf  | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf  | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf  | report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · clearfell  | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · clearfell  | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · thinning_5 | report.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · broadle | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · broadle | report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfe | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfe | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · thinnin | report.md, report9.md |
 | `24b_02_peak_winter_minus_summer.csv` | C1 (Lake Edge) · n_wells | report9.md |
 | `25_01_panel_fit_parameters.csv` | c3_only / exponential_cfix · c_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | c3_only / exponential_cfix · delta_0_mm_yr | PAPER1_SI_methods.md |

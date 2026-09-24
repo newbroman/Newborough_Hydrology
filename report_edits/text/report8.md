@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=59e026391856bc8e pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=7a9a23d0ccc876c5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -290,7 +290,7 @@ The drainage coefficient $$\beta_{3}$$ (Section 3.4.3) determines how rapidly th
 
 $$t_{\frac{1}{2}} = \frac{\ln 2}{\beta_{3}}$$
 
-which is the time for excess groundwater storage above the drainage datum to drain to half its initial value. $$t_{\frac{1}{2}} = {0.693 \times t_{R}}$$ and is expressed in months, the natural timestep of the monthly state-space model. A well with a short $$t_{\frac{1}{2}}$$ drains its stored displacement within a season; a well with a long $$t_{\frac{1}{2}}$$ retains excess storage across years. The half-life is mapped across the network as a spatial field; its construction, and the two wells withheld from it, are in Section 3.8.3.
+which is the time for excess groundwater storage above the drainage datum to drain to half its initial value. $$t_{\frac{1}{2}} = {0.693 \times t_{R}}$$ and is expressed in months, the natural timestep of the monthly state-space model. A well with a short $$t_{\frac{1}{2}}$$ drains its stored displacement within a season; a well with a long $$t_{\frac{1}{2}}$$ retains excess storage across years. The per-well recession constants are fitted on each well\'s full record rather than the 100-month comparison window (D-192): a recession comparable with the window cannot be seen in it, and on the window none of the nine Main Forest wells identifies a response time while six do on the full record (Section 3.4). The window remains the basis on which wells are compared and ranked. The half-life is mapped across the network as a spatial field; its construction, and the two wells withheld from it, are in Section 3.8.3.
 
 The storage-drainage index τ = Sy/β₃ (where Sy is WTF-derived specific yield, Section 3.7.3) is a related composite that weights t_R by storage capacity. τ has the same units as t½ but is not the same quantity: two wells with identical t½ can have different τ if their Sy values differ. Across the Newborough reference network, Sy and 1/β₃ are spatially independent (r = 0.13), so τ and t½ produce near-identical spatial maps (r = 0.98 between the per-well values). The physical interpretation of τ as the ratio of stored volume to drainage flux is developed in Section 5.3.2, where it provides a conceptual bridge between the drainage half-life and the volumetric water balance. Two cautions attach to that reading. τ has units of time and is a storage--drainage index, not a residence time: it is not the interval over which the aquifer replaces its water, and no result in this report is derived from reading it as one. And because β₃ carries the drainage datum under the no-intercept specification (Section 3.4.1), τ inherits that dependence --- it is defined at the project datum, as t½ is, and is not comparable across studies adopting a different one.
 
@@ -806,7 +806,7 @@ The clearfell pre-fell baseline field combines the two non-felling drawdown driv
 
 ### Drainage Half-life Field
 
-The drainage decay half-life t½ = ln 2/β₃, defined in Section 3.4.5, is computed at every reference well for which a positive $$\beta_{3}$$ is available. Two wells are withheld: CEH14 (negative $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ undefined) and CEH13 (near-zero $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ approximately 224 months, nearly three times the next-longest in the network), both ridge-flank settings where the displacement formulation does not apply. The per-well values are interpolated to the standard site grid by piecewise-linear (Delaunay) interpolation and rendered over the LiDAR hillshade on the same convention as the coefficient atlas (Section 3.4.3).
+The drainage decay half-life t½ = ln 2/β₃, defined in Section 3.4.5, is computed at every reference well for which a positive $$\beta_{3}$$ is available. Two wells are withheld: CEH14 (negative $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ undefined) and CEH13 (near-zero $$\beta_{3}$$, $$t_{\frac{1}{2}}$$ approximately 97 months on the full record, more than twice the next-longest in the network, and not identified by either code in Section 3.4), both ridge-flank settings where the displacement formulation does not apply. The per-well values are interpolated to the standard site grid by piecewise-linear (Delaunay) interpolation and rendered over the LiDAR hillshade on the same convention as the coefficient atlas (Section 3.4.3).
 
 ### Scenario Framework and Interactive Viewer
 

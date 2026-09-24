@@ -32,7 +32,10 @@ from __future__ import annotations
 import argparse, csv, html, pathlib, re, sys
 from collections import defaultdict
 
-__version__ = "1.2.1"  # 2026-09-23: a thousands separator is a rendering (1,269 == 1269), as cite_check 1.28.6
+__version__ = "1.3.0"  # 2026-09-24: a row is checked against its OWN source_csv before the
+#   label-only fallback, as cite_check does — "Long-term mean · P_PET_ratio" lives in two CSVs
+#   (1931-2025 and the well record) and the ledger was reading report10's 1.37 against 1.35.
+# 1.2.1  # 2026-09-23: a thousands separator is a rendering (1,269 == 1269), as cite_check 1.28.6
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 import cite_check as cc  # noqa: E402  reuse the authoritative value/drift logic
@@ -258,10 +261,11 @@ def _emit_untracked_html(body, untr, secnum, _h):
 
 
 def build():
-    current, source_by_key = {}, {}
+    current, source_by_key, by_source = {}, {}, {}
     for source, label, v in cc.collect_values():
         current.setdefault(label, v)
         source_by_key.setdefault(label, source)
+        by_source[(source, label)] = v
     docs = cc.load_documents()
     fp = cc.load_false_positives()
     syms, vol, smap = load_symbols(), load_volatility(), load_section_map()
@@ -282,7 +286,10 @@ def build():
             if text is None:
                 continue
             dp = len(quoted.split(".")[1]) if "." in quoted else 0
-            want = cc.render(current[k], dp)
+            # the row's own source first, as cite_check 1.28.x does: the same label
+            # can live in two CSVs with two values (the climate summary's long-term
+            # mean over 1931-2025 and over the well record)
+            want = cc.render(by_source.get((r.get("source_csv", ""), k), current[k]), dp)
             if cc.locate(text, quoted, r.get("before", ""), r.get("after", "")) is None:
                 continue  # not actually present at that occurrence
             adjud = (k, doc, quoted) in fp

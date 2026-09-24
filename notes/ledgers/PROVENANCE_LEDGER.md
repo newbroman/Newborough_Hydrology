@@ -73,9 +73,9 @@
 |  | report9.odt | Figure 24 | Figure 1.21: Paired BACI summer minimum analysis: CEH36 (scraped) vs CEH4 (contr |
 | `09d_01_scenario_comparison.jpg` | report9.odt | Figure 27 | Figure 1.24: Scenario comparison at CEH36 (scraped site) — annual-mean forcing. |
 | `09d_02_summer_scenario_comparison.png` | report9.odt | Figure 28 | Figure 1.25: Scenario comparison at CEH36 (scraped site) — summer (July–Septembe |
-| `09f_management_effects.png` | report10.odt | Figure 81 | Figure 1.3: Spatial reach and development timescale of the management interventi |
+| `09f_management_effects.png` | report10.odt | Figure 81 | Figure 1.4: Spatial reach and development timescale of the management interventi |
 | `09g_coastal_vs_climate_reach.png` | Paper 1 | Figure 21 | Conceptual coastal-vs-climate reach |
-| `09g_mechanism_grid.png` | report10.odt | Figure 82 | Figure 1.4: Four drivers of the Newborough water table — schematic cross-section |
+| `09g_mechanism_grid.png` | report10.odt | Figure 82 | Figure 1.5: Four drivers of the Newborough water table — schematic cross-section |
 | `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.11 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
 | `10a_06_climate_sensitivity.png` | report9.odt | Figure 29 | Figure 1.26: Climate sensitivity: cumulative water balance (CWB) vs BACI displac |
 | `10a_07_cusum_impact.png` | Paper 2 | Figure 3 | Forest-control BACI + CUSUM (Impact) |
@@ -104,7 +104,7 @@
 | `11b_03_pflood_per_well.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
 | `11b_04_flood_frequency.png` | report9.odt | Figure 43 | Figure 1.40: Winter flooding frequency across the full dipwell network (66 refer |
 | `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
-| `11c_pflood_achievability.png` | report10.odt | Figure 83 | Figure 1.5: Per-well achievability categorization against the P_flood rainfall m |
+| `11c_pflood_achievability.png` | report10.odt | Figure 83 | Figure 1.6: Per-well achievability categorization against the P_flood rainfall m |
 | `12_01_dem_site_overview.png` | Paper 1 | Figure 1 | Site topography, geology & monitoring network |
 |  | report7.odt | Figure 1 | Figure 1.1: Site topography and hydrogeological features. Digital elevation mode |
 | `13_01_experimental_setup_map.png` | report7.odt | Figure 2 | Figure 1.2: Hierarchical experimental design. Spatial layout of the monitoring n |
@@ -183,7 +183,7 @@
 | `37b_driver_footing.png` | report9.odt | Figure 76 | Figure 1.73: Comparative footing of the drivers over the 2005–2025 horizon, on t |
 | `38_coast_inland_difference.jpg` | report9.odt | Figure 60 | Figure 1.57: Independent, model-free estimate of the coastal drawdown rate. The |
 | `41_05_canopy_trajectory.png` | report9.odt | Figure 38 | Figure 1.35: Canopy-texture trajectories from the dated aerial series, 2006 to 2 |
-| `44_07b_hindcast_report.png` | report10.odt | Figure 80 | Figure 0: Ranwell's 1951–53 water-table readings against the SSM hindcast, at th |
+| `44_07b_hindcast_report.png` | report10.odt | Figure 80 | Figure 1.3: Ranwell&apos;s 1951–53 water-table readings against the SSM hindcast |
 | `45_01_wet_area_model.png` | report9.odt | Figure 48 | Figure 1.45: Slack-floor wet area against the modelled water table. Near-infrare |
 | `45_02_ssm_through_nir_curves.png` | report9.odt | Figure 49 | Figure 1.46: Modelled versus satellite-observed slack-floor wet area — an out-of |
 | `45_03_switching_levels_map.png` | report9.odt | Figure 50 | Figure 1.47: Per-cell switching levels of the Newborough Warren slack floor from |

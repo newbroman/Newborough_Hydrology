@@ -44,9 +44,10 @@ OUTPUTS — outputs/48_pastas_crosscheck/
                                      synthesised from each cluster centroid's
                                      committed coefficients on the real climate,
                                      refitted by Pastas; true against recovered
-  48_01_pastas_vs_ssm.png .......... seven panels: beta_1, beta_2, beta_3 (top) and
-                                     gain, response time, f, base level (bottom),
-                                     Pastas (AR1) against Model B, Model A hollow
+  48_01_pastas_vs_ssm.png .......... portrait, 4 x 2: beta_1, beta_2, beta_3, then
+                                     gain, response time, f, base level; Pastas (AR1)
+                                     against Model B (filled) and Model A (hollow);
+                                     wells not identified on the window crossed
   48_report_numbers.csv ............ the headline agreement (r, median ratio) for
                                      the four quantities, n, the Pastas version
 
@@ -56,7 +57,16 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-24. Martin: "no beta_3 comparison" -
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-24. Martin: the figure must be portrait,
+#   and C4's divergence is not the canopy. Per-well identifiability flag: a Pastas
+#   response time longer than PASTAS_IDENT_EFOLD_WINDOW_FRAC of the fitted months,
+#   or with a relative SE above PASTAS_IDENT_MAX_REL_SE, is not identified on the
+#   window (gain, response time and base level trade off; C4 is where it bites);
+#   the agreement table gains an "identified" group, the report numbers carry both
+#   groups and the per-cluster counts, the figure is 4 x 2 portrait at text width
+#   with the unidentified wells crossed and the panel statistics on the identified
+#   set. Same fits, same numbers.
+# 1.1.0  # Hollingham (2026) - 2026-09-24. Martin: "no beta_3 comparison" -
 #   the figure and the agreement table now carry beta_1, beta_2, beta_3 as well as
 #   Pastas's native four, with Pastas's parameters converted exactly to the SSM's
 #   coefficients (beta_3 = 1 - exp(-1/a), beta_1 = gain*beta_3, beta_2 = -f*beta_1);
@@ -85,6 +95,7 @@ from utils.paths import (                                     # noqa: E402
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, DAYS_PER_MONTH, PASTAS_RESPONSE, PASTAS_WARMUP_YEARS,
+    PASTAS_IDENT_EFOLD_WINDOW_FRAC, PASTAS_IDENT_MAX_REL_SE,
     CLUSTER_LABELS, CLUSTER_COLOURS,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
@@ -255,7 +266,19 @@ def per_well_table(ps, lev, lev_cols, cl, master, mb, P, E) -> pd.DataFrame:
             row.update({f"{fit}_{k}": v for k, v in r.items()})
         row.update(ssm_counterparts(pd.Series(w), mb.loc[n] if n in mb.index else None))
         rows.append(row)
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    # Identifiability on this window: a response time longer than
+    # PASTAS_IDENT_EFOLD_WINDOW_FRAC of the fitted months never contains a full
+    # recession, and gain, response time and base level then trade off; the
+    # relative standard error on the response time is the other symptom.
+    n_win = df["pastas_ar1_n_obs"]
+    rel_se = df["pastas_ar1_efold_months_se"] / df["pastas_ar1_efold_months"]
+    df["identified"] = ((df["pastas_ar1_efold_months"] <= PASTAS_IDENT_EFOLD_WINDOW_FRAC * n_win)
+                        & (rel_se <= PASTAS_IDENT_MAX_REL_SE))
+    df["ident_reason"] = np.where(df["identified"], "",
+                                  np.where(df["pastas_ar1_efold_months"] > PASTAS_IDENT_EFOLD_WINDOW_FRAC * n_win,
+                                           "response time longer than the window allows", "response time SE too large"))
+    return df
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -300,7 +323,8 @@ def synthetic_recovery(ps, cl: pd.DataFrame, mb_all: pd.DataFrame, P: pd.Series,
 # ──────────────────────────────────────────────────────────────────────────────
 def agreement(df: pd.DataFrame) -> pd.DataFrame:
     rows = []
-    groups = [("all", df)] + [(f"C{c}", g) for c, g in df.groupby("Cluster")]
+    groups = ([("all", df), ("identified", df[df["identified"]])]
+              + [(f"C{c}", g) for c, g in df.groupby("Cluster")])
     for fit in FITS:
         for model in ("ssmB", "ssmA"):
             for q in QUANTITIES:
@@ -331,6 +355,9 @@ def agreement(df: pd.DataFrame) -> pd.DataFrame:
 # Figure
 # ──────────────────────────────────────────────────────────────────────────────
 def plot(df: pd.DataFrame, agree: pd.DataFrame) -> None:
+    """Portrait, 4 x 2, at the report's 15.8 cm text width: the SSM's coefficients
+    (top three panels), Pastas's native four, and the legend cell. Filled =
+    Model B, hollow = Model A; a well not identified on the window is crossed."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -343,37 +370,48 @@ def plot(df: pd.DataFrame, agree: pd.DataFrame) -> None:
               "f_evap": "evaporation factor f = −β₂/β₁",
               "base_level_m": "base level (m, 0 = ground)"}
     logscale = {"beta_3_drainage", "gain", "efold_months"}
-    fig, axes = plt.subplots(2, 4, figsize=(17, 8.6), dpi=160)
-    panels = list(zip(axes.ravel()[:3], BETAS)) + list(zip(axes.ravel()[4:], QUANTITIES[3:]))
+    fig, axes = plt.subplots(4, 2, figsize=(7.5, 13.5), dpi=160)
+    flat = axes.ravel()
+    panels = list(zip(flat[:7], QUANTITIES))
+    ident = df["identified"].astype(bool)
     for ax, q in panels:
         for c, g in df.groupby("Cluster"):
             col = CLUSTER_COLOURS.get(int(c), "0.3")
-            ax.scatter(g[f"ssmB_{q}"], g[f"pastas_ar1_{q}"], s=24, color=col, edgecolors="k",
+            ok = ident.loc[g.index]
+            ax.scatter(g.loc[ok, f"ssmB_{q}"], g.loc[ok, f"pastas_ar1_{q}"], s=20, color=col, edgecolors="k",
                        linewidths=0.4, label=CLUSTER_LABELS.get(int(c), f"C{c}"), zorder=3)
+            ax.scatter(g.loc[~ok, f"ssmB_{q}"], g.loc[~ok, f"pastas_ar1_{q}"], s=34, marker="x", color=col,
+                       linewidths=1.0, zorder=4)
             if q != "base_level_m":
-                ax.scatter(g[f"ssmA_{q}"], g[f"pastas_ar1_{q}"], s=24, facecolors="none",
-                           edgecolors=col, linewidths=0.8, zorder=2)
+                ax.scatter(g[f"ssmA_{q}"], g[f"pastas_ar1_{q}"], s=20, facecolors="none",
+                           edgecolors=col, linewidths=0.7, zorder=2)
         both = pd.concat([df[f"ssmB_{q}"], df[f"pastas_ar1_{q}"]]).replace([np.inf, -np.inf], np.nan).dropna()
         both = both[both > 0] if q in logscale else both
         lo, hi = np.nanpercentile(both, [1, 99])
         pad = 0.05 * (hi - lo)
         ax.plot([lo - pad, hi + pad], [lo - pad, hi + pad], "k--", lw=0.8, zorder=1)
-        a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == "ssmB") & (agree.quantity == q) & (agree.group == "all")]
+        a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == "ssmB") & (agree.quantity == q) & (agree.group == "identified")]
         if len(a):
             r = a.iloc[0]
-            ax.set_title(f"{titles[q]}\nvs Model B: ρ = {r.spearman_rho:.2f}, n = {int(r.n)}"
+            ax.set_title(f"{titles[q]}\nidentified wells vs Model B: ρ = {r.spearman_rho:.2f}, n = {int(r.n)}"
                          + ("" if q == "base_level_m" else f", median ratio {r.median_ratio_pastas_over_ssm:.2f}"),
-                         fontsize=8.5)
-        ax.set_xlabel("SSM — Model B filled, Model A hollow", fontsize=8)
-        ax.set_ylabel("Pastas (AR1 noise), SSM-equivalent", fontsize=8)
+                         fontsize=7.5)
+        ax.set_xlabel("SSM — Model B filled, Model A hollow", fontsize=7)
+        ax.set_ylabel("Pastas (AR1 noise)", fontsize=7)
+        ax.tick_params(labelsize=7)
         if q in logscale:
             ax.set_xscale("log"); ax.set_yscale("log")
-    # the spare cell carries the legend and the reading
-    ax = axes.ravel()[3]; ax.axis("off")
-    h, l = axes.ravel()[0].get_legend_handles_labels()
-    ax.legend(h, l, loc="upper left", fontsize=8, title="cluster", title_fontsize=8)
-    ax.text(0.02, 0.42, "Top: the SSM's coefficients, Pastas's\nparameters converted exactly\n(β₃ = 1 − e^(−1/a), β₁ = gain·β₃,\nβ₂ = −f·β₁).\nBottom: Pastas's own parameters.\nDashed: 1:1. Model A's β₃ carries\nthe datum; Model B is the exact\ncounterpart.", fontsize=8, va="top", transform=ax.transAxes)
-    fig.suptitle("The per-well SSM against Pastas on the same monthly record", fontsize=11)
+    ax = flat[7]; ax.axis("off")
+    h, l = flat[0].get_legend_handles_labels()
+    ax.legend(h, l, loc="upper left", fontsize=7, title="cluster", title_fontsize=7)
+    n_id = int(ident.sum())
+    ax.text(0.02, 0.50, f"× — not identified on the window\n({len(df) - n_id} of {len(df)} wells: response time\n"
+                        f"longer than {PASTAS_IDENT_EFOLD_WINDOW_FRAC:g} × the fitted months, or its\n"
+                        f"relative SE above {PASTAS_IDENT_MAX_REL_SE:g}); excluded from\nthe panel statistics.\n\n"
+                        "Top: the SSM's coefficients, from\nPastas's parameters (β₃ = 1 − e^(−1/a),\nβ₁ = gain·β₃, β₂ = −f·β₁).\n"
+                        "Bottom: Pastas's own parameters.\nDashed: 1:1. Model A's β₃ carries the\ndatum; Model B is the exact counterpart.",
+            fontsize=7, va="top", transform=ax.transAxes)
+    fig.suptitle("The per-well SSM against Pastas on the same monthly record", fontsize=10)
     fig.tight_layout()
     fig.savefig(OUT_48_FIG, dpi=160)
     plt.close(fig)
@@ -415,6 +453,9 @@ def main(no_fig: bool = False) -> int:
     df.to_csv(OUT_48_PER_WELL, index=False)
     saved(f"{OUT_48_PER_WELL.name} ({len(df)} wells)")
 
+    info(f"{int(df['identified'].sum())} of {len(df)} wells identified on the window; not identified: "
+         + ", ".join(df.loc[~df["identified"], "well"].astype(str)))
+
     phase(4, "Agreement")
     agree = agreement(df)
     agree.to_csv(OUT_48_AGREEMENT, index=False)
@@ -433,20 +474,28 @@ def main(no_fig: bool = False) -> int:
     rr.add("pastas_version", ps.__version__, unit="", note="Pastas release the cross-check ran on")
     rr.add("pastas_n_wells", int(df["pastas_ar1_gain"].notna().sum()), unit="wells",
            note="reference wells with a converged Pastas AR(1) fit")
-    for q in QUANTITIES:
-        for model in ("ssmB", "ssmA"):
-            a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == model) & (agree.quantity == q) & (agree.group == "all")]
-            if not len(a):
-                continue
-            r = a.iloc[0]
-            rr.add(f"pastas_vs_{model}_{q}_r", r.pearson_r, unit="",
-                   note=f"Pearson r, Pastas (AR1 noise) {q} against SSM {model} at n = {int(r.n)} wells")
-            if q != "base_level_m":
-                rr.add(f"pastas_vs_{model}_{q}_median_ratio", r.median_ratio_pastas_over_ssm, unit="",
-                       note=f"median Pastas:{model} ratio of {q} (p16 {r.ratio_p16:.3f}, p84 {r.ratio_p84:.3f})")
-            else:
-                rr.add(f"pastas_vs_{model}_{q}_median_diff", r.median_difference, unit="m",
-                       note=f"median Pastas minus {model} base level")
+    rr.add("pastas_n_identified", int(df["identified"].sum()), unit="wells",
+           note=f"wells whose response time is identified on the window (e-fold <= {PASTAS_IDENT_EFOLD_WINDOW_FRAC} x n and relative SE <= {PASTAS_IDENT_MAX_REL_SE})")
+    for c, g in df.groupby("Cluster_Label"):
+        rr.add(f"pastas_n_not_identified_{g['Cluster'].iloc[0]}", int((~g["identified"]).sum()), unit="wells",
+               note=f"{c}: wells not identified on the window (of {len(g)})")
+    for grp, suffix in (("all", ""), ("identified", "_identified")):
+        for q in QUANTITIES:
+            for model in ("ssmB", "ssmA"):
+                a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == model) & (agree.quantity == q) & (agree.group == grp)]
+                if not len(a):
+                    continue
+                r = a.iloc[0]
+                rr.add(f"pastas_vs_{model}_{q}_r{suffix}", r.pearson_r, unit="",
+                       note=f"Pearson r, Pastas (AR1 noise) {q} against SSM {model} at n = {int(r.n)} wells ({grp})")
+                rr.add(f"pastas_vs_{model}_{q}_rho{suffix}", r.spearman_rho, unit="",
+                       note=f"Spearman rho, Pastas (AR1 noise) {q} against SSM {model} at n = {int(r.n)} wells ({grp})")
+                if q != "base_level_m":
+                    rr.add(f"pastas_vs_{model}_{q}_median_ratio{suffix}", r.median_ratio_pastas_over_ssm, unit="",
+                           note=f"median Pastas:{model} ratio of {q} (p16 {r.ratio_p16:.3f}, p84 {r.ratio_p84:.3f}; {grp})")
+                else:
+                    rr.add(f"pastas_vs_{model}_{q}_median_diff{suffix}", r.median_difference, unit="m",
+                           note=f"median Pastas minus {model} base level ({grp})")
     for q in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "gain", "efold_months", "f_evap"):
         rr.add(f"pastas_synthetic_{q}_ratio_median", float(syn[f"ratio_{q}"].median()), unit="",
                note=f"median over the five synthetic centroid wells of Pastas-recovered / generating {q}: the unit conversion check")

@@ -43,7 +43,9 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 __version__ = "1.49.0"  # Hollingham (2026) - 2026-09-24. DAYS_PER_MONTH, PASTAS_RESPONSE,
 #   PASTAS_WARMUP_YEARS: the Pastas cross-check (Script 48) — the per-day-to-per-month
 #   conversion of its parameters, the response function, and the climate warm-up it
-#   runs before the first head. Additive.
+#   runs before the first head; PASTAS_IDENT_EFOLD_WINDOW_FRAC and
+#   PASTAS_IDENT_MAX_REL_SE, the identifiability rule (same day, before the first
+#   L14 run). Additive.
 # 1.48.0  # Hollingham (2026) - 2026-09-23. DATUM_SWEEP_MIN_M,
 #   DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M: the datum sweep Script 03 runs at the
 #   centroids (03_08) and per well (03_09), previously two np.arange(0.5, 8.05, 0.1)
@@ -453,6 +455,15 @@ DATUM_SWEEP_STEP_M = 0.1
 DAYS_PER_MONTH      = 30.4375
 PASTAS_RESPONSE     = "Exponential"
 PASTAS_WARMUP_YEARS = 15
+# Identifiability on the fitted window (Script 48): a response time longer than
+# this fraction of the fitted months never contains a full recession, and the
+# gain, the response time and the base level then trade off against each other
+# in either code; a relative standard error on the response time above the second
+# constant is the same symptom. Such a well is reported, crossed on the figure,
+# and left out of the "identified" agreement group. C4 Main Forest, with Model B
+# response times of 20-70 months on a 100-month window, is where this bites.
+PASTAS_IDENT_EFOLD_WINDOW_FRAC = 0.5
+PASTAS_IDENT_MAX_REL_SE        = 0.5
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.

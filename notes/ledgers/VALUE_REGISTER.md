@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**124 output file(s)** supply **1350 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**124 output file(s)** supply **1351 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -1068,6 +1068,7 @@
 |  | C5 (Coastal Forest) / 2025 · MSL5_m_bg_mean | report9.md |
 |  | C5 (Coastal Forest) / 2025 · MSL5_m_bg_median | Supplementary_Material.md, report9.md |
 | `26_report_numbers.csv` | curreli_min_quadrat_wells_first_window_min_m_bg | report9.md |
+|  | ewi_msl5_rmse_mm_open_dune | report.md, report10.md, report12.md |
 |  | msl5_min5_window_r | Newborough_Methods_Supplement.md |
 | `26b_msl5_ukcp18_projection_summary.csv` | C2 (Dune) / 2050s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C2 (Dune) / 2080s · msl5_observed_window_mean_m | Supplementary_Material.md |

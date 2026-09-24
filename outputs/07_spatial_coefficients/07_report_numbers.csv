@@ -21,3 +21,9 @@ C5_beta3_mean,,,0.04583401860155386,/month,"mean β₃ drainage, C5, 3.7 m datum
 C5_beta3_pct_mean,,,4.583401860155386,%/month,"mean β₃ as % head drained/month, C5"
 CEH14_beta3,CEH14,,-0.0206693158428695,/month,negative β₃ — lateral recharge from rock ridge (C4)
 CEH14_beta3_pct,CEH14,,-2.0669315842869502,%/month,negative β₃ as %
+clusters_vs_covariates_F_p_beta_1,,,0.19915328568098822,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_1_recharge, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
+clusters_vs_covariates_dAIC_beta_1,,,0.9263948546531964,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_1_recharge, n=66; negative favours clusters"
+clusters_vs_covariates_F_p_beta_2,,,7.614610747226828e-05,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_2_atmospheric_draw, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
+clusters_vs_covariates_dAIC_beta_2,,,-20.43048659847375,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_2_atmospheric_draw, n=66; negative favours clusters"
+clusters_vs_covariates_F_p_beta_3,,,0.01186868070486476,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_3_drainage, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
+clusters_vs_covariates_dAIC_beta_3,,,-7.1895886355301855,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_3_drainage, n=66; negative favours clusters"

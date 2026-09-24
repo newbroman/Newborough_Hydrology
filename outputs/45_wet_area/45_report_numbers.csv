@@ -31,3 +31,9 @@ oos_R_wet_floor_n_months,,mode R,238.0,months,well-months in the out-of-sample c
 oos_R_wet_floor_median_ratio,,mode R,0.9639313650289083,,median modelled:observed area ratio
 oos_R_wet_floor_ratio_p16,,mode R,0.8486438860467292,,16th percentile of the modelled:observed ratio
 oos_R_wet_floor_ratio_p84,,mode R,1.1451860868796078,,84th percentile of the modelled:observed ratio
+hysteresis_ratio_open_water,,,2.212748661214777,,"factor by which a wetting-phase scene carries more open_water area than a drying-phase scene at the same level: exp(mean residual of log(area) ~ h_scene, wetting minus drying), 12 wetting vs 28 drying of 43 scenes"
+hysteresis_dh_p_open_water,,,0.0026680136788815104,,"p of dh_month in log(open_water area) ~ h_scene + dh_month, coefficient +2.237 per m/month over 43 scenes"
+rain_term_p_open_water,,,0.028465076886021057,,"p of the scene month's rainfall (calendar month containing the scene date) in log(open_water area) ~ h_scene + dh_month + P, coefficient -1.312 per 100 mm over 39 scenes with a climate row; field-month variant p 0.856"
+hysteresis_ratio_wet_floor,,,1.1531856220002437,,"factor by which a wetting-phase scene carries more wet_floor area than a drying-phase scene at the same level: exp(mean residual of log(area) ~ h_scene, wetting minus drying), 12 wetting vs 28 drying of 43 scenes"
+hysteresis_dh_p_wet_floor,,,0.03876358781884982,,"p of dh_month in log(wet_floor area) ~ h_scene + dh_month, coefficient +0.295 per m/month over 43 scenes"
+rain_term_p_wet_floor,,,0.001423624333666889,,"p of the scene month's rainfall (calendar month containing the scene date) in log(wet_floor area) ~ h_scene + dh_month + P, coefficient -0.362 per 100 mm over 39 scenes with a climate row; field-month variant p 0.082"

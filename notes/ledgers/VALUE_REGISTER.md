@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**123 output file(s)** supply **1336 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**123 output file(s)** supply **1340 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -1312,6 +1312,10 @@
 |  | ranwell_sigma_m_combined_constrained | Hollingham_2026_Paper2_amended.md, report9.md |
 | `45_01_wet_area_model.csv` | open_water · b | report9.md |
 | `45_report_numbers.csv` | floor_mask_area_ha | Newborough_Methods_Supplement.md, report.md, report8.md, report9.md |
+|  | hysteresis_dh_p_open_water | report9.md |
+|  | hysteresis_dh_p_wet_floor | report9.md |
+|  | hysteresis_ratio_open_water | report9.md |
+|  | hysteresis_ratio_wet_floor | report9.md |
 |  | oos_C_wet_floor_ratio_p84 | Newborough_Methods_Supplement.md, report9.md |
 | `config.py` | BROADLEAF_B2_SUMMER | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, Supplementary_Material.md, report10.md, report9.md |
 |  | BROADLEAF_B2_WINTER | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, report9.md |

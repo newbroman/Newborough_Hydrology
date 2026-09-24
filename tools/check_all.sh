@@ -18,8 +18,11 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.17.0 - 2026-09-24
+# VERSION 1.18.0 - 2026-09-24
 # CHANGELOG
+#   1.18.0 (2026-09-24): mention_lint after csv_mention_lint — every script, tool
+#     and path a root document names must exist (exemptions with reasons in
+#     tools/mention_lint_exempt.csv). The documentation-layer audit's gate.
 #   1.17.0 (2026-09-24): freeze_requirements --check after env_audit: the pins
 #     in requirements.txt must equal venv/'s dist-info (pip excepted). Found 42
 #     unpinned packages and a scrambled header that env_audit could not see.
@@ -321,6 +324,12 @@ echo "── file mentions (does every CSV or JSON a document names exist?) ─�
 # it as current on 2026-09-21; nine more names were typos one script over.
 python3 tools/csv_mention_lint.py --selftest >/dev/null || rc=1
 python3 tools/csv_mention_lint.py --quiet || rc=1
+# Scripts, tools and paths the ROOT documents name must exist (the documentation
+# layer: CLAUDE.md, MACHINE_SETUP, the READMEs, index.html, the bootstrap). The
+# 2026-09-24 audit found ./wgit and nrg_git.sh at the root a month after they
+# moved, a renamed script, two output files that never existed and a hand-typed
+# figure table on a numbering the report had left behind — none visible to a gate.
+python3 tools/mention_lint.py || rc=1
 
 echo "── document media (does every stripped ODT still rebuild?) ──────────"
 # Superseded versions carry their images in docs/media_store rather than inside

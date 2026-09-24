@@ -605,7 +605,7 @@
           Full report, academic and public summaries, glossaries
           and web-tool reference manuals.
         </p>
-        <p class="pillar-count">10 documents &middot; 3 languages</p>
+        <p class="pillar-count">13 documents &middot; 3 languages</p>
         <span class="btn btn-dune">Browse documents &darr;</span>
       </a>
 
@@ -627,7 +627,7 @@
           Reproducible Python workflow: <!--PL:total-->58<!--/PL:total--> steps across
           <!--PL:phases-->19<!--/PL:phases--> phases, from raw dipwell data to publication figures.
         </p>
-        <p class="pillar-count"><!--PL:total-->58<!--/PL:total--> steps &middot; Python 3.10+</p>
+        <p class="pillar-count"><!--PL:total-->58<!--/PL:total--> steps &middot; Python 3.12</p>
         <span class="btn btn-pine">View pipeline &darr;</span>
       </a>
 
@@ -668,7 +668,8 @@
         <p class="doc-group-label">Research report</p>
         <h3>Full Manuscript</h3>
         <p class="doc-desc">
-          Main report with 47 figures and 16 tables, plus supplementary
+          Main report (its figures and tables are catalogued in the generated
+          FIGURE and PROVENANCE ledgers under notes/ledgers/), plus supplementary
           material and the per-script methods supplement.
         </p>
         <div class="doc-links">
@@ -859,19 +860,19 @@
       <!--PL:optin-->3<!--/PL:optin--> reached only via <code>--with-supplementary</code>.
       The two breakdowns each account for the same steps and are not additive with one
       another. Current values: <code>outputs/pipeline_manifest.json</code>. All file paths managed centrally through
-      <code>src/utils/paths.py</code>. Python 3.10+ required (3.12 tested).
+      <code>src/utils/paths.py</code>. Python 3.12.x required (a floor and a ceiling; see MACHINE_SETUP.md).
     </p>
 
     <div class="pipeline-block" role="region" aria-label="Installation and run commands">
       <span class="comment"># Clone and install</span><br>
       <span class="cmd">git clone https://github.com/newbroman/Newborough_Hydrology.git</span><br>
       <span class="cmd">cd Newborough_Hydrology</span><br>
-      <span class="cmd">python -m venv .venv &amp;&amp; source .venv/bin/activate</span><br>
+      <span class="cmd">python3 -m venv venv &amp;&amp; source venv/bin/activate</span><br>
       <span class="cmd">pip install -r requirements.txt</span><br>
       <br>
       <span class="comment"># Run</span><br>
       <span class="cmd">python run_analysis.py &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># interactive menu</span></span><br>
-      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;<span class="comment"># complete pipeline (all <!--PL:total-->58<!--/PL:total--> steps)</span></span><br>
+      <span class="cmd">python run_analysis.py --full &nbsp;&nbsp;<span class="comment"># the default pass (<!--PL:default-->53<!--/PL:default--> of <!--PL:total-->58<!--/PL:total--> steps; --with-supplementary adds the opt-in diagnostics)</span></span><br>
       <span class="cmd">python run_analysis.py --from 14 <span class="comment"># resume from step 14</span></span><br>
       <span class="cmd">python run_analysis.py --viewer &nbsp;<span class="comment"># build scenario viewer only</span></span>
     </div>

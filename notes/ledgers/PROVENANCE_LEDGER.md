@@ -75,7 +75,7 @@
 | `09d_02_summer_scenario_comparison.png` | report9.odt | Figure 28 | Figure 1.25: Scenario comparison at CEH36 (scraped site) — summer (July–Septembe |
 | `09f_management_effects.png` | report10.odt | Figure 81 | Figure 1.4: Spatial reach and development timescale of the management interventi |
 | `09g_coastal_vs_climate_reach.png` | Paper 1 | Figure 21 | Conceptual coastal-vs-climate reach |
-| `09g_mechanism_grid.png` | report10.odt | Figure 82 | Figure 1.5: Four drivers of the Newborough water table — schematic cross-section |
+| `09g_mechanism_grid.png` | report10.odt | Figure 82 | Figure 1.5: Three drivers of water-table change and the undisturbed state — sche |
 | `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.11 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
 | `10a_06_climate_sensitivity.png` | report9.odt | Figure 29 | Figure 1.26: Climate sensitivity: cumulative water balance (CWB) vs BACI displac |
 | `10a_07_cusum_impact.png` | Paper 2 | Figure 3 | Forest-control BACI + CUSUM (Impact) |
@@ -93,7 +93,7 @@
 | `10e_01_coefficient_shifts.csv` | report9.odt | Table 1.15 | Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BA |
 | `10e_03_coefficient_shifts.png` | Paper 2 | Figure 5 | Before/after SSM coefficient dumbbells by tier; β₁/β₂ %-shift summary |
 |  | report9.odt | Figure 36 | Figure 1.33: Before- and after-clearfell SSM coefficient estimates with 95% CI f |
-| `10g_02_clearfell_transect.png` | report9.odt | Figure 37 | Figure 1.34: Clearfell transect: post-felling step change vs distance from felli |
+| `10g_02_clearfell_transect.png` | report9.odt | Figure 37 | Figure 1.34: Clearfell transect. (a) Monthly depth anomaly against each well's s |
 | `10m_02_wmc3_baci_dual.png` | report9.odt | Figure 30 | Figure 1.27: WMC3 (Impact well) and the forest-control mean across the three int |
 | `11_forecast_pflood_summary.csv` | report9.odt | Table 1.19 | Cluster-specific linear forms derived from the iterated closed-form P_flood solu |
 | `11_forecast_summer_transfer_functions.csv` | report9.odt | Table 1.17 | Summer drought prediction equations (Section 3.6.2). P_summer = total April–Sept |

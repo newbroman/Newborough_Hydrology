@@ -160,7 +160,7 @@ one another. Current values are written to `outputs/pipeline_manifest.json` on
 every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
 
-**Reference network:** 66 wells (from a raw pool of ~80).
+**Reference network:** <!--PL:wells_reference-->66<!--/PL:wells_reference--> wells (from a raw pool of ~80).
 Eight wells are excluded from the reference partition: FE1–4 and LIS1
 (clearfell non-stationarity), Llyn Rhos (lake surface), CEH3 and CEH22
 (tidal-signal singleton outliers). All except Llyn Rhos remain in the

@@ -18,8 +18,14 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.18.0 - 2026-09-24
+# VERSION 1.19.0 - 2026-09-24
 # CHANGELOG
+#   1.19.0 (2026-09-24): sync_index_counts --check gates (derived counts in
+#     markers; undated unmarkered counts fail); mention_lint 1.1.0 also checks
+#     quoted tool versions and "X gates" claims. Martin: "if this is the case
+#     then it needs to be included as a gate". starmath_log --check: the
+#     EQUATION_LEDGER was the one generated ledger with no --check (R22) and
+#     was 16 lines stale.
 #   1.18.0 (2026-09-24): mention_lint after csv_mention_lint — every script, tool
 #     and path a root document names must exist (exemptions with reasons in
 #     tools/mention_lint_exempt.csv). The documentation-layer audit's gate.
@@ -330,6 +336,12 @@ python3 tools/csv_mention_lint.py --quiet || rc=1
 # moved, a renamed script, two output files that never existed and a hand-typed
 # figure table on a numbering the report had left behind — none visible to a gate.
 python3 tools/mention_lint.py || rc=1
+# Counts that root documents state — pipeline steps, packages pinned, ledgers,
+# report figures and tables, decisions, wells — are stamped from the tree into
+# <!--PL:key--> markers and checked here; an undated count outside a marker
+# fails (tools/count_claims_exempt.csv carries the exemptions). Until 2026-09-24
+# the stamp ran only when somebody remembered, and readme.md sat at 57/52/18/43.
+python3 tools/sync_index_counts.py --check || rc=1
 
 echo "── document media (does every stripped ODT still rebuild?) ──────────"
 # Superseded versions carry their images in docs/media_store rather than inside
@@ -515,8 +527,10 @@ printf '%s\n' "$defs_out" | grep -E "^  FAULT |^  RESOLVED |^definitions_audit:"
 # second. Edit one and not the other and the change survives every check above,
 # renders correctly in the PDF, and reverts the next time the formula is opened.
 # THAT gates. The displaced-glyph and variant-codepoint counts are advisory.
-starmath_out="$(python3 tools/starmath_log.py 2>&1)" || rc=1
+starmath_out="$(python3 tools/starmath_log.py --check 2>&1)" || rc=1
 printf '%s\n' "$starmath_out" | grep -E "^  starmath_log:|MathML and StarMath disagree" || true
+# --check (1.2.0): EQUATION_LEDGER.md must be what the documents produce. It had
+# no --check (R22) and sat 16 lines stale from 2026-08-27 to 2026-09-24.
 
 echo
 echo "── references (do typed Table/Figure numbers still resolve?) ─────────"

@@ -27,7 +27,14 @@ do not weaken the pattern.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-24. The documentation-layer audit's gate.
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-24. Martin: "if this is the case then it
+#   needs to be included as a gate" — the two description classes the audit note said
+#   no gate could see, now gated where they are mechanical: (1) a VERSION quoted for a
+#   tool or script on an undated line must be the file's current __version__ / VERSION;
+#   (2) a sentence that says a tool GATES ("is a gate", "gates in check_all", "check_all
+#   runs it") must name a tool check_all.sh actually runs, and a sentence that says it
+#   does NOT must name one it does not. Dated lines and lines with a history word
+#   (since, until, was, introduced, added, moved) are testimony and are skipped.
 
 import argparse
 import csv
@@ -93,6 +100,78 @@ def scan(doc: Path) -> list[tuple[int, str]]:
     return out
 
 
+VERSION_RX = re.compile(r"`?((?:[\w./-]+/)?[A-Za-z0-9_.-]+?(?:\.py|\.sh)?)`?\s*\(?(?:v|version\s+)?(\d+\.\d+\.\d+)\)?(?![\w.])")
+HISTORY_RX = re.compile(r"\b20\d\d-\d\d(?:-\d\d)?\b|\b(?:since|until|before|was|were|introduced|added|moved|had|from v|then|earlier|previously|old)\b|→|->", re.I)
+GATE_RX = re.compile(r"\b(?:gate|gates|gated|gating)\b", re.I)
+NEGATION_RX = re.compile(r"\b(?:not|no|never|neither|nor|outside|advisory|cannot|without|retired|off)\b", re.I)
+TOOL_RX = re.compile(r"`((?:tools/)?[A-Za-z0-9_]+(?:\.py|\.sh)?)`")
+
+
+def file_version(p: Path) -> str | None:
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    m = re.search(r"^__version__\s*=\s*[\"']([^\"']+)[\"']", txt, flags=re.M)      # the ASSIGNMENT
+    if m:
+        return m.group(1)
+    m = re.search(r"^#\s*VERSION\s+(\d+\.\d+\.\d+)", txt, flags=re.M)               # shell scripts
+    return m.group(1) if m else None
+
+
+def tool_file(name: str) -> Path | None:
+    base = name.strip("`").split("/")[-1]
+    cands = [base] if "." in base else [base + ".py", base + ".sh"]
+    for c in cands:
+        for d in ("tools", "src", "src/utils", "working", "."):
+            p = REPO / d / c
+            if p.is_file():
+                return p
+    return None
+
+
+def check_versions(rel: str, doc: Path) -> list[str]:
+    out = []
+    for n, line in enumerate(doc.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+        if HISTORY_RX.search(line) or HISTORY_MARK.search(line):
+            continue
+        for m in VERSION_RX.finditer(line):
+            name, quoted = m.group(1), m.group(2)
+            p = tool_file(name)
+            if p is None or p.suffix not in (".py", ".sh"):
+                continue
+            live = file_version(p)
+            if live and live != quoted:
+                out.append(f"  {rel}:{n}  {name} quoted at {quoted}; the file is {live}")
+    return out
+
+
+def check_all_names() -> set[str]:
+    ca = REPO / "tools" / "check_all.sh"
+    return set(re.findall(r"tools/([A-Za-z0-9_]+)\.(?:py|sh)", ca.read_text(encoding="utf-8"))) if ca.is_file() else set()
+
+
+def check_gate_claims(rel: str, doc: Path, gated: set[str]) -> list[str]:
+    """A sentence that says `tool` gates must name a tool check_all runs (and vice versa)."""
+    out = []
+    text = doc.read_text(encoding="utf-8", errors="replace")
+    for n, line in enumerate(text.splitlines(), 1):
+        if HISTORY_RX.search(line) or HISTORY_MARK.search(line):
+            continue
+        for sent in re.split(r"(?<=[.;])\s+", line):
+            if not GATE_RX.search(sent) or "check_all" not in sent and "gate" not in sent.lower():
+                continue
+            tools = [t.split("/")[-1].rsplit(".", 1)[0] for t in TOOL_RX.findall(sent)]
+            # only tools that ARE checks: a data module named in the same sentence
+            # ("`table_configs.py` (gated by `table_source_lint`)") is not the claim
+            tools = [t for t in tools if re.search(r"lint|check|audit|verify|guard", t) and t != "check_all"]
+            if not tools:
+                continue
+            negated = bool(NEGATION_RX.search(sent))
+            for t in tools:
+                is_gate = t in gated
+                if not negated and not is_gate and (REPO / "tools" / f"{t}.py").is_file():
+                    out.append(f"  {rel}:{n}  `{t}` is described as a gate but check_all.sh does not run it: …{sent.strip()[:110]}…")
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--list", action="store_true", help="print every mention and its resolution")
@@ -126,12 +205,24 @@ def main() -> int:
                 print(f"  {rel}:{n}  {key}  ->  {p.relative_to(REPO) if p else 'MISSING'}")
             if p is None:
                 missing.append(f"  {rel}:{n}  {key}")
+    gated = check_all_names()
+    desc: list[str] = []
+    for rel in DOCS:
+        doc = REPO / rel
+        if doc.exists():
+            desc += check_versions(rel, doc)
+            desc += check_gate_claims(rel, doc, gated)
+    desc = [d for d in desc if d.split("  ", 2)[-1].split(";")[0].strip() not in exempt]
     tail = (f"{checked} mention(s) checked across the root documents; {exempted} exempt"
             + (f"; {skipped_working} under working/ skipped (not present here)" if skipped_working else ""))
+    if desc:
+        print(f"  mention_lint: {len(desc)} description(s) disagree with the tree (versions, gate claims):")
+        print(*desc, sep="\n")
     if missing:
         print(f"  mention_lint: {len(missing)} mention(s) name a file that does not exist:")
         print(*missing, sep="\n")
-        print("  (fix the document, or add the mention to tools/mention_lint_exempt.csv with a reason)")
+    if missing or desc:
+        print("  (fix the document, date the sentence, or add the mention to tools/mention_lint_exempt.csv with a reason)")
         print(f"  mention_lint: FAIL — {tail}")
         return 1
     print(f"  mention_lint: OK — {tail}")

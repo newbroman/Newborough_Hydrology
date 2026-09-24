@@ -226,7 +226,7 @@ src/
 
 #### Step 1 — 01_data_prep
 
-**Purpose.** Cleans raw dipwell and climate data, applies QC, splits into reference (66 wells) and extended networks, exports upstand/elevation lookup, computes Thornthwaite PET.
+**Purpose.** Cleans raw dipwell and climate data, applies QC, splits into reference (<!--PL:wells_reference-->66<!--/PL:wells_reference--> wells) and extended networks, exports upstand/elevation lookup, computes Thornthwaite PET.
 
 **A missing rainfall month is missing, not dry.** The Met Office marks a month with more than two days unmeasured as `---`. Until 2026-08-23 that was read as `"0"`, and June 1941 — the only gap in the whole 95-year file — entered the pipeline as the driest month on record. It is now carried as `NaN`, and the run prints which months were affected. Downstream that is handled rather than propagated: `make_table1_annual_climate` counts complete months, flags 1941, and drops it from the long-term mean row; every other reader of `01_climate.csv` either slices to the well record or drops NaN before use. The one number it moves is `summer_P` in `pipeline_scenario_params.csv`, +0.17 mm/month, because `load_summer_climate()` averages June across all 95 years. See D-070 and `data/CLIMATE_PROVENANCE.md`.
 
@@ -1133,7 +1133,7 @@ Two guards are worth knowing about. **Only covered decades are ranked** — the 
 **Other.**
 
   - All paths via `utils.paths.OUT_25_*` and `paths.DATA_DIST_COAST`.
-  - `dist_coast_m` covers 98 wells, range 119–2,338 m; perpendicular distance to the west-facing Caernarfon Bay MHW (OpenStreetMap `natural=coastline`, `data/geo/coastline_eroding_hwm.geojson`), Menai Strait excluded. Recomputed and validated against the committed values in Script 01 (audit `01_dist_coast_validation.csv`).
+  - `dist_coast_m` covers <!--PL:wells_dist_coast-->98<!--/PL:wells_dist_coast--> wells (the rows of `01_dist_coast_validation.csv`), range 119–2,338 m; perpendicular distance to the west-facing Caernarfon Bay MHW (OpenStreetMap `natural=coastline`, `data/geo/coastline_eroding_hwm.geojson`), Menai Strait excluded. Recomputed and validated against the committed values in Script 01 (audit `01_dist_coast_validation.csv`).
 
 
 ### Phase 12 — Supplementary Diagnostics
@@ -1471,7 +1471,7 @@ Outputs to `outputs/39_ccw_hindcast/`: `39_01_hindcast_per_well.csv`, `39_02_hin
 
 Step 48 — `40_shoreline_retreat.py` — shoreline retreat from the digitised coastline epochs, measured as SIGNED shore-normal displacement between the committed coast lines (`data/geo/`), with the diagnostics that decide whether the result is a measurement of a shoreline at all — floor, control and generalisation tests — and the rate WITHHELD (`rate_m_yr` NA with a `withheld_reason`) when they fail (D-085, D-086). Outputs to `outputs/40_shoreline_retreat/`: `40_01_epoch_series.csv`, `40_02_normals.csv`, `40_03_control.csv`, `40_04_generalisation.csv`, `40_05_dtm_profile.csv`, `40_06_coastal_sensitivity.csv`, `40_07_storm_pair.csv`, `40_01_alongshore_profile.png`, `40_report_numbers.csv`. Analytical-default tier; the measured 1899–2026 retreat travels into Script 44 as context.
 
-Step 49 — `41_canopy_cover.py` — canopy and forest-cover change from the dated aerial series: a TEXTURE index (local luminance variance normalised between open-ground and mature-conifer references inside the same frame), stratified by leaf state (`config.LEAF_*_MONTHS`), for the restock and clearfell regions; every KML read through `utils/kml_io.py` (2.7.0). Outputs to `outputs/41_canopy_cover/`: `41_01_canopy_index.csv`, `41_02_change_events.csv`, `41_03_registration.csv`, `41_04_canopy_series.png`, `41_05_canopy_trajectory.png` (report §4.6.8), `41_report_numbers.csv`. Analytical-default tier.
+Step 49 — `41_canopy_cover.py` — canopy and forest-cover change from the dated aerial series: a TEXTURE index (local luminance variance normalised between open-ground and mature-conifer references inside the same frame), stratified by leaf state (`config.LEAF_*_MONTHS`), for the restock and clearfell regions; every KML read has gone through `utils/kml_io.py` since Script 41 2.7.0. Outputs to `outputs/41_canopy_cover/`: `41_01_canopy_index.csv`, `41_02_change_events.csv`, `41_03_registration.csv`, `41_04_canopy_series.png`, `41_05_canopy_trajectory.png` (report §4.6.8), `41_report_numbers.csv`. Analytical-default tier.
 
 ### Phase 17 — Synthesis Figures, Greyscale Conversion, and the Ranwell 1951–53 Record
 
@@ -1516,7 +1516,7 @@ All scripts import physical and statistical constants from `utils/config.py`. Th
 - `MSL_TRAJECTORY_START_YEAR = 2014` — first window-end drawn entirely from the post-2010 network
 - `VW_QUADRAT_WELLS` — the 17 piezometers van Willegen (2025) co-located with permanent vegetation quadrats (calibrated EbF reference subset)
 - `RESIDUAL_DIAG_MIN_MONTHS = 140` — record-length floor for the residual-field diagnostics (Scripts 23, 24); ~11.7 years, though the binding minimum among eligible wells is 151 months, so it drops only ceh40, ceh41 and ceh42
-- `RESIDUAL_DIAG_EXCLUDED_WELLS` — the six wells held out of Scripts 23 and 24: ceh3 (tidal boundary), ceh4 (coastal-erosion drift plus post-2017 clearfell pulse), ceh7 / ceh8 / ceh37 (record discontinuities carried over from Script 07), and `llynrhos`, the Llyn Rhos-Ddu lake gauge — a surface-water level record rather than one of the 88 classified dipwells, so it carries no water-balance residual in the SSM sense. Scripts 23 and 24 therefore run 63 wells; Script 22 runs the full 66-well reference network without exclusions
+- `RESIDUAL_DIAG_EXCLUDED_WELLS` — the six wells held out of Scripts 23 and 24: ceh3 (tidal boundary), ceh4 (coastal-erosion drift plus post-2017 clearfell pulse), ceh7 / ceh8 / ceh37 (record discontinuities carried over from Script 07), and `llynrhos`, the Llyn Rhos-Ddu lake gauge — a surface-water level record rather than one of the 88 classified dipwells, so it carries no water-balance residual in the SSM sense. Scripts 23 and 24 therefore run every well in `01_wells_clean.csv` that survives those exclusions and `RESIDUAL_DIAG_MIN_MONTHS` (the count is in their outputs, not here); Script 22 runs the full reference network without exclusions
 - `RESIDUAL_DIAG_SW_BOOT_N = 10000` / `RESIDUAL_DIAG_SW_BOOT_SEED = 20260809` — resample count and fixed seed for the per-cluster summer-minus-winter contrast emitted by Script 24 in `24_05_diagnostic_summary.txt`
 - `INTERVENTION_COLOUR_SCRAPE = '#7b3294'` / `INTERVENTION_COLOUR_CLEARFELL = '#e66101'` — print-safe colours for trajectory event markers
 - `UKCP18_*_P_*` / `UKCP18_*_PET_*` — UKCP18 RCP8.5 Wales scenario multipliers

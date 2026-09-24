@@ -23,7 +23,7 @@ replaces the other, and the whole point is that you should never have to replay
 | `PROVENANCE_LEDGER.md` | every pipeline output → the exhibits (tables, figures) that render it, keyed by OUTPUT FILE | **generated** by `tools/build_provenance_ledger.py`; `--check` gates; `table_provenance_lint` enforces that no table lacks a CSV |
 | `VALUE_REGISTER.md` | cited quantities and symbols, keyed by output file | **generated** by `tools/build_value_register.py`; `--check` gates |
 | `VALUE_LEDGER.md` (with its HTML rendering and the `VALUE_LEDGER_report` pair) | every cited value, its source, symbol and drift — agrees with `cite_check --index-only` by construction | **generated** by `tools/build_value_ledger.py --write`; `--check` gates |
-| `EQUATION_LEDGER.md` | the embedded formula objects: MathML and StarMath, per document | **generated** by `tools/starmath_log.py --write`; the MathML/StarMath agreement gates |
+| `EQUATION_LEDGER.md` | the embedded formula objects: MathML and StarMath, per document | **generated** by `tools/starmath_log.py --write`; `--check` gates (added 2026-09-24 — it was the one generated ledger without one, and was stale from 2026-08-27) |
 | `DOC_LEDGER.md` | published PDF → source ODT → built date → live lag state | **generated** by `tools/build_doc_ledger.py` (from `PDF_MANIFEST.txt` + `export_lag.py`); `--check` gates |
 | `TABLE_LEDGER.md` | — | **RETIRED 2026-09-19**; superseded by `PROVENANCE_LEDGER.md`. Kept on disk with its banner; `check_all` asserts it stays retired |
 | `DECISION_LOG.md` | — | **retired 2026-08-16** — merged into the private `working/DECISION_LOG.md`, the only decision log (D-029); `DECISIONS_PUBLIC.md` at the repo root is generated from it. No file of that name remains here |

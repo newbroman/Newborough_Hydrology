@@ -80,7 +80,21 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-24
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-24
+# 1.4.0 — counts that are not pipeline counts. Martin, on the audit note's line
+#         "the same sweep is worth repeating when a rename lands": "if this is the
+#         case then it needs to be included as a gate". So: (a) DERIVED keys read
+#         from the tree beside the manifest keys — pins (requirements.txt),
+#         ledgers (notes/ledgers), doc_links (index.html), report_figures
+#         (FIGURE_LEDGER), report_tables (PROVENANCE_LEDGER), decisions
+#         (DECISIONS_PUBLIC), wells_reference / wells_extended / wells_total
+#         (the 01 CSVs) — so any of them can sit in a marker; (b) --check also
+#         runs audit_counts() over AUDIT_DOCS and FAILS on a number-plus-noun
+#         claim ("nineteen packages", "47 figures", "57 steps") that is outside a
+#         marker and on a line carrying no date: a dated count is testimony, an
+#         undated one is a claim, and a claim has to be a marker or an exemption
+#         (tools/count_claims_exempt.csv, with a reason). --check now gates in
+#         check_all; until today the stamp ran only when someone remembered.
 # 1.3.0 — readme.md joins DEFAULT_TARGETS. The 2026-09-24 documentation audit
 #         found it carrying 57/52/18/43 in five places — the counts this tool
 #         has stamped into index.html and PIPELINE_README since 2026-08-09,
@@ -110,7 +124,7 @@ DEFAULT_INDEX = _ROOT / "index.html"
 # Every hand-maintained file carrying PL markers. Both are plain text in the
 # repository, so they can be STAMPED. The ODT-backed documents cannot be, and
 # are gated instead by tools/pipeline_count_lint.py.
-DEFAULT_TARGETS = (_ROOT / "index.html", _ROOT / "PIPELINE_README.md", _ROOT / "readme.md")
+DEFAULT_TARGETS = (_ROOT / "index.html", _ROOT / "PIPELINE_README.md", _ROOT / "readme.md", _ROOT / "CLAUDE.md")
 DEFAULT_MANIFEST = _ROOT / "outputs" / "pipeline_manifest.json"
 
 # marker key -> how to pull the value out of the manifest
@@ -123,6 +137,115 @@ _KEYS = {
     "default": lambda m: m["by_exec"]["default"],
     "optin": lambda m: m["by_exec"]["optin"],
 }
+
+
+AUDIT_DOCS = ("CLAUDE.md", "MACHINE_SETUP.md", "readme.md", "PIPELINE_README.md",
+              "index.html", "notes/ledgers/README.md", "literature/README.md",
+              "working/HANDOVER_BOOTSTRAP.md", "working/README_WORKING.md",
+              "working/WORK_REGISTER.md")
+COUNT_EXEMPT = _ROOT / "tools" / "count_claims_exempt.csv"
+
+
+def _count_lines(path: Path, pattern: str) -> int:
+    if not path.is_file():
+        return 0
+    return len(re.findall(pattern, path.read_text(encoding="utf-8", errors="replace"), flags=re.M))
+
+
+def _csv_columns(path: Path) -> int:
+    if not path.is_file():
+        return 0
+    header = path.read_text(encoding="utf-8", errors="replace").splitlines()[0]
+    return len(header.split(",")) - 1              # minus the date column
+
+
+def _report_figures() -> int:
+    p = _ROOT / "notes/ledgers/FIGURE_LEDGER.md"
+    m = re.search(r"\*\*(\d+) report figures\*\*", p.read_text(encoding="utf-8")) if p.is_file() else None
+    return int(m.group(1)) if m else 0
+
+
+def _report_tables() -> int:
+    p = _ROOT / "notes/ledgers/PROVENANCE_LEDGER.md"
+    return len(set(re.findall(r"Table 1\.\d+", p.read_text(encoding="utf-8")))) if p.is_file() else 0
+
+
+def _ledgers() -> int:
+    """Live ledger files under notes/ledgers (RETIRED banners excluded; one per family)."""
+    n = 0
+    for p in sorted((_ROOT / "notes/ledgers").glob("*.md")):
+        if p.name == "README.md" or "_report" in p.name:
+            continue
+        head = p.read_text(encoding="utf-8", errors="replace")[:400]
+        if "RETIRED" in head.upper() and "retired" in p.read_text(encoding="utf-8", errors="replace")[:200].lower():
+            continue
+        n += 1
+    return n
+
+
+# Derived keys: read from the tree, not the manifest. Each is a count a root
+# document has typed by hand and got wrong at least once (see the 1.4.0 note).
+_DERIVED = {
+    "pins": lambda: _count_lines(_ROOT / "requirements.txt", r"^[A-Za-z0-9_.-]+=="),
+    "ledgers": _ledgers,
+    "doc_links": lambda: _count_lines(_ROOT / "index.html", r'class="doc-link"'),
+    "report_figures": _report_figures,
+    "report_tables": _report_tables,
+    "decisions": lambda: _count_lines(_ROOT / "DECISIONS_PUBLIC.md", r"^### D-\d{3}"),
+    "wells_reference": lambda: _csv_columns(_ROOT / "outputs/01_wells_reference.csv"),
+    "wells_extended": lambda: _csv_columns(_ROOT / "outputs/01_wells_extended.csv"),
+    "wells_total": lambda: _csv_columns(_ROOT / "outputs/01_wells_reference.csv")
+                           + _csv_columns(_ROOT / "outputs/01_wells_extended.csv"),
+    "wells_dist_coast": lambda: max(0, _count_lines(_ROOT / "outputs/01_dist_coast_validation.csv", r"^.+$") - 1),
+}
+
+COUNT_NOUNS = (r"(?:registered\s+)?steps|phases|packages|pins|ledgers|documents|figures|tables|decisions|"
+               r"gates|dipwells|wells|reference\s+wells|extended\s+wells|entries")
+# A count under ten ("five wells (CEH3, …)", "two figures") is a list the sentence
+# then gives, not a total that drifts; the class this gates is the total.
+COUNT_MIN = 10
+_WORDS = {w: i for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen "
+    "fifteen sixteen seventeen eighteen nineteen twenty".split())}
+COUNT_RE = re.compile(r"(?<![\w.])(\d{1,3}|" + "|".join(_WORDS) + r")\s+(?:(?:registered|live|generated|report|pipeline|reference|extended|open|analytical|display|diagnostic|opt-in|default|CCW|dated|tracked|committed)\s+)?(" + COUNT_NOUNS + r")\b", re.I)
+DATE_RE = re.compile(r"\b20\d\d-\d\d(?:-\d\d)?\b|\bon \d{1,2} [A-Z][a-z]+\b|\buntil\b|\bsince\b|\bwas\b|\bwere\b|\bused to\b|\bhad\b")
+
+
+def _load_count_exempt() -> dict[str, str]:
+    if not COUNT_EXEMPT.is_file():
+        return {}
+    import csv
+    with COUNT_EXEMPT.open(encoding="utf-8", newline="") as f:
+        return {r["claim"].strip(): r["reason"].strip() for r in csv.DictReader(f) if r.get("claim")}
+
+
+def audit_counts() -> list[str]:
+    """Number-plus-noun claims outside markers, on undated lines, in the root documents."""
+    exempt = _load_count_exempt()
+    hits: list[str] = []
+    for rel in AUDIT_DOCS:
+        p = _ROOT / rel
+        if not p.is_file():
+            continue
+        for n, line in enumerate(p.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+            scrubbed = re.sub(r"<!--PL:(\w+)-->.*?<!--/PL:\1-->", "\0", line)
+            if DATE_RE.search(scrubbed) or "<!-- former" in scrubbed:
+                continue
+            for m in COUNT_RE.finditer(scrubbed):
+                num = m.group(1).lower()
+                value = int(num) if num.isdigit() else _WORDS.get(num, 0)
+                if value < COUNT_MIN or scrubbed[max(0, m.start()-1):m.start()] == "~":
+                    continue
+                claim = f"{m.group(1)} {m.group(2)}"
+                if claim in exempt or f"{rel}:{claim}" in exempt:
+                    continue
+                # "step 47", "Scripts 22–24", "Phase 16" are IDs (noun first); this
+                # pattern is number-first, so those do not reach here. A range
+                # "42–49" before "steps" is a span, not a count.
+                if re.search(r"[\u2013-]\s*$", scrubbed[:m.start()]):
+                    continue
+                hits.append(f"  {rel}:{n}  '{claim}'  …{scrubbed[max(0, m.start()-40):m.end()+30].strip()}…")
+    return hits
 
 
 def _report_unmanaged(warnings: list[str]) -> None:
@@ -246,6 +369,8 @@ def main() -> int:
 
     targets = [args.index] if args.index else list(DEFAULT_TARGETS)
     values = load_manifest(args.manifest)
+    for key, fn in _DERIVED.items():
+        values[key] = int(fn())
     rc = 0
 
     for target in targets:
@@ -253,7 +378,7 @@ def main() -> int:
             _fail(f"target not found: {target}")
         original = target.read_text(encoding="utf-8")
 
-        total_markers = sum(original.count(f"<!--PL:{k}-->") for k in _KEYS)
+        total_markers = sum(original.count(f"<!--PL:{k}-->") for k in values)
         if total_markers == 0:
             _fail(f"no PL markers found in {target.name} — "
                   f"has it been replaced by an unmarkered copy?")
@@ -286,6 +411,18 @@ def main() -> int:
         for line in changes:
             print(f"      {line}")
         _report_unmanaged(unmanaged)
+
+    if args.check:
+        hits = audit_counts()
+        if hits:
+            print(f"  x {len(hits)} count claim(s) in the root documents are neither markered, "
+                  f"dated nor exempt:")
+            print(*hits, sep="\n")
+            print("      (wrap in <!--PL:key-->N<!--/PL:key-->, date the sentence, or add the claim to "
+                  "tools/count_claims_exempt.csv with a reason)")
+            rc = 1
+        else:
+            print("  OK no undated, unmarkered count claims in the root documents")
     return rc
 
 

@@ -337,7 +337,7 @@ Full account: `notes/findings/NRG_bridge_gates_ledgers_2026-09-20.md`.
 symbols) answer the question a document-keyed ledger cannot: *this script's
 output changed — what has to be re-read?* `table_provenance_lint.py` enforces
 Martin's rule that **a table cannot have no CSV; that breaks the line of truth
-from the pipeline to the documents**. All 24 report tables trace to an output.
+from the pipeline to the documents**. All <!--PL:report_tables-->24<!--/PL:report_tables--> report tables trace to an output.
 
 **When auditing references, relate them to the CSV.** The report, Paper 1 and
 Paper 2 each number tables from 1. Prose similarity left 150 of 211 references

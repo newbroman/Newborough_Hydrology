@@ -51,7 +51,11 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-02. %xi added to _GREEK.
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-24. --check: the ledger on disk must equal
+#   the one this run would write. EQUATION_LEDGER had no --check (R22, CLAUDE.md §4d) and
+#   was found 16 lines stale, last regenerated 2026-08-27, in the documentation-layer
+#   audit; check_all now runs --check.
+# 1.1.0  # 2026-09-02. %xi added to _GREEK.
 #   An escape missing from that map does not read as unknown — it reads as the
 #   two representations disagreeing, which is this tool's one hard fault. D-111
 #   put xi into the BACI equation and the next run reported report8 Object 34 as
@@ -257,7 +261,7 @@ def audit(objs: list[dict], displaced: dict[str, list[dict]]):
     return drift, missing, disp, var
 
 
-def write_ledger(objs: list[dict], drift, missing, disp, var) -> None:
+def render_ledger(objs: list[dict], drift, missing, disp, var) -> str:
     by_doc: dict[str, list[dict]] = {}
     for o in objs:
         by_doc.setdefault(o["doc"], []).append(o)
@@ -338,13 +342,19 @@ def write_ledger(objs: list[dict], drift, missing, disp, var) -> None:
             A(f"| {o['obj']} | {g} | `{f or 'NO STARMATH ANNOTATION'}` |")
         A("")
     LEDGER.parent.mkdir(parents=True, exist_ok=True)
-    LEDGER.write_text("\n".join(L) + "\n", encoding="utf8")
+    return "\n".join(L) + "\n"
+
+
+def write_ledger(objs: list[dict], drift, missing, disp, var) -> None:
+    LEDGER.write_text(render_ledger(objs, drift, missing, disp, var), encoding="utf8")
     print(f"  wrote {dp.rel(LEDGER)}")
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--write", action="store_true", help="regenerate the ledger")
+    ap.add_argument("--check", action="store_true",
+                    help="fail if notes/ledgers/EQUATION_LEDGER.md is not what --write would produce")
     ap.add_argument("--show", help="dump one object, e.g. --show 5")
     ap.add_argument("--doc", help="restrict to documents whose path contains this")
     ap.add_argument("--quiet", action="store_true")
@@ -407,6 +417,16 @@ def main() -> int:
 
     if a.write:
         write_ledger(objs, drift, missing, disp, var)
+
+    if a.check and not a.doc:
+        want = render_ledger(objs, drift, missing, disp, var)
+        have = LEDGER.read_text(encoding="utf8") if LEDGER.is_file() else ""
+        if want != have:
+            print("  starmath_log: STALE — notes/ledgers/EQUATION_LEDGER.md is not what the "
+                  "documents produce; run python3 tools/starmath_log.py --write")
+            return 1
+        if not a.quiet:
+            print("  starmath_log: ledger current")
 
     if drift:
         print("  starmath_log: FAULT — MathML and StarMath disagree")

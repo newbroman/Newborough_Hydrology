@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_49.odt — do not edit. source-sha256=9233a8bd50d0077a pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_50.odt — do not edit. source-sha256=df3f2b9e802e788f pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -282,11 +282,11 @@ The drainage decay half-life t½ = ln(2)/β₃ is the time for excess groundwate
 
   --------------------- -------- ----------- -------- ----
   Cluster               t½ min   t½ median   t½ max   n
-  C1 Lake Edge          5.2      7.1         8.0      7
-  C2 Dune               6.4      10.0        12.5     24
-  C3 Western Residual   6.8      13.6        21.1     21
-  C4 Main Forest        17.1     32.0        82.0     7
-  C5 Coastal Forest     12.1     15.8        18.1     5
+  C1 Lake Edge          5.9      8.1         8.9      7
+  C2 Dune               6.3      10.7        13.1     24
+  C3 Western Residual   6.8      13.4        19.9     21
+  C4 Main Forest        16.2     23.3        43.1     7
+  C5 Coastal Forest     11.4     14.2        15.8     5
   --------------------- -------- ----------- -------- ----
 
 ![](Pictures/100000010000075D0000061E2DE81B46.png){width="15.871cm" height="14.61cm"}**Figure 14.** Drainage decay half-life t½ = ln(2)/β₃ across the reference network. The interpolation extends over the rock-ridge bedrock outcrop on the northern boundary, which carries no monitoring wells; values shown there are extrapolations from the surrounding network and are not interpretable as model output on bedrock.

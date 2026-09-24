@@ -197,7 +197,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (382)
+## Outputs no exhibit renders (386)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -254,6 +254,7 @@
 - `03_15_per_well_window_sensitivity.csv`
 - `03_16_model_b_persistence.csv`
 - `03_17_upstand_frame_sensitivity.csv`
+- `03_18_datum_invariance.csv`
 - `03_cluster_peak_months.csv`
 - `03_regional_averages.csv`
 - `03_regional_averages_maod.csv`
@@ -261,6 +262,7 @@
 - `05_pear_02_affinity_chart_reference.png`
 - `06_pear_02_integration_map.png`
 - `06_pear_membership_audit_sitewide.csv`
+- `07_05_clusters_vs_covariates.csv`
 - `07_cluster_coeff_means.csv`
 - `07_coefficient_summary.csv`
 - `07_report_numbers.csv`
@@ -572,6 +574,8 @@
 - `44_report_numbers.csv`
 - `45_01_wet_area_model.csv`
 - `45_02_ssm_through_nir_curves.csv`
+- `45_03_switching_levels_map.png`
+- `45_04_phase_hysteresis.csv`
 - `45_report_numbers.csv`
 - `47_00_background_2021-04-04.png`
 - `47_01_hindcast_level_monthly.csv`

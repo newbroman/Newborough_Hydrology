@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.6"  # Hollingham (2026) — 2026-09-23. A quoted value with a thousands
+__version__ = "1.28.7"  # Hollingham (2026) — 2026-09-24. 03_18_datum_invariance.csv (T-74) and
+#   07_05_clusters_vs_covariates.csv (T-73) registered: report8 §3.4.1 / §3.2 and report9
+#   §4.9.1 / Figure 50 quote them.
+# 1.28.6  # Hollingham (2026) — 2026-09-23. A quoted value with a thousands
 #   separator (1,269) compares equal to the pipeline's 1269: the separator is a rendering.
 # 1.28.5  # Hollingham (2026) — 2026-09-22. 26_msl5_vs_min5_per_cluster.csv registered (T-64).
 # 1.28.4  # Hollingham (2026) — 2026-09-22. 25_09_season_interaction_test.csv
@@ -502,6 +505,14 @@ EXTRA_VALUE_TABLES = [
     ("outputs/03_state_space_model/03_09_well_optimal_datums.csv", "well",            # report10 §5.6.3
      ["optimal_datum_primary", "beta_1_at_max", "beta_2_at_max", "beta_3_at_max", "beta_3_at_uniform",
       "R2_gain_max_vs_uniform", "optimal_datum_secondary", "beta_3_at_secondary"]),
+    ("outputs/03_state_space_model/03_18_datum_invariance.csv", "Cluster_Label",     # report8 §3.4.1, report9 §4.9.1 / Figure 50 (T-74)
+     ["aic_optimal_datum_m", "R2_at_optimum", "R2_at_datum", "delta_R2_datum_vs_optimum",
+      "delta_AIC_datum_vs_optimum", "flux_fraction_of_deepest", "flux_frac_ge_80pct_from_m",
+      "flux_frac_ge_90pct_from_m", "model_b_zero_drainage_level_m", "well_median_max_R2_datum_m",
+      "well_min_max_R2_datum_m", "well_max_max_R2_datum_m", "well_max_R2_gain", "well_median_R2_gain",
+      "beta3_order_invariant_from_m", "flux_order_invariant_from_m", "all_beta3_pos_sig_from_m"]),
+    ("outputs/07_spatial_coefficients/07_05_clusters_vs_covariates.csv", ("panel", "coefficient"),   # report8 §3.2 (T-73)
+     ["R2_adj_covariates", "R2_adj_with_clusters", "delta_AIC", "F_pvalue", "n"]),
     ("outputs/03_state_space_model/03_16_model_b_persistence.csv", ("level", "Cluster_Label", "well"),   # report12 §7
      ["t_half_A_months", "t_efold_B_months", "t_half_B_months", "alpha_B"]),
     ("outputs/03_state_space_model/03_17_upstand_frame_sensitivity.csv", ("block", "key"),   # report8 §3.1.1 (RB-03c)

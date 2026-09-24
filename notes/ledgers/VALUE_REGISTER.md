@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**120 output file(s)** supply **1278 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**123 output file(s)** supply **1336 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -125,6 +125,7 @@
 |  | nw4b · beta_3_at_max | Supplementary_Material.md |
 |  | nw5 · beta_3_at_uniform | Supplementary_Material.md |
 |  | wmc2 · beta_3_at_uniform | Supplementary_Material.md |
+| `03_11_datum_confound_diagnostics.csv` | corr_datum_meandepth · r | report9.md |
 | `03_14_centroid_window_sensitivity.csv` | C1 (Lake Edge) / comparison_window · LCSC_percent | report9.md |
 |  | C1 (Lake Edge) / comparison_window · R2 | Newborough_Methods_Supplement.md, report9.md |
 |  | C1 (Lake Edge) / full_record · LCSC_percent | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
@@ -179,6 +180,63 @@
 |  | summary / corr_upstand_vs_d_beta_1 · value | Newborough_Methods_Supplement.md |
 |  | summary / corr_upstand_vs_d_beta_2 · value | Newborough_Methods_Supplement.md |
 |  | summary / corr_upstand_vs_d_beta_3 · value | report8.md |
+| `03_18_datum_invariance.csv` | C1 (Lake Edge) · R2_at_datum | report8.md |
+|  | C1 (Lake Edge) · R2_at_optimum | report8.md |
+|  | C1 (Lake Edge) · aic_optimal_datum_m | report8.md |
+|  | C1 (Lake Edge) · delta_AIC_datum_vs_optimum | report8.md |
+|  | C1 (Lake Edge) · flux_frac_ge_80pct_from_m | report8.md |
+|  | C1 (Lake Edge) · flux_frac_ge_90pct_from_m | report8.md |
+|  | C1 (Lake Edge) · flux_fraction_of_deepest | report8.md |
+|  | C1 (Lake Edge) · model_b_zero_drainage_level_m | report8.md |
+|  | C1 (Lake Edge) · well_max_R2_gain | report9.md |
+|  | C1 (Lake Edge) · well_median_max_R2_datum_m | report9.md |
+|  | C2 (Dune) · aic_optimal_datum_m | report8.md |
+|  | C2 (Dune) · delta_AIC_datum_vs_optimum | report8.md |
+|  | C2 (Dune) · flux_frac_ge_80pct_from_m | report8.md |
+|  | C2 (Dune) · flux_frac_ge_90pct_from_m | report8.md |
+|  | C2 (Dune) · flux_fraction_of_deepest | report8.md |
+|  | C2 (Dune) · model_b_zero_drainage_level_m | report8.md |
+|  | C2 (Dune) · well_max_R2_gain | report9.md |
+|  | C2 (Dune) · well_median_max_R2_datum_m | report9.md |
+|  | C3 (Western Residual) · aic_optimal_datum_m | report8.md |
+|  | C3 (Western Residual) · delta_AIC_datum_vs_optimum | report8.md |
+|  | C3 (Western Residual) · flux_frac_ge_80pct_from_m | report8.md |
+|  | C3 (Western Residual) · flux_frac_ge_90pct_from_m | report8.md |
+|  | C3 (Western Residual) · flux_fraction_of_deepest | report8.md |
+|  | C3 (Western Residual) · model_b_zero_drainage_level_m | report8.md |
+|  | C3 (Western Residual) · well_median_max_R2_datum_m | report9.md |
+|  | C4 (Main Forest) · aic_optimal_datum_m | report8.md |
+|  | C4 (Main Forest) · delta_AIC_datum_vs_optimum | report8.md |
+|  | C4 (Main Forest) · flux_frac_ge_80pct_from_m | report8.md |
+|  | C4 (Main Forest) · flux_frac_ge_90pct_from_m | report8.md |
+|  | C4 (Main Forest) · flux_fraction_of_deepest | report8.md |
+|  | C4 (Main Forest) · model_b_zero_drainage_level_m | report8.md |
+|  | C4 (Main Forest) · well_max_max_R2_datum_m | report9.md |
+|  | C4 (Main Forest) · well_median_max_R2_datum_m | report9.md |
+|  | C4 (Main Forest) · well_min_max_R2_datum_m | report9.md |
+|  | C5 (Coastal Forest) · aic_optimal_datum_m | report8.md |
+|  | C5 (Coastal Forest) · delta_AIC_datum_vs_optimum | report8.md |
+|  | C5 (Coastal Forest) · flux_frac_ge_80pct_from_m | report8.md |
+|  | C5 (Coastal Forest) · flux_frac_ge_90pct_from_m | report8.md |
+|  | C5 (Coastal Forest) · flux_fraction_of_deepest | report8.md |
+|  | C5 (Coastal Forest) · model_b_zero_drainage_level_m | report8.md |
+|  | C5 (Coastal Forest) · well_median_max_R2_datum_m | report9.md |
+|  | all clusters · beta3_order_invariant_from_m | report8.md |
+|  | all clusters · flux_order_invariant_from_m | report8.md |
+| `07_05_clusters_vs_covariates.csv` | all / beta_1_recharge · F_pvalue | report8.md |
+|  | all / beta_1_recharge · R2_adj_covariates | report8.md |
+|  | all / beta_1_recharge · R2_adj_with_clusters | report8.md |
+|  | all / beta_1_recharge · delta_AIC | report8.md |
+|  | all / beta_2_atmospheric_draw · R2_adj_covariates | report8.md |
+|  | all / beta_2_atmospheric_draw · R2_adj_with_clusters | report8.md |
+|  | all / beta_2_atmospheric_draw · delta_AIC | report8.md |
+|  | all / beta_3_drainage · F_pvalue | report8.md |
+|  | all / beta_3_drainage · R2_adj_covariates | report8.md |
+|  | all / beta_3_drainage · R2_adj_with_clusters | report8.md |
+|  | all / beta_3_drainage · delta_AIC | report8.md |
+|  | forest_free / beta_1_recharge · F_pvalue | report8.md |
+|  | forest_free / beta_1_recharge · n | report8.md |
+|  | forest_free / beta_3_drainage · F_pvalue | report8.md |
 | `07_coeff_maps_data.csv` | Ceh32 · beta_2_atmospheric_draw | Hollingham_2026_Paper2_amended.md |
 |  | D38 · Model_R2 | Newborough_Methods_Supplement.md |
 |  | D5 · Model_R2 | report9.md |
@@ -1294,17 +1352,17 @@
 
 | Glyph | Sense | Meaning | Output file(s) carrying it |
 |---|---|---|---|
-| D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv` … |
+| D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `11_forecast_pflood_summary.csv` … |
 | L | `L_reach` | fitted inland reach of the coastal gradient | `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` |
-| d | `d_coast` | perpendicular distance to the eroding shoreline | `01_dist_coast_validation.csv`, `01_locations.csv`, `01_well_elevations.csv`, `10a_09_control_well_spread.csv`, `25_02_per_well_spring_mean_slopes.csv`, `25_02_per_well_summer_min_slopes.csv` … |
+| d | `d_coast` | perpendicular distance to the eroding shoreline | `01_dist_coast_validation.csv`, `01_locations.csv`, `01_well_elevations.csv`, `07_05_clusters_vs_covariates.csv`, `10a_09_control_well_spread.csv`, `25_02_per_well_spring_mean_slopes.csv` … |
 | d | `d_depth` | depth of the water table below ground (all uses: P_flood inp | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_05_table10_pflood_spreadsheet.csv`, `21_forestry_02_distributions_means.csv`, `21_forestry_03_scraping_era_means.csv`, `21_forestry_04_baci_zone_means.csv` |
-| z | `z_datum` | drainage datum, 3.7 m below ground — the replacement D_datum | `03_03_cluster_mechanistic_coefficients.csv`, `03_16_model_b_persistence.csv` |
+| z | `z_datum` | drainage datum, 3.7 m below ground — the replacement D_datum | `03_03_cluster_mechanistic_coefficients.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv` |
 | α | `alpha_ols_generic` | generic OLS intercept of a regression that is NOT the SSM: s | `01_observation_states.csv`, `01_wells_all.csv`, `01_wells_clean.csv`, `01_wells_clean_maod.csv`, `01_wells_provenance.csv`, `01_wells_reference.csv` … |
 | β | `beta_msl` | OLS slope on winter-to-spring rainfall in the Tool A spring- | `11_forecast_spring_transfer_functions.csv` |
 | β | `beta_ssm` | SSM coefficients, always subscripted: beta_1 recharge sensit | `08_perwell_nse.csv`, `15_03_benchmark_table.csv`, `15_04_best_params.csv`, `16_water_bal_rec_table.csv`, `16_water_bal_vol_table.csv`, `26_metric_diagnostics_per_well.csv` |
 | β | `beta_transfer` | OLS slopes of the Script 11 Section 2/4 forecast transfer fu | `11_forecast_summer_transfer_functions.csv`, `11_forecast_winter_transfer_functions.csv` |
 | δ | `delta_cwb` | coefficient on CWB in the BACI ANCOVA, the centred cumulativ | `10a_03_baci_timeseries.csv`, `10h_04_baci_timeseries.csv`, `10k_01_four_zone_results.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` … |
-| δ | `delta_cwb_zone_interaction` | zone x CWB interaction coefficient in the two-zone scrape pa | `09f_01_reach_profile.csv`, `10b_spatial_step_data.csv`, `10f_01_ssm_residual_results.csv`, `10f_02_synthetic_control_results.csv`, `10g_03_clearfell_transect_steps.csv`, `10k_01_four_zone_results.csv` … |
+| δ | `delta_cwb_zone_interaction` | zone x CWB interaction coefficient in the two-zone scrape pa | `07_05_clusters_vs_covariates.csv`, `09f_01_reach_profile.csv`, `10b_spatial_step_data.csv`, `10f_01_ssm_residual_results.csv`, `10f_02_synthetic_control_results.csv`, `10g_03_clearfell_transect_steps.csv` … |
 | ε | `epsilon_resid` | the residual (error) term of the BACI ANCOVA and of the two- | `16_water_bal_table.csv`, `20_residual_perwell.csv`, `24b_01_cluster_climatology.csv`, `26_ewi_msl5_comparison.csv`, `26_table_s7_2_vw_datum_offsets.csv`, `37_driver_validation_per_well.csv` … |
 | η | `eta_interaction` | CWB x D_fell interaction coefficient in the BACI ANCOVA (rep | `10k_01_four_zone_results.csv` |
 | λ | `lambda_pflood` | rainfall multiplier in the P_flood calculation | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_03_pflood_per_well.csv`, `11b_05_table10_pflood_spreadsheet.csv` |

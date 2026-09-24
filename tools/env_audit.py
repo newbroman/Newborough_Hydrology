@@ -53,7 +53,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-26.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-24. pastas joins LIBRARIES (Script 48).
+# 1.0.0  # Hollingham (2026) — 2026-08-26.
 
 import argparse
 import getpass
@@ -97,7 +98,9 @@ EXTERNALS = {
 # recorded a false "absent" in the first reference written on 2026-08-26.
 LIBRARIES = ["numpy", "pandas", "scipy", "statsmodels", "matplotlib",
              "sklearn", "geopandas", "shapely", "pyproj", "odf", "cairosvg",
-             "rasterio", "contextily", "adjustText"]
+             "rasterio", "contextily", "adjustText", "pastas"]
+# pastas added 2026-09-24: Script 48 fits it at every reference well, so its
+# version moves the cross-check numbers. Re-record after installing it.
 # adjustText added 2026-08-29: the figure scripts import it, so a version change
 # moves label placement in five maps, and it was outside the comparison. The
 # record's key for the ODF reader was "odfpy" while this list probes "odf", so

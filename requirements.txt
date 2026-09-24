@@ -63,10 +63,12 @@ matplotlib==3.10.9
 mercantile==1.2.1
 narwhals==2.22.1
 networkx==3.6.1
+numba==0.67.0
 numpy==2.4.6
 odfpy==1.4.1
 packaging==26.2
 pandas==3.0.3
+pastas==2.0.0
 patsy==1.0.2
 pillow==12.2.0
 pyogrio==0.12.1
@@ -83,5 +85,6 @@ six==1.17.0
 statsmodels==0.14.6
 threadpoolctl==3.6.0
 tifffile==2026.6.1
+tqdm==4.70.1
 urllib3==2.7.0
 xyzservices==2026.3.0

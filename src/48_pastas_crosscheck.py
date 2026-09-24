@@ -29,7 +29,9 @@ INPUTS — all committed
   01_wells_all.csv ................. monthly levels, m relative to ground
   01_climate.csv ................... monthly P_m and PET, m/month
   03_master_data.csv ............... the 66 reference wells: cluster, Model A beta
-  03_16_model_b_persistence.csv .... the per-well Model B rows (alpha_B, beta_i_B)
+  03_16_model_b_persistence.csv .... the per-well Model B rows (alpha_B, beta_i_B) and
+                                     their window; the centroid rows for the synthetic wells
+  03_15_per_well_window_sensitivity.csv  Model A per well on the full record
 
 OUTPUTS — outputs/48_pastas_crosscheck/
   48_01_pastas_per_well.csv ........ per well: Pastas (no noise / AR1 noise) gain,
@@ -57,7 +59,14 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-24. Martin: the figure must be portrait,
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-24. Martin: "the C4 well records are longer
+#   than 100 months". Two bases per well: comparison_window (the report's per-well
+#   basis, Model A from 03_master_data and Model B from 03_16) and full_record (Model
+#   A from 03_15, Model B fitted here with fit_ssm_intercept, Pastas on every month).
+#   48_01 is long (well x basis), 48_02 and the report numbers carry both (full-record
+#   keys suffixed _full), the figure shows config.PASTAS_FIGURE_BASIS. On the full
+#   record six of the nine C4 wells identify and the two codes agree there.
+# 1.2.0  # Hollingham (2026) - 2026-09-24. Martin: the figure must be portrait,
 #   and C4's divergence is not the canopy. Per-well identifiability flag: a Pastas
 #   response time longer than PASTAS_IDENT_EFOLD_WINDOW_FRAC of the fitted months,
 #   or with a relative SE above PASTAS_IDENT_MAX_REL_SE, is not identified on the
@@ -92,14 +101,16 @@ from scipy import stats as scipy_stats                        # noqa: E402
 from utils.paths import (                                     # noqa: E402
     DIR_48, OUT_48_PER_WELL, OUT_48_AGREEMENT, OUT_48_SYNTHETIC, OUT_48_FIG, OUT_48_REPORT_NUMBERS,
     INT_WELLS_ALL, INT_CLIMATE, INT_MASTER_DATA, OUT_03_MODEL_B_PERSISTENCE,
+    OUT_03_PER_WELL_WINDOW_SENS,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, DAYS_PER_MONTH, PASTAS_RESPONSE, PASTAS_WARMUP_YEARS,
-    PASTAS_IDENT_EFOLD_WINDOW_FRAC, PASTAS_IDENT_MAX_REL_SE,
-    CLUSTER_LABELS, CLUSTER_COLOURS,
+    PASTAS_IDENT_EFOLD_WINDOW_FRAC, PASTAS_IDENT_MAX_REL_SE, PASTAS_FIGURE_BASIS,
+    HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.data_utils import normalize_well_name              # noqa: E402
+from utils.model_utils import fit_ssm_intercept               # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 from utils.console_utils import (                             # noqa: E402
     banner, done, info, phase, result, saved, step, track, warn,
@@ -126,7 +137,10 @@ def load_inputs():
     mb["_n"] = mb["well"].astype(str).apply(normalize_well_name)
     master["_n"] = master["Name_Original"].astype(str).apply(normalize_well_name)
     lev_cols = {normalize_well_name(c): c for c in lev.columns}
-    return lev, lev_cols, cl, master, mb.set_index("_n"), mb_all
+    ws = pd.read_csv(OUT_03_PER_WELL_WINDOW_SENS)
+    ws = ws[ws["basis"] == "full_record"].copy()
+    ws["_n"] = ws["Name_Original"].astype(str).apply(normalize_well_name)
+    return lev, lev_cols, cl, master, mb.set_index("_n"), mb_all, ws.set_index("_n")
 
 
 def daily_stresses(cl: pd.DataFrame, first_head: pd.Timestamp):
@@ -200,44 +214,65 @@ def fit_pastas(ps, head: pd.Series, P: pd.Series, E: pd.Series, name: str,
     return out
 
 
-def ssm_counterparts(master_row: pd.Series, mb_row: pd.Series | None) -> dict:
-    """Model B (the exact counterpart) and Model A (datum-conditional) in the four
-    Pastas quantities. efold uses the exact discrete-to-continuous conversion
-    -1/ln(1 - beta_3); 1/beta_3 is emitted beside it for the documents that quote it."""
-    out = {}
-    b1, b2, b3 = (float(master_row["beta_1_recharge"]),
-                  float(master_row["beta_2_atmospheric_draw"]),
-                  float(master_row["beta_3_drainage"]))
-    out.update({
-        "ssmA_beta_1_recharge": b1, "ssmA_beta_2_atmospheric_draw": b2, "ssmA_beta_3_drainage": b3,
-        "ssmA_gain": b1 / b3 if b3 > 0 else np.nan,
-        "ssmA_efold_months": -1.0 / np.log1p(-b3) if 0 < b3 < 1 else np.nan,
-        "ssmA_inv_beta3_months": 1.0 / b3 if b3 > 0 else np.nan,
-        "ssmA_f_evap": -b2 / b1 if b1 != 0 else np.nan,
-        "ssmA_base_level_m": -float(DRAINAGE_DATUM),
-        "ssmA_R2": float(master_row.get("Model_R2", np.nan)),
-    })
+def _betas_to_quantities(prefix: str, b1: float, b2: float, b3: float, base: float, r2: float) -> dict:
+    """The four Pastas quantities from three SSM coefficients and a base level.
+    efold uses the exact discrete-to-continuous conversion -1/ln(1 - beta_3);
+    1/beta_3 is emitted beside it for the documents that quote it."""
+    return {
+        f"{prefix}_beta_1_recharge": b1, f"{prefix}_beta_2_atmospheric_draw": b2, f"{prefix}_beta_3_drainage": b3,
+        f"{prefix}_gain": b1 / b3 if b3 > 0 else np.nan,
+        f"{prefix}_efold_months": -1.0 / np.log1p(-b3) if 0 < b3 < 1 else np.nan,
+        f"{prefix}_inv_beta3_months": 1.0 / b3 if b3 > 0 else np.nan,
+        f"{prefix}_f_evap": -b2 / b1 if b1 != 0 else np.nan,
+        f"{prefix}_base_level_m": base,
+        f"{prefix}_R2": r2,
+    }
+
+
+def ssm_counterparts_window(master_row: pd.Series, mb_row: pd.Series | None) -> dict:
+    """Comparison-window basis: Model A from 03_master_data, Model B from 03_16."""
+    out = _betas_to_quantities("ssmA", float(master_row["beta_1_recharge"]),
+                               float(master_row["beta_2_atmospheric_draw"]),
+                               float(master_row["beta_3_drainage"]), -float(DRAINAGE_DATUM),
+                               float(master_row.get("Model_R2", np.nan)))
     if mb_row is None:
-        out.update({k: np.nan for k in ("ssmB_beta_1_recharge", "ssmB_beta_2_atmospheric_draw", "ssmB_beta_3_drainage",
-                                        "ssmB_gain", "ssmB_efold_months", "ssmB_inv_beta3_months",
-                                        "ssmB_f_evap", "ssmB_base_level_m", "ssmB_R2")})
+        out.update({k: np.nan for k in _betas_to_quantities("ssmB", 1, 1, 0.5, 0, 0)})
         return out
     a, c1, c2, c3 = (float(mb_row["alpha_B"]), float(mb_row["beta_1_B"]),
                      float(mb_row["beta_2_B"]), float(mb_row["beta_3_B"]))
     z0 = float(mb_row["drainage_datum_m"])
-    out.update({
-        "ssmB_beta_1_recharge": c1, "ssmB_beta_2_atmospheric_draw": c2, "ssmB_beta_3_drainage": c3,
-        "ssmB_gain": c1 / c3 if c3 > 0 else np.nan,
-        "ssmB_efold_months": -1.0 / np.log1p(-c3) if 0 < c3 < 1 else np.nan,
-        "ssmB_inv_beta3_months": 1.0 / c3 if c3 > 0 else np.nan,
-        "ssmB_f_evap": -c2 / c1 if c1 != 0 else np.nan,
-        "ssmB_base_level_m": -(z0 - a / c3) if c3 > 0 else np.nan,
-        "ssmB_R2": float(mb_row["R2_B"]),
-    })
+    out.update(_betas_to_quantities("ssmB", c1, c2, c3, -(z0 - a / c3) if c3 > 0 else np.nan,
+                                    float(mb_row["R2_B"])))
     return out
 
 
-def per_well_table(ps, lev, lev_cols, cl, master, mb, P, E) -> pd.DataFrame:
+def ssm_counterparts_full(ws_row: pd.Series | None, head_full: pd.Series, cl: pd.DataFrame) -> dict:
+    """Full-record basis: Model A from 03_15 (basis == full_record), Model B fitted
+    here on the full record with the shared fit_ssm_intercept (Script 03 emits Model B
+    per well on the comparison window only)."""
+    if ws_row is None:
+        out = {k: np.nan for k in _betas_to_quantities("ssmA", 1, 1, 0.5, 0, 0)}
+    else:
+        out = _betas_to_quantities("ssmA", float(ws_row["beta_1_recharge"]),
+                                   float(ws_row["beta_2_atmospheric_draw"]),
+                                   float(ws_row["beta_3_drainage"]), -float(DRAINAGE_DATUM),
+                                   float(ws_row["R2"]))
+    fb = fit_ssm_intercept(head_full, cl, lag=HEADLINE_LAG, window=None)
+    if fb is None:
+        out.update({k: np.nan for k in _betas_to_quantities("ssmB", 1, 1, 0.5, 0, 0)})
+        return out
+    a, c1, c2, c3 = (float(fb["alpha"]), float(fb["beta_1_recharge"]),
+                     float(fb["beta_2_atmospheric_draw"]), float(fb["beta_3_drainage"]))
+    out.update(_betas_to_quantities("ssmB", c1, c2, c3,
+                                    -(float(DRAINAGE_DATUM) - a / c3) if c3 > 0 else np.nan,
+                                    float(fb.get("R2", np.nan))))
+    return out
+
+
+def per_well_table(ps, lev, lev_cols, cl, master, mb, ws, P, E) -> pd.DataFrame:
+    """One row per well and basis. comparison_window: the months Script 03's per-well
+    fits used (tmin/tmax from 03_16), the report's per-well basis. full_record: every
+    month of the well, the basis on which a slow response can be identified."""
     wells = master.sort_values("Name_Original")
     rows = []
     for w in track(wells.to_dict("records"), lambda r: r["Name_Original"]):
@@ -245,32 +280,37 @@ def per_well_table(ps, lev, lev_cols, cl, master, mb, P, E) -> pd.DataFrame:
         if n not in lev_cols:
             warn(f"{w['Name_Original']}: no level column — skipped")
             continue
-        head = lev[lev_cols[n]].dropna().copy()
+        head_raw = lev[lev_cols[n]].dropna().copy()
+        head = head_raw.copy()
         head.index = head.index + pd.offsets.MonthEnd(0)     # the reading is the end-of-month level
-        row = {"well": w["Name_Original"], "Cluster": int(w["Cluster"]),
-               "Cluster_Label": CLUSTER_LABELS.get(int(w["Cluster"]), f"C{int(w['Cluster'])}")}
-        # The window Script 03 fitted this well's Model A and Model B on (the
-        # comparison window, n = LCSC_DATA_LIMIT): Pastas sees the same months.
-        tmin = tmax = None
+        base = {"well": w["Name_Original"], "Cluster": int(w["Cluster"]),
+                "Cluster_Label": CLUSTER_LABELS.get(int(w["Cluster"]), f"C{int(w['Cluster'])}")}
+        bases = []
         if n in mb.index:
             tmin = pd.Timestamp(str(mb.loc[n, "fit_start"])) + pd.offsets.MonthEnd(0)
             tmax = pd.Timestamp(str(mb.loc[n, "fit_end"])) + pd.offsets.MonthEnd(0)
-            row.update({"fit_basis": str(mb.loc[n, "fit_basis"]),
-                        "fit_start": str(mb.loc[n, "fit_start"]), "fit_end": str(mb.loc[n, "fit_end"])})
-        for fit, noise in (("pastas", False), ("pastas_ar1", True)):
-            try:
-                r = fit_pastas(ps, head, P, E, f"{w['Name_Original']}_{fit}", noise, tmin, tmax)
-            except Exception as exc:                          # noqa: BLE001 — one well must not stop the table
-                warn(f"{w['Name_Original']} {fit}: {exc}")
-                r = {}
-            row.update({f"{fit}_{k}": v for k, v in r.items()})
-        row.update(ssm_counterparts(pd.Series(w), mb.loc[n] if n in mb.index else None))
-        rows.append(row)
+            bases.append(("comparison_window", tmin, tmax,
+                          {"fit_start": str(mb.loc[n, "fit_start"]), "fit_end": str(mb.loc[n, "fit_end"])},
+                          ssm_counterparts_window(pd.Series(w), mb.loc[n])))
+        bases.append(("full_record", None, None,
+                      {"fit_start": head_raw.index.min().strftime("%Y-%m"), "fit_end": head_raw.index.max().strftime("%Y-%m")},
+                      ssm_counterparts_full(ws.loc[n] if n in ws.index else None, head_raw, cl)))
+        for basis, tmin, tmax, span, ssm in bases:
+            row = dict(base); row["basis"] = basis; row.update(span)
+            for fit, noise in (("pastas", False), ("pastas_ar1", True)):
+                try:
+                    r = fit_pastas(ps, head, P, E, f"{w['Name_Original']}_{basis}_{fit}", noise, tmin, tmax)
+                except Exception as exc:                      # noqa: BLE001 — one well must not stop the table
+                    warn(f"{w['Name_Original']} {basis} {fit}: {exc}")
+                    r = {}
+                row.update({f"{fit}_{k}": v for k, v in r.items()})
+            row.update(ssm)
+            rows.append(row)
     df = pd.DataFrame(rows)
-    # Identifiability on this window: a response time longer than
-    # PASTAS_IDENT_EFOLD_WINDOW_FRAC of the fitted months never contains a full
-    # recession, and gain, response time and base level then trade off; the
-    # relative standard error on the response time is the other symptom.
+    # Identifiability on the fitted months: a response time longer than
+    # PASTAS_IDENT_EFOLD_WINDOW_FRAC of them never contains a full recession, and
+    # gain, response time and base level then trade off; the relative standard
+    # error on the response time is the other symptom.
     n_win = df["pastas_ar1_n_obs"]
     rel_se = df["pastas_ar1_efold_months_se"] / df["pastas_ar1_efold_months"]
     df["identified"] = ((df["pastas_ar1_efold_months"] <= PASTAS_IDENT_EFOLD_WINDOW_FRAC * n_win)
@@ -321,7 +361,14 @@ def synthetic_recovery(ps, cl: pd.DataFrame, mb_all: pd.DataFrame, P: pd.Series,
 # ──────────────────────────────────────────────────────────────────────────────
 # Agreement
 # ──────────────────────────────────────────────────────────────────────────────
-def agreement(df: pd.DataFrame) -> pd.DataFrame:
+def agreement(df_all: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    for basis, df in df_all.groupby("basis"):
+        rows.extend(_agreement_one(df, basis))
+    return pd.DataFrame(rows)
+
+
+def _agreement_one(df: pd.DataFrame, basis: str) -> list:
     rows = []
     groups = ([("all", df), ("identified", df[df["identified"]])]
               + [(f"C{c}", g) for c, g in df.groupby("Cluster")])
@@ -339,7 +386,7 @@ def agreement(df: pd.DataFrame) -> pd.DataFrame:
                     constant = np.nanstd(x) < 1e-9 * max(1.0, abs(np.nanmean(x))) or np.nanstd(y) < 1e-9 * max(1.0, abs(np.nanmean(y)))
                     ratio = y / x if q != "base_level_m" else np.full(len(x), np.nan)
                     rows.append({
-                        "fit": fit, "ssm_model": model, "quantity": q, "group": label, "n": len(d),
+                        "basis": basis, "fit": fit, "ssm_model": model, "quantity": q, "group": label, "n": len(d),
                         "pearson_r": np.nan if constant else float(np.corrcoef(x, y)[0, 1]),
                         "spearman_rho": np.nan if constant else float(scipy_stats.spearmanr(x, y).correlation),
                         "median_ratio_pastas_over_ssm": float(np.nanmedian(ratio)) if np.isfinite(ratio).any() else np.nan,
@@ -348,13 +395,13 @@ def agreement(df: pd.DataFrame) -> pd.DataFrame:
                         "median_difference": float(np.median(y - x)),
                         "rmse": float(np.sqrt(np.mean((y - x) ** 2))),
                     })
-    return pd.DataFrame(rows)
+    return rows
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Figure
 # ──────────────────────────────────────────────────────────────────────────────
-def plot(df: pd.DataFrame, agree: pd.DataFrame) -> None:
+def plot(df_all: pd.DataFrame, agree_all: pd.DataFrame) -> None:
     """Portrait, 4 x 2, at the report's 15.8 cm text width: the SSM's coefficients
     (top three panels), Pastas's native four, and the legend cell. Filled =
     Model B, hollow = Model A; a well not identified on the window is crossed."""
@@ -370,6 +417,8 @@ def plot(df: pd.DataFrame, agree: pd.DataFrame) -> None:
               "f_evap": "evaporation factor f = −β₂/β₁",
               "base_level_m": "base level (m, 0 = ground)"}
     logscale = {"beta_3_drainage", "gain", "efold_months"}
+    df = df_all[df_all["basis"] == PASTAS_FIGURE_BASIS]
+    agree = agree_all[agree_all["basis"] == PASTAS_FIGURE_BASIS]
     fig, axes = plt.subplots(4, 2, figsize=(7.5, 13.5), dpi=160)
     flat = axes.ravel()
     panels = list(zip(flat[:7], QUANTITIES))
@@ -411,7 +460,7 @@ def plot(df: pd.DataFrame, agree: pd.DataFrame) -> None:
                         "Top: the SSM's coefficients, from\nPastas's parameters (β₃ = 1 − e^(−1/a),\nβ₁ = gain·β₃, β₂ = −f·β₁).\n"
                         "Bottom: Pastas's own parameters.\nDashed: 1:1. Model A's β₃ carries the\ndatum; Model B is the exact counterpart.",
             fontsize=7, va="top", transform=ax.transAxes)
-    fig.suptitle("The per-well SSM against Pastas on the same monthly record", fontsize=10)
+    fig.suptitle(f"The per-well SSM against Pastas on the same monthly record ({PASTAS_FIGURE_BASIS.replace('_', ' ')})", fontsize=10)
     fig.tight_layout()
     fig.savefig(OUT_48_FIG, dpi=160)
     plt.close(fig)
@@ -431,7 +480,7 @@ def main(no_fig: bool = False) -> int:
     DIR_48.mkdir(parents=True, exist_ok=True)
 
     phase(1, "Inputs: the monthly record, the climate, Model A and Model B")
-    lev, lev_cols, cl, master, mb, mb_all = load_inputs()
+    lev, lev_cols, cl, master, mb, mb_all, ws = load_inputs()
     info(f"{len(master)} reference wells; Model B rows for {master['_n'].isin(mb.index).sum()}; "
          f"Pastas {ps.__version__}, response {PASTAS_RESPONSE}")
     first = min(lev[lev_cols[n]].dropna().index.min() for n in master["_n"] if n in lev_cols)
@@ -449,22 +498,24 @@ def main(no_fig: bool = False) -> int:
              f"f {r['ratio_f_evap']:.3f}, base {r['diff_base_level_m']:+.3f} m (R² {r['pastas_R2']:.4f})")
 
     phase(3, "Pastas at each well, without and with the AR(1) noise model")
-    df = per_well_table(ps, lev, lev_cols, cl, master, mb, P, E)
+    df = per_well_table(ps, lev, lev_cols, cl, master, mb, ws, P, E)
     df.to_csv(OUT_48_PER_WELL, index=False)
     saved(f"{OUT_48_PER_WELL.name} ({len(df)} wells)")
 
-    info(f"{int(df['identified'].sum())} of {len(df)} wells identified on the window; not identified: "
-         + ", ".join(df.loc[~df["identified"], "well"].astype(str)))
+    for basis, g in df.groupby("basis"):
+        info(f"{basis}: {int(g['identified'].sum())} of {len(g)} wells identified; not identified: "
+             + (", ".join(g.loc[~g["identified"], "well"].astype(str)) or "none"))
 
     phase(4, "Agreement")
     agree = agreement(df)
     agree.to_csv(OUT_48_AGREEMENT, index=False)
     saved(f"{OUT_48_AGREEMENT.name} ({len(agree)} rows)")
-    for q in QUANTITIES:
-        a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == "ssmB") & (agree.quantity == q) & (agree.group == "all")]
+    for basis in df["basis"].unique():
+      for q in QUANTITIES:
+        a = agree[(agree.basis == basis) & (agree.fit == "pastas_ar1") & (agree.ssm_model == "ssmB") & (agree.quantity == q) & (agree.group == "identified")]
         if len(a):
             r = a.iloc[0]
-            step(f"{q:24s} Pastas(AR1) vs Model B: r = {r.pearson_r:+.3f}, ρ = {r.spearman_rho:+.3f}, "
+            step(f"{basis:18s} {q:24s} identified, Pastas(AR1) vs Model B: r = {r.pearson_r:+.3f}, ρ = {r.spearman_rho:+.3f}, "
                  + (f"median ratio {r.median_ratio_pastas_over_ssm:.3f} [{r.ratio_p16:.2f}, {r.ratio_p84:.2f}]"
                     if q != "base_level_m" else f"median difference {r.median_difference:+.3f} m")
                  + f", n = {int(r.n)}")
@@ -472,30 +523,33 @@ def main(no_fig: bool = False) -> int:
     phase(5, "Report numbers")
     rr = ReportNumbers()
     rr.add("pastas_version", ps.__version__, unit="", note="Pastas release the cross-check ran on")
-    rr.add("pastas_n_wells", int(df["pastas_ar1_gain"].notna().sum()), unit="wells",
+    rr.add("pastas_n_wells", int(df["well"].nunique()), unit="wells",
            note="reference wells with a converged Pastas AR(1) fit")
-    rr.add("pastas_n_identified", int(df["identified"].sum()), unit="wells",
-           note=f"wells whose response time is identified on the window (e-fold <= {PASTAS_IDENT_EFOLD_WINDOW_FRAC} x n and relative SE <= {PASTAS_IDENT_MAX_REL_SE})")
-    for c, g in df.groupby("Cluster_Label"):
-        rr.add(f"pastas_n_not_identified_{g['Cluster'].iloc[0]}", int((~g["identified"]).sum()), unit="wells",
-               note=f"{c}: wells not identified on the window (of {len(g)})")
-    for grp, suffix in (("all", ""), ("identified", "_identified")):
+    for basis, g in df.groupby("basis"):
+        rr.add(f"pastas_n_identified_{basis}", int(g["identified"].sum()), unit="wells",
+               note=f"{basis}: wells whose response time is identified on the fitted months (e-fold <= {PASTAS_IDENT_EFOLD_WINDOW_FRAC} x n and relative SE <= {PASTAS_IDENT_MAX_REL_SE})")
+        for c, gc in g.groupby("Cluster_Label"):
+            rr.add(f"pastas_n_not_identified_C{gc['Cluster'].iloc[0]}_{basis}", int((~gc["identified"]).sum()), unit="wells",
+                   note=f"{basis}, {c}: wells not identified (of {len(gc)})")
+    for basis in df["basis"].unique():
+      bsuf = "" if basis == "comparison_window" else "_full"
+      for grp, suffix in (("all", ""), ("identified", "_identified")):
         for q in QUANTITIES:
             for model in ("ssmB", "ssmA"):
-                a = agree[(agree.fit == "pastas_ar1") & (agree.ssm_model == model) & (agree.quantity == q) & (agree.group == grp)]
+                a = agree[(agree.basis == basis) & (agree.fit == "pastas_ar1") & (agree.ssm_model == model) & (agree.quantity == q) & (agree.group == grp)]
                 if not len(a):
                     continue
                 r = a.iloc[0]
-                rr.add(f"pastas_vs_{model}_{q}_r{suffix}", r.pearson_r, unit="",
-                       note=f"Pearson r, Pastas (AR1 noise) {q} against SSM {model} at n = {int(r.n)} wells ({grp})")
-                rr.add(f"pastas_vs_{model}_{q}_rho{suffix}", r.spearman_rho, unit="",
-                       note=f"Spearman rho, Pastas (AR1 noise) {q} against SSM {model} at n = {int(r.n)} wells ({grp})")
+                rr.add(f"pastas_vs_{model}_{q}_r{suffix}{bsuf}", r.pearson_r, unit="",
+                       note=f"Pearson r, Pastas (AR1 noise) {q} against SSM {model} at n = {int(r.n)} wells ({grp}, {basis})")
+                rr.add(f"pastas_vs_{model}_{q}_rho{suffix}{bsuf}", r.spearman_rho, unit="",
+                       note=f"Spearman rho, Pastas (AR1 noise) {q} against SSM {model} at n = {int(r.n)} wells ({grp}, {basis})")
                 if q != "base_level_m":
-                    rr.add(f"pastas_vs_{model}_{q}_median_ratio{suffix}", r.median_ratio_pastas_over_ssm, unit="",
-                           note=f"median Pastas:{model} ratio of {q} (p16 {r.ratio_p16:.3f}, p84 {r.ratio_p84:.3f}; {grp})")
+                    rr.add(f"pastas_vs_{model}_{q}_median_ratio{suffix}{bsuf}", r.median_ratio_pastas_over_ssm, unit="",
+                           note=f"median Pastas:{model} ratio of {q} (p16 {r.ratio_p16:.3f}, p84 {r.ratio_p84:.3f}; {grp}, {basis})")
                 else:
-                    rr.add(f"pastas_vs_{model}_{q}_median_diff{suffix}", r.median_difference, unit="m",
-                           note=f"median Pastas minus {model} base level ({grp})")
+                    rr.add(f"pastas_vs_{model}_{q}_median_diff{suffix}{bsuf}", r.median_difference, unit="m",
+                           note=f"median Pastas minus {model} base level ({grp}, {basis})")
     for q in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "gain", "efold_months", "f_evap"):
         rr.add(f"pastas_synthetic_{q}_ratio_median", float(syn[f"ratio_{q}"].median()), unit="",
                note=f"median over the five synthetic centroid wells of Pastas-recovered / generating {q}: the unit conversion check")

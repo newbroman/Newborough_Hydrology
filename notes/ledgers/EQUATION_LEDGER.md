@@ -15,7 +15,7 @@ the next time the formula is opened. Both, or neither.
 - **Objects:** 87 across 2 document(s)
 - **MathML/StarMath drift:** 0
 - **No StarMath annotation:** 0
-- **Carrying a displaced glyph:** 17
+- **Carrying a displaced glyph:** 20
 - **Spelling a glyph with a variant codepoint:** 8
 
 ## Carrying a glyph the register says must yield
@@ -28,21 +28,24 @@ asserts without changing anything a proof-reader would notice.
 |---|---|---|---|
 | report_edits/odt/report8.odt | Object 2 | α | `{PET} rsub {unadj} = 16 × {left ({10 T} over {I} right )} ^ {α}` |
 | report_edits/odt/report8.odt | Object 3 | α | `α = 6.75 × {10} ^ {− 7} {I} ^ {3} − 7.71 × {10} ^ {− 5} {I} ^ {2} + 1.792 × {10} ^ {− 2} I + 0.49239` |
+| report_edits/odt/report8.odt | Object 5 | d | `PET = {PET} rsub {unadj} × K , "where" K = left ({N} over {12} right ) × left ({d} over {30} right )` |
+| report_edits/odt/report8.odt | Object 6 | d | `{d} rsub {i , j}` |
+| report_edits/odt/report8.odt | Object 7 | d | `{d} rsub {i , j} = 1 − {r} rsub {i , j}` |
 | report_edits/odt/report8.odt | Object 20 | c | `Δ {h} rsub {t} = {β} rsub {1} ⋅ {P} rsub {t} − {β} rsub {2} ⋅ {PET} rsub {t} + c` |
 | report_edits/odt/report8.odt | Object 32 | D | `{D} rsub {residual} = Δ {h} rsub {t} − {β} rsub {1} ⋅ {P} rsub {t} − {β} rsub {2} ⋅ left (− {PET} rsub {t} rig…` |
 | report_edits/odt/report8.odt | Object 33 | D c | `{D} rsub {residual} = − {β} rsub {3} ⋅ left (− {h} rsub {disp , t − 1} right ) + c + ϵ` |
-| report_edits/odt/report8.odt | Object 34 | D α δ | `{BACI} rsub {gap} = α + {%delta} rsub {cwb} ⋅ CWB + %sigma ⋅ {D} rsub {scrape} left (t right ) + %phi ⋅ {D} rs…` |
-| report_edits/odt/report8.odt | Object 35 | α δ | `{h} rsub {"it"} = α + {%delta} rsub {F} ⋅ {CWB} rsub {t}` |
+| report_edits/odt/report8.odt | Object 34 | D α δ | `{BACI} rsub {gap} = {α} rsub {B} + {%delta} rsub {cwb} ⋅ CWB + %sigma ⋅ {D} rsub {scrape} left (t right ) + %p…` |
+| report_edits/odt/report8.odt | Object 35 | α δ | `{h} rsub {"it"} = {α} rsub {B} + {%delta} rsub {F} ⋅ {CWB} rsub {t}` |
 | report_edits/odt/report8.odt | Object 36 | δ | `stack { + {δ} rsub {W} ⋅ {CWB} rsub {t} ⋅ {Warren} rsub {i} + {δ} rsub {E} ⋅ {CWB} rsub {t} ⋅ {Edge} rsub {i} …` |
-| report_edits/odt/report8.odt | Object 42 | D α | `gap = %alpha + %phi ⋅ {D} rsub {fell} + %sigma ⋅ {D} rsub {scrape} + {u} rsub {well} + ϵ` |
+| report_edits/odt/report8.odt | Object 42 | D α | `gap = {%alpha} rsub {B} + %phi ⋅ {D} rsub {fell} + %sigma ⋅ {D} rsub {scrape} + {u} rsub {well} + ϵ` |
 | report_edits/odt/report8.odt | Object 44 | c | `{h} rsub {peak} = a ⋅ {P} rsub {winter} + b ⋅ {h} rsub {min} + c` |
 | report_edits/odt/report8.odt | Object 45 | c | `{h} rsub {min} = a ⋅ {P} rsub {summer} + b ⋅ {h} rsub {max , winter} + c` |
-| report_edits/odt/report8.odt | Object 53 | L c δ | `δ left (d right ) = max left ({δ} rsub {0} ⋅ left (1 − {d} / {{L} rsub {cg}} right ) , 0 right ) + {c} rsub {f…` |
-| report_edits/odt/report8.odt | Object 54 | L c δ | `δ left (d right ) = {δ} rsub {0} ⋅ exp left ({− d} / {{L} rsub {cg}} right ) + {c} rsub {far}` |
+| report_edits/odt/report8.odt | Object 53 | L c d δ | `δ left (d right ) = max left ({δ} rsub {0} ⋅ left (1 − {d} / {{L} rsub {cg}} right ) , 0 right ) + {c} rsub {f…` |
+| report_edits/odt/report8.odt | Object 54 | L c d δ | `δ left (d right ) = {δ} rsub {0} ⋅ exp left ({− d} / {{L} rsub {cg}} right ) + {c} rsub {far}` |
 | report_edits/odt/report8.odt | Object 55 | c α | `{MSL} rsub {y} = {α} rsub {W} ⋅ {h} rsub {max , winter} + b ⋅ {P} rsub {win − spr} + γ ⋅ {PET} rsub {win − spr…` |
 | report_edits/odt/report8.odt | Object 60 | c | `c` |
 | report_edits/odt/report8.odt | Object 71 | α | `{α} rsub {B} = left ({β} rsub {2} ⋅ overline {PET} + {β} rsub {3} ⋅ overline {{h} rsub {disp}} right ) − {β} r…` |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_12.odt | Object 5 | α δ | `{t} rsub {ij}   =   δ left ({d} rsub {i} right ) + {α} rsub {i} + {α} rsub {j} + γ ⋅ {W} rsub {ij} + {ϵ} rsub …` |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_21.odt | Object 5 | d α δ | `{t} rsub {ij}   =   δ left ({d} rsub {i} right ) + {α} rsub {i} + {α} rsub {j} + γ ⋅ {W} rsub {ij} + {ϵ} rsub …` |
 
 ## Variant codepoints — the same letter, spelled twice
 
@@ -62,12 +65,12 @@ equations sat outside the symbol register with neither side noticing.
 | report_edits/odt/report8.odt | Object 41 | ϵ U+03F5 | ε U+03B5 |
 | report_edits/odt/report8.odt | Object 42 | ϕ U+03D5 | φ U+03C6 |
 | report_edits/odt/report8.odt | Object 42 | ϵ U+03F5 | ε U+03B5 |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_12.odt | Object 4 | ϵ U+03F5 | ε U+03B5 |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_12.odt | Object 5 | ϵ U+03F5 | ε U+03B5 |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_21.odt | Object 4 | ϵ U+03F5 | ε U+03B5 |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_21.odt | Object 5 | ϵ U+03F5 | ε U+03B5 |
 
 ## Inventory
 
-### docs/papers/paper_1/PAPER1_SI_methods_v1_12.odt
+### docs/papers/paper_1/PAPER1_SI_methods_v1_21.odt
 
 | object | glyphs | StarMath |
 |---|---|---|
@@ -114,15 +117,15 @@ equations sat outside the symbol register with neither side noticing.
 | Object 31 | — | `{"Net Benefit"} rsub {E 1 → E 2} = left ({μ} rsub {I , E 2} − {μ} rsub {{C} rsub {"local"} , E 2} right ) − left ({μ} rsub {I , E 1} − {μ} rsub {{C} r…` |
 | Object 32 | D | `{D} rsub {residual} = Δ {h} rsub {t} − {β} rsub {1} ⋅ {P} rsub {t} − {β} rsub {2} ⋅ left (− {PET} rsub {t} right )` |
 | Object 33 | D c ε | `{D} rsub {residual} = − {β} rsub {3} ⋅ left (− {h} rsub {disp , t − 1} right ) + c + ϵ` |
-| Object 34 | D α δ ε η σ φ ψ | `{BACI} rsub {gap} = α + {%delta} rsub {cwb} ⋅ CWB + %sigma ⋅ {D} rsub {scrape} left (t right ) + %phi ⋅ {D} rsub {fell} left (t right ) + %eta ⋅ left …` |
-| Object 35 | α δ | `{h} rsub {"it"} = α + {%delta} rsub {F} ⋅ {CWB} rsub {t}` |
+| Object 34 | D α δ ε η ξ σ φ | `{BACI} rsub {gap} = {α} rsub {B} + {%delta} rsub {cwb} ⋅ CWB + %sigma ⋅ {D} rsub {scrape} left (t right ) + %phi ⋅ {D} rsub {fell} left (t right ) + %…` |
+| Object 35 | α δ | `{h} rsub {"it"} = {α} rsub {B} + {%delta} rsub {F} ⋅ {CWB} rsub {t}` |
 | Object 36 | δ | `stack { + {δ} rsub {W} ⋅ {CWB} rsub {t} ⋅ {Warren} rsub {i} + {δ} rsub {E} ⋅ {CWB} rsub {t} ⋅ {Edge} rsub {i} + {δ} rsub {I} ⋅ {CWB} rsub {t} ⋅ {Impac…` |
 | Object 37 | σ | `stack { + {%sigma} rsub {F} ⋅ {Scr} rsub {t} }` |
 | Object 38 | σ | `stack { + {σ} rsub {W} ⋅ {Scr} rsub {t} ⋅ {Warren} rsub {i} + {σ} rsub {E} ⋅ {Scr} rsub {t} ⋅ {Edge} rsub {i} + {σ} rsub {I} ⋅ {Scr} rsub {t} ⋅ {Impac…` |
 | Object 39 | φ | `stack { + {ϕ} rsub {W} ⋅ {Post} rsub {t} ⋅ {Warren} rsub {i} + {ϕ} rsub {E} ⋅ {Post} rsub {t} ⋅ {Edge} rsub {i} + {ϕ} rsub {I} ⋅ {Post} rsub {t} ⋅ {Im…` |
 | Object 40 | φ | `stack { + {ϕ} rsub {F} ⋅ {Post} rsub {t} }` |
 | Object 41 | ε ψ | `+ ψ ⋅ left ({Easting} rsub {i} × {Time} rsub {t} right ) + {μ} rsub {i} + {ϵ} rsub {"it"}` |
-| Object 42 | D α ε σ φ | `gap = %alpha + %phi ⋅ {D} rsub {fell} + %sigma ⋅ {D} rsub {scrape} + {u} rsub {well} + ϵ` |
+| Object 42 | D α ε σ φ | `gap = {%alpha} rsub {B} + %phi ⋅ {D} rsub {fell} + %sigma ⋅ {D} rsub {scrape} + {u} rsub {well} + ϵ` |
 | Object 43 | — | `Δ {h} rsub {predicted} = Δ {β} rsub {1} ⋅ bar {{P} rsub {after}} − Δ {β} rsub {2} ⋅ bar {{PET} rsub {after}} − Δ {β} rsub {3} ⋅ bar {{h} rsub {disp , …` |
 | Object 44 | c | `{h} rsub {peak} = a ⋅ {P} rsub {winter} + b ⋅ {h} rsub {min} + c` |
 | Object 45 | c | `{h} rsub {min} = a ⋅ {P} rsub {summer} + b ⋅ {h} rsub {max , winter} + c` |

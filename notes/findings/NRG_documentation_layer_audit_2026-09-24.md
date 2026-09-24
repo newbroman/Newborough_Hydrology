@@ -81,6 +81,48 @@ pass of its kind (the first was `NRG_critique_audit_sweep_2026-09-20.md`, over t
 corpus); the same sweep over the ungated layer is worth repeating when a rename or a
 tool move lands, not on a calendar.
 
+## The ledgers, audited (Martin: "which are retired, which aren't")
+
+Read from each file's own banner, its last commit and the `check_all` line that checks it.
+
+| Ledger | State | Built by | Gate in check_all |
+|---|---|---|---|
+| `SCRIPT_LEDGER.md` | live, hand-maintained (one row per script, bumped with it) | — | `ledger_lint` (every script listed, versions agree, no orphans) |
+| `NUMBER_LEDGER.md` | live; value columns retired 2026-08-25 (values are `cite_check`'s), keys and collisions remain | `build_number_ledger.py` | `--check` (key collisions) |
+| `FIGURE_LEDGER.md` | live, generated | `build_figure_ledger.py` | `--check` |
+| `PROVENANCE_LEDGER.md` | live, generated (outputs → exhibits, keyed by output file) | `build_provenance_ledger.py` | `--check`; `table_provenance_lint` |
+| `VALUE_REGISTER.md` | live, generated | `build_value_register.py` | `--check` |
+| `VALUE_LEDGER.md` (+ HTML, `_report` pair) | live, generated | `build_value_ledger.py --write` | `--check` |
+| `EQUATION_LEDGER.md` | live, generated — **was stale from 2026-08-27** (16 lines): the one generated ledger with no `--check` | `starmath_log.py --write` | `--check` **added today** (starmath_log 1.2.0, check_all 1.19.0) |
+| `DOC_LEDGER.md` | live, generated | `build_doc_ledger.py` | `--check` |
+| `TABLE_LEDGER.md` | **retired 2026-09-19**, superseded by PROVENANCE_LEDGER; kept with its banner | — | `build_table_ledger.py --check` asserts it stays retired |
+| `DECISION_LOG.md` (in ledgers/) | **retired 2026-08-16**, merged into the private `working/DECISION_LOG.md`; no file remains here | `build_public_decisions.py` generates `DECISIONS_PUBLIC.md` | `--check` (public = generated from private) |
+
+`notes/ledgers/README.md` now says the same.
+
+## The description classes, gated (Martin: "then it needs to be included as a gate")
+
+The note above first said the sweep "is worth repeating when a rename lands". That is a
+wish, not a gate, so the three mechanical classes now are:
+
+- **Counts.** `sync_index_counts` 1.4.0 derives keys from the tree beside the manifest's —
+  `pins`, `ledgers`, `doc_links`, `report_figures`, `report_tables`, `decisions`,
+  `wells_reference` / `wells_extended` / `wells_total`, `wells_dist_coast` — so any of them
+  can sit in a `<!--PL:key-->` marker (CLAUDE.md, readme.md, PIPELINE_README.md and
+  index.html now carry them), and `--check` FAILS on a number-plus-noun claim of ten or
+  more ("nineteen packages", "47 figures", "63 wells") outside a marker on an undated
+  line. A dated count is testimony; an undated one is a claim, and a claim is a marker or
+  an exemption with a reason (`tools/count_claims_exempt.csv`). `--check` runs in
+  `check_all` 1.19.0 — until today the stamp ran only when somebody remembered.
+- **Versions.** `mention_lint` 1.1.0: a version quoted for a tool or script on an undated
+  line must equal the file's `__version__` assignment (or a shell script's `# VERSION`).
+- **Gate claims.** A sentence saying a lint-like tool gates must name one `check_all.sh`
+  runs.
+
+What remains prose: what a tool *does*. That class has no mechanical check and is the
+one the sweep is for; the trigger for the sweep is now the gate that fires (a rename
+trips `mention_lint`), not a calendar.
+
 ## Gates run (bridge)
 
 `mention_lint` OK (170); `sync_index_counts` current in three files;

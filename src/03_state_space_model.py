@@ -86,7 +86,12 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) — 2026-09-23. T-74: the datum sweep
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-24. datum_confound_diagnostics()
+#   emits the datum-frame test to 03_11: each well's R²-max datum as an elevation
+#   regressed on its ground elevation (block datum_vs_elevation: slope, p, r², the
+#   elevation range). report8 §3.4.1 has quoted the slope (+0.864) since the frame
+#   paragraph was written and nothing emitted it. Existing rows unchanged.
+# v1.16.0  # Hollingham (2026) — 2026-09-23. T-74: the datum sweep
 #   summarised per cluster into 03_18_datum_invariance.csv — the AIC-optimal
 #   datum and the cost of DRAINAGE_DATUM against it (ΔR², ΔAIC), β₃ and the
 #   drainage flux at the datum against the deepest swept datum, the shallowest
@@ -1873,6 +1878,9 @@ def datum_confound_diagnostics(optimal_df: pd.DataFrame,
       datum_vs_easting_ctrl  The same slope with mean water-table depth entered
                              as a covariate. Collapse of this term is the
                              result of interest.
+      datum_vs_elevation     OLS slope of the R²-max datum expressed as an
+                             elevation on ground elevation: 0 for a fixed
+                             absolute base, 1 for a surface-following base.
       below_mean_wt          Count of wells whose optimum lies below their own
                              mean water table, with the exception named.
 
@@ -1895,7 +1903,7 @@ def datum_confound_diagnostics(optimal_df: pd.DataFrame,
 
     loc = locs_clean.copy()
     loc["_n"] = loc["Match_ID"].apply(normalize_well_name)
-    opt = opt.merge(loc[["_n", "E"]], on="_n", how="left")
+    opt = opt.merge(loc[["_n", "E", "ground_elev_m"]], on="_n", how="left")
 
     d = opt.dropna(subset=["max_R2_datum", "mean_wt_depth", "E"]).copy()
     if len(d) < 10:
@@ -1927,6 +1935,22 @@ def datum_confound_diagnostics(optimal_df: pd.DataFrame,
          f2.pvalues["mean_wt_depth"], len(d), "p")
     _add("datum_vs_easting_ctrl", "r2", f2.rsquared, len(d), "-")
 
+    # Fixed elevation or surface-following base? Each well's R²-max datum as an
+    # ELEVATION (ground − depth) regressed on its ground elevation: a fixed
+    # absolute base predicts slope 0, a base that follows the surface slope 1.
+    # report8 §3.4.1 quotes this slope; until v1.17.0 it was typed by hand.
+    g = d.dropna(subset=["ground_elev_m"])
+    if len(g) >= 10:
+        f3 = sm.OLS(g["ground_elev_m"] - g["max_R2_datum"],
+                    sm.add_constant(g[["ground_elev_m"]])).fit()
+        _add("datum_vs_elevation", "slope_base_on_ground",
+             f3.params["ground_elev_m"], len(g), "m/m")
+        _add("datum_vs_elevation", "p", f3.pvalues["ground_elev_m"], len(g), "p")
+        _add("datum_vs_elevation", "r2", f3.rsquared, len(g), "-")
+        _add("datum_vs_elevation", "ground_elev_range_m",
+             g["ground_elev_m"].max() - g["ground_elev_m"].min(), len(g), "m")
+    else:
+        warn("Too few wells with a ground elevation for the datum-frame slope")
     below = d["max_R2_datum"] > d["mean_wt_depth"]
     _add("below_mean_wt", "n_below", int(below.sum()), len(d), "wells")
     _add("below_mean_wt", "n_total", len(d), len(d), "wells")

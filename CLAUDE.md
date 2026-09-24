@@ -46,7 +46,7 @@ number still MEANS what it did, which `figref_lint` explicitly does not check.
 Run `check_all` before you commit and quote the verdict in the message. If a
 gate you did not touch starts failing, stop and find out why before proceeding.
 
-`bash nrg_git.sh` is the front door for committing and pushing: **2)** pushes
+`bash working/nrg_git.sh` is the front door for committing and pushing: **2)** pushes
 both repositories, **11)** archives the ODTs to Drive, **q** quits.
 
 ## 2. The three stores
@@ -57,7 +57,7 @@ both repositories, **11)** archives the ODTs to Drive, **q** quits.
 | `Newborough_Hydrology_working`, **private** | `DECISION_LOG.md`, `changelogs/`, `updates/` (was `Updates_required/`), `WORK_REGISTER.md` (a signpost; the live register is `updates/NRG_WORK_REGISTER.md`), and this repo's own tooling |  <!-- former path -->
 | `gdrive:NRG_documents` | the ODTs themselves (git cannot diff a zip) |
 
-Two git directories over **one** working tree. `./wgit` is the private one;
+Two git directories over **one** working tree. `./working/wgit` is the private one;
 plain `git` always means the public one. That asymmetry is deliberate — the
 mistake you want is forgetting to commit privately, not publishing by accident.
 
@@ -108,7 +108,7 @@ tracked publicly.
   which is the whole of W126's "+27% larger than published" — not the
   LibreOffice version it was blamed on. If a rebuilt `report.pdf` is suddenly
   much bigger, check `PDF_FILTER_DATA["Quality"]` before the toolchain.
-- **A 118 MB ODT will not cross the bridge — strip its image members and it will.**
+- **A 100-MB-plus ODT will not cross the bridge — strip its image members and it will.**
   `device_stage_files` fails on `report9.odt` twice over, once on a wall-clock
   timeout and once on an upload failure, while report8 (0.8 MB) and report11
   (69 KB) go through fine. Rebuild the archive without its ODF **Pictures** members
@@ -162,9 +162,10 @@ tracked publicly.
   seconds must print a completion indicator — a percentage, a count of N, or a bar with
   elapsed and remaining time — on its own line as it goes, not only at the end.
   Adopted 2026-09-15 at his request: a 45-minute Sentinel download printed one
-  line per twenty scenes and looked hung. `console_utils` is the place for a
-  shared `progress()` helper; until it exists, print `  [ 37 %  112/298  4m12s left ]`
-  by hand. A silent long run is a defect, whoever wrote it.
+  line per twenty scenes and looked hung. `console_utils.track()` (1.2.0,
+  2026-09-23) wraps any loop and prints `  [ 37 %  112/298  4m12s left ]`;
+  `progress()` (1.1.0) is the bare call. Use them; do not print a bar by hand.
+  A silent long run is a defect, whoever wrote it.
 - **The mount refuses `unlink`.** `rm -f` on a stale git lock *fails silently*.
   Move it instead:
   ```bash
@@ -205,7 +206,7 @@ tracked publicly.
   whose helper is `store --file=.git-working/credentials`). Run every gate the
   bridge can first and quote the verdict — `check_all` itself reads FAIL here on
   the ENVIRONMENT line alone, by design, so the L14 verdict comes from Martin's
-  `./working/nrg_git.sh --ship` (1.16.0), which also rebuilds report.pdf and
+  `./working/nrg_git.sh --ship`, which also rebuilds report.pdf and
   archives to Drive. Sweep the lock/tmp_obj residue into `_to_delete/` after
   each git write. Stage by NAME, not `add -A`: `Claude outputs/` is untracked
   and not ignored.
@@ -251,8 +252,10 @@ tracked publicly.
   as the trap above: `check_all` also fails outside the venv, because the system
   Python has neither the recorded library versions nor `cairosvg`. Two different
   commands wanting two different interpreters, on the same machine.
-- **`device_bash` calls die at 45 seconds** and backgrounded jobs die with them.
-  `cite_check` full-run exceeds it; `--claims-only` and `--index-only` take ~1 s.
+- **`device_bash` calls die at their time limit** (120 s by default, 180 s at
+  most — it was 45 s until 2026-09-20, see §4c) and backgrounded jobs die with
+  them. `check_all` and a full `cite_check` exceed it; `--claims-only` and
+  `--index-only` take ~1 s.
 - **Do not leave files staged in his tree.** His next `nrg_git.sh` commit will
   sweep them into his message.
 
@@ -424,14 +427,18 @@ The two environments are genuinely different. The publishing machine resolves
 so geopandas falls back to the fiona engine; the bridge has its own `~/.local`
 site-packages **with pyogrio**, which does not. The same line succeeds in one and
 raises in the other — that is how Script 41 broke on 2026-09-11 while "working"
-when tested through the bridge.
+when tested through the bridge: `gpd.read_file(..., driver="KML")` is accepted
+by pyogrio and refused by fiona 1.10.1, which no longer lists the KML driver
+(Script 41 2.7.0; every KML read now goes through `utils/kml_io.py`).
 
 It is also why re-running Script 11 through the bridge moved **54 committed
 numbers by up to one ULP** and tripped `provenance_lint`: different numeric
 build, same arithmetic. Nothing was wrong with either result; they were produced
 by different machines.
 
-**No script silences its warnings.** The blanket
-`warnings.filterwarnings('ignore')` is retired — it is the signal class that
-would have given notice of both faults above. Silence a warning individually,
-by message and module, with the reason beside it.
+**No pipeline script silences its warnings.** The blanket
+`warnings.filterwarnings('ignore')` was retired from the nine scripts D-155
+names — it is the signal class that would have given notice of both faults
+above. Silence a warning individually, by message and module, with the reason
+beside it. Not yet clean (audit 2026-09-24, T-81): `utils/mask_streams_to_land.py`
+still carries a blanket ignore, and Scripts 25, 31 and 31b silence by category.

@@ -11,18 +11,20 @@ Reproducible Python workflow supporting the manuscript:
 
 ```bash
 python3 --version                # must be 3.12.x — a floor AND a ceiling
-sudo apt install python3-numpy python3-pandas python3-scipy \
-    python3-matplotlib python3-sklearn python3-geopandas python3-shapely \
-    python3-pyproj python3-odf pandoc poppler-utils
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt  # the venv's full freeze — the environment
+python3 tools/env_audit.py       # is this the recorded environment?
 python3 tools/import_audit.py    # MISSING-DEP names anything still absent
 python3 run_analysis.py          # opens interactive menu
 ```
 
-Not a venv, and **not** `pip install -r requirements.txt`. The reference
-environment is Ubuntu 24.04's apt packages; that file is a `pip freeze` from an
-environment this project has never run in, and pins numpy and pandas two major
-versions past what produced the published numbers. `MACHINE_SETUP.md` §1 has the
-full story.
+`venv/` **is** the environment (D-093) and `requirements.txt` is its freeze;
+every published number came from those versions. Ubuntu 24.04's apt packages
+cannot run the pipeline (Script 03 needs matplotlib ≥ 3.9). Until 2026-09-24
+this section said the opposite — that the apt packages were the reference and
+the freeze came from an environment the project had never run in; that was the
+pre-2026-08-29 story, retracted in `MACHINE_SETUP.md` §1, which has the full
+account. pandoc ≥ 3.0 comes from apt, not from the freeze.
 
 ---
 
@@ -35,6 +37,7 @@ All documents are in [`docs/`](docs/) and linked from the
 |----------|------|-------------|
 | **Full report** | `docs/report/report.pdf` | Main manuscript |
 | **Supplementary material** | `docs/report/Supplementary_Material.pdf` | Additional tables and figures |
+| **Methods Supplement** | `docs/report/Newborough_Methods_Supplement.pdf` | One chapter per pipeline script: inputs, method, outputs, caveats |
 | **Academic summary** | `docs/academic_summaries/academic_summary.pdf` | Concise research summary for researchers |
 | **Public summary (EN)** | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | Plain-language overview |
 | **Public summary (CY)** | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | Crynodeb cyhoeddus Cymraeg |
@@ -53,18 +56,18 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs the default pass (52 of 57 registered steps) in order from the beginning |
+| **1 — Run full pipeline** | Runs the default pass (<!--PL:default-->53<!--/PL:default--> of <!--PL:total-->58<!--/PL:total--> registered steps) in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all 57 registered steps with script names and availability status |
+| **7 — Show step list** | Lists all <!--PL:total-->58<!--/PL:total--> registered steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run the default pass (52 steps)
+python run_analysis.py --full          # run the default pass (<!--PL:default-->53<!--/PL:default--> steps)
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -96,7 +99,7 @@ Newborough_Hydrology/
 │   ├── 02_cluster_stats.csv            │
 │   ├── 03_master_data.csv              │
 │   ├── 03_regional_averages.csv        │
-│   ├── 03_cluster_averages_maod.csv    │  Cluster mean heads in maOD (feeds 21)
+│   ├── 03_regional_averages_maod.csv   │  Cluster mean heads in maOD (feeds 21)
 │   └── 03_cluster_peak_months.csv      ┘  Peak month per cluster (feeds 11, 11b)
 │   ├── 11b_spatial_thresholds/
 │   │   └── forecaster.html              ← interactive groundwater forecaster (built by 11b)
@@ -104,7 +107,7 @@ Newborough_Hydrology/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 17, Script 27)
 │   └── [other output directories]
-├── src/                         Analysis scripts (57 steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (<!--PL:total-->58<!--/PL:total--> steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -145,12 +148,14 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **57 registered steps across 18 phases**. Those 57 steps
-are classified two independent ways: by tier — 43 analytical, 8 display/utility
-(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and 6 diagnostic; and by execution — 52 run in a
-default pass, 3 (Scripts 24b, 31 and 31b) only under `--with-supplementary`, and 2
+The pipeline comprises **<!--PL:total-->58<!--/PL:total--> registered steps across <!--PL:phases-->19<!--/PL:phases--> phases** (the committed
+`outputs/pipeline_manifest.json` is the count; these numbers are stamped from it by
+`tools/sync_index_counts.py`). Those steps are classified two independent ways: by
+tier — <!--PL:analytical-->44<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
+(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->6<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->53<!--/PL:default--> run in a
+default pass, <!--PL:optin-->3<!--/PL:optin--> (Scripts 24b, 31 and 31b) only under `--with-supplementary`, and 2
 (Scripts 27 greyscale conversion and 47 the century hindcast film) only on demand.
-The two breakdowns each account for the same 57 steps and are not additive with
+The two breakdowns each account for the same <!--PL:total-->58<!--/PL:total--> steps and are not additive with
 one another. Current values are written to `outputs/pipeline_manifest.json` on
 every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
@@ -173,7 +178,7 @@ colours and labels are centralised in `src/utils/config.py`.
 - Script 11b runs after scripts 11 and 06
 - Script 11c runs after script 11b (consumes its per-well m_P table)
 - Script 14b runs after script 14 (consumes its annual summer-min series)
-- Script 21 requires `03_cluster_averages_maod.csv` from script 03; its summer-minimum companion output (`21_forestry_06_summer_scenario.csv`) additionally reads the cluster-centroid hydrographs (`03_regional_averages.csv`) and the Script 17 WTF Sy table for the flux→summer-minimum conversion shared with script 09b
+- Script 21 requires `03_regional_averages_maod.csv` from script 03; its summer-minimum companion output (`21_forestry_06_summer_scenario.csv`) additionally reads the cluster-centroid hydrographs (`03_regional_averages.csv`) and the Script 17 WTF Sy table for the flux→summer-minimum conversion shared with script 09b
 - Script 25 (coastal-retreat) requires `14_summer_trend_stats.csv` from script 14 and `10a_02_ancova_full_coefficients.csv` from script 10a
 - Script 25's coastal covariate `dist_coast_m` (per-well perpendicular distance to the eroding shoreline, held in `data/well_metadata.csv`) is regenerated from the committed coastline geometry (`data/geo/coastline_eroding_hwm.geojson`, the west-facing frontage only) and validated against the committed values in Script 01 (audit: `01_dist_coast_validation.csv`); the committed `dist_coast_m` stays canonical
 - Scripts 28 and 29 require Script 25's coastal-gradient outputs (read `25_01_panel_fit_parameters.csv` and `25_02_per_well_summer_min_slopes.csv`)
@@ -194,11 +199,12 @@ colours and labels are centralised in `src/utils/config.py`.
 | 11 | 25 (coastal-gradient) | 26 | Coastal-retreat gradient analysis |
 | 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
 | 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.3 / §4.13.1 (26c) |
-| 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and C4 constrained-β₃ triangulation (30) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
+| 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and the C4 drainage identifiability diagnostic (30, `30_c4_drainage_identifiability.py`; the constrained-β₃ triangulation it replaced is retired, D-001) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
 | 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 71); climate-swing amplification + drought-floor surface (33, report Figs 73 and 59); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 72); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
-| 16 | 24b, 31, 31b (opt-in), 34, 38 (analytical-default) | 42–46 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34) and the coast-to-inland MAM transect observational δ₀ diagnostic for §4.10.4 (38) — both analytical-default |
-| 17 | 09f, 09g, 27 | 47–49 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W) — post-processing |
+| 16 | 24b, 31, 31b (opt-in), 34, 38, 39, 40, 41 (analytical-default) | 42–49 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34), the coast-to-inland MAM transect observational δ₀ diagnostic for §4.10.4 (38), the SSM hindcast against the 1989–96 CCW record (39), shoreline retreat from the digitised coastline epochs (40) and canopy-cover change from the dated aerial series (41) — analytical-default |
+| 17 | 09f, 09g, 27, 43, 44 | 50–54 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W, on demand); Ranwell's 1959 water-table sites placed and basin-tested (43, display/utility) and his 1951–53 record set against the modern network and the SSM hindcast (44, analytical) |
 | 18 | 45, 46, 47 | 55–57 | Sentinel-2 wet-area model (D-178), all display tier: the two Band-8 slack-floor area curves against the median well level (45), its public feed `living/wet_area_model.json` (46), and the century hindcast film rendered on demand (47) — an illustration of the area–level relationship, not a flood map |
+| 19 | 48 | 58 | The Pastas cross-check of the per-well SSM: Model B refitted by an independent code on the comparison window and the full record; Model A's constant ratio to it is the datum measured externally (48, analytical-default) |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
@@ -210,8 +216,9 @@ Phase 14 runs the cluster framework diagnostics: the C3 detrend check (Script 28
 aquifer-architecture framing of §5.1 against the project's own data, and the
 within-C3 variance attribution (Script 29, step 34) characterising the
 hydrogeological structure within C3 against five spatial predictors, and the C4
-constrained-β₃ triangulation sensitivity (Script 30, step 35) recovering a
-physically admissible forest drainage coefficient where the unconstrained monthly
+drainage identifiability diagnostic (Script 30, step 35) testing whether C4's low
+β₃ is a β₂/β₃ degeneracy artefact — it is not; the constrained-β₃ triangulation
+this script replaced is retired (D-001) — where the unconstrained monthly
 fit is degenerate. Phase 15 runs the observed-change figure suite: secular
 differential water-table drift (Script 32, step 36, report Fig 71), climate-swing
 amplification and drought-floor surface (Script 33, step 37, report Figs 73 and 59), the
@@ -221,8 +228,11 @@ predicted-vs-observed driver-change validation (Script 37, step 40), and the
 comparative driver footing across forest/scrape/coast on common currencies
 (Script 37b, step 41). All six run at analytical-default tier.
 Phase 16 runs the MSL5 two-window sensitivity demonstration (Script 34, step 45,
-§5.7.5) and the coast-to-inland MAM transect observational δ₀ diagnostic (Script
-38, step 46, §4.10.4) — both also analytical-default —
+§5.7.5), the coast-to-inland MAM transect observational δ₀ diagnostic (Script
+38, step 46, §4.10.4), the SSM hindcast against the 1989–96 CCW record (Script
+39, step 47, §5.7.8), shoreline retreat from the digitised coastline epochs
+(Script 40, step 48) and canopy-cover change from the dated aerial series
+(Script 41, step 49, §4.6.8) — all analytical-default —
 alongside its remaining opt-in supplementary diagnostics: cluster-stratified
 residual climatology (Script 24b, step 42), independent k=5 partition validation
 (Script 31, step 43), and its separation-vs-recoverability companion (Script 31b,
@@ -233,9 +243,13 @@ documented first-pass fallbacks), the mechanism grid and
 coastal-vs-climate reach schematic (Script 09g, step 51, §5.8 conceptual;
 reads the 09f reach profile, 10m WMC3 BACI and 10a clearfell steps produced
 earlier in the same pass) and then
-the greyscale figure-conversion utility (Script 27, step 52) as a callable
+the greyscale figure-conversion utility (Script 27, step 52, on demand) as a callable
 post-processing step, retained in `run_analysis.py` but not treated as an analytical
-phase. Two further post-review diagnostics added in the same cascade slot into
+phase, then Ranwell's 1959 sites placed and basin-tested (Script 43, step 53,
+display) and his 1951–53 record set against the modern network and the SSM
+hindcast (Script 44, step 54, §5.7.9). Phase 18 (Scripts 45–47, steps 55–57) is
+the Sentinel-2 wet-area line and Phase 19 (Script 48, step 58) the Pastas
+cross-check of the per-well SSM (§3.4). Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`
 (Phase 3, step 13, the per-well categorical priority map for §5.9 / Conclusion 4
 reading Script 11b's per-well m_P table) and `14b_year_of_crossing.py` (Phase 4,
@@ -331,7 +345,7 @@ These wells remain in all SSM fitting and clustering analyses — they are exclu
 
 ## Reproducibility Notes
 
-- Python 3.10 or later required (3.12 tested).
+- Python 3.12.x required — a floor and a ceiling (`MACHINE_SETUP.md` §1).
 - All file paths are defined in `src/utils/paths.py` — no hardcoded paths in any analysis script.
 - KML support in script 19 uses pure XML + pyproj + shapely (no fiona KML driver required).
 - Stream network skeletonisation (script 20) requires scikit-image.

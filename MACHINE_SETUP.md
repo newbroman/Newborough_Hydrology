@@ -47,7 +47,7 @@ NRG/
 │                          updates/, nrg_git.sh, wgit, DOCUMENT_LOCK.json
 ├── literature/            source PDFs (Ranwell, Pye, Curreli) — not in either repo
 ├── living/                the monthly forecaster hub
-└── venv/                  present, and not actually used — see §1
+└── venv/                  the environment the pipeline runs in — see §1
 ```
 
 ---
@@ -101,8 +101,8 @@ pip install -r requirements.txt
 `requirements.txt` is the venv's full freeze: the packages the pipeline imports
 directly — the ones `tools/env_audit.py` probes and `tools/environment.json`
 records (numpy, pandas, scipy, matplotlib, scikit-learn, geopandas, shapely,
-pyproj, rasterio, statsmodels, pastas, and the figure dependencies adjustText,
-contextily and cairosvg) — together with their dependencies, so that an install
+pyproj, rasterio, statsmodels, pastas, odfpy, and the figure dependencies
+adjustText, contextily and cairosvg) — together with their dependencies, so that an install
 from it reproduces the venv exactly. Versions live in the file, not here. Its
 own header used to disclaim it as *"a pip freeze from an environment this
 project has never run in"*; that disclaimer was backwards and has been
@@ -420,11 +420,13 @@ the whole of the sync story.
 
 `src/47_hindcast_film.py` (on demand, `run_analysis.py --hindcast-film`) writes
 MP4s through `imageio`, which needs the **ffmpeg binary** — a separate thing from
-the `imageio` wheel. `imageio-ffmpeg` carries one:
+the `imageio` wheel. `imageio-ffmpeg` carries one and has been pinned in
+`requirements.txt` since 2026-09-17, so `pip install -r requirements.txt`
+installs it; on a venv built before that date:
 
 ```bash
 source venv/bin/activate
-pip install imageio-ffmpeg
+pip install -r requirements.txt
 ```
 
 Without it the script stops at its render phase with that message and writes no

@@ -17,12 +17,21 @@ replaces the other, and the whole point is that you should never have to replay
 
 | File | Answers | Status |
 |------|---------|--------|
-| `SCRIPT_LEDGER.md` | what does each script consume, emit, and which documents describe it? | populated 2026-08-14 |
-| `DECISION_LOG.md` | **retired 2026-08-16** — merged into the repo-root `DECISION_LOG.md`, which is now the only decision log (D-029). The file here is a stub. |
-| `NUMBER_LEDGER.md` | where does this cited number come from, and has it drifted? | **RETIRED 2026-09-07** (D-143) — kept as history, no new rows; superseded by `table_source_lint` (tables), the claims register (`check_all` claims) and `cite_check` (prose numbers) |
-| `FIGURE_LEDGER.md` | figure no. → section → caption → source PNG → on-disk resolution | **generated** by `tools/build_figure_ledger.py` v2.2 (report figures live from `tools/figure_map.py`; Source column is each figure's caption `Source:` marker, resolved on disk) |
-| `TABLE_LEDGER.md` | table no. → source → document + resolution; global caption index | **generated** by `tools/build_table_ledger.py` (from `figure_table_manifest.csv` + `reference_index_table.csv`) |
-| `DOC_LEDGER.md` | published PDF → source ODT → built date → live lag state | **generated** by `tools/build_doc_ledger.py` (from `PDF_MANIFEST.txt` + `export_lag.py`) |
+| `SCRIPT_LEDGER.md` | what does each script consume, emit, and which documents describe it? | hand-maintained (one row per script, bumped with the script); gated by `tools/ledger_lint.py` |
+| `NUMBER_LEDGER.md` | which report-numbers key is cited where; key collisions across scripts | living; its value columns were retired 2026-08-25 (the values are checked by `cite_check`); `tools/build_number_ledger.py --check` gates key collisions |
+| `FIGURE_LEDGER.md` | figure no. → section → caption → source PNG → on-disk resolution | **generated** by `tools/build_figure_ledger.py` (report figures from `tools/figure_map.py`; Source column is each figure's caption `Source:` marker, resolved on disk); `--check` gates |
+| `PROVENANCE_LEDGER.md` | every pipeline output → the exhibits (tables, figures) that render it, keyed by OUTPUT FILE | **generated** by `tools/build_provenance_ledger.py`; `--check` gates; `table_provenance_lint` enforces that no table lacks a CSV |
+| `VALUE_REGISTER.md` | cited quantities and symbols, keyed by output file | **generated** by `tools/build_value_register.py`; `--check` gates |
+| `VALUE_LEDGER.md` (with its HTML rendering and the `VALUE_LEDGER_report` pair) | every cited value, its source, symbol and drift — agrees with `cite_check --index-only` by construction | **generated** by `tools/build_value_ledger.py --write`; `--check` gates |
+| `EQUATION_LEDGER.md` | the embedded formula objects: MathML and StarMath, per document | **generated** by `tools/starmath_log.py --write`; the MathML/StarMath agreement gates |
+| `DOC_LEDGER.md` | published PDF → source ODT → built date → live lag state | **generated** by `tools/build_doc_ledger.py` (from `PDF_MANIFEST.txt` + `export_lag.py`); `--check` gates |
+| `TABLE_LEDGER.md` | — | **RETIRED 2026-09-19**; superseded by `PROVENANCE_LEDGER.md`. Kept on disk with its banner; `check_all` asserts it stays retired |
+| `DECISION_LOG.md` | — | **retired 2026-08-16** — merged into the private `working/DECISION_LOG.md`, the only decision log (D-029); `DECISIONS_PUBLIC.md` at the repo root is generated from it. No file of that name remains here |
+
+Every generated ledger has its `--check` in `tools/check_all.sh` (CLAUDE.md §4d): a
+generated file with no check rots silently, which is how `TABLE_LEDGER` died.
+This table was itself stale from 2026-09-07 to 2026-09-24 (five ledgers unlisted,
+one described as retired that is live, one described as live that is retired).
 
 ## The three upkeep rules
 

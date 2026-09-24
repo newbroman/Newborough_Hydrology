@@ -105,7 +105,7 @@
 |---|---|---|---|---|
 | 78 | 5.2.5 | Bootstrap year-of-crossing for the five-cluster summer-minimum trends  | `outputs/14_climate_projections/14b_year_of_crossing.png` | yes |
 | 79 | 5.7.4 | Synthetic mean-year hydrograph for the C4 Forest cluster under four ma | `outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png` | yes |
-| 80 | 5.7.9 | Ranwell's 1951–53 water-table readings against the SSM hindcast, at th | `outputs/44_ranwell_hindcast/44_07b_hindcast_report.png` | yes |
+| 80 | 5.7.9 | Ranwell&apos;s 1951–53 water-table readings against the SSM hindcast,  | `outputs/44_ranwell_hindcast/44_07b_hindcast_report.png` | yes |
 | 81 | 5.8.2 | Spatial reach and development timescale of the management intervention | `outputs/09_scraping_intervention/09f_management_effects.png` | yes |
 | 82 | 5.8.2 | Four drivers of the Newborough water table — schematic cross-sections  | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 83 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |

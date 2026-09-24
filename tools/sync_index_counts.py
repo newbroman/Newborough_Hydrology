@@ -80,7 +80,12 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-09
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-24
+# 1.3.0 — readme.md joins DEFAULT_TARGETS. The 2026-09-24 documentation audit
+#         found it carrying 57/52/18/43 in five places — the counts this tool
+#         has stamped into index.html and PIPELINE_README since 2026-08-09,
+#         hand-typed once more in the file nobody wrapped. Every count in
+#         readme.md is now inside a PL marker.
 # 1.2.0 — remapped to the run_analysis.py v2.3.0 manifest schema. PL:analytical
 #         read "analytical_headline", a hand-maintained constant now deleted;
 #         reading it after the schema change would have exited 2. It now reads
@@ -105,7 +110,7 @@ DEFAULT_INDEX = _ROOT / "index.html"
 # Every hand-maintained file carrying PL markers. Both are plain text in the
 # repository, so they can be STAMPED. The ODT-backed documents cannot be, and
 # are gated instead by tools/pipeline_count_lint.py.
-DEFAULT_TARGETS = (_ROOT / "index.html", _ROOT / "PIPELINE_README.md")
+DEFAULT_TARGETS = (_ROOT / "index.html", _ROOT / "PIPELINE_README.md", _ROOT / "readme.md")
 DEFAULT_MANIFEST = _ROOT / "outputs" / "pipeline_manifest.json"
 
 # marker key -> how to pull the value out of the manifest

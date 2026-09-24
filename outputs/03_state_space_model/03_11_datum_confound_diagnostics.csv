@@ -8,6 +8,10 @@ datum_vs_easting_ctrl,slope_m_per_km,-0.402716,66,m/km
 datum_vs_easting_ctrl,p,0.080876,66,p
 datum_vs_easting_ctrl,p_mean_wt_depth,0.00104,66,p
 datum_vs_easting_ctrl,r2,0.376731,66,-
+datum_vs_elevation,slope_base_on_ground,0.86363,66,m/m
+datum_vs_elevation,p,0.0,66,p
+datum_vs_elevation,r2,0.814762,66,-
+datum_vs_elevation,ground_elev_range_m,10.886,66,m
 below_mean_wt,n_below,65.0,66,wells
 below_mean_wt,n_total,66.0,66,wells
 below_mean_wt,exception_ceh13_pvalue_beta_3_at_max,0.638441,66,p

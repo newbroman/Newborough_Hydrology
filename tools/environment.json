@@ -14,6 +14,7 @@
     "numpy": "2.4.6",
     "odf": "?",
     "pandas": "3.0.3",
+    "pastas": "2.0.0",
     "pyproj": "3.7.2",
     "rasterio": "1.5.0",
     "scipy": "1.17.1",
@@ -24,12 +25,16 @@
   "machine": {
     "hostname": "john-ThinkPad-L14",
     "repo_path": "/home/john/projects/NRG",
-    "system": "Linux 7.0.0-30-generic",
+    "system": "Linux 7.0.0-34-generic",
     "user": "john"
   },
   "python": {
     "executable": "/home/john/projects/NRG/venv/bin/python3",
-    "venv_python3_12_resolves_to": "/usr/bin/python3.12",
+    "venv_interpreters": {
+      "venv/bin/python": "/usr/bin/python3.12",
+      "venv/bin/python3": "/usr/bin/python3.12",
+      "venv/bin/python3.12": "/usr/bin/python3.12"
+    },
     "version": "3.12.3"
   }
 }

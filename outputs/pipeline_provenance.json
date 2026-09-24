@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-24T08:05:37",
- "orchestrator": "2.18.0",
+ "generated": "2026-09-24T10:56:04",
+ "orchestrator": "2.19.0",
  "steps": {
   "00_climate_summary.py": {
    "emitted": {
@@ -131,7 +131,7 @@
     "outputs/03_state_space_model/03_09_well_optimal_datums.png": "d66445a0e441a00cf9bf7da459e5c23b629af94cd02d8db1002db2ff81fd29b0",
     "outputs/03_state_space_model/03_10_well_datum_r2max_map.png": "cd7fac43900e68c5a3335c65ce54f186a168cb890b960e27e3583867f0fe0a37",
     "outputs/03_state_space_model/03_10_well_r2_gain_map.png": "4f0758b25a3b8bf1c11c9d910da1f56d76fa18433459decdb0fa6043fd6eeb0f",
-    "outputs/03_state_space_model/03_11_datum_confound_diagnostics.csv": "3d589071149d60832882b261d5941bea4f845305f0812387bd5d8c42b7c9aa7e",
+    "outputs/03_state_space_model/03_11_datum_confound_diagnostics.csv": "363c0127bb5c5448ae0655b0324bfb49b62fe84f0778932e0b065792a772b5cb",
     "outputs/03_state_space_model/03_12_datum_regime.png": "afcb6a9ccf5191ff751de64edc99d6de33d8f19273adc317fd0f8654f8c56c1a",
     "outputs/03_state_space_model/03_12_partition_vs_datum.csv": "8926915d2cf55be0a651cfdf2c62bbc36ffefa84abd780cdd20ab5ab8276694c",
     "outputs/03_state_space_model/03_13_centroid_composition_sensitivity.csv": "70573928a4a8e5bb4314eae682b3b8d2f96d8843e37d34da5d86c322faf4a29c",
@@ -152,9 +152,9 @@
     "outputs/02_clustering/02_08_cluster_amplitude_per_well.csv": "af62cd88ca3627295381afbe871a327e3244de5b1ea10704f64c2dbb84041cc9"
    },
    "inputs_unresolved": [],
-   "seconds": 78.0,
-   "started": "2026-09-24T08:03:28",
-   "version": "1.16.0"
+   "seconds": 81.6,
+   "started": "2026-09-24T10:54:00",
+   "version": "1.17.0"
   },
   "04_cluster_visualisations.py": {
    "emitted": {
@@ -1312,6 +1312,27 @@
    "seconds": 146.7,
    "started": "2026-09-22T10:00:52",
    "version": "1.0.1"
+  },
+  "48_pastas_crosscheck.py": {
+   "emitted": {
+    "outputs/48_pastas_crosscheck/48_01_pastas_per_well.csv": "1bd32c3b728bae5f41953f53ca2c698ab02c82a81f66e8393ef6448e3373a527",
+    "outputs/48_pastas_crosscheck/48_01_pastas_vs_ssm.png": "b4dc94e422304c5d04d55e86e971807e77d46920a3cd01c345f1265cd33e626d",
+    "outputs/48_pastas_crosscheck/48_02_pastas_agreement.csv": "95612114ad95cb1c639ddae1fe547e374524a01c07bac66939afdc2ffeaa3e92",
+    "outputs/48_pastas_crosscheck/48_03_synthetic_recovery.csv": "bd15bacff1e29240e22a8fed44c4a2eadc5f0016940852869c7f93560d5ff51b",
+    "outputs/48_pastas_crosscheck/48_report_numbers.csv": "c6b0cd5363a07330d7a4f1964108e2730268dd03078dcbce8b4c0b8df5e00476"
+   },
+   "fallbacks": [],
+   "inputs": {
+    "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
+    "outputs/01_wells_all.csv": "0760ef504ecde095233bbad6650f4b53fefec6d895b708d56101d672ac397dd9",
+    "outputs/03_master_data.csv": "cbd8405624f015b285caf03fcfa1eb8351ef2baa5fbc5a00fc4c75fa464f4bc9",
+    "outputs/03_state_space_model/03_15_per_well_window_sensitivity.csv": "ec552916ccdfcb33fe72cbb4b0a635b260d10eaa2c58f22755dd513a56ad5125",
+    "outputs/03_state_space_model/03_16_model_b_persistence.csv": "f58581bf46f3c47d2931cca199260ccf17d3ed7c7da54440c8a46f4f31ae2300"
+   },
+   "inputs_unresolved": [],
+   "seconds": 40.9,
+   "started": "2026-09-24T10:55:23",
+   "version": "1.3.0"
   },
   "run_09_scraping.py": {
    "emitted": {

@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**123 output file(s)** supply **1342 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**124 output file(s)** supply **1350 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -1319,6 +1319,14 @@
 |  | hysteresis_ratio_open_water | report9.md |
 |  | hysteresis_ratio_wet_floor | report9.md |
 |  | oos_C_wet_floor_ratio_p84 | Newborough_Methods_Supplement.md, report9.md |
+| `48_report_numbers.csv` | pastas_n_identified_full_record | report8.md |
+|  | pastas_n_wells | report8.md |
+|  | pastas_vs_ssmA_beta_3_drainage_median_ratio_identified_full | report8.md |
+|  | pastas_vs_ssmB_beta_1_recharge_rho_identified_full | report8.md |
+|  | pastas_vs_ssmB_beta_2_atmospheric_draw_rho_identified_full | report8.md |
+|  | pastas_vs_ssmB_beta_3_drainage_median_ratio_identified_full | report8.md |
+|  | pastas_vs_ssmB_beta_3_drainage_rho_identified_full | report8.md |
+|  | pastas_vs_ssmB_efold_months_median_ratio_identified_full | report8.md |
 | `config.py` | BROADLEAF_B2_SUMMER | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, Supplementary_Material.md, report10.md, report9.md |
 |  | BROADLEAF_B2_WINTER | INTERCEPTION_TREATMENT.md, Newborough_Methods_Supplement.md, PIPELINE_README.md, report9.md |
 |  | CCW_PIPE_BASE_M | Newborough_Methods_Supplement.md, PIPELINE_README.md |
@@ -1365,7 +1373,7 @@
 | z | `z_datum` | drainage datum, 3.7 m below ground — the replacement D_datum | `03_03_cluster_mechanistic_coefficients.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv` |
 | α | `alpha_ols_generic` | generic OLS intercept of a regression that is NOT the SSM: s | `01_observation_states.csv`, `01_wells_all.csv`, `01_wells_clean.csv`, `01_wells_clean_maod.csv`, `01_wells_provenance.csv`, `01_wells_reference.csv` … |
 | β | `beta_msl` | OLS slope on winter-to-spring rainfall in the Tool A spring- | `11_forecast_spring_transfer_functions.csv` |
-| β | `beta_ssm` | SSM coefficients, always subscripted: beta_1 recharge sensit | `08_perwell_nse.csv`, `15_03_benchmark_table.csv`, `15_04_best_params.csv`, `16_water_bal_rec_table.csv`, `16_water_bal_vol_table.csv`, `26_metric_diagnostics_per_well.csv` |
+| β | `beta_ssm` | SSM coefficients, always subscripted: beta_1 recharge sensit | `08_perwell_nse.csv`, `15_03_benchmark_table.csv`, `15_04_best_params.csv`, `16_water_bal_rec_table.csv`, `16_water_bal_vol_table.csv`, `26_metric_diagnostics_per_well.csv` … |
 | β | `beta_transfer` | OLS slopes of the Script 11 Section 2/4 forecast transfer fu | `11_forecast_summer_transfer_functions.csv`, `11_forecast_winter_transfer_functions.csv` |
 | δ | `delta_cwb` | coefficient on CWB in the BACI ANCOVA, the centred cumulativ | `10a_03_baci_timeseries.csv`, `10h_04_baci_timeseries.csv`, `10k_01_four_zone_results.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` … |
 | δ | `delta_cwb_zone_interaction` | zone x CWB interaction coefficient in the two-zone scrape pa | `07_05_clusters_vs_covariates.csv`, `09f_01_reach_profile.csv`, `10b_spatial_step_data.csv`, `10f_01_ssm_residual_results.csv`, `10f_02_synthetic_control_results.csv`, `10g_03_clearfell_transect_steps.csv` … |

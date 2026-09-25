@@ -219,7 +219,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C2 (Dune) · VIF |  |  | `30_c4_identifiability_by_cluster.csv` | 1.37539 |  | report9 | ok |
 | C2 (Dune) · aic_optimal_datum_m |  |  | `03_18_datum_invariance.csv` | 1.2 |  | report8 | ok |
 | C2 (Dune) · beta_1_recharge | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 3.8957 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, crynodeb_academaidd, report9 | ok |
-| C2 (Dune) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.66642 |  | Paper1, Supplementary_Material, crynodeb_academaidd, report10, report12, report9 | ok |
+| C2 (Dune) · beta_2_atmospheric_draw | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_03_cluster_mechanistic_coefficients.csv` | 1.66642 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, crynodeb_academaidd, report10, report12, report9 | ok |
 | C2 (Dune) · climate_plus_far_field_mm_yr |  |  | `25_03_cluster_partition.csv` | 2.64902 |  | report9 | ok |
 | C2 (Dune) · corr_PET_hd |  |  | `30_c4_identifiability_by_cluster.csv` | -0.411195 |  | Supplementary_Material, report9 | ok |
 | C2 (Dune) · flux_frac_ge_80pct_from_m |  |  | `03_18_datum_invariance.csv` | 1.9 |  | report8 | ok |
@@ -1030,7 +1030,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | wells_wt_ground_r |  |  | `20_head_dem_report_numbers.csv` | 0.985813 |  | report9 | ok |
 | wells_wt_ground_slope |  |  | `20_head_dem_report_numbers.csv` | 0.976805 |  | report9 | ok |
 | wmc2 · beta_3_at_uniform | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `03_09_well_optimal_datums.csv` | 0.0474436 |  | Supplementary_Material | ok |
-| wmc2 · se |  |  | `35_per_well_amplification.csv` | 0.128603 |  | Newborough_Methods_Supplement, report9 | ok |
+| wmc2 · se |  |  | `35_per_well_amplification.csv` | 0.128603 |  | Newborough_Methods_Supplement | ok |
 | wmc3 · p_ar_2005_2025 | p | significance probability | `32_differential_movement_per_well.csv` | 0.118758 |  | report9 | ok |
 | β₁_recharge · C4_max |  |  | `10c_forest_zone_cluster_summary.csv` | 3.481 |  | Paper1, report9 | ok |
 | β₁_recharge · C4_min |  |  | `10c_forest_zone_cluster_summary.csv` | 2.072 |  | Paper1, report9 | ok |

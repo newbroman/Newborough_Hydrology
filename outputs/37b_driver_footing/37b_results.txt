@@ -6,7 +6,7 @@ LIVE PARAMETERS
   δ₀ (Script 25, forest-free linear-capped): 31.28 mm/yr; L = 902 m
   clearfell step (10a ANCOVA, Path B, observed): 108.2 mm
   scrape on-site (CEH36 Pure_Scraping, observed): 128.1 mm
-  scrape off-site (WMC3 DiD mean, observed): -49.5 mm
+  scrape off-site (WMC3 DiD mean, observed): -13.1 mm
   drain-cone / forest λ (20_report_numbers): 221.3 m
   representative Sy: coast/scrape (C3) = 0.298; forest (C4/C5 weighted) = 0.273
   horizon: 2005→2025 (20 yr)
@@ -35,7 +35,7 @@ COMPARISON TABLE
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=0  relieve=1  (n=66)
 
   Scrape off-site (drain cone)           [Dune scraping, redistributive, loss, observed]
-      peak=-49.5 mm  area=-20852.7 mm·ha  volume=-62182.9 m³
+      peak=-13.1 mm  area=-20852.7 mm·ha  volume=-62182.9 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=4  relieve=0  (n=66)
 
   Unexplained uniform decline (central estimate, not resolved) [Unexplained (uniform), uniform, loss, modelled]
@@ -55,7 +55,7 @@ THE 'SCRAPING WORSENS SITE-WIDE DECLINE' CLAIM, IN CONTEXT
 
 CAVEATS (even-handed framing, per working rules)
 --------------------------------------------------------------------------
-  Every cell is flagged observed or modelled. Coast (both components), broadleaf, and the scrape off-site cone are MODELLED (Script 20 fields); clearfell and scrape on-site are OBSERVED BACI anchors; scrape off-site's peak is an OBSERVED WMC3 point (the modelled cone is larger near-field, so -49 mm is a conservative, not a maximal, peak).
+  Every cell is flagged observed or modelled. Coast (both components), broadleaf, and the scrape off-site cone are MODELLED (Script 20 fields); clearfell and scrape on-site are OBSERVED BACI anchors; scrape off-site's peak is an OBSERVED WMC3 point (the modelled cone is larger near-field, so -13 mm is a conservative, not a maximal, peak).
   SLR is Script 20's native 5-YEAR near-term projection, NOT rescaled to the 20-yr horizon used by every other component here — its small peak/volume relative to coastal erosion partly reflects this shorter window, not just smaller physical magnitude. Treat the SLR row as indicative/near-term only, not a like-for-like 20-yr comparison.
   Coast's 20-yr drawdown is a MODELLED PROJECTION anchored on the observed δ₀, UNCONFIRMED spatially by Part A (Script 37's scale factors are null/unresolved for coast — see Script 37 results). It indicates, not confirms, the scale of coastal influence relative to the other drivers.
   First-order superposition — components are summed independently; this is an UPPER BOUND in any zone where two fields overlap (same caveat as the Script 20 map). Does not close a water budget.

@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.55.0"  # Hollingham (2026) - 2026-09-25. CLUSTER_HYDRO_WINDOW_START / _END:
+__version__ = "1.56.0"  # Hollingham (2026) - 2026-09-25. BACI_STEP_HAC_LAG_MONTHS /
+#   BACI_PLACEBO_MIN_COVERAGE: Script 10m 1.3.0 gives each raw WMC3 era step an
+#   autocorrelation-robust standard error and a moving-break placebo share (D-200). Additive.
+# 1.55.0  # Hollingham (2026) - 2026-09-25. CLUSTER_HYDRO_WINDOW_START / _END:
 #   the window of Script 02's cluster-mean hydrographs (02_03 panel b and the 02_03b spaghetti figure),
 #   relocated from two typed literals in Script 02 so the cluster mean levels it now emits
 #   (report9 §4.2) name their window from config. Values unchanged; no output moves.
@@ -2247,6 +2250,13 @@ CLUSTER_BOOT_N          = 1000       # resamples per k (the rebuild handover's v
 # on 2026-09-25; values unchanged.
 CLUSTER_HYDRO_WINDOW_START = "2006-12-01"
 CLUSTER_HYDRO_WINDOW_END   = "2025-12-01"
+# Uncertainty of Script 10m's raw WMC3-minus-forest-control era steps (D-200).
+# The standard error of each era mean is Newey-West (Bartlett kernel) with this many
+# monthly lags, one seasonal cycle; a step's SE combines its two eras in quadrature.
+# The placebo slides the break across the record with the real eras' lengths and keeps
+# a break only where each window holds at least this share of its months.
+BACI_STEP_HAC_LAG_MONTHS   = 12
+BACI_PLACEBO_MIN_COVERAGE  = 0.5
 SSM_BOOT_SEED           = 20260424   # Script 03 centroid-fit bootstrap. Same VALUE as
                                      # CLUSTER_BOOT_SEED and deliberately a separate
                                      # constant: they seed different resamplings, and

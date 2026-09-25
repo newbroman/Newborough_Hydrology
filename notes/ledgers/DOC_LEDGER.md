@@ -9,7 +9,7 @@
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_22.odt` | 2026-09-25T13:05:03Z | current |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_22.odt` | 2026-09-25T18:01:35Z | current |
 | `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_16.odt` | 2026-09-24T12:34:13Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_22.odt` | 2026-09-25T13:05:09Z | current |
 | `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_60.odt` | 2026-09-25T13:05:07Z | current |
@@ -17,8 +17,8 @@
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-09-05T22:49:36Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-09-05T22:49:35Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-09-05T22:49:35Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_42.odt` | 2026-09-25T13:04:59Z | current |
-| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_41.odt` | 2026-09-25T13:05:01Z | current |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_43.odt` | 2026-09-25T18:01:31Z | current |
+| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_41.odt` | 2026-09-25T18:01:33Z | current |
 | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-09-06T06:28:30Z | unversioned |
 | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-09-17T14:31:33Z | unversioned |
 

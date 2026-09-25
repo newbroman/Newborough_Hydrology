@@ -31,12 +31,16 @@ Two panels, shared x-axis:
 
 Interpretation (even-handed framing — see project guardrails)
 ------------------------------------------------------------
-The two scraping events each draw the WMC3-minus-control gap DOWN (drainage of the
-neighbouring aquifer toward the lowered scrape surface); the clearfell raises it
-(interception and transpiration demand removed).  The DiD removes climate shared by
-both wells by construction, but NOT differential climate sensitivity, so the
-scraping steps are described as "consistent with scraping drawdown" rather than as
-a confirmed propagation magnitude.  The ANCOVA scraping covariate coefficients are
+The era steps are raw era-mean differences of a gap that swings by hundreds of mm
+from month to month, so each carries a standard error (Newey-West, Bartlett kernel,
+config.BACI_STEP_HAC_LAG_MONTHS lags; the two eras combined in quadrature) and a
+placebo share: the fraction of break dates, slid across the record with the real
+eras' lengths, whose step is at least as large in magnitude as the observed one.
+On the committed record none of the three steps is distinguishable from that
+variability (D-200), so the figure carries no scraping-drawdown reading: the two
+scraping steps are shown as measured, with their SE, and are not evidence of an
+off-site effect.  The DiD removes climate shared by both wells by construction, but
+NOT differential climate sensitivity.  The ANCOVA scraping covariate coefficients are
 NOT plotted or quoted here: in the 10a model they are nuisance terms whose sign is
 determined by variance partitioning against the CWB and easting-x-time covariates,
 and they invert relative to the raw gap.
@@ -52,6 +56,7 @@ Outputs
   outputs/10_clearfell_baci/10m_01_wmc3_baci_era_steps.csv
   outputs/10_clearfell_baci/10m_02_wmc3_baci_dual.png
   outputs/10_clearfell_baci/10m_report_numbers.csv
+    (per step: the DiD value, _se, _t and _placebo_share rows)
 ====================================================================================
 """
 
@@ -79,10 +84,19 @@ from utils.clearfell_common import (
     IMPACT_WELLS, FOREST_CONTROL_WELLS,
     ReportNumbers,
 )
-from utils.config import DRAINAGE_DATUM
+from utils.config import (
+    DRAINAGE_DATUM, BACI_STEP_HAC_LAG_MONTHS, BACI_PLACEBO_MIN_COVERAGE,
+)
 from utils.render_utils import render_figure
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-09-03. On-figure ANCOVA p read
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-25. D-200: each raw era step
+#   gains a Newey-West SE, t and a moving-break placebo share (hac_se_of_mean,
+#   placebo_steps; config.BACI_STEP_HAC_LAG_MONTHS / BACI_PLACEBO_MIN_COVERAGE),
+#   written to 10m_01 and 10m_report_numbers.csv and printed on panel (b) as
+#   "step ± SE". The report-number notes no longer say "consistent with scraping
+#   drawdown". Legend label "WMC3 (C4 Impact well)" -> "WMC3 (Impact well)": WMC3
+#   is in C3, and the cluster is not this figure's to state.
+# v1.2.1  # Hollingham (2026) — 2026-09-03. On-figure ANCOVA p read
 #   live from the 10a note string instead of a hardcoded (p<0.001); the committed
 #   value is p = 0.002 (0.0021). The step magnitude was already live. 10m_02 must
 #   be regenerated for the figure note to update. (T-15 class-5 straggler.)
@@ -157,6 +171,39 @@ def era_masks(index):
     ]
 
 
+def hac_se_of_mean(series, lags=BACI_STEP_HAC_LAG_MONTHS):
+    """Newey-West (Bartlett) standard error of the mean of a monthly series.
+
+    Gaps are dropped first, so a lag counts observed months, not calendar months.
+    """
+    x = series.dropna().to_numpy(dtype=float)
+    n = len(x)
+    if n < 2:
+        return np.nan
+    e = x - x.mean()
+    var = (e @ e) / n
+    for k in range(1, min(lags, n - 1) + 1):
+        var += 2.0 * (1.0 - k / (lags + 1.0)) * (e[k:] @ e[:-k]) / n
+    return float(np.sqrt(max(var, 0.0) / n))
+
+
+def placebo_steps(gap, n_pre, n_post, min_cov=BACI_PLACEBO_MIN_COVERAGE):
+    """Steps (post mean - pre mean) at every break date in the record.
+
+    The windows are n_pre months before the break and n_post months from it, the
+    observed month counts of the real eras; a break is kept only where each window
+    holds at least min_cov of its months.
+    """
+    idx = gap.index
+    out = []
+    for t in idx:
+        pre = gap[(idx < t) & (idx >= t - pd.DateOffset(months=n_pre))].dropna()
+        post = gap[(idx >= t) & (idx < t + pd.DateOffset(months=n_post))].dropna()
+        if len(pre) >= min_cov * n_pre and len(post) >= min_cov * n_post:
+            out.append(post.mean() - pre.mean())
+    return np.asarray(out, dtype=float)
+
+
 def compute_era_steps(df):
     """Per-era means of the BACI gap and the consecutive-era DiD steps."""
     eras = era_masks(df.index)
@@ -166,6 +213,7 @@ def compute_era_steps(df):
         rows.append({
             'era': name,
             'baci_mean_m': s.mean(),
+            'baci_mean_se_m': hac_se_of_mean(s),
             'n_months': int(s.notna().sum()),
         })
     era_df = pd.DataFrame(rows)
@@ -178,11 +226,20 @@ def compute_era_steps(df):
     ]
     for label, i, j in labels:
         d = era_df.loc[j, 'baci_mean_m'] - era_df.loc[i, 'baci_mean_m']
+        se = float(np.hypot(era_df.loc[i, 'baci_mean_se_m'],
+                            era_df.loc[j, 'baci_mean_se_m']))
+        plac = placebo_steps(df['baci'], int(era_df.loc[i, 'n_months']),
+                             int(era_df.loc[j, 'n_months']))
         steps.append({
             'transition': label,
             'from_era': era_df.loc[i, 'era'],
             'to_era':   era_df.loc[j, 'era'],
             'did_step_m': d,
+            'did_step_se_m': se,
+            'did_step_t': d / se if se > 0 else np.nan,
+            'placebo_share': (float(np.mean(np.abs(plac) >= abs(d)))
+                              if plac.size else np.nan),
+            'n_placebo': int(plac.size),
             'direction': 'falls' if d < 0 else 'rises',
         })
     step_df = pd.DataFrame(steps)
@@ -243,7 +300,7 @@ def make_figure(df, era_df, step_df, ancova, impact, ctrl_present, out_path):
     ax.fill_between(df.index[v], r_w[v], r_c[v], color=COL_GAP, alpha=0.6,
                     zorder=1, label='BACI gap (WMC3 − forest control)')
     ax.plot(df.index, r_w, color=COL_WMC3, lw=2.0, zorder=3,
-            label='WMC3  (C4 Impact well)')
+            label='WMC3  (Impact well)')
     ax.plot(df.index, r_c, color=COL_CTRL, lw=2.0, ls='--', zorder=3,
             label='Forest control mean  ('
                   + '/'.join(w.upper() for w in ctrl_present) + ')')
@@ -330,8 +387,9 @@ def make_figure(df, era_df, step_df, ancova, impact, ctrl_present, out_path):
         ax2.annotate('', xy=(ax_x, m_to), xytext=(ax_x, m_from),
                      arrowprops=dict(arrowstyle='<->', color='#333333', lw=1.3))
         sign = '+' if d_mm >= 0 else '−'
+        se_mm = r['did_step_se_m'] * 1000
         ax2.text(ax_x + pd.Timedelta(days=30), (m_from + m_to) / 2,
-                 f'{sign}{abs(d_mm):.0f} mm',
+                 f'{sign}{abs(d_mm):.0f} ± {se_mm:.0f} mm',
                  fontsize=8.5, color='#222222', va='center', ha='left',
                  fontweight='bold')
 
@@ -339,7 +397,7 @@ def make_figure(df, era_df, step_df, ancova, impact, ctrl_present, out_path):
         mticker.FuncFormatter(lambda x, _: f'{x*1000:.0f}'))
     ax2.set_ylabel('WMC3 − forest control (mm)')
     ax2.set_title('(b)  BACI difference: WMC3 minus forest-control mean  '
-                  '(consecutive-era steps are raw difference-in-differences)',
+                  '(consecutive-era steps are raw difference-in-differences ± SE)',
                   fontsize=12, loc='left', pad=6)
     ax2.legend(loc='upper left', frameon=True, framealpha=0.95, fontsize=9)
     ax2.grid(axis='y', color='#e8e8e8', lw=0.6)
@@ -373,7 +431,9 @@ def main():
     hr()
     for _, r in step_df.iterrows():
         result(r['transition'],
-               f"{r['did_step_m']*1000:+.0f} mm  ({r['direction']})")
+               f"{r['did_step_m']*1000:+.0f} ± {r['did_step_se_m']*1000:.0f} mm  "
+               f"(t = {r['did_step_t']:+.2f}; placebo share "
+               f"{r['placebo_share']:.2f} of {r['n_placebo']})")
 
     phase(3, "ANCOVA clearfell headline (live from 10a)")
     ancova = load_ancova_clearfell(OUT_10A_REPORT)
@@ -391,22 +451,35 @@ def main():
     era_out['baci_mean_mm'] = (era_out['baci_mean_m'] * 1000).round(1)
     step_out = step_df.copy()
     step_out['did_step_mm'] = (step_out['did_step_m'] * 1000).round(1)
-    # Combined tidy CSV: era means then steps
-    era_out.to_csv(OUT_10M_ERA_STEPS, index=False)
+    step_out['did_step_se_mm'] = step_out['did_step_se_m'] * 1000
+    # Combined tidy CSV: era means then steps (before 1.3.0 only the era rows were
+    # written, though this comment promised both).
+    era_out['era_se_mm'] = era_out['baci_mean_se_m'] * 1000
+    era_out.insert(0, 'row', 'era')
+    step_out.insert(0, 'row', 'step')
+    pd.concat([era_out, step_out], ignore_index=True, sort=False).to_csv(
+        OUT_10M_ERA_STEPS, index=False)
     saved(OUT_10M_ERA_STEPS.name)
 
     rn = ReportNumbers()
     for _, r in step_df.iterrows():
-        key = ('WMC3_BACI_DiD_step_'
-               + r['transition'].split()[1])  # scraping / clearfell / scraping
-        # disambiguate the two scraping transitions by year
-        year = r['transition'].split()[0]
-        rn.add(f'WMC3_BACI_DiD_step_{year}_{r["transition"].split()[1]}',
-               r['did_step_m'], unit='m', well='WMC3',
-               era=r['to_era'],
+        # key by year and kind: the two scraping transitions share a kind
+        year, kind = r['transition'].split()[:2]
+        key = f'WMC3_BACI_DiD_step_{year}_{kind}'
+        rn.add(key, r['did_step_m'], unit='m', well='WMC3', era=r['to_era'],
                note=f"raw difference-in-differences, {r['from_era']} → "
-                    f"{r['to_era']}; consistent with "
-                    f"{'scraping drawdown' if 'scraping' in r['transition'] else 'clearfell recovery'}")
+                    f"{r['to_era']}; read with the _se, _t and _placebo_share "
+                    f"rows (D-200)")
+        rn.add(f'{key}_se', r['did_step_se_m'], unit='m', well='WMC3',
+               era=r['to_era'],
+               note=f"Newey-West SE, {BACI_STEP_HAC_LAG_MONTHS} lags, "
+                    f"two eras in quadrature")
+        rn.add(f'{key}_t', r['did_step_t'], unit='', well='WMC3',
+               era=r['to_era'], note="step / SE")
+        rn.add(f'{key}_placebo_share', r['placebo_share'], unit='', well='WMC3',
+               era=r['to_era'],
+               note=f"share of {r['n_placebo']} slid break dates with |step| >= "
+                    f"|observed|; windows of the real eras' month counts")
     if ancova is not None:
         rn.add('WMC3_ANCOVA_clearfell_step_ref', ancova['step_m'], unit='m',
                well='WMC3', era='Post_felling',

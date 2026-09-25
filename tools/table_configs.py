@@ -110,7 +110,12 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-24. report10/Table1 becomes
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-24. ms/Script29Headline: the Methods
+#   Supplement Script 29 headline table becomes generated (29_headline_models.csv).
+# 1.12.0  # Hollingham (2026) — 2026-09-24. sm/TableS71: the Supplementary
+#   Material Table S7.1 (Script 26 per-well EWI/MSL5) becomes generated — 497 of its cells
+#   were a pre-D-189 run (numbers proof, changelog 2026-09-24k).
+# 1.11.0  # Hollingham (2026) — 2026-09-24. report10/Table1 becomes
 #   report9/Table25 (TableFooting, four columns) — the driver-footing table moved into §4.12.1
 #   under T-85, the results/discussion register pass.
 # 1.10.0  2026-09-22. ms/Table66: the S.18 MSL5-vs-MIN5
@@ -675,6 +680,56 @@ TABLES = [
             {"col": "MIN5_m_bg_mean", "fmt": "fixed", "dp": 2},
             {"col": "MIN5_minus_MSL5_m", "fmt": "fixed", "dp": 2},
         ],
+    },
+    # ── 2026-09-24: Methods Supplement S.? Script 29 headline table ───────────
+    # Typed from the 2026-05-29 memo and never refreshed; Script 29 1.10.0 writes
+    # the table as 29_headline_models.csv (numbers proof 24l).
+    {
+        "id": "ms/Script29Headline",
+        "doc": "docs/report/Newborough_Methods_Supplement_v*.odt",
+        "table_name": "Table78",
+        "caption": "Script 29 headline — full five-predictor model per behavioural metric (29_headline_models.csv)",
+        "sources": {"h": "outputs/29_within_c3_variance/29_headline_models.csv"},
+        "rows": {"source": "h",
+                 "filter": {"metric": ["beta_1_recharge", "beta_3_drainage", "recession_time_months",
+                                       "beta_2_atmospheric_draw", "slope_m_yr", "seasonal_amplitude_m"]},
+                 "order": {"col": "metric",
+                           "values": ["beta_1_recharge", "beta_3_drainage", "recession_time_months",
+                                      "beta_2_atmospheric_draw", "slope_m_yr", "seasonal_amplitude_m"]}},
+        "header": ["Behavioural metric", "R² (all predictors)", "Adjusted R²", "Strongest unique predictor (ΔR²)"],
+        "columns": [
+            {"col": "metric", "fmt": "map", "map": {
+                "beta_1_recharge": "β₁ recharge", "beta_3_drainage": "β₃ drainage",
+                "recession_time_months": "t_R recession time (1/β₃)",
+                "beta_2_atmospheric_draw": "β₂ atmospheric draw",
+                "slope_m_yr": "slope_m_yr", "seasonal_amplitude_m": "seasonal_amplitude"}},
+            {"col": "full_R2", "fmt": "fixed", "dp": 3},
+            {"col": "full_adj_R2", "fmt": "fixed", "dp": 3},
+            {"col": "strongest_unique_predictor", "fmt": "map", "map": {
+                "dist_ceh36_m": "dist_CEH36 (Δ = {strongest_unique_delta_R2:+.3f})",
+                "delta_coast_exp_m_yr": "delta_coast_exp (Δ = {strongest_unique_delta_R2:+.3f})",
+                "dist_forest_m": "dist_forest (Δ = {strongest_unique_delta_R2:+.3f})",
+                "ground_elev_m": "ground_elev (Δ = {strongest_unique_delta_R2:+.3f})",
+                "depth_to_water_m": "depth_to_water (Δ = {strongest_unique_delta_R2:+.3f})"}},
+        ],
+    },
+    # ── 2026-09-24: Supplementary Material Table S7.1 (Script 26) ─────────────
+    # Hand-placed from a pre-D-189 run of Script 26 and never refreshed: 495 of
+    # its 504 numeric cells disagreed with the committed CSV (numbers proof 24k).
+    # The CSV is already formatted for print, so every column passes as text;
+    # the Status filter drops the caption line Script 26 appends to the file.
+    {
+        "id": "sm/TableS71",
+        "doc": "docs/report/Supplementary_Material_v*.odt",
+        "table_name": "Table4",
+        "caption": "Table S7.1 — equilibrium wetness index and MSL5 reconstruction, per well (Script 26)",
+        "sources": {"t": "outputs/26_van_willegen_msl/26_table_s7_1_ewi_per_well.csv"},
+        "rows": {"source": "t", "filter": {"Status": ["Calibration", "Reconstructed", "Out of scope"]}},
+        "header": ["Well", "Network", "Cluster", "β₃ (mth⁻¹)", "EWI (m bg)", "SE (mm)",
+                   "MSL5 obs", "MSL5 recon", "Resid. (mm)", "Status"],
+        "columns": [{"col": c, "fmt": "text"} for c in
+                    ["Well", "Network", "Cluster", "β₃ (mth⁻¹)", "EWI (m bg)", "SE (mm)",
+                     "MSL5 obs", "MSL5 recon", "Resid. (mm)", "Status"]],
     },
     # ── 2026-09-22: Supplementary Material Table S8.2 (Script 25_08) ──────────
     # The SM had no generated tables; this one had been hand-typed from an

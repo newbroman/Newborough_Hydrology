@@ -108,7 +108,10 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-08-26: comment on the inactive n_eff floor (T-14 D6)
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): h_prev is taken on the calendar
+#   before incomplete months drop, and the AR(1) estimate and the pre-whitening run on a
+#   calendar-indexed series, so t-1 is always the previous month.
+# 1.2.1  Hollingham (2026) — 2026-08-26: comment on the inactive n_eff floor (T-14 D6)
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -211,11 +214,12 @@ def fit_extended_model(well_series, climate,
         'P':      P_full,
         'P_lag1': P_lag1,
         'PET':    pd.to_numeric(climate['PET'], errors='coerce'),
-    }).dropna()
+    }).sort_index()
 
-    if len(df) < MIN_MONTHS:
+    if len(df.dropna()) < MIN_MONTHS:
         return None
 
+    # h_prev on the monthly calendar, before incomplete months drop (D-195)
     df['h_prev']  = df['h'].shift(1)
     df['Delta_h'] = df['h'] - df['h_prev']
 
@@ -253,21 +257,32 @@ def fit_extended_model(well_series, climate,
     }
 
 
+def _calendar(series):
+    """The series on one row per month (D-195): a residual series has holes where
+    the well was not read, and a shift across one is not a one-month lag."""
+    s = pd.Series(series)
+    if isinstance(s.index, pd.DatetimeIndex) and len(s) > 1:
+        s = s.reindex(pd.date_range(s.index.min(), s.index.max(), freq='MS'))
+    return s
+
+
 def ar1_phi(x):
-    """AR(1) coefficient via OLS."""
-    x = pd.Series(x).dropna().values
-    if len(x) < 30:
+    """AR(1) coefficient via OLS, on consecutive calendar months only."""
+    s = _calendar(x)
+    prev = s.shift(1)
+    ok = s.notna() & prev.notna()
+    if int(ok.sum()) < 30:
         return 0.0
-    X = sm.add_constant(x[:-1])
+    X = sm.add_constant(prev[ok].values)
     try:
-        return float(sm.OLS(x[1:], X).fit().params[1])
+        return float(sm.OLS(s[ok].values, X).fit().params[1])
     except Exception:
         return 0.0
 
 
 def prewhiten(series, phi):
-    """Apply filter y(t) = x(t) - phi*x(t-1)."""
-    s = pd.Series(series)
+    """Apply filter y(t) = x(t) - phi*x(t-1), with t-1 the previous calendar month."""
+    s = _calendar(series)
     return s - phi * s.shift(1)
 
 
@@ -652,7 +667,8 @@ def main():
         resid_pw = prewhiten(result['resid'], phi_P)
         # If residual itself is strongly autocorrelated, apply additional pre-whitening
         if abs(phi_resid) >= 0.2:
-            resid_pw = prewhiten(result['resid'] - phi_resid * result['resid'].shift(1), phi_P)
+            r_cal = _calendar(result['resid'])
+            resid_pw = prewhiten(r_cal - phi_resid * r_cal.shift(1), phi_P)
 
         ccf = compute_ccf(resid_pw, P_pw)
         # Peak lag and significance

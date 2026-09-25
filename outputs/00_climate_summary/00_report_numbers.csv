@@ -60,9 +60,9 @@ rain_peak_mm,,month 12,108.59999999999998,mm,rainfall climatology peak
 rain_trough_mm,,month 4,45.66,mm,rainfall climatology trough
 pet_peak_mm,,month 7,106.92819617625867,mm,PET climatology peak
 centring_constant,,,19.50950509661819,mm/month,"cumulative-balance centring = mean monthly net (P-PET), Dec2004-Dec2025"
-cumbal_wl_r2,,,0.5265382628551603,,"R^2, network-mean WL vs cumulative balance, lag 0, n=250"
-cumbal_wl_slope,,,0.00216439395635325,m/mm,regression slope (well level per mm cumulative balance)
+cumbal_wl_r2,,,0.52831901111223,,"R^2, network-mean WL vs cumulative balance, lag 0, n=252"
+cumbal_wl_slope,,,0.00217023082712362,m/mm,regression slope (well level per mm cumulative balance)
 reference_n_wells,,,66.0,count,reference-network wells in 00_02_well_network_summary.csv (full record)
-reference_record_months_median,,,191.0,months,median record length of the reference network
-reference_record_months_min,,,139.0,months,shortest admitted record
-reference_record_months_max,,,250.0,months,longest record
+reference_record_months_median,,,192.0,months,median record length of the reference network
+reference_record_months_min,,,140.0,months,shortest admitted record
+reference_record_months_max,,,252.0,months,longest record

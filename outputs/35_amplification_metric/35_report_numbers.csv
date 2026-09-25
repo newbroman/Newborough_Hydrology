@@ -1,0 +1,7 @@
+Parameter,Well,Era,Value,Unit,Note
+amp_vs_beta2_r,,,0.6574106209870422,,"Pearson, amp_coefficient vs SSM β₂ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"
+amp_vs_beta2_p,,,3.6138442518738244e-09,,"Pearson, amp_coefficient vs SSM β₂ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"
+amp_vs_beta2_n,,,64.0,wells,"Pearson, amp_coefficient vs SSM β₂ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"
+amp_vs_beta3_r,,,-0.4231131212965606,,"Pearson, amp_coefficient vs SSM β₃ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"
+amp_vs_beta3_p,,,0.0004952007865735895,,"Pearson, amp_coefficient vs SSM β₃ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"
+amp_vs_beta3_n,,,64.0,wells,"Pearson, amp_coefficient vs SSM β₃ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"

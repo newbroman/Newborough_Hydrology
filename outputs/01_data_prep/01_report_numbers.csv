@@ -8,3 +8,7 @@ pet_trailing_vs_calendar_p05_pct,,,-5.394832827060519,%,5th percentile of the sa
 pet_trailing_vs_calendar_p95_pct,,,5.490899857883839,%,95th percentile of the same
 pet_trailing_vs_calendar_mean_abs_pct,,,2.1394595936012797,%,mean absolute difference
 pet_calendar_undefined_n_months,,,2.0,count,"well-record months for which the calendar-year form cannot be computed (the year is incomplete): 2026-01, 2026-02"
+trend_annual_rain_full_record,,1931-2025,0.2404404655517096,mm/yr,"OLS of the annual rainfall total on year, RAF Valley, complete calendar years only (n=94, 1931-2025)"
+trend_annual_rain_full_record_t,,1931-2025,0.567826211753153,,"t-statistic; OLS of the annual rainfall total on year, RAF Valley, complete calendar years only (n=94, 1931-2025)"
+trend_annual_rain_full_record_p,,1931-2025,0.5715361611944036,,"two-sided p; OLS of the annual rainfall total on year, RAF Valley, complete calendar years only (n=94, 1931-2025)"
+trend_annual_rain_full_record_n,,1931-2025,94.0,years,"OLS of the annual rainfall total on year, RAF Valley, complete calendar years only (n=94, 1931-2025)"

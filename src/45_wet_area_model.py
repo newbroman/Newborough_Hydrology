@@ -59,7 +59,15 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-23 (T-77). Two new artefacts and
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-25. Figures 45_01 and 45_02 each
+#   gain a sidecar, 45_01_wet_area_model_axes.json / 45_02_ssm_through_nir_curves_axes.json:
+#   every axes' box as a fraction of the saved image plus its limits. The hindcast film
+#   (Script 47 1.2.0) uses them to draw callouts from its satellite thumbnails onto the
+#   report figures' own dots and dates. And 45_03 (report Figure 51) now draws its two
+#   panels one above the other, labelled (a) and (b) as the caption reads them, with
+#   the colour bar beneath (Martin: "the plots should be stacked", then "the report
+#   figure should be stacked too"). No CSV or number changes.
+# v1.4.0  # Hollingham (2026) - 2026-09-23 (T-77). Two new artefacts and
 #   a new Phase 4 between the SSM drive and the report numbers. 45_03: the per-cell
 #   switching levels in cell_thresholds.npz drawn as two map panels (wet floor, open
 #   water) — the network-median level at which a floor cell first reads the class,
@@ -110,6 +118,7 @@ import pandas as pd                                           # noqa: E402
 
 from utils.paths import (                                     # noqa: E402
     DIR_45, OUT_45_MODEL, OUT_45_MODEL_FIG, OUT_45_SSM_CURVES, OUT_45_SSM_CURVES_FIG,
+    OUT_45_MODEL_AXES, OUT_45_SSM_CURVES_AXES,
     OUT_45_REPORT_NUMBERS, OUT_45_SWITCHING_LEVELS_MAP, OUT_45_PHASE_HYSTERESIS,
     SENTINEL_TWO_CLASS_SERIES, SENTINEL_HINDCAST_MONTHLY, SENTINEL_CELL_THRESHOLDS,
     INT_CLIMATE, INT_LOCATIONS, INT_MASTER_DATA, DATA_KML_SITE_BOUNDARY,
@@ -192,6 +201,33 @@ def write_model(fits: dict) -> None:
     saved(OUT_45_MODEL.name)
 
 
+def _write_axes(fig, axes, path) -> None:
+    """The saved figure's axes geometry, for callouts drawn onto the PNG downstream.
+
+    Positions are fractions of the figure, y measured from the BOTTOM (matplotlib's
+    convention); the figure is saved without bbox_inches, so they are fractions of the
+    PNG too. A date axis carries its limits as ISO dates as well as matplotlib numbers.
+    """
+    import json                                                # noqa: PLC0415
+    import matplotlib.dates as mdates                          # noqa: PLC0415
+    out = []
+    for ax in axes:
+        b = ax.get_position()
+        x0, x1 = ax.get_xlim()
+        is_date = isinstance(ax.xaxis.get_major_formatter(),
+                             (mdates.AutoDateFormatter, mdates.ConciseDateFormatter,
+                              mdates.DateFormatter))
+        row = dict(box=[b.x0, b.y0, b.x1, b.y1], xlim=[x0, x1], ylim=list(ax.get_ylim()),
+                   x_is_date=is_date, yscale=ax.get_yscale(), xscale=ax.get_xscale())
+        if is_date:
+            row["xlim_iso"] = [mdates.num2date(x0).strftime("%Y-%m-%d"),
+                               mdates.num2date(x1).strftime("%Y-%m-%d")]
+        out.append(row)
+    path.write_text(json.dumps(dict(image=path.name.replace("_axes.json", ".png"),
+                                    axes=out), indent=1), encoding="utf-8")
+    saved(path.name)
+
+
 def plot_model(R: pd.DataFrame, fits: dict) -> None:
     import matplotlib                                          # noqa: PLC0415
     matplotlib.use("Agg")
@@ -215,6 +251,7 @@ def plot_model(R: pd.DataFrame, fits: dict) -> None:
     ax.legend(fontsize=8, loc="upper left")
     fig.tight_layout()
     fig.savefig(OUT_45_MODEL_FIG, dpi=160)
+    _write_axes(fig, [ax], OUT_45_MODEL_AXES)
     plt.close(fig)
     saved(OUT_45_MODEL_FIG.name)
 
@@ -292,6 +329,7 @@ def _plot_ssm(Hc: pd.DataFrame) -> None:
         ax.set_title(f"Mode {m} — SSM monthly level through the two curves", fontsize=9.5)
     fig.tight_layout()
     fig.savefig(OUT_45_SSM_CURVES_FIG, dpi=150)
+    _write_axes(fig, list(axes), OUT_45_SSM_CURVES_AXES)
     plt.close(fig)
     saved(OUT_45_SSM_CURVES_FIG.name)
 
@@ -318,7 +356,8 @@ def plot_switching_levels() -> None:
     cells off the floor are transparent. The site boundary is read through
     kml_io (never re-parsed here) and the reference wells are drawn as points.
     The grid is the npz's own: [left, bottom, right, top, res] in EPSG:27700
-    with row 0 at the top, so the image is drawn origin='upper'."""
+    with row 0 at the top, so the image is drawn origin='upper'. The panels are
+    stacked, (a) above (b), with the colour bar beneath (1.5.0; they were side by side)."""
     if not SENTINEL_CELL_THRESHOLDS.exists():
         warn(f"no {SENTINEL_CELL_THRESHOLDS.name}: switching-level map not drawn")
         return
@@ -352,10 +391,10 @@ def plot_switching_levels() -> None:
         warn(f"no {DATA_KML_SITE_BOUNDARY.name}: map drawn without the site boundary")
 
     grey = ListedColormap(["#d9d9d9"])
-    fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.2), sharex=True, sharey=True,
+    fig, axes = plt.subplots(2, 1, figsize=(7.4, 10.2), sharex=True, sharey=True,
                              constrained_layout=True)
     im = None
-    panels = (("wet_floor", "wet floor", "wet"), ("open_water", "open water", "open water"))
+    panels = (("wet_floor", "(a) wet floor", "wet"), ("open_water", "(b) open water", "open water"))
     for ax, (cls, title, state) in zip(axes, panels):
         h = z[f"h_{cls}"]
         never = floor & ~ever[cls]
@@ -377,6 +416,7 @@ def plot_switching_levels() -> None:
                                    label="reference dipwells")],
                    fontsize=7.5, loc="upper left")
     fig.colorbar(im, ax=axes.tolist(), shrink=0.85, pad=0.015,
+                 location="bottom",
                  label="switching level: network-median level at first wetting (m, 0 = ground)")
     fig.savefig(OUT_45_SWITCHING_LEVELS_MAP, dpi=160)
     plt.close(fig)

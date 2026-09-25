@@ -53,7 +53,10 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-24. D-192: the per-well β₃ behind
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): both WTF loops difference the joined
+#   frame on the calendar before dropping incomplete months, so a rise across a missed
+#   visit is no longer counted as one month's.
+# 1.12.0  Hollingham (2026) — 2026-09-24. D-192: the per-well β₃ behind
 #   the half-life map, the 1/β₃ map, the storage–drainage index (Table 7) and the
 #   §4.9.3 cluster summaries is read under config.PER_WELL_RECESSION_BASIS —
 #   "full_record" from Script 03's 03_19 (its full-record fit), "comparison_window"
@@ -209,12 +212,13 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations,
             continue
 
         # Align with climate
-        merged = wells_df[[well]].join(climate[["P_m","PET"]], how="inner").dropna()
+        # Differenced on the monthly calendar BEFORE incomplete months drop, so
+        # a rise across a missed month is not counted as one month's (D-195).
+        merged = wells_df[[well]].join(climate[["P_m","PET"]], how="inner").sort_index()
+        merged["dh"] = merged[well].diff()
+        merged = merged.dropna(subset=[well, "P_m", "PET"])
         if len(merged) < 24:
             continue
-
-        merged = merged.sort_index()
-        merged["dh"] = merged[well].diff()
 
         # Interception correction for Forest clusters
         if cluster in FOREST_CIDS and apply_forest_correction:
@@ -563,12 +567,11 @@ def wtf_extended_wells(climate, locations, out_root):
 
         # Align with climate
         merged = wells_ext[[well]].join(
-            climate[['P_m','PET']], how='inner').dropna()
+            climate[['P_m','PET']], how='inner').sort_index()
+        merged['dh'] = merged[well].diff()           # on the calendar (D-195)
+        merged = merged.dropna(subset=[well, 'P_m', 'PET'])
         if len(merged) < 24:
             continue
-
-        merged = merged.sort_index()
-        merged['dh'] = merged[well].diff()
 
         if cluster in FOREST_CIDS:
             merged['net_R'] = merged['P_m'] * (1 - FOREST_INTERCEPTION) - merged['PET']

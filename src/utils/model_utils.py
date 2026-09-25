@@ -52,7 +52,15 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-16. month_bucket(): Script
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-25 (D-195). build_ssm_frame()
+#   differences on the monthly CALENDAR. It used to dropna() first and shift the
+#   surviving rows, so a month without a level paired the next month with the last
+#   measured one: Delta_h spanned two or more months and was fitted to one month's
+#   P, PET and start-of-month displacement (151 of 13,211 reference-network pairs,
+#   2-23 months). exclude_interpolated had the same flaw: it dropped the bridged
+#   month and then differenced straight across it. Now h, P and PET sit on one row
+#   per month, the shifts are taken there, and incomplete rows are dropped after.
+# 1.6.0  Hollingham (2026) — 2026-09-16. month_bucket(): Script
 #   01's field-convention month bucketing, in ONE place (T-32). A reading on
 #   day > 15 belongs to that month, day <= 15 to the previous one. The tree
 #   carried FIVE correct implementations and THREE written as
@@ -103,6 +111,30 @@ LCSC_DATA_LIMIT = _LCSC_DATA_LIMIT
 # ═══════════════════════════════════════════════════════════════════════════════
 # DATA ALIGNMENT
 # ═══════════════════════════════════════════════════════════════════════════════
+
+def _on_monthly_calendar(df: pd.DataFrame) -> pd.DataFrame:
+    """One row per calendar month between the frame's first and last month, so a
+    shift of one row is a shift of one month (D-195). The original index values
+    are kept for every month that had a row; inserted months (none in practice
+    once the climate record is joined, which covers every month) carry NaN."""
+    df = df[~df.index.duplicated(keep="first")].sort_index()
+    if len(df) < 2:
+        return df
+    idx = df.index
+    per = idx if isinstance(idx, pd.PeriodIndex) else pd.DatetimeIndex(idx).to_period("M")
+    if per.has_duplicates:
+        raise ValueError("build_ssm_frame: two rows fall in one calendar month; "
+                         "bucket the series with month_bucket() first")
+    full = pd.period_range(per.min(), per.max(), freq="M")
+    if len(full) == len(per):
+        return df
+    out = df.set_axis(per).reindex(full)
+    orig = dict(zip(per, idx))
+    if isinstance(idx, pd.PeriodIndex):
+        return out
+    return out.set_axis(pd.DatetimeIndex([orig.get(q, q.to_timestamp()) for q in full],
+                                         name=idx.name))
+
 
 def build_ssm_frame(h_series, climate, lag=None, window=None,
                     drainage_datum=DRAINAGE_DATUM,
@@ -165,19 +197,19 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
         "h":   pd.to_numeric(h_series, errors="coerce"),
         "P":   pd.to_numeric(climate["P_m"], errors="coerce"),
         "PET": pd.to_numeric(climate["PET"], errors="coerce"),
-    }).dropna()
+    })
+    df = _on_monthly_calendar(df)
 
-    # Mask interpolated rows of h BEFORE differencing if requested.
-    # Both the current-month h and the previous-month h_prev must be
-    # measured for Δh to be a genuine measurement difference. Masking
-    # to NaN before the diff step ensures the subsequent dropna step
-    # discards those rows naturally.
+    # Mask interpolated months of h BEFORE differencing if requested. Both
+    # the current-month h and the previous-month h_prev must be measured for
+    # Δh to be a genuine measurement difference: the masked month drops, and
+    # so does the month after it, because the shift below is taken on the
+    # calendar and its h_prev is NaN (D-195; it used to difference across).
     if exclude_interpolated and provenance is not None:
         prov_aligned = provenance.reindex(df.index)
         interp_mask = (prov_aligned == "interpolated")
         if interp_mask.any():
             df.loc[interp_mask, "h"] = np.nan
-            df = df.dropna(subset=["h"])
 
     # Displacement above drainage datum
     df["h_disp"] = drainage_datum + df["h"]
@@ -191,7 +223,7 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
     if lag > 0:
         df["P"] = df["P"].shift(lag)
 
-    df = df.dropna(subset=["Delta_h", "P", "PET", "h_disp_prev"])
+    df = df.dropna(subset=["h", "Delta_h", "P", "PET", "h_disp_prev"])
 
     if window is not None and len(df) > window:
         df = df.iloc[-window:]

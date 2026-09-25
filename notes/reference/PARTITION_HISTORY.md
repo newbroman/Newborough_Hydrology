@@ -20,13 +20,14 @@ the two agree.
 | ID | Label | n | Anchor wells | Old-partition equivalent |
 |---|---|---|---|---|
 | C1 | Lake Edge | 7 | `ceh5`, `ceh11` | Old C1 (Eastern Block Lake) |
-| C2 | Dune | 24 | `d10` | Old C2 (Eastern Block Mature Dune) |
-| C3 | Western Residual | 21 | `nw1` | Old C3 (Western Block Mature Dune) |
+| C2 | Dune | 19 | `d10` | Old C2 (Eastern Block Mature Dune) |
+| C3 | Western Residual | 26 | `nw1` | Old C3 (Western Block Mature Dune) |
 | C4 | Main Forest | 9 | `ceh2` | Old C4 (Forest) |
 | C5 | Coastal Forest | 5 | `ceh16`, `nw9` | Subset of Old C3 — forested wells split out |
 
-Counts verified 2026-08-25 against
-`outputs/02_clustering/02_07_cluster_membership_k5.csv`.
+Counts verified 2026-09-25 against
+`outputs/02_clustering/02_cluster_stats.csv`, after D-195/D-196 moved five boundary
+wells (D15, D38, D9, T41a, CEH10) from C2 to C3; before that C2 had 24 and C3 21.
 
 The block label for C1 is **"Lake Edge"** in any new prose. "Lake-buffer" and
 "Eastern Block Lake" are old labels and should not appear in new code, prose or
@@ -36,7 +37,7 @@ k is fixed by the analyst rather than selected, because silhouette's peak on thi
 network is the trivial k = 2 split. That is stated at the partition step as a
 reviewer-visible note, and the partition is defended instead by corroboration
 from attributes the algorithm never saw: spatial compactness p = 0.0001,
-join-count z = 18.8, per-cluster Moran's I 0.45–0.74, forest-footprint recovery
+join-count z = 16.0, per-cluster Moran's I 0.45–0.60, forest-footprint recovery
 κ = 0.914.
 
 **Separation is not recoverability.** Every independent attribute *separates* the

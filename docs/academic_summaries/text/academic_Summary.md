@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_21.odt — do not edit. source-sha256=57f898c5aa01b842 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_22.odt — do not edit. source-sha256=34c7078869ff311b pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -25,11 +25,11 @@ The k=5 partition yields five zones with distinct SSM coefficient profiles (Tabl
 
   ------------------- ---- ------------- -------------- ------------- -------
   Zone                n    β₁ recharge   β₂ atm. draw   β₃ drainage   LCSC
-  C1 Lake Edge        7    4.578         0.923          0.089         0.218
-  C2 Dune             24   3.972         1.742          0.064         0.252
-  C3 W. Residual      21   3.573         1.807          0.057         0.280
-  C4 Main Forest      9    2.477         2.563          0.018         0.404
-  C5 Coastal Forest   5    2.428         1.274          0.045         0.412
+  C1 Lake Edge        7    4.578         0.911          0.089         0.218
+  C2 Dune             19   3.896         1.666          0.063         0.257
+  C3 W. Residual      26   3.758         1.778          0.062         0.266
+  C4 Main Forest      9    2.476         2.570          0.018         0.404
+  C5 Coastal Forest   5    2.412         1.248          0.045         0.415
   ------------------- ---- ------------- -------------- ------------- -------
 
 Table 1. SSM mechanistic coefficients by cluster (cluster-centroid fits). β₁, β₂ dimensionless; β₃ month⁻¹. LCSC = lumped climate-storage contribution (100/β₁), the reciprocal of recharge sensitivity.

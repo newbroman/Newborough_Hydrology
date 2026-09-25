@@ -28,7 +28,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.3.0"  # Hollingham (2026) — 2026-09-20. Emits CEH36_synthetic_control_n_donors:
+__version__ = "2.4.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): the CEH36 SSM frame keeps months
+#   without a level so its shifts are one calendar month; the baseline fit drops cross-
+#   gap pairs, the forward run steps through every month of weather and starts from the
+#   last MEASURED pre-2015 month.
+# 2.3.0  Hollingham (2026) — 2026-09-20. Emits CEH36_synthetic_control_n_donors:
 #   report6 §1 quotes "11 donor wells" and the count lived only in a Note string (E25).
 # 2.2.0 — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
@@ -124,11 +128,16 @@ def main():
 
     # ── (3) SSM forward residual ──────────────────────────────────────────
     phase(4, "Computing SSM forward residual")
+    # Months without a CEH36 level are KEPT (h NaN) so every shift below is one
+    # calendar month: the fit drops the pairs across a gap, and the forward
+    # run steps through every month of weather (D-195; the frame was
+    # dropna()'d first, so both skipped months).
     ts = pd.DataFrame({
         "h": ceh36,
         "P": climate["P_m"] * 1000.0,
         "PET": climate["PET"] * 1000.0,
-    }).dropna()
+    }).dropna(subset=["P", "PET"]).sort_index()
+    ts = ts[(ts.index >= ceh36.first_valid_index()) & (ts.index <= ceh36.last_valid_index())]
 
     ts["P_lag1"] = ts["P"].shift(HEADLINE_LAG)
 
@@ -150,7 +159,7 @@ def main():
         ts_fwd = ts.copy()
         ts_fwd["h_pred"] = np.nan
         idx_list = list(ts_fwd.index)
-        last_base_dt = ts_fwd.index[ts_fwd.index < date_2015].max()
+        last_base_dt = ts_fwd.index[(ts_fwd.index < date_2015) & ts_fwd["h"].notna()].max()
 
         if pd.notna(last_base_dt):
             h_pred = ts_fwd.loc[last_base_dt, "h"]

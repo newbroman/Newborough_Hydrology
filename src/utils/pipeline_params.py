@@ -40,7 +40,11 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-11. EXACT ROUND TRIP.
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-25. _DEFAULTS refreshed to the first
+#   full run after D-195/D-196 (the monthly-calendar correction and the partition it
+#   moved): eighteen fallbacks defaults_lint found stale, among them
+#   clearfell_recovery_mm 113.1 -> 108.2 and clearfell_summer_step_mm 50.1 -> -1.0 (scrape_offsite_100m_vol settled at -31.2 on the second run).
+# 1.12.0  Hollingham (2026) - 2026-09-11. EXACT ROUND TRIP.
 #   EVERY read and write of this store goes through utils/store_io (D-157).
 #   This file writes ONE row by reading the whole store and writing the whole
 #   store back, and pandas' default C float parser is not correctly rounded, so
@@ -324,18 +328,18 @@ _DEFAULTS = {
     # -29.0 / 894, which is the PRE-D-046 parameter block T-18c spent a morning
     # clearing out of the Methods Supplement. Leaving the same pair here as the
     # pipeline's own fallback is how it would have come back.
-    "drawdown_lambda_m":        226.4,   # 20_report_numbers.csv (drawdown_lambda
+    "drawdown_lambda_m":        221.3,   # 20_report_numbers.csv (drawdown_lambda
                                          # = 226.442); was 228.1, refreshed
                                          # 2026-08-28
-    "coast_delta0_mm_yr":       -31.35,  # 25_01 forest_free/linear_capped δ₀;
+    "coast_delta0_mm_yr":       -31.28,  # 25_01 forest_free/linear_capped δ₀;
                                          # was -29.0, the pre-D-046 value
-    "coast_reach_L_m":          894.0,   # 25_01 forest_free/linear_capped L;
+    "coast_reach_L_m":          902.0,   # 25_01 forest_free/linear_capped L;
                                          # was 894.0, the pre-D-046 value
     "scrape_offsite_100m_vol":  -31.2,   # 09d_01 Scraping (off-site 100 m)
                                          # mm w.e./month; was -30.3
-    "clearfell_recovery_mm":    113.1,   # 10a ANCOVA_Forest_Impact_clearfell_step
+    "clearfell_recovery_mm":    108.2,   # 10a ANCOVA_Forest_Impact_clearfell_step
                                          # ×1000 = 113.09; was 119.6 — see M31
-    "ceh36_scrape_response_m":  0.1294,  # 09a paired BACI, CEH36 Pure_Scraping vs
+    "ceh36_scrape_response_m":  0.1281,  # 09a paired BACI, CEH36 Pure_Scraping vs
                                          # CEH4; the H0 anchor for the scrape-drain
                                          # maps in Script 20
     # --- BACI coastal-drift differentials (D-111, Script 10a) ---------------
@@ -346,12 +350,12 @@ _DEFAULTS = {
     # Stored as the six TIER TRENDS, not as the eight zone x control
     # differentials: every differential derives from these, so there are six
     # numbers to keep true rather than eight, and a new zone adds none.
-    "baci_coastal_trend_impact_mm_yr":   -12.9347,
-    "baci_coastal_trend_edge_mm_yr":     -11.7284,
-    "baci_coastal_trend_forest_mm_yr":    -2.2326,
-    "baci_coastal_trend_coastal_mm_yr":  -19.6189,
-    "baci_coastal_trend_climate_mm_yr":  -11.9899,
-    "baci_coastal_trend_farfield_mm_yr":   0.1642,
+    "baci_coastal_trend_impact_mm_yr":   -13.2172,
+    "baci_coastal_trend_edge_mm_yr":     -12.0265,
+    "baci_coastal_trend_forest_mm_yr":    -2.5418,
+    "baci_coastal_trend_coastal_mm_yr":  -19.8152,
+    "baci_coastal_trend_climate_mm_yr":  -12.2846,
+    "baci_coastal_trend_farfield_mm_yr":   -0.0092,
     "uniform_residual_mm_yr":  -11.0,   # mean over the open-dune clusters of
                                          # (balanced observed decline − modelled coastal
                                          # gradient), 25_03_cluster_partition.csv. The
@@ -371,7 +375,7 @@ _DEFAULTS = {
                                          # matched value is 3.6x smaller, so h0
                                          # is 3.6x larger; a stale fallback here
                                          # would silently restore the old figure
-    "climate_c_mm_yr":          -0.10,   # 25_01 forest_free/linear_capped c_mm_yr,
+    "climate_c_mm_yr":          -0.30,   # 25_01 forest_free/linear_capped c_mm_yr,
                                          # refreshed 2026-08-19 from the committed
                                          # value; was -6.35, stale by the sign as
                                          # well as the magnitude. NOT a climate
@@ -379,7 +383,7 @@ _DEFAULTS = {
                                          # of: c is not separately identified
                                          # (D-039). Read by Script 37b and by
                                          # mechanism_fig_utils' far-field fallback.
-    "wmc3_drawdown_mm":         -55.2,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (measured off-cut)
+    "wmc3_drawdown_mm":         -45.8,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (measured off-cut)
     "wmc3_distance_m":          262.4,   # 09b_01 wmc3 dist_m (CEH36 -> WMC3 separation)
     # --- Mechanism-diagram fallbacks (Script 09g) ----------------------------
     # Edge amplitudes (mm) for the §5.8 mechanism diagrams. Live source is
@@ -388,11 +392,11 @@ _DEFAULTS = {
     # off-cut reuses "wmc3_drawdown_mm" above (10m WMC3 BACI). 09g runs after
     # 09f in Phase 17, so these engage only on a partial/interrupted run.
     "mech_forest_standing_mm":  -150.0,  # 09f_01 standing_pine_head_mm
-    "mech_coastal_5yr_mm":      -156.75, # 09f_01 coastal_5yr_head_mm
-    "mech_scrape_cut_rise_mm":   129.43, # 09f_01 scrape_head_mm (CEH36 cut rise)
+    "mech_coastal_5yr_mm":      -156.40, # 09f_01 coastal_5yr_head_mm
+    "mech_scrape_cut_rise_mm":   128.09, # 09f_01 scrape_head_mm (CEH36 cut rise)
     "mech_thinned_mm":           -75.0,  # 09f_01 thinned_forest_head_mm
-    "mech_coastal_storm_mm":     -81.05, # 09f_01 coastal_6m_storm_head_mm (D-091)
-    "clearfell_summer_step_mm":   50.1,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
+    "mech_coastal_storm_mm":     -80.87, # 09f_01 coastal_6m_storm_head_mm (D-091)
+    "clearfell_summer_step_mm":   -1.0,  # 10a ANCOVA_Forest_Impact_clearfell_step_summer x1000
 }
 
 

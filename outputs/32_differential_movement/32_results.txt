@@ -1,18 +1,18 @@
 
 === 2011_2025  (2011-2025) ===
-site-mean panel: 66 wells; mapped: 72; significant: 13; bootstrap agreement: 67/72
-holds up (mm/yr): Ceh32 +18.85, ceh34 +15.82, FE1 +15.33, ceh2 +15.33, nw10 +14.78
-sinks    (mm/yr): ceh22 -27.83*, ceh3 -20.01, ceh21 -16.97*, ceh19 -14.01*, ceh11 -11.69*
-site-mean level trend [spring_mam]: +19.78 mm/yr (AR-corrected p=0.284; OLS p=0.284; bootstrap CI [-3.42, +43.21]; panel n=66, 15 years)  — not significant
+site-mean panel: 66 wells; mapped: 74; significant: 13; bootstrap agreement: 68/74
+holds up (mm/yr): LIS1 +32.66, FE4 +27.78, Ceh32 +18.86, ceh34 +15.82, FE1 +15.33
+sinks    (mm/yr): ceh22 -27.82*, ceh3 -20.00, ceh21 -16.96*, ceh19 -14.00*, ceh11 -11.68*
+site-mean level trend [spring_mam]: +19.77 mm/yr (AR-corrected p=0.284; OLS p=0.284; bootstrap CI [-3.43, +43.19]; panel n=66, 15 years)  — not significant
     interannual residual sd 296.4 mm; smallest slope distinguishable from zero +/-49.6 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
-site-mean level trend [annual_all_month]: +13.38 mm/yr (AR-corrected p=0.250; OLS p=0.250; bootstrap CI [-3.74, +30.42]; panel n=66, 15 years)  — not significant
-    interannual residual sd 186.1 mm; smallest slope distinguishable from zero +/-31.2 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
+site-mean level trend [annual_all_month]: +13.18 mm/yr (AR-corrected p=0.251; OLS p=0.251; bootstrap CI [-3.84, +30.16]; panel n=66, 15 years)  — not significant
+    interannual residual sd 183.6 mm; smallest slope distinguishable from zero +/-30.7 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
 
 === 2005_2025  (2005-2025) ===
-site-mean panel: 18 wells; mapped: 75; significant: 12; bootstrap agreement: 64/75
-holds up (mm/yr): Ceh32 +20.45, ceh8 +17.57, ceh34 +17.41, FE1 +16.34, ceh7 +15.10
-sinks    (mm/yr): nw8 -30.33*, ceh22 -26.78*, ceh3 -24.89*, nw9 -18.49*, ceh17 -16.30*
-site-mean level trend [spring_mam]: -4.77 mm/yr (AR-corrected p=0.629; OLS p=0.629; bootstrap CI [-23.12, +12.84]; panel n=18, 21 years)  — not significant
-    interannual residual sd 270.0 mm; smallest slope distinguishable from zero +/-27.3 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
-site-mean level trend [annual_all_month]: -13.12 mm/yr (AR-corrected p=0.232; OLS p=0.104; bootstrap CI [-30.04, +3.36]; panel n=25, 21 years)  — not significant
-    interannual residual sd 213.3 mm; smallest slope distinguishable from zero +/-28.8 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
+site-mean panel: 18 wells; mapped: 77; significant: 12; bootstrap agreement: 65/77
+holds up (mm/yr): LIS1 +30.99, FE4 +26.11, Ceh32 +20.46, ceh8 +17.58, ceh34 +17.42
+sinks    (mm/yr): nw8 -30.34*, ceh22 -26.77*, ceh3 -24.88*, nw9 -18.49*, ceh17 -16.30*
+site-mean level trend [spring_mam]: -4.77 mm/yr (AR-corrected p=0.629; OLS p=0.629; bootstrap CI [-23.12, +12.83]; panel n=18, 21 years)  — not significant
+    interannual residual sd 269.9 mm; smallest slope distinguishable from zero +/-27.2 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way
+site-mean level trend [annual_all_month]: -12.97 mm/yr (AR-corrected p=0.233; OLS p=0.104; bootstrap CI [-29.73, +3.42]; panel n=25, 21 years)  — not significant
+    interannual residual sd 210.8 mm; smallest slope distinguishable from zero +/-28.5 mm/yr (alpha 0.05, power 80%) — trend falls inside it, so the record does not resolve a rate of this size either way

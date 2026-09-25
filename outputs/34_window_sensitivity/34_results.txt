@@ -4,9 +4,9 @@ common panel per pair; admissible = panel>=40; ALL pairs retained (wet-2024 wind
 
 anchor 2017->2023: -104.7 mm (n=60)
 
-ADMISSIBLE envelope: -161 to +230 mm (-0.16 to +0.23 m); 17 neg / 38 pos of 55 pairs (sign-changing)
+ADMISSIBLE envelope: -161 to +229 mm (-0.16 to +0.23 m); 17 neg / 38 pos of 55 pairs (sign-changing)
   most negative: 2017->2019 -161 mm (n=61)
-  most positive: 2015->2024 +230 mm (n=54)  [current window contains the freak-wet 2024 spring]
+  most positive: 2015->2024 +229 mm (n=53)  [current window contains the freak-wet 2024 spring]
 
 The anchor-pair headline is one interior point; the two-window MSL5 method cannot resolve absolute site-wide change.
 Thin 7-well 2005-2009 baseline auto-excluded by the panel rule.

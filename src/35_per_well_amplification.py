@@ -62,7 +62,11 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
+# 1.3.0  # Hollingham (2026) - 2026-09-24. The SSM calibration (amp coefficient vs β₂ and
+#   vs β₃: Pearson r, p, n, SSM-unreliable wells dropped) is written to
+#   35_report_numbers.csv as well as 35_results.txt, so the report's two sentences
+#   (report9 §4.12, report10 §5.3.2) trace to a CSV cell. Values unchanged.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "35"
 VERSION = __version__
@@ -81,6 +85,7 @@ OUT_CSV = paths.OUT_35_PER_WELL
 OUT_FIG_CALIB = paths.OUT_35_FIG_CALIB
 OUT_FIG_MARKERS = paths.OUT_35_FIG_MARKERS
 OUT_TXT = paths.OUT_35_RESULTS
+OUT_REPORT = paths.OUT_35_REPORT_NUMBERS
 
 # Inputs are read directly through utils.paths constants in load_inputs() (deps-visible):
 #   INT_WELLS_CLEAN, INT_LOCATIONS, INT_MASTER_DATA, INT_PEAR_AUDIT_SITEWIDE.
@@ -306,6 +311,19 @@ def main() -> int:
               "tiers and CIs carry the extrapolation honestly — read as 'consistent with' the fitted",
               "drainage/draw response, not as confirmation."]
     OUT_TXT.write_text("\n".join(lines) + "\n"); saved(OUT_TXT)
+
+    from utils.report_numbers_utils import ReportNumbers
+    rpt = ReportNumbers()
+    _excl = ";".join(sorted(calib_exclude)) or "none"
+    for lab, key in [("β₂", "beta2"), ("β₃", "beta3")]:
+        if lab not in calib:
+            continue
+        r, p, n = calib[lab]
+        _n = f"Pearson, amp_coefficient vs SSM {lab} (03_master_data), n={n}; SSM-unreliable dropped: {_excl}"
+        rpt.add(f"amp_vs_{key}_r", r, unit="", note=_n)
+        rpt.add(f"amp_vs_{key}_p", p, unit="", note=_n)
+        rpt.add(f"amp_vs_{key}_n", n, unit="wells", note=_n)
+    rpt.save(OUT_REPORT); saved(OUT_REPORT)
     hr()
     done(SCRIPT_ID)
     return 0

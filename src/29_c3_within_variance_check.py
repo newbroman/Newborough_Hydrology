@@ -37,7 +37,11 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-11. THE FIRST THING THE
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-24. The headline table (full five-predictor
+#   model per metric: n, R², adj R², strongest unique predictor and its ΔR²) is written to
+#   29_headline_models.csv as well as the memo, so the Methods Supplement table is
+#   generated from a CSV rather than typed from the memo (it had gone stale). Values unchanged.
+# 1.9.0  # Hollingham (2026) - 2026-09-11. THE FIRST THING THE
 #   UNSILENCING CAUGHT. `GeoSeries.unary_union` is a deprecated ATTRIBUTE in
 #   geopandas 1.x and is replaced by the `union_all()` METHOD; the
 #   DeprecationWarning had been suppressed here since the filter went in, and
@@ -131,6 +135,7 @@ def main():
     OUT_MEMO         = paths.OUT_29_MEMO
     OUT_FIG          = paths.OUT_29_PANEL_FIG
     OUT_REPORT       = paths.OUT_29_REPORT_NUMBERS
+    OUT_HEADLINE     = paths.OUT_29_HEADLINE
 
     # ── Constants ──────────────────────────────────────────────────────────────
     CEH36_E, CEH36_N = _CEH36_E, _CEH36_N   # config.py — documented 2015 dune-scrape site
@@ -418,6 +423,18 @@ def main():
         {res["metric"]: res["unique_contribution"] for res in results}
     ).T
     drop_matrix.to_csv(OUT_DROP_ONE)
+
+    # Headline table as a CSV (the memo's table, row for row)
+    _head = []
+    for res in results:
+        _d = {k: v for k, v in res["unique_contribution"].items() if pd.notna(v) and v > 0}
+        _s = max(_d, key=_d.get) if _d else ""
+        _head.append({"metric": res["metric"], "n": res["n"],
+                      "full_R2": res["full_R2"], "full_adj_R2": res["full_adj_R2"],
+                      "strongest_unique_predictor": _s,
+                      "strongest_unique_delta_R2": _d.get(_s, np.nan)})
+    pd.DataFrame(_head).to_csv(OUT_HEADLINE, index=False)
+    print(f"Headline model table saved.")
     print(f"Drop-one (unique contribution) matrix saved.")
 
 

@@ -323,7 +323,6 @@ Script 19 requires the following files in `data/geo/`:
 | Well | Reason |
 |------|--------|
 | CEH3 | Excluded from reference network (tidal-signal contamination); also excluded from spatial interpolation due to unrepresentative head values. Appears in the forecaster as nearest-cluster-only (flagged, not dropped). |
-| CEH17 | Poorest SSM fit on site (R² = 0.427); β₁ = 0.694 and β₃ = 0.049 are both site minima; inflates water balance residual |
 | CEH22 | Excluded from reference network (tidal-signal contamination); retained in extended network only |
 
 **Nearest-cluster-only wells in the forecaster:** Five wells (CEH3, CEH4,

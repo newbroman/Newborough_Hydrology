@@ -40,7 +40,18 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.52.0"  # Hollingham (2026) - 2026-09-24. BROADLEAF_B2_MONTHLY_MULT: the
+__version__ = "1.55.0"  # Hollingham (2026) - 2026-09-25. CLUSTER_HYDRO_WINDOW_START / _END:
+#   the window of Script 02's cluster-mean hydrographs (02_03 panel b and the 02_03b spaghetti figure),
+#   relocated from two typed literals in Script 02 so the cluster mean levels it now emits
+#   (report9 §4.2) name their window from config. Values unchanged; no output moves.
+# 1.54.0  # Hollingham (2026) - 2026-09-25. Script 47 1.2.0: FILM_TONE_F_LOW_HZ
+#   110 -> 55 Hz with FILM_TONE_HARMONIC_GAIN (Martin: "make the dry tone deeper"),
+#   FILM_SLIDE_TOP / FILM_SLIDE_FOOT (slide shading), FILM_THUMB_N /
+#   FILM_THUMB_CLEAR_MIN_PCT (tools/sentinel_thumbs.py) and FILM_INDEX_VIEW_S.
+# 1.53.0  # Hollingham (2026) - 2026-09-25. FILM_FIGURE_VIEW_S and the FILM_AUDIO_*
+#   / FILM_TONE_* / FILM_AMBIENT_* constants: Script 47 gains the three wet-area figures
+#   among its opening slides and a sound track (Martin, 2026-09-25). Additive.
+# 1.52.0  # Hollingham (2026) - 2026-09-24. BROADLEAF_B2_MONTHLY_MULT: the
 #   twelve monthly β₂ multipliers of the broadleaf-conversion scenario, which sat as
 #   literals inside Script 21's build_scenarios() (values unchanged). Additive.
 # 1.51.0  # Hollingham (2026) - 2026-09-24. PER_WELL_RECESSION_BASIS
@@ -1913,6 +1924,31 @@ FILM_WORDS_PER_MINUTE        = 250.0
 FILM_SLIDE_LEAD_S            = 1.5
 FILM_QUALITY_PRESENTATION    = 6      # imageio/x264: the cut that goes into git
 FILM_QUALITY_FULL            = 8      # the bare cut, gitignored
+FILM_FIGURE_VIEW_S           = 9.0    # a figure slide holds this long beyond its reading time
+FILM_INDEX_VIEW_S            = 4.0    # the title/index slide holds this long beyond its reading time
+FILM_SLIDE_TOP               = "#f7f2e8"   # slide shading: pale sand at the top ...
+FILM_SLIDE_FOOT              = "#e9f1f4"   # ... easing to pale sea-blue at the foot
+FILM_THUMB_N                 = 4      # true-colour thumbnails on the calibration slides
+FILM_THUMB_CLEAR_MIN_PCT     = 99.0   # share of the warren clear for a scene to be shown
+
+# The presentation cut's sound track (Martin, 2026-09-25: "a slow ambient sound during
+# the text and figure slides and a tone which increases with the flooding depth and
+# water depth"). Ambient under the slides; over the monthly frames a tone whose pitch
+# follows the calibrated water table across the hydrograph's own axis, a second voice
+# whose loudness follows the flooded area, and a tremolo on the months beyond the
+# record. Pure synthesis — no sampled audio, nothing to license.
+FILM_AUDIO_RATE_HZ           = 44100
+FILM_AUDIO_FADE_S            = 1.5    # crossfade between the ambient bed and the tone
+FILM_AMBIENT_ROOT_HZ         = 110.0  # A2: the pad is a soft A-major-add-9 chord on it
+FILM_AMBIENT_GAIN            = 0.20
+FILM_TONE_F_LOW_HZ           = 55.0   # pitch at the bottom of the hydrograph axis (A1)
+FILM_TONE_F_HIGH_HZ          = 440.0  # pitch at the top of the hydrograph axis
+FILM_TONE_GAIN               = 0.07
+FILM_TONE_HARMONIC_GAIN      = 0.45   # 2nd harmonic, relative: keeps the dry end audible on small speakers
+FILM_FLOOD_VOICE_GAIN        = 0.05   # the flooded-area voice at the record's largest area
+FILM_TREMOLO_HZ              = 5.0    # beyond-the-record months
+FILM_TREMOLO_DEPTH           = 0.45
+FILM_AUDIO_BITRATE           = "160k"
 
 # ── The Sentinel wet-area model (Scripts 45 & 46, T-40, D-178) ───────────────
 # The two-class wet-area model, promoted from the tools/ lane into the pipeline
@@ -2205,6 +2241,12 @@ CLUSTER_K_SWEEP_MIN     = 2          # the k-sweep evaluated for silhouette, CH 
 CLUSTER_K_SWEEP_MAX     = 10
 CLUSTER_BOOT_K_RANGE    = (4, 5, 6, 7)   # candidate k for the well-resampling bootstrap
 CLUSTER_BOOT_N          = 1000       # resamples per k (the rebuild handover's value)
+# Window of Script 02's cluster-mean hydrographs (02_03 panel b, and the per-well
+# spaghetti figure) and of the cluster mean levels emitted from them
+# (cluster_mean_level_m in 02_report_numbers.csv). Relocated from Script 02 literals
+# on 2026-09-25; values unchanged.
+CLUSTER_HYDRO_WINDOW_START = "2006-12-01"
+CLUSTER_HYDRO_WINDOW_END   = "2025-12-01"
 SSM_BOOT_SEED           = 20260424   # Script 03 centroid-fit bootstrap. Same VALUE as
                                      # CLUSTER_BOOT_SEED and deliberately a separate
                                      # constant: they seed different resamplings, and

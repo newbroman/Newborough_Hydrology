@@ -1599,6 +1599,46 @@ Each slack's floor is compared with **its own rim**, inside one tile, in three c
 
 **Revisit if** a further pass finds the pointer form leaves a §4 subsection unreadable without §5 — then the section is restructured, not the rule; or a journal's format requires combined Results and Discussion, in which case the split is undone per paper and the report keeps it.
 
+### D-194 — The Methods Supplement and the Supplementary Material are part of the report: the same gates, the same ledgers; papers and summaries wait for the report
+
+*2026-09-25*
+
+(Martin, 2026-09-25: *"the methods supplement and the supplementary methods should also be gated and the values, cross references stored in a ledger just like the report, in fact they should have the same checks, as they are part of the report itself as well as the pipeline docs. Papers and summaries are on hold till the report is finalized"*.) The MS and SM are report documents. Every content gate and ledger that covers the report chapters covers them: values (citation index at the report's confirmed standard), cross-references (their own tables, figures, notes and chapters, and their references into the report), tables (generated where a CSV exists), captions and sources, and the proof. The papers (T-49) and the academic summaries (T-83) are on hold until the report — chapters, MS and SM — is final.
+
+**Revisit if** the MS or SM is split out of the report as a separately published pipeline manual — then the pipeline-documentation half may carry lighter gates, but every number either document states still traces.
+
+### D-195 — A monthly change is one calendar month: the well table is put on the calendar, the bridge fills only lone interior months, and every difference is taken on the calendar
+
+*2026-09-25*
+
+(Martin, 2026-09-25: *"yes as it has to be right"*; *"please build"*.) - Script 01 reindexes the bucketed wells to the complete monthly calendar before cleaning, so a month without a visit is a row. - `clean_well_series` bridges only an interior run of at most `limit` (1) months, with a reading on both sides. - `build_ssm_frame` and every script that differences on its own take the shift on the calendar and drop incomplete months afterwards, so a change across a gap is dropped, never read as one month. - `tools/month_step_lint.py` gates all three in check_all. - Record-length admission (`MIN_RECORD_MONTHS`) keeps counting bridged months as it always has (Martin, 2026-09-25: "Count bridged months"). FE4 and LIS1 then reach exactly 100 months (98 and 99 measured) and enter `01_wells_clean.csv`; the reference and extended networks are unchanged (66 + 22).
+
+**Revisit if** the model moves to a sub-monthly or irregular time step, or the fieldwork convention changes so that one visit can represent more than one month.
+
+### D-196 — The k = 5 partition after D-195: C1 7 · C2 19 · C3 26 · C4 9 · C5 5
+
+*2026-09-25*
+
+(Martin, 2026-09-25: "Accept the new partition".) Membership follows the method on the corrected data. The counts are C1 Lake Edge 7, C2 Dune 19, C3 Western Residual 26, C4 Main Forest 9 and C5 Coastal Forest 5, which is still 66. IDs, labels and colours still come only from `config.py`.
+
+**Revisit if** a later correction to the well record moves membership again, or the five wells' stability is shown to reflect a data defect rather than a genuine boundary position.
+
+### D-197 — After D-195/D-196 the coastal gradient explains about half of C5's decline, and the open-dune residual is not shown to be uniform: the text reports the result as it stands
+
+*2026-09-25*
+
+(Martin, 2026-09-25: "Report as it now stands".) The documents say that the coastal gradient is the largest single contributor to C5's decline, accounting for about half of it (−17.6 mm/yr unexplained), and that the attribution is sensitive to cluster composition. The pre-D-196 figure (−0.7 mm/yr left) is stated as that. The two other candidate mechanisms "retain room for a quantitative role at C5" instead of being "left no separate role". The −11.0 mm/yr open-dune mean is still carried by Script 37b as the unexplained site-wide term, but it is carried as uniform by assumption, with its 7.0 mm/yr spread stated. The claim that the decomposition establishes spatial uniformity is withdrawn.
+
+**Revisit if** extended-well cluster assignment in Script 25 is changed, e.g. restricted to reference wells, or C5's basis gains or loses a well; or a composition-robust basis replaces the balanced annual mean.
+
+### D-198 — The β₁ decline is network-wide in the mean but is not shown to be independent of management: the Climate Control tier no longer carries it
+
+*2026-09-25*
+
+(Martin, 2026-09-25: "Report as it now stands".) The network-mean decline is reported as observed. The Climate Control tier is reported as not showing it. "Site-wide" and "independent of management" are softened to "network-wide in the mean" and "consistent with, but not shown to be, a site-wide trend". The decline stays a candidate mechanism for the summer-minimum deterioration. It is no longer "the strongest candidate", and it is no longer the reason clearfell does not improve summer minima. That reason is now the observation itself: felled and unfelled summer minima track each other, and the Jun–Sep step is −1 mm, p = 0.99.
+
+**Revisit if** a longer post-felling record, or a refit that does not depend on the era split, restores a Climate Control decline; or the NW6/NW7 behaviour is traced to a data defect.
+
 ---
 
-193 decisions. Generated by `tools/build_public_decisions.py`.
+198 decisions. Generated by `tools/build_public_decisions.py`.

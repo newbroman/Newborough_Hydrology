@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T15:33:52",
+ "generated": "2026-09-25T18:50:43",
  "orchestrator": "2.19.0",
  "steps": {
   "00_climate_summary.py": {
@@ -263,8 +263,7 @@
   "09f_management_effects.py": {
    "emitted": {
     "outputs/09_scraping_intervention/09f_01_reach_profile.csv": "a64acc18a45eaad1ff36eb35a06b6ef36c23a0e8301141413a4a45b1c020ed9d",
-    "outputs/09_scraping_intervention/09f_management_effects.png": "33b6a9579b8c4974afc2ab8a4a5131498cf6ea5804f5d9d90f6ddb235a13c78a",
-    "outputs/logs/run_20260925_150433.log": "0993f6bd6fedda14144895806136946d0a808256eb0a549e8b18a7427f27a0dd"
+    "outputs/09_scraping_intervention/09f_management_effects.png": "33b6a9579b8c4974afc2ab8a4a5131498cf6ea5804f5d9d90f6ddb235a13c78a"
    },
    "fallbacks": [],
    "inputs": {
@@ -272,13 +271,13 @@
     "outputs/09_scraping_intervention/09b_01_individual_well_baci.csv": "31fd54e3afb32f1d68d7e806961354bad13ba5fd63632ac327014429713ef5f0",
     "outputs/09_scraping_intervention/09d_01_scenario_comparison.csv": "cc8f4d430847c848c242f2a89311a7f0752f362cc047adaa3c355843a69cda82",
     "outputs/10_clearfell_baci/10a_report_numbers.csv": "6f706fe3b75a72a5ec46f1f5e4c3c75063a2c6d62616a532ab31129a4e6325d7",
-    "outputs/10_clearfell_baci/10m_report_numbers.csv": "9a79def063323ee2267ce2c6a8da9fe478eafbb5223cfcc5d130c7f677591fc1",
+    "outputs/10_clearfell_baci/10m_report_numbers.csv": "be6a61d73bb72970d798f01fd697206a631e21b7e77f2a1516603049fd1f095d",
     "outputs/20_spatial_figures/20_report_numbers.csv": "2bf7dccee3d30682144723f22ac439df19d73e65aaf5e054f1d3c2cef4a15e8a",
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
    "seconds": 2.2,
-   "started": "2026-09-25T15:22:09",
+   "started": "2026-09-25T18:50:27",
    "version": "1.9.0"
   },
   "09g_mechanism_diagrams.py": {
@@ -290,18 +289,17 @@
     "outputs/09_scraping_intervention/09g_mechanism_lay_drivers.png": "7fff27a22fc59217d6acfc230389d64b2a5f31a01887c1ad3b593f63767cd438",
     "outputs/09_scraping_intervention/09g_mechanism_lay_drivers.svg": "f36a02cba8e6a7b444661bee2ced02c5500a0a0e1cb376757891ac9880cdd4bc",
     "outputs/09_scraping_intervention/09g_mechanism_lay_management.png": "bb409a4fa87c04db34b787a290ad9c7919af46b9f99df277a483fa72b47e2a7d",
-    "outputs/09_scraping_intervention/09g_mechanism_lay_management.svg": "677dc305392ce618631195fb1e112c03f81df18556bea6f435089371702afff6",
-    "outputs/logs/run_20260925_150433.log": "f4f12d7a5f6e0b74fab5c574484c7e389c1b2fd215f42f7d5344e5ca95dd70b4"
+    "outputs/09_scraping_intervention/09g_mechanism_lay_management.svg": "677dc305392ce618631195fb1e112c03f81df18556bea6f435089371702afff6"
    },
    "fallbacks": [],
    "inputs": {
     "outputs/09_scraping_intervention/09f_01_reach_profile.csv": "a64acc18a45eaad1ff36eb35a06b6ef36c23a0e8301141413a4a45b1c020ed9d",
     "outputs/10_clearfell_baci/10a_report_numbers.csv": "6f706fe3b75a72a5ec46f1f5e4c3c75063a2c6d62616a532ab31129a4e6325d7",
-    "outputs/10_clearfell_baci/10m_report_numbers.csv": "9a79def063323ee2267ce2c6a8da9fe478eafbb5223cfcc5d130c7f677591fc1"
+    "outputs/10_clearfell_baci/10m_report_numbers.csv": "be6a61d73bb72970d798f01fd697206a631e21b7e77f2a1516603049fd1f095d"
    },
    "inputs_unresolved": [],
    "seconds": 1.2,
-   "started": "2026-09-25T15:22:11",
+   "started": "2026-09-25T18:50:31",
    "version": "1.7.0"
   },
   "11_forecasting_thresholds.py": {
@@ -1114,10 +1112,9 @@
   },
   "37b_driver_footing.py": {
    "emitted": {
-    "outputs/37b_driver_footing/37b_driver_footing.csv": "fdcd85d93610a9361416a21238ada636294322036297838a321d35ede0d4e877",
-    "outputs/37b_driver_footing/37b_driver_footing.png": "4e2351c5ecb70436af079362dcac2dfd8cb4255f0c09980f20c9ed4078aacd77",
-    "outputs/37b_driver_footing/37b_results.txt": "328eff12dc3de65a4d3771cfa656ad012bff64d85eceded7b49be8a694b057a3",
-    "outputs/logs/run_20260925_150433.log": "c8a76eac87cd04855ad2014691d380d95d5b095ceb5d530e5d0f719597ad59e5"
+    "outputs/37b_driver_footing/37b_driver_footing.csv": "7b2e0f403299ea22bb4c66f78405b34f07138c2e2b89fd0d7e9f3f800e815ff7",
+    "outputs/37b_driver_footing/37b_driver_footing.png": "bb16d0bfca3cddf6df8a27dfaac834e50310d08873769fc78f0a9c9b8ee7bc3e",
+    "outputs/37b_driver_footing/37b_results.txt": "1f1a3fada2ed6211f3bb7f890f66167191a99f208adbcc2321e718372cf915e4"
    },
    "fallbacks": [],
    "inputs": {
@@ -1125,13 +1122,13 @@
     "outputs/03_master_data.csv": "3ed41d9c4bddf3411987450bc9132521d605eaa76f211a5f803bad4c375ebba7",
     "outputs/09_scraping_intervention/09_scrape_03_baci_shifts.csv": "564a3ec7c5605468b05c045c7dad88e788b81893f6c0ba00f0092d076e738552",
     "outputs/10_clearfell_baci/10a_report_numbers.csv": "6f706fe3b75a72a5ec46f1f5e4c3c75063a2c6d62616a532ab31129a4e6325d7",
-    "outputs/10_clearfell_baci/10m_report_numbers.csv": "9a79def063323ee2267ce2c6a8da9fe478eafbb5223cfcc5d130c7f677591fc1",
+    "outputs/10_clearfell_baci/10m_report_numbers.csv": "be6a61d73bb72970d798f01fd697206a631e21b7e77f2a1516603049fd1f095d",
     "outputs/20_spatial_figures/20_report_numbers.csv": "2bf7dccee3d30682144723f22ac439df19d73e65aaf5e054f1d3c2cef4a15e8a",
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 9.8,
-   "started": "2026-09-25T15:19:25",
+   "seconds": 9.7,
+   "started": "2026-09-25T18:50:33",
    "version": "1.5.0"
   },
   "38_coastal_transect.py": {
@@ -1401,7 +1398,7 @@
   },
   "run_09_scraping.py": {
    "emitted": {
-    "outputs/01_data_prep/pipeline_site_observations.csv": "79cf998fd9fc353dfe1a3806a8379b5c3515c85e9686722f07491e6b5a316c31",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "f7b5af10ac6468dbc86f08c31dc56172151dc6754d89c31270b79ed234b05380",
     "outputs/09_scraping_intervention/09_scrape_01_full_parameters.csv": "022493cf3c96eaf4393de0cc48f97ab50a198d564b73ff210cc0a2d191f02d1c",
     "outputs/09_scraping_intervention/09_scrape_02_beta3_significance.csv": "3dbe89eb36824569c9a113989ccc9d6bd91bd09d051b5a3c04f845c66e189a48",
     "outputs/09_scraping_intervention/09_scrape_03_baci_shifts.csv": "564a3ec7c5605468b05c045c7dad88e788b81893f6c0ba00f0092d076e738552",
@@ -1436,14 +1433,13 @@
     "outputs/09_scraping_intervention/09d_01_scenario_comparison.jpg": "e89b58114ed15c26c863ab9e5ded825f4c19912c341fff92b10aed7e3067e9ae",
     "outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv": "57a4a466f1a94b94e8aeed21ecd1dee257ff80c38828def29823b141350ec0cd",
     "outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.png": "954a5463e2b5639e1840355412df9a250a82e3567a471014290253ac7a383782",
-    "outputs/09_scraping_intervention/09e_report_numbers.csv": "df22ac3e0d5dd1385dbd78760c24a7ce1c88691f948730fd36079d3e8320d819",
-    "outputs/logs/run_20260925_150433.log": "73323c4bc7812db50d8e2753c9d021eed7ba74ac7950cca693f865aab390de91"
+    "outputs/09_scraping_intervention/09e_report_numbers.csv": "df22ac3e0d5dd1385dbd78760c24a7ce1c88691f948730fd36079d3e8320d819"
    },
    "fallbacks": [],
    "inputs": {
     "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
     "outputs/01_data_prep/pipeline_scenario_params.csv": "2f5e22c0c8ea7f1d1b9361c0971bc4c8fa588b95af3f2539948394ff3746537c",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "67fadf0d052ce61e5447de801e6ddf90d40d394a04694b31e5fe60fbf0c92b15",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "ef3a265d96f5e3ececb48da426721700ef50bd002f1151a3a0c1a5487822cd08",
     "outputs/01_locations.csv": "d6e5a15b793b18d321023b78b7c02f64c738e4f2e156776d1fe1d5c477d1fb0c",
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371",
     "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
@@ -1455,22 +1451,22 @@
     "outputs/09_scraping_intervention/09f_01_reach_profile.csv": "a64acc18a45eaad1ff36eb35a06b6ef36c23a0e8301141413a4a45b1c020ed9d",
     "outputs/10_clearfell_baci/10a_report_numbers.csv": "6f706fe3b75a72a5ec46f1f5e4c3c75063a2c6d62616a532ab31129a4e6325d7",
     "outputs/10_clearfell_baci/10e_01_coefficient_shifts.csv": "9a4e5a6f773a68d6f4414b582ad724ce8bbbabe232126691132ea7f488ea8b62",
-    "outputs/10_clearfell_baci/10m_report_numbers.csv": "9a79def063323ee2267ce2c6a8da9fe478eafbb5223cfcc5d130c7f677591fc1",
+    "outputs/10_clearfell_baci/10m_report_numbers.csv": "be6a61d73bb72970d798f01fd697206a631e21b7e77f2a1516603049fd1f095d",
     "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv": "e9ce7b8ced148551630d6f0590db6578320359000c5660b8725d89efd54babd5",
     "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv": "7a78872ced028d97af0f5b7827d30b820fcab86a2b3c558940fa07a28c39ea15",
     "outputs/20_spatial_figures/20_report_numbers.csv": "2bf7dccee3d30682144723f22ac439df19d73e65aaf5e054f1d3c2cef4a15e8a",
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 10.1,
-   "started": "2026-09-25T15:08:36",
+   "seconds": 9.9,
+   "started": "2026-09-25T18:50:16",
    "version": "1.0.0"
   },
   "run_10_clearfell.py": {
    "emitted": {
     "outputs/01_data_prep/pipeline_scenario_params.csv": "2f5e22c0c8ea7f1d1b9361c0971bc4c8fa588b95af3f2539948394ff3746537c",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "82016ce6a47bc850d20b73e27b38ac28013f3eb050a6e3d55558713312c52e37",
-    "outputs/10_clearfell_baci/10_consolidated_report_numbers.csv": "11cfec56918dd9907d6082e1c95b3531ff7c2f8393d32ba960cd81404ae98f70",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "ef3a265d96f5e3ececb48da426721700ef50bd002f1151a3a0c1a5487822cd08",
+    "outputs/10_clearfell_baci/10_consolidated_report_numbers.csv": "8ce74357854ec29ac286e02222269023d28657c024e2fe12bb23d8832beb1f2f",
     "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv": "91bdd8d20bdf988dc11c1607bf9fbd4a6f70efad91508b2e9a85fe91031d6846",
     "outputs/10_clearfell_baci/10a_02_ancova_full_coefficients.csv": "03f103415ee8158dde0223721c284d9e14240616b2773fe80aca3aaed69eee99",
     "outputs/10_clearfell_baci/10a_02b_drift_design_equivalence.csv": "80d4506b614ecd4ed1743d5f16ad4e6f3dde32cb32360340d1bcf197e63524de",
@@ -1557,9 +1553,9 @@
     "outputs/10_clearfell_baci/10l_09_zone_spring_trajectories.jpg": "aa5eac6936fb9ce4fdb7ad3fb93514a2605f06d36b96fbada9a885c59c97d63e",
     "outputs/10_clearfell_baci/10l_10_spring_forest_plot.jpg": "3bebd4031c24f34c37326e781228f1e96cfde2466ee12ffb2942e05e84a0a3b4",
     "outputs/10_clearfell_baci/10l_report_numbers.csv": "2db4d5fd137bc3c9401d5b5d4df886292fb1c47a0be6394faafc2c60d15331ea",
-    "outputs/10_clearfell_baci/10m_01_wmc3_baci_era_steps.csv": "9954e63c26bcfb174b3c15fd016089ca1043f3d165888c60e05d9b16f603fa33",
-    "outputs/10_clearfell_baci/10m_02_wmc3_baci_dual.png": "a41feea99ee9193168b3dd058313ce5b68cdf372aad46e71438c6b742bd2255a",
-    "outputs/10_clearfell_baci/10m_report_numbers.csv": "9a79def063323ee2267ce2c6a8da9fe478eafbb5223cfcc5d130c7f677591fc1",
+    "outputs/10_clearfell_baci/10m_01_wmc3_baci_era_steps.csv": "d38eaab6da4a342aa8eef0e43edfe49b4ffc7ad1b98c0b5a65876441a1490a76",
+    "outputs/10_clearfell_baci/10m_02_wmc3_baci_dual.png": "c93aed4a946a4d0cf7439df615166d45389c2f5051612d71fc371ea5362e1985",
+    "outputs/10_clearfell_baci/10m_report_numbers.csv": "be6a61d73bb72970d798f01fd697206a631e21b7e77f2a1516603049fd1f095d",
     "outputs/10_clearfell_baci/10n_01_zone_gaps.csv": "a35cb6c6aab44b9d398c6187bf5cc752d8eb93622521bff76b33cc34fa982ec4",
     "outputs/10_clearfell_baci/10n_02_did_contrasts.csv": "8a59de97697ea2a8e91846748ec2db7cf547f57f30a19d8dbdcf1469d78079c4",
     "outputs/10_clearfell_baci/10n_03_placebo.csv": "620d57301609661cb0ff93df6e3986963338351b7692a3fd05ab2ed29ea52416",
@@ -1570,8 +1566,7 @@
     "outputs/10c_forest_zone_analysis/10c_03_c4_c5_boundary_map.png": "595eb212e9eaba44e675ad09b6a6db72e898a7efdfeb17ee17f21cdbaa8120b7",
     "outputs/10c_forest_zone_analysis/10c_04_forest_zone_summary.txt": "d802d776413d23bb4bb4af2d5ffcbf23587fa1b98dfb40e32f8eb518d765e787",
     "outputs/10c_forest_zone_analysis/10c_forest_zone_cluster_summary.csv": "d0aea5da5870800141481f33fc7f0edf2395836f960d2ed77db323617c3877ff",
-    "outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv": "31c8b4aa61d47170003e6d81a82c9855593a4a6701b003e005c807ea87491701",
-    "outputs/logs/run_20260925_150433.log": "f6b4781d58b9a59bda0ca4dc13dc9ceaee578376ce749efe000564d14c0c0cd3"
+    "outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv": "31c8b4aa61d47170003e6d81a82c9855593a4a6701b003e005c807ea87491701"
    },
    "fallbacks": [],
    "inputs": {
@@ -1598,8 +1593,8 @@
    "inputs_unresolved": [
     "3.geojson"
    ],
-   "seconds": 69.6,
-   "started": "2026-09-25T15:08:46",
+   "seconds": 68.5,
+   "started": "2026-09-25T16:36:27",
    "version": "1.1.0"
   }
  }

@@ -1,5 +1,14 @@
 Parameter,Well,Era,Value,Unit,Note
-WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.04578638921415569,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; consistent with scraping drawdown"
-WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.04013681383507202,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; consistent with clearfell recovery"
-WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.05314711273275424,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; consistent with scraping drawdown"
+WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.04578638921415569,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; read with the _se, _t and _placebo_share rows (D-200)"
+WMC3_BACI_DiD_step_2015_scraping_se,WMC3,Post-2015 scrape / pre-fell,0.06273313708645316,m,"Newey-West SE, 12 lags, two eras in quadrature"
+WMC3_BACI_DiD_step_2015_scraping_t,WMC3,Post-2015 scrape / pre-fell,-0.7298597095671625,,step / SE
+WMC3_BACI_DiD_step_2015_scraping_placebo_share,WMC3,Post-2015 scrape / pre-fell,0.7302631578947368,,share of 152 slid break dates with |step| >= |observed|; windows of the real eras' month counts
+WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.04013681383507202,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; read with the _se, _t and _placebo_share rows (D-200)"
+WMC3_BACI_DiD_step_2017_clearfell_se,WMC3,Post-clearfell / pre-2023,0.057234054909302355,m,"Newey-West SE, 12 lags, two eras in quadrature"
+WMC3_BACI_DiD_step_2017_clearfell_t,WMC3,Post-clearfell / pre-2023,0.7012750345694712,,step / SE
+WMC3_BACI_DiD_step_2017_clearfell_placebo_share,WMC3,Post-clearfell / pre-2023,0.7843137254901961,,share of 153 slid break dates with |step| >= |observed|; windows of the real eras' month counts
+WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.05314711273275424,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; read with the _se, _t and _placebo_share rows (D-200)"
+WMC3_BACI_DiD_step_2023_scraping_se,WMC3,Post-2023 scrape,0.06786802162816312,m,"Newey-West SE, 12 lags, two eras in quadrature"
+WMC3_BACI_DiD_step_2023_scraping_t,WMC3,Post-2023 scrape,-0.7830950638864629,,step / SE
+WMC3_BACI_DiD_step_2023_scraping_placebo_share,WMC3,Post-2023 scrape,0.6462585034013606,,share of 147 slid break dates with |step| >= |observed|; windows of the real eras' month counts
 WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.108230263783953,m,"reference copy of 10a headline (p=0.0034, CI=[0.0369,0.1796])"

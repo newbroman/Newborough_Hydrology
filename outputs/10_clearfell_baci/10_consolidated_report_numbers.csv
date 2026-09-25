@@ -650,9 +650,18 @@ FourZoneSpring_contrast_Impact_vs_Forest,Impact - Forest,Post_felling_Mar-May,-0
 FourZoneSpring_contrast_Impact_vs_Edge,Impact - Edge,Post_felling_Mar-May,0.0509,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0051)",10l
 FourZoneSpring_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling_Mar-May,0.0084,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.3835)",10l
 FourZoneSpring_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling_Mar-May,-0.0425,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0384)",10l
-WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.0457863892141556,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; consistent with scraping drawdown",10m
-WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.040136813835072,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; consistent with clearfell recovery",10m
-WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.0531471127327542,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; consistent with scraping drawdown",10m
+WMC3_BACI_DiD_step_2015_scraping,WMC3,Post-2015 scrape / pre-fell,-0.0457863892141556,m,"raw difference-in-differences, Pre-2015 scrape (baseline) → Post-2015 scrape / pre-fell; read with the _se, _t and _placebo_share rows (D-200)",10m
+WMC3_BACI_DiD_step_2015_scraping_se,WMC3,Post-2015 scrape / pre-fell,0.0627331370864531,m,"Newey-West SE, 12 lags, two eras in quadrature",10m
+WMC3_BACI_DiD_step_2015_scraping_t,WMC3,Post-2015 scrape / pre-fell,-0.7298597095671625,,step / SE,10m
+WMC3_BACI_DiD_step_2015_scraping_placebo_share,WMC3,Post-2015 scrape / pre-fell,0.7302631578947368,,share of 152 slid break dates with |step| >= |observed|; windows of the real eras' month counts,10m
+WMC3_BACI_DiD_step_2017_clearfell,WMC3,Post-clearfell / pre-2023,0.040136813835072,m,"raw difference-in-differences, Post-2015 scrape / pre-fell → Post-clearfell / pre-2023; read with the _se, _t and _placebo_share rows (D-200)",10m
+WMC3_BACI_DiD_step_2017_clearfell_se,WMC3,Post-clearfell / pre-2023,0.0572340549093023,m,"Newey-West SE, 12 lags, two eras in quadrature",10m
+WMC3_BACI_DiD_step_2017_clearfell_t,WMC3,Post-clearfell / pre-2023,0.7012750345694712,,step / SE,10m
+WMC3_BACI_DiD_step_2017_clearfell_placebo_share,WMC3,Post-clearfell / pre-2023,0.7843137254901961,,share of 153 slid break dates with |step| >= |observed|; windows of the real eras' month counts,10m
+WMC3_BACI_DiD_step_2023_scraping,WMC3,Post-2023 scrape,-0.0531471127327542,m,"raw difference-in-differences, Post-clearfell / pre-2023 → Post-2023 scrape; read with the _se, _t and _placebo_share rows (D-200)",10m
+WMC3_BACI_DiD_step_2023_scraping_se,WMC3,Post-2023 scrape,0.0678680216281631,m,"Newey-West SE, 12 lags, two eras in quadrature",10m
+WMC3_BACI_DiD_step_2023_scraping_t,WMC3,Post-2023 scrape,-0.7830950638864629,,step / SE,10m
+WMC3_BACI_DiD_step_2023_scraping_placebo_share,WMC3,Post-2023 scrape,0.6462585034013606,,share of 147 slid break dates with |step| >= |observed|; windows of the real eras' month counts,10m
 WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.108230263783953,m,"reference copy of 10a headline (p=0.0034, CI=[0.0369,0.1796])",10m
 SynthDiD_Impact_step,,,0.0476650985005349,m,"vs Forest Ctrl, HAC p=0.131, maxlags=4",10n
 SynthDiD_Impact_se,,,0.0315810724683754,m,Newey-West HAC,10n

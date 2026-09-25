@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T18:50:43",
+ "generated": "2026-09-26T00:06:33",
  "orchestrator": "2.19.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1350,9 +1350,9 @@
     "outputs/47_hindcast_film/47_02_calibration.csv": "0fb3daa9d375018e1152f9802d2f63687e08d3cf81dddda2f8381f1183d204da",
     "outputs/47_hindcast_film/47_02_quantile_map.csv": "9728205958073825eb62f53fc02b39f452e236db50248ce32bbec89e210cf6ba",
     "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "f6cb5b7690ee365152233b5e43008bca6fffc78c006aabdb91359abd24eb7c18",
-    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "83502a37184f133bac7434780e0b77caebd657a969886ab468e3b48c35d1ab50",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "48f02c42a1c1d0e58c85a1a9daf956cbab59cc3904989651ef72c5afebd85319",
     "outputs/47_hindcast_film/47_04_hindcast_still_2000-12.png": "b1adfb1c1787562ec01790b62cef129bd363982caad4dbc6e7778234057b3b92",
-    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "c853ba93c86ee16b75dbc7711165285832a01c865e4b523ab16c20de8f391a04",
+    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "12fbaaa9156820b64db3b802d2219647fea38364836f3dfcf642364fad11b5e3",
     "outputs/47_hindcast_film/47_06_free_run_vs_wells.png": "58f4e2bfe2bb2aa73df084c352570960b7a4e8ea90059844d1a4b8dfbc9c18ef"
    },
    "fallbacks": [],
@@ -1370,9 +1370,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 184.7,
-   "started": "2026-09-25T15:30:48",
-   "version": "1.2.0"
+   "seconds": 194.6,
+   "started": "2026-09-26T00:03:18",
+   "version": "1.3.0"
   },
   "48_pastas_crosscheck.py": {
    "emitted": {

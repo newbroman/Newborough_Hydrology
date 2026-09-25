@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.56.0"  # Hollingham (2026) - 2026-09-25. BACI_STEP_HAC_LAG_MONTHS /
+__version__ = "1.57.0"  # Hollingham (2026) - 2026-09-25. Script 47 1.3.0 (spec
+#   NRG_spec_script47_v1_3_2026-09-25, signed off): FILM_SOUND_TRACK switch ("warren" |
+#   "classic"), the opening (FILM_OPEN_*), and the Warren track's FILM_NOTE_*, FILM_WASH_*,
+#   FILM_CHORD_* and FILM_MIX_* constants. The 1.1.0 tone constants stay, read by "classic".
+# 1.56.0  # Hollingham (2026) - 2026-09-25. BACI_STEP_HAC_LAG_MONTHS /
 #   BACI_PLACEBO_MIN_COVERAGE: Script 10m 1.3.0 gives each raw WMC3 era step an
 #   autocorrelation-robust standard error and a moving-break placebo share (D-200). Additive.
 # 1.55.0  # Hollingham (2026) - 2026-09-25. CLUSTER_HYDRO_WINDOW_START / _END:
@@ -1952,6 +1956,33 @@ FILM_FLOOD_VOICE_GAIN        = 0.05   # the flooded-area voice at the record's l
 FILM_TREMOLO_HZ              = 5.0    # beyond-the-record months
 FILM_TREMOLO_DEPTH           = 0.45
 FILM_AUDIO_BITRATE           = "160k"
+
+# Script 47 1.3.0 (Martin, 2026-09-25): "a short title page, and a clip from 2015-2026
+# shortly after, then the full presentation with the new sound track"; the old track kept
+# as a switchable option.
+FILM_SOUND_TRACK             = "warren"   # "warren" (1.3.0) or "classic" (the 1.1.0 tone + flood voice)
+FILM_OPEN_TITLE_S            = 7.0        # the short opening title page
+FILM_OPEN_CLIP_START         = "2015-01"  # the opening clip runs from here to the last month
+FILM_OPEN_CLIP_LABEL         = "The last decade"
+# The Warren track. The pad (FILM_AMBIENT_*) runs throughout and opens with the water table;
+# one note each January carries the year's flooding in pitch and loudness; the wash carries
+# the wetting; a held chord voice sounds above each line drawn on the hydrograph.
+FILM_NOTE_F_LOW_HZ           = 55.0       # A1: a dry year's January note
+FILM_NOTE_F_HIGH_HZ          = 440.0      # A4: the record's largest open water
+FILM_NOTE_SCALE              = (0, 3, 5, 7, 10)   # A-minor pentatonic, semitones in each octave
+FILM_NOTE_FLOOR              = 0.2        # a dry year's note loudness, relative to the wettest
+FILM_NOTE_DECAY_S            = 0.55
+FILM_WASH_HARMONIC           = 0.85       # share of the wash through the chord resonators
+FILM_WASH_SEMITONES          = (12, 19, 24, 28, 31)   # resonators above the pad root: A3 E4 A4 C#5 E5
+FILM_WASH_BANDWIDTH_HZ       = 2.5
+FILM_WASH_SURGE_S            = 3.7
+FILM_WASH_FLOOR_PCT          = 2.0        # wetted-area percentile heard as silence
+FILM_CHORD_SEMITONES         = (19, 24, 28)   # above the pad root: E4 wet floor, A4 open water, C#5 2021
+FILM_CHORD_RELEASE_S         = 0.35
+FILM_MIX_PAD                 = 0.55
+FILM_MIX_NOTE                = 0.45
+FILM_MIX_WASH                = 0.60
+FILM_MIX_CHORD               = 0.16
 
 # ── The Sentinel wet-area model (Scripts 45 & 46, T-40, D-178) ───────────────
 # The two-class wet-area model, promoted from the tools/ lane into the pipeline

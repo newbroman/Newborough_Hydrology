@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**133 output file(s)** supply **1459 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**133 output file(s)** supply **1464 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -81,6 +81,11 @@
 |  | cluster_ground_elev_min_m · C1 (Lake Edge) | Newborough_Methods_Supplement.md |
 |  | cluster_isolated_ground_elev_m · C1 (Lake Edge) | Newborough_Methods_Supplement.md |
 |  | cluster_isolated_ground_elev_m · ceh11 · C1 (Lake Edge) | Newborough_Methods_Supplement.md |
+|  | cluster_mean_level_m · C1 (Lake Edge) · 2006-12 to 2025-12 | report9.md |
+|  | cluster_mean_level_m · C2 (Dune) · 2006-12 to 2025-12 | report9.md |
+|  | cluster_mean_level_m · C3 (Western Residual) · 2006-12 to 2025-12 | report9.md |
+|  | cluster_mean_level_m · C4 (Main Forest) · 2006-12 to 2025-12 | report9.md |
+|  | cluster_mean_level_m · C5 (Coastal Forest) · 2006-12 to 2025-12 | report9.md |
 |  | cluster_others_ground_elev_max_m · C4 (Main Forest) | Newborough_Methods_Supplement.md |
 |  | cluster_others_ground_elev_min_m · C1 (Lake Edge) | report9.md |
 |  | cluster_stability_median · C4 (Main Forest) · k=5 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report8.md, report9.md |

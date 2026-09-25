@@ -60,7 +60,19 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-25. Presentation cut, per Martin's spec
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-25. Per the signed-off spec
+#   NRG_spec_script47_v1_3_2026-09-25 (Martin: "a short title page, and a clip from
+#   2015-2026 shortly after, then the full presentation with the new sound track"):
+#   - the presentation cut opens with a short title page (FILM_OPEN_TITLE_S) and the
+#     monthly frames from FILM_OPEN_CLIP_START to the last month, labelled
+#     FILM_OPEN_CLIP_LABEL, before the title-and-contents page; two chapter markers added;
+#   - the "Warren" sound track, sound_track_warren(): the ambient pad runs throughout and
+#     opens with the water table (tremolo beyond the record); one note each January whose
+#     pitch and loudness follow that year's largest open water; a wash, largely pitched
+#     through resonators on the chord, whose loudness follows the wetted area; and a held
+#     chord voice above each line drawn on the hydrograph (wet floor, open water, 2021).
+#   - FILM_SOUND_TRACK selects it ("warren") or the 1.1.0 track ("classic"), which is kept.
+# v1.2.0  # Hollingham (2026) - 2026-09-25. Presentation cut, per Martin's spec
 #   NRG_spec_script47_v1_2_2026-09-25 (signed off the same day):
 #   - a title page with a contents list and start times, which are also written into
 #     the mp4 as chapter markers;
@@ -143,6 +155,11 @@ from utils.config import (                                    # noqa: E402
     FILM_TONE_F_LOW_HZ, FILM_TONE_F_HIGH_HZ, FILM_TONE_GAIN, FILM_FLOOD_VOICE_GAIN,
     FILM_TREMOLO_HZ, FILM_TREMOLO_DEPTH, FILM_AUDIO_BITRATE,
     FILM_INDEX_VIEW_S, FILM_SLIDE_TOP, FILM_SLIDE_FOOT, FILM_TONE_HARMONIC_GAIN,
+    FILM_SOUND_TRACK, FILM_OPEN_TITLE_S, FILM_OPEN_CLIP_START, FILM_OPEN_CLIP_LABEL,
+    FILM_NOTE_F_LOW_HZ, FILM_NOTE_F_HIGH_HZ, FILM_NOTE_SCALE, FILM_NOTE_FLOOR, FILM_NOTE_DECAY_S,
+    FILM_WASH_HARMONIC, FILM_WASH_SEMITONES, FILM_WASH_BANDWIDTH_HZ, FILM_WASH_SURGE_S,
+    FILM_WASH_FLOOR_PCT, FILM_CHORD_SEMITONES, FILM_CHORD_RELEASE_S,
+    FILM_MIX_PAD, FILM_MIX_NOTE, FILM_MIX_WASH, FILM_MIX_CHORD,
 )
 from utils.model_utils import simulate_ssm                    # noqa: E402
 from utils.console_utils import (                             # noqa: E402
@@ -1036,6 +1053,141 @@ def sound_track(marks: list, lvl: np.ndarray, flooded_ha: np.ndarray, hmax: floa
     return out * (0.8 / peak) if peak > 0 else out
 
 
+def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndarray,
+                       months: list, hmax: float, arrivals: dict) -> np.ndarray:
+    """The Warren track (1.3.0): stereo float32, sample-aligned to the frames.
+
+    Pad: the slides' ambient chord on FILM_AMBIENT_ROOT_HZ runs under everything. Under a
+    slide it sounds at rest; over the monthly frames its root and fifth always sound and
+    its octave and upper voices open with the calibrated water table (0 at TRACE_LO_M, 1
+    at the top of the record), with the tremolo on the months beyond the record.
+    Annual note: on each January's first frame, one mallet note whose pitch (sqrt of the
+    year's largest open water over the record's, snapped to FILM_NOTE_SCALE between
+    FILM_NOTE_F_LOW_HZ and _HIGH_HZ) and loudness (FILM_NOTE_FLOOR to 1) follow the flooding.
+    Wash: surf, FILM_WASH_HARMONIC of it through narrow resonators on the chord, whose
+    loudness follows the wetted area (open water + wet floor) over the record's range.
+    Chord: one held voice per line on the hydrograph (wet floor and open water arrival
+    levels, the 2021 flood), struck as the level rises through it, held while above.
+
+    The presentation runs ~10 minutes (~26 M samples), so each layer is added into one
+    float32 buffer and its temporaries released before the next is built.
+    """
+    from scipy.signal import lfilter                          # noqa: PLC0415
+    sr, fps = FILM_AUDIO_RATE_HZ, FILM_FPS
+    nf = len(marks)
+    ns = int(round(nf / fps * sr))
+    fidx = np.minimum((np.arange(ns, dtype=np.int64) * fps // sr), nf - 1).astype(np.int32)
+    t = np.arange(ns) / sr
+    rng = np.random.default_rng(47)
+    sm = lambda x, sec: _smooth(x, sec, sr)                   # noqa: E731
+    out = np.zeros((ns, 2), np.float32)
+
+    def add(y, gain, pan=None):
+        """Mix y (mono, or stereo (ns, 2)) into out at gain, optionally panned."""
+        if y.ndim == 2:
+            out[:] += (gain * y).astype(np.float32)
+        elif pan is None:
+            out[:] += (gain * y).astype(np.float32)[:, None]
+        else:
+            out[:, 0] += (gain * (0.5 - pan / 2) * y).astype(np.float32)
+            out[:, 1] += (gain * (0.5 + pan / 2) * y).astype(np.float32)
+
+    is_m = np.array([m is not None for m in marks], float)
+    mi = np.array([m if m is not None else 0 for m in marks], int)
+    h_m = pd.Series(np.where(is_m > 0, lvl[mi], np.nan)).ffill().bfill().to_numpy()  # per frame
+    w_m = np.clip(sm(is_m[fidx], FILM_AUDIO_FADE_S), 0, 1)   # 1 over the months, 0 under slides
+
+    # pad
+    x = np.clip((np.minimum(h_m, hmax) - TRACE_LO_M) / (hmax - TRACE_LO_M), 0, 1)
+    xo = sm(x[fidx], 0.5)
+    for k, ratio in enumerate((1.0, 1.5, 2.0, 2.5, 4.5)):
+        f0 = FILM_AMBIENT_ROOT_HZ * ratio
+        period = 7.0 + 2.3 * k
+        g = 0.55 + 0.45 * np.sin(2 * np.pi * t / period + rng.uniform(0, 2 * np.pi))
+        g *= (np.sin(2 * np.pi * (f0 - 0.35) * t) + np.sin(2 * np.pi * (f0 + 0.35) * t)) / 2
+        if k >= 2:
+            g *= (1 - w_m) + w_m * (0.15 + 0.85 * xo) ** (1 + 0.6 * (k - 2))
+        g /= 2.0 * (1.0 + 0.6 * k)
+        pan = 0.5 + 0.35 * np.sin(2 * np.pi * t / (period * 1.7))
+        out[:, 0] += (FILM_MIX_PAD * g * (1 - pan)).astype(np.float32)
+        out[:, 1] += (FILM_MIX_PAD * g * pan).astype(np.float32)
+        del g, pan
+    del xo
+    # the tremolo on the months beyond the record, applied to the pad alone
+    over = sm(((h_m > hmax) * is_m)[fidx], 0.5)
+    trem = (1.0 - FILM_TREMOLO_DEPTH * over
+            * (0.5 + 0.5 * np.sin(2 * np.pi * FILM_TREMOLO_HZ * t))).astype(np.float32)
+    out *= trem[:, None]
+    del over, trem
+
+    # annual note
+    yr = np.array([int(m[:4]) for m in months])
+    ow_max = float(np.nanmax(aw))
+    oct_ = int(round(12 * np.log2(FILM_NOTE_F_HIGH_HZ / FILM_NOTE_F_LOW_HZ)))
+    semis = np.array([o * 12 + d for o in range(oct_ // 12 + 1) for d in FILM_NOTE_SCALE
+                      if o * 12 + d <= oct_])
+    for j, k in enumerate(marks):
+        if k is None or not months[k].endswith("-01") or (j > 0 and marks[j - 1] == k):
+            continue
+        xf = float(np.sqrt(max(np.nanmax(aw[yr == yr[k]]), 0.0) / ow_max))
+        f = FILM_NOTE_F_LOW_HZ * 2 ** (semis[np.argmin(np.abs(semis - oct_ * xf))] / 12)
+        a0 = int(j / fps * sr); b0 = min(ns, a0 + int(2.5 * FILM_NOTE_DECAY_S * sr))
+        tt = np.arange(b0 - a0) / sr
+        env = (1 - np.exp(-tt / 0.008)) * np.exp(-tt / FILM_NOTE_DECAY_S)
+        tone = (np.sin(2 * np.pi * f * tt) + 0.35 * np.sin(4 * np.pi * f * tt) * np.exp(-tt / 0.2)
+                + 0.12 * np.sin(2 * np.pi * 2.76 * f * tt) * np.exp(-tt / 0.08))
+        y = FILM_MIX_NOTE * (FILM_NOTE_FLOOR + (1 - FILM_NOTE_FLOOR) * xf) * env * tone / 1.47
+        out[a0:b0] += y.astype(np.float32)[:, None]
+
+    # wash
+    wet = aw + af
+    lo, hi = np.nanpercentile(wet, FILM_WASH_FLOOR_PCT), np.nanmax(wet)
+    wl = np.sqrt(sm((np.clip((np.nan_to_num(wet[mi], nan=lo) - lo) / (hi - lo), 0, 1) * is_m)[fidx],
+                    2.0 / fps))
+    r = np.exp(-np.pi * FILM_WASH_BANDWIDTH_HZ / sr)
+    for ch, seed in enumerate((1, 2)):
+        z = np.random.default_rng(seed).standard_normal(ns)
+        y = sm(z, 1 / 1500.) - sm(z, 1 / 250.)
+        y *= (1 - FILM_WASH_HARMONIC) / np.abs(y).max()
+        z = np.random.default_rng(seed + 10).standard_normal(ns)
+        sung = np.zeros(ns)
+        for k, st in enumerate(FILM_WASH_SEMITONES):
+            th = 2 * np.pi * FILM_AMBIENT_ROOT_HZ * 2 ** (st / 12) / sr
+            sung += lfilter([1 - r], [1, -2 * r * np.cos(th), r * r], z) / (1 + 0.5 * k)
+        del z
+        y += FILM_WASH_HARMONIC * sung / np.abs(sung).max()
+        del sung
+        y *= (0.65 + 0.35 * np.sin(2 * np.pi * t / FILM_WASH_SURGE_S + seed)) * wl
+        out[:, ch] += (FILM_MIX_WASH * y).astype(np.float32)
+        del y
+    del wl
+
+    # chord: a held voice above each line on the hydrograph
+    lines = [(arrivals.get("wet_floor"), FILM_CHORD_SEMITONES[0], -0.35),
+             (arrivals.get("open_water"), FILM_CHORD_SEMITONES[1], 0.0),
+             (hmax, FILM_CHORD_SEMITONES[2], 0.35)]
+    for th, st, pan in lines:
+        if th is None:
+            continue
+        f = FILM_AMBIENT_ROOT_HZ * 2 ** (st / 12)
+        gate = ((h_m >= th) * is_m)[fidx]
+        g_out = sm(gate, FILM_CHORD_RELEASE_S)
+        env = np.where(np.gradient(g_out) >= 0, np.maximum(sm(gate, 0.03), g_out), g_out)
+        del g_out
+        ph = 2 * np.pi * np.cumsum(f * (1 + 0.003 * np.sin(2 * np.pi * 4.5 * t + f))) / sr
+        y = 0.7 * env * (np.sin(ph) + 0.30 * np.sin(2 * ph) + 0.10 * np.sin(3 * ph)) / 1.4
+        del ph, env
+        for a0 in np.flatnonzero(np.diff(gate) > 0) + 1:
+            tt = np.arange(min(ns - a0, int(0.6 * sr))) / sr
+            y[a0:a0 + tt.size] += 0.5 * np.exp(-tt / 0.12) * np.sin(2 * np.pi * 2 * f * tt)
+        add(y, FILM_MIX_CHORD, pan)
+        del y, gate
+
+    out *= np.minimum(1.0, np.minimum(t / 2.0, (t[-1] - t) / 3.0)).astype(np.float32)[:, None]
+    peak = float(np.abs(out).max())
+    return out * np.float32(0.85 / peak) if peak > 0 else out
+
+
 def write_wav(path: Path, track: np.ndarray) -> None:
     import wave                                               # noqa: PLC0415
     pcm = (np.clip(track, -1, 1) * np.iinfo(np.int16).max).astype("<i2")
@@ -1346,6 +1498,15 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         return grab(fig, FILM_SLIDE_LEAD_S + words / (FILM_WORDS_PER_MINUTE / 60.0)
                     + INDEX_ENTRY_S * len(entries) + FILM_INDEX_VIEW_S)
 
+    def open_title_slide():
+        """The short opening page (1.3.0): title, subtitle and byline, no contents."""
+        fig, ax = new_slide(strength=TITLE_SHADE)
+        _title(ax, FILM_TITLE, 0.06, 0.94, 0.62, fs_max=34)
+        ax.text(0.06, 0.52, FILM_SUBTITLE, fontsize=15, va="top", color="#2a2a2a")
+        ax.plot([0.06, 0.94], [0.455, 0.455], color=COL_WATER, lw=2.2)
+        ax.text(0.06, 0.045, FILM_BYLINE, fontsize=11, color="#666")
+        return grab(fig, FILM_OPEN_TITLE_S)
+
     def build_slide(title_, paras, foot, extra):
         kind = (extra or {}).get("kind")
         if kind == "figure":
@@ -1451,6 +1612,10 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     ax2.text(t[len(t) // 3], hmax + 0.05, "above the 2021 flood: beyond anything measured",
              fontsize=6.5, color="#b5532a")
     marker = ax2.axvline(t[0], color="#c0504d", lw=1.4)
+    # The opening clip's label (1.3.0), in the strip between the map and the hydrograph;
+    # blank for the full film.
+    clip_txt = axr.text(0.98, 0.275, "", fontsize=16, weight="bold", va="center", ha="right",
+                        color=COL_WATER)
 
     # The caption, reflowed to its box and sized ONCE for its longest form (with the
     # beyond-the-record paragraphs), so it never changes size or re-wraps between frames.
@@ -1492,18 +1657,27 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     entries.append((f"The film: {t[0].year}–{t[-1].year}", pos)); pos += n_sim
     for title_, fr in seg_after:
         entries.append((title_, pos)); pos += len(fr)
-    idx = []
+    idx, opening, clip = [], [], []
     if presentation:
+        # 1.3.0: the opening, a short title page and the last decade, comes before the
+        # title-and-contents page. Its length is known before the contents are drawn.
+        opening = open_title_slide()
+        c0 = int(np.searchsorted(np.array(months), FILM_OPEN_CLIP_START))
+        clip = list(range(c0, n))
+        n_open = len(opening) + len(clip) + 2 * FILM_FPS
         # The title page goes first; its length is fixed by its words and the number of
         # entries, not by the times it lists, so the times are known before it is drawn.
         shift = len(index_slide(entries))
-        entries = [(e[0], e[1] + shift) for e in entries]
+        entries = [(e[0], e[1] + n_open + shift) for e in entries]
         idx = index_slide(entries)
         if len(idx) != shift:
             raise RuntimeError("the title page changed length between probe and render")
-        entries.insert(0, ("Title and contents", 0))
-    marks = ([None] * len(idx) + [None] * sum(len(f) for _, f in seg_before) + sim_marks
-             + [None] * sum(len(f) for _, f in seg_after))
+        entries[:0] = [("Opening", 0),
+                       (f"{FILM_OPEN_CLIP_LABEL}: {t[c0].year}–{t[-1].year}", len(opening)),
+                       ("Title and contents", n_open)]
+    open_marks = ([None] * len(opening) + clip + [clip[-1]] * (2 * FILM_FPS)) if clip else []
+    marks = (open_marks + [None] * len(idx) + [None] * sum(len(f) for _, f in seg_before)
+             + sim_marks + [None] * sum(len(f) for _, f in seg_after))
 
     target = OUT_47_PRESENTATION if presentation else OUT_47_FILM
     quality = FILM_QUALITY_PRESENTATION if presentation else FILM_QUALITY_FULL
@@ -1520,6 +1694,14 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
             for a_ in arrs:
                 w.append_data(a_)
                 n_written += 1
+        if clip:
+            put(opening)
+            clip_txt.set_text(FILM_OPEN_CLIP_LABEL)
+            for i in clip:
+                a = frame(i)
+                put([a])
+            put([a] * (2 * FILM_FPS))
+            clip_txt.set_text("")
         put(idx)
         for _, fr in seg_before:
             put(fr)
@@ -1543,7 +1725,11 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
             raise RuntimeError(f"wrote {n_written} frames against a plan of {len(marks)}")
         if presentation:
             wav, meta = Path(td) / "track.wav", Path(td) / "chapters.txt"
-            write_wav(wav, sound_track(marks, lvl, aw + af, hmax))
+            if FILM_SOUND_TRACK == "classic":
+                track = sound_track(marks, lvl, aw + af, hmax)
+            else:
+                track = sound_track_warren(marks, lvl, aw, af, months, hmax, arrivals)
+            write_wav(wav, track)
             write_chapters(meta, entries, n_written)
             mux(silent, wav, target, meta)
             for title_, f0 in entries:

@@ -14,7 +14,15 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-21. The partition diagnostics report8
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-25. Emits cluster_mean_level_m, one row
+#   per canonical cluster: the mean over the plotted window of the cluster-mean hydrograph that
+#   02_03_cluster_hydrographs_wb.png panel (b) draws (the mean of the member wells each month, in m relative to ground,
+#   negative below). report9 §4.2 quoted these (C1 -0.38 ... C5 -1.25) from no output at all
+#   (Martin, 2026-09-25: "make scripts to emit the C4 depths and the C5 depths"). The window's
+#   two typed dates move to config (CLUSTER_HYDRO_WINDOW_START / _END, values unchanged), and
+#   make_cluster_hydrograph_wb_figure() returns the frame it plots so the numbers are the line
+#   on the figure. No existing output moves.
+# 1.8.0  # Hollingham (2026) — 2026-09-21. The partition diagnostics report8
 #   §3.2.3 quotes now trace: the k-sweep range, the bootstrap k set and the resample
 #   count are config constants (CLUSTER_K_SWEEP_MIN/MAX, CLUSTER_BOOT_K_RANGE,
 #   CLUSTER_BOOT_N — values unchanged); 02_04_bootstrap_stability_summary.csv gains
@@ -105,6 +113,7 @@ from utils.config import (
     CLUSTER_MONTH_BOOT_N, CLUSTER_MONTH_BLOCK_MONTHS,
     CLUSTER_MONTH_SPLIT_N, CLUSTER_MONTH_BOOT_SEED,
     CLUSTER_MONTH_DEGENERACY_GAP,
+    CLUSTER_HYDRO_WINDOW_START, CLUSTER_HYDRO_WINDOW_END,
 )
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -1087,8 +1096,13 @@ def add_cluster_geography_numbers(rr: ReportNumbers, cluster_df: pd.DataFrame) -
              f"most isolated {iso} ({nearest[i]:.0f} m from {near})")
 
 
-def make_cluster_hydrograph_wb_figure() -> None:
-    """Create 02_03 with top panel matching script 00 short water-balance panel."""
+def make_cluster_hydrograph_wb_figure() -> pd.DataFrame:
+    """Create 02_03 with top panel matching script 00 short water-balance panel.
+
+    Returns the panel (b) frame: one column per canonical cluster ("C1".."C5"),
+    the monthly mean of the member wells over CLUSTER_HYDRO_WINDOW_START/_END,
+    in m relative to ground (negative below). add_cluster_mean_level_numbers()
+    emits its column means, so the numbers are the lines the figure draws."""
     climate = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True).sort_index()
     wells = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True).sort_index()
     wells = wells.apply(pd.to_numeric, errors="coerce")
@@ -1147,7 +1161,8 @@ def make_cluster_hydrograph_wb_figure() -> None:
             regional[f"C{cid}"] = wells_all[available].mean(axis=1)
 
     regional = regional.loc[
-        (regional.index >= "2006-12-01") & (regional.index <= "2025-12-01")
+        (regional.index >= CLUSTER_HYDRO_WINDOW_START)
+        & (regional.index <= CLUSTER_HYDRO_WINDOW_END)
     ]
 
     dates = climate_clip.index
@@ -1232,6 +1247,28 @@ def make_cluster_hydrograph_wb_figure() -> None:
     render_figure(plt.gcf(), OUT_02_CLUSTER_HYDRO_WB, facecolor="white")
     plt.close(fig)
     saved(f"{OUT_02_CLUSTER_HYDRO_WB.name}")
+    return regional
+
+
+def add_cluster_mean_level_numbers(rr: ReportNumbers, regional: pd.DataFrame) -> None:
+    """
+    Emit cluster_mean_level_m per canonical cluster: the mean, over the plotted
+    window, of the cluster-mean hydrograph in 02_03 panel (b). report9 §4.2
+    quotes these and the offsets between clusters; before 1.9.0 no output carried
+    them. Units are m relative to ground, negative below.
+    """
+    start = pd.Timestamp(CLUSTER_HYDRO_WINDOW_START)
+    end = pd.Timestamp(CLUSTER_HYDRO_WINDOW_END)
+    era = f"{start:%Y-%m} to {end:%Y-%m}"
+    for col in sorted(c for c in regional.columns if c.startswith("C")):
+        cid = int(col[1:])
+        series = pd.to_numeric(regional[col], errors="coerce").dropna()
+        if series.empty:
+            continue
+        rr.add("cluster_mean_level_m", float(series.mean()), unit="m",
+               well=CLUSTER_LABELS.get(cid, col), era=era,
+               note=f"mean of the cluster-mean hydrograph (member wells averaged each month), "
+                    f"02_03_cluster_hydrographs_wb.png panel (b), {len(series)} months; negative = below ground")
 
 
 def make_cluster_spaghetti_figure() -> None:
@@ -1244,7 +1281,8 @@ def make_cluster_spaghetti_figure() -> None:
     wells_all = wells_all.apply(pd.to_numeric, errors="coerce")
     cluster_df_local = pd.read_csv(INT_CLUSTER_STATS)
     wells_all = wells_all.loc[
-        (wells_all.index >= "2006-12-01") & (wells_all.index <= "2025-12-01")
+        (wells_all.index >= CLUSTER_HYDRO_WINDOW_START)
+        & (wells_all.index <= CLUSTER_HYDRO_WINDOW_END)
     ]
 
     cids = sorted(
@@ -1806,7 +1844,10 @@ if __name__ == "__main__":
     plt.close(fig)
 
     step("Generating Cluster Hydrograph + Water-Balance Figure...")
-    make_cluster_hydrograph_wb_figure()
+    regional_means = make_cluster_hydrograph_wb_figure()
+    add_cluster_mean_level_numbers(rr, regional_means)
+    n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the cluster mean levels
+    step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the cluster mean levels)")
 
     step("Generating Per-Well Spaghetti Figure...")
     make_cluster_spaghetti_figure()

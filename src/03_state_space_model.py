@@ -86,7 +86,11 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-24. D-192: per_well_recession_table()
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): the empirical-LCSC frame (df_emp) is
+#   differenced on the joined monthly calendar before incomplete months drop; it had
+#   dropna()'d first and so diffed across missing months. The SSM fits themselves change
+#   through model_utils 1.7.0 and Script 01 1.23.0.
+# 1.18.0  Hollingham (2026) — 2026-09-24. D-192: per_well_recession_table()
 #   emits 03_19_per_well_recession_full_record.csv — every reference well's β₃, its
 #   p-value, t½ = ln(2)/β₃ and 1/β₃ on the FULL record (the full_record rows of the
 #   03_15 fit, so it is the same fit), with n, fit span, the significance flag and,
@@ -796,10 +800,13 @@ def per_well_fits(cluster_df: pd.DataFrame,
         # Empirical LCSC — ratio of rainfall to water-table rise during
         # unambiguous recharge events. Kept for cross-comparison with the
         # regression LCSC; uses the full available record for each well.
+        # Differenced BEFORE incomplete months are dropped, on the joined monthly
+        # calendar, so a change across a gap is NaN and drops, never read as
+        # one month (D-195; it used to dropna() first and diff the survivors).
         df_emp = pd.DataFrame({
             "h":  pd.to_numeric(wells_clean[target_col], errors="coerce"),
             "P":  pd.to_numeric(climate["P_m"], errors="coerce"),
-        }).dropna()
+        }).sort_index()
         df_emp["Delta_h"] = df_emp["h"].diff()
         df_emp = df_emp.dropna()
         if len(df_emp) > LCSC_DATA_LIMIT:

@@ -1,9 +1,9 @@
 descriptor,column,binary,eta2_separation,ari_recoverability
-Ground elevation,ground_elev_m,False,0.209,0.018
-Seasonal amplitude,amplitude,False,0.35,0.072
-Dry depth,dry_depth,False,0.356,0.133
-Summer minimum,summer_min,False,0.482,0.159
-Mean depth to water,mean_depth,False,0.521,0.23
-Distance to coast (Caernarfon Bay),dist_coast_m,False,0.629,0.258
-Easting,Easting,False,0.833,0.336
-Forest (canopy flag),forest,True,0.851,0.246
+Ground elevation,ground_elev_m,False,0.217,0.012
+Seasonal amplitude,amplitude,False,0.28,0.045
+Dry depth,dry_depth,False,0.402,0.182
+Summer minimum,summer_min,False,0.491,0.163
+Mean depth to water,mean_depth,False,0.524,0.175
+Distance to coast (Caernarfon Bay),dist_coast_m,False,0.577,0.21
+Easting,Easting,False,0.721,0.229
+Forest (canopy flag),forest,True,0.848,0.262

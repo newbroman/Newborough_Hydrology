@@ -1,43 +1,43 @@
 block,series,metric,value,n,unit
 open_dune_plane,corrected,n,52.0,52,wells
-open_dune_plane,corrected,r2,0.6129483006258964,52,-
-open_dune_plane,corrected,const,0.2717465305195629,52,Sy
-open_dune_plane,corrected,coef_E_per_km,-0.05775029790592524,52,Sy/km
-open_dune_plane,corrected,p_E,1.5373865465962627e-08,52,p
-open_dune_plane,corrected,coef_N_per_km,-0.04161763324113182,52,Sy/km
-open_dune_plane,corrected,p_N,1.1276819233536115e-05,52,p
-open_dune_plane,corrected,grad_per_km,0.0711837362381076,52,Sy/km
-open_dune_plane,corrected,azimuth_deg,234.2216706728826,52,degrees
-open_dune_plane,corrected,resid_sd,0.03105081876549659,52,Sy
-open_dune_plane,corrected,centroid_E,242177.71132692305,52,m
+open_dune_plane,corrected,r2,0.6097093938962678,52,-
+open_dune_plane,corrected,const,0.2768574043346797,52,Sy
+open_dune_plane,corrected,coef_E_per_km,-0.05422264380007179,52,Sy/km
+open_dune_plane,corrected,p_E,5.201038610716005e-08,52,p
+open_dune_plane,corrected,coef_N_per_km,-0.04395569660666472,52,Sy/km
+open_dune_plane,corrected,p_N,3.5885566151530327e-06,52,p
+open_dune_plane,corrected,grad_per_km,0.0698011344094537,52,Sy/km
+open_dune_plane,corrected,azimuth_deg,230.96997626610823,52,degrees
+open_dune_plane,corrected,resid_sd,0.030704750366489664,52,Sy
+open_dune_plane,corrected,centroid_E,242177.71132692308,52,m
 open_dune_plane,corrected,centroid_N,363674.9527692307,52,m
-forest_corr,corrected,r_vs_Elevation,-0.9522399245426921,14,Pearson r
-forest_corr,corrected,p_vs_Elevation,1.5453024246611686e-07,14,p
-forest_corr,corrected,r_vs_Dist_from_ridge,0.8367776606297732,14,Pearson r
-forest_corr,corrected,p_vs_Dist_from_ridge,0.0001902016145463914,14,p
-forest_corr,corrected,r_vs_Easting,-0.6701622803411655,14,Pearson r
-forest_corr,corrected,p_vs_Easting,0.008727199288091703,14,p
-forest_corr,uncorrected,r_vs_Elevation,-0.8198807096387088,14,Pearson r
-forest_corr,uncorrected,p_vs_Elevation,0.0003304061507004504,14,p
-forest_corr,uncorrected,r_vs_Dist_from_ridge,0.6741818780228291,14,Pearson r
-forest_corr,uncorrected,p_vs_Dist_from_ridge,0.008188507663727697,14,p
-forest_corr,uncorrected,r_vs_Easting,-0.4978360010485268,14,Pearson r
-forest_corr,uncorrected,p_vs_Easting,0.07005519949464929,14,p
-forest_corr,corrected_drop_ceh14,r_vs_Elevation,-0.9338207708773293,13,Pearson r
-forest_corr,corrected_drop_ceh14,p_vs_Elevation,3.059079096498695e-06,13,p
-forest_corr,corrected_drop_ceh14,r_vs_Dist_from_ridge,0.7930788344018073,13,Pearson r
-forest_corr,corrected_drop_ceh14,p_vs_Dist_from_ridge,0.001218170188127026,13,p
-forest_corr,corrected_drop_ceh14,r_vs_Easting,-0.6462197773382645,13,Pearson r
-forest_corr,corrected_drop_ceh14,p_vs_Easting,0.017015780463959754,13,p
-forest_corr,corrected_drop_ceh13,r_vs_Elevation,-0.9499626540869032,13,Pearson r
-forest_corr,corrected_drop_ceh13,p_vs_Elevation,6.782544221833556e-07,13,p
-forest_corr,corrected_drop_ceh13,r_vs_Dist_from_ridge,0.8641483391364717,13,Pearson r
-forest_corr,corrected_drop_ceh13,p_vs_Dist_from_ridge,0.00013916717821970428,13,p
-forest_corr,corrected_drop_ceh13,r_vs_Easting,-0.7706834489440063,13,Pearson r
-forest_corr,corrected_drop_ceh13,p_vs_Easting,0.0020463229573193884,13,p
-forest_corr,corrected_drop_ceh13_ceh14,r_vs_Elevation,-0.9251908763712119,12,Pearson r
-forest_corr,corrected_drop_ceh13_ceh14,p_vs_Elevation,1.6258866407979146e-05,12,p
-forest_corr,corrected_drop_ceh13_ceh14,r_vs_Dist_from_ridge,0.8304710303570438,12,Pearson r
-forest_corr,corrected_drop_ceh13_ceh14,p_vs_Dist_from_ridge,0.0008234663173859734,12,p
-forest_corr,corrected_drop_ceh13_ceh14,r_vs_Easting,-0.7858244506515365,12,Pearson r
-forest_corr,corrected_drop_ceh13_ceh14,p_vs_Easting,0.002445906332236952,12,p
+forest_corr,corrected,r_vs_Elevation,-0.9330905323150142,14,Pearson r
+forest_corr,corrected,p_vs_Elevation,1.120259089061091e-06,14,p
+forest_corr,corrected,r_vs_Dist_from_ridge,0.8092328697998056,14,Pearson r
+forest_corr,corrected,p_vs_Dist_from_ridge,0.0004550188188309131,14,p
+forest_corr,corrected,r_vs_Easting,-0.6532603818374401,14,Pearson r
+forest_corr,corrected,p_vs_Easting,0.011298333136742125,14,p
+forest_corr,uncorrected,r_vs_Elevation,-0.8222124576162985,14,Pearson r
+forest_corr,uncorrected,p_vs_Elevation,0.000307204062931567,14,p
+forest_corr,uncorrected,r_vs_Dist_from_ridge,0.7040622129010826,14,Pearson r
+forest_corr,uncorrected,p_vs_Dist_from_ridge,0.0049447598066397385,14,p
+forest_corr,uncorrected,r_vs_Easting,-0.5404225481693244,14,Pearson r
+forest_corr,uncorrected,p_vs_Easting,0.04602507380962104,14,p
+forest_corr,corrected_drop_ceh14,r_vs_Elevation,-0.9060260785630847,13,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Elevation,1.992728151011294e-05,13,p
+forest_corr,corrected_drop_ceh14,r_vs_Dist_from_ridge,0.7570032360958917,13,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Dist_from_ridge,0.002734954760468335,13,p
+forest_corr,corrected_drop_ceh14,r_vs_Easting,-0.6265619182750296,13,Pearson r
+forest_corr,corrected_drop_ceh14,p_vs_Easting,0.021936878404946823,13,p
+forest_corr,corrected_drop_ceh13,r_vs_Elevation,-0.9294625812197521,13,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Elevation,4.307525475488939e-06,13,p
+forest_corr,corrected_drop_ceh13,r_vs_Dist_from_ridge,0.8358647253919822,13,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Dist_from_ridge,0.00037194208925723994,13,p
+forest_corr,corrected_drop_ceh13,r_vs_Easting,-0.7536131446543451,13,Pearson r
+forest_corr,corrected_drop_ceh13,p_vs_Easting,0.0029305709359198754,13,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Elevation,-0.8933038168967888,12,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Elevation,9.081519487843021e-05,12,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Dist_from_ridge,0.7927097887866907,12,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Dist_from_ridge,0.002103282170678315,12,p
+forest_corr,corrected_drop_ceh13_ceh14,r_vs_Easting,-0.7668819229928188,12,Pearson r
+forest_corr,corrected_drop_ceh13_ceh14,p_vs_Easting,0.0036099377106336376,12,p

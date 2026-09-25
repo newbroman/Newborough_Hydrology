@@ -46,7 +46,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-09-07 caption-derived sources (retires figure_table_sources).
+__version__ = "1.2.0"  # 2026-09-25 (Claude, 25c). The aspect fix matched frames sized in
+#   centimetres only; report9/report10 frames are in inches, so every re-embed whose aspect
+#   changed there kept the old height and stretched the picture (28 frames found
+#   distorted, 3.6-258 %). Any svg unit is now read and written back in its own unit.
+# 1.1.0  2026-09-07 caption-derived sources (retires figure_table_sources).
 
 import argparse
 import hashlib
@@ -182,21 +186,21 @@ def rewrite(odt: Path, jobs: list) -> None:
             continue
         # the frame that carries this entry, and its stated box
         pat = re.compile(
-            r'(<draw:frame\b[^>]*?svg:width="([\d.]+)cm"[^>]*?svg:height="([\d.]+)cm"'
-            r'[^>]*>(?:(?!</draw:frame>).)*?xlink:href="' + re.escape(j["entry"]) + r'")',
+            r'(<draw:frame\b[^>]*?svg:width="([\d.]+)(cm|in|mm|pt)"[^>]*?'
+            r'svg:height="([\d.]+)(cm|in|mm|pt)"'
+            r'[^>]*>\s*<draw:image\b[^>]*?xlink:href="' + re.escape(j["entry"]) + r'")',
             re.S)
         m = pat.search(xml)
         if not m:
             continue
-        w = float(m.group(2))
-        new_h = round(w * nd[1] / nd[0], 3)
-        seg = m.group(1).replace(f'svg:height="{m.group(3)}cm"',
-                                 f'svg:height="{new_h}cm"', 1)
+        w, unit = float(m.group(2)), m.group(3)
+        new_h = round(w * nd[1] / nd[0], 4)
+        seg = m.group(1).replace(f'svg:height="{m.group(4)}{m.group(5)}"',
+                                 f'svg:height="{new_h}{unit}"', 1)
         xml = xml[:m.start(1)] + seg + xml[m.end(1):]
-        resized.append((j["fig"], m.group(3), f"{new_h}"))
+        resized.append((j["fig"], f"{m.group(4)}{m.group(5)}", f"{new_h}{unit}"))
     for f, o, n in resized:
-        print(f"      frame resized for Figure {f}: {o}cm -> {n}cm tall "
-              f"(aspect changed)")
+        print(f"      frame resized for Figure {f}: {o} -> {n} tall (aspect changed)")
 
     replace = {j["entry"]: j["new"] for j in jobs}
     tmp = Path(tempfile.mkdtemp()) / odt.name

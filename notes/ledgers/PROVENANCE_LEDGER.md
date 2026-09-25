@@ -198,7 +198,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (392)
+## Outputs no exhibit renders (396)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -497,6 +497,7 @@
 - `28_c3_detrend.csv`
 - `28_c3_detrend_panel.png`
 - `29_drop_one.csv`
+- `29_headline_models.csv`
 - `29_report_numbers.csv`
 - `29_univariate_R2.csv`
 - `29_within_c3_variance.csv`
@@ -529,6 +530,7 @@
 - `34_window_sensitivity.png`
 - `35_coefficient_markers.png`
 - `35_per_well_amplification.csv`
+- `35_report_numbers.csv`
 - `35_ssm_calibration.png`
 - `36_absolute_climate_trend_2011_2025.png`
 - `36_absolute_climate_trend_per_well.csv`
@@ -583,7 +585,9 @@
 - `47_01_hindcast_level_monthly.csv`
 - `47_02_calibration.csv`
 - `47_02_quantile_map.csv`
+- `47_04_hindcast_still_2000-12.png`
 - `47_04_hindcast_still_2001-02.png`
+- `47_06_free_run_vs_wells.png`
 - `48_01_pastas_per_well.csv`
 - `48_01_pastas_vs_ssm.png`
 - `48_02_pastas_agreement.csv`

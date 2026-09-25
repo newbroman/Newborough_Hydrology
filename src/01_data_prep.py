@@ -16,7 +16,20 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-21. The trailing-vs-calendar Thornthwaite
+__version__ = "1.23.0"  # Hollingham (2026) - 2026-09-25 (D-195). The monthly well table is put
+#   on the complete calendar before cleaning, so a month no visit buckets to (June
+#   2005, December 2022) is a row, bridged by the one-month rule like any other
+#   missed visit, and flagged interpolated in 01_wells_provenance.csv. With
+#   data_utils.clean_well_series now bridging ONLY interior gaps of one month (it
+#   had filled the first month of longer gaps and past record ends), the cleaned
+#   wells change in those cells and nowhere else.
+# 1.22.0  Hollingham (2026) - 2026-09-24. The annual-rainfall trend over the
+#   full RAF Valley record is EMITTED (trend_annual_rain_full_record, _t, _p, _n in
+#   01_report_numbers.csv): OLS of the annual total on year over the complete calendar
+#   years (all twelve months present; the partial first and last years and 1941, whose
+#   June is missing, drop out). report9 §4.1.1 had typed p = 0.498, which no committed
+#   output reproduced (Martin 2026-09-24: "the full record"). No other output moves.
+# 1.21.0  # Hollingham (2026) - 2026-09-21. The trailing-vs-calendar Thornthwaite
 #   comparison report8 §3.1.2 quotes is EMITTED (pet_trailing_vs_calendar_* and
 #   pet_calendar_undefined_n_months in 01_report_numbers.csv) instead of typed from
 #   the 2026-08-16 one-off ("median 0.00 %", which Martin called "so rounded it is
@@ -856,7 +869,7 @@ def _render_coverage_figure(wells_scope, states):
            f"{span}  (Source: 01_data_prep.py)")
 
 
-def _report_elevation_check(elev_df, src, pet_cmp=None):
+def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None):
     """The ground-source counts report8 §3.1.2 states, read out of the frame just
     written: how many wells take their ground elevation from the DGPS survey, how
     many from the LiDAR DTM, and the total located. The DEM-vs-DGPS comparison that
@@ -877,6 +890,14 @@ def _report_elevation_check(elev_df, src, pet_cmp=None):
         rr.add("pet_trailing_vs_calendar_mean_abs_pct", pet_cmp["mean_abs_pct"], unit="%", note="mean absolute difference")
         rr.add("pet_calendar_undefined_n_months", pet_cmp["n_undefined"], unit="count",
                note="well-record months for which the calendar-year form cannot be computed (the year is incomplete): " + pet_cmp["undefined_months"])
+    if rain_trend:
+        _era = f"{rain_trend['first']}-{rain_trend['last']}"
+        _n = (f"OLS of the annual rainfall total on year, RAF Valley, complete calendar years "
+              f"only (n={rain_trend['n']}, {_era})")
+        rr.add("trend_annual_rain_full_record", rain_trend["slope"], unit="mm/yr", era=_era, note=_n)
+        rr.add("trend_annual_rain_full_record_t", rain_trend["t"], unit="", era=_era, note="t-statistic; " + _n)
+        rr.add("trend_annual_rain_full_record_p", rain_trend["p"], unit="", era=_era, note="two-sided p; " + _n)
+        rr.add("trend_annual_rain_full_record_n", rain_trend["n"], unit="years", era=_era, note=_n)
     n = rr.save(OUT_01_REPORT_NUMBERS)
     saved(f"{OUT_01_REPORT_NUMBERS.name} ({n} value(s))")
 
@@ -966,6 +987,17 @@ if __name__ == "__main__":
     ) / 2
     climate["PET"] = thornthwaite_pet_m(t_mean)
     climate[["P_m", "PET"]].to_csv(INT_CLIMATE)
+    # Annual-rainfall trend over the full record (report9 §4.1.1): complete calendar
+    # years only — a year with any missing month (1941) or outside the record drops out.
+    from scipy.stats import linregress
+    _ann = climate["P_m"].groupby(climate.index.year).agg(["sum", "count"])
+    _ann = _ann[_ann["count"] == 12]
+    _lr = linregress(_ann.index.values.astype(float), _ann["sum"].values * 1000.0)
+    rain_trend = {"slope": float(_lr.slope), "t": float(_lr.slope / _lr.stderr),
+                  "p": float(_lr.pvalue), "n": int(len(_ann)),
+                  "first": int(_ann.index.min()), "last": int(_ann.index.max())}
+    info(f"annual rainfall trend, complete years {rain_trend['first']}-{rain_trend['last']}: "
+         f"{rain_trend['slope']:+.2f} mm/yr, p = {rain_trend['p']:.3f} (n = {rain_trend['n']})")
     # How far the trailing-window heat index (D-036) moves PET from the published
     # calendar-year form over the well record, and where the published form is
     # undefined — the figures report8 §3.1.2 quotes (emitted 1.21.0; they had been
@@ -1001,6 +1033,18 @@ if __name__ == "__main__":
     if "NW8" in wells.columns and "NW8b" in wells.columns:
         wells["NW8"] = wells["NW8b"].combine_first(wells["NW8"])
         wells.drop(columns=["NW8b"], inplace=True)
+    # Every calendar month gets a row (D-195). A month no visit buckets to had
+    # NO row, so the one-month bridge below could not see it and every
+    # differencing downstream joined its neighbours as if they were one month
+    # apart: June 2005 (7 and 14 June are May, then 20 July) and December 2022
+    # (30 Nov, then 1 Feb 2023 = January). A missed visit the workbook keeps as
+    # an empty date column (1/10/11, 1/2/17) was bridged; one it omits was not.
+    _cal = pd.date_range(wells.index.min(), wells.index.max(), freq="MS")
+    _added = _cal.difference(wells.index)
+    if len(_added):
+        info(f"{len(_added)} calendar month(s) with no visit given a row: "
+             + ", ".join(d.strftime("%b %Y") for d in _added))
+    wells = wells.reindex(_cal)
     # clean_well_series masks readings deeper than MIN_PHYSICAL_DEPTH = -4.0 m
     # (a safety floor; the deepest plausible water table at Newborough is ~3 m
     # below ground). Positive readings are RETAINED — the slacks regularly
@@ -1169,7 +1213,7 @@ if __name__ == "__main__":
 
         elev_df.to_csv(INT_WELL_ELEVATIONS, index=False)
         saved(f"{INT_WELL_ELEVATIONS.name}")
-        _report_elevation_check(elev_df, src, pet_cmp)
+        _report_elevation_check(elev_df, src, pet_cmp, rain_trend)
     else:
         elev_df = None
         warn(f"Elevation file not found: {_WELL_ELEV_FILE}")

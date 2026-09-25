@@ -1,50 +1,50 @@
 Parameter,Well,Era,Value,Unit,Note
-Tier1_CUSUM_terminal,CEH4,,-10.55274998465068,m,Final cumulative CUSUM vs Regional Mean
-Tier1_CUSUM_terminal,CEH22,,-19.021958174480666,m,Final cumulative CUSUM vs Regional Mean
-Tier2_BACI_shift,CEH36,Pure_Scraping,0.1294262107982894,m,vs CEH4
-Tier2_BACI_shift,CEH36,Felling_Pulse,0.023606505102040792,m,vs CEH4
-Tier2_BACI_shift,CEH4,Pure_Scraping,-0.014944747620500368,m,vs Regional Mean
-Tier2_BACI_shift,CEH4,Felling_Pulse,-0.08785645708148605,m,vs Regional Mean
-Tier2_BACI_shift,CEH18,Felling_Pulse,0.0297059584300923,m,vs CEH4
-Tier2_BACI_shift,CEH18,After_Scraping,0.008470878729253575,m,vs CEH4
-Tier2_BACI_shift,CEH21,Coastal_Drawdown,0.04308536306870281,m,vs CEH22
-Tier2_BACI_shift,CEH21,After_Scraping,0.0735465180060278,m,vs CEH22
-Tier2_BACI_shift,CEH22,Coastal_Drawdown,-0.16516713711494113,m,vs Regional Mean
-Tier2_BACI_shift,CEH22,After_Scraping,-0.12949064021022977,m,vs Regional Mean
-Net_benefit,CEH36,Pure_Scraping,0.14353184604419095,m,vs CEH21 coastal benchmark
-Net_benefit,CEH36,Felling_Pulse,-0.0489412022425072,m,vs CEH21 coastal benchmark
-Net_benefit,CEH18,Felling_Pulse,-0.009826996431941237,m,vs CEH21 coastal benchmark
-Net_benefit,CEH18,After_Scraping,-0.07252789388246444,m,vs CEH21 coastal benchmark
-beta3_era,CEH36,1_Baseline,0.08443403661356942,m,"CI=[0.0076,0.1613] p=0.0319"
-beta3_era,CEH36,2_Pure_Scraping,0.13904268724886212,m,"CI=[0.0577,0.2204] p=0.0015"
-beta3_era,CEH36,3_Felling_Pulse,0.11284582800653845,m,"CI=[0.0547,0.1710] p=<0.001"
-beta3_era,CEH4,1_Baseline,0.07043801890567279,m,"CI=[0.0267,0.1142] p=0.0019"
-beta3_era,CEH4,2_Pure_Scraping,0.16171875331227747,m,"CI=[0.0790,0.2445] p=<0.001"
-beta3_era,CEH4,3_Felling_Pulse,0.11547469604707289,m,"CI=[0.0650,0.1660] p=<0.001"
-beta3_era,CEH18,1_Baseline,0.07428774283423778,m,"CI=[0.0356,0.1130] p=<0.001"
-beta3_era,CEH18,2_Felling_Pulse,0.10341797737084277,m,"CI=[0.0212,0.1856] p=0.0144"
-beta3_era,CEH18,3_After_Scraping,0.17666992793411906,m,"CI=[0.0426,0.3107] p=0.0119"
-beta3_era,CEH21,1_Baseline,0.10291089356098015,m,"CI=[0.0522,0.1537] p=<0.001"
-beta3_era,CEH21,2_Coastal_Drawdown,0.0559774051188288,m,"CI=[-0.0051,0.1171] p=0.0719"
-beta3_era,CEH21,3_After_Scraping,0.09567002209601097,m,"CI=[-0.0174,0.2087] p=0.0940"
-beta3_era,CEH22,1_Baseline,0.13603190414255978,m,"CI=[0.0828,0.1892] p=<0.001"
-beta3_era,CEH22,2_Coastal_Drawdown,0.15155092268015374,m,"CI=[0.0733,0.2298] p=<0.001"
-beta3_era,CEH22,3_After_Scraping,0.23902935950459614,m,"CI=[0.0793,0.3988] p=0.0050"
+Tier1_CUSUM_terminal,CEH4,,-10.611465226702117,m,Final cumulative CUSUM vs Regional Mean
+Tier1_CUSUM_terminal,CEH22,,-19.462482786885246,m,Final cumulative CUSUM vs Regional Mean
+Tier2_BACI_shift,CEH36,Pure_Scraping,0.1280873724489796,m,vs CEH4
+Tier2_BACI_shift,CEH36,Felling_Pulse,0.02291141434840205,m,vs CEH4
+Tier2_BACI_shift,CEH4,Pure_Scraping,-0.011931613452591944,m,vs Regional Mean
+Tier2_BACI_shift,CEH4,Felling_Pulse,-0.09139822085265223,m,vs Regional Mean
+Tier2_BACI_shift,CEH18,Felling_Pulse,0.029315875953766043,m,vs CEH4
+Tier2_BACI_shift,CEH18,After_Scraping,0.006411570821406837,m,vs CEH4
+Tier2_BACI_shift,CEH21,Coastal_Drawdown,0.04434720659000074,m,vs CEH22
+Tier2_BACI_shift,CEH21,After_Scraping,0.08066872447347123,m,vs CEH22
+Tier2_BACI_shift,CEH22,Coastal_Drawdown,-0.16891808930843752,m,vs Regional Mean
+Tier2_BACI_shift,CEH22,After_Scraping,-0.14435001850771365,m,vs Regional Mean
+Net_benefit,CEH36,Pure_Scraping,0.1441530612244898,m,vs CEH21 coastal benchmark
+Net_benefit,CEH36,Felling_Pulse,-0.05490278512251001,m,vs CEH21 coastal benchmark
+Net_benefit,CEH18,Felling_Pulse,-0.010812353532881958,m,vs CEH21 coastal benchmark
+Net_benefit,CEH18,After_Scraping,-0.07525030584781023,m,vs CEH21 coastal benchmark
+beta3_era,CEH36,1_Baseline,0.08355078575110446,m,"CI=[0.0038,0.1633] p=0.0405"
+beta3_era,CEH36,2_Pure_Scraping,0.1388086353307848,m,"CI=[0.0573,0.2203] p=0.0016"
+beta3_era,CEH36,3_Felling_Pulse,0.11024663359626165,m,"CI=[0.0528,0.1677] p=<0.001"
+beta3_era,CEH4,1_Baseline,0.07019047144901161,m,"CI=[0.0265,0.1139] p=0.0019"
+beta3_era,CEH4,2_Pure_Scraping,0.1615086161770781,m,"CI=[0.0786,0.2444] p=<0.001"
+beta3_era,CEH4,3_Felling_Pulse,0.11314642761883714,m,"CI=[0.0639,0.1624] p=<0.001"
+beta3_era,CEH18,1_Baseline,0.07517427276422695,m,"CI=[0.0365,0.1138] p=<0.001"
+beta3_era,CEH18,2_Felling_Pulse,0.09806486700534481,m,"CI=[0.0202,0.1759] p=0.0143"
+beta3_era,CEH18,3_After_Scraping,0.14570553091790064,m,"CI=[0.0122,0.2792] p=0.0337"
+beta3_era,CEH21,1_Baseline,0.10259527711387695,m,"CI=[0.0518,0.1534] p=<0.001"
+beta3_era,CEH21,2_Coastal_Drawdown,0.05151620043206227,m,"CI=[-0.0064,0.1094] p=0.0804"
+beta3_era,CEH21,3_After_Scraping,0.0953254628777575,m,"CI=[-0.0178,0.2085] p=0.0953"
+beta3_era,CEH22,1_Baseline,0.14011615897586777,m,"CI=[0.0878,0.1925] p=<0.001"
+beta3_era,CEH22,2_Coastal_Drawdown,0.1398798614909261,m,"CI=[0.0624,0.2174] p=<0.001"
+beta3_era,CEH22,3_After_Scraping,0.15480193333721054,m,"CI=[0.0074,0.3022] p=0.0404"
 Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.18,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH36,1_Baseline,-1.23,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH36,2_Pure_Scraping,-1.11,m,Mean of annual Jun-Sep minima
 Summer_minimum_depth,CEH36,3_Felling_Pulse,-1.1,m,Mean of annual Jun-Sep minima
-BACI_step_with_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.023932523675123617,m,"step once a linear trend is allowed for; HAC se=0.041379 m, p=0.5630; step-only was 0.073547 m (p=0.0147)"
-BACI_pre_window_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.016548883574010347,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.0097 — this is the evidence on which the step+trend model is admitted, not a preference for it"
-BACI_step_with_trend,CEH18,"CEH18 vs CEH4, 2023 re-scrape",0.022324184163016025,m,"step once a linear trend is allowed for; HAC se=0.028725 m, p=0.4371; step-only was 0.008471 m (p=0.6054)"
-BACI_pre_window_trend,CEH18,"CEH18 vs CEH4, 2023 re-scrape",-0.003997742591309506,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.5924 — this is the evidence on which the step+trend model is admitted, not a preference for it"
-BACI_step_with_trend,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.09953270994340158,m,"step once a linear trend is allowed for; HAC se=0.026869 m, p=<0.001; step-only was 0.147222 m (p=<0.001)"
-BACI_pre_window_trend,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.01532901755631938,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.1055 — this is the evidence on which the step+trend model is admitted, not a preference for it"
-BACI_min_detectable_step,CEH21,"CEH21 vs CEH22, 2023 re-scrape",115.92647700183127,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +23.9 mm lies BELOW it"
+BACI_step_with_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.025052027806559195,m,"step once a linear trend is allowed for; HAC se=0.039412 m, p=0.5250; step-only was 0.080669 m (p=0.0035)"
+BACI_pre_window_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.017257169172340277,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.0061 — this is the evidence on which the step+trend model is admitted, not a preference for it"
+BACI_step_with_trend,CEH18,"CEH18 vs CEH4, 2023 re-scrape",0.021732856149029964,m,"step once a linear trend is allowed for; HAC se=0.028641 m, p=0.4480; step-only was 0.006412 m (p=0.6999)"
+BACI_pre_window_trend,CEH18,"CEH18 vs CEH4, 2023 re-scrape",-0.004197876221854095,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.5734 — this is the evidence on which the step+trend model is admitted, not a preference for it"
+BACI_step_with_trend,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.09919882126193946,m,"step once a linear trend is allowed for; HAC se=0.026918 m, p=<0.001; step-only was 0.145402 m (p=<0.001)"
+BACI_pre_window_trend,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.014449719226717936,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.1335 — this is the evidence on which the step+trend model is admitted, not a preference for it"
+BACI_min_detectable_step,CEH21,"CEH21 vs CEH22, 2023 re-scrape",110.41539684755169,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +25.1 mm lies BELOW it"
 BACI_step_below_floor,CEH21,"CEH21 vs CEH22, 2023 re-scrape",1.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect
-BACI_min_detectable_step,CEH18,"CEH18 vs CEH4, 2023 re-scrape",80.4768212721585,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +22.3 mm lies BELOW it"
+BACI_min_detectable_step,CEH18,"CEH18 vs CEH4, 2023 re-scrape",80.24151435395353,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +21.7 mm lies BELOW it"
 BACI_step_below_floor,CEH18,"CEH18 vs CEH4, 2023 re-scrape",1.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect
-BACI_min_detectable_step,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",75.27591937695529,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +99.5 mm lies above it"
+BACI_min_detectable_step,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",75.41276658536559,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +99.2 mm lies above it"
 BACI_step_below_floor,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect

@@ -4,26 +4,26 @@ SCRIPT 10c — Forest Zone Spatial Analysis Summary
 
 1. SPATIAL PREDICTORS
 ----------------------------------------
-   β₂ vs elevation: r = 0.983, R² = 0.967
-   Elevation is the dominant predictor of β₂ (96.7% of β₂ variance explained in sample;
-   leave-one-out predicted R² = 0.955).
+   β₂ vs elevation: r = 0.989, R² = 0.978
+   Elevation is the dominant predictor of β₂ (97.8% of β₂ variance explained in sample;
+   leave-one-out predicted R² = 0.971).
    Distance from ridge adds negligible information for β₂.
-   β₃: elevation R² = 0.691, + dist_ridge R² = 0.788
-   β₁: no strong spatial predictor (best: Easting r = 0.579)
+   β₃: elevation R² = 0.693, + dist_ridge R² = 0.783
+   β₁: no strong spatial predictor (best: Easting r = 0.556)
 
 2. CONTINUUM OR TWO GROUPS?
 ----------------------------------------
-   C4 β₂ = 2.584 ± 0.540
-   C5 β₂ = 1.134 ± 0.225
+   C4 β₂ = 2.601 ± 0.525
+   C5 β₂ = 1.141 ± 0.240
    t-test p = 0.0001 — two distinct groups.
-   β₁ t-test p = 0.5393 — ranges overlap (not distinguishing).
-   WMC3 (clearfell): β₁ = 2.440, β₂ = 1.747 — sits between C4 and C5.
+   β₁ t-test p = 0.6458 — ranges overlap (not distinguishing).
+   WMC3 (clearfell): β₁ = 2.488, β₂ = 1.795 — sits between C4 and C5.
 
 3. OUTLIER ASSESSMENT
 ----------------------------------------
-   NW10 (broadleaf): β₁ = 3.481 (C4 mean = 2.474), dist_ridge = 360 m
+   NW10 (broadleaf): β₁ = 3.481 (C4 mean = 2.456), dist_ridge = 360 m
    Both position (closest to ridge) and canopy type may contribute.
-   CEH14: β₂ = 3.828 at elev = 14.4 m — consistent with elevation trend,
+   CEH14: β₂ = 3.792 at elev = 14.4 m — consistent with elevation trend,
    not a genuine outlier (upper end of tight linear relationship).
 
 4. C4/C5 BOUNDARY

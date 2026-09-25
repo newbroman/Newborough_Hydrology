@@ -1,0 +1,7 @@
+# Sentinel-2 true-colour and near-infrared thumbnails for Script 47, written by tools/sentinel_thumbs.py 1.1.0.
+# TCI as served and B08 as reflectance x 10000 (16-bit), reprojected onto WET_AREA_GRID; no stretch. Credit: Contains modified Copernicus Sentinel data <year>.
+date,stac_id,file,nir_file,dark_total_ha,h_scene,sha256,nir_sha256
+2019-04-13,S2B_30UVD_20190413_0_L2A,2019-04-13_tci.png,2019-04-13_nir.png,19.62,-0.697,fd0816706221946a00dd572c36269b57e5bcbaed97a0c54b764fa31c466bdd11,6f14ac018e71d450bf53d917754f94fd74792225287d0d9b48fcdf69f16e45c8
+2023-02-13,S2A_30UVD_20230213_0_L2A,2023-02-13_tci.png,2023-02-13_nir.png,33.73,-0.574,c7911cd9090b0b9b44dc12c345f81a83817d974253c049438c6b7a191bedd66a,c83cc38ad61b195f9f9a1318827c7bcd888bfe2b342ebe082d35f04f9974ced9
+2020-03-25,S2B_30UVD_20200325_0_L2A,2020-03-25_tci.png,2020-03-25_nir.png,49.04,-0.409,5e6ee84440b1ca03ab90ad069bafa3b5c0b2feeb923ab68edfe07eafd104922d,ddd04c4c036212543b564edf81749f1cf3ba440238e70a0faf505eff27947fc7
+2021-02-28,S2B_30UVD_20210228_0_L2A,2021-02-28_tci.png,2021-02-28_nir.png,96.63,0.03,c9d578d86addebadaf3a03fce0425409382afca2b38b91f3dca8582422effdbf,8a99e903342e42270fdaf574ec3a276b3195b18b1ab0628383a333cc7140048b

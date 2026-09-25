@@ -17,7 +17,7 @@
 > | the April text says | as of 2026-08-25 |
 > |---|---|
 > | the correction applies to the Forest cluster **C4** | it applies to **C4 and C5** (D-022) |
-> | C4 uncorrected 0.215 (n = 38), corrected 0.227 (n = 44) | C4 uncorrected 0.313 (n = 50), corrected 0.260 (n = 62) |
+> | C4 uncorrected 0.215 (n = 38), corrected 0.227 (n = 44) | C4 uncorrected 0.315 (n = 51), corrected 0.261 (n = 65) |
 > | open-dune range 0.223–0.259 | 0.210–0.328 |
 > | well-level C4 mean 0.202 | recomputed under the current partition |
 > | Fetter Sy C1 0.08, C2–C4 0.12 as operational values | D-021 made the Script 16 balance **Sy-free**; these survive only as the `Sy_assumed` column |
@@ -27,7 +27,7 @@
 >
 > Note also that the direction of the median shift has itself reversed under the
 > current partition — April found corrected **above** uncorrected (0.215 → 0.227),
-> today it is **below** (0.313 → 0.260). §3's mechanism is not thereby wrong: it
+> today it is **below** (0.315 → 0.261). §3's mechanism is not thereby wrong: it
 > describes a competition between numerator reduction and event recovery whose
 > net sign depends on how many events sit near the 0.50 clip. Which way it
 > resolves is now a live question, and C5's clip-constrained estimate is the

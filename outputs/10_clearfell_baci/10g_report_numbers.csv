@@ -1,8 +1,8 @@
 Parameter,Well,Era,Value,Unit,Note
-NW10_trend_slope_mm_yr,,,-46.1,mm/yr,"p=0.024, n=7"
-NW10_mean_anomaly_2010_2021,,,0.288,m,
-Transect_gradient_mm_per_100m,,,-0.4,mm/100m,p=0.171
-Rolling_b1_impact_pre,,,2.474,,
-Rolling_b1_impact_post,,,2.561,,
-Rolling_b1_shift,,,0.087,,toward C3
-Rolling_b1_c3_post,,,3.479,,
+NW10_trend_slope_mm_yr,,,-26.4,mm/yr,"p=0.101, n=6"
+NW10_mean_anomaly_2010_2021,,,0.2951,m,
+Transect_gradient_mm_per_100m,,,-0.5,mm/100m,p=0.141
+Rolling_b1_impact_pre,,,2.496,,
+Rolling_b1_impact_post,,,2.669,,
+Rolling_b1_shift,,,0.174,,toward C3
+Rolling_b1_c3_post,,,3.712,,

@@ -18,8 +18,11 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.19.0 - 2026-09-24
+# VERSION 1.20.0 - 2026-09-25
 # CHANGELOG
+#   1.20.0 (2026-09-25): month_step_lint after month_bucket_lint (D-195) - every
+#     calendar month has a row, the one-month bridge fills only lone interior
+#     months, and build_ssm_frame pairs every month with the previous one.
 #   1.19.0 (2026-09-24): sync_index_counts --check gates (derived counts in
 #     markers; undated unmarkered counts fail); mention_lint 1.1.0 also checks
 #     quoted tool versions and "X gates" claims. Martin: "if this is the case
@@ -257,6 +260,14 @@ echo "── month bucketing (one implementation of Script 01's day<=15 rule?) �
 # exhaustive proof, not a sample, because dates are the whole input domain - and
 # fails if any live line buckets with MonthBegin again.
 python3 tools/month_bucket_lint.py || rc=1
+
+echo
+echo "── month steps (is every monthly change one calendar month?) ──────────"
+# D-195. A month no visit buckets to had no row (June 2005, December 2022), the
+# bridge filled the first month of longer gaps, and build_ssm_frame differenced
+# across holes: 151 of 13,211 reference-network pairs spanned 2-23 months.
+python3 tools/month_step_lint.py || rc=1
+python3 tools/month_step_lint.py --selftest >/dev/null || rc=1
 
 echo
 echo "── table sources (config, map and caption agree on number->source?) ──"

@@ -20,13 +20,13 @@
 > - "**Eastern Block Lake-buffer**" is a retired label. New prose says
 >   **C1 Lake Edge**.
 > - Every **LCSC** below (63.9 %, 59.7 %, 83.3 %, 104.5 %) is on the old
->   definition and old partition. Current: C1 21.8, C2 25.2, C3 28.0, C4 40.4,
->   C5 41.2 %.
+>   definition and old partition. Current: C1 21.8, C2 25.7, C3 26.6, C4 40.4,
+>   C5 41.5 % (full record, D-196 partition; 03_14_centroid_window_sensitivity.csv).
 > - Every **β₁** below (1.565, 1.674, 1.201, 0.957) is on a different scaling and
->   partition. Current: C1 4.58, C2 3.97, C3 3.57, C4 2.48, C5 2.43.
+>   partition. Current: C1 4.58, C2 3.90, C3 3.76, C4 2.48, C5 2.41.
 > - "β₃ = 0.017 (non-significant)" is attributed to the old Coastal singleton.
 >   Under k = 5 the smallest β₃ is **C4 Main Forest at 0.018, and it is
->   significant** (p = 0.002); C5 Coastal Forest is 0.045.
+>   significant** (p = 0.001); C5 Coastal Forest is 0.045.
 > - Mean annual rainfall "890 mm (monitoring period)" — Script 16 uses 892.5 mm/yr.
 >
 > **One live inconsistency to resolve, not introduced by the recovery.** This file

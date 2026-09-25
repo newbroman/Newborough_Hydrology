@@ -11,7 +11,18 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.31.0"  # Hollingham (2026) - 2026-09-24. OUT_03_PER_WELL_RECESSION (03_19,
+__version__ = "1.34.0"  # Hollingham (2026) - 2026-09-25. Script 47 1.2.0 (spec
+#   NRG_spec_script47_v1_2_2026-09-25): SENTINEL_THUMBS_DIR / SENTINEL_THUMBS_MANIFEST
+#   (true-colour and near-infrared crops from tools/sentinel_thumbs.py),
+#   OUT_45_MODEL_AXES / OUT_45_SSM_CURVES_AXES (the axes geometry of Figures 45_01 /
+#   45_02, for the film's callouts), OUT_47_FREE_RUN_FIG (the film's slide 1 chart) and
+#   OUT_00_CLIMATE_TIMESERIES_SHORT (Script 00's well-window climate figure). Additive.
+# 1.33.0  # Hollingham (2026) - 2026-09-25. FIGURE_MAP (tools/figure_map.csv): Script 47
+#   reads the report figure numbers of the three wet-area figures it shows from it.
+# 1.32.0   # Hollingham (2026) - 2026-09-24. OUT_29_HEADLINE (29_headline_models.csv) and OUT_35_REPORT_NUMBERS (35_report_numbers.csv:
+#   the Script 35 SSM calibration, which the report quotes; it had been written to the
+#   results text file only).
+# 1.31.0  # Hollingham (2026) - 2026-09-24. OUT_03_PER_WELL_RECESSION (03_19,
 #   D-192: the per-well recession constants on the full record) and OUT_21_REPORT_NUMBERS
 #   (the scenario head shifts and water-equivalents Conclusion 7 quotes). Additive.
 # 1.30.0  # Hollingham (2026) - 2026-09-24. DIR_48 and the Script 48 outputs
@@ -434,6 +445,9 @@ INT_LCSC_MODEL_STATS  = OUT_DIR / "08_lcsc_model_stats.csv"
 
 # Script 00 — Climate summary
 OUT_00_CLIMATE_TIMESERIES   = DIR_00 / "00_01_climate_timeseries.png"
+# Script 00 writes the well-window variant by suffixing "_short" (its _build_output_paths);
+# named here for Script 47, which shows it (report Figure 4).
+OUT_00_CLIMATE_TIMESERIES_SHORT = DIR_00 / "00_01_climate_timeseries_short.png"
 OUT_00_WELL_NETWORK_FIG     = DIR_00 / "00_02_well_network_summary.png"
 OUT_00_SUMMER_WARMING       = DIR_00 / "00_03_summer_warming_trend.png"
 OUT_00_ANNUAL_CLIMATE_TABLE = DIR_00 / "00_01_annual_climate_summary.csv"
@@ -887,6 +901,7 @@ OUT_35_PER_WELL = DIR_35 / "35_per_well_amplification.csv"
 OUT_35_FIG_CALIB = DIR_35 / "35_ssm_calibration.png"
 OUT_35_FIG_MARKERS = DIR_35 / "35_coefficient_markers.png"
 OUT_35_RESULTS = DIR_35 / "35_results.txt"
+OUT_35_REPORT_NUMBERS = DIR_35 / "35_report_numbers.csv"
 
 # Script 36 — absolute climate-removed per-well secular trend map (Phase 15)
 DIR_36 = OUT_DIR / "36_absolute_climate_trend"
@@ -1233,16 +1248,23 @@ SENTINEL_CELL_THRESHOLDS  = DATA_SENTINEL_DIR / "cell_thresholds.npz"
 SENTINEL_SCENE_MANIFEST   = DATA_SENTINEL_DIR / "sentinel_scene_manifest.csv"
 SENTINEL_WELL_FIT         = DATA_SENTINEL_DIR / "well_fit.csv"
 SENTINEL_HINDCAST_MONTHLY = DATA_SENTINEL_DIR / "hindcast_monthly.csv"
+# True-colour crops of a few of those scenes for the film (tools/sentinel_thumbs.py).
+# Display only: nothing is fitted from them.
+SENTINEL_THUMBS_DIR       = DATA_SENTINEL_DIR / "thumbs"
+SENTINEL_THUMBS_MANIFEST  = SENTINEL_THUMBS_DIR / "thumbs_manifest.csv"
 
 # Step 45 — the fit and the SSM drive. Default tier; DIR_45 is self-created by
 # the script (the DIR_43 / DIR_44 / DIR_47 rule) rather than in make_all_dirs.
 DIR_45 = OUT_DIR / "45_wet_area"
 OUT_45_MODEL          = DIR_45 / "45_01_wet_area_model.csv"
 OUT_45_MODEL_FIG      = DIR_45 / "45_01_wet_area_model.png"
+OUT_45_MODEL_AXES     = DIR_45 / "45_01_wet_area_model_axes.json"      # axes box + limits (Script 47 callouts)
 OUT_45_SSM_CURVES     = DIR_45 / "45_02_ssm_through_nir_curves.csv"
 OUT_45_SSM_CURVES_FIG = DIR_45 / "45_02_ssm_through_nir_curves.png"
+OUT_45_SSM_CURVES_AXES = DIR_45 / "45_02_ssm_through_nir_curves_axes.json"
 OUT_45_REPORT_NUMBERS = DIR_45 / "45_report_numbers.csv"   # study area, fit R², out-of-sample R²/n/ratio (E16)
 OUT_45_SWITCHING_LEVELS_MAP = DIR_45 / "45_03_switching_levels_map.png"   # T-77: per-cell switching levels, wet floor and open water
+FIGURE_MAP = ROOT_DIR / "tools" / "figure_map.csv"   # report figure number <- source image (Script 47 figure slides)
 OUT_45_PHASE_HYSTERESIS     = DIR_45 / "45_04_phase_hysteresis.csv"       # T-77: wetting-vs-drying phase term and the scene-month rain term, per class
 
 # ── Script 47 — the century hindcast film (T-39, D-178) ──────────────────────
@@ -1257,6 +1279,7 @@ OUT_47_PRESENTATION    = DIR_47 / "47_03_hindcast_presentation.mp4"   # tracked
 OUT_47_FILM            = DIR_47 / "47_03_hindcast_film.mp4"           # gitignored
 OUT_47_CAVEATS         = DIR_47 / "47_05_frame_caveats.txt"
 OUT_47_BACKGROUND      = DIR_47 / "47_00_background_2021-04-04.png"
+OUT_47_FREE_RUN_FIG    = DIR_47 / "47_06_free_run_vs_wells.png"   # the weather-only run against the wells (slide 1)
 
 # ── Script 48 — the Pastas cross-check of the per-well SSM (2026-09-24) ──────
 # Analytical tier, default. Created by the script when it runs (the DIR_43/44/47 rule).
@@ -1409,4 +1432,5 @@ OUT_29_UNIVARIATE_R2  = DIR_29 / "29_univariate_R2.csv"
 OUT_29_DROP_ONE       = DIR_29 / "29_drop_one.csv"
 OUT_29_MEMO           = DIR_29 / "29_within_c3_variance_results.md"
 OUT_29_PANEL_FIG      = DIR_29 / "29_within_c3_variance_panel.png"
+OUT_29_HEADLINE       = DIR_29 / "29_headline_models.csv"   # MS S.? headline table: full model per metric
 OUT_29_REPORT_NUMBERS = DIR_29 / "29_report_numbers.csv"   # §4.9.2 C3 gradient stats (β₁/β₃/Sy vs inland)

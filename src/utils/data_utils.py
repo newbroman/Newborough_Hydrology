@@ -111,6 +111,13 @@ def clean_well_series(
     plausibly be bridged while leaving the analytically dangerous 2-3
     month summer gaps honestly NaN downstream.
 
+    2026-09-25 (D-195): the rule above was not what the code did. pandas'
+    ``interpolate(limit=1)`` fills the FIRST month of any longer gap and, with
+    no ``limit_area``, the month after a record's last reading. Runs longer
+    than ``limit`` and gaps at either end of a record are now left NaN. The
+    series must be on a complete monthly calendar for "one month" to mean one
+    month: Script 01 reindexes before calling this.
+
     An earlier version of this function also tested ``series <= 4.0``
     against the same negative-valued series. The comparison direction did
     not mask any deep readings - every legitimate negative depth passed the
@@ -119,7 +126,17 @@ def clean_well_series(
     """
     raw = pd.to_numeric(series, errors="coerce")
     masked = raw.where(raw >= min_depth, np.nan)
-    cleaned = masked.interpolate(method="time", limit=limit)
+    # Only a gap of at most `limit` months with a reading on BOTH sides is
+    # bridged (D-195, 2026-09-25). pandas' own `limit` fills the first `limit`
+    # months of a LONGER run and, without limit_area, carries the last value
+    # past the end of a record: on the committed wells that was 87 first-month
+    # fills inside longer gaps and 5 at record ends, against 183 true single-
+    # month bridges. The run length is measured here and longer runs are
+    # put back to NaN.
+    cleaned = masked.interpolate(method="time", limit=limit, limit_area="inside")
+    na = masked.isna()
+    run_len = na.groupby((na != na.shift()).cumsum()).transform("sum")
+    cleaned = cleaned.where(~(na & (run_len > limit)))
 
     if not return_provenance:
         return cleaned

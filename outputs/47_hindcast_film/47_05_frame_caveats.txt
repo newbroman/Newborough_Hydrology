@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.0.1
+# Frame text — 47_hindcast_film.py 1.2.0
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -30,7 +30,7 @@ anything on record, where exactly unknown.
 
 ## SLIDES BEFORE THE FILM
 
-### Newborough Warren under a century of weather
+### About this film
 A film of how wet the dune slacks would have been, month by month, from 1930 to 2026 — if the reserve as it stands today had lived through the weather of each of those years.
 Newborough Warren is a sand-dune reserve on Anglesey. Between the dunes lie hundreds of low hollows called slacks. In a wet winter the water table rises into them: the ground goes damp, pools appear, and in a very wet spring whole slacks stand under water.
 Only the warren is modelled, not the forest. Everything here is about the open dune slacks of Newborough Warren — the study area outlined on the map. The planted forest beside them is not part of the model and is not assessed; absence of yellow and blue cells does not imply an absence of flooding, rather it has not been modelled.
@@ -44,13 +44,55 @@ The title gives the total of each across the study area, in hectares (a hectare 
 The line at the bottom is the water table — how far below or above the ground the groundwater sits, averaged over the reserve's monitoring wells. The red marker is where the film has got to. The clock runs at a year a second.
 
 ### How it was made: three things joined together
-1.  A weather-driven groundwater model. Since 2005 the reserve's dipwells have been read every month, and from them we learned a simple rule for how the water table rises with rain and falls with evaporation and drainage. RAF Valley has kept weather records since 1930, so the rule can be run through the whole century, steered by nothing but the weather. Where the wells exist, the model's water table is corrected to match them, and that correction is carried back through the years before the wells.
-2.  Satellite pictures. Sentinel-2 has photographed the warren every few days since 2016 in 10 m squares. In the near-infrared, water is black and grass is bright, so a wet slack floor is a dark patch. Counting the dark squares in 43 clear winter pictures and comparing with the water table gives two smooth curves — one for open water, one for wet floor.
-3.  Where the water goes. Each 10 m square has its own history in those pictures, so we know the water-table level at which it usually turns dark. The film lights each square when the model reaches that level. WHERE the colours appear was learned from the satellite; WHEN is the model.
+The film joins a groundwater model, satellite pictures and a map of where the water goes. The slides that follow take them in turn, each beside the report figures that calibrate and test it.
+
+### 1.  A weather-driven groundwater model
+[figure] 00_01_climate_timeseries_short.png
+[figure] 47_06_free_run_vs_wells.png
+Since 2005 the reserve's dipwells have been read every month. Figure 4 (left) sets them beside the weather. Through runs of months when more rain falls than evaporates the water table climbs, and through dry runs it falls: the running balance of rain minus evaporation (panel c) and the network's water level (panel d) move together.
+From that link the study learned a simple monthly rule: the water table rises with the month's rain, falls with its evaporation, and drains back in proportion to how high it stands.
+The chart above is the test this film depends on. The model has run on nothing but RAF Valley's weather since 1930, with no well reading to correct it. Over the years the wells have been read it follows the warren's wet and dry years, on average 15 cm low: the bias the next slide removes.
+[footer] Report Figure 4, section 4.1.1 · the model against the wells: this film's own run
+
+### Correcting the model to the wells
+Run freely for a century, the model drifts: it has no wells to hold it. So it is corrected where the wells exist. Over 2005–2026 the model's months are ranked against the measured months, and each modelled level is replaced by the measured level of the same rank.
+The order of wet and dry months is the model's own; the correction only removes its bias. That same correction is then carried back through the years before the wells.
+
+### 2.  Satellite pictures: the first calibration
+[figure] 45_01_wet_area_model.png
+[satellite] 2019-04, 2023-02, 2020-03, 2021-02
+Sentinel-2 has photographed the warren every few days since 2016, in 10 m squares. In the near-infrared, water is black and grass is bright, so a wet slack floor shows as a dark patch. 43 winter pictures were clear of cloud.
+In each one the dark squares on the slack floor are counted, split into open water (the darkest) and wet floor, and set against the water table the dipwells measured in the same month. Each pair of points on the figure is one picture. Four of them are shown below in that near-infrared band, driest to wettest, each scaled to its own slack-floor brightness as the method reads it; each line leads to its points.
+The points fall on two smooth curves. Wet floor grows gently as the water table rises; open water stays near nothing until the water is close to the surface, then climbs steeply. These curves turn the film's water table into the hectares in its title.
+They are fitted between −0.80 m and +0.03 m, the range the pictures saw. Above that, the film says BEYOND THE RECORD.
+[footer] Report Figure 49, section 4.8.5 · Contains modified Copernicus Sentinel data
+
+### The check: the model against the satellite
+[figure] 45_02_ssm_through_nir_curves.png
+[satellite] 2019-04, 2023-02, 2020-03, 2021-02
+Before the curves are trusted with the model, they are tested with it. Here the curves are driven by the model's water table instead of the wells, and the area they predict is compared, month by month, with the area the satellite actually measured.
+The satellite takes no part in the model, so this is an independent test of the water table itself, not of the curves alone. The same four near-infrared pictures are below; each line leads to its month on the upper panel and names the peak or trough it belongs to.
+Wet floor is reproduced closely. Open water, which appears suddenly as the water reaches the surface, is reproduced less well: a small error in the water table makes a large one in the area of pools. That is why the film's blue is the less certain colour.
+[footer] Report Figure 50, section 4.8.5 · Contains modified Copernicus Sentinel data
+
+### 3.  Where the water goes: the second calibration
+[figure] 45_03_switching_levels_map.png
+The curves say how much of the floor is wet; they do not say where. For that, each 10 m square's own history in the pictures is used: the water-table level at which it first read wet floor (a, upper map) and first read open water (b, lower map).
+The lowest hollows switch first, the higher margins last. Grey squares never switched within the range the pictures saw, and the forest is left out because under trees the satellite sees the canopy, not the ground.
+The film lights each square when the model's water table reaches its level. WHERE the colours appear was learned from the satellite; WHEN is the model.
+[footer] Report Figure 51, section 4.8.5 · Contains modified Copernicus Sentinel data
+
+### What the warren looks like from space
+[satellite] 2019-04, 2021-02
+The driest and the wettest of those four pictures, each beside the film's own map of the same month.
+In the pictures the flooded slack floors are the dark patches between the pale dunes. The film lights its yellow and blue in the same hollows as its water table rises.
+This is an illustration, not a test. Where the colours appear was learned from these same pictures, so some of the likeness is built in. The independent test is the check two slides back, where the satellite takes no part in the model.
+[footer] Contains modified Copernicus Sentinel data 2019, 2021
 
 ### Please read this before watching
 It is today's warren, not the warren of the time. The rules were learned from 2005–2026 and the ground is the 2023 survey, with Newborough Forest at its present size. The forest was only planted between 1947 and 1965, and a forest lowers the water table around it. In 1939 there was no forest. The film answers a what-if — what would the reserve as it is now have done under that weather — not what actually happened.
 The map covers the warren study area only; blank outside it means not assessed, not dry.
+Satellite pictures: Contains modified Copernicus Sentinel data 2019, 2020, 2021, 2023. Report figures are from the Newborough Warren hydrology study.
 
 ### The biggest floods go beyond anything measured
 The wettest spring on record was 2021. In some months — 1939, 1959, 1961–62 and 2000–01 — the model pushes the water table higher than that, above the +0.03 m the curves were fitted to.
@@ -72,6 +114,7 @@ All of it is the model's account of what the weather would do to the reserve as 
 
 ### Credits and sources
 Newborough Warren hydrology study, 2026 — Martin Hollingham.
-Weather: RAF Valley monthly record, 1930–2026. Water table: the reserve's dipwell network, 2005–2026. Imagery: Copernicus Sentinel-2, 2016–2026 (free and open under the Copernicus licence). Ground: 2023 survey.
+Weather: RAF Valley monthly record, 1930–2026. Water table: the reserve's dipwell network, 2005–2026. Ground: 2023 survey.
+Imagery: Copernicus Sentinel-2, 2016–2026, free and open under the Copernicus licence. Contains modified Copernicus Sentinel data 2019, 2020, 2021, 2023.
 Model, code and data: github.com/newbroman/Newborough_Hydrology. The method is recorded as decision D-178; the full written guide accompanies this film.
 

@@ -7,14 +7,14 @@
 
 | Parameter | Value |
 |---|---|
-| δ₀ (coast-edge slope) | **-31.35 mm/yr** |
-| L (decay length)      | **894 m** |
-| Sensitivity δ₀ (full fit) | -31.72 mm/yr |
-| Sensitivity L (full fit)  | 995 m |
+| δ₀ (coast-edge slope) | **-31.28 mm/yr** |
+| L (decay length)      | **902 m** |
+| Sensitivity δ₀ (full fit) | -31.58 mm/yr |
+| Sensitivity L (full fit)  | 1005 m |
 
 ## Headline result — C3 hydrographs after forest-free monthly-uniform de-trending
 
-**16 of 21 C3 wells** carry a Script 25 dist_coast and
+**21 of 26 C3 wells** carry a Script 25 dist_coast and
 hydrograph (excluded: 5 wells without coastal-distance metadata —
 typically the forest-zone or heavily perturbed wells dropped from Script 25's
 forest-free fit, e.g. CEH36 and WMC3).
@@ -24,9 +24,9 @@ After de-trending against the un-de-trended cluster centroids:
 | Destination | n | % of n_with_drift |
 |---|---|---|
 | **→ C1** | 0 | 0% |
-| **→ C2** | 1 | 6% |
-| **→ C3** | 15 | 94% |
-| **→ C4** | 0 | 0% |
+| **→ C2** | 2 | 10% |
+| **→ C3** | 18 | 86% |
+| **→ C4** | 1 | 5% |
 | **→ C5** | 0 | 0% |
 
 **Verdict.** **H0 confirmed.** C3 is a genuinely distinct cluster; gradient adds drift but is not the constitutive mechanism.
@@ -35,7 +35,7 @@ After de-trending against the un-de-trended cluster centroids:
 
 | Source cluster | n (with drift) | Stays in cluster | % retained |
 |---|---|---|---|
-| C2 | 24 | 24 | 100% |
+| C2 | 19 | 19 | 100% |
 | C4 | 2 | 2 | 100% |
 | C5 | 1 | 0 | 0% |
 
@@ -47,11 +47,11 @@ the procedure is contaminating hydrographs rather than testing a hypothesis.
 
 | Variant | → C2 | → C3 | Other |
 |---|---|---|---|
-| forest-free, monthly-uniform (HEADLINE) | 1 | 15 | 0 |
-| forest-free, summer-only Jun–Sep | 1 | 13 | 2 |
-| full δ₀ (includes forest) | 1 | 15 | 0 |
-| L = 500 m | 1 | 14 | 1 |
-| L = 1500 m | 1 | 15 | 0 |
+| forest-free, monthly-uniform (HEADLINE) | 2 | 18 | 1 |
+| forest-free, summer-only Jun–Sep | 2 | 15 | 4 |
+| full δ₀ (includes forest) | 2 | 19 | 0 |
+| L = 500 m | 2 | 18 | 1 |
+| L = 1500 m | 2 | 19 | 0 |
 
 ## Excluded wells (no dist_coast_m available)
 

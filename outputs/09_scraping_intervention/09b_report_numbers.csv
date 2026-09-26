@@ -2,3 +2,8 @@ Parameter,Well,Era,Value,Unit,Note
 scrape_window_months_post,,Apr 2015-Dec 2017,31.0,months,fitted months in the post-scrape window at CEH36 (scrape to clearfell): the 'N-month post-scraping record' the documents quote
 scrape_window_months_pre,,record start-Apr 2015,47.0,months,fitted months in the pre-scrape window at CEH36
 scrape_propagation_n_wells,,,18.0,count,"CEH36, the uphill transect and the controls fitted in both windows"
+scrape_propagation_near_n_wells,,,8.0,count,uphill wells within 575 m of CEH36
+scrape_propagation_near_n_positive,,,7.0,count,uphill wells within 575 m of CEH36 with a positive BACI-corrected delta-beta3
+scrape_propagation_near_db3_mean,,,0.002930720825547111,per month,"mean BACI-corrected delta-beta3, uphill wells within 575 m of CEH36"
+scrape_propagation_near_db3_t,,,2.4740303288967653,-,"one-sample t against zero, df = 7"
+scrape_propagation_near_db3_p,,,0.042580817570413945,-,two-sided p of the one-sample t

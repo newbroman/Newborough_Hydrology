@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.60.0"  # Hollingham (2026) - 2026-09-26. CCW_ANNUAL_RANGE_YEARS and
+__version__ = "1.61.0"  # Hollingham (2026) - 2026-09-26. SCRAPE_PROPAGATION_NEAR_M: the
+#   near band of the Script 09b uphill propagation test (report9 §4.5.5 "the wells within
+#   575 m"), named once so 09b 1.9.0 can write the test out (T-84).
+# 1.60.0  # Hollingham (2026) - 2026-09-26. CCW_ANNUAL_RANGE_YEARS and
 #   CCW_ANNUAL_RANGE_MIN_MONTHS: the definition of the 1989-95 annual-range check against
 #   Davy et al. (2010) that Script 39 1.4.0 writes out (T-84).
 # 1.59.0  # Hollingham (2026) - 2026-09-26. DRAWDOWN_QUOTE_LEVELS_MM: the
@@ -711,6 +714,12 @@ REACH_QUOTE_NEAREST_M = 10.0
 SCRAPE_RISE_BUFFER_M = 10.0
 COAST_RETREAT_M      = 6.0
 COAST_RETREAT_RATE   = 8.3
+
+# Near band of the CEH36 uphill propagation test (Script 09b 1.9.0). The uphill transect
+# runs 247-776 m from CEH36; the documents test the wells inside this distance - the eight
+# nearest, closing before CEH34 (606 m) and CEH1 (776 m) - with a one-sample t-test of the
+# BACI-corrected delta-beta3. A reporting band, not a fitted reach.
+SCRAPE_PROPAGATION_NEAR_M = 575.0
 
 # --- Shoreline-retreat measurement (Script 40) ---------------------------------
 # The measurement that makes the retreat series a pipeline output rather than a

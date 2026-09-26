@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.8"  # Hollingham (2026) — 2026-09-26. 09d_01/09d_02 scenario comparison
+__version__ = "1.28.9"  # Hollingham (2026) — 2026-09-26. 09b_01/09b_02 baci_db3_pct
+#   registered (T-84): the Methods Supplement quotes the per-well and centroid shifts.
+# 1.28.8  # Hollingham (2026) — 2026-09-26. 09d_01/09d_02 scenario comparison
 #   tables registered (T-84): report9 §4.5.6 and the MS quote every bar.
 # 1.28.7  # Hollingham (2026) — 2026-09-24. 03_18_datum_invariance.csv (T-74) and
 #   07_05_clusters_vs_covariates.csv (T-73) registered: report8 §3.4.1 / §3.2 and report9
@@ -935,6 +937,11 @@ EXTRA_VALUE_TABLES = [
      ["Delta_vol_mm_per_month"]),
     ("outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv", "Scenario",
      ["Delta_vol_summer_mm_per_month"]),
+    # Script 09b's uphill propagation shifts, per well and per centroid (T-84, 2026-09-26).
+    ("outputs/09_scraping_intervention/09b_01_individual_well_baci.csv", "well",
+     ["baci_db3_pct"]),
+    ("outputs/09_scraping_intervention/09b_02_centroid_summaries.csv", "group",
+     ["baci_db3_pct"]),
 ]
 
 

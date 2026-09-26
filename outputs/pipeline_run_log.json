@@ -73,8 +73,8 @@
    "step": "11/58  Forecasting and critical thresholds"
   },
   "11b_spatial_thresholds.py": {
-   "last_run": "2026-09-26T20:23:02",
-   "seconds": 34.1,
+   "last_run": "2026-09-26T22:35:13",
+   "seconds": 32.8,
    "status": "ok",
    "step": "12/58  Spatial eco-hydrological threshold maps"
   },
@@ -97,14 +97,14 @@
    "step": "18/58  Figure: Experimental design GIS map"
   },
   "14_climate_projections.py": {
-   "last_run": "2026-09-26T20:23:07",
+   "last_run": "2026-09-26T22:06:27",
    "seconds": 3.5,
    "status": "ok",
    "step": "15/58  Figure: Climate trajectory projections"
   },
   "14b_year_of_crossing.py": {
-   "last_run": "2026-09-25T15:10:54",
-   "seconds": 2.2,
+   "last_run": "2026-09-26T22:06:31",
+   "seconds": 2.1,
    "status": "ok",
    "step": "16/58  Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 11)"
   },
@@ -175,8 +175,8 @@
    "step": "42/58  Cluster-stratified residual climatology (supplementary diagnostic)"
   },
   "25_coastal_gradient.py": {
-   "last_run": "2026-09-25T15:15:31",
-   "seconds": 57.9,
+   "last_run": "2026-09-26T22:07:27",
+   "seconds": 55.3,
    "status": "ok",
    "step": "26/58  Coastal-retreat gradient analysis"
   },
@@ -343,5 +343,5 @@
    "step": "10/58  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-09-26T20:23:14"
+ "updated": "2026-09-26T22:35:13"
 }

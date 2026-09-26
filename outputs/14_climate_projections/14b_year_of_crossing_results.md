@@ -9,22 +9,22 @@ in §7 Conclusion 11).*
 
 | Cluster | Threshold | Slope (mm/yr) | Crossing year (5 — 50 — 95) |
 |---|---|---|---|
-| C1 | SD15b | -10.88 | **2080** — **2080** — **2080** |
-| C1 | SD16 | -10.88 | **2022** — **2028** — **2049** |
-| C2 | SD15b | -17.64 | **2080** — **2080** — **2080** |
-| C2 | SD16 | -17.64 | **2014** — **2018** — **2026** |
-| C3 | SD15b | -6.69 | **2080** — **2080** — **2080** |
-| C3 | SD16 | -6.69 | **2080** — **2080** — **2080** |
-| C4 | SD15b | -17.17 | **2080** — **2080** — **2080** |
-| C4 | SD16 | -17.17 | **2080** — **2080** — **2080** |
-| C5 | SD15b | -35.61 | **2080** — **2080** — **2080** |
-| C5 | SD16 | -35.61 | **2006** — **2080** — **2080** |
+| C1 | SD15b | -11.50 | **2080** — **2080** — **2080** |
+| C1 | SD16 | -11.50 | **2021** — **2027** — **2046** |
+| C2 | SD15b | -14.33 | **2080** — **2080** — **2080** |
+| C2 | SD16 | -14.33 | **2013** — **2018** — **2029** |
+| C3 | SD15b | -17.45 | **2080** — **2080** — **2080** |
+| C3 | SD16 | -17.45 | **2006** — **2010** — **2080** |
+| C4 | SD15b | -11.52 | **2080** — **2080** — **2080** |
+| C4 | SD16 | -11.52 | **2080** — **2080** — **2080** |
+| C5 | SD15b | -29.13 | **2080** — **2080** — **2080** |
+| C5 | SD16 | -29.13 | **2080** — **2080** — **2080** |
 
 Year-of-crossing values of 2080 are sentinel values where the slope is non-decreasing or the linear projection does not reach the threshold within the year-2080 horizon.
 
 ## Reading
 
-- The report's §7 Conclusion 11 statement *"C1 summer minima approaching the SD16 dry slack viability threshold around 2030–2032"* is replaced by a stated CI on the C1 SD16 crossing year. **Replace with:** "C1 summer minima are projected to cross the SD16 threshold in **2027 (95% CI 2021–2049)**" using the C1 row above.
+- The report's §7 Conclusion 11 statement *"C1 summer minima approaching the SD16 dry slack viability threshold around 2030–2032"* is replaced by a stated CI on the C1 SD16 crossing year. **Replace with:** "C1 summer minima are projected to cross the SD16 threshold in **2027 (95% CI 2021–2046)**" using the C1 row above.
 - C5 has the steepest decline and crosses SD15b and SD16 within the observed-data window or close to it. Existing report prose handles C5's anomalous decline separately (§5.7.2).
 - C3 and C4 have non-significant trends (Script 14) — their bootstrap CIs are correspondingly wide.
 

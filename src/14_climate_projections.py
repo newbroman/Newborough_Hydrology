@@ -35,7 +35,15 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-26. D-201: the SD15b winter threshold is now
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-26. D-202: the cluster series behind every
+#   extreme, trend and exceedance count here is now a two-way fixed-effects centroid built from
+#   01_wells_reference + 02_cluster_stats (h(w,t) = a_w + g_t; series = g_t + mean a_w), not the
+#   plain monthly mean of 03_regional_averages. Before 2010 the plain mean rests on a few early
+#   wells (C5's 2006/07 winter was NW9 alone, +0.571 m); with each well at its own level a
+#   late-joining well moves nothing. Every trend table gains a robustness fit from hydrological
+#   year config.EXTREMES_ROBUSTNESS_START (2011, the clearfell precedent). 03_regional_averages
+#   and the SSM coefficients (D-004) are untouched.
+# 1.7.0  # Hollingham (2026) - 2026-09-26. D-201: the SD15b winter threshold is now
 #   +0.21 m (ABOVE ground, Curreli 2013 Table 4) where it was -0.10 m. The winter panels' ceiling
 #   (0.25 m) and the wet-slack band's top (0.10 m) were typed for a line below ground; both now
 #   derive from WET_SLACK_WINTER (WINTER_YTOP) so the line and its band stay on the chart.
@@ -104,11 +112,11 @@ from utils.console_utils import (
 )
 
 from utils.paths import (
-    INT_REGIONAL_AVG, OUT_14_CLIMATE_STACKED, OUT_14_CLIMATE_SUMMER,
+    OUT_14_CLIMATE_STACKED, OUT_14_CLIMATE_SUMMER,
     OUT_14_CLIMATE_WINTER, OUT_14_SUMMER_TREND_CSV, OUT_14_WINTER_TREND_CSV,
     OUT_14_SPRING_TREND_CSV, OUT_14_CLIMATE_SPRING,
     OUT_14_ANNUAL_EXTREMES, OUT_14_WINTER_EXCEED, OUT_14_SEASONAL_SCATTER,
-    OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, make_all_dirs,
+    OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, INT_WELLS_REFERENCE, make_all_dirs,
 )
 from utils.config import (
     SUMMER_DROUGHT_MONTHS,
@@ -118,6 +126,7 @@ from utils.config import (
     BW_LINESTYLES, SD15b, SD16, SD15b_WINTER, SD16_WINTER,
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
     TRAJECTORY_OBS_END, TRAJECTORY_PROJ_END, TRAJECTORY_YEAR_MIN,
+    EXTREMES_ROBUSTNESS_START,
 )
 from utils.render_utils import render_figure
 
@@ -176,14 +185,65 @@ CLUSTER_MARKERS: dict[str, str] = {f"C{cid}": v for cid, v in _CFG_MARKERS.items
 TRAJECTORY_CLUSTERS: tuple[str, ...] = ("C1", "C2", "C3", "C4", "C5")
 
 
-def _compute_winter_exceedance(filepath: Path) -> dict:
+def _read_series(src) -> pd.DataFrame:
+    """The cluster series: a DataFrame passed in, or a CSV path read with its Date index."""
+    if isinstance(src, pd.DataFrame):
+        return src.copy().sort_index()
+    return pd.read_csv(src, index_col="Date", parse_dates=True).sort_index()
+
+
+def build_fixed_effect_centroids(max_iter: int = 500, tol: float = 1e-10) -> pd.DataFrame:
+    """Two-way fixed-effects cluster series (D-202).
+
+    For each cluster, the member reference wells' monthly depths are modelled as
+    h(w,t) = a_w + g_t and fitted by alternating means over the observed cells
+    (an unbalanced panel: each month uses the wells reporting). The series
+    returned is g_t + mean(a_w): the month effect placed at the mean level of
+    ALL members, so a well joining or leaving the network does not move it.
+    Columns 'C{n}', a monthly DatetimeIndex named 'Date'.
+    """
+    wells = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True).sort_index()
+    wells.columns = wells.columns.astype(str).str.strip().str.lower().str.replace(" ", "")
+    stats_df = pd.read_csv(INT_CLUSTER_STATS)
+    stats_df["k"] = stats_df["Match_ID"].astype(str).str.strip().str.lower().str.replace(" ", "")
+    out = {}
+    for cid, grp in stats_df.groupby(pd.to_numeric(stats_df["Cluster"], errors="coerce")):
+        members = [k for k in grp["k"] if k in wells.columns]
+        if not members:
+            continue
+        X = wells[members].dropna(how="all")
+        a = pd.Series(0.0, index=X.columns)
+        for _ in range(max_iter):
+            g = X.sub(a, axis=1).mean(axis=1)
+            a_new = X.sub(g, axis=0).mean(axis=0)
+            done_ = (a_new - a).abs().max() < tol
+            a = a_new
+            if done_:
+                break
+        g = X.sub(a, axis=1).mean(axis=1)
+        out[f"C{int(cid)}"] = g + a.mean()
+    df = pd.DataFrame(out)
+    df.index.name = "Date"
+    return df
+
+
+def _robust_fit(series: pd.Series) -> dict:
+    """OLS on the years from EXTREMES_ROBUSTNESS_START (D-202 robustness basis)."""
+    s = series[series.index >= EXTREMES_ROBUSTNESS_START]
+    if len(s) < 5:
+        return {"n": len(s), "slope": np.nan, "r2": np.nan, "p": np.nan}
+    r = stats.linregress(s.index.to_numpy(dtype=float), s.values)
+    return {"n": len(s), "slope": r.slope, "r2": r.rvalue ** 2, "p": r.pvalue}
+
+
+def _compute_winter_exceedance(filepath) -> dict:
     """
     Compute winter wet-slack and dry-slack exceedance counts from observed
     cluster centroid data. Uses hydrological year (Oct 1 – Sep 30).
 
     Returns dict {cluster: {"wet": n_wet, "dry": n_dry, "n": n_years}}.
     """
-    df = pd.read_csv(filepath, index_col="Date", parse_dates=True).sort_index()
+    df = _read_series(filepath)
     df["hydro_year"] = df.index.year + (df.index.month >= 10).astype(int)
     df = df[(df.index.year >= OBS_START) & (df.index.year <= OBS_END)]
 
@@ -271,7 +331,7 @@ def add_winter_exceedance_box(ax: plt.Axes, exceedance: dict) -> None:
         zorder=9,
     )
 
-def load_annual_extremes(filepath: Path) -> tuple[dict, dict]:
+def load_annual_extremes(filepath) -> tuple[dict, dict]:
     """
     Load 03_regional_averages.csv and extract annual summer minima and
     winter maxima per cluster.
@@ -285,7 +345,7 @@ def load_annual_extremes(filepath: Path) -> tuple[dict, dict]:
     summer_min : dict  {cluster: pd.Series(hydro_year -> min)}
     winter_max : dict  {cluster: pd.Series(hydro_year -> max)}
     """
-    df = pd.read_csv(filepath, index_col="Date", parse_dates=True).sort_index()
+    df = _read_series(filepath)
     df["hydro_year"] = df.index.year + (df.index.month >= 10).astype(int)
     df = df[(df.index.year >= OBS_START) & (df.index.year <= OBS_END)]
 
@@ -309,7 +369,7 @@ def load_annual_extremes(filepath: Path) -> tuple[dict, dict]:
     )
 
 
-def load_spring_means(filepath: Path) -> dict:
+def load_spring_means(filepath) -> dict:
     """Load 03_regional_averages.csv and extract the annual SPRING MEAN
     (Mar–May) per cluster, indexed by CALENDAR year.
 
@@ -323,7 +383,7 @@ def load_spring_means(filepath: Path) -> dict:
     -------
     spring_mean : dict  {cluster: pd.Series(calendar_year -> mean)}
     """
-    df = pd.read_csv(filepath, index_col="Date", parse_dates=True).sort_index()
+    df = _read_series(filepath)
     df = df[(df.index.year >= OBS_START) & (df.index.year <= OBS_END)]
 
     spring_mean = {c: {} for c in CLUSTER_LABELS}
@@ -776,10 +836,12 @@ def main() -> None:
     make_all_dirs()
     print("\n[14] Loading observed data and fitting summer trends per cluster...")
 
-    summer_min, winter_max = load_annual_extremes(INT_REGIONAL_AVG)
+    # D-202: every extreme below is taken from the fixed-effects cluster series.
+    fe_series = build_fixed_effect_centroids()
+    summer_min, winter_max = load_annual_extremes(fe_series)
 
     # Compute winter exceedance from observed data (replaces old hardcoded dict)
-    winter_exceedance = _compute_winter_exceedance(INT_REGIONAL_AVG)
+    winter_exceedance = _compute_winter_exceedance(fe_series)
     for c in TRAJECTORY_CLUSTERS:
         if c in winter_exceedance:
             exc = winter_exceedance[c]
@@ -836,6 +898,7 @@ def main() -> None:
     for c in TRAJECTORY_CLUSTERS:
         if c in summer_data:
             yobs, vobs, *_, s_slope, s_r2, s_pval = summer_data[c]
+            rb = _robust_fit(summer_min[c])
             trend_rows.append({
                 "Cluster": c,
                 "Label": CLUSTER_LABELS[c],
@@ -843,6 +906,11 @@ def main() -> None:
                 "Slope_m_per_yr": round(s_slope, 4),
                 "R2": round(s_r2, 3),
                 "p_value": round(s_pval, 4),
+                "robust_start": EXTREMES_ROBUSTNESS_START,
+                "n_years_robust": rb["n"],
+                "Slope_m_per_yr_robust": rb["slope"],
+                "R2_robust": rb["r2"],
+                "p_value_robust": rb["p"],
             })
     pd.DataFrame(trend_rows).to_csv(OUT_14_SUMMER_TREND_CSV, index=False)
     saved("14_summer_trend_stats.csv")
@@ -855,6 +923,7 @@ def main() -> None:
     for c in TRAJECTORY_CLUSTERS:
         if c in winter_trend_stats:
             ws = winter_trend_stats[c]
+            rb = _robust_fit(winter_max[c])
             winter_trend_rows.append({
                 "Cluster": c,
                 "Label": CLUSTER_LABELS[c],
@@ -862,6 +931,11 @@ def main() -> None:
                 "Slope_m_per_yr": round(ws["slope"], 4),
                 "R2": round(ws["r2"], 3),
                 "p_value": round(ws["p_value"], 4),
+                "robust_start": EXTREMES_ROBUSTNESS_START,
+                "n_years_robust": rb["n"],
+                "Slope_m_per_yr_robust": rb["slope"],
+                "R2_robust": rb["r2"],
+                "p_value_robust": rb["p"],
             })
     pd.DataFrame(winter_trend_rows).to_csv(OUT_14_WINTER_TREND_CSV, index=False)
     saved("14_winter_trend_stats.csv")
@@ -874,7 +948,7 @@ def main() -> None:
     # number and is consumed by Script 25's spring cluster_partition.  CSV only;
     # no projection or figure is fitted for spring in this build.
     print("\n[14] Fitting spring-mean (MAM, calendar-year) trends per cluster...")
-    spring_mean = load_spring_means(INT_REGIONAL_AVG)
+    spring_mean = load_spring_means(fe_series)
     spring_trend_rows = []
     for c in TRAJECTORY_CLUSTERS:
         if c in spring_mean and len(spring_mean[c]) >= 5:
@@ -885,6 +959,7 @@ def main() -> None:
                 f"  {c} spring trend: {sp_slope:+.4f} m yr⁻\xb9  "
                 f"(R²={sp_r**2:.3f}, p={sp_pval:.4f}, n={len(sp_years)})"
             )
+            rb = _robust_fit(spring_mean[c])
             spring_trend_rows.append({
                 "Cluster": c,
                 "Label": CLUSTER_LABELS[c],
@@ -892,6 +967,11 @@ def main() -> None:
                 "Slope_m_per_yr": round(sp_slope, 4),
                 "R2": round(sp_r ** 2, 3),
                 "p_value": round(sp_pval, 4),
+                "robust_start": EXTREMES_ROBUSTNESS_START,
+                "n_years_robust": rb["n"],
+                "Slope_m_per_yr_robust": rb["slope"],
+                "R2_robust": rb["r2"],
+                "p_value_robust": rb["p"],
             })
     pd.DataFrame(spring_trend_rows).to_csv(OUT_14_SPRING_TREND_CSV, index=False)
     saved("14_spring_trend_stats.csv")

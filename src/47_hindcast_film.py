@@ -60,7 +60,31 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-25. Per the signed-off spec
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-26. Review of the 1.3.0 presentation
+#   (Martin: "Review the film and how would you improve it. Implement the changes"),
+#   recorded in NRG_spec_script47_v1_4_2026-09-26:
+#   - the hydrograph is legible at 720p: taller (ax2 [0.07, 0.07, 0.78, 0.18]), fonts
+#     9-10 pt, x-limits the record itself; the arrival-line labels, which ran off the
+#     right edge, sit in a margin beside the axes; the era labels ("model only" / "wells
+#     measured") head the axes instead of crowding the 2021 band, and "beyond anything
+#     measured" sits inside that band;
+#   - during the opening clip the hydrograph zooms to the clip's years, era labels
+#     hidden, and is restored for the film;
+#   - a "What you hear" slide, just before "Please read this before watching", says what
+#     each voice of the Warren track follows (only when FILM_SOUND_TRACK is "warren"), and
+#     Credits name the sound as synthesised by this script;
+#   - Martin, same day ("lets include your proposed changes"): "And a little more" moves
+#     after the film, behind "What the film says", so the film starts sooner; the
+#     one-paragraph "How it was made" slide is folded into "How to read the film";
+#   - Martin, same day, colours: the readout's open-water and wet-floor values are in the
+#     map's colours (the yellow darkened, FILM_COL_FLOOR_TEXT); in the caption "Blue: open
+#     water.", "Yellow: wet floor." and "pale orange" are in theirs and the beyond-the-
+#     record line is bold; the water-table trace is blue above the open-water line and
+#     ochre above the wet-floor line; slide titles are in FILM_COL_TITLE;
+#   - Martin, same day, sound: the surf's stereo place follows the east-west centre of the
+#     wetted cells (FILM_WASH_PAN_WIDTH); "What you hear" says so. A rain voice was tried
+#     and withdrawn at Martin's request ("replace the patter with the original wash").
+# v1.3.0  # Hollingham (2026) - 2026-09-25. Per the signed-off spec
 #   NRG_spec_script47_v1_3_2026-09-25 (Martin: "a short title page, and a clip from
 #   2015-2026 shortly after, then the full presentation with the new sound track"):
 #   - the presentation cut opens with a short title page (FILM_OPEN_TITLE_S) and the
@@ -160,6 +184,7 @@ from utils.config import (                                    # noqa: E402
     FILM_WASH_HARMONIC, FILM_WASH_SEMITONES, FILM_WASH_BANDWIDTH_HZ, FILM_WASH_SURGE_S,
     FILM_WASH_FLOOR_PCT, FILM_CHORD_SEMITONES, FILM_CHORD_RELEASE_S,
     FILM_MIX_PAD, FILM_MIX_NOTE, FILM_MIX_WASH, FILM_MIX_CHORD,
+    FILM_COL_FLOOR_TEXT, FILM_COL_TITLE, FILM_WASH_PAN_WIDTH,
 )
 from utils.model_utils import simulate_ssm                    # noqa: E402
 from utils.console_utils import (                             # noqa: E402
@@ -829,12 +854,23 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
           "little larger than a rugby pitch).",
           "The line at the bottom is the water table — how far below or above the ground the "
           "groundwater sits, averaged over the reserve's monitoring wells. The red marker is where "
-          "the film has got to. The clock runs at a year a second."], None, None),
-        ("How it was made: three things joined together",
-         ["The film joins a groundwater model, satellite pictures and a map of where the water "
-          "goes. The slides that follow take them in turn, each beside the report figures that "
-          "calibrate and test it."], None, None),
+          "the film has got to. The clock runs at a year a second.",
+          "The slides that follow show how it was made: a groundwater model, satellite pictures "
+          "and a map of where the water goes, joined together, each beside the report figures "
+          "that calibrate and test it."], None, None),
         *method_slides(n, rng, thumbs or [], stats),
+        *([("What you hear",
+            ["The sound is made from the water, month by month. Nothing in it is recorded.",
+             "A soft chord runs throughout. While the months play, its upper voices open as "
+             "the water table rises, and in the months beyond the record it trembles.",
+             "Each January a single note marks the year. The higher and louder the note, the "
+             "more open water that year reached.",
+             "The surf swells with the wet area, wet floor and open water together, and leans "
+             "toward where the wetting is: right for the east of the warren, left for the west.",
+             "Held notes sound while the water table is above the lines on the chart at the bottom: "
+             "one above the yellow line, where wet floor appears; a higher one above the blue "
+             "line, where open water appears; and the highest above the 2021 flood."],
+            None, None)] if FILM_SOUND_TRACK == "warren" else []),
         ("Please read this before watching",
          ["It is today's warren, not the warren of the time. The rules were learned from 2005–2026 "
           "and the ground is the 2023 survey, with Newborough Forest at its present size. The forest "
@@ -854,6 +890,16 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
           "turns PALE ORANGE: wetter than anything on record, where exactly we cannot say.",
           "The honest claim for those winters is that they were bigger than 2021, nothing finer."],
          None, None),
+    ]
+    after = [
+        ("What the film says, cautions attached",
+         ["The 1960s were the wet decade, with several times the open water of an average winter in "
+          "any other decade.",
+          "The winters of 1961–62 and 2000–01 stand out as the two great floods of the century, with "
+          "1938–39 and 1958–59 behind them; 2015–16 was the wettest of the satellite era after 2021.",
+          "The 1970s and 1990s were the dry decades, with almost no open water in an average winter.",
+          "All of it is the model's account of what the weather would do to the reserve as it stands "
+          "today."], None, None),
         ("And a little more",
          ["It is not a flood map. The squares are 10 m across; narrow margins, small pools and thin "
           "sheets over grass are invisible at that size — roughly a third of the water in a big "
@@ -869,16 +915,6 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
           "Winter rules all year. The curves come from November-to-March pictures; summer months "
           "show what the water table would imply, not what a summer photograph would show."], None,
          None),
-    ]
-    after = [
-        ("What the film says, cautions attached",
-         ["The 1960s were the wet decade, with several times the open water of an average winter in "
-          "any other decade.",
-          "The winters of 1961–62 and 2000–01 stand out as the two great floods of the century, with "
-          "1938–39 and 1958–59 behind them; 2015–16 was the wettest of the satellite era after 2021.",
-          "The 1970s and 1990s were the dry decades, with almost no open water in an average winter.",
-          "All of it is the model's account of what the weather would do to the reserve as it stands "
-          "today."], None, None),
         ("Credits and sources",
          ["Newborough Warren hydrology study, 2026 — Martin Hollingham.",
           "Weather: RAF Valley monthly record, 1930–2026. Water table: the reserve's dipwell "
@@ -886,7 +922,9 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
           f"Imagery: Copernicus Sentinel-2, 2016–2026, free and open under the Copernicus "
           f"licence. {cop_years}.",
           "Model, code and data: github.com/newbroman/Newborough_Hydrology. The method is recorded "
-          "as decision D-178; the full written guide accompanies this film."], None, None),
+          "as decision D-178; the full written guide accompanies this film.",
+          "Sound: synthesised by the film's own code from the modelled water table and "
+          "areas; no recordings."], None, None),
     ]
     return caption, caption_beyond, before, after
 
@@ -1054,7 +1092,8 @@ def sound_track(marks: list, lvl: np.ndarray, flooded_ha: np.ndarray, hmax: floa
 
 
 def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndarray,
-                       months: list, hmax: float, arrivals: dict) -> np.ndarray:
+                       months: list, hmax: float, arrivals: dict,
+                       wet_pan: np.ndarray | None = None) -> np.ndarray:
     """The Warren track (1.3.0): stereo float32, sample-aligned to the frames.
 
     Pad: the slides' ambient chord on FILM_AMBIENT_ROOT_HZ runs under everything. Under a
@@ -1068,6 +1107,7 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
     loudness follows the wetted area (open water + wet floor) over the record's range.
     Chord: one held voice per line on the hydrograph (wet floor and open water arrival
     levels, the 2021 flood), struck as the level rises through it, held while above.
+    The wash's stereo place (1.4.0) follows `wet_pan` (-1 west .. +1 east, per month).
 
     The presentation runs ~10 minutes (~26 M samples), so each layer is added into one
     float32 buffer and its temporaries released before the next is built.
@@ -1145,6 +1185,10 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
     wl = np.sqrt(sm((np.clip((np.nan_to_num(wet[mi], nan=lo) - lo) / (hi - lo), 0, 1) * is_m)[fidx],
                     2.0 / fps))
     r = np.exp(-np.pi * FILM_WASH_BANDWIDTH_HZ / sr)
+    wp = None
+    if wet_pan is not None:          # where the water is, eased in only over the months
+        wp = sm((np.nan_to_num(np.asarray(wet_pan, float))[mi] * is_m)[fidx], 0.6)
+        wp = np.clip(wp * w_m, -1, 1) * FILM_WASH_PAN_WIDTH
     for ch, seed in enumerate((1, 2)):
         z = np.random.default_rng(seed).standard_normal(ns)
         y = sm(z, 1 / 1500.) - sm(z, 1 / 250.)
@@ -1158,9 +1202,12 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
         y += FILM_WASH_HARMONIC * sung / np.abs(sung).max()
         del sung
         y *= (0.65 + 0.35 * np.sin(2 * np.pi * t / FILM_WASH_SURGE_S + seed)) * wl
+        if wp is not None:           # equal-power pan, unity at the centre
+            y *= np.sqrt(2.0) * (np.cos if ch == 0 else np.sin)((wp + 1) * np.pi / 4)
         out[:, ch] += (FILM_MIX_WASH * y).astype(np.float32)
         del y
     del wl
+
 
     # chord: a held voice above each line on the hydrograph
     lines = [(arrivals.get("wet_floor"), FILM_CHORD_SEMITONES[0], -0.35),
@@ -1263,7 +1310,7 @@ def _text_block(ax, paras, x0, x1, y_top, y_bot, sizes=TEXT_SIZES, color="#2a2a2
 def _title(ax, title_, x0, x1, y, fs_max=TITLE_PT_MAX):
     """One line, as large as fits x0..x1."""
     fs = min(fs_max, fs_max * (x1 - x0) * FRAME_W / max(_text_w(title_, fs_max, True), 1.0))
-    ax.text(x0, y, title_, fontsize=fs, weight="bold", va="top", color="#1f1f1f")
+    ax.text(x0, y, title_, fontsize=fs, weight="bold", va="top", color=FILM_COL_TITLE)
 
 
 def _shade(fig, strength: float = 1.0) -> None:
@@ -1337,12 +1384,29 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
 
     hb, hd, floor = cells
     caption, caption_beyond, before, after = text
+    # 1.4.0: the bold beyond-the-record heading on a line of its own (it is drawn bold, and
+    # the reflow measures regular weight)
+    head_b = "THIS MONTH IS BEYOND THE RECORD."
+    caption_beyond = caption_beyond.replace(head_b, head_b + "\n\n", 1)
     hmax = float(feed["fitted_range_m"]["max"])
     t = pd.PeriodIndex(level["month"], freq="M").to_timestamp()
     months = level["month"].astype(str).str[:7].tolist()
     lvl = level["median_level_calibrated_m"].to_numpy(float)
     aw = level["open_water_ha"].to_numpy(float)
     af = level["wet_floor_ha"].to_numpy(float)
+    # Where the water is (1.4.0): the east-west centre of the wetted cells each month,
+    # scaled over the months' own range to -1 (west) .. +1 (east); 0 under 1 ha wet.
+    thr = np.minimum(hd, hb)[floor]
+    col = np.nonzero(floor)[1].astype(float)
+    order = np.argsort(thr)
+    thr_s, ccum = thr[order], np.cumsum(col[order])
+    nwet = np.searchsorted(thr_s, np.minimum(lvl, hmax), side="right")
+    cx = np.where(nwet >= 100, ccum[np.maximum(nwet, 1) - 1] / np.maximum(nwet, 1), np.nan)
+    if np.isfinite(cx).sum() > 1:
+        lo_x, hi_x = np.nanpercentile(cx, [5, 95])
+        wet_pan = np.nan_to_num(np.clip(2 * (cx - lo_x) / max(hi_x - lo_x, 1e-9) - 1, -1, 1))
+    else:
+        wet_pan = np.zeros(len(lvl))
     rgb = _background(floor.shape)
     still = {}
 
@@ -1481,7 +1545,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         _title(ax, FILM_TITLE, 0.06, 0.94, 0.90, fs_max=34)
         ax.text(0.06, 0.80, FILM_SUBTITLE, fontsize=15, va="top", color="#2a2a2a")
         ax.plot([0.06, 0.94], [0.735, 0.735], color=COL_WATER, lw=2.2)
-        ax.text(0.06, 0.69, "Contents", fontsize=15, weight="bold", va="top", color="#1f1f1f")
+        ax.text(0.06, 0.69, "Contents", fontsize=15, weight="bold", va="top", color=FILM_COL_TITLE)
         half = (len(entries) + 1) // 2
         fs = 14.0
         lh = fs * FRAME_DPI / 72.0 * 1.55 / FRAME_H
@@ -1532,7 +1596,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     fig = plt.figure(figsize=(FRAME_W / FRAME_DPI, FRAME_H / FRAME_DPI), dpi=FRAME_DPI)
     fig.patch.set_facecolor("white")
     ax = fig.add_axes([0.02, 0.30, 0.62, 0.60])
-    ax2 = fig.add_axes([0.07, 0.09, 0.90, 0.16])
+    ax2 = fig.add_axes([0.07, 0.07, 0.78, 0.18])
     axt = fig.add_axes([0.66, 0.30, 0.33, 0.60]); axt.set_axis_off()
     axr = fig.add_axes([0, 0, 1, 1], zorder=-1); axr.set_axis_off()
     axr.set_xlim(0, 1); axr.set_ylim(0, 1)
@@ -1577,8 +1641,10 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
             x += _text_w(lab + " ", fs_r) / FRAME_W
         vw = max(_text_w(v, fs_r, True) for v in vals) / FRAME_W
         left = k == 1                                  # the year: left-aligned after the month
+        # 1.4.0: open water and wet floor in the map's colours, so the title is the legend
+        col_v = {3: COL_WATER, 4: FILM_COL_FLOOR_TEXT}.get(k, "#1f1f1f")
         slots.append(axr.text(x if left else x + vw, READOUT_Y, "", fontsize=fs_r, va="center",
-                              ha="left" if left else "right", weight="bold", color="#1f1f1f"))
+                              ha="left" if left else "right", weight="bold", color=col_v))
         x += vw + _text_w(" " if k == 0 else READOUT_GAP, fs_r) / FRAME_W
     axr.text(x, READOUT_Y, study, fontsize=fs_r, va="center", ha="left", color="#777")
     x += (_text_w(study, fs_r) + _text_w(READOUT_GAP, fs_r)) / FRAME_W
@@ -1588,7 +1654,18 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     obs = level["median_level_observed_m"]
     wells_from = t[obs.notna().to_numpy()].min() if obs.notna().any() else t.max()
     ax2.fill_between(t, TRACE_LO_M, TRACE_HI_M, where=t < wells_from, color="#eeeeee", zorder=0)
-    ax2.plot(t, lvl, color="black", lw=0.6)
+    # 1.4.0: the trace in the colour of what the map shows at that level
+    from matplotlib.collections import LineCollection          # noqa: PLC0415
+    from matplotlib.colors import to_rgb                        # noqa: PLC0415
+    import matplotlib.dates as _md                              # noqa: PLC0415
+    xs = _md.date2num(t)
+    segs = np.stack([np.column_stack([xs[:-1], lvl[:-1]]), np.column_stack([xs[1:], lvl[1:]])], 1)
+    mid = np.maximum(lvl[:-1], lvl[1:])
+    ow_h, wf_h = arrivals.get("open_water", np.inf), arrivals.get("wet_floor", np.inf)
+    seg_col = np.where(mid[:, None] >= ow_h, np.array([COL_WATER]),
+                       np.where(mid[:, None] >= wf_h, np.array([to_rgb(FILM_COL_FLOOR_TEXT)]),
+                                np.array([(0.0, 0.0, 0.0)])))
+    ax2.add_collection(LineCollection(segs, colors=seg_col, linewidths=0.7))
     ax2.axhline(0, color="grey", lw=0.6, ls=":")
     # Where each colour arrives. Drawn in its own colour so the line and the cells
     # it describes cannot be mixed up, and labelled, because an unlabelled
@@ -1599,18 +1676,28 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         if hv is None:
             continue
         ax2.axhline(hv, color=colour, lw=0.9, ls="-", alpha=0.9)
-        ax2.text(t[len(t) - 1], hv, f"  {label} ({hv:+.2f} m)", fontsize=6.5,
-                 color=colour, va="center", ha="left", clip_on=False)
+        # 1.4.0: in the margin beside the axes (it ran off the frame's edge at 1.3.0)
+        ax2.annotate(f"{label} {hv:+.2f} m".replace("-", "\u2212"),
+                     xy=(1.0, hv), xycoords=("axes fraction", "data"),
+                     xytext=(5, 0), textcoords="offset points", fontsize=8,
+                     color=FILM_COL_FLOOR_TEXT if cls == "wet_floor" else colour,
+                     va="center", ha="left", annotation_clip=False)
     ax2.axhline(hmax, color="#0b6e8f", lw=0.6, ls="--")
     ax2.fill_between(t, hmax, TRACE_HI_M, color="#e8734a", alpha=0.10)
     ax2.set_ylim(TRACE_LO_M, TRACE_HI_M)
-    ax2.set_ylabel("water table, m (0 = ground)", fontsize=8)
-    ax2.tick_params(labelsize=8)
-    ax2.text(t[12], 0.26, "before the wells: model only, corrected to the well years",
-             fontsize=7, color="#555")
-    ax2.text(wells_from + pd.Timedelta(days=300), 0.26, "wells measured", fontsize=7, color="#555")
-    ax2.text(t[len(t) // 3], hmax + 0.05, "above the 2021 flood: beyond anything measured",
-             fontsize=6.5, color="#b5532a")
+    ax2.set_xlim(t[0], t[-1])
+    xlim_full = ax2.get_xlim()
+    ax2.set_ylabel("water table, m\n(0 = ground)", fontsize=9)
+    ax2.tick_params(labelsize=9)
+    ax2.margins(x=0)
+    # The eras head the axes (1.4.0); inside, they crowded the 2021 band.
+    era = [ax2.text(t[0], 1.03, "before the wells: model only, corrected to the well years",
+                    transform=ax2.get_xaxis_transform(), fontsize=9, color="#555", va="bottom"),
+           ax2.text(wells_from, 1.03, "wells measured", transform=ax2.get_xaxis_transform(),
+                    fontsize=9, color="#555", va="bottom"),
+           ax2.text(t[len(t) // 40], (hmax + TRACE_HI_M) / 2,
+                    "above the 2021 flood: beyond anything measured",
+                    fontsize=8.5, color="#b5532a", va="center")]
     marker = ax2.axvline(t[0], color="#c0504d", lw=1.4)
     # The opening clip's label (1.3.0), in the strip between the map and the hydrograph;
     # blank for the full film.
@@ -1632,14 +1719,46 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         fs_c -= 0.25
     cap_now = reflow(caption, fs_c)
     cap_over = cap_now + "\n\n" + reflow(caption_beyond, fs_c)
-    txt = axt.text(0.0, 1.0, cap_now, fontsize=fs_c, va="top", ha="left", linespacing=1.4)
+    # 1.4.0: the caption is drawn line by line in runs, so its colour words carry the map's
+    # colours. Redrawn only when the month crosses into or out of the beyond-the-record state.
+    import re as _re                                            # noqa: PLC0415
+    keys = [("Blue: open water.", COL_WATER, False), ("Yellow: wet floor.", FILM_COL_FLOOR_TEXT, False),
+            ("pale orange", "#c0632a", False), (head_b, "#b5532a", True)]
+    lh_c = 1.4 * fs_c * FRAME_DPI / 72.0 / (0.60 * FRAME_H)
+    cap_art = []
+
+    def draw_caption(block, base):
+        for a_ in cap_art:
+            a_.remove()
+        cap_art.clear()
+        cols = [(base, False)] * len(block)
+        for key, colour, bold in keys:
+            for m_ in _re.finditer(r"\s+".join(map(_re.escape, key.split())), block):
+                cols[m_.start():m_.end()] = [(colour, bold)] * (m_.end() - m_.start())
+        pos = 0
+        for n_l, line in enumerate(block.split("\n")):
+            x_, j = 0.0, 0
+            while j < len(line):
+                k_ = j
+                while k_ < len(line) and cols[pos + k_] == cols[pos + j]:
+                    k_ += 1
+                colour, bold = cols[pos + j]
+                run = line[j:k_]
+                cap_art.append(axt.text(x_, 1.0 - n_l * lh_c, run, fontsize=fs_c, va="top",
+                                        ha="left", color=colour,
+                                        weight="bold" if bold else "normal"))
+                x_ += _text_w(run, fs_c, bold) / (0.33 * FRAME_W)
+                j = k_
+            pos += len(line) + 1
+    cap_state = [None]
 
     def frame(i):
         over = lvl[i] > hmax
         im.set_data(paint(i))
         marker.set_xdata([t[i], t[i]])
-        txt.set_text(cap_over if over else cap_now)
-        txt.set_color("#7a2e0e" if over else "#222")
+        if cap_state[0] != over:
+            draw_caption(cap_over if over else cap_now, "#7a2e0e" if over else "#222")
+            cap_state[0] = over
         for s_, v in zip(slots, (fmt_mname[i], fmt_year[i], fmt_level[i], fmt_ow[i], fmt_wf[i])):
             s_.set_text(v)
         over_txt.set_text(beyond if over else "")
@@ -1697,11 +1816,18 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         if clip:
             put(opening)
             clip_txt.set_text(FILM_OPEN_CLIP_LABEL)
+            # 1.4.0: the hydrograph zooms to the clip's years; the eras are off-screen
+            ax2.set_xlim(t[clip[0]], t[-1])
+            for e_ in era:
+                e_.set_visible(False)
             for i in clip:
                 a = frame(i)
                 put([a])
             put([a] * (2 * FILM_FPS))
             clip_txt.set_text("")
+            ax2.set_xlim(*xlim_full)
+            for e_ in era:
+                e_.set_visible(True)
         put(idx)
         for _, fr in seg_before:
             put(fr)
@@ -1728,7 +1854,8 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
             if FILM_SOUND_TRACK == "classic":
                 track = sound_track(marks, lvl, aw + af, hmax)
             else:
-                track = sound_track_warren(marks, lvl, aw, af, months, hmax, arrivals)
+                track = sound_track_warren(marks, lvl, aw, af, months, hmax, arrivals,
+                                           wet_pan=wet_pan)
             write_wav(wav, track)
             write_chapters(meta, entries, n_written)
             mux(silent, wav, target, meta)

@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.57.0"  # Hollingham (2026) - 2026-09-25. Script 47 1.3.0 (spec
+__version__ = "1.58.0"  # Hollingham (2026) - 2026-09-26. Script 47 1.4.0 (Martin,
+#   2026-09-26: colour-keyed text and two more voices): FILM_COL_FLOOR_TEXT and
+#   FILM_COL_TITLE; FILM_WASH_PAN_WIDTH (the surf's stereo place).
+# 1.57.0  # Hollingham (2026) - 2026-09-25. Script 47 1.3.0 (spec
 #   NRG_spec_script47_v1_3_2026-09-25, signed off): FILM_SOUND_TRACK switch ("warren" |
 #   "classic"), the opening (FILM_OPEN_*), and the Warren track's FILM_NOTE_*, FILM_WASH_*,
 #   FILM_CHORD_* and FILM_MIX_* constants. The 1.1.0 tone constants stay, read by "classic".
@@ -1983,6 +1986,11 @@ FILM_MIX_PAD                 = 0.55
 FILM_MIX_NOTE                = 0.45
 FILM_MIX_WASH                = 0.60
 FILM_MIX_CHORD               = 0.16
+# Script 47 1.4.0 (Martin, 2026-09-26). Text colours keyed to the map, and the surf's
+# stereo place, which follows the east-west centre of the wetted cells (where the water is).
+FILM_COL_FLOOR_TEXT          = "#8a6a00"  # the wet-floor yellow darkened to read as text on white
+FILM_COL_TITLE               = "#0b4f66"  # slide titles: the open-water blue, darkened
+FILM_WASH_PAN_WIDTH          = 0.8        # the surf's stereo swing, -1 west .. +1 east
 
 # ── The Sentinel wet-area model (Scripts 45 & 46, T-40, D-178) ───────────────
 # The two-class wet-area model, promoted from the tools/ lane into the pipeline

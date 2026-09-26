@@ -44,8 +44,8 @@ wetting/rise; negative mm = drying/loss.
 Currencies
 ----------
 1. PEAK LOCAL HEAD CHANGE (mm) — one number per component, worst-affected
-   point. Mostly observed (clearfell, scrape on-site, scrape off-site);
-   coast/SLR/broadleaf modelled from Script 20 fields.
+   point. Observed for clearfell and scrape on-site; scrape off-site (the modelled
+   cone at the nearest uphill well's distance), coast, SLR and broadleaf modelled.
 2. AREA-INTEGRATED CHANGE (mm.ha and m^3) — each Script 20 unit field at its
    2025 (fully-realised) amplitude, integrated over the site mask
    (canonical extent, 50 m grid matching Script 20's own resolution). Scrape
@@ -89,7 +89,18 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-26. T-88 / D-200: the scrape
+#   off-site PEAK is the modelled drain cone at the WMC3 distance
+#   (mechanism_fig_utils.scrape_cone_at_wmc3_mm), flagged modelled, not the mean of the
+#   WMC3 raw DiD steps. That read matched its rows by the regex
+#   "WMC3_BACI_DiD_step_.*_scraping", which since 10m 1.3.0 also caught the new _se, _t
+#   and _placebo_share rows: the 2026-09-25 run averaged eight rows into -13.1 mm. The
+#   area, volume and crossing currencies are unchanged (they always used Script 20's
+#   modelled field).
+#   Measure 3 is drawn signed (Martin, 2026-09-26: "shouldn't panel c have a + and - x
+#   axis"): worsening crossings to the left, relieving to the right, as in Measures 1-2.
+#   The CSV is unchanged.
+# v1.5.0  # Hollingham (2026) - 2026-09-11.
 #   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
 #   gpd.read_file is a machine-dependent call, and fiona 1.10 dropping KML
 #   from supported_drivers broke Script 41 on the publishing machine while
@@ -138,7 +149,7 @@ import matplotlib.pyplot as plt
 from utils import config, paths
 from utils.paths import (
     INT_MASTER_DATA, INT_WELLS_CLEAN, OUT_18_WELL_SY_TABLE,
-    OUT_10A_REPORT, OUT_10M_REPORT, OUT_09_BACI_SHIFTS,
+    OUT_10A_REPORT, OUT_09_BACI_SHIFTS,
     OUT_20_REPORT_NUMBERS, OUT_25_FIT_PARAMETERS, OUT_25_CLUSTER_PARTITION,
     DATA_KML_FEATURES,
 )
@@ -147,6 +158,7 @@ from utils.map_utils import make_site_mask
 from utils.console_utils import banner, phase, step, info, note, warn, result, saved, done
 
 from utils import pipeline_params
+from utils.mechanism_fig_utils import scrape_cone_at_wmc3_mm
 from utils.render_utils import render_figure
 from utils.kml_io import read_kml
 
@@ -191,7 +203,7 @@ COMPONENT_META = {
     "clearfell":     ("Forest management",  "step",        "gain",   True),
     "broadleaf":     ("Forest management",  "progressive", "loss",   False),
     "scrape_onsite": ("Dune scraping",      "step",        "gain",   True),
-    "scrape_offsite":("Dune scraping",      "redistributive","loss", True),
+    "scrape_offsite":("Dune scraping",      "redistributive","loss", False),
     "climate":       ("Unexplained (uniform)","uniform",  "loss",   False),
 }
 COMPONENT_LABELS = {
@@ -315,23 +327,13 @@ def load_scrape_onsite_mm() -> float:
 
 
 def load_scrape_offsite_mm() -> float:
-    """WMC3 off-site drain-cone DiD (mm), mean of the two independent
-    scraping-era steps in 10m_report_numbers.csv (2015 and 2023 scrapes)."""
-    try:
-        df = pd.read_csv(OUT_10M_REPORT)
-        key_col = df.iloc[:, 0].astype(str)
-        rows = df[key_col.str.contains("WMC3_BACI_DiD_step_.*_scraping", case=False, regex=True)]
-        vals_mm = rows.iloc[:, 3].astype(float) * 1000.0
-        if vals_mm.empty:
-            raise ValueError("no WMC3 scraping DiD rows found")
-        val_mm = float(vals_mm.mean())
-        info(f"scrape off-site (live, WMC3 DiD mean of {len(vals_mm)} steps): {val_mm:+.1f} mm")
-        return val_mm
-    except Exception as exc:
-        _fallback = float(pipeline_params.default_value("wmc3_drawdown_mm"))
-        warn(f"cannot read WMC3 off-site DiD ({exc}) — using the documented "
-             f"first-pass default {_fallback:+.1f} mm")
-        return _fallback
+    """Scrape off-site peak (mm): the MODELLED drain cone at the nearest uphill
+    long-record well's distance from CEH36 (09f_01 at the 09b WMC3 distance), shared
+    with the 09g diagrams. The raw WMC3 DiD step is not used: it is within the
+    record's noise (D-200)."""
+    val_mm, d = scrape_cone_at_wmc3_mm()
+    info(f"scrape off-site (modelled cone at {d:.0f} m, the WMC3 distance): {val_mm:+.1f} mm")
+    return val_mm
 
 
 def load_drawdown_lambda_m() -> float:
@@ -544,8 +546,7 @@ def onsite_scrape_registry(s20):
 def currency1_peaks(peaks: dict, scrape_onsite_mm: float, scrape_offsite_mm: float) -> dict:
     out = dict(peaks)
     out["scrape_onsite"] = scrape_onsite_mm     # observed anchor (CEH36)
-    out["scrape_offsite"] = scrape_offsite_mm   # observed anchor (WMC3), conservative
-    #                                              vs the (larger) near-field modelled cone
+    out["scrape_offsite"] = scrape_offsite_mm   # modelled cone at the WMC3 distance (D-200)
     return out
 
 
@@ -754,7 +755,7 @@ def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
         _separator(ax)
         ax.axvline(0, color="#999", lw=0.8)
         ax.set_xlabel("Peak local head change (mm)", fontsize=8.5)
-        ax.set_title("Measure 1 — Peak local (mostly observed anchors)", fontsize=9.5)
+        ax.set_title("Measure 1 — Peak local (observed anchors where they exist)", fontsize=9.5)
         ax.tick_params(axis="both", labelsize=8)
 
         ax = axes[1]
@@ -769,14 +770,21 @@ def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
         net_worsen = comp_df.sd15b_crossings_worsen.fillna(0) + comp_df.sd16_crossings_worsen.fillna(0)
         net_relieve = comp_df.sd15b_crossings_relieve.fillna(0) + comp_df.sd16_crossings_relieve.fillna(0)
         y = np.arange(len(labels))
-        _flag_climate(ax.barh(y - 0.2, net_worsen, height=0.35, color="#c0392b",
-                              label="worsen (cross toward threshold)"))
-        _flag_climate(ax.barh(y + 0.2, net_relieve, height=0.35, color="#1a5276",
-                              label="relieve (cross away)"))
+        # Signed like Measures 1 and 2 (Martin, 2026-09-26): worsening crossings run
+        # left (negative, the drying side), relieving crossings right, so a bar's side
+        # says which way it moves the slacks.
+        _flag_climate(ax.barh(y, -net_worsen, height=0.55, color="#c0392b",
+                              label="worsen (toward dry)"))
+        _flag_climate(ax.barh(y, net_relieve, height=0.55, color="#1a5276",
+                              label="relieve (toward wet)"))
+        lim = max(float(net_worsen.max()), float(net_relieve.max()), 1.0) * 1.08
+        ax.set_xlim(-lim, lim)
+        ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{abs(v):.0f}"))
         _separator(ax)
         ax.set_yticks(y); ax.set_yticklabels(labels, fontsize=8)
         ax.axvline(0, color="#999", lw=0.8)
-        ax.set_xlabel("Wells crossing SD15b or SD16 (count, n=66 evaluated)", fontsize=8.5)
+        ax.set_xlabel("Wells crossing SD15b or SD16 (count, n=66 evaluated)\n"
+                      "\u2190 worsen          relieve \u2192", fontsize=8.5)
         ax.set_title("Measure 3 — Ecological threshold crossings (Curreli)", fontsize=9.5)
         ax.tick_params(axis="x", labelsize=8)
         # Legend inside the panel, mid/lower-right (clear now the climate bar
@@ -812,7 +820,7 @@ def write_results(df: pd.DataFrame, delta0, L_coast, clearfell_step_mm,
         f"  δ₀ (Script 25, forest-free linear-capped): {delta0:.2f} mm/yr; L = {L_coast:.0f} m",
         f"  clearfell step (10a ANCOVA, Path B, observed): {clearfell_step_mm:.1f} mm",
         f"  scrape on-site (CEH36 Pure_Scraping, observed): {scrape_onsite_mm:.1f} mm",
-        f"  scrape off-site (WMC3 DiD mean, observed): {scrape_offsite_mm:+.1f} mm",
+        f"  scrape off-site (modelled cone at the WMC3 distance): {scrape_offsite_mm:+.1f} mm",
         f"  drain-cone / forest λ (20_report_numbers): {lam:.1f} m",
         f"  representative Sy: coast/scrape (C3) = {sy['coast']:.3f}; forest (C4/C5 weighted) = {sy['forest']:.3f}",
         f"  horizon: {int(_H_START)}\u2192{int(_H_END)} ({HORIZON_YEARS:.0f} yr)",
@@ -868,9 +876,9 @@ def write_results(df: pd.DataFrame, delta0, L_coast, clearfell_step_mm,
     lines.append(
         "  Every cell is flagged observed or modelled. Coast (both components), broadleaf, "
         "and the scrape off-site cone are MODELLED (Script 20 fields); clearfell and scrape "
-        "on-site are OBSERVED BACI anchors; scrape off-site's peak is an OBSERVED WMC3 point "
-        "(the modelled cone is larger near-field, so -"
-        f"{abs(scrape_offsite_mm):.0f} mm is a conservative, not a maximal, peak)."
+        "on-site are OBSERVED BACI anchors. Scrape off-site's peak is the modelled cone at "
+        f"the nearest uphill well's distance ({scrape_offsite_mm:+.0f} mm); the raw WMC3 "
+        "step there is within the record's noise and is not used (D-200)."
     )
     lines.append(
         "  SLR is Script 20's native 5-YEAR near-term projection, NOT rescaled to the 20-yr "
@@ -891,9 +899,9 @@ def write_results(df: pd.DataFrame, delta0, L_coast, clearfell_step_mm,
         "Does not close a water budget."
     )
     lines.append(
-        "  Near-field scrape cone is NOT resolved observationally — nearest uphill well is "
-        "262 m from the cut (WMC3); the off-site figures rest on the modelled leaky-aquifer "
-        "field beyond that point."
+        "  The scrape cone is NOT resolved observationally — the nearest uphill well is "
+        "262 m from the cut (WMC3) and its raw step is within the record's noise; every "
+        "off-site figure rests on the modelled leaky-aquifer field."
     )
     lines.append(
         "  Representative Sy (not per-cell) carries an approximately ±40% spread across "

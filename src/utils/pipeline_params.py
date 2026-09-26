@@ -40,7 +40,12 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-25. _DEFAULTS refreshed to the first
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-26. T-88 / D-200: the WMC3 raw
+#   step is no longer a measured off-cut anchor. wmc3_drawdown_mm -> wmc3_raw_step_mm (09f's
+#   hollow marker only) with wmc3_raw_step_se_mm beside it; scrape_cone_at_wmc3_mm is the
+#   MODELLED drain-cone head at the WMC3 distance, read by 09g (via mechanism_fig_utils)
+#   and 37b in place of the raw step.
+# 1.13.0  # Hollingham (2026) - 2026-09-25. _DEFAULTS refreshed to the first
 #   full run after D-195/D-196 (the monthly-calendar correction and the partition it
 #   moved): eighteen fallbacks defaults_lint found stale, among them
 #   clearfell_recovery_mm 113.1 -> 108.2 and clearfell_summer_step_mm 50.1 -> -1.0 (scrape_offsite_100m_vol settled at -31.2 on the second run).
@@ -383,13 +388,15 @@ _DEFAULTS = {
                                          # of: c is not separately identified
                                          # (D-039). Read by Script 37b and by
                                          # mechanism_fig_utils' far-field fallback.
-    "wmc3_drawdown_mm":         -45.8,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (measured off-cut)
+    "wmc3_raw_step_mm":         -45.8,   # 10m WMC3_BACI_DiD_step_2015_scraping ×1000 (raw DiD; NOT resolved, D-200)
+    "wmc3_raw_step_se_mm":       62.7,   # 10m WMC3_BACI_DiD_step_2015_scraping_se ×1000
     "wmc3_distance_m":          262.4,   # 09b_01 wmc3 dist_m (CEH36 -> WMC3 separation)
+    "scrape_cone_at_wmc3_mm":   -41.0,   # 09f_01 scrape_head_mm interpolated at wmc3_distance_m (MODELLED)
     # --- Mechanism-diagram fallbacks (Script 09g) ----------------------------
     # Edge amplitudes (mm) for the §5.8 mechanism diagrams. Live source is
     # 09f_01_reach_profile.csv ROW 0 (distance 0) — one column per driver —
-    # read via mechanism_fig_utils.load_amplitudes(); the measured scrape
-    # off-cut reuses "wmc3_drawdown_mm" above (10m WMC3 BACI). 09g runs after
+    # read via mechanism_fig_utils.load_amplitudes(); the scrape off-cut is the
+    # MODELLED cone at the WMC3 distance, "scrape_cone_at_wmc3_mm" above. 09g runs after
     # 09f in Phase 17, so these engage only on a partial/interrupted run.
     "mech_forest_standing_mm":  -150.0,  # 09f_01 standing_pine_head_mm
     "mech_coastal_5yr_mm":      -156.40, # 09f_01 coastal_5yr_head_mm

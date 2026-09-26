@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**137 output file(s)** supply **1513 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**140 output file(s)** supply **1528 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -382,7 +382,17 @@
 |  | beta3_era · CEH36 · 3_Felling_Pulse | Newborough_Methods_Supplement.md, report9.md |
 |  | beta3_era · CEH4 · 2_Pure_Scraping | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | beta3_era · CEH4 · 3_Felling_Pulse | report9.md |
+| `09b_01_individual_well_baci.csv` | ceh34 · baci_db3_pct | Newborough_Methods_Supplement.md |
+|  | ceh9 · baci_db3_pct | Newborough_Methods_Supplement.md |
+|  | nw6 · baci_db3_pct | Newborough_Methods_Supplement.md |
+|  | nw7 · baci_db3_pct | Newborough_Methods_Supplement.md |
+|  | wmc3 · baci_db3_pct | Newborough_Methods_Supplement.md |
+| `09b_02_centroid_summaries.csv` | All uphill · baci_db3_pct | Newborough_Methods_Supplement.md |
+|  | C3+CEH31 (non-forest uphill) · baci_db3_pct | Newborough_Methods_Supplement.md |
+|  | C4 (forest uphill) · baci_db3_pct | Newborough_Methods_Supplement.md |
 | `09b_04_scenario_comparison.csv` | Scraping (nearby) / C3 · Delta_vol_mm_per_month | Supplementary_Material.md |
+| `09b_report_numbers.csv` | scrape_propagation_near_db3_p | report9.md |
+|  | scrape_propagation_near_db3_t | report9.md |
 | `09c_01_summer_minima.csv` | CEH21 / 2021 · Gap_climate_m | report9.md |
 |  | CEH22 / 2016 · Gap_climate_m | report9.md |
 |  | CEH22 / 2019 · Gap_climate_m | report9.md |
@@ -422,6 +432,11 @@
 |  | Spring_mean_BACI_shift · CEH21 · Climate | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | Summer_min_BACI_shift · CEH36 · Climate | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | Summer_min_BACI_shift · CEH36 · Paired | Hollingham_2026_Paper2_amended.md |
+|  | Summer_min_era_mean · CEH36 · 1_Baseline | report9.md |
+|  | Summer_min_era_mean · CEH36 · 2_Pure_Scraping | report9.md |
+|  | Summer_min_era_mean · CEH36 · 3_Felling_Pulse | report9.md |
+|  | Summer_min_era_mean · CEH4 · 1_Baseline | report9.md |
+|  | Summer_min_era_mean · CEH4 · 3_Felling_Pulse | report9.md |
 | `09d_01_scenario_comparison.csv` | Broadleaf (hypothetical) · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
 |  | Clearfell (hypothetical) · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
 |  | Climate dry · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |

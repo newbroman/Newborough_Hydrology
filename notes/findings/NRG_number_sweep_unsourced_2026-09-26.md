@@ -349,3 +349,7 @@ Each is a result quoted in report9 that the sweep could not trace to a committed
 |  | Coastal and spatial | −0.30 | / *25_coastal_gradient.py* δ₀ = −31.28 mm/yr, L_cg = 902 m, c_far = −0.30 mm/yr Coastline provenance S.15 |
 |  | Residuals and diagnostics | −0.12 | tructure S.16 / Script 22 Network mean residual AR(1) ≈ −0.12 Ridge-recharge lag null result S.16 / Script 23 Spearman ρ = |
 |  | Residuals and diagnostics | +0.010 | Ridge-recharge lag null result S.16 / Script 23 Spearman ρ = +0.010 on lag-vs-distance; test design statistically degenerate against mont |
+
+## Paper 2 note (2026-09-26j)
+
+Paper 2 quotes CEH4 "era means −1.16 m ..." from 09a `Summer_minimum_depth`, which is the single deepest Jun–Sep reading per era, not a mean (09a 2.10.0 corrects the label). The era means are 09c `Summer_min_era_mean` (CEH4 −1.075 / −1.053 / −1.148 m). Correct when papers resume (D-194).

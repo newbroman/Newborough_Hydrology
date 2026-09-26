@@ -30,12 +30,12 @@ beta3_era,CEH21,3_After_Scraping,0.0953254628777575,m,"CI=[-0.0178,0.2085] p=0.0
 beta3_era,CEH22,1_Baseline,0.14011615897586777,m,"CI=[0.0878,0.1925] p=<0.001"
 beta3_era,CEH22,2_Coastal_Drawdown,0.1398798614909261,m,"CI=[0.0624,0.2174] p=<0.001"
 beta3_era,CEH22,3_After_Scraping,0.15480193333721054,m,"CI=[0.0074,0.3022] p=0.0404"
-Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.18,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH36,1_Baseline,-1.23,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH36,2_Pure_Scraping,-1.11,m,Mean of annual Jun-Sep minima
-Summer_minimum_depth,CEH36,3_Felling_Pulse,-1.1,m,Mean of annual Jun-Sep minima
+Summer_minimum_depth,CEH4,1_Baseline,-1.16,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
+Summer_minimum_depth,CEH4,2_Pure_Scraping,-1.18,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
+Summer_minimum_depth,CEH4,3_Felling_Pulse,-1.4,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
+Summer_minimum_depth,CEH36,1_Baseline,-1.23,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
+Summer_minimum_depth,CEH36,2_Pure_Scraping,-1.11,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
+Summer_minimum_depth,CEH36,3_Felling_Pulse,-1.1,m,Deepest single Jun-Sep reading in the era (era means of the annual minima: 09c Summer_min_era_mean)
 BACI_step_with_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.025052027806559195,m,"step once a linear trend is allowed for; HAC se=0.039412 m, p=0.5250; step-only was 0.080669 m (p=0.0035)"
 BACI_pre_window_trend,CEH21,"CEH21 vs CEH22, 2023 re-scrape",0.017257169172340277,m/yr,"trend fitted on the PRE-intervention window ALONE, p=0.0061 — this is the evidence on which the step+trend model is admitted, not a preference for it"
 BACI_step_with_trend,CEH18,"CEH18 vs CEH4, 2023 re-scrape",0.021732856149029964,m,"step once a linear trend is allowed for; HAC se=0.028641 m, p=0.4480; step-only was 0.006412 m (p=0.6999)"

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_50.odt — do not edit. source-sha256=25fb2d07ee6a826c pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_51.odt — do not edit. source-sha256=a125dfbef7f0e04f pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.50 (September 2026).
+Document version: 2.0.51 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1233,7 +1233,7 @@ In April 2015, approximately 0.2 m of surface soil was mechanically excavated ov
 
 The suite is five sub-scripts answering five distinct questions. *09a --- Hierarchical paired BACI* (the core analysis) asks whether scraping worked at the scraped well itself. *09b --- Scraping propagation* asks whether it propagated uphill into the surrounding forest as a detectable shift in SSM coefficients. *09c --- Summer minima* asks whether the intervention improved ecologically critical summer-minimum depths, not just annual means. *09d --- Scenario comparison* asks whether scraping was a good management choice compared to alternative interventions at the same site. *09e --- Robustness* gives three independent estimates of the headline step change to verify it is not an artefact of any single method's assumptions. The orchestrator *run_09_scraping.py* invokes the sub-scripts in this order; 09b must precede 09d because 09d consumes 09b's centroid CSV indirectly via the shared scenario engine. All five share infrastructure through *utils/scraping_common.py*.
 
-The suite's principal results --- the headline +0.128 m benefit at CEH36 (paired-BACI Pure-Scraping era, vs CEH4), the propagation signal across wells 247--776 m uphill, and the alternative-intervention comparisons --- populate §4.5 *Scraping intervention* in the main report, including Table 10 (β₃ era coefficients per well, mapped from *09_scrape_04b_beta3_era_summary.csv*) and Figures 18--21, 23--25, 27, and 28.
+The suite's principal results --- the headline +0.128 m benefit at CEH36 (paired-BACI Pure-Scraping era, vs CEH4), the propagation test across wells 247--776 m uphill, and the alternative-intervention comparisons --- populate §4.5 *Scraping intervention* in the main report, including Table 10 (β₃ era coefficients per well, mapped from *09_scrape_04b_beta3_era_summary.csv*) and Figures 18--21, 23--25, 27, and 28.
 
 ### []{#anchor-183}[]{#anchor-184}[]{#anchor-185}Sub-script 09a --- Hierarchical paired BACI
 
@@ -1279,7 +1279,7 @@ Ten uphill wells north and northwest of CEH36 enter the analysis (CEH31, WMC3, N
 
 After per-well fitting, wells are aggregated into four centroid groups: scraped (CEH36 alone), non-forest uphill (CEH31 with the C3 uphill wells), forest uphill (the C4 wells), and all uphill wells combined. The centroid time series is averaged across wells and refit on the same split windows, producing a centroid-level pre β₃, post β₃, and BACI-corrected percentage shift.
 
-The live centroid summary gives BACI-corrected β₃ shifts of +7.6 % (non-forest uphill, 6 wells), +9.4 % (forest uphill, 4 wells), and +11.0 % (all uphill, 10 wells). At the individual-well level the shifts span −24 % (CEH34) to +29 % (WMC3 at 262 m) with no monotonic distance decay: CEH9 at 571 m gives +21 % and WMC3 at 262 m gives +29 %, while NW7 at 383 m gives +5 % and NW6 at 284 m gives +0.5 %. The centroid-level signal is the robust summary; per-well shifts at this n are noisy. All three centroids are positive, individual wells are noisy, and there is no clean distance gradient.
+The live centroid summary gives BACI-corrected β₃ shifts of −7.4 % (non-forest uphill, 6 wells), +7.8 % (forest uphill, 4 wells), and +0.2 % (all uphill, 10 wells). At the individual-well level the shifts span −30 % (CEH34) to +19 % (WMC3 at 262 m) with no monotonic distance decay: WMC3 at 262 m gives +19 % and NW7 at 383 m +11 %, while NW6 at 284 m gives −8 % and CEH9 at 571 m +4 %. The centroid shifts are mixed in sign and the all-uphill summary is near zero; per-well shifts at this n are noisy, and there is no clean distance gradient.
 
 Site-specific choices.
 

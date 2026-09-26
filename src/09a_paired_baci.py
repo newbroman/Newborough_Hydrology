@@ -35,7 +35,12 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.9.0"  # Hollingham (2026) — 2026-08-31. THE STEP NOW TRAVELS
+__version__ = "2.10.0"  # Hollingham (2026) — 2026-09-26. Summer_minimum_depth rows
+#   relabelled (T-84): the value has always been the single deepest Jun-Sep reading in the
+#   era, but the Note said "Mean of annual Jun-Sep minima". The Note now says what the value
+#   is; no value moves. The era MEANS of the annual minima are Script 09c's
+#   Summer_min_era_mean rows (09c 1.7.0), which is what report9 §4.5.4 quotes.
+# 2.9.0  # Hollingham (2026) — 2026-08-31. THE STEP NOW TRAVELS
 #   WITH ITS OWN DETECTION FLOOR. 09_scrape_03's CEH21 / After_Scraping
 #   contrast is nominally significant, sits below the smallest step this design
 #   could reliably detect, and does not survive a linear trend that the
@@ -987,7 +992,8 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
            note=f"CI=[{sr['Conf_Low']:.4f},{sr['Conf_High']:.4f}] "
                 f"p={format_p_value(sr['P_Value'])}")
 
-    # 5. Summer minimum depths by era
+    # 5. Deepest summer reading by era. NOT the mean of annual minima - that is
+    #    Script 09c's Summer_min_era_mean (2.10.0 relabel).
     for sw in ["ceh4", "ceh36"]:
         if sw not in wells.columns or sw not in WELL_ERAS:
             continue
@@ -999,7 +1005,8 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
                 summer_min_depth = float(summer.min())
                 rr("Summer_minimum_depth", summer_min_depth,
                    well=sw.upper(), era=era_name,
-                   note="Mean of annual Jun-Sep minima")
+                   note="Deepest single Jun-Sep reading in the era "
+                        "(era means of the annual minima: 09c Summer_min_era_mean)")
 
     # 6. The step with its trend and its floor — beside the shift rows above,
     #    so a reader who finds Tier2_BACI_shift finds the qualification too.

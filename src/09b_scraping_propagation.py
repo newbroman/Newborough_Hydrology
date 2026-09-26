@@ -30,7 +30,13 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-21. Emits 09b_report_numbers.csv:
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-26. The uphill propagation test is
+#   written out (T-84): 09b_report_numbers.csv gains the near-band one-sample t-test of the
+#   BACI-corrected delta-beta3 (wells within config.SCRAPE_PROPAGATION_NEAR_M of CEH36: n,
+#   n positive, mean, t, p) that report9 §4.5.5 quotes, and 09b_01 gains baci_db3_pct per
+#   well, the percentage the Methods Supplement quotes (the centroid table already had it).
+#   The test runs on the unrounded frame. No existing value moves.
+# 1.8.0  # Hollingham (2026) — 2026-09-21. Emits 09b_report_numbers.csv:
 #   the post-scrape fitting window in months (post_n at CEH36 — April 2015 to the
 #   December 2017 clearfell; the "31-month post-scraping record" the front matter
 #   and report9 §4.5 quote, which lived only as a repeated column) and the
@@ -57,7 +63,8 @@ from utils.paths import (
     OUT_09B_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
-from utils.config import FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N
+from utils.config import (FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N,
+                          SCRAPE_PROPAGATION_NEAR_M)
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
 
@@ -244,6 +251,9 @@ def main():
     df["baci_db1"] = df["raw_db1"] - ctrl_db1
     df["baci_db2"] = df["raw_db2"] - ctrl_db2
     df["baci_db3"] = df["raw_db3"] - ctrl_db3
+    # Per-well percentage, on the same convention as the centroid rows below.
+    df["baci_db3_pct"] = np.where(df["pre_b3"].abs() > 1e-6,
+                                  df["baci_db3"] / df["pre_b3"].abs() * 100, np.nan)
 
     uphill = df[df["role"] == "uphill"].sort_values("dist_m")
     print("\n   Uphill wells (BACI-corrected):")
@@ -332,6 +342,22 @@ def main():
            note="fitted months in the pre-scrape window at CEH36")
     rr.add("scrape_propagation_n_wells", int(len(df)), unit="count",
            note="CEH36, the uphill transect and the controls fitted in both windows")
+    # The near-band propagation test (report9 §4.5.5), on the unrounded frame.
+    near = df[(df["role"] == "uphill") & (df["dist_m"] <= SCRAPE_PROPAGATION_NEAR_M)]
+    band = f"uphill wells within {SCRAPE_PROPAGATION_NEAR_M:.0f} m of CEH36"
+    rr.add("scrape_propagation_near_n_wells", int(len(near)), unit="count", note=band)
+    rr.add("scrape_propagation_near_n_positive", int((near["baci_db3"] > 0).sum()),
+           unit="count", note=f"{band} with a positive BACI-corrected delta-beta3")
+    rr.add("scrape_propagation_near_db3_mean", float(near["baci_db3"].mean()),
+           unit="per month", note=f"mean BACI-corrected delta-beta3, {band}")
+    if len(near) >= 3:
+        _t = _stats.ttest_1samp(near["baci_db3"], 0.0)
+        rr.add("scrape_propagation_near_db3_t", float(_t.statistic), unit="-",
+               note=f"one-sample t against zero, df = {len(near) - 1}")
+        rr.add("scrape_propagation_near_db3_p", float(_t.pvalue), unit="-",
+               note="two-sided p of the one-sample t")
+    else:
+        warn(f"only {len(near)} wells in the near band - t-test not written")
     n_rr = rr.save(OUT_09B_REPORT_NUMBERS)
     print(f"   \u2192 {OUT_09B_REPORT_NUMBERS.name} ({n_rr} rows)")
 

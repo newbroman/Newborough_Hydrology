@@ -52,7 +52,13 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-26. Era means written out (T-84):
+#   09c_report_numbers.csv gains, per metric and per well in scraping_common.WELL_ERAS, the
+#   mean of the annual values in each management era and its n of seasons
+#   (Summer_min_era_mean / _era_n; Spring_mean_era_mean / _era_n). A season belongs to the
+#   era in which its first month falls. report9 §4.5.4 quotes the summer rows (CEH36 and
+#   CEH4). A new Era column carries the era; existing rows leave it blank. No value moves.
+# 1.6.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.5.0  # Hollingham (2026) — 2026-08-13 (spring-mean MAM analysis alongside the summer minimum)
 #
@@ -94,7 +100,7 @@ from utils.paths import (
 )
 from utils.scraping_common import (
     SCRAPING_DATE, CLEARFELL_DATE, SCRAPING_DATE_2, CLIMATE_CONTROLS, SUMMER_MONTHS,
-    TIER1_WELLS, TIER2_WELLS, PAIRED_CONTROLS_MAP,
+    TIER1_WELLS, TIER2_WELLS, PAIRED_CONTROLS_MAP, WELL_ERAS,
     MPL_DEFAULTS,
     load_scraping_data, format_p_value, significance_stars,
 )
@@ -192,6 +198,7 @@ _METRICS = [
         "min_measured": 2,
         "value_col": "Summer_min_m",
         "param_shift": "Summer_min_BACI_shift",
+        "param_era": "Summer_min_era",
         # Summer equilibration keys are the committed ones — do NOT suffix,
         # the report cites them as they stand.
         "param_suffix": "",
@@ -213,6 +220,7 @@ _METRICS = [
         "min_measured": SPRING_MIN_MEASURED,
         "value_col": "Spring_mean_m",
         "param_shift": "Spring_mean_BACI_shift",
+        "param_era": "Spring_mean_era",
         "param_suffix": "_spring",
         "out_data": OUT_09C_SPRING_MEANS,
         "out_shifts": OUT_09C_SPRING_SHIFTS,
@@ -486,6 +494,32 @@ def _run_metric(spec, wells, wells_provenance, all_wells,
     phase(5, "Generating figures")
     _plot_climate_control(well_mins, climate_centroid_mins, POST_YEAR, spec)
     _plot_paired(well_mins, paired_mins, POST_YEAR, spec)
+
+    # ── Era means (report9 §4.5.4) ────────────────────────────────────
+    # A season belongs to the era in which its first month falls; era bounds
+    # are scraping_common.WELL_ERAS (start inclusive, end exclusive).
+    first_month = min(spec["months"])
+    for w in all_wells:
+        if w not in well_mins or w not in WELL_ERAS:
+            continue
+        vals = pd.Series(well_mins[w], dtype=float).dropna()
+        for era_name, (start, end) in WELL_ERAS[w].items():
+            yrs = [yr for yr in vals.index
+                   if (start is None or pd.Timestamp(int(yr), first_month, 1) >= start)
+                   and (end is None or pd.Timestamp(int(yr), first_month, 1) < end)]
+            if not yrs:
+                continue
+            span = f"{min(yrs)}-{max(yrs)}"
+            report_rows.append({
+                "Parameter": f"{spec['param_era']}_mean", "Well": w.upper(),
+                "Era": era_name, "Value": float(vals.loc[yrs].mean()), "Unit": "m",
+                "Note": f"mean of the annual {spec['name']} values ({spec['season']}), {span}",
+            })
+            report_rows.append({
+                "Parameter": f"{spec['param_era']}_n", "Well": w.upper(),
+                "Era": era_name, "Value": len(yrs), "Unit": "count",
+                "Note": f"{spec['season']} seasons in the era, {span}",
+            })
 
     return report_rows
 

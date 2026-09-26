@@ -2507,3 +2507,26 @@ scrape_inferred_cut_depth_m,outputs/20_spatial_figures/20_scrape_report_numbers.
 residual_spearman_signed_easting_p,outputs/20_spatial_figures/20_residual_report_numbers.csv,report_edits/text/report9.md,0.86,"er axis (ρ = +0.02 against Easting, p = ","; ρ = −0.10 against Northing, p = 0.40).",high,confirmed
 residual_spearman_signed_northing_rho,outputs/20_spatial_figures/20_residual_report_numbers.csv,report_edits/text/report9.md,−0.10," = +0.02 against Easting, p = 0.86; ρ = "," against Northing, p = 0.40).",high,confirmed
 residual_spearman_signed_northing_p,outputs/20_spatial_figures/20_residual_report_numbers.csv,report_edits/text/report9.md,0.40,"= 0.86; ρ = −0.10 against Northing, p = ",).,high,confirmed
+ccw_annual_range_mean_m,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.725, 2010); the series reduced here returns , m with a standard deviation of 0.255 m ,high,confirmed
+ccw_annual_range_sd_m,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.255,ns 0.725 m with a standard deviation of ," m across fifty-one well-years, an agree",high,confirmed
+pearson_r_median,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.856,redicted monthly levels has a median of , and runs from 0.658 to 0.944. Nash--Sut,high,confirmed
+pearson_r_min,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.658,els has a median of 0.856 and runs from , to 0.944. Nash--Sutcliffe efficiency is,high,confirmed
+pearson_r_max,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.944, median of 0.856 and runs from 0.658 to ,. Nash--Sutcliffe efficiency is negative,high,confirmed
+nse_bias_removed_min_excl_persistent_forest,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.33,ls while the bias-removed efficiency is , to 0.87 at eight wells and −0.10 at the,high,confirmed
+nse_bias_removed_max_excl_persistent_forest,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.87, the bias-removed efficiency is 0.33 to , at eight wells and −0.10 at the well un,high,confirmed
+nse_bias_removed_persistent_forest,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,−0.10,ency is 0.33 to 0.87 at eight wells and , at the well under forest in both epochs,high,confirmed
+residual_mean_all,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,−0.024,-- observed level less predicted --- is , m across the nine wells and +0.111 m ac,high,confirmed
+epoch_shift_min,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,−0.135,"ern record. All nine are negative, from ", m to −0.835 m with a median of −0.589 m,high,confirmed
+epoch_shift_max,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,−0.835,"All nine are negative, from −0.135 m to ", m with a median of −0.589 m: the water ,high,confirmed
+epoch_shift_median,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,−0.589,m −0.135 m to −0.835 m with a median of , m: the water table of the early 1990s s,high,confirmed
+open_pearson_r_median,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.907,leanest signal: a median correlation of ,", a median bias-removed efficiency of 0.",high,confirmed
+open_nse_bias_removed_median,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.786,"07, a median bias-removed efficiency of ",", and a median epoch shift of −0.347 m. ",high,confirmed
+open_epoch_shift_median,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,−0.347,"y of 0.786, and a median epoch shift of ", m. The remaining three have all changed,high,confirmed
+rain_mean_window_m_yr,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.770,ar RAF Valley record: rainfall averages , m yr⁻¹ over 1989--96 against 0.889 m yr,high,confirmed
+rain_mean_modern_m_yr,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,0.889,ages 0.770 m yr⁻¹ over 1989--96 against ," m yr⁻¹ over the modern record, and the ",high,confirmed
+surplus_mean_window_m_yr,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,+0.127,ll over potential evapotranspiration is , m yr⁻¹ against +0.237 m yr⁻¹. What is l,high,confirmed
+surplus_mean_modern_m_yr,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,+0.237,otranspiration is +0.127 m yr⁻¹ against , m yr⁻¹. What is left over at the six op,high,confirmed
+residual_mean_open,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report9.md,+0.111,ft over at the six open-ground wells is , m against a contrast of −0.347 m. The r,high,confirmed
+residual_mean_open,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report10.md,+0.111,ft over at the six open-ground wells is , m against a contrast of −0.347 m.,high,confirmed
+open_epoch_shift_median,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report10.md,−0.347,wells is +0.111 m against a contrast of , m.,high,confirmed
+epoch_rate_if_linear_mm_yr,outputs/39_ccw_hindcast/39_report_numbers.csv,report_edits/text/report10.md,15.2,he two records would give a figure near ," mm yr⁻¹, but the division assumes a str",high,confirmed

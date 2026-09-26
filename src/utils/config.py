@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.59.0"  # Hollingham (2026) - 2026-09-26. DRAWDOWN_QUOTE_LEVELS_MM: the
+__version__ = "1.60.0"  # Hollingham (2026) - 2026-09-26. CCW_ANNUAL_RANGE_YEARS and
+#   CCW_ANNUAL_RANGE_MIN_MONTHS: the definition of the 1989-95 annual-range check against
+#   Davy et al. (2010) that Script 39 1.4.0 writes out (T-84).
+# 1.59.0  # Hollingham (2026) - 2026-09-26. DRAWDOWN_QUOTE_LEVELS_MM: the
 #   drawdown levels whose reach Script 20 1.45.0 writes out (forest contours and the
 #   scrape field), named once rather than typed in the script or the text (T-84).
 # 1.58.0  # Hollingham (2026) - 2026-09-26. Script 47 1.4.0 (Martin,
@@ -2255,6 +2258,12 @@ BACI_DETECT_HORIZON_YEARS = (0, 2, 5, 10, 20)
 # that depth: they are left-censored, not measurements, and are dropped from
 # every metric rather than compared against a prediction.
 CCW_PIPE_BASE_M = -2.000                     # dipwell base, m below ground
+# The annual-range cross-check against Davy et al. (2010), who report the 1989-95 annual
+# range of water-table elevation at Newborough (Script 39 1.4.0): per-well calendar-year
+# max - min of the reduced CCW series over these years, counting only well-years with
+# at least this many monthly readings.
+CCW_ANNUAL_RANGE_YEARS      = (1989, 1995)
+CCW_ANNUAL_RANGE_MIN_MONTHS = 10
 CCW_MAX_CENSORED_FRACTION = 0.25             # a code censored more often is not admitted
 
 # The hindcast applies coefficients fitted 2005-2026 to 1989-96. The site-wide

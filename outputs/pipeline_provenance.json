@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-26T15:37:44",
+ "generated": "2026-09-26T16:05:04",
  "orchestrator": "2.19.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1153,15 +1153,15 @@
   },
   "39_ccw_hindcast.py": {
    "emitted": {
-    "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "13299479020628c5277dfe1b72754c9f6612020cc094d07b14969c7dd3855040",
+    "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "b1c4986367302a621cc10420484b1569f012e281f442b001b2cd02934b467169",
     "outputs/39_ccw_hindcast/39_02_hindcast_series.csv": "b232a0f54678454b77033151b5fe07c029ed84375e2b21a23ece960ec9f9ad33",
     "outputs/39_ccw_hindcast/39_03_beta1_sensitivity.csv": "2812be9d301473a30bd9960627b508ad810ca34e0cd6277a9a71d69b8b677a22",
-    "outputs/39_ccw_hindcast/39_04_hindcast.png": "3f9d2eceebedd06a5ac1d5af6fccac3bbf945ac2466625ea5dbf745ad5a9124b",
-    "outputs/39_ccw_hindcast/39_05_full_hindcast_site.csv": "06ab162997c1d95c1a2ee1a4094c7fa2b74198b7c8cd1401322b3d84cf1965ea",
+    "outputs/39_ccw_hindcast/39_04_hindcast.png": "d2b3ab2fdfd37c8df04c851b50364910995dbe3d33ef465605f6a3087ea61503",
+    "outputs/39_ccw_hindcast/39_05_full_hindcast_site.csv": "790d4331a5807ff26fbd0d39fbffbc55bf89d076b5112b2b5d4e927bd145f141",
     "outputs/39_ccw_hindcast/39_06_full_hindcast_decadal.csv": "c13692493777b0d60b93a6f73d484fcb2ed58f07a90a74d3ed05b1e439c6981e",
-    "outputs/39_ccw_hindcast/39_07_full_hindcast.png": "9acdb0ec8bf8d612cd2402a7f00819a9b1f986d3d3f17ff3286dda237bebe1a1",
-    "outputs/39_ccw_hindcast/39_results.txt": "c66e2d551dd6b3877e35be8466a23e5595df6f5e92eaf560fe1e81d7d637cae2",
-    "outputs/logs/run_20260925_150433.log": "29fc9042ac852f03a78985f993981d8703501359ed65add2571886460e854fda"
+    "outputs/39_ccw_hindcast/39_07_full_hindcast.png": "c34bc1880d83fd8ebd3a3b2cf4f9d139419deb02c2d2159804ddec67cf9f377a",
+    "outputs/39_ccw_hindcast/39_report_numbers.csv": "eaeb198029720d3c1e39c10b1c541613823745e8d309de043ffd739004adff27",
+    "outputs/39_ccw_hindcast/39_results.txt": "684651878684b4d21e5bdafb34b1132193a6f54de8e2666d3c209586a5242a6f"
    },
    "fallbacks": [],
    "inputs": {
@@ -1172,8 +1172,8 @@
    },
    "inputs_unresolved": [],
    "seconds": 4.4,
-   "started": "2026-09-25T15:19:58",
-   "version": "1.3.0"
+   "started": "2026-09-26T16:04:59",
+   "version": "1.4.0"
   },
   "40_shoreline_retreat.py": {
    "emitted": {

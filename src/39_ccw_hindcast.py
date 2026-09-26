@@ -99,7 +99,15 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-22.  Emits the
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-26. T-84, per the signed-off spec
+#   NRG_spec_script39_emits_T84_2026-09-26: a new 39_report_numbers.csv carries every
+#   statistic report9 §4.14.1 and report10 §5.7.8 quote — the fit summary, the epoch
+#   shift, the open-ground medians, the climate contrast over the two windows, the
+#   Davy et al. (2010) annual-range cross-check (config.CCW_ANNUAL_RANGE_*), and the
+#   midpoint gap with the straight-line division the text quotes only to disclaim.
+#   Computed from the per-well table and series already in memory; nothing else moves.
+#
+# v1.3.0  # Hollingham (2026) — 2026-08-22.  Emits the
 #   full-record hindcast alongside the CCW comparison. The recurrence already
 #   ran the whole committed climate record as spin-up and discarded all but
 #   the comparison window; this issue keeps it. Three new artefacts, an
@@ -165,6 +173,7 @@ from scipy import stats
 from utils.model_utils import simulate_ssm, get_metrics
 from utils.console_utils import banner, phase, step, info, warn, saved, note, result, done
 from utils.render_utils import render_figure
+from utils.report_numbers_utils import ReportNumbers
 
 SCRIPT_ID = "39"
 VERSION = __version__
@@ -185,8 +194,82 @@ OUT_TXT = paths.OUT_39_RESULTS
 OUT_FULL_SITE = paths.OUT_39_FULL_SITE
 OUT_FULL_DECADAL = paths.OUT_39_FULL_DECADAL
 OUT_FULL_FIG = paths.OUT_39_FULL_FIG
+OUT_REPORT_NUMBERS = paths.OUT_39_REPORT_NUMBERS
 
 BETA_COLS = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")
+
+
+# ── report numbers (1.4.0, T-84) ─────────────────────────────────────────────
+def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month):
+    """The statistics §4.14.1 and §5.7.8 quote, as committed cells.
+
+    Open ground is in_forest False, the split the β₁-sensitivity block uses; the
+    persistent-forest well is under canopy in 1989 and now, with no change since.
+    """
+    rn = ReportNumbers()
+    if pw.empty:
+        rn.save(OUT_REPORT_NUMBERS); saved(OUT_REPORT_NUMBERS.name); return
+    op = pw[pw["in_forest"] == False]                       # noqa: E712
+    pf = pw[(pw["in_forest"] == True) & (pw["canopy_1989"] == "forest")   # noqa: E712
+            & (pw["canopy_changed_since_1989"] == False)]                   # noqa: E712
+    rest = pw.drop(pf.index)
+    rn.add("n_wells_admitted", len(pw), unit="wells", note="wells hindcast against the CCW record")
+    rn.add("n_open", len(op), unit="wells", note="open ground (in_forest False)")
+    rn.add("pearson_r_median", pw["pearson_r"].median(), unit="", note="observed vs predicted, all wells")
+    rn.add("pearson_r_min", pw["pearson_r"].min(), unit="", note="all wells")
+    rn.add("pearson_r_max", pw["pearson_r"].max(), unit="", note="all wells")
+    rn.add("n_nse_negative", int((pw["nse"] < 0).sum()), unit="wells", note="Nash-Sutcliffe below zero")
+    rn.add("nse_bias_removed_min_excl_persistent_forest", rest["nse_bias_removed"].min(), unit="",
+           note="bias-removed NSE, wells other than the one under forest in both epochs")
+    rn.add("nse_bias_removed_max_excl_persistent_forest", rest["nse_bias_removed"].max(), unit="",
+           note="as above")
+    for r in pf.itertuples():
+        rn.add("nse_bias_removed_persistent_forest", r.nse_bias_removed, unit="",
+               well=str(r.well).upper(), note="the well under forest in both epochs")
+    rn.add("residual_mean_all", pw["residual_mean_m"].mean(), note="observed less predicted, mean over wells")
+    rn.add("residual_mean_open", op["residual_mean_m"].mean(), note="as above, open ground")
+    rn.add("epoch_shift_min", pw["epoch_shift_m"].max(), note="smallest shift (1989-96 mean less modern mean)")
+    rn.add("epoch_shift_max", pw["epoch_shift_m"].min(), note="largest shift")
+    rn.add("epoch_shift_median", pw["epoch_shift_m"].median(), note="all wells")
+    rn.add("open_pearson_r_median", op["pearson_r"].median(), unit="", note="open ground")
+    rn.add("open_nse_bias_removed_median", op["nse_bias_removed"].median(), unit="", note="open ground")
+    rn.add("open_epoch_shift_median", op["epoch_shift_m"].median(), note="open ground")
+
+    # the climate contrast between the CCW window and the modern well record
+    def _means(a, b):
+        c = cl.loc[(cl.index >= a) & (cl.index <= b)]
+        return (float(c["P_m"].mean() * 12), float((c["P_m"] - c["PET"]).mean() * 12))
+    m0, m1 = wells_clean.index.min(), wells_clean.index.max()
+    for tag, (a, b) in (("window", (first_month, last_month)), ("modern", (m0, m1))):
+        p, s_ = _means(a, b)
+        rn.add(f"rain_mean_{tag}_m_yr", p, unit="m/yr",
+               note=f"mean annual rainfall {a:%Y-%m} to {b:%Y-%m}")
+        rn.add(f"surplus_mean_{tag}_m_yr", s_, unit="m/yr",
+               note=f"mean annual P - PET {a:%Y-%m} to {b:%Y-%m}")
+
+    # the published cross-check (Davy et al. 2010, 1989-95 annual range)
+    y0, y1 = config.CCW_ANNUAL_RANGE_YEARS
+    s2 = sr.assign(year=sr["month"].str[:4].astype(int))
+    s2 = s2[(s2["year"] >= y0) & (s2["year"] <= y1)]
+    g = s2.groupby(["well", "year"])["observed_m_bg"].agg(["max", "min", "count"])
+    g = g[g["count"] >= config.CCW_ANNUAL_RANGE_MIN_MONTHS]
+    rng = g["max"] - g["min"]
+    rn.add("ccw_annual_range_mean_m", rng.mean(),
+           note=f"per-well calendar-year range {y0}-{y1}, well-years with "
+                f">= {config.CCW_ANNUAL_RANGE_MIN_MONTHS} readings")
+    rn.add("ccw_annual_range_sd_m", rng.std(), note="as above")
+    rn.add("ccw_annual_range_n", len(rng), unit="well-years", note="as above")
+
+    # the straight-line division report10 §5.7.8 quotes only to reject it
+    mid_w = first_month + (last_month - first_month) / 2
+    mid_m = m0 + (m1 - m0) / 2
+    gap = (mid_m - mid_w).days / 365.25
+    rn.add("epoch_midpoint_gap_yr", gap, unit="yr", note="years between the two records' midpoints")
+    rn.add("epoch_rate_if_linear_mm_yr", -op["epoch_shift_m"].median() * 1000 / gap, unit="mm/yr",
+           note="NOT a rate: the open-ground median shift divided by the midpoint gap, "
+                "quoted in the text only to be disclaimed")
+    n = rn.save(OUT_REPORT_NUMBERS)
+    saved(f"{OUT_REPORT_NUMBERS.name} ({n} report numbers)")
 
 
 # ── data ──────────────────────────────────────────────────────────────────────
@@ -588,6 +671,7 @@ def main() -> int:
     pw.to_csv(OUT_PER_WELL, index=False); saved(OUT_PER_WELL.name)
     sr.to_csv(OUT_SERIES, index=False); saved(OUT_SERIES.name)
     sens.to_csv(OUT_SENSITIVITY, index=False); saved(OUT_SENSITIVITY.name)
+    write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month)
     if not sr.empty:
         sr_plot = sr.copy()
         sr_plot["month"] = pd.PeriodIndex(sr_plot["month"], freq="M").to_timestamp()

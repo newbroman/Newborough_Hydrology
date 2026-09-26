@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**134 output file(s)** supply **1481 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**135 output file(s)** supply **1502 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -1410,6 +1410,27 @@
 |  | nw5 · nse | Supplementary_Material.md |
 |  | nw5 · pearson_r | Newborough_Methods_Supplement.md |
 |  | wmc2 · epoch_shift_m | Newborough_Methods_Supplement.md |
+| `39_report_numbers.csv` | ccw_annual_range_mean_m | report9.md |
+|  | ccw_annual_range_sd_m | report9.md |
+|  | epoch_rate_if_linear_mm_yr | report10.md |
+|  | epoch_shift_max | report9.md |
+|  | epoch_shift_median | report9.md |
+|  | epoch_shift_min | report9.md |
+|  | nse_bias_removed_max_excl_persistent_forest | report9.md |
+|  | nse_bias_removed_min_excl_persistent_forest | report9.md |
+|  | nse_bias_removed_persistent_forest | report9.md |
+|  | open_epoch_shift_median | report10.md, report9.md |
+|  | open_nse_bias_removed_median | report9.md |
+|  | open_pearson_r_median | report9.md |
+|  | pearson_r_max | report9.md |
+|  | pearson_r_median | report9.md |
+|  | pearson_r_min | report9.md |
+|  | rain_mean_modern_m_yr | report9.md |
+|  | rain_mean_window_m_yr | report9.md |
+|  | residual_mean_all | report9.md |
+|  | residual_mean_open | report10.md, report9.md |
+|  | surplus_mean_modern_m_yr | report9.md |
+|  | surplus_mean_window_m_yr | report9.md |
 | `40_01_epoch_series.csv` | 2006 / 2017 / modern_common_frontage · rate_m_yr | report8.md |
 |  | 2017 / 2021 / modern_common_frontage · rate_m_yr | report8.md |
 |  | 2021 / 2026 / modern_common_frontage · rate_m_yr | report8.md |

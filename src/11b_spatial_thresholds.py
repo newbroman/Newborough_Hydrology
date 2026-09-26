@@ -74,7 +74,15 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-23. Progress reporting
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-26. D-201 winter thresholds: the
+#   winter-maxima map read local literals (W_SD15b = 0.10, W_SD16 = 0.25 below ground); it now
+#   imports config.SD15b_WINTER / SD16_WINTER. SD15b_WINTER is -0.21 (0.21 m ABOVE ground,
+#   Curreli 2013 Table 4), so the SD15b line now lies ABOVE the flooding line and the zones
+#   re-order: SD15b winter met (flooded >= 0.21 m) / flooded, short of SD15b / SD16 winter met /
+#   below SD16. The forecaster bundle gains DATA.thresholds so the template's badges read the
+#   config values instead of typed ones. The excavation-depth labels (0.14 / 0.22 m) are derived
+#   from the _REC constants. P_flood (target 0 m) is unchanged.
+# 1.12.0  # Hollingham (2026) - 2026-09-23. Progress reporting
 #   (T-76): main()'s sequence of six builder calls (the four plot_* map
 #   builders, export_table10_spreadsheet, build_forecaster_html) turned into a
 #   tracked list (console_utils.track, lines=True — each builder already
@@ -173,6 +181,7 @@ from utils.paths import (
 from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, SD15b, SD15b_REC, SD16, SD16_REC,
+    SD15b_WINTER, SD16_WINTER,
     SCRAPE_DEM_CORRECTION_M, DRAINAGE_DATUM,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
@@ -288,19 +297,22 @@ ZONE_COLOURS = [
 ]
 ZONE_BOUNDS = [0.0, SD15b, SD15b_REC, SD16, SD16_REC, 3.5]
 
-# Curreli WINTER thresholds (depth below ground at winter peak)
-W_FLOOD   = 0.00   # m — water table at surface (flooding)
-W_SD15b   = 0.10   # m — SD15b winter requirement
-W_SD16    = 0.25   # m — SD16 winter requirement
+# Curreli WINTER thresholds (depth below ground at winter peak; negative = above
+# ground). From config (D-201): the wet slack floods, so W_SD15b lies ABOVE W_FLOOD.
+W_FLOOD   = 0.00           # m — the ground surface, by definition
+W_SD15b   = SD15b_WINTER   # m — SD15b winter maximum (Curreli Table 4 community mean)
+W_SD16    = SD16_WINTER    # m — SD16 winter maximum (Curreli Table 4 community mean)
+assert W_SD15b < W_FLOOD < W_SD16, "winter zones assume SD15b above ground, SD16 below"
 
 # Winter Curreli zone colourmap (depth below ground at winter maximum)
 WINTER_ZONE_COLOURS = [
-    "#1A237E",  # Dark blue  — flooding (WT at or above surface, < 0 m)
-    "#1565C0",  # Blue       — SD15b winter met (< 0.10 m)
-    "#a8d8a8",  # Pale green — between SD15b and SD16 (0.10–0.25 m)
-    "#fd8d3c",  # Orange     — below SD16 winter (> 0.25 m)
+    "#1A237E",  # Dark blue  — SD15b winter met (flooded to the SD15b level or more)
+    "#1565C0",  # Blue       — flooded, short of the SD15b level
+    "#a8d8a8",  # Pale green — below ground, SD16 winter met
+    "#fd8d3c",  # Orange     — below SD16 winter
 ]
-WINTER_ZONE_BOUNDS = [-.10, W_FLOOD, W_SD15b, W_SD16, 1.5]
+# Outer bounds pad the colour scale by the SD15b flood depth either side.
+WINTER_ZONE_BOUNDS = [2 * W_SD15b, W_SD15b, W_FLOOD, W_SD16, 1.5]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CLUSTER COLOURS — imported from utils/config.py (single source of truth)
@@ -852,11 +864,11 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         Line2D([0], [0], color="#005fa3", lw=2.0, ls="--",
                label=f"SD15b wet slack threshold ({SD15b} m)"),
         Line2D([0], [0], color="#2e8b2e", lw=1.8, ls=":",
-               label=f"SD15b excavation limit ~0.14 m depth ({SD15b_REC} m)"),
+               label=f"SD15b excavation limit ~{SD15b_REC - SD15b:.2f} m depth ({SD15b_REC} m)"),
         Line2D([0], [0], color="#a30000", lw=2.0, ls="--",
                label=f"SD16 dry slack threshold ({SD16} m)"),
         Line2D([0], [0], color="#4a0000", lw=1.8, ls="-.",
-               label=f"SD16 excavation limit ~0.22 m depth ({SD16_REC} m)"),
+               label=f"SD16 excavation limit ~{SD16_REC - SD16:.2f} m depth ({SD16_REC} m)"),
         Line2D([0], [0], marker="*", color="w",
                markerfacecolor="grey", markeredgecolor="black",
                markersize=12, label="Above SD15b on average (\u2605 labelled)"),
@@ -925,10 +937,11 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     et al. (2013) winter eco-hydrological threshold zones.
 
     Zones (depth below ground at winter peak):
-      - Flooding:     < 0.00 m (WT at or above surface)
-      - SD15b winter: < 0.10 m
-      - SD16 winter:  < 0.25 m
-      - Below SD16:   > 0.25 m
+      - SD15b winter met:  depth <= SD15b_WINTER (flooded to the SD15b level)
+      - Flooded, short:    SD15b_WINTER < depth <= 0 m
+      - SD16 winter met:   0 m < depth <= SD16_WINTER
+      - Below SD16:        depth > SD16_WINTER
+    (config.SD15b_WINTER / SD16_WINTER; negative depth = above ground.)
     """
     DIR_11B.mkdir(parents=True, exist_ok=True)
 
@@ -974,9 +987,9 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     wdf = pd.DataFrame(winter_rows)
 
     # Zone summary counts
-    n_flood = (wdf["depth_bg"] <= W_FLOOD).sum()
-    n_sd15b = ((wdf["depth_bg"] > W_FLOOD) & (wdf["depth_bg"] <= W_SD15b)).sum()
-    n_sd16  = ((wdf["depth_bg"] > W_SD15b) & (wdf["depth_bg"] <= W_SD16)).sum()
+    n_sd15b = (wdf["depth_bg"] <= W_SD15b).sum()
+    n_flood = ((wdf["depth_bg"] > W_SD15b) & (wdf["depth_bg"] <= W_FLOOD)).sum()
+    n_sd16  = ((wdf["depth_bg"] > W_FLOOD) & (wdf["depth_bg"] <= W_SD16)).sum()
     n_below = (wdf["depth_bg"] > W_SD16).sum()
 
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")
@@ -1001,8 +1014,8 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     # Threshold contour lines
     for level, col, lw, ls in [
-        (W_FLOOD, "#1A237E", 2.0, "-"),
-        (W_SD15b, "#1565C0", 1.8, "--"),
+        (W_SD15b, "#1A237E", 1.8, "--"),
+        (W_FLOOD, "#1565C0", 2.0, "-"),
         (W_SD16,  "#CC0000", 1.8, "--"),
     ]:
         try:
@@ -1020,26 +1033,26 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
 
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False, include_scrapes=False)
 
-    # Colourbar with Curreli zone labels — inverted so flooding (0 m) is at top
+    # Colourbar with Curreli zone labels — inverted so above-ground (flooded) is at top
     cb = fig.colorbar(
         mesh, ax=ax, fraction=0.02, pad=0.02, shrink=0.85,
         boundaries=WINTER_ZONE_BOUNDS,
-        ticks=[W_FLOOD, W_SD15b, W_SD16],
+        ticks=[W_SD15b, W_FLOOD, W_SD16],
     )
     cb.ax.invert_yaxis()
     cb.set_label("Mean winter maximum depth below ground (m)", fontsize=9)
     cb.ax.set_yticklabels([
-        f"{W_FLOOD:.2f} m\nFlooding",
-        f"{W_SD15b:.2f} m\nSD15b\nwinter",
+        f"{W_SD15b:.2f} m\nSD15b winter\n(above ground)",
+        f"{W_FLOOD:.2f} m\nGround\nsurface",
         f"{W_SD16:.2f} m\nSD16\nwinter",
     ], fontsize=7.5)
 
     # Legend
     legend_patches = [
         mpatches.Patch(color=WINTER_ZONE_COLOURS[0],
-                       label=f"Flooding (WT at surface, n={n_flood})"),
+                       label=f"SD15b winter met (flooded ≥ {-W_SD15b:.2f} m, n={n_sd15b})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[1],
-                       label=f"SD15b winter met (<{W_SD15b} m, n={n_sd15b})"),
+                       label=f"Flooded, short of SD15b (0 to {-W_SD15b:.2f} m, n={n_flood})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[2],
                        label=f"SD16 winter met (<{W_SD16} m, n={n_sd16})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[3],
@@ -1934,6 +1947,13 @@ def _build_forecaster_data_bundle() -> dict:
     # These are embedded into the bundle so the forecaster HTML can render
     # a proper spatial context behind the well dots.
     bundle["base_layer"] = _build_base_layer()
+
+    # Curreli thresholds as HEAD relative to ground (positive up), for the
+    # template's badges: config holds them as depths, so negate (D-201).
+    bundle["thresholds"] = {
+        "sd15b_summer": -SD15b, "sd16_summer": -SD16,
+        "sd15b_winter": -SD15b_WINTER, "sd16_winter": -SD16_WINTER,
+    }
 
     return bundle
 

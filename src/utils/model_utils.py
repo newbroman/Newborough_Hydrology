@@ -52,7 +52,9 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-25 (D-195). build_ssm_frame()
+__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-26. pflood_lambda docstring: the
+#   h_target example named -0.10 m as SD15b; it now points at config (D-201). Docstring only.
+# 1.7.0  # Hollingham (2026) — 2026-09-25 (D-195). build_ssm_frame()
 #   differences on the monthly CALENDAR. It used to dropna() first and shift the
 #   surviving rows, so a month without a level paired the next month with the last
 #   measured one: Delta_h spanned two or more months and was fitted to one month's
@@ -576,7 +578,9 @@ def pflood_lambda(h_target, h_0, b1, b2, b3,
     Parameters
     ----------
     h_target : float
-        Target head (m). 0 = ground surface; -0.10 = SD15b; -0.25 = SD16.
+        Target head (m), positive up. 0 = ground surface (the P_flood target);
+        the Curreli winter levels are -config.SD15b_WINTER (above ground) and
+        -config.SD16_WINTER (below ground).
     h_0 : float
         Antecedent head (m, negative = below ground).
     b1, b2, b3 : float

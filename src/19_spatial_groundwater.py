@@ -23,7 +23,13 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.21.0"  # Hollingham (2026) - 2026-09-21. The thinning scenario's 0.5
+__version__ = "2.22.0"  # Hollingham (2026) - 2026-09-26. D-201: the viewer's depth colour
+#   ramp named 0.10 m as the "SD15b winter wet flooding limit" and carried an unused DEP_FLOOD =
+#   0.10; the SD15b winter level is now 0.21 m ABOVE ground (Curreli 2013 Table 4) and cannot
+#   anchor a below-ground ramp, so DEP_FLOOD is removed and the 0.10 m stop is described as the
+#   colour ramp's near-surface stop. DEP_T_WET / DEP_T_DRY and their ramp stops now come from
+#   config.SD15b / SD16 instead of typed 0.61 / 0.98. Rendering unchanged.
+# 2.21.0  # Hollingham (2026) - 2026-09-21. The thinning scenario's 0.5
 #   (the fraction of canopy a heavy thin removes) is config.THINNING_FRACTION in the
 #   Python scenarios and a THINNING_FRACTION constant in the viewer JS, both from
 #   config (value unchanged; the documents' "50% thinning" now traces).
@@ -299,6 +305,7 @@ from utils.config import (
     BROADLEAF_INTERCEPTION,
     BROADLEAF_B2_WINTER,
     BROADLEAF_B2_SUMMER,
+    SD15b, SD16,
 )
 from utils.clearfell_common import load_clearfell_b2_multiplier
 
@@ -1797,11 +1804,11 @@ var GS=[[0,'#08306b'],[0.25,'#2171b5'],[0.5,'#74c476'],[0.75,'#fed976'],[1,'#e31
 function abCol(t){{t=Math.max(0,Math.min(1,t));for(var i=0;i<GS.length-1;i++){{if(t<=GS[i+1][0]){{var f=(t-GS[i][0])/(GS[i+1][0]-GS[i][0]),a=GS[i][1],b=GS[i+1][1];return[Math.round(parseInt(a.slice(1,3),16)+(parseInt(b.slice(1,3),16)-parseInt(a.slice(1,3),16))*f),Math.round(parseInt(a.slice(3,5),16)+(parseInt(b.slice(3,5),16)-parseInt(a.slice(3,5),16))*f),Math.round(parseInt(a.slice(5,7),16)+(parseInt(b.slice(5,7),16)-parseInt(a.slice(5,7),16))*f)];}}}}return[8,48,107];}}
 // Depth-below-surface colour ramp, anchored to Curreli et al. (2013) SD15b/SD16
 // ecological thresholds. Input d in metres (positive = water table below ground).
-// 0.00 m (waterlogged) -> deep blue;  0.10 m (SD15b winter wet flooding limit) -> light blue;
-// 0.61 m (SD15b summer wet slack viability limit) -> yellow-green transition;
-// 0.98 m (SD16 dry slack viability limit) -> orange;  1.50 m+ -> deep red.
-var DEP_MAX=1.5,DEP_T_WET=0.61,DEP_T_DRY=0.98,DEP_FLOOD=0.10;
-var DEP_STOPS=[[0.00,'#08306b'],[0.066,'#4a90d0'],[0.407,'#9ecf74'],[0.653,'#f6b94a'],[1.00,'#8b1a1a']];
+// 0.00 m (waterlogged) -> deep blue;  0.10 m -> light blue (near-surface colour stop only;
+// the SD15b WINTER level is above ground, D-201);  SD15b summer viability (config.SD15b) ->
+// yellow-green transition;  SD16 (config.SD16) -> orange;  1.50 m+ -> deep red.
+var DEP_MAX=1.5,DEP_T_WET={sd15b},DEP_T_DRY={sd16};
+var DEP_STOPS=[[0.00,'#08306b'],[0.10/DEP_MAX,'#4a90d0'],[DEP_T_WET/DEP_MAX,'#9ecf74'],[DEP_T_DRY/DEP_MAX,'#f6b94a'],[1.00,'#8b1a1a']];
 function depCol(d){{
   if(d==null||!isFinite(d))return null;
   var t=Math.max(0,Math.min(1,d/DEP_MAX));
@@ -2637,6 +2644,7 @@ def main(out_path=None):
         viewer_nmin=VIEWER_NMIN,
         viewer_nmax=VIEWER_NMAX,
         viewer_version=__version__,
+        sd15b=SD15b, sd16=SD16,
         hillshade_alpha=VIEWER_HILLSHADE_ALPHA,
         cluster_labels_json=json.dumps(
             {str(k): v for k, v in CLUSTER_LABELS.items()},

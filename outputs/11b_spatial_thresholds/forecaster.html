@@ -422,7 +422,7 @@
     <div class="map-heading">
       <h2>P<sub>flood</sub> vulnerability map</h2>
       <div style="font-size:.8rem;color:var(--text-light);font-style:italic">
-        Each well coloured by winter rainfall required to reach SD15b threshold
+        Each well coloured by winter rainfall required to raise the water table to the slack floor (ground surface)
       </div>
     </div>
     <div class="map-svg-wrap">
@@ -431,7 +431,7 @@
            zoom or pan step. -->
       <svg id="map" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin meet"></svg>
       <div class="legend">
-        <div class="title">P<sub>flood</sub> to SD15b (−0.10 m)</div>
+        <div class="title">P<sub>flood</sub> to the slack floor (0 m)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--green)"></div>Reachable (&lt; climatology)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--amber)"></div>Wet winter required (1.0–1.3×)</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--red)"></div>Exceptional winter (1.3–2.0×)</div>
@@ -5355,6 +5355,12 @@ const DATA = {
         "label": "Felling Area"
       }
     ]
+  },
+  "thresholds": {
+    "sd15b_summer": -0.61,
+    "sd16_summer": -0.98,
+    "sd15b_winter": 0.21,
+    "sd16_winter": -0.25
   }
 };
 
@@ -6812,8 +6818,11 @@ function renderForecasts(w){
   let html = '';
 
   // ── Helpers: ecological badges ────────────────────────────────────
-  function peakBadge(h){ return h >= -0.10 ? ['SD15b met','badge-green'] : h >= -0.25 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
-  function minBadge(h){ return h >= -0.61 ? ['SD15b viable','badge-green'] : h >= -0.98 ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
+  // Curreli (2013) thresholds as head relative to ground (positive up), from config via
+  // the data bundle (D-201) - not typed here. SD15b's winter level is ABOVE ground.
+  const THR = DATA.thresholds;
+  function peakBadge(h){ return h >= THR.sd15b_winter ? ['SD15b met','badge-green'] : h >= THR.sd16_winter ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
+  function minBadge(h){ return h >= THR.sd15b_summer ? ['SD15b viable','badge-green'] : h >= THR.sd16_summer ? ['SD16 only','badge-amber'] : ['below SD16','badge-red']; }
 
   // ── Panel context line: "as of <Month> <Year>" ────────────────────
   html += `<div style="font-size:.8rem;color:var(--text-light);font-style:italic;margin-bottom:.6rem;text-align:right;">

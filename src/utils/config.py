@@ -40,7 +40,16 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.61.0"  # Hollingham (2026) - 2026-09-26. SCRAPE_PROPAGATION_NEAR_M: the
+__version__ = "1.63.0"  # Hollingham (2026) - 2026-09-26. D-201: SD15b_WINTER 0.10 -> -0.21, Curreli
+#   et al. 2013 Table 4's SD15b average maximum (+0.21 m ABOVE ground; negative here because the
+#   thresholds are depths, positive downward). The 0.10 had no source: Davy (2010) Table 6.3's
+#   SD15 winter maximum is +2 to +10 cm above ground, so 0.10 below ground was that bound with
+#   its sign flipped. SD15b_REC and SD16_REC labelled as project assumptions (T-62 closed).
+# 1.62.0  # Hollingham (2026) - 2026-09-26. T-62: SD15b, SD16 and SD16_WINTER
+#   carry their source on their own line (Curreli et al. 2013, Table 4, community means over
+#   four years, not limits). SD15b_REC, SD16_REC and SD15b_WINTER have no literature source and
+#   are held for Martin (T-62 note). No value changes.
+# 1.61.0  # Hollingham (2026) - 2026-09-26. SCRAPE_PROPAGATION_NEAR_M: the
 #   near band of the Script 09b uphill propagation test (report9 §4.5.5 "the wells within
 #   575 m"), named once so 09b 1.9.0 can write the test out (T-84).
 # 1.60.0  # Hollingham (2026) - 2026-09-26. CCW_ANNUAL_RANGE_YEARS and
@@ -1137,15 +1146,17 @@ RAF_VALLEY_OSGB_N = 75549
 # Dune slack community viability limits, expressed as depth below ground
 # surface (m, positive downward). Applied in threshold forecasting (11, 11b),
 # climate projections (14), spatial viewer (19), and forestry scenarios (21).
-SD15b     = 0.61   # m — wet slack viability
-SD15b_REC = 0.75   # m — wet slack recovery / excavation limit
-SD16      = 0.98   # m — dry slack threshold
-SD16_REC  = 1.20   # m — dry slack recovery / excavation limit
+SD15b     = 0.61   # m — wet slack viability  # source: Curreli et al. 2013 Table 4, SD15b (core, n=15) average minimum water level -0.61 m, a 4-yr community MEAN (range -0.69 to -0.51), not a limit
+SD15b_REC = 0.75   # m — wet slack recovery / excavation limit  # source: project assumption (D-201) - SD15b plus a single-scrape excavation depth of 0.14 m; no literature value
+SD16      = 0.98   # m — dry slack threshold  # source: Curreli et al. 2013 Table 4, SD16 (core, n=14) average minimum water level -0.98 m, a 4-yr community MEAN (range -1.57 to -0.81), not a limit
+SD16_REC  = 1.20   # m — dry slack recovery / excavation limit  # source: project assumption (D-201) - SD16 plus a single-scrape excavation depth of 0.22 m; no literature value
 
-# Winter thresholds used in climate projections (negative = below ground
-# in the sign convention of Script 14's depth axis).
-SD15b_WINTER = 0.10  # m — winter flooding limit for wet slack
-SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack
+# Winter thresholds: the community-mean winter MAXIMUM water level, as a depth below
+# ground like the summer thresholds above - so a NEGATIVE value is ABOVE ground. The wet
+# slack floods: its winter threshold is 0.21 m of standing water (D-201). Script 14 negates
+# these for its head axis (positive up).
+SD15b_WINTER = -0.21  # m — winter flooding level for wet slack  # source: Curreli et al. 2013 Table 4, SD15b (core, n=15) average maximum water level +0.21 m above ground, a 4-yr community MEAN (range +0.12 to +0.29) (D-201)
+SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack  # source: Curreli et al. 2013 Table 4, SD16 (core, n=14) average maximum water level -0.25 m, a 4-yr community MEAN (range -0.82 to -0.02)
 
 # ── Ecological metric — van Willegen et al. (2025) ────────────────────────────
 # Five-year mean spring water level (MSL) — best-performing hydrology metric

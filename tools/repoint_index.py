@@ -64,7 +64,14 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-24.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-26. Values are looked up by
+#   (source_csv, key), as cite_check does, not by key alone: many labels (e.g.
+#   "C1 (Lake Edge) · beta_1_recharge") are published by several CSVs, and the first
+#   one collected was being compared against rows that cite another. The "not quoted"
+#   refusal also means "not found BESIDE ITS SUBJECT" - a composite key whose subject
+#   words (an era code, a scenario tag) never appear in prose is refused even when the
+#   value is quoted correctly; cite_check, not this count, is the gate (T-03 retired).
+# 1.0.0  # Hollingham (2026) — 2026-08-24.
 
 import argparse
 import re
@@ -120,7 +127,7 @@ def main() -> int:
     docs = cc.load_documents()
     values: dict[str, float] = {}
     for _src, label, v in cc.collect_values():
-        values.setdefault(label, v)
+        values.setdefault((_src, label), v)
 
     with INDEX.open(encoding="utf-8") as fh:
         rdr = csv.DictReader(fh)
@@ -132,7 +139,7 @@ def main() -> int:
     for r in rows:
         if r.get("status") != "confirmed":
             continue
-        v = values.get(r["key"])
+        v = values.get((r["source_csv"], r["key"]))
         text = docs.get(r["document"])
         if v is None or text is None:
             refused.append((r, "key or document not found"))
@@ -228,7 +235,7 @@ def main() -> int:
                                    f"({cc.render(v, want_dp)}) — unverifiable "
                                    f"either way, not evidence of a problem"))
             else:
-                refused.append((r, "current value is not quoted in that document"))
+                refused.append((r, "current value is not quoted in that document (or not beside its subject)"))
             continue
 
         s, (a, b), how = hit

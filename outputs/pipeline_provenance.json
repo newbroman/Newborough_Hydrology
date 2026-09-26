@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-26T19:47:49",
+ "generated": "2026-09-26T20:23:14",
  "orchestrator": "2.19.0",
  "steps": {
   "00_climate_summary.py": {
@@ -326,14 +326,13 @@
   "11b_spatial_thresholds.py": {
    "emitted": {
     "outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png": "2057a6e6b7e1466ac366b8b969a78175d6c9d84686ddb5d1fc6c173697ce0efe",
-    "outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png": "04c8138d0f756c7508f1f645ab67ea444e7b76489ffe62538b2152d3dce1e6ad",
+    "outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png": "450fc2b501b1800898d4033b87a06ff335ab7798a24ae40551f8a4ba68dfa159",
     "outputs/11b_spatial_thresholds/11b_03_pflood.png": "6cd8697ba74ec865f820f8b3835150a8bd0ecb2aedb019152f976dc376f36f59",
     "outputs/11b_spatial_thresholds/11b_03_pflood_per_well.csv": "b4972a3edd101c8ba232dd12a9c7111525342ada8c90dbb78a33c0aa2a99c949",
     "outputs/11b_spatial_thresholds/11b_04_flood_frequency.png": "c594ceb4bb68f1046da91d65f6b5b663973e3719e3d124ba457a63c7855c0531",
     "outputs/11b_spatial_thresholds/11b_05_table10_pflood_spreadsheet.csv": "515ab062576bbc3fa5416757c9af3567305b1944d143ca7782bb44d4a3e88b91",
     "outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv": "5571f470728f8125bbf94ec552afde6d3c4784c0d43a057f45d4c7f5b48713d0",
-    "outputs/11b_spatial_thresholds/forecaster.html": "ee3a8f5abab02fa81828519ac70d0ff03cf200f7e94a3beef8f704af58e8690b",
-    "outputs/logs/run_20260925_150433.log": "e97ac09987c18fc4d28ea2a562eab462e99525da1d6791296bbd5840dee891c0"
+    "outputs/11b_spatial_thresholds/forecaster.html": "e27f61081b2a19fc96df010ef985230e4d13db21f29fc5d2a5f89fa230038924"
    },
    "fallbacks": [],
    "inputs": {
@@ -356,9 +355,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 33.7,
-   "started": "2026-09-25T15:09:59",
-   "version": "1.12.0"
+   "seconds": 34.1,
+   "started": "2026-09-26T20:22:28",
+   "version": "1.13.0"
   },
   "11c_pflood_achievability.py": {
    "emitted": {
@@ -407,15 +406,14 @@
    "emitted": {
     "outputs/14_climate_projections/14_annual_extremes.csv": "a91e73ce0ac558b99fa2ff7386b582978c5df9a3616bea94e51ba7962a119469",
     "outputs/14_climate_projections/14_climate_trajectory_spring.png": "d8d1421d6b9cab601b50597d4be521b3ca05b7824eb40f6cfb5a3593a3504c5d",
-    "outputs/14_climate_projections/14_climate_trajectory_stacked.png": "a060125909121c7802068854efe554f47fc25fea16118e20b9e0d1afa8f204e7",
+    "outputs/14_climate_projections/14_climate_trajectory_stacked.png": "21e46a7d926f2e90a91c2d09b9ef185c965e7357946d3b3a20ac1d54b6bbcdee",
     "outputs/14_climate_projections/14_climate_trajectory_summer.png": "e93d2d227dc79956e4619ffddf9057eb9d4dfa6d611d98a5bcebff0d9803a663",
-    "outputs/14_climate_projections/14_climate_trajectory_winter_flooding.png": "d12c1bb11785f43357434d143bfcdf829d655ffbe14bcff2cdc317ea443f37c9",
-    "outputs/14_climate_projections/14_seasonal_extremes_scatter.html": "214ec965d44c98097750114c63856b886118302194576c7689268d608a696c9c",
+    "outputs/14_climate_projections/14_climate_trajectory_winter_flooding.png": "4fda8f6c605f3f56b1f5e27070c2bf6fc4270fd5639583ed31468140e6661bcd",
+    "outputs/14_climate_projections/14_seasonal_extremes_scatter.html": "2f21757cd7e9eb49d634304d825c2517a91c2012acd443dbfdda40deb88f20da",
     "outputs/14_climate_projections/14_spring_trend_stats.csv": "4aa2d944bd93b83e0c38b846d126de0c53a4ae390246ff1e4c586c8dbdc29d65",
     "outputs/14_climate_projections/14_summer_trend_stats.csv": "19e236cd297ca6aec9182cc77f9a6d906c65e38c18bf512660b2b13509f5820d",
-    "outputs/14_climate_projections/14_winter_exceedance.csv": "d72b5fe221a602aea196de9c0764a142ad8e549a1cbf1ac2a12ee8e1ff14d31d",
-    "outputs/14_climate_projections/14_winter_trend_stats.csv": "dad7de4f0a46f26a4dc82105d22d2c6a7f0748a5cb2ea0a715712fdec92ac7d4",
-    "outputs/logs/run_20260925_150433.log": "ce181b5b60a8fd9b197b81cf3dd5a7f5106afc6c86029c42c63150908fc757ab"
+    "outputs/14_climate_projections/14_winter_exceedance.csv": "6a12ebface4bee68dd24e86717d5295439670a050eeba4d1fe65b2aa0aa868aa",
+    "outputs/14_climate_projections/14_winter_trend_stats.csv": "dad7de4f0a46f26a4dc82105d22d2c6a7f0748a5cb2ea0a715712fdec92ac7d4"
    },
    "fallbacks": [],
    "inputs": {
@@ -424,9 +422,9 @@
     "outputs/03_regional_averages.csv": "9d70076c57b631b267b510364d8bc3f998a1a4893aca69705039b2321b6b1b25"
    },
    "inputs_unresolved": [],
-   "seconds": 3.8,
-   "started": "2026-09-25T15:10:48",
-   "version": "1.6.0"
+   "seconds": 3.5,
+   "started": "2026-09-26T20:23:04",
+   "version": "1.7.0"
   },
   "14b_year_of_crossing.py": {
    "emitted": {
@@ -533,8 +531,7 @@
   "19_spatial_groundwater.py": {
    "emitted": {
     "outputs/19_spatial_groundwater/19_scenario_summary.csv": "727e30281cfeca2ff78b6378f5dc9ade3c837d6d71757bcfeb81a70d593a3383",
-    "outputs/19_spatial_groundwater/scenario_viewer.html": "4228f263d10aada4bb5108c83064b577a1c0cae1536ebf5c55ea7d0efd9e3f49",
-    "outputs/logs/run_20260925_150433.log": "e2c57f48cbdaad08b2b1d190b769f3eb0d5b768ee8a28d96a4aadff8ae522113"
+    "outputs/19_spatial_groundwater/scenario_viewer.html": "bca96e33b4d51878954cdef8e6f9c32290112cfa551aa3706abf6d82c93ef0f0"
    },
    "fallbacks": [],
    "inputs": {
@@ -553,8 +550,8 @@
     "wet_area_model.json"
    ],
    "seconds": 5.0,
-   "started": "2026-09-25T15:12:50",
-   "version": "2.21.0"
+   "started": "2026-09-26T20:23:09",
+   "version": "2.22.0"
   },
   "20_spatial_figures.py": {
    "emitted": {

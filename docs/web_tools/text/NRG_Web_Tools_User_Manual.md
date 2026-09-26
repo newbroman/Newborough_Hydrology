@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=a6f1928fc95fc470 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=946a39f4365d26fd pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 2
@@ -112,7 +112,7 @@ An amber timing note appears if the current date is before the cluster's trough 
 
 Ecological badge thresholds:
 
--   SD15b met (green): peak reaches within 0.10 m of the surface.
+-   SD15b met (green): peak floods to 0.21 m or more above the surface.
 -   SD16 only (amber): peak reaches 0.10--0.25 m below ground.
 -   Below SD16 (red): peak remains deeper than 0.25 m.
 
@@ -369,13 +369,13 @@ Wells in the upper-right quadrant have shallow water tables in both seasons (fav
 
 Four dashed lines mark the Curreli et al. (2013) eco-hydrological thresholds:
 
-  ------------------ ------------------------ --------------------------------------------------------------------------------
+  ------------------ ------------------------ ------------------------------------------------------------------------------------------------------------
   Line               Threshold                Meaning
   Vertical green     SD15b summer (−0.61 m)   Summer minimum must be shallower than 0.61 m for wet slack viability.
   Vertical red       SD16 summer (−0.98 m)    Summer minimum must be shallower than 0.98 m for dry slack viability.
-  Horizontal green   SD15b winter (−0.10 m)   Winter maximum must reach within 0.10 m of the surface for wet slack flooding.
+  Horizontal green   SD15b winter (+0.21 m)   Winter maximum must flood to 0.21 m above the surface (the Curreli community mean) for wet slack flooding.
   Horizontal red     SD16 winter (−0.25 m)    Winter maximum must reach within 0.25 m for dry slack flooding.
-  ------------------ ------------------------ --------------------------------------------------------------------------------
+  ------------------ ------------------------ ------------------------------------------------------------------------------------------------------------
 
 A well meeting both the summer and winter SD15b thresholds (upper-right of both green lines) has full wet slack habitat viability.
 

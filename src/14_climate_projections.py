@@ -35,7 +35,12 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-24. The 2030–2039 "intervention window"
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-26. D-201: the SD15b winter threshold is now
+#   +0.21 m (ABOVE ground, Curreli 2013 Table 4) where it was -0.10 m. The winter panels' ceiling
+#   (0.25 m) and the wet-slack band's top (0.10 m) were typed for a line below ground; both now
+#   derive from WET_SLACK_WINTER (WINTER_YTOP) so the line and its band stay on the chart.
+#   The exceedance counts follow the config value; no other change.
+# 1.6.0  # Hollingham (2026) - 2026-09-24. The 2030–2039 "intervention window"
 #   bands are gone from all three trajectory renders (Martin, proof pass Figure 46:
 #   the C1 SD16 crossing median is 2028, §5.2 says the cluster is oscillating across
 #   the threshold now, and a shaded 2030s band contradicted it); trend lines and
@@ -153,6 +158,9 @@ WET_SLACK_SUMMER = -SD15b          # m  SD15b summer viability limit
 DRY_SLACK_SUMMER = -SD16           # m  SD16 summer viability limit
 WET_SLACK_WINTER = -SD15b_WINTER   # m  SD15b winter flooding threshold
 DRY_SLACK_WINTER = -SD16_WINTER    # m  SD16 winter flooding threshold
+# Winter panels' ceiling: the SD15b winter line (above ground since D-201) plus a
+# margin equal to the SD16 depth, so the band above the line is visible.
+WINTER_YTOP = WET_SLACK_WINTER + SD16_WINTER
 
 # ── Cluster styling — single source of truth in utils.config ─────────────────
 # String-keyed adapters because this script consumes the 'C{n}' column
@@ -216,7 +224,7 @@ def build_winter_exceedance_text(exceedance: dict) -> str:
 
 def add_winter_background(ax: plt.Axes) -> None:
     """Add winter threshold zones and reference lines shared by both figures."""
-    ax.axhspan(0.10, WET_SLACK_WINTER, alpha=0.06, color="#1a7a1a", zorder=0)
+    ax.axhspan(WINTER_YTOP, WET_SLACK_WINTER, alpha=0.06, color="#1a7a1a", zorder=0)
     ax.axhspan(WET_SLACK_WINTER, DRY_SLACK_WINTER, alpha=0.06, color="#ff9900", zorder=0)
     ax.axhspan(DRY_SLACK_WINTER, -1.35, alpha=0.04, color="#cc0000", zorder=0)
 
@@ -236,7 +244,7 @@ def add_winter_background(ax: plt.Axes) -> None:
         linewidth=1.4,
         linestyle="--",
         zorder=3,
-        label=f"Wet slack winter limit SD15b ({WET_SLACK_WINTER} m)",
+        label=f"Wet slack winter level SD15b ({WET_SLACK_WINTER:+.2f} m, above ground)",
     )
     ax.axhline(
         DRY_SLACK_WINTER,
@@ -532,7 +540,7 @@ def render_winter_figure(
     add_winter_exceedance_box(ax, exceedance)
 
     ax.set_xlim(YEAR_MIN, YEAR_MAX)
-    ax.set_ylim(-1.35, 0.25)
+    ax.set_ylim(-1.35, WINTER_YTOP)
     ax.set_xlabel("Year", fontsize=11)
     ax.set_ylabel("Winter Maximum Water Table Depth (m)", fontsize=11)
     ax.set_title(
@@ -735,7 +743,7 @@ def render_stacked_figure(
     add_winter_exceedance_box(ax_bot, exceedance)
 
     ax_bot.set_xlim(YEAR_MIN, YEAR_MAX)
-    ax_bot.set_ylim(-1.35, 0.25)
+    ax_bot.set_ylim(-1.35, WINTER_YTOP)
     ax_bot.set_xlabel("Year", fontsize=11)
     ax_bot.set_ylabel("Winter Maximum Depth (m)", fontsize=11)
     ax_bot.set_title("(B) Observed Winter Maximum Water Table vs Flooding Thresholds", fontsize=12, pad=10)

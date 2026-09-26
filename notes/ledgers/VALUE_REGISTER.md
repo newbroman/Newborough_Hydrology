@@ -996,31 +996,31 @@
 |  | CEH4 (control) / Pre-2015 · Max_depth_m | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | CEH4 (control) / Pre-2015 · Mean_depth_m | report9.md |
 | `21_forestry_04_baci_zone_means.csv` | Impact (WMC3) / Pre-2015 · Mean_depth_m | report10.md |
-| `21_report_numbers.csv` | scenario_head_shift_m · C4 (Main Forest) · broadleaf · annual | report9.md |
+| `21_report_numbers.csv` | scenario_head_shift_m · C4 (Main Forest) · broadleaf · annual | Supplementary_Material.md, report9.md |
 |  | scenario_head_shift_m · C4 (Main Forest) · broadleaf · summer | report9.md |
 |  | scenario_head_shift_m · C4 (Main Forest) · broadleaf · winter | report9.md |
-|  | scenario_head_shift_m · C4 (Main Forest) · clearfell · annual | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · clearfell · annual | Supplementary_Material.md, report9.md |
 |  | scenario_head_shift_m · C4 (Main Forest) · clearfell · summer | report9.md |
 |  | scenario_head_shift_m · C4 (Main Forest) · clearfell · winter | report9.md |
-|  | scenario_head_shift_m · C4 (Main Forest) · thinning_50pct · annual | report9.md |
-|  | scenario_head_shift_m · C5 (Coastal Forest) · broadleaf · annual | report9.md |
+|  | scenario_head_shift_m · C4 (Main Forest) · thinning_50pct · annual | Supplementary_Material.md, report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · broadleaf · annual | Supplementary_Material.md, report9.md |
 |  | scenario_head_shift_m · C5 (Coastal Forest) · broadleaf · summer | report9.md |
 |  | scenario_head_shift_m · C5 (Coastal Forest) · broadleaf · winter | report9.md |
-|  | scenario_head_shift_m · C5 (Coastal Forest) · clearfell · annual | report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · clearfell · annual | Supplementary_Material.md, report9.md |
 |  | scenario_head_shift_m · C5 (Coastal Forest) · clearfell · summer | report9.md |
 |  | scenario_head_shift_m · C5 (Coastal Forest) · clearfell · winter | report9.md |
-|  | scenario_head_shift_m · C5 (Coastal Forest) · thinning_50pct · annual | report9.md |
-|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf  | report.md, report12.md, report9.md |
+|  | scenario_head_shift_m · C5 (Coastal Forest) · thinning_50pct · annual | Supplementary_Material.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf  | Supplementary_Material.md, report.md, report10.md, report12.md, report9.md |
 |  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf  | report.md, report12.md, report9.md |
 |  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf  | report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · clearfell  | Supplementary_Material.md, report.md, report10.md, report12.md, report9.md |
 |  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · clearfell  | report.md, report12.md, report9.md |
-|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · clearfell  | report.md, report12.md, report9.md |
-|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · thinning_5 | report.md, report9.md |
-|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · broadle | report.md, report12.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C4 (Main Forest) · thinning_5 | Supplementary_Material.md, report.md, report10.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · broadle | Supplementary_Material.md, report.md, report10.md, report12.md, report9.md |
 |  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · broadle | report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfe | Supplementary_Material.md, report.md, report10.md, report12.md, report9.md |
 |  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfe | report.md, report12.md, report9.md |
-|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfe | report.md, report12.md, report9.md |
-|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · thinnin | report.md, report9.md |
+|  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · thinnin | Supplementary_Material.md, report.md, report10.md, report9.md |
 | `24b_02_peak_winter_minus_summer.csv` | C1 (Lake Edge) · n_wells | report9.md |
 | `25_01_panel_fit_parameters.csv` | c3_only / exponential_cfix · c_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | c3_only / exponential_cfix · delta_0_mm_yr | PAPER1_SI_methods.md |

@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**135 output file(s)** supply **1502 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**137 output file(s)** supply **1513 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -422,6 +422,17 @@
 |  | Spring_mean_BACI_shift · CEH21 · Climate | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | Summer_min_BACI_shift · CEH36 · Climate | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | Summer_min_BACI_shift · CEH36 · Paired | Hollingham_2026_Paper2_amended.md |
+| `09d_01_scenario_comparison.csv` | Broadleaf (hypothetical) · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Clearfell (hypothetical) · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Climate dry · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Climate wet · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Scraping (observed) · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Thinning 50% (hypothetical) · Delta_vol_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+| `09d_02_summer_scenario_comparison.csv` | Broadleaf (hypothetical) · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Clearfell (hypothetical) · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Climate dry · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
+|  | Climate wet · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md |
+|  | Thinning 50% (hypothetical) · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
 | `09e_report_numbers.csv` | CEH36_raw_BACI_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
 |  | CEH36_synthetic_control_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
 | `10_consolidated_report_numbers.csv` | ANCOVA_A_WMC3+FE1+FE2_Climate_R2 | report9.md |

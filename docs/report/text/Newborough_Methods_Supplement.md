@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_49.odt — do not edit. source-sha256=162549b6f96bff81 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_50.odt — do not edit. source-sha256=25fb2d07ee6a826c pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.49 (September 2026).
+Document version: 2.0.50 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1340,7 +1340,7 @@ Outputs.
 
 The observed scraping value is computed differently --- directly from the paired BACI step at CEH36, converted to volumetric via Sy. This is the like-for-like volumetric equivalent of the observed empirical step rather than an SSM-derived counterfactual.
 
-The live monthly scenario bars at CEH36 give (annual-mean forcing): scraping (observed) +46.4 mm/month, clearfell (hypothetical) +16.7, thinning 50 % (hypothetical) +8.3, broadleaf (hypothetical) +5.1, climate-dry −14.1, climate-wet +7.9. Under summer (July--September) forcing: clearfell +14.9, thinning +7.4, broadleaf +3.6, climate-dry −14.4, climate-wet +7.9. The forestry scenarios are *hypothetical* in the sense that CEH36 is in C3 (not forested under current land use); the question they answer is "what would each intervention have produced at CEH36's hydrogeological setting if CEH36 were forested?" --- a like-for-like comparison framework, not a prediction.
+The live monthly scenario bars at CEH36 give (annual-mean forcing): scraping (observed) +46.9 mm/month, clearfell (hypothetical) +16.5, thinning 50 % (hypothetical) +8.3, broadleaf (hypothetical) +5.2, climate-dry −14.3, climate-wet +8.1. Under summer (July--September) forcing: clearfell +14.4, thinning +7.2, broadleaf +3.7, climate-dry −14.7, climate-wet +8.0. The forestry scenarios are *hypothetical* in the sense that CEH36 is in C3 (not forested under current land use); the question they answer is "what would each intervention have produced at CEH36's hydrogeological setting if CEH36 were forested?" --- a like-for-like comparison framework, not a prediction.
 
 **Two forcings, and the off-site scraping drawdown.** The scenario dict is computed twice --- once under annual-mean P and PET (*09d_01*) and once under summer (July--September) P and PET (*09d_02*) --- so the two figures are genuinely distinct rather than a single forcing re-expressed. Both are volumetric and directly comparable. Each figure also carries a modelled *off-site* scraping bar: the neighbour drawdown the scrape drain imposes on the surrounding water table, from the same steady-state drain cone that feeds the Script 20 spatial maps (edge magnitude H₀ anchored to the measured CEH36 response, decay length λ read live from *20_report_numbers.csv*, λ = 230 m). The bar is drawn at 100 m; a dark reference line across it marks the milder drawdown at 250 m (near the nearest real uphill well, 247 m). The 100 m point lies inside the near field the 88-well network cannot resolve, so this bar is explicitly modelled and captioned as such. Because the summer figure is an equilibrium response to summer forcing and *not* a summer minimum, the observed paired-BACI summer-minimum shift at CEH36 (+195 mm) is reported in the caption for context rather than plotted as a bar.
 

@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.58.0"  # Hollingham (2026) - 2026-09-26. Script 47 1.4.0 (Martin,
+__version__ = "1.59.0"  # Hollingham (2026) - 2026-09-26. DRAWDOWN_QUOTE_LEVELS_MM: the
+#   drawdown levels whose reach Script 20 1.45.0 writes out (forest contours and the
+#   scrape field), named once rather than typed in the script or the text (T-84).
+# 1.58.0  # Hollingham (2026) - 2026-09-26. Script 47 1.4.0 (Martin,
 #   2026-09-26: colour-keyed text and two more voices): FILM_COL_FLOOR_TEXT and
 #   FILM_COL_TITLE; FILM_WASH_PAN_WIDTH (the surf's stereo place).
 # 1.57.0  # Hollingham (2026) - 2026-09-25. Script 47 1.3.0 (spec
@@ -666,6 +669,9 @@ DRAWDOWN_K_MDAY = 6.0
 # along a known axis. A single λ is then a site average standing in for a field.
 # Read by Script 20 only, so the exposure is contained.
 DRAWDOWN_B_M    = 5.0
+# The drawdown levels the documents quote a reach for (report §4.11, §4.12): Script 20
+# writes drawdown_contour_<L>mm_m and scrape_reach_<L>mm_m for each (1.45.0, T-84).
+DRAWDOWN_QUOTE_LEVELS_MM = (50.0, 10.0)
 
 # Display granularity for the modelled reach. λ is derived from an assumed
 # hydraulic conductivity and saturated thickness, so it carries roughly a factor

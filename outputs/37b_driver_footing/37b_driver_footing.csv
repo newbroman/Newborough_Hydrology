@@ -1,9 +1,9 @@
 component,label,driver_group,mechanism_type,gain_or_loss,observed_or_modelled,peak_mm,area_mm_ha,volume_m3,n_wells_evaluated,sd15b_crossings_worsen,sd15b_crossings_relieve,sd16_crossings_worsen,sd16_crossings_relieve,equivalent_depth_site_mean_mm,pct_of_coast
 coast_erosion,Coastal erosion (chronic drawdown),Coast,progressive,loss,modelled,-625.6,-80888.5,-241210.1,66.0,0.0,0.0,5.0,0.0,-85.21306294442981,100.0
 slr,Sea-level rise (head gain),Coast,progressive,gain,modelled,20.0,2859.5,8527.1,66.0,0.0,0.0,0.0,1.0,3.0123781933105085,3.53511314958245
-clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,108.2,5541.4,15100.9,66.0,0.0,0.0,0.0,2.0,5.837661311561759,6.85066480402035
-broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3706.1,-10099.3,66.0,0.0,0.0,1.0,0.0,-3.904240189623387,4.581739060558671
+clearfell,Clearfell (canopy removed),Forest management,step,gain,observed,108.2,5598.6,15256.6,66.0,0.0,0.0,0.0,2.0,5.897919410060575,6.921379429708797
+broadleaf,Broadleaf restock (canopy added),Forest management,progressive,loss,modelled,-56.2,-3739.4,-10190.3,66.0,0.0,0.0,1.0,0.0,-3.9393205161969975,4.622906840898273
 scrape_onsite,Scrape on-site (slack rise),Dune scraping,step,gain,observed,128.1,606.7,1809.2,66.0,0.0,0.0,0.0,1.0,0.6391361601264156,0.7500448147758952
-scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,modelled,-40.9,-20852.7,-62182.9,66.0,0.0,0.0,4.0,0.0,-21.967553331577562,25.779560753382746
+scrape_offsite,Scrape off-site (drain cone),Dune scraping,redistributive,loss,modelled,-41.3,-21074.5,-62844.3,66.0,0.0,0.0,4.0,0.0,-22.20121148274954,26.05376536837746
 climate,"Unexplained uniform decline (central estimate, not resolved)",Unexplained (uniform),uniform,loss,modelled,-220.4,-209259.2,-624012.3,66.0,0.0,0.0,25.0,0.0,-220.44687911509087,258.70080419342673
-scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-20246.0,-60373.7,,,,,,-21.328417171451147,25.02951593860685
+scrape_net,Scrape NET (on-site + off-site),Dune scraping,redistributive,net,observed+modelled,,-20467.8,-61035.1,,,,,,-21.562075322623123,25.30372055360156

@@ -1,12 +1,14 @@
 Parameter,Well,Era,Value,Unit,Note
-drawdown_lambda,,,221.32139956349152,m,"e-folding length √(Kb/(Sy·β₃/30)); Sy=0.2982, β₃=0.0616/month [C3]"
+drawdown_lambda,,,222.929360297203,m,"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy=0.2982, β₃=0.0616/month [C3]"
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)
-drawdown_ceh23,CEH23,,23.84796623733238,mm,modelled steady-state forest drawdown
-drawdown_ceh6,CEH6,,7.736272058441453,mm,modelled steady-state forest drawdown
-drawdown_d15,D15,,33.57257358997034,mm,modelled steady-state forest drawdown
-drawdown_ceh24,CEH24,,0.5564731122290032,mm,modelled steady-state forest drawdown
-drawdown_ceh10,CEH10,,1.2628923073156533,mm,modelled steady-state forest drawdown
-drawdown_ceh11,CEH11,,0.31553373292699255,mm,modelled steady-state forest drawdown
+drawdown_contour_50mm_m,,,244.91293472742785,m,"cost-distance at which the forest drawdown falls to 50 mm, λ·ln(H0/50)"
+drawdown_contour_10mm_m,,,603.7038989844276,m,"cost-distance at which the forest drawdown falls to 10 mm, λ·ln(H0/10)"
+drawdown_ceh23,CEH23,,24.166393059569884,mm,modelled steady-state forest drawdown
+drawdown_ceh6,CEH6,,7.903486846669758,mm,modelled steady-state forest drawdown
+drawdown_d15,D15,,33.93702510603134,mm,modelled steady-state forest drawdown
+drawdown_ceh24,CEH24,,0.5793968487601102,mm,modelled steady-state forest drawdown
+drawdown_ceh10,CEH10,,1.3071668975576511,mm,modelled steady-state forest drawdown
+drawdown_ceh11,CEH11,,0.3298792353306782,mm,modelled steady-state forest drawdown
 coastal_h0,,,80.87170121870071,mm,"single-event edge drawdown, 6 m retreat × (δ₀/measured retreat rate); δ₀=31.28 mm/yr [Script 25 forest-free linear_capped, 2005-03 to 2026-02], rate=2.3207 m/yr [Script 40 measured 2006-2026 (20.2 yr)] — windows matched to 99 %, D-090"
 coastal_h0_per_metre,,,13.478616869783451,mm/m,δ₀/measured retreat rate — head per metre of shoreline retreat; the quantity Scripts 20 and 09f divide by
 coastal_delta0,,,31.28,mm/yr,live Script 25 forest-free linear_capped δ₀ (absolute); fitted 2005-03 to 2026-02

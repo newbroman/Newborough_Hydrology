@@ -1,0 +1,8 @@
+Parameter,Well,Era,Value,Unit,Note
+scrape_H0_mm,,,128.0873724489796,mm,edge drawdown: the measured CEH36 Pure_Scraping response (Script 09a)
+scrape_inferred_cut_depth_m,,,0.42953413104984983,m,"inferred, not surveyed: H0 / Sy (C3 median per-well Sy)"
+scrape_lambda_m,,,222.929360297203,m,decay length of the scrape field
+scrape_reach_50mm_m,,,468.17014171397716,m,largest distance from a cut edge at which the field is >= 50 mm
+scrape_reach_10mm_m,,,808.3515871929752,m,largest distance from a cut edge at which the field is >= 10 mm
+scrape_ceh36_reach_50mm_m,,,196.54113927630965,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 50 mm
+scrape_ceh36_reach_10mm_m,,,555.6269368820866,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 10 mm

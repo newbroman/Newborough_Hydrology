@@ -40,7 +40,12 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-26. T-88 / D-200: the WMC3 raw
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-26. _DEFAULTS["drawdown_lambda_m"]
+#   221.3 -> 222.9: Script 20 1.45.0 converts β₃ to per day with config.DAYS_PER_MONTH
+#   rather than a typed 30.0 (Martin, "change script 30"). Holds only once Script 20
+#   has been rerun; until then defaults_lint reports the committed 221.3. With the
+#   longer λ, 09d's off-site scrape bar moves, so scrape_offsite_100m_vol -31.2 -> -31.3.
+# 1.14.0  # Hollingham (2026) - 2026-09-26. T-88 / D-200: the WMC3 raw
 #   step is no longer a measured off-cut anchor. wmc3_drawdown_mm -> wmc3_raw_step_mm (09f's
 #   hollow marker only) with wmc3_raw_step_se_mm beside it; scrape_cone_at_wmc3_mm is the
 #   MODELLED drain-cone head at the WMC3 distance, read by 09g (via mechanism_fig_utils)
@@ -333,14 +338,14 @@ _DEFAULTS = {
     # -29.0 / 894, which is the PRE-D-046 parameter block T-18c spent a morning
     # clearing out of the Methods Supplement. Leaving the same pair here as the
     # pipeline's own fallback is how it would have come back.
-    "drawdown_lambda_m":        221.3,   # 20_report_numbers.csv (drawdown_lambda
-                                         # = 226.442); was 228.1, refreshed
-                                         # 2026-08-28
+    "drawdown_lambda_m":        222.9,   # 20_report_numbers.csv (drawdown_lambda);
+                                         # 221.3 until Script 20 1.45.0 took β₃ per
+                                         # day from config.DAYS_PER_MONTH (2026-09-26)
     "coast_delta0_mm_yr":       -31.28,  # 25_01 forest_free/linear_capped δ₀;
                                          # was -29.0, the pre-D-046 value
     "coast_reach_L_m":          902.0,   # 25_01 forest_free/linear_capped L;
                                          # was 894.0, the pre-D-046 value
-    "scrape_offsite_100m_vol":  -31.2,   # 09d_01 Scraping (off-site 100 m)
+    "scrape_offsite_100m_vol":  -31.3,   # 09d_01 Scraping (off-site 100 m)
                                          # mm w.e./month; was -30.3
     "clearfell_recovery_mm":    108.2,   # 10a ANCOVA_Forest_Impact_clearfell_step
                                          # ×1000 = 113.09; was 119.6 — see M31

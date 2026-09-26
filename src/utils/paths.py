@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.34.0"  # Hollingham (2026) - 2026-09-25. Script 47 1.2.0 (spec
+__version__ = "1.35.0"  # Hollingham (2026) - 2026-09-26. OUT_20_SCRAPE_REPORT_NUMBERS:
+#   Script 20 1.45.0 writes the scrape field's inferred cut depth, edge response and
+#   reach to their own report-numbers file (T-84, spec NRG_spec_script20_emits_T84).
+# 1.34.0  # Hollingham (2026) - 2026-09-25. Script 47 1.2.0 (spec
 #   NRG_spec_script47_v1_2_2026-09-25): SENTINEL_THUMBS_DIR / SENTINEL_THUMBS_MANIFEST
 #   (true-colour and near-infrared crops from tools/sentinel_thumbs.py),
 #   OUT_45_MODEL_AXES / OUT_45_SSM_CURVES_AXES (the axes geometry of Figures 45_01 /
@@ -1037,6 +1040,9 @@ OUT_20_SCRAPE_DRAWDOWN_NOHEAD = DIR_20 / "20_scrape_drawdown_nohead.png"
 # Written so §4.9.6's contour claims can be checked against a committed output;
 # the field had no CSV of any kind before 2026-08-20.
 OUT_20_SCRAPE_DRAWDOWN_PERWELL = DIR_20 / "20_scrape_drawdown_perwell.csv"
+# The scrape field's quoted quantities (Script 20 1.45.0, T-84): inferred cut depth,
+# measured edge response, and reach to each DRAWDOWN_QUOTE_LEVELS_MM level.
+OUT_20_SCRAPE_REPORT_NUMBERS = DIR_20 / "20_scrape_report_numbers.csv"
 OUT_20_CLEARFELL_BASELINE_DRAWDOWN = DIR_20 / "20_clearfell_baseline_drawdown.png"
 OUT_20_PUBLIC_PANEL         = DIR_20 / "20_public_drivers_panel.png"
 OUT_20_NET_STATE_MAP        = DIR_20 / "20_net_state_map.png"

@@ -5,3 +5,29 @@ residual_c4_median_beta3,,,0.0190760472151101,1/month,"C4 per-well median beta_3
 residual_ceh14_b3_c4median,CEH14,,0.09235561613967128,m/month,"CEH14 residual recomputed with the C4 median beta_3, every other term unchanged (beta_3 independence check)"
 residual_n_gt_0p02,,,0.0,wells,wells with residual > +0.02 m/month (strong positive band)
 residual_band_wells,,,,,identity of wells with residual > +0.02 m/month
+residual_min,CEH14,,-0.010467364828009529,m/month,most negative SSM water-balance residual α
+residual_median,,,-0.003976237765701024,m/month,median α over the wells
+residual_mean,,,-0.0024491637273189653,m/month,mean α over the wells
+residual_n_wells,,,66.0,wells,wells carrying a residual
+residual_n_within_0p01,,,65.0,wells,wells with |α| <= 0.01 m/month
+residual_n_negative,,,51.0,wells,wells with α < 0
+residual_n_positive,,,15.0,wells,wells with α > 0
+residual_rank_pos_1,NW3,,0.007969207140539447,m/month,1. largest positive α
+residual_rank_neg_1,CEH14,,-0.010467364828009529,m/month,1. most negative α
+residual_rank_pos_2,CEH23,,0.007367020550387793,m/month,2. largest positive α
+residual_rank_neg_2,CEH32,,-0.007868052193019864,m/month,2. most negative α
+residual_rank_pos_3,NW6,,0.007299254564033186,m/month,3. largest positive α
+residual_rank_neg_3,NW11,,-0.007114971389826363,m/month,3. most negative α
+residual_cluster_median,C1 (Lake Edge),,0.0005587786578467591,m/month,median α over the cluster's 7 wells
+residual_cluster_median,C2 (Dune),,-0.003928075150479826,m/month,median α over the cluster's 19 wells
+residual_cluster_median,C3 (Western Residual),,-0.004036966976956505,m/month,median α over the cluster's 26 wells
+residual_cluster_median,C4 (Main Forest),,-0.0066977660731963595,m/month,median α over the cluster's 9 wells
+residual_cluster_median,C5 (Coastal Forest),,-0.0010295471642181586,m/month,median α over the cluster's 5 wells
+residual_spearman_abs_easting_rho,,,-0.13658282016490975,,"Spearman ρ, |α| against E, n=66"
+residual_spearman_abs_easting_p,,,0.27415785211496846,,p for the row above
+residual_spearman_abs_northing_rho,,,0.16125665379396725,,"Spearman ρ, |α| against N, n=66"
+residual_spearman_abs_northing_p,,,0.1958351468111225,,p for the row above
+residual_spearman_signed_easting_rho,,,0.02143826322930801,,"Spearman ρ, α against E, n=66"
+residual_spearman_signed_easting_p,,,0.8643360874318005,,p for the row above
+residual_spearman_signed_northing_rho,,,-0.10422711616741469,,"Spearman ρ, α against N, n=66"
+residual_spearman_signed_northing_p,,,0.40493590670344987,,p for the row above

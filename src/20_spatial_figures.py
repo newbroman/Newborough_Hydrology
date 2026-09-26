@@ -122,7 +122,27 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-23. main() runs its seventeen
+__version__ = "1.45.0"  # Hollingham (2026) - 2026-09-26. T-84, per the signed-off spec
+#   NRG_spec_script20_emits_T84_2026-09-26: the numbers the documents quote from this
+#   script are written out instead of read off by hand (all additive):
+#   - 20_residual_report_numbers.csv gains the residual field's min, median, mean,
+#     well counts (total, within ±0.01, negative, positive), the three largest
+#     positive and negative wells, the per-cluster medians and eight Spearman rows
+#     (magnitude and signed, against Easting and Northing); 20_residual_perwell.csv
+#     regains its Cluster column (the list asked for "Cluster", wt carries "cluster");
+#   - 20_report_numbers.csv gains drawdown_contour_<L>mm_m = λ·ln(H0/L) for each
+#     config.DRAWDOWN_QUOTE_LEVELS_MM level;
+#   - Martin, same day ("both should be quoted"): the scrape file also carries the
+#     CEH36 cut's own reach, scrape_ceh36_reach_<L>mm_m, beside the combined field's;
+#   - Martin, same day ("change script 30"): β₃ is converted to per day with
+#     config.DAYS_PER_MONTH instead of a typed 30.0, in all five λ calculations (forest
+#     drawdown, the broadleaf/thinning variants, the scrape field). λ moves from 221.3
+#     to 222.9 m, still ≈ 220 m at REACH_QUOTE_NEAREST_M; every value downstream of λ
+#     moves by under 1 %;
+#   - new 20_scrape_report_numbers.csv: the scrape field's inferred cut depth, the
+#     measured edge response it rests on, and its reach to each quoted level, measured
+#     on the rendered grid (the field superposes several cuts, so no single radius).
+# v1.44.0  # Hollingham (2026) - 2026-09-23. main() runs its seventeen
 #   builders through console_utils.track(lines=True): one completion line per
 #   figure with elapsed and remaining time (Martin, 2026-09-23: a script over 30 s
 #   shows progress). No output changes.
@@ -261,7 +281,7 @@ from utils.paths import (
     DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
-    OUT_20_SCRAPE_DRAWDOWN_PERWELL,
+    OUT_20_SCRAPE_DRAWDOWN_PERWELL, OUT_20_SCRAPE_REPORT_NUMBERS,
     OUT_20_RESIDUAL_PERWELL, OUT_20_RESIDUAL_REPORT_NUMBERS,
     OUT_20_MSL5_CHANGE_PERWELL, OUT_20_MSL5_REPORT_NUMBERS,
     OUT_20_HEAD_VS_DEM, OUT_20_HEAD_DEM_REPORT_NUMBERS, OUT_20_HEAD_VS_DEM_FIG,
@@ -285,7 +305,8 @@ from utils.map_utils import (load_dem_hillshade, load_scrape_kml, add_en_axes,
                              add_idw_surface)
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
                           SCRAPE_KML_FILES,
-                          DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M,
+                          DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M, DRAWDOWN_QUOTE_LEVELS_MM,
+                          DAYS_PER_MONTH,
                           REACH_QUOTE_NEAREST_M,
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
                           BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS,
@@ -1326,8 +1347,11 @@ def plot_residual_ssm(wt, features, dpi=300):
     res_df   = wt.loc[ref, ["E", "N", "residual_wb"]].copy()
 
     # ── §4.9 traceable per-well residual CSV + report numbers (Fig 56) ────
-    _rcols = [c for c in ["well", "E", "N", "Cluster", "residual_wb"] if c in wt.columns]
-    _resid = wt.loc[ref, _rcols].copy().sort_values("residual_wb", ascending=False)
+    _rcols = [c for c in ["well", "E", "N", "Cluster", "cluster", "residual_wb"] if c in wt.columns]
+    _resid = (wt.loc[ref, _rcols].copy().rename(columns={"cluster": "Cluster"})
+              .sort_values("residual_wb", ascending=False))
+    if "Cluster" in _resid.columns:
+        _resid["Cluster"] = _resid["Cluster"].astype("Int64")
     _resid.to_csv(OUT_20_RESIDUAL_PERWELL, index=False)
     print(f"  Saved → {OUT_20_RESIDUAL_PERWELL.name} ({len(_resid)} wells)")
     rrpt = ReportNumbers()
@@ -1368,6 +1392,39 @@ def plot_residual_ssm(wt, features, dpi=300):
     _band_wells = ";".join(_resid.loc[_resid["residual_wb"] > 0.02, _wcol].astype(str).str.upper())
     rrpt.add("residual_band_wells", _band_wells, unit="",
              note="identity of wells with residual > +0.02 m/month")
+    # 1.45.0 (T-84): the field's summary, ranks, cluster medians and position tests,
+    # which §4.9.6, §5.2.1, the Conclusions and the SM quote.
+    from scipy.stats import spearmanr                        # noqa: PLC0415
+    _r = _resid["residual_wb"].astype(float)
+    _bot = _resid.iloc[-1]
+    rrpt.add("residual_min", float(_bot["residual_wb"]), unit="m/month",
+             well=str(_bot[_wcol]).upper(), note="most negative SSM water-balance residual α")
+    rrpt.add("residual_median", float(_r.median()), unit="m/month", note="median α over the wells")
+    rrpt.add("residual_mean", float(_r.mean()), unit="m/month", note="mean α over the wells")
+    rrpt.add("residual_n_wells", int(len(_r)), unit="wells", note="wells carrying a residual")
+    rrpt.add("residual_n_within_0p01", int((_r.abs() <= 0.01).sum()), unit="wells",
+             note="wells with |α| <= 0.01 m/month")
+    rrpt.add("residual_n_negative", int((_r < 0).sum()), unit="wells", note="wells with α < 0")
+    rrpt.add("residual_n_positive", int((_r > 0).sum()), unit="wells", note="wells with α > 0")
+    for _k in range(3):
+        _p, _n = _resid.iloc[_k], _resid.iloc[-1 - _k]
+        rrpt.add(f"residual_rank_pos_{_k + 1}", float(_p["residual_wb"]), unit="m/month",
+                 well=str(_p[_wcol]).upper(), note=f"{_k + 1}. largest positive α")
+        rrpt.add(f"residual_rank_neg_{_k + 1}", float(_n["residual_wb"]), unit="m/month",
+                 well=str(_n[_wcol]).upper(), note=f"{_k + 1}. most negative α")
+    if "Cluster" in _resid.columns:
+        for _cid, _grp in _resid.groupby("Cluster"):
+            rrpt.add("residual_cluster_median", float(_grp["residual_wb"].median()),
+                     unit="m/month", well=CLUSTER_LABELS.get(int(_cid), str(_cid)),
+                     note=f"median α over the cluster's {len(_grp)} wells")
+    for _form, _vals in (("abs", _r.abs()), ("signed", _r)):
+        for _ax, _col in (("easting", "E"), ("northing", "N")):
+            _rho, _pv = spearmanr(_vals, _resid[_col].astype(float))
+            rrpt.add(f"residual_spearman_{_form}_{_ax}_rho", float(_rho), unit="",
+                     note=f"Spearman ρ, {'|α|' if _form == 'abs' else 'α'} against {_col}, "
+                          f"n={len(_r)}")
+            rrpt.add(f"residual_spearman_{_form}_{_ax}_p", float(_pv), unit="",
+                     note="p for the row above")
     n_saved = rrpt.save(OUT_20_RESIDUAL_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_RESIDUAL_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -1618,7 +1675,7 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     Sy        = float(_sy_df[_sy_df['Cluster'] == 3]['Sy_median'].median())
     _mech_df  = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     BETA3_M   = float(_mech_df[_mech_df['Cluster'] == 3]['beta_3_drainage'].iloc[0])
-    BETA3_D   = BETA3_M / 30.0
+    BETA3_D   = BETA3_M / DAYS_PER_MONTH
     lam       = np.sqrt((K * b) / (Sy * BETA3_D))
     OUT_PATH  = OUT_20_DRAWDOWN if show_head else OUT_20_DRAWDOWN_NOHEAD
 
@@ -1812,10 +1869,15 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
 
     rpt = ReportNumbers()
     rpt.add("drawdown_lambda", float(lam), unit="m",
-            note=f"e-folding length √(Kb/(Sy·β₃/30)); Sy={Sy:.4f}, "
+            note=f"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy={Sy:.4f}, "
                  f"β₃={BETA3_M:.4f}/month [C3]")
     rpt.add("drawdown_H0", float(H0), unit="mm",
             note="forest interception deficit at felling edge (config)")
+    # 1.45.0 (T-84): where the forest field falls to each quoted level, λ·ln(H0/L).
+    for _lvl in DRAWDOWN_QUOTE_LEVELS_MM:
+        rpt.add(f"drawdown_contour_{_lvl:g}mm_m", float(lam * np.log(H0 / _lvl)), unit="m",
+                note=f"cost-distance at which the forest drawdown falls to {_lvl:g} mm, "
+                     f"λ·ln(H0/{_lvl:g})")
     _ddmap = {w.lower(): v for w, v in zip(wt["well"], wt["dd_mm"])}
     for _w in ["ceh23", "ceh6", "d15", "ceh24", "ceh10", "ceh11"]:
         if _w in _ddmap:
@@ -2845,7 +2907,7 @@ def _scrape_field(gx, gy, epochs=None):
         beta3_m = float(_mech[_mech["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
         return None, None, None, None
-    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (beta3_m / 30.0)))
+    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (beta3_m / DAYS_PER_MONTH)))
     reg = _scrape_registry()
     if epochs is not None:
         reg = [s for s in reg if s["epoch"] in epochs]
@@ -2926,7 +2988,7 @@ def _forest_field(gx, gy):
         b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
         return None, None, None, None
-    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (b3 / 30.0)))
+    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (b3 / DAYS_PER_MONTH)))
     H0 = 150.0                                          # mm interception deficit
     d = np.array([forest_geom.distance(Point(x, y))
                   for x, y in zip(gx.ravel(), gy.ravel())]).reshape(gx.shape)
@@ -2973,7 +3035,7 @@ def _broadleaf_field(gx, gy):
         b3 = float(_m[_m["Cluster"] == 3]["beta_3_drainage"].iloc[0])
     except Exception:
         return None, None, None, None
-    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (b3 / 30.0)))
+    lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (b3 / DAYS_PER_MONTH)))
 
     H0_full = DRAWDOWN_H0_MM * (BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION)
     H0_incr = (BL_CANOPY_FRACTION_2025 - BL_CANOPY_FRACTION_2005) * H0_full
@@ -4552,7 +4614,7 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     D_inferred = H0_m / Sy                        # m, inferred cut depth
     _mech_df = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     BETA3_M  = float(_mech_df[_mech_df['Cluster'] == 3]['beta_3_drainage'].iloc[0])
-    BETA3_D  = BETA3_M / 30.0
+    BETA3_D  = BETA3_M / DAYS_PER_MONTH
     lam      = np.sqrt((K * b) / (Sy * BETA3_D))
     OUT_PATH = OUT_20_SCRAPE_DRAWDOWN if show_head else OUT_20_SCRAPE_DRAWDOWN_NOHEAD
 
@@ -4691,6 +4753,43 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     _sc.to_csv(OUT_20_SCRAPE_DRAWDOWN_PERWELL, index=False)
     print(f"  Saved → {OUT_20_SCRAPE_DRAWDOWN_PERWELL.name} "
           f"({len(_sc)} wells)")
+
+    # 1.45.0 (T-84): the quantities the documents quote from this field. The reach to
+    # a level is measured on the rendered grid — the largest distance from any cut
+    # edge at which the superposed field still reaches it.
+    _dgrid = np.full(_gpts.shape[0], np.inf)
+    for real_tree, _img, _h in _trees:
+        _dgrid = np.minimum(_dgrid, real_tree.query(_gpts)[0])
+    _dgrid = _dgrid.reshape(_EE.shape)
+    srpt = ReportNumbers()
+    srpt.add("scrape_H0_mm", float(H0), unit="mm",
+             note="edge drawdown: the measured CEH36 Pure_Scraping response (Script 09a)")
+    srpt.add("scrape_inferred_cut_depth_m", float(D_inferred), unit="m",
+             note="inferred, not surveyed: H0 / Sy (C3 median per-well Sy)")
+    srpt.add("scrape_lambda_m", float(lam), unit="m", note="decay length of the scrape field")
+    for _lvl in DRAWDOWN_QUOTE_LEVELS_MM:
+        _in = dd_grid >= _lvl
+        srpt.add(f"scrape_reach_{_lvl:g}mm_m",
+                 float(_dgrid[_in].max()) if _in.any() else 0.0, unit="m",
+                 note=f"largest distance from a cut edge at which the field is >= {_lvl:g} mm")
+    # The CEH36 cut on its own (Martin, 2026-09-26: quote both the combined field and
+    # CEH36 alone): the same superposition restricted to that cut and its coastal image.
+    _lab36 = SCRAPE_META["ceh36_scrape.kml"][0]
+    _i36 = next((i for i, r in enumerate(_scrape_registry()) if r["name"] == _lab36), None)
+    if _i36 is not None and _i36 < len(_trees):
+        _rt, _it, _h = _trees[_i36]
+        _d36 = _rt.query(_gpts)[0]
+        _f36 = _h * (np.exp(-_d36 / lam)
+                     - (np.exp(-_it.query(_gpts)[0] / lam) if _it is not None else 0.0))
+        _f36 = np.maximum(_f36, 0.0)
+        for _lvl in DRAWDOWN_QUOTE_LEVELS_MM:
+            _in = _f36 >= _lvl
+            srpt.add(f"scrape_ceh36_reach_{_lvl:g}mm_m",
+                     float(_d36[_in].max()) if _in.any() else 0.0, unit="m",
+                     note=f"CEH36 cut alone: largest distance from its edge at which its "
+                          f"own field (with coastal image) is >= {_lvl:g} mm")
+    n_s = srpt.save(OUT_20_SCRAPE_REPORT_NUMBERS)
+    print(f"  Saved → {OUT_20_SCRAPE_REPORT_NUMBERS.name} ({n_s} report numbers)")
 
     # ── Render ────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(10, 9), facecolor="white")

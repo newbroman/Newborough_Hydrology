@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**133 output file(s)** supply **1464 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**134 output file(s)** supply **1481 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -936,11 +936,28 @@
 |  | msl5_mean_2023 | report10.md, report9.md |
 |  | msl5_n_significant | report9.md |
 | `20_report_numbers.csv` | coastal_retreat_rate | Newborough_Methods_Supplement.md, Paper1.md, report8.md, report9.md |
+|  | drawdown_ceh23 | report9.md |
+|  | drawdown_d15 | report9.md |
 | `20_residual_perwell.csv` | ceh14 · residual_wb | PAPER1_SI_methods.md, Paper1.md, report9.md |
 |  | ceh2 · residual_wb | report10.md |
 |  | d7 · residual_wb | PAPER1_SI_methods.md, Paper1.md, report9.md |
 |  | nw2 · residual_wb | report10.md |
 | `20_residual_report_numbers.csv` | residual_ceh14 | PAPER1_SI_methods.md, Paper1.md, report9.md |
+|  | residual_max | report9.md |
+|  | residual_mean | report9.md |
+|  | residual_median | report9.md |
+|  | residual_min | report9.md |
+|  | residual_n_negative | report9.md |
+|  | residual_n_within_0p01 | report9.md |
+|  | residual_spearman_abs_easting_p | report9.md |
+|  | residual_spearman_abs_easting_rho | report9.md |
+|  | residual_spearman_abs_northing_p | report9.md |
+|  | residual_spearman_abs_northing_rho | report9.md |
+|  | residual_spearman_signed_easting_p | report9.md |
+|  | residual_spearman_signed_easting_rho | report9.md |
+|  | residual_spearman_signed_northing_p | report9.md |
+|  | residual_spearman_signed_northing_rho | report9.md |
+| `20_scrape_report_numbers.csv` | scrape_inferred_cut_depth_m | report9.md |
 | `21_forestry_02_distributions_means.csv` | C1 Eastern lake-buffer / Pre-scrape 2005–14 · SD_depth_m | Supplementary_Material.md |
 |  | C1 Eastern lake-buffer / Scraping era 2015–17 · N_summers | Newborough_Methods_Supplement.md |
 |  | C2 Eastern mature dune / Post-felling 2018+ · Max_depth_m | Paper1.md, report10.md, report12.md, report9.md |

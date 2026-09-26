@@ -171,7 +171,7 @@ CoeffShift_WMC3_b1_before,outputs/10_clearfell_baci/10_consolidated_report_numbe
 CoeffShift_WMC3_b1_after,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,2.425,efore β₃ after Δβ₃ WMC3 Impact 2.521,−0.096 1.996 1.690 −0.306 0.0343 0,high,confirmed
 CoeffShift_WMC3_b2_after,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,1.690,Impact 2.521 2.425 −0.096 1.996,−0.306 0.0343 0.0346 +0.0003 CEH31 Edge,high,confirmed
 CoeffShift_CEH31_b1_before,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,2.686,6 0.0343 0.0346 +0.0003 CEH31 Edge,2.094 −0.581 1.487 1.232 −0.256 0,high,confirmed
-CoeffShift_CEH31_b2_before,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,1.487,03 CEH31 Edge 2.676 2.094 −0.581,1.232 −0.256 0.0568 0.0400 −0.0168,high,confirmed
+CoeffShift_CEH31_b2_before,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,1.473,ge 2.686 2.128 −0.558,1.275 −0.199 0.0570 0.0408,high,confirmed
 CoeffShift_CEH20_b1_before,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,2.570,6 0.0568 0.0400 −0.0168 CEH20 Edge,2.515 −0.055 2.159 1.977 −0.182 0,high,confirmed
 CoeffShift_CEH20_b1_after,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,2.436,0.0400 −0.0168 CEH20 Edge 2.570,−0.055 2.159 1.977 −0.182 0.0309 0,high,confirmed
 CoeffShift_CEH20_b2_before,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,report_edits/text/report9.md,2.159,68 CEH20 Edge 2.570 2.515 −0.055,1.977 −0.182 0.0309 0.0307 −0.0002,high,confirmed

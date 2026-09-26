@@ -1673,7 +1673,7 @@ Each slack's floor is compared with **its own rim**, inside one tile, in three c
 
 **Consequence.** Summer-minimum declines hold on the full record (C1 −11.5, C2 −14.3, C5 −29.1 mm/yr) and C3's becomes significant (−17.5, p 0.027); from 2011 no cluster declines, so the drying is concentrated in the early record. C5's winter decline falls to p 0.056 and its spring decline to p 0.067 (was 0.021). C5's 2006/07 winter maximum is +0.120 m, and no C5 winter reaches the SD15b level.
 
-**Revisit if** the same test on Script 26/26b's MSL5 cluster trajectories (not yet run) or on 03_regional_averages' other consumers shows the plain-mean series carrying a result that the fixed-effects series does not.
+**Revisit if** another consumer of a plain cluster mean shows a result the fixed-effects series does not carry.
 
 ---
 

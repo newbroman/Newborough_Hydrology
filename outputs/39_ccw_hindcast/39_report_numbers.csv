@@ -1,0 +1,27 @@
+Parameter,Well,Era,Value,Unit,Note
+n_wells_admitted,,,9.0,wells,wells hindcast against the CCW record
+n_open,,,6.0,wells,open ground (in_forest False)
+pearson_r_median,,,0.8556371678111,,"observed vs predicted, all wells"
+pearson_r_min,,,0.6576824995851998,,all wells
+pearson_r_max,,,0.944428785816955,,all wells
+n_nse_negative,,,5.0,wells,Nash-Sutcliffe below zero
+nse_bias_removed_min_excl_persistent_forest,,,0.325692105987784,,"bias-removed NSE, wells other than the one under forest in both epochs"
+nse_bias_removed_max_excl_persistent_forest,,,0.868818259218948,,as above
+nse_bias_removed_persistent_forest,NW11,,-0.09908556907319732,,the well under forest in both epochs
+residual_mean_all,,,-0.024040775510499324,m,"observed less predicted, mean over wells"
+residual_mean_open,,,0.11102887509748434,m,"as above, open ground"
+epoch_shift_min,,,-0.13463930248796008,m,smallest shift (1989-96 mean less modern mean)
+epoch_shift_max,,,-0.8347554606475993,m,largest shift
+epoch_shift_median,,,-0.5888264072218719,m,all wells
+open_pearson_r_median,,,0.9074073422488277,,open ground
+open_nse_bias_removed_median,,,0.7863401538429426,,open ground
+open_epoch_shift_median,,,-0.3466287544870408,m,open ground
+rain_mean_window_m_yr,,,0.7700714285714284,m/yr,mean annual rainfall 1989-05 to 1996-04
+surplus_mean_window_m_yr,,,0.1272508214047226,m/yr,mean annual P - PET 1989-05 to 1996-04
+rain_mean_modern_m_yr,,,0.889338095238095,m/yr,mean annual rainfall 2005-03 to 2026-02
+surplus_mean_modern_m_yr,,,0.2366795709388707,m/yr,mean annual P - PET 2005-03 to 2026-02
+ccw_annual_range_mean_m,,,0.7245098039215687,m,"per-well calendar-year range 1989-1995, well-years with >= 10 readings"
+ccw_annual_range_sd_m,,,0.25528269604883286,m,as above
+ccw_annual_range_n,,,51.0,well-years,as above
+epoch_midpoint_gap_yr,,,22.833675564681723,yr,years between the two records' midpoints
+epoch_rate_if_linear_mm_yr,,,15.180593834099719,mm/yr,"NOT a rate: the open-ground median shift divided by the midpoint gap, quoted in the text only to be disclaimed"

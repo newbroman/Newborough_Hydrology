@@ -1,4 +1,4 @@
-39_ccw_hindcast v1.3.0
+39_ccw_hindcast v1.4.0
 comparison window 1989-05 to 1996-04
 climate forcing from 1930-12
 

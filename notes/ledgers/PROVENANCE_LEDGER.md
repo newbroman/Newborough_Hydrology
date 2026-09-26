@@ -197,7 +197,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (397)
+## Outputs no exhibit renders (398)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -547,6 +547,7 @@
 - `39_05_full_hindcast_site.csv`
 - `39_06_full_hindcast_decadal.csv`
 - `39_07_full_hindcast.png`
+- `39_report_numbers.csv`
 - `40_01_alongshore_profile.png`
 - `40_01_epoch_series.csv`
 - `40_02_normals.csv`

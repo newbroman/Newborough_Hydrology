@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.35.0"  # Hollingham (2026) - 2026-09-26. OUT_20_SCRAPE_REPORT_NUMBERS:
+__version__ = "1.36.0"  # Hollingham (2026) - 2026-09-26. OUT_39_REPORT_NUMBERS: Script
+#   39 1.4.0 writes the 1989-96 hindcast statistics the documents quote (T-84).
+# 1.35.0  # Hollingham (2026) - 2026-09-26. OUT_20_SCRAPE_REPORT_NUMBERS:
 #   Script 20 1.45.0 writes the scrape field's inferred cut depth, edge response and
 #   reach to their own report-numbers file (T-84, spec NRG_spec_script20_emits_T84).
 # 1.34.0  # Hollingham (2026) - 2026-09-25. Script 47 1.2.0 (spec
@@ -1181,6 +1183,7 @@ OUT_39_FIG                = DIR_39 / "39_04_hindcast.png"
 OUT_39_FULL_SITE          = DIR_39 / "39_05_full_hindcast_site.csv"
 OUT_39_FULL_DECADAL       = DIR_39 / "39_06_full_hindcast_decadal.csv"
 OUT_39_FULL_FIG           = DIR_39 / "39_07_full_hindcast.png"
+OUT_39_REPORT_NUMBERS     = DIR_39 / "39_report_numbers.csv"   # quoted statistics (1.4.0, T-84)
 
 # --- Script 40 — shoreline-retreat measurement ---------------------------------
 DIR_40 = OUT_DIR / "40_shoreline_retreat"

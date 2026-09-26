@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_41.odt — do not edit. source-sha256=d72fabb8580bec28 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_43.odt — do not edit. source-sha256=95041be8b164856b pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -44,10 +44,10 @@ The Eastern Block (C1: β₁ = 4.578; C2: β₁ = 3.896) and Western Residual cl
   --------- ------------------ ------- ------- ------- -----------------------------------------------------------------------------------
   Cluster   Label              β₁      β₂      β₃      Geological context
   C1        Lake Edge          4.578   0.911   0.089   Shallow till/estuarine substrate (NH1, NH2 boreholes: 6.5 m); rapid lake exchange
-  C2        Dune               3.972   1.666   0.064   Shallow till substrate consistent with C1; mature open dune
-  C3        Western Residual   3.573   1.778   0.057   Deep aeolian sand; Water borehole ≥12.8 m; DEM ridge geometry
-  C4        Main Forest        2.477   2.570   0.018   Same deep sand substrate as C3; low β₁ reflects 24% canopy interception
-  C5        Coastal Forest     2.428   1.248   0.045   Pine canopy on coastal sand; geomorphological thinning toward Menai Strait
+  C2        Dune               3.896   1.666   0.063   Shallow till substrate consistent with C1; mature open dune
+  C3        Western Residual   3.758   1.778   0.062   Deep aeolian sand; Water borehole ≥12.8 m; DEM ridge geometry
+  C4        Main Forest        2.476   2.570   0.018   Same deep sand substrate as C3; low β₁ reflects 24% canopy interception
+  C5        Coastal Forest     2.412   1.248   0.045   Pine canopy on coastal sand; geomorphological thinning toward Menai Strait
   --------- ------------------ ------- ------- ------- -----------------------------------------------------------------------------------
 
 **Table S2.2.*** Cluster mechanistic coefficients (from Table 3, displacement-formulation SSM) and geological context. The β₁ contrast between Eastern Block (C1/C2) and Western Residual cluster (C3) is consistent with the stratigraphic interpretation of Stratford et al. (2007). C3 and C4 share the same deep aeolian sand body, confirmed by β₁ similarity after correcting for canopy interception and by Pearson affinity persistence post-felling. Borehole 3 (3.65 m, eastern margin) confirms progressive thinning toward the coast.*
@@ -64,7 +64,7 @@ The borehole constraints in Table S2.1 and the geological contrasts summarised i
 
 Several wells occupy geological settings that depart from their cluster's typical substrate. These are noted here for reference, as they would serve as boundary constraints for any future spatial model.
 
-CEH14 (241,292 E, 364,488 N), classified as C4, sits at the crest of the bedrock ridge at 14.4 m AOD with a mean water table head of 13.3 m AOD. The water table is approximately 1.1 m below ground surface here. CEH14 overlies irregular bedrock topography on the elevated ridge flank, where buried ridges impede lateral drainage --- consistent with its anomalous negative β₃. That coefficient is not significant, however (β₃ = −0.016, p = 0.24), and six of the nine C4 wells likewise carry a non-significant β₃ on the hundred-month per-well window, so CEH14 sits at the imprecise end of a cluster that is imprecisely resolved on that window; the negative sign should not be read as a result in its own right. Refitting each well on its full record leaves seven of the nine significant, with CEH13 and CEH14 the two that still fail, so the imprecision is largely a property of the window rather than of the cluster. Its water-balance residual is −0.011 m/month, the most negative in the network (§4.9.6, Figure 57).
+CEH14 (241,292 E, 364,488 N), classified as C4, sits at the crest of the bedrock ridge at 14.4 m AOD with a mean water table head of 13.3 m AOD. The water table is approximately 1.1 m below ground surface here. CEH14 overlies irregular bedrock topography on the elevated ridge flank, where buried ridges impede lateral drainage --- consistent with its anomalous negative β₃. That coefficient is not significant, however (β₃ = −0.016, p = 0.24), and six of the nine C4 wells likewise carry a non-significant β₃ on the hundred-month per-well window, so CEH14 sits at the imprecise end of a cluster that is imprecisely resolved on that window; the negative sign should not be read as a result in its own right. Refitting each well on its full record leaves seven of the nine significant, with CEH13 and CEH14 the two that still fail, so the imprecision is largely a property of the window rather than of the cluster. Its water-balance residual is −0.010 m/month, the most negative in the network (§4.9.6, Figure 57).
 
 Wells CEH7 (243,386 E, 363,613 N) and CEH8 (243,150 E, 363,382 N) sit at the far eastern estuarine margin of the site, where the DEM confirms ground elevation of 1.2--5.2 m AOD. Both represent coastal pinch-out positions where the aquifer thins to approximately 4.0 m. and their records are intermittent.
 
@@ -112,7 +112,7 @@ First, the forest management scenarios modify β coefficients only for the C4 an
 
 Second, the internal drainage term β₃·h provides a stabilising feedback in the Helmholtz equation. C4 has the lowest β₃ in the network (0.018, compared with 0.057 for C3 and 0.064 for C2; Table 3). This means that in the C4 zone the drainage feedback is weak, and a moderate source term change produces only a small equilibrium head change.
 
-Third, and most fundamentally, the steady-state PDE does not represent the elevated boundary condition at the ridge margin. The observed mean head at C4 (9.24 m AOD) is substantially higher than the mean at C3 (7.00 m AOD), and this contrast is not a product of C4's β coefficients: the C4 wells occupy the highest topographic positions in the dune system, on and against the bedrock ridge flank. The PDE source terms are parameterised from the SSM β coefficients alone and carry no representation of that boundary, so the solution understates the C4 water table under both baseline and scenario conditions and the difference between the two solutions is correspondingly small. The argument rests on topographic position, which is directly observed. It does not rest on a ridge-derived lateral flux: the corrected water-balance residual field (§4.9.6, Figure 57) provides no evidence for one, since CEH14 --- the well most proximal to the ridge --- carries the most negative residual in the network (−0.011 m/month), the three wells above +0.02 m/month all sit in the open dune (NW2, T41a, NW1), and residual magnitude is uncorrelated with position on either axis (Spearman ρ = −0.02 on easting, p = 0.91; ρ = −0.14 on northing, p = 0.27). Whether any lateral flux exists at all cannot be resolved from the water-level record, and the rejection of the PDE approach does not depend on it.
+Third, and most fundamentally, the steady-state PDE does not represent the elevated boundary condition at the ridge margin. The observed mean head at C4 (9.24 m AOD) is substantially higher than the mean at C3 (7.00 m AOD), and this contrast is not a product of C4's β coefficients: the C4 wells occupy the highest topographic positions in the dune system, on and against the bedrock ridge flank. The PDE source terms are parameterised from the SSM β coefficients alone and carry no representation of that boundary, so the solution understates the C4 water table under both baseline and scenario conditions and the difference between the two solutions is correspondingly small. The argument rests on topographic position, which is directly observed. It does not rest on a ridge-derived lateral flux: the corrected water-balance residual field (§4.9.6, Figure 57) provides no evidence for one, since CEH14 --- the well most proximal to the ridge --- carries the most negative residual in the network (−0.010 m/month), no well exceeds +0.02 m/month, and residual magnitude is uncorrelated with position on either axis (Spearman ρ = −0.14 on easting, p = 0.27; ρ = +0.16 on northing, p = 0.20). Whether any lateral flux exists at all cannot be resolved from the water-level record, and the rejection of the PDE approach does not depend on it.
 
 A fully calibrated continuous-flow model would require, at minimum: (i) slug tests at two to three representative wells per cluster to constrain the spatial distribution of K (currently constrained only by the single tracer test of Betson et al., 2002); and (ii) a ground-penetrating radar survey of aquifer thickness, with coring, to replace the indirect β₁-proxy constraints with direct measurements of thickness and specific yield. These are the same parameter-sparsity constraints that produced calibration difficulties in the Betson et al. (2002) MODFLOW model at this site.
 
@@ -173,72 +173,72 @@ The per-well equilibrium framework and climate/forestry scenario calculations ar
 **Table S4.1.** Individual Well WTF Specific Yield Estimates --- Newborough Warren 2005--2026: event-based median specific yield (Sy) derived from the water table fluctuation (WTF) method (Healy and Cook, 2002) for the 66 reference-network wells. Cl. = cluster under the k = 5 partition (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest). n = number of qualifying monthly rising-limb events (criteria: Δh \> 5 mm, net recharge P − PET \> 10 mm). Q25/Q75 = interquartile range; a wide IQR reflects month-to-month variability in event estimates rather than measurement error. Wells in the forest clusters C4 and C5, marked Int. corr. = Yes, have net recharge adjusted for 24% canopy interception (Freeman, 2008). CEH12 (bedrock ridge --- WTF response reflects fractured rock) and CEH15 (forest slack floor --- slack topography dominates water table dynamics) are excluded from the IDW interpolation surface and do not appear here. Source: 18_wtf_01_well_sy_estimates.csv.
 
   ------- ---- ---- ------- ------- ------- -----
-  CEH11   C1   59   0.235   0.161   0.312   
-  CEH23   C1   44   0.206   0.116   0.255   
-  CEH25   C1   54   0.178   0.131   0.247   
-  CEH26   C1   49   0.212   0.114   0.276   
-  CEH27   C1   54   0.218   0.143   0.301   
-  CEH5    C1   65   0.194   0.156   0.273   
+  CEH11   C1   56   0.236   0.164   0.311   
+  CEH23   C1   42   0.206   0.111   0.252   
+  CEH25   C1   55   0.179   0.132   0.267   
+  CEH26   C1   48   0.212   0.114   0.271   
+  CEH27   C1   55   0.225   0.144   0.315   
+  CEH5    C1   66   0.201   0.159   0.277   
   CEH6    C1   68   0.211   0.122   0.345   
-  CEH10   C2   65   0.261   0.159   0.369   
-  CEH24   C2   53   0.240   0.172   0.318   
-  CEH28   C2   41   0.233   0.186   0.314   
-  D10     C2   49   0.277   0.221   0.382   
-  D15     C2   54   0.290   0.232   0.368   
-  D17     C2   54   0.271   0.199   0.355   
-  D38     C2   55   0.222   0.176   0.289   
-  D41     C2   46   0.240   0.193   0.312   
-  D43     C2   60   0.288   0.211   0.352   
-  D44     C2   49   0.218   0.162   0.315   
-  D5      C2   49   0.274   0.202   0.341   
-  D6      C2   57   0.271   0.199   0.366   
-  D7      C2   52   0.289   0.221   0.327   
-  D8      C2   48   0.248   0.181   0.381   
-  D9      C2   50   0.258   0.204   0.364   
-  L7      C2   65   0.288   0.224   0.353   
-  NW3     C2   53   0.266   0.187   0.355   
-  NW4     C2   57   0.257   0.181   0.339   
-  NW4B    C2   55   0.235   0.160   0.322   
-  T41A    C2   55   0.234   0.171   0.323   
-  T41B    C2   45   0.218   0.168   0.313   
-  T41C    C2   47   0.215   0.196   0.313   
-  T41D    C2   47   0.257   0.198   0.337   
-  WMC1    C2   52   0.282   0.200   0.413   
-  CEH1    C3   68   0.273   0.223   0.346   
-  CEH18   C3   56   0.366   0.287   0.441   
-  CEH21   C3   28   0.400   0.328   0.440   
-  CEH36   C3   39   0.358   0.297   0.424   
-  CEH39   C3   37   0.347   0.282   0.403   
-  CEH4    C3   53   0.350   0.254   0.399   
-  CEH40   C3   27   0.284   0.242   0.323   
-  CEH41   C3   37   0.308   0.258   0.355   
-  CEH42   C3   35   0.350   0.286   0.380   
-  CEH9    C3   53   0.341   0.272   0.389   
-  D25     C3   46   0.288   0.241   0.386   
-  NW1     C3   72   0.259   0.210   0.358   
-  NW11    C3   68   0.282   0.224   0.338   
-  NW13    C3   49   0.246   0.206   0.319   
-  NW2     C3   68   0.259   0.213   0.358   
-  NW5     C3   56   0.306   0.246   0.350   
-  NW6     C3   47   0.281   0.213   0.362   
-  NW7     C3   48   0.330   0.281   0.397   
-  WMC2    C3   53   0.343   0.293   0.418   
-  WMC3    C3   37   0.327   0.288   0.420   
-  WMC4    C3   51   0.252   0.208   0.335   
-  CEH13   C4   50   0.229   0.170   0.320   Yes
-  CEH14   C4   56   0.199   0.126   0.265   Yes
-  CEH2    C4   60   0.236   0.188   0.317   Yes
-  CEH20   C4   51   0.252   0.210   0.322   Yes
-  CEH30   C4   49   0.272   0.214   0.350   Yes
-  CEH32   C4   49   0.239   0.180   0.361   Yes
-  CEH33   C4   49   0.258   0.197   0.349   Yes
-  CEH34   C4   50   0.255   0.201   0.330   Yes
-  NW10    C4   68   0.252   0.194   0.340   Yes
-  CEH16   C5   51   0.282   0.236   0.374   Yes
-  CEH17   C5   40   0.310   0.244   0.400   Yes
-  CEH19   C5   42   0.337   0.279   0.424   Yes
-  CEH31   C5   44   0.294   0.234   0.394   Yes
-  NW9     C5   62   0.306   0.243   0.393   Yes
+  D10     C2   49   0.277   0.224   0.377   
+  D17     C2   55   0.273   0.204   0.362   
+  D41     C2   46   0.248   0.204   0.317   
+  D43     C2   61   0.295   0.212   0.347   
+  D44     C2   50   0.228   0.163   0.319   
+  D5      C2   50   0.279   0.215   0.348   
+  D6      C2   58   0.268   0.200   0.365   
+  D7      C2   52   0.290   0.237   0.331   
+  D8      C2   47   0.262   0.200   0.381   
+  L7      C2   64   0.292   0.241   0.357   
+  T41B    C2   46   0.233   0.174   0.322   
+  T41C    C2   47   0.229   0.200   0.316   
+  T41D    C2   47   0.268   0.204   0.339   
+  WMC1    C2   51   0.283   0.227   0.417   
+  CEH24   C2   52   0.252   0.179   0.327   
+  CEH28   C2   41   0.244   0.189   0.313   
+  NW3     C2   52   0.278   0.199   0.355   
+  NW4     C2   55   0.255   0.167   0.337   
+  NW4B    C2   56   0.252   0.161   0.328   
+  D15     C3   54   0.290   0.237   0.363   
+  D25     C3   46   0.312   0.262   0.396   
+  D38     C3   53   0.222   0.180   0.288   
+  D9      C3   50   0.273   0.207   0.373   
+  T41A    C3   55   0.245   0.178   0.336   
+  WMC2    C3   52   0.352   0.306   0.419   
+  CEH1    C3   69   0.274   0.225   0.347   
+  CEH10   C3   63   0.264   0.164   0.372   
+  CEH18   C3   57   0.366   0.288   0.439   
+  CEH21   C3   27   0.400   0.353   0.440   
+  CEH36   C3   36   0.366   0.311   0.428   
+  CEH39   C3   37   0.350   0.302   0.403   
+  CEH4    C3   52   0.350   0.252   0.400   
+  CEH40   C3   28   0.286   0.247   0.320   
+  CEH41   C3   38   0.307   0.261   0.355   
+  CEH42   C3   35   0.352   0.290   0.386   
+  CEH9    C3   52   0.340   0.272   0.389   
+  NW1     C3   73   0.258   0.210   0.355   
+  NW11    C3   69   0.284   0.226   0.356   
+  NW13    C3   48   0.253   0.214   0.344   
+  NW2     C3   69   0.254   0.212   0.357   
+  NW5     C3   57   0.311   0.250   0.350   
+  NW6     C3   47   0.282   0.218   0.365   
+  NW7     C3   48   0.333   0.284   0.404   
+  WMC3    C3   38   0.339   0.289   0.427   
+  WMC4    C3   52   0.257   0.210   0.349   
+  CEH32   C4   50   0.242   0.181   0.355   Yes
+  CEH13   C4   51   0.231   0.175   0.317   Yes
+  CEH14   C4   56   0.199   0.128   0.265   Yes
+  CEH2    C4   60   0.236   0.192   0.308   Yes
+  CEH20   C4   52   0.253   0.217   0.325   Yes
+  CEH30   C4   50   0.274   0.215   0.350   Yes
+  CEH33   C4   50   0.259   0.204   0.348   Yes
+  CEH34   C4   51   0.261   0.211   0.340   Yes
+  NW10    C4   67   0.262   0.195   0.341   Yes
+  CEH16   C5   52   0.285   0.241   0.395   Yes
+  CEH17   C5   40   0.322   0.246   0.400   Yes
+  CEH19   C5   41   0.341   0.278   0.426   Yes
+  CEH31   C5   43   0.294   0.234   0.384   Yes
+  NW9     C5   62   0.308   0.243   0.403   Yes
   ------- ---- ---- ------- ------- ------- -----
 
 ## S4.2 Reproducibility
@@ -249,7 +249,7 @@ The per-well WTF specific yield estimates tabulated in Table S4.1 are computed b
 
 ## S5.1 Purpose
 
-An earlier boundary-subsidy argument attributed a persistent water-balance residual at forest-margin wells --- most visibly a positive residual at CEH14 --- to lateral recharge derived from the northern rock ridge. It rested on two lines of evidence: a spatially structured pattern of positive residuals concentrated along the forest--dune boundary, and a closure argument that no other plausible flux could account for the monthly deficit. The corrected residual field (Script 20, 2026-08-06; §4.9.6, Figure 57) removes both. Sixty of the sixty-six reference wells now fall within ±0.01 m/month, the field shows no gradient on either axis, the three wells above +0.02 m/month all sit in the open dune, and CEH14 is the most negative well in the network at −0.011 m/month. The balance closes without requiring an additional flux. The residual-lag analysis described below was designed as an independent, falsifiable test of the transport mechanism and is retained as a bound on what the 21-year monthly record could have detected: if ridge-derived recharge is delivered as a time-varying pulse, then water travelling from the ridge to successive dune wells must arrive at those wells with travel times that increase as a function of distance. The time structure of the SSM residuals, cross-correlated against rainfall, should therefore carry a distance-dependent lag signature. This Note documents the test and reports the null result.
+An earlier boundary-subsidy argument attributed a persistent water-balance residual at forest-margin wells --- most visibly a positive residual at CEH14 --- to lateral recharge derived from the northern rock ridge. It rested on two lines of evidence: a spatially structured pattern of positive residuals concentrated along the forest--dune boundary, and a closure argument that no other plausible flux could account for the monthly deficit. The corrected residual field (Script 20, 2026-08-06; §4.9.6, Figure 57) removes both. Sixty-five of the sixty-six reference wells now fall within ±0.01 m/month, the field shows no gradient on either axis, no well exceeds +0.02 m/month, and CEH14 is the most negative well in the network at −0.010 m/month. The balance closes without requiring an additional flux. The residual-lag analysis described below was designed as an independent, falsifiable test of the transport mechanism and is retained as a bound on what the 21-year monthly record could have detected: if ridge-derived recharge is delivered as a time-varying pulse, then water travelling from the ridge to successive dune wells must arrive at those wells with travel times that increase as a function of distance. The time structure of the SSM residuals, cross-correlated against rainfall, should therefore carry a distance-dependent lag signature. This Note documents the test and reports the null result.
 
 ## S5.2 Extended State-Space Model
 
@@ -281,7 +281,7 @@ The magnitude of coupling does not single out the ridge margin. Mean peak \|r\| 
 
 ## S5.5 Interpretation
 
-The null distance-lag result does not rule out ridge-derived recharge. It rules out one specific form of it: event-driven, pulse-delivered transport in which monthly rainfall on the ridge propagates to the dune field with travel times that scale with distance. The alternative interpretation --- that ridge recharge is delivered as a near-steady baseflow, sufficiently smoothed by its transit through fractured bedrock that its month-to-month variance falls below the detection threshold of monthly water-level records --- is consistent with the null. A steady baseflow of this kind would manifest observationally as a constant positive contribution to the local water balance at wells along the flow path, which is precisely what the SSM residual α_B already absorbs. That predicted signature is, however, absent from the corrected residual field: the C4 median is −0.005 m/month and no forest well carries a residual above +0.02 m/month. The steady-baseflow reading is therefore consistent with the lag-test null but unsupported by the water balance, and the two mechanisms remain indistinguishable from water-level data alone only in the weak sense that neither is evidenced.
+The null distance-lag result does not rule out ridge-derived recharge. It rules out one specific form of it: event-driven, pulse-delivered transport in which monthly rainfall on the ridge propagates to the dune field with travel times that scale with distance. The alternative interpretation --- that ridge recharge is delivered as a near-steady baseflow, sufficiently smoothed by its transit through fractured bedrock that its month-to-month variance falls below the detection threshold of monthly water-level records --- is consistent with the null. A steady baseflow of this kind would manifest observationally as a constant positive contribution to the local water balance at wells along the flow path, which is precisely what the SSM residual α_B already absorbs. That predicted signature is, however, absent from the corrected residual field: the C4 median is −0.007 m/month and no forest well carries a residual above +0.02 m/month. The steady-baseflow reading is therefore consistent with the lag-test null but unsupported by the water balance, and the two mechanisms remain indistinguishable from water-level data alone only in the weak sense that neither is evidenced.
 
 The main report's treatment of the water-balance residual (§5.2.1) no longer advances a ridge contribution: with the corrected field the balance closes without requiring an additional flux, and the residual is discussed there as a model-adequacy diagnostic rather than as evidence of a boundary subsidy. Definitive resolution of the transport mechanism would require either a ridge-crest rain gauge paired with bedrock piezometers, or direct geochemical tracer work on the ridge--dune flow path. Both are identified as priority further work in §5.9.
 
@@ -307,11 +307,11 @@ Three complementary tests are computed from the residuals ε(t) produced by Scri
 
 ## S6.3 Result: the ET Hypothesis Is Not Supported
 
-The sunshine-hours correlation is consistently negative in sign across every cluster, with network mean r = −0.026 and per-cluster means ranging from −0.001 (C4 Main Forest) to −0.058 (C1 Lake Edge). None of the 63 wells exceeds the Bartlett 95% significance threshold of \|r\| = 0.15 --- all 63 fall inside the null band. The sign is directionally consistent with Thornthwaite slightly underestimating radiation-driven ET, but the magnitude of the bias is below the resolution of the monthly water-level data to detect.
+The sunshine-hours correlation is consistently negative in sign across every cluster, with network mean r = −0.035 and per-cluster means ranging from −0.010 (C4 Main Forest) to −0.056 (C1 Lake Edge). None of the 63 wells exceeds the Bartlett 95% significance threshold of \|r\| = 0.15 --- all 63 fall inside the null band. The sign is directionally consistent with Thornthwaite slightly underestimating radiation-driven ET, but the magnitude of the bias is below the resolution of the monthly water-level data to detect.
 
 Summer-minus-winter residuals are negative in every cluster, with magnitudes ranging from −0.001 m at C5 to −0.010 m at C3 (C1 −0.005 m, C2 −0.004 m, C4 −0.008 m). These values are an order of magnitude smaller than the month-to-month variability of the residuals themselves (typical well-level residual standard deviation of order 0.1 m) and should not be read as a summer-ET signal. Notably, C4 --- the cluster where canopy interception would most plausibly produce Thornthwaite miscalibration --- has the weakest sunshine correlation of any cluster, indicating that the cluster-mean β₂ has absorbed forest-specific ET behaviour reasonably well despite the simplicity of the fitted model.
 
-The C3 within-cluster split also returns a null: forest-adjacent C3 wells (n = 7) have marginally smaller seasonal amplitudes than warren-interior wells (n = 10) --- 0.0109 m against 0.0110 m; Mann-Whitney U = 38.0, p = 0.63, alternative "adjacent \< interior". The direction is the one a steady-ridge-baseflow mechanism would predict, but the difference is a fifth of a millimetre and nowhere near significant, so it carries no evidential weight either way.
+The C3 within-cluster split also returns a null: forest-adjacent C3 wells (n = 8) have smaller seasonal amplitudes than warren-interior wells (n = 14) --- 0.0109 m against 0.0118 m; Mann-Whitney U = 50.0, p = 0.36, alternative "adjacent \< interior". The direction is the one a steady-ridge-baseflow mechanism would predict, but the difference is under a millimetre and not significant, so it carries no evidential weight either way.
 
 ## S6.4 What the Residuals Actually Look Like
 
@@ -319,7 +319,7 @@ The per-cluster seasonal climatologies reveal a structure that fits none of the 
 
 This bimodal structure is not the signature of unmodelled summer ET, which would produce a single summer trough. It is not the signature of flat steady ridge baseflow, which would produce no annual cycle at all. And it is not a simple winter-recharge-nonlinearity signature, which would produce a single winter peak. Its most parsimonious interpretation is that a linear lumped-parameter model with time-invariant β coefficients is a rough approximation of a system whose soil-moisture storage operates nonlinearly across the annual cycle --- wet-winter saturation increasing recharge efficiency beyond what the cluster-mean β₁ represents, shoulder-season soil drying reducing it below, and the whole cycle modulated by seasonal variation in vegetation water use that a constant β₂ cannot track.
 
-The spatial pattern of seasonal amplitude nonetheless shows a coherent structure: the two largest amplitudes in the network are CEH14 (0.040 m) and CEH13 (0.026 m), both C4 forest-margin wells, against a network median of order 0.010 m; C4 has the largest cluster-mean amplitude (0.015 m) of any cluster. The two fields do not coincide, however: CEH14 carries the most negative water-balance residual in the network (−0.011 m/month; Figure 57, §4.9.6), at the opposite end of that distribution from the three open-dune wells that lead it. The rest of the C4 cluster sits within the general network spread rather than standing out. The elevated seasonal variance at CEH14 and CEH13 is therefore not accompanied by an elevated water-balance residual, which weakens the reading that larger seasonal boundary fluxes are responsible and leaves the alternative --- that cluster-mean β values are a worse approximation at ridge-margin wells than at dune-interior wells --- as the better-supported of the two. Water-level data alone cannot settle it.
+The spatial pattern of seasonal amplitude nonetheless shows a coherent structure: the two largest amplitudes in the network are CEH14 (0.040 m) and CEH13 (0.026 m), both C4 forest-margin wells, against a network median of order 0.010 m; C4 has the largest cluster-mean amplitude (0.015 m) of any cluster. The two fields do not coincide, however: CEH14 carries the most negative water-balance residual in the network (−0.010 m/month; Figure 57, §4.9.6), at the opposite end of that distribution from the open-dune wells that lead it (NW3, CEH23, NW6). The rest of the C4 cluster sits within the general network spread rather than standing out. The elevated seasonal variance at CEH14 and CEH13 is therefore not accompanied by an elevated water-balance residual, which weakens the reading that larger seasonal boundary fluxes are responsible and leaves the alternative --- that cluster-mean β values are a worse approximation at ridge-margin wells than at dune-interior wells --- as the better-supported of the two. Water-level data alone cannot settle it.
 
 ## S6.5 Combined Conclusion from S5 and S6
 
@@ -434,9 +434,115 @@ Standard errors propagate uncertainty in the fitted coefficients through the equ
   NW8B    Extended    C5 (Coastal Forest)     0.0609   -1.588   325    -1.125   -1.125   -1     Out of scope
   ------- ----------- ----------------------- -------- -------- ------ -------- -------- ------ ---------------
 
-## S7.2 Reproducibility
+## S7.2 Datum offsets against the van Willegen quadrats
 
-The equilibrium wetness index, its calibration onto the MSL5 scale, and this table are computed by 26_van_willegen_msl.py. Reference-tier coefficients are read from 03_master_data.csv (Script 03) and extended-tier coefficients are fitted in the same script using the shared state-space routine in utils/model_utils.py. The per-well index and its standard errors are exported to 26_equilibrium_wetness_index_per_well.csv, the observed-versus-reconstructed comparison to 26_ewi_msl5_comparison.csv, and the calibration constants to 26_report_numbers.csv. The table above is emitted directly from those outputs as 26_table_s7_1_ewi_per_well.csv rather than transcribed, so it cannot drift from them.
+Van Willegen et al. (2025) publish their spring levels per vegetation quadrat, referenced to each quadrat\'s ground surface. Their series are this network\'s readings re-referenced, so the pipeline\'s five-year mean spring level at the piezometer reproduces each quadrat\'s series after one constant offset: the quadrat\'s height relative to the dipwell\'s ground datum. Table S7.2 lists those offsets. Anyone comparing a level in this report with one referenced to quadrat ground needs them, and Note S12 uses them to carry piezometer metrics to the quadrats.
+
+**Table S7.**2. Fixed datum offset between each van Willegen et al. (2025) vegetation quadrat\'s ground surface and its dipwell\'s, from the pipeline\'s five-year mean spring level (MSL5) against their published per-quadrat series at the same piezometer, paired on window-end year (n = window-ends). Their series are this network\'s readings re-referenced to quadrat ground, so the offset is the quadrat\'s height above (negative: below) the dipwell\'s ground datum; offset = mean of pipeline minus published. Residual MAD is after the offset. 96 quadrats at 21 piezometers, 614 pairs; offsets -403 to +413 mm, up to 497 mm of relief between one dipwell\'s quadrats; residual MAD 0.6 mm. A level quoted in this report cannot be compared with one referenced to quadrat ground without applying that quadrat\'s offset. Source: 26_table_s7_2_vw_datum_offsets.csv.
+
+  --------- ------------ ----------------------- --- ------------------- -------------------
+  Quadrat   Piezometer   Cluster                 n   Datum offset (mm)   Residual MAD (mm)
+  CEH1-1    CEH1         C3 (Western Residual)   9   -104                0.0
+  CEH1-2    CEH1         C3 (Western Residual)   9   240                 0.0
+  CEH1-3    CEH1         C3 (Western Residual)   9   75                  0.0
+  CEH1-4    CEH1         C3 (Western Residual)   9   93                  0.0
+  CEH1-5    CEH1         C3 (Western Residual)   9   -134                0.0
+  CEH1-6    CEH1         C3 (Western Residual)   9   -191                0.0
+  CEH22-1   CEH22        Extended                6   -47                 0.0
+  CEH22-2   CEH22        Extended                6   202                 0.0
+  CEH22-3   CEH22        Extended                6   69                  0.0
+  CEH22-4   CEH22        Extended                6   372                 0.0
+  CEH22-5   CEH22        Extended                6   124                 0.0
+  CEH22-6   CEH22        Extended                6   74                  0.0
+  CEH22-7   CEH22        Extended                6   -87                 0.0
+  CEH23-1   CEH23        C1 (Lake Edge)          2   -67                 0.0
+  CEH23-2   CEH23        C1 (Lake Edge)          2   -15                 0.0
+  CEH23-3   CEH23        C1 (Lake Edge)          2   52                  0.0
+  CEH23-4   CEH23        C1 (Lake Edge)          2   -22                 0.0
+  CEH23-5   CEH23        C1 (Lake Edge)          2   51                  0.0
+  CEH24-1   CEH24        C2 (Dune)               5   -34                 0.0
+  CEH24-2   CEH24        C2 (Dune)               5   -100                0.0
+  CEH24-4   CEH24        C2 (Dune)               5   -207                0.0
+  CEH24-5   CEH24        C2 (Dune)               5   -146                0.0
+  CEH26-1   CEH26        C1 (Lake Edge)          5   -32                 0.0
+  CEH26-2   CEH26        C1 (Lake Edge)          5   -42                 0.0
+  CEH26-3   CEH26        C1 (Lake Edge)          5   16                  0.0
+  CEH26-4   CEH26        C1 (Lake Edge)          5   66                  0.0
+  CEH26-5   CEH26        C1 (Lake Edge)          5   -71                 0.0
+  CEH4-1    CEH4         C3 (Western Residual)   9   -73                 0.0
+  CEH4-2    CEH4         C3 (Western Residual)   9   59                  0.0
+  CEH4-3    CEH4         C3 (Western Residual)   9   81                  0.0
+  CEH5-1    CEH5         C1 (Lake Edge)          9   -43                 3.2
+  CEH5-2    CEH5         C1 (Lake Edge)          9   -30                 3.2
+  CEH5-3    CEH5         C1 (Lake Edge)          9   -40                 3.2
+  CEH5-4    CEH5         C1 (Lake Edge)          9   -95                 3.2
+  CEH5-5    CEH5         C1 (Lake Edge)          9   -39                 3.2
+  CEH6-1    CEH6         C1 (Lake Edge)          9   64                  0.0
+  CEH6-2    CEH6         C1 (Lake Edge)          9   157                 0.0
+  CEH6-3    CEH6         C1 (Lake Edge)          9   77                  0.0
+  CEH8-1    CEH8         Extended                9   154                 2.6
+  CEH8-2    CEH8         Extended                9   -27                 2.6
+  CEH8-3    CEH8         Extended                9   375                 2.6
+  CEH9-1    CEH9         C3 (Western Residual)   4   -80                 0.0
+  CEH9-10   CEH9         C3 (Western Residual)   4   -88                 0.0
+  CEH9-2    CEH9         C3 (Western Residual)   4   -217                0.0
+  CEH9-3    CEH9         C3 (Western Residual)   4   -384                0.0
+  CEH9-4    CEH9         C3 (Western Residual)   4   -403                0.0
+  CEH9-5    CEH9         C3 (Western Residual)   4   -402                0.0
+  CEH9-6    CEH9         C3 (Western Residual)   4   5                   0.0
+  CEH9-7    CEH9         C3 (Western Residual)   4   94                  0.0
+  CEH9-8    CEH9         C3 (Western Residual)   4   -130                0.0
+  CEH9-9    CEH9         C3 (Western Residual)   4   -106                0.0
+  NW2-1     NW2          C3 (Western Residual)   9   169                 0.0
+  NW2-2     NW2          C3 (Western Residual)   9   383                 0.0
+  NW2-3     NW2          C3 (Western Residual)   9   288                 0.0
+  NW2-4     NW2          C3 (Western Residual)   9   44                  0.0
+  NW2-5     NW2          C3 (Western Residual)   9   -78                 0.0
+  NW3-1     NW3          C2 (Dune)               4   70                  0.0
+  NW3-2     NW3          C2 (Dune)               4   -19                 0.0
+  NW3-3     NW3          C2 (Dune)               4   33                  0.0
+  NW3-4     NW3          C2 (Dune)               4   34                  0.0
+  NW4-1     NW4          C2 (Dune)               9   20                  0.0
+  NW4-10    NW4          C2 (Dune)               9   203                 0.0
+  NW4-2     NW4          C2 (Dune)               9   -23                 0.0
+  NW4-3     NW4          C2 (Dune)               9   -88                 0.0
+  NW4-4     NW4          C2 (Dune)               9   -32                 0.0
+  NW4-5     NW4          C2 (Dune)               9   -50                 0.0
+  NW4-6     NW4          C2 (Dune)               9   43                  0.0
+  NW4-7     NW4          C2 (Dune)               9   84                  0.0
+  NW4-8     NW4          C2 (Dune)               9   147                 0.0
+  NW4-9     NW4          C2 (Dune)               9   234                 0.0
+  NW5-1     NW5          C3 (Western Residual)   9   7                   0.0
+  NW5-2     NW5          C3 (Western Residual)   9   -31                 0.0
+  NW5-3     NW5          C3 (Western Residual)   9   -54                 0.0
+  NW5-4     NW5          C3 (Western Residual)   9   29                  0.0
+  NW5-5     NW5          C3 (Western Residual)   9   65                  0.0
+  NW6-1     NW6          C3 (Western Residual)   4   87                  0.0
+  NW6-2     NW6          C3 (Western Residual)   4   207                 0.0
+  NW6-3     NW6          C3 (Western Residual)   4   5                   0.0
+  NW6-4     NW6          C3 (Western Residual)   4   68                  0.0
+  NW6-5     NW6          C3 (Western Residual)   4   -42                 0.0
+  NW7-1     NW7          C3 (Western Residual)   4   143                 0.0
+  NW7-2     NW7          C3 (Western Residual)   4   -11                 0.0
+  NW7-3     NW7          C3 (Western Residual)   4   -19                 0.0
+  NW7-4     NW7          C3 (Western Residual)   4   -19                 0.0
+  NW7-5     NW7          C3 (Western Residual)   4   -15                 0.0
+  T41A-4    T41A         C3 (Western Residual)   5   88                  0.0
+  T41B-2    T41B         C2 (Dune)               5   74                  4.8
+  T41B-5    T41B         C2 (Dune)               5   5                   4.8
+  T41B-7    T41B         C2 (Dune)               5   191                 4.8
+  T41B-8    T41B         C2 (Dune)               5   413                 4.8
+  T41C-3    T41C         C2 (Dune)               5   48                  0.0
+  T41D-1    T41D         C2 (Dune)               5   24                  0.0
+  T41D-6    T41D         C2 (Dune)               5   -173                0.0
+  WMC2-1    WMC2         C3 (Western Residual)   7   30                  3.8
+  WMC2-2    WMC2         C3 (Western Residual)   7   10                  3.8
+  WMC2-3    WMC2         C3 (Western Residual)   7   4                   3.8
+  --------- ------------ ----------------------- --- ------------------- -------------------
+
+## S7.3 Reproducibility
+
+The equilibrium wetness index, its calibration onto the MSL5 scale, and this table are computed by 26_van_willegen_msl.py. Reference-tier coefficients are read from 03_master_data.csv (Script 03) and extended-tier coefficients are fitted in the same script using the shared state-space routine in utils/model_utils.py. The per-well index and its standard errors are exported to 26_equilibrium_wetness_index_per_well.csv, the observed-versus-reconstructed comparison to 26_ewi_msl5_comparison.csv, and the calibration constants to 26_report_numbers.csv. Table S7.1 is emitted directly from those outputs as 26_table_s7_1_ewi_per_well.csv rather than transcribed, so it cannot drift from them; Table S7.2 is emitted by the same script (Pass 7b) as 26_table_s7_2_vw_datum_offsets.csv.
 
 # Supplementary Note S8: Spring-Mean (MAM) Seasonal Robustness Analysis
 
@@ -456,9 +562,9 @@ Table S8.1. Four-zone differential felling step relative to the Forest control z
 
   ----------- ----------------------- ---------- ----------------------- ----------
   Zone        Spring step ± SE (mm)   Spring p   Summer step ± SE (mm)   Summer p
-  Impact      −2.3 ± 15.7             \<0.001    −7.3 ± 7.9              0.358
-  Edge        −53.2 ± 24.0            0.363      −28.6 ± 20.5            0.162
-  C3/Warren   −10.6 ± 18.4            0.195      +12.0 ± 10.6            0.257
+  Impact      −2.3 ± 15.7             0.885      −7.3 ± 7.9              0.358
+  Edge        −53.2 ± 24.0            0.027      −28.6 ± 20.5            0.162
+  C3/Warren   −10.6 ± 18.4            0.563      +12.0 ± 10.6            0.257
   ----------- ----------------------- ---------- ----------------------- ----------
 
 ## S8.4 Cluster Trends and the Coastal Gradient (Scripts 14, 25)

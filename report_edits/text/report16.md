@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report16.odt — do not edit. source-sha256=7b03cfd390ba2fac pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report16.odt — do not edit. source-sha256=b7588ed45b58836c pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Notation
@@ -58,7 +58,7 @@ This chapter lists the mathematical symbols, abbreviations and statistics used i
   CUSUM           Cumulative Sum --- the running sum of departures from a reference mean, used to date the onset and test the permanence of a shift                                              m, cumulative                                Report §3.5
   CWB             Cumulative water balance --- the running rainfall-minus-PET total used as the BACI climate covariate                                                                           mm                                           Report §3.5.4
   WTF             Water Table Fluctuation --- the independent method for estimating specific yield from recharge episodes                                                                        ---                                          Report §3.7.3
-  MSL5            Five-Year Mean Spring Water Level --- the five-year running mean of March-to-May levels                                                                                        m; changes in mm                             Report §3.9 (van Willegen framework)
+  MSL5            Five-Year Mean Spring Water Level --- the five-year running mean of the spring levels (the readings dated March--May)                                                          m; changes in mm                             Report §3.9 (van Willegen framework)
   EWI             Equilibrium Wetness Index --- the steady-state displacement expressed on the MSL5 scale                                                                                        m                                            Report §3.6; Script 19
   MCA             Multi-Cluster Affinity --- a well whose hydrograph correlates above the affinity threshold with three or more cluster centroids                                                ---                                          Report §4.3
   ESS             Error Sum of Squares --- the within-cluster variance criterion Ward's linkage minimizes                                                                                        m², as the clustered variable                Report §3.3

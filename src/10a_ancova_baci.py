@@ -33,7 +33,9 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+#   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
+# v1.15.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
 #   removed. It hid every DeprecationWarning and RuntimeWarning this script
 #   raised, which is the class of signal that would have flagged the fiona
@@ -220,6 +222,7 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 from utils.config import SUMMER_MINIMUM_MONTHS
+from utils.config import DAYS_PER_MONTH
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -483,7 +486,7 @@ def main():
         # (D-076) needs the same axis, and rebuilding it downstream from df.index
         # would be one more place for the epoch to disagree.
         t0 = df.index.min()
-        df['months_since'] = (df.index - t0).days / 30.4375
+        df['months_since'] = (df.index - t0).days / DAYS_PER_MONTH
 
         # ── The drift term (D-111) ───────────────────────────────────────
         # Which covariate carries the differential drift is config.BACI_DRIFT_DESIGN.

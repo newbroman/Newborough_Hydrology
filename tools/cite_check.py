@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.7"  # Hollingham (2026) — 2026-09-24. 03_18_datum_invariance.csv (T-74) and
+__version__ = "1.28.8"  # Hollingham (2026) — 2026-09-26. 09d_01/09d_02 scenario comparison
+#   tables registered (T-84): report9 §4.5.6 and the MS quote every bar.
+# 1.28.7  # Hollingham (2026) — 2026-09-24. 03_18_datum_invariance.csv (T-74) and
 #   07_05_clusters_vs_covariates.csv (T-73) registered: report8 §3.4.1 / §3.2 and report9
 #   §4.9.1 / Figure 50 quote them.
 # 1.28.6  # Hollingham (2026) — 2026-09-23. A quoted value with a thousands
@@ -928,6 +930,11 @@ EXTRA_VALUE_TABLES = [
      ("Zone", "Phase"),
      ["Mean_depth_m", "Median_depth_m", "SD_depth_m",
       "Min_depth_m", "Max_depth_m"]),
+    # Script 09d's CEH36 scenario bars (T-84, 2026-09-26).
+    ("outputs/09_scraping_intervention/09d_01_scenario_comparison.csv", "Scenario",
+     ["Delta_vol_mm_per_month"]),
+    ("outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv", "Scenario",
+     ["Delta_vol_summer_mm_per_month"]),
 ]
 
 

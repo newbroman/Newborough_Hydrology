@@ -61,7 +61,9 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-21. FE1/FE2 coordinates are READ
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+#   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
+# v1.7.0  # Hollingham (2026) - 2026-09-21. FE1/FE2 coordinates are READ
 #   from 01_locations.csv (Script 01, from data/well_metadata.csv) instead of being
 #   typed here "from Well_info.csv" — a file that does not exist in the tree. The
 #   values are identical (E35; Martin: "10h should have no hard codes of the FE
@@ -104,6 +106,7 @@ from utils.clearfell_common import (
     ReportNumbers, print_network_summary,
 )
 from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS
+from utils.config import DAYS_PER_MONTH
 from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
@@ -432,7 +435,7 @@ def main():
             if target_eastings and control_eastings:
                 delta_easting = np.mean(target_eastings) - np.mean(control_eastings)
                 t0 = df.index.min()
-                months_since = ((df.index - t0).days / 30.4375)
+                months_since = ((df.index - t0).days / DAYS_PER_MONTH)
                 df['easting_x_time'] = delta_easting * months_since
                 df['has_easting'] = True
 

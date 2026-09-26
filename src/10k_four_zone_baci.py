@@ -132,9 +132,12 @@ from utils.clearfell_common import (
     C3_WARREN_WELLS, compute_cwb, ReportNumbers, TIER_COLOURS,
 )
 from utils.site_observations import update_site_observation
+from utils.config import DAYS_PER_MONTH
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+#   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
+# v1.4.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.3.1  # Hollingham (2026) — 2026-08-22.  Docstring only:
 #   retired an asserted result (D-011) and two citations to a design spec
@@ -291,7 +294,7 @@ def attach_easting(panel, well_locations, master=None):
     # index; absolute scale is immaterial since easting × time enters
     # only as a single linear covariate).
     t0 = panel['date'].min()
-    months_since = ((panel['date'] - t0).dt.days / 30.4375)
+    months_since = ((panel['date'] - t0).dt.days / DAYS_PER_MONTH)
     panel['easting_x_time'] = panel['easting'].values * months_since.values
     return panel
 

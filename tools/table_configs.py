@@ -110,7 +110,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-24. ms/Script29Headline: the Methods
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-26. sm/TableS72: the Supplementary
+#   Material's new Table S7.2 (van Willegen quadrat datum offsets, Script 26 Pass 7b) is generated
+#   from 26_table_s7_2_vw_datum_offsets.csv (T-57, D-189).
+# 1.13.0  # Hollingham (2026) — 2026-09-24. ms/Script29Headline: the Methods
 #   Supplement Script 29 headline table becomes generated (29_headline_models.csv).
 # 1.12.0  # Hollingham (2026) — 2026-09-24. sm/TableS71: the Supplementary
 #   Material Table S7.1 (Script 26 per-well EWI/MSL5) becomes generated — 497 of its cells
@@ -730,6 +733,58 @@ TABLES = [
         "columns": [{"col": c, "fmt": "text"} for c in
                     ["Well", "Network", "Cluster", "β₃ (mth⁻¹)", "EWI (m bg)", "SE (mm)",
                      "MSL5 obs", "MSL5 recon", "Resid. (mm)", "Status"]],
+    },
+    # ── 2026-09-26: Supplementary Material Table S4.1 (Script 18 per-well Sy; number sweep) ─
+    {
+        "id": "sm/TableS41",
+        "doc": "docs/report/Supplementary_Material_v*.odt",
+        "table_name": "Table3",
+        "caption": "Table S4.1 — per-well WTF specific yield (Script 18)",
+        "sources": {"t": "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv"},
+        "rows": {"source": "t"},
+        "header": ["Well", "Cl.", "n", "Sy med", "Sy Q25", "Sy Q75", "Int. corr."],
+        "columns": [
+            {"col": "Well", "fmt": "text", "case": "upper"},
+            {"fmt": "template", "template": "C{Cluster}"},
+            {"col": "n_events", "fmt": "int"},
+            {"col": "Sy_median", "fmt": "fixed", "dp": 3},
+            {"col": "Sy_Q25", "fmt": "fixed", "dp": 3},
+            {"col": "Sy_Q75", "fmt": "fixed", "dp": 3},
+            {"col": "Corrected", "fmt": "map", "map": {"True": "Yes", "False": ""}},
+        ],
+    },
+    # ── 2026-09-26: Supplementary Material Table S2.1 (Script 03 cluster coefficients; number sweep) ─
+    {
+        "id": "sm/TableS21",
+        "doc": "docs/report/Supplementary_Material_v*.odt",
+        "table_name": "Table2",
+        "caption": "Table S2.1 — cluster SSM coefficients with geological context (Script 03)",
+        "sources": {"t": "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv"},
+        "rows": {"source": "t"},
+        "header": ["Cluster", "Label", "β₁", "β₂", "β₃", "Geological context"],
+        "columns": [
+            {"fmt": "template", "template": "C{Cluster}"},
+            {"col": "Cluster_Label", "fmt": "text", "re": [r"^C\d \((.*)\)$", r"\1"]},
+            {"col": "beta_1_recharge", "fmt": "fixed", "dp": 3},
+            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 3},
+            {"col": "beta_3_drainage", "fmt": "fixed", "dp": 3},
+            # the geological context is prose, keyed on the cluster, not a pipeline value
+            {"col": "Cluster", "fmt": "map", "map": {"1": "Shallow till/estuarine substrate (NH1, NH2 boreholes: 6.5 m); rapid lake exchange", "2": "Shallow till substrate consistent with C1; mature open dune", "3": "Deep aeolian sand; Water borehole ≥12.8 m; DEM ridge geometry", "4": "Same deep sand substrate as C3; low β₁ reflects 24% canopy interception", "5": "Pine canopy on coastal sand; geomorphological thinning toward Menai Strait"}},
+        ],
+    },
+    # ── 2026-09-26: Supplementary Material Table S7.2 (Script 26 Pass 7b; T-57, D-189) ─
+    {
+        "id": "sm/TableS72",
+        "doc": "docs/report/Supplementary_Material_v*.odt",
+        "table_name": "TableS72",
+        "caption": "Table S7.2 — datum offsets of the van Willegen quadrats against their dipwells (Script 26)",
+        "sources": {"t": "outputs/26_van_willegen_msl/26_table_s7_2_vw_datum_offsets.csv"},
+        # the file ends with its caption as a comment row, which csv reads as a record
+        "rows": {"source": "t", "filter": {"Cluster": ["C1 (Lake Edge)", "C2 (Dune)",
+                 "C3 (Western Residual)", "C4 (Main Forest)", "C5 (Coastal Forest)", "Extended"]}},
+        "header": ["Quadrat", "Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)"],
+        "columns": [{"col": c, "fmt": "text"} for c in
+                    ["Quadrat", "Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)"]],
     },
     # ── 2026-09-22: Supplementary Material Table S8.2 (Script 25_08) ──────────
     # The SM had no generated tables; this one had been hand-typed from an

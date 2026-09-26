@@ -117,7 +117,9 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.5.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "3.6.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+#   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
+# v3.5.0  # Hollingham (2026) - 2026-09-11.
 #   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
 #   gpd.read_file is a machine-dependent call, and fiona 1.10 dropping KML
 #   from supported_drivers broke Script 41 on the publishing machine while
@@ -169,6 +171,7 @@ from utils.paths import (
     OUT_25_FIT_PARAMETERS,
 )
 from utils.config import CLUSTER_LABELS, CLUSTER_MARKERS
+from utils.config import DAYS_PER_MONTH
 from utils.clearfell_common import CLEARFELL_DATE
 from utils.map_utils import (
     load_dem_hillshade, add_idw_surface, add_en_axes, add_kml_features,
@@ -193,7 +196,6 @@ OUT_RESULTS         = paths.OUT_37_RESULTS
 # Constants
 # ---------------------------------------------------------------------------
 SCRIPT_ID      = "37"
-DAYS_PER_MONTH = 30.4375
 
 # Regression windows and the regressors each uses. Date bounds mirror
 # config.ACT_PERIODS; T_years is used only for the results-table label.

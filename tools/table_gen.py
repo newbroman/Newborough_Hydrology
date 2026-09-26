@@ -54,7 +54,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-05. The cell parser
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-26. A column spec may carry
+#   "case": "upper", applied after "re": 18_wtf_01_well_sy_estimates.csv writes well ids
+#   in mixed case (ceh11, D10) and Supplementary Table S4.1 prints them upper-case.
+# 1.10.0  # Hollingham (2026) — 2026-09-05. The cell parser
 #   (_SPAN_P) accepts a paragraph carrying inert inline markers — a self-closing
 #   <text:bookmark/> anchoring a section (Paper 2 Table 1 n cell) — alongside
 #   text and spans; markers are preserved in place and the tag-sequence guard
@@ -331,6 +334,8 @@ def render(spec: dict, row: dict, sources: dict) -> str:
             pairs = [pairs]
         for pat, rep in pairs:
             text = re.sub(pat, rep, text)
+    if spec.get("case") == "upper":       # well ids are mixed-case in some sources
+        text = text.upper()
     return text
 
 

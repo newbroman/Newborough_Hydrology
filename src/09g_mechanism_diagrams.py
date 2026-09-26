@@ -45,9 +45,8 @@ Data sources (all on `main`)
       — row 0: edge amplitudes per driver (standing pine, coastal 5-yr/storm,
         scrape cut rise, thinned); full columns: the coastal 20-yr decay
         (= (20/5) x |coastal_5yr(d)|). No crossing is read or computed.
-  outputs/10_clearfell_baci/10m_report_numbers.csv
-      — WMC3_BACI_DiD_step_2015_scraping: the one measured off-cut drawdown
-        (-55 mm; reproducible -54 mm in 2023).
+  outputs/09_scraping_intervention/09b_01_individual_well_baci.csv
+      — the WMC3 distance at which the modelled off-cut drawdown is read from 09f_01.
   outputs/10_clearfell_baci/10a_report_numbers.csv
       — clearfell BACI steps (annual + summer) for the grid magnitude line.
 
@@ -73,7 +72,10 @@ HANDOVER_mechanism_figs_to_pipeline_2026-07-17 (signed-off design).
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-08-21. Two reach-panel render
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-26. T-88 / D-200: the scrape
+#   off-cut is the MODELLED drain cone at the WMC3 distance (mechanism_fig_utils 1.12.0),
+#   not the raw WMC3 step; labels and the input list say so. No other change.
+# v1.7.0  # Hollingham (2026) — 2026-08-21. Two reach-panel render
 #   defects Martin found in the regenerated figures, both fixed in
 #   mechanism_fig_utils v1.11.0: the storm and 5-yr water-table curves ran above
 #   the drawn dune surface between roughly 80 m and 250 m (a head drawn as
@@ -154,7 +156,7 @@ def _print_numeric_checks(reach):
     info(f"scrape pool level {pool:.1f} ({_at(wt_before, seaward_c) - pool:+.1f} px vs seaward "
          f"slack — measured {M.EDGE_DH_MM['scrape_cut_rise']:+.0f} mm rise, drawn capped in-slack); "
          f"span {pool_l:.0f}\u2013{pool_r:.0f}")
-    info(f"  off-cut drawdown (measured WMC3 {M.EDGE_DH_MM['scrape_offslack']:.0f} mm = "
+    info(f"  off-cut drawdown (modelled cone at the WMC3 distance, {M.EDGE_DH_MM['scrape_offslack']:.0f} mm = "
          f"{M.mm_px(M.EDGE_DH_MM['scrape_offslack']):.1f} px, localised near-field); "
          f"inland slack after {_at(wt_scrape, inland_c):.1f} "
          f"({'DRY' if _at(wt_scrape, inland_c) > inland_floor else 'still wet'}, "

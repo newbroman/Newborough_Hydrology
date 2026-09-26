@@ -7,8 +7,8 @@ Consolidates the locked dev generators (2026-07-17 sign-off) into one pipeline m
     dune_fig_common.py   (v0.4.0)  chained short-Dupuit-segment solver + shared profile +
                                    09f amplitude scale + SVG helpers
     gen_coast_seg3.py               coastal retreat cell geometry (retreat states + ghosting)
-    gen_scrape.py        (v0.3.0)  scrape after-table (pool marginally higher, measured
-                                   WMC3 off-cut, NO network-wide cone)
+    gen_scrape.py        (v0.3.0)  scrape after-table (pool marginally higher, modelled
+                                   near-field off-cut, NO network-wide cone)
     gen_forest.py        (v0.1.0)  forest / clearfell tables + trees
     gen_climate.py       (v0.2.0)  uniform signed offset (continuous Dupuit, pond-only fill)
     gen_grid.py          (v0.8.0)  cell compositing helpers + grid layout
@@ -26,8 +26,9 @@ PHYSICAL amplitudes are read LIVE from committed CSVs (no hardcoded amplitudes):
         coastal 5-yr/storm, scrape cut rise, thinned), and the full reach columns
         for the coastal reach panel (coastal 20-yr decay =
         (MECHANISM_HORIZON_YEARS / COAST_CHRONIC_YEARS) x |coastal_5yr(d)|).
-    10m_report_numbers.csv — WMC3_BACI_DiD_step_2015_scraping: the ONE measured
-        off-cut drawdown point (-55 mm; reproducible -54 mm in 2023).
+    09f_01_reach_profile.csv scrape_head_mm at the 09b WMC3 distance — the MODELLED
+        near-field off-cut drawdown (scrape_cone_at_wmc3_mm). Before 1.12.0 this was the
+        raw WMC3 BACI step, drawn as measured; D-200 found it within the record's noise.
     10a_report_numbers.csv — clearfell BACI steps (annual + summer) for the grid's
         clearfell magnitude line.
 
@@ -56,8 +57,12 @@ printed checks) and writes the outputs via paths.py.
 """
 from __future__ import annotations
 
-__version__ = "1.11.2"
+__version__ = "1.12.0"
 # CHANGELOG
+#   1.12.0 (2026-09-26, T-88 / D-200): the scrape off-cut drawdown is the MODELLED drain
+#       cone at the WMC3 distance (scrape_cone_at_wmc3_mm(), 09f_01 interpolated at the
+#       09b distance), not the raw WMC3 BACI step, which is within the record's noise.
+#       The grid's scrape magnitude line says cut observed, off-cut modelled.
 #   1.11.2 (2026-09-07): EDGE_DH_MM is initialised with default_value(...,
 #       record=False) — it is a placeholder table that load_amplitudes()
 #       resolves from 09f_01 / 10m before any use — and the two genuine
@@ -152,7 +157,7 @@ import pandas as pd
 
 from utils.console_utils import info, warn
 from utils.pipeline_params import default_value, note_fallback
-from utils.paths import OUT_09F_REACH_CSV, OUT_10M_REPORT, OUT_10A_REPORT
+from utils.paths import OUT_09F_REACH_CSV, OUT_09B_INDIVIDUAL, OUT_10A_REPORT
 from utils.config import (
     MECHANISM_HORIZON_YEARS, COAST_CHRONIC_YEARS,
     MECH_FIG_PX_PER_MM, MECH_FIG_PROFILE_GX, MECH_FIG_PROFILE_GY,
@@ -236,7 +241,7 @@ _EDGE_FALLBACK_KEYS = {          # EDGE_DH_MM key -> pipeline_params._DEFAULTS k
     'scrape_cut_rise': 'mech_scrape_cut_rise_mm',
     'thinned':         'mech_thinned_mm',
     'coastal_storm':   'mech_coastal_storm_mm',
-    'scrape_offslack': 'wmc3_drawdown_mm',       # measured WMC3 off-cut (shared with 09f)
+    'scrape_offslack': 'scrape_cone_at_wmc3_mm', # modelled cone at the WMC3 distance (shared with 37b)
 }
 _09F_COLMAP = {                  # EDGE_DH_MM key -> 09f_01 column (row 0 = distance 0)
     'forest_standing': 'standing_pine_head_mm',
@@ -250,8 +255,30 @@ _09F_COLMAP = {                  # EDGE_DH_MM key -> 09f_01 column (row 0 = dist
 EDGE_DH_MM = {k: float(default_value(v, record=False)) for k, v in _EDGE_FALLBACK_KEYS.items()}  # placeholders; load_amplitudes() resolves
 
 
+def scrape_cone_at_wmc3_mm() -> tuple:
+    """The MODELLED drain-cone head (mm, negative) at the nearest uphill long-record
+    well's distance from CEH36, and that distance (m): 09f_01_reach_profile.csv
+    scrape_head_mm interpolated at the 09b_01 WMC3 dist_m. Falls back to the documented
+    first-pass defaults with a warning when either CSV is absent (partial run).
+    Shared by the 09g mechanism diagrams and Script 37b's peak currency (T-88)."""
+    try:
+        b = pd.read_csv(OUT_09B_INDIVIDUAL)
+        d = float(b.loc[b["well"].astype(str).str.lower() == "wmc3", "dist_m"].iloc[0])
+    except (FileNotFoundError, KeyError, IndexError):
+        d = float(default_value("wmc3_distance_m"))
+        warn(f"09b_01 unavailable — WMC3 distance from default {d:.0f} m")
+    try:
+        r = pd.read_csv(OUT_09F_REACH_CSV)
+        v = float(np.interp(d, r["distance_m"], r["scrape_head_mm"]))
+    except (FileNotFoundError, KeyError, IndexError):
+        v = float(default_value("scrape_cone_at_wmc3_mm"))
+        warn(f"09f_01 unavailable — modelled cone at WMC3 from default {v:.1f} mm")
+    return v, d
+
+
 def load_amplitudes():
-    """Resolve EDGE_DH_MM from the committed CSVs (09f_01 row 0 + 10m WMC3).
+    """Resolve EDGE_DH_MM from the committed CSVs (09f_01 row 0, and the 09f_01 cone at
+    the WMC3 distance for the off-cut).
 
     Falls back to pipeline_params defaults with a warning where a CSV is absent
     (partial/interrupted run — 09g normally runs after 09f in the same pass).
@@ -267,15 +294,9 @@ def load_amplitudes():
              "amplitudes from first-pass defaults (run Script 09f for live values).")
         for k in _09F_COLMAP:
             note_fallback(_EDGE_FALLBACK_KEYS[k], source="mechanism_fig_utils.load_amplitudes")
-    try:
-        df = pd.read_csv(OUT_10M_REPORT)
-        v = float(df.loc[df["Parameter"] == "WMC3_BACI_DiD_step_2015_scraping", "Value"].iloc[0])
-        EDGE_DH_MM['scrape_offslack'] = v * 1000.0   # m -> mm
-        info(f"scrape_offslack = {EDGE_DH_MM['scrape_offslack']:.1f} mm (measured WMC3 BACI, 10m)")
-    except (FileNotFoundError, KeyError, IndexError):
-        note_fallback(_EDGE_FALLBACK_KEYS['scrape_offslack'], source="mechanism_fig_utils.load_amplitudes")
-        warn(f"10m_report_numbers.csv unavailable — scrape off-cut from default "
-             f"{EDGE_DH_MM['scrape_offslack']:.1f} mm (measured WMC3; run Script 10m for live).")
+    v, d = scrape_cone_at_wmc3_mm()
+    EDGE_DH_MM['scrape_offslack'] = v
+    info(f"scrape_offslack = {v:.1f} mm (modelled drain cone at the WMC3 distance, {d:.0f} m)")
     return dict(EDGE_DH_MM)
 
 
@@ -536,11 +557,11 @@ def forest_trees(yoff, felled=False):
 # Mechanism (corrected, SCRAPING_EFFECTS_KNOWLEDGE.md): the phreatic surface does NOT move on
 # excavation — the cut meets the water table and becomes a pool. The measured, robust effects:
 # a RISE at the cut (CEH36 BACI vs CEH4 — the headward cut reaches ground where the
-# regional inland-rising head is naturally HIGHER, not an excavation lift) and the MEASURED
-# WMC3 near-field off-cut drawdown (reproducible BACI DiD; both magnitudes are read
-# live from 09f_01_reach_profile.csv / 10m, with first-pass fallbacks in
-# pipeline_params._DEFAULTS). There
-# is NO evidenced network-wide drawdown cone; the off-cut signal is localised near-field only.
+# regional inland-rising head is naturally HIGHER, not an excavation lift). The near-field
+# off-cut drawdown is the MODELLED drain cone at the WMC3 distance (both magnitudes read
+# live from 09f_01_reach_profile.csv, with first-pass fallbacks in
+# pipeline_params._DEFAULTS); the raw WMC3 step is not resolved from noise (D-200).
+# There is NO evidenced drawdown cone, near-field or network-wide.
 CUT_SEAWARD  = 204.0             # seaward edge of the excavated floor
 CUT_HEADWARD = 335.0             # bite into the LANDWARD EDGE of the seaward slack
 CUT_FLOOR    = 221.0             # excavated floor (below pool level -> shallow wet pool)
@@ -568,7 +589,7 @@ def scrape_pool_level():
 
 def scrape_build_after_table():
     """After scraping: pool at the (marginally higher) fixed head across the submerged cut;
-    off the cut, the MEASURED WMC3 near-field drawdown (localised, tapering) brings the
+    off the cut, the MODELLED near-field drawdown (localised, tapering) brings the
     inland slack toward — not below — its floor. Returns (wt, (pool_l, pool_r)).
 
     The head MEETS the pond surface at both edges. Stamping the pool flat and leaving the
@@ -661,7 +682,7 @@ def geo_coastal_after():
     return "".join(p)
 
 def geo_scrape_after():
-    """pool at the (marginally higher) fixed head, headward cut, measured WMC3 off-cut."""
+    """pool at the (marginally higher) fixed head, headward cut, modelled near-field off-cut."""
     wt_before = segmented(110.0, 78.0, nudge_seg2=True)[0]
     wt_after, _ = scrape_build_after_table()
     return (sea(250, 110)
@@ -1316,12 +1337,12 @@ def build_grid_combined_svg(reach, clearfell):
     cf_a, cf_ap, cf_s, cf_sp = clearfell
     cut = EDGE_DH_MM['scrape_cut_rise']
     offc = EDGE_DH_MM['scrape_offslack']
-    mag_scrape = (f'cut {cut:+.0f} mm \u00b7 off-cut {offc:.0f} mm (WMC3) \u00b7 both measured')
+    mag_scrape = (f'cut {cut:+.0f} mm observed \u00b7 off-cut {offc:.0f} mm modelled')
     mag_fell = (f'{cf_a:+.2f} m over the year ({cf_ap}) \u00b7 '
                 f'{cf_s:+.2f} m summer ({cf_sp})')
     # row 2 \u2014 local interventions (scrape under undisturbed | clearfell under standing
     # forest). Built here, before the title, because the title counts them.
-    locals_ = [('Dune scrape', geo_scrape_after, mag_scrape, 'settles', 'observed'),
+    locals_ = [('Dune scrape', geo_scrape_after, mag_scrape, 'settles', 'observed + modelled'),
                ('Clearfell', lambda: geo_forest(True), mag_fell, 'settles', 'observed')]
     n_drivers = len(locals_) + len(REACH_DRIVERS)
     s = [f'<svg width="{GRID_W}" height="{GRID_H:.0f}" viewBox="0 0 {GRID_W} {GRID_H:.0f}" '

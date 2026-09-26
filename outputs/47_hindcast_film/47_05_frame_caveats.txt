@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.3.0
+# Frame text — 47_hindcast_film.py 1.4.0
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -42,9 +42,7 @@ BLUE is open water: pools you could see from the air.
 The outline on the map is the study area — 307 hectares of slack floor within the warren. Everything the film says is about the ground inside it. Blank ground outside the outline was not assessed; it is not a claim that it was dry.
 The title gives the total of each across the study area, in hectares (a hectare is a little larger than a rugby pitch).
 The line at the bottom is the water table — how far below or above the ground the groundwater sits, averaged over the reserve's monitoring wells. The red marker is where the film has got to. The clock runs at a year a second.
-
-### How it was made: three things joined together
-The film joins a groundwater model, satellite pictures and a map of where the water goes. The slides that follow take them in turn, each beside the report figures that calibrate and test it.
+The slides that follow show how it was made: a groundwater model, satellite pictures and a map of where the water goes, joined together, each beside the report figures that calibrate and test it.
 
 ### 1.  A weather-driven groundwater model
 [figure] 00_01_climate_timeseries_short.png
@@ -89,6 +87,13 @@ In the pictures the flooded slack floors are the dark patches between the pale d
 This is an illustration, not a test. Where the colours appear was learned from these same pictures, so some of the likeness is built in. The independent test is the check two slides back, where the satellite takes no part in the model.
 [footer] Contains modified Copernicus Sentinel data 2019, 2021
 
+### What you hear
+The sound is made from the water, month by month. Nothing in it is recorded.
+A soft chord runs throughout. While the months play, its upper voices open as the water table rises, and in the months beyond the record it trembles.
+Each January a single note marks the year. The higher and louder the note, the more open water that year reached.
+The surf swells with the wet area, wet floor and open water together, and leans toward where the wetting is: right for the east of the warren, left for the west.
+Held notes sound while the water table is above the lines on the chart at the bottom: one above the yellow line, where wet floor appears; a higher one above the blue line, where open water appears; and the highest above the 2021 flood.
+
 ### Please read this before watching
 It is today's warren, not the warren of the time. The rules were learned from 2005–2026 and the ground is the 2023 survey, with Newborough Forest at its present size. The forest was only planted between 1947 and 1965, and a forest lowers the water table around it. In 1939 there was no forest. The film answers a what-if — what would the reserve as it is now have done under that weather — not what actually happened.
 The map covers the warren study area only; blank outside it means not assessed, not dry.
@@ -99,11 +104,6 @@ The wettest spring on record was 2021. In some months — 1939, 1959, 1961–62 
 No picture has seen the warren like that. So those months are marked BEYOND THE RECORD, the totals are the curves run past the end of the data, and the rest of the slack floor turns PALE ORANGE: wetter than anything on record, where exactly we cannot say.
 The honest claim for those winters is that they were bigger than 2021, nothing finer.
 
-### And a little more
-It is not a flood map. The squares are 10 m across; narrow margins, small pools and thin sheets over grass are invisible at that size — roughly a third of the water in a big flood. The moment a square lights is known only to within five or ten centimetres of water table.
-The model's mistakes carry through. Even corrected to the wells, it reproduces the measured water table to about twenty centimetres, and it still runs about ten centimetres low in the wettest months. A ten-centimetre error changes the open-water area by about half, because pools appear suddenly once the water nears the surface. Yellow is the steadier colour, good to about 15 %; blue is right to within a factor of 2.1. The first two years are the model settling from its starting guess.
-Winter rules all year. The curves come from November-to-March pictures; summer months show what the water table would imply, not what a summer photograph would show.
-
 ## SLIDES AFTER THE FILM
 
 ### What the film says, cautions attached
@@ -112,9 +112,15 @@ The winters of 1961–62 and 2000–01 stand out as the two great floods of the 
 The 1970s and 1990s were the dry decades, with almost no open water in an average winter.
 All of it is the model's account of what the weather would do to the reserve as it stands today.
 
+### And a little more
+It is not a flood map. The squares are 10 m across; narrow margins, small pools and thin sheets over grass are invisible at that size — roughly a third of the water in a big flood. The moment a square lights is known only to within five or ten centimetres of water table.
+The model's mistakes carry through. Even corrected to the wells, it reproduces the measured water table to about twenty centimetres, and it still runs about ten centimetres low in the wettest months. A ten-centimetre error changes the open-water area by about half, because pools appear suddenly once the water nears the surface. Yellow is the steadier colour, good to about 15 %; blue is right to within a factor of 2.1. The first two years are the model settling from its starting guess.
+Winter rules all year. The curves come from November-to-March pictures; summer months show what the water table would imply, not what a summer photograph would show.
+
 ### Credits and sources
 Newborough Warren hydrology study, 2026 — Martin Hollingham.
 Weather: RAF Valley monthly record, 1930–2026. Water table: the reserve's dipwell network, 2005–2026. Ground: 2023 survey.
 Imagery: Copernicus Sentinel-2, 2016–2026, free and open under the Copernicus licence. Contains modified Copernicus Sentinel data 2019, 2020, 2021, 2023.
 Model, code and data: github.com/newbroman/Newborough_Hydrology. The method is recorded as decision D-178; the full written guide accompanies this film.
+Sound: synthesised by the film's own code from the modelled water table and areas; no recordings.
 

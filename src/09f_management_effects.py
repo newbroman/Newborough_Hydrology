@@ -21,8 +21,9 @@ cross-cluster chart (09b_05) do not show on their face:
   quantity every one of them rested on is not separately identified (D-039).
   The distance axis runs to the fitted reach L, marked by the L rule — the
   reason it extends past the interventions' λ decay.
-  The single measured off-site scrape point (WMC3) is anchored on the curve; the
-  wider scrape and coastal fields are modelled scenarios.
+  WMC3's raw 2015 scraping step is shown at its distance as a hollow marker with its
+  ±1 SE bar, labelled as not resolved (D-200): no off-site scrape effect is measured,
+  and the scrape and coastal fields are modelled scenarios.
 
   Panel (b) — DEVELOPMENT TIMESCALE. How long each driver takes to develop, on a
   dimensionless %-of-eventual-effect axis chosen so it COMPOSES with panel (a)
@@ -50,10 +51,10 @@ Data sources (all on `main`)
   outputs/10_clearfell_baci/10a_report_numbers.csv
       — measured clearfell BACI step (panel (a) r≈0 anchor; panel (b) anchor).
   outputs/10_clearfell_baci/10m_report_numbers.csv
-      — WMC3_BACI_DiD_step_2015_scraping: the measured off-cut drawdown at the
-        one evidenced off-site point (panel (a) WMC3 anchor).
+      — WMC3_BACI_DiD_step_2015_scraping and its _se: the raw WMC3 step and its
+        standard error, drawn as an unresolved hollow marker (D-200).
   outputs/09_scraping_intervention/09b_01_individual_well_baci.csv
-      — WMC3 dist_m (CEH36 → WMC3 separation) for the WMC3 anchor's x-position.
+      — WMC3 dist_m (CEH36 → WMC3 separation) for the marker's x-position.
   outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv
       — forest/C3 β₃ (panel (b) relaxation half-lives).
 
@@ -71,12 +72,18 @@ fields.
 References
 ----------
 Hollingham (2026), §4.5, §4.6.3, §4.9.3, §4.8.2, §5.4.1, §5.4.3, §5.8.
-Companion to 09b/09d. PROJECT_NOTE scraping off-site drawdown measured
-(2026-07-17) for the WMC3 measured / wider-cone-modelled framing.
+Companion to 09b/09d. The 2026-07-17 "WMC3 measured / wider cone modelled" framing
+is retired by D-200 (T-88): the raw WMC3 step is within the record's noise.
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-08-19. D-043: the far-field
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-26. T-88 / D-200: panel (a)'s
+#   WMC3 point is no longer a filled "measured off-cut drawdown". It is a hollow diamond
+#   with a ±1 SE bar from Script 10m (the 2015 step and its _se row), labelled "WMC3 raw
+#   step (not resolved)"; the modelled dipole at that distance lies inside the bar.
+#   _load_wmc3_drawdown() -> _load_wmc3_raw_step() returns (step, se); fallbacks
+#   wmc3_raw_step_mm / wmc3_raw_step_se_mm (pipeline_params 1.14.0).
+# v1.9.0  # Hollingham (2026) — 2026-08-19. D-043: the far-field
 #   band of v1.8.0 is WITHDRAWN. Panel (a) is five distance-decay curves plus
 #   the measured anchors and the reach-L rule — the 2026-07-02 signed-off
 #   design, restored rather than newly decided. Removed: the axhspan band, its
@@ -226,26 +233,25 @@ def _load_coast_edge_rate():
         return d0, d0, d0, L
 
 
-def _load_wmc3_drawdown():
-    """Measured WMC3 off-cut drawdown (mm, negative) — the one evidenced
-    off-site scrape-drainage point.
+def _load_wmc3_raw_step():
+    """The raw WMC3 2015 scraping step and its standard error (mm) from Script 10m.
 
-    Live from Script 10m (10m_report_numbers.csv), the 2015-scrape BACI
-    difference-in-differences step (reproduced at the 2023 re-scrape: -54 mm),
-    converted m -> mm. Falls back to the documented default on a first-pass run
-    before Script 10m has executed.
+    The raw difference-in-differences step of the WMC3-minus-forest-control gap at the
+    2015 CEH36 scrape, and its Newey-West SE. It is NOT a measured drawdown: it lies
+    within one SE of zero (D-200), and it is drawn as such. Falls back to the documented
+    defaults on a first-pass run before Script 10m has executed.
     """
     try:
         df = pd.read_csv(OUT_10M_REPORT)
-        key = df.iloc[:, 0].astype(str)
-        row = df[key == "WMC3_BACI_DiD_step_2015_scraping"]
-        val_col = df.columns[3]   # numeric Value column
-        return float(row[val_col].iloc[0]) * 1000.0
+        par = df["Parameter"].astype(str)
+        v = float(df.loc[par == "WMC3_BACI_DiD_step_2015_scraping", "Value"].iloc[0]) * 1000.0
+        se = float(df.loc[par == "WMC3_BACI_DiD_step_2015_scraping_se", "Value"].iloc[0]) * 1000.0
+        return v, se
     except (FileNotFoundError, KeyError, IndexError):
-        v = default_value("wmc3_drawdown_mm")
-        warn(f"10m_report_numbers.csv unavailable — using default WMC3 "
-             f"drawdown = {v:.0f} mm (run Script 10m for the live value).")
-        return float(v)
+        v, se = default_value("wmc3_raw_step_mm"), default_value("wmc3_raw_step_se_mm")
+        warn(f"10m_report_numbers.csv unavailable — WMC3 raw step from defaults "
+             f"({v:.0f} ± {se:.0f} mm; run Script 10m for the live values).")
+        return float(v), float(se)
 
 
 def _load_wmc3_distance():
@@ -324,15 +330,14 @@ def _coastal_retreat_edge_head(delta0_abs, L):
 def _plot_reach(ax, lam, forest_h0_mm, scrape,
                 coast_edge_head_6m, coast_L, coast_edge_head_5yr,
                 scrape_edge_head,
-                wmc3_dist_m, wmc3_drawdown_mm, clearfell_measured_mm=120.0):
+                wmc3_dist_m, wmc3_step_mm, wmc3_se_mm, clearfell_measured_mm=120.0):
     """Distance-decay of scrape dipole, forest drawdown and TWO coastal curves
-    on a single continuous y-axis, with the one measured off-site scrape point
-    (WMC3) anchored on the reach.
+    on a single continuous y-axis, with WMC3's raw scraping step shown, with its
+    ±1 SE, as an unresolved point (D-200).
 
     Curves:
       - Scrape drain (dipole): exp decay over λ; edge = measured CEH36 response.
-        This is the wider MODELLED cone; the single measured off-site point is
-        WMC3 (below), NOT a network-wide measured halo.
+        This is the MODELLED cone; no off-site scrape effect is measured (D-200).
       - Standing pine / thinned forest: canopy drawdown, exp decay over λ.
       - Coastal retreat, 6 m acute storm: single Storm-Brendan-class EVENT,
         linear-capped to zero at L (Script 20 form, ÷ storm-inclusive rate).
@@ -346,8 +351,8 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
     be quoted, its source is 25_11_matched_window_sensitivity.csv.
 
     Measured anchors (distinct from the modelled curves): scrape CEH36 rise and
-    forest/clearfell drawdown at r≈0, and the WMC3 off-cut drawdown at its
-    measured distance — the ONE evidenced off-site point.
+    forest/clearfell drawdown at r≈0. WMC3's raw step is plotted hollow with its
+    error bar, which spans zero: it neither confirms nor contradicts the dipole.
     """
     # The reach axis runs well past the interventions' λ decay so the fitted
     # coastal reach L — marked by the L rule below, read live from 25_01 — sits
@@ -391,12 +396,13 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
                 color="#14401f",
                 arrowprops=dict(arrowstyle="->", color="#1b5e2a", lw=0.9))
 
-    # WMC3 — the ONE measured off-site drawdown point (below the modelled dipole)
-    ax.scatter([wmc3_dist_m], [wmc3_drawdown_mm], s=80, marker="D",
-               color="#c1272d", edgecolor="k", zorder=6, linewidth=0.9)
-    ax.annotate(f"WMC3 off-cut drawdown\n({wmc3_drawdown_mm:.0f} mm, measured, "
-                f"{wmc3_dist_m:.0f} m)",
-                xy=(wmc3_dist_m, wmc3_drawdown_mm),
+    # WMC3's raw 2015 step with its ±1 SE: hollow, because it is not resolved (D-200)
+    ax.errorbar([wmc3_dist_m], [wmc3_step_mm], yerr=[wmc3_se_mm], fmt="D", ms=8,
+                mfc="white", mec="#c1272d", mew=1.3, ecolor="#c1272d", elinewidth=1.1,
+                capsize=4, zorder=6)
+    ax.annotate(f"WMC3 raw step, {wmc3_dist_m:.0f} m\n"
+                f"({wmc3_step_mm:.0f} \u00b1 {wmc3_se_mm:.0f} mm, not resolved)",
+                xy=(wmc3_dist_m, wmc3_step_mm),
                 xytext=(wmc3_dist_m + 45, -112), fontsize=7.5, color="#7a1a1e",
                 arrowprops=dict(arrowstyle="->", color="#c1272d", lw=0.9))
 
@@ -561,8 +567,8 @@ def main():
     # driver-change coastal field (config.COAST_CHRONIC_YEARS, shared).
     coast_edge_5yr = COAST_CHRONIC_YEARS * abs(coast_d0)
 
-    # the measured WMC3 off-site anchor
-    wmc3_drawdown = _load_wmc3_drawdown()
+    # WMC3's raw scraping step and its SE (not resolved; D-200)
+    wmc3_step, wmc3_se = _load_wmc3_raw_step()
     wmc3_dist = _load_wmc3_distance()
 
     b3_fast, b3_slow, thalf_fast, thalf_slow = _load_forest_beta3_range()
@@ -573,14 +579,14 @@ def main():
     info(f"clearfell recovery = {clearfell_recovery_mm:.1f} mm")
     info(f"coast-edge \u03b4\u2080 = {coast_d0:.1f} mm/yr (CI {coast_lo:.1f}, {coast_hi:.1f}), L = {coast_L:.0f} m")
     info(f"coastal 6 m storm edge = {coast_edge_6m:.1f} mm; 5-year (5\u00d7\u03b4\u2080) edge = {coast_edge_5yr:.1f} mm")
-    info(f"WMC3 measured off-cut drawdown = {wmc3_drawdown:.1f} mm at {wmc3_dist:.0f} m")
+    info(f"WMC3 raw 2015 step = {wmc3_step:.1f} \u00b1 {wmc3_se:.1f} mm at {wmc3_dist:.0f} m (not resolved)")
     info(f"forest t\u00bd (C4\u2013C5) = {thalf_slow:.0f}\u2013{thalf_fast:.0f} mo; C3 t\u00bd = {thalf_c3:.0f} mo")
 
     phase(2, "Plotting reach + timescale figure (stacked)")
     fig, (axA, axB) = plt.subplots(2, 1, figsize=(9.4, 12.2), dpi=300)
     _plot_reach(axA, lam, forest_h0, scrape,
                 coast_edge_6m, coast_L, coast_edge_5yr, scrape_edge_head,
-                wmc3_dist, wmc3_drawdown,
+                wmc3_dist, wmc3_step, wmc3_se,
                 clearfell_measured_mm=clearfell_recovery_mm)
     _plot_timescale(axB, forest_h0, clearfell_recovery_mm,
                     thalf_fast, thalf_slow, thalf_c3)

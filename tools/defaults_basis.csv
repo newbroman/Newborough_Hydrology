@@ -15,7 +15,9 @@ ceh36_scrape_response_m,OUT_09_BACI_SHIFTS,Well=CEH36;Shift=Pure_Scraping,Delta_
 uniform_residual_mm_yr,OUT_25_CLUSTER_PARTITION,,,,derived,"mean over the open-dune clusters of (balanced observed decline - modelled coastal gradient); computed in 37b_driver_footing.py, not a single cell"
 coast_retreat_rate_m_yr,OUT_40_EPOCH_SERIES,basis=modern_common_frontage;from_epoch=2006;to_epoch=2026,rate_m_yr,1.0,cell,measured shoreline retreat rate E_c (D-091)
 climate_c_mm_yr,OUT_25_FIT_PARAMETERS,source=forest_free;model=linear_capped,c_mm_yr,1.0,cell,far-field asymptote; NOT a climate background (D-039)
-wmc3_drawdown_mm,OUT_10M_REPORT,Parameter=WMC3_BACI_DiD_step_2015_scraping,Value,1000.0,cell,measured off-cut drawdown; CSV stores metres
+wmc3_raw_step_mm,OUT_10M_REPORT,Parameter=WMC3_BACI_DiD_step_2015_scraping,Value,1000.0,cell,raw WMC3 step (not resolved; D-200)
+wmc3_raw_step_se_mm,OUT_10M_REPORT,Parameter=WMC3_BACI_DiD_step_2015_scraping_se,Value,1000.0,cell,its Newey-West SE
+scrape_cone_at_wmc3_mm,,,,,derived,09f_01 scrape_head_mm interpolated at the 09b WMC3 distance (mechanism_fig_utils.scrape_cone_at_wmc3_mm)
 wmc3_distance_m,OUT_09B_INDIVIDUAL,well=wmc3,dist_m,1.0,cell,CEH36 to WMC3 separation
 mech_forest_standing_mm,OUT_09F_REACH_CSV,#0,standing_pine_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0
 mech_coastal_5yr_mm,OUT_09F_REACH_CSV,#0,coastal_5yr_head_mm,1.0,cell,mechanism-diagram edge amplitude at distance 0

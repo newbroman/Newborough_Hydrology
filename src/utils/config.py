@@ -40,7 +40,9 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.63.0"  # Hollingham (2026) - 2026-09-26. D-201: SD15b_WINTER 0.10 -> -0.21, Curreli
+__version__ = "1.64.0"  # Hollingham (2026) - 2026-09-26. D-202: EXTREMES_ROBUSTNESS_START, the first
+#   hydrological year of Script 14's robustness trend basis (2011, the clearfell precedent).
+# 1.63.0  # Hollingham (2026) - 2026-09-26. D-201: SD15b_WINTER 0.10 -> -0.21, Curreli
 #   et al. 2013 Table 4's SD15b average maximum (+0.21 m ABOVE ground; negative here because the
 #   thresholds are depths, positive downward). The 0.10 had no source: Davy (2010) Table 6.3's
 #   SD15 winter maximum is +2 to +10 cm above ground, so 0.10 below ground was that bound with
@@ -1157,6 +1159,10 @@ SD16_REC  = 1.20   # m — dry slack recovery / excavation limit  # source: proj
 # these for its head axis (positive up).
 SD15b_WINTER = -0.21  # m — winter flooding level for wet slack  # source: Curreli et al. 2013 Table 4, SD15b (core, n=15) average maximum water level +0.21 m above ground, a 4-yr community MEAN (range +0.12 to +0.29) (D-201)
 SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack  # source: Curreli et al. 2013 Table 4, SD16 (core, n=14) average maximum water level -0.25 m, a 4-yr community MEAN (range -0.82 to -0.02)
+# Script 14 fits its cluster trends on a fixed-effects cluster series (each well its own level,
+# D-202) over the full record, and repeats every fit from this hydrological year as robustness:
+# 2011 is the first full year clear of the 2010 install ramp (clearfell_common PRE_FELL_START).
+EXTREMES_ROBUSTNESS_START = 2011
 
 # ── Ecological metric — van Willegen et al. (2025) ────────────────────────────
 # Five-year mean spring water level (MSL) — best-performing hydrology metric

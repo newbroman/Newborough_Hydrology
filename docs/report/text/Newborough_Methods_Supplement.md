@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_52.odt — do not edit. source-sha256=2ba360466cdb9998 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_53.odt — do not edit. source-sha256=d786cc190b5539a9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.52 (September 2026).
+Document version: 2.0.53 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1869,7 +1869,7 @@ Spring-mean companion metric (10d v1.7.0, 10l v1.2.0). The clearfell BACI summer
 
 The four scripts in this chapter produce the report's foundational orientation material: the climate baseline that §2 leans on for site setting, the DEM map that opens §2 as Figure 1, the experimental-design diagram that opens §3 as the BACI network figure, and the observed-trajectory figures in §5 that frame the climate-change discussion. None of these scripts produces a CSV that feeds another analytical chain --- they are visualization and baseline-context outputs. The chapter accordingly compresses the methodological detail and concentrates on what each script chooses to render and why.
 
-Three of the four scripts (00, 12, 13) sit at Phase 4's start as orientation tools that run alongside the main analysis. Script 14 sits later in the phase, reading from *03_regional_averages.csv* to project cluster-centroid summer minima forward to 2040 and to evaluate observed winter maxima against the Curreli et al. (2013) flooding thresholds.
+Three of the four scripts (00, 12, 13) sit at Phase 4's start as orientation tools that run alongside the main analysis. Script 14 sits later in the phase, building a fixed-effects cluster series from 01_wells_reference.csv (each well at its own level, so a late-joining well does not shift the cluster; D-202) to project cluster summer minima forward to 2040 and to evaluate observed winter maxima against the Curreli et al. (2013) flooding thresholds.
 
 ### []{#anchor-251}[]{#anchor-252}[]{#anchor-253}Inputs
 
@@ -1975,7 +1975,7 @@ Script 14b was added on 2026-05-29 following the post-review pass on the main re
 
 **Procedure.** For each of the five clusters, the per-cluster annual summer-minimum series (*outputs/14_climate_projections/14_annual_extremes.csv* from Script 14) is fitted as a linear trend over the observed years. A non-parametric bootstrap (n = 1000 replicates) resamples years with replacement; for each resample the trend is refitted and the year at which the linear extrapolation crosses each Curreli threshold (SD15b = 0.61 m below ground, SD16 = 0.98 m below ground) is computed. The script tabulates 5th, 50th and 95th percentile crossing years per cluster × threshold and renders a five-panel figure showing observed minima, the OLS trend with 90% bootstrap CI cone, threshold lines and crossing-year CI bands.
 
-**Headline result (2026-05-29; values refreshed 2026-09-20 to the committed 14b_year_of_crossing.csv).** The C1 SD16 crossing year, central to Conclusion 11, has a median of 2028 with a 90% confidence interval of 2022--2049 (5th--95th percentile of the bootstrap distribution). Three of the eight most recent observed C1 summer minima have already exceeded the SD16 depth (2018, 2022, 2025); 2023 sits above the threshold at −0.86 m. The cluster is no longer approaching the threshold but oscillating across it. The wide confidence interval reflects substantial year-to-year variability in summer minima against a shallow trend slope of −10.9 mm yr⁻¹, not measurement uncertainty in the underlying slope estimate. C2 has crossed SD16 in the trend sense around 2015, with the CI extending into the pre-monitoring period (the cluster's observed minima have been below SD16 throughout the record). C3 lies above SD16 and its non-significant trend reaches the threshold beyond the 2080 horizon. C4 and C5 sat below SD16 throughout the observed record --- the forest-zone clusters do not host slack vegetation, so the threshold projection is reported for completeness rather than as an ecological signal.
+**Headline result (2026-05-29; values refreshed 2026-09-20 to the committed 14b_year_of_crossing.csv).** The C1 SD16 crossing year, central to Conclusion 11, has a median of 2027 with a 90% confidence interval of 2021--2046 (5th--95th percentile of the bootstrap distribution). Three of the eight most recent observed C1 summer minima have already exceeded the SD16 depth (2018, 2022, 2025); 2023 sits above the threshold at −0.86 m. The cluster is no longer approaching the threshold but oscillating across it. The wide confidence interval reflects substantial year-to-year variability in summer minima against a shallow trend slope of −11.5 mm yr⁻¹, not measurement uncertainty in the underlying slope estimate. C2 has crossed SD16 in the trend sense around 2018 (90% CI 2013--2029). C3\'s trend passes SD16 around 2010, the upper end of its interval not reached by the 2080 horizon. C4 sat below SD16 throughout the observed record and C5 in 18 of its 20 years --- the forest-zone clusters do not host slack vegetation, so the threshold projection is reported for completeness rather than as an ecological signal.
 
 **Inputs.** *outputs/14_climate_projections/14_annual_extremes.csv* (Script 14 output); Curreli thresholds from *utils.config* (*SD15b*, *SD16*).
 
@@ -1987,7 +1987,7 @@ No new path constants were added in *paths.py*; Script 14b shares *paths.DIR_14*
 
 Cross-references.
 
--   §7 Conclusion 11 of the main report --- the "around 2030--2032" qualitative date band is replaced by the bootstrap CI from this script (median 2028, 90% CI 2022--2049 for C1 SD16).
+-   §7 Conclusion 11 of the main report --- the "around 2030--2032" qualitative date band is replaced by the bootstrap CI from this script (median 2027, 90% CI 2021--2046 for C1 SD16).
 -   §4.13.1 of the main report --- the figure *15b_year_of_crossing.png* lands here as supporting evidence for the seasonal-prediction discussion in §5.2.4.
 
 Spring-mean centroid trend (Script 14 v1.4.x). Script 14 gains a spring-mean (Mar--May) cluster-centroid trend alongside its summer-minimum and winter-maximum trends, on the same descriptive-OLS footing from 03_regional_averages.csv, emitting 14_spring_trend_stats.csv (same columns as 14_summer_trend_stats.csv) and a trajectory figure 15_climate_trajectory_spring.png (observed means with per-cluster OLS trends; no projection and no threshold bands). Unlike the summer minimum and winter maximum --- indexed by the October-start hydrology year --- the spring mean sits wholly inside a calendar year and is indexed by calendar year (as Script 36 does, S.20). The spring trend is flat for every cluster except C5 (Coastal Forest, −0.038 m yr⁻¹, p = 0.020); see Supplementary Note S8.
@@ -2972,7 +2972,7 @@ One further sensitivity is stated wherever δ₀ is quoted, because D-046 requir
   outputs/01_locations.csv                                        Script 01 --- well coordinates
   outputs/01_climate.csv                                          Script 01 --- RAF Valley monthly P, PET
   outputs/03_master_data.csv                                      Script 03 --- cluster assignments
-  outputs/14_climate_projections/14_summer_trend_stats.csv        Script 14 --- cluster-centroid summer-minimum slopes
+  outputs/14_climate_projections/14_summer_trend_stats.csv        Script 14 --- fixed-effects cluster summer-minimum slopes (D-202)
   outputs/10_clearfell_baci/10a_02_ancova_full_coefficients.csv   Script 10a --- BACI ANCOVA coefficients for the corroboration check
   --------------------------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

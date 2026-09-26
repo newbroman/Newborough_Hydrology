@@ -35,7 +35,9 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-26. D-202: the cluster series behind every
+__version__ = "1.8.1"  # Hollingham (2026) - 2026-09-26. The fixed-effects routine moved to
+#   utils.cluster_series (shared with Script 26); no value change.
+# 1.8.0  # Hollingham (2026) - 2026-09-26. D-202: the cluster series behind every
 #   extreme, trend and exceedance count here is now a two-way fixed-effects centroid built from
 #   01_wells_reference + 02_cluster_stats (h(w,t) = a_w + g_t; series = g_t + mean a_w), not the
 #   plain monthly mean of 03_regional_averages. Before 2010 the plain mean rests on a few early
@@ -129,6 +131,7 @@ from utils.config import (
     EXTREMES_ROBUSTNESS_START,
 )
 from utils.render_utils import render_figure
+from utils.cluster_series import fixed_effect_centroids
 
 OBS_START = 2004
 # OBS_END is the last complete observational *year* for the climate
@@ -192,39 +195,12 @@ def _read_series(src) -> pd.DataFrame:
     return pd.read_csv(src, index_col="Date", parse_dates=True).sort_index()
 
 
-def build_fixed_effect_centroids(max_iter: int = 500, tol: float = 1e-10) -> pd.DataFrame:
-    """Two-way fixed-effects cluster series (D-202).
-
-    For each cluster, the member reference wells' monthly depths are modelled as
-    h(w,t) = a_w + g_t and fitted by alternating means over the observed cells
-    (an unbalanced panel: each month uses the wells reporting). The series
-    returned is g_t + mean(a_w): the month effect placed at the mean level of
-    ALL members, so a well joining or leaving the network does not move it.
-    Columns 'C{n}', a monthly DatetimeIndex named 'Date'.
-    """
+def build_fixed_effect_centroids() -> pd.DataFrame:
+    """Two-way fixed-effects cluster series (D-202), from utils.cluster_series:
+    each cluster's reference wells as h(w,t) = a_w + g_t; the series is
+    g_t + mean(a_w), so a well joining or leaving does not move it."""
     wells = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True).sort_index()
-    wells.columns = wells.columns.astype(str).str.strip().str.lower().str.replace(" ", "")
-    stats_df = pd.read_csv(INT_CLUSTER_STATS)
-    stats_df["k"] = stats_df["Match_ID"].astype(str).str.strip().str.lower().str.replace(" ", "")
-    out = {}
-    for cid, grp in stats_df.groupby(pd.to_numeric(stats_df["Cluster"], errors="coerce")):
-        members = [k for k in grp["k"] if k in wells.columns]
-        if not members:
-            continue
-        X = wells[members].dropna(how="all")
-        a = pd.Series(0.0, index=X.columns)
-        for _ in range(max_iter):
-            g = X.sub(a, axis=1).mean(axis=1)
-            a_new = X.sub(g, axis=0).mean(axis=0)
-            done_ = (a_new - a).abs().max() < tol
-            a = a_new
-            if done_:
-                break
-        g = X.sub(a, axis=1).mean(axis=1)
-        out[f"C{int(cid)}"] = g + a.mean()
-    df = pd.DataFrame(out)
-    df.index.name = "Date"
-    return df
+    return fixed_effect_centroids(wells, pd.read_csv(INT_CLUSTER_STATS))
 
 
 def _robust_fit(series: pd.Series) -> dict:

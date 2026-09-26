@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_53.odt — do not edit. source-sha256=d786cc190b5539a9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_54.odt — do not edit. source-sha256=0eac1e2429e4fef3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.53 (September 2026).
+Document version: 2.0.54 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -3488,10 +3488,10 @@ Script 26 produces two per-cluster MSL5 aggregation methods alongside the per-we
 
 The terminology used in the codebase and across the supplement is:
 
--   **Method A**: per-well annual MSL → arithmetic cluster mean across all wells assigned to the cluster (reference + extended). Written to *26_msl_5yr_per_cluster.csv*. This is the headline monitoring metric documented in the preceding sections of this chapter, used in the §4.8.3 trajectory figure and spatial map.
+-   **Method A**: per-well MSL5 → fixed-effects cluster series across all wells assigned to the cluster (reference + extended), each well held at its own level so a well joining the network does not shift the cluster (D-202, utils.cluster_series); the plain mean is kept beside it in the CSV. Written to *26_msl_5yr_per_cluster.csv*. This is the headline monitoring metric documented in the preceding sections of this chapter, used in the §4.8.3 trajectory figure and spatial map.
 -   **Method B**: cluster-centroid monthly series from *03_regional_averages.csv* → annual MSL → 5-year MSL5 on the centroid. Reference network only. Written to *26_msl_5yr_per_cluster_centroid.csv*. This is the SSM-consistent companion used by the forecasting tools in S.18b.
 
-The two methods can differ by tens of centimetres at any single (cluster, year) pair because they describe different network compositions, not different aggregation algebra. The empirical comparison across all 77 common (cluster, window-end) rows shows mean \|Method B − Method A\| of 0.30 m and maximum 0.78 m (at C4 Main Forest in window-end 2011); the Pearson correlation between the two trajectories is 0.69. The sign of the difference varies by cluster: Method B is deeper than Method A at C1, C2, C4, and C5 (because the extended network adds shallower coastal-edge and lake-margin wells that pull the per-well mean upward), but shallower at C3 (because the C3 reference network omits some particularly deep wells that the extended network includes).
+The two methods can differ by tens of centimetres at any single (cluster, year) pair because they describe different network compositions, not different aggregation algebra. The empirical comparison across the 78 common (cluster, window-end) rows shows mean \|Method B − Method A\| of 0.06 m and a maximum of 0.33 m (at C5 Coastal Forest in window-end 2010, when the reference cluster was one well); the Pearson correlation between the two trajectories is 0.98. The sign of the difference varies by cluster: on average Method B is deeper than Method A at C4 (by 0.09 m) and C3 (0.04 m) and shallower at C5 (0.13 m), and the two agree to 0.01 m at C1 and C2.
 
 Both methods are mathematically correct. They answer different questions and describe different cluster populations. Method A is "what is the typical well in this cluster experiencing?" --- the natural aggregation for monitoring, closest to van Willegen's per-piezometer calibration framework. Method B is "what is the cluster's reference-network signal?" --- the natural aggregation for any analysis that sits on top of the SSM coefficients. The chapter retains both and the report's editorial convention is that §4.8.3 figures cite Method A and any numerical claim from Tool A or Tool B carries the implicit Method B provenance. Each cluster MSL5 number quoted in the report should be qualified with the method that produced it; the supplement's chapter S.18b restates this point in its own context.
 

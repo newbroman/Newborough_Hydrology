@@ -100,7 +100,16 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-22. T-64: Pass 3d emits the MSL5-versus-
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-09-26. D-202 applied (Martin: "Apply option a"):
+#   the cluster trajectories are fixed-effects series (utils.cluster_series), each well held at its
+#   own level, so wells joining the network (C2 5 -> 20 wells at window-end 2015; C5's extended
+#   wells from 2020) no longer move the cluster value. MSL5_m_bg_mean / MAX5_m_bg_mean (Method A)
+#   and MINw_m_bg_mean now carry the fixed-effects value; the plain mean is kept beside them as
+#   *_plain_mean. Method B is NOT changed: it exists to sit on exactly the series the SSM
+#   coefficients are fitted to (03_regional_averages), which Script 11's Tool A and Script 26b
+#   share, and D-004 keeps that series. Where every member reports (window-ends 2024-25) the
+#   Method A values are unchanged to within 0.03 m.
+# 1.14.0  # Hollingham (2026) — 2026-09-22. T-64: Pass 3d emits the MSL5-versus-
 #   annual-minimum cross-check the Methods Supplement (S.18, "Empirical relationship to
 #   summer minima") had carried from an unrecorded verification run: the per-well
 #   Pearson r between annual MSL and the annual minimum, the r between MSL5 and the
@@ -195,6 +204,7 @@ from utils.map_utils import (
     add_kml_features,
 )
 from utils.render_utils import render_figure
+from utils.cluster_series import fixed_effect_series
 
 # ── Output paths ──────────────────────────────────────────────────────────────
 # All paths come from utils.paths so that filename / location changes propagate
@@ -526,17 +536,34 @@ def rolling_min(annual: pd.DataFrame, windows: tuple[int, ...]) -> pd.DataFrame:
             .sort_values(["window_years", "well", "window_end_year"]).reset_index(drop=True))
 
 
+def _fe_by_group(df: pd.DataFrame, keys: list, value: str) -> pd.Series:
+    """Fixed-effects cluster value per (keys..., window_end_year): within each key
+    group the well x window-end panel of `value` is decomposed as a_w + g_t
+    (utils.cluster_series, D-202). Indexed like the groupby on keys + window_end_year."""
+    parts = []
+    for k, g in df.groupby(keys):
+        panel = g.pivot_table(index="window_end_year", columns="well", values=value, aggfunc="mean")
+        s = fixed_effect_series(panel)
+        kk = k if isinstance(k, tuple) else (k,)
+        s.index = pd.MultiIndex.from_tuples([kk + (y,) for y in s.index], names=keys + ["window_end_year"])
+        parts.append(s)
+    return pd.concat(parts)
+
+
 def cluster_min_trajectory(per_well_min_with_cluster: pd.DataFrame) -> pd.DataFrame:
-    """Cluster-mean of the per-well rolling annual minimum, per (cluster, window_years, end)."""
-    g = per_well_min_with_cluster.dropna(subset=["cluster_id"]).groupby(
-        ["cluster_id", "window_years", "window_end_year"])
-    return g.agg(
+    """Cluster rolling annual minimum per (cluster, window_years, end). MINw_m_bg_mean is the
+    fixed-effects value (D-202); MINw_m_bg_plain_mean the plain mean of the wells reporting."""
+    d = per_well_min_with_cluster.dropna(subset=["cluster_id"])
+    g = d.groupby(["cluster_id", "window_years", "window_end_year"])
+    out = g.agg(
         cluster_label=("cluster_label", "first"),
         n_wells=("well", "nunique"),
-        MINw_m_bg_mean=("MINw_m_bg", "mean"),
+        MINw_m_bg_plain_mean=("MINw_m_bg", "mean"),
         MINw_m_bg_median=("MINw_m_bg", "median"),
         MINw_m_bg_std=("MINw_m_bg", "std"),
-    ).reset_index().sort_values(["window_years", "cluster_id", "window_end_year"])
+    )
+    out["MINw_m_bg_mean"] = _fe_by_group(d, ["cluster_id", "window_years"], "MINw_m_bg")
+    return out.reset_index().sort_values(["window_years", "cluster_id", "window_end_year"])
 
 
 def curreli_min_cluster_threshold_summary(per_cluster_min: pd.DataFrame,
@@ -634,13 +661,17 @@ def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
     out = g.agg(
         cluster_label=("cluster_label", "first"),
         n_wells=("well", "nunique"),
-        MSL5_m_bg_mean=("MSL5_m_bg", "mean"),
+        MSL5_m_bg_plain_mean=("MSL5_m_bg", "mean"),
         MSL5_m_bg_median=("MSL5_m_bg", "median"),
         MSL5_m_bg_std=("MSL5_m_bg", "std"),
-        MAX5_m_bg_mean=("MAX5_m_bg", "mean"),
+        MAX5_m_bg_plain_mean=("MAX5_m_bg", "mean"),
         MAX5_m_bg_median=("MAX5_m_bg", "median"),
-    ).reset_index().sort_values(["cluster_id", "window_end_year"])
-    return out
+    )
+    # D-202: the cluster value is the fixed-effects series, not the plain mean.
+    d = per_well_with_cluster.dropna(subset=["cluster_id"])
+    out["MSL5_m_bg_mean"] = _fe_by_group(d, ["cluster_id"], "MSL5_m_bg")
+    out["MAX5_m_bg_mean"] = _fe_by_group(d, ["cluster_id"], "MAX5_m_bg")
+    return out.reset_index().sort_values(["cluster_id", "window_end_year"])
 
 
 # ── Method B: cluster-centroid MSL5 from 03_regional_averages ────────────────
@@ -649,7 +680,9 @@ def cluster_trajectory(per_well_with_cluster: pd.DataFrame) -> pd.DataFrame:
 #
 # Method B aggregates differently: it takes the cluster-centroid monthly mean
 # series produced by Script 03 (which uses the LCSC reference network only,
-# ~5-26 wells per cluster) and computes MSL5 on that centroid series.
+# ~5-26 wells per cluster) and computes MSL5 on that centroid series. It stays
+# on the plain centroid (D-004) because the SSM coefficients, Tool A and Tool B
+# are fitted on that series; Method A is the fixed-effects series (D-202).
 #
 # The two methods give *different* numbers (sometimes by >0.3 m) because they
 # describe different network compositions:

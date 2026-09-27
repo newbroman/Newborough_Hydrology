@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.65.0"  # Hollingham (2026) - 2026-09-27. SLACK_FLOW_* block: the constants of
+__version__ = "1.66.0"  # Hollingham (2026) - 2026-09-27. D-205 extended (spec NRG_spec_water_table_kriged_everywhere
+#   rev 2): RANWELL_IDW_* retired for RANWELL_NEAR_K / _RADIUS_M (Script 44 reads Script 01b's kriged surface);
+#   VIEWER_KRIG_* for the Script 19 viewer's kriging operator.
+# 1.65.0  # Hollingham (2026) - 2026-09-27. SLACK_FLOW_* block: the constants of
 #   Script 49 (the water table by kriging with an external drift, and flow arrows),
 #   per spec NRG_spec_slack_flow_C (Martin signed off 2026-09-27). Additive.
 # 1.64.0  # Hollingham (2026) - 2026-09-26. D-202: EXTREMES_ROBUSTNESS_START, the first
@@ -1700,19 +1703,33 @@ RANWELL_SLACK_DELTA_M = {"AS": 0.75, "BS": 0.30, "CG": 0.30, "PL": 0.30}  # m ab
 RANWELL_SLACK_REACH_M = 300.0   # m; a floor is clipped to this reach of its sites
 # Script 44 - Ranwell's 1951-53 record against the modern network (D-145).
 RANWELL_HINDCAST_SPAN = ("1951-02", "1953-08")  # Ranwell's reading span
-RANWELL_IDW_K         = 6       # wells behind the modern surface at a site
-RANWELL_IDW_RADIUS_M  = 400.0   # m; search radius for those wells
-RANWELL_IDW_POWER     = 2.0     # IDW exponent
-RANWELL_IDW_MIN_DIST_M = 5.0    # m; distance floor in the IDW weight
+RANWELL_NEAR_K        = 6       # nearest modern wells recorded at a site (and the climate-expectation fallback)
+RANWELL_NEAR_RADIUS_M = 400.0   # m; search radius for those wells
+# (RANWELL_IDW_K / _RADIUS_M / _POWER / _MIN_DIST_M retired 2026-09-27: the modern surface is Script 01b's
+#  kriged water table, D-205 extended.)
 RANWELL_MIN_MODERN_N  = 60      # monthly readings a modern well needs to enter the surface
 RANWELL_PAIR_MAX_M    = 300.0   # m; a hindcast pairing must be same-basin and within this
 RANWELL_GRAD_STEP_M   = 20.0    # m; central-difference step for the surface gradient
 RANWELL_POS_SIGMA_M   = 40.0    # m; positional uncertainty of a flat-floor site (Route H)
 RANWELL_SAMPLING_SIGMA_M = 0.05 # m; Fig. 4 reading-mean vs Fig. 7 mid-range mean
 RANWELL_MEAN_MID_YEAR = 1952.0  # midpoint of Ranwell's record, for the rate
-RANWELL_LOO_MIN_WELLS = 3       # contributing wells needed for a leave-one-out error
+RANWELL_LOO_MIN_WELLS = 3       # nearby wells needed for a leave-one-out error
 RANWELL_LOO_MAX_M     = 0.5     # m; a site whose modern-surface LOO error exceeds this is unconstrained
+#   Since 2026-09-27 the LOO error is the kriged surface's (Script 01b's mean-state leave-one-well-out errors
+#   at the site's nearby wells), not the IDW's; the kriging SE is recorded beside it but is not used, as on
+#   this network it overstates the leave-one-out error several-fold (variogram range at its bound).
 RANWELL_SURFACE_CENSOR_M = 0.05 # m; a reading within this of the ground is a flooded (censored) slack
+
+# Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
+# water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to
+# each well's scenario head, with the anchors (sea, river, lake, ridge well) folded into c per season.
+VIEWER_KRIG_GRID_M     = 50.0     # m; node spacing of the embedded weight grid
+VIEWER_KRIG_WEIGHT_MIN = 1e-5     # a well weight below this magnitude is dropped (the row renormalised in the browser);
+#   1e-3 moved the surface by up to 0.34 m and 1e-4 by 0.04 m: the variogram range sits at its bound, so weights are spread
+VIEWER_KRIG_WEIGHT_DP  = 5        # decimal places a weight is stored to (as an integer, x 10^dp)
+VIEWER_KRIG_CHECK_TOL_M = 0.01    # m; the embedded operator must reproduce 01b's mean surface and the wells to this
+VIEWER_KRIG_CHECK_POINTS = 5      # check points drawn across the grid for that comparison
+VIEWER_MAX_KB          = 3000.0   # kB; above this the viewer is not written (stop and bring it back)
 
 # Broadleaf summer β₂ multiplier — deciduous phenology effect on ET.
 # Derived from Script 21's monthly β₂ profile (Hollingham, 2026), averaged
@@ -2614,7 +2631,7 @@ BREAK_ELEV_SD_TOL_M = BREAK_RELATIVE_M
 BREAK_MIN_COLUMNS = 5 * BREAK_MEDIAN_COLUMNS
 
 
-# ── SLACK_FLOW_* — Script 49: the water table by KED, and how water moves ────
+# ── SLACK_FLOW_* — Script 01b: the water table by KED, and how water moves ────
 # Spec NRG_spec_slack_flow_C_2026-09-27 (revision 5, signed off by Martin
 # 2026-09-27). The water table is built from the dipwells and the sea, with
 # topography entering as a drift chosen by test; Sentinel is a check, not data;
@@ -2670,7 +2687,7 @@ SLACK_FLOW_HWM_OFFSET_TOL_M  = 0.25
 SLACK_FLOW_DEM_GAMMA         = 0.7    # PowerNorm gamma of the DEM on the 49_02 location map (display only)
 SLACK_FLOW_DEM_COLOURS       = ("#3a78c2", "#5aa85a", "#f2d64b", "#a6763e", "#ffffff")  # low to high: blue, green, yellow, brown, white
 SLACK_FLOW_DEM_PALE          = 0.45   # share of white mixed into the DEM colours, so transect lines stand out
-# Coastal check (Script 49, 2026-09-27). A Sentinel cell is TESTED against the kriged
+# Coastal check (Script 01b, 2026-09-27). A Sentinel cell is TESTED against the kriged
 # surface only where a dipwell lies within WELL_SUPPORT_M; beyond it the surface is the
 # interpolation between the sea anchors and wells far inland, and the cell is
 # "unconstrained", neither consistent nor perched. The south-west frontage (west of
@@ -2680,7 +2697,7 @@ SLACK_FLOW_WELL_SUPPORT_M    = 300
 SLACK_FLOW_COAST_SECTOR_E    = 241900
 SLACK_FLOW_COAST_BIN_M       = 100    # distance-from-HWM bins for the Sentinel excess profile
 SLACK_FLOW_COAST_BIN_MAX_M   = 1600
-# Script 49 working constants (2026-09-27 rules pass: every number the script uses is named here).
+# Script 01b working constants (2026-09-27 rules pass: every number the script uses is named here).
 SLACK_FLOW_CRS               = "EPSG:27700"   # the committed geometry, DEM and outputs (OSGB36 / British National Grid)
 SLACK_FLOW_LONLAT_CRS        = "EPSG:4326"    # KML and the solar position
 SLACK_FLOW_TIF_NODATA        = -9999.0        # no-data value written to the 49 GeoTIFFs
@@ -2701,7 +2718,7 @@ SLACK_FLOW_TRANSECT_CELL_BAND_M = 25  # Sentinel cells within this distance of a
 SLACK_FLOW_S2_ACQ_UTC_H      = 11.25  # Sentinel-2 acquisition over tile 30UVD, hours UTC (about 11:15); 10 minutes moves the winter sun by under 1 degree
 SLACK_FLOW_SHADOW_FRAC       = 0.25   # a 10 m cell is in shadow when this share of its DEM cells lies in cast shadow
 SLACK_FLOW_EDGE_SLOPE_PCTL   = 90     # an unexplained cell steeper than this percentile of the consistent cells' slopes is a floor-edge (mixed) pixel
-# Script 49 rendering (display only)
+# Script 01b rendering (display only)
 SLACK_FLOW_MAP_PAD_M         = 100    # map margin around the study area
 SLACK_FLOW_MAP_TICK_M        = 1000   # map tick spacing
 SLACK_FLOW_DEM_LIGHT         = (315.0, 35.0, 3.0)  # hillshade azimuth, altitude (deg), vertical exaggeration: map_utils.load_dem_hillshade's defaults
@@ -2718,7 +2735,7 @@ SLACK_FLOW_FONT_PT           = (11, 13)  # small and title font sizes of the 49 
 SLACK_FLOW_CONTOUR_M         = 1.0    # water-table contour interval (m)
 SLACK_FLOW_CONTOUR_LABEL_M   = 2.0    # labelled contour interval (m)
 SLACK_FLOW_LABEL_MIN_SEP_M   = 300    # contour labels closer than this to another are dropped (m)
-# Landward boundary of the water table (Script 49, 2026-09-27, Martin: "the ridge should also mark a water
+# Landward boundary of the water table (Script 01b, 2026-09-27, Martin: "the ridge should also mark a water
 # table margin"; "fix the eastern boundary to the river elevation"). Without it ordinary kriging relaxes to the
 # mean north of CEH14 and closes a false high there. Ridge anchors run along the D-203 divide at ground minus
 # the depth measured at the ridge well (CEH12, 34 months 2006-2010, on the bedrock ridge just outside the

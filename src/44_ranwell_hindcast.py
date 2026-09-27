@@ -24,10 +24,11 @@ Q1 — Does the SSM hindcast 1951–53?  Each Ranwell site with a printed series
 
 Q2 — Has the slack water table moved since 1951–53?  Ranwell's mean level (m OD)
   at each of the eight printed sites against the modern mean water-table
-  surface interpolated to that point (IDW of per-well modern means; k, radius,
-  power from config), minus the climate-only expectation for the two spans from
+  surface at that point (Script 01b's kriged mean-state surface, D-205: the
+  water table is kriged wherever it is sampled; until 2026-09-27 an IDW of
+  per-well modern means), minus the climate-only expectation for the two spans from
   the Q1 hindcast at the headline well. Four error terms in quadrature per site:
-  leave-one-out RMSE of the IDW over the contributing wells; the surface
+  the leave-one-well-out error of the kriged surface at the site's nearby wells; the surface
   gradient times the positional uncertainty (Script 43 Route H); the sampling
   difference between a reading mean and a mid-range mean; and the datum offset's
   MAD (Route H). Sites combine by inverse variance, with the chi-square per
@@ -73,7 +74,14 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.1.2"  # Hollingham (2026) — 2026-09-08. Report render: legend on the
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-27. The modern water table at each Ranwell site
+#   is read from Script 01b's kriged mean-state surface, and its uncertainty term is the RMSE of
+#   that surface's leave-one-well-out errors at the site's nearby wells (D-205 extended; spec NRG_spec_water_table_kriged_everywhere rev 2; Martin:
+#   "include all of them"). idw_at / loo_rmse retired; surface_gradient differences the kriged surface;
+#   the kriging SE is recorded (kriging_se_m) but not used: on this network it overstates the
+#   leave-one-out error several-fold; columns modern_idw_* -> modern_kriged_*, contributing_* -> nearby_* (RANWELL_NEAR_K / _RADIUS_M, kept for
+#   the record and the climate-expectation fallback). The D-145 level changes move.
+# 1.1.2  # Hollingham (2026) — 2026-09-08. Report render: legend on the
 #   top panel only — on the lower panels it covered the August 1951 minimum.
 #   1.1.1 (2026-09-08): Forcing check: restore the
 #   "month" index name after the Parc Mawr / RAF Valley join — pandas 2.1 on the
@@ -155,33 +163,50 @@ def modern_surface(wc, loc, wb):
     return pd.DataFrame(rows).set_index("well")
 
 
-# ── IDW with leave-one-out ────────────────────────────────────────────────────
-def idw_at(ms: pd.DataFrame, e: float, n: float, exclude: str | None = None):
+# ── the modern water table: Script 01b's kriged mean surface (D-205) ─────────
+def _raster_at(path, e: float, n: float) -> float:
+    """Bilinear value of a committed 01b raster at a point; NaN off it or on no-data."""
+    import rasterio                                            # noqa: PLC0415
+    from scipy.ndimage import map_coordinates                  # noqa: PLC0415
+    with rasterio.open(path) as src:
+        a = src.read(1).astype(float)
+        if src.nodata is not None:
+            a[a == src.nodata] = np.nan
+        col, row = ~src.transform * (e, n)
+    v = map_coordinates(a, [[row - 0.5], [col - 0.5]], order=1, mode="constant", cval=np.nan)[0]
+    return float(v)
+
+
+def modern_at(e: float, n: float):
+    """The modern mean water table (m OD) and its kriging standard error (m) at a point,
+    from Script 01b's committed mean-state surfaces (D-205 extended: the water table is
+    kriged wherever it is sampled; this replaced the IDW of per-well means)."""
+    return (_raster_at(paths.out_01b_surface("mean"), e, n),
+            _raster_at(paths.out_01b_se("mean"), e, n))
+
+
+def nearby_wells(ms: pd.DataFrame, e: float, n: float) -> pd.DataFrame:
+    """The modern wells nearest a site (RANWELL_NEAR_K within RANWELL_NEAR_RADIUS_M), for the
+    record and for the climate-expectation fallback; the surface itself uses every well."""
     d = np.hypot(ms["E"] - e, ms["N"] - n)
-    sel = ms[(d <= config.RANWELL_IDW_RADIUS_M) & (ms.index != exclude)].copy()
+    sel = ms[d <= config.RANWELL_NEAR_RADIUS_M].copy()
     sel["d"] = d[sel.index]
-    sel = sel.nsmallest(config.RANWELL_IDW_K, "d")
-    if len(sel) < config.RANWELL_LOO_MIN_WELLS:
-        return np.nan, sel
-    w = 1.0 / np.maximum(sel["d"], config.RANWELL_IDW_MIN_DIST_M) ** config.RANWELL_IDW_POWER
-    return float((sel["level_m_od"] * w).sum() / w.sum()), sel
+    return sel.nsmallest(config.RANWELL_NEAR_K, "d")
 
 
-def loo_rmse(ms: pd.DataFrame, contributing: pd.DataFrame) -> float:
-    errs = []
-    for w in contributing.index:
-        v, _ = idw_at(ms, ms.loc[w, "E"], ms.loc[w, "N"], exclude=w)
-        if np.isfinite(v):
-            errs.append(ms.loc[w, "level_m_od"] - v)
-    return float(np.sqrt(np.mean(np.square(errs)))) if errs else np.nan
+def surface_loo(sel: pd.DataFrame, loo: pd.Series) -> float:
+    """RMSE of the kriged surface's leave-one-well-out errors (01b, mean state) at a site's
+    nearby wells: the empirical accuracy of the surface where the site is."""
+    e = loo.reindex(sel.index).dropna()
+    return float(np.sqrt(np.mean(np.square(e)))) if len(e) >= config.RANWELL_LOO_MIN_WELLS else np.nan
 
 
-def surface_gradient(ms: pd.DataFrame, e: float, n: float) -> float:
+def surface_gradient(e: float, n: float) -> float:
     h = config.RANWELL_GRAD_STEP_M
-    vx1, _ = idw_at(ms, e + h, n)
-    vx0, _ = idw_at(ms, e - h, n)
-    vy1, _ = idw_at(ms, e, n + h)
-    vy0, _ = idw_at(ms, e, n - h)
+    vx1, _ = modern_at(e + h, n)
+    vx0, _ = modern_at(e - h, n)
+    vy1, _ = modern_at(e, n + h)
+    vy0, _ = modern_at(e, n - h)
     return float(np.hypot((vx1 - vx0) / (2 * h), (vy1 - vy0) / (2 * h)))
 
 
@@ -364,6 +389,9 @@ def main() -> int:
     lv, rg, pm, sites, wb, diag, cl, md, loc, wc = load_inputs()
     sites = sites.set_index("site_no")
     ms = modern_surface(wc, loc, wb)
+    lo_ = pd.read_csv(paths.OUT_01B_LOO)
+    lo_ = lo_[lo_["state"] == "mean"]
+    loo_mean = pd.Series(lo_["error_m"].values, index=lo_["well"].map(_norm))   # 01b, mean state
     datum_mad = float(diag["datum_offset_mad_m"])
     info(f"{len(lv)} Fig. 4 readings at sites {sorted(int(x) for x in lv['site_no'].unique())}; "
          f"{len(rg)} Fig. 7 ranges at sites {sorted(int(x) for x in rg['site_no'].unique())}")
@@ -443,14 +471,14 @@ def main() -> int:
             rmean, basis, n_r = float(read_mean[s]), "fig4_readings", int(read_n[s])
         else:
             rmean, basis, n_r = float(mid_mean[s]), "fig7_midrange", int((rg["site_no"] == s).sum())
-        v_m, sel = idw_at(ms, srow["easting"], srow["northing"])
-        v_r, _ = idw_at(ms, srow["refined_easting"], srow["refined_northing"])
+        v_m, se_m = modern_at(srow["easting"], srow["northing"])
+        v_r, _ = modern_at(srow["refined_easting"], srow["refined_northing"])
+        sel = nearby_wells(ms, srow["easting"], srow["northing"])
         if not np.isfinite(v_m):
-            warn(f"site {s}: fewer than {config.RANWELL_LOO_MIN_WELLS} wells within "
-                 f"{config.RANWELL_IDW_RADIUS_M:.0f} m; no modern surface")
+            warn(f"site {s}: outside the 01b kriged surface; no modern level")
             continue
-        loo = loo_rmse(ms, sel)
-        grad = surface_gradient(ms, srow["easting"], srow["northing"])
+        loo = surface_loo(sel, loo_mean)
+        grad = surface_gradient(srow["easting"], srow["northing"])
         pos_sigma = (float(srow["refined_move_m"]) if srow["resolvability"] == "flank"
                      else config.RANWELL_POS_SIGMA_M)
         sig_pos = grad * pos_sigma
@@ -479,11 +507,12 @@ def main() -> int:
         lc_rows.append(dict(
             row="site", site_no=s, sketch_slack=srow["sketch_slack"], ranwell_basis=basis,
             ranwell_n=n_r, ranwell_mean_m_od=rmean,
-            modern_idw_m_od=v_m, modern_idw_refined_m_od=v_r,
-            contributing_wells="; ".join(f"{w} ({r.d:.0f} m, {r.level_m_od:.2f})" for w, r in sel.iterrows()),
-            n_contributing=len(sel), nearest_well_m=float(sel["d"].min()),
-            contributing_min_m_od=float(sel["level_m_od"].min()), contributing_max_m_od=float(sel["level_m_od"].max()),
-            sigma_loo_m=loo, surface_gradient=grad, position_sigma_m=pos_sigma, sigma_position_m=sig_pos,
+            modern_kriged_m_od=v_m, modern_kriged_refined_m_od=v_r,
+            nearby_wells="; ".join(f"{w} ({r.d:.0f} m, {r.level_m_od:.2f})" for w, r in sel.iterrows()),
+            n_nearby=len(sel), nearest_well_m=float(sel["d"].min()) if len(sel) else np.nan,
+            nearby_min_m_od=float(sel["level_m_od"].min()) if len(sel) else np.nan,
+            nearby_max_m_od=float(sel["level_m_od"].max()) if len(sel) else np.nan,
+            sigma_loo_m=loo, kriging_se_m=se_m, surface_gradient=grad, position_sigma_m=pos_sigma, sigma_position_m=sig_pos,
             sigma_sampling_m=sig_samp, sigma_datum_m=sig_dat, sigma_total_m=sig,
             climate_expectation_m=exp, climate_expectation_source=exp_src,
             delta_m=delta, z=delta / sig if sig > 0 else np.nan, resolved=bool(abs(delta) > 2 * sig),

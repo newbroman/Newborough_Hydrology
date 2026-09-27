@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.38.0"  # Hollingham (2026) - 2026-09-27. DIR_49 and OUT_49_*: Script 49,
+__version__ = "1.39.0"  # Hollingham (2026) - 2026-09-27. 1.39.0: DIR_49/OUT_49_* renamed DIR_01B/OUT_01B_*
+#   (Script 49 -> 01b_water_table, outputs/01b_water_table/, files 01b_*). 1.38.0: DIR_49 and OUT_49_*: Script 49,
 #   the water table by KED and flow arrows (spec NRG_spec_slack_flow_C); DATA_TIDAL_LEVELS.
 #   Additive.
 # 1.37.0  # Hollingham (2026) - 2026-09-27. DATA_STUDY_AREA_GEOJSON: the
@@ -1029,7 +1030,6 @@ OUT_19_WATER_BALANCE  = OUT_19_WB_RECHARGE
 OUT_19_DEPTH_TO_WT    = OUT_19_DEPTH_SUMMER
 
 # Script 20 — Spatial figures (paper)
-OUT_20_HEAD_STREAMS         = DIR_20 / "20_head_surface_streams.png"
 OUT_20_RESIDUAL_D8          = DIR_20 / "20_residual_d8_comparison.png"
 OUT_20_RESIDUAL_SSM         = DIR_20 / "20_residual_ssm.png"
 OUT_20_SLOPE                = DIR_20 / "20_slope_gradient.png"
@@ -1041,8 +1041,6 @@ OUT_20_RESIDUAL_PERWELL     = DIR_20 / "20_residual_perwell.csv"      # Fig 56 p
 OUT_20_RESIDUAL_REPORT_NUMBERS = DIR_20 / "20_residual_report_numbers.csv"  # Fig 56 cited residual stats
 OUT_20_MSL5_CHANGE_PERWELL  = DIR_20 / "20_msl5_change_perwell.csv"   # Fig 54 per-well MSL5 change (below-ground, raw)
 OUT_20_MSL5_REPORT_NUMBERS  = DIR_20 / "20_msl5_report_numbers.csv"   # Fig 54 cited MSL5-change stats
-OUT_20_HEAD_VS_DEM          = DIR_20 / "20_head_vs_dem.csv"            # head surface vs DEM: r and slope per smoothing width (T-66)
-OUT_20_HEAD_DEM_REPORT_NUMBERS = DIR_20 / "20_head_dem_report_numbers.csv"  # the cited head-vs-DEM and at-well numbers (T-66)
 OUT_20_COASTAL_EROSION      = DIR_20 / "20_coastal_erosion.png"
 OUT_20_SLR_RESPONSE         = DIR_20 / "20_slr_response.png"
 OUT_20_COASTAL_NET          = DIR_20 / "20_coastal_net_effect.png"
@@ -1063,7 +1061,6 @@ OUT_20_DRIVER_CHANGE_20YR   = DIR_20 / "20_driver_change_20yr.png"       # Scrip
 OUT_20_CLEARFELL_GAIN       = DIR_20 / "20_clearfell_gain.png"
 OUT_20_OBSERVED_CHANGE      = DIR_20 / "20_observed_change_2012_2026.png"
 OUT_20_MSL5_CHANGE          = DIR_20 / "20_msl5_change_2017_2023.png"
-OUT_20_HEAD_VS_DEM_FIG      = DIR_20 / "20_head_vs_dem.png"            # three-panel head-vs-DEM figure (T-66)
 
 # Script 21 — Forestry scenarios
 OUT_21_HYDROGRAPH        = DIR_21 / "21_forestry_01_hydrograph.png"
@@ -1309,43 +1306,46 @@ OUT_48_SYNTHETIC      = DIR_48 / "48_03_synthetic_recovery.csv"  # the unit conv
 OUT_48_FIG            = DIR_48 / "48_01_pastas_vs_ssm.png"
 OUT_48_REPORT_NUMBERS = DIR_48 / "48_report_numbers.csv"
 
-# Script 49 — the water table by kriging with an external drift, and flow arrows
-DIR_49 = OUT_DIR / "49_slack_flow"
-OUT_49_DRIFT_SELECTION   = DIR_49 / "49_01_drift_selection.csv"    # 4 drifts x states: LOO, above-ground share, variogram
-OUT_49_LOO               = DIR_49 / "49_02_loo_per_well.csv"
-OUT_49_SLACK_DIRECTIONS  = DIR_49 / "49_03_slack_directions.csv"   # per slack and state: direction, gradient, turn flag
-OUT_49_SENTINEL_CHECK    = DIR_49 / "49_04_sentinel_check.csv"     # per ever-wet cell: implied head, surface, difference
-OUT_49_SENSITIVITY       = DIR_49 / "49_05_sensitivity.csv"
-OUT_49_TRANSECTS         = DIR_49 / "49_06_transects.csv"
-OUT_49_TRANSECT_PROFILES = DIR_49 / "49_07_transect_profiles.csv"
-OUT_49_COASTAL_HEAD      = DIR_49 / "49_08_coastal_head_fit.csv"   # the LOO error curve over the coastal head
-OUT_49_REPORT_NUMBERS    = DIR_49 / "49_report_numbers.csv"
-OUT_49_FIG_FLOW          = DIR_49 / "49_01_water_table_flow.png"
-OUT_49_FIG_TRANSECTS     = DIR_49 / "49_02_transects.png"
-OUT_49_FIG_DRIFT         = DIR_49 / "49_03_drift_selection.png"
-OUT_49_FIG_WETNESS       = DIR_49 / "49_04_unexplained_wetness.png"
-OUT_49_KML_UNEXPLAINED   = DIR_49 / "49_unexplained_wetness.kml"
-OUT_49_COASTAL_WELLS     = DIR_49 / "49_09_coastal_wells.csv"      # per well: distance to HWM, wet-dry range, perched cells near it
-OUT_49_COASTAL_TESTS     = DIR_49 / "49_10_coastal_tests.csv"      # seasonal damping: Spearman and partial, per sector
-OUT_49_COASTAL_EXCESS    = DIR_49 / "49_11_coastal_excess.csv"     # Sentinel minus kriged head by distance from HWM and well support
-OUT_49_FIG_COASTAL       = DIR_49 / "49_05_coastal_check.png"
-OUT_49_BOUNDARY_ANCHORS  = DIR_49 / "49_12_boundary_anchors.csv"   # ridge and river anchors: position, kind, head per state
-OUT_49_BOUNDARY_TEST     = DIR_49 / "49_13_boundary_test.csv"      # LOO near the boundary with and without the anchors; the ridge-well check
+# Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed
+# and moved to step 2 of Phase 1 on 2026-09-27 so its readers take it in the same run)
+DIR_01B = OUT_DIR / "01b_water_table"
+OUT_01B_DRIFT_SELECTION   = DIR_01B / "01b_01_drift_selection.csv"    # 4 drifts x states: LOO, above-ground share, variogram
+OUT_01B_LOO               = DIR_01B / "01b_02_loo_per_well.csv"
+OUT_01B_SLACK_DIRECTIONS  = DIR_01B / "01b_03_slack_directions.csv"   # per slack and state: direction, gradient, turn flag
+OUT_01B_SENTINEL_CHECK    = DIR_01B / "01b_04_sentinel_check.csv"     # per ever-wet cell: implied head, surface, difference
+OUT_01B_SENSITIVITY       = DIR_01B / "01b_05_sensitivity.csv"
+OUT_01B_TRANSECTS         = DIR_01B / "01b_06_transects.csv"
+OUT_01B_TRANSECT_PROFILES = DIR_01B / "01b_07_transect_profiles.csv"
+OUT_01B_COASTAL_HEAD      = DIR_01B / "01b_08_coastal_head_fit.csv"   # the LOO error curve over the coastal head
+OUT_01B_REPORT_NUMBERS    = DIR_01B / "01b_report_numbers.csv"
+OUT_01B_FIG_FLOW          = DIR_01B / "01b_01_water_table_flow.png"
+OUT_01B_FIG_TRANSECTS     = DIR_01B / "01b_02_transects.png"
+OUT_01B_FIG_DRIFT         = DIR_01B / "01b_03_drift_selection.png"
+OUT_01B_FIG_WETNESS       = DIR_01B / "01b_04_unexplained_wetness.png"
+OUT_01B_KML_UNEXPLAINED   = DIR_01B / "01b_unexplained_wetness.kml"
+OUT_01B_COASTAL_WELLS     = DIR_01B / "01b_09_coastal_wells.csv"      # per well: distance to HWM, wet-dry range, perched cells near it
+OUT_01B_COASTAL_TESTS     = DIR_01B / "01b_10_coastal_tests.csv"      # seasonal damping: Spearman and partial, per sector
+OUT_01B_COASTAL_EXCESS    = DIR_01B / "01b_11_coastal_excess.csv"     # Sentinel minus kriged head by distance from HWM and well support
+OUT_01B_FIG_COASTAL       = DIR_01B / "01b_05_coastal_check.png"
+OUT_01B_BOUNDARY_ANCHORS  = DIR_01B / "01b_12_boundary_anchors.csv"   # ridge and river anchors: position, kind, head per state
+OUT_01B_BOUNDARY_TEST     = DIR_01B / "01b_13_boundary_test.csv"      # LOO near the boundary with and without the anchors; the ridge-well check
+OUT_01B_HEAD_VS_DEM       = DIR_01B / "01b_14_head_vs_dem.csv"       # T-66 on the kriged mean surface (was 20_head_vs_dem.csv)
+OUT_01B_FIG_HEAD_VS_DEM   = DIR_01B / "01b_06_head_vs_dem.png"
 
 
-def out_49_surface(state: str):
-    """49_water_table_<state>.tif (m OD) — wet, mean, dry."""
-    return DIR_49 / f"49_water_table_{state}.tif"
+def out_01b_surface(state: str):
+    """01b_water_table_<state>.tif (m OD) — wet, mean, dry."""
+    return DIR_01B / f"01b_water_table_{state}.tif"
 
 
-def out_49_se(state: str):
-    """49_kriging_se_<state>.tif (m)."""
-    return DIR_49 / f"49_kriging_se_{state}.tif"
+def out_01b_se(state: str):
+    """01b_kriging_se_<state>.tif (m)."""
+    return DIR_01B / f"01b_kriging_se_{state}.tif"
 
 
-def out_49_kml(state: str):
-    """49_slack_flow_<state>.kml — the arrows for Google Earth and the viewer."""
-    return DIR_49 / f"49_slack_flow_{state}.kml"
+def out_01b_kml(state: str):
+    """01b_flow_<state>.kml — the arrows for Google Earth and the viewer."""
+    return DIR_01B / f"01b_flow_{state}.kml"
 
 
 def out_47_still(month: str):

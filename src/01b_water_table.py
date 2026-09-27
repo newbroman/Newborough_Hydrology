@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-49_slack_flow.py — the water table by kriging with an external drift, and how
-water moves between the slacks, wet, mean and dry
+01b_water_table.py — the water table by kriging, and how water moves between
+the slacks, wet, mean and dry
 ==============================================================================
 
 WHAT THIS IS
@@ -58,41 +58,50 @@ WHAT THIS IS
      coast-normal series along Caernarfon Bay placed where the network supports
      it (not at a fixed interval); one radial merges into the series.
 
-  REGISTERED 2026-09-27 (D-205): Phase 20 of run_analysis.py, tier A, default pass;
-  documented in the Methods Supplement, S.23e.
+  REGISTERED 2026-09-27 (D-205): step 2 of Phase 1 of run_analysis.py, straight
+  after Script 01, tier A, default pass; documented in the Methods Supplement,
+  S.23e. It needs nothing produced after Script 01, and it runs this early so that
+  every script that draws or samples the water table (19, 20, 44) reads this
+  surface in the same run (spec NRG_spec_water_table_kriged_everywhere, rev 2).
+  Written as Script 49 on 2026-09-27; renamed and moved the same day. The
+  kriging, the states and the boundary parts live in utils/water_table.py, which
+  Script 19 also uses for the viewer's weights.
 
 INPUTS — all committed
   outputs/01_wells_all.csv, 01_well_elevations.csv; data/geo/newborough_dem.tif,
   coastline_hwm.geojson, study_area.geojson (D-203), tidal_levels_caernarfon_bar.csv
   (NP201B-26); data/sentinel/cell_thresholds.npz and sentinel_scene_manifest.csv (D-178).
 
-OUTPUTS — outputs/49_slack_flow/ (paths.OUT_49_*)
-  49_water_table_<state>.tif, 49_kriging_se_<state>.tif ... surfaces, m OD / m
-  49_01_drift_selection.csv ... 4 drifts x 3 states: LOO median |e|, bias, p90;
+OUTPUTS — outputs/01b_water_table/ (paths.OUT_01B_*)
+  01b_water_table_<state>.tif, 01b_kriging_se_<state>.tif ... surfaces, m OD / m
+  01b_01_drift_selection.csv ... 4 drifts x 3 states: LOO median |e|, bias, p90;
                                 above-ground share; variogram; fitted head
-  49_02_loo_per_well.csv ...... per well, selected drift, per state
-  49_03_slack_directions.csv .. per slack and state: direction, gradient, turn
-  49_04_sentinel_check.csv .... per ever-wet cell: implied head, surface, class
-  49_05_sensitivity.csv ....... fixed heads and the runner-up drift vs headline
-  49_06_transects.csv, 49_07_transect_profiles.csv
-  49_08_coastal_head_fit.csv .. the LOO error curve over the coastal head
-  49_09_coastal_wells.csv ..... per well: distance to HWM, wet-dry range, perched cells nearest it
-  49_10_coastal_tests.csv ..... seasonal damping per sector: Spearman and partial
-  49_11_coastal_excess.csv .... Sentinel minus kriged head by distance from HWM and support
-  49_slack_flow_<state>.kml, 49_unexplained_wetness.kml
-  49_01..05 figures; 49_report_numbers.csv
+  01b_02_loo_per_well.csv ...... per well, selected drift, per state
+  01b_03_slack_directions.csv .. per slack and state: direction, gradient, turn
+  01b_04_sentinel_check.csv .... per ever-wet cell: implied head, surface, class
+  01b_05_sensitivity.csv ....... fixed heads and the runner-up drift vs headline
+  01b_06_transects.csv, 01b_07_transect_profiles.csv
+  01b_08_coastal_head_fit.csv .. the LOO error curve over the coastal head
+  01b_09_coastal_wells.csv ..... per well: distance to HWM, wet-dry range, perched cells nearest it
+  01b_10_coastal_tests.csv ..... seasonal damping per sector: Spearman and partial
+  01b_11_coastal_excess.csv .... Sentinel minus kriged head by distance from HWM and support
+  01b_12_boundary_anchors.csv, 01b_13_boundary_test.csv
+  01b_14_head_vs_dem.csv ....... T-66 on the kriged mean surface: r and slope per DEM smoothing width
+  01b_flow_<state>.kml, 01b_unexplained_wetness.kml
+  01b_01..06 figures; 01b_report_numbers.csv
 
 USAGE
-  python3 src/49_slack_flow.py [--no-fig]
+  python3 src/01b_water_table.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-27. 1.0.1: registered (Phase 20, tier A,
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-27. 1.1.0: renamed from 49_slack_flow.py and moved
+#   to step 2 of Phase 1 (Martin: "lets call it 01b"); the kriging, states and boundary parts moved to
+#   utils/water_table.py unchanged; outputs renamed 49_* -> 01b_* in outputs/01b_water_table/. 1.0.1: registered (Phase 20, tier A,
 #   default; D-205); docstring only, no behaviour change. 1.0.0: new, per spec NRG_spec_slack_flow_C
 #   (revision 5, signed off 2026-09-27).
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -105,34 +114,35 @@ import numpy as np                                             # noqa: E402
 import pandas as pd                                            # noqa: E402
 import rasterio                                                # noqa: E402
 from rasterio.transform import from_origin                     # noqa: E402
-from scipy.ndimage import label, minimum_filter, uniform_filter, map_coordinates  # noqa: E402
-from scipy.optimize import minimize_scalar                     # noqa: E402
+from scipy.ndimage import label, uniform_filter                # noqa: E402
 from scipy.spatial import cKDTree                              # noqa: E402
 from scipy.stats import rankdata, spearmanr                    # noqa: E402
 import shapely                                                 # noqa: E402
-from shapely.geometry import LineString, Point, shape          # noqa: E402
+from shapely.geometry import LineString, Point                 # noqa: E402
 from shapely.ops import unary_union                            # noqa: E402
 from pyproj import Transformer                                 # noqa: E402
 
 from utils import config as C                                  # noqa: E402
 from utils.paths import (                                      # noqa: E402
-    DATA_DEM, DATA_COASTLINE_HWM, DATA_STUDY_AREA_GEOJSON, DATA_TIDAL_LEVELS,
-    DATA_KML_STREAMS, SENTINEL_CELL_THRESHOLDS, SENTINEL_SCENE_MANIFEST, INT_WELLS_ALL, INT_WELLS_CLEAN, INT_WELL_ELEVATIONS, DATA_KML_FEATURES,
-    DIR_49, OUT_49_DRIFT_SELECTION, OUT_49_LOO, OUT_49_SLACK_DIRECTIONS,
-    OUT_49_SENTINEL_CHECK, OUT_49_SENSITIVITY, OUT_49_TRANSECTS, OUT_49_TRANSECT_PROFILES,
-    OUT_49_COASTAL_HEAD, OUT_49_REPORT_NUMBERS, OUT_49_FIG_FLOW, OUT_49_FIG_TRANSECTS,
-    OUT_49_FIG_DRIFT, OUT_49_FIG_WETNESS, OUT_49_KML_UNEXPLAINED,
-    OUT_49_COASTAL_WELLS, OUT_49_COASTAL_TESTS, OUT_49_COASTAL_EXCESS, OUT_49_FIG_COASTAL,
-    OUT_49_BOUNDARY_ANCHORS, OUT_49_BOUNDARY_TEST,
-    out_49_surface, out_49_se, out_49_kml,
+    DATA_DEM, DATA_COASTLINE_HWM, DATA_STUDY_AREA_GEOJSON,
+    DATA_KML_STREAMS, SENTINEL_CELL_THRESHOLDS, SENTINEL_SCENE_MANIFEST, INT_WELLS_REFERENCE,
+    DIR_01B, OUT_01B_DRIFT_SELECTION, OUT_01B_LOO, OUT_01B_SLACK_DIRECTIONS,
+    OUT_01B_SENTINEL_CHECK, OUT_01B_SENSITIVITY, OUT_01B_TRANSECTS, OUT_01B_TRANSECT_PROFILES,
+    OUT_01B_COASTAL_HEAD, OUT_01B_REPORT_NUMBERS, OUT_01B_FIG_FLOW, OUT_01B_FIG_TRANSECTS,
+    OUT_01B_FIG_DRIFT, OUT_01B_FIG_WETNESS, OUT_01B_KML_UNEXPLAINED,
+    OUT_01B_COASTAL_WELLS, OUT_01B_COASTAL_TESTS, OUT_01B_COASTAL_EXCESS, OUT_01B_FIG_COASTAL,
+    OUT_01B_BOUNDARY_ANCHORS, OUT_01B_BOUNDARY_TEST, OUT_01B_HEAD_VS_DEM, OUT_01B_FIG_HEAD_VS_DEM,
+    out_01b_surface, out_01b_se, out_01b_kml,
 )
-from utils.kriging import ked, ols_residuals, empirical_variogram, fit_spherical  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers           # noqa: E402
 from utils.console_utils import banner, done, info, phase, result, saved, warn  # noqa: E402
-from sentinel_wet_floor import _wells_monthly                  # noqa: E402  the D-178 network median
+from utils.water_table import (                                # noqa: E402  the shared water-table code (D-205)
+    STATES, geojson_geom, tidal_levels, load_dem, drift_rasters, sample, bilinear, network_states,
+    well_heads, Surface, fit_coastal_head, sea_anchors, ridge_depths, boundary_arcs, lake_boundary,
+    channel_level,
+)
 
-SCRIPT_ID = "49"
-STATES = ("wet", "mean", "dry")
+SCRIPT_ID = "01b"
 DRIFTS = ("o", "s", "e", "r")          # simplicity order for ties: none < smoothed < envelope < raw
 DRIFT_NAME = {"o": "ordinary kriging (no drift)", "s": f"DEM smoothed {C.HEAD_DEM_HEADLINE_SMOOTHING_M} m",
               "e": f"slack-floor envelope {C.SLACK_FLOW_ENVELOPE_R_M:g} m", "r": "raw DEM"}
@@ -141,32 +151,6 @@ DRIFT_NAME = {"o": "ordinary kriging (no drift)", "s": f"DEM smoothed {C.HEAD_DE
 # ═══════════════════════════════════════════════════════════════════════════
 # INPUTS
 # ═══════════════════════════════════════════════════════════════════════════
-def _geojson_geom(path):
-    with open(path, encoding="utf-8") as f:
-        return shape(json.load(f)["features"][0]["geometry"])
-
-
-def tidal_levels() -> dict:
-    t = pd.read_csv(DATA_TIDAL_LEVELS).set_index("level")["od_m"]
-    return {"MTL": float(t[["MHWS", "MHWN", "MLWN", "MLWS"]].mean()),
-            "MHW": float(t[["MHWS", "MHWN"]].mean())}
-
-
-def load_dem():
-    src = rasterio.open(DATA_DEM)
-    return src, src.read(1).astype(float)
-
-
-def drift_rasters(Z: np.ndarray, dres: float) -> dict:
-    """The three covariate rasters on the DEM grid (keys s, e, r); dres the DEM cell size (m)."""
-    cells = lambda m: max(1, int(round(m / dres)))             # noqa: E731  DEM cells
-    zl = np.where(Z > 0, Z, 0.0)
-    s = uniform_filter(zl, size=cells(C.HEAD_DEM_HEADLINE_SMOOTHING_M), mode="nearest")
-    w = 2 * cells(C.SLACK_FLOW_ENVELOPE_R_M) + 1
-    e = uniform_filter(minimum_filter(zl, size=w, mode="nearest"), size=w, mode="nearest")
-    return {"r": Z, "s": s, "e": e}
-
-
 def sun_position(dates, lat_deg: float, lon_deg: float, hour_utc: float):
     """Solar elevation and azimuth (degrees; azimuth clockwise from north) at hour_utc
     on each date: the NOAA general solar position equations (Spencer's series)."""
@@ -221,114 +205,6 @@ def cell_blocks(A: np.ndarray, mask: np.ndarray, rr0: int, cc0: int, k: int, fn)
     return out
 
 
-def sample(src, A: np.ndarray, x, y) -> np.ndarray:
-    """Nearest-cell value of array A (on src's grid) at points; NaN off the grid."""
-    x, y = np.asarray(x, float), np.asarray(y, float)
-    r = np.floor((src.bounds.top - y) / src.res[1]).astype(int)
-    c = np.floor((x - src.bounds.left) / src.res[0]).astype(int)
-    ok = (r >= 0) & (r < A.shape[0]) & (c >= 0) & (c < A.shape[1])
-    out = np.full(len(x), np.nan)
-    out[ok] = A[r[ok], c[ok]]
-    return out
-
-
-def network_states():
-    """Months per state from the D-178 network-median level."""
-    M = _wells_monthly()["h_median"].dropna()
-    M.index = pd.to_datetime(M.index)
-    q = C.SLACK_FLOW_STATE_DECILE
-    return M, {"wet": M.index[M >= M.quantile(1 - q)], "dry": M.index[M <= M.quantile(q)], "mean": M.index}
-
-
-def well_heads(states: dict) -> dict:
-    el = pd.read_csv(INT_WELL_ELEVATIONS)
-    el["k"] = el["Name_norm"].str.lower()
-    el = el.dropna(subset=["ground_elev_m"]).drop_duplicates("k").set_index("k")
-    lev = pd.read_csv(INT_WELLS_ALL, index_col=0, float_precision="round_trip")
-    lev.index = pd.to_datetime(lev.index)
-    lev.columns = lev.columns.str.lower()
-    ks = [k for k in lev.columns if k in el.index]
-    n_rec = lev[ks].notna().sum()
-    # One well set for all three states, so the surfaces differ only by the state:
-    # a well enters only if it has SLACK_FLOW_MIN_STATE_MONTHS in every state.
-    enough = {st: lev.reindex(months)[ks].notna().sum() >= C.SLACK_FLOW_MIN_STATE_MONTHS
-              for st, months in states.items()}
-    keep = [k for k in ks if all(enough[st][k] for st in states)]
-    out = {}
-    for st, months in states.items():
-        v = lev.reindex(months)[ks]
-        n = v.notna().sum()
-        out[st] = pd.DataFrame({"well": keep, "E": el.loc[keep, "E"].values, "N": el.loc[keep, "N"].values,
-                                "ground": el.loc[keep, "ground_elev_m"].values,
-                                "head": el.loc[keep, "ground_elev_m"].values + v[keep].mean().values,
-                                "n_months": n[keep].values, "n_record": n_rec[keep].values})
-    return out, lev, el
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# KRIGING
-# ═══════════════════════════════════════════════════════════════════════════
-class Surface:
-    """One drift choice: data assembly, variogram, prediction, leave-one-out."""
-
-    def __init__(self, wells: pd.DataFrame, anchors: np.ndarray, drift: str, rasters: dict, src, fixed=None):
-        """anchors: sea anchors, all at the coastal head; fixed: (xy, z) boundary anchors with their own heads."""
-        self.wells, self.anchors, self.drift, self.rasters, self.src = wells, anchors, drift, rasters, src
-        self.fixed = fixed if fixed is not None and len(fixed[0]) else None
-        self.dw = None if drift == "o" else sample(src, rasters[drift], wells.E, wells.N)[:, None]
-        self.da = None if drift == "o" else sample(src, rasters[drift], anchors[:, 0], anchors[:, 1])[:, None]
-        self.df = (None if drift == "o" or self.fixed is None
-                   else sample(src, rasters[drift], self.fixed[0][:, 0], self.fixed[0][:, 1])[:, None])
-
-    def _vgm(self, keep: np.ndarray) -> dict:
-        w = self.wells[keep]
-        r = ols_residuals(w["head"].values, None if self.dw is None else self.dw[keep])
-        lag, gam, cnt = empirical_variogram(w[["E", "N"]].values, r, C.SLACK_FLOW_VGM_BINS,
-                                            C.SLACK_FLOW_VGM_MAX_LAG_M)
-        return fit_spherical(lag, gam, cnt, C.SLACK_FLOW_VGM_MAX_LAG_M)
-
-    def _system(self, keep, head_sea):
-        w = self.wells[keep]
-        xy = np.vstack([w[["E", "N"]].values, self.anchors])
-        z = np.concatenate([w["head"].values, np.full(len(self.anchors), head_sea)])
-        D = None if self.dw is None else np.vstack([self.dw[keep], self.da])
-        if self.fixed is not None:
-            xy = np.vstack([xy, self.fixed[0]]); z = np.concatenate([z, self.fixed[1]])
-            D = None if D is None else np.vstack([D, self.df])
-        return xy, z, D
-
-    def predict(self, head_sea, txy, tD, keep=None):
-        keep = np.ones(len(self.wells), bool) if keep is None else keep
-        vgm = self._vgm(keep)
-        xy, z, D = self._system(keep, head_sea)
-        p, se = ked(xy, z, D, txy, tD, vgm)
-        return p, se, vgm
-
-    def loo(self, head_sea, idx=None) -> np.ndarray:
-        """Prediction minus observation at each well (or at wells idx), the well out
-        of both the kriging system and the variogram."""
-        idx = range(len(self.wells)) if idx is None else idx
-        err = {}
-        for i in idx:
-            keep = np.ones(len(self.wells), bool); keep[i] = False
-            t = self.wells.iloc[[i]]
-            tD = None if self.dw is None else self.dw[[i]]
-            p, _, _ = self.predict(head_sea, t[["E", "N"]].values, tD, keep)
-            err[i] = p[0] - t["head"].values[0]
-        return pd.Series(err)
-
-
-def fit_coastal_head(surf: Surface, coastal_idx, lo, hi):
-    """The head in [lo, hi] minimising the median |LOO error| at the coastal wells,
-    with the error curve on a regular grid for the output."""
-    f = lambda h: float(np.median(np.abs(surf.loo(h, coastal_idx))))  # noqa: E731
-    grid = np.linspace(lo, hi, C.SLACK_FLOW_HEAD_GRID_N)
-    curve = pd.DataFrame({"head_m": grid, "median_abs_err_m": [f(h) for h in grid]})
-    r = minimize_scalar(f, bounds=(lo, hi), method="bounded", options={"xatol": C.SLACK_FLOW_HEAD_XATOL_M})
-    flat = (curve["median_abs_err_m"].max() - curve["median_abs_err_m"].min()) <= C.SLACK_FLOW_LOO_TIE_M
-    return float(r.x), float(r.fun), curve, bool(flat)
-
-
 # ═══════════════════════════════════════════════════════════════════════════
 # GEOMETRY HELPERS
 # ═══════════════════════════════════════════════════════════════════════════
@@ -345,13 +221,6 @@ def az_of(u, v):
 def ang_diff(a, b):
     d = np.abs((np.asarray(a) - np.asarray(b) + 180.0) % 360.0 - 180.0)
     return d
-
-
-def bilinear(grid_vals, x0, y0, res, x, y):
-    """Bilinear sample of a north-up grid whose node (0,0) is at (x0, y0)."""
-    cols = (np.asarray(x) - x0) / res
-    rows = (y0 - np.asarray(y)) / res
-    return map_coordinates(grid_vals, [rows, cols], order=1, mode="constant", cval=np.nan)
 
 
 def _kml(path, placemarks: list[str], name: str):
@@ -481,84 +350,6 @@ def choose_transects(coast, area, wells, high_xy):
     return chosen, fan, merged is not None
 
 
-def ridge_depths(lev: pd.DataFrame, states: dict) -> dict:
-    """Depth of the water table below ground at the ridge well, per state: the mean over its
-    months in the state, or, with too few, its record's extreme in the state's direction."""
-    s = lev[C.SLACK_FLOW_RIDGE_WELL].dropna()
-    out = {}
-    for st, months in states.items():
-        v = s.reindex(pd.DatetimeIndex(months)).dropna()
-        if len(v) >= C.SLACK_FLOW_RIDGE_MIN_MONTHS:
-            out[st] = (float(-v.mean()), f"mean of {len(v)} {st}-state months")
-        elif st == "wet":
-            out[st] = (float(-s.max()), "shallowest reading (no wet-state month in the record)")
-        else:
-            out[st] = (float(-s.min()), f"deepest reading (no {st}-state month in the record): a lower bound")
-    return out
-
-
-def boundary_arcs(area, coast, src, Z):
-    """Points every SLACK_FLOW_SEA_SPACING_M along the study-area boundary from the river start:
-    downstream to the HWM (river), and the other way along the divide until the coast is within
-    SLACK_FLOW_COASTAL_WELL_M or the DEM ends (ridge). Returns (ridge_xy, river_xy)."""
-    ring = LineString(area.exterior.coords)
-    Lr = ring.length
-    s0 = ring.project(Point(C.STUDY_AREA_RIVER_START))
-    zat = lambda t: sample(src, Z, [ring.interpolate(t % Lr).x], [ring.interpolate(t % Lr).y])[0]  # noqa: E731
-    down = 1 if zat(s0 + C.SLACK_FLOW_RIVER_PROBE_M) < zat(s0 - C.SLACK_FLOW_RIVER_PROBE_M) else -1
-    step = C.SLACK_FLOW_SEA_SPACING_M
-    river, ridge = [], []
-    for k in range(int(Lr // step)):
-        p = ring.interpolate((s0 + down * k * step) % Lr)
-        if coast.distance(p) <= step:
-            break
-        river.append((p.x, p.y))
-    for k in range(1, int(Lr // step)):
-        p = ring.interpolate((s0 - down * k * step) % Lr)
-        if coast.distance(p) <= C.SLACK_FLOW_COASTAL_WELL_M or not np.isfinite(sample(src, Z, [p.x], [p.y])[0]):
-            break
-        ridge.append((p.x, p.y))
-    return np.array(ridge).reshape(-1, 2), np.array(river).reshape(-1, 2)
-
-
-def lake_boundary(states: dict):
-    """Llyn Rhos-Ddu: points every SLACK_FLOW_SEA_SPACING_M round its Features.kml outline, and its
-    level per state from the lake gauge (gauge datum + reading, the wells' convention), with the
-    gauge record's mean for the LiDAR check. Returns (xy, {state: level}, outline, record mean)."""
-    from utils.kml_io import read_kml                          # noqa: PLC0415
-    feats = read_kml(DATA_KML_FEATURES, quiet=True)
-    hit = [g for n, g in zip(feats["Name"], feats.geometry) if str(n).strip() == C.RANWELL_PENLON_NAME]
-    if not hit:
-        warn(f"lake: no '{C.RANWELL_PENLON_NAME}' placemark in {DATA_KML_FEATURES.name}; no lake boundary")
-        return np.zeros((0, 2)), {}, None, np.nan
-    lake = hit[0]
-    ring = LineString(lake.exterior.coords)
-    xy = np.array([ring.interpolate(t).coords[0][:2] for t in np.arange(0, ring.length, C.SLACK_FLOW_SEA_SPACING_M)])
-    wc = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
-    wc.index = pd.to_datetime(wc.index)
-    col = next((c for c in wc.columns if c.strip().lower() in C.LAKE_GAUGE_KEYS), None)
-    el = pd.read_csv(INT_WELL_ELEVATIONS)
-    row = el[el["Name"].str.strip().str.lower().isin(C.LAKE_GAUGE_KEYS)]
-    if col is None or row.empty:
-        warn("lake: gauge record or gauge datum not found; no lake boundary")
-        return np.zeros((0, 2)), {}, lake, np.nan
-    rec = wc[col].dropna() + float(row["ground_elev_m"].iloc[0])
-    lev = {st: float(rec.reindex(pd.DatetimeIndex(m)).dropna().mean()) for st, m in states.items()}
-    return xy, lev, lake, float(rec.mean())
-
-
-def channel_level(src, Z, xy: np.ndarray) -> np.ndarray:
-    """Lowest DEM within SLACK_FLOW_RIVER_SNAP_M of each point: the channel, not its bank."""
-    dres = float(src.res[0]); k = max(1, int(round(C.SLACK_FLOW_RIVER_SNAP_M / dres)))
-    out = np.full(len(xy), np.nan)
-    for i, (x, y) in enumerate(xy):
-        r = int((src.bounds.top - y) / dres); c = int((x - src.bounds.left) / dres)
-        blk = Z[max(r - k, 0):r + k + 1, max(c - k, 0):c + k + 1]
-        if blk.size:
-            out[i] = float(np.nanmin(blk))
-    return out
-
-
 def arrow_length(grad):
     """Arrow length (m) on a log scale of |grad h|, shared by the figures and the KML."""
     L0 = C.SLACK_FLOW_ARROW_GRID_M * C.SLACK_FLOW_ARROW_LEN_FRAC
@@ -572,12 +363,12 @@ def arrow_length(grad):
 # ═══════════════════════════════════════════════════════════════════════════
 def main(no_fig: bool = False) -> int:
     banner(SCRIPT_ID, "The water table by kriging with an external drift, and slack flow", __version__)
-    DIR_49.mkdir(parents=True, exist_ok=True)
+    DIR_01B.mkdir(parents=True, exist_ok=True)
     rn = ReportNumbers()
 
     phase(1, "Inputs, states and tidal levels")
-    area = _geojson_geom(DATA_STUDY_AREA_GEOJSON)
-    coast = _geojson_geom(DATA_COASTLINE_HWM)
+    area = geojson_geom(DATA_STUDY_AREA_GEOJSON)
+    coast = geojson_geom(DATA_COASTLINE_HWM)
     tide = tidal_levels()
     src, Z = load_dem()
     M, states = network_states()
@@ -617,10 +408,7 @@ def main(no_fig: bool = False) -> int:
          f"({(inside & ~on_dem).sum()} study-area nodes off the DEM, not estimated)")
     rn.add("grid_nodes_off_dem", int((inside & ~on_dem).sum()), unit="nodes",
            note="study-area nodes west of the DEM (the hand-drawn west end, D-203); not estimated")
-    buf = area.buffer(C.SLACK_FLOW_SEA_BUFFER_M)
-    anchors = np.array([coast.interpolate(t).coords[0] for t in np.arange(0, coast.length, C.SLACK_FLOW_SEA_SPACING_M)])
-    anchors = anchors[[buf.contains(Point(p)) for p in anchors]]
-    anchors = anchors[np.isfinite(sample(src, rasters["e"], anchors[:, 0], anchors[:, 1]))]
+    anchors = sea_anchors(area, coast, src, rasters)
     info(f"{len(anchors)} sea anchors on the DEM within {C.SLACK_FLOW_SEA_BUFFER_M:g} m of the study area")
     ridge_xy, river_xy = boundary_arcs(area, coast, src, Z)
     rdepth = ridge_depths(lev, states)
@@ -651,7 +439,7 @@ def main(no_fig: bool = False) -> int:
                                          sample(src, Z, lake_xy[:, 0], lake_xy[:, 1])]})
     for st in STATES:
         ba[f"head_{st}_m"] = np.r_[fixed_b[st][1], np.full(len(lake_xy), lake_lev.get(st, np.nan))]
-    ba.to_csv(OUT_49_BOUNDARY_ANCHORS, index=False); saved(OUT_49_BOUNDARY_ANCHORS)
+    ba.to_csv(OUT_01B_BOUNDARY_ANCHORS, index=False); saved(OUT_01B_BOUNDARY_ANCHORS)
 
     # Sentinel ever-wet cells (10 m) and their floors
     z = np.load(SENTINEL_CELL_THRESHOLDS)
@@ -728,7 +516,7 @@ def main(no_fig: bool = False) -> int:
         rn.add("ridge_well_head_m", obs_rw, note=f"{rw}, mean of its record")
         rn.add("ridge_well_error_without_boundary_m", float(p_rw[0] - obs_rw),
                note="kriged surface without the boundary minus the ridge well's head")
-    pd.DataFrame(bt).to_csv(OUT_49_BOUNDARY_TEST, index=False); saved(OUT_49_BOUNDARY_TEST)
+    pd.DataFrame(bt).to_csv(OUT_01B_BOUNDARY_TEST, index=False); saved(OUT_01B_BOUNDARY_TEST)
     kept_names = [p_[0] for p_ in kept]
     info(f"landward boundary kept: {', '.join(kept_names) if kept_names else 'none'}")
     fixed = {st: fixed_of(kept, st) for st in STATES}
@@ -765,8 +553,8 @@ def main(no_fig: bool = False) -> int:
         if not vgm["ok"]:
             warn(f"drift {d}: variogram fit did not converge ({vgm.get('why', '')}); the starting model was used")
     sel = pd.DataFrame(rows)
-    sel.to_csv(OUT_49_DRIFT_SELECTION, index=False); saved(OUT_49_DRIFT_SELECTION)
-    pd.concat(curves).to_csv(OUT_49_COASTAL_HEAD, index=False); saved(OUT_49_COASTAL_HEAD)
+    sel.to_csv(OUT_01B_DRIFT_SELECTION, index=False); saved(OUT_01B_DRIFT_SELECTION)
+    pd.concat(curves).to_csv(OUT_01B_COASTAL_HEAD, index=False); saved(OUT_01B_COASTAL_HEAD)
     passing = sel[sel["passes_physical"]]
     pool = passing if len(passing) else sel
     if not len(passing):
@@ -797,7 +585,7 @@ def main(no_fig: bool = False) -> int:
         G = np.full(GX.shape, np.nan); G[node] = p
         E = np.full(GX.shape, np.nan); E[node] = se
         grids[st], ses[st] = G, E
-        for arr, path in ((G, out_49_surface(st)), (E, out_49_se(st))):
+        for arr, path in ((G, out_01b_surface(st)), (E, out_01b_se(st))):
             with rasterio.open(path, "w", driver="GTiff", height=G.shape[0], width=G.shape[1], count=1,
                                dtype="float32", crs=C.SLACK_FLOW_CRS, transform=tr,
                                nodata=C.SLACK_FLOW_TIF_NODATA) as o:
@@ -808,7 +596,7 @@ def main(no_fig: bool = False) -> int:
             w = heads[st].iloc[i]
             loo_rows.append({"state": st, "well": w.well, "E": w.E, "N": w.N, "observed_m": w["head"],
                              "predicted_m": w["head"] + v, "error_m": v})
-    pd.DataFrame(loo_rows).to_csv(OUT_49_LOO, index=False); saved(OUT_49_LOO)
+    pd.DataFrame(loo_rows).to_csv(OUT_01B_LOO, index=False); saved(OUT_01B_LOO)
     # the radial fan starts at the highest dipwell in the wet state, not at the surface maximum,
     # which the ridge boundary would move onto the ridge
     wh = heads["wet"].loc[heads["wet"]["head"].idxmax()]
@@ -816,7 +604,11 @@ def main(no_fig: bool = False) -> int:
     rn.add("wet_high_E", high_xy[0], unit="m"); rn.add("wet_high_N", high_xy[1], unit="m")
     rn.add("wet_high_head_m", float(wh["head"]), era="wet", well=wh.well, note="highest dipwell, wet state")
 
-    phase(6, "The Sentinel check")
+    phase(6, "Head against the ground (T-66, on the kriged mean surface)")
+    ref_ids = set(pd.read_csv(INT_WELLS_REFERENCE, index_col=0, nrows=1).columns.str.lower())
+    _head_vs_dem(src, Z, dres, grids["mean"], GX, GY, node, heads["mean"], ref_ids, rn, no_fig)
+
+    phase(7, "The Sentinel check")
     s_range = (float(np.nanmin(s_cell[ever])), float(np.nanmax(s_cell[ever])))
     in_rng = M[(M >= s_range[0]) & (M <= s_range[1])]
     offs = []
@@ -880,7 +672,7 @@ def main(no_fig: bool = False) -> int:
                         "surface_m": surf_c, "difference_m": diff, "d_well_m": d_well, "d_hwm_m": d_hwm,
                         "shadow_frac": sh_c, "slope_deg": sl_c, "nearest_well": heads["wet"]["well"].values[iw],
                         "nearest_well_wet_m": near_wet, "class": cls})
-    chk.to_csv(OUT_49_SENTINEL_CHECK, index=False); saved(OUT_49_SENTINEL_CHECK)
+    chk.to_csv(OUT_01B_SENTINEL_CHECK, index=False); saved(OUT_01B_SENTINEL_CHECK)
     ok = np.isfinite(diff)
     for c in ("consistent", "unconstrained", "other", "shadow", "reached by well", "floor edge", "perched"):
         share = float((cls[ok] == c).mean())
@@ -893,10 +685,10 @@ def main(no_fig: bool = False) -> int:
            note=f"of cells more than {C.SLACK_FLOW_PERCHED_M:g} m above the surface, the share with no well within "
                 f"{C.SLACK_FLOW_WELL_SUPPORT_M} m")
 
-    phase(7, "Coastal check")
+    phase(8, "Coastal check")
     _coastal_check(heads, coast, chk, rn)
 
-    phase(8, "Arrows and slack directions")
+    phase(9, "Arrows and slack directions")
     sub = C.SLACK_FLOW_ARROW_GRID_M // res
     arrows = {}
     for st in STATES:
@@ -935,13 +727,13 @@ def main(no_fig: bool = False) -> int:
         rec["turn_flag"] = bool(rec["turn_wet_dry_deg"] > C.SLACK_FLOW_TURN_DEG)
         slack_rows.append(rec)
     slacks = pd.DataFrame(slack_rows)
-    slacks.to_csv(OUT_49_SLACK_DIRECTIONS, index=False); saved(OUT_49_SLACK_DIRECTIONS)
+    slacks.to_csv(OUT_01B_SLACK_DIRECTIONS, index=False); saved(OUT_01B_SLACK_DIRECTIONS)
     rn.add("n_slacks", len(slacks), unit="slacks", note="connected ever-wet cells passing the Sentinel check")
     rn.add("slacks_turning", int(slacks["turn_flag"].sum()), unit="slacks",
            note=f"wet-to-dry direction change > {C.SLACK_FLOW_TURN_DEG:g} deg")
     rn.add("median_turn_wet_dry_deg", float(slacks["turn_wet_dry_deg"].median()), unit="deg")
 
-    phase(9, "Sensitivity")
+    phase(10, "Sensitivity")
     base_u, base_v = fields["mean"]
     coast_node = np.array([coast.distance(Point(e, n)) <= C.SLACK_FLOW_COASTAL_WELL_M for e, n in txy])
     Cn = np.zeros(GX.shape, bool); Cn[node] = coast_node
@@ -980,12 +772,12 @@ def main(no_fig: bool = False) -> int:
         sens.append(row)
         result(name, f"median arrow change {row['median_angle_change_deg']:.1f} deg "
                f"(coastal {row['median_angle_change_coastal_deg']:.1f}); slacks turning {row['share_slacks_turning']:.3f}")
-    pd.DataFrame(sens).to_csv(OUT_49_SENSITIVITY, index=False); saved(OUT_49_SENSITIVITY)
+    pd.DataFrame(sens).to_csv(OUT_01B_SENSITIVITY, index=False); saved(OUT_01B_SENSITIVITY)
     for r in sens:
         key = r["run"].replace(" ", "_").replace("-", "_")
         rn.add(f"sens_{key}_angle_deg", r["median_angle_change_deg"], unit="deg")
 
-    phase(10, "Transects")
+    phase(11, "Transects")
     wells_all = heads["mean"].reset_index(drop=True)
     series, fan, merged = choose_transects(coast, area, wells_all, high_xy)
     for nm, a0, a1 in C.SLACK_FLOW_EXTRA_TRANSECTS:
@@ -1018,8 +810,8 @@ def main(no_fig: bool = False) -> int:
         proj = np.array([coast.project(p) for p in ptsS]); o = np.argsort(proj)
         for a_, b_ in zip(o, o[1:]):
             tdf.loc[ser.index[a_], "spacing_to_next_m"] = proj[b_] - proj[a_]
-    tdf.to_csv(OUT_49_TRANSECTS, index=False); saved(OUT_49_TRANSECTS)
-    pd.concat(prof).to_csv(OUT_49_TRANSECT_PROFILES, index=False); saved(OUT_49_TRANSECT_PROFILES)
+    tdf.to_csv(OUT_01B_TRANSECTS, index=False); saved(OUT_01B_TRANSECTS)
+    pd.concat(prof).to_csv(OUT_01B_TRANSECT_PROFILES, index=False); saved(OUT_01B_TRANSECT_PROFILES)
     reached = set(sum([t.get("idx", []) for _, t in all_t], []))
     unreached = sorted(set(wells_all.index) - reached)
     rn.add("n_coast_normal_transects", int(tdf.kind.str.startswith("coast").sum()), unit="transects")
@@ -1030,7 +822,7 @@ def main(no_fig: bool = False) -> int:
            f"({'one merged radial' if merged else 'no radial merged'}), {len(fan)} radial; "
            f"{len(reached)} wells covered, {len(unreached)} not")
 
-    phase(11, "KML")
+    phase(12, "KML")
     to_ll = Transformer.from_crs(C.SLACK_FLOW_CRS, C.SLACK_FLOW_LONLAT_CRS, always_xy=True)
     for st in STATES:
         pm = []
@@ -1044,16 +836,16 @@ def main(no_fig: bool = False) -> int:
             pts = [to_ll.transform(*q) for q in ((r.E, r.N), (x_1, y_1), (hx1, hy1), (x_1, y_1), (hx2, hy2))]
             coords = " ".join(f"{q[0]:.7f},{q[1]:.7f},0" for q in pts)
             pm.append(f"<Placemark><name>{r.az:.0f} deg</name><LineString><coordinates>{coords}</coordinates></LineString></Placemark>")
-        _kml(out_49_kml(st), pm, f"Groundwater flow arrows, {st} state (Script 49)"); saved(out_49_kml(st))
+        _kml(out_01b_kml(st), pm, f"Groundwater flow arrows, {st} state (Script 01b)"); saved(out_01b_kml(st))
     pm = []
     per = chk[chk["class"].isin(["shadow", "reached by well", "floor edge", "perched"])]
     for e_, n_, d_, k_ in zip(per.E, per.N, per.difference_m, per["class"]):
         x_, y_ = to_ll.transform(e_, n_)
         pm.append(f"<Placemark><name>{k_}: +{d_:.2f} m</name><Point><coordinates>{x_:.7f},{y_:.7f},0</coordinates></Point></Placemark>")
-    _kml(OUT_49_KML_UNEXPLAINED, pm, "Sentinel wetness the aquifer does not explain (Script 49)"); saved(OUT_49_KML_UNEXPLAINED)
+    _kml(OUT_01B_KML_UNEXPLAINED, pm, "Sentinel wetness the aquifer does not explain (Script 01b)"); saved(OUT_01B_KML_UNEXPLAINED)
 
     if not no_fig:
-        phase(12, "Figures")
+        phase(13, "Figures")
         _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, chosen, head_sea, tdf,
                  pd.concat(prof), series, fan, wells_all, high_xy, x0, y1, res, GX, GY,
                  ridge_xy if ridge_line_kept else None, river_xy if "river" in kept_names else None,
@@ -1061,9 +853,134 @@ def main(no_fig: bool = False) -> int:
                  lake_xy if "lake" in kept_names else None)
         _figure_coastal(chk, area)
 
-    rn.save(OUT_49_REPORT_NUMBERS); saved(OUT_49_REPORT_NUMBERS)
+    rn.save(OUT_01B_REPORT_NUMBERS); saved(OUT_01B_REPORT_NUMBERS)
     done(SCRIPT_ID)
     return 0
+
+
+def _fit_line(x, y):
+    """OLS of y on x over the finite pairs: (slope, intercept, r, n)."""
+    ok = np.isfinite(x) & np.isfinite(y)
+    x, y = x[ok], y[ok]
+    if len(x) < 3:
+        return np.nan, np.nan, np.nan, int(len(x))
+    slope, intercept = np.polyfit(x, y, 1)
+    return float(slope), float(intercept), float(np.corrcoef(x, y)[0, 1]), int(len(x))
+
+
+def _head_vs_dem(src, Z, dres, H, GX, GY, node, wells_mean, ref_ids, rn, no_fig) -> None:
+    """T-66, re-based on the kriged mean-state surface (was Script 20's Delaunay surface).
+
+    (a) The surface against the LiDAR DEM, node by node inside the convex hull of the
+        reference network, the DEM smoothed by a square mean filter of each width in
+        HEAD_DEM_SMOOTHING_M (0 = native). The median nearest-well spacing is emitted:
+        the surface cannot carry relief finer than the network resolves.
+    (b) Mean head at the reference wells against their surveyed ground. NOT the
+        topographic control: dipwells stand on slack floors cut to the water table
+        (Ranwell, 1959), so at the wells the ground follows the water table.
+    """
+    from scipy.spatial import Delaunay                          # noqa: PLC0415
+    ref = wells_mean[wells_mean.well.isin(ref_ids)]
+    inside = node & np.isfinite(H) & (Delaunay(ref[["E", "N"]].values).find_simplex(
+        np.c_[GX.ravel(), GY.ravel()]) >= 0).reshape(GX.shape)
+    filled = np.where(np.isfinite(Z), Z, np.nanmean(Z))
+    rows, sampled = [], {}
+    for w in C.HEAD_DEM_SMOOTHING_M:
+        arr = Z if w <= 0 else uniform_filter(filled, size=max(1, int(round(w / dres))))
+        g = np.full(GX.shape, np.nan)
+        g[inside] = sample(src, arr, GX[inside], GY[inside])
+        sampled[w] = g
+        slope, intercept, r, n = _fit_line(g[inside], H[inside])
+        rows.append({"smoothing_m": int(w), "r": r, "slope": slope, "intercept_m": intercept, "n_nodes": n,
+                     "sd_dem_m": float(np.nanstd(g[inside])), "sd_head_m": float(np.nanstd(H[inside]))})
+    sweep = pd.DataFrame(rows)
+    sweep.to_csv(OUT_01B_HEAD_VS_DEM, index=False); saved(OUT_01B_HEAD_VS_DEM)
+    w_slope, w_int, w_r, w_n = _fit_line(ref["ground"].values, ref["head"].values)
+    xy = ref[["E", "N"]].values
+    d = np.sqrt(((xy[:, None, :] - xy[None, :, :]) ** 2).sum(-1)); np.fill_diagonal(d, np.inf)
+    spacing = float(np.median(d.min(axis=1)))
+    if C.HEAD_DEM_HEADLINE_SMOOTHING_M not in set(sweep["smoothing_m"]):
+        raise ValueError(f"HEAD_DEM_HEADLINE_SMOOTHING_M={C.HEAD_DEM_HEADLINE_SMOOTHING_M} is not in "
+                         f"HEAD_DEM_SMOOTHING_M {C.HEAD_DEM_SMOOTHING_M}")
+    raw = sweep[sweep.smoothing_m == 0].iloc[0]
+    hl = sweep[sweep.smoothing_m == C.HEAD_DEM_HEADLINE_SMOOTHING_M].iloc[0]
+    note_a = (f"kriged mean-state water table against the LiDAR DEM at the {C.SLACK_FLOW_GRID_M} m grid nodes "
+              "inside the convex hull of the reference network; DEM smoothed by a square mean filter of the "
+              "stated width (0 = native). T-66, re-based on 01b (D-205).")
+    rn.add("head_dem_r_raw", raw["r"], unit="", note=note_a)
+    rn.add("head_dem_slope_raw", raw["slope"], unit="m/m", note=note_a)
+    rn.add("head_dem_n_nodes", raw["n_nodes"], unit="nodes", note=note_a)
+    rn.add("head_dem_headline_smoothing_m", C.HEAD_DEM_HEADLINE_SMOOTHING_M, unit="m",
+           note="config.HEAD_DEM_HEADLINE_SMOOTHING_M")
+    rn.add("head_dem_r_smoothed", hl["r"], unit="", note=note_a)
+    rn.add("head_dem_slope_smoothed", hl["slope"], unit="m/m", note=note_a)
+    note_b = ("mean-state head on surveyed ground at the reference wells: the slack-formation relation, "
+              "not topographic control. T-66.")
+    rn.add("wells_wt_ground_slope", w_slope, unit="m/m", note=note_b)
+    rn.add("wells_wt_ground_intercept", w_int, unit="m", note=note_b)
+    rn.add("wells_wt_ground_r", w_r, unit="", note=note_b)
+    rn.add("wells_wt_ground_n", w_n, unit="wells", note=note_b)
+    rn.add("well_spacing_median_m", spacing, unit="m",
+           note="median nearest-neighbour spacing of the reference wells: the finest relief the surface can carry")
+    # config's definition of the headline width: the first width in the sweep at or beyond which the
+    # water table tracks the smoothed ground 1:1 (slope reaches 1)
+    reach = sweep[sweep.slope >= 1.0]
+    first = int(reach.smoothing_m.iloc[0]) if len(reach) else None
+    rn.add("head_dem_first_width_slope_1_m", first if first is not None else np.nan, unit="m",
+           note="first smoothing width at which the slope of water table on ground reaches 1")
+    result("head vs DEM", f"raw r {raw['r']:.3f} slope {raw['slope']:.3f}; {C.HEAD_DEM_HEADLINE_SMOOTHING_M} m "
+           f"r {hl['r']:.3f} slope {hl['slope']:.3f}; slope reaches 1 at {first} m; wells slope "
+           f"{w_slope:.3f} r {w_r:.3f} n {w_n}; median spacing {spacing:.0f} m")
+    if first != C.HEAD_DEM_HEADLINE_SMOOTHING_M:
+        warn(f"on the kriged surface the slope first reaches 1 at {first} m, not at "
+             f"HEAD_DEM_HEADLINE_SMOOTHING_M={C.HEAD_DEM_HEADLINE_SMOOTHING_M} m (also the smoothed-DEM drift "
+             "width): for Martin")
+    if no_fig:
+        return
+    import matplotlib                                          # noqa: PLC0415
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt                            # noqa: PLC0415
+    from utils.render_utils import render_figure, apply_house_style  # noqa: PLC0415
+    apply_house_style()
+    FS_S, FS_T = C.SLACK_FLOW_FONT_PT
+    fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.6), constrained_layout=True)
+    g0 = sampled[0][inside]; hq = H[inside]
+    lo = float(np.floor(min(np.nanmin(hq), np.nanmin(g0))))
+    hi = float(np.ceil(max(np.nanpercentile(g0, C.SLACK_FLOW_DEM_CLIP_PCTL), np.nanmax(hq)) + 1))
+    for ax, w, tag in ((axes[0], 0, "a"), (axes[1], C.HEAD_DEM_HEADLINE_SMOOTHING_M, "b")):
+        g = sampled[w][inside]; row = sweep[sweep.smoothing_m == w].iloc[0]
+        ok = np.isfinite(g) & np.isfinite(hq)
+        beyond = int((g[ok] > hi).sum())
+        ax.hexbin(g[ok], hq[ok], gridsize=40, cmap="Greys", mincnt=1, bins="log", extent=(lo, hi, lo, hi),
+                  linewidths=0.2)
+        xx = np.array([lo, hi])
+        ax.plot(xx, xx, color="k", lw=0.8, ls="--", label="1:1")
+        ax.plot(xx, row["intercept_m"] + row["slope"] * xx, color="firebrick", lw=1.4,
+                label=f"water table on ground: slope {row['slope']:.2f}, r {row['r']:.2f}")
+        if w == 0:
+            ax.scatter(ref["ground"], ref["head"], s=16, c="lime", edgecolors="k", lw=0.4, zorder=4,
+                       label="reference wells")
+            ax.plot(xx, w_int + w_slope * xx, color="dodgerblue", lw=1.0, ls=":",
+                    label=f"at the wells: slope {w_slope:.2f}, r {w_r:.2f}")
+        ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect("equal")
+        ax.set_xlabel("Ground, LiDAR DEM" + (" (native)" if w == 0 else f" smoothed {w} m") + " (m OD)",
+                      fontsize=FS_S)
+        ax.set_ylabel("Mean water table, kriged (m OD)", fontsize=FS_S)
+        ax.set_title(f"({tag}) {int(row['n_nodes'])} nodes in the reference-network hull"
+                     + (f", {beyond} beyond the axis" if beyond else ""), fontsize=FS_S)
+        ax.legend(fontsize=FS_S - 2, loc="upper left", framealpha=0.9); ax.tick_params(labelsize=FS_S - 1)
+    ax = axes[2]
+    xs = sweep["smoothing_m"].replace(0, dres).values
+    ax.plot(xs, sweep["r"], marker="o", ms=4, color="k", label="r")
+    ax.plot(xs, sweep["slope"], marker="s", ms=4, color="firebrick", label="slope")
+    ax.axhline(1.0, color="grey", lw=0.6, ls=":")
+    ax.axvline(spacing, color="dodgerblue", lw=1.0, ls="--", label=f"median well spacing {spacing:.0f} m")
+    ax.set_xscale("log"); ax.set_xlabel("DEM smoothing width (m, mean filter)", fontsize=FS_S)
+    ax.set_ylabel("r  /  slope of water table on smoothed ground", fontsize=FS_S)
+    ax.set_title("(c) scale sweep", fontsize=FS_S); ax.legend(fontsize=FS_S - 2, loc="lower right")
+    ax.tick_params(labelsize=FS_S - 1)
+    fig.suptitle("Mean water table against the ground surface, by DEM smoothing width", fontsize=FS_T)
+    render_figure(fig, OUT_01B_FIG_HEAD_VS_DEM); plt.close(fig)
 
 
 CLASS_STYLE = {   # Sentinel cell classes: colour, legend label (display only)
@@ -1118,7 +1035,7 @@ def _coastal_check(heads, coast, chk, rn) -> None:
         w["perched_cells"] = np.nan; w["perched_floor_m"] = np.nan
     w["perched_cells"] = w["perched_cells"].fillna(0).astype(int)
     w["perched_floor_minus_wet_m"] = w.perched_floor_m - w.wet_m
-    w.reset_index().to_csv(OUT_49_COASTAL_WELLS, index=False); saved(OUT_49_COASTAL_WELLS)
+    w.reset_index().to_csv(OUT_01B_COASTAL_WELLS, index=False); saved(OUT_01B_COASTAL_WELLS)
 
     rows = []
     for name, m in (("south-west", w.sector == "south-west"), ("east", w.sector == "east"), ("all", w.sector != "")):
@@ -1142,7 +1059,7 @@ def _coastal_check(heads, coast, chk, rn) -> None:
         rn.add(f"ground_partial_rho_{key}", r3[0], unit="", note="distance from HWM partialled out")
         rn.add(f"ground_partial_p_{key}", r3[1], unit="")
         rn.add(f"nearest_well_to_hwm_{key}_m", float(s_.d_hwm_m.min()), unit="m")
-    pd.DataFrame(rows).to_csv(OUT_49_COASTAL_TESTS, index=False); saved(OUT_49_COASTAL_TESTS)
+    pd.DataFrame(rows).to_csv(OUT_01B_COASTAL_TESTS, index=False); saved(OUT_01B_COASTAL_TESTS)
 
     for name in ("south-west", "east"):
         pk = w[(w.perched_cells > 0) & (w.sector == name)]
@@ -1162,7 +1079,7 @@ def _coastal_check(heads, coast, chk, rn) -> None:
                 excess_median_m=("difference_m", "median"), excess_q75_m=("difference_m", lambda v: v.quantile(0.75)))
            .reset_index())
     ex_["d_from_m"] = [b.left for b in ex_["bin"]]; ex_["d_to_m"] = [b.right for b in ex_["bin"]]
-    ex_.drop(columns="bin").to_csv(OUT_49_COASTAL_EXCESS, index=False); saved(OUT_49_COASTAL_EXCESS)
+    ex_.drop(columns="bin").to_csv(OUT_01B_COASTAL_EXCESS, index=False); saved(OUT_01B_COASTAL_EXCESS)
 
 
 def _figure_coastal(chk, area) -> None:
@@ -1175,7 +1092,7 @@ def _figure_coastal(chk, area) -> None:
     apply_house_style()
     FS_S, FS_T = C.SLACK_FLOW_FONT_PT
     FS = FS_S + 1
-    w = pd.read_csv(OUT_49_COASTAL_WELLS); ex_ = pd.read_csv(OUT_49_COASTAL_EXCESS)
+    w = pd.read_csv(OUT_01B_COASTAL_WELLS); ex_ = pd.read_csv(OUT_01B_COASTAL_EXCESS)
     fig = plt.figure(figsize=(11, 10), constrained_layout=True)
     gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.35])
     ax = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1]), fig.add_subplot(gs[1, :])]
@@ -1226,7 +1143,7 @@ def _figure_coastal(chk, area) -> None:
     add_en_axes(ax[2], apply_extent=False, labelsize=FS_S, label_fontsize=FS)
     ax[2].set_title("(c) Sentinel wet cells by class, wet state", fontsize=FS_T)
     fig.suptitle("Coastal check: the sea and the coastal wells, and where the Sentinel excess lies", fontsize=FS_T + 1)
-    render_figure(fig, OUT_49_FIG_COASTAL, bbox_inches="tight"); plt.close(fig)
+    render_figure(fig, OUT_01B_FIG_COASTAL, bbox_inches="tight"); plt.close(fig)
 
 
 def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, chosen, head_sea, tdf,
@@ -1363,7 +1280,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
                bbox_to_anchor=(0.5, -0.07))
     fig.suptitle(f"Groundwater flow at Newborough Warren: water table by {DRIFT_NAME[chosen]}, "
                  f"coastal head {head_sea:.2f} m OD", fontsize=FS_T + 1)
-    render_figure(fig, OUT_49_FIG_FLOW, full_page=True, bbox_inches="tight"); plt.close(fig)
+    render_figure(fig, OUT_01B_FIG_FLOW, full_page=True, bbox_inches="tight"); plt.close(fig)
 
     # ── Figure 2: transects ─────────────────────────────────────────────────────
     tlist = list(tdf.itertuples())
@@ -1380,7 +1297,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
     # low to high: blue, green, yellow, brown, white (hypsometric), mixed with white so the
     # transect lines carry the colour and the ground stays in the background
     dem_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-        "dem49", C.SLACK_FLOW_DEM_COLOURS, N=256)
+        "dem01b", C.SLACK_FLOW_DEM_COLOURS, N=256)
     pale = C.SLACK_FLOW_DEM_PALE
     dem_cmap = matplotlib.colors.ListedColormap(
         (1 - pale) * dem_cmap(np.linspace(0.0, 1.0, 256))[:, :3] + pale)
@@ -1486,7 +1403,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
         ax.set_xlabel("distance from west end (m)", fontsize=FS_S - 1); ax.set_ylabel("m OD", fontsize=FS_S - 1)
         ax.tick_params(labelsize=FS_S - 1)
     fig.suptitle("Water-table transects: coast-normal series and radial fan", fontsize=FS_T + 1)
-    render_figure(fig, OUT_49_FIG_TRANSECTS, full_page=True, bbox_inches="tight"); plt.close(fig)
+    render_figure(fig, OUT_01B_FIG_TRANSECTS, full_page=True, bbox_inches="tight"); plt.close(fig)
 
     # ── Figure 3: drift selection ───────────────────────────────────────────────
     fig, axs = plt.subplots(1, 2, figsize=(10, 4.3), constrained_layout=True)
@@ -1508,7 +1425,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
     for a in axs:
         a.tick_params(axis="y", labelsize=FS_S)
     fig.suptitle(f"Drift selection: {DRIFT_NAME[chosen]} chosen", fontsize=FS_T + 1)
-    render_figure(fig, OUT_49_FIG_DRIFT); plt.close(fig)
+    render_figure(fig, OUT_01B_FIG_DRIFT); plt.close(fig)
 
     # ── Figure 4: unexplained wetness ───────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(10, 10), constrained_layout=True)
@@ -1528,7 +1445,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
     # inside the frame, at the top left, where the ground lies outside the study area and carries no data
     ax.legend(handles=leg, loc="upper left", fontsize=FS_S - 1, framealpha=0.9, borderpad=0.4, labelspacing=0.3)
     ax.set_title("Sentinel-2 wetness the aquifer does not explain (wet state)", fontsize=FS_T)
-    render_figure(fig, OUT_49_FIG_WETNESS); plt.close(fig)
+    render_figure(fig, OUT_01B_FIG_WETNESS); plt.close(fig)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ Universal kriging in the variogram form. The drift is a constant plus any number
 of external covariates, so ordinary kriging is the case with no covariate and
 kriging with an external drift (KED; Desbarats et al. 2002, J. Hydrol. 255,
 25–38) is the case with one. Written here, not imported, so the pipeline takes
-on no new dependency: freeze_requirements gates the venv. Script 49 checks it
+on no new dependency: freeze_requirements gates the venv. Script 01b (was 49) checks it
 against pykrige in a scratch environment (spec NRG_spec_slack_flow_C).
 
 Pieces
@@ -19,11 +19,12 @@ Pieces
 A variogram fit that fails to converge is reported, not hidden: fit_spherical
 returns ok=False, and the caller decides the fallback and says so.
 
-__version__ : 1.0.0
+__version__ : 1.0.1
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-27. New: KED for Script 49 (D-205 pending).
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-27. 1.0.1: docstring names Script 01b (Script 49
+#   renamed, D-205 extended); no code change. 1.0.0: New: KED for Script 49 (D-205 pending).
 
 import numpy as np
 from scipy.linalg import lu_factor, lu_solve

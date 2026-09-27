@@ -148,7 +148,7 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **<!--PL:total-->59<!--/PL:total--> registered steps across <!--PL:phases-->20<!--/PL:phases--> phases** (the committed
+The pipeline comprises **<!--PL:total-->59<!--/PL:total--> registered steps across <!--PL:phases-->19<!--/PL:phases--> phases** (the committed
 `outputs/pipeline_manifest.json` is the count; these numbers are stamped from it by
 `tools/sync_index_counts.py`). Those steps are classified two independent ways: by
 tier — <!--PL:analytical-->45<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
@@ -209,51 +209,51 @@ colours and labels are centralised in `src/utils/config.py`.
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
 Willegen et al. (2025) MSL analyses — an observational 5-year aggregation with the equilibrium wetness index and vegetation cross-validation (Script 26,
-step 30), the UKCP18 climate-projection companion (Script 26b, step 31), and the
-report-format MSL5 figures cited in §4.8.3 and §4.13.1 (Script 26c, step 32; a
+step 31), the UKCP18 climate-projection companion (Script 26b, step 32), and the
+report-format MSL5 figures cited in §4.8.3 and §4.13.1 (Script 26c, step 33; a
 display-only companion that reads canonical outputs from Scripts 26, 26b and 19).
-Phase 14 runs the cluster framework diagnostics: the C3 detrend check (Script 28, step 33) validating the
+Phase 14 runs the cluster framework diagnostics: the C3 detrend check (Script 28, step 34) validating the
 aquifer-architecture framing of §5.1 against the project's own data, and the
-within-C3 variance attribution (Script 29, step 34) characterising the
+within-C3 variance attribution (Script 29, step 35) characterising the
 hydrogeological structure within C3 against five spatial predictors, and the C4
-drainage identifiability diagnostic (Script 30, step 35) testing whether C4's low
+drainage identifiability diagnostic (Script 30, step 36) testing whether C4's low
 β₃ is a β₂/β₃ degeneracy artefact — it is not; the constrained-β₃ triangulation
 this script replaced is retired (D-001) — where the unconstrained monthly
 fit is degenerate. Phase 15 runs the observed-change figure suite: secular
-differential water-table drift (Script 32, step 36, report Fig 71), climate-swing
-amplification and drought-floor surface (Script 33, step 37, report Figs 73 and 59), the
-per-well climate-sensitivity coefficient (Script 35, step 38), the absolute
-climate-removed secular trend map (Script 36, step 39, Figure 72), the
-predicted-vs-observed driver-change validation (Script 37, step 40), and the
+differential water-table drift (Script 32, step 37, report Fig 71), climate-swing
+amplification and drought-floor surface (Script 33, step 38, report Figs 73 and 59), the
+per-well climate-sensitivity coefficient (Script 35, step 39), the absolute
+climate-removed secular trend map (Script 36, step 40, Figure 72), the
+predicted-vs-observed driver-change validation (Script 37, step 41), and the
 comparative driver footing across forest/scrape/coast on common currencies
-(Script 37b, step 41). All six run at analytical-default tier.
-Phase 16 runs the MSL5 two-window sensitivity demonstration (Script 34, step 45,
+(Script 37b, step 42). All six run at analytical-default tier.
+Phase 16 runs the MSL5 two-window sensitivity demonstration (Script 34, step 46,
 §5.7.5), the coast-to-inland MAM transect observational δ₀ diagnostic (Script
-38, step 46, §4.10.4), the SSM hindcast against the 1989–96 CCW record (Script
-39, step 47, §5.7.8), shoreline retreat from the digitised coastline epochs
-(Script 40, step 48) and canopy-cover change from the dated aerial series
-(Script 41, step 49, §4.6.8) — all analytical-default —
+38, step 47, §4.10.4), the SSM hindcast against the 1989–96 CCW record (Script
+39, step 48, §5.7.8), shoreline retreat from the digitised coastline epochs
+(Script 40, step 49) and canopy-cover change from the dated aerial series
+(Script 41, step 50, §4.6.8) — all analytical-default —
 alongside its remaining opt-in supplementary diagnostics: cluster-stratified
-residual climatology (Script 24b, step 42), independent k=5 partition validation
-(Script 31, step 43), and its separation-vs-recoverability companion (Script 31b,
-step 44), which run only with `--with-supplementary`. Phase 17 runs the
+residual climatology (Script 24b, step 43), independent k=5 partition validation
+(Script 31, step 44), and its separation-vs-recoverability companion (Script 31b,
+step 45), which run only with `--with-supplementary`. Phase 17 runs the
 management-interventions-vs-coastal-retreat spatial-reach synthesis figure
-(Script 09f, step 50, §5.8; two-pass, reading Scripts 20/25/09d/10a with
+(Script 09f, step 51, §5.8; two-pass, reading Scripts 20/25/09d/10a with
 documented first-pass fallbacks), the mechanism grid and
-coastal-vs-climate reach schematic (Script 09g, step 51, §5.8 conceptual;
+coastal-vs-climate reach schematic (Script 09g, step 52, §5.8 conceptual;
 reads the 09f reach profile, 10m WMC3 BACI and 10a clearfell steps produced
 earlier in the same pass) and then
-the greyscale figure-conversion utility (Script 27, step 52, on demand) as a callable
+the greyscale figure-conversion utility (Script 27, step 53, on demand) as a callable
 post-processing step, retained in `run_analysis.py` but not treated as an analytical
-phase, then Ranwell's 1959 sites placed and basin-tested (Script 43, step 53,
+phase, then Ranwell's 1959 sites placed and basin-tested (Script 43, step 54,
 display) and his 1951–53 record set against the modern network and the SSM
-hindcast (Script 44, step 54, §5.7.9). Phase 18 (Scripts 45–47, steps 55–57) is
-the Sentinel-2 wet-area line and Phase 19 (Script 48, step 58) the Pastas
+hindcast (Script 44, step 55, §5.7.9). Phase 18 (Scripts 45–47, steps 55–57) is
+the Sentinel-2 wet-area line and Phase 19 (Script 48, step 59) the Pastas
 cross-check of the per-well SSM (§3.4). Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`
-(Phase 3, step 13, the per-well categorical priority map for §5.9 / Conclusion 4
+(Phase 3, step 14, the per-well categorical priority map for §5.9 / Conclusion 4
 reading Script 11b's per-well m_P table) and `14b_year_of_crossing.py` (Phase 4,
-step 16, the bootstrap year-of-crossing diagnostic for §7 Conclusion 11 reading
+step 17, the bootstrap year-of-crossing diagnostic for §7 Conclusion 11 reading
 Script 14's annual summer-min series). References to "Script 25" mean coastal-gradient;
 "Script 26" means van Willegen MSL aggregation and the equilibrium wetness index; "Script 26b" means UKCP18 MSL
 projection; "Script 26c" means MSL5 report-format figures; "Script 09f" means

@@ -10,28 +10,28 @@ ranwell_sites_surface_constrained,7.0,count,sites whose modern-surface leave-one
 ranwell_forcing_ratio_1951_53,0.9663588390501319,-,Parc Mawr / RAF Valley rainfall over Ranwell's span
 ranwell_forcing_r_1951_53,0.9205856402242211,-,monthly correlation of the two gauges over Ranwell's span
 ranwell_delta_m_site1,0.2296855307067246,m,"site 1 (PL): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site1,0.7803971294501385,m,site 1: four-term error
+ranwell_sigma_m_site1,0.7803971294501288,m,site 1: four-term error
 ranwell_delta_m_site4,-0.2598947261361562,m,"site 4 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site4,0.2075443774291708,m,site 4: four-term error
+ranwell_sigma_m_site4,0.20754437742917184,m,site 4: four-term error
 ranwell_delta_m_site8,-1.0499440943918277,m,"site 8 (AS): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site8,0.37333719923642467,m,site 8: four-term error
+ranwell_sigma_m_site8,0.3733371992364133,m,site 8: four-term error
 ranwell_delta_m_site11,-0.25247164088567253,m,"site 11 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site11,0.22120469761860298,m,site 11: four-term error
+ranwell_sigma_m_site11,0.22120469761860842,m,site 11: four-term error
 ranwell_delta_m_site12,0.01696977030995228,m,"site 12 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site12,0.24946168073219344,m,site 12: four-term error
+ranwell_sigma_m_site12,0.2494616807321928,m,site 12: four-term error
 ranwell_delta_m_site13,-0.028269078336634834,m,"site 13 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site13,0.17564092139152326,m,site 13: four-term error
+ranwell_sigma_m_site13,0.17564092139152238,m,site 13: four-term error
 ranwell_delta_m_site16,0.22016243716838352,m,"site 16 (PL): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site16,0.30500560125893617,m,site 16: four-term error
+ranwell_sigma_m_site16,0.3050056012589355,m,site 16: four-term error
 ranwell_delta_m_site18,-0.26070666318995184,m,"site 18 (AS): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site18,0.4503989216403825,m,site 18: four-term error
-ranwell_delta_m_combined_all,-0.15357072208081668,m,COMBINED_ALL: inverse-variance mean over 8 sites
-ranwell_sigma_m_combined_all,0.09259574584946009,m,COMBINED_ALL: standard error
-ranwell_chi2_dof_combined_all,1.286074593224663,-,COMBINED_ALL: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_all,-2.3195074448959123,mm/yr,COMBINED_ALL: delta over the interval
+ranwell_sigma_m_site18,0.45039892164037326,m,site 18: four-term error
+ranwell_delta_m_combined_all,-0.15357072208081843,m,COMBINED_ALL: inverse-variance mean over 8 sites
+ranwell_sigma_m_combined_all,0.09259574584946013,m,COMBINED_ALL: standard error
+ranwell_chi2_dof_combined_all,1.2860745932247148,-,COMBINED_ALL: chi-square per degree of freedom
+ranwell_rate_mm_yr_combined_all,-2.319507444895939,mm/yr,COMBINED_ALL: delta over the interval
 ranwell_resolved_combined_all,0.0,flag,COMBINED_ALL: |delta| > 2 sigma
-ranwell_delta_m_combined_constrained,-0.1590433708089541,m,COMBINED_CONSTRAINED: inverse-variance mean over 7 sites
-ranwell_sigma_m_combined_constrained,0.09325450587666322,m,COMBINED_CONSTRAINED: standard error
-ranwell_chi2_dof_combined_constrained,1.4596491578955628,-,COMBINED_CONSTRAINED: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_constrained,-2.402165449600316,mm/yr,COMBINED_CONSTRAINED: delta over the interval
+ranwell_delta_m_combined_constrained,-0.159043370808956,m,COMBINED_CONSTRAINED: inverse-variance mean over 7 sites
+ranwell_sigma_m_combined_constrained,0.09325450587666327,m,COMBINED_CONSTRAINED: standard error
+ranwell_chi2_dof_combined_constrained,1.459649157895621,-,COMBINED_CONSTRAINED: chi-square per degree of freedom
+ranwell_rate_mm_yr_combined_constrained,-2.402165449600345,mm/yr,COMBINED_CONSTRAINED: delta over the interval
 ranwell_resolved_combined_constrained,0.0,flag,COMBINED_CONSTRAINED: |delta| > 2 sigma

@@ -41,7 +41,6 @@ Outputs (outputs/31_cluster_validation/):
 """
 from __future__ import annotations
 import sys
-import warnings
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -72,9 +71,13 @@ import xml.etree.ElementTree as ET
 from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 
-warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "1.4.2"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+#   ignore (RuntimeWarning) is removed, with its now-unused `import warnings`: no pipeline
+#   module silences its warnings (T-81, D-155). Probed with the filter off
+#   against the committed CSVs, this module raised no warning; outputs unchanged.
+#
+#   Prior 1.4.1: Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #

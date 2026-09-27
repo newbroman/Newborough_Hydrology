@@ -608,7 +608,7 @@ so each file states its own origin:
 | `broadleaf_restock.kml` | Google Earth | yes | `19`, `20`, `config.py`, `living/` |
 | `hydrological study area.kml` | Google Earth (Martin, 2026-09-20 — the study-area polygon, added after E27 found report7's 1,172 ha to be the site boundary's bounding box) | yes | Script 12; `make_study_area` (south-east and west edges) |
 | `study_area.geojson` | `tools/make_study_area.py` — DEM catchments, river, HWM, hand-drawn SE and west edges (D-203, 2026-09-27) | yes | **nothing yet** — E27 switch pending |
-| `tidal_levels_caernarfon_bar.csv` | Admiralty Tide Tables NP201 vol. 1, secondary port Caernarfon Bar, as supplied by Martin 2026-09-27 (edition TO CONFIRM) | yes | **nothing yet** — spec C (coastal head bounds) |
+| `tidal_levels_caernarfon_bar.csv` | UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar, as supplied by Martin 2026-09-27 | yes | **nothing yet** — spec C (coastal head bounds) |
 | `streams.kml` — **derived from `newborough_dem.tif`** via `streams_raw.kml`, not an independent input (see below) | | | |
 | `clay.kml` | Google Earth | yes | **nothing** |
 | `moad.kml` | Google Earth | yes | **legacy only** — `--coast-source moad` (D-175); **see below** |
@@ -709,8 +709,8 @@ basin decidable; the pipeline does not read this file until the E27 switch is re
 
 ### `tidal_levels_caernarfon_bar.csv` — Admiralty tidal levels for the Newborough frontage (2026-09-27)
 
-Secondary-port levels for Caernarfon Bar from the Admiralty Tide Tables (NP201, vol. 1), supplied by
-Martin on 2026-09-27. They cover Ynys Llanddwyn and the south-western approach to the Menai Strait.
+Secondary-port levels for Caernarfon Bar from the UKHO Admiralty Tide Tables, Volume 1B: United
+Kingdom and Ireland, **2026 edition (NP201B-26)**, supplied by Martin on 2026-09-27. They cover Ynys Llanddwyn and the south-western approach to the Menai Strait.
 Chart datum there is **2.72 m below ODN**, so mOD = CD − 2.72 (for comparison, Holyhead's offset is
 3.05 m, NTSLF). MHWS, MHWN, MLWN and MLWS are stored as given; HAT is marked approximate.
 
@@ -725,9 +725,17 @@ MHWS and MHWN (1.88 m OD). Mean tide level is the mean of the four spring and ne
   So the OSM line lies seaward of, or below, the true MHW contour, or the LiDAR reads low on wet sand.
   Neither is established.
 
-**TO CONFIRM:** the NP201 edition and year. Also the West of Wales SMP2 Appendix C context Martin
-quoted (the Menai Strait's east–west range and phase difference) is recorded as context, not as
-data.
+**Sources, as Martin gave them (2026-09-27):**
+- Levels and the CD–ODN offset: UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26),
+  secondary port Caernarfon Bar.
+- Charted heights and tidal variation cross-referenced from UKHO Admiralty Charts 1977 (Caernarfon
+  Bar and Approaches) and 1464 (Menai Strait).
+- Context, not data: West of Wales Coastal Group, *West of Wales Shoreline Management Plan 2* (2011),
+  Appendix C, Baseline Process Understanding. It covers the Menai Strait's east–west difference
+  (about 1.5 m in high water, about 1.5 h in phase) and the tidal amplification northward.
+
+A new tide-table edition can move these levels by a few centimetres. D-205's Revisit-if (spec C)
+names that.
 
 ### `streams.kml` — from the DEM, reproducible (corrected 2026-09-27, D-082)
 

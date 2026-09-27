@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_17.odt — do not edit. source-sha256=96bc3f13aa290e28 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_18.odt — do not edit. source-sha256=871a643019df3035 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -70,7 +70,7 @@ Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau c
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
-Ffigur 4. Newid MSL5 2017→2023. n=59 ffynnon; dyfnhaodd 56 \>25 mm, 0 yn fwy bas \>25 mm. Ffynhonnell: 20_msl5_change_2017_2023.png; Ffigur 58 yr adroddiad.
+Ffigur 4. Newid MSL5 2017→2023. n=59 ffynnon; dyfnhaodd 56 \>25 mm, 0 yn fwy bas \>25 mm. Ffynhonnell: 20_msl5_change_2017_2023.png; Ffigur 72 yr adroddiad.
 
 Mae dadansoddiad symudiad gwanwyn gwahaniaethol (Sgript 32, 2011--2025) yn datgelu tueddiadau dargyfeiriol o fewn y rhwydwaith. Mae C4 Prif Goedwig yn unffurf bositif (+8.4 i +20.5 mm y flwyddyn⁻¹ o\'i gymharu â chymedr y safle, cymedr y clwstwr +14.9 mm y flwyddyn⁻¹); nid oes yr un yn arwyddocaol yn unigol ar ôl cywiriad AR(1). Mae hyn yn adlewyrchu dau fecanwaith atgyfnerthol: (1) mae\'r goedwig yn meddiannu uchafbwynt hydrolig y dyfrhaen, bellaf o unrhyw ffin pen-cyson (llyn i\'r dwyrain, Afon Menai i\'r de-ddwyrain, arfordir i\'r de-orllewin), gan roi\'r rhyddid mwyaf i\'r lefel ddŵr godi mewn blynyddoedd gwlyb a gostwng mewn rhai sych; (2) mae\'r swbstrad cynnyrch-penodol isel (tywod tenau dros graigwely) yn crynhoi ailwefru\'n newidiadau pen mwy. Mae gwanwynau gwlyb diweddar (2021, 2024) wedi mwyhau C4 o\'i gymharu â\'r rhwydwaith. Mae C1 Ymyl y Llyn ac C5 Coedwig Arfordirol yn unffurf negatif (−8.0 a −6.8 mm y flwyddyn⁻¹ yn y drefn honno), wedi\'u gyrru gan signal ffin cilio\'r arfordir. Mae C2 Twyn tua\'n niwtral ar gyfartaledd.
 

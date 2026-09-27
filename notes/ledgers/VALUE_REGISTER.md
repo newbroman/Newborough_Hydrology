@@ -70,6 +70,16 @@
 | `01_locations.csv` | ceh14 · DEM_Ground_Elev | Newborough_Methods_Supplement.md |
 | `01_report_numbers.csv` | pet_calendar_undefined_n_months | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | trend_annual_rain_full_record_p | report9.md |
+| `01b_report_numbers.csv` | head_dem_headline_smoothing_m | report9.md |
+|  | head_dem_n_cells | report9.md |
+|  | head_dem_r_raw | report9.md |
+|  | head_dem_r_smoothed | report9.md |
+|  | head_dem_slope_raw | report9.md |
+|  | head_dem_slope_smoothed | report9.md |
+|  | well_spacing_median_m | report9.md |
+|  | wells_wt_ground_n | report9.md |
+|  | wells_wt_ground_r | report9.md |
+|  | wells_wt_ground_slope | Newborough_Methods_Supplement.md, report9.md |
 | `02_04_bootstrap_stability_summary.csv` | 4 / k4 raw 3 (non-canonical) · median_stability | report8.md |
 |  | 5 / C1 (Lake Edge) · n_wells | report9.md |
 |  | 5 / C4 (Main Forest) · median_stability | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report8.md, report9.md |
@@ -938,16 +948,6 @@
 |  | thinning / summer / C3 · we_mean_mm | Supplementary_Material.md |
 |  | thinning / winter / C3 · we_mean_mm | report9.md |
 |  | ukcp18_2050s / annual / C5 · dh_median_m | Newborough_Methods_Supplement.md |
-| `20_head_dem_report_numbers.csv` | head_dem_headline_smoothing_m | report9.md |
-|  | head_dem_n_cells | report9.md |
-|  | head_dem_r_raw | report9.md |
-|  | head_dem_r_smoothed | report9.md |
-|  | head_dem_slope_raw | report9.md |
-|  | head_dem_slope_smoothed | report9.md |
-|  | well_spacing_median_m | report9.md |
-|  | wells_wt_ground_n | report9.md |
-|  | wells_wt_ground_r | report9.md |
-|  | wells_wt_ground_slope | Newborough_Methods_Supplement.md, report9.md |
 | `20_msl5_change_perwell.csv` | ceh1 · MSL5_bg_2017_m | Supplementary_Material.md |
 |  | ceh26 · MSL5_bg_2023_m | Supplementary_Material.md |
 |  | d10 · MSL5_bg_2017_m | Supplementary_Material.md |
@@ -1545,7 +1545,7 @@
 | Glyph | Sense | Meaning | Output file(s) carrying it |
 |---|---|---|---|
 | D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `11_forecast_pflood_summary.csv` … |
-| L | `L_reach` | fitted inland reach of the coastal gradient | `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` … |
+| L | `L_reach` | fitted inland reach of the coastal gradient | `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv` … |
 | d | `d_coast` | perpendicular distance to the eroding shoreline | `01_dist_coast_validation.csv`, `01_locations.csv`, `01_well_elevations.csv`, `07_05_clusters_vs_covariates.csv`, `10a_09_control_well_spread.csv`, `25_02_per_well_spring_mean_slopes.csv` … |
 | d | `d_depth` | depth of the water table below ground (all uses: P_flood inp | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_05_table10_pflood_spreadsheet.csv`, `21_forestry_02_distributions_means.csv`, `21_forestry_03_scraping_era_means.csv`, `21_forestry_04_baci_zone_means.csv` |
 | z | `z_datum` | drainage datum, 3.7 m below ground — the replacement D_datum | `03_03_cluster_mechanistic_coefficients.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv` |
@@ -1558,7 +1558,7 @@
 | ε | `epsilon_resid` | the residual (error) term of the BACI ANCOVA and of the two- | `16_water_bal_table.csv`, `20_residual_perwell.csv`, `24b_01_cluster_climatology.csv`, `26_ewi_msl5_comparison.csv`, `26_table_s7_2_vw_datum_offsets.csv`, `37_driver_validation_per_well.csv` … |
 | η | `eta_interaction` | CWB x D_fell interaction coefficient in the BACI ANCOVA (rep | `10k_01_four_zone_results.csv` |
 | λ | `lambda_pflood` | rainfall multiplier in the P_flood calculation | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_03_pflood_per_well.csv`, `11b_05_table10_pflood_spreadsheet.csv` |
-| ξ | `xi_drift` | coefficient on Drift(t) in the BACI ANCOVA — the fraction of | `09b_01_individual_well_baci.csv`, `09b_02_centroid_summaries.csv`, `10a_01_ancova_comparison_table.csv`, `10a_02b_drift_design_equivalence.csv`, `10a_03_baci_timeseries.csv`, `10a_09_coastal_scale_factor.csv` … |
+| ξ | `xi_drift` | coefficient on Drift(t) in the BACI ANCOVA — the fraction of | `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `01b_08_coastal_head_fit.csv`, `09b_01_individual_well_baci.csv`, `09b_02_centroid_summaries.csv`, `10a_01_ancova_comparison_table.csv` … |
 | τ | `tau_storage` | storage-drainage index Sy/beta_3, a per-well aquifer-archite | `00_01_annual_climate_summary.csv`, `00_01_annual_climate_summary_short.csv`, `01_dist_coast_validation.csv`, `02_11_month_stability.csv`, `05_pear_membership_audit.csv`, `06_pear_membership_audit_sitewide.csv` … |
 | φ | `phi_ar1` | lag-1 autocorrelation coefficient | `22_05_ssm_residual_autocorrelation.csv`, `22_06_ssm_cluster_mean_inference.csv`, `22_model_b_fits.csv` |
 | ψ | `psi_easting` | coefficient on the per-well Easting x Time interaction in th | `10a_01_ancova_comparison_table.csv`, `10a_02_ancova_full_coefficients.csv`, `10a_02b_drift_design_equivalence.csv`, `10a_03_baci_timeseries.csv`, `10a_09_coastal_scale_factor.csv`, `10a_09_control_well_spread.csv` … |

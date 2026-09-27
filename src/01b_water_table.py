@@ -32,26 +32,26 @@ WHAT THIS IS
   5. Sentinel check: each ever-wet cell's implied head against the wet surface,
      with the LiDAR slack-floor offset measured here at the wells (D-165 measured
      it independently at 0.302 m). The cells above the surface by more than
-     SLACK_FLOW_PERCHED_M are the wetness the aquifer does not explain. A cell is
+     SLACK_FLOW_EXCESS_M are the wetness the aquifer does not explain. A cell is
      tested only where a dipwell lies within SLACK_FLOW_WELL_SUPPORT_M; beyond it
      the surface is interpolation between sea anchors and distant wells, and the
      cell is "unconstrained" (Martin, 2026-09-27: 83 % of the first run's
-     "perched" cells were of this kind). A tested cell more than
-     SLACK_FLOW_PERCHED_M above the surface is then explained, in order, as
+     "unexplained" cells were of this kind). A tested cell more than
+     SLACK_FLOW_EXCESS_M above the surface is then explained, in order, as
      "shadow" (in cast terrain shadow at the lowest-sun scene of the D-178 winter
      fit: a cell's switching level is set by its first wet reading, so one
      shadowed scene suffices), "reached by well" (its floor is at or below the
      nearest well's wet-state head: the surface, not the cell, is low there) or
      "floor edge" (steeper than SLACK_FLOW_EDGE_SLOPE_PCTL of the consistent
-     cells: a mixed floor-and-dune pixel). What survives all three is "perched".
+     cells: a mixed floor-and-dune pixel). What survives all three is "unexplained" (not read as perched water: Martin, 2026-09-27).
      The sun comes from the scene manifest dates at SLACK_FLOW_S2_ACQ_UTC_H (NOAA
      solar position equations); the shadow from the DEM by horizon search.
   5b. Coastal check: does the sea set the level at the coastal wells? The
      wet-minus-dry range against distance from the HWM, per sector, with ground
-     height partialled out; the perched floors against their nearest well; the
+     height partialled out; the unexplained floors against their nearest well; the
      Sentinel excess by distance and support. Nothing is extrapolated to the
      shoreline, whose head the network does not identify.
-  6. Arrows of -grad h, length on a log scale of |grad h|, in all three states:
+  6. Arrows of -grad h, sized (length, shaft and head) on a log scale of |grad h|, in all three states:
      drainage continues when the warren is dry (Martin). Per slack, its mean
      direction in each state and the wet-to-dry turn.
   7. Transects: a radial fan from the wet-state water-table high, and a
@@ -82,7 +82,7 @@ OUTPUTS — outputs/01b_water_table/ (paths.OUT_01B_*)
   01b_05_sensitivity.csv ....... fixed heads and the runner-up drift vs headline
   01b_06_transects.csv, 01b_07_transect_profiles.csv
   01b_08_coastal_head_fit.csv .. the LOO error curve over the coastal head
-  01b_09_coastal_wells.csv ..... per well: distance to HWM, wet-dry range, perched cells nearest it
+  01b_09_coastal_wells.csv ..... per well: distance to HWM, wet-dry range, unexplained cells nearest it
   01b_10_coastal_tests.csv ..... seasonal damping per sector: Spearman and partial
   01b_11_coastal_excess.csv .... Sentinel minus kriged head by distance from HWM and support
   01b_12_boundary_anchors.csv, 01b_13_boundary_test.csv
@@ -95,7 +95,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-27. 1.1.0: renamed from 49_slack_flow.py and moved
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-27. 1.2.0: map arrows sized as a whole by the gradient
+#   (length, shaft and head; SLACK_FLOW_ARROW_WIDTH_MAX, _SIZE_CLASSES, _HEAD; Martin: "size is better"); the
+#   Sentinel class "perched" renamed "unexplained" in the outputs, report numbers and figures, and
+#   SLACK_FLOW_PERCHED_M renamed SLACK_FLOW_EXCESS_M (Martin: "I dont think they are real"; D-205). The head-vs-ground
+#   and transect figures resized for a 160 mm page (SLACK_FLOW_FIGSIZE_*; legibility warnings cleared). No number moves.
+# 1.1.0: renamed from 49_slack_flow.py and moved
 #   to step 2 of Phase 1 (Martin: "lets call it 01b"); the kriging, states and boundary parts moved to
 #   utils/water_table.py unchanged; outputs renamed 49_* -> 01b_* in outputs/01b_water_table/. 1.0.1: registered (Phase 20, tier A,
 #   default; D-205); docstring only, no behaviour change. 1.0.0: new, per spec NRG_spec_slack_flow_C
@@ -658,14 +663,14 @@ def main(no_fig: bool = False) -> int:
     base_cls = np.where(~np.isfinite(diff), "no surface",
                np.where(d_well > C.SLACK_FLOW_WELL_SUPPORT_M, "unconstrained",
                np.where(np.abs(diff) <= C.SLACK_FLOW_SENTINEL_TOL_M, "consistent",
-               np.where(diff > C.SLACK_FLOW_PERCHED_M, "above", "other"))))
+               np.where(diff > C.SLACK_FLOW_EXCESS_M, "above", "other"))))
     edge_slope = float(np.percentile(sl_c[base_cls == "consistent"], C.SLACK_FLOW_EDGE_SLOPE_PCTL))
     above = base_cls == "above"
     cls = base_cls.astype(object)                             # labels longer than the base ones
     cls[above & (sh_c > C.SLACK_FLOW_SHADOW_FRAC)] = "shadow"
     cls[(cls == "above") & (ez <= near_wet)] = "reached by well"
     cls[(cls == "above") & (sl_c > edge_slope)] = "floor edge"
-    cls[cls == "above"] = "perched"
+    cls[cls == "above"] = "unexplained"
     rn.add("edge_slope_deg", edge_slope, unit="deg",
            note=f"{C.SLACK_FLOW_EDGE_SLOPE_PCTL}th percentile of the consistent cells' mean slope")
     chk = pd.DataFrame({"E": ex, "N": ey, "floor_m": ez, "h_wet_floor": es, "implied_head_m": Hc,
@@ -674,15 +679,15 @@ def main(no_fig: bool = False) -> int:
                         "nearest_well_wet_m": near_wet, "class": cls})
     chk.to_csv(OUT_01B_SENTINEL_CHECK, index=False); saved(OUT_01B_SENTINEL_CHECK)
     ok = np.isfinite(diff)
-    for c in ("consistent", "unconstrained", "other", "shadow", "reached by well", "floor edge", "perched"):
+    for c in ("consistent", "unconstrained", "other", "shadow", "reached by well", "floor edge", "unexplained"):
         share = float((cls[ok] == c).mean())
         result(f"cells {c}", f"{share:.3f} of {ok.sum()}")
         rn.add(f"sentinel_share_{c.replace(' ', '_')}", share, unit="",
                note=f"share of {ok.sum()} ever-wet cells with a surface")
         rn.add(f"sentinel_cells_{c.replace(' ', '_')}", int((cls[ok] == c).sum()), unit="cells")
-    above_all = ok & (diff > C.SLACK_FLOW_PERCHED_M)
+    above_all = ok & (diff > C.SLACK_FLOW_EXCESS_M)
     rn.add("sentinel_above_share_unsupported", float((d_well[above_all] > C.SLACK_FLOW_WELL_SUPPORT_M).mean()), unit="",
-           note=f"of cells more than {C.SLACK_FLOW_PERCHED_M:g} m above the surface, the share with no well within "
+           note=f"of cells more than {C.SLACK_FLOW_EXCESS_M:g} m above the surface, the share with no well within "
                 f"{C.SLACK_FLOW_WELL_SUPPORT_M} m")
 
     phase(8, "Coastal check")
@@ -703,7 +708,7 @@ def main(no_fig: bool = False) -> int:
         rn.add(f"arrows_{st}", len(arrows[st]), unit="arrows", era=st)
         rn.add(f"median_gradient_{st}", float(arrows[st]["grad"].median()), unit="m/m", era=st)
     keep_cells = ever & np.isfinite(zf)
-    keep_cells[ever] &= ~np.isin(cls, ["shadow", "floor edge", "perched"])
+    keep_cells[ever] &= ~np.isin(cls, ["shadow", "floor edge", "unexplained"])
     lab, n = label(keep_cells, structure=np.ones((3, 3)))
     sizes = np.bincount(lab.ravel())
     slack_rows = []
@@ -838,7 +843,7 @@ def main(no_fig: bool = False) -> int:
             pm.append(f"<Placemark><name>{r.az:.0f} deg</name><LineString><coordinates>{coords}</coordinates></LineString></Placemark>")
         _kml(out_01b_kml(st), pm, f"Groundwater flow arrows, {st} state (Script 01b)"); saved(out_01b_kml(st))
     pm = []
-    per = chk[chk["class"].isin(["shadow", "reached by well", "floor edge", "perched"])]
+    per = chk[chk["class"].isin(["shadow", "reached by well", "floor edge", "unexplained"])]
     for e_, n_, d_, k_ in zip(per.E, per.N, per.difference_m, per["class"]):
         x_, y_ = to_ll.transform(e_, n_)
         pm.append(f"<Placemark><name>{k_}: +{d_:.2f} m</name><Point><coordinates>{x_:.7f},{y_:.7f},0</coordinates></Point></Placemark>")
@@ -942,8 +947,8 @@ def _head_vs_dem(src, Z, dres, H, GX, GY, node, wells_mean, ref_ids, rn, no_fig)
     import matplotlib.pyplot as plt                            # noqa: PLC0415
     from utils.render_utils import render_figure, apply_house_style  # noqa: PLC0415
     apply_house_style()
-    FS_S, FS_T = C.SLACK_FLOW_FONT_PT
-    fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.6), constrained_layout=True)
+    FS_S = C.SLACK_FLOW_FONT_PT[0] - C.SLACK_FLOW_HEAD_DEM_FONT_DOWN   # a compact three-panel figure for a 160 mm page
+    fig, axes = plt.subplots(1, 3, figsize=C.SLACK_FLOW_FIGSIZE_HEAD_DEM, constrained_layout=True)
     g0 = sampled[0][inside]; hq = H[inside]
     lo = float(np.floor(min(np.nanmin(hq), np.nanmin(g0))))
     hi = float(np.ceil(max(np.nanpercentile(g0, C.SLACK_FLOW_DEM_CLIP_PCTL), np.nanmax(hq)) + 1))
@@ -956,30 +961,28 @@ def _head_vs_dem(src, Z, dres, H, GX, GY, node, wells_mean, ref_ids, rn, no_fig)
         xx = np.array([lo, hi])
         ax.plot(xx, xx, color="k", lw=0.8, ls="--", label="1:1")
         ax.plot(xx, row["intercept_m"] + row["slope"] * xx, color="firebrick", lw=1.4,
-                label=f"water table on ground: slope {row['slope']:.2f}, r {row['r']:.2f}")
+                label=f"slope {row['slope']:.2f}, r {row['r']:.2f}")
         if w == 0:
             ax.scatter(ref["ground"], ref["head"], s=16, c="lime", edgecolors="k", lw=0.4, zorder=4,
                        label="reference wells")
             ax.plot(xx, w_int + w_slope * xx, color="dodgerblue", lw=1.0, ls=":",
-                    label=f"at the wells: slope {w_slope:.2f}, r {w_r:.2f}")
+                    label=f"wells: slope {w_slope:.2f}, r {w_r:.2f}")
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect("equal")
-        ax.set_xlabel("Ground, LiDAR DEM" + (" (native)" if w == 0 else f" smoothed {w} m") + " (m OD)",
-                      fontsize=FS_S)
-        ax.set_ylabel("Mean water table, kriged (m OD)", fontsize=FS_S)
-        ax.set_title(f"({tag}) {int(row['n_nodes'])} nodes in the reference-network hull"
-                     + (f", {beyond} beyond the axis" if beyond else ""), fontsize=FS_S)
-        ax.legend(fontsize=FS_S - 2, loc="upper left", framealpha=0.9); ax.tick_params(labelsize=FS_S - 1)
+        ax.set_xlabel("ground (m OD)", fontsize=FS_S)
+        ax.set_ylabel("mean water table (m OD)" if w == 0 else "", fontsize=FS_S)
+        ax.set_title(f"({tag}) " + ("native DEM" if w == 0 else f"DEM smoothed {w} m")
+                     + (f" ({beyond} beyond axis)" if beyond else ""), fontsize=FS_S)
+        ax.legend(fontsize=FS_S - 1, loc="upper left", framealpha=0.9); ax.tick_params(labelsize=FS_S - 1)
     ax = axes[2]
     xs = sweep["smoothing_m"].replace(0, dres).values
     ax.plot(xs, sweep["r"], marker="o", ms=4, color="k", label="r")
     ax.plot(xs, sweep["slope"], marker="s", ms=4, color="firebrick", label="slope")
     ax.axhline(1.0, color="grey", lw=0.6, ls=":")
-    ax.axvline(spacing, color="dodgerblue", lw=1.0, ls="--", label=f"median well spacing {spacing:.0f} m")
-    ax.set_xscale("log"); ax.set_xlabel("DEM smoothing width (m, mean filter)", fontsize=FS_S)
-    ax.set_ylabel("r  /  slope of water table on smoothed ground", fontsize=FS_S)
-    ax.set_title("(c) scale sweep", fontsize=FS_S); ax.legend(fontsize=FS_S - 2, loc="lower right")
+    ax.axvline(spacing, color="dodgerblue", lw=1.0, ls="--", label=f"well spacing {spacing:.0f} m")
+    ax.set_xscale("log"); ax.set_xlabel("smoothing width (m)", fontsize=FS_S)
+    ax.set_ylabel("r, slope", fontsize=FS_S)
+    ax.set_title("(c) by smoothing width", fontsize=FS_S); ax.legend(fontsize=FS_S - 1, loc="lower right")
     ax.tick_params(labelsize=FS_S - 1)
-    fig.suptitle("Mean water table against the ground surface, by DEM smoothing width", fontsize=FS_T)
     render_figure(fig, OUT_01B_FIG_HEAD_VS_DEM); plt.close(fig)
 
 
@@ -990,13 +993,13 @@ CLASS_STYLE = {   # Sentinel cell classes: colour, legend label (display only)
     "shadow": ("#6a3d9a", "over {pm:g} m above: terrain shadow, lowest winter sun"),
     "reached by well": ("#1b9e77", "over {pm:g} m above: nearest well reaches the floor"),
     "floor edge": ("#a6761d", "over {pm:g} m above: floor edge (slope over {edge})"),
-    "perched": ("#e31a1c", "over {pm:g} m above, unexplained (perched?)"),
+    "unexplained": ("#e31a1c", "over {pm:g} m above, unexplained"),
 }
 
 
 def _class_label(k: str, edge: str = "") -> str:
     return CLASS_STYLE[k][1].format(tol=C.SLACK_FLOW_SENTINEL_TOL_M, sup=C.SLACK_FLOW_WELL_SUPPORT_M,
-                                    pm=C.SLACK_FLOW_PERCHED_M, edge=edge)
+                                    pm=C.SLACK_FLOW_EXCESS_M, edge=edge)
 
 
 def _partial_spearman(x, y, z):
@@ -1026,15 +1029,15 @@ def _coastal_check(heads, coast, chk, rn) -> None:
     w["range_m"] = w.wet_m - w.dry_m
     w["d_hwm_m"] = shapely.distance(coast, shapely.points(w.E.values, w.N.values))
     w["sector"] = np.where(w.E < C.SLACK_FLOW_COAST_SECTOR_E, "south-west", "east")
-    per = chk[chk["class"] == "perched"]
+    per = chk[chk["class"] == "unexplained"]
     if len(per):
         _, i = cKDTree(w[["E", "N"]].values).query(per[["E", "N"]].values)
-        pw = per.assign(well=w.index[i]).groupby("well").agg(perched_cells=("E", "size"), perched_floor_m=("floor_m", "median"))
+        pw = per.assign(well=w.index[i]).groupby("well").agg(unexplained_cells=("E", "size"), unexplained_floor_m=("floor_m", "median"))
         w = w.join(pw)
     else:
-        w["perched_cells"] = np.nan; w["perched_floor_m"] = np.nan
-    w["perched_cells"] = w["perched_cells"].fillna(0).astype(int)
-    w["perched_floor_minus_wet_m"] = w.perched_floor_m - w.wet_m
+        w["unexplained_cells"] = np.nan; w["unexplained_floor_m"] = np.nan
+    w["unexplained_cells"] = w["unexplained_cells"].fillna(0).astype(int)
+    w["unexplained_floor_minus_wet_m"] = w.unexplained_floor_m - w.wet_m
     w.reset_index().to_csv(OUT_01B_COASTAL_WELLS, index=False); saved(OUT_01B_COASTAL_WELLS)
 
     rows = []
@@ -1062,13 +1065,13 @@ def _coastal_check(heads, coast, chk, rn) -> None:
     pd.DataFrame(rows).to_csv(OUT_01B_COASTAL_TESTS, index=False); saved(OUT_01B_COASTAL_TESTS)
 
     for name in ("south-west", "east"):
-        pk = w[(w.perched_cells > 0) & (w.sector == name)]
+        pk = w[(w.unexplained_cells > 0) & (w.sector == name)]
         key = name.replace("-", "_")
-        rn.add(f"perched_cells_{key}", int(pk.perched_cells.sum()), unit="cells")
+        rn.add(f"unexplained_cells_{key}", int(pk.unexplained_cells.sum()), unit="cells")
         if len(pk):
-            rn.add(f"perched_floor_minus_well_wet_{key}_m",
-                   float(np.average(pk.perched_floor_minus_wet_m, weights=pk.perched_cells)), unit="m",
-                   note="perched-cell floor minus the nearest well's wet-state head, cell-weighted mean")
+            rn.add(f"unexplained_floor_minus_well_wet_{key}_m",
+                   float(np.average(pk.unexplained_floor_minus_wet_m, weights=pk.unexplained_cells)), unit="m",
+                   note="unexplained-cell floor minus the nearest well's wet-state head, cell-weighted mean")
 
     c = chk[np.isfinite(chk.difference_m)].copy()
     bins = np.arange(0, C.SLACK_FLOW_COAST_BIN_MAX_M + C.SLACK_FLOW_COAST_BIN_M, C.SLACK_FLOW_COAST_BIN_M)
@@ -1113,12 +1116,12 @@ def _figure_coastal(chk, area) -> None:
         ax[1].plot(mid, e.excess_median_m, color=col, lw=1.5, marker="o", ms=3,
                    label=f"{'a' if sup.startswith('well') else 'no'} dipwell within {C.SLACK_FLOW_WELL_SUPPORT_M} m")
         ax[1].fill_between(mid, e.excess_q25_m, e.excess_q75_m, color=col, alpha=0.2, lw=0)
-    ax[1].axhline(C.SLACK_FLOW_PERCHED_M, color="k", ls="--", lw=0.8)
+    ax[1].axhline(C.SLACK_FLOW_EXCESS_M, color="k", ls="--", lw=0.8)
     ax[1].axhline(0, color="k", lw=0.5)
     ax[1].set_xlabel("distance from the high-water mark (m)", fontsize=FS)
     ax[1].set_ylabel("Sentinel-implied minus kriged\nwet-state head (m); median and IQR", fontsize=FS)
     ax[1].legend(handles=ax[1].get_legend_handles_labels()[0] + [Line2D([0], [0], color="k", ls="--", lw=0.8)],
-                 labels=ax[1].get_legend_handles_labels()[1] + [f"perched threshold ({C.SLACK_FLOW_PERCHED_M:g} m)"],
+                 labels=ax[1].get_legend_handles_labels()[1] + [f"unexplained threshold ({C.SLACK_FLOW_EXCESS_M:g} m)"],
                  fontsize=FS_S, loc="upper right")
     ax[1].tick_params(labelsize=FS_S)
     ax[1].set_title("(b) Sentinel excess over the kriged surface", fontsize=FS_T)
@@ -1212,14 +1215,28 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
     support = support.intersection(area)
 
     def quiv(ax, a):
+        # Each arrow is sized as a whole by the head gradient (Martin, 2026-09-27: "size is better"): the
+        # length on the log scale of arrow_length(), and the shaft and head in proportion, drawn in
+        # SLACK_FLOW_ARROW_SIZE_CLASSES width classes because a quiver takes one shaft width per call.
         scale = arrow_length(a.grad)
         U, V = a.u / a.grad * scale, a.v / a.grad * scale
         near = wtree.query(a[["E", "N"]].values)[0] <= C.SLACK_FLOW_FLOW_SUPPORT_M
-        kw = dict(cmap="viridis_r", norm=norm, angles="xy", scale_units="xy", scale=1, width=0.0032,
-                  headwidth=3.0, headlength=3.2, headaxislength=2.9, zorder=5)
-        if (~near).any():   # beyond well support: the boundary, not data, sets these
-            ax.quiver(a.E[~near], a.N[~near], U[~near], V[~near], a.grad[~near], alpha=0.3, **kw)
-        return ax.quiver(a.E[near], a.N[near], U[near], V[near], a.grad[near], **kw)
+        frac = scale / (C.SLACK_FLOW_ARROW_GRID_M * C.SLACK_FLOW_ARROW_LEN_FRAC)
+        k = C.SLACK_FLOW_ARROW_SIZE_CLASSES
+        cls_ = np.clip(np.ceil((frac - C.SLACK_FLOW_ARROW_MIN_FRAC) / (1 - C.SLACK_FLOW_ARROW_MIN_FRAC) * k), 1, k)
+        hw, hl, hal = C.SLACK_FLOW_ARROW_HEAD
+        q = None
+        for j in range(1, k + 1):
+            w_ = C.SLACK_FLOW_ARROW_WIDTH_MAX * (C.SLACK_FLOW_ARROW_MIN_FRAC
+                                               + (1 - C.SLACK_FLOW_ARROW_MIN_FRAC) * j / k)
+            kw = dict(cmap="viridis_r", norm=norm, angles="xy", scale_units="xy", scale=1, width=w_,
+                      headwidth=hw, headlength=hl, headaxislength=hal, zorder=5)
+            for sel_, alpha_ in ((~near) & (cls_ == j), 0.3), (near & (cls_ == j), 1.0):
+                if sel_.any():   # beyond well support (alpha 0.3) the boundary, not data, sets the arrows
+                    qq = ax.quiver(a.E[sel_], a.N[sel_], U[sel_], V[sel_], a.grad[sel_], alpha=alpha_, **kw)
+                    if alpha_ == 1.0:
+                        q = qq
+        return q
 
     def boundary_marks(ax):
         for g in getattr(support, "geoms", [support]):
@@ -1236,7 +1253,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
 
     map_legend = [Line2D([0], [0], color="#8c510a", lw=1, label=f"water table, {C.SLACK_FLOW_CONTOUR_M:g} m contours (m OD)"),
                   Line2D([0], [0], marker=r"$\rightarrow$", color="#35608d", lw=0, markersize=12,
-                         label="groundwater flow (-grad h); colour and length = gradient"),
+                         label="groundwater flow (-grad h); colour and size = gradient"),
                   Line2D([0], [0], marker="^", color="w", markerfacecolor="lime", markeredgecolor="k", markersize=7,
                          label="dipwell"),
                   Line2D([0], [0], color="m", lw=1, label="study area (D-203)"),
@@ -1285,7 +1302,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
     # ── Figure 2: transects ─────────────────────────────────────────────────────
     tlist = list(tdf.itertuples())
     ncol = 3; nrow = int(np.ceil(len(tlist) / ncol))
-    fig = plt.figure(figsize=(11.5, 5.2 + 3.1 * nrow), constrained_layout=True)
+    fig = plt.figure(figsize=(C.SLACK_FLOW_FIGSIZE_TRANSECTS[0], C.SLACK_FLOW_FIGSIZE_TRANSECTS[1] + C.SLACK_FLOW_FIGSIZE_TRANSECTS[2] * nrow), constrained_layout=True)
     gs = fig.add_gridspec(nrow + 1, ncol, height_ratios=[2.2] + [1] * nrow)
     axm = fig.add_subplot(gs[0, :2])
     # colour-shaded DEM here only: the location map carries no coloured data layer, so
@@ -1353,7 +1370,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
                   label="Sentinel wet cell, floor edge"),
            Line2D([0], [0], marker="x", color=CLASS_STYLE["reached by well"][0], lw=0, markersize=7,
                   label="Sentinel wet cell, reached by the nearest well"),
-           Line2D([0], [0], marker="x", color=CLASS_STYLE["perched"][0], lw=0, markersize=7,
+           Line2D([0], [0], marker="x", color=CLASS_STYLE["unexplained"][0], lw=0, markersize=7,
                   label="Sentinel wet cell, unexplained"),
            Line2D([0], [0], color="teal", ls="--", lw=1, label=f"coastal head ({head_sea:.2f} m OD)")]
     axl.legend(handles=leg, loc="center left", fontsize=FS_S, frameon=False)
@@ -1386,7 +1403,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
                       <= C.SLACK_FLOW_TRANSECT_CELL_BAND_M]
         if len(near):
             al = shapely.line_locate_point(ln, shapely.points(near.E.values, near.N.values))
-            for k in ("consistent", "shadow", "reached by well", "floor edge", "perched"):
+            for k in ("consistent", "shadow", "reached by well", "floor edge", "unexplained"):
                 m_ = (near["class"] == k).values
                 if m_.any():
                     ax.scatter(al[m_], near.implied_head_m.values[m_], s=4 if k == "consistent" else 10,
@@ -1395,11 +1412,9 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
         ax.axhline(head_sea, color="teal", lw=0.8, ls="--")
         pad = 0.05 * ln.length                                 # keeps end-of-line wells and labels off the axes
         ax.set_ylim(-1, ymax); ax.set_xlim(-pad, ln.length + pad)
-        merged_note = " (merged radial)" if "merged" in r.kind else ""
-        nw = int(r.n_wells)
-        ax.set_title(f"({'bcdefghijklmnop'[k_]}) {r.transect}{merged_note}: {r.azimuth_deg:.0f}°, "
-                     f"{nw} well{'s' if nw != 1 else ''}",
-                     fontsize=FS_S + 1)
+        merged_note = "*" if "merged" in r.kind else ""
+        ax.set_title(f"({'bcdefghijklmnop'[k_]}) {r.transect}{merged_note}, {r.azimuth_deg:.0f}°",
+                     fontsize=FS_S)   # well counts and the merge are in the caption
         ax.set_xlabel("distance from west end (m)", fontsize=FS_S - 1); ax.set_ylabel("m OD", fontsize=FS_S - 1)
         ax.tick_params(labelsize=FS_S - 1)
     fig.suptitle("Water-table transects: coast-normal series and radial fan", fontsize=FS_T + 1)

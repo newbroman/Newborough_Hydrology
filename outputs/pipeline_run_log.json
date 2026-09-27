@@ -330,6 +330,12 @@
    "status": "ok",
    "step": "58/58  Pastas cross-check of the per-well SSM: gain, response time, evaporation factor and base level from an independent transfer-function model on the same monthly record, against Model B (its exact counterpart) and Model A (datum-conditional); the unit conversion verified on SSM-generated wells. Needs pastas (requirements.txt)"
   },
+  "49_slack_flow.py": {
+   "last_run": "2026-09-27T16:39:27",
+   "seconds": 63.9,
+   "status": "ok",
+   "step": "59/59  Groundwater flow between the slacks (D-205): the water table by kriging from the dipwells, drift chosen by test, with the sea, the river, Llyn Rhos-Ddu and the ridge well CEH12 as tested boundaries; flow arrows wet/mean/dry, radial and coast-normal transects, the Sentinel check (unconstrained, terrain shadow, floor edge) and the coastal damping check"
+  },
   "run_09_scraping.py": {
    "last_run": "2026-09-26T19:47:32",
    "seconds": 9.9,
@@ -343,5 +349,5 @@
    "step": "10/58  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-09-27T15:00:31"
+ "updated": "2026-09-27T16:39:27"
 }

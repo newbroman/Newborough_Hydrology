@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-27T15:00:31",
- "orchestrator": "2.19.0",
+ "generated": "2026-09-27T16:39:27",
+ "orchestrator": "2.20.0",
  "steps": {
   "00_climate_summary.py": {
    "emitted": {
@@ -1384,6 +1384,56 @@
    "seconds": 37.7,
    "started": "2026-09-25T15:22:30",
    "version": "1.3.0"
+  },
+  "49_slack_flow.py": {
+   "emitted": {
+    "outputs/49_slack_flow/49_01_drift_selection.csv": "89dd650c86bf2315024cb79c7fb6796c316e631794401e73068cce501f14e38d",
+    "outputs/49_slack_flow/49_01_water_table_flow.png": "c4299ae0035f89663a9fe2ccf8535e8583413b563de14e7900d87f30ccae8a6b",
+    "outputs/49_slack_flow/49_02_loo_per_well.csv": "04e921047eb3450c2672765c8ad0c6ff7425cc521da6f03e126410fa1a571194",
+    "outputs/49_slack_flow/49_02_transects.png": "ceb79e0279490fc33c5820e4673bbdd509469ccccd914afefec05233e42a736e",
+    "outputs/49_slack_flow/49_03_drift_selection.png": "7ea9bfe8cf0410e3106d990866d78d5f48fd6af5ce46459d2842b90898454ac0",
+    "outputs/49_slack_flow/49_03_slack_directions.csv": "596de986340168415cac89cc379c22ccb50e702b989976b4a8e502eea33e49bd",
+    "outputs/49_slack_flow/49_04_sentinel_check.csv": "cace54838aa3e27a5349c6c6224542f7f615f15d22182d92e242604e10173a3a",
+    "outputs/49_slack_flow/49_04_unexplained_wetness.png": "b2cb91ac75e065c1178c1e829cc3dbf1f00d84f246c6d3364b7f027f79012d88",
+    "outputs/49_slack_flow/49_05_coastal_check.png": "962c5c6cfe2aa44ebb024d24f46f093046dd4f476f6bfccc412074f16351b88a",
+    "outputs/49_slack_flow/49_05_sensitivity.csv": "0b41cd0a88682c2ae4d2ec2ee2b511c46844657ba444a668bdf302fc530976c8",
+    "outputs/49_slack_flow/49_06_transects.csv": "8be9d20da3b7bc857c87c24398da768a28493b5aec025da8f16f21d72da461bc",
+    "outputs/49_slack_flow/49_07_transect_profiles.csv": "96fae7ad3e703a65d088f286ae99d472e78bfd52a516605d8d6f41248f5cb830",
+    "outputs/49_slack_flow/49_08_coastal_head_fit.csv": "aacd32d4b1fcae612ad9c35e56e4efdadac222c879072c06b6c69302a4785b15",
+    "outputs/49_slack_flow/49_09_coastal_wells.csv": "d622ba64234108d6b2f9f6af3c5fc2d0d20db29e6603a76044791fc76c6d8453",
+    "outputs/49_slack_flow/49_10_coastal_tests.csv": "5c48e8b032b0c6925a08605139287d6abf17ea47723fa4572aca94614621bab2",
+    "outputs/49_slack_flow/49_11_coastal_excess.csv": "f824dccc871c02882498bf758cbd1e6a20be342d1d8c23e918448bbe63c39b1f",
+    "outputs/49_slack_flow/49_12_boundary_anchors.csv": "777e324de2b1850dd31fc58f53fc8198f125a0c9e1c1a66e8a9d6b826c3cdc55",
+    "outputs/49_slack_flow/49_13_boundary_test.csv": "9eebcc56ae73a029d9473b8598c706354153f1ab87b697d3458a807e5ddd022b",
+    "outputs/49_slack_flow/49_kriging_se_dry.tif": "7a6fa83f8a2588a1674f19d4decec7a18e122979b9613e8f369bf8509b6e3184",
+    "outputs/49_slack_flow/49_kriging_se_mean.tif": "bdbd1b0b9838e778ae1104762f6e9f569bb338619e8ac7572bcd5d0170e74b71",
+    "outputs/49_slack_flow/49_kriging_se_wet.tif": "6d301c5a9cb262d0425575dfd3eff3b7a9ded0e3b351b45e4898a173b704a2ed",
+    "outputs/49_slack_flow/49_report_numbers.csv": "d853942be770a10c54d863082aeeecdfc7aa5f135be4dd0a9eb17cb52feafc7c",
+    "outputs/49_slack_flow/49_slack_flow_dry.kml": "23299493aad3d0c7a7753404cd8b84903ba775caf7c75a14066ff38444fb138c",
+    "outputs/49_slack_flow/49_slack_flow_mean.kml": "87c4da729b38c757a1d37ce14933a6d59fb0e9e8119883246c58f9c8f985664b",
+    "outputs/49_slack_flow/49_slack_flow_wet.kml": "a68bb8a221facac79770ce0bd645f63d58c0f35ec44252c6add15ea65ce02ef3",
+    "outputs/49_slack_flow/49_unexplained_wetness.kml": "3a4de5d3f186cb22c371d23df2badd9867808a91ef27ccdc3f65159e1a45dd9f",
+    "outputs/49_slack_flow/49_water_table_dry.tif": "e4bfa26e839860884224c39b3a8c4c4ed317febf9b534022176d7eefcd1c761a",
+    "outputs/49_slack_flow/49_water_table_mean.tif": "a15702266c0bcd0da7e2f6c0af0d9de4a0b99617598d683500dbf152f5481847",
+    "outputs/49_slack_flow/49_water_table_wet.tif": "f162802eace64bf2dcffcefb165540649023dc96df5eedcb4be0bbcfb7be8f7d"
+   },
+   "fallbacks": [],
+   "inputs": {
+    "data/geo/Features.kml": "51fadcc09830f40ea6a296b5444f07717611af04159f69931407f7c38e72b6db",
+    "data/geo/coastline_hwm.geojson": "0c7889840c2849938518f237a1985265d0d25ca2f78200b2092298da66df7618",
+    "data/geo/newborough_dem.tif": "a05bd8ba061ef9dcd85ee5218a9233c7a69941d29bc55a36ecb38c3207f32609",
+    "data/geo/streams.kml": "323411d8c392f723045266bf1f12617d9a1f8b035a2452d3f20085a0ad550681",
+    "data/geo/study_area.geojson": "c15c12a416c86adee9090f23c0678b0dcf8fe2b7cc20827a79c27c695c4281b2",
+    "data/geo/tidal_levels_caernarfon_bar.csv": "377126231cfd48b6c72fbaeb3c54ff7492217f5301c46f021b6affb7740be53b",
+    "data/sentinel/sentinel_scene_manifest.csv": "885a0de8e810445ca035f70fdcecec24ecccb1571fe577af180337a046447550",
+    "outputs/01_well_elevations.csv": "11672043adfecb51a9ea5dbce357c4023beaa80d142cf506a9a3f6caa0dc0825",
+    "outputs/01_wells_all.csv": "cebb74150989ea0f96fb4ffec2c0665e7eec88a7f28e4efd13a1affdbbe08a0f",
+    "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
+   },
+   "inputs_unresolved": [],
+   "seconds": 63.9,
+   "started": "2026-09-27T16:38:23",
+   "version": "1.0.1"
   },
   "run_09_scraping.py": {
    "emitted": {

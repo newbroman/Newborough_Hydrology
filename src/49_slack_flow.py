@@ -58,9 +58,8 @@ WHAT THIS IS
      coast-normal series along Caernarfon Bay placed where the network supports
      it (not at a fixed interval); one radial merges into the series.
 
-  STANDALONE until adopted: not registered in run_analysis.py, so the pipeline
-  counts the documents cite do not move for a diagnostic still under review.
-  Registration (tier X, opt-in) comes with the adoption decision (D-205).
+  REGISTERED 2026-09-27 (D-205): Phase 20 of run_analysis.py, tier A, default pass;
+  documented in the Methods Supplement, S.23e.
 
 INPUTS — all committed
   outputs/01_wells_all.csv, 01_well_elevations.csv; data/geo/newborough_dem.tif,
@@ -88,8 +87,9 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-27. New, per spec NRG_spec_slack_flow_C
-#   (revision 5, signed off 2026-09-27). Standalone until adoption (D-205).
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-27. 1.0.1: registered (Phase 20, tier A,
+#   default; D-205); docstring only, no behaviour change. 1.0.0: new, per spec NRG_spec_slack_flow_C
+#   (revision 5, signed off 2026-09-27).
 
 import argparse
 import json

@@ -186,7 +186,13 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.19.0"  # 2026-09-24: PHASE 19 — Script 48, the Pastas cross-check of the
+__version__ = "2.20.0"  # 2026-09-27: PHASE 20 — Script 49, groundwater flow between the
+#   slacks (D-205; Martin: "happy to build and include in the pipeline and the report", "continue
+#   with registration"; default, tier A). _DOCUMENTED_COUNTS moves deliberately: total_registered
+#   58->59, total_phases 19->20, by_tier.analytical_toplevel 44->45, by_exec.default 53->54,
+#   analytical_phases 17->18. Docs citing the totals updated in the same push (pipeline_count_claims
+#   rows, "N phases", the Methods Supplement's per-chapter "Step N/59").
+# v2.19.0  # 2026-09-24: PHASE 19 — Script 48, the Pastas cross-check of the
 #   per-well SSM (Martin: "lets implement the pastas check"; default, tier A, Model A
 #   and Model B both compared). _DOCUMENTED_COUNTS moves deliberately: total_registered
 #   57->58, total_phases 18->19, by_tier.analytical_toplevel 43->44, by_exec.default
@@ -515,6 +521,10 @@ PHASE_18 = [
     Step("47_hindcast_film.py",  "The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full", "D", "ondemand"),
 ]
 
+PHASE_20 = [
+    Step("49_slack_flow.py", "Groundwater flow between the slacks (D-205): the water table by kriging from the dipwells, drift chosen by test, with the sea, the river, Llyn Rhos-Ddu and the ridge well CEH12 as tested boundaries; flow arrows wet/mean/dry, radial and coast-normal transects, the Sentinel check (unconstrained, terrain shadow, floor edge) and the coastal damping check", "A"),
+]
+
 PHASE_19 = [
     Step("48_pastas_crosscheck.py", "Pastas cross-check of the per-well SSM: gain, response time, evaporation factor and base level from an independent transfer-function model on the same monthly record, against Model B (its exact counterpart) and Model A (datum-conditional); the unit conversion verified on SSM-generated wells. Needs pastas (requirements.txt)", "A"),
 ]
@@ -539,6 +549,7 @@ ALL_PHASES = [
     ("PHASE 17 \u2014 Synthesis Figures, Greyscale Conversion, and the Ranwell 1951\u201353 Record (Scripts 09f, 09g, 27, 43, 44)",  PHASE_17),
     ("PHASE 18 \u2014 Sentinel Wet-Area Model (Scripts 45, 46; film 47 on demand)",  PHASE_18),
     ("PHASE 19 \u2014 Independent Cross-Check of the Per-Well SSM (Script 48)",  PHASE_19),
+    ("PHASE 20 \u2014 Groundwater Flow Between the Slacks (Script 49)",  PHASE_20),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -567,15 +578,15 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            58,
-    "total_phases":                19,
-    "by_tier.analytical_toplevel": 44,
+    "total_registered":            59,
+    "total_phases":                20,
+    "by_tier.analytical_toplevel": 45,
     "by_tier.display_utility":      8,
     "by_tier.optin_diagnostic":     6,
-    "by_exec.default":             53,
+    "by_exec.default":             54,
     "by_exec.optin":                3,
     "by_exec.ondemand":             2,
-    "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted
+    "analytical_phases":           18,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document
 }
 

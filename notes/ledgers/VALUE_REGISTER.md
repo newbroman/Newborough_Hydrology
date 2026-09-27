@@ -1545,7 +1545,7 @@
 | Glyph | Sense | Meaning | Output file(s) carrying it |
 |---|---|---|---|
 | D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `11_forecast_pflood_summary.csv` … |
-| L | `L_reach` | fitted inland reach of the coastal gradient | `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` |
+| L | `L_reach` | fitted inland reach of the coastal gradient | `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` … |
 | d | `d_coast` | perpendicular distance to the eroding shoreline | `01_dist_coast_validation.csv`, `01_locations.csv`, `01_well_elevations.csv`, `07_05_clusters_vs_covariates.csv`, `10a_09_control_well_spread.csv`, `25_02_per_well_spring_mean_slopes.csv` … |
 | d | `d_depth` | depth of the water table below ground (all uses: P_flood inp | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_05_table10_pflood_spreadsheet.csv`, `21_forestry_02_distributions_means.csv`, `21_forestry_03_scraping_era_means.csv`, `21_forestry_04_baci_zone_means.csv` |
 | z | `z_datum` | drainage datum, 3.7 m below ground — the replacement D_datum | `03_03_cluster_mechanistic_coefficients.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv` |

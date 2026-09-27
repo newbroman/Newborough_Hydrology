@@ -37,8 +37,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-27. New: the DEM-derived
-#   study-area boundary (D-203), approved by Martin 2026-09-27.
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-27. 1.0.1: RIVER_START now read from
+#   config.STUDY_AREA_RIVER_START (Script 49 anchors the river edge from the same point). 1.0.0: new, the
+#   DEM-derived study-area boundary (D-203), approved by Martin 2026-09-27.
 
 import argparse
 import json
@@ -60,6 +61,7 @@ from shapely.geometry import (LineString, Point, Polygon,     # noqa: E402
                               box, mapping, shape)
 from shapely.ops import linemerge, split, unary_union         # noqa: E402
 
+from utils import config as C                                 # noqa: E402
 from utils.kml_io import read_kml                             # noqa: E402
 from utils.paths import (DATA_COASTLINE_HWM, DATA_DEM,        # noqa: E402
                          DATA_KML_STUDY_AREA, DATA_STUDY_AREA_GEOJSON)
@@ -71,7 +73,7 @@ BASIN_SEEDS = [                     # one interior point per included basin
     (240836, 364279), (240296, 363993), (241155, 363549), (242710, 363024),
     (242334, 363655), (242135, 362957), (241430, 363204), (242363, 361891),
 ]
-RIVER_START = (243181, 364711)     # ridge-foot drain at the northern divide
+RIVER_START = C.STUDY_AREA_RIVER_START  # ridge-foot drain at the northern divide (config: Script 49 reads it too)
 HAND_SE = [(242295, 362076), (242574, 362302), (242949, 362588),
            (243274, 362787), (243526, 362972), (243771, 363272)]
 WEST_LIMIT_E = 240200              # hand-drawn line west of this easting

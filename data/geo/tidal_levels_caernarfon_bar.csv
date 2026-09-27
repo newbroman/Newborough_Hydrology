@@ -1,6 +1,6 @@
 level,cd_m,od_m,source
-HAT,5.44,2.72,"Admiralty Tide Tables NP201 vol. 1, secondary port Caernarfon Bar (approximate, as supplied)"
-MHWS,5.20,2.48,"Admiralty Tide Tables NP201 vol. 1, secondary port Caernarfon Bar"
-MHWN,4.00,1.28,"Admiralty Tide Tables NP201 vol. 1, secondary port Caernarfon Bar"
-MLWN,1.90,-0.82,"Admiralty Tide Tables NP201 vol. 1, secondary port Caernarfon Bar"
-MLWS,0.60,-2.12,"Admiralty Tide Tables NP201 vol. 1, secondary port Caernarfon Bar"
+HAT,5.44,2.72,"UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar (approximate, as supplied)"
+MHWS,5.20,2.48,"UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar"
+MHWN,4.00,1.28,"UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar"
+MLWN,1.90,-0.82,"UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar"
+MLWS,0.60,-2.12,"UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar"

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_60.odt — do not edit. source-sha256=4a0d02e392729773 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_61.odt — do not edit. source-sha256=1fff7a913d419234 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -121,7 +121,7 @@ Two functional forms are fitted: a Dupuit--Forchheimer steady-state strip-aquife
 
 ## []{#anchor-6}3.10 Spatial interpolation, flow field and water-balance residual field
 
-A mean water-table surface is constructed by inverse-distance interpolation of per-well mean elevations to a regular grid on the British National Grid, masked to the sea-boundary extent. No elevation mask is applied, because the water table is a continuous surface independent of the overlying topography. Normalized Darcy flow-direction vectors are computed from the head-gradient field using a single representative hydraulic conductivity (Betson et al., 2002) and an interpolated aquifer-thickness surface; these are reported as directional context for the interpolated head field rather than as the output of a calibrated continuous-flow model (Bear, 1972; Freeze and Cherry, 1979).
+The mean water-table surface is built by ordinary kriging of each well\'s mean head with a spherical variogram, the geostatistical approach generally preferred for mapping groundwater levels from sparse wells over deterministic interpolators such as inverse-distance weighting (Varouchakis and Hristopulos, 2013; Rao et al., 2022). A drift on the ground surface, which kriging admits (Desbarats et al., 2002), was tested rather than assumed: three drifts were compared with ordinary kriging by leave-one-well-out error and by a physical test against Sentinel-2 wet-floor extents, and ordinary kriging was selected (Hollingham, 2026a, §3.8). The edges are anchored rather than extrapolated: the sea along the high-water mark, at a coastal head fitted to the coastal wells between mean tide level and mean high water (UKHO, 2026), and inland the Afon Braint, Llyn Rhos-Ddu and the ridge well CEH12. No elevation mask is applied. Flow arrows are the negative head gradient, one per 100 m square, sized by the gradient. No hydraulic conductivity or aquifer thickness enters them; they describe the flow geometry of the mapped surface rather than the output of a calibrated continuous-flow model (Bear, 1972; Freeze and Cherry, 1979).
 
 The water-balance residual field quantifies, at each reference well, the degree to which the three-term SSM closes the long-term water balance. The residual is computed from the fitted coefficients as the difference between modelled mean losses (atmospheric draw plus drainage) and modelled mean recharge, with the gross rainfall at all wells, including the forested ones: interception is already carried in β₂·PET̄, since the SSM is fitted on gross rainfall and above-canopy Thornthwaite PET, and subtracting it from rainfall as well would double-count it. Positive residuals indicate locations where modelled losses exceed modelled recharge --- an inadequacy in the three-term model at that location, or in principle an unmodelled input; near-zero residuals indicate that the three-term balance closes adequately. The field is interpolated to a grid with sea-boundary anchors and ridge cells masked. It is interpreted as a structural diagnostic of where the model's three terms are sufficient, not as a quantified map of lateral inflow, since the residual also absorbs nonlinear soil-moisture storage dynamics, coefficient sensitivity and any systematic bias in the Thornthwaite PET estimate. The mechanistic attribution of the residual pattern is tested by an independent cross-correlation lag analysis for distance-dependent transport from the ridge and a seasonal climatology analysis for unmodelled summer evaporative demand.
 
@@ -311,11 +311,11 @@ Where the canopy is uniform but the per-well coefficients span much of the site-
 
 ## 4.9 Mean water-table surface and flow field
 
-Interpolation of per-well mean elevations gives a head surface highest in the north-western forest zone adjacent to the bedrock ridge (≈14 m AOD), declining to 7--9 m AOD across the central dune and 2--3 m AOD at the southern and eastern coastal margins, with contours running approximately NE--SW (Figure 16). Normalized Darcy flow vectors computed from the head gradient diverge radially from the north-western high point: predominantly southward and south-westward in the western half of the site and south-eastward in the eastern half, broadly consistent with the DEM-derived flow network. The vectors are reported as directional context for the interpolated head field rather than as the output of a calibrated continuous-flow model.
+Left out one at a time, the wells are predicted with a median absolute error of 0.14 m in the mean state and almost no bias (−0.005 m). The water table is a single mound, highest beside the bedrock ridge (mean head 13.32 m AOD at CEH14) and falling to the coastal head along Caernarfon Bay and to the river and lake levels inland (Figure 16). Flow runs outward from the high point: south and south-west to Caernarfon Bay across the west and centre, north towards Llyn Rhos-Ddu from the slacks beside the lake, and east and south-east to the Afon Braint. The pattern barely changes with the state of the aquifer: the median gradient is 0.0071 in the wet state and 0.0062 in the dry, and the median flow direction at the slacks turns 4.7° between the two.
 
-![](Pictures/10000000000006400000045FEDE74D3A.jpg){width="16.08cm" height="11.247cm"}
+![](Pictures/10000000000006400000045FEDE74D3A.jpg){width="16.08cm" height="14.2676cm"}
 
-**Figure 16.** Mean annual water-table surface (m AOD) with normalized Darcy flow-direction vectors. The interpolation extends over the rock-ridge bedrock outcrop on the northern boundary, which carries no monitoring wells; values shown there are extrapolations from the surrounding network and are not interpretable as model output on bedrock.
+**Figure 16.** The water table kriged from the dipwells in (a) the wet state (wettest tenth of months), (b) the mean state and (c) the dry state (driest tenth), with 1 m contours (m OD). Arrows show the negative head gradient, one per 100 m square, sized and coloured by the gradient; arrows more than 500 m from a dipwell are faint, because there the boundaries rather than the wells set them. (d) The change in flow direction from wet to dry. Background: LiDAR hillshade (© NRW & OS).
 
 ## []{#anchor-12}4.10 Water-balance residual field
 
@@ -437,7 +437,7 @@ This study sets out a parameter-sparse state-space framework for characterizing 
 
 For review only --- every figure and table below traces to a committed file in the project repository (paths relative to outputs/, or to config.py / data/ where noted). This block lets reviewers verify each value against its producing artefact and is to be removed at production.
 
-  -------------------------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------
   Item                                                                                         Committed source
   Table 1 --- cluster mechanistic characterization                                             03_state_space_model/03_03_cluster_mechanistic_coefficients.csv
   Table 2 --- mean monthly head-space water balance                                            16_water_balance/16_water_bal_table.csv
@@ -463,13 +463,13 @@ For review only --- every figure and table below traces to a committed file in t
   Figure 13 --- β₃ drainage-rate surface                                                       07_spatial_coefficients/07_coeff_maps_data.csv
   Figure 14 --- drainage decay half-life t½                                                    18_wtf_spatial/18_wtf_05_storage_drainage_index.csv
   Figure 15 --- aquifer diagnostic synthesis                                                   18_wtf_spatial/18_wtf_05_storage_drainage_index.csv; 08_model_benchmarking/08_perwell_nse.csv; 18_wtf_spatial/18_wtf_01_well_sy_estimates.csv
-  Figure 16 --- mean annual water-table surface with Darcy flow-directions                     20_spatial_figures/20_head_surface_streams.png (head surface IDW-interpolated from per-well mean annual head in 03_master_data.csv; vectors are direction-only)
+  Figure 16 --- kriged water table and flow arrows                                             01b_water_table/01b_01_water_table_flow.png (kriged from the dipwells; 01b_report_numbers.csv)
   Figure 17 --- SSM water-balance residual field                                               20_spatial_figures/20_residual_perwell.csv
   Figure 18 --- coastal-retreat gradient (a, b, c)                                             25_coastal_gradient/25_report_numbers.csv; 25_coastal_gradient/25_03_cluster_partition.csv; 38_coastal_transect/38_results.txt
   Figure 19 --- illustrative forest reach                                                      20_drawdown_propagation_nohead.png; schematic, parameters from config.py (FOREST_INTERCEPTION, DRAWDOWN_H0/K/B), rendered via Script 20
   Figure 20 --- episodic coastal reach                                                         schematic; parameters from 25_coastal_gradient/25_report_numbers.csv and config.py (COAST_RETREAT\_\*)
   Figure 21 --- spatial reach and development timescale of interventions and coastal retreat   09g_coastal_vs_climate_reach.png; schematic, δ₀/L_cg from 25_coastal_gradient/25_01_panel_fit_parameters.csv, rendered via Script 09g
-  -------------------------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------- -----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
 
@@ -486,6 +486,8 @@ During the preparation of this work the author used Anthropic's Claude (successi
 > Curreli, A., Wallace, H., Freeman, C., Hollingham, M., Stratford, C., Johnson, H. and Jones, L. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. *Science of the Total Environment* 443, 910--919. doi:10.1016/j.scitotenv.2012.11.035
 
 > Davy, A.J., Grootjans, A.P., Hiscock, K. and Petersen, J. (2006) *Development of Eco-Hydrological Guidelines for Dune Habitats --- Phase 1.* English Nature Research Reports No. 696. Peterborough: English Nature.
+
+> Desbarats, A.J., Logan, C.E., Hinton, M.J. and Sharpe, D.R. (2002) On the kriging of water table elevations using collateral information from a digital elevation model. *Journal of Hydrology* 255(1--4), 25--38. doi:10.1016/S0022-1694(01)00504-2
 
 > Fetter, C.W. (2001) *Applied Hydrogeology* (4th ed.). Upper Saddle River, NJ: Prentice Hall.
 
@@ -511,6 +513,8 @@ During the preparation of this work the author used Anthropic's Claude (successi
 
 > Rao, A.R. and Srinivas, V.V. (2006) Regionalization of watersheds by fuzzy cluster analysis. *Journal of Hydrology* 318(1--4), 57--79.
 
+> Rao, P., Wang, Y., Liu, Y., Wang, X., Hou, Y., Pan, S., Wang, F. and Zhu, D. (2022) A comparison of multiple methods for mapping groundwater levels in the Mu Us Sandy Land, China. *Journal of Hydrology: Regional Studies* 43, 101189. doi:10.1016/j.ejrh.2022.101189
+
 > Rhind, P.M., Blackstock, T.H., Hardy, H.S., Jones, R.E. and Sandison, W. (2001) The evolution of Newborough Warren dune system with particular reference to the past four decades. In: Houston, J.A., Edmondson, S.E. and Rooney, P.J. (eds) *Coastal Dune Management.* Liverpool: Liverpool University Press, pp. 345--379.
 
 > Robins, N.S., Pye, K. and Wallace, H. (2013) Dynamic coastal dune spit: the impact of morphological change on dune slacks at Whiteford Burrows, South Wales, UK. Journal of Coastal Conservation 17(3), 473--482. doi:10.1007/s11852-013-0245-4
@@ -520,6 +524,10 @@ During the preparation of this work the author used Anthropic's Claude (successi
 > Scanlon, B.R., Healy, R.W. and Cook, P.G. (2002) Choosing appropriate techniques for quantifying groundwater recharge. *Hydrogeology Journal* 10(1), 18--39. doi:10.1007/s10040-001-0176-2
 
 > Stratford, C., Ratcliffe, J., Hughes, A.G., Roberts, J. and Robins, N.S. (2007) Complex interaction between shallow groundwater and changing woodland, surface water, grazing and other influences in partly wooded duneland in Anglesey, Wales. In: Ribeiro, L., Chambel, A. and Condesso de Melo, M.T. (eds) *IAH 35th Congress, Groundwater and Ecosystems,* Lisbon.
+
+> UKHO (2026) *Admiralty Tide Tables, Volume 1B* (NP201B-26). Taunton: United Kingdom Hydrographic Office.
+
+> Varouchakis, E.A. and Hristopulos, D.T. (2013) Comparison of stochastic and deterministic methods for mapping groundwater level spatial variability in sparsely monitored basins. *Environmental Monitoring and Assessment* 185(1), 1--19. doi:10.1007/s10661-012-2527-y
 
 > Ward, J.H. (1963) Hierarchical grouping to optimize an objective function. *Journal of the American Statistical Association* 58(301), 236--244.
 

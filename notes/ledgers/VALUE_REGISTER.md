@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**140 output file(s)** supply **1528 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**141 output file(s)** supply **1531 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -817,6 +817,9 @@
 |  | C3 (Western Residual) · m_P | report9.md |
 |  | C4 (Main Forest) · m_P | report9.md |
 |  | C5 (Coastal Forest) · m_P | report9.md |
+| `12_report_numbers.csv` | study_area_envelope_e_km | report7.md |
+|  | study_area_envelope_n_km | report7.md |
+|  | study_area_ha | report7.md |
 | `14_spring_trend_stats.csv` | C1 · p_value | report9.md |
 | `14_summer_trend_stats.csv` | C1 · R2 | report9.md, wtf_interception_methodology.md |
 |  | C1 · Slope_m_per_yr | report9.md |

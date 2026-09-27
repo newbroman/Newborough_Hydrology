@@ -18,8 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.20.0 - 2026-09-25
+# VERSION 1.21.0 - 2026-09-27
 # CHANGELOG
+#   1.21.0 (2026-09-27): make_site_outline --check gates (D-204) - the site
+#     outline every map masks with must be the union of the committed KML.
 #   1.20.0 (2026-09-25): month_step_lint after month_bucket_lint (D-195) - every
 #     calendar month has a row, the one-month bridge fills only lone interior
 #     months, and build_ssm_frame pairs every month with the previous one.
@@ -392,6 +394,8 @@ echo "── geographic inputs ────────────────�
 # pointing at a file that has gone.
 python3 tools/geo_provenance.py || true
 python3 tools/geo_consistency.py || true   # W73: withdrawn geo values must not reappear (advisory)
+# D-204: site_outline.geojson must be the union of the committed site_boundary.kml.
+python3 tools/make_site_outline.py --check || rc=1
 
 echo
 echo "── manifest (is the committed one what the orchestrator produces?) ───"

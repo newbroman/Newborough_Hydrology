@@ -53,7 +53,9 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): both WTF loops difference the joined
+__version__ = "1.13.1"  # Hollingham (2026) — 2026-09-27. Unused imports removed
+#   (DATA_KML_SITE_BOUNDARY, DATA_KML_STREAMS; D-204, spec NRG_spec_site_outline_B). No behaviour change.
+# 1.13.0  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): both WTF loops difference the joined
 #   frame on the calendar before dropping incomplete months, so a rise across a missed
 #   visit is no longer counted as one month's.
 # 1.12.0  Hollingham (2026) — 2026-09-24. D-192: the per-well β₃ behind
@@ -114,7 +116,7 @@ from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_18, INT_WELLS_CLEAN, INT_CLIMATE,
     INT_LOCATIONS, INT_CLUSTER_STATS, INT_MASTER_DATA, INT_WELLS_EXTENDED,
     OUT_03_PER_WELL_RECESSION,
-    INT_PEAR_AUDIT_SITEWIDE, DATA_DIR, DATA_KML_SITE_BOUNDARY, DATA_KML_STREAMS,
+    INT_PEAR_AUDIT_SITEWIDE, DATA_DIR,
     INT_LCSC_MODEL_STATS,
     OUT_18_WELL_SY_TABLE, OUT_18_SY_MAP, OUT_18_SY_CONTOUR,
     OUT_18_SY_CONTOUR_EXT, OUT_18_WELL_SY_TABLE, OUT_18_HALFLIFE_MAP,

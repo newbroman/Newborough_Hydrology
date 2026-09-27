@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.36.0"  # Hollingham (2026) - 2026-09-26. OUT_39_REPORT_NUMBERS: Script
+__version__ = "1.37.0"  # Hollingham (2026) - 2026-09-27. DATA_STUDY_AREA_GEOJSON: the
+#   DEM-derived study area written by tools/make_study_area.py (D-203; additive, no
+#   script reads it yet); DATA_SITE_OUTLINE: site_boundary.kml as one polygon,
+#   written by tools/make_site_outline.py and served by map_utils.load_site_outline() (D-204).
+# 1.36.0  # Hollingham (2026) - 2026-09-26. OUT_39_REPORT_NUMBERS: Script
 #   39 1.4.0 writes the 1989-96 hindcast statistics the documents quote (T-84).
 # 1.35.0  # Hollingham (2026) - 2026-09-26. OUT_20_SCRAPE_REPORT_NUMBERS:
 #   Script 20 1.45.0 writes the scrape field's inferred cut depth, edge response and
@@ -295,6 +299,8 @@ DATA_ELLENBERG_EXT  = DATA_DIR / "Ecohydrology_dataset.xlsx"
 DATA_DEM               = data_geo("newborough_dem.tif")
 DATA_KML_FEATURES      = data_geo("Features.kml")
 DATA_KML_STUDY_AREA    = data_geo("hydrological study area.kml")   # Martin, 2026-09-20: the study-area polygon (E27)
+DATA_STUDY_AREA_GEOJSON = data_geo("study_area.geojson")          # D-203: the DEM-derived study area (tools/make_study_area.py)
+DATA_SITE_OUTLINE      = data_geo("site_outline.geojson")        # D-204: site_boundary.kml as one polygon (tools/make_site_outline.py)
 DATA_RANWELL_CONTROL   = data_geo("ranwell_1959_control.csv")   # W95 (D-081 derived)
 DATA_RANWELL_SITES_PX  = data_geo("ranwell_1959_sites_px.csv")  # W95 (D-081 derived)
 DATA_RANWELL_SITES_MARTIN    = data_geo("ranwell_1959_sites_martin.csv")     # Script 43 v2 Route M (hand placement)

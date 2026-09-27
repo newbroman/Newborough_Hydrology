@@ -23,7 +23,10 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.22.0"  # Hollingham (2026) - 2026-09-26. D-201: the viewer's depth colour
+__version__ = "2.23.0"  # Hollingham (2026) - 2026-09-27. The viewer's site outline is
+#   map_utils.load_site_outline() simplified 100 m (D-204, spec NRG_spec_site_outline_B), not a re-parse and
+#   union of the 12 MB site_boundary.kml.
+# 2.22.0  # Hollingham (2026) - 2026-09-26. D-201: the viewer's depth colour
 #   ramp named 0.10 m as the "SD15b winter wet flooding limit" and carried an unused DEP_FLOOD =
 #   0.10; the SD15b winter level is now 0.21 m ABOVE ground (Curreli 2013 Table 4) and cannot
 #   anchor a below-ground ramp, so DEP_FLOOD is removed and the 0.10 m stop is described as the
@@ -280,7 +283,6 @@ from utils.paths import (
     DATA_DEM,
     DATA_KML_FEATURES,
     DATA_KML_CLEARFELL,
-    DATA_KML_SITE_BOUNDARY,
     KML_BROADLEAF,
     DIR_19,
     INT_LOCATIONS,
@@ -308,6 +310,7 @@ from utils.config import (
     SD15b, SD16,
 )
 from utils.clearfell_common import load_clearfell_b2_multiplier
+from utils.map_utils import load_site_outline
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -964,14 +967,9 @@ def load_kml_polygons():
             polys["broadleaf"] = bl[0]["pts"]
             print(f"  broadleaf_restock.kml: {len(polys['broadleaf'])} pts")
 
-        site_path = DATA_KML_SITE_BOUNDARY
-        sb = kml_to_bng(site_path)
-        if sb:
+        merged = load_site_outline()
+        if merged is not None:
             try:
-                from shapely.geometry import Polygon as _SP
-                from shapely.ops import unary_union
-                all_p = [_SP([(p[0], p[1]) for p in f["pts"]]) for f in sb if len(f["pts"]) >= 3]
-                merged = unary_union(all_p)
                 simp = merged.simplify(100, preserve_topology=True)
                 if simp.geom_type == "Polygon":
                     polys["site"] = [[round(x), round(y)]
@@ -980,10 +978,9 @@ def load_kml_polygons():
                     biggest = max(list(simp.geoms), key=lambda p: p.area)
                     polys["site"] = [[round(x), round(y)]
                                      for x, y in zip(biggest.exterior.xy[0], biggest.exterior.xy[1])]
-                print(f"  site_boundary.kml: {len(polys['site'])} pts (simplified)")
-            except Exception:
-                polys["site"] = max(sb, key=lambda x: len(x["pts"]))["pts"]
-                print(f"  site_boundary.kml: {len(polys['site'])} pts")
+                print(f"  site outline: {len(polys['site'])} pts (simplified)")
+            except Exception as e:
+                print(f"  [WARNING] site outline not simplified ({e}) — viewer drawn without it")
 
         if "forest_raw" in polys:
             try:

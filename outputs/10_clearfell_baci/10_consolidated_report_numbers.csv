@@ -527,13 +527,16 @@ SSM_Resid_Coastal_Ctrl_mean_step,,,-0.0952,m,n=2,10f
 SSM_Resid_Climate_Ctrl_mean_step,,,-0.0153,m,n=5,10f
 Synth_Impact_step,,,0.1013,m,"p=<0.001, n_donors=6",10f
 Synth_Edge_step,,,0.0441,m,"p=0.189, n_donors=6",10f
-NW10_trend_slope_mm_yr,,,-26.4,mm/yr,"p=0.101, n=6",10g
-NW10_mean_anomaly_2010_2021,,,0.2951,m,,10g
-Transect_gradient_mm_per_100m,,,-0.5,mm/100m,p=0.141,10g
-Rolling_b1_impact_pre,,,2.496,,,10g
-Rolling_b1_impact_post,,,2.669,,,10g
-Rolling_b1_shift,,,0.174,,toward C3,10g
-Rolling_b1_c3_post,,,3.712,,,10g
+NW10_trend_slope_mm_yr,,,-26.42857142857664,mm/yr,"p=0.101, n=6",10g
+NW10_mean_anomaly_2010_2021,,,0.2950983606557377,m,,10g
+Transect_gradient_mm_per_100m,,,-0.4527941767678762,mm/100m,p=0.141,10g
+Transect_gradient_p,,,0.140944843383408,,p-value of the step-vs-distance regression through the impact and edge wells,10g
+Transect_gradient_n_wells,,,5.0,wells,impact and edge wells the gradient is fitted on,10g
+Transect_control_baseline_m,,,0.0894979249461831,m,"mean post-fell step of the control and reference wells, n=2",10g
+Rolling_b1_impact_pre,,,2.495833787992492,,,10g
+Rolling_b1_impact_post,,,2.669484500543987,,,10g
+Rolling_b1_shift,,,0.173650712551495,,toward C3,10g
+Rolling_b1_c3_post,,,3.711795668424306,,,10g
 synth_FE1_R2_cal,,,0.997837363362488,m,,10h
 synth_FE1_RMSE_mm,,,18.16889836779735,mm,,10h
 synth_FE1_hindcast_months,,,47.0,m,,10h

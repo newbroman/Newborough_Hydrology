@@ -53,7 +53,13 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.13.1"  # Hollingham (2026) — 2026-09-27. Unused imports removed
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-27. T-84: 18_report_numbers.csv also
+#   carries the C4 half-life range on the comparison window (C4_halflife_{min,max,mean}_window,
+#   from 03_master_data.csv) — report9 §4.9.3 quotes it to show the window overstates the C4
+#   recessions — and CEH13's t½ and β₃ p-value on both bases (halflife_ceh13_*,
+#   beta3_pvalue_ceh13_full_record), which the Figure 55 caption quotes for the excluded well.
+#   Additive; the maps and every existing key are unchanged.
+# 1.13.1  # Hollingham (2026) — 2026-09-27. Unused imports removed
 #   (DATA_KML_SITE_BOUNDARY, DATA_KML_STREAMS; D-204, spec NRG_spec_site_outline_B). No behaviour change.
 # 1.13.0  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): both WTF loops difference the joined
 #   frame on the calendar before dropping incomplete months, so a rise across a missed
@@ -1428,6 +1434,36 @@ def main(supplementary=True):
                         note=f"mean t½, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
                 rpt.add(f"C{int(cid)}_recip_b3_mean", float(rb3.mean()), unit="months",
                         note=f"mean 1/β₃, C{int(cid)}, reference network, n={n}, basis {PER_WELL_RECESSION_BASIS} (D-192)")
+
+        # The other basis, where the documents quote it (T-84). The window
+        # values are what the report sets against the full record to show the
+        # window overstates the slow C4 recessions; CEH13 is quoted in the
+        # Figure 55 caption as an excluded well, so its t½ and the significance
+        # of its β₃ are emitted on both bases rather than typed.
+        _excl = set(excl_notes)
+        _m = pd.read_csv(INT_MASTER_DATA)
+        _m["_w"] = _m["Name_Original"].str.lower().str.strip()
+        _c4 = _m[(_m["Cluster"] == 4) & (~_m["_w"].isin(_excl)) & (_m["beta_3_drainage"] > 0)]
+        _hl_w = np.log(2) / _c4["beta_3_drainage"]
+        for _stat, _v in (("min", _hl_w.min()), ("max", _hl_w.max()), ("mean", _hl_w.mean())):
+            rpt.add(f"C4_halflife_{_stat}_window", float(_v), unit="months",
+                    note=f"{_stat} t½ = ln(2)/β₃, C4, basis comparison_window (03_master_data.csv), "
+                         f"n={len(_hl_w)}, {', '.join(sorted(w.upper() for w in _excl))} excluded")
+        _m13 = _m[_m["_w"] == "ceh13"]
+        if len(_m13) and float(_m13["beta_3_drainage"].iloc[0]) > 0:
+            rpt.add("halflife_ceh13_window", float(np.log(2) / _m13["beta_3_drainage"].iloc[0]),
+                    unit="months", well="CEH13", era="excluded",
+                    note="t½ = ln(2)/β₃, basis comparison_window (03_master_data.csv); excluded from the map")
+        if OUT_03_PER_WELL_RECESSION.exists():
+            _rec = pd.read_csv(OUT_03_PER_WELL_RECESSION)
+            _r13 = _rec[_rec["Name_Original"].str.lower().str.strip() == "ceh13"]
+            if len(_r13):
+                rpt.add("halflife_ceh13_full_record", float(_r13["t_half_months"].iloc[0]),
+                        unit="months", well="CEH13", era="excluded",
+                        note="t½ = ln(2)/β₃, basis full_record (03_19); excluded from the map")
+                rpt.add("beta3_pvalue_ceh13_full_record", float(_r13["pvalue_beta_3"].iloc[0]),
+                        well="CEH13", era="excluded",
+                        note="p-value of β₃ on the full record (03_19): whether CEH13's drainage term is identified")
 
         # Per-cluster τ min/max keys REMOVED in v1.8.0. The storage–drainage
         # index is not a duration and must not be cited as one, but it was

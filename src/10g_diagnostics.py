@@ -65,7 +65,14 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-27. T-84: 10g_report_numbers.csv stores
+#   values unrounded (rounding is a rendering decision) and panel (c) of the transect
+#   figure is emitted in full — the gradient, its p-value (Transect_gradient_p, was in
+#   the note only), the number of impact/edge wells it is fitted on, and the control
+#   baseline the caption quotes (Transect_control_baseline_m). The figure's subtitle said the
+#   step "decays with distance from clearfell core" against a non-significant gradient; it now
+#   reads "against distance from the clearfell core" (Martin, 2026-09-27).
+# v1.2.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.1.0
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
@@ -173,9 +180,9 @@ def nw10_broadleaf_trend(wells, rpt):
         print(f"   OLS trend 2019–2025: {slope_mm_yr:+.1f} mm/yr "
               f"(p={p_val:.3f}, n={n})")
 
-        rpt.add("NW10_trend_slope_mm_yr", round(slope_mm_yr, 1), "mm/yr",
+        rpt.add("NW10_trend_slope_mm_yr", slope_mm_yr, "mm/yr",
                 note=f"p={p_val:.3f}, n={n}")
-        rpt.add("NW10_mean_anomaly_2010_2021", round(mean_anom_bramble, 4), "m")
+        rpt.add("NW10_mean_anomaly_2010_2021", mean_anom_bramble, "m")
     else:
         skipped("Insufficient data for 2019–2025 trend (n < 4)")
 
@@ -336,13 +343,19 @@ def clearfell_transect(wells, rpt):
             ax_c.plot(x_line, intercept + slope * x_line,
                       color='#CC0000', lw=1.5, ls='--', alpha=0.7,
                       label=f'Gradient: {slope*1000:.1f} mm/100m  p={p_reg:.3f}')
-            rpt.add("Transect_gradient_mm_per_100m", round(slope * 1000, 1),
+            rpt.add("Transect_gradient_mm_per_100m", slope * 1000,
                     "mm/100m", note=f"p={p_reg:.3f}")
+            rpt.add("Transect_gradient_p", p_reg, "",
+                    note="p-value of the step-vs-distance regression through the impact and edge wells")
+            rpt.add("Transect_gradient_n_wells", len(interv_idx), "wells",
+                    note="impact and edge wells the gradient is fitted on")
 
         ctrl_steps = [steps[i] for i, r in enumerate(roles)
                       if r in ('control', 'reference')]
         if ctrl_steps:
             ctrl_mean = np.mean(ctrl_steps)
+            rpt.add("Transect_control_baseline_m", ctrl_mean, "m",
+                    note=f"mean post-fell step of the control and reference wells, n={len(ctrl_steps)}")
             ax_c.axhline(ctrl_mean, color='#2CA02C', lw=1.2, ls=':',
                          alpha=0.6, label=f'Control baseline: {ctrl_mean:+.3f} m')
 
@@ -354,7 +367,7 @@ def clearfell_transect(wells, rpt):
 
     fig.suptitle(
         'Clearfell Transect Analysis\n'
-        'Post-felling step change decays with distance from clearfell core',
+        'Post-felling step change against distance from the clearfell core',
         fontsize=10, fontweight='bold', y=0.97)
 
     render_figure(plt.gcf(), OUT_10G_TRANSECT_FIG)
@@ -470,11 +483,11 @@ def rolling_coefficients(wells, climate, rpt):
                       f"post: {b3_impact_post:.4f}")
                 print(f"   C3 β₃ post:     {b3_c3_post:.4f}")
 
-                rpt.add("Rolling_b1_impact_pre", round(b1_impact_pre, 3), "")
-                rpt.add("Rolling_b1_impact_post", round(b1_impact_post, 3), "")
-                rpt.add("Rolling_b1_shift", round(b1_shift, 3), "",
+                rpt.add("Rolling_b1_impact_pre", b1_impact_pre, "")
+                rpt.add("Rolling_b1_impact_post", b1_impact_post, "")
+                rpt.add("Rolling_b1_shift", b1_shift, "",
                         note=b1_direction)
-                rpt.add("Rolling_b1_c3_post", round(b1_c3_post, 3), "")
+                rpt.add("Rolling_b1_c3_post", b1_c3_post, "")
             else:
                 skipped("Insufficient pre-felling rolling windows for transition assessment")
         else:

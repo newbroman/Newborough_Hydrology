@@ -79,7 +79,13 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. Emits 16_report_numbers.csv:
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-27. T-84: the climate forcing is
+#   emitted — water_balance_P_mean_mm / _PET_mean_mm per cluster and their network
+#   min/max — and panel (a)'s footnote states the range. It said "All clusters receive
+#   identical forcing: P̄ = …" and printed the FIRST cluster's mean; the means differ in
+#   the first decimal because each cluster averages over its own wells' months. No
+#   balance term moves.
+# v1.5.0  # Hollingham (2026) - 2026-09-21. Emits 16_report_numbers.csv:
 #   the closure of the head-space balance, |Residual| / Total_loss in per cent, per
 #   cluster and its maximum. The front matter, report11 §4.9 and report12 quote
 #   "closes to within 1.8%" and the figure was a ratio of two table cells nothing
@@ -552,16 +558,16 @@ def make_figure(summary, recession, ms=True):
     ax1.axhline(0, color='#999', linewidth=0.5, zorder=1)
     ax1.grid(axis='y', alpha=0.3, zorder=0)
 
-    P_mm_mo = summary[cids[0]]["P_m"] * 1000
-    PET_mm_mo = summary[cids[0]]["PET_m"] * 1000
+    P_all = [summary[c]["P_m"] * 1000 for c in cids]
+    PET_all = [summary[c]["PET_m"] * 1000 for c in cids]
     datum = DRAINAGE_DATUM
     max_resid_pct = max(
         100 * abs(summary[c]["residual"]) / summary[c]["total_loss"]
         for c in cids if summary[c]["total_loss"] > 0
     )
     ax1.text(0.5, -0.17,
-             f"All clusters receive identical forcing: P̄ = {P_mm_mo:.1f} mm/month, "
-             f"PET̄ = {PET_mm_mo:.1f} mm/month. "
+             f"All clusters receive near-identical forcing: P̄ = {min(P_all):.1f}–{max(P_all):.1f} mm/month, "
+             f"PET̄ = {min(PET_all):.1f}–{max(PET_all):.1f} mm/month. "
              f"Residuals < {max_resid_pct:.1f}% of losses. Datum = {datum:.1f} m b.g.s.",
              transform=ax1.transAxes, ha='center', va='top', fontsize=9,
              color='#666', style='italic')
@@ -723,6 +729,20 @@ def save_report_numbers(summary, path):
                note="|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv")
         if worst is None or pct > worst[1]:
             worst = (_CFG_LABELS[cid], pct)
+    # The climate forcing each cluster's balance is computed on (T-84): the
+    # figure footnote and its caption quote it.
+    P_mm = {cid: summary[cid]["P_m"] * 1000.0 for cid in summary}
+    PET_mm = {cid: summary[cid]["PET_m"] * 1000.0 for cid in summary}
+    for cid in sorted(summary.keys()):
+        rr.add("water_balance_P_mean_mm", P_mm[cid], unit="mm/month", well=_CFG_LABELS[cid],
+               note="mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)")
+        rr.add("water_balance_PET_mean_mm", PET_mm[cid], unit="mm/month", well=_CFG_LABELS[cid],
+               note="mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)")
+    for name, d in (("P", P_mm), ("PET", PET_mm)):
+        rr.add(f"water_balance_{name}_mean_mm_min", min(d.values()), unit="mm/month",
+               note=f"lowest cluster mean {name}")
+        rr.add(f"water_balance_{name}_mean_mm_max", max(d.values()), unit="mm/month",
+               note=f"highest cluster mean {name}")
     rr.add("water_balance_closure_max_pct", worst[1], unit="%",
            note=f"largest per-cluster residual as a share of total losses ({worst[0]}): "
                 f"the balance closes to within this at every cluster")

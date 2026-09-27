@@ -1,0 +1,5 @@
+Parameter,Well,Era,Value,Unit,Note
+clearfell_gain_n_wells,,,71.0,wells,"wells on the clearfell gain map: fell_step_cc present, n_post >= 6, not in ['ceh37', 'ceh8', 'fe1', 'fe2', 'fe3', 'fe4']"
+clearfell_gain_min_mm,,,-147.2,mm,lowest climate-corrected post-fell step on the map (fell_step_cc × 1000)
+clearfell_gain_max_mm,,,119.4,mm,highest climate-corrected post-fell step on the map
+clearfell_gain_median_mm,,,34.5,mm,median climate-corrected post-fell step on the map

@@ -28,3 +28,9 @@ C5_halflife_min,,,11.319767545799802,months,"min t½, C5, reference network, n=5
 C5_halflife_max,,,15.726572070993459,months,"max t½, C5, reference network, n=5, basis full_record (D-192)"
 C5_halflife_mean,,,13.902611211538522,months,"mean t½, C5, reference network, n=5, basis full_record (D-192)"
 C5_recip_b3_mean,,,20.057228250293925,months,"mean 1/β₃, C5, reference network, n=5, basis full_record (D-192)"
+C4_halflife_min_window,,,17.34168781827994,months,"min t½ = ln(2)/β₃, C4, basis comparison_window (03_master_data.csv), n=7, CEH13, CEH14 excluded"
+C4_halflife_max_window,,,73.83771359823072,months,"max t½ = ln(2)/β₃, C4, basis comparison_window (03_master_data.csv), n=7, CEH13, CEH14 excluded"
+C4_halflife_mean_window,,,36.672004560382966,months,"mean t½ = ln(2)/β₃, C4, basis comparison_window (03_master_data.csv), n=7, CEH13, CEH14 excluded"
+halflife_ceh13_window,CEH13,excluded,1061.8486574038748,months,"t½ = ln(2)/β₃, basis comparison_window (03_master_data.csv); excluded from the map"
+halflife_ceh13_full_record,CEH13,excluded,107.86987971429376,months,"t½ = ln(2)/β₃, basis full_record (03_19); excluded from the map"
+beta3_pvalue_ceh13_full_record,CEH13,excluded,0.3892504341481601,m,p-value of β₃ on the full record (03_19): whether CEH13's drainage term is identified

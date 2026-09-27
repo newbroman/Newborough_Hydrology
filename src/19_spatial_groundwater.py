@@ -26,7 +26,13 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.24.0"  # Hollingham (2026) - 2026-09-27. D-205 extended (spec NRG_spec_water_table_kriged_everywhere
+__version__ = "2.25.0"  # Hollingham (2026) - 2026-09-27. T-84 (Martin: "update script 19 to output per
+#   well values"): compute_scenario_summary also writes 19_scenario_perwell.csv — each well's
+#   Δh, Sy and water equivalent for every forestry/climate scenario and season, with its cluster and
+#   in_forest flag — the per-well responses the cluster means in 19_scenario_summary.csv average,
+#   and what report9 §4.13.2 quotes for the C3 wells beneath the canopy. Values stored unrounded
+#   (D-035). 19_scenario_summary.csv is unchanged.
+# 2.24.0  # Hollingham (2026) - 2026-09-27. D-205 extended (spec NRG_spec_water_table_kriged_everywhere
 #   rev 2; Martin: "include all of them"). Head and depth-to-water modes no longer interpolate the
 #   per-well heads by browser IDW: they use Script 01b's kriged water table, embedded as its weights on a
 #   VIEWER_KRIG_GRID_M grid (build_kriging_operator, from 01b's committed decisions through
@@ -296,6 +302,7 @@ from utils.paths import (
     DATA_KML_CLEARFELL,
     KML_BROADLEAF,
     DIR_19,
+    OUT_19_SCENARIO_PERWELL,
     INT_LOCATIONS,
     INT_CLIMATE,
     INT_CLUSTER_STATS,
@@ -2590,6 +2597,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     P_w, PET_w = climate_stats["winter"]
     P_s, PET_s = climate_stats["summer"]
     rows = []
+    perwell = []
     for sc_name, sl in SCENARIO_PARAMS.items():
         for sea in SEASONS:
             if sea == "winter":
@@ -2602,6 +2610,14 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             dh = wt.apply(lambda r: _well_dh(r, sl, P0, PET0, h_col,
                                              cluster_betas, sea), axis=1)
             wt_tmp = wt.assign(_dh=dh)
+            for _, r in wt_tmp[wt_tmp["_dh"].notna()].iterrows():
+                sy = r["sy"]
+                perwell.append({
+                    "well": r["id"], "cluster": f"C{int(r['Cluster'])}" if pd.notna(r["Cluster"]) else "",
+                    "in_forest": bool(r["in_forest"]), "scenario": sc_name, "season": sea,
+                    "dh_m": float(r["_dh"]), "sy": float(sy) if pd.notna(sy) else np.nan,
+                    "we_mm": float(sy * r["_dh"] * 1000.0) if pd.notna(sy) else np.nan,
+                })
             for cl_int in [1, 2, 3, 4, 5]:
                 sub = wt_tmp[(wt_tmp["Cluster"] == cl_int)
                              & wt_tmp["_dh"].notna()]
@@ -2675,6 +2691,10 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                 "dh_mean_m":   round(site_msl5, 4) if pd.notna(site_msl5) else np.nan,
                 "dh_median_m": round(site_msl5, 4) if pd.notna(site_msl5) else np.nan,
             })
+
+    pw = pd.DataFrame(perwell)
+    pw.to_csv(OUT_19_SCENARIO_PERWELL, index=False)
+    print(f"  Per-well scenario CSV: {OUT_19_SCENARIO_PERWELL.name} ({len(pw)} rows)")
 
     out = pd.DataFrame(rows)
     out_csv = out_dir / "19_scenario_summary.csv"

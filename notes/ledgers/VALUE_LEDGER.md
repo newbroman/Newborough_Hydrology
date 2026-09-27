@@ -346,8 +346,11 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C4 · thinning_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.02374 |  | report9 | ok |
 | C4_beta3_pct_mean | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `07_report_numbers.csv` | 1.52733 |  | Newborough_Methods_Supplement | ok |
 | C4_halflife_max | τ | storage–drainage index S_y/β₃ (residence time) (def. MS §S.12) | `18_report_numbers.csv` | 41.5802 |  | report9 | ok |
+| C4_halflife_max_window | τ | storage–drainage index S_y/β₃ (residence time) (def. MS §S.12) | `18_report_numbers.csv` | 73.8377 |  | report9 | ok |
 | C4_halflife_mean | τ | storage–drainage index S_y/β₃ (residence time) (def. MS §S.12) | `18_report_numbers.csv` | 25.6959 |  | report10, report9 | ok |
+| C4_halflife_mean_window | τ | storage–drainage index S_y/β₃ (residence time) (def. MS §S.12) | `18_report_numbers.csv` | 36.672 |  | report9 | ok |
 | C4_halflife_min | τ | storage–drainage index S_y/β₃ (residence time) (def. MS §S.12) | `18_report_numbers.csv` | 16.2998 |  | report10, report9 | ok |
+| C4_halflife_min_window | τ | storage–drainage index S_y/β₃ (residence time) (def. MS §S.12) | `18_report_numbers.csv` | 17.3417 |  | report9 | ok |
 | C4_median_dNSE |  |  | `08_report_numbers.csv` | 0.12057 |  | report10, report9 | ok |
 | C5 (Coastal Forest) (corrected) / True · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.248163 |  | Newborough_Methods_Supplement | ok |
 | C5 (Coastal Forest) (corrected) / True · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.397362 |  | Newborough_Methods_Supplement | ok |
@@ -584,6 +587,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | D5 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.742797 |  | report9 | ok |
 | D7 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.368626 |  | Supplementary_Material | ok |
 | ENVELOPE_METRIC_REF_MIN_WET |  |  | `config.py` | 2 |  | PIPELINE_README | ok |
+| EWI_annual · pearson_r |  |  | `26_ebf_prediction_summary.csv` | 0.791413 |  | report9 | ok |
+| EWI_spring · pearson_r |  |  | `26_ebf_prediction_summary.csv` | 0.554358 |  | report9 | ok |
 | Eastern_Block · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.89098 |  | report9 | ok |
 | Eastern_Block · p_value_P_winter | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.00967387 |  | report10, report9 | ok |
 | Eastern_Block · p_value_h_min | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.1906 |  | report9 | ok |
@@ -612,6 +617,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | Lake_Edge · R2 | R² | coefficient of determination | `11_forecast_spring_transfer_functions.csv` | 0.783139 |  | Newborough_Methods_Supplement, report9 | ok |
 | Lake_Edge · p_value_h_min | p | significance probability | `11_forecast_winter_transfer_functions.csv` | 0.773342 |  | report9 | ok |
 | Long-term mean · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.34779 |  | Newborough_Methods_Supplement, report10, report9 | ok |
+| MSL5 · pearson_r |  |  | `26_ebf_prediction_summary.csv` | 0.828958 |  | report9 | ok |
 | MSL_MIN_MONTHS_PER_SPRING |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement | ok |
 | Median iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.371947 |  | Paper1, report9 | ok |
 | Median iterative R2 · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.156793 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
@@ -626,7 +632,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | Pearson / ward / 5 · ARI_vs_canonical |  |  | `31_method_robustness_ari.csv` | 1 |  | Newborough_Methods_Supplement | ok |
 | RAF_VALLEY_LAT_DEG |  |  | `config.py` | 53.25 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, PIPELINE_README, report8 | ok |
 | ROLLING_WINDOW_STEP_MONTHS |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement | ok |
-| Rolling_b1_impact_post |  |  | `10_consolidated_report_numbers.csv` | 2.669 |  | Newborough_Methods_Supplement, Paper1 | ok |
+| Rolling_b1_impact_post |  |  | `10_consolidated_report_numbers.csv` | 2.66948 |  | Newborough_Methods_Supplement, Paper1 | ok |
 | SD16_REC |  |  | `config.py` | 1.2 |  | Newborough_Methods_Supplement, report7, report9 | ok |
 | Scraping (nearby) / C3 · Delta_vol_mm_per_month |  |  | `09b_04_scenario_comparison.csv` | -0.1 |  | Supplementary_Material | ok |
 | Scraping (observed) · Delta_vol_mm_per_month |  |  | `09d_01_scenario_comparison.csv` | 46.9 |  | Newborough_Methods_Supplement, report9 | ok |
@@ -651,6 +657,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | Tier1_CUSUM_terminal · CEH22 |  |  | `09_scrape_report_numbers.csv` | -19.4625 |  | report9 | ok |
 | Tier1_CUSUM_terminal · CEH4 |  |  | `09_scrape_report_numbers.csv` | -10.6115 |  | report9 | ok |
 | Tier2_BACI_shift · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.128087 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report9 | ok |
+| Transect_control_baseline_m |  |  | `10_consolidated_report_numbers.csv` | 0.0894979 |  | report9 | ok |
+| Transect_gradient_p |  |  | `10_consolidated_report_numbers.csv` | 0.140945 |  | report9 | ok |
 | UKCP18_DRY_PET_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PIPELINE_README, readme | ok |
 | UKCP18_DRY_P_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, readme, report8 | ok |
 | UKCP18_WET_P_SUMMER |  |  | `config.py` | 1.1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, readme | ok |
@@ -700,6 +708,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | beta3_era · CEH36 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.110247 |  | Newborough_Methods_Supplement, report9 | ok |
 | beta3_era · CEH4 · 2_Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.161509 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | beta3_era · CEH4 · 3_Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.113146 |  | report9 | ok |
+| beta3_pvalue_ceh13_full_record | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `18_report_numbers.csv` | 0.38925 |  | report9 | ok |
 | broadleaf / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.170384 |  | Supplementary_Material | ok |
 | broadleaf / summer / SITE · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.118035 |  | report9 | ok |
 | broadleaf_restock / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.22052 |  | report9 | ok |
@@ -773,7 +782,13 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | clearfell / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.05316 |  | Newborough_Methods_Supplement, report9 | ok |
 | clearfell / 2017-04-22 / aerial22-4-2017.png · index |  |  | `41_01_canopy_index.csv` | 1.23527 |  | Newborough_Methods_Supplement, report10, report8 | ok |
 | clearfell / 2018-06-28 / aerial28-6-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.14085 |  | Newborough_Methods_Supplement, report8 | ok |
+| clearfell / annual / nw11 · dh_m |  |  | `19_scenario_perwell.csv` | 0.073737 |  | report9 | ok |
+| clearfell / annual / nw11 · we_mm |  |  | `19_scenario_perwell.csv` | 20.9772 |  | report9 | ok |
+| clearfell / annual / wmc3 · dh_m |  |  | `19_scenario_perwell.csv` | 0.0389981 |  | report9 | ok |
+| clearfell / annual / wmc3 · we_mm |  |  | `19_scenario_perwell.csv` | 13.2345 |  | report9 | ok |
 | clearfell / summer / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 1.06716 |  | report9 | ok |
+| clearfell / winter / C3 · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 1.56451 |  | report9 | ok |
+| clearfell_gain_n_wells |  |  | `20_clearfell_gain_report_numbers.csv` | 71 |  | report9 | ok |
 | cluster_ground_elev_max_m · C4 (Main Forest) |  |  | `02_report_numbers.csv` | 14.42 |  | Newborough_Methods_Supplement | ok |
 | cluster_ground_elev_min_m · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 3.534 |  | Newborough_Methods_Supplement | ok |
 | cluster_isolated_ground_elev_m · ceh11 · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 3.534 |  | Newborough_Methods_Supplement | ok |
@@ -865,6 +880,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | full_canopy / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.95 |  | PAPER1_SI_methods | ok |
 | full_canopy / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.43981 |  | Newborough_Methods_Supplement | ok |
 | full_record / 2 · p_value | p | significance probability | `00_06_pet_monthly_trends.csv` | 0.141883 |  | report9 | ok |
+| halflife_ceh13_full_record | τ | storage–drainage index S_y/β₃ (residence time) (def. MS §S.12) | `18_report_numbers.csv` | 107.87 |  | report9 | ok |
 | head_dem_headline_smoothing_m |  |  | `01b_report_numbers.csv` | 300 |  | report9 | ok |
 | head_dem_r_raw |  |  | `01b_report_numbers.csv` | 0.757702 |  | report9 | ok |
 | head_dem_r_smoothed |  |  | `01b_report_numbers.csv` | 0.923108 |  | report9 | ok |
@@ -1029,6 +1045,10 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | trend_summer_balance_t |  |  | `00_report_numbers.csv` | -1.28168 |  | report9 | ok |
 | trend_winter_balance |  |  | `00_report_numbers.csv` | 3.73963 |  | report9 | ok |
 | trend_winter_rainfall_t |  |  | `00_report_numbers.csv` | 1.04804 |  | report9 | ok |
+| water_balance_PET_mean_mm_max |  |  | `16_report_numbers.csv` | 54.5468 |  | report9 | ok |
+| water_balance_PET_mean_mm_min |  |  | `16_report_numbers.csv` | 54.1525 |  | report9 | ok |
+| water_balance_P_mean_mm_max |  |  | `16_report_numbers.csv` | 74.4226 |  | report9 | ok |
+| water_balance_P_mean_mm_min |  |  | `16_report_numbers.csv` | 74.1115 |  | report9 | ok |
 | water_balance_closure_max_pct |  |  | `16_report_numbers.csv` | 1.75266 |  | Newborough_Methods_Supplement | ok |
 | water_balance_residual_pct · C2 (Dune) |  |  | `16_report_numbers.csv` | 1.1282 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
 | well / C1 (Lake Edge) / ceh11 · t_half_B_months |  |  | `03_16_model_b_persistence.csv` | 2.568 |  | Newborough_Methods_Supplement | ok |

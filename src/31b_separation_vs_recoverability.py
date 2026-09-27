@@ -29,7 +29,6 @@ Output (outputs/31_cluster_validation/, via paths.OUT_31B_*):
 """
 from __future__ import annotations
 import sys
-import warnings
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -56,10 +55,11 @@ import xml.etree.ElementTree as ET
 from shapely.geometry import Point, Polygon
 from pyproj import Transformer
 
-warnings.filterwarnings("ignore", category=RuntimeWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+#   ignore (RuntimeWarning, UserWarning) is removed, with its now-unused `import warnings`: no pipeline
+#   module silences its warnings (T-81, D-155). Probed with the filter off
+#   against the committed CSVs, this module raised no warning; outputs unchanged.
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 SCRIPT_ID = "31b"
 VERSION = __version__

@@ -440,5 +440,5 @@ by different machines.
 `warnings.filterwarnings('ignore')` was retired from the nine scripts D-155
 names — it is the signal class that would have given notice of both faults
 above. Silence a warning individually, by message and module, with the reason
-beside it. Not yet clean (audit 2026-09-24, T-81): `utils/mask_streams_to_land.py`
-still carries a blanket ignore, and Scripts 25, 31 and 31b silence by category.
+beside it. The last category-wide ignores (Scripts 25, 31, 31b and
+`utils/mask_streams_to_land.py`) went on 2026-09-26; T-81's check keeps the count at zero.

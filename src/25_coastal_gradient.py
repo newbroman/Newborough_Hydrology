@@ -126,7 +126,12 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.29.0"  # Hollingham (2026) — 2026-09-23. The three sweep-grid
+__version__ = "1.29.1"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+#   ignore (RuntimeWarning, FutureWarning) is removed, with its now-unused `import warnings`: no pipeline
+#   module silences its warnings (T-81, D-155). Probed with the filter off
+#   against the committed CSVs, this module raised no warning; outputs unchanged.
+#
+#   Prior 1.29.0: Hollingham (2026) — 2026-09-23. The three sweep-grid
 #   loops that dominate this script's runtime now report progress through
 #   console_utils.track(): the per-window refit loop in window_sweep()
 #   (in-place bar), the per-window refit loop in rolling_window_sweep()
@@ -570,7 +575,6 @@ __version__ = "1.29.0"  # Hollingham (2026) — 2026-09-23. The three sweep-grid
 # with a console warning on a first pass).
 
 import sys
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -606,8 +610,6 @@ from utils.clearfell_common import (  # noqa: E402
 from utils.scraping_common import apply_scrape_treatment  # noqa: E402
 from utils.render_utils import render_figure
 
-warnings.filterwarnings("ignore", category=RuntimeWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 # ── Constants ────────────────────────────────────────────────────────────────

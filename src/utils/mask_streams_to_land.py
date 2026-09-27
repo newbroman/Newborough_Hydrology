@@ -48,10 +48,14 @@ WHY THE __main__ GUARD MATTERS HERE MORE THAN ANYWHERE ELSE.
 Usage:
     python3 src/utils/mask_streams_to_land.py [--force]
 """
-import warnings
-warnings.filterwarnings("ignore")
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-03. Body wrapped in main()
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+#   ignore (every category) is removed, with its now-unused `import warnings`: no pipeline
+#   module silences its warnings (T-81, D-155). Import and main() raise no
+#   warning, but main() stops at its missing input (streams_raw.kml is not
+#   committed), so the masking itself has not been exercised with the filter off.
+#
+#   Prior 1.1.0: Hollingham (2026) — 2026-09-03. Body wrapped in main()
 #   with a __main__ guard, and the two /mnt/user-data sandbox paths repointed
 #   into data/geo via paths.py. Output goes to a NEW file and refuses to
 #   overwrite without --force; a missing input reports rather than tracebacks.

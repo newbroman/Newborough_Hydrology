@@ -37,7 +37,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-27. 1.0.1: RIVER_START now read from
+__version__ = "1.0.2"  # Hollingham (2026) - 2026-09-27. 1.0.2: comments name Script 01b (Script 49 renamed,
+#   D-205 extended); no code change. 1.0.1: RIVER_START now read from
 #   config.STUDY_AREA_RIVER_START (Script 49 anchors the river edge from the same point). 1.0.0: new, the
 #   DEM-derived study-area boundary (D-203), approved by Martin 2026-09-27.
 
@@ -73,7 +74,7 @@ BASIN_SEEDS = [                     # one interior point per included basin
     (240836, 364279), (240296, 363993), (241155, 363549), (242710, 363024),
     (242334, 363655), (242135, 362957), (241430, 363204), (242363, 361891),
 ]
-RIVER_START = C.STUDY_AREA_RIVER_START  # ridge-foot drain at the northern divide (config: Script 49 reads it too)
+RIVER_START = C.STUDY_AREA_RIVER_START  # ridge-foot drain at the northern divide (config: Script 01b reads it too)
 HAND_SE = [(242295, 362076), (242574, 362302), (242949, 362588),
            (243274, 362787), (243526, 362972), (243771, 363272)]
 WEST_LIMIT_E = 240200              # hand-drawn line west of this easting

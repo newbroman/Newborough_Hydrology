@@ -13,8 +13,11 @@ Physical constants (values are not restated here — read them at source):
     Broadleaf interception config.BROADLEAF_INTERCEPTION (Komatsu et al. 2011,
                           deciduous annual mean)
     Sy floor / defaults   module constants SY_FLOOR / SY_DEFAULTS below
-    Wells excluded from IDW  module constant EXCLUDE_WELLS below
-                          (ceh12 bedrock; ceh15 forest slack edge)
+    Wells excluded from the viewer's well table  module constant EXCLUDE_WELLS below
+                          (ceh12 bedrock; ceh15 forest slack edge). The water table itself
+                          is Script 01b's, whose well set and anchors it keeps (ceh15 held at
+                          its seasonal mean, ceh12 as 01b's ridge-well anchor).
+    Water table (head, depth) config.VIEWER_KRIG_* : Script 01b's kriging weights on a grid
     Ridge mask threshold  module constant RIDGE_MASK_THRESHOLD below
                           (matches the map_utils.add_idw_surface default)
 
@@ -23,7 +26,15 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.23.0"  # Hollingham (2026) - 2026-09-27. The viewer's site outline is
+__version__ = "2.24.0"  # Hollingham (2026) - 2026-09-27. D-205 extended (spec NRG_spec_water_table_kriged_everywhere
+#   rev 2; Martin: "include all of them"). Head and depth-to-water modes no longer interpolate the
+#   per-well heads by browser IDW: they use Script 01b's kriged water table, embedded as its weights on a
+#   VIEWER_KRIG_GRID_M grid (build_kriging_operator, from 01b's committed decisions through
+#   utils.water_table.recorded_system), applied in the browser to each well's scenario head, with the
+#   anchors folded in per season (lake and ridge well by season; sea and river fixed). The operator is
+#   checked against 01b's mean surface and the wells (VIEWER_KRIG_CHECK_TOL_M) and the page against
+#   VIEWER_MAX_KB before it is written; either failing stops the script. The change (dh) map keeps IDW.
+# 2.23.0  # Hollingham (2026) - 2026-09-27. The viewer's site outline is
 #   map_utils.load_site_outline() simplified 100 m (D-204, spec NRG_spec_site_outline_B), not a re-parse and
 #   union of the 12 MB site_boundary.kml.
 # 2.22.0  # Hollingham (2026) - 2026-09-26. D-201: the viewer's depth colour
@@ -293,6 +304,7 @@ from utils.paths import (
     INT_WELL_ELEVATIONS,
     INT_WELLS_CLEAN_MAOD,
     OUT_18_WELL_SY_TABLE,
+    OUT_01B_REPORT_NUMBERS,
     OUT_26B_PROJECTION_TABLE_PERWELL,    # v2.8.0 cross-check target
 )
 from utils.config import (
@@ -308,6 +320,8 @@ from utils.config import (
     BROADLEAF_B2_WINTER,
     BROADLEAF_B2_SUMMER,
     SD15b, SD16,
+    VIEWER_KRIG_GRID_M, VIEWER_KRIG_WEIGHT_MIN, VIEWER_KRIG_WEIGHT_DP,
+    VIEWER_KRIG_CHECK_TOL_M, VIEWER_KRIG_CHECK_POINTS, VIEWER_MAX_KB,
 )
 from utils.clearfell_common import load_clearfell_b2_multiplier
 from utils.map_utils import load_site_outline
@@ -731,6 +745,116 @@ def build_dem_grid(site_polygon_xy=None):
 # ============================================================================
 # DATA LOADING
 # ============================================================================
+
+def _decode_rows(Wv, fixed_W, fixed_z):
+    """What the browser computes from the embedded operator: the sparsified, rounded
+    well weights and the folded anchor term, renormalised over the row. Used only to
+    check the embedding reproduces the dense operator."""
+    sc = 10 ** VIEWER_KRIG_WEIGHT_DP
+    Wr = np.where(np.abs(Wv) >= VIEWER_KRIG_WEIGHT_MIN, np.round(Wv * sc) / sc, 0.0)
+    return Wr, fixed_W @ fixed_z, fixed_W.sum(axis=1)
+
+
+def build_kriging_operator(wt, maod, site_xy):
+    """The viewer's water table: Script 01b's mean-state kriging system (its drift,
+    variogram, coastal head, well set and kept boundary parts, read from its committed
+    outputs through utils.water_table.recorded_system) evaluated as weights on a
+    VIEWER_KRIG_GRID_M grid over the site. The browser forms head = W.h + c, so a
+    scenario's per-well change enters exactly. Wells in 01b's set that the viewer does
+    not carry (EXCLUDE_WELLS, or no location/cluster row) and the anchors are folded
+    into c per season; lake and ridge-well heads follow the season, sea and river are
+    fixed. Returns (operator dict for the page, check dict) or (None, reason)."""
+    from shapely.geometry import Polygon                        # noqa: PLC0415
+    import shapely                                              # noqa: PLC0415
+    from utils.water_table import recorded_system, kriging_weights, network_states  # noqa: PLC0415
+    from utils.paths import out_01b_surface                    # noqa: PLC0415
+    import rasterio                                             # noqa: PLC0415
+    if not OUT_01B_REPORT_NUMBERS.exists():
+        return None, f"{OUT_01B_REPORT_NUMBERS.name} not found (run Script 01b)"
+    idx = maod.index
+    seasons = {"annual": idx, "winter": idx[idx.month.isin(WINTER_MONTHS)],
+               "summer": idx[idx.month.isin(SUMMER_MONTHS)]}
+    _, states = network_states()
+    seasons_chk = dict(seasons, check=states["mean"])          # 01b's own mean state, for the check only
+    sysd = recorded_system(seasons_chk)
+    w01 = sysd["wells"]
+    pos = {k: i for i, k in enumerate(wt["id"].tolist())}      # the page's WELLS order
+    in_v = w01["well"].map(pos)
+    vmask = in_v.notna().values
+    info(f"kriging operator: 01b {sysd['drift']!r} drift, {len(w01)} wells ({vmask.sum()} carried by the viewer, "
+         f"{(~vmask).sum()} held at their seasonal mean: {', '.join(w01.loc[~vmask, 'well'])}), "
+         f"{len(sysd['anchor_xy'])} anchors")
+
+    res = VIEWER_KRIG_GRID_M
+    cols = int(np.ceil((VIEWER_EMAX - VIEWER_EMIN) / res)); rows = int(np.ceil((VIEWER_NMAX - VIEWER_NMIN) / res))
+    gx = VIEWER_EMIN + (np.arange(cols) + 0.5) * res; gy = VIEWER_NMAX - (np.arange(rows) + 0.5) * res
+    GX, GY = np.meshgrid(gx, gy)
+    site = Polygon(site_xy).buffer(1.5 * res)                 # one node beyond the outline, for the bilinear edge
+    node = shapely.contains_xy(site, GX, GY).ravel()
+    T = np.column_stack([GX.ravel()[node], GY.ravel()[node]])
+    xy = np.vstack([w01[["E", "N"]].values, sysd["anchor_xy"]])
+    D = tD = None
+    if sysd["drift_at"] is not None:
+        D, tD = sysd["drift_at"](xy), sysd["drift_at"](T)
+    W = kriging_weights(xy, T, sysd["vgm"], D, tD)
+    nw = len(w01)
+    Wv = W[:, :nw][:, vmask]
+    fixed_W = np.hstack([W[:, :nw][:, ~vmask], W[:, nw:]])
+    fz = {sn: np.concatenate([w01.loc[~vmask, f"head_{sn}"].values, sysd["anchor_head"][sn]]) for sn in seasons_chk}
+    Wr, c_chk, a = _decode_rows(Wv, fixed_W, fz["check"])
+
+    # Check: the embedding reproduces 01b's mean surface at check nodes, and the dense
+    # operator is exact at the wells.
+    z_chk_v = w01.loc[vmask, "head_check"].values
+    h_emb = (c_chk + Wr @ z_chk_v) / (a + Wr.sum(axis=1))
+    with rasterio.open(out_01b_surface("mean")) as s01:
+        A = s01.read(1).astype(float)
+        if s01.nodata is not None:
+            A[A == s01.nodata] = np.nan
+        r_, c_ = rasterio.transform.rowcol(s01.transform, T[:, 0], T[:, 1])
+        r_, c_ = np.asarray(r_), np.asarray(c_)
+        ok = (r_ >= 0) & (r_ < A.shape[0]) & (c_ >= 0) & (c_ < A.shape[1])
+        ref = np.full(len(T), np.nan); ref[ok] = A[r_[ok], c_[ok]]
+    both = np.where(np.isfinite(ref))[0]
+    pick = both[np.linspace(0, len(both) - 1, VIEWER_KRIG_CHECK_POINTS).round().astype(int)]
+    # 01b's raster holds node centres of its own grid; compare the operator AT those centres.
+    ctr = np.column_stack(rasterio.transform.xy(s01.transform, r_[pick], c_[pick]))
+    Dc = None if sysd["drift_at"] is None else sysd["drift_at"](ctr)
+    Wc = kriging_weights(xy, ctr, sysd["vgm"], D, Dc)
+    zc = np.concatenate([w01["head_check"].values, sysd["anchor_head"]["check"]])
+    Wcv, fWc = Wc[:, :nw][:, vmask], np.hstack([Wc[:, :nw][:, ~vmask], Wc[:, nw:]])
+    Wcr, cc, ac = _decode_rows(Wcv, fWc, np.concatenate([w01.loc[~vmask, "head_check"].values,
+                                                           sysd["anchor_head"]["check"]]))
+    h_ctr = (cc + Wcr @ z_chk_v) / (ac + Wcr.sum(axis=1))
+    d_pts = np.abs(h_ctr - ref[pick])
+    Ww = kriging_weights(xy, w01[["E", "N"]].values, sysd["vgm"], D,
+                         None if D is None else D[:nw])
+    d_wells = np.abs(Ww @ zc - w01["head_check"].values)
+    d_sparse = np.abs(h_emb - (W @ zc))
+    chk = {"check_points_max_m": float(d_pts.max()), "wells_max_m": float(d_wells.max()),
+           "sparsified_max_m": float(d_sparse.max()), "nodes": int(len(T))}
+    result("operator check", f"{VIEWER_KRIG_CHECK_POINTS} check points vs 01b mean surface max {d_pts.max():.4f} m; "
+           f"exact at the wells to {d_wells.max():.2e} m; sparsified vs dense max {d_sparse.max():.4f} m "
+           f"over {len(T)} nodes")
+    if max(d_pts.max(), d_wells.max(), d_sparse.max()) > VIEWER_KRIG_CHECK_TOL_M:
+        return None, (f"embedded operator misses the {VIEWER_KRIG_CHECK_TOL_M} m check "
+                      f"(points {d_pts.max():.4f}, wells {d_wells.max():.4f}, sparsified {d_sparse.max():.4f} m)")
+
+    # Embedding: node flat indices, and the weights dense by node (row-major over the
+    # page wells in "wi"): on this variogram (range at its bound) most weights are
+    # non-negligible, so a sparse index list would cost more than it saves.
+    sc = 10 ** VIEWER_KRIG_WEIGHT_DP
+    wi = in_v[vmask].astype(int).tolist()
+    mm = lambda v: np.round(v * 1000).astype(int).tolist()     # noqa: E731  metres to mm
+    op = {"res": res, "x0": float(gx[0]), "y0": float(gy[0]), "cols": cols, "rows": rows,
+          "node": np.nonzero(node)[0].tolist(), "wi": wi, "w": np.round(Wr * sc).astype(int).ravel().tolist(),
+          "ws": sc, "a": np.round(a * sc).astype(int).tolist(),
+          "c": {sn: mm(_decode_rows(Wv, fixed_W, fz[sn])[1]) for sn in seasons}}
+    kept_n = int((Wr != 0).sum())
+    info(f"kriging operator: {len(T)} nodes x {len(wi)} wells; {kept_n / max(Wv.size, 1):.1%} of the weights "
+         f"non-zero at |w| >= {VIEWER_KRIG_WEIGHT_MIN:g}, {VIEWER_KRIG_WEIGHT_DP} dp")
+    return op, chk
+
 
 def _norm(s):
     return str(s).lower().replace(" ", "").replace("-", "").strip()
@@ -1546,13 +1670,15 @@ footer a:hover{{text-decoration:underline;}}
     </div>
     <div class="mapwrap" id="mwrap">
       <canvas id="mapBg"></canvas>
-      <canvas id="mapC" role="img" aria-label="IDW groundwater head surface, Newborough Warren"></canvas>
+      <canvas id="mapC" role="img" aria-label="Groundwater surface, Newborough Warren"></canvas>
     </div>
     <div class="tip" id="tipDiv"></div>
     <div class="leg" id="legDiv"></div>
     <div class="disclaimer">
-      <strong>Interpretation note:</strong> The surface shown is an interpolated statistical estimate
-      (IDW, k=8 nearest neighbours), not a calibrated groundwater flow simulation. It reflects
+      <strong>Interpretation note:</strong> The surface shown is an interpolated statistical estimate,
+      not a calibrated groundwater flow simulation: head and depth to water are the pipeline's kriged
+      water table (Script 01b) re-evaluated in the browser from each well's scenario head; the change
+      (&#916;h) map interpolates the per-well changes by inverse distance (k=8). It reflects
       the per-well steady-state response of the fitted state-space model to the selected scenario
       perturbations. Spatial patterns between wells are smoothed; localised features such as
       perched water tables or bedrock contacts are not resolved. See the Technical Note below and
@@ -1607,7 +1733,7 @@ footer a:hover{{text-decoration:underline;}}
 <footer>
   <span style="float:right;opacity:0.6;">viewer v{viewer_version}</span>
   &#916;h from SSM increment model using per-well &#946;&#8321;, &#946;&#8322;, &#946;&#8323; (scripts 01&#8211;03).
-  &#916;h field interpolated by Delaunay triangulation with linear barycentric weighting; the viewer re-renders the same per-well values in the browser via power-1 eight-nearest-neighbour IDW (see Technical Note for details).
+  Head and depth: Script 01b's kriged water table (its weights embedded, applied to each well's scenario head); &#916;h map: power-1 eight-nearest-neighbour IDW of the per-well changes (see Technical Note for details).
   Interception: Corsican pine 24% (Freeman 2008); broadleaf 15% annual mean (Komatsu et al. 2011).
   Broadleaf &#946;&#8322;: seasonally varying (winter 0.87&#215;, summer 1.09&#215;) from Script&nbsp;21 deciduous phenology profile.
   K&nbsp;=&nbsp;6&nbsp;m/day (Betson et al. 2002). Sy: WTF medians (scripts 17/18);
@@ -1628,6 +1754,7 @@ var BROADLEAF_INTERCEPTION={broadleaf_interception};
 var THINNING_FRACTION={thinning_fraction};
 var DEM_GRID={dem_grid_json};
 var RIDGE_THRESH={ridge_threshold};
+var KRIG={krig_json};
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -1821,7 +1948,8 @@ function depCol(d){{
   return[139,26,26];
 }}
 function pip(px,py,poly){{var ins=false,n=poly.length;for(var i=0,j=n-1;i<n;j=i++){{var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))ins=!ins;}}return ins;}}
-// Inverse-distance-weighted interpolation, power 1, k=8 nearest neighbours.
+// Inverse-distance-weighted interpolation, power 1, k=8 nearest neighbours: used for
+// the change (dh) field and the ridge mask only; head and depth use the kriged field.
 // Minimum distance floor of 10 m smooths the immediate well neighbourhood,
 // avoiding the power-2 bullseye halo without the divergence risk of a
 // zero-distance singularity. If a query point lands within 5 m of a well
@@ -1843,6 +1971,43 @@ function idw(px,py,pts){{
   var num=0,den=0;
   for(var j=0;j<K;j++){{var w=1/ds[j].d;num+=w*ds[j].v;den+=w;}}
   return den>0?num/den:0;
+}}
+// The water table for head and depth modes: Script 01b's kriging weights on a fixed
+// grid (KRIG, built in Python from 01b's recorded drift, variogram, coastal head, well
+// set and boundary parts). Node head = (c + sum w_k h_k) / (a + sum w_k) over the wells
+// that have a value, where h_k is the well's scenario head (its seasonal baseline when it
+// has no coefficients) and c, a fold in the anchors and the 01b wells the viewer does not
+// carry. Kriging is linear in the data, so the scenario's per-well change enters exactly.
+function krigField(){{
+  if(!KRIG||!KRIG.node||!KRIG.node.length)return null;
+  var nw=KRIG.wi.length,nn=KRIG.node.length,ws=KRIG.ws,c=KRIG.c[sea];
+  var out=new Float64Array(KRIG.cols*KRIG.rows);out.fill(NaN);
+  var v=new Array(nw);
+  for(var k=0;k<nw;k++){{
+    var w=WELLS[KRIG.wi[k]],hb=sea==='annual'?w.mh:sea==='winter'?w.wh:w.sh;
+    v[k]=(w._sh!=null)?w._sh:(hb!=null?hb:null);
+  }}
+  var lo=Infinity,hi=-Infinity;
+  for(var i=0;i<nn;i++){{
+    var num=c[i]/1000,den=KRIG.a[i]/ws,base=i*nw;
+    for(var j=0;j<nw;j++){{if(v[j]==null)continue;var wt=KRIG.w[base+j]/ws;num+=wt*v[j];den+=wt;}}
+    var h=den!==0?num/den:NaN;out[KRIG.node[i]]=h;
+    if(isFinite(h)){{if(h<lo)lo=h;if(h>hi)hi=h;}}
+  }}
+  return {{h:out,lo:lo,hi:hi}};
+}}
+// Bilinear lookup in the kriged node grid; at the edge of the grid, the nearest node
+// that has a value. Returns m OD, or null off the grid.
+function headAt(KF,E,N){{
+  if(!KF)return null;
+  var fx=(E-KRIG.x0)/KRIG.res,fy=(KRIG.y0-N)/KRIG.res,cols=KRIG.cols,rows=KRIG.rows;
+  if(fx<0||fy<0||fx>cols-1||fy>rows-1)return null;
+  var x0=Math.floor(fx),y0=Math.floor(fy),x1=Math.min(x0+1,cols-1),y1=Math.min(y0+1,rows-1),tx=fx-x0,ty=fy-y0;
+  var q=[[KF.h[y0*cols+x0],(1-tx)*(1-ty)],[KF.h[y0*cols+x1],tx*(1-ty)],[KF.h[y1*cols+x0],(1-tx)*ty],[KF.h[y1*cols+x1],tx*ty]];
+  var s=0,sw=0,best=null,bw=-1;
+  for(var k=0;k<4;k++){{if(isFinite(q[k][0])){{s+=q[k][0]*q[k][1];sw+=q[k][1];if(q[k][1]>bw){{bw=q[k][1];best=q[k][0];}}}}}}
+  if(sw===0)return best;
+  return sw>0.999?s/sw:best;
 }}
 // Bilinear lookup into the embedded DEM elevation grid. Returns m AOD,
 // or null if DEM_GRID is empty (pipeline run without rasterio/DEM) or the
@@ -1924,7 +2089,7 @@ function drawMap(){{
   // Ridge-mask logic now applies only in depth mode -- for elevation maps
   // (dh, abs) the interpolated surface is physically defined across ridges
   // because the water table is a continuous surface independent of DEM.
-  // In depth mode (DEM minus IDW head), ridge cells would report an
+  // In depth mode (DEM minus kriged head), ridge cells would report an
   // apparent depth of several metres that reflects the ridge height, not
   // any hydrological feature, and masking them is therefore necessary.
   var chkR=document.getElementById('chkRidge');
@@ -1934,7 +2099,11 @@ function drawMap(){{
     for(var i2=0;i2<WELLS.length;i2++){{var ww=WELLS[i2];if(!ww.E||!ww.N||ww.dg==null)continue;demPts.push({{E:ww.E,N:ww.N,v:ww.dg}});}}
     if(demPts.length<3)doRidge=false;
   }}
-  // Colour-scale bounds for absolute head mode.
+  // Head and depth modes read the kriged field. The absolute-head colour scale spans the
+  // wells' heads, as before, not the field's: beyond the network (the north-west dunes) the
+  // surface is set by the variogram, not data, and would compress the scale; it clamps there.
+  var KF=(mm==='dh')?null:krigField();
+  if(mm!=='dh'&&!KF)return;
   var hv=headPts.map(function(p){{return p.v;}}),hMn=Math.min.apply(null,hv),hMx=Math.max.apply(null,hv);
   // Colour-scale bound for dh mode (symmetric diverging).
   var dv=dhPts.map(function(p){{return p.v;}}),dMn=Math.min.apply(null,dv),dMx=Math.max.apply(null,dv);
@@ -1957,12 +2126,15 @@ function drawMap(){{
       var dv0=idw(E,N,dhPts);
       rgb=dhCol(dv0/dhMx);
     }}else if(mm==='abs'){{
-      var hv0=idw(E,N,headPts);
+      var hv0=headAt(KF,E,N);
+      if(hv0==null)continue;
       rgb=abCol((hv0-hMn)/(hMx-hMn||1));
-    }}else{{  // 'dep' -- Option X: per-cell DEM minus IDW-interpolated head.
+    }}else{{  // 'dep' -- per-cell DEM minus the kriged head.
       var dm=demAt(E,N);
       if(dm==null)continue;
-      var hh=idw(E,N,headPts),dep=dm-hh;
+      var hh=headAt(KF,E,N);
+      if(hh==null)continue;
+      var dep=dm-hh;
       rgb=depCol(dep);
       if(rgb==null)continue;
     }}
@@ -2603,6 +2775,12 @@ def main(out_path=None):
     print("  Building DEM grid for ridge masking...")
     dem_grid = build_dem_grid(polys.get("site"))
 
+    print("  Building the kriging operator (Script 01b's water table)...")
+    krig, krig_chk = build_kriging_operator(wt, maod, polys["site"])
+    if krig is None:
+        error(f"viewer not written: {krig_chk}")
+        return 1
+
     _wa_path = DIR_19.parents[1] / "living" / "wet_area_model.json"
     if _wa_path.exists():
         _wa = json.loads(_wa_path.read_text(encoding="utf-8"))
@@ -2635,6 +2813,7 @@ def main(out_path=None):
         broadleaf_b2_summer=BROADLEAF_B2_SUMMER,
         hillshade_b64=hillshade_b64,
         dem_grid_json=json.dumps(dem_grid, separators=(",", ":")),
+        krig_json=json.dumps(krig, separators=(",", ":")),
         ridge_threshold=RIDGE_MASK_THRESHOLD,
         viewer_emin=VIEWER_EMIN,
         viewer_emax=VIEWER_EMAX,
@@ -2653,8 +2832,11 @@ def main(out_path=None):
         **basis_labels(),
     )
 
+    size_kb = len(html.encode("utf-8")) / 1024
+    if size_kb > VIEWER_MAX_KB:
+        error(f"viewer not written: {size_kb:.0f} kB exceeds VIEWER_MAX_KB ({VIEWER_MAX_KB:.0f} kB)")
+        return 1
     out_path.write_text(html, encoding="utf-8")
-    size_kb = out_path.stat().st_size / 1024
 
     # Scenario summary CSV -- mirrors the viewer's calculation exactly,
     # providing a citeable output for Section 4.9 of the manuscript.
@@ -2679,4 +2861,4 @@ if __name__ == "__main__":
         help="Output path (default: outputs/19_spatial_groundwater/"
              "scenario_viewer.html)")
     args = parser.parse_args()
-    main(out_path=args.out)
+    sys.exit(main(out_path=args.out) or 0)

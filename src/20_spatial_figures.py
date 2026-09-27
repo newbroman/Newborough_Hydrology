@@ -13,24 +13,14 @@ in the Outputs block below. Two of the 19 figures are show_head=True variants
 that a default pass does not produce, so a default pass writes 26 files. The
 two headline figures are:
 
-  Figure 1 — Mean Annual Water Table with Stream Network and Flow Vectors
-  -----------------------------------------------------------------------
-  Output: outputs/20_spatial_figures/20_head_surface_streams.png
-
-  Mean annual water table (m AOD) as an interpolated surface over a
-  greyscale DEM hillshade, with:
-    - SAGA surface flow routing (skeletonised) as connected blue polylines.
-      Topographic context only: it is where water would run ON the ground
-      surface, and says nothing about the direction of groundwater flow.
-      Whether the head surface follows the ground, and at what scale, is
-      measured by compare_head_with_dem() (T-66) rather than asserted here.
-    - Groundwater flow direction vectors: the unit-normalised negative head
-      gradient (direction only). No hydraulic conductivity enters — this is
-      not a Darcy flux quiver. Darcy K (config.DRAWDOWN_K_MDAY) is used by
-      the drawdown-propagation figure, not here.
-    - Site feature overlays (forest boundary, lake, clearfell zone, channels)
-    - Well symbols coloured by cluster
-    - 1 m head contours with labels
+  Figure 1 — RETIRED 2026-09-27 (D-205 extended; spec
+  NRG_spec_water_table_kriged_everywhere). The Delaunay water-table map
+  (20_head_surface_streams.png) and the head-versus-DEM comparison (T-66) are no
+  longer made here: the water table is kriged, by Script 01b, wherever the
+  pipeline draws or samples it, and T-66 moved to 01b with it. Where the maps
+  below draw the water table or its flow arrows (the residual figure, and the
+  show_head variants of the drawdown maps) they sample 01b's committed mean-state
+  surface through _kriged_head().
 
   Note on the surface: the local helper is named idw_surface() for historical
   reasons but calls scipy.interpolate.griddata(method="linear") — piecewise-
@@ -60,7 +50,6 @@ Outputs
   OUT_20_* import block. Keep this list in step with that block.
 
   Figures
-    20_head_surface_streams.png         — plot_head_streams()        [Fig 1]
     20_residual_ssm.png                 — plot_residual_ssm()        [Fig 2a]
     20_slope_gradient.png               — plot_slope_gradient()      [Fig 2b]
     20_drawdown_propagation_nohead.png  — plot_drawdown_propagation() [Fig 3]
@@ -80,7 +69,6 @@ Outputs
     20_driver_change_2005_2025.png      — plot_driver_change_2005_2025()
     20_driver_change_20yr.png           — plot_driver_change_20yr()
     20_clearfell_gain.png               — plot_clearfell_gain()
-    20_head_vs_dem.png                  — compare_head_with_dem()   [T-66]
 
   Tables
     20_drawdown_perwell.csv             — plot_drawdown_propagation()
@@ -90,8 +78,6 @@ Outputs
     20_msl5_change_perwell.csv          — plot_msl5_change()
     20_msl5_report_numbers.csv          — plot_msl5_change()
     20_scrape_drawdown_perwell.csv      — plot_scrape_drawdown()
-    20_head_vs_dem.csv                  — compare_head_with_dem()
-    20_head_dem_report_numbers.csv      — compare_head_with_dem()
 
 Inputs
 ------
@@ -122,7 +108,13 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.46.0"  # Hollingham (2026) - 2026-09-27. load_site_polygon() takes the site
+__version__ = "1.47.0"  # Hollingham (2026) - 2026-09-27. The Delaunay water table retired (D-205
+#   extended, spec NRG_spec_water_table_kriged_everywhere rev 2; Martin: "include all of them"):
+#   plot_head_streams (20_head_surface_streams.png), _head_surface and compare_head_with_dem (T-66, moved
+#   to Script 01b with its outputs) removed; the residual figure's flow arrows and the show_head drawdown
+#   and scrape maps take the water table from 01b's kriged mean surface (_kriged_head). Every other map
+#   and table is unchanged.
+# 1.46.0  # Hollingham (2026) - 2026-09-27. load_site_polygon() takes the site
 #   outline from map_utils.load_site_outline() (D-204, spec NRG_spec_site_outline_B) and keeps its 20 m
 #   simplify; the 12 MB site_boundary.kml is no longer parsed here.
 # 1.45.0  # Hollingham (2026) - 2026-09-26. T-84, per the signed-off spec
@@ -273,7 +265,6 @@ import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 from scipy.interpolate import griddata
 from scipy.ndimage import uniform_filter
-from scipy.spatial import Delaunay
 from matplotlib.colors import TwoSlopeNorm
 from pyproj import Transformer
 import xml.etree.ElementTree as ET
@@ -281,13 +272,12 @@ import xml.etree.ElementTree as ET
 from utils.paths import (
     make_all_dirs, DATA_DIR, DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS,
     DATA_COASTLINE_HWM, KML_BROADLEAF,
-    DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
+    DIR_20, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE, out_01b_surface,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
     OUT_20_SCRAPE_DRAWDOWN_PERWELL, OUT_20_SCRAPE_REPORT_NUMBERS,
     OUT_20_RESIDUAL_PERWELL, OUT_20_RESIDUAL_REPORT_NUMBERS,
     OUT_20_MSL5_CHANGE_PERWELL, OUT_20_MSL5_REPORT_NUMBERS,
-    OUT_20_HEAD_VS_DEM, OUT_20_HEAD_DEM_REPORT_NUMBERS, OUT_20_HEAD_VS_DEM_FIG,
     OUT_20_COASTAL_EROSION, OUT_20_SLR_RESPONSE,
     OUT_20_COASTAL_NET, OUT_20_SCRAPE_DRAWDOWN, OUT_20_SCRAPE_DRAWDOWN_NOHEAD,
     OUT_20_CLEARFELL_BASELINE_DRAWDOWN, OUT_20_PUBLIC_PANEL,
@@ -316,8 +306,7 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           COAST_RETREAT_M, COAST_RETREAT_RATE,
                           SCRAPE_RISE_BUFFER_M,
                           SLR_WINDOW_YEARS, SLR_RISE_M, SLR_SHORE_LEVEL_M,
-                          CEH36_E, CEH36_N,
-                          HEAD_DEM_SMOOTHING_M, HEAD_DEM_HEADLINE_SMOOTHING_M)
+                          CEH36_E, CEH36_N)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 
@@ -978,352 +967,22 @@ def idw_surface(pts, vals, gx, gy, sea_pts=None, sea_vals=None, mask=None):
     return surf
 
 
-def _head_surface(wt):
-    """The Figure 1 head surface: mean head at every well in `wt`, piecewise-
-    linear over a Delaunay triangulation with zero-head anchors along the sea
-    boundaries, on the GRID_XI x GRID_YI 50 m grid, masked to the site.
-    Returns (gx, gy, surf, mask). Shared by plot_head_streams() and
-    compare_head_with_dem() so the comparison describes the surface the figure
-    draws and not a second construction of it."""
-    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
-    mask   = _site_mask(gx, gy)
-    sea_pts, sea_vals = _sea_boundary_points()
-    surf = idw_surface(wt[["E", "N"]].values, wt["mean_head"].values, gx, gy,
-                       sea_pts=sea_pts, sea_vals=sea_vals, mask=mask)
-    return gx, gy, surf, mask
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# FIGURE 1 — HEAD SURFACE WITH STREAM NETWORK
-# ─────────────────────────────────────────────────────────────────────────────
-def plot_head_streams(wt, stream_polys, features, dpi=300):
-    """
-    Figure 1: Mean annual water table (m AOD) with stream cell overlay
-    and groundwater flow direction vectors.
-    stream_polys: list of polygon vertex lists from load_stream_polygons().
-    """
-    gx, gy, surf, mask = _head_surface(wt)
-    vals = wt["mean_head"].values
-
-    # Flow vectors from head gradient — suppress on ridge artefacts
-    dy, dx = np.gradient(np.nan_to_num(surf, nan=np.nanmean(vals)),
-                         GRID_YI[1]-GRID_YI[0], GRID_XI[1]-GRID_XI[0])
-    mag = np.sqrt(dx**2 + dy**2)
-    mag_thresh = np.nanpercentile(mag[mask], 95)
-    arrow_mask = mask & (mag > 0) & (mag < mag_thresh)
-    with np.errstate(invalid="ignore"):
-        U = np.where(arrow_mask, -dx / mag, np.nan)
-        V = np.where(arrow_mask, -dy / mag, np.nan)
-
-    fig, ax = plt.subplots(figsize=(10, 9), facecolor="white")
-
-    # Layer 1 — DEM hillshade
-    load_dem_hillshade(ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
-
-    ax.set_xlim(*XLIM); ax.set_ylim(*YLIM)
-    ax.set_aspect("equal")
-
-    # Layer 2 — head surface
-    vmin, vmax = 2.0, 14.0
-    im = ax.pcolormesh(gx, gy, surf, cmap="RdYlBu_r",
-                       vmin=vmin, vmax=vmax,
-                       shading="auto", alpha=0.55, zorder=2)
-    cb = fig.colorbar(im, ax=ax, fraction=0.03, pad=0.02, shrink=0.85)
-    cb.set_label("Mean water table (m AOD)", fontsize=9)
-
-    # Head contours at 1 m intervals
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        try:
-            cs = ax.contour(gx, gy, surf,
-                            levels=np.arange(2, 15, 1),
-                            colors="black", linewidths=0.6,
-                            alpha=0.40, zorder=3)
-            ax.clabel(cs, inline=True, fontsize=5,
-                      fmt="%.0f m", inline_spacing=2)
-        except Exception:
-            pass
-
-    # Layer 3 — stream network (polygon outlines, matching map_utils style)
-    stream_handles = draw_stream_network(ax, stream_polys, zorder=6)
-
-    # Layer 4 — flow vectors
-    skip = 6
-    ax.quiver(gx[::skip, ::skip], gy[::skip, ::skip],
-              U[::skip, ::skip], V[::skip, ::skip],
-              color="white", alpha=0.88, scale=38,
-              width=0.004, headwidth=4, zorder=7)
-
-    # Layer 5 — KML features
-    kml_handles = draw_kml_features(ax, features, zorder=5)
-
-    # Layer 6 — well symbols
-    cluster_handles = {}
-    for _, row in wt.iterrows():
-        cl  = int(row["cluster"]) if pd.notna(row.get("cluster")) else 3
-        col = CLUSTER_COLOURS.get(cl, "grey")
-        ax.scatter(row["E"], row["N"], c=col, s=30,
-                   edgecolors="black", lw=0.6, zorder=9)
-        if cl not in cluster_handles:
-            cluster_handles[cl] = mpatches.Patch(color=col,
-                                                  label=f"C{cl}")
-
-    # Legends
-    flow_h   = Line2D([0],[0], color="white", lw=0,
-                      marker=r"$\rightarrow$", markersize=8,
-                      markerfacecolor="white", label="Flow direction")
-
-    l1 = ax.legend(handles=kml_handles + stream_handles + [flow_h],
-                   fontsize=7, loc="lower left", framealpha=0.92,
-                   title="Site features", title_fontsize=8)
-    ax.add_artist(l1)
-    ax.legend(handles=list(cluster_handles.values()),
-              fontsize=8, loc="lower right",
-              title="Cluster", title_fontsize=8)
-
-    ax.set_xlim(*XLIM); ax.set_ylim(*YLIM)
-    ax.set_aspect("equal")
-    ax.set_xlabel("Easting (m, OSGB36)", fontsize=9)
-    ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
-    ax.tick_params(labelsize=8)
-    ax.set_title(
-        "Mean Annual Water Table (m AOD) — Newborough Warren 2005–2026\n"
-        "DEM surface flow routing (context)  |  Groundwater flow direction vectors",
-        fontsize=10, fontweight="bold")
-
-    fig.tight_layout()
-    render_figure(fig, OUT_20_HEAD_STREAMS)
-    plt.close(fig)
-    print(f"  Saved: {OUT_20_HEAD_STREAMS.name}")
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# HEAD SURFACE versus DEM — at what scale does the water table follow the ground?
-# ─────────────────────────────────────────────────────────────────────────────
-def _read_dem():
-    """The LiDAR DEM as (array, easting vector, northing vector, resolution),
-    nodata as NaN. Same read as compute_slope_surface(); kept separate so that
-    function's slope-and-clip behaviour is untouched."""
-    import rasterio
-    with rasterio.open(str(DATA_DEM)) as src:
-        dem = src.read(1).astype(float)
-        nd  = src.nodata
-        tfm = src.transform
-        res = abs(tfm.a)
-        E0, N_top = tfm.c, tfm.f
+def _kriged_head(gx, gy, mask=None):
+    """The water table on this script's grid: Script 01b's kriged mean-state surface
+    (D-205: the water table is kriged wherever it is drawn), sampled at the grid points,
+    NaN outside it and outside `mask`. 01b runs at step 2, so its committed surface is
+    current whenever this script runs. Replaces the Delaunay head surface (retired
+    2026-09-27 with Figure 1 and the T-66 comparison, which moved to 01b)."""
+    import rasterio                                            # noqa: PLC0415
+    with rasterio.open(out_01b_surface("mean")) as src:
+        vals = np.array([v[0] for v in src.sample(zip(gx.ravel(), gy.ravel()))], float)
+        nd = src.nodata
     if nd is not None:
-        dem[dem == nd] = np.nan
-    rows, cols = dem.shape
-    return dem, E0 + np.arange(cols) * res, N_top - np.arange(rows) * res, res
-
-
-def _sample_grid(arr, dem_e, dem_n, gx, gy):
-    """Nearest-cell values of a DEM-shaped array at the (gx, gy) grid points;
-    NaN outside the raster."""
-    j = np.rint((gx - dem_e[0]) / (dem_e[1] - dem_e[0])).astype(int)
-    i = np.rint((dem_n[0] - gy) / (dem_n[0] - dem_n[1])).astype(int)
-    ok = (i >= 0) & (i < arr.shape[0]) & (j >= 0) & (j < arr.shape[1])
-    out = np.full(gx.shape, np.nan)
-    out[ok] = arr[i[ok], j[ok]]
-    return out
-
-
-def _fit_line(x, y):
-    """OLS of y on x for the finite pairs: (slope, intercept, r, n)."""
-    ok = np.isfinite(x) & np.isfinite(y)
-    x, y = x[ok], y[ok]
-    if len(x) < 3:
-        return np.nan, np.nan, np.nan, int(len(x))
-    slope, intercept = np.polyfit(x, y, 1)
-    r = np.corrcoef(x, y)[0, 1]
-    return float(slope), float(intercept), float(r), int(len(x))
-
-
-def compare_head_with_dem(wt, dpi=300):
-    """
-    T-66. Two regressions that answer two different questions, emitted side by
-    side so neither is mistaken for the other.
-
-    (a) The Figure 1 head surface against the LiDAR DEM, cell by cell on the
-        figure's own 50 m grid inside the convex hull of the reference network,
-        with the DEM smoothed by a square mean filter of each width in
-        config.HEAD_DEM_SMOOTHING_M (0 = native). The water table
-        is a subdued replica of the topography: r and slope rise with the
-        smoothing width until the head surface tracks the smoothed ground 1:1.
-        The width at which that happens is bounded below by the network's own
-        resolution - a Delaunay surface through wells a median nearest-neighbour
-        spacing apart cannot carry relief finer than that - so the median spacing
-        is emitted and drawn on the figure, and the caption must say so.
-
-    (b) Mean head at the reference wells against their surveyed ground
-        elevation. This is NOT the topographic control: dipwells stand on slack
-        floors, deflation surfaces cut to the water table (Ranwell, 1959), so at
-        the wells the ground follows the water table. A slope near 1 here is the
-        slack-formation result, and it is what a wells-only plot would have
-        shown had (a) not been computed.
-
-    Writes 20_head_vs_dem.csv (one row per smoothing width), the cited numbers
-    to 20_head_dem_report_numbers.csv, and the three-panel 20_head_vs_dem.png.
-    """
-    gx, gy, surf, mask = _head_surface(wt)
-    dem, dem_e, dem_n, res = _read_dem()
-    filled = np.nan_to_num(dem, nan=np.nanmean(dem))
-    inside = mask & np.isfinite(surf)
-
-    # (b) first, because (a)'s region is defined by the same wells.
-    ref = wt[(wt["network"] == "Reference") & wt["cluster"].notna()
-             & wt["dem_elev"].notna()].copy()
-
-    # Three regions, quoted from the first. "reference_hull" is the convex
-    # hull of the classified reference network - the analysed wells, and the
-    # part of the surface they constrain. "all_wells_hull" adds the extended
-    # wells that also feed the surface; one of them (CEH12, on the bedrock
-    # ridge at ~34 m AOD, outside the reference hull) is a leverage point that
-    # alone lifts r from 0.75 to 0.88 at native resolution, which is why the
-    # quoted region excludes it. "figure_mask" is everything Figure 1 colours,
-    # which beyond the wells is a Delaunay ramp to the zero-head anchors on the
-    # sea boundaries - not observed head. All three are emitted so the choice
-    # is visible and checkable.
-    def _in_hull(points):
-        h = Delaunay(points)
-        return (h.find_simplex(np.c_[gx.ravel(), gy.ravel()]) >= 0
-                ).reshape(gx.shape)
-    regions = {"reference_hull": inside & _in_hull(ref[["E", "N"]].values),
-               "all_wells_hull": inside & _in_hull(wt[["E", "N"]].values),
-               "figure_mask":    inside}
-
-    rows = []
-    sampled = {}
-    for w in HEAD_DEM_SMOOTHING_M:
-        if w <= 0:
-            arr = dem
-        else:
-            k = max(1, int(round(w / res)))
-            arr = uniform_filter(filled, size=k)
-            arr[np.isnan(dem)] = np.nan
-        g_all = _sample_grid(arr, dem_e, dem_n, gx, gy)
-        for region, sel in regions.items():
-            g = np.where(sel, g_all, np.nan)
-            slope, intercept, r, n = _fit_line(g, surf)
-            if region == "reference_hull":
-                sampled[w] = g
-            rows.append({"region": region, "smoothing_m": int(w), "r": r,
-                         "slope": slope, "intercept_m": intercept, "n_cells": n,
-                         "sd_dem_m": float(np.nanstd(g)),
-                         "sd_head_m": float(np.nanstd(
-                             np.where(np.isfinite(g), surf, np.nan)))})
-    sweep_all = pd.DataFrame(rows)
-    sweep_all.to_csv(OUT_20_HEAD_VS_DEM, index=False)
-    print(f"  Saved: {OUT_20_HEAD_VS_DEM.name} "
-          f"({len(HEAD_DEM_SMOOTHING_M)} smoothing widths x {len(regions)} regions)")
-    sweep = sweep_all[sweep_all["region"] == "reference_hull"].reset_index(drop=True)
-
-    # (b) the reference wells: mean head on surveyed ground elevation
-    w_slope, w_int, w_r, w_n = _fit_line(ref["dem_elev"].values,
-                                         ref["mean_head"].values)
-    # nearest-neighbour spacing of the same wells
-    xy = ref[["E", "N"]].values
-    d = np.sqrt(((xy[:, None, :] - xy[None, :, :]) ** 2).sum(-1))
-    np.fill_diagonal(d, np.inf)
-    spacing_median = float(np.median(d.min(axis=1)))
-
-    raw = sweep[sweep["smoothing_m"] == 0].iloc[0]
-    if HEAD_DEM_HEADLINE_SMOOTHING_M not in set(sweep["smoothing_m"]):
-        raise ValueError(
-            f"HEAD_DEM_HEADLINE_SMOOTHING_M={HEAD_DEM_HEADLINE_SMOOTHING_M} is not "
-            f"in HEAD_DEM_SMOOTHING_M {HEAD_DEM_SMOOTHING_M}")
-    hl = sweep[sweep["smoothing_m"] == HEAD_DEM_HEADLINE_SMOOTHING_M].iloc[0]
-
-    rpt = ReportNumbers()
-    note_a = ("Figure 54 head surface regressed on the LiDAR DEM at the 50 m grid "
-              "cells inside the convex hull of the reference network (region "
-              "reference_hull in 20_head_vs_dem.csv); DEM smoothed by a square mean filter of the "
-              "stated width (0 = native). T-66.")
-    rpt.add("head_dem_r_raw", raw["r"], unit="", note=note_a)
-    rpt.add("head_dem_slope_raw", raw["slope"], unit="m/m", note=note_a)
-    rpt.add("head_dem_n_cells", raw["n_cells"], unit="cells", note=note_a)
-    rpt.add("head_dem_headline_smoothing_m", HEAD_DEM_HEADLINE_SMOOTHING_M,
-            unit="m", note="config.HEAD_DEM_HEADLINE_SMOOTHING_M")
-    rpt.add("head_dem_r_smoothed", hl["r"], unit="",
-            note=note_a + f" Width {HEAD_DEM_HEADLINE_SMOOTHING_M} m.")
-    rpt.add("head_dem_slope_smoothed", hl["slope"], unit="m/m",
-            note=note_a + f" Width {HEAD_DEM_HEADLINE_SMOOTHING_M} m.")
-    note_b = ("Mean head (2005-2026 maOD) on surveyed ground elevation at the "
-              "reference wells. Slack floors are cut to the water table, so this "
-              "is the slack-formation relation, not topographic control. T-66.")
-    rpt.add("wells_wt_ground_slope", w_slope, unit="m/m", note=note_b)
-    rpt.add("wells_wt_ground_intercept", w_int, unit="m", note=note_b)
-    rpt.add("wells_wt_ground_r", w_r, unit="", note=note_b)
-    rpt.add("wells_wt_ground_n", w_n, unit="wells", note=note_b)
-    rpt.add("well_spacing_median_m", spacing_median, unit="m",
-            note="Median nearest-neighbour spacing of the reference wells: the "
-                 "finest relief the Delaunay head surface can carry. T-66.")
-    n_saved = rpt.save(OUT_20_HEAD_DEM_REPORT_NUMBERS)
-    print(f"  Saved → {OUT_20_HEAD_DEM_REPORT_NUMBERS.name} ({n_saved} report numbers)")
-    print(f"  head vs DEM: raw r={raw['r']:.3f} slope={raw['slope']:.3f}; "
-          f"{HEAD_DEM_HEADLINE_SMOOTHING_M} m r={hl['r']:.3f} slope={hl['slope']:.3f}; "
-          f"wells slope={w_slope:.3f} r={w_r:.3f} n={w_n}; "
-          f"median spacing {spacing_median:.0f} m")
-
-    # ── figure: (a) raw, (b) headline smoothing, (c) the sweep ──────────────
-    fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.4), facecolor="white")
-    # Equal axes so the 1:1 line means what it says. The native DEM carries
-    # dune crests to ~40 m inside the hull while the head surface tops out near
-    # 14 m; drawing to the crest compresses everything into a corner, so the
-    # axes stop at the 99th percentile of the plotted ground and the cells
-    # beyond are counted in the panel title. They are in the fit regardless.
-    surf_q = np.where(np.isfinite(sampled[0]), surf, np.nan)   # the quoted region only
-    lo = float(np.floor(min(np.nanmin(surf_q), np.nanmin(sampled[0]))))
-    hi = float(np.ceil(max(np.nanpercentile(sampled[0], 99), np.nanmax(surf_q)) + 1))
-    for ax, w, tag in ((axes[0], 0, "a"), (axes[1], HEAD_DEM_HEADLINE_SMOOTHING_M, "b")):
-        g = sampled[w]
-        okc = np.isfinite(g) & np.isfinite(surf)
-        row = sweep[sweep["smoothing_m"] == w].iloc[0]
-        beyond = int((g[okc] > hi).sum())
-        ax.hexbin(g[okc], surf[okc], gridsize=40, cmap="Greys", mincnt=1,
-                  bins="log", extent=(lo, hi, lo, hi), linewidths=0.2, zorder=1)
-        xx = np.array([lo, hi])
-        ax.plot(xx, xx, color="black", lw=0.8, ls="--", zorder=2, label="1:1")
-        ax.plot(xx, row["intercept_m"] + row["slope"] * xx, color="firebrick",
-                lw=1.4, zorder=3,
-                label=f"head on ground: slope {row['slope']:.2f}, r {row['r']:.2f}")
-        if w == 0:
-            for cl in sorted(ref["cluster"].dropna().unique()):
-                sub = ref[ref["cluster"] == cl]
-                ax.scatter(sub["dem_elev"], sub["mean_head"], s=18,
-                           c=CLUSTER_COLOURS.get(int(cl), "grey"),
-                           edgecolors="black", lw=0.4, zorder=4,
-                           label=f"C{int(cl)} wells")
-            ax.plot(xx, w_int + w_slope * xx, color="dodgerblue", lw=1.0,
-                    ls=":", zorder=3,
-                    label=f"at the wells: slope {w_slope:.2f}, r {w_r:.2f}")
-        ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect("equal")
-        ax.set_xlabel("Ground elevation, DEM" + (" (native)" if w == 0
-                      else f" smoothed {w} m") + " (m AOD)", fontsize=9)
-        ax.set_ylabel("Mean water table, head surface (m AOD)", fontsize=9)
-        ax.set_title(f"({tag}) {int(row['n_cells'])} grid cells inside the reference-network hull"
-                     + (f", {beyond} above the axis" if beyond else ""), fontsize=9)
-        ax.legend(fontsize=6.5, loc="upper left", framealpha=0.9)
-        ax.tick_params(labelsize=8)
-    ax = axes[2]
-    xs = sweep["smoothing_m"].replace(0, res).values   # plot native at its own width
-    ax.plot(xs, sweep["r"], marker="o", ms=4, color="black", label="r")
-    ax.plot(xs, sweep["slope"], marker="s", ms=4, color="firebrick", label="slope")
-    ax.axhline(1.0, color="grey", lw=0.6, ls=":")
-    ax.axvline(spacing_median, color="dodgerblue", lw=1.0, ls="--",
-               label=f"median well spacing {spacing_median:.0f} m")
-    ax.set_xscale("log")
-    ax.set_xlabel("DEM smoothing width (m, mean filter)", fontsize=9)
-    ax.set_ylabel("r  /  slope of head on smoothed ground", fontsize=9)
-    ax.set_title("(c) scale sweep", fontsize=9)
-    ax.legend(fontsize=6.5, loc="lower right", framealpha=0.9)
-    ax.tick_params(labelsize=8)
-    fig.suptitle("Mean water table (2005–2026) against the ground surface, "
-                 "by DEM smoothing width", fontsize=10)
-    fig.tight_layout()
-    render_figure(fig, OUT_20_HEAD_VS_DEM_FIG)
-    plt.close(fig)
-    print(f"  Saved: {OUT_20_HEAD_VS_DEM_FIG.name}")
+        vals[vals == nd] = np.nan
+    surf = vals.reshape(gx.shape)
+    if mask is not None:
+        surf = np.where(mask, surf, np.nan)
+    return surf
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1429,8 +1088,7 @@ def plot_residual_ssm(wt, features, dpi=300):
     # Flow vectors from mean head gradient (independent of residual).
     # The head surface KEEPS the zero-datum sea anchors — a shoreline head of
     # zero is physically meaningful and the arrows are an independent product.
-    head_surf = idw_surface(wt[["E","N"]].values, wt["mean_head"].values,
-                            gx, gy, sea_pts=sea_pts, sea_vals=sea_vals, mask=mask)
+    head_surf = _kriged_head(gx, gy, mask)                    # the 01b water table (D-205)
     dy, dx = np.gradient(np.nan_to_num(head_surf, nan=np.nanmean(wt["mean_head"].values)),
                          GRID_YI[1]-GRID_YI[0], GRID_XI[1]-GRID_XI[0])
     mag = np.sqrt(dx**2 + dy**2)
@@ -1633,8 +1291,8 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
 
     Layers:
       1. DEM hillshade
-      2. IDW mean head surface (RdYlBu_r, semi-transparent), drawn
-         unmasked to fill the full rectangular map frame
+      2. Mean head surface (RdYlBu_r, semi-transparent): Script 01b's kriged
+         mean-state water table, which covers the study area only
       3. Drawdown contour lines with labels (filled contours removed)
       4. Groundwater flow arrows from head gradient
       5. KML features (forest boundary, lake, felling experiment)
@@ -1798,15 +1456,11 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)
     mask = _site_mask(gx, gy)
     sea_pts, sea_vals = _sea_boundary_points()
-    pts  = wt[["E", "N"]].values
     vals = wt["mean_head"].values
     # Masked surface: drives the GW flow-vector field (gradient + arrow mask).
-    surf = idw_surface(pts, vals, gx, gy,
-                       sea_pts=sea_pts, sea_vals=sea_vals, mask=mask)
-    # Unmasked surface: drawn as Layer 2 to fill the full rectangular map
-    # frame edge to edge (no site/sea mask applied).
-    surf_full = idw_surface(pts, vals, gx, gy,
-                            sea_pts=sea_pts, sea_vals=sea_vals, mask=None)
+    surf = _kriged_head(gx, gy, mask)                         # the 01b water table (D-205)
+    # Unmasked: the kriged surface where it exists (the study area), for Layer 2.
+    surf_full = _kriged_head(gx, gy)
 
     hdy, hdx = np.gradient(np.nan_to_num(surf, nan=np.nanmean(vals)),
                            GRID_YI[1] - GRID_YI[0], GRID_XI[1] - GRID_XI[0])
@@ -1920,10 +1574,9 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     ax.set_ylim(*YLIM)
     ax.set_aspect("equal")
 
-    # Layer 2 — mean head surface, expanded to fill the full map frame.
-    # Drawn unmasked across the whole rectangular extent (edge to edge);
-    # the IDW surface `surf` was computed above (also feeds the GW flow
-    # vectors). Semi-transparent over the DEM hillshade. Omitted when
+    # Layer 2 — mean head surface: Script 01b's kriged mean state, sampled
+    # over the frame (NaN beyond 01b's study area); `surf` was computed
+    # above (also feeds the GW flow vectors). Semi-transparent over the DEM hillshade. Omitted when
     # show_head=False, leaving a bare-hillshade drawdown diagram.
     im = None
     if show_head:
@@ -4706,13 +4359,9 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
     # ── Head surface and GW flow vectors (as Fig 3) ───────────────────────
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)
     mask = _site_mask(gx, gy)
-    sea_pts, sea_vals = _sea_boundary_points()
-    pts  = wt[["E", "N"]].values
     vals = wt["mean_head"].values
-    surf = idw_surface(pts, vals, gx, gy,
-                       sea_pts=sea_pts, sea_vals=sea_vals, mask=mask)
-    surf_full = idw_surface(pts, vals, gx, gy,
-                            sea_pts=sea_pts, sea_vals=sea_vals, mask=None)
+    surf = _kriged_head(gx, gy, mask)                         # the 01b water table (D-205)
+    surf_full = _kriged_head(gx, gy)
     hdy, hdx = np.gradient(np.nan_to_num(surf, nan=np.nanmean(vals)),
                            GRID_YI[1] - GRID_YI[0], GRID_XI[1] - GRID_XI[0])
     hmag = np.sqrt(hdx**2 + hdy**2)
@@ -4971,9 +4620,6 @@ def main(preview=False):
           f"(averaged over the head record, "
           f"{data['maod'].index.min():%Y-%m} to {data['maod'].index.max():%Y-%m})")
 
-    print("[3/4] Loading stream polygons...")
-    stream_polys = load_stream_polygons()
-
     print("[4/4] Loading KML features...")
     features = load_kml_features()
     print(f"  KML features: {len(features)}")
@@ -4982,8 +4628,6 @@ def main(preview=False):
     # that runs past 30 s prints a completion line per figure with elapsed and
     # remaining time, per Martin's rule that a long run must show it is running.
     builders = [
-        ("Figure 1 — Head surface + stream network", lambda: plot_head_streams(wt, stream_polys, features, dpi=dpi)),
-        ("comparing the head surface with the DEM (T-66)", lambda: compare_head_with_dem(wt, dpi=dpi)),
         ("Figure 2a — SSM water balance residual", lambda: plot_residual_ssm(wt, features, dpi=dpi)),
         ("Figure 2b — Ridge hillslope gradient", lambda: plot_slope_gradient(wt, features, dpi=dpi)),
         ("Figure 3 — Forest drawdown propagation", lambda: plot_drawdown_propagation(wt, features, dpi=dpi, show_head=False)),

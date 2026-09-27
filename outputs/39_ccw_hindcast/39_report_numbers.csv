@@ -1,9 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
 n_wells_admitted,,,9.0,wells,wells hindcast against the CCW record
 n_open,,,6.0,wells,open ground (in_forest False)
-pearson_r_median,,,0.8556371678111,,"observed vs predicted, all wells"
-pearson_r_min,,,0.6576824995851998,,all wells
-pearson_r_max,,,0.944428785816955,,all wells
+pearson_r_median,,,0.8556371678111002,,"observed vs predicted, all wells"
+pearson_r_min,,,0.6576824995851999,,all wells
+pearson_r_max,,,0.9444287858169548,,all wells
 n_nse_negative,,,5.0,wells,Nash-Sutcliffe below zero
 nse_bias_removed_min_excl_persistent_forest,,,0.325692105987784,,"bias-removed NSE, wells other than the one under forest in both epochs"
 nse_bias_removed_max_excl_persistent_forest,,,0.868818259218948,,as above
@@ -13,7 +13,7 @@ residual_mean_open,,,0.11102887509748434,m,"as above, open ground"
 epoch_shift_min,,,-0.13463930248796008,m,smallest shift (1989-96 mean less modern mean)
 epoch_shift_max,,,-0.8347554606475993,m,largest shift
 epoch_shift_median,,,-0.5888264072218719,m,all wells
-open_pearson_r_median,,,0.9074073422488277,,open ground
+open_pearson_r_median,,,0.9074073422488278,,open ground
 open_nse_bias_removed_median,,,0.7863401538429426,,open ground
 open_epoch_shift_median,,,-0.3466287544870408,m,open ground
 rain_mean_window_m_yr,,,0.7700714285714284,m/yr,mean annual rainfall 1989-05 to 1996-04

@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.9"  # Hollingham (2026) — 2026-09-26. 09b_01/09b_02 baci_db3_pct
+__version__ = "1.29.0"  # Hollingham (2026) — 2026-09-27. 26_ebf_prediction_summary.csv
+#   registered (metric: n, pearson_r, r_ci_lo, r_ci_hi) — the Figure 48 caption quotes each
+#   metric's r, and 19_scenario_perwell.csv (scenario, season, well: dh_m, we_mm) (T-84).
+# 1.28.9  # Hollingham (2026) — 2026-09-26. 09b_01/09b_02 baci_db3_pct
 #   registered (T-84): the Methods Supplement quotes the per-well and centroid shifts.
 # 1.28.8  # Hollingham (2026) — 2026-09-26. 09d_01/09d_02 scenario comparison
 #   tables registered (T-84): report9 §4.5.6 and the MS quote every bar.
@@ -942,6 +945,14 @@ EXTRA_VALUE_TABLES = [
      ["baci_db3_pct"]),
     ("outputs/09_scraping_intervention/09b_02_centroid_summaries.csv", "group",
      ["baci_db3_pct"]),
+    # Script 26's vegetation-prediction summary: the Figure 48 caption quotes each
+    # metric's Pearson r and the sample size (T-84, 2026-09-27).
+    ("outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv", "metric",
+     ["n", "pearson_r", "r_ci_lo", "r_ci_hi"]),
+    # Script 19's per-well scenario responses (T-84, 2026-09-27): report9 §4.13.2
+    # quotes the C3 wells beneath the canopy.
+    ("outputs/19_spatial_groundwater/19_scenario_perwell.csv", ("scenario", "season", "well"),
+     ["dh_m", "we_mm"]),
 ]
 
 

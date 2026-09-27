@@ -1,8 +1,11 @@
 Parameter,Well,Era,Value,Unit,Note
-NW10_trend_slope_mm_yr,,,-26.4,mm/yr,"p=0.101, n=6"
-NW10_mean_anomaly_2010_2021,,,0.2951,m,
-Transect_gradient_mm_per_100m,,,-0.5,mm/100m,p=0.141
-Rolling_b1_impact_pre,,,2.496,,
-Rolling_b1_impact_post,,,2.669,,
-Rolling_b1_shift,,,0.174,,toward C3
-Rolling_b1_c3_post,,,3.712,,
+NW10_trend_slope_mm_yr,,,-26.42857142857664,mm/yr,"p=0.101, n=6"
+NW10_mean_anomaly_2010_2021,,,0.2950983606557377,m,
+Transect_gradient_mm_per_100m,,,-0.4527941767678762,mm/100m,p=0.141
+Transect_gradient_p,,,0.14094484338340807,,p-value of the step-vs-distance regression through the impact and edge wells
+Transect_gradient_n_wells,,,5.0,wells,impact and edge wells the gradient is fitted on
+Transect_control_baseline_m,,,0.08949792494618314,m,"mean post-fell step of the control and reference wells, n=2"
+Rolling_b1_impact_pre,,,2.495833787992492,,
+Rolling_b1_impact_post,,,2.669484500543987,,
+Rolling_b1_shift,,,0.173650712551495,,toward C3
+Rolling_b1_c3_post,,,3.711795668424306,,

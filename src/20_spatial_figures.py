@@ -108,7 +108,11 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.47.0"  # Hollingham (2026) - 2026-09-27. The Delaunay water table retired (D-205
+__version__ = "1.48.0"  # Hollingham (2026) - 2026-09-27. T-84: plot_clearfell_gain emits
+#   20_clearfell_gain_report_numbers.csv — the number of wells the map carries after its
+#   filter, and the range and median of their climate-corrected step (mm) — which the
+#   caption quotes ("n = 71 wells retained"). The map is unchanged.
+# 1.47.0  # Hollingham (2026) - 2026-09-27. The Delaunay water table retired (D-205
 #   extended, spec NRG_spec_water_table_kriged_everywhere rev 2; Martin: "include all of them"):
 #   plot_head_streams (20_head_surface_streams.png), _head_surface and compare_head_with_dem (T-66, moved
 #   to Script 01b with its outputs) removed; the residual figure's flow arrows and the show_head drawdown
@@ -277,7 +281,7 @@ from utils.paths import (
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
     OUT_20_SCRAPE_DRAWDOWN_PERWELL, OUT_20_SCRAPE_REPORT_NUMBERS,
     OUT_20_RESIDUAL_PERWELL, OUT_20_RESIDUAL_REPORT_NUMBERS,
-    OUT_20_MSL5_CHANGE_PERWELL, OUT_20_MSL5_REPORT_NUMBERS,
+    OUT_20_MSL5_CHANGE_PERWELL, OUT_20_MSL5_REPORT_NUMBERS, OUT_20_CLEARFELL_REPORT_NUMBERS,
     OUT_20_COASTAL_EROSION, OUT_20_SLR_RESPONSE,
     OUT_20_COASTAL_NET, OUT_20_SCRAPE_DRAWDOWN, OUT_20_SCRAPE_DRAWDOWN_NOHEAD,
     OUT_20_CLEARFELL_BASELINE_DRAWDOWN, OUT_20_PUBLIC_PANEL,
@@ -3085,6 +3089,18 @@ def plot_clearfell_gain(wt, features, dpi=300):
     print(f"  Clearfell gain: {len(df)} wells, "
           f"range {vals.min():+.0f} to {vals.max():+.0f} mm "
           f"(median {np.median(vals):+.0f} mm)")
+    crpt = ReportNumbers()
+    crpt.add("clearfell_gain_n_wells", len(df), unit="wells",
+             note=f"wells on the clearfell gain map: fell_step_cc present, n_post >= {MIN_POST}, "
+                  f"not in {sorted(PLOT_EXCLUDE)}")
+    crpt.add("clearfell_gain_min_mm", float(vals.min()), unit="mm",
+             note="lowest climate-corrected post-fell step on the map (fell_step_cc × 1000)")
+    crpt.add("clearfell_gain_max_mm", float(vals.max()), unit="mm",
+             note="highest climate-corrected post-fell step on the map")
+    crpt.add("clearfell_gain_median_mm", float(np.median(vals)), unit="mm",
+             note="median climate-corrected post-fell step on the map")
+    n_c = crpt.save(OUT_20_CLEARFELL_REPORT_NUMBERS)
+    print(f"  Saved → {OUT_20_CLEARFELL_REPORT_NUMBERS.name} ({n_c} report numbers)")
 
     # ── Interpolate onto grid ─────────────────────────────────────────────
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)

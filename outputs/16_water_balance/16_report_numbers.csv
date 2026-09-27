@@ -4,4 +4,18 @@ water_balance_residual_pct,C2 (Dune),,1.1282042022252958,%,|Residual_m_month| / 
 water_balance_residual_pct,C3 (Western Residual),,0.11615059017981934,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
 water_balance_residual_pct,C4 (Main Forest),,0.045845434965916976,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
 water_balance_residual_pct,C5 (Coastal Forest),,1.7526558736874018,%,|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv
+water_balance_P_mean_mm,C1 (Lake Edge),,74.42259414225941,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
+water_balance_PET_mean_mm,C1 (Lake Edge),,54.54679757685834,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
+water_balance_P_mean_mm,C2 (Dune),,74.3484,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
+water_balance_PET_mean_mm,C2 (Dune),,54.15254270839557,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
+water_balance_P_mean_mm,C3 (Western Residual),,74.11150793650792,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
+water_balance_PET_mean_mm,C3 (Western Residual),,54.38821035826871,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
+water_balance_P_mean_mm,C4 (Main Forest),,74.42259414225941,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
+water_balance_PET_mean_mm,C4 (Main Forest),,54.54679757685834,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
+water_balance_P_mean_mm,C5 (Coastal Forest),,74.36597510373443,mm/month,mean monthly rainfall over the cluster's fitted months (P_mean_m_month × 1000)
+water_balance_PET_mean_mm,C5 (Coastal Forest),,54.26683099558715,mm/month,mean monthly Thornthwaite PET over the cluster's fitted months (PET_mean_m_month × 1000)
+water_balance_P_mean_mm_min,,,74.11150793650792,mm/month,lowest cluster mean P
+water_balance_P_mean_mm_max,,,74.42259414225941,mm/month,highest cluster mean P
+water_balance_PET_mean_mm_min,,,54.15254270839557,mm/month,lowest cluster mean PET
+water_balance_PET_mean_mm_max,,,54.54679757685834,mm/month,highest cluster mean PET
 water_balance_closure_max_pct,,,1.7526558736874018,%,largest per-cluster residual as a share of total losses (C5 (Coastal Forest)): the balance closes to within this at every cluster

@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.39.0"  # Hollingham (2026) - 2026-09-27. 1.39.0: DIR_49/OUT_49_* renamed DIR_01B/OUT_01B_*
+__version__ = "1.40.0"  # Hollingham (2026) - 2026-09-27. 1.40.0: OUT_20_CLEARFELL_REPORT_NUMBERS
+#   (Script 20 1.48.0, T-84: the clearfell gain map's well count and range);
+#   OUT_19_SCENARIO_PERWELL (Script 19 2.25.0, T-84: each well's scenario response). Additive.
+# 1.39.0: DIR_49/OUT_49_* renamed DIR_01B/OUT_01B_*
 #   (Script 49 -> 01b_water_table, outputs/01b_water_table/, files 01b_*). 1.38.0: DIR_49 and OUT_49_*: Script 49,
 #   the water table by KED and flow arrows (spec NRG_spec_slack_flow_C); DATA_TIDAL_LEVELS.
 #   Additive.
@@ -998,6 +1001,7 @@ OUT_18_CLUSTER_HALFLIFE_SUMMARY = DIR_18 / "18_wtf_08_cluster_half_life_summary.
 OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 half-life / 1/β₃ stats
 
 # Script 19 — Spatial groundwater analysis
+OUT_19_SCENARIO_PERWELL = DIR_19 / "19_scenario_perwell.csv"   # T-84: per-well scenario Δh and water equivalent
 OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.jpg"
 OUT_19_HEAD_MEAN_MAP  = DIR_19 / "19_head_mean_map.jpg"
 OUT_19_HEAD_WINTER    = DIR_19 / "19_head_surface_winter.jpg"
@@ -1053,6 +1057,7 @@ OUT_20_SCRAPE_DRAWDOWN_PERWELL = DIR_20 / "20_scrape_drawdown_perwell.csv"
 # The scrape field's quoted quantities (Script 20 1.45.0, T-84): inferred cut depth,
 # measured edge response, and reach to each DRAWDOWN_QUOTE_LEVELS_MM level.
 OUT_20_SCRAPE_REPORT_NUMBERS = DIR_20 / "20_scrape_report_numbers.csv"
+OUT_20_CLEARFELL_REPORT_NUMBERS = DIR_20 / "20_clearfell_gain_report_numbers.csv"   # T-84: clearfell gain map n / range
 OUT_20_CLEARFELL_BASELINE_DRAWDOWN = DIR_20 / "20_clearfell_baseline_drawdown.png"
 OUT_20_PUBLIC_PANEL         = DIR_20 / "20_public_drivers_panel.png"
 OUT_20_NET_STATE_MAP        = DIR_20 / "20_net_state_map.png"

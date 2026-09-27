@@ -346,7 +346,7 @@
 - **β₂_atm_draw · R2_elevation_plus_dist**  — quoted 0.967 vs committed 0.978 ⚠  ·  `10c_forest_zone_correlations.csv`
 - **β₃_drainage · R2_elevation_plus_dist**  — quoted 0.788 vs committed 0.783 ⚠  ·  `10c_forest_zone_correlations.csv`
 - **CoeffShift_NW10_b2_after**  — quoted 2.48 vs committed 2.5967 ⚠  ·  `10_consolidated_report_numbers.csv`
-- **Rolling_b1_impact_post**  — quoted 2.56 vs committed 2.669 ⚠  ·  `10_consolidated_report_numbers.csv`
+- **Rolling_b1_impact_post**  — quoted 2.56 vs committed 2.66948 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **coastal_retreat_rate**  — quoted 2.32 vs committed 2.32071  ·  `20_report_numbers.csv`
 - **Canopy_controlled_delta_0**  — quoted -32.40 vs committed -32.2594 ⚠  ·  `25_report_numbers.csv`
 - **delta0_well_basis_se_mm_yr** [δ₀] — quoted 4.91 vs committed 4.7877 ⚠  ·  `25_report_numbers.csv`  — _coast-edge decline rate at zero distance (def. report8 §3.6)_
@@ -782,7 +782,7 @@
 - **CoeffShift_CEH31_b2_after**  — quoted 1.23 vs committed 1.2746 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW10_b2_after**  — quoted 2.48 vs committed 2.5967 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW4B_b2_after**  — quoted 1.10 vs committed 1.0795 ⚠  ·  `10_consolidated_report_numbers.csv`
-- **Rolling_b1_impact_post**  — quoted 2.56 vs committed 2.669 ⚠  ·  `10_consolidated_report_numbers.csv`
+- **Rolling_b1_impact_post**  — quoted 2.56 vs committed 2.66948 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **synth_FE1_R2_cal**  — quoted 0.998 vs committed 0.997837  ·  `10_consolidated_report_numbers.csv`
 - **synth_FE2_R2_cal**  — quoted 0.994 vs committed 0.994378  ·  `10_consolidated_report_numbers.csv`
 - **ANCOVA_A_WMC3+FE1+FE2_Forest_net_clearfell**  — quoted 0.139 vs committed 0.13652 ⚠  ·  `10_consolidated_report_numbers.csv`
@@ -2940,6 +2940,10 @@
 - **C4 (Main Forest) · well_min_max_R2_datum_m**  — quoted 0.5 vs committed 0.5  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · well_max_max_R2_datum_m**  — quoted 8.0 vs committed 8  ·  `03_18_datum_invariance.csv`
 - **ewi_msl5_rmse_mm_open_dune**  — quoted 76 vs committed 75.8326  ·  `26_report_numbers.csv`
+- **C3_halflife_min** [τ] — quoted 6 vs committed 6.11066  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C3_halflife_max** [τ] — quoted 19 vs committed 19.4321  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C5_halflife_min** [τ] — quoted 11 vs committed 11.3198  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C5_halflife_max** [τ] — quoted 16 vs committed 15.7266  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_min** [τ] — quoted 16 vs committed 16.2998  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_max** [τ] — quoted 42 vs committed 41.5802  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_mean** [τ] — quoted 26 vs committed 25.6959  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
@@ -2949,6 +2953,7 @@
 - **trend_annual_rain_full_record_p**  — quoted 0.57 vs committed 0.571536  ·  `01_report_numbers.csv`
 - **residual_n_negative**  — quoted 51 vs committed 51  ·  `20_residual_report_numbers.csv`
 - **Climate wet · Delta_vol_mm_per_month**  — quoted 8.1 vs committed 8.1  ·  `09d_01_scenario_comparison.csv`
+- **Transect_gradient_p**  — quoted 0.14 vs committed 0.140945  ·  `10_consolidated_report_numbers.csv`
 - _(untracked)_ 891 mm — …6), mean annual precipitation was 891 mm and mean annual Thornthwaite…
 - _(untracked)_ 653 mm — …mean annual Thornthwaite PET was 653 mm, giving a mean P/PET ratio of…
 - _(untracked)_ 1,040 mm — …cord within this period was 2008 (1,040 mm), followed by 2012 (1,022 mm)…
@@ -3027,6 +3032,7 @@
 - **cluster_mean_level_m · C4 (Main Forest) · 2006-12 to 2025-12**  — quoted −1.34 vs committed -1.33789  ·  `02_report_numbers.csv`
 - **cluster_mean_level_m · C5 (Coastal Forest) · 2006-12 to 2025-12**  — quoted −1.19 vs committed -1.19329  ·  `02_report_numbers.csv`
 - **drawdown_d15**  — quoted 34 vs committed 33.937  ·  `20_report_numbers.csv`
+- **MSL5 · pearson_r**  — quoted 0.83 vs committed 0.828958  ·  `26_ebf_prediction_summary.csv`
 - _(untracked)_ 0.3 m — …l), with C3 running approximately 0.3 m deeper on average (mean −0.77…
 - _(untracked)_ 0.6 m — …most distinctive cluster, sitting 0.6 m deeper than adjacent C3 wells…
 - _(untracked)_ 7.45 m AOD — …rk mean water table elevation was 7.45 m AOD across the 66-well reference…
@@ -3127,6 +3133,8 @@
 - **c4_closure_min_beta3** [β₃] — quoted 0.019 vs committed 0.019  ·  `30_c4_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **c4_centroid_beta3_excl** [β₃] — quoted 0.029 vs committed 0.0290585  ·  `30_c4_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **CoeffShift_Climate Ctrl_mean_db1**  — quoted −0.01 vs committed -0.00958  ·  `10_consolidated_report_numbers.csv`
+- **beta3_pvalue_ceh13_full_record** [β₃] — quoted 0.39 vs committed 0.38925  ·  `18_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **Transect_control_baseline_m**  — quoted 0.089 vs committed 0.0894979  ·  `10_consolidated_report_numbers.csv`
 - _(untracked)_ 26 mm — …terpretable management metric: 22--26 mm of rainfall is required to ra…
 - _(untracked)_ 10 cm — …ake Edge and Dune water tables by 10 cm, compared with 27 mm in the W…
 - _(untracked)_ 27 mm — …er tables by 10 cm, compared with 27 mm in the Western Residual and 4…
@@ -3177,6 +3185,10 @@
 - **scenario_water_equivalent_mm_per_month · C4 (Main Forest) · thinning_50pct · annual**  — quoted 4.7 vs committed 4.7298  ·  `21_report_numbers.csv`
 - **scenario_head_shift_m · C5 (Coastal Forest) · thinning_50pct · annual**  — quoted 0.020 vs committed 0.0198589  ·  `21_report_numbers.csv`
 - **ANCOVA_Forest_Impact_summer_R2** [R²] — quoted 0.34 vs committed 0.343602  ·  `10_consolidated_report_numbers.csv`  — _coefficient of determination_
+- **water_balance_P_mean_mm_min**  — quoted 74.1 vs committed 74.1115  ·  `16_report_numbers.csv`
+- **water_balance_P_mean_mm_max**  — quoted 74.4 vs committed 74.4226  ·  `16_report_numbers.csv`
+- **water_balance_PET_mean_mm_min**  — quoted 54.2 vs committed 54.1525  ·  `16_report_numbers.csv`
+- **water_balance_PET_mean_mm_max**  — quoted 54.5 vs committed 54.5468  ·  `16_report_numbers.csv`
 - _(untracked)_ 1.8% — …cluster. Residuals are less than 1.8% of total losses in all cluste…
 - _(untracked)_ 85% — …s clusters: drainage accounts for 85% of total losses at C1 but onl…
 - _(untracked)_ 24% — …5% of total losses at C1 but only 24% at C4, where atmospheric draw…
@@ -3452,7 +3464,7 @@
 - **C1_halflife_max** [τ] — quoted 8.9 vs committed 8.86938  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **scenario_head_shift_m · C4 (Main Forest) · broadleaf · winter**  — quoted 0.025 vs committed 0.0249047  ·  `21_report_numbers.csv`
 - **residual_spearman_signed_northing_rho**  — quoted −0.10 vs committed -0.104227  ·  `20_residual_report_numbers.csv`
-- _(untracked)_ 108 mm — …control, the clearfell step was +108 mm for Impact (p = 0.003) and +3…
+- **halflife_ceh13_full_record** [τ] — quoted 108 vs committed 107.87  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - _(untracked)_ 31 mm — …08 mm for Impact (p = 0.003) and +31 mm for Edge (p = 0.23) (Figure 3…
 - _(untracked)_ −19 mm — …e control, the clearfell step was −19 mm for Impact (p = 0.46) and −10…
 - _(untracked)_ −106 mm — …−19 mm for Impact (p = 0.46) and −106 mm for Edge (p = 0.002). Against…
@@ -3572,6 +3584,7 @@
 - **CoeffShift_Forest Ctrl_mean_db2**  — quoted +0.11 vs committed 0.11162  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_WMC3_db2**  — quoted −0.27 vs committed -0.2696  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW10_db1**  — quoted +0.25 vs committed 0.2476  ·  `10_consolidated_report_numbers.csv`
+- **EWI_spring · pearson_r**  — quoted 0.55 vs committed 0.554358  ·  `26_ebf_prediction_summary.csv`
 - _(untracked)_ −0.29 — …iers: mean Δβ₁ = −0.05 at Impact, −0.29 at Edge, −0.09 at Forest Contr…
 - _(untracked)_ −0.26 — …at Edge, −0.09 at Forest Control, −0.26 at Coastal Control and −0.01 a…
 - _(untracked)_ −0.01 — …rol, −0.26 at Coastal Control and −0.01 at Climate Control. The networ…
@@ -3717,6 +3730,7 @@
 - **C1 / SD16 · year_crossing_5**  — quoted 2021 vs committed 2021.4  ·  `14b_year_of_crossing.csv`
 - **C1 / SD16 · year_crossing_95**  — quoted 2046 vs committed 2046.1  ·  `14b_year_of_crossing.csv`
 - **ewi_msl5_slope_b**  — quoted 0.955 vs committed 0.955125  ·  `26_report_numbers.csv`
+- **EWI_annual · pearson_r**  — quoted 0.79 vs committed 0.791413  ·  `26_ebf_prediction_summary.csv`
 - _(untracked)_ −0.0115 m yr⁻¹ — …record. C1 Lake Edge declined at −0.0115 m yr⁻¹ (R² = 0.251, p = 0.024, n = 2…
 - _(untracked)_ −0.0143 m yr⁻¹ — …1, p = 0.024, n = 20), C2 Dune at −0.0143 m yr⁻¹ (R² = 0.217, p = 0.033, n = 2…
 - _(untracked)_ −0.0175 m yr⁻¹ — …, n = 21), C3 Western Residual at −0.0175 m yr⁻¹ (R² = 0.231, p = 0.028, n = 2…
@@ -3888,12 +3902,14 @@
 - **C4_halflife_min** [τ] — quoted 16.3 vs committed 16.2998  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_max** [τ] — quoted 41.6 vs committed 41.5802  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfell · annual**  — quoted 12.2 vs committed 12.244  ·  `21_report_numbers.csv`
+- **C4_halflife_min_window** [τ] — quoted 17 vs committed 17.3417  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C4_halflife_max_window** [τ] — quoted 74 vs committed 73.8377  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C4_halflife_mean_window** [τ] — quoted 37 vs committed 36.672  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - _(untracked)_ 8.9 months — …he network: C1 Lake Edge t½ = 5.9--8.9 months (mean 7.7 months), meaning ex…
 - _(untracked)_ 10.6 months — …Dune t½ = 8.0--12.8 months (mean 10.6 months). The western dune shows inte…
 - _(untracked)_ 19.4 months — …ues: C3 Western Residual t½ = 6.1--19.4 months (mean 12.2 months). The fores…
 - _(untracked)_ 15.7 months — …ives: C5 Coastal Forest t½ = 11.3--15.7 months (mean 13.9 months), comparabl…
 - _(untracked)_ 25.7 months — …rest t½ = 16.3--41.6 months (mean 25.7 months), the longest half-lives in t…
-- _(untracked)_ 82 months — …ndow values overstate them --- 17--82 months, mean 38, at C4. The pronounc…
 - _(untracked)_ 42 months — ….3). The wide within-C4 range (16--42 months on the full record) shows the…
 
 ### §4.9.4 Per-Well Forest Zone Analysis
@@ -4113,6 +4129,7 @@
 - **rho_lag1_vs_tR_spearman_r**  — quoted +0.14 vs committed 0.141128  ·  `26_report_numbers.csv`
 - **site_mean_spring_n_years**  — quoted 20 vs committed 20  ·  `26_report_numbers.csv`
 - **site_mean_spring_rho_lag1**  — quoted −0.03 vs committed -0.0257009  ·  `26_report_numbers.csv`
+- **clearfell_gain_n_wells**  — quoted 71 vs committed 71  ·  `20_clearfell_gain_report_numbers.csv`
 - _(untracked)_ 135 mm — …. The combined drawdown reaches ≈ 135 mm at the scrape and tapers thro…
 - _(untracked)_ 100 mm — …s the open dune interior (+25 to +100 mm), with the largest gains at t…
 - _(untracked)_ −25 — …the felled compartment. A zone of −25 to −100 mm appears along the s…
@@ -4234,7 +4251,11 @@
 - **scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf · annual**  — quoted 2.9 vs committed 2.90785  ·  `21_report_numbers.csv`
 - **scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · broadleaf · annual**  — quoted 4.2 vs committed 4.21255  ·  `21_report_numbers.csv`
 - **scenario_water_equivalent_mm_per_month · C4 (Main Forest) · broadleaf · winter**  — quoted 6.3 vs committed 6.29186  ·  `21_report_numbers.csv`
-- _(untracked)_ 6 mm — …ctly zero at C1 and C2, and under 6 mm/month at C3, where two wells…
+- **clearfell / annual / nw11 · dh_m**  — quoted 0.074 vs committed 0.073737  ·  `19_scenario_perwell.csv`
+- **clearfell / annual / wmc3 · dh_m**  — quoted 0.039 vs committed 0.0389981  ·  `19_scenario_perwell.csv`
+- **clearfell / annual / nw11 · we_mm**  — quoted 21.0 vs committed 20.9772  ·  `19_scenario_perwell.csv`
+- **clearfell / annual / wmc3 · we_mm**  — quoted 13.2 vs committed 13.2345  ·  `19_scenario_perwell.csv`
+- **clearfell / winter / C3 · we_mean_mm** [Δh] — quoted 1.6 vs committed 1.56451  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - _(untracked)_ 0% — …by setting canopy interception to 0% and adjusting β₂ at C4 and C5…
 - _(untracked)_ 24% — …thinning halves interception from 24% to 12% with proportional β₂ a…
 - _(untracked)_ 12% — …g halves interception from 24% to 12% with proportional β₂ adjustme…

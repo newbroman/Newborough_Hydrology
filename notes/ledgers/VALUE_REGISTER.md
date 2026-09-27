@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**141 output file(s)** supply **1531 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**145 output file(s)** supply **1552 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -756,6 +756,9 @@
 |  | CoeffShift_NW10_db1 | report9.md |
 |  | CoeffShift_WMC3_db2 | report9.md |
 | `10f_02_synthetic_control_results.csv` | Edge · P_value | report9.md |
+| `10g_report_numbers.csv` | Transect_control_baseline_m | report9.md |
+|  | Transect_gradient_mm_per_100m | report9.md |
+|  | Transect_gradient_p | report9.md |
 | `10h_01_synthetic_calibration.csv` | FE1 · R2_cal | Newborough_Methods_Supplement.md |
 |  | FE2 · R2_cal | Newborough_Methods_Supplement.md |
 | `10j_report_numbers.csv` | ImpactVsEdge_summer_clearfell_step_se | Newborough_Methods_Supplement.md |
@@ -856,6 +859,10 @@
 |  | C1 · SSM_NSE | readme.md |
 |  | C4 · NSE_Iterative | report9.md |
 | `16_report_numbers.csv` | C4 (Main Forest) · water_balance_residual_pct | report9.md |
+|  | water_balance_PET_mean_mm_max | report9.md |
+|  | water_balance_PET_mean_mm_min | report9.md |
+|  | water_balance_P_mean_mm_max | report9.md |
+|  | water_balance_P_mean_mm_min | report9.md |
 |  | water_balance_closure_max_pct | Newborough_Methods_Supplement.md |
 |  | water_balance_residual_pct · C2 (Dune) | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, report9.md |
 | `16_water_bal_rec_table.csv` | C2 (Dune) · SSM_drain_frac | Newborough_Methods_Supplement.md |
@@ -933,11 +940,20 @@
 |  | C3_halflife_mean | report9.md |
 |  | C3_halflife_min | report9.md |
 |  | C4_halflife_max | report10.md, report9.md |
+|  | C4_halflife_max_window | report9.md |
 |  | C4_halflife_mean | report10.md, report9.md |
+|  | C4_halflife_mean_window | report9.md |
 |  | C4_halflife_min | report10.md, report9.md |
+|  | C4_halflife_min_window | report9.md |
 |  | C5_halflife_max | report9.md |
 |  | C5_halflife_mean | report9.md |
 |  | C5_halflife_min | report9.md |
+|  | beta3_pvalue_ceh13_full_record | report9.md |
+|  | halflife_ceh13_full_record | report9.md |
+| `19_scenario_perwell.csv` | clearfell / annual / nw11 · dh_m | report9.md |
+|  | clearfell / annual / nw11 · we_mm | report9.md |
+|  | clearfell / annual / wmc3 · dh_m | report9.md |
+|  | clearfell / annual / wmc3 · we_mm | report9.md |
 | `19_scenario_summary.csv` | C3 · we_mean_mm | Supplementary_Material.md, report9.md |
 |  | C5 · dh_median_m | Newborough_Methods_Supplement.md, Supplementary_Material.md |
 |  | C5 · we_median_mm | Newborough_Methods_Supplement.md |
@@ -948,9 +964,11 @@
 |  | broadleaf / summer / SITE · we_mean_mm | report9.md |
 |  | clearfell / annual / C5 · dh_median_m | Supplementary_Material.md |
 |  | clearfell / summer / C3 · we_mean_mm | report9.md |
+|  | clearfell / winter / C3 · we_mean_mm | report9.md |
 |  | thinning / summer / C3 · we_mean_mm | Supplementary_Material.md |
 |  | thinning / winter / C3 · we_mean_mm | report9.md |
 |  | ukcp18_2050s / annual / C5 · dh_median_m | Newborough_Methods_Supplement.md |
+| `20_clearfell_gain_report_numbers.csv` | clearfell_gain_n_wells | report9.md |
 | `20_msl5_change_perwell.csv` | ceh1 · MSL5_bg_2017_m | Supplementary_Material.md |
 |  | ceh26 · MSL5_bg_2023_m | Supplementary_Material.md |
 |  | d10 · MSL5_bg_2017_m | Supplementary_Material.md |
@@ -1127,6 +1145,9 @@
 |  | 5 / C4 (Main Forest) · MSL5_current_m_bg | report9.md |
 |  | 5 / C5 (Coastal Forest) · MINw_current_m_bg | Newborough_Methods_Supplement.md |
 |  | 5 / C5 (Coastal Forest) · MSL5_current_m_bg | report9.md |
+| `26_ebf_prediction_summary.csv` | EWI_annual · pearson_r | report9.md |
+|  | EWI_spring · pearson_r | report9.md |
+|  | MSL5 · pearson_r | report9.md |
 | `26_index_precision_by_cluster.csv` | all / C1 (Lake Edge) · n_wells_with_springs | report9.md |
 |  | all / C2 (Dune) · rho_lag1_mean | Supplementary_Material.md |
 |  | reference / C1 (Lake Edge) · n_wells_with_springs | report9.md |

@@ -288,189 +288,193 @@ PAPER1_SI_methods,para,crosbiersbinningpandkalm,38,docs/papers/paper_1/PAPER1_SI
 PAPER1_SI_methods,para,liaotw2005clusteringofti,39,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-09-25T13:05Z,1
 PAPER1_SI_methods,para,milligangwandcoopermc198,39,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-09-25T13:05Z,1
 PAPER1_SI_methods,para,allotherreferencesakaike,39,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-09-25T13:05Z,1
-Paper1,para,aparametersparsestatespa,1,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,studyregionnewboroughwar,1,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,Abstract,1,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,studyfocusduneslackveget,1,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,newhydrologicalinsightsf,1,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,keywordscoastalduneaquif,2,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,duneaquiferarchitecturer,2,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,coastalduneslacksareamon,2,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,1. Introduction,2,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,characterizingthatarchit,2,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,wedevelopanddemonstrates,3,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,aroundthiscoreweassemble,3,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,wealsoresolveanexternalf,4,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theframeworkisdemonstrat,4,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theobjectivesofthispaper,4,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,newboroughwarrenoccupies,5,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,2. Study site,5,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theaquifersoutheastofthe,5,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thenorthernpartofthestud,5,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure1sitetopographygeo,6,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theprimaryobservationald,7,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3. Data and methods,7,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.1 Groundwater and climate records,7,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,climateforcingistakenfro,7,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thereferencenetworkispar,7,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.2 Hierarchical clustering of hydrograph dynamics,7,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thenumberofclustersissel,8,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theprimaryclassification,8,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.3 Network extension by Pearson affinity analysis,8,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,themechanisticcoreofthef,8,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.4 State-space model and the displacement formulation,8,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,wherehtisthechangeinwate,8,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thedrainagetermisreferen,9,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,wherezisthedrainagedatum,9,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,themodelisfittedbyordina,9,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,adepthdependentextension,9,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,themodelisfittedattwosca,10,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thepredictivevalueofthee,10,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.5 Model benchmarking against a traditional linear model,10,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theperwellssmcoefficient,11,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.6 Spatial coefficient mapping and within-forest regression,11,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,withintheforestedzonewhe,11,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thefittedclustercoeffici,11,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.7 Mean monthly water-balance decomposition,11,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,anindicativevolumetricco,11,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,anindependentestimateofs,12,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.8 Specific-yield estimation by the water-table-fluctuation method,12,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,fortheforestedclustersac,12,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,whereashorelineisactivel,12,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.9 Network-scale coastal-retreat gradient regression,12,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,twofunctionalformsarefit,13,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,ameanwatertablesurfaceis,14,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,"3.10 Spatial interpolation, flow field and water-balance residual field",14,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thewaterbalanceresidualf,14,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,alldatapreprocessingstat,14,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,3.11 Computational implementation,14,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,therafvalleyrecordestabl,15,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4. Results,15,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.1 Climate and well-network characterization,15,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thereferencenetworkcompr,15,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure2climateforcingove,16,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure3summertemperature,17,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,hierarchicalclusteringof,17,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.2 Network clustering and spatial architecture,17,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure4hierarchicalclust,18,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure5spatialdistributi,19,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure6clustercentroidhy,20,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thepearsonaffinityanalys,20,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.3 Affinity validation of the cluster structure,20,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thefiveclustersarecharac,20,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.4 Cluster mechanistic coefficients,20,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table1clustermechanistic,21,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,rechargesensitivityishig,21,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,atmosphericdrawishighest,21,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thedrainagedecayshowsthe,21,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theheadspacewaterbalance,22,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.5 Water balance and specific yield,22,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table2meanmonthlyheadspa,22,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theindicativevolumetricc,22,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table3indicativeannualvo,22,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,clusterpipnetetmiddraina,22,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure7waterbalancedecom,23,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thewatertablefluctuation,23,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table4specificyieldbyclu,24,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure8interpolatedwater,25,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,inonestepdiagnosticmodet,25,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.6 Model benchmarking: SSM versus traditional linear model,25,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table5ssmbversustraditio,26,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure9spatialpatternoft,27,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,perwelldrainagedatumopti,27,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.7 Spatial coefficient structure and drainage half-life,27,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure10perwelloptimaldr,29,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table6perwellssmcoeffici,62,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,2
-Paper1,para,figure11spatialssmcoeffi,30,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure12spatialssmcoeffi,31,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure13spatialssmcoeffi,32,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thedrainagedecayhalflife,32,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table7drainagedecayhalfl,33,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,clustertmintmediantmaxnc,33,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure14drainagedecayhal,34,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure15aquiferdiagnosti,35,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,wherethecanopyisuniformb,35,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.8 Substrate control within the forested zone,35,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,doesvarysubstantiallyacr,35,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table8withinforestspatia,36,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,interpolationofperwellme,36,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.9 Mean water-table surface and flow field,36,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure16meanannualwatert,37,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theresidualfieldmodelled,37,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.10 Water-balance residual field,37,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure17ssmwaterbalancer,38,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thenetworkscaleregressio,39,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,4.11 Coastal-retreat gradient and the partition of long-term decline,39,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,applyingtheheadlinefitto,40,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,anorthogonallongitudinal,41,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thec5coastalforestrowisr,41,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,table9decompositionofclu,43,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,c5restsonthreeopenwellsi,43,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure18coastalretreatgr,44,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thefivehydrogeologicalcl,45,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,5. Discussion,45,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,"5.1 Geology, land cover and the cluster structure",45,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thisgradientalsobearsonh,45,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure19illustrativefore,47,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure20episodiccoastalr,48,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thattheclusteringfigures,48,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thetwoforestedclustersar,49,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,5.2 Substrate versus surface control: interpreting the coefficients,49,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thisfindingclarifiesapot,50,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,adepthdependentextension,50,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,decomposedunderidentical,51,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,"5.3 Recharge, loss and the water balance",51,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,twocautionsattachtothere,51,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thenearclosureofthewater,52,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,5.4 Boundary conditions and the water-balance residual field,52,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,twofurtherdiagnosticscon,52,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thenetworkscalegradientr,53,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,5.5 Long-term forcing: coastal retreat and the partition of decline,53,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theaquifersdrainagedecay,53,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,figure21conceptualreacho,55,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thisforcingalsoreframest,55,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,oneboundarymechanismoper,56,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thedeclineobservedawayfr,56,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thepracticalcontribution,57,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,5.6 Predictive skill and transferability,57,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thisisthebasisfortransfe,58,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,theframeworksstrengthsan,58,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,5.7 Framework limitations,58,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,severalfurtherlimitation,59,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thisstudysetsoutaparamet,60,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,6. Conclusions,60,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,1fivehydrogeologicalclus,60,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,thehydrologicalconsequen,61,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,forreviewonlyeveryfigure,62,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,Source data,62,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,itemcommittedsourcetable,62,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,duringthepreparationofth,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,Declaration of generative AI and AI-assisted technologies in the manuscript preparation process,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,akaikeh1974anewlookatthe,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,heading,References,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,bearj1972dynamicsoffluid,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,betsonmconnelllandbristo,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,curreliawallacehfreemanc,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,davyajgrootjansaphiscock,64,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,fettercw2001appliedhydro,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,forgravea2020dramaticpic,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,freemans2008thehydrologi,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,freezeraandcherryja1979g,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,gerlapj2019monitoringand,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,healyrwandcookpg2002usin,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,hollinghamm2026ahydrogeo,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,knottersmandvanwalsumpev,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,pyekandblottsj2024dunere,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,ranwellds1958movementofv,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,ranwellds1959newboroughw,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,raoarandsrinivasvv2006re,65,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,rhindpmblackstockthhardy,66,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,robinsnspyekandwallaceh2,66,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,rousseeuwpj1987silhouett,66,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,scanlonbrhealyrwandcookp,66,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,stratfordcratcliffejhugh,66,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,wardjh1963hierarchicalgr,66,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
-Paper1,para,youngpc2011recursiveesti,66,docs/papers/paper_1/Paper1.pdf,2026-09-25T13:05Z,1
+Paper1,para,aparametersparsestatespa,1,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,studyregionnewboroughwar,1,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,Abstract,1,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,studyfocusduneslackveget,1,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,newhydrologicalinsightsf,1,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,keywordscoastalduneaquif,2,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,duneaquiferarchitecturer,2,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,coastalduneslacksareamon,2,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,1. Introduction,2,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,characterizingthatarchit,2,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,wedevelopanddemonstrates,3,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,aroundthiscoreweassemble,3,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,wealsoresolveanexternalf,4,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theframeworkisdemonstrat,4,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theobjectivesofthispaper,4,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,newboroughwarrenoccupies,5,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,2. Study site,5,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theaquifersoutheastofthe,5,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thenorthernpartofthestud,5,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure1sitetopographygeo,6,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theprimaryobservationald,7,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3. Data and methods,7,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.1 Groundwater and climate records,7,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,climateforcingistakenfro,7,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thereferencenetworkispar,7,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.2 Hierarchical clustering of hydrograph dynamics,7,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thenumberofclustersissel,8,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theprimaryclassification,8,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.3 Network extension by Pearson affinity analysis,8,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,themechanisticcoreofthef,8,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.4 State-space model and the displacement formulation,8,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,wherehtisthechangeinwate,8,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thedrainagetermisreferen,9,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,wherezisthedrainagedatum,9,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,themodelisfittedbyordina,9,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,adepthdependentextension,9,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,themodelisfittedattwosca,10,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thepredictivevalueofthee,10,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.5 Model benchmarking against a traditional linear model,10,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theperwellssmcoefficient,11,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.6 Spatial coefficient mapping and within-forest regression,11,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,withintheforestedzonewhe,11,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thefittedclustercoeffici,11,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.7 Mean monthly water-balance decomposition,11,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,anindicativevolumetricco,11,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,anindependentestimateofs,12,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.8 Specific-yield estimation by the water-table-fluctuation method,12,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,fortheforestedclustersac,12,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,whereashorelineisactivel,12,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.9 Network-scale coastal-retreat gradient regression,12,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,twofunctionalformsarefit,13,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,themeanwatertablesurface,14,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,"3.10 Spatial interpolation, flow field and water-balance residual field",14,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thewaterbalanceresidualf,14,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,alldatapreprocessingstat,15,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,3.11 Computational implementation,15,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,therafvalleyrecordestabl,15,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4. Results,15,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.1 Climate and well-network characterization,15,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thereferencenetworkcompr,15,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure2climateforcingove,16,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure3summertemperature,17,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,hierarchicalclusteringof,17,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.2 Network clustering and spatial architecture,17,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure4hierarchicalclust,18,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure5spatialdistributi,19,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure6clustercentroidhy,20,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thepearsonaffinityanalys,20,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.3 Affinity validation of the cluster structure,20,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thefiveclustersarecharac,20,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.4 Cluster mechanistic coefficients,20,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table1clustermechanistic,21,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,rechargesensitivityishig,21,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,atmosphericdrawishighest,21,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thedrainagedecayshowsthe,21,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theheadspacewaterbalance,22,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.5 Water balance and specific yield,22,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table2meanmonthlyheadspa,22,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theindicativevolumetricc,22,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table3indicativeannualvo,22,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,clusterpipnetetmiddraina,22,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure7waterbalancedecom,23,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thewatertablefluctuation,23,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table4specificyieldbyclu,24,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure8interpolatedwater,25,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,inonestepdiagnosticmodet,25,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.6 Model benchmarking: SSM versus traditional linear model,25,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table5ssmbversustraditio,26,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure9spatialpatternoft,27,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,perwelldrainagedatumopti,27,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.7 Spatial coefficient structure and drainage half-life,27,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure10perwelloptimaldr,29,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table6perwellssmcoeffici,62,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,2
+Paper1,para,figure11spatialssmcoeffi,30,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure12spatialssmcoeffi,31,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure13spatialssmcoeffi,32,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thedrainagedecayhalflife,32,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table7drainagedecayhalfl,33,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,clustertmintmediantmaxnc,33,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure14drainagedecayhal,34,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure15aquiferdiagnosti,35,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,wherethecanopyisuniformb,35,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.8 Substrate control within the forested zone,35,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,doesvarysubstantiallyacr,35,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table8withinforestspatia,36,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,leftoutoneatatimethewell,36,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.9 Mean water-table surface and flow field,36,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure16thewatertablekri,37,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theresidualfieldmodelled,37,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.10 Water-balance residual field,37,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure17ssmwaterbalancer,38,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thenetworkscaleregressio,39,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,4.11 Coastal-retreat gradient and the partition of long-term decline,39,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,applyingtheheadlinefitto,40,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,anorthogonallongitudinal,41,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thec5coastalforestrowisr,41,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,table9decompositionofclu,43,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,c5restsonthreeopenwellsi,43,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure18coastalretreatgr,44,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thefivehydrogeologicalcl,45,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,5. Discussion,45,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,"5.1 Geology, land cover and the cluster structure",45,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thisgradientalsobearsonh,45,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure19illustrativefore,47,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure20episodiccoastalr,48,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thattheclusteringfigures,48,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thetwoforestedclustersar,49,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,5.2 Substrate versus surface control: interpreting the coefficients,49,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thisfindingclarifiesapot,50,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,adepthdependentextension,50,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,decomposedunderidentical,51,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,"5.3 Recharge, loss and the water balance",51,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,twocautionsattachtothere,51,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thenearclosureofthewater,52,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,5.4 Boundary conditions and the water-balance residual field,52,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,twofurtherdiagnosticscon,52,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thenetworkscalegradientr,53,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,5.5 Long-term forcing: coastal retreat and the partition of decline,53,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theaquifersdrainagedecay,53,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,figure21conceptualreacho,55,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thisforcingalsoreframest,55,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,oneboundarymechanismoper,56,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thedeclineobservedawayfr,56,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thepracticalcontribution,57,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,5.6 Predictive skill and transferability,57,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thisisthebasisfortransfe,58,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,theframeworksstrengthsan,58,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,5.7 Framework limitations,58,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,severalfurtherlimitation,59,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thisstudysetsoutaparamet,60,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,6. Conclusions,60,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,1fivehydrogeologicalclus,60,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,thehydrologicalconsequen,61,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,forreviewonlyeveryfigure,62,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,Source data,62,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,itemcommittedsourcetable,62,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,duringthepreparationofth,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,Declaration of generative AI and AI-assisted technologies in the manuscript preparation process,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,akaikeh1974anewlookatthe,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,heading,References,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,bearj1972dynamicsoffluid,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,betsonmconnelllandbristo,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,curreliawallacehfreemanc,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,davyajgrootjansaphiscock,64,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,desbaratsajlogancehinton,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,fettercw2001appliedhydro,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,forgravea2020dramaticpic,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,freemans2008thehydrologi,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,freezeraandcherryja1979g,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,gerlapj2019monitoringand,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,healyrwandcookpg2002usin,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,hollinghamm2026ahydrogeo,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,knottersmandvanwalsumpev,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,pyekandblottsj2024dunere,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,ranwellds1958movementofv,65,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,ranwellds1959newboroughw,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,raoarandsrinivasvv2006re,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,raopwangyliuywangxhouypa,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,rhindpmblackstockthhardy,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,robinsnspyekandwallaceh2,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,rousseeuwpj1987silhouett,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,scanlonbrhealyrwandcookp,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,stratfordcratcliffejhugh,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,ukho2026admiraltytidetab,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,varouchakiseaandhristopu,66,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,wardjh1963hierarchicalgr,67,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
+Paper1,para,youngpc2011recursiveesti,67,docs/papers/paper_1/Paper1.pdf,2026-09-27T21:56Z,1
 Hollingham_2026_Paper2_amended,para,hydrologicalresponseofac,1,docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf,2026-09-25T13:05Z,1
 Hollingham_2026_Paper2_amended,para,studyregionnewboroughwar,1,docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf,2026-09-25T13:05Z,1
 Hollingham_2026_Paper2_amended,para,studyfocustworestoration,1,docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf,2026-09-25T13:05Z,1

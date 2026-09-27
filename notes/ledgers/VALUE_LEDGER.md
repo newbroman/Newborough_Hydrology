@@ -1000,6 +1000,9 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | site_mean_spring_n_years |  |  | `26_report_numbers.csv` | 20 |  | report9 | ok |
 | site_mean_spring_rho_lag1 |  |  | `26_report_numbers.csv` | -0.0257009 |  | report9 | ok |
 | spring_mam / 2011_2025 · p_ar | p | significance probability | `32_site_mean_trend.csv` | 0.2845 |  | report9 | ok |
+| study_area_envelope_e_km |  |  | `12_report_numbers.csv` | 4.34052 |  | report7 | ok |
+| study_area_envelope_n_km |  |  | `12_report_numbers.csv` | 3.92931 |  | report7 | ok |
+| study_area_ha |  |  | `12_report_numbers.csv` | 864.764 |  | report7 | ok |
 | summary / corr_upstand_vs_d_beta_1 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | 0.803642 |  | Newborough_Methods_Supplement | ok |
 | summary / corr_upstand_vs_d_beta_3 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | -0.854966 |  | report8 | ok |
 | surplus_mean_modern_m_yr |  |  | `39_report_numbers.csv` | 0.23668 |  | report9 | ok |

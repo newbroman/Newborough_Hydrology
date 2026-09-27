@@ -5,14 +5,14 @@
 
 *Generated from `docs/PDF_MANIFEST.txt` with the live lag state from `tools/export_lag.py`. Living current-state; regenerate, do not hand-edit. `tools/export_lag.py` is the live authority.*
 
-**12 published PDFs** — 6 version-current, 1 lagging, 5 unversioned (mtime-only, not version-tracked).
+**12 published PDFs** — 7 version-current, 0 lagging, 5 unversioned (mtime-only, not version-tracked).
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
 | `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_24.odt` | 2026-09-27T20:49:03Z | current |
 | `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_18.odt` | 2026-09-27T20:49:03Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_22.odt` | 2026-09-25T13:05:09Z | current |
-| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_60.odt` | 2026-09-25T13:05:07Z | **STALE** |
+| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_61.odt` | 2026-09-27T21:56:26Z | current |
 | `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v23.odt` | 2026-09-25T13:05:08Z | current |
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-09-05T22:49:36Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-09-05T22:49:35Z | unversioned |

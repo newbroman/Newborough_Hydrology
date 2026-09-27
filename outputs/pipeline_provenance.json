@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-27T21:17:31",
+ "generated": "2026-09-27T23:01:01",
  "orchestrator": "2.21.0",
  "steps": {
   "00_climate_summary.py": {
@@ -431,20 +431,20 @@
   },
   "12_figure_site_overview.py": {
    "emitted": {
-    "outputs/12_figure_site_overview/12_01_dem_site_overview.png": "273b1e24fa56339373f8fa269decf6757c816c07b526df305df5c63d1aa1cf36",
+    "outputs/12_figure_site_overview/12_01_dem_site_overview.png": "8e66964b4a8ead6d5a7114790ff382d526bfde4fe648e82c34e495d07a1f172f",
     "outputs/12_figure_site_overview/12_02_break_in_slope.csv": "87ebd8324c0cb456a5e4cb56777144e10eb38363b2794e52804852cc996eb020",
     "outputs/12_figure_site_overview/12_02_break_in_slope.png": "0ea7a6725859b211ce51ef60c05c6d17614dbcec27b71c5738e05c768bf94ce6",
-    "outputs/12_figure_site_overview/12_report_numbers.csv": "7e36b964c1a3ea5b0f44871bd73643e6f92fa1fa74e554d72fefbe2bbcf188c1",
-    "outputs/logs/run_20260927_182251.log": "5559aded0042da44011d28599f38b7a0009bc7ef4101f9050326526abae90e1e"
+    "outputs/12_figure_site_overview/12_report_numbers.csv": "264d4b2808574c84e258ffd096b2c7efc33740c309e443ebd2654bfeaec6bce4"
    },
    "fallbacks": [],
    "inputs": {
+    "data/geo/study_area.geojson": "c15c12a416c86adee9090f23c0678b0dcf8fe2b7cc20827a79c27c695c4281b2",
     "outputs/01_locations.csv": "d6e5a15b793b18d321023b78b7c02f64c738e4f2e156776d1fe1d5c477d1fb0c"
    },
    "inputs_unresolved": [],
-   "seconds": 22.5,
-   "started": "2026-09-27T18:29:42",
-   "version": "1.8.0"
+   "seconds": 22.2,
+   "started": "2026-09-27T23:00:39",
+   "version": "1.9.0"
   },
   "13_figure_experimental_design.py": {
    "emitted": {

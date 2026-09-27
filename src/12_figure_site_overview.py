@@ -31,7 +31,14 @@ The northern break in slope (v1.4.0, D-099)
 ====================================================================================
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-20. Figure 1 draws the ACTIVE
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-27. E27 / D-203: the study area
+#   is read from data/geo/study_area.geojson (tools/make_study_area.py: the hand-drawn
+#   line put on the DEM's catchments, kept only where the DEM cannot decide), the
+#   same polygon Script 01b clips to, instead of the hand-drawn
+#   hydrological study area.kml. Figure 1's dashed outline and study_area_ha /
+#   study_area_envelope_* move with it; nothing else changes. The GeoJSON is already
+#   OSGB and planar, so the KML reprojection and z-drop go.
+# v1.8.0  # Hollingham (2026) - 2026-09-20. Figure 1 draws the ACTIVE
 #   network only (Martin: "option a"): the 88 classified dipwells of
 #   01_wells_reference/extended plus the Llyn Rhos-Ddu gauge, located from
 #   well_metadata.csv; the nine short-record dipwells and L4 (no series) are dropped.
@@ -115,7 +122,7 @@ _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__))); del _sys, _os
 from utils.paths import (
     make_all_dirs,
     DATA_DIR,
-    DATA_LOCATIONS_RAW, DATA_KML_STUDY_AREA,
+    DATA_LOCATIONS_RAW, DATA_STUDY_AREA_GEOJSON,
     INT_LOCATIONS, INT_WELLS_REFERENCE, INT_WELLS_EXTENDED,
     OUT_12_DEM_OVERVIEW,
     OUT_12_BREAK_IN_SLOPE,
@@ -324,20 +331,17 @@ def generate_dem_map():
 
 
 def _read_study_area():
-    """The study-area polygon in OSGB, or None when the KML is absent."""
-    if not DATA_KML_STUDY_AREA.exists():
-        warn(f"{DATA_KML_STUDY_AREA.name} not found — study area not drawn or measured")
+    """The study-area polygon in OSGB (D-203), or None when the GeoJSON is absent."""
+    if not DATA_STUDY_AREA_GEOJSON.exists():
+        warn(f"{DATA_STUDY_AREA_GEOJSON.name} not found — study area not drawn or measured "
+             "(build it with tools/make_study_area.py)")
         return None
-    g = gpd.read_file(DATA_KML_STUDY_AREA, driver="KML")
+    g = gpd.read_file(DATA_STUDY_AREA_GEOJSON)
     g = g[g.geometry.type.isin(["Polygon", "MultiPolygon"])]
     if g.empty:
-        warn(f"{DATA_KML_STUDY_AREA.name} carries no polygon")
+        warn(f"{DATA_STUDY_AREA_GEOJSON.name} carries no polygon")
         return None
-    g = g.set_crs(epsg=4326, allow_override=True).to_crs("EPSG:27700")
-    # KML polygons carry altitude; drop the z so the area is planar OSGB
-    from shapely.ops import transform
-    g["geometry"] = g.geometry.apply(lambda geom: transform(lambda x, y, z=None: (x, y), geom))
-    return g
+    return g.to_crs("EPSG:27700")
 
 # ======================================================================
 # The northern break in slope (D-099)
@@ -489,7 +493,7 @@ def _break_report_numbers(df, sd, lake):
         ("network_envelope_n_km", _POINTS_PLOTTED[0].get("n_km"), "km",
          "north-south extent of the active network's bounding box"),
         ("study_area_ha", _POINTS_PLOTTED[0].get("study_ha"), "ha",
-         "planar OSGB area of data/geo/hydrological study area.kml (Martin, 2026-09-20)"),
+         "planar OSGB area of data/geo/study_area.geojson (D-203: drawn on the DEM's catchments)"),
         ("study_area_envelope_e_km", _POINTS_PLOTTED[0].get("study_e_km"), "km",
          "east-west extent of the study-area polygon's bounding box"),
         ("study_area_envelope_n_km", _POINTS_PLOTTED[0].get("study_n_km"), "km",

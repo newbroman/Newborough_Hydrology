@@ -74,7 +74,11 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-26. D-201 winter thresholds: the
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-27. The site mask is the site outline
+#   from map_utils.load_site_outline() (D-204, spec NRG_spec_site_outline_B): the union of site_boundary.kml, not
+#   the largest piece's exterior (56 m² short at the edge). Docstring: the file is the
+#   GRASS stream-network mask (D-082), not "SAGA".
+# 1.13.0  # Hollingham (2026) - 2026-09-26. D-201 winter thresholds: the
 #   winter-maxima map read local literals (W_SD15b = 0.10, W_SD16 = 0.25 below ground); it now
 #   imports config.SD15b_WINTER / SD16_WINTER. SD15b_WINTER is -0.21 (0.21 m ABOVE ground,
 #   Curreli 2013 Table 4), so the SD15b line now lies ABOVE the flooding line and the zones
@@ -167,7 +171,7 @@ from matplotlib.lines import Line2D
 from matplotlib.colors import LinearSegmentedColormap, BoundaryNorm
 
 from utils.paths import (
-    DATA_DIR, DATA_DEM, DATA_KML_SITE_BOUNDARY, data_geo,
+    DATA_DIR, DATA_DEM, data_geo,
     INT_MASTER_DATA, INT_LOCATIONS, INT_WELLS_CLEAN,
     INT_WELLS_CLEAN_MAOD, INT_WELLS_EXTENDED, INT_WELL_ELEVATIONS,
     INT_PEAR_AUDIT_SITEWIDE, INT_REGIONAL_AVG, INT_CLUSTER_PEAK_MONTHS,
@@ -178,7 +182,8 @@ from utils.paths import (
     OUT_11B_TABLE10, OUT_11B_FORECASTER_HTML, SRC_FORECASTER_TEMPLATE,
     LIVING_WET_AREA_MODEL,
 )
-from utils.map_utils import load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml
+from utils.map_utils import (load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml,
+                             load_site_outline)
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, SD15b, SD15b_REC, SD16, SD16_REC,
     SD15b_WINTER, SD16_WINTER,
@@ -327,58 +332,21 @@ def _make_site_mask(grid_x, grid_y):
     """
     Boolean mask for the interpolation domain.
 
-    Primary: loads site_boundary.kml (dissolved SAGA stream-cell boundary)
-    via pure XML + pyproj + shapely — no fiona required.
+    Primary: the site outline from map_utils.load_site_outline() — the union of
+    site_boundary.kml's raster pieces (the GRASS stream-network mask, D-082),
+    committed as data/geo/site_outline.geojson (D-204). Until 1.14.0 this used the
+    largest single piece's exterior, 56 m² short of the union at the site edge.
     Fallback: rectangular mask clipped to sea boundary constants.
     """
     flat = np.column_stack([grid_x.ravel(), grid_y.ravel()])
 
-    # ── Primary: site_boundary.kml via pure XML + pyproj + shapely ───────────
-    kml_path = DATA_KML_SITE_BOUNDARY
-    if kml_path.exists():
-        try:
-            import xml.etree.ElementTree as _ET
-            from pyproj import Transformer as _Tr
-            from shapely.geometry import Polygon as _Poly
-            from matplotlib.path import Path as _MplPath
-
-            _ns  = "http://www.opengis.net/kml/2.2"
-            _tr  = _Tr.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
-            tree = _ET.parse(str(kml_path))
-            root = tree.getroot()
-
-            polys = []
-            for pm in root.iter(f"{{{_ns}}}Placemark"):
-                for ring_tag in [f"{{{_ns}}}outerBoundaryIs",
-                                  f"{{{_ns}}}LinearRing"]:
-                    for ring in pm.iter(ring_tag):
-                        cel = ring.find(f".//{{{_ns}}}coordinates")
-                        if cel is None or not cel.text:
-                            continue
-                        pts = []
-                        for tok in cel.text.strip().split():
-                            parts = tok.split(",")
-                            if len(parts) >= 2:
-                                try:
-                                    lon, lat = float(parts[0]), float(parts[1])
-                                    e, n = _tr.transform(lon, lat)
-                                    pts.append((e, n))
-                                except Exception:
-                                    continue
-                        if len(pts) >= 4:
-                            polys.append(_Poly(pts))
-
-            if polys:
-                # Use the largest polygon as the site boundary
-                site_poly = max(polys, key=lambda p: p.area)
-                coords = list(site_poly.exterior.coords)
-                path = _MplPath([(c[0], c[1]) for c in coords])
-                inside = path.contains_points(flat)
-                return inside.reshape(grid_x.shape)
-        except Exception as e:
-            import warnings
-            warnings.warn(f"site_boundary.kml mask failed ({e}) — "
-                          "falling back to rectangular mask.")
+    # ── Primary: the site outline (D-204) ────────────────────────────────────
+    site_poly = load_site_outline()
+    if site_poly is not None:
+        from matplotlib.path import Path as _MplPath
+        path = _MplPath(list(site_poly.exterior.coords))
+        inside = path.contains_points(flat)
+        return inside.reshape(grid_x.shape)
 
     # ── Fallback: rectangular sea-boundary mask ───────────────────────────────
     mask = np.ones(grid_x.shape, dtype=bool)

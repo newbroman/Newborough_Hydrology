@@ -47,7 +47,11 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.6.3"  # Hollingham (2026) — 2026-09-03. Creates DIR_40 in
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-27. The inland reference that orients
+#   the transect normals seaward is the site outline's centroid (map_utils.
+#   load_site_outline(), D-204, spec NRG_spec_site_outline_B), as _normals' docstring always said, not
+#   the mean of every vertex of site_boundary.kml's 11,715 raster pieces.
+# 1.6.3  # Hollingham (2026) — 2026-09-03. Creates DIR_40 in
 #   main() rather than relying on paths.py doing it at import. No behavioural
 #   change to the analysis. See paths.py 1.11.0 and task_register T-18.
 # v1.6.2  # Hollingham (2026) — 2026-09-01. A SKIPPED STEP NO
@@ -186,6 +190,8 @@ from utils import config, paths
 from utils.console_utils import (banner, phase, step, info, warn, saved, note,
                                  result, done)
 from utils.render_utils import render_figure
+from utils.map_utils import load_site_outline
+from pyproj import Transformer
 
 SCRIPT_ID = "40"
 VERSION = __version__
@@ -1125,15 +1131,19 @@ def main():
 
     phase(1, "Loading coastline epochs")
     raw = {name: _read_kml(path) for name, path, _ in EPOCHS}
-    boundary = _read_kml(paths.DATA_KML_SITE_BOUNDARY)
     lat0, lon0 = _projection_origin([a for v in raw.values() for a in v])
     info(f"local projection origin {lat0:.4f} N, {lon0:.4f} E")
 
     global _ORIGIN
     _ORIGIN = (lat0, lon0)
     lines = {name: [_to_local_m(a, lat0, lon0) for a in v] for name, v in raw.items()}
-    inland_xy = np.vstack([_to_local_m(a, lat0, lon0) for a in boundary]).mean(axis=0)
-    info(f"inland reference (site-boundary centroid) at "
+    site = load_site_outline()
+    if site is None:
+        raise SystemExit("40: the site outline is required for the inland reference")
+    c_lon, c_lat = Transformer.from_crs("EPSG:27700", "EPSG:4326",
+                                        always_xy=True).transform(site.centroid.x, site.centroid.y)
+    inland_xy = _to_local_m(np.array([[c_lon, c_lat]]), lat0, lon0)[0]
+    info(f"inland reference (site-outline centroid) at "
          f"{inland_xy[0]:.0f}, {inland_xy[1]:.0f} m local")
 
     edge_i, hwm_i, meds = _identify_1899_lines(lines["1899"], lines["2026"][0], inland_xy)

@@ -150,11 +150,14 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.12.0
+__version__ : 2.13.0
 """
 from __future__ import annotations
 
-__version__ = "2.12.0"  # Martin, 2026-09-23: a script that runs past 30 s shows
+__version__ = "2.13.0"  # Hollingham (2026) - 2026-09-27. The open-dune reference is the
+#   site outline from map_utils.load_site_outline() (D-204, spec NRG_spec_site_outline_B) minus the forest;
+#   the same union, no longer rebuilt from the 12 MB site_boundary.kml.
+# 2.12.0  # Martin, 2026-09-23: a script that runs past 30 s shows
 #   progress (T-76). Two loops now report: _register_all's per-frame marker
 #   detection (in-place bar — the loop body prints nothing) and main()'s
 #   phase-2 per-frame texture-index loop (lines=True — the body prints via
@@ -330,6 +333,7 @@ from utils.config import (                                   # noqa: E402
 from utils.console_utils import banner, phase, step, info, warn, saved, track  # noqa: E402
 from utils.render_utils import render_figure                 # noqa: E402
 from utils.kml_io import read_kml                            # noqa: E402
+from utils.map_utils import load_site_outline                # noqa: E402
 
 # The control polygon: its outline is drawn in every frame, so it is what the
 # per-viewpoint affine is measured FROM. Declared, not guessed.
@@ -510,8 +514,7 @@ def _load_geometries():
     managed = unary_union([out[n][0] for n, _, k in REGIONS
                            if n in out and k == "managed"])
     conifer_ref = forest.difference(managed.buffer(CANOPY_REF_BUFFER_M))
-    site = read_kml(DATA_GEO_DIR / "site_boundary.kml")
-    site_u = unary_union(list(site.geometry))
+    site_u = load_site_outline()
     open_ref = site_u.difference(forest.buffer(CANOPY_REF_BUFFER_M))
 
     # The control has the managed blocks subtracted, but NOT the buffer collar

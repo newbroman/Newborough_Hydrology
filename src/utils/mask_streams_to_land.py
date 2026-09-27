@@ -9,8 +9,8 @@ imports it.
 
 Inputs:
   data/geo/streams_raw.kml       the GRASS r.watershed line export (4181
-                                 LineStrings). NOT COMMITTED — see the
-                                 provenance note below.
+                                 LineStrings), committed 2026-09-27 — see
+                                 the recipe below.
   data/geo/newborough_dem.tif    2 m LiDAR DEM, EPSG:27700, -2.06 to 53.46 m
                                  (paths.DATA_DEM)
 
@@ -19,17 +19,25 @@ Output:
                                  data/geo/streams.kml is a deliberate manual
                                  step, never a side effect of running this.
 
-PROVENANCE: THE CHAIN IS DOCUMENTED, THE INTERMEDIATE IS NOT COMMITTED.
-  GEO_PROVENANCE.md records `streams.kml` as derived from `site_boundary.kml`
-  (D-082, confirmed by Martin 2026-08-29). That file holds **11,715 Polygons**;
-  this module reads **LineStrings**, and the committed `streams.kml` holds
-  3,045 of them. So site_boundary.kml is not the file this module was run on —
-  there was a line export between the two, and it is not in the repository.
-  `streams.kml` is therefore not reproducible from the committed tree, which
-  Martin accepted on 2026-09-03: full traceability would be better, and the
-  derivation is at least written down in GEO_PROVENANCE.md and here. Pointing
-  INPUT_KML at site_boundary.kml would fail on `line.coords`, so it is not
-  pointed there.
+PROVENANCE: DEM -> r.watershed -> this module -> streams.kml, all committed.
+  Until 2026-09-27 the line export was missing and `streams.kml` was recorded
+  as derived from `site_boundary.kml` (D-082). It is not: that file holds 11,715
+  Polygons and covers a smaller extent than `streams.kml`. The lines come
+  straight from the DEM, and the export was regenerated and committed as
+  `streams_raw.kml`, so `streams.kml` is reproducible from the committed tree.
+
+RECIPE (reproduced 2026-09-27, GRASS 8.3.2, on the committed DEM):
+    r.in.gdal input=data/geo/newborough_dem.tif output=dem
+    g.region raster=dem
+    r.watershed -s -a elevation=dem threshold=4000 stream=s_4000
+    r.to.vect input=s_4000 output=streams_raw type=line
+    v.out.ogr input=streams_raw output=streams_raw.kml format=KML
+  Single-flow routing (-s) and NO r.thin before r.to.vect are both required:
+  multi-flow routing, or thinning first, gives a different network. Threshold
+  4000 cells (16,000 m² at 2 m) is exact - 3950 adds ~340 stream cells and
+  4050 loses ~290. The export holds 4181 LineStrings; this module masks them to
+  3045, every one identical to the committed streams.kml (110.28 km), and the
+  run raises no warning (T-81).
 
 THRESHOLD: 0.0 m, SETTLED.
   This docstring said 1.0 m until 2026-09-03 while the code said 0.0. The code
@@ -49,7 +57,13 @@ Usage:
     python3 src/utils/mask_streams_to_land.py [--force]
 """
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+__version__ = "1.1.2"  # Hollingham (2026) — 2026-09-27. streams_raw.kml is
+#   regenerated from the DEM (GRASS r.watershed -s, threshold 4000, r.to.vect)
+#   and committed; masking it reproduces streams.kml line for line, with no
+#   warning raised - the T-81 probe is complete. Docstring provenance and the
+#   missing-input message rewritten; the masking code is unchanged.
+#
+#   Prior 1.1.1: Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
 #   ignore (every category) is removed, with its now-unused `import warnings`: no pipeline
 #   module silences its warnings (T-81, D-155). Import and main() raise no
 #   warning, but main() stops at its missing input (streams_raw.kml is not
@@ -88,8 +102,8 @@ MIN_VERTICES_PER_LINE = 2  # need at least 2 vertices to form a line
 def main(force: bool = False) -> int:
     if not INPUT_KML.exists():
         print(f"input not found: {INPUT_KML}")
-        print("  The GRASS line export is not committed — see the provenance "
-              "gap in this module's docstring and data/geo/GEO_PROVENANCE.md.")
+        print("  Regenerate it from the DEM with the GRASS recipe in this "
+              "module's docstring (data/geo/GEO_PROVENANCE.md).")
         return 2
     if OUTPUT_KML.exists() and not force:
         print(f"refusing to overwrite {OUTPUT_KML} — pass --force")

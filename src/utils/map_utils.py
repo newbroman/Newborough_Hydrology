@@ -36,7 +36,7 @@ add_idw_surface(ax, df, value_col, xi, yi, method, ridge_mask_threshold,
 
 make_site_mask(grid_x, grid_y)
     Boolean mask for the IDW interpolation domain clipped to the NNR site
-    boundary. Primary path: XML parse of site_boundary.kml → OSGB36 polygon.
+    boundary. Primary path: load_site_outline() (site_outline.geojson, D-204).
     Fallback: rectangular clip to three sea-boundary lines. Moved from Script 18
     (v1.4.0) so all IDW-surface scripts share one implementation.
 
@@ -45,7 +45,12 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-09. Map
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-27. load_site_outline(): the site
+#   outline as one Polygon from data/geo/site_outline.geojson (D-204, spec
+#   NRG_spec_site_outline_B). make_site_mask() uses it instead of parsing and
+#   dissolving the 12 MB site_boundary.kml; same union, same 100 m buffer. The
+#   streams.kml fallback (a line layer read as polygons) is removed.
+# 1.7.0  # Hollingham (2026) — 2026-09-09. Map
 #   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
 #   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
 #   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the
@@ -79,7 +84,7 @@ from utils.config import (
 )
 from utils.paths import (
     DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS, DATA_KML_CLEARFELL,
-    DATA_KML_SITE_BOUNDARY, data_geo,
+    DATA_SITE_OUTLINE, data_geo,
 )
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
@@ -90,7 +95,7 @@ SITE_XLIM = (SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX)
 SITE_YLIM = (SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
 
 # ── Sea-boundary fallback constants for make_site_mask() ──────────────────────
-# Used only when site_boundary.kml KML parse fails.
+# Used only when the site outline cannot be read.
 # Shoreline anchors, shared with Script 11b. Script 20 deliberately uses a
 # wider box (362200 / 243900) for its own figures — see the note there.
 _SEA_SOUTH_N = 362350   # m OSGB36 — southern shoreline Northing
@@ -347,12 +352,40 @@ def load_dem_auto(ax, data_dir: Path, force_hillshade: bool = False):
         return layer, loaded, None, None, None
 
 
+_SITE_OUTLINE_CACHE = None
+
+
+def load_site_outline():
+    """The study-site mask outline: one shapely Polygon in EPSG:27700, or None.
+
+    Read from data/geo/site_outline.geojson, which tools/make_site_outline.py builds
+    as the exact union of site_boundary.kml's 11,715 raster pieces (D-204). Every
+    consumer used to parse and dissolve the 12 MB KML itself; they now take this and
+    apply their own buffer or simplify. Cached; a missing or unreadable file warns
+    and returns None, so callers keep their existing fallbacks.
+    """
+    global _SITE_OUTLINE_CACHE
+    if _SITE_OUTLINE_CACHE is not None:
+        return _SITE_OUTLINE_CACHE
+    import json
+    import warnings
+    from shapely.geometry import shape
+    try:
+        with open(DATA_SITE_OUTLINE, encoding="utf-8") as f:
+            _SITE_OUTLINE_CACHE = shape(json.load(f)["features"][0]["geometry"])
+    except (OSError, ValueError, KeyError, IndexError) as e:
+        warnings.warn(f"{DATA_SITE_OUTLINE.name} unreadable ({e}) — no site outline; "
+                      "run tools/make_site_outline.py")
+        return None
+    return _SITE_OUTLINE_CACHE
+
+
 def make_site_mask(grid_x: np.ndarray, grid_y: np.ndarray) -> np.ndarray:
     """
     Boolean mask for an IDW interpolation grid, clipped to the NNR site boundary.
 
-    Primary path: pure XML + pyproj + shapely parse of site_boundary.kml
-    (falls back to streams.kml if absent). No fiona/KML driver required.
+    Primary path: the site outline from load_site_outline() (D-204), buffered
+    100 m. The streams.kml fallback is gone: lines were never a polygon.
     Fallback: rectangular clip to three sea-boundary lines (_SEA_*).
 
     Moved from Script 18 (v1.4.0) so all IDW-surface scripts share one
@@ -370,65 +403,24 @@ def make_site_mask(grid_x: np.ndarray, grid_y: np.ndarray) -> np.ndarray:
     """
     import warnings
     flat = np.column_stack([grid_x.ravel(), grid_y.ravel()])
-
-    _bnd_path = DATA_KML_SITE_BOUNDARY
-    if not _bnd_path.exists():
-        _bnd_path = DATA_KML_STREAMS
-
-    if _bnd_path.exists():
+    outline = load_site_outline()
+    if outline is not None:
         try:
-            import xml.etree.ElementTree as _ET
-            from pyproj import Transformer as _Tr
-            from shapely.geometry import Polygon as _Poly
-            from shapely.ops import unary_union as _union
             from matplotlib.path import Path as _MplPath
-
-            _tr = _Tr.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
-            _root = _ET.parse(str(_bnd_path)).getroot()
-            _polys = []
-
-            def _parse(el):
-                tag = el.tag.split("}")[-1] if "}" in el.tag else el.tag
-                if tag == "coordinates":
-                    pts = []
-                    for tok in (el.text or "").strip().split():
-                        p = tok.split(",")
-                        if len(p) >= 2:
-                            try:
-                                pts.append((float(p[0]), float(p[1])))
-                            except ValueError:
-                                pass
-                    if len(pts) >= 3:
-                        lons = [pt[0] for pt in pts]
-                        lats = [pt[1] for pt in pts]
-                        ex, ny = _tr.transform(lons, lats)
-                        try:
-                            _polys.append(_Poly(zip(ex, ny)))
-                        except Exception:
-                            pass
-                for child in el:
-                    _parse(child)
-
-            _parse(_root)
-
-            if _polys:
-                _dissolved = _union(_polys)
-                _dissolved = _dissolved.buffer(100)
-                if _dissolved.geom_type == "MultiPolygon":
-                    _dissolved = max(_dissolved.geoms, key=lambda g: g.area)
-                _coords = list(_dissolved.exterior.coords)
-                _path = _MplPath([(c[0], c[1]) for c in _coords])
-                _inside = _path.contains_points(flat)
-                print(f"  Site mask: {_inside.sum()} of {len(_inside)} "
-                      f"grid cells inside boundary")
-                return _inside.reshape(grid_x.shape)
-
+            _dissolved = outline.buffer(100)
+            if _dissolved.geom_type == "MultiPolygon":
+                _dissolved = max(_dissolved.geoms, key=lambda g: g.area)
+            _coords = list(_dissolved.exterior.coords)
+            _path = _MplPath([(c[0], c[1]) for c in _coords])
+            _inside = _path.contains_points(flat)
+            print(f"  Site mask: {_inside.sum()} of {len(_inside)} "
+                  f"grid cells inside boundary")
+            return _inside.reshape(grid_x.shape)
         except Exception as e:
             warnings.warn(
-                f"site_boundary.kml mask failed ({e}) — "
+                f"site outline mask failed ({e}) — "
                 "falling back to rectangular sea-boundary mask."
             )
-
     # Fallback: rectangular clip to three sea-boundary lines
     mask = np.ones(grid_x.shape, dtype=bool)
     mask[grid_y < _SEA_SOUTH_N] = False

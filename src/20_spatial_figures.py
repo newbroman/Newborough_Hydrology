@@ -122,7 +122,10 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.45.0"  # Hollingham (2026) - 2026-09-26. T-84, per the signed-off spec
+__version__ = "1.46.0"  # Hollingham (2026) - 2026-09-27. load_site_polygon() takes the site
+#   outline from map_utils.load_site_outline() (D-204, spec NRG_spec_site_outline_B) and keeps its 20 m
+#   simplify; the 12 MB site_boundary.kml is no longer parsed here.
+# 1.45.0  # Hollingham (2026) - 2026-09-26. T-84, per the signed-off spec
 #   NRG_spec_script20_emits_T84_2026-09-26: the numbers the documents quote from this
 #   script are written out instead of read off by hand (all additive):
 #   - 20_residual_report_numbers.csv gains the residual field's min, median, mean,
@@ -277,7 +280,7 @@ import xml.etree.ElementTree as ET
 
 from utils.paths import (
     make_all_dirs, DATA_DIR, DATA_DEM, DATA_KML_FEATURES, DATA_KML_STREAMS,
-    DATA_KML_SITE_BOUNDARY, DATA_COASTLINE_HWM, KML_BROADLEAF,
+    DATA_COASTLINE_HWM, KML_BROADLEAF,
     DIR_20, OUT_20_HEAD_STREAMS, OUT_20_RESIDUAL_SSM, OUT_20_SLOPE,
     OUT_20_DRAWDOWN, OUT_20_DRAWDOWN_NOHEAD,
     OUT_20_DRAWDOWN_PERWELL, OUT_20_REPORT_NUMBERS,
@@ -302,7 +305,7 @@ from utils.paths import (
     OUT_26_5YR_PER_WELL,
 )
 from utils.map_utils import (load_dem_hillshade, load_scrape_kml, add_en_axes,
-                             add_idw_surface)
+                             add_idw_surface, load_site_outline)
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
                           SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M, DRAWDOWN_QUOTE_LEVELS_MM,
@@ -530,8 +533,8 @@ _SITE_POLY_CACHE = None
 
 def load_site_polygon():
     """
-    Load and merge the study-area outline from ``data/site_boundary.kml``
-    into a single shapely (Multi)Polygon in EPSG:27700, for clipping
+    The study-area outline, from ``map_utils.load_site_outline()`` (D-204),
+    lightly simplified, as a shapely Polygon in EPSG:27700, for clipping
     gridded surfaces to the true edge of the warren (coast, estuary and
     landward margins) rather than the crude rectangular sea cutoffs.
 
@@ -543,24 +546,19 @@ def load_site_polygon():
     if _SITE_POLY_CACHE is not None:
         return _SITE_POLY_CACHE
     try:
-        import geopandas as gpd
-        import fiona
-        from shapely.ops import unary_union
-        site_path = DATA_KML_SITE_BOUNDARY
-        if not site_path.exists():
-            print("  [WARNING] site_boundary.kml not found — "
+        merged = load_site_outline()
+        if merged is None:
+            print("  [WARNING] site outline not available — "
                   "falling back to rectangular sea mask")
             return None
-        gdf = read_kml(site_path)
-        merged = unary_union([g for g in gdf.geometry if g is not None])
         # Light simplify to keep the polygon manageable for point-in-poly
         # tests without losing the coastline/estuary shape.
         _SITE_POLY_CACHE = merged.simplify(20, preserve_topology=True)
-        print(f"  site_boundary.kml loaded for clipping "
+        print(f"  site outline loaded for clipping "
               f"(type={_SITE_POLY_CACHE.geom_type})")
         return _SITE_POLY_CACHE
     except Exception as e:
-        print(f"  [WARNING] could not load site_boundary.kml ({e}) — "
+        print(f"  [WARNING] could not load the site outline ({e}) — "
               "falling back to rectangular sea mask")
         return None
 

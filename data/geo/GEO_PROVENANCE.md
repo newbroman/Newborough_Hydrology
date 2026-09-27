@@ -598,22 +598,27 @@ so each file states its own origin:
 | file | producing tool, per the file | committed | read by |
 |---|---|---|---|
 | `newborough_dem.tif` | NRW LiDAR DTM (not digitised) | yes | `19`, `20`, `map_utils`, `mask_streams_to_land`, `living/` |
-| `site_boundary.kml` | **QGIS export** — see the note below | yes | `19`, `20`, `11b`, `map_utils`, `kml_io` |
-| `streams.kml` | plain KML, no tool signature | yes | `20`, `map_utils`, `mask_streams_to_land`, `living/` |
+| `site_boundary.kml` | **QGIS export** — see the note below | yes | `make_site_outline` (the source of `site_outline.geojson`) |
+| `site_outline.geojson` | `tools/make_site_outline.py` — the exact union of `site_boundary.kml` (D-204, 2026-09-27) | yes | `map_utils.load_site_outline` → `11b`, `18`/IDW maps, `19`, `20`, `40`, `41`, `45` |
+| `streams.kml` | plain KML, no tool signature — written by `mask_streams_to_land.py` | yes | `20`, `map_utils`, `living/` |
+| `streams_raw.kml` | GRASS `r.watershed` + `r.to.vect` from `newborough_dem.tif`, exported by `v.out.ogr` (regenerated 2026-09-27) | yes | `mask_streams_to_land` |
 | `Features.kml` | plain KML, no tool signature | yes | `19`, `20`, `24b`, `29`, `31`, `11b`, `living/` |
 | `forest_boundary.geojson` | GeoJSON | yes | `paths.py` (`DATA_FOREST_BOUNDARY`) |
 | `clearfell.kml` | **QGIS export** | yes | `13`, `19`, `11b`, `map_utils`, `living/` |
 | `broadleaf_restock.kml` | Google Earth | yes | `19`, `20`, `config.py`, `living/` |
-| `hydrological study area.kml` | Google Earth (Martin, 2026-09-20 — the study-area polygon, added after E27 found report7's 1,172 ha to be the site boundary's bounding box) | yes | **nothing yet** — E27: the study-area emission should read it |
-| `streams.kml` — **derived from `site_boundary.kml`**, not an independent input | | | |
+| `hydrological study area.kml` | Google Earth (Martin, 2026-09-20 — the study-area polygon, added after E27 found report7's 1,172 ha to be the site boundary's bounding box) | yes | Script 12; `make_study_area` (south-east and west edges) |
+| `study_area.geojson` | `tools/make_study_area.py` — DEM catchments, river, HWM, hand-drawn SE and west edges (D-203, 2026-09-27) | yes | **nothing yet** — E27 switch pending |
+| `tidal_levels_caernarfon_bar.csv` | Admiralty Tide Tables NP201 vol. 1, secondary port Caernarfon Bar, as supplied by Martin 2026-09-27 (edition TO CONFIRM) | yes | **nothing yet** — spec C (coastal head bounds) |
+| `streams.kml` — **derived from `newborough_dem.tif`** via `streams_raw.kml`, not an independent input (see below) | | | |
 | `clay.kml` | Google Earth | yes | **nothing** |
 | `moad.kml` | Google Earth | yes | **legacy only** — `--coast-source moad` (D-175); **see below** |
 
 Three do not match "digitised in Google Earth", and the difference is in the
 files rather than in anyone's memory: `site_boundary.kml` and `clearfell.kml`
 are QGIS exports, and `streams.kml` and `Features.kml` carry no tool signature
-at all. Worth a second look at those two, since `Features.kml` is the most
-widely read vector layer in the project.
+at all. `streams.kml` is explained (below: it is written by a Python utility, not a
+GIS). `Features.kml` is still worth a second look, since it is the most widely
+read vector layer in the project.
 
 ### `moad.kml` — inert until 2026-09-13, load-bearing since
 
@@ -657,8 +662,9 @@ paragraph above**, but nothing adopted depends on it.
 ### `site_boundary.kml` — the GRASS stream network, used as a mask (settled, D-082)
 
 **Confirmed by Martin 2026-08-29: it is the derived stream network of the study
-area, produced in GRASS GIS, made by him, and it is the source from which
-`streams.kml` was made.** The pipeline uses it as a **mask**.
+area, produced in GRASS GIS, made by him.** The pipeline uses it as a **mask**.
+It was also recorded as the source of `streams.kml`; **that part is corrected
+(2026-09-27)** — see `streams.kml` below.
 
 Its internal layer name is **stream_bound__streama** and it holds **11,715
 polygons** across 123,264 vertices in 12 MB — which is what a polygonised raster
@@ -666,15 +672,87 @@ looks like, and exactly what a GRASS stream-network extraction produces. That
 settles the shape question; `src/utils/mask_streams_to_land.py` beside it does
 the corresponding job.
 
+**What the file holds (measured 2026-09-27):** one outline stored as a polygonised raster — 81 DN=0
+inter-stream blocks and 11,634 DN=1 stream cells. Their union is a single polygon, 8.616 km², no holes,
+4,154 vertices. Since D-204 that union is committed as `site_outline.geojson` by
+`tools/make_site_outline.py`, whose `--check` is a check_all gate, and every consumer reads it through
+`map_utils.load_site_outline()`; before, eight consumers each parsed the 12 MB file and dissolved it in
+their own way (11b took the largest piece's exterior, 56 m² short of the union; Script 40 averaged every
+vertex of every piece). The DN=1 cells are a different extraction from `streams.kml`: about 41 % of them
+fall on the threshold-4000 network.
+
 **The filename is a description of its role, not an error.** This being a
 hydrological study, the **catchment is the unit of study**, so a
 catchment-and-stream-derived mask *is* the study-area boundary in the sense that
 matters. Not renamed: five modules read it (`19`, `20`, `11b`, `map_utils`,
 `kml_io`) and a rename buys tidiness at the cost of touching working code.
 
-**Note the dependency this creates:** `streams.kml` is derived from this file,
-so the two are not independent inputs. `streams.kml` carries no tool signature
-because it is a downstream product, which also explains why it looked anomalous.
+### `study_area.geojson` — the study area on the DEM's catchments (D-203, 2026-09-27)
+
+Written by `tools/make_study_area.py` (GRASS; not on the pipeline machine) from the
+committed DEM, HWM line and hand-drawn study-area KML; 864.764 ha against the hand-drawn
+845.6 ha. Edges, as Martin set them:
+
+- **north** — ridge-crest divides of the single-flow surface basins of 40 ha and over
+  (`r.watershed -s threshold=100000`), the north-west basin excluded; basins chosen by seed
+  coordinate;
+- **east** — the river channel: the `r.path` single-flow line from the ridge-foot drain at
+  the northern divide down into the estuary, then the estuary's west bank at HWM;
+- **south-east** — the hand-drawn edge, unchanged;
+- **south-west** — the Caernarfon Bay HWM (`coastline_hwm.geojson`);
+- **west** — the hand-drawn line west of 240,200 E: the western basin runs into the DEM's
+  edge at 240,000 E, so the DEM cannot place it.
+
+`--check` rebuilds it and compares (0.000 m² on 2026-09-27). The hand-drawn KML stays the
+reference. A wider DTM tile would make the west edge and the inland reach of the north-east
+basin decidable; the pipeline does not read this file until the E27 switch is reviewed.
+
+### `tidal_levels_caernarfon_bar.csv` — Admiralty tidal levels for the Newborough frontage (2026-09-27)
+
+Secondary-port levels for Caernarfon Bar from the Admiralty Tide Tables (NP201, vol. 1), supplied by
+Martin on 2026-09-27. They cover Ynys Llanddwyn and the south-western approach to the Menai Strait.
+Chart datum there is **2.72 m below ODN**, so mOD = CD − 2.72 (for comparison, Holyhead's offset is
+3.05 m, NTSLF). MHWS, MHWN, MLWN and MLWS are stored as given; HAT is marked approximate.
+
+**Derived values are computed where they are used, never stored.** Mean high water is the mean of
+MHWS and MHWN (1.88 m OD). Mean tide level is the mean of the four spring and neap levels (+0.21 m OD).
+
+**Checked 2026-09-27:**
+- Each mOD value equals CD − 2.72.
+- EasyTide's Llanddwyn Island (port 0480) predictions for that week gave high waters of 4.7–5.1 m CD,
+  between MHWN and MHWS.
+- The committed HWM line reads a median 1.47 m on the LiDAR, about 0.4 m below this mean high water.
+  So the OSM line lies seaward of, or below, the true MHW contour, or the LiDAR reads low on wet sand.
+  Neither is established.
+
+**TO CONFIRM:** the NP201 edition and year. Also the West of Wales SMP2 Appendix C context Martin
+quoted (the Menai Strait's east–west range and phase difference) is recorded as context, not as
+data.
+
+### `streams.kml` — from the DEM, reproducible (corrected 2026-09-27, D-082)
+
+**`streams.kml` is not derived from `site_boundary.kml`.** That file is 11,715
+polygons over 240,000–243,962 E and 362,156–365,096 N; `streams.kml` is 3,045
+lines reaching 361,529–365,999 N, beyond the polygons at both ends, so the lines
+cannot have been cut from them. They come straight from the DEM:
+
+    r.watershed -s -a elevation=dem threshold=4000 stream=s_4000    (GRASS 8.3.2)
+    r.to.vect input=s_4000 output=streams_raw type=line             (no r.thin)
+    v.out.ogr input=streams_raw output=streams_raw.kml format=KML
+    python3 src/utils/mask_streams_to_land.py                        (0.0 m AOD mask)
+
+The export (`streams_raw.kml`, 4,181 LineStrings) was lost and regenerated on
+2026-09-27 with this recipe; the utility masks it to 3,045 lines, **every one
+identical** to the committed `streams.kml`, 110.28 km of the export's
+149.77 km. Single-flow routing and the absence of `r.thin` are both required,
+and the threshold is exact: 3,950 adds about 340 stream cells, 4,050 loses about
+290. Martin's QGIS project held only the polygonised layer (`stream1.shp`,
+identical to `site_boundary.kml`), which is how the missing step was found.
+
+`streams.kml` carries no tool signature because a Python utility wrote it, not a
+GIS. `site_boundary.kml` and `streams.kml` are independent derivatives of the
+same study-area terrain; neither is an input to the other. What
+`site_boundary.kml`'s polygons are, cell for cell, is not established here.
 
 ### `broadleaf_restock.kml` — restock year settled at 1995 (D-082)
 

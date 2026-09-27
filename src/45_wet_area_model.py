@@ -59,7 +59,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-25. Figures 45_01 and 45_02 each
+__version__ = "1.5.1"  # Hollingham (2026) - 2026-09-27. The map's site boundary is
+#   map_utils.load_site_outline() simplified 20 m (D-204, spec NRG_spec_site_outline_B); same union, the
+#   12 MB site_boundary.kml is no longer parsed here.
+# 1.5.0  # Hollingham (2026) - 2026-09-25. Figures 45_01 and 45_02 each
 #   gain a sidecar, 45_01_wet_area_model_axes.json / 45_02_ssm_through_nir_curves_axes.json:
 #   every axes' box as a fraction of the saved image plus its limits. The hindcast film
 #   (Script 47 1.2.0) uses them to draw callouts from its satellite thumbnails onto the
@@ -121,7 +124,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_45_MODEL_AXES, OUT_45_SSM_CURVES_AXES,
     OUT_45_REPORT_NUMBERS, OUT_45_SWITCHING_LEVELS_MAP, OUT_45_PHASE_HYSTERESIS,
     SENTINEL_TWO_CLASS_SERIES, SENTINEL_HINDCAST_MONTHLY, SENTINEL_CELL_THRESHOLDS,
-    INT_CLIMATE, INT_LOCATIONS, INT_MASTER_DATA, DATA_KML_SITE_BOUNDARY,
+    INT_CLIMATE, INT_LOCATIONS, INT_MASTER_DATA,
 )
 from utils.config import WET_AREA_CLASSES, WET_AREA_GRID, CELL_MIN_SCENES   # noqa: E402
 from utils.buckets import month_bucket                        # noqa: E402
@@ -367,8 +370,7 @@ def plot_switching_levels() -> None:
     from matplotlib.colors import ListedColormap, Normalize    # noqa: PLC0415
     from matplotlib.lines import Line2D                        # noqa: PLC0415
     from matplotlib.patches import Patch                       # noqa: PLC0415
-    from utils.kml_io import read_kml                          # noqa: PLC0415
-    from utils.map_utils import add_en_axes                    # noqa: PLC0415
+    from utils.map_utils import add_en_axes, load_site_outline  # noqa: PLC0415
 
     z = np.load(SENTINEL_CELL_THRESHOLDS)
     floor = z["floor"].astype(bool)
@@ -379,16 +381,13 @@ def plot_switching_levels() -> None:
     norm = Normalize(vmin=float(finite_levels.min()), vmax=float(finite_levels.max()))
     wells = _reference_well_points()
     boundary = None
-    if DATA_KML_SITE_BOUNDARY.exists():
-        # site_boundary.kml is thousands of small polygons; dissolved and lightly
-        # simplified into the one outline, as Script 20's load_site_polygon does.
-        from shapely.ops import unary_union                    # noqa: PLC0415
+    site = load_site_outline()
+    if site is not None:
+        # the site outline (D-204), lightly simplified as Script 20's load_site_polygon does
         import geopandas as gpd                                # noqa: PLC0415
-        pieces = [g for g in read_kml(DATA_KML_SITE_BOUNDARY, quiet=True).geometry if g is not None]
-        boundary = gpd.GeoSeries([unary_union(pieces).simplify(20, preserve_topology=True)],
-                                 crs="EPSG:27700")
+        boundary = gpd.GeoSeries([site.simplify(20, preserve_topology=True)], crs="EPSG:27700")
     else:
-        warn(f"no {DATA_KML_SITE_BOUNDARY.name}: map drawn without the site boundary")
+        warn("no site outline: map drawn without the site boundary")
 
     grey = ListedColormap(["#d9d9d9"])
     fig, axes = plt.subplots(2, 1, figsize=(7.4, 10.2), sharex=True, sharey=True,

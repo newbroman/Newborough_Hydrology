@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-27T18:41:02",
+ "generated": "2026-09-27T21:17:31",
  "orchestrator": "2.21.0",
  "steps": {
   "00_climate_summary.py": {
@@ -77,20 +77,20 @@
   "01b_water_table.py": {
    "emitted": {
     "outputs/01b_water_table/01b_01_drift_selection.csv": "89dd650c86bf2315024cb79c7fb6796c316e631794401e73068cce501f14e38d",
-    "outputs/01b_water_table/01b_01_water_table_flow.png": "c4299ae0035f89663a9fe2ccf8535e8583413b563de14e7900d87f30ccae8a6b",
+    "outputs/01b_water_table/01b_01_water_table_flow.png": "e2ece534f6bc3da5e5539588fd60f6bd910362668d690e76fdfe411f0bcb08b3",
     "outputs/01b_water_table/01b_02_loo_per_well.csv": "04e921047eb3450c2672765c8ad0c6ff7425cc521da6f03e126410fa1a571194",
-    "outputs/01b_water_table/01b_02_transects.png": "ceb79e0279490fc33c5820e4673bbdd509469ccccd914afefec05233e42a736e",
+    "outputs/01b_water_table/01b_02_transects.png": "5f8ee7202e5c9c8389d95846846d43d31c5a0ea626c567b9d8d4125978ef6f93",
     "outputs/01b_water_table/01b_03_drift_selection.png": "7ea9bfe8cf0410e3106d990866d78d5f48fd6af5ce46459d2842b90898454ac0",
     "outputs/01b_water_table/01b_03_slack_directions.csv": "596de986340168415cac89cc379c22ccb50e702b989976b4a8e502eea33e49bd",
-    "outputs/01b_water_table/01b_04_sentinel_check.csv": "cace54838aa3e27a5349c6c6224542f7f615f15d22182d92e242604e10173a3a",
-    "outputs/01b_water_table/01b_04_unexplained_wetness.png": "b2cb91ac75e065c1178c1e829cc3dbf1f00d84f246c6d3364b7f027f79012d88",
-    "outputs/01b_water_table/01b_05_coastal_check.png": "962c5c6cfe2aa44ebb024d24f46f093046dd4f476f6bfccc412074f16351b88a",
+    "outputs/01b_water_table/01b_04_sentinel_check.csv": "b7cd9fee25f457ed151712a939ca360f6fb9572ea6c87e6a9a2ff1c05655c72c",
+    "outputs/01b_water_table/01b_04_unexplained_wetness.png": "f1f223414457803c0747160a70c0eef68fa00d920593dd1b22f850d4560f0937",
+    "outputs/01b_water_table/01b_05_coastal_check.png": "c786f49e4c8ef8e821f7dbff958b9d005f370723ea7ee38978b92ead7e281730",
     "outputs/01b_water_table/01b_05_sensitivity.csv": "0b41cd0a88682c2ae4d2ec2ee2b511c46844657ba444a668bdf302fc530976c8",
-    "outputs/01b_water_table/01b_06_head_vs_dem.png": "82beca4ec8b7da98014a0dcfbfd6df4d0ccf35810e1eba885f8a3925e42ed0c8",
+    "outputs/01b_water_table/01b_06_head_vs_dem.png": "abc385b04b80f7e81cc077a3fef772a846c99283e3453094e63fc37b6c8f97c1",
     "outputs/01b_water_table/01b_06_transects.csv": "8be9d20da3b7bc857c87c24398da768a28493b5aec025da8f16f21d72da461bc",
     "outputs/01b_water_table/01b_07_transect_profiles.csv": "96fae7ad3e703a65d088f286ae99d472e78bfd52a516605d8d6f41248f5cb830",
     "outputs/01b_water_table/01b_08_coastal_head_fit.csv": "aacd32d4b1fcae612ad9c35e56e4efdadac222c879072c06b6c69302a4785b15",
-    "outputs/01b_water_table/01b_09_coastal_wells.csv": "d622ba64234108d6b2f9f6af3c5fc2d0d20db29e6603a76044791fc76c6d8453",
+    "outputs/01b_water_table/01b_09_coastal_wells.csv": "001e15a28df1236b297a4c5e0699811442ea484d8790edc91bd41174c010f49c",
     "outputs/01b_water_table/01b_10_coastal_tests.csv": "5c48e8b032b0c6925a08605139287d6abf17ea47723fa4572aca94614621bab2",
     "outputs/01b_water_table/01b_11_coastal_excess.csv": "f824dccc871c02882498bf758cbd1e6a20be342d1d8c23e918448bbe63c39b1f",
     "outputs/01b_water_table/01b_12_boundary_anchors.csv": "777e324de2b1850dd31fc58f53fc8198f125a0c9e1c1a66e8a9d6b826c3cdc55",
@@ -102,12 +102,11 @@
     "outputs/01b_water_table/01b_kriging_se_dry.tif": "7a6fa83f8a2588a1674f19d4decec7a18e122979b9613e8f369bf8509b6e3184",
     "outputs/01b_water_table/01b_kriging_se_mean.tif": "bdbd1b0b9838e778ae1104762f6e9f569bb338619e8ac7572bcd5d0170e74b71",
     "outputs/01b_water_table/01b_kriging_se_wet.tif": "6d301c5a9cb262d0425575dfd3eff3b7a9ded0e3b351b45e4898a173b704a2ed",
-    "outputs/01b_water_table/01b_report_numbers.csv": "45e93335645eeeef0d91efc4efbcf2bd01728a1bbcee7b5572f0348d82aede32",
-    "outputs/01b_water_table/01b_unexplained_wetness.kml": "5aa975b7b50cc84f4e880bcdab632b841f2e120c3c6d7f6e446a17ef0959fab6",
+    "outputs/01b_water_table/01b_report_numbers.csv": "9a8809b25aa5ed73705e3c8265ae35ad116e29a94208e226d6deeb00a77c96bc",
+    "outputs/01b_water_table/01b_unexplained_wetness.kml": "cc36d4d40cd8686c54a7a19494859aef641dcbd0bd67c8a4a87ecf956b9afab1",
     "outputs/01b_water_table/01b_water_table_dry.tif": "e4bfa26e839860884224c39b3a8c4c4ed317febf9b534022176d7eefcd1c761a",
     "outputs/01b_water_table/01b_water_table_mean.tif": "a15702266c0bcd0da7e2f6c0af0d9de4a0b99617598d683500dbf152f5481847",
-    "outputs/01b_water_table/01b_water_table_wet.tif": "f162802eace64bf2dcffcefb165540649023dc96df5eedcb4be0bbcfb7be8f7d",
-    "outputs/logs/run_20260927_182251.log": "7c0215910ea4d4fa1fadf6f41711939ac6a9bd148680835e0291b6bca719afe5"
+    "outputs/01b_water_table/01b_water_table_wet.tif": "f162802eace64bf2dcffcefb165540649023dc96df5eedcb4be0bbcfb7be8f7d"
    },
    "fallbacks": [],
    "inputs": {
@@ -123,9 +122,9 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
    },
    "inputs_unresolved": [],
-   "seconds": 66.0,
-   "started": "2026-09-27T18:23:04",
-   "version": "1.1.0"
+   "seconds": 66.4,
+   "started": "2026-09-27T21:16:14",
+   "version": "1.2.0"
   },
   "02_clustering.py": {
    "emitted": {
@@ -589,8 +588,7 @@
   "19_spatial_groundwater.py": {
    "emitted": {
     "outputs/19_spatial_groundwater/19_scenario_summary.csv": "727e30281cfeca2ff78b6378f5dc9ade3c837d6d71757bcfeb81a70d593a3383",
-    "outputs/19_spatial_groundwater/scenario_viewer.html": "93af1e9ed03304efa797ba86ed4d6f62f372104429b33456f182ac933b317446",
-    "outputs/logs/run_20260927_182251.log": "1ac42d61040b8810363a4557aeabe2426b6b603e7db9a35e9fedd87f1c3a098b"
+    "outputs/19_spatial_groundwater/scenario_viewer.html": "93af1e9ed03304efa797ba86ed4d6f62f372104429b33456f182ac933b317446"
    },
    "fallbacks": [],
    "inputs": {
@@ -602,7 +600,7 @@
     "outputs/01b_water_table/01b_01_drift_selection.csv": "89dd650c86bf2315024cb79c7fb6796c316e631794401e73068cce501f14e38d",
     "outputs/01b_water_table/01b_02_loo_per_well.csv": "04e921047eb3450c2672765c8ad0c6ff7425cc521da6f03e126410fa1a571194",
     "outputs/01b_water_table/01b_12_boundary_anchors.csv": "777e324de2b1850dd31fc58f53fc8198f125a0c9e1c1a66e8a9d6b826c3cdc55",
-    "outputs/01b_water_table/01b_report_numbers.csv": "45e93335645eeeef0d91efc4efbcf2bd01728a1bbcee7b5572f0348d82aede32",
+    "outputs/01b_water_table/01b_report_numbers.csv": "9a8809b25aa5ed73705e3c8265ae35ad116e29a94208e226d6deeb00a77c96bc",
     "outputs/01b_water_table/01b_water_table_mean.tif": "a15702266c0bcd0da7e2f6c0af0d9de4a0b99617598d683500dbf152f5481847",
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3",
     "outputs/03_master_data.csv": "3ed41d9c4bddf3411987450bc9132521d605eaa76f211a5f803bad4c375ebba7",
@@ -614,8 +612,8 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 3.4,
-   "started": "2026-09-27T18:31:24",
+   "seconds": 3.5,
+   "started": "2026-09-27T21:17:27",
    "version": "2.24.0"
   },
   "20_spatial_figures.py": {
@@ -1337,17 +1335,17 @@
     "outputs/44_ranwell_hindcast/44_02_ranwell_monthly_ranges.csv": "14f6f5ac3a5806d91811366bf67b4e21fe2ace4105fb428fda975264f59bf563",
     "outputs/44_ranwell_hindcast/44_03_hindcast_series.csv": "b68b436a324cddf4f5ad4fa0ba4432e59f3f30c4cbc98f4dd6eef81057f83bf3",
     "outputs/44_ranwell_hindcast/44_04_hindcast_metrics.csv": "af54ff1528215e7e3865b13e1dae2c669a95d3da4e58d1b85567543aec1f89c3",
-    "outputs/44_ranwell_hindcast/44_05_level_change.csv": "ca35d677646c6d826a14670eb2c12cbc3ed331e44060361c908c9ecffda510bb",
+    "outputs/44_ranwell_hindcast/44_05_level_change.csv": "b38591b6f5a684527addfe73e715c962f46a611cd27821574ff5d58084249828",
     "outputs/44_ranwell_hindcast/44_06_climate_check.csv": "682a1022f4dc9d1d3196c4d9c219d71dd980426415fa8f1118994540c7d7c683",
     "outputs/44_ranwell_hindcast/44_07_hindcast.png": "a2393d866ca49e95e0512bdf5a3048042a7f04782b085c9fbac0ed75d46093be",
     "outputs/44_ranwell_hindcast/44_07b_hindcast_report.png": "aa5fd4f7994549e00b6ea927f566f46c8a1c528b154a6ac92015f8a61cef0a1b",
     "outputs/44_ranwell_hindcast/44_08_level_change.png": "f52a89e0d707422ae5dcf57b978fb86fb1216de1593351edb0787cb30622bd45",
-    "outputs/44_ranwell_hindcast/44_report_numbers.csv": "1a2098d4d5c807904efea440302422e92658b3b61b989aa836b4c97973853071",
-    "outputs/logs/run_20260927_182251.log": "2b56f1d8cdaa02605093f7c560cbe1964921a5422c6ddae707c2cbecf20d8d59"
+    "outputs/44_ranwell_hindcast/44_report_numbers.csv": "92b22f7aa7dc2d87065d5ed612da66b81059a779e5f2f43939cc5d1ec43802fe"
    },
    "fallbacks": [],
    "inputs": {
     "data/geo/coast2006.kml": "501a625be5288789892e082264f5eb3f5d1fccc6e6c996d1a8d981e8539eaffd",
+    "data/geo/coastline_eroding_hwm.geojson": "e6a90b6127bfb267b5a8d7ac8bdc3e2e0bc11218dfef62ec4bf2a448997e9e35",
     "data/ranwell_1950_53_parc_mawr_rain.csv": "14f67c35b10a52aa628f1a6a782b51506bac61bee4da4e9698f709d8d0dbe788",
     "data/ranwell_1951_53_monthly_ranges.csv": "f3ea52eeadc1afb9ce4c3b64677c7de2a18cf18720bb3a326e7147fce018cdd8",
     "data/ranwell_1951_53_water_levels.csv": "8e037d809b0b02cfcde8b79aaf3e5041361c357159f3526115288e53de7b69d8",
@@ -1358,6 +1356,7 @@
     "outputs/01b_water_table/01b_kriging_se_mean.tif": "bdbd1b0b9838e778ae1104762f6e9f569bb338619e8ac7572bcd5d0170e74b71",
     "outputs/01b_water_table/01b_water_table_mean.tif": "a15702266c0bcd0da7e2f6c0af0d9de4a0b99617598d683500dbf152f5481847",
     "outputs/03_master_data.csv": "3ed41d9c4bddf3411987450bc9132521d605eaa76f211a5f803bad4c375ebba7",
+    "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31",
     "outputs/40_shoreline_retreat/40_01_epoch_series.csv": "8e1268f447ddc053a5c40b09eb6b73b899b95f84f5c9640c02999ea6187a03c4",
     "outputs/43_ranwell/43_01_ranwell_sites.csv": "b50c038ff9d75929bdd5eb24b01991aae050252124fc8994258c8ae9cc908da1",
     "outputs/43_ranwell/43_03_registration_diagnostic.csv": "4e8dbaa2b65ed15dc352559051c5c06b6c27b5b6a2449bf612410ae8993c5f77",
@@ -1365,8 +1364,8 @@
    },
    "inputs_unresolved": [],
    "seconds": 4.0,
-   "started": "2026-09-27T18:40:19",
-   "version": "1.2.0"
+   "started": "2026-09-27T21:17:22",
+   "version": "1.3.0"
   },
   "45_wet_area_model.py": {
    "emitted": {

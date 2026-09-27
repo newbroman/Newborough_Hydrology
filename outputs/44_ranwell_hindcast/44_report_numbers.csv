@@ -25,6 +25,17 @@ ranwell_delta_m_site16,0.22016243716838352,m,"site 16 (PL): modern minus 1951-53
 ranwell_sigma_m_site16,0.3050056012589355,m,site 16: four-term error
 ranwell_delta_m_site18,-0.26070666318995184,m,"site 18 (AS): modern minus 1951-53, climate-corrected"
 ranwell_sigma_m_site18,0.45039892164037326,m,site 18: four-term error
+ranwell_coastal_fit_delta0_mm_yr,-31.28,mm/yr,Script 25 forest_free linear_capped delta_0 used for the coastal expectation
+ranwell_coastal_fit_L_m,902.0,m,Script 25 forest_free linear_capped reach L
+ranwell_sites_within_coastal_reach,2.0,count,sites nearer the eroding shoreline than L
+ranwell_coastal_expectation_m_site1,0.0,m,"site 1: Script 25 rate at 2209 m from the eroding shoreline, carried across the interval (extrapolated)"
+ranwell_coastal_expectation_m_site4,0.0,m,"site 4: Script 25 rate at 1544 m from the eroding shoreline, carried across the interval (extrapolated)"
+ranwell_coastal_expectation_m_site8,-0.9482508238928196,m,"site 8: Script 25 rate at 489 m from the eroding shoreline, carried across the interval (extrapolated)"
+ranwell_coastal_expectation_m_site11,0.0,m,"site 11: Script 25 rate at 1646 m from the eroding shoreline, carried across the interval (extrapolated)"
+ranwell_coastal_expectation_m_site12,0.0,m,"site 12: Script 25 rate at 1297 m from the eroding shoreline, carried across the interval (extrapolated)"
+ranwell_coastal_expectation_m_site13,0.0,m,"site 13: Script 25 rate at 1276 m from the eroding shoreline, carried across the interval (extrapolated)"
+ranwell_coastal_expectation_m_site16,0.0,m,"site 16: Script 25 rate at 1923 m from the eroding shoreline, carried across the interval (extrapolated)"
+ranwell_coastal_expectation_m_site18,-0.5121549840156567,m,"site 18: Script 25 rate at 679 m from the eroding shoreline, carried across the interval (extrapolated)"
 ranwell_delta_m_combined_all,-0.15357072208081843,m,COMBINED_ALL: inverse-variance mean over 8 sites
 ranwell_sigma_m_combined_all,0.09259574584946013,m,COMBINED_ALL: standard error
 ranwell_chi2_dof_combined_all,1.2860745932247148,-,COMBINED_ALL: chi-square per degree of freedom
@@ -35,3 +46,8 @@ ranwell_sigma_m_combined_constrained,0.09325450587666327,m,COMBINED_CONSTRAINED:
 ranwell_chi2_dof_combined_constrained,1.459649157895621,-,COMBINED_CONSTRAINED: chi-square per degree of freedom
 ranwell_rate_mm_yr_combined_constrained,-2.402165449600345,mm/yr,COMBINED_CONSTRAINED: delta over the interval
 ranwell_resolved_combined_constrained,0.0,flag,COMBINED_CONSTRAINED: |delta| > 2 sigma
+ranwell_delta_m_combined_beyond_reach,-0.08699285572327585,m,COMBINED_BEYOND_REACH: inverse-variance mean over 6 sites
+ranwell_sigma_m_combined_beyond_reach,0.09781012657866203,m,COMBINED_BEYOND_REACH: standard error
+ranwell_chi2_dof_combined_beyond_reach,0.543585316532558,-,COMBINED_BEYOND_REACH: chi-square per degree of freedom
+ranwell_rate_mm_yr_combined_beyond_reach,-1.3139260776328652,mm/yr,COMBINED_BEYOND_REACH: delta over the interval
+ranwell_resolved_combined_beyond_reach,0.0,flag,COMBINED_BEYOND_REACH: |delta| > 2 sigma

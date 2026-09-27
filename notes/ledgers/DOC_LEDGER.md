@@ -9,16 +9,16 @@
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_23.odt` | 2026-09-27T15:39:36Z | current |
-| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_17.odt` | 2026-09-27T15:39:38Z | current |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_24.odt` | 2026-09-27T20:46:43Z | current |
+| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_18.odt` | 2026-09-27T20:46:45Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_22.odt` | 2026-09-25T13:05:09Z | current |
 | `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_60.odt` | 2026-09-25T13:05:07Z | current |
 | `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v23.odt` | 2026-09-25T13:05:08Z | current |
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-09-05T22:49:36Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-09-05T22:49:35Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-09-05T22:49:35Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_55.odt` | 2026-09-27T15:45:28Z | current |
-| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_45.odt` | 2026-09-26T21:21:44Z | current |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_57.odt` | 2026-09-27T20:46:40Z | current |
+| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_46.odt` | 2026-09-27T20:46:42Z | current |
 | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-09-06T06:28:30Z | unversioned |
 | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-09-26T19:45:59Z | unversioned |
 

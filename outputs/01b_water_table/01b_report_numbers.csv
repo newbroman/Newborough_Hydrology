@@ -63,8 +63,8 @@ sentinel_share_reached_by_well,,,0.015495867768595042,,share of 11616 ever-wet c
 sentinel_cells_reached_by_well,,,180.0,cells,
 sentinel_share_floor_edge,,,0.004390495867768595,,share of 11616 ever-wet cells with a surface
 sentinel_cells_floor_edge,,,51.0,cells,
-sentinel_share_perched,,,0.013946280991735538,,share of 11616 ever-wet cells with a surface
-sentinel_cells_perched,,,162.0,cells,
+sentinel_share_unexplained,,,0.013946280991735538,,share of 11616 ever-wet cells with a surface
+sentinel_cells_unexplained,,,162.0,cells,
 sentinel_above_share_unsupported,,,0.7795844625112918,,"of cells more than 1 m above the surface, the share with no well within 300 m"
 damping_rho_south_west,,,0.7990033222591362,,"Spearman, wet-dry range vs distance from HWM, n=43"
 damping_p_south_west,,,1.3437764516759218e-10,,
@@ -87,10 +87,10 @@ damping_partial_p_all,,,0.33409525058888806,,
 ground_partial_rho_all,,,0.19585659712018805,,distance from HWM partialled out
 ground_partial_p_all,,,0.07597931351669175,,
 nearest_well_to_hwm_all_m,,,145.13312900018863,m,
-perched_cells_south_west,,,34.0,cells,
-perched_floor_minus_well_wet_south_west_m,,,1.5090331256779306,m,"perched-cell floor minus the nearest well's wet-state head, cell-weighted mean"
-perched_cells_east,,,128.0,cells,
-perched_floor_minus_well_wet_east_m,,,0.9549370428468515,m,"perched-cell floor minus the nearest well's wet-state head, cell-weighted mean"
+unexplained_cells_south_west,,,34.0,cells,
+unexplained_floor_minus_well_wet_south_west_m,,,1.5090331256779306,m,"unexplained-cell floor minus the nearest well's wet-state head, cell-weighted mean"
+unexplained_cells_east,,,128.0,cells,
+unexplained_floor_minus_well_wet_east_m,,,0.9549370428468515,m,"unexplained-cell floor minus the nearest well's wet-state head, cell-weighted mean"
 arrows_wet,,wet,822.0,arrows,
 median_gradient_wet,,wet,0.007084336061384346,m/m,
 arrows_mean,,mean,822.0,arrows,

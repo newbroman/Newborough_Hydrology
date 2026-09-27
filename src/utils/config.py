@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.66.0"  # Hollingham (2026) - 2026-09-27. D-205 extended (spec NRG_spec_water_table_kriged_everywhere
+__version__ = "1.68.0"  # Hollingham (2026) - 2026-09-27. Script 01b 1.2.0: SLACK_FLOW_PERCHED_M -> SLACK_FLOW_EXCESS_M;
+#   SLACK_FLOW_ARROW_WIDTH_MAX / _SIZE_CLASSES / _HEAD; SLACK_FLOW_FIGSIZE_HEAD_DEM / _TRANSECTS.
+# 1.67.0  # Hollingham (2026) - 2026-09-27. RANWELL_COASTAL_FIT (Script 44 1.3.0).
+# 1.66.0  # Hollingham (2026) - 2026-09-27. D-205 extended (spec NRG_spec_water_table_kriged_everywhere
 #   rev 2): RANWELL_IDW_* retired for RANWELL_NEAR_K / _RADIUS_M (Script 44 reads Script 01b's kriged surface);
 #   VIEWER_KRIG_* for the Script 19 viewer's kriging operator.
 # 1.65.0  # Hollingham (2026) - 2026-09-27. SLACK_FLOW_* block: the constants of
@@ -1719,6 +1722,8 @@ RANWELL_LOO_MAX_M     = 0.5     # m; a site whose modern-surface LOO error excee
 #   at the site's nearby wells), not the IDW's; the kriging SE is recorded beside it but is not used, as on
 #   this network it overstates the leave-one-out error several-fold (variogram range at its bound).
 RANWELL_SURFACE_CENSOR_M = 0.05 # m; a reading within this of the ground is a flooded (censored) slack
+RANWELL_COASTAL_FIT   = ("forest_free", "linear_capped")  # the Script 25 headline fit (source, model) behind the
+#   Ranwell coastal expectation (Script 44 1.3.0); the same row Script 20 reads for its coastal field
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to
@@ -2668,9 +2673,10 @@ SLACK_FLOW_ENVELOPE_R_M      = 100.0
 SLACK_FLOW_ABOVE_GROUND_TOL_M = 0.30
 SLACK_FLOW_ABOVE_GROUND_MAX   = 0.02
 SLACK_FLOW_LOO_TIE_M          = 0.02
-# The Sentinel check: a cell is consistent within this, perched above that.
+# The Sentinel check: a cell is consistent within this, and needs explaining above that (the survivors are
+#   'unexplained', not perched: Martin 2026-09-27, D-205).
 SLACK_FLOW_SENTINEL_TOL_M    = 0.50
-SLACK_FLOW_PERCHED_M         = 1.00
+SLACK_FLOW_EXCESS_M          = 1.00   # m above the surface: a tested cell beyond this must be explained (was SLACK_FLOW_PERCHED_M)
 # The cell-to-well offset (the LiDAR slack-floor bias, D-165) is measured in the
 # script from cells this close to a well, in in-range months.
 SLACK_FLOW_BIAS_RADIUS_M     = 50.0
@@ -2729,6 +2735,12 @@ SLACK_FLOW_ARROW_LEN_FRAC    = 0.9    # longest arrow as a share of the arrow gr
 SLACK_FLOW_ARROW_MIN_FRAC    = 0.35   # shortest arrow as a share of the longest
 SLACK_FLOW_ARROW_DECADES     = 2.0    # decades of gradient above SLACK_FLOW_MIN_GRADIENT over which arrow length grows
 SLACK_FLOW_ARROW_HEAD_FRAC   = 0.3    # KML arrowhead length as a share of the arrow
+SLACK_FLOW_ARROW_WIDTH_MAX   = 0.0045 # shaft width of the largest map arrow (share of the axes width); smaller arrows scale down with length
+SLACK_FLOW_ARROW_SIZE_CLASSES = 5     # arrow size classes (a quiver draws one shaft width per call)
+SLACK_FLOW_ARROW_HEAD        = (3.0, 3.2, 2.9)  # map arrowhead width, length, axis length (multiples of the shaft width)
+SLACK_FLOW_FIGSIZE_HEAD_DEM  = (9.0, 3.3)   # in; head-against-ground figure, sized for a 160 mm page
+SLACK_FLOW_HEAD_DEM_FONT_DOWN = 2        # pt below the small font for that compact figure; the caption carries the node counts
+SLACK_FLOW_FIGSIZE_TRANSECTS = (9.5, 4.3, 2.6)  # in; transect figure width, map height, height per profile row
 SLACK_FLOW_ARROW_HEAD_RAD    = 0.4    # KML arrowhead half-angle (radians)
 SLACK_FLOW_PROFILE_YMAX_M    = 20.0   # top of the transect profile axes (m OD)
 SLACK_FLOW_FONT_PT           = (11, 13)  # small and title font sizes of the 49 figures (pt)

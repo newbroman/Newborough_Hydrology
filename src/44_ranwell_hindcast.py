@@ -41,7 +41,12 @@ Q3 — The rate.  Delta over the interval between the record midpoints, per site
   the modern network, not of any site by name. Distance to the 2006 coastline
   and the measured 1899–2026 shoreline retreat (Script 40) travel with each
   site as context; Ranwell recorded the seaward ends of the open slacks as
-  accreting, and the modern surface is thinnest there.
+  accreting, and the modern surface is thinnest there. Each site also carries
+  the change Script 25's headline coastal-retreat fit (RANWELL_COASTAL_FIT) would
+  give at its distance from the eroding shoreline over the interval
+  (coastal_expectation_extrapolated_m: the 2005-2026 rate carried across 66
+  years, which the fit does not cover), and a third combined row takes the
+  sites beyond the fitted reach (COMBINED_BEYOND_REACH).
 
 What it does NOT establish: a point-to-point comparison (the wells are not
 where the pipes were); coefficient stationarity (Script 39's caveat applies,
@@ -58,6 +63,7 @@ Inputs (via utils.paths):
     OUT_43_SITES, OUT_43_WELL_BASINS, OUT_43_DIAGNOSTIC     (Script 43 v2)
     INT_CLIMATE, INT_MASTER_DATA, INT_WELLS_CLEAN, INT_LOCATIONS
     DATA_KML_COAST_2006, OUT_40_EPOCH_SERIES                  (coastal context)
+    DATA_COASTLINE_ERODING, OUT_25_FIT_PARAMETERS              (coastal expectation)
 
 Outputs (outputs/44_ranwell_hindcast/):
     44_01_ranwell_readings.csv        Fig. 4 readings joined to site, basin, headline well
@@ -74,7 +80,13 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-27. The modern water table at each Ranwell site
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-27. Coastal expectation (D-145, D-205; Martin: "We
+#   should name site 8 - could it be affected by coastal erosion?", "go ahead"). Each site carries its distance
+#   to the eroding shoreline (coastline_eroding_hwm.geojson, the Script 25 datum) and what Script 25's
+#   headline fit (RANWELL_COASTAL_FIT) would give there over the interval: coastal_expectation_m, flagged in
+#   its name as an extrapolation of the 2005-2026 rate across the whole interval. A third combined row,
+#   COMBINED_BEYOND_REACH, takes the sites beyond the fitted reach L. Nothing already emitted moves.
+# 1.2.0  # Hollingham (2026) — 2026-09-27. The modern water table at each Ranwell site
 #   is read from Script 01b's kriged mean-state surface, and its uncertainty term is the RMSE of
 #   that surface's leave-one-well-out errors at the site's nearby wells (D-205 extended; spec NRG_spec_water_table_kriged_everywhere rev 2; Martin:
 #   "include all of them"). idw_at / loo_rmse retired; surface_gradient differences the kriged surface;
@@ -464,6 +476,17 @@ def main() -> int:
     retreat_1899_2026 = measured_retreat_1899_2026()
     info(f"interval {dt_years:.1f} y (modern record midpoint {modern_mid_year:.1f}); "
          f"shoreline retreat 1899-2026 (Script 40 median) {retreat_1899_2026:.0f} m for context")
+    fit25 = pd.read_csv(paths.OUT_25_FIT_PARAMETERS)
+    src_, mod_ = config.RANWELL_COASTAL_FIT
+    frow = fit25[(fit25["source"] == src_) & (fit25["model"] == mod_)]
+    if frow.empty:
+        raise RuntimeError(f"no {src_}/{mod_} row in {paths.OUT_25_FIT_PARAMETERS.name}: run Script 25")
+    cg_d0, cg_L = float(frow["delta_0_mm_yr"].iloc[0]), float(frow["L_m"].iloc[0])
+    from utils.water_table import geojson_geom                 # noqa: PLC0415
+    from shapely.geometry import Point as _Pt                    # noqa: PLC0415
+    eroding = geojson_geom(paths.DATA_COASTLINE_ERODING)
+    info(f"coastal expectation: Script 25 {src_} {mod_} fit, delta_0 {cg_d0:.2f} mm/yr, L {cg_L:.0f} m, "
+         f"carried across {dt_years:.1f} y (an extrapolation of the 2005-2026 rate)")
     lc_rows = []
     for s in sorted(set(read_mean.index) | set(mid_mean.index)):
         srow = sites.loc[s]
@@ -503,6 +526,10 @@ def main() -> int:
                     break
         delta = (v_m - rmean) - (exp if np.isfinite(exp) else 0.0)
         dcoast = coast_distance(srow["easting"], srow["northing"])
+        d_er = float(eroding.distance(_Pt(srow["easting"], srow["northing"])))
+        inner = cg_d0 * (1.0 - d_er / cg_L)
+        inner = min(inner, 0.0) if cg_d0 < 0 else max(inner, 0.0)
+        coast_exp = inner * dt_years / 1000.0
         constrained = bool(np.isfinite(loo) and loo <= config.RANWELL_LOO_MAX_M)
         lc_rows.append(dict(
             row="site", site_no=s, sketch_slack=srow["sketch_slack"], ranwell_basis=basis,
@@ -518,6 +545,8 @@ def main() -> int:
             delta_m=delta, z=delta / sig if sig > 0 else np.nan, resolved=bool(abs(delta) > 2 * sig),
             interval_years=dt_years, rate_mm_per_year=delta / dt_years * 1000,
             dist_coast_2006_m=dcoast, shoreline_retreat_1899_2026_m=retreat_1899_2026,
+            dist_eroding_hwm_m=d_er, within_coastal_reach=bool(d_er < cg_L),
+            coastal_expectation_extrapolated_m=coast_exp,
             surface_constrained=constrained))
         step(f"site {s} ({srow['sketch_slack']}, {basis}): Ranwell {rmean:.2f} m OD, modern {v_m:.2f} "
              f"(LOO {loo:.2f}, pos {sig_pos:.2f}, datum {sig_dat:.2f}) -> Δ {delta:+.2f} ± {sig:.2f} m"
@@ -540,7 +569,8 @@ def main() -> int:
 
     comb_all = _combine(lc, "COMBINED_ALL")
     comb_in = _combine(lc[lc["surface_constrained"]], "COMBINED_CONSTRAINED")
-    for c in (comb_all, comb_in):
+    comb_br = _combine(lc[~lc["within_coastal_reach"].astype(bool)], "COMBINED_BEYOND_REACH")
+    for c in (comb_all, comb_in, comb_br):
         if c:
             lc = pd.concat([lc, pd.DataFrame([c])], ignore_index=True)
             step(f"{c['row']}: Δ {c['delta_m']:+.3f} ± {c['sigma_total_m']:.3f} m over {c['n_contributing']} sites "
@@ -607,7 +637,15 @@ def main() -> int:
     for r in lc[lc["row"] == "site"].itertuples():
         rn.append((f"ranwell_delta_m_site{int(r.site_no)}", r.delta_m, "m", f"site {int(r.site_no)} ({r.sketch_slack}): modern minus 1951-53, climate-corrected"))
         rn.append((f"ranwell_sigma_m_site{int(r.site_no)}", r.sigma_total_m, "m", f"site {int(r.site_no)}: four-term error"))
-    for c in (comb_all, comb_in):
+    rn += [("ranwell_coastal_fit_delta0_mm_yr", cg_d0, "mm/yr", f"Script 25 {src_} {mod_} delta_0 used for the coastal expectation"),
+           ("ranwell_coastal_fit_L_m", cg_L, "m", f"Script 25 {src_} {mod_} reach L"),
+           ("ranwell_sites_within_coastal_reach", int(lc.loc[lc["row"] == "site", "within_coastal_reach"].astype(bool).sum()), "count",
+            "sites nearer the eroding shoreline than L")]
+    for r in lc[lc["row"] == "site"].itertuples():
+        rn.append((f"ranwell_coastal_expectation_m_site{int(r.site_no)}", r.coastal_expectation_extrapolated_m, "m",
+                   f"site {int(r.site_no)}: Script 25 rate at {r.dist_eroding_hwm_m:.0f} m from the eroding shoreline, "
+                   "carried across the interval (extrapolated)"))
+    for c in (comb_all, comb_in, comb_br):
         if c:
             k = c["row"].lower()
             rn += [(f"ranwell_delta_m_{k}", c["delta_m"], "m", f"{c['row']}: inverse-variance mean over {c['n_contributing']} sites"),

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=e7cfdedba96d258b pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=96d505d4c9b909ec pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
@@ -41,8 +41,6 @@ Clarke, D. and Sanitwong Na Ayutthaya, S. (2010) Predicted effects of climate ch
 
 ****Collenteur, R.A., Bakker, M., Caljé, R., Klop, S.A. and Schaars, F. (2019) Pastas: open source software for the analysis of groundwater time series. ******Groundwater******, 57(6), pp. 877--885. ****[**https://doi.org/10.1111/gwat.12925**](https://doi.org/10.1111/gwat.12925)
 
-****Conrad, O. et al. (2015)**** System for Automated Geoscientific analyses (SAGA) v. 2.1.4. *Geoscientific Model Development*, 8, 1991--2007.
-
 Cottingham, P. (1994) The effects of afforestation on the hydrology of Newborough Warren dune system. Unpublished MSc dissertation, University of Wales, Bangor.
 
 Curreli, A., Wallace, H., Freeman, C., Hollingham, M., Stratford, C., Johnson, H. and Jones, L. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. Science of the Total Environment, 443, pp. 910--919. [doi:10.1016/j.scitotenv.2012.11.035.](https://doi.org/10.1016/j.scitotenv.2012.11.035.)
@@ -56,6 +54,8 @@ Davy, A.J., Grootjans, A.P., Hiscock, K. and Petersen, J. (2006) Development of 
 Davy, A.J., Hiscock, K.M., Jones, M.L.M., Low, R., Robins, N.S. and Stratford, C. (2010) Protecting the plant communities and rare species of dune wetland systems: ecohydrological guidelines for wet dune habitats --- Phase 2. Bristol: Environment Agency. Science Report GEHO0310BSGV-E-E.
 
 Deng, Z., Priestley, S.C., Guan, H., Love, A.J. and Simmons, C.T. (2013). Canopy enhanced chloride deposition in coastal South Australia and its application for the chloride mass balance method. *Journal of Hydrology*, 497, 62--70. *https://doi.org/10.1016/j.jhydrol.2013.05.038*
+
+****Desbarats, A.J., Logan, C.E., Hinton, M.J. and Sharpe, D.R. (2002)**** On the kriging of water table elevations using collateral information from a digital elevation model. **Journal of Hydrology**, 255(1--4), 25--38. [**https://doi.org/10.1016/S0022-1694(01)00504-2**](https://doi.org/10.1016/S0022-1694(01)00504-2)
 
 Donohue, R.J., McVicar, T.R. and Roderick, M.L. (2010) Assessing the ability of potential evaporation formulations to capture the dynamics in evaporative demand within a changing climate. Journal of Hydrology, 386(1--4), pp. 186--197. [**https://doi.org/10.1016/j.jhydrol.2010.03.020**](https://doi.org/10.1016/j.jhydrol.2010.03.020)
 
@@ -167,6 +167,8 @@ Ranwell, D.S. (1959) Newborough Warren, Anglesey 1. The dune system and dune sla
 
 Rao, A. R., & Srinivas, V. V. (2006) Regionalization of watersheds by fuzzy cluster analysis. *Journal of Hydrology*, 318(1-4), 57-79. [**https://doi.org/10.1016/j.jhydrol.2005.06.004**](https://doi.org/10.1016/j.jhydrol.2005.06.004)
 
+****Rao, P., Wang, Y., Liu, Y., Wang, X., Hou, Y., Pan, S., Wang, F. and Zhu, D. (2022)**** A comparison of multiple methods for mapping groundwater levels in the Mu Us Sandy Land, China. **Journal of Hydrology: Regional Studies**, 43, 101189. [**https://doi.org/10.1016/j.ejrh.2022.101189**](https://doi.org/10.1016/j.ejrh.2022.101189)
+
 Robins, N. S., Jones, M. L. M., & Farr, G. (2013) Shallow groundwater in the dune and slack environment: The implications for management. *Quarterly Journal of Engineering Geology and Hydrogeology*, 46(3), 261--265. [**https://doi.org/10.1144/qjegh2012-045**](https://doi.org/10.1144/qjegh2012-045)
 
 Robins, N. S., Pye, K. and Wallace, H. (2013) Dynamic coastal dune spit: the impact of morphological change on dune slacks at Whiteford Burrows, South Wales, UK. *Journal of Coastal Conservation*, 17(3), 473--482. <https://doi.org/10.1007/s11852-013-0245-4>
@@ -203,7 +205,11 @@ Taylor, C.J. and Alley, W.M. (2001) Ground-Water-Level Monitoring and the Import
 
 Thornthwaite, C.W. and Mather, J.R. (1957) Instructions and tables for computing potential evapotranspiration and the water balance. Publications in Climatology, 10(3). Centerton, NJ: Drexel Institute of Technology, Laboratory of Climatology.
 
+****UKHO (2026)**** **Admiralty Tide Tables, Volume 1B** (NP201B-26). Taunton: United Kingdom Hydrographic Office.
+
 Underwood, A.J. (1992). Beyond BACI: the detection of environmental impacts on populations in the real, but variable, world. *Journal of Experimental Marine Biology and Ecology*, 161(2), 145-178.
+
+****Varouchakis, E.A. and Hristopulos, D.T. (2013)**** Comparison of stochastic and deterministic methods for mapping groundwater level spatial variability in sparsely monitored basins. **Environmental Monitoring and Assessment**, 185(1), 1--19. [**https://doi.org/10.1007/s10661-012-2527-y**](https://doi.org/10.1007/s10661-012-2527-y)
 
 ****Virtanen, P., Gommers, R., Oliphant, T.E., Haberland, M., Reddy, T., Cournapeau, D., \... & van der Walt, S.J. (2020)**** SciPy 1.0: Fundamental algorithms for scientific computing in Python. **Nature Methods**, 17(3), 261--272. [**https://doi.org/10.1038/s41592-020-0772-5**](https://doi.org/10.1038/s41592-020-0772-5)
 

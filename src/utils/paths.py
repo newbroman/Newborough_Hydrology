@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.37.0"  # Hollingham (2026) - 2026-09-27. DATA_STUDY_AREA_GEOJSON: the
+__version__ = "1.38.0"  # Hollingham (2026) - 2026-09-27. DIR_49 and OUT_49_*: Script 49,
+#   the water table by KED and flow arrows (spec NRG_spec_slack_flow_C); DATA_TIDAL_LEVELS.
+#   Additive.
+# 1.37.0  # Hollingham (2026) - 2026-09-27. DATA_STUDY_AREA_GEOJSON: the
 #   DEM-derived study area written by tools/make_study_area.py (D-203; additive, no
 #   script reads it yet); DATA_SITE_OUTLINE: site_boundary.kml as one polygon,
 #   written by tools/make_site_outline.py and served by map_utils.load_site_outline() (D-204).
@@ -301,6 +304,7 @@ DATA_KML_FEATURES      = data_geo("Features.kml")
 DATA_KML_STUDY_AREA    = data_geo("hydrological study area.kml")   # Martin, 2026-09-20: the study-area polygon (E27)
 DATA_STUDY_AREA_GEOJSON = data_geo("study_area.geojson")          # D-203: the DEM-derived study area (tools/make_study_area.py)
 DATA_SITE_OUTLINE      = data_geo("site_outline.geojson")        # D-204: site_boundary.kml as one polygon (tools/make_site_outline.py)
+DATA_TIDAL_LEVELS      = data_geo("tidal_levels_caernarfon_bar.csv")  # Admiralty NP201B-26, Caernarfon Bar (CD = ODN - 2.72 m)
 DATA_RANWELL_CONTROL   = data_geo("ranwell_1959_control.csv")   # W95 (D-081 derived)
 DATA_RANWELL_SITES_PX  = data_geo("ranwell_1959_sites_px.csv")  # W95 (D-081 derived)
 DATA_RANWELL_SITES_MARTIN    = data_geo("ranwell_1959_sites_martin.csv")     # Script 43 v2 Route M (hand placement)
@@ -1304,6 +1308,44 @@ OUT_48_AGREEMENT      = DIR_48 / "48_02_pastas_agreement.csv"    # r, rho, media
 OUT_48_SYNTHETIC      = DIR_48 / "48_03_synthetic_recovery.csv"  # the unit conversion checked on SSM-generated wells
 OUT_48_FIG            = DIR_48 / "48_01_pastas_vs_ssm.png"
 OUT_48_REPORT_NUMBERS = DIR_48 / "48_report_numbers.csv"
+
+# Script 49 — the water table by kriging with an external drift, and flow arrows
+DIR_49 = OUT_DIR / "49_slack_flow"
+OUT_49_DRIFT_SELECTION   = DIR_49 / "49_01_drift_selection.csv"    # 4 drifts x states: LOO, above-ground share, variogram
+OUT_49_LOO               = DIR_49 / "49_02_loo_per_well.csv"
+OUT_49_SLACK_DIRECTIONS  = DIR_49 / "49_03_slack_directions.csv"   # per slack and state: direction, gradient, turn flag
+OUT_49_SENTINEL_CHECK    = DIR_49 / "49_04_sentinel_check.csv"     # per ever-wet cell: implied head, surface, difference
+OUT_49_SENSITIVITY       = DIR_49 / "49_05_sensitivity.csv"
+OUT_49_TRANSECTS         = DIR_49 / "49_06_transects.csv"
+OUT_49_TRANSECT_PROFILES = DIR_49 / "49_07_transect_profiles.csv"
+OUT_49_COASTAL_HEAD      = DIR_49 / "49_08_coastal_head_fit.csv"   # the LOO error curve over the coastal head
+OUT_49_REPORT_NUMBERS    = DIR_49 / "49_report_numbers.csv"
+OUT_49_FIG_FLOW          = DIR_49 / "49_01_water_table_flow.png"
+OUT_49_FIG_TRANSECTS     = DIR_49 / "49_02_transects.png"
+OUT_49_FIG_DRIFT         = DIR_49 / "49_03_drift_selection.png"
+OUT_49_FIG_WETNESS       = DIR_49 / "49_04_unexplained_wetness.png"
+OUT_49_KML_UNEXPLAINED   = DIR_49 / "49_unexplained_wetness.kml"
+OUT_49_COASTAL_WELLS     = DIR_49 / "49_09_coastal_wells.csv"      # per well: distance to HWM, wet-dry range, perched cells near it
+OUT_49_COASTAL_TESTS     = DIR_49 / "49_10_coastal_tests.csv"      # seasonal damping: Spearman and partial, per sector
+OUT_49_COASTAL_EXCESS    = DIR_49 / "49_11_coastal_excess.csv"     # Sentinel minus kriged head by distance from HWM and well support
+OUT_49_FIG_COASTAL       = DIR_49 / "49_05_coastal_check.png"
+OUT_49_BOUNDARY_ANCHORS  = DIR_49 / "49_12_boundary_anchors.csv"   # ridge and river anchors: position, kind, head per state
+OUT_49_BOUNDARY_TEST     = DIR_49 / "49_13_boundary_test.csv"      # LOO near the boundary with and without the anchors; the ridge-well check
+
+
+def out_49_surface(state: str):
+    """49_water_table_<state>.tif (m OD) — wet, mean, dry."""
+    return DIR_49 / f"49_water_table_{state}.tif"
+
+
+def out_49_se(state: str):
+    """49_kriging_se_<state>.tif (m)."""
+    return DIR_49 / f"49_kriging_se_{state}.tif"
+
+
+def out_49_kml(state: str):
+    """49_slack_flow_<state>.kml — the arrows for Google Earth and the viewer."""
+    return DIR_49 / f"49_slack_flow_{state}.kml"
 
 
 def out_47_still(month: str):

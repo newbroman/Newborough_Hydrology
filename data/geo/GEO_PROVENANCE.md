@@ -607,8 +607,8 @@ so each file states its own origin:
 | `clearfell.kml` | **QGIS export** | yes | `13`, `19`, `11b`, `map_utils`, `living/` |
 | `broadleaf_restock.kml` | Google Earth | yes | `19`, `20`, `config.py`, `living/` |
 | `hydrological study area.kml` | Google Earth (Martin, 2026-09-20 — the study-area polygon, added after E27 found report7's 1,172 ha to be the site boundary's bounding box) | yes | Script 12; `make_study_area` (south-east and west edges) |
-| `study_area.geojson` | `tools/make_study_area.py` — DEM catchments, river, HWM, hand-drawn SE and west edges (D-203, 2026-09-27) | yes | **nothing yet** — E27 switch pending |
-| `tidal_levels_caernarfon_bar.csv` | UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar, as supplied by Martin 2026-09-27 | yes | **nothing yet** — spec C (coastal head bounds) |
+| `study_area.geojson` | `tools/make_study_area.py` — DEM catchments, river, HWM, hand-drawn SE and west edges (D-203, 2026-09-27) | yes | `49_slack_flow.py` (clip; standalone). The E27 / Script 12 switch is still pending |
+| `tidal_levels_caernarfon_bar.csv` | UKHO Admiralty Tide Tables vol. 1B, 2026 edition (NP201B-26), secondary port Caernarfon Bar, as supplied by Martin 2026-09-27 | yes | `49_slack_flow.py` (coastal-head bounds; standalone) |
 | `streams.kml` — **derived from `newborough_dem.tif`** via `streams_raw.kml`, not an independent input (see below) | | | |
 | `clay.kml` | Google Earth | yes | **nothing** |
 | `moad.kml` | Google Earth | yes | **legacy only** — `--coast-source moad` (D-175); **see below** |

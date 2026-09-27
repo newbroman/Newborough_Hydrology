@@ -197,7 +197,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (398)
+## Outputs no exhibit renders (417)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -594,8 +594,10 @@
 - `48_02_pastas_agreement.csv`
 - `48_03_synthetic_recovery.csv`
 - `48_report_numbers.csv`
-- `figure_placement.csv`
-- `number_index.csv`
-- `number_ledger.csv`
-- `pipeline_scenario_params.csv`
-- `pipeline_site_observations.csv`
+- `49_01_drift_selection.csv`
+- `49_01_water_table_flow.png`
+- `49_02_loo_per_well.csv`
+- `49_02_transects.png`
+- `49_03_drift_selection.png`
+- `49_03_slack_directions.csv`
+- `49_04_sentinel_check.csv`

@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.64.0"  # Hollingham (2026) - 2026-09-26. D-202: EXTREMES_ROBUSTNESS_START, the first
+__version__ = "1.65.0"  # Hollingham (2026) - 2026-09-27. SLACK_FLOW_* block: the constants of
+#   Script 49 (the water table by kriging with an external drift, and flow arrows),
+#   per spec NRG_spec_slack_flow_C (Martin signed off 2026-09-27). Additive.
+# 1.64.0  # Hollingham (2026) - 2026-09-26. D-202: EXTREMES_ROBUSTNESS_START, the first
 #   hydrological year of Script 14's robustness trend basis (2011, the clearfell precedent).
 # 1.63.0  # Hollingham (2026) - 2026-09-26. D-201: SD15b_WINTER 0.10 -> -0.21, Curreli
 #   et al. 2013 Table 4's SD15b average maximum (+0.21 m ABOVE ground; negative here because the
@@ -2609,4 +2612,145 @@ BREAK_ELEV_SD_TOL_M = BREAK_RELATIVE_M
 # instead: a run shorter than a few filter widths is mostly the filter's own
 # edge handling, not a boundary. 5 x 61 = 305 columns = 610 m.
 BREAK_MIN_COLUMNS = 5 * BREAK_MEDIAN_COLUMNS
+
+
+# ── SLACK_FLOW_* — Script 49: the water table by KED, and how water moves ────
+# Spec NRG_spec_slack_flow_C_2026-09-27 (revision 5, signed off by Martin
+# 2026-09-27). The water table is built from the dipwells and the sea, with
+# topography entering as a drift chosen by test; Sentinel is a check, not data;
+# flow is shown as arrows of -grad h in wet, mean and dry states.
+#
+# States: the top / bottom decile of months by the network-median level (the
+# D-178 definition, sentinel_wet_floor._wells_monthly). A well enters a state
+# only with at least this many months in it.
+SLACK_FLOW_STATE_DECILE      = 0.10
+SLACK_FLOW_MIN_STATE_MONTHS  = 3
+# Kriging grid (m) and the empirical variogram: bins and the lag limit.
+SLACK_FLOW_GRID_M            = 20
+SLACK_FLOW_VGM_BINS          = 12
+SLACK_FLOW_VGM_MAX_LAG_M     = 2000.0
+# Sea anchors along coastline_hwm.geojson, and how far outside the study area
+# they are still used (they shape the surface up to the shore).
+SLACK_FLOW_SEA_SPACING_M     = 50.0
+SLACK_FLOW_SEA_BUFFER_M      = 500.0
+# Coastal head: fitted in [mean tide level, mean high water] from
+# tidal_levels_caernarfon_bar.csv, by leave-one-out at wells this close to the
+# HWM; xatol of the bounded search. Fixed-head sensitivities run beside it.
+SLACK_FLOW_COASTAL_WELL_M    = 500.0
+SLACK_FLOW_HEAD_XATOL_M      = 0.01
+# The drift candidates. The envelope is a minimum filter then a mean over this
+# radius: it follows slack floors and ignores crests (quicklook 2026-09-27).
+SLACK_FLOW_ENVELOPE_R_M      = 100.0
+# Drift selection: the physical test (kriged water table above the ground by
+# more than this, as a share of the ground Sentinel observes — its floor mask,
+# canopy excluded — outside the cells it has seen wet), the share that fails it,
+# and the leave-one-out tie band within which the simpler drift wins. Martin
+# 2026-09-27: the first run tested all land, and ordinary kriging failed at
+# 2.3 % mostly on the forest edge, where Sentinel cannot see wet floor; the
+# smoothed-DEM drift it lost to built an unsupported mound under the frontal dunes.
+SLACK_FLOW_ABOVE_GROUND_TOL_M = 0.30
+SLACK_FLOW_ABOVE_GROUND_MAX   = 0.02
+SLACK_FLOW_LOO_TIE_M          = 0.02
+# The Sentinel check: a cell is consistent within this, perched above that.
+SLACK_FLOW_SENTINEL_TOL_M    = 0.50
+SLACK_FLOW_PERCHED_M         = 1.00
+# The cell-to-well offset (the LiDAR slack-floor bias, D-165) is measured in the
+# script from cells this close to a well, in in-range months.
+SLACK_FLOW_BIAS_RADIUS_M     = 50.0
+SLACK_FLOW_BIAS_MIN_CELLS    = 3
+# Arrows: grid, and the gradient below which no direction is drawn.
+SLACK_FLOW_ARROW_GRID_M      = 100
+SLACK_FLOW_MIN_GRADIENT      = 5e-4
+# Slacks (connected ever-wet cells passing the check): minimum size in 10 m
+# cells, and the wet-to-dry turn that is flagged.
+SLACK_FLOW_MIN_SLACK_CELLS   = 5
+SLACK_FLOW_TURN_DEG          = 45.0
+# The committed HWM line against the Admiralty mean high water: flag above this.
+SLACK_FLOW_HWM_OFFSET_TOL_M  = 0.25
+SLACK_FLOW_DEM_GAMMA         = 0.7    # PowerNorm gamma of the DEM on the 49_02 location map (display only)
+SLACK_FLOW_DEM_COLOURS       = ("#3a78c2", "#5aa85a", "#f2d64b", "#a6763e", "#ffffff")  # low to high: blue, green, yellow, brown, white
+SLACK_FLOW_DEM_PALE          = 0.45   # share of white mixed into the DEM colours, so transect lines stand out
+# Coastal check (Script 49, 2026-09-27). A Sentinel cell is TESTED against the kriged
+# surface only where a dipwell lies within WELL_SUPPORT_M; beyond it the surface is the
+# interpolation between the sea anchors and wells far inland, and the cell is
+# "unconstrained", neither consistent nor perched. The south-west frontage (west of
+# COAST_SECTOR_E) is where the network reaches within 500 m of the HWM; east of it the
+# nearest well stands 500 m or more inland, so the damping test is run per sector.
+SLACK_FLOW_WELL_SUPPORT_M    = 300
+SLACK_FLOW_COAST_SECTOR_E    = 241900
+SLACK_FLOW_COAST_BIN_M       = 100    # distance-from-HWM bins for the Sentinel excess profile
+SLACK_FLOW_COAST_BIN_MAX_M   = 1600
+# Script 49 working constants (2026-09-27 rules pass: every number the script uses is named here).
+SLACK_FLOW_CRS               = "EPSG:27700"   # the committed geometry, DEM and outputs (OSGB36 / British National Grid)
+SLACK_FLOW_LONLAT_CRS        = "EPSG:4326"    # KML and the solar position
+SLACK_FLOW_TIF_NODATA        = -9999.0        # no-data value written to the 49 GeoTIFFs
+SLACK_FLOW_HEAD_GRID_N       = 12     # points on the coastal-head error curve written out; the fit itself is bounded minimisation
+SLACK_FLOW_SEA_PROBE_M       = 50     # step along a coast normal used to tell the land side from the sea side
+SLACK_FLOW_RAY_MAX_M         = 6000   # transect rays stop where they leave the study area; this only bounds the search
+SLACK_FLOW_TRANSECT_MIN_LEN_M = 200   # a candidate coast-normal shorter than this inside the study area is dropped
+SLACK_FLOW_MERGE_REACH_STEPS = 3      # a radial merges with the coast-normal series if it meets the coast within this many coast steps
+SLACK_FLOW_HWM_SAMPLE_M      = 10     # spacing of the LiDAR samples along the HWM line (the HWM-vs-MHW check)
+SLACK_FLOW_FLOOR_PCTL        = 10     # slack-floor height of a 10 m Sentinel cell: this percentile of its DEM cells
+SLACK_FLOW_BIAS_MIN_MONTHS   = 12     # in-range months a well needs to enter the cell-to-well offset
+SLACK_FLOW_LOO_PCTL          = 90     # upper percentile of |LOO error| reported per drift and state
+SLACK_FLOW_COAST_MIN_WELLS   = 5      # fewest wells for a sector's damping test
+SLACK_FLOW_TRANSECT_CELL_BAND_M = 25  # Sentinel cells within this distance of a transect are drawn on its profile
+# Terrain shadow (2026-09-27, Martin: the unexplained pattern "is more consistent with shadow"). A cell's
+# switching level is set by the first scene in which it reads wet, so ONE shadowed scene at a low network level
+# can make it look perched: the shadow is taken at the lowest-sun scene of the D-178 winter fit.
+SLACK_FLOW_S2_ACQ_UTC_H      = 11.25  # Sentinel-2 acquisition over tile 30UVD, hours UTC (about 11:15); 10 minutes moves the winter sun by under 1 degree
+SLACK_FLOW_SHADOW_FRAC       = 0.25   # a 10 m cell is in shadow when this share of its DEM cells lies in cast shadow
+SLACK_FLOW_EDGE_SLOPE_PCTL   = 90     # an unexplained cell steeper than this percentile of the consistent cells' slopes is a floor-edge (mixed) pixel
+# Script 49 rendering (display only)
+SLACK_FLOW_MAP_PAD_M         = 100    # map margin around the study area
+SLACK_FLOW_MAP_TICK_M        = 1000   # map tick spacing
+SLACK_FLOW_DEM_LIGHT         = (315.0, 35.0, 3.0)  # hillshade azimuth, altitude (deg), vertical exaggeration: map_utils.load_dem_hillshade's defaults
+SLACK_FLOW_DEM_CLIP_PCTL     = 99     # the colour DEM saturates at this percentile of land height
+SLACK_FLOW_DEM_TICKS_M       = (0, 2, 5, 10, 15, 20, 30, 40, 50)
+SLACK_FLOW_GRADIENT_VMAX     = 5e-2   # top of the head-gradient colour scale (m/m)
+SLACK_FLOW_ARROW_LEN_FRAC    = 0.9    # longest arrow as a share of the arrow grid
+SLACK_FLOW_ARROW_MIN_FRAC    = 0.35   # shortest arrow as a share of the longest
+SLACK_FLOW_ARROW_DECADES     = 2.0    # decades of gradient above SLACK_FLOW_MIN_GRADIENT over which arrow length grows
+SLACK_FLOW_ARROW_HEAD_FRAC   = 0.3    # KML arrowhead length as a share of the arrow
+SLACK_FLOW_ARROW_HEAD_RAD    = 0.4    # KML arrowhead half-angle (radians)
+SLACK_FLOW_PROFILE_YMAX_M    = 20.0   # top of the transect profile axes (m OD)
+SLACK_FLOW_FONT_PT           = (11, 13)  # small and title font sizes of the 49 figures (pt)
+SLACK_FLOW_CONTOUR_M         = 1.0    # water-table contour interval (m)
+SLACK_FLOW_CONTOUR_LABEL_M   = 2.0    # labelled contour interval (m)
+SLACK_FLOW_LABEL_MIN_SEP_M   = 300    # contour labels closer than this to another are dropped (m)
+# Landward boundary of the water table (Script 49, 2026-09-27, Martin: "the ridge should also mark a water
+# table margin"; "fix the eastern boundary to the river elevation"). Without it ordinary kriging relaxes to the
+# mean north of CEH14 and closes a false high there. Ridge anchors run along the D-203 divide at ground minus
+# the depth measured at the ridge well (CEH12, 34 months 2006-2010, on the bedrock ridge just outside the
+# divide); river anchors run along the D-203 river edge at the channel elevation (lowest DEM within
+# RIVER_SNAP_M). Both are kept only if they do not worsen leave-one-out at the wells within BOUNDARY_TEST_M.
+STUDY_AREA_RIVER_START       = (243181, 364711)  # D-203: where the ridge-foot drain meets the northern divide (read by tools/make_study_area.py)
+SLACK_FLOW_RIDGE_WELL        = "ceh12"
+SLACK_FLOW_RIDGE_MIN_MONTHS  = 1      # state months the ridge well needs for a state depth; else its record extreme (wet: shallowest, dry: deepest)
+SLACK_FLOW_RIVER_PROBE_M     = 200    # along-boundary step used to tell the downstream (river) direction from the divide
+SLACK_FLOW_RIVER_SNAP_M      = 4      # channel elevation: lowest DEM within this distance of the boundary point
+SLACK_FLOW_BOUNDARY_TEST_M   = 1000   # wells within this distance of the anchored boundary decide whether it is kept
+SLACK_FLOW_RIDGE_DEPTH_SENS_M = (0.0, 1.0, 2.0)  # fixed ridge depths run as sensitivities (m below ground)
+SLACK_FLOW_FLOW_SUPPORT_M    = 500    # arrows further than this from any dipwell are drawn faint: the boundary, not data, sets them
+# Transects. Radial fan from the wet-state water-table high; one radial merges
+# into the coast-normal series if it qualifies. Coast-normal candidates start
+# along the Caernarfon Bay HWM (landward normal within the azimuth window below,
+# which excludes the Menai and the estuary), at azimuths within the tolerance of
+# the local shore-normal. A candidate is supported with enough wells within the
+# band, spread over enough of its length; the greedy pass stops when no
+# supported candidate adds enough new wells. Martin 2026-09-27: "coast normal at
+# an interval the network supports. It doesn't have to be regular."
+SLACK_FLOW_RADIAL_AZ              = (100, 125, 150, 175, 200, 225)
+SLACK_FLOW_TRANSECT_COAST_STEP_M  = 25.0
+SLACK_FLOW_TRANSECT_AZ_TOL_DEG    = 15.0
+SLACK_FLOW_TRANSECT_AZ_STEP_DEG   = 5.0
+SLACK_FLOW_TRANSECT_BAND_M        = 60.0
+SLACK_FLOW_TRANSECT_MIN_WELLS     = 3
+SLACK_FLOW_TRANSECT_MIN_SPAN      = 1.0 / 3.0
+SLACK_FLOW_TRANSECT_MIN_SEP_M     = 400.0   # Martin 2026-09-27: 150 m gave 12 lines
+SLACK_FLOW_TRANSECT_MIN_NEW_WELLS = 3
+SLACK_FLOW_BAY_LANDWARD_AZ        = (0.0, 110.0)
+SLACK_FLOW_SHORE_TANGENT_M        = 200.0
+SLACK_FLOW_TRANSECT_STEP_M        = 5.0
+SLACK_FLOW_EXTRA_TRANSECTS        = ()   # ((name, (E0, N0), (E1, N1)), ...) Martin's named lines
 

@@ -9,7 +9,11 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-09. DELTA_THRESH and
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-28. T-91: emits
+#   06_report_numbers.csv — LIS1 and FE1's Pearson r against the C4 centroid
+#   template (report9 §4.3), read from audit_df already in memory. No
+#   existing output changes.
+# 1.2.0  Hollingham (2026) - 2026-09-09. DELTA_THRESH and
 #   MCA_THRESH now alias config.PEARSON_DELTA_THRESH / PEARSON_MCA_THRESH
 #   rather than carrying their own literals. This script already used the >=
 #   form the report documents; Script 05 did not, and the two are now one.
@@ -61,6 +65,7 @@ from utils.paths import (
     INT_PEAR_AUDIT_SITEWIDE,
     OUT_06_AFFINITY_CHART,
     OUT_06_INTEGRATION_MAP,
+    OUT_06_REPORT_NUMBERS,
 )
 from utils.config import (
     PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH,
@@ -82,6 +87,7 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils.render_utils import bump_fig_fonts, bump_label_and_legend_fonts, render_figure
+from utils.report_numbers_utils import ReportNumbers
 
 fiona.drvsupport.supported_drivers["KML"] = "rw"
 
@@ -238,12 +244,14 @@ def main():
     # 3. Correlation Audit
     step("Running correlation matrix against Reference Templates...")
     audit_rows = []
+    _unrounded_corrs = {}  # T-91: full-precision corrs, keyed by well_id — audit_rows rounds to 4dp
     
     for well_id, series in z_all.iterrows():
         is_ref = well_id in ref_wells.index
         assigned_c = well_to_cluster.get(well_id, np.nan)
         
         corrs = {c: safe_pearson(series, centroid_df[c]) for c in EXPECTED_CLUSTERS}
+        _unrounded_corrs[well_id] = corrs
         valid_corrs = {k: v for k, v in corrs.items() if pd.notna(v)}
         
         if not valid_corrs:
@@ -281,6 +289,21 @@ def main():
     audit_df.to_csv(INT_PEAR_AUDIT_SITEWIDE, index=False)
     ext_count = int((audit_df['Network'] == 'Extended').sum()) if 'Network' in audit_df.columns else 0
     step(f"Audit saved. Found {ext_count} Extended wells.")
+
+    # T-91: report9 §4.3 cites the extended-network wells' Pearson affinity
+    # against the C4 (Main Forest) centroid template by name (LIS1, FE1).
+    # Read from _unrounded_corrs captured during the audit loop above (full
+    # precision — audit_df/audit_rows round to 4dp), not by re-reading the CSV
+    # just written.
+    rpt = ReportNumbers()
+    for _w in ("lis1", "fe1"):
+        if _w in _unrounded_corrs and 4 in _unrounded_corrs[_w] and pd.notna(_unrounded_corrs[_w][4]):
+            rpt.add(f"{_w}_r_C4", float(_unrounded_corrs[_w][4]), unit="",
+                    well=_w.upper(),
+                    note=f"Pearson r of {_w.upper()} (Extended network) against the "
+                         f"C4 (Main Forest) reference-well centroid template, unrounded")
+    n_saved = rpt.save(OUT_06_REPORT_NUMBERS)
+    step(f"Exported {n_saved} report numbers to {OUT_06_REPORT_NUMBERS.name}")
 
     create_affinity_bar_plot(audit_df)
 

@@ -135,7 +135,13 @@ from utils.site_observations import update_site_observation
 from utils.config import DAYS_PER_MONTH
 from utils.render_utils import render_figure
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-28. T-91: emit the unrounded
+#   with/without-easting Impact clearfell-step delta (mm) to
+#   10k_report_numbers.csv (easting_sensitivity_impact_step_delta_mm) so the
+#   Section 5.5.1 "1.4 mm" citation binds to a committed value. No analysis
+#   or existing output value changes.
+#
+# v1.5.0  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
 #   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
 # v1.4.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
@@ -651,8 +657,16 @@ def write_easting_sensitivity_csv(fit_with, fit_without, path):
     df.to_csv(path, index=False)
 
 
-def write_report_numbers(fit, contrasts, path):
-    """Standard ReportNumbers CSV with FourZone_* keys."""
+def write_report_numbers(fit, contrasts, path, fit_noeast=None):
+    """Standard ReportNumbers CSV with FourZone_* keys.
+
+    fit_noeast, if given (the easting-sensitivity re-fit already computed
+    in main()), additionally emits the unrounded with/without-easting
+    clearfell-step delta per zone in mm — T-91, so the delta quoted in
+    Section 5.5.1 (fitted with easting × time dropped, see
+    write_easting_sensitivity_csv) binds to a committed value at full
+    precision; 10k_03_easting_sensitivity.csv itself rounds to 4 d.p.
+    """
     rn = ReportNumbers()
 
     for z in NON_REF_ZONES:
@@ -695,6 +709,18 @@ def write_report_numbers(fit, contrasts, path):
                     f"(p_derived={c['p']:.4f})")
         rn.add(key, c['step_m'], well=c['contrast'], era='Post_felling',
                note=note)
+
+    if fit_noeast is not None:
+        for z in NON_REF_ZONES:
+            step_with = fit['zone_results'][z]['clearfell_step']
+            step_without = fit_noeast['zone_results'][z]['clearfell_step']
+            delta_mm = (step_without - step_with) * 1000
+            tag = ZONE_TAG[z]
+            rn.add(f'FourZone_{tag}_easting_sensitivity_step_delta_mm',
+                   delta_mm, well=z, era='Post_felling',
+                   note='without-easting minus with-easting clearfell step '
+                        '(mm), unrounded; robustness diagnostic, NOT an '
+                        'erosion decomposition (see Script 25)')
 
     rn.save(path)
 
@@ -1044,7 +1070,7 @@ def main():
     saved(f"{OUT_10K_PAIRWISE.name}")
     write_easting_sensitivity_csv(fit, fit_noeast, OUT_10K_EASTING_SENS)
     saved(f"{OUT_10K_EASTING_SENS.name}")
-    write_report_numbers(fit, contrasts, OUT_10K_REPORT)
+    write_report_numbers(fit, contrasts, OUT_10K_REPORT, fit_noeast=fit_noeast)
     saved(f"{OUT_10K_REPORT.name}")
 
     # ── 7. Figures ──────────────────────────────────────────────────────

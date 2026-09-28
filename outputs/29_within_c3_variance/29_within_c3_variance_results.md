@@ -118,11 +118,11 @@ seasonal_amplitude_m                    0.127         0.076          0.028      
 The full results table above answers the question for each metric directly.
 The most informative comparisons:
 
-- **slope_m_yr**: confirms the previous result — the exponential coastal
-  predictor, dist_forest, and the topographic axis together explain a
-  large fraction of variance. The headline coefficient on the exponential
-  coastal predictor is near +1, validating Script 25's exponential form
-  at face value.
+- **slope_m_yr**: the exponential coastal predictor, dist_forest, and the
+  topographic axis together explain a large fraction of variance. The
+  coefficient on the exponential coastal predictor is +0.87 alone and
+  -0.21 in the five-predictor model: with the collinear topographic axis
+  present it does not by itself validate Script 25's exponential form.
 - **β₁ recharge**: see the table. If high R² and elevation/depth_to_water
   is the strongest unique predictor, that supports a depth-to-water
   modulation of effective recharge across C3 (deeper-WT wells receive less

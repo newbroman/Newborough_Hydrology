@@ -73,7 +73,11 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.10.1"  # Hollingham (2026) - 2026-09-21. Comment only: the spring window is
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-28. T-91: emits
+#   reference_record_years_median (calendar span Record_end-Record_start, in
+#   years, distinct from the months-based reference_record_months_median):
+#   report10 §5.1's "median record length of 15.9 years". No output moves.
+# 1.10.1  Hollingham (2026) - 2026-09-21. Comment only: the spring window is
 #   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
 # 1.10.0  # Hollingham (2026) -- 2026-09-21. Emits mean_annual_rain_well_record
 #   (complete calendar years of the well record, from felling_split_rainfall_context),
@@ -1124,6 +1128,15 @@ def _run_all() -> None:
            note="reference-network wells in 00_02_well_network_summary.csv (full record)")
     rr.add("reference_record_months_median", float(_nm.median()), unit="months",
            note="median record length of the reference network")
+    # T-91: report10 §5.1 quotes the reference network's median record LENGTH
+    # (calendar span end-start, in years) — a different basis from N_months
+    # above (N_months counts valid readings; gaps make the two diverge).
+    _span_years = (pd.to_datetime(table2_full["Record_end"]) -
+                   pd.to_datetime(table2_full["Record_start"])).dt.days / 365.25
+    rr.add("reference_record_years_median", float(_span_years.median()), unit="years",
+           note="median calendar span (Record_end - Record_start) of the reference "
+                "network, 00_02_well_network_summary.csv (full record); distinct "
+                "from reference_record_months_median, which counts valid readings")
     rr.add("reference_record_months_min", float(_nm.min()), unit="months",
            note="shortest admitted record")
     rr.add("reference_record_months_max", float(_nm.max()), unit="months",

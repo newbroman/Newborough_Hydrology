@@ -47,7 +47,12 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-28. T-91: emit
+#   era-mean summer minima (pre-scraping / scraping-era / post-felling) for
+#   WMC3 and the Forest Ctrl tier, from data_df in run_metric(), gated to the
+#   summer_min metric only. Report9/report10 Section 5.5.1 and 5.7.4 cite
+#   these values; no analysis change.
+# v1.9.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
 #   removed. It hid every DeprecationWarning and RuntimeWarning this script
 #   raised, which is the class of signal that would have flagged the fiona
@@ -451,6 +456,39 @@ def main():
         phase(4, "Computing pre/post shifts")
         # Post-felling years start from the first full season after Dec 2017 → 2018
         POST_YEAR = FELLING_YEAR + 1  # 2018
+
+        # T-91: era-mean summer minima (WMC3 and the Forest Ctrl tier), split
+        # into the same three eras used in the report narrative -- pre-scraping
+        # (< SCRAPING_DATE.year), the scraping era (SCRAPING_DATE.year up to
+        # but not including POST_YEAR), and post-felling (>= POST_YEAR).
+        # Computed from data_df (this metric's own per-well/year export)
+        # rather than re-reading the CSV. Gated to the summer_min metric --
+        # the report9/report10 era-mean narrative is about summer minima only.
+        if spec["key"] == "summer_min":
+            def _era(yr):
+                if yr < SCRAPING_DATE.year:
+                    return "Pre_scraping"
+                if yr < POST_YEAR:
+                    return "Scraping_era"
+                return "Post_felling"
+
+            era_src = data_df.copy()
+            era_src["Era"] = era_src["Year"].apply(_era)
+
+            wmc3_era = era_src[era_src["Well"] == "WMC3"]
+            for era_name, grp in wmc3_era.groupby("Era"):
+                rpt.add(f"{spec['rpt_prefix']}_WMC3_era_mean",
+                        grp[spec["value_col"]].mean(),
+                        well="WMC3", era=era_name,
+                        note=f"era-mean {spec['value_col']}, n_years={len(grp)}")
+
+            fc_era = era_src[era_src["Tier"] == "Forest Ctrl"]
+            for era_name, grp in fc_era.groupby("Era"):
+                rpt.add(f"{spec['rpt_prefix']}_ForestCtrl_era_mean",
+                        grp[spec["value_col"]].mean(),
+                        well="Forest Ctrl", era=era_name,
+                        note=(f"era-mean {spec['value_col']} across the Forest "
+                              f"Ctrl tier, n_well_years={len(grp)}"))
 
         shift_rows = []
         for w in ALL_NETWORK_WELLS:

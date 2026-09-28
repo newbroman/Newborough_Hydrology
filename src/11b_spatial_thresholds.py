@@ -74,7 +74,12 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-27. The site mask is the site outline
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-28. T-91: export_table10_spreadsheet()
+#   now also emits the per-cluster recharge-horizon climatological rainfall total
+#   (Sum_P_clim_mm, unrounded) to a new 11b_report_numbers.csv, so the Section 4.7.4
+#   "400 mm" / "461 mm" citations bind to a committed value. No output value changes.
+#
+# v1.14.0  # Hollingham (2026) - 2026-09-27. The site mask is the site outline
 #   from map_utils.load_site_outline() (D-204, spec NRG_spec_site_outline_B): the union of site_boundary.kml, not
 #   the largest piece's exterior (56 m² short at the edge). Docstring: the file is the
 #   GRASS stream-network mask (D-082), not "SAGA".
@@ -180,8 +185,9 @@ from utils.paths import (
     OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ,
     OUT_11B_PFLOOD_CLUSTER_SUMMARY,
     OUT_11B_TABLE10, OUT_11B_FORECASTER_HTML, SRC_FORECASTER_TEMPLATE,
-    LIVING_WET_AREA_MODEL,
+    LIVING_WET_AREA_MODEL, OUT_11B_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.map_utils import (load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml,
                              load_site_outline)
 from utils.config import (
@@ -1488,6 +1494,24 @@ def export_table10_spreadsheet() -> None:
         print(f"    {r['Cluster']:6s}  {r['Horizon']:18s}  "
               f"P_flood = {r['P_flood_equation']:28s}  "
               f"\u03a3P\u0304\u1d62 = {r['Sum_P_clim_mm']:.0f} mm")
+
+    # T-91: bind the per-cluster recharge-horizon climatological rainfall
+    # total to a committed report number (unrounded -- full.P_clim_total_mm,
+    # already in memory above, before Table 10's display rounding to 0 dp).
+    rn = ReportNumbers()
+    for _, r in full.iterrows():
+        peak_abbrev = MONTH_ABBREV[int(r["peak_month"]) - 1]
+        horizon_str = f"Oct-{peak_abbrev}"
+        rn.add("pflood_recharge_horizon_P_clim_total_mm",
+               float(r["P_clim_total_mm"]), unit="mm",
+               well=str(r["Cluster"]),
+               era=f"{horizon_str} ({int(r['horizon_months'])} mo)",
+               note="Climatological rainfall total over the cluster-specific "
+                    "P_flood recharge horizon (Table 10 Sum_P_clim_mm, "
+                    "unrounded); source outputs/11_forecast_pflood_threshold_"
+                    "equations.csv (P_clim_total_mm)")
+    rn.save(OUT_11B_REPORT_NUMBERS)
+    saved(f"{OUT_11B_REPORT_NUMBERS.name}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

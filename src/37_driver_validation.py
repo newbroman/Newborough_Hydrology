@@ -117,7 +117,12 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.6.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+__version__ = "3.7.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+#   emits (no analysis change) - neg_control_c2_mean_residual_mm_full_record and
+#   neg_control_c2_n_full_record, written to 37_report_numbers.csv so the Methods
+#   Supplement S.20.5 sentence binds to a citation row.
+#
+# v3.6.0  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
 #   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
 # v3.5.0  # Hollingham (2026) - 2026-09-11.
 #   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
@@ -1343,6 +1348,24 @@ def main() -> int:
     c1_block = neg_control_block(results)
     excl_block = excluded_sluice_block(results)
     write_results(scale_table, c1_block, excl_block, traj, delta0, clearfell_step_mm)
+
+    # T-91: committed report-numbers trace for the Methods Supplement S.20.5
+    # sentence quoting the full-record (2005_2025) negative-control mean
+    # residual for C2 (Dune) — computed from c1_block already in memory.
+    from utils.report_numbers_utils import ReportNumbers
+    rpt = ReportNumbers()
+    _full = c1_block[c1_block["window"] == "2005_2025"]
+    if not _full.empty:
+        _r = _full.iloc[0]
+        rpt.add("neg_control_c2_mean_residual_mm_full_record", _r["mean_residual"],
+                unit="mm", well="C2", era="2005_2025",
+                note=f"Negative-control (C2, Dune) mean residual, full-record window, "
+                     f"n={int(_r['n'])} (37_results.txt NEGATIVE CONTROL block).")
+        rpt.add("neg_control_c2_n_full_record", _r["n"], unit="wells", well="C2",
+                era="2005_2025",
+                note="Wells covered by the full-record (2005_2025) negative-control window.")
+    rpt.save(paths.OUT_37_REPORT_NUMBERS)
+    saved(paths.OUT_37_REPORT_NUMBERS)
 
     done(SCRIPT_ID)
     return 0

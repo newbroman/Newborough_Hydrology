@@ -19,6 +19,11 @@ cluster_splithalf_ari_p05,,k=5,0.3456698796215868,,5th percentile of the split-h
 cluster_splithalf_ari_p95,,k=5,0.7301323236571902,,95th percentile of the split-half ARI
 cluster_month_merge_rate,,k=5,1.0,,fraction of month-bootstrap replicates in which two or more reference clusters collapsed into one; median co-assignment is blind to this
 cluster_month_clusters_surviving_mean,,k=5,1.744,,mean count of reference clusters surviving a month-bootstrap replicate both intact and unmerged
+C1_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C1 (Lake Edge)'s 7 k=5 members fall into (1 = stays intact); split sizes 7
+C2_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C2 (Dune)'s 19 k=5 members fall into (1 = stays intact); split sizes 19
+C3_k6_n_subgroups,,k=6,2.0,count,number of k=6 raw clusters that C3 (Western Residual)'s 26 k=5 members fall into (1 = stays intact); split sizes 13+13
+C4_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C4 (Main Forest)'s 9 k=5 members fall into (1 = stays intact); split sizes 9
+C5_k6_n_subgroups,,k=6,1.0,count,number of k=6 raw clusters that C5 (Coastal Forest)'s 5 k=5 members fall into (1 = stays intact); split sizes 5
 cluster_stability_median,C4 (Main Forest),k=5,1.0,,median per-well co-assignment over 1000 well resamples; n = 9
 cluster_stability_median,C5 (Coastal Forest),k=5,0.9903614457831325,,median per-well co-assignment over 1000 well resamples; n = 5
 cluster_stability_median,C3 (Western Residual),k=5,0.3827301216664618,,median per-well co-assignment over 1000 well resamples; n = 26

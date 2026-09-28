@@ -102,7 +102,13 @@ Hollingham (2026), §4.6.7. D-050; report9 §4.6.7; Script 10f.
 ====================================================================================
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-28. T-91: emit three more in-memory
+#   quantities to 10n_report_numbers.csv -- per-zone gross_step_m (Sub-script 10j contrast,
+#   e.g. Forest Ctrl "+53.1 mm"), the Impact-Forest_Ctrl DiD 95% CI bounds (ci_lo_m/
+#   ci_hi_m), and the post-scrape-only pre-trend slope -- so the Methods Supplement's
+#   Sub-script 10j passage binds to committed values. No output value changes.
+#
+# v1.1.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.0.0  # Hollingham (2026) — 2026-08-24.
 
@@ -343,6 +349,11 @@ def main():
             print(f"   {zone:16} n={diag['n_wells']} baseline R²={diag['baseline_R2']:.3f} "
                   f"gross step={st['step_m']*1000:+7.1f} mm  "
                   f"p_HAC={_p_fmt(st['p_hac'])}")
+            rpt.add(f"SynthGross_{zone.replace(' ', '')}_step",
+                    st["step_m"], "m",
+                    note=f"zone's own synthetic-control gross step "
+                         f"(scrape-to-fell vs post-fell), not vs another "
+                         f"zone; HAC p={_p_fmt(st['p_hac'])}")
         gap_rows.append(row)
     pd.DataFrame(gap_rows).to_csv(OUT_ZONE_GAPS, index=False)
     print(f"\n   -> {OUT_ZONE_GAPS.name}")
@@ -372,6 +383,12 @@ def main():
                      f"maxlags={st['nw_maxlags']}")
         rpt.add(f"SynthDiD_{key}_se", st["se_hac_m"], "m",
                 note="Newey-West HAC")
+        rpt.add(f"SynthDiD_{key}_ci_lo", st["ci_lo_m"], "m",
+                note=f"95% CI lower bound, vs Forest Ctrl, HAC "
+                     f"p={_p_fmt(st['p_hac'])}")
+        rpt.add(f"SynthDiD_{key}_ci_hi", st["ci_hi_m"], "m",
+                note=f"95% CI upper bound, vs Forest Ctrl, HAC "
+                     f"p={_p_fmt(st['p_hac'])}")
 
         # sensitivity: full pre-felling record as the reference window
         st2, _ = step_on(delta, delta.index.min(), CLEARFELL_DATE, CLEARFELL_DATE)
@@ -417,6 +434,10 @@ def main():
                 rpt.add(f"SynthDiD_{treat.replace(' ', '')}_pretrend",
                         pt["slope_m_yr"], "m/yr",
                         note=f"HAC p={_p_fmt(pt['p_hac'])}; {verdict}")
+            elif span.startswith("pre-trend (post-scrape"):
+                rpt.add(f"SynthDiD_{treat.replace(' ', '')}_pretrend_postscrape",
+                        pt["slope_m_yr"], "m/yr",
+                        note=f"{note}; HAC p={_p_fmt(pt['p_hac'])}; {verdict}")
 
         sn, why = step_net_of_trend(delta, delta.index.min(), CLEARFELL_DATE)
         if sn is None:

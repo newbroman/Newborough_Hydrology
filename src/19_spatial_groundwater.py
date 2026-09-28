@@ -26,7 +26,10 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.25.0"  # Hollingham (2026) - 2026-09-27. T-84 (Martin: "update script 19 to output per
+__version__ = "2.26.0"  # Hollingham (2026) - 2026-09-28. T-91: emits selected UKCP18/
+#   forestry-scenario cluster dh_mean values (unrounded) and the ΔMSL5 cross-check worst-diff
+#   to OUT_19_REPORT_NUMBERS (new file for this script), so report9/Supplement citations bind.
+# 2.25.0  # Hollingham (2026) - 2026-09-27. T-84 (Martin: "update script 19 to output per
 #   well values"): compute_scenario_summary also writes 19_scenario_perwell.csv — each well's
 #   Δh, Sy and water equivalent for every forestry/climate scenario and season, with its cluster and
 #   in_forest flag — the per-well responses the cluster means in 19_scenario_summary.csv average,
@@ -313,7 +316,9 @@ from utils.paths import (
     OUT_18_WELL_SY_TABLE,
     OUT_01B_REPORT_NUMBERS,
     OUT_26B_PROJECTION_TABLE_PERWELL,    # v2.8.0 cross-check target
+    OUT_19_REPORT_NUMBERS,               # T-91
 )
+from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.config import (
     MSL_SPRING_MONTHS,
     SUMMER_DRY_CLIMATE_MONTHS,
@@ -2598,6 +2603,10 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     P_s, PET_s = climate_stats["summer"]
     rows = []
     perwell = []
+    # T-91: a handful of cluster dh_mean cells that report9 §4.13.1/§4.13.2 quote,
+    # captured here UNROUNDED (before the round(...,4) below) so the citation binds
+    # to the value the scenario was actually computed at.
+    rpt = ReportNumbers()
     for sc_name, sl in SCENARIO_PARAMS.items():
         for sea in SEASONS:
             if sea == "winter":
@@ -2623,6 +2632,16 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                              & wt_tmp["_dh"].notna()]
                 dh_mean = sub["_dh"].mean() if len(sub) else np.nan
                 dh_med  = sub["_dh"].median() if len(sub) else np.nan
+                if (sc_name, sea, cl_int) in (
+                        ("ukcp18_2080s", "summer", 2),
+                        ("broadleaf", "annual", 5),
+                        ("broadleaf", "winter", 5),
+                ) and pd.notna(dh_mean):
+                    rpt.add(f"scenario_dh_mean_{sc_name}_{sea}_C{cl_int}",
+                            float(dh_mean), unit="m/month",
+                            well=f"C{cl_int}", era=f"{sc_name} {sea}",
+                            note=f"cluster-mean monthly head perturbation, unrounded, "
+                                 f"n={len(sub)} wells (report9 quotes the rounded 3dp value)")
                 rows.append({
                     "scenario":    sc_name,
                     "season":      sea,
@@ -2737,6 +2756,14 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                         worst_mm  = diff_mm
                         worst_label = f"{view_scen} C{cid}"
             tol_mm = 0.5
+            # T-91: this diagnostic was console-only until now (the Methods
+            # Supplement, Sub-script 19 section, quotes its worst-case mm figure)
+            # — record it whether or not it passed, so that quoted number traces
+            # to a committed CSV.
+            rpt.add("msl5_crosscheck_worst_diff_mm", float(worst_mm), unit="mm",
+                    era=worst_label,
+                    note=f"max abs diff vs 26b per-well ΔMSL5 CSV across "
+                         f"(cluster x UKCP18 scenario); tolerance {tol_mm} mm")
             if worst_mm <= tol_mm:
                 print(f"  ΔMSL5 cross-check vs 26b per-well CSV: "
                       f"max abs diff = {worst_mm:.3f} mm (≤ {tol_mm} mm tolerance) — OK")
@@ -2752,6 +2779,9 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     else:
         print(f"  ΔMSL5 cross-check skipped: 26b per-well CSV not yet generated "
               f"(rerun script 26b to enable validation).")
+
+    n_rpt = rpt.save(OUT_19_REPORT_NUMBERS)  # T-91
+    print(f"  Saved → {OUT_19_REPORT_NUMBERS.name} ({n_rpt} report numbers)")
     return out
 
 

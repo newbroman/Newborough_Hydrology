@@ -71,7 +71,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-28. T-91: emit Coastal Ctrl
+#   tier mean coefficient shifts (previously the only tier missing an aggregate
+#   row), plus network-wide (17-well BACI network, excl. Far-field Ctrl) mean
+#   b1_before/b1_after/db1 and per-tier/network mean-of-per-well %-change in b1,
+#   so the report9/report10 Section 4.6.6/5.5.1 narrative values bind to a
+#   citation row. No analysis change.
+# v1.8.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
 #   removed. It hid every DeprecationWarning and RuntimeWarning this script
 #   raised, which is the class of signal that would have flagged the fiona
@@ -384,8 +390,9 @@ def main():
             rpt.add(f"CoeffShift_{row['Well']}_d{coeff}", row[f'd{coeff}'],
                     well=row['Well'], era="Delta")
 
-    # Tier means
-    for tier_name in ['Impact', 'Edge', 'Forest Ctrl', 'Climate Ctrl']:
+    # Tier means (T-91: Coastal Ctrl added -- it previously had no aggregate
+    # row here even though the other four BACI-network tiers did).
+    for tier_name in ['Impact', 'Edge', 'Forest Ctrl', 'Coastal Ctrl', 'Climate Ctrl']:
         tier_data = shift_df[shift_df['Tier'] == tier_name]
         if tier_data.empty:
             continue
@@ -394,6 +401,50 @@ def main():
                     tier_data[coeff].mean(),
                     well=tier_name,
                     note=f"n_wells={len(tier_data)}")
+        # T-91: mean of each well's OWN %change in b1 (After-Before)/Before*100,
+        # then averaged across the tier's wells -- this is the formula behind
+        # the per-tier percentages quoted in report10.md S.5.5.1 (distinct from
+        # the ratio-of-tier-means used in the summary bar-chart panel above).
+        pct_per_well_b1 = 100.0 * tier_data['db1'] / tier_data['b1_before']
+        n_decline = int((tier_data['db1'] < 0).sum())
+        rpt.add(f"CoeffShift_{tier_name}_mean_db1_pct_of_before",
+                pct_per_well_b1.mean(),
+                well=tier_name,
+                note=(f"mean of per-well pct change in b1 "
+                      f"(After-Before)/Before*100, n_wells={len(tier_data)}, "
+                      f"n_decline={n_decline}"))
+
+    # Network-wide (T-91): the seventeen-well BACI network excludes the
+    # Far-field Ctrl tier (see report10.md S.5.5.1, and the module docstring's
+    # "17-well network" scope). Percentage here is the ratio of the network
+    # mean db1 to the network mean b1_before -- the formula behind the
+    # network-mean %-reduction quoted in report10.md S.5.5.1 (distinct from
+    # the per-tier mean-of-per-well-pct formula just above).
+    network_data = shift_df[shift_df['Tier'] != 'Far-field Ctrl']
+    if not network_data.empty:
+        net_b1_before = network_data['b1_before'].mean()
+        net_b1_after = network_data['b1_after'].mean()
+        net_db1 = network_data['db1'].mean()
+        n_net = len(network_data)
+        n_decline_net = int((network_data['db1'] < 0).sum())
+        rpt.add("CoeffShift_Network_mean_b1_before", net_b1_before,
+                well="Network", era="Before",
+                note=f"mean b1_before across n={n_net} BACI-network wells "
+                     f"(excl. Far-field Ctrl)")
+        rpt.add("CoeffShift_Network_mean_b1_after", net_b1_after,
+                well="Network", era="After",
+                note=f"mean b1_after across n={n_net} BACI-network wells "
+                     f"(excl. Far-field Ctrl)")
+        rpt.add("CoeffShift_Network_mean_db1", net_db1,
+                well="Network", era="Delta",
+                note=f"mean db1 across n={n_net} BACI-network wells "
+                     f"(excl. Far-field Ctrl), n_decline={n_decline_net}")
+        if net_b1_before:
+            rpt.add("CoeffShift_Network_mean_db1_pct_of_before",
+                    100.0 * net_db1 / net_b1_before,
+                    well="Network",
+                    note="ratio of network mean db1 to network mean "
+                         "b1_before, x100")
 
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")

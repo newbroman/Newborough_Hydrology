@@ -1,0 +1,3 @@
+Parameter,Well,Era,Value,Unit,Note
+lis1_r_C4,LIS1,,0.9734529216806803,,"Pearson r of LIS1 (Extended network) against the C4 (Main Forest) reference-well centroid template, unrounded"
+fe1_r_C4,FE1,,0.9892487774027419,,"Pearson r of FE1 (Extended network) against the C4 (Main Forest) reference-well centroid template, unrounded"

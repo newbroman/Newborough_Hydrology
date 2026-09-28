@@ -199,7 +199,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (415)
+## Outputs no exhibit renders (429)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -278,10 +278,12 @@
 - `03_master_data.csv`
 - `03_regional_averages.csv`
 - `03_regional_averages_maod.csv`
+- `03_report_numbers.csv`
 - `04_01_core_architecture_map.png`
 - `05_pear_02_affinity_chart_reference.png`
 - `06_pear_02_integration_map.png`
 - `06_pear_membership_audit_sitewide.csv`
+- `06_report_numbers.csv`
 - `07_05_clusters_vs_covariates.csv`
 - `07_cluster_coeff_means.csv`
 - `07_coefficient_summary.csv`
@@ -396,6 +398,7 @@
 - `11_forecast_pflood_threshold_equations.csv`
 - `11_forecast_spring_transfer_functions.csv`
 - `11b_05_table10_pflood_spreadsheet.csv`
+- `11b_report_numbers.csv`
 - `11c_pflood_achievability_per_well.csv`
 - `12_02_break_in_slope.csv`
 - `12_02_break_in_slope.png`
@@ -404,6 +407,7 @@
 - `14_climate_trajectory_spring.png`
 - `14_climate_trajectory_summer.png`
 - `14_climate_trajectory_winter_flooding.png`
+- `14_report_numbers.csv`
 - `14_spring_trend_stats.csv`
 - `14_summer_trend_stats.csv`
 - `14_winter_exceedance.csv`
@@ -414,6 +418,7 @@
 - `15_02_fit_comparison.png`
 - `15_03_benchmark_table.csv`
 - `15_04_best_params.csv`
+- `15_report_numbers.csv`
 - `16_report_numbers.csv`
 - `16_water_bal_bar_lay.png`
 - `17_wtf_02_regression.png`
@@ -424,6 +429,7 @@
 - `18_wtf_05a_recip_beta3_map.png`
 - `18_wtf_07_sy_spatial_trends.csv`
 - `18_wtf_08_cluster_half_life_summary.csv`
+- `19_report_numbers.csv`
 - `19_scenario_perwell.csv`
 - `19_scenario_summary.csv`
 - `20_clearfell_gain_report_numbers.csv`
@@ -454,17 +460,20 @@
 - `22_05_ssm_residual_autocorrelation.csv`
 - `22_06_ssm_cluster_mean_inference.csv`
 - `22_model_b_fits.csv`
+- `22_report_numbers.csv`
 - `22_residuals_wide.csv`
 - `23_01_ccf_headline_ridge_wells.png`
 - `23_02_peak_lag_vs_ridge_distance.png`
 - `23_03_peak_lag_spatial_map.png`
 - `23_04_b10_b11_by_cluster.png`
+- `23_report_numbers.csv`
 - `23_residuals_extended_wide.csv`
 - `23_ridge_lag_fits.csv`
 - `24_01_climatology_panels_by_cluster.png`
 - `24_02_seasonal_amplitude_map.png`
 - `24_03_sun_residual_correlation.png`
 - `24_04_phase_by_cluster.png`
+- `24_report_numbers.csv`
 - `24_residual_climatology.csv`
 - `24b_01_cluster_climatology.csv`
 - `24b_02_peak_winter_minus_summer.csv`
@@ -513,8 +522,10 @@
 - `26b_msl5_ukcp18_projection.png`
 - `26b_msl5_ukcp18_projection_summary.csv`
 - `26b_msl5_ukcp18_projection_summary_perwell.csv`
+- `26b_report_numbers.csv`
 - `28_c3_detrend.csv`
 - `28_c3_detrend_panel.png`
+- `28_report_numbers.csv`
 - `29_drop_one.csv`
 - `29_headline_models.csv`
 - `29_report_numbers.csv`
@@ -545,6 +556,7 @@
 - `33_dry_spring_depth_recent.png`
 - `33_envelope_per_well.csv`
 - `33_envelope_per_well_recent.csv`
+- `34_report_numbers.csv`
 - `34_window_matrix.csv`
 - `34_window_sensitivity.png`
 - `35_coefficient_markers.png`
@@ -555,8 +567,10 @@
 - `36_absolute_climate_trend_per_well.csv`
 - `37_driver_validation_per_well.csv`
 - `37_predicted_vs_observed.png`
+- `37_report_numbers.csv`
 - `37_residual_map.png`
 - `37_scale_factors_by_window.csv`
+- `37b_report_numbers.csv`
 - `38_report_numbers.csv`
 - `38_transect.csv`
 - `39_01_hindcast_per_well.csv`
@@ -589,17 +603,3 @@
 - `43_07_modern_well_basins.csv`
 - `43_report_numbers.csv`
 - `44_01_ranwell_readings.csv`
-- `44_02_ranwell_monthly_ranges.csv`
-- `44_03_hindcast_series.csv`
-- `44_04_hindcast_metrics.csv`
-- `44_05_level_change.csv`
-- `44_06_climate_check.csv`
-- `44_07_hindcast.png`
-- `44_08_level_change.png`
-- `44_report_numbers.csv`
-- `45_01_wet_area_model.csv`
-- `45_02_ssm_through_nir_curves.csv`
-- `45_04_phase_hysteresis.csv`
-- `45_report_numbers.csv`
-- `47_00_background_2021-04-04.png`
-- `47_01_hindcast_level_monthly.csv`

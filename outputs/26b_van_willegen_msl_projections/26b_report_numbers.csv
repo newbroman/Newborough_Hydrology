@@ -1,0 +1,13 @@
+Parameter,Well,Era,Value,Unit,Note
+msl5_shift_mean_m_c1_lake_edge_2050s,C1 (Lake Edge),2050s,-0.0111484545273332,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c1_lake_edge_2080s,C1 (Lake Edge),2080s,-0.020806016973930617,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c2_dune_2050s,C2 (Dune),2050s,-0.016131325150855545,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c2_dune_2080s,C2 (Dune),2080s,-0.029535254642918063,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c3_western_residual_2050s,C3 (Western Residual),2050s,-0.016832338042137185,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c3_western_residual_2080s,C3 (Western Residual),2080s,-0.030754556674450456,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c4_main_forest_2050s,C4 (Main Forest),2050s,-0.021517563946064324,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c4_main_forest_2080s,C4 (Main Forest),2080s,-0.03882848163076882,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c5_coastal_forest_2050s,C5 (Coastal Forest),2050s,-0.011600652456581756,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_mean_m_c5_coastal_forest_2080s,C5 (Coastal Forest),2080s,-0.021158489970930814,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_largest_cluster_2050s,,2050s,C4 (Main Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.
+msl5_shift_largest_cluster_2080s,,2080s,C4 (Main Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.

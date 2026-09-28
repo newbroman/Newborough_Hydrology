@@ -1,0 +1,3 @@
+Parameter,Well,Era,Value,Unit,Note
+neg_control_c2_mean_residual_mm_full_record,C2,2005_2025,26.8,mm,"Negative-control (C2, Dune) mean residual, full-record window, n=5 (37_results.txt NEGATIVE CONTROL block)."
+neg_control_c2_n_full_record,C2,2005_2025,5.0,wells,Wells covered by the full-record (2005_2025) negative-control window.

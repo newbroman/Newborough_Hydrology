@@ -111,7 +111,12 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DRY_CLIMATE_MONTHS.
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+#   emits (no analysis change) - per (cluster, scenario) msl5_shift_mean_m and
+#   the largest-shift cluster per scenario, written to 26b_report_numbers.csv
+#   so the Methods Supplement S.18b.3 sentence binds to a citation row.
+#
+# 1.3.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS now imported from config.SUMMER_DRY_CLIMATE_MONTHS.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -673,6 +678,28 @@ def main() -> int:
     saved(f"{OUT_TABLE.name}")
     pd.DataFrame(delta_h_records).to_csv(OUT_DELTAS, index=False)
     saved(f"{OUT_DELTAS.name}")
+
+    # T-91: committed report-numbers trace for the Methods Supplement S.18b.3
+    # sentence quoting per-cluster/scenario MSL5 shifts (e.g. "Main Forest
+    # (C4) has the largest shift"). Computed from summary_records already in
+    # memory (no re-read of OUT_TABLE).
+    from utils.report_numbers_utils import ReportNumbers
+    rpt = ReportNumbers()
+    _sdf = pd.DataFrame(summary_records)
+    for _, rec in _sdf.iterrows():
+        _lab = str(rec["cluster_label"]).lower().replace(" ", "_").replace("(", "").replace(")", "")
+        rpt.add(f"msl5_shift_mean_m_{_lab}_{rec['scenario']}", rec["msl5_shift_mean_m"],
+                unit="m", well=str(rec["cluster_label"]), era=str(rec["scenario"]),
+                note="Mean MSL5 shift under UKCP18 monthly-multiplier overlay "
+                     "(26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m).")
+    for _scen, _g in _sdf.groupby("scenario"):
+        _imax = _g["msl5_shift_mean_m"].abs().idxmax()
+        _row = _g.loc[_imax]
+        rpt.add(f"msl5_shift_largest_cluster_{_scen}", str(_row["cluster_label"]),
+                unit="", era=str(_scen),
+                note="Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.")
+    rpt.save(paths.OUT_26B_REPORT_NUMBERS)
+    saved(f"{paths.OUT_26B_REPORT_NUMBERS.name}")
 
     # ── v1.1.0 per-well-aggregation pathway ──────────────────────────────────
     # Secondary artefact, independent of the centroid pathway above.  Serves

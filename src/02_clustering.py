@@ -14,7 +14,12 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-25. Emits cluster_mean_level_m, one row
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-28. T-91: run_stability_diagnostics()
+#   emits <label>_k{k}_n_subgroups at k = NUM_CLUSTERS+1 — how many of that finer
+#   partition's raw clusters each canonical cluster's members fall into (1 = intact)
+#   plus the split sizes in the note, e.g. C3's report10 S.19.2 "13+13 split, C2 intact".
+#   Computed from membership already built in the k-sweep loop. No existing output moves.
+# 1.9.0  Hollingham (2026) — 2026-09-25. Emits cluster_mean_level_m, one row
 #   per canonical cluster: the mean over the plotted window of the cluster-mean hydrograph that
 #   02_03_cluster_hydrographs_wb.png panel (b) draws (the mean of the member wells each month, in m relative to ground,
 #   negative below). report9 §4.2 quoted these (C1 -0.38 ... C5 -1.25) from no output at all
@@ -980,6 +985,11 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
         # at any other k there is no canonical partition and the label says so.
         if k == NUM_CLUSTERS:
             _raw2can = _remap_cluster_ids_by_anchor(ref_labels.values, wells_ref.columns.tolist(), CLUSTER_ID_ANCHORS)
+            # T-91: canonical (k=NUM_CLUSTERS) cluster of each reference well,
+            # kept for the k=NUM_CLUSTERS+1 split-check below — K_RANGE_BOOTSTRAP
+            # is ascending, so this is populated before that k is reached.
+            _canonical_by_well = {w: _raw2can[int(rid)]
+                                   for w, rid in zip(wells_ref.columns, ref_labels.values)}
         for cid, grp in membership.groupby(f"cluster_k{k}"):
             median_stab = grp["stability"].median()
             min_stab    = grp["stability"].min()
@@ -1001,6 +1011,28 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
             names = ", ".join(grp["well"].tolist())
             print(f"      C{int(cid)} (n={len(grp)}, median stab="
                   f"{grp['stability'].median():.2f}): {names}")
+
+        # T-91: report10 §5.1 (S.19.2) cites how each canonical cluster
+        # fragments at the next finer partition (k = NUM_CLUSTERS + 1) — whether
+        # it splits (and into what sizes) or stays intact. Computed from
+        # membership (this k's raw fit) against _canonical_by_well (the
+        # k=NUM_CLUSTERS fit captured above), both already in memory.
+        if k == NUM_CLUSTERS + 1 and '_canonical_by_well' in dir():
+            _canon_series = pd.Series(_canonical_by_well)
+            _fine_series = membership.set_index("well")[f"cluster_k{k}"]
+            for _canon_cid in sorted(set(_canonical_by_well.values())):
+                _canon_label = CLUSTER_LABELS.get(_canon_cid, f"C{_canon_cid}")
+                _members = _canon_series[_canon_series == _canon_cid].index
+                _fine_groups = _fine_series.reindex(_members).value_counts().sort_index()
+                _sizes = "+".join(str(int(v)) for v in sorted(_fine_groups.values, reverse=True))
+                rr.add(f"{_canon_label.split()[0]}_k{k}_n_subgroups", int(len(_fine_groups)),
+                       unit="count", era=f"k={k}",
+                       note=f"number of k={k} raw clusters that {_canon_label}'s "
+                            f"{len(_members)} k={NUM_CLUSTERS} members fall into "
+                            f"(1 = stays intact); split sizes {_sizes}")
+            n_saved_split = rr.save(OUT_02_REPORT_NUMBERS)
+            step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} "
+                 f"({n_saved_split} rows, with the k={k} split check)")
 
     # 3. Summary CSV (all k values, per cluster)
     summary = pd.DataFrame(summary_rows)

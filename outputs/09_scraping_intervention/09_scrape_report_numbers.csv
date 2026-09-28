@@ -48,3 +48,7 @@ BACI_min_detectable_step,CEH18,"CEH18 vs CEH4, 2023 re-scrape",80.24151435395353
 BACI_step_below_floor,CEH18,"CEH18 vs CEH4, 2023 re-scrape",1.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect
 BACI_min_detectable_step,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",75.41276658536559,mm,"smallest step this record could distinguish from zero at alpha=0.05, power=0.8; the observed step+trend estimate +99.2 mm lies above it"
 BACI_step_below_floor,CEH36,"CEH36 vs CEH4, 2015 scrape (positive control)",0.0,flag,1 = the observed step is smaller than the smallest step this record could reliably detect
+Pre_scraping_baseline_years,CEH4,pre_2015_scrape,8.917180013689254,years,first valid monitoring month (2006-05) to SCRAPING_DATE (2015-04)
+Pre_scraping_baseline_years,CEH36,pre_2015_scrape,4.246406570841889,years,first valid monitoring month (2011-01) to SCRAPING_DATE (2015-04)
+Pre_scraping_baseline_years,CEH18,pre_2015_scrape,7.665982203969883,years,first valid monitoring month (2007-08) to SCRAPING_DATE (2015-04)
+Pre_scraping_baseline_years,CEH21,pre_2015_scrape,4.832306639288158,years,first valid monitoring month (2010-06) to SCRAPING_DATE (2015-04)

@@ -9,3 +9,4 @@ msl5_change_ceh22,CEH22,,-232.66666666666657,mm,raw below-ground MSL5 change 201
 msl5_change_ceh21,CEH21,,-212.66666666666657,mm,raw below-ground MSL5 change 2017->2023
 msl5_change_ceh18,CEH18,,-144.6666666666667,mm,raw below-ground MSL5 change 2017->2023
 msl5_change_ceh25,CEH25,,-10.666666666666796,mm,raw below-ground MSL5 change 2017->2023
+msl5_change_c4_mean,C4,,-137.80952380952382,mm,"cluster mean of raw below-ground MSL5 change 2017->2023, n=7 wells"

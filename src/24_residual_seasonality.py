@@ -53,7 +53,12 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-09
+__version__ = "1.3.1"  # Hollingham (2026) — 2026-09-28
+#
+# v1.3.1  # Hollingham (2026) -- 2026-09-28
+#   T-91: emit network-mean sunshine-residual correlation and the per-cluster
+#   seasonal-amplitude min/max to OUT_24_REPORT_NUMBERS, so report/Supplement
+#   citations of these values bind to a committed CSV.
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -78,7 +83,9 @@ from utils.paths import (
     OUT_24_CLIMATOLOGY_PANELS, OUT_24_AMPLITUDE_MAP,
     OUT_24_SUN_CORR_SCATTER, OUT_24_PHASE_BARPLOT,
     OUT_24_SUMMARY,
+    OUT_24_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
 from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, BW_MODE,
@@ -450,7 +457,7 @@ def plot_phase_barplot(clim_df, output_path):
 # INTERPRETIVE SUMMARY
 # ==========================================
 
-def write_summary(clim_df, output_path):
+def write_summary(clim_df, output_path, rpt=None):
     lines = []
     lines.append("=" * 78)
     lines.append("  SEASONAL RESIDUAL DIAGNOSTIC — SUMMARY")
@@ -474,6 +481,25 @@ def write_summary(clim_df, output_path):
     ).round(4)
     lines.append(grp.to_string())
     lines.append("")
+
+    if rpt is not None:
+        # T-91: per-cluster seasonal-amplitude mean, min and max across clusters
+        # (unrounded amplitude means, not the .round(4) display copy above).
+        raw_amp_by_cluster = clim_df.groupby('Cluster')['amplitude'].mean()
+        amp_min_cluster = raw_amp_by_cluster.idxmin()
+        amp_max_cluster = raw_amp_by_cluster.idxmax()
+        rpt.add("residual_seasonal_amplitude_cluster_mean_min",
+                raw_amp_by_cluster.min(), unit="m",
+                well=str(amp_min_cluster),
+                note="Minimum across the 5 clusters of the per-cluster mean seasonal "
+                     "amplitude of SSM residuals (24_05_diagnostic_summary.txt "
+                     "PER-CLUSTER SEASONAL STATISTICS table).")
+        rpt.add("residual_seasonal_amplitude_cluster_mean_max",
+                raw_amp_by_cluster.max(), unit="m",
+                well=str(amp_max_cluster),
+                note="Maximum across the 5 clusters of the per-cluster mean seasonal "
+                     "amplitude of SSM residuals (24_05_diagnostic_summary.txt "
+                     "PER-CLUSTER SEASONAL STATISTICS table).")
 
     # Per-cluster significance of the summer-minus-winter contrast.
     # The contrast is quoted in the Paper 1 SI (S9.2) with p-values, so the
@@ -562,6 +588,16 @@ def write_summary(clim_df, output_path):
     lines.append("-" * 78)
     mean_sw = clim_df['summer_minus_winter'].mean()
     mean_sun_corr = clim_df['corr_sun_resid'].mean()
+
+    if rpt is not None:
+        # T-91: network-mean correlation of SSM residuals with sunshine hours
+        # (independent ET proxy, not in the SSM regression). Same quantity as
+        # "Network mean: {:+.4f}" above (vals.mean() == mean_sun_corr, since
+        # pandas .mean() already skips NaN).
+        rpt.add("residual_sunshine_corr_network_mean", mean_sun_corr, unit="",
+                note="Network mean of per-well Pearson r between SSM residual and "
+                     "monthly sunshine hours (independent ET proxy, not in the "
+                     "regression); see 24_05_diagnostic_summary.txt.")
 
     if abs(mean_sun_corr) < thresh and abs(mean_sw) < 0.04:
         lines.append("  NULL on ET hypothesis: sunshine-residual correlation is within the")
@@ -708,7 +744,10 @@ def main():
     plot_phase_barplot(clim_df, OUT_24_PHASE_BARPLOT)
 
     # Summary
-    write_summary(clim_df, OUT_24_SUMMARY)
+    rpt = ReportNumbers()
+    write_summary(clim_df, OUT_24_SUMMARY, rpt=rpt)
+    n_saved = rpt.save(OUT_24_REPORT_NUMBERS)
+    saved(f"{OUT_24_REPORT_NUMBERS.name} ({n_saved} rows)")
 
     print("\n24 complete.")
 

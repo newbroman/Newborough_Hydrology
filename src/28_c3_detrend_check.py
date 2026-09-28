@@ -27,7 +27,12 @@ Decision:
 
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-29
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+#   emits (no analysis change) - c3_n_total, c3_n_testable,
+#   c3_n_moves_to_c2_forest_free, written to 28_report_numbers.csv so the
+#   Methods Supplement S.19.1 sentence binds to a citation row.
+#
+# 1.2.0  # Hollingham (2026) — 2026-05-29
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -269,6 +274,24 @@ def main():
     c2 = cluster_summary(result, "C2")
     c4 = cluster_summary(result, "C4")
     c5 = cluster_summary(result, "C5")
+
+    # T-91: committed report-numbers trace for the Methods Supplement
+    # S.19.1 sentence ("Of N testable C3 wells, M move..."). "Testable"
+    # means n_with_drift (has Script 25 dist_coast + hydrograph data), a
+    # narrower set than the D-196 partition's full C3 membership (n_total).
+    from utils.report_numbers_utils import ReportNumbers
+    rpt = ReportNumbers()
+    rpt.add("c3_n_total", c3["n_total"], unit="wells", well="C3",
+            note="Full D-196 C3 cluster membership (02_07_cluster_membership_k5.csv).")
+    rpt.add("c3_n_testable", c3["n_with_drift"], unit="wells", well="C3",
+            note="C3 wells with both Script 25 dist_coast_m and a fitted hydrograph "
+                 "drift (model_delta_mm_yr not null) - the 'testable' set quoted in "
+                 "S.19.1.")
+    rpt.add("c3_n_moves_to_c2_forest_free", c3["moves"].get("C2", 0), unit="wells", well="C3",
+            note="Of the testable C3 wells, count whose forest-free de-trended "
+                 "best-match cluster is C2 (Best_Detrended_FF).")
+    rpt.save(paths.OUT_28_REPORT_NUMBERS)
+    saved(f"{paths.OUT_28_REPORT_NUMBERS.name}")
 
     print()
     print("─── HEADLINE C3 result ──────────────────────────────────────────")

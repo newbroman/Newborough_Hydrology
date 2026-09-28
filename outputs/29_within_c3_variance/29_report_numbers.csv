@@ -8,3 +8,5 @@ C3_Sy_vs_inland_r,,,-0.801846564375968,,"Pearson r, Sy_wtf_median vs dist_coast_
 C3_Sy_vs_inland_p,,,1.2380163066934196e-05,,"p-value, Sy_wtf_median vs dist_coast_m, n=21"
 C3_Sy_max,ceh21,,0.3997776627272305,,"WTF event-median Sy, coastal/SW margin of C3"
 C3_Sy_min,d38,,0.2222669979848741,,"WTF event-median Sy, inland/NE margin of C3"
+C3_slope_coast_coef_univariate,,,0.8692191054107624,,"OLS coefficient of slope_m_yr on delta_coast_exp_m_yr alone, with intercept, n=21"
+C3_slope_coast_coef_full,,,-0.20500591243115163,,"OLS coefficient of slope_m_yr on delta_coast_exp_m_yr in the five-predictor model, n=21"

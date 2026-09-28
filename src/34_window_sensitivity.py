@@ -74,7 +74,12 @@ from utils import config, paths
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "0.6.0"  # 2026-08-21: load_script32_secular_trend() selects the
+__version__ = "0.7.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+#   emits (no analysis change) - window_change_envelope_{min,max}_mm,
+#   window_change_n_{admissible_pairs,negative,positive}, written to
+#   34_report_numbers.csv so the report §5.7.5 sentence binds to a citation row.
+#
+# 0.6.0  # 2026-08-21: load_script32_secular_trend() selects the
 #   site-mean basis explicitly (config.DIFF_SITE_MEAN_CITED_BASIS). Script 32
 #   v1.3.0 emits one row per basis per period, so the previous longest-span
 #   selection would have returned whichever basis was written last. Read-side
@@ -333,6 +338,24 @@ def main() -> int:
                         "(run Script 32).\n")
     d.sort_values("change_mm").to_csv(OUT_MATRIX, index=False)
     saved(OUT_MATRIX)
+
+    # T-91: committed report-numbers trace for the report §5.7.5 sentence
+    # quoting the site-mean change envelope and sign split across all
+    # admissible window pairs. Computed from `d` already in memory.
+    from utils.report_numbers_utils import ReportNumbers
+    rpt = ReportNumbers()
+    rpt.add("window_change_envelope_min_mm", lo, unit="mm",
+            note="Minimum site-mean MSL5 change over admissible window pairs (34_window_matrix.csv, change_mm).")
+    rpt.add("window_change_envelope_max_mm", hi, unit="mm",
+            note="Maximum site-mean MSL5 change over admissible window pairs (34_window_matrix.csv, change_mm).")
+    rpt.add("window_change_n_admissible_pairs", len(d), unit="pairs",
+            note="Count of admissible (baseline, current) window pairs (common panel >= MIN_PANEL).")
+    rpt.add("window_change_n_negative", n_neg, unit="pairs",
+            note="Admissible pairs with change_mm < 0 (falling).")
+    rpt.add("window_change_n_positive", n_pos, unit="pairs",
+            note="Admissible pairs with change_mm > 0 (rising).")
+    rpt.save(paths.OUT_34_REPORT_NUMBERS)
+    saved(paths.OUT_34_REPORT_NUMBERS)
     OUT_TXT.write_text(
         f"MSL5 two-window sensitivity (\u00a75.7.5) — all-pairs demonstration v{VERSION}\n"
         f"source: 26_msl_annual_per_well.csv (valid; {sorted(excl)} excluded); "

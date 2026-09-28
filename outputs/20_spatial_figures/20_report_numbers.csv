@@ -1,5 +1,7 @@
 Parameter,Well,Era,Value,Unit,Note
 drawdown_lambda,,,222.929360297203,m,"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy=0.2982, β₃=0.0616/month [C3]"
+beta_3_c3,C3,,0.0616150855443408,1/month,"SSM drainage coefficient (β₃), C3 centroid, live from 03_03_cluster_mechanistic_coefficients.csv — the value λ is built from"
+sy_c3,C3,,0.29820068578930775,-,"C3 WTF median specific yield, live from 18_wtf_01_well_sy_estimates.csv — the value λ is built from"
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)
 drawdown_contour_50mm_m,,,244.91293472742785,m,"cost-distance at which the forest drawdown falls to 50 mm, λ·ln(H0/50)"
 drawdown_contour_10mm_m,,,603.7038989844276,m,"cost-distance at which the forest drawdown falls to 10 mm, λ·ln(H0/10)"

@@ -1,0 +1,6 @@
+Parameter,Well,Era,Value,Unit,Note
+C1_mean_elevation_aod,C1 (Lake Edge),,8.459619837495158,m AOD,"mean water-table elevation, C1 (Lake Edge), full record — mean of each member well's own full-record mean AOD (current cluster membership, 66-well reference network)"
+C2_mean_elevation_aod,C2 (Dune),,7.7825486647961695,m AOD,"mean water-table elevation, C2 (Dune), full record — mean of each member well's own full-record mean AOD (current cluster membership, 66-well reference network)"
+C3_mean_elevation_aod,C3 (Western Residual),,6.897322133627434,m AOD,"mean water-table elevation, C3 (Western Residual), full record — mean of each member well's own full-record mean AOD (current cluster membership, 66-well reference network)"
+C4_mean_elevation_aod,C4 (Main Forest),,9.246735309478698,m AOD,"mean water-table elevation, C4 (Main Forest), full record — mean of each member well's own full-record mean AOD (current cluster membership, 66-well reference network)"
+C5_mean_elevation_aod,C5 (Coastal Forest),,4.39480744271242,m AOD,"mean water-table elevation, C5 (Coastal Forest), full record — mean of each member well's own full-record mean AOD (current cluster membership, 66-well reference network)"

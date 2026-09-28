@@ -1,0 +1,6 @@
+Parameter,Well,Era,Value,Unit,Note
+depth_dependent_pet_best_kappa,C1,,2.3,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
+depth_dependent_pet_best_kappa,C2,,0.95,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
+depth_dependent_pet_best_kappa,C3,,0.45,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
+depth_dependent_pet_best_kappa,C4,,0.05,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
+depth_dependent_pet_best_kappa,C5,,0.45,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"

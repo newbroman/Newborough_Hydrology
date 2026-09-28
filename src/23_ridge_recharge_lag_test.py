@@ -108,7 +108,11 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): h_prev is taken on the calendar
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-28. T-91: emit report numbers
+#   (wells analysed, C4-vs-C2/C3 peak-lag Mann-Whitney U, peak-lag/distance
+#   Spearman rho, per-cluster beta_11 lagged-fraction median/mean, and
+#   P(t-1)/drainage-regressor collinearity mean+range) to OUT_23_REPORT_NUMBERS.
+# 1.3.0  Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): h_prev is taken on the calendar
 #   before incomplete months drop, and the AR(1) estimate and the pre-whitening run on a
 #   calendar-indexed series, so t-1 is always the previous month.
 # 1.2.1  Hollingham (2026) — 2026-08-26: comment on the inactive n_eff floor (T-14 D6)
@@ -134,7 +138,9 @@ from utils.paths import (
     INT_23_RESIDUALS_WIDE, INT_23_FITS_TABLE,
     OUT_23_CCF_HEADLINE, OUT_23_LAG_VS_DISTANCE, OUT_23_LAG_MAP,
     OUT_23_BETAS_BY_CLUSTER, OUT_23_TEST_SUMMARY,
+    OUT_23_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
 from utils.config import (RESIDUAL_DIAG_MIN_MONTHS,
@@ -252,6 +258,11 @@ def fit_extended_model(well_series, climate,
         'beta_3':  float(model.params['beta_3_drainage']),  # positive = drainage increases with head
         'R2':      float(model.rsquared),
         'n':       int(len(df)),
+        # T-91: collinearity of the two regressors b11 and b3 compete over —
+        # P(t-1) and the drainage regressor h_disp_prev — on this well's fitted
+        # frame. Not persisted to INT_23_FITS_TABLE; used only for the
+        # network-wide report-number emit in main().
+        'corr_p_lag1_h_disp_prev': float(df['P_lag1'].corr(df['h_disp_prev'])),
         'resid':   pd.Series(model.resid, index=df.index, name='resid'),
         'pvalue_b11': float(model.pvalues['P_lag1']),
     }
@@ -511,8 +522,9 @@ def plot_betas_by_cluster(fits_df, output_path):
 # HYPOTHESIS TEST SUMMARY
 # ==========================================
 
-def write_test_summary(ccf_df, fits_df, trend_stats, output_path):
+def write_test_summary(ccf_df, fits_df, trend_stats, output_path, rpt=None, collinearity_corrs=None):
     """Plain-text summary of the hypothesis test."""
+    from scipy import stats as scipy_stats  # T-91: local import, mirrors main()'s own use
     sig = ccf_df[ccf_df['peak_significant']]
 
     lines = []
@@ -590,6 +602,80 @@ def write_test_summary(ccf_df, fits_df, trend_stats, output_path):
     # Also echo to stdout
     print("\n" + "\n".join(lines))
 
+    if rpt is not None:
+        # T-91 report-number emits — computed from the same DataFrames the
+        # summary text above already used, not re-read from CSV.
+        rpt.add("ridge_lag_test_n_wells_analysed", len(fits_df), unit="wells",
+                note="Wells fitted by the Script 23 extended lag model "
+                     "(n >= MIN_MONTHS months, ridge_distance_m <= "
+                     "MAX_RIDGE_DISTANCE_M); Scripts 23 and 24 share this "
+                     "candidate population.")
+
+        rpt.add("ridge_lag_spearman_rho_peak_lag_vs_distance",
+                trend_stats['spearman_r'], unit="",
+                era=f"n={trend_stats['n']} significant-peak wells",
+                note="Spearman rank correlation of peak cross-correlation lag "
+                     "vs ridge distance, over wells with a Bartlett-significant "
+                     "peak (see 23_05_hypothesis_test_summary.txt RESULT).")
+        rpt.add("ridge_lag_spearman_p_peak_lag_vs_distance",
+                trend_stats['spearman_p'], unit="",
+                era=f"n={trend_stats['n']} significant-peak wells",
+                note="p-value for the Spearman rho above.")
+
+        c4 = sig[sig['Cluster'] == 4]['peak_lag']
+        c23 = sig[sig['Cluster'].isin([2, 3])]['peak_lag']
+        if len(c4) > 0 and len(c23) > 0:
+            u_stat, u_p = scipy_stats.mannwhitneyu(c4, c23, alternative='two-sided')
+            rpt.add("ridge_lag_mannwhitney_U_C4_vs_C2C3",
+                    float(u_stat), unit="",
+                    well="C4 vs C2+C3",
+                    era=f"n_C4={len(c4)}, n_C2+C3={len(c23)} significant-peak wells",
+                    note="Mann-Whitney U comparing peak lag at C4 (ridge-adjacent) "
+                         "against pooled C2+C3 (dune-body) significant-peak wells.")
+            rpt.add("ridge_lag_mannwhitney_p_C4_vs_C2C3",
+                    float(u_p), unit="",
+                    well="C4 vs C2+C3",
+                    era=f"n_C4={len(c4)}, n_C2+C3={len(c23)} significant-peak wells",
+                    note="p-value for the Mann-Whitney U above (two-sided).")
+            rpt.add("ridge_lag_mean_peak_lag_C4", float(c4.mean()), unit="months",
+                    well="C4",
+                    note="Mean peak-correlation lag, C4 significant-peak wells.")
+            rpt.add("ridge_lag_mean_peak_lag_C2C3", float(c23.mean()), unit="months",
+                    well="C2+C3",
+                    note="Mean peak-correlation lag, pooled C2+C3 significant-peak wells.")
+
+        frac = fits_df['beta_11'] / (fits_df['beta_10'] + fits_df['beta_11'])
+        for cid in sorted(fits_df['Cluster'].dropna().unique()):
+            cluster_frac = frac[fits_df['Cluster'] == cid]
+            label = CLUSTER_LABELS.get(int(cid), f'C{int(cid)}')
+            rpt.add("ridge_lag_median_b11_lagged_fraction", float(cluster_frac.median()),
+                    unit="", well=label,
+                    note="Cluster-median of b11/(b10+b11), the lagged-rainfall "
+                         "fraction of the Script 23 extended-model recharge "
+                         "response, over all fitted wells in the cluster "
+                         "(not restricted to significant-peak wells).")
+
+        c4_mean_b11 = fits_df[fits_df['Cluster'] == 4]['beta_11'].mean()
+        c5_mean_b11 = fits_df[fits_df['Cluster'] == 5]['beta_11'].mean()
+        rpt.add("ridge_lag_mean_b11_C4", float(c4_mean_b11), unit="",
+                well="C4",
+                note="Cluster-mean b11 (P(t-1) coefficient), all fitted C4 wells.")
+        rpt.add("ridge_lag_mean_b11_C5", float(c5_mean_b11), unit="",
+                well="C5",
+                note="Cluster-mean b11 (P(t-1) coefficient), all fitted C5 wells.")
+
+        if collinearity_corrs:
+            corrs = pd.Series(collinearity_corrs).dropna()
+            rpt.add("ridge_lag_corr_P_lag1_vs_h_disp_prev_mean", float(corrs.mean()), unit="",
+                    note="Network mean of the per-well Pearson correlation between "
+                         "P(t-1) and the drainage regressor h_disp_prev, both as "
+                         "fitted in the Script 23 extended model design matrix; "
+                         "quantifies the b11/b3 collinearity.")
+            rpt.add("ridge_lag_corr_P_lag1_vs_h_disp_prev_min", float(corrs.min()), unit="",
+                    note="Minimum across the network of the same per-well correlation.")
+            rpt.add("ridge_lag_corr_P_lag1_vs_h_disp_prev_max", float(corrs.max()), unit="",
+                    note="Maximum across the network of the same per-well correlation.")
+
 
 # ==========================================
 # MAIN
@@ -627,6 +713,7 @@ def main():
     fit_rows = []
     ccf_rows = []
     residuals_dict = {}
+    collinearity_corrs = []  # T-91: per-well corr(P_lag1, h_disp_prev)
 
     for well_col in candidate_wells:
         norm = normalize_well_name(well_col)
@@ -644,6 +731,7 @@ def main():
             continue
 
         residuals_dict[norm] = result['resid']
+        collinearity_corrs.append(result['corr_p_lag1_h_disp_prev'])
 
         fit_rows.append({
             'Well':            well_col,
@@ -733,7 +821,11 @@ def main():
     plot_betas_by_cluster(fits_df, OUT_23_BETAS_BY_CLUSTER)
 
     # Summary
-    write_test_summary(ccf_df, fits_df, trend_stats, OUT_23_TEST_SUMMARY)
+    rpt = ReportNumbers()
+    write_test_summary(ccf_df, fits_df, trend_stats, OUT_23_TEST_SUMMARY,
+                       rpt=rpt, collinearity_corrs=collinearity_corrs)
+    n_saved = rpt.save(OUT_23_REPORT_NUMBERS)
+    saved(f"{OUT_23_REPORT_NUMBERS.name} ({n_saved} rows)")
 
     print("\n23 complete.")
 

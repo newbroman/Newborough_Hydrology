@@ -53,7 +53,15 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-27. T-84: 18_report_numbers.csv also
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-09-28. T-91: 18_report_numbers.csv also carries
+#   the network-wide Pearson r (and p) between Sy_median and 1/β₃ over the reference
+#   network's non-excluded wells (sy_recip_beta3_correlation_r/_p), computed from the in-memory
+#   sdi_df already built by compute_storage_drainage_index() -- so the report8 §3.4.5 / 
+#   report10 §5.6.1 "r = 0.11" citation binds to a committed value. Also its n, and the r between the
+#   per-well τ and t½ (sdi_vs_halflife_correlation_r; the documents said 0.98, the committed table
+#   gives 0.94). No output value changes.
+#
+# 1.14.0  # Hollingham (2026) — 2026-09-27. T-84: 18_report_numbers.csv also
 #   carries the C4 half-life range on the comparison window (C4_halflife_{min,max,mean}_window,
 #   from 03_master_data.csv) — report9 §4.9.3 quotes it to show the window overstates the C4
 #   recessions — and CEH13's t½ and β₃ p-value on both bases (halflife_ceh13_*,
@@ -1473,6 +1481,29 @@ def main(supplementary=True):
         # 18_wtf_05_storage_drainage_index.csv as a diagnostic; it is simply no
         # longer offered as a report-citable scalar. Cite C*_halflife_* or
         # C*_recip_b3_* instead.
+
+        # T-91: network-wide Sy vs 1/β₃ spatial correlation (report8 §3.4.5,
+        # report10 §5.6.1: "Sy and 1/β₃ are spatially uncorrelated/independent,
+        # r = 0.11"). Sy_median and β₃ CANCEL in τ = Sy/β₃ by construction, so
+        # their independence is a separate, genuine spatial-correlation
+        # question; computed here from sdi_df (already in memory, reference
+        # network, non-excluded wells) rather than re-reading a CSV.
+        _recip_b3 = 1.0 / valid_sdi["beta_3"]
+        _r, _p = scipy_stats.pearsonr(valid_sdi["Sy_median"], _recip_b3)
+        rpt.add("sy_recip_beta3_correlation_r", float(_r), unit="",
+                note=f"Pearson r(Sy_median, 1/β₃) over the reference network, "
+                     f"non-excluded wells (n={len(valid_sdi)}), basis "
+                     f"{PER_WELL_RECESSION_BASIS} (D-192); from sdi_df "
+                     "(compute_storage_drainage_index)")
+        rpt.add("sy_recip_beta3_correlation_p", float(_p), unit="",
+                note="p-value for sy_recip_beta3_correlation_r")
+        rpt.add("sy_recip_beta3_correlation_n", len(valid_sdi), unit="wells",
+                note="wells behind sy_recip_beta3_correlation_r")
+        _r_tau, _ = scipy_stats.pearsonr(valid_sdi["half_life_months"],
+                                         valid_sdi["storage_drainage_index_months"])
+        rpt.add("sdi_vs_halflife_correlation_r", float(_r_tau), unit="",
+                note=f"Pearson r between the per-well storage-drainage index τ = Sy/β₃ and "
+                     f"t½ = ln(2)/β₃, same wells (n={len(valid_sdi)}), basis {PER_WELL_RECESSION_BASIS}")
 
         n_saved = rpt.save(OUT_18_REPORT_NUMBERS)
         print(f"  Saved → {OUT_18_REPORT_NUMBERS.name} ({n_saved} report numbers)")

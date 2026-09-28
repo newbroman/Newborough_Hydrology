@@ -35,7 +35,12 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.10.0"  # Hollingham (2026) — 2026-09-26. Summer_minimum_depth rows
+__version__ = "2.11.0"  # Hollingham (2026) — 2026-09-28. T-91: adds
+#   Pre_scraping_baseline_years rows to 09_scrape_report_numbers.csv -- the
+#   four focal wells' (CEH4, CEH36, CEH18, CEH21) monitoring-record length
+#   up to SCRAPING_DATE, for report8 Section 3.5.3. No existing value moves;
+#   emit-only change.
+# v2.10.0  # Hollingham (2026) — 2026-09-26. Summer_minimum_depth rows
 #   relabelled (T-84): the value has always been the single deepest Jun-Sep reading in the
 #   era, but the Note said "Mean of annual Jun-Sep minima". The Note now says what the value
 #   is; no value moves. The era MEANS of the annual minima are Script 09c's
@@ -1043,6 +1048,28 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
                unit="flag", well=dr["impact_well"], era=dr["pair"],
                note="1 = the observed step is smaller than the smallest step "
                     "this record could reliably detect")
+
+    # 7. Pre-scraping baseline record length (T-91). The four focal wells
+    #    named in report8 Section 3.5.3 -- how much monitoring record each
+    #    had before the April 2015 scrape (SCRAPING_DATE). Defined as the
+    #    span from the well's first valid monitoring month in `wells` (the
+    #    same frame this script fits on) to SCRAPING_DATE itself -- not the
+    #    per-pair BACI_DETECT_PAIRS event/window, which for CEH18/CEH21 is
+    #    SCRAPING_DATE_2 (their WELL_ERAS baseline runs to CLEARFELL_DATE,
+    #    not SCRAPING_DATE); this is a plain descriptive record length, not
+    #    a BACI window.
+    for bw in ["ceh4", "ceh36", "ceh18", "ceh21"]:
+        if bw not in wells.columns:
+            continue
+        bw_series = wells[bw].dropna()
+        if bw_series.empty:
+            continue
+        first_valid = bw_series.index.min()
+        baseline_years = (SCRAPING_DATE - first_valid).days / 365.25
+        rr("Pre_scraping_baseline_years", baseline_years, unit="years",
+           well=bw.upper(), era="pre_2015_scrape",
+           note=f"first valid monitoring month ({first_valid:%Y-%m}) to "
+                f"SCRAPING_DATE ({SCRAPING_DATE:%Y-%m})")
 
     report_df = pd.DataFrame(rows)
     report_df.to_csv(OUT_09_REPORT_NUMBERS, index=False)

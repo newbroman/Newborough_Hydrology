@@ -1,0 +1,4 @@
+Parameter,Well,Era,Value,Unit,Note
+coast_erosion_peak_mm,,,-625.6,mm,"Coastal erosion peak local head change (37b_driver_footing.csv, peak_mm)."
+coast_erosion_area_mm_ha,,,-80888.5,mm*ha,"Coastal erosion area-integrated change (37b_driver_footing.csv, area_mm_ha)."
+coast_erosion_volume_m3,,,-241210.1,m3,"Coastal erosion volume-integrated change (37b_driver_footing.csv, volume_m3)."

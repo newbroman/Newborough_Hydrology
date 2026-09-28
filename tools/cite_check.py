@@ -45,7 +45,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.29.0"  # Hollingham (2026) — 2026-09-27. 26_ebf_prediction_summary.csv
+__version__ = "1.30.0"  # Hollingham (2026) — 2026-09-28. T-91: twelve tables the report and the
+#   Methods Supplement quote cell by cell are registered (25_12, 25_15, 25_10, 26_ewi_msl5_comparison,
+#   22_05, 22_model_b_fits, 23_ridge_lag_fits, 06_pear_membership_audit_sitewide, 03_master_data,
+#   14_annual_extremes, 29_headline_models, 10n_04_pretrend).
+# 1.29.0  # Hollingham (2026) — 2026-09-27. 26_ebf_prediction_summary.csv
 #   registered (metric: n, pearson_r, r_ci_lo, r_ci_hi) — the Figure 48 caption quotes each
 #   metric's r, and 19_scenario_perwell.csv (scenario, season, well: dh_m, we_mm) (T-84).
 # 1.28.9  # Hollingham (2026) — 2026-09-26. 09b_01/09b_02 baci_db3_pct
@@ -953,6 +957,27 @@ EXTRA_VALUE_TABLES = [
     # quotes the C3 wells beneath the canopy.
     ("outputs/19_spatial_groundwater/19_scenario_perwell.csv", ("scenario", "season", "well"),
      ["dh_m", "we_mm"]),
+    # --- T-91 (2026-09-28): tables the number sweep found quoted cell by cell
+    ("outputs/25_coastal_gradient/25_12_window_sweep.csv", ("spec", "window_start", "window_end"),
+     ["delta_0_mm_yr", "L_m", "c_mm_yr", "far_field_observed_mm_yr"]),
+    ("outputs/25_coastal_gradient/25_15_covariate_specification_range.csv", ("spec", "covariate"),
+     ["delta_0_mm_yr", "L_m", "c_mm_yr"]),
+    ("outputs/25_coastal_gradient/25_10_record_length_composition.csv", "cluster_label",
+     ["n_years_min", "n_years_median", "n_years_max", "mean_slope_long_mm_yr", "mean_slope_short_mm_yr"]),
+    ("outputs/26_van_willegen_msl/26_ewi_msl5_comparison.csv", "well",
+     ["EWI_m_bg", "MSL5_obs_m_bg", "MSL5_pred_m_bg", "residual_mm"]),
+    ("outputs/22_residual_lag_analysis/22_05_ssm_residual_autocorrelation.csv", "Well",
+     ["ar1_phi", "durbin_watson", "p_beta_2_ols", "p_beta_2_hac"]),
+    ("outputs/22_model_b_fits.csv", "Well", ["alpha", "ar1_phi", "R2"]),
+    ("outputs/23_ridge_lag_fits.csv", "Well", ["alpha", "beta_10", "beta_11", "peak_lag", "phi_resid"]),
+    ("outputs/06_pear_membership_audit_sitewide.csv", "Well_Normalised",
+     ["Best_r", "Delta", "r_C1", "r_C2", "r_C3", "r_C4", "r_C5"]),
+    ("outputs/03_master_data.csv", "Name_Original",
+     ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "Model_R2"]),
+    ("outputs/14_climate_projections/14_annual_extremes.csv", ("Cluster", "HydroYear", "Season"), ["Value_m"]),
+    ("outputs/29_within_c3_variance/29_headline_models.csv", "metric",
+     ["full_R2", "full_adj_R2", "strongest_unique_delta_R2"]),
+    ("outputs/10_clearfell_baci/10n_04_pretrend.csv", ("Contrast", "Test"), ["slope_m_yr", "p_hac"]),
 ]
 
 

@@ -20,7 +20,6 @@ Each is a result quoted in report9 that the sweep could not trace to a committed
 | 5.4.1 Measured Benefit and Durability | +7 | the climate control yet absent against the CEH4-paired control (about +7 mm yr⁻¹, not significant), because CEH4 lies at the seaward end of th |
 | 5.5.1 Seasonal Asymmetry, the β₁ Decline, and the Confounded Baseline | 1.4 | n the two is not this covariate: dropping it moves the pooled step by 1.4 mm (Section 5.7.7). The two estimators partition climate variance dif |
 | 5.5.1 Seasonal Asymmetry, the β₁ Decline, and the Confounded Baseline | +0.022 | formation about distance to the shore, the correlation falling to r = +0.022 (Section 5.7.7). The clearfell produced a significant relative recove |
-| 5.7.1 Seasonal Asymmetry under Climate Projections | −0.111 | ies the annual signal (site-wide means of −0.059 m/month at 2050s and −0.111 m/month at 2080s). This summer-dominated signature reflects the same |
 | 5.7.4 Forest Scenario Predictions Against the Observed Record | +14.9 | he equilibrium volumetric scenario bars of Section 4.5.6 (clearfell ≈ +14.9 mm water-equivalent per month under summer forcing), which express a |
 | 5.7.4 Forest Scenario Predictions Against the Observed Record | 21 | rough the summer window, with the largest departure --- approximately 21 mm deeper --- occurring in August. The reduced annual-mean intercepti |
 | 5.7.5 Parametric Prediction and Observed Network Change | −13 | and −534 mm post-clearfell (2018--2025, excluding 2024): a change of −13 mm, Mann--Whitney p = 1.000. The Forest Controls are structurally dee |
@@ -37,18 +36,6 @@ Each is a result quoted in report9 that the sweep could not trace to a committed
 
 | Doc | Section | Value | Context |
 |---|---|---|---|
-| report8.md | 3.5.3 Dune Scraping Intervention Analysis | 8.9 | s the focal wells: CEH4 (paired control, installed May 2006) provides 8.9 years; CEH36 (central treatment well, installed January 2011) provide |
-| report8.md | 3.5.3 Dune Scraping Intervention Analysis | 4.2 | ears; CEH36 (central treatment well, installed January 2011) provides 4.2 years; CEH18 (installed September 2007) provides 7.6 years pre-2015; |
-| report8.md | 3.5.3 Dune Scraping Intervention Analysis | 7.6 | y 2011) provides 4.2 years; CEH18 (installed September 2007) provides 7.6 years pre-2015; and CEH21 (installed July 2010) provides 4.8 years pr |
-| report8.md | 3.5.3 Dune Scraping Intervention Analysis | 4.8 | provides 7.6 years pre-2015; and CEH21 (installed July 2010) provides 4.8 years pre-2015. CEH36\'s shorter pre-scraping baseline does not inval |
-| report8.md | 3.5.4 Clearfell BACI experiment | 8.4 | ing compartment centroid E=241210, N=363607, inside the cleared area; 8.4 years pre-felling record). - **Edge:** CEH31, CEH20, CEH30, CEH16 |
-| report8.md | 3.5.4 Clearfell BACI experiment | 7.4 | 1, CEH20, CEH30, CEH16 (152--229 m, adjacent to the felling boundary; 7.4--10.3 years pre-felling). - **Forest control:** CEH32, CEH34, CEH3 |
-| report8.md | 3.5.4 Clearfell BACI experiment | 10.3 | H20, CEH30, CEH16 (152--229 m, adjacent to the felling boundary; 7.4--10.3 years pre-felling). - **Forest control:** CEH32, CEH34, CEH33, NW1 |
-| report8.md | 3.5.4 Clearfell BACI experiment | 11.6 | interior, unaffected by felling, same canopy cover; 306--752 m; 7.3--11.6 years pre-felling). - **Coastal control:** CEH19, CEH17 (C5 Coasta |
-| report8.md | 3.5.4 Clearfell BACI experiment | 9.7 | stinct β₂ regime and non-overlapping elevation range --- Section 4.2; 9.7--10.3 years pre-felling). - **Climate control:** CEH9, NW7, NW6, N |
-| report8.md | 3.5.4 Clearfell BACI experiment | 10.3 | t β₂ regime and non-overlapping elevation range --- Section 4.2; 9.7--10.3 years pre-felling). - **Climate control:** CEH9, NW7, NW6, NW5, WM |
-| report8.md | 3.5.4 Clearfell BACI experiment | 8.8 | NW7, NW6, NW5, WMC2 (C3 Western Block, no forest canopy; 215--1010 m; 8.8--12.6 years pre-felling). Wells with insufficient pre-felling baseli |
-| report8.md | 3.5.4 Clearfell BACI experiment | 12.6 | NW6, NW5, WMC2 (C3 Western Block, no forest canopy; 215--1010 m; 8.8--12.6 years pre-felling). Wells with insufficient pre-felling baseline wer |
 
 ## Supplementary Material (2026-09-26e)
 
@@ -64,10 +51,6 @@ Each is a result quoted in report9 that the sweep could not trace to a committed
 
 | Doc | Section | Value | Context |
 |---|---|---|---|
-|  | Methodology | 0.9576 | On the live pipeline data the loaded multiplier is 1.0475 (Edge ratio 0.9576 minus Climate Ctrl ratio 0.9101, plus 1.0), with the 50 % thinning mu |
-|  | Methodology | 0.9101 | aded multiplier is 1.0475 (Edge ratio 0.9576 minus Climate Ctrl ratio 0.9101, plus 1.0), with the 50 % thinning multiplier defined as half the cle |
-|  | Site-specific choices and rationale | 0.9576 | 1.0475 in the current pipeline is the BACI-corrected Edge-tier ratio (0.9576) with the Climate Ctrl drift (0.9101) subtracted, giving a multiplier |
-|  | Site-specific choices and rationale | 0.9101 | BACI-corrected Edge-tier ratio (0.9576) with the Climate Ctrl drift (0.9101) subtracted, giving a multiplier of 1.0475. - **Forest interception |
 
 ## Paper 2 note (2026-09-26j)
 

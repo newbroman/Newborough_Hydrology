@@ -221,3 +221,10 @@ CoeffShift_Network_mean_b1_before,Network,Before,2.8344823529411762,m,mean b1_be
 CoeffShift_Network_mean_b1_after,Network,After,2.704794117647059,m,mean b1_after across n=17 BACI-network wells (excl. Far-field Ctrl)
 CoeffShift_Network_mean_db1,Network,Delta,-0.12969411764705882,m,"mean db1 across n=17 BACI-network wells (excl. Far-field Ctrl), n_decline=13"
 CoeffShift_Network_mean_db1_pct_of_before,Network,,-4.575583880862156,m,"ratio of network mean db1 to network mean b1_before, x100"
+B2_tier_ratio_after_over_before,Impact,,0.8620830775526908,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Edge,,0.957572914889988,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Forest Ctrl,,1.0466282276259713,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Coastal Ctrl,,0.8751611121340452,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Climate Ctrl,,0.9101019008426415,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_multiplier_clearfell,,,1.0474710140473464,,"Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Scripts 09d, 19, 21"
+B2_multiplier_thinning,,,1.023735507023673,,1 + (clearfell multiplier − 1)/2

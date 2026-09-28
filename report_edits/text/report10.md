@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=585a3d86b063998c pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=bb3d099f3a92cb44 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}**Discussion**
@@ -301,7 +301,7 @@ A well-level scenario framework (Section 3.8; Section 4.9) was applied to transl
 
 ### []{#anchor-25}**Seasonal Asymmetry under Climate Projections**
 
-The annual responses conceal a pronounced seasonal asymmetry that is ecologically critical (Section 4.13.1). Under both UKCP18 trajectories, winter Δh is positive at all clusters --- increased winter rainfall under RCP8.5 Wales outpaces the concurrent winter PET increase --- while summer Δh is strongly negative and carries the annual signal (site-wide means of −0.059 m/month at 2050s and −0.111 m/month at 2080s). This summer-dominated signature reflects the same mechanism established in the observed record (Section 4.8.1): hydrological deterioration under climate change operates through intensified summer atmospheric demand rather than declining winter recharge. Annual-mean Δh therefore understates the ecological consequence of summer-dominated climate forcing; the seasonal partition should be reported alongside any annual summary.
+The annual responses conceal a pronounced seasonal asymmetry that is ecologically critical (Section 4.13.1). Under both UKCP18 trajectories, winter Δh is positive at all clusters --- increased winter rainfall under RCP8.5 Wales outpaces the concurrent winter PET increase --- while summer Δh is strongly negative and carries the annual signal (site-wide means of −0.063 m/month at 2050s and −0.119 m/month at 2080s). This summer-dominated signature reflects the same mechanism established in the observed record (Section 4.8.1): hydrological deterioration under climate change operates through intensified summer atmospheric demand rather than declining winter recharge. Annual-mean Δh therefore understates the ecological consequence of summer-dominated climate forcing; the seasonal partition should be reported alongside any annual summary.
 
 ### []{#anchor-26}**Forest Management Scenarios and Structural Isolation** 
 

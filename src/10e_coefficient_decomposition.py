@@ -71,7 +71,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-28. T-91: emit Coastal Ctrl
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-28. T-91: 10e_report_numbers also carries the
+#   β₂ scenario multipliers (clearfell, thinning) and the per-tier b2_after/b2_before ratios they
+#   are built from (Edge, Climate Ctrl, …), which the Methods Supplement quotes.
+# 1.9.0  # Hollingham (2026) - 2026-09-28. T-91: emit Coastal Ctrl
 #   tier mean coefficient shifts (previously the only tier missing an aggregate
 #   row), plus network-wide (17-well BACI network, excl. Far-field Ctrl) mean
 #   b1_before/b1_after/db1 and per-tier/network mean-of-per-well %-change in b1,
@@ -445,6 +448,23 @@ def main():
                     well="Network",
                     note="ratio of network mean db1 to network mean "
                          "b1_before, x100")
+
+    # T-91: the β₂ scenario multiplier and the tier ratios it is built from
+    # (utils.clearfell_common.load_clearfell_b2_multiplier), which the Methods
+    # Supplement quotes (Edge ratio, Climate Ctrl drift, clearfell multiplier).
+    try:
+        from utils.clearfell_common import load_clearfell_b2_multiplier
+        _cf, _thin, _ratios = load_clearfell_b2_multiplier(verbose=False)
+        for _tier, _ratio in _ratios.items():
+            rpt.add("B2_tier_ratio_after_over_before", float(_ratio), "",
+                    well=_tier,
+                    note="tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv")
+        rpt.add("B2_multiplier_clearfell", float(_cf), "",
+                note="Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Scripts 09d, 19, 21")
+        rpt.add("B2_multiplier_thinning", float(_thin), "",
+                note="1 + (clearfell multiplier − 1)/2")
+    except Exception as e:
+        note(f"β₂ multiplier report numbers skipped: {e}")
 
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")

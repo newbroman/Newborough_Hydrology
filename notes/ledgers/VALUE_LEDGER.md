@@ -107,6 +107,9 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | ANCOVA_Forest_Impact_scraping_step |  |  | `10_consolidated_report_numbers.csv` | 0.315507 |  | Hollingham_2026_Paper2_amended | ok |
 | ANCOVA_Forest_Impact_summer_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.343602 |  | report9 | ok |
 | All uphill · baci_db3_pct |  |  | `09b_02_centroid_summaries.csv` | 0.1604 |  | Newborough_Methods_Supplement | ok |
+| B2_multiplier_clearfell | β₂ | atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `10_consolidated_report_numbers.csv` | 1.04747 |  | Newborough_Methods_Supplement | ok |
+| B2_tier_ratio_after_over_before · Climate Ctrl |  |  | `10_consolidated_report_numbers.csv` | 0.910102 |  | Newborough_Methods_Supplement | ok |
+| B2_tier_ratio_after_over_before · Edge |  |  | `10_consolidated_report_numbers.csv` | 0.957573 |  | Newborough_Methods_Supplement | ok |
 | BACI_min_detectable_step · CEH18 · CEH18 vs CEH4, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 80.2415 |  | Newborough_Methods_Supplement | ok |
 | BACI_min_detectable_step · CEH21 · CEH21 vs CEH22, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 110.415 |  | Newborough_Methods_Supplement | ok |
 | BACI_step_below_floor · CEH18 · CEH18 vs CEH4, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 1 |  | readme | ok |
@@ -601,8 +604,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | D41 · hd_sd |  |  | `30_c4_perwell_beta3.csv` | 0.353002 |  | Supplementary_Material | ok |
 | D5 · Model_R2 | R² | coefficient of determination | `07_coeff_maps_data.csv` | 0.742797 |  | report9 | ok |
 | D7 · hd_sd_full |  |  | `30_c4_perwell_beta3.csv` | 0.368626 |  | Supplementary_Material | ok |
-| DeltaAIC_lincap_vs_exp_c3_only |  |  | `25_report_numbers.csv` | -9.9 |  | Newborough_Methods_Supplement | ok |
-| DeltaAIC_lincap_vs_exp_full |  |  | `25_report_numbers.csv` | -5.1 |  | Newborough_Methods_Supplement | ok |
+| DeltaAIC_lincap_vs_exp_c3_only |  |  | `25_report_numbers.csv` | -9.85789 |  | Newborough_Methods_Supplement | ok |
+| DeltaAIC_lincap_vs_exp_full |  |  | `25_report_numbers.csv` | -5.07226 |  | Newborough_Methods_Supplement | ok |
 | ENVELOPE_METRIC_REF_MIN_WET |  |  | `config.py` | 2 |  | PIPELINE_README | ok |
 | EWI_annual · pearson_r |  |  | `26_ebf_prediction_summary.csv` | 0.791413 |  | report9 | ok |
 | EWI_spring · pearson_r |  |  | `26_ebf_prediction_summary.csv` | 0.554358 |  | report9 | ok |
@@ -651,6 +654,19 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | NW6 / Climate Ctrl / Climate · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.259 |  | Supplementary_Material | ok |
 | Net_benefit · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.144153 |  | Newborough_Methods_Supplement | ok |
 | Pearson / ward / 5 · ARI_vs_canonical |  |  | `31_method_robustness_ari.csv` | 1 |  | Newborough_Methods_Supplement | ok |
+| Pre_felling_baseline_years_max · CEH16 · Edge |  |  | `10_consolidated_report_numbers.csv` | 10.3381 |  | report8 | ok |
+| Pre_felling_baseline_years_max · CEH17 · Coastal control |  |  | `10_consolidated_report_numbers.csv` | 10.3381 |  | report8 | ok |
+| Pre_felling_baseline_years_max · CEH2 · Forest control |  |  | `10_consolidated_report_numbers.csv` | 11.5866 |  | report8 | ok |
+| Pre_felling_baseline_years_max · NW7 · Climate control |  |  | `10_consolidated_report_numbers.csv` | 12.6708 |  | report8 | ok |
+| Pre_felling_baseline_years_min · CEH19 · Coastal control |  |  | `10_consolidated_report_numbers.csv` | 9.67009 |  | report8 | ok |
+| Pre_felling_baseline_years_min · CEH31 · Edge |  |  | `10_consolidated_report_numbers.csv` | 7.41958 |  | report8 | ok |
+| Pre_felling_baseline_years_min · CEH34 · Forest control |  |  | `10_consolidated_report_numbers.csv` | 7.25257 |  | report8 | ok |
+| Pre_felling_baseline_years_min · WMC2 · Climate control |  |  | `10_consolidated_report_numbers.csv` | 8.74743 |  | report8 | ok |
+| Pre_felling_baseline_years_min · WMC3 · Impact |  |  | `10_consolidated_report_numbers.csv` | 8.41889 |  | report8 | ok |
+| Pre_scraping_baseline_years · CEH18 · pre_2015_scrape |  |  | `09_scrape_report_numbers.csv` | 7.66598 |  | report8 | ok |
+| Pre_scraping_baseline_years · CEH21 · pre_2015_scrape |  |  | `09_scrape_report_numbers.csv` | 4.83231 |  | report8 | ok |
+| Pre_scraping_baseline_years · CEH36 · pre_2015_scrape |  |  | `09_scrape_report_numbers.csv` | 4.24641 |  | report8 | ok |
+| Pre_scraping_baseline_years · CEH4 · pre_2015_scrape |  |  | `09_scrape_report_numbers.csv` | 8.91718 |  | report8 | ok |
 | RAF_VALLEY_LAT_DEG |  |  | `config.py` | 53.25 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, PIPELINE_README, report8 | ok |
 | ROLLING_WINDOW_STEP_MONTHS |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement | ok |
 | Rolling_b1_impact_post |  |  | `10_consolidated_report_numbers.csv` | 2.66948 |  | Newborough_Methods_Supplement, Paper1 | ok |
@@ -1134,6 +1150,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | trend_summer_balance_t |  |  | `00_report_numbers.csv` | -1.28168 |  | report9 | ok |
 | trend_winter_balance |  |  | `00_report_numbers.csv` | 3.73963 |  | report9 | ok |
 | trend_winter_rainfall_t |  |  | `00_report_numbers.csv` | 1.04804 |  | report9 | ok |
+| ukcp18_2050s / summer / SITE · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.0633 |  | report10 | ok |
+| ukcp18_2080s / summer / SITE · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.1194 |  | report10 | ok |
 | validation_cotemporal_vs_matched_r |  |  | `35_report_numbers.csv` | 0.965896 |  | Newborough_Methods_Supplement | ok |
 | water_balance_PET_mean_mm · C2 (Dune) |  |  | `16_report_numbers.csv` | 54.1525 |  | report9 | ok |
 | water_balance_PET_mean_mm_max |  |  | `16_report_numbers.csv` | 54.5468 |  | report9 | ok |

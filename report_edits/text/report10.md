@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=459fad5f15df85ad pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=ec83938430bf7a5a pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}**Discussion**
@@ -400,6 +400,8 @@ The era-split β coefficient shifts (Δβ₂, Δβ₃) at the Forest Control tie
 The summer minimum analysis (Section 4.6.4), the four-zone BACI corroboration (Section 4.6.7), and the BACI-corrected β₂ multiplier used in the scenario framework (Section 3.8.4) are derived from the full monthly record with the pre-specified BACI design and are unaffected by the MSL5 window issue. The Edge-tier β₂ increase is consistent across the ANCOVA, mixed-model and SSM residual analyses and is considered robust.
 
 **Priority measurements to reduce uncertainty**
+
+The driver scale-factor test of Section 4.12.1 is a bounded confirmation rather than a measurement of amplitude. Each driver field is detectable in the window where it acts, at a scale consistent with the modelled amplitude, but the intervals are wide, and the reasons are the ones that limit the test: the coastal signature is collinear with easting (r ≈ −0.48) and with the underlying clay-dip substrate gradient, the per-well residual scatter (of order ±150--200 mm) is of the same size as the driver amplitudes being tested, and only around fifteen of the wells entering the fit carry a modelled coastal amplitude large enough to constrain the regression at all. The coastal shape (δ₀, L_cg) is moreover fitted from this same network via the gradient analysis of Section 4.10.2, so the scale-factor test is in part self-confirming; the one genuinely independent check is an expanding-window trajectory of the implied coastal decline rate, which is itself too contaminated by the 2006--2012 drought signal to be conclusive. The regression detects the coastal field without resolving its amplitude; the background common-mode movement is the larger term in every window.
 
 Three field measurements would materially resolve the remaining uncertainties. First, continued monitoring through a dry spring sequence equivalent to 2013--2017 would test whether the MSL5 pattern under neutral climate conditions shows any management signal above the secular deepening trend. Second, slug tests at two or three representative C4 wells (CEH32, CEH34, CEH13) would provide hydraulic conductivity estimates independent of the SSM coefficient fits, allowing the post-felling β₃ decline to be evaluated against measured drainage properties. Third, a ground-penetrating radar survey of aquifer thickness, with coring, would replace the indirect β₁-proxy constraints with direct measurements of thickness and specific yield, and would establish whether a ridge boundary flux exists at all rather than assuming one.
 

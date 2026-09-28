@@ -117,7 +117,11 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.7.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+__version__ = "3.8.0"  # Hollingham (2026) - 2026-09-28. 37_residual_map.png draws the wells
+#   alone, filled by residual and shaped by cluster; the interpolated surface is gone because the
+#   residual has no spatial skill — no interpolator predicts a left-out well better than the network mean (tools/interp_loo.py, D-206) (nugget share 1.00;
+#   Martin, proofread). Display only.
+# 3.7.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number
 #   emits (no analysis change) - neg_control_c2_mean_residual_mm_full_record and
 #   neg_control_c2_n_full_record, written to 37_report_numbers.csv so the Methods
 #   Supplement S.20.5 sentence binds to a citation row.
@@ -179,7 +183,7 @@ from utils.config import CLUSTER_LABELS, CLUSTER_MARKERS
 from utils.config import DAYS_PER_MONTH
 from utils.clearfell_common import CLEARFELL_DATE
 from utils.map_utils import (
-    load_dem_hillshade, add_idw_surface, add_en_axes, add_kml_features,
+    load_dem_hillshade, add_en_axes, add_kml_features,
 )
 from utils.console_utils import banner, phase, step, info, note, warn, result, saved, done
 
@@ -1054,8 +1058,9 @@ def plot_scale_scatters(results: dict, dpi: int = 150) -> None:
 
 
 def plot_residual_map(frame: pd.DataFrame, window: str, dpi: int = 150) -> None:
-    """IDW residual map (model − observed) for the canonical window
-    (2005–2025 — largest, most complete well set)."""
+    """Residual map (model − observed) for the canonical window (2005–2025 —
+    largest, most complete well set). Wells alone, coloured by residual and shaped
+    by cluster: the residual has no spatial skill (3.8.0, D-206), so no surface."""
     df_map = frame.dropna(subset=["E", "N", "residual"]).copy()
     with plt.rc_context(MPL_RC):
         fig, ax = plt.subplots(figsize=(11, 9))
@@ -1063,20 +1068,15 @@ def plot_residual_map(frame: pd.DataFrame, window: str, dpi: int = 150) -> None:
         norm = TwoSlopeNorm(vcenter=0.0, vmin=-vmax, vmax=vmax)
 
         load_dem_hillshade(ax, paths.DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
-        add_idw_surface(ax, df_map, value_col="residual",
-                        easting_col="E", northing_col="N",
-                        cmap=plt.cm.RdBu, norm=norm,
-                        alpha=0.55, zorder=1.5, apply_site_mask=True)
         add_kml_features(ax, paths.DATA_DIR)
         add_en_axes(ax, osgb_label=False)
 
-        colours = config.get_cluster_colours()
-        for cid in sorted(frame["Cluster"].dropna().unique()):
-            sub = frame[frame["Cluster"] == cid]
-            col = colours.get(int(cid), "#444444")
+        for cid in sorted(df_map["Cluster"].dropna().unique()):
+            sub = df_map[df_map["Cluster"] == cid]
             mrk = CLUSTER_MARKERS.get(int(cid), "o")
-            ax.scatter(sub["E"], sub["N"], c=col, marker=mrk,
-                       edgecolor="k", lw=0.6, s=55, zorder=5,
+            ax.scatter(sub["E"], sub["N"], c=sub["residual"], cmap=plt.cm.RdBu, norm=norm,
+                       marker=mrk, edgecolor="k", lw=0.7, s=110, zorder=5)
+            ax.scatter([], [], marker=mrk, facecolor="white", edgecolor="k", lw=0.7, s=60,
                        label=CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"))
 
         sm_map = plt.cm.ScalarMappable(cmap=plt.cm.RdBu, norm=norm)

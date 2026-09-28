@@ -19,12 +19,16 @@ Pieces
   ridge_depths, boundary_arcs, lake_boundary, channel_level   the landward boundary parts
   kriging_weights                       kriging weights at targets (linear operator)
   recorded_system                       01b's mean-state system from its committed decisions (Script 19)
+  depth_surface                         a depth map: the kriged level minus the DEM (D-206)
 
-__version__ : 1.1.0
+__version__ : 1.2.0
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-27. kriging_weights() takes an optional external
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-28. depth_surface(): a depth map as the
+#   kriged level (01b's recorded system, anchor heads over the map's months) minus the DEM
+#   averaged onto the grid (D-206, spec NRG_spec_depth_maps_level_minus_dem). Additive.
+# 1.1.0  # Hollingham (2026) - 2026-09-27. kriging_weights() takes an optional external
 #   drift (the weights of ked()), and recorded_system() rebuilds 01b's mean-state system from its
 #   committed decisions, with season-dependent lake and ridge-well heads, for the Script 19 viewer.
 # 1.0.0 (2026-09-27): New: moved out of Script 49 (now 01b)
@@ -377,3 +381,56 @@ def recorded_system(seasons: dict) -> dict:
     return {"wells": wells, "anchor_xy": np.vstack(xy), "anchor_kind": np.array(kind),
             "anchor_head": {sn: np.concatenate(h) for sn, h in head.items()},
             "vgm": vgm, "drift": drift, "head_sea": head_sea, "drift_at": drift_at}
+
+
+def depth_surface(wells: pd.DataFrame, months, grid_m: float, xi=None, yi=None) -> dict:
+    """A depth map drawn the way the water table is (D-205, D-206): the wells' LEVEL (m OD)
+    kriged with Script 01b's recorded system — its drift, its mean-state variogram, the sea
+    at its fitted coastal head, and the river, the lake and the ridge well it kept — then
+    subtracted from the ground. The lake and ridge-well heads are taken over `months`, the
+    months the mapped statistic draws on.
+
+    wells: DataFrame with columns well, E, N, level (m OD). A ridge-well anchor is dropped
+    when that well is already among the data (a duplicate point makes the system singular).
+    The ground on the grid is the DEM averaged onto each grid cell; cells outside the site
+    mask (map_utils.make_site_mask, D-204), or with ground below mean high water, are NaN.
+
+    Returns {gx, gy, level, se, ground, depth (ground - level, m below ground, +ve down),
+    ground_at_wells (DEM cell at each well), n_anchors}."""
+    from rasterio.warp import reproject, Resampling          # noqa: PLC0415
+    from rasterio.transform import from_origin               # noqa: PLC0415
+    from utils.map_utils import make_site_mask               # noqa: PLC0415
+    sysd = recorded_system({"map": pd.DatetimeIndex(months)})
+    axy, ahead, akind = sysd["anchor_xy"], sysd["anchor_head"]["map"], sysd["anchor_kind"]
+    have = set(wells["well"].astype(str).str.lower())
+    keep = ~((akind == "ridge well") & (C.SLACK_FLOW_RIDGE_WELL in have))
+    axy, ahead = axy[keep], ahead[keep]
+    if sysd["drift"] != "o":
+        raise NotImplementedError("depth_surface: 01b selected a drift; only ordinary kriging is wired")
+    dxy = np.vstack([wells[["E", "N"]].to_numpy(float), axy])
+    dz = np.concatenate([wells["level"].to_numpy(float), ahead])
+
+    if xi is None:
+        xi = np.arange(C.SITE_MAP_EAST_MIN, C.SITE_MAP_EAST_MAX, grid_m) + grid_m / 2
+    if yi is None:
+        yi = np.arange(C.SITE_MAP_NORTH_MIN, C.SITE_MAP_NORTH_MAX, grid_m) + grid_m / 2
+    gx, gy = np.meshgrid(xi, yi)
+    inside = make_site_mask(gx, gy)
+    level = np.full(gx.shape, np.nan); se = np.full(gx.shape, np.nan)
+    t = np.column_stack([gx[inside], gy[inside]])
+    p, e = ked(dxy, dz, None, t, None, sysd["vgm"])
+    level[inside] = p; se[inside] = e
+
+    # DEM averaged onto the grid (rows run north to south in the raster; flip back after).
+    src, Z = load_dem()
+    dst = np.full((len(yi), len(xi)), np.nan)
+    reproject(Z, dst, src_transform=src.transform, src_crs=src.crs, src_nodata=src.nodata,
+              dst_transform=from_origin(xi[0] - grid_m / 2, yi[-1] + grid_m / 2, grid_m, grid_m),
+              dst_crs=src.crs, dst_nodata=np.nan, resampling=Resampling.average)
+    ground = dst[::-1]
+    # Cells below mean high water are the shore and the channel, not dune: no depth there.
+    ground = np.where(inside & (ground >= tidal_levels()["MHW"]), ground, np.nan)
+    return {"gx": gx, "gy": gy, "level": level, "se": se, "ground": ground,
+            "depth": ground - level,
+            "ground_at_wells": sample(src, Z, wells["E"], wells["N"]),
+            "n_anchors": int(len(axy))}

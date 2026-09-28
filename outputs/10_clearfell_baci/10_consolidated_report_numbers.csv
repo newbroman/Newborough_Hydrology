@@ -543,24 +543,39 @@ CoeffShift_CEH6_b3_before,CEH6,Before,0.0813,m,SE=0.0135,10e
 CoeffShift_CEH6_b3_after,CEH6,After,0.1226,m,SE=0.0095,10e
 CoeffShift_CEH6_db3,CEH6,Delta,0.0413,m,,10e
 CoeffShift_Impact_mean_db1,Impact,,-0.0467,m,n_wells=1,10e
+CoeffShift_Impact_mean_db1_p,Impact,,0.8855201182950264,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1",10e
 CoeffShift_Impact_mean_db2,Impact,,-0.2696,m,n_wells=1,10e
+CoeffShift_Impact_mean_db2_p,Impact,,0.5330792731993544,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1",10e
 CoeffShift_Impact_mean_db3,Impact,,0.002,m,n_wells=1,10e
+CoeffShift_Impact_mean_db3_p,Impact,,0.8933747938682013,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1",10e
 CoeffShift_Impact_mean_db1_pct_of_before,Impact,,-1.8229369974236864,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=1, n_decline=1",10e
 CoeffShift_Edge_mean_db1,Edge,,-0.2865999999999999,m,n_wells=4,10e
+CoeffShift_Edge_mean_db1_p,Edge,,0.0467379275783482,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4",10e
 CoeffShift_Edge_mean_db2,Edge,,-0.074625,m,n_wells=4,10e
+CoeffShift_Edge_mean_db2_p,Edge,,0.6931467657940948,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4",10e
 CoeffShift_Edge_mean_db3,Edge,,-0.0105999999999999,m,n_wells=4,10e
+CoeffShift_Edge_mean_db3_p,Edge,,0.1435793845233641,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4",10e
 CoeffShift_Edge_mean_db1_pct_of_before,Edge,,-10.908433167369934,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=4, n_decline=4",10e
 CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.0899399999999999,m,n_wells=5,10e
+CoeffShift_Forest Ctrl_mean_db1_p,Forest Ctrl,,0.5221780788925826,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5",10e
 CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.11162,m,n_wells=5,10e
+CoeffShift_Forest Ctrl_mean_db2_p,Forest Ctrl,,0.5619654117589782,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5",10e
 CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,-0.00728,m,n_wells=5,10e
+CoeffShift_Forest Ctrl_mean_db3_p,Forest Ctrl,,0.2922865043024202,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5",10e
 CoeffShift_Forest Ctrl_mean_db1_pct_of_before,Forest Ctrl,,-4.025769217149534,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3",10e
 CoeffShift_Coastal Ctrl_mean_db1,Coastal Ctrl,,-0.25705,m,n_wells=2,10e
+CoeffShift_Coastal Ctrl_mean_db1_p,Coastal Ctrl,,0.1236193488298065,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2",10e
 CoeffShift_Coastal Ctrl_mean_db2,Coastal Ctrl,,-0.13565,m,n_wells=2,10e
+CoeffShift_Coastal Ctrl_mean_db2_p,Coastal Ctrl,,0.5217419858552936,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2",10e
 CoeffShift_Coastal Ctrl_mean_db3,Coastal Ctrl,,-0.0096,m,n_wells=2,10e
+CoeffShift_Coastal Ctrl_mean_db3_p,Coastal Ctrl,,0.3195970100650857,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2",10e
 CoeffShift_Coastal Ctrl_mean_db1_pct_of_before,Coastal Ctrl,,-10.62316475130051,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=2, n_decline=2",10e
 CoeffShift_Climate Ctrl_mean_db1,Climate Ctrl,,-0.0095799999999999,m,n_wells=5,10e
+CoeffShift_Climate Ctrl_mean_db1_p,Climate Ctrl,,0.9487498817924614,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5",10e
 CoeffShift_Climate Ctrl_mean_db2,Climate Ctrl,,-0.18352,m,n_wells=5,10e
+CoeffShift_Climate Ctrl_mean_db2_p,Climate Ctrl,,0.3412717072137935,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5",10e
 CoeffShift_Climate Ctrl_mean_db3,Climate Ctrl,,-0.0012399999999999,m,n_wells=5,10e
+CoeffShift_Climate Ctrl_mean_db3_p,Climate Ctrl,,0.8287027159047674,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5",10e
 CoeffShift_Climate Ctrl_mean_db1_pct_of_before,Climate Ctrl,,-0.2821458555153181,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3",10e
 CoeffShift_Network_mean_b1_before,Network,Before,2.834482352941176,m,mean b1_before across n=17 BACI-network wells (excl. Far-field Ctrl),10e
 CoeffShift_Network_mean_b1_after,Network,After,2.704794117647059,m,mean b1_after across n=17 BACI-network wells (excl. Far-field Ctrl),10e

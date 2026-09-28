@@ -108,7 +108,23 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.53.0"  # Hollingham (2026) - 2026-09-28. T-91 Check 1, the rest of the
+__version__ = "1.56.0"  # Hollingham (2026) - 2026-09-28. Martin's review of the 1.55.0 figures:
+#   the MSL5-change map goes back to IDW + blur (it must cover the study area; a D-206 exception);
+#   the observed-change map is ordinarily kriged (_ok_surface); on both driver-change maps the scrape
+#   footprints are drawn as outlines, not fills, so the field shows through them (a 300 m well-reach
+#   mask was tried and withdrawn at Martin's review). Display only.
+# 1.55.0  # Hollingham (2026) - 2026-09-28. 20_residual_ssm.png draws the wells
+#   alone, coloured by the water-balance residual, over the head-gradient arrows; the interpolated
+#   residual surface is withdrawn because no interpolator predicts a left-out well better than the network mean (tools/interp_loo.py, D-206) (skill about 0.1;
+#   Martin, proofread). The arrows now fill the site mask where the kriged head exists. The MSL5-change
+#   (2017-2023) and observed-change maps draw the house piecewise-linear surface
+#   (map_utils.interpolate_surface) in place of inline IDW + Gaussian blur, so every per-well map
+#   uses one method (D-206; LOO skill on the MSL5 change 0.64 linear, 0.68 IDW). Display only.
+# 1.54.0  # Hollingham (2026) - 2026-09-28. Driver-change maps (both
+#   horizons): the feature legend moves from lower left, where it covered the coast and the
+#   south-western scrapes, to upper right, over the hillshade beyond the modelled field
+#   (Martin, proofread). Display only.
+# 1.53.0  # Hollingham (2026) - 2026-09-28. T-91 Check 1, the rest of the
 #   paragraph: every spring's gap and its width rank (1 = widest, most negative); each control
 #   group's MSL5-window gain over its own baseline (the two sides of the window excess); the
 #   interannual SD of the gap over the comparison span, the standard error of a window mean and
@@ -331,7 +347,7 @@ from utils.paths import (
     OUT_26_5YR_PER_WELL,
 )
 from utils.map_utils import (load_dem_hillshade, load_scrape_kml, add_en_axes,
-                             add_idw_surface, load_site_outline)
+                             load_site_outline)
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
                           SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M, DRAWDOWN_QUOTE_LEVELS_MM,
@@ -342,7 +358,8 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           COAST_RETREAT_M, COAST_RETREAT_RATE,
                           SCRAPE_RISE_BUFFER_M,
                           SLR_WINDOW_YEARS, SLR_RISE_M, SLR_SHORE_LEVEL_M,
-                          CEH36_E, CEH36_N)
+                          CEH36_E, CEH36_N,
+                          SLACK_FLOW_VGM_BINS, SLACK_FLOW_VGM_MAX_LAG_M)
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
 
@@ -1159,45 +1176,25 @@ def plot_residual_ssm(wt, features, dpi=300):
     ax.set_xlim(*XLIM); ax.set_ylim(*YLIM)
     ax.set_aspect("equal")
 
-    # ── Residual surface — map_utils.add_idw_surface (v1.35.1) ─────────────
-    # Was a local idw_surface() call on a rectangular sea-line mask, with
-    # zero-valued sea anchor points fed into the triangulation. Two problems:
-    # the surface ran up to ~1 km past the outermost dipwell over ground with
-    # no measurements, and the anchors imposed residual = 0 at the shoreline.
-    # A zero-datum shoreline is meaningful for a HEAD surface (the arrows below
-    # still use it) but there is no physical reason a water-balance residual
-    # should vanish at the coast, so the anchors are not used here.
-    #
-    # Now routed through map_utils per the pipeline's map discipline:
-    #   hull_buffer_m=100.0  — the pipeline-wide default set in map_utils
-    #                          v1.5.0 (2026-07-05) for a uniform map footprint;
-    #                          the surface reaches 100 m past the outer wells
-    #                          and no further.
-    #   apply_site_mask=True — the true KML site outline via make_site_mask(),
-    #                          replacing the crude rectangular sea-line clip.
-    #   ridge_mask_threshold=None — no DEM-height mask, preserving the
-    #                          deliberate choice recorded in report §4.9.7.
-    mesh, _, _, resid_surf = add_idw_surface(
-        ax, res_df, "residual_wb",
-        xi=GRID_XI, yi=GRID_YI, method="linear",
-        ridge_mask_threshold=None,
-        cmap="RdBu_r", alpha=0.52, zorder=2,
-        apply_site_mask=True, hull_buffer_m=100.0,
-    )
-    vmax_r = np.nanpercentile(np.abs(resid_surf), 95)
+    # ── Residual: wells alone (1.55.0) ──────────────────────────────────────
+    # The interpolated residual surface is withdrawn: no interpolator predicts a left-out well better than the network mean (tools/interp_loo.py, D-206)
+    # (skill about 0.1, nugget share 0.38). The wells carry the residual; the
+    # colour scale is set from them.
+    vmax_r = float(np.nanpercentile(np.abs(rval), 95)) if len(rval) else 0.0
     if not np.isfinite(vmax_r) or vmax_r <= 0:
         vmax_r = float(np.nanmax(np.abs(rval))) or 0.01
     norm_r = TwoSlopeNorm(vmin=-vmax_r, vcenter=0, vmax=vmax_r)
-    mesh.set_norm(norm_r)
+    mesh = plt.cm.ScalarMappable(norm=norm_r, cmap="RdBu_r")
+    mesh.set_array([])
     fig.colorbar(
         mesh, ax=ax, fraction=0.03, pad=0.02, shrink=0.85
     ).set_label("Water balance residual (m/month)\n"
                 "+ve = modelled losses exceed modelled recharge",
                 fontsize=9)
 
-    # Flow direction arrows (normalised, white). Confined to cells where the
-    # residual surface exists, so they follow the tightened footprint.
-    arrow_mask = mask & (mag > 0) & (mag < mag_thresh) & ~np.isnan(resid_surf)
+    # Flow direction arrows (normalised, white), inside the site mask where the
+    # kriged head exists (1.55.0: was the residual surface's footprint, now withdrawn).
+    arrow_mask = mask & (mag > 0) & (mag < mag_thresh) & np.isfinite(head_surf)
     with np.errstate(invalid="ignore"):
         U = np.where(arrow_mask, -dx / mag, np.nan)
         V = np.where(arrow_mask, -dy / mag, np.nan)
@@ -1210,7 +1207,7 @@ def plot_residual_ssm(wt, features, dpi=300):
     # Wells coloured by residual value
     ax.scatter(wt.loc[ref,"E"], wt.loc[ref,"N"],
                c=rval, cmap="RdBu_r", norm=norm_r,
-               s=55, edgecolors="black", lw=0.6, zorder=9, marker="o")
+               s=95, edgecolors="black", lw=0.7, zorder=9, marker="o")
 
     # Extended wells — grey diamonds
     ext = wt[wt["network"] == "Extended"]
@@ -2655,11 +2652,13 @@ def _scrape_field(gx, gy, epochs=None):
     return field, H0_ceh36, lam, geom_out
 
 
-def _overlay_scrape_rise(ax, geom, zbase=7):
+def _overlay_scrape_rise(ax, geom, zbase=7, filled=True):
     """Draw the scrape footprints as a RISE zone (blue), consistent with
     plot_scrape_drawdown: the slack rises, so it is shown as a rise zone
     (footprint + SCRAPE_RISE_BUFFER_M buffer) rather than as part of the
-    surrounding drawdown. Handles Polygon and MultiPolygon."""
+    surrounding drawdown. Handles Polygon and MultiPolygon. filled=False
+    (1.56.0, driver-change maps) draws the outlines only, so the modelled
+    field shows through the scraped areas."""
     if geom is None:
         return
     def _g(g):
@@ -2667,11 +2666,13 @@ def _overlay_scrape_rise(ax, geom, zbase=7):
     rise = geom.buffer(SCRAPE_RISE_BUFFER_M)
     for rz in _g(rise):
         rx, ry = rz.exterior.xy
-        ax.fill(rx, ry, facecolor="#4a90d9", alpha=0.40, zorder=zbase)
+        if filled:
+            ax.fill(rx, ry, facecolor="#4a90d9", alpha=0.40, zorder=zbase)
         ax.plot(rx, ry, color="#1a4e80", lw=0.9, ls=":", zorder=zbase)
     for sp in _g(geom):
         sx, sy = sp.exterior.xy
-        ax.fill(sx, sy, facecolor="#1a4e80", alpha=0.85, zorder=zbase + 1)
+        if filled:
+            ax.fill(sx, sy, facecolor="#1a4e80", alpha=0.85, zorder=zbase + 1)
         ax.plot(sx, sy, color="#0d2b4a", lw=1.4, zorder=zbase + 2)
 
 
@@ -3540,7 +3541,8 @@ def plot_msl5_change(wt, features, dpi=300):
     slow-τ wells is not removable by a common-mode subtraction anyway).
 
     Interpolation: IDW power = 2.0 with a light Gaussian blur (σ = 1 grid
-    cell = 50 m) applied within the site polygon.  Well markers use the
+    cell = 50 m) applied within the site polygon, so the surface covers the study
+    area (Martin kept this over the house linear surface, D-206 exception).  Well markers use the
     same discrete banded colourmap as the surface so colours are
     self-consistent.  Changes < ±25 mm not coloured (below MSL5
     measurement noise floor after five-year averaging).
@@ -3605,6 +3607,9 @@ def plot_msl5_change(wt, features, dpi=300):
     else:
         pmask = _site_mask(gx, gy)
 
+    # 1.56.0: kept as inverse-distance weighting with a light blur, NOT the house
+    # linear surface: the change map must cover the study area, and a linear surface
+    # stops 100 m past the outer wells (Martin, 2026-09-28; D-206 exception).
     gpts = np.column_stack([gx.ravel(), gy.ravel()])
     d2   = np.sqrt(((gpts[:,None,:] - pts[None,:,:])**2).sum(axis=2))
     d2   = np.maximum(d2, 1.0)
@@ -3813,7 +3818,8 @@ def plot_observed_change(wt, features, dpi=300):
     removing the spatially uniform climate signal and isolating the
     management and coastal component.
 
-    The result is IDW-interpolated onto the standard 50 m grid and clipped
+    The result is ordinarily kriged (utils.kriging, variogram fitted to these wells)
+    onto the standard 50 m grid and clipped
     to the site polygon.
 
     Interpretation note: net observed change integrating all drivers.
@@ -3873,14 +3879,7 @@ def plot_observed_change(wt, features, dpi=300):
     pts  = df[["E", "N"]].values
     vals = df["diff_mm"].values
 
-    # ── Interpolate — masked IDW with Gaussian smoothing ─────────────────
-    # True IDW (power=1.5) with a light Gaussian blur (σ=2 grid cells = 100 m)
-    # applied within the site polygon mask. This avoids the bullseye artefacts
-    # of Delaunay linear interpolation (griddata) while preserving the regional
-    # spatial signal. The Gaussian fill-and-blur approach: NaN cells outside
-    # the site are temporarily filled with the site mean before blurring, then
-    # re-masked, so the blur does not bleed values across the site boundary.
-    from scipy.ndimage import gaussian_filter
+    # ── Interpolate — the house surface (D-206) ──────────────────────────
     from shapely import contains_xy as _cxy
 
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)
@@ -3892,20 +3891,10 @@ def plot_observed_change(wt, features, dpi=300):
     else:
         pmask = _site_mask(gx, gy)
 
-    # Vectorised IDW
-    IDW_POWER = 1.5
-    GAUSS_SIGMA = 2        # grid cells (50 m each) → ~100 m smoothing radius
-    gpts = np.column_stack([gx.ravel(), gy.ravel()])
-    d2 = np.sqrt(((gpts[:, None, :] - pts[None, :, :])**2).sum(axis=2))
-    d2 = np.maximum(d2, 1.0)
-    w  = 1.0 / d2**IDW_POWER
-    surf_raw = ((w * vals[None, :]).sum(axis=1) / w.sum(axis=1)).reshape(gx.shape)
-
-    # Mask, fill boundary for blur, re-mask
-    surf_m   = np.where(pmask, surf_raw, np.nan)
-    fill_val = float(np.nanmean(surf_m))
-    surf_fill = np.where(pmask, surf_m, fill_val)
-    surf = np.where(pmask, gaussian_filter(surf_fill.astype(float), sigma=GAUSS_SIGMA), np.nan)
+    # 1.56.0: ordinary kriging (Martin, 2026-09-28: "observed change krig"), with a
+    # spherical variogram fitted to these wells' changes (utils.kriging; bins and lag
+    # as Script 01b), inside the site polygon. Replaces the inline IDW + blur.
+    surf = np.where(pmask, _ok_surface(pts, vals, gx, gy, pmask), np.nan)
 
     # Apply significance threshold: mask out sub-threshold changes so only
     # meaningful signals (|change| ≥ SIG_MM) are coloured; the near-neutral
@@ -4018,7 +4007,7 @@ def plot_observed_change(wt, features, dpi=300):
         f"reference wells n={len(ref_valid)}).  "
         f"Changes < ±{SIG_MM} mm not coloured (within dipwell measurement precision).\n"
         f"n = {len(df)} wells  ·  Spring Apr–May means  ·  min {MIN_OBS} readings per window  ·  "
-        f"IDW p=1.5 + Gaussian σ=2 (100 m) smoothing  ·  Cannot attribute change to individual drivers.",
+        f"Ordinary kriging  ·  Cannot attribute change to individual drivers.",
         ha="center", va="bottom", fontsize=7.5, color="#444", style="italic")
 
     render_figure(fig, OUT_20_OBSERVED_CHANGE)
@@ -4239,6 +4228,23 @@ def _load_clearfell_observed_mm():
         return 120.0
 
 
+def _ok_surface(pts, vals, gx, gy, mask):
+    """Ordinary kriging of per-well values onto the grid cells in `mask` (NaN elsewhere):
+    a spherical variogram fitted to the values' residuals (SLACK_FLOW_VGM_* bins and lag,
+    as Script 01b), predicted with utils.kriging.ked (no drift)."""
+    from utils.kriging import empirical_variogram, fit_spherical, ked, ols_residuals  # noqa: PLC0415
+    lag, gam, cnt = empirical_variogram(pts, ols_residuals(vals, None),
+                                        SLACK_FLOW_VGM_BINS, SLACK_FLOW_VGM_MAX_LAG_M)
+    vgm = fit_spherical(lag, gam, cnt, SLACK_FLOW_VGM_MAX_LAG_M)
+    if not vgm["ok"]:
+        print(f"  [WARNING] observed-change variogram fit did not converge ({vgm.get('why')}); "
+              "kriging with the unconverged fit")
+    out = np.full(gx.shape, np.nan)
+    p, _ = ked(pts, vals, None, np.column_stack([gx[mask], gy[mask]]), None, vgm)
+    out[mask] = p
+    return out
+
+
 def _driver_change_net(gx, gy, coast_years, clearfell_mm):
     """Build the 2005→2025 modelled driver-change net field (mm; +gain/−loss).
 
@@ -4437,7 +4443,7 @@ def _render_driver_change(wt, d, out_path, dpi, log_scale):
                      if d["bl_geom"].geom_type.startswith("Multi") else [d["bl_geom"]]):
             ax.plot(*poly.exterior.xy, color="#6b3fa0", lw=1.8, ls="-", zorder=6)
     if d["scr_geom"] is not None:
-        _overlay_scrape_rise(ax, d["scr_geom"], zbase=7)
+        _overlay_scrape_rise(ax, d["scr_geom"], zbase=7, filled=False)
 
     add_en_axes(ax)
     yrs = d["coast_years"]
@@ -4463,10 +4469,10 @@ def _render_driver_change(wt, d, out_path, dpi, log_scale):
                        lw=1.8, ls="-.", label="Clearfell zone (gain, canopy removed)"),
         mpatches.Patch(facecolor="none", edgecolor="#6b3fa0",
                        lw=1.8, ls="-", label="Broadleaf restock (loss, canopy added)"),
-        mpatches.Patch(facecolor="#4a90d9", alpha=0.6, edgecolor="#0d2b4a",
-                       lw=1.2, label="Scrape rise zone (level rose)"),
+        mpatches.Patch(facecolor="none", edgecolor="#0d2b4a",
+                       lw=1.2, label="Scrape footprint (level rose)"),
     ]
-    ax.legend(handles=legend_items, loc="lower left",
+    ax.legend(handles=legend_items, loc="upper right",
               fontsize=8, framealpha=0.85, edgecolor="#999")
 
     # Provenance / caveat box (top-left, over hillshade — not over the IDW field).

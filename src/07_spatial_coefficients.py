@@ -43,7 +43,14 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-09-28. T-91: emits C4
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-09-28. Wells-only R² map: markers larger (s 110 ->
+#   200) and the hillshade faded to alpha 0.45 (Martin: "the markers aren't clear"). Display only.
+# 1.5.0  # Hollingham (2026) — 2026-09-28. The R² map (07_coeff_04) draws the wells
+#   alone, filled by R² and shaped by cluster, with no surface or contours: R² has no spatial
+#   skill — no interpolator predicts a left-out well better than the network mean
+#   (tools/interp_loo.py, D-206; Martin, proofread). The three β maps keep the linear surface
+#   (skill 0.69–0.80). Display only.
+# 1.4.1  # Hollingham (2026) — 2026-09-28. T-91: emits C4
 #   β₂-β₃ per-well correlation (all C4 wells, and with CEH14 removed) and the
 #   highest positive C4 β₃ excluding CEH14, so report9 §4.2.2/§4.9.2 numbers
 #   have a committed source. No existing output changes.
@@ -210,6 +217,7 @@ def make_coefficient_map(
     log_scale=False,
     contour_levels=None,
     contour_fmt="%.2f",
+    surface=True,
 ):
     """
     Render one IDW-interpolated coefficient surface over DEM hillshade
@@ -224,8 +232,8 @@ def make_coefficient_map(
 
     # Layer 1 — DEM hillshade
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
-        ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1,
-    )
+        ax, DATA_DIR, alpha=1.0 if surface else 0.45, vert_exag=3.0, zorder=1,
+    )   # 1.5.1: the hillshade fades behind a wells-only map so the markers read
     if not ok:
         warn("DEM hillshade unavailable — map will lack terrain context.")
 
@@ -249,24 +257,30 @@ def make_coefficient_map(
     # Layer 2 — IDW surface with ridge masking
     # BW mode: disable ridge mask for cleaner contour visibility
     _ridge_thresh = None if BW_MODE else 1.0
-    mesh, gx, gy, surf = add_idw_surface(
-        ax, plot_df,
-        value_col=value_col,
-        easting_col="E",
-        northing_col="N",
-        dem_col="dem",
-        xi=GRID_XI,
-        yi=GRID_YI,
-        method="linear",
-        ridge_mask_threshold=_ridge_thresh,
-        dem_e_arr=dem_e_arr,
-        dem_n_arr=dem_n_arr,
-        dem_data=dem_data,
-        cmap=cmap,
-        norm=norm,
-        alpha=0.65,
-        zorder=2,
-    )
+    if not surface:
+        # 1.5.0: wells alone — no interpolator predicts a left-out well better than the network mean (tools/interp_loo.py, D-206).
+        mesh = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+        mesh.set_array([])
+        contour_levels = None
+    else:
+        mesh, gx, gy, surf = add_idw_surface(
+            ax, plot_df,
+            value_col=value_col,
+            easting_col="E",
+            northing_col="N",
+            dem_col="dem",
+            xi=GRID_XI,
+            yi=GRID_YI,
+            method="linear",
+            ridge_mask_threshold=_ridge_thresh,
+            dem_e_arr=dem_e_arr,
+            dem_n_arr=dem_n_arr,
+            dem_data=dem_data,
+            cmap=cmap,
+            norm=norm,
+            alpha=0.65,
+            zorder=2,
+        )
     if BW_MODE:
         ax.annotate(
             "Note: interpolation extends across dune ridges;\n"
@@ -306,16 +320,23 @@ def make_coefficient_map(
         cid = int(row["Cluster_ID"]) if pd.notna(row.get("Cluster_ID")) else 1
         col = CLUSTER_COLOURS.get(cid, "grey")
         marker = CLUSTER_MARKERS.get(cid, "o")
-        ax.scatter(
-            row["E"], row["N"],
-            c=col, s=30, marker=marker,
-            edgecolors="black", linewidths=0.5, zorder=9,
-        )
+        if surface:
+            ax.scatter(
+                row["E"], row["N"],
+                c=col, s=30, marker=marker,
+                edgecolors="black", linewidths=0.5, zorder=9,
+            )
+        else:   # wells alone: fill carries the value, shape carries the cluster
+            ax.scatter(
+                row["E"], row["N"],
+                c=[row[value_col]], cmap=cmap, norm=norm, s=200, marker=marker,
+                edgecolors="black", linewidths=0.8, zorder=9,
+            )
         if cid not in cluster_handles:
             cluster_handles[cid] = Line2D(
                 [0], [0], marker=marker, color="w",
                 label=CLUSTER_LABELS.get(cid, f"C{cid}"),
-                markerfacecolor=col, markeredgecolor="black",
+                markerfacecolor=col if surface else "white", markeredgecolor="black",
                 markersize=10, linestyle="None",
             )
 
@@ -609,6 +630,7 @@ if __name__ == "__main__":
             vmax=0.90,
             contour_levels=np.arange(0.50, 0.90, 0.10),
             contour_fmt="%.2f",
+            surface=False,   # 1.5.0: R² has no spatial skill (D-206)
         )),
     ]
     for _label, _build in track(map_builders, lambda b: b[0], lines=True):

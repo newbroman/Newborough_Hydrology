@@ -27,7 +27,7 @@
 | 4 | 4.1.1 | Climate record summary for the well-monitoring period (April 2005 – Fe | `outputs/00_climate_summary/00_01_climate_timeseries_short.png` | yes |
 | 5 | 4.1.1 | Summer maximum temperature anomaly at RAF Valley, 1931–2025, expressed | `outputs/00_climate_summary/00_03_summer_warming_trend.png` | yes |
 | 6 | 4.1.2 | Well network characterization for the 66-well reference network. Upper | `outputs/00_climate_summary/00_02_well_network_summary_short.png` | yes |
-| 7 | 4.2 | Cluster validation plots: silhouette coefficient, Calinski–Harabasz in | `outputs/02_clustering/02_02_validation_plots.png` | yes |
+| 7 | 4.2 | Cluster validation plots for k = 2–10: Ward&apos;s merge distance (elb | `outputs/02_clustering/02_02_validation_plots.png` | yes |
 | 8 | 4.2 | Clustering results: Ward&apos;s hierarchical clustering dendrogram for | `outputs/02_clustering/02_01_dendrogram.png` | yes |
 | 9 | 4.2.1 | Cluster-mean relative water level hydrographs for the five hydrogeolog | `outputs/02_clustering/02_03_cluster_hydrographs_wb.png` | yes |
 | 10 | 4.2.1 | Per-well relative water level for the 66 reference wells, shown as one | `outputs/02_clustering/02_03b_cluster_spaghetti.png` | yes |
@@ -111,4 +111,4 @@
 | 83 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 84 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-09-27 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-09-28 by `tools/build_figure_ledger.py` v2.3.0.*

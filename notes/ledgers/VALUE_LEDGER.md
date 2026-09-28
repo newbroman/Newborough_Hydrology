@@ -58,6 +58,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | 2017 / 2021 / modern_common_frontage · rate_m_yr |  |  | `40_01_epoch_series.csv` | 2.37119 |  | report8 | ok |
 | 2018_2025 / primary · c |  |  | `37_scale_factors_by_window.csv` | 269 |  | Newborough_Methods_Supplement, report9 | ok |
 | 2018_2025 / primary · c_ci_hi |  |  | `37_scale_factors_by_window.csv` | 315.4 |  | report9 | ok |
+| 2018_2025 / primary · c_ci_lo |  |  | `37_scale_factors_by_window.csv` | 222.5 |  | report9 | ok |
 | 2018_2025 / primary · n |  |  | `37_scale_factors_by_window.csv` | 40 |  | report9 | ok |
 | 2018_2025 / primary · s_cf_ci_lo |  |  | `37_scale_factors_by_window.csv` | 0.6681 |  | Newborough_Methods_Supplement, report9 | ok |
 | 2018_2025 / primary · s_coast | δ(d) | coastal-gradient decline rate at distance d (def. report8 §3.6) | `37_scale_factors_by_window.csv` | 1.0812 |  | Newborough_Methods_Supplement | ok |
@@ -186,7 +187,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C2 (Dune) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | report9 | ok |
 | C2 (Dune) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.197923 |  | Newborough_Methods_Supplement | ok |
 | C2 (Dune) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.255267 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, report9 | ok |
-| C2 (Dune) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.333681 |  | Newborough_Methods_Supplement | ok |
+| C2 (Dune) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.333681 |  | Newborough_Methods_Supplement, report9 | ok |
 | C2 (Dune) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.140216 |  | Newborough_Methods_Supplement, report9 | ok |
 | C2 (Dune) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.272808 |  | Newborough_Methods_Supplement | ok |
 | C2 (Dune) / comparison_window · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 24.2417 |  | report9 | ok |
@@ -307,6 +308,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C4 (Main Forest) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.859562 |  | Newborough_Methods_Supplement | ok |
 | C4 (Main Forest) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.306052 |  | Newborough_Methods_Supplement, report9 | ok |
 | C4 (Main Forest) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.314928 |  | Paper1, wtf_interception_methodology | ok |
+| C4 (Main Forest) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.34181 |  | report9 | ok |
+| C4 (Main Forest) / False · Sy_rapid_CI_lo | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.251792 |  | report9 | ok |
 | C4 (Main Forest) / False · Sy_rapid_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.305884 |  | Newborough_Methods_Supplement, report9 | ok |
 | C4 (Main Forest) / comparison_window · R2 | R² | coefficient of determination | `03_14_centroid_window_sensitivity.csv` | 0.766288 |  | Newborough_Methods_Supplement | ok |
 | C4 (Main Forest) / full_record · LCSC_percent |  |  | `03_14_centroid_window_sensitivity.csv` | 40.3915 |  | Newborough_Methods_Supplement, Paper1 | ok |
@@ -731,7 +734,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | abs_climate_trend_cluster_mean · C2 (Dune) · 2005-2025 |  |  | `36_report_numbers.csv` | 0.242492 |  | report10, report9 | ok |
 | abs_climate_trend_cluster_mean · C3 (Western Residual) · 2005-2025 |  |  | `36_report_numbers.csv` | -6.92476 |  | report10, report9 | ok |
 | abs_climate_trend_cluster_mean · C4 (Main Forest) · 2005-2025 |  |  | `36_report_numbers.csv` | -0.580444 |  | report10, report9 | ok |
-| abs_climate_trend_cluster_mean · C5 (Coastal Forest) · 2005-2025 |  |  | `36_report_numbers.csv` | -16.6964 |  | report10, report8, report9 | ok |
+| abs_climate_trend_cluster_mean · C5 (Coastal Forest) · 2005-2025 |  |  | `36_report_numbers.csv` | -16.6964 |  | report10, report9 | ok |
 | abs_climate_trend_well · ceh3 · 2005-2025 |  |  | `36_report_numbers.csv` | -26.8856 |  | report9 | ok |
 | abs_climate_trend_well · ceh4 · 2005-2025 |  |  | `36_report_numbers.csv` | -20.934 |  | report9 | ok |
 | abs_climate_trend_well · nw9 · 2005-2025 |  |  | `36_report_numbers.csv` | -26.9615 |  | report9 | ok |
@@ -907,9 +910,9 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | cluster_others_ground_elev_max_m · C4 (Main Forest) |  |  | `02_report_numbers.csv` | 14.42 |  | Newborough_Methods_Supplement | ok |
 | cluster_others_ground_elev_min_m · C1 (Lake Edge) |  |  | `02_report_numbers.csv` | 8.461 |  | report9 | ok |
 | cluster_stability_median · C4 (Main Forest) · k=5 |  |  | `02_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, PAPER1_SI_methods, report8, report9 | ok |
-| coastal_retreat_rate |  |  | `20_report_numbers.csv` | 2.32071 |  | Newborough_Methods_Supplement, Paper1, report8, report9 | ok |
+| coastal_retreat_rate |  |  | `20_report_numbers.csv` | 2.32071 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
 | coastal_spec_range_delta0_max | δ₀ | coast-edge decline rate at zero distance (def. report8 §3.6) | `25_report_numbers.csv` | -28.5535 |  | Newborough_Methods_Supplement | ok |
-| cumbal_wl_r2 | R² | coefficient of determination | `00_report_numbers.csv` | 0.528319 |  | report8, report9 | ok |
+| cumbal_wl_r2 | R² | coefficient of determination | `00_report_numbers.csv` | 0.528319 |  | report9 | ok |
 | curreli_min_quadrat_wells_first_window_min_m_bg |  |  | `26_report_numbers.csv` | -1.31167 |  | report9 | ok |
 | d10 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10 | ok |
 | d15 · obs_years |  |  | `28_c3_detrend.csv` | 15.9233 |  | report10 | ok |

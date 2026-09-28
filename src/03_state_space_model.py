@@ -86,7 +86,13 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): the empirical-LCSC frame (df_emp) is
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-28. T-91: export_regional_averages_maod()
+#   emits C{n}_mean_elevation_aod to 03_report_numbers.csv — each cluster's mean
+#   water-table elevation (mean of member wells' own full-record mean AOD), the
+#   report9 §4.2.1 per-cluster m-AOD figures. Current cluster membership; the
+#   text's 7.50 m AOD for C2 traces to the PRE-D-196 partition (see T-91 handover)
+#   — flagged, not corrected here. No existing output changes.
+# 1.19.0  Hollingham (2026) — 2026-09-25. D-195 (a monthly change is one calendar month): the empirical-LCSC frame (df_emp) is
 #   differenced on the joined monthly calendar before incomplete months drop; it had
 #   dropna()'d first and so diffed across missing months. The SSM fits themselves change
 #   through model_utils 1.7.0 and Script 01 1.23.0.
@@ -2462,6 +2468,36 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
     if not cluster_maod_ts:
         warn("No maOD cluster averages computed — check well-name matching.")
         return
+
+    # T-91: report9 §4.2.1 cites each cluster's MEAN water-table ELEVATION as a
+    # single full-record scalar — the mean, over cluster members, of each
+    # well's OWN full-record mean AOD. This is a different quantity from
+    # cluster_maod_ts above, which averages ACROSS wells per month (a monthly
+    # centroid timeseries); the two are not interchangeable when membership
+    # sizes or per-well record lengths differ. Computed from maod_df already
+    # loaded above — no re-read of a file this function wrote.
+    from utils.paths import OUT_03_REPORT_NUMBERS
+    from utils.report_numbers_utils import ReportNumbers
+    cluster_mean_elev = {}
+    for cid in sorted(pd.to_numeric(cluster_df["Cluster"],
+                                     errors="coerce").dropna().astype(int).unique()):
+        c_wells = cluster_df[
+            pd.to_numeric(cluster_df["Cluster"], errors="coerce") == cid
+        ]["Match_ID"].astype(str).values
+        avail = [normalize_well_name(w) for w in c_wells
+                 if normalize_well_name(w) in maod_df.columns]
+        if avail:
+            cluster_mean_elev[cid] = float(maod_df[avail].mean().mean())
+    if cluster_mean_elev:
+        rpt = ReportNumbers()
+        for cid, val in cluster_mean_elev.items():
+            label = CLUSTER_LABELS.get(cid, f"C{cid}")
+            rpt.add(f"C{cid}_mean_elevation_aod", val, unit="m AOD", well=label,
+                    note=f"mean water-table elevation, {label}, full record — "
+                         f"mean of each member well's own full-record mean AOD "
+                         f"(current cluster membership, 66-well reference network)")
+        n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
+        saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
     df_maod = pd.DataFrame(cluster_maod_ts)
     df_maod.index.name = "Date"

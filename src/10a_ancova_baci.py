@@ -33,7 +33,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-28. T-91: adds
+#   Pre_felling_baseline_years (+ per-tier min/max) rows to
+#   10a_report_numbers.csv -- pre-felling monitoring-record length for
+#   every Impact/Edge/Forest-control/Coastal-control/Climate-control well,
+#   for report8 Section 3.5.4. Uses wells_observed (pre-CEH34-hindcast).
+#   No existing value moves; emit-only change.
+# v1.16.0  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
 #   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
 # v1.15.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
@@ -354,6 +360,12 @@ def main():
 
     phase(1, "Loading data")
     wells, _wells_prov, climate, master, well_locations, valid_tiers = load_clearfell_data()
+    # T-91: kept pre-hindcast for Pre_felling_baseline_years -- the CEH34
+    # hindcast splices in synthetic donor-regression values before
+    # 2010-08-01 (a single-well sensitivity tool per its own docstring,
+    # not observational data), which would overstate CEH34's actual
+    # monitoring record.
+    wells_observed = wells
     wells = apply_ceh34_hindcast(wells)
     print_network_summary(valid_tiers)
 
@@ -2262,6 +2274,55 @@ def main():
         rpt.add(f"{_pfx}_late_step", _e['late'] / 1000.0,
                 well=_cn, era=_e['lbl_late'],
                 note=f"{_e['late']:+.1f} mm (late era)")
+
+    # Pre-felling baseline record length (T-91), for report8 Section 3.5.4.
+    # "Pre-felling record" is defined the way the felling indicator itself
+    # splits the record: D_fell marks a month post-felling once its date is
+    # >= CLEARFELL_DATE, so the pre-felling span for a well is its own
+    # observed record from its first valid monitoring month to its last
+    # valid month before CLEARFELL_DATE (read off the data directly, not
+    # assumed to be exactly one calendar month before -- a well with a gap
+    # right before the felling would have an earlier last pre-felling
+    # month). Uses wells_observed (pre-hindcast) so CEH34's donor-based
+    # pre-2010-08 values do not inflate its apparent record length.
+    _baseline_tiers = {
+        'Impact':          IMPACT_WELLS,
+        'Edge':            EDGE_WELLS,
+        'Forest control':  FOREST_CONTROL_WELLS,
+        'Coastal control': COASTAL_CONTROL_WELLS,
+        'Climate control': CLIMATE_CONTROL_WELLS,
+    }
+    for _tier_label, _tier_wells in _baseline_tiers.items():
+        _tier_years = {}
+        for _bw in _tier_wells:
+            if _bw not in wells_observed.columns:
+                continue
+            _bw_series = wells_observed[_bw].dropna()
+            if _bw_series.empty:
+                continue
+            _first_valid = _bw_series.index.min()
+            _pre_fell = _bw_series[_bw_series.index < CLEARFELL_DATE]
+            if _pre_fell.empty:
+                continue
+            _last_pre_fell = _pre_fell.index.max()
+            _years = (_last_pre_fell - _first_valid).days / 365.25
+            _tier_years[_bw] = _years
+            rpt.add("Pre_felling_baseline_years", _years, unit="years",
+                    well=_bw.upper(), era=_tier_label,
+                    note=f"first valid monitoring month "
+                         f"({_first_valid:%Y-%m}) to last valid month before "
+                         f"CLEARFELL_DATE ({_last_pre_fell:%Y-%m})")
+        if _tier_years:
+            _min_well = min(_tier_years, key=_tier_years.get)
+            _max_well = max(_tier_years, key=_tier_years.get)
+            rpt.add("Pre_felling_baseline_years_min", _tier_years[_min_well],
+                    unit="years", well=_min_well.upper(), era=_tier_label,
+                    note=f"minimum across the {_tier_label} tier "
+                         f"({', '.join(w.upper() for w in _tier_years)})")
+            rpt.add("Pre_felling_baseline_years_max", _tier_years[_max_well],
+                    unit="years", well=_max_well.upper(), era=_tier_label,
+                    note=f"maximum across the {_tier_label} tier "
+                         f"({', '.join(w.upper() for w in _tier_years)})")
 
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")

@@ -1,0 +1,11 @@
+Parameter,Well,Era,Value,Unit,Note
+ar1_phi_network_mean,,,-0.14167890228753963,-,mean Model B AR(1) coefficient across the 63 wells with a valid fit (22_model_b_fits.csv)
+ar1_phi_network_median,,,-0.1525599010500319,-,median Model B AR(1) coefficient across the 63 wells with a valid fit (22_model_b_fits.csv)
+ar1_phi_network_n,,,63.0,wells,wells with a valid Model B AR(1) fit (22_model_b_fits.csv)
+alpha_phi_pearson_r,,,-0.13368731255537725,-,"Pearson r, Model B intercept alpha vs AR(1) phi, n=63 (matches plot_alpha_phi_scatter annotation)"
+ssm_resid_dw_median,,,2.2752490242505736,-,"median Durbin-Watson, Model A (headline) residuals, reference network (22_05_ssm_residual_autocorrelation.csv)"
+ssm_resid_dw_q1,,,2.169786487709586,-,"Durbin-Watson 25th percentile (IQR lower bound), reference network"
+ssm_resid_dw_q3,,,2.395907831708218,-,"Durbin-Watson 75th percentile (IQR upper bound), reference network"
+ssm_resid_phi_median,,,-0.14371509141895483,-,"median lag-1 AR(1) phi, Model A residuals, reference network"
+ssm_resid_phi_mean,,,-0.1424017662240681,-,"mean lag-1 AR(1) phi, Model A residuals, reference network (22_05_ssm_residual_autocorrelation.csv)"
+ssm_resid_n_wells,,,62.0,wells,reference-network wells with a valid Model A residual-inference fit

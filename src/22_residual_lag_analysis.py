@@ -53,7 +53,12 @@ Well exclusions (EXCLUDED_WELLS_NORM):
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-10
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-28. T-91: emits network AR(1)/DW
+#   residual-inference statistics (mean/median phi, DW median+IQR, alpha-vs-phi
+#   Pearson r) to OUT_22_REPORT_NUMBERS so the Methods Supplement's residual-
+#   diagnostics numbers can bind to a committed CSV.
+#
+# 1.4.0  # Hollingham (2026) — 2026-08-10
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -75,8 +80,9 @@ from utils.paths import (
     OUT_22_AR1_HIST, OUT_22_AR1_MAP, OUT_22_ALPHA_PHI_SCATTER,
     OUT_22_EXAMPLE_SERIES,
     INT_WELLS_REFERENCE, INT_22_SSM_RESID_INFERENCE,
-    INT_22_SSM_CLUSTER_INFERENCE,
+    INT_22_SSM_CLUSTER_INFERENCE, OUT_22_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.data_utils import normalize_well_name
 from utils.map_utils import add_kml_features, add_en_axes
 from utils.config import (CLUSTER_LABELS, CLUSTER_COLOURS, HEADLINE_LAG,
@@ -401,6 +407,7 @@ def ssm_residual_inference(climate, cluster_lookup):
         "dw_median":       float(dw.median()),
         "dw_iqr":          (float(dw.quantile(.25)), float(dw.quantile(.75))),
         "phi_median":      float(phi.median()),
+        "phi_mean":        float(phi.mean()),  # T-91
         "ljungbox_reject": int((df["ljungbox12_p"] < 0.05).sum()),
         "sig_flips":       int(df["sig_flips_hac"].sum()),
         "n_coeff_tests":   3 * len(df),
@@ -592,10 +599,48 @@ def main():
     print(fits_df.groupby('Cluster')['ar1_phi'].mean().round(3).to_string())
     print("=" * 62)
 
+    # T-91: alpha-vs-phi Pearson r, computed exactly as plot_alpha_phi_scatter
+    # annotates it, so the report/Supplement figure can cite this row.
+    _valid_ap = fits_df.dropna(subset=['alpha', 'ar1_phi'])
+    _r_alpha_phi = (float(_valid_ap[['alpha', 'ar1_phi']].corr().iloc[0, 1])
+                    if len(_valid_ap) > 3 else np.nan)
+
     # Headline Model A residual-inference diagnostic (reference network) —
     # committed HAC-robustness artefact for the SI reproducibility statement.
-    ssm_residual_inference(climate, cluster_lookup)
+    _resid_summary = ssm_residual_inference(climate, cluster_lookup)
     cluster_mean_residual_inference(wells, climate, cluster_df)
+
+    # T-91: report-numbers emit — network AR(1)/DW residual-inference
+    # statistics quoted in the Methods Supplement (S.16), so each figure
+    # can bind to a committed CSV instead of a re-derived literal.
+    _rpt = ReportNumbers()
+    _rpt.add("ar1_phi_network_mean", float(ar1.mean()), unit="-",
+             note=f"mean Model B AR(1) coefficient across the {len(ar1)} wells "
+                  "with a valid fit (22_model_b_fits.csv)")
+    _rpt.add("ar1_phi_network_median", float(ar1.median()), unit="-",
+             note=f"median Model B AR(1) coefficient across the {len(ar1)} wells "
+                  "with a valid fit (22_model_b_fits.csv)")
+    _rpt.add("ar1_phi_network_n", int(len(ar1)), unit="wells",
+             note="wells with a valid Model B AR(1) fit (22_model_b_fits.csv)")
+    _rpt.add("alpha_phi_pearson_r", _r_alpha_phi, unit="-",
+             note=f"Pearson r, Model B intercept alpha vs AR(1) phi, n={len(_valid_ap)} "
+                  "(matches plot_alpha_phi_scatter annotation)")
+    _rpt.add("ssm_resid_dw_median", _resid_summary["dw_median"], unit="-",
+             note="median Durbin-Watson, Model A (headline) residuals, reference "
+                  "network (22_05_ssm_residual_autocorrelation.csv)")
+    _rpt.add("ssm_resid_dw_q1", _resid_summary["dw_iqr"][0], unit="-",
+             note="Durbin-Watson 25th percentile (IQR lower bound), reference network")
+    _rpt.add("ssm_resid_dw_q3", _resid_summary["dw_iqr"][1], unit="-",
+             note="Durbin-Watson 75th percentile (IQR upper bound), reference network")
+    _rpt.add("ssm_resid_phi_median", _resid_summary["phi_median"], unit="-",
+             note="median lag-1 AR(1) phi, Model A residuals, reference network")
+    _rpt.add("ssm_resid_phi_mean", _resid_summary["phi_mean"], unit="-",
+             note="mean lag-1 AR(1) phi, Model A residuals, reference network "
+                  "(22_05_ssm_residual_autocorrelation.csv)")
+    _rpt.add("ssm_resid_n_wells", _resid_summary["n_wells"], unit="wells",
+             note="reference-network wells with a valid Model A residual-inference fit")
+    _n_saved = _rpt.save(OUT_22_REPORT_NUMBERS)
+    saved(f"{OUT_22_REPORT_NUMBERS.name} ({_n_saved} report numbers)")
 
     # Plots
     plot_ar1_hist(fits_df, OUT_22_AR1_HIST)

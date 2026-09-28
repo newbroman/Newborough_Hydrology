@@ -11,8 +11,12 @@ curreli_min_quadrat_wells_first_window_n,4
 curreli_min_window_years,4
 diag_min_springs,12
 diag_n_wells,65
+ewi_msl5_forest_holdout_mean_bias_mm,87.93894531331891
+ewi_msl5_forest_holdout_n,21
+ewi_msl5_forest_holdout_rmse_mm,175.54069335850826
 ewi_msl5_intercept_a,0.3915631169455295
 ewi_msl5_n_calibration,61
+ewi_msl5_open_dune_max_abs_residual_mm,228.43406427619954
 ewi_msl5_r,0.9609253936563187
 ewi_msl5_r2,0.9233776121735511
 ewi_msl5_rmse_mm_open_dune,75.83262160501198
@@ -20,6 +24,11 @@ ewi_msl5_scope,open_dune_C1_C3
 ewi_msl5_slope_b,0.9551250247494275
 extended_relSE_beta3_vs_nobs_spearman_p,0.7058660378956783
 extended_relSE_beta3_vs_nobs_spearman_r,-0.09001677681047011
+method_ab_max_abs_diff_cluster,C4 (Main Forest)
+method_ab_max_abs_diff_m,0.3025481481481481
+method_ab_max_abs_diff_window_end,2012
+method_ab_mean_abs_diff_m,0.039015002573517706
+method_ab_n_pairs,78
 msl5_min5_annual_n,1160
 msl5_min5_annual_r,0.7963482743649237
 msl5_min5_cluster_offset_max_m,-0.5611111111111112
@@ -30,6 +39,7 @@ msl5_min5_offset_sd_m,0.16141518615337833
 msl5_min5_window_n,619
 msl5_min5_window_r,0.9420370886459372
 msl5_min5_window_start,2014
+msl5_n_annual_total,1426
 msl5_n_annual_valid,1272
 msl5_n_annual_valid_with_interp,9
 msl5_n_windows_admitted,866
@@ -46,6 +56,11 @@ rho_lag1_vs_tR_spearman_p,0.2621374487603722
 rho_lag1_vs_tR_spearman_r,0.14112762237762239
 site_mean_spring_n_years,20
 site_mean_spring_rho_lag1,-0.025700912657530994
+spring_sd_mm_median_c1,182.242734396169
+spring_sd_mm_median_c2,251.968335963157
+spring_sd_mm_median_c3,324.2414271093858
+spring_sd_mm_median_c4,403.831324394346
+spring_sd_mm_median_c5,290.6702244390605
 vw_repro_datum_offset_max_mm,412.6666666666662
 vw_repro_datum_offset_mean_mm,17.100091877970605
 vw_repro_datum_offset_min_mm,-402.9999999999996

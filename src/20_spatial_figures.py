@@ -108,7 +108,15 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.48.0"  # Hollingham (2026) - 2026-09-27. T-84: plot_clearfell_gain emits
+__version__ = "1.50.0"  # Hollingham (2026) - 2026-09-28. T-91: the residual report numbers also carry
+#   each cluster's mean α (residual_cluster_mean) and its gap to Script 16's independent balance
+#   (residual_vs_wb16_gap, _max), which report9 §4.9.6 and report10 §5.2.1 quote.
+# 1.49.0  # Hollingham (2026) - 2026-09-28. T-91: plot_drawdown_propagation
+#   emits beta_3_c3 and sy_c3 as their own report-numbers rows (previously only inside the
+#   drawdown_lambda note string, so the Methods Supplement's bare beta_3/Sy citations had
+#   nothing to bind to); plot_msl5_change emits the C4 cluster-mean MSL5 change. No plotted
+#   value changes.
+# 1.48.0  # Hollingham (2026) - 2026-09-27. T-84: plot_clearfell_gain emits
 #   20_clearfell_gain_report_numbers.csv — the number of wells the map carries after its
 #   filter, and the range and median of their climate-corrected step (mm) — which the
 #   caption quotes ("n = 71 wells retained"). The map is unchanged.
@@ -282,6 +290,7 @@ from utils.paths import (
     OUT_20_SCRAPE_DRAWDOWN_PERWELL, OUT_20_SCRAPE_REPORT_NUMBERS,
     OUT_20_RESIDUAL_PERWELL, OUT_20_RESIDUAL_REPORT_NUMBERS,
     OUT_20_MSL5_CHANGE_PERWELL, OUT_20_MSL5_REPORT_NUMBERS, OUT_20_CLEARFELL_REPORT_NUMBERS,
+    OUT_16_TABLE,
     OUT_20_COASTAL_EROSION, OUT_20_SLR_RESPONSE,
     OUT_20_COASTAL_NET, OUT_20_SCRAPE_DRAWDOWN, OUT_20_SCRAPE_DRAWDOWN_NOHEAD,
     OUT_20_CLEARFELL_BASELINE_DRAWDOWN, OUT_20_PUBLIC_PANEL,
@@ -1078,6 +1087,26 @@ def plot_residual_ssm(wt, features, dpi=300):
             rrpt.add("residual_cluster_median", float(_grp["residual_wb"].median()),
                      unit="m/month", well=CLUSTER_LABELS.get(int(_cid), str(_cid)),
                      note=f"median α over the cluster's {len(_grp)} wells")
+            rrpt.add("residual_cluster_mean", float(_grp["residual_wb"].mean()),
+                     unit="m/month", well=CLUSTER_LABELS.get(int(_cid), str(_cid)),
+                     note=f"mean α over the cluster's {len(_grp)} wells")
+        # T-91: agreement with Script 16's independent water balance, cluster by
+        # cluster — |cluster-mean α − Script 16 Residual_m_month| — which report9
+        # §4.9.6 and report10 §5.2.1 quote as "agrees to within N mm/month".
+        if OUT_16_TABLE.exists():
+            _wb16 = pd.read_csv(OUT_16_TABLE)[["Cluster", "Residual_m_month"]]
+            _cm = _resid.groupby("Cluster")["residual_wb"].mean()
+            _gap = {int(c): abs(float(_cm[c]) - float(r)) for c, r in
+                    zip(_wb16["Cluster"], _wb16["Residual_m_month"]) if c in _cm.index}
+            for _c, _g in _gap.items():
+                rrpt.add("residual_vs_wb16_gap", _g, unit="m/month",
+                         well=CLUSTER_LABELS.get(_c, str(_c)),
+                         note="|cluster-mean residual field α − Script 16 Residual_m_month|")
+            if _gap:
+                _cmax = max(_gap, key=_gap.get)
+                rrpt.add("residual_vs_wb16_gap_max", _gap[_cmax], unit="m/month",
+                         well=CLUSTER_LABELS.get(_cmax, str(_cmax)),
+                         note="largest cluster disagreement between the residual field and Script 16")
     for _form, _vals in (("abs", _r.abs()), ("signed", _r)):
         for _ax, _col in (("easting", "E"), ("northing", "N")):
             _rho, _pv = spearmanr(_vals, _resid[_col].astype(float))
@@ -1527,6 +1556,14 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     rpt.add("drawdown_lambda", float(lam), unit="m",
             note=f"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy={Sy:.4f}, "
                  f"β₃={BETA3_M:.4f}/month [C3]")
+    # T-91: beta_3 and Sy as their own citable rows (previously only quoted inside
+    # drawdown_lambda's note text) — the Methods Supplement cites each on its own.
+    rpt.add("beta_3_c3", float(BETA3_M), unit="1/month", well="C3",
+            note="SSM drainage coefficient (β₃), C3 centroid, live from "
+                 "03_03_cluster_mechanistic_coefficients.csv — the value λ is built from")
+    rpt.add("sy_c3", float(Sy), unit="-", well="C3",
+            note="C3 WTF median specific yield, live from "
+                 "18_wtf_01_well_sy_estimates.csv — the value λ is built from")
     rpt.add("drawdown_H0", float(H0), unit="mm",
             note="forest interception deficit at felling edge (config)")
     # 1.45.0 (T-84): where the forest field falls to each quoted level, λ·ln(H0/L).
@@ -3461,6 +3498,13 @@ def plot_msl5_change(wt, features, dpi=300):
         if len(_r):
             mrpt.add(f"msl5_change_{_w}", float(_r["raw_change_mm"].iloc[0]), unit="mm",
                      well=_w.upper(), note="raw below-ground MSL5 change 2017->2023")
+    # T-91: C4 (Main Forest) cluster-mean raw MSL5 change — report10 §5.7.5 quotes it
+    # alongside the named coastal wells above.
+    _c4_msl = _msl[_msl["cluster_id"] == 4]
+    if len(_c4_msl):
+        mrpt.add("msl5_change_c4_mean", float(_c4_msl["raw_change_mm"].mean()), unit="mm",
+                 well="C4", note=f"cluster mean of raw below-ground MSL5 change 2017->2023, "
+                                 f"n={len(_c4_msl)} wells")
     n_saved = mrpt.save(OUT_20_MSL5_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_MSL5_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 

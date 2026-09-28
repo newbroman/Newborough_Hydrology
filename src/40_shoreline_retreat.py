@@ -47,7 +47,14 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-27. The inland reference that orients
+__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-28. T-91, per the signed-off spec
+#   NRG_spec_T91_emits_2026-09-28: 40_report_numbers.csv now also carries the
+#   modern_common_frontage 2006-2026 rate as a free-standing
+#   `headline_retreat_rate_2006_2026_m_yr` row — the same headline the Methods
+#   Supplement quotes as E_c and the downstream figures consume — instead of
+#   only under a storm pair's context tag. Read from `modern_common` and the
+#   gate result `ok` main() already has; NaN when the gate withholds it.
+# 1.7.0  # Hollingham (2026) — 2026-09-27. The inland reference that orients
 #   the transect normals seaward is the site outline's centroid (map_utils.
 #   load_site_outline(), D-204, spec NRG_spec_site_outline_B), as _normals' docstring always said, not
 #   the mean of every vertex of site_boundary.kml's 11,715 raster pieces.
@@ -1249,6 +1256,24 @@ def main():
         for r in reasons:
             warn(f"    {r}")
     withheld_reason = "" if ok else "; ".join(reasons)
+
+    # T-91: the modern_common_frontage 2006-2026 rate as a free-standing report
+    # number. This is the same value the epoch series carries at
+    # (from_epoch=2006, to_epoch=2026, basis=modern_common_frontage); it is
+    # repeated here, read from the same in-memory `modern_common` dict and the
+    # same gate result, so it can be cited without a reader having to filter
+    # 40_01_epoch_series.csv by basis and epoch pair.
+    headline = modern_common.get(("2006", "2026"))
+    if headline is not None:
+        rn_df = pd.concat([rn_df, pd.DataFrame([{
+            "Parameter": "headline_retreat_rate_2006_2026_m_yr",
+            "Well": "", "Era": "2006-2026",
+            "Value": headline["rate_m_yr"] if ok else float("nan"),
+            "Unit": "m/yr",
+            "Note": "modern_common_frontage basis (40_01_epoch_series.csv); "
+                    "emitted because the floor, control and generalisation "
+                    "gate tests pass; NaN if withheld",
+        }])], ignore_index=True)
 
     phase(8, "Writing outputs")
     rows = []

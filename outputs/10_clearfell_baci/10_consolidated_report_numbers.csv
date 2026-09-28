@@ -180,6 +180,39 @@ Canopy_era_Impact_early_step,WMC3-Forest5,2017-12..2020-12,0.15152836983015,m,+1
 Canopy_era_Impact_late_step,WMC3-Forest5,2021-01..2026-02,0.0392082533733691,m,+39.2 mm (late era),10a
 Canopy_era_Edge_early_step,Edge-Forest5,2017-12..2020-12,0.0661122579013605,m,+66.1 mm (early era),10a
 Canopy_era_Edge_late_step,Edge-Forest5,2021-01..2026-02,-0.0062262243800114,m,-6.2 mm (late era),10a
+Pre_felling_baseline_years,WMC3,Impact,8.41889117043121,years,first valid monitoring month (2009-06) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years_min,WMC3,Impact,8.41889117043121,years,minimum across the Impact tier (WMC3),10a
+Pre_felling_baseline_years_max,WMC3,Impact,8.41889117043121,years,maximum across the Impact tier (WMC3),10a
+Pre_felling_baseline_years,CEH31,Edge,7.419575633127994,years,first valid monitoring month (2010-06) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,CEH20,Edge,8.999315537303216,years,first valid monitoring month (2008-11) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,CEH30,Edge,7.419575633127994,years,first valid monitoring month (2010-06) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,CEH16,Edge,10.338124572210814,years,first valid monitoring month (2007-07) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years_min,CEH31,Edge,7.419575633127994,years,"minimum across the Edge tier (CEH31, CEH20, CEH30, CEH16)",10a
+Pre_felling_baseline_years_max,CEH16,Edge,10.338124572210814,years,"maximum across the Edge tier (CEH31, CEH20, CEH30, CEH16)",10a
+Pre_felling_baseline_years,CEH32,Forest control,7.337440109514032,years,first valid monitoring month (2010-07) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,CEH34,Forest control,7.252566735112937,years,first valid monitoring month (2010-08) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,CEH33,Forest control,7.337440109514032,years,first valid monitoring month (2010-07) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,NW10,Forest control,10.505133470225871,years,first valid monitoring month (2007-05) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,CEH2,Forest control,11.586584531143052,years,first valid monitoring month (2006-04) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years_min,CEH34,Forest control,7.252566735112937,years,"minimum across the Forest control tier (CEH32, CEH34, CEH33, NW10, CEH2)",10a
+Pre_felling_baseline_years_max,CEH2,Forest control,11.586584531143052,years,"maximum across the Forest control tier (CEH32, CEH34, CEH33, NW10, CEH2)",10a
+Pre_felling_baseline_years,CEH19,Coastal control,9.67008898015058,years,first valid monitoring month (2008-03) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,CEH17,Coastal control,10.338124572210814,years,first valid monitoring month (2007-07) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years_min,CEH19,Coastal control,9.67008898015058,years,"minimum across the Coastal control tier (CEH19, CEH17)",10a
+Pre_felling_baseline_years_max,CEH17,Coastal control,10.338124572210814,years,"maximum across the Coastal control tier (CEH19, CEH17)",10a
+Pre_felling_baseline_years,CEH9,Climate control,11.50444900752909,years,first valid monitoring month (2006-05) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,NW7,Climate control,12.670773442847365,years,first valid monitoring month (2005-03) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,NW6,Climate control,12.670773442847365,years,first valid monitoring month (2005-03) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,NW5,Climate control,12.670773442847365,years,first valid monitoring month (2005-03) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years,WMC2,Climate control,8.747433264887064,years,first valid monitoring month (2009-02) to last valid month before CLEARFELL_DATE (2017-11),10a
+Pre_felling_baseline_years_min,WMC2,Climate control,8.747433264887064,years,"minimum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)",10a
+Pre_felling_baseline_years_max,NW7,Climate control,12.670773442847365,years,"maximum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)",10a
+SummerMin_WMC3_era_mean,WMC3,Post_felling,-1.6,m,"era-mean Summer_min_m, n_years=7",10d
+SummerMin_WMC3_era_mean,WMC3,Pre_scraping,-1.5733333333333333,m,"era-mean Summer_min_m, n_years=3",10d
+SummerMin_WMC3_era_mean,WMC3,Scraping_era,-1.62,m,"era-mean Summer_min_m, n_years=3",10d
+SummerMin_ForestCtrl_era_mean,Forest Ctrl,Post_felling,-1.765897435897436,m,"era-mean Summer_min_m across the Forest Ctrl tier, n_well_years=39",10d
+SummerMin_ForestCtrl_era_mean,Forest Ctrl,Pre_scraping,-1.8216666666666663,m,"era-mean Summer_min_m across the Forest Ctrl tier, n_well_years=18",10d
+SummerMin_ForestCtrl_era_mean,Forest Ctrl,Scraping_era,-1.7533333333333332,m,"era-mean Summer_min_m across the Forest Ctrl tier, n_well_years=15",10d
 SummerMin_Forest_WMC3_shift,WMC3,Post_felling,-0.0073,m,"p=0.9052, n_pre=6, n_post=7",10d
 SummerMin_Climate_WMC3_shift,WMC3,Post_felling,-0.0186,m,"p=0.6710, n_pre=6, n_post=7",10d
 SummerMin_Forest_CEH31_shift,CEH31,Post_felling,-0.0561,m,"p=0.5810, n_pre=7, n_post=8",10d
@@ -511,15 +544,27 @@ CoeffShift_CEH6_db3,CEH6,Delta,0.0413,m,,10e
 CoeffShift_Impact_mean_db1,Impact,,-0.0467,m,n_wells=1,10e
 CoeffShift_Impact_mean_db2,Impact,,-0.2696,m,n_wells=1,10e
 CoeffShift_Impact_mean_db3,Impact,,0.002,m,n_wells=1,10e
+CoeffShift_Impact_mean_db1_pct_of_before,Impact,,-1.8229369974236864,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=1, n_decline=1",10e
 CoeffShift_Edge_mean_db1,Edge,,-0.2865999999999999,m,n_wells=4,10e
 CoeffShift_Edge_mean_db2,Edge,,-0.074625,m,n_wells=4,10e
 CoeffShift_Edge_mean_db3,Edge,,-0.0105999999999999,m,n_wells=4,10e
+CoeffShift_Edge_mean_db1_pct_of_before,Edge,,-10.908433167369934,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=4, n_decline=4",10e
 CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.0899399999999999,m,n_wells=5,10e
 CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.11162,m,n_wells=5,10e
 CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,-0.00728,m,n_wells=5,10e
+CoeffShift_Forest Ctrl_mean_db1_pct_of_before,Forest Ctrl,,-4.025769217149534,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3",10e
+CoeffShift_Coastal Ctrl_mean_db1,Coastal Ctrl,,-0.25705,m,n_wells=2,10e
+CoeffShift_Coastal Ctrl_mean_db2,Coastal Ctrl,,-0.13565,m,n_wells=2,10e
+CoeffShift_Coastal Ctrl_mean_db3,Coastal Ctrl,,-0.0096,m,n_wells=2,10e
+CoeffShift_Coastal Ctrl_mean_db1_pct_of_before,Coastal Ctrl,,-10.62316475130051,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=2, n_decline=2",10e
 CoeffShift_Climate Ctrl_mean_db1,Climate Ctrl,,-0.0095799999999999,m,n_wells=5,10e
 CoeffShift_Climate Ctrl_mean_db2,Climate Ctrl,,-0.18352,m,n_wells=5,10e
 CoeffShift_Climate Ctrl_mean_db3,Climate Ctrl,,-0.0012399999999999,m,n_wells=5,10e
+CoeffShift_Climate Ctrl_mean_db1_pct_of_before,Climate Ctrl,,-0.2821458555153181,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3",10e
+CoeffShift_Network_mean_b1_before,Network,Before,2.834482352941176,m,mean b1_before across n=17 BACI-network wells (excl. Far-field Ctrl),10e
+CoeffShift_Network_mean_b1_after,Network,After,2.704794117647059,m,mean b1_after across n=17 BACI-network wells (excl. Far-field Ctrl),10e
+CoeffShift_Network_mean_db1,Network,Delta,-0.1296941176470588,m,"mean db1 across n=17 BACI-network wells (excl. Far-field Ctrl), n_decline=13",10e
+CoeffShift_Network_mean_db1_pct_of_before,Network,,-4.575583880862156,m,"ratio of network mean db1 to network mean b1_before, x100",10e
 SSM_Resid_Impact_mean_step,,,0.0806,m,n=1,10f
 SSM_Resid_Edge_mean_step,,,0.0218,m,n=4,10f
 SSM_Resid_Forest_Ctrl_mean_step,,,0.0533,m,n=5,10f
@@ -619,6 +664,9 @@ FourZone_contrast_Impact_vs_Forest,Impact - Forest,Post_felling,0.027,m,"primary
 FourZone_contrast_Impact_vs_Edge,Impact - Edge,Post_felling,0.0668,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0001)",10k
 FourZone_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling,0.0191,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0000)",10k
 FourZone_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling,-0.0477,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0052)",10k
+FourZone_C3Warren_easting_sensitivity_step_delta_mm,C3/Warren,Post_felling,-0.2697612938795139,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
+FourZone_Edge_easting_sensitivity_step_delta_mm,Edge,Post_felling,-1.7437869317886712,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
+FourZone_Impact_easting_sensitivity_step_delta_mm,Impact,Post_felling,1.9852313494174711,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
 FourZoneSummer_C3Warren_clearfell_step,C3/Warren,Post_felling_Jun-Sep,0.0119999999999998,m,"vs Forest; p=0.2572, CI=[-0.0088,0.0328]",10l
 FourZoneSummer_C3Warren_clearfell_step_se,C3/Warren,Post_felling_Jun-Sep,0.0105913375421158,m,,10l
 FourZoneSummer_C3Warren_N,C3/Warren,Jun-Sep,52.0,well-years,"n_pre=24, n_post=28, n_wells=4",10l
@@ -666,11 +714,22 @@ WMC3_BACI_DiD_step_2023_scraping_se,WMC3,Post-2023 scrape,0.0678680216281631,m,"
 WMC3_BACI_DiD_step_2023_scraping_t,WMC3,Post-2023 scrape,-0.7830950638864629,,step / SE,10m
 WMC3_BACI_DiD_step_2023_scraping_placebo_share,WMC3,Post-2023 scrape,0.6462585034013606,,share of 147 slid break dates with |step| >= |observed|; windows of the real eras' month counts,10m
 WMC3_ANCOVA_clearfell_step_ref,WMC3,Post_felling,0.108230263783953,m,"reference copy of 10a headline (p=0.0034, CI=[0.0369,0.1796])",10m
+SynthGross_Impact_step,,,0.1012793738593918,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.010",10n
+SynthGross_Edge_step,,,0.0441160617198806,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.336",10n
+SynthGross_ForestCtrl_step,,,0.0530952669473904,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.378",10n
+SynthGross_ClimateCtrl_step,,,0.0334918746198168,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.175",10n
+SynthGross_CoastalCtrl_step,,,0.0412109924302699,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.411",10n
 SynthDiD_Impact_step,,,0.0476650985005349,m,"vs Forest Ctrl, HAC p=0.131, maxlags=4",10n
 SynthDiD_Impact_se,,,0.0315810724683754,m,Newey-West HAC,10n
+SynthDiD_Impact_ci_lo,,,-0.014233803537481,m,"95% CI lower bound, vs Forest Ctrl, HAC p=0.131",10n
+SynthDiD_Impact_ci_hi,,,0.1095640005385508,m,"95% CI upper bound, vs Forest Ctrl, HAC p=0.131",10n
 SynthDiD_Edge_step,,,-0.0089792052275098,m,"vs Forest Ctrl, HAC p=0.649, maxlags=4",10n
 SynthDiD_Edge_se,,,0.0197191388268967,m,Newey-West HAC,10n
+SynthDiD_Edge_ci_lo,,,-0.0476287173282275,m,"95% CI lower bound, vs Forest Ctrl, HAC p=0.649",10n
+SynthDiD_Edge_ci_hi,,,0.0296703068732078,m,"95% CI upper bound, vs Forest Ctrl, HAC p=0.649",10n
 SynthDiD_Impact_pretrend,,,-0.0132504821585523,m/yr,HAC p=0.006; PARALLEL TRENDS FAIL,10n
+SynthDiD_Impact_pretrend_postscrape,,,-0.0502459155432486,m/yr,scrape excluded; short window; HAC p=0.049; PARALLEL TRENDS FAIL,10n
 SynthDiD_Impact_step_detrended,,,0.0400396423831314,m,"discontinuity net of a common linear trend, HAC p=0.311",10n
 SynthDiD_Edge_pretrend,,,-0.021010800718336,m/yr,HAC p=<0.001; PARALLEL TRENDS FAIL,10n
+SynthDiD_Edge_pretrend_postscrape,,,-0.0402974079871905,m/yr,scrape excluded; short window; HAC p=0.024; PARALLEL TRENDS FAIL,10n
 SynthDiD_Edge_step_detrended,,,0.0122780584728885,m,"discontinuity net of a common linear trend, HAC p=0.695",10n

@@ -99,7 +99,15 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-26. T-84, per the signed-off spec
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-09-28. T-91, per the signed-off spec
+#   NRG_spec_T91_emits_2026-09-28: write_report_numbers() now also emits the
+#   open-ground and under-canopy mean NSE (and open-ground mean bias) at each
+#   beta_1 scaling in CCW_BETA1_SCALINGS, so the Methods Supplement's
+#   sensitivity-to-beta_1 paragraph (Sensitivity to beta_1 section) binds to a
+#   committed number instead of the (stale) typed table. Computed from `sens`,
+#   already built by main() before this call; nothing else moves.
+#
+
 #   NRG_spec_script39_emits_T84_2026-09-26: a new 39_report_numbers.csv carries every
 #   statistic report9 §4.14.1 and report10 §5.7.8 quote — the fit summary, the epoch
 #   shift, the open-ground medians, the climate contrast over the two windows, the
@@ -200,7 +208,7 @@ BETA_COLS = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")
 
 
 # ── report numbers (1.4.0, T-84) ─────────────────────────────────────────────
-def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month):
+def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens):
     """The statistics §4.14.1 and §5.7.8 quote, as committed cells.
 
     Open ground is in_forest False, the split the β₁-sensitivity block uses; the
@@ -268,6 +276,29 @@ def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month):
     rn.add("epoch_rate_if_linear_mm_yr", -op["epoch_shift_m"].median() * 1000 / gap, unit="mm/yr",
            note="NOT a rate: the open-ground median shift divided by the midpoint gap, "
                 "quoted in the text only to be disclaimed")
+
+    # the beta_1 sensitivity table (T-91): open-ground and under-canopy mean NSE,
+    # and open-ground mean bias, at each committed scaling in CCW_BETA1_SCALINGS.
+    # `sens` is the per-well/per-scale table main() already built; grouped here,
+    # not re-derived from a written CSV.
+    for sc in sorted(sens["beta1_scale"].unique()):
+        ssub = sens[sens["beta1_scale"] == sc]
+        op_s = ssub[ssub["in_forest"] == False]                        # noqa: E712
+        cf_s = ssub[ssub["in_forest"] == True]                         # noqa: E712
+        tag = f"{sc:.2f}"
+        rn.add(f"open_nse_mean_beta1_scale_{tag}", op_s["nse"].mean(), unit="",
+               era=f"beta1 scale {tag}",
+               note=f"open-ground (in_forest False, n={len(op_s)}) mean NSE "
+                    f"with beta_1 scaled by {tag} (fitted value at scale 1.00)")
+        rn.add(f"open_bias_mean_beta1_scale_{tag}", op_s["bias_m"].mean(), unit="m",
+               era=f"beta1 scale {tag}",
+               note=f"open-ground mean bias (predicted less observed, per "
+                    f"get_metrics) with beta_1 scaled by {tag}")
+        rn.add(f"canopy_nse_mean_beta1_scale_{tag}", cf_s["nse"].mean(), unit="",
+               era=f"beta1 scale {tag}",
+               note=f"under-canopy (in_forest True, n={len(cf_s)}) mean NSE "
+                    f"with beta_1 scaled by {tag}")
+
     n = rn.save(OUT_REPORT_NUMBERS)
     saved(f"{OUT_REPORT_NUMBERS.name} ({n} report numbers)")
 
@@ -671,7 +702,7 @@ def main() -> int:
     pw.to_csv(OUT_PER_WELL, index=False); saved(OUT_PER_WELL.name)
     sr.to_csv(OUT_SERIES, index=False); saved(OUT_SERIES.name)
     sens.to_csv(OUT_SENSITIVITY, index=False); saved(OUT_SENSITIVITY.name)
-    write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month)
+    write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens)
     if not sr.empty:
         sr_plot = sr.copy()
         sr_plot["month"] = pd.PeriodIndex(sr_plot["month"], freq="M").to_timestamp()

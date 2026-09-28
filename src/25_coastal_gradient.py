@@ -126,7 +126,14 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.29.1"  # Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
+__version__ = "1.30.0"  # Hollingham (2026) — 2026-09-28. T-91: build_report_numbers gains six
+#   parameters the Methods Supplement cites but the emit did not cover: forest-free exponential c,
+#   the exp-vs-lincap AIC delta on the full-network and C3-only specs (alongside the existing
+#   forest-free one), the d=0 disagreement between the two forms, the exponential form's inland
+#   zero-crossing distance, the C5 balanced-annual and per-well-mean observed rates, and the
+#   window-sweep correlation/bias of c against the observed far-field trend. No existing row changed.
+#
+# 1.29.1  Hollingham (2026) — 2026-09-26. The category-wide warnings.filterwarnings
 #   ignore (RuntimeWarning, FutureWarning) is removed, with its now-unused `import warnings`: no pipeline
 #   module silences its warnings (T-81, D-155). Probed with the filter off
 #   against the committed CSVs, this module raised no warning; outputs unchanged.
@@ -3328,7 +3335,8 @@ def build_report_numbers(fits: dict,
                           per_well: pd.DataFrame,
                           decay_funcs: dict | None = None,
                           cov_range: pd.DataFrame | None = None,
-                          loo: pd.DataFrame | None = None) -> pd.DataFrame:
+                          loo: pd.DataFrame | None = None,
+                          window_sweep_df: pd.DataFrame | None = None) -> pd.DataFrame:
     """Headline numbers in the project-standard
     `Parameter, Well, Era, Value, Unit, Note` format.
 
@@ -3503,6 +3511,126 @@ def build_report_numbers(fits: dict,
                                 f"(offset and CWB trend not separately "
                                 f"identified), unexplained "
                                 f"{r['unexplained_mm_yr']:+.1f}")})
+        # T-91: the two raw observed C5 rates the Methods Supplement quotes
+        # directly (current decomposition basis, and the per-well mean given
+        # alongside it as a second, non-basis reading). Unrounded (D-035).
+        rows.append({"Parameter": "C5_observed_balanced_annual_mean",
+                      "Well": "C5", "Era": "2005-2026",
+                      "Value": float(r["observed_balanced_annual_mean_mm_yr"]),
+                      "Unit": "mm/yr",
+                      "Note": ("C5 (Coastal Forest) observed_balanced_annual_"
+                               "mean_mm_yr — the current decomposition basis "
+                               "(25_03_cluster_partition.csv). Superseded a "
+                               "pre-D-196 basis of about -16.15 mm/yr under "
+                               "the earlier k=5 partition; do not cite the "
+                               "old figure.")})
+        rows.append({"Parameter": "C5_observed_per_well_mean",
+                      "Well": "C5", "Era": "2005-2026",
+                      "Value": float(r["observed_per_well_mean_mm_yr"]),
+                      "Unit": "mm/yr",
+                      "Note": ("C5 (Coastal Forest) observed_per_well_mean_"
+                               "mm_yr, retained as a context column beside "
+                               "the balanced-annual basis and the "
+                               "Script-14 centroid rate (not the "
+                               "decomposition basis itself).")})
+
+    # Forest-free exponential far-field asymptote c (D-035, unrounded).
+    # Headline_fit_c above is the linear-capped form's c; the exponential
+    # form's c is quoted beside it wherever both are compared and had no
+    # named row of its own.
+    _ff_exp_key = ("forest_free", "exponential")
+    if _ff_exp_key in fits:
+        _fe_c = fits[_ff_exp_key]
+        rows.append({"Parameter": "ForestFree_exponential_c",
+                      "Well": "", "Era": "2005-2026",
+                      "Value": float(_fe_c["popt"][2]),
+                      "Unit": "mm/yr",
+                      "Note": (f"Forest-free EXPONENTIAL far-field asymptote "
+                               f"(compare Headline_fit_c, the linear-capped "
+                               f"form's c), SE={_fe_c['perr'][2]:.2f}. Same "
+                               f"non-quotable-as-a-rate caveat as "
+                               f"Headline_fit_c.")})
+        rows.append({"Parameter": "ForestFree_d0_disagreement_lincap_vs_exp",
+                      "Well": "", "Era": "2005-2026",
+                      "Value": abs(float(ff["popt"][0]) - float(_fe_c["popt"][0])),
+                      "Unit": "mm/yr",
+                      "Note": ("Absolute difference between the two decay "
+                               "forms' delta_0 (d=0 amplitude) on the "
+                               "forest-free panel — the distance at which "
+                               "linear-capped and exponential disagree "
+                               "materially (25_01_panel_fit_parameters.csv).")})
+        _d0e, _Le, _ce = (float(_fe_c["popt"][0]), float(_fe_c["popt"][1]),
+                          float(_fe_c["popt"][2]))
+        if _d0e < 0 < _ce:
+            _x0 = -_Le * np.log(-_ce / _d0e)
+            rows.append({"Parameter": "ForestFree_exponential_zero_crossing",
+                          "Well": "", "Era": "2005-2026",
+                          "Value": _x0,
+                          "Unit": "m",
+                          "Note": ("Distance at which the forest-free "
+                                   "exponential fit (delta_0*exp(-x/L)+c) "
+                                   "crosses zero, predicting the inland "
+                                   "water table to shallow beyond this "
+                                   "point. Solved from the committed "
+                                   "delta_0, L, c in "
+                                   "25_01_panel_fit_parameters.csv.")})
+
+    # ΔAIC (exp − lin-cap) on the full-network and C3-only specs, alongside
+    # the existing forest-free row (Headline_DeltaAIC_lincap_vs_exp) — the
+    # Methods Supplement quotes all three together.
+    for _spec, _lc_key, _exp_key, _label in (
+            ("full", ("full", "linear_capped"), ("full", "exponential"),
+             "full network"),
+            ("c3_only", ("c3_only", "linear_capped_cfix"),
+             ("c3_only", "exponential_cfix"), "C3-only")):
+        if _lc_key in fits and _exp_key in fits:
+            _delta = fits[_exp_key]["aic"] - fits[_lc_key]["aic"]
+            rows.append({"Parameter": f"DeltaAIC_lincap_vs_exp_{_spec}",
+                          "Well": "", "Era": "2005-2026",
+                          "Value": float(_delta),
+                          "Unit": "",
+                          "Note": (f"exp − lin-cap AIC on the {_label} spec "
+                                   f"(compare Headline_DeltaAIC_lincap_vs_exp, "
+                                   f"the forest-free spec); positive favours "
+                                   f"lin-cap, negative favours exponential.")})
+
+    # Fit-window sensitivity sweep (25_12): how loosely the fitted far-field
+    # constant c tracks the OBSERVED far-field trend across refit windows,
+    # and the observed trend at the full (widest) window.
+    if window_sweep_df is not None and not window_sweep_df.empty:
+        _sw = window_sweep_df[(window_sweep_df["spec"] == "forest_free")
+                              & (window_sweep_df["usable"])]
+        if len(_sw) >= 2:
+            _r = float(np.corrcoef(_sw["c_mm_yr"],
+                                   _sw["far_field_observed_mm_yr"])[0, 1])
+            _bias = float((_sw["c_mm_yr"] - _sw["far_field_observed_mm_yr"]).mean())
+            rows.append({"Parameter": "WindowSweep_c_vs_farfield_observed_r",
+                          "Well": "", "Era": "",
+                          "Value": _r, "Unit": "",
+                          "Note": (f"Pearson r between the fitted far-field "
+                                   f"constant c and the observed far-field "
+                                   f"trend, across {len(_sw)} usable "
+                                   f"forest-free windows in "
+                                   f"25_12_window_sweep.csv.")})
+            rpt_note_bias = (f"Mean of (c - observed far-field trend) across "
+                             f"the same {len(_sw)} windows: c is biased high "
+                             f"relative to the observation it is meant to "
+                             f"track.")
+            rows.append({"Parameter": "WindowSweep_c_vs_farfield_observed_bias",
+                          "Well": "", "Era": "",
+                          "Value": _bias, "Unit": "mm/yr",
+                          "Note": rpt_note_bias})
+        if not _sw.empty:
+            _wide = _sw.loc[_sw["window_years"].idxmax()]
+            rows.append({"Parameter": "WindowSweep_farfield_observed_full_window",
+                          "Well": f"{int(_wide['n_far_field_wells'])} wells beyond "
+                                  f"the far-field distance threshold",
+                          "Era": f"{_wide['window_start']} to {_wide['window_end']}",
+                          "Value": float(_wide["far_field_observed_mm_yr"]),
+                          "Unit": "mm/yr",
+                          "Note": ("Observed far-field trend at the full "
+                                   "(widest) forest-free window in "
+                                   "25_12_window_sweep.csv.")})
     # BACI corroboration — one row per control tier x impact zone.  Every
     # tier is emitted, not just the Forest headline: a tier whose distance
     # contrast cannot carry the test and a tier selected to carry it are both
@@ -4162,7 +4290,8 @@ def main() -> None:
     if "summer_min" in partitions:
         report = build_report_numbers(
             fits, partitions["summer_min"], baci_corr, per_wells["summer_min"],
-            decay_funcs=decay_funcs, cov_range=cov_range, loo=loo)
+            decay_funcs=decay_funcs, cov_range=cov_range, loo=loo,
+            window_sweep_df=sweep)
         report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 
     print(f"\n  Outputs written to: {paths.DIR_25}/")

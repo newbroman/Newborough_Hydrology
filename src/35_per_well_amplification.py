@@ -62,7 +62,12 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
+# 1.4.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number emits (no
+#   analysis change) - validation_cotemporal_vs_matched_{r,n,bias,max_dev},
+#   written to 35_report_numbers.csv so the Methods Supplement S.20.3 sentence
+#   quoting the VALIDATION r binds to a citation row.
+#
 # 1.3.0  # Hollingham (2026) - 2026-09-24. The SSM calibration (amp coefficient vs β₂ and
 #   vs β₃: Pearson r, p, n, SSM-unreliable wells dropped) is written to
 #   35_report_numbers.csv as well as 35_results.txt, so the report's two sentences
@@ -314,6 +319,20 @@ def main() -> int:
 
     from utils.report_numbers_utils import ReportNumbers
     rpt = ReportNumbers()
+    # T-91: the VALIDATION line (chk) already prints "co-temporal reproduces
+    # matched-window amplification (validated r ~= ...)" — committed here so
+    # the Methods Supplement S.20.3 sentence quoting that r binds to a
+    # citation row instead of only reaching the run transcript / OUT_TXT.
+    if chk:
+        rpt.add("validation_cotemporal_vs_matched_r", chk["r"], unit="", well="",
+                note=f"VALIDATION co-temporal vs matched-window amplification, n={chk['n']} "
+                     "(35_results.txt VALIDATION line).")
+        rpt.add("validation_cotemporal_vs_matched_n", chk["n"], unit="wells",
+                note="n for the co-temporal vs matched-window VALIDATION check.")
+        rpt.add("validation_cotemporal_vs_matched_bias", chk["bias"], unit="",
+                note="Mean bias, co-temporal vs matched-window VALIDATION check.")
+        rpt.add("validation_cotemporal_vs_matched_max_dev", chk["max_dev"], unit="",
+                note="Max |deviation|, co-temporal vs matched-window VALIDATION check.")
     _excl = ";".join(sorted(calib_exclude)) or "none"
     for lab, key in [("β₂", "beta2"), ("β₃", "beta3")]:
         if lab not in calib:

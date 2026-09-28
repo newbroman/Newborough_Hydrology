@@ -37,7 +37,14 @@ Read-only on pipeline outputs; writes to outputs/29_within_c3_variance/.
 
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-24. The headline table (full five-predictor
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-28. T-91: the coefficient on the exponential
+#   coastal predictor for slope_m_yr is emitted — univariate and in the full five-predictor model
+#   (C3_slope_coast_coef_univariate / _full, with n) — and the memo's "Reading" states them instead
+#   of asserting the full-model coefficient is "near +1, validating Script 25's exponential form".
+#   On the committed data it is +0.87 alone and −0.21 with the other four predictors: the
+#   collinear topographic axis takes the weight, so the fit does not by itself validate the form.
+#   report_numbers is now saved after the regressions. No other output moves.
+# 1.10.0  # Hollingham (2026) - 2026-09-24. The headline table (full five-predictor
 #   model per metric: n, R², adj R², strongest unique predictor and its ΔR²) is written to
 #   29_headline_models.csv as well as the memo, so the Methods Supplement table is
 #   generated from a CSV rather than typed from the memo (it had gone stale). Values unchanged.
@@ -309,8 +316,6 @@ def main():
         rpt.add("C3_Sy_min", sy_min, unit="", well=str(w_min),
                 note="WTF event-median Sy, inland/NE margin of C3")
 
-    n_saved = rpt.save(OUT_REPORT)
-    print(f"Saved {OUT_REPORT.relative_to(REPO)} ({n_saved} report numbers)")
 
 
     # ── Predictor / metric definitions ─────────────────────────────────────────
@@ -434,6 +439,27 @@ def main():
                       "strongest_unique_predictor": _s,
                       "strongest_unique_delta_R2": _d.get(_s, np.nan)})
     pd.DataFrame(_head).to_csv(OUT_HEADLINE, index=False)
+
+    # The coefficient on the exponential coastal predictor for the per-well
+    # slope (T-91): alone, and with the other four predictors. The memo used
+    # to call the full-model value "near +1"; it is emitted so neither the memo
+    # nor the Methods Supplement has to say what it is.
+    _coast = "delta_coast_exp_m_yr"
+    _y = df["slope_m_yr"].values.astype(float) if "slope_m_yr" in df.columns else None
+    coast_coef = {}
+    if _y is not None and _coast in df.columns:
+        _, _, _cu, _nu = ols_fit(df[[_coast]].values.astype(float), _y)
+        _, _, _cf, _nf = ols_fit(df[PREDICTORS].values.astype(float), _y)
+        if _cu is not None:
+            coast_coef["univariate"] = (float(_cu[1]), _nu)
+            rpt.add("C3_slope_coast_coef_univariate", float(_cu[1]), unit="",
+                    note=f"OLS coefficient of slope_m_yr on {_coast} alone, with intercept, n={_nu}")
+        if _cf is not None:
+            coast_coef["full"] = (float(_cf[1 + PREDICTORS.index(_coast)]), _nf)
+            rpt.add("C3_slope_coast_coef_full", coast_coef["full"][0], unit="",
+                    note=f"OLS coefficient of slope_m_yr on {_coast} in the five-predictor model, n={_nf}")
+    n_saved = rpt.save(OUT_REPORT)
+    print(f"Saved {OUT_REPORT.relative_to(REPO)} ({n_saved} report numbers)")
     print(f"Headline model table saved.")
     print(f"Drop-one (unique contribution) matrix saved.")
 
@@ -443,6 +469,8 @@ def main():
     def fmt_row(d, predictors):
         return " | ".join(f"{d[p]:+.3f}" if pd.notna(d[p]) else "  —  " for p in predictors)
 
+    _cc_uni = f"{coast_coef['univariate'][0]:+.2f}" if "univariate" in coast_coef else "not fitted"
+    _cc_full = f"{coast_coef['full'][0]:+.2f}" if "full" in coast_coef else "not fitted"
     memo = f"""# C3 within-cluster variance check — results
 
 *Diagnostic from `29_c3_within_variance_check.py`. Follow-on from the
@@ -544,11 +572,11 @@ the full 5-predictor model. Predictors with ≥ 0.05 loss are uniquely informati
 The full results table above answers the question for each metric directly.
 The most informative comparisons:
 
-- **slope_m_yr**: confirms the previous result — the exponential coastal
-  predictor, dist_forest, and the topographic axis together explain a
-  large fraction of variance. The headline coefficient on the exponential
-  coastal predictor is near +1, validating Script 25's exponential form
-  at face value.
+- **slope_m_yr**: the exponential coastal predictor, dist_forest, and the
+  topographic axis together explain a large fraction of variance. The
+  coefficient on the exponential coastal predictor is {_cc_uni} alone and
+  {_cc_full} in the five-predictor model: with the collinear topographic axis
+  present it does not by itself validate Script 25's exponential form.
 - **β₁ recharge**: see the table. If high R² and elevation/depth_to_water
   is the strongest unique predictor, that supports a depth-to-water
   modulation of effective recharge across C3 (deeper-WT wells receive less

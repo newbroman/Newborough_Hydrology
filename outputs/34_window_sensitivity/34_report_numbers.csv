@@ -1,0 +1,6 @@
+Parameter,Well,Era,Value,Unit,Note
+window_change_envelope_min_mm,,,-161.06524034453997,mm,"Minimum site-mean MSL5 change over admissible window pairs (34_window_matrix.csv, change_mm)."
+window_change_envelope_max_mm,,,228.95531037913526,mm,"Maximum site-mean MSL5 change over admissible window pairs (34_window_matrix.csv, change_mm)."
+window_change_n_admissible_pairs,,,55.0,pairs,"Count of admissible (baseline, current) window pairs (common panel >= MIN_PANEL)."
+window_change_n_negative,,,17.0,pairs,Admissible pairs with change_mm < 0 (falling).
+window_change_n_positive,,,38.0,pairs,Admissible pairs with change_mm > 0 (rising).

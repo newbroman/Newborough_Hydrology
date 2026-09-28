@@ -35,7 +35,12 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.8.1"  # Hollingham (2026) - 2026-09-26. The fixed-effects routine moved to
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-28. T-91: emit per-cluster summer-trend
+#   n_years and per-cluster/year/season annual-extreme Summer_Min / Winter_Max values
+#   (unrounded, from the in-memory trend_rows / summer_min / winter_max already built)
+#   to a new 14_report_numbers.csv. No output value changes.
+#
+# 1.8.1  # Hollingham (2026) - 2026-09-26. The fixed-effects routine moved to
 #   utils.cluster_series (shared with Script 26); no value change.
 # 1.8.0  # Hollingham (2026) - 2026-09-26. D-202: the cluster series behind every
 #   extreme, trend and exceedance count here is now a two-way fixed-effects centroid built from
@@ -119,7 +124,9 @@ from utils.paths import (
     OUT_14_SPRING_TREND_CSV, OUT_14_CLIMATE_SPRING,
     OUT_14_ANNUAL_EXTREMES, OUT_14_WINTER_EXCEED, OUT_14_SEASONAL_SCATTER,
     OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, INT_WELLS_REFERENCE, make_all_dirs,
+    OUT_14_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.config import (
     SUMMER_DROUGHT_MONTHS,
     WINTER_RECHARGE_MONTHS,
@@ -891,6 +898,16 @@ def main() -> None:
     pd.DataFrame(trend_rows).to_csv(OUT_14_SUMMER_TREND_CSV, index=False)
     saved("14_summer_trend_stats.csv")
 
+    # T-91: bind each cluster's summer-trend sample size (n_years — exact,
+    # no rounding involved) to a committed report number.
+    rn = ReportNumbers()
+    for row in trend_rows:
+        rn.add("summer_trend_n_years", row["n_years"], unit="years",
+               well=row["Cluster"],
+               note="Number of hydrological years entering the full-record "
+                    "summer-minimum OLS trend fit (14_summer_trend_stats.csv "
+                    "n_years)")
+
     # Winter trend summary (descriptive only — no projection is fitted for
     # winter maxima, but the observed-period OLS slope, R2 and p-value are
     # persisted here so the report cites a pipeline output, matching the
@@ -958,15 +975,30 @@ def main() -> None:
 
     # Annual summer minima and winter maxima
     annual_rows = []
+    annual_rows_unrounded = []  # T-91: same rows, Value_m kept at full precision
     for c in TRAJECTORY_CLUSTERS:
         if c in summer_min:
             for yr, val in summer_min[c].items():
                 annual_rows.append({"Cluster": c, "HydroYear": yr, "Season": "Summer_Min", "Value_m": round(val, 4)})
+                annual_rows_unrounded.append({"Cluster": c, "HydroYear": yr, "Season": "Summer_Min", "Value_m": val})
         if c in winter_max:
             for yr, val in winter_max[c].items():
                 annual_rows.append({"Cluster": c, "HydroYear": yr, "Season": "Winter_Max", "Value_m": round(val, 4)})
+                annual_rows_unrounded.append({"Cluster": c, "HydroYear": yr, "Season": "Winter_Max", "Value_m": val})
     pd.DataFrame(annual_rows).to_csv(OUT_14_ANNUAL_EXTREMES, index=False)
     saved("14_annual_extremes.csv")
+
+    # T-91: bind the unrounded per-cluster/year annual extremes (annual_rows
+    # above rounds Value_m to 4 dp for the CSV) to committed report numbers.
+    for row in annual_rows_unrounded:
+        rn.add(f"annual_extreme_{row['Season'].lower()}", row["Value_m"],
+               unit="m", well=row["Cluster"], era=str(row["HydroYear"]),
+               note=f"{row['Season']} fixed-effects centroid value for "
+                    f"{row['Cluster']} in hydrological year "
+                    f"{row['HydroYear']} (14_annual_extremes.csv Value_m, "
+                    "rounded to 4 dp there but unrounded here)")
+    rn.save(OUT_14_REPORT_NUMBERS)
+    saved(f"{OUT_14_REPORT_NUMBERS.name}")
 
     # Winter exceedance summary
     exc_rows = []

@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.40.0"  # Hollingham (2026) - 2026-09-27. 1.40.0: OUT_20_CLEARFELL_REPORT_NUMBERS
+__version__ = "1.41.0"  # Hollingham (2026) - 2026-09-28. 1.41.0: OUT_xx_REPORT_NUMBERS for the
+#   fifteen scripts that gain their first report-numbers file under T-91 (spec NRG_spec_T91_emits):
+#   03, 06, 11b, 14, 15, 19, 22, 23, 24, 26b, 28, 34, 36, 37, 37b. Additive.
+# 1.40.0: OUT_20_CLEARFELL_REPORT_NUMBERS
 #   (Script 20 1.48.0, T-84: the clearfell gain map's well count and range);
 #   OUT_19_SCENARIO_PERWELL (Script 19 2.25.0, T-84: each well's scenario response). Additive.
 # 1.39.0: DIR_49/OUT_49_* renamed DIR_01B/OUT_01B_*
@@ -1496,3 +1499,20 @@ OUT_29_MEMO           = DIR_29 / "29_within_c3_variance_results.md"
 OUT_29_PANEL_FIG      = DIR_29 / "29_within_c3_variance_panel.png"
 OUT_29_HEADLINE       = DIR_29 / "29_headline_models.csv"   # MS S.? headline table: full model per metric
 OUT_29_REPORT_NUMBERS = DIR_29 / "29_report_numbers.csv"   # §4.9.2 C3 gradient stats (β₁/β₃/Sy vs inland)
+
+# ── T-91 report-numbers files (1.41.0) ───────────────────────────────────────
+OUT_03_REPORT_NUMBERS = DIR_03 / "03_report_numbers.csv"
+OUT_06_REPORT_NUMBERS = DIR_06 / "06_report_numbers.csv"
+OUT_11B_REPORT_NUMBERS = DIR_11B / "11b_report_numbers.csv"
+OUT_14_REPORT_NUMBERS = DIR_14 / "14_report_numbers.csv"
+OUT_15_REPORT_NUMBERS = DIR_15 / "15_report_numbers.csv"
+OUT_19_REPORT_NUMBERS = DIR_19 / "19_report_numbers.csv"
+OUT_22_REPORT_NUMBERS = DIR_22 / "22_report_numbers.csv"
+OUT_23_REPORT_NUMBERS = DIR_23 / "23_report_numbers.csv"
+OUT_24_REPORT_NUMBERS = DIR_24 / "24_report_numbers.csv"
+OUT_26B_REPORT_NUMBERS = DIR_26B / "26b_report_numbers.csv"
+OUT_28_REPORT_NUMBERS = DIR_28 / "28_report_numbers.csv"
+OUT_34_REPORT_NUMBERS = DIR_34 / "34_report_numbers.csv"
+OUT_37_REPORT_NUMBERS = DIR_37 / "37_report_numbers.csv"
+OUT_37B_REPORT_NUMBERS = DIR_37B / "37b_report_numbers.csv"
+OUT_36_REPORT_NUMBERS = DIR_36 / "36_report_numbers.csv"

@@ -100,7 +100,15 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-09-26. D-202 applied (Martin: "Apply option a"):
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number emits
+#   (no analysis change) - ewi_msl5_forest_holdout_{n,rmse_mm,mean_bias_mm},
+#   ewi_msl5_open_dune_max_abs_residual_mm, msl5_n_annual_total,
+#   spring_sd_mm_median_c{1..5}, and method_ab_{mean_abs_diff_m,max_abs_diff_m,
+#   max_abs_diff_cluster,max_abs_diff_window_end,n_pairs} - all written to
+#   26_report_numbers.csv so the report/Methods Supplement sentences quoting
+#   them bind to a citation row.
+#
+# 1.15.0  # Hollingham (2026) — 2026-09-26. D-202 applied (Martin: "Apply option a"):
 #   the cluster trajectories are fixed-effects series (utils.cluster_series), each well held at its
 #   own level, so wells joining the network (C2 5 -> 20 wells at window-end 2015; C5's extended
 #   wells from 2020) no longer move the cluster value. MSL5_m_bg_mean / MAX5_m_bg_mean (Method A)
@@ -1741,6 +1749,14 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
         nums["extended_relSE_beta3_vs_nobs_spearman_r"] = float(r)
         nums["extended_relSE_beta3_vs_nobs_spearman_p"] = float(p)
 
+    # T-91: per-cluster interannual spring SD (reference network), committed
+    # so the §4.8.4 "182 mm at C1 through ... 404 mm at C4" sentence binds to
+    # a citation row per cluster, keyed by cluster id (see config.CLUSTER_LABELS).
+    if not prec.empty:
+        ref_prec = prec[prec["network_scope"] == "reference"]
+        for _, r in ref_prec.dropna(subset=["spring_sd_mm_median"]).iterrows():
+            nums[f"spring_sd_mm_median_c{int(r['cluster_id'])}"] = float(r["spring_sd_mm_median"])
+
     return diag, prec, nums
 
 
@@ -2203,6 +2219,31 @@ def main() -> int:
           f"network): {len(per_cluster_centroid)} (cluster, year) rows")
     saved(f"{OUT_CLUSTER_CENTROID.name}")
 
+    # T-91: Method A (plain per-well mean) vs Method B (cluster centroid)
+    # divergence, committed for the Methods Supplement S.18b.5 sentence. Uses
+    # MSL5_m_bg_plain_mean (not the D-202 fixed-effects MSL5_m_bg_mean) to
+    # match the SSM-consistent centroid pathway's own network composition.
+    _ab = per_cluster.merge(
+        per_cluster_centroid, on=["cluster_id", "window_end_year"],
+        suffixes=("_a", "_b"))
+    if not _ab.empty:
+        _abs_diff = (_ab["MSL5_m_bg_plain_mean"] - _ab["MSL5_m_bg_centroid"]).abs()
+        _imax = _abs_diff.idxmax()
+        report_nums_methodab = {
+            "method_ab_mean_abs_diff_m": float(_abs_diff.mean()),
+            "method_ab_max_abs_diff_m": float(_abs_diff.max()),
+            "method_ab_max_abs_diff_cluster": str(_ab.loc[_imax, "cluster_label_a"]),
+            "method_ab_max_abs_diff_window_end": int(_ab.loc[_imax, "window_end_year"]),
+            "method_ab_n_pairs": int(len(_ab)),
+        }
+        print(f"\n  Method A vs Method B: mean |diff| "
+              f"{report_nums_methodab['method_ab_mean_abs_diff_m']:.3f} m; "
+              f"max {report_nums_methodab['method_ab_max_abs_diff_m']:.3f} m at "
+              f"{report_nums_methodab['method_ab_max_abs_diff_cluster']} "
+              f"({report_nums_methodab['method_ab_max_abs_diff_window_end']})")
+    else:
+        report_nums_methodab = {}
+
     # ── Pass 4 — Latest per well ───────────────────────────────────────────
     latest = (per_well_incl.sort_values("window_end_year")
                                     .groupby("well", as_index=False).tail(1))
@@ -2233,11 +2274,17 @@ def main() -> int:
     comp = pd.DataFrame()
     calib: dict = {}
     report_nums: dict = {}
+    report_nums.update(report_nums_methodab)  # T-91: Method A/B divergence (Pass 3b)
     # MSL5 completeness counts (v1.7.0) — committed trace for the report
     # §3.7.5 gap-fill sentence. Counted over admitted (valid) annual spring
     # means and admitted 5-year windows; interpolated months are Script 01's
     # single-month bridges, tracked but not excluded.
     report_nums.update({
+        # T-91: total (well, hydrology year) annual rows processed, ahead of
+        # the strict 3/3 validity rule — the Methods Supplement network-
+        # coverage sentence quotes this alongside msl5_n_annual_valid below.
+        "msl5_n_annual_total":
+            int(len(annual)),
         "msl5_n_annual_valid":
             int(annual["valid"].sum()),
         "msl5_n_annual_valid_with_interp":
@@ -2296,6 +2343,17 @@ def main() -> int:
                 info(f"  out-of-scope forest (C4/C5): n={len(forest)}, "
                      f"RMSE {np.sqrt((forest['residual_mm']**2).mean()):.0f} mm "
                      f"(predicted but flagged unreliable)")
+                # T-91: committed trace for report §4.8.4 / Methods Supplement
+                # S.18b.3 sentences quoting the forest holdout n/RMSE/bias and
+                # the calibration-set worst-case reconstruction (max|residual|
+                # on the open-dune, in-scope wells).
+                report_nums.update({
+                    "ewi_msl5_forest_holdout_n": int(len(forest)),
+                    "ewi_msl5_forest_holdout_rmse_mm": float(
+                        np.sqrt((forest["residual_mm"] ** 2).mean())),
+                    "ewi_msl5_forest_holdout_mean_bias_mm": float(forest["residual_mm"].mean()),
+                    "ewi_msl5_open_dune_max_abs_residual_mm": float(am.max()),
+                })
 
     # ── Pass 7 — Ellenberg-F cross-validation (v1.3.3, external input) ─────
     print("\nPass 7 — Ellenberg-F cross-validation (MSL5 vs EWI; external dataset)")

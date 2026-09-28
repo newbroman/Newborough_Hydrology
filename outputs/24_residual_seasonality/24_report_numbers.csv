@@ -1,0 +1,4 @@
+Parameter,Well,Era,Value,Unit,Note
+residual_seasonal_amplitude_cluster_mean_min,1.0,,0.007843880721674605,m,Minimum across the 5 clusters of the per-cluster mean seasonal amplitude of SSM residuals (24_05_diagnostic_summary.txt PER-CLUSTER SEASONAL STATISTICS table).
+residual_seasonal_amplitude_cluster_mean_max,4.0,,0.014585618948770716,m,Maximum across the 5 clusters of the per-cluster mean seasonal amplitude of SSM residuals (24_05_diagnostic_summary.txt PER-CLUSTER SEASONAL STATISTICS table).
+residual_sunshine_corr_network_mean,,,-0.03491743342488528,,"Network mean of per-well Pearson r between SSM residual and monthly sunshine hours (independent ET proxy, not in the regression); see 24_05_diagnostic_summary.txt."

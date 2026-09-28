@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**145 output file(s)** supply **1552 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**163 output file(s)** supply **1657 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -60,6 +60,7 @@
 |  | cumbal_wl_r2 | report8.md, report9.md |
 |  | mean_annual_rain_well_record | report8.md |
 |  | n_years_annual_rain_incomplete | report9.md |
+|  | reference_record_years_median | report10.md |
 |  | trend_annual_pet_1931_2025_t | report9.md |
 |  | trend_annual_pet_1960_2025_t | report9.md |
 |  | trend_summer_balance | report9.md |
@@ -96,6 +97,7 @@
 |  | cluster_mean_level_m · C3 (Western Residual) · 2006-12 to 2025-12 | report9.md |
 |  | cluster_mean_level_m · C4 (Main Forest) · 2006-12 to 2025-12 | report9.md |
 |  | cluster_mean_level_m · C5 (Coastal Forest) · 2006-12 to 2025-12 | report9.md |
+|  | cluster_month_clusters_surviving_mean | report9.md |
 |  | cluster_others_ground_elev_max_m · C4 (Main Forest) | Newborough_Methods_Supplement.md |
 |  | cluster_others_ground_elev_min_m · C1 (Lake Edge) | report9.md |
 |  | cluster_stability_median · C4 (Main Forest) · k=5 | NRG_Web_Tools_Technical_Note.md, PAPER1_SI_methods.md, report8.md, report9.md |
@@ -246,9 +248,15 @@
 | `03_19_per_well_recession_full_record.csv` | ceh13 · t_half_months | report8.md |
 | `03_master_data.csv` | ceh2 · beta_1_recharge | report10.md |
 |  | ceh2 · beta_2_atmospheric_draw | report10.md |
+|  | ceh34 · beta_2_atmospheric_draw | report10.md |
 |  | nw10 · beta_1_recharge | report10.md |
 |  | nw10 · beta_2_atmospheric_draw | report10.md |
 |  | nw10 · beta_3_drainage | report10.md |
+| `03_report_numbers.csv` | C2_mean_elevation_aod | report9.md |
+|  | C4_mean_elevation_aod | report9.md |
+|  | C5_mean_elevation_aod | report9.md |
+| `06_pear_membership_audit_sitewide.csv` | fe4 · Delta | report9.md |
+| `06_report_numbers.csv` | lis1_r_C4 | report9.md |
 | `07_05_clusters_vs_covariates.csv` | all / beta_1_recharge · F_pvalue | report8.md |
 |  | all / beta_1_recharge · R2_adj_covariates | report8.md |
 |  | all / beta_1_recharge · R2_adj_with_clusters | report8.md |
@@ -293,13 +301,18 @@
 |  | nw6 · Model_R2 | report9.md |
 |  | nw9 · Model_R2 | Newborough_Methods_Supplement.md |
 |  | wmc4 · beta_2_atmospheric_draw | report9.md |
-| `07_report_numbers.csv` | C2_beta2_mean | report9.md |
+| `07_report_numbers.csv` | C1_beta2_mean | report9.md |
+|  | C2_beta2_mean | report9.md |
 |  | C3_beta2_mean | report10.md |
 |  | C4_beta1_mean | Supplementary_Material.md, report10.md, report9.md |
+|  | C4_beta2_beta3_corr_all | report9.md |
+|  | C4_beta2_beta3_corr_excl_ceh14 | report9.md |
 |  | C4_beta2_mean | report10.md |
-|  | C4_beta3_pct_mean | Newborough_Methods_Supplement.md |
+|  | C4_beta3_pct_max_excl_ceh14 | report9.md |
+|  | C4_beta3_pct_mean | Newborough_Methods_Supplement.md, report9.md |
 |  | C5_beta2_mean | report9.md |
 |  | C5_beta3_pct_mean | INTERCEPTION_TREATMENT.md, report9.md, site_geography.md |
+|  | CEH14_beta3_pct | report9.md |
 | `08_cluster_nse_medians.csv` | C1 · median_dNSE | report9.md |
 |  | C2 · median_dNSE | report9.md |
 |  | C3 · median_dNSE | Supplementary_Material.md, report9.md |
@@ -321,7 +334,7 @@
 |  | Median iterative R2 · Traditional_Model_A | Paper1.md, report9.md |
 |  | Median one-step R2 · StateSpace_Model_B | Paper1.md, report9.md |
 |  | Median one-step R2 · Traditional_Model_A | Paper1.md, report9.md |
-| `08_perwell_nse.csv` | CEH14 · SSM_NSE | report10.md, report9.md |
+| `08_perwell_nse.csv` | CEH14 · SSM_NSE | Newborough_Methods_Supplement.md, report10.md, report9.md |
 |  | CEH14 · TLM_NSE | report9.md |
 |  | CEH14 · dNSE | Newborough_Methods_Supplement.md, report9.md |
 |  | CEH16 · TLM_NSE | Newborough_Methods_Supplement.md |
@@ -372,7 +385,9 @@
 |  | CEH4 / 2_Pure_Scraping · beta_3_drainage | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | CEH4 / 3_Felling_Pulse · Conf_High | report9.md |
 |  | CEH4 / 3_Felling_Pulse · beta_3_drainage | report9.md |
-| `09_scrape_report_numbers.csv` | BACI_step_below_floor | readme.md |
+| `09_scrape_report_numbers.csv` | BACI_min_detectable_step · CEH18 · CEH18 vs CEH4, 2023 re-scrape | Newborough_Methods_Supplement.md |
+|  | BACI_min_detectable_step · CEH21 · CEH21 vs CEH22, 2023 re-scrape | Newborough_Methods_Supplement.md |
+|  | BACI_step_below_floor | readme.md |
 |  | BACI_step_below_floor · CEH18 · CEH18 vs CEH4, 2023 re-scrape | readme.md |
 |  | BACI_step_below_floor · CEH21 · CEH21 vs CEH22, 2023 re-scrape | readme.md |
 |  | Net_benefit · CEH36 · Pure_Scraping | Newborough_Methods_Supplement.md |
@@ -485,6 +500,7 @@
 |  | ANCOVA_Combined_Impact_coeff_coastal_x_time | report11.md, report8.md |
 |  | ANCOVA_Combined_Impact_s_coast | report11.md, report8.md |
 |  | ANCOVA_Forest_Edge_R2 | Newborough_Methods_Supplement.md |
+|  | ANCOVA_Forest_Edge_curv_dAIC | report9.md |
 |  | ANCOVA_Forest_Impact_R2 | Newborough_Methods_Supplement.md |
 |  | ANCOVA_Forest_Impact_clearfell_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, academic_Summary.md |
 |  | ANCOVA_Forest_Impact_clearfell_step_summer_noCWB | Newborough_Methods_Supplement.md |
@@ -572,6 +588,7 @@
 |  | CoeffShift_CEH9_b3_before | report9.md |
 |  | CoeffShift_CEH9_db1 | report9.md |
 |  | CoeffShift_CEH9_db2 | report9.md |
+|  | CoeffShift_Edge_mean_db1_pct_of_before | report10.md |
 |  | CoeffShift_NW10_b1_after | report9.md |
 |  | CoeffShift_NW10_b1_before | report9.md |
 |  | CoeffShift_NW10_b2_after | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
@@ -599,6 +616,9 @@
 |  | CoeffShift_NW7_b2_before | report9.md |
 |  | CoeffShift_NW7_b3_before | report9.md |
 |  | CoeffShift_NW7_db1 | report9.md |
+|  | CoeffShift_Network_mean_b1_before | report10.md, report9.md |
+|  | CoeffShift_Network_mean_db1 | report9.md |
+|  | CoeffShift_Network_mean_db1_pct_of_before | report10.md |
 |  | CoeffShift_WMC2_b1_after | report9.md |
 |  | CoeffShift_WMC2_b1_before | report9.md |
 |  | CoeffShift_WMC2_b2_after | report9.md |
@@ -622,6 +642,12 @@
 |  | Sensitivity_lambda200_Forest_Impact_clearfell | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, academic_Summary.md |
 |  | Sensitivity_lambda500_Climate_Edge_clearfell | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | Sensitivity_lambda500_Forest_Impact_clearfell | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, academic_Summary.md |
+|  | SummerMin_ForestCtrl_era_mean · Forest Ctrl · Post_felling | report10.md |
+|  | SummerMin_ForestCtrl_era_mean · Forest Ctrl · Pre_scraping | report10.md |
+|  | SummerMin_ForestCtrl_era_mean · Forest Ctrl · Scraping_era | report10.md |
+|  | SummerMin_WMC3_era_mean · WMC3 · Post_felling | report10.md |
+|  | SummerMin_WMC3_era_mean · WMC3 · Pre_scraping | report10.md |
+|  | SummerMin_WMC3_era_mean · WMC3 · Scraping_era | report10.md |
 |  | WMC3_ANCOVA_clearfell_step_ref | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, academic_Summary.md, crynodeb_academaidd.md, report9.md |
 |  | synth_FE1_R2_cal | Newborough_Methods_Supplement.md |
 |  | synth_FE2_R2_cal | Newborough_Methods_Supplement.md |
@@ -667,6 +693,7 @@
 |  | (CEH32+CEH33)-(CEH34+CEH2) / free_per_era / 2017-12..2020-12 · p | Supplementary_Material.md |
 |  | (CEH32+CEH33)-(CEH34+CEH2) / none / 2017-12..2020-12 · p | Supplementary_Material.md |
 |  | (CEH32+CEH33)-(CEH34+CEH2) / none / 2021-01..2026-02 · p | Supplementary_Material.md |
+| `10a_report_numbers.csv` | ANCOVA_Forest_Edge_coeff_cwb2_x_fell | Newborough_Methods_Supplement.md |
 | `10c_forest_zone_cluster_summary.csv` | Elevation_m · C4_max | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md, site_geography.md |
 |  | Elevation_m · C4_mean | Paper1.md, report9.md |
 |  | Model_R² · C5_max | Newborough_Methods_Supplement.md, report9.md |
@@ -817,7 +844,7 @@
 |  | Western_Block · p_value_h_min | report10.md |
 | `11b_06_pflood_cluster_summary.csv` | C1 (Lake Edge) · m_P | report9.md |
 |  | C2 (Dune) · m_P | report9.md |
-|  | C3 (Western Residual) · m_P | report9.md |
+|  | C3 (Western Residual) · m_P | report10.md, report9.md |
 |  | C4 (Main Forest) · m_P | report9.md |
 |  | C5 (Coastal Forest) · m_P | report9.md |
 | `12_report_numbers.csv` | study_area_envelope_e_km | report7.md |
@@ -858,7 +885,9 @@
 | `15_04_best_params.csv` | C1 · Best_Kappa | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
 |  | C1 · SSM_NSE | readme.md |
 |  | C4 · NSE_Iterative | report9.md |
+| `15_report_numbers.csv` | depth_dependent_pet_best_kappa · C1 | Newborough_Methods_Supplement.md |
 | `16_report_numbers.csv` | C4 (Main Forest) · water_balance_residual_pct | report9.md |
+|  | water_balance_PET_mean_mm · C2 (Dune) | report9.md |
 |  | water_balance_PET_mean_mm_max | report9.md |
 |  | water_balance_PET_mean_mm_min | report9.md |
 |  | water_balance_P_mean_mm_max | report9.md |
@@ -950,6 +979,8 @@
 |  | C5_halflife_min | report9.md |
 |  | beta3_pvalue_ceh13_full_record | report9.md |
 |  | halflife_ceh13_full_record | report9.md |
+|  | sy_recip_beta3_correlation_r | report10.md, report8.md |
+| `19_report_numbers.csv` | msl5_crosscheck_worst_diff_mm | Newborough_Methods_Supplement.md |
 | `19_scenario_perwell.csv` | clearfell / annual / nw11 · dh_m | report9.md |
 |  | clearfell / annual / nw11 · we_mm | report9.md |
 |  | clearfell / annual / wmc3 · dh_m | report9.md |
@@ -972,20 +1003,23 @@
 | `20_msl5_change_perwell.csv` | ceh1 · MSL5_bg_2017_m | Supplementary_Material.md |
 |  | ceh26 · MSL5_bg_2023_m | Supplementary_Material.md |
 |  | d10 · MSL5_bg_2017_m | Supplementary_Material.md |
-| `20_msl5_report_numbers.csv` | msl5_change_ceh18 | report9.md |
+| `20_msl5_report_numbers.csv` | msl5_change_c4_mean | report10.md |
+|  | msl5_change_ceh18 | report10.md, report9.md |
 |  | msl5_change_ceh21 | report9.md |
 |  | msl5_change_ceh22 | report9.md |
 |  | msl5_change_ceh25 | report9.md |
 |  | msl5_change_ceh36 | report9.md |
 |  | msl5_change_wmc3 | report9.md |
-|  | msl5_deepening | report9.md |
+|  | msl5_deepening | Newborough_Methods_Supplement.md, report9.md |
 |  | msl5_mean_2017 | report10.md, report9.md |
 |  | msl5_mean_2023 | report10.md, report9.md |
 |  | msl5_n_significant | report9.md |
-| `20_report_numbers.csv` | coastal_retreat_rate | Newborough_Methods_Supplement.md, Paper1.md, report8.md, report9.md |
+| `20_report_numbers.csv` | beta_3_c3 | Newborough_Methods_Supplement.md |
+|  | coastal_retreat_rate | Newborough_Methods_Supplement.md, Paper1.md, report8.md, report9.md |
 |  | drawdown_ceh23 | report9.md |
 |  | drawdown_d15 | report9.md |
-| `20_residual_perwell.csv` | ceh14 · residual_wb | PAPER1_SI_methods.md, Paper1.md, report9.md |
+|  | sy_c3 | Newborough_Methods_Supplement.md |
+| `20_residual_perwell.csv` | ceh14 · residual_wb | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, report9.md |
 |  | ceh2 · residual_wb | report10.md |
 |  | d7 · residual_wb | PAPER1_SI_methods.md, Paper1.md, report9.md |
 |  | nw2 · residual_wb | report10.md |
@@ -1068,6 +1102,25 @@
 |  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfe | Supplementary_Material.md, report.md, report10.md, report12.md, report9.md |
 |  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfe | report.md, report12.md, report9.md |
 |  | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · thinnin | Supplementary_Material.md, report.md, report10.md, report9.md |
+| `22_05_ssm_residual_autocorrelation.csv` | ceh14 · ar1_phi | Newborough_Methods_Supplement.md |
+|  | ceh23 · p_beta_2_ols | Newborough_Methods_Supplement.md |
+|  | ceh25 · p_beta_2_ols | Newborough_Methods_Supplement.md |
+|  | nw6 · ar1_phi | Newborough_Methods_Supplement.md |
+| `22_report_numbers.csv` | alpha_phi_pearson_r | Newborough_Methods_Supplement.md |
+|  | ar1_phi_network_mean | Newborough_Methods_Supplement.md |
+|  | ar1_phi_network_median | Newborough_Methods_Supplement.md |
+|  | ssm_resid_dw_median | Newborough_Methods_Supplement.md |
+|  | ssm_resid_dw_q1 | Newborough_Methods_Supplement.md |
+|  | ssm_resid_phi_mean | Newborough_Methods_Supplement.md |
+|  | ssm_resid_phi_median | Newborough_Methods_Supplement.md |
+| `23_report_numbers.csv` | ridge_lag_mannwhitney_U_C4_vs_C2C3 | Supplementary_Material.md |
+|  | ridge_lag_mean_b11_C5 | Newborough_Methods_Supplement.md |
+|  | ridge_lag_median_b11_lagged_fraction · C2 (Dune) | Newborough_Methods_Supplement.md |
+|  | ridge_lag_median_b11_lagged_fraction · C5 (Coastal Forest) | Newborough_Methods_Supplement.md |
+|  | ridge_lag_spearman_rho_peak_lag_vs_distance | Newborough_Methods_Supplement.md |
+|  | ridge_lag_test_n_wells_analysed | Newborough_Methods_Supplement.md |
+| `24_report_numbers.csv` | residual_seasonal_amplitude_cluster_mean_min | Newborough_Methods_Supplement.md |
+|  | residual_sunshine_corr_network_mean | report10.md |
 | `24b_02_peak_winter_minus_summer.csv` | C1 (Lake Edge) · n_wells | report9.md |
 | `25_01_panel_fit_parameters.csv` | c3_only / exponential_cfix · c_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | c3_only / exponential_cfix · delta_0_mm_yr | PAPER1_SI_methods.md |
@@ -1082,8 +1135,11 @@
 |  | forest_free / exponential · delta_0_se | PAPER1_SI_methods.md |
 |  | forest_free / linear_capped · delta_0_mm_yr | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
 |  | forest_free / linear_capped · delta_0_se | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md, report10.md |
+|  | forest_free / linear_capped · delta_ref_mm_yr | Newborough_Methods_Supplement.md |
 |  | forest_free / linear_capped · delta_ref_se | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md |
+|  | forest_free_mam / linear_capped · delta_0_mm_yr | Newborough_Methods_Supplement.md |
 |  | forest_free_mam / linear_capped · delta_0_se | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md |
+|  | forest_free_mam / linear_capped · delta_ref_mm_yr | Newborough_Methods_Supplement.md |
 |  | forest_free_mam / linear_capped · delta_ref_se | Newborough_Methods_Supplement.md, PIPELINE_README.md, Paper1.md, report.md, report10.md, report12.md, report9.md |
 |  | full / exponential · c_mm_yr | PAPER1_SI_methods.md |
 |  | full / exponential · delta_0_mm_yr | PAPER1_SI_methods.md |
@@ -1119,8 +1175,23 @@
 |  | exponential · gamma_t | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md |
 |  | linear_capped · gamma_spring_modulation | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, Supplementary_Material.md |
 |  | linear_capped · gamma_t | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Supplementary_Material.md |
+| `25_10_record_length_composition.csv` | C2 (Dune) · mean_slope_long_mm_yr | Newborough_Methods_Supplement.md |
+| `25_12_window_sweep.csv` | forest_free / 2005-03 / 2026-02 · c_mm_yr | Newborough_Methods_Supplement.md |
+|  | forest_free / 2005-06 / 2026-02 · delta_0_mm_yr | Newborough_Methods_Supplement.md |
+|  | forest_free / 2014-02 / 2026-02 · c_mm_yr | Newborough_Methods_Supplement.md |
 | `25_16_delta0_leave_one_out.csv` | ceh28 · d_delta_0_mm_yr | Supplementary_Material.md |
-| `25_report_numbers.csv` | Canopy_controlled_delta_0 | Newborough_Methods_Supplement.md, Paper1.md |
+| `25_report_numbers.csv` | C5_observed_per_well_mean | Newborough_Methods_Supplement.md |
+|  | Canopy_controlled_delta_0 | Newborough_Methods_Supplement.md, Paper1.md |
+|  | Check2_msl5raw_vs_summermin_pearson_r | report11.md |
+|  | DeltaAIC_lincap_vs_exp_c3_only | Newborough_Methods_Supplement.md |
+|  | DeltaAIC_lincap_vs_exp_full | Newborough_Methods_Supplement.md |
+|  | ForestFree_d0_disagreement_lincap_vs_exp | Newborough_Methods_Supplement.md |
+|  | ForestFree_exponential_c | Newborough_Methods_Supplement.md |
+|  | Headline_fit_c | Newborough_Methods_Supplement.md |
+|  | Headline_fit_delta_0 | Newborough_Methods_Supplement.md |
+|  | WindowSweep_c_vs_farfield_observed_r | Newborough_Methods_Supplement.md |
+|  | WindowSweep_farfield_observed_full_window | Newborough_Methods_Supplement.md |
+|  | coastal_spec_range_delta0_max | Newborough_Methods_Supplement.md |
 |  | delta0_well_basis_ci_hi_mm_yr | PAPER1_SI_methods.md |
 |  | delta0_well_basis_ci_lo_mm_yr | PAPER1_SI_methods.md |
 |  | delta0_well_basis_se_mm_yr | PAPER1_SI_methods.md, Paper1.md |
@@ -1221,12 +1292,20 @@
 |  | C5 (Coastal Forest) / 2025 · MSL5_m_bg_median | Supplementary_Material.md, report9.md |
 | `26_report_numbers.csv` | beta2_vs_tR_spearman_r | report9.md |
 |  | curreli_min_quadrat_wells_first_window_min_m_bg | report9.md |
-|  | ewi_msl5_intercept_a | report9.md |
+|  | ewi_msl5_forest_holdout_n | Newborough_Methods_Supplement.md, report9.md |
+|  | ewi_msl5_forest_holdout_rmse_mm | report9.md |
+|  | ewi_msl5_intercept_a | Newborough_Methods_Supplement.md, report9.md |
+|  | ewi_msl5_n_calibration | Newborough_Methods_Supplement.md, report9.md |
+|  | ewi_msl5_open_dune_max_abs_residual_mm | report9.md |
 |  | ewi_msl5_r | report9.md |
-|  | ewi_msl5_rmse_mm_open_dune | report.md, report10.md, report12.md, report9.md |
-|  | ewi_msl5_slope_b | report9.md |
+|  | ewi_msl5_rmse_mm_open_dune | Newborough_Methods_Supplement.md, report.md, report10.md, report12.md, report9.md |
+|  | ewi_msl5_slope_b | Newborough_Methods_Supplement.md, report9.md |
+|  | method_ab_max_abs_diff_m | Newborough_Methods_Supplement.md |
+|  | msl5_min5_annual_n | Newborough_Methods_Supplement.md |
+|  | msl5_min5_window_n | Newborough_Methods_Supplement.md |
 |  | msl5_min5_window_r | Newborough_Methods_Supplement.md |
-|  | msl5_n_annual_valid | report8.md |
+|  | msl5_n_annual_total | Newborough_Methods_Supplement.md |
+|  | msl5_n_annual_valid | Newborough_Methods_Supplement.md, report8.md |
 |  | msl5_n_annual_valid_with_interp | report8.md |
 |  | msl5_n_windows_admitted | report8.md |
 |  | msl5_n_windows_with_interp | report8.md |
@@ -1236,6 +1315,7 @@
 |  | rho_lag1_vs_tR_spearman_r | report9.md |
 |  | site_mean_spring_n_years | report9.md |
 |  | site_mean_spring_rho_lag1 | report9.md |
+|  | spring_sd_mm_median_c2 | report9.md |
 | `26b_msl5_ukcp18_projection_summary.csv` | C2 (Dune) / 2050s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C2 (Dune) / 2080s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |
@@ -1270,12 +1350,16 @@
 |  | t41b · obs_years | report10.md, report9.md |
 |  | t41c · obs_years | report10.md, report9.md |
 |  | t41d · obs_years | report10.md, report9.md |
+| `28_report_numbers.csv` | c3_n_moves_to_c2_forest_free | Newborough_Methods_Supplement.md |
+|  | c3_n_testable | Newborough_Methods_Supplement.md |
+| `29_headline_models.csv` | recession_time_months · full_R2 | report10.md |
 | `29_report_numbers.csv` | C3_Sy_max | Newborough_Methods_Supplement.md, Supplementary_Material.md, report10.md, report9.md |
-|  | C3_Sy_min | Supplementary_Material.md, report9.md |
+|  | C3_Sy_min | Supplementary_Material.md, report10.md, report9.md |
 |  | C3_Sy_vs_inland_r | report10.md, report9.md |
 |  | C3_beta1_vs_inland_r | report10.md, report9.md |
 |  | C3_beta3_vs_inland_p | report9.md |
 |  | C3_beta3_vs_inland_r | report10.md, report9.md |
+|  | C3_gradient_n | report10.md, report9.md |
 | `29_within_c3_variance.csv` | ceh21 · depth_to_water_m | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, report10.md |
 |  | ceh21 · mean_head_maod | report9.md |
 |  | ceh36 · model_R2 | Paper1.md, report9.md |
@@ -1315,7 +1399,8 @@
 |  | nw5 · beta3 | Supplementary_Material.md |
 |  | nw6 · hd_sd | Supplementary_Material.md |
 |  | nw9 · beta3_full | Supplementary_Material.md |
-| `30_c4_report_numbers.csv` | c4_centroid_beta3_excl | report9.md |
+| `30_c4_report_numbers.csv` | c4_centroid_beta3 | Newborough_Methods_Supplement.md |
+|  | c4_centroid_beta3_excl | Newborough_Methods_Supplement.md, report9.md |
 |  | c4_closure_min_beta3 | Supplementary_Material.md, report9.md |
 |  | c4_hd_sd | report9.md |
 |  | c4_perwell_sig_window100 | Newborough_Methods_Supplement.md, Supplementary_Material.md |
@@ -1386,6 +1471,8 @@
 |  | nw10 · wet_m | Supplementary_Material.md |
 |  | nw6 · wet_m | Supplementary_Material.md |
 |  | t41a · amplification | report9.md |
+| `34_report_numbers.csv` | window_change_envelope_min_mm | report10.md |
+|  | window_change_n_admissible_pairs | report10.md |
 | `34_window_matrix.csv` | 2019 / 2021 · change_mm | Newborough_Methods_Supplement.md |
 | `35_per_well_amplification.csv` | ceh11 · se | Newborough_Methods_Supplement.md, report9.md |
 |  | ceh14 · amp_coefficient | report10.md |
@@ -1417,8 +1504,10 @@
 |  | nw6 · amp_coefficient | Paper1.md |
 |  | nw8b · amp_coefficient | report.md, report12.md, report9.md |
 |  | wmc2 · se | Newborough_Methods_Supplement.md, report9.md |
-| `35_report_numbers.csv` | amp_vs_beta2_r | report9.md |
-|  | amp_vs_beta3_r | report10.md, report9.md |
+| `35_report_numbers.csv` | amp_vs_beta2_r | Newborough_Methods_Supplement.md, report9.md |
+|  | amp_vs_beta3_r | Newborough_Methods_Supplement.md, report10.md, report9.md |
+|  | validation_cotemporal_vs_matched_r | Newborough_Methods_Supplement.md |
+| `37_report_numbers.csv` | neg_control_c2_mean_residual_mm_full_record | Newborough_Methods_Supplement.md |
 | `37_scale_factors_by_window.csv` | 2005_2025 / primary · n | report9.md |
 |  | 2005_2025 / primary · s_cf | report9.md |
 |  | 2005_2025 / primary · s_cf_ci_hi | report9.md |
@@ -1449,6 +1538,10 @@
 |  | 2018_2025 / with_broadleaf_covariate · s_cf_ci_hi | report9.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_cf_ci_lo | report9.md |
 |  | 2018_2025 / with_broadleaf_covariate · s_coast_ci_hi | report9.md |
+| `37b_driver_footing.csv` | scrape_net · volume_m3 | Newborough_Methods_Supplement.md |
+|  | scrape_offsite · area_mm_ha | Newborough_Methods_Supplement.md |
+|  | scrape_offsite · peak_mm | Newborough_Methods_Supplement.md |
+|  | scrape_offsite · volume_m3 | Newborough_Methods_Supplement.md |
 | `38_report_numbers.csv` | transect_coastal_end_spearman_anchored | Newborough_Methods_Supplement.md |
 |  | transect_coastal_end_spearman_raw | Newborough_Methods_Supplement.md |
 |  | transect_trend_ci_hi | Newborough_Methods_Supplement.md, PIPELINE_README.md |
@@ -1459,8 +1552,11 @@
 |  | nw4 · bias_m | Supplementary_Material.md |
 |  | nw5 · nse | Supplementary_Material.md |
 |  | nw5 · pearson_r | Newborough_Methods_Supplement.md |
+|  | nw6 · pearson_r | Newborough_Methods_Supplement.md |
 |  | wmc2 · epoch_shift_m | Newborough_Methods_Supplement.md |
-| `39_report_numbers.csv` | ccw_annual_range_mean_m | report9.md |
+| `39_report_numbers.csv` | canopy_nse_mean_beta1_scale_1.00 | Newborough_Methods_Supplement.md |
+|  | canopy_nse_mean_beta1_scale_1.10 | Newborough_Methods_Supplement.md |
+|  | ccw_annual_range_mean_m | report9.md |
 |  | ccw_annual_range_sd_m | report9.md |
 |  | epoch_rate_if_linear_mm_yr | report10.md |
 |  | epoch_shift_max | report9.md |
@@ -1468,23 +1564,31 @@
 |  | epoch_shift_min | report9.md |
 |  | nse_bias_removed_max_excl_persistent_forest | report9.md |
 |  | nse_bias_removed_min_excl_persistent_forest | report9.md |
-|  | nse_bias_removed_persistent_forest | report9.md |
-|  | open_epoch_shift_median | report10.md, report9.md |
-|  | open_nse_bias_removed_median | report9.md |
-|  | open_pearson_r_median | report9.md |
+|  | nse_bias_removed_persistent_forest | Newborough_Methods_Supplement.md, report9.md |
+|  | open_bias_mean_beta1_scale_1.00 | Newborough_Methods_Supplement.md |
+|  | open_bias_mean_beta1_scale_1.03 | Newborough_Methods_Supplement.md |
+|  | open_epoch_shift_median | Newborough_Methods_Supplement.md, report10.md, report9.md |
+|  | open_nse_bias_removed_median | Newborough_Methods_Supplement.md, report9.md |
+|  | open_nse_mean_beta1_scale_1.03 | Newborough_Methods_Supplement.md |
+|  | open_nse_mean_beta1_scale_1.06 | Newborough_Methods_Supplement.md |
+|  | open_nse_mean_beta1_scale_1.10 | Newborough_Methods_Supplement.md |
+|  | open_pearson_r_median | Newborough_Methods_Supplement.md, report9.md |
 |  | pearson_r_max | report9.md |
 |  | pearson_r_median | report9.md |
 |  | pearson_r_min | report9.md |
 |  | rain_mean_modern_m_yr | report9.md |
 |  | rain_mean_window_m_yr | report9.md |
-|  | residual_mean_all | report9.md |
-|  | residual_mean_open | report10.md, report9.md |
+|  | residual_mean_all | Newborough_Methods_Supplement.md, report9.md |
+|  | residual_mean_open | Newborough_Methods_Supplement.md, report10.md, report9.md |
 |  | surplus_mean_modern_m_yr | report9.md |
 |  | surplus_mean_window_m_yr | report9.md |
-| `40_01_epoch_series.csv` | 2006 / 2017 / modern_common_frontage · rate_m_yr | report8.md |
+| `40_01_epoch_series.csv` | 1899 / 2006 / pair_extent · rate_m_yr | Newborough_Methods_Supplement.md |
+|  | 2006 / 2017 / modern_common_frontage · rate_m_yr | report8.md |
 |  | 2017 / 2021 / modern_common_frontage · rate_m_yr | report8.md |
 |  | 2021 / 2026 / modern_common_frontage · rate_m_yr | report8.md |
 |  | synthetic / synthetic / synthetic_translation_anchor · years | report9.md |
+| `40_report_numbers.csv` | headline_retreat_rate_2006_2026_m_yr | Newborough_Methods_Supplement.md |
+|  | winter2019_20_displacement_median_m | Newborough_Methods_Supplement.md |
 | `41_01_canopy_index.csv` | broadleaf_restock / 2012-05-26 / aerial26-5-2012.png · ratio_to_conife | report9.md |
 |  | broadleaf_restock / 2017-04-22 / aerial22-4-2017.png · index | Newborough_Methods_Supplement.md |
 |  | broadleaf_restock / 2026-03-31 / aerial31-3-2026.png · ratio_to_conife | report8.md |
@@ -1505,9 +1609,10 @@
 |  | felling_experiment / 2018-07-08 / aerial8-7-2018.png · index | Newborough_Methods_Supplement.md, report10.md |
 |  | forest_control / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer | Paper1.md |
 |  | forest_in_view / 2017-04-22 / aerial22-4-2017.png · index | report10.md |
-|  | forest_in_view / 2018-06-28 / aerial28-6-2018.png · index | report10.md |
+|  | forest_in_view / 2018-06-28 / aerial28-6-2018.png · index | report10.md, report8.md |
 |  | forest_in_view / 2020-03-31 / aerial31-3-2020.png · index | report10.md |
 | `41_report_numbers.csv` | canopy_index_clearfell_full_leaf_median | Newborough_Methods_Supplement.md |
+|  | canopy_ratio_restock_conifer_full_leaf_cv_pct | Newborough_Methods_Supplement.md |
 |  | canopy_ratio_restock_conifer_full_leaf_median | Newborough_Methods_Supplement.md |
 | `44_04_hindcast_metrics.csv` | 4 / nw11 · nse_after_offset | Paper1.md, report9.md |
 | `44_05_level_change.csv` | COMBINED_CONSTRAINED / nan · sigma_total_m | Hollingham_2026_Paper2_amended.md, report9.md |

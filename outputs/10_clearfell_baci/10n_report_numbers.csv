@@ -1,9 +1,20 @@
 Parameter,Well,Era,Value,Unit,Note
+SynthGross_Impact_step,,,0.10127937385939181,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.010"
+SynthGross_Edge_step,,,0.044116061719880695,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.336"
+SynthGross_ForestCtrl_step,,,0.053095266947390495,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.378"
+SynthGross_ClimateCtrl_step,,,0.03349187461981683,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.175"
+SynthGross_CoastalCtrl_step,,,0.04121099243026995,m,"zone's own synthetic-control gross step (scrape-to-fell vs post-fell), not vs another zone; HAC p=0.411"
 SynthDiD_Impact_step,,,0.04766509850053491,m,"vs Forest Ctrl, HAC p=0.131, maxlags=4"
 SynthDiD_Impact_se,,,0.03158107246837549,m,Newey-West HAC
+SynthDiD_Impact_ci_lo,,,-0.014233803537481056,m,"95% CI lower bound, vs Forest Ctrl, HAC p=0.131"
+SynthDiD_Impact_ci_hi,,,0.10956400053855087,m,"95% CI upper bound, vs Forest Ctrl, HAC p=0.131"
 SynthDiD_Edge_step,,,-0.008979205227509819,m,"vs Forest Ctrl, HAC p=0.649, maxlags=4"
 SynthDiD_Edge_se,,,0.019719138826896788,m,Newey-West HAC
+SynthDiD_Edge_ci_lo,,,-0.04762871732822752,m,"95% CI lower bound, vs Forest Ctrl, HAC p=0.649"
+SynthDiD_Edge_ci_hi,,,0.02967030687320788,m,"95% CI upper bound, vs Forest Ctrl, HAC p=0.649"
 SynthDiD_Impact_pretrend,,,-0.013250482158552379,m/yr,HAC p=0.006; PARALLEL TRENDS FAIL
+SynthDiD_Impact_pretrend_postscrape,,,-0.05024591554324863,m/yr,scrape excluded; short window; HAC p=0.049; PARALLEL TRENDS FAIL
 SynthDiD_Impact_step_detrended,,,0.04003964238313142,m,"discontinuity net of a common linear trend, HAC p=0.311"
 SynthDiD_Edge_pretrend,,,-0.02101080071833603,m/yr,HAC p=<0.001; PARALLEL TRENDS FAIL
+SynthDiD_Edge_pretrend_postscrape,,,-0.04029740798719058,m/yr,scrape excluded; short window; HAC p=0.024; PARALLEL TRENDS FAIL
 SynthDiD_Edge_step_detrended,,,0.012278058472888546,m,"discontinuity net of a common linear trend, HAC p=0.695"

@@ -1,4 +1,4 @@
-Per-well spring climate-sensitivity coefficient (Script 35 v1.3.0)
+Per-well spring climate-sensitivity coefficient (Script 35 v1.4.0)
 spring months (2, 3, 4); dry pool [2011, 2012, 2019, 2020, 2025]; wet pool [2014, 2016, 2021, 2024]
 reference core = 54 full-dry-coverage wells; single-year σ = 144 mm
 wells with a coefficient: 79  (tiers: A=77, B=2, C=0)

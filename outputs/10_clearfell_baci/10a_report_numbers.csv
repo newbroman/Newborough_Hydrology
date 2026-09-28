@@ -180,3 +180,30 @@ Canopy_era_Impact_early_step,WMC3-Forest5,2017-12..2020-12,0.15152836983015003,m
 Canopy_era_Impact_late_step,WMC3-Forest5,2021-01..2026-02,0.039208253373369154,m,+39.2 mm (late era)
 Canopy_era_Edge_early_step,Edge-Forest5,2017-12..2020-12,0.06611225790136055,m,+66.1 mm (early era)
 Canopy_era_Edge_late_step,Edge-Forest5,2021-01..2026-02,-0.006226224380011405,m,-6.2 mm (late era)
+Pre_felling_baseline_years,WMC3,Impact,8.41889117043121,years,first valid monitoring month (2009-06) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years_min,WMC3,Impact,8.41889117043121,years,minimum across the Impact tier (WMC3)
+Pre_felling_baseline_years_max,WMC3,Impact,8.41889117043121,years,maximum across the Impact tier (WMC3)
+Pre_felling_baseline_years,CEH31,Edge,7.4195756331279945,years,first valid monitoring month (2010-06) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,CEH20,Edge,8.999315537303216,years,first valid monitoring month (2008-11) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,CEH30,Edge,7.4195756331279945,years,first valid monitoring month (2010-06) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,CEH16,Edge,10.338124572210814,years,first valid monitoring month (2007-07) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years_min,CEH31,Edge,7.4195756331279945,years,"minimum across the Edge tier (CEH31, CEH20, CEH30, CEH16)"
+Pre_felling_baseline_years_max,CEH16,Edge,10.338124572210814,years,"maximum across the Edge tier (CEH31, CEH20, CEH30, CEH16)"
+Pre_felling_baseline_years,CEH32,Forest control,7.337440109514032,years,first valid monitoring month (2010-07) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,CEH34,Forest control,7.252566735112937,years,first valid monitoring month (2010-08) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,CEH33,Forest control,7.337440109514032,years,first valid monitoring month (2010-07) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,NW10,Forest control,10.505133470225873,years,first valid monitoring month (2007-05) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,CEH2,Forest control,11.586584531143053,years,first valid monitoring month (2006-04) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years_min,CEH34,Forest control,7.252566735112937,years,"minimum across the Forest control tier (CEH32, CEH34, CEH33, NW10, CEH2)"
+Pre_felling_baseline_years_max,CEH2,Forest control,11.586584531143053,years,"maximum across the Forest control tier (CEH32, CEH34, CEH33, NW10, CEH2)"
+Pre_felling_baseline_years,CEH19,Coastal control,9.670088980150581,years,first valid monitoring month (2008-03) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,CEH17,Coastal control,10.338124572210814,years,first valid monitoring month (2007-07) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years_min,CEH19,Coastal control,9.670088980150581,years,"minimum across the Coastal control tier (CEH19, CEH17)"
+Pre_felling_baseline_years_max,CEH17,Coastal control,10.338124572210814,years,"maximum across the Coastal control tier (CEH19, CEH17)"
+Pre_felling_baseline_years,CEH9,Climate control,11.50444900752909,years,first valid monitoring month (2006-05) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,NW7,Climate control,12.670773442847365,years,first valid monitoring month (2005-03) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,NW6,Climate control,12.670773442847365,years,first valid monitoring month (2005-03) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,NW5,Climate control,12.670773442847365,years,first valid monitoring month (2005-03) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years,WMC2,Climate control,8.747433264887064,years,first valid monitoring month (2009-02) to last valid month before CLEARFELL_DATE (2017-11)
+Pre_felling_baseline_years_min,WMC2,Climate control,8.747433264887064,years,"minimum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
+Pre_felling_baseline_years_max,NW7,Climate control,12.670773442847365,years,"maximum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"

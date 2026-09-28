@@ -43,7 +43,11 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-23. Clusters vs covariates
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-09-28. T-91: emits C4
+#   β₂-β₃ per-well correlation (all C4 wells, and with CEH14 removed) and the
+#   highest positive C4 β₃ excluding CEH14, so report9 §4.2.2/§4.9.2 numbers
+#   have a committed source. No existing output changes.
+# 1.4.0  Hollingham (2026) — 2026-09-23. Clusters vs covariates
 #   (T-73): new clusters_vs_covariates() regresses each per-well SSM
 #   coefficient (β₁, β₂, β₃; the reference wells in 03_master_data.csv) on six
 #   site covariates from 01_locations.csv (dist_coast_m, dist_lake_m,
@@ -698,6 +702,29 @@ if __name__ == "__main__":
                 well="CEH14", note="negative β₃ — lateral recharge from rock ridge (C4)")
         rpt.add("CEH14_beta3_pct", float(_ceh14["beta_3_drainage"].iloc[0]) * 100.0,
                 unit="%/month", well="CEH14", note="negative β₃ as %")
+    # T-91: C4 β₂-β₃ per-well correlation (report9 §4.2.2), all C4 wells and
+    # with CEH14 removed — CEH14's atypical β₂/β₃ combination is discussed
+    # separately (rock-ridge lateral recharge), so both the full-C4 and the
+    # CEH14-excluded correlation are cited in the same sentence.
+    _c4 = df[df["Cluster_ID"] == 4]
+    _c4_excl14 = _c4[_c4["Name_Original"].astype(str).str.lower().str.replace(" ", "") != "ceh14"]
+    if len(_c4) > 2:
+        rpt.add("C4_beta2_beta3_corr_all", float(_c4["beta_2_atmospheric_draw"].corr(_c4["beta_3_drainage"])),
+                unit="", note=f"Pearson r, β₂ vs β₃ across all C4 wells, n={int(len(_c4))}")
+    if len(_c4_excl14) > 2:
+        rpt.add("C4_beta2_beta3_corr_excl_ceh14",
+                float(_c4_excl14["beta_2_atmospheric_draw"].corr(_c4_excl14["beta_3_drainage"])),
+                unit="", note=f"Pearson r, β₂ vs β₃ across C4 wells with CEH14 removed, "
+                              f"n={int(len(_c4_excl14))}")
+    # T-91: highest positive β₃ among C4 wells, excluding CEH14's negative
+    # estimate (report9 §4.9.2, "no well above X% per month" in the forest
+    # interior).
+    _c4_pos = _c4_excl14[_c4_excl14["beta_3_drainage"] > 0]
+    if len(_c4_pos):
+        _c4_pos_max_row = _c4_pos.loc[_c4_pos["beta_3_drainage"].idxmax()]
+        rpt.add("C4_beta3_pct_max_excl_ceh14", float(_c4_pos_max_row["beta_3_drainage"]) * 100.0,
+                unit="%/month", well=str(_c4_pos_max_row["Name_Original"]),
+                note="highest positive β₃ among C4 wells, CEH14's negative estimate excluded")
     # T-73: clusters vs covariates, full panel only — the nested F-test p-value
     # and ΔAIC for C(Cluster) over the six covariates, per coefficient. The
     # primary artefact is 07_05_clusters_vs_covariates.csv.

@@ -1,0 +1,4 @@
+Parameter,Well,Era,Value,Unit,Note
+c3_n_total,C3,,26.0,wells,Full D-196 C3 cluster membership (02_07_cluster_membership_k5.csv).
+c3_n_testable,C3,,21.0,wells,C3 wells with both Script 25 dist_coast_m and a fitted hydrograph drift (model_delta_mm_yr not null) - the 'testable' set quoted in S.19.1.
+c3_n_moves_to_c2_forest_free,C3,,2.0,wells,"Of the testable C3 wells, count whose forest-free de-trended best-match cluster is C2 (Best_Detrended_FF)."

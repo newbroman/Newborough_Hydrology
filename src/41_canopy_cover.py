@@ -150,11 +150,18 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.13.0
+__version__ : 2.13.1
 """
 from __future__ import annotations
 
-__version__ = "2.13.0"  # Hollingham (2026) - 2026-09-27. The open-dune reference is the
+__version__ = "2.13.1"  # Hollingham (2026) - 2026-09-28. T-91, per the signed-off spec
+#   NRG_spec_T91_emits_2026-09-28: 41_report_numbers.csv now also carries the
+#   full-leaf restock-vs-conifer coefficient of variation
+#   (canopy_ratio_restock_conifer_full_leaf_cv_pct), so the Methods
+#   Supplement's "stable to N per cent" sentence binds to a committed number.
+#   Computed from `rr`, already in memory alongside the median/sd it already
+#   emits; nothing else moves.
+# 2.13.0  # Hollingham (2026) - 2026-09-27. The open-dune reference is the
 #   site outline from map_utils.load_site_outline() (D-204, spec NRG_spec_site_outline_B) minus the forest;
 #   the same union, no longer rebuilt from the 12 MB site_boundary.kml.
 # 2.12.0  # Martin, 2026-09-23: a script that runs past 30 s shows
@@ -1380,6 +1387,14 @@ def main() -> int:
                    "Note": ("spread of the full-leaf class; the emerging class "
                             "scatters several times as much, which is why the "
                             "basis is full leaf only")})
+        rn.append({"Parameter": "canopy_ratio_restock_conifer_full_leaf_cv_pct",
+                   "Well": "", "Era": f"{bl['imagery_date'].min()}–{bl['imagery_date'].max()}",
+                   "Value": (float(rr.std() / rr.median() * 100.0)
+                             if len(rr) > 1 and rr.median() else float("nan")),
+                   "Unit": "%",
+                   "Note": ("coefficient of variation of the full-leaf class "
+                            "(sd / median x 100), from the same rr the median "
+                            "and sd rows above are drawn from")})
         rn.append({"Parameter": "canopy_full_leaf_frames_n", "Well": "",
                    "Era": f"{bl['imagery_date'].min()}–{bl['imagery_date'].max()}",
                    "Value": float(len(bl)), "Unit": "frames",

@@ -1,4 +1,8 @@
 Parameter,Well,Era,Value,Unit,Note
+validation_cotemporal_vs_matched_r,,,0.9658963531271947,,"VALIDATION co-temporal vs matched-window amplification, n=68 (35_results.txt VALIDATION line)."
+validation_cotemporal_vs_matched_n,,,68.0,wells,n for the co-temporal vs matched-window VALIDATION check.
+validation_cotemporal_vs_matched_bias,,,0.07456222088368372,,"Mean bias, co-temporal vs matched-window VALIDATION check."
+validation_cotemporal_vs_matched_max_dev,,,0.5084971956613236,,"Max |deviation|, co-temporal vs matched-window VALIDATION check."
 amp_vs_beta2_r,,,0.6574106209870422,,"Pearson, amp_coefficient vs SSM β₂ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"
 amp_vs_beta2_p,,,3.6138442518738244e-09,,"Pearson, amp_coefficient vs SSM β₂ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"
 amp_vs_beta2_n,,,64.0,wells,"Pearson, amp_coefficient vs SSM β₂ (03_master_data), n=64; SSM-unreliable dropped: ceh13;ceh14"

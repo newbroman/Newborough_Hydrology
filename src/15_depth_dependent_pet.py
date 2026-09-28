@@ -45,7 +45,12 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal κ and β coefficients per cluster
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-08-28 (T-14 E7): the κ=0
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-28. T-91: emit the per-cluster
+#   best-fit κ (Best_Kappa, unrounded, from the in-memory best_params dict)
+#   to a new 15_report_numbers.csv, so the Methods Supplement's exp(-2.30·0.5)
+#   worked example binds to a committed value. No output value changes.
+#
+# v1.4.0  # Hollingham (2026) — 2026-08-28 (T-14 E7): the κ=0
 #   baseline is fitted by utils.model_utils.fit_ssm instead of a local
 #   re-implementation of the same three-column no-intercept design. The
 #   grid-search fit stays inline: its β₂ column carries −exp(−κ·d)·PET and
@@ -91,7 +96,7 @@ from utils.paths import (
     INT_WELLS_CLEAN, INT_CLIMATE, INT_CLUSTER_STATS,
     INT_LOCATIONS, INT_WELL_ELEVATIONS,
     OUT_15_LAMBDA_PROFILE, OUT_15_FIT_COMPARISON,
-    OUT_15_BENCHMARK_TABLE, OUT_15_BEST_PARAMS,
+    OUT_15_BENCHMARK_TABLE, OUT_15_BEST_PARAMS, OUT_15_REPORT_NUMBERS,
 )
 from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
 
@@ -101,6 +106,7 @@ from utils.console_utils import (
 )
 from utils.render_utils import render_figure
 from utils.model_utils import fit_ssm            # T-14 E7, 2026-08-28
+from utils.report_numbers_utils import ReportNumbers  # T-91
 make_all_dirs()
 
 INT_WELL_ELEV       = INT_WELL_ELEVATIONS   # local alias used throughout script
@@ -698,6 +704,19 @@ def main():
         })
     pd.DataFrame(params_rows).to_csv(OUT_BEST_PARAMS, index=False)
     saved(f"{OUT_BEST_PARAMS.name}")
+
+    # T-91: bind the per-cluster best-fit decay parameter (unrounded, from
+    # the in-memory best_params dict above, before any display rounding)
+    # to a committed report number.
+    rn = ReportNumbers()
+    for cid, bp in best_params.items():
+        rn.add("depth_dependent_pet_best_kappa", bp["best_kappa"],
+               unit="m^-1", well=f"C{cid}",
+               note="Best-fit PET depth-attenuation coefficient κ "
+                    "(grid-search argmax NSE_iterative), unrounded; "
+                    "15_04_best_params.csv Best_Kappa")
+    rn.save(OUT_15_REPORT_NUMBERS)
+    saved(f"{OUT_15_REPORT_NUMBERS.name}")
 
     # Kappa profile for all clusters (C1-C5 under the k = 5 partition)
     profile_all = pd.concat(

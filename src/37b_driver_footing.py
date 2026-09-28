@@ -89,7 +89,12 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-26. T-88 / D-200: the scrape
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+#   emits (no analysis change) - coast_erosion_{peak_mm,area_mm_ha,volume_m3},
+#   written to 37b_report_numbers.csv so the Methods Supplement S.20.6 headline
+#   sentence binds to a citation row.
+#
+# v1.6.0  # Hollingham (2026) - 2026-09-26. T-88 / D-200: the scrape
 #   off-site PEAK is the modelled drain cone at the WMC3 distance
 #   (mechanism_fig_utils.scrape_cone_at_wmc3_mm), flagged modelled, not the mean of the
 #   WMC3 raw DiD steps. That read matched its rows by the regex
@@ -1000,6 +1005,23 @@ def main() -> int:
                           / abs(coast_depth) * 100)
     df.to_csv(OUT_COMPARISON, index=False)
     saved(OUT_COMPARISON)
+
+    # T-91: committed report-numbers trace for the Methods Supplement S.20.6
+    # headline sentence (coastal erosion peak / area / volume) — computed
+    # from df already in memory (no re-read of OUT_COMPARISON).
+    from utils.report_numbers_utils import ReportNumbers
+    rpt = ReportNumbers()
+    _ce = df[df["component"] == "coast_erosion"]
+    if not _ce.empty:
+        _r = _ce.iloc[0]
+        rpt.add("coast_erosion_peak_mm", _r["peak_mm"], unit="mm",
+                note="Coastal erosion peak local head change (37b_driver_footing.csv, peak_mm).")
+        rpt.add("coast_erosion_area_mm_ha", _r["area_mm_ha"], unit="mm*ha",
+                note="Coastal erosion area-integrated change (37b_driver_footing.csv, area_mm_ha).")
+        rpt.add("coast_erosion_volume_m3", _r["volume_m3"], unit="m3",
+                note="Coastal erosion volume-integrated change (37b_driver_footing.csv, volume_m3).")
+    rpt.save(paths.OUT_37B_REPORT_NUMBERS)
+    saved(paths.OUT_37B_REPORT_NUMBERS)
 
     plot_footing(df)
     write_results(df, delta0, L_coast, clearfell_step_mm, scrape_onsite_mm,

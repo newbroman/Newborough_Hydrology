@@ -34,3 +34,7 @@ C4_halflife_mean_window,,,36.672004560382966,months,"mean t½ = ln(2)/β₃, C4,
 halflife_ceh13_window,CEH13,excluded,1061.8486574038748,months,"t½ = ln(2)/β₃, basis comparison_window (03_master_data.csv); excluded from the map"
 halflife_ceh13_full_record,CEH13,excluded,107.86987971429376,months,"t½ = ln(2)/β₃, basis full_record (03_19); excluded from the map"
 beta3_pvalue_ceh13_full_record,CEH13,excluded,0.3892504341481601,m,p-value of β₃ on the full record (03_19): whether CEH13's drainage term is identified
+sy_recip_beta3_correlation_r,,,0.2151665530948414,,"Pearson r(Sy_median, 1/β₃) over the reference network, non-excluded wells (n=64), basis full_record (D-192); from sdi_df (compute_storage_drainage_index)"
+sy_recip_beta3_correlation_p,,,0.0877349274598364,,p-value for sy_recip_beta3_correlation_r
+sy_recip_beta3_correlation_n,,,64.0,wells,wells behind sy_recip_beta3_correlation_r
+sdi_vs_halflife_correlation_r,,,0.9418706288131364,,"Pearson r between the per-well storage-drainage index τ = Sy/β₃ and t½ = ln(2)/β₃, same wells (n=64), basis full_record"

@@ -1,4 +1,10 @@
 Parameter,Well,Era,Value,Unit,Note
+SummerMin_WMC3_era_mean,WMC3,Post_felling,-1.5999999999999999,m,"era-mean Summer_min_m, n_years=7"
+SummerMin_WMC3_era_mean,WMC3,Pre_scraping,-1.5733333333333333,m,"era-mean Summer_min_m, n_years=3"
+SummerMin_WMC3_era_mean,WMC3,Scraping_era,-1.6199999999999999,m,"era-mean Summer_min_m, n_years=3"
+SummerMin_ForestCtrl_era_mean,Forest Ctrl,Post_felling,-1.765897435897436,m,"era-mean Summer_min_m across the Forest Ctrl tier, n_well_years=39"
+SummerMin_ForestCtrl_era_mean,Forest Ctrl,Pre_scraping,-1.8216666666666665,m,"era-mean Summer_min_m across the Forest Ctrl tier, n_well_years=18"
+SummerMin_ForestCtrl_era_mean,Forest Ctrl,Scraping_era,-1.7533333333333332,m,"era-mean Summer_min_m across the Forest Ctrl tier, n_well_years=15"
 SummerMin_Forest_WMC3_shift,WMC3,Post_felling,-0.0073,m,"p=0.9052, n_pre=6, n_post=7"
 SummerMin_Climate_WMC3_shift,WMC3,Post_felling,-0.0186,m,"p=0.6710, n_pre=6, n_post=7"
 SummerMin_Forest_CEH31_shift,CEH31,Post_felling,-0.0561,m,"p=0.5810, n_pre=7, n_post=8"

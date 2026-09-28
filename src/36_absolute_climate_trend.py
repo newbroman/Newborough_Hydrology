@@ -90,8 +90,16 @@ from utils import config, paths
 from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes, add_idw_surface
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, warn, track
 from utils.render_utils import render_figure
+from utils.report_numbers_utils import ReportNumbers  # T-91
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-28. T-91: writes
+#   36_report_numbers.csv (paths.OUT_36_REPORT_NUMBERS) — for the primary window
+#   (config.ACT_PRIMARY_PERIOD) the per-cluster mean, median and well count of the
+#   climate-removed secular trend, and every mapped well's own trend, which report9
+#   §4.12 and report10 §5.7.5 quote (cluster means; strongest individual driers). Taken
+#   from the in-memory primary-window frame; the per-well CSV, maps and text are unchanged.
+#
+# 1.5.0  # Hollingham (2026) — 2026-09-23. Progress reporting
 #   (T-76): the main() loop over PERIODS (console_utils.track, lines=True — the
 #   body already prints via phase()/result()/note()) and the per-well loop in
 #   per_well_trends() (console_utils.track, bar) — the loop whose bootstrap
@@ -839,6 +847,33 @@ def main() -> int:
 
     OUT_TXT.write_text("\n".join(lines) + "\n")
     saved(OUT_TXT)
+
+    # ── T-91: report numbers for the primary window ────────────────────
+    # Cluster means are what report9 §4.12 / report10 §5.7.5 quote (the C5
+    # gate above uses the same statistic); median and n sit beside them.
+    # Every mapped well's own trend is emitted so the named driers bind too.
+    rpt = ReportNumbers()
+    prim = all_results.get(PRIMARY_PERIOD, pd.DataFrame())
+    if not prim.empty:
+        _era = f"{PERIODS[PRIMARY_PERIOD][0]}-{PERIODS[PRIMARY_PERIOD][1]}"
+        for cid, g in prim.dropna(subset=["Cluster"]).groupby("Cluster"):
+            lab = config.CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
+            _note = (f"climate-removed secular trend (joint h ~ CWB + t fit), "
+                     f"wells mapped in the primary window, n={len(g)}")
+            rpt.add("abs_climate_trend_cluster_mean", float(g["slope_mm_yr"].mean()),
+                    unit="mm/yr", well=lab, era=_era, note="mean of per-well " + _note)
+            rpt.add("abs_climate_trend_cluster_median", float(g["slope_mm_yr"].median()),
+                    unit="mm/yr", well=lab, era=_era, note="median of per-well " + _note)
+            rpt.add("abs_climate_trend_cluster_n", int(len(g)), unit="wells",
+                    well=lab, era=_era, note="wells mapped in the primary window")
+        for r in prim.sort_values("slope_mm_yr").itertuples():
+            rpt.add("abs_climate_trend_well", float(r.slope_mm_yr), unit="mm/yr",
+                    well=str(r.col), era=_era,
+                    note=(f"per-well climate-removed secular trend; AR(1) p = "
+                          f"{float(r.p_ar):.3f}"
+                          + ("" if pd.notna(r.Cluster) else "; no cluster id")))
+    n_rpt = rpt.save(paths.OUT_36_REPORT_NUMBERS)
+    saved(f"{paths.OUT_36_REPORT_NUMBERS.name} ({n_rpt} rows)")
 
     done(SCRIPT_ID)
     return 0

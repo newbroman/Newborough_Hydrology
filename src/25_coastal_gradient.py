@@ -126,7 +126,15 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.30.0"  # Hollingham (2026) — 2026-09-28. T-91: build_report_numbers gains six
+__version__ = "1.31.0"  # Hollingham (2026) — 2026-09-28. T-91: 25_report_numbers.csv also carries
+#   (a) the fixed-length rolling-window sweep summary report9 §4.10.3 quotes — per window length, over
+#   the USABLE windows of 25_13, the mean and SD of the far-field constant c, the window count and
+#   corr(c, climate term) — and (b) the open-dune decomposition report10 §5.8.2 quotes — per cluster
+#   outside FOREST_CIDS, the balanced observed decline less the modelled coastal gradient (summer
+#   metric, the report basis) and its well count, plus the across-cluster mean and max-min spread.
+#   Computed from the in-memory rolling frame and summer partition; no existing row or output changes.
+#
+# 1.30.0  Hollingham (2026) — 2026-09-28. T-91: build_report_numbers gains six
 #   parameters the Methods Supplement cites but the emit did not cover: forest-free exponential c,
 #   the exp-vs-lincap AIC delta on the full-network and C3-only specs (alongside the existing
 #   forest-free one), the d=0 disagreement between the two forms, the exponential form's inland
@@ -3726,6 +3734,81 @@ def build_report_numbers(fits: dict,
     return pd.DataFrame(rows)
 
 
+def t91_rolling_and_open_dune_rows(rolling: pd.DataFrame,
+                                   partition: pd.DataFrame) -> list[dict]:
+    """T-91 report-number rows, in build_report_numbers' schema.
+
+    (a) The 25_13 fixed-length rolling-window sweep, per specification and
+    window length, over the USABLE windows only (the same subset the 25_13
+    figure summarises per panel): mean and SD (pandas default, ddof=1) of the
+    far-field constant c, the number of windows, and corr(c, climate term).
+    report9 §4.10.3 quotes the SD at the shortest and longest lengths and the
+    mean at the longest.
+
+    (b) The open-dune decomposition report10 §5.8.2 quotes: for each cluster
+    NOT in FOREST_CIDS, the balanced observed decline (DECOMPOSITION_BASIS_COLUMN)
+    less the modelled coastal gradient, from the summer partition passed in
+    (the report basis), with its well count; then the unweighted mean across
+    those clusters and the max-min spread.
+    """
+    rows: list[dict] = []
+    if rolling is not None and not rolling.empty:
+        use = rolling[rolling["usable"]]
+        for (spec, years), g in use.groupby(["spec", "window_years"]):
+            era = f"{years:g}-year windows"
+            base = (f"25_13 rolling-window sweep, spec {spec}, window length "
+                    f"{years:g} yr, usable windows only (n={len(g)}); ")
+            rows.append({"Parameter": "RollingWindow_c_mean", "Well": spec,
+                         "Era": era, "Value": float(g["c_mm_yr"].mean()),
+                         "Unit": "mm/yr",
+                         "Note": base + "mean of the fitted far-field constant c."})
+            rows.append({"Parameter": "RollingWindow_c_sd", "Well": spec,
+                         "Era": era, "Value": float(g["c_mm_yr"].std()),
+                         "Unit": "mm/yr",
+                         "Note": base + "SD (ddof=1) of c across window positions."})
+            rows.append({"Parameter": "RollingWindow_n_windows", "Well": spec,
+                         "Era": era, "Value": int(len(g)), "Unit": "windows",
+                         "Note": base + "number of usable windows."})
+            if len(g) > 1:
+                rows.append({"Parameter": "RollingWindow_corr_c_climate",
+                             "Well": spec, "Era": era,
+                             "Value": float(np.corrcoef(
+                                 g["c_mm_yr"], g["climate_term_mm_yr"])[0, 1]),
+                             "Unit": "r",
+                             "Note": base + "Pearson r between c and the CWB "
+                                            "climate term over the same windows."})
+    if partition is not None and not partition.empty:
+        od = partition[~partition["cluster_id"].isin(FOREST_CIDS)].copy()
+        if not od.empty:
+            od["less_coastal_mm_yr"] = (od[DECOMPOSITION_BASIS_COLUMN]
+                           - od["coastal_gradient_mm_yr"])
+            for r in od.itertuples():
+                rows.append({"Parameter": "OpenDune_balanced_less_coastal",
+                             "Well": r.cluster_label, "Era": "",
+                             "Value": float(r.less_coastal_mm_yr), "Unit": "mm/yr",
+                             "Note": f"{DECOMPOSITION_BASIS_COLUMN} minus "
+                                     "coastal_gradient_mm_yr, summer-minimum "
+                                     "partition (25_03)."})
+                rows.append({"Parameter": "OpenDune_n_wells",
+                             "Well": r.cluster_label, "Era": "",
+                             "Value": int(r.n_wells), "Unit": "wells",
+                             "Note": "wells in the cluster's summer-minimum "
+                                     "decomposition (25_03)."})
+            _lab = ", ".join(od["cluster_label"].astype(str))
+            rows.append({"Parameter": "OpenDune_balanced_less_coastal_mean",
+                         "Well": "", "Era": "",
+                         "Value": float(od["less_coastal_mm_yr"].mean()), "Unit": "mm/yr",
+                         "Note": "unweighted mean across the clusters outside "
+                                 f"FOREST_CIDS ({_lab}) of the balanced observed "
+                                 "decline less the modelled coastal gradient."})
+            rows.append({"Parameter": "OpenDune_balanced_less_coastal_spread",
+                         "Well": "", "Era": "",
+                         "Value": float(od["less_coastal_mm_yr"].max() - od["less_coastal_mm_yr"].min()),
+                         "Unit": "mm/yr",
+                         "Note": f"max minus min of the same quantity ({_lab})."})
+    return rows
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -4292,6 +4375,11 @@ def main() -> None:
             fits, partitions["summer_min"], baci_corr, per_wells["summer_min"],
             decay_funcs=decay_funcs, cov_range=cov_range, loo=loo,
             window_sweep_df=sweep)
+        # T-91: rolling-window summary (§4.10.3) and open-dune decomposition (§5.8.2).
+        report = pd.concat(
+            [report, pd.DataFrame(t91_rolling_and_open_dune_rows(
+                rolling, partitions["summer_min"]))],
+            ignore_index=True)
         report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 
     print(f"\n  Outputs written to: {paths.DIR_25}/")

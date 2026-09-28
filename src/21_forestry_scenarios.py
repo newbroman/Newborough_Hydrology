@@ -87,7 +87,14 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-24. Conclusion 7's numbers get a source:
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-28. T-91: 21_report_numbers.csv also carries
+#   the C4 synthetic-hydrograph separations report10 §5.7.4 quotes (Figure 21_forestry_01):
+#   for each management scenario, the separation from the observed C4 baseline at the
+#   baseline trough month and the largest Jun–Sep separation with its month (positive =
+#   shallower), unrounded — the same quantities BLOCK 2 of 21_forestry_01_hydrograph.csv
+#   carries to 4 d.p. plot_hydrograph() now returns them and emit_scenario_report_numbers()
+#   takes them, so its call moves after the hydrograph plot. No plotted or CSV value changes.
+# 1.10.0  # Hollingham (2026) - 2026-09-24. Conclusion 7's numbers get a source:
 #   emit_scenario_report_numbers() writes 21_report_numbers.csv — for each scenario
 #   (clearfell, 50 % thinning, broadleaf) × forest cluster (C4, C5) × season (annual,
 #   winter Oct–Mar, summer Jun–Sep) the mean monthly head perturbation (m) and its
@@ -517,7 +524,7 @@ def build_scenarios(master, climate, cluster="C4"):
     return scenario_shifts, monthly_P, monthly_PET, b1, b2, b3
 
 
-def emit_scenario_report_numbers(master, climate):
+def emit_scenario_report_numbers(master, climate, hydro_separations=None):
     """
     The scenario numbers the report quotes (§4.13.2, the abstract, Conclusion 7),
     with a committed source at last: for each scenario × forest cluster (C4, C5)
@@ -565,6 +572,23 @@ def emit_scenario_report_numbers(master, climate):
                 if season == "annual" or key == "broadleaf":
                     print(f"    {label:22s} {key:15s} {season:6s}  "
                           f"{head:+.3f} m  {head * sy * 1000:+6.1f} mm w.e.")
+    # T-91: C4 synthetic-hydrograph separations (report10 §5.7.4), as returned
+    # by plot_hydrograph() — scenario series only, unrounded.
+    for sep in (hydro_separations or []):
+        key = names.get(sep["series"], sep["series"])
+        rpt.add("hydrograph_sep_at_baseline_trough_m", sep["sep_at_base_trough_m"],
+                unit="m", well="C4", era=key,
+                note=f"separation from the observed C4 baseline at the baseline trough "
+                     f"month ({sep['base_trough_month']}), positive = shallower "
+                     "(21_forestry_01_hydrograph.csv BLOCK 2)")
+        rpt.add("hydrograph_max_summer_separation_m", sep["max_summer_sep_m"],
+                unit="m", well="C4", era=key,
+                note=f"largest-magnitude Jun-Sep separation from the observed C4 "
+                     f"baseline, in {sep['max_summer_month']}; positive = shallower, "
+                     "negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)")
+        rpt.add("hydrograph_max_summer_separation_month", sep["max_summer_month"],
+                unit="", well="C4", era=key,
+                note="month of hydrograph_max_summer_separation_m")
     n = rpt.save(OUT_21_REPORT_NUMBERS)
     print(f"  Saved → {OUT_21_REPORT_NUMBERS.name} ({n} rows)")
 
@@ -800,6 +824,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     base_trough_idx = int(np.nanargmax(base_arr))
     SUMMER_IDX = [5, 6, 7, 8]   # 0-based Jun, Jul, Aug, Sep
     trough_rows = []
+    separations = []   # T-91: unrounded, scenario series, for 21_report_numbers.csv
     for (name, stype), arr in series.items():
         t_idx = int(np.nanargmax(arr))
         sep_series = base_arr - arr           # +ve = shallower than baseline
@@ -821,6 +846,14 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
                 round(float(summer_seps[k]), 4),
             "Max_summer_separation_month": MONTHS[max_summer_idx],
         })
+        if stype == "scenario":
+            separations.append({
+                "series": name,
+                "base_trough_month": MONTHS[base_trough_idx],
+                "sep_at_base_trough_m": sep_at_base_trough,
+                "max_summer_sep_m": float(summer_seps[k]),
+                "max_summer_month": MONTHS[max_summer_idx],
+            })
     trough_df = pd.DataFrame(trough_rows)
 
     # Write both blocks to one CSV: the 12-month long table, then a blank
@@ -860,6 +893,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         shift = obs_monthly[7] - d[7]
         print(f"  {name:<30}: {d[7]:.3f}  (shift vs baseline: {shift:>+.3f} m)")
     print(f"  {'BACI summer benchmark':<30}: {baci_summer[7]:.3f}")
+    return separations
 
 
 # ============================================================================
@@ -2074,11 +2108,12 @@ def main(preview=False):
     print(f"  C4 mean DEM: {c4_dem:.2f} m AOD")
     print(f"  β₁={b1:.4f}  β₂={b2:.4f}  β₃={b3:.4f}")
     print(f"  Scenarios: {list(scenario_shifts.keys())}")
-    emit_scenario_report_numbers(master, climate)
 
     print("\n[3/6] Plotting hydrograph figure...")
-    plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
-                    obs_c1, obs_c2, dpi=dpi)
+    hydro_seps = plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
+                                 obs_c1, obs_c2, dpi=dpi)
+    # T-91: after the hydrograph, so its separations reach 21_report_numbers.csv.
+    emit_scenario_report_numbers(master, climate, hydro_separations=hydro_seps)
 
     print("\n[4/6] Loading raw well data...")
     df, dates, well_names = load_raw_well_data()

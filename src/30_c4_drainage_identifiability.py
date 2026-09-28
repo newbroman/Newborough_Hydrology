@@ -72,7 +72,12 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.4.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "2.5.0"  # Hollingham (2026) - 2026-09-28. T-91: 30_c4_report_numbers.csv also
+#   carries the centroid recession time t_R = 1/β₃ (months) for every cluster in the
+#   identifiability table (report10 §5.2.3 sets the C4 value against C2's), and the C4
+#   t_R under the MSL5_EXCLUDED_WELLS exclusion (recession_1_over_b3_months, 30_c4_centroid_
+#   sensitivity.csv) that the same paragraph quotes. Emit-only; no fit or output changes.
+# v2.4.0  # Hollingham (2026) - 2026-09-11.
 #   UNSILENCED (D-155): the blanket warnings.filterwarnings('ignore') is
 #   removed. It hid every DeprecationWarning and RuntimeWarning this script
 #   raised, which is the class of signal that would have flagged the fiona
@@ -452,6 +457,18 @@ def main():
                  "not the headline")
     rpt.add("c4_centroid_halflife_excl", t_excl, unit="months",
             note="C4 t½ = ln(2)/β₃ under the same exclusion — sensitivity, "
+                 "not the headline")
+    # T-91: centroid recession times t_R = 1/β₃, every cluster (report10 §5.2.3).
+    for _, _r in ident.iterrows():
+        rpt.add("centroid_recession_time_months", 1.0 / float(_r["beta3"]),
+                unit="months", well=_r["cluster"],
+                note="t_R = 1/β₃ at the cluster centroid (canonical Model A fit, "
+                     "30_c4_identifiability_by_cluster.csv beta3)")
+    rpt.add("c4_centroid_recession_time_excl", float(
+                SENS.loc[SENS["basis"] == "drop_msl5_excluded",
+                         "recession_1_over_b3_months"].iloc[0]),
+            unit="months",
+            note="C4 t_R = 1/β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, "
                  "not the headline")
     n_saved = rpt.save(OUT_30_C4_REPORT_NUMBERS)
     saved(f"{OUT_30_C4_REPORT_NUMBERS.name} ({n_saved} numbers)")

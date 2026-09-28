@@ -207,3 +207,4 @@ Pre_felling_baseline_years,NW5,Climate control,12.670773442847365,years,first va
 Pre_felling_baseline_years,WMC2,Climate control,8.747433264887064,years,first valid monitoring month (2009-02) to last valid month before CLEARFELL_DATE (2017-11)
 Pre_felling_baseline_years_min,WMC2,Climate control,8.747433264887064,years,"minimum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
 Pre_felling_baseline_years_max,NW7,Climate control,12.670773442847365,years,"maximum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
+Easting_vs_dist_coast_r,,primary design panel,0.02205955579264446,r,"Pearson r, well easting vs distance to coast, n=15 wells (Impact + Edge + Forest control + Climate control: WMC3, CEH31, CEH20, CEH30, CEH16, CEH32, CEH34, CEH33, NW10, CEH2, CEH9, NW7, NW6, NW5, WMC2)"

@@ -106,9 +106,9 @@
 | `11b_01_summer_minima_depth.png` | report9.odt | Figure 40 | Figure 1.37: Spatial distribution of mean annual summer minimum water table dept |
 | `11b_02_winter_maxima_depth.png` | report9.odt | Figure 42 | Figure 1.39: Spatial distribution of mean annual winter maximum water table dept |
 | `11b_03_pflood.png` | report9.odt | Figure 41 | Figure 1.38: Spatial distribution of P_flood — the minimum cumulative winter rai |
-| `11b_03_pflood_per_well.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
+| `11b_03_pflood_per_well.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
 | `11b_04_flood_frequency.png` | report9.odt | Figure 43 | Figure 1.40: Winter flooding frequency across the full dipwell network (66 refer |
-| `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88 well classified network. m_P = P_flood |
+| `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
 | `11c_pflood_achievability.png` | report10.odt | Figure 84 | Figure 1.4: Per-well achievability categorization against the P_flood rainfall m |
 | `12_01_dem_site_overview.png` | Paper 1 | Figure 1 | Site topography, geology & monitoring network |
 |  | report7.odt | Figure 1 | Figure 1.1: Site topography and hydrogeological features. Digital elevation mode |

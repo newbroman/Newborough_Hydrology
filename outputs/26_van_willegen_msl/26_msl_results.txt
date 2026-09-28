@@ -12,7 +12,7 @@ Network coverage:
   Annual rows total      : 1426
   Annual rows valid      : 1272
   Wells with ≥1 MSL5     : 85
-  Quadrat wells found    : 16/17
+  Quadrat wells found    : 17/17
 
 Most recent (window-end) MSL5 by cluster, m below ground:
   Window end year : 2025
@@ -36,7 +36,7 @@ Coverage at van Willegen quadrat wells (calibrated EbF set):
   CEH9    MSL5=-0.371 m  MAX5=-0.262 m  window end=2025
   CEH22   MSL5=-0.473 m  MAX5=-0.336 m  window end=2025
   NW4     MSL5=-0.102 m  MAX5=+0.036 m  window end=2025
-  T41     no valid MSL5 (insufficient data)
+  T41B    MSL5=-0.053 m  MAX5=+0.136 m  window end=2025
   CEH4    MSL5=-0.493 m  MAX5=-0.318 m  window end=2025
   CEH5    MSL5=-0.114 m  MAX5=+0.174 m  window end=2025
   NW5     MSL5=-0.290 m  MAX5=-0.088 m  window end=2025

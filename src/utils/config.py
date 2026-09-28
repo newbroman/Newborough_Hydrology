@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.68.0"  # Hollingham (2026) - 2026-09-27. Script 01b 1.2.0: SLACK_FLOW_PERCHED_M -> SLACK_FLOW_EXCESS_M;
+__version__ = "1.69.0"  # Hollingham (2026) - 2026-09-28. VW_QUADRAT_WELLS: "t41" -> "t41b"
+#   (the entry matched no network well; Martin: one marker on T41b). Moves Script 26's quadrat-
+#   well outputs (map diamonds 16 -> 17, curreli_min_quadrat_wells_*, EWI in_van_willegen).
+# 1.68.0  # Hollingham (2026) - 2026-09-27. Script 01b 1.2.0: SLACK_FLOW_PERCHED_M -> SLACK_FLOW_EXCESS_M;
 #   SLACK_FLOW_ARROW_WIDTH_MAX / _SIZE_CLASSES / _HEAD; SLACK_FLOW_FIGSIZE_HEAD_DEM / _TRANSECTS.
 # 1.67.0  # Hollingham (2026) - 2026-09-27. RANWELL_COASTAL_FIT (Script 44 1.3.0).
 # 1.66.0  # Hollingham (2026) - 2026-09-27. D-205 extended (spec NRG_spec_water_table_kriged_everywhere
@@ -1264,9 +1267,12 @@ HEAD_DEM_HEADLINE_SMOOTHING_M = 300
 # directly tied to a calibrated EbF response; at all other wells it is a
 # hydrological metric only. Used by Script 26's quadrat-wells figure and
 # by the map figure's yellow-diamond annotation.
+# Their "T41" is one station in Table 1, but their dataset carries its quadrats
+# at all four transect wells T41a-d (26_table_s7_2); T41b, which holds four of
+# them, stands for the station (Martin, 2026-09-28). "t41" matched no well.
 VW_QUADRAT_WELLS = (
     "ceh8", "ceh24", "wmc2", "ceh23", "ceh26", "nw3",
-    "ceh9", "ceh22", "nw4", "t41",
+    "ceh9", "ceh22", "nw4", "t41b",
     "ceh4", "ceh5", "nw5", "nw6",
     "ceh1", "nw2", "nw7",
 )
@@ -2782,4 +2788,3 @@ SLACK_FLOW_BAY_LANDWARD_AZ        = (0.0, 110.0)
 SLACK_FLOW_SHORE_TANGENT_M        = 200.0
 SLACK_FLOW_TRANSECT_STEP_M        = 5.0
 SLACK_FLOW_EXTRA_TRANSECTS        = ()   # ((name, (E0, N0), (E1, N1)), ...) Martin's named lines
-

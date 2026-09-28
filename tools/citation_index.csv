@@ -2105,7 +2105,7 @@ C1 (Lake Edge) / comparison_window · R2,outputs/03_state_space_model/03_14_cent
 2006_2012 / primary · c_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-588,over 2006--2012 (95% CI,to −451) and a rise of,high,confirmed
 2006_2012 / primary · c_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-451,6--2012 (95% CI −589 to,) and a rise of 269 mm o,high,confirmed
 2018_2025 / primary · c,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,269,to −451) and a rise of,mm over 2018--2025 (222,high,confirmed
-2018_2025 / primary · c_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,223,269 mm over 2018--2025 (,to 315) --- so the domi,high,confirmed
+2018_2025 / primary · c_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,222,269 mm over 2018--2025 (,to 315) --- so the domi,high,confirmed
 2018_2025 / primary · c_ci_hi,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,315,over 2018--2025 (222 to,) --- so the dominant se,high,confirmed
 2018_2025 / with_broadleaf_covariate · s_bl,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-3.52,af-restock covariate is,"(−6.17 to −0.77), and t",high,confirmed
 2018_2025 / with_broadleaf_covariate · s_bl_ci_lo,outputs/37_driver_validation/37_scale_factors_by_window.csv,report_edits/text/report9.md,-6.23,ock covariate is −3.47 (,"to −0.77), and the clea",high,confirmed
@@ -2902,3 +2902,14 @@ summer_min_zone_count · beyond recovery (>= SD16_REC) · All (n=88),outputs/11b
 scrape_inferred_cut_depth_m,outputs/20_spatial_figures/20_scrape_report_numbers.csv,report_edits/text/report12.md,0.43,: +0.128 m from a cut inferred at about , m. Scraping operates through the same p,high,confirmed
 Tier2_BACI_shift · CEH36 · Pure_Scraping,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,report_edits/text/report12.md,+0.128,ther than a change in aquifer dynamics: , m from a cut inferred at about 0.43 m. ,high,confirmed
 sy_c3,outputs/20_spatial_figures/20_report_numbers.csv,report_edits/text/report8.md,0.298,"nterior: K = 6.0 m day⁻¹, b = 5 m, Sy = "," (the C3 per-well median, 18_wtf_01_well",high,confirmed
+C2 · slope_A,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,report_edits/text/report9.md,219,ses from 174 mm per metre at C1 through , (C2) and 223 (C3) to 365 (C5) and 384 (,high,confirmed
+C3 · slope_A,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,report_edits/text/report9.md,223,mm per metre at C1 through 219 (C2) and ," (C3) to 365 (C5) and 384 (C4), and B ra",high,confirmed
+C5 · slope_A,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,report_edits/text/report9.md,365, at C1 through 219 (C2) and 223 (C3) to ," (C5) and 384 (C4), and B ranges from 27",high,confirmed
+C4 · slope_A,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,report_edits/text/report9.md,384,h 219 (C2) and 223 (C3) to 365 (C5) and ," (C4), and B ranges from 276 mm (C4) to ",high,confirmed
+C4 · intercept_B,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,report_edits/text/report9.md,276,"65 (C5) and 384 (C4), and B ranges from "," mm (C4) to 418 mm (C5).
+
+As a worked ex",high,confirmed
+C5 · intercept_B,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,report_edits/text/report9.md,418," (C4), and B ranges from 276 mm (C4) to "," mm (C5).
+
+As a worked example, at a typ",high,confirmed
+C1 · slope_A,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,report_edits/text/report9.md,174,cluster gradient directly: A rises from , mm per metre at C1 through 219 (C2) and,high,confirmed

@@ -34,7 +34,8 @@ Method (signed-off spec, 2026-06-26):
     All other wells retained on equal footing — coastal wells are NOT flagged or
     dropped; cause is the text layer, not a data surgery.
   * Periods: 2011-2025 primary; 2005-2025 robustness check.
-  * IDW power 2, 50 m grid, 450 m mask.
+  * Surface: piecewise-linear (map_utils.interpolate_surface, D-206), 50 m grid,
+    clipped to the site outline.
   * Site-mean trend (2026-08-21): computed on every basis in
     config.DIFF_SITE_MEAN_BASES — spring MAM, and the annual all-month mean —
     each reported with the interannual residual spread about its own fitted
@@ -94,11 +95,21 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
 from utils import config, paths
-from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
+from utils.map_utils import (load_dem_hillshade, add_kml_features, add_en_axes, make_site_mask,
+                             interpolate_surface)
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr, track
 from utils.render_utils import render_figure
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-28. The surface is the house piecewise-linear
+#   one (map_utils.interpolate_surface), replacing the inline power-2 IDW and its 450 m
+#   nearest-well mask: leave-one-well-out skill 0.67 against 0.58 on the 2011-2025 slopes
+#   (tools/interp_loo.py, D-206; Martin, proofread). Display only; no CSV moves.
+# 1.8.0  # Hollingham (2026) — 2026-09-28. The IDW surface on both
+#   differential-movement maps is clipped to the study area with map_utils.make_site_mask()
+#   (the D-204 site outline, 100 m buffer); it previously ran to the 450 m nearest-well
+#   mask and spread onto the hillshade beyond the site (Martin, proofread: "plot should
+#   stay within study bounds"). Display only: no CSV, slope or count moves.
+# 1.7.0  # Hollingham (2026) — 2026-09-23. Progress reporting
 #   (T-76): the main() loop over PERIODS (console_utils.track, lines=True — the
 #   body already prints via phase()/result()/note()) and the per-well loop in
 #   per_well_trends() (console_utils.track, bar) — the loop whose AR(1)/bootstrap
@@ -159,9 +170,7 @@ PANEL_MIN_FRACTION = config.DIFF_PANEL_MIN_FRACTION
 PER_WELL_MIN_YEARS = config.DIFF_PER_WELL_MIN_YEARS
 PERIODS = config.DIFF_PERIODS
 PRIMARY_PERIOD = config.DIFF_PRIMARY_PERIOD
-IDW_POWER = config.DIFF_IDW_POWER
-IDW_GRID_M = config.DIFF_IDW_GRID_M
-IDW_MASK_M = config.DIFF_IDW_MASK_M
+IDW_GRID_M = config.DIFF_IDW_GRID_M   # the 50 m map grid (name kept from the IDW era)
 LAKE_GAUGE_KEYS = config.LAKE_GAUGE_KEYS
 # Mapped-trend exclusion (D-148). Its own constant, NOT config.MSL5_EXCLUDED_WELLS:
 # D-146 scopes that set to the MSL5 analysis and forbids inheriting it as a
@@ -365,23 +374,6 @@ def per_well_trends(yr: pd.DataFrame, loc: pd.DataFrame, master: pd.DataFrame,
 # =================================================================================
 # Map
 # =================================================================================
-def idw_surface(px, py, pv, gx, gy, power=IDW_POWER, mask=IDW_MASK_M):
-    GX, GY = np.meshgrid(gx, gy)
-    num = np.zeros_like(GX)
-    den = np.zeros_like(GX)
-    nearest = np.full_like(GX, 1e18)
-    for x, y, v in zip(px, py, pv):
-        dd = np.sqrt((GX - x) ** 2 + (GY - y) ** 2)
-        dd = np.where(dd < 1e-6, 1e-6, dd)
-        w = 1.0 / dd ** power
-        num += w * v
-        den += w
-        nearest = np.minimum(nearest, dd)
-    Z = num / den
-    Z[nearest > mask] = np.nan
-    return GX, GY, Z
-
-
 def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
              first: int, last: int, out_path):
     colours = config.get_cluster_colours()
@@ -389,12 +381,16 @@ def make_map(df: pd.DataFrame, loc: pd.DataFrame, period_label: str,
     E = loc["E"].values; N = loc["N"].values
     gx = np.arange(np.nanmin(E) - 150, np.nanmax(E) + 150, IDW_GRID_M)
     gy = np.arange(np.nanmin(N) - 150, np.nanmax(N) + 150, IDW_GRID_M)
-    GX, GY, Z = idw_surface(df.E.values, df.N.values, df.slope_mm_yr.values, gx, gy)
+    GX, GY = np.meshgrid(gx, gy)
+    # 1.9.0: the house per-well surface (piecewise-linear, D-206), not an inline IDW;
+    # clipped to the study area (site outline, D-204; 1.8.0).
+    Z = interpolate_surface(df[["E", "N"]].to_numpy(float), df.slope_mm_yr.to_numpy(float), GX, GY)
+    Z[~make_site_mask(GX, GY)] = np.nan
     vmax = max(float(np.nanpercentile(np.abs(df.slope_mm_yr), 98)), 1.0)
     norm = TwoSlopeNorm(vcenter=0.0, vmin=-vmax, vmax=vmax)
 
     fig, ax = plt.subplots(figsize=(11, 9))
-    # layering: hillshade (z1) -> semi-transparent IDW surface (alpha=0.55, z1.5) -> KML features (z2) -> markers (z5)
+    # layering: hillshade (z1) -> semi-transparent linear surface (alpha=0.55, z1.5) -> KML features (z2) -> markers (z5)
     load_dem_hillshade(ax, paths.DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
     im = ax.pcolormesh(GX, GY, Z, cmap=plt.cm.RdBu, norm=norm, shading="auto",
                        alpha=0.55, zorder=1.5)

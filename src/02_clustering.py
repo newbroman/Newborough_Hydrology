@@ -14,7 +14,12 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-28. T-91: run_stability_diagnostics()
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-28. 02_02_validation_plots.png gains a
+#   Calinski–Harabasz panel beside the elbow and silhouette panels, and all three now read
+#   k_sweep_validation() — the computation behind 02_06_k_sweep_validation.csv — instead of a
+#   second inline loop (Martin, proofread: the caption named a CH panel the figure lacked).
+#   Display only; no partition, CSV or report number moves.
+# 1.10.0  # Hollingham (2026) — 2026-09-28. T-91: run_stability_diagnostics()
 #   emits <label>_k{k}_n_subgroups at k = NUM_CLUSTERS+1 — how many of that finer
 #   partition's raw clusters each canonical cluster's members fall into (1 = intact)
 #   plus the split sizes in the note, e.g. C3's report10 S.19.2 "13+13 split, C2 intact".
@@ -1675,25 +1680,26 @@ if __name__ == "__main__":
 
     # Validation plots
     step("Generating Cluster Validation Plots...")
-    cluster_range      = range(2, 11)
-    silhouette_scores  = []
-    linkage_distances  = []
-    for k in cluster_range:
-        labels = fcluster(Z, t=k, criterion="maxclust")
-        silhouette_scores.append(silhouette_score(dist_square, labels, metric="precomputed"))
-        linkage_distances.append(Z[-k, 2])
+    # 1.11.0: the three panels read one k-sweep (k_sweep_validation, the same
+    # computation behind 02_06_k_sweep_validation.csv), so the figure and the CSV
+    # cannot disagree; the Calinski-Harabasz panel joins elbow and silhouette,
+    # the three measures the Methods name.
+    cluster_range = range(2, 11)
+    sweep = k_sweep_validation(wells_ref, cluster_range)
+    ks = sweep.index.to_numpy()   # k_sweep_validation() returns the sweep indexed by k
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5), dpi=300)
-    ax1.plot(cluster_range, linkage_distances, marker="o", color="#0072B2")
-    ax1.axvline(x=NUM_CLUSTERS, color="red", linestyle="--", label=f"Chosen k={NUM_CLUSTERS}")
-    ax1.set_title("Elbow Method (Ward's Distance)", fontweight="bold")
-    ax1.set_xlabel("Number of Clusters (k)"); ax1.set_ylabel("Merge Distance")
-    ax1.grid(True, linestyle="--", alpha=0.6); ax1.legend()
-    ax2.plot(cluster_range, silhouette_scores, marker="s", color="#D55E00")
-    ax2.axvline(x=NUM_CLUSTERS, color="red", linestyle="--", label=f"Chosen k={NUM_CLUSTERS}")
-    ax2.set_title("Silhouette Score Validation", fontweight="bold")
-    ax2.set_xlabel("Number of Clusters (k)"); ax2.set_ylabel("Silhouette Coefficient")
-    ax2.grid(True, linestyle="--", alpha=0.6); ax2.legend()
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(19, 5), dpi=300)
+    panels = [
+        (ax1, "merge_distance", "o", "#0072B2", "Elbow Method (Ward's Distance)", "Merge Distance"),
+        (ax2, "silhouette", "s", "#D55E00", "Silhouette Score Validation", "Silhouette Coefficient"),
+        (ax3, "calinski_harabasz", "^", "#009E73", "Calinski–Harabasz Index", "Calinski–Harabasz Index"),
+    ]
+    for ax, col, mk, colour, title, ylab in panels:
+        ax.plot(ks, sweep[col].to_numpy(), marker=mk, color=colour)
+        ax.axvline(x=NUM_CLUSTERS, color="red", linestyle="--", label=f"Chosen k={NUM_CLUSTERS}")
+        ax.set_title(title, fontweight="bold")
+        ax.set_xlabel("Number of Clusters (k)"); ax.set_ylabel(ylab)
+        ax.grid(True, linestyle="--", alpha=0.6); ax.legend()
     plt.tight_layout()
     render_figure(plt.gcf(), OUT_02_VALIDATION)
     plt.close()

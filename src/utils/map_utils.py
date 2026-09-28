@@ -45,7 +45,11 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-27. load_site_outline(): the site
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-28. interpolate_surface(): the house
+#   per-well surface (linear Delaunay + hull-buffer nearest fill), moved out of add_idw_surface()
+#   unchanged so Scripts 20 (MSL5 change) and 32 draw it without reimplementing it (D-206).
+#   add_idw_surface() output is identical.
+# 1.8.0  # Hollingham (2026) — 2026-09-27. load_site_outline(): the site
 #   outline as one Polygon from data/geo/site_outline.geojson (D-204, spec
 #   NRG_spec_site_outline_B). make_site_mask() uses it instead of parsing and
 #   dissolving the 12 MB site_boundary.kml; same union, same 100 m buffer. The
@@ -429,6 +433,34 @@ def make_site_mask(grid_x: np.ndarray, grid_y: np.ndarray) -> np.ndarray:
     return mask
 
 
+def interpolate_surface(pts: np.ndarray, vals: np.ndarray, gx: np.ndarray, gy: np.ndarray,
+                        method: str = "linear", hull_buffer_m: float | None = 100.0) -> np.ndarray:
+    """The house surface for a per-well statistic (D-206): piecewise-linear over the
+    Delaunay triangulation of the wells, extended hull_buffer_m past the convex hull by
+    nearest-neighbour fill. No masking. add_idw_surface() draws with it; a script that
+    needs the grid without the pcolormesh (contourf, banded maps) calls it directly
+    rather than interpolating inline. Returns the surface on (gx, gy)."""
+    surf = griddata(pts, vals, (gx, gy), method=method)
+    # Linear griddata is NaN outside the convex hull of the wells, so the surface
+    # stops at the outer well ring. Extend it up to hull_buffer_m beyond the hull
+    # by filling those NaN cells (within the buffered hull) with nearest-neighbour
+    # values. Callers apply ridge/site masks afterwards, so both still clip it.
+    if hull_buffer_m is not None and hull_buffer_m > 0 and len(pts) >= 3:
+        try:
+            from shapely.geometry import MultiPoint
+            from shapely import contains_xy as _cxy
+            hull = MultiPoint([tuple(p) for p in pts]).convex_hull
+            buffered = hull.buffer(hull_buffer_m)
+            in_buffer = _cxy(buffered, gx.ravel(), gy.ravel()).reshape(gx.shape)
+            need_fill = np.isnan(surf) & in_buffer
+            if need_fill.any():
+                surf_near = griddata(pts, vals, (gx, gy), method="nearest")
+                surf = np.where(need_fill, surf_near, surf)
+        except Exception:
+            pass   # on any geometry failure, keep the strict hull-bounded surface
+    return surf
+
+
 def add_idw_surface(
     ax,
     df: pd.DataFrame,
@@ -543,27 +575,8 @@ def add_idw_surface(
     gx, gy = np.meshgrid(xi, yi)
     pts = df[[easting_col, northing_col]].values
 
-    surf = griddata(pts, df[value_col].values, (gx, gy), method=method)
-
-    # ── Hull-buffer extension ──────────────────────────────────────────────────
-    # Linear griddata is NaN outside the convex hull of the wells, so the surface
-    # stops at the outer well ring. Extend it up to hull_buffer_m beyond the hull
-    # by filling those NaN cells (within the buffered hull) with nearest-neighbour
-    # values. Runs before ridge/site masking so both still clip the extension.
-    if hull_buffer_m is not None and hull_buffer_m > 0 and len(pts) >= 3:
-        try:
-            from shapely.geometry import MultiPoint, Point as _Pt
-            from shapely import contains_xy as _cxy
-            hull = MultiPoint([tuple(p) for p in pts]).convex_hull
-            buffered = hull.buffer(hull_buffer_m)
-            in_buffer = _cxy(buffered, gx.ravel(), gy.ravel()).reshape(gx.shape)
-            need_fill = np.isnan(surf) & in_buffer
-            if need_fill.any():
-                surf_near = griddata(pts, df[value_col].values, (gx, gy),
-                                     method="nearest")
-                surf = np.where(need_fill, surf_near, surf)
-        except Exception:
-            pass   # on any geometry failure, keep the strict hull-bounded surface
+    surf = interpolate_surface(pts, df[value_col].values, gx, gy, method=method,
+                               hull_buffer_m=hull_buffer_m)
 
     # ── Ridge masking ──────────────────────────────────────────────────────
     surf_masked = surf.copy()

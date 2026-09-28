@@ -71,7 +71,14 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-28. T-91: 10e_report_numbers also carries the
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-28. Panel (d) prints beside each bar the p
+#   of that tier-mean shift against zero (two-sided z-test on the per-well fit SEs, tier_shift_p),
+#   and 10e_report_numbers carries them as CoeffShift_<tier>_mean_d<b>_p (Martin, proofread:
+#   "if β3 is noise in panel d then maybe it needs p figures"). No other output moves.
+# 1.11.0  # Hollingham (2026) - 2026-09-28. Figure 10e_03 panel (d) adds the
+#   per-tier Δβ₃ beside Δβ₁ and Δβ₂, all as % of the before value (Martin, proofread: "β₃ is at
+#   the wrong scale, perhaps panel d should be % change"). Display only; no CSV moves.
+# 1.10.0  # Hollingham (2026) - 2026-09-28. T-91: 10e_report_numbers also carries the
 #   β₂ scenario multipliers (clearfell, thinning) and the per-tier b2_after/b2_before ratios they
 #   are built from (Edge, Climate Ctrl, …), which the Methods Supplement quotes.
 # 1.9.0  # Hollingham (2026) - 2026-09-28. T-91: emit Coastal Ctrl
@@ -116,6 +123,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.lines import Line2D
+
+def tier_shift_p(td: pd.DataFrame, coeff: str) -> float:
+    """Two-sided p of a tier's mean coefficient shift against zero (1.12.0).
+
+    The before and after fits are independent windows, so each well's shift has
+    variance SE_before^2 + SE_after^2; the tier mean's SE is the root of their sum
+    over n. A z-test, since the per-well SEs come from fits of 60+ months each."""
+    from scipy.stats import norm
+    n = len(td)
+    se = np.sqrt((td[f'{coeff}_SE_before'] ** 2 + td[f'{coeff}_SE_after'] ** 2).sum()) / n
+    if not np.isfinite(se) or se <= 0:
+        return np.nan
+    return float(2.0 * norm.sf(abs(td[f'd{coeff}'].mean() / se)))
+
 
 def main():
     make_all_dirs()
@@ -341,26 +362,36 @@ def main():
                     color=TIER_COLOURS[TIER_ORDER[int(t)]], fontweight='bold',
                     clip_on=False)
 
-    # summary panel: per-tier β1 / β2 shift as % of the before value (β3 omitted —
-    # its % swings are noise-dominated; the absolute β3 shifts are on panel 3)
+    # summary panel: per-tier β1 / β2 / β3 shift as % of the before value, so the
+    # three coefficients share one scale (1.11.0: β3 added — in absolute terms it is
+    # two orders of magnitude smaller than β1/β2 and could not share an axis)
     ax = fig.add_subplot(gs[3])
     specs = [('db1', 'b1_before', 'Δβ₁', '#1b7837'),
-             ('db2', 'b2_before', 'Δβ₂', '#762a83')]
+             ('db2', 'b2_before', 'Δβ₂', '#762a83'),
+             ('db3', 'b3_before', 'Δβ₃', '#737373')]
     ty = np.arange(len(TIER_ORDER))[::-1]
-    bw = 0.32
+    bw = 0.26
     for j, (col, bcol, lab, c) in enumerate(specs):
-        vals = []
+        vals, pvals = [], []
         for t in TIER_ORDER:
             td = sdf[sdf['Tier'] == t]
             vals.append(100.0 * td[col].mean() / td[bcol].mean() if len(td) > 0 else 0.0)
+            pvals.append(tier_shift_p(td, col[1:]) if len(td) > 0 else np.nan)
         off = ((len(specs) - 1) / 2.0 - j) * bw
         ax.barh(ty + off, vals, height=bw, color=c, edgecolor='white', label=lab)
+        # 1.12.0: p of each tier-mean shift against zero, at the bar's end
+        for yy, v, pv in zip(ty + off, vals, pvals):
+            if np.isfinite(pv):
+                ax.text(v + (0.4 if v >= 0 else -0.4), yy, f"p={pv:.2f}", va='center',
+                        ha='left' if v >= 0 else 'right', fontsize=6.5, color='0.25')
     ax.axvline(0, color='0.4', lw=0.8)
     ax.set_yticks(ty)
     ax.set_yticklabels(TIER_ORDER, fontsize=9)
-    ax.set_xlabel('Mean coefficient shift (% of before value)', fontsize=10)
+    ax.set_xlabel('Mean coefficient shift (% of before value); p = tier-mean shift against zero',
+                  fontsize=10)
+    _xl = ax.get_xlim(); ax.set_xlim(_xl[0] - 4, _xl[1] + 4)   # room for the p labels
     ax.grid(axis='x', color='0.92', lw=0.6)
-    ax.legend(fontsize=8, ncol=2, loc='lower right')
+    ax.legend(fontsize=8, ncol=3, loc='lower left')   # lower right covered the Climate Ctrl bars
 
     leg = [Line2D([], [], marker='o', mfc='white', mec='0.3', ls='', ms=8,
                   label='Before clearfell'),
@@ -404,6 +435,13 @@ def main():
                     tier_data[coeff].mean(),
                     well=tier_name,
                     note=f"n_wells={len(tier_data)}")
+            # 1.12.0: the p printed beside the panel (d) bar
+            rpt.add(f"CoeffShift_{tier_name}_mean_{coeff}_p",
+                    tier_shift_p(tier_data, coeff[1:]), "",
+                    well=tier_name,
+                    note=("two-sided z-test of the tier-mean shift against zero, "
+                          "SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits "
+                          f"(independent windows), n_wells={len(tier_data)}"))
         # T-91: mean of each well's OWN %change in b1 (After-Before)/Before*100,
         # then averaged across the tier's wells -- this is the formula behind
         # the per-tier percentages quoted in report10.md S.5.5.1 (distinct from

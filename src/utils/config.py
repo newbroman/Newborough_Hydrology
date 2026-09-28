@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.69.0"  # Hollingham (2026) - 2026-09-28. VW_QUADRAT_WELLS: "t41" -> "t41b"
+__version__ = "1.71.0"  # Hollingham (2026) - 2026-09-28. D-207: MSL_HYDRO_YEAR_START_MONTH 6 -> 5 (bucketed
+#   May..Apr = readings dated 1 June..31 May) with _DATED; and VW_QUADRAT_WELLS gains t41a, t41c, t41d
+#   (20 wells, 17 stations) and VW_LOCATION_ONLY_WELLS is emptied; CURRELI_WINDOW_END_YEAR added: van Willegen's dataset reproduces each
+#   T41 quadrat letter from the same-letter well exactly (notes/findings/NRG_t41_vw_match_2026-09-28.md).
+# 1.70.0  # Hollingham (2026) - 2026-09-28. VW_LOCATION_ONLY_WELLS = ("t41b",): the
+#   T41 station is marked on the map at T41b but its record is not used as van Willegen's (Script 26 1.18.0).
+# 1.69.0  # Hollingham (2026) - 2026-09-28. VW_QUADRAT_WELLS: "t41" -> "t41b"
 #   (the entry matched no network well; Martin: one marker on T41b). Moves Script 26's quadrat-
 #   well outputs (map diamonds 16 -> 17, curreli_min_quadrat_wells_*, EWI in_van_willegen).
 # 1.68.0  # Hollingham (2026) - 2026-09-27. Script 01b 1.2.0: SLACK_FLOW_PERCHED_M -> SLACK_FLOW_EXCESS_M;
@@ -1212,7 +1218,16 @@ EXTREMES_ROBUSTNESS_START = 2011
 # true by reading date; prose that says "end-of-March to end-of-May levels"
 # is stale.
 MSL_SPRING_MONTHS          = (2, 3, 4)
-MSL_HYDRO_YEAR_START_MONTH = 6
+# The hydrological year follows the same rule (D-207, 2026-09-28). Van Willegen
+# and Curreli's year runs from the reading DATED 1 June to the one dated 31 May,
+# which in the bucketed frame is May to April: van Willegen's dataset reproduces
+# exactly on bucketed May(y-1)..Apr(y), labelled by the end year, and not on
+# Jun..May. Until 2026-09-28 this was 6, a month late: spring MSL5 did not move
+# (Feb-Apr sits in the same year either way) but the Curreli annual minimum did.
+# MSL_HYDRO_YEAR_START_MONTH is for BUCKETED months; a calendar date (an
+# intervention date) uses MSL_HYDRO_YEAR_START_MONTH_DATED.
+MSL_HYDRO_YEAR_START_MONTH       = 5
+MSL_HYDRO_YEAR_START_MONTH_DATED = MSL_HYDRO_YEAR_START_MONTH + 1
 MSL_DEFAULT_WINDOW_YEARS   = 5
 MSL_MIN_MONTHS_PER_SPRING  = 3
 MSL_MIN_YEARS_IN_WINDOW    = 5
@@ -1245,6 +1260,11 @@ MSL_TRAJECTORY_START_YEAR = 2014
 # not sharpen; the file records whether any threshold count moves with it).
 CURRELI_MIN_WINDOW_YEARS             = 4
 CURRELI_MIN_WINDOW_SENSITIVITY_YEARS = (5,)
+# Curreli et al.'s own averaging window, 2006-09: the hydrological years June
+# 2006 to May 2010, i.e. the pipeline's hydro years 2007-2010, window-end 2010.
+# Script 26's quadrat-well reproduction check reads this window (until 1.19.0 it
+# took the earliest window with any quadrat well, window-end 2009, 4 wells).
+CURRELI_WINDOW_END_YEAR              = 2010
 
 # How closely does the mean water-table surface follow the ground surface, and at
 # what scale? Script 20 regresses its Figure 54 head surface on the LiDAR DEM
@@ -1262,20 +1282,29 @@ CURRELI_MIN_WINDOW_SENSITIVITY_YEARS = (5,)
 HEAD_DEM_SMOOTHING_M          = (0, 50, 100, 200, 300, 400, 600, 800)
 HEAD_DEM_HEADLINE_SMOOTHING_M = 300
 
-# Van Willegen et al. (2025) used these 17 piezometers with co-located
-# permanent vegetation quadrats (their Table 1). MSL5 at these wells is
-# directly tied to a calibrated EbF response; at all other wells it is a
-# hydrological metric only. Used by Script 26's quadrat-wells figure and
-# by the map figure's yellow-diamond annotation.
-# Their "T41" is one station in Table 1, but their dataset carries its quadrats
-# at all four transect wells T41a-d (26_table_s7_2); T41b, which holds four of
-# them, stands for the station (Martin, 2026-09-28). "t41" matched no well.
+# Van Willegen et al. (2025) used 17 stations with co-located permanent
+# vegetation quadrats (their Table 1). MSL5 at these wells is directly tied to a
+# calibrated EbF response; at all other wells it is a hydrological metric only.
+# Used by Script 26's quadrat-wells figure and by the map figure's yellow-diamond
+# annotation. Their "T41" is one station in Table 1 but four wells: their dataset
+# carries the T41 quadrats under the letters A-D, and each quadrat's annual
+# levels are the same-letter well's measured monthly record plus a constant
+# quadrat offset, exactly (every year 2010-2019, every statistic; T41b apart from
+# two winters). So all four transect wells are van Willegen wells: 20 wells for
+# 17 stations (Martin, 2026-09-28; notes/findings/NRG_t41_vw_match_2026-09-28.md).
 VW_QUADRAT_WELLS = (
     "ceh8", "ceh24", "wmc2", "ceh23", "ceh26", "nw3",
-    "ceh9", "ceh22", "nw4", "t41b",
+    "ceh9", "ceh22", "nw4", "t41a", "t41b", "t41c", "t41d",
     "ceh4", "ceh5", "nw5", "nw6",
     "ceh1", "nw2", "nw7",
 )
+
+# Network wells that mark a van Willegen station's LOCATION only, their record
+# not taken as the station's levels. Empty since config 1.71.0: the T41 check
+# above showed each T41 well IS the record for its own quadrats. Script 26 keeps
+# the mechanism (VW_NUMERIC_WELLS) so a future location-only station needs no
+# code change.
+VW_LOCATION_ONLY_WELLS: tuple = ()
 
 # ── Intervention marker colours ───────────────────────────────────────────────
 # Used by Script 26's trajectory plots; reserved for re-use by any future
@@ -1912,8 +1941,8 @@ DRY_SEASON_MONTHS = (7, 8, 9, 10)
 # reader's head: Martin's seasonal year runs Spring, Summer, Autumn, Winter, so
 # winter CLOSES the year rather than opening it. That convention is what makes
 # Script 40's `winter2019_20` tag denote December 2019 to February 2020. It sits
-# alongside, and does not replace, MSL_HYDRO_YEAR_START_MONTH = 6 (the van
-# Willegen MSL hydrological year) and 00_climate_summary.py's October-start
+# alongside, and does not replace, MSL_HYDRO_YEAR_START_MONTH (the van
+# Willegen MSL hydrological year, D-207) and 00_climate_summary.py's October-start
 # hydrological year used for the winter-maximum extraction. Three year
 # conventions coexist in this project on purpose; each is stated where it is used.
 

@@ -3,44 +3,47 @@ Script 26 — van Willegen et al. (2025) 5-year MSL
 
 Method parameters (strict per scoping decision 2026-05-20):
   Spring months          : (2, 3, 4)
-  Hydro year start month : 6
+  Hydro year start month : 5
   Window length          : 5 years
   Min months/spring      : 3 / 3
   Min years/window       : 5 / 5
 
 Network coverage:
-  Annual rows total      : 1426
+  Annual rows total      : 1415
   Annual rows valid      : 1272
   Wells with ≥1 MSL5     : 85
-  Quadrat wells found    : 17/17
+  Quadrat wells found    : 20/20
 
 Most recent (window-end) MSL5 by cluster, m below ground:
   Window end year : 2025
   C1 (Lake Edge)       n=  8  MSL5 mean=-0.133 m  median=-0.132 m  MAX5 mean=+0.129 m
-  C2 (Dune)            n= 23  MSL5 mean=-0.190 m  median=-0.128 m  MAX5 mean=-0.005 m
-  C3 (Western Residual) n= 30  MSL5 mean=-0.398 m  median=-0.358 m  MAX5 mean=-0.208 m
-  C4 (Main Forest)     n= 10  MSL5 mean=-0.792 m  median=-0.715 m  MAX5 mean=-0.646 m
-  C5 (Coastal Forest)  n= 11  MSL5 mean=-1.157 m  median=-1.153 m  MAX5 mean=-1.029 m
+  C2 (Dune)            n= 23  MSL5 mean=-0.190 m  median=-0.128 m  MAX5 mean=-0.003 m
+  C3 (Western Residual) n= 30  MSL5 mean=-0.398 m  median=-0.358 m  MAX5 mean=-0.194 m
+  C4 (Main Forest)     n= 10  MSL5 mean=-0.792 m  median=-0.715 m  MAX5 mean=-0.549 m
+  C5 (Coastal Forest)  n= 11  MSL5 mean=-1.157 m  median=-1.153 m  MAX5 mean=-0.995 m
 
 Curreli (2013) reference values:
   SD15b (wet slack)  : −0.61 m below ground
   SD16  (dry slack)  : −0.98 m below ground
 
 Coverage at van Willegen quadrat wells (calibrated EbF set):
-  CEH8    MSL5=-0.299 m  MAX5=-0.214 m  window end=2019
-  CEH24   MSL5=+0.015 m  MAX5=+0.204 m  window end=2025
-  WMC2    MSL5=-0.233 m  MAX5=-0.084 m  window end=2025
+  CEH8    MSL5=-0.299 m  MAX5=-0.210 m  window end=2019
+  CEH24   MSL5=+0.015 m  MAX5=+0.214 m  window end=2025
+  WMC2    MSL5=-0.233 m  MAX5=-0.014 m  window end=2025
   CEH23   MSL5=-0.159 m  MAX5=+0.026 m  window end=2025
   CEH26   MSL5=-0.149 m  MAX5=+0.019 m  window end=2025
   NW3     MSL5=-0.178 m  MAX5=+0.010 m  window end=2025
-  CEH9    MSL5=-0.371 m  MAX5=-0.262 m  window end=2025
+  CEH9    MSL5=-0.371 m  MAX5=-0.214 m  window end=2025
   CEH22   MSL5=-0.473 m  MAX5=-0.336 m  window end=2025
   NW4     MSL5=-0.102 m  MAX5=+0.036 m  window end=2025
+  T41A    MSL5=+0.017 m  MAX5=+0.296 m  window end=2025
   T41B    MSL5=-0.053 m  MAX5=+0.136 m  window end=2025
-  CEH4    MSL5=-0.493 m  MAX5=-0.318 m  window end=2025
+  T41C    MSL5=-0.073 m  MAX5=+0.090 m  window end=2025
+  T41D    MSL5=-0.269 m  MAX5=-0.120 m  window end=2025
+  CEH4    MSL5=-0.493 m  MAX5=-0.310 m  window end=2025
   CEH5    MSL5=-0.114 m  MAX5=+0.174 m  window end=2025
-  NW5     MSL5=-0.290 m  MAX5=-0.088 m  window end=2025
-  NW6     MSL5=-0.199 m  MAX5=-0.006 m  window end=2025
-  CEH1    MSL5=-0.165 m  MAX5=+0.092 m  window end=2025
+  NW5     MSL5=-0.290 m  MAX5=-0.040 m  window end=2025
+  NW6     MSL5=-0.199 m  MAX5=-0.002 m  window end=2025
+  CEH1    MSL5=-0.165 m  MAX5=+0.120 m  window end=2025
   NW2     MSL5=-0.348 m  MAX5=-0.116 m  window end=2025
-  NW7     MSL5=-0.923 m  MAX5=-0.780 m  window end=2025
+  NW7     MSL5=-0.923 m  MAX5=-0.740 m  window end=2025

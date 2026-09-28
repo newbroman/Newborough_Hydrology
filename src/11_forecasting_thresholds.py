@@ -59,8 +59,8 @@ Purpose:
 
         where h_max_winter is the maximum cluster-mean head over Oct y-1 to
         Feb y, and P_win_to_spr / PET_win_to_spr are cumulative totals over
-        Oct y-1 to May y. Hydrology year follows van Willegen (1 Jun y-1 to
-        31 May y); spring is March-May. The equation allows site managers to
+        Oct y-1 to Apr y. Hydrology year follows van Willegen (the readings dated
+        1 Jun y-1 to 31 May y); spring is the readings dated March-May. The equation allows site managers to
         compute predicted next-year MSL from monthly readings collected
         through end-February, then add to their rolling 4-year history of
         observed MSLs to update the 5-year MSL5 monitoring statistic without
@@ -99,7 +99,13 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.3.5"  # Hollingham (2026) - 2026-09-21. Comment only: the spring window is
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-28. D-207 (Martin: "oct to Apr"): the Section 5
+#   spring MSL transfer function's winter-to-spring climate window is October y-1 to April y
+#   (WINTER_TO_SPRING_MONTHS), not to May: spring closes with the reading dated 1 May (the bucketed
+#   April level), so May climate fell after the response. Years are grouped on
+#   config.MSL_HYDRO_YEAR_START_MONTH (bucketed May..Apr, the readings dated 1 June..31 May), the
+#   same year as Script 26. Moves every Section 5 coefficient, R2 and p-value.
+# 1.3.5  # Hollingham (2026) - 2026-09-21. Comment only: the spring window is
 #   the readings dated March-May, months 2-4 in the bucketed frame (config, D-189).
 # 1.3.4  # Hollingham (2026) - 2026-09-10. The reviewer summary's
 #   horizon label came from a hand-written {2:'Feb',3:'Mar',4:'Apr'} dict, written
@@ -288,10 +294,13 @@ WINTER_MONTHS  = list(WINTER_RECHARGE_MONTHS)
 # winter / summer windows above.
 SPRING_MONTHS = list(MSL_SPRING_MONTHS)            # the readings dated March-May (config; D-189)
 # Winter-to-spring antecedent window used by the winter-peak input variant:
-# October of year y-1 through May of year y, inclusive of the spring window.
+# October of year y-1 through April of year y, inclusive of the spring window —
+# climate months, which align with the bucketed level months: the spring window
+# closes with the April level (the reading dated 1 May), so the climate window
+# closes with April too (D-207; until 1.4.0 it ran to May).
 # This is the "everything since the previous autumn" forcing that drives the
 # next spring's water table.
-WINTER_TO_SPRING_MONTHS = [10, 11, 12, 1, 2, 3, 4, 5]
+WINTER_TO_SPRING_MONTHS = [10, 11, 12, 1, 2, 3, 4]
 MIN_VALID_MONTHS = 3                    # minimum months per season to include a hydrological year
 
 def _load_cluster_peak_months() -> dict[str, int]:
@@ -849,7 +858,7 @@ def run_summer_drought_forecasting(df: pd.DataFrame) -> None:
 def _vw_hydro_year(date: pd.Timestamp) -> int:
     """
     Van Willegen 2025 'hydrology year B': starts 1 June. A reading dated
-    Jun y-1 to May y belongs to hydrology year y. This is the same convention
+    bucketed May y-1 to Apr y (dated Jun y-1 to May y) belongs to hydrology year y. This is the same convention
     used by Script 26; spring of hydro year y is March-May of calendar year y.
     """
     return int(date.year + (1 if date.month >= MSL_HYDRO_YEAR_START_MONTH else 0))
@@ -956,7 +965,7 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
         MSL_y = α_W·h_max_winter + a_P·P_win_to_spr + a_E·PET_win_to_spr + intercept
 
     Inputs are the previous winter peak (max of Oct-Feb cluster-mean head) and
-    cumulative rainfall and PET over the Oct-to-May antecedent window. Fitted
+    cumulative rainfall and PET over the Oct-to-Apr antecedent window. Fitted
     independently per cluster (block) via OLS with intercept; reports R²,
     coefficient p-values, and a calibration scatter (observed vs predicted MSL).
 
@@ -967,7 +976,7 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
     Site managers needing a spring-only data path should use the simpler
     one-input form
         MSL_y ≈ β·P_spring + γ·PET_spring + intercept
-    derived from this section's Oct-May fit by truncating the antecedent
+    derived from this section's Oct-Apr fit by truncating the antecedent
     window — but that loses most of the predictive power and is not produced
     by this section. The winter peak is the immediate antecedent state for the
     spring water table and carries most of the signal.
@@ -978,7 +987,7 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
     end-May to observe the actual MSL_y.
     """
     print(sep("SECTION 5: SPRING MSL TRANSFER FUNCTIONS  "
-              "(MSL_y from winter peak and Oct-May forcing)"))
+              "(MSL_y from winter peak and Oct-Apr forcing)"))
     print("  OLS with intercept | Hydrology year: 1 Jun y-1 to 31 May y "
           "(van Willegen 2025 convention)")
     print("  Predicting next-year MSL from antecedent winter peak.\n")
@@ -992,7 +1001,7 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
 
     # Build per-block annual frames: one row per van Willegen hydro year
     # containing MSL_y (response), h_max_winter (max Oct y-1 to Feb y),
-    # P_win_to_spr (sum Oct y-1 to May y), PET_win_to_spr (sum Oct y-1 to May y).
+    # P_win_to_spr (sum Oct y-1 to Apr y), PET_win_to_spr (sum Oct y-1 to Apr y).
     fits: dict[str, dict] = {}
 
     for block in blocks:
@@ -1003,11 +1012,11 @@ def run_spring_msl_forecasting(df: pd.DataFrame) -> None:
             ].dropna()
             # Winter peak: months Oct (y-1), Nov (y-1), Dec (y-1), Jan (y), Feb (y).
             # In the van Willegen year y these fall in months [10, 11, 12, 1, 2]
-            # of the current Jun-May year.
+            # of the current (bucketed May-Apr) year.
             winter = subset[subset.index.month.isin([10, 11, 12, 1, 2])][
                 [block, "P_mm", "PET_mm"]
             ].dropna()
-            # Winter-to-spring window: Oct (y-1) through May (y).
+            # Winter-to-spring window: Oct (y-1) through Apr (y).
             win_to_spr = subset[
                 subset.index.month.isin(WINTER_TO_SPRING_MONTHS)
             ][["P_mm", "PET_mm"]].dropna()

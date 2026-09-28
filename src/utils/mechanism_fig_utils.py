@@ -57,8 +57,12 @@ printed checks) and writes the outputs via paths.py.
 """
 from __future__ import annotations
 
-__version__ = "1.12.0"
+__version__ = "1.13.0"
 # CHANGELOG
+#   1.13.0 (2026-09-28, proofread): the clearfell magnitude line is in mm like the scrape
+#       line ("+108 mm over the year (p=0.003) · -1 mm summer (n.s.)"; was "+0.11 m … (p=0.00) ·
+#       -0.00 m"), p to 3 dp, and the hard-typed "(Section 4.11)" is dropped from the reach
+#       note (section numbers live in the report text only).
 #   1.12.0 (2026-09-26, T-88 / D-200): the scrape off-cut drawdown is the MODELLED drain
 #       cone at the WMC3 distance (scrape_cone_at_wmc3_mm(), 09f_01 interpolated at the
 #       09b distance), not the raw WMC3 BACI step, which is within the record's noise.
@@ -375,7 +379,7 @@ def load_clearfell_steps():
         if p.startswith("<"):
             return f"p{p}"
         pv = float(p)
-        return f"p={pv:.2f}" if pv < 0.05 else "n.s."
+        return f"p={pv:.3f}" if pv < 0.05 else "n.s."   # 1.13.0: 3 dp (0.003 read "p=0.00")
     try:
         df = pd.read_csv(OUT_10A_REPORT)
         key = df.iloc[:, 0].astype(str)
@@ -1142,7 +1146,7 @@ def build_reach_body(reach, multiples=False):
                     'water-table curves and 900 m reach to committed scale; dune surface '
                     f'illustrative; vertical exaggerated x{_EXAG}', 10, c='#888780'))
     s.append(_r_txt(_R_NL, 55,
-                    'conceptual reach built from the fitted d0 and L (Section 4.11); no '
+                    'conceptual reach built from the fitted d0 and L; no '
                     'spatially uniform far-field term is drawn', 9.5,
                     c='#9a968a', it=True))
 
@@ -1338,8 +1342,8 @@ def build_grid_combined_svg(reach, clearfell):
     cut = EDGE_DH_MM['scrape_cut_rise']
     offc = EDGE_DH_MM['scrape_offslack']
     mag_scrape = (f'cut {cut:+.0f} mm observed \u00b7 off-cut {offc:.0f} mm modelled')
-    mag_fell = (f'{cf_a:+.2f} m over the year ({cf_ap}) \u00b7 '
-                f'{cf_s:+.2f} m summer ({cf_sp})')
+    mag_fell = (f'{cf_a * 1000:+.0f} mm over the year ({cf_ap}) \u00b7 '
+                f'{cf_s * 1000:+.0f} mm summer ({cf_sp})')   # 1.13.0: mm, as the scrape line
     # row 2 \u2014 local interventions (scrape under undisturbed | clearfell under standing
     # forest). Built here, before the title, because the title counts them.
     locals_ = [('Dune scrape', geo_scrape_after, mag_scrape, 'settles', 'observed + modelled'),

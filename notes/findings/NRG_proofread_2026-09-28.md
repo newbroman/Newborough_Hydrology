@@ -25,3 +25,36 @@ Figures: Script 12 1.10.0 and 13 1.5.0 run; Figure 2 labels legible with call-ou
 Direct fixes and the -ize sweep: see changelog 28b. Awaiting Martin: result-in-Methods items (§3.1.2 R² 0.528; §3.4 centroid-refit 17% at C4; §3.4.2 CEH14/CEH13 benchmark finding; §3.5.4 shoreline 127 m / 0.64 / 2.32 m yr⁻¹ and the ξ values; §3.5.4 propagation null and WMC3 raw steps; §3.5.4 97% β₂ variance; §3.8.1 C5 trend) and wording (§3.1 tier sentence; §3.1.1 extended-network clause; §3.4.1 "came online"; §3.5.2 duplicate Tier 1 sentence).
 - report8 rulings applied (changelog 28b). Captions vs figures (report8 Figures a/b, 01_coverage_states_*): captions match. Figure issues for Martin: "flooded" blue is the C1 cluster blue (flooded months invisible in the C1 rows); well IDs mixed case (wmc3/WMC1, Ceh32). Open: report8 §3.5.4 "D = Kb/Sy ≈ 114 m² day⁻¹" does not follow from K = 6.0, b = 5 m, Sy = 0.298 (≈ 101).
 - D ≈ 101 and λ ranges recomputed at Sy 0.298 (applied). Script 01 figure fix deferred to the next pipeline run (handover).
+
+## report10 (Discussion): for Martin (2026-09-28)
+
+### WORD: proposed readability rewrites (not applied)
+| # | Section | Now | Proposal |
+|---|---|---|---|
+| W1 | 5 (opening) | One sentence of about 60 words: "The analytical pipeline … yields a consistent picture … broadly uniform." | Split after "coastal dune aquifer." and start the next sentence "Its water balance is governed by …". |
+| W2 | 5.1.1 | "These two strands — [≈80-word parenthesis of r values] — admit a parsimonious reading." | Main clause first, then the statistics in their own sentence. |
+| W3 | 5.1.1 | The "A third check …" paragraph packs four tests into a few very long sentences. | One sentence per test: spatial autocorrelation; external descriptors; cross-method ARI; single-descriptor recovery. |
+| W4 | 5.4.1 | "Removing the dune-slack vegetation removes …" (would tend to raise … would tend to lower …) | "Removing the dune-slack vegetation eliminates a growing-season transpiration draw that would tend to raise the local table, while the bare sand and standing water at the scrape floor add direct evaporation that would tend to lower it; which dominates is not established." |
+| W5 | 5.4.2 | "This null concerns the drainage coefficient … radiating from a point source." (states the null twice) | Split before "The result — no decay of Δβ₃ with distance from CEH36 — …". |
+| W6 | 5.7 | Model B half-life sentence (103 words) | Three sentences: the mechanism; the half-lives (63 vs 7 months; 30 and 5 at the median wells); the implication a year on. |
+| W7 | 5.7 | "Each driver field is detectable … constrain the regression at all." (three reasons in one clause) | Split after "limit the test", then list the reasons separated by semicolons. |
+| W8 | 5.8 | The Figure 82 paragraph (reach comparison → site-wide accumulation → WMC3 caveat → summary) | Split into its four ideas. |
+| W9 | 5.8.1 | P_flood paragraph with bold running across sentence boundaries | Three paragraphs (counts; C3 middle ground; operational boundary), with bold on the percentages only. |
+| W10 | 5.8.2 | "That site-wide ranking differs … only the coastal drawdown is modelled …" | Put the "complementary" summary in its own short paragraph. |
+| W11 | 5.9 | "The evidence does not support the view that the plantation …" (≈1300 characters) | Move the closing "Removing the forest would thus trade …" into a sentence of its own. |
+
+### NEWRESULT: findings the Discussion states that Results (report9) does not
+- 5.1.1: the Script 28 C3 de-trend re-classification (2 of 21 wells move to C2; C2 19 of 19 retained).
+- 5.1.1: Script 29 panel R² (0.81 / 0.71 / 0.67); the k = 6 split of C3 into 13 + 13; bootstrap co-assignment 0.38.
+- 5.1.1: Script 31 spatial checks: within-cluster separation 707 m, join-count z = 16.0, Moran's I 0.45–0.60, κ 0.91, ARI values.
+- 5.2.x: C4 amplification 1.56× with CEH13/CEH14 excluded.
+- 5.5: Script 41 canopy texture index, 1.235 → 0.141 (felled compartment) and 1.248 → 0.123 (felling experiment), 1.007 in the unfelled control.
+- 5.4.3: decay length ≈ 413 m, from the other specification.
+- 5.6: the seasonal robustness check (C5 −36 / −38 mm yr⁻¹) and the season × distance interaction γ = +0.31.
+- 5.7: MSL5 2017–2023 change against the Script 25 summer-minimum slope, r = 0.43 on n = 46.
+
+Options: move each one to Results (or to the Supplementary Material, citing it from Results), or keep it in the Discussion with an explicit source.
+
+### Waiting on Script 26 1.17.0
+- report10 §5.7: "(60 mm)" for the wells van Willegen never studied.
+- report9 §4.8.5: "66 mm across the 46 open-dune wells … against 67 mm". With T41b in the set these become 80 mm on 44 wells and 63 mm on 17.

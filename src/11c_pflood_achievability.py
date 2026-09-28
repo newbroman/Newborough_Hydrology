@@ -38,7 +38,13 @@ index are in outputs/pipeline_manifest.json.
 
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-24. Display symbol λ → m_P: the figure
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-28. The categories are also drawn as a surface:
+#   m_P on the house linear surface (D-206), banded at 1.5 / 2.5, ridge-masked (1 m) and clipped to the
+#   site, under the well markers (Martin, proofread: "should be a surface and ridge masked"). Display only.
+# 1.4.0  # Hollingham (2026) — 2026-09-28. Title drops "Categories follow Conclusion 4
+#   (main report)": the criterion is Conclusion 6, and conclusion numbers belong in the report text,
+#   not a figure (proofread). Display only.
+# 1.3.0  # Hollingham (2026) — 2026-09-24. Display symbol λ → m_P: the figure
 #   title and legend said λ for the P_flood rainfall multiplier while the report
 #   (§4.7.4, §5.9, the Notation table) says m_P, and λ is the forest drawdown reach
 #   everywhere else in the corpus. Caught by the 2026-09-24 caption-against-figure
@@ -71,7 +77,8 @@ def main():
         hr, skipped,
     )
     from utils import paths  # noqa: E402
-    from utils.map_utils import load_dem_hillshade, add_kml_features  # noqa: E402
+    from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surface  # noqa: E402
+    from matplotlib.colors import ListedColormap, BoundaryNorm  # noqa: E402
     from utils.config import (  # noqa: E402
         SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
         SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
@@ -150,9 +157,22 @@ def main():
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")
 
     # DEM hillshade
-    _, ok, *_ = load_dem_hillshade(ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
+    _, ok, dem_e, dem_n, dem_data = load_dem_hillshade(ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1)
     if not ok:
         warn("DEM hillshade unavailable — map may lack context.")
+
+    # 1.5.0: the categories as a surface — m_P interpolated with the house linear
+    # surface (D-206; P_flood has leave-one-well-out skill ~0.7), banded at the two
+    # category limits, ridge-masked like the 11b P_flood map and clipped to the site.
+    _cat_cmap = ListedColormap([CATEGORY_COLOURS[c] for c in ["Achievable", "Marginal", "Unreachable"]])
+    _cat_norm = BoundaryNorm([0.0, LAMBDA_ACHIEVABLE_MAX, LAMBDA_MARGINAL_MAX, 1e6], _cat_cmap.N)
+    add_idw_surface(
+        ax, df, value_col="lambda", dem_col="dem",
+        method="linear", ridge_mask_threshold=1.0,
+        dem_e_arr=dem_e, dem_n_arr=dem_n, dem_data=dem_data,
+        cmap=_cat_cmap, norm=_cat_norm, alpha=0.40, zorder=2,
+        apply_site_mask=True,
+    )
 
     # KML features (forest boundary, etc.)
     kml_handles = add_kml_features(ax, DATA_DIR, include_streams=False)
@@ -199,8 +219,7 @@ def main():
     ax.tick_params(labelsize=8)
     ax.set_title(
         "P_flood achievability — per-well priority categories for scrape targeting\n"
-        "m_P = required winter rainfall / climatological mean. Categories follow "
-        "Conclusion 4 (main report).",
+        "m_P = required winter rainfall / climatological mean.",   # 1.4.0: hard-typed conclusion number dropped
         fontsize=10, fontweight="bold",
     )
 

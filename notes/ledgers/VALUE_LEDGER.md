@@ -795,7 +795,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | c4_closure_min_beta3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_report_numbers.csv` | 0.019 |  | report9 | ok |
 | c4_hd_sd |  |  | `30_c4_report_numbers.csv` | 0.478239 |  | report9 | ok |
 | canonical / C3 (Western Residual) · dry_m_mean |  |  | `33_cluster_summary.csv` | -0.984782 |  | report9 | ok |
-| canonical / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.66281 |  | PAPER1_SI_methods, report9 | ok |
+| canonical / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.66281 |  | PAPER1_SI_methods, report12, report9 | ok |
 | canonical / C4 (Main Forest) · dry_m_mean |  |  | `33_cluster_summary.csv` | -1.6741 |  | report9 | ok |
 | canopy_index_clearfell_full_leaf_median |  |  | `41_report_numbers.csv` | 0.138638 |  | Newborough_Methods_Supplement | ok |
 | canopy_nse_mean_beta1_scale_1.00 | β₁ | recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `39_report_numbers.csv` | -1.33154 |  | Newborough_Methods_Supplement | ok |
@@ -1098,7 +1098,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | rain_mean_window_m_yr |  |  | `39_report_numbers.csv` | 0.770071 |  | report9 | ok |
 | ranwell_forcing_r_1951_53 |  |  | `44_report_numbers.csv` | 0.920586 |  | report11 | ok |
 | ranwell_forcing_ratio_1951_53 |  |  | `44_report_numbers.csv` | 0.966359 |  | report11 | ok |
-| recent / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.64782 |  | PAPER1_SI_methods, report12, report9 | ok |
+| recent / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.64782 |  | PAPER1_SI_methods, report9 | ok |
 | recession_time_group_mean_of_per_well · Climate ctrl |  |  | `20_msl5_report_numbers.csv` | 21.6967 |  | report10 | ok |
 | recession_time_group_mean_of_per_well · Forest ctrl |  |  | `20_msl5_report_numbers.csv` | 57.9401 |  | report10 | ok |
 | reference_record_years_median |  |  | `00_report_numbers.csv` | 15.9233 |  | report10 | ok |

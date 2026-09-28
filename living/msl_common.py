@@ -29,14 +29,14 @@ Constants mirror utils/config.py (paper-defined, stable).
 import pandas as pd
 
 SPRING_MONTHS = (2, 3, 4)   # the readings dated March-May under end-of-month labelling — mirrors config.MSL_SPRING_MONTHS (D-189, 2026-09-21)
-HYDRO_YEAR_START_MONTH = 6
+HYDRO_YEAR_START_MONTH = 5   # bucketed May = the reading dated 1 June — mirrors config.MSL_HYDRO_YEAR_START_MONTH (D-207, 2026-09-28)
 WINDOW_YEARS = 5
 MIN_MONTHS_PER_SPRING = 3
 MIN_YEARS_IN_WINDOW = 5
 
 
 def hydrology_year(year: int, month: int) -> int:
-    """Van Willegen 'hydrology year B' (starts 1 June)."""
+    """Van Willegen 'hydrology year B' (starts with the reading dated 1 June, bucketed May)."""
     return int(year + (1 if month >= HYDRO_YEAR_START_MONTH else 0))
 
 

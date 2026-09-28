@@ -100,7 +100,26 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number emits
+__version__ = "1.19.0"  # Hollingham (2026) - 2026-09-28. Follows config 1.71.0: the van Willegen roster
+#   is 20 wells for 17 stations (T41a-d all in; none location-only), so the EWI generalization split,
+#   quadrat-well trajectories, Curreli check and coverage list take all four T41 wells, and the map
+#   draws 20 diamonds. Coverage line prints the location-only list only when it is non-empty.
+#   D-207: the hydrology year is bucketed May..Apr (config.MSL_HYDRO_YEAR_START_MONTH = 5), the
+#   readings dated 1 June..31 May, as van Willegen's dataset; intervention DATES map through
+#   config.MSL_HYDRO_YEAR_START_MONTH_DATED. Moves MAX/MIN and the Curreli annual-minimum outputs.
+#   The quadrat-well Curreli check reads Curreli's own window (config.CURRELI_WINDOW_END_YEAR = hydro
+#   years 2007-2010), not the earliest window with any well (end 2009, 4 wells; report9 quoted a mix).
+#   Quadrat-wells figure: labels spread by relaxation about their line ends (no collisions with 20
+#   wells), figure height 7 in.
+# 1.18.0  # Hollingham (2026) - 2026-09-28. Numeric uses of the van Willegen roster
+#   (quadrat-well trajectories, EWI in_van_willegen split, Curreli quadrat-well check, coverage list)
+#   use VW_NUMERIC_WELLS, which leaves out config.VW_LOCATION_ONLY_WELLS (T41b): T41b only marks where
+#   the T41 station lies, and its record is not van Willegen's (Martin). The map keeps all 17 diamonds.
+# 1.17.0  # Hollingham (2026) - 2026-09-28. Emits the equilibrium-index
+#   generalization pair: RMSE and n on the open-dune wells outside and inside the van Willegen set
+#   (ewi_msl5_rmse_mm_non_vw_open_dune / _vw_open_dune, with _n_), printed only until now. With T41b in
+#   the roster (config 1.69.0) they read 80 mm on 44 wells and 63 mm on 17. Emit-only.
+# 1.16.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number emits
 #   (no analysis change) - ewi_msl5_forest_holdout_{n,rmse_mm,mean_bias_mm},
 #   ewi_msl5_open_dune_max_abs_residual_mm, msl5_n_annual_total,
 #   spring_sd_mm_median_c{1..5}, and method_ab_{mean_abs_diff_m,max_abs_diff_m,
@@ -252,7 +271,9 @@ MSL_DEFAULT_WINDOW_YEARS   = config.MSL_DEFAULT_WINDOW_YEARS
 MSL_MIN_MONTHS_PER_SPRING  = config.MSL_MIN_MONTHS_PER_SPRING
 MSL_MIN_YEARS_IN_WINDOW    = config.MSL_MIN_YEARS_IN_WINDOW
 TRAJECTORY_START_YEAR      = config.MSL_TRAJECTORY_START_YEAR
-VW_QUADRAT_WELLS           = list(config.VW_QUADRAT_WELLS)
+VW_QUADRAT_WELLS           = list(config.VW_QUADRAT_WELLS)          # map markers (20 wells, 17 stations)
+VW_NUMERIC_WELLS           = [w for w in VW_QUADRAT_WELLS
+                              if w not in config.VW_LOCATION_ONLY_WELLS]  # 1.18.0: numeric uses
 # EWI (v1.3.0): β₃ is the denominator of the equilibrium level, so guard against
 # a vanishing drainage coefficient sending it to ±∞. The known offenders
 # (CEH13/CEH14) are already in MSL5_EXCLUDED_WELLS; this is a belt-and-braces
@@ -281,7 +302,7 @@ DIAG_MIN_SPRINGS = 12
 # under the van Willegen 5-year framework.
 def _intervention_to_hydro_year(date: pd.Timestamp) -> int:
     """Calendar date → hydrology year y where y runs 1 Jun y-1 to 31 May y."""
-    return int(date.year + (1 if date.month >= MSL_HYDRO_YEAR_START_MONTH else 0))
+    return int(date.year + (1 if date.month >= config.MSL_HYDRO_YEAR_START_MONTH_DATED else 0))
 
 
 def _intervention_markers_from_canonical():
@@ -315,8 +336,9 @@ INTERVENTION_MARKERS = _intervention_markers_from_canonical()
 def hydrology_year(date: pd.Timestamp,
                    start_month: int = MSL_HYDRO_YEAR_START_MONTH) -> int:
     """
-    Curreli / van Willegen 'hydrology year B': starts 1st June.
-    A reading dated 2010-06 to 2011-05 belongs to hydrology year 2011.
+    Curreli / van Willegen 'hydrology year B': starts with the reading dated 1 June,
+    which the bucketed frame labels May (D-207). Bucketed 2010-05 to 2011-04
+    (readings dated June 2010 to May 2011) belong to hydrology year 2011.
     """
     return int(date.year + (1 if date.month >= start_month else 0))
 
@@ -348,12 +370,13 @@ def annual_msl_max(long: pd.DataFrame,
             months are present in the quality-controlled record (Script 01's
             single-month gap-fills count as present and are tracked via
             n_interpolated_spring)
-      MAX = max of level over full hydro year (1 Jun y-1 to 31 May y)
+      MAX = max of level over full hydro year (readings dated 1 Jun y-1 to 31 May y;
+            bucketed May y-1 to Apr y, D-207)
       MIN = min of level over the same hydro year — Curreli et al. (2013)'s
             annual minimum, the quantity behind SD15b/SD16 (D-190); admitted
             (min_valid) only when every config.SUMMER_MINIMUM_MONTHS month of
             that hydro year is present, so a summer gap cannot miss the trough,
-            and the well reports the year's closing (May) level, so a year
+            and the well reports the year's closing level (dated May, bucketed April), so a year
             still open at the record's end is not counted
 
     All expressed in the depth-below-ground frame (paper convention).
@@ -384,7 +407,7 @@ def annual_msl_max(long: pd.DataFrame,
     annual = annual.merge(n_summer, on=["well", "hydro_year"], how="left")
     annual["n_summer_months"] = annual["n_summer_months"].fillna(0).astype(int)
     # ... and only for hydro years the well's record has reached the end of:
-    # the year ending May y is admitted when the well reports the May y level,
+    # the year ending (bucketed) April y is admitted when the well reports that level,
     # so a year still open at the record's end cannot enter with its trough.
     last_month = long.groupby("well")["date"].max().rename("last_date")
     annual = annual.merge(last_month, left_on="well", right_index=True, how="left")
@@ -942,14 +965,14 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
     than a straight-line bridge).
     """
     sub_all = per_well_with_cluster[
-        per_well_with_cluster["well"].isin(VW_QUADRAT_WELLS)
+        per_well_with_cluster["well"].isin(VW_NUMERIC_WELLS)
         & (per_well_with_cluster["window_end_year"] >= TRAJECTORY_START_YEAR)
     ]
     if sub_all.empty:
         warn("no quadrat-well data to plot")
         return
 
-    fig, ax = plt.subplots(figsize=(11, 6))
+    fig, ax = plt.subplots(figsize=(11, 7))
 
     xmin = int(sub_all["window_end_year"].min())
     xmax = int(sub_all["window_end_year"].max())
@@ -996,28 +1019,32 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
     connector_kink_x = data_xmax + 0.25
     ax.set_xlim(cur_xmin, label_col_x + 1.1)
 
-    # Walk top-to-bottom, enforcing MIN_DY between consecutive labels.
+    # Place labels as close to their line ends as a MIN_DY spacing allows:
+    # start at the line ends and relax — any two neighbours closer than MIN_DY
+    # are pushed apart equally, and the column is held inside the axes — so
+    # crowded runs spread about their own centre and isolated labels stay on
+    # their lines. With 20 wells (T41a-d, D-207) the old walk-down-then-push-up
+    # pass let labels collide and drift off their lines.
     y_min, y_max = ax.get_ylim()
-    MIN_DY = 0.038 * (y_max - y_min)
+    span = y_max - y_min
+    MIN_DY = 0.034 * span
+    lo, hi = y_min + 0.02 * span, y_max - 0.02 * span
     endpoints_sorted = sorted(endpoints, key=lambda d: -d["y_last"])
-    prev_label_y = None
-    for ep in endpoints_sorted:
-        if prev_label_y is None:
-            ep["label_y"] = ep["y_last"]
-        else:
-            ep["label_y"] = min(ep["y_last"], prev_label_y - MIN_DY)
-        prev_label_y = ep["label_y"]
-    # If labels squeezed below the axis, redistribute upward from the bottom.
-    overflow = min(ep["label_y"] for ep in endpoints_sorted) - y_min
-    if overflow < 0:
-        endpoints_bottom_up = sorted(endpoints_sorted, key=lambda d: d["label_y"])
-        prev_label_y = None
-        for ep in endpoints_bottom_up:
-            if prev_label_y is None:
-                ep["label_y"] = max(ep["label_y"], y_min + 0.02 * (y_max - y_min))
-            else:
-                ep["label_y"] = max(ep["label_y"], prev_label_y + MIN_DY)
-            prev_label_y = ep["label_y"]
+    pos = np.array([ep["y_last"] for ep in endpoints_sorted], dtype=float)
+    for _ in range(2000):
+        moved = False
+        pos = np.clip(pos, lo, hi)
+        for i in range(len(pos) - 1):
+            gap = pos[i] - pos[i + 1]
+            if gap < MIN_DY * (1 - 1e-6):
+                push = (MIN_DY - gap) / 2
+                pos[i] += push
+                pos[i + 1] -= push
+                moved = True
+        if not moved and pos.min() >= lo - 1e-9 and pos.max() <= hi + 1e-9:
+            break
+    for ep, ly in zip(endpoints_sorted, pos):
+        ep["label_y"] = float(ly)
 
     # Draw connector lines and labels.
     for ep in endpoints_sorted:
@@ -1320,7 +1347,7 @@ def compute_ewi_msl5_comparison(ewi: pd.DataFrame,
     Returns (comparison_df, calibration_dict). No map — the report presents this
     as a per-well table / match-band summary (see report §4.8.5).
     """
-    vw = {str(w).strip().lower() for w in config.VW_QUADRAT_WELLS}
+    vw = {str(w).strip().lower() for w in VW_NUMERIC_WELLS}
     latest = latest.copy()
     latest["well"] = latest["well"].astype(str).str.strip().str.lower()
     comp = ewi.merge(latest[["well", "MSL5_m_bg", "window_end_year"]],
@@ -1371,7 +1398,7 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
     (paths.DATA_ELLENBERG_EXT; van Willegen et al. 2024, Mendeley Data). If the
     file is absent the Pass is skipped cleanly and the rest of Script 26 runs.
 
-    Between the 17 van Willegen piezometers, regresses mean Ellenberg-F on three
+    Across the van Willegen piezometers (T41a-d each its own), regresses mean Ellenberg-F on three
     water-table metrics — observed MSL5, the equilibrium index on the annual
     climatology, and on the spring climatology — reporting per-metric r (Fisher-z
     CI), RMSE (bootstrap CI), the Williams test for MSL5 vs the annual index, and
@@ -2295,15 +2322,15 @@ def main() -> int:
             int((per_well["n_interp_in_window"] > 0).sum()),
     })
     # Curreli annual-minimum series (D-190): completeness, and the per-well
-    # rolling minimum at the seventeen van Willegen / Curreli piezometers over
-    # the earliest full headline window — the check that the metric rebuilt
+    # rolling minimum at the van Willegen / Curreli piezometers (VW_NUMERIC_WELLS) over
+    # Curreli's own window (config.CURRELI_WINDOW_END_YEAR) — the check that the metric rebuilt
     # here lands where Curreli's Table 4 puts those slacks. Cluster means of a
     # network that includes dune-flank wells sit deeper than slack-floor
     # quadrats by construction; these per-well values are the like-for-like.
     _hw = config.CURRELI_MIN_WINDOW_YEARS
     _qw = per_well_min[(per_well_min["window_years"] == _hw)
-                       & per_well_min["well"].isin([w.lower() for w in VW_QUADRAT_WELLS])]
-    _first_end = int(_qw["window_end_year"].min()) if not _qw.empty else 0
+                       & per_well_min["well"].isin([w.lower() for w in VW_NUMERIC_WELLS])]
+    _first_end = config.CURRELI_WINDOW_END_YEAR   # Curreli's own 2006-09 window (1.19.0)
     _q0 = _qw[_qw["window_end_year"] == _first_end]["MINw_m_bg"]
     report_nums.update({
         "curreli_min_window_years": _hw,
@@ -2338,6 +2365,14 @@ def main() -> int:
             info(f"  generalization: RMSE {np.sqrt((nvw['residual_mm']**2).mean()):.0f} mm "
                  f"on {len(nvw)} non-van-Willegen open-dune wells vs "
                  f"{np.sqrt((vw['residual_mm']**2).mean()):.0f} mm on {len(vw)} calibration wells")
+            # 1.17.0: the generalization pair as committed numbers (report9 §4.8.5 and
+            # report10 §5.7 quote them; they reached only the transcript before).
+            report_nums.update({
+                "ewi_msl5_rmse_mm_non_vw_open_dune": float(np.sqrt((nvw["residual_mm"] ** 2).mean())),
+                "ewi_msl5_n_non_vw_open_dune": int(len(nvw)),
+                "ewi_msl5_rmse_mm_vw_open_dune": float(np.sqrt((vw["residual_mm"] ** 2).mean())),
+                "ewi_msl5_n_vw_open_dune": int(len(vw)),
+            })
             forest = comp[~comp["open_dune_scope"]].dropna(subset=["residual_mm"])
             if len(forest):
                 info(f"  out-of-scope forest (C4/C5): n={len(forest)}, "
@@ -2531,7 +2566,9 @@ def main() -> int:
     lines.append(f"  Annual rows valid      : {annual['valid'].sum()}")
     lines.append(f"  Wells with ≥1 MSL5     : {per_well['well'].nunique()}")
     lines.append(f"  Quadrat wells found    : "
-                 f"{sum(w in per_well['well'].unique() for w in VW_QUADRAT_WELLS)}/17")
+                 f"{sum(w in per_well['well'].unique() for w in VW_NUMERIC_WELLS)}/{len(VW_NUMERIC_WELLS)}"
+                 + (f" (location-only, not used: {', '.join(config.VW_LOCATION_ONLY_WELLS)})"
+                    if config.VW_LOCATION_ONLY_WELLS else ""))
     lines.append("")
     lines.append("Most recent (window-end) MSL5 by cluster, m below ground:")
     latest_year = int(latest["window_end_year"].max())
@@ -2552,7 +2589,7 @@ def main() -> int:
     lines.append(f"  SD16  (dry slack)  : −{config.SD16:.2f} m below ground")
     lines.append("")
     lines.append("Coverage at van Willegen quadrat wells (calibrated EbF set):")
-    for w in VW_QUADRAT_WELLS:
+    for w in VW_NUMERIC_WELLS:
         if w in latest["well"].values:
             row = latest[latest["well"] == w].iloc[0]
             lines.append(f"  {w.upper():<6s}  MSL5={row['MSL5_m_bg']:+.3f} m  "

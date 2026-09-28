@@ -8,29 +8,13 @@ Each is a result quoted in report9 that the sweep could not trace to a committed
 
 | Section | Value | Context |
 |---|---|---|
-| 4.10.3 What the fit cannot resolve: the far-field level | 13.16 | t settles to −0.20 mm yr⁻¹ with a standard deviation of 4.64, against 13.16 at ten years. No far-field rate is therefore quoted anywhere in this |
-| 4.12 Combined Driver Assessment and Observed Network Change | −3.4 | 6 mm yr⁻¹), and the western residual cluster is mildly negative (C3 ≈ −3.4 mm yr⁻¹); the strongest individual driers are the western and coastal |
 
 ## report10 (2026-09-26e)
 
+The last report9 and report10 rows closed on 2026-09-28 (28a): emitted and bound (Scripts 20, 23, 25, 30, 36, 10a, 10k, 09d), traced where the text rescales or approximates (NRG_T91_traced_2026-09-28.md), or removed from the text (the NW7/NW5 Model B figures).
+
 | Section | Value | Context |
 |---|---|---|
-| 5.2.1 Water Balance Residuals as a Model-Adequacy Diagnostic | 0.97 | distance-dependent transport from the ridge (Spearman ρ = −0.005, p = 0.97, n = 50) and a seasonal climatology analysis testing for unmodelled s |
-| 5.2.3 The C4 Main Forest Drainage Coefficient: Identifiability and Sensitivity | 15.5 | st interior drains genuinely more slowly than the open dune (C2 t_R ≈ 15.5 months), a real canopy-and-substrate effect. One consequence follows |
-| 5.4.1 Measured Benefit and Durability | +7 | the climate control yet absent against the CEH4-paired control (about +7 mm yr⁻¹, not significant), because CEH4 lies at the seaward end of th |
-| 5.5.1 Seasonal Asymmetry, the β₁ Decline, and the Confounded Baseline | 1.4 | n the two is not this covariate: dropping it moves the pooled step by 1.4 mm (Section 5.7.7). The two estimators partition climate variance dif |
-| 5.5.1 Seasonal Asymmetry, the β₁ Decline, and the Confounded Baseline | +0.022 | formation about distance to the shore, the correlation falling to r = +0.022 (Section 5.7.7). The clearfell produced a significant relative recove |
-| 5.7.4 Forest Scenario Predictions Against the Observed Record | +14.9 | he equilibrium volumetric scenario bars of Section 4.5.6 (clearfell ≈ +14.9 mm water-equivalent per month under summer forcing), which express a |
-| 5.7.4 Forest Scenario Predictions Against the Observed Record | 21 | rough the summer window, with the largest departure --- approximately 21 mm deeper --- occurring in August. The reduced annual-mean intercepti |
-| 5.7.5 Parametric Prediction and Observed Network Change | −13 | and −534 mm post-clearfell (2018--2025, excluding 2024): a change of −13 mm, Mann--Whitney p = 1.000. The Forest Controls are structurally dee |
-| 5.7.5 Parametric Prediction and Observed Network Change | 1.000 | l (2018--2025, excluding 2024): a change of −13 mm, Mann--Whitney p = 1.000. The Forest Controls are structurally deeper than the Climate Control |
-| 5.7.5 Parametric Prediction and Observed Network Change | +42 | seline gap, the five springs of the 2021--2025 window contribute +25, +42, −22, +28 and +16 mm respectively to the +90 mm excess. No single spr |
-| 5.7.5 Parametric Prediction and Observed Network Change | +0.35 | nd of the preceding year, both terms are significant (contemporaneous +0.35 mm per mm, p = 0.008; one-year carry-over +0.24, p = 0.022; R² = 0.57 |
-| 5.7.5 Parametric Prediction and Observed Network Change | 0.57 | 0.35 mm per mm, p = 0.008; one-year carry-over +0.24, p = 0.022; R² = 0.57, n = 13). This is consistent with the forested clusters\' larger clim |
-| 5.7.5 Parametric Prediction and Observed Network Change | 22 | es at the datum (1/β₃, about 47 months at the Forest Controls against 22 at the Climate Controls, per-well group means; Section 4.9.3) order t |
-| 5.7.5 Parametric Prediction and Observed Network Change | −3.4 | secular losses are confined to the western and coastal margins (C3 ≈ −3.4, C5 ≈ −11.6 mm yr⁻¹). The forest\'s predicted sensitivity is nonethe |
-| 5.7.5 Parametric Prediction and Observed Network Change | −23 | sible even at the open-dune Climate Controls (NW7 −27 mm month⁻¹, NW5 −23 mm month⁻¹), indicates that the two eras have different climate-adjus |
-| 5.8.2 Climate Trajectory as the Binding Constraint | −11.0 | ead the decomposition does not establish that the decline is uniform: −11.0 sits inside the ±28.5 mm yr⁻¹ minimum detectable rate the site-mean t |
 
 ## report8, report11, report12 (2026-09-26e)
 

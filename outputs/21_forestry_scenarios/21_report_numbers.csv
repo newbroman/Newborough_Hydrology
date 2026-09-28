@@ -37,3 +37,15 @@ scenario_head_shift_m,C5 (Coastal Forest),broadleaf · winter,0.0215488590403377
 scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · winter,6.642969043512798,mm/month,head shift × Sy (0.308) × 1000
 scenario_head_shift_m,C5 (Coastal Forest),broadleaf · summer,0.0016165813658650238,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
 scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · summer,0.4983512096700162,mm/month,head shift × Sy (0.308) × 1000
+hydrograph_sep_at_baseline_trough_m,C4,Baseline (Corsican pine),0.0,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_m,C4,Baseline (Corsican pine),0.0,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Jun; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_month,C4,Baseline (Corsican pine),Jun,,month of hydrograph_max_summer_separation_m
+hydrograph_sep_at_baseline_trough_m,C4,clearfell,0.041507842902359426,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_m,C4,clearfell,0.041507842902359426,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_month,C4,clearfell,Sep,,month of hydrograph_max_summer_separation_m
+hydrograph_sep_at_baseline_trough_m,C4,thinning_50pct,0.020753921451179824,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_m,C4,thinning_50pct,0.020753921451179824,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_month,C4,thinning_50pct,Sep,,month of hydrograph_max_summer_separation_m
+hydrograph_sep_at_baseline_trough_m,C4,broadleaf,0.0006908633814339815,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_m,C4,broadleaf,-0.021086969664048105,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Aug; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_month,C4,broadleaf,Aug,,month of hydrograph_max_summer_separation_m

@@ -2346,9 +2346,7 @@ C5_halflife_mean,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/
 C4_halflife_min,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report9.md,16.3, Section 4.9.4; and C4 Main Forest t½ = ,"--43.1 months (mean 26.0 months), the lo",high,confirmed
 C4_halflife_max,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report9.md,41.6,on 4.9.4; and C4 Main Forest t½ = 16.2--," months (mean 26.0 months), the longest ",high,confirmed
 C4_halflife_mean,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report9.md,25.7,ain Forest t½ = 16.2--43.1 months (mean ," months), the longest half-lives in the ",high,confirmed
-C4_halflife_mean,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report10.md,26, longest t½ values in the network (mean ," months, range 16--43 months, on the ful",high,confirmed
 C4_halflife_min,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report10.md,16,"s in the network (mean 26 months, range ","--43 months, on the full record), indica",high,confirmed
-C4_halflife_max,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report10.md,43," the network (mean 26 months, range 16--"," months, on the full record), indicating",high,confirmed
 C4_halflife_mean,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report9.md,26,"4 Main Forest (t½ = 16--43 months, mean ", months) retains excess storage for mont,high,confirmed
 C4_halflife_min,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report9.md,16,s within a season; C4 Main Forest (t½ = ,"--43 months, mean 26 months) retains exc",high,confirmed
 C4_halflife_max,outputs/18_wtf_spatial/18_report_numbers.csv,report_edits/text/report9.md,42,thin a season; C4 Main Forest (t½ = 16--," months, mean 26 months) retains excess ",high,confirmed
@@ -2808,3 +2806,77 @@ B2_multiplier_clearfell,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/re
 -   **Forest interception treatment.**",high,confirmed
 B2_tier_ratio_after_over_before · Edge,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.9576, is the BACI-corrected Edge-tier ratio (,) with the Climate Ctrl drift (0.9101) s,high,confirmed
 B2_tier_ratio_after_over_before · Climate Ctrl,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.9101,o (0.9576) with the Climate Ctrl drift (,") subtracted, giving a multiplier of 1.0",high,confirmed
+RollingWindow_c_mean · forest_free · 18-year windows,outputs/25_coastal_gradient/25_report_numbers.csv,report_edits/text/report9.md,−0.39, eighteen years the constant settles to , mm yr⁻¹ with a standard deviation of 4.,high,confirmed
+RollingWindow_c_sd · forest_free · 18-year windows,outputs/25_coastal_gradient/25_report_numbers.csv,report_edits/text/report9.md,4.56,39 mm yr⁻¹ with a standard deviation of ,", against 13.14 at ten years.
+
+No far-fi",high,confirmed
+RollingWindow_c_sd · forest_free · 10-year windows,outputs/25_coastal_gradient/25_report_numbers.csv,report_edits/text/report9.md,13.14,"h a standard deviation of 4.56, against "," at ten years.
+
+No far-field rate is the",high,confirmed
+abs_climate_trend_cluster_mean · C1 (Lake Edge) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,−0.3,etre per year of zero (cluster means C1 ,", C2 +0.2, C4 −0.6 mm yr⁻¹) --- and the ",high,confirmed
+abs_climate_trend_cluster_mean · C2 (Dune) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,+0.2,"year of zero (cluster means C1 −0.3, C2 ",", C4 −0.6 mm yr⁻¹) --- and the weather-i",high,confirmed
+abs_climate_trend_cluster_mean · C4 (Main Forest) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,−0.6,"ero (cluster means C1 −0.3, C2 +0.2, C4 ", mm yr⁻¹) --- and the weather-independen,high,confirmed
+abs_climate_trend_cluster_mean · C5 (Coastal Forest) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,−16.7,ries much the most negative trend (C5 ≈ ," mm yr⁻¹), and the western residual clus",high,confirmed
+abs_climate_trend_cluster_mean · C3 (Western Residual) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,−6.9,residual cluster is also negative (C3 ≈ , mm yr⁻¹); the strongest individual drie,high,confirmed
+abs_climate_trend_well · nw9 · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,−27.0, are the western and coastal wells (NW9 ,", CEH3 −26.9, CEH4 −20.9 mm yr⁻¹). This ",high,confirmed
+abs_climate_trend_well · ceh3 · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,−26.9,"tern and coastal wells (NW9 −27.0, CEH3 ",", CEH4 −20.9 mm yr⁻¹). This is the coast",high,confirmed
+abs_climate_trend_well · ceh4 · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report9.md,−20.9,"stal wells (NW9 −27.0, CEH3 −26.9, CEH4 ", mm yr⁻¹). This is the coastal-margin de,high,confirmed
+ridge_lag_spearman_rho_peak_lag_vs_distance,outputs/23_ridge_recharge_lag_test/23_report_numbers.csv,report_edits/text/report10.md,−0.028, transport from the ridge (Spearman ρ = ,", p = 0.85, n = 49) and a seasonal clima",high,confirmed
+ridge_lag_spearman_p_peak_lag_vs_distance,outputs/23_ridge_recharge_lag_test/23_report_numbers.csv,report_edits/text/report10.md,0.85,"rom the ridge (Spearman ρ = −0.028, p = ",", n = 49) and a seasonal climatology ana",high,confirmed
+centroid_recession_time_months · C2 (Dune),outputs/30_c4_drainage_identifiability/30_c4_report_numbers.csv,report_edits/text/report10.md,15.9,ore slowly than the open dune (C2 t_R ≈ ," months), a real canopy-and-substrate ef",high,confirmed
+FourZone_Impact_easting_sensitivity_step_delta_mm,outputs/10_clearfell_baci/10k_report_numbers.csv,report_edits/text/report10.md,2.0,e: dropping it moves the pooled step by , mm (Section 5.7.7). The two estimators ,high,confirmed
+Clearfell (hypothetical) · Delta_vol_summer_mm_per_month,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,report_edits/text/report10.md,+14.4,ario bars of Section 4.5.6 (clearfell ≈ , mm water-equivalent per month under sum,high,confirmed
+abs_climate_trend_cluster_mean · C3 (Western Residual) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report10.md,−6.9,o the western and coastal margins (C3 ≈ ,", C5 ≈ −16.7 mm yr⁻¹).
+
+The forest\'s pr",high,confirmed
+abs_climate_trend_cluster_mean · C5 (Coastal Forest) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report10.md,−16.7,"rn and coastal margins (C3 ≈ −6.9, C5 ≈ "," mm yr⁻¹).
+
+The forest\'s predicted sens",high,confirmed
+abs_climate_trend_cluster_mean · C4 (Main Forest) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report10.md,−0.6,s: the main-forest cluster sits at C4 ≈ ," mm yr⁻¹, alongside the lake-edge and du",high,confirmed
+abs_climate_trend_cluster_mean · C1 (Lake Edge) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report10.md,−0.3,e the lake-edge and dune clusters (C1 ≈ ,", C2 ≈ +0.2 mm yr⁻¹; cluster means), non",high,confirmed
+abs_climate_trend_cluster_mean · C2 (Dune) · 2005-2025,outputs/36_absolute_climate_trend/36_report_numbers.csv,report_edits/text/report10.md,+0.2,"edge and dune clusters (C1 ≈ −0.3, C2 ≈ "," mm yr⁻¹; cluster means), none of them t",high,confirmed
+msl5_n_significant,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,58,"re 72, which rests on 59 wells of which ", exceed the threshold and none reverse. ,high,confirmed
+check1_spring_gap_baseline_mean,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−567, and the Climate Control group mean was , mm pre-clearfell (2013--2017) and −565 ,high,confirmed
+check1_spring_gap_post_mean_excl_wettest,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−565, −567 mm pre-clearfell (2013--2017) and ," mm post-clearfell (2018--2025, excludin",high,confirmed
+check1_spring_gap_change_excl_wettest,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+3,AF Valley spring rainfall): a change of ," mm, Mann--Whitney p = 0.876; with 2024 ",high,confirmed
+check1_spring_gap_mannwhitney_p_excl_wettest,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,0.876,"): a change of +3 mm, Mann--Whitney p = ",; with 2024 included the change is +17 m,high,confirmed
+check1_spring_gap_change,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+17,0.876; with 2024 included the change is ," mm, p = 0.943. The Forest Controls are ",high,confirmed
+check1_spring_gap_mannwhitney_p,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,0.943,"2024 included the change is +17 mm, p = ",. The Forest Controls are structurally d,high,confirmed
+check1_msl5_window_excess · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+103,Control excess over Climate Controls is , mm; in the 2023 window it collapses to ,high,confirmed
+check1_msl5_window_excess · window-end 2023,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−15, mm; in the 2023 window it collapses to , mm. The switch reflects which springs e,high,confirmed
+check1_msl5_window_spring_contribution · 2021,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+27,ngs of the 2021--2025 window contribute ,", +43, −17, +24 and +26 mm respectively ",high,confirmed
+check1_msl5_window_spring_contribution · 2022,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+43,"f the 2021--2025 window contribute +27, ",", −17, +24 and +26 mm respectively to th",high,confirmed
+check1_msl5_window_spring_contribution · 2023,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−17," 2021--2025 window contribute +27, +43, ",", +24 and +26 mm respectively to the +10",high,confirmed
+check1_msl5_window_spring_contribution · 2024,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+24,"--2025 window contribute +27, +43, −17, ", and +26 mm respectively to the +103 mm ,high,confirmed
+check1_msl5_window_spring_contribution · 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+26,"indow contribute +27, +43, −17, +24 and ", mm respectively to the +103 mm excess. ,high,confirmed
+check1_msl5_window_excess · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+103,"−17, +24 and +26 mm respectively to the ", mm excess. No single spring accounts fo,high,confirmed
+check1_msl5_window_spring_contribution · 2024,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,24,anomalously wet 2024 spring contributes ," mm, less than a quarter of the total. T",high,confirmed
+check1_msl5_window_excess · window-end 2023,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−15,s why the same comparison there returns ," mm.
+
+The gap varies systematically with",high,confirmed
+check1_gap_on_site_level_contemporaneous,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+0.31, terms are significant (contemporaneous ," mm per mm, p = 0.013; one-year carry-ov",high,confirmed
+check1_gap_on_site_level_contemporaneous_p,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,0.013,"t (contemporaneous +0.31 mm per mm, p = ","; one-year carry-over +0.28, p = 0.007; ",high,confirmed
+check1_gap_on_site_level_carryover,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+0.28," per mm, p = 0.013; one-year carry-over ",", p = 0.007; R² = 0.60, n = 13). This is",high,confirmed
+check1_gap_on_site_level_carryover_p,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,0.007,"= 0.013; one-year carry-over +0.28, p = ","; R² = 0.60, n = 13). This is consistent",high,confirmed
+check1_gap_on_site_level_r2,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,0.60,"-year carry-over +0.28, p = 0.007; R² = ",", n = 13). This is consistent with the f",high,confirmed
+check1_gap_on_site_level_n,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,13,"y-over +0.28, p = 0.007; R² = 0.60, n = ",). This is consistent with the forested ,high,confirmed
+centroid / C4 (Main Forest) / nan · t_half_B_months,outputs/03_state_space_model/03_16_model_b_persistence.csv,report_edits/text/report10.md,63,e of a departure from the mean is about , months at the C4 Main Forest centroid a,high,confirmed
+centroid / C3 (Western Residual) / nan · t_half_B_months,outputs/03_state_space_model/03_16_model_b_persistence.csv,report_edits/text/report10.md,7,e C4 Main Forest centroid against about , months at C3 Western Residual (30 and 5,high,confirmed
+recession_time_group_mean_of_per_well · Forest ctrl,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,58,"cession times at the datum (1/β₃, about ", months at the Forest Controls against 2,high,confirmed
+recession_time_group_mean_of_per_well · Climate ctrl,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,22,8 months at the Forest Controls against ," at the Climate Controls, per-well group",high,confirmed
+check1_msl5_window_excess · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+103,d relation predicts about +28 mm of the , mm. The remainder lies within the resol,high,confirmed
+check1_msl5_window_excess · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+103,indows about 76 mm. On that footing the , mm excess is 1.4 standard errors and th,high,confirmed
+check1_msl5_window_excess · window-end 2023,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,−15,m excess is 1.4 standard errors and the ," mm of the 2023 window is 0.2, neither s",high,confirmed
+Easting_vs_dist_coast_r,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report10.md,+0.022,"e shore, the correlation falling to r = ", (Section 5.7.7). The clearfell produced,high,confirmed
+OpenDune_balanced_less_coastal_mean,outputs/25_coastal_gradient/25_report_numbers.csv,report_edits/text/report10.md,−11.0, establish that the decline is uniform: , sits inside the ±28.5 mm yr⁻¹ minimum d,high,confirmed
+check1_msl5_window_group_gain · Forest ctrl · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+133, gain over their 2013--2017 baseline of ," mm, compared with +29 mm for the open-d",high,confirmed
+check1_msl5_window_group_gain · Climate ctrl · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+29,"2017 baseline of +133 mm, compared with ", mm for the open-dune Climate Controls -,high,confirmed
+check1_msl5_window_excess · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+103,-- an apparent Forest Control excess of , mm. Three checks indicate this excess a,high,confirmed
+check1_model_b_halflife_median_well · C4 (Main Forest) · comparison_window,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,30, about 7 months at C3 Western Residual (, and 5 months at the median well of each,high,confirmed
+check1_model_b_halflife_median_well · C3 (Western Residual) · comparison_window,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,5,7 months at C3 Western Residual (30 and ," months at the median well of each), so ",high,confirmed
+check1_msl5_window_predicted_excess · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,+28,ough the fitted relation predicts about , mm of the +103 mm. The remainder lies w,high,confirmed
+check1_spring_gap_sd,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,121,as an interannual standard deviation of ," mm over 2013--2025, so a five-year wind",high,confirmed
+check1_window_mean_se,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,54, mean carries a standard error of about , mm and a difference between two such wi,high,confirmed
+check1_window_difference_se,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,76,fference between two such windows about , mm. On that footing the +103 mm excess ,high,confirmed
+check1_msl5_window_excess_in_se · window-end 2025,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,1.4,. On that footing the +103 mm excess is , standard errors and the −15 mm of the 2,high,confirmed
+check1_msl5_window_excess_in_se · window-end 2023,outputs/20_spatial_figures/20_msl5_report_numbers.csv,report_edits/text/report10.md,0.2,rs and the −15 mm of the 2023 window is ,", neither separable from zero. This reso",high,confirmed

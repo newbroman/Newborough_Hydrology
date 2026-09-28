@@ -108,7 +108,30 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.50.0"  # Hollingham (2026) - 2026-09-28. T-91: the residual report numbers also carry
+__version__ = "1.53.0"  # Hollingham (2026) - 2026-09-28. T-91 Check 1, the rest of the
+#   paragraph: every spring's gap and its width rank (1 = widest, most negative); each control
+#   group's MSL5-window gain over its own baseline (the two sides of the window excess); the
+#   interannual SD of the gap over the comparison span, the standard error of a window mean and
+#   of a difference of two window means, and each window excess in those standard errors; and
+#   the window excess predicted by the fitted gap-on-site-level relation; and the Model B
+#   (free-intercept) half-life of a departure from the mean at the C4 and C3 centroids and at the
+#   median well of each, from 03_16_model_b_persistence.csv. Docstring corrected:
+#   the excluded spring is the wettest by rainfall (1.52.0), not by site-mean level. Emit-only.
+# 1.52.0  # Hollingham (2026) - 2026-09-28. T-91 Check 1: the excluded wettest
+#   post-felling spring is chosen by RAF Valley spring rainfall (MSL_SPRING_MONTHS), and every spring of
+#   the gap series is emitted with its rainfall and rank (Martin: "comes from the met data … all springs
+#   need to be ranked"); was the highest site-mean spring level.
+# 1.51.0  # Hollingham (2026) - 2026-09-28. T-91: 20_msl5_report_numbers.csv also
+#   carries report10 §5.7.5 Check 1 (the spring-gap stability test behind the MSL5 change
+#   map), computed by the new _t91_check1_spring_gap() from Script 26's per-well annual
+#   spring means (valid years only): the Forest-control minus Climate-control group-mean
+#   spring gap per year; its baseline (springs of the BASE_YR MSL5 window) and post-felling
+#   means with and without the wettest post-felling spring, and the Mann-Whitney p; the
+#   MSL5-window excess over the baseline gap at CURR_YR and at the latest window, with each
+#   spring's contribution to the latest; the regression of the gap on the site-mean spring
+#   level of the same and the preceding year; and the per-well group means of 1/β₃. Emit-only:
+#   the map, per-well CSV and existing rows are unchanged.
+# 1.50.0  # Hollingham (2026) - 2026-09-28. T-91: the residual report numbers also carry
 #   each cluster's mean α (residual_cluster_mean) and its gap to Script 16's independent balance
 #   (residual_vs_wb16_gap, _max), which report9 §4.9.6 and report10 §5.2.1 quote.
 # 1.49.0  # Hollingham (2026) - 2026-09-28. T-91: plot_drawdown_propagation
@@ -3258,6 +3281,234 @@ def plot_clearfell_gain(wt, features, dpi=300):
           f"(n={len(df)}, range {vals.min():+.0f} to {vals.max():+.0f} mm)")
 
 
+def _t91_check1_spring_gap(rpt, base_yr, curr_yr):
+    """report10 §5.7.5 Check 1 — spring-gap stability — into ``rpt`` (T-91).
+
+    Reads Script 26's per-well annual spring means (OUT_26_ANNUAL_PER_WELL,
+    MSL_m_bg on config.MSL_SPRING_MONTHS, ``valid`` years only). For every year
+    the gap is the Forest-control group mean minus the Climate-control group
+    mean (clearfell_common tiers), in mm. Baseline = the springs of the MSL5
+    window ending ``base_yr`` (MSL_DEFAULT_WINDOW_YEARS long); post-felling =
+    springs after the CLEARFELL_DATE_ISO year. The wettest post-felling spring
+    (highest RAF Valley rainfall over config.MSL_SPRING_MONTHS) is reported, and the post-felling mean and
+    Mann-Whitney test are emitted both with and without it. The MSL5-window
+    excess is the window's mean gap less the baseline mean gap, at ``curr_yr``
+    and at the latest window, with each spring's share of the latest. The gap
+    is regressed (OLS, intercept) on the site-mean spring level of the same and
+    of the preceding year over the baseline start onward. Recession times are
+    per-well 1/β₃ from INT_MASTER_DATA, averaged over each group.
+    """
+    from scipy import stats as _st                                   # noqa: PLC0415
+    from utils.paths import OUT_26_ANNUAL_PER_WELL                   # noqa: PLC0415
+    from utils.config import (MSL_DEFAULT_WINDOW_YEARS, CLEARFELL_DATE_ISO,  # noqa: PLC0415
+                              LAKE_GAUGE_KEYS)
+    from utils.clearfell_common import (FOREST_CONTROL_WELLS,       # noqa: PLC0415
+                                        CLIMATE_CONTROL_WELLS)
+    if not OUT_26_ANNUAL_PER_WELL.exists():
+        print(f"  [WARNING] {OUT_26_ANNUAL_PER_WELL.name} not found — Check 1 not emitted")
+        return
+    ann = pd.read_csv(OUT_26_ANNUAL_PER_WELL)
+    ann = ann[ann["valid"].astype(bool)].copy()
+    ann["well"] = ann["well"].astype(str).str.lower().str.replace(" ", "")
+    _lake = {k.replace(" ", "").replace("-", "") for k in LAKE_GAUGE_KEYS}
+    ann = ann[~ann["well"].str.replace("-", "").isin(_lake)]
+    piv = ann.pivot_table(index="hydro_year", columns="well", values="MSL_m_bg")
+    fw = [w for w in FOREST_CONTROL_WELLS if w in piv.columns]
+    cw = [w for w in CLIMATE_CONTROL_WELLS if w in piv.columns]
+    if not fw or not cw:
+        print("  [WARNING] control-tier wells missing from the MSL table — Check 1 not emitted")
+        return
+    gap = ((piv[fw].mean(axis=1) - piv[cw].mean(axis=1)) * 1000).dropna()
+    site = piv.mean(axis=1) * 1000
+    tiers = (f"Forest ctrl ({', '.join(w.upper() for w in fw)}) minus Climate ctrl "
+             f"({', '.join(w.upper() for w in cw)}), group means of per-well annual "
+             f"spring means (26_msl_annual_per_well.csv, valid years)")
+    win = int(MSL_DEFAULT_WINDOW_YEARS)
+    base_years = list(range(base_yr - win + 1, base_yr + 1))
+    base = gap.reindex(base_years).dropna()
+    fell_yr = pd.Timestamp(CLEARFELL_DATE_ISO).year
+    post = gap[gap.index > fell_yr]
+    if base.empty or post.empty:
+        print("  [WARNING] Check 1: empty baseline or post-felling gap series")
+        return
+    # The excluded spring is the wettest post-felling spring BY THE MET RECORD
+    # (Martin 2026-09-28: "this comes from the met data … maybe all springs need
+    # to be ranked"): spring rainfall = RAF Valley P summed over
+    # config.MSL_SPRING_MONTHS of each year, every spring ranked (1 = wettest).
+    from utils.config import MSL_SPRING_MONTHS                       # noqa: PLC0415
+    _clim = pd.read_csv(INT_CLIMATE, parse_dates=["Date"])
+    _sp = _clim[_clim["Date"].dt.month.isin(MSL_SPRING_MONTHS)]
+    _spring_p = (_sp.groupby(_sp["Date"].dt.year)["P_m"]
+                 .agg(["sum", "count"]))
+    _spring_p = _spring_p[_spring_p["count"] == len(MSL_SPRING_MONTHS)]["sum"] * 1000
+    _yrs = [y for y in gap.index if y in _spring_p.index]
+    _rank = _spring_p.reindex(_yrs).rank(ascending=False, method="min")
+    for _y in _yrs:
+        rpt.add("check1_spring_rainfall_mm", float(_spring_p[_y]), unit="mm",
+                era=str(_y), note=f"RAF Valley rainfall summed over months {tuple(MSL_SPRING_MONTHS)}")
+        rpt.add("check1_spring_rainfall_rank", int(_rank[_y]), unit="rank",
+                era=str(_y), note=f"rank among the {len(_yrs)} springs of the gap series (1 = wettest)")
+    _post_p = _spring_p.reindex([y for y in post.index if y in _spring_p.index])
+    wet_yr = int(_post_p.idxmax())
+    post_x = post.drop(wet_yr)
+    b_era = f"{base.index.min()}-{base.index.max()}"
+    p_era = f"{post.index.min()}-{post.index.max()}"
+    rpt.add("check1_spring_gap_baseline_mean", float(base.mean()), unit="mm",
+            era=b_era, note=f"mean spring gap over the MSL5 window ending {base_yr}; {tiers}")
+    for lab, ser, extra in (("", post, "all post-felling springs"),
+                            ("_excl_wettest", post_x,
+                             f"excluding the wettest post-felling spring ({wet_yr}, "
+                             f"highest spring rainfall)")):
+        mw = _st.mannwhitneyu(base.values, ser.values, alternative="two-sided")
+        rpt.add(f"check1_spring_gap_post_mean{lab}", float(ser.mean()), unit="mm",
+                era=p_era, note=f"mean spring gap, springs after {fell_yr}, {extra}; "
+                                f"n={len(ser)}")
+        rpt.add(f"check1_spring_gap_change{lab}", float(ser.mean() - base.mean()),
+                unit="mm", era=f"{p_era} vs {b_era}",
+                note=f"post-felling minus baseline mean spring gap, {extra}")
+        rpt.add(f"check1_spring_gap_mannwhitney_p{lab}", float(mw.pvalue), unit="p",
+                era=f"{p_era} vs {b_era}",
+                note=f"two-sided Mann-Whitney, baseline (n={len(base)}) vs "
+                     f"post-felling (n={len(ser)}) spring gaps, {extra}")
+    rpt.add("check1_wettest_post_felling_spring", wet_yr, unit="year", era=p_era,
+            note="post-felling spring with the highest RAF Valley spring rainfall "
+                 "(check1_spring_rainfall_rank)")
+    # Every spring's gap and its width rank (1 = widest, i.e. most negative).
+    _wrank = gap.rank(ascending=True, method="min")
+    for _y in gap.index:
+        rpt.add("check1_spring_gap", float(gap[_y]), unit="mm", era=str(int(_y)),
+                note=f"spring gap in {int(_y)}; {tiers}")
+        rpt.add("check1_spring_gap_width_rank", int(_wrank[_y]), unit="rank",
+                era=str(int(_y)),
+                note=f"rank among the {len(gap)} springs of the gap series "
+                     f"(1 = widest, most negative gap)")
+    # Resolution of a window contrast: interannual SD of the gap over the
+    # comparison span (baseline start onward), the SE of a window mean and of
+    # the difference between two window means.
+    span = gap[gap.index >= base_years[0]]
+    gap_sd = float(span.std(ddof=1))
+    se_win = gap_sd / np.sqrt(win)
+    se_diff = se_win * np.sqrt(2.0)
+    s_era = f"{int(span.index.min())}-{int(span.index.max())}"
+    rpt.add("check1_spring_gap_sd", gap_sd, unit="mm", era=s_era,
+            note=f"interannual SD (ddof=1) of the spring gap, springs {s_era}, n={len(span)}")
+    rpt.add("check1_window_mean_se", float(se_win), unit="mm", era=s_era,
+            note=f"check1_spring_gap_sd / sqrt({win}): standard error of a {win}-spring window mean")
+    rpt.add("check1_window_difference_se", float(se_diff), unit="mm", era=s_era,
+            note="check1_window_mean_se * sqrt(2): standard error of the difference "
+                 "between two window means")
+    fg = piv[fw].mean(axis=1) * 1000
+    cg = piv[cw].mean(axis=1) * 1000
+    last_yr = int(gap.index.max())
+    for end in sorted({int(curr_yr), last_yr}):
+        yrs = list(range(end - win + 1, end + 1))
+        if gap.reindex(yrs).isna().any():
+            continue
+        g_ex = float(gap.reindex(yrs).mean() - base.mean())
+        rpt.add("check1_msl5_window_excess_in_se", g_ex / se_diff, unit="SE",
+                era=f"window-end {end}",
+                note="check1_msl5_window_excess / check1_window_difference_se")
+        for lab, ser in (("Forest ctrl", fg), ("Climate ctrl", cg)):
+            rpt.add("check1_msl5_window_group_gain",
+                    float(ser.reindex(yrs).mean() - ser.reindex(base.index).mean()),
+                    unit="mm", well=lab, era=f"window-end {end}",
+                    note=f"group-mean spring level over springs {yrs[0]}-{yrs[-1]} minus over "
+                         f"the {b_era} baseline springs; Forest minus Climate = the window excess")
+    for end in sorted({int(curr_yr), last_yr}):
+        yrs = list(range(end - win + 1, end + 1))
+        g = gap.reindex(yrs)
+        if g.isna().any():
+            continue
+        rpt.add("check1_msl5_window_excess", float(g.mean() - base.mean()), unit="mm",
+                era=f"window-end {end}",
+                note=f"mean spring gap over springs {yrs[0]}-{yrs[-1]} minus the "
+                     f"{b_era} baseline mean gap (Forest-control excess over Climate "
+                     f"controls relative to baseline)")
+        if end == last_yr:
+            for y in yrs:
+                rpt.add("check1_msl5_window_spring_contribution",
+                        float((gap[y] - base.mean()) / win), unit="mm", era=str(y),
+                        note=f"(gap in {y} minus the {b_era} baseline mean gap) / {win}: "
+                             f"this spring's share of the window-end {end} excess")
+    reg = pd.DataFrame({"gap": gap, "s0": site, "s1": site.shift(1)})
+    reg = reg[reg.index >= base_years[0]].dropna()
+    if len(reg) > 3:
+        X = np.column_stack([np.ones(len(reg)), reg["s0"].values, reg["s1"].values])
+        y = reg["gap"].values
+        b = np.linalg.lstsq(X, y, rcond=None)[0]
+        res = y - X @ b
+        dof = len(y) - X.shape[1]
+        se = np.sqrt(np.diag((res @ res / dof) * np.linalg.inv(X.T @ X)))
+        pv = 2 * _st.t.sf(np.abs(b / se), dof)
+        r2 = 1.0 - (res @ res) / float(((y - y.mean()) ** 2).sum())
+        r_era = f"{int(reg.index.min())}-{int(reg.index.max())}"
+        r_note = (f"OLS of the spring gap on the site-mean spring level (mean of every "
+                  f"valid well's annual spring mean) of the same year and the preceding "
+                  f"year, with intercept, n={len(reg)} springs")
+        rpt.add("check1_gap_on_site_level_contemporaneous", float(b[1]), unit="mm/mm",
+                era=r_era, note=r_note)
+        rpt.add("check1_gap_on_site_level_contemporaneous_p", float(pv[1]), unit="p",
+                era=r_era, note=r_note)
+        rpt.add("check1_gap_on_site_level_carryover", float(b[2]), unit="mm/mm",
+                era=r_era, note=r_note + "; coefficient on the preceding year")
+        rpt.add("check1_gap_on_site_level_carryover_p", float(pv[2]), unit="p",
+                era=r_era, note=r_note + "; coefficient on the preceding year")
+        rpt.add("check1_gap_on_site_level_r2", float(r2), unit="", era=r_era, note=r_note)
+        rpt.add("check1_gap_on_site_level_n", int(len(reg)), unit="springs", era=r_era,
+                note=r_note)
+        # Window excess predicted by the fitted relation: the coefficients carried
+        # through the change in mean site level (same year, preceding year) between
+        # the window's springs and the baseline springs.
+        for end in sorted({int(curr_yr), last_yr}):
+            yrs = list(range(end - win + 1, end + 1))
+            s0w, s1w = site.reindex(yrs), site.shift(1).reindex(yrs)
+            s0b, s1b = site.reindex(base.index), site.shift(1).reindex(base.index)
+            if pd.concat([s0w, s1w, s0b, s1b]).isna().any():
+                continue
+            pred = b[1] * (s0w.mean() - s0b.mean()) + b[2] * (s1w.mean() - s1b.mean())
+            rpt.add("check1_msl5_window_predicted_excess", float(pred), unit="mm",
+                    era=f"window-end {end}",
+                    note=f"contemporaneous and carry-over coefficients times the change in "
+                         f"mean site-mean spring level, springs {yrs[0]}-{yrs[-1]} vs {b_era}")
+    # Model B (free intercept, datum-free) half-life of a departure from the mean,
+    # at the cluster centroid and the median well, for the forest and open-dune
+    # clusters the Check 1 mechanism sentence contrasts.
+    from utils.paths import OUT_03_MODEL_B_PERSISTENCE              # noqa: PLC0415
+    if OUT_03_MODEL_B_PERSISTENCE.exists():
+        mb = pd.read_csv(OUT_03_MODEL_B_PERSISTENCE)
+        for cid in (4, 3):
+            sub = mb[mb["Cluster"] == cid]
+            cen = sub[sub["level"] == "centroid"]
+            wl = sub[sub["level"] == "well"]
+            if cen.empty or wl.empty:
+                continue
+            lab = str(cen["Cluster_Label"].iloc[0])
+            rpt.add("check1_model_b_halflife_centroid", float(cen["t_half_B_months"].iloc[0]),
+                    unit="months", well=lab, era=str(cen["fit_basis"].iloc[0]),
+                    note=f"Model B t½ = ln(2)/β₃ at the cluster centroid "
+                         f"(03_16_model_b_persistence.csv; β₃ p = "
+                         f"{float(cen['pvalue_beta_3_B'].iloc[0]):.3f})")
+            rpt.add("check1_model_b_halflife_median_well", float(wl["t_half_B_months"].median()),
+                    unit="months", well=lab, era=str(wl["fit_basis"].iloc[0]),
+                    note=f"median over n={len(wl)} member wells of Model B t½ "
+                         f"(03_16_model_b_persistence.csv)")
+    md = pd.read_csv(INT_MASTER_DATA)
+    md["well"] = md["Name_Original"].astype(str).str.lower().str.replace(" ", "")
+    for lab, grp in (("Forest ctrl", FOREST_CONTROL_WELLS),
+                     ("Climate ctrl", CLIMATE_CONTROL_WELLS)):
+        b3 = md.loc[md["well"].isin(grp), "beta_3_drainage"].astype(float)
+        if b3.empty:
+            continue
+        rpt.add("recession_time_group_mean_of_per_well", float((1.0 / b3).mean()),
+                unit="months", well=lab,
+                note=f"mean over n={len(b3)} wells of per-well 1/β₃ "
+                     f"(03_master_data.csv, comparison-window basis)")
+        rpt.add("recession_time_group_reciprocal_mean_beta3", float(1.0 / b3.mean()),
+                unit="months", well=lab,
+                note=f"1 / (mean per-well β₃), n={len(b3)} wells — the alternative "
+                     f"aggregation, shown beside the mean of per-well 1/β₃")
+
+
 def plot_msl5_change(wt, features, dpi=300):
     """
     MSL5 change map — five-year mean spring water level (van Willegen et al. 2025)
@@ -3505,6 +3756,8 @@ def plot_msl5_change(wt, features, dpi=300):
         mrpt.add("msl5_change_c4_mean", float(_c4_msl["raw_change_mm"].mean()), unit="mm",
                  well="C4", note=f"cluster mean of raw below-ground MSL5 change 2017->2023, "
                                  f"n={len(_c4_msl)} wells")
+    # T-91: report10 §5.7.5 Check 1 (spring-gap stability) and related numbers.
+    _t91_check1_spring_gap(mrpt, BASE_YR, CURR_YR)
     n_saved = mrpt.save(OUT_20_MSL5_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_MSL5_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 

@@ -33,7 +33,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-28. T-91: adds
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-28. T-91: adds
+#   Easting_vs_dist_coast_r to 10a_report_numbers.csv -- the Pearson correlation
+#   between well easting (load_clearfell_data well_locations) and distance to the
+#   coast (well_distances_to_coast) across the primary design panel, Impact + Edge
+#   + Forest control + Climate control wells, which report10 Section 5.5.1 / 5.7.7
+#   quote as the reason easting x time is not a coastal term. Emit-only.
+# v1.17.0  # Hollingham (2026) — 2026-09-28. T-91: adds
 #   Pre_felling_baseline_years (+ per-tier min/max) rows to
 #   10a_report_numbers.csv -- pre-felling monitoring-record length for
 #   every Impact/Edge/Forest-control/Coastal-control/Climate-control well,
@@ -2324,6 +2330,22 @@ def main():
                     note=f"maximum across the {_tier_label} tier "
                          f"({', '.join(w.upper() for w in _tier_years)})")
 
+    # T-91: within the primary design panel, does easting carry distance to
+    # the shore? Pearson r between the easting the drift term uses and the
+    # committed distance to the coast (report10 Section 5.5.1 / 5.7.7).
+    _panel_wells = [w for w in (IMPACT_WELLS + EDGE_WELLS +
+                                FOREST_CONTROL_WELLS + CLIMATE_CONTROL_WELLS)
+                    if w in well_locations]
+    _dist = well_distances_to_coast()
+    _pw = [w for w in _panel_wells if w in _dist and np.isfinite(_dist[w])]
+    if len(_pw) > 2:
+        _e = np.array([well_locations[w]['easting'] for w in _pw], dtype=float)
+        _d = np.array([_dist[w] for w in _pw], dtype=float)
+        rpt.add("Easting_vs_dist_coast_r", float(np.corrcoef(_e, _d)[0, 1]),
+                unit="r", era="primary design panel",
+                note=f"Pearson r, well easting vs distance to coast, n={len(_pw)} "
+                     f"wells (Impact + Edge + Forest control + Climate control: "
+                     f"{', '.join(w.upper() for w in _pw)})")
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")
 

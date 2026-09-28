@@ -1,0 +1,46 @@
+Parameter,Well,Era,Value,Unit,Note
+abs_climate_trend_cluster_mean,C1 (Lake Edge),2005-2025,-0.29256918209067767,mm/yr,"mean of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=3"
+abs_climate_trend_cluster_median,C1 (Lake Edge),2005-2025,-0.4884509744420562,mm/yr,"median of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=3"
+abs_climate_trend_cluster_n,C1 (Lake Edge),2005-2025,3.0,wells,wells mapped in the primary window
+abs_climate_trend_cluster_mean,C2 (Dune),2005-2025,0.24249153433071022,mm/yr,"mean of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=5"
+abs_climate_trend_cluster_median,C2 (Dune),2005-2025,-3.354720051655491,mm/yr,"median of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=5"
+abs_climate_trend_cluster_n,C2 (Dune),2005-2025,5.0,wells,wells mapped in the primary window
+abs_climate_trend_cluster_mean,C3 (Western Residual),2005-2025,-6.92475927870436,mm/yr,"mean of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=12"
+abs_climate_trend_cluster_median,C3 (Western Residual),2005-2025,-8.2356780451579,mm/yr,"median of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=12"
+abs_climate_trend_cluster_n,C3 (Western Residual),2005-2025,12.0,wells,wells mapped in the primary window
+abs_climate_trend_cluster_mean,C4 (Main Forest),2005-2025,-0.5804442714331575,mm/yr,"mean of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=5"
+abs_climate_trend_cluster_median,C4 (Main Forest),2005-2025,-3.866690370084136,mm/yr,"median of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=5"
+abs_climate_trend_cluster_n,C4 (Main Forest),2005-2025,5.0,wells,wells mapped in the primary window
+abs_climate_trend_cluster_mean,C5 (Coastal Forest),2005-2025,-16.69642367333829,mm/yr,"mean of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=4"
+abs_climate_trend_cluster_median,C5 (Coastal Forest),2005-2025,-14.570477847839713,mm/yr,"median of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=4"
+abs_climate_trend_cluster_n,C5 (Coastal Forest),2005-2025,4.0,wells,wells mapped in the primary window
+abs_climate_trend_well,nw9,2005-2025,-26.961524865250162,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.156
+abs_climate_trend_well,ceh3,2005-2025,-26.885555327748584,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.118; no cluster id
+abs_climate_trend_well,ceh4,2005-2025,-20.93399495418069,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.168
+abs_climate_trend_well,ceh17,2005-2025,-16.638137443516943,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.372
+abs_climate_trend_well,nw7,2005-2025,-14.198477963850653,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.274
+abs_climate_trend_well,ceh16,2005-2025,-12.502818252162484,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.519
+abs_climate_trend_well,ceh18,2005-2025,-12.290642383254724,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.427
+abs_climate_trend_well,nw5,2005-2025,-12.244150114943393,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.391
+abs_climate_trend_well,nw6,2005-2025,-11.481313843257457,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.264
+abs_climate_trend_well,ceh19,2005-2025,-10.683214132423569,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.387
+abs_climate_trend_well,ceh1,2005-2025,-8.520883895574372,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.689
+abs_climate_trend_well,ceh9,2005-2025,-7.950472194741431,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.642
+abs_climate_trend_well,ceh2,2005-2025,-6.254540500451489,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.712
+abs_climate_trend_well,ceh14,2005-2025,-4.446063751651685,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.867
+abs_climate_trend_well,nw4,2005-2025,-4.242200506661457,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.576
+abs_climate_trend_well,ceh13,2005-2025,-3.866690370084136,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.852
+abs_climate_trend_well,ceh11,2005-2025,-3.632699038716769,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.722
+abs_climate_trend_well,nw3,2005-2025,-3.4358476776496096,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.710
+abs_climate_trend_well,nw4b,2005-2025,-3.354720051655491,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.717
+abs_climate_trend_well,nw2,2005-2025,-3.2111562941318503,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.832
+abs_climate_trend_well,nw1,2005-2025,-2.8303542303660825,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.847
+abs_climate_trend_well,ceh5,2005-2025,-0.4884509744420562,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.942
+abs_climate_trend_well,ceh10,2005-2025,1.7090510877828535,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.925
+abs_climate_trend_well,WMC1,2005-2025,1.8202849446108214,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.885
+abs_climate_trend_well,WMC2,2005-2025,2.7803894585534707,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.884
+abs_climate_trend_well,ceh6,2005-2025,3.2434424668867923,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.498
+abs_climate_trend_well,nw10,2005-2025,4.229939135316663,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.837
+abs_climate_trend_well,nw11,2005-2025,6.07489398351202,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.752
+abs_climate_trend_well,ceh20,2005-2025,7.43513412970486,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.755
+abs_climate_trend_well,L7,2005-2025,10.424940963009288,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.440

@@ -10,3 +10,119 @@ msl5_change_ceh21,CEH21,,-212.66666666666657,mm,raw below-ground MSL5 change 201
 msl5_change_ceh18,CEH18,,-144.6666666666667,mm,raw below-ground MSL5 change 2017->2023
 msl5_change_ceh25,CEH25,,-10.666666666666796,mm,raw below-ground MSL5 change 2017->2023
 msl5_change_c4_mean,C4,,-137.80952380952382,mm,"cluster mean of raw below-ground MSL5 change 2017->2023, n=7 wells"
+check1_spring_rainfall_mm,,2007,94.4,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2007,18.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2008,185.0,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2008,7.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2009,86.39999999999999,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2009,19.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2010,130.8,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2010,14.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2011,146.4,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2011,13.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2012,121.7999999999999,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2012,17.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2013,182.5999999999998,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2013,8.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2014,192.6,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2014,6.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2015,129.0,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2015,15.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2016,218.79999999999998,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2016,3.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2017,197.79999999999998,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2017,5.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2018,221.8,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2018,2.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2019,213.60000000000002,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2019,4.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2020,157.20000000000002,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2020,10.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2021,147.2,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2021,12.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2022,164.1999999999999,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2022,9.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2023,155.79999999999987,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2023,11.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2024,265.7999999999999,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2024,1.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_rainfall_mm,,2025,128.2,mm,"RAF Valley rainfall summed over months (2, 3, 4)"
+check1_spring_rainfall_rank,,2025,16.0,rank,rank among the 19 springs of the gap series (1 = wettest)
+check1_spring_gap_baseline_mean,,2013-2017,-567.3333333333333,mm,"mean spring gap over the MSL5 window ending 2017; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_post_mean,,2018-2025,-550.0,mm,"mean spring gap, springs after 2017, all post-felling springs; n=8"
+check1_spring_gap_change,,2018-2025 vs 2013-2017,17.333333333333258,mm,"post-felling minus baseline mean spring gap, all post-felling springs"
+check1_spring_gap_mannwhitney_p,,2018-2025 vs 2013-2017,0.9432789432789432,p,"two-sided Mann-Whitney, baseline (n=5) vs post-felling (n=8) spring gaps, all post-felling springs"
+check1_spring_gap_post_mean_excl_wettest,,2018-2025,-564.7619047619047,mm,"mean spring gap, springs after 2017, excluding the wettest post-felling spring (2024, highest spring rainfall); n=7"
+check1_spring_gap_change_excl_wettest,,2018-2025 vs 2013-2017,2.571428571428555,mm,"post-felling minus baseline mean spring gap, excluding the wettest post-felling spring (2024, highest spring rainfall)"
+check1_spring_gap_mannwhitney_p_excl_wettest,,2018-2025 vs 2013-2017,0.8762626262626263,p,"two-sided Mann-Whitney, baseline (n=5) vs post-felling (n=7) spring gaps, excluding the wettest post-felling spring (2024, highest spring rainfall)"
+check1_wettest_post_felling_spring,,2018-2025,2024.0,year,post-felling spring with the highest RAF Valley spring rainfall (check1_spring_rainfall_rank)
+check1_spring_gap,,2007,-374.9999999999999,mm,"spring gap in 2007; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2007,16.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2008,-372.5,mm,"spring gap in 2008; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2008,17.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2009,-368.3333333333333,mm,"spring gap in 2009; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2009,18.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2010,-509.6666666666665,mm,"spring gap in 2010; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2010,12.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2011,-667.9999999999999,mm,"spring gap in 2011; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2011,4.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2012,-1140.7777777777776,mm,"spring gap in 2012; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2012,1.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2013,-573.3333333333335,mm,"spring gap in 2013; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2013,9.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2014,-511.9999999999999,mm,"spring gap in 2014; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2014,11.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2015,-534.6666666666666,mm,"spring gap in 2015; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2015,10.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2016,-625.9999999999997,mm,"spring gap in 2016; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2016,6.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2017,-590.6666666666666,mm,"spring gap in 2017; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2017,8.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2018,-602.6666666666666,mm,"spring gap in 2018; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2018,7.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2019,-684.0000000000001,mm,"spring gap in 2019; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2019,3.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2020,-793.3333333333334,mm,"spring gap in 2020; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2020,2.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2021,-434.6666666666667,mm,"spring gap in 2021; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2021,15.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2022,-350.6666666666667,mm,"spring gap in 2022; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2022,19.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2023,-649.9999999999999,mm,"spring gap in 2023; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2023,5.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2024,-446.66666666666663,mm,"spring gap in 2024; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2024,13.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap,,2025,-438.00000000000006,mm,"spring gap in 2025; Forest ctrl (CEH32, CEH34, CEH33, NW10, CEH2) minus Climate ctrl (CEH9, NW7, NW6, NW5, WMC2), group means of per-well annual spring means (26_msl_annual_per_well.csv, valid years)"
+check1_spring_gap_width_rank,,2025,14.0,rank,"rank among the 19 springs of the gap series (1 = widest, most negative gap)"
+check1_spring_gap_sd,,2013-2025,120.8558982762039,mm,"interannual SD (ddof=1) of the spring gap, springs 2013-2025, n=13"
+check1_window_mean_se,,2013-2025,54.048400805478316,mm,check1_spring_gap_sd / sqrt(5): standard error of a 5-spring window mean
+check1_window_difference_se,,2013-2025,76.43598144368435,mm,check1_window_mean_se * sqrt(2): standard error of the difference between two window means
+check1_msl5_window_excess_in_se,,window-end 2023,-0.19885922458127975,SE,check1_msl5_window_excess / check1_window_difference_se
+check1_msl5_window_group_gain,Forest ctrl,window-end 2023,-140.1333333333332,mm,group-mean spring level over springs 2019-2023 minus over the 2013-2017 baseline springs; Forest minus Climate = the window excess
+check1_msl5_window_group_gain,Climate ctrl,window-end 2023,-124.93333333333328,mm,group-mean spring level over springs 2019-2023 minus over the 2013-2017 baseline springs; Forest minus Climate = the window excess
+check1_msl5_window_excess_in_se,,window-end 2025,1.3518938513200884,SE,check1_msl5_window_excess / check1_window_difference_se
+check1_msl5_window_group_gain,Forest ctrl,window-end 2025,132.79999999999995,mm,group-mean spring level over springs 2021-2025 minus over the 2013-2017 baseline springs; Forest minus Climate = the window excess
+check1_msl5_window_group_gain,Climate ctrl,window-end 2025,29.466666666666583,mm,group-mean spring level over springs 2021-2025 minus over the 2013-2017 baseline springs; Forest minus Climate = the window excess
+check1_msl5_window_excess,,window-end 2023,-15.20000000000016,mm,mean spring gap over springs 2019-2023 minus the 2013-2017 baseline mean gap (Forest-control excess over Climate controls relative to baseline)
+check1_msl5_window_excess,,window-end 2025,103.33333333333326,mm,mean spring gap over springs 2021-2025 minus the 2013-2017 baseline mean gap (Forest-control excess over Climate controls relative to baseline)
+check1_msl5_window_spring_contribution,,2021,26.533333333333314,mm,(gap in 2021 minus the 2013-2017 baseline mean gap) / 5: this spring's share of the window-end 2025 excess
+check1_msl5_window_spring_contribution,,2022,43.333333333333314,mm,(gap in 2022 minus the 2013-2017 baseline mean gap) / 5: this spring's share of the window-end 2025 excess
+check1_msl5_window_spring_contribution,,2023,-16.533333333333324,mm,(gap in 2023 minus the 2013-2017 baseline mean gap) / 5: this spring's share of the window-end 2025 excess
+check1_msl5_window_spring_contribution,,2024,24.133333333333326,mm,(gap in 2024 minus the 2013-2017 baseline mean gap) / 5: this spring's share of the window-end 2025 excess
+check1_msl5_window_spring_contribution,,2025,25.86666666666664,mm,(gap in 2025 minus the 2013-2017 baseline mean gap) / 5: this spring's share of the window-end 2025 excess
+check1_gap_on_site_level_contemporaneous,,2013-2025,0.3054693027186034,mm/mm,"OLS of the spring gap on the site-mean spring level (mean of every valid well's annual spring mean) of the same year and the preceding year, with intercept, n=13 springs"
+check1_gap_on_site_level_contemporaneous_p,,2013-2025,0.012969302012635037,p,"OLS of the spring gap on the site-mean spring level (mean of every valid well's annual spring mean) of the same year and the preceding year, with intercept, n=13 springs"
+check1_gap_on_site_level_carryover,,2013-2025,0.2820322555921104,mm/mm,"OLS of the spring gap on the site-mean spring level (mean of every valid well's annual spring mean) of the same year and the preceding year, with intercept, n=13 springs; coefficient on the preceding year"
+check1_gap_on_site_level_carryover_p,,2013-2025,0.006983877150479772,p,"OLS of the spring gap on the site-mean spring level (mean of every valid well's annual spring mean) of the same year and the preceding year, with intercept, n=13 springs; coefficient on the preceding year"
+check1_gap_on_site_level_r2,,2013-2025,0.601774713076878,,"OLS of the spring gap on the site-mean spring level (mean of every valid well's annual spring mean) of the same year and the preceding year, with intercept, n=13 springs"
+check1_gap_on_site_level_n,,2013-2025,13.0,springs,"OLS of the spring gap on the site-mean spring level (mean of every valid well's annual spring mean) of the same year and the preceding year, with intercept, n=13 springs"
+check1_msl5_window_predicted_excess,,window-end 2023,-46.57197535975282,mm,"contemporaneous and carry-over coefficients times the change in mean site-mean spring level, springs 2019-2023 vs 2013-2017"
+check1_msl5_window_predicted_excess,,window-end 2025,28.41886529557478,mm,"contemporaneous and carry-over coefficients times the change in mean site-mean spring level, springs 2021-2025 vs 2013-2017"
+check1_model_b_halflife_centroid,C4 (Main Forest),full_record,62.69501707873538,months,Model B t½ = ln(2)/β₃ at the cluster centroid (03_16_model_b_persistence.csv; β₃ p = 0.377)
+check1_model_b_halflife_median_well,C4 (Main Forest),comparison_window,29.60843595400284,months,median over n=9 member wells of Model B t½ (03_16_model_b_persistence.csv)
+check1_model_b_halflife_centroid,C3 (Western Residual),full_record,6.568846482432996,months,Model B t½ = ln(2)/β₃ at the cluster centroid (03_16_model_b_persistence.csv; β₃ p = 0.000)
+check1_model_b_halflife_median_well,C3 (Western Residual),comparison_window,5.238014301412695,months,median over n=26 member wells of Model B t½ (03_16_model_b_persistence.csv)
+recession_time_group_mean_of_per_well,Forest ctrl,,57.94013232348764,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"
+recession_time_group_reciprocal_mean_beta3,Forest ctrl,,46.59630091444693,months,"1 / (mean per-well β₃), n=5 wells — the alternative aggregation, shown beside the mean of per-well 1/β₃"
+recession_time_group_mean_of_per_well,Climate ctrl,,21.69665495542413,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"
+recession_time_group_reciprocal_mean_beta3,Climate ctrl,,21.10096958646653,months,"1 / (mean per-well β₃), n=5 wells — the alternative aggregation, shown beside the mean of per-well 1/β₃"

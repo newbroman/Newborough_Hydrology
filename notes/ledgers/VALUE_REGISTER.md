@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**163 output file(s)** supply **1657 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**163 output file(s)** supply **1675 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -391,6 +391,10 @@
 |  | BACI_step_below_floor · CEH18 · CEH18 vs CEH4, 2023 re-scrape | readme.md |
 |  | BACI_step_below_floor · CEH21 · CEH21 vs CEH22, 2023 re-scrape | readme.md |
 |  | Net_benefit · CEH36 · Pure_Scraping | Newborough_Methods_Supplement.md |
+|  | Pre_scraping_baseline_years · CEH18 · pre_2015_scrape | report8.md |
+|  | Pre_scraping_baseline_years · CEH21 · pre_2015_scrape | report8.md |
+|  | Pre_scraping_baseline_years · CEH36 · pre_2015_scrape | report8.md |
+|  | Pre_scraping_baseline_years · CEH4 · pre_2015_scrape | report8.md |
 |  | Summer_minimum_depth · CEH4 · 1_Baseline | Hollingham_2026_Paper2_amended.md |
 |  | Summer_minimum_depth · CEH4 · 2_Pure_Scraping | Hollingham_2026_Paper2_amended.md |
 |  | Summer_minimum_depth · CEH4 · 3_Felling_Pulse | Hollingham_2026_Paper2_amended.md |
@@ -694,6 +698,15 @@
 |  | (CEH32+CEH33)-(CEH34+CEH2) / none / 2017-12..2020-12 · p | Supplementary_Material.md |
 |  | (CEH32+CEH33)-(CEH34+CEH2) / none / 2021-01..2026-02 · p | Supplementary_Material.md |
 | `10a_report_numbers.csv` | ANCOVA_Forest_Edge_coeff_cwb2_x_fell | Newborough_Methods_Supplement.md |
+|  | Pre_felling_baseline_years_max · CEH16 · Edge | report8.md |
+|  | Pre_felling_baseline_years_max · CEH17 · Coastal control | report8.md |
+|  | Pre_felling_baseline_years_max · CEH2 · Forest control | report8.md |
+|  | Pre_felling_baseline_years_max · NW7 · Climate control | report8.md |
+|  | Pre_felling_baseline_years_min · CEH19 · Coastal control | report8.md |
+|  | Pre_felling_baseline_years_min · CEH31 · Edge | report8.md |
+|  | Pre_felling_baseline_years_min · CEH34 · Forest control | report8.md |
+|  | Pre_felling_baseline_years_min · WMC2 · Climate control | report8.md |
+|  | Pre_felling_baseline_years_min · WMC3 · Impact | report8.md |
 | `10c_forest_zone_cluster_summary.csv` | Elevation_m · C4_max | Newborough_Methods_Supplement.md, Supplementary_Material.md, report9.md, site_geography.md |
 |  | Elevation_m · C4_mean | Paper1.md, report9.md |
 |  | Model_R² · C5_max | Newborough_Methods_Supplement.md, report9.md |
@@ -776,7 +789,10 @@
 |  | NW7 · db1 | report9.md |
 |  | WMC2 · db2 | report9.md |
 |  | WMC3 · db2 | report9.md |
-| `10e_report_numbers.csv` | CoeffShift_CEH2_db1 | report9.md |
+| `10e_report_numbers.csv` | B2_multiplier_clearfell | Newborough_Methods_Supplement.md |
+|  | B2_tier_ratio_after_over_before · Climate Ctrl | Newborough_Methods_Supplement.md |
+|  | B2_tier_ratio_after_over_before · Edge | Newborough_Methods_Supplement.md |
+|  | CoeffShift_CEH2_db1 | report9.md |
 |  | CoeffShift_Climate Ctrl_mean_db1 | report9.md |
 |  | CoeffShift_Forest Ctrl_mean_db1 | report9.md |
 |  | CoeffShift_Forest Ctrl_mean_db2 | report9.md |
@@ -999,6 +1015,8 @@
 |  | thinning / summer / C3 · we_mean_mm | Supplementary_Material.md |
 |  | thinning / winter / C3 · we_mean_mm | report9.md |
 |  | ukcp18_2050s / annual / C5 · dh_median_m | Newborough_Methods_Supplement.md |
+|  | ukcp18_2050s / summer / SITE · dh_mean_m | report10.md |
+|  | ukcp18_2080s / summer / SITE · dh_mean_m | report10.md |
 | `20_clearfell_gain_report_numbers.csv` | clearfell_gain_n_wells | report9.md |
 | `20_msl5_change_perwell.csv` | ceh1 · MSL5_bg_2017_m | Supplementary_Material.md |
 |  | ceh26 · MSL5_bg_2023_m | Supplementary_Material.md |

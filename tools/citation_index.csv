@@ -2768,3 +2768,43 @@ open_nse_bias_removed_median,outputs/39_ccw_hindcast/39_report_numbers.csv,docs/
 open_epoch_shift_median,outputs/39_ccw_hindcast/39_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,−0.347,SE of 0.786 and a median epoch shift of , m. The remaining three either changed c,high,confirmed
 residual_mean_open,outputs/39_ccw_hindcast/39_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.111,t over at the six open-ground wells is +, m (observed less predicted) against a c,high,confirmed
 open_epoch_shift_median,outputs/39_ccw_hindcast/39_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,−0.347,d less predicted) against a contrast of , m. The shift is therefore a contrast be,high,confirmed
+Pre_scraping_baseline_years · CEH4 · pre_2015_scrape,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,report_edits/text/report8.md,8.9,"d control, installed May 2006) provides "," years; CEH36 (central treatment well, i",high,confirmed
+Pre_scraping_baseline_years · CEH36 · pre_2015_scrape,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,report_edits/text/report8.md,4.2," well, installed January 2011) provides ", years; CEH18 (installed September 2007),high,confirmed
+Pre_scraping_baseline_years · CEH18 · pre_2015_scrape,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,report_edits/text/report8.md,7.7,H18 (installed September 2007) provides , years pre-2015; and CEH21 (installed Ju,high,confirmed
+Pre_scraping_baseline_years · CEH21 · pre_2015_scrape,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,report_edits/text/report8.md,4.8,nd CEH21 (installed July 2010) provides , years pre-2015. CEH36's shorter pre-scr,high,confirmed
+Pre_felling_baseline_years_min · WMC3 · Impact,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,8.4,"210, N=363607, inside the cleared area; "," years pre-felling record).
+
+-   **Edge:",high,confirmed
+Pre_felling_baseline_years_min · CEH31 · Edge,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,7.4,"29 m, adjacent to the felling boundary; ","--10.3 years pre-felling).
+
+-   **Forest",high,confirmed
+Pre_felling_baseline_years_max · CEH16 · Edge,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,10.3, adjacent to the felling boundary; 7.4--," years pre-felling).
+
+-   **Forest contr",high,confirmed
+Pre_felling_baseline_years_min · CEH34 · Forest control,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,7.3,"felling, same canopy cover; 306--752 m; ","--11.6 years pre-felling).
+
+-   **Coasta",high,confirmed
+Pre_felling_baseline_years_max · CEH2 · Forest control,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,11.6,"ng, same canopy cover; 306--752 m; 7.3--"," years pre-felling).
+
+-   **Coastal cont",high,confirmed
+Pre_felling_baseline_years_min · CEH19 · Coastal control,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,9.7,apping elevation range --- Section 4.2; ,"--10.3 years pre-felling).
+
+-   **Climat",high,confirmed
+Pre_felling_baseline_years_max · CEH17 · Coastal control,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,10.3,g elevation range --- Section 4.2; 9.7--," years pre-felling).
+
+-   **Climate cont",high,confirmed
+Pre_felling_baseline_years_min · WMC2 · Climate control,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,8.7,"n Block, no forest canopy; 215--1010 m; ","--12.7 years pre-felling).
+
+Wells with i",high,confirmed
+Pre_felling_baseline_years_max · NW7 · Climate control,outputs/10_clearfell_baci/10a_report_numbers.csv,report_edits/text/report8.md,12.7,"ck, no forest canopy; 215--1010 m; 8.7--"," years pre-felling).
+
+Wells with insuffi",high,confirmed
+ukcp18_2050s / summer / SITE · dh_mean_m,outputs/19_spatial_groundwater/19_scenario_summary.csv,report_edits/text/report10.md,−0.063,s the annual signal (site-wide means of , m/month at 2050s and −0.119 m/month at ,high,confirmed
+ukcp18_2080s / summer / SITE · dh_mean_m,outputs/19_spatial_groundwater/19_scenario_summary.csv,report_edits/text/report10.md,−0.119,de means of −0.063 m/month at 2050s and , m/month at 2080s). This summer-dominate,high,confirmed
+B2_multiplier_clearfell,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,1.0475, pipeline data the loaded multiplier is , (Edge ratio 0.9576 minus Climate Ctrl r,high,confirmed
+B2_tier_ratio_after_over_before · Edge,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.9576,loaded multiplier is 1.0475 (Edge ratio ," minus Climate Ctrl ratio 0.9101, plus 1",high,confirmed
+B2_tier_ratio_after_over_before · Climate Ctrl,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.9101,e ratio 0.9576 minus Climate Ctrl ratio ,", plus 1.0), with the 50 % thinning mult",high,confirmed
+B2_multiplier_clearfell,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,1.0475,"101) subtracted, giving a multiplier of ",".
+-   **Forest interception treatment.**",high,confirmed
+B2_tier_ratio_after_over_before · Edge,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.9576, is the BACI-corrected Edge-tier ratio (,) with the Climate Ctrl drift (0.9101) s,high,confirmed
+B2_tier_ratio_after_over_before · Climate Ctrl,outputs/10_clearfell_baci/10e_report_numbers.csv,docs/report/text/Newborough_Methods_Supplement.md,0.9101,o (0.9576) with the Climate Ctrl drift (,") subtracted, giving a multiplier of 1.0",high,confirmed

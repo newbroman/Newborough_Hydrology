@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T09:29:35",
+ "generated": "2026-09-28T09:48:07",
  "orchestrator": "2.21.0",
  "steps": {
   "00_climate_summary.py": {
@@ -885,8 +885,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 11.7,
-   "started": "2026-09-28T06:28:52",
+   "seconds": 11.2,
+   "started": "2026-09-28T09:47:56",
    "version": "1.16.0"
   },
   "26b_van_willegen_msl_projections.py": {
@@ -1566,8 +1566,8 @@
   "run_10_clearfell.py": {
    "emitted": {
     "outputs/01_data_prep/pipeline_scenario_params.csv": "2f5e22c0c8ea7f1d1b9361c0971bc4c8fa588b95af3f2539948394ff3746537c",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "150d5c91b6d06adec5159c4bb1066352f9d2e76a9f7b9c8b05091f5819839f36",
-    "outputs/10_clearfell_baci/10_consolidated_report_numbers.csv": "70ab7fd267977ef39e75942eee6732b1231149689adf81043667945d7177e813",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "8dd3b43f520009e791288c7cb8d9352f108e526fc74fe2ab6a98397d2fdb9f22",
+    "outputs/10_clearfell_baci/10_consolidated_report_numbers.csv": "11711f6c306baae9fc83d5c6f821a620dae6c0d463e773333638e9258f679507",
     "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv": "91bdd8d20bdf988dc11c1607bf9fbd4a6f70efad91508b2e9a85fe91031d6846",
     "outputs/10_clearfell_baci/10a_02_ancova_full_coefficients.csv": "03f103415ee8158dde0223721c284d9e14240616b2773fe80aca3aaed69eee99",
     "outputs/10_clearfell_baci/10a_02b_drift_design_equivalence.csv": "80d4506b614ecd4ed1743d5f16ad4e6f3dde32cb32360340d1bcf197e63524de",
@@ -1606,7 +1606,7 @@
     "outputs/10_clearfell_baci/10d_report_numbers.csv": "064bb9587ef8025dd01bc42534f40a6684f58338a8d9651822175d348d2c2461",
     "outputs/10_clearfell_baci/10e_01_coefficient_shifts.csv": "9a4e5a6f773a68d6f4414b582ad724ce8bbbabe232126691132ea7f488ea8b62",
     "outputs/10_clearfell_baci/10e_03_coefficient_shifts.png": "804242f285207b4ce03ffebe779151ca5fa27b1d156001d1b4a22d7a4b698a27",
-    "outputs/10_clearfell_baci/10e_report_numbers.csv": "45c0f1ffe0e3875cfbb10910c9ad176d5e333f5e06947ce2b3e2be2cefab3bd8",
+    "outputs/10_clearfell_baci/10e_report_numbers.csv": "e9e7716a350ca89702f2c8072fa6487983782bcb830ede2fef4bde67780b978d",
     "outputs/10_clearfell_baci/10f_01_ssm_residual_results.csv": "2eeaab09d87f314d9b62b6e37a5384bb878c3966db490eaef2cd7cf041cb5c8c",
     "outputs/10_clearfell_baci/10f_02_synthetic_control_results.csv": "0c4e37b8697d80c322a2acfa15c4871458df1c7f3b25f30d481925fa2b2a9f86",
     "outputs/10_clearfell_baci/10f_report_numbers.csv": "4424e073b9043d2c659bc35caaffe097831b54acd3d396d8bb35290bd92e23db",
@@ -1694,8 +1694,8 @@
    "inputs_unresolved": [
     "3.geojson"
    ],
-   "seconds": 70.5,
-   "started": "2026-09-28T09:28:13",
+   "seconds": 70.3,
+   "started": "2026-09-28T09:45:09",
    "version": "1.1.0"
   }
  }

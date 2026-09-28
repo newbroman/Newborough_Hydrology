@@ -3,13 +3,13 @@
 P_flood-based scrape-target identification.
 
 Routed from the 2026-05-29 main-report editorial review (gap C in the
-post-review priorities list). Main report §7 Conclusion 4 reads:
+post-review priorities list). Main report §7 Conclusion 6 reads:
 
     "Priority targets are the C1/C2/C3 transitional wells where the
      aquifer base is stable and P_flood thresholds remain achievable
      (rainfall multiplier m_P < 1.5)."
 
-Conclusion 4 names criteria but does not show which wells they identify.
+Conclusion 6 names criteria but does not show which wells they identify.
 This script consumes the per-well P_flood multipliers already produced by
 Script 11b (`11b_03_pflood_per_well.csv`) and produces a single operational
 figure that colour-codes each well by achievability category, on the
@@ -26,7 +26,7 @@ Reads:
 - KML features (data/) for forest boundary and site features
 
 Writes:
-- `11c_pflood_achievability.png` — categorical map (operational figure for §5.9 / Conclusion 4)
+- `11c_pflood_achievability.png` — categorical map (operational figure for §5.9 / Conclusion 6)
 - `11c_pflood_achievability_per_well.csv` — per-well lookup with category column
 - `11c_pflood_achievability_results.md` — memo with summary tables and report drop-in text
 
@@ -38,10 +38,11 @@ index are in outputs/pipeline_manifest.json.
 
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-28. The categories are also drawn as a surface:
+__version__ = "1.5.1"  # Hollingham (2026) - 2026-09-28. Text only: the m_P < 1.5 criterion is now §7 Conclusion 6 (was 4).
+# 1.5.0  # Hollingham (2026) — 2026-09-28. The categories are also drawn as a surface:
 #   m_P on the house linear surface (D-206), banded at 1.5 / 2.5, ridge-masked (1 m) and clipped to the
 #   site, under the well markers (Martin, proofread: "should be a surface and ridge masked"). Display only.
-# 1.4.0  # Hollingham (2026) — 2026-09-28. Title drops "Categories follow Conclusion 4
+# 1.4.0  # Hollingham (2026) — 2026-09-28. Title drops "Categories follow Conclusion 6
 #   (main report)": the criterion is Conclusion 6, and conclusion numbers belong in the report text,
 #   not a figure (proofread). Display only.
 # 1.3.0  # Hollingham (2026) — 2026-09-24. Display symbol λ → m_P: the figure
@@ -96,7 +97,7 @@ def main():
     OUT_MEMO = paths.OUT_11C_RESULTS_MEMO
 
     # ── Achievability scheme ──────────────────────────────────────────────────
-    # Matches Conclusion 4 explicit m_P<1.5 criterion. The 1.5-2.5 marginal band
+    # Matches Conclusion 6 explicit m_P<1.5 criterion. The 1.5-2.5 marginal band
     # is the "only wet winters" zone; m_P≥2.5 is the "effectively unreachable"
     # zone defined by requiring more than 2.5× the climatological winter mean.
 
@@ -245,7 +246,7 @@ def main():
         "",
         "*Diagnostic from `11c_pflood_achievability.py`. Routed from the 2026-05-29",
         "main-report editorial review (gap C: per-well operational priority map for",
-        "§5.9 and §7 Conclusion 4).*",
+        "§5.9 and §7 Conclusion 6).*",
         "",
         "## Categorical scheme",
         "",
@@ -282,7 +283,7 @@ def main():
         "",
         f"- **Open dune zone (C1, C2, C3): {counts.loc[[1,2,3], 'Achievable'].sum()} of {counts.loc[[1,2,3]].sum().sum()} wells achievable**, "
         f"with the remaining {counts.loc[[1,2,3], 'Marginal'].sum()} marginal — none unreachable. "
-        "This is the operational domain Conclusion 4 identifies for scrape targeting.",
+        "This is the operational domain Conclusion 6 identifies for scrape targeting.",
         f"- **Forest zone (C4, C5): {counts.loc[[4,5], 'Achievable'].sum()} of {counts.loc[[4,5]].sum().sum()} wells achievable**, "
         f"with {counts.loc[[4,5], 'Marginal'].sum()} marginal and {counts.loc[[4,5], 'Unreachable'].sum()} unreachable. "
         f"Most forest wells require more than mildly-wet winters; "
@@ -322,7 +323,7 @@ def main():
     _unr_split = " and ".join(_parts) if _parts else "none"
 
     memo_lines += [
-        "> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 4. Of "
+        "> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 6. Of "
         + f"{counts.loc[[1,2,3], 'Achievable'].sum()} wells across the open-dune clusters C1, C2 and C3, "
         + f"all but {counts.loc[[1,2,3], 'Marginal'].sum()} are in the achievable category (m_P < 1.5); none are unreachable. "
         + f"By contrast, of the {counts.loc[[4,5]].sum().sum()} forest-zone wells in C4 and C5, only {counts.loc[[4,5], 'Achievable'].sum()} sit in the achievable band and "
@@ -331,17 +332,17 @@ def main():
         "",
         "## Suggested figure caption",
         "",
-        "> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (m_P), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (m_P < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ m_P < 2.5, amber) only in wet winters; unreachable wells (m_P ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3 dominated by achievable; forest C4/C5 dominated by marginal-to-unreachable) operationalises Conclusion 4's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*",
+        "> *Figure N. Per-well achievability categorisation against the P_flood rainfall multiplier (m_P), the cumulative winter-rainfall depth required to lift each well's summer minimum back above the relevant Curreli (2013) threshold by end of recharge season, expressed as a multiple of climatological winter mean. Wells in the achievable category (m_P < 1.5, green) are reachable in normal-to-mildly-wet winters; marginal wells (1.5 ≤ m_P < 2.5, amber) only in wet winters; unreachable wells (m_P ≥ 2.5, red) are effectively unreachable under current climate. The cluster pattern (open-dune C1/C2/C3 dominated by achievable; forest C4/C5 dominated by marginal-to-unreachable) operationalises Conclusion 6's priority criterion for scrape-target identification. Source: `11c_pflood_achievability.png`; per-well lookup table in `11c_pflood_achievability_per_well.csv`.*",
         "",
         "## Caveats",
         "",
-        "- The m_P values come from Script 11b's per-well calculation; they inherit Script 11b's assumptions about the cluster β coefficients and the climatological winter rainfall baseline. The categorical bin edges (1.5 and 2.5) are operational choices, not derived from any natural break in the data. Conclusion 4's text explicitly identifies the λ < 1.5 boundary; the marginal-vs-unreachable boundary at λ = 2.5 is selected to match the abstract's reference to a 1.5–2.5× rainfall multiplier band as the conservatively wet-winter zone.",
+        "- The m_P values come from Script 11b's per-well calculation; they inherit Script 11b's assumptions about the cluster β coefficients and the climatological winter rainfall baseline. The categorical bin edges (1.5 and 2.5) are operational choices, not derived from any natural break in the data. Conclusion 6's text explicitly identifies the λ < 1.5 boundary; the marginal-vs-unreachable boundary at λ = 2.5 is selected to match the abstract's reference to a 1.5–2.5× rainfall multiplier band as the conservatively wet-winter zone.",
         "- The achievability category describes whether the cluster summer minimum can be raised above the Curreli threshold by winter recharge alone. It does not account for scrape-as-drainage geometry effects (Section 4.5.3) or for forest-management interventions; these are separate degrees of freedom in the scenario framework (Section 4.10).",
         "- Wells flagged as scraped in the existing per-well CSV (CEH36, CEH18, CEH21) retain their categorical assignment based on present-day λ; the category reflects post-intervention behaviour where applicable.",
         "",
         "## Outputs",
         "",
-        "- `11c_pflood_achievability.png` — operational map for §5.9 / Conclusion 4.",
+        "- `11c_pflood_achievability.png` — operational map for §5.9 / Conclusion 6.",
         "- `11c_pflood_achievability_per_well.csv` — per-well lookup table with category column.",
         "- `11c_pflood_achievability_results.md` — this memo.",
     ]

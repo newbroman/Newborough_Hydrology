@@ -1,5 +1,5 @@
 {
-  "pipeline_version": "2.21.0",
+  "pipeline_version": "2.21.1",
   "total_registered": 59,
   "total_phases": 19,
   "by_tier": {
@@ -15,7 +15,7 @@
   "analytical_phases": 17,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-09-28T21:18:22",
+  "generated": "2026-09-28T21:38:26",
   "steps": [
     {
       "index": 1,
@@ -138,7 +138,7 @@
       "index": 14,
       "total": 59,
       "script": "11c_pflood_achievability.py",
-      "desc": "P_flood achievability categorical map (\u00a75.9 / Conclusion 4)",
+      "desc": "P_flood achievability categorical map (\u00a75.9 / Conclusion 6)",
       "tier": "A",
       "exec": "default",
       "phase": 3
@@ -165,7 +165,7 @@
       "index": 17,
       "total": 59,
       "script": "14b_year_of_crossing.py",
-      "desc": "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 11)",
+      "desc": "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 13)",
       "tier": "A",
       "exec": "default",
       "phase": 4

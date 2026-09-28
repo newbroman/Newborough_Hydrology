@@ -62,7 +62,8 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.paths import OUT_00_PET_WARMING, OUT_00_PET_MONTHLY_TRENDS
-from utils.config import REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO, MIN_RECORD_MONTHS
+from utils.config import (REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO, MIN_RECORD_MONTHS,
+                          SD15b, SD16, SD16_REC)
 from utils.render_utils import render_figure
 
 import pandas as pd
@@ -73,7 +74,12 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-28. T-91: emits
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-28. Proofread: report9 §4.1.2's reading of
+#   the reference network against the Curreli thresholds is emitted from 00_02 (Mean_Summer_Min_m):
+#   the network mean, shallowest and deepest well, and the count of wells in each zone
+#   (reference_summer_min_*), zone edges from config.SD15b / SD16 / SD16_REC, a depth at a
+#   threshold counting as beyond it (as Script 11b). Emit-only.
+# 1.11.0  # Hollingham (2026) - 2026-09-28. T-91: emits
 #   reference_record_years_median (calendar span Record_end-Record_start, in
 #   years, distinct from the months-based reference_record_months_median):
 #   report10 §5.1's "median record length of 15.9 years". No output moves.
@@ -1141,6 +1147,23 @@ def _run_all() -> None:
            note="shortest admitted record")
     rr.add("reference_record_months_max", float(_nm.max()), unit="months",
            note="longest record")
+    # report9 §4.1.2: the reference network's mean annual summer minimum against the
+    # Curreli thresholds (depth below ground, positive down; at a threshold = beyond it).
+    _sm = pd.to_numeric(table2_full["Mean_Summer_Min_m"], errors="coerce").dropna()
+    _dp = -_sm
+    _n = int(len(_dp))
+    rr.add("reference_summer_min_mean", float(_sm.mean()), unit="m",
+           note=f"mean of per-well mean annual summer minima, reference network n={_n} (00_02)")
+    rr.add("reference_summer_min_shallowest", float(_sm.max()), unit="m",
+           note="shallowest per-well mean annual summer minimum (00_02)")
+    rr.add("reference_summer_min_deepest", float(_sm.min()), unit="m",
+           note="deepest per-well mean annual summer minimum (00_02)")
+    for _zone, _cnt in (("shallower than SD15b", (_dp < SD15b).sum()),
+                        ("SD15b to SD16 (dry slack zone)", ((_dp >= SD15b) & (_dp < SD16)).sum()),
+                        ("at or deeper than SD16", (_dp >= SD16).sum()),
+                        ("at or deeper than SD16_REC", (_dp >= SD16_REC).sum())):
+        rr.add("reference_summer_min_zone_count", int(_cnt), unit="wells", well=_zone,
+               note=f"reference network n={_n}, per-well mean annual summer minimum (00_02)")
     n_saved = rr.save(OUT_00_REPORT_NUMBERS)
     print(f"  Saved → {os.path.basename(OUT_00_REPORT_NUMBERS)} ({n_saved} report numbers)")
 

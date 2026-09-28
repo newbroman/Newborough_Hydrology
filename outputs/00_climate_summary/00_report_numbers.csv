@@ -67,3 +67,10 @@ reference_record_months_median,,,192.0,months,median record length of the refere
 reference_record_years_median,,,15.9233401779603,years,"median calendar span (Record_end - Record_start) of the reference network, 00_02_well_network_summary.csv (full record); distinct from reference_record_months_median, which counts valid readings"
 reference_record_months_min,,,140.0,months,shortest admitted record
 reference_record_months_max,,,252.0,months,longest record
+reference_summer_min_mean,,,-1.181673941939666,m,"mean of per-well mean annual summer minima, reference network n=66 (00_02)"
+reference_summer_min_shallowest,,,-0.714,m,shallowest per-well mean annual summer minimum (00_02)
+reference_summer_min_deepest,,,-2.315263157894737,m,deepest per-well mean annual summer minimum (00_02)
+reference_summer_min_zone_count,shallower than SD15b,,0.0,wells,"reference network n=66, per-well mean annual summer minimum (00_02)"
+reference_summer_min_zone_count,SD15b to SD16 (dry slack zone),,27.0,wells,"reference network n=66, per-well mean annual summer minimum (00_02)"
+reference_summer_min_zone_count,at or deeper than SD16,,39.0,wells,"reference network n=66, per-well mean annual summer minimum (00_02)"
+reference_summer_min_zone_count,at or deeper than SD16_REC,,21.0,wells,"reference network n=66, per-well mean annual summer minimum (00_02)"

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=96d505d4c9b909ec pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=4ae4ed924466e0c0 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
@@ -120,6 +120,8 @@ Hunter, J. D. (2007). Matplotlib: A 2D graphics environment. *Computing in Scien
 Hypolite, J., Arvor, D., Bertrand, G., & Fovet, O. (2021) A state-space approach to groundwater level forecasting: Comparisons with lumped and machine learning models. *Journal of Hydrology*, 603, 127115. [*https://doi.org/10.1016/j.jhydrol.2021.127115*](https://doi.org/10.1016/j.jhydrol.2021.127115)
 
 Jennings, T.A.H. (1990) The changing hydrology of the Newborough Dune System due to afforestation. Unpublished M.Sc. dissertation, University of North Wales, Bangor.
+
+JNCC (2026) Y Twyni o Abermenai i Aberffraw / Abermenai to Aberffraw Dunes, Special Area of Conservation UK0020021: site page. Peterborough: Joint Nature Conservation Committee. https://sac.jncc.gov.uk/site/UK0020021 (accessed 28 September 2026).
 
 ****Jones, ****M.****L.****M****, Rooney, P., Rhymes, J. and Dynamic Dunescapes partners (2021)**** **The Sand Dune Managers Handbook**, Version 1, June 2021. Produced for the Dynamic Dunescapes (DuneLIFE) project, LIFE17 NAT/UK/000570.
 

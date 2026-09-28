@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T10:49:40",
+ "generated": "2026-09-28T13:00:40",
  "orchestrator": "2.21.0",
  "steps": {
   "00_climate_summary.py": {
@@ -17,7 +17,7 @@
     "outputs/00_climate_summary/00_04_climatology.csv": "0746f51cc2b2c9fa7cdbfcb602705bf1e8ff060af9ae4283ff86e20620a70d17",
     "outputs/00_climate_summary/00_05_pet_warming_response.csv": "b8de30e0c7ea270c0664495b38a7d52c6e5d9377fc38f42c504b767fb7cadc8f",
     "outputs/00_climate_summary/00_06_pet_monthly_trends.csv": "61a983e5b1cdbcab6d3e561c148d2969d6434a2beae2944f2697062df74d58c6",
-    "outputs/00_climate_summary/00_report_numbers.csv": "b129a6961bd6b0403eacb8cfa9f6c12516eaf6af7c41f346cf7ed9f999996d3c"
+    "outputs/00_climate_summary/00_report_numbers.csv": "5bd7a0d998791d164c8d5391581d107fb742daeb6fd234432a2b933a18fdb9df"
    },
    "fallbacks": [],
    "inputs": {
@@ -25,9 +25,9 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
    },
    "inputs_unresolved": [],
-   "seconds": 7.6,
-   "started": "2026-09-28T06:16:16",
-   "version": "1.11.0"
+   "seconds": 7.5,
+   "started": "2026-09-28T12:42:00",
+   "version": "1.12.0"
   },
   "01_data_prep.py": {
    "emitted": {
@@ -374,14 +374,14 @@
   },
   "11b_spatial_thresholds.py": {
    "emitted": {
-    "outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png": "2057a6e6b7e1466ac366b8b969a78175d6c9d84686ddb5d1fc6c173697ce0efe",
+    "outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png": "ddc4b48b941eda1510fc40743790973613c4f3f2bdc2d9a66098f9d6fccc3383",
     "outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png": "450fc2b501b1800898d4033b87a06ff335ab7798a24ae40551f8a4ba68dfa159",
     "outputs/11b_spatial_thresholds/11b_03_pflood.png": "6cd8697ba74ec865f820f8b3835150a8bd0ecb2aedb019152f976dc376f36f59",
     "outputs/11b_spatial_thresholds/11b_03_pflood_per_well.csv": "b4972a3edd101c8ba232dd12a9c7111525342ada8c90dbb78a33c0aa2a99c949",
     "outputs/11b_spatial_thresholds/11b_04_flood_frequency.png": "c594ceb4bb68f1046da91d65f6b5b663973e3719e3d124ba457a63c7855c0531",
     "outputs/11b_spatial_thresholds/11b_05_table10_pflood_spreadsheet.csv": "515ab062576bbc3fa5416757c9af3567305b1944d143ca7782bb44d4a3e88b91",
     "outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv": "5571f470728f8125bbf94ec552afde6d3c4784c0d43a057f45d4c7f5b48713d0",
-    "outputs/11b_spatial_thresholds/11b_report_numbers.csv": "8f3f456a71a4847b9ba24500ec36a132c164f991ee1119448dad9ff57df00c59",
+    "outputs/11b_spatial_thresholds/11b_report_numbers.csv": "0c735188a1133ab2d1640ea5c06dfc87cd54ca6af78ae6088273c8a80f449f20",
     "outputs/11b_spatial_thresholds/forecaster.html": "e27f61081b2a19fc96df010ef985230e4d13db21f29fc5d2a5f89fa230038924"
    },
    "fallbacks": [],
@@ -406,9 +406,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 28.9,
-   "started": "2026-09-28T06:24:12",
-   "version": "1.15.0"
+   "seconds": 27.7,
+   "started": "2026-09-28T13:00:12",
+   "version": "1.16.0"
   },
   "11c_pflood_achievability.py": {
    "emitted": {
@@ -426,7 +426,7 @@
   },
   "12_figure_site_overview.py": {
    "emitted": {
-    "outputs/12_figure_site_overview/12_01_dem_site_overview.png": "8e66964b4a8ead6d5a7114790ff382d526bfde4fe648e82c34e495d07a1f172f",
+    "outputs/12_figure_site_overview/12_01_dem_site_overview.png": "3cb76eb277078eeb0c731c4be59e693e56f2afcf7f217365205cd7c40770d2c6",
     "outputs/12_figure_site_overview/12_02_break_in_slope.csv": "87ebd8324c0cb456a5e4cb56777144e10eb38363b2794e52804852cc996eb020",
     "outputs/12_figure_site_overview/12_02_break_in_slope.png": "0ea7a6725859b211ce51ef60c05c6d17614dbcec27b71c5738e05c768bf94ce6",
     "outputs/12_figure_site_overview/12_report_numbers.csv": "264d4b2808574c84e258ffd096b2c7efc33740c309e443ebd2654bfeaec6bce4"
@@ -437,21 +437,20 @@
     "outputs/01_locations.csv": "d6e5a15b793b18d321023b78b7c02f64c738e4f2e156776d1fe1d5c477d1fb0c"
    },
    "inputs_unresolved": [],
-   "seconds": 22.2,
-   "started": "2026-09-27T23:00:39",
-   "version": "1.9.0"
+   "seconds": 22.5,
+   "started": "2026-09-28T12:21:13",
+   "version": "1.10.0"
   },
   "13_figure_experimental_design.py": {
    "emitted": {
-    "outputs/13_figure_experimental_design/13_01_experimental_setup_map.png": "5172ddf8abc56a3917e236ff4128779ea43033095612fbb1b8b3ebfa2b895228",
-    "outputs/logs/run_20260927_182251.log": "4868b7499eb69ecde2dbc2152c70caea7d48cdf61117f5704f3d36df1f65befc"
+    "outputs/13_figure_experimental_design/13_01_experimental_setup_map.png": "bdbea219e5e95debf55943b902aa131552d41c67127f4c215991857567d9ad28"
    },
    "fallbacks": [],
    "inputs": {},
    "inputs_unresolved": [],
-   "seconds": 14.2,
-   "started": "2026-09-27T18:30:04",
-   "version": "1.4.0"
+   "seconds": 21.7,
+   "started": "2026-09-28T12:21:36",
+   "version": "1.5.0"
   },
   "14_climate_projections.py": {
    "emitted": {

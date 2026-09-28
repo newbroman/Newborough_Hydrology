@@ -31,7 +31,9 @@ The northern break in slope (v1.4.0, D-099)
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-27. E27 / D-203: the study area
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-28. Proofread: the map title no longer
+#   carries "Figure 1:" (captions and figure numbers live in the report text). Render only.
+# 1.9.0  # Hollingham (2026) - 2026-09-27. E27 / D-203: the study area
 #   is read from data/geo/study_area.geojson (tools/make_study_area.py: the hand-drawn
 #   line put on the DEM's catchments, kept only where the DEM cannot decide), the
 #   same polygon Script 01b clips to, instead of the hand-drawn
@@ -284,7 +286,7 @@ def generate_dem_map():
     # =======================================================
     # 6. Formatting & Legend
     # =======================================================
-    plt.title('Figure 1: Site Topography and Hydrogeological Features',
+    plt.title('Site Topography and Hydrogeological Features',
               fontweight='bold', fontsize=16, pad=15)
     plt.xlabel('Easting (m, OSGB36)')
     plt.ylabel('Northing (m, OSGB36)')

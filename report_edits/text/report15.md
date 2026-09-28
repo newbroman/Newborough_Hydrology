@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report15.odt — do not edit. source-sha256=5131829e84601e97 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report15.odt — do not edit. source-sha256=2949ec35e4375af5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Data Availability
@@ -19,7 +19,7 @@ Full diagnostic outputs for all 66 reference network wells and all 17 clearfell 
 
 -   **Groundwater Data:** The primary dipwell monitoring record was independently maintained by the author.
 
--   **Historic Mapping:** The nineteenth-century shoreline and dune edge were digitised from Ordnance Survey, Anglesey Sheet XXV.NW, revised 1899, published 1901, reproduced with the permission of the National Library of Scotland (https://maps.nls.uk) under CC-BY-NC-SA 4.0. The sheet was georeferenced to OSGB36 / British National Grid from 27 ground control points (RMSE 5.95 m; 3.27 m excluding two outliers). The source raster is not redistributed; the digitised vectors are original work.
+-   **Historic Mapping:** The nineteenth-century shoreline and dune edge were digitized from Ordnance Survey, Anglesey Sheet XXV.NW, revised 1899, published 1901, reproduced with the permission of the National Library of Scotland (https://maps.nls.uk) under CC-BY-NC-SA 4.0. The sheet was georeferenced to OSGB36 / British National Grid from 27 ground control points (RMSE 5.95 m; 3.27 m excluding two outliers). The source raster is not redistributed; the digitized vectors are original work.
 
 -   **Shoreline Data:** The mean-high-water shoreline from which every well-to-coast distance in this study is measured was derived from OpenStreetMap (**natural=coastline**), retrieved via the Overpass API and clipped to the west-facing Caernarfon Bay frontage. Map data © OpenStreetMap contributors, available under the Open Database Licence (ODbL, https://www.openstreetmap.org/copyright).
 

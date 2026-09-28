@@ -85,6 +85,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | 7 / k7 raw 4 (non-canonical) · median_stability |  |  | `02_04_bootstrap_stability_summary.csv` | 0.981154 |  | report8 | ok |
 | ANCOVA_A_WMC3+FE1+FE2_Forest_net_clearfell |  |  | `10_consolidated_report_numbers.csv` | 0.13652 |  | Newborough_Methods_Supplement | ok |
 | ANCOVA_B_WMC3+FE2_Climate_clearfell_p |  |  | `10_consolidated_report_numbers.csv` | 0.20277 |  | Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd, report9 | ok |
+| ANCOVA_B_WMC3+FE2_Forest_clearfell_p |  |  | `10_consolidated_report_numbers.csv` | 0.00245008 |  | report12 | ok |
 | ANCOVA_C_WMC3_only_Climate_R2 | R² | coefficient of determination | `10_consolidated_report_numbers.csv` | 0.18876 |  | report9 | ok |
 | ANCOVA_C_WMC3_only_Climate_clearfell_p |  |  | `10_consolidated_report_numbers.csv` | 0.462604 |  | report9 | ok |
 | ANCOVA_C_WMC3_only_Forest_clearfell_step |  |  | `10_consolidated_report_numbers.csv` | 0.10823 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd | ok |
@@ -491,7 +492,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | CEH36 / 3_Felling_Pulse · beta_3_drainage | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `09_scrape_02_beta3_significance.csv` | 0.110247 |  | Newborough_Methods_Supplement, report9 | ok |
 | CEH36 / Climate · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.161 |  | Hollingham_2026_Paper2_amended | ok |
 | CEH36 / Paired · Shift_m |  |  | `09c_02_summer_minima_shifts.csv` | 0.1945 |  | Hollingham_2026_Paper2_amended | ok |
-| CEH36_raw_BACI_step |  |  | `09e_report_numbers.csv` | 0.1281 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report9 | ok |
+| CEH36_SSM_forward_residual_step |  |  | `09e_report_numbers.csv` | 0.1002 |  | report12, report9 | ok |
+| CEH36_raw_BACI_step |  |  | `09e_report_numbers.csv` | 0.1281 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report7, report9 | ok |
 | CEH36_synthetic_control_step |  |  | `09e_report_numbers.csv` | 0.1414 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report9 | ok |
 | CEH4 (control) / 2015–17 · Max_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.18 |  | Hollingham_2026_Paper2_amended, report9 | ok |
 | CEH4 (control) / Post-fell 2018–23 · Mean_depth_m |  |  | `21_forestry_03_scraping_era_means.csv` | 1.14 |  | report9 | ok |
@@ -654,6 +656,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | NW10 · db1 |  |  | `10e_01_coefficient_shifts.csv` | 0.2476 |  | report9 | ok |
 | NW4B / Far-field Ctrl / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.996 |  | Newborough_Methods_Supplement | ok |
 | NW6 / Climate Ctrl / Climate · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.259 |  | Supplementary_Material | ok |
+| Net_benefit · CEH36 · Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | -0.0549028 |  | report10, report9 | ok |
 | Net_benefit · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.144153 |  | Newborough_Methods_Supplement | ok |
 | OpenDune_balanced_less_coastal_mean |  |  | `25_report_numbers.csv` | -11.0223 |  | report10 | ok |
 | Pearson / ward / 5 · ARI_vs_canonical |  |  | `31_method_robustness_ari.csv` | 1 |  | Newborough_Methods_Supplement | ok |
@@ -705,7 +708,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | Thinning 50% (hypothetical) · Delta_vol_summer_mm_per_month |  |  | `09d_02_summer_scenario_comparison.csv` | 7.2 |  | Newborough_Methods_Supplement, report9 | ok |
 | Tier1_CUSUM_terminal · CEH22 |  |  | `09_scrape_report_numbers.csv` | -19.4625 |  | report9 | ok |
 | Tier1_CUSUM_terminal · CEH4 |  |  | `09_scrape_report_numbers.csv` | -10.6115 |  | report9 | ok |
-| Tier2_BACI_shift · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.128087 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report12, report9 | ok |
+| Tier2_BACI_shift · CEH36 · Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.0229114 |  | report10, report9 | ok |
+| Tier2_BACI_shift · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.128087 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report10, report12, report9 | ok |
 | Transect_control_baseline_m |  |  | `10_consolidated_report_numbers.csv` | 0.0894979 |  | report9 | ok |
 | Transect_gradient_p |  |  | `10_consolidated_report_numbers.csv` | 0.140945 |  | report9 | ok |
 | UKCP18_DRY_PET_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PIPELINE_README, readme | ok |
@@ -727,7 +731,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | abs_climate_trend_cluster_mean · C2 (Dune) · 2005-2025 |  |  | `36_report_numbers.csv` | 0.242492 |  | report10, report9 | ok |
 | abs_climate_trend_cluster_mean · C3 (Western Residual) · 2005-2025 |  |  | `36_report_numbers.csv` | -6.92476 |  | report10, report9 | ok |
 | abs_climate_trend_cluster_mean · C4 (Main Forest) · 2005-2025 |  |  | `36_report_numbers.csv` | -0.580444 |  | report10, report9 | ok |
-| abs_climate_trend_cluster_mean · C5 (Coastal Forest) · 2005-2025 |  |  | `36_report_numbers.csv` | -16.6964 |  | report10, report9 | ok |
+| abs_climate_trend_cluster_mean · C5 (Coastal Forest) · 2005-2025 |  |  | `36_report_numbers.csv` | -16.6964 |  | report10, report8, report9 | ok |
 | abs_climate_trend_well · ceh3 · 2005-2025 |  |  | `36_report_numbers.csv` | -26.8856 |  | report9 | ok |
 | abs_climate_trend_well · ceh4 · 2005-2025 |  |  | `36_report_numbers.csv` | -20.934 |  | report9 | ok |
 | abs_climate_trend_well · nw9 · 2005-2025 |  |  | `36_report_numbers.csv` | -26.9615 |  | report9 | ok |
@@ -1101,6 +1105,12 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | recession_time_group_mean_of_per_well · Forest ctrl |  |  | `20_msl5_report_numbers.csv` | 57.9401 |  | report10 | ok |
 | recession_time_months · full_R2 | R² | coefficient of determination | `29_headline_models.csv` | 0.672466 |  | report10 | ok |
 | reference_record_years_median |  |  | `00_report_numbers.csv` | 15.9233 |  | report10 | ok |
+| reference_summer_min_deepest |  |  | `00_report_numbers.csv` | -2.31526 |  | report9 | ok |
+| reference_summer_min_mean |  |  | `00_report_numbers.csv` | -1.18167 |  | report9 | ok |
+| reference_summer_min_shallowest |  |  | `00_report_numbers.csv` | -0.714 |  | report9 | ok |
+| reference_summer_min_zone_count · SD15b to SD16 (dry slack zone) |  |  | `00_report_numbers.csv` | 27 |  | report9 | ok |
+| reference_summer_min_zone_count · at or deeper than SD16 |  |  | `00_report_numbers.csv` | 39 |  | report9 | ok |
+| reference_summer_min_zone_count · at or deeper than SD16_REC |  |  | `00_report_numbers.csv` | 21 |  | report9 | ok |
 | residual_ceh14 |  |  | `20_residual_report_numbers.csv` | -0.0104674 |  | PAPER1_SI_methods, Paper1, report9 | ok |
 | residual_max |  |  | `20_residual_report_numbers.csv` | 0.00796921 |  | report9 | ok |
 | residual_mean |  |  | `20_residual_report_numbers.csv` | -0.00244916 |  | report9 | ok |
@@ -1153,7 +1163,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfell · annual |  |  | `21_report_numbers.csv` | 12.244 |  | Supplementary_Material, report, report10, report12, report9 | ok |
 | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · clearfell · summer |  |  | `21_report_numbers.csv` | 10.3445 |  | report, report12, report9 | ok |
 | scenario_water_equivalent_mm_per_month · C5 (Coastal Forest) · thinning_50pct · annual |  |  | `21_report_numbers.csv` | 6.122 |  | Supplementary_Material, report, report10, report9 | ok |
-| scrape_inferred_cut_depth_m |  |  | `20_scrape_report_numbers.csv` | 0.429534 |  | report9 | ok |
+| scrape_inferred_cut_depth_m |  |  | `20_scrape_report_numbers.csv` | 0.429534 |  | report12, report7, report9 | ok |
 | scrape_net · volume_m3 |  |  | `37b_driver_footing.csv` | -61035.1 |  | Newborough_Methods_Supplement | ok |
 | scrape_offsite · area_mm_ha |  |  | `37b_driver_footing.csv` | -21074.5 |  | Newborough_Methods_Supplement | ok |
 | scrape_offsite · peak_mm | Δh | water-level change / amplitude | `37b_driver_footing.csv` | -41.3 |  | Newborough_Methods_Supplement | ok |
@@ -1170,12 +1180,14 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | ssm_resid_phi_median |  |  | `22_report_numbers.csv` | -0.143715 |  | Newborough_Methods_Supplement | ok |
 | study_area_envelope_e_km |  |  | `12_report_numbers.csv` | 4.34052 |  | report7 | ok |
 | study_area_envelope_n_km |  |  | `12_report_numbers.csv` | 3.92931 |  | report7 | ok |
-| study_area_ha |  |  | `12_report_numbers.csv` | 864.764 |  | report7 | ok |
+| study_area_ha |  |  | `12_report_numbers.csv` | 864.764 |  | report6, report7 | ok |
 | summary / corr_upstand_vs_d_beta_1 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | 0.803642 |  | Newborough_Methods_Supplement | ok |
 | summary / corr_upstand_vs_d_beta_3 · value |  |  | `03_17_upstand_frame_sensitivity.csv` | -0.854966 |  | report8 | ok |
+| summer_min_zone_count · beyond recovery (>= SD16_REC) · All (n=88) |  |  | `11b_report_numbers.csv` | 28 |  | report9 | ok |
+| summer_min_zone_count · deeper than SD16 (>= SD16) · All (n=88) |  |  | `11b_report_numbers.csv` | 48 |  | report9 | ok |
 | surplus_mean_modern_m_yr |  |  | `39_report_numbers.csv` | 0.23668 |  | report9 | ok |
 | surplus_mean_window_m_yr |  |  | `39_report_numbers.csv` | 0.127251 |  | report9 | ok |
-| sy_c3 | S_y | specific yield — WTF storage coefficient | `20_report_numbers.csv` | 0.298201 |  | Newborough_Methods_Supplement | ok |
+| sy_c3 | S_y | specific yield — WTF storage coefficient | `20_report_numbers.csv` | 0.298201 |  | Newborough_Methods_Supplement, report8 | ok |
 | sy_recip_beta3_correlation_r | S_y | specific yield — WTF storage coefficient | `18_report_numbers.csv` | 0.215167 |  | report10 | ok |
 | synth_FE1_R2_cal |  |  | `10_consolidated_report_numbers.csv` | 0.997837 |  | Newborough_Methods_Supplement | ok |
 | synth_FE2_R2_cal |  |  | `10_consolidated_report_numbers.csv` | 0.994378 |  | Newborough_Methods_Supplement | ok |

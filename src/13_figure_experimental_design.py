@@ -24,7 +24,14 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-11.
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-28. Proofread (Martin: "improve
+#   legibility, use call-out lines if necessary"; "Clearfell"): the well labels, and now the
+#   transect distance labels, are repelled from every plotted well position as well as from
+#   each other, and every moved label keeps a call-out line (min_arrow_len=0). The free-standing
+#   "Clearfell centroid" and "CEH36 (scraping site)" annotations are dropped: both markers carry
+#   their own legend entries, and the CEH36 annotation landed beside CEH18. Legend header
+#   "Clear-Fell BACI" -> "Clearfell BACI". Render only; no data.
+# 1.4.0  # Hollingham (2026) - 2026-09-11.
 #   KML reads migrated to utils.kml_io.read_kml (D-153): a driver-named
 #   gpd.read_file is a machine-dependent call, and fiona 1.10 dropping KML
 #   from supported_drivers broke Script 41 on the publishing machine while
@@ -323,18 +330,10 @@ def main():
     # --- Clearfell centroid marker ---
     ax.plot(FELL_CENTROID_EASTING, FELL_CENTROID_NORTHING, marker='+', color='darkred',
             markersize=14, markeredgewidth=2.5, zorder=6)
-    ax.annotate('Clearfell\ncentroid', xy=(FELL_CENTROID_EASTING, FELL_CENTROID_NORTHING),
-                xytext=(FELL_CENTROID_EASTING - 180, FELL_CENTROID_NORTHING - 120),
-                fontsize=8, color='darkred',
-                arrowprops=dict(arrowstyle='-', color='darkred', lw=0.8))
 
     # --- CEH36 scraping site marker ---
     ax.plot(CEH36_EASTING, CEH36_NORTHING, marker='*', color='#0072B2',
             markersize=16, markeredgewidth=1.5, markeredgecolor='black', zorder=6)
-    ax.annotate('CEH36\n(scraping site)', xy=(CEH36_EASTING, CEH36_NORTHING),
-                xytext=(CEH36_EASTING + 120, CEH36_NORTHING - 130),
-                fontsize=8, color='#0072B2',
-                arrowprops=dict(arrowstyle='-', color='#0072B2', lw=0.8))
 
     # --- Clearfell transect: CEH2 → CEH34 → WMC3 ---
     transect_wells = ['ceh2', 'ceh34', 'wmc3']
@@ -353,10 +352,8 @@ def main():
         import math
         for ex, ny, wid in transect_coords:
             dist = math.sqrt((ex - FELL_CENTROID_EASTING)**2 + (ny - FELL_CENTROID_NORTHING)**2)
-            ax.annotate(f'{dist:.0f} m', xy=(ex, ny),
-                        xytext=(ex + 60, ny + 60),
-                        fontsize=7, color='#AACC00',
-                        arrowprops=dict(arrowstyle='-', color='#AACC00', lw=0.5))
+            texts.append(ax.text(ex, ny, f'{dist:.0f} m', fontsize=8, color='#6B8000',
+                                 fontweight='bold', zorder=6, clip_on=True))
 
     # ==========================================
     # 5. FORMATTING
@@ -372,7 +369,7 @@ def main():
     # --- Legend: grouped by experiment ---
     legend_handles = [
         # Clearfell BACI section header
-        Line2D([], [], linestyle='none', label='Clear-Fell BACI (5-tier, 17 wells)'),
+        Line2D([], [], linestyle='none', label='Clearfell BACI (5-tier, 17 wells)'),
         Line2D([], [], marker='^', linestyle='None',
                markerfacecolor=COLORS['CF Impact'], markeredgecolor='black',
                markersize=10, label=f'Impact ({len(IMPACT_WELLS)} well: {", ".join(w.upper() for w in IMPACT_WELLS)})'),
@@ -434,7 +431,15 @@ def main():
     plt.grid(True, linestyle='--', alpha=0.4)
 
     phase(4, "Repelling text labels")
-    adjust_text(texts, arrowprops=dict(arrowstyle="-", color='gray', lw=0.5), ax=ax,
+    # Repel labels from every plotted well position (and the clearfell centroid), not just
+    # from each other, and keep a call-out line on every moved label.
+    _in = gdf_wells[(gdf_wells['E'].between(MAP_XMIN, MAP_XMAX))
+                    & (gdf_wells['N'].between(MAP_YMIN, MAP_YMAX))]
+    _px = list(_in['E']) + [FELL_CENTROID_EASTING]
+    _py = list(_in['N']) + [FELL_CENTROID_NORTHING]
+    adjust_text(texts, x=_px, y=_py,
+                arrowprops=dict(arrowstyle="-", color='#444444', lw=0.6), ax=ax,
+                expand=(1.3, 1.5), force_static=(0.3, 0.5), min_arrow_len=0,
                 iter_lim=LABEL_ADJUST_ITER_LIM)
 
     plt.tight_layout()

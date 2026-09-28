@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**165 output file(s)** supply **1724 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**166 output file(s)** supply **1736 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -57,10 +57,16 @@
 |  | well_record / 3 · p_value | report9.md |
 |  | well_record / 9 · p_value | Newborough_Methods_Supplement.md |
 | `00_report_numbers.csv` | centring_constant | report8.md |
-|  | cumbal_wl_r2 | report8.md, report9.md |
+|  | cumbal_wl_r2 | report9.md |
 |  | mean_annual_rain_well_record | report8.md |
 |  | n_years_annual_rain_incomplete | report9.md |
 |  | reference_record_years_median | report10.md |
+|  | reference_summer_min_deepest | report9.md |
+|  | reference_summer_min_mean | report9.md |
+|  | reference_summer_min_shallowest | report9.md |
+|  | reference_summer_min_zone_count · SD15b to SD16 (dry slack zone) | report9.md |
+|  | reference_summer_min_zone_count · at or deeper than SD16 | report9.md |
+|  | reference_summer_min_zone_count · at or deeper than SD16_REC | report9.md |
 |  | trend_annual_pet_1931_2025_t | report9.md |
 |  | trend_annual_pet_1960_2025_t | report9.md |
 |  | trend_summer_balance | report9.md |
@@ -392,6 +398,7 @@
 |  | BACI_step_below_floor | readme.md |
 |  | BACI_step_below_floor · CEH18 · CEH18 vs CEH4, 2023 re-scrape | readme.md |
 |  | BACI_step_below_floor · CEH21 · CEH21 vs CEH22, 2023 re-scrape | readme.md |
+|  | Net_benefit · CEH36 · Felling_Pulse | report10.md, report9.md |
 |  | Net_benefit · CEH36 · Pure_Scraping | Newborough_Methods_Supplement.md |
 |  | Pre_scraping_baseline_years · CEH18 · pre_2015_scrape | report8.md |
 |  | Pre_scraping_baseline_years · CEH21 · pre_2015_scrape | report8.md |
@@ -402,7 +409,8 @@
 |  | Summer_minimum_depth · CEH4 · 3_Felling_Pulse | Hollingham_2026_Paper2_amended.md |
 |  | Tier1_CUSUM_terminal · CEH22 | Newborough_Methods_Supplement.md, report9.md |
 |  | Tier1_CUSUM_terminal · CEH4 | Newborough_Methods_Supplement.md, report9.md |
-|  | Tier2_BACI_shift · CEH36 · Pure_Scraping | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
+|  | Tier2_BACI_shift · CEH36 · Felling_Pulse | report10.md, report9.md |
+|  | Tier2_BACI_shift · CEH36 · Pure_Scraping | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report10.md, report12.md, report9.md |
 |  | beta3_era · CEH18 · 2_Felling_Pulse | report9.md |
 |  | beta3_era · CEH18 · 3_After_Scraping | report9.md |
 |  | beta3_era · CEH21 · 1_Baseline | report9.md |
@@ -479,12 +487,14 @@
 |  | Climate dry · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
 |  | Climate wet · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md |
 |  | Thinning 50% (hypothetical) · Delta_vol_summer_mm_per_month | Newborough_Methods_Supplement.md, report9.md |
-| `09e_report_numbers.csv` | CEH36_raw_BACI_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
+| `09e_report_numbers.csv` | CEH36_SSM_forward_residual_step | report12.md, report9.md |
+|  | CEH36_raw_BACI_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report7.md, report9.md |
 |  | CEH36_synthetic_control_step | Hollingham_2026_Paper2_amended.md, Newborough_Methods_Supplement.md, report12.md, report9.md |
 | `10_consolidated_report_numbers.csv` | ANCOVA_A_WMC3+FE1+FE2_Climate_R2 | report9.md |
 |  | ANCOVA_A_WMC3+FE1+FE2_Forest_net_clearfell | Newborough_Methods_Supplement.md |
 |  | ANCOVA_B_WMC3+FE2_Climate_clearfell_p | Newborough_Methods_Supplement.md, academic_Summary.md, crynodeb_academaidd.md, report9.md |
 |  | ANCOVA_B_WMC3+FE2_Combined_R2 | Supplementary_Material.md |
+|  | ANCOVA_B_WMC3+FE2_Forest_clearfell_p | report12.md |
 |  | ANCOVA_C_WMC3_only_Climate_R2 | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | ANCOVA_C_WMC3_only_Climate_clearfell_p | Hollingham_2026_Paper2_amended.md, report9.md |
 |  | ANCOVA_C_WMC3_only_Combined_R2 | Hollingham_2026_Paper2_amended.md, report9.md |
@@ -867,9 +877,11 @@
 |  | C3 (Western Residual) · m_P | report10.md, report9.md |
 |  | C4 (Main Forest) · m_P | report9.md |
 |  | C5 (Coastal Forest) · m_P | report9.md |
+| `11b_report_numbers.csv` | summer_min_zone_count · beyond recovery (>= SD16_REC) · All (n=88) | report9.md |
+|  | summer_min_zone_count · deeper than SD16 (>= SD16) · All (n=88) | report9.md |
 | `12_report_numbers.csv` | study_area_envelope_e_km | report7.md |
 |  | study_area_envelope_n_km | report7.md |
-|  | study_area_ha | report7.md |
+|  | study_area_ha | report6.md, report7.md |
 | `14_spring_trend_stats.csv` | C1 · p_value | report9.md |
 | `14_summer_trend_stats.csv` | C1 · R2 | report9.md, wtf_interception_methodology.md |
 |  | C1 · Slope_m_per_yr | report9.md |
@@ -1068,10 +1080,10 @@
 |  | recession_time_group_mean_of_per_well · Climate ctrl | report10.md |
 |  | recession_time_group_mean_of_per_well · Forest ctrl | report10.md |
 | `20_report_numbers.csv` | beta_3_c3 | Newborough_Methods_Supplement.md |
-|  | coastal_retreat_rate | Newborough_Methods_Supplement.md, Paper1.md, report8.md, report9.md |
+|  | coastal_retreat_rate | Newborough_Methods_Supplement.md, Paper1.md, report9.md |
 |  | drawdown_ceh23 | report9.md |
 |  | drawdown_d15 | report9.md |
-|  | sy_c3 | Newborough_Methods_Supplement.md |
+|  | sy_c3 | Newborough_Methods_Supplement.md, report8.md |
 | `20_residual_perwell.csv` | ceh14 · residual_wb | Newborough_Methods_Supplement.md, PAPER1_SI_methods.md, Paper1.md, report9.md |
 |  | ceh2 · residual_wb | report10.md |
 |  | d7 · residual_wb | PAPER1_SI_methods.md, Paper1.md, report9.md |
@@ -1091,7 +1103,7 @@
 |  | residual_spearman_signed_easting_rho | report9.md |
 |  | residual_spearman_signed_northing_p | report9.md |
 |  | residual_spearman_signed_northing_rho | report9.md |
-| `20_scrape_report_numbers.csv` | scrape_inferred_cut_depth_m | report9.md |
+| `20_scrape_report_numbers.csv` | scrape_inferred_cut_depth_m | report12.md, report7.md, report9.md |
 | `21_forestry_02_distributions_means.csv` | C1 Eastern lake-buffer / Pre-scrape 2005–14 · SD_depth_m | Supplementary_Material.md |
 |  | C1 Eastern lake-buffer / Scraping era 2015–17 · N_summers | Newborough_Methods_Supplement.md |
 |  | C2 Eastern mature dune / Post-felling 2018+ · Max_depth_m | Paper1.md, report10.md, report12.md, report9.md |

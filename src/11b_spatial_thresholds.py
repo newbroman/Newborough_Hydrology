@@ -9,10 +9,11 @@ below ground, and produces a publication-quality map zoned by Curreli et al.
 (2013) eco-hydrological thresholds and scraping recovery limits derived from
 the BACI analysis in Hollingham (2026).
 
-Recovery limits are grounded in the BACI scraping benefit reported by the
-Script 09 suite (load it live; do not cache the value here):
-    SD15b excavation limit = config.SD15b_REC (shallow excavation achieves SD15b)
-    SD16  excavation limit = config.SD16_REC  (deeper excavation achieves SD16)
+Recovery limits are a planning assumption of about 0.14 m (one scrape) and 0.22 m
+(a deeper scrape) of water-table BENEFIT added to the Curreli thresholds (D-201;
+the measured CEH36 benefit, Script 09, is of the same order):
+    SD15b recovery limit = config.SD15b_REC
+    SD16  recovery limit = config.SD16_REC
 
 DEM corrections are applied to two wells that have been scraped since the
 LiDAR survey was flown:
@@ -74,7 +75,19 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-28. T-91: export_table10_spreadsheet()
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-28. Proofread (Martin): the recovery
+#   limits SD15b_REC / SD16_REC are a planning assumption of about 0.14 / 0.22 m of scraping
+#   BENEFIT, not excavation limits or depths: the summer-minimum map's colour bar, legend and
+#   stats box say "recovery limit" and "planning assumption", and the stats box reads the
+#   thresholds and the CEH18/CEH21 DEM corrections from config instead of typed literals. The
+#   zone counts behind report9 (all 88 wells and the 66 reference wells) are emitted to
+#   11b_report_numbers.csv (summer_min_zone_count). No zone boundary or value changes.
+#   Layout (Martin: "too crowded, the legends obscure"): the summer-minimum map keeps only the
+#   map, colour bar and zone-count box (top left, over the empty ground north of the site) in the
+#   plot area; the zone/threshold/cluster legend moves to a panel below it; well labels are black
+#   with a white halo (the red CEH18 label was unreadable on the red/orange zones), and the three-line title becomes one line (the DEM-correction
+#   note sits in the count box; the caption carries the rest).
+# 1.15.0  # Hollingham (2026) - 2026-09-28. T-91: export_table10_spreadsheet()
 #   now also emits the per-cluster recharge-horizon climatological rainfall total
 #   (Sum_P_clim_mm, unrounded) to a new 11b_report_numbers.csv, so the Section 4.7.4
 #   "400 mm" / "461 mm" citations bind to a committed value. No output value changes.
@@ -172,6 +185,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.patheffects as _pe
 from matplotlib.lines import Line2D
 from matplotlib.colors import LinearSegmentedColormap, BoundaryNorm
 
@@ -301,9 +315,9 @@ P_FLOOD_H_TARGET_M = 0.0
 # ─────────────────────────────────────────────────────────────────────────────
 ZONE_COLOURS = [
     "#1a7abf",  # Blue       — wet slack viable (< SD15b)
-    "#a8d8a8",  # Pale green — shallow excavation viable (SD15b recoverable)
-    "#ffffb2",  # Yellow     — SD16 dry slack (between excavation limits)
-    "#fd8d3c",  # Orange     — deeper excavation viable (SD16 recoverable)
+    "#a8d8a8",  # Pale green — SD15b recoverable by one scrape
+    "#ffffb2",  # Yellow     — SD16 dry slack (between the recovery limits)
+    "#fd8d3c",  # Orange     — SD16 recoverable by a deeper scrape
     "#bd0026",  # Dark red   — critical, beyond standard single scraping event
 ]
 ZONE_BOUNDS = [0.0, SD15b, SD15b_REC, SD16, SD16_REC, 3.5]
@@ -689,6 +703,9 @@ def load_well_data() -> pd.DataFrame:
 # ─────────────────────────────────────────────────────────────────────────────
 # FIGURE 1 — SUMMER MINIMA DEPTH MAP
 # ─────────────────────────────────────────────────────────────────────────────
+_ZONE_REPORT: list = []
+
+
 def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     """
     Generate the summer minima depth map and save to OUT_11B_SUMMER_MAP.
@@ -704,7 +721,28 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     n_sr16  = ((df["depth_bg"] >= SD16)      & (df["depth_bg"] < SD16_REC)).sum()
     n_crit  = (df["depth_bg"] >= SD16_REC).sum()
 
-    fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")
+    # Zone counts behind report9 (all wells, and the reference network alone),
+    # written by export_table10_spreadsheet() into 11b_report_numbers.csv.
+    _ZONE_REPORT.clear()
+    for _net, _sub in (("All", df), ("Reference", df[df["network"] == "Reference"])):
+        _d = _sub["depth_bg"]
+        for _zone, _cnt in (
+                ("wet slack (< SD15b)", (_d < SD15b).sum()),
+                ("SD15b recoverable (SD15b to SD15b_REC)", ((_d >= SD15b) & (_d < SD15b_REC)).sum()),
+                ("SD16 dry slack (SD15b_REC to SD16)", ((_d >= SD15b_REC) & (_d < SD16)).sum()),
+                ("SD16 recoverable (SD16 to SD16_REC)", ((_d >= SD16) & (_d < SD16_REC)).sum()),
+                ("beyond recovery (>= SD16_REC)", (_d >= SD16_REC).sum()),
+                ("deeper than SD16 (>= SD16)", (_d >= SD16).sum())):
+            _ZONE_REPORT.append(dict(
+                parameter="summer_min_zone_count", value=int(_cnt), unit="wells",
+                well=_zone, era=f"{_net} (n={len(_sub)})",
+                note="mean Aug-Sep minimum, depth below the (DEM-corrected) ground surface; "
+                     "Script 11b summer-minimum map"))
+
+    fig = plt.figure(figsize=(12, 13.5), facecolor="white")
+    _gs = fig.add_gridspec(2, 1, height_ratios=[10, 2.9], hspace=0.06)
+    ax = fig.add_subplot(_gs[0])
+    _lax = fig.add_subplot(_gs[1]); _lax.axis("off")
 
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
         ax, DATA_DIR, alpha=1.0, vert_exag=3.0, zorder=1
@@ -738,9 +776,9 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     cb.ax.set_yticklabels([
         "0 m\n(flooding)",
         f"{SD15b} m\nSD15b\nwet slack",
-        f"{SD15b_REC} m\nSD15b\nexcavation\nlimit",
+        f"{SD15b_REC} m\nSD15b\nrecovery\nlimit",
         f"{SD16} m\nSD16\ndry slack",
-        f"{SD16_REC} m\nSD16\nexcavation\nlimit",
+        f"{SD16_REC} m\nSD16\nrecovery\nlimit",
         "3.0 m",
     ], fontsize=7.5)
 
@@ -779,11 +817,12 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                            lw=1.5, zorder=6)
                 for _, row in scraped_sub.iterrows():
                     ax.annotate(
-                        row["well"].upper() + "\n(scraped 2023)",
+                        row["well"].upper() + " (scraped 2023)",
                         xy=(row["E"], row["N"]),
-                        xytext=(6, 4), textcoords="offset points",
-                        fontsize=6.5, color="red",
-                        fontweight="bold", zorder=6,
+                        xytext=(8, -3), textcoords="offset points",
+                        fontsize=7.5, color="black",
+                        fontweight="bold", zorder=8,
+                        path_effects=[_pe.withStroke(linewidth=2.5, foreground="white")],
                     )
 
         star = grp[grp["well"].isin(above_sd15b)]
@@ -796,31 +835,35 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                     row["well"].upper(),
                     xy=(row["E"], row["N"]),
                     xytext=(6, 6), textcoords="offset points",
-                    fontsize=7, fontweight="bold", zorder=6,
+                    fontsize=7.5, fontweight="bold", zorder=8,
+                    path_effects=[_pe.withStroke(linewidth=2.5, foreground="white")],
                 )
 
     stats_txt = (
         f"Above SD15b — wet slack viable:              {n_wet}/{n_tot} "
         f"({100*n_wet/n_tot:.0f}%)\n"
-        f"SD15b–0.75 m — shallow excavation viable:   {n_sr15b}/{n_tot} "
+        f"SD15b–{SD15b_REC} m — recoverable, one scrape:  {n_sr15b}/{n_tot} "
         f"({100*n_sr15b/n_tot:.0f}%)\n"
-        f"0.75–SD16 m  — SD16 dry slack:               {n_marg}/{n_tot} "
+        f"{SD15b_REC}–SD16 m  — SD16 dry slack:             {n_marg}/{n_tot} "
         f"({100*n_marg/n_tot:.0f}%)\n"
-        f"SD16–1.20 m  — deeper excavation viable:     {n_sr16}/{n_tot} "
+        f"SD16–{SD16_REC} m  — recoverable, deeper scrape: {n_sr16}/{n_tot} "
         f"({100*n_sr16/n_tot:.0f}%)\n"
-        f"Beyond 1.20 m — critical (single scraping):  {n_crit}/{n_tot} "
+        f"Beyond {SD16_REC} m — beyond recovery:          {n_crit}/{n_tot} "
         f"({100*n_crit/n_tot:.0f}%)\n"
         f"Ref: {(df['network']=='Reference').sum()}  "
         f"Extended: {(df['network']=='Extended').sum()}  "
         f"Total: {n_tot}\n"
-        f"CEH21: DEM −0.70 m  |  CEH18: DEM −0.50 m  (DEM-corrected only; full record used)"
+        + "  |  ".join(f"{w.upper()}: DEM −{d:.2f} m" for w, d in SCRAPE_DEM_CORRECTION_M.items())
+        + "  (DEM-corrected only; full record used)\n"
+        + f"Recovery limits: planning assumption of ~{SD15b_REC - SD15b:.2f} / "
+          f"~{SD16_REC - SD16:.2f} m of scraping benefit"
     )
     ax.text(
-        0.005, 0.008, stats_txt,
+        0.01, 0.99, stats_txt,
         transform=ax.transAxes, fontsize=8,
-        verticalalignment="bottom", horizontalalignment="left",
+        verticalalignment="top", horizontalalignment="left",
         family="monospace",
-        bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.92),
+        bbox=dict(boxstyle="round,pad=0.4", facecolor="white", edgecolor="#999999", alpha=0.92),
         zorder=7,
     )
 
@@ -828,21 +871,21 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         mpatches.Patch(facecolor="#1a7abf", alpha=0.8,
                        label=f"Wet slack — viable (< {SD15b} m)"),
         mpatches.Patch(facecolor="#a8d8a8", alpha=0.8,
-                       label=f"Shallow excavation viable — SD15b recoverable ({SD15b}–{SD15b_REC} m)"),
+                       label=f"SD15b recoverable by one scrape ({SD15b}–{SD15b_REC} m)"),
         mpatches.Patch(facecolor="#ffffb2", alpha=0.8,
-                       label=f"SD16 dry slack — between excavation limits ({SD15b_REC}–{SD16} m)"),
+                       label=f"SD16 dry slack ({SD15b_REC}–{SD16} m)"),
         mpatches.Patch(facecolor="#fd8d3c", alpha=0.8,
-                       label=f"Deeper excavation viable — SD16 recoverable ({SD16}–{SD16_REC} m)"),
+                       label=f"SD16 recoverable by a deeper scrape ({SD16}–{SD16_REC} m)"),
         mpatches.Patch(facecolor="#bd0026", alpha=0.8,
-                       label=f"Critical — beyond standard single scraping event (> {SD16_REC} m)"),
+                       label=f"Beyond scraping recovery (> {SD16_REC} m)"),
         Line2D([0], [0], color="#005fa3", lw=2.0, ls="--",
                label=f"SD15b wet slack threshold ({SD15b} m)"),
         Line2D([0], [0], color="#2e8b2e", lw=1.8, ls=":",
-               label=f"SD15b excavation limit ~{SD15b_REC - SD15b:.2f} m depth ({SD15b_REC} m)"),
+               label=f"SD15b recovery limit ({SD15b_REC} m; ~{SD15b_REC - SD15b:.2f} m benefit assumed)"),
         Line2D([0], [0], color="#a30000", lw=2.0, ls="--",
                label=f"SD16 dry slack threshold ({SD16} m)"),
         Line2D([0], [0], color="#4a0000", lw=1.8, ls="-.",
-               label=f"SD16 excavation limit ~{SD16_REC - SD16:.2f} m depth ({SD16_REC} m)"),
+               label=f"SD16 recovery limit ({SD16_REC} m; ~{SD16_REC - SD16:.2f} m benefit assumed)"),
         Line2D([0], [0], marker="*", color="w",
                markerfacecolor="grey", markeredgecolor="black",
                markersize=12, label="Above SD15b on average (\u2605 labelled)"),
@@ -863,17 +906,9 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         for k in sorted(CLUSTER_LABELS)
     ]
 
-    l1 = ax.legend(
-        handles=zone_handles, fontsize=9, loc="upper left", ncol=2,
-        framealpha=0.95,
-        title="Ecological zone / threshold / symbol",
-        title_fontsize=10,
-    )
-    ax.add_artist(l1)
-
-    ax.legend(
-        handles=cluster_patches, fontsize=9, loc="lower right",
-        title="Cluster", title_fontsize=10,
+    _lax.legend(
+        handles=zone_handles + cluster_patches, fontsize=8.5, loc="upper left",
+        bbox_to_anchor=(0.0, 0.86), ncol=3, frameon=False, borderaxespad=0.0,
     )
 
     ax.set_xlim(240100, 243900)
@@ -882,18 +917,8 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlabel("Easting (m, OSGB36)", fontsize=10)
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.tick_params(labelsize=8)
-    ax.set_title(
-        "Mean Annual Summer Minimum — Depth Below Ground (m)\n"
-        "Newborough Warren 2005–2026  |  "
-        f"Full network ({(df['network']=='Reference').sum()} reference + "
-        f"{(df['network']=='Extended').sum()} extended)  |  "
-        "Dune ridges masked\n"
-        "CEH18: DEM −0.50 m  |  CEH21: DEM −0.70 m  "
-        "(DEM-corrected only; full record used)  |  "
-        "Curreli et al. (2013) thresholds  |  "
-        "Recovery limits: Hollingham (2026)",
-        fontsize=9, fontweight="bold",
-    )
+    ax.set_title("Mean annual summer minimum — depth below ground, 2005–2026",
+                 fontsize=11, fontweight="bold")
 
     fig.tight_layout()
     bump_fig_fonts(fig, 1.0)  # review 2026-07-19: all fonts +1 pt
@@ -1510,6 +1535,9 @@ def export_table10_spreadsheet() -> None:
                     "P_flood recharge horizon (Table 10 Sum_P_clim_mm, "
                     "unrounded); source outputs/11_forecast_pflood_threshold_"
                     "equations.csv (P_clim_total_mm)")
+    for _r in _ZONE_REPORT:
+        rn.add(_r["parameter"], _r["value"], unit=_r["unit"], well=_r["well"],
+               era=_r["era"], note=_r["note"])
     rn.save(OUT_11B_REPORT_NUMBERS)
     saved(f"{OUT_11B_REPORT_NUMBERS.name}")
 

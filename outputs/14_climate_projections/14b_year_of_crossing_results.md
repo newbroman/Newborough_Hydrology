@@ -3,7 +3,7 @@
 
 *Diagnostic from `14b_year_of_crossing.py`. Routed from the 2026-05-29
 main-report review (gap B: stated CI on the C1 SD16 crossing year claimed
-in §7 Conclusion 11).*
+in §7 Conclusion 13).*
 
 ## Headline table
 
@@ -24,7 +24,7 @@ Year-of-crossing values of 2080 are sentinel values where the slope is non-decre
 
 ## Reading
 
-- The report's §7 Conclusion 11 statement *"C1 summer minima approaching the SD16 dry slack viability threshold around 2030–2032"* is replaced by a stated CI on the C1 SD16 crossing year. **Replace with:** "C1 summer minima are projected to cross the SD16 threshold in **2027 (95% CI 2021–2046)**" using the C1 row above.
+- The report's §7 Conclusion 13 statement *"C1 summer minima approaching the SD16 dry slack viability threshold around 2030–2032"* is replaced by a stated CI on the C1 SD16 crossing year. **Replace with:** "C1 summer minima are projected to cross the SD16 threshold in **2027 (95% CI 2021–2046)**" using the C1 row above.
 - C5 has the steepest decline and crosses SD15b and SD16 within the observed-data window or close to it. Existing report prose handles C5's anomalous decline separately (§5.7.2).
 - C3 and C4 have non-significant trends (Script 14) — their bootstrap CIs are correspondingly wide.
 
@@ -37,8 +37,8 @@ Year-of-crossing values of 2080 are sentinel values where the slope is non-decre
 
 ## Cross-references
 
-- §7 Conclusion 11 — replace the "around 2030–2032" qualitative date with the stated CI from this table.
-- §4.10.1 / §5.7.1 — the climate-trajectory discussion that frames Conclusion 11 can cite the figure (`14b_year_of_crossing.png`).
+- §7 Conclusion 13 — replace the "around 2030–2032" qualitative date with the stated CI from this table.
+- §4.10.1 / §5.7.1 — the climate-trajectory discussion that frames Conclusion 13 can cite the figure (`14b_year_of_crossing.png`).
 - §5.9 — the "intervention window" framing can quote the bootstrap CI directly when discussing the C1 timeline.
 
 ## Outputs

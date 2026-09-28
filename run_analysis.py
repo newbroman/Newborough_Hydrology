@@ -186,7 +186,8 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.21.0"  # 2026-09-27: Script 49 renamed 01b_water_table.py and moved to step 2 of
+__version__ = "2.21.1"  # Hollingham (2026) - 2026-09-28. Step labels: 11c -> Conclusion 6, 14b -> Conclusion 13 (the Conclusions were renumbered).
+# 2.21.0  # 2026-09-27: Script 49 renamed 01b_water_table.py and moved to step 2 of
 #   Phase 1, relabelled "Core LCSC Chain and the Water Table" (D-205 extended; spec
 #   NRG_spec_water_table_kriged_everywhere rev 2; Martin: "lets call it 01b", "update and start").
 #   It needs nothing produced after Script 01, and Scripts 19, 20 and 44 read its outputs in the
@@ -451,12 +452,12 @@ PHASE_3 = [
     Step("run_10_clearfell.py",            "Clear-fell BACI analysis suite (10a\u201310m)",                        "A"),
     Step("11_forecasting_thresholds.py",   "Forecasting and critical thresholds",                                  "A"),
     Step("11b_spatial_thresholds.py",      "Spatial eco-hydrological threshold maps",                              "A"),
-    Step("11c_pflood_achievability.py",    "P_flood achievability categorical map (\u00a75.9 / Conclusion 4)",     "A"),
+    Step("11c_pflood_achievability.py",    "P_flood achievability categorical map (\u00a75.9 / Conclusion 6)",     "A"),
 ]
 PHASE_4 = [
     Step("00_climate_summary.py",            "Climate summary outputs",                                                    "A"),
     Step("14_climate_projections.py",        "Figure: Climate trajectory projections",                                     "A"),
-    Step("14b_year_of_crossing.py",          "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 11)",  "A"),
+    Step("14b_year_of_crossing.py",          "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 13)",  "A"),
     Step("12_figure_site_overview.py",       "Figure: DEM site overview",                                                  "A"),
     Step("13_figure_experimental_design.py", "Figure: Experimental design GIS map",                                        "A"),
 ]

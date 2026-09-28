@@ -4,7 +4,7 @@ annual summer-minimum trends against Curreli et al. (2013) ecological
 thresholds.
 
 Routed from the 2026-05-29 main-report editorial review (gap B in the
-post-review priorities list). Main report §7 Conclusion 11 currently
+post-review priorities list). Main report §7 Conclusion 13 currently
 states "C1 summer minima approaching the SD16 dry slack viability
 threshold around 2030–2032" without a stated confidence interval. This
 script replaces the qualitative date band with a bootstrap CI on the
@@ -36,12 +36,13 @@ Limitations:
   ground elevations within the cluster. The threshold (depth below ground)
   is therefore an effective threshold against the centroid, not against
   any specific well. C1 sits closest to its SD16 threshold and is the
-  cluster the Conclusion 11 claim is built around.
+  cluster the Conclusion 13 claim is built around.
 """
 
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-05-29
+__version__ = "1.2.1"  # Hollingham (2026) - 2026-09-28. Text only: the crossing-year conclusion is now §7 Conclusion 13 (was 11).
+# 1.2.0  # Hollingham (2026) — 2026-05-29
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -305,7 +306,7 @@ def main():
                   "",
                   "*Diagnostic from `14b_year_of_crossing.py`. Routed from the 2026-05-29",
                   "main-report review (gap B: stated CI on the C1 SD16 crossing year claimed",
-                  "in §7 Conclusion 11).*",
+                  "in §7 Conclusion 13).*",
                   "",
                   "## Headline table",
                   "",
@@ -325,7 +326,7 @@ def main():
         "",
         "## Reading",
         "",
-        "- The report's §7 Conclusion 11 statement *\"C1 summer minima approaching the SD16 dry slack viability threshold around 2030–2032\"* is replaced by a stated CI on the C1 SD16 crossing year. **Replace with:** \"C1 summer minima are projected to cross the SD16 threshold in **{median} (95% CI {p5}–{p95})**\" using the C1 row above.".format(
+        "- The report's §7 Conclusion 13 statement *\"C1 summer minima approaching the SD16 dry slack viability threshold around 2030–2032\"* is replaced by a stated CI on the C1 SD16 crossing year. **Replace with:** \"C1 summer minima are projected to cross the SD16 threshold in **{median} (95% CI {p5}–{p95})**\" using the C1 row above.".format(
             median=int(out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_50'].iloc[0])
                 if not out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_50'].isna().any() else "—",
             p5=int(out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_5'].iloc[0])
@@ -345,8 +346,8 @@ def main():
         "",
         "## Cross-references",
         "",
-        "- §7 Conclusion 11 — replace the \"around 2030–2032\" qualitative date with the stated CI from this table.",
-        "- §4.10.1 / §5.7.1 — the climate-trajectory discussion that frames Conclusion 11 can cite the figure (`14b_year_of_crossing.png`).",
+        "- §7 Conclusion 13 — replace the \"around 2030–2032\" qualitative date with the stated CI from this table.",
+        "- §4.10.1 / §5.7.1 — the climate-trajectory discussion that frames Conclusion 13 can cite the figure (`14b_year_of_crossing.png`).",
         "- §5.9 — the \"intervention window\" framing can quote the bootstrap CI directly when discussing the C1 timeline.",
         "",
         "## Outputs",

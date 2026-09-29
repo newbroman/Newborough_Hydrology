@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.78.0"  # Hollingham (2026) - 2026-09-29. Script 47 1.6.0 (spec
+__version__ = "1.79.0"  # Hollingham (2026) - 2026-09-29. Script 47 1.7.0 (Martin: the January
+#   note removed, the pad data-driven): FILM_PAD_RATIOS, FILM_PAD_DRIVER_PCT, FILM_PAD_REST, FILM_PAD_SPREAD.
+#   Retired: FILM_NOTE_F_LOW_HZ, FILM_NOTE_F_HIGH_HZ, FILM_NOTE_SCALE, FILM_NOTE_FLOOR, FILM_NOTE_DECAY_S,
+#   FILM_MIX_NOTE (Script 47 alone read them).
+# 1.78.0  # Hollingham (2026) - 2026-09-29. Script 47 1.6.0 (spec
 #   NRG_spec_script47_v1_6_2026-09-29, Martin: treatment B, "the museum label", with the atlas photo on the
 #   title slide and the frames on the same ground): FILM_SLIDE_BG replaces the FILM_SLIDE_TOP / FILM_SLIDE_FOOT
 #   gradient (both retired); FILM_TITLE_FAMILY, FILM_COL_BAR, FILM_MARGIN, FILM_TEXT_MEASURE, FILM_FOOTER_PT,
@@ -2108,19 +2112,17 @@ FILM_SOUND_TRACK             = "warren"   # "warren" (1.3.0) or "classic" (the 1
 FILM_OPEN_TITLE_S            = 7.0        # the short opening title page
 FILM_OPEN_CLIP_START         = "2015-01"  # the opening clip runs from here to the last month
 FILM_OPEN_CLIP_LABEL         = "The last decade"
-# The Warren track. The pad (FILM_AMBIENT_*) runs throughout and opens with the water table;
-# one note each January carries the year's flooding in pitch and loudness; the flood tone
-# (1.5.0) rises with the water table; a held chord voice sounds above each line drawn on the
-# hydrograph; the winter breath (1.5.0) keeps time.
-FILM_NOTE_F_LOW_HZ           = 55.0       # A1: a dry year's January note
-FILM_NOTE_F_HIGH_HZ          = 440.0      # A4: the record's largest open water
-FILM_NOTE_SCALE              = (0, 3, 5, 7, 10)   # A-minor pentatonic, semitones in each octave
-FILM_NOTE_FLOOR              = 0.2        # a dry year's note loudness, relative to the wettest
-FILM_NOTE_DECAY_S            = 0.55
+# The Warren track. The pad (FILM_AMBIENT_*, data-driven since 1.7.0) runs throughout; the
+# flood tone (1.5.0) rises with the water table; a held chord voice sounds above each line
+# drawn on the hydrograph; the winter breath (1.5.0) keeps time. (The January note of 1.3.0
+# was removed in 1.7.0: it marked the same beat as the breath.)
+FILM_PAD_RATIOS              = (1.0, 1.5, 2.0, 2.5, 4.5)   # root, fifth, octave, tenth, ninth above the octave
+FILM_PAD_DRIVER_PCT          = (2, 98)    # a driver (rain, evaporation) is scaled between these record percentiles
+FILM_PAD_REST                = 0.75       # a voice's loudness under the slides, and the root and fifth always
+FILM_PAD_SPREAD              = 0.12       # the pad's fixed stereo spread per voice (no drift)
 FILM_CHORD_SEMITONES         = (19, 24, 28)   # above the pad root: E4 wet floor, A4 open water, C#5 2021
 FILM_CHORD_RELEASE_S         = 0.35
 FILM_MIX_PAD                 = 0.55
-FILM_MIX_NOTE                = 0.45
 FILM_MIX_CHORD               = 0.24       # 1.5.0: 0.16 -> 0.24, the held voice was masked by the flood tone
 # Script 47 1.4.0 (Martin, 2026-09-26). Text colours keyed to the map, and the stereo place
 # of the wetting voice, which follows the east-west centre of the wetted cells (where the

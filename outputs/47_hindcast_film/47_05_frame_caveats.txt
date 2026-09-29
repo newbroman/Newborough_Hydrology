@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.6.1
+# Frame text — 47_hindcast_film.py 1.8.0
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -41,7 +41,7 @@ YELLOW is wet floor: saturated ground, or a thin sheet of water hidden in the gr
 BLUE is open water: pools you could see from the air.
 The outline on the map is the study area — 307 hectares of slack floor within the warren. Everything the film says is about the ground inside it. Blank ground outside the outline was not assessed; it is not a claim that it was dry.
 The title gives the total of each across the study area, in hectares (a hectare is a little larger than a rugby pitch).
-The line at the bottom is the water table — how far below or above the ground the groundwater sits, averaged over the reserve's monitoring wells. The red marker is where the film has got to. The clock runs at a year a second.
+The line at the bottom is the water table — how far below or above the ground the groundwater sits, averaged over the reserve's monitoring wells. The red marker is where the film has got to. The clock runs at three seconds a year; between one month's reading and the next the map is drawn at levels in between, so the water rises and drains smoothly, but the readings are the months.
 The slides that follow show how it was made: a groundwater model, satellite pictures and a map of where the water goes, joined together, each beside the report figures that calibrate and test it.
 
 ### 1.  A weather-driven groundwater model
@@ -89,11 +89,10 @@ This is an illustration, not a test. Where the colours appear was learned from t
 
 ### What you hear
 The sound is made from the water, month by month. Nothing in it is recorded.
-A soft chord runs throughout. While the months play, its upper voices open as the water table rises, and in the months beyond the record it trembles.
-Each January a single note marks the year. The higher and louder the note, the more open water that year reached.
+A soft chord runs throughout. While the months play, one of its voices swells with each month's rain, another with its evaporation, and the highest opens as the water table rises; in the months beyond the record it trembles.
 A steady chord rises with the water table, from silence in the driest months to full at the top of the record; above the yellow line a seventh joins it, and the chord tightens as the warren floods, leaning toward where the water is: right for the east of the warren, left for the west.
 Held notes sound while the water table is above the lines on the chart at the bottom: one above the yellow line, where wet floor appears; a higher one above the blue line, where open water appears; and the highest above the 2021 flood.
-Underneath, a breath: one soft note through the winter half of each year, silence through the summer, so each second is a year.
+Underneath, a breath: one soft note through the winter half of each year, silence through the summer, so a year lasts three seconds.
 
 ### Please read this before watching
 It is today's warren, not the warren of the time. The rules were learned from 2005–2026 and the ground is the 2023 survey, with Newborough Forest at its present size. The forest was only planted between 1947 and 1965, and a forest lowers the water table around it. In 1939 there was no forest. The film answers a what-if — what would the reserve as it is now have done under that weather — not what actually happened.

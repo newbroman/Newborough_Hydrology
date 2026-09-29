@@ -11,7 +11,12 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.42.0"  # Hollingham (2026) - 2026-09-29. 1.42.0: OUT_44_SLACK_FLOOR_DATUM and
+__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-29. 1.44.0: SENTINEL_FOREST_SERIES and
+#   SENTINEL_FOREST_CELL_THRESHOLDS, the outputs of tools/sentinel_wet_floor.py --forest (T-78, D-210: a
+#   diagnostic, not a pipeline input - Martin: "i dont think we can use the sentinel data"). Additive.
+# 1.43.0  # Hollingham (2026) - 2026-09-29. 1.43.0: OUT_44_FOREST_FLOOR, OUT_44_FOREST_FIG and
+#   DATA_FOREST_GROUND_PREP (Script 44 1.6.0 Q5, T-72, D-209). Additive.
+# 1.42.0  # Hollingham (2026) - 2026-09-29. 1.42.0: OUT_44_SLACK_FLOOR_DATUM and
 #   OUT_44_SLACK_FLOOR_FIG (Script 44 1.4.0 Q4, T-71, D-208). Additive.
 # 1.41.0  # Hollingham (2026) - 2026-09-28. 1.41.0: OUT_xx_REPORT_NUMBERS for the
 #   fifteen scripts that gain their first report-numbers file under T-91 (spec NRG_spec_T91_emits):
@@ -1191,6 +1196,7 @@ RANWELL_PARC_MAWR_RAIN  = DATA_DIR / "ranwell_1950_53_parc_mawr_rain.csv"
 # Script 39 emits blank columns without it. The modern in_forest flag cannot
 # stand in for this — several of these wells were felled between the two epochs.
 CANOPY_HISTORY = DATA_DIR / "canopy_history.csv"
+DATA_FOREST_GROUND_PREP = DATA_DIR / "forest_ground_prep.csv"   # ground preparation before planting, per well (Martin, verbal, 2026-09-29)
 
 DIR_39 = OUT_DIR / "39_ccw_hindcast"
 OUT_39_PER_WELL           = DIR_39 / "39_01_hindcast_per_well.csv"
@@ -1261,6 +1267,8 @@ OUT_44_HINDCAST_REPORT_FIG = DIR_44 / "44_07b_hindcast_report.png"   # caption-f
 OUT_44_CHANGE_FIG     = DIR_44 / "44_08_level_change.png"
 OUT_44_SLACK_FLOOR_DATUM = DIR_44 / "44_09_slack_floor_datum.csv"   # Q4 (T-71): floors against the water table
 OUT_44_SLACK_FLOOR_FIG   = DIR_44 / "44_09_slack_floor_datum.png"
+OUT_44_FOREST_FLOOR      = DIR_44 / "44_10_forest_floor_excess.csv"   # Q5 (T-72): the forest wells' excess
+OUT_44_FOREST_FIG        = DIR_44 / "44_10_forest_floor_excess.png"
 OUT_44_REPORT_NUMBERS = DIR_44 / "44_report_numbers.csv"
 
 # ── Scripts 45 & 46 — the Sentinel wet-area model (T-40, D-178) ──────────────
@@ -1276,6 +1284,8 @@ SENTINEL_CELL_THRESHOLDS  = DATA_SENTINEL_DIR / "cell_thresholds.npz"
 SENTINEL_SCENE_MANIFEST   = DATA_SENTINEL_DIR / "sentinel_scene_manifest.csv"
 SENTINEL_WELL_FIT         = DATA_SENTINEL_DIR / "well_fit.csv"
 SENTINEL_HINDCAST_MONTHLY = DATA_SENTINEL_DIR / "hindcast_monthly.csv"
+SENTINEL_FOREST_SERIES    = DATA_SENTINEL_DIR / "forest_two_class_series.csv"   # T-78 diagnostic (--forest): per scene x forest polygon; no step reads it
+SENTINEL_FOREST_CELL_THRESHOLDS = DATA_SENTINEL_DIR / "forest_cell_thresholds.npz"   # T-78 diagnostic (--forest): per cell, by polygon; no step reads it
 # True-colour crops of a few of those scenes for the film (tools/sentinel_thumbs.py).
 # Display only: nothing is fitted from them.
 SENTINEL_THUMBS_DIR       = DATA_SENTINEL_DIR / "thumbs"

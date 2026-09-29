@@ -66,8 +66,10 @@ What it does NOT establish: a point-to-point comparison (the wells are not
 where the pipes were); coefficient stationarity (Script 39's caveat applies,
 so a beta_1-scaling envelope is written); anything about the BS slack, for
 which Ranwell printed no series; anything under the forest canopy, where no
-Ranwell site lies. Q4 writes the forest wells' excess but says nothing about
-its cause: that is T-72, and Martin rules before any text is written.
+Ranwell site lies. Q5 (T-72) sets the forest wells' excess against the modelled canopy
+drawdown, the felling history, the one drainage channel and the floor relief; it
+writes what discriminates and what does not, and Martin rules before any text is
+written. Under-canopy flooding it cannot see (T-78).
 
 Registered tier A, default, after Script 43 (it reads 43_01 and 43_07). Reads
 three raw inputs no pipeline step produces (D-145 records the exception, as
@@ -93,12 +95,25 @@ Outputs (outputs/44_ranwell_hindcast/):
     44_08_level_change.png            Ranwell mean vs modern surface, per site
     44_09_slack_floor_datum.csv       Q4: floor, depths, baseline, excess, retreat terms; Ranwell sites
     44_09_slack_floor_datum.png       Q4: annual minimum below the floor vs distance to the eroding shoreline
+    44_10_forest_floor_excess.csv     Q5: the forest wells' excess against drawdown, felling, channel, relief
+    44_10_forest_floor_excess.png     Q5: residual by felling history
     44_report_numbers.csv
 """
 
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-29. Q4: the modern floor at a Ranwell site is the
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. Q5 — the forest floors (T-72, D-209; Martin: one
+#   drainage channel, the line along the village-to-beach road between ceh14 and ceh13 = Features.kml "Line 23";
+#   no pre-planting map; ceh2 and ceh16 ploughed; a figure). 44_10_forest_floor_excess.csv: per in_forest
+#   reference well the 44_09 excess/residual, the modelled canopy drawdown (Script 20 dd_mm) and the ratio, the
+#   felling era (canopy_history) and ground preparation (data/forest_ground_prep.csv), distance to the channel
+#   and its bed above the floor, floor microrelief within FLOOR_RELIEF_RADIUS_M, and the head against the
+#   HEAD_DEM_HEADLINE_SMOOTHING_M-smoothed ground (for the record; does not resolve); the litter allowance
+#   FOREST_LITTER_MAX_M as a lower bound on the mineral-floor excess; the climate-only hindcast of the
+#   pre-planting window (PREPLANT_WINDOW, simulate_ssm from 1930 as Q1) and the retreat since it on two
+#   bases (Martin: 1953-60; 1899-2006 rate with a sensitivity). 44_10 figure. Report
+#   numbers forest_floor_*. Nothing already emitted moves.
+# 1.5.0  # Hollingham (2026) — 2026-09-29. Q4: the modern floor at a Ranwell site is the
 #   site's LOCAL FLOOR from Script 43 2.1.0 (43_01 local_floor_m: the RANWELL_FLOOR_PCT percentile within
 #   RANWELL_FLOOR_WINDOW_M of the placed position), not the headline well's floor (Martin, 2026-09-29: the pipe
 #   positions are not known to a well; "an average of the slack floor is probably the best we can do"; the
@@ -619,6 +634,181 @@ def plot_slack_floor_datum(df: pd.DataFrame, base: dict, cg_L: float, k_per_m: f
     plt.close(fig)
 
 
+# ── Q5 — the forest floors (T-72, D-209) ─────────────────────────────────────
+def _channel_geoms(names):
+    """The drainage-channel lines of Features.kml, by name (config.FOREST_CHANNEL_LINES)."""
+    from utils.kml_io import read_kml                            # noqa: PLC0415
+    gdf = read_kml(paths.DATA_KML_FEATURES)
+    col = next((c for c in gdf.columns if c.lower() == "name"), None)
+    if col is None:
+        raise RuntimeError("Features.kml has no Name column")
+    sel = gdf[gdf[col].astype(str).isin(list(names))]
+    missing = set(names) - set(sel[col].astype(str))
+    if missing:
+        raise RuntimeError(f"Features.kml has no line(s) named {sorted(missing)}: check config.FOREST_CHANNEL_LINES")
+    return {str(n): g for n, g in zip(sel[col], sel.geometry)}
+
+
+def _preplant_hindcast(w, cluster, cl, md, cc, wc):
+    """Climate-only change at a well since the pre-planting window (config
+    PREPLANT_WINDOW): the well's SSM coefficients driven by RAF Valley climate from
+    the start of the record (simulate_ssm, exactly as Q1 and Script 39), the
+    window's mean / spring / annual-minimum level minus the same statistics over the
+    well's own record. Own coefficients when beta_3 is identified (p below
+    PREPLANT_BETA3_P_MAX); otherwise the cluster centroid's (OUT_03_MECHANISTIC_TABLE),
+    because a near-zero beta_3 makes the steady state and the hindcast meaningless.
+    The C2 centroid is run beside it as the "pre-planting behaviour" sensitivity.
+    Datum-free: both windows come from one simulation."""
+    rec = pd.to_numeric(wc[w], errors="coerce").dropna()
+    h0 = float(rec.mean())
+    a, b = config.PREPLANT_WINDOW
+    own_ok = (w in md.index and float(md.loc[w, "beta_3_drainage"]) > 0
+              and float(md.loc[w, "pvalue_beta_3"]) < config.PREPLANT_BETA3_P_MAX)
+    if own_ok:
+        betas = tuple(float(md.loc[w, k]) for k in BETA_COLS); basis = "own"
+    else:
+        row = cc.loc[int(cluster)]
+        betas = tuple(float(row[k]) for k in BETA_COLS); basis = f"cluster_C{int(cluster)}"
+    c2 = tuple(float(cc.loc[2, k]) for k in BETA_COLS)
+
+    def stats(h, lo, hi):
+        s = h.loc[lo:hi]
+        spring = s[s.index.month.isin(config.MSL_SPRING_MONTHS)].mean()
+        amin = s.groupby(s.index.year).min()
+        return float(s.mean()), float(spring), float(amin.median())
+
+    out = {"preplant_coef_basis": basis}
+    for lab, bt in (("", betas), ("_c2", c2)):
+        h = hindcast_series(cl, bt, h0)
+        pre = stats(h, pd.Timestamp(a), pd.Timestamp(b) + pd.offsets.MonthEnd(0))
+        mod = stats(h, rec.index.min(), rec.index.max())
+        for k, (x, y) in zip(("mean", "spring", "min"), zip(pre, mod)):
+            out[f"climate_change_since_preplant_{k}{lab}_m"] = x - y     # + = the window stood higher
+    return out
+
+
+def forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_src, dem, smooth,
+                        cl=None, md=None, cc=None, wc=None, retreat_terms=None):
+    """One row per reference well flagged in_forest (01_locations), carrying the
+    44_09 excess and residual, the modelled canopy drawdown at the well (Script 20
+    dd_mm, config.DRAWDOWN_H0_MM inside the forest), the felling era, the ground
+    preparation Martin recorded, the distance to the nearest drainage channel and
+    the channel bed's height above the well's floor (positive = the bed is higher than the floor), the floor's microrelief
+    (SD and range of the DEM within FLOOR_RELIEF_RADIUS_M), and the mean head
+    against the HEAD_DEM_HEADLINE_SMOOTHING_M-smoothed ground (the T-66 relation;
+    it does not resolve a forest anomaly and is written for the record).
+    Every modelled quantity carries 'modelled' in its name or note."""
+    from shapely.geometry import Point as _Pt                    # noqa: PLC0415
+    wells = sfd[sfd["row"] == "well"].set_index("well")
+    forest = [w for w in wells.index if bool(loc.loc[w, "in_forest"])] if "in_forest" in loc.columns else []
+    dd = drawdown.set_index(drawdown["well"].astype(str).map(_norm))
+    can = canopy.set_index(canopy["well"].astype(str).map(_norm))
+    gp = ground_prep.set_index(ground_prep["well"].astype(str).map(_norm)) if len(ground_prep) else pd.DataFrame()
+    R = config.FLOOR_RELIEF_RADIUS_M
+    rows = []
+    for w in forest:
+        r = wells.loc[w]
+        e, n = float(loc.loc[w, "E"]), float(loc.loc[w, "N"])
+        floor = float(r["floor_m_od"])
+        # channel
+        ch_name, ch_d, ch_bed = "", np.nan, np.nan
+        if channels:
+            d = {k: float(g.distance(_Pt(e, n))) for k, g in channels.items()}
+            ch_name = min(d, key=d.get); ch_d = d[ch_name]
+            near = channels[ch_name].interpolate(channels[ch_name].project(_Pt(e, n)))
+            from utils.water_table import sample                 # noqa: PLC0415
+            ch_bed = float(sample(dem_src, dem, [near.x], [near.y])[0])
+        # microrelief
+        c0, r0 = ~dem_src.transform * (e, n)
+        i, j = int(r0), int(c0)
+        k = int(np.ceil(R / dem_src.res[0]))
+        win = dem[max(0, i - k):i + k + 1, max(0, j - k):j + k + 1]
+        yy, xx = np.indices(win.shape)
+        dist = np.hypot((yy - min(i, k)) * dem_src.res[0], (xx - min(j, k)) * dem_src.res[0])
+        v = win[(dist <= R) & np.isfinite(win)]
+        # head against the smoothed ground
+        from utils.water_table import sample                     # noqa: PLC0415
+        sm = float(sample(dem_src, smooth, [e], [n])[0])
+        head = floor - float(r["depth_mean_m"])
+        felled = can.loc[w, "felled_year"] if w in can.index else np.nan
+        prep = str(gp.loc[w, "ground_prep"]) if len(gp) and w in gp.index else ""
+        replant = loc.loc[w, "in_1998_replant"] if "in_1998_replant" in loc.columns else np.nan
+        group = ("felled_1995" if felled == 1995 else "clearfell_2017" if felled == 2017
+                 else "replant_1998" if pd.notna(replant) else "canopy")
+        ddm = float(dd.loc[w, "dd_mm"]) if w in dd.index else np.nan
+        rows.append(dict(
+            well=w, cluster=int(r["cluster"]) if pd.notna(r["cluster"]) else pd.NA, group=group,
+            felled_year=felled, replant_block=replant, ground_prep=prep,
+            dist_broadleaf_restock_m=loc.loc[w, "dist_broadleaf_restock_m"] if "dist_broadleaf_restock_m" in loc.columns else np.nan,
+            floor_m_od=floor, dist_eroding_hwm_m=r["dist_eroding_hwm_m"], within_coastal_reach=r["within_coastal_reach"],
+            depth_spring_m=r["depth_spring_m"], depth_min_m=r["depth_min_m"],
+            excess_min_m=r["excess_min_m"], retreat_expectation_modelled_m=r["retreat_expectation_modelled_m"],
+            residual_after_retreat_min_m=r["residual_after_retreat_min_m"],
+            modelled_canopy_drawdown_m=ddm / 1000.0 if np.isfinite(ddm) else np.nan,
+            residual_over_modelled_drawdown=(r["residual_after_retreat_min_m"] / (ddm / 1000.0)) if ddm else np.nan,
+            litter_allowance_m=config.FOREST_LITTER_MAX_M,
+            residual_less_litter_min_m=r["residual_after_retreat_min_m"] - config.FOREST_LITTER_MAX_M,
+            channel_name=ch_name, dist_channel_m=ch_d, channel_bed_m_od=ch_bed,
+            channel_bed_above_floor_m=(ch_bed - floor) if np.isfinite(ch_bed) else np.nan,
+            floor_sd_m=float(v.std()) if len(v) else np.nan, floor_range_m=float(v.max() - v.min()) if len(v) else np.nan,
+            floor_relief_radius_m=R, smoothed_ground_m_od=sm, head_mean_m_od=head,
+            head_minus_smoothed_ground_m=head - sm, floor_minus_smoothed_ground_m=floor - sm))
+        if cl is not None and w in wc.columns and pd.notna(r["cluster"]):
+            rows[-1].update(_preplant_hindcast(w, r["cluster"], cl, md, cc, wc))
+        if retreat_terms is not None:
+            k_per_m, cg_L = retreat_terms["k_per_m"], retreat_terms["L"]
+            shape = max(1.0 - float(r["dist_eroding_hwm_m"]) / cg_L, 0.0)
+            for lab in ("steady", "modern"):
+                rr = retreat_terms[lab]
+                rows[-1][f"retreat_since_preplant_{lab}_m"] = rr
+                rows[-1][f"retreat_expectation_since_preplant_{lab}_m"] = k_per_m * rr * shape
+    df = pd.DataFrame(rows)
+    if "climate_change_since_preplant_min_m" in df.columns:
+        # the excess that neither climate nor retreat since the window accounts for:
+        # excess is depth (positive down); a window that stood HIGHER (+) would explain part of it
+        for lab in ("steady", "modern"):
+            if f"retreat_expectation_since_preplant_{lab}_m" in df.columns:
+                df[f"residual_after_climate_and_retreat_{lab}_min_m"] = (
+                    df["excess_min_m"] - df["climate_change_since_preplant_min_m"]
+                    - df[f"retreat_expectation_since_preplant_{lab}_m"])
+    return df
+
+
+def plot_forest_floor_excess(df: pd.DataFrame, fig_path):
+    """Residual after retreat by felling group, wells coloured by cluster, ploughed
+    wells open; the modelled canopy drawdown as a line. Caption-free."""
+    order = [g for g in ("canopy", "felled_1995", "replant_1998", "clearfell_2017") if g in set(df["group"])]
+    label = {"canopy": "unfelled canopy", "felled_1995": "clearfelled 1995", "replant_1998": "1998 replant",
+             "clearfell_2017": "clearfell 2017"}
+    fig, ax = plt.subplots(figsize=(8, 4.8))
+    rng = np.random.default_rng(config.FOREST_FLOOR_FIG_SEED)
+    for gi, g in enumerate(order):
+        sub = df[df["group"] == g]
+        x = gi + rng.uniform(-0.18, 0.18, len(sub))
+        for k_, (xi, r) in enumerate(zip(x, sub.sort_values("residual_after_retreat_min_m").itertuples())):
+            c = config.CLUSTER_COLOURS.get(int(r.cluster), "0.4") if pd.notna(r.cluster) else "0.4"
+            ax.scatter(xi, r.residual_after_retreat_min_m, s=44, color=c if not r.ground_prep else "white",
+                       edgecolor=c, linewidth=1.4, zorder=3)
+            ax.annotate(r.well, (xi, r.residual_after_retreat_min_m), textcoords="offset points",
+                        xytext=(7, 4 if k_ % 2 else -8), fontsize=7)
+    dd = df["modelled_canopy_drawdown_m"].dropna()
+    if len(dd):
+        ax.axhline(float(dd.median()), color="k", lw=1.0, ls="--", label="modelled canopy drawdown at the wells (config)")
+    ax.axhline(0, color="0.5", lw=0.8)
+    for c in sorted(df["cluster"].dropna().unique()):
+        ax.scatter([], [], s=44, color=config.CLUSTER_COLOURS.get(int(c), "0.4"), label=f"C{int(c)}")
+    ax.scatter([], [], s=44, color="white", edgecolor="k", linewidth=1.4, label="ploughed before planting (open marker)")
+    ax.set_xticks(range(len(order)))
+    ax.set_xticklabels([label[g] for g in order])
+    ax.set_ylabel("Excess depth of the annual minimum below the floor,\nless the modelled retreat response (m)")
+    ax.set_title("Forest wells: floor excess over the open-dune baseline, by felling history", fontsize=10, loc="left")
+    ax.grid(alpha=0.3, axis="y")
+    ax.legend(fontsize=7.5, framealpha=0.9, loc="upper left")
+    fig.tight_layout()
+    render_figure(fig, fig_path)
+    plt.close(fig)
+
+
 # ── main ──────────────────────────────────────────────────────────────────────
 def main() -> int:
     apply_house_style()
@@ -875,7 +1065,41 @@ def main() -> int:
     info(f"inland sites (beyond L), n {len(inland)}: floor lowering median {inland['slack_floor_lowering_m'].median():+.3f} m, "
          f"depth change median {inland['depth_change_m'].median():+.3f} m")
 
-    phase(6, "Outputs")
+    phase(6, "Q5 — the forest floors (T-72)")
+    from utils.water_table import load_dem, drift_rasters       # noqa: PLC0415
+    dem_src, dem = load_dem()
+    smooth = drift_rasters(dem, float(dem_src.res[0]))["s"]
+    drawdown = pd.read_csv(paths.OUT_20_DRAWDOWN_PERWELL)
+    canopy = pd.read_csv(paths.CANOPY_HISTORY)
+    ground_prep = pd.read_csv(paths.DATA_FOREST_GROUND_PREP) if paths.DATA_FOREST_GROUND_PREP.exists() else pd.DataFrame(columns=["well", "ground_prep", "source"])
+    channels = _channel_geoms(config.FOREST_CHANNEL_LINES) if config.FOREST_CHANNEL_LINES else {}
+    cc_tab = pd.read_csv(paths.OUT_03_MECHANISTIC_TABLE).set_index("Cluster")
+    ep = pd.read_csv(paths.OUT_40_EPOCH_SERIES)
+    ep = ep[ep["basis"] == "pair_extent"].set_index(["from_epoch", "to_epoch"])
+    mid_year = (pd.Timestamp(config.PREPLANT_WINDOW[0]).year + pd.Timestamp(config.PREPLANT_WINDOW[1]).year) / 2.0
+    r_1899_2006, r_2006_2026 = float(ep.loc[("1899", "2006"), "median_m"]), float(ep.loc[("2006", "2026"), "median_m"])
+    total_1899_2026 = retreat_1899_2026
+    # (a) the 1899-2006 epoch spread evenly across its years (an assumption: no 1950s shoreline exists)
+    r_steady = r_1899_2006 * (2006 - mid_year) / (2006 - 1899) + r_2006_2026
+    # (b) the modern 2006-2026 rate carried back, capped at the measured total since 1899 (sensitivity)
+    r_modern = min(rate_recent * (2026 - mid_year), total_1899_2026) if np.isfinite(rate_recent) else np.nan
+    retreat_terms = {"k_per_m": h0_per_metre / 1000.0, "L": cg_L, "steady": r_steady, "modern": r_modern}
+    info(f"pre-planting window {config.PREPLANT_WINDOW[0]}..{config.PREPLANT_WINDOW[1]} (mid {mid_year:.0f}); retreat since it: "
+         f"steady-epoch {r_steady:.0f} m, modern-rate {r_modern:.0f} m (capped at {total_1899_2026:.0f} m since 1899)")
+    ffe = forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_src, dem, smooth,
+                              cl=cl, md=md, cc=cc_tab, wc=wc, retreat_terms=retreat_terms)
+    dem_src.close()
+    info(f"{len(ffe)} reference wells under or at the forest; channel(s) {list(channels)}; "
+         f"{int((ffe['ground_prep'] != '').sum())} recorded as prepared ground")
+    for g, sub_ in ffe.groupby("group"):
+        step(f"{g}: n {len(sub_)}, residual after retreat median {sub_['residual_after_retreat_min_m'].median():+.3f} m, "
+             f"modelled canopy drawdown median {sub_['modelled_canopy_drawdown_m'].median():.3f} m")
+    c4 = ffe[ffe["cluster"] == 4]
+    info(f"C4: residual median {c4['residual_after_retreat_min_m'].median():+.3f} m over {len(c4)} wells; "
+         f"channel bed above the floor at every C4 well except where within {config.FLOOR_RELIEF_RADIUS_M:.0f} m: "
+         f"{int((c4['channel_bed_above_floor_m'] > 0).sum())}/{len(c4)}")
+
+    phase(7, "Outputs")
     lv_out = lv.merge(sites[["sketch_slack", "basin_id"]], left_on="site_no", right_index=True, how="left")
     hl = metrics[metrics["headline"]][["site_no", "well"]].rename(columns={"well": "headline_well"})
     lv_out = lv_out.merge(hl, on="site_no", how="left").drop(columns=["month"])
@@ -906,6 +1130,10 @@ def main() -> int:
     saved(paths.OUT_44_SLACK_FLOOR_DATUM.name)
     plot_slack_floor_datum(sfd, base, cg_L, h0_per_metre / 1000.0, retreat_1899_2026, paths.OUT_44_SLACK_FLOOR_FIG)
     saved(paths.OUT_44_SLACK_FLOOR_FIG.name)
+    ffe.to_csv(paths.OUT_44_FOREST_FLOOR, index=False)
+    saved(paths.OUT_44_FOREST_FLOOR.name)
+    plot_forest_floor_excess(ffe, paths.OUT_44_FOREST_FIG)
+    saved(paths.OUT_44_FOREST_FIG.name)
 
     hlm = metrics[metrics["headline"]]
     rn = [
@@ -979,6 +1207,37 @@ def main() -> int:
         rr = (inland[col] - inland["ranwell_floor_m_od"]).dropna()
         rn += [(f"ranwell_floor_fit_bias_inland_{name}_m", float(rr.mean()) if len(rr) else np.nan, "m", f"{name} minus Ranwell's floor, mean over the {len(rr)} reading sites beyond L"),
                (f"ranwell_floor_fit_rmse_inland_{name}_m", float(np.sqrt((rr ** 2).mean())) if len(rr) else np.nan, "m", f"{name} against Ranwell's floor, RMSE over the {len(rr)} reading sites beyond L")]
+    for c_ in (4, 5):
+        sub_ = ffe[ffe["cluster"] == c_]
+        v = sub_["residual_after_retreat_min_m"]
+        rn += [(f"forest_floor_residual_median_C{c_}_m", float(v.median()) if len(v) else np.nan, "m", f"C{c_}: median excess of the annual-minimum depth over the open-dune baseline, less the modelled retreat response"),
+               (f"forest_floor_residual_min_C{c_}_m", float(v.min()) if len(v) else np.nan, "m", f"C{c_}: smallest residual"),
+               (f"forest_floor_residual_max_C{c_}_m", float(v.max()) if len(v) else np.nan, "m", f"C{c_}: largest residual"),
+               (f"forest_floor_n_C{c_}", len(v), "count", f"C{c_} wells in 44_10"),
+               (f"forest_floor_residual_over_modelled_drawdown_median_C{c_}", float(sub_["residual_over_modelled_drawdown"].median()) if len(v) else np.nan, "-",
+                f"C{c_}: median residual over the MODELLED canopy drawdown at the wells (Script 20 dd_mm)")]
+    for g, sub_ in ffe.groupby("group"):
+        v = sub_["residual_after_retreat_min_m"]
+        rn += [(f"forest_floor_residual_median_{g}_m", float(v.median()), "m", f"{g}: median residual after retreat over {len(v)} forest wells"),
+               (f"forest_floor_n_{g}", len(v), "count", f"forest wells in the {g} group")]
+    if "climate_change_since_preplant_min_m" in ffe.columns:
+        c4 = ffe[ffe["cluster"] == 4]
+        rn += [("forest_floor_preplant_window", f"{config.PREPLANT_WINDOW[0]} to {config.PREPLANT_WINDOW[1]}", "-", "the pre-planting window the climate-only hindcast is compared over (config)"),
+               ("forest_floor_climate_change_since_preplant_mean_median_C4_m", float(c4["climate_change_since_preplant_mean_m"].median()), "m",
+                "C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher)"),
+               ("forest_floor_climate_change_since_preplant_min_median_C4_m", float(c4["climate_change_since_preplant_min_m"].median()), "m", "C4: the same for the annual minimum"),
+               ("forest_floor_climate_change_since_preplant_min_median_C4_c2_m", float(c4["climate_change_since_preplant_min_c2_m"].median()), "m", "C4: the same with the C2 centroid coefficients (pre-planting behaviour sensitivity)"),
+               ("forest_floor_retreat_since_preplant_steady_m", float(ffe["retreat_since_preplant_steady_m"].iloc[0]), "m", "shoreline retreat since the window, the 1899-2006 epoch spread evenly (assumption) plus 2006-2026"),
+               ("forest_floor_retreat_since_preplant_modern_m", float(ffe["retreat_since_preplant_modern_m"].iloc[0]), "m", "sensitivity: the 2006-2026 rate carried back over the interval, capped at the measured total since 1899"),
+               ("forest_floor_residual_after_climate_and_retreat_steady_median_C4_m", float(c4["residual_after_climate_and_retreat_steady_min_m"].median()), "m", "C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term"),
+               ("forest_floor_residual_after_climate_and_retreat_modern_median_C4_m", float(c4["residual_after_climate_and_retreat_modern_min_m"].median()), "m", "C4: the same with the modern-rate retreat sensitivity"),
+               ("forest_floor_wells_cluster_coefficients", int((ffe["preplant_coef_basis"] != "own").sum()), "count", f"forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= {config.PREPLANT_BETA3_P_MAX})")]
+    rn += [("forest_floor_modelled_drawdown_at_wells_m", float(ffe["modelled_canopy_drawdown_m"].median()), "m", "median MODELLED canopy drawdown at the forest wells (Script 20 dd_mm; config.DRAWDOWN_H0_MM inside the forest)"),
+           ("forest_floor_litter_allowance_m", config.FOREST_LITTER_MAX_M, "m", "upper bound on the litter above the mineral floor under the canopy (config, Martin 2026-09-29)"),
+           ("forest_floor_residual_less_litter_median_C4_m", float((ffe.loc[ffe["cluster"] == 4, "residual_after_retreat_min_m"] - config.FOREST_LITTER_MAX_M).median()), "m", "C4: median residual after retreat less the litter allowance (lower bound on the mineral-floor excess)"),
+           ("forest_floor_channel_lines", "; ".join(config.FOREST_CHANNEL_LINES), "-", "Features.kml line(s) taken as drainage channels (Martin, 2026-09-29)"),
+           ("forest_floor_wells_channel_bed_above_floor", int((ffe["channel_bed_above_floor_m"] > 0).sum()), "count", "forest wells whose nearest channel bed lies above their floor"),
+           ("forest_floor_wells_ploughed", int((ffe["ground_prep"] != "").sum()), "count", "forest wells on ground recorded as prepared before planting (data/forest_ground_prep.csv)")]
     pd.DataFrame(rn, columns=["key", "value", "unit", "note"]).to_csv(paths.OUT_44_REPORT_NUMBERS, index=False)
     saved(paths.OUT_44_REPORT_NUMBERS.name)
     return 0

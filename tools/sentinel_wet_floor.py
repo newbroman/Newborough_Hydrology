@@ -49,7 +49,14 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-17. T-40: the wet-area line
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-29. --forest (T-78, D-210): the same two-class
+#   rule on the forest polygons the classifier can see the floor of - the 2017 clearfell (scenes from
+#   WET_AREA_FOREST_OPEN_FROM), the broadleaf restock, the three 1998 compartments as a negative control,
+#   the rides (counted only) and a WET_AREA_EDGE_M band inside the Forest outline - from the cached B8
+#   scenes of the committed series, no network. The floor rule of phase 29 is re-applied inside the
+#   polygons from config (WET_AREA_FLOOR_*). Writes data/sentinel/forest_two_class_series.csv and
+#   forest_cell_thresholds.npz (polygon id per cell). Closed pine is never scored.
+# v1.12.0  # Hollingham (2026) - 2026-09-17. T-40: the wet-area line
 #   is now the pipeline. This tool keeps only the two scene-dependent steps —
 #   --two-class writes the scene series and the per-cell switching levels into
 #   data/sentinel/, --write-manifest writes the scene list there — and no longer
@@ -157,11 +164,16 @@ from utils.buckets import month_bucket                      # noqa: E402
 from utils.paths import (                                    # noqa: E402
     DATA_FLOOD_CAL_LEVELS, DATA_GEO_DIR, DATA_SENTINEL_DIR,
     SENTINEL_TWO_CLASS_SERIES, SENTINEL_CELL_THRESHOLDS, SENTINEL_SCENE_MANIFEST,
+    SENTINEL_FOREST_SERIES, SENTINEL_FOREST_CELL_THRESHOLDS, DATA_KML_FEATURES, DATA_DEM,
+    DATA_BROADLEAF_RESTOCK, DATA_FELLING_1998_1, DATA_FELLING_1998_2, DATA_FELLING_1998_3,
 )
 # The model's grid, class ratios and cell-min are shared with Steps 45/46 (T-40),
 # so they live in utils.config, not here.
 from utils.config import (                                   # noqa: E402
     WET_AREA_GRID as GRID, NIR_BLACK_RATIO, NIR_DARK_RATIO, CELL_MIN_SCENES,
+    WET_AREA_CLEARFELL_PLACEMARK, WET_AREA_FOREST_PLACEMARK, WET_AREA_RIDE_LINES,
+    WET_AREA_FOREST_OPEN_FROM, WET_AREA_EDGE_M, WET_AREA_RIDE_BUFFER_M,
+    WET_AREA_FLOOR_RELIEF_M, WET_AREA_FLOOR_RADIUS_M, WET_AREA_FLOOR_SLOPE_MAX_DEG,
 )
 
 OUT = REPO / "working" / "updates"
@@ -834,6 +846,189 @@ def two_class(Wm):
 SERIES_CSV = OUT / "W94_27_sentinel_wet_floor.csv"       # scene ids + cloud/clear, all scenes
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# --forest: the wet cells in the forest polygons (T-78, D-210)
+# ─────────────────────────────────────────────────────────────────────────────
+def _forest_polygons():
+    """The scored forest polygons (config.WET_AREA_FOREST_*), as shapely geometries
+    in EPSG:27700, with each one's earliest admitted scene date (None = all) and
+    its role. Closed Corsican pine is everything else inside the Forest placemark
+    and is never scored."""
+    import geopandas as gpd                                    # noqa: PLC0415
+    from shapely.ops import unary_union                        # noqa: PLC0415
+    from utils.kml_io import read_kml                          # noqa: PLC0415
+    from shapely.geometry import shape as _shape                # noqa: PLC0415
+    def geojson_geom(path):
+        import json                                            # noqa: PLC0415
+        gj = json.load(open(path))
+        return unary_union([_shape(f['geometry']) for f in gj['features']])
+    feats = read_kml(DATA_KML_FEATURES)
+    col = next(c for c in feats.columns if c.lower() == "name")
+    byname = {str(n): g for n, g in zip(feats[col], feats.geometry)}
+    for need in (WET_AREA_CLEARFELL_PLACEMARK, WET_AREA_FOREST_PLACEMARK, *WET_AREA_RIDE_LINES):
+        if need not in byname:
+            raise RuntimeError(f"{DATA_KML_FEATURES.name} has no placemark {need!r}")
+    clearfell = byname[WET_AREA_CLEARFELL_PLACEMARK].buffer(0)
+    forest = byname[WET_AREA_FOREST_PLACEMARK].buffer(0)
+    rides = unary_union([byname[n] for n in WET_AREA_RIDE_LINES]).buffer(WET_AREA_RIDE_BUFFER_M)
+    broadleaf = geojson_geom(DATA_BROADLEAF_RESTOCK).buffer(0)
+    f98 = unary_union([geojson_geom(p).buffer(0) for p in (DATA_FELLING_1998_1, DATA_FELLING_1998_2, DATA_FELLING_1998_3)])
+    named = unary_union([clearfell, broadleaf, f98])
+    edge = forest.intersection(forest.boundary.buffer(WET_AREA_EDGE_M)).difference(named).difference(rides)
+    return {
+        "clearfell_2017":       dict(geom=clearfell, since=WET_AREA_FOREST_OPEN_FROM, role="open since 2017-12; the T-72 test at wmc3"),
+        "broadleaf_restock":    dict(geom=broadleaf.difference(clearfell), since=None, role="leafless in the scene months"),
+        "felling_1998_control": dict(geom=f98.difference(clearfell), since=None, role="negative control: closed pine replanted 1998"),
+        "rides":                dict(geom=rides.intersection(forest), since=None, role="counted, not classified: one cell wide, edge-contaminated"),
+        "forest_edge_band":     dict(geom=edge, since=None, role=f"floor within {WET_AREA_EDGE_M:.0f} m inside the Forest boundary"),
+    }, forest
+
+
+def _dem_floor_10m():
+    """The phase-29 floor rule on the DEM (WET_AREA_FLOOR_*), aggregated to the
+    10 m grid as the share of each cell's 2 m cells on the floor. Cells the DEM
+    does not cover are 0."""
+    import rasterio                                            # noqa: PLC0415
+    from scipy import ndimage as ndi                           # noqa: PLC0415
+    W, H, tr = _grid()
+    with rasterio.open(DATA_DEM) as ds:
+        res = float(ds.res[0])
+        dem = ds.read(1).astype(float)
+        if ds.nodata is not None:
+            dem[dem == ds.nodata] = np.nan
+        left, top = ds.bounds.left, ds.bounds.top
+    fill = np.nan_to_num(dem, nan=np.nanmax(dem))
+    dzdy, dzdx = np.gradient(fill, res)
+    slope = np.degrees(np.arctan(np.hypot(dzdx, dzdy)))
+    k = max(1, int(round(WET_AREA_FLOOR_RADIUS_M / res)))
+    lo = ndi.minimum_filter(fill, size=2 * k + 1, mode="nearest")
+    floor2 = ((fill - lo <= WET_AREA_FLOOR_RELIEF_M) & (slope <= WET_AREA_FLOOR_SLOPE_MAX_DEG) & np.isfinite(dem)).astype(float)
+    g = GRID
+    per = int(round(g["res"] / res))                           # 2 m cells per 10 m cell
+    out = np.zeros((H, W), float)
+    r0 = int(round((top - g["top"]) / res)); c0 = int(round((g["left"] - left) / res))
+    for i in range(H):
+        rr = r0 + i * per
+        if rr < 0 or rr + per > floor2.shape[0]:
+            continue
+        for j in range(W):
+            cc = c0 + j * per
+            if cc < 0 or cc + per > floor2.shape[1]:
+                continue
+            out[i, j] = floor2[rr:rr + per, cc:cc + per].mean()
+    return out
+
+
+def _polygon_cells(geom):
+    """10 m cells whose centre lies in geom."""
+    from rasterio.features import rasterize                   # noqa: PLC0415
+    W, H, tr = _grid()
+    return rasterize([(geom, 1)], out_shape=(H, W), transform=tr, fill=0, dtype="uint8").astype(bool)
+
+
+def forest(Wm):
+    """The wet-area rule applied to the forest polygons (T-78, D-210), from the
+    cached B8 scenes of the committed series — no network. Writes
+    data/sentinel/forest_two_class_series.csv (per scene x polygon) and
+    data/sentinel/forest_cell_thresholds.npz (per cell: polygon id and the
+    switching levels on that polygon's admitted scenes). The classes use the
+    WARREN clear-floor median of each scene, as the warren read does (D-178); a
+    per-polygon median travels beside it as a diagnostic. Closed Corsican pine
+    is never scored, because Band 8 there sees the canopy and not the floor."""
+    polys, forest_geom = _forest_polygons()
+    shade = _shade_mask()
+    floor_w = Wm & (~shade if shade is not None else True)
+    frac = _dem_floor_10m()
+    floor_f = frac >= FLOOR_CELL_MIN
+    pid = np.zeros(floor_w.shape, np.int8)
+    names = list(polys)
+    for k, n in enumerate(names, 1):
+        cells = _polygon_cells(polys[n]["geom"]) & floor_f & ~pid.astype(bool)
+        if n == "rides":
+            cells = _polygon_cells(polys[n]["geom"]) & ~pid.astype(bool)   # counted whether floor or not
+        pid[cells] = k
+        step(f"{n}: {int(cells.sum())} cell(s) — {polys[n]['role']}")
+    pine = _polygon_cells(forest_geom) & ~pid.astype(bool)
+    info(f"closed pine, never scored: {int(pine.sum())} cells inside the Forest placemark")
+    S = pd.read_csv(SENTINEL_TWO_CLASS_SERIES)
+    byd = {}
+    need_scl = [d for d in S["date"] if not (CACHE / f"scl_{d}.npz").exists()]
+    if need_scl:
+        info(f"fetching the scene classification (SCL) for {len(need_scl)} scene(s): the cached clear mask "
+             "is warren-only, and the forest cells need their own")
+        for y in sorted({d[:4] for d in need_scl}):
+            byd.update(_search(f"{y}-01-01", f"{y}-12-31"))
+    rows, stack = [], []
+    for _, r in S.iterrows():
+        p = CACHE / f"b8_{r['date']}.npz"
+        if not p.exists():
+            warn(f"{p.name} not cached; skipped")
+            continue
+        z = np.load(p)
+        nir, clear_w = z["nir"], z["clear"]
+        ps = CACHE / f"scl_{r['date']}.npz"
+        if ps.exists():
+            scl = np.load(ps)["scl"]
+        elif r["date"] in byd:
+            scl = _fetch(byd[r["date"]], ["scl"])["scl"]
+            np.savez_compressed(ps, scl=scl.astype(np.uint8))
+        else:
+            warn(f"{r['date']}: no SCL and no STAC item; forest cells scored on the warren clear mask only")
+            scl = None
+        clear = (~np.isin(scl, SCL_BAD)) if scl is not None else clear_w
+        clear = clear & (nir > 0)
+        okw = floor_w & clear_w
+        medw = float(np.median(nir[okw]))
+        black_all = clear & (nir <= NIR_BLACK_RATIO * medw)
+        dark_all = clear & (nir <= NIR_DARK_RATIO * medw)
+        for k, n in enumerate(names, 1):
+            since = polys[n]["since"]
+            if since and r["date"] < since:
+                continue
+            ok = (pid == k) & clear
+            if not ok.any():
+                continue
+            medp = float(np.median(nir[ok]))
+            sc = float(GRID["res"]) ** 2 / 1e4
+            rows.append({"date": r["date"], "polygon": n, "h_scene": r["h_scene"], "n_cells": int((pid == k).sum()),
+                         "n_scored": int(ok.sum()), "warren_median_b8": round(medw, 1), "polygon_median_b8": round(medp, 1),
+                         "open_water_ha": round(float((ok & black_all).sum()) * sc, 2),
+                         "wet_floor_ha": round(float((ok & dark_all & ~black_all).sum()) * sc, 2),
+                         "dark_total_ha": round(float((ok & dark_all).sum()) * sc, 2),
+                         "dark_share": round(float((ok & dark_all).sum()) / ok.sum(), 3)})
+        stack.append((float(r["h_scene"]), r["date"], clear, black_all, dark_all))
+    R = pd.DataFrame(rows)
+    SENTINEL_FOREST_SERIES.parent.mkdir(parents=True, exist_ok=True)
+    R.to_csv(SENTINEL_FOREST_SERIES, index=False)
+    saved(f"data/sentinel/{SENTINEL_FOREST_SERIES.name}")
+    # switching levels, per polygon on its admitted scenes
+    H_, W_ = floor_w.shape
+    hb_all = np.full((H_, W_), np.inf); hd_all = np.full((H_, W_), np.inf)
+    eb_all = np.zeros((H_, W_), np.int32); ed_all = np.zeros((H_, W_), np.int32); nseen = np.zeros((H_, W_), np.int16)
+    for k, n in enumerate(names, 1):
+        since = polys[n]["since"]
+        adm = [s_ for s_ in stack if not since or s_[1] >= since]
+        if not adm:
+            continue
+        adm.sort(key=lambda s_: s_[0])
+        h = np.array([s_[0] for s_ in adm])
+        seen = np.stack([s_[2] & (pid == k) for s_ in adm])
+        black = np.stack([s_[3] for s_ in adm]); dark = np.stack([s_[4] for s_ in adm])
+        hb, eb = _cell_switch_levels(black, seen, h)
+        hd, ed = _cell_switch_levels(dark, seen, h)
+        hd = np.minimum(hd, hb)
+        m = pid == k
+        hb_all[m], hd_all[m], eb_all[m], ed_all[m], nseen[m] = hb[m], hd[m], eb[m], ed[m], seen.sum(0)[m]
+        step(f"{n}: {int(np.isfinite(hd[m]).sum())} of {int(m.sum())} cells ever wet floor, "
+             f"{int(np.isfinite(hb[m]).sum())} ever open water, on {len(adm)} scene(s)")
+    np.savez_compressed(SENTINEL_FOREST_CELL_THRESHOLDS, h_open_water=hb_all, h_wet_floor=hd_all,
+                        err_open_water=eb_all, err_wet_floor=ed_all, n_seen=nseen, polygon_id=pid,
+                        polygon_names=np.array(names), pine=pine, floor_frac=frac,
+                        grid=np.array([GRID["left"], GRID["bottom"], GRID["right"], GRID["top"], GRID["res"]]))
+    saved(f"data/sentinel/{SENTINEL_FOREST_CELL_THRESHOLDS.name}")
+    return 0
+
+
 def write_scene_manifest() -> int:
     """data/sentinel/sentinel_scene_manifest.csv — the Copernicus scenes the D-178
     fit consumes, LISTED not bundled (T-40, D-179).
@@ -918,6 +1113,10 @@ def main() -> int:
                     help="regenerate the committed wet-area inputs (T-40, D-178): the scene "
                          "series and the per-cell switching levels, into data/sentinel/; needs "
                          "the series. The fit and feed are Steps 45/46, not this tool")
+    ap.add_argument("--forest", action="store_true",
+                    help="T-78: apply the wet-area rule to the forest polygons the classifier can "
+                         "see (clearfell, broadleaf, 1998 control, rides, edge band) from the cached "
+                         "B8 scenes of the committed series; writes data/sentinel/forest_*; no network")
     ap.add_argument("--write-manifest", action="store_true",
                     help="write data/sentinel/sentinel_scene_manifest.csv (the scene input "
                          "list, T-40); no network, no rasterio")
@@ -938,6 +1137,9 @@ def main() -> int:
         return 0
     if args.two_class:
         return two_class(Wm)
+    if args.forest:
+        phase(1, "The forest polygons (T-78)")
+        return forest(Wm)
     if args.cells:
         phase(1, "Per-cell classifier trained on the vetted extent, every band")
         return cells(Wm, args.cells)

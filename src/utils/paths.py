@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-29. 1.44.0: SENTINEL_FOREST_SERIES and
+__version__ = "1.45.0"  # Hollingham (2026) - 2026-09-29. 1.45.0: SENTINEL_S1_* - the outputs of
+#   tools/sentinel1_wet_floor.py (T-94, the Sentinel-1 radar read; a diagnostic, no step reads them). Additive.
+# 1.44.0  # Hollingham (2026) - 2026-09-29. 1.44.0: SENTINEL_FOREST_SERIES and
 #   SENTINEL_FOREST_CELL_THRESHOLDS, the outputs of tools/sentinel_wet_floor.py --forest (T-78, D-210: a
 #   diagnostic, not a pipeline input - Martin: "i dont think we can use the sentinel data"). Additive.
 # 1.43.0  # Hollingham (2026) - 2026-09-29. 1.43.0: OUT_44_FOREST_FLOOR, OUT_44_FOREST_FIG and
@@ -1286,6 +1288,11 @@ SENTINEL_WELL_FIT         = DATA_SENTINEL_DIR / "well_fit.csv"
 SENTINEL_HINDCAST_MONTHLY = DATA_SENTINEL_DIR / "hindcast_monthly.csv"
 SENTINEL_FOREST_SERIES    = DATA_SENTINEL_DIR / "forest_two_class_series.csv"   # T-78 diagnostic (--forest): per scene x forest polygon; no step reads it
 SENTINEL_FOREST_CELL_THRESHOLDS = DATA_SENTINEL_DIR / "forest_cell_thresholds.npz"   # T-78 diagnostic (--forest): per cell, by polygon; no step reads it
+SENTINEL_S1_MANIFEST      = DATA_SENTINEL_DIR / "s1_scene_manifest.csv"        # T-94 diagnostic: the S1 scenes read (STAC id, orbit, sha256)
+SENTINEL_S1_CALIBRATION   = DATA_SENTINEL_DIR / "s1_calibration.csv"           # T-94 diagnostic: the radar signature of the S2 classes and the chosen thresholds
+SENTINEL_S1_SERIES        = DATA_SENTINEL_DIR / "s1_two_class_series.csv"      # T-94 diagnostic: per S1 scene, the class areas and h_scene
+SENTINEL_S1_CELL_THRESHOLDS = DATA_SENTINEL_DIR / "s1_cell_thresholds.npz"     # T-94 diagnostic: per cell switching levels from the S1 stack
+SENTINEL_S1_FOREST_SERIES = DATA_SENTINEL_DIR / "s1_forest_series.csv"         # T-94 diagnostic: per S1 scene x forest polygon (closed pine included)
 # True-colour crops of a few of those scenes for the film (tools/sentinel_thumbs.py).
 # Display only: nothing is fitted from them.
 SENTINEL_THUMBS_DIR       = DATA_SENTINEL_DIR / "thumbs"

@@ -78,7 +78,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.21.1"  # Hollingham (2026) — 2026-09-24. A confirmed row whose quoted
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-29. The correction drawer folds to its
+#   header line (click "N queued"; remembered per browser), so a long queue no longer covers the
+#   text (Martin: "it obscures the text as more items are added").
+# 1.21.1  # Hollingham (2026) — 2026-09-24. A confirmed row whose quoted
 #   string carries a thousands separator ("1,269", allowed since cite_check 1.28.6) crashed
 #   index_spans on float(); the separator is stripped as it is everywhere else in this file.
 # 1.21.0  # Hollingham (2026) — 2026-09-21. Vetted verdicts (Martin: "I'm sure I
@@ -2112,6 +2115,7 @@ a.pgno{color:#c60}
 #pop .pb,#drawer .pb{margin-top:.5em}
 #drawer{position:fixed;right:12px;bottom:12px;z-index:9;background:#f6f6f6;border:1px solid #ccc;padding:.5em .8em;max-width:360px;max-height:45vh;overflow:auto;font:12px Helvetica,Arial,sans-serif;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
 #drawer .qi{margin:.2em 0}#drawer .ok{color:#2a7}#drawer .warn{color:#c60}
+#drawer .qh{cursor:pointer;user-select:none}#drawer .qt{display:inline-block;width:1em;color:#6a4fd8}#drawer.folded{max-height:none;overflow:visible;padding:.35em .8em}
 #qcount{background:#6a4fd8;color:#fff;border-radius:9px;padding:0 .5em}
 @media (max-width:700px){
   body{font-size:16px;margin:.5em auto;padding:0 12px}
@@ -2181,11 +2185,17 @@ function openPop(span){
   pop.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') closePop(); });
 }
 function closePop(){ const p = document.getElementById('pop'); if (p) p.remove(); }
+// the drawer folds to its header line (Martin, 2026-09-29: "it obscures the text as more
+// items are added"); the fold is remembered per browser
+function folded(){ try { return localStorage.getItem('proof_drawer_folded') === '1'; } catch(e){ return false; } }
+function toggleDrawer(){ try { localStorage.setItem('proof_drawer_folded', folded() ? '0' : '1'); } catch(e){} drawer(); }
 function drawer(){
-  const q = load(); const d = document.getElementById('drawer');
-  d.innerHTML = `<b>${q.length} queued</b> ${served ? '<span class=ok>· saved to scratch/proof/corrections.jsonl</span>' : dbq ? '<span class=ok>· saved in this artifact — Claude reads it next session</span>' : '<span class=warn>· held in this browser only — copy for chat</span>'}<br>` +
+  const q = load(); const d = document.getElementById('drawer'); const f = folded();
+  d.classList.toggle('folded', f);
+  d.innerHTML = `<div class=qh onclick='toggleDrawer()' title='${f ? 'show' : 'hide'} the queue'><span class=qt>${f ? '▸' : '▾'}</span> <b>${q.length} queued</b> ${served ? '<span class=ok>· saved to scratch/proof/corrections.jsonl</span>' : dbq ? '<span class=ok>· saved in this artifact — Claude reads it next session</span>' : '<span class=warn>· held in this browser only — copy for chat</span>'}</div>` +
+    (f ? '' : `<div class=qb>` +
     q.map((it,i) => `<div class=qi><a href='#${it.id}'>${it.value}</a> → <b>${it.suggested || '(note)'}</b> <small>${it.section.slice(0,40)}</small> <button onclick='drop(${i})'>×</button></div>`).join('') +
-    `<div class=pb><button onclick='copyQ()'>copy for chat</button> <button onclick='clearQ()'>clear</button></div>`;
+    `<div class=pb><button onclick='copyQ()'>copy for chat</button> <button onclick='clearQ()'>clear</button></div></div>`);
 }
 function drop(i){ const q = load(); const it = q.splice(i,1)[0]; save(q); const el = document.getElementById(it.id); if (el) el.classList.remove('queued'); badge(); drawer(); }
 function clearQ(){ if (!confirm('Clear the queue held in this browser? (the server copy, if any, is kept)')) return; load().forEach(it => { const el = document.getElementById(it.id); if (el) el.classList.remove('queued'); }); save([]); badge(); drawer(); }

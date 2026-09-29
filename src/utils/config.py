@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.75.0"  # Hollingham (2026) - 2026-09-29. WET_AREA_* forest constants for the --forest
+__version__ = "1.76.0"  # Hollingham (2026) - 2026-09-29. S1_* constants for tools/sentinel1_wet_floor.py
+#   (T-94, the Sentinel-1 radar read: the STAC source, the orbit, the speckle window, the S2 pairing window
+#   and the calibration references). Additive.
+# 1.75.0  # Hollingham (2026) - 2026-09-29. WET_AREA_* forest constants for the --forest
 #   diagnostic (T-78, D-210): the polygons, the clearfell open-from date, the edge band and ride buffer, and the
 #   phase-29 floor rule (WET_AREA_FLOOR_*, one copy for --forest and warren_flood_prep).
 # 1.74.0  # Hollingham (2026) - 2026-09-29. FOREST_CHANNEL_LINES, FLOOR_RELIEF_RADIUS_M,
@@ -2146,6 +2149,21 @@ WET_AREA_FLOOR_RELIEF_M      = 1.5                    # m; a cell within this of
 WET_AREA_FLOOR_RADIUS_M      = 30.0                   # ... within this radius is slack floor
 WET_AREA_FLOOR_SLOPE_MAX_DEG = 8.0                    # and not a dune face
 WET_AREA_CLASSES = ("open_water", "wet_floor", "dark_total")
+
+# Sentinel-1 (T-94; tools/sentinel1_wet_floor.py, a diagnostic tool, not a step).
+# Radiometrically terrain-corrected gamma-nought backscatter from the Planetary
+# Computer archive, read on WET_AREA_GRID. Classes are calibrated against the S2
+# classes of the committed series on coincident scenes (Martin, 2026-09-29: "s2
+# classes alone"); the vetted extents are the meaning check, never the fit.
+S1_STAC_URL       = "https://planetarycomputer.microsoft.com/api/stac/v1"
+S1_COLLECTION     = "sentinel-1-rtc"
+S1_SINCE          = "2015-01-01"   # first scene admitted (S1A alone until 2016-09)
+S1_ORBIT          = 52             # relative orbit cached and scored first (descending, the best-covered
+#                                    over the site on the 2026-09-29 listing; --list reports all four)
+S1_SPECKLE_WINDOW = 3              # median filter, grid cells, before classification (odd)
+S1_MATCH_DAYS     = 3              # an S1 scene within this many days of an S2 scene is its pair
+S1_DB_FLOOR       = -35.0          # dB assigned to zero / negative gamma0 (nodata in the swath)
+S1_CELL_MIN_SCENES = CELL_MIN_SCENES   # switching levels need this many scenes, as S2
 
 # The public feed, living/wet_area_model.json.
 WET_AREA_FEED_SCHEMA = "nw-wet-area-1"

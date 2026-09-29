@@ -78,7 +78,15 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.25.0"  # Hollingham (2026) — 2026-09-29. A stale BOUND ("p < 0.001 … CONTRADICTS
+__version__ = "1.26.0"  # Hollingham (2026) — 2026-09-29. Three things the chapter-by-chapter
+#   resolution needed (Martin: "check the flagged values and resolve them"): (1) a report-numbers
+#   row's Note statistics ("p=0.3648, CI=[…], n=17") are registered as the row's "note p" /
+#   "note n" / "note ci_lo" / "note ci_hi" cells, so a coefficient's p traces to the coefficient;
+#   (2) a reader's better source is accepted when the SENTENCE quotes it coarser or in another
+#   unit — "about 900 m" for 902.0, "220 m" for 222.9, "21 years" for 252 months, "+80 mm" for
+#   0.0806 m (_about_match); (3) a deny against an untraced / elsewhere / count mark the reader
+#   actually saw paints DENIED with its reason and needs-emit, not a footnote on an amber mark.
+# 1.25.0  # Hollingham (2026) — 2026-09-29. A stale BOUND ("p < 0.001 … CONTRADICTS
 #   the bound") is checked against the row of the nearest number, and a clause quoting three
 #   correlations has three rows; a reading-pass deny whose better source names the right p key
 #   now re-checks the bound there and paints it traced when it holds (stale, red, when it does not).
@@ -516,10 +524,13 @@ def _renderings(x: float):
     x = float(x)                      # numpy scalars: repr() would be np.float64(...)
     if not math.isfinite(x):
         return
+    import decimal as _d
     for dp in range(0, 7):
         yield cc.render(abs(x), dp), ""
+        # 0.955 quoted as 0.96: LibreOffice and a hand round half up, Python's format
+        # rounds the binary 0.95499… down — both renderings are the value (1.26.0)
+        yield str(_d.Decimal(repr(abs(x))).quantize(_d.Decimal(1).scaleb(-dp), rounding=_d.ROUND_HALF_UP)), ""
     mm = abs(x) * 1000.0
-    import decimal as _d
     for dp in (0, 1, 2):
         yield cc.render(mm, dp), "mm"
         yield str(_d.Decimal(repr(mm)).quantize(_d.Decimal(1).scaleb(-dp), rounding=_d.ROUND_HALF_UP)), "mm"
@@ -830,9 +841,39 @@ def build_index(values, deep: bool = True) -> dict:
                     anc = {"label": la, "col": _col_anchors(c) + notew, "file": fw}
                     for r, form in _renderings(x):
                         _add(look, r, Cand(rel, lab, c, x, anc, form, "cell"))
+                if notecol is not None and isinstance(r_[notecol], str):
+                    # "p=0.3648, CI=[-0.0350, 0.2180], n=17" inside a Note: the statistics a
+                    # report-numbers row carries only as prose. Registered as the row's
+                    # "note p" / "note n" / "note ci_lo" / "note ci_hi" cells (1.26.0) so a
+                    # sentence quoting the p of a coefficient traces to the coefficient's row.
+                    for nm, val in _note_stats(r_[notecol]):
+                        rowvals[f"note {nm}"] = val
+                        anc = {"label": la, "col": [nm, "p-value", "p", "significance"] if nm == "p" else [nm], "file": fw}
+                        for r, form in _renderings(val):
+                            _add(look, r, Cand(rel, lab, f"note {nm}", val, anc, form, "cell"))
                 if rowvals:
                     ROWS[(rel, lab)] = rowvals
     return look
+
+
+_NOTE_P = re.compile(r"(?<![A-Za-z_])p\s*(?:=\s*)?[<≤]?\s*([-+]?\d*\.?\d+(?:e-?\d+)?)")
+_NOTE_N = re.compile(r"(?<![A-Za-z_])n\s*=\s*(\d+)")
+_NOTE_CI = re.compile(r"CI\s*=?\s*\[\s*([-+]?\d*\.?\d+(?:e-?\d+)?)\s*,\s*([-+]?\d*\.?\d+(?:e-?\d+)?)\s*\]")
+
+
+def _note_stats(note: str):
+    out = []
+    m = _NOTE_P.search(note)
+    if m:
+        out.append(("p", float(m.group(1))))
+    m = _NOTE_N.search(note)
+    if m:
+        out.append(("n", float(m.group(1))))
+    m = _NOTE_CI.search(note)
+    if m:
+        out.append(("ci_lo", float(m.group(1))))
+        out.append(("ci_hi", float(m.group(2))))
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -1831,9 +1872,12 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
             best_sc = -key(options[0])[0]
             # a rival carrying the SAME value (a consolidated copy, the same row in another
             # file) is not a rival: whichever is chosen, the sentence quotes that quantity
+            _tokq = _norm_num(masked[s:e]).replace(",", "").lstrip("+-")
+            _dpq = _dp_of(_tokq)
             rival = next(((t, -key(t)[0]) for t in options[1:]
                           if (t[1].rel, _rowkey(t[1].label)) != (c.rel, _rowkey(c.label))
-                          and abs(t[1].value - c.value) > 5e-3 * max(1e-9, abs(c.value))), None)   # 0.129426 and 0.1294: one value, two files
+                          and abs(t[1].value - c.value) > 5e-3 * max(1e-9, abs(c.value))
+                          and not (t[1].form == c.form and cc.render(abs(t[1].value), _dpq) == cc.render(abs(c.value), _dpq))), None)   # 0.129426 and 0.1294, 0.0019 and 0.00192: one value, two files
             margin = (best_sc - rival[1]) if rival else None
             base_verdict = verdict
             if rival is not None and margin <= 0.5:
@@ -2917,7 +2961,7 @@ def reading_verdicts() -> dict:
 _BETTER = re.compile(r"^\s*(.+?)\s*(?:=|~|≈|about)\s*([-+−]?\d[\d.,]*(?:e-?\d+)?)\s*[a-z%°/⁻¹²]*\s*\[([^\]]+)\]")
 
 
-_BOUND_DETAIL = re.compile(r"^(p|n|r|r²|k)\s*([<≤>≥])\s*([-+−]?\d[\d.]*(?:e-?\d+)?):")
+_BOUND_DETAIL = re.compile(r"^(?:inequality bound \()?\s*(p|n|r|r²|k)?\s*([<≤>≥])\s*([-+−]?\d[\d.]*(?:e-?\d+)?)[:)]")
 
 
 def _bound_holds(detail: str, better: str):
@@ -2940,6 +2984,39 @@ def _bound_holds(detail: str, better: str):
     return holds, val
 
 
+_ABOUT_WORDS = re.compile(r"(?i)\b(about|approximately|roughly|around|of order|order of|circa|c\.|~|≈|some|nearly|almost|close to|within)\b|[~≈]")
+
+
+def _about_match(better: str, tok: str, sentence: str):
+    """A reader's better source whose value the SENTENCE quotes at a coarser precision
+    or in another unit: returns a short tag when it holds, else None. Accepts: the
+    value rounded to the token's own decimals; a token ending in 0 (nearest 10 / 100)
+    within half that step, or within 1 % when the sentence says about/approximately;
+    metres quoted as mm, mm as m, months as years, a fraction as %."""
+    m = _BETTER.match(better or "")
+    if not m or (better or "").startswith("needs emit"):
+        return None
+    try:
+        val = float(m.group(2).replace("−", "-").replace(",", ""))
+        t = float(_norm_num(tok).replace(",", "").replace("−", "-"))
+    except ValueError:
+        return None
+    core = tok.replace(",", "").replace("−", "-").lstrip("+-")
+    dp = len(core.split(".")[1]) if "." in core else 0
+    approx = bool(_ABOUT_WORDS.search(sentence))
+    for scale, tag in ((1, "same"), (1000, "m→mm"), (0.001, "mm→m"), (1 / 12, "months→years"), (100, "fraction→%"), (0.01, "%→fraction")):
+        x = val * scale
+        if abs(x) < 1e-12 and abs(t) > 0:
+            continue
+        if round(abs(x), dp) == abs(t) and (t == 0 or (x > 0) == (t > 0) or tok.lstrip("+-−") == tok):
+            return tag if tag != "same" else "rounded"
+        if dp == 0 and abs(t) >= 10 and core.endswith("0"):
+            step = 10 ** (len(core) - len(core.rstrip("0")))
+            if abs(abs(x) - abs(t)) <= step / 2 or (approx and abs(abs(x) - abs(t)) <= 0.01 * abs(t)):
+                return f"nearest {step}" + ("" if tag == "same" else ", " + tag)
+    return None
+
+
 def _better_cand(better: str, tok: str, look: dict):
     """The candidate a reading-pass denial names as the BETTER source, when it is
     real: "CEH36_SSM_forward_residual_step = 0.0734 [09e_report_numbers.csv]" is
@@ -2954,11 +3031,19 @@ def _better_cand(better: str, tok: str, look: dict):
     label, fname = m.group(1), m.group(3).strip()
     lab = re.sub(r"[\s·/]+", " ", label).strip().lower()
     core = _norm_num(tok).replace(",", "").lstrip("-+")
+    rowlab, _, colname = label.rpartition(" · ")
+    rowlab = re.sub(r"[\s·/]+", " ", rowlab).strip().lower()
+    colname = colname.strip().lower()
     for c in look.get(core, []):
         if pathlib.Path(c.rel).name != fname:
             continue
         cl = re.sub(r"[\s·/]+", " ", f"{c.label} {c.col or ''}".strip()).lower()
         if lab == cl or lab in cl or cl in lab or lab.split(" ")[-1] == (c.col or c.label).lower():
+            return c
+        # "2018_2025 / with_broadleaf_covariate · r_squared": a table keyed by more than its
+        # first column — the tool labels the row by the first column alone, so match the
+        # column by name and the row by its first token (1.26.0)
+        if colname and c.col and colname == c.col.lower() and rowlab and rowlab.split(" ")[0] == re.sub(r"[\s·/]+", " ", c.label).lower().split(" ")[0]:
             return c
     return None
 
@@ -3030,17 +3115,30 @@ def one(name, values, look, out_dir, a):
                     # mark admits its out-of-scope source; otherwise the reader's word stands beside
                     verdict, reason, better, read_attr = hit
                     bc = _better_cand(better, text[s:e], look) if better else None
-                    bh = _bound_holds(d, better) if (bc is None and verdict == "deny" and v == "stale") else None
+                    bh = _bound_holds(d, better) if (bc is None and verdict == "deny" and v in ("stale", "count")) else None
+                    ab = _about_match(better, text[s:e], _sentence(_m, s, e)) if (bc is None and bh is None and verdict == "deny") else None
+                    cur0 = d.split(" ‖ ")[0].split(" — ")[0]
+                    same0 = (not read_attr) or read_attr[:25] == cur0[:25] or read_attr.startswith(("DENIED", "read:", "STALE", "literal", "vetted", "reading pass"))
                     if bc is not None:
                         v, d = "traced", (f"read: better source ✓ — {bc.label}{(' · ' + bc.col) if bc.col else ''} = {bc.value:g}"
                                           f"{(' as ' + bc.form) if bc.form else ''} [{pathlib.Path(bc.rel).name}] ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
+                    elif ab is not None:
+                        # the reader's source holds the value at the precision the SENTENCE uses:
+                        # "about 900 m" for 902.0, "220 m" (nearest 10) for 222.9, "21 years"
+                        # for 252 months, "+80 mm" for 0.0806 m (1.26.0)
+                        v, d = "traced", f"read: better source ✓ ({ab}) — {better} ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}"
                     elif bh is not None:
-                        # a bound ("p < 0.001") the matcher checked against the wrong neighbour: the
-                        # reader names the row it belongs to, and the bound holds (or fails) THERE
+                        # a bound ("p < 0.001") the matcher checked against the wrong neighbour, or
+                        # against nothing: the reader names the row it belongs to, and the bound
+                        # holds (or fails) THERE
                         holds, bval = bh
                         v = "traced" if holds else "stale"
                         d = (f"read: bound {'holds' if holds else 'FAILS'} at the named source {'✓' if holds else '✗'} — {better} "
                              f"({bval:.3g}) ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
+                    elif verdict == "deny" and same0 and v in ("untraced", "elsewhere", "count", "rounding"):
+                        # the reader denied THIS mark and could not name a registered source (a
+                        # needs-emit, or a source outside the value map): red, with the reason
+                        v, d = "denied", f"DENIED by the reading pass — {reason}" + (f" — better: {better}" if better else "") + " ‖ the matcher had: " + d.split(" ‖ ")[0]
                     elif verdict == "confirm" and v == "elsewhere":
                         v, d = "traced", "read: confirmed ✓ (source outside the section's declared list) — " + d
                     elif verdict == "deny" and v == "elsewhere" and (not read_attr or read_attr[:25] == d.split(" ‖ ")[0][:25]):
@@ -3061,11 +3159,27 @@ def one(name, values, look, out_dir, a):
                         return re.sub(r"\s*=\s*[-−+\d.eE]+", "", a).replace("read: confirmed ✓ — ", "").strip()[:120]
                     same_attr = (not read_attr) or _key(read_attr) == _key(cur) or (read_attr.rsplit("[", 1)[-1] == cur.rsplit("[", 1)[-1] and read_attr[:25] == cur[:25]) \
                         or read_attr.startswith(("DENIED", "read:", "STALE", "literal", "vetted", "reading pass"))   # 1.24.0: the reader saw a verdict-painted mark, not a matcher attribution
-                    if verdict == "deny" and not same_attr:
+                    if verdict == "deny" and not same_attr and _better_cand(better, text[s:e], look) is None \
+                            and _about_match(better, text[s:e], _sentence(_m, s, e)) is None and _bound_holds(d, better) is None:
+                        # the matcher has since chosen a different source and the reader's better
+                        # does not resolve: the denial does not carry over
                         d = d + f" ‖ an earlier attribution ({read_attr[:80]}) was denied by the reading pass; this is a new one, unread"
                     elif verdict == "deny":
+                        # (a better that RESOLVES applies whatever attribution the reader saw: the
+                        # matcher's choice moved from one coincidence to another, the reader named
+                        # the source — 1.26.0)
                         bc = _better_cand(better, text[s:e], look)
-                        if bc is not None:
+                        ab = _about_match(better, text[s:e], _sentence(_m, s, e)) if bc is None else None
+                        bh2 = _bound_holds(d, better) if (bc is None and ab is None) else None
+                        if bc is None and ab is not None:
+                            v = "traced"
+                            d = f"read: better source ✓ ({ab}) — {better} ‖ the matcher had {d.split(' ‖ ')[0]} — denied: {reason}"
+                        elif bh2 is not None:
+                            holds, bval = bh2
+                            v = "traced" if holds else "stale"
+                            d = (f"read: bound {'holds' if holds else 'FAILS'} at the named source {'✓' if holds else '✗'} — {better} "
+                                 f"({bval:.3g}) ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
+                        elif bc is not None:
                             # the reader named the right source and it holds the quoted value:
                             # that IS the trace, and the wrong attribution is history
                             v = "traced"

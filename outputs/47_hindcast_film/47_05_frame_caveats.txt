@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.6.0
+# Frame text — 47_hindcast_film.py 1.6.1
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -47,9 +47,9 @@ The slides that follow show how it was made: a groundwater model, satellite pict
 ### 1.  A weather-driven groundwater model
 [figure] 00_01_climate_timeseries_short.png
 [figure] 47_06_free_run_vs_wells.png
-Since 2005 the reserve's dipwells have been read every month. Figure 4 (left) sets them beside the weather. Through runs of months when more rain falls than evaporates the water table climbs, and through dry runs it falls: the running balance of rain minus evaporation (panel c) and the network's water level (panel d) move together.
-From that link the study learned a simple monthly rule: the water table rises with the month's rain, falls with its evaporation, and drains back in proportion to how high it stands.
-The chart above is the test this film depends on. The model has run on nothing but RAF Valley's weather since 1930, with no well reading to correct it. Over the years the wells have been read it follows the warren's wet and dry years, on average 15 cm low: the bias the next slide removes.
+Figure 4 (left) is the weather and the water table together, 2005–2026. (a) Rain, month by month, with its long-term average as the dashed line. (b) Evaporation, which peaks every summer. (c) The running balance of rain minus evaporation: it climbs through wet runs of months and falls through dry ones. (d) The water table, averaged over the reserve's dipwells, with the spread between wells shaded. Panels (c) and (d) rise and fall together: that is the link the model is built on.
+From it the study learned a simple monthly rule: the water table rises with the month's rain, falls with its evaporation, and drains back in proportion to how high it stands.
+The chart above right is the test this film depends on. The blue line is the model, run on nothing but RAF Valley's weather since 1930 with no well reading to correct it; the black line is what the dipwells measured. The model follows the warren's wet and dry years, on average 15 cm low: the bias the next slide removes.
 [footer] Report Figure 4, section 4.1.1 · the model against the wells: this film's own run
 
 ### Correcting the model to the wells

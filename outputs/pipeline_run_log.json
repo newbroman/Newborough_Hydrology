@@ -325,9 +325,9 @@
    "step": "57/59  The public wet-area feed living/wet_area_model.json (D-178, T-36): the curves, the per-cell switching levels and the SSM history the scenario viewer and the film read. Assembles committed products; fits nothing"
   },
   "47_hindcast_film.py": {
-   "last_run": "2026-09-29T13:43:33",
-   "seconds": 241.1,
-   "status": "ok",
+   "last_run": "2026-09-29T16:31:59",
+   "seconds": 2.0,
+   "status": "failed",
    "step": "58/59  The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full"
   },
   "48_pastas_crosscheck.py": {
@@ -355,5 +355,5 @@
    "step": "11/59  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-09-29T13:43:33"
+ "updated": "2026-09-29T16:31:59"
 }

@@ -35,7 +35,9 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.11.0"  # Hollingham (2026) — 2026-09-28. T-91: adds
+__version__ = "2.12.0"  # Hollingham (2026) - 2026-09-28. Tier 2 figure: each BACI panel's y-label names its own
+#   paired control (CEH21 is paired with CEH22, not CEH4; held figure fix, T-92).
+# 2.11.0  # Hollingham (2026) — 2026-09-28. T-91: adds
 #   Pre_scraping_baseline_years rows to 09_scrape_report_numbers.csv -- the
 #   four focal wells' (CEH4, CEH36, CEH18, CEH21) monitoring-record length
 #   up to SCRAPING_DATE, for report8 Section 3.5.3. No existing value moves;
@@ -793,7 +795,7 @@ def _plot_tier2(plot_data):
             ax_baci.axhline(data["means"][era_name],
                             color=ERA_COLORS[era_name], ls="--", lw=2, alpha=0.9)
         ax_baci.set_ylim(baci_ylim)
-        ax_baci.set_ylabel("Δ Water Level (m)\n[CEH WELL - CEH4]",
+        ax_baci.set_ylabel(f"Δ Water Level (m)\n[{well.upper()} − {data['control']}]",
                            fontweight="bold")
         ax_baci.set_title(f"{well.upper()} Performance", fontsize=12, pad=10)
         ax_baci.grid(True, which="both", ls=":", alpha=0.4)

@@ -74,7 +74,9 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-28. Proofread: report9 §4.1.2's reading of
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-28. The dashed long-term monthly mean on the climate
+#   summary panels gets a legend entry (held figure fix, T-92).
+# 1.12.0  # Hollingham (2026) - 2026-09-28. Proofread: report9 §4.1.2's reading of
 #   the reference network against the Curreli thresholds is emitted from 00_02 (Mean_Summer_Min_m):
 #   the network mean, shallowest and deepest well, and the count of wells in each zone
 #   (reference_summer_min_*), zone edges from config.SD15b / SD16 / SD16_REC, a depth at a
@@ -477,7 +479,8 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
                            "alpha": 0.8, "pad": 1.5})
 
         ax1.step(df.index, df["P_mm"], where="mid", color=CB_BLUE, linewidth=1.4, alpha=0.95, label="Monthly precipitation")
-        ax1.axhline(df["P_mm"].mean(skipna=True), color="black", linestyle="--", linewidth=1.4, alpha=0.8)
+        ax1.axhline(df["P_mm"].mean(skipna=True), color="black", linestyle="--", linewidth=1.4, alpha=0.8,
+                    label="Long-term monthly mean")
         ax1.plot(df.index, p_roll_12_plot, color=CB_BLUE, linewidth=2.0, label="P 12-month rolling mean")
         ax1.set_ylabel("Precipitation (mm)")
         ax1.set_title("Climate Record Summary: Monthly Forcing and Annual Balances", fontweight="bold")
@@ -570,7 +573,8 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
         )
 
         ax1.bar(df.index, df["P_mm"], width=25, color=df["SeasonColor"], edgecolor="none", alpha=0.95)
-        ax1.axhline(df["P_mm"].mean(skipna=True), color="black", linestyle="--", linewidth=1.4, alpha=0.8)
+        ax1.axhline(df["P_mm"].mean(skipna=True), color="black", linestyle="--", linewidth=1.4, alpha=0.8,
+                    label="Long-term monthly mean")
         ax1.plot(df.index, p_roll_12, color=CB_BLUE, linewidth=2.0, label="P 12-month rolling mean")
         ax1.set_ylabel("Precipitation (mm)")
         ax1.set_title("Climate Record Summary: Monthly Forcing and Annual Balances", fontweight="bold")

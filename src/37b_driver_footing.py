@@ -89,7 +89,9 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-28. Figure title drops the internal "Part B" label and the
+#   script version (held figure fix, T-92).
+# 1.7.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number
 #   emits (no analysis change) - coast_erosion_{peak_mm,area_mm_ha,volume_m3},
 #   written to 37b_report_numbers.csv so the Methods Supplement S.20.6 headline
 #   sentence binds to a citation row.
@@ -796,7 +798,7 @@ def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
         # stretches the x-axis) — was colliding with the title above the panel.
         ax.legend(fontsize=7, loc="center right", framealpha=0.9)
 
-        fig.suptitle(f"Part B — comparative driver footing v{__version__}\n"
+        fig.suptitle("Comparative driver footing\n"
                      "forest · scrape · coast · climate on common measures "
                      f"({int(_H_START)}\u2192{int(_H_END)})", fontsize=10.5)
         fig.text(0.5, 0.005,

@@ -72,7 +72,12 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.5.0"  # Hollingham (2026) - 2026-09-28. T-91: 30_c4_report_numbers.csv also
+__version__ = "2.6.0"  # Hollingham (2026) - 2026-09-29. T-96: 30_c4_report_numbers.csv also
+#   carries the median per-well VIF on the comparison window for every cluster
+#   (perwell_vif_median_window, Well = cluster), the per-cluster median of the VIF
+#   column of 30_c4_perwell_beta3.csv that report9 §4.2.2 quotes for C4 ("the
+#   lowest in the network"). Emit-only; no fit or output changes.
+# v2.5.0  # Hollingham (2026) - 2026-09-28. T-91: 30_c4_report_numbers.csv also
 #   carries the centroid recession time t_R = 1/β₃ (months) for every cluster in the
 #   identifiability table (report10 §5.2.3 sets the C4 value against C2's), and the C4
 #   t_R under the MSL5_EXCLUDED_WELLS exclusion (recession_1_over_b3_months, 30_c4_centroid_
@@ -464,6 +469,15 @@ def main():
                 unit="months", well=_r["cluster"],
                 note="t_R = 1/β₃ at the cluster centroid (canonical Model A fit, "
                      "30_c4_identifiability_by_cluster.csv beta3)")
+    # T-96: median per-well VIF on the comparison window, every cluster
+    # (report9 §4.2.2). A per-well quantity summarised per cluster, NOT the
+    # centroid c4_vif above.
+    for (_cid, _lab), _g in PW.groupby(["cid", "cluster"]):
+        rpt.add("perwell_vif_median_window", float(_g["VIF"].median()),
+                unit="", well=_lab, era=f"{LCSC_DATA_LIMIT}-month window",
+                note=f"median over the cluster's per-well fits of the VIF of "
+                     f"h_disp_prev on {{P,PET}} (30_c4_perwell_beta3.csv VIF), "
+                     f"n = {len(_g)} wells; not the centroid VIF")
     rpt.add("c4_centroid_recession_time_excl", float(
                 SENS.loc[SENS["basis"] == "drop_msl5_excluded",
                          "recession_1_over_b3_months"].iloc[0]),

@@ -1,6 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
 NW10_trend_slope_mm_yr,,,-26.42857142857664,mm/yr,"p=0.101, n=6"
+NW10_trend_p,,,0.10141436474214008,,"p of NW10_trend_slope_mm_yr, n=6 summers"
 NW10_mean_anomaly_2010_2021,,,0.2950983606557377,m,
+NW10_mean_anomaly_full_record,,2007-2025,0.24902844744455155,m,"mean NW10_anomaly_m over all common summers, n=17"
+NW10_mean_anomaly_post_felling,,2018-2025,0.2675,m,"mean NW10_anomaly_m over summers after CLEARFELL_DATE, n=7"
 Transect_gradient_mm_per_100m,,,-0.4527941767678762,mm/100m,p=0.141
 Transect_gradient_p,,,0.14094484338340807,,p-value of the step-vs-distance regression through the impact and edge wells
 Transect_gradient_n_wells,,,5.0,wells,impact and edge wells the gradient is fitted on

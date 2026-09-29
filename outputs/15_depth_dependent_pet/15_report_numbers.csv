@@ -4,3 +4,8 @@ depth_dependent_pet_best_kappa,C2,,0.95,m^-1,"Best-fit PET depth-attenuation coe
 depth_dependent_pet_best_kappa,C3,,0.45,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
 depth_dependent_pet_best_kappa,C4,,0.05,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
 depth_dependent_pet_best_kappa,C5,,0.45,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
+depth_dependent_pet_efold_depth,C1,,0.4347826086956522,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
+depth_dependent_pet_efold_depth,C2,,1.0526315789473684,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
+depth_dependent_pet_efold_depth,C3,,2.2222222222222223,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
+depth_dependent_pet_efold_depth,C4,,20.0,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
+depth_dependent_pet_efold_depth,C5,,2.2222222222222223,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"

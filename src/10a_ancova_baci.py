@@ -33,7 +33,16 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-09-28. T-91: adds
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-09-29. T-96: emit-only rows in
+#   10a_report_numbers.csv for quantities the report quoted with no row behind them:
+#   Network_n_wells (the five-tier design count; report Abstract, report6 Section 1);
+#   Fell_centroid_distance per network well + _min/_max per tier (report8 Section 3.5.4
+#   control-well distance ranges); Scraping_to_clearfell_months (report9 Section 4.6.1);
+#   ANCOVA_Forest_<zone>_coeff_cwb2_x_fell_p, the curvature-term p as its own Value
+#   (report10 Sections 5.3.2 / 5.6.1); ANCOVA_<ctrl>_<zone>_absorbed_minus_predicted_drift
+#   (report10 Section 5.5); Drift_term_cost_impact_step, all5 free_trend minus no_trend
+#   (report10 Section 5.5). No analysis change; no existing value moves.
+# v1.18.0  # Hollingham (2026) — 2026-09-28. T-91: adds
 #   Easting_vs_dist_coast_r to 10a_report_numbers.csv -- the Pearson correlation
 #   between well easting (load_clearfell_data well_locations) and distance to the
 #   coast (well_distances_to_coast) across the primary design panel, Impact + Edge
@@ -217,7 +226,7 @@ from utils.clearfell_common import (
     ALL_NETWORK_WELLS, CLEARFELL_DATE, SCRAPING_DATE, SCRAPING_DATE_2,
     PRE_FELL_START, SCRAPING_DECAY_LAMBDA, compute_baci_displacement,
     compute_cwb, build_scraping_covariate_centroid, distance_from_ceh36,
-    coastal_drift_differential,
+    distance_from_fell_centroid, coastal_drift_differential,
     scraping_weight, ReportNumbers, print_network_summary,
     well_distances_to_coast, tier_distance_stats, far_field_tier_audit,
 )
@@ -2091,6 +2100,18 @@ def main():
                               f"this pair feels, 1 = exactly the fitted field. "
                               f"Differential {_r['coastal_differential_mm_yr']:+.2f} "
                               f"mm/yr from {_r['donor']}"))
+                # T-96: absorbed minus predicted coastal drift -- how far the
+                # drift the design absorbs sits from the rate the Script 25
+                # network gradient predicts for this pair.
+                rpt.add(f"{prefix}_absorbed_minus_predicted_drift",
+                        _r['absorbed_drift_mm_yr'] - _r['coastal_differential_mm_yr'],
+                        unit="mm/yr", well=zone_label,
+                        note=(f"absorbed_drift_mm_yr "
+                              f"{_r['absorbed_drift_mm_yr']:+.4f} minus "
+                              f"coastal_differential_mm_yr "
+                              f"{_r['coastal_differential_mm_yr']:+.4f} "
+                              f"(10a_09_coastal_scale_factor.csv); absorbed "
+                              f"SE {_r['absorbed_drift_se_mm_yr']:.4f} mm/yr"))
             else:
                 rpt.add(f"{prefix}_s_coast_identified", 0.0, unit="",
                         well=zone_label,
@@ -2183,6 +2204,11 @@ def main():
                      f"SE_native={fc['se'][c2_idx]:.6e}, "
                      f"p={format_p(fc['p'][c2_idx])}, "
                      f"curvature variant — buffering term")
+        # T-96: the p of the buffering term as its own Value (it was Note-only).
+        rpt.add(f"{prefix}_coeff_cwb2_x_fell_p", fc['p'][c2_idx], unit="",
+                well=zone_label,
+                note=f"p-value of {prefix}_coeff_cwb2_x_fell (CWB² × felling "
+                     f"interaction, curvature variant), n={fc['n']} months")
         rpt.add(f"{prefix}_coeff_cwb2_c", fc['b'][c2m_idx] * CWB2_SCALE,
                 unit="mm per (100mm CWB)^2",
                 well=zone_label,
@@ -2265,6 +2291,16 @@ def main():
                 note=f"Forest controls minus in-block (CEH32/CEH33); "
                      f"{_dib['step_m'] * 1000:+.1f} mm, p={format_p(_dib['p'])}; "
                      f"~+93 mm expected")
+    # T-96: what the drift term costs the Impact step -- all five forest
+    # controls, free coastal trend minus no trend (10a_12 rows).
+    _nt = subset_lookup.get(('all5', 'no_trend'))
+    if _all5 is not None and _nt is not None:
+        rpt.add("Drift_term_cost_impact_step", _all5['step_m'] - _nt['step_m'],
+                well="Impact", era="Post_felling",
+                note=(f"all5 free_trend step {_all5['step_m'] * 1000:+.2f} mm "
+                      f"minus all5 no_trend step {_nt['step_m'] * 1000:+.2f} mm "
+                      f"(10a_12_control_subset_sensitivity.csv), n_controls="
+                      f"{_all5['n']}"))
     rpt.add("Canopy_n_controls_in_block", float(len(in_block_ctrls)),
             unit="wells", well="Forest",
             note="forest controls inside a 1998 replant block "
@@ -2329,6 +2365,51 @@ def main():
                     unit="years", well=_max_well.upper(), era=_tier_label,
                     note=f"maximum across the {_tier_label} tier "
                          f"({', '.join(w.upper() for w in _tier_years)})")
+
+    # T-96: the size of the five-tier design, counted from the tier lists over
+    # the wells that carry data (report Abstract, report6 Section 1).
+    _net_members = {_t: [w for w in _tw if w in wells_observed.columns]
+                    for _t, _tw in _baseline_tiers.items()}
+    rpt.add("Network_n_wells", float(sum(len(v) for v in _net_members.values())),
+            unit="wells", well="Network",
+            note="five-tier clearfell BACI design: " + "; ".join(
+                f"{_t} {len(v)} ({', '.join(w.upper() for w in v)})"
+                for _t, v in _net_members.items()))
+
+    # T-96: each network well's distance from the felling-compartment centroid
+    # (clearfell_common.FELL_CENTROID_*), with the per-tier range report8
+    # Section 3.5.4 quotes beside the baseline years.
+    for _tier_label, _tier_wells in _net_members.items():
+        _tier_d = {}
+        for _dw in _tier_wells:
+            if _dw not in well_locations:
+                continue
+            _tier_d[_dw] = float(distance_from_fell_centroid(
+                well_locations[_dw]['easting'], well_locations[_dw]['northing']))
+            rpt.add("Fell_centroid_distance", _tier_d[_dw], unit="m",
+                    well=_dw.upper(), era=_tier_label,
+                    note="Euclidean distance from the felling-compartment "
+                         "centroid (FELL_CENTROID_EASTING/NORTHING)")
+        if _tier_d:
+            _dmin = min(_tier_d, key=_tier_d.get)
+            _dmax = max(_tier_d, key=_tier_d.get)
+            rpt.add("Fell_centroid_distance_min", _tier_d[_dmin], unit="m",
+                    well=_dmin.upper(), era=_tier_label,
+                    note=f"minimum across the {_tier_label} tier "
+                         f"({', '.join(w.upper() for w in _tier_d)})")
+            rpt.add("Fell_centroid_distance_max", _tier_d[_dmax], unit="m",
+                    well=_dmax.upper(), era=_tier_label,
+                    note=f"maximum across the {_tier_label} tier "
+                         f"({', '.join(w.upper() for w in _tier_d)})")
+
+    # T-96: calendar months from the CEH36 scraping to the clearfell
+    # (report9 Section 4.6.1), a difference of the two clearfell_common dates.
+    rpt.add("Scraping_to_clearfell_months",
+            float((CLEARFELL_DATE.year - SCRAPING_DATE.year) * 12
+                  + (CLEARFELL_DATE.month - SCRAPING_DATE.month)),
+            unit="months",
+            note=f"SCRAPING_DATE ({SCRAPING_DATE:%Y-%m}) to CLEARFELL_DATE "
+                 f"({CLEARFELL_DATE:%Y-%m})")
 
     # T-91: within the primary design panel, does easting carry distance to
     # the shore? Pearson r between the easting the drift term uses and the

@@ -9,7 +9,15 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-28. T-91: emits
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-29. T-96: emits the
+#   membership-tier counts from audit_df's Status and MCA_Flag columns -
+#   n_ref_core, n_ref_fuzzy, n_ref_spy, n_ref_confirmed (core + fuzzy),
+#   n_ref_mca_flagged (report9 §4.3, reference network) and n_ext_core,
+#   n_ext_fuzzy (report9 §4.3, extended network). The reference-network tiers
+#   are the same classification Script 05 writes (identical Class/Status and
+#   MCA_Flag at all 66 wells), counted here because Script 05 has no
+#   report-numbers file. Additive; no existing output changes.
+# 1.3.0  Hollingham (2026) - 2026-09-28. T-91: emits
 #   06_report_numbers.csv — LIS1 and FE1's Pearson r against the C4 centroid
 #   template (report9 §4.3), read from audit_df already in memory. No
 #   existing output changes.
@@ -302,6 +310,29 @@ def main():
                     well=_w.upper(),
                     note=f"Pearson r of {_w.upper()} (Extended network) against the "
                          f"C4 (Main Forest) reference-well centroid template, unrounded")
+    # T-96: membership-tier counts (report9 §4.3). Reference tiers use the
+    # same thresholds as Script 05 (config.PEARSON_DELTA_THRESH /
+    # PEARSON_MCA_THRESH) and reproduce its Class and MCA_Flag well for well.
+    _ref = audit_df[audit_df["Network"] == "Reference"]
+    _ext = audit_df[audit_df["Network"] == "Extended"]
+    _n_ref, _n_ext = int(len(_ref)), int(len(_ext))
+    for _key, _status, _n, _desc in (
+        ("n_ref_core", "Ref_Core", _n_ref, "reference wells classed Core (best match = assigned cluster, "
+                                           f"dr >= {DELTA_THRESH:g})"),
+        ("n_ref_fuzzy", "Ref_Fuzzy", _n_ref, "reference wells classed Fuzzy (best match = assigned cluster, "
+                                             f"dr < {DELTA_THRESH:g})"),
+        ("n_ref_spy", "Ref_Spy", _n_ref, "reference wells classed Spy (best match differs from assigned cluster)"),
+        ("n_ext_core", "Ext_Core", _n_ext, f"extended wells classed Ext_Core (dr >= {DELTA_THRESH:g})"),
+        ("n_ext_fuzzy", "Ext_Fuzzy", _n_ext, f"extended wells classed Ext_Fuzzy (dr < {DELTA_THRESH:g})"),
+    ):
+        rpt.add(_key, int((audit_df["Status"] == _status).sum()), unit="wells",
+                note=f"{_desc}, of n={_n}")
+    rpt.add("n_ref_confirmed", int(_ref["Status"].isin(["Ref_Core", "Ref_Fuzzy"]).sum()), unit="wells",
+            note=f"reference wells whose best-match cluster is their assigned cluster (Core + Fuzzy), "
+                 f"of n={_n_ref}")
+    rpt.add("n_ref_mca_flagged", int(_ref["MCA_Flag"].astype(bool).sum()), unit="wells",
+            note=f"reference wells with r > {MCA_THRESH:g} to three or more cluster centroids "
+                 f"(MCA_Flag), of n={_n_ref}")
     n_saved = rpt.save(OUT_06_REPORT_NUMBERS)
     step(f"Exported {n_saved} report numbers to {OUT_06_REPORT_NUMBERS.name}")
 

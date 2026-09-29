@@ -47,7 +47,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-28. T-91: emit
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-29. T-96: emit
+#   SummerMin_well_mean (one row per well, Era Full_record) -- each well's
+#   full-record mean summer minimum from data_df, which report10 Section 5.6.3
+#   quotes for CEH2 and CEH34. Summer metric only; no analysis change.
+# v1.10.0  # Hollingham (2026) - 2026-09-28. T-91: emit
 #   era-mean summer minima (pre-scraping / scraping-era / post-felling) for
 #   WMC3 and the Forest Ctrl tier, from data_df in run_metric(), gated to the
 #   summer_min metric only. Report9/report10 Section 5.5.1 and 5.7.4 cite
@@ -489,6 +493,16 @@ def main():
                         well="Forest Ctrl", era=era_name,
                         note=(f"era-mean {spec['value_col']} across the Forest "
                               f"Ctrl tier, n_well_years={len(grp)}"))
+
+            # T-96: each well's full-record mean summer minimum (report10
+            # Section 5.6.3 quotes CEH2 and CEH34), from the same data_df.
+            for well_name, grp in era_src.groupby("Well", sort=False):
+                rpt.add(f"{spec['rpt_prefix']}_well_mean",
+                        grp[spec["value_col"]].mean(),
+                        well=well_name, era="Full_record",
+                        note=(f"mean {spec['value_col']} over all usable "
+                              f"summers, n_years={len(grp)}, "
+                              f"tier={grp['Tier'].iloc[0]}"))
 
         shift_rows = []
         for w in ALL_NETWORK_WELLS:

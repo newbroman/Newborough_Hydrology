@@ -57,7 +57,10 @@ from utils.clearfell_common import (
     SCRAPING_DATE, ALL_NETWORK_WELLS, CORE_NETWORK_WELLS, ReportNumbers,
 )
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29. T-96: 10f_report_numbers carries
+#   SSM_Resid_Impact_minus_Forest_Ctrl_step, the Impact residual step net of the Forest Ctrl
+#   drift, which report9 Section 4.6.7 and report10 Section 5.5 quote (+27 mm). Emit-only.
+# v1.3.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
 #   No value changes; verified by re-run against the 2026-08-29 pipeline outputs.
 # v1.2.0  # Hollingham (2026) — 2026-08-21
 #
@@ -262,13 +265,24 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
 
     # Zone means
     print()
+    zone_steps = {}
     for tier in ['Impact', 'Edge', 'Forest Ctrl', 'Coastal Ctrl', 'Climate Ctrl']:
         zr = [r for r in norm_rows if r['Zone'] == tier]
         if zr:
             z_step = np.nanmean([r['Step_m'] for r in zr])
+            zone_steps[tier] = (z_step, len(zr))
             print(f"   {'MEAN':8} [{tier:<14}] step={z_step:+.3f} m  (n={len(zr)})")
             rpt.add(f"SSM_Resid_{tier.replace(' ', '_')}_mean_step",
                     round(z_step, 4), "m", note=f"n={len(zr)}")
+
+    # T-96: the Impact step net of the Forest Ctrl drift (report9 Section
+    # 4.6.7, report10 Section 5.5), from the unrounded zone means above.
+    if 'Impact' in zone_steps and 'Forest Ctrl' in zone_steps:
+        rpt.add("SSM_Resid_Impact_minus_Forest_Ctrl_step",
+                zone_steps['Impact'][0] - zone_steps['Forest Ctrl'][0], "m",
+                note=(f"SSM_Resid_Impact_mean_step (n={zone_steps['Impact'][1]}) "
+                      f"minus SSM_Resid_Forest_Ctrl_mean_step "
+                      f"(n={zone_steps['Forest Ctrl'][1]})"))
 
     # Export
     df_out = pd.DataFrame(norm_rows)

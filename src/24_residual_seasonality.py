@@ -53,7 +53,12 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.3.1"  # Hollingham (2026) — 2026-09-28
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29
+#
+# v1.4.0  # Hollingham (2026) -- 2026-09-29
+#   T-96: 24_report_numbers.csv also carries the wells analysed and the
+#   winter (Nov-Mar) and summer (May-Aug) phase-peak counts the diagnostic
+#   summary already printed (report10 §5.2.1, §5.3.1). Emit-only.
 #
 # v1.3.1  # Hollingham (2026) -- 2026-09-28
 #   T-91: emit network-mean sunshine-residual correlation and the per-cluster
@@ -623,6 +628,18 @@ def write_summary(clim_df, output_path, rpt=None):
     lines.append(f"  Wells with summer phase peak (May-Aug):              "
                  f"{summer_peaking} / {len(clim_df)}")
     lines.append("")
+
+    if rpt is not None:
+        # T-96: the phase counts above and their denominator (report10 §5.2.1, §5.3.1:
+        # "no wells of the 63 analysed peaking in summer", "48 of 63").
+        rpt.add("residual_seasonality_n_wells_analysed", int(len(clim_df)), unit="wells",
+                note="wells in the residual climatology (rows of 24_residual_climatology.csv)")
+        rpt.add("residual_phase_peak_winter_n_wells", int(winter_peaking), unit="wells",
+                era="Nov-Mar",
+                note=f"wells whose residual climatology peaks Nov-Mar, of {len(clim_df)}")
+        rpt.add("residual_phase_peak_summer_n_wells", int(summer_peaking), unit="wells",
+                era="May-Aug",
+                note=f"wells whose residual climatology peaks May-Aug, of {len(clim_df)}")
 
     if winter_peaking > 2 * summer_peaking:
         lines.append("  Dominant phase is winter/early spring. This is not the signature")

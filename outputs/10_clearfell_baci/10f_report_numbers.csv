@@ -4,5 +4,6 @@ SSM_Resid_Edge_mean_step,,,0.0218,m,n=4
 SSM_Resid_Forest_Ctrl_mean_step,,,0.0533,m,n=5
 SSM_Resid_Coastal_Ctrl_mean_step,,,-0.0952,m,n=2
 SSM_Resid_Climate_Ctrl_mean_step,,,-0.0153,m,n=5
+SSM_Resid_Impact_minus_Forest_Ctrl_step,,,0.027260000000000006,m,SSM_Resid_Impact_mean_step (n=1) minus SSM_Resid_Forest_Ctrl_mean_step (n=5)
 Synth_Impact_step,,,0.1013,m,"p=<0.001, n_donors=6"
 Synth_Edge_step,,,0.0441,m,"p=0.189, n_donors=6"

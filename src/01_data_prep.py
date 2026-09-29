@@ -16,7 +16,13 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.25.0"  # Hollingham (2026) - 2026-09-29. wells_reference_n, wells_extended_n and
+__version__ = "1.26.0"  # Hollingham (2026) - 2026-09-29. T-96 emit list: 01_report_numbers.csv gains
+#   wt_mean_elev_aod (one row per reference well: its mean of 01_wells_clean_maod.csv) and
+#   wt_mean_elev_aod_network_mean (report9 §4.2.1's 7.45 / 3.02 / 13.33 / 3.10 m AOD), and
+#   coast_eroding_hwm_length_km (report8 §3.7.4, the polyline dist_coast_m is measured to).
+#   The report-numbers write moves after the maOD conversion and the dist_coast validation
+#   so it can carry them; no other output moves.
+# 1.25.0  # Hollingham (2026) - 2026-09-29. wells_reference_n, wells_extended_n and
 #   wells_classified_n join 01_report_numbers.csv (Martin, from the proof queue: the 66 / 22 / 88
 #   counts must trace to a CSV, not be derived by a reader from a file's columns). No other output moves.
 # 1.24.0  # Hollingham (2026) - 2026-09-28. Coverage-state figures: well IDs shown in one case
@@ -613,6 +619,10 @@ def _validate_dist_coast(tol_m: float = 25.0):
         info("dist_coast_m reproduced from committed eroding-shoreline geometry "
              "within tolerance.")
     saved(INT_DIST_COAST_VALIDATION.name)
+    # 1.26.0: the length of the polyline the distances are measured to (report8
+    # §3.7.4 quotes it), summed over the same segments _perp() uses
+    return {"length_km": float(np.sqrt(seg_ab2).sum()) / 1000.0,
+            "n_vertices": int(len(coords))}
 
 
 def _build_observation_states(wells_clean, provenance):
@@ -874,7 +884,8 @@ def _render_coverage_figure(wells_scope, states):
            f"{span}  (Source: 01_data_prep.py)")
 
 
-def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network_counts=None):
+def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network_counts=None,
+                            aod_means=None, coast_line=None):
     """The ground-source counts report8 §3.1.2 states, read out of the frame just
     written: how many wells take their ground elevation from the DGPS survey, how
     many from the LiDAR DTM, and the total located. The DEM-vs-DGPS comparison that
@@ -912,6 +923,22 @@ def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network
         rr.add("trend_annual_rain_full_record_t", rain_trend["t"], unit="", era=_era, note="t-statistic; " + _n)
         rr.add("trend_annual_rain_full_record_p", rain_trend["p"], unit="", era=_era, note="two-sided p; " + _n)
         rr.add("trend_annual_rain_full_record_n", rain_trend["n"], unit="years", era=_era, note=_n)
+    if aod_means is not None and len(aod_means):
+        # 1.26.0 (T-96): report9 §4.2.1's water-table elevations — each reference well's own
+        # mean of 01_wells_clean_maod.csv (one row per well), and their network mean
+        _nref = int(len(aod_means))
+        rr.add("wt_mean_elev_aod_network_mean", float(aod_means.mean()), unit="m AOD",
+               note=f"mean over the {_nref} reference wells of each well's own mean water-table "
+                    f"elevation (column means of 01_wells_clean_maod.csv = ground_elev_m + level)")
+        for _w, _v in aod_means.sort_values().items():
+            rr.add("wt_mean_elev_aod", float(_v), unit="m AOD", well=str(_w),
+                   note=f"mean water-table elevation of the well over its record (column mean of "
+                        f"01_wells_clean_maod.csv); reference network n={_nref}")
+    if coast_line:
+        rr.add("coast_eroding_hwm_length_km", coast_line["length_km"], unit="km",
+               note=f"length of the committed west-facing Caernarfon Bay high-water polyline "
+                    f"(coastline_eroding_hwm.geojson, {coast_line['n_vertices']} vertices) that "
+                    f"dist_coast_m is measured to. report8 §3.7.4")
     n = rr.save(OUT_01_REPORT_NUMBERS)
     saved(f"{OUT_01_REPORT_NUMBERS.name} ({n} value(s))")
 
@@ -1227,8 +1254,8 @@ if __name__ == "__main__":
 
         elev_df.to_csv(INT_WELL_ELEVATIONS, index=False)
         saved(f"{INT_WELL_ELEVATIONS.name}")
-        _report_elevation_check(elev_df, src, pet_cmp, rain_trend,
-                                network_counts=(len(reference_wells), len(extended_wells)))
+        # 1.26.0: 01_report_numbers.csv is written after the maOD conversion and the
+        # dist_coast validation below, whose quantities it now also carries
     else:
         elev_df = None
         warn(f"Elevation file not found: {_WELL_ELEV_FILE}")
@@ -1256,6 +1283,7 @@ if __name__ == "__main__":
     #  summer). Verified against nw1, ceh2, nw5, ceh14, d15.              #
     # ------------------------------------------------------------------ #
     print("\n -> Converting level series to maOD...")
+    aod_means = None
     if elev_df is not None:
         ground_map = (
             elev_df.dropna(subset=["ground_elev_m"])
@@ -1276,6 +1304,7 @@ if __name__ == "__main__":
         if maod_cols:
             wells_maod = pd.DataFrame(maod_cols, index=wells_clean.index)
             wells_maod.to_csv(INT_WELLS_CLEAN_MAOD)
+            aod_means = wells_maod[[c for c in reference_wells if c in wells_maod.columns]].mean()
             print(f"    Converted {n_converted} wells to maOD")
             if n_no_elev:
                 warn(f"{n_no_elev} wells have no elevation data and are excluded from maOD file")
@@ -1293,7 +1322,11 @@ if __name__ == "__main__":
     #  well_metadata.csv remain canonical; this warns on drift only.      #
     # ------------------------------------------------------------------ #
     print("\n -> Validating well-to-coast distances...")
-    _validate_dist_coast()
+    coast_line = _validate_dist_coast()
+    if elev_df is not None:
+        _report_elevation_check(elev_df, src, pet_cmp, rain_trend,
+                                network_counts=(len(reference_wells), len(extended_wells)),
+                                aod_means=aod_means, coast_line=coast_line)
 
     # ------------------------------------------------------------------ #
     #  PIPELINE SCENARIO PARAMETERS                                       #

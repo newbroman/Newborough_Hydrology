@@ -126,7 +126,17 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.31.0"  # Hollingham (2026) — 2026-09-28. T-91: 25_report_numbers.csv also carries
+__version__ = "1.32.0"  # Hollingham (2026) — 2026-09-29. T-96: 25_report_numbers.csv gains rows for
+#   quantities the report quoted from a note, a comment or a difference of two rows:
+#   far_field_c_vif_raw_series / far_field_c_r2_raw_series (report9 §4.10.3, the raw-series
+#   collinearity, from the new raw_series_time_vif; the "about 151" in the fit_panel comment dates from
+#   an earlier record), ForestFree_ref_disagreement_lincap_vs_exp (§4.10.2, the 150 m counterpart of
+#   the d=0 row), delta0_loo_max_to_second_ratio (§4.10.2), Check2_msl5raw_vs_summermin_n (§4.12,
+#   report10 §5.7.2), BACI_corroboration_<tier>_<zone>_distance_contrast (report10 §5.5), and
+#   CorrectionDiag_r2_distance_pct / CorrectionDiag_resid_sd per donor fit (report10 §5.7.7, from
+#   25_14). Emit-only; no existing row or output changes.
+#
+# 1.31.0  Hollingham (2026) — 2026-09-28. T-91: 25_report_numbers.csv also carries
 #   (a) the fixed-length rolling-window sweep summary report9 §4.10.3 quotes — per window length, over
 #   the USABLE windows of 25_13, the mean and SD of the far-field constant c, the window count and
 #   corr(c, climate term) — and (b) the open-dune decomposition report10 §5.8.2 quotes — per cluster
@@ -1072,6 +1082,38 @@ def build_design(long: pd.DataFrame, cwb: pd.Series) -> pd.DataFrame:
     df["t_years"] = (df["date"] - df["date"].min()).dt.days / 365.25
     df["month"] = df["date"].dt.month
     return df
+
+
+def raw_series_time_vif(long: pd.DataFrame) -> tuple[float, float]:
+    """R² and VIF of elapsed time against the UN-centred cumulative water
+    balance over the panel's own months (1.32.0, T-96).
+
+    The counterpart of fit_panel's c_vif_vs_cwb before any fixed effect is
+    taken out: the P − PET cumulative sum is built from the same
+    _climate_monthly() record as load_cwb but without removing the mean, merged
+    onto the panel through build_design exactly as the published covariate is,
+    and t_years is regressed on it (with an intercept) across the distinct
+    months. A cumulative sum of a near-constant-mean series is almost a
+    straight line in time, which is what this measures; report9 §4.10.3 quotes
+    it beside the demeaned VIF.
+    """
+    cl = _climate_monthly()
+    wb = (pd.to_numeric(cl["P_m"], errors="coerce") * 1000
+          - pd.to_numeric(cl["PET"], errors="coerce") * 1000).dropna()
+    raw = wb.cumsum()
+    raw.name = "cwb"
+    months = build_design(long, raw).drop_duplicates("date")
+    y = months["t_years"].to_numpy(dtype=float)
+    X = np.column_stack([np.ones(len(y)), months["cwb"].to_numpy(dtype=float)])
+    if len(y) < 3:
+        return float("nan"), float("nan")
+    b, *_ = np.linalg.lstsq(X, y, rcond=None)
+    r = y - X @ b
+    ss_tot = float((y - y.mean()) @ (y - y.mean()))
+    if not ss_tot > 0:
+        return float("nan"), float("nan")
+    r2 = 1.0 - float(r @ r) / ss_tot
+    return r2, (1.0 / (1.0 - r2) if r2 < 1.0 else float("inf"))
 
 
 # ── Panel fits ───────────────────────────────────────────────────────────────
@@ -3196,6 +3238,12 @@ def _check2_correlation_rows(per_well: pd.DataFrame) -> list[dict]:
         {"Parameter": "Check2_msl5raw_vs_summermin_spearman_p",
          "Well": "", "Era": "2017-2023 vs full record",
          "Value": round(float(sp), 4), "Unit": "p", "Note": base_note},
+        # 1.32.0 (T-96): n as a row, not only in the note (report9 §4.12,
+        # report10 §5.7.2).
+        {"Parameter": "Check2_msl5raw_vs_summermin_n",
+         "Well": "", "Era": "2017-2023 vs full record",
+         "Value": int(n), "Unit": "wells",
+         "Note": base_note + " (wells in the inner join of the two files)"},
     ]
 
 
@@ -3371,7 +3419,16 @@ def build_report_numbers(fits: dict,
              "cumulative water balance is a near-straight line in time."),
             ("c_vif_vs_design", "",
              "the same, against the full linear design (CWB + month fixed "
-             "effects, within-well demeaned)")):
+             "effects, within-well demeaned)"),
+            ("c_vif_raw_series", "",
+             "VIF of elapsed time against the UN-centred cumulative water "
+             "balance (P - PET cumulative sum) over the distinct months of the "
+             "forest-free headline panel, before any fixed effect is removed "
+             "(raw_series_time_vif). The raw-series counterpart of "
+             "far_field_c_vif_vs_cwb; quote the two together."),
+            ("c_r2_raw_series", "R2",
+             "R-squared of the same raw-series regression (elapsed time on "
+             "the un-centred cumulative water balance).")):
         _v = ff.get(_k)
         if _v is not None and np.isfinite(_v):
             rows.append({"Parameter": f"far_field_{_k}", "Well": "", "Era": "",
@@ -3567,7 +3624,26 @@ def build_report_numbers(fits: dict,
                                "forest-free panel — the distance at which "
                                "linear-capped and exponential disagree "
                                "materially (25_01_panel_fit_parameters.csv).")})
-        _d0e, _Le, _ce = (float(_fe_c["popt"][0]), float(_fe_c["popt"][1]),
+        # 1.32.0 (T-96): the same disagreement at the reference distance, the
+        # small spread report9 §4.10.2 sets against the d=0 one.
+        if _ffk in decay_funcs and _ff_exp_key in decay_funcs:
+            _ref_lc = delta_at_distance(ff, decay_funcs[_ffk],
+                                        COASTAL_REFERENCE_DISTANCE_M)["value"]
+            _ref_ex = delta_at_distance(_fe_c, decay_funcs[_ff_exp_key],
+                                        COASTAL_REFERENCE_DISTANCE_M)["value"]
+            rows.append({"Parameter": "ForestFree_ref_disagreement_lincap_vs_exp",
+                         "Well": "", "Era": "2005-2026",
+                         "Value": abs(float(_ref_lc) - float(_ref_ex)),
+                         "Unit": "mm/yr",
+                         "Note": (f"Absolute difference between the two decay "
+                                  f"forms' rate at the "
+                                  f"{COASTAL_REFERENCE_DISTANCE_M:.0f} m "
+                                  f"reference distance on the forest-free panel "
+                                  f"(delta_ref_mm_yr in "
+                                  f"25_01_panel_fit_parameters.csv); the "
+                                  f"counterpart of "
+                                  f"ForestFree_d0_disagreement_lincap_vs_exp.")})
+        _d0e, _Le, _ce =(float(_fe_c["popt"][0]), float(_fe_c["popt"][1]),
                           float(_fe_c["popt"][2]))
         if _d0e < 0 < _ce:
             _x0 = -_Le * np.log(-_ce / _d0e)
@@ -3647,6 +3723,18 @@ def build_report_numbers(fits: dict,
     # underpowered one.  The contrast is carried in the note so no verdict is
     # quoted without it.
     for r in baci_corr.itertuples():
+        # 1.32.0 (T-96): the distance contrast as a row of its own, not only
+        # inside the z row's note (report10 §5.5 quotes it).
+        rows.append({"Parameter": (f"BACI_corroboration_{r.control_tier}_"
+                                    f"{r.impact_zone}_distance_contrast"),
+                      "Well": "", "Era": "BACI window",
+                      "Value": float(r.d_control_m - r.d_target_m),
+                      "Unit": "m",
+                      "Note": (f"d_control_m minus d_target_m in "
+                               f"25_04_baci_corroboration.csv: mean distance "
+                               f"to the shore of the {r.control_tier} control "
+                               f"({r.d_control_m:.0f} m) less the "
+                               f"{r.impact_zone} zone ({r.d_target_m:.0f} m).")})
         if not np.isfinite(pd.to_numeric(r.z_test_baci_vs_model,
                                           errors="coerce")):
             continue
@@ -3731,6 +3819,21 @@ def build_report_numbers(fits: dict,
             rows.append({"Parameter": _k, "Well": "", "Era": "",
                          "Value": _v, "Unit": _units.get(_k, ""),
                          "Note": _base + _notes.get(_k, "")})
+        # 1.32.0 (T-96): the leader as a multiple of the runner-up (report9
+        # §4.10.2), for delta_0 only: the ranking in the LOO table is by the
+        # delta_0 shift, and the reference-distance shifts rank differently.
+        _second = abs(float(_ls["delta0_loo_second_shift_mm_yr"]))
+        if _second > 0:
+            rows.append({"Parameter": "delta0_loo_max_to_second_ratio",
+                         "Well": "", "Era": "",
+                         "Value": abs(float(_ls["delta0_loo_max_shift_mm_yr"])) / _second,
+                         "Unit": "ratio",
+                         "Note": _base + ("|delta0_loo_max_shift_mm_yr| / "
+                                          "|delta0_loo_second_shift_mm_yr|: the "
+                                          "highest-leverage well's delta_0 shift as "
+                                          "a multiple of the next-largest. Applies "
+                                          "to delta_0, not to the reference-distance "
+                                          "rate.")})
     return pd.DataFrame(rows)
 
 
@@ -3809,6 +3912,35 @@ def t91_rolling_and_open_dune_rows(rolling: pd.DataFrame,
     return rows
 
 
+def correction_dispersion_rows(corr_diag: pd.DataFrame) -> list[dict]:
+    """T-96 report-number rows, in build_report_numbers' schema: per donor fit
+    in the 25_14 correction diagnostic, the share of the variance in per-well
+    trend that the distance profile accounts for (r2_distance, as a percentage)
+    and the SD of the per-well departures from it (resid_sd_mm_yr). report10
+    §5.7.7 quotes both for the forest-free headline donor. The two are constant
+    across a donor's tier rows, so the first row of each donor is read.
+    """
+    rows: list[dict] = []
+    if corr_diag is None or corr_diag.empty:
+        return rows
+    for fit_label, g in corr_diag.groupby("fit_label", sort=False):
+        r0 = g.iloc[0]
+        base = (f"25_14 correction diagnostic, metric {r0['metric']}, donor fit "
+                f"{fit_label}, {int(r0['n_slopes_used'])} per-well slopes; ")
+        rows.append({"Parameter": "CorrectionDiag_r2_distance_pct",
+                     "Well": fit_label, "Era": "2005-2026",
+                     "Value": 100.0 * float(r0["r2_distance"]), "Unit": "%",
+                     "Note": base + "share of the variance in per-well trend "
+                                    "accounted for by the distance profile "
+                                    "(r2_distance x 100)."})
+        rows.append({"Parameter": "CorrectionDiag_resid_sd",
+                     "Well": fit_label, "Era": "2005-2026",
+                     "Value": float(r0["resid_sd_mm_yr"]), "Unit": "mm/yr",
+                     "Note": base + "SD (ddof=1) of per-well trend about the "
+                                    "fitted profile (resid_sd_mm_yr)."})
+    return rows
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -3855,6 +3987,10 @@ def main() -> None:
                           p0=[-30.0, 1000.0, -5.0],
                           bounds=([-200, 100, -30], [50, 10000, 30]),
                           label="ff_lincap")
+    # 1.32.0 (T-96): the raw-series collinearity report9 §4.10.3 quotes beside
+    # the demeaned VIF; carried on the headline fit so build_report_numbers
+    # emits it in the same far_field_* group.
+    fit_ff_l["c_r2_raw_series"], fit_ff_l["c_vif_raw_series"] = raw_series_time_vif(long_ff)
     fit_ff_e = fit_panel(df_ff, model_exp,
                           p0=[-40.0, 600.0, -5.0],
                           bounds=([-200, 50, -30], [50, 5000, 30]),
@@ -4266,6 +4402,7 @@ def main() -> None:
 
     partitions = {}
     per_wells = {}
+    corr_diags = {}   # 1.32.0 (T-96): per metric, for the dispersion rows
     for m in metrics_to_run:
         print(f"\n  [{m['label']}] Computing per-well slopes ...")
         pw = compute_per_well_slopes(long_full, m["key"])
@@ -4303,6 +4440,7 @@ def main() -> None:
             pw, m["key"])
         corr_diag = pd.concat([corr_diag, corr_diag_can], ignore_index=True)
         corr_diag.to_csv(m["out_correction"], index=False)
+        corr_diags[m["key"]] = corr_diag
         saved(m["out_correction"].name)
         if not corr_diag.empty:
             _r0 = corr_diag.iloc[0]
@@ -4379,6 +4517,11 @@ def main() -> None:
         report = pd.concat(
             [report, pd.DataFrame(t91_rolling_and_open_dune_rows(
                 rolling, partitions["summer_min"]))],
+            ignore_index=True)
+        # T-96: distance-profile dispersion from 25_14 (report10 §5.7.7).
+        report = pd.concat(
+            [report, pd.DataFrame(correction_dispersion_rows(
+                corr_diags.get("summer_min")))],
             ignore_index=True)
         report.to_csv(paths.OUT_25_REPORT_NUMBERS, index=False)
 

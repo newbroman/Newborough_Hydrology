@@ -95,7 +95,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-27. 1.2.0: map arrows sized as a whole by the gradient
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-29. 1.3.0: T-96 emit list — sentinel_cells_tested,
+#   sentinel_cells_above_excess and sentinel_share_above_excess (report9 §4.8.5 "of 11,616 tested cells ... 4.2%
+#   (488 cells)") and n_slacks_with_turn (report9 §4.9.5 "7 of 116") join 01b_report_numbers.csv. Emit-only.
+# 1.2.0  # Hollingham (2026) - 2026-09-27. 1.2.0: map arrows sized as a whole by the gradient
 #   (length, shaft and head; SLACK_FLOW_ARROW_WIDTH_MAX, _SIZE_CLASSES, _HEAD; Martin: "size is better"); the
 #   Sentinel class "perched" renamed "unexplained" in the outputs, report numbers and figures, and
 #   SLACK_FLOW_PERCHED_M renamed SLACK_FLOW_EXCESS_M (Martin: "I dont think they are real"; D-205). The head-vs-ground
@@ -685,6 +688,15 @@ def main(no_fig: bool = False) -> int:
         rn.add(f"sentinel_share_{c.replace(' ', '_')}", share, unit="",
                note=f"share of {ok.sum()} ever-wet cells with a surface")
         rn.add(f"sentinel_cells_{c.replace(' ', '_')}", int((cls[ok] == c).sum()), unit="cells")
+    # 1.3.0 (T-96): report9 §4.8.5 quotes the denominator and the four "above" classes together
+    n_above = int((base_cls[ok] == "above").sum())
+    rn.add("sentinel_cells_tested", int(ok.sum()), unit="cells",
+           note="ever-wet cells with a surface (class other than 'no surface'); the denominator of every sentinel_share_*")
+    rn.add("sentinel_cells_above_excess", n_above, unit="cells",
+           note=f"cells with a well within {C.SLACK_FLOW_WELL_SUPPORT_M:g} m implying a water table more than "
+                f"{C.SLACK_FLOW_EXCESS_M:g} m above the surface: shadow + reached by well + floor edge + unexplained")
+    rn.add("sentinel_share_above_excess", float(n_above / ok.sum()) if ok.sum() else np.nan, unit="",
+           note=f"sentinel_cells_above_excess as a share of the {ok.sum()} cells with a surface")
     above_all = ok & (diff > C.SLACK_FLOW_EXCESS_M)
     rn.add("sentinel_above_share_unsupported", float((d_well[above_all] > C.SLACK_FLOW_WELL_SUPPORT_M).mean()), unit="",
            note=f"of cells more than {C.SLACK_FLOW_EXCESS_M:g} m above the surface, the share with no well within "
@@ -737,6 +749,9 @@ def main(no_fig: bool = False) -> int:
     rn.add("slacks_turning", int(slacks["turn_flag"].sum()), unit="slacks",
            note=f"wet-to-dry direction change > {C.SLACK_FLOW_TURN_DEG:g} deg")
     rn.add("median_turn_wet_dry_deg", float(slacks["turn_wet_dry_deg"].median()), unit="deg")
+    rn.add("n_slacks_with_turn", int(slacks["turn_wet_dry_deg"].notna().sum()), unit="slacks",
+           note="slacks with a direction in both the wet and the dry state (turn_wet_dry_deg defined); "
+                "the base of slacks_turning and median_turn_wet_dry_deg. report9 §4.9.5")
 
     phase(10, "Sensitivity")
     base_u, base_v = fields["mean"]

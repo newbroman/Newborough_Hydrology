@@ -67,9 +67,31 @@ cluster_isolated_nearest_dist_m,ceh31,C5 (Coastal Forest),115.95239715072007,m,"
 cluster_isolated_ground_elev_m,ceh31,C5 (Coastal Forest),6.32,m AOD,"ground elevation of ceh31, C5 (Coastal Forest)'s most isolated member"
 cluster_others_ground_elev_min_m,C5 (Coastal Forest),,4.65,m AOD,the cluster without ceh31
 cluster_others_ground_elev_max_m,C5 (Coastal Forest),,6.097,m AOD,the cluster without ceh31
+cluster_n_wells,C1 (Lake Edge),,7.0,wells,members of the canonical cluster (02_cluster_stats.csv)
+cluster_n_wells,C2 (Dune),,19.0,wells,members of the canonical cluster (02_cluster_stats.csv)
+cluster_n_wells,C3 (Western Residual),,26.0,wells,members of the canonical cluster (02_cluster_stats.csv)
+cluster_n_wells,C4 (Main Forest),,9.0,wells,members of the canonical cluster (02_cluster_stats.csv)
+cluster_n_wells,C5 (Coastal Forest),,5.0,wells,members of the canonical cluster (02_cluster_stats.csv)
+forest_clusters_n_wells,C4 (Main Forest) + C5 (Coastal Forest),,14.0,wells,members of the forest clusters (config.FOREST_CIDS) of the 66-well reference network
+ward_top_merge_distance,,,0.9882516964803084,,"height of the final (top) Ward merge of the reference dendrogram, 1 - r correlation distance (02_01_dendrogram.png); the primary binary division"
 amplitude_min_obs_per_window,,,24.0,count,months a well needs in a window for its p90-p10 amplitude: two annual cycles
 cluster_mean_level_m,C1 (Lake Edge),2006-12 to 2025-12,-0.3841960832677408,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 229 months; negative = below ground"
 cluster_mean_level_m,C2 (Dune),2006-12 to 2025-12,-0.5036735920800156,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 229 months; negative = below ground"
 cluster_mean_level_m,C3 (Western Residual),2006-12 to 2025-12,-0.7712467644728831,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 229 months; negative = below ground"
 cluster_mean_level_m,C4 (Main Forest),2006-12 to 2025-12,-1.3378935451742917,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 229 months; negative = below ground"
 cluster_mean_level_m,C5 (Coastal Forest),2006-12 to 2025-12,-1.1932893275586418,m,"mean of the cluster-mean hydrograph (member wells averaged each month), 02_03_cluster_hydrographs_wb.png panel (b), 229 months; negative = below ground"
+cluster_mean_level_offset_m,C2 minus C1,2006-12 to 2025-12,-0.11947750881227481,m,cluster_mean_level_m of C2 (Dune) minus that of C1 (Lake Edge); negative = C2 deeper
+cluster_mean_level_offset_m,C3 minus C1,2006-12 to 2025-12,-0.3870506812051423,m,cluster_mean_level_m of C3 (Western Residual) minus that of C1 (Lake Edge); negative = C3 deeper
+cluster_mean_level_offset_m,C4 minus C1,2006-12 to 2025-12,-0.9536974619065509,m,cluster_mean_level_m of C4 (Main Forest) minus that of C1 (Lake Edge); negative = C4 deeper
+cluster_mean_level_offset_m,C5 minus C1,2006-12 to 2025-12,-0.809093244290901,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C1 (Lake Edge); negative = C5 deeper
+cluster_mean_level_offset_m,C3 minus C2,2006-12 to 2025-12,-0.2675731723928675,m,cluster_mean_level_m of C3 (Western Residual) minus that of C2 (Dune); negative = C3 deeper
+cluster_mean_level_offset_m,C4 minus C2,2006-12 to 2025-12,-0.8342199530942761,m,cluster_mean_level_m of C4 (Main Forest) minus that of C2 (Dune); negative = C4 deeper
+cluster_mean_level_offset_m,C5 minus C2,2006-12 to 2025-12,-0.6896157354786262,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C2 (Dune); negative = C5 deeper
+cluster_mean_level_offset_m,C4 minus C3,2006-12 to 2025-12,-0.5666467807014086,m,cluster_mean_level_m of C4 (Main Forest) minus that of C3 (Western Residual); negative = C4 deeper
+cluster_mean_level_offset_m,C5 minus C3,2006-12 to 2025-12,-0.4220425630857587,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C3 (Western Residual); negative = C5 deeper
+cluster_mean_level_offset_m,C5 minus C4,2006-12 to 2025-12,0.1446042176156499,m,cluster_mean_level_m of C5 (Coastal Forest) minus that of C4 (Main Forest); negative = C5 deeper
+post2018_p90_p10_max_min_ratio,C1 (Lake Edge),,1.433763188745604,,"largest / smallest member post-2018 p90-p10 amplitude, n=7 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,C2 (Dune),,1.472611464968153,,"largest / smallest member post-2018 p90-p10 amplitude, n=19 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,C3 (Western Residual),,2.135303265940902,,"largest / smallest member post-2018 p90-p10 amplitude, n=26 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,C4 (Main Forest),,1.5739514348785875,,"largest / smallest member post-2018 p90-p10 amplitude, n=9 wells (02_08_cluster_amplitude_per_well.csv)"
+post2018_p90_p10_max_min_ratio,C5 (Coastal Forest),,1.3775862068965512,,"largest / smallest member post-2018 p90-p10 amplitude, n=5 wells (02_08_cluster_amplitude_per_well.csv)"

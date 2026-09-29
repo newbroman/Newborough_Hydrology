@@ -71,7 +71,12 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-28. Panel (d) prints beside each bar the p
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-29. T-96: 10e_report_numbers carries
+#   CoeffShift_Network_n_wells (the 17-well count, Note-only before; report9 Section 4.6.4)
+#   and CoeffShift_Forest Ctrl_pine_mean_db2, the Forest Ctrl mean Δβ₂ over the wells outside
+#   the broadleaf restock block (dist_broadleaf_restock_m > 0 in 01_locations.csv; report10
+#   Section 5.6.2). Reads 01_locations.csv (Script 01) for that flag. No other output moves.
+# 1.12.0  # Hollingham (2026) - 2026-09-28. Panel (d) prints beside each bar the p
 #   of that tier-mean shift against zero (two-sided z-test on the per-well fit SEs, tier_shift_p),
 #   and 10e_report_numbers carries them as CoeffShift_<tier>_mean_d<b>_p (Martin, proofread:
 #   "if β3 is noise in panel d then maybe it needs p figures"). No other output moves.
@@ -115,7 +120,7 @@ from utils.clearfell_common import (
     CLEARFELL_DATE, SCRAPING_DATE, PRE_FELL_START, TIER_COLOURS,
     ReportNumbers, print_network_summary, get_tier,
 )
-from utils.paths import make_all_dirs, DIR_10
+from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS
 from utils.model_utils import build_ssm_frame, fit_ssm
 from utils.render_utils import render_figure
 import pandas as pd
@@ -480,12 +485,45 @@ def main():
                 well="Network", era="Delta",
                 note=f"mean db1 across n={n_net} BACI-network wells "
                      f"(excl. Far-field Ctrl), n_decline={n_decline_net}")
+        # T-96: the count itself, as a Value (report9 Section 4.6.4).
+        rpt.add("CoeffShift_Network_n_wells", float(n_net), "wells",
+                well="Network",
+                note="BACI-network wells in 10e_01_coefficient_shifts.csv, "
+                     "excl. Far-field Ctrl: " + ", ".join(
+                         f"{t} {int((network_data['Tier'] == t).sum())}"
+                         for t in network_data['Tier'].unique()))
         if net_b1_before:
             rpt.add("CoeffShift_Network_mean_db1_pct_of_before",
                     100.0 * net_db1 / net_b1_before,
                     well="Network",
                     note="ratio of network mean db1 to network mean "
                          "b1_before, x100")
+
+    # T-96: Forest Ctrl mean Δβ₂ over the intact-pine wells only -- the Forest
+    # Ctrl wells outside the broadleaf restock block, identified from Script
+    # 01's dist_broadleaf_restock_m (0 = inside the block), not by name
+    # (report10 Section 5.6.2).
+    if INT_LOCATIONS.exists():
+        _loc = pd.read_csv(INT_LOCATIONS)
+        if {'Match_ID', 'dist_broadleaf_restock_m'}.issubset(_loc.columns):
+            _bl = {str(m).lower().replace(' ', '')
+                   for m, d in zip(_loc['Match_ID'], _loc['dist_broadleaf_restock_m'])
+                   if pd.notna(d) and float(d) <= 0.0}
+            _fc = shift_df[shift_df['Tier'] == 'Forest Ctrl']
+            _pine = _fc[~_fc['Well'].str.lower().isin(_bl)]
+            _dropped = sorted(set(_fc['Well']) - set(_pine['Well']))
+            if not _pine.empty:
+                rpt.add("CoeffShift_Forest Ctrl_pine_mean_db2", _pine['db2'].mean(),
+                        well="Forest Ctrl", era="Delta",
+                        note=(f"mean db2 over Forest Ctrl wells outside the broadleaf "
+                              f"restock block ({', '.join(_pine['Well'])}), "
+                              f"n_wells={len(_pine)}; excluded: "
+                              f"{', '.join(_dropped) or 'none'}"))
+        else:
+            warn(f"{INT_LOCATIONS.name} lacks dist_broadleaf_restock_m -- "
+                 f"pine-only Forest Ctrl Δβ₂ not emitted")
+    else:
+        warn(f"{INT_LOCATIONS.name} not found -- pine-only Forest Ctrl Δβ₂ not emitted")
 
     # T-91: the β₂ scenario multiplier and the tier ratios it is built from
     # (utils.clearfell_common.load_clearfell_b2_multiplier), which the Methods

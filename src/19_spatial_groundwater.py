@@ -26,7 +26,10 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.26.0"  # Hollingham (2026) - 2026-09-28. T-91: emits selected UKCP18/
+__version__ = "2.27.0"  # Hollingham (2026) - 2026-09-29. T-96: 19_report_numbers.csv also carries
+#   scenario_n_wells_forest_clusters, the SSM-fitted reference wells in config.FOREST_CIDS
+#   (report9 §4.13.2). Emit-only.
+# 2.26.0  # Hollingham (2026) - 2026-09-28. T-91: emits selected UKCP18/
 #   forestry-scenario cluster dh_mean values (unrounded) and the ΔMSL5 cross-check worst-diff
 #   to OUT_19_REPORT_NUMBERS (new file for this script), so report9/Supplement citations bind.
 # 2.25.0  # Hollingham (2026) - 2026-09-27. T-84 (Martin: "update script 19 to output per
@@ -2607,6 +2610,15 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     # captured here UNROUNDED (before the round(...,4) below) so the citation binds
     # to the value the scenario was actually computed at.
     rpt = ReportNumbers()
+    # 2.27.0 (T-96): how many of the SSM-fitted reference wells the forest scenarios act
+    # on directly — report9 §4.13.2 ("only 14 of 66 reference wells are in the two forest
+    # clusters"). Counted by cluster (config.FOREST_CIDS), not by the in_forest land-cover
+    # flag, which also takes in C3 wells under the canopy.
+    _fitted = wt[wt["b1"].notna()]
+    rpt.add("scenario_n_wells_forest_clusters", int(_fitted["Cluster"].isin(FOREST_CIDS).sum()),
+            unit="wells", well="+".join(f"C{c}" for c in FOREST_CIDS),
+            note=f"SSM-fitted reference wells in the forest clusters, of {len(_fitted)} "
+                 f"fitted reference wells")
     for sc_name, sl in SCENARIO_PARAMS.items():
         for sea in SEASONS:
             if sea == "winter":

@@ -108,7 +108,10 @@ Ridge reference point: config.RIDGE_REF_E / config.RIDGE_REF_N (OSGB36)
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-28. T-91: emit report numbers
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-29. T-96: 23_report_numbers.csv also carries
+#   ridge_lag_n_significant_peak_wells, the n of the Spearman peak-lag test as a value row
+#   (report10 §5.2.1). Emit-only.
+# 1.4.0  # Hollingham (2026) — 2026-09-28. T-91: emit report numbers
 #   (wells analysed, C4-vs-C2/C3 peak-lag Mann-Whitney U, peak-lag/distance
 #   Spearman rho, per-cluster beta_11 lagged-fraction median/mean, and
 #   P(t-1)/drainage-regressor collinearity mean+range) to OUT_23_REPORT_NUMBERS.
@@ -621,6 +624,11 @@ def write_test_summary(ccf_df, fits_df, trend_stats, output_path, rpt=None, coll
                 trend_stats['spearman_p'], unit="",
                 era=f"n={trend_stats['n']} significant-peak wells",
                 note="p-value for the Spearman rho above.")
+        # T-96: the n of the two rows above as a value of its own (report10 §5.2.1
+        # quotes "n = 49"); until now it sat only in their Era cell.
+        rpt.add("ridge_lag_n_significant_peak_wells", int(trend_stats['n']), unit="wells",
+                note="wells with a Bartlett-significant peak cross-correlation lag, the "
+                     "population of the Spearman test above")
 
         c4 = sig[sig['Cluster'] == 4]['peak_lag']
         c23 = sig[sig['Cluster'].isin([2, 3])]['peak_lag']

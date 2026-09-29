@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-29T22:55:32",
+ "generated": "2026-09-29T23:23:03",
  "orchestrator": "2.22.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1051,7 +1051,7 @@
     "outputs/33_envelope_amplification/33_dry_spring_depth_recent.png": "8729b514828bbce291f330f83dd0734f6542f30f21a90c6d54321b4e7a0b7464",
     "outputs/33_envelope_amplification/33_envelope_per_well.csv": "96746418447aa997e659982a30fe3a39ed85f82e87a66560ac2c905ffe9ea23a",
     "outputs/33_envelope_amplification/33_envelope_per_well_recent.csv": "fb761931acabdf2caa043ce23ca0709ad77408e39649a3bfa8fa58588e900f25",
-    "outputs/33_envelope_amplification/33_report_numbers.csv": "46c4ce8a4b7d24b5f974ef4144e9f1fea206a0372aab6c5210ae0f178a14f5b5",
+    "outputs/33_envelope_amplification/33_report_numbers.csv": "1e6388961fa8b06edcf6146f2854bd7bddfd1f7d2639cc8d5083f48b434b9c30",
     "outputs/33_envelope_amplification/33_results.txt": "801c9235df2c5aae093742e1d1510c1638186027e742566f9e3cb42d165d9fbb"
    },
    "fallbacks": [],
@@ -1062,9 +1062,9 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 46.2,
-   "started": "2026-09-29T22:48:22",
-   "version": "1.7.0"
+   "seconds": 45.9,
+   "started": "2026-09-29T23:22:17",
+   "version": "1.7.1"
   },
   "34_window_sensitivity.py": {
    "emitted": {
@@ -1186,8 +1186,8 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 3.1,
-   "started": "2026-09-29T22:51:04",
+   "seconds": 3.2,
+   "started": "2026-09-29T23:12:10",
    "version": "1.7.0"
   },
   "39_ccw_hindcast.py": {

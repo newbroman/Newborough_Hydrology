@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**166 output file(s)** supply **1758 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**166 output file(s)** supply **1758 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
 
 ## Cited quantities by output file
 
@@ -1788,13 +1788,14 @@
 | ε | `epsilon_resid` | the residual (error) term of the BACI ANCOVA and of the two- | `16_water_bal_table.csv`, `20_residual_perwell.csv`, `24b_01_cluster_climatology.csv`, `26_ewi_msl5_comparison.csv`, `26_table_s7_2_vw_datum_offsets.csv`, `37_driver_validation_per_well.csv` … |
 | η | `eta_interaction` | CWB x D_fell interaction coefficient in the BACI ANCOVA (rep | `10k_01_four_zone_results.csv` |
 | λ | `lambda_pflood` | rainfall multiplier in the P_flood calculation | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_03_pflood_per_well.csv`, `11b_05_table10_pflood_spreadsheet.csv` |
+| λ | `lambda_reach` | drawdown e-folding reach sqrt(Kb/(Sy·b3)); the forest field  | `44_10_forest_floor_excess.csv` |
 | ξ | `xi_drift` | coefficient on Drift(t) in the BACI ANCOVA — the fraction of | `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `01b_08_coastal_head_fit.csv`, `09b_01_individual_well_baci.csv`, `09b_02_centroid_summaries.csv`, `10a_01_ancova_comparison_table.csv` … |
 | τ | `tau_storage` | storage-drainage index Sy/beta_3, a per-well aquifer-archite | `00_01_annual_climate_summary.csv`, `00_01_annual_climate_summary_short.csv`, `01_dist_coast_validation.csv`, `02_11_month_stability.csv`, `05_pear_membership_audit.csv`, `06_pear_membership_audit_sitewide.csv` … |
 | φ | `phi_ar1` | lag-1 autocorrelation coefficient | `22_05_ssm_residual_autocorrelation.csv`, `22_06_ssm_cluster_mean_inference.csv`, `22_model_b_fits.csv` |
 | ψ | `psi_easting` | coefficient on the per-well Easting x Time interaction in th | `10a_01_ancova_comparison_table.csv`, `10a_02_ancova_full_coefficients.csv`, `10a_02b_drift_design_equivalence.csv`, `10a_03_baci_timeseries.csv`, `10a_09_coastal_scale_factor.csv`, `10a_09_control_well_spread.csv` … |
 | ψ | `psi_paired_easting` | coefficient on Easting(t) in the PAIRED BACI ANCOVA (Script  | `09c_01_summer_minima.csv`, `09c_05_spring_means.csv`, `44_09_slack_floor_datum.csv` |
 
-## Symbols with no output column (24)
+## Symbols with no output column (23)
 
 *Notation rather than data for most of these. Worth a look when a glyph here is one the pipeline is supposed to compute.*
 
@@ -1820,7 +1821,6 @@
 | δ | `delta0_coast` | coastal decay amplitude: the coast-edge water-table decline  |
 | η | `eta_sq` | eta squared, proportion of variance explained |
 | λ | `lambda_depth` | depth-coupling decay rate in the depth-dependent PET diagnos |
-| λ | `lambda_reach` | drawdown e-folding reach sqrt(Kb/(Sy·b3)); the forest field  |
 | λ | `lambda_scrape_covariate` | distance-decay length of the BACI scraping covariate, a sepa |
 | σ | `sigma_scrape` | coefficient on D_scrape(t) in the BACI ANCOVA, a distance-we |
 | φ | `phi_fell` | BACI felling-step coefficient phi_F |

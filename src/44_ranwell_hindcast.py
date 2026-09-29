@@ -48,11 +48,26 @@ Q3 — The rate.  Delta over the interval between the record midpoints, per site
   years, which the fit does not cover), and a third combined row takes the
   sites beyond the fitted reach (COMBINED_BEYOND_REACH).
 
+Q4 — Do the slack floors record a water table?  (T-71, D-208.)  Each classified
+  reference well's floor (01_locations ground_elev_m) is set against the depths of
+  its full-record mean, its spring level (Script 26 MSL_m_bg, D-189/D-207) and its
+  annual minimum (MIN_m_bg) below it; the inland baseline is the median over the
+  open-dune clusters (SLACK_FLOOR_BASELINE_CLUSTERS) at or beyond the coastal reach
+  L, and each well's excess over it is set against the MODELLED retreat response
+  (Script 20 coastal_h0_per_metre × Script 40's 1899–2026 frontage-median retreat,
+  shaped by the same linear-capped form as Q2's coastal expectation; the
+  exponential form is a flagged sensitivity column, quoted nowhere). Ranwell's
+  sites carry his own floor, recovered as level + depth from the digitised
+  readings, and the 1951–53 depths below it, so the depth change at each
+  headline well is read floor-to-floor with no interpolation and no OD datum —
+  a comparison that complements Q2 and does not replace it.
+
 What it does NOT establish: a point-to-point comparison (the wells are not
 where the pipes were); coefficient stationarity (Script 39's caveat applies,
 so a beta_1-scaling envelope is written); anything about the BS slack, for
 which Ranwell printed no series; anything under the forest canopy, where no
-Ranwell site lies.
+Ranwell site lies. Q4 writes the forest wells' excess but says nothing about
+its cause: that is T-72, and Martin rules before any text is written.
 
 Registered tier A, default, after Script 43 (it reads 43_01 and 43_07). Reads
 three raw inputs no pipeline step produces (D-145 records the exception, as
@@ -62,6 +77,7 @@ Inputs (via utils.paths):
     RANWELL_LEVELS, RANWELL_RANGES, RANWELL_PARC_MAWR_RAIN   (data/, digitised)
     OUT_43_SITES, OUT_43_WELL_BASINS, OUT_43_DIAGNOSTIC     (Script 43 v2)
     INT_CLIMATE, INT_MASTER_DATA, INT_WELLS_CLEAN, INT_LOCATIONS
+    INT_CLUSTER_STATS, OUT_26_ANNUAL_PER_WELL, OUT_20_REPORT_NUMBERS      (Q4)
     DATA_KML_COAST_2006, OUT_40_EPOCH_SERIES                  (coastal context)
     DATA_COASTLINE_ERODING, OUT_25_FIT_PARAMETERS              (coastal expectation)
 
@@ -75,12 +91,21 @@ Outputs (outputs/44_ranwell_hindcast/):
     44_07_hindcast.png                the printed series against the hindcast (annotated; MS)
     44_07b_hindcast_report.png        the same, caption-free, for the report
     44_08_level_change.png            Ranwell mean vs modern surface, per site
+    44_09_slack_floor_datum.csv       Q4: floor, depths, baseline, excess, retreat terms; Ranwell sites
+    44_09_slack_floor_datum.png       Q4: annual minimum below the floor vs distance to the eroding shoreline
     44_report_numbers.csv
 """
 
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-27. Coastal expectation (D-145, D-205; Martin: "We
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29. Q4 — the slack floors as a former water
+#   table (T-71, D-208; Martin's rulings 2026-09-29: baseline C1–C3 beyond L, medians, both retreat forms with
+#   the exponential flagged as sensitivity, a figure). 44_09_slack_floor_datum.csv: per well the floor, the
+#   depths of the full-record mean, the D-189/D-207 spring and the annual minimum below it, the inland
+#   baseline and excess, the MODELLED retreat expectation (linear-capped, as Q2), the residual, the implied
+#   retreat (ill-conditioned near L: its sigma is written beside it) and years; per Ranwell site his floor (level + depth) and 1951–53 depths, and the like-for-like
+#   depth change at the headline well. 44_09_slack_floor_datum.png. Nothing already emitted moves.
+# 1.3.0  # Hollingham (2026) — 2026-09-27. Coastal expectation (D-145, D-205; Martin: "We
 #   should name site 8 - could it be affected by coastal erosion?", "go ahead"). Each site carries its distance
 #   to the eroding shoreline (coastline_eroding_hwm.geojson, the Script 25 datum) and what Script 25's
 #   headline fit (RANWELL_COASTAL_FIT) would give there over the interval: coastal_expectation_m, flagged in
@@ -382,6 +407,178 @@ def plot_level_change(lc: pd.DataFrame, fig_path):
     plt.close(fig)
 
 
+# ── Q4 — the slack floors as a former water table (T-71, D-208) ──────────────
+def _ranwell_floor_depths(lv: pd.DataFrame, rg: pd.DataFrame) -> pd.DataFrame:
+    """Per Ranwell site: his floor (m OD, recovered as level + depth from the
+    digitised readings) and the 1951–53 depths below it, m, POSITIVE DOWN.
+    Fig. 4 sites carry reading statistics; Fig. 7 sites the monthly mid-range.
+    Spring is the readings dated in the calendar months that D-189's bucketed
+    MSL_SPRING_MONTHS stand for (bucketed month m is the reading dated m + 1)."""
+    spring_cal = tuple(m + 1 for m in config.MSL_SPRING_MONTHS)
+    rows = {}
+    for s, g in lv.groupby("site_no"):
+        dep = g["depth_below_surface_cm"] / 100.0
+        rows[int(s)] = dict(
+            ranwell_floor_m_od=float((g["level_m_od"] + dep).median()),
+            ranwell_depth_mean_m=float(dep.mean()),
+            ranwell_depth_spring_m=float(dep[g["date"].dt.month.isin(spring_cal)].mean()),
+            ranwell_depth_max_m=float(dep.max()),
+            ranwell_n=int(len(g)), ranwell_basis="fig4_readings")
+    for s, g in rg.groupby("site_no"):
+        if int(s) in rows:
+            continue
+        mid = (g["depth_min_cm"] + g["depth_max_cm"]) / 200.0
+        rows[int(s)] = dict(
+            ranwell_floor_m_od=float((g["level_max_m_od"] + g["depth_min_cm"] / 100.0).median()),
+            ranwell_depth_mean_m=float(mid.mean()),
+            ranwell_depth_spring_m=float(mid[g["month"].isin(spring_cal)].mean()),
+            ranwell_depth_max_m=float(g["depth_max_cm"].max() / 100.0),
+            ranwell_n=int(len(g)), ranwell_basis="fig7_midrange")
+    out = pd.DataFrame.from_dict(rows, orient="index")
+    out.index.name = "site_no"
+    return out
+
+
+def slack_floor_datum(wc, loc, clusters, msl, metrics, ranwell, eroding, cg_L, h0_per_metre_mm, retreat_m,
+                      rate_recent_m_yr, rate_long_m_yr):
+    """One row per classified reference well, then one per Ranwell site.
+
+    Depths are m below the slack floor, positive down: the full-record mean, the
+    median over hydrological years of Script 26's spring mean (MSL_m_bg, D-189/
+    D-207, valid years) and of its annual minimum (MIN_m_bg, min_valid years).
+    The inland baseline is the median of each over the open-dune clusters
+    (SLACK_FLOOR_BASELINE_CLUSTERS) at or beyond the coastal reach L; the excess
+    is depth minus baseline. The retreat expectation is MODELLED: the 2005–26
+    coastal response per metre (Script 20 coastal_h0_per_metre, from the Script 25
+    headline fit) times the 1899–2026 frontage-median retreat (Script 40), shaped
+    by the same linear-capped form Q2 uses, max(1 − d/L, 0). The exponential
+    form exp(−d/L) is written as a flagged sensitivity column and quoted nowhere
+    (Martin, 2026-09-29). The implied retreat inverts the capped form inside L
+    and is NaN beyond it, where the form has no response; the years are that
+    retreat at Script 40's 2006–26 headline rate and at the 1899–2026 mean rate."""
+    from shapely.geometry import Point as _Pt                    # noqa: PLC0415
+    spring = msl[msl["valid"].astype(bool)].groupby("well")["MSL_m_bg"].median()
+    n_spring = msl[msl["valid"].astype(bool)].groupby("well").size()
+    amin = msl[msl["min_valid"].astype(bool)].groupby("well")["MIN_m_bg"].median()
+    n_min = msl[msl["min_valid"].astype(bool)].groupby("well").size()
+    hl = metrics[metrics["headline"]].set_index("well")["site_no"] if len(metrics) else pd.Series(dtype=float)
+    k_per_m = h0_per_metre_mm / 1000.0
+    rows = []
+    for w, c in clusters.items():
+        if w not in wc.columns or w not in loc.index:
+            warn(f"Q4: {w} (C{c}) has no cleaned record or location; skipped")
+            continue
+        s = pd.to_numeric(wc[w], errors="coerce").dropna()
+        d_er = float(eroding.distance(_Pt(float(loc.loc[w, "E"]), float(loc.loc[w, "N"]))))
+        rows.append(dict(row="well", well=w, cluster=int(c),
+                         floor_m_od=float(loc.loc[w, "ground_elev_m"]), ground_source=loc.loc[w, "ground_source"],
+                         dist_eroding_hwm_m=d_er, within_coastal_reach=bool(d_er < cg_L),
+                         n_months=int(len(s)), depth_mean_m=float(-s.mean()),
+                         depth_spring_m=float(-spring[w]) if w in spring.index else np.nan,
+                         depth_min_m=float(-amin[w]) if w in amin.index else np.nan,
+                         n_years_spring=int(n_spring.get(w, 0)), n_years_min=int(n_min.get(w, 0)),
+                         ranwell_site=int(hl[w]) if w in hl.index else np.nan,
+                         ranwell_pairing="headline_well_of_site" if w in hl.index else ""))
+    df = pd.DataFrame(rows)
+    base_sel = df[df["cluster"].isin(config.SLACK_FLOOR_BASELINE_CLUSTERS) & ~df["within_coastal_reach"]]
+    base = {}
+    for stat in ("mean", "spring", "min"):
+        v = base_sel[f"depth_{stat}_m"].dropna()
+        base[stat] = (float(v.median()), float((v - v.median()).abs().median()), int(len(v)))
+        df[f"baseline_depth_{stat}_m"] = base[stat][0]
+        df[f"excess_{stat}_m"] = df[f"depth_{stat}_m"] - base[stat][0]
+    shape_lin = np.clip(1.0 - df["dist_eroding_hwm_m"] / cg_L, 0.0, None)
+    df["retreat_1899_2026_m"] = retreat_m
+    df["coastal_h0_per_metre_mm"] = h0_per_metre_mm
+    df["retreat_expectation_modelled_m"] = k_per_m * retreat_m * shape_lin
+    df["retreat_expectation_exp_sensitivity_m"] = k_per_m * retreat_m * np.exp(-df["dist_eroding_hwm_m"] / cg_L)
+    for stat in ("mean", "spring", "min"):
+        df[f"residual_after_retreat_{stat}_m"] = df[f"excess_{stat}_m"] - df["retreat_expectation_modelled_m"]
+    resp = k_per_m * shape_lin
+    df["implied_retreat_m"] = np.where(resp > 0, df["excess_min_m"] / resp.replace(0, np.nan), np.nan)
+    # the excess carries at least the baseline's spread, and the response vanishes at L, so the implied
+    # retreat is ill-conditioned near L: its uncertainty (MAD of the baseline over the response) is
+    # written beside it, and a value is "resolved" only when it exceeds twice that
+    df["implied_retreat_sigma_m"] = np.where(resp > 0, base["min"][1] / resp.replace(0, np.nan), np.nan)
+    df["implied_retreat_resolved"] = (df["implied_retreat_m"].abs() > 2 * df["implied_retreat_sigma_m"]).fillna(False)
+    df["implied_years_at_2006_2026_rate"] = df["implied_retreat_m"] / rate_recent_m_yr
+    df["implied_years_at_1899_2026_rate"] = df["implied_retreat_m"] / rate_long_m_yr
+    return df, base
+
+
+def _ranwell_site_rows(ranwell, sites, metrics, wells_df, eroding, cg_L, base, k_per_m, retreat_m):
+    """The Ranwell-site rows of 44_09: his floor and depths, and the like-for-like
+    depth change at the site's headline well (modern depth minus his), positive =
+    deeper now. No interpolation, no OD datum: both sides are read from their own
+    floor."""
+    from shapely.geometry import Point as _Pt                    # noqa: PLC0415
+    hl = metrics[metrics["headline"]].set_index("site_no")["well"] if len(metrics) else pd.Series(dtype=object)
+    wd = wells_df.set_index("well")
+    rows = []
+    for s, r in ranwell.iterrows():
+        srow = sites.loc[s]
+        d_er = float(eroding.distance(_Pt(float(srow["easting"]), float(srow["northing"]))))
+        w = hl.get(s, "")
+        row = dict(row="ranwell_site", well=w, cluster=int(wd.loc[w, "cluster"]) if w in wd.index else np.nan,
+                   floor_m_od=np.nan, ground_source="", dist_eroding_hwm_m=d_er,
+                   within_coastal_reach=bool(d_er < cg_L), ranwell_site=int(s),
+                   ranwell_pairing="site_with_headline_well" if w else "site_unpaired",
+                   retreat_1899_2026_m=retreat_m, coastal_h0_per_metre_mm=k_per_m * 1000.0,
+                   retreat_expectation_modelled_m=k_per_m * retreat_m * max(1.0 - d_er / cg_L, 0.0),
+                   retreat_expectation_exp_sensitivity_m=k_per_m * retreat_m * np.exp(-d_er / cg_L),
+                   **{k: r[k] for k in r.index})
+        for stat in ("mean", "spring", "min"):
+            row[f"baseline_depth_{stat}_m"] = base[stat][0]
+        if w in wd.index:
+            row["paired_depth_change_mean_m"] = float(wd.loc[w, "depth_mean_m"] - r["ranwell_depth_mean_m"])
+            row["paired_depth_change_spring_m"] = float(wd.loc[w, "depth_spring_m"] - r["ranwell_depth_spring_m"])
+            row["paired_depth_change_max_m"] = float(wd.loc[w, "depth_min_m"] - r["ranwell_depth_max_m"])
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def plot_slack_floor_datum(df: pd.DataFrame, base: dict, cg_L: float, k_per_m: float, retreat_m: float, fig_path):
+    """Depth of the annual minimum below the slack floor against distance to the
+    eroding shoreline, by cluster; the inland baseline with its MAD; the modelled
+    retreat expectation (capped form, solid) with the exponential sensitivity
+    (dashed); Ranwell's 1951–53 deepest readings at his sites. Caption-free."""
+    wells = df[df["row"] == "well"]
+    sites_ = df[df["row"] == "ranwell_site"]
+    fig, ax = plt.subplots(figsize=(9, 5))
+    b, mad, n = base["min"]
+    xmax = float(np.nanmax(df["dist_eroding_hwm_m"])) * 1.05
+    ax.axhspan(b - mad, b + mad, color="0.8", alpha=0.5, lw=0,
+               label=f"inland baseline, annual minimum (median ± MAD, n = {n})")
+    ax.axhline(b, color="0.4", lw=1.0)
+    x = np.linspace(0, xmax, 300)
+    ax.plot(x, b + k_per_m * retreat_m * np.clip(1 - x / cg_L, 0, None), color="k", lw=1.5,
+            label="baseline + modelled retreat response, capped at L")
+    ax.plot(x, b + k_per_m * retreat_m * np.exp(-x / cg_L), color="k", lw=1.0, ls="--",
+            label="exponential sensitivity (not quoted)")
+    ax.axvline(cg_L, color="0.5", lw=0.8, ls=":")
+    ax.annotate("L", (cg_L, ax.get_ylim()[0]), textcoords="offset points", xytext=(3, 4), fontsize=8, color="0.4")
+    for c in sorted(wells["cluster"].unique()):
+        g = wells[wells["cluster"] == c]
+        ax.scatter(g["dist_eroding_hwm_m"], g["depth_min_m"], s=28, color=config.CLUSTER_COLOURS[int(c)],
+                   edgecolor="white", linewidth=0.6, label=f"C{int(c)} wells", zorder=3)
+    if len(sites_):
+        ax.scatter(sites_["dist_eroding_hwm_m"], sites_["ranwell_depth_max_m"], marker="*", s=90, color="k",
+                   zorder=4, label="Ranwell sites, deepest 1951–53 reading")
+        for r in sites_.itertuples():
+            ax.annotate(f"R{int(r.ranwell_site)}", (r.dist_eroding_hwm_m, r.ranwell_depth_max_m),
+                        textcoords="offset points", xytext=(5, -9), fontsize=8)
+    ax.invert_yaxis()
+    ax.set_xlim(0, xmax)
+    ax.set_xlabel("Distance to the eroding shoreline (m)")
+    ax.set_ylabel("Annual minimum below the slack floor (m)")
+    ax.set_title("Slack floor against the water table, by distance from the eroding shoreline", fontsize=10, loc="left")
+    ax.grid(alpha=0.3)
+    ax.legend(fontsize=7.5, framealpha=0.9, loc="lower right")
+    fig.tight_layout()
+    render_figure(fig, fig_path)
+    plt.close(fig)
+
+
 # ── main ──────────────────────────────────────────────────────────────────────
 def main() -> int:
     apply_house_style()
@@ -592,7 +789,49 @@ def main() -> int:
     step(f"1951-02 to 1953-08: Parc Mawr / RAF Valley total {ratio_span:.3f}, monthly r {r_span:.2f} "
          f"({len(in_span)} months)")
 
-    phase(5, "Outputs")
+    phase(5, "Q4 — the slack floors as a former water table (T-71)")
+    clusters = pd.read_csv(paths.INT_CLUSTER_STATS)
+    clusters = pd.Series(clusters["Cluster"].astype(int).values, index=clusters["Match_ID"].map(_norm))
+    msl26 = pd.read_csv(paths.OUT_26_ANNUAL_PER_WELL)
+    msl26["well"] = msl26["well"].map(_norm)
+    rn20 = pd.read_csv(paths.OUT_20_REPORT_NUMBERS)
+    h0row = rn20[rn20["Parameter"] == "coastal_h0_per_metre"]
+    if h0row.empty:
+        raise RuntimeError(f"no coastal_h0_per_metre row in {paths.OUT_20_REPORT_NUMBERS.name}: run Script 20")
+    h0_per_metre = float(h0row["Value"].iloc[0])
+    if not np.isfinite(retreat_1899_2026):
+        raise RuntimeError(f"no 1899-2026 pair_extent row in {paths.OUT_40_EPOCH_SERIES.name}: run Script 40")
+    rn40 = pd.read_csv(paths.OUT_40_REPORT_NUMBERS)
+    r40 = rn40[rn40["Parameter"] == "headline_retreat_rate_2006_2026_m_yr"]
+    rate_recent = float(r40["Value"].iloc[0]) if len(r40) else np.nan
+    ep = pd.read_csv(paths.OUT_40_EPOCH_SERIES)
+    ep = ep[(ep["basis"] == "pair_extent") & (ep["from_epoch"].astype(str) == "1899") & (ep["to_epoch"].astype(str) == "2026")]
+    rate_long = retreat_1899_2026 / (float(ep["to_epoch"].iloc[0]) - float(ep["from_epoch"].iloc[0]))
+    ranwell = _ranwell_floor_depths(lv, rg)
+    sfd, base = slack_floor_datum(wc, loc, clusters, msl26, metrics, ranwell, eroding, cg_L, h0_per_metre,
+                                  retreat_1899_2026, rate_recent, rate_long)
+    sfd_sites = _ranwell_site_rows(ranwell, sites, metrics, sfd, eroding, cg_L, base, h0_per_metre / 1000.0,
+                                   retreat_1899_2026)
+    sfd = pd.concat([sfd, sfd_sites], ignore_index=True)
+    info(f"inland baseline: C{'/'.join(str(c) for c in config.SLACK_FLOOR_BASELINE_CLUSTERS)} at >= L = {cg_L:.0f} m, "
+         f"n {base['min'][2]}: depth below floor mean {base['mean'][0]:.3f}, spring {base['spring'][0]:.3f}, "
+         f"annual minimum {base['min'][0]:.3f} m (MAD {base['min'][1]:.3f})")
+    info(f"retreat term (MODELLED): {h0_per_metre:.2f} mm/m x {retreat_1899_2026:.0f} m, capped at L; "
+         f"exponential written as sensitivity only")
+    wells_q4 = sfd[sfd["row"] == "well"]
+    for c, g in wells_q4.groupby("cluster"):
+        step(f"C{c}: n {len(g)}, median excess (annual minimum) {g['excess_min_m'].median():+.3f} m, "
+             f"modelled retreat {g['retreat_expectation_modelled_m'].median():.3f} m, "
+             f"residual {g['residual_after_retreat_min_m'].median():+.3f} m; "
+             f"{int(g['within_coastal_reach'].sum())} within L")
+    for r in sfd_sites.itertuples():
+        step(f"Ranwell site {r.ranwell_site}: floor {r.ranwell_floor_m_od:.2f} m OD, 1951-53 depth mean "
+             f"{r.ranwell_depth_mean_m:.2f} / spring {r.ranwell_depth_spring_m:.2f} / deepest {r.ranwell_depth_max_m:.2f} m"
+             + (f"; paired {r.well}: deeper now by {r.paired_depth_change_mean_m:+.2f} (mean), "
+                f"{r.paired_depth_change_spring_m:+.2f} (spring), {r.paired_depth_change_max_m:+.2f} (minimum) m"
+                if r.well else "; no headline well"))
+
+    phase(6, "Outputs")
     lv_out = lv.merge(sites[["sketch_slack", "basin_id"]], left_on="site_no", right_index=True, how="left")
     hl = metrics[metrics["headline"]][["site_no", "well"]].rename(columns={"well": "headline_well"})
     lv_out = lv_out.merge(hl, on="site_no", how="left").drop(columns=["month"])
@@ -619,6 +858,10 @@ def main() -> int:
         saved(paths.OUT_44_HINDCAST_REPORT_FIG.name)
     plot_level_change(lc, paths.OUT_44_CHANGE_FIG)
     saved(paths.OUT_44_CHANGE_FIG.name)
+    sfd.to_csv(paths.OUT_44_SLACK_FLOOR_DATUM, index=False)
+    saved(paths.OUT_44_SLACK_FLOOR_DATUM.name)
+    plot_slack_floor_datum(sfd, base, cg_L, h0_per_metre / 1000.0, retreat_1899_2026, paths.OUT_44_SLACK_FLOOR_FIG)
+    saved(paths.OUT_44_SLACK_FLOOR_FIG.name)
 
     hlm = metrics[metrics["headline"]]
     rn = [
@@ -653,6 +896,29 @@ def main() -> int:
                    (f"ranwell_chi2_dof_{k}", c["chi2_per_dof"], "-", f"{c['row']}: chi-square per degree of freedom"),
                    (f"ranwell_rate_mm_yr_{k}", c["rate_mm_per_year"], "mm/yr", f"{c['row']}: delta over the interval"),
                    (f"ranwell_resolved_{k}", int(c["resolved"]), "flag", f"{c['row']}: |delta| > 2 sigma")]
+    for stat, lab in (("mean", "full-record mean"), ("spring", "spring level (D-189/D-207)"), ("min", "annual minimum")):
+        rn += [(f"slack_floor_baseline_depth_{stat}_m", base[stat][0], "m",
+                f"inland baseline: median depth of the {lab} below the slack floor, C"
+                + "/".join(str(c) for c in config.SLACK_FLOOR_BASELINE_CLUSTERS) + " wells at or beyond L"),
+               (f"slack_floor_baseline_depth_{stat}_mad_m", base[stat][1], "m", f"inland baseline ({lab}): median absolute deviation")]
+    rn.append(("slack_floor_baseline_n", base["min"][2], "count", "wells in the inland baseline"))
+    for c, g in wells_q4.groupby("cluster"):
+        rn += [(f"slack_floor_depth_min_median_C{c}_m", float(g["depth_min_m"].median()), "m", f"C{c}: median depth of the annual minimum below the floor"),
+               (f"slack_floor_depth_spring_median_C{c}_m", float(g["depth_spring_m"].median()), "m", f"C{c}: median depth of the spring level below the floor"),
+               (f"slack_floor_excess_min_median_C{c}_m", float(g["excess_min_m"].median()), "m", f"C{c}: median excess of the annual-minimum depth over the inland baseline"),
+               (f"slack_floor_retreat_expectation_median_C{c}_m", float(g["retreat_expectation_modelled_m"].median()), "m",
+                f"C{c}: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"),
+               (f"slack_floor_residual_min_median_C{c}_m", float(g["residual_after_retreat_min_m"].median()), "m", f"C{c}: median excess less the modelled retreat response"),
+               (f"slack_floor_wells_within_reach_C{c}", int(g["within_coastal_reach"].sum()), "count", f"C{c}: wells nearer the eroding shoreline than L")]
+    for r in sfd_sites.itertuples():
+        s_ = int(r.ranwell_site)
+        rn += [(f"ranwell_floor_m_od_site{s_}", r.ranwell_floor_m_od, "m OD", f"site {s_}: Ranwell's floor, level + depth from the digitised readings ({r.ranwell_basis})"),
+               (f"ranwell_depth_mean_1951_53_site{s_}_m", r.ranwell_depth_mean_m, "m", f"site {s_}: 1951-53 mean depth below his floor"),
+               (f"ranwell_depth_max_1951_53_site{s_}_m", r.ranwell_depth_max_m, "m", f"site {s_}: deepest 1951-53 reading below his floor")]
+        if r.well:
+            rn += [(f"ranwell_depth_change_mean_site{s_}_m", r.paired_depth_change_mean_m, "m", f"site {s_} vs {r.well}: modern mean depth minus 1951-53 mean depth, floor to floor (positive = deeper now)"),
+                   (f"ranwell_depth_change_spring_site{s_}_m", r.paired_depth_change_spring_m, "m", f"site {s_} vs {r.well}: spring depth change, floor to floor"),
+                   (f"ranwell_depth_change_max_site{s_}_m", r.paired_depth_change_max_m, "m", f"site {s_} vs {r.well}: modern annual minimum minus his deepest reading, floor to floor")]
     pd.DataFrame(rn, columns=["key", "value", "unit", "note"]).to_csv(paths.OUT_44_REPORT_NUMBERS, index=False)
     saved(paths.OUT_44_REPORT_NUMBERS.name)
     return 0

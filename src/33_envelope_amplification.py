@@ -85,12 +85,16 @@ from utils.render_utils import render_figure
 from utils.report_numbers_utils import ReportNumbers
 from scipy import stats as scipy_stats
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+__version__ = "1.7.1"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
 #   33_report_numbers.csv (paths.OUT_33_REPORT_NUMBERS), from the canonical panel: for each cluster
 #   holding a config.MSL5_EXCLUDED_WELLS well, c<id>_mean_amplification_excl_msl5_excluded (+ _n), the
 #   unflagged cluster mean without those wells (report9 SS4.12 / report10: C4 without CEH13/CEH14); and
-#   amp_vs_beta2_r / _p / _n, Pearson of amplification against beta_2_atmospheric_draw from
+#   envelope_amp_vs_beta2_r / _p / _n, Pearson of amplification against beta_2_atmospheric_draw from
 #   03_master_data.csv joined on well (report10). Additive; no existing output changes.
+# 1.7.1  # Hollingham (2026) — 2026-09-29. amp_vs_beta2_r / _p / _n renamed
+#   envelope_amp_vs_beta2_r / _p / _n: Script 35 already publishes amp_vs_beta2_* for ITS
+#   amplification coefficient (0.657, n 64) and number_ledger --check refused the collision
+#   (one named quantity, two values). The envelope metric's correlation is its own quantity.
 # 1.6.0  # Hollingham (2026) — 2026-09-23. Progress reporting
 #   (T-76): the canonical and recent figure-builder pairs (fig_amplification +
 #   fig_dry_spring_depth) each turned into a tracked list (console_utils.track,
@@ -455,9 +459,9 @@ def write_report_numbers(df, master):
     j = j.dropna(subset=["amplification", "beta_2_atmospheric_draw"])
     r, p = scipy_stats.pearsonr(j["amplification"], j["beta_2_atmospheric_draw"])
     _src = "canonical amplification (all wells, flagged included) against beta_2_atmospheric_draw of 03_master_data.csv, joined on well"
-    rpt.add("amp_vs_beta2_r", float(r), unit="", note=f"Pearson r of {_src}, n={len(j)}")
-    rpt.add("amp_vs_beta2_p", float(p), unit="", note=f"two-sided p of amp_vs_beta2_r, n={len(j)}")
-    rpt.add("amp_vs_beta2_n", int(len(j)), unit="wells", note="wells behind amp_vs_beta2_r")
+    rpt.add("envelope_amp_vs_beta2_r", float(r), unit="", note=f"Pearson r of {_src}, n={len(j)}")
+    rpt.add("envelope_amp_vs_beta2_p", float(p), unit="", note=f"two-sided p of envelope_amp_vs_beta2_r, n={len(j)}")
+    rpt.add("envelope_amp_vs_beta2_n", int(len(j)), unit="wells", note="wells behind envelope_amp_vs_beta2_r")
     n_saved = rpt.save(paths.OUT_33_REPORT_NUMBERS)
     saved(f"{paths.OUT_33_REPORT_NUMBERS.name} ({n_saved} rows)")
 

@@ -200,7 +200,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (437)
+## Outputs no exhibit renders (441)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -283,6 +283,7 @@
 - `03_report_numbers.csv`
 - `04_01_core_architecture_map.png`
 - `05_pear_02_affinity_chart_reference.png`
+- `05_report_numbers.csv`
 - `06_pear_02_integration_map.png`
 - `06_pear_membership_audit_sitewide.csv`
 - `06_report_numbers.csv`
@@ -343,6 +344,7 @@
 - `10c_02_b2_elevation_regression.png`
 - `10c_03_c4_c5_boundary_map.png`
 - `10c_forest_zone_cluster_summary.csv`
+- `10c_report_numbers.csv`
 - `10d_01_summer_minima.csv`
 - `10d_05_summer_minima_climate_ctrl.png`
 - `10d_06_spring_means.csv`
@@ -402,6 +404,7 @@
 - `11b_05_table10_pflood_spreadsheet.csv`
 - `11b_report_numbers.csv`
 - `11c_pflood_achievability_per_well.csv`
+- `11c_report_numbers.csv`
 - `12_02_break_in_slope.csv`
 - `12_02_break_in_slope.png`
 - `12_report_numbers.csv`
@@ -423,6 +426,7 @@
 - `15_report_numbers.csv`
 - `16_report_numbers.csv`
 - `16_water_bal_bar_lay.png`
+- `17_report_numbers.csv`
 - `17_wtf_02_regression.png`
 - `17_wtf_05_rapid_events.png`
 - `17_wtf_06_interception_sweep.csv`
@@ -558,6 +562,7 @@
 - `33_dry_spring_depth_recent.png`
 - `33_envelope_per_well.csv`
 - `33_envelope_per_well_recent.csv`
+- `33_report_numbers.csv`
 - `34_report_numbers.csv`
 - `34_window_matrix.csv`
 - `34_window_sensitivity.png`
@@ -599,8 +604,3 @@
 - `41_04_canopy_series.png`
 - `41_report_numbers.csv`
 - `43_01_ranwell_sites.csv`
-- `43_02_nearest_well.csv`
-- `43_03_registration_diagnostic.csv`
-- `43_03b_slack_floors.csv`
-- `43_04_overlay.png`
-- `43_07_modern_well_basins.csv`

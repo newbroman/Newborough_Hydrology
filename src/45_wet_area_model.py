@@ -59,7 +59,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.5.1"  # Hollingham (2026) - 2026-09-27. The map's site boundary is
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-29. Each of the three figures is also
+#   saved as a FILM COPY (OUT_45_*_FILM: the same figure with FILM_SLIDE_BG, the hindcast film's slide
+#   ground, as its margin colour), for Script 47 1.6.0's slides; the report copies are byte-for-byte as
+#   before and stay the cited ones. No CSV or number changes.
+# 1.5.1  # Hollingham (2026) - 2026-09-27. The map's site boundary is
 #   map_utils.load_site_outline() simplified 20 m (D-204, spec NRG_spec_site_outline_B); same union, the
 #   12 MB site_boundary.kml is no longer parsed here.
 # 1.5.0  # Hollingham (2026) - 2026-09-25. Figures 45_01 and 45_02 each
@@ -123,10 +127,11 @@ from utils.paths import (                                     # noqa: E402
     DIR_45, OUT_45_MODEL, OUT_45_MODEL_FIG, OUT_45_SSM_CURVES, OUT_45_SSM_CURVES_FIG,
     OUT_45_MODEL_AXES, OUT_45_SSM_CURVES_AXES,
     OUT_45_REPORT_NUMBERS, OUT_45_SWITCHING_LEVELS_MAP, OUT_45_PHASE_HYSTERESIS,
+    OUT_45_MODEL_FIG_FILM, OUT_45_SSM_CURVES_FIG_FILM, OUT_45_SWITCHING_LEVELS_MAP_FILM,
     SENTINEL_TWO_CLASS_SERIES, SENTINEL_HINDCAST_MONTHLY, SENTINEL_CELL_THRESHOLDS,
     INT_CLIMATE, INT_LOCATIONS, INT_MASTER_DATA,
 )
-from utils.config import WET_AREA_CLASSES, WET_AREA_GRID, CELL_MIN_SCENES   # noqa: E402
+from utils.config import WET_AREA_CLASSES, WET_AREA_GRID, CELL_MIN_SCENES, FILM_SLIDE_BG   # noqa: E402
 from utils.buckets import month_bucket                        # noqa: E402
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
@@ -254,9 +259,11 @@ def plot_model(R: pd.DataFrame, fits: dict) -> None:
     ax.legend(fontsize=8, loc="upper left")
     fig.tight_layout()
     fig.savefig(OUT_45_MODEL_FIG, dpi=160)
+    fig.savefig(OUT_45_MODEL_FIG_FILM, dpi=160, facecolor=FILM_SLIDE_BG)   # 1.6.0: the film copy
     _write_axes(fig, [ax], OUT_45_MODEL_AXES)
     plt.close(fig)
     saved(OUT_45_MODEL_FIG.name)
+    saved(OUT_45_MODEL_FIG_FILM.name)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -332,9 +339,11 @@ def _plot_ssm(Hc: pd.DataFrame) -> None:
         ax.set_title(f"Mode {m} — SSM monthly level through the two curves", fontsize=9.5)
     fig.tight_layout()
     fig.savefig(OUT_45_SSM_CURVES_FIG, dpi=150)
+    fig.savefig(OUT_45_SSM_CURVES_FIG_FILM, dpi=150, facecolor=FILM_SLIDE_BG)   # 1.6.0: the film copy
     _write_axes(fig, list(axes), OUT_45_SSM_CURVES_AXES)
     plt.close(fig)
     saved(OUT_45_SSM_CURVES_FIG.name)
+    saved(OUT_45_SSM_CURVES_FIG_FILM.name)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -418,8 +427,10 @@ def plot_switching_levels() -> None:
                  location="bottom",
                  label="switching level: network-median level at first wetting (m, 0 = ground)")
     fig.savefig(OUT_45_SWITCHING_LEVELS_MAP, dpi=160)
+    fig.savefig(OUT_45_SWITCHING_LEVELS_MAP_FILM, dpi=160, facecolor=FILM_SLIDE_BG)   # 1.6.0: the film copy
     plt.close(fig)
     saved(OUT_45_SWITCHING_LEVELS_MAP.name)
+    saved(OUT_45_SWITCHING_LEVELS_MAP_FILM.name)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

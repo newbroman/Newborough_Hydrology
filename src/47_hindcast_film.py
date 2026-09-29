@@ -60,7 +60,40 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-26. Review of the 1.3.0 presentation
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-29. The slides restyled for a gallery
+#   (Martin: "present it to an art gallery ... the text slides are a little plain ... I don't want
+#   it too far out as it is a scientific product"), per the signed-off spec
+#   NRG_spec_script47_v1_6_2026-09-29 — treatment B, "the museum label", chosen by eye from mock-ups:
+#   - a flat sand ground (config FILM_SLIDE_BG) replaces the banded gradient; _shade() is gone;
+#   - titles in DejaVu Serif Bold (FILM_TITLE_FAMILY), measured in that font for the fit;
+#   - a blue bar (FILM_COL_BAR) down the left of every slide's title-and-text block;
+#   - text slides wrap to a measured column (FILM_MARGIN, FILM_TEXT_MEASURE) at TEXT_SIZES;
+#   - a running footer — the film's title in small capitals and the slide count n / N, N
+#     being the length of the slide list — and the century's calibrated water table, as a
+#     FILM_TRACE_SMOOTH_MONTHS rolling mean, drawn faintly along the foot of every slide;
+#   - the title and opening slides carry the film's own true-colour Sentinel scene of the
+#     warren as a feathered panel at the right (FILM_TITLE_PHOTO_*), the deck's one photograph;
+#   - figure slides draw the film copies of the report figures (OUT_45_*_FILM,
+#     OUT_00_CLIMATE_TIMESERIES_SHORT_FILM: the same figures saved by Scripts 45 1.6.0 and
+#     00 1.15.0 with the ground as their margin colour), falling back to the report copies;
+#   - the monthly frames share the ground (Martin: "F1"), so the cut into the film is seamless.
+#   Every word, every hold and every chapter time is unchanged; no CSV changes.
+# v1.5.0  # Hollingham (2026) - 2026-09-29. The Warren track reworked, per the spec
+#   NRG_spec_script47_v1_5_2026-09-29, settled by ear over nineteen audio-only samples
+#   rendered from the committed 47_01 series (Martin's rulings, in order: seasonal steps and
+#   a tension-by-level tone; the tone from -1.5 m; linear loudness; the aug 7th tried; the
+#   stepped clock "sounds like a police siren"; rebalanced, "the drone drowns out the other
+#   notes"; "drop the 5th"; the minor seventh; the winter breath, "maj instead of 5th"; F2):
+#   - the surf wash is retired. In its place the FLOOD TONE: a chorused A3-C#4-E4 triad
+#     whose loudness is linear in the calibrated water table from silence at
+#     FILM_FLOOD_TONE_LEVEL_LO_M to full at the record top, with G4 (the minor seventh)
+#     fading in linearly above the wet-floor arrival line at a full voice's weight. It
+#     inherits the surf's stereo place (FILM_WASH_PAN_WIDTH, where the water is);
+#   - the WINTER BREATH keeps time: C#4, breathed in at the start of November, held to
+#     April, out at the start of May, silent through summer — one soft pulse a film year;
+#   - FILM_MIX_CHORD 0.16 -> 0.24; the pad, the January note and the tremolo unchanged;
+#   - "What you hear" says so; scipy is no longer imported by the track.
+# v1.4.0  # Hollingham (2026) - 2026-09-26. Review of the 1.3.0 presentation
 #   (Martin: "Review the film and how would you improve it. Implement the changes"),
 #   recorded in NRG_spec_script47_v1_4_2026-09-26:
 #   - the hydrograph is legible at 720p: taller (ax2 [0.07, 0.07, 0.78, 0.18]), fonts
@@ -167,6 +200,8 @@ from utils.paths import (                                     # noqa: E402
     OUT_45_MODEL_FIG, OUT_45_SSM_CURVES_FIG, OUT_45_SWITCHING_LEVELS_MAP,
     OUT_45_MODEL_AXES, OUT_45_SSM_CURVES_AXES, OUT_45_SSM_CURVES,
     OUT_00_CLIMATE_TIMESERIES_SHORT, OUT_47_FREE_RUN_FIG,
+    OUT_45_MODEL_FIG_FILM, OUT_45_SSM_CURVES_FIG_FILM, OUT_45_SWITCHING_LEVELS_MAP_FILM,
+    OUT_00_CLIMATE_TIMESERIES_SHORT_FILM,
     SENTINEL_THUMBS_DIR, SENTINEL_THUMBS_MANIFEST, SENTINEL_TWO_CLASS_SERIES,
 )
 from utils.config import (                                    # noqa: E402
@@ -178,13 +213,18 @@ from utils.config import (                                    # noqa: E402
     FILM_AUDIO_RATE_HZ, FILM_AUDIO_FADE_S, FILM_AMBIENT_ROOT_HZ, FILM_AMBIENT_GAIN,
     FILM_TONE_F_LOW_HZ, FILM_TONE_F_HIGH_HZ, FILM_TONE_GAIN, FILM_FLOOD_VOICE_GAIN,
     FILM_TREMOLO_HZ, FILM_TREMOLO_DEPTH, FILM_AUDIO_BITRATE,
-    FILM_INDEX_VIEW_S, FILM_SLIDE_TOP, FILM_SLIDE_FOOT, FILM_TONE_HARMONIC_GAIN,
+    FILM_INDEX_VIEW_S, FILM_TONE_HARMONIC_GAIN,
     FILM_SOUND_TRACK, FILM_OPEN_TITLE_S, FILM_OPEN_CLIP_START, FILM_OPEN_CLIP_LABEL,
     FILM_NOTE_F_LOW_HZ, FILM_NOTE_F_HIGH_HZ, FILM_NOTE_SCALE, FILM_NOTE_FLOOR, FILM_NOTE_DECAY_S,
-    FILM_WASH_HARMONIC, FILM_WASH_SEMITONES, FILM_WASH_BANDWIDTH_HZ, FILM_WASH_SURGE_S,
-    FILM_WASH_FLOOR_PCT, FILM_CHORD_SEMITONES, FILM_CHORD_RELEASE_S,
-    FILM_MIX_PAD, FILM_MIX_NOTE, FILM_MIX_WASH, FILM_MIX_CHORD,
+    FILM_CHORD_SEMITONES, FILM_CHORD_RELEASE_S,
+    FILM_MIX_PAD, FILM_MIX_NOTE, FILM_MIX_CHORD,
     FILM_COL_FLOOR_TEXT, FILM_COL_TITLE, FILM_WASH_PAN_WIDTH,
+    FILM_FLOOD_TONE_LEVEL_LO_M, FILM_FLOOD_TONE_SEMITONES, FILM_FLOOD_TONE_SEVENTH_SEMITONES,
+    FILM_MIX_FLOOD_TONE, FILM_BREATH_SEMITONES, FILM_BREATH_MONTHS, FILM_BREATH_EDGE_S,
+    FILM_MIX_BREATH,
+    FILM_SLIDE_BG, FILM_TITLE_FAMILY, FILM_COL_BAR, FILM_MARGIN, FILM_TEXT_MEASURE,
+    FILM_FOOTER_PT, FILM_TRACE_SMOOTH_MONTHS, FILM_COL_TRACE_LINE, FILM_COL_TRACE_FILL,
+    FILM_TITLE_PHOTO_FRAC, FILM_TITLE_PHOTO_FEATHER,
 )
 from utils.model_utils import simulate_ssm                    # noqa: E402
 from utils.console_utils import (                             # noqa: E402
@@ -201,9 +241,10 @@ TRACE_LO_M, TRACE_HI_M = -1.4, 0.4
 FRAME_W, FRAME_H, FRAME_DPI = 1280, 720, 100
 LINE_EM, PARA_GAP = 1.42, 0.55            # line height (em) and paragraph gap (lines)
 TEXT_SIZES = (13.0, 12.5, 12.0, 11.5, 11.0, 10.5, 10.0)          # figure-slide text, pt
-TEXT_SIZES_WIDE = (16.0, 15.0, 14.0, 13.5, 13.0, 12.5, 12.0, 11.5)  # text-only slides, pt
+TEXT_SIZES_WIDE = (15.0, 14.0, 13.5, 13.0, 12.5, 12.0, 11.5)   # text-only slides, pt (1.6.0: 16 pt dropped, the column is measured now)
 TITLE_PT_MAX = 24.0
-TITLE_SHADE = 1.8                          # the title page's shading, relative to a slide
+TITLE_PT_TEXT = 30.0                       # 1.6.0: the text slides' larger title
+TITLE_PT_FILM = 32.0                       # 1.6.0: the film title on the title slides, wrapped to two lines
 READOUT_X0, READOUT_X1, READOUT_Y = 0.02, 0.98, 0.945
 READOUT_PT_MAX, READOUT_GAP = 30.0, "     "
 INDEX_ENTRY_S = 0.6                        # seconds of the title page per contents entry
@@ -635,7 +676,7 @@ def plot_free_run(level: pd.DataFrame, stats: dict | None) -> None:
     ax.legend(fontsize=9, loc="lower left", framealpha=0.9)
     fig.tight_layout()
     DIR_47.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT_47_FREE_RUN_FIG, dpi=160)
+    fig.savefig(OUT_47_FREE_RUN_FIG, dpi=160, facecolor=FILM_SLIDE_BG)   # 1.6.0: the slide's ground
     plt.close(fig)
     saved(OUT_47_FREE_RUN_FIG.name)
 
@@ -865,11 +906,15 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
              "the water table rises, and in the months beyond the record it trembles.",
              "Each January a single note marks the year. The higher and louder the note, the "
              "more open water that year reached.",
-             "The surf swells with the wet area, wet floor and open water together, and leans "
-             "toward where the wetting is: right for the east of the warren, left for the west.",
+             "A steady chord rises with the water table, from silence in the driest months to "
+             "full at the top of the record; above the yellow line a seventh joins it, and the "
+             "chord tightens as the warren floods, leaning toward where the water is: right for "
+             "the east of the warren, left for the west.",
              "Held notes sound while the water table is above the lines on the chart at the bottom: "
              "one above the yellow line, where wet floor appears; a higher one above the blue "
-             "line, where open water appears; and the highest above the 2021 flood."],
+             "line, where open water appears; and the highest above the 2021 flood.",
+             "Underneath, a breath: one soft note through the winter half of each year, silence "
+             "through the summer, so each second is a year."],
             None, None)] if FILM_SOUND_TRACK == "warren" else []),
         ("Please read this before watching",
          ["It is today's warren, not the warren of the time. The rules were learned from 2005–2026 "
@@ -1094,7 +1139,7 @@ def sound_track(marks: list, lvl: np.ndarray, flooded_ha: np.ndarray, hmax: floa
 def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndarray,
                        months: list, hmax: float, arrivals: dict,
                        wet_pan: np.ndarray | None = None) -> np.ndarray:
-    """The Warren track (1.3.0): stereo float32, sample-aligned to the frames.
+    """The Warren track (1.3.0, reworked 1.5.0): stereo float32, sample-aligned to the frames.
 
     Pad: the slides' ambient chord on FILM_AMBIENT_ROOT_HZ runs under everything. Under a
     slide it sounds at rest; over the monthly frames its root and fifth always sound and
@@ -1103,16 +1148,20 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
     Annual note: on each January's first frame, one mallet note whose pitch (sqrt of the
     year's largest open water over the record's, snapped to FILM_NOTE_SCALE between
     FILM_NOTE_F_LOW_HZ and _HIGH_HZ) and loudness (FILM_NOTE_FLOOR to 1) follow the flooding.
-    Wash: surf, FILM_WASH_HARMONIC of it through narrow resonators on the chord, whose
-    loudness follows the wetted area (open water + wet floor) over the record's range.
+    Flood tone (1.5.0, in the surf's place): a chorused triad on FILM_FLOOD_TONE_SEMITONES
+    whose loudness is linear in the calibrated level, silent at FILM_FLOOD_TONE_LEVEL_LO_M
+    and full at `hmax`; above the wet-floor arrival line a fourth voice, the minor seventh
+    (FILM_FLOOD_TONE_SEVENTH_SEMITONES), fades in linearly to full at `hmax`. Its stereo
+    place follows `wet_pan` (-1 west .. +1 east, per month), as the surf's did.
     Chord: one held voice per line on the hydrograph (wet floor and open water arrival
     levels, the 2021 flood), struck as the level rises through it, held while above.
-    The wash's stereo place (1.4.0) follows `wet_pan` (-1 west .. +1 east, per month).
+    Breath (1.5.0): FILM_BREATH_SEMITONES above the root, breathed in over FILM_BREATH_EDGE_S
+    at the first frame of a FILM_BREATH_MONTHS month, held through them, out at the first
+    frame after — one soft pulse a film year, the clock. Off under the slides.
 
     The presentation runs ~10 minutes (~26 M samples), so each layer is added into one
     float32 buffer and its temporaries released before the next is built.
     """
-    from scipy.signal import lfilter                          # noqa: PLC0415
     sr, fps = FILM_AUDIO_RATE_HZ, FILM_FPS
     nf = len(marks)
     ns = int(round(nf / fps * sr))
@@ -1179,34 +1228,52 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
         y = FILM_MIX_NOTE * (FILM_NOTE_FLOOR + (1 - FILM_NOTE_FLOOR) * xf) * env * tone / 1.47
         out[a0:b0] += y.astype(np.float32)[:, None]
 
-    # wash
-    wet = aw + af
-    lo, hi = np.nanpercentile(wet, FILM_WASH_FLOOR_PCT), np.nanmax(wet)
-    wl = np.sqrt(sm((np.clip((np.nan_to_num(wet[mi], nan=lo) - lo) / (hi - lo), 0, 1) * is_m)[fidx],
-                    2.0 / fps))
-    r = np.exp(-np.pi * FILM_WASH_BANDWIDTH_HZ / sr)
+    # the flood tone (1.5.0): loudness linear in the level, silent at FILM_FLOOD_TONE_LEVEL_LO_M,
+    # full at hmax, glided over two frames; the seventh's ramp is from the yellow line to hmax
+    lo_h = FILM_FLOOD_TONE_LEVEL_LO_M
+    wl = sm((np.clip((h_m - lo_h) / (hmax - lo_h), 0, 1) * is_m)[fidx], 2.0 / fps).astype(np.float32)
+    wf_h = arrivals.get("wet_floor")
+    if wf_h is None:
+        warn("no wet-floor arrival level: the flood tone's seventh is left out")
+        w7 = np.zeros(ns, np.float32)
+    else:
+        w7 = sm((np.clip((h_m - wf_h) / (hmax - wf_h), 0, 1) * is_m)[fidx], 2.0 / fps).astype(np.float32)
     wp = None
     if wet_pan is not None:          # where the water is, eased in only over the months
         wp = sm((np.nan_to_num(np.asarray(wet_pan, float))[mi] * is_m)[fidx], 0.6)
         wp = np.clip(wp * w_m, -1, 1) * FILM_WASH_PAN_WIDTH
-    for ch, seed in enumerate((1, 2)):
-        z = np.random.default_rng(seed).standard_normal(ns)
-        y = sm(z, 1 / 1500.) - sm(z, 1 / 250.)
-        y *= (1 - FILM_WASH_HARMONIC) / np.abs(y).max()
-        z = np.random.default_rng(seed + 10).standard_normal(ns)
-        sung = np.zeros(ns)
-        for k, st in enumerate(FILM_WASH_SEMITONES):
-            th = 2 * np.pi * FILM_AMBIENT_ROOT_HZ * 2 ** (st / 12) / sr
-            sung += lfilter([1 - r], [1, -2 * r * np.cos(th), r * r], z) / (1 + 0.5 * k)
-        del z
-        y += FILM_WASH_HARMONIC * sung / np.abs(sung).max()
-        del sung
-        y *= (0.65 + 0.35 * np.sin(2 * np.pi * t / FILM_WASH_SURGE_S + seed)) * wl
-        if wp is not None:           # equal-power pan, unity at the centre
-            y *= np.sqrt(2.0) * (np.cos if ch == 0 else np.sin)((wp + 1) * np.pi / 4)
-        out[:, ch] += (FILM_MIX_WASH * y).astype(np.float32)
+    voices = [(st, 1.0, -0.5 + k / max(len(FILM_FLOOD_TONE_SEMITONES) - 1, 1), wl)
+              for k, st in enumerate(FILM_FLOOD_TONE_SEMITONES)]
+    voices.append((FILM_FLOOD_TONE_SEVENTH_SEMITONES, 1.0, 0.0, wl * w7))
+    n_v = len(FILM_FLOOD_TONE_SEMITONES)
+    for k, (st, gk, pan, env) in enumerate(voices):
+        f0 = FILM_AMBIENT_ROOT_HZ * 2 ** (st / 12)
+        det = 1 + 0.0025 * np.sin(2 * np.pi * (0.13 + 0.07 * k) * t + k)   # a slow chorus
+        ph = 2 * np.pi * np.cumsum(f0 * det) / sr
+        del det
+        y = ((np.sin(ph) + 0.35 * np.sin(2 * ph) + 0.12 * np.sin(3 * ph)) / 1.47 * env
+             * (gk / n_v)).astype(np.float32)
+        del ph
+        if wp is None:
+            out[:, 0] += (FILM_MIX_FLOOD_TONE * (0.5 - pan / 2) * y).astype(np.float32)
+            out[:, 1] += (FILM_MIX_FLOOD_TONE * (0.5 + pan / 2) * y).astype(np.float32)
+        else:                        # the voice's own spread, then the water's place, equal-power
+            for ch in (0, 1):
+                g_ch = (0.5 - pan / 2) if ch == 0 else (0.5 + pan / 2)
+                g_ch = g_ch * np.sqrt(2.0) * (np.cos if ch == 0 else np.sin)((wp + 1) * np.pi / 4)
+                out[:, ch] += (FILM_MIX_FLOOD_TONE * g_ch * y).astype(np.float32)
         del y
-    del wl
+    del wl, w7, wp
+
+    # the winter breath (1.5.0): the clock
+    mon = np.array([int(m[5:7]) for m in months])
+    winter = np.isin(mon, FILM_BREATH_MONTHS).astype(float)
+    g = sm((winter[mi] * is_m)[fidx], FILM_BREATH_EDGE_S).astype(np.float32)
+    f0 = FILM_AMBIENT_ROOT_HZ * 2 ** (FILM_BREATH_SEMITONES / 12)
+    y = (FILM_MIX_BREATH * g * np.sin(2 * np.pi * f0 * t)).astype(np.float32)
+    out[:, 0] += y
+    out[:, 1] += y
+    del g, y
 
 
     # chord: a held voice above each line on the hydrograph
@@ -1263,16 +1330,18 @@ def mux(video: Path, audio: Path, target: Path, chapters: Path | None = None) ->
 _FONT100 = {}
 
 
-def _text_w(s: str, fs: float, bold: bool = False) -> float:
-    """Width in pixels of `s` at `fs` points on the FRAME_DPI frame (DejaVu Sans, the
-    matplotlib default the frames are drawn in)."""
-    if bold not in _FONT100:
+def _text_w(s: str, fs: float, bold: bool = False, serif: bool = False) -> float:
+    """Width in pixels of `s` at `fs` points on the FRAME_DPI frame: DejaVu Sans, the
+    matplotlib default the frames are drawn in, or (1.6.0) DejaVu Serif, the titles' face
+    (FILM_TITLE_FAMILY) — both shipped by matplotlib, so the measure is the face drawn."""
+    key = (bold, serif)
+    if key not in _FONT100:
         import matplotlib                                     # noqa: PLC0415
         from PIL import ImageFont                             # noqa: PLC0415
-        name = "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf"
-        _FONT100[bold] = ImageFont.truetype(
+        name = ("DejaVuSerif" if serif else "DejaVuSans") + ("-Bold" if bold else "") + ".ttf"
+        _FONT100[key] = ImageFont.truetype(
             str(Path(matplotlib.get_data_path()) / "fonts" / "ttf" / name), 100)
-    return _FONT100[bold].getlength(s) * (fs * FRAME_DPI / 72.0) / 100.0
+    return _FONT100[key].getlength(s) * (fs * FRAME_DPI / 72.0) / 100.0
 
 
 def _wrap(p: str, fs: float, width_px: float) -> list:
@@ -1304,23 +1373,111 @@ def _text_block(ax, paras, x0, x1, y_top, y_bot, sizes=TEXT_SIZES, color="#2a2a2
             ax.text(x0, y, line, fontsize=fs, va="top", color=color)
             y -= lh / FRAME_H
         y -= PARA_GAP * lh / FRAME_H
-    return fs
+    return y + PARA_GAP * lh / FRAME_H       # the foot of the last line (frame fraction)
 
 
-def _title(ax, title_, x0, x1, y, fs_max=TITLE_PT_MAX):
-    """One line, as large as fits x0..x1."""
-    fs = min(fs_max, fs_max * (x1 - x0) * FRAME_W / max(_text_w(title_, fs_max, True), 1.0))
-    ax.text(x0, y, title_, fontsize=fs, weight="bold", va="top", color=FILM_COL_TITLE)
+def _title(ax, title_, x0, x1, y, fs_max=TITLE_PT_MAX, lines_max=1):
+    """As large as fits x0..x1, in the titles' serif (1.6.0): one line shrunk to fit, or
+    (`lines_max` > 1, the title slides) wrapped at `fs_max` into up to that many lines.
+    Returns (font size, number of lines)."""
+    width = (x1 - x0) * FRAME_W
+    lines = [title_]
+    if lines_max > 1:
+        for fs in np.arange(fs_max, 8.0, -1.0):
+            lines = _wrap_serif(title_, fs, width)
+            if len(lines) <= lines_max:
+                break
+    else:
+        fs = min(fs_max, fs_max * width / max(_text_w(title_, fs_max, True, serif=True), 1.0))
+    lh = fs * FRAME_DPI / 72.0 * 1.25 / FRAME_H
+    for k, line in enumerate(lines):
+        ax.text(x0, y - k * lh, line, fontsize=fs, weight="bold", va="top",
+                color=FILM_COL_TITLE, family=FILM_TITLE_FAMILY)
+    return float(fs), len(lines)
 
 
-def _shade(fig, strength: float = 1.0) -> None:
-    """The slide background: FILM_SLIDE_TOP easing to FILM_SLIDE_FOOT. `strength` > 1
-    moves both further from white (the title slide)."""
+def _wrap_serif(p: str, fs: float, width_px: float) -> list:
+    lines, cur = [], ""
+    for w in p.split():
+        t = f"{cur} {w}" if cur else w
+        if cur and _text_w(t, fs, True, serif=True) > width_px:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = t
+    return lines + ([cur] if cur else [])
+
+
+def _bar(ax, y_top, y_bot, x=None):
+    """1.6.0: the blue bar down the left of a slide's title-and-text block."""
+    from matplotlib.patches import Rectangle                  # noqa: PLC0415
+    x = FILM_MARGIN - 0.022 if x is None else x
+    ax.add_patch(Rectangle((x, y_bot), 6.0 / FRAME_W, y_top - y_bot, color=FILM_COL_BAR, lw=0))
+
+
+def _footer(ax, num=None):
+    """1.6.0: the running footer (the film's title, small capitals) and the slide count."""
+    ax.text(FILM_MARGIN, 0.052, FILM_TITLE.upper(), fontsize=FILM_FOOTER_PT * 0.82,
+            va="center", color="#8a8272")
+    if num:
+        ax.text(1 - FILM_MARGIN, 0.052, f"{num[0]} / {num[1]}", fontsize=FILM_FOOTER_PT,
+                va="center", ha="right", color="#8a8272")
+
+
+def slide_grounds(lvl: np.ndarray, photo: Path | None) -> tuple:
+    """1.6.0: the two slide backgrounds, drawn once as RGB arrays. Both are the flat sand
+    ground (FILM_SLIDE_BG) with the century's calibrated water table — a
+    FILM_TRACE_SMOOTH_MONTHS centred rolling mean — filled faintly along the foot. The
+    second also carries the film's own true-colour Sentinel scene as a panel at the right,
+    its left edge feathered into the ground (the title and opening slides).
+
+    Returns (plain, with_photo, x_photo): x_photo is the panel's left edge as a frame
+    fraction, so the title slide's text and trace can stop there.
+    """
+    from PIL import Image, ImageDraw                          # noqa: PLC0415
     from matplotlib.colors import to_rgb                      # noqa: PLC0415
-    top, foot = (1 - (1 - np.array(to_rgb(c))) * strength for c in (FILM_SLIDE_TOP, FILM_SLIDE_FOOT))
-    g = np.linspace(0, 1, 256)[:, None, None]
+    W, H = FRAME_W, FRAME_H
+    bg = tuple(int(round(255 * c)) for c in to_rgb(FILM_SLIDE_BG))
+    pw = int(round(FILM_TITLE_PHOTO_FRAC * W))
+    x_photo = 1.0 - pw / W
+
+    def trace(im, x1_px):
+        d = ImageDraw.Draw(im)
+        h = (pd.Series(lvl).rolling(FILM_TRACE_SMOOTH_MONTHS, center=True, min_periods=1)
+             .mean().to_numpy(float))
+        n = h.size
+        xs = x1_px * np.arange(n) / max(n - 1, 1)
+        y0, y1 = H - 0.18 * H, H - 0.08 * H           # the band, frame fractions from the top
+        ys = y1 - (y1 - y0) * np.clip((h - TRACE_LO_M) / (TRACE_HI_M - TRACE_LO_M), 0, 1)
+        pts = list(zip(xs.tolist(), ys.tolist()))
+        fill = tuple(int(round(255 * c)) for c in to_rgb(FILM_COL_TRACE_FILL))
+        line = tuple(int(round(255 * c)) for c in to_rgb(FILM_COL_TRACE_LINE))
+        d.polygon([(0, y1)] + pts + [(x1_px, y1)], fill=fill)
+        d.line(pts, fill=line, width=1)
+
+    plain = Image.new("RGB", (W, H), bg)
+    trace(plain, W)
+    with_photo = Image.new("RGB", (W, H), bg)
+    trace(with_photo, int(round((x_photo + FILM_TITLE_PHOTO_FEATHER * 0.6) * W)))
+    if photo is not None and photo.exists():
+        sat = Image.open(photo).convert("RGB")
+        sat = sat.resize((max(int(round(sat.width * H / sat.height)), pw), H), Image.LANCZOS)
+        crop = sat.crop((sat.width - pw, 0, sat.width, H))
+        feather = max(1, int(round(FILM_TITLE_PHOTO_FEATHER * W)))
+        mask = Image.new("L", (pw, H), 255)
+        md = ImageDraw.Draw(mask)
+        for i in range(feather):
+            md.line([(i, 0), (i, H)], fill=int(255 * i / feather))
+        with_photo.paste(crop, (W - pw, 0), mask)
+    else:
+        warn(f"no {photo.name if photo else 'photo'}: the title slide carries no photograph")
+    return np.asarray(plain), np.asarray(with_photo), x_photo
+
+
+def _ground(fig, bg: np.ndarray) -> None:
+    """1.6.0: the slide background, one pre-drawn array (slide_grounds) behind everything."""
     axb = fig.add_axes([0, 0, 1, 1], zorder=-10)
-    axb.imshow(np.clip(top * (1 - g) + foot * g, 0, 1), aspect="auto", extent=(0, 1, 0, 1))
+    axb.imshow(bg, aspect="auto", extent=(0, 1, 0, 1), interpolation="nearest")
     axb.set_axis_off()
 
 
@@ -1426,12 +1583,33 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     def even(a):
         return a[:a.shape[0] // 2 * 2, :a.shape[1] // 2 * 2].copy()
 
-    def new_slide(strength=1.0):
+    # 1.6.0: the two slide grounds, drawn once; the slide count over the deck
+    bg_plain, bg_photo, x_photo = slide_grounds(lvl, OUT_47_BACKGROUND)
+    n_slides = 1 + len(before) + len(after) if presentation else 0
+    x0_t = FILM_MARGIN                                  # the slides' left margin
+
+    def new_slide(photo=False):
         fig = plt.figure(figsize=(FRAME_W / FRAME_DPI, FRAME_H / FRAME_DPI), dpi=FRAME_DPI)
-        _shade(fig, strength)
+        fig.patch.set_facecolor(FILM_SLIDE_BG)
+        _ground(fig, bg_photo if photo else bg_plain)
         ax = fig.add_axes([0, 0, 1, 1]); ax.set_axis_off()
         ax.set_xlim(0, 1); ax.set_ylim(0, 1)
         return fig, ax
+
+    def film_copy(image):
+        """The film copy of a report figure (its margin in the ground colour, Scripts 45/00),
+        else the report copy with a warning: the white margin then shows on the sand."""
+        twins = {OUT_45_MODEL_FIG: OUT_45_MODEL_FIG_FILM,
+                 OUT_45_SSM_CURVES_FIG: OUT_45_SSM_CURVES_FIG_FILM,
+                 OUT_45_SWITCHING_LEVELS_MAP: OUT_45_SWITCHING_LEVELS_MAP_FILM,
+                 OUT_00_CLIMATE_TIMESERIES_SHORT: OUT_00_CLIMATE_TIMESERIES_SHORT_FILM}
+        twin = twins.get(image)
+        if twin is None:
+            return image
+        if twin.exists():
+            return twin
+        warn(f"no {twin.name}: the report copy {image.name} is drawn (re-run its script)")
+        return image
 
     def grab(fig, seconds):
         fig.canvas.draw()
@@ -1444,46 +1622,57 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         return (FILM_SLIDE_LEAD_S + words / (FILM_WORDS_PER_MINUTE / 60.0)
                 + (FILM_FIGURE_VIEW_S if figure else 0.0) + extra_s)
 
-    def text_slide(title_, paras, foot):
-        fig, ax = new_slide()
-        _title(ax, title_, 0.06, 0.94, 0.92)
-        _text_block(ax, paras, 0.06, 0.94, 0.80, 0.10, sizes=TEXT_SIZES_WIDE)
+    def foot_line(ax, foot, num):
+        """1.6.0: a slide's own footer (the figure reference and credits) sits above the
+        running footer; the running footer and the count are on every slide."""
         if foot:
-            ax.text(0.06, 0.045, foot, fontsize=11, color="#666")
+            ax.text(x0_t, 0.092, foot, fontsize=9.5, color="#666")
+        _footer(ax, num)
+
+    def text_slide(title_, paras, foot, num):
+        fig, ax = new_slide()
+        y_t = 0.885
+        _title(ax, title_, x0_t, 1 - FILM_MARGIN, y_t, fs_max=TITLE_PT_TEXT)
+        y_b = _text_block(ax, paras, x0_t, x0_t + FILM_TEXT_MEASURE, y_t - 0.115, 0.22,
+                          sizes=TEXT_SIZES_WIDE)
+        _bar(ax, y_t, y_b)
+        foot_line(ax, foot, num)
         return grab(fig, hold(title_, paras))
 
-    def left_column(ax, title_, paras, foot, x1=0.36):
-        _title(ax, title_, 0.035, 0.965, 0.955)
-        _text_block(ax, paras, 0.035, x1, 0.855, 0.075)
-        if foot:
-            ax.text(0.035, 0.025, foot, fontsize=9.5, color="#666")
+    def left_column(ax, title_, paras, foot, num, x1=0.36):
+        y_t = 0.935
+        _title(ax, title_, x0_t, 1 - FILM_MARGIN / 2, y_t)
+        y_b = _text_block(ax, paras, x0_t, x1, 0.835, 0.13)
+        _bar(ax, y_t, y_b)
+        foot_line(ax, foot, num)
 
-    def figure_slide(title_, paras, foot, image):
+    def figure_slide(title_, paras, foot, image, num):
         """A report figure beside the words that explain it: text left, figure right."""
         fig, ax = new_slide()
-        left_column(ax, title_, paras, foot)
-        _place(fig, image, 0.385, 0.07, 0.99, 0.875)
+        left_column(ax, title_, paras, foot, num)
+        _place(fig, film_copy(image), 0.385, 0.13, 0.99, 0.855, border=False)
         return grab(fig, hold(title_, paras, figure=True))
 
-    def model_slide(title_, paras, foot, left, right):
-        """Slide 1: the climate figure large on the left, the CEH6 simulation panel top
-        right, the words beneath it."""
+    def model_slide(title_, paras, foot, left, right, num):
+        """Slide 1: the climate figure large on the left, this film's own model-against-
+        wells chart top right, the words beneath it."""
         fig, ax = new_slide()
-        _title(ax, title_, 0.035, 0.965, 0.955)
-        r = _place(fig, left, 0.02, 0.06, 0.47, 0.875, ha="left")
+        y_t = 0.935
+        _title(ax, title_, x0_t, 1 - FILM_MARGIN / 2, y_t)
+        r = _place(fig, film_copy(left), x0_t, 0.13, 0.47, 0.855, ha="left", border=False)
         x0 = r[0] + r[2] + 0.025
-        rr = _place(fig, right, x0, 0.50, 0.985, 0.875, va="top")
-        _text_block(ax, paras, x0, 0.985, rr[1] - 0.03, 0.075)
-        if foot:
-            ax.text(0.035, 0.025, foot, fontsize=9.5, color="#666")
+        rr = _place(fig, right, x0, 0.50, 0.985, 0.855, va="top", border=False)
+        _text_block(ax, paras, x0, 0.985, rr[1] - 0.03, 0.13)
+        _bar(ax, y_t, 0.13)
+        foot_line(ax, foot, num)
         return grab(fig, hold(title_, paras, figure=True))
 
-    def thumbs_slide(title_, paras, foot, ex):
+    def thumbs_slide(title_, paras, foot, ex, num):
         """A report figure with the satellite thumbnails beneath it, a callout from each
         thumbnail to the point or month it is on the figure."""
         fig, ax = new_slide()
-        left_column(ax, title_, paras, foot)
-        rect = _place(fig, ex["image"], 0.385, 0.33, 0.99, 0.875)
+        left_column(ax, title_, paras, foot, num)
+        rect = _place(fig, film_copy(ex["image"]), 0.385, 0.36, 0.99, 0.855, border=False)
         meta = None
         if ex["axes"].exists():
             meta = json.loads(ex["axes"].read_text(encoding="utf-8"))["axes"][ex["ax_index"]]
@@ -1498,8 +1687,8 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         halo = [pe.withStroke(linewidth=2.6, foreground="white")]
         for k, (d, tg) in enumerate(zip(th, ex["targets"])):
             x0 = 0.385 + k * (cw + gap)
-            r = _place(fig, (d[ex.get("band", "rgb")] * 255).astype(np.uint8), x0, 0.105,
-                       x0 + cw, 0.265,
+            r = _place(fig, (d[ex.get("band", "rgb")] * 255).astype(np.uint8), x0, 0.15,
+                       x0 + cw, 0.31,
                        va="top")
             label = tg["label"] if tg else _thumb_label(d)
             ax.text(r[0] + r[2] / 2, r[1] - 0.008, label, fontsize=8.5, ha="center", va="top",
@@ -1513,16 +1702,16 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
                 ov.plot([fx], [fy], marker="o", ms=7, mfc="none", mec=CALLOUT, mew=1.4)
         return grab(fig, hold(title_, paras, figure=True))
 
-    def compare_slide(title_, paras, foot, ex):
+    def compare_slide(title_, paras, foot, ex, num):
         """The driest and the wettest thumbnail, each beside the film's map of its month."""
         fig, ax = new_slide()
-        left_column(ax, title_, paras, foot, x1=0.33)
+        left_column(ax, title_, paras, foot, num, x1=0.33)
         xs = (0.35, 0.6725, 0.995)
-        ax.text((xs[0] + xs[1]) / 2, 0.855, "Sentinel-2, true colour", fontsize=11,
+        ax.text((xs[0] + xs[1]) / 2, 0.86, "Sentinel-2, true colour", fontsize=11,
                 ha="center", va="top", weight="bold", color="#333")
-        ax.text((xs[1] + xs[2]) / 2, 0.855, "The film, the same month", fontsize=11,
+        ax.text((xs[1] + xs[2]) / 2, 0.86, "The film, the same month", fontsize=11,
                 ha="center", va="top", weight="bold", color="#333")
-        rows = ((0.47, 0.815), (0.08, 0.425))
+        rows = ((0.50, 0.82), (0.15, 0.47))
         for d, (y0, y1) in zip(ex["pairs"], rows):
             if d["month"] not in months:
                 warn(f"{d['month']} is not in the film's record; comparison row left out")
@@ -1539,24 +1728,42 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
                     fontsize=9.5, ha="center", va="top", color="#333")
         return grab(fig, hold(title_, paras, figure=True))
 
+    # 1.6.0: the title slides' column stops short of the photo panel's feathered edge
+    x1_title = x_photo - FILM_TITLE_PHOTO_FEATHER * 0.4
+
+    def title_block(ax, y):
+        """The title (wrapped to two lines), the strap and the accent rule, from y downward;
+        returns the strap's foot."""
+        fs_t, n_l = _title(ax, FILM_TITLE, x0_t, x1_title, y, fs_max=TITLE_PT_FILM, lines_max=2)
+        lh_t = fs_t * FRAME_DPI / 72.0 * 1.25 / FRAME_H
+        y_s = y - n_l * lh_t - 0.015
+        return _text_block(ax, [FILM_SUBTITLE], x0_t, x1_title, y_s, y_s - 0.14,
+                           sizes=(15.0, 14.0, 13.0))
+
     def index_slide(entries):
         """The title page and the contents, each entry with its start time."""
-        fig, ax = new_slide(strength=TITLE_SHADE)
-        _title(ax, FILM_TITLE, 0.06, 0.94, 0.90, fs_max=34)
-        ax.text(0.06, 0.80, FILM_SUBTITLE, fontsize=15, va="top", color="#2a2a2a")
-        ax.plot([0.06, 0.94], [0.735, 0.735], color=COL_WATER, lw=2.2)
-        ax.text(0.06, 0.69, "Contents", fontsize=15, weight="bold", va="top", color=FILM_COL_TITLE)
-        half = (len(entries) + 1) // 2
-        fs = 14.0
-        lh = fs * FRAME_DPI / 72.0 * 1.55 / FRAME_H
+        fig, ax = new_slide(photo=True)
+        y_s = title_block(ax, 0.92)
+        y_r = y_s - 0.03
+        ax.plot([x0_t, x1_title - 0.02], [y_r, y_r], color=COL_WATER, lw=2.2)
+        ax.text(x0_t, y_r - 0.03, "Contents", fontsize=13, weight="bold", va="top",
+                color=FILM_COL_TITLE)
+        # one column inside the text column (1.6.0): the size is the largest at which every
+        # entry fits above the footer
+        y_first = y_r - 0.085
+        for fs in (12.0, 11.5, 11.0, 10.5, 10.0):
+            lh = fs * FRAME_DPI / 72.0 * 1.45 / FRAME_H
+            if y_first - (len(entries) - 1) * lh - lh > 0.115:
+                break
         for k, (title_, f0) in enumerate(entries):
-            col, row = divmod(k, half)
-            x = 0.06 + col * 0.45
-            y = 0.625 - row * lh
-            ax.text(x + 0.05, y, _fmt_time(f0), fontsize=fs, va="top", ha="right",
+            y = y_first - k * lh
+            ax.text(x0_t + 0.042, y, _fmt_time(f0), fontsize=fs, va="top", ha="right",
                     color=COL_WATER, weight="bold")
-            ax.text(x + 0.064, y, title_, fontsize=fs, va="top", color="#2a2a2a")
-        ax.text(0.06, 0.045, FILM_BYLINE, fontsize=11, color="#666")
+            ax.text(x0_t + 0.054, y, title_, fontsize=fs, va="top", color="#2a2a2a")
+        _bar(ax, 0.92, y_first - (len(entries) - 1) * lh - lh * 0.75)
+        ax.text(x0_t, 0.052, FILM_BYLINE, fontsize=FILM_FOOTER_PT, va="center", color="#8a8272")
+        ax.text(x1_title - 0.02, 0.052, f"1 / {n_slides}", fontsize=FILM_FOOTER_PT, va="center",
+                ha="right", color="#8a8272")
         # The contents are scanned, not read: a fixed glance per entry, not a word count.
         words = len(FILM_TITLE.split()) + len(FILM_SUBTITLE.split())
         return grab(fig, FILM_SLIDE_LEAD_S + words / (FILM_WORDS_PER_MINUTE / 60.0)
@@ -1564,37 +1771,39 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
 
     def open_title_slide():
         """The short opening page (1.3.0): title, subtitle and byline, no contents."""
-        fig, ax = new_slide(strength=TITLE_SHADE)
-        _title(ax, FILM_TITLE, 0.06, 0.94, 0.62, fs_max=34)
-        ax.text(0.06, 0.52, FILM_SUBTITLE, fontsize=15, va="top", color="#2a2a2a")
-        ax.plot([0.06, 0.94], [0.455, 0.455], color=COL_WATER, lw=2.2)
-        ax.text(0.06, 0.045, FILM_BYLINE, fontsize=11, color="#666")
+        fig, ax = new_slide(photo=True)
+        y_s = title_block(ax, 0.62)
+        y_r = y_s - 0.03
+        ax.plot([x0_t, x1_title - 0.02], [y_r, y_r], color=COL_WATER, lw=2.2)
+        _bar(ax, 0.62, y_r)
+        ax.text(x0_t, 0.052, FILM_BYLINE, fontsize=FILM_FOOTER_PT, va="center", color="#8a8272")
         return grab(fig, FILM_OPEN_TITLE_S)
 
-    def build_slide(title_, paras, foot, extra):
+    def build_slide(title_, paras, foot, extra, num):
         kind = (extra or {}).get("kind")
         if kind == "figure":
-            return figure_slide(title_, paras, foot, extra["image"])
+            return figure_slide(title_, paras, foot, extra["image"], num)
         if kind == "model":
-            return model_slide(title_, paras, foot, extra["left"], extra["right"])
+            return model_slide(title_, paras, foot, extra["left"], extra["right"], num)
         if kind == "thumbs":
-            return thumbs_slide(title_, paras, foot, extra)
+            return thumbs_slide(title_, paras, foot, extra, num)
         if kind == "compare":
-            return compare_slide(title_, paras, foot, extra)
-        return text_slide(title_, paras, foot)
+            return compare_slide(title_, paras, foot, extra, num)
+        return text_slide(title_, paras, foot, num)
 
     # The film is planned as segments and STREAMED to the encoder: a slide is one
     # image held for its length (the list repeats one array), the monthly frames are
     # drawn one at a time as they are written. Holding every monthly frame in memory
     # (1.2.0's first cut) took over 6 GB for the century.
-    def slide_segments(slides):
-        return [(title_, build_slide(title_, paras, foot, extra))
-                for title_, paras, foot, extra in slides]
-    seg_before = slide_segments(before) if presentation else []
-    seg_after = slide_segments(after) if presentation else []
+    def slide_segments(slides, first):
+        """`first` is the deck number of the first slide here; the title page is 1."""
+        return [(title_, build_slide(title_, paras, foot, extra, (first + k, n_slides)))
+                for k, (title_, paras, foot, extra) in enumerate(slides)]
+    seg_before = slide_segments(before, 2) if presentation else []
+    seg_after = slide_segments(after, 2 + len(before)) if presentation else []
 
     fig = plt.figure(figsize=(FRAME_W / FRAME_DPI, FRAME_H / FRAME_DPI), dpi=FRAME_DPI)
-    fig.patch.set_facecolor("white")
+    fig.patch.set_facecolor(FILM_SLIDE_BG)          # 1.6.0: the frames share the slides' ground
     ax = fig.add_axes([0.02, 0.30, 0.62, 0.60])
     ax2 = fig.add_axes([0.07, 0.07, 0.78, 0.18])
     axt = fig.add_axes([0.66, 0.30, 0.33, 0.60]); axt.set_axis_off()

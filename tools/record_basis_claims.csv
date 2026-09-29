@@ -21,7 +21,7 @@ RB-13,report8,Network-Scale Coastal-Retreat,Three nested specifications were fit
 RB-14,report9,The 1989–96 record,"uses each well's own coefficients from the modern per-well fit, driven by the RAF Valley climate record for 1989–96, with no refitting",
 RB-15,none,,,Script 39's full-record climate-only series (open-ground panel) is not presented in any document; nothing to state until it is
 RB-44,report9,The 1951–53 record,"each paired well's own coefficients from the modern fit are driven by the RAF Valley record from 1930, with no refitting",
-RB-44b,none,,,T-71 (D-208): 44_09_slack_floor_datum.csv is not yet presented in any document; the Discussion paragraph awaits Martin's ruling (D-144/D-194). Replace this row with the report10 statement when it is written
+RB-44b,report9,The 1951–53 record,0.46 m above the record mean,T-71 (D-208): the inland baseline is the open-dune wells at or beyond the coastal reach; Script 44 Q4
 RB-16,none,,,W94 phase 13 — a working analysis in tools/warren_flood_prep.py that led to D-178; not presented in any document
 RB-17,none,,,W94 phase 14 — as RB-16
 RB-18,none,,,W94 phase 21 — as RB-16

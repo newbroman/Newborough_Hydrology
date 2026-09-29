@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**166 output file(s)** supply **1736 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
+**166 output file(s)** supply **1758 cited quantity(ies)**; **43 symbol sense(s)** registered, 19 bound to an output column, 24 not.
 
 ## Cited quantities by output file
 
@@ -1695,9 +1695,31 @@
 |  | canopy_ratio_restock_conifer_full_leaf_median | Newborough_Methods_Supplement.md |
 | `44_04_hindcast_metrics.csv` | 4 / nw11 · nse_after_offset | Paper1.md, report9.md |
 | `44_05_level_change.csv` | COMBINED_CONSTRAINED / nan · sigma_total_m | Hollingham_2026_Paper2_amended.md, report9.md |
-| `44_report_numbers.csv` | ranwell_forcing_r_1951_53 | report11.md |
+| `44_report_numbers.csv` | ranwell_depth_change_inland_mad_m | report10.md, report9.md |
+|  | ranwell_depth_change_inland_median_m | report9.md |
+|  | ranwell_depth_change_site8_m | report10.md |
+|  | ranwell_depth_max_1951_53_site1_m | report9.md |
+|  | ranwell_depth_max_1951_53_site8_m | report9.md |
+|  | ranwell_depth_mean_1951_53_site1_m | report9.md |
+|  | ranwell_depth_mean_1951_53_site4_m | report9.md |
+|  | ranwell_floor_lowering_inland_mad_m | report10.md, report9.md |
+|  | ranwell_floor_lowering_inland_median_m | report9.md |
+|  | ranwell_floor_lowering_site8_m | report10.md |
+|  | ranwell_forcing_r_1951_53 | report11.md |
 |  | ranwell_forcing_ratio_1951_53 | report11.md |
 |  | ranwell_sigma_m_combined_constrained | Hollingham_2026_Paper2_amended.md, report9.md |
+|  | slack_floor_baseline_depth_mean_m | report9.md |
+|  | slack_floor_baseline_depth_min_m | report10.md, report9.md |
+|  | slack_floor_baseline_depth_min_mad_m | report9.md |
+|  | slack_floor_baseline_depth_spring_m | report10.md, report9.md |
+|  | slack_floor_baseline_n | report9.md |
+|  | slack_floor_depth_min_median_C4_m | report9.md |
+|  | slack_floor_depth_min_median_C5_m | report9.md |
+|  | slack_floor_depth_spring_median_C4_m | report9.md |
+|  | slack_floor_depth_spring_median_C5_m | report9.md |
+|  | slack_floor_excess_min_median_C4_m | report9.md |
+|  | slack_floor_excess_min_median_C5_m | report9.md |
+|  | slack_floor_residual_min_median_C4_m | report10.md |
 | `45_01_wet_area_model.csv` | open_water · b | report9.md |
 | `45_report_numbers.csv` | floor_mask_area_ha | Newborough_Methods_Supplement.md, report.md, report8.md, report9.md |
 |  | hysteresis_dh_p_open_water | report9.md |
@@ -1755,7 +1777,7 @@
 | D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `11_forecast_pflood_summary.csv` … |
 | L | `L_reach` | fitted inland reach of the coastal gradient | `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv` … |
 | d | `d_coast` | perpendicular distance to the eroding shoreline | `01_dist_coast_validation.csv`, `01_locations.csv`, `01_well_elevations.csv`, `07_05_clusters_vs_covariates.csv`, `10a_09_control_well_spread.csv`, `25_02_per_well_spring_mean_slopes.csv` … |
-| d | `d_depth` | depth of the water table below ground (all uses: P_flood inp | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_05_table10_pflood_spreadsheet.csv`, `21_forestry_02_distributions_means.csv`, `21_forestry_03_scraping_era_means.csv`, `21_forestry_04_baci_zone_means.csv` … |
+| d | `d_depth` | depth of the water table below ground (all uses: P_flood inp | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_05_table10_pflood_spreadsheet.csv`, `21_forestry_02_distributions_means.csv`, `21_forestry_03_scraping_era_means.csv`, `21_forestry_04_baci_zone_means.csv` |
 | z | `z_datum` | drainage datum, 3.7 m below ground — the replacement D_datum | `03_03_cluster_mechanistic_coefficients.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv` |
 | α | `alpha_ols_generic` | generic OLS intercept of a regression that is NOT the SSM: s | `01_observation_states.csv`, `01_wells_all.csv`, `01_wells_clean.csv`, `01_wells_clean_maod.csv`, `01_wells_provenance.csv`, `01_wells_reference.csv` … |
 | β | `beta_msl` | OLS slope on winter-to-spring rainfall in the Tool A spring- | `11_forecast_spring_transfer_functions.csv` |

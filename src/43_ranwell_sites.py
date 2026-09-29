@@ -41,7 +41,15 @@ authority:
 Tier D (display/utility) -- no fit; Script 44 reads 43_01 for basins and
 positions.  Skips cleanly when Route M's input is absent.
 """
-__version__ = "2.0.0"  # Hollingham (2026) - 2026-09-08. D-140 revisited: sketch
+__version__ = "2.1.0"  # Hollingham (2026) - 2026-09-29. Route F emits its per-site floors (T-71, D-208
+#   note; Martin: "we cant find the exact location of ranwells wells so an average of the slack floor is
+#   probably the best we can do" / "test which is the best fit"): 43_01 gains local_floor_m (the
+#   RANWELL_FLOOR_PCT percentile of the DEM within RANWELL_FLOOR_WINDOW_M of the PLACED position, which
+#   Route F already computed and did not write), floor_mask_mean_m / _sd_m / _n_cells (the group floor
+#   mask within the same window) and nearest_well_floor_m. The definition test is emitted as report
+#   numbers: each candidate floor against Ranwell's own levelled height at every placed site, bias and
+#   RMSE (ranwell_floor_fit_*). Script 44 reads local_floor_m as the modern floor at a site.
+# 2.0.0  # Hollingham (2026) - 2026-09-08. D-140 revisited: sketch
 #   found non-metric; Route A retired to a diagnostic; Routes M (hand placement
 #   over Martin's georeference), H (height check + refinement, global offset),
 #   T (DEM basin test; ridge crests = divides) and F (per-group slack floors at
@@ -336,6 +344,10 @@ def _route_f(m, dw, lab):
     win = (RANWELL_FLOOR_WINDOW_M / dw.px) ** 2
     reach = (RANWELL_SLACK_REACH_M / dw.px) ** 2
     dist_to = pd.Series(np.nan, index=m.index)
+    local_floor = pd.Series(np.nan, index=m.index)
+    mask_mean = pd.Series(np.nan, index=m.index)
+    mask_sd = pd.Series(np.nan, index=m.index)
+    mask_n = pd.Series(0, index=m.index, dtype=int)
     for g in RANWELL_SLACK_GROUPS:
         members = m[m["sketch_slack"] == g]
         if members.empty:
@@ -351,6 +363,7 @@ def _route_f(m, dw, lab):
             dk = (d2 <= win) & ~dw.nan
             fl = float(np.percentile(dw.dem[dk], RANWELL_FLOOR_PCT))
             floors.append(fl)
+            local_floor.loc[r.Index] = fl
             cand = (dw.dem <= fl + RANWELL_SLACK_DELTA_M[g]) & inb & (d2 <= reach)
             cl, _ = ndi.label(cand, structure=np.ones((3, 3)))
             touched = set(cl[dk & cand].tolist()) - {0}
@@ -364,12 +377,22 @@ def _route_f(m, dw, lab):
         for idx, r in members.iterrows():
             i, j = dw.rc(r.easting, r.northing)
             dist_to.loc[idx] = float(edt[i, j]) if dw.inside(i, j) else np.nan
+            d2 = (yy - i) ** 2 + (xx - j) ** 2
+            fm = (d2 <= win) & slack & ~dw.nan
+            mask_n.loc[idx] = int(fm.sum())
+            if fm.any():
+                mask_mean.loc[idx] = float(dw.dem[fm].mean())
+                mask_sd.loc[idx] = float(dw.dem[fm].std())
         masks[g] = slack
         stats.append(dict(group=g, n_sites=len(members), delta_m=RANWELL_SLACK_DELTA_M[g],
                           floor_m=float(np.median(floors)), area_ha=float(slack.sum()) * dw.px ** 2 / 1e4,
                           bounded_by=bounded_by,
                           n_sites_on_floor=int((dist_to.loc[members.index] == 0).sum())))
     m["dist_to_slack_floor_m"] = dist_to
+    m["local_floor_m"] = local_floor          # the RANWELL_FLOOR_PCT percentile within RANWELL_FLOOR_WINDOW_M
+    m["floor_mask_mean_m"] = mask_mean        # the group floor mask within the same window
+    m["floor_mask_sd_m"] = mask_sd
+    m["floor_mask_n_cells"] = mask_n
     return masks, pd.DataFrame(stats), m
 
 
@@ -405,12 +428,33 @@ def _route_a(m):
 
 
 # ── modern network ────────────────────────────────────────────────────────────
+def _floor_fit_rows(m, floor_stats):
+    """Which modern floor reproduces Ranwell's own levelled heights? Each candidate
+    at the PLACED position against height_m_od over every levelled site: bias and
+    RMSE (the refined position is excluded - Route H moved it to match the height).
+    The choice Script 44 makes (local_floor_m) rests on these rows."""
+    gm = floor_stats.set_index("group")["floor_m"] if len(floor_stats) else pd.Series(dtype=float)
+    cand = {"dem_point": m["dem_m"], "local_floor": m["local_floor_m"],
+            "floor_mask_mean": m["floor_mask_mean_m"], "group_median": m["sketch_slack"].map(gm),
+            "nearest_well_floor": m.get("nearest_well_floor_m", pd.Series(np.nan, index=m.index))}
+    rows = []
+    for name, v in cand.items():
+        r = (pd.to_numeric(v, errors="coerce") - m["height_m_od"]).dropna()
+        rows += [(f"ranwell_floor_fit_bias_{name}_m", float(r.mean()) if len(r) else np.nan, "m",
+                  f"{name} minus Ranwell's levelled height, mean over {len(r)} placed sites"),
+                 (f"ranwell_floor_fit_rmse_{name}_m", float(np.sqrt((r ** 2).mean())) if len(r) else np.nan, "m",
+                  f"{name} against Ranwell's levelled height, RMSE over {len(r)} placed sites"),
+                 (f"ranwell_floor_fit_n_{name}", len(r), "count", f"sites entering the {name} comparison")]
+    return rows
+
+
 def _modern_network():
     loc = pd.read_csv(INT_LOCATIONS)
     ec = next(c for c in loc.columns if c.lower() in ("e", "easting", "x"))
     nc = next(c for c in loc.columns if c.lower() in ("n", "northing", "y"))
     idc = next(c for c in loc.columns if c.lower() in ("name", "well", "id"))
-    loc = loc[[idc, ec, nc]].rename(columns={idc: "well", ec: "E", nc: "N"})
+    keep = [idc, ec, nc] + (["ground_elev_m"] if "ground_elev_m" in loc.columns else [])
+    loc = loc[keep].rename(columns={idc: "well", ec: "E", nc: "N"})
     loc = loc.dropna(subset=["E", "N"]).copy()
 
     def _ids(path):
@@ -626,7 +670,12 @@ def main():
             "matching_cells_within_R", "resolvability", "basin_id", "basin_shared_with_group",
             "basin_adjacent_to_group", "basin_consistent", "dist_to_slack_floor_m",
             "routeA_easting", "routeA_northing", "routeA_error_m", "nearest_well",
-            "nearest_well_dist_m", "nearest_well_same_basin", "source"]
+            "nearest_well_dist_m", "nearest_well_same_basin",
+            "local_floor_m", "floor_mask_mean_m", "floor_mask_sd_m", "floor_mask_n_cells",
+            "nearest_well_floor_m", "source"]
+    if "ground_elev_m" in net.columns:
+        wf = net.set_index(net["well"].astype(str).str.strip().str.lower())["ground_elev_m"]
+        m["nearest_well_floor_m"] = m["nearest_well"].astype(str).str.strip().str.lower().map(wf)
     out = m[[c for c in cols if c in m.columns]].copy()
     out.to_csv(OUT_43_SITES, index=False)
     saved(OUT_43_SITES.name)
@@ -664,7 +713,7 @@ def main():
         ("ranwell_routeA_rms_error_m", routeA_rms, "m", "rms distance of the retired similarity registration from Route M"),
         ("ranwell_modern_wells_with_analogue", len(analog), "count",
          f"modern wells within {RANWELL_ANALOGUE_RADIUS_M:.0f} m of a 1950s site in the same basin"),
-    ], columns=["key", "value", "unit", "note"])
+    ] + _floor_fit_rows(m, floor_stats), columns=["key", "value", "unit", "note"])
     rn.to_csv(OUT_43_REPORT_NUMBERS, index=False)
     saved(OUT_43_REPORT_NUMBERS.name)
     dw.src.close()

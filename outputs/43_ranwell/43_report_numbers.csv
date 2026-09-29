@@ -7,3 +7,18 @@ ranwell_sites_flank,3.0,count,"sites on sloping ground, where the height resolve
 ranwell_sites_basin_consistent,17.0,count,sites sharing or neighbouring a DEM basin with their sketch group
 ranwell_routeA_rms_error_m,254.96736827960487,m,rms distance of the retired similarity registration from Route M
 ranwell_modern_wells_with_analogue,10.0,count,modern wells within 100 m of a 1950s site in the same basin
+ranwell_floor_fit_bias_dem_point_m,0.2314641077378217,m,"dem_point minus Ranwell's levelled height, mean over 17 placed sites"
+ranwell_floor_fit_rmse_dem_point_m,0.4044122295825341,m,"dem_point against Ranwell's levelled height, RMSE over 17 placed sites"
+ranwell_floor_fit_n_dem_point,17.0,count,sites entering the dem_point comparison
+ranwell_floor_fit_bias_local_floor_m,-0.14023529838113227,m,"local_floor minus Ranwell's levelled height, mean over 17 placed sites"
+ranwell_floor_fit_rmse_local_floor_m,0.339040013518438,m,"local_floor against Ranwell's levelled height, RMSE over 17 placed sites"
+ranwell_floor_fit_n_local_floor,17.0,count,sites entering the local_floor comparison
+ranwell_floor_fit_bias_floor_mask_mean_m,0.19618644119854392,m,"floor_mask_mean minus Ranwell's levelled height, mean over 17 placed sites"
+ranwell_floor_fit_rmse_floor_mask_mean_m,0.39230657022566684,m,"floor_mask_mean against Ranwell's levelled height, RMSE over 17 placed sites"
+ranwell_floor_fit_n_floor_mask_mean,17.0,count,sites entering the floor_mask_mean comparison
+ranwell_floor_fit_bias_group_median_m,0.059176441641414786,m,"group_median minus Ranwell's levelled height, mean over 17 placed sites"
+ranwell_floor_fit_rmse_group_median_m,0.7161070876307837,m,"group_median against Ranwell's levelled height, RMSE over 17 placed sites"
+ranwell_floor_fit_n_group_median,17.0,count,sites entering the group_median comparison
+ranwell_floor_fit_bias_nearest_well_floor_m,-0.14988235294117663,m,"nearest_well_floor minus Ranwell's levelled height, mean over 17 placed sites"
+ranwell_floor_fit_rmse_nearest_well_floor_m,0.6870773567202217,m,"nearest_well_floor against Ranwell's levelled height, RMSE over 17 placed sites"
+ranwell_floor_fit_n_nearest_well_floor,17.0,count,sites entering the nearest_well_floor comparison

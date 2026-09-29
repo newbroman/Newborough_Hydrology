@@ -52,7 +52,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-19. Adds insert_table(),
+__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-29. The temp archive goes to
+#   tempfile.gettempdir() (TMPDIR when set) instead of a literal /tmp: on the bridge VM /tmp
+#   holds a stale report9.odt.building owned by nobody from a killed session, which the mount
+#   cannot delete and which blocked every insert_figure on report9 (noted 27e). Behaviour on a
+#   machine without TMPDIR is unchanged.
+# 1.7.0  # Hollingham (2026) — 2026-09-19. Adds insert_table(),
 #   the table counterpart of insert_figure. Written the day Table 1.4b went in
 #   BY HAND: the row markup was assembled in a throwaway script, the automatic
 #   styles were borrowed from a neighbouring table by eye, the free table:name
@@ -164,6 +169,7 @@ import pathlib
 import re
 import shutil
 import sys
+import tempfile
 import zipfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -249,7 +255,7 @@ def _write(src, dst, xml: str, zin, names) -> bool:
     if not _tier_gate(dst, tag_change=False):
         return False
     data = xml.encode("utf-8")
-    tmp = pathlib.Path("/tmp") / (dst.name + ".ziptmp")
+    tmp = pathlib.Path(tempfile.gettempdir()) / (dst.name + ".ziptmp")
     with zipfile.ZipFile(tmp, "w") as zout:
         for info in zin.infolist():
             payload = data if info.filename == "content.xml" else zin.read(info.filename)
@@ -422,7 +428,7 @@ def edit_entries(src, dst, entry_subs: dict, expect: int) -> bool:
         print(f"  ABORT {src.name}: {total} substitutions, expected {expect}")
         zin.close(); return False
 
-    tmp = pathlib.Path("/tmp") / (dst.name + ".ziptmp")
+    tmp = pathlib.Path(tempfile.gettempdir()) / (dst.name + ".ziptmp")
     with zipfile.ZipFile(tmp, "w") as zout:
         for info in zin.infolist():
             payload = edited.get(info.filename) or zin.read(info.filename)
@@ -600,7 +606,7 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
         print("  ABORT: edit unbalances spans")
         zin.close(); return False
 
-    tmp = pathlib.Path("/tmp") / (dst.name + ".building")
+    tmp = pathlib.Path(tempfile.gettempdir()) / (dst.name + ".building")
     with zipfile.ZipFile(tmp, "w") as zout:
         for n in names:
             data = zin.read(n)

@@ -5,7 +5,7 @@
 
 *Derived live from the ODT captions, `tools/table_configs.py`, `tools/figure_map.csv` and the papers' own exhibit manifests. Keyed by OUTPUT FILE, so the question it answers is: this script's output changed — which exhibits, in which documents, have to be re-checked?*
 
-**148 exhibit(s)** across the corpus, drawing on **150 output file(s)**.
+**149 exhibit(s)** across the corpus, drawing on **151 output file(s)**.
 
 | Output file | Document | Exhibit | Caption |
 |---|---|---|---|
@@ -29,7 +29,7 @@
 | `02_01_dendrogram.png` | Paper 1 | Figure 4 | Ward's dendrogram + dual-metric k-selection |
 |  | report9.odt | Figure 8 | Figure 1.5: Clustering results: Ward&apos;s hierarchical clustering dendrogram f |
 | `02_02_validation_plots.png` | Paper 1 | Figure 4 | Ward's dendrogram + dual-metric k-selection |
-|  | report9.odt | Figure 7 | Figure 1.4: Cluster validation plots: silhouette coefficient, Calinski–Harabasz |
+|  | report9.odt | Figure 7 | Figure 1.4: Cluster validation plots for k = 2–10: Ward&apos;s merge distance (e |
 | `02_03_cluster_hydrographs_wb.png` | Paper 1 | Figure 6 | Cluster-centroid hydrographs & seasonal amplitudes |
 |  | report9.odt | Figure 9 | Figure 1.6: Cluster-mean relative water level hydrographs for the five hydrogeol |
 | `02_03b_cluster_spaghetti.png` | report9.odt | Figure 10 | Figure 1.7: Per-well relative water level for the 66 reference wells, shown as o |
@@ -78,9 +78,9 @@
 |  | report9.odt | Figure 24 | Figure 1.21: Paired BACI summer minimum analysis: CEH36 (scraped) vs CEH4 (contr |
 | `09d_01_scenario_comparison.jpg` | report9.odt | Figure 27 | Figure 1.24: Scenario comparison at CEH36 (scraped site) — annual-mean forcing. |
 | `09d_02_summer_scenario_comparison.png` | report9.odt | Figure 28 | Figure 1.25: Scenario comparison at CEH36 (scraped site) — summer (July–Septembe |
-| `09f_management_effects.png` | report10.odt | Figure 82 | Figure 1.2: Spatial reach and development timescale of the management interventi |
+| `09f_management_effects.png` | report10.odt | Figure 83 | Figure 1.2: Spatial reach and development timescale of the management interventi |
 | `09g_coastal_vs_climate_reach.png` | Paper 1 | Figure 21 | Conceptual coastal-vs-climate reach |
-| `09g_mechanism_grid.png` | report10.odt | Figure 83 | Figure 1.3: Three drivers of water-table change and the undisturbed state — sche |
+| `09g_mechanism_grid.png` | report10.odt | Figure 84 | Figure 1.3: Three drivers of water-table change and the undisturbed state — sche |
 | `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.11 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
 | `10a_06_climate_sensitivity.png` | report9.odt | Figure 29 | Figure 1.26: Climate sensitivity: cumulative water balance (CWB) vs BACI displac |
 | `10a_07_cusum_impact.png` | Paper 2 | Figure 3 | Forest-control BACI + CUSUM (Impact) |
@@ -109,7 +109,7 @@
 | `11b_03_pflood_per_well.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
 | `11b_04_flood_frequency.png` | report9.odt | Figure 43 | Figure 1.40: Winter flooding frequency across the full dipwell network (66 refer |
 | `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
-| `11c_pflood_achievability.png` | report10.odt | Figure 84 | Figure 1.4: Per-well achievability categorization against the P_flood rainfall m |
+| `11c_pflood_achievability.png` | report10.odt | Figure 85 | Figure 1.4: Per-well achievability categorization against the P_flood rainfall m |
 | `12_01_dem_site_overview.png` | Paper 1 | Figure 1 | Site topography, geology & monitoring network |
 |  | report7.odt | Figure 1 | Figure 1.1: Site topography and hydrogeological features. Digital elevation mode |
 | `13_01_experimental_setup_map.png` | report7.odt | Figure 2 | Figure 1.2: Hierarchical experimental design. Spatial layout of the monitoring n |
@@ -153,7 +153,7 @@
 | `20_scrape_drawdown_nohead.png` | Paper 2 | Figure 8 | Scrape-induced drawdown / cascade |
 |  | report9.odt | Figure 67 | Figure 1.63: Dune-scrape drawdown across all eight mapped cuts, Newborough Warre |
 | `20_slr_response.png` | report9.odt | Figure 64 | Figure 1.60: Sea-level-rise head response at the western dune margin, on the sam |
-| `21_forestry_01_hydrograph.png` | report10.odt | Figure 81 | Figure 1.1: Synthetic mean-year hydrograph for the C4 Forest cluster under four |
+| `21_forestry_01_hydrograph.png` | report10.odt | Figure 82 | Figure 1.1: Synthetic mean-year hydrograph for the C4 Forest cluster under four |
 | `21_forestry_03_scraping_eras.png` | report9.odt | Figure 22 | Figure 1.19: Annual summer minimum depth below ground surface at scraping treatm |
 | `21_forestry_04_baci_zone_violin.png` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 |  | report9.odt | Figure 34 | Figure 1.31: Summer minimum depth distributions by BACI tier, Newborough Warren |
@@ -185,6 +185,7 @@
 | `38_coast_inland_difference.jpg` | report9.odt | Figure 62 | Figure 1.58: Independent, model-free estimate of the coastal drawdown rate. The |
 | `41_05_canopy_trajectory.png` | report9.odt | Figure 38 | Figure 1.35: Canopy-texture trajectories from the dated aerial series, 2006 to 2 |
 | `44_07b_hindcast_report.png` | report9.odt | Figure 80 | Figure 1.76: Ranwell&apos;s 1951–53 water-table readings against the SSM hindcas |
+| `44_09_slack_floor_datum.png` | report9.odt | Figure 81 | Figure 0: The slack floor against the water table, by distance from the eroding |
 | `45_01_wet_area_model.png` | report9.odt | Figure 49 | Figure 1.46: Slack-floor wet area against the modelled water table. Near-infrare |
 | `45_02_ssm_through_nir_curves.png` | report9.odt | Figure 50 | Figure 1.47: Modelled versus satellite-observed slack-floor wet area — an out-of |
 | `45_03_switching_levels_map.png` | report9.odt | Figure 51 | Figure 1.48: Per-cell switching levels of the Newborough Warren slack floor from |
@@ -199,7 +200,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (432)
+## Outputs no exhibit renders (431)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 

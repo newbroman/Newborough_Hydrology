@@ -373,6 +373,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C5 (Coastal Forest) / 2019 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.32191 |  | report9 | ok |
 | C5 (Coastal Forest) / 2020 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.19409 |  | Newborough_Methods_Supplement | ok |
 | C5 (Coastal Forest) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.19641 |  | report9 | ok |
+| C5 (Coastal Forest) / 2080s · msl5_perturbed_window_mean_m |  |  | `26b_msl5_ukcp18_projection_summary.csv` | -1.0753 |  | report9 | ok |
 | C5 (Coastal Forest) / False · Sy_OLS_R2 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.869299 |  | Newborough_Methods_Supplement | ok |
 | C5 (Coastal Forest) / False · Sy_OLS_winter | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.418445 |  | Newborough_Methods_Supplement, report9 | ok |
 | C5 (Coastal Forest) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.357947 |  | INTERCEPTION_TREATMENT, Paper1, report9 | ok |
@@ -1096,6 +1097,16 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | pet_calendar_undefined_n_months |  |  | `01_report_numbers.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
 | rain_mean_modern_m_yr |  |  | `39_report_numbers.csv` | 0.889338 |  | report9 | ok |
 | rain_mean_window_m_yr |  |  | `39_report_numbers.csv` | 0.770071 |  | report9 | ok |
+| ranwell_depth_change_inland_mad_m |  |  | `44_report_numbers.csv` | 0.207329 |  | report10, report9 | ok |
+| ranwell_depth_change_inland_median_m |  |  | `44_report_numbers.csv` | 0.0440823 |  | report9 | ok |
+| ranwell_depth_change_site8_m |  |  | `44_report_numbers.csv` | 0.517444 |  | report10 | ok |
+| ranwell_depth_max_1951_53_site1_m |  |  | `44_report_numbers.csv` | 1.082 |  | report9 | ok |
+| ranwell_depth_max_1951_53_site8_m |  |  | `44_report_numbers.csv` | 0.779 |  | report9 | ok |
+| ranwell_depth_mean_1951_53_site1_m |  |  | `44_report_numbers.csv` | 0.501127 |  | report9 | ok |
+| ranwell_depth_mean_1951_53_site4_m |  |  | `44_report_numbers.csv` | 0.342984 |  | report9 | ok |
+| ranwell_floor_lowering_inland_mad_m |  |  | `44_report_numbers.csv` | 0.125 |  | report10, report9 | ok |
+| ranwell_floor_lowering_inland_median_m |  |  | `44_report_numbers.csv` | 0.0662505 |  | report9 | ok |
+| ranwell_floor_lowering_site8_m |  |  | `44_report_numbers.csv` | 0.5325 |  | report10 | ok |
 | ranwell_forcing_r_1951_53 |  |  | `44_report_numbers.csv` | 0.920586 |  | report11 | ok |
 | ranwell_forcing_ratio_1951_53 |  |  | `44_report_numbers.csv` | 0.966359 |  | report11 | ok |
 | recent / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.64782 |  | PAPER1_SI_methods, report9 | ok |
@@ -1169,6 +1180,18 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | scrape_propagation_near_db3_t |  |  | `09b_report_numbers.csv` | 2.47403 |  | report9 | ok |
 | site_mean_spring_n_years |  |  | `26_report_numbers.csv` | 20 |  | report9 | ok |
 | site_mean_spring_rho_lag1 |  |  | `26_report_numbers.csv` | -0.0257009 |  | report9 | ok |
+| slack_floor_baseline_depth_mean_m |  |  | `44_report_numbers.csv` | 0.45546 |  | report9 | ok |
+| slack_floor_baseline_depth_min_m |  |  | `44_report_numbers.csv` | 0.9275 |  | report10, report9 | ok |
+| slack_floor_baseline_depth_min_mad_m |  |  | `44_report_numbers.csv` | 0.105 |  | report9 | ok |
+| slack_floor_baseline_depth_spring_m |  |  | `44_report_numbers.csv` | 0.213333 |  | report10, report9 | ok |
+| slack_floor_baseline_n |  |  | `44_report_numbers.csv` | 38 |  | report9 | ok |
+| slack_floor_depth_min_median_C4_m |  |  | `44_report_numbers.csv` | 1.59 |  | report9 | ok |
+| slack_floor_depth_min_median_C5_m |  |  | `44_report_numbers.csv` | 1.22 |  | report9 | ok |
+| slack_floor_depth_spring_median_C4_m |  |  | `44_report_numbers.csv` | 0.943333 |  | report9 | ok |
+| slack_floor_depth_spring_median_C5_m |  |  | `44_report_numbers.csv` | 0.866667 |  | report9 | ok |
+| slack_floor_excess_min_median_C4_m |  |  | `44_report_numbers.csv` | 0.6625 |  | report9 | ok |
+| slack_floor_excess_min_median_C5_m |  |  | `44_report_numbers.csv` | 0.2925 |  | report9 | ok |
+| slack_floor_residual_min_median_C4_m |  |  | `44_report_numbers.csv` | 0.6125 |  | report10 | ok |
 | spring_mam / 2011_2025 · p_ar | p | significance probability | `32_site_mean_trend.csv` | 0.2845 |  | report9 | ok |
 | spring_sd_mm_median_c2 |  |  | `26_report_numbers.csv` | 251.968 |  | report9 | ok |
 | ssm_resid_dw_median |  |  | `22_report_numbers.csv` | 2.27525 |  | Newborough_Methods_Supplement | ok |

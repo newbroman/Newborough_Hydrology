@@ -5,7 +5,7 @@
 
 *Derived live from `tools/figure_map.py`: the Source column is each figure's caption `Source:` marker, resolved on disk. Regenerate, do not hand-edit.*
 
-**84 report figures** across 4 documents — 84 resolve to a source on disk, 0 flagged.
+**85 report figures** across 4 documents — 85 resolve to a source on disk, 0 flagged.
 
 ## report7.odt
 
@@ -101,14 +101,15 @@
 | 78 | 4.12.1 | Comparative footing of the drivers over the 2005–2025 horizon, on thre | `outputs/37b_driver_footing/37b_driver_footing.png` | yes |
 | 79 | 4.13.1 | Projected shift in the five-year mean spring water level (ΔMSL5, blue) | `outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png` | yes |
 | 80 | 4.14.2 | Ranwell&apos;s 1951–53 water-table readings against the SSM hindcast,  | `outputs/44_ranwell_hindcast/44_07b_hindcast_report.png` | yes |
+| 81 | 4.14.2 | The slack floor against the water table, by distance from the eroding  | `outputs/44_ranwell_hindcast/44_09_slack_floor_datum.png` | yes |
 
 ## report10.odt
 
 | Fig. | § | Caption | Source | On disk |
 |---|---|---|---|---|
-| 81 | 5.7.4 | Synthetic mean-year hydrograph for the C4 Forest cluster under four ma | `outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png` | yes |
-| 82 | 5.8.2 | Spatial reach and development timescale of the management intervention | `outputs/09_scraping_intervention/09f_management_effects.png` | yes |
-| 83 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
-| 84 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
+| 82 | 5.7.4 | Synthetic mean-year hydrograph for the C4 Forest cluster under four ma | `outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png` | yes |
+| 83 | 5.8.2 | Spatial reach and development timescale of the management intervention | `outputs/09_scraping_intervention/09f_management_effects.png` | yes |
+| 84 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
+| 85 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-09-28 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-09-29 by `tools/build_figure_ledger.py` v2.3.0.*

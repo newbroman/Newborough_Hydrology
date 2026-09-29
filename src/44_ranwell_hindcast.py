@@ -98,7 +98,23 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29. Q4 — the slack floors as a former water
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-29. Q4: the modern floor at a Ranwell site is the
+#   site's LOCAL FLOOR from Script 43 2.1.0 (43_01 local_floor_m: the RANWELL_FLOOR_PCT percentile within
+#   RANWELL_FLOOR_WINDOW_M of the placed position), not the headline well's floor (Martin, 2026-09-29: the pipe
+#   positions are not known to a well; "an average of the slack floor is probably the best we can do"; the
+#   definition test in 43_report_numbers ranwell_floor_fit_* picks the local floor: lowest RMSE against his
+#   levelled heights at the placed sites). Site rows: slack_floor_lowering_m (his floor minus the local floor),
+#   modern_depth_local_cc_m (local floor minus the kriged mean level at the site, climate-adjusted as Q2) and
+#   depth_change_m against his mean depth; the floor-mask mean carried as a sensitivity; the well-pairing
+#   columns kept as pairedwell_* (diagnostic). Report numbers re-keyed: ranwell_floor_lowering_site{n}_m and
+#   ranwell_depth_change_site{n}_m are now the local-floor quantities; inland medians and the inland-subset
+#   fit test added; the well-pairing keys carry pairedwell in the name.
+# 1.4.1  # Hollingham (2026) — 2026-09-29. Q4 fix: the cluster column stays integer (nullable
+#   Int64) after the Ranwell site rows join the frame, so the per-cluster report-number keys read _C4_, not
+#   _C4.0_, and 44_09 carries cluster as an integer. Values unchanged; keys renamed. Also paired_floor_lowering_m
+#   (site rows) and ranwell_floor_lowering_site{n}_m: Ranwell's floor minus the modern well's, the number report10
+#   §5.7.9 quotes for Site 8.
+# 1.4.0  # Hollingham (2026) — 2026-09-29. Q4 — the slack floors as a former water
 #   table (T-71, D-208; Martin's rulings 2026-09-29: baseline C1–C3 beyond L, medians, both retreat forms with
 #   the exponential flagged as sensitivity, a figure). 44_09_slack_floor_datum.csv: per well the floor, the
 #   depths of the full-record mean, the D-189/D-207 spring and the annual minimum below it, the inland
@@ -506,14 +522,21 @@ def slack_floor_datum(wc, loc, clusters, msl, metrics, ranwell, eroding, cg_L, h
     return df, base
 
 
-def _ranwell_site_rows(ranwell, sites, metrics, wells_df, eroding, cg_L, base, k_per_m, retreat_m):
-    """The Ranwell-site rows of 44_09: his floor and depths, and the like-for-like
-    depth change at the site's headline well (modern depth minus his), positive =
-    deeper now. No interpolation, no OD datum: both sides are read from their own
-    floor."""
+def _ranwell_site_rows(ranwell, sites, metrics, wells_df, eroding, cg_L, base, k_per_m, retreat_m, lc):
+    """The Ranwell-site rows of 44_09: his floor and 1951–53 depths, and the modern
+    floor and depth AT THE SITE on the average-floor basis: the modern floor is the
+    site's local floor (Script 43 local_floor_m), the modern level is the kriged
+    mean surface at the site (44_05), climate-adjusted as Q2. slack_floor_lowering_m
+    is his floor minus the local floor (positive = lower now); depth_change_m is the
+    modern depth below the local floor minus his mean depth below his (positive =
+    deeper now). The floor-mask mean is carried as a sensitivity and the headline-
+    well pairing as a diagnostic (pairedwell_*): a pipe is not at a well."""
     from shapely.geometry import Point as _Pt                    # noqa: PLC0415
     hl = metrics[metrics["headline"]].set_index("site_no")["well"] if len(metrics) else pd.Series(dtype=object)
     wd = wells_df.set_index("well")
+    if "local_floor_m" not in sites.columns:
+        raise RuntimeError(f"{paths.OUT_43_SITES.name} has no local_floor_m: run Script 43 2.1.0 first")
+    lcs = lc[lc["row"] == "site"].set_index("site_no") if len(lc) else pd.DataFrame()
     rows = []
     for s, r in ranwell.iterrows():
         srow = sites.loc[s]
@@ -529,10 +552,27 @@ def _ranwell_site_rows(ranwell, sites, metrics, wells_df, eroding, cg_L, base, k
                    **{k: r[k] for k in r.index})
         for stat in ("mean", "spring", "min"):
             row[f"baseline_depth_{stat}_m"] = base[stat][0]
+        # the average-floor basis (Script 43 Route F at the placed position)
+        lf = float(srow["local_floor_m"]); fmm = float(srow.get("floor_mask_mean_m", np.nan))
+        row["modern_local_floor_m_od"] = lf
+        row["modern_floor_mask_mean_m_od"] = fmm
+        row["slack_floor_lowering_m"] = float(r["ranwell_floor_m_od"] - lf)
+        row["slack_floor_lowering_maskmean_m"] = float(r["ranwell_floor_m_od"] - fmm)
+        if s in lcs.index:
+            v_m = float(lcs.loc[s, "modern_kriged_m_od"])
+            ce = float(lcs.loc[s, "climate_expectation_m"])
+            ce = ce if np.isfinite(ce) else 0.0
+            row["modern_level_kriged_m_od"] = v_m
+            row["climate_expectation_m"] = ce
+            row["modern_depth_local_m"] = lf - v_m
+            row["modern_depth_local_cc_m"] = lf - (v_m - ce)
+            row["depth_change_m"] = (lf - (v_m - ce)) - float(r["ranwell_depth_mean_m"])
+            row["depth_change_maskmean_m"] = (fmm - (v_m - ce)) - float(r["ranwell_depth_mean_m"])
         if w in wd.index:
-            row["paired_depth_change_mean_m"] = float(wd.loc[w, "depth_mean_m"] - r["ranwell_depth_mean_m"])
-            row["paired_depth_change_spring_m"] = float(wd.loc[w, "depth_spring_m"] - r["ranwell_depth_spring_m"])
-            row["paired_depth_change_max_m"] = float(wd.loc[w, "depth_min_m"] - r["ranwell_depth_max_m"])
+            row["pairedwell_floor_lowering_m"] = float(r["ranwell_floor_m_od"] - wd.loc[w, "floor_m_od"])
+            row["pairedwell_depth_change_mean_m"] = float(wd.loc[w, "depth_mean_m"] - r["ranwell_depth_mean_m"])
+            row["pairedwell_depth_change_spring_m"] = float(wd.loc[w, "depth_spring_m"] - r["ranwell_depth_spring_m"])
+            row["pairedwell_depth_change_max_m"] = float(wd.loc[w, "depth_min_m"] - r["ranwell_depth_max_m"])
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -811,8 +851,9 @@ def main() -> int:
     sfd, base = slack_floor_datum(wc, loc, clusters, msl26, metrics, ranwell, eroding, cg_L, h0_per_metre,
                                   retreat_1899_2026, rate_recent, rate_long)
     sfd_sites = _ranwell_site_rows(ranwell, sites, metrics, sfd, eroding, cg_L, base, h0_per_metre / 1000.0,
-                                   retreat_1899_2026)
+                                   retreat_1899_2026, lc)
     sfd = pd.concat([sfd, sfd_sites], ignore_index=True)
+    sfd["cluster"] = sfd["cluster"].astype("Int64")   # site rows may carry no cluster; keep the column integer
     info(f"inland baseline: C{'/'.join(str(c) for c in config.SLACK_FLOOR_BASELINE_CLUSTERS)} at >= L = {cg_L:.0f} m, "
          f"n {base['min'][2]}: depth below floor mean {base['mean'][0]:.3f}, spring {base['spring'][0]:.3f}, "
          f"annual minimum {base['min'][0]:.3f} m (MAD {base['min'][1]:.3f})")
@@ -820,16 +861,19 @@ def main() -> int:
          f"exponential written as sensitivity only")
     wells_q4 = sfd[sfd["row"] == "well"]
     for c, g in wells_q4.groupby("cluster"):
+        c = int(c)
         step(f"C{c}: n {len(g)}, median excess (annual minimum) {g['excess_min_m'].median():+.3f} m, "
              f"modelled retreat {g['retreat_expectation_modelled_m'].median():.3f} m, "
              f"residual {g['residual_after_retreat_min_m'].median():+.3f} m; "
              f"{int(g['within_coastal_reach'].sum())} within L")
     for r in sfd_sites.itertuples():
-        step(f"Ranwell site {r.ranwell_site}: floor {r.ranwell_floor_m_od:.2f} m OD, 1951-53 depth mean "
-             f"{r.ranwell_depth_mean_m:.2f} / spring {r.ranwell_depth_spring_m:.2f} / deepest {r.ranwell_depth_max_m:.2f} m"
-             + (f"; paired {r.well}: deeper now by {r.paired_depth_change_mean_m:+.2f} (mean), "
-                f"{r.paired_depth_change_spring_m:+.2f} (spring), {r.paired_depth_change_max_m:+.2f} (minimum) m"
-                if r.well else "; no headline well"))
+        step(f"Ranwell site {r.ranwell_site}: his floor {r.ranwell_floor_m_od:.2f} m OD, local floor now "
+             f"{r.modern_local_floor_m_od:.2f} (lowered {r.slack_floor_lowering_m:+.2f} m); depth below floor 1951-53 "
+             f"{r.ranwell_depth_mean_m:.2f} m, now {getattr(r, 'modern_depth_local_cc_m', float('nan')):.2f} m "
+             f"(change {getattr(r, 'depth_change_m', float('nan')):+.2f} m, climate-adjusted)")
+    inland = sfd_sites[~sfd_sites["within_coastal_reach"].astype(bool)]
+    info(f"inland sites (beyond L), n {len(inland)}: floor lowering median {inland['slack_floor_lowering_m'].median():+.3f} m, "
+         f"depth change median {inland['depth_change_m'].median():+.3f} m")
 
     phase(6, "Outputs")
     lv_out = lv.merge(sites[["sketch_slack", "basin_id"]], left_on="site_no", right_index=True, how="left")
@@ -903,6 +947,7 @@ def main() -> int:
                (f"slack_floor_baseline_depth_{stat}_mad_m", base[stat][1], "m", f"inland baseline ({lab}): median absolute deviation")]
     rn.append(("slack_floor_baseline_n", base["min"][2], "count", "wells in the inland baseline"))
     for c, g in wells_q4.groupby("cluster"):
+        c = int(c)
         rn += [(f"slack_floor_depth_min_median_C{c}_m", float(g["depth_min_m"].median()), "m", f"C{c}: median depth of the annual minimum below the floor"),
                (f"slack_floor_depth_spring_median_C{c}_m", float(g["depth_spring_m"].median()), "m", f"C{c}: median depth of the spring level below the floor"),
                (f"slack_floor_excess_min_median_C{c}_m", float(g["excess_min_m"].median()), "m", f"C{c}: median excess of the annual-minimum depth over the inland baseline"),
@@ -914,11 +959,26 @@ def main() -> int:
         s_ = int(r.ranwell_site)
         rn += [(f"ranwell_floor_m_od_site{s_}", r.ranwell_floor_m_od, "m OD", f"site {s_}: Ranwell's floor, level + depth from the digitised readings ({r.ranwell_basis})"),
                (f"ranwell_depth_mean_1951_53_site{s_}_m", r.ranwell_depth_mean_m, "m", f"site {s_}: 1951-53 mean depth below his floor"),
-               (f"ranwell_depth_max_1951_53_site{s_}_m", r.ranwell_depth_max_m, "m", f"site {s_}: deepest 1951-53 reading below his floor")]
+               (f"ranwell_depth_max_1951_53_site{s_}_m", r.ranwell_depth_max_m, "m", f"site {s_}: deepest 1951-53 reading below his floor"),
+               (f"ranwell_local_floor_site{s_}_m_od", r.modern_local_floor_m_od, "m OD", f"site {s_}: the modern local floor at the placed position (Script 43 Route F)"),
+               (f"ranwell_floor_lowering_site{s_}_m", r.slack_floor_lowering_m, "m", f"site {s_}: Ranwell's floor minus the modern local floor (positive = the floor is lower now)"),
+               (f"ranwell_depth_change_site{s_}_m", getattr(r, "depth_change_m", np.nan), "m",
+                f"site {s_}: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)")]
         if r.well:
-            rn += [(f"ranwell_depth_change_mean_site{s_}_m", r.paired_depth_change_mean_m, "m", f"site {s_} vs {r.well}: modern mean depth minus 1951-53 mean depth, floor to floor (positive = deeper now)"),
-                   (f"ranwell_depth_change_spring_site{s_}_m", r.paired_depth_change_spring_m, "m", f"site {s_} vs {r.well}: spring depth change, floor to floor"),
-                   (f"ranwell_depth_change_max_site{s_}_m", r.paired_depth_change_max_m, "m", f"site {s_} vs {r.well}: modern annual minimum minus his deepest reading, floor to floor")]
+            rn += [(f"ranwell_pairedwell_floor_lowering_site{s_}_m", r.pairedwell_floor_lowering_m, "m", f"site {s_} vs {r.well} (diagnostic): Ranwell's floor minus the headline well's floor"),
+                   (f"ranwell_pairedwell_depth_change_mean_site{s_}_m", r.pairedwell_depth_change_mean_m, "m", f"site {s_} vs {r.well} (diagnostic): modern mean depth minus 1951-53 mean depth, floor to floor"),
+                   (f"ranwell_pairedwell_depth_change_spring_site{s_}_m", r.pairedwell_depth_change_spring_m, "m", f"site {s_} vs {r.well} (diagnostic): spring depth change, floor to floor"),
+                   (f"ranwell_pairedwell_depth_change_max_site{s_}_m", r.pairedwell_depth_change_max_m, "m", f"site {s_} vs {r.well} (diagnostic): modern annual minimum minus his deepest reading, floor to floor")]
+    for col, key, lab in (("slack_floor_lowering_m", "ranwell_floor_lowering_inland", "floor lowering, his floor minus the local floor"),
+                          ("depth_change_m", "ranwell_depth_change_inland", "depth change below the floor, climate-adjusted")):
+        v = inland[col].dropna()
+        rn += [(f"{key}_median_m", float(v.median()) if len(v) else np.nan, "m", f"median over the {len(v)} sites beyond L: {lab}"),
+               (f"{key}_mad_m", float((v - v.median()).abs().median()) if len(v) else np.nan, "m", f"median absolute deviation over the sites beyond L: {lab}"),
+               (f"{key}_n", len(v), "count", "sites beyond L in the median")]
+    for name, col in (("local_floor", "modern_local_floor_m_od"), ("floor_mask_mean", "modern_floor_mask_mean_m_od")):
+        rr = (inland[col] - inland["ranwell_floor_m_od"]).dropna()
+        rn += [(f"ranwell_floor_fit_bias_inland_{name}_m", float(rr.mean()) if len(rr) else np.nan, "m", f"{name} minus Ranwell's floor, mean over the {len(rr)} reading sites beyond L"),
+               (f"ranwell_floor_fit_rmse_inland_{name}_m", float(np.sqrt((rr ** 2).mean())) if len(rr) else np.nan, "m", f"{name} against Ranwell's floor, RMSE over the {len(rr)} reading sites beyond L")]
     pd.DataFrame(rn, columns=["key", "value", "unit", "note"]).to_csv(paths.OUT_44_REPORT_NUMBERS, index=False)
     saved(paths.OUT_44_REPORT_NUMBERS.name)
     return 0

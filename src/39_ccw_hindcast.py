@@ -99,7 +99,10 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-09-28. T-91, per the signed-off spec
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: write_report_numbers() emits
+#   ccw_annual_range_vs_davy_2010_diff_m = config.CCW_ANNUAL_RANGE_DAVY_2010_M - ccw_annual_range_mean_m,
+#   after ccw_annual_range_n (report9 SS4.13, the Davy et al. 2010 cross-check). Additive.
+# 1.4.1  # Hollingham (2026) — 2026-09-28. T-91, per the signed-off spec
 #   NRG_spec_T91_emits_2026-09-28: write_report_numbers() now also emits the
 #   open-ground and under-canopy mean NSE (and open-ground mean bias) at each
 #   beta_1 scaling in CCW_BETA1_SCALINGS, so the Methods Supplement's
@@ -267,6 +270,9 @@ def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens)
                 f">= {config.CCW_ANNUAL_RANGE_MIN_MONTHS} readings")
     rn.add("ccw_annual_range_sd_m", rng.std(), note="as above")
     rn.add("ccw_annual_range_n", len(rng), unit="well-years", note="as above")
+    rn.add("ccw_annual_range_vs_davy_2010_diff_m", config.CCW_ANNUAL_RANGE_DAVY_2010_M - rng.mean(),
+           note=f"CCW_ANNUAL_RANGE_DAVY_2010_M ({config.CCW_ANNUAL_RANGE_DAVY_2010_M:g} m, Davy et al. 2010; "
+                f"SD {config.CCW_ANNUAL_RANGE_DAVY_2010_SD_M:g} m) minus ccw_annual_range_mean_m")
 
     # the straight-line division report10 §5.7.8 quotes only to reject it
     mid_w = first_month + (last_month - first_month) / 2

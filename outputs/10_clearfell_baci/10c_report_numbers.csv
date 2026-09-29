@@ -1,0 +1,4 @@
+Parameter,Well,Era,Value,Unit,Note
+forest_zone_n_wells,,,14.0,wells,wells in the forest-zone comparison (Cluster_ID in FOREST_CIDS: C4 9 + C5 5)
+R2_easting_only,beta_1_recharge,,0.3088261871031551,,"R2 of beta_1 on easting alone over the forest-zone wells (Pearson r squared, r = 0.5557), n=14"
+nw10_beta1_z_vs_c4,NW10,,2.4123675855213977,SD,"NW10 beta_1 minus the C4 mean, in C4 sample standard deviations (ddof=1), over the n=9 C4 wells including NW10"

@@ -95,7 +95,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-29. 1.3.0: T-96 emit list — sentinel_cells_tested,
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-29. 1.4.0: T-96 batch 2 - n_slacks_turn_over_report_deg
+#   (Era = config.SLACK_FLOW_TURN_REPORT_DEG), the slacks whose wet-to-dry direction turns by more than the
+#   reporting angle (report9 SS4.9.5 "7 of 116 ... more than 20 degrees"), beside n_slacks_with_turn. Emit-only.
+# 1.3.0  # Hollingham (2026) - 2026-09-29. 1.3.0: T-96 emit list — sentinel_cells_tested,
 #   sentinel_cells_above_excess and sentinel_share_above_excess (report9 §4.8.5 "of 11,616 tested cells ... 4.2%
 #   (488 cells)") and n_slacks_with_turn (report9 §4.9.5 "7 of 116") join 01b_report_numbers.csv. Emit-only.
 # 1.2.0  # Hollingham (2026) - 2026-09-27. 1.2.0: map arrows sized as a whole by the gradient
@@ -752,6 +755,11 @@ def main(no_fig: bool = False) -> int:
     rn.add("n_slacks_with_turn", int(slacks["turn_wet_dry_deg"].notna().sum()), unit="slacks",
            note="slacks with a direction in both the wet and the dry state (turn_wet_dry_deg defined); "
                 "the base of slacks_turning and median_turn_wet_dry_deg. report9 §4.9.5")
+    rn.add("n_slacks_turn_over_report_deg",
+           int((slacks["turn_wet_dry_deg"] > C.SLACK_FLOW_TURN_REPORT_DEG).sum()), unit="slacks",
+           era=f"{C.SLACK_FLOW_TURN_REPORT_DEG:g} deg",
+           note=f"slacks whose wet-to-dry direction change exceeds SLACK_FLOW_TURN_REPORT_DEG "
+                f"({C.SLACK_FLOW_TURN_REPORT_DEG:g} deg), of n_slacks_with_turn. report9 §4.9.5")
 
     phase(10, "Sensitivity")
     base_u, base_v = fields["mean"]

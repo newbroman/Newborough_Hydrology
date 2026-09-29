@@ -1,0 +1,7 @@
+Parameter,Well,Era,Value,Unit,Note
+achievability_n,Achievable,,59.0,wells,"wells in the Achievable category (Achievable (m_P < 1.5)), of n=88"
+achievability_n,Marginal,,24.0,wells,"wells in the Marginal category (Marginal (1.5 ≤ m_P < 2.5)), of n=88"
+achievability_n,Unreachable,,5.0,wells,"wells in the Unreachable category (Unreachable (m_P ≥ 2.5)), of n=88"
+achievability_share_pct,Achievable,,67.04545454545455,%,share of the n=88 wells in the Achievable category
+achievability_share_pct,Marginal,,27.272727272727273,%,share of the n=88 wells in the Marginal category
+achievability_share_pct,Unreachable,,5.681818181818182,%,share of the n=88 wells in the Unreachable category

@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.4.0
+# Frame text — 47_hindcast_film.py 1.6.0
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -91,8 +91,9 @@ This is an illustration, not a test. Where the colours appear was learned from t
 The sound is made from the water, month by month. Nothing in it is recorded.
 A soft chord runs throughout. While the months play, its upper voices open as the water table rises, and in the months beyond the record it trembles.
 Each January a single note marks the year. The higher and louder the note, the more open water that year reached.
-The surf swells with the wet area, wet floor and open water together, and leans toward where the wetting is: right for the east of the warren, left for the west.
+A steady chord rises with the water table, from silence in the driest months to full at the top of the record; above the yellow line a seventh joins it, and the chord tightens as the warren floods, leaning toward where the water is: right for the east of the warren, left for the west.
 Held notes sound while the water table is above the lines on the chart at the bottom: one above the yellow line, where wet floor appears; a higher one above the blue line, where open water appears; and the highest above the 2021 flood.
+Underneath, a breath: one soft note through the winter half of each year, silence through the summer, so each second is a year.
 
 ### Please read this before watching
 It is today's warren, not the warren of the time. The rules were learned from 2005–2026 and the ground is the 2023 survey, with Newborough Forest at its present size. The forest was only planted between 1947 and 1965, and a forest lowers the water table around it. In 1939 there was no forest. The film answers a what-if — what would the reserve as it is now have done under that weather — not what actually happened.

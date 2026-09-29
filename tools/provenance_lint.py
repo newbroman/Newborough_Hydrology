@@ -28,7 +28,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-09-07. Multi-writer REGISTRY files
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-29. stale_steps(): the stale-upstream test
+#   as a function the orchestrator reuses — run_analysis 2.22.0's settle pass re-runs exactly the
+#   steps this would report, so a full run ends with a clean gate by construction (D-212; Martin:
+#   "can we fix the second run problem?"). evaluate() unchanged in what it reports.
+#   1.2.0 (2026-09-07). Multi-writer REGISTRY files
 #   (pipeline_scenario_params.csv, pipeline_site_observations.csv) are advisory, not
 #   gating: the second pass rewrites them after their early readers by design, so a
 #   whole-file hash can never settle; the fallback check covers defaults read from them.
@@ -108,6 +112,34 @@ def ledger_emits() -> dict[str, set[str]]:
         return {}
 
 
+def _writers(prov: dict) -> dict[str, set]:
+    writers: dict[str, set] = {}
+    for script, rec in prov.get("steps", {}).items():
+        for rel in rec.get("emitted", {}):
+            writers.setdefault(rel, set()).add(script)
+    return writers
+
+
+def stale_steps(prov: dict, current_sha, only: set | None = None) -> dict[str, list[str]]:
+    """script -> the single-writer inputs it read that have since changed (or gone).
+    The one test both the gate and the orchestrator's settle pass apply (1.3.0), so a
+    step this reports is a step `run_analysis --full` re-runs, and a clean report here
+    is a clean gate. Registry files (several writers in one run) are excluded: their
+    staleness is not decidable at file level. `only` restricts to those scripts."""
+    writers = _writers(prov)
+    out: dict[str, list[str]] = {}
+    for script, rec in sorted(prov.get("steps", {}).items()):
+        if only is not None and script not in only:
+            continue
+        for rel, recorded in sorted(rec.get("inputs", {}).items()):
+            if len(writers.get(rel, set())) > 1:
+                continue
+            now = current_sha(rel)
+            if now is None or now != recorded:
+                out.setdefault(script, []).append(rel)
+    return out
+
+
 def evaluate(prov: dict, current_sha, emits_by_script: dict) -> tuple[list[str], list[str], list[str]]:
     """(gate faults, fallback faults, advisories). `current_sha(rel) -> sha | None`."""
     stale, fallbacks, advisory = [], [], []
@@ -118,10 +150,7 @@ def evaluate(prov: dict, current_sha, emits_by_script: dict) -> tuple[list[str],
     # early readers — so a file-level FAIL would be permanent and meaningless. Reported as
     # advisory naming the later writers; the fallback check still catches a reader that
     # consumed a default from it (load_params notes those). Single-writer inputs gate.
-    writers: dict[str, set] = {}
-    for script, rec in prov.get("steps", {}).items():
-        for rel in rec.get("emitted", {}):
-            writers.setdefault(rel, set()).add(script)
+    writers = _writers(prov)
     for script, rec in sorted(prov.get("steps", {}).items()):
         for rel, recorded in sorted(rec.get("inputs", {}).items()):
             now = current_sha(rel)

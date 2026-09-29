@@ -186,7 +186,16 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.21.1"  # Hollingham (2026) - 2026-09-28. Step labels: 11c -> Conclusion 6, 14b -> Conclusion 13 (the Conclusions were renumbered).
+__version__ = "2.22.0"  # Hollingham (2026) - 2026-09-29. THE FULL RUN SETTLES ITSELF (D-212; Martin:
+#   "can we fix the second run problem?"). After Phase 17, _settle() reads the provenance the pass
+#   just wrote, re-runs the steps whose single-writer inputs a later step of the same pass rewrote
+#   (today: run_09_scraping.py and run_10_clearfell.py, which read 10a/20 report numbers that gain
+#   rows later in the pass), in pipeline order under the same NRG_RUN_ID, and repeats up to
+#   SETTLE_MAX_PASSES until provenance_lint.stale_steps() is empty — the same test the gate applies,
+#   so a full run ends with a clean provenance gate by construction. The manual "--from 9" second
+#   pass in the docstring is now the fallback for a cycle the settle cannot close. _DOCUMENTED_COUNTS
+#   untouched.
+# 2.21.1  # Hollingham (2026) - 2026-09-28. Step labels: 11c -> Conclusion 6, 14b -> Conclusion 13 (the Conclusions were renumbered).
 # 2.21.0  # 2026-09-27: Script 49 renamed 01b_water_table.py and moved to step 2 of
 #   Phase 1, relabelled "Core LCSC Chain and the Water Table" (D-205 extended; spec
 #   NRG_spec_water_table_kriged_everywhere rev 2; Martin: "lets call it 01b", "update and start").
@@ -1537,6 +1546,58 @@ def _warn_if_stale() -> None:
         pass
 
 
+SETTLE_MAX_PASSES = 2   # re-run passes after the main pass; a third would be a design fault, not a settle
+
+
+def _settle(t_start: float) -> None:
+    """The settle pass (2.22.0, D-212). Some steps read files that a LATER step of the
+    same pass rewrites (10a reads Script 20's report numbers through a guarded fallback,
+    09/10 consolidate after 10a wrote); their outputs were computed from the previous
+    run's copy, and provenance_lint gates on exactly that. Rather than a second full run
+    by hand, the run reads the provenance it just wrote, re-runs the steps of THIS pass
+    whose single-writer inputs have since changed — in pipeline order, under the same
+    run token — and repeats until nothing is stale or SETTLE_MAX_PASSES is spent. On a
+    normal day nothing is stale and this prints one line. The test is
+    provenance_lint.stale_steps(), so the run and the gate cannot disagree."""
+    try:
+        sys.path.insert(0, str(ROOT_DIR / "tools"))
+        import provenance_lint as _pl  # noqa: E402
+    except Exception as exc:                        # noqa: BLE001
+        say_warn(f"settle pass skipped: provenance_lint not importable ({exc})")
+        return
+    ran_this_pass = {rs.script for rs in _ALL_STEPS}
+    started_after = datetime.datetime.fromtimestamp(t_start).isoformat(timespec="seconds")
+    for n in range(1, SETTLE_MAX_PASSES + 1):
+        try:
+            prov = json.loads(OUT_PROVENANCE.read_text(encoding="utf-8"))
+        except Exception as exc:                    # noqa: BLE001
+            say_warn(f"settle pass skipped: cannot read {OUT_PROVENANCE.name} ({exc})")
+            return
+        this_pass = {sc for sc, rec in prov.get("steps", {}).items()
+                     if sc in ran_this_pass and str(rec.get("started", "")) >= started_after}
+        stale = _pl.stale_steps(prov, lambda rel: _sha256(ROOT_DIR / rel) if (ROOT_DIR / rel).exists() else None,
+                                only=this_pass)
+        if not stale:
+            print()
+            say_ok(f"settle pass {n}: every step's inputs are as it read them — nothing to re-run")
+            return
+        order = [rs for rs in _ALL_STEPS if rs.script in stale]
+        print()
+        _banner(f"SETTLE PASS {n}  \u00b7  {len(order)} step(s) read a file a later step rewrote", _Ansi.BCYAN)
+        for rs in order:
+            say_info(f"{rs.script}: " + ", ".join(Path(r).name for r in stale[rs.script]))
+        for rs in order:
+            run_script(rs.script, rs.label, rs.extra_args)
+    prov = json.loads(OUT_PROVENANCE.read_text(encoding="utf-8"))
+    left = _pl.stale_steps(prov, lambda rel: _sha256(ROOT_DIR / rel) if (ROOT_DIR / rel).exists() else None,
+                           only=this_pass)
+    if left:
+        say_warn(f"still stale after {SETTLE_MAX_PASSES} settle pass(es) — a cycle the settle cannot "
+                 f"close, provenance_lint will say which: {', '.join(sorted(left))}")
+    else:
+        say_ok(f"settled after {SETTLE_MAX_PASSES} pass(es)")
+
+
 def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -> None:
     _warn_if_stale()
     ensure_paths()
@@ -1569,6 +1630,7 @@ def run_full_pipeline(from_step: int = 1, include_supplementary: bool = False) -
     # demand via run_greyscale() (menu option 6 / --greyscale).
     run_phase(_PHASE17_LABEL, from_step, include_optin=include_supplementary,
               exclude_scripts=("27_greyscale_figures.py",))
+    _settle(_t_start)
 
     executed = [rs.index for rs in _ALL_STEPS
                 if rs.index >= from_step

@@ -23,6 +23,7 @@ CEH14_beta3,CEH14,,-0.0202914741431291,/month,negative β₃ — lateral recharg
 CEH14_beta3_pct,CEH14,,-2.02914741431291,%/month,negative β₃ as %
 C4_beta2_beta3_corr_all,,,-0.7391857562175836,,"Pearson r, β₂ vs β₃ across all C4 wells, n=9"
 C4_beta2_beta3_corr_excl_ceh14,,,-0.24537242164298023,,"Pearson r, β₂ vs β₃ across C4 wells with CEH14 removed, n=8"
+C4_beta2_beta3_corr_excl_ceh13_ceh14,,,-0.012975523167584178,,"Pearson r, β₂ vs β₃ across C4 wells with CEH13 and CEH14 removed, n=7"
 C4_beta3_pct_max_excl_ceh14,nw10,,3.99699952982256,%/month,"highest positive β₃ among C4 wells, CEH14's negative estimate excluded"
 clusters_vs_covariates_F_p_beta_1,,,0.016021692442443624,,"nested F-test p, C(Cluster) over six site covariates, per-well beta_1_recharge, n=66, F(4,55); 07_05_clusters_vs_covariates.csv"
 clusters_vs_covariates_dAIC_beta_1,,,-6.368794621124138,,"AIC(covariates + C(Cluster)) − AIC(covariates), per-well beta_1_recharge, n=66; negative favours clusters"

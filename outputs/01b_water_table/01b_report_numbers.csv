@@ -65,6 +65,9 @@ sentinel_share_floor_edge,,,0.004390495867768595,,share of 11616 ever-wet cells 
 sentinel_cells_floor_edge,,,51.0,cells,
 sentinel_share_unexplained,,,0.013946280991735538,,share of 11616 ever-wet cells with a surface
 sentinel_cells_unexplained,,,162.0,cells,
+sentinel_cells_tested,,,11616.0,cells,ever-wet cells with a surface (class other than 'no surface'); the denominator of every sentinel_share_*
+sentinel_cells_above_excess,,,488.0,cells,cells with a well within 300 m implying a water table more than 1 m above the surface: shadow + reached by well + floor edge + unexplained
+sentinel_share_above_excess,,,0.04201101928374656,,sentinel_cells_above_excess as a share of the 11616 cells with a surface
 sentinel_above_share_unsupported,,,0.7795844625112918,,"of cells more than 1 m above the surface, the share with no well within 300 m"
 damping_rho_south_west,,,0.7990033222591362,,"Spearman, wet-dry range vs distance from HWM, n=43"
 damping_p_south_west,,,1.3437764516759218e-10,,
@@ -100,6 +103,7 @@ median_gradient_dry,,dry,0.0062152603082419764,m/m,
 n_slacks,,,118.0,slacks,connected ever-wet cells passing the Sentinel check
 slacks_turning,,,0.0,slacks,wet-to-dry direction change > 45 deg
 median_turn_wet_dry_deg,,,4.724348952676621,deg,
+n_slacks_with_turn,,,116.0,slacks,slacks with a direction in both the wet and the dry state (turn_wet_dry_deg defined); the base of slacks_turning and median_turn_wet_dry_deg. report9 §4.9.5
 sens_head_0_m_angle_deg,,,0.9676104556631913,deg,
 sens_head_mean_tide_level_angle_deg,,,0.8675769320581992,deg,
 sens_head_midpoint_angle_deg,,,0.45204150407417387,deg,

@@ -150,11 +150,21 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.13.1
+__version__ : 2.14.0
 """
 from __future__ import annotations
 
-__version__ = "2.13.1"  # Hollingham (2026) - 2026-09-28. T-91, per the signed-off spec
+__version__ = "2.14.0"  # Hollingham (2026) - 2026-09-29. T-96: 41_report_numbers.csv also
+#   carries clearfell_polygon_area_ha, the area of the clearfell.kml polygon this
+#   script already reads as the "clearfell" region (report6 §1 "an experimental
+#   clearfell of 4.4 ha"; moved here from Script 13, which has no report-numbers
+#   file), and canopy_ratio_forest_control_early_post_clearfell_mean, the mean
+#   forest_control ratio_to_conifer over the report-viewpoint frames from
+#   CLEARFELL_DATE_ISO to CLEARFELL_ERA_SPLIT (report9 §4.6.8 "about 1.15 and is
+#   flat across the BACI window"). The forest_control is evergreen conifer, so
+#   every leaf state counts; the full-leaf basis of the rows above is for the
+#   deciduous restock. Both from values main() already holds; nothing else moves.
+# 2.13.1  # Hollingham (2026) - 2026-09-28. T-91, per the signed-off spec
 #   NRG_spec_T91_emits_2026-09-28: 41_report_numbers.csv now also carries the
 #   full-leaf restock-vs-conifer coefficient of variation
 #   (canopy_ratio_restock_conifer_full_leaf_cv_pct), so the Methods
@@ -335,7 +345,7 @@ from utils.config import (                                   # noqa: E402
     CANOPY_MIN_CONTROL_POINTS, CANOPY_MATCH_RADII_NARROW, CANOPY_MATCH_RADII_WIDE,
     CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M, CANOPY_REPORT_VIEWPOINT,
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
-    LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO,
+    LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO, CLEARFELL_ERA_SPLIT,
 )
 from utils.console_utils import banner, phase, step, info, warn, saved, track  # noqa: E402
 from utils.render_utils import render_figure                 # noqa: E402
@@ -1408,6 +1418,29 @@ def main() -> int:
                    "Note": ("the clearfell area is deliberately kept clear of "
                             "trees (Martin, 2026-08-31), so a low value is a "
                             "management outcome and not failed regeneration")})
+    # T-96: the forest_control level across the early post-clearfell era
+    # (report9 §4.6.8). Evergreen conifer, so not restricted to full leaf; one
+    # viewpoint, as above; withheld frames are already NaN and drop out.
+    _dt = pd.to_datetime(idx["imagery_date"])
+    fc = idx[(idx["region"] == "forest_control") & idx["ratio_to_conifer"].notna()
+             & (idx["viewpoint"] == CANOPY_REPORT_VIEWPOINT)
+             & (_dt >= pd.Timestamp(CLEARFELL_DATE_ISO))
+             & (_dt < pd.Timestamp(CLEARFELL_ERA_SPLIT))]
+    if len(fc):
+        rn.append({"Parameter": "canopy_ratio_forest_control_early_post_clearfell_mean",
+                   "Well": "", "Era": f"{fc['imagery_date'].min()}–{fc['imagery_date'].max()}",
+                   "Value": float(fc["ratio_to_conifer"].mean()), "Unit": "ratio",
+                   "Note": (f"mean untouched-forest control ratio_to_conifer over the "
+                            f"{len(fc)} {CANOPY_REPORT_VIEWPOINT} frames from "
+                            f"CLEARFELL_DATE_ISO to CLEARFELL_ERA_SPLIT (the early "
+                            f"post-clearfell era, D-141), every leaf state: the "
+                            f"control is evergreen conifer")})
+    # T-96: the clearfell compartment's area, from the clearfell.kml polygon
+    # already loaded as the "clearfell" region (EPSG:27700, so m2).
+    if "clearfell" in regions:
+        rn.append({"Parameter": "clearfell_polygon_area_ha", "Well": "", "Era": "",
+                   "Value": float(regions["clearfell"][0].area) / 10000.0, "Unit": "ha",
+                   "Note": "planar area of the clearfell.kml polygon in OSGB (EPSG:27700)"})
     # An empty summary is REFUSED, not written. A step that could not produce
     # its numbers must leave the committed file alone rather than replace it with
     # nothing — `pd.DataFrame([]).to_csv()` writes a file with no header at all,

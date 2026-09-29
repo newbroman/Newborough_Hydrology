@@ -5,6 +5,8 @@ benchmark_median_dNSE,,,0.37194727427887875,,"median gain in iterative NSE, SSM 
 benchmark_positive_NSE_SSM,,,65.0,wells,"wells with positive iterative NSE under the SSM, of 66"
 benchmark_positive_NSE_TLM,,,55.0,wells,"wells with positive iterative NSE under the TLM, of 66"
 benchmark_n_wells,,,66.0,wells,reference wells entering the benchmark
+benchmark_negative_NSE_SSM,,,1.0,wells,"wells with negative iterative NSE under the SSM, of 66: CEH14"
+benchmark_negative_NSE_TLM,,,11.0,wells,"wells with negative iterative NSE under the TLM, of 66: CEH10, CEH18, CEH23, CEH28, CEH6, D25, D44, D7, NW3, NW4, NW6"
 benchmark_wells_SSM_worse,,,2.0,wells,"wells where the SSM scores below the TLM: CEH13, CEH14"
 C1_median_dNSE,,,0.45498494668740463,,"median ΔNSE (SSM−TLM), C1, n=7"
 C1_median_TLM_NSE,,,0.3079319095626111,,"median TLM iterative NSE, C1, n=7"

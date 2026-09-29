@@ -32,7 +32,11 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.5.1"  # Hollingham (2026) — 2026-09-03. Comment-only: the CEH6
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. T-96: emits
+#   benchmark_negative_NSE_SSM and benchmark_negative_NSE_TLM, the counts of wells
+#   with a negative iterative NSE under each model (report12 §7, Conclusions),
+#   from the per-well frame already built. Additive; no existing output changes.
+# 1.5.1  # Hollingham (2026) — 2026-09-03. Comment-only: the CEH6
 #   showcase comment carried stale literals (-1.15/+0.63/+1.78) and wrongly called it
 #   the largest on-site NSE improvement; corrected to the committed -1.885/+0.674/+2.559
 #   (CEH27 is largest at +2.865). No behaviour, output or figure change.
@@ -667,6 +671,14 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
             note=f"wells with positive iterative NSE under the TLM, of {len(pw)}")
     rpt.add("benchmark_n_wells", int(len(pw)), unit="wells",
             note="reference wells entering the benchmark")
+    # T-96: the negative-NSE counts report12 §7 quotes directly ("1 of 66 SSM
+    # wells ... compared with 11 of 66 for the TLM"), counted rather than left
+    # to the reader as n minus the positive counts above.
+    for _m in ("SSM", "TLM"):
+        _neg = pw[pw[f"{_m}_NSE"] < 0]
+        rpt.add(f"benchmark_negative_NSE_{_m}", int(len(_neg)), unit="wells",
+                note=(f"wells with negative iterative NSE under the {_m}, of {len(pw)}: "
+                      + (", ".join(str(w) for w in _neg["Well"]) if len(_neg) else "none")))
 
     # Wells where the SSM loses to the linear model. Worth a named number: the
     # cause is a non-positive beta_3, which makes the iterative recursion

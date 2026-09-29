@@ -65,7 +65,11 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-09-27. T-84: 10g_report_numbers.csv stores
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29. T-96: 10g_report_numbers.csv adds
+#   NW10_trend_p (was in the slope row's note only), NW10_mean_anomaly_full_record and
+#   NW10_mean_anomaly_post_felling (summers after CLEARFELL_DATE), which report10 Section 5.6.3
+#   quotes (+249 mm, +268 mm, p = 0.10). Emit-only; no output value moves.
+# v1.3.0  # Hollingham (2026) — 2026-09-27. T-84: 10g_report_numbers.csv stores
 #   values unrounded (rounding is a rendering decision) and panel (c) of the transect
 #   figure is emitted in full — the gradient, its p-value (Transect_gradient_p, was in
 #   the note only), the number of impact/edge wells it is fitted on, and the control
@@ -182,9 +186,25 @@ def nw10_broadleaf_trend(wells, rpt):
 
         rpt.add("NW10_trend_slope_mm_yr", slope_mm_yr, "mm/yr",
                 note=f"p={p_val:.3f}, n={n}")
+        # T-96: the trend p as its own Value (report10 Section 5.6.3).
+        rpt.add("NW10_trend_p", p_val, "",
+                note=f"p of NW10_trend_slope_mm_yr, n={n} summers")
         rpt.add("NW10_mean_anomaly_2010_2021", mean_anom_bramble, "m")
     else:
         skipped("Insufficient data for 2019–2025 trend (n < 4)")
+
+    # T-96: the NW10 anomaly over the full record and over the post-felling
+    # summers (the first full summer after CLEARFELL_DATE onward), which
+    # report10 Section 5.6.3 quotes.
+    rpt.add("NW10_mean_anomaly_full_record", float(anom.mean()), "m",
+            era=f"{min(common_yrs)}-{max(common_yrs)}",
+            note=f"mean NW10_anomaly_m over all common summers, n={len(anom)}")
+    post = anom[anom.index > CLEARFELL_DATE.year]
+    if len(post) > 0:
+        rpt.add("NW10_mean_anomaly_post_felling", float(post.mean()), "m",
+                era=f"{int(post.index.min())}-{int(post.index.max())}",
+                note=f"mean NW10_anomaly_m over summers after CLEARFELL_DATE, "
+                     f"n={len(post)}")
 
     # Export
     export_rows = []

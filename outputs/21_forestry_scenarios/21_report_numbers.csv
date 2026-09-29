@@ -37,6 +37,9 @@ scenario_head_shift_m,C5 (Coastal Forest),broadleaf · winter,0.0215488590403377
 scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · winter,6.642969043512798,mm/month,head shift × Sy (0.308) × 1000
 scenario_head_shift_m,C5 (Coastal Forest),broadleaf · summer,0.0016165813658650238,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
 scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · summer,0.4983512096700162,mm/month,head shift × Sy (0.308) × 1000
+scenario_water_equivalent_ratio_C5_to_C4,C5/C4,clearfell · annual,1.2943453423862716,,C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_mm_per_month rows above)
+scenario_water_equivalent_ratio_C5_to_C4,C5/C4,thinning_50pct · annual,1.2943453423862712,,C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_mm_per_month rows above)
+scenario_water_equivalent_ratio_C5_to_C4,C5/C4,broadleaf · annual,1.448685077287649,,C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_mm_per_month rows above)
 hydrograph_sep_at_baseline_trough_m,C4,Baseline (Corsican pine),0.0,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_m,C4,Baseline (Corsican pine),0.0,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Jun; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_month,C4,Baseline (Corsican pine),Jun,,month of hydrograph_max_summer_separation_m

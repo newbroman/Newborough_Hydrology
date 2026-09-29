@@ -76,3 +76,18 @@ reference_summer_min_zone_count,shallower than SD15b,,0.0,wells,"reference netwo
 reference_summer_min_zone_count,SD15b to SD16 (dry slack zone),,27.0,wells,"reference network n=66, per-well mean annual summer minimum (00_02)"
 reference_summer_min_zone_count,at or deeper than SD16,,39.0,wells,"reference network n=66, per-well mean annual summer minimum (00_02)"
 reference_summer_min_zone_count,at or deeper than SD16_REC,,21.0,wells,"reference network n=66, per-well mean annual summer minimum (00_02)"
+reference_network_mean_wl_m,,,-0.7681143683660907,m,"pooled mean over every valid well-month of the reference network (n=16632 well-months, 66 wells; = the N_months-weighted mean of Mean_WL_m in 00_02); negative = below ground. report9 §4.1.2"
+reference_seasonal_amplitude_median_m,,,-0.6828361928104574,m,"median of Seasonal_amplitude_m (mean August minus mean February, signed; negative = deeper in August), reference network n=66 (00_02). report9 §4.1.2"
+reference_winter_max_above_ground_n,,,11.0,wells,"reference wells whose mean annual winter maximum (Oct-Mar) is above ground (Mean_Winter_Max_m > 0), of n=66 (00_02). report9 §4.1.2"
+pet_rolling12_min_mm,,2006-03 to 2026-02,49.06972273341416,mm/month,min of the 12-month rolling mean of monthly PET as drawn in 00_01_climate_timeseries_short.png panel (b) (n=240 plotted months). report9 §4.1.1
+pet_rolling12_median_mm,,2006-03 to 2026-02,54.4005291563743,mm/month,median of the 12-month rolling mean of monthly PET as drawn in 00_01_climate_timeseries_short.png panel (b) (n=240 plotted months). report9 §4.1.1
+pet_rolling12_max_mm,,2006-03 to 2026-02,58.01280802504033,mm/month,max of the 12-month rolling mean of monthly PET as drawn in 00_01_climate_timeseries_short.png panel (b) (n=240 plotted months). report9 §4.1.1
+pet_warming_early_mean_mm,,1931-1960,630.7934988742837,mm,mean annual Thornthwaite PET over the first 30 complete years (00_05 period == early). report11 §6.4
+pet_warming_late_mean_mm,,1996-2025,649.735976817353,mm,mean annual Thornthwaite PET over the last 30 complete years (00_05 period == late). report11 §6.4
+trend_summer_pet_full_record,,1931-2025,0.14817771853420522,mm/yr,"OLS trend in total Jun-Sep (JJAS) PET on year, complete seasons of the full record, n=95"
+trend_summer_pet_full_record_p,,1931-2025,0.00669918721514286,,two-sided p of trend_summer_pet_full_record. report10 §5.7.5
+trend_summer_rain_full_record,,1931-2025,-0.06574337862862864,mm/yr,"OLS trend in total Jun-Sep (JJAS) rainfall on year, complete seasons of the full record, n=94"
+trend_summer_rain_full_record_p,,1931-2025,0.8068888252586174,,two-sided p of trend_summer_rain_full_record. report10 §5.7.5
+wettest_winter_rain,,2000/01,744.9999999999999,mm,highest Oct-Mar rainfall total over the 94 complete winters of the full record (winters 1931/32 to 2024/25); the era field is the winter. report10 §5.8.1
+mean_winter_rain_full_record,,winters 1931/32 to 2024/25,494.1329787234043,mm,mean Oct-Mar rainfall total over the same 94 complete winters
+wettest_winter_rain_ratio,,2000/01,1.5076913140359751,,wettest_winter_rain / mean_winter_rain_full_record. report10 §5.8.1

@@ -86,7 +86,13 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-09-28. T-91: export_regional_averages_maod()
+__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-29. T-96 emit list: 03_report_numbers.csv gains
+#   datum_R2_span_admissible per cluster and its _max (report8 §3.4), well_median_max_R2_datum_network
+#   and well_median_R2_gain_network (report9 §4.9.1), cluster_well_median_beta_1_recharge /
+#   _beta_2_atmospheric_draw (report10 §5.6.3), cluster_well_recession_time_min/_median/_max_months
+#   (report10 §5.8.1) and C{n}_mean_elevation_aod_excl_network_min (report9 §4.2.1), from
+#   _t96_report_numbers() through export_regional_averages_maod()'s existing writer. Emit-only.
+# 1.20.0  # Hollingham (2026) — 2026-09-28. T-91: export_regional_averages_maod()
 #   emits C{n}_mean_elevation_aod to 03_report_numbers.csv — each cluster's mean
 #   water-table elevation (mean of member wells' own full-record mean AOD), the
 #   report9 §4.2.1 per-cluster m-AOD figures. Current cluster membership; the
@@ -2437,11 +2443,105 @@ def export_regional_averages(centroids: dict[int, pd.Series],
     saved(f"{INT_REGIONAL_AVG.name}")
 
 
+def _t96_report_numbers(rpt, master_df: pd.DataFrame, sens_df: pd.DataFrame,
+                        inv_df: pd.DataFrame, well_opt_df: pd.DataFrame,
+                        well_mean_aod: pd.Series, cluster_df: pd.DataFrame) -> None:
+    """The T-96 emit-list rows (1.21.0): quantities the documents quote that were
+    column statistics or hand arithmetic on this script's own frames. Added to the
+    same accumulator as C{n}_mean_elevation_aod, so 03_report_numbers.csv stays the
+    one writer.
+
+    - datum_R2_span_admissible (per cluster) and its maximum: the change in centroid
+      R² across the admissible datum range — from the all-clusters
+      all_beta3_pos_sig_from_m of 03_18 (the selection rule's lower bound) to the
+      deepest swept datum (report8 §3.4 "spans at most about 0.09").
+    - well_median_max_R2_datum_network / well_median_R2_gain_network: the
+      all-clusters medians 03_18 leaves blank (report9 §4.9.1 "1.45 m", "0.014").
+    - cluster_well_median_beta_1_recharge / _beta_2_atmospheric_draw per cluster
+      (report10 §5.6.3, the C4 per-well medians), comparison window (03_master_data).
+    - cluster_well_recession_time_min/_median/_max_months per cluster: 1/β₃ over the
+      member wells with β₃ > 0 (report10 §5.8.1, "t_r ≈ 8-10 months" at C1).
+    - C{n}_mean_elevation_aod_excl_network_min: the mean elevation of the cluster that
+      holds the network's lowest-mean well, without that well (report9 §4.2.1,
+      "excluding CEH11 ... rises to 9.37 m AOD").
+    """
+    labels = {int(c): CLUSTER_LABELS.get(int(c), f"C{int(c)}") for c in CLUSTER_LABELS}
+
+    # Admissible-datum R² span
+    lo = pd.to_numeric(inv_df.loc[inv_df["Cluster"] == 0, "all_beta3_pos_sig_from_m"],
+                       errors="coerce").dropna()
+    if len(lo) and not sens_df.empty:
+        lo = float(lo.iloc[0])
+        hi = float(sens_df["ref_depth"].max())
+        win = sens_df[sens_df["ref_depth"] >= lo - 1e-9]
+        era = f"datum {lo:g} to {hi:g} m"
+        spans = {}
+        for cid, g in win.groupby("Cluster"):
+            r2 = pd.to_numeric(g["R2"], errors="coerce").dropna()
+            if len(r2):
+                spans[int(cid)] = float(r2.max() - r2.min())
+                rpt.add("datum_R2_span_admissible", spans[int(cid)], unit="",
+                        well=labels.get(int(cid), f"C{int(cid)}"), era=era,
+                        note=f"max minus min centroid R² over the admissible datum range (03_08, "
+                             f"{len(r2)} datums); lower bound = all_beta3_pos_sig_from_m (03_18)")
+        if spans:
+            cmax = max(spans, key=spans.get)
+            rpt.add("datum_R2_span_admissible_max", spans[cmax], unit="",
+                    well=labels.get(cmax, f"C{cmax}"), era=era,
+                    note="the widest per-cluster datum_R2_span_admissible; the Well cell is the cluster")
+
+    # Network medians of the per-well datum optimisation
+    w = well_opt_df.dropna(subset=["max_R2_datum"])
+    rpt.add("well_median_max_R2_datum_network", float(w["max_R2_datum"].median()), unit="m",
+            note=f"median over all {len(w)} reference wells of the per-well R²-maximizing datum "
+                 f"(03_09_well_optimal_datums.csv); the all-clusters cell 03_18 leaves blank")
+    g_ = pd.to_numeric(well_opt_df["R2_gain_max_vs_uniform"], errors="coerce").dropna()
+    rpt.add("well_median_R2_gain_network", float(g_.median()), unit="",
+            note=f"median over all {len(g_)} reference wells of the R² gain of the per-well optimum over "
+                 f"the uniform DRAINAGE_DATUM (03_09)")
+
+    # Per-cluster medians of the per-well coefficients, and the per-well recession time
+    for cid, g in master_df.groupby("Cluster"):
+        lab = labels.get(int(cid), f"C{int(cid)}")
+        for col in ("beta_1_recharge", "beta_2_atmospheric_draw"):
+            v = pd.to_numeric(g[col], errors="coerce").dropna()
+            rpt.add(f"cluster_well_median_{col}", float(v.median()), unit="", well=lab,
+                    note=f"median of per-well {col} over the {len(v)} member wells, comparison "
+                         f"window (03_master_data.csv)")
+        b3 = pd.to_numeric(g["beta_3_drainage"], errors="coerce")
+        tr = (1.0 / b3[b3 > 0]).dropna()
+        if len(tr):
+            for stat, val in (("min", tr.min()), ("median", tr.median()), ("max", tr.max())):
+                rpt.add(f"cluster_well_recession_time_{stat}_months", float(val), unit="months", well=lab,
+                        note=f"{stat} of 1/beta_3_drainage over the {len(tr)} member wells with "
+                             f"beta_3 > 0 (of {len(b3)}), comparison window (03_master_data.csv)")
+
+    # The cluster that holds the network's lowest-mean well, without it
+    if well_mean_aod is not None and len(well_mean_aod):
+        wmin = str(well_mean_aod.idxmin())
+        memb = cluster_df.assign(_w=cluster_df["Match_ID"].astype(str).map(normalize_well_name))
+        hit = memb[memb["_w"] == wmin]
+        if len(hit):
+            cid = int(pd.to_numeric(hit["Cluster"]).iloc[0])
+            others = [x for x in memb.loc[pd.to_numeric(memb["Cluster"]) == cid, "_w"]
+                      if x != wmin and x in well_mean_aod.index]
+            if others:
+                lab = labels.get(cid, f"C{cid}")
+                rpt.add(f"C{cid}_mean_elevation_aod_excl_network_min",
+                        float(well_mean_aod.loc[others].mean()), unit="m AOD", well=lab,
+                        era=f"excluding {wmin}",
+                        note=f"C{cid}_mean_elevation_aod without {wmin}, the reference well with the "
+                             f"lowest mean water-table elevation ({well_mean_aod.loc[wmin]:.3f} m AOD); "
+                             f"n={len(others)} wells")
+
+
 def export_regional_averages_maod(cluster_df: pd.DataFrame,
-                                   climate: pd.DataFrame) -> None:
+                                   climate: pd.DataFrame,
+                                   extra: dict | None = None) -> None:
     """maOD cluster-centroid export — unchanged logic from the pre-rebuild
     script. Consumed by Script 21 (forestry scenarios) and other scripts
-    needing absolute head values."""
+    needing absolute head values. ``extra`` (1.21.0) carries the frames the
+    T-96 report-number rows are computed from (see _t96_report_numbers)."""
     if not INT_WELLS_CLEAN_MAOD.exists():
         warn(f"{INT_WELLS_CLEAN_MAOD.name} not found — Script 21 will fail without maOD file.")
         return
@@ -2496,6 +2596,11 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
                     note=f"mean water-table elevation, {label}, full record — "
                          f"mean of each member well's own full-record mean AOD "
                          f"(current cluster membership, 66-well reference network)")
+        if extra:
+            _ref = [normalize_well_name(w) for w in cluster_df["Match_ID"].astype(str)]
+            _ref = [w for w in _ref if w in maod_df.columns]
+            _t96_report_numbers(rpt, extra["master_df"], extra["sens_df"], extra["inv_df"],
+                                extra["well_opt_df"], maod_df[_ref].mean(), cluster_df)
         n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
         saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -3103,7 +3208,9 @@ def main() -> None:
 
     # ---- Regional averages exports ----
     export_regional_averages(centroids, climate, master_df)
-    export_regional_averages_maod(cluster_df, climate)
+    export_regional_averages_maod(cluster_df, climate,
+                                  extra={"master_df": master_df, "sens_df": sens_df,
+                                         "inv_df": inv_df, "well_opt_df": well_opt_df})
     export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----

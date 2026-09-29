@@ -10,6 +10,7 @@ ANCOVA_Forest_Impact_coeff_clearfell,Impact,,0.10823026378395303,m,"SE=0.036411,
 ANCOVA_Forest_Impact_coeff_cwb_x_fell,Impact,,-9.21941922996825e-05,m,"SE=0.000168, p=0.5837"
 ANCOVA_Forest_Impact_coeff_coastal_x_time,Impact,,1.5126866608554057,m,"SE=0.447092, p=<0.001"
 ANCOVA_Forest_Impact_s_coast,Impact,,1.5126866608554057,,"SE=0.4471, p vs 0=<0.001, p vs 1=0.2533; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -10.68 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]"
+ANCOVA_Forest_Impact_absorbed_minus_predicted_drift,Impact,,-5.473155993497842,mm/yr,absorbed_drift_mm_yr -16.1486 minus coastal_differential_mm_yr -10.6754 (10a_09_coastal_scale_factor.csv); absorbed SE 4.7729 mm/yr
 ANCOVA_Forest_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.07712984158467358,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0018; moves the headline by -31.1 mm"
 ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,0.4254236508939984,m,"p=<0.001, dAIC=-9.38"
 ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,0.030897714600420557,m,"p=0.2332, CI=[-0.0197,0.0815]"
@@ -23,6 +24,7 @@ ANCOVA_Forest_Edge_coeff_clearfell,Edge,,0.030897714600420557,m,"SE=0.025811, p=
 ANCOVA_Forest_Edge_coeff_cwb_x_fell,Edge,,-0.0001406690919687337,m,"SE=0.000123, p=0.2552"
 ANCOVA_Forest_Edge_coeff_coastal_x_time,Edge,,1.182650407073436,m,"SE=0.365107, p=0.0015"
 ANCOVA_Forest_Edge_s_coast,Edge,,1.182650407073436,,"SE=0.3651, p vs 0=0.0015, p vs 1=0.6176; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -9.48 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]"
+ANCOVA_Forest_Edge_absorbed_minus_predicted_drift,Edge,,-1.7323745980310932,mm/yr,absorbed_drift_mm_yr -11.2170 minus coastal_differential_mm_yr -9.4846 (10a_09_coastal_scale_factor.csv); absorbed SE 3.4629 mm/yr
 ANCOVA_Forest_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.02139287934121785,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.2215; moves the headline by -9.5 mm"
 ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,0.6437782373945049,m,"p=<0.001, dAIC=-13.94"
 ANCOVA_Climate_Impact_clearfell_step,Impact,Post_felling,-0.019301975172133144,m,"p=0.4626, CI=[-0.0707,0.0321]"
@@ -60,6 +62,7 @@ ANCOVA_Combined_Impact_coeff_clearfell,Impact,,0.0656004116094361,m,"SE=0.018871
 ANCOVA_Combined_Impact_coeff_cwb_x_fell,Impact,,-7.380342177483218e-05,m,"SE=0.000099, p=0.4566"
 ANCOVA_Combined_Impact_coeff_coastal_x_time,Impact,,1.1290135733622906,m,"SE=0.632029, p=0.0763"
 ANCOVA_Combined_Impact_s_coast,Impact,,1.1290135733622906,,"SE=0.6320, p vs 0=0.0763, p vs 1=0.8386; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -3.74 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]"
+ANCOVA_Combined_Impact_absorbed_minus_predicted_drift,Impact,,-0.482118003501788,mm/yr,absorbed_drift_mm_yr -4.2191 minus coastal_differential_mm_yr -3.7370 (10a_09_coastal_scale_factor.csv); absorbed SE 2.3619 mm/yr
 ANCOVA_Combined_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.0627533414523221,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=<0.001; moves the headline by -2.8 mm"
 ANCOVA_Combined_Impact_Oct2023_step,Impact,Oct2023,0.19848711499207147,m,"p=0.0137, dAIC=-4.43"
 ANCOVA_Combined_Edge_clearfell_step,Edge,Post_felling,-0.02054806280453444,m,"p=0.1459, CI=[-0.0481,0.0070]"
@@ -73,6 +76,7 @@ ANCOVA_Combined_Edge_coeff_clearfell,Edge,,-0.02054806280453444,m,"SE=0.014046, 
 ANCOVA_Combined_Edge_coeff_cwb_x_fell,Edge,,2.121627333759161e-05,m,"SE=0.000073, p=0.7729"
 ANCOVA_Combined_Edge_coeff_coastal_x_time,Edge,,-0.007150553379327531,m,"SE=0.704820, p=0.9919"
 ANCOVA_Combined_Edge_s_coast,Edge,,-0.007150553379327531,,"SE=0.7048, p vs 0=0.9919, p vs 1=0.1555; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -2.55 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]"
+ANCOVA_Combined_Edge_absorbed_minus_predicted_drift,Edge,,2.564368325259362,mm/yr,absorbed_drift_mm_yr +0.0182 minus coastal_differential_mm_yr -2.5462 (10a_09_coastal_scale_factor.csv); absorbed SE 1.7946 mm/yr
 ANCOVA_Combined_Edge_clearfell_step_s_fixed1,Edge,Post_felling,-0.005735682872492051,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.5478; moves the headline by +14.8 mm"
 ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,0.1297553932814911,m,"p=0.3397, dAIC=1.03"
 ANCOVA_FarField_Impact_clearfell_step,Impact,Post_felling,-0.08559734449399103,m,"p=0.1713, CI=[-0.2077,0.0365]"
@@ -86,6 +90,7 @@ ANCOVA_FarField_Impact_coeff_clearfell,Impact,,-0.08559734449399103,m,"SE=0.0622
 ANCOVA_FarField_Impact_coeff_cwb_x_fell,Impact,,-0.0003367295108324625,m,"SE=0.000273, p=0.2191"
 ANCOVA_FarField_Impact_coeff_coastal_x_time,Impact,,-1.5191268336701231,m,"SE=0.614060, p=0.0144"
 ANCOVA_FarField_Impact_s_coast,Impact,,-1.5191268336701231,,"SE=0.6141, p vs 0=0.0144, p vs 1=<0.001; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -13.21 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]"
+ANCOVA_FarField_Impact_absorbed_minus_predicted_drift,Impact,,33.270861677231565,mm/yr,absorbed_drift_mm_yr +20.0636 minus coastal_differential_mm_yr -13.2073 (10a_09_coastal_scale_factor.csv); absorbed SE 8.1101 mm/yr
 ANCOVA_FarField_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.1031256286590626,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0202; moves the headline by +188.7 mm"
 ANCOVA_FarField_Impact_Oct2023_step,Impact,Oct2023,-0.04370731052634734,m,"p=0.7989, dAIC=1.93"
 ANCOVA_FarField_Edge_clearfell_step,Edge,Post_felling,-0.15709819877226833,m,"p=0.0200, CI=[-0.2882,-0.0260]"
@@ -99,6 +104,7 @@ ANCOVA_FarField_Edge_coeff_clearfell,Edge,,-0.15709819877226833,m,"SE=0.066893, 
 ANCOVA_FarField_Edge_coeff_cwb_x_fell,Edge,,-0.00048059526191317583,m,"SE=0.000288, p=0.0970"
 ANCOVA_FarField_Edge_coeff_coastal_x_time,Edge,,-1.7409782634871465,m,"SE=0.741904, p=0.0201"
 ANCOVA_FarField_Edge_s_coast,Edge,,-1.7409782634871465,,"SE=0.7419, p vs 0=0.0201, p vs 1=<0.001; the amplitude of the Script 25 coastal gradient this pair feels, 1 = exactly the fitted field. Differential -12.02 mm/yr from 25_01_panel_fit_parameters.csv [full_canopy/linear_capped]"
+ANCOVA_FarField_Edge_absorbed_minus_predicted_drift,Edge,,32.936979945171196,mm/yr,absorbed_drift_mm_yr +20.9205 minus coastal_differential_mm_yr -12.0165 (10a_09_coastal_scale_factor.csv); absorbed SE 8.9151 mm/yr
 ANCOVA_FarField_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.02044868764965216,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.6724; moves the headline by +177.5 mm"
 ANCOVA_FarField_Edge_Oct2023_step,Edge,Oct2023,-0.3464739393822519,m,"p=0.2263, dAIC=0.47"
 ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,-0.0009739263551823663,m,"p=0.9871, CI=[-0.1181,0.1161], Jun-Sep subset, full ANCOVA spec"
@@ -114,12 +120,14 @@ ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.0
 ANCOVA_Forest_Impact_summer_noCWB_R2,Impact,Jun-Sep,0.06500714273457853,,Summer model R² (CWB dropped)
 ANCOVA_Forest_Impact_summer_noCWB_N,Impact,Jun-Sep,50.0,months,"Summer sample size (CWB dropped fit, Jun-Sep only)"
 ANCOVA_Forest_Impact_coeff_cwb2_x_fell,Impact,,-14.420979829969507,mm per (100mm CWB)^2,"native=-1.442098e-06 m/mm^2, SE_native=1.166199e-06, p=0.2181, curvature variant — buffering term"
+ANCOVA_Forest_Impact_coeff_cwb2_x_fell_p,Impact,,0.21812579090781828,,"p-value of ANCOVA_Forest_Impact_coeff_cwb2_x_fell (CWB² × felling interaction, curvature variant), n=162 months"
 ANCOVA_Forest_Impact_coeff_cwb2_c,Impact,,-0.7427052581531748,mm per (100mm CWB)^2,"native=-7.427053e-08 m/mm^2, SE_native=7.923917e-07, p=0.9254, curvature variant — CWB² main effect"
 ANCOVA_Forest_Impact_curv_clearfell_step,Impact,Post_felling,0.12127775449162366,m,"p=0.0021, CI=[0.0455,0.1971], clearfell step re-referenced under curvature model (NOT the headline step)"
 ANCOVA_Forest_Impact_curv_R2,Impact,,0.2471927077170879,,Curvature model R²
 ANCOVA_Forest_Impact_curv_dAIC,Impact,,0.6618045874832887,,AIC(curvature) − AIC(linear); negative = curvature preferred
 ANCOVA_Forest_Impact_curv_jointF,Impact,,1.6031336039653126,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.2046"
 ANCOVA_Forest_Edge_coeff_cwb2_x_fell,Edge,,-8.385440044863905,mm per (100mm CWB)^2,"native=-8.385440e-07 m/mm^2, SE_native=9.225046e-07, p=0.3648, curvature variant — buffering term"
+ANCOVA_Forest_Edge_coeff_cwb2_x_fell_p,Edge,,0.36483524448429305,,"p-value of ANCOVA_Forest_Edge_coeff_cwb2_x_fell (CWB² × felling interaction, curvature variant), n=156 months"
 ANCOVA_Forest_Edge_coeff_cwb2_c,Edge,,-6.037563594204695,mm per (100mm CWB)^2,"native=-6.037564e-07 m/mm^2, SE_native=5.609566e-07, p=0.2835, curvature variant — CWB² main effect"
 ANCOVA_Forest_Edge_curv_clearfell_step,Edge,Post_felling,0.03308400244500383,m,"p=0.2243, CI=[-0.0201,0.0862], clearfell step re-referenced under curvature model (NOT the headline step)"
 ANCOVA_Forest_Edge_curv_R2,Edge,,0.47310611801908886,,Curvature model R²
@@ -175,6 +183,7 @@ Scraping_distance_weight,CEH5,,0.0025846282743240395,,"d=1787m, λ=300m"
 Scraping_distance_weight,L7,,0.0013703470646300004,,"d=1978m, λ=300m"
 Scraping_distance_weight,CEH6,,0.0011272491525912752,,"d=2036m, λ=300m"
 Canopy_drop_in_block_step,Impact,Post_felling,0.08776363050011234,m,"Forest controls minus in-block (CEH32/CEH33); +87.8 mm, p=0.0167; ~+93 mm expected"
+Drift_term_cost_impact_step,Impact,Post_felling,0.09176365049970839,m,"all5 free_trend step +108.23 mm minus all5 no_trend step +16.47 mm (10a_12_control_subset_sensitivity.csv), n_controls=5"
 Canopy_n_controls_in_block,Forest,,2.0,wells,"forest controls inside a 1998 replant block (CEH32, CEH33)"
 Canopy_era_Impact_early_step,WMC3-Forest5,2017-12..2020-12,0.15152836983015003,m,+151.5 mm (early era)
 Canopy_era_Impact_late_step,WMC3-Forest5,2021-01..2026-02,0.039208253373369154,m,+39.2 mm (late era)
@@ -207,4 +216,33 @@ Pre_felling_baseline_years,NW5,Climate control,12.670773442847365,years,first va
 Pre_felling_baseline_years,WMC2,Climate control,8.747433264887064,years,first valid monitoring month (2009-02) to last valid month before CLEARFELL_DATE (2017-11)
 Pre_felling_baseline_years_min,WMC2,Climate control,8.747433264887064,years,"minimum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
 Pre_felling_baseline_years_max,NW7,Climate control,12.670773442847365,years,"maximum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
+Network_n_wells,Network,,17.0,wells,"five-tier clearfell BACI design: Impact 1 (WMC3); Edge 4 (CEH31, CEH20, CEH30, CEH16); Forest control 5 (CEH32, CEH34, CEH33, NW10, CEH2); Coastal control 2 (CEH19, CEH17); Climate control 5 (CEH9, NW7, NW6, NW5, WMC2)"
+Fell_centroid_distance,WMC3,Impact,45.27382530781007,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance_min,WMC3,Impact,45.27382530781007,m,minimum across the Impact tier (WMC3)
+Fell_centroid_distance_max,WMC3,Impact,45.27382530781007,m,maximum across the Impact tier (WMC3)
+Fell_centroid_distance,CEH31,Edge,151.61134522191932,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,CEH20,Edge,229.20078533896867,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,CEH30,Edge,206.0412580043133,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,CEH16,Edge,221.9265473191451,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance_min,CEH31,Edge,151.61134522191932,m,"minimum across the Edge tier (CEH31, CEH20, CEH30, CEH16)"
+Fell_centroid_distance_max,CEH20,Edge,229.20078533896867,m,"maximum across the Edge tier (CEH31, CEH20, CEH30, CEH16)"
+Fell_centroid_distance,CEH32,Forest control,398.32775449370837,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,CEH34,Forest control,306.22867272677126,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,CEH33,Forest control,339.8190695061123,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,NW10,Forest control,752.452590283955,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,CEH2,Forest control,427.6739412215806,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance_min,CEH34,Forest control,306.22867272677126,m,"minimum across the Forest control tier (CEH32, CEH34, CEH33, NW10, CEH2)"
+Fell_centroid_distance_max,NW10,Forest control,752.452590283955,m,"maximum across the Forest control tier (CEH32, CEH34, CEH33, NW10, CEH2)"
+Fell_centroid_distance,CEH19,Coastal control,371.72135123233494,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,CEH17,Coastal control,406.5808102877303,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance_min,CEH19,Coastal control,371.72135123233494,m,"minimum across the Coastal control tier (CEH19, CEH17)"
+Fell_centroid_distance_max,CEH17,Coastal control,406.5808102877303,m,"maximum across the Coastal control tier (CEH19, CEH17)"
+Fell_centroid_distance,CEH9,Climate control,522.6020614817874,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,NW7,Climate control,214.83864659088218,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,NW6,Climate control,373.1387289601652,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,NW5,Climate control,769.4169720366384,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance,WMC2,Climate control,1009.9720198782555,m,Euclidean distance from the felling-compartment centroid (FELL_CENTROID_EASTING/NORTHING)
+Fell_centroid_distance_min,NW7,Climate control,214.83864659088218,m,"minimum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
+Fell_centroid_distance_max,WMC2,Climate control,1009.9720198782555,m,"maximum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
+Scraping_to_clearfell_months,,,32.0,months,SCRAPING_DATE (2015-04) to CLEARFELL_DATE (2017-12)
 Easting_vs_dist_coast_r,,primary design panel,0.02205955579264446,r,"Pearson r, well easting vs distance to coast, n=15 wells (Impact + Edge + Forest control + Climate control: WMC3, CEH31, CEH20, CEH30, CEH16, CEH32, CEH34, CEH33, NW10, CEH2, CEH9, NW7, NW6, NW5, WMC2)"

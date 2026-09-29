@@ -35,7 +35,14 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-28. T-91: emit per-cluster summer-trend
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-29. T-96: emits, per cluster,
+#   summer_min_years_below_SD15b / _SD16 (years the summer minimum sat deeper than each
+#   threshold; report9 §4.8.1), summer_min_mean_depth_beyond_SD15b / _SD16 (record-mean
+#   summer minimum relative to each threshold; report10 §5.8, moved here from 14b, which has
+#   no report-numbers file) and summer_trend_slope_ratio_steepest_to (the steepest summer
+#   decline, C5, as a multiple of each other cluster's; report9 §4.8.1, report10 §5.7.2,
+#   report12 §7). Additive; no existing output changes.
+# 1.9.0  # Hollingham (2026) - 2026-09-28. T-91: emit per-cluster summer-trend
 #   n_years and per-cluster/year/season annual-extreme Summer_Min / Winter_Max values
 #   (unrounded, from the in-memory trend_rows / summer_min / winter_max already built)
 #   to a new 14_report_numbers.csv. No output value changes.
@@ -997,6 +1004,41 @@ def main() -> None:
                     f"{row['Cluster']} in hydrological year "
                     f"{row['HydroYear']} (14_annual_extremes.csv Value_m, "
                     "rounded to 4 dp there but unrounded here)")
+
+    # T-96: per-cluster counts of hydrological years whose summer minimum sat
+    # deeper than each summer threshold, and the record-mean summer minimum's
+    # depth relative to each (report9 §4.8.1, report10 §5.8). Signed: positive
+    # = the mean summer minimum is deeper (drier) than the threshold.
+    for _thr_name, _thr_depth in (("SD15b", SD15b), ("SD16", SD16)):
+        for c in TRAJECTORY_CLUSTERS:
+            if c not in summer_min or len(summer_min[c]) == 0:
+                continue
+            _s = summer_min[c]
+            rn.add(f"summer_min_years_below_{_thr_name}", int((_s < -_thr_depth).sum()),
+                   unit="years", well=c,
+                   note=f"hydrological years with the fixed-effects Summer_Min deeper than "
+                        f"{_thr_name} ({_thr_depth:g} m below ground), of n={len(_s)} "
+                        "(14_annual_extremes.csv)")
+            rn.add(f"summer_min_mean_depth_beyond_{_thr_name}", float(-_s.mean() - _thr_depth),
+                   unit="m", well=c,
+                   note=f"record-mean Summer_Min depth minus {_thr_name} ({_thr_depth:g} m); "
+                        f"positive = mean summer minimum deeper than the threshold, "
+                        f"n={len(_s)} years (14_annual_extremes.csv)")
+
+    # T-96: the steepest full-record summer-minimum decline as a multiple of
+    # each other cluster's (report9 §4.8.1, report10 §5.7.2, report12 §7), from
+    # the unrounded OLS slopes (14_summer_trend_stats.csv rounds to 4 dp).
+    _slopes = {c: summer_data[c][6] for c in TRAJECTORY_CLUSTERS if c in summer_data}
+    if len(_slopes) > 1:
+        _steep = min(_slopes, key=_slopes.get)
+        for c, _sl in _slopes.items():
+            if c == _steep or _sl == 0:
+                continue
+            rn.add("summer_trend_slope_ratio_steepest_to", float(_slopes[_steep] / _sl),
+                   unit="", well=c,
+                   note=f"full-record summer-minimum OLS slope of {_steep} (the steepest decline) "
+                        f"divided by that of {c}, unrounded slopes (14_summer_trend_stats.csv "
+                        "Slope_m_per_yr)")
     rn.save(OUT_14_REPORT_NUMBERS)
     saved(f"{OUT_14_REPORT_NUMBERS.name}")
 

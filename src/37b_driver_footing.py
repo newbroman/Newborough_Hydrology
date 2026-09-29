@@ -89,7 +89,13 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-28. Figure title drops the internal "Part B" label and the
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-29. T-96: 37b_report_numbers.csv also
+#   carries site_area_ha, the site-mask area on the 50 m grid that normalises every
+#   equivalent depth (report9 §4.12.1, report10 §5.8.2 "the 949 ha mapped site"), and
+#   clearfell_step_pct_of_drawdown_h0, the observed clearfell step as a percentage of
+#   config.DRAWDOWN_H0_MM (report10 §5.8.2 "about 72% of the 150 mm modelled
+#   equilibrium"). Both from values main() already holds; nothing else moves.
+# 1.8.0  # Hollingham (2026) - 2026-09-28. Figure title drops the internal "Part B" label and the
 #   script version (held figure fix, T-92).
 # 1.7.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number
 #   emits (no analysis change) - coast_erosion_{peak_mm,area_mm_ha,volume_m3},
@@ -1022,6 +1028,17 @@ def main() -> int:
                 note="Coastal erosion area-integrated change (37b_driver_footing.csv, area_mm_ha).")
         rpt.add("coast_erosion_volume_m3", _r["volume_m3"], unit="m3",
                 note="Coastal erosion volume-integrated change (37b_driver_footing.csv, volume_m3).")
+    # T-96: the normalising area and the clearfell step's share of the modelled
+    # forest equilibrium (report9 §4.12.1, report10 §5.8.2).
+    rpt.add("site_area_ha", site_area_ha, unit="ha",
+            note=f"site-mask area on the {GRID_RES_M:g} m grid ({int(mask.sum())} cells); "
+                 "the divisor of equivalent_depth_site_mean_mm. The mapped site "
+                 "outline, not the study area of section 2")
+    rpt.add("clearfell_step_pct_of_drawdown_h0", clearfell_step_mm / config.DRAWDOWN_H0_MM * 100.0,
+            unit="%",
+            note="observed clearfell step (10a ANCOVA_Forest_Impact_clearfell_step, "
+                 "first-pass default if absent) as a percentage of the modelled "
+                 "forest equilibrium drawdown config.DRAWDOWN_H0_MM")
     rpt.save(paths.OUT_37B_REPORT_NUMBERS)
     saved(paths.OUT_37B_REPORT_NUMBERS)
 

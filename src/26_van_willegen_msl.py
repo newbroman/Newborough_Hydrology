@@ -100,7 +100,17 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-09-28. Follows config 1.71.0: the van Willegen roster
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-09-29. T-96: 26_report_numbers.csv gains the report9
+#   §4.8.3 / §4.8.4 quantities that were row differences or row counts: MSL5 map coverage
+#   (msl5_n_wells_any_window, msl5_n_wells_mapped, msl5_mapped_latest_window_end,
+#   msl5_n_wells_mapped_at_latest_window_end); pairwise cluster gaps at the latest common
+#   window-end on MSL5 and on the headline rolling minimum (msl5_gap_c{i}_c{j}_m,
+#   curreli_min_gap_c{i}_c{j}_m, *_gap_window_end); each cluster's largest shortfall below
+#   SD16 (curreli_min_max_below_sd16_m_c{k} and its window-end); the MSL5 step as the wet
+#   2023-24 year enters the window (msl5_wet_step_mm_c{k}, msl5_wet_step_window_end, from
+#   config.ENVELOPE_RECENT_WET_YEARS); and Ellenberg-F against each SSM coefficient
+#   (ebf_r_beta_*, ebf_coef_max_abs_r[_coefficient], ebf_coef_n). Emit-only; no output changes.
+# 1.19.0  # Hollingham (2026) - 2026-09-28. Follows config 1.71.0: the van Willegen roster
 #   is 20 wells for 17 stations (T41a-d all in; none location-only), so the EWI generalization split,
 #   quadrat-well trajectories, Curreli check and coverage list take all four T41 wells, and the map
 #   draws 20 diamonds. Coverage line prints the location-only list only when it is non-empty.
@@ -1449,7 +1459,8 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
         / md["beta_3_drainage"] - config.DRAINAGE_DATUM
     md["EWI_spring"] = (md["beta_1_recharge"] * P_sp - md["beta_2_atmospheric_draw"] * PET_sp) \
         / md["beta_3_drainage"] - config.DRAINAGE_DATUM
-    md = md.set_index("piezo")[["EWI_annual", "EWI_spring", "Cluster"]]
+    _coef_cols = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
+    md = md.set_index("piezo")[["EWI_annual", "EWI_spring", "Cluster"] + _coef_cols]
 
     df = pd.DataFrame({"EbF": ebf}).join(msl5).join(md).dropna(subset=["EbF", "MSL5", "EWI_annual"])
     n = len(df)
@@ -1495,7 +1506,17 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
     out = out[["piezo", "Cluster", "EbF", "MSL5", "EWI_annual", "EWI_spring",
                "resid_MSL5", "resid_EWI_annual"]]
 
+    # 1.20.0: Pearson r of Ellenberg-F with each SSM coefficient over the same
+    # piezometers, so the "no single coefficient predicts it nearly as well"
+    # comparison against the equilibrium index has committed numbers behind it.
+    coef_r = {}
+    for c in _coef_cols:
+        _pair = df[[c, "EbF"]].dropna()
+        if len(_pair) > 2:
+            coef_r[c] = float(pearsonr(_pair[c], _pair["EbF"])[0])
+
     summary = dict(n=n, fit=fit, williams_t=float(t_w), williams_p=p_w, bands=bands,
+                   coef_r=coef_r, coef_n=int(df[_coef_cols].notna().all(axis=1).sum()),
                    r_MSL5=fit["MSL5"]["r"], r_EWI_annual=fit["EWI_annual"]["r"])
     return out, summary
 
@@ -2343,6 +2364,58 @@ def main() -> int:
         "curreli_min_quadrat_wells_first_window_max_m_bg": float(_q0.max()) if len(_q0) else np.nan,
     })
     report_nums.update(msl5_min5_nums)   # Pass 3d (T-64)
+    # 1.20.0 (T-96): the report9 §4.8.3 quantities that were differences of rows
+    # or counts of rows, not rows. Map coverage: wells with any valid MSL5 window
+    # (the D-146 exclusion not yet applied), wells mapped (Pass 4, exclusion
+    # applied), and how many of those reach the latest window-end.
+    _map_end = int(latest["window_end_year"].max())
+    report_nums.update({
+        "msl5_n_wells_any_window": int(per_well["well"].nunique()),
+        "msl5_n_wells_mapped": int(len(latest)),
+        "msl5_mapped_latest_window_end": _map_end,
+        "msl5_n_wells_mapped_at_latest_window_end":
+            int((latest["window_end_year"] == _map_end).sum()),
+    })
+    # Pairwise cluster gaps at the latest window-end every cluster reaches, on
+    # the Method A MSL5 and on the headline Curreli rolling minimum: key
+    # *_gap_c{i}_c{j}_m = value(Ci) - value(Cj), positive where Cj sits deeper.
+    _gap_sources = (
+        ("msl5", per_cluster, "MSL5_m_bg_mean"),
+        ("curreli_min",
+         per_cluster_min[per_cluster_min["window_years"] == config.CURRELI_MIN_WINDOW_YEARS],
+         "MINw_m_bg_mean"),
+    )
+    for _stem, _tab, _col in _gap_sources:
+        _end = int(_tab.groupby("cluster_id")["window_end_year"].max().min())
+        _v = (_tab[_tab["window_end_year"] == _end]
+              .set_index("cluster_id")[_col].sort_index())
+        report_nums[f"{_stem}_gap_window_end"] = _end
+        _cids = [int(c) for c in _v.index]
+        for _i, _ci in enumerate(_cids):
+            for _cj in _cids[_i + 1:]:
+                report_nums[f"{_stem}_gap_c{_ci}_c{_cj}_m"] = float(_v.loc[_ci] - _v.loc[_cj])
+    # Largest amount by which each cluster's headline rolling minimum sits below
+    # SD16 over window-ends from MSL_TRAJECTORY_START_YEAR (the Table 20 span);
+    # negative where the cluster never falls below it.
+    _mh = per_cluster_min[(per_cluster_min["window_years"] == config.CURRELI_MIN_WINDOW_YEARS)
+                          & (per_cluster_min["window_end_year"] >= TRAJECTORY_START_YEAR)]
+    for _cid, _g in _mh.groupby("cluster_id"):
+        _below = -config.SD16 - _g["MINw_m_bg_mean"]
+        report_nums[f"curreli_min_max_below_sd16_m_c{int(_cid)}"] = float(_below.max())
+        report_nums[f"curreli_min_max_below_sd16_window_end_c{int(_cid)}"] = \
+            int(_g.loc[_below.idxmax(), "window_end_year"])
+    # Cluster MSL5 step as the wet 2023-24 hydrological year enters the window:
+    # window-end = the latest of config.ENVELOPE_RECENT_WET_YEARS (the most recent
+    # antecedent-wet spring), less the window-end before it; mm, positive = wetter.
+    _wet_end = int(max(config.ENVELOPE_RECENT_WET_YEARS))
+    _pc = (per_cluster.assign(cluster_id=per_cluster["cluster_id"].astype(int),
+                              window_end_year=per_cluster["window_end_year"].astype(int))
+           .set_index(["cluster_id", "window_end_year"])["MSL5_m_bg_mean"])
+    report_nums["msl5_wet_step_window_end"] = _wet_end
+    for _cid in sorted(per_cluster["cluster_id"].unique()):
+        _a, _b = (int(_cid), _wet_end), (int(_cid), _wet_end - 1)
+        if _a in _pc.index and _b in _pc.index:
+            report_nums[f"msl5_wet_step_mm_c{int(_cid)}"] = float(_pc.loc[_a] - _pc.loc[_b]) * 1000.0
     if not ewi.empty:
         comp, calib = compute_ewi_msl5_comparison(ewi, latest)
         if not comp.empty:
@@ -2418,6 +2491,18 @@ def main() -> int:
                   for _b, _v in ebf_summary["bands"].items()]
         pd.DataFrame(_bands).to_csv(paths.OUT_26_EBF_BAND_SUMMARY, index=False)
         saved(f"{paths.OUT_26_EBF_BAND_SUMMARY.name}")
+        # 1.20.0: EbF against each SSM coefficient (report9 §4.8.4, "best |r|").
+        _cr = ebf_summary.get("coef_r", {})
+        if _cr:
+            _best = max(_cr, key=lambda k: abs(_cr[k]))
+            report_nums.update({f"ebf_r_{k}": v for k, v in _cr.items()})
+            report_nums.update({
+                "ebf_coef_n": ebf_summary["coef_n"],
+                "ebf_coef_max_abs_r": abs(_cr[_best]),
+                "ebf_coef_max_abs_r_coefficient": _best,
+            })
+            info("  EbF ~ SSM coefficients: " +
+                 ", ".join(f"{k} r={v:+.3f}" for k, v in _cr.items()))
         f = ebf_summary["fit"]
         info(f"  EbF ~ MSL5:  r={f['MSL5']['r']:+.3f} [{f['MSL5']['r_lo']:+.2f},{f['MSL5']['r_hi']:+.2f}]  "
              f"RMSE={f['MSL5']['rmse']:.3f} EbF-units")

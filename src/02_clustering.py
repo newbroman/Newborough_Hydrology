@@ -14,7 +14,13 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-28. 02_02_validation_plots.png gains a
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-29. T-96 emit list: 02_report_numbers.csv gains
+#   cluster_n_wells (per cluster) and forest_clusters_n_wells (config.FOREST_CIDS; report8 §3.4.4,
+#   report10 §5.7.2 "14 forest zone wells"), ward_top_merge_distance (report9 §4.2 "approximately 1.0"),
+#   cluster_mean_level_offset_m for every cluster pair (report9 §4.2.1 "0.3 m", "0.6 m deeper") and
+#   post2018_p90_p10_max_min_ratio per cluster (report9 §4.2.1 "ratio max:min ~ 2.1", from the
+#   unrounded per-well amplitudes; compute_cluster_amplitude_descriptors now returns them). Emit-only.
+# 1.11.0  # Hollingham (2026) — 2026-09-28. 02_02_validation_plots.png gains a
 #   Calinski–Harabasz panel beside the elbow and silhouette panels, and all three now read
 #   k_sweep_validation() — the computation behind 02_06_k_sweep_validation.csv — instead of a
 #   second inline loop (Martin, proofread: the caption named a CH panel the figure lacked).
@@ -124,6 +130,7 @@ from utils.config import (
     CLUSTER_MONTH_SPLIT_N, CLUSTER_MONTH_BOOT_SEED,
     CLUSTER_MONTH_DEGENERACY_GAP,
     CLUSTER_HYDRO_WINDOW_START, CLUSTER_HYDRO_WINDOW_END,
+    FOREST_CIDS,
 )
 from utils.data_utils import normalize_well_name
 from utils.paths import (
@@ -1287,6 +1294,54 @@ def make_cluster_hydrograph_wb_figure() -> pd.DataFrame:
     return regional
 
 
+def add_cluster_membership_numbers(rr: ReportNumbers, cluster_df: pd.DataFrame,
+                                   Z: np.ndarray) -> None:
+    """
+    Emit the partition's own counts and the top of the tree (1.12.0, T-96):
+    cluster_n_wells per canonical cluster, forest_clusters_n_wells (the members
+    of config.FOREST_CIDS together; report8 §3.4.4 and report10 §5.7.2 quote
+    "14 forest zone wells (9 in C4, 5 in C5)"), and ward_top_merge_distance, the
+    height of the final Ward merge (report9 §4.2 "a Ward linkage distance of
+    approximately 1.0"); the k-sweep starts at k = 2, whose merge is Z[-2].
+    """
+    counts = cluster_df.groupby("Cluster").size()
+    for cid, n in counts.items():
+        rr.add("cluster_n_wells", int(n), unit="wells", well=CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"),
+               note="members of the canonical cluster (02_cluster_stats.csv)")
+    n_forest = int(counts.reindex(list(FOREST_CIDS)).fillna(0).sum())
+    rr.add("forest_clusters_n_wells", n_forest, unit="wells",
+           well=" + ".join(CLUSTER_LABELS.get(int(c), f"C{int(c)}") for c in FOREST_CIDS),
+           note=f"members of the forest clusters (config.FOREST_CIDS) of the {len(cluster_df)}-well reference network")
+    rr.add("ward_top_merge_distance", float(Z[-1, 2]), unit="",
+           note="height of the final (top) Ward merge of the reference dendrogram, 1 - r correlation "
+                "distance (02_01_dendrogram.png); the primary binary division")
+
+
+def add_cluster_mean_level_offsets(rr: ReportNumbers, regional: pd.DataFrame) -> None:
+    """
+    Emit cluster_mean_level_offset_m for every pair of canonical clusters: the
+    later cluster's mean level minus the earlier one's, over the same window as
+    cluster_mean_level_m (1.12.0, T-96). report9 §4.2.1 quotes C3 "approximately
+    0.3 m deeper" than C1/C2 and C4 "0.6 m deeper than adjacent C3"; negative =
+    the later cluster sits deeper.
+    """
+    start = pd.Timestamp(CLUSTER_HYDRO_WINDOW_START)
+    end = pd.Timestamp(CLUSTER_HYDRO_WINDOW_END)
+    era = f"{start:%Y-%m} to {end:%Y-%m}"
+    means = {}
+    for col in sorted(c for c in regional.columns if c.startswith("C")):
+        series = pd.to_numeric(regional[col], errors="coerce").dropna()
+        if not series.empty:
+            means[int(col[1:])] = float(series.mean())
+    ids = sorted(means)
+    for i, a in enumerate(ids):
+        for b in ids[i + 1:]:
+            rr.add("cluster_mean_level_offset_m", means[b] - means[a], unit="m",
+                   well=f"C{b} minus C{a}", era=era,
+                   note=f"cluster_mean_level_m of {CLUSTER_LABELS.get(b, f'C{b}')} minus that of "
+                        f"{CLUSTER_LABELS.get(a, f'C{a}')}; negative = C{b} deeper")
+
+
 def add_cluster_mean_level_numbers(rr: ReportNumbers, regional: pd.DataFrame) -> None:
     """
     Emit cluster_mean_level_m per canonical cluster: the mean, over the plotted
@@ -1428,7 +1483,7 @@ def _amp_drop_drought_summers(
 def compute_cluster_amplitude_descriptors(
     wells_ref: pd.DataFrame,
     cluster_df: pd.DataFrame,
-) -> None:
+) -> pd.DataFrame:
     """
     Compute per-well and per-cluster amplitude descriptors, write three
     output files, and print a compact quick-look summary.
@@ -1651,6 +1706,25 @@ def compute_cluster_amplitude_descriptors(
               f"range {lo:.2f}–{hi:.2f}  "
               f"Δpre/post(raw) {_fmt(damp)}  (climnorm {_fmt(damp_cn)})")
     print("----------------------------------------\n")
+    return per_well
+
+
+def add_amplitude_ratio_numbers(rr: ReportNumbers, per_well: pd.DataFrame) -> None:
+    """
+    Emit post2018_p90_p10_max_min_ratio per canonical cluster: the largest over
+    the smallest member's post-2018 p90-p10 amplitude (1.12.0, T-96). report9
+    §4.2.1 quotes C3's "post-2018 ratio max:min ~ 2.1"; 02_09 carries the two
+    ends only, rounded to 3 dp, so the ratio is taken here from the unrounded
+    per-well values that 02_08 holds.
+    """
+    for cid, g in per_well.groupby("cluster"):
+        vals = pd.to_numeric(g["p90_p10_post2018"], errors="coerce").dropna()
+        if len(vals) < 2 or vals.min() <= 0:
+            continue
+        rr.add("post2018_p90_p10_max_min_ratio", float(vals.max() / vals.min()), unit="",
+               well=CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"),
+               note=f"largest / smallest member post-2018 p90-p10 amplitude, n={len(vals)} wells "
+                    f"(02_08_cluster_amplitude_per_well.csv)")
 
 
 if __name__ == "__main__":
@@ -1740,6 +1814,7 @@ if __name__ == "__main__":
     cluster_df.to_csv(INT_CLUSTER_STATS, index=False)
     step(f"Saved cluster stats: {INT_CLUSTER_STATS.name}")
     add_cluster_geography_numbers(rr, cluster_df)
+    add_cluster_membership_numbers(rr, cluster_df, Z)
     rr.add("amplitude_min_obs_per_window", AMP_MIN_OBS_PER_WIN, unit="count",
            note="months a well needs in a window for its p90-p10 amplitude: two annual cycles")
     n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the cluster geography rows
@@ -1884,12 +1959,16 @@ if __name__ == "__main__":
     step("Generating Cluster Hydrograph + Water-Balance Figure...")
     regional_means = make_cluster_hydrograph_wb_figure()
     add_cluster_mean_level_numbers(rr, regional_means)
+    add_cluster_mean_level_offsets(rr, regional_means)
     n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the cluster mean levels
     step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the cluster mean levels)")
 
     step("Generating Per-Well Spaghetti Figure...")
     make_cluster_spaghetti_figure()
 
-    compute_cluster_amplitude_descriptors(wells_ref, cluster_df)
+    amp_per_well = compute_cluster_amplitude_descriptors(wells_ref, cluster_df)
+    add_amplitude_ratio_numbers(rr, amp_per_well)
+    n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the amplitude spread ratios
+    step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the amplitude ratios)")
 
     step("Clustering Complete.")

@@ -102,7 +102,16 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. Q5 — the forest floors (T-72, D-209; Martin: one
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-29. T-96: report numbers also carry
+#   the 2-sigma bounds of each combined level change (ranwell_delta_lower_2sigma_m_{row},
+#   ranwell_delta_upper_2sigma_m_{row}: delta -/+ 2 x its standard error, the same 2 sigma the
+#   ranwell_resolved_* flag already uses; report10 §5.7.9 "a fall larger than about 0.3 m is
+#   excluded ... a rise larger than about 0.1 m"), and each compared site's distance to the nearest
+#   in_forest well (ranwell_dist_nearest_forest_well_m_site{n}, placed position against 01_locations
+#   E/N; report10 §5.7.9 "the Clwt Gwlyb sites, which lie 120-200 m from the nearest forest wells").
+#   Moved here from Script 43 (T-96): 43 carries no forest flag, 44 already holds both inputs.
+#   Nothing already emitted moves.
+# 1.6.0  # Hollingham (2026) — 2026-09-29. Q5 — the forest floors (T-72, D-209; Martin: one
 #   drainage channel, the line along the village-to-beach road between ceh14 and ceh13 = Features.kml "Line 23";
 #   no pre-planting map; ceh2 and ceh16 ploughed; a figure). 44_10_forest_floor_excess.csv: per in_forest
 #   reference well the 44_09 excess/residual, the modelled canopy drawdown (Script 20 dd_mm) and the ratio, the
@@ -1152,6 +1161,16 @@ def main() -> int:
     for r in lc[lc["row"] == "site"].itertuples():
         rn.append((f"ranwell_delta_m_site{int(r.site_no)}", r.delta_m, "m", f"site {int(r.site_no)} ({r.sketch_slack}): modern minus 1951-53, climate-corrected"))
         rn.append((f"ranwell_sigma_m_site{int(r.site_no)}", r.sigma_total_m, "m", f"site {int(r.site_no)}: four-term error"))
+    # T-96: each compared site's distance to the nearest in_forest well (placed position,
+    # the easting/northing every other site distance here uses).
+    if "in_forest" in loc.columns:
+        fw = loc[loc["in_forest"].astype(bool)]
+        for r in lc[lc["row"] == "site"].itertuples():
+            srow = sites.loc[r.site_no]
+            d_fw = np.hypot(fw["E"] - float(srow["easting"]), fw["N"] - float(srow["northing"]))
+            rn.append((f"ranwell_dist_nearest_forest_well_m_site{int(r.site_no)}", float(d_fw.min()), "m",
+                       f"site {int(r.site_no)} ({r.sketch_slack}): distance from the placed position to the nearest "
+                       f"in_forest well (01_locations), {fw.loc[d_fw.idxmin(), 'Name']}; {len(fw)} forest wells"))
     rn += [("ranwell_coastal_fit_delta0_mm_yr", cg_d0, "mm/yr", f"Script 25 {src_} {mod_} delta_0 used for the coastal expectation"),
            ("ranwell_coastal_fit_L_m", cg_L, "m", f"Script 25 {src_} {mod_} reach L"),
            ("ranwell_sites_within_coastal_reach", int(lc.loc[lc["row"] == "site", "within_coastal_reach"].astype(bool).sum()), "count",
@@ -1167,7 +1186,11 @@ def main() -> int:
                    (f"ranwell_sigma_m_{k}", c["sigma_total_m"], "m", f"{c['row']}: standard error"),
                    (f"ranwell_chi2_dof_{k}", c["chi2_per_dof"], "-", f"{c['row']}: chi-square per degree of freedom"),
                    (f"ranwell_rate_mm_yr_{k}", c["rate_mm_per_year"], "mm/yr", f"{c['row']}: delta over the interval"),
-                   (f"ranwell_resolved_{k}", int(c["resolved"]), "flag", f"{c['row']}: |delta| > 2 sigma")]
+                   (f"ranwell_resolved_{k}", int(c["resolved"]), "flag", f"{c['row']}: |delta| > 2 sigma"),
+                   (f"ranwell_delta_lower_2sigma_m_{k}", c["delta_m"] - 2 * c["sigma_total_m"], "m",
+                    f"{c['row']}: delta - 2 x standard error; a fall larger than this is excluded"),
+                   (f"ranwell_delta_upper_2sigma_m_{k}", c["delta_m"] + 2 * c["sigma_total_m"], "m",
+                    f"{c['row']}: delta + 2 x standard error; a rise larger than this is excluded")]
     for stat, lab in (("mean", "full-record mean"), ("spring", "spring level (D-189/D-207)"), ("min", "annual minimum")):
         rn += [(f"slack_floor_baseline_depth_{stat}_m", base[stat][0], "m",
                 f"inland baseline: median depth of the {lab} below the slack floor, C"

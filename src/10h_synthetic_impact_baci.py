@@ -61,7 +61,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-29. T-96: 10h_report_numbers carries
+#   synth_pre_felling_months (Well FE1 / FE2), each FE well's observed monthly readings before
+#   CLEARFELL_DATE, which report9 Section 4.6.1 quotes ("approximately 28 months"). Emit-only.
+# v1.8.0  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
 #   config.DAYS_PER_MONTH, imported (config 1.49.0 named it). No value changes.
 # v1.7.0  # Hollingham (2026) - 2026-09-21. FE1/FE2 coordinates are READ
 #   from 01_locations.csv (Script 01, from data/well_metadata.csv) instead of being
@@ -245,12 +248,17 @@ def main():
     donor_data = {d: wells[d].dropna() for d in DONOR_WELLS}
     calibration_rows = []
     synthetic_wells = {}
+    fe_prefell = {}
 
     for fe_name in FE_SYNTH_WELLS:
         fe = wells[fe_name].dropna()
 
         # Calibration window: pre-clearfell overlap
         cal_idx = fe.index[fe.index < CLEARFELL_DATE]
+        # T-96: the FE well's own observed pre-felling record, before the
+        # donor intersection (report9 Section 4.6.1).
+        if len(cal_idx) > 0:
+            fe_prefell[fe_name] = (len(cal_idx), cal_idx[0], cal_idx[-1])
         common_cal = cal_idx
         for d in DONOR_WELLS:
             common_cal = common_cal.intersection(donor_data[d].index)
@@ -959,6 +967,13 @@ def main():
         rpt.add(f"{prefix}_postfell_divergence_mm", row['PostFell_divergence_mm'],
                 unit='mm')
         rpt.add(f"{prefix}_postfell_divergence_p", row['PostFell_divergence_p'])
+
+    # T-96: observed monthly readings before CLEARFELL_DATE, per FE well.
+    for fe_name, (n_pre, t0, t1) in fe_prefell.items():
+        rpt.add("synth_pre_felling_months", float(n_pre), unit='months',
+                well=fe_name.upper(),
+                note=(f"observed monthly readings before CLEARFELL_DATE, "
+                      f"{t0:%Y-%m} to {t1:%Y-%m}"))
 
     for _, row in comp_df.iterrows():
         prefix = f"ANCOVA_{row['Variant']}_{row['Control']}"

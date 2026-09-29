@@ -108,7 +108,18 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.57.0"  # Hollingham (2026) - 2026-09-28. Held figure fixes (T-92): the drawdown-propagation map's
+__version__ = "1.58.0"  # Hollingham (2026) - 2026-09-29. T-96 emits (report8 §3.5.4, §3.8.1, §3.8.2;
+#   report9 §4.9.6, §4.11, §4.12; report10 §5.7.5). 20_report_numbers.csv gains
+#   drawdown_diffusivity_m2_per_day (D = K·b/Sy), slr_diffusive_length_2sqrtDt_m,
+#   broadleaf_restock_H0_incr_mm and ceh11_to_lake_edge_group_dist_min_m / _max_m;
+#   20_residual_report_numbers.csv gains residual_window_months, residual_p_bar_mm and
+#   residual_pet_bar_mm (the window the comment in build_well_table already promised);
+#   20_msl5_report_numbers.csv gains msl5_n_wells; 20_scrape_report_numbers.csv gains
+#   clearfell_baseline_drawdown_max_mm. D, √(Dt), the broadleaf source and the
+#   clearfell-baseline field are factored into _slr_diffusion(), _broadleaf_source_mm()
+#   and _clearfell_baseline_field() so each map and its row read one computation.
+#   Emit-only: no figure or existing row changes.
+# 1.57.0  # Hollingham (2026) - 2026-09-28. Held figure fixes (T-92): the drawdown-propagation map's
 #   CEH27/CEH26/CEH23/CEH5 and D15/D5 labels are staggered so they no longer collide; the scrape-drawdown
 #   note reads the CEH21 and CEH18 responses live from the 09a BACI shifts instead of typing +74 / +8.
 # 1.56.0  # Hollingham (2026) - 2026-09-28. Martin's review of the 1.55.0 figures:
@@ -797,6 +808,13 @@ def build_well_table(data):
 
     print(f"  Reference wells: {(wt['network']=='Reference').sum()}, "
           f"Extended wells: {(wt['network']=='Extended').sum()}")
+    # 1.58.0 (T-96): the realised averaging window travels with the table so
+    # plot_residual_ssm() can write it to 20_residual_report_numbers.csv, as the
+    # comment above has always said it does.
+    wt.attrs["residual_window"] = {
+        "start": _rec_start, "end": _rec_end, "n_months": int(len(clim_period)),
+        "P_bar": float(P_bar), "PET_bar": float(PET_bar),
+    }
     return wt, P_bar, PET_bar
 
 
@@ -1158,6 +1176,18 @@ def plot_residual_ssm(wt, features, dpi=300):
                           f"n={len(_r)}")
             rrpt.add(f"residual_spearman_{_form}_{_ax}_p", float(_pv), unit="",
                      note="p for the row above")
+    # 1.58.0 (T-96): the averaging window the residual is evaluated over, and its
+    # climate means (report9 §4.9.6 quotes all three).
+    _win = wt.attrs.get("residual_window")
+    if _win:
+        _wera = f"{_win['start']:%Y-%m} to {_win['end']:%Y-%m}"
+        rrpt.add("residual_window_months", int(_win["n_months"]), unit="months", era=_wera,
+                 note="climate months in the averaging window, first to last month of the "
+                      "mean-head record")
+        rrpt.add("residual_p_bar_mm", _win["P_bar"] * 1000.0, unit="mm/month", era=_wera,
+                 note="mean monthly rainfall P̄ over the averaging window")
+        rrpt.add("residual_pet_bar_mm", _win["PET_bar"] * 1000.0, unit="mm/month", era=_wera,
+                 note="mean monthly Thornthwaite PET̄ over the averaging window")
     n_saved = rrpt.save(OUT_20_RESIDUAL_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_RESIDUAL_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -1594,6 +1624,32 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
         rpt.add(f"drawdown_contour_{_lvl:g}mm_m", float(lam * np.log(H0 / _lvl)), unit="m",
                 note=f"cost-distance at which the forest drawdown falls to {_lvl:g} mm, "
                      f"λ·ln(H0/{_lvl:g})")
+    # 1.58.0 (T-96): the diffusivity λ is built from, the SLR diffusive length
+    # 2√(D·t) (report8 §3.5.4, §3.8.2) and the broadleaf-restock source (§3.8.1).
+    _D, _sqrt_dt = _slr_diffusion(Sy)
+    rpt.add("drawdown_diffusivity_m2_per_day", float(_D), unit="m2/day", well="C3",
+            note="hydraulic diffusivity D = K·b/Sy, C3 Sy (the D inside λ and the SLR field)")
+    rpt.add("slr_diffusive_length_2sqrtDt_m", 2.0 * _sqrt_dt, unit="m",
+            era=f"{SLR_WINDOW_YEARS:g} yr",
+            note="SLR diffusive length-scale 2√(D·t), t = SLR_WINDOW_YEARS")
+    _bl_full, _bl_incr = _broadleaf_source_mm()
+    rpt.add("broadleaf_restock_H0_incr_mm", float(_bl_incr), unit="mm",
+            note="broadleaf-restock source magnitude on the 2005→2025 driver-change map: "
+                 "(BL_CANOPY_FRACTION_2025 − _2005) × DRAWDOWN_H0_MM × "
+                 "BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION")
+    # 1.58.0 (T-96): CEH11 against the rest of the Lake Edge cluster (report9 §4.11).
+    _c1_id = next((cid for cid, lbl in CLUSTER_LABELS.items() if "Lake Edge" in lbl), None)
+    _wn = wt["well"].astype(str).str.lower().str.replace(" ", "")
+    _c11 = wt[_wn == "ceh11"]
+    _grp = wt[(wt["cluster"] == _c1_id) & (wt["network"] == "Reference") & (_wn != "ceh11")]
+    if len(_c11) and len(_grp):
+        _dc = np.hypot(_grp["E"].astype(float) - float(_c11["E"].iloc[0]),
+                       _grp["N"].astype(float) - float(_c11["N"].iloc[0]))
+        _gl = ";".join(_grp["well"].astype(str).str.upper())
+        rpt.add("ceh11_to_lake_edge_group_dist_min_m", float(_dc.min()), unit="m", well="CEH11",
+                note=f"shortest distance from CEH11 to the other C1 reference wells ({_gl}), n={len(_grp)}")
+        rpt.add("ceh11_to_lake_edge_group_dist_max_m", float(_dc.max()), unit="m", well="CEH11",
+                note=f"longest distance from CEH11 to the other C1 reference wells ({_gl}), n={len(_grp)}")
     _ddmap = {w.lower(): v for w, v in zip(wt["well"], wt["dd_mm"])}
     for _w in ["ceh23", "ceh6", "d15", "ceh24", "ceh10", "ceh11"]:
         if _w in _ddmap:
@@ -2175,9 +2231,7 @@ def plot_slr_response(wt, features, dpi=300):
     # ── Diffusivity D = K·b/Sy (Sy live from C3 WTF, as in drawdown map) ──
     _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
     Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
-    D = (DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / Sy                      # m²/day
-    t_days = SLR_WINDOW_YEARS * 365.0
-    diff_len = np.sqrt(D * t_days)               # √(D·t), m
+    D, diff_len = _slr_diffusion(Sy)             # m²/day; √(D·t), m
     slr_mm = SLR_RISE_M * 1000.0
     print(f"  SLR response: +{SLR_RISE_M:.3f} m over {SLR_WINDOW_YEARS:.0f} yr; "
           f"D={D:.1f} m²/day (Sy={Sy:.3f} [C3 WTF]), √(Dt)={diff_len:.0f} m")
@@ -2368,6 +2422,14 @@ def _erosion_field(gx, gy, retreat_m=None, h0_mm=None):
     return eff, front, waterline, h0, L
 
 
+def _slr_diffusion(Sy):
+    """Hydraulic diffusivity D = K·b/Sy (m²/day) and the SLR diffusion length
+    √(D·t) (m) over SLR_WINDOW_YEARS. One construction for the SLR map, the
+    shared SLR field and the report numbers (1.58.0, T-96)."""
+    D = (DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / Sy
+    return D, float(np.sqrt(D * SLR_WINDOW_YEARS * 365.0))
+
+
 def _slr_field(gx, gy):
     """SLR transient head-gain field (mm, positive = head gain) on grid gx,gy.
     MSL boundary, +SLR_RISE_M over SLR_WINDOW_YEARS, seaward side zeroed.
@@ -2377,8 +2439,7 @@ def _slr_field(gx, gy):
     from shapely import contains_xy
     _sy_df = pd.read_csv(OUT_18_WELL_SY_TABLE)
     Sy = float(_sy_df[_sy_df["Cluster"] == 3]["Sy_median"].median())
-    D = (DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / Sy
-    diff_len = np.sqrt(D * SLR_WINDOW_YEARS * 365.0)
+    D, diff_len = _slr_diffusion(Sy)
     slr_mm = SLR_RISE_M * 1000.0
     _f, waterline = _dem_waterline_to_dune_edge(
         shore_level=SLR_SHORE_LEVEL_M, offset_m=0)
@@ -2721,6 +2782,14 @@ def _forest_field(gx, gy):
     return H0 * np.exp(-d / lam), H0, lam, forest_geom
 
 
+def _broadleaf_source_mm():
+    """Broadleaf-restock source magnitudes (mm): the full-canopy H0 scaled by the
+    broadleaf interception ratio, and the 2005→2025 canopy increment of it that
+    _broadleaf_field() decays. Shared with the report numbers (1.58.0, T-96)."""
+    H0_full = DRAWDOWN_H0_MM * (BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION)
+    return H0_full, (BL_CANOPY_FRACTION_2025 - BL_CANOPY_FRACTION_2005) * H0_full
+
+
 def _broadleaf_field(gx, gy):
     """Broadleaf-restock interception-deficit drawdown INCREMENT field (mm,
     positive = head loss) on grid gx,gy, for the 2005→2025 driver-change map.
@@ -2763,8 +2832,7 @@ def _broadleaf_field(gx, gy):
         return None, None, None, None
     lam = np.sqrt((DRAWDOWN_K_MDAY * DRAWDOWN_B_M) / (Sy * (b3 / DAYS_PER_MONTH)))
 
-    H0_full = DRAWDOWN_H0_MM * (BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION)
-    H0_incr = (BL_CANOPY_FRACTION_2025 - BL_CANOPY_FRACTION_2005) * H0_full
+    _H0_full, H0_incr = _broadleaf_source_mm()
 
     d = np.array([bl_geom.distance(Point(x, y))
                   for x, y in zip(gx.ravel(), gy.ravel())]).reshape(gx.shape)
@@ -2903,6 +2971,32 @@ def plot_coastal_net_effect(wt, features, dpi=300):
     plt.close(fig)
 
 
+def _clearfell_baseline_field(gx, gy):
+    """Combined drawdown (mm) on the clearfell pre-fell baseline: the Feb 2013 and
+    Apr 2015 scrape cuts plus one Storm-Brendan-scale retreat, clipped to the site
+    outline. Factored out of plot_scrape_coastal_net() (1.58.0, T-96) so the map and
+    20_scrape_report_numbers.csv read one field. Returns (dd, h0, scr_H0, scr_geom)
+    or (None, None, None, None) when a component is unavailable."""
+    from shapely import contains_xy
+    eros, _front, _wl_e, h0, _L = _erosion_field(gx, gy)
+    scr, scr_H0, _scr_lam, scr_geom = _scrape_field(
+        gx, gy, epochs={"Feb 2013", "April 2015"}   # Oct 2023 cuts postdate the clearfell
+    )
+    if eros is None or scr is None:
+        return None, None, None, None
+
+    dd = scr + eros                                   # mm, both head losses
+
+    site_poly = load_site_polygon()
+    if site_poly is not None:
+        try:
+            inside = contains_xy(site_poly, gx.ravel(), gy.ravel()).reshape(gx.shape)
+            dd = np.where(inside, dd, np.nan)
+        except Exception:
+            pass
+    return dd, h0, scr_H0, scr_geom
+
+
 def plot_scrape_coastal_net(wt, features, dpi=300):
     """
     Drawdown imposed on the CLEARFELL PRE-FELL BASELINE (Oct 2017) by the two
@@ -2921,26 +3015,11 @@ def plot_scrape_coastal_net(wt, features, dpi=300):
     Rendered on the shared sequential drawdown scale for direct comparison
     with the standalone scrape and erosion maps.
     """
-    from shapely import contains_xy
-
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)
-    eros, front, _wl_e, h0, L = _erosion_field(gx, gy)
-    scr, scr_H0, scr_lam, scr_geom = _scrape_field(
-        gx, gy, epochs={"Feb 2013", "April 2015"}   # Oct 2023 cuts postdate the clearfell
-    )
-    if eros is None or scr is None:
+    dd, h0, scr_H0, scr_geom = _clearfell_baseline_field(gx, gy)
+    if dd is None:
         print("  [WARNING] a component field is unavailable — skipping baseline drawdown map")
         return
-
-    dd = scr + eros                                   # mm, both head losses
-
-    site_poly = load_site_polygon()
-    if site_poly is not None:
-        try:
-            inside = contains_xy(site_poly, gx.ravel(), gy.ravel()).reshape(gx.shape)
-            dd = np.where(inside, dd, np.nan)
-        except Exception:
-            pass
 
     print(f"  clearfell-baseline drawdown: max {np.nanmax(dd):.0f} mm "
           f"(scrape H0={scr_H0:.0f} mm [measured], Storm Brendan h0={h0:.0f} mm, "
@@ -3759,6 +3838,9 @@ def plot_msl5_change(wt, features, dpi=300):
              note=f"2023 minus 2017 network-mean change (below ground, n={len(_msl)})")
     mrpt.add("msl5_n_significant", int(_msl["significant_25mm"].sum()), unit="wells",
              note=f"wells with |raw change| >= {SIG_MM} mm of {len(_msl)}")
+    # 1.58.0 (T-96): the number of wells the map carries (report10 §5.7.5, n = …).
+    mrpt.add("msl5_n_wells", int(len(_msl)), unit="wells",
+             note="wells carrying an MSL5 change 2017->2023 (rows of 20_msl5_change_perwell.csv)")
     for _w in ["wmc3", "ceh36", "ceh22", "ceh21", "ceh18", "ceh25"]:
         _r = _msl[_msl["well"].str.lower() == _w]
         if len(_r):
@@ -4764,6 +4846,15 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
                      float(_d36[_in].max()) if _in.any() else 0.0, unit="m",
                      note=f"CEH36 cut alone: largest distance from its edge at which its "
                           f"own field (with coastal image) is >= {_lvl:g} mm")
+    # 1.58.0 (T-96): the peak of the clearfell-baseline map's combined field (scrape
+    # cuts of Feb 2013 and Apr 2015 plus the Storm Brendan retreat), report9 §4.12.
+    _bgx, _bgy = np.meshgrid(GRID_XI, GRID_YI)
+    _bdd = _clearfell_baseline_field(_bgx, _bgy)[0]
+    if _bdd is not None and np.isfinite(_bdd).any():
+        srpt.add("clearfell_baseline_drawdown_max_mm", float(np.nanmax(_bdd)), unit="mm",
+                 note="maximum of the combined scrape (Feb 2013 + Apr 2015 cuts) plus "
+                      "Storm Brendan retreat drawdown on the pre-fell baseline, within the "
+                      "site outline (20_clearfell_baseline_drawdown.png)")
     n_s = srpt.save(OUT_20_SCRAPE_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_SCRAPE_REPORT_NUMBERS.name} ({n_s} report numbers)")
 

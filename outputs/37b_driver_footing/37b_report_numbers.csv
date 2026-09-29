@@ -2,3 +2,5 @@ Parameter,Well,Era,Value,Unit,Note
 coast_erosion_peak_mm,,,-625.6,mm,"Coastal erosion peak local head change (37b_driver_footing.csv, peak_mm)."
 coast_erosion_area_mm_ha,,,-80888.5,mm*ha,"Coastal erosion area-integrated change (37b_driver_footing.csv, area_mm_ha)."
 coast_erosion_volume_m3,,,-241210.1,m3,"Coastal erosion volume-integrated change (37b_driver_footing.csv, volume_m3)."
+site_area_ha,,,949.25,ha,"site-mask area on the 50 m grid (3797 cells); the divisor of equivalent_depth_site_mean_mm. The mapped site outline, not the study area of section 2"
+clearfell_step_pct_of_drawdown_h0,,,72.153509189302,%,"observed clearfell step (10a ANCOVA_Forest_Impact_clearfell_step, first-pass default if absent) as a percentage of the modelled forest equilibrium drawdown config.DRAWDOWN_H0_MM"

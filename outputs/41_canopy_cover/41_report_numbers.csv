@@ -4,3 +4,5 @@ canopy_ratio_restock_conifer_full_leaf_sd,,2012-05-26–2019-07-29,0.04886574634
 canopy_ratio_restock_conifer_full_leaf_cv_pct,,2012-05-26–2019-07-29,4.170608379179606,%,"coefficient of variation of the full-leaf class (sd / median x 100), from the same rr the median and sd rows above are drawn from"
 canopy_full_leaf_frames_n,,2012-05-26–2019-07-29,4.0,frames,"frames on the comparison basis; the rest are withheld from the summary, not from the table"
 canopy_index_clearfell_full_leaf_median,,2012-05-26–2019-07-29,0.1386376510995024,index,"the clearfell area is deliberately kept clear of trees (Martin, 2026-08-31), so a low value is a management outcome and not failed regeneration"
+canopy_ratio_forest_control_early_post_clearfell_mean,,2018-06-28–2020-04-24,1.144866794014217,ratio,"mean untouched-forest control ratio_to_conifer over the 6 vp1 frames from CLEARFELL_DATE_ISO to CLEARFELL_ERA_SPLIT (the early post-clearfell era, D-141), every leaf state: the control is evergreen conifer"
+clearfell_polygon_area_ha,,,4.4255323675985325,ha,planar area of the clearfell.kml polygon in OSGB (EPSG:27700)

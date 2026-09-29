@@ -87,7 +87,10 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-28. T-91: 21_report_numbers.csv also carries
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-29. T-96: 21_report_numbers.csv also carries
+#   scenario_water_equivalent_ratio_C5_to_C4 per scenario (annual), the C5:C4 ratio of the
+#   water-equivalent gains report10 §5.5.2 quotes as "roughly 30% more". Emit-only.
+# 1.11.0  # Hollingham (2026) - 2026-09-28. T-91: 21_report_numbers.csv also carries
 #   the C4 synthetic-hydrograph separations report10 §5.7.4 quotes (Figure 21_forestry_01):
 #   for each management scenario, the separation from the observed C4 baseline at the
 #   baseline trough month and the largest Jun–Sep separation with its month (positive =
@@ -551,6 +554,7 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
     names = {"Full clearfell": "clearfell", "50% thinning": "thinning_50pct",
              "Broadleaf conversion": "broadleaf"}
     print("  Scenario head shifts and water-equivalents (mean monthly, m / mm w.e. per month):")
+    we = {}   # (cluster, scenario key, season) -> mm/month, for the C5:C4 ratio (T-96)
     for cluster in ("C4", "C5"):
         shifts, _, _, _, _, _ = build_scenarios(master, climate, cluster=cluster)
         sy = float(params["clusters"][cluster]["Sy"])
@@ -569,9 +573,19 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
                 rpt.add("scenario_water_equivalent_mm_per_month", head * sy * 1000.0,
                         unit="mm/month", well=label, era=f"{key} · {season}",
                         note=f"head shift × Sy ({sy:.3f}) × 1000")
+                we[(cluster, key, season)] = head * sy * 1000.0
                 if season == "annual" or key == "broadleaf":
                     print(f"    {label:22s} {key:15s} {season:6s}  "
                           f"{head:+.3f} m  {head * sy * 1000:+6.1f} mm w.e.")
+    # T-96: C5's annual water-equivalent gain as a multiple of C4's, per scenario —
+    # report10 §5.5.2 ("C5 capturing roughly 30% more recovery per unit area than C4").
+    for key in names.values():
+        c4, c5 = we.get(("C4", key, "annual")), we.get(("C5", key, "annual"))
+        if c4 is not None and c5 is not None and c4 != 0:
+            rpt.add("scenario_water_equivalent_ratio_C5_to_C4", c5 / c4, unit="",
+                    well="C5/C4", era=f"{key} · annual",
+                    note="C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_"
+                         "mm_per_month rows above)")
     # T-91: C4 synthetic-hydrograph separations (report10 §5.7.4), as returned
     # by plot_hydrograph() — scenario series only, unrounded.
     for sep in (hydro_separations or []):

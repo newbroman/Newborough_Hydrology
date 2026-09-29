@@ -76,7 +76,13 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-29. The short-profile climate figure
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-29. T-96 emit list: 00_report_numbers.csv gains
+#   reference_network_mean_wl_m, reference_seasonal_amplitude_median_m and reference_winter_max_above_ground_n
+#   (report9 §4.1.2, column statistics of 00_02), pet_rolling12_min/median/max_mm (report9 §4.1.1, the Fig 4b line),
+#   pet_warming_early/late_mean_mm (report11 §6.4), trend_summer_pet/_rain_full_record and their _p (report10 §5.7.5)
+#   and wettest_winter_rain / mean_winter_rain_full_record / wettest_winter_rain_ratio (report10 §5.8.1), from the
+#   new full_record_season_context(). Emit-only; no other output moves.
+# 1.15.0  # Hollingham (2026) - 2026-09-29. The short-profile climate figure
 #   (00_01_climate_timeseries_short.png, report Figure 4) is also saved as a FILM COPY
 #   (OUT_00_CLIMATE_TIMESERIES_SHORT_FILM: the same figure with FILM_SLIDE_BG, the hindcast film's
 #   slide ground, as its margin colour) for Script 47 1.6.0's first method slide. The report copy is
@@ -543,6 +549,14 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
             "cumbal_wl_r2":    float(r2_lag0) if pd.notna(r2_lag0) else np.nan,
             "cumbal_wl_slope": float(slope) if len(fit_df) >= 2 else np.nan,
             "cumbal_wl_n":     int(len(fit_df)),
+        }
+        # 1.16.0: the PET 12-month rolling mean exactly as panel (b) draws it
+        # (report9 §4.1.1 reads its band off the figure)
+        _pr = pd.to_numeric(pet_roll_12_plot, errors="coerce").dropna()
+        fig1_stats["pet_roll12"] = {
+            "min": float(_pr.min()), "median": float(_pr.median()), "max": float(_pr.max()),
+            "n": int(len(_pr)),
+            "era": f"{_pr.index.min():%Y-%m} to {_pr.index.max():%Y-%m}" if len(_pr) else "",
         }
 
         ax4.plot(mean_ts.index, mean_ts, color=CB_GREEN, linewidth=2.3, label="Network mean well level")
@@ -1190,6 +1204,49 @@ def _run_all() -> None:
                         ("at or deeper than SD16_REC", (_dp >= SD16_REC).sum())):
         rr.add("reference_summer_min_zone_count", int(_cnt), unit="wells", well=_zone,
                note=f"reference network n={_n}, per-well mean annual summer minimum (00_02)")
+    # 1.16.0 (T-96): the remaining report9 §4.1 / report10 / report11 quantities that were
+    # column statistics or hand arithmetic on this script's own tables.
+    _wl_all = wells_full.apply(pd.to_numeric, errors="coerce").stack()
+    rr.add("reference_network_mean_wl_m", float(_wl_all.mean()), unit="m",
+           note=f"pooled mean over every valid well-month of the reference network "
+                f"(n={_wl_all.size} well-months, {wells_full.shape[1]} wells; = the N_months-weighted "
+                f"mean of Mean_WL_m in 00_02); negative = below ground. report9 §4.1.2")
+    _amp = pd.to_numeric(table2_full["Seasonal_amplitude_m"], errors="coerce").dropna()
+    rr.add("reference_seasonal_amplitude_median_m", float(_amp.median()), unit="m",
+           note=f"median of Seasonal_amplitude_m (mean August minus mean February, signed; "
+                f"negative = deeper in August), reference network n={len(_amp)} (00_02). report9 §4.1.2")
+    _wmax = pd.to_numeric(table2_full["Mean_Winter_Max_m"], errors="coerce").dropna()
+    rr.add("reference_winter_max_above_ground_n", int((_wmax > 0).sum()), unit="wells",
+           note=f"reference wells whose mean annual winter maximum (Oct-Mar) is above ground "
+                f"(Mean_Winter_Max_m > 0), of n={len(_wmax)} (00_02). report9 §4.1.2")
+    if fig1_stats and "pet_roll12" in fig1_stats:
+        _pr = fig1_stats["pet_roll12"]
+        for _k in ("min", "median", "max"):
+            rr.add(f"pet_rolling12_{_k}_mm", _pr[_k], unit="mm/month", era=_pr["era"],
+                   note=f"{_k} of the 12-month rolling mean of monthly PET as drawn in "
+                        f"00_01_climate_timeseries_short.png panel (b) (n={_pr['n']} plotted months). "
+                        f"report9 §4.1.1")
+    rr.add("pet_warming_early_mean_mm", pet_resp["PET_early_mm"], unit="mm",
+           era=f"{pet_resp['early_first']}-{pet_resp['early_last']}",
+           note=f"mean annual Thornthwaite PET over the first {PET_RESPONSE_PERIOD_YEARS} complete years (00_05 period == early). report11 §6.4")
+    rr.add("pet_warming_late_mean_mm", pet_resp["PET_late_mm"], unit="mm",
+           era=f"{pet_resp['late_first']}-{pet_resp['late_last']}",
+           note=f"mean annual Thornthwaite PET over the last {PET_RESPONSE_PERIOD_YEARS} complete years (00_05 period == late). report11 §6.4")
+    _fsc = full_record_season_context(climate_full)
+    for _k, _what in (("summer_pet", "total Jun-Sep (JJAS) PET"), ("summer_rain", "total Jun-Sep (JJAS) rainfall")):
+        _r = _fsc[_k]
+        rr.add(f"trend_{_k}_full_record", _r["slope"], unit="mm/yr", era=_r["era"],
+               note=f"OLS trend in {_what} on year, complete seasons of the full record, n={_r['n']}")
+        rr.add(f"trend_{_k}_full_record_p", _r["p"], unit="", era=_r["era"],
+               note=f"two-sided p of trend_{_k}_full_record. report10 §5.7.5")
+    _wt = _fsc["winter"]
+    rr.add("wettest_winter_rain", _wt["wettest_mm"], unit="mm", era=_wt["wettest_label"],
+           note=f"highest Oct-Mar rainfall total over the {_wt['n']} complete winters of the full record "
+                f"({_wt['era']}); the era field is the winter. report10 §5.8.1")
+    rr.add("mean_winter_rain_full_record", _wt["mean_mm"], unit="mm", era=_wt["era"],
+           note=f"mean Oct-Mar rainfall total over the same {_wt['n']} complete winters")
+    rr.add("wettest_winter_rain_ratio", _wt["ratio"], unit="", era=_wt["wettest_label"],
+           note="wettest_winter_rain / mean_winter_rain_full_record. report10 §5.8.1")
     n_saved = rr.save(OUT_00_REPORT_NUMBERS)
     print(f"  Saved → {os.path.basename(OUT_00_REPORT_NUMBERS)} ({n_saved} report numbers)")
 
@@ -1559,6 +1616,44 @@ def series_variability(climate, year_first: int = 2007,
         out[key] = {"mean": mu, "sd": sd,
                     "cv_pct": 100.0 * sd / mu if mu else float("nan"),
                     "n": int(len(ser))}
+    return out
+
+
+def full_record_season_context(climate_full) -> dict:
+    """Full-record season totals the report quotes (1.16.0, T-96).
+
+    Seasons as everywhere else in this script: summer = Jun-Sep (JJAS), winter =
+    Oct-Mar keyed to the year its October falls in; complete seasons only, over
+    the whole station record (no window is chosen here — the record's own ends
+    set it).
+
+    Returns the OLS trend p-values of total summer PET and total summer rainfall
+    (report10 §5.7.5 "no significant trends, p > 0.5"), and the wettest winter
+    with its ratio to the mean winter (report10 §5.8.1 "745 mm ... 1.51x the
+    climatological mean").
+    """
+    import numpy as np
+    d = climate_full.copy()
+    d["P"] = d["P_m"] * 1000.0
+    d["PET_mm"] = d["PET"] * 1000.0
+    d["yr"] = d.index.year
+    d["wyr"] = np.where(d.index.month >= 10, d.index.year, d.index.year - 1)
+    out = {}
+    smr = d[d.index.month.isin([6, 7, 8, 9])]
+    for key, col in (("summer_pet", "PET_mm"), ("summer_rain", "P")):
+        g = smr.groupby("yr")[col].agg(["sum", "count"])
+        g = g[g["count"] == 4]["sum"]
+        lr = linregress(g.index.values.astype(float), g.values.astype(float))
+        out[key] = {"slope": float(lr.slope), "p": float(lr.pvalue), "n": int(len(g)),
+                    "era": f"{int(g.index.min())}-{int(g.index.max())}"}
+    w = d[d.index.month.isin([10, 11, 12, 1, 2, 3])].groupby("wyr")["P"].agg(["sum", "count"])
+    w = w[w["count"] == 6]["sum"]
+    wy = int(w.idxmax())
+    def _wl(y):
+        return f"{int(y)}/{(int(y) + 1) % 100:02d}"
+    out["winter"] = {"wettest_mm": float(w.max()), "wettest_label": _wl(wy),
+                     "mean_mm": float(w.mean()), "ratio": float(w.max() / w.mean()),
+                     "n": int(len(w)), "era": f"winters {_wl(w.index.min())} to {_wl(w.index.max())}"}
     return out
 
 

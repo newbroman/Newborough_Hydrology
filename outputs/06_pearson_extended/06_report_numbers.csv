@@ -1,3 +1,10 @@
 Parameter,Well,Era,Value,Unit,Note
 lis1_r_C4,LIS1,,0.9734529216806803,,"Pearson r of LIS1 (Extended network) against the C4 (Main Forest) reference-well centroid template, unrounded"
 fe1_r_C4,FE1,,0.9892487774027419,,"Pearson r of FE1 (Extended network) against the C4 (Main Forest) reference-well centroid template, unrounded"
+n_ref_core,,,19.0,wells,"reference wells classed Core (best match = assigned cluster, dr >= 0.05), of n=66"
+n_ref_fuzzy,,,41.0,wells,"reference wells classed Fuzzy (best match = assigned cluster, dr < 0.05), of n=66"
+n_ref_spy,,,6.0,wells,"reference wells classed Spy (best match differs from assigned cluster), of n=66"
+n_ext_core,,,3.0,wells,"extended wells classed Ext_Core (dr >= 0.05), of n=22"
+n_ext_fuzzy,,,19.0,wells,"extended wells classed Ext_Fuzzy (dr < 0.05), of n=22"
+n_ref_confirmed,,,60.0,wells,"reference wells whose best-match cluster is their assigned cluster (Core + Fuzzy), of n=66"
+n_ref_mca_flagged,,,44.0,wells,"reference wells with r > 0.9 to three or more cluster centroids (MCA_Flag), of n=66"

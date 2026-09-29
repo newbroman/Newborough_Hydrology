@@ -45,7 +45,12 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal κ and β coefficients per cluster
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-09-28. T-91: emit the per-cluster
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. T-96: emits
+#   depth_dependent_pet_efold_depth per cluster, the 1/e decay depth 1/κ of the
+#   best-fit κ (report9 §4.4, "a 1/e decay depth of 0.43 m at C1"). Additive; no
+#   existing output changes.
+#
+# 1.5.0  # Hollingham (2026) — 2026-09-28. T-91: emit the per-cluster
 #   best-fit κ (Best_Kappa, unrounded, from the in-memory best_params dict)
 #   to a new 15_report_numbers.csv, so the Methods Supplement's exp(-2.30·0.5)
 #   worked example binds to a committed value. No output value changes.
@@ -715,6 +720,14 @@ def main():
                note="Best-fit PET depth-attenuation coefficient κ "
                     "(grid-search argmax NSE_iterative), unrounded; "
                     "15_04_best_params.csv Best_Kappa")
+    # T-96: the 1/e decay depth 1/κ (report9 §4.4 quotes it for C1). Not
+    # defined for κ = 0 (no attenuation), so no row is written then.
+    for cid, bp in best_params.items():
+        if pd.notna(bp["best_kappa"]) and bp["best_kappa"] > 0:
+            rn.add("depth_dependent_pet_efold_depth", 1.0 / bp["best_kappa"],
+                   unit="m", well=f"C{cid}",
+                   note="1/e decay depth of the PET depth attenuation, 1/κ from the "
+                        "best-fit κ (depth_dependent_pet_best_kappa), unrounded")
     rn.save(OUT_15_REPORT_NUMBERS)
     saved(f"{OUT_15_REPORT_NUMBERS.name}")
 

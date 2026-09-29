@@ -43,7 +43,11 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.5.1"  # Hollingham (2026) — 2026-09-28. Wells-only R² map: markers larger (s 110 ->
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. T-96: emits
+#   C4_beta2_beta3_corr_excl_ceh13_ceh14, the C4 per-well β₂-β₃ correlation with
+#   CEH13 and CEH14 both removed (report9 §4.2.2, the third of the sentence's three
+#   correlations). Additive; no existing output changes.
+# 1.5.1  # Hollingham (2026) — 2026-09-28. Wells-only R² map: markers larger (s 110 ->
 #   200) and the hillshade faded to alpha 0.45 (Martin: "the markers aren't clear"). Display only.
 # 1.5.0  # Hollingham (2026) — 2026-09-28. The R² map (07_coeff_04) draws the wells
 #   alone, filled by R² and shaped by cluster, with no surface or contours: R² has no spatial
@@ -738,6 +742,15 @@ if __name__ == "__main__":
                 float(_c4_excl14["beta_2_atmospheric_draw"].corr(_c4_excl14["beta_3_drainage"])),
                 unit="", note=f"Pearson r, β₂ vs β₃ across C4 wells with CEH14 removed, "
                               f"n={int(len(_c4_excl14))}")
+    # T-96: the same correlation with CEH13 and CEH14 both removed (report9
+    # §4.2.2 quotes all three in one sentence).
+    _c4_excl13_14 = _c4_excl14[_c4_excl14["Name_Original"].astype(str).str.lower()
+                               .str.replace(" ", "") != "ceh13"]
+    if len(_c4_excl13_14) > 2:
+        rpt.add("C4_beta2_beta3_corr_excl_ceh13_ceh14",
+                float(_c4_excl13_14["beta_2_atmospheric_draw"].corr(_c4_excl13_14["beta_3_drainage"])),
+                unit="", note=f"Pearson r, β₂ vs β₃ across C4 wells with CEH13 and CEH14 removed, "
+                              f"n={int(len(_c4_excl13_14))}")
     # T-91: highest positive β₃ among C4 wells, excluding CEH14's negative
     # estimate (report9 §4.9.2, "no well above X% per month" in the forest
     # interior).

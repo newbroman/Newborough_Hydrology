@@ -1,0 +1,6 @@
+Parameter,Well,Era,Value,Unit,Note
+c4_mean_amplification_excl_msl5_excluded,,,1.5590707256644836,,"mean canonical amplification over the unflagged C4 (Main Forest) wells without the MSL5_EXCLUDED_WELLS (CEH13, CEH14), n=8"
+c4_mean_amplification_excl_msl5_excluded_n,,,8.0,wells,wells behind c4_mean_amplification_excl_msl5_excluded
+amp_vs_beta2_r,,,0.7953846146354488,,"Pearson r of canonical amplification (all wells, flagged included) against beta_2_atmospheric_draw of 03_master_data.csv, joined on well, n=66"
+amp_vs_beta2_p,,,1.4993345074671146e-15,,"two-sided p of amp_vs_beta2_r, n=66"
+amp_vs_beta2_n,,,66.0,wells,wells behind amp_vs_beta2_r

@@ -23,6 +23,7 @@ surplus_mean_modern_m_yr,,,0.2366795709388707,m/yr,mean annual P - PET 2005-03 t
 ccw_annual_range_mean_m,,,0.7245098039215687,m,"per-well calendar-year range 1989-1995, well-years with >= 10 readings"
 ccw_annual_range_sd_m,,,0.25528269604883286,m,as above
 ccw_annual_range_n,,,51.0,well-years,as above
+ccw_annual_range_vs_davy_2010_diff_m,,,0.025490196078431282,m,"CCW_ANNUAL_RANGE_DAVY_2010_M (0.75 m, Davy et al. 2010; SD 0.27 m) minus ccw_annual_range_mean_m"
 epoch_midpoint_gap_yr,,,22.833675564681723,yr,years between the two records' midpoints
 epoch_rate_if_linear_mm_yr,,,15.180593834099719,mm/yr,"NOT a rate: the open-ground median shift divided by the midpoint gap, quoted in the text only to be disclaimed"
 open_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,0.14732549379510737,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.00 (fitted value at scale 1.00)"

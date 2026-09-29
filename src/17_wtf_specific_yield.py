@@ -30,7 +30,14 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-19. Event-selection funnel
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+#   17_report_numbers.csv (paths.OUT_17_REPORT_NUMBERS), from the uncorrected rows of the
+#   17_wtf_01_sy_estimates.csv frame export_csv() builds: per cluster (Well = cluster label)
+#   sy_event_clip_shift (unclipped minus clipped event median), sy_ols_to_event_ratio (Sy_OLS_winter /
+#   Sy_event_median) and sy_estimator_range (max - min of the event, OLS-winter and rapid-event medians);
+#   plus sy_ols_to_event_ratio_mean and sy_ols_to_event_ratio_n_above_1 over the clusters (report9
+#   SS4.2.4). export_csv() now returns the frame it writes. Additive; no existing output changes.
+# 1.6.0  # Hollingham (2026) — 2026-09-19. Event-selection funnel
 #   and censoring disclosure. approach_b_events() now records the attrition at
 #   each selection stage (months -> net R > 10 mm -> Δh > 5 mm -> 0.01 < Sy <
 #   0.50) and the UNCLIPPED event median, emitted as seven new columns on
@@ -97,8 +104,9 @@ from utils.config import (
 from utils.paths import (
     make_all_dirs, OUT_DIR, DIR_17, INT_MASTER_DATA, OUT_17_SY_TABLE,
     OUT_17_REGRESSION, OUT_17_BOXPLOT, OUT_17_SUMMARY, OUT_17_RAPID_EVENTS,
-    OUT_17_INTERCEPTION_SWEEP,
+    OUT_17_INTERCEPTION_SWEEP, OUT_17_REPORT_NUMBERS,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.render_utils import render_figure
 make_all_dirs()
 
@@ -836,8 +844,39 @@ def export_csv(a_results, b_results, c_results, out_path):
             "Sy_event_pct_censored":     b.get("pct_censored", np.nan),
             "Sy_event_median_unclipped": b.get("sy_median_unclipped", np.nan),
         })
-    pd.DataFrame(rows).to_csv(out_path, index=False)
+    table = pd.DataFrame(rows)
+    table.to_csv(out_path, index=False)
     print(f"CSV saved → {out_path.name}")
+    return table
+
+
+def write_report_numbers(table, out_path):
+    """T-96: the estimator comparisons report9 SS4.2.4 quotes, one row per
+    cluster from the uncorrected rows of the Sy table (the rapid-event
+    estimator is interception-corrected internally at C4/C5, as in Table 8).
+    Stored unrounded (D-035)."""
+    rpt = ReportNumbers()
+    base = table[~table["Corrected"].astype(bool)]
+    est_cols = ["Sy_event_median", "Sy_OLS_winter", "Sy_rapid_median"]
+    ratios = base["Sy_OLS_winter"] / base["Sy_event_median"]
+    for (_, r), ratio in zip(base.iterrows(), ratios):
+        lab = r["Cluster"]
+        rpt.add("sy_event_clip_shift", float(r["Sy_event_median_unclipped"] - r["Sy_event_median"]),
+                unit="", well=lab,
+                note="Sy_event_median_unclipped minus Sy_event_median: the shift of the event median "
+                     "when the plausibility ceiling is lifted (uncorrected run)")
+        rpt.add("sy_ols_to_event_ratio", float(ratio), unit="", well=lab,
+                note="Sy_OLS_winter / Sy_event_median (uncorrected run)")
+        vals = r[est_cols].astype(float)
+        rpt.add("sy_estimator_range", float(vals.max() - vals.min()), unit="", well=lab,
+                note="max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median "
+                     "(uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)")
+    rpt.add("sy_ols_to_event_ratio_mean", float(ratios.mean()), unit="",
+            note=f"mean of sy_ols_to_event_ratio over the n={len(ratios)} clusters (uncorrected run)")
+    rpt.add("sy_ols_to_event_ratio_n_above_1", int((ratios > 1).sum()), unit="clusters",
+            note=f"clusters whose Sy_OLS_winter exceeds Sy_event_median, of n={len(ratios)}")
+    n_saved = rpt.save(out_path)
+    saved(f"{out_path.name} ({n_saved} rows)")
 
 
 def write_summary(a_results, b_results, c_results, out_path):
@@ -1014,7 +1053,8 @@ def main():
     plot_rapid_events(c_results, path_rapid)
 
     print("\nExporting outputs...")
-    export_csv(a_results, b_results, c_results, path_table)
+    sy_table = export_csv(a_results, b_results, c_results, path_table)
+    write_report_numbers(sy_table, OUT_17_REPORT_NUMBERS)
     sweep.to_csv(OUT_17_INTERCEPTION_SWEEP, index=False)   # full precision (D-035)
     saved(OUT_17_INTERCEPTION_SWEEP)
     write_summary(a_results, b_results, c_results, path_summary)

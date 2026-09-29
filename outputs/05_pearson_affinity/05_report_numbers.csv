@@ -1,0 +1,5 @@
+Parameter,Well,Era,Value,Unit,Note
+mca_label_n,C1/C2/C3,,22.0,wells,"reference wells whose three strongest centroid correlations above PEARSON_MCA_THRESH are to C1/C2/C3 (MCA_Cluster_Label), of n=66"
+mca_label_n,C2/C3/C4,,1.0,wells,"reference wells whose three strongest centroid correlations above PEARSON_MCA_THRESH are to C2/C3/C4 (MCA_Cluster_Label), of n=66"
+mca_label_n,C2/C3/C5,,13.0,wells,"reference wells whose three strongest centroid correlations above PEARSON_MCA_THRESH are to C2/C3/C5 (MCA_Cluster_Label), of n=66"
+mca_label_n,C3/C4/C5,,8.0,wells,"reference wells whose three strongest centroid correlations above PEARSON_MCA_THRESH are to C3/C4/C5 (MCA_Cluster_Label), of n=66"

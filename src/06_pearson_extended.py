@@ -9,7 +9,12 @@ Purpose:
     all remaining wells.
 ====================================================================================
 """
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-29. T-96: emits the
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): emits
+#   n_ref_reclassified_at_delta, one row per threshold in config.PEARSON_DELTA_SENS (Era = the
+#   threshold) - the reference wells (best match = assigned cluster) whose Core/Fuzzy tier differs
+#   between that threshold and PEARSON_DELTA_THRESH, from the unrounded margins (report8 SS3.3.2,
+#   "16 wells at 0.03, 14 at 0.10"). Additive; no existing output changes.
+# 1.4.0  Hollingham (2026) - 2026-09-29. T-96: emits the
 #   membership-tier counts from audit_df's Status and MCA_Flag columns -
 #   n_ref_core, n_ref_fuzzy, n_ref_spy, n_ref_confirmed (core + fuzzy),
 #   n_ref_mca_flagged (report9 §4.3, reference network) and n_ext_core,
@@ -76,7 +81,7 @@ from utils.paths import (
     OUT_06_REPORT_NUMBERS,
 )
 from utils.config import (
-    PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH,
+    PEARSON_DELTA_THRESH, PEARSON_MCA_THRESH, PEARSON_DELTA_SENS,
     CLUSTER_COLOURS, CLUSTER_COLOURS_BW, CLUSTER_LABELS, BW_MODE,
     LABEL_ADJUST_ITER_LIM,
 )
@@ -333,6 +338,20 @@ def main():
     rpt.add("n_ref_mca_flagged", int(_ref["MCA_Flag"].astype(bool).sum()), unit="wells",
             note=f"reference wells with r > {MCA_THRESH:g} to three or more cluster centroids "
                  f"(MCA_Flag), of n={_n_ref}")
+    # T-96 (batch 2): the Core/Fuzzy threshold sensitivity (report8 SS3.3.2). A
+    # reference well that is not a Spy changes tier at threshold d when its
+    # margin falls on different sides of d and of DELTA_THRESH. Margins from
+    # the unrounded correlations, not the 4 dp Delta column.
+    def _margin(_w):
+        _v = sorted((v for v in _unrounded_corrs[_w].values() if pd.notna(v)), reverse=True)
+        return _v[0] - _v[1] if len(_v) > 1 else np.nan
+    _conf = _ref[_ref["Status"].isin(["Ref_Core", "Ref_Fuzzy"])]
+    _margins = pd.Series({_w: _margin(_w) for _w in _conf["Well_Normalised"]}, dtype=float)
+    for _d in PEARSON_DELTA_SENS:
+        _n_moved = int(((_margins >= _d) != (_margins >= DELTA_THRESH)).sum())
+        rpt.add("n_ref_reclassified_at_delta", _n_moved, unit="wells", era=f"{_d:g}",
+                note=(f"reference wells (best match = assigned cluster) whose Core/Fuzzy tier changes "
+                      f"when the dr threshold moves from {DELTA_THRESH:g} to {_d:g}, of n={len(_margins)}"))
     n_saved = rpt.save(OUT_06_REPORT_NUMBERS)
     step(f"Exported {n_saved} report numbers to {OUT_06_REPORT_NUMBERS.name}")
 

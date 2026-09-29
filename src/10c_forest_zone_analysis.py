@@ -45,7 +45,12 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-08-27. The two CSVs move from
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+#     10c_report_numbers.csv (paths.OUT_10C_REPORT, in DIR_10 so run_10's consolidation sweeps it):
+#     forest_zone_n_wells (C4 + C5), R2_easting_only for beta_1 (Pearson r of beta_1 on easting over the
+#     forest wells, squared, unrounded) and nw10_beta1_z_vs_c4 (NW10's beta_1 against the C4 mean, in C4
+#     sample SDs, ddof=1) - report9 SS4.4 quotes all three. Additive; no existing output changes.
+# 1.2.0  # Hollingham (2026) — 2026-08-27. The two CSVs move from
 #     the outputs/ root into outputs/10c_forest_zone_analysis/, and their path
 #     constants go INT_ -> OUT_. Nothing outside this script has ever read
 #     either, so the INT_ prefix — which paths.py defines as "read by a
@@ -87,7 +92,9 @@ from utils.paths import (
     make_all_dirs, DATA_DIR, OUT_07_MAPS_DATA, INT_PEAR_AUDIT_SITEWIDE,
     OUT_10C_CORRELATION_TABLE, OUT_10C_CLUSTER_SUMMARY, OUT_10C_B1_B2_SCATTER,
     OUT_10C_B2_ELEV_REGRESSION, OUT_10C_BOUNDARY_MAP, OUT_10C_SUMMARY,
+    OUT_10C_REPORT,
 )
+from utils.report_numbers_utils import ReportNumbers
 from utils.map_utils import load_dem_hillshade, add_kml_features
 from utils.config import (
     CLUSTER_COLOURS, CLUSTER_LABELS, CLUSTER_MARKERS,
@@ -99,6 +106,29 @@ from utils.console_utils import (
     hr, skipped,
 )
 from utils.render_utils import render_figure
+
+
+def write_report_numbers(forest, c4):
+    """T-96: the forest-zone quantities report9 SS4.4 quotes, stored unrounded (D-035)."""
+    rpt = ReportNumbers()
+    _n4 = int((forest["Cluster_ID"] == 4).sum())
+    _n5 = int((forest["Cluster_ID"] == 5).sum())
+    rpt.add("forest_zone_n_wells", int(len(forest)), unit="wells",
+            note=f"wells in the forest-zone comparison (Cluster_ID in FOREST_CIDS: C4 {_n4} + C5 {_n5})")
+    _r, _ = scipy_stats.pearsonr(forest["E"], forest["beta_1_recharge"])
+    rpt.add("R2_easting_only", float(_r) ** 2, unit="", well="beta_1_recharge",
+            note=(f"R2 of beta_1 on easting alone over the forest-zone wells (Pearson r squared, "
+                  f"r = {_r:.4f}), n={len(forest)}"))
+    _b1 = c4.set_index("name_norm")["beta_1_recharge"]
+    if "nw10" in _b1.index:
+        rpt.add("nw10_beta1_z_vs_c4", float((_b1["nw10"] - _b1.mean()) / _b1.std(ddof=1)), unit="SD",
+                well="NW10",
+                note=(f"NW10 beta_1 minus the C4 mean, in C4 sample standard deviations (ddof=1), "
+                      f"over the n={len(_b1)} C4 wells including NW10"))
+    else:
+        warn("NW10 not in C4 - nw10_beta1_z_vs_c4 not emitted")
+    n_saved = rpt.save(OUT_10C_REPORT)
+    saved(f"{OUT_10C_REPORT.name} ({n_saved} rows)")
 
 # ── Constants ────────────────────────────────────────────────────────────────
 # Ridge crest reference point (OSGB36) — shared with Scripts 23, 24
@@ -562,6 +592,8 @@ def main():
     combined = pd.concat([corr_df, pd.DataFrame([{}]), reg_df], ignore_index=True)
     combined.to_csv(OUT_10C_CORRELATION_TABLE, index=False)
     print(f"  [saved] {OUT_10C_CORRELATION_TABLE.name}")
+
+    write_report_numbers(forest, c4)
 
     # Q2/Q4: Cluster summary
     summary_df = compute_cluster_summary(c4, c5)

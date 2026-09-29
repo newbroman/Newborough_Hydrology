@@ -82,8 +82,16 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_idw_surfac
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr, track
 from utils.pipeline_params import get_cluster_ids
 from utils.render_utils import render_figure
+from utils.report_numbers_utils import ReportNumbers
+from scipy import stats as scipy_stats
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-23. Progress reporting
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+#   33_report_numbers.csv (paths.OUT_33_REPORT_NUMBERS), from the canonical panel: for each cluster
+#   holding a config.MSL5_EXCLUDED_WELLS well, c<id>_mean_amplification_excl_msl5_excluded (+ _n), the
+#   unflagged cluster mean without those wells (report9 SS4.12 / report10: C4 without CEH13/CEH14); and
+#   amp_vs_beta2_r / _p / _n, Pearson of amplification against beta_2_atmospheric_draw from
+#   03_master_data.csv joined on well (report10). Additive; no existing output changes.
+# 1.6.0  # Hollingham (2026) — 2026-09-23. Progress reporting
 #   (T-76): the canonical and recent figure-builder pairs (fig_amplification +
 #   fig_dry_spring_depth) each turned into a tracked list (console_utils.track,
 #   lines=True — each builder already prints via saved()), the Script 20
@@ -426,6 +434,34 @@ def _cluster_report(df):
     return by
 
 
+def write_report_numbers(df, master):
+    """T-96: canonical-panel quantities the report quotes with no other committed
+    source. Stored unrounded (D-035)."""
+    rpt = ReportNumbers()
+    excl = {str(k).lower().strip() for k in config.MSL5_EXCLUDED_WELLS}
+    unflagged = df[~df["flagged"].fillna(False).astype(bool)]
+    excl_cids = sorted(int(c) for c in unflagged.loc[unflagged["key"].isin(excl), "Cluster"].dropna().unique())
+    for cid in excl_cids:
+        g = unflagged[(unflagged["Cluster"] == cid) & ~unflagged["key"].isin(excl)]
+        dropped = sorted(unflagged.loc[(unflagged["Cluster"] == cid) & unflagged["key"].isin(excl), "key"])
+        lab = config.CLUSTER_LABELS.get(cid, f"C{cid}")
+        rpt.add(f"c{cid}_mean_amplification_excl_msl5_excluded", float(g["amplification"].mean()),
+                unit="",
+                note=(f"mean canonical amplification over the unflagged {lab} wells without the "
+                      f"MSL5_EXCLUDED_WELLS ({', '.join(w.upper() for w in dropped)}), n={len(g)}"))
+        rpt.add(f"c{cid}_mean_amplification_excl_msl5_excluded_n", int(len(g)), unit="wells",
+                note=f"wells behind c{cid}_mean_amplification_excl_msl5_excluded")
+    j = df[["key", "amplification"]].merge(master[["key", "beta_2_atmospheric_draw"]], on="key", how="inner")
+    j = j.dropna(subset=["amplification", "beta_2_atmospheric_draw"])
+    r, p = scipy_stats.pearsonr(j["amplification"], j["beta_2_atmospheric_draw"])
+    _src = "canonical amplification (all wells, flagged included) against beta_2_atmospheric_draw of 03_master_data.csv, joined on well"
+    rpt.add("amp_vs_beta2_r", float(r), unit="", note=f"Pearson r of {_src}, n={len(j)}")
+    rpt.add("amp_vs_beta2_p", float(p), unit="", note=f"two-sided p of amp_vs_beta2_r, n={len(j)}")
+    rpt.add("amp_vs_beta2_n", int(len(j)), unit="wells", note="wells behind amp_vs_beta2_r")
+    n_saved = rpt.save(paths.OUT_33_REPORT_NUMBERS)
+    saved(f"{paths.OUT_33_REPORT_NUMBERS.name} ({n_saved} rows)")
+
+
 def main() -> int:
     banner(SCRIPT_ID, "Climate-swing amplification + dry-year spring depth", VERSION)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -536,6 +572,7 @@ def main() -> int:
                      "swing_mm_mean": float(u["swing_mm"].mean()),
                      "amplification_mean": float(u["amplification"].mean())})
     pd.DataFrame(summ).to_csv(OUT_CLUSTER_SUMMARY, index=False); saved(OUT_CLUSTER_SUMMARY)
+    write_report_numbers(df, master)
     OUT_TXT.write_text(
         f"CANONICAL amplification — CO-TEMPORAL coefficient over driest/wettest extremes "
         f"(dry {DRY_YEARS}, wet {WET_YEARS})\n"

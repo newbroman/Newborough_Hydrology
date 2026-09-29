@@ -38,7 +38,11 @@ index are in outputs/pipeline_manifest.json.
 
 from __future__ import annotations
 
-__version__ = "1.5.1"  # Hollingham (2026) - 2026-09-28. Text only: the m_P < 1.5 criterion is now §7 Conclusion 6 (was 4).
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+#   11c_report_numbers.csv (paths.OUT_11C_REPORT_NUMBERS) - achievability_n and achievability_share_pct
+#   per category (Well = the category) over the wells of 11b_03 (report10 SS5.8.1: 59 / 24 / 5 of 88).
+#   The class edges LAMBDA_ACHIEVABLE_MAX / LAMBDA_MARGINAL_MAX stay local for now. Additive.
+# 1.5.1  # Hollingham (2026) - 2026-09-28. Text only: the m_P < 1.5 criterion is now §7 Conclusion 6 (was 4).
 # 1.5.0  # Hollingham (2026) — 2026-09-28. The categories are also drawn as a surface:
 #   m_P on the house linear surface (D-206), banded at 1.5 / 2.5, ridge-masked (1 m) and clipped to the
 #   site, under the well markers (Martin, proofread: "should be a surface and ridge masked"). Display only.
@@ -85,6 +89,7 @@ def main():
         SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
     )
     from utils.render_utils import render_figure
+    from utils.report_numbers_utils import ReportNumbers
 
     paths.make_all_dirs()
 
@@ -151,6 +156,19 @@ def main():
                   "lambda", "pflood_mm", "category"]].copy()
     df_out.to_csv(OUT_CSV, index=False)
     print(f"\nWrote {OUT_CSV.relative_to(REPO)}")
+
+    # Report numbers (T-96): the category counts and shares report10 SS5.8.1
+    # quotes, over every well in the 11b per-well table. Shares unrounded (D-035).
+    rpt = ReportNumbers()
+    _n_all = int(total_counts.sum())
+    for _cat, _n in total_counts.items():
+        rpt.add("achievability_n", int(_n), unit="wells", well=_cat,
+                note=f"wells in the {_cat} category ({CATEGORY_DEFS[_cat].split(' — ')[0]}), of n={_n_all}")
+    for _cat, _n in total_counts.items():
+        rpt.add("achievability_share_pct", 100.0 * float(_n) / _n_all, unit="%", well=_cat,
+                note=f"share of the n={_n_all} wells in the {_cat} category")
+    _n_saved = rpt.save(paths.OUT_11C_REPORT_NUMBERS)
+    saved(f"{paths.OUT_11C_REPORT_NUMBERS.name} ({_n_saved} rows)")
 
 
     # ── Figure ────────────────────────────────────────────────────────────────

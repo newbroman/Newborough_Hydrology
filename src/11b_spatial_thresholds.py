@@ -75,7 +75,12 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-28. Proofread (Martin): the recovery
+__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): emits
+#   pflood_deficit_persistence per cluster (Well = cluster, Era = the recharge horizon) = alpha^n, the
+#   share of the starting summer deficit that survives the cluster's P_flood horizon, from the alpha and
+#   horizon_months columns of 11_forecast_pflood_threshold_equations.csv already read for Table 10
+#   (report8 SS3.6.3: "roughly 77% of the September deficit persists to January" for C2). Additive.
+# 1.16.0  # Hollingham (2026) - 2026-09-28. Proofread (Martin): the recovery
 #   limits SD15b_REC / SD16_REC are a planning assumption of about 0.14 / 0.22 m of scraping
 #   BENEFIT, not excavation limits or depths: the summer-minimum map's colour bar, legend and
 #   stats box say "recovery limit" and "planning assumption", and the stats box reads the
@@ -1535,6 +1540,17 @@ def export_table10_spreadsheet() -> None:
                     "P_flood recharge horizon (Table 10 Sum_P_clim_mm, "
                     "unrounded); source outputs/11_forecast_pflood_threshold_"
                     "equations.csv (P_clim_total_mm)")
+    # T-96 (batch 2): the deficit persistence alpha^n (report8 SS3.6.3), from
+    # the same threshold-equations rows, unrounded.
+    for _, r in full.iterrows():
+        peak_abbrev = MONTH_ABBREV[int(r["peak_month"]) - 1]
+        _n = int(r["horizon_months"])
+        rn.add("pflood_deficit_persistence", float(r["alpha"]) ** _n, unit="",
+               well=str(r["Cluster"]),
+               era=f"Oct-{peak_abbrev} ({_n} mo)",
+               note=f"alpha^n: share of the starting deficit h_0 surviving the {_n}-month "
+                    "P_flood recharge horizon (alpha = 1 - beta_3); source "
+                    "outputs/11_forecast_pflood_threshold_equations.csv (alpha, horizon_months)")
     for _r in _ZONE_REPORT:
         rn.add(_r["parameter"], _r["value"], unit=_r["unit"], well=_r["well"],
                era=_r["era"], note=_r["note"])

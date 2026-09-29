@@ -246,6 +246,9 @@ Fell_centroid_distance_min,NW7,Climate control,214.83864659088215,m,"minimum acr
 Fell_centroid_distance_max,WMC2,Climate control,1009.9720198782557,m,"maximum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)",10a
 Scraping_to_clearfell_months,,,32.0,months,SCRAPING_DATE (2015-04) to CLEARFELL_DATE (2017-12),10a
 Easting_vs_dist_coast_r,,primary design panel,0.0220595557926444,r,"Pearson r, well easting vs distance to coast, n=15 wells (Impact + Edge + Forest control + Climate control: WMC3, CEH31, CEH20, CEH30, CEH16, CEH32, CEH34, CEH33, NW10, CEH2, CEH9, NW7, NW6, NW5, WMC2)",10a
+forest_zone_n_wells,,,14.0,wells,wells in the forest-zone comparison (Cluster_ID in FOREST_CIDS: C4 9 + C5 5),10c
+R2_easting_only,beta_1_recharge,,0.3088261871031551,,"R2 of beta_1 on easting alone over the forest-zone wells (Pearson r squared, r = 0.5557), n=14",10c
+nw10_beta1_z_vs_c4,NW10,,2.4123675855213977,SD,"NW10 beta_1 minus the C4 mean, in C4 sample standard deviations (ddof=1), over the n=9 C4 wells including NW10",10c
 SummerMin_WMC3_era_mean,WMC3,Post_felling,-1.6,m,"era-mean Summer_min_m, n_years=7",10d
 SummerMin_WMC3_era_mean,WMC3,Pre_scraping,-1.5733333333333333,m,"era-mean Summer_min_m, n_years=3",10d
 SummerMin_WMC3_era_mean,WMC3,Scraping_era,-1.62,m,"era-mean Summer_min_m, n_years=3",10d

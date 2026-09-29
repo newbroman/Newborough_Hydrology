@@ -47,7 +47,12 @@ Reading order for anyone picking this up
 """
 from __future__ import annotations
 
-__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-28. T-91, per the signed-off spec
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: 40_report_numbers.csv gains
+#   shoreline_1899_georef_rmse_rate_m_per_yr = config.SHORELINE_1899_GEOREF_RMSE_M / the `years` of the
+#   1899->2006 pair_extent interval (the value written to that row of 40_01_epoch_series.csv) - the
+#   georeferencing error of the 1899 line expressed as a rate over that span (report8 SS3.7.4 "about
+#   0.06 m/yr"). Additive; no existing output changes.
+# 1.7.1  # Hollingham (2026) — 2026-09-28. T-91, per the signed-off spec
 #   NRG_spec_T91_emits_2026-09-28: 40_report_numbers.csv now also carries the
 #   modern_common_frontage 2006-2026 rate as a free-standing
 #   `headline_retreat_rate_2006_2026_m_yr` row — the same headline the Methods
@@ -1273,6 +1278,20 @@ def main():
             "Note": "modern_common_frontage basis (40_01_epoch_series.csv); "
                     "emitted because the floor, control and generalisation "
                     "gate tests pass; NaN if withheld",
+        }])], ignore_index=True)
+
+    # T-96 batch 2: the 1899 georeferencing RMSE as a rate over the 1899->2006
+    # pair_extent span (the `years` that row of 40_01 carries).
+    _m1899 = measured.get(("1899", "2006"))
+    if _m1899 is not None:
+        rn_df = pd.concat([rn_df, pd.DataFrame([{
+            "Parameter": "shoreline_1899_georef_rmse_rate_m_per_yr",
+            "Well": "", "Era": "1899-2006",
+            "Value": config.SHORELINE_1899_GEOREF_RMSE_M / _m1899["years"],
+            "Unit": "m/yr",
+            "Note": f"SHORELINE_1899_GEOREF_RMSE_M ({config.SHORELINE_1899_GEOREF_RMSE_M:g} m, "
+                    f"data/geo/GEO_PROVENANCE.md) / years of the 1899->2006 pair_extent row "
+                    f"of 40_01_epoch_series.csv ({_m1899['years']:.3f} yr)",
         }])], ignore_index=True)
 
     phase(8, "Writing outputs")

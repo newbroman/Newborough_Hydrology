@@ -8,7 +8,11 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-09. Core/Fuzzy boundary
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+#   05_report_numbers.csv (paths.OUT_05_REPORT_NUMBERS) - mca_label_n, one row per MCA_Cluster_Label
+#   with the label in the Well cell (report9 SS4.3 quotes the label counts). The Core/Fuzzy/Spy counts are
+#   NOT emitted here: Script 06 already carries them as n_ref_core/n_ref_fuzzy/n_ref_spy. No other output moves.
+# 1.5.0  # Hollingham (2026) - 2026-09-09. Core/Fuzzy boundary
 #   repaired and the thresholds de-duplicated. The Core test was `delta > 0.05`
 #   here and `delta >= 0.05` in Script 06, so a well sitting exactly on the
 #   margin was Fuzzy in one script and Core in the other; report8 SS3.3.2
@@ -52,7 +56,8 @@ from utils.data_utils import normalize_well_name
 from utils.map_utils import load_dem_layer, add_kml_features, add_osm_basemap, add_en_axes
 from utils.paths import (make_all_dirs, DATA_DIR,
     INT_WELLS_CLEAN, INT_CLUSTER_STATS, INT_LOCATIONS, INT_PEAR_AUDIT,
-    OUT_05_AFFINITY_CHART, OUT_05_CONFIDENCE_MAP)
+    OUT_05_AFFINITY_CHART, OUT_05_CONFIDENCE_MAP, OUT_05_REPORT_NUMBERS)
+from utils.report_numbers_utils import ReportNumbers
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
@@ -163,6 +168,19 @@ def main():
         return "/".join([f"C{cl}" for cl in sorted([c for c,_ in sorted(pairs,key=lambda x:x[1],reverse=True)[:3]])])
     audit_df["MCA_Cluster_Label"] = audit_df.apply(mca_label, axis=1)
     audit_df.to_csv(INT_PEAR_AUDIT, index=False)
+
+    # Report numbers (T-96): the count of reference wells carrying each MCA
+    # cluster label (report9 SS4.3). One row per label, the label in the Well cell.
+    rpt = ReportNumbers()
+    _labelled = audit_df.loc[audit_df["MCA_Cluster_Label"].astype(str).str.strip() != "",
+                             "MCA_Cluster_Label"]
+    _n_audit = len(audit_df)
+    for _lab, _n in _labelled.value_counts().sort_index().items():
+        rpt.add("mca_label_n", int(_n), unit="wells", well=_lab,
+                note=(f"reference wells whose three strongest centroid correlations above "
+                      f"PEARSON_MCA_THRESH are to {_lab} (MCA_Cluster_Label), of n={_n_audit}"))
+    n_saved = rpt.save(OUT_05_REPORT_NUMBERS)
+    saved(f"{OUT_05_REPORT_NUMBERS.name} ({n_saved} rows)")
 
     # Affinity bar chart
     # CEH5 (C1 anchor) replaces CEH8 in the preferred list — CEH8 is in the

@@ -78,7 +78,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-09-29. Four fixes from Martin's first queue off
+__version__ = "1.25.0"  # Hollingham (2026) — 2026-09-29. A stale BOUND ("p < 0.001 … CONTRADICTS
+#   the bound") is checked against the row of the nearest number, and a clause quoting three
+#   correlations has three rows; a reading-pass deny whose better source names the right p key
+#   now re-checks the bound there and paints it traced when it holds (stale, red, when it does not).
+# 1.24.0  # Hollingham (2026) — 2026-09-29. Four fixes from Martin's first queue off
 #   the refreshed page ("a lot of the attributions have silly errors"): (1) the queue's context line
 #   is taken at the flagged span's own position, not the first occurrence of its digits in the
 #   paragraph — "22" showed CEH22 for the "22 in the extended network", "2" showed "p.28" for
@@ -2913,6 +2917,29 @@ def reading_verdicts() -> dict:
 _BETTER = re.compile(r"^\s*(.+?)\s*(?:=|~|≈|about)\s*([-+−]?\d[\d.,]*(?:e-?\d+)?)\s*[a-z%°/⁻¹²]*\s*\[([^\]]+)\]")
 
 
+_BOUND_DETAIL = re.compile(r"^(p|n|r|r²|k)\s*([<≤>≥])\s*([-+−]?\d[\d.]*(?:e-?\d+)?):")
+
+
+def _bound_holds(detail: str, better: str):
+    """A stale BOUND mark ("p < 0.001: the row its neighbours cite … CONTRADICTS") against
+    the reader's better source: (holds, value) when `better` carries a readable value
+    ("C3_beta1_vs_inland_p = 5.078e-05 [29_report_numbers.csv]"), else None. The matcher
+    checks a bound against the row of the NEAREST number, and a clause with three
+    correlations quotes three rows; the reader says which the bound belongs to."""
+    bm = _BOUND_DETAIL.match(detail or "")
+    vm = _BETTER.match(better or "")
+    if not bm or not vm:
+        return None
+    try:
+        b = float(bm.group(3).replace("−", "-"))
+        val = float(vm.group(2).replace("−", "-").replace(",", ""))
+    except ValueError:
+        return None
+    op = bm.group(2)
+    holds = (val < b) if op == "<" else (val <= b) if op == "≤" else (val > b) if op == ">" else (val >= b)
+    return holds, val
+
+
 def _better_cand(better: str, tok: str, look: dict):
     """The candidate a reading-pass denial names as the BETTER source, when it is
     real: "CEH36_SSM_forward_residual_step = 0.0734 [09e_report_numbers.csv]" is
@@ -3003,9 +3030,17 @@ def one(name, values, look, out_dir, a):
                     # mark admits its out-of-scope source; otherwise the reader's word stands beside
                     verdict, reason, better, read_attr = hit
                     bc = _better_cand(better, text[s:e], look) if better else None
+                    bh = _bound_holds(d, better) if (bc is None and verdict == "deny" and v == "stale") else None
                     if bc is not None:
                         v, d = "traced", (f"read: better source ✓ — {bc.label}{(' · ' + bc.col) if bc.col else ''} = {bc.value:g}"
                                           f"{(' as ' + bc.form) if bc.form else ''} [{pathlib.Path(bc.rel).name}] ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
+                    elif bh is not None:
+                        # a bound ("p < 0.001") the matcher checked against the wrong neighbour: the
+                        # reader names the row it belongs to, and the bound holds (or fails) THERE
+                        holds, bval = bh
+                        v = "traced" if holds else "stale"
+                        d = (f"read: bound {'holds' if holds else 'FAILS'} at the named source {'✓' if holds else '✗'} — {better} "
+                             f"({bval:.3g}) ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
                     elif verdict == "confirm" and v == "elsewhere":
                         v, d = "traced", "read: confirmed ✓ (source outside the section's declared list) — " + d
                     elif verdict == "deny" and v == "elsewhere" and (not read_attr or read_attr[:25] == d.split(" ‖ ")[0][:25]):

@@ -60,7 +60,14 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-29. The slides restyled for a gallery
+__version__ = "1.6.1"  # Hollingham (2026) - 2026-09-29. The "weather-driven groundwater model"
+#   slide names what each panel of the climate figure shows — (a) rain, (b) evaporation, (c) the
+#   running balance, (d) the water table — and which line of the chart is the model and which the
+#   wells (Martin: "it isn't clear what each panel represents"; wording approved). The climate
+#   figure is squeezed to MODEL_FIG_SQUEEZE of its width ("squash the fig to the left a little";
+#   _place gains squeeze_x) so the column beside it is wider, and the chart fills that column.
+#   The slide holds longer for its extra words, so the chapters after it start later.
+# v1.6.0  # Hollingham (2026) - 2026-09-29. The slides restyled for a gallery
 #   (Martin: "present it to an art gallery ... the text slides are a little plain ... I don't want
 #   it too far out as it is a scientific product"), per the signed-off spec
 #   NRG_spec_script47_v1_6_2026-09-29 — treatment B, "the museum label", chosen by eye from mock-ups:
@@ -244,6 +251,7 @@ TEXT_SIZES = (13.0, 12.5, 12.0, 11.5, 11.0, 10.5, 10.0)          # figure-slide 
 TEXT_SIZES_WIDE = (15.0, 14.0, 13.5, 13.0, 12.5, 12.0, 11.5)   # text-only slides, pt (1.6.0: 16 pt dropped, the column is measured now)
 TITLE_PT_MAX = 24.0
 TITLE_PT_TEXT = 30.0                       # 1.6.0: the text slides' larger title
+MODEL_FIG_SQUEEZE = 0.82                   # 1.6.1: the model slide's climate figure, horizontal compression
 TITLE_PT_FILM = 32.0                       # 1.6.0: the film title on the title slides, wrapped to two lines
 READOUT_X0, READOUT_X1, READOUT_Y = 0.02, 0.98, 0.945
 READOUT_PT_MAX, READOUT_GAP = 30.0, "     "
@@ -741,17 +749,19 @@ def method_slides(n: int, rng: dict, thumbs: list, stats: dict | None = None) ->
                f"{'low' if stats['bias_raw'] < 0 else 'high'}" if stats else "")
         out.append((
             "1.  A weather-driven groundwater model",
-            [f"Since 2005 the reserve's dipwells have been read every month. {f4} (left) sets them "
-             f"beside the weather. Through runs of months when more rain falls than evaporates the "
-             f"water table climbs, and through dry runs it falls: the running balance of rain minus "
-             f"evaporation (panel c) and the network's water level (panel d) move together.",
-             "From that link the study learned a simple monthly rule: the water table rises with "
-             "the month's rain, falls with its evaporation, and drains back in proportion to how "
-             "high it stands.",
-             f"The chart above is the test this film depends on. The model has run on nothing but "
-             f"RAF Valley's weather since 1930, with no well reading to correct it. Over the years "
-             f"the wells have been read it follows the warren's wet and dry years{low}: the bias "
-             f"the next slide removes."],
+            [f"{f4} (left) is the weather and the water table together, 2005–2026. (a) Rain, "
+             f"month by month, with its long-term average as the dashed line. (b) Evaporation, "
+             f"which peaks every summer. (c) The running balance of rain minus evaporation: it "
+             f"climbs through wet runs of months and falls through dry ones. (d) The water table, "
+             f"averaged over the reserve's dipwells, with the spread between wells shaded. Panels "
+             f"(c) and (d) rise and fall together: that is the link the model is built on.",
+             "From it the study learned a simple monthly rule: the water table rises with the "
+             "month's rain, falls with its evaporation, and drains back in proportion to how high "
+             "it stands.",
+             f"The chart above right is the test this film depends on. The blue line is the model, "
+             f"run on nothing but RAF Valley's weather since 1930 with no well reading to correct "
+             f"it; the black line is what the dipwells measured. The model follows the warren's wet "
+             f"and dry years{low}: the bias the next slide removes."],
             _foot(OUT_00_CLIMATE_TIMESERIES_SHORT) + " · the model against the wells: this film's "
             "own run",
             dict(kind="model", left=OUT_00_CLIMATE_TIMESERIES_SHORT, right=OUT_47_FREE_RUN_FIG)))
@@ -1481,13 +1491,16 @@ def _ground(fig, bg: np.ndarray) -> None:
     axb.set_axis_off()
 
 
-def _place(fig, img, x0, y0, x1, y1, ha="center", va="center", border=True) -> list:
+def _place(fig, img, x0, y0, x1, y1, ha="center", va="center", border=True,
+           squeeze_x: float = 1.0) -> list:
     """An image (Path or array) fitted inside the box x0..x1, y0..y1 (frame fractions)
-    at its own aspect. Returns the rectangle it occupies [x, y, w, h]."""
+    at its own aspect — or, with `squeeze_x` < 1 (1.6.1), compressed horizontally by that
+    factor. Returns the rectangle it occupies [x, y, w, h]."""
     from matplotlib.patches import Rectangle                  # noqa: PLC0415
     from PIL import Image                                     # noqa: PLC0415
     a = np.asarray(Image.open(img).convert("RGB")) if isinstance(img, Path) else img
     h, w = a.shape[:2]
+    w = w * squeeze_x
     s = min((x1 - x0) * FRAME_W / w, (y1 - y0) * FRAME_H / h)
     pw, ph = w * s / FRAME_W, h * s / FRAME_H
     x = {"left": x0, "right": x1 - pw}.get(ha, (x0 + x1 - pw) / 2)
@@ -1659,10 +1672,14 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         fig, ax = new_slide()
         y_t = 0.935
         _title(ax, title_, x0_t, 1 - FILM_MARGIN / 2, y_t)
-        r = _place(fig, film_copy(left), x0_t, 0.13, 0.47, 0.855, ha="left", border=False)
-        x0 = r[0] + r[2] + 0.025
-        rr = _place(fig, right, x0, 0.50, 0.985, 0.855, va="top", border=False)
-        _text_block(ax, paras, x0, 0.985, rr[1] - 0.03, 0.13)
+        # 1.6.1: the climate figure squeezed a little (Martin: "squash the fig to the left a
+        # little") so the column beside it is wider; the chart fills that column and yields
+        # height to the fuller text beneath it
+        r = _place(fig, film_copy(left), x0_t, 0.13, 0.45, 0.855, ha="left", border=False,
+                   squeeze_x=MODEL_FIG_SQUEEZE)
+        x0 = r[0] + r[2] + 0.03
+        rr = _place(fig, right, x0, 0.53, 0.985, 0.855, va="top", border=False)
+        _text_block(ax, paras, x0, 0.985, rr[1] - 0.025, 0.125)
         _bar(ax, y_t, 0.13)
         foot_line(ax, foot, num)
         return grab(fig, hold(title_, paras, figure=True))

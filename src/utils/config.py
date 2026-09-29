@@ -40,7 +40,9 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.72.0"  # Hollingham (2026) - 2026-09-28. SD15b_REC / SD16_REC carry a
+__version__ = "1.73.0"  # Hollingham (2026) - 2026-09-29. SLACK_FLOOR_BASELINE_CLUSTERS (Script 44
+#   1.4.0 Q4, T-71, D-208; Martin: baseline (a), the open-dune clusters at or beyond the coastal reach).
+# 1.72.0  # Hollingham (2026) - 2026-09-28. SD15b_REC / SD16_REC carry a
 #   scrape's water-table BENEFIT (0.14 / 0.22 m), not its excavation depth (Martin: depth and benefit differ).
 #   OBS_STATE_COLOURS['flooded'] #2C7FB8 -> #17BECF, distinct from the C1 cluster blue (Script 01 coverage figures, T-92).
 # 1.71.0  # Hollingham (2026) - 2026-09-28. D-207: MSL_HYDRO_YEAR_START_MONTH 6 -> 5 (bucketed
@@ -1762,6 +1764,11 @@ RANWELL_LOO_MAX_M     = 0.5     # m; a site whose modern-surface LOO error excee
 RANWELL_SURFACE_CENSOR_M = 0.05 # m; a reading within this of the ground is a flooded (censored) slack
 RANWELL_COASTAL_FIT   = ("forest_free", "linear_capped")  # the Script 25 headline fit (source, model) behind the
 #   Ranwell coastal expectation (Script 44 1.3.0); the same row Script 20 reads for its coastal field
+
+# Script 44 Q4 (T-71, D-208) - the slack floors as a former water table. The inland baseline of
+# floor-to-water-table depth is the median over these clusters' wells at or beyond the Script 25 reach L
+# (read from the fit, never typed): the open dune, lake-edge slacks included, forest clusters excluded.
+SLACK_FLOOR_BASELINE_CLUSTERS = (1, 2, 3)
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to

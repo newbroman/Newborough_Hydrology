@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.41.0"  # Hollingham (2026) - 2026-09-28. 1.41.0: OUT_xx_REPORT_NUMBERS for the
+__version__ = "1.42.0"  # Hollingham (2026) - 2026-09-29. 1.42.0: OUT_44_SLACK_FLOOR_DATUM and
+#   OUT_44_SLACK_FLOOR_FIG (Script 44 1.4.0 Q4, T-71, D-208). Additive.
+# 1.41.0  # Hollingham (2026) - 2026-09-28. 1.41.0: OUT_xx_REPORT_NUMBERS for the
 #   fifteen scripts that gain their first report-numbers file under T-91 (spec NRG_spec_T91_emits):
 #   03, 06, 11b, 14, 15, 19, 22, 23, 24, 26b, 28, 34, 36, 37, 37b. Additive.
 # 1.40.0: OUT_20_CLEARFELL_REPORT_NUMBERS
@@ -1257,6 +1259,8 @@ OUT_44_CLIMATE_CHECK  = DIR_44 / "44_06_climate_check.csv"
 OUT_44_HINDCAST_FIG   = DIR_44 / "44_07_hindcast.png"
 OUT_44_HINDCAST_REPORT_FIG = DIR_44 / "44_07b_hindcast_report.png"   # caption-free render for report10
 OUT_44_CHANGE_FIG     = DIR_44 / "44_08_level_change.png"
+OUT_44_SLACK_FLOOR_DATUM = DIR_44 / "44_09_slack_floor_datum.csv"   # Q4 (T-71): floors against the water table
+OUT_44_SLACK_FLOOR_FIG   = DIR_44 / "44_09_slack_floor_datum.png"
 OUT_44_REPORT_NUMBERS = DIR_44 / "44_report_numbers.csv"
 
 # ── Scripts 45 & 46 — the Sentinel wet-area model (T-40, D-178) ──────────────

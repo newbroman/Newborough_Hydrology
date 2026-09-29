@@ -51,3 +51,73 @@ ranwell_sigma_m_combined_beyond_reach,0.09781012657866203,m,COMBINED_BEYOND_REAC
 ranwell_chi2_dof_combined_beyond_reach,0.543585316532558,-,COMBINED_BEYOND_REACH: chi-square per degree of freedom
 ranwell_rate_mm_yr_combined_beyond_reach,-1.3139260776328652,mm/yr,COMBINED_BEYOND_REACH: delta over the interval
 ranwell_resolved_combined_beyond_reach,0.0,flag,COMBINED_BEYOND_REACH: |delta| > 2 sigma
+slack_floor_baseline_depth_mean_m,0.4554595560533551,m,"inland baseline: median depth of the full-record mean below the slack floor, C1/2/3 wells at or beyond L"
+slack_floor_baseline_depth_mean_mad_m,0.09173354589085414,m,inland baseline (full-record mean): median absolute deviation
+slack_floor_baseline_depth_spring_m,0.21333333333333332,m,"inland baseline: median depth of the spring level (D-189/D-207) below the slack floor, C1/2/3 wells at or beyond L"
+slack_floor_baseline_depth_spring_mad_m,0.08000000000000004,m,inland baseline (spring level (D-189/D-207)): median absolute deviation
+slack_floor_baseline_depth_min_m,0.9275,m,"inland baseline: median depth of the annual minimum below the slack floor, C1/2/3 wells at or beyond L"
+slack_floor_baseline_depth_min_mad_m,0.10500000000000004,m,inland baseline (annual minimum): median absolute deviation
+slack_floor_baseline_n,38.0,count,wells in the inland baseline
+slack_floor_depth_min_median_C1.0_m,0.85,m,C1.0: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C1.0_m,0.1983333333333333,m,C1.0: median depth of the spring level below the floor
+slack_floor_excess_min_median_C1.0_m,-0.07750000000000001,m,C1.0: median excess of the annual-minimum depth over the inland baseline
+slack_floor_retreat_expectation_median_C1.0_m,0.0,m,"C1.0: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
+slack_floor_residual_min_median_C1.0_m,-0.08750000000000002,m,C1.0: median excess less the modelled retreat response
+slack_floor_wells_within_reach_C1.0,1.0,count,C1.0: wells nearer the eroding shoreline than L
+slack_floor_depth_min_median_C2.0_m,0.89,m,C2.0: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C2.0_m,0.19,m,C2.0: median depth of the spring level below the floor
+slack_floor_excess_min_median_C2.0_m,-0.03749999999999998,m,C2.0: median excess of the annual-minimum depth over the inland baseline
+slack_floor_retreat_expectation_median_C2.0_m,0.0,m,"C2.0: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
+slack_floor_residual_min_median_C2.0_m,-0.03749999999999998,m,C2.0: median excess less the modelled retreat response
+slack_floor_wells_within_reach_C2.0,0.0,count,C2.0: wells nearer the eroding shoreline than L
+slack_floor_depth_min_median_C3.0_m,1.0350000000000001,m,C3.0: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C3.0_m,0.48166666666666663,m,C3.0: median depth of the spring level below the floor
+slack_floor_excess_min_median_C3.0_m,0.10750000000000004,m,C3.0: median excess of the annual-minimum depth over the inland baseline
+slack_floor_retreat_expectation_median_C3.0_m,0.010596462950215652,m,"C3.0: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
+slack_floor_residual_min_median_C3.0_m,0.0050000000000000044,m,C3.0: median excess less the modelled retreat response
+slack_floor_wells_within_reach_C3.0,13.0,count,C3.0: wells nearer the eroding shoreline than L
+slack_floor_depth_min_median_C4.0_m,1.59,m,C4.0: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C4.0_m,0.9433333333333334,m,C4.0: median depth of the spring level below the floor
+slack_floor_excess_min_median_C4.0_m,0.6625000000000001,m,C4.0: median excess of the annual-minimum depth over the inland baseline
+slack_floor_retreat_expectation_median_C4.0_m,0.023634527316790572,m,"C4.0: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
+slack_floor_residual_min_median_C4.0_m,0.6125,m,C4.0: median excess less the modelled retreat response
+slack_floor_wells_within_reach_C4.0,5.0,count,C4.0: wells nearer the eroding shoreline than L
+slack_floor_depth_min_median_C5.0_m,1.22,m,C5.0: median depth of the annual minimum below the floor
+slack_floor_depth_spring_median_C5.0_m,0.8666666666666667,m,C5.0: median depth of the spring level below the floor
+slack_floor_excess_min_median_C5.0_m,0.2925,m,C5.0: median excess of the annual-minimum depth over the inland baseline
+slack_floor_retreat_expectation_median_C5.0_m,0.9195357556924602,m,"C5.0: median MODELLED retreat response, coastal_h0_per_metre x 1899-2026 retreat, capped at L (extrapolated)"
+slack_floor_residual_min_median_C5.0_m,-0.5324233845340647,m,C5.0: median excess less the modelled retreat response
+slack_floor_wells_within_reach_C5.0,5.0,count,C5.0: wells nearer the eroding shoreline than L
+ranwell_floor_m_od_site1,9.11,m OD,"site 1: Ranwell's floor, level + depth from the digitised readings (fig4_readings)"
+ranwell_depth_mean_1951_53_site1_m,0.5011272727272729,m,site 1: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site1_m,1.082,m,site 1: deepest 1951-53 reading below his floor
+ranwell_depth_change_mean_site1_m,-0.09668097832836575,m,"site 1 vs ceh25: modern mean depth minus 1951-53 mean depth, floor to floor (positive = deeper now)"
+ranwell_depth_change_spring_site1_m,-0.234287356321839,m,"site 1 vs ceh25: spring depth change, floor to floor"
+ranwell_depth_change_max_site1_m,-0.15700000000000003,m,"site 1 vs ceh25: modern annual minimum minus his deepest reading, floor to floor"
+ranwell_floor_m_od_site4,11.620000000000001,m OD,"site 4: Ranwell's floor, level + depth from the digitised readings (fig4_readings)"
+ranwell_depth_mean_1951_53_site4_m,0.3429841269841269,m,site 4: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site4_m,0.9590000000000001,m,site 4: deepest 1951-53 reading below his floor
+ranwell_depth_change_mean_site4_m,0.01967681905412455,m,"site 4 vs ceh27: modern mean depth minus 1951-53 mean depth, floor to floor (positive = deeper now)"
+ranwell_depth_change_spring_site4_m,-0.024814814814814817,m,"site 4 vs ceh27: spring depth change, floor to floor"
+ranwell_depth_change_max_site4_m,-0.1190000000000001,m,"site 4 vs ceh27: modern annual minimum minus his deepest reading, floor to floor"
+ranwell_floor_m_od_site8,6.85,m OD,"site 8: Ranwell's floor, level + depth from the digitised readings (fig4_readings)"
+ranwell_depth_mean_1951_53_site8_m,0.45953571428571427,m,site 8: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site8_m,0.779,m,site 8: deepest 1951-53 reading below his floor
+ranwell_depth_change_mean_site8_m,0.1544004824220433,m,"site 8 vs nw5: modern mean depth minus 1951-53 mean depth, floor to floor (positive = deeper now)"
+ranwell_depth_change_spring_site8_m,0.25755555555555554,m,"site 8 vs nw5: spring depth change, floor to floor"
+ranwell_depth_change_max_site8_m,0.23099999999999998,m,"site 8 vs nw5: modern annual minimum minus his deepest reading, floor to floor"
+ranwell_floor_m_od_site11,11.08,m OD,"site 11: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
+ranwell_depth_mean_1951_53_site11_m,0.4267083333333333,m,site 11: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site11_m,1.03,m,site 11: deepest 1951-53 reading below his floor
+ranwell_floor_m_od_site12,10.83,m OD,"site 12: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
+ranwell_depth_mean_1951_53_site12_m,0.12699999999999997,m,site 12: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site12_m,0.648,m,site 12: deepest 1951-53 reading below his floor
+ranwell_floor_m_od_site13,11.41,m OD,"site 13: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
+ranwell_depth_mean_1951_53_site13_m,0.6891666666666666,m,site 13: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site13_m,1.355,m,site 13: deepest 1951-53 reading below his floor
+ranwell_floor_m_od_site16,10.28,m OD,"site 16: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
+ranwell_depth_mean_1951_53_site16_m,0.8983749999999998,m,site 16: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site16_m,1.635,m,site 16: deepest 1951-53 reading below his floor
+ranwell_floor_m_od_site18,7.07,m OD,"site 18: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
+ranwell_depth_mean_1951_53_site18_m,0.2437083333333333,m,site 18: 1951-53 mean depth below his floor
+ranwell_depth_max_1951_53_site18_m,0.6779999999999999,m,site 18: deepest 1951-53 reading below his floor

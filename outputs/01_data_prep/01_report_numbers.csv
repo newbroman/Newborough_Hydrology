@@ -2,6 +2,9 @@ Parameter,Well,Era,Value,Unit,Note
 elev_n_dgps,,,78.0,count,"wells whose ground elevation is the DGPS survey (author and Curreli, 2010)"
 elev_n_lidar,,,21.0,count,wells whose ground elevation is the LiDAR DTM
 elev_n_total,,,99.0,count,located wells in well_metadata.csv
+wells_reference_n,,,66.0,count,reference-network wells (columns of 01_wells_reference.csv)
+wells_extended_n,,,22.0,count,extended-network wells (columns of 01_wells_extended.csv)
+wells_classified_n,,,88.0,count,the classified network: reference + extended; the Llyn Rhos-Ddu gauge is not a dipwell and is not counted
 pet_trailing_vs_calendar_n_months,,,249.0,count,well-record months where both the trailing-window (D-036) and the calendar-year Thornthwaite heat index are defined
 pet_trailing_vs_calendar_median_pct,,,1.2007013403308527e-14,%,median of (trailing - calendar)/calendar monthly PET over those months
 pet_trailing_vs_calendar_p05_pct,,,-5.394832827060519,%,5th percentile of the same

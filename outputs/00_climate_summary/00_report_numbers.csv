@@ -63,6 +63,8 @@ centring_constant,,,19.50950509661819,mm/month,"cumulative-balance centring = me
 cumbal_wl_r2,,,0.52831901111223,,"R^2, network-mean WL vs cumulative balance, lag 0, n=252"
 cumbal_wl_slope,,,0.00217023082712362,m/mm,regression slope (well level per mm cumulative balance)
 reference_n_wells,,,66.0,count,reference-network wells in 00_02_well_network_summary.csv (full record)
+raf_valley_distance_km,,,16.271449904664305,km,straight-line distance from the centre of the canonical site map extent (config SITE_MAP_*) to RAF Valley (config RAF_VALLEY_OSGB_*)
+raf_valley_bearing_deg,,,315.9711063222463,deg,"bearing from the site centre to RAF Valley, degrees clockwise from grid north"
 reference_record_months_median,,,192.0,months,median record length of the reference network
 reference_record_years_median,,,15.9233401779603,years,"median calendar span (Record_end - Record_start) of the reference network, 00_02_well_network_summary.csv (full record); distinct from reference_record_months_median, which counts valid readings"
 reference_record_months_min,,,140.0,months,shortest admitted record

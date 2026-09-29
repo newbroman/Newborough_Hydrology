@@ -3024,7 +3024,8 @@ def one(name, values, look, out_dir, a):
                     cur = d.split(" ‖ ")[0].split(" — ")[0]
                     def _key(a):
                         return re.sub(r"\s*=\s*[-−+\d.eE]+", "", a).replace("read: confirmed ✓ — ", "").strip()[:120]
-                    same_attr = (not read_attr) or _key(read_attr) == _key(cur) or (read_attr.rsplit("[", 1)[-1] == cur.rsplit("[", 1)[-1] and read_attr[:25] == cur[:25])
+                    same_attr = (not read_attr) or _key(read_attr) == _key(cur) or (read_attr.rsplit("[", 1)[-1] == cur.rsplit("[", 1)[-1] and read_attr[:25] == cur[:25]) \
+                        or read_attr.startswith(("DENIED", "read:", "STALE", "literal", "vetted", "reading pass"))   # 1.24.0: the reader saw a verdict-painted mark, not a matcher attribution
                     if verdict == "deny" and not same_attr:
                         d = d + f" ‖ an earlier attribution ({read_attr[:80]}) was denied by the reading pass; this is a new one, unread"
                     elif verdict == "deny":

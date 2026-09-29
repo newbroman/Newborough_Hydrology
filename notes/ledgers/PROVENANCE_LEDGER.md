@@ -200,11 +200,12 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (433)
+## Outputs no exhibit renders (437)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
 - `00_01_annual_climate_summary.csv`
+- `00_01_climate_timeseries_short_film.png`
 - `00_02_well_network_summary.csv`
 - `00_02_well_network_summary.png`
 - `00_02_well_network_summary_short.csv`
@@ -603,4 +604,3 @@
 - `43_03b_slack_floors.csv`
 - `43_04_overlay.png`
 - `43_07_modern_well_basins.csv`
-- `43_report_numbers.csv`

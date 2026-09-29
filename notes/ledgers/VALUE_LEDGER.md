@@ -714,6 +714,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | Tier2_BACI_shift · CEH36 · Felling_Pulse |  |  | `09_scrape_report_numbers.csv` | 0.0229114 |  | report10, report9 | ok |
 | Tier2_BACI_shift · CEH36 · Pure_Scraping |  |  | `09_scrape_report_numbers.csv` | 0.128087 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report10, report12, report9 | ok |
 | Transect_control_baseline_m |  |  | `10_consolidated_report_numbers.csv` | 0.0894979 |  | report9 | ok |
+| Transect_gradient_mm_per_100m |  |  | `10_consolidated_report_numbers.csv` | -0.452794 |  | report9 | ok |
 | Transect_gradient_p |  |  | `10_consolidated_report_numbers.csv` | 0.140945 |  | report9 | ok |
 | UKCP18_DRY_PET_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PIPELINE_README, readme | ok |
 | UKCP18_DRY_P_WINTER |  |  | `config.py` | 1.05 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, readme, report8 | ok |
@@ -997,7 +998,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | forest_free / exponential · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -40.59 |  | PAPER1_SI_methods | ok |
 | forest_free / exponential · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 3.08 |  | PAPER1_SI_methods | ok |
 | forest_free / linear_capped · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -31.28 |  | Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
-| forest_free / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.97 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material, report10 | ok |
+| forest_free / linear_capped · delta_0_se |  |  | `25_01_panel_fit_parameters.csv` | 1.97 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, Supplementary_Material | ok |
 | forest_free / linear_capped · delta_ref_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -26.3784 |  | Newborough_Methods_Supplement | ok |
 | forest_free / linear_capped · delta_ref_se |  |  | `25_01_panel_fit_parameters.csv` | 1.4459 |  | Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
 | forest_free_mam / linear_capped · delta_0_mm_yr |  |  | `25_01_panel_fit_parameters.csv` | -34.06 |  | Newborough_Methods_Supplement | ok |
@@ -1247,6 +1248,9 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | trend_annual_rain_full_record_p |  |  | `01_report_numbers.csv` | 0.571536 |  | report9 | ok |
 | trend_summer_balance |  |  | `00_report_numbers.csv` | -4.18561 |  | report9 | ok |
 | trend_summer_balance_t |  |  | `00_report_numbers.csv` | -1.28168 |  | report9 | ok |
+| trend_summer_pet_full_record |  |  | `00_report_numbers.csv` | 0.148178 |  | report10 | ok |
+| trend_summer_pet_full_record_p |  |  | `00_report_numbers.csv` | 0.00669919 |  | report10 | ok |
+| trend_summer_rain_full_record_p |  |  | `00_report_numbers.csv` | 0.806889 |  | report10 | ok |
 | trend_winter_balance |  |  | `00_report_numbers.csv` | 3.73963 |  | report9 | ok |
 | trend_winter_rainfall_t |  |  | `00_report_numbers.csv` | 1.04804 |  | report9 | ok |
 | ukcp18_2050s / summer / SITE · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.0633 |  | report10 | ok |

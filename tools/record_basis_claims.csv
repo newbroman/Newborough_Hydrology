@@ -22,7 +22,7 @@ RB-14,report9,The 1989–96 record,"uses each well's own coefficients from the m
 RB-15,none,,,Script 39's full-record climate-only series (open-ground panel) is not presented in any document; nothing to state until it is
 RB-44,report9,The 1951–53 record,"each paired well's own coefficients from the modern fit are driven by the RAF Valley record from 1930, with no refitting",
 RB-44b,report9,The 1951–53 record,0.46 m above the record mean,T-71 (D-208): the inland baseline is the open-dune wells at or beyond the coastal reach; Script 44 Q4
-RB-44c,none,,,T-72 (D-209): 44_10 is not presented in any document; Martin rules on the finding before text is written
+RB-44c,report9,The 1951–53 record,own fitted responses driven by the RAF Valley record put the water table of 1953–1960 within 0.1 m of its level over the modern record,"T-72 (D-209): Script 44 Q5, the forest floors against the pre-planting hindcast; 44_10"
 RB-16,none,,,W94 phase 13 — a working analysis in tools/warren_flood_prep.py that led to D-178; not presented in any document
 RB-17,none,,,W94 phase 14 — as RB-16
 RB-18,none,,,W94 phase 21 — as RB-16

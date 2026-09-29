@@ -18,8 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.21.0 - 2026-09-27
+# VERSION 1.22.0 - 2026-09-29
 # CHANGELOG
+#   1.22.0 (2026-09-29): proof copies section (advisory) after the tasks gate -
+#     proof_copy --refresh keeps scratch/proof_bundle/ current from the mirrors and
+#     the captured task_lint output, and reports whether the published proof
+#     artifact is behind the bundle (a session republishes and stamps).
 #   1.21.0 (2026-09-27): make_site_outline --check gates (D-204) - the site
 #     outline every map masks with must be the union of the committed KML.
 #   1.20.0 (2026-09-25): month_step_lint after month_bucket_lint (D-195) - every
@@ -510,6 +514,19 @@ printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): " || true
 # task_lint, a claimed check_all gate that is not invoked, a file said not to
 # exist that does. Typed counts are advisory.
 python3 tools/register_lint.py || rc=1
+
+echo "── proof copies (is the proof page current?) ─────────────────────────"
+# ADVISORY. proof_copy --refresh regenerates only the chapters whose inputs changed
+# (mirror, citation index, reading verdicts, pipeline run log) into
+# scratch/proof_bundle/, rebuilds the bundle with a tasks tab from the task_lint
+# output captured above, and says whether the published claude.ai artifact is
+# behind it. This machine cannot publish an artifact, so STALE here is a note to
+# the next session: republish the bundle and stamp it (proof_copy.py --published).
+# Martin, 2026-09-29: "can we make the proof read artifact update when a check all
+# is called as well as the task ledger being updated".
+proof_tasks="$(mktemp)"; printf '%s\n' "$task_out" > "$proof_tasks"
+python3 tools/proof_copy.py --refresh --quiet --tasks-from "$proof_tasks" || echo "  note  proof_copy --refresh failed (advisory)"
+rm -f "$proof_tasks"
 
 # "p < 0.001" carries no number, so every numeric check in this project is blind
 # to it: the academic summaries stated it for a committed p = 0.0021 and nothing

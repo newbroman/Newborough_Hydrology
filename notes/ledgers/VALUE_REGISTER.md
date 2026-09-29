@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**166 output file(s)** supply **1758 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
+**166 output file(s)** supply **1773 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
 
 ## Cited quantities by output file
 
@@ -1695,7 +1695,22 @@
 |  | canopy_ratio_restock_conifer_full_leaf_median | Newborough_Methods_Supplement.md |
 | `44_04_hindcast_metrics.csv` | 4 / nw11 · nse_after_offset | Paper1.md, report9.md |
 | `44_05_level_change.csv` | COMBINED_CONSTRAINED / nan · sigma_total_m | Hollingham_2026_Paper2_amended.md, report9.md |
-| `44_report_numbers.csv` | ranwell_depth_change_inland_mad_m | report10.md, report9.md |
+| `44_report_numbers.csv` | forest_floor_climate_change_since_preplant_mean_median_C4_m | report9.md |
+|  | forest_floor_climate_change_since_preplant_min_median_C4_m | report9.md |
+|  | forest_floor_litter_allowance_m | report9.md |
+|  | forest_floor_modelled_drawdown_at_wells_m | report9.md |
+|  | forest_floor_residual_after_climate_and_retreat_modern_median_C4_m | report9.md |
+|  | forest_floor_residual_after_climate_and_retreat_steady_median_C4_m | report10.md, report9.md |
+|  | forest_floor_residual_less_litter_median_C4_m | report10.md, report9.md |
+|  | forest_floor_residual_max_C4_m | report9.md |
+|  | forest_floor_residual_median_C4_m | report9.md |
+|  | forest_floor_residual_median_C5_m | report9.md |
+|  | forest_floor_residual_median_canopy_m | report9.md |
+|  | forest_floor_residual_median_felled_1995_m | report9.md |
+|  | forest_floor_residual_min_C4_m | report9.md |
+|  | forest_floor_retreat_since_preplant_modern_m | report9.md |
+|  | forest_floor_retreat_since_preplant_steady_m | report9.md |
+|  | ranwell_depth_change_inland_mad_m | report10.md, report9.md |
 |  | ranwell_depth_change_inland_median_m | report9.md |
 |  | ranwell_depth_change_site8_m | report10.md |
 |  | ranwell_depth_max_1951_53_site1_m | report9.md |

@@ -972,6 +972,21 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | felling_experiment / 2018-07-08 / aerial8-7-2018.png · index |  |  | `41_01_canopy_index.csv` | 0.122558 |  | Newborough_Methods_Supplement | ok |
 | floor_mask_area_ha |  |  | `45_report_numbers.csv` | 306.97 |  | Newborough_Methods_Supplement, report, report8, report9 | ok |
 | forest_control / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer |  |  | `41_01_canopy_index.csv` | 1.2442 |  | Paper1 | ok |
+| forest_floor_climate_change_since_preplant_mean_median_C4_m |  |  | `44_report_numbers.csv` | 0.0776912 |  | report9 | ok |
+| forest_floor_climate_change_since_preplant_min_median_C4_m |  |  | `44_report_numbers.csv` | -0.00667282 |  | report9 | ok |
+| forest_floor_litter_allowance_m |  |  | `44_report_numbers.csv` | 0.2 |  | report9 | ok |
+| forest_floor_modelled_drawdown_at_wells_m |  |  | `44_report_numbers.csv` | 0.15 |  | report9 | ok |
+| forest_floor_residual_after_climate_and_retreat_modern_median_C4_m |  |  | `44_report_numbers.csv` | 0.60914 |  | report9 | ok |
+| forest_floor_residual_after_climate_and_retreat_steady_median_C4_m |  |  | `44_report_numbers.csv` | 0.659673 |  | report10, report9 | ok |
+| forest_floor_residual_less_litter_median_C4_m |  |  | `44_report_numbers.csv` | 0.4125 |  | report10, report9 | ok |
+| forest_floor_residual_max_C4_m |  |  | `44_report_numbers.csv` | 1.2925 |  | report9 | ok |
+| forest_floor_residual_median_C4_m |  |  | `44_report_numbers.csv` | 0.6125 |  | report9 | ok |
+| forest_floor_residual_median_C5_m |  |  | `44_report_numbers.csv` | -0.532423 |  | report9 | ok |
+| forest_floor_residual_median_canopy_m |  |  | `44_report_numbers.csv` | 0.435753 |  | report9 | ok |
+| forest_floor_residual_median_felled_1995_m |  |  | `44_report_numbers.csv` | 0.5325 |  | report9 | ok |
+| forest_floor_residual_min_C4_m |  |  | `44_report_numbers.csv` | 0.405813 |  | report9 | ok |
+| forest_floor_retreat_since_preplant_modern_m |  |  | `44_report_numbers.csv` | 126.923 |  | report9 | ok |
+| forest_floor_retreat_since_preplant_steady_m |  |  | `44_report_numbers.csv` | 78.618 |  | report9 | ok |
 | forest_free / 2005-03 / 2026-02 · c_mm_yr |  |  | `25_12_window_sweep.csv` | -0.298936 |  | Newborough_Methods_Supplement | ok |
 | forest_free / 2005-06 / 2026-02 · delta_0_mm_yr |  |  | `25_12_window_sweep.csv` | -31.3507 |  | Newborough_Methods_Supplement | ok |
 | forest_free / 2014-02 / 2026-02 · c_mm_yr |  |  | `25_12_window_sweep.csv` | 23.9644 |  | Newborough_Methods_Supplement | ok |

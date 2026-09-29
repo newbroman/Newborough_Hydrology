@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-29T04:17:11",
+ "generated": "2026-09-29T07:23:52",
  "orchestrator": "2.21.1",
  "steps": {
   "00_climate_summary.py": {
@@ -1313,12 +1313,18 @@
     "outputs/44_ranwell_hindcast/44_08_level_change.png": "f52a89e0d707422ae5dcf57b978fb86fb1216de1593351edb0787cb30622bd45",
     "outputs/44_ranwell_hindcast/44_09_slack_floor_datum.csv": "d55d5c89fa2f55839cb5b264caeca994c0820ab06e71ca2882d63c29f0b9cfb4",
     "outputs/44_ranwell_hindcast/44_09_slack_floor_datum.png": "d16a76ae8f247e7da983ece8d3867e0c127d8ea0d335eb56a4946c45e5884820",
-    "outputs/44_ranwell_hindcast/44_report_numbers.csv": "d98e50d08544cf5ae04ada0f2130e18003dc3fbd1329311c0441c14120965208"
+    "outputs/44_ranwell_hindcast/44_10_forest_floor_excess.csv": "fce0e1534eaf9514c89740525b83eb580a3f7bb8c691b7ed964558092a0b4902",
+    "outputs/44_ranwell_hindcast/44_10_forest_floor_excess.png": "6b0128ac36b74f6344884d1f215e4f93fb173251fa2a5352df09d3357c240cc6",
+    "outputs/44_ranwell_hindcast/44_report_numbers.csv": "cfd394093c04c30943f0dfac1bcca1184e8ea18cc84ef3b1bf4fa2daf9822967"
    },
    "fallbacks": [],
    "inputs": {
+    "data/canopy_history.csv": "8fd75c576f8e6d95c35d201578ea2825e47e21eec2d7913e2fef9619fba241f9",
+    "data/forest_ground_prep.csv": "93fa24002a5a8594233c7c4f705442d2c7f971da83624991a1e71d1dcf6b1ae4",
+    "data/geo/Features.kml": "51fadcc09830f40ea6a296b5444f07717611af04159f69931407f7c38e72b6db",
     "data/geo/coast2006.kml": "501a625be5288789892e082264f5eb3f5d1fccc6e6c996d1a8d981e8539eaffd",
     "data/geo/coastline_eroding_hwm.geojson": "e6a90b6127bfb267b5a8d7ac8bdc3e2e0bc11218dfef62ec4bf2a448997e9e35",
+    "data/geo/newborough_dem.tif": "a05bd8ba061ef9dcd85ee5218a9233c7a69941d29bc55a36ecb38c3207f32609",
     "data/ranwell_1950_53_parc_mawr_rain.csv": "14f67c35b10a52aa628f1a6a782b51506bac61bee4da4e9698f709d8d0dbe788",
     "data/ranwell_1951_53_monthly_ranges.csv": "f3ea52eeadc1afb9ce4c3b64677c7de2a18cf18720bb3a326e7147fce018cdd8",
     "data/ranwell_1951_53_water_levels.csv": "8e037d809b0b02cfcde8b79aaf3e5041361c357159f3526115288e53de7b69d8",
@@ -1330,6 +1336,7 @@
     "outputs/01b_water_table/01b_water_table_mean.tif": "a15702266c0bcd0da7e2f6c0af0d9de4a0b99617598d683500dbf152f5481847",
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3",
     "outputs/03_master_data.csv": "3ed41d9c4bddf3411987450bc9132521d605eaa76f211a5f803bad4c375ebba7",
+    "outputs/20_spatial_figures/20_drawdown_perwell.csv": "d8f071a16dd998cd4662a42aa04bedf6e31bb1d0f0ca4634dd9622a0ffea4d09",
     "outputs/20_spatial_figures/20_report_numbers.csv": "345fa6707ae71fbcdf2e9eb90114a948e2ec22477145e6e4092733a3f6f17b8f",
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31",
     "outputs/26_van_willegen_msl/26_msl_annual_per_well.csv": "b66e8c4d4d210c68c49c0aff0ebe1090a33f4ae719034d815a1e2c7f138c59dc",
@@ -1340,9 +1347,9 @@
     "outputs/43_ranwell/43_07_modern_well_basins.csv": "d4938d352e042a18d2a05ca3f3fe519f06fde5fe8b13b262e953493a489dfa92"
    },
    "inputs_unresolved": [],
-   "seconds": 4.5,
-   "started": "2026-09-29T04:17:06",
-   "version": "1.5.0"
+   "seconds": 5.0,
+   "started": "2026-09-29T07:23:47",
+   "version": "1.6.0"
   },
   "45_wet_area_model.py": {
    "emitted": {

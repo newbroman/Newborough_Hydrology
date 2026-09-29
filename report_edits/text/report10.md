@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=2740a2afa1a71bc3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=1ab60d77d3ca5b8c pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}**Discussion**
@@ -407,7 +407,7 @@ Three field measurements would materially resolve the remaining uncertainties. F
 
 ### External Validation Against Dune-Slack Vegetation, and a Structural Wetness Index
 
-MSL5 (Section 4.8.3) follows van Willegen et al. (2025), the strongest single hydrological correlate of dune-slack vegetation moisture at Newborough. As implemented here it reproduces their published spring levels to within \~11 mm and predicts their co-located Ellenberg-F between wells (r = +0.83, n = 18), confirming the metric carries the ecohydrological signal attributed to it (Section 4.8.3).
+MSL5 (Section 4.8.3) follows van Willegen et al. (2025), the strongest single hydrological correlate of dune-slack vegetation moisture at Newborough. As implemented here it reproduces their published spring levels to within 2 mm and predicts their co-located Ellenberg-F between wells (r = +0.83, n = 18), confirming the metric carries the ecohydrological signal attributed to it (Section 4.8.3).
 
 The state-space coefficients afford a structurally-derived estimate of the same quantity --- an equilibrium water-table level obtained by inverting the head-dependent drainage term under long-term mean climate. Tested directly against Ellenberg-F it is statistically indistinguishable from MSL5 (RMSE 0.37 vs 0.34 Ellenberg-F units; overlapping confidence intervals; Williams p = 0.49), and the two distribute almost identically across per-well accuracy bands. That coefficients calibrated purely on dynamics predict vegetation moisture as well as the direct spring-level metric is the substantive result; on n = 18 it is equivalence within the data, not proven identity.
 

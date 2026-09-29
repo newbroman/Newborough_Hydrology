@@ -1127,6 +1127,9 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | recent / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.64782 |  | PAPER1_SI_methods, report9 | ok |
 | recession_time_group_mean_of_per_well · Climate ctrl |  |  | `20_msl5_report_numbers.csv` | 21.6967 |  | report10 | ok |
 | recession_time_group_mean_of_per_well · Forest ctrl |  |  | `20_msl5_report_numbers.csv` | 57.9401 |  | report10 | ok |
+| reference_record_months_max |  |  | `00_report_numbers.csv` | 252 |  | report8 | ok |
+| reference_record_months_median |  |  | `00_report_numbers.csv` | 192 |  | report8 | ok |
+| reference_record_months_min |  |  | `00_report_numbers.csv` | 140 |  | report8 | ok |
 | reference_record_years_median |  |  | `00_report_numbers.csv` | 15.9233 |  | report10 | ok |
 | reference_summer_min_deepest |  |  | `00_report_numbers.csv` | -2.31526 |  | report9 | ok |
 | reference_summer_min_mean |  |  | `00_report_numbers.csv` | -1.18167 |  | report9 | ok |
@@ -1249,6 +1252,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | ukcp18_2050s / summer / SITE · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.0633 |  | report10 | ok |
 | ukcp18_2080s / summer / SITE · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | -0.1194 |  | report10 | ok |
 | validation_cotemporal_vs_matched_r |  |  | `35_report_numbers.csv` | 0.965896 |  | Newborough_Methods_Supplement | ok |
+| vw_repro_rmse_mm |  |  | `26_report_numbers.csv` | 1.65426 |  | report10 | ok |
 | water_balance_PET_mean_mm · C2 (Dune) |  |  | `16_report_numbers.csv` | 54.1525 |  | report9 | ok |
 | water_balance_PET_mean_mm_max |  |  | `16_report_numbers.csv` | 54.5468 |  | report9 | ok |
 | water_balance_PET_mean_mm_min |  |  | `16_report_numbers.csv` | 54.1525 |  | report9 | ok |

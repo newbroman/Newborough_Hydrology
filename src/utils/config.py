@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.79.0"  # Hollingham (2026) - 2026-09-29. Script 47 1.7.0 (Martin: the January
+__version__ = "1.80.0"  # Hollingham (2026) - 2026-09-29. FILM_FRAMES_PER_MONTH (Script 47 1.8.0:
+#   three seconds a year, Martin), and FILM_AUDIO_BITRATE 160k -> 96k (Martin: "is there a way of
+#   compressing it" — the audio was two thirds of the file; the video streams at under 100 kb/s).
+# 1.79.0  # Hollingham (2026) - 2026-09-29. Script 47 1.7.0 (Martin: the January
 #   note removed, the pad data-driven): FILM_PAD_RATIOS, FILM_PAD_DRIVER_PCT, FILM_PAD_REST, FILM_PAD_SPREAD.
 #   Retired: FILM_NOTE_F_LOW_HZ, FILM_NOTE_F_HIGH_HZ, FILM_NOTE_SCALE, FILM_NOTE_FLOOR, FILM_NOTE_DECAY_S,
 #   FILM_MIX_NOTE (Script 47 alone read them).
@@ -2077,6 +2080,7 @@ QMAP_TAIL_FRACTION           = 0.10
 # The render. WORDS_PER_MINUTE times a slide's word count sets how long it holds,
 # so the guide slides time themselves and stay right when the words change.
 FILM_FPS                     = 12
+FILM_FRAMES_PER_MONTH        = 3      # 1.8.0: a month is this many frames, so a year is FPM*12/FPS s (3 s)
 FILM_WORDS_PER_MINUTE        = 250.0
 FILM_SLIDE_LEAD_S            = 1.5
 FILM_QUALITY_PRESENTATION    = 6      # imageio/x264: the cut that goes into git
@@ -2103,7 +2107,7 @@ FILM_TONE_HARMONIC_GAIN      = 0.45   # 2nd harmonic, relative: keeps the dry en
 FILM_FLOOD_VOICE_GAIN        = 0.05   # the flooded-area voice at the record's largest area
 FILM_TREMOLO_HZ              = 5.0    # beyond-the-record months
 FILM_TREMOLO_DEPTH           = 0.45
-FILM_AUDIO_BITRATE           = "160k"
+FILM_AUDIO_BITRATE           = "96k"     # 1.80.0: 160k -> 96k; the track is synthesised tones and pads, and the audio was two thirds of the mp4
 
 # Script 47 1.3.0 (Martin, 2026-09-25): "a short title page, and a clip from 2015-2026
 # shortly after, then the full presentation with the new sound track"; the old track kept

@@ -60,7 +60,13 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-29. The Warren track, after Martin
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-29. Three seconds a year (Martin: "the film
+#   should be slower 3s a year ... draw the inbetween frame"; the last-decade clip keeps its
+#   span at the same speed): FILM_FRAMES_PER_MONTH frames a month, the in-between frames drawn
+#   at the level interpolated linearly to the next month (paint(i, frac); a drawing
+#   convenience, said so on "How to read the film"), the readout, marker, caption and sound
+#   staying on the month. Index times, chapters and the still follow from the frame count.
+# v1.7.0  # Hollingham (2026) - 2026-09-29. The Warren track, after Martin
 #   listened for patterns ("is there a pattern or am I just imagining it" — there were: the
 #   January note and the breath marking the same beat, and the pad's five voices swelling and
 #   drifting on fixed 7-16 s periods): the January note is REMOVED (the breath carries the
@@ -223,7 +229,7 @@ from utils.config import (                                    # noqa: E402
     WET_AREA_CELL_NEVER,
     DRAINAGE_DATUM, HINDCAST_SEED_MONTHS, HINDCAST_SPIN_UP_YEARS,
     QMAP_MIN_WELLS, QMAP_MIN_MONTHS, QMAP_TAIL_FRACTION,
-    FILM_FPS, FILM_WORDS_PER_MINUTE, FILM_SLIDE_LEAD_S,
+    FILM_FPS, FILM_FRAMES_PER_MONTH, FILM_WORDS_PER_MINUTE, FILM_SLIDE_LEAD_S,
     FILM_QUALITY_PRESENTATION, FILM_QUALITY_FULL, FILM_FIGURE_VIEW_S,
     FILM_AUDIO_RATE_HZ, FILM_AUDIO_FADE_S, FILM_AMBIENT_ROOT_HZ, FILM_AMBIENT_GAIN,
     FILM_TONE_F_LOW_HZ, FILM_TONE_F_HIGH_HZ, FILM_TONE_GAIN, FILM_FLOOD_VOICE_GAIN,
@@ -913,7 +919,9 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
           "little larger than a rugby pitch).",
           "The line at the bottom is the water table — how far below or above the ground the "
           "groundwater sits, averaged over the reserve's monitoring wells. The red marker is where "
-          "the film has got to. The clock runs at a year a second.",
+          "the film has got to. The clock runs at three seconds a year; between one month's "
+          "reading and the next the map is drawn at levels in between, so the water rises and "
+          "drains smoothly, but the readings are the months.",
           "The slides that follow show how it was made: a groundwater model, satellite pictures "
           "and a map of where the water goes, joined together, each beside the report figures "
           "that calibrate and test it."], None, None),
@@ -931,7 +939,7 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
              "one above the yellow line, where wet floor appears; a higher one above the blue "
              "line, where open water appears; and the highest above the 2021 flood.",
              "Underneath, a breath: one soft note through the winter half of each year, silence "
-             "through the summer, so each second is a year."],
+             "through the summer, so a year lasts three seconds."],
             None, None)] if FILM_SOUND_TRACK == "warren" else []),
         ("Please read this before watching",
          ["It is today's warren, not the warren of the time. The rules were learned from 2005–2026 "
@@ -1224,7 +1232,7 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
         if k in drivers:
             d_m = np.where(is_m > 0, drivers[k][mi], np.nan)
             d_m = pd.Series(d_m).ffill().bfill().to_numpy()
-            g = (1 - w_m) * FILM_PAD_REST + w_m * (0.15 + 0.85 * sm(d_m[fidx], 1.0 / fps))
+            g = (1 - w_m) * FILM_PAD_REST + w_m * (0.15 + 0.85 * sm(d_m[fidx], FILM_FRAMES_PER_MONTH / fps))
         else:
             g = np.full(ns, FILM_PAD_REST, np.float32)
         g = g * (np.sin(2 * np.pi * (f0 - 0.35) * t) + np.sin(2 * np.pi * (f0 + 0.35) * t)) / 2
@@ -1591,14 +1599,25 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     rgb = _background(floor.shape)
     still = {}
 
-    def paint(i: int) -> np.ndarray:
+    def paint(i: int, frac: float = 0.0) -> np.ndarray:
         """The map of month i: the cells lit at its level, the floor pale orange beyond
-        the record. The film's frames and the comparison slide both draw with this."""
+        the record. The film's frames and the comparison slide both draw with this.
+
+        1.8.0: `frac` in (0, 1) draws an in-between frame at the level interpolated
+        linearly towards month i+1 — a drawing convenience so the water rises and
+        drains smoothly at FILM_FRAMES_PER_MONTH frames a month, not a modelled
+        quantity. The beyond-the-record state is the MONTH's, so the orange floor
+        never appears on an in-between frame of a month that is inside the record."""
         h = lvl[i]
+        over = h > hmax
+        if frac > 0 and i + 1 < len(lvl) and np.isfinite(lvl[i + 1]):
+            h = h + frac * (lvl[i + 1] - h)
+            if not over:
+                h = min(h, hmax)
         hc = min(h, hmax)
         img = rgb.copy()
         y, b = floor & (hd <= hc), floor & (hb <= hc)
-        if h > hmax:
+        if over:
             img[floor & ~y] = COL_BEYOND
         img[y] = COL_FLOOR
         img[b] = COL_WATER
@@ -1989,9 +2008,9 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
             pos += len(line) + 1
     cap_state = [None]
 
-    def frame(i):
+    def frame(i, frac=0.0):
         over = lvl[i] > hmax
-        im.set_data(paint(i))
+        im.set_data(paint(i, frac))
         marker.set_xdata([t[i], t[i]])
         if cap_state[0] != over:
             draw_caption(cap_over if over else cap_now, "#7a2e0e" if over else "#222")
@@ -2003,10 +2022,12 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         return even(np.asarray(fig.canvas.buffer_rgba())[..., :3])
 
     n = len(level)
-    n_sim = FILM_FPS + n + 2 * FILM_FPS            # a second on the first month, two on the last
+    fpm = FILM_FRAMES_PER_MONTH                    # 1.8.0: frames a month (3 -> three seconds a year)
+    n_sim = FILM_FPS + n * fpm + 2 * FILM_FPS      # a second on the first month, two on the last
     # Per frame, for the sound track: None under a slide (the ambient bed), else the
-    # index of the month the frame shows (the tone).
-    sim_marks = [0] * FILM_FPS + list(range(n)) + [n - 1] * (2 * FILM_FPS)
+    # index of the month the frame shows (the tone). The in-between frames carry their
+    # month's index: the sound stays on the month.
+    sim_marks = [0] * FILM_FPS + [i for i in range(n) for _ in range(fpm)] + [n - 1] * (2 * FILM_FPS)
     entries, pos = [], 0                           # (title, start frame) for the index
     for title_, fr in seg_before:
         entries.append((title_, pos)); pos += len(fr)
@@ -2020,7 +2041,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         opening = open_title_slide()
         c0 = int(np.searchsorted(np.array(months), FILM_OPEN_CLIP_START))
         clip = list(range(c0, n))
-        n_open = len(opening) + len(clip) + 2 * FILM_FPS
+        n_open = len(opening) + len(clip) * fpm + 2 * FILM_FPS
         # The title page goes first; its length is fixed by its words and the number of
         # entries, not by the times it lists, so the times are known before it is drawn.
         shift = len(index_slide(entries))
@@ -2031,7 +2052,8 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         entries[:0] = [("Opening", 0),
                        (f"{FILM_OPEN_CLIP_LABEL}: {t[c0].year}–{t[-1].year}", len(opening)),
                        ("Title and contents", n_open)]
-    open_marks = ([None] * len(opening) + clip + [clip[-1]] * (2 * FILM_FPS)) if clip else []
+    open_marks = ([None] * len(opening) + [i for i in clip for _ in range(fpm)]
+                  + [clip[-1]] * (2 * FILM_FPS)) if clip else []
     marks = (open_marks + [None] * len(idx) + [None] * sum(len(f) for _, f in seg_before)
              + sim_marks + [None] * sum(len(f) for _, f in seg_after))
 
@@ -2058,8 +2080,9 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
             for e_ in era:
                 e_.set_visible(False)
             for i in clip:
-                a = frame(i)
-                put([a])
+                for k_ in range(fpm):
+                    a = frame(i, k_ / fpm)
+                    put([a])
             put([a] * (2 * FILM_FPS))
             clip_txt.set_text("")
             ax2.set_xlim(*xlim_full)
@@ -2072,10 +2095,11 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         put([a] * FILM_FPS)
         t0 = _time.time()
         for i in range(n):
-            a = frame(i)
-            put([a])
-            if still_month is not None and level["month"].iloc[i] == still_month:
-                still[still_month] = a
+            for k_ in range(fpm):
+                a = frame(i, k_ / fpm)
+                put([a])
+                if k_ == 0 and still_month is not None and level["month"].iloc[i] == still_month:
+                    still[still_month] = a
             if i % 25 == 0 or i == n - 1:
                 progress(i + 1, n, t[i].strftime("%Y-%m"), started=t0)
         print(flush=True)

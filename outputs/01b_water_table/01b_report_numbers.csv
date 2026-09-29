@@ -104,6 +104,7 @@ n_slacks,,,118.0,slacks,connected ever-wet cells passing the Sentinel check
 slacks_turning,,,0.0,slacks,wet-to-dry direction change > 45 deg
 median_turn_wet_dry_deg,,,4.724348952676621,deg,
 n_slacks_with_turn,,,116.0,slacks,slacks with a direction in both the wet and the dry state (turn_wet_dry_deg defined); the base of slacks_turning and median_turn_wet_dry_deg. report9 §4.9.5
+n_slacks_turn_over_report_deg,,20 deg,7.0,slacks,"slacks whose wet-to-dry direction change exceeds SLACK_FLOW_TURN_REPORT_DEG (20 deg), of n_slacks_with_turn. report9 §4.9.5"
 sens_head_0_m_angle_deg,,,0.9676104556631913,deg,
 sens_head_mean_tide_level_angle_deg,,,0.8675769320581992,deg,
 sens_head_midpoint_angle_deg,,,0.45204150407417387,deg,

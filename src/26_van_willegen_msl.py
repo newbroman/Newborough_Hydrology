@@ -100,7 +100,10 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-09-29. T-96: 26_report_numbers.csv gains the report9
+__version__ = "1.20.1"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: the wet-step window-end reads
+#   config.MSL5_WET_STEP_WINDOW_END (named for this use, report9 SS4.8.2) instead of borrowing
+#   max(config.ENVELOPE_RECENT_WET_YEARS); same value, keys and values unchanged.
+# 1.20.0  # Hollingham (2026) - 2026-09-29. T-96: 26_report_numbers.csv gains the report9
 #   §4.8.3 / §4.8.4 quantities that were row differences or row counts: MSL5 map coverage
 #   (msl5_n_wells_any_window, msl5_n_wells_mapped, msl5_mapped_latest_window_end,
 #   msl5_n_wells_mapped_at_latest_window_end); pairwise cluster gaps at the latest common
@@ -2405,9 +2408,9 @@ def main() -> int:
         report_nums[f"curreli_min_max_below_sd16_window_end_c{int(_cid)}"] = \
             int(_g.loc[_below.idxmax(), "window_end_year"])
     # Cluster MSL5 step as the wet 2023-24 hydrological year enters the window:
-    # window-end = the latest of config.ENVELOPE_RECENT_WET_YEARS (the most recent
-    # antecedent-wet spring), less the window-end before it; mm, positive = wetter.
-    _wet_end = int(max(config.ENVELOPE_RECENT_WET_YEARS))
+    # window-end = config.MSL5_WET_STEP_WINDOW_END (1.20.1; was borrowed from
+    # ENVELOPE_RECENT_WET_YEARS), less the window-end before it; mm, positive = wetter.
+    _wet_end = int(config.MSL5_WET_STEP_WINDOW_END)
     _pc = (per_cluster.assign(cluster_id=per_cluster["cluster_id"].astype(int),
                               window_end_year=per_cluster["window_end_year"].astype(int))
            .set_index(["cluster_id", "window_end_year"])["MSL5_m_bg_mean"])

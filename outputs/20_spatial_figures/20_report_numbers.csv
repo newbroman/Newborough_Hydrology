@@ -1,5 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
 drawdown_lambda,,,222.929360297203,m,"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy=0.2982, β₃=0.0616/month [C3]"
+drawdown_lambda_at_K_min,,,128.70832617786124,m,"λ at K = 2 m/day (DRAWDOWN_K_RANGE_MDAY min), b = 5 m, C3 Sy and β₃ as drawdown_lambda"
+drawdown_lambda_at_K_max,,,407.0114645499156,m,"λ at K = 20 m/day (DRAWDOWN_K_RANGE_MDAY max), b = 5 m, C3 Sy and β₃ as drawdown_lambda"
+drawdown_lambda_at_b_min,,,172.68033996234803,m,"λ at b = 3 m (DRAWDOWN_B_RANGE_M min), K = 6 m/day, C3 Sy and β₃ as drawdown_lambda"
+drawdown_lambda_at_b_max,,,281.9858143453891,m,"λ at b = 8 m (DRAWDOWN_B_RANGE_M max), K = 6 m/day, C3 Sy and β₃ as drawdown_lambda"
 beta_3_c3,C3,,0.0616150855443408,1/month,"SSM drainage coefficient (β₃), C3 centroid, live from 03_03_cluster_mechanistic_coefficients.csv — the value λ is built from"
 sy_c3,C3,,0.29820068578930775,-,"C3 WTF median specific yield, live from 18_wtf_01_well_sy_estimates.csv — the value λ is built from"
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)

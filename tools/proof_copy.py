@@ -78,7 +78,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.26.1"  # Hollingham (2026) — 2026-09-29. The deep-scan key column is parsed with the
+__version__ = "1.27.0"  # Hollingham (2026) — 2026-09-29. A reader's better source is taken on the
+#   FILE, not on the reader's word: _about_match and _bound_holds now require a registered row for the
+#   better's file and label (_better_row_exists) before they paint traced. Found when the T-96 batch-2
+#   verdicts, re-pointed at keys the scripts had not yet emitted on Martin's machine, turned green
+#   from the typed value alone. A key that does not exist yet stays red until the run lands.
+# 1.26.1  # Hollingham (2026) — 2026-09-29. The deep-scan key column is parsed with the
 #   project's month formats (YYYY-MM, then YYYY-MM-DD) instead of pandas guessing per element, which printed a
 #   "Could not infer format" warning for every CSV scanned (Martin pasted the wall of them). Same verdicts.
 # 1.26.0  # Hollingham (2026) — 2026-09-29. Three things the chapter-by-chapter
@@ -2972,6 +2977,33 @@ _BETTER = re.compile(r"^\s*(.+?)\s*(?:=|~|≈|about)\s*([-+−]?\d[\d.,]*(?:e-?\
 _BOUND_DETAIL = re.compile(r"^(?:inequality bound \()?\s*(p|n|r|r²|k)?\s*([<≤>≥])\s*([-+−]?\d[\d.]*(?:e-?\d+)?)[:)]")
 
 
+_ROW_INDEX: dict | None = None
+
+
+def _better_row_exists(better: str) -> bool:
+    """Does the value map hold a registered row for the better's file and label? A reader's
+    `better` carries a typed value; without this check a bound or an "about" match would be
+    taken on the reader's word alone — a key a script has yet to emit would paint green
+    before the run lands (1.27.0). Matched on the file name and the label's first token or
+    key, the way _better_cand matches."""
+    global _ROW_INDEX
+    m = _BETTER.match(better or "")
+    if not m:
+        return False
+    if _ROW_INDEX is None:
+        _ROW_INDEX = {}
+        for (rel, lab) in ROWS:
+            _ROW_INDEX.setdefault(pathlib.Path(rel).name, set()).add(re.sub(r"[\s·/]+", " ", str(lab)).strip().lower())
+    labs = _ROW_INDEX.get(m.group(3).strip(), set())
+    if not labs:
+        return False
+    lab = re.sub(r"[\s·/]+", " ", m.group(1).rpartition(" · ")[0] or m.group(1)).strip().lower()
+    key = lab.split(" ")[0]
+    toks = {t for t in re.split(r"[\s()]+", lab) if len(t) >= 2}
+    return any(lab == x or lab in x or x in lab or x.split(" ")[0] == key
+               or (toks & {t for t in re.split(r"[\s()]+", x) if len(t) >= 2}) for x in labs)
+
+
 def _bound_holds(detail: str, better: str):
     """A stale BOUND mark ("p < 0.001: the row its neighbours cite … CONTRADICTS") against
     the reader's better source: (holds, value) when `better` carries a readable value
@@ -2980,7 +3012,7 @@ def _bound_holds(detail: str, better: str):
     correlations quotes three rows; the reader says which the bound belongs to."""
     bm = _BOUND_DETAIL.match(detail or "")
     vm = _BETTER.match(better or "")
-    if not bm or not vm:
+    if not bm or not vm or not _better_row_exists(better):
         return None
     try:
         b = float(bm.group(3).replace("−", "-"))
@@ -3002,7 +3034,7 @@ def _about_match(better: str, tok: str, sentence: str):
     within half that step, or within 1 % when the sentence says about/approximately;
     metres quoted as mm, mm as m, months as years, a fraction as %."""
     m = _BETTER.match(better or "")
-    if not m or (better or "").startswith("needs emit"):
+    if not m or (better or "").startswith("needs emit") or not _better_row_exists(better):
         return None
     try:
         val = float(m.group(2).replace("−", "-").replace(",", ""))

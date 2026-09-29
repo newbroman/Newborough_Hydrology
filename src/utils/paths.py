@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.46.0"  # Hollingham (2026) - 2026-09-29. 1.46.0: the FILM COPIES of the figures
+__version__ = "1.47.0"  # Hollingham (2026) - 2026-09-29. 1.47.0: T-96, the second emit batch
+#   (Martin: "continue your work") - five scripts that quote counts and comparisons the report cites but
+#   had no report-numbers file gain one: OUT_05_REPORT_NUMBERS, OUT_10C_REPORT (in DIR_10, so run_10's
+#   consolidation sweeps it), OUT_11C_REPORT_NUMBERS, OUT_17_REPORT_NUMBERS, OUT_33_REPORT_NUMBERS. Additive.
+# 1.46.0  # Hollingham (2026) - 2026-09-29. 1.46.0: the FILM COPIES of the figures
 #   the hindcast film draws - OUT_45_MODEL_FIG_FILM, OUT_45_SSM_CURVES_FIG_FILM, OUT_45_SWITCHING_LEVELS_MAP_FILM
 #   (Script 45 1.6.0) and OUT_00_CLIMATE_TIMESERIES_SHORT_FILM (Script 00 1.15.0): the same figure saved a second
 #   time with the film's slide ground as its margin colour (Script 47 1.6.0, treatment B; the report copies are
@@ -559,6 +563,7 @@ OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
 # Script 05 — Pearson affinity
 OUT_05_CONFIDENCE_MAP   = DIR_05 / "05_pear_01_spatial_confidence_map.png"
 OUT_05_AFFINITY_CHART   = DIR_05 / "05_pear_02_affinity_chart_reference.png"
+OUT_05_REPORT_NUMBERS   = DIR_05 / "05_report_numbers.csv"   # T-96 (1.47.0): the MCA label counts
 
 # Script 06 — Pearson extended
 OUT_06_AFFINITY_CHART   = DIR_06 / "06_pear_01_affinity_chart_extended.png"
@@ -702,6 +707,7 @@ OUT_10C_B1_B2_SCATTER       = DIR_10C / "10c_01_b1_b2_scatter.png"
 OUT_10C_B2_ELEV_REGRESSION  = DIR_10C / "10c_02_b2_elevation_regression.png"
 OUT_10C_BOUNDARY_MAP        = DIR_10C / "10c_03_c4_c5_boundary_map.png"
 OUT_10C_SUMMARY             = DIR_10C / "10c_04_forest_zone_summary.txt"
+OUT_10C_REPORT              = DIR_10 / "10c_report_numbers.csv"     # T-96 (1.47.0): forest-zone n, easting R2, NW10 z; consolidated by run_10
 
 # Script 10d — Summer minima (dual control)
 OUT_10D_DATA                = DIR_10 / "10d_01_summer_minima.csv"
@@ -830,6 +836,7 @@ LIVING_WET_AREA_MODEL = ROOT_DIR / "living" / "wet_area_model.json"
 OUT_11C_ACHIEVABILITY_MAP    = DIR_11B / "11c_pflood_achievability.png"
 OUT_11C_PER_WELL             = DIR_11B / "11c_pflood_achievability_per_well.csv"
 OUT_11C_RESULTS_MEMO         = DIR_11B / "11c_pflood_achievability_results.md"
+OUT_11C_REPORT_NUMBERS       = DIR_11B / "11c_report_numbers.csv"   # T-96 (1.47.0): the achievability class counts and shares
 SRC_FORECASTER_TEMPLATE = SRC_DIR / "forecaster_template.html"
 
 # Script 14 — Climate projections
@@ -890,6 +897,7 @@ OUT_17_BOXPLOT              = DIR_17 / "17_wtf_03_event_boxplot.png"
 OUT_17_SUMMARY              = DIR_17 / "17_wtf_04_summary.txt"
 OUT_17_RAPID_EVENTS         = DIR_17 / "17_wtf_05_rapid_events.png"
 OUT_17_INTERCEPTION_SWEEP   = DIR_17 / "17_wtf_06_interception_sweep.csv"   # F sweep, 2026-09-07
+OUT_17_REPORT_NUMBERS       = DIR_17 / "17_report_numbers.csv"   # T-96 (1.47.0): the cluster-level Sy estimator comparisons
 # INT_WTF_WELL_SY (outputs/17_wtf_well_sy.csv) RETIRED 2026-08-19, D-038.
 # Script 18 wrote the same well_results frame to two paths; the "17_" prefix
 # named a script that never produced it. All consumers now read
@@ -927,6 +935,7 @@ OUT_33_FIG_AMP              = DIR_33 / "33_amplification_field.png"
 OUT_33_FIG_DRY_SPRING       = DIR_33 / "33_dry_spring_depth.png"
 OUT_33_RESULTS              = DIR_33 / "33_results.txt"
 OUT_33_CLUSTER_SUMMARY      = DIR_33 / "33_cluster_summary.csv"      # per (panel, cluster): mean dry/wet/swing/amplification, n (v1.5.0)
+OUT_33_REPORT_NUMBERS       = DIR_33 / "33_report_numbers.csv"      # T-96 (1.47.0): the C4 mean without the excluded wells, amplification vs beta_2
 # Recent (extended-network) window panels — separate files, canonical handles unchanged.
 OUT_33_PER_WELL_RECENT      = DIR_33 / "33_envelope_per_well_recent.csv"
 OUT_33_FIG_AMP_RECENT       = DIR_33 / "33_amplification_field_recent.png"

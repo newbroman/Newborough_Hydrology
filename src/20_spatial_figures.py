@@ -108,7 +108,12 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.58.0"  # Hollingham (2026) - 2026-09-29. T-96 emits (report8 §3.5.4, §3.8.1, §3.8.2;
+__version__ = "1.59.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2 (report8 SS3.7.4): 20_report_numbers.csv
+#   gains drawdown_lambda_at_K_min / _at_K_max and drawdown_lambda_at_b_min / _at_b_max beside drawdown_lambda -
+#   lambda at the bounds of config.DRAWDOWN_K_RANGE_MDAY and DRAWDOWN_B_RANGE_M, the other of K and b held at its
+#   point value. The headline lambda expression is lifted into a local _lambda_at(K, b) that both the headline
+#   and the sweep call, so the sweep cannot drift from it; the headline value is unchanged. Additive.
+# 1.58.0  # Hollingham (2026) - 2026-09-29. T-96 emits (report8 §3.5.4, §3.8.1, §3.8.2;
 #   report9 §4.9.6, §4.11, §4.12; report10 §5.7.5). 20_report_numbers.csv gains
 #   drawdown_diffusivity_m2_per_day (D = K·b/Sy), slr_diffusive_length_2sqrtDt_m,
 #   broadleaf_restock_H0_incr_mm and ceh11_to_lake_edge_group_dist_min_m / _max_m;
@@ -365,6 +370,7 @@ from utils.map_utils import (load_dem_hillshade, load_scrape_kml, add_en_axes,
 from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FOREST_INTERCEPTION,
                           SCRAPE_KML_FILES,
                           DRAWDOWN_H0_MM, DRAWDOWN_K_MDAY, DRAWDOWN_B_M, DRAWDOWN_QUOTE_LEVELS_MM,
+                          DRAWDOWN_K_RANGE_MDAY, DRAWDOWN_B_RANGE_M,
                           DAYS_PER_MONTH,
                           REACH_QUOTE_NEAREST_M,
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
@@ -1418,7 +1424,11 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     _mech_df  = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     BETA3_M   = float(_mech_df[_mech_df['Cluster'] == 3]['beta_3_drainage'].iloc[0])
     BETA3_D   = BETA3_M / DAYS_PER_MONTH
-    lam       = np.sqrt((K * b) / (Sy * BETA3_D))
+    def _lambda_at(K_, b_):
+        """λ = √(K·b/(Sy·β₃)) with the C3 Sy and β₃ above (1.59.0: one expression
+        for the headline and the K/b sensitivity rows)."""
+        return np.sqrt((K_ * b_) / (Sy * BETA3_D))
+    lam       = _lambda_at(K, b)
     OUT_PATH  = OUT_20_DRAWDOWN if show_head else OUT_20_DRAWDOWN_NOHEAD
 
     print(f"  λ = {quote_reach_m(lam):.0f} m  (K={K}, Sy={Sy:.4f} [C3 WTF], "
@@ -1609,6 +1619,16 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     rpt.add("drawdown_lambda", float(lam), unit="m",
             note=f"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy={Sy:.4f}, "
                  f"β₃={BETA3_M:.4f}/month [C3]")
+    # 1.59.0 (T-96 batch 2): λ across the quoted K and b sensitivity ranges
+    # (report8 §3.7.4), the other parameter held at its point value.
+    for _tag, _v in zip(("min", "max"), sorted(DRAWDOWN_K_RANGE_MDAY)):
+        rpt.add(f"drawdown_lambda_at_K_{_tag}", float(_lambda_at(_v, b)), unit="m",
+                note=f"λ at K = {_v:g} m/day (DRAWDOWN_K_RANGE_MDAY {_tag}), b = {b:g} m, "
+                     f"C3 Sy and β₃ as drawdown_lambda")
+    for _tag, _v in zip(("min", "max"), sorted(DRAWDOWN_B_RANGE_M)):
+        rpt.add(f"drawdown_lambda_at_b_{_tag}", float(_lambda_at(K, _v)), unit="m",
+                note=f"λ at b = {_v:g} m (DRAWDOWN_B_RANGE_M {_tag}), K = {K:g} m/day, "
+                     f"C3 Sy and β₃ as drawdown_lambda")
     # T-91: beta_3 and Sy as their own citable rows (previously only quoted inside
     # drawdown_lambda's note text) — the Methods Supplement cites each on its own.
     rpt.add("beta_3_c3", float(BETA3_M), unit="1/month", well="C3",

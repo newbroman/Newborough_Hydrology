@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.80.0"  # Hollingham (2026) - 2026-09-29. FILM_FRAMES_PER_MONTH (Script 47 1.8.0:
+__version__ = "1.81.0"  # Hollingham (2026) - 2026-09-29. T-96, the second emit batch (Martin:
+#   "continue your work"): the constants that were typed in scripts or prose and that the report's
+#   remaining un-traced numbers depend on - SLACK_FLOW_TURN_REPORT_DEG, DRAWDOWN_K_RANGE_MDAY,
+#   DRAWDOWN_B_RANGE_M, CCW_ANNUAL_RANGE_DAVY_2010_M (+_SD_M), SHORELINE_1899_GEOREF_RMSE_M,
+#   PLANTATION_AREA_HA, PEARSON_DELTA_SENS, MSL5_WET_STEP_WINDOW_END. Additive; the two literature
+#   values and the provenance value are named as such beside their definitions.
+# 1.80.0  # Hollingham (2026) - 2026-09-29. FILM_FRAMES_PER_MONTH (Script 47 1.8.0:
 #   three seconds a year, Martin), and FILM_AUDIO_BITRATE 160k -> 96k (Martin: "is there a way of
 #   compressing it" — the audio was two thirds of the file; the video streams at under 100 kb/s).
 # 1.79.0  # Hollingham (2026) - 2026-09-29. Script 47 1.7.0 (Martin: the January
@@ -458,6 +464,9 @@ LABEL_ADJUST_ITER_LIM = 500
 # PEARSON_MCA_THRESH — the correlation above which a cluster centroid counts
 #   towards the Multi-Cluster Affinity flag, which is raised at three or more.
 PEARSON_DELTA_THRESH = 0.05
+# The delta-r thresholds the reclassification sensitivity is reported at (report8 §3.3.2:
+# "16 wells at 0.03, 14 at 0.10"); Script 06 emits n_ref_reclassified_at_<delta> for each (T-96, 1.81.0).
+PEARSON_DELTA_SENS = (0.03, 0.10)
 PEARSON_MCA_THRESH   = 0.90
 
 CLUSTER_COLOURS = {
@@ -737,6 +746,11 @@ DRAWDOWN_K_MDAY = 6.0
 # along a known axis. A single λ is then a site average standing in for a field.
 # Read by Script 20 only, so the exposure is contained.
 DRAWDOWN_B_M    = 5.0
+# The ranges the report quotes lambda's sensitivity over (report8 §3.7.4: K 2-20 m/day, b 3-8 m):
+# Script 20 emits drawdown_lambda_at_K_min/max and _at_b_min/max from them (T-96, 1.81.0). Bounds
+# of a sensitivity sweep, not estimates; the point values above stay the headline.
+DRAWDOWN_K_RANGE_MDAY = (2.0, 20.0)
+DRAWDOWN_B_RANGE_M    = (3.0, 8.0)
 # The drawdown levels the documents quote a reach for (report §4.11, §4.12): Script 20
 # writes drawdown_contour_<L>mm_m and scrape_reach_<L>mm_m for each (1.45.0, T-84).
 DRAWDOWN_QUOTE_LEVELS_MM = (50.0, 10.0)
@@ -776,6 +790,10 @@ REACH_QUOTE_NEAREST_M = 10.0
 SCRAPE_RISE_BUFFER_M = 10.0
 COAST_RETREAT_M      = 6.0
 COAST_RETREAT_RATE   = 8.3
+# Georeferencing RMSE of the 1899 shoreline (data/geo/GEO_PROVENANCE.md: 27 GCPs, RMSE 5.95 m,
+# 3.27 m with two outliers excluded); Script 40 emits it as a rate over the 1899-2006 pair span
+# (report8 §3.7.4 "about 0.06 m/yr", T-96, 1.81.0). A provenance value, not a measurement here.
+SHORELINE_1899_GEOREF_RMSE_M = 5.95
 
 # Near band of the CEH36 uphill propagation test (Script 09b 1.9.0). The uphill transect
 # runs 247-776 m from CEH36; the documents test the wells inside this distance - the eight
@@ -2182,6 +2200,10 @@ CELL_MIN_SCENES  = 10     # a cell seen in fewer scenes gets no switching level
 # rule on the forest polygons. It showed that any canopy reads dark at every level, so the classification is not
 # extended into the forest (Martin, 2026-09-29). Closed pine is never scored; rides are counted, not classified.
 WET_AREA_CLEARFELL_PLACEMARK = "Felling experiment"   # Features.kml: the 2017 clearfell
+# The plantation's managed area (report7: "the northern 700 hectares are managed plantation",
+# Stratford et al. 2007) - the denominator of "about 0.6 % of the plantation" for the clearfell
+# polygon; Script 41 emits clearfell_share_of_plantation_pct against it (T-96, 1.81.0). A literature value.
+PLANTATION_AREA_HA           = 700.0
 WET_AREA_FOREST_PLACEMARK    = "Forest"               # Features.kml: the plantation outline
 WET_AREA_RIDE_LINES          = ("path3", "path4")     # Features.kml: the ride/road lines through the forest
 WET_AREA_FOREST_OPEN_FROM    = "2018-01-01"           # the clearfell is open from December 2017: scenes from here
@@ -2360,6 +2382,9 @@ LAKE_GAUGE_REASON = "lake gauge — non-network measuring point"
 # every other analysis (clustering, levels, BACI). Rows are retained, flagged,
 # in 26_msl_5yr_per_well.csv. Mirrors the Script 18 beta_3 <= 0 exclusion. Keys
 # lowercase to match the normalised well column. Added 2026-06-25.
+# The window-end at which Script 26 reports the wet-year MSL5 step per cluster (report9 §4.8.2,
+# "the 2023 to 2024 step"): named here rather than borrowed from ENVELOPE_RECENT_WET_YEARS (T-96, 1.81.0).
+MSL5_WET_STEP_WINDOW_END = 2024
 MSL5_EXCLUDED_WELLS = {
     "ceh13": "near-zero SSM beta_3 - MSL5 unreliable over the 5yr window",
     "ceh14": "negative SSM beta_3 (SSM failure) - MSL5 unreliable over the 5yr window",
@@ -2457,6 +2482,10 @@ CCW_PIPE_BASE_M = -2.000                     # dipwell base, m below ground
 # max - min of the reduced CCW series over these years, counting only well-years with
 # at least this many monthly readings.
 CCW_ANNUAL_RANGE_YEARS      = (1989, 1995)
+# Davy et al. (2010) report the 1989-95 annual range as 0.75 m (SD 0.27 m); Script 39 emits
+# the difference from ccw_annual_range_mean_m against it (T-96, 1.81.0). A literature value.
+CCW_ANNUAL_RANGE_DAVY_2010_M    = 0.75
+CCW_ANNUAL_RANGE_DAVY_2010_SD_M = 0.27
 CCW_ANNUAL_RANGE_MIN_MONTHS = 10
 CCW_MAX_CENSORED_FRACTION = 0.25             # a code censored more often is not admitted
 
@@ -2831,6 +2860,10 @@ SLACK_FLOW_MIN_GRADIENT      = 5e-4
 # cells, and the wet-to-dry turn that is flagged.
 SLACK_FLOW_MIN_SLACK_CELLS   = 5
 SLACK_FLOW_TURN_DEG          = 45.0
+# The turn the report counts slacks against ("7 of 116 slacks turn more than 20 degrees",
+# report9 §4.8.5; a description of the flow field, not the 45-degree flag above). Script 01b emits
+# n_slacks_turn_over_report_deg against it (T-96, 1.81.0).
+SLACK_FLOW_TURN_REPORT_DEG   = 20.0
 # The committed HWM line against the Admiralty mean high water: flag above this.
 SLACK_FLOW_HWM_OFFSET_TOL_M  = 0.25
 SLACK_FLOW_DEM_GAMMA         = 0.7    # PowerNorm gamma of the DEM on the 49_02 location map (display only)

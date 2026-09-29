@@ -67,7 +67,11 @@ Dependencies
        It is a display figure and runs last in the suite.
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-23. The sub-script launch
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): "10c_" joins pattern_prefixes in
+#   consolidate_report_numbers() - Script 10c 1.3.0 now writes 10c_report_numbers.csv (forest-zone n, easting
+#   R2, NW10 z; report9 SS4.4), so its rows reach 10_consolidated_report_numbers.csv. The docstring's
+#   "10c is supplementary" exclusion is amended to match.
+# 1.1.0  # Hollingham (2026) — 2026-09-23. The sub-script launch
 #   loop in main() now reports through console_utils.track(lines=True) — one
 #   completion line per sub-script as it finishes, since each launch already
 #   prints its own banner/output and the subprocess inherits stdout (Martin,
@@ -147,14 +151,15 @@ def consolidate_report_numbers():
     """Merge per-sub-script report numbers into a single CSV.
 
     Includes report numbers from sub-scripts that produce a `*_report_numbers.csv`
-    summary table.  10b emits a per-well spatial CSV (not a citable-values table)
-    and 10c is supplementary, so neither is included in the consolidation.
+    summary table.  10b emits a per-well spatial CSV (not a citable-values table),
+    so it is not included in the consolidation.  10c is supplementary, but its
+    report-numbers file (from 1.3.0, T-96) carries values report9 quotes, so it is.
     10i emits citable values for the CEH34 hindcast (donor identity, fit r²/RMSE,
     prediction interval) which belong in the consolidated report numbers table.
     """
     import pandas as pd
 
-    pattern_prefixes = ["10a_", "10d_", "10e_", "10f_", "10g_", "10h_", "10i_",
+    pattern_prefixes = ["10a_", "10c_", "10d_", "10e_", "10f_", "10g_", "10h_", "10i_",
                         "10k_", "10l_", "10m_", "10n_"]
     frames = []
 

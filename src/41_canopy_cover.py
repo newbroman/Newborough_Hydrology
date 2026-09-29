@@ -150,11 +150,14 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.14.0
+__version__ : 2.15.0
 """
 from __future__ import annotations
 
-__version__ = "2.14.0"  # Hollingham (2026) - 2026-09-29. T-96: 41_report_numbers.csv also
+__version__ = "2.15.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: 41_report_numbers.csv gains
+#   clearfell_share_of_plantation_pct = 100 x clearfell_polygon_area_ha / config.PLANTATION_AREA_HA, beside
+#   the area row (report7 "about 0.6 % of the plantation"). Additive; nothing else moves.
+# 2.14.0  # Hollingham (2026) - 2026-09-29. T-96: 41_report_numbers.csv also
 #   carries clearfell_polygon_area_ha, the area of the clearfell.kml polygon this
 #   script already reads as the "clearfell" region (report6 §1 "an experimental
 #   clearfell of 4.4 ha"; moved here from Script 13, which has no report-numbers
@@ -346,6 +349,7 @@ from utils.config import (                                   # noqa: E402
     CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M, CANOPY_REPORT_VIEWPOINT,
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
     LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO, CLEARFELL_ERA_SPLIT,
+    PLANTATION_AREA_HA,
 )
 from utils.console_utils import banner, phase, step, info, warn, saved, track  # noqa: E402
 from utils.render_utils import render_figure                 # noqa: E402
@@ -1438,9 +1442,15 @@ def main() -> int:
     # T-96: the clearfell compartment's area, from the clearfell.kml polygon
     # already loaded as the "clearfell" region (EPSG:27700, so m2).
     if "clearfell" in regions:
+        _cf_ha = float(regions["clearfell"][0].area) / 10000.0
         rn.append({"Parameter": "clearfell_polygon_area_ha", "Well": "", "Era": "",
-                   "Value": float(regions["clearfell"][0].area) / 10000.0, "Unit": "ha",
+                   "Value": _cf_ha, "Unit": "ha",
                    "Note": "planar area of the clearfell.kml polygon in OSGB (EPSG:27700)"})
+        # T-96 batch 2: the same area as a share of the managed plantation.
+        rn.append({"Parameter": "clearfell_share_of_plantation_pct", "Well": "", "Era": "",
+                   "Value": 100.0 * _cf_ha / PLANTATION_AREA_HA, "Unit": "%",
+                   "Note": (f"100 x clearfell_polygon_area_ha / PLANTATION_AREA_HA "
+                            f"({PLANTATION_AREA_HA:g} ha, Stratford et al. 2007)")})
     # An empty summary is REFUSED, not written. A step that could not produce
     # its numbers must leave the committed file alone rather than replace it with
     # nothing — `pd.DataFrame([]).to_csv()` writes a file with no header at all,

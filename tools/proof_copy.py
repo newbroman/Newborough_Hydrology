@@ -78,7 +78,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.26.0"  # Hollingham (2026) — 2026-09-29. Three things the chapter-by-chapter
+__version__ = "1.26.1"  # Hollingham (2026) — 2026-09-29. The deep-scan key column is parsed with the
+#   project's month formats (YYYY-MM, then YYYY-MM-DD) instead of pandas guessing per element, which printed a
+#   "Could not infer format" warning for every CSV scanned (Martin pasted the wall of them). Same verdicts.
+# 1.26.0  # Hollingham (2026) — 2026-09-29. Three things the chapter-by-chapter
 #   resolution needed (Martin: "check the flagged values and resolve them"): (1) a report-numbers
 #   row's Note statistics ("p=0.3648, CI=[…], n=17") are registered as the row's "note p" /
 #   "note n" / "note ci_lo" / "note ci_hi" cells, so a coefficient's p traces to the coefficient;
@@ -723,7 +726,12 @@ def build_index(values, deep: bool = True) -> dict:
                 continue
             fw = _deep_words(p.stem.replace("_", " "))
             kcol = df.columns[0]
-            dated = pd.to_datetime(df[kcol], errors="coerce")
+            # 1.26.1: the key column is dated only if it is in one of the project's month
+            # formats (YYYY-MM, or the YYYY-MM-01 pandas convention); no format guessing,
+            # which pandas warned about once per file
+            dated = pd.to_datetime(df[kcol], format="%Y-%m", errors="coerce")
+            if dated.notna().mean() < 0.9:
+                dated = pd.to_datetime(df[kcol], format="%Y-%m-%d", errors="coerce")
             monthly = dated.notna().mean() > 0.9 and len(df) >= 24
             for c in df.columns[1:]:
                 col = pd.to_numeric(df[c], errors="coerce")

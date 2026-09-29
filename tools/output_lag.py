@@ -89,7 +89,12 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-27.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-29. A run that recorded the script's current
+#   __version__ in outputs/pipeline_provenance.json is current whatever the clocks say: a script
+#   committed after the run it was in carries a commit time later than outputs the run left
+#   byte-identical (10c on 29u, "0.0 d ahead" with nothing behind). Reads the provenance file;
+#   nothing else changes.
+# 1.0.0  # Hollingham (2026) — 2026-08-27.
 
 import argparse
 import ast
@@ -139,6 +144,25 @@ def run_log() -> dict[str, int]:
         return out
     except (ValueError, OSError):
         return {}
+
+
+def _provenance_versions() -> dict[str, str]:
+    """script -> the __version__ the orchestrator recorded when it last ran the step
+    (outputs/pipeline_provenance.json, run_analysis 2.15.0+)."""
+    f = OUTPUTS / "pipeline_provenance.json"
+    if not f.exists():
+        return {}
+    try:
+        import json
+        d = json.loads(f.read_text(encoding="utf8"))
+        return {name: str(rec.get("version") or "") for name, rec in (d.get("steps") or {}).items()}
+    except (ValueError, OSError):
+        return {}
+
+
+def _live_version(path) -> str:
+    m = re.search(r'^__version__\s*=\s*"([^"]+)"', path.read_text(encoding="utf8", errors="ignore"), re.M)
+    return m.group(1) if m else ""
 
 
 def _dirty() -> set[str]:
@@ -278,6 +302,7 @@ def main() -> int:
 
     dirty = _dirty()
     ran = run_log()
+    prov_versions = _provenance_versions()
     behind, unresolved, no_emits = [], [], []
 
     for script, emits in ledger_rows():
@@ -311,6 +336,27 @@ def main() -> int:
         # A recorded successful run counts even if it changed no byte.
         if script in ran and (newest is None or ran[script] > newest[0]):
             newest = (ran[script], "recorded run (no output changed)")
+        # A run that RECORDED THIS VERSION of the script is current whatever the
+        # clock says (1.1.0): committing after the run gives the code a commit time
+        # later than the outputs it produced, and outputs a rerun left byte-identical
+        # keep their old commit time. Every script edit bumps __version__ (the
+        # ledger gates it), so an equal recorded version means the outputs were
+        # made by this code. Found on 2026-09-29u: 10c flagged 0.0 d ahead after a
+        # run it was in.
+        if newest and s_t > newest[0] and prov_versions.get(script) \
+                and prov_versions[script] == _live_version(sp):
+            newest = (s_t, f"provenance: run recorded version {prov_versions[script]}")
+        # The same case for a script a SUB-RUNNER runs (10a-10n under run_10_clearfell,
+        # the provenance knows only the runner): its commit time is later than the run,
+        # but the file on disk has not changed since — its mtime precedes the newest
+        # output. A checkout rewrites mtimes forward, so this can only say "current"
+        # when the file really has sat untouched since the run; it cannot invent it.
+        if newest and s_t > newest[0] and not s_dirty:
+            try:
+                if int(sp.stat().st_mtime) <= newest[0]:
+                    newest = (s_t, f"{newest[1]} (file unchanged on disk since the run)")
+            except OSError:
+                pass
         if newest and s_t > newest[0]:
             behind.append((script, s_dirty, newest[1],
                            (s_t - newest[0]) / 86400.0,

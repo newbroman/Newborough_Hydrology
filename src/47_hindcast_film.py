@@ -60,7 +60,15 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.6.1"  # Hollingham (2026) - 2026-09-29. The "weather-driven groundwater model"
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-29. The Warren track, after Martin
+#   listened for patterns ("is there a pattern or am I just imagining it" — there were: the
+#   January note and the breath marking the same beat, and the pad's five voices swelling and
+#   drifting on fixed 7-16 s periods): the January note is REMOVED (the breath carries the
+#   year); the pad is DATA-DRIVEN — root and fifth steady, the octave following the month's
+#   rainfall, the tenth its evaporation, the top voice the level (FILM_PAD_*), no periods, no
+#   random phases, a fixed stereo spread; render() takes the climate frame for it. "What you
+#   hear" says so. Sample H1 approved ("lets go with the no note pad").
+# v1.6.1  # Hollingham (2026) - 2026-09-29. The "weather-driven groundwater model"
 #   slide names what each panel of the climate figure shows — (a) rain, (b) evaporation, (c) the
 #   running balance, (d) the water table — and which line of the chart is the model and which the
 #   wells (Martin: "it isn't clear what each panel represents"; wording approved). The climate
@@ -222,9 +230,9 @@ from utils.config import (                                    # noqa: E402
     FILM_TREMOLO_HZ, FILM_TREMOLO_DEPTH, FILM_AUDIO_BITRATE,
     FILM_INDEX_VIEW_S, FILM_TONE_HARMONIC_GAIN,
     FILM_SOUND_TRACK, FILM_OPEN_TITLE_S, FILM_OPEN_CLIP_START, FILM_OPEN_CLIP_LABEL,
-    FILM_NOTE_F_LOW_HZ, FILM_NOTE_F_HIGH_HZ, FILM_NOTE_SCALE, FILM_NOTE_FLOOR, FILM_NOTE_DECAY_S,
+    FILM_PAD_RATIOS, FILM_PAD_DRIVER_PCT, FILM_PAD_REST, FILM_PAD_SPREAD,
     FILM_CHORD_SEMITONES, FILM_CHORD_RELEASE_S,
-    FILM_MIX_PAD, FILM_MIX_NOTE, FILM_MIX_CHORD,
+    FILM_MIX_PAD, FILM_MIX_CHORD,
     FILM_COL_FLOOR_TEXT, FILM_COL_TITLE, FILM_WASH_PAN_WIDTH,
     FILM_FLOOD_TONE_LEVEL_LO_M, FILM_FLOOD_TONE_SEMITONES, FILM_FLOOD_TONE_SEVENTH_SEMITONES,
     FILM_MIX_FLOOD_TONE, FILM_BREATH_SEMITONES, FILM_BREATH_MONTHS, FILM_BREATH_EDGE_S,
@@ -912,10 +920,9 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
         *method_slides(n, rng, thumbs or [], stats),
         *([("What you hear",
             ["The sound is made from the water, month by month. Nothing in it is recorded.",
-             "A soft chord runs throughout. While the months play, its upper voices open as "
-             "the water table rises, and in the months beyond the record it trembles.",
-             "Each January a single note marks the year. The higher and louder the note, the "
-             "more open water that year reached.",
+             "A soft chord runs throughout. While the months play, one of its voices swells "
+             "with each month's rain, another with its evaporation, and the highest opens as the "
+             "water table rises; in the months beyond the record it trembles.",
              "A steady chord rises with the water table, from silence in the driest months to "
              "full at the top of the record; above the yellow line a seventh joins it, and the "
              "chord tightens as the warren floods, leaning toward where the water is: right for "
@@ -1148,16 +1155,20 @@ def sound_track(marks: list, lvl: np.ndarray, flooded_ha: np.ndarray, hmax: floa
 
 def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndarray,
                        months: list, hmax: float, arrivals: dict,
-                       wet_pan: np.ndarray | None = None) -> np.ndarray:
-    """The Warren track (1.3.0, reworked 1.5.0): stereo float32, sample-aligned to the frames.
+                       wet_pan: np.ndarray | None = None,
+                       P: np.ndarray | None = None, PET: np.ndarray | None = None) -> np.ndarray:
+    """The Warren track (1.3.0, reworked 1.5.0 and 1.7.0): stereo float32, sample-aligned to
+    the frames.
 
-    Pad: the slides' ambient chord on FILM_AMBIENT_ROOT_HZ runs under everything. Under a
-    slide it sounds at rest; over the monthly frames its root and fifth always sound and
-    its octave and upper voices open with the calibrated water table (0 at TRACE_LO_M, 1
-    at the top of the record), with the tremolo on the months beyond the record.
-    Annual note: on each January's first frame, one mallet note whose pitch (sqrt of the
-    year's largest open water over the record's, snapped to FILM_NOTE_SCALE between
-    FILM_NOTE_F_LOW_HZ and _HIGH_HZ) and loudness (FILM_NOTE_FLOOR to 1) follow the flooding.
+    Pad (1.7.0, data-driven): the ambient chord on FILM_AMBIENT_ROOT_HZ runs under
+    everything. Its root and fifth are steady; over the monthly frames the octave follows
+    the month's rainfall `P`, the tenth its evaporation `PET` (each scaled between the
+    record's FILM_PAD_DRIVER_PCT percentiles) and the top voice the calibrated water table
+    (0 at TRACE_LO_M, 1 at the top of the record), every driver glided over a month and
+    resting at FILM_PAD_REST under the slides. No fixed periods and no random phases: the
+    only movement in the pad is the data's, and two renders are identical. The tremolo on
+    the months beyond the record stays. (The January note of 1.3.0 is gone: the breath
+    carries the year.)
     Flood tone (1.5.0, in the surf's place): a chorused triad on FILM_FLOOD_TONE_SEMITONES
     whose loudness is linear in the calibrated level, silent at FILM_FLOOD_TONE_LEVEL_LO_M
     and full at `hmax`; above the wet-floor arrival line a fourth voice, the minor seventh
@@ -1177,7 +1188,6 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
     ns = int(round(nf / fps * sr))
     fidx = np.minimum((np.arange(ns, dtype=np.int64) * fps // sr), nf - 1).astype(np.int32)
     t = np.arange(ns) / sr
-    rng = np.random.default_rng(47)
     sm = lambda x, sec: _smooth(x, sec, sr)                   # noqa: E731
     out = np.zeros((ns, 2), np.float32)
 
@@ -1196,47 +1206,40 @@ def sound_track_warren(marks: list, lvl: np.ndarray, aw: np.ndarray, af: np.ndar
     h_m = pd.Series(np.where(is_m > 0, lvl[mi], np.nan)).ffill().bfill().to_numpy()  # per frame
     w_m = np.clip(sm(is_m[fidx], FILM_AUDIO_FADE_S), 0, 1)   # 1 over the months, 0 under slides
 
-    # pad
-    x = np.clip((np.minimum(h_m, hmax) - TRACE_LO_M) / (hmax - TRACE_LO_M), 0, 1)
-    xo = sm(x[fidx], 0.5)
-    for k, ratio in enumerate((1.0, 1.5, 2.0, 2.5, 4.5)):
+    # pad (1.7.0): root and fifth steady; octave <- rainfall, tenth <- evaporation, top
+    # voice <- the level; each per month, glided over a month, at rest under the slides
+    def driver(v):
+        if v is None:
+            return None
+        lo, hi = np.nanpercentile(v, FILM_PAD_DRIVER_PCT[0]), np.nanpercentile(v, FILM_PAD_DRIVER_PCT[1])
+        return np.clip((np.nan_to_num(np.asarray(v, float), nan=lo) - lo) / max(hi - lo, 1e-9), 0, 1)
+    x_lvl = np.clip((np.minimum(lvl, hmax) - TRACE_LO_M) / (hmax - TRACE_LO_M), 0, 1)
+    drivers = {2: driver(P), 3: driver(PET), 4: x_lvl}
+    for k in (2, 3):
+        if drivers[k] is None:
+            warn("no climate series for the pad; that voice follows the level instead")
+            drivers[k] = x_lvl
+    for k, ratio in enumerate(FILM_PAD_RATIOS):
         f0 = FILM_AMBIENT_ROOT_HZ * ratio
-        period = 7.0 + 2.3 * k
-        g = 0.55 + 0.45 * np.sin(2 * np.pi * t / period + rng.uniform(0, 2 * np.pi))
-        g *= (np.sin(2 * np.pi * (f0 - 0.35) * t) + np.sin(2 * np.pi * (f0 + 0.35) * t)) / 2
-        if k >= 2:
-            g *= (1 - w_m) + w_m * (0.15 + 0.85 * xo) ** (1 + 0.6 * (k - 2))
+        if k in drivers:
+            d_m = np.where(is_m > 0, drivers[k][mi], np.nan)
+            d_m = pd.Series(d_m).ffill().bfill().to_numpy()
+            g = (1 - w_m) * FILM_PAD_REST + w_m * (0.15 + 0.85 * sm(d_m[fidx], 1.0 / fps))
+        else:
+            g = np.full(ns, FILM_PAD_REST, np.float32)
+        g = g * (np.sin(2 * np.pi * (f0 - 0.35) * t) + np.sin(2 * np.pi * (f0 + 0.35) * t)) / 2
         g /= 2.0 * (1.0 + 0.6 * k)
-        pan = 0.5 + 0.35 * np.sin(2 * np.pi * t / (period * 1.7))
+        pan = 0.5 + FILM_PAD_SPREAD * (k - 2)                   # a fixed spread, not a drift
         out[:, 0] += (FILM_MIX_PAD * g * (1 - pan)).astype(np.float32)
         out[:, 1] += (FILM_MIX_PAD * g * pan).astype(np.float32)
-        del g, pan
-    del xo
+        del g
+    del drivers
     # the tremolo on the months beyond the record, applied to the pad alone
     over = sm(((h_m > hmax) * is_m)[fidx], 0.5)
     trem = (1.0 - FILM_TREMOLO_DEPTH * over
             * (0.5 + 0.5 * np.sin(2 * np.pi * FILM_TREMOLO_HZ * t))).astype(np.float32)
     out *= trem[:, None]
     del over, trem
-
-    # annual note
-    yr = np.array([int(m[:4]) for m in months])
-    ow_max = float(np.nanmax(aw))
-    oct_ = int(round(12 * np.log2(FILM_NOTE_F_HIGH_HZ / FILM_NOTE_F_LOW_HZ)))
-    semis = np.array([o * 12 + d for o in range(oct_ // 12 + 1) for d in FILM_NOTE_SCALE
-                      if o * 12 + d <= oct_])
-    for j, k in enumerate(marks):
-        if k is None or not months[k].endswith("-01") or (j > 0 and marks[j - 1] == k):
-            continue
-        xf = float(np.sqrt(max(np.nanmax(aw[yr == yr[k]]), 0.0) / ow_max))
-        f = FILM_NOTE_F_LOW_HZ * 2 ** (semis[np.argmin(np.abs(semis - oct_ * xf))] / 12)
-        a0 = int(j / fps * sr); b0 = min(ns, a0 + int(2.5 * FILM_NOTE_DECAY_S * sr))
-        tt = np.arange(b0 - a0) / sr
-        env = (1 - np.exp(-tt / 0.008)) * np.exp(-tt / FILM_NOTE_DECAY_S)
-        tone = (np.sin(2 * np.pi * f * tt) + 0.35 * np.sin(4 * np.pi * f * tt) * np.exp(-tt / 0.2)
-                + 0.12 * np.sin(2 * np.pi * 2.76 * f * tt) * np.exp(-tt / 0.08))
-        y = FILM_MIX_NOTE * (FILM_NOTE_FLOOR + (1 - FILM_NOTE_FLOOR) * xf) * env * tone / 1.47
-        out[a0:b0] += y.astype(np.float32)[:, None]
 
     # the flood tone (1.5.0): loudness linear in the level, silent at FILM_FLOOD_TONE_LEVEL_LO_M,
     # full at hmax, glided over two frames; the seventh's ramp is from the yellow line to hmax
@@ -1539,7 +1542,8 @@ def write_chapters(path: Path, entries: list, total_frames: int) -> None:
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
-def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_month=None):
+def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_month=None,
+           climate=None):
     """The film. One frame a month, plus the guide slides on the presentation cut.
 
     Returns the still's frame when `still_month` is given, so the PNG and the film
@@ -1564,6 +1568,13 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     lvl = level["median_level_calibrated_m"].to_numpy(float)
     aw = level["open_water_ha"].to_numpy(float)
     af = level["wet_floor_ha"].to_numpy(float)
+    # 1.7.0: the month's rainfall and evaporation drive two of the pad's voices
+    if climate is not None:
+        cm = climate.set_index("month")
+        P_m = cm["P_m"].reindex(level["month"].astype(str)).to_numpy(float)
+        PET_m = cm["PET"].reindex(level["month"].astype(str)).to_numpy(float)
+    else:
+        P_m = PET_m = None
     # Where the water is (1.4.0): the east-west centre of the wetted cells each month,
     # scaled over the months' own range to -1 (west) .. +1 (east); 0 under 1 ha wet.
     thr = np.minimum(hd, hb)[floor]
@@ -2081,7 +2092,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
                 track = sound_track(marks, lvl, aw + af, hmax)
             else:
                 track = sound_track_warren(marks, lvl, aw, af, months, hmax, arrivals,
-                                           wet_pan=wet_pan)
+                                           wet_pan=wet_pan, P=P_m, PET=PET_m)
             write_wav(wav, track)
             write_chapters(meta, entries, n_written)
             mux(silent, wav, target, meta)
@@ -2163,7 +2174,7 @@ def main(no_film: bool = False, check_phase27: str | None = None) -> int:
              "There is no GIF fallback here — the tracked artefact is an MP4.")
         return 1
     rc = render(level, (ow, wf, floor), feed, floor_ha, text, arrivals, presentation=True,
-                still_month=wettest)
+                still_month=wettest, climate=clim)
     rc |= render(level, (ow, wf, floor), feed, floor_ha, text, arrivals, presentation=False)
     done("47")
     return rc

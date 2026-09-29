@@ -62,7 +62,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.0.1"  # Hollingham (2026).
+__version__ = "2.1.0"  # Hollingham (2026).
+#   2.1.0 (2026-09-29): detector 7, advisory: the proof artifact against the bundle
+#     (tools/proof_bundle_state.json, written by proof_copy --refresh / --published).
 #   2.0.1 (2026-09-07): detector 2 measures the HANDOFF against max(its header
 #     timestamp, the newest private commit that carried a HANDOFF). Without
 #     this a private commit bundling the fresh HANDOFF with changelogs was
@@ -81,6 +83,7 @@ __version__ = "2.0.1"  # Hollingham (2026).
 #   1.6.0 (2026-08-28): first cut — the volatile half of a handover, generated
 #     rather than remembered.
 
+import json
 import re
 import subprocess
 import sys
@@ -597,6 +600,19 @@ def check(verbose: bool = True) -> int:
     if prose > TIER0_PROSE_BUDGET:
         fails.append(f"Tier 0 prose {prose} lines over the {TIER0_PROSE_BUDGET} budget (D-080)")
     say(f"  {'ok   ' if prose <= TIER0_PROSE_BUDGET else 'FAIL '} Tier 0 prose {prose}/{TIER0_PROSE_BUDGET} lines")
+
+    # 7. The proof artifact (advisory): check_all's proof_copy --refresh keeps the
+    #    bundle current; only a session can republish the claude.ai artifact, so a
+    #    session closing on a stale one is told here (Martin, 2026-09-29).
+    ps = REPO / "tools" / "proof_bundle_state.json"
+    if ps.is_file():
+        try:
+            st = json.loads(ps.read_text(encoding="utf-8"))
+            cur = st.get("published_sha256") == st.get("bundle_sha256")
+            say(f"  {'ok   ' if cur else 'note '} proof artifact {'current' if cur else 'BEHIND the bundle — republish scratch/proof_bundle/NRG_proof.html and run proof_copy.py --published <version>'}"
+                f" (version {st.get('published_version')}, {st.get('published_at')})")
+        except (json.JSONDecodeError, OSError):
+            say("  note  proof_bundle_state.json unreadable")
 
     if fails:
         print("session_handover --check: FAIL")

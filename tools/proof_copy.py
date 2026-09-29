@@ -78,7 +78,14 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-29. The correction drawer folds to its
+__version__ = "1.23.0"  # Hollingham (2026) — 2026-09-29. --refresh: the bundle kept current by
+#   check_all (Martin: "can we make the proof read artifact update when a check all is called as well
+#   as the task ledger being updated"): only the chapters whose inputs changed (mirror, citation index,
+#   reading verdicts, pipeline run log — hashed into tools/proof_bundle_state.json) are regenerated into
+#   scratch/proof_bundle/, the bundle is rebuilt with a "tasks" tab from the register (task_lint --open),
+#   and the state file says whether the published artifact is behind the bundle. --published VERSION
+#   stamps the artifact publish; check_all prints STALE until a session republishes and stamps.
+# 1.22.0  # Hollingham (2026) — 2026-09-29. The correction drawer folds to its
 #   header line (click "N queued"; remembered per browser), so a long queue no longer covers the
 #   text (Martin: "it obscures the text as more items are added").
 # 1.21.1  # Hollingham (2026) — 2026-09-24. A confirmed row whose quoted
@@ -225,9 +232,12 @@ __version__ = "1.22.0"  # Hollingham (2026) — 2026-09-29. The correction drawe
 import argparse
 import bisect
 import csv
+import hashlib
 import html
+import json
 import pathlib
 import re
+import subprocess
 import sys
 from collections import defaultdict, namedtuple
 
@@ -237,6 +247,10 @@ import cite_check as cc  # noqa: E402  the authoritative value map and anchors
 import pdf_page_index as _ppi  # noqa: E402  the paragraph fingerprint the page index is keyed by
 
 OUT_DIR = REPO / "scratch" / "proof"
+BUNDLE_DIR = REPO / "scratch" / "proof_bundle"          # --refresh writes here (gitignored)
+BUNDLE_STATE = REPO / "tools" / "proof_bundle_state.json"   # tracked: what the bundle was built from, what is published
+BUNDLE_ORDER = ["report", "report6", "report7", "report8", "report9", "report10", "report11", "report12",
+               "report13", "report14", "report15", "report16"]
 SECTION_MAP = REPO / "tools" / "section_map.csv"
 SCOPE_FILE = REPO / "tools" / "proof_scope.csv"
 MANIFEST = REPO / "tools" / "figure_table_manifest.csv"
@@ -2388,11 +2402,112 @@ def paint_line(line: str, ms, sec: str = "", pdf: str = "") -> str:
 
 
 # ---------------------------------------------------------------------------
+# --refresh: the bundle kept current by check_all; --published: the artifact stamp
+
+
+def _chapter_inputs_hash(stem: str) -> str:
+    """What a chapter's proof depends on: its mirror, the citation index, the reading
+    verdicts and the pipeline run log (which changes whenever a value could have)."""
+    h = hashlib.sha256()
+    mirror = resolve_doc(stem)
+    rel = str(mirror.relative_to(REPO)).encode()
+    for p in (mirror, READING_VERDICTS, REPO / "outputs" / "pipeline_run_log.json", pathlib.Path(__file__)):
+        if p.exists():
+            h.update(p.read_bytes())
+    # the citation index: only this document's rows, so a row added for one chapter
+    # does not regenerate the other eleven (a full pass is ~2.5 min)
+    ci = REPO / cc.CITATION_INDEX
+    if ci.exists():
+        for line in ci.read_bytes().splitlines():
+            if rel in line:
+                h.update(line)
+    return h.hexdigest()[:16]
+
+
+def _load_state() -> dict:
+    if BUNDLE_STATE.exists():
+        try:
+            return json.loads(BUNDLE_STATE.read_text(encoding="utf8"))
+        except json.JSONDecodeError:
+            pass
+    return {"chapters": {}, "bundle_sha256": None, "published_sha256": None, "published_version": None, "published_at": None}
+
+
+def _save_state(st: dict) -> None:
+    BUNDLE_STATE.write_text(json.dumps(st, indent=1, sort_keys=True) + "\n", encoding="utf8")
+
+
+def _tasks_section(tasks_from: str | None = None) -> str:
+    """The register as a tab: task_lint --open verbatim (or the output check_all has
+    just captured, via --tasks-from, so the checks are not run twice), then the
+    open rows' notes."""
+    if tasks_from and pathlib.Path(tasks_from).exists():
+        out = pathlib.Path(tasks_from).read_text(encoding="utf8", errors="replace")
+    else:
+        try:
+            out = subprocess.run([sys.executable, str(REPO / "tools" / "task_lint.py"), "--open"],
+                                 capture_output=True, text=True, timeout=600, cwd=REPO).stdout
+        except (subprocess.SubprocessError, OSError) as e:
+            out = f"task_lint could not run: {e}"
+    rows = []
+    reg = REPO / "tools" / "task_register.csv"
+    if reg.exists():
+        with reg.open(newline="", encoding="utf8") as fh:
+            for r in csv.DictReader(fh):
+                if r["id"] in out:
+                    rows.append(f"<p><b>{html.escape(r['id'])}</b> {html.escape(r['title'])}<br><small>opened {html.escape(r['opened'])} · "
+                                f"{html.escape(r['note'][-600:])}</small></p>")
+    return ("<section class=chapter data-doc='tasks'><h2>Task register — what is outstanding</h2>"
+            "<p class=secbar>tools/task_lint.py --open at the time this bundle was refreshed; a task has no stored status, "
+            "its check command decides.</p><pre>" + html.escape(out) + "</pre>" + "".join(rows) + "</section>")
+
+
+def refresh(a) -> int:
+    st = _load_state()
+    BUNDLE_DIR.mkdir(parents=True, exist_ok=True)
+    stale = [s for s in BUNDLE_ORDER if st["chapters"].get(s) != _chapter_inputs_hash(s) or not (BUNDLE_DIR / f"{s}.html").exists()]
+    if stale:
+        values = cc.collect_values()
+        look = build_index(values, deep=not a.no_deep)
+        for s in stale:
+            one(s, values, look, BUNDLE_DIR, a)
+            st["chapters"][s] = _chapter_inputs_hash(s)
+            if a.quiet:
+                print(f"  regenerated {s}")
+    stems = [s for s in BUNDLE_ORDER if (BUNDLE_DIR / f"{s}.html").exists()]
+    b = write_bundle(BUNDLE_DIR, stems, extra_sections=[_tasks_section(a.tasks_from)])
+    st["bundle_sha256"] = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
+    st["bundle_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
+    _save_state(st)
+    current = st["published_sha256"] == st["bundle_sha256"]
+    print(f"  proof bundle: {len(stale)} chapter(s) regenerated, {len(stems)} in the bundle ({b.stat().st_size // 1024} KB)")
+    print(f"  {'OK   ' if current else 'STALE'}  proof artifact {'is the current bundle' if current else 'is behind the bundle — a session republishes scratch/proof_bundle/NRG_proof.html to the claude.ai artifact and runs proof_copy.py --published <version>'}"
+          + (f" (published {st['published_version']} at {st['published_at']})" if st.get("published_version") else ""))
+    return 0
+
+
+def stamp_published(version: str) -> int:
+    st = _load_state()
+    b = BUNDLE_DIR / "NRG_proof.html"
+    if not b.exists():
+        print("no bundle to stamp — run --refresh first"); return 1
+    st["published_sha256"] = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
+    st["bundle_sha256"] = st["published_sha256"]
+    st["published_version"] = version
+    st["published_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
+    _save_state(st)
+    print(f"  stamped: bundle {st['published_sha256']} published as artifact version {version}")
+    return 0
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("doc", nargs="+", help="report9, Paper1, Newborough_Methods_Supplement, or a path; several at once")
+    ap.add_argument("doc", nargs="*", help="report9, Paper1, Newborough_Methods_Supplement, or a path; several at once")
+    ap.add_argument("--refresh", action="store_true",
+                    help="regenerate only the stale report chapters into scratch/proof_bundle/, rebuild the bundle, report the artifact state")
+    ap.add_argument("--published", metavar="VERSION", help="stamp tools/proof_bundle_state.json: the current bundle was published as this artifact version")
+    ap.add_argument("--quiet", action="store_true", help="--refresh: one line per chapter regenerated and the verdict only")
+    ap.add_argument("--tasks-from", metavar="FILE", help="--refresh: task_lint --open output already captured (check_all passes its own)")
     ap.add_argument("--section", help="paint one section only, e.g. 4.2")
     ap.add_argument("--list", action="store_true", help="print the red/amber/orange list")
     ap.add_argument("--out", help="output directory (default scratch/proof)")
@@ -2400,6 +2515,12 @@ def main() -> int:
     ap.add_argument("--bundle", action="store_true",
                     help="also write NRG_proof.html: every chapter generated so far in one page, for publishing")
     a = ap.parse_args()
+    if a.published:
+        return stamp_published(a.published)
+    if a.refresh:
+        return refresh(a)
+    if not a.doc:
+        ap.error("doc is required unless --refresh or --published")
     values = cc.collect_values()
     look = build_index(values, deep=not a.no_deep)
     out_dir = pathlib.Path(a.out).resolve() if a.out else OUT_DIR   # relative --out crashed write_index's relative_to
@@ -2958,7 +3079,7 @@ window.addEventListener('load', () => {
 """
 
 
-def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof"):
+def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof", extra_sections: list[str] | None = None):
     """One page carrying every chapter generated so far, a chapter switcher, and
     the same click-to-queue. This is the file that travels: published as a
     claude.ai artifact with the db capability, its queue lives in the artifact's
@@ -2979,6 +3100,11 @@ def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof
         red, amb = (int(m.group(1)), int(m.group(2)) + int(m.group(3))) if m else (0, 0)
         menu.append(f"<a href='#c={html.escape(st)}' data-doc='{html.escape(st)}' onclick=\"showChapter('{html.escape(st)}');return false;\">"
                     f"{html.escape(st)}" + (f" <span class=red>{red}</span>" if red else "") + (f" <span class=amb>{amb}</span>" if amb else "") + "</a>")
+    for x in (extra_sections or []):
+        m = re.search(r"data-doc='([^']+)'", x)
+        if m:
+            sections.append(x)
+            menu.append(f"<a href='#c={m.group(1)}' data-doc='{m.group(1)}' onclick=\"showChapter('{m.group(1)}');return false;\">{m.group(1)}</a>")
     legend = " ".join(f"<span class='n {k}'>{LEGEND_NAME[k]}</span>" for k, _ in LEGEND)
     page = (f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width, initial-scale=1'>"
             f"<title>{name} — proof copies</title><style>{CSS}"

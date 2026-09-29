@@ -1,0 +1,21 @@
+{
+ "bundle_at": "2026-09-29T11:16:19",
+ "bundle_sha256": "c25a1094afb602ea",
+ "chapters": {
+  "report": "1d4f82be62ad6b25",
+  "report10": "0b1598bd94785bbb",
+  "report11": "2faac1762332d74a",
+  "report12": "c134a4e1a0d17647",
+  "report13": "565c5eec8b6e7930",
+  "report14": "5667b581fa3f73a4",
+  "report15": "24c300a31d1fe5fd",
+  "report16": "456c08f86fdb10ac",
+  "report6": "18e3b82625b50206",
+  "report7": "39c30c8b1b4227ae",
+  "report8": "053f09318fc0df9f",
+  "report9": "e61a419cff893e47"
+ },
+ "published_at": "2026-09-29T10:11:53",
+ "published_sha256": "c25a1094afb602ea",
+ "published_version": "18"
+}

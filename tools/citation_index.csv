@@ -2960,3 +2960,6 @@ reference_record_months_median,outputs/00_climate_summary/00_report_numbers.csv,
 reference_record_months_min,outputs/00_climate_summary/00_report_numbers.csv,report_edits/text/report8.md,140,"onger than it (median 192 months, range ", to 252; Script 00). The analyses that f,high,confirmed
 reference_record_months_max,outputs/00_climate_summary/00_report_numbers.csv,report_edits/text/report8.md,252,"han it (median 192 months, range 140 to ",; Script 00). The analyses that follow d,high,confirmed
 vw_repro_rmse_mm,outputs/26_van_willegen_msl/26_report_numbers.csv,report_edits/text/report10.md,2,their published spring levels to within , mm and predicts their co-located Ellenb,high,confirmed
+trend_summer_pet_full_record,outputs/00_climate_summary/00_report_numbers.csv,report_edits/text/report10.md,0.148,has also risen over the same record (+,"mm yr⁻¹, p = 0.007), while summer rainfall",high,verified
+trend_summer_pet_full_record_p,outputs/00_climate_summary/00_report_numbers.csv,report_edits/text/report10.md,0.007,"record (+0.148 mm yr⁻¹, p =","), while summer rainfall shows no trend",high,verified
+trend_summer_rain_full_record_p,outputs/00_climate_summary/00_report_numbers.csv,report_edits/text/report10.md,0.81,while summer rainfall shows no trend (p =,); the intensification of early-summer,high,verified

@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.71.0"  # Hollingham (2026) - 2026-09-28. D-207: MSL_HYDRO_YEAR_START_MONTH 6 -> 5 (bucketed
+__version__ = "1.72.0"  # Hollingham (2026) - 2026-09-28. SD15b_REC / SD16_REC carry a
+#   scrape's water-table BENEFIT (0.14 / 0.22 m), not its excavation depth (Martin: depth and benefit differ).
+#   OBS_STATE_COLOURS['flooded'] #2C7FB8 -> #17BECF, distinct from the C1 cluster blue (Script 01 coverage figures, T-92).
+# 1.71.0  # Hollingham (2026) - 2026-09-28. D-207: MSL_HYDRO_YEAR_START_MONTH 6 -> 5 (bucketed
 #   May..Apr = readings dated 1 June..31 May) with _DATED; and VW_QUADRAT_WELLS gains t41a, t41c, t41d
 #   (20 wells, 17 stations) and VW_LOCATION_ONLY_WELLS is emptied; CURRELI_WINDOW_END_YEAR added: van Willegen's dataset reproduces each
 #   T41 quadrat letter from the same-letter well exactly (notes/findings/NRG_t41_vw_match_2026-09-28.md).
@@ -1167,9 +1170,9 @@ RAF_VALLEY_OSGB_N = 75549
 # surface (m, positive downward). Applied in threshold forecasting (11, 11b),
 # climate projections (14), spatial viewer (19), and forestry scenarios (21).
 SD15b     = 0.61   # m — wet slack viability  # source: Curreli et al. 2013 Table 4, SD15b (core, n=15) average minimum water level -0.61 m, a 4-yr community MEAN (range -0.69 to -0.51), not a limit
-SD15b_REC = 0.75   # m — wet slack recovery / excavation limit  # source: project assumption (D-201) - SD15b plus a single-scrape excavation depth of 0.14 m; no literature value
+SD15b_REC = 0.75   # m — wet slack recovery limit  # source: project assumption (D-201) - SD15b plus the water-table benefit of a single scrape, about 0.14 m (a benefit, not the excavation depth); no literature value
 SD16      = 0.98   # m — dry slack threshold  # source: Curreli et al. 2013 Table 4, SD16 (core, n=14) average minimum water level -0.98 m, a 4-yr community MEAN (range -1.57 to -0.81), not a limit
-SD16_REC  = 1.20   # m — dry slack recovery / excavation limit  # source: project assumption (D-201) - SD16 plus a single-scrape excavation depth of 0.22 m; no literature value
+SD16_REC  = 1.20   # m — dry slack recovery limit  # source: project assumption (D-201) - SD16 plus the water-table benefit of a single scrape, about 0.22 m (a benefit, not the excavation depth); no literature value
 
 # Winter thresholds: the community-mean winter MAXIMUM water level, as a depth below
 # ground like the summer thresholds above - so a NEGATIVE value is ABOVE ground. The wet
@@ -2177,7 +2180,7 @@ OBS_STATE_COLOURS = {
     "interpolated":   "#E0529C",
     "dry_recorded":   "#E8A33D",
     "dry_inferred":   "#F6D9A0",
-    "flooded":        "#2C7FB8",
+    "flooded":        "#17BECF",   # cyan: the old #2C7FB8 was the C1 cluster blue's near-twin (T-92)
     "not_found":      "#CFCFCF",
     "inaccessible":   "#8A8A8A",
     "not_read":       "#FFFFFF",

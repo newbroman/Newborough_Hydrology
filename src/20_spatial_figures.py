@@ -108,7 +108,10 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.56.0"  # Hollingham (2026) - 2026-09-28. Martin's review of the 1.55.0 figures:
+__version__ = "1.57.0"  # Hollingham (2026) - 2026-09-28. Held figure fixes (T-92): the drawdown-propagation map's
+#   CEH27/CEH26/CEH23/CEH5 and D15/D5 labels are staggered so they no longer collide; the scrape-drawdown
+#   note reads the CEH21 and CEH18 responses live from the 09a BACI shifts instead of typing +74 / +8.
+# 1.56.0  # Hollingham (2026) - 2026-09-28. Martin's review of the 1.55.0 figures:
 #   the MSL5-change map goes back to IDW + blur (it must cover the study area; a D-206 exception);
 #   the observed-change map is ordinarily kriged (_ok_surface); on both driver-change maps the scrape
 #   footprints are drawn as outlines, not fills, so the field shows through them (a 300 m well-reach
@@ -1722,11 +1725,18 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     # Layer 7 — key well annotations
     key_wells = ["ceh27", "ceh26", "ceh23", "d15", "d5",
                  "ceh10", "ceh24", "ceh5", "ceh6", "l7", "ceh11"]
+    # Per-well label offsets (points, horizontal alignment): the CEH27-CEH26-CEH23-CEH5
+    # chain along the lake edge and the D15/D5 pair sit ~100-200 m apart, closer than a
+    # label is long, so they are staggered either side of their wells (held fix, T-92).
+    _lbl_off = {"ceh27": (-8, 8, "right"), "ceh26": (0, -26, "center"),
+                "ceh23": (0, 26, "center"), "ceh5": (10, -22, "left"),
+                "d15": (-8, 6, "right"), "d5": (8, -14, "left")}
     for _, w in wt[wt["well"].isin(key_wells)].iterrows():
         dd_str = f"{w['dd_mm']:.0f}" if w["dd_mm"] >= 1 else "<1"
+        _dx, _dy, _ha = _lbl_off.get(w["well"], (8, 6, "left"))
         ax.annotate(
             f"{w['well']} ({dd_str} mm)", (w["E"], w["N"]),
-            xytext=(8, 6), textcoords="offset points",
+            xytext=(_dx, _dy), textcoords="offset points", ha=_ha,
             fontsize=8, color="#222", fontweight="semibold",
             arrowprops=dict(arrowstyle="-", color="#999", lw=0.5),
             zorder=10,
@@ -4858,8 +4868,10 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
         0.985, 0.985,
         "Scrape footprints (%d cuts, %.2f ha total, mapped outlines)\n"
         "cut slacks ROSE (slack restored — not drawn down)\n"
-        "H₀: CEH36 +%d · CEH21 +74 · CEH18 +8 mm measured; others assumed = CEH36"
-        % (n_lobes, SCR_AREA_HA, _h0_ceh36),
+        "H₀: CEH36 +%d · CEH21 +%d · CEH18 +%d mm measured; others assumed = CEH36"
+        % (n_lobes, SCR_AREA_HA, _h0_ceh36,
+           round(_scrape_response_mm(*SCRAPE_META["CEH21_scrape.kml"][2:5])),
+           round(_scrape_response_mm(*SCRAPE_META["CEH18_scrape.kml"][2:5]))),
         transform=ax.transAxes, ha="right", va="top",
         fontsize=7.6, fontweight="bold", color="#0d2b4a", zorder=11,
         bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="#1a4e80", alpha=0.93))

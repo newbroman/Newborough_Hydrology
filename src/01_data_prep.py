@@ -16,7 +16,9 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.23.0"  # Hollingham (2026) - 2026-09-25 (D-195). The monthly well table is put
+__version__ = "1.24.0"  # Hollingham (2026) - 2026-09-28. Coverage-state figures: well IDs shown in one case
+#   (upper, as in the report), and "flooded" drawn in config's new cyan, distinct from the C1 blue (T-92).
+# 1.23.0  # Hollingham (2026) - 2026-09-25 (D-195). The monthly well table is put
 #   on the complete calendar before cleaning, so a month no visit buckets to (June
 #   2005, December 2022) is a row, bridged by the one-month rule like any other
 #   missed visit, and flagged interpolated in 01_wells_provenance.csv. With
@@ -728,16 +730,16 @@ def _render_coverage_figure(wells_scope, states):
         refs = sorted([colmap[w] for w in ref_cluster
                        if ref_cluster[w] == cl and w in colmap], key=first)
         for col in refs:
-            rows.append(("ref", col, cl, col))
+            rows.append(("ref", col, cl, col.upper()))
         exts = sorted([colmap[w] for w in ext_cluster
                        if ext_cluster.get(w) == cl and w in colmap
                        and w not in ref_cluster], key=first)
         for col in exts:
-            rows.append(("ext", col, cl, f"{col} (ext)"))
+            rows.append(("ext", col, cl, f"{col.upper()} (ext)"))
 
     presence = _excluded_presence(months, list(EXCLUDED_STUDY_AREA_WELLS))
     for w, reason in EXCLUDED_STUDY_AREA_WELLS.items():
-        rows.append(("excl", w, None, f"{w} \u00b7 {reason}"))
+        rows.append(("excl", w, None, f"{w.upper()} \u00b7 {reason}"))
     lake_col = next((colmap[w] for w in colmap
                      if "llyn" in w or "rhos" in w), None)
     if lake_col is not None:

@@ -16,7 +16,10 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.24.0"  # Hollingham (2026) - 2026-09-28. Coverage-state figures: well IDs shown in one case
+__version__ = "1.25.0"  # Hollingham (2026) - 2026-09-29. wells_reference_n, wells_extended_n and
+#   wells_classified_n join 01_report_numbers.csv (Martin, from the proof queue: the 66 / 22 / 88
+#   counts must trace to a CSV, not be derived by a reader from a file's columns). No other output moves.
+# 1.24.0  # Hollingham (2026) - 2026-09-28. Coverage-state figures: well IDs shown in one case
 #   (upper, as in the report), and "flooded" drawn in config's new cyan, distinct from the C1 blue (T-92).
 # 1.23.0  # Hollingham (2026) - 2026-09-25 (D-195). The monthly well table is put
 #   on the complete calendar before cleaning, so a month no visit buckets to (June
@@ -871,7 +874,7 @@ def _render_coverage_figure(wells_scope, states):
            f"{span}  (Source: 01_data_prep.py)")
 
 
-def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None):
+def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network_counts=None):
     """The ground-source counts report8 §3.1.2 states, read out of the frame just
     written: how many wells take their ground elevation from the DGPS survey, how
     many from the LiDAR DTM, and the total located. The DEM-vs-DGPS comparison that
@@ -882,6 +885,15 @@ def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None):
     rr.add("elev_n_dgps", int(src.eq("dgps").sum()), unit="count", note="wells whose ground elevation is the DGPS survey (author and Curreli, 2010)")
     rr.add("elev_n_lidar", int(src.eq("lidar").sum()), unit="count", note="wells whose ground elevation is the LiDAR DTM")
     rr.add("elev_n_total", int(len(elev_df)), unit="count", note="located wells in well_metadata.csv")
+    if network_counts:
+        # 1.25.0: the classified network's counts (report8 §3.1.1, the abstract), read out of
+        # the frames this script has just written rather than derived by a reader from their
+        # column geometry (Martin, 2026-09-29: "the values should be traceable to a csv")
+        n_ref, n_ext = network_counts
+        rr.add("wells_reference_n", int(n_ref), unit="count", note="reference-network wells (columns of 01_wells_reference.csv)")
+        rr.add("wells_extended_n", int(n_ext), unit="count", note="extended-network wells (columns of 01_wells_extended.csv)")
+        rr.add("wells_classified_n", int(n_ref + n_ext), unit="count",
+               note="the classified network: reference + extended; the Llyn Rhos-Ddu gauge is not a dipwell and is not counted")
     if pet_cmp:
         rr.add("pet_trailing_vs_calendar_n_months", pet_cmp["n_months"], unit="count",
                note="well-record months where both the trailing-window (D-036) and the calendar-year Thornthwaite heat index are defined")
@@ -1215,7 +1227,8 @@ if __name__ == "__main__":
 
         elev_df.to_csv(INT_WELL_ELEVATIONS, index=False)
         saved(f"{INT_WELL_ELEVATIONS.name}")
-        _report_elevation_check(elev_df, src, pet_cmp, rain_trend)
+        _report_elevation_check(elev_df, src, pet_cmp, rain_trend,
+                                network_counts=(len(reference_wells), len(extended_wells)))
     else:
         elev_df = None
         warn(f"Elevation file not found: {_WELL_ELEV_FILE}")

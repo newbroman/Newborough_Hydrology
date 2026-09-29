@@ -78,7 +78,17 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.23.0"  # Hollingham (2026) — 2026-09-29. --refresh: the bundle kept current by
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-09-29. Four fixes from Martin's first queue off
+#   the refreshed page ("a lot of the attributions have silly errors"): (1) the queue's context line
+#   is taken at the flagged span's own position, not the first occurrence of its digits in the
+#   paragraph — "22" showed CEH22 for the "22 in the extended network", "2" showed "p.28" for
+#   "p = 2 × 10⁻⁵"; (2) "2 × 10⁻⁵" / "2 x 10^-5" is ONE token (normalised to 0.00002), so a
+#   p-value in scientific notation is matched, not its mantissa; (3) a reading-pass verdict now
+#   applies to EVERY class — a deny with a resolvable better source repaints an untraced, elsewhere,
+#   count or rounding mark as traced, a confirm on an elsewhere mark admits its source; (4) a new
+#   verdict `literal` (a config constant, an arbitrary range, a coordinate, an identifier, a
+#   literature value) paints grey with the reader's reason, never red.
+# 1.23.0  # Hollingham (2026) — 2026-09-29. --refresh: the bundle kept current by
 #   check_all (Martin: "can we make the proof read artifact update when a check all is called as well
 #   as the task ledger being updated"): only the chapters whose inputs changed (mirror, citation index,
 #   reading verdicts, pipeline run log — hashed into tools/proof_bundle_state.json) are regenerated into
@@ -406,6 +416,13 @@ ROLL_WORDS = ["rolling", "12-month", "12 month", "moving"]
 
 def _norm_num(s: str) -> str:
     s = re.sub(cc._MINUS_CLASS, "-", s)
+    m = re.match(r"^([+\-]?\d+(?:\.\d+)?)\s?[×x]\s?10(?:\^|\*\*)?([⁻−\-]?[⁰¹²³⁴⁵⁶⁷⁸⁹\d]{1,2})$", s)
+    if m:
+        # scientific notation is one number: "2 × 10⁻⁵" -> "0.00002", kept at the precision its
+        # mantissa carries so the matcher renders candidates at the same number of decimals
+        mant, exp = m.group(1), int(m.group(2).translate(_SUP))
+        dp = max(0, len(mant.split(".")[1]) if "." in mant else 0) - exp
+        s = f"{float(mant) * 10 ** exp:.{max(dp, 0)}f}"
     return s[1:] if s.startswith("+") else s
 
 
@@ -948,8 +965,10 @@ def in_scope(c: Cand, scope: set[str]) -> bool:
 # ---------------------------------------------------------------------------
 # classification
 # ---------------------------------------------------------------------------
+_SCI_TAIL = r"(?:\s?[×x]\s?10(?:\^|\*\*)?[⁻−\-]?[⁰¹²³⁴⁵⁶⁷⁸⁹\d]{1,2})"
 _NUM = re.compile(r"(?:(?<![\w.\-−–—])[+\-−–]?|(?<=[\-−–—]))"
-                  r"\d+(?:[.,]\d+)*(?![\w])")
+                  r"\d+(?:[.,]\d+)*(?![\w])" + _SCI_TAIL + "?")
+_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻−", "0123456789--")
 _YEAR = re.compile(r"^(?:18|19|20)\d\d$")
 _GLUE_BEFORE = re.compile(r"[A-Za-z][\-‑]$")
 _GLUE_AFTER = re.compile(r"[\-‑][A-Za-z]")
@@ -2165,7 +2184,7 @@ const KEY = 'proof_queue_' + DOC;
 let served = false, dbq = null;   // dbq: the artifact's own store, when this page is a claude.ai artifact
 function docOf(el){ const sec = el.closest('section.chapter'); return sec ? sec.dataset.doc : DOC; }
 function sectionOf(el){ return el.dataset.sec || ''; }
-function contextOf(span){ const p = span.closest('p,pre'); if(!p) return ''; const t = p.textContent; const i = t.indexOf(span.textContent); return t.slice(Math.max(0,i-80), i+span.textContent.length+80).replace(/\s+/g,' '); }
+function contextOf(span){ const p = span.closest('p,pre'); if(!p) return ''; const r = document.createRange(); r.setStart(p, 0); r.setEndBefore(span); const i = r.toString().replace(/^p\.[\d?]+/, '').length; const t = p.textContent.replace(/^p\.[\d?]+/, ''); return t.slice(Math.max(0,i-80), i+span.textContent.length+80).replace(/\s+/g,' '); }
 function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } }
 function save(q){ try { localStorage.setItem(KEY, JSON.stringify(q)); } catch(e){} }
 function badge(){ const q = load(); const b = document.getElementById('qcount'); if (b) b.textContent = q.length; q.forEach(it => { const el = document.getElementById(it.id); if (el) el.classList.add('queued'); }); }
@@ -2959,8 +2978,45 @@ def one(name, values, look, out_dir, a):
                     v, d = "vetted", f"vetted by Martin — {reason}" + (f" — source: {better}" if better else "") + " ‖ the matcher had: " + d.split(" ‖ ")[0]
                     new_marks.append((s, e, v, d))
                     continue
+                if hit and hit[0] == "stale":
+                    # the reader found the right row and the document's value is not it
+                    _, reason, better, _ = hit
+                    v, d = "stale", f"STALE (reading pass) — {reason}" + (f" — committed: {better}" if better else "") + " ‖ the matcher had: " + d.split(" ‖ ")[0]
+                    new_marks.append((s, e, v, d))
+                    continue
+                if hit and hit[0] == "literal":
+                    # the reader says this is not a pipeline result: a config constant (named in
+                    # `better`, painted as the trace when it holds the value), an arbitrary range,
+                    # a coordinate, an identifier, a literature value — grey, never red
+                    _, reason, better, _ = hit
+                    bc = _better_cand(better, text[s:e], look)
+                    if bc is not None:
+                        v, d = "traced", (f"read: literal ✓ — {bc.label}{(' · ' + bc.col) if bc.col else ''} = {bc.value:g} [{pathlib.Path(bc.rel).name}]"
+                                          f" — {reason} ‖ the matcher had: " + d.split(" ‖ ")[0])
+                    else:
+                        v, d = "count", f"literal (reading pass) — {reason}" + (f" — {better}" if better else "") + " ‖ the matcher had: " + d.split(" ‖ ")[0]
+                    new_marks.append((s, e, v, d))
+                    continue
                 if hit and v not in ("traced", "deep", "tie"):
-                    hit = None                        # deny/confirm/unsure speak to an attribution; these marks have none
+                    # an untraced / elsewhere / count / rounding / stale mark: the reader's BETTER
+                    # source, when it holds the value, is the trace; a confirm on an elsewhere
+                    # mark admits its out-of-scope source; otherwise the reader's word stands beside
+                    verdict, reason, better, read_attr = hit
+                    bc = _better_cand(better, text[s:e], look) if better else None
+                    if bc is not None:
+                        v, d = "traced", (f"read: better source ✓ — {bc.label}{(' · ' + bc.col) if bc.col else ''} = {bc.value:g}"
+                                          f"{(' as ' + bc.form) if bc.form else ''} [{pathlib.Path(bc.rel).name}] ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
+                    elif verdict == "confirm" and v == "elsewhere":
+                        v, d = "traced", "read: confirmed ✓ (source outside the section's declared list) — " + d
+                    elif verdict == "deny" and v == "elsewhere" and (not read_attr or read_attr[:25] == d.split(" ‖ ")[0][:25]):
+                        # the reader denied THIS out-of-scope source: red, with the reason
+                        v, d = "denied", f"DENIED by the reading pass — {reason}" + (f" — better: {better}" if better else "") + " ‖ the matcher had: " + d.split(" ‖ ")[0]
+                    else:
+                        # a deny made against an attribution this mark no longer carries (the mark
+                        # is untraced or a count now): the reader's word is a note, not a verdict
+                        d = d + f" ‖ reading pass ({verdict}): {reason[:120]}"
+                    new_marks.append((s, e, v, d))
+                    continue
                 if hit:
                     verdict, reason, better, read_attr = hit
                     # a verdict is about the attribution the reader SAW: when the matcher has
@@ -3028,9 +3084,9 @@ def one(name, values, look, out_dir, a):
     # than reading the sense around the numbers")
     rrows = []
     for i, (s, e, v, d) in enumerate(marks):
-        if v not in ("traced", "deep", "tie"):
-            continue
-        ln = bisect.bisect_right(line_starts, s) - 1
+        if v in ("xref", "xmean", "xbad", "cited"):
+            continue                                   # 1.24.0: every number, whatever its class, so a
+        ln = bisect.bisect_right(line_starts, s) - 1   # reader can name a source for an untraced one too
         sec = ""
         for hl, num, h in secs:
             if hl <= ln:

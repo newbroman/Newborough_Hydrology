@@ -63,7 +63,8 @@ from utils.paths import (
 from utils.report_numbers_utils import ReportNumbers
 from utils.paths import OUT_00_PET_WARMING, OUT_00_PET_MONTHLY_TRENDS
 from utils.config import (REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO, MIN_RECORD_MONTHS,
-                          SD15b, SD16, SD16_REC)
+                          SD15b, SD16, SD16_REC, RAF_VALLEY_OSGB_E, RAF_VALLEY_OSGB_N,
+                          SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
 from utils.render_utils import render_figure
 
 import pandas as pd
@@ -74,7 +75,10 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-28. The dashed long-term monthly mean on the climate
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-29. raf_valley_distance_km and raf_valley_bearing_deg join
+#   00_report_numbers.csv, from config's station grid reference and the canonical map extent (Martin, from the
+#   proof queue: the "16 km north" is a derived quantity and must trace). No other output moves.
+# 1.13.0  # Hollingham (2026) - 2026-09-28. The dashed long-term monthly mean on the climate
 #   summary panels gets a legend entry (held figure fix, T-92).
 # 1.12.0  # Hollingham (2026) - 2026-09-28. Proofread: report9 §4.1.2's reading of
 #   the reference network against the Curreli thresholds is emitted from 00_02 (Mean_Summer_Min_m):
@@ -1136,6 +1140,15 @@ def _run_all() -> None:
     _nm = pd.to_numeric(table2_full["N_months"], errors="coerce").dropna()
     rr.add("reference_n_wells", int(len(_nm)), unit="count",
            note="reference-network wells in 00_02_well_network_summary.csv (full record)")
+    # 1.14.0: the station's distance from the site (report8 §3.1.2 "approximately 16 km north"),
+    # from config's RAF Valley grid reference (SH square: 200 km E, 300 km N added) and the
+    # centre of the canonical map extent — a derived quantity a reader could only guess at
+    _st_e, _st_n = 200000 + RAF_VALLEY_OSGB_E, 300000 + RAF_VALLEY_OSGB_N
+    _site_e, _site_n = (SITE_MAP_EAST_MIN + SITE_MAP_EAST_MAX) / 2.0, (SITE_MAP_NORTH_MIN + SITE_MAP_NORTH_MAX) / 2.0
+    rr.add("raf_valley_distance_km", float(((_st_e - _site_e) ** 2 + (_st_n - _site_n) ** 2) ** 0.5 / 1000.0), unit="km",
+           note="straight-line distance from the centre of the canonical site map extent (config SITE_MAP_*) to RAF Valley (config RAF_VALLEY_OSGB_*)")
+    rr.add("raf_valley_bearing_deg", float(__import__("math").degrees(__import__("math").atan2(_st_e - _site_e, _st_n - _site_n)) % 360.0), unit="deg",
+           note="bearing from the site centre to RAF Valley, degrees clockwise from grid north")
     rr.add("reference_record_months_median", float(_nm.median()), unit="months",
            note="median record length of the reference network")
     # T-91: report10 §5.1 quotes the reference network's median record LENGTH

@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**166 output file(s)** supply **1773 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
+**166 output file(s)** supply **1777 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
 
 ## Cited quantities by output file
 
@@ -60,6 +60,9 @@
 |  | cumbal_wl_r2 | report9.md |
 |  | mean_annual_rain_well_record | report8.md |
 |  | n_years_annual_rain_incomplete | report9.md |
+|  | reference_record_months_max | report8.md |
+|  | reference_record_months_median | report8.md |
+|  | reference_record_months_min | report8.md |
 |  | reference_record_years_median | report10.md |
 |  | reference_summer_min_deepest | report9.md |
 |  | reference_summer_min_mean | report9.md |
@@ -1386,6 +1389,7 @@
 |  | site_mean_spring_n_years | report9.md |
 |  | site_mean_spring_rho_lag1 | report9.md |
 |  | spring_sd_mm_median_c2 | report9.md |
+|  | vw_repro_rmse_mm | report10.md |
 | `26b_msl5_ukcp18_projection_summary.csv` | C2 (Dune) / 2050s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C2 (Dune) / 2080s · msl5_observed_window_mean_m | Supplementary_Material.md |
 |  | C3 (Western Residual) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |

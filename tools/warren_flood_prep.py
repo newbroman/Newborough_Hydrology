@@ -74,7 +74,9 @@ NOT DONE HERE, AND WHY
 """
 from __future__ import annotations
 
-__version__ = "1.44.0"  # Hollingham (2026) - 2026-09-16. Phase 27 --hc-start:
+__version__ = "1.45.0"  # Hollingham (2026) - 2026-09-29. The phase-29 floor constants are
+#   read from config (WET_AREA_FLOOR_*), shared with sentinel_wet_floor.py --forest (T-78). Values unchanged.
+# 1.44.0  # Hollingham (2026) - 2026-09-16. Phase 27 --hc-start:
 #   the hindcast from any month of the climate record (1930-12 onward), its
 #   outputs tagged W94_27_from<YYYY>_* so the 2005 record is never overwritten.
 #   For the long Mode C run behind D-178's animation.
@@ -7868,11 +7870,13 @@ NADIR_CHROME = dict(top=80, bottom=1000, left=210)   # Google Earth's own pixels
 NADIR_ATTRIBUTION = (930, 975, 930, 1210)  # rows, cols of "Image (c) ..." text
 NADIR_GE_LOGO = (965, 1015, 1720, 1920)    # rows, cols of the Google Earth logo
 NADIR_TWIN_MIN_SNR = 200      # phase-correlation peak / sd for a clean twin
-FLOOR_RELIEF_M = 1.5          # a cell within this of the lowest ground ...
-FLOOR_RADIUS_M = 30.0         # ... within this radius is slack floor. Set for the
-#                               WETTEST case: 0.5 m / 50 m kept only 53 % of the
-#                               2021-03-24 vetted water (2026-09-15 sweep)
-FLOOR_SLOPE_MAX_DEG = 8.0     # and not a dune face
+# The phase-29 floor rule lives in config (WET_AREA_FLOOR_*, one copy shared with
+# tools/sentinel_wet_floor.py --forest, T-78): a cell within FLOOR_RELIEF_M of the lowest
+# ground within FLOOR_RADIUS_M and not steeper than FLOOR_SLOPE_MAX_DEG. Set for the
+# WETTEST case: 0.5 m / 50 m kept only 53 % of the 2021-03-24 vetted water (2026-09-15 sweep).
+from utils.config import (WET_AREA_FLOOR_RELIEF_M as FLOOR_RELIEF_M,          # noqa: E402
+                          WET_AREA_FLOOR_RADIUS_M as FLOOR_RADIUS_M,
+                          WET_AREA_FLOOR_SLOPE_MAX_DEG as FLOOR_SLOPE_MAX_DEG)
 FLOOR_DILATE_CELLS = 2        # the floor reaches this many DEM cells up its margin:
 #                               the slope test alone lost 13 % of the 2021 water at
 #                               slack edges where floor and face share a 2 m cell

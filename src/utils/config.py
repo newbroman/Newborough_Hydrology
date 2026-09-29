@@ -40,7 +40,13 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.73.0"  # Hollingham (2026) - 2026-09-29. SLACK_FLOOR_BASELINE_CLUSTERS (Script 44
+__version__ = "1.75.0"  # Hollingham (2026) - 2026-09-29. WET_AREA_* forest constants for the --forest
+#   diagnostic (T-78, D-210): the polygons, the clearfell open-from date, the edge band and ride buffer, and the
+#   phase-29 floor rule (WET_AREA_FLOOR_*, one copy for --forest and warren_flood_prep).
+# 1.74.0  # Hollingham (2026) - 2026-09-29. FOREST_CHANNEL_LINES, FLOOR_RELIEF_RADIUS_M,
+#   FOREST_FLOOR_FIG_SEED, FOREST_LITTER_MAX_M, PREPLANT_WINDOW, PREPLANT_BETA3_P_MAX (Script 44 1.6.0 Q5, T-72, D-209; Martin: one channel, along the village-to-beach
+#   road between CEH14 and CEH13 and a little beyond = Features.kml "Line 23").
+# 1.73.0  # Hollingham (2026) - 2026-09-29. SLACK_FLOOR_BASELINE_CLUSTERS (Script 44
 #   1.4.0 Q4, T-71, D-208; Martin: baseline (a), the open-dune clusters at or beyond the coastal reach).
 # 1.72.0  # Hollingham (2026) - 2026-09-28. SD15b_REC / SD16_REC carry a
 #   scrape's water-table BENEFIT (0.14 / 0.22 m), not its excavation depth (Martin: depth and benefit differ).
@@ -1770,6 +1776,23 @@ RANWELL_COASTAL_FIT   = ("forest_free", "linear_capped")  # the Script 25 headli
 # (read from the fit, never typed): the open dune, lake-edge slacks included, forest clusters excluded.
 SLACK_FLOOR_BASELINE_CLUSTERS = (1, 2, 3)
 
+# Script 44 Q5 (T-72, D-209) - the forest floors. The drainage channels of Features.kml, by placemark
+# name: Martin (2026-09-29) - "there is only one channel", the one that follows the road from the village
+# to the beach car park, between CEH14 and CEH13 and a little beyond; that is "Line 23" (path3 is the road's
+# upper leg from the village to it). Empty tuple = no channel test.
+FOREST_CHANNEL_LINES  = ("Line 23",)
+FLOOR_RELIEF_RADIUS_M = 20.0     # m; radius of the DEM window for a floor's microrelief (SD, range)
+FOREST_FLOOR_FIG_SEED = 7        # jitter seed for the 44_10 strip plot (display only)
+# Under the canopy the surveyed ground is the litter surface; the mineral floor lies below it by up to this
+# (Martin, 2026-09-29: "leaf litter is 20cm at most"). An upper bound, applied as an allowance, not a measurement.
+FOREST_LITTER_MAX_M   = 0.20
+# The pre-planting window the climate-only hindcast is compared over (Script 44 Q5): Martin, 2026-09-29 -
+# "I can see that period encompasses wet and dry periods so i think 53-60" (planting 1947-65; the sand was
+# mobile in the 1940s). A well's own SSM coefficients drive the hindcast when beta_3 is identified; otherwise
+# the cluster centroid's, because a near-zero beta_3 has no steady state.
+PREPLANT_WINDOW       = ("1953-01", "1960-12")
+PREPLANT_BETA3_P_MAX  = 0.05
+
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to
 # each well's scenario head, with the anchors (sea, river, lake, ridge well) folded into c per season.
@@ -2108,6 +2131,20 @@ WET_AREA_GRID = dict(left=239770, bottom=362090, right=244360, top=364940, res=1
 NIR_BLACK_RATIO  = 0.50   # B8 <= this x the scene's clear-floor median = open water
 NIR_DARK_RATIO   = 0.80   # B8 <= this (and above BLACK) = wet floor
 CELL_MIN_SCENES  = 10     # a cell seen in fewer scenes gets no switching level
+
+# T-78 (D-210): tools/sentinel_wet_floor.py --forest, a DIAGNOSTIC (no pipeline step reads it): the wet-area
+# rule on the forest polygons. It showed that any canopy reads dark at every level, so the classification is not
+# extended into the forest (Martin, 2026-09-29). Closed pine is never scored; rides are counted, not classified.
+WET_AREA_CLEARFELL_PLACEMARK = "Felling experiment"   # Features.kml: the 2017 clearfell
+WET_AREA_FOREST_PLACEMARK    = "Forest"               # Features.kml: the plantation outline
+WET_AREA_RIDE_LINES          = ("path3", "path4")     # Features.kml: the ride/road lines through the forest
+WET_AREA_FOREST_OPEN_FROM    = "2018-01-01"           # the clearfell is open from December 2017: scenes from here
+WET_AREA_EDGE_M              = 50.0                   # m; the forest-edge band inside the Forest boundary
+WET_AREA_RIDE_BUFFER_M       = 5.0                    # m; half-width of a ride
+# The phase-29 floor rule (tools/warren_flood_prep.py), shared here so --forest and phase 29 use one copy:
+WET_AREA_FLOOR_RELIEF_M      = 1.5                    # m; a cell within this of the lowest ground ...
+WET_AREA_FLOOR_RADIUS_M      = 30.0                   # ... within this radius is slack floor
+WET_AREA_FLOOR_SLOPE_MAX_DEG = 8.0                    # and not a dune face
 WET_AREA_CLASSES = ("open_water", "wet_floor", "dark_total")
 
 # The public feed, living/wet_area_model.json.

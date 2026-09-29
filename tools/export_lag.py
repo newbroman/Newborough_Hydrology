@@ -45,7 +45,8 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-08-28
+__version__ = "1.1.1"  # Hollingham (2026) — 2026-09-29. PAGES_ROOT still -> 47_04_hindcast_still_2000-12.png (the current wettest-month still; the 2001-02 one was a 25 Sep render).
+# 1.1.0  # Hollingham (2026) — 2026-08-28
 
 import argparse
 import pathlib
@@ -256,7 +257,7 @@ def run(strict: bool, only: str | None = None) -> int:
 PAGES_ROOT = ["index.html", "scenario_viewer.html",
               "seasonal_extremes_scatter.html", "hindcast_film.html",
               "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4",
-              "outputs/47_hindcast_film/47_04_hindcast_still_2001-02.png",
+              "outputs/47_hindcast_film/47_04_hindcast_still_2000-12.png",
               # forecaster runtime feeds (fetched by JS, not href-linked)
               "living/latest_readings.json",
               "living/forecaster_msl5.json",

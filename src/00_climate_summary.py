@@ -61,10 +61,11 @@ from utils.paths import (
     OUT_00_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
-from utils.paths import OUT_00_PET_WARMING, OUT_00_PET_MONTHLY_TRENDS
+from utils.paths import OUT_00_PET_WARMING, OUT_00_PET_MONTHLY_TRENDS, OUT_00_CLIMATE_TIMESERIES_SHORT_FILM
 from utils.config import (REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO, MIN_RECORD_MONTHS,
                           SD15b, SD16, SD16_REC, RAF_VALLEY_OSGB_E, RAF_VALLEY_OSGB_N,
-                          SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX)
+                          SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
+                          FILM_SLIDE_BG)
 from utils.render_utils import render_figure
 
 import pandas as pd
@@ -75,7 +76,12 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-09-29. raf_valley_distance_km and raf_valley_bearing_deg join
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-29. The short-profile climate figure
+#   (00_01_climate_timeseries_short.png, report Figure 4) is also saved as a FILM COPY
+#   (OUT_00_CLIMATE_TIMESERIES_SHORT_FILM: the same figure with FILM_SLIDE_BG, the hindcast film's
+#   slide ground, as its margin colour) for Script 47 1.6.0's first method slide. The report copy is
+#   unchanged. No table or number changes.
+# 1.14.0  # Hollingham (2026) - 2026-09-29. raf_valley_distance_km and raf_valley_bearing_deg join
 #   00_report_numbers.csv, from config's station grid reference and the canonical map extent (Martin, from the
 #   proof queue: the "16 km north" is a derived quantity and must trace). No other output moves.
 # 1.13.0  # Hollingham (2026) - 2026-09-28. The dashed long-term monthly mean on the climate
@@ -634,6 +640,9 @@ def make_figure1_climate_timeseries(climate: pd.DataFrame, wells: pd.DataFrame, 
 
     fig.tight_layout()
     render_figure(fig, out_png)
+    if profile == "short":
+        # 1.15.0: the film copy — the same figure, its margin in the film's slide ground
+        render_figure(fig, str(OUT_00_CLIMATE_TIMESERIES_SHORT_FILM), facecolor=FILM_SLIDE_BG)
     plt.close(fig)
     return fig1_stats
 

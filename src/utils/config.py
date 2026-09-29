@@ -40,7 +40,19 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.76.0"  # Hollingham (2026) - 2026-09-29. S1_* constants for tools/sentinel1_wet_floor.py
+__version__ = "1.78.0"  # Hollingham (2026) - 2026-09-29. Script 47 1.6.0 (spec
+#   NRG_spec_script47_v1_6_2026-09-29, Martin: treatment B, "the museum label", with the atlas photo on the
+#   title slide and the frames on the same ground): FILM_SLIDE_BG replaces the FILM_SLIDE_TOP / FILM_SLIDE_FOOT
+#   gradient (both retired); FILM_TITLE_FAMILY, FILM_COL_BAR, FILM_MARGIN, FILM_TEXT_MEASURE, FILM_FOOTER_PT,
+#   FILM_TRACE_SMOOTH_MONTHS, FILM_COL_TRACE_LINE, FILM_COL_TRACE_FILL, FILM_TITLE_PHOTO_FRAC,
+#   FILM_TITLE_PHOTO_FEATHER.
+# 1.77.0  # Hollingham (2026) - 2026-09-29. Script 47 1.5.0 (spec NRG_spec_script47_v1_5_2026-09-29,
+#   settled by ear over nineteen samples): the surf wash retired for the FLOOD TONE (FILM_FLOOD_TONE_*,
+#   FILM_MIX_FLOOD_TONE) and the WINTER BREATH added (FILM_BREATH_*, FILM_MIX_BREATH); FILM_MIX_CHORD
+#   0.16 -> 0.24. Retired: FILM_WASH_HARMONIC, FILM_WASH_SEMITONES, FILM_WASH_BANDWIDTH_HZ,
+#   FILM_WASH_SURGE_S, FILM_WASH_FLOOR_PCT, FILM_MIX_WASH (Script 47 alone read them).
+#   FILM_WASH_PAN_WIDTH stays: the flood tone inherits the surf's stereo place.
+# 1.76.0  # Hollingham (2026) - 2026-09-29. S1_* constants for tools/sentinel1_wet_floor.py
 #   (T-94, the Sentinel-1 radar read: the STAC source, the orbit, the speckle window, the S2 pairing window
 #   and the calibration references). Additive.
 # 1.75.0  # Hollingham (2026) - 2026-09-29. WET_AREA_* forest constants for the --forest
@@ -2067,8 +2079,6 @@ FILM_QUALITY_PRESENTATION    = 6      # imageio/x264: the cut that goes into git
 FILM_QUALITY_FULL            = 8      # the bare cut, gitignored
 FILM_FIGURE_VIEW_S           = 9.0    # a figure slide holds this long beyond its reading time
 FILM_INDEX_VIEW_S            = 4.0    # the title/index slide holds this long beyond its reading time
-FILM_SLIDE_TOP               = "#f7f2e8"   # slide shading: pale sand at the top ...
-FILM_SLIDE_FOOT              = "#e9f1f4"   # ... easing to pale sea-blue at the foot
 FILM_THUMB_N                 = 4      # true-colour thumbnails on the calibration slides
 FILM_THUMB_CLEAR_MIN_PCT     = 99.0   # share of the warren clear for a scene to be shown
 
@@ -2099,29 +2109,56 @@ FILM_OPEN_TITLE_S            = 7.0        # the short opening title page
 FILM_OPEN_CLIP_START         = "2015-01"  # the opening clip runs from here to the last month
 FILM_OPEN_CLIP_LABEL         = "The last decade"
 # The Warren track. The pad (FILM_AMBIENT_*) runs throughout and opens with the water table;
-# one note each January carries the year's flooding in pitch and loudness; the wash carries
-# the wetting; a held chord voice sounds above each line drawn on the hydrograph.
+# one note each January carries the year's flooding in pitch and loudness; the flood tone
+# (1.5.0) rises with the water table; a held chord voice sounds above each line drawn on the
+# hydrograph; the winter breath (1.5.0) keeps time.
 FILM_NOTE_F_LOW_HZ           = 55.0       # A1: a dry year's January note
 FILM_NOTE_F_HIGH_HZ          = 440.0      # A4: the record's largest open water
 FILM_NOTE_SCALE              = (0, 3, 5, 7, 10)   # A-minor pentatonic, semitones in each octave
 FILM_NOTE_FLOOR              = 0.2        # a dry year's note loudness, relative to the wettest
 FILM_NOTE_DECAY_S            = 0.55
-FILM_WASH_HARMONIC           = 0.85       # share of the wash through the chord resonators
-FILM_WASH_SEMITONES          = (12, 19, 24, 28, 31)   # resonators above the pad root: A3 E4 A4 C#5 E5
-FILM_WASH_BANDWIDTH_HZ       = 2.5
-FILM_WASH_SURGE_S            = 3.7
-FILM_WASH_FLOOR_PCT          = 2.0        # wetted-area percentile heard as silence
 FILM_CHORD_SEMITONES         = (19, 24, 28)   # above the pad root: E4 wet floor, A4 open water, C#5 2021
 FILM_CHORD_RELEASE_S         = 0.35
 FILM_MIX_PAD                 = 0.55
 FILM_MIX_NOTE                = 0.45
-FILM_MIX_WASH                = 0.60
-FILM_MIX_CHORD               = 0.16
-# Script 47 1.4.0 (Martin, 2026-09-26). Text colours keyed to the map, and the surf's
-# stereo place, which follows the east-west centre of the wetted cells (where the water is).
+FILM_MIX_CHORD               = 0.24       # 1.5.0: 0.16 -> 0.24, the held voice was masked by the flood tone
+# Script 47 1.4.0 (Martin, 2026-09-26). Text colours keyed to the map, and the stereo place
+# of the wetting voice, which follows the east-west centre of the wetted cells (where the
+# water is) — the surf's until 1.5.0, the flood tone's since.
 FILM_COL_FLOOR_TEXT          = "#8a6a00"  # the wet-floor yellow darkened to read as text on white
 FILM_COL_TITLE               = "#0b4f66"  # slide titles: the open-water blue, darkened
-FILM_WASH_PAN_WIDTH          = 0.8        # the surf's stereo swing, -1 west .. +1 east
+FILM_WASH_PAN_WIDTH          = 0.8        # the wetting voice's stereo swing, -1 west .. +1 east
+# Script 47 1.5.0 (spec NRG_spec_script47_v1_5_2026-09-29, Martin's rulings by ear). The
+# FLOOD TONE replaces the surf: a sustained A3-C#4-E4 triad whose loudness is LINEAR in the
+# calibrated water table, silent at FILM_FLOOD_TONE_LEVEL_LO_M and full at the top of the fitted
+# record; above the wet-floor arrival line (the hydrograph's yellow line) a fourth voice, the
+# minor seventh, fades in linearly to full at the record top, so the chord becomes a dominant
+# seventh as the warren floods. The WINTER BREATH keeps time: one soft note through the winter
+# half of each film year, silence through the summer — a year is one second at FILM_FPS.
+FILM_FLOOD_TONE_LEVEL_LO_M   = -1.5       # the tone is silent here (a hair under the record's driest month)
+FILM_FLOOD_TONE_SEMITONES    = (12, 16, 19)   # above the pad root: A3 C#4 E4
+FILM_FLOOD_TONE_SEVENTH_SEMITONES = 22    # G4, the minor seventh, above the yellow line
+FILM_MIX_FLOOD_TONE          = 0.35
+FILM_BREATH_SEMITONES        = 16         # C#4, the major third
+FILM_BREATH_MONTHS           = (11, 12, 1, 2, 3, 4)   # the winter half: the note sounds through these
+FILM_BREATH_EDGE_S           = 0.12       # breathed in and out over this
+FILM_MIX_BREATH              = 0.13
+# Script 47 1.6.0 (spec NRG_spec_script47_v1_6_2026-09-29, Martin: treatment B, "the museum
+# label"). The slides: a flat sand ground, serif titles, a blue bar, a measured text column, a
+# running footer with the slide count, and the century's water table drawn faintly along the
+# foot. The title slide alone carries a photograph, the film's own Sentinel scene of the warren.
+# The monthly frames share the ground, so the cut from the slides into the film is seamless.
+FILM_SLIDE_BG                = "#f4efe5"  # the sand ground: slides AND frames
+FILM_TITLE_FAMILY            = "DejaVu Serif"   # slide titles; matplotlib ships it beside DejaVu Sans
+FILM_COL_BAR                 = "#1f6f8b"  # the bar down the left of a slide's title-and-text block
+FILM_MARGIN                  = 0.0625     # the slides' left margin, frame fraction (80 px at 1280)
+FILM_TEXT_MEASURE            = 0.69       # a text slide's column, frame fraction (880 px at 1280)
+FILM_FOOTER_PT               = 11.0       # the running footer and the slide count
+FILM_TRACE_SMOOTH_MONTHS     = 12         # the century trace at the foot: centred rolling mean
+FILM_COL_TRACE_LINE          = "#cfc4ad"
+FILM_COL_TRACE_FILL          = "#ece5d5"
+FILM_TITLE_PHOTO_FRAC        = 0.40       # the title slide's photo panel, frame fraction of the width
+FILM_TITLE_PHOTO_FEATHER     = 0.07       # its left edge feathered into the ground over this fraction
 
 # ── The Sentinel wet-area model (Scripts 45 & 46, T-40, D-178) ───────────────
 # The two-class wet-area model, promoted from the tools/ lane into the pipeline

@@ -11,7 +11,12 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.45.0"  # Hollingham (2026) - 2026-09-29. 1.45.0: SENTINEL_S1_* - the outputs of
+__version__ = "1.46.0"  # Hollingham (2026) - 2026-09-29. 1.46.0: the FILM COPIES of the figures
+#   the hindcast film draws - OUT_45_MODEL_FIG_FILM, OUT_45_SSM_CURVES_FIG_FILM, OUT_45_SWITCHING_LEVELS_MAP_FILM
+#   (Script 45 1.6.0) and OUT_00_CLIMATE_TIMESERIES_SHORT_FILM (Script 00 1.15.0): the same figure saved a second
+#   time with the film's slide ground as its margin colour (Script 47 1.6.0, treatment B; the report copies are
+#   untouched and stay the cited ones). Additive.
+# 1.45.0  # Hollingham (2026) - 2026-09-29. 1.45.0: SENTINEL_S1_* - the outputs of
 #   tools/sentinel1_wet_floor.py (T-94, the Sentinel-1 radar read; a diagnostic, no step reads them). Additive.
 # 1.44.0  # Hollingham (2026) - 2026-09-29. 1.44.0: SENTINEL_FOREST_SERIES and
 #   SENTINEL_FOREST_CELL_THRESHOLDS, the outputs of tools/sentinel_wet_floor.py --forest (T-78, D-210: a
@@ -479,6 +484,7 @@ OUT_00_CLIMATE_TIMESERIES   = DIR_00 / "00_01_climate_timeseries.png"
 # Script 00 writes the well-window variant by suffixing "_short" (its _build_output_paths);
 # named here for Script 47, which shows it (report Figure 4).
 OUT_00_CLIMATE_TIMESERIES_SHORT = DIR_00 / "00_01_climate_timeseries_short.png"
+OUT_00_CLIMATE_TIMESERIES_SHORT_FILM = DIR_00 / "00_01_climate_timeseries_short_film.png"   # 1.46.0: the film copy (Script 47 1.6.0)
 OUT_00_WELL_NETWORK_FIG     = DIR_00 / "00_02_well_network_summary.png"
 OUT_00_SUMMER_WARMING       = DIR_00 / "00_03_summer_warming_trend.png"
 OUT_00_ANNUAL_CLIMATE_TABLE = DIR_00 / "00_01_annual_climate_summary.csv"
@@ -1309,6 +1315,10 @@ OUT_45_SSM_CURVES_FIG = DIR_45 / "45_02_ssm_through_nir_curves.png"
 OUT_45_SSM_CURVES_AXES = DIR_45 / "45_02_ssm_through_nir_curves_axes.json"
 OUT_45_REPORT_NUMBERS = DIR_45 / "45_report_numbers.csv"   # study area, fit R², out-of-sample R²/n/ratio (E16)
 OUT_45_SWITCHING_LEVELS_MAP = DIR_45 / "45_03_switching_levels_map.png"   # T-77: per-cell switching levels, wet floor and open water
+# 1.46.0: the film copies (Script 47 1.6.0) - the same figures with the slide ground as their margin
+OUT_45_MODEL_FIG_FILM      = DIR_45 / "45_01_wet_area_model_film.png"
+OUT_45_SSM_CURVES_FIG_FILM = DIR_45 / "45_02_ssm_through_nir_curves_film.png"
+OUT_45_SWITCHING_LEVELS_MAP_FILM = DIR_45 / "45_03_switching_levels_map_film.png"
 FIGURE_MAP = ROOT_DIR / "tools" / "figure_map.csv"   # report figure number <- source image (Script 47 figure slides)
 OUT_45_PHASE_HYSTERESIS     = DIR_45 / "45_04_phase_hysteresis.csv"       # T-77: wetting-vs-drying phase term and the scene-month rain term, per class
 

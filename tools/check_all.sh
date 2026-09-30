@@ -18,8 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.22.0 - 2026-09-29
+# VERSION 1.23.0 - 2026-09-30
 # CHANGELOG
+#   1.23.0 (2026-09-30): ship_regen_lint gate (D-213) beside rule_gate_lint - every
+#     derived artefact this script gates must be rebuilt by nrg_git.sh's
+#     ship_regenerate(); three ships on 2026-09-30 died on gates the ship could
+#     have cleared itself. SKIPPED, not failed, in a public clone (no working/).
 #   1.22.0 (2026-09-29): proof copies section (advisory) after the tasks gate -
 #     proof_copy --refresh keeps scratch/proof_bundle/ current from the mirrors and
 #     the captured task_lint output, and reports whether the published proof
@@ -458,6 +462,10 @@ python3 tools/session_handover.py --check || rc=1
 # dont have adequate checks to ensure the project rules are followed" - after
 # a CLAUDE.md rule with no gate was broken six times in a morning.
 python3 tools/rule_gate_lint.py --quiet || rc=1
+# D-213: the ship rebuilds every derived artefact this script gates, before
+# the gate. This keeps that list paired with the gates above and below.
+python3 tools/ship_regen_lint.py --selftest >/dev/null || rc=1
+python3 tools/ship_regen_lint.py --quiet || rc=1
 
 echo
 echo "── phases (which document is live; is every frozen write reasoned?) ──"

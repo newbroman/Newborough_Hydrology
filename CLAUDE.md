@@ -49,6 +49,15 @@ gate you did not touch starts failing, stop and find out why before proceeding.
 `bash working/nrg_git.sh` is the front door for committing and pushing: **2)** pushes
 both repositories, **11)** archives the ODTs to Drive, **q** quits.
 
+**`--ship` rebuilds every derived artefact the gates check BEFORE running them**
+(D-213): version stamps, mirrors, published PDFs, index counts, the ledgers and
+registers, the public decisions, the section map, the HANDOFF — and archives old
+handover entries when Tier 0 is over budget. So a red gate after a ship is a defect
+in the work, never "rebuild X and retry"; if it looks like the latter, the fix is
+a line in `ship_regenerate()`, and `ship_regen_lint` says so. Three ships died on
+exactly that on 2026-09-30, and three on 2026-09-24. A ship also refuses when
+the local branch has diverged from GitHub (an `--amend` after a ship does that).
+
 ## 2. The three stores
 
 | store | holds |

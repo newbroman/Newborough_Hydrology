@@ -62,7 +62,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.1.0"  # Hollingham (2026).
+__version__ = "2.2.0"  # Hollingham (2026).
+#   2.2.0 (2026-09-30, D-213): --write archives the oldest dated HANDOVER_NOTE entries
+#     (verbatim, to HANDOVER_NOTE_archive_<first>_to_<last>.md, a stub left in place)
+#     when Tier 0 prose is over budget, keeping at least NOTE_KEEP_ENTRIES. The budget
+#     stays a gate; it stops being something a session notices at ship time (608/600
+#     on 2026-09-30, 641/600 on 2026-09-27, both cleared by hand the same way).
 #   2.1.0 (2026-09-29): detector 7, advisory: the proof artifact against the bundle
 #     (tools/proof_bundle_state.json, written by proof_copy --refresh / --published).
 #   2.0.1 (2026-09-07): detector 2 measures the HANDOFF against max(its header
@@ -110,6 +115,8 @@ CHANGELOGS = REPO / "working" / "changelogs"
 # proxy for it, and a proxy that punishes a productive day is the wrong shape.
 # Entries over this are still printed, so growth stays visible rather than felt.
 NOTE_LONG_ENTRY = 40         # per dated entry in HANDOVER_NOTE.md — advisory
+NOTE_KEEP_ENTRIES = 6        # --write never archives below this many dated entries
+NOTE_ARCHIVE_MARGIN = 30     # lines under the budget that an archive pass aims for
 TIER0_PROSE_BUDGET = 600     # lines, excluding the one-line-per-decision index (D-080)
 CHANGELOG_WINDOW_DAYS = 3    # script commits this recent must have a changelog
 CHANGELOG_LEAD_DAYS = 2      # a changelog may precede its commit by this much
@@ -339,6 +346,58 @@ def tier0_measure() -> tuple[int, int, list[str]]:
             rows.append(f"- `{m.relative_to(REPO)}` — {n} lines")
     index_lines = len(INDEX.read_text(encoding="utf-8").splitlines()) if INDEX.is_file() else 0
     return total, total - index_lines, rows
+
+
+_ENTRY_RE = re.compile(r"^## (\d{4}-\d{2}-\d{2})(?!\s+to\s)")   # a dated entry, not an archive stub
+
+
+def archive_oldest_entries() -> str | None:
+    """Move the oldest dated entries of HANDOVER_NOTE.md to an archive file until
+    Tier 0 prose is NOTE_ARCHIVE_MARGIN lines under budget (D-213). Entries move
+    verbatim; a two-line stub names the archive. Never below NOTE_KEEP_ENTRIES.
+    Returns a one-line report, or None when nothing was needed."""
+    if not NOTE.is_file():
+        return None
+    _t, prose, _r = tier0_measure()
+    if prose <= TIER0_PROSE_BUDGET:
+        return None
+    lines = NOTE.read_text(encoding="utf-8").split("\n")
+    heads = [i for i, l in enumerate(lines) if _ENTRY_RE.match(l)]
+    if len(heads) <= NOTE_KEEP_ENTRIES:
+        return None
+    # the archivable block runs from an entry heading to the first archive stub
+    # (or the end); entries are newest first, so the oldest are the last headings
+    stub_at = next((i for i, l in enumerate(lines) if re.match(r"^## \d{4}-\d{2}-\d{2} to \d{4}-\d{2}-\d{2} — archived", l)), len(lines))
+    excess = prose - (TIER0_PROSE_BUDGET - NOTE_ARCHIVE_MARGIN)
+    take: list[int] = []            # indices into heads, oldest first
+    freed = 0
+    for k in range(len(heads) - 1, NOTE_KEEP_ENTRIES - 1, -1):
+        start = heads[k]
+        end = heads[k + 1] if k + 1 < len(heads) else stub_at
+        take.append(k)
+        freed += end - start
+        if freed >= excess:
+            break
+    if not take:
+        return None
+    first_i, last_i = heads[min(take)], stub_at if max(take) == len(heads) - 1 else heads[max(take) + 1]
+    block = lines[first_i:last_i]
+    dates = [_ENTRY_RE.match(lines[heads[k]]).group(1) for k in take]
+    d_first, d_last = min(dates), max(dates)
+    tail = d_last[8:] if d_last[:7] == d_first[:7] else d_last[5:]   # _to_24 within a month, _to_10-03 across
+    arch = UPDATES / f"HANDOVER_NOTE_archive_{d_first}_to_{tail}.md"
+    n = 2
+    while arch.exists():
+        arch = UPDATES / f"HANDOVER_NOTE_archive_{d_first}_to_{tail}_{n}.md"
+        n += 1
+    arch.write_text(f"# NRG — handover notes archived {date.today().isoformat()} (entries of {d_first} to {d_last}, moved verbatim by session_handover --write, D-213)\n\n"
+                    + "\n".join(block).rstrip() + "\n", encoding="utf-8")
+    stub = [f"## {d_first} to {d_last} — archived",
+            f"{len(take)} entries moved verbatim to `{arch.name}` by `session_handover.py --write` (Tier 0 prose was {prose}/{TIER0_PROSE_BUDGET}).", ""]
+    lines = lines[:first_i] + stub + lines[last_i:]
+    NOTE.write_text("\n".join(lines), encoding="utf-8")
+    _t, prose2, _r = tier0_measure()
+    return f"  ARCHIVED  {len(take)} entries ({d_first} to {d_last}) -> {arch.name}; Tier 0 prose {prose} -> {prose2}"
 
 
 def section_tier0() -> str:
@@ -659,6 +718,10 @@ def main(argv):
     if "--check" in argv:
         return check(verbose="--quiet" not in argv)
     include_lag = "--lag" in argv
+    if "--write" in argv:
+        rep = archive_oldest_entries()          # D-213: before the HANDOFF measures Tier 0
+        if rep:
+            print(rep)
     text = build(include_lag)
     if "--write" in argv:
         dest = UPDATES / f"HANDOFF_{date.today().isoformat()}.md"

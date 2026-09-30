@@ -100,7 +100,12 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-30. msl5_pct_annual_valid_with_interp and
+__version__ = "1.22.0"  # Hollingham (2026) - 2026-09-30. 26_report_numbers.csv gains the scrape-pair
+#   MSL5 summary (report9 SS4.5.4): msl5_scrape_pair_{treatment,control}_{min,max,mean}_m and
+#   msl5_scrape_pair_gap_{min,max,mean}_m (treatment minus control) over window-ends
+#   config.MSL5_SCRAPE_PAIR_FIRST_WINDOW_END to the last before SCRAPING_DATE_2_ISO, and
+#   the span (msl5_scrape_pair_first/last_window_end). From per_well; no other output moves.
+# 1.21.0  # Hollingham (2026) - 2026-09-30. msl5_pct_annual_valid_with_interp and
 #   msl5_pct_windows_with_interp join 26_report_numbers.csv beside their counts (report8 SS3.7.5 quotes
 #   the shares; proof queue). No other output moves.
 # 1.20.1  # Hollingham (2026) - 2026-09-29. T-96 batch 2: the wet-step window-end reads
@@ -2429,6 +2434,23 @@ def main() -> int:
         _a, _b = (int(_cid), _wet_end), (int(_cid), _wet_end - 1)
         if _a in _pc.index and _b in _pc.index:
             report_nums[f"msl5_wet_step_mm_c{int(_cid)}"] = float(_pc.loc[_a] - _pc.loc[_b]) * 1000.0
+    # 1.22.0: the scraped well and its paired control on MSL5 (report9 SS4.5.4), over the
+    # window-ends that carry at least two post-scrape springs and precede the second scraping.
+    _t, _c = config.SCRAPE_PAIR_TREATMENT, config.SCRAPE_PAIR_CONTROL
+    _first = int(config.MSL5_SCRAPE_PAIR_FIRST_WINDOW_END)
+    _last = int(config.SCRAPING_DATE_2_ISO[:4])
+    _pw = per_well.assign(well=per_well["well"].str.lower())
+    _pw = _pw[_pw["window_end_year"].between(_first, _last)]
+    _pair = _pw[_pw["well"].isin([_t, _c])].pivot(
+        index="window_end_year", columns="well", values="MSL5_m_bg").dropna()
+    if {_t, _c} <= set(_pair.columns) and len(_pair):
+        report_nums["msl5_scrape_pair_first_window_end"] = int(_pair.index.min())
+        report_nums["msl5_scrape_pair_last_window_end"] = int(_pair.index.max())
+        _gap = _pair[_t] - _pair[_c]
+        for _nm, _s in (("treatment", _pair[_t]), ("control", _pair[_c]), ("gap", _gap)):
+            report_nums[f"msl5_scrape_pair_{_nm}_min_m"] = float(_s.min())
+            report_nums[f"msl5_scrape_pair_{_nm}_max_m"] = float(_s.max())
+            report_nums[f"msl5_scrape_pair_{_nm}_mean_m"] = float(_s.mean())
     if not ewi.empty:
         comp, calib = compute_ewi_msl5_comparison(ewi, latest)
         if not comp.empty:

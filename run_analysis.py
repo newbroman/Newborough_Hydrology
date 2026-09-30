@@ -186,7 +186,10 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.22.0"  # Hollingham (2026) - 2026-09-29. THE FULL RUN SETTLES ITSELF (D-212; Martin:
+__version__ = "2.22.1"  # Hollingham (2026) - 2026-09-30. --step KEY prints a note when the bare number
+#   is also a different step's index (the 2026-09-29 "--step 38" hand-over ran Script 38 for step 38).
+#   No behaviour change; _DOCUMENTED_COUNTS untouched.
+# 2.22.0  # Hollingham (2026) - 2026-09-29. THE FULL RUN SETTLES ITSELF (D-212; Martin:
 #   "can we fix the second run problem?"). After Phase 17, _settle() reads the provenance the pass
 #   just wrote, re-runs the steps whose single-writer inputs a later step of the same pass rewrote
 #   (today: run_09_scraping.py and run_10_clearfell.py, which read 10a/20 report numbers that gain
@@ -2334,6 +2337,13 @@ def main() -> None:
                 sys.exit(2)
             script, label, extra = _STEP_MAP[n]
             say_info(f"--step {args.single_step}: {why} ({script})")
+            # 2.22.1: a bare number is a SCRIPT key; when it is also a different
+            # step's index, say so - "--step 38" ran 38_coastal_transect.py on
+            # 2026-09-29 when step 38 (33_envelope_amplification.py) was meant.
+            _raw = args.single_step.strip()
+            if _raw.isdigit() and int(_raw) in _STEP_MAP and int(_raw) != n:
+                say_info(f"  (note: step index {int(_raw)} is {_STEP_MAP[int(_raw)][0]}; "
+                         f"spell it s{int(_raw)} to run that one)")
             warn_missing_upstream(n, interactive=False)
             ensure_paths()
             run_script(script, label, extra)

@@ -277,6 +277,16 @@ SummerMin_well_mean,WMC1,Full_record,-0.9853333333333332,m,"mean Summer_min_m ov
 SummerMin_well_mean,CEH5,Full_record,-0.9693333333333334,m,"mean Summer_min_m over all usable summers, n_years=15, tier=Far-field Ctrl",10d
 SummerMin_well_mean,L7,Full_record,-2.148,m,"mean Summer_min_m over all usable summers, n_years=15, tier=Far-field Ctrl",10d
 SummerMin_well_mean,CEH6,Full_record,-0.7353333333333333,m,"mean Summer_min_m over all usable summers, n_years=15, tier=Far-field Ctrl",10d
+SummerMin_well_mean_spread,CEH34-CEH32,Full_record,0.8506666666666665,m,"SummerMin_well_mean CEH34 minus CEH32 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,CEH33-CEH32,Full_record,0.0193333333333334,m,"SummerMin_well_mean CEH33 minus CEH32 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,NW10-CEH32,Full_record,0.6449743589743588,m,"SummerMin_well_mean NW10 minus CEH32 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,CEH2-CEH32,Full_record,0.451238095238095,m,"SummerMin_well_mean CEH2 minus CEH32 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,CEH34-CEH33,Full_record,0.831333333333333,m,"SummerMin_well_mean CEH34 minus CEH33 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,CEH34-NW10,Full_record,0.2056923076923076,m,"SummerMin_well_mean CEH34 minus NW10 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,CEH34-CEH2,Full_record,0.3994285714285714,m,"SummerMin_well_mean CEH34 minus CEH2 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,NW10-CEH33,Full_record,0.6256410256410254,m,"SummerMin_well_mean NW10 minus CEH33 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,CEH2-CEH33,Full_record,0.4319047619047615,m,"SummerMin_well_mean CEH2 minus CEH33 (shallower minus deeper), Forest Ctrl tier",10d
+SummerMin_well_mean_spread,NW10-CEH2,Full_record,0.1937362637362638,m,"SummerMin_well_mean NW10 minus CEH2 (shallower minus deeper), Forest Ctrl tier",10d
 SummerMin_Forest_WMC3_shift,WMC3,Post_felling,-0.0073,m,"p=0.9052, n_pre=6, n_post=7",10d
 SummerMin_Climate_WMC3_shift,WMC3,Post_felling,-0.0186,m,"p=0.6710, n_pre=6, n_post=7",10d
 SummerMin_Forest_CEH31_shift,CEH31,Post_felling,-0.0561,m,"p=0.5810, n_pre=7, n_post=8",10d

@@ -52,3 +52,6 @@ Pre_scraping_baseline_years,CEH4,pre_2015_scrape,8.917180013689254,years,first v
 Pre_scraping_baseline_years,CEH36,pre_2015_scrape,4.246406570841889,years,first valid monitoring month (2011-01) to SCRAPING_DATE (2015-04)
 Pre_scraping_baseline_years,CEH18,pre_2015_scrape,7.665982203969883,years,first valid monitoring month (2007-08) to SCRAPING_DATE (2015-04)
 Pre_scraping_baseline_years,CEH21,pre_2015_scrape,4.832306639288158,years,first valid monitoring month (2010-06) to SCRAPING_DATE (2015-04)
+Pair_dist_coast_diff,CEH36,CEH36-CEH4,92.19999999999999,m,dist_coast_m(CEH36) - dist_coast_m(CEH4) from 01_locations.csv: how much nearer the eroding shore the paired control sits than the impact well (report8 Section 3.5.3)
+Pair_dist_coast_diff,CEH18,CEH18-CEH4,81.30000000000001,m,dist_coast_m(CEH18) - dist_coast_m(CEH4) from 01_locations.csv: how much nearer the eroding shore the paired control sits than the impact well (report8 Section 3.5.3)
+Pair_dist_coast_diff,CEH21,CEH21-CEH22,85.30000000000001,m,dist_coast_m(CEH21) - dist_coast_m(CEH22) from 01_locations.csv: how much nearer the eroding shore the paired control sits than the impact well (report8 Section 3.5.3)

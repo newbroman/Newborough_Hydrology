@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**166 output file(s)** supply **1777 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
+**166 output file(s)** supply **1780 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
 
 ## Cited quantities by output file
 
@@ -74,6 +74,9 @@
 |  | trend_annual_pet_1960_2025_t | report9.md |
 |  | trend_summer_balance | report9.md |
 |  | trend_summer_balance_t | report9.md |
+|  | trend_summer_pet_full_record | report10.md |
+|  | trend_summer_pet_full_record_p | report10.md |
+|  | trend_summer_rain_full_record_p | report10.md |
 |  | trend_winter_balance | report9.md |
 |  | trend_winter_rainfall_t | report9.md |
 | `01_dist_coast_validation.csv` | nw4b · abs_diff_m | Supplementary_Material.md |
@@ -1808,7 +1811,7 @@
 | η | `eta_interaction` | CWB x D_fell interaction coefficient in the BACI ANCOVA (rep | `10k_01_four_zone_results.csv` |
 | λ | `lambda_pflood` | rainfall multiplier in the P_flood calculation | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_03_pflood_per_well.csv`, `11b_05_table10_pflood_spreadsheet.csv` |
 | λ | `lambda_reach` | drawdown e-folding reach sqrt(Kb/(Sy·b3)); the forest field  | `44_10_forest_floor_excess.csv` |
-| ξ | `xi_drift` | coefficient on Drift(t) in the BACI ANCOVA — the fraction of | `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `01b_08_coastal_head_fit.csv`, `09b_01_individual_well_baci.csv`, `09b_02_centroid_summaries.csv`, `10a_01_ancova_comparison_table.csv` … |
+| ξ | `xi_drift` | coefficient on Drift(t) in the BACI ANCOVA — the fraction of | `01_locations.csv`, `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `01b_08_coastal_head_fit.csv`, `09b_01_individual_well_baci.csv`, `09b_02_centroid_summaries.csv` … |
 | τ | `tau_storage` | storage-drainage index Sy/beta_3, a per-well aquifer-archite | `00_01_annual_climate_summary.csv`, `00_01_annual_climate_summary_short.csv`, `01_dist_coast_validation.csv`, `02_11_month_stability.csv`, `05_pear_membership_audit.csv`, `06_pear_membership_audit_sitewide.csv` … |
 | φ | `phi_ar1` | lag-1 autocorrelation coefficient | `22_05_ssm_residual_autocorrelation.csv`, `22_06_ssm_cluster_mean_inference.csv`, `22_model_b_fits.csv` |
 | ψ | `psi_easting` | coefficient on the per-well Easting x Time interaction in th | `10a_01_ancova_comparison_table.csv`, `10a_02_ancova_full_coefficients.csv`, `10a_02b_drift_design_equivalence.csv`, `10a_03_baci_timeseries.csv`, `10a_09_coastal_scale_factor.csv`, `10a_09_control_well_spread.csv` … |

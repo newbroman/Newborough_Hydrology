@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.82.0"  # Hollingham (2026) - 2026-09-30. PFLOOD_EXAMPLE_CLUSTER and
+__version__ = "1.83.0"  # Hollingham (2026) - 2026-09-30. WTF_EVENT_MIN_RISE_M, WTF_EVENT_MIN_NET_RECH_M,
+#   WTF_EVENT_SY_MIN, WTF_EVENT_SY_MAX: the Approach B event rules, until now per-script locals and
+#   literals in Scripts 17 and 18 (report9 §4.2.4 quotes them). Values unchanged.
+# 1.82.0  # Hollingham (2026) - 2026-09-30. PFLOOD_EXAMPLE_CLUSTER and
 #   PFLOOD_EXAMPLE_H0_M: the cluster and starting depth of report8 §3.6.3's worked P_flood example,
 #   which Script 11b now emits from the committed threshold equations (Martin: the example is
 #   corrected to the 4-month horizon and traced). Additive.
@@ -698,6 +701,15 @@ WTF_C_SY_MIN         = 0.01    # per-episode Sy physical-plausibility floor
 WTF_C_SY_MAX         = 0.50    # per-episode Sy physical-plausibility ceiling
 WTF_C_BOOTSTRAP_N    = 1000    # median-CI bootstrap resamples
 WTF_RAPID_BOOT_SEED  = 20260611  # fixed seed — Approach C median-CI bootstrap
+
+# --- WTF Approach B: event method (Scripts 17 cluster, 18 per well) -----------
+# A month is a qualifying rising-limb event when the head rises by more than
+# WTF_EVENT_MIN_RISE_M and net recharge exceeds WTF_EVENT_MIN_NET_RECH_M; its
+# Sy_i = net R / dh is kept only inside (WTF_EVENT_SY_MIN, WTF_EVENT_SY_MAX).
+WTF_EVENT_MIN_RISE_M     = 0.005   # minimum detectable water-table rise (m)
+WTF_EVENT_MIN_NET_RECH_M = 0.010   # minimum net recharge (m)
+WTF_EVENT_SY_MIN         = 0.01    # per-event Sy plausibility floor (exclusive)
+WTF_EVENT_SY_MAX         = 0.50    # per-event Sy plausibility ceiling (exclusive)
 
 # --- Forest drawdown-propagation model (Script 20, plot_drawdown_propagation) -
 # Steady-state drawdown around the forest block is modelled as a cone

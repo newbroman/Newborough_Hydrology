@@ -53,7 +53,14 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-09-28. T-91: 18_report_numbers.csv also carries
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-30. The event rules come from config
+#   (WTF_EVENT_MIN_RISE_M / _MIN_NET_RECH_M / _SY_MIN / _SY_MAX) instead of module locals and literals,
+#   shared with Script 17. Values and outputs unchanged.
+# 1.16.0  # Hollingham (2026) — 2026-09-30. T-96 batch 3: 18_report_numbers.csv
+#   carries wtf_n_events_per_well_min/_max/_mean -- rising-limb events per reference well, from
+#   the in-memory well_results written to 18_wtf_01_well_sy_estimates.csv (report9 §4.2.4
+#   "27--73 qualifying rising-limb events per well (mean 52 ...)"). No analysis change.
+# 1.15.0  # Hollingham (2026) — 2026-09-28. T-91: 18_report_numbers.csv also carries
 #   the network-wide Pearson r (and p) between Sy_median and 1/β₃ over the reference
 #   network's non-excluded wells (sy_recip_beta3_correlation_r/_p), computed from the in-memory
 #   sdi_df already built by compute_storage_drainage_index() -- so the report8 §3.4.5 / 
@@ -145,6 +152,7 @@ from utils.config import (
     FOREST_INTERCEPTION, FOREST_CIDS,
     BW_MODE, get_cmap, REFERENCE_CUTOFF_DATE,
     RIDGE_REF_E, RIDGE_REF_N, PER_WELL_RECESSION_BASIS,
+    WTF_EVENT_MIN_RISE_M, WTF_EVENT_MIN_NET_RECH_M, WTF_EVENT_SY_MIN, WTF_EVENT_SY_MAX,
 )
 from utils.render_utils import render_figure
 make_all_dirs()
@@ -173,8 +181,6 @@ RIDGE_EXCLUDE = ['ceh12', 'ceh15']
 TAU_EXCLUDE = ['ceh13']
 # FOREST_INTERCEPTION and FOREST_CIDS imported from config.py.
 EXCLUDE_CLUSTERS    = []         # under k=5 all clusters are analytically usable
-MIN_RISE_M          = 0.005      # m
-MIN_NET_RECH        = 0.010      # m
 MIN_EVENTS          = 15         # minimum qualifying events for confidence flag
 
 plt.rcParams.update({
@@ -246,11 +252,11 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations,
 
         # Event selection
         events = merged[
-            (merged["net_R"] > MIN_NET_RECH) &
-            (merged["dh"]    > MIN_RISE_M)
+            (merged["net_R"] > WTF_EVENT_MIN_NET_RECH_M) &
+            (merged["dh"]    > WTF_EVENT_MIN_RISE_M)
         ].copy()
         events["sy_i"] = events["net_R"] / events["dh"]
-        events = events[(events["sy_i"] > 0.01) & (events["sy_i"] < 0.50)]
+        events = events[(events["sy_i"] > WTF_EVENT_SY_MIN) & (events["sy_i"] < WTF_EVENT_SY_MAX)]
 
         n = len(events)
         if n < 5:
@@ -597,11 +603,11 @@ def wtf_extended_wells(climate, locations, out_root):
             corrected = False
 
         events = merged[
-            (merged['net_R'] > MIN_NET_RECH) &
-            (merged['dh']    > MIN_RISE_M)
+            (merged['net_R'] > WTF_EVENT_MIN_NET_RECH_M) &
+            (merged['dh']    > WTF_EVENT_MIN_RISE_M)
         ].copy()
         events['sy_i'] = events['net_R'] / events['dh']
-        events = events[(events['sy_i'] > 0.01) & (events['sy_i'] < 0.50)]
+        events = events[(events['sy_i'] > WTF_EVENT_SY_MIN) & (events['sy_i'] < WTF_EVENT_SY_MAX)]
 
         n = len(events)
         if n < 5:
@@ -1504,6 +1510,13 @@ def main(supplementary=True):
         rpt.add("sdi_vs_halflife_correlation_r", float(_r_tau), unit="",
                 note=f"Pearson r between the per-well storage-drainage index τ = Sy/β₃ and "
                      f"t½ = ln(2)/β₃, same wells (n={len(valid_sdi)}), basis {PER_WELL_RECESSION_BASIS}")
+
+        # 1.16.0 (T-96 batch 3): rising-limb events per reference well (report9 §4.2.4)
+        _ne = well_results["n_events"].dropna()
+        for _stat, _v in (("min", _ne.min()), ("max", _ne.max()), ("mean", _ne.mean())):
+            rpt.add(f"wtf_n_events_per_well_{_stat}", float(_v), unit="events",
+                    note=f"{_stat} of n_events over the {len(_ne)} reference wells of "
+                         f"18_wtf_01_well_sy_estimates.csv")
 
         n_saved = rpt.save(OUT_18_REPORT_NUMBERS)
         print(f"  Saved → {OUT_18_REPORT_NUMBERS.name} ({n_saved} report numbers)")

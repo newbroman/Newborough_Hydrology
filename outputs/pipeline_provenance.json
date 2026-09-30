@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-30T14:30:04",
+ "generated": "2026-09-30T17:25:14",
  "orchestrator": "2.22.1",
  "steps": {
   "00_climate_summary.py": {
@@ -534,7 +534,7 @@
     "outputs/17_wtf_specific_yield/17_report_numbers.csv": "0bcdc314ddc658ff2a7e5cd6a996367b834b666a9695890ec29a14089f9b7201",
     "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv": "e9ce7b8ced148551630d6f0590db6578320359000c5660b8725d89efd54babd5",
     "outputs/17_wtf_specific_yield/17_wtf_02_regression.png": "7d9f6d87693477ef500be4ef31b9aa74906c713fe568d0ef6e390439ad09b435",
-    "outputs/17_wtf_specific_yield/17_wtf_03_event_boxplot.png": "d2d7b5fb69efa1ac8b25fa8adcc917c7fd0ed74c9715223b82fc64584f97e40e",
+    "outputs/17_wtf_specific_yield/17_wtf_03_event_boxplot.png": "b0073212aa081701b0414294856b0abc5ef053a61dd3da211c9b8cc5acdb6a84",
     "outputs/17_wtf_specific_yield/17_wtf_04_summary.txt": "4caf1640940a1beea1f694609fd33bcb632643c6f0d8dbf6a0e5ea6ff2f030fc",
     "outputs/17_wtf_specific_yield/17_wtf_05_rapid_events.png": "c2cfb240d792977811fac6cd90f2f0ff701099b122b367e04e283705ed341d46",
     "outputs/17_wtf_specific_yield/17_wtf_06_interception_sweep.csv": "c6ea700a2f8a68767f8f09c143bcee91fbbee3671eb3bb3b8c82c49ba48bd5ee"
@@ -546,13 +546,13 @@
     "outputs/03_regional_averages.csv": "9d70076c57b631b267b510364d8bc3f998a1a4893aca69705039b2321b6b1b25"
    },
    "inputs_unresolved": [],
-   "seconds": 2.6,
-   "started": "2026-09-30T04:45:47",
-   "version": "1.7.0"
+   "seconds": 2.8,
+   "started": "2026-09-30T17:23:55",
+   "version": "1.8.0"
   },
   "18_wtf_spatial.py": {
    "emitted": {
-    "outputs/18_wtf_spatial/18_report_numbers.csv": "218a040cbfb4b492a50d4239c2f13442850c95e1f86ac0f511416976441105b7",
+    "outputs/18_wtf_spatial/18_report_numbers.csv": "1d1bb39abf9ac0a876cf56bf2c416ca841a69ab958c64c728de73f109bf5da57",
     "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv": "7a78872ced028d97af0f5b7827d30b820fcab86a2b3c558940fa07a28c39ea15",
     "outputs/18_wtf_spatial/18_wtf_02_spatial_sy_map.png": "063f6e0df851c6ecf020ac15f770408e25c99c48b6512884712127ce3d2f3457",
     "outputs/18_wtf_spatial/18_wtf_03_sy_contour.png": "c24e8de5b96989bd769b7cf68ed002fb6441b316784ae5417eeeee549e4b7a1d",
@@ -570,9 +570,9 @@
     "outputs/08_lcsc_model_stats.csv": "2b9f44861a9c3e4cc36abe74212389811641676cdaa85e29c8493c57d03d45ba"
    },
    "inputs_unresolved": [],
-   "seconds": 58.4,
-   "started": "2026-09-30T04:45:52",
-   "version": "1.15.0"
+   "seconds": 73.4,
+   "started": "2026-09-30T17:24:00",
+   "version": "1.17.0"
   },
   "19_spatial_groundwater.py": {
    "emitted": {

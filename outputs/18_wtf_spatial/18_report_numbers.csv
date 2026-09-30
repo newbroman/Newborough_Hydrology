@@ -38,3 +38,6 @@ sy_recip_beta3_correlation_r,,,0.2151665530948414,,"Pearson r(Sy_median, 1/β₃
 sy_recip_beta3_correlation_p,,,0.0877349274598364,,p-value for sy_recip_beta3_correlation_r
 sy_recip_beta3_correlation_n,,,64.0,wells,wells behind sy_recip_beta3_correlation_r
 sdi_vs_halflife_correlation_r,,,0.9418706288131364,,"Pearson r between the per-well storage-drainage index τ = Sy/β₃ and t½ = ln(2)/β₃, same wells (n=64), basis full_record"
+wtf_n_events_per_well_min,,,27.0,events,min of n_events over the 66 reference wells of 18_wtf_01_well_sy_estimates.csv
+wtf_n_events_per_well_max,,,73.0,events,max of n_events over the 66 reference wells of 18_wtf_01_well_sy_estimates.csv
+wtf_n_events_per_well_mean,,,51.5,events,mean of n_events over the 66 reference wells of 18_wtf_01_well_sy_estimates.csv

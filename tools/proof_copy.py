@@ -78,7 +78,19 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-30. A vetted verdict on a cross-reference the
+__version__ = "1.30.0"  # Hollingham (2026) — 2026-09-30. A reader's better source that holds the
+#   quoted value to within one unit of the last quoted digit paints ROUNDING (pale), not DENIED:
+#   "fix a number when it MOVES, not when it rounds differently" (2026-09-02). The full-report
+#   sweep (sweep30) named the right row for 3.4 (3.481), 2.0 (2.062), 0.21 (0.217) and others;
+#   they are rounding-level, not wrong, and red would bury the real errors.
+# 1.29.0  # Hollingham (2026) — 2026-09-30. Navigation (Martin: "there isnt a way to
+#   jump to corrections"): a legend colour is a button — click it to go to the next number of that
+#   class in the chapter on screen (click again for the one after, wrapping), n / p step through every
+#   flagged number (denied, untraced, stale, elsewhere, near-tie, xref-bad, xref-meaning), and
+#   "list flagged" opens a panel of them with section and context, each a link. The bundle's chapter
+#   pills now count DENIED and the bad cross-references too (they counted untraced/stale/elsewhere
+#   only, so report10's seven denials showed no badge).
+# 1.28.0  # Hollingham (2026) — 2026-09-30. A vetted verdict on a cross-reference the
 #   meaning check flagged (xmean) paints it as a plain xref with Martin's reason; the reading rows
 #   now carry xmean ids so the queue can name one. Martin: "the amplification field is Figure 75".
 # 1.27.0  # Hollingham (2026) — 2026-09-29. A reader's better source is taken on the
@@ -2206,6 +2218,13 @@ a.pgno{color:#c60}
 .secbar{font:12px Helvetica,Arial,sans-serif;color:#777;margin:-.4em 0 .6em}
 .n{cursor:pointer}
 .queued{outline:2px solid #6a4fd8;outline-offset:1px}
+#legend span.n{cursor:pointer}
+.flash{outline:3px solid #6a4fd8;outline-offset:2px;box-shadow:0 0 0 6px rgba(106,79,216,.25)}
+#navmsg{position:fixed;left:12px;bottom:12px;z-index:9;background:#333;color:#fff;font:12px Helvetica,Arial,sans-serif;padding:.3em .7em;border-radius:4px;opacity:0;transition:opacity .3s}
+#navmsg.on{opacity:.9}
+#flagged{font:13px Helvetica,Arial,sans-serif;background:#fff;border:1px solid #ccc;border-radius:4px;margin:0 0 1em;max-height:50vh;overflow:auto}
+#flagged .fr{display:block;padding:.35em .6em;border-bottom:1px solid #eee;color:#222;text-decoration:none}
+#flagged .fr:hover{background:#f4f1ff}#flagged .fs{color:#777;font-size:11px}#flagged .fc{color:#555;font-size:12px}
 #pop{position:absolute;z-index:10;background:#fff;border:1px solid #999;box-shadow:0 4px 14px rgba(0,0,0,.2);padding:.6em .8em;width:400px;font:13px Helvetica,Arial,sans-serif;border-radius:4px}
 #pop .pd{color:#555;margin:.3em 0 .5em;max-height:6em;overflow:auto;font-size:12px}
 #pop label{display:block;margin:.3em 0}#pop input{width:100%;box-sizing:border-box;font:13px Helvetica,Arial,sans-serif;padding:.25em}
@@ -2232,6 +2251,43 @@ button{font:13px Helvetica,Arial,sans-serif}
 
 JS = r"""
 function toggleFocus(){document.body.classList.toggle('focus');}
+
+// ---- navigation (1.29.0): jump to the next number of a class, or list the flagged ones --
+const FLAGGED = ['denied','untraced','stale','elsewhere','tie','xbad','xmean'];
+function navScope(){ const s = [...document.querySelectorAll('section.chapter')].filter(x => x.style.display !== 'none'); return s.length ? s[0] : document; }
+function marksOf(cls){ const sel = cls ? `span.n.${cls}` : FLAGGED.map(c => `span.n.${c}`).join(',');
+  return [...navScope().querySelectorAll(sel)].filter(el => !el.closest('#legend,#flagged,#pop,#drawer')); }
+let navLast = null, navKey = null;
+function navMsg(t){ let m = document.getElementById('navmsg'); if (!m) { m = document.createElement('div'); m.id = 'navmsg'; document.body.appendChild(m); }
+  m.textContent = t; m.classList.add('on'); clearTimeout(m._t); m._t = setTimeout(() => m.classList.remove('on'), 2500); }
+function goTo(el){ el.scrollIntoView({block:'center'}); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1600); navLast = el; }
+function jump(cls, dir){
+  const ms = marksOf(cls), label = cls || 'flagged';
+  if (!ms.length) { navMsg(`no ${label} numbers in this chapter`); return; }
+  let i = (navKey === (cls || '') && navLast) ? ms.indexOf(navLast) : -1;
+  if (i >= 0) i = (i + dir + ms.length) % ms.length;
+  else { const y = window.scrollY + 80; i = dir > 0 ? ms.findIndex(el => el.getBoundingClientRect().top + window.scrollY > y) : -1;
+         if (dir < 0) ms.forEach((el, k) => { if (el.getBoundingClientRect().top + window.scrollY < y) i = k; });
+         if (i < 0) i = dir > 0 ? 0 : ms.length - 1; }
+  navKey = cls || ''; goTo(ms[i]); navMsg(`${label} ${i + 1} of ${ms.length}` + (cls ? '' : ' — n / p for next / previous'));
+}
+function listFlagged(){
+  let pnl = document.getElementById('flagged');
+  if (pnl) { pnl.remove(); return; }
+  const ms = marksOf(null); pnl = document.createElement('div'); pnl.id = 'flagged';
+  pnl.innerHTML = ms.length ? '' : '<div class=fr>nothing flagged in this chapter</div>';
+  ms.forEach(el => { const a = document.createElement('a'); a.href = '#'; a.className = 'fr';
+    const ctx = (typeof contextOf === 'function') ? contextOf(el) : '';
+    a.innerHTML = `<span class='n ${el.dataset.v}'>${el.dataset.v}</span> <b></b> <span class=fs></span><div class=fc></div>`;
+    a.querySelector('b').textContent = el.textContent; a.querySelector('.fs').textContent = '§' + (el.dataset.sec || '');
+    a.querySelector('.fc').textContent = ctx ? '…' + ctx + '…' : '';
+    a.onclick = e => { e.preventDefault(); e.stopPropagation(); navKey = ''; goTo(el); }; pnl.appendChild(a); });
+  const lg = document.getElementById('legend'); lg.parentNode.insertBefore(pnl, lg.nextSibling);
+}
+document.addEventListener('click', e => { const lg = e.target.closest('#legend span.n'); if (lg) { e.preventDefault(); e.stopImmediatePropagation();
+  const cls = [...lg.classList].find(c => c !== 'n'); jump(cls, 1); } }, true);
+document.addEventListener('keydown', e => { if (e.target.closest('input,textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'n') jump(null, 1); else if (e.key === 'p') jump(null, -1); });
 // the published PDFs: GitHub Pages when this page is hosted, the repo's own copy when
 // it is served from scratch/proof/ or opened as a file (two levels up)
 const PAGES_BASE = 'PAGES_BASE_PLACEHOLDER';
@@ -2440,6 +2496,8 @@ def paint(text: str, marks, secs, title: str, only_section: str | None, scope_ma
             f"{tot['traced']} traced, {tot['vetted']} vetted, {tot['deep']} in an unregistered CSV, {tot['unanchored']} unanchored, {tot['count']} counts, {tot['cited']} literature. "
             f"Hover a number for what it was matched to. "
             f"<button onclick='toggleFocus()'>show only red / amber</button> "
+            f"<button onclick='listFlagged()'>list flagged</button> "
+            f"<span>click a colour above to jump to the next one; n / p step through the flagged numbers</span><br>"
             f"<span>click a number to queue a correction — <span id=qcount>0</span> queued</span><br>"
             f"<small>Generated by tools/proof_copy.py {__version__} from the committed mirror. "
             f"Green = a committed value with its anchor sits here, not a proof the sentence means that value.</small></div>"
@@ -3060,6 +3118,26 @@ def _about_match(better: str, tok: str, sentence: str):
     return None
 
 
+def _one_unit(better: str, tok: str):
+    """The reader's better source, when its value is within one unit of the token's last
+    quoted digit (same unit or m->mm, fraction->%): returns the value, else None (1.30.0)."""
+    m = _BETTER.match(better or "")
+    if not m or (better or "").startswith("needs emit") or not _better_row_exists(better):
+        return None
+    try:
+        val = float(m.group(2).replace("−", "-").replace(",", ""))
+        t = float(_norm_num(tok).replace(",", "").replace("−", "-"))
+    except ValueError:
+        return None
+    core = tok.replace(",", "").replace("−", "-").lstrip("+-")
+    dp = len(core.split(".")[1]) if "." in core else 0
+    for scale in (1, 1000, 0.001, 100, 0.01):
+        x = val * scale
+        if abs(abs(x) - abs(t)) <= 10 ** (-dp) * 1.0001 and (t == 0 or x == 0 or (x > 0) == (t > 0) or tok.lstrip("+-−") == tok):
+            return x
+    return None
+
+
 def _better_cand(better: str, tok: str, look: dict):
     """The candidate a reading-pass denial names as the BETTER source, when it is
     real: "CEH36_SSM_forward_residual_step = 0.0734 [09e_report_numbers.csv]" is
@@ -3178,6 +3256,9 @@ def one(name, values, look, out_dir, a):
                         v = "traced" if holds else "stale"
                         d = (f"read: bound {'holds' if holds else 'FAILS'} at the named source {'✓' if holds else '✗'} — {better} "
                              f"({bval:.3g}) ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
+                    elif verdict == "deny" and _one_unit(better, text[s:e]) is not None:
+                        v, d = "rounding", (f"read: better source, one unit of the last quoted digit off (rounding) — {better}"
+                                            f" ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
                     elif verdict == "deny" and same0 and v in ("untraced", "elsewhere", "count", "rounding"):
                         # the reader denied THIS mark and could not name a registered source (a
                         # needs-emit, or a source outside the value map): red, with the reason
@@ -3222,6 +3303,9 @@ def one(name, values, look, out_dir, a):
                             v = "traced" if holds else "stale"
                             d = (f"read: bound {'holds' if holds else 'FAILS'} at the named source {'✓' if holds else '✗'} — {better} "
                                  f"({bval:.3g}) ‖ the matcher had: {d.split(' ‖ ')[0]} — {reason}")
+                        elif bc is None and _one_unit(better, text[s:e]) is not None:
+                            v = "rounding"
+                            d = f"read: better source, one unit of the last quoted digit off (rounding) — {better} ‖ the matcher had {d.split(' ‖ ')[0]} — denied: {reason}"
                         elif bc is not None:
                             # the reader named the right source and it holds the quoted value:
                             # that IS the trace, and the wrong attribution is history
@@ -3343,6 +3427,7 @@ function showChapter(doc){
   document.querySelectorAll('section.chapter').forEach(sec => { sec.style.display = (sec.dataset.doc === doc) ? '' : 'none'; });
   document.querySelectorAll('#chapters a').forEach(a => a.classList.toggle('cur', a.dataset.doc === doc));
   try { localStorage.setItem('proof_bundle_chapter', doc); } catch(e) {}
+  const fp = document.getElementById('flagged'); if (fp) fp.remove(); navLast = null;
   window.scrollTo(0, 0);
 }
 window.addEventListener('load', () => {
@@ -3371,8 +3456,11 @@ def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof
         sections.append(h[i:j + len("</section>")])
         sm = (out_dir / f"{st}.summary")
         summ = sm.read_text(encoding="utf8") if sm.exists() else ""
-        m = re.search(r"(\d+) UNTRACED, (\d+) STALE, (\d+) ELSEWHERE", summ)
-        red, amb = (int(m.group(1)), int(m.group(2)) + int(m.group(3))) if m else (0, 0)
+        m = re.search(r"(\d+) DENIED, (\d+) UNTRACED, (\d+) STALE, (\d+) ELSEWHERE", summ)
+        red, amb = (int(m.group(1)) + int(m.group(2)), int(m.group(3)) + int(m.group(4))) if m else (0, 0)
+        mx = re.search(r"(\d+) unresolved, (\d+) pointing at the wrong thing", summ)
+        if mx:
+            red, amb = red + int(mx.group(1)), amb + int(mx.group(2))
         menu.append(f"<a href='#c={html.escape(st)}' data-doc='{html.escape(st)}' onclick=\"showChapter('{html.escape(st)}');return false;\">"
                     f"{html.escape(st)}" + (f" <span class=red>{red}</span>" if red else "") + (f" <span class=amb>{amb}</span>" if amb else "") + "</a>")
     for x in (extra_sections or []):
@@ -3390,7 +3478,9 @@ def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof
             f"</style><script>{JS.replace('PAGES_BASE_PLACEHOLDER', PAGES_BASE)}{BUNDLE_JS}</script><body>"
             f"<h1>{name} — proof copies</h1>"
             f"<div id=legend>{legend}<br>click a number to queue a correction — <span id=qcount>0</span> queued. "
-            f"<button onclick='toggleFocus()'>show only red / amber</button><br>"
+            f"<button onclick='toggleFocus()'>show only red / amber</button> "
+            f"<button onclick='listFlagged()'>list flagged</button><br>"
+            f"click a colour above to jump to the next one; n / p step through the flagged numbers<br>"
             f"<small>Generated by tools/proof_copy.py {__version__} from the committed mirrors. "
             f"Green = a committed value with its anchor sits here, not a proof the sentence means that value.</small></div>"
             f"<div id=chapters>{''.join(menu)}</div>"

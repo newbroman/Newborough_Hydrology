@@ -100,7 +100,10 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.20.1"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: the wet-step window-end reads
+__version__ = "1.21.0"  # Hollingham (2026) - 2026-09-30. msl5_pct_annual_valid_with_interp and
+#   msl5_pct_windows_with_interp join 26_report_numbers.csv beside their counts (report8 SS3.7.5 quotes
+#   the shares; proof queue). No other output moves.
+# 1.20.1  # Hollingham (2026) - 2026-09-29. T-96 batch 2: the wet-step window-end reads
 #   config.MSL5_WET_STEP_WINDOW_END (named for this use, report9 SS4.8.2) instead of borrowing
 #   max(config.ENVELOPE_RECENT_WET_YEARS); same value, keys and values unchanged.
 # 1.20.0  # Hollingham (2026) - 2026-09-29. T-96: 26_report_numbers.csv gains the report9
@@ -2344,6 +2347,13 @@ def main() -> int:
             int(len(per_well)),
         "msl5_n_windows_with_interp":
             int((per_well["n_interp_in_window"] > 0).sum()),
+        # 1.21.0: the shares report8 SS3.7.5 quotes beside the counts ("9 of 1272 ... (0.7%)",
+        # "29 of 866 ... (3.3%)"), computed here so they trace (proof queue, 2026-09-30).
+        "msl5_pct_annual_valid_with_interp":
+            100.0 * float((annual["valid"] & (annual["n_interpolated_spring"] > 0)).sum())
+            / max(float(annual["valid"].sum()), 1.0),
+        "msl5_pct_windows_with_interp":
+            100.0 * float((per_well["n_interp_in_window"] > 0).sum()) / max(float(len(per_well)), 1.0),
     })
     # Curreli annual-minimum series (D-190): completeness, and the per-well
     # rolling minimum at the van Willegen / Curreli piezometers (VW_NUMERIC_WELLS) over

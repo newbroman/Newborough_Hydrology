@@ -35,7 +35,10 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "2.12.0"  # Hollingham (2026) - 2026-09-28. Tier 2 figure: each BACI panel's y-label names its own
+__version__ = "2.13.0"  # Hollingham (2026) - 2026-09-30. Pair_dist_coast_diff rows (impact minus paired
+#   control dist_coast_m, one per PAIRED_CONTROLS_MAP pair) in 09_scrape_report_numbers.csv - report8 SS3.5.3's
+#   "about 90 m" / "some 85 m" traced (proof queue). No other output moves.
+# 2.12.0  # Hollingham (2026) - 2026-09-28. Tier 2 figure: each BACI panel's y-label names its own
 #   paired control (CEH21 is paired with CEH22, not CEH4; held figure fix, T-92).
 # 2.11.0  # Hollingham (2026) — 2026-09-28. T-91: adds
 #   Pre_scraping_baseline_years rows to 09_scrape_report_numbers.csv -- the
@@ -93,7 +96,7 @@ from utils.paths import (
     OUT_09_FULL_PARAMS, OUT_09_BETA3_SIG, OUT_09_BACI_SHIFTS,
     OUT_09_NET_BENEFITS, OUT_09_BETA3_ERA_SUMMARY,
     OUT_09_TIER1_DRIFT, OUT_09_TIER2_SIGNAL, OUT_09_BETA3_CI,
-    OUT_09_REPORT_NUMBERS,
+    OUT_09_REPORT_NUMBERS, INT_LOCATIONS,
     OUT_09_TIER1_CUSUM,
     OUT_09_STEP_TREND, OUT_09_DETECTABILITY,
 )
@@ -1072,6 +1075,24 @@ def _export_report_numbers(plot_data, baci_results, net_summary,
            well=bw.upper(), era="pre_2015_scrape",
            note=f"first valid monitoring month ({first_valid:%Y-%m}) to "
                 f"SCRAPING_DATE ({SCRAPING_DATE:%Y-%m})")
+
+    # 8. Each BACI pair's difference in distance to the eroding shore (2.13.0):
+    #    report8 Section 3.5.3 reads the pairs against the retreating coast
+    #    ("CEH4 lies about 90 m nearer the shore than CEH36"; "CEH22 ... some
+    #    85 m nearer than CEH21"). impact minus control, from the committed
+    #    dist_coast_m in 01_locations.csv; a difference of two registered rows
+    #    that no committed value carried (proof queue, 2026-09-30).
+    if INT_LOCATIONS.exists():
+        _loc = pd.read_csv(INT_LOCATIONS)
+        _dc = {str(n).lower(): float(d) for n, d in zip(_loc["Name"], _loc["dist_coast_m"])
+               if pd.notna(d)}
+        for _imp, _ctl in PAIRED_CONTROLS_MAP.items():
+            if _imp in _dc and _ctl in _dc:
+                rr("Pair_dist_coast_diff", _dc[_imp] - _dc[_ctl], unit="m",
+                   well=_imp.upper(), era=f"{_imp.upper()}-{_ctl.upper()}",
+                   note=f"dist_coast_m({_imp.upper()}) - dist_coast_m({_ctl.upper()}) from "
+                        f"01_locations.csv: how much nearer the eroding shore the paired "
+                        f"control sits than the impact well (report8 Section 3.5.3)")
 
     report_df = pd.DataFrame(rows)
     report_df.to_csv(OUT_09_REPORT_NUMBERS, index=False)

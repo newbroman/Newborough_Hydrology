@@ -78,7 +78,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.27.0"  # Hollingham (2026) — 2026-09-29. A reader's better source is taken on the
+__version__ = "1.28.0"  # Hollingham (2026) — 2026-09-30. A vetted verdict on a cross-reference the
+#   meaning check flagged (xmean) paints it as a plain xref with Martin's reason; the reading rows
+#   now carry xmean ids so the queue can name one. Martin: "the amplification field is Figure 75".
+# 1.27.0  # Hollingham (2026) — 2026-09-29. A reader's better source is taken on the
 #   FILE, not on the reader's word: _about_match and _bound_holds now require a registered row for the
 #   better's file and label (_better_row_exists) before they paint traced. Found when the T-96 batch-2
 #   verdicts, re-pointed at keys the scripts had not yet emitted on Martin's machine, turned green
@@ -3231,6 +3234,15 @@ def one(name, values, look, out_dir, a):
                                               + " ‖ the matcher had: " + d.split(" ‖ ")[0])
                     elif verdict == "confirm" and not same_attr:
                         d = d + f" ‖ an earlier attribution ({read_attr[:80]}) was confirmed by the reading pass; this is a new one, unread"
+                    elif verdict == "confirm" and better and _better_cand(better, text[s:e], look) is not None:
+                        # 1.28.0: a confirm that NAMES a source re-points to it when it resolves —
+                        # "9.1" confirmed to ceh25's DGPS ground_elev_m, not the LiDAR column the
+                        # matcher happened to pick; "0.03" to PEARSON_DELTA_SENS[0], not a canopy ratio
+                        bc = _better_cand(better, text[s:e], look)
+                        v = "traced"
+                        d = (f"read: better source ✓ — {bc.label}{(' · ' + bc.col) if bc.col else ''} = {bc.value:g}"
+                             f"{(' as ' + bc.form) if bc.form else ''} [{pathlib.Path(bc.rel).name}]"
+                             f" ‖ the matcher had {d.split(' ‖ ')[0]} — {reason}")
                     elif verdict == "confirm":
                         # a confirmed attribution is green whatever tier it came from: the reader
                         # checked the KML polygon, the ratio or the cell (Martin, 2026-09-21:
@@ -3242,6 +3254,23 @@ def one(name, values, look, out_dir, a):
             new_marks.append((s, e, v, d))
         marks = new_marks
     xm = xref_marks(text, _m, marks)
+    if xm and rv:
+        # 1.28.0: a cross-reference the meaning check misread. The heuristic pairs a figure
+        # with the script named beside it; "the sensitivity coefficient (Script 35) is a
+        # companion to the amplification field (Figure 75)" names Script 35 for the
+        # coefficient and Script 33's figure for the field, and Martin read it as right
+        # (2026-09-30). The id is the reference in its sentence, so the vetting lapses
+        # when either changes.
+        xm2 = []
+        for s, e, v, d in xm:
+            if v == "xmean":
+                sent_full = " ".join(_sentence(_m, s, e, full=True).split())
+                rid = f"{mirror.stem}:{_reading_id(text[s:e], sent_full, s - _m.rfind(chr(10), 0, s))}"
+                hit = rv.get(rid)
+                if hit and hit[0] == "vetted":
+                    v, d = "xref", f"vetted by Martin — {hit[1]} ‖ the matcher had: " + d
+            xm2.append((s, e, v, d))
+        xm = xm2
     if xm:
         spans = [(s, e) for s, e, _v, _d in xm]
         marks = [mk for mk in marks if not any(s <= mk[0] and mk[1] <= e for s, e in spans)]
@@ -3274,7 +3303,7 @@ def one(name, values, look, out_dir, a):
     # than reading the sense around the numbers")
     rrows = []
     for i, (s, e, v, d) in enumerate(marks):
-        if v in ("xref", "xmean", "xbad", "cited"):
+        if v in ("xref", "xbad", "cited"):
             continue                                   # 1.24.0: every number, whatever its class, so a
         ln = bisect.bisect_right(line_starts, s) - 1   # reader can name a source for an untraced one too
         sec = ""

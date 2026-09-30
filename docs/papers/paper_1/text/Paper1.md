@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_61.odt — do not edit. source-sha256=1fff7a913d419234 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_62.odt — do not edit. source-sha256=65f1458e28066984 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -208,10 +208,10 @@ The indicative volumetric conversion (Table 3) places all clusters under ≈892 
   --------------------- ----- ----- ------- ---------- ----------------
   Cluster               P     I     P_net   ET (mid)   Drainage (mid)
   C1 Lake Edge          893   0     893     242        651
-  C2 Dune               893   0     893     441        452
-  C3 Western Residual   893   0     893     290        603
+  C2 Dune               892   0     892     440        452
+  C3 Western Residual   889   0     889     289        601
   C4 Main Forest        893   214   679     426        252
-  C5 Coastal Forest     893   214   679     214        464
+  C5 Coastal Forest     892   214   678     214        464
   --------------------- ----- ----- ------- ---------- ----------------
 
 ![](Pictures/10000000000005BE00000640EA9072DD.jpg){width="15.983cm" height="17.397cm"}

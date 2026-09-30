@@ -64,6 +64,8 @@ Outputs (final — outputs/03_state_space_model/):
     03_10_well_r2_gain_map.png             — spatial map: R² gain vs uniform datum (report Fig.)
     03_12_partition_vs_datum.csv           — drainage flux and loss-partition share vs datum (regime diagnostic)
     03_12_datum_regime.png                 — 2-panel datum-regime figure (flux plateau + partition share)
+    03_19_datum_zero_fit.csv               — each cluster centroid under Model A at
+                                             DATUM_RAW_DEPTH_M (raw depth, no drainage base)
     03_18_datum_invariance.csv             — the datum sweep summarised per cluster (T-74):
                                              AIC-optimal datum, cost of DRAINAGE_DATUM (ΔR², ΔAIC),
                                              β₃ and drainage flux at the datum vs the deepest swept
@@ -86,7 +88,14 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.21.0"  # Hollingham (2026) — 2026-09-29. T-96 emit list: 03_report_numbers.csv gains
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-30. datum_zero_fit(): each cluster centroid
+#   fitted under Model A at config.DATUM_RAW_DEPTH_M (raw depth below ground, no drainage base) into
+#   03_19_datum_zero_fit.csv, with the same fit_ssm call, AIC and sign/significance flags as the
+#   03_08 sweep; 03_report_numbers.csv gains datum0_n_clusters_beta3_negative and
+#   datum0_n_clusters_beta3_pos_sig. report8 SS3.4 states the sign of beta_3 on raw depth and had no
+#   committed source (sweep 2026-09-30, CHANGELOG 30n; Martin: "make a 0 datum csv"). Emit-only:
+#   the 03_08 grid starts at DATUM_SWEEP_MIN_M as before, so 03_08 / 03_09 / 03_18 do not move.
+# 1.21.0  # Hollingham (2026) — 2026-09-29. T-96 emit list: 03_report_numbers.csv gains
 #   datum_R2_span_admissible per cluster and its _max (report8 §3.4), well_median_max_R2_datum_network
 #   and well_median_R2_gain_network (report9 §4.9.1), cluster_well_median_beta_1_recharge /
 #   _beta_2_atmospheric_draw (report10 §5.6.3), cluster_well_recession_time_min/_median/_max_months
@@ -271,7 +280,7 @@ from utils.paths import (
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
     OUT_03_MODEL_B_PERSISTENCE, OUT_03_UPSTAND_FRAME_SENS,
-    OUT_03_DATUM_INVARIANCE, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL,
+    OUT_03_DATUM_INVARIANCE, OUT_03_DATUM_ZERO, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -281,7 +290,7 @@ from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
     LCSC_DATA_LIMIT, SSM_MIN_OBS,
-    DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M,
+    DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M, DATUM_RAW_DEPTH_M,
 )
 from utils.model_utils import (fit_ssm, fit_ssm_intercept, assert_physical_signs,
                                build_ssm_frame)
@@ -1381,6 +1390,66 @@ def datum_sensitivity_analysis(centroids: dict[int, pd.Series],
             })
 
     return pd.DataFrame(rows)
+
+
+def datum_zero_fit(centroids: dict[int, pd.Series],
+                   climate: pd.DataFrame) -> pd.DataFrame:
+    """
+    Each cluster centroid fitted under Model A at config.DATUM_RAW_DEPTH_M: displacement
+    measured from the ground surface itself, with no drainage base. The same fit_ssm call,
+    AIC (OLS, no intercept, k = 3) and sign/significance flags as one row of the 03_08
+    sweep, at a depth the sweep deliberately does not reach. It answers the report8 SS3.4
+    question of what beta_3 does on raw depth, from a committed file.
+    """
+    rows = []
+    for cid in sorted(centroids):
+        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+        fit = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=None,
+                      drainage_datum=DATUM_RAW_DEPTH_M)
+        if fit is None:
+            rows.append({"ref_depth": DATUM_RAW_DEPTH_M, "Cluster": cid,
+                         "Cluster_Label": label, "n": np.nan,
+                         "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan,
+                         "beta_3_drainage": np.nan, "pvalue_beta_1": np.nan,
+                         "pvalue_beta_2": np.nan, "pvalue_beta_3": np.nan,
+                         "R2": np.nan, "AIC": np.nan,
+                         "beta_3_positive": False, "beta_3_sig": False})
+            continue
+        n = fit["n"]
+        rss = float((fit["resid"] ** 2).sum())
+        aic = n * np.log(rss / n) + 2 * 3 if n > 0 else np.nan
+        rows.append({
+            "ref_depth":               DATUM_RAW_DEPTH_M,
+            "Cluster":                 cid,
+            "Cluster_Label":           label,
+            "n":                       n,
+            "beta_1_recharge":         fit["beta_1_recharge"],
+            "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
+            "beta_3_drainage":         fit["beta_3_drainage"],
+            "pvalue_beta_1":           fit["pvalue_beta_1"],
+            "pvalue_beta_2":           fit["pvalue_beta_2"],
+            "pvalue_beta_3":           fit["pvalue_beta_3"],
+            "R2":                      fit["R2"],
+            "AIC":                     aic,
+            "beta_3_positive":         fit["beta_3_drainage"] > 0,
+            "beta_3_sig":              fit["pvalue_beta_3"] < 0.05,
+        })
+    return pd.DataFrame(rows)
+
+
+def _datum_zero_report_numbers(rpt, zero_df: pd.DataFrame) -> None:
+    """03_report_numbers.csv rows for 03_19: how many cluster centroids return a
+    negative beta_3, and a positive significant one, on raw depth."""
+    neg = zero_df[zero_df["beta_3_drainage"] < 0]
+    pos_sig = zero_df[zero_df["beta_3_positive"] & zero_df["beta_3_sig"]]
+    rpt.add("datum0_n_clusters_beta3_negative", float(len(neg)), unit="count",
+            note="cluster centroids with beta_3 < 0 under Model A at DATUM_RAW_DEPTH_M "
+                 "(raw depth, no drainage base): "
+                 + (", ".join(f"C{int(c)}" for c in neg["Cluster"]) or "none")
+                 + " (03_19_datum_zero_fit.csv)")
+    rpt.add("datum0_n_clusters_beta3_pos_sig", float(len(pos_sig)), unit="count",
+            note="cluster centroids with beta_3 > 0 and p < 0.05 at DATUM_RAW_DEPTH_M "
+                 "(03_19_datum_zero_fit.csv)")
 
 
 def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
@@ -2601,6 +2670,8 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
             _ref = [w for w in _ref if w in maod_df.columns]
             _t96_report_numbers(rpt, extra["master_df"], extra["sens_df"], extra["inv_df"],
                                 extra["well_opt_df"], maod_df[_ref].mean(), cluster_df)
+            if extra.get("zero_df") is not None:
+                _datum_zero_report_numbers(rpt, extra["zero_df"])
         n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
         saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -3019,6 +3090,12 @@ def main() -> None:
     sens_df.to_csv(sens_path, index=False)
     saved(f"{sens_path.name}")
 
+    # ---- Raw-depth fit (1.22.0): Model A at DATUM_RAW_DEPTH_M ----
+    zero_df = datum_zero_fit(centroids, climate)
+    zero_df.to_csv(OUT_03_DATUM_ZERO, index=False)
+    saved(f"{OUT_03_DATUM_ZERO.name} (beta_3 < 0 at "
+          f"{int((zero_df['beta_3_drainage'] < 0).sum())} of {len(zero_df)} centroids)")
+
     # Find and report the actual minimum datum where all β₃ > 0 and sig.
     all_valid = sens_df.groupby("ref_depth").agg(
         all_pos=("beta_3_positive", "all"),
@@ -3210,7 +3287,8 @@ def main() -> None:
     export_regional_averages(centroids, climate, master_df)
     export_regional_averages_maod(cluster_df, climate,
                                   extra={"master_df": master_df, "sens_df": sens_df,
-                                         "inv_df": inv_df, "well_opt_df": well_opt_df})
+                                         "inv_df": inv_df, "well_opt_df": well_opt_df,
+                                         "zero_df": zero_df})
     export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----

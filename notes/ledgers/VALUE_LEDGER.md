@@ -120,7 +120,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | BACI_step_below_floor · CEH18 · CEH18 vs CEH4, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 1 |  | readme | ok |
 | BACI_step_below_floor · CEH21 · CEH21 vs CEH22, 2023 re-scrape |  |  | `09_scrape_report_numbers.csv` | 1 |  | readme | ok |
 | BROADLEAF_B2_SUMMER |  |  | `config.py` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
-| BROADLEAF_B2_WINTER |  |  | `config.py` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| BROADLEAF_B2_WINTER |  |  | `config.py` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README | ok |
 | Broadleaf (hypothetical) · Delta_vol_mm_per_month |  |  | `09d_01_scenario_comparison.csv` | 5.2 |  | Newborough_Methods_Supplement, report9 | ok |
 | Broadleaf (hypothetical) · Delta_vol_summer_mm_per_month |  |  | `09d_02_summer_scenario_comparison.csv` | 3.7 |  | Newborough_Methods_Supplement, report9 | ok |
 | C1 (Lake Edge) / 0 · R2 | R² | coefficient of determination | `03_04_lag_diagnostic.csv` | 0.733956 |  | Newborough_Methods_Supplement, Paper1 | ok |
@@ -168,7 +168,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C1 · Best_Kappa |  |  | `15_04_best_params.csv` | 2.3 |  | Newborough_Methods_Supplement | ok |
 | C1 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.148 |  | Newborough_Methods_Supplement, report9 | ok |
 | C1 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
-| C1 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C1 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README | ok |
 | C1 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.04747 |  | report9 | ok |
 | C1 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 311.937 |  | report9 | ok |
 | C1 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.454985 |  | report9 | ok |
@@ -224,7 +224,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C2 Eastern mature dune / Scraping era 2015–17 · Mean_depth_m |  |  | `21_forestry_02_distributions_means.csv` | 0.9801 |  | report9 | ok |
 | C2 Eastern mature dune / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement | ok |
 | C2 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
-| C2 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C2 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README | ok |
 | C2 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.04747 |  | report9 | ok |
 | C2 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 287.561 |  | report9 | ok |
 | C2 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.379447 |  | report9 | ok |
@@ -278,7 +278,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C3 Warren interior / Scraping era 2015–17 · N_summers |  |  | `21_forestry_02_distributions_means.csv` | 3 |  | Newborough_Methods_Supplement | ok |
 | C3 · alpha |  |  | `11_forecast_pflood_summary.csv` | 0.938385 |  | Newborough_Methods_Supplement | ok |
 | C3 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
-| C3 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C3 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README | ok |
 | C3 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.04747 |  | report9 | ok |
 | C3 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 370.211 |  | report9 | ok |
 | C3 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.366124 |  | report9 | ok |
@@ -351,7 +351,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C4 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.002 |  | report9 | ok |
 | C4 · NSE_Iterative |  |  | `15_04_best_params.csv` | 0.673839 |  | report9 | ok |
 | C4 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
-| C4 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C4 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README | ok |
 | C4 · clearfell_b2_mult |  |  | `pipeline_scenario_params.csv` | 1.04747 |  | report9 | ok |
 | C4 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 275.562 |  | report9 | ok |
 | C4 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.12057 |  | report10, report9 | ok |
@@ -421,7 +421,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C5 · R2 | R² | coefficient of determination | `14_spring_trend_stats.csv` | 0.174 |  | report9 | ok |
 | C5 · Wet_Slack_Exceedances |  |  | `14_winter_exceedance.csv` | 0 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
 | C5 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |
-| C5 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, report9 | ok |
+| C5 · broadleaf_b2_winter |  |  | `pipeline_scenario_params.csv` | 0.8817 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README | ok |
 | C5 · intercept_B |  |  | `11_forecast_pflood_summary.csv` | 417.521 |  | report9 | ok |
 | C5 · median_TLM_NSE |  |  | `08_cluster_nse_medians.csv` | 0.622466 |  | Newborough_Methods_Supplement, Supplementary_Material, report9 | ok |
 | C5 · median_dNSE |  |  | `08_cluster_nse_medians.csv` | 0.212087 |  | report9 | ok |

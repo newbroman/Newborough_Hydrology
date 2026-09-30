@@ -79,7 +79,15 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-27. T-84: the climate forcing is
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-30. Each cluster's own forcing in the
+#   volumetric balance (Martin 2026-09-30, option a): Table 7 (16_water_bal_vol_table.csv) and
+#   Figure 11b panel (b) used C1's P and PET ("same for all") for every cluster, although each
+#   cluster's partition is computed over its own fitted months, so C2/C3/C5 carried a rainfall
+#   0.7-3.8 mm/yr off their own (under 0.5 %). P, PET, interception and P_net are now per cluster.
+#   The site-wide P - PET registry value (site_p_minus_pet_annual) and panel (b)'s reference lines
+#   use the climate over every month any cluster reports (site_climate_means), not C1's months.
+#   The head-space table and its report numbers do not move.
+# 1.6.0  # Hollingham (2026) - 2026-09-27. T-84: the climate forcing is
 #   emitted — water_balance_P_mean_mm / _PET_mean_mm per cluster and their network
 #   min/max — and panel (a)'s footnote states the range. It said "All clusters receive
 #   identical forcing: P̄ = …" and printed the FIRST cluster's mean; the means differ in
@@ -361,15 +369,27 @@ def save_headspace_table(summary, path):
     saved(f"{path.name}")
 
 
-def save_volumetric_table(summary, recession, path):
+def site_climate_means(df):
+    """(P_m, PET_m): mean monthly climate over every month in which any cluster reports.
+
+    The site-wide forcing for quantities that belong to no one cluster (the registry's
+    site P - PET, panel (b)'s reference lines). Each cluster's own balance keeps its own
+    months (compute_headspace); this is the union of them, not C1's.
+    """
+    cols = [f"C{cid}" for cid in sorted(_CFG_LABELS.keys()) if f"C{cid}" in df.columns]
+    sub = df[df[cols].notna().any(axis=1)][["P_m", "PET"]].dropna()
+    return float(sub["P_m"].mean()), float(sub["PET"].mean())
+
+
+def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
     """Save Table 3b: volumetric water balance partition.
 
     Shows P, I, and the ET/Drainage partition bracketed by SSM and recession
     methods. No Sy-dependent conversion — the partition is derived from
     headspace ratios (SSM) and observed recession rates.
     """
-    P_annual = summary[1]["P_m"] * 12 * 1000   # mm/yr (same for all)
-    PET_annual = summary[1]["PET_m"] * 12 * 1000
+    site_P_annual = site_P_m * 12 * 1000       # mm/yr, over every reporting month
+    site_PET_annual = site_PET_m * 12 * 1000
 
     # Publish the site-wide P − PET to the observations registry for
     # downstream consumers (and to satisfy the "no hardcoded values"
@@ -377,13 +397,15 @@ def save_volumetric_table(summary, recession, path):
     # because P and PET come from the single climate record.
     from utils.site_observations import update_site_observation
     update_site_observation("site_p_minus_pet_annual",
-                            (P_annual - PET_annual) / 1000.0,  # to m/yr
+                            (site_P_annual - site_PET_annual) / 1000.0,  # to m/yr
                             producer_script="16")
 
     rows = []
     for cid in sorted(summary.keys()):
         s = summary[cid]
         r = recession.get(cid, {})
+        P_annual = s["P_m"] * 12 * 1000        # this cluster's own fitted months (1.7.0)
+        PET_annual = s["PET_m"] * 12 * 1000
 
         is_forest = cid in FOREST_CIDS
         I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0.0
@@ -484,7 +506,7 @@ def save_recession_table(summary, recession, path):
 # FIGURE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def make_figure(summary, recession, ms=True):
+def make_figure(summary, recession, site_P_m, site_PET_m, ms=True):
     """Two-panel Figure 8.
 
     Panel (a): Head-space SSM decomposition — recharge vs ET + drainage.
@@ -494,8 +516,9 @@ def make_figure(summary, recession, ms=True):
     cids = sorted(summary.keys())
     x = np.arange(len(cids))
 
-    P_annual = summary[cids[0]]["P_m"] * 12 * 1000
-    PET_annual = summary[cids[0]]["PET_m"] * 12 * 1000
+    site_P_annual = site_P_m * 12 * 1000       # reference lines: every reporting month (1.7.0)
+    site_PET_annual = site_PET_m * 12 * 1000
+    P_by_cid = {c: summary[c]["P_m"] * 12 * 1000 for c in cids}
 
     if ms:
         plt.rcParams.update({"font.family": "sans-serif", "axes.labelsize": 10})
@@ -578,6 +601,7 @@ def make_figure(summary, recession, ms=True):
     gap = 0.04
 
     for i, cid in enumerate(cids):
+        P_annual = P_by_cid[cid]               # this cluster's own forcing (1.7.0)
         is_forest = cid in FOREST_CIDS
         I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0
         P_net = P_annual - I_val
@@ -663,13 +687,13 @@ def make_figure(summary, recession, ms=True):
                  fontsize=8.5, color='#444')
 
     # Reference lines
-    ax2.axhline(P_annual, color=C_P, linewidth=0.6, linestyle='--', alpha=0.25,
+    ax2.axhline(site_P_annual, color=C_P, linewidth=0.6, linestyle='--', alpha=0.25,
                 zorder=1)
-    ax2.axhline(PET_annual, color='#999', linewidth=0.6, linestyle=':', alpha=0.25,
+    ax2.axhline(site_PET_annual, color='#999', linewidth=0.6, linestyle=':', alpha=0.25,
                 zorder=1)
-    ax2.text(-0.72, P_annual, f'P = {P_annual:.0f}', va='center', fontsize=8.5,
+    ax2.text(-0.72, site_P_annual, f'P = {site_P_annual:.0f}', va='center', fontsize=8.5,
              color=C_P, fontweight='bold')
-    ax2.text(-0.72, PET_annual, f'PET = {PET_annual:.0f}', va='center',
+    ax2.text(-0.72, site_PET_annual, f'PET = {site_PET_annual:.0f}', va='center',
              fontsize=8.5, color='#888')
 
     # Legend
@@ -693,14 +717,15 @@ def make_figure(summary, recession, ms=True):
                   "by SSM and recession analysis",
                   fontsize=12, fontweight='bold')
     ax2.set_xlim(-0.8, len(cids) + 1.2)
-    ax2.set_ylim(0, P_annual * 1.12)
+    ax2.set_ylim(0, max(P_by_cid.values()) * 1.12)
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)
     ax2.grid(axis='y', alpha=0.3, zorder=0)
 
     I_pct = int(FOREST_INTERCEPTION * 100)
     ax2.text(0.5, -0.14,
-             f"All clusters receive P = {P_annual:.0f} mm/yr. At steady state, "
+             f"Rainfall P = {min(P_by_cid.values()):.0f}–{max(P_by_cid.values()):.0f} mm/yr by cluster "
+             f"(each over its own months). At steady state, "
              f"total losses = P. The hatched band spans the ET/drainage\nboundary "
              f"range between SSM headspace ratios and seasonal recession analysis. "
              f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
@@ -785,18 +810,19 @@ def main():
                   f"{r['winter_rate']:>9.4f} {r['summer_rate']:>9.4f} "
                   f"{r['drain_frac']:>7.2f} {r['n_winter']:>5} {r['n_summer']:>5}")
 
-    save_volumetric_table(summary, recession, OUT_16_VOL_TABLE)
+    site_P_m, site_PET_m = site_climate_means(df)
+    save_volumetric_table(summary, recession, OUT_16_VOL_TABLE, site_P_m, site_PET_m)
     save_recession_table(summary, recession, OUT_16_REC_TABLE)
 
     # ── Figure 8 ──
     # Manuscript version
-    fig = make_figure(summary, recession, ms=True)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True)
     fig.savefig(OUT_16_BAR_MS, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close(fig)
     saved(f"{OUT_16_BAR_MS.name}")
 
     # Lay version
-    fig = make_figure(summary, recession, ms=False)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False)
     fig.savefig(OUT_16_BAR_LAY, dpi=150, bbox_inches='tight')
     plt.close(fig)
     saved(f"{OUT_16_BAR_LAY.name}")

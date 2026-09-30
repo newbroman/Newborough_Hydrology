@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_69.odt — do not edit. source-sha256=e893cf533aafea05 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_70.odt — do not edit. source-sha256=6af9e58dce6c86e3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.69 (September 2026).
+Document version: 2.0.70 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2366,7 +2366,7 @@ Each cluster receives the same forcing --- P̄ = 74.4 mm/month, PET̄ = 54.7 mm/
 
 The head-space components are millimetres of head per month. To compare them with the climate baseline they have to be expressed as millimetres of water per year. The current Script 16 does this directly through the partition fractions, without an explicit specific-yield (Sy) conversion. The reasoning is simple: at the closure condition β₁·P̄ ≈ β₂·PET̄ + β₃·h̄\_disp, the head-space recharge is itself the head-equivalent of the net water flux into the cluster per month. Dividing the SSM losses into their two head-space components gives a partition fraction --- the ratio of β₂·PET̄ to total head-space loss is the ET share, and β₃·h̄\_disp / total is the drainage share --- and that partition fraction is a dimensionless ratio that transfers cleanly from the head-space to the volumetric description.
 
-*save_volumetric_table()* implements the partition. Annual rainfall (P_annual = 893.1 mm/yr, the same for all clusters by construction) is reduced by interception at forest clusters (*I = 0.24 × P* per F.4 for C4 and C5; zero elsewhere), giving *P_net = P − I*. P_net is then split into ET and drainage according to the cluster's drainage fraction. The result is a per-cluster mm/yr breakdown that can be read alongside the 893.1 mm/yr rainfall input and the 655 mm/yr Thornthwaite PET ceiling.
+*save_volumetric_table()* implements the partition. Annual rainfall (P_annual, each cluster's mean over its own fitted months: 889--893 mm/yr) is reduced by interception at forest clusters (*I = 0.24 × P* per F.4 for C4 and C5; zero elsewhere), giving *P_net = P − I*. P_net is then split into ET and drainage according to the cluster's drainage fraction. The result is a per-cluster mm/yr breakdown that can be read alongside each cluster's rainfall input and its Thornthwaite PET ceiling (650--655 mm/yr).
 
 #### []{#anchor-330}[]{#anchor-331}Recession as an independent check
 

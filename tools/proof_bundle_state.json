@@ -1,19 +1,19 @@
 {
- "bundle_at": "2026-09-30T04:46:51",
- "bundle_sha256": "d9fb380c0ec2d9a9",
+ "bundle_at": "2026-09-30T04:52:50",
+ "bundle_sha256": "e0a32a6c2f4027f2",
  "chapters": {
   "report": "16af45e97cb1f171",
   "report10": "a9ec7941fd18f623",
   "report11": "9bb12cb454a79e90",
-  "report12": "36cbda0fe32a732c",
+  "report12": "245cd0e39bc8b35a",
   "report13": "0b66b08000dac2ae",
   "report14": "e1cef78ade130a73",
   "report15": "49a732a9f16df5e4",
   "report16": "7b676fdff38e30ea",
   "report6": "32aeed337b21853c",
   "report7": "658438f7068ec8f8",
-  "report8": "ada250706461d0f6",
-  "report9": "2a9cc4f802114d24"
+  "report8": "74bb4d0b21aefce1",
+  "report9": "a5ef635d95ca5c6e"
  },
  "published_at": "2026-09-29T22:54:41",
  "published_sha256": "e7e4af1cd001d966",

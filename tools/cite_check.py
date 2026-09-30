@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.30.0"  # Hollingham (2026) — 2026-09-28. T-91: twelve tables the report and the
+__version__ = "1.31.0"  # Hollingham (2026) — 2026-09-30. Tuple constants in config.py register their
+#   members as NAME[i] (PEARSON_DELTA_SENS[0] = 0.03 …), so a sentence quoting a sensitivity threshold
+#   can trace to it (Martin, proof queue: the 0.03 "same as the 0.05 in this sentence").
+# 1.30.0  # Hollingham (2026) — 2026-09-28. T-91: twelve tables the report and the
 #   Methods Supplement quote cell by cell are registered (25_12, 25_15, 25_10, 26_ewi_msl5_comparison,
 #   22_05, 22_model_b_fits, 23_ridge_lag_fits, 06_pear_membership_audit_sitewide, 03_master_data,
 #   14_annual_extremes, 29_headline_models, 10n_04_pretrend).
@@ -461,6 +464,9 @@ CONSTANT_SOURCES = ["src/utils/config.py", "src/utils/pipeline_params.py"]
 # map, so the most-quoted threshold in the corpus was in no citation check
 # (found 2026-09-20 by proof_copy; Martin: "can you correct for SD15b?").
 _CONSTANT_RE = re.compile(r"(?m)^([A-Z][A-Za-z0-9_]{2,})\s*=\s*(-?\d+(?:\.\d+)?)\s*(?:#|$)")
+# 1.31.0: a tuple of numbers registers each member as NAME[i] — PEARSON_DELTA_SENS = (0.03, 0.10),
+# DRAWDOWN_K_RANGE_MDAY, DRAWDOWN_B_RANGE_M; the report quotes the members and nothing held them.
+_CONSTANT_TUPLE_RE = re.compile(r"(?m)^([A-Z][A-Za-z0-9_]{2,})\s*=\s*\(\s*(-?\d+(?:\.\d+)?(?:\s*,\s*-?\d+(?:\.\d+)?)+)\s*,?\s*\)\s*(?:#|$)")
 
 
 HEADLINE_TABLES = [
@@ -1567,8 +1573,12 @@ def collect_values() -> list[tuple[str, str, float]]:
         f = REPO / rel
         if not f.exists():
             continue
-        for m in _CONSTANT_RE.finditer(f.read_text(encoding="utf8")):
+        _txt = f.read_text(encoding="utf8")
+        for m in _CONSTANT_RE.finditer(_txt):
             vals.append((rel, m.group(1), float(m.group(2))))
+        for m in _CONSTANT_TUPLE_RE.finditer(_txt):
+            for i, v in enumerate(m.group(2).split(",")):
+                vals.append((rel, f"{m.group(1)}[{i}]", float(v)))
 
     for rel, kcol, vcols in list(HEADLINE_TABLES) + list(EXTRA_VALUE_TABLES):
         p = REPO / rel

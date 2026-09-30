@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_67.odt — do not edit. source-sha256=af72748226129754 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_68.odt — do not edit. source-sha256=202a4f329c621d64 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.67 (September 2026).
+Document version: 2.0.68 (September 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -4274,7 +4274,7 @@ The 2026 group sits 49 px from its aerial siblings and the *site* groups 91 px f
 
 ### []{#anchor-627}[]{#anchor-628}Site-specific choices and rationale
 
-**The comparison basis is full leaf, and it has to be.** For a deciduous region the index is comparable only between frames in the same phenological state: on the in-frame ratio to the conifer control the full-leaf class is stable to 4.2 per cent while the emerging class scatters five times as widely. The four classes live in *config.py* as *LEAF_OFF_MONTHS* (Nov--Feb), *LEAF_EMERGING_MONTHS* (Mar--Apr), *LEAF_FULL_MONTHS* (May--Jul) and *LEAF_SENESCING_MONTHS* (Aug--Oct), named for leaf state rather than season under D-100, and every report number is computed on full-leaf frames alone.
+**The comparison basis is full leaf, and it has to be.** For a deciduous region the index is comparable only between frames in the same phenological state: on the in-frame ratio to the conifer control the full-leaf class is stable to 4.1 per cent while the emerging class scatters five times as widely. The four classes live in *config.py* as *LEAF_OFF_MONTHS* (Nov--Feb), *LEAF_EMERGING_MONTHS* (Mar--Apr), *LEAF_FULL_MONTHS* (May--Jul) and *LEAF_SENESCING_MONTHS* (Aug--Oct), named for leaf state rather than season under D-100, and every report number is computed on full-leaf frames alone.
 
 **The control excludes what it is a control for.** *forest_in_view* is mature conifer and its stability is what says the normalisation works. It originally used the raw *Forest* polygon, which overlaps the felled area, and stepped from 1.010 over 2006--2017 to 0.954 over 2018--2020 across the clearfell. The managed blocks are now subtracted from it, but **not** the 40 m collar the conifer reference uses: subtracting both makes the control identical to the reference, whereupon it reads 1.000 with zero variance, and a control that cannot move is not a control. On the corrected mask it reads 1.000 ± 0.005 across 2006--2026.
 
@@ -4286,7 +4286,7 @@ The 2026 group sits 49 px from its aerial siblings and the *site* groups 91 px f
 
 *outputs/41_canopy_cover/*: *41_01_canopy_index.csv* (region × frame, carrying *leaf_state*, *viewpoint*, *ratio_to_conifer* and a *withheld_reason*); *41_02_change_events.csv*; *41_03_registration.csv* (per frame: constellation group, seed used, control points, residuals and ground sampling distance); *41_04_canopy_series.png*; and *41_report_numbers.csv*.
 
-Report numbers are computed on the aerial viewpoint and full-leaf frames only, spanning 2012-05 to 2019-07: restock-to-conifer ratio median 1.172, standard deviation 0.049, on four frames; clearfell index median 0.139.
+Report numbers are computed on the aerial viewpoint and full-leaf frames only, spanning 2012-05 to 2019-07: restock-to-conifer ratio median 1.177, standard deviation 0.049, on four frames; clearfell index median 0.131.
 
 ### []{#anchor-631}[]{#anchor-632}Limitations and known caveats
 

@@ -62,7 +62,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.2.0"  # Hollingham (2026).
+__version__ = "2.2.1"  # Hollingham (2026).
+#   2.2.1 (2026-09-30): detector 7's advice names the shell + data file (proof_copy 1.31.0).
 #   2.2.0 (2026-09-30, D-213): --write archives the oldest dated HANDOVER_NOTE entries
 #     (verbatim, to HANDOVER_NOTE_archive_<first>_to_<last>.md, a stub left in place)
 #     when Tier 0 prose is over budget, keeping at least NOTE_KEEP_ENTRIES. The budget
@@ -668,7 +669,7 @@ def check(verbose: bool = True) -> int:
         try:
             st = json.loads(ps.read_text(encoding="utf-8"))
             cur = st.get("published_sha256") == st.get("bundle_sha256")
-            say(f"  {'ok   ' if cur else 'note '} proof artifact {'current' if cur else 'BEHIND the bundle — republish scratch/proof_bundle/NRG_proof.html and run proof_copy.py --published <version>'}"
+            say(f"  {'ok   ' if cur else 'note '} proof artifact {'current' if cur else 'BEHIND the bundle — republish scratch/proof_bundle/NRG_proof_shell.html + proof_chapters.json and run proof_copy.py --published <version>'}"
                 f" (version {st.get('published_version')}, {st.get('published_at')})")
         except (json.JSONDecodeError, OSError):
             say("  note  proof_bundle_state.json unreadable")

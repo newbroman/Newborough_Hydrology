@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report6.odt — do not edit. source-sha256=40e1cda1e389ef14 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report6.odt — do not edit. source-sha256=3fc5f9ff5ea6bc22 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Introduction
@@ -11,7 +11,7 @@ A decline of the water table since afforestation has long been asserted for the 
 
 Set against the modern network (Section 5.7.9), Ranwell's readings support fluctuation about a near-stationary level inland of the coastal-retreat reach, rather than progressive decline, with the 1989--96 depression and its recovery (Section 5.7.8) as the one documented excursion.
 
-Conservation management has included a December 2017 experimental clearfell of 4.4 ha within the plantation, and topographical dune scraping at selected slack sites. These interventions provide natural experiments by which the hydrological consequences of management can be assessed empirically. Despite the importance of the site and the scale of management investment, no systematic network-wide quantitative analysis has previously been undertaken.
+Conservation management has included a December 2017 experimental clearfell of 4.2 ha within the plantation, and topographical dune scraping at selected slack sites. These interventions provide natural experiments by which the hydrological consequences of management can be assessed empirically. Despite the importance of the site and the scale of management investment, no systematic network-wide quantitative analysis has previously been undertaken.
 
 Restoration of dune slack hydrology is widely assumed to be achievable through topographical intervention provided sufficient winter rainfall occurs. However, stationarity in the annual level does not imply stationarity in the summer minimum, and it is the minimum that governs whether a slack floods: if summer water table minima are declining at a rate that progressively increases the recharge deficit that must be overcome each winter, there exists an intervention window --- a period during which topographical management can still realistically restore flooding conditions --- beyond which no realistic winter rainfall total can compensate for the accumulated summer deficit. Quantifying the rate of closure of this window, and identifying the site-specific mechanisms that drive it, is therefore an urgent practical and scientific priority. This requires not only a long baseline record of groundwater behaviour but a mechanistic understanding of how recharge, evapotranspiration and drainage interact across the hydrogeologically distinct sub-units of the dune system.
 

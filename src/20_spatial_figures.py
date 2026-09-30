@@ -108,7 +108,13 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.59.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2 (report8 SS3.7.4): 20_report_numbers.csv
+__version__ = "1.60.0"  # Hollingham (2026) - 2026-09-30. T-96 batch 3: emit the net-state map's field over the
+#   standing forest (report10 §5.7.5) - 20_report_numbers.csv gains net_state_forest_interior_min_mm / _max_mm /
+#   _median_mm over the cells inside the KML forest polygon and the site outline and outside the felling polygon;
+#   the field is factored into _net_state_field() so plot_net_state_map() and the rows read one computation.
+#   20_scrape_report_numbers.csv gains clearfell_baseline_drawdown_max_E_m / _N_m, the cell holding the existing
+#   clearfell_baseline_drawdown_max_mm (report9 §4.12). Emit-only: no figure or existing row changes.
+# 1.59.0  # Hollingham (2026) - 2026-09-29. T-96 batch 2 (report8 SS3.7.4): 20_report_numbers.csv
 #   gains drawdown_lambda_at_K_min / _at_K_max and drawdown_lambda_at_b_min / _at_b_max beside drawdown_lambda -
 #   lambda at the bounds of config.DRAWDOWN_K_RANGE_MDAY and DRAWDOWN_B_RANGE_M, the other of K and b held at its
 #   point value. The headline lambda expression is lifted into a local _lambda_at(K, b) that both the headline
@@ -1670,6 +1676,22 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
                 note=f"shortest distance from CEH11 to the other C1 reference wells ({_gl}), n={len(_grp)}")
         rpt.add("ceh11_to_lake_edge_group_dist_max_m", float(_dc.max()), unit="m", well="CEH11",
                 note=f"longest distance from CEH11 to the other C1 reference wells ({_gl}), n={len(_grp)}")
+    # 1.60.0 (T-96 batch 3): the net-state map's field over the standing forest
+    # (report10 §5.7.5), from the same _net_state_field() the map renders.
+    _ngx, _ngy = np.meshgrid(GRID_XI, GRID_YI)
+    _ns = _net_state_field(_ngx, _ngy)
+    if _ns is not None and _ns["standing"].any():
+        _nv = _ns["net"][_ns["standing"]]
+        _nnote = ("net water-table state (20_net_state_map.png: SLR gain + clearfell gain "
+                  "+ scrape rise - remaining forest - erosion - scrape drawdown; positive = "
+                  "gain) over the forest interior = grid cells inside the KML forest polygon "
+                  f"and the site outline, outside the felling polygon; n={_nv.size} cells")
+        rpt.add("net_state_forest_interior_min_mm", float(_nv.min()), unit="mm",
+                note=f"minimum (largest net loss) of the {_nnote}")
+        rpt.add("net_state_forest_interior_max_mm", float(_nv.max()), unit="mm",
+                note=f"maximum (smallest net loss) of the {_nnote}")
+        rpt.add("net_state_forest_interior_median_mm", float(np.median(_nv)), unit="mm",
+                note=f"median of the {_nnote}")
     _ddmap = {w.lower(): v for w, v in zip(wt["well"], wt["dd_mm"])}
     for _w in ["ceh23", "ceh6", "d15", "ceh24", "ceh10", "ceh11"]:
         if _w in _ddmap:
@@ -4127,32 +4149,15 @@ def plot_observed_change(wt, features, dpi=300):
     print(f"  Saved → {OUT_20_OBSERVED_CHANGE}")
 
 
-def plot_net_state_map(wt, features, dpi=300):
-    """
-    Net water-table state map — five simultaneous drivers combined on one
-    diverging scale.
-
-    Gains (blue): sea-level rise propagation; clearfell (removal of forest
-    interception deficit over the felled FE compartment).
-    Losses (brown/orange): remaining forest canopy drawdown; coastal erosion
-    (Storm Brendan single-event retreat); scrape-drain drawdown.
-
-    Net field (mm, positive = net gain):
-        net = slr_gain + clearfell_gain
-              - forest_remaining_loss - erosion_loss - scrape_loss
-
-    Forest remaining: _forest_field() with the felled zone zeroed.
-    Clearfell gain:   same H0 and λ as _forest_field(), but applied only
-                      within/near the KML felling polygon (exp decay from its
-                      boundary inward), representing the interception deficit
-                      that has been removed.
-
-    All fields use the coarse Euclidean model (same as plot_public_panel).
-    """
-    from shapely.geometry import Point, MultiPolygon
+def _net_state_field(gx, gy):
+    """Net water-table state field (mm, positive = net gain) of plot_net_state_map(),
+    clipped to the site outline. Factored out (1.60.0, T-96 batch 3) so the map and
+    20_report_numbers.csv read one computation. Returns a dict with the field
+    ("net"), the standing-forest mask ("standing": inside the KML forest polygon,
+    outside the felling polygon, within the site), the overlay geometries and the
+    source heads, or None when a component field is unavailable."""
+    from shapely.geometry import Point
     from shapely import contains_xy
-
-    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
 
     # ── Load component fields ────────────────────────────────────────────
     forest_full, fH0, fLam, forest_geom = _forest_field(gx, gy)
@@ -4161,8 +4166,7 @@ def plot_net_state_map(wt, features, dpi=300):
     slr_gain, wl_slr, _, slr_mm        = _slr_field(gx, gy)
 
     if any(f is None for f in [forest_full, scr, eros, slr_gain]):
-        print("  [WARNING] A component field is unavailable — skipping net state map")
-        return
+        return None
 
     # ── Load felling zone geometry from KML ─────────────────────────────
     fell_geom = None
@@ -4180,6 +4184,7 @@ def plot_net_state_map(wt, features, dpi=300):
 
     # ── Mask forest field: zero over the felled zone ─────────────────────
     forest_remaining = forest_full.copy()
+    in_fell = np.zeros(gx.shape, dtype=bool)
     if fell_geom is not None:
         try:
             in_fell = contains_xy(fell_geom,
@@ -4213,6 +4218,46 @@ def plot_net_state_map(wt, features, dpi=300):
             net = np.where(inside, net, np.nan)
         except Exception:
             pass
+
+    # Standing forest: inside the KML forest polygon that _forest_field() draws its
+    # drawdown from, outside the felling polygon (where that drawdown is zeroed).
+    standing = contains_xy(forest_geom, gx.ravel(), gy.ravel()).reshape(gx.shape)
+    standing &= ~in_fell & np.isfinite(net)
+    return {"net": net, "standing": standing, "forest_geom": forest_geom,
+            "fell_geom": fell_geom, "scr_geom": scr_geom, "front": front,
+            "fH0": fH0, "eH0": eH0, "slr_mm": slr_mm}
+
+
+def plot_net_state_map(wt, features, dpi=300):
+    """
+    Net water-table state map — five simultaneous drivers combined on one
+    diverging scale.
+
+    Gains (blue): sea-level rise propagation; clearfell (removal of forest
+    interception deficit over the felled FE compartment).
+    Losses (brown/orange): remaining forest canopy drawdown; coastal erosion
+    (Storm Brendan single-event retreat); scrape-drain drawdown.
+
+    Net field (mm, positive = net gain):
+        net = slr_gain + clearfell_gain
+              - forest_remaining_loss - erosion_loss - scrape_loss
+
+    Forest remaining: _forest_field() with the felled zone zeroed.
+    Clearfell gain:   same H0 and λ as _forest_field(), but applied only
+                      within/near the KML felling polygon (exp decay from its
+                      boundary inward), representing the interception deficit
+                      that has been removed.
+
+    All fields use the coarse Euclidean model (same as plot_public_panel).
+    """
+    gx, gy = np.meshgrid(GRID_XI, GRID_YI)
+    ns = _net_state_field(gx, gy)
+    if ns is None:
+        print("  [WARNING] A component field is unavailable — skipping net state map")
+        return
+    net, forest_geom, fell_geom = ns["net"], ns["forest_geom"], ns["fell_geom"]
+    scr_geom, front = ns["scr_geom"], ns["front"]
+    fH0, eH0, slr_mm = ns["fH0"], ns["eH0"], ns["slr_mm"]
 
     # ── Diverging colour scale ────────────────────────────────────────────
     # Symmetric bands around zero; brown = loss, blue = gain.
@@ -4875,6 +4920,14 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
                  note="maximum of the combined scrape (Feb 2013 + Apr 2015 cuts) plus "
                       "Storm Brendan retreat drawdown on the pre-fell baseline, within the "
                       "site outline (20_clearfell_baseline_drawdown.png)")
+        # 1.60.0 (T-96 batch 3): where that peak sits (grid-cell centre, OSGB36).
+        _bi = int(np.nanargmax(_bdd))
+        srpt.add("clearfell_baseline_drawdown_max_E_m", float(_bgx.ravel()[_bi]), unit="m",
+                 note="easting (OSGB36) of the grid cell holding "
+                      "clearfell_baseline_drawdown_max_mm")
+        srpt.add("clearfell_baseline_drawdown_max_N_m", float(_bgy.ravel()[_bi]), unit="m",
+                 note="northing (OSGB36) of the grid cell holding "
+                      "clearfell_baseline_drawdown_max_mm")
     n_s = srpt.save(OUT_20_SCRAPE_REPORT_NUMBERS)
     print(f"  Saved → {OUT_20_SCRAPE_REPORT_NUMBERS.name} ({n_s} report numbers)")
 

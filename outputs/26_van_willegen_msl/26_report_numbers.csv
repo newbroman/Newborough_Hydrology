@@ -90,6 +90,8 @@ msl5_n_wells_mapped,83
 msl5_n_wells_mapped_at_latest_window_end,75
 msl5_n_windows_admitted,866
 msl5_n_windows_with_interp,29
+msl5_pct_annual_valid_with_interp,0.7075471698113207
+msl5_pct_windows_with_interp,3.348729792147806
 msl5_wet_step_mm_c1,84.24999999939206
 msl5_wet_step_mm_c2,110.86542600317777
 msl5_wet_step_mm_c3,157.05829124267228

@@ -605,6 +605,7 @@ so each file states its own origin:
 | `Features.kml` | plain KML, no tool signature | yes | `19`, `20`, `24b`, `29`, `31`, `11b`, `living/` |
 | `forest_boundary.geojson` | GeoJSON | yes | `paths.py` (`DATA_FOREST_BOUNDARY`) |
 | `clearfell.kml` | **QGIS export** | yes | `13`, `19`, `11b`, `map_utils`, `living/` |
+| `clearfell.geojson` | `tools/reproject_kml_to_osgb_geojson.py` from `clearfell.kml` (redefined by Martin 2026-09-30; see the section below) | yes | `paths.py` (`DATA_CLEARFELL`), `01_data_prep.py` (`dist_clearfell_m`) |
 | `broadleaf_restock.kml` | Google Earth | yes | `19`, `20`, `config.py`, `living/` |
 | `hydrological study area.kml` | Google Earth (Martin, 2026-09-20 — the study-area polygon, added after E27 found report7's 1,172 ha to be the site boundary's bounding box) | yes | Script 12; `make_study_area` (south-east and west edges) |
 | `study_area.geojson` | `tools/make_study_area.py` — DEM catchments, river, HWM, hand-drawn SE and west edges (D-203, 2026-09-27) | yes | `01b_water_table.py` (clip; standalone). The E27 / Script 12 switch is still pending |
@@ -1326,6 +1327,12 @@ that is not water.
 - **Source:** produced from the committed WGS84 KMLs by `tools/reproject_kml_to_osgb_geojson.py` (`gpd.read_file(kml).to_crs("EPSG:27700")`), 2026-09-06. Reprojected once and committed so the pipeline reads them with pure numpy and no CRS/GIS dependency — the same dependency-free pattern as `forest_boundary.geojson` and `coastline_eroding_hwm.geojson`.
 - **CRS:** EPSG:27700, declared in each file's `crs` member.
 - **Read by:** `src/01_data_prep.py` v1.15.0 `_replant_proximity()` (the `in_1998_replant` / `dist_1998_replant_m` / `dist_broadleaf_restock_m` columns of `01_locations.csv`) and `src/10a_ancova_baci.py` v1.12.0 (the exposure index of `10a_11_replant_proximity.csv`). W96 / D-141 canopy-confound sensitivity.
+
+### `clearfell.geojson` — EPSG:27700 reprojection of the 2017 clearfell (added 2026-09-30)
+- **What:** the `clearfell.kml` compartment as a committed EPSG:27700 `FeatureCollection` with one `Polygon`, the same structure as the four reprojections above (outer ring at `features[0].geometry.coordinates[0]`, 23 vertices).
+- **Source:** `tools/reproject_kml_to_osgb_geojson.py data/geo/clearfell.kml data/geo/clearfell.geojson`, run 2026-09-30 in a cloud session (geopandas 1.x / pyogrio) against the KML Martin redefined on the L14 the same day; the KML stays the drawn source and is regenerated into this file whenever it changes.
+- **CRS:** EPSG:27700, declared in the file's `crs` member.
+- **Read by:** `src/01_data_prep.py` v1.27.0 `_replant_proximity()` — the `in_clearfell` / `dist_clearfell_m` columns of `01_locations.csv`, the committed source of "FE1, approximately N m outside the felled boundary" (report9 §4.12, report8).
 
 ## `seabed_control_2026-09-11.kml` / `.csv` — offshore registration control (added 2026-09-11)
 

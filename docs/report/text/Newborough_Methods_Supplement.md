@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_66.odt — do not edit. source-sha256=dc664052189275d3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_67.odt — do not edit. source-sha256=fea4108a594b5ba1 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -1609,7 +1609,7 @@ Three impact-centroid variants are then run through the identical 10a ANCOVA fra
 -   **Variant B**: WMC3 + FE2 (two-well centroid, excluding FE1).
 -   **Variant C**: WMC3 alone (reproduces 10a Impact).
 
-The reason for Variant B is that FE1 sits approximately 20 m outside the clearfell boundary in standing forest, while FE2 is inside the felled compartment. FE1's post-felling divergence is +9 mm (p = 0.15); FE2's is +28 mm (p \< 0.001). Averaging FE1 into the impact centroid dilutes the clearfell signal because FE1 is not actually clearfell-impacted.
+The reason for Variant B is that FE1 sits approximately 46 m outside the clearfell boundary in standing forest, while FE2 is inside the felled compartment. FE1's post-felling divergence is +9 mm (p = 0.15); FE2's is +28 mm (p \< 0.001). Averaging FE1 into the impact centroid dilutes the clearfell signal because FE1 is not actually clearfell-impacted.
 
   ---------------------- --------- ----------- --------------- -------
   Variant                Zone      Step (mm)   95% CI          p

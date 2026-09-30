@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.81.0"  # Hollingham (2026) - 2026-09-29. T-96, the second emit batch (Martin:
+__version__ = "1.82.0"  # Hollingham (2026) - 2026-09-30. PFLOOD_EXAMPLE_CLUSTER and
+#   PFLOOD_EXAMPLE_H0_M: the cluster and starting depth of report8 §3.6.3's worked P_flood example,
+#   which Script 11b now emits from the committed threshold equations (Martin: the example is
+#   corrected to the 4-month horizon and traced). Additive.
+# 1.81.0  # Hollingham (2026) - 2026-09-29. T-96, the second emit batch (Martin:
 #   "continue your work"): the constants that were typed in scripts or prose and that the report's
 #   remaining un-traced numbers depend on - SLACK_FLOW_TURN_REPORT_DEG, DRAWDOWN_K_RANGE_MDAY,
 #   DRAWDOWN_B_RANGE_M, CCW_ANNUAL_RANGE_DAVY_2010_M (+_SD_M), SHORELINE_1899_GEOREF_RMSE_M,
@@ -467,6 +471,14 @@ PEARSON_DELTA_THRESH = 0.05
 # The delta-r thresholds the reclassification sensitivity is reported at (report8 §3.3.2:
 # "16 wells at 0.03, 14 at 0.10"); Script 06 emits n_ref_reclassified_at_<delta> for each (T-96, 1.81.0).
 PEARSON_DELTA_SENS = (0.03, 0.10)
+
+# report8 §3.6.3's worked P_flood example: "a C2 well with a September minimum of 0.5 m below
+# ground requires m_P = ..., giving P_flood ~ ... mm". Script 11b evaluates the committed
+# threshold equation (11_forecast_pflood_threshold_equations.csv slope_A / intercept_B /
+# P_clim_total_mm) at this cluster and depth and emits pflood_example_mP / pflood_example_mm,
+# so the sentence traces (1.82.0; the typed 1.05 / 448 mm belonged to the retired 5-month horizon).
+PFLOOD_EXAMPLE_CLUSTER = "C2"
+PFLOOD_EXAMPLE_H0_M    = 0.5      # m below ground, the September minimum of the example
 PEARSON_MCA_THRESH   = 0.90
 
 CLUSTER_COLOURS = {

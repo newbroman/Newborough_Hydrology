@@ -16,7 +16,12 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.26.0"  # Hollingham (2026) - 2026-09-29. T-96 emit list: 01_report_numbers.csv gains
+__version__ = "1.27.0"  # Hollingham (2026) - 2026-09-30. 01_locations.csv gains in_clearfell and
+#   dist_clearfell_m: each well's distance to the 2017 clearfell boundary (paths.DATA_CLEARFELL,
+#   clearfell.kml reprojected), 0.0 inside, by the same numpy geometry as the 1998 blocks in
+#   _replant_proximity(). Martin's ruling on the proof queue: report9 §4.12 / report8 quote FE1's
+#   distance to the felled boundary and nothing committed carried it. No other output moves.
+# 1.26.0  # Hollingham (2026) - 2026-09-29. T-96 emit list: 01_report_numbers.csv gains
 #   wt_mean_elev_aod (one row per reference well: its mean of 01_wells_clean_maod.csv) and
 #   wt_mean_elev_aod_network_mean (report9 §4.2.1's 7.45 / 3.02 / 13.33 / 3.10 m AOD), and
 #   coast_eroding_hwm_length_km (report8 §3.7.4, the polyline dist_coast_m is measured to).
@@ -81,7 +86,7 @@ __version__ = "1.26.0"  # Hollingham (2026) - 2026-09-29. T-96 emit list: 01_rep
 #   llyn rhos and pdfs are excluded on physical grounds, not length.
 # v1.15.0  # Hollingham (2026) - 2026-09-06. W96/D-141: adds the
 #   replant-proximity land-cover columns to 01_locations.csv - in_1998_replant,
-#   dist_1998_replant_m, dist_broadleaf_restock_m - derived by _replant_proximity()
+#   dist_1998_replant_m, dist_broadleaf_restock_m, in_clearfell, dist_clearfell_m - derived by _replant_proximity()
 #   from committed EPSG:27700 GeoJSON with the same pure-numpy point-in-polygon and
 #   point-to-polyline convention as _in_forest / _validate_dist_coast. Additive
 #   columns; no existing value changes. Read by Script 10a v1.12.0.
@@ -153,7 +158,7 @@ from utils.paths import (
     DATA_DIR,
     INT_LOCATIONS, DATA_FOREST_BOUNDARY, INT_CLIMATE, INT_WELLS_CLEAN, INT_WELLS_ALL, INT_WELLS_CLEAN_MAOD,
     DATA_FELLING_1998_1, DATA_FELLING_1998_2, DATA_FELLING_1998_3,
-    DATA_BROADLEAF_RESTOCK,
+    DATA_BROADLEAF_RESTOCK, DATA_CLEARFELL,
     INT_WELLS_PROVENANCE,
     INT_WELLS_REFERENCE, INT_WELLS_EXTENDED,
     INT_WELL_ELEVATIONS,
@@ -467,6 +472,9 @@ def _replant_proximity(easting, northing) -> dict:
                                distance to the nearest of the three block rings.
       dist_broadleaf_restock_m 0.0 if inside the broadleaf restock, else the
                                distance to its ring.
+      in_clearfell             True inside the 2017 clearfell polygon (1.27.0).
+      dist_clearfell_m         0.0 if inside the 2017 clearfell, else the
+                               distance to its ring (DATA_CLEARFELL).
 
     The maturing 1998 replant sits at and around the BACI forest controls and
     the Edge wells (W96 / D-141); this is the land-cover column the canopy-
@@ -543,10 +551,21 @@ def _replant_proximity(easting, northing) -> dict:
     else:
         dist_bl = np.where(_inside(bl_ring), 0.0, _dist(bl_ring))
 
+    # ── the 2017 clearfell (1.27.0) ──────────────────────────────────
+    cf_ring = _load_ring(DATA_CLEARFELL)
+    if cf_ring is None:
+        in_cf = np.zeros(n, dtype=bool)
+        dist_cf = np.full(n, np.nan)
+    else:
+        in_cf = _inside(cf_ring)
+        dist_cf = np.where(in_cf, 0.0, _dist(cf_ring))
+
     return {
         "in_1998_replant": in_area,
         "dist_1998_replant_m": dist_1998,
         "dist_broadleaf_restock_m": dist_bl,
+        "in_clearfell": in_cf,
+        "dist_clearfell_m": dist_cf,
     }
 
 
@@ -986,6 +1005,8 @@ if __name__ == "__main__":
     locs_out["in_1998_replant"] = _rp["in_1998_replant"]
     locs_out["dist_1998_replant_m"] = _rp["dist_1998_replant_m"]
     locs_out["dist_broadleaf_restock_m"] = _rp["dist_broadleaf_restock_m"]
+    locs_out["in_clearfell"] = _rp["in_clearfell"]
+    locs_out["dist_clearfell_m"] = _rp["dist_clearfell_m"]
     info(f"replant proximity: "
          f"{int((locs_out['in_1998_replant'] != '').sum())} of {len(locs_out)} "
          "wells inside a 1998 replant block.")

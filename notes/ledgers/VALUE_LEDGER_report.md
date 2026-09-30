@@ -319,14 +319,18 @@
 - **C5 (Coastal Forest) · beta_2_atmospheric_draw** [β₂] — quoted 1.248 vs committed 1.24815  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C5 (Coastal Forest) · R2** [R²] — quoted 0.677 vs committed 0.677444  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
 - **CoeffShift_CEH16_b1_after**  — quoted 2.48 vs committed 2.4774  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW10_b2_after**  — quoted 2.48 vs committed 2.5967 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **C1 (Lake Edge) · LCSC_percent**  — quoted 21.844 vs committed 21.8445  ·  `03_03_cluster_mechanistic_coefficients.csv`
+- **C4 (Main Forest) · LCSC_percent**  — quoted 40.392 vs committed 40.3915  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C5 (Coastal Forest) · LCSC_percent**  — quoted 41.462 vs committed 41.4621  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C1 (Lake Edge) / False · Sy_event_median** [S_y] — quoted 0.210 vs committed 0.210407  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C2 (Dune) / False · Sy_event_median** [S_y] — quoted 0.255 vs committed 0.255267  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C3 (Western Residual) / False · Sy_event_median** [S_y] — quoted 0.325 vs committed 0.324908  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
+- **C4 (Main Forest) / False · Sy_event_median** [S_y] — quoted 0.315 vs committed 0.314928  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C4 (Main Forest) / False · Sy_event_median** [S_y] — quoted 0.313 vs committed 0.314928 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C5 (Coastal Forest) / False · Sy_event_median** [S_y] — quoted 0.358 vs committed 0.357947  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C4 (Main Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.261 vs committed 0.261018  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
+- **C5 (Coastal Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.330 vs committed 0.330358  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C5 (Coastal Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.326 vs committed 0.330358 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **transect_trend_mm_yr**  — quoted −27.8 vs committed -27.8022  ·  `38_report_numbers.csv`
 - **Elevation_m · C4_mean**  — quoted 10.6 vs committed 10.601  ·  `10c_forest_zone_cluster_summary.csv`
@@ -345,7 +349,6 @@
 - **β₂_atm_draw · R2_elevation_only**  — quoted 0.967 vs committed 0.978 ⚠  ·  `10c_forest_zone_correlations.csv`
 - **β₂_atm_draw · R2_elevation_plus_dist**  — quoted 0.967 vs committed 0.978 ⚠  ·  `10c_forest_zone_correlations.csv`
 - **β₃_drainage · R2_elevation_plus_dist**  — quoted 0.788 vs committed 0.783 ⚠  ·  `10c_forest_zone_correlations.csv`
-- **CoeffShift_NW10_b2_after**  — quoted 2.48 vs committed 2.5967 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **Rolling_b1_impact_post**  — quoted 2.56 vs committed 2.66948 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **coastal_retreat_rate**  — quoted 2.32 vs committed 2.32071  ·  `20_report_numbers.csv`
 - **Canopy_controlled_delta_0**  — quoted -32.40 vs committed -32.2594 ⚠  ·  `25_report_numbers.csv`
@@ -355,7 +358,6 @@
 - **delta_ref_well_basis_ci_hi_mm_yr**  — quoted -19.19 vs committed -19.53 ⚠  ·  `25_report_numbers.csv`
 - **C1 (Lake Edge) · R2** [R²] — quoted 0.734 vs committed 0.733956  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
 - **C2 (Dune) · R2** [R²] — quoted 0.745 vs committed 0.744778  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
-- **C4 (Main Forest) · LCSC_percent**  — quoted 40.392 vs committed 40.3915  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **β₁_recharge · C4_min**  — quoted 2.072 vs committed 2.072  ·  `10c_forest_zone_cluster_summary.csv`
 - **β₁_recharge · C4_max**  — quoted 3.481 vs committed 3.481  ·  `10c_forest_zone_cluster_summary.csv`
 - **β₁_recharge · C5_min**  — quoted 2.125 vs committed 2.125  ·  `10c_forest_zone_cluster_summary.csv`
@@ -416,10 +418,10 @@
 - **all_members · beta_1_recharge** [β₁] — quoted 2.48 vs committed 2.47577  ·  `30_c4_centroid_sensitivity.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **all_members · beta_2_atmospheric_draw** [β₂] — quoted 2.56 vs committed 2.57024 ⚠  ·  `30_c4_centroid_sensitivity.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3 (Western Residual) · VIF**  — quoted 1.27 vs committed 1.30638 ⚠  ·  `30_c4_identifiability_by_cluster.csv`
-- **forest_control / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.24 vs committed 1.2442  ·  `41_01_canopy_index.csv`
-- **felling_experiment / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer**  — quoted 1.24 vs committed 1.23874  ·  `41_01_canopy_index.csv`
-- **felling_1998_2 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer**  — quoted 1.01 vs committed 1.01127  ·  `41_01_canopy_index.csv`
-- **felling_1998_3 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer**  — quoted 1.01 vs committed 1.01496  ·  `41_01_canopy_index.csv`
+- **forest_control / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.24 vs committed 1.24567 ⚠  ·  `41_01_canopy_index.csv`
+- **felling_experiment / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer**  — quoted 1.24 vs committed 1.23887  ·  `41_01_canopy_index.csv`
+- **felling_1998_2 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer**  — quoted 1.01 vs committed 1.01411  ·  `41_01_canopy_index.csv`
+- **felling_1998_3 / 2026-03-31 / aerial31-3-2026.png · ratio_to_conifer**  — quoted 1.01 vs committed 1.01781 ⚠  ·  `41_01_canopy_index.csv`
 - **C1 (Lake Edge) / 0 · R2** [R²] — quoted 0.734 vs committed 0.733956  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C2 (Dune) / 0 · R2** [R²] — quoted 0.745 vs committed 0.744778  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C3 (Western Residual) / 0 · R2** [R²] — quoted 0.825 vs committed 0.824919  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
@@ -716,6 +718,7 @@
 - **CEH36_raw_BACI_step**  — quoted 0.128 vs committed 0.1281  ·  `09e_report_numbers.csv`
 - **CEH36_synthetic_control_step**  — quoted 0.137 vs committed 0.1414 ⚠  ·  `09e_report_numbers.csv`
 - **ANCOVA_Forest_Impact_clearfell_step**  — quoted 0.108 vs committed 0.10823  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH31_b2_after**  — quoted 1.23 vs committed 1.2746 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH20_b1_before**  — quoted 2.57 vs committed 2.57  ·  `10_consolidated_report_numbers.csv`
 - **C3_Sy_max**  — quoted 0.398 vs committed 0.399778 ⚠  ·  `29_report_numbers.csv`
 - **C1 (Lake Edge) · beta_1_recharge** [β₁] — quoted 4.58 vs committed 4.57781  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -723,7 +726,7 @@
 - **C1 (Lake Edge) · beta_2_atmospheric_draw** [β₂] — quoted 0.911 vs committed 0.910926  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C2 (Dune) · beta_1_recharge** [β₁] — quoted 3.90 vs committed 3.8957  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C2 (Dune) · beta_1_recharge** [β₁] — quoted 3.896 vs committed 3.8957  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **C2 (Dune) · beta_2_atmospheric_draw** [β₂] — quoted 1.74 vs committed 1.66642  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C2 (Dune) · beta_2_atmospheric_draw** [β₂] — quoted 1.67 vs committed 1.66642  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3 (Western Residual) · beta_1_recharge** [β₁] — quoted 3.76 vs committed 3.75779  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3 (Western Residual) · beta_2_atmospheric_draw** [β₂] — quoted 1.78 vs committed 1.77807  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C4 (Main Forest) · beta_1_recharge** [β₁] — quoted 2.48 vs committed 2.47577  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -733,9 +736,11 @@
 - **C5 (Coastal Forest) · beta_2_atmospheric_draw** [β₂] — quoted 1.25 vs committed 1.24815  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C5 (Coastal Forest) · beta_2_atmospheric_draw** [β₂] — quoted 1.248 vs committed 1.24815  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **CoeffShift_CEH16_b1_after**  — quoted 2.48 vs committed 2.4774  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW10_b2_after**  — quoted 2.48 vs committed 2.5967 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **C1 (Lake Edge) · LCSC_percent**  — quoted 21.844 vs committed 21.8445  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C2 (Dune) · LCSC_percent**  — quoted 25.669 vs committed 25.6693  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C3 (Western Residual) · LCSC_percent**  — quoted 26.611 vs committed 26.6114  ·  `03_03_cluster_mechanistic_coefficients.csv`
+- **C4 (Main Forest) · LCSC_percent**  — quoted 40.392 vs committed 40.3915  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C5 (Coastal Forest) · LCSC_percent**  — quoted 41.462 vs committed 41.4621  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C1 (Lake Edge) / False · Sy_OLS_R2** [S_y] — quoted 0.602 vs committed 0.602156  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C1 (Lake Edge) / False · Sy_event_median** [S_y] — quoted 0.210 vs committed 0.210407  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
@@ -779,8 +784,6 @@
 - **ANCOVA_Forest_Impact_clearfell_step_summer_noCWB**  — quoted 0.123 vs committed 0.0914818 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **Sensitivity_lambda200_Forest_Impact_clearfell**  — quoted 0.113 vs committed 0.10823 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **Sensitivity_lambda500_Forest_Impact_clearfell**  — quoted 0.113 vs committed 0.10823 ⚠  ·  `10_consolidated_report_numbers.csv`
-- **CoeffShift_CEH31_b2_after**  — quoted 1.23 vs committed 1.2746 ⚠  ·  `10_consolidated_report_numbers.csv`
-- **CoeffShift_NW10_b2_after**  — quoted 2.48 vs committed 2.5967 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW4B_b2_after**  — quoted 1.10 vs committed 1.0795 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **Rolling_b1_impact_post**  — quoted 2.56 vs committed 2.66948 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **synth_FE1_R2_cal**  — quoted 0.998 vs committed 0.997837  ·  `10_consolidated_report_numbers.csv`
@@ -791,8 +794,7 @@
 - **FourZoneSummer_R2** [R²] — quoted 0.724 vs committed 0.724187  ·  `10_consolidated_report_numbers.csv`  — _coefficient of determination_
 - **WMC3_ANCOVA_clearfell_step_ref**  — quoted 0.113 vs committed 0.10823 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **coastal_retreat_rate**  — quoted 2.32 vs committed 2.32071  ·  `20_report_numbers.csv`
-- **canopy_ratio_restock_conifer_full_leaf_median**  — quoted 1.172 vs committed 1.17167  ·  `41_report_numbers.csv`
-- **canopy_index_clearfell_full_leaf_median**  — quoted 0.139 vs committed 0.138638  ·  `41_report_numbers.csv`
+- **canopy_index_clearfell_full_leaf_median**  — quoted 0.139 vs committed 0.13077 ⚠  ·  `41_report_numbers.csv`
 - **ROLLING_WINDOW_STEP_MONTHS**  — quoted 3.00 vs committed 3  ·  `config.py`
 - **RAF_VALLEY_LAT_DEG**  — quoted 53.25 vs committed 53.25  ·  `config.py`
 - **SD16_REC**  — quoted 1.20 vs committed 1.2  ·  `config.py`
@@ -804,7 +806,6 @@
 - **UKCP18_WET_P_SUMMER**  — quoted 1.10 vs committed 1.1  ·  `config.py`
 - **CCW_PIPE_BASE_M**  — quoted -2.000 vs committed -2  ·  `config.py`
 - **C1 (Lake Edge) · R2** [R²] — quoted 0.734 vs committed 0.733956  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
-- **C4 (Main Forest) · LCSC_percent**  — quoted 40.392 vs committed 40.3915  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C1 · Best_Kappa**  — quoted 2.30 vs committed 2.3  ·  `15_04_best_params.csv`
 - **C2 (Dune) / 1 · R2** [R²] — quoted 0.137 vs committed 0.136918  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C2 (Dune) / 2 · R2** [R²] — quoted 0.127 vs committed 0.131868 ⚠  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
@@ -895,15 +896,15 @@
 - **C1 (Lake Edge) / 2024 · MAX5_m_bg_mean**  — quoted 0.137 vs committed 0.13675  ·  `26_msl_5yr_per_cluster.csv`
 - **all_members · beta_1_recharge** [β₁] — quoted 2.48 vs committed 2.47577  ·  `30_c4_centroid_sensitivity.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C5 (Coastal Forest) · hd_mean**  — quoted 2.55 vs committed 2.54802  ·  `30_c4_identifiability_by_cluster.csv`
-- **clearfell / 2006-01-01 / aerial 1-1-2006.png · ratio_to_conifer**  — quoted 1.51 vs committed 1.51281  ·  `41_01_canopy_index.csv`
-- **clearfell / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.05 vs committed 1.05316  ·  `41_01_canopy_index.csv`
-- **broadleaf_restock / 2017-04-22 / aerial22-4-2017.png · index**  — quoted 1.045 vs committed 1.04473  ·  `41_01_canopy_index.csv`
-- **clearfell / 2017-04-22 / aerial22-4-2017.png · index**  — quoted 1.235 vs committed 1.23527  ·  `41_01_canopy_index.csv`
-- **felling_experiment / 2017-04-22 / aerial22-4-2017.png · index**  — quoted 1.248 vs committed 1.24764  ·  `41_01_canopy_index.csv`
-- **felling_1998_3 / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer**  — quoted 0.856 vs committed 0.855504  ·  `41_01_canopy_index.csv`
-- **clearfell / 2018-06-28 / aerial28-6-2018.png · index**  — quoted 0.141 vs committed 0.14085  ·  `41_01_canopy_index.csv`
-- **felling_experiment / 2018-06-28 / aerial28-6-2018.png · index**  — quoted 0.123 vs committed 0.122667  ·  `41_01_canopy_index.csv`
-- **felling_experiment / 2018-07-08 / aerial8-7-2018.png · index**  — quoted 0.123 vs committed 0.122558  ·  `41_01_canopy_index.csv`
+- **clearfell / 2006-01-01 / aerial 1-1-2006.png · ratio_to_conifer**  — quoted 1.51 vs committed 1.55965 ⚠  ·  `41_01_canopy_index.csv`
+- **clearfell / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.05 vs committed 1.08749 ⚠  ·  `41_01_canopy_index.csv`
+- **broadleaf_restock / 2017-04-22 / aerial22-4-2017.png · index**  — quoted 1.045 vs committed 1.04524  ·  `41_01_canopy_index.csv`
+- **clearfell / 2017-04-22 / aerial22-4-2017.png · index**  — quoted 1.235 vs committed 1.24317 ⚠  ·  `41_01_canopy_index.csv`
+- **felling_experiment / 2017-04-22 / aerial22-4-2017.png · index**  — quoted 1.248 vs committed 1.24825  ·  `41_01_canopy_index.csv`
+- **felling_1998_3 / 2017-04-22 / aerial22-4-2017.png · ratio_to_conifer**  — quoted 0.856 vs committed 0.855595  ·  `41_01_canopy_index.csv`
+- **clearfell / 2018-06-28 / aerial28-6-2018.png · index**  — quoted 0.141 vs committed 0.129757 ⚠  ·  `41_01_canopy_index.csv`
+- **felling_experiment / 2018-06-28 / aerial28-6-2018.png · index**  — quoted 0.123 vs committed 0.122744  ·  `41_01_canopy_index.csv`
+- **felling_experiment / 2018-07-08 / aerial8-7-2018.png · index**  — quoted 0.123 vs committed 0.122602  ·  `41_01_canopy_index.csv`
 - **C1 (Lake Edge) / 0 · R2** [R²] — quoted 0.734 vs committed 0.733956  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C2 (Dune) / 0 · R2** [R²] — quoted 0.747 vs committed 0.744778 ⚠  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C4 (Main Forest) / 0 · R2** [R²] — quoted 0.733 vs committed 0.732952  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
@@ -938,9 +939,12 @@
 - **2006_2012 / primary · s_coast_ci_lo** [δ(d)] — quoted 0.24 vs committed 0.2364  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
 - **2006_2012 / primary · s_coast_ci_hi** [δ(d)] — quoted 5.76 vs committed 5.7634  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
 - **2018_2025 / primary · s_cf_ci_lo**  — quoted 0.67 vs committed 0.6681  ·  `37_scale_factors_by_window.csv`
+- **2018_2025 / primary · s_cf_ci_hi**  — quoted 3.89 vs committed 3.8895  ·  `37_scale_factors_by_window.csv`
 - **2005_2025 / primary · s_coast** [δ(d)] — quoted 0.48 vs committed 0.4848  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
 - **2018_2025 / primary · c**  — quoted 269 vs committed 269  ·  `37_scale_factors_by_window.csv`
+- **2018_2025 / with_broadleaf_covariate · s_bl**  — quoted -3.51 vs committed -3.5106  ·  `37_scale_factors_by_window.csv`
 - **2018_2025 / with_broadleaf_covariate · s_bl_ci_hi**  — quoted -0.81 vs committed -0.8058  ·  `37_scale_factors_by_window.csv`
+- **2018_2025 / primary · s_cf**  — quoted 2.28 vs committed 2.2788  ·  `37_scale_factors_by_window.csv`
 - **2006_2012 / primary · c**  — quoted -520 vs committed -519.7  ·  `37_scale_factors_by_window.csv`
 - **transect_coastal_end_spearman_raw**  — quoted -0.209 vs committed -0.208791  ·  `38_report_numbers.csv`
 - **transect_coastal_end_spearman_anchored**  — quoted -0.793 vs committed -0.793407  ·  `38_report_numbers.csv`
@@ -950,8 +954,10 @@
 - **c3_only / linear_capped_cfix · delta_0_se**  — quoted 2.74 vs committed 2.47 ⚠  ·  `25_01_panel_fit_parameters.csv`
 - **C5 (Coastal Forest) · observed_balanced_annual_mean_mm_yr_summer**  — quoted -16.15 vs committed -31.978 ⚠  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C4_beta3_pct_mean** [β₃] — quoted 1.58 vs committed 1.52733 ⚠  ·  `07_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **msl5_min5_window_r**  — quoted 0.941 vs committed 0.940762  ·  `26_report_numbers.csv`
 - **5 / C5 (Coastal Forest) · MINw_current_m_bg**  — quoted −1.68 vs committed -1.72285 ⚠  ·  `26_curreli_min_cluster_threshold_summary.csv`
 - **C5 (Coastal Forest) / 2020 · MAX5_m_bg_mean**  — quoted -1.12 vs committed -1.19409 ⚠  ·  `26_msl_5yr_per_cluster.csv`
+- **C3 (Western Residual) · MIN5_m_bg_mean**  — quoted -1.12 vs committed -1.12308  ·  `26_msl5_vs_min5_per_cluster.csv`
 - **C4 (Main Forest) · MIN5_m_bg_mean**  — quoted -1.58 vs committed -1.5775  ·  `26_msl5_vs_min5_per_cluster.csv`
 - **C5 (Coastal Forest) · MSL5_m_bg_mean**  — quoted -1.12 vs committed -1.123  ·  `26_msl5_vs_min5_per_cluster.csv`
 - **C5 (Coastal Forest) · MIN5_m_bg_mean**  — quoted −1.68 vs committed -1.68233  ·  `26_msl5_vs_min5_per_cluster.csv`
@@ -982,7 +988,7 @@
 - **Climate dry · Delta_vol_summer_mm_per_month**  — quoted −14.7 vs committed -14.7  ·  `09d_02_summer_scenario_comparison.csv`
 - **Climate wet · Delta_vol_summer_mm_per_month**  — quoted 8.0 vs committed 8  ·  `09d_02_summer_scenario_comparison.csv`
 - **C3+CEH31 (non-forest uphill) · baci_db3_pct**  — quoted −7.4 vs committed -7.4259  ·  `09b_02_centroid_summaries.csv`
-- **C4 (forest uphill) · baci_db3_pct**  — quoted +7.8 vs committed 7.7919  ·  `09b_02_centroid_summaries.csv`
+- **C4 (forest uphill) · baci_db3_pct**  — quoted 7.79 vs committed 7.7919  ·  `09b_02_centroid_summaries.csv`
 - **All uphill · baci_db3_pct**  — quoted +0.2 vs committed 0.1604  ·  `09b_02_centroid_summaries.csv`
 - **ceh34 · baci_db3_pct**  — quoted −30 vs committed -29.7653  ·  `09b_01_individual_well_baci.csv`
 - **wmc3 · baci_db3_pct**  — quoted +19 vs committed 18.78  ·  `09b_01_individual_well_baci.csv`
@@ -1040,7 +1046,7 @@
 - **open_bias_mean_beta1_scale_1.00** [β₁] — quoted −0.111 vs committed -0.111029  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **canopy_nse_mean_beta1_scale_1.00** [β₁] — quoted −1.332 vs committed -1.33154  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **headline_retreat_rate_2006_2026_m_yr**  — quoted 2.32 vs committed 2.32071  ·  `40_report_numbers.csv`
-- **canopy_ratio_restock_conifer_full_leaf_cv_pct**  — quoted 4.2 vs committed 4.17061  ·  `41_report_numbers.csv`
+- **canopy_ratio_restock_conifer_full_leaf_cv_pct**  — quoted 4.1 vs committed 4.13899  ·  `41_report_numbers.csv`
 - **sy_c3** [S_y] — quoted 0.298 vs committed 0.298201  ·  `20_report_numbers.csv`  — _specific yield — WTF storage coefficient_
 - **ridge_lag_median_b11_lagged_fraction · C2 (Dune)**  — quoted −0.03 vs committed -0.0287002  ·  `23_report_numbers.csv`
 - **ridge_lag_median_b11_lagged_fraction · C5 (Coastal Forest)**  — quoted 0.16 vs committed 0.159929  ·  `23_report_numbers.csv`
@@ -1106,6 +1112,7 @@
 - _(untracked)_ 0.00% — …median difference in monthly PET 0.00%, 5th to 95th percentile ±5.5%…
 - _(untracked)_ 5.5% — …ET 0.00%, 5th to 95th percentile ±5.5%, though individual months can…
 - _(untracked)_ 16.6% — …vidual months can differ by up to 16.6%. A fixed climatological *I* t…
+- _(untracked)_ 4.2% — …he analysis period by a median of 4.2%.…
 - _(untracked)_ −2.87 m — …_Model.csv* is more negative than −2.87 m. The floor is a forward-looki…
 - _(untracked)_ 260 mm — …Valley Jun--Sep rainfall mean of 260 mm (σ = 70 mm) using a one-sigma…
 - _(untracked)_ 190 mm — …w-mean threshold of approximately 190 mm. The list is hardcoded so the…
@@ -1156,6 +1163,7 @@
 - _(untracked)_ 12 months — …minimum-observations threshold of 12 months per window. The raw shift Δβ…
 - _(untracked)_ 1070 m — …MC4, D25, WMC2), which sit at 852--1070 m from CEH36 --- far enough tha…
 - _(untracked)_ 6 wells — …fts of −7.4 % (non-forest uphill, 6 wells), +7.8 % (forest uphill, 4 we…
+- _(untracked)_ 7.8 % — …% (non-forest uphill, 6 wells), +7.8 % (forest uphill, 4 wells), and…
 - _(untracked)_ 10 wells — …4 wells), and +0.2 % (all uphill, 10 wells). At the individual-well leve…
 - _(untracked)_ 262 m — …n −30 % (CEH34) to +19 % (WMC3 at 262 m) with no monotonic distance d…
 - _(untracked)_ 383 m — …3 at 262 m gives +19 % and NW7 at 383 m +11 %, while NW6 at 284 m giv…
@@ -1217,7 +1225,7 @@
 - _(untracked)_ −0.4 mm — …e scatter. The fitted gradient is −0.4 mm per 100 m (p = 0.186) --- no…
 - _(untracked)_ 29 months — …ndow (July 2015 to November 2017, 29 months). The donor regression is mul…
 - _(untracked)_ 25 mm — …994 for FE2, with RMSEs of 18 and 25 mm respectively. The synthetic r…
-- _(untracked)_ 20 m — …B is that FE1 sits approximately 20 m outside the clearfell boundar…
+- _(untracked)_ 46 m — …B is that FE1 sits approximately 46 m outside the clearfell boundar…
 - _(untracked)_ 9 mm — …FE1's post-felling divergence is +9 mm (p = 0.15); FE2's is +28 mm (…
 - _(untracked)_ 28 mm — …ce is +9 mm (p = 0.15); FE2's is +28 mm (p \< 0.001). Averaging FE1 i…
 - _(untracked)_ 94 mm — …turning a Forest-control step of +94 mm, p = 0.002. Variant A (which…
@@ -1499,7 +1507,6 @@
 - _(untracked)_ −31 mm yr⁻¹ — …he coastal-retreat gradient (δ₀ ≈ −31 mm yr⁻¹ at the shoreline; C5 wells si…
 - _(untracked)_ 15 wells — …\[-0.03, 1.00\]), because only \~15 wells sit within the coastal field'…
 - _(untracked)_ −0.48 — …the two fields are collinear (r ≈ −0.48 with easting), and per-well re…
-- _(untracked)_ -3.51 — …the broadleaf-restock covariate (-3.51 \[-6.22, -0.81\], not carried…
 - _(untracked)_ -6.22 — …adleaf-restock covariate (-3.51 \[-6.22, -0.81\], not carried in the…
 - _(untracked)_ 108.2 mm — …ude; observed anchors (clearfell +108.2 mm from 10a_report_numbers.csv;…
 - _(untracked)_ 128.1 mm — …port_numbers.csv; scrape on-site +128.1 mm from the scraping BACI output…
@@ -1545,13 +1552,14 @@
 - _(untracked)_ −0.048 — …clearfell it moves from 0.016 to −0.048, having already been near zer…
 - _(untracked)_ 95 cm — …n only from Ranwell's text (about 95 cm), and readings deeper than th…
 - _(untracked)_ 145 records — …d Ranwell tables, the exception D-145 records as D-051 did for Script 39 --…
+- _(untracked)_ 20 m — …n *HEAD_DEM_SMOOTHING_M* over the 20 m nodes inside the reference-ne…
 - _(untracked)_ 34 months — …e maps say so. The ridge well has 34 months (2006--2010) with no dry-stat…
 - _(untracked)_ 0.5 % — …(CLAHE-style auto-contrast with a 0.5 % cutoff, plus light sharpening…
 
 ## Supplementary_Material
 
 - **C3_Sy_max**  — quoted 0.400 vs committed 0.399778  ·  `29_report_numbers.csv`
-- **C3_Sy_min**  — quoted 0.246 vs committed 0.222267  ·  `29_report_numbers.csv`
+- **C3_Sy_min**  — quoted 0.222 vs committed 0.222267  ·  `29_report_numbers.csv`
 - **C1 (Lake Edge) · beta_1_recharge** [β₁] — quoted 4.578 vs committed 4.57781  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C1 (Lake Edge) · beta_2_atmospheric_draw** [β₂] — quoted 0.911 vs committed 0.910926  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C2 (Dune) · beta_1_recharge** [β₁] — quoted 3.896 vs committed 3.8957  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -1820,6 +1828,7 @@
 
 - **C4 (Main Forest) · beta_1_recharge** [β₁] — quoted 2.48 vs committed 2.47577  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **CoeffShift_CEH16_b1_after**  — quoted 2.48 vs committed 2.4774  ·  `10_consolidated_report_numbers.csv`
+- **C4 (Main Forest) / False · Sy_event_median** [S_y] — quoted 0.315 vs committed 0.314928  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C5 (Coastal Forest) / False · Sy_event_median** [S_y] — quoted 0.358 vs committed 0.357947  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C4 (Main Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.261 vs committed 0.261018  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C5 (Coastal Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.330 vs committed 0.330358  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
@@ -2553,6 +2562,7 @@
 - **C3 (Western Residual) · beta_2_atmospheric_draw** [β₂] — quoted 1.78 vs committed 1.77807  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C4 (Main Forest) · beta_2_atmospheric_draw** [β₂] — quoted 2.57 vs committed 2.57024  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C5 (Coastal Forest) · beta_2_atmospheric_draw** [β₂] — quoted 1.25 vs committed 1.24815  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C5 (Coastal Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.330 vs committed 0.330358  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **nw2 · beta_1_recharge** [β₁] — quoted 4.58 vs committed 4.55665 ⚠  ·  `07_coeff_maps_data.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **c3_only / exponential_cfix · delta_ref_se**  — quoted 2.32 vs committed 2.04449 ⚠  ·  `25_01_panel_fit_parameters.csv`
 - **canonical / C4 (Main Forest) · amplification_mean**  — quoted 1.66 vs committed 1.66281  ·  `33_cluster_summary.csv`
@@ -2786,9 +2796,7 @@
 - **ceh40 · obs_years**  — quoted 11.6 vs committed 11.5893  ·  `28_c3_detrend.csv`
 - **ceh41 · obs_years**  — quoted 11.6 vs committed 11.5893  ·  `28_c3_detrend.csv`
 - **ceh42 · obs_years**  — quoted 11.6 vs committed 11.5893  ·  `28_c3_detrend.csv`
-- **clearfell / 2017-04-22 / aerial22-4-2017.png · index**  — quoted 1.235 vs committed 1.23527  ·  `41_01_canopy_index.csv`
-- **clearfell / 2018-06-28 / aerial28-6-2018.png · index**  — quoted 0.141 vs committed 0.14085  ·  `41_01_canopy_index.csv`
-- **forest_in_view / 2018-06-28 / aerial28-6-2018.png · index**  — quoted 1.007 vs committed 1.00706  ·  `41_01_canopy_index.csv`
+- **forest_in_view / 2018-06-28 / aerial28-6-2018.png · index**  — quoted 1.005 vs committed 1.00472  ·  `41_01_canopy_index.csv`
 - **Pre_felling_baseline_years_min · WMC3 · Impact**  — quoted 8.4 vs committed 8.41889  ·  `10_consolidated_report_numbers.csv`
 - **Pre_felling_baseline_years_min · CEH31 · Edge**  — quoted 7.4 vs committed 7.41958  ·  `10_consolidated_report_numbers.csv`
 - **Pre_felling_baseline_years_max · CEH16 · Edge**  — quoted 10.3 vs committed 10.3381  ·  `10_consolidated_report_numbers.csv`
@@ -2807,17 +2815,7 @@
 - _(untracked)_ 900 m — …follow. The fitted reach of about 900 m is the distance over which th…
 - _(untracked)_ −2 — …ed where it improved fit (ΔAIC \< −2). The scraping distance-decay…
 - _(untracked)_ 500 m — …second control: it lies more than 500 m from the felled compartment,…
-- _(untracked)_ 20 m — …finitions. FE1 sits approximately 20 m outside the clearfell boundar…
-
-### §3.6.3 Algebraic Derivation of the Critical Rainfall Threshold (P_flood)
-
-- **UKCP18_DRY_P_WINTER**  — quoted 1.05 vs committed 1.05  ·  `config.py`
-- **1949 · P_PET_ratio** [p] — quoted 1.05 vs committed 1.04866  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
-- _(untracked)_ 77% — …om the cluster-level fit, roughly 77% of the September deficit pers…
-- _(untracked)_ 3.7 m below ground — ….1 --- a fixed reference depth of 3.7 m below ground surface, not the hydraulic di…
-- _(untracked)_ 50% — …uffices; m_P = 1.5 means a winter 50% wetter than average is needed…
-- _(untracked)_ 0.5 m below ground — …well with a September minimum of 0.5 m below ground requires m_P = 1.05, giving P…
-- _(untracked)_ 448 mm — …ires m_P = 1.05, giving P_flood ≈ 448 mm --- a near-average October--F…
+- _(untracked)_ 46 m — …finitions. FE1 sits approximately 46 m outside the clearfell boundar…
 
 ### §3.7.5 Five-Year Mean Spring Water Level (MSL5) and Associated Forecasting Tools
 
@@ -2894,6 +2892,14 @@
 
 - _(untracked)_ 240 m — …H2 --- NW10 also lies outside, at 240 m, but carries a broadleaf cano…
 
+### §3.6.3 Algebraic Derivation of the Critical Rainfall Threshold (P_flood)
+
+- _(untracked)_ 77% — …om the cluster-level fit, roughly 77% of the September deficit pers…
+- _(untracked)_ 3.7 m below ground — ….1 --- a fixed reference depth of 3.7 m below ground surface, not the hydraulic di…
+- _(untracked)_ 50% — …uffices; m_P = 1.5 means a winter 50% wetter than average is needed…
+- _(untracked)_ 0.5 m below ground — …well with a September minimum of 0.5 m below ground requires m_P ≈ 0.99, giving P…
+- _(untracked)_ 397 mm — …ires m_P ≈ 0.99, giving P_flood ≈ 397 mm --- an average October--Janua…
+
 ### §3.6.4 Long-Term Climate Trajectory and Threshold Exceedance Analysis
 
 - _(untracked)_ 95% — …ow and extrapolated to 2040, with 95% confidence intervals derived…
@@ -2913,7 +2919,7 @@
 
 ### §3.7.4 Network-Scale Coastal-Retreat Gradient Regression
 
-- _(untracked)_ 15 km — …ne (EPSG:27700) restricted to the 15 km west-facing Newborough shorel…
+- _(untracked)_ 7.8 km — …ne (EPSG:27700) restricted to the 7.8 km west-facing Newborough shorel…
 - _(untracked)_ 67 wells — …over inclusion: the full network (67 wells, all clusters minus the BACI…
 - _(untracked)_ 61 wells — …er canopy on the land-cover flag (61 wells), and a C3-only specification…
 - _(untracked)_ −9.0 — …ge amplitude alongside a separate −9.0 ± 2.4 mm yr⁻¹ deepening absorb…
@@ -3005,7 +3011,7 @@
 - **C2 (Dune) · m_P**  — quoted 1.18 vs committed 1.17661  ·  `11b_06_pflood_cluster_summary.csv`
 - **C4 Main forest / Post-felling 2018+ · Min_depth_m**  — quoted 1.28 vs committed 1.2813  ·  `21_forestry_02_distributions_means.csv`
 - **C3 (Western Residual) · VIF**  — quoted 1.31 vs committed 1.30638  ·  `30_c4_identifiability_by_cluster.csv`
-- **broadleaf_restock / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.22 vs committed 1.22052  ·  `41_01_canopy_index.csv`
+- **broadleaf_restock / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.22 vs committed 1.22196  ·  `41_01_canopy_index.csv`
 - **wells_wt_ground_n**  — quoted 66 vs committed 66  ·  `01b_report_numbers.csv`
 - **wells_wt_ground_slope**  — quoted 0.98 vs committed 0.976805  ·  `01b_report_numbers.csv`
 - **C2 (Dune) · well_median_max_R2_datum_m**  — quoted 0.9 vs committed 0.9  ·  `03_18_datum_invariance.csv`
@@ -3120,9 +3126,13 @@
 - **C1 (Lake Edge) · beta_1_recharge** [β₁] — quoted 4.578 vs committed 4.57781  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C1 (Lake Edge) · beta_2_atmospheric_draw** [β₂] — quoted 0.911 vs committed 0.910926  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C2 (Dune) · beta_1_recharge** [β₁] — quoted 3.90 vs committed 3.8957  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C2 (Dune) · beta_1_recharge** [β₁] — quoted 3.896 vs committed 3.8957  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C2 (Dune) · beta_2_atmospheric_draw** [β₂] — quoted 1.67 vs committed 1.66642  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C2 (Dune) · beta_2_atmospheric_draw** [β₂] — quoted 1.666 vs committed 1.66642  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3 (Western Residual) · beta_1_recharge** [β₁] — quoted 3.76 vs committed 3.75779  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C3 (Western Residual) · beta_1_recharge** [β₁] — quoted 3.758 vs committed 3.75779  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3 (Western Residual) · beta_2_atmospheric_draw** [β₂] — quoted 1.78 vs committed 1.77807  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C3 (Western Residual) · beta_2_atmospheric_draw** [β₂] — quoted 1.778 vs committed 1.77807  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3 (Western Residual) · R2** [R²] — quoted 0.825 vs committed 0.824919  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
 - **C4 (Main Forest) · beta_1_recharge** [β₁] — quoted 2.48 vs committed 2.47577  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C4 (Main Forest) · beta_1_recharge** [β₁] — quoted 2.476 vs committed 2.47577  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3137,6 +3147,7 @@
 - **C1 (Lake Edge) · LCSC_percent**  — quoted 21.844 vs committed 21.8445  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C2 (Dune) · LCSC_percent**  — quoted 25.669 vs committed 25.6693  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C3 (Western Residual) · LCSC_percent**  — quoted 26.611 vs committed 26.6114  ·  `03_03_cluster_mechanistic_coefficients.csv`
+- **C4 (Main Forest) · LCSC_percent**  — quoted 40.392 vs committed 40.3915  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C5 (Coastal Forest) · LCSC_percent**  — quoted 41.462 vs committed 41.4621  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **β₂_atm_draw · C4_max**  — quoted 3.792 vs committed 3.792  ·  `10c_forest_zone_cluster_summary.csv`
 - **FourZone_R2** [R²] — quoted 0.848 vs committed 0.847751  ·  `10_consolidated_report_numbers.csv`  — _coefficient of determination_
@@ -3205,11 +3216,11 @@
 - _(untracked)_ 10 cm — …ake Edge and Dune water tables by 10 cm, compared with 27 mm in the W…
 - _(untracked)_ 27 mm — …er tables by 10 cm, compared with 27 mm in the Western Residual and 4…
 - _(untracked)_ 41 mm — …mm in the Western Residual and 40--41 mm beneath the plantation.…
-- _(untracked)_ 3.6 m AOD — …rs (Section 3.2.3). CEH11 sits at 3.6 m AOD on the south-eastern coast, a…
+- _(untracked)_ 3.5 m AOD — …rs (Section 3.2.3). CEH11 sits at 3.5 m AOD on the south-eastern coast, a…
 - _(untracked)_ 1.7 km — …outh-eastern coast, approximately 1.7 km from the nearest lake-edge we…
-- _(untracked)_ 10.9 m — …s the C1 elevation range from 8.5--10.9 m down to 3.5 m; if excluded, t…
-- _(untracked)_ 3.5 m — …on range from 8.5--10.9 m down to 3.5 m; if excluded, the six remaini…
-- _(untracked)_ −0.40 — …aves five: its small negative β₂ (−0.40, non-significant at p = 0.26)…
+- _(untracked)_ 10.9 m — …s the C1 elevation range from 8.5--10.9 m down to 3.5 m. Excluding CEH6…
+- _(untracked)_ 3.5 m — …on range from 8.5--10.9 m down to 3.5 m. Excluding CEH6 as well leave…
+- _(untracked)_ −0.40 — ….9 m band: its small negative β₂ (−0.40, non-significant at p = 0.26)…
 - _(untracked)_ 76% — …atmospheric-draw-dominated (ET ≈ 76%, drainage ≈ 24%). The identif…
 - _(untracked)_ 24% — …w-dominated (ET ≈ 76%, drainage ≈ 24%). The identifiability of this…
 - _(untracked)_ −0.25 — …₃ is −0.74 across all nine wells, −0.25 with CEH14 removed and −0.01 w…
@@ -3221,6 +3232,7 @@
 ### §4.2.3 Recharge and Losses: A Cluster-Level Water Balance
 
 - **CoeffShift_CEH2_db1**  — quoted 0.115 vs committed 0.0587  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW7_b2_after**  — quoted 2.125 vs committed 2.1253  ·  `10_consolidated_report_numbers.csv`
 - **β₂_atm_draw · C4_min**  — quoted 2.062 vs committed 2.062  ·  `10c_forest_zone_cluster_summary.csv`
 - **β₁_recharge · C4_min**  — quoted 2.072 vs committed 2.072  ·  `10c_forest_zone_cluster_summary.csv`
 - **β₁_recharge · C4_max**  — quoted 3.481 vs committed 3.481  ·  `10c_forest_zone_cluster_summary.csv`
@@ -3308,8 +3320,8 @@
 - **C2 Eastern mature dune / Post-felling 2018+ · Max_depth_m**  — quoted 1.27 vs committed 1.2224 ⚠  ·  `21_forestry_02_distributions_means.csv`
 - **C3 Warren interior / Scraping era 2015–17 · Median_depth_m**  — quoted 1.27 vs committed 1.265 ⚠  ·  `21_forestry_02_distributions_means.csv`
 - **C3 (Western Residual) · VIF**  — quoted 1.27 vs committed 1.30638 ⚠  ·  `30_c4_identifiability_by_cluster.csv`
-- **clearfell / 2009-04-20 / aerial20-4-2009.png · index**  — quoted 1.27 vs committed 1.27309  ·  `41_01_canopy_index.csv`
-- **clearfell / 2009-04-20 / aerial20-4-2009.png · ratio_to_conifer**  — quoted 1.27 vs committed 1.2689  ·  `41_01_canopy_index.csv`
+- **clearfell / 2009-04-20 / aerial20-4-2009.png · index**  — quoted 1.27 vs committed 1.32262 ⚠  ·  `41_01_canopy_index.csv`
+- **clearfell / 2009-04-20 / aerial20-4-2009.png · ratio_to_conifer**  — quoted 1.27 vs committed 1.3178 ⚠  ·  `41_01_canopy_index.csv`
 - **C4 (Main Forest) / False · Sy_rapid_CI_lo** [S_y] — quoted 0.252 vs committed 0.251792  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C4 (Main Forest) / False · Sy_rapid_CI_hi** [S_y] — quoted 0.342 vs committed 0.34181  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **nw10 · p_ar_2011_2025** [p] — quoted 0.264 vs committed 0.264418  ·  `32_differential_movement_per_well.csv`  — _significance probability_
@@ -3596,7 +3608,11 @@
 
 ### §4.6.6 Coefficient Decomposition
 
+- **CoeffShift_WMC3_b1_after**  — quoted 2.515 vs committed 2.515  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_WMC3_b2_before**  — quoted 1.955 vs committed 1.9548  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH31_b1_before**  — quoted 2.686 vs committed 2.6863  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH31_b1_after**  — quoted 2.128 vs committed 2.1282  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH31_b2_after**  — quoted 1.275 vs committed 1.2746  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH20_b2_before**  — quoted 2.159 vs committed 2.1594  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH20_b2_after**  — quoted 2.066 vs committed 2.0664  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH30_b1_after**  — quoted 2.249 vs committed 2.2486  ·  `10_consolidated_report_numbers.csv`
@@ -3605,10 +3621,17 @@
 - **CoeffShift_CEH16_b1_before**  — quoted 2.659 vs committed 2.6595  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH16_b2_before**  — quoted 1.317 vs committed 1.3165  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH16_b2_after**  — quoted 1.344 vs committed 1.3437  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH32_b1_after**  — quoted 2.305 vs committed 2.3048  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH32_b2_before**  — quoted 2.329 vs committed 2.3288  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH32_b2_after**  — quoted 2.473 vs committed 2.4725  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH32_db2**  — quoted 0.144 vs committed 0.1437  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH34_b2_after**  — quoted 2.571 vs committed 2.5714  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH34_db2**  — quoted 0.253 vs committed 0.2528  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH33_b1_before**  — quoted 2.447 vs committed 2.4466  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH33_db2**  — quoted 0.038 vs committed 0.0376  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW10_b1_before**  — quoted 3.252 vs committed 3.2524  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW10_b1_after**  — quoted 3.500 vs committed 3.5001  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH2_b2_after**  — quoted 2.771 vs committed 2.7706  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH2_db2**  — quoted 0.194 vs committed 0.1939  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH19_b1_before**  — quoted 2.381 vs committed 2.3815  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH19_b1_after**  — quoted 2.208 vs committed 2.2083  ·  `10_consolidated_report_numbers.csv`
@@ -3616,20 +3639,38 @@
 - **CoeffShift_CEH19_b2_after**  — quoted 0.756 vs committed 0.756  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH17_b1_before**  — quoted 2.440 vs committed 2.4396  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH17_b2_after**  — quoted 1.145 vs committed 1.1452  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH9_b2_before**  — quoted 2.108 vs committed 2.1085  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW7_b1_before**  — quoted 3.211 vs committed 3.2114  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW7_b1_after**  — quoted 3.231 vs committed 3.231  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW7_b2_before**  — quoted 2.196 vs committed 2.1955  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW6_b1_after**  — quoted 3.781 vs committed 3.7814  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW6_b2_before**  — quoted 1.684 vs committed 1.6842  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW5_b2_before**  — quoted 2.151 vs committed 2.1509  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW5_b2_after**  — quoted 1.978 vs committed 1.9784  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_WMC3_b1_before**  — quoted 2.562 vs committed 2.5618  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_WMC3_b2_after**  — quoted 1.685 vs committed 1.6852  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH31_b2_before**  — quoted 1.473 vs committed 1.4732  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH20_b1_after**  — quoted 2.436 vs committed 2.4363  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH30_b1_before**  — quoted 2.521 vs committed 2.5212  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH16_b1_after**  — quoted 2.477 vs committed 2.4774  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH32_b1_before**  — quoted 2.510 vs committed 2.5104  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH34_b1_after**  — quoted 2.310 vs committed 2.31  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH34_b2_before**  — quoted 2.319 vs committed 2.3186  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH33_b1_after**  — quoted 2.190 vs committed 2.1899  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH33_b2_after**  — quoted 2.114 vs committed 2.1138  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW10_b2_before**  — quoted 2.667 vs committed 2.6666  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW10_b2_after**  — quoted 2.597 vs committed 2.5967  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH2_b1_before**  — quoted 2.644 vs committed 2.6436  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH2_b1_after**  — quoted 2.702 vs committed 2.7023  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH2_b2_before**  — quoted 2.577 vs committed 2.5767  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH17_b1_after**  — quoted 2.099 vs committed 2.0988  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_CEH17_b2_before**  — quoted 1.207 vs committed 1.2067  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_CEH9_b2_after**  — quoted 2.131 vs committed 2.1315  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_NW6_b2_after**  — quoted 1.313 vs committed 1.3135  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW5_b1_before**  — quoted 3.589 vs committed 3.5891  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_WMC2_b1_after**  — quoted 3.291 vs committed 3.2907  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_WMC2_b2_before**  — quoted 2.067 vs committed 2.0669  ·  `10_consolidated_report_numbers.csv`
+- **CoeffShift_WMC2_b2_after**  — quoted 1.740 vs committed 1.7398  ·  `10_consolidated_report_numbers.csv`
 - **C4 (Main Forest) (corrected) / True · Sy_event_Q25** [S_y] — quoted 0.182 vs committed 0.184464 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **ANCOVA_Climate_Impact_R2** [R²] — quoted 0.206 vs committed 0.18876 ⚠  ·  `10_consolidated_report_numbers.csv`  — _coefficient of determination_
 - **CoeffShift_CEH20_b3_before**  — quoted 0.0309 vs committed 0.0309  ·  `10_consolidated_report_numbers.csv`
@@ -3665,7 +3706,6 @@
 - **Eastern_Block · p_value_P_winter** [p] — quoted 0.010 vs committed 0.00967387  ·  `11_forecast_winter_transfer_functions.csv`  — _significance probability_
 - **CoeffShift_Forest Ctrl_mean_db1**  — quoted −0.09 vs committed -0.08994  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_Forest Ctrl_mean_db2**  — quoted +0.11 vs committed 0.11162  ·  `10_consolidated_report_numbers.csv`
-- **CoeffShift_WMC3_db2**  — quoted −0.27 vs committed -0.2696  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_NW10_db1**  — quoted +0.25 vs committed 0.2476  ·  `10_consolidated_report_numbers.csv`
 - **EWI_spring · pearson_r**  — quoted 0.55 vs committed 0.554358  ·  `26_ebf_prediction_summary.csv`
 - **CoeffShift_Network_mean_db1**  — quoted −0.13 vs committed -0.129694  ·  `10_consolidated_report_numbers.csv`
@@ -3691,7 +3731,7 @@
 - _(untracked)_ 108 mm — …the WMC3-only ANCOVA estimate of +108 mm (Section 4.6.3). FE2\'s post-…
 - _(untracked)_ 29 mm — …its own donor counterfactual was +29 mm (p \< 0.001), indicating a si…
 - _(untracked)_ 78 mm — …Forest-control clearfell step of +78 mm (95% CI \[+31, +125\], p = 0.…
-- _(untracked)_ 20 m — …= 0.001). FE1 sits approximately 20 m outside the felling boundary…
+- _(untracked)_ 46 m — …= 0.001). FE1 sits approximately 46 m outside the felling boundary…
 
 ### §4.6.7 Robustness
 
@@ -3712,7 +3752,8 @@
 ### §4.6.8 Temporal decay of the clearfell step and the canopy setting
 
 - **trend_winter_rainfall_t**  — quoted 1.05 vs committed 1.04804  ·  `00_report_numbers.csv`
-- **clearfell / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.05 vs committed 1.05316  ·  `41_01_canopy_index.csv`
+- **CEH32 · db2**  — quoted 0.130 vs committed 0.1437 ⚠  ·  `10e_01_coefficient_shifts.csv`
+- **clearfell / 2012-05-26 / aerial26-5-2012.png · ratio_to_conifer**  — quoted 1.05 vs committed 1.08749 ⚠  ·  `41_01_canopy_index.csv`
 - _(untracked)_ 152 mm — …st the Forest control falls from +152 mm in the early era (December 20…
 - _(untracked)_ 39 mm — …cember 2017 to December 2020) to +39 mm in the late era (January 2021…
 - _(untracked)_ 66 mm — …r contrast falls similarly, from +66 mm to −6 mm over the same split.…
@@ -4284,24 +4325,27 @@
 - _(untracked)_ −0.54 m — …erence wells (mean wet-year depth −0.54 m), and its swing (763 mm) is s…
 - _(untracked)_ 763 mm — …ar depth −0.54 m), and its swing (763 mm) is substantially smaller tha…
 - _(untracked)_ 1,135 mm — …ntially smaller than the C4 mean (1,135 mm). The summer drought floor at…
+- _(untracked)_ 46 m — …ean (−1.67 m). FE1, approximately 46 m outside the felled boundary,…
 - _(untracked)_ 15.3 mm — …erior on the differential trend (+15.3 mm yr*⁻¹*) and sits just below i…
 
 ### §4.12.1 Driver validation and comparative footing
 
 - **2006_2012 / primary · s_coast** [δ(d)] — quoted 3.00 vs committed 2.9999  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
 - **2006_2012 / primary · s_coast_ci_hi** [δ(d)] — quoted 5.76 vs committed 5.7634  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
+- **2018_2025 / primary · s_cf_ci_hi**  — quoted 3.89 vs committed 3.8895  ·  `37_scale_factors_by_window.csv`
+- **2005_2025 / primary · s_cf_ci_lo**  — quoted -3.36 vs committed -3.3582  ·  `37_scale_factors_by_window.csv`
+- **2005_2025 / primary · s_cf_ci_hi**  — quoted 2.41 vs committed 2.4129  ·  `37_scale_factors_by_window.csv`
 - **2018_2025 / primary · c**  — quoted 269 vs committed 269  ·  `37_scale_factors_by_window.csv`
+- **2018_2025 / with_broadleaf_covariate · s_bl**  — quoted -3.51 vs committed -3.5106  ·  `37_scale_factors_by_window.csv`
 - **2018_2025 / with_broadleaf_covariate · s_cf**  — quoted 1.85 vs committed 1.8515  ·  `37_scale_factors_by_window.csv`
 - **2018_2025 / with_broadleaf_covariate · s_cf_ci_hi**  — quoted 2.86 vs committed 2.8576  ·  `37_scale_factors_by_window.csv`
 - _(untracked)_ 95% — …nity. The coastal factor is 3.00 (95% CI 0.24 to 5.76) over the pre…
 - _(untracked)_ 2025 record — …--2025 window. Over the full 2005--2025 record, by contrast, the coastal fac…
 - _(untracked)_ −0.03 — …rast, the coastal factor is 0.48 (−0.03 to 1.00), spanning zero narrow…
 - _(untracked)_ −0.47 — …rrowly, and the clearfell factor, −0.47 (−3.36 to 2.41), is unresolved…
-- _(untracked)_ −3.36 — …and the clearfell factor, −0.47 (−3.36 to 2.41), is unresolved. The u…
 - _(untracked)_ 520 mm — …rmined and large --- a decline of 520 mm over 2006--2012 (95% CI −588…
 - _(untracked)_ −588 — …of 520 mm over 2006--2012 (95% CI −588 to −451) and a rise of 269 mm…
 - _(untracked)_ −451 — …m over 2006--2012 (95% CI −588 to −451) and a rise of 269 mm over 20…
-- _(untracked)_ −3.51 — …he broadleaf-restock covariate is −3.51 (−6.22 to −0.81), and the clea…
 - _(untracked)_ −6.22 — …dleaf-restock covariate is −3.51 (−6.22 to −0.81), and the clearfell f…
 - _(untracked)_ −0.81 — …tock covariate is −3.51 (−6.22 to −0.81), and the clearfell factor, 1…
 - _(untracked)_ 20 wells — …e full-record window is fitted on 20 wells against 40 in the two shorter…
@@ -4474,6 +4518,7 @@
 - **2018_2025 / with_broadleaf_covariate · s_bl_ci_hi**  — quoted -0.81 vs committed -0.8058  ·  `37_scale_factors_by_window.csv`
 - **C1 (Lake Edge) · observed_balanced_annual_mean_mm_yr_summer**  — quoted -10.97 vs committed -10.9749  ·  `25_08_spring_vs_summer_comparison.csv`
 - **C1 (Lake Edge) · MSL5_m_bg_mean**  — quoted -0.133 vs committed -0.132833  ·  `26_msl5_vs_min5_per_cluster.csv`
+- **CoeffShift_WMC3_db2**  — quoted -0.270 vs committed -0.2696  ·  `10_consolidated_report_numbers.csv`
 - _(untracked)_ 2026 record — …this study is fitted to the 2005--2026 record and tested inside it. Two ear…
 - _(untracked)_ 96 record — …### The 1989--96 record…
 - _(untracked)_ 0.75 m — …as been reported independently as 0.75 m, with a standard deviation of…

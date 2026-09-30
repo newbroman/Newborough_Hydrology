@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.83.0"  # Hollingham (2026) - 2026-09-30. WTF_EVENT_MIN_RISE_M, WTF_EVENT_MIN_NET_RECH_M,
+__version__ = "1.84.0"  # Hollingham (2026) - 2026-09-30. SCRAPE_PAIR_TREATMENT / SCRAPE_PAIR_CONTROL
+#   (CEH36 scraped April 2015, CEH4 its paired control) and MSL5_SCRAPE_PAIR_FIRST_WINDOW_END: the
+#   first MSL5 window-end carrying two post-scrape springs. The window ends at the last window-end
+#   before SCRAPING_DATE_2_ISO. Script 26 1.22.0 summarizes the pair on it (report9 SS4.5.4).
+# 1.83.0  # Hollingham (2026) - 2026-09-30. WTF_EVENT_MIN_RISE_M, WTF_EVENT_MIN_NET_RECH_M,
 #   WTF_EVENT_SY_MIN, WTF_EVENT_SY_MAX: the Approach B event rules, until now per-script locals and
 #   literals in Scripts 17 and 18 (report9 §4.2.4 quotes them). Values unchanged.
 # 1.82.0  # Hollingham (2026) - 2026-09-30. PFLOOD_EXAMPLE_CLUSTER and
@@ -1457,6 +1461,13 @@ CLEARFELL_DATE_ISO  = "2017-12-01"   # December 2017 pine clearfell
 SCRAPING_DATE_0_ISO = "2013-02-01"   # February 2013 — CEH40/41/42 unmonitored cuts
 SCRAPING_DATE_ISO   = "2015-04-01"   # April 2015 — CEH36 scrape (documented)
 SCRAPING_DATE_2_ISO = "2023-10-01"   # October 2023 — re-scraping
+# The scraped well and its paired unscraped control (Scripts 09a/09c pair them; Script 26
+# summarizes their MSL5 over the post-scrape window-ends, report9 SS4.5.4).
+SCRAPE_PAIR_TREATMENT = "ceh36"
+SCRAPE_PAIR_CONTROL   = "ceh4"
+# First MSL5 window-end carrying two post-scrape springs (2016, 2017); the window runs to the
+# last window-end before the second scraping (SCRAPING_DATE_2_ISO).
+MSL5_SCRAPE_PAIR_FIRST_WINDOW_END = 2017
 
 # ── Clearfell BACI era split (W96 / D-141) ────────────────────────────────────
 # The Dec-2017 -> present post-clearfell window rendered into a ~3-yr early and

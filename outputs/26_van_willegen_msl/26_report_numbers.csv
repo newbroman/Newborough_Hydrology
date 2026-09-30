@@ -92,6 +92,17 @@ msl5_n_windows_admitted,866
 msl5_n_windows_with_interp,29
 msl5_pct_annual_valid_with_interp,0.7075471698113207
 msl5_pct_windows_with_interp,3.348729792147806
+msl5_scrape_pair_control_max_m,-0.44866666666666666
+msl5_scrape_pair_control_mean_m,-0.5576190476190477
+msl5_scrape_pair_control_min_m,-0.6173333333333334
+msl5_scrape_pair_first_window_end,2017
+msl5_scrape_pair_gap_max_m,0.09200000000000019
+msl5_scrape_pair_gap_mean_m,0.07222857142857146
+msl5_scrape_pair_gap_min_m,0.03146666666666659
+msl5_scrape_pair_last_window_end,2023
+msl5_scrape_pair_treatment_max_m,-0.41720000000000007
+msl5_scrape_pair_treatment_mean_m,-0.48539047619047615
+msl5_scrape_pair_treatment_min_m,-0.5493333333333333
 msl5_wet_step_mm_c1,84.24999999939206
 msl5_wet_step_mm_c2,110.86542600317777
 msl5_wet_step_mm_c3,157.05829124267228

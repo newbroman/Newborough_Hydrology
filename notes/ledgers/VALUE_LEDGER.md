@@ -11,14 +11,14 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | 1899 / 2006 / pair_extent · rate_m_yr |  |  | `40_01_epoch_series.csv` | 0.639168 |  | Newborough_Methods_Supplement | ok |
 | 1931 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.36631 |  | report10, report9 | ok |
 | 1937 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.35075 |  | Newborough_Methods_Supplement | ok |
-| 1938 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.51179 |  | report10, report9 | ok |
+| 1938 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.51179 |  | report10 | ok |
 | 1939 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.35826 |  | Paper1 | ok |
 | 1941 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 11 |  | Newborough_Methods_Supplement | ok |
 | 1941 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.11422 |  | Newborough_Methods_Supplement, report9 | ok |
 | 1943 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.30927 |  | report9 | ok |
 | 1947 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.63943 |  | report9 | ok |
 | 1949 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.04866 |  | Newborough_Methods_Supplement, PIPELINE_README | ok |
-| 1950 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.50706 |  | report10, report9 | ok |
+| 1950 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.50706 |  | report10 | ok |
 | 1951 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.58649 |  | Hollingham_2026_Paper2_amended | ok |
 | 1952 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.2638 |  | report9 | ok |
 | 1954 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.73828 |  | Paper1 | ok |

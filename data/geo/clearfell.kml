@@ -1,28 +1,50 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-<Document id="root_doc">
-<Schema name="clearfell" id="clearfell">
-	<SimpleField name="descriptio" type="string"></SimpleField>
-	<SimpleField name="timestamp" type="string"></SimpleField>
-	<SimpleField name="begin" type="string"></SimpleField>
-	<SimpleField name="end" type="string"></SimpleField>
-	<SimpleField name="altitudeMo" type="string"></SimpleField>
-	<SimpleField name="tessellate" type="float"></SimpleField>
-	<SimpleField name="extrude" type="float"></SimpleField>
-	<SimpleField name="visibility" type="float"></SimpleField>
-	<SimpleField name="drawOrder" type="float"></SimpleField>
-	<SimpleField name="icon" type="string"></SimpleField>
-</Schema>
-<Folder><name>clearfell</name>
-  <Placemark>
-	<name>clearfell experiment</name>
-	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
-	<ExtendedData><SchemaData schemaUrl="#clearfell">
-		<SimpleData name="tessellate">-1</SimpleData>
-		<SimpleData name="extrude">0</SimpleData>
-		<SimpleData name="visibility">-1</SimpleData>
-	</SchemaData></ExtendedData>
-      <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-4.37790158931035,53.1459594968693 -4.37637808930856,53.1475553968707 -4.37356708930676,53.1465643968697 -4.37526228930868,53.1449684968682 -4.37790158931035,53.1459594968693</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry>
-  </Placemark>
-</Folder>
-</Document></kml>
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>clearfell.kml</name>
+	<StyleMap id="poly-000000-1200-77">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#poly-000000-1200-77-normal</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#poly-000000-1200-77-highlight</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="poly-000000-1200-77-highlight">
+		<LineStyle>
+			<color>ff000000</color>
+			<width>1.8</width>
+		</LineStyle>
+		<PolyStyle>
+			<color>4d000000</color>
+		</PolyStyle>
+	</Style>
+	<Style id="poly-000000-1200-77-normal">
+		<LineStyle>
+			<color>ff000000</color>
+			<width>1.2</width>
+		</LineStyle>
+		<PolyStyle>
+			<color>4d000000</color>
+		</PolyStyle>
+	</Style>
+	<Placemark>
+		<name>Felling experiment</name>
+		<description>clearfell experiment</description>
+		<styleUrl>#poly-000000-1200-77</styleUrl>
+		<Polygon>
+			<outerBoundaryIs>
+				<LinearRing>
+					<tessellate>1</tessellate>
+					<coordinates>
+						-4.373862000765349,53.14641283755482,0 -4.374130555492245,53.14654002760083,0 -4.374194277926894,53.14677506249222,0 -4.374372759786455,53.14688208222846,0 -4.374640477925124,53.14701585296714,0 -4.374952815345501,53.14716108737614,0 -4.375153796442167,53.14721815696193,0 -4.375341434679264,53.14721564013246,0 -4.375538256467491,53.14724984861805,0 -4.37565511487893,53.1472887724264,0 -4.375797922487408,53.14725761244973,0 -4.375834979641763,53.14728533523306,0 -4.376473012228127,53.14745854927256,0 -4.376967100925713,53.14685046054144,0 -4.377060456234217,53.14668500803918,0 -4.377757323257673,53.14594862114681,0 -4.375591501170618,53.14494171906064,0 -4.375181017036375,53.14526503193481,0 -4.374935877625814,53.14539809769767,0 -4.374930040760953,53.14540043230516,0 -4.374918366240182,53.14540160032984,0 -4.374647949344476,53.1456233644769,0 -4.373862000765349,53.14641283755482,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>

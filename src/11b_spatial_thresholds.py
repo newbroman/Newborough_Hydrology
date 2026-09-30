@@ -75,7 +75,12 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): emits
+__version__ = "1.18.0"  # Hollingham (2026) - 2026-09-30. Emits report8 §3.6.3's worked P_flood
+#   example - pflood_example_mP and pflood_example_mm (Well = config.PFLOOD_EXAMPLE_CLUSTER, Era = the
+#   h_0 of config.PFLOOD_EXAMPLE_H0_M) - by evaluating the committed threshold equation
+#   (slope_A * h_0 + intercept_B, over P_clim_total_mm) at that cluster and depth. Martin's ruling on the
+#   proof queue: the typed 1.05 / 448 mm were the retired 5-month horizon's. No other output moves.
+# 1.17.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): emits
 #   pflood_deficit_persistence per cluster (Well = cluster, Era = the recharge horizon) = alpha^n, the
 #   share of the starting summer deficit that survives the cluster's P_flood horizon, from the alpha and
 #   horizon_months columns of 11_forecast_pflood_threshold_equations.csv already read for Table 10
@@ -215,6 +220,7 @@ from utils.config import (
     SCRAPE_DEM_CORRECTION_M, DRAINAGE_DATUM,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
+    PFLOOD_EXAMPLE_CLUSTER, PFLOOD_EXAMPLE_H0_M,
 )
 from utils.model_utils import pflood_lambda
 
@@ -1551,6 +1557,26 @@ def export_table10_spreadsheet() -> None:
                note=f"alpha^n: share of the starting deficit h_0 surviving the {_n}-month "
                     "P_flood recharge horizon (alpha = 1 - beta_3); source "
                     "outputs/11_forecast_pflood_threshold_equations.csv (alpha, horizon_months)")
+    # 1.18.0: report8 SS3.6.3's worked example, from the committed linear form
+    # P_flood = slope_A * h_0 + intercept_B (mm) at the configured cluster and
+    # starting depth; m_P is that depth divided by the horizon's climatological total.
+    _ex = full[full["Cluster"].astype(str) == PFLOOD_EXAMPLE_CLUSTER]
+    if len(_ex) == 1:
+        _r0 = _ex.iloc[0]
+        _p_ex = float(_r0["slope_A"]) * PFLOOD_EXAMPLE_H0_M + float(_r0["intercept_B"])
+        _era = f"h_0 = {PFLOOD_EXAMPLE_H0_M:g} m"
+        _horizon = f"Oct-{MONTH_ABBREV[int(_r0['peak_month']) - 1]} ({int(_r0['horizon_months'])} mo)"
+        rn.add("pflood_example_mm", _p_ex, unit="mm", well=PFLOOD_EXAMPLE_CLUSTER, era=_era,
+               note=f"P_flood for a {PFLOOD_EXAMPLE_CLUSTER} well with a September minimum "
+                    f"{PFLOOD_EXAMPLE_H0_M:g} m below ground: slope_A * h_0 + intercept_B over the "
+                    f"{_horizon} horizon (report8 SS3.6.3 worked example); source "
+                    "outputs/11_forecast_pflood_threshold_equations.csv")
+        rn.add("pflood_example_mP", _p_ex / float(_r0["P_clim_total_mm"]), unit="", well=PFLOOD_EXAMPLE_CLUSTER,
+               era=_era,
+               note=f"m_P = pflood_example_mm / P_clim_total_mm ({_horizon}); the rainfall multiplier of "
+                    "the same worked example (report8 SS3.6.3)")
+    else:
+        warn(f"P_flood worked example not emitted: {len(_ex)} threshold row(s) for {PFLOOD_EXAMPLE_CLUSTER}")
     for _r in _ZONE_REPORT:
         rn.add(_r["parameter"], _r["value"], unit=_r["unit"], well=_r["well"],
                era=_r["era"], note=_r["note"])

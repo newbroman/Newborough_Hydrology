@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.47.0"  # Hollingham (2026) - 2026-09-29. 1.47.0: T-96, the second emit batch
+__version__ = "1.48.0"  # Hollingham (2026) - 2026-09-30. 1.48.0: DATA_CLEARFELL, the 2017 clearfell
+#   polygon reprojected to EPSG:27700 (clearfell.geojson, from clearfell.kml as redefined by Martin on
+#   2026-09-30) so Script 01 can measure each well's distance to the felled boundary with the same
+#   numpy geometry as the 1998 blocks (report9 §4.12 "FE1, approximately N m outside the felled boundary").
+# 1.47.0  # Hollingham (2026) - 2026-09-29. 1.47.0: T-96, the second emit batch
 #   (Martin: "continue your work") - five scripts that quote counts and comparisons the report cites but
 #   had no report-numbers file gain one: OUT_05_REPORT_NUMBERS, OUT_10C_REPORT (in DIR_10, so run_10's
 #   consolidation sweeps it), OUT_11C_REPORT_NUMBERS, OUT_17_REPORT_NUMBERS, OUT_33_REPORT_NUMBERS. Additive.
@@ -369,6 +373,7 @@ DATA_FELLING_1998_1    = data_geo("felling_1998_1.geojson")
 DATA_FELLING_1998_2    = data_geo("felling_1998_2.geojson")
 DATA_FELLING_1998_3    = data_geo("felling_1998_3.geojson")
 DATA_BROADLEAF_RESTOCK = data_geo("broadleaf_restock.geojson")
+DATA_CLEARFELL         = data_geo("clearfell.geojson")   # the 2017 clearfell (clearfell.kml -> 27700), 1.48.0
 DATA_WELL_ELEVATIONS = DATA_WELL_METADATA  # consolidated; was Well_locations_height.csv
 
 # Perpendicular distance from each dipwell to the eroding Caernarfon Bay

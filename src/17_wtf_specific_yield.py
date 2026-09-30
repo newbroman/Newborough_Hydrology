@@ -30,7 +30,10 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-30. The Approach B event rules come from config
+#   (WTF_EVENT_MIN_RISE_M / _MIN_NET_RECH_M / _SY_MIN / _SY_MAX) instead of module locals and literals,
+#   shared with Script 18; the figure title renders them. Values and outputs unchanged.
+# 1.7.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
 #   17_report_numbers.csv (paths.OUT_17_REPORT_NUMBERS), from the uncorrected rows of the
 #   17_wtf_01_sy_estimates.csv frame export_csv() builds: per cluster (Well = cluster label)
 #   sy_event_clip_shift (unclipped minus clipped event median), sy_ols_to_event_ratio (Sy_OLS_winter /
@@ -93,6 +96,7 @@ import matplotlib.pyplot as plt
 
 from utils.config import (
     WINTER_WET_CLIMATE_MONTHS,
+    WTF_EVENT_MIN_RISE_M, WTF_EVENT_MIN_NET_RECH_M, WTF_EVENT_SY_MIN, WTF_EVENT_SY_MAX,
     CLUSTER_LABELS as _CFG_CLUSTER_LABELS,
     CLUSTER_COLOURS as _CFG_CLUSTER_COLOURS,
     FOREST_CIDS,
@@ -113,8 +117,7 @@ make_all_dirs()
 # ── Constants ──────────────────────────────────────────────────────────────────
 WINTER_MONTHS   = list(WINTER_WET_CLIMATE_MONTHS)   # Nov-Mar: PET negligible (D-100)
 PET_MAX_WINTER  = 0.025                 # m/month — exclude months above this
-MIN_RISE_M      = 0.005                 # minimum detectable water table rise (m)
-MIN_NET_RECH    = 0.010                 # minimum net recharge for event method (m)
+# Approach B event rules: WTF_EVENT_* in config.py (shared with Script 18).
 
 # Canopy interception fraction — Freeman (2008), site-specific to Newborough
 # Corsican pine. Imported from config.py (authoritative per F.4 of the Methods
@@ -266,7 +269,7 @@ def approach_a_ols(df):
             dh_corrected = sub[f"dh_{cid}"]
 
         # Only use months where corrected Δh is positive (net recharge signal)
-        mask = dh_corrected > MIN_RISE_M
+        mask = dh_corrected > WTF_EVENT_MIN_RISE_M
         X = dh_corrected[mask].values
         y = sub["net_R"][mask].values
 
@@ -326,7 +329,7 @@ def approach_a_ols(df):
 def approach_b_events(df):
     """
     Approach B: Event-based median Sy from rising limb months.
-    Sy_i = net_R / Δh for months where Δh > MIN_RISE and net_R > MIN_NET_RECH.
+    Sy_i = net_R / Δh for months where Δh > WTF_EVENT_MIN_RISE_M and net_R > WTF_EVENT_MIN_NET_RECH_M.
 
     Run for every cluster (uncorrected) and additionally for FOREST_CIDS
     clusters with the Freeman (2008) interception correction applied.
@@ -346,8 +349,8 @@ def approach_b_events(df):
             continue
 
         sub = df[[r_col, f"dh_{cid}"]].dropna().copy()
-        pass_R  = sub[r_col]        > MIN_NET_RECH
-        pass_dh = sub[f"dh_{cid}"]  > MIN_RISE_M
+        pass_R  = sub[r_col]        > WTF_EVENT_MIN_NET_RECH_M
+        pass_dh = sub[f"dh_{cid}"]  > WTF_EVENT_MIN_RISE_M
         events = sub[pass_R & pass_dh].copy()
         events["sy_i"] = events[r_col] / events[f"dh_{cid}"]
         # SELECTION FUNNEL. The per-cluster event counts differ (35-62), which
@@ -365,7 +368,7 @@ def approach_b_events(df):
         n_cens    = int((events["sy_i"] >= 0.50).sum())
         med_unclipped = float(events["sy_i"].median()) if n_both else float("nan")
         # Drop physically implausible Sy values
-        events = events[(events["sy_i"] > 0.01) & (events["sy_i"] < 0.50)]
+        events = events[(events["sy_i"] > WTF_EVENT_SY_MIN) & (events["sy_i"] < WTF_EVENT_SY_MAX)]
 
         med = events["sy_i"].median()
         q25 = events["sy_i"].quantile(0.25)
@@ -391,9 +394,9 @@ def _event_median_sy(df, cid, r_col):
     the same selection as approach_b_events(), factored so the sweep cannot
     drift from the headline computation."""
     sub = df[[r_col, f"dh_{cid}"]].dropna().copy()
-    events = sub[(sub[r_col] > MIN_NET_RECH) & (sub[f"dh_{cid}"] > MIN_RISE_M)].copy()
+    events = sub[(sub[r_col] > WTF_EVENT_MIN_NET_RECH_M) & (sub[f"dh_{cid}"] > WTF_EVENT_MIN_RISE_M)].copy()
     events["sy_i"] = events[r_col] / events[f"dh_{cid}"]
-    events = events[(events["sy_i"] > 0.01) & (events["sy_i"] < 0.50)]
+    events = events[(events["sy_i"] > WTF_EVENT_SY_MIN) & (events["sy_i"] < WTF_EVENT_SY_MAX)]
     return (float(events["sy_i"].median()), float(events["sy_i"].quantile(0.25)),
             float(events["sy_i"].quantile(0.75)), int(len(events)))
 
@@ -786,7 +789,8 @@ def plot_event_boxplot(b_results, out_path):
     ax.set_title(
         "Approach B — WTF Specific Yield: Event-Based Estimates\n"
         "Monthly Sy from rising-limb events "
-        "(Δh > 5 mm, net R > 10 mm, 0.01 < Sy < 0.50)\n"
+        f"(Δh > {WTF_EVENT_MIN_RISE_M * 1000:g} mm, net R > {WTF_EVENT_MIN_NET_RECH_M * 1000:g} mm, "
+        f"{WTF_EVENT_SY_MIN:g} < Sy < {WTF_EVENT_SY_MAX:g})\n"
         f"Forest corrected: R = (1−{FOREST_INTERCEPTION:g})P − PET (Freeman, 2008); "
         "hatched boxes = interception-corrected",
         fontsize=10, fontweight="bold",

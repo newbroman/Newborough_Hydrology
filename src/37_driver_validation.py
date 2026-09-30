@@ -117,7 +117,12 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.8.0"  # Hollingham (2026) - 2026-09-28. 37_residual_map.png draws the wells
+__version__ = "3.9.0"  # Hollingham (2026) - 2026-09-30. T-96 batch 3: emit residual_sd_mm and
+#   residual_sd_n per fitted window to 37_report_numbers.csv - the sample SD (ddof=1) of the
+#   per-well residual (mm) over the in-fit wells (b3_correction_valid and not exclude_named),
+#   from the same in-memory frame the per-well CSV is written from, so report10 S5.7.5's
+#   "per-well residual scatter" binds to a citation row per window. No analysis change.
+# 3.8.0  # Hollingham (2026) - 2026-09-28. 37_residual_map.png draws the wells
 #   alone, filled by residual and shaped by cluster; the interpolated surface is gone because the
 #   residual has no spatial skill — no interpolator predicts a left-out well better than the network mean (tools/interp_loo.py, D-206) (nugget share 1.00;
 #   Martin, proofread). Display only.
@@ -1364,6 +1369,21 @@ def main() -> int:
         rpt.add("neg_control_c2_n_full_record", _r["n"], unit="wells", well="C2",
                 era="2005_2025",
                 note="Wells covered by the full-record (2005_2025) negative-control window.")
+    # T-96 batch 3: per-window SD of the per-well residual over the in-fit
+    # wells (the same selection fit_scale_regression is given), read from the
+    # frame write_per_well_csv writes, so the "per-well residual scatter" in
+    # report10 S5.7.5 is cited per window rather than as one range.
+    for window, res in results.items():
+        _frame = res["frame"]
+        _sel = _frame["b3_correction_valid"] & ~_frame["exclude_named"]
+        _resid = _frame.loc[_sel, "residual"].dropna()
+        rpt.add("residual_sd_mm", _resid.std(ddof=1), unit="mm", era=window,
+                note=f"Sample SD (ddof=1) of per-well residual (fitted - dh_corr) over "
+                     f"in-fit wells (b3_correction_valid True, exclude_named False), "
+                     f"n={len(_resid)}; residual_{window} in 37_driver_validation_per_well.csv.")
+        rpt.add("residual_sd_n", len(_resid), unit="wells", era=window,
+                note=f"In-fit wells behind residual_sd_mm for the {window} window "
+                     f"(b3_correction_valid True, exclude_named False).")
     rpt.save(paths.OUT_37_REPORT_NUMBERS)
     saved(paths.OUT_37_REPORT_NUMBERS)
 

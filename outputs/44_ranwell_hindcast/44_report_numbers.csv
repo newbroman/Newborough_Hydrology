@@ -33,6 +33,12 @@ ranwell_dist_nearest_forest_well_m_site12,156.7557335474742,m,"site 12 (CG): dis
 ranwell_dist_nearest_forest_well_m_site13,123.52530105205167,m,"site 13 (CG): distance from the placed position to the nearest in_forest well (01_locations), nw11; 23 forest wells"
 ranwell_dist_nearest_forest_well_m_site16,664.8948563494955,m,"site 16 (PL): distance from the placed position to the nearest in_forest well (01_locations), nw11; 23 forest wells"
 ranwell_dist_nearest_forest_well_m_site18,592.3451509534129,m,"site 18 (AS): distance from the placed position to the nearest in_forest well (01_locations), wmc3; 23 forest wells"
+ranwell_dist_nearest_forest_well_m_PL_min,664.8948563494955,m,"PL (sites 1, 16): smallest distance from a placed position to the nearest in_forest well (01_locations), at site 16"
+ranwell_dist_nearest_forest_well_m_PL_max,962.2366029205017,m,"PL (sites 1, 16): largest distance from a placed position to the nearest in_forest well (01_locations), at site 1"
+ranwell_dist_nearest_forest_well_m_CG_min,123.52530105205167,m,"CG (sites 4, 11, 12, 13): smallest distance from a placed position to the nearest in_forest well (01_locations), at site 13"
+ranwell_dist_nearest_forest_well_m_CG_max,431.5061297362993,m,"CG (sites 4, 11, 12, 13): largest distance from a placed position to the nearest in_forest well (01_locations), at site 11"
+ranwell_dist_nearest_forest_well_m_AS_min,592.3451509534129,m,"AS (sites 8, 18): smallest distance from a placed position to the nearest in_forest well (01_locations), at site 18"
+ranwell_dist_nearest_forest_well_m_AS_max,615.1390709896476,m,"AS (sites 8, 18): largest distance from a placed position to the nearest in_forest well (01_locations), at site 8"
 ranwell_coastal_fit_delta0_mm_yr,-31.28,mm/yr,Script 25 forest_free linear_capped delta_0 used for the coastal expectation
 ranwell_coastal_fit_L_m,902.0,m,Script 25 forest_free linear_capped reach L
 ranwell_sites_within_coastal_reach,2,count,sites nearer the eroding shoreline than L

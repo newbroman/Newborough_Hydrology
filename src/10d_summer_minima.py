@@ -47,7 +47,12 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-09-29. T-96: emit
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-30. T-96: emit
+#   SummerMin_well_mean_spread (one row per pair of Forest Ctrl wells) -- the
+#   difference of two full-record mean summer minima, shallower minus deeper,
+#   well label "A-B". report10 Section 5.6.3 quotes the CEH34-CEH2 spread
+#   (399 mm). Computed from the same per-well means; no analysis change.
+# v1.11.0  # Hollingham (2026) - 2026-09-29. T-96: emit
 #   SummerMin_well_mean (one row per well, Era Full_record) -- each well's
 #   full-record mean summer minimum from data_df, which report10 Section 5.6.3
 #   quotes for CEH2 and CEH34. Summer metric only; no analysis change.
@@ -503,6 +508,22 @@ def main():
                         note=(f"mean {spec['value_col']} over all usable "
                               f"summers, n_years={len(grp)}, "
                               f"tier={grp['Tier'].iloc[0]}"))
+
+            # T-96 (1.12.0): the spread between two Forest Ctrl wells' full-record
+            # mean summer minima, shallower minus deeper, for every pair in the
+            # tier (report10 Section 5.6.3 quotes CEH34-CEH2). Same means as the
+            # SummerMin_well_mean rows above.
+            fc_means = (era_src[era_src["Tier"] == "Forest Ctrl"]
+                        .groupby("Well", sort=False)[spec["value_col"]].mean())
+            fc_wells = list(fc_means.index)
+            for i, wa in enumerate(fc_wells):
+                for wb in fc_wells[i + 1:]:
+                    hi, lo = (wa, wb) if fc_means[wa] >= fc_means[wb] else (wb, wa)
+                    rpt.add(f"{spec['rpt_prefix']}_well_mean_spread",
+                            fc_means[hi] - fc_means[lo],
+                            well=f"{hi}-{lo}", era="Full_record",
+                            note=(f"{spec['rpt_prefix']}_well_mean {hi} minus "
+                                  f"{lo} (shallower minus deeper), Forest Ctrl tier"))
 
         shift_rows = []
         for w in ALL_NETWORK_WELLS:

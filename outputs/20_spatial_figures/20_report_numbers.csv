@@ -14,6 +14,9 @@ slr_diffusive_length_2sqrtDt_m,,5 yr,856.9741826186871,m,"SLR diffusive length-s
 broadleaf_restock_H0_incr_mm,,,56.25,mm,broadleaf-restock source magnitude on the 2005→2025 driver-change map: (BL_CANOPY_FRACTION_2025 − _2005) × DRAWDOWN_H0_MM × BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION
 ceh11_to_lake_edge_group_dist_min_m,CEH11,,1732.4409528711114,m,"shortest distance from CEH11 to the other C1 reference wells (CEH5;CEH6;CEH25;CEH26;CEH23;CEH27), n=6"
 ceh11_to_lake_edge_group_dist_max_m,CEH11,,2036.6272972996312,m,"longest distance from CEH11 to the other C1 reference wells (CEH5;CEH6;CEH25;CEH26;CEH23;CEH27), n=6"
+net_state_forest_interior_min_mm,,,-284.38950217565457,mm,"minimum (largest net loss) of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
+net_state_forest_interior_max_mm,,,-53.47408914450324,mm,"maximum (smallest net loss) of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
+net_state_forest_interior_median_mm,,,-148.1826703027292,mm,"median of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
 drawdown_ceh23,CEH23,,24.166393059569884,mm,modelled steady-state forest drawdown
 drawdown_ceh6,CEH6,,7.903486846669758,mm,modelled steady-state forest drawdown
 drawdown_d15,D15,,33.93702510603134,mm,modelled steady-state forest drawdown

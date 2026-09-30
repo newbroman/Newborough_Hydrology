@@ -9,15 +9,15 @@
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_24.odt` | 2026-09-27T20:49:03Z | current |
-| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_18.odt` | 2026-09-27T20:49:03Z | current |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_25.odt` | 2026-09-30T08:26:11Z | current |
+| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_19.odt` | 2026-09-30T08:26:13Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_22.odt` | 2026-09-25T13:05:09Z | current |
 | `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_61.odt` | 2026-09-27T21:56:26Z | current |
-| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v23.odt` | 2026-09-25T13:05:08Z | current |
+| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v24.odt` | 2026-09-30T08:26:15Z | current |
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-09-05T22:49:36Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-09-05T22:49:35Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-09-05T22:49:35Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_66.odt` | 2026-09-29T03:35:38Z | current |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_69.odt` | 2026-09-30T08:26:10Z | current |
 | `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_49.odt` | 2026-09-29T03:35:40Z | current |
 | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-09-06T06:28:30Z | unversioned |
 | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-09-26T19:45:59Z | unversioned |
@@ -32,4 +32,4 @@
 
 > `report.pdf` is deliberately **absent** from `PDF_MANIFEST.txt` and from this ledger: it is built from the `report.odm` master via `tools/export_master_pdf.py`, not `build_pdfs.sh`. See the project working rules.
 
-*Generated 2026-09-29 by `tools/build_doc_ledger.py` v1.1.0.*
+*Generated 2026-09-30 by `tools/build_doc_ledger.py` v1.1.0.*

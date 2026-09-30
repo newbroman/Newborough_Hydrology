@@ -1,325 +1,325 @@
 region,imagery_date,frame,leaf_state,viewpoint,n_px,index,ratio_to_conifer,withheld_reason
-broadleaf_restock,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,31706,0.5708869665503863,0.5676560823539125,
-clearfell,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,28575,1.5214165465842733,1.5128062244633897,
-felling_experiment,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,25581,1.5717742438710682,1.5628789268249759,
-felling_1998_1,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,29896,0.14601819620016793,0.14519181915857698,
-felling_1998_2,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,11920,0.35746597432775185,0.35544292732387406,
-felling_1998_3,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,16640,-0.046998906246604036,-0.046732920101638674,
-forest_control,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,156622,1.4757728732971214,1.4674208675003668,
-warren_control,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,120367,-0.15653091286167942,-0.15564504003175594,
-forest_in_view,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,879182,1.0056916226160675,1.0,
+broadleaf_restock,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,31706,0.571560621868463,0.5677483441211192,
+clearfell,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,26899,1.5701176278832065,1.5596450301140954,
+felling_experiment,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,25581,1.5736289614250487,1.5631329432553487,
+felling_1998_1,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,29896,0.14619049989629293,0.14521541734458424,
+felling_1998_2,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,11920,0.35788778962350554,0.35550069785366395,
+felling_1998_3,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,16640,-0.04705436567201031,-0.04674051565452596,
+forest_control,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,156622,1.4775143077712296,1.467659369027401,
+warren_control,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,120367,-0.15671562172362777,-0.15567033719124507,
+forest_in_view,2006-01-01,aerial 1-1-2006.png,leaf_off,vp1,880994,1.0067147316003981,1.0,
 broadleaf_restock,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,7184,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,5283,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,4927,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,4716,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,5675,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,2118,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,3559,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,31166,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,22372,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,326505,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2006-01-01,site1-1-2006m.png,leaf_off,vp2_2006,326864,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,2794,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,2044,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,1908,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,1794,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,2188,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,799,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,1469,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,12199,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,8521,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,97828,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2009-04-20,aerial20-4-2009.png,emerging,vp1,31706,0.9031894124603728,0.9002153754719285,
-clearfell,2009-04-20,aerial20-4-2009.png,emerging,vp1,28575,1.2730917272641582,1.2688996698348622,
-felling_experiment,2009-04-20,aerial20-4-2009.png,emerging,vp1,25581,1.3248574028010494,1.3204948905018727,
-felling_1998_1,2009-04-20,aerial20-4-2009.png,emerging,vp1,29896,0.3580782728722289,0.3568991868315951,
-felling_1998_2,2009-04-20,aerial20-4-2009.png,emerging,vp1,11920,0.35858919379769794,0.35740842538821715,
-felling_1998_3,2009-04-20,aerial20-4-2009.png,emerging,vp1,16640,0.3234385025326806,0.32237347889893486,
-forest_control,2009-04-20,aerial20-4-2009.png,emerging,vp1,156622,1.3087121299214228,1.3044027810429752,
-warren_control,2009-04-20,aerial20-4-2009.png,emerging,vp1,120367,-0.03476697718724001,-0.0346524959115466,
-forest_in_view,2009-04-20,aerial20-4-2009.png,emerging,vp1,879182,1.0033036949484284,1.0,
+forest_in_view,2006-01-01,seabed1-1-2006.png,leaf_off,vp3,97954,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2009-04-20,aerial20-4-2009.png,emerging,vp1,31706,0.9041960893693012,0.900901981067576,
+clearfell,2009-04-20,aerial20-4-2009.png,emerging,vp1,26899,1.3226191343857119,1.317800654498634,
+felling_experiment,2009-04-20,aerial20-4-2009.png,emerging,vp1,25581,1.3263340624436701,1.3215020485726479,
+felling_1998_1,2009-04-20,aerial20-4-2009.png,emerging,vp1,29896,0.35847737977485244,0.35717139833279526,
+felling_1998_2,2009-04-20,aerial20-4-2009.png,emerging,vp1,11920,0.35898887016259695,0.3576810252920729,
+felling_1998_3,2009-04-20,aerial20-4-2009.png,emerging,vp1,16640,0.32379900063802386,0.32261935720820545,
+forest_control,2009-04-20,aerial20-4-2009.png,emerging,vp1,156622,1.3101707943648395,1.3053976654593547,
+warren_control,2009-04-20,aerial20-4-2009.png,emerging,vp1,120367,-0.034805727766736176,-0.03467892580626324,
+forest_in_view,2009-04-20,aerial20-4-2009.png,emerging,vp1,880994,1.0036564558308791,1.0,
 broadleaf_restock,2009-04-20,site 20-4-2009m.png,emerging,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2009-04-20,site 20-4-2009m.png,emerging,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2009-04-20,site 20-4-2009m.png,emerging,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2009-04-20,site 20-4-2009m.png,emerging,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2009-04-20,site 20-4-2009m.png,emerging,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2009-04-20,site 20-4-2009m.png,emerging,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2009-04-20,site 20-4-2009m.png,emerging,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2009-04-20,site 20-4-2009m.png,emerging,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2009-04-20,site 20-4-2009m.png,emerging,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2009-04-20,site 20-4-2009m.png,emerging,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2009-04-20,site 20-4-2009m.png,emerging,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,7184,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,5283,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,4927,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,4716,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,5675,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,2118,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,3559,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,31166,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,22372,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,326505,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2011-06-19,site27-5-2010m.png,full_leaf,vp2_2006,326864,,,ground sampling distance 2.95 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2011-06-19,site19-6-2011m.png,full_leaf,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2011-06-19,site19-6-2011m.png,full_leaf,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2011-06-19,site19-6-2011m.png,full_leaf,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2011-06-19,site19-6-2011m.png,full_leaf,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2011-06-19,site19-6-2011m.png,full_leaf,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2011-06-19,site19-6-2011m.png,full_leaf,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2011-06-19,site19-6-2011m.png,full_leaf,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2011-06-19,site19-6-2011m.png,full_leaf,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2011-06-19,site19-6-2011m.png,full_leaf,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2011-06-19,site19-6-2011m.png,full_leaf,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2011-06-19,site19-6-2011m.png,full_leaf,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2012-05-26,site26-5-2012m.png,full_leaf,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2012-05-26,site26-5-2012m.png,full_leaf,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2012-05-26,site26-5-2012m.png,full_leaf,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2012-05-26,site26-5-2012m.png,full_leaf,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2012-05-26,site26-5-2012m.png,full_leaf,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2012-05-26,site26-5-2012m.png,full_leaf,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2012-05-26,site26-5-2012m.png,full_leaf,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2012-05-26,site26-5-2012m.png,full_leaf,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2012-05-26,site26-5-2012m.png,full_leaf,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2012-05-26,site26-5-2012m.png,full_leaf,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,31706,1.2306540068145837,1.2205193568802424,
-clearfell,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,28575,1.0619000746690537,1.0531551427365782,
-felling_experiment,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,25581,1.1070940184498415,1.0979769065245861,
-felling_1998_1,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,29896,0.4315736313241735,0.42801954735732056,
-felling_1998_2,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,11920,0.364878691922468,0.36187385238945724,
-felling_1998_3,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,16640,0.5690456010578038,0.5643594114939919,
-forest_control,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,156622,1.2545351823304722,1.2442038667593769,
-warren_control,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,120367,-0.03803614572193875,-0.037722911441947074,
-forest_in_view,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,879182,1.0083035552670352,1.0,
+forest_in_view,2012-05-26,site26-5-2012m.png,full_leaf,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,31706,1.232036570506195,1.2219584658463432,
+clearfell,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,26899,1.096463691755133,1.0874945782517118,
+felling_experiment,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,25581,1.1083377701336075,1.0992715262304058,
+felling_1998_1,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,29896,0.4320584776169753,0.428524223309239,
+felling_1998_2,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,11920,0.3652886105742591,0.3623005362455022,
+felling_1998_3,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,16640,0.5696848886094124,0.5650248451756507,
+forest_control,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,156622,1.2559445750463247,1.2456709020261403,
+warren_control,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,120367,-0.03807887698007695,-0.03776739035969427,
+forest_in_view,2012-05-26,aerial26-5-2012.png,full_leaf,vp1,880994,1.0082475018108505,1.0,
 broadleaf_restock,2017-03-24,site24-3-2017m.png,emerging,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2017-03-24,site24-3-2017m.png,emerging,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2017-03-24,site24-3-2017m.png,emerging,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2017-03-24,site24-3-2017m.png,emerging,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2017-03-24,site24-3-2017m.png,emerging,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2017-03-24,site24-3-2017m.png,emerging,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2017-03-24,site24-3-2017m.png,emerging,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2017-03-24,site24-3-2017m.png,emerging,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2017-03-24,site24-3-2017m.png,emerging,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2017-03-24,site24-3-2017m.png,emerging,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2017-03-24,aerial24-3-2017.png,emerging,vp1,31706,0.8988321648851985,0.8970068030286376,
-clearfell,2017-03-24,aerial24-3-2017.png,emerging,vp1,28575,1.303574106684886,1.300926788815652,
-felling_experiment,2017-03-24,aerial24-3-2017.png,emerging,vp1,25581,1.348333906760488,1.3455956900171846,
-felling_1998_1,2017-03-24,aerial24-3-2017.png,emerging,vp1,29896,0.6823609596992505,0.6809752108165318,
-felling_1998_2,2017-03-24,aerial24-3-2017.png,emerging,vp1,11920,0.5603794716146328,0.5592414445694883,
-felling_1998_3,2017-03-24,aerial24-3-2017.png,emerging,vp1,16640,0.8210140071904709,0.8193466796170088,
-forest_control,2017-03-24,aerial24-3-2017.png,emerging,vp1,156622,1.2577399644790308,1.2551857272739955,
-warren_control,2017-03-24,aerial24-3-2017.png,emerging,vp1,120367,-0.001893771716400871,-0.0018899258163639118,
-forest_in_view,2017-03-24,aerial24-3-2017.png,emerging,vp1,879182,1.00203494761734,1.0,
+forest_in_view,2017-03-24,site24-3-2017m.png,emerging,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2017-03-24,aerial24-3-2017.png,emerging,vp1,31706,0.8994584253077839,0.8976481996300687,
+clearfell,2017-03-24,aerial24-3-2017.png,emerging,vp1,26899,1.3385329304686213,1.3358390353279177,
+felling_experiment,2017-03-24,aerial24-3-2017.png,emerging,vp1,25581,1.349273357077491,1.3465578460449463,
+felling_1998_1,2017-03-24,aerial24-3-2017.png,emerging,vp1,29896,0.6828363940235568,0.6814621359818726,
+felling_1998_2,2017-03-24,aerial24-3-2017.png,emerging,vp1,11920,0.5607699154576681,0.5596413251063083,
+felling_1998_3,2017-03-24,aerial24-3-2017.png,emerging,vp1,16640,0.8215860478885887,0.8199325460495998,
+forest_control,2017-03-24,aerial24-3-2017.png,emerging,vp1,156622,1.2586162935562815,1.2560832364756203,
+warren_control,2017-03-24,aerial24-3-2017.png,emerging,vp1,120367,-0.0018950911999726953,-0.0018912771907252655,
+forest_in_view,2017-03-24,aerial24-3-2017.png,emerging,vp1,880994,1.00201663154726,1.0,
 broadleaf_restock,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,32863,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,20794,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,19550,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_experiment,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,18576,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_1998_1,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,22787,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_1998_2,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,8045,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_1998_3,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,15507,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 forest_control,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,127805,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 warren_control,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,89670,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,815996,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2017-04-22,seabed22-4-2017-4.png,emerging,vp4,817341,,,"registration failed: only 33 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,20189,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,17534,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,16405,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,15806,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,21111,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,7204,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,13582,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,113134,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,64372,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,433157,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2017-04-22,seabed22-4-2017-3.png,emerging,vp4,434315,,,ground sampling distance 2.04 m/px > 2.0 — the 5 px texture window spans 10 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,32863,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-clearfell,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,20794,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+clearfell,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,19550,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_experiment,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,18576,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_1998_1,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,22787,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_1998_2,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,8045,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 felling_1998_3,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,15507,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 forest_control,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,127805,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 warren_control,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,89670,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
-forest_in_view,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,815996,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
+forest_in_view,2017-04-22,seabed22-4-2017-2.png,emerging,vp4,817341,,,"registration failed: only 24 placemark(s) matched — the frame is not registered, so the region mask cannot be trusted"
 broadleaf_restock,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,32788,,,reference separation 0.0051 < 0.02
-clearfell,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,15830,,,reference separation 0.0051 < 0.02
+clearfell,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,14802,,,reference separation 0.0051 < 0.02
 felling_experiment,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,14069,,,reference separation 0.0051 < 0.02
 felling_1998_1,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,17307,,,reference separation 0.0051 < 0.02
 felling_1998_2,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,5642,,,reference separation 0.0051 < 0.02
 felling_1998_3,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,13834,,,reference separation 0.0051 < 0.02
 forest_control,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,101588,,,reference separation 0.0051 < 0.02
 warren_control,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,72799,,,reference separation 0.0051 < 0.02
-forest_in_view,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,738937,,,reference separation 0.0051 < 0.02
+forest_in_view,2017-04-22,seabed22-4-2017-1.png,emerging,vp4,739943,,,reference separation 0.0051 < 0.02
 broadleaf_restock,2017-04-22,site22-4-2017m.png,emerging,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2017-04-22,site22-4-2017m.png,emerging,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2017-04-22,site22-4-2017m.png,emerging,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2017-04-22,site22-4-2017m.png,emerging,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2017-04-22,site22-4-2017m.png,emerging,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2017-04-22,site22-4-2017m.png,emerging,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2017-04-22,site22-4-2017m.png,emerging,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2017-04-22,site22-4-2017m.png,emerging,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2017-04-22,site22-4-2017m.png,emerging,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2017-04-22,site22-4-2017m.png,emerging,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,36152,,,reference separation -0.0161 < 0.02
-clearfell,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,16301,,,reference separation -0.0161 < 0.02
-felling_experiment,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,14736,,,reference separation -0.0161 < 0.02
-felling_1998_1,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,18982,,,reference separation -0.0161 < 0.02
-felling_1998_2,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,5912,,,reference separation -0.0161 < 0.02
-felling_1998_3,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,15486,,,reference separation -0.0161 < 0.02
-forest_control,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,111173,,,reference separation -0.0161 < 0.02
-warren_control,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,71133,,,reference separation -0.0161 < 0.02
-forest_in_view,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,913780,,,reference separation -0.0161 < 0.02
-broadleaf_restock,2017-04-22,aerial22-4-2017.png,emerging,vp1,31706,1.044729806578668,1.0372760024926369,
-clearfell,2017-04-22,aerial22-4-2017.png,emerging,vp1,28575,1.235268834452972,1.2264555969750968,
-felling_experiment,2017-04-22,aerial22-4-2017.png,emerging,vp1,25581,1.247639741489676,1.2387382416526362,
-felling_1998_1,2017-04-22,aerial22-4-2017.png,emerging,vp1,29896,0.7302006915743781,0.7249909494341551,
-felling_1998_2,2017-04-22,aerial22-4-2017.png,emerging,vp1,11920,0.6526761863816313,0.6480195561273089,
-felling_1998_3,2017-04-22,aerial22-4-2017.png,emerging,vp1,16640,0.8616519505700085,0.8555043468647706,
-forest_control,2017-04-22,aerial22-4-2017.png,emerging,vp1,156622,1.2195807157321799,1.2108794078294798,
-warren_control,2017-04-22,aerial22-4-2017.png,emerging,vp1,120367,-0.015378281935316785,-0.015268562943857176,
-forest_in_view,2017-04-22,aerial22-4-2017.png,emerging,vp1,879182,1.0071859409338684,1.0,
+forest_in_view,2017-04-22,site22-4-2017m.png,emerging,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,36152,,,reference separation -0.0160 < 0.02
+clearfell,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,15461,,,reference separation -0.0160 < 0.02
+felling_experiment,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,14736,,,reference separation -0.0160 < 0.02
+felling_1998_1,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,18982,,,reference separation -0.0160 < 0.02
+felling_1998_2,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,5912,,,reference separation -0.0160 < 0.02
+felling_1998_3,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,15486,,,reference separation -0.0160 < 0.02
+forest_control,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,111173,,,reference separation -0.0160 < 0.02
+warren_control,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,71133,,,reference separation -0.0160 < 0.02
+forest_in_view,2017-04-22,seabed22-4-2017-o.png,emerging,vp6,914741,,,reference separation -0.0160 < 0.02
+broadleaf_restock,2017-04-22,aerial22-4-2017.png,emerging,vp1,31706,1.04523901423841,1.0373865148797268,
+clearfell,2017-04-22,aerial22-4-2017.png,emerging,vp1,26899,1.2431732251481995,1.2338337182792167,
+felling_experiment,2017-04-22,aerial22-4-2017.png,emerging,vp1,25581,1.2482478486853972,1.2388702180212552,
+felling_1998_1,2017-04-22,aerial22-4-2017.png,emerging,vp1,29896,0.7305565958311122,0.7250681906700922,
+felling_1998_2,2017-04-22,aerial22-4-2017.png,emerging,vp1,11920,0.6529943047231812,0.6480885967566653,
+felling_1998_3,2017-04-22,aerial22-4-2017.png,emerging,vp1,16640,0.8620719249696082,0.8555954931241178,
+forest_control,2017-04-22,aerial22-4-2017.png,emerging,vp1,156622,1.2201751467881463,1.2110084160910375,
+warren_control,2017-04-22,aerial22-4-2017.png,emerging,vp1,120367,-0.015385777403432868,-0.015270189671299344,
+forest_in_view,2017-04-22,aerial22-4-2017.png,emerging,vp1,880994,1.0075695020573827,1.0,
 broadleaf_restock,2017-04-22,seabed22-4-2017.png,emerging,vp3,2794,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2017-04-22,seabed22-4-2017.png,emerging,vp3,2044,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2017-04-22,seabed22-4-2017.png,emerging,vp3,1908,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2017-04-22,seabed22-4-2017.png,emerging,vp3,1794,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2017-04-22,seabed22-4-2017.png,emerging,vp3,2188,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2017-04-22,seabed22-4-2017.png,emerging,vp3,799,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2017-04-22,seabed22-4-2017.png,emerging,vp3,1469,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2017-04-22,seabed22-4-2017.png,emerging,vp3,12199,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2017-04-22,seabed22-4-2017.png,emerging,vp3,8521,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2017-04-22,seabed22-4-2017.png,emerging,vp3,97828,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,31706,1.1308052594725964,1.12287685101316,
-clearfell,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,28575,0.14085019024072226,0.13986264810606805,
-felling_experiment,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,25581,0.12266697371217075,0.12180691945974657,
-felling_1998_1,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,29896,0.6791162589121463,0.6743547749634325,
-felling_1998_2,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,11920,0.7336619467392153,0.7285180269208668,
-felling_1998_3,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,16640,0.6076802734652987,0.6034196482334865,
-forest_control,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,156622,1.1485713357356933,1.1405183640871883,
-warren_control,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,120367,-0.03244100910383957,-0.03221355564193093,
-forest_in_view,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,879182,1.0070607996346908,1.0,
+forest_in_view,2017-04-22,seabed22-4-2017.png,emerging,vp3,97954,,,ground sampling distance 4.77 m/px > 2.0 — the 5 px texture window spans 24 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,31706,1.131517204893061,1.1262032055571751,
+clearfell,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,26899,0.12975710910775484,0.12914772447918418,
+felling_experiment,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,25581,0.12274420380059232,0.12216775422063049,
+felling_1998_1,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,29896,0.6795438247608594,0.6763524500138658,
+felling_1998_2,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,11920,0.734123854091321,0.73067615249542,
+felling_1998_3,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,16640,0.6080628638221938,0.6052071885920205,
+forest_control,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,156622,1.149294466527405,1.1438969789722413,
+warren_control,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,120367,-0.03246143368859743,-0.03230898347722003,
+forest_in_view,2018-06-28,aerial28-6-2018.png,full_leaf,vp1,880994,1.0047185084447143,1.0,
 broadleaf_restock,2018-06-28,site28-6-2018m.png,full_leaf,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2018-06-28,site28-6-2018m.png,full_leaf,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2018-06-28,site28-6-2018m.png,full_leaf,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2018-06-28,site28-6-2018m.png,full_leaf,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2018-06-28,site28-6-2018m.png,full_leaf,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2018-06-28,site28-6-2018m.png,full_leaf,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2018-06-28,site28-6-2018m.png,full_leaf,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2018-06-28,site28-6-2018m.png,full_leaf,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2018-06-28,site28-6-2018m.png,full_leaf,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2018-06-28,site28-6-2018m.png,full_leaf,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,31706,1.208808637201874,1.2062856321597302,
-clearfell,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,28575,0.13642511195828255,0.1361403677607704,
-felling_experiment,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,25581,0.12255798486037472,0.12230218389714412,
-felling_1998_1,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,29896,0.743939371950504,0.7423866342145914,
-felling_1998_2,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,11920,0.624868520816675,0.6235643057571708,
-felling_1998_3,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,16640,0.779032723312302,0.7774067393240822,
-forest_control,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,156622,1.1661027028119182,1.1636688328772506,
-warren_control,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,120367,0.01246322856470879,0.012437215523816776,
-forest_in_view,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,879182,1.0020915486140929,1.0,
+forest_in_view,2018-06-28,site28-6-2018m.png,full_leaf,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,31706,1.209239155312702,1.2127228773126948,
+clearfell,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,26899,0.1317828117202721,0.13216246753805952,
+felling_experiment,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,25581,0.12260163397942066,0.1229548395530681,
+felling_1998_1,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,29896,0.7442043265207526,0.7463483201000208,
+felling_1998_2,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,11920,0.625091068213193,0.626891905952168,
+felling_1998_3,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,16640,0.7793101764061928,0.7815553071517835,
+forest_control,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,156622,1.1665180111718982,1.1698786569474284,
+warren_control,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,120367,0.01246766735299286,0.012503585712777515,
+forest_in_view,2018-07-08,aerial8-7-2018.png,full_leaf,vp1,880994,0.9971273552555449,1.0,
 broadleaf_restock,2018-07-08,site8-7-2018m.png,full_leaf,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2018-07-08,site8-7-2018m.png,full_leaf,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2018-07-08,site8-7-2018m.png,full_leaf,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2018-07-08,site8-7-2018m.png,full_leaf,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2018-07-08,site8-7-2018m.png,full_leaf,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2018-07-08,site8-7-2018m.png,full_leaf,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2018-07-08,site8-7-2018m.png,full_leaf,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2018-07-08,site8-7-2018m.png,full_leaf,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2018-07-08,site8-7-2018m.png,full_leaf,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2018-07-08,site8-7-2018m.png,full_leaf,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2018-07-08,site8-7-2018m.png,full_leaf,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,7525,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,6208,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,5910,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,5636,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,6610,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,2625,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,3859,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,36105,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,25847,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,333130,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,31706,1.1377366386048933,1.1370533679533896,
-clearfell,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,28575,0.06816632622931865,0.06812538876756087,
-felling_experiment,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,25581,0.05198304108208712,0.051951822533662026,
-felling_1998_1,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,29896,0.75103810640752,0.7505870685496742,
-felling_1998_2,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,11920,0.5667657137311787,0.5664253411305864,
-felling_1998_3,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,16640,0.7351792999014254,0.7347377860904334,
-forest_control,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,156622,1.1693403056888962,1.1686380553742037,
-warren_control,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,120367,-0.03471018869233315,-0.034689343399638084,
-forest_in_view,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,879182,1.0006009134406184,1.0,
+forest_in_view,2019-07-29,seabed29-7-2019-a.png,full_leaf,vp5,333477,,,ground sampling distance 2.96 m/px > 2.0 — the 5 px texture window spans 15 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,31706,1.1381598795603503,1.141621464402385,
+clearfell,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,26899,0.051955629400570684,0.05211364658464228,
+felling_experiment,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,25581,0.052002378907053476,0.052160538274473756,
+felling_1998_1,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,29896,0.7513174945145342,0.7536025418943203,
+felling_1998_2,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,11920,0.5669765520342276,0.5687009472387651,
+felling_1998_3,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,16640,0.7354527884916356,0.7376895851582501,
+forest_control,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,156622,1.1697753032897833,1.17333304287556,
+warren_control,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,120367,-0.034723100971790245,-0.03482870736518976,
+forest_in_view,2019-07-29,aerial29-7-2019.png,full_leaf,vp1,880994,0.9969678348296939,1.0,
 broadleaf_restock,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,11094,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,1445,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,1220,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,936,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,0,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,0,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,824,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,13204,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,30007,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,39547,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2019-07-29,seabed29-7-2019-b.png,full_leaf,vp5,39760,,,ground sampling distance 2.63 m/px > 2.0 — the 5 px texture window spans 13 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2019-07-29,site29-7-2019m.png,full_leaf,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2019-07-29,site29-7-2019m.png,full_leaf,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2019-07-29,site29-7-2019m.png,full_leaf,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2019-07-29,site29-7-2019m.png,full_leaf,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2019-07-29,site29-7-2019m.png,full_leaf,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2019-07-29,site29-7-2019m.png,full_leaf,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2019-07-29,site29-7-2019m.png,full_leaf,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2019-07-29,site29-7-2019m.png,full_leaf,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2019-07-29,site29-7-2019m.png,full_leaf,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2019-07-29,site29-7-2019m.png,full_leaf,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2019-07-29,site29-7-2019m.png,full_leaf,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2019-09-11,site11-9-2019m.png,senescing,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2019-09-11,site11-9-2019m.png,senescing,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2019-09-11,site11-9-2019m.png,senescing,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2019-09-11,site11-9-2019m.png,senescing,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2019-09-11,site11-9-2019m.png,senescing,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2019-09-11,site11-9-2019m.png,senescing,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2019-09-11,site11-9-2019m.png,senescing,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2019-09-11,site11-9-2019m.png,senescing,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2019-09-11,site11-9-2019m.png,senescing,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2019-09-11,site11-9-2019m.png,senescing,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2019-09-11,aerial11-9-2019.png,senescing,vp1,31706,1.0546511479098584,1.0575005966208544,
-clearfell,2019-09-11,aerial11-9-2019.png,senescing,vp1,28575,0.09100867866283696,0.09125456524118015,
-felling_experiment,2019-09-11,aerial11-9-2019.png,senescing,vp1,25581,0.08319360885083323,0.08341838073106388,
-felling_1998_1,2019-09-11,aerial11-9-2019.png,senescing,vp1,29896,0.7725742072658646,0.774661542574232,
-felling_1998_2,2019-09-11,aerial11-9-2019.png,senescing,vp1,11920,0.5816669897434165,0.583238533336232,
-felling_1998_3,2019-09-11,aerial11-9-2019.png,senescing,vp1,16640,0.7290867923401455,0.7310566336708596,
-forest_control,2019-09-11,aerial11-9-2019.png,senescing,vp1,156622,1.1609037770670512,1.1640402983496667,
-warren_control,2019-09-11,aerial11-9-2019.png,senescing,vp1,120367,-0.006009474544041455,-0.006025710898145102,
-forest_in_view,2019-09-11,aerial11-9-2019.png,senescing,vp1,879182,0.9973054873726774,1.0,
-broadleaf_restock,2020-03-31,aerial31-3-2020.png,emerging,vp1,31706,1.1566365728143073,1.14859634062745,
-clearfell,2020-03-31,aerial31-3-2020.png,emerging,vp1,28575,,,cloud shadow over the compartment (visual inspection)
+forest_in_view,2019-09-11,site11-9-2019m.png,senescing,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2019-09-11,aerial11-9-2019.png,senescing,vp1,31706,1.0550133940240694,1.0619772646209837,
+clearfell,2019-09-11,aerial11-9-2019.png,senescing,vp1,26899,0.08203469518022205,0.08257618498966739,
+felling_experiment,2019-09-11,aerial11-9-2019.png,senescing,vp1,25581,0.08322218376073887,0.08377151187523026,
+felling_1998_1,2019-09-11,aerial11-9-2019.png,senescing,vp1,29896,0.772839567053389,0.7779408811861006,
+felling_1998_2,2019-09-11,aerial11-9-2019.png,senescing,vp1,11920,0.581866777708581,0.5857075298426848,
+felling_1998_3,2019-09-11,aerial11-9-2019.png,senescing,vp1,16640,0.7293372152956139,0.734151381653692,
+forest_control,2019-09-11,aerial11-9-2019.png,senescing,vp1,156622,1.1613025182840393,1.1689679759047757,
+warren_control,2019-09-11,aerial11-9-2019.png,senescing,vp1,120367,-0.006011538647234575,-0.0060512192593147815,
+forest_in_view,2019-09-11,aerial11-9-2019.png,senescing,vp1,880994,0.9934425426711939,1.0,
+broadleaf_restock,2020-03-31,aerial31-3-2020.png,emerging,vp1,31706,1.1570590641121383,1.1504456567349017,
+clearfell,2020-03-31,aerial31-3-2020.png,emerging,vp1,26899,,,cloud shadow over the compartment (visual inspection)
 felling_experiment,2020-03-31,aerial31-3-2020.png,emerging,vp1,25581,,,cloud shadow over the compartment (visual inspection)
 felling_1998_1,2020-03-31,aerial31-3-2020.png,emerging,vp1,29896,,,cloud shadow over the block (visual inspection)
 felling_1998_2,2020-03-31,aerial31-3-2020.png,emerging,vp1,11920,,,cloud shadow over the block (visual inspection)
-felling_1998_3,2020-03-31,aerial31-3-2020.png,emerging,vp1,16640,0.7767375327364726,0.7713381270301043,
-forest_control,2020-03-31,aerial31-3-2020.png,emerging,vp1,156622,1.1730466635080432,1.1648923583768522,
-warren_control,2020-03-31,aerial31-3-2020.png,emerging,vp1,120367,-0.03565733655913658,-0.035409468497691145,
-forest_in_view,2020-03-31,aerial31-3-2020.png,emerging,vp1,879182,1.0070000503244378,1.0,
+felling_1998_3,2020-03-31,aerial31-3-2020.png,emerging,vp1,16640,0.7770212561254723,0.7725800324516636,
+forest_control,2020-03-31,aerial31-3-2020.png,emerging,vp1,156622,1.1734751490141484,1.1667679121511374,
+warren_control,2020-03-31,aerial31-3-2020.png,emerging,vp1,120367,-0.035670361319682944,-0.03546648008490665,
+forest_in_view,2020-03-31,aerial31-3-2020.png,emerging,vp1,880994,1.0057485612975463,1.0,
 broadleaf_restock,2020-03-31,site31-3-2020m.png,emerging,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2020-03-31,site31-3-2020m.png,emerging,vp2,5515,,,cloud shadow over the compartment (visual inspection)
+clearfell,2020-03-31,site31-3-2020m.png,emerging,vp2,5198,,,cloud shadow over the compartment (visual inspection)
 felling_experiment,2020-03-31,site31-3-2020m.png,emerging,vp2,4964,,,cloud shadow over the compartment (visual inspection)
 felling_1998_1,2020-03-31,site31-3-2020m.png,emerging,vp2,5890,,,cloud shadow over the block (visual inspection)
 felling_1998_2,2020-03-31,site31-3-2020m.png,emerging,vp2,2224,,,cloud shadow over the block (visual inspection)
 felling_1998_3,2020-03-31,site31-3-2020m.png,emerging,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2020-03-31,site31-3-2020m.png,emerging,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2020-03-31,site31-3-2020m.png,emerging,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2020-03-31,site31-3-2020m.png,emerging,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2020-04-24,aerial24-4-2020.png,emerging,vp1,31706,1.130491038656844,1.1276200900186886,
-clearfell,2020-04-24,aerial24-4-2020.png,emerging,vp1,28575,0.14953265418657655,0.1491529071959177,
-felling_experiment,2020-04-24,aerial24-4-2020.png,emerging,vp1,25581,0.13710547029740605,0.13675728287284963,
-felling_1998_1,2020-04-24,aerial24-4-2020.png,emerging,vp1,29896,0.8950569426355018,0.8927838927636654,
-felling_1998_2,2020-04-24,aerial24-4-2020.png,emerging,vp1,11920,0.8184956332148753,0.8164170153018077,
+forest_in_view,2020-03-31,site31-3-2020m.png,emerging,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2020-04-24,aerial24-4-2020.png,emerging,vp1,31706,1.1307375348242101,1.1313949633643292,
+clearfell,2020-04-24,aerial24-4-2020.png,emerging,vp1,26899,0.13935583956295264,0.13943686323408705,
+felling_experiment,2020-04-24,aerial24-4-2020.png,emerging,vp1,25581,0.13713536524729736,0.13721509789983305,
+felling_1998_1,2020-04-24,aerial24-4-2020.png,emerging,vp1,29896,0.895252103940094,0.8957726175567428,
+felling_1998_2,2020-04-24,aerial24-4-2020.png,emerging,vp1,11920,0.8186741008273503,0.8191500907917445,
 felling_1998_3,2020-04-24,aerial24-4-2020.png,emerging,vp1,16640,,,cloud over the block (visual inspection)
-forest_control,2020-04-24,aerial24-4-2020.png,emerging,vp1,156622,1.0701605909296512,1.067442855020141,
-warren_control,2020-04-24,aerial24-4-2020.png,emerging,vp1,120367,0.021149105531376212,0.021095396131082644,
-forest_in_view,2020-04-24,aerial24-4-2020.png,emerging,vp1,879182,1.0025460247325924,1.0,
+forest_control,2020-04-24,aerial24-4-2020.png,emerging,vp1,156622,1.070393932437996,1.0710162762611046,
+warren_control,2020-04-24,aerial24-4-2020.png,emerging,vp1,120367,0.021153716955331327,0.02116601605819802,
+forest_in_view,2020-04-24,aerial24-4-2020.png,emerging,vp1,880994,0.9994189221612194,1.0,
 broadleaf_restock,2021-03-24,site24-3-2021m.png,emerging,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2021-03-24,site24-3-2021m.png,emerging,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2021-03-24,site24-3-2021m.png,emerging,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2021-03-24,site24-3-2021m.png,emerging,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2021-03-24,site24-3-2021m.png,emerging,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2021-03-24,site24-3-2021m.png,emerging,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2021-03-24,site24-3-2021m.png,emerging,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2021-03-24,site24-3-2021m.png,emerging,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2021-03-24,site24-3-2021m.png,emerging,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2021-03-24,site24-3-2021m.png,emerging,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2021-03-24,site24-3-2021m.png,emerging,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 broadleaf_restock,2021-04-04,site4-4-2021m.png,emerging,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2021-04-04,site4-4-2021m.png,emerging,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2021-04-04,site4-4-2021m.png,emerging,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2021-04-04,site4-4-2021m.png,emerging,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2021-04-04,site4-4-2021m.png,emerging,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2021-04-04,site4-4-2021m.png,emerging,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2021-04-04,site4-4-2021m.png,emerging,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2021-04-04,site4-4-2021m.png,emerging,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2021-04-04,site4-4-2021m.png,emerging,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2021-04-04,site4-4-2021m.png,emerging,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-broadleaf_restock,2026-03-31,aerial31-3-2026.png,emerging,vp1,26954,0.8532195204505318,0.8526296802070347,
-clearfell,2026-03-31,aerial31-3-2026.png,emerging,vp1,23449,0.1123914478866625,0.1123137504156137,
-felling_experiment,2026-03-31,aerial31-3-2026.png,emerging,vp1,21081,0.09154187426319406,0.0914785903367116,
-felling_1998_1,2026-03-31,aerial31-3-2026.png,emerging,vp1,24540,1.294096276889556,1.2932016535894864,
-felling_1998_2,2026-03-31,aerial31-3-2026.png,emerging,vp1,9768,1.0119655594897186,1.0112659763253473,
-felling_1998_3,2026-03-31,aerial31-3-2026.png,emerging,vp1,13915,1.015659091071704,1.01495695452744,
-forest_control,2026-03-31,aerial31-3-2026.png,emerging,vp1,127199,1.3311223936416021,1.3302021737708993,
-warren_control,2026-03-31,aerial31-3-2026.png,emerging,vp1,99736,-0.03212821010670342,-0.032105999513979924,
-forest_in_view,2026-03-31,aerial31-3-2026.png,emerging,vp1,876323,1.0006917894804623,1.0,
+forest_in_view,2021-04-04,site4-4-2021m.png,emerging,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+broadleaf_restock,2026-03-31,aerial31-3-2026.png,emerging,vp1,26954,0.8528772346703694,0.8550278921158712,
+clearfell,2026-03-31,aerial31-3-2026.png,emerging,vp1,22197,0.09048267443262356,0.09071084002263681,
+felling_experiment,2026-03-31,aerial31-3-2026.png,emerging,vp1,21081,0.09150515044113106,0.09173589435725168,
+felling_1998_1,2026-03-31,aerial31-3-2026.png,emerging,vp1,24540,1.2935771247333718,1.296839072832753,
+felling_1998_2,2026-03-31,aerial31-3-2026.png,emerging,vp1,9768,1.0115595896159344,1.014110388341166,
+felling_1998_3,2026-03-31,aerial31-3-2026.png,emerging,vp1,13915,1.0152516394651316,1.0178117482459896,
+forest_control,2026-03-31,aerial31-3-2026.png,emerging,vp1,127199,1.330588387730956,1.3339436652628713,
+warren_control,2026-03-31,aerial31-3-2026.png,emerging,vp1,99736,-0.03211532124375782,-0.03219630482725593,
+forest_in_view,2026-03-31,aerial31-3-2026.png,emerging,vp1,877807,0.997484693230089,1.0,
 broadleaf_restock,2026-03-31,site31-3-2026m.png,emerging,vp2,7462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-clearfell,2026-03-31,site31-3-2026m.png,emerging,vp2,5515,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+clearfell,2026-03-31,site31-3-2026m.png,emerging,vp2,5198,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_experiment,2026-03-31,site31-3-2026m.png,emerging,vp2,4964,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_1,2026-03-31,site31-3-2026m.png,emerging,vp2,5890,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_2,2026-03-31,site31-3-2026m.png,emerging,vp2,2224,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 felling_1998_3,2026-03-31,site31-3-2026m.png,emerging,vp2,3684,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 forest_control,2026-03-31,site31-3-2026m.png,emerging,vp2,32462,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
 warren_control,2026-03-31,site31-3-2026m.png,emerging,vp2,23437,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
-forest_in_view,2026-03-31,site31-3-2026m.png,emerging,vp2,335665,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089
+forest_in_view,2026-03-31,site31-3-2026m.png,emerging,vp2,335972,,,ground sampling distance 2.88 m/px > 2.0 — the 5 px texture window spans 14 m of ground and cannot resolve a crown. Measured: this viewpoint's index correlates with the aerial index of the same region on the same day at r = +0.089

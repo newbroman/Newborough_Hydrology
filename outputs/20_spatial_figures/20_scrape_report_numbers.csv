@@ -7,3 +7,5 @@ scrape_reach_10mm_m,,,808.3515871929752,m,largest distance from a cut edge at wh
 scrape_ceh36_reach_50mm_m,,,196.54113927630965,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 50 mm
 scrape_ceh36_reach_10mm_m,,,555.6269368820866,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 10 mm
 clearfell_baseline_drawdown_max_mm,,,251.72846447361968,mm,"maximum of the combined scrape (Feb 2013 + Apr 2015 cuts) plus Storm Brendan retreat drawdown on the pre-fell baseline, within the site outline (20_clearfell_baseline_drawdown.png)"
+clearfell_baseline_drawdown_max_E_m,,,241350.0,m,easting (OSGB36) of the grid cell holding clearfell_baseline_drawdown_max_mm
+clearfell_baseline_drawdown_max_N_m,,,363050.0,m,northing (OSGB36) of the grid cell holding clearfell_baseline_drawdown_max_mm

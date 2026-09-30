@@ -102,7 +102,13 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-29. T-96: report numbers also carry
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-30. T-96 batch 3: emit the smallest and
+#   largest distance to the nearest in_forest well over each of Ranwell's sketch_slack groups
+#   (ranwell_dist_nearest_forest_well_m_{group}_min / _max, from the per-site rows 1.7.0 added;
+#   report10 §5.7.9 "the Clwt Gwlyb sites, which lie 120-200 m from the nearest forest wells" is
+#   the CG pair). Groups come from 43_01 sketch_slack, not typed site numbers. Nothing already
+#   emitted moves.
+# 1.7.0  # Hollingham (2026) — 2026-09-29. T-96: report numbers also carry
 #   the 2-sigma bounds of each combined level change (ranwell_delta_lower_2sigma_m_{row},
 #   ranwell_delta_upper_2sigma_m_{row}: delta -/+ 2 x its standard error, the same 2 sigma the
 #   ranwell_resolved_* flag already uses; report10 §5.7.9 "a fall larger than about 0.3 m is
@@ -1165,12 +1171,23 @@ def main() -> int:
     # the easting/northing every other site distance here uses).
     if "in_forest" in loc.columns:
         fw = loc[loc["in_forest"].astype(bool)]
+        d_by_group: dict[str, list[tuple[int, float]]] = {}
         for r in lc[lc["row"] == "site"].itertuples():
             srow = sites.loc[r.site_no]
             d_fw = np.hypot(fw["E"] - float(srow["easting"]), fw["N"] - float(srow["northing"]))
             rn.append((f"ranwell_dist_nearest_forest_well_m_site{int(r.site_no)}", float(d_fw.min()), "m",
                        f"site {int(r.site_no)} ({r.sketch_slack}): distance from the placed position to the nearest "
                        f"in_forest well (01_locations), {fw.loc[d_fw.idxmin(), 'Name']}; {len(fw)} forest wells"))
+            d_by_group.setdefault(str(r.sketch_slack), []).append((int(r.site_no), float(d_fw.min())))
+        # T-96 batch 3: the range over each sketch_slack group (43_01), so a sentence quoting
+        # the span for a slack (Clwt Gwlyb = CG) cites a key, not a reading of per-site rows.
+        for g, v in d_by_group.items():
+            ids = ", ".join(str(s_) for s_, _ in sorted(v))
+            for tag, fn in (("min", min), ("max", max)):
+                s_, d_ = fn(v, key=lambda t: t[1])
+                rn.append((f"ranwell_dist_nearest_forest_well_m_{g}_{tag}", d_, "m",
+                           f"{g} (sites {ids}): {'smallest' if tag == 'min' else 'largest'} distance from a placed "
+                           f"position to the nearest in_forest well (01_locations), at site {s_}"))
     rn += [("ranwell_coastal_fit_delta0_mm_yr", cg_d0, "mm/yr", f"Script 25 {src_} {mod_} delta_0 used for the coastal expectation"),
            ("ranwell_coastal_fit_L_m", cg_L, "m", f"Script 25 {src_} {mod_} reach L"),
            ("ranwell_sites_within_coastal_reach", int(lc.loc[lc["row"] == "site", "within_coastal_reach"].astype(bool).sum()), "count",

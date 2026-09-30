@@ -42,7 +42,7 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-09-30. D-213.
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-09-30. D-213. 1.0.1: build_table_ledger exempt (retired ledger).
 
 import re
 import sys
@@ -61,6 +61,7 @@ EXEMPT = {
     "starmath_log":          "the formula log is written by odt_edit as formulas change",
     "output_lag":            "a script newer than its outputs needs a pipeline RUN, not a rebuild",
     "input_provenance_lint": "outputs against committed inputs: a pipeline run, not a rebuild",
+    "build_table_ledger":    "TABLE_LEDGER.md is retired (2026-09-19); the builder refuses to regenerate it and --check passes on the banner",
 }
 # gates written without --check
 EXTRA_GATES = {"export_lag": "the published PDFs (build_pdfs.sh inside build_docs_pdfs)"}

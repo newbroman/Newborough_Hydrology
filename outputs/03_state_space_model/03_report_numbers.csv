@@ -38,3 +38,5 @@ cluster_well_recession_time_min_months,C5 (Coastal Forest),,16.907803748929275,m
 cluster_well_recession_time_median_months,C5 (Coastal Forest),,22.49022011879132,months,"median of 1/beta_3_drainage over the 5 member wells with beta_3 > 0 (of 5), comparison window (03_master_data.csv)"
 cluster_well_recession_time_max_months,C5 (Coastal Forest),,25.643813280510212,months,"max of 1/beta_3_drainage over the 5 member wells with beta_3 > 0 (of 5), comparison window (03_master_data.csv)"
 C1_mean_elevation_aod_excl_network_min,C1 (Lake Edge),excluding ceh11,9.365705704486532,m AOD,"C1_mean_elevation_aod without ceh11, the reference well with the lowest mean water-table elevation (3.023 m AOD); n=6 wells"
+datum0_n_clusters_beta3_negative,,,2.0,count,"cluster centroids with beta_3 < 0 under Model A at DATUM_RAW_DEPTH_M (raw depth, no drainage base): C4, C5 (03_19_datum_zero_fit.csv)"
+datum0_n_clusters_beta3_pos_sig,,,3.0,count,cluster centroids with beta_3 > 0 and p < 0.05 at DATUM_RAW_DEPTH_M (03_19_datum_zero_fit.csv)

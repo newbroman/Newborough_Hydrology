@@ -40,7 +40,11 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.84.0"  # Hollingham (2026) - 2026-09-30. SCRAPE_PAIR_TREATMENT / SCRAPE_PAIR_CONTROL
+__version__ = "1.85.0"  # Hollingham (2026) - 2026-09-30. DATUM_RAW_DEPTH_M: the zero datum (raw depth
+#   below ground, no drainage base) at which Script 03 1.22.0 fits the cluster centroids into
+#   03_19_datum_zero_fit.csv, so the report8 SS3.4 statement about fitting on raw depth cites a
+#   committed value (Martin 2026-09-30, "make a 0 datum csv"). No existing value moves.
+# 1.84.0  # Hollingham (2026) - 2026-09-30. SCRAPE_PAIR_TREATMENT / SCRAPE_PAIR_CONTROL
 #   (CEH36 scraped April 2015, CEH4 its paired control) and MSL5_SCRAPE_PAIR_FIRST_WINDOW_END: the
 #   first MSL5 window-end carrying two post-scrape springs. The window ends at the last window-end
 #   before SCRAPING_DATE_2_ISO. Script 26 1.22.0 summarizes the pair on it (report9 SS4.5.4).
@@ -574,6 +578,12 @@ DRAINAGE_DATUM = 3.7  # metres below ground surface
 DATUM_SWEEP_MIN_M  = 0.5
 DATUM_SWEEP_MAX_M  = 8.0
 DATUM_SWEEP_STEP_M = 0.1
+
+# The raw-depth datum: displacement measured from the ground surface itself, i.e. no
+# drainage base (h_disp_prev = h_prev). Below the sweep's DATUM_SWEEP_MIN_M on purpose —
+# it is the unconstrained case the report8 SS3.4 datum argument starts from, fitted once
+# per cluster centroid into 03_19_datum_zero_fit.csv (Script 03 1.22.0), not a sweep step.
+DATUM_RAW_DEPTH_M = 0.0
 
 # ── Script 48: the Pastas cross-check of the per-well SSM ─────────────────────
 # Pastas is a daily engine. The monthly SSM record enters it with heads stamped

@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.48.0"  # Hollingham (2026) - 2026-09-30. 1.48.0: DATA_CLEARFELL, the 2017 clearfell
+__version__ = "1.49.0"  # Hollingham (2026) - 2026-09-30. 1.49.0: OUT_03_DATUM_ZERO, the cluster-centroid
+#   Model A fit at config.DATUM_RAW_DEPTH_M (raw depth, no drainage base), Script 03 1.22.0.
+# 1.48.0: DATA_CLEARFELL, the 2017 clearfell
 #   polygon reprojected to EPSG:27700 (clearfell.geojson, from clearfell.kml as redefined by Martin on
 #   2026-09-30) so Script 01 can measure each well's distance to the felled boundary with the same
 #   numpy geometry as the 1998 blocks (report9 §4.12 "FE1, approximately N m outside the felled boundary").
@@ -560,6 +562,7 @@ OUT_03_MODEL_B_PERSISTENCE  = DIR_03 / "03_16_model_b_persistence.csv"   # datum
 OUT_03_UPSTAND_FRAME_SENS   = DIR_03 / "03_17_upstand_frame_sensitivity.csv"  # datum/upstand frame sensitivity, 2026-09-09
 OUT_03_DATUM_REGIME_FIG    = DIR_03 / "03_12_datum_regime.png"
 OUT_03_DATUM_INVARIANCE    = DIR_03 / "03_18_datum_invariance.csv"   # T-74: the sweep summarised per cluster (order invariance, flux fraction, cost of DRAINAGE_DATUM)
+OUT_03_DATUM_ZERO          = DIR_03 / "03_19_datum_zero_fit.csv"   # centroid Model A at DATUM_RAW_DEPTH_M (raw depth): sign and significance of beta_3 with no drainage base
 OUT_03_PER_WELL_RECESSION  = DIR_03 / "03_19_per_well_recession_full_record.csv"  # D-192: β₃, t½, 1/β₃ per well on the FULL record; Script 18 reads it
 
 # Script 04 — Cluster visualisations

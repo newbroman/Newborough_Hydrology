@@ -1,5 +1,5 @@
 rb_id,doc,section,fragment,note
-RB-01,report8,Groundwater Records,a well is admitted if it has more than 100 months of valid record and is still reporting after February 2026,
+RB-01,report8,Groundwater Records,a well is admitted if it has at least 100 months of valid record and is still reporting in February 2026,
 RB-01,report8,Groundwater Records,"The 100-month figure is an admission threshold, not a fitting window",
 RB-02,report8,Pearson Correlation Distance,"calculated over contemporaneous, overlapping temporal records for wells i and j",pairwise-complete on the full record; no window
 RB-03,report8,Modelling the Cluster water levels,fitted to this average hydrograph using the full available record rather than the 100-month window applied to individual wells,

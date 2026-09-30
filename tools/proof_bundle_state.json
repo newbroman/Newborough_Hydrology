@@ -1,21 +1,21 @@
 {
- "bundle_at": "2026-09-30T04:52:50",
- "bundle_sha256": "e0a32a6c2f4027f2",
+ "bundle_at": "2026-09-30T04:59:52",
+ "bundle_sha256": "6463c520b17fbcbc",
  "chapters": {
-  "report": "16af45e97cb1f171",
-  "report10": "a9ec7941fd18f623",
+  "report": "0e20220835114da2",
+  "report10": "a029f39c0fad7143",
   "report11": "9bb12cb454a79e90",
   "report12": "245cd0e39bc8b35a",
   "report13": "0b66b08000dac2ae",
   "report14": "e1cef78ade130a73",
   "report15": "49a732a9f16df5e4",
   "report16": "7b676fdff38e30ea",
-  "report6": "32aeed337b21853c",
-  "report7": "658438f7068ec8f8",
+  "report6": "bfd4d9518917589a",
+  "report7": "55ab80b90687cbfa",
   "report8": "74bb4d0b21aefce1",
   "report9": "a5ef635d95ca5c6e"
  },
- "published_at": "2026-09-29T22:54:41",
- "published_sha256": "e7e4af1cd001d966",
- "published_version": "25"
+ "published_at": "2026-09-30T05:02:36",
+ "published_sha256": "6463c520b17fbcbc",
+ "published_version": "26"
 }

@@ -200,7 +200,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (441)
+## Outputs no exhibit renders (442)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -275,6 +275,7 @@
 - `03_16_model_b_persistence.csv`
 - `03_17_upstand_frame_sensitivity.csv`
 - `03_18_datum_invariance.csv`
+- `03_19_datum_zero_fit.csv`
 - `03_19_per_well_recession_full_record.csv`
 - `03_cluster_peak_months.csv`
 - `03_master_data.csv`
@@ -603,4 +604,3 @@
 - `41_03_registration.csv`
 - `41_04_canopy_series.png`
 - `41_report_numbers.csv`
-- `43_01_ranwell_sites.csv`

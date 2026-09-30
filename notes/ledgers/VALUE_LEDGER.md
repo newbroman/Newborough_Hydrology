@@ -16,7 +16,6 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | 1941 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 11 |  | Newborough_Methods_Supplement | ok |
 | 1941 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.11422 |  | Newborough_Methods_Supplement, report9 | ok |
 | 1943 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.30927 |  | report9 | ok |
-| 1947 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.63943 |  | report9 | ok |
 | 1949 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.04866 |  | Newborough_Methods_Supplement, PIPELINE_README | ok |
 | 1950 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.50706 |  | report10 | ok |
 | 1951 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.58649 |  | Hollingham_2026_Paper2_amended | ok |
@@ -75,7 +74,6 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | 2021 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.37259 |  | report10, report9 | ok |
 | 2022 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.11248 |  | Newborough_Methods_Supplement, report9 | ok |
 | 2022 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.77276 |  | report9 | ok |
-| 2023 · anomaly_vs_pre2013 |  |  | `00_03_summer_warming_stats.csv` | 1.63943 |  | report9 | ok |
 | 2026 · Months_complete |  |  | `00_01_annual_climate_summary.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
 | 2026 · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 4.58221 |  | Newborough_Methods_Supplement | ok |
 | 4 / C1 (Lake Edge) · MINw_current_m_bg |  |  | `26_curreli_min_cluster_threshold_summary.csv` | -0.885 |  | report9 | ok |

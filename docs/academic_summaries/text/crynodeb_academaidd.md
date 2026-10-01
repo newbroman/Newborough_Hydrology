@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_19.odt — do not edit. source-sha256=a79f03546b0066ef pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_21.odt — do not edit. source-sha256=ccfc2aace870739f pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -17,7 +17,7 @@ Rhannodd dadansoddiad clystyru (Ward hierarchaidd, k=5) y rhwydwaith cyfeirnod y
 
 ![](Pictures/10000000000007600000065963A870F2.png){width="14cm" height="10.714cm"}
 
-Ffigur 1. Y pum parth hydroddaearegol a nodwyd gan ddadansoddiad clystyru (Ward hierarchaidd, k=5): C1 Ymyl y Llyn (glas, n=7), C2 Twyn (gwyrdd, n=24), C3 Gweddilliol Gorllewinol (coch, n=21), C4 Prif Goedwig (porffor, n=9), C5 Coedwig Arfordirol (brown, n=5). Ffin y goedwig yn fagenta; parth clirdorri 2017 yn oren.
+Ffigur 1. Y pum parth hydroddaearegol a nodwyd gan ddadansoddiad clystyru (Ward hierarchaidd, k=5): C1 Ymyl y Llyn (glas, n=7), C2 Twyn (gwyrdd, n=19), C3 Gweddilliol Gorllewinol (coch, n=26), C4 Prif Goedwig (porffor, n=9), C5 Coedwig Arfordirol (brown, n=5). Ffin y goedwig yn fagenta; parth clirdorri 2017 yn oren.
 
 Nodweddu\'r dyfrhaen
 
@@ -38,17 +38,17 @@ Gorfodaeth hinsawdd a dadansoddi trothwyon
 
 Mae tymheredd uchafswm yr haf yn RAF Valley wedi tueddu i fyny ar +0.014°C y flwyddyn⁻¹ (p \< 0.001) dros y cofnod llawn (1931--2025), gyda chynnydd cam o +0.94°C uwchlaw\'r llinell sylfaen ers 2013. Mae dadansoddiad tuedd o ddyfnder isafswm haf y lefel ddŵr yn cynhyrchu tueddiadau gostwng arwyddocaol yn ystadegol yn C1 (p \< 0.05) ac C5 (p \< 0.05); mae C2 yn ymylol; nid yw C3 ac C4 yn arwyddocaol ar eu pen eu hunain. Mae allosod tueddiadau canolrif-clwstwr yn dangos bod C1 Ymyl y Llyn yn croesi trothwy hyfywedd llaciau gwlyb (SD15b, −0.61 m) tua 2030--2032 dan y llwybr presennol.
 
-Mae canfyddiad van Willegen et al. (2025) mai lefel gwanwyn gymedrig pum mlynedd (MSL5) sy\'n esbonio ymateb llystyfiant llaciau twyni orau yn adlewyrchu trosglwyddiad ecolegol: mae cymunedau planhigion yn integreiddio amodau hydrolegol dros tua phum mlynedd. Mae hanner-oes dadfeiliad draenio t½ = ln(2)/β₃ yn rheoli trosglwyddiad gwahanol, i fyny\'r afon --- pa mor hir y mae\'r dyfrhaen ei hun yn cadw aflonyddwch, ac felly pa mor annibynnol y mae\'r pum darlleniad gwanwyn o fewn ffenestr MSL5 mewn gwirionedd. Yn y clystyrau twyni agored mae hyn yn amrywio digon i fod o bwys wrth ddehongli MSL5. Mae C1 Ymyl y Llyn (t½ cymedrig ≈ 7 mis) yn cadw dim ond tua 28% o anomaledd gwanwyn flwyddyn yn ddiweddarach, felly mae ei bum darlleniad o fewn y ffenestr yn agos at fod yn annibynnol ac mae MSL5 yn ymddwyn fel gwir gyfartaledd aml-flwyddyn. Mae C2 Twyn (≈ 10 mis) yn debyg. Mae gan C3 Gweddilliol Gorllewinol, fodd bynnag, t½ cymedrig o 14 mis yn codi i 22 mis yn ei ffynhonnau arafaf, gan gadw 42--52% o anomaledd ar ôl blwyddyn: mae un gwanwyn gwlyb neu sych yn lledaenu i ddarlleniadau dilynol, felly mae gwerth MSL5 yn y ffynhonnau hyn yn pwyso tuag at safle unrhyw wanwyn eithafol o fewn ei ffenestr yn hytrach na bod yn gyfartaledd glân pum mlynedd. Mae hyn yn golygu bod yr un dyfnhau MSL5 a fesurwyd yn cario gwybodaeth wahanol ar draws y rhwydwaith twyni --- signal aml-flwyddyn cadarn yn C1 ac C2, ond un a allai fod wedi\'i halogi gan anomaledd yn y ffynhonnau C3 arafach, y dylid eu gwirio yn erbyn lleoliad y ffenestr cyn priodoli newid i reolaeth neu hinsawdd. Mae tu mewn y goedwig ymhell y tu allan i\'r ystod hon (C4 t½ cymedrig ≈ 40 mis) ac nid yw\'n gartref i\'r cymunedau llaciau y cynlluniwyd MSL5 ar eu cyfer, ond mae ei gof hir yn cadarnhau\'r mecanwaith yn ddefnyddiol: lle mae draenio\'n araf, mae darlleniadau\'r gwanwyn wedi\'u hunangydberthyn yn drwm ac mae MSL5 yn colli ei ddehongliad fel cyfartaledd.
+Mae canfyddiad van Willegen et al. (2025) mai lefel gwanwyn gymedrig pum mlynedd (MSL5) sy\'n esbonio ymateb llystyfiant llaciau twyni orau yn adlewyrchu trosglwyddiad ecolegol: mae cymunedau planhigion yn integreiddio amodau hydrolegol dros tua phum mlynedd. Mae a yw\'r pum darlleniad gwanwyn o fewn ffenestr MSL5 yn annibynnol yn dibynnu ar ba mor gyflym y mae\'r lefel ddŵr yn dychwelyd i\'w chymedr ei hun. Nid hanner-oes draenio t½ = ln(2)/β₃ y model cyhoeddedig heb ryngdoriad yw hynny; cysonyn enciliad y term draenio ar ddatwm 3.7 m yw hwnnw, ac mae\'n newid gyda\'r datwm. Fe\'i mesurir drwy ail-ffitio\'r un model gyda rhyngdoriad rhydd, nad yw ei gyfernod draenio\'n dibynnu ar y datwm, ac mae\'n fyr: tua hanner blwyddyn yw\'r amser e-blygu (canolrif 6.5 mis, o\'i gymharu â 5.1 mis o hunangydberthyniad arsylwedig y lefel wedi\'i dad-dymoreiddio), o tua 2 fis yn C1 Ymyl y Llyn i tua 13 mis yn C5 Coedwig Arfordirol. Bach yw\'r parhad gwanwyn o flwyddyn i flwyddyn y mae hyn yn ei awgrymu, o 0.02 yn C1 i 0.30 yn C5 (canolrif 0.17 ar draws y ffynhonnau), ac mae hunangydberthyniad lag-1 arsylwedig lefel flynyddol y gwanwyn bron yn sero ym mhob clwstwr (canolrif −0.11). Felly mae\'r darlleniadau o fewn ffenestr MSL5 yn agos at fod yn annibynnol ar draws y rhwydwaith, ac mae MSL5 yn ymddwyn fel gwir gyfartaledd pum mlynedd. Mae sensitifrwydd y ffenestr yn real ac yn raddedig, ond fel mater o osgled yn hytrach na pharhad: mae ar ei fwyaf yn C4 Prif Goedwig, lle mae lefelau\'r gwanwyn yn siglo bellaf, ac mae gwasgariad rhyngflynyddol lefel y gwanwyn yn dilyn y cyfernod tynnu atmosfferig β₂ yn hytrach na β₃. Ni ellir adnabod cyfernod draenio rhyngdoriad-rhydd C4 o\'r cofnod.
 
-Mae rhagamcanion canradd-50 UKCP18 RCP8.5 a ledaenwyd trwy\'r SSM yn cynhyrchu dyfnhau isafswm haf rhagamcanol o 71--134 mm erbyn y 2080au a dyfnhau sylfaen y gwanwyn (MSL5) o 21--39 mm. Mae\'r anghymesuredd (mae\'r isafswm haf yn dyfnhau 3--5× yn gyflymach na MSL5) yn adlewyrchu rôl aflinol PET ym misoedd yr haf. Mae lluosyddion glaw critigol (m_P) yn dosbarthu 57 o 65 ffynnon twyni agored fel cyraeddadwy (m_P \< 1.5) a 5 o 23 ffynnon parth-coedwig fel rhai na ellir eu cyrraedd yn strwythurol (m_P ≥ 2.5).
+Gwerthuswyd rhagamcanion canradd-50 UKCP18 RCP8.5 fel y newid parhaus yn y lefel ddŵr, fesul ffynnon ar gyfernodau ffurf rhyngdoriad y model (nad yw ei gyfernod draenio\'n dibynnu ar y datwm draenio); ni ragamcanir C4 Prif Goedwig, gan na ellir adnabod ei gyfernod draenio o\'r cofnod. Mae lefel flynyddol gymedrig y safle\'n gostwng 0.158 m erbyn y 2050au a 0.284 m erbyn y 2080au. Yr haf sy\'n cario\'r rhan fwyaf o\'r newid: mae lefelau\'r haf yn gostwng 0.212 a 0.385 m ar draws y safle, gan gyrraedd 0.438 m yn C3 erbyn y 2080au, ac mae lefelau\'r gaeaf yn gostwng hefyd (0.103 a 0.180 m) ym mhobman ac eithrio C1. Mae sylfaen y gwanwyn yn symud llawer llai yn y twyni agored: erbyn y 2080au mae MSL5 yn newid +52 mm yn C1 a −22 mm yn C2, o\'i gymharu â gostyngiadau haf o 315 a 359 mm. Yn C3 ac C5 mae\'n gostwng tua hanner cymaint â lefel yr haf (−150 o\'i gymharu â −438 mm, a −141 o\'i gymharu â −302 mm), gan fod yr amser dychwelyd i\'r cymedr hirach yno\'n cario diffyg yr haf i\'r gwanwyn canlynol. Mae lluosyddion glaw critigol (m_P) yn dosbarthu 57 o 65 ffynnon twyni agored fel cyraeddadwy (m_P \< 1.5) a 5 o 23 ffynnon parth-coedwig fel rhai na ellir eu cyrraedd yn strwythurol (m_P ≥ 2.5).
 
 ![](Pictures/100000000000076200000446097E6DF6.png){width="14cm" height="8.1cm"}
 
 Ffigur 2. Llwybr isafswm haf rhagamcanol ar gyfer y pum parth yn erbyn trothwyon ecolegol Curreli et al. (2013). Ffenestr ymyrraeth critigol 2030--2039 wedi\'i chysgodi.
 
-![](Pictures/10000000000006B2000004D245961E36.png){width="14cm" height="10.081cm"}
+![](Pictures/10000000000006B2000004D245961E36.png){width="14cm" height="10.090cm"}
 
-Ffigur 3. Rhagamcanion UKCP18 RCP8.5 o MSL5 (glas) ac isafswm haf (oren) erbyn y 2050au a\'r 2080au. Mae\'r isafswm haf yn dyfnhau 3--5× yn gyflymach na sylfaen y gwanwyn ym mhob parth.
+Ffigur 3. Symudiad parhaus rhagamcanol yn lefel ddŵr gymedrig pum mlynedd y gwanwyn (MSL5, glas) ac yn lefel ddŵr yr haf (oren), fesul parth, o dan orfodaeth UKCP18 RCP8.5 ar gyfer y 2050au a\'r 2080au, ar gyfernodau\'r ffurf rhyngdoriad. Ni ragamcanir C4 (ni ellir adnabod ei gyfernod draenio). Negatif yw dyfnach. Mae metrig y gwanwyn yn symud llawer llai na lefel yr haf yn y twyni agored (C1, C2), a thua hanner cymaint yn C3 ac C5.
 
 Dadansoddi ymyriadau rheoli
 
@@ -66,7 +66,7 @@ Mae\'r di-ganlyniad haf yn gyson â rôl ddeuol i\'r canopi: mae tynnu rhyng-gip
 
 Newid sylfaenol y gwanwyn a arsylwyd a\'r strwythur gofodol
 
-Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau cymedrig y safle −97 mm (cymedr y rhwydwaith −588 i −685 mm). O 59 ffynnon â data dilys yn y ddwy ffenestr, dyfnhaodd 56 \>25 mm; aeth 0 yn fwy bas \>25 mm. Y gostyngiadau mwyaf ar ymyl arfordirol y de-orllewin (CEH22: −229 mm); y lleiaf ar Ymyl y Llyn dwyreiniol. Nid yw parth y clirdorri\'n dangos signal gwahaniaethadwy.
+Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau cymedrig y safle −105 mm (cymedr y rhwydwaith −467 i −572 mm). O 59 ffynnon â data dilys yn y ddwy ffenestr, dyfnhaodd 58 \>25 mm; aeth 0 yn fwy bas \>25 mm. Y gostyngiadau mwyaf ar ymyl arfordirol y de-orllewin (CEH22: −233 mm); y lleiaf ar Ymyl y Llyn dwyreiniol. Nid yw parth y clirdorri\'n dangos signal gwahaniaethadwy.
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
@@ -84,32 +84,32 @@ Mae cyd-newidyn dwyreinio×amser ar raddfa rhwydwaith yn ANCOVA\'r clirdorri yn 
 
 Graddfa\'r newid a arsylwyd yn ei gyd-destun
 
-Mae\'r ymyriadau rheoli a astudiwyd hyd yma wedi cynhyrchu effeithiau mesuradwy ar y raddfa leol: mae budd y crafu yn CEH36 yn gadarn yn ystadegol ac yn arwyddocaol yn ecolegol, a chynhyrchodd y clirdorri welliant canfyddadwy mewn lefelau dŵr misol cymedrig yn erbyn rheolyddion coedwig. Fodd bynnag, dyfnhaodd sylfaen gwanwyn y safle cyfan 97 mm rhwng ffenestri cymharu 2017 a 2023 --- newid sy\'n effeithio ar 56 o 59 ffynnon a fonitrwyd ar yr un pryd ac wedi\'i yrru gan rymoedd sy\'n gweithredu ar raddfa\'r dyfrhaen gyfan. Mae tymheredd yr haf wedi tueddu i fyny ar +0.014°C y flwyddyn⁻¹ ers 1931, gyda chynnydd cam o +0.94°C uwchlaw\'r llinell sylfaen ers 2013. Mae signal cilio\'r arfordir yn cyfrif, o fewn ansicrwydd, am ddirywiad eithriadol parth y Goedwig Arfordirol yn ei gyfanrwydd, ac mae\'n ymestyn sawl can metr i mewn i\'r tir. Yn erbyn y signalau hyn, mae budd y crafu mewn un ffynnon (+195 mm) a gwelliant misol-cymedrig y clirdorri (+113 mm o\'i gymharu â choedwig heb ei chwympo) yn cynrychioli ymatebion lleol nad ydynt yn newid cyfeiriad y duedd ar draws y rhwydwaith. Mae rhagamcanion UKCP18 yn dangos dyfnhau isafswm haf pellach o 71--134 mm erbyn y 2080au --- sydd, o\'i ychwanegu at y 97 mm a gollwyd eisoes rhwng ffenestri cymharu 2017 a 2023, yn gosod colledion cronnus o\'r llinell sylfaen cyn-clirdorri yn yr ystod 170--230 mm, gan ragori\'n sylweddol ar unrhyw effaith reoli a arsylwyd yn y cofnod hwn.
+Mae\'r ymyriadau rheoli a astudiwyd hyd yma wedi cynhyrchu effeithiau mesuradwy ar y raddfa leol: mae budd y crafu yn CEH36 yn gadarn yn ystadegol ac yn arwyddocaol yn ecolegol, a chynhyrchodd y clirdorri welliant canfyddadwy mewn lefelau dŵr misol cymedrig yn erbyn rheolyddion coedwig. Fodd bynnag, dyfnhaodd sylfaen gwanwyn y safle cyfan 105 mm rhwng ffenestri cymharu 2017 a 2023 --- newid sy\'n effeithio ar 58 o 59 ffynnon a fonitrwyd ar yr un pryd ac wedi\'i yrru gan rymoedd sy\'n gweithredu ar raddfa\'r dyfrhaen gyfan. Mae tymheredd yr haf wedi tueddu i fyny ar +0.014°C y flwyddyn⁻¹ ers 1931, gyda chynnydd cam o +0.94°C uwchlaw\'r llinell sylfaen ers 2013. Mae signal cilio\'r arfordir yn cyfrif, o fewn ansicrwydd, am ddirywiad eithriadol parth y Goedwig Arfordirol yn ei gyfanrwydd, ac mae\'n ymestyn sawl can metr i mewn i\'r tir. Yn erbyn y signalau hyn, mae budd y crafu mewn un ffynnon (+195 mm) a gwelliant misol-cymedrig y clirdorri (+113 mm o\'i gymharu â choedwig heb ei chwympo) yn cynrychioli ymatebion lleol nad ydynt yn newid cyfeiriad y duedd ar draws y rhwydwaith. Mae rhagamcanion UKCP18 yn dangos gostyngiad pellach yn lefel ddŵr yr haf o tua 0.39 m ar draws y safle erbyn y 2080au (0.30 i 0.44 m ar draws y parthau a ragamcanwyd; ni ragamcanir C4), ar ben y 105 mm o ddyfnhau yn sylfaen y gwanwyn a fesurwyd eisoes rhwng ffenestri cymharu 2017 a 2023, gan ragori\'n sylweddol ar unrhyw effaith reoli a arsylwyd yn y cofnod hwn.
 
 Prif ganfyddiadau meintiol
 
-  -------------------------------------------------------- -------------------------- ----------------
-  Canfyddiad                                               Gwerth                     Ffynhonnell
-  Cam crafu CEH36 (BACI pâr)                               \+ 195 mm p = 0.004        Script 09c
-  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)   \+ 113 mm p = 0.002        Script 10a
-  Cam clirdorri yn erbyn rheolydd Coedwig (haf yn unig)    \+ 46 mm p = 0.44 (n.s.)   Script 10a
-  Newid MSL5 2017→2023 (cymedr y safle)                    − 97 mm                    Script 26 / 20
-  Ffynhonnau a ddyfnhaodd \>25 mm (o 59 dilys)             56 (95%)                   Script 20
-  Tuedd wahaniaethol C4 2011--2025                         \+ 14.9 mm/yr (cymedr)     Script 32
-  Tuedd wahaniaethol C5 2011--2025                         − 6.8 mm/yr (cymedr)       Script 32
-  Cyfernod mwyhau C4 (canonaidd)                           1.65× cymedr y safle       Script 33/35
-  Cyfernod mwyhau C1                                       0.66× cymedr y safle       Script 33/35
-  Tuedd CEH22 (ymyl arfordirol)                            − 26.5 mm/yr p \< 0.001    Script 32
-  Croesiad trothwy C1 (isafswm haf)                        \~2030--2032               Script 14
-  Dyfnhau isafswm haf UKCP18 2080au                        71--134 mm                 Script 14/26b
-  Dyfnhau MSL5 UKCP18 2080au                               21--39 mm                  Script 26b
-  -------------------------------------------------------- -------------------------- ----------------
+  ------------------------------------------------------------------------- ------------------------------- ----------------
+  Canfyddiad                                                                Gwerth                          Ffynhonnell
+  Cam crafu CEH36 (BACI pâr)                                                \+ 195 mm p = 0.004             Script 09c
+  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)                    \+ 113 mm p = 0.002             Script 10a
+  Cam clirdorri yn erbyn rheolydd Coedwig (haf yn unig)                     \+ 46 mm p = 0.44 (n.s.)        Script 10a
+  Newid MSL5 2017→2023 (cymedr y safle)                                     − 105 mm                        Script 26 / 20
+  Ffynhonnau a ddyfnhaodd \>25 mm (o 59 dilys)                              58 (98%)                        Script 20
+  Tuedd wahaniaethol C4 2011--2025                                          \+ 14.9 mm/yr (cymedr)          Script 32
+  Tuedd wahaniaethol C5 2011--2025                                          − 6.8 mm/yr (cymedr)            Script 32
+  Cyfernod mwyhau C4 (canonaidd)                                            1.65× cymedr y safle            Script 33/35
+  Cyfernod mwyhau C1                                                        0.66× cymedr y safle            Script 33/35
+  Tuedd CEH22 (ymyl arfordirol)                                             − 26.5 mm/yr p \< 0.001         Script 32
+  Croesiad trothwy C1 (isafswm haf)                                         \~2030--2032                    Script 14
+  Gostyngiad lefel haf UKCP18 2080au, ar draws y safle (ni ragamcanir C4)   385 mm (302--438 fesul parth)   Script 19
+  Newid MSL5 UKCP18 2080au, C1 / C2 / C3 / C5                               +52 / −22 / −150 / −141 mm      Script 19
+  ------------------------------------------------------------------------- ------------------------------- ----------------
 
 Tabl 2. Prif ganlyniadau meintiol. Daw\'r holl ffigurau o CSVs y biblinell a ymrwymwyd ar gangen main GitHub.
 
 Casgliadau
 
-> • Y lefel ddŵr isafswm haf yw\'r newidyn sy\'n rhwymo\'n ecolegol. Mae MSL5 yn ddirprwy a fesurir yn well sy\'n olrhain drifft arafach y system ond sy\'n tanamcangyfrif osgled y risg ecolegol.
+> • Y lefel ddŵr isafswm haf yw\'r newidyn sy\'n rhwymo\'n ecolegol. Mae MSL5 yn ddirprwy a fesurir yn well sy\'n olrhain drifft arafach y system ond sy\'n tanamcangyfrif osgled y risg ecolegol, yn enwedig yn y twyni agored (C1, C2), lle mae lefelau rhagamcanol y gwanwyn prin yn symud tra bo lefelau\'r haf yn gostwng mwy na 0.3 m erbyn y 2080au.
 
 > • Crafu twyni mewn safleoedd mewndirol a ddewiswyd yn dda yw\'r ymyrraeth uniongyrchol fwyaf effeithiol sydd ar gael, ond nid yw\'n mynd i\'r afael â\'r gyrwyr sylfaenol. Mae\'r buddion yn erydu yn erbyn tuedd hinsawdd y cefndir.
 

@@ -24,7 +24,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-08. --check reads a content
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-10-01 (D-219). Number fields: pandoc 3.1.3 drops
+#   the displayed text of an ODF user field (<text:user-field-get>), so "Model B gives 6.5" mirrored as
+#   "Model B gives ". A document that carries fields is converted from a temporary copy whose
+#   content.xml has each field unwrapped to its displayed text; a document without fields converts
+#   exactly as before (same bytes). The source hash in the banner is still the source's own.
+# 1.3.0  # Hollingham (2026) - 2026-09-08. --check reads a content
 #        stamp (source-sha256 of the source's content.xml, plus the pandoc version) now
 #        written into every mirror's header on write. A mirror whose stamped hash no
 #        longer matches its live source reports STALE (content); a mirror stamped by a
@@ -226,6 +231,25 @@ def resolve() -> list[tuple[Path, Path]]:
     return jobs
 
 
+_FIELD_GET = re.compile(r"<text:user-field-get\b[^>]*>(.*?)</text:user-field-get>", re.S)
+
+
+def _unwrapped_copy(src: Path, tmp: str) -> Path:
+    """src itself when it has no number fields; else a copy with each field unwrapped (1.4.0)."""
+    import zipfile                                            # noqa: PLC0415
+    with zipfile.ZipFile(src) as zin:
+        xml = zin.read("content.xml").decode("utf-8")
+        if "<text:user-field-get" not in xml:
+            return src
+        out = Path(tmp) / src.name
+        with zipfile.ZipFile(out, "w") as zout:
+            for info in zin.infolist():
+                data = _FIELD_GET.sub(r"\1", xml).encode("utf-8") if info.filename == "content.xml" \
+                    else zin.read(info.filename)
+                zout.writestr(info, data)
+    return out
+
+
 def convert(src: Path, dst: Path) -> None:
     require_supported_pandoc(writing=True)
     dst.parent.mkdir(parents=True, exist_ok=True)
@@ -233,7 +257,7 @@ def convert(src: Path, dst: Path) -> None:
         subprocess.run(
             ["pandoc", "-f", "odt", "-t", "markdown", "--wrap=none",
              _ATX_FLAG,
-             "-o", str(Path(tmp) / "out.md"), str(src)],
+             "-o", str(Path(tmp) / "out.md"), str(_unwrapped_copy(src, tmp))],
             check=True, capture_output=True,
         )
         text = (Path(tmp) / "out.md").read_text(encoding="utf8")

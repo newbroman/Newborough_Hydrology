@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_0.odt — do not edit. source-sha256=93ac5563af319c06 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_1.odt — do not edit. source-sha256=7cf51e30ded0892c pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading a head-dependent drainage model fitted to monthly water levels: what the datum, the intercept and the record decide, in a coastal dune aquifer
@@ -107,7 +107,7 @@ The mean-reversion time can be measured without either model, from the lag-1 aut
 
 ## []{#anchor}5.3 Year-to-year persistence
 
-A short mean-reversion time predicts that spring levels in successive years are close to independent. The expected lag-1 autocorrelation of spring level implied by the drainage term, exp(−12·β₃), is 0.17 at the median well under Model B and 0.45 under Model A; the observed value is −0.11. Taken at face value, Model A's expectation would make a five-year mean of spring levels a poorly averaged quantity; the record does not support that.
+A short mean-reversion time predicts that spring levels in successive years are close to independent. The expected lag-1 autocorrelation of spring level implied by the drainage term, the lag-12 autocorrelation of the monthly recurrence (1 − β₃)¹², is 0.15 at the median well under Model B and 0.44 under Model A; the observed value is −0.11. Taken at face value, Model A's expectation would make a five-year mean of spring levels a poorly averaged quantity; the record does not support that.
 
 ## []{#anchor}5.4 Out-of-sample skill
 

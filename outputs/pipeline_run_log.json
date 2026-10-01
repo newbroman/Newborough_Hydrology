@@ -187,8 +187,8 @@
    "step": "27/59  Coastal-retreat gradient analysis"
   },
   "26_van_willegen_msl.py": {
-   "last_run": "2026-10-01T06:21:57",
-   "seconds": 12.2,
+   "last_run": "2026-10-01T15:01:16",
+   "seconds": 17.9,
    "status": "ok",
    "step": "31/59  Van Willegen (2025) 5-year MSL aggregation"
   },
@@ -355,5 +355,5 @@
    "step": "11/59  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-10-01T06:39:39"
+ "updated": "2026-10-01T15:01:16"
 }

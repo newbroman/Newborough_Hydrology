@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_25.odt — do not edit. source-sha256=b7f52c143dd18312 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_27.odt — do not edit. source-sha256=17f2520adf711702 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -17,7 +17,7 @@ Cluster analysis (hierarchical Ward, k=5) partitioned the reference network into
 
 ![](Pictures/10000000000007600000065963A870F2.png){width="14cm" height="10.714cm"}
 
-Figure 1. The five hydrogeological zones identified by cluster analysis (hierarchical Ward, k=5): C1 Lake Edge (blue, n=7), C2 Dune (green, n=24), C3 Western Residual (red, n=21), C4 Main Forest (purple, n=9), C5 Coastal Forest (brown, n=5). Forest boundary magenta; 2017 clearfell zone orange.
+Figure 1. The five hydrogeological zones identified by cluster analysis (hierarchical Ward, k=5): C1 Lake Edge (blue, n=7), C2 Dune (green, n=19), C3 Western Residual (red, n=26), C4 Main Forest (purple, n=9), C5 Coastal Forest (brown, n=5). Forest boundary magenta; 2017 clearfell zone orange.
 
 Aquifer characterisation
 
@@ -38,17 +38,17 @@ Climate forcing and threshold analysis
 
 Summer maximum temperatures at RAF Valley have trended upward at +0.014°C yr⁻¹ (p \< 0.001) over the full record (1931--2025), with a step increase of +0.94°C above baseline since 2013. Trend analysis of summer minimum water-table depth yields statistically significant declining trends in C1 (p \< 0.05) and C5 (p \< 0.05); C2 is marginal; C3 and C4 are non-significant on their own. Extrapolation of cluster-mean trends indicates C1 Lake Edge crosses the wet-slack viability threshold (SD15b, −0.61 m) around 2030--2032 under current trajectory.
 
-The van Willegen et al. (2025) finding that a five-year mean spring level (MSL5) best explains dune slack vegetation response reflects an ecological carry-over: plant communities integrate hydrological conditions over roughly five years. The drainage decay half-life t½ = ln(2)/β₃ governs a distinct, upstream carry-over --- how long modelled storage above the drainage datum takes to halve. How long a spring anomaly persists is a different quantity from t½: the half-life at the datum measures the decay of storage above a fixed reference, whereas the persistence of a fluctuation about the mean is datum-free and is estimated by refitting the same model with a free intercept (Model B; Methods Supplement §S.3). On that measure the open dune clusters differ enough to matter for interpreting MSL5. C1 Lake Edge (datum-free half-life about 2 months) retains essentially none of a spring anomaly one year on, and C2 Dune (about 4 months) about a tenth, so their five within-window readings are close to independent and MSL5 behaves as a genuine multi-year average. C3 Western Residual (about 7 months at the cluster centroid, 5 at the median well) retains roughly a fifth to a third: a single wet or dry spring propagates into subsequent readings, so an MSL5 value there is weighted toward the position of any extreme spring within its window rather than being a clean five-year mean. This means the same measured MSL5 deepening carries different information across the dune network --- a robust multi-year signal in C1 and C2, but a potentially anomaly-contaminated one at the slower C3 wells, which should be checked against window placement before attributing change to management or climate. The forest interior sits far outside this range (C4 datum-free half-life about 55 months, retaining most of an anomaly a year later) and does not host the slack communities MSL5 was designed for, but it illustrates the mechanism: where a fluctuation decays slowly, spring readings are heavily autocorrelated and MSL5 loses its interpretation as an average.
+The van Willegen et al. (2025) finding that a five-year mean spring level (MSL5) best explains dune slack vegetation response reflects an ecological carry-over: plant communities integrate hydrological conditions over roughly five years. Whether the five spring readings within an MSL5 window are independent depends on how quickly the water table returns to its own mean. That is not the drainage half-life t½ = ln(2)/β₃ of the published no-intercept model, which is the recession constant of the drainage term at the 3.7 m datum and changes with the datum. It is measured by refitting the same model with a free intercept, whose drainage coefficient does not depend on the datum, and it is short: the e-folding time is about half a year (median 6.5 months, against 5.1 months from the observed autocorrelation of the deseasonalized level), from about 2 months at C1 Lake Edge to about 13 months at C5 Coastal Forest. The year-to-year spring persistence this implies is small, from 0.02 at C1 to 0.30 at C5 (median 0.17 across wells), and the observed lag-1 autocorrelation of annual spring level is approximately zero at every cluster (median −0.11). The readings within an MSL5 window are therefore close to independent across the network, and MSL5 behaves as a genuine five-year average. Window sensitivity is real and graded, but as a matter of amplitude rather than persistence: it is greatest at C4 Main Forest, whose spring levels swing furthest, and the interannual spread of spring level follows the atmospheric-draw coefficient β₂ rather than β₃. C4\'s free-intercept drainage coefficient is not identified on the record.
 
-UKCP18 RCP8.5 50th-percentile projections propagated through the SSM yield projected summer minimum deepening of 71--134 mm by the 2080s and spring baseline (MSL5) deepening of 21--39 mm. The asymmetry (summer minimum deepens 3--5× faster than MSL5) reflects the nonlinear role of PET in summer months. Critical rainfall multipliers (m_P) classify 57 of 65 open-dune wells as achievable (m_P \< 1.5) and 5 of 23 forest-zone wells as structurally unreachable (m_P ≥ 2.5).
+UKCP18 RCP8.5 50th-percentile projections were evaluated as the sustained change in water level, per well on the coefficients of the intercept form of the model (whose drainage coefficient does not depend on the drainage datum); C4 Main Forest is not projected, its drainage coefficient not being identified on the record. The site-wide mean annual level falls by 0.158 m by the 2050s and 0.284 m by the 2080s. Summer carries most of the change: summer levels fall by 0.212 and 0.385 m site-wide, reaching 0.438 m at C3 by the 2080s, and winter levels fall too (0.103 and 0.180 m) everywhere except C1. The spring baseline moves far less in the open dune: by the 2080s MSL5 changes by +52 mm at C1 and −22 mm at C2, against summer falls of 315 and 359 mm. At C3 and C5 it falls by about half as much as the summer level (−150 against −438 mm, and −141 against −302 mm), the longer mean-reversion time there carrying a summer deficit into the following spring. Critical rainfall multipliers (m_P) classify 57 of 65 open-dune wells as achievable (m_P \< 1.5) and 5 of 23 forest-zone wells as structurally unreachable (m_P ≥ 2.5).
 
 ![](Pictures/100000000000076200000446097E6DF6.png){width="14cm" height="8.1cm"}
 
 Figure 2. Projected summer minimum trajectory for all five zones vs Curreli et al. (2013) ecological thresholds. Critical intervention window 2030--2039 shaded.
 
-![](Pictures/10000000000006B2000004D245961E36.png){width="14cm" height="10.081cm"}
+![](Pictures/10000000000006B2000004D245961E36.png){width="14cm" height="10.090cm"}
 
-Figure 3. UKCP18 RCP8.5 projections of MSL5 (blue) and summer minimum (orange) by 2050s and 2080s. Summer minimum deepens 3--5× faster than the spring baseline at every zone.
+Figure 3. Projected sustained shift in the five-year mean spring water level (MSL5, blue) and in the summer water level (orange), by zone, under UKCP18 RCP8.5 forcing for the 2050s and 2080s, on the intercept-form coefficients. C4 is not projected (its drainage coefficient is not identified). Negative is deeper. The spring metric moves far less than the summer level in the open dune (C1, C2), and about half as much at C3 and C5.
 
 Management intervention analysis
 
@@ -66,7 +66,7 @@ The null summer result is consistent with a dual canopy role: interception remov
 
 Observed spring baseline change and spatial structure
 
-MSL5 comparison (window-end 2017 vs window-end 2023): site-mean deepening −97 mm (network mean −588 to −685 mm). Of 59 wells with valid data in both windows, 56 deepened \>25 mm; 0 became shallower \>25 mm. Largest declines at the south-western coastal margin (CEH22: −229 mm); smallest at the eastern Lake Edge. Clearfell zone shows no distinguishable signal.
+MSL5 comparison (window-end 2017 vs window-end 2023): site-mean deepening −105 mm (network mean −467 to −572 mm). Of 59 wells with valid data in both windows, 58 deepened \>25 mm; 0 became shallower \>25 mm. Largest declines at the south-western coastal margin (CEH22: −233 mm); smallest at the eastern Lake Edge. Clearfell zone shows no distinguishable signal.
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
@@ -84,32 +84,32 @@ A network-scale regression of per-well trends against distance to the eroding sh
 
 The scale of observed change in context
 
-The management interventions studied to date have produced measurable effects at the local scale: the scraping benefit at CEH36 is statistically robust and ecologically significant, and the clearfell produced a detectable improvement in mean monthly water levels against forest controls. However, the site-wide spring baseline deepened by 97 mm between the 2017 and 2023 comparison windows --- a change affecting 56 of 59 monitored wells simultaneously and driven by forces operating at the scale of the whole aquifer. Summer temperatures have trended upward at +0.014°C yr⁻¹ since 1931, with a step increase of +0.94°C above baseline since 2013. The coastal-retreat signal accounts, within uncertainty, for the whole of the Coastal Forest zone's exceptional decline, and extends several hundred metres inland. Against these signals, the scraping benefit at a single well (+195 mm) and the clearfell monthly-mean improvement (+113 mm relative to unfelled forest) represent localised responses that do not alter the direction of the network-wide trend. The UKCP18 projections indicate a further summer minimum deepening of 71--134 mm by the 2080s --- which, added to the 97 mm already lost between the 2017 and 2023 comparison windows, places cumulative losses from the pre-clearfell baseline in the range of 170--230 mm, substantially exceeding any management effect observed in this record.
+The management interventions studied to date have produced measurable effects at the local scale: the scraping benefit at CEH36 is statistically robust and ecologically significant, and the clearfell produced a detectable improvement in mean monthly water levels against forest controls. However, the site-wide spring baseline deepened by 105 mm between the 2017 and 2023 comparison windows --- a change affecting 58 of 59 monitored wells simultaneously and driven by forces operating at the scale of the whole aquifer. Summer temperatures have trended upward at +0.014°C yr⁻¹ since 1931, with a step increase of +0.94°C above baseline since 2013. The coastal-retreat signal accounts, within uncertainty, for the whole of the Coastal Forest zone's exceptional decline, and extends several hundred metres inland. Against these signals, the scraping benefit at a single well (+195 mm) and the clearfell monthly-mean improvement (+113 mm relative to unfelled forest) represent localised responses that do not alter the direction of the network-wide trend. The UKCP18 projections indicate a further fall in summer water level of about 0.39 m site-wide by the 2080s (0.30 to 0.44 m across the projected zones; C4 not projected), on top of the 105 mm of spring-baseline deepening already measured between the 2017 and 2023 comparison windows, and substantially exceeding any management effect observed in this record.
 
 Key quantitative findings
 
-  ------------------------------------------------- -------------------------- ----------------
-  Finding                                           Value                      Source
-  Scraping step CEH36 (paired BACI)                 \+ 195 mm p = 0.004        Script 09c
-  Clearfell step vs Forest control (monthly mean)   \+ 113 mm p = 0.002        Script 10a
-  Clearfell step vs Forest control (summer only)    \+ 46 mm p = 0.44 (n.s.)   Script 10a
-  MSL5 change 2017→2023 (site mean)                 − 97 mm                    Script 26 / 20
-  Wells deepened \>25 mm (of 59 valid)              56 (95%)                   Script 20
-  C4 differential trend 2011--2025                  \+ 14.9 mm/yr (mean)       Script 32
-  C5 differential trend 2011--2025                  − 6.8 mm/yr (mean)         Script 32
-  C4 amplification coefficient (canonical)          1.65× site mean            Script 33/35
-  C1 amplification coefficient                      0.66× site mean            Script 33/35
-  CEH22 (coastal margin) trend                      − 26.5 mm/yr p \< 0.001    Script 32
-  C1 threshold crossing (summer min)                \~2030--2032               Script 14
-  UKCP18 2080s summer min deepening                 71--134 mm                 Script 14/26b
-  UKCP18 2080s MSL5 deepening                       21--39 mm                  Script 26b
-  ------------------------------------------------- -------------------------- ----------------
+  -------------------------------------------------------------- ---------------------------- ----------------
+  Finding                                                        Value                        Source
+  Scraping step CEH36 (paired BACI)                              \+ 195 mm p = 0.004          Script 09c
+  Clearfell step vs Forest control (monthly mean)                \+ 113 mm p = 0.002          Script 10a
+  Clearfell step vs Forest control (summer only)                 \+ 46 mm p = 0.44 (n.s.)     Script 10a
+  MSL5 change 2017→2023 (site mean)                              − 105 mm                     Script 26 / 20
+  Wells deepened \>25 mm (of 59 valid)                           58 (98%)                     Script 20
+  C4 differential trend 2011--2025                               \+ 14.9 mm/yr (mean)         Script 32
+  C5 differential trend 2011--2025                               − 6.8 mm/yr (mean)           Script 32
+  C4 amplification coefficient (canonical)                       1.65× site mean              Script 33/35
+  C1 amplification coefficient                                   0.66× site mean              Script 33/35
+  CEH22 (coastal margin) trend                                   − 26.5 mm/yr p \< 0.001      Script 32
+  C1 threshold crossing (summer min)                             \~2030--2032                 Script 14
+  UKCP18 2080s summer level fall, site-wide (C4 not projected)   385 mm (302--438 by zone)    Script 19
+  UKCP18 2080s MSL5 change, C1 / C2 / C3 / C5                    +52 / −22 / −150 / −141 mm   Script 19
+  -------------------------------------------------------------- ---------------------------- ----------------
 
 Table 2. Headline quantitative results. All figures from committed pipeline CSVs on GitHub main branch.
 
 Conclusions
 
-> • The summer minimum water table is the ecologically binding variable. MSL5 is a better-measured proxy that tracks slower system drift but understates the amplitude of the ecological risk.
+> • The summer minimum water table is the ecologically binding variable. MSL5 is a better-measured proxy that tracks slower system drift but understates the amplitude of the ecological risk, most of all in the open dune (C1, C2), where projected spring levels barely move while summer levels fall by more than 0.3 m by the 2080s.
 
 > • Dune scraping at well-chosen inland sites is the most effective available direct intervention but does not address the underlying drivers. Benefits erode against the background climate trend.
 

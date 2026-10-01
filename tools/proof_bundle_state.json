@@ -1,6 +1,6 @@
 {
- "bundle_at": "2026-10-01T11:25:06",
- "bundle_sha256": "f626e5997f48a83b",
+ "bundle_at": "2026-10-01T12:37:05",
+ "bundle_sha256": "5e3282c8e22177fa",
  "chapters": {
   "report": "f1ae1113e1c1f8b8",
   "report10": "b72f7eed9d9d514b",
@@ -12,10 +12,10 @@
   "report16": "b69fe1f7c9fef196",
   "report6": "25f2247be14c8845",
   "report7": "47aa60023ae1183e",
-  "report8": "5c77942f839e4b3a",
+  "report8": "5d06f1f3a11ea8dd",
   "report9": "4166094be49eabb5"
  },
- "published_at": "2026-10-01T08:58:24",
- "published_sha256": "fd29d04170282445",
- "published_version": "36"
+ "published_at": "2026-10-01T10:47:09",
+ "published_sha256": "f626e5997f48a83b",
+ "published_version": "37"
 }

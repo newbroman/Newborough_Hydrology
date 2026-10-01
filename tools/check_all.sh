@@ -18,8 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.23.0 - 2026-09-30
+# VERSION 1.24.0 - 2026-10-01
 # CHANGELOG
+#   1.24.0 (2026-10-01): number-fields gate (D-219) after table cells - field_sync --check:
+#     every user field in every document is registered and equals its committed value.
 #   1.23.0 (2026-09-30): ship_regen_lint gate (D-213) beside rule_gate_lint - every
 #     derived artefact this script gates must be rebuilt by nrg_git.sh's
 #     ship_regenerate(); three ships on 2026-09-30 died on gates the ship could
@@ -295,6 +297,12 @@ echo "── table cells (does every generated table cell match its source CSV?)
 # this checks the cells MATCH it. 110 stale cells across 9 tables sat behind a
 # green gate until this was wired (the W101/D-006 failure, for tables).
 python3 tools/table_gen.py --check || rc=1
+
+echo
+echo "── number fields (does every field in every document equal its committed value?) ──"
+# Gate added 2026-10-01 (D-219): a pipeline number in a document is a user field named in
+# tools/number_fields.csv; the ship sets them (field_sync --write), this proves it happened.
+python3 tools/field_sync.py --check || rc=1
 
 echo
 echo "── drift term (does any consumer name 10a's drift column by literal?) ──"

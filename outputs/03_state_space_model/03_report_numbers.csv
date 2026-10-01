@@ -40,3 +40,9 @@ cluster_well_recession_time_max_months,C5 (Coastal Forest),,25.643813280510212,m
 C1_mean_elevation_aod_excl_network_min,C1 (Lake Edge),excluding ceh11,9.365705704486532,m AOD,"C1_mean_elevation_aod without ceh11, the reference well with the lowest mean water-table elevation (3.023 m AOD); n=6 wells"
 datum0_n_clusters_beta3_negative,,,2.0,count,"cluster centroids with beta_3 < 0 under Model A at DATUM_RAW_DEPTH_M (raw depth, no drainage base): C4, C5 (03_19_datum_zero_fit.csv)"
 datum0_n_clusters_beta3_pos_sig,,,3.0,count,cluster centroids with beta_3 > 0 and p < 0.05 at DATUM_RAW_DEPTH_M (03_19_datum_zero_fit.csv)
+window_beta3_ratio_to_min,C1 (Lake Edge),,8.422188303785378,ratio,"comparison-window centroid beta_3 of this cluster / that of C4 (Main Forest), the smallest (03_14_centroid_window_sensitivity.csv)"
+window_beta3_ratio_to_min,C2 (Dune),,5.556550085248672,ratio,"comparison-window centroid beta_3 of this cluster / that of C4 (Main Forest), the smallest (03_14_centroid_window_sensitivity.csv)"
+window_beta3_ratio_to_min,C3 (Western Residual),,5.075623158632061,ratio,"comparison-window centroid beta_3 of this cluster / that of C4 (Main Forest), the smallest (03_14_centroid_window_sensitivity.csv)"
+window_beta3_ratio_to_min,C5 (Coastal Forest),,3.572860210204614,ratio,"comparison-window centroid beta_3 of this cluster / that of C4 (Main Forest), the smallest (03_14_centroid_window_sensitivity.csv)"
+window_beta3_ratio_to_min_min,C5 (Coastal Forest),,3.572860210204614,ratio,min over the other clusters of window_beta3_ratio_to_min (relative to C4 (Main Forest)); the Well cell is the cluster
+window_beta3_ratio_to_min_max,C1 (Lake Edge),,8.422188303785378,ratio,max over the other clusters of window_beta3_ratio_to_min (relative to C4 (Main Forest)); the Well cell is the cluster

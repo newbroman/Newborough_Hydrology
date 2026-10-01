@@ -2572,6 +2572,10 @@
 - _(untracked)_ 1.8% — …el water balance closes to within 1.8% of total losses at all five c…
 - _(untracked)_ 0.01 m/month — …of the 66 reference wells within ±0.01 m/month and no gradient in residual m…
 
+### §6.10 Topographic proxies, aeolian deflation, and bedrock causation
+
+- _(untracked)_ 300 m — …nd: against the DEM smoothed over 300 m it has a slope of 1.01 and r…
+
 ## report12
 
 

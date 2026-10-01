@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_70.odt — do not edit. source-sha256=6af9e58dce6c86e3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_71.odt — do not edit. source-sha256=8497ecc47116fe24 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.70 (September 2026).
+Document version: 2.0.71 (October 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -439,7 +439,7 @@ GIS and map-plotting helpers shared by every spatial-output script (04, 07, 08, 
 
 -   *load_dem_layer(ax, data_dir)* --- coloured terrain colormap onto an existing axes. Used by point-symbol metric maps.
 -   *load_dem_hillshade(ax, data_dir, alpha, vert_exag, zorder)* --- greyscale hillshade (LightSource, azdeg=315, altdeg=35). Used where a metric surface is overlaid semi-transparently.
--   *add_kml_features(ax, data_dir)* --- overlays *Features.kml*, *streams.kml*, *clearfell.kml*. Returns legend handles.
+-   *add_kml_features(ax, data_dir)* --- overlays *Features.kml*, *clearfell.kml* and the scrape footprints, and *streams.kml* only on request (include_streams=True; off by default, D-215). Returns legend handles.
 -   *add_osm_basemap(ax, gdf)* --- OSM fallback when the DEM is unavailable.
 -   *add_idw_surface(ax, df, value_col, xi, yi, method, ridge_mask_threshold, dem_e_arr, dem_n_arr, dem_data, cmap, norm, alpha, zorder)* --- inverse-distance-weighted interpolation of a per-well metric onto a regular grid, with an optional ridge mask (cells where the DEM sits more than *ridge_mask_threshold* metres above the IDW-interpolated well-DEM surface are masked, preventing extrapolation onto the bedrock ridge where there are no wells). Returns the pcolormesh object, grid coordinates, and the masked surface.
 -   *plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vmax)* --- full publication-quality spatial map: DEM background, KML overlays, cluster-shape markers, dual colorbars, legend. The high-level wrapper that the spatial scripts call.
@@ -814,7 +814,7 @@ Under the live data, the per-well primary optima are mostly pinned at the lower 
 
 Six of 66 wells never achieve β₃ \> 0 with p \< 0.05 at any datum in the sweep --- these are the wells at which the SSM's drainage term cannot be cleanly identified. They are routed into the spatial analysis (Scripts 07, 08) where their uncertainty is shown rather than hidden.
 
-**Spatial datum maps --- ***make_well_datum_maps***.** *plot_metric_map* from *map_utils* (F.5) produces two publication-quality spatial maps: per-well R²-maximizing datum and per-well R²-gain over the uniform datum. DEM background, KML overlays (*Features.kml*, *streams.kml*, *clearfell.kml*), cluster-shape markers from *config.CLUSTER_MARKERS*, dual colorbars, legend --- all the standard rendering described in F.5. These are the only spatial maps Script 03 produces; per-well β maps are Script 07's job.
+**Spatial datum maps --- ***make_well_datum_maps***.** *plot_metric_map* from *map_utils* (F.5) produces two publication-quality spatial maps: per-well R²-maximizing datum and per-well R²-gain over the uniform datum. DEM background, KML overlays (*Features.kml*, *clearfell.kml*; not *streams.kml*, D-215), cluster-shape markers from *config.CLUSTER_MARKERS*, dual colorbars, legend --- all the standard rendering described in F.5. These are the only spatial maps Script 03 produces; per-well β maps are Script 07's job.
 
 **Model B persistence --- ***model_b_persistence***.** Model A is fitted without an intercept, so β₃ carries the datum: t½ = ln 2/β₃ is the recession constant of the drainage term at the 3.7 m reference, and it scales with that reference (D-007, D-109). How long a fluctuation about the mean persists --- the question the MSL5 discussion asks --- is a different, datum-free quantity. Model B frees the intercept (*fit_ssm_intercept*), which absorbs any constant datum shift and leaves β₃ datum-invariant. This step fits both specifications to the same series on the same basis --- every centroid on the full record and every reference well on the comparison window, exactly the RB-03 and RB-04 bases --- and writes them side by side to *03_16_model_b_persistence.csv*: the Model A β₃ and half-life, the Model B α, β₁, β₂, β₃ with p-values, the datum-free e-folding time 1/β₃ and half-life ln 2/β₃, and the ratio of the two half-lives. Where a β₃ is not positive the row is kept and the persistence columns are left empty with a note, never dropped. Nothing downstream consumes the file; it exists so that any document statement about the persistence of a spring anomaly quotes a committed datum-free number rather than the datum-carried t½ (the confusion D-109 retired), and so the A/B ratio makes the size of the datum effect visible per cluster and per well. In the committed run the intercept is strongly significant in the three open-dune clusters and not significant in either forest cluster (C4 p ≈ 0.6, C5 p ≈ 0.9), which is why the datum-carried and datum-free half-lives nearly coincide in the forest and diverge about four-fold at C1 Lake Edge: the datum effect is largest exactly where the drainage term is strongest.
 
@@ -4368,7 +4368,7 @@ End of chapter S.23.
 
 **Step 2/59, Phase 1 in *****run_analysis.py*****. Analytical tier (*****tier="A"*****, *****exec="default"*****). Added 2026-09-27 (D-205).**
 
-**Motivation.** The surface routing drawn on the site maps (*streams.kml*, D-082) spills each closed slack over its lowest saddle; it traces where water would run on the ground, not how groundwater moves between slacks. This step builds the water table from what measures it --- the dipwells, with the sea and the landward water bodies as boundaries --- and shows flow as the down-gradient direction of that surface in a wet, a mean and a dry state. Sentinel-2 wetness is used as a check on the surface, not as data.
+**Motivation.** The surface routing once drawn on every site map (*streams.kml*, D-082; since D-215 only beside the flow field) spills each closed slack over its lowest saddle; it traces where water would run on the ground, not how groundwater moves between slacks. This step builds the water table from what measures it --- the dipwells, with the sea and the landward water bodies as boundaries --- and shows flow as the down-gradient direction of that surface in a wet, a mean and a dry state. Sentinel-2 wetness is used as a check on the surface, not as data.
 
 **Inputs.** *01_wells_all.csv* and *01_well_elevations.csv* (every well with a surveyed ground, reference and extended); *01_wells_clean.csv* (the Llyn Rhos-Ddu lake gauge); the committed 2 m LiDAR DEM, *coastline_hwm.geojson*, *study_area.geojson* (D-203) and the Llyn Rhos-Ddu outline in *Features.kml*; *tidal_levels_caernarfon_bar.csv* (UKHO Admiralty Tide Tables, NP201B-26); the Sentinel switching levels *cell_thresholds.npz* and the scene list *sentinel_scene_manifest.csv* (D-178). Constants: the *SLACK_FLOW\_\** block and *STUDY_AREA_RIVER_START* in *config.py*.
 

@@ -95,7 +95,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-29. 1.4.0: T-96 batch 2 - n_slacks_turn_over_report_deg
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-10-01. Streams off Figure 4 (unexplained wetness):
+#   base() takes show_streams and the wetness map passes False, so surface routing stays only on
+#   Figure 1, beside the -grad h arrows it is compared with (D-215). Figure 4 legend drops the
+#   streams entry. Figure only; no output value moves.
+# 1.4.0  # Hollingham (2026) - 2026-09-29. 1.4.0: T-96 batch 2 - n_slacks_turn_over_report_deg
 #   (Era = config.SLACK_FLOW_TURN_REPORT_DEG), the slacks whose wet-to-dry direction turns by more than the
 #   reporting angle (report9 SS4.9.5 "7 of 116 ... more than 20 degrees"), beside n_slacks_with_turn. Emit-only.
 # 1.3.0  # Hollingham (2026) - 2026-09-29. 1.3.0: T-96 emit list — sentinel_cells_tested,
@@ -1213,9 +1217,9 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
             axis.set_major_locator(matplotlib.ticker.MultipleLocator(C.SLACK_FLOW_MAP_TICK_M))
         add_en_axes(ax, apply_extent=False, labelsize=FS_S, label_fontsize=FS_S)
 
-    def base(ax, st, contours=True):
+    def base(ax, st, contours=True, show_streams=True):
         ax.imshow(hs, extent=ext, cmap="gray", vmin=0, vmax=1.2)
-        if streams is not None:
+        if show_streams and streams is not None:   # Figure 1 only (1.5.0, D-215)
             streams.plot(ax=ax, color="#6a51a3", lw=0.3, alpha=0.3)
         if contours:
             top = float(np.nanmax(grids[st]))
@@ -1467,7 +1471,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
 
     # ── Figure 4: unexplained wetness ───────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(10, 10), constrained_layout=True)
-    base(ax, "wet")
+    base(ax, "wet", show_streams=False)
     c = chk[np.isfinite(chk.difference_m)]
     for k, (col, _) in CLASS_STYLE.items():
         if k == "other":
@@ -1479,7 +1483,7 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
     edge = f"{float(c.loc[c['class'] == 'consistent', 'slope_deg'].quantile(C.SLACK_FLOW_EDGE_SLOPE_PCTL / 100)):.1f} deg"
     leg = [Line2D([0], [0], marker="o", color="w", markerfacecolor=col, markersize=6, label=_class_label(k, edge))
            for k, (col, _) in CLASS_STYLE.items() if k != "other"] \
-        + [h for h in map_legend if not any(k in h.get_label() for k in ("flow", "support", "boundary:"))]
+        + [h for h in map_legend if not any(k in h.get_label() for k in ("flow", "support", "boundary:", "streams.kml"))]
     # inside the frame, at the top left, where the ground lies outside the study area and carries no data
     ax.legend(handles=leg, loc="upper left", fontsize=FS_S - 1, framealpha=0.9, borderpad=0.4, labelspacing=0.3)
     ax.set_title("Sentinel-2 wetness the aquifer does not explain (wet state)", fontsize=FS_T)

@@ -45,7 +45,10 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+__version__ = "1.3.1"  # Hollingham (2026) - 2026-10-01. The C4/C5 boundary map no longer asks for
+#     streams.kml (include_streams=True dropped): surface routing is kept only on figures that
+#     compare directly with groundwater flow (D-215; map_utils 1.10.0). Figure only.
+# 1.3.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
 #     10c_report_numbers.csv (paths.OUT_10C_REPORT, in DIR_10 so run_10's consolidation sweeps it):
 #     forest_zone_n_wells (C4 + C5), R2_easting_only for beta_1 (Pearson r of beta_1 on easting over the
 #     forest wells, squared, unrounded) and nw10_beta1_z_vs_c4 (NW10's beta_1 against the C4 mean, in C4
@@ -417,9 +420,9 @@ def plot_boundary_map(forest, coeff):
         load_dem_hillshade(ax, DATA_DIR, alpha=0.4)
     except Exception as e:
         warn(f"DEM hillshade not available: {e}")
-    # KML features (streams, boundaries)
+    # KML features (boundaries; no streams, 1.3.1)
     try:
-        add_kml_features(ax, DATA_DIR, include_streams=True)
+        add_kml_features(ax, DATA_DIR)
     except Exception as e:
         warn(f"KML features not available: {e}")
     # Non-forest wells (faded background)

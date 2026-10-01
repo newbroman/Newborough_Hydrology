@@ -244,3 +244,12 @@ data/geo/slacks/
 # slides. Written every run, deliberately NOT tracked - only the presentation cut
 # goes to git (Martin, 2026-09-17). T-39.
 outputs/47_hindcast_film/47_03_hindcast_film.mp4
+
+# 2026-10-02 tidy (Martin: "removing unnecessary backups, and moving files that shouldnt be
+# public"). outputs_bw/ is Script 27's on-demand greyscale tree, regenerated locally when asked
+# for and not needed by the journal (colour online). archive/ (stub sidecars of superseded
+# document versions), data/geo/_superseded/ and the stray notes file now live in the private
+# repository, Newborough_Hydrology_working, at the same paths.
+/outputs_bw/
+/archive/
+/data/geo/_superseded/

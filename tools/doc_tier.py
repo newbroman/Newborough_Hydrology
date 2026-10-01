@@ -42,7 +42,8 @@ REASON_RE = re.compile(r"^(D-\d{3}|\d{4}-\d{2}-\d{2}[a-z]?)$")
 # Mechanical callers: they move numbers, versions, symbols and references, never
 # sentences. Each sets odt_edit.REASON to its own name once, at import.
 EXEMPT_TOOLS = frozenset({"table_gen", "repoint_refs", "symbol_apply",
-                          "fix_stale_refs", "doc_version_sync", "reembed_figures"})
+                          "fix_stale_refs", "doc_version_sync", "reembed_figures",
+                          "field_sync", "field_convert"})  # D-219: number fields are generated content
 
 
 def family(path) -> str | None:

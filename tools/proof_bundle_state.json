@@ -1,21 +1,21 @@
 {
- "bundle_at": "2026-10-01T14:15:12",
- "bundle_sha256": "c7d1fc27c6a81972",
+ "bundle_at": "2026-10-01T18:40:22",
+ "bundle_sha256": "426f3888be8cdb56",
  "chapters": {
-  "report": "f1ae1113e1c1f8b8",
-  "report10": "b72f7eed9d9d514b",
-  "report11": "2b3da6b09073853e",
-  "report12": "f437944188d1ff31",
-  "report13": "94fe42e77a5ae21e",
-  "report14": "0e7984a41167580a",
-  "report15": "8754d1456ad99392",
-  "report16": "b69fe1f7c9fef196",
-  "report6": "25f2247be14c8845",
-  "report7": "47aa60023ae1183e",
-  "report8": "5d06f1f3a11ea8dd",
-  "report9": "4166094be49eabb5"
+  "report": "810d1aadbf5542d1",
+  "report10": "f1df451745469f33",
+  "report11": "85518aab29a3fd77",
+  "report12": "eb14158e755d83ac",
+  "report13": "14408c089bb37528",
+  "report14": "56e44929e9496552",
+  "report15": "abbb7c97bb067a21",
+  "report16": "d5df8e6f97bd0d63",
+  "report6": "1b555fb31d3b9af5",
+  "report7": "e2bf360063f5d146",
+  "report8": "402af390a707ab56",
+  "report9": "f5b7af6ad27670c7"
  },
- "published_at": "2026-10-01T10:47:09",
- "published_sha256": "f626e5997f48a83b",
- "published_version": "37"
+ "published_at": "2026-10-01T13:31:47",
+ "published_sha256": "c7d1fc27c6a81972",
+ "published_version": "1790861499-f8aa"
 }

@@ -19,7 +19,9 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.0.0 — Hollingham (2026) — 2026-10-02 (D-227). First issue.
+# Version 1.0.1 — Hollingham (2026) — 2026-10-02. rclone installed when a token is supplied;
+#   a configured token that Drive refuses is reported as LAPSED with the refresh steps.
+# 1.0.0 — 2026-10-02 (D-227). First issue.
 set -euo pipefail
 DIR="${1:-$HOME/NRG}"
 PUB="${NRG_PUBLIC_URL:-https://github.com/newbroman/Newborough_Hydrology.git}"     # override for testing
@@ -71,13 +73,26 @@ if [ -n "${NRG_RCLONE_CONF:-}" ] && [ ! -f "$HOME/.config/rclone/rclone.conf" ];
   mkdir -p "$HOME/.config/rclone"; printf '%s\n' "$NRG_RCLONE_CONF" > "$HOME/.config/rclone/rclone.conf"
   chmod 600 "$HOME/.config/rclone/rclone.conf"
 fi
+if [ -n "${NRG_RCLONE_CONF:-}" ] && ! command -v rclone >/dev/null 2>&1; then
+  curl -sSL https://rclone.org/install.sh | sudo bash >/dev/null 2>&1 \
+    || echo "      rclone could not be installed here"
+fi
 if command -v rclone >/dev/null 2>&1 && rclone about "$DRIVE_REMOTE" >/dev/null 2>&1; then
   rclone copy "$DRIVE_REMOTE" . --filter-from tools/rclone-odt-filter.txt --stats 10s --stats-one-line
   echo "      ODTs copied from $DRIVE_REMOTE"
 else
-  echo "      NOT FETCHED: no working rclone remote $DRIVE_REMOTE (secret NRG_RCLONE_CONF unset,"
-  echo "      rclone absent, or the token lapsed). This session works from the committed mirrors"
-  echo "      and must not edit ODTs."
+  if [ -n "${NRG_RCLONE_CONF:-}" ] && command -v rclone >/dev/null 2>&1; then
+    # A token is configured but Drive refuses it: the weekly lapse of the rclone-nrg client
+    # (still in Google's Testing status, T-65). Martin refreshes it weekly (2026-10-02), so
+    # say so loudly rather than burying it.
+    echo "      >>> DRIVE TOKEN LAPSED - refresh it: on the laptop run"
+    echo "      >>>     rclone config reconnect gdrive:"
+    echo "      >>> then paste the new [gdrive] section of ~/.config/rclone/rclone.conf into the"
+    echo "      >>> cloud environment's NRG_RCLONE_CONF and start a new session."
+  else
+    echo "      NOT FETCHED: no rclone remote $DRIVE_REMOTE here (rclone absent or NRG_RCLONE_CONF"
+    echo "      unset). This session works from the committed mirrors and must not edit ODTs."
+  fi
 fi
 
 # ── 5/6 what binds this session ────────────────────────────────────────────────

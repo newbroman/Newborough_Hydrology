@@ -78,7 +78,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.31.0"  # Hollingham (2026) — 2026-09-30. The bundle is also written as a small
+__version__ = "1.32.0"  # Hollingham (2026) — 2026-10-01. Navigation carries on from the number you
+#   last clicked (Martin: "no easy way to navigate to the next number in a category like denied after
+#   placing a comment on a denied field"): opening a number's pop-up makes it the current position,
+#   so a legend colour or n / p moves on from it, not from the last jump; a jump whose class does not
+#   hold the current number starts from its place on the page. The pop-up gains "queue & next" and
+#   "next" buttons (and Shift+Enter = queue & next), which go to the next number of the same colour.
+# 1.31.0  # Hollingham (2026) — 2026-09-30. The bundle is also written as a small
 #   SHELL (NRG_proof_shell.html: styles, the queue/navigation code, the legend) plus a DATA file
 #   (proof_chapters.json: the chapter pills and painted chapters), which the shell fetches on load.
 #   Published under one artifact, any later session can read the few-KB shell and republish with a
@@ -2272,9 +2278,10 @@ function goTo(el){ el.scrollIntoView({block:'center'}); el.classList.add('flash'
 function jump(cls, dir){
   const ms = marksOf(cls), label = cls || 'flagged';
   if (!ms.length) { navMsg(`no ${label} numbers in this chapter`); return; }
-  let i = (navKey === (cls || '') && navLast) ? ms.indexOf(navLast) : -1;
+  // from the current number (the last jumped to OR clicked, 1.32.0), whatever class it was in
+  let i = (navLast && document.body.contains(navLast)) ? ms.indexOf(navLast) : -1;
   if (i >= 0) i = (i + dir + ms.length) % ms.length;
-  else { const y = window.scrollY + 80; i = dir > 0 ? ms.findIndex(el => el.getBoundingClientRect().top + window.scrollY > y) : -1;
+  else { const y = (navLast && document.body.contains(navLast)) ? navLast.getBoundingClientRect().top + window.scrollY + (dir > 0 ? 1 : -1) : window.scrollY + 80; i = dir > 0 ? ms.findIndex(el => el.getBoundingClientRect().top + window.scrollY > y) : -1;
          if (dir < 0) ms.forEach((el, k) => { if (el.getBoundingClientRect().top + window.scrollY < y) i = k; });
          if (i < 0) i = dir > 0 ? 0 : ms.length - 1; }
   navKey = cls || ''; goTo(ms[i]); navMsg(`${label} ${i + 1} of ${ms.length}` + (cls ? '' : ' — n / p for next / previous'));
@@ -2318,7 +2325,7 @@ function save(q){ try { localStorage.setItem(KEY, JSON.stringify(q)); } catch(e)
 function badge(){ const q = load(); const b = document.getElementById('qcount'); if (b) b.textContent = q.length; q.forEach(it => { const el = document.getElementById(it.id); if (el) el.classList.add('queued'); }); }
 async function post(item){ try { const r = await fetch('/__correct', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(item)}); return r.ok; } catch(e){ return false; } }
 function openPop(span){
-  closePop();
+  closePop(); navLast = span;   // the clicked number is the current position (1.32.0)
   const pop = document.createElement('div'); pop.id = 'pop';
   const v = span.textContent, det = span.title;
   pop.innerHTML = `<div class=pt><b>${v}</b> <span class='n ${span.dataset.v}'>${span.dataset.v}</span></div>
@@ -2326,24 +2333,29 @@ function openPop(span){
     ${span.dataset.pdf ? `<div class=pl><a href="${pdfUrl(span.dataset.pdf)}" target=_blank rel=noopener>open the PDF at this page ↗</a></div>` : ''}
     <label>should read <input id=sug placeholder='value, or leave blank if only a note'></label>
     <label>note <input id=note placeholder='why / where it comes from'></label>
-    <div class=pb><button id=qb>queue</button> <button onclick='closePop()'>cancel</button></div>`;
+    <div class=pb><button id=qb>queue</button> <button id=qn title='queue, then go to the next ${span.dataset.v} number (Shift+Enter)'>queue &amp; next ${span.dataset.v}</button> <button id=nx title='skip to the next ${span.dataset.v} number'>next ${span.dataset.v} →</button> <button onclick='closePop()'>cancel</button></div>`;
   document.body.appendChild(pop);
   const r = span.getBoundingClientRect();
   pop.style.top = (window.scrollY + r.bottom + 6) + 'px'; pop.style.left = Math.min(window.scrollX + r.left, window.innerWidth - 420) + 'px';
   document.getElementById('sug').focus();
-  const submit = async () => {
+  const cls = span.dataset.v || null;   // the verdict IS the class (span.n.<verdict>)
+  const next = () => { closePop(); navLast = span; jump(cls, 1); if (navLast && navLast !== span) openPop(navLast); };
+  const submit = async (andNext) => {
     const item = { id: span.id, doc: docOf(span), section: sectionOf(span), value: v, verdict: span.dataset.v,
                    detail: det, context: contextOf(span), suggested: document.getElementById('sug').value.trim(),
                    note: document.getElementById('note').value.trim(), ts: new Date().toISOString() };
-    if (!item.suggested && !item.note) return;
+    if (!item.suggested && !item.note) { if (andNext) next(); return; }
     item.done = false;
     const q = load(); q.push(item); save(q);
     if (served) await post(item);
     else if (dbq) { try { const ref = await dbq.add(item); item.dbid = ref.id; const q2 = load(); const k = q2.findIndex(x => x.id === item.id && x.ts === item.ts); if (k >= 0) { q2[k].dbid = ref.id; save(q2); } } catch(e) { console.log('db add failed', e); } }
     closePop(); badge(); drawer();
+    if (andNext) next();
   };
-  document.getElementById('qb').onclick = submit;
-  pop.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') closePop(); });
+  document.getElementById('qb').onclick = () => submit(false);
+  document.getElementById('qn').onclick = () => submit(true);
+  document.getElementById('nx').onclick = next;
+  pop.addEventListener('keydown', e => { if (e.key === 'Enter') submit(e.shiftKey); if (e.key === 'Escape') closePop(); });
 }
 function closePop(){ const p = document.getElementById('pop'); if (p) p.remove(); }
 // the drawer folds to its header line (Martin, 2026-09-29: "it obscures the text as more

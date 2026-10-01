@@ -214,7 +214,7 @@ src/
 | `RAF_Valley_Climate.csv` | Monthly P, max/min T, sun hours | 01 |
 | `newborough_dem.tif` | LiDAR DEM | 04, 05, 06, 07, 08, 12, 13, 19, 20 (via `map_utils.load_dem_hillshade`) |
 | `Features.kml` | Site features (slack boundaries, broadleaf restock, etc.) | 04, 06, 07, 08, 12, 13 (via `map_utils.add_kml_features`) |
-| `streams.kml` | SAGA-derived stream network | 19, 20 |
+| `streams.kml` | DEM surface routing (GRASS r.watershed); drawn only beside the groundwater flow field (D-215) | 01b, 20 |
 | `clearfell.kml` | Clear-fell block boundary | 12, 13 |
 | `broadleaf_restock.kml` | Broadleaf restocking block | 12, 13 |
 

@@ -45,7 +45,12 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-28. interpolate_surface(): the house
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-01. add_kml_features(): streams OFF by
+#   default (include_streams=False). streams.kml is DEM surface routing, not groundwater flow
+#   (D-082; T-66), and Martin (2026-10-01, D-215) keeps it only on figures that compare directly
+#   with groundwater flow; those draw it themselves (Script 01b Figure 1, Script 20 residual map).
+#   Every default caller loses the layer and its legend entry.
+# 1.9.0  # Hollingham (2026) — 2026-09-28. interpolate_surface(): the house
 #   per-well surface (linear Delaunay + hull-buffer nearest fill), moved out of add_idw_surface()
 #   unchanged so Scripts 20 (MSL5 change) and 32 draw it without reimplementing it (D-206).
 #   add_idw_surface() output is identical.
@@ -674,7 +679,7 @@ def load_scrape_kml(name):
     return unary_union(polys) if polys else None
 
 
-def add_kml_features(ax, data_dir: Path, include_streams: bool = True,
+def add_kml_features(ax, data_dir: Path, include_streams: bool = False,
                      include_scrapes: bool = True):
     """
     Overlay site feature KML layers onto ax.
@@ -690,9 +695,10 @@ def add_kml_features(ax, data_dir: Path, include_streams: bool = True,
     data_dir : Path
         Vestigial — retained for call-site compatibility. Geo inputs are read
         from the utils.paths constants, not reconstructed from data_dir.
-    include_streams : bool, optional (default True)
-        If False, streams.kml is not overlaid. Useful for maps where the
-        drainage network would clutter the display.
+    include_streams : bool, optional (default False, 1.10.0)
+        If True, streams.kml (DEM surface routing) is overlaid. Off by default:
+        it is kept only where a figure compares directly with groundwater flow
+        (D-215), and no current caller asks for it.
     include_scrapes : bool, optional (default True)
         If False, the scrape footprint outlines are not overlaid. Useful for
         the dedicated scrape-drawdown figures that render scrapes themselves.

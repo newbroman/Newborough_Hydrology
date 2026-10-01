@@ -52,7 +52,11 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-09-26. Era means written out (T-84):
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-01. Each later era's mean against the well's
+#   first era, emitted as {param_era}_change_vs_first (m; positive = shallower), so a "raw
+#   improvement" the text quotes is a committed value, not arithmetic on two rows (report9 SS4.5.4
+#   CEH36 "198 mm"; reading pass 30 Sep needs_emit; Martin 2026-10-01). Emit-only.
+# 1.7.0  # Hollingham (2026) — 2026-09-26. Era means written out (T-84):
 #   09c_report_numbers.csv gains, per metric and per well in scraping_common.WELL_ERAS, the
 #   mean of the annual values in each management era and its n of seasons
 #   (Summer_min_era_mean / _era_n; Spring_mean_era_mean / _era_n). A season belongs to the
@@ -503,6 +507,7 @@ def _run_metric(spec, wells, wells_provenance, all_wells,
         if w not in well_mins or w not in WELL_ERAS:
             continue
         vals = pd.Series(well_mins[w], dtype=float).dropna()
+        first = None   # (era name, mean) of the well's first era with data (1.8.0)
         for era_name, (start, end) in WELL_ERAS[w].items():
             yrs = [yr for yr in vals.index
                    if (start is None or pd.Timestamp(int(yr), first_month, 1) >= start)
@@ -520,6 +525,15 @@ def _run_metric(spec, wells, wells_provenance, all_wells,
                 "Era": era_name, "Value": len(yrs), "Unit": "count",
                 "Note": f"{spec['season']} seasons in the era, {span}",
             })
+            mean_ = float(vals.loc[yrs].mean())
+            if first is None:
+                first = (era_name, mean_)
+            else:
+                report_rows.append({
+                    "Parameter": f"{spec['param_era']}_change_vs_first", "Well": w.upper(),
+                    "Era": era_name, "Value": mean_ - first[1], "Unit": "m",
+                    "Note": f"era mean ({span}) minus the {first[0]} era mean; positive = shallower",
+                })
 
     return report_rows
 

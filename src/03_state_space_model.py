@@ -88,7 +88,12 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-09-30. datum_zero_fit(): each cluster centroid
+__version__ = "1.23.0"  # Hollingham (2026) — 2026-10-01. _window_beta3_ratio_report_numbers(): on
+#   the comparison-window centroid fits (03_14), the ratio of every other cluster's beta_3 to the
+#   smallest one's, emitted as window_beta3_ratio_to_min per cluster and its _min / _max
+#   (report9 SS4.2.2 "3.6 to 8.4 times smaller than any other cluster's"; the proof page could
+#   only match coincidences, Martin 2026-10-01 "surely it can be checked"). Emit-only.
+# 1.22.0  # Hollingham (2026) — 2026-09-30. datum_zero_fit(): each cluster centroid
 #   fitted under Model A at config.DATUM_RAW_DEPTH_M (raw depth below ground, no drainage base) into
 #   03_19_datum_zero_fit.csv, with the same fit_ssm call, AIC and sign/significance flags as the
 #   03_08 sweep; 03_report_numbers.csv gains datum0_n_clusters_beta3_negative and
@@ -1452,6 +1457,28 @@ def _datum_zero_report_numbers(rpt, zero_df: pd.DataFrame) -> None:
                  "(03_19_datum_zero_fit.csv)")
 
 
+def _window_beta3_ratio_report_numbers(rpt, win_df: pd.DataFrame) -> None:
+    """03_report_numbers.csv rows for 03_14 (1.23.0): each cluster's comparison-window
+    beta_3 as a multiple of the smallest cluster's, and the min / max of those multiples."""
+    w = win_df[win_df["basis"] == "comparison_window"].set_index("Cluster")["beta_3_drainage"]
+    w = pd.to_numeric(w, errors="coerce").dropna()
+    if len(w) < 2 or float(w.min()) <= 0:
+        return
+    cmin = int(w.idxmin())
+    lab_min = CLUSTER_LABELS.get(cmin, f"C{cmin}")
+    ratios = {int(c): float(v / w.loc[cmin]) for c, v in w.items() if int(c) != cmin}
+    for c, r in ratios.items():
+        rpt.add("window_beta3_ratio_to_min", r, unit="ratio", well=CLUSTER_LABELS.get(c, f"C{c}"),
+                note=f"comparison-window centroid beta_3 of this cluster / that of {lab_min}, the "
+                     f"smallest (03_14_centroid_window_sensitivity.csv)")
+    for stat, fn in (("min", min), ("max", max)):
+        c = fn(ratios, key=ratios.get)
+        rpt.add(f"window_beta3_ratio_to_min_{stat}", ratios[c], unit="ratio",
+                well=CLUSTER_LABELS.get(c, f"C{c}"),
+                note=f"{stat} over the other clusters of window_beta3_ratio_to_min (relative to "
+                     f"{lab_min}); the Well cell is the cluster")
+
+
 def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
                                    selected_datum: float,
                                    out_path) -> None:
@@ -2672,6 +2699,8 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
                                 extra["well_opt_df"], maod_df[_ref].mean(), cluster_df)
             if extra.get("zero_df") is not None:
                 _datum_zero_report_numbers(rpt, extra["zero_df"])
+            if extra.get("win_df") is not None:
+                _window_beta3_ratio_report_numbers(rpt, extra["win_df"])
         n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
         saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -3288,7 +3317,7 @@ def main() -> None:
     export_regional_averages_maod(cluster_df, climate,
                                   extra={"master_df": master_df, "sens_df": sens_df,
                                          "inv_df": inv_df, "well_opt_df": well_opt_df,
-                                         "zero_df": zero_df})
+                                         "zero_df": zero_df, "win_df": win_df})
     export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----

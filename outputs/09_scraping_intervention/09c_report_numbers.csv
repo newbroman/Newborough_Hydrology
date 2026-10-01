@@ -19,32 +19,42 @@ Summer_min_era_mean,CEH18,,-1.2485714285714287,m,"mean of the annual summer mini
 Summer_min_era_n,CEH18,,7,count,"Jun–Sep seasons in the era, 2011-2017",1_Baseline
 Summer_min_era_mean,CEH18,,-1.3266666666666664,m,"mean of the annual summer minimum values (Jun–Sep), 2018-2023",2_Felling_Pulse
 Summer_min_era_n,CEH18,,6,count,"Jun–Sep seasons in the era, 2018-2023",2_Felling_Pulse
+Summer_min_era_change_vs_first,CEH18,,-0.07809523809523777,m,era mean (2018-2023) minus the 1_Baseline era mean; positive = shallower,2_Felling_Pulse
 Summer_min_era_mean,CEH18,,-1.145,m,"mean of the annual summer minimum values (Jun–Sep), 2024-2025",3_After_Scraping
 Summer_min_era_n,CEH18,,2,count,"Jun–Sep seasons in the era, 2024-2025",3_After_Scraping
+Summer_min_era_change_vs_first,CEH18,,0.10357142857142865,m,era mean (2024-2025) minus the 1_Baseline era mean; positive = shallower,3_After_Scraping
 Summer_min_era_mean,CEH21,,-1.2971428571428572,m,"mean of the annual summer minimum values (Jun–Sep), 2011-2017",1_Baseline
 Summer_min_era_n,CEH21,,7,count,"Jun–Sep seasons in the era, 2011-2017",1_Baseline
 Summer_min_era_mean,CEH21,,-1.3983333333333334,m,"mean of the annual summer minimum values (Jun–Sep), 2018-2023",2_Coastal_Drawdown
 Summer_min_era_n,CEH21,,6,count,"Jun–Sep seasons in the era, 2018-2023",2_Coastal_Drawdown
+Summer_min_era_change_vs_first,CEH21,,-0.10119047619047628,m,era mean (2018-2023) minus the 1_Baseline era mean; positive = shallower,2_Coastal_Drawdown
 Summer_min_era_mean,CEH21,,-1.3599999999999999,m,"mean of the annual summer minimum values (Jun–Sep), 2024-2025",3_After_Scraping
 Summer_min_era_n,CEH21,,2,count,"Jun–Sep seasons in the era, 2024-2025",3_After_Scraping
+Summer_min_era_change_vs_first,CEH21,,-0.06285714285714272,m,era mean (2024-2025) minus the 1_Baseline era mean; positive = shallower,3_After_Scraping
 Summer_min_era_mean,CEH22,,-0.7785714285714285,m,"mean of the annual summer minimum values (Jun–Sep), 2011-2017",1_Baseline
 Summer_min_era_n,CEH22,,7,count,"Jun–Sep seasons in the era, 2011-2017",1_Baseline
 Summer_min_era_mean,CEH22,,-0.9016666666666667,m,"mean of the annual summer minimum values (Jun–Sep), 2018-2023",2_Coastal_Drawdown
 Summer_min_era_n,CEH22,,6,count,"Jun–Sep seasons in the era, 2018-2023",2_Coastal_Drawdown
+Summer_min_era_change_vs_first,CEH22,,-0.12309523809523826,m,era mean (2018-2023) minus the 1_Baseline era mean; positive = shallower,2_Coastal_Drawdown
 Summer_min_era_mean,CEH22,,-0.89,m,"mean of the annual summer minimum values (Jun–Sep), 2024-2025",3_After_Scraping
 Summer_min_era_n,CEH22,,2,count,"Jun–Sep seasons in the era, 2024-2025",3_After_Scraping
+Summer_min_era_change_vs_first,CEH22,,-0.11142857142857154,m,era mean (2024-2025) minus the 1_Baseline era mean; positive = shallower,3_After_Scraping
 Summer_min_era_mean,CEH36,,-1.1150000000000002,m,"mean of the annual summer minimum values (Jun–Sep), 2011-2014",1_Baseline
 Summer_min_era_n,CEH36,,4,count,"Jun–Sep seasons in the era, 2011-2014",1_Baseline
 Summer_min_era_mean,CEH36,,-0.9166666666666666,m,"mean of the annual summer minimum values (Jun–Sep), 2015-2017",2_Pure_Scraping
 Summer_min_era_n,CEH36,,3,count,"Jun–Sep seasons in the era, 2015-2017",2_Pure_Scraping
+Summer_min_era_change_vs_first,CEH36,,0.19833333333333358,m,era mean (2015-2017) minus the 1_Baseline era mean; positive = shallower,2_Pure_Scraping
 Summer_min_era_mean,CEH36,,-0.9862500000000001,m,"mean of the annual summer minimum values (Jun–Sep), 2018-2025",3_Felling_Pulse
 Summer_min_era_n,CEH36,,8,count,"Jun–Sep seasons in the era, 2018-2025",3_Felling_Pulse
+Summer_min_era_change_vs_first,CEH36,,0.12875000000000014,m,era mean (2018-2025) minus the 1_Baseline era mean; positive = shallower,3_Felling_Pulse
 Summer_min_era_mean,CEH4,,-1.075,m,"mean of the annual summer minimum values (Jun–Sep), 2011-2014",1_Baseline
 Summer_min_era_n,CEH4,,4,count,"Jun–Sep seasons in the era, 2011-2014",1_Baseline
 Summer_min_era_mean,CEH4,,-1.0533333333333335,m,"mean of the annual summer minimum values (Jun–Sep), 2015-2017",2_Pure_Scraping
 Summer_min_era_n,CEH4,,3,count,"Jun–Sep seasons in the era, 2015-2017",2_Pure_Scraping
+Summer_min_era_change_vs_first,CEH4,,0.0216666666666665,m,era mean (2015-2017) minus the 1_Baseline era mean; positive = shallower,2_Pure_Scraping
 Summer_min_era_mean,CEH4,,-1.1475,m,"mean of the annual summer minimum values (Jun–Sep), 2018-2025",3_Felling_Pulse
 Summer_min_era_n,CEH4,,8,count,"Jun–Sep seasons in the era, 2018-2025",3_Felling_Pulse
+Summer_min_era_change_vs_first,CEH4,,-0.07250000000000001,m,era mean (2018-2025) minus the 1_Baseline era mean; positive = shallower,3_Felling_Pulse
 Spring_mean_BACI_shift,CEH18,Climate,-0.0535,m,"n_pre=4, n_post=11, p=0.3031",
 Spring_mean_BACI_shift,CEH18,Paired,0.0218,m,"n_pre=4, n_post=11, p=0.6363",
 Spring_mean_BACI_shift,CEH21,Climate,-0.1232,m,"n_pre=4, n_post=11, p=0.1733",
@@ -65,29 +75,39 @@ Spring_mean_era_mean,CEH18,,-0.6714285714285715,m,"mean of the annual spring mea
 Spring_mean_era_n,CEH18,,7,count,"Mar–May seasons in the era, 2011-2017",1_Baseline
 Spring_mean_era_mean,CEH18,,-0.6677777777777778,m,"mean of the annual spring mean values (Mar–May), 2018-2023",2_Felling_Pulse
 Spring_mean_era_n,CEH18,,6,count,"Mar–May seasons in the era, 2018-2023",2_Felling_Pulse
+Spring_mean_era_change_vs_first,CEH18,,0.0036507936507936822,m,era mean (2018-2023) minus the 1_Baseline era mean; positive = shallower,2_Felling_Pulse
 Spring_mean_era_mean,CEH18,,-0.5616666666666668,m,"mean of the annual spring mean values (Mar–May), 2024-2025",3_After_Scraping
 Spring_mean_era_n,CEH18,,2,count,"Mar–May seasons in the era, 2024-2025",3_After_Scraping
+Spring_mean_era_change_vs_first,CEH18,,0.10976190476190473,m,era mean (2024-2025) minus the 1_Baseline era mean; positive = shallower,3_After_Scraping
 Spring_mean_era_mean,CEH21,,-0.8733333333333333,m,"mean of the annual spring mean values (Mar–May), 2011-2017",1_Baseline
 Spring_mean_era_n,CEH21,,7,count,"Mar–May seasons in the era, 2011-2017",1_Baseline
 Spring_mean_era_mean,CEH21,,-0.9555555555555556,m,"mean of the annual spring mean values (Mar–May), 2018-2023",2_Coastal_Drawdown
 Spring_mean_era_n,CEH21,,6,count,"Mar–May seasons in the era, 2018-2023",2_Coastal_Drawdown
+Spring_mean_era_change_vs_first,CEH21,,-0.08222222222222231,m,era mean (2018-2023) minus the 1_Baseline era mean; positive = shallower,2_Coastal_Drawdown
 Spring_mean_era_mean,CEH21,,-0.7999999999999999,m,"mean of the annual spring mean values (Mar–May), 2024-2025",3_After_Scraping
 Spring_mean_era_n,CEH21,,2,count,"Mar–May seasons in the era, 2024-2025",3_After_Scraping
+Spring_mean_era_change_vs_first,CEH21,,0.07333333333333336,m,era mean (2024-2025) minus the 1_Baseline era mean; positive = shallower,3_After_Scraping
 Spring_mean_era_mean,CEH22,,-0.38,m,"mean of the annual spring mean values (Mar–May), 2011-2017",1_Baseline
 Spring_mean_era_n,CEH22,,7,count,"Mar–May seasons in the era, 2011-2017",1_Baseline
 Spring_mean_era_mean,CEH22,,-0.5044444444444444,m,"mean of the annual spring mean values (Mar–May), 2018-2023",2_Coastal_Drawdown
 Spring_mean_era_n,CEH22,,6,count,"Mar–May seasons in the era, 2018-2023",2_Coastal_Drawdown
+Spring_mean_era_change_vs_first,CEH22,,-0.12444444444444436,m,era mean (2018-2023) minus the 1_Baseline era mean; positive = shallower,2_Coastal_Drawdown
 Spring_mean_era_mean,CEH22,,-0.46499999999999997,m,"mean of the annual spring mean values (Mar–May), 2024-2025",3_After_Scraping
 Spring_mean_era_n,CEH22,,2,count,"Mar–May seasons in the era, 2024-2025",3_After_Scraping
+Spring_mean_era_change_vs_first,CEH22,,-0.08499999999999996,m,era mean (2024-2025) minus the 1_Baseline era mean; positive = shallower,3_After_Scraping
 Spring_mean_era_mean,CEH36,,-0.6372,m,"mean of the annual spring mean values (Mar–May), 2011-2015",1_Baseline
 Spring_mean_era_n,CEH36,,5,count,"Mar–May seasons in the era, 2011-2015",1_Baseline
 Spring_mean_era_mean,CEH36,,-0.36666666666666664,m,"mean of the annual spring mean values (Mar–May), 2016-2017",2_Pure_Scraping
 Spring_mean_era_n,CEH36,,2,count,"Mar–May seasons in the era, 2016-2017",2_Pure_Scraping
+Spring_mean_era_change_vs_first,CEH36,,0.27053333333333335,m,era mean (2016-2017) minus the 1_Baseline era mean; positive = shallower,2_Pure_Scraping
 Spring_mean_era_mean,CEH36,,-0.46958333333333324,m,"mean of the annual spring mean values (Mar–May), 2018-2025",3_Felling_Pulse
 Spring_mean_era_n,CEH36,,8,count,"Mar–May seasons in the era, 2018-2025",3_Felling_Pulse
+Spring_mean_era_change_vs_first,CEH36,,0.16761666666666675,m,era mean (2018-2025) minus the 1_Baseline era mean; positive = shallower,3_Felling_Pulse
 Spring_mean_era_mean,CEH4,,-0.6193333333333333,m,"mean of the annual spring mean values (Mar–May), 2011-2015",1_Baseline
 Spring_mean_era_n,CEH4,,5,count,"Mar–May seasons in the era, 2011-2015",1_Baseline
 Spring_mean_era_mean,CEH4,,-0.4416666666666667,m,"mean of the annual spring mean values (Mar–May), 2016-2017",2_Pure_Scraping
 Spring_mean_era_n,CEH4,,2,count,"Mar–May seasons in the era, 2016-2017",2_Pure_Scraping
+Spring_mean_era_change_vs_first,CEH4,,0.17766666666666658,m,era mean (2016-2017) minus the 1_Baseline era mean; positive = shallower,2_Pure_Scraping
 Spring_mean_era_mean,CEH4,,-0.56125,m,"mean of the annual spring mean values (Mar–May), 2018-2025",3_Felling_Pulse
 Spring_mean_era_n,CEH4,,8,count,"Mar–May seasons in the era, 2018-2025",3_Felling_Pulse
+Spring_mean_era_change_vs_first,CEH4,,0.058083333333333265,m,era mean (2018-2025) minus the 1_Baseline era mean; positive = shallower,3_Felling_Pulse

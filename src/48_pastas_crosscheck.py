@@ -59,7 +59,25 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-09-24. Martin: "the C4 well records are longer
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-10-01 (D-217). A third form beside Model A
+#   and Model B in 48_04: Model A with each well's datum at its own depth to mean high water
+#   (ground_elev_m from 01_well_elevations less tide_mhw_m from 01b's report numbers; columns and
+#   report numbers tagged M). Martin: "reviewers cant argue the choice of datum on physical
+#   grounds ... using MHW does this sharpen the water balance, does it make the aquifer memory and
+#   hindcast worse?" Same fits, same split, same free run; the A and B columns and numbers do not move.
+# 1.4.0  # Hollingham (2026) - 2026-10-01 (D-217). Model A against Model B on four
+#   counts, into 48_04_model_a_b_diagnostics.csv and the report numbers (Martin: "we need the fourth
+#   reason, otherwise other researchers will ask, why not use model b to determine the datum"):
+#   (1) SPLIT-SAMPLE: each form fitted (shared fit_ssm) on the months before
+#   config.MODEL_AB_SPLIT_DATE and free-run (shared simulate_ssm; Model B as Model A at its fitted
+#   base D - alpha/beta_3, which is the same recurrence) over the months after, from the first
+#   reading there, and the reverse; NSE on the observed months. (2) MODEL-FREE MEMORY: the e-fold
+#   time of the lag-1 autocorrelation of the observed deseasonalised monthly level, beside each
+#   form's -1/ln(1 - beta_3). (3) IDENTIFICATION: the correlation of the beta_2/beta_3 estimates in
+#   each form and of alpha/beta_3 in Model B (fit_ssm(with_corr=True)). (4) LOSS PARTITION each form
+#   implies: drainage beta_3 * mean(h_disp_prev) (minus alpha in B) against atmospheric draw
+#   beta_2 * mean(PET). Full record, reference wells. Pastas is not needed for any of it.
+# 1.3.0  # Hollingham (2026) - 2026-09-24. Martin: "the C4 well records are longer
 #   than 100 months". Two bases per well: comparison_window (the report's per-well
 #   basis, Model A from 03_master_data and Model B from 03_16) and full_record (Model
 #   A from 03_15, Model B fitted here with fit_ssm_intercept, Pastas on every month).
@@ -100,17 +118,19 @@ from scipy import stats as scipy_stats                        # noqa: E402
 
 from utils.paths import (                                     # noqa: E402
     DIR_48, OUT_48_PER_WELL, OUT_48_AGREEMENT, OUT_48_SYNTHETIC, OUT_48_FIG, OUT_48_REPORT_NUMBERS,
+    OUT_48_MODEL_AB,
     INT_WELLS_ALL, INT_CLIMATE, INT_MASTER_DATA, OUT_03_MODEL_B_PERSISTENCE,
-    OUT_03_PER_WELL_WINDOW_SENS,
+    OUT_03_PER_WELL_WINDOW_SENS, INT_WELL_ELEVATIONS, OUT_01B_REPORT_NUMBERS,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, DAYS_PER_MONTH, PASTAS_RESPONSE, PASTAS_WARMUP_YEARS,
     PASTAS_IDENT_EFOLD_WINDOW_FRAC, PASTAS_IDENT_MAX_REL_SE, PASTAS_FIGURE_BASIS,
     HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS,
+    MODEL_AB_SPLIT_DATE, MODEL_AB_MIN_TEST_MONTHS,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.data_utils import normalize_well_name              # noqa: E402
-from utils.model_utils import fit_ssm_intercept               # noqa: E402
+from utils.model_utils import fit_ssm_intercept, fit_ssm, simulate_ssm   # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 from utils.console_utils import (                             # noqa: E402
     banner, done, info, phase, result, saved, step, track, warn,
@@ -401,6 +421,103 @@ def _agreement_one(df: pd.DataFrame, basis: str) -> list:
 # ──────────────────────────────────────────────────────────────────────────────
 # Figure
 # ──────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Model A against Model B (1.4.0, D-217)
+# ──────────────────────────────────────────────────────────────────────────────
+def _free_run_nse(h: pd.Series, cl: pd.DataFrame, fit: dict, intercept: bool,
+                  datum: float = DRAINAGE_DATUM) -> tuple[float, int]:
+    """NSE of a free run over the observed months of h, started from h's first reading, at the
+    datum the form was fitted with (Model B at its fitted base)."""
+    h = h.dropna()
+    if len(h) < MODEL_AB_MIN_TEST_MONTHS + 1 or fit is None:
+        return np.nan, 0
+    months = pd.date_range(h.index[0], h.index[-1], freq="MS")
+    clim = cl.reindex(months)
+    if clim[["P_m", "PET"]].iloc[1:].isna().any().any():
+        return np.nan, 0
+    b1, b2, b3 = fit["beta_1_recharge"], fit["beta_2_atmospheric_draw"], fit["beta_3_drainage"]
+    datum = datum - (fit["alpha"] / b3 if intercept else 0.0)   # Model B = Model A at its fitted base
+    sim = pd.Series(simulate_ssm(float(h.iloc[0]), clim["P_m"].values[1:], clim["PET"].values[1:],
+                                 b1, b2, b3, drainage_datum=datum), index=months[1:])
+    obs = h.iloc[1:]
+    s_ = sim.reindex(obs.index)
+    ok = s_.notna()
+    if ok.sum() < MODEL_AB_MIN_TEST_MONTHS:
+        return np.nan, int(ok.sum())
+    o, m = obs[ok], s_[ok]
+    den = float(((o - o.mean()) ** 2).sum())
+    return (1.0 - float(((o - m) ** 2).sum()) / den if den > 0 else np.nan), int(ok.sum())
+
+
+def mhw_datums() -> tuple[dict, float]:
+    """Each well's depth from ground to mean high water (m), the physically anchored datum of
+    form M (1.5.0): ground_elev_m (Script 01) less tide_mhw_m (Script 01b)."""
+    rn = pd.read_csv(OUT_01B_REPORT_NUMBERS)
+    mhw = float(rn.loc[rn["Parameter"] == "tide_mhw_m", "Value"].iloc[0])
+    el = pd.read_csv(INT_WELL_ELEVATIONS)
+    el = el[np.isfinite(pd.to_numeric(el["ground_elev_m"], errors="coerce"))]
+    return {normalize_well_name(str(n)): float(g) - mhw for n, g in zip(el["Name"], el["ground_elev_m"])}, mhw
+
+
+def model_ab_diagnostics(lev: pd.DataFrame, lev_cols: dict, cl: pd.DataFrame,
+                         master: pd.DataFrame, mhw_datum: dict) -> pd.DataFrame:
+    """Per reference well: split-sample skill, memory, identification and partition, for
+    Model A (DRAINAGE_DATUM), Model B (free intercept) and M (Model A at the well's depth to MHW)."""
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    rows = []
+    for _, r in master.iterrows():
+        col = lev_cols.get(r["_n"])
+        if col is None:
+            continue
+        h = lev[col].dropna()
+        row = {"well": r["_n"], "Cluster": int(r["Cluster"]),
+               "Cluster_Label": CLUSTER_LABELS.get(int(r["Cluster"]), "")}
+        dM = mhw_datum.get(r["_n"], np.nan)
+        row["datum_mhw_m"] = dM
+        fA = fit_ssm(h_series=h, climate=cl, with_corr=True)
+        fB = fit_ssm(h_series=h, climate=cl, intercept=True, with_corr=True)
+        fM = (fit_ssm(h_series=h, climate=cl, drainage_datum=dM, with_corr=True)
+              if np.isfinite(dM) else None)
+        for tag, f, icpt in (("A", fA, False), ("B", fB, True), ("M", fM, False)):
+            if f is None:
+                continue
+            b2, b3 = f["beta_2_atmospheric_draw"], f["beta_3_drainage"]
+            drain = b3 * f["mean_h_disp_prev"] - (f["alpha"] if icpt else 0.0)
+            et = b2 * f["mean_PET"]
+            row.update({f"beta_2_{tag}": b2, f"beta_3_{tag}": b3,
+                        f"efold_{tag}_months": (-1.0 / np.log(1.0 - b3)) if 0 < b3 < 1 else np.nan,
+                        f"corr_beta_2_beta_3_{tag}": f["corr_beta_2_beta_3"],
+                        f"drainage_m_month_{tag}": drain, f"et_m_month_{tag}": et,
+                        f"drainage_share_{tag}": drain / (drain + et) if (drain + et) > 0 else np.nan,
+                        f"n_{tag}": f["n"]})
+            if icpt:
+                row["corr_alpha_beta_3_B"] = f["corr_alpha_beta_3"]
+                row["base_depth_B_m"] = DRAINAGE_DATUM - f["alpha"] / b3 if b3 > 0 else np.nan
+        # model-free memory: lag-1 autocorrelation of the deseasonalised monthly level
+        hm = h.asfreq("MS")
+        anom = hm - hm.groupby(hm.index.month).transform("mean")
+        r1 = anom.autocorr(1)
+        row["obs_anomaly_lag1"] = r1
+        row["efold_obs_months"] = (-1.0 / np.log(r1)) if 0 < r1 < 1 else np.nan
+        # split-sample, both directions
+        for d_, tr, te in (("fwd", h[h.index < split], h[h.index >= split]),
+                           ("rev", h[h.index >= split], h[h.index < split])):
+            for tag, icpt, datum in (("A", False, DRAINAGE_DATUM), ("B", True, DRAINAGE_DATUM),
+                                     ("M", False, dM)):
+                if not np.isfinite(datum):
+                    row[f"nse_{d_}_{tag}"] = np.nan
+                    continue
+                try:
+                    ft = fit_ssm(h_series=tr, climate=cl, intercept=icpt, drainage_datum=datum)
+                except Exception:
+                    ft = None
+                nse, n_ = _free_run_nse(te, cl, ft, icpt, datum)
+                row[f"nse_{d_}_{tag}"] = nse
+                row[f"n_test_{d_}"] = n_
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def plot(df_all: pd.DataFrame, agree_all: pd.DataFrame) -> None:
     """Portrait, 4 x 2, at the report's 15.8 cm text width: the SSM's coefficients
     (top three panels), Pastas's native four, and the legend cell. Filled =
@@ -520,8 +637,75 @@ def main(no_fig: bool = False) -> int:
                     if q != "base_level_m" else f"median difference {r.median_difference:+.3f} m")
                  + f", n = {int(r.n)}")
 
-    phase(5, "Report numbers")
+    phase(5, "Model A, Model B and the MHW datum: split-sample, memory, identification, partition (1.5.0)")
+    mhw_datum, mhw = mhw_datums()
+    info(f"form M: Model A at each well's depth to MHW ({mhw:.3f} m OD, Script 01b)")
+    ab = model_ab_diagnostics(lev, lev_cols, cl, master, mhw_datum)
+    ab.to_csv(OUT_48_MODEL_AB, index=False)
+    saved(f"{OUT_48_MODEL_AB.name} ({len(ab)} wells)")
+
+    phase(6, "Report numbers")
     rr = ReportNumbers()
+    # D-217: the four counts on which the two forms are compared, all reference wells and by cluster
+    def _med(col, g=ab):
+        v = pd.to_numeric(g[col], errors="coerce").dropna()
+        return (float(v.median()), int(len(v))) if len(v) else (np.nan, 0)
+    groups = [("all", ab)] + [(f"C{c}", g) for c, g in ab.groupby("Cluster")]
+    for gname, g in groups:
+        for d_ in ("fwd", "rev"):
+            both = g[[f"nse_{d_}_A", f"nse_{d_}_B"]].dropna()
+            for tag in ("A", "B"):
+                v, n_ = _med(f"nse_{d_}_{tag}", both)
+                rr.add(f"modelab_nse_{d_}_{tag}_median_{gname}", v, unit="",
+                       note=f"median out-of-sample NSE, Model {tag}, "
+                            + ("fitted before" if d_ == "fwd" else "fitted from")
+                            + f" {MODEL_AB_SPLIT_DATE}, free-run over the other side; n = {n_} wells ({gname})")
+            if len(both):
+                rr.add(f"modelab_nse_{d_}_share_B_better_{gname}", float((both.iloc[:, 1] > both.iloc[:, 0]).mean()),
+                       unit="fraction", note=f"share of wells where Model B's out-of-sample NSE beats Model A's ({d_}, {gname}, n = {len(both)})")
+    # form M (1.5.0): Model A at each well's depth to MHW, paired against Model A at DRAINAGE_DATUM
+    for gname, g in groups:
+        for d_ in ("fwd", "rev"):
+            both = g[[f"nse_{d_}_A", f"nse_{d_}_M"]].dropna()
+            v, n_ = _med(f"nse_{d_}_M", both)
+            rr.add(f"modelab_nse_{d_}_M_median_{gname}", v, unit="",
+                   note=f"median out-of-sample NSE, Model A at each well's depth to MHW, "
+                        + ("fitted before" if d_ == "fwd" else "fitted from")
+                        + f" {MODEL_AB_SPLIT_DATE}; n = {n_} wells ({gname})")
+            if len(both):
+                rr.add(f"modelab_nse_{d_}_share_M_better_{gname}", float((both.iloc[:, 1] > both.iloc[:, 0]).mean()),
+                       unit="fraction", note=f"share of wells where the MHW datum's out-of-sample NSE beats the "
+                                             f"{DRAINAGE_DATUM} m datum's ({d_}, {gname}, n = {len(both)})")
+        for col, lab in (("datum_mhw_m", "depth from ground to MHW (form M's datum), m"),
+                         ("drainage_share_A", "drainage share of losses, Model A"),
+                         ("drainage_share_M", "drainage share of losses, Model A at the MHW datum")):
+            v, n_ = _med(col, g)
+            rr.add(f"modelab_{col}_median_{gname}", v, unit="", note=f"median: {lab}; full record, n = {n_} wells ({gname})")
+    for col in ("datum_mhw_m", "drainage_share_A", "drainage_share_M"):
+        v = pd.to_numeric(ab[col], errors="coerce").dropna()
+        for q in (10, 90):
+            rr.add(f"modelab_{col}_p{q}_all", float(np.percentile(v, q)) if len(v) else np.nan, unit="",
+                   note=f"{q}th percentile over reference wells; n = {len(v)}")
+    rr.add("modelab_datum_mhw_min_all", float(ab["datum_mhw_m"].min()), unit="m", note="shallowest depth to MHW, reference wells")
+    rr.add("modelab_datum_mhw_max_all", float(ab["datum_mhw_m"].max()), unit="m", note="deepest depth to MHW, reference wells")
+    for gname, g in groups:
+        for col, lab in (("efold_obs_months", "observed deseasonalised level, lag-1 autocorrelation"),
+                         ("efold_A_months", "Model A, -1/ln(1 - beta_3)"),
+                         ("efold_B_months", "Model B, -1/ln(1 - beta_3)"),
+                         ("efold_M_months", "Model A at each well's depth to MHW, -1/ln(1 - beta_3)")):
+            v, n_ = _med(col, g)
+            rr.add(f"modelab_{col}_median_{gname}", v, unit="months",
+                   note=f"median e-folding memory: {lab}; full record, n = {n_} wells ({gname})")
+    for col, lab in (("corr_beta_2_beta_3_A", "beta_2 / beta_3 estimates, Model A"),
+                     ("corr_beta_2_beta_3_B", "beta_2 / beta_3 estimates, Model B"),
+                     ("corr_alpha_beta_3_B", "intercept / beta_3 estimates, Model B"),
+                     ("drainage_m_month_A", "mean drainage flux, Model A (m/month)"),
+                     ("drainage_m_month_B", "mean drainage flux about the fitted base, Model B (m/month)"),
+                     ("drainage_share_B", "drainage share of losses, Model B"),
+                     ("corr_beta_2_beta_3_M", "beta_2 / beta_3 estimates, Model A at the MHW datum"),
+                     ("base_depth_B_m", "Model B fitted base (zero-drainage level), m below ground")):
+        v, n_ = _med(col)
+        rr.add(f"modelab_{col}_median_all", v, unit="", note=f"median over reference wells: {lab}; full record, n = {n_}")
     rr.add("pastas_version", ps.__version__, unit="", note="Pastas release the cross-check ran on")
     rr.add("pastas_n_wells", int(df["well"].nunique()), unit="wells",
            note="reference wells with a converged Pastas AR(1) fit")

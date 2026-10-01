@@ -82,7 +82,7 @@ Newborough_Hydrology/
 ├── data/                        Input CSV assets (not versioned)
 │   └── geo/                     Geographic inputs (DEM + KML), resolved via paths.data_geo()
 │       ├── newborough_dem.tif   LiDAR DEM (NRW) — hillshade base (scripts 04, 07, 08, 11b, 12, 13, 19, 20, 32, 33)
-│       ├── streams.kml          SAGA-derived stream network (used by scripts 19, 20, 32, 33)
+│       ├── streams.kml          DEM surface routing (GRASS r.watershed); drawn only beside the groundwater flow field (D-215; scripts 01b, 20)
 │       ├── site_boundary.kml    Dissolved stream-cell boundary — study area mask for script 19
 │       ├── Features.kml         Site features (dipwell transects, forest boundary, lake)
 │       ├── broadleaf_restock.kml  Broadleaf restocking block boundary
@@ -186,25 +186,25 @@ colours and labels are centralised in `src/utils/config.py`.
 
 | Phase | Scripts | Steps | Purpose |
 |-------|---------|-------|---------|
-| 1 | 01–04 | 1–4 | Core LCSC chain |
-| 2 | 05–06 | 5–6 | Pearson membership audit and extended network integration |
-| 3 | 07, 08, 09 suite, 10 suite, 11, 11b, 11c | 7–13 | Spatial coefficient mapping, model benchmarking, scraping (09a–e) and clearfell BACI (10a–m), forecasting and spatial threshold maps; 11c is the per-well P_flood achievability map for §5.9 / Conclusion 4 |
-| 4 | 00, 14, 14b, 12, 13 | 14–18 | Climate summary, trajectory projections, bootstrap year-of-crossing (14b, supporting §7 Conclusion 11), GIS figures |
-| 5 | 15 | 19 | Depth-dependent PET analysis |
-| 6 | 17 | 20 | WTF cluster Sy estimation |
-| 7 | 16 | 21 | Water balance decomposition |
-| 8 | 18 | 22 | WTF spatial analysis and per-well Sy mapping |
-| 9 | 19, 20 | 23–24 | Spatial groundwater analysis and publication figures |
-| 10 | 21 | 25 | Forestry scenarios and management intervention figures |
-| 11 | 25 (coastal-gradient) | 26 | Coastal-retreat gradient analysis |
-| 12 | 22–24 | 27–29 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
-| 13 | 26, 26b, 26c (van Willegen MSL) | 30–32 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections (26b), and report-format MSL5 figures for §4.8.3 / §4.13.1 (26c) |
-| 14 | 28, 29, 30 (cluster framework diagnostics) | 33–35 | C3 detrend check (28), within-C3 variance attribution (29), and the C4 drainage identifiability diagnostic (30, `30_c4_drainage_identifiability.py`; the constrained-β₃ triangulation it replaced is retired, D-001) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
-| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 36–41 | Secular differential water-table drift (32, report Fig 73); climate-swing amplification + drought-floor surface (33, report Figs 75 and 59); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 74); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
-| 16 | 24b, 31, 31b (opt-in), 34, 38, 39, 40, 41 (analytical-default) | 42–49 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34), the coast-to-inland MAM transect observational δ₀ diagnostic for §4.10.4 (38), the SSM hindcast against the 1989–96 CCW record (39), shoreline retreat from the digitised coastline epochs (40) and canopy-cover change from the dated aerial series (41) — analytical-default |
-| 17 | 09f, 09g, 27, 43, 44 | 50–54 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W, on demand); Ranwell's 1959 water-table sites placed and basin-tested (43, display/utility) and his 1951–53 record set against the modern network and the SSM hindcast (44, analytical) |
-| 18 | 45, 46, 47 | 55–57 | Sentinel-2 wet-area model (D-178), all display tier: the two Band-8 slack-floor area curves against the median well level (45), its public feed `living/wet_area_model.json` (46), and the century hindcast film rendered on demand (47) — an illustration of the area–level relationship, not a flood map |
-| 19 | 48 | 58 | The Pastas cross-check of the per-well SSM: Model B refitted by an independent code on the comparison window and the full record; Model A's constant ratio to it is the datum measured externally (48, analytical-default) |
+| 1 | 01–04 | 1–5 | Core LCSC chain |
+| 2 | 05–06 | 6–7 | Pearson membership audit and extended network integration |
+| 3 | 07, 08, 09 suite, 10 suite, 11, 11b, 11c | 8–14 | Spatial coefficient mapping, model benchmarking, scraping (09a–e) and clearfell BACI (10a–m), forecasting and spatial threshold maps; 11c is the per-well P_flood achievability map for §5.9 / Conclusion 4 |
+| 4 | 00, 14, 14b, 12, 13 | 15–19 | Climate summary, trajectory projections, bootstrap year-of-crossing (14b, supporting §7 Conclusion 11), GIS figures |
+| 5 | 15 | 20 | Depth-dependent PET analysis |
+| 6 | 17 | 21 | WTF cluster Sy estimation |
+| 7 | 16 | 22 | Water balance decomposition |
+| 8 | 18 | 23 | WTF spatial analysis and per-well Sy mapping |
+| 9 | 19, 20 | 24–25 | Spatial groundwater analysis and publication figures |
+| 10 | 21 | 26 | Forestry scenarios and management intervention figures |
+| 11 | 25 (coastal-gradient) | 27 | Coastal-retreat gradient analysis |
+| 12 | 22–24 | 28–30 | Supplementary diagnostics: residual lag structure, ridge recharge hypothesis test, residual seasonality |
+| 13 | 26, 26b, 26c (van Willegen MSL) | 31–33 | Van Willegen et al. (2025) MSL analyses: 5-year observational aggregation with the equilibrium wetness index and Ellenberg-F cross-validation (26), UKCP18 climate projections as the sustained level response on Model B, C4 withheld (26b, D-216), and report-format MSL5 figures for §4.8.3 / §4.13.1 (26c) |
+| 14 | 28, 29, 30 (cluster framework diagnostics) | 34–36 | C3 detrend check (28), within-C3 variance attribution (29), and the C4 drainage identifiability diagnostic (30, `30_c4_drainage_identifiability.py`; the constrained-β₃ triangulation it replaced is retired, D-001) — post-review additions supporting §5.1.1 / §4.2.2 of the main report |
+| 15 | 32, 33, 35, 36, 37, 37b (observed differential change, envelope, and driver validation) | 37–42 | Secular differential water-table drift (32, report Fig 73); climate-swing amplification + drought-floor surface (33, report Figs 75 and 59); per-well climate-sensitivity coefficient (35); absolute climate-removed per-well secular trend (36, Figure 74); predicted-vs-observed driver validation (37); comparative driver footing across forest/scrape/coast on common currencies (37b) — all analytical-default |
+| 16 | 24b, 31, 31b (opt-in), 34, 38, 39, 40, 41 (analytical-default) | 43–50 | Cluster-stratified residual climatology (24b), independent k=5 partition validation (31) and its separation-vs-recoverability companion (31b) — opt-in supplementary diagnostics; the MSL5 two-window sensitivity demonstration figure for §5.7.5 (34), the coast-to-inland MAM transect observational δ₀ diagnostic for §4.10.4 (38), the SSM hindcast against the 1989–96 CCW record (39), shoreline retreat from the digitised coastline epochs (40) and canopy-cover change from the dated aerial series (41) — analytical-default |
+| 17 | 09f, 09g, 27, 43, 44 | 51–55 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W, on demand); Ranwell's 1959 water-table sites placed and basin-tested (43, display/utility) and his 1951–53 record set against the modern network and the SSM hindcast (44, analytical) |
+| 18 | 45, 46, 47 | 56–58 | Sentinel-2 wet-area model (D-178), all display tier: the two Band-8 slack-floor area curves against the median well level (45), its public feed `living/wet_area_model.json` (46), and the century hindcast film rendered on demand (47) — an illustration of the area–level relationship, not a flood map |
+| 19 | 48 | 59 | The Pastas cross-check of the per-well SSM (an implementation check: Pastas fits a free base as Model B does) and the Model A against Model B evidence of D-217 — split-sample skill, model-free memory, identification, loss partition, and Model A at each well's depth to mean high water (48, analytical-default) |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van
@@ -247,7 +247,7 @@ the greyscale figure-conversion utility (Script 27, step 53, on demand) as a cal
 post-processing step, retained in `run_analysis.py` but not treated as an analytical
 phase, then Ranwell's 1959 sites placed and basin-tested (Script 43, step 54,
 display) and his 1951–53 record set against the modern network and the SSM
-hindcast (Script 44, step 55, §5.7.9). Phase 18 (Scripts 45–47, steps 55–57) is
+hindcast (Script 44, step 55, §5.7.9). Phase 18 (Scripts 45–47, steps 56–58) is
 the Sentinel-2 wet-area line and Phase 19 (Script 48, step 59) the Pastas
 cross-check of the per-well SSM (§3.4). Two further post-review diagnostics added in the same cascade slot into
 earlier phases as successors to their data source: `11c_pflood_achievability.py`
@@ -314,7 +314,7 @@ Script 19 requires the following files in `data/geo/`:
 | File | Purpose |
 |------|---------|
 | `site_boundary.kml` | Study area boundary mask — dissolved SAGA stream-cell polygons in WGS84. Used by `make_site_mask()` to clip interpolated surfaces to the dune system outline. Read via pure XML + pyproj + shapely (no fiona KML driver required). Falls back to a rectangular sea-boundary mask if absent. |
-| `streams.kml` | SAGA stream network — used for stream polyline rendering in figures. Separate from `site_boundary.kml`. |
+| `streams.kml` | DEM surface routing (GRASS r.watershed) — spills each closed slack over its saddle; it is not a guide to groundwater flow direction. Drawn only where a figure compares it directly with the groundwater flow field (Scripts 01b and 20, D-215). Separate from `site_boundary.kml`. |
 | `newborough_dem.tif` | LiDAR DEM — used for greyscale hillshade base layer. |
 | `Features.kml` | Site features overlay (transects, forest boundary, lake, clearfell area). |
 

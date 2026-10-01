@@ -37,3 +37,6 @@ RB-26,MS,D. The Sentinel wet-area model,"assembles those curves, the per-cell sw
 RB-27,report8,Using Models to derive the Aquifer Architecture,fits Pastas at each of the 66 reference wells on exactly the months that well,Script 48
 RB-04b,report8,Using Models to derive the Aquifer Architecture,The per-well recession constants are fitted on each well's full record rather than the 100-month comparison window,D-192 sentence in the Drainage Timescales subsection
 RB-28,MS,S.23e Script 01b,the mean state is all months,Script 01b
+RB-12b,report9,Combined Driver Assessment and Observed Network Change,"from the datum-free drainage coefficient of the intercept form (Model B), fitted on the same record as the published coefficients",Script 26 persistence expectation (D-216)
+RB-27b,report8,Modelling the Cluster water levels,"Each form was fitted on the record before 2018 and run freely over the years after",Script 48 split-sample (D-217)
+RB-29,report8,Five-Year Mean Spring Water Level (MSL5) and Associated Forecasting Tools,"is not identified on its record (the rule of Section 3.4.1, Script 48) is not projected",Scripts 26b and 19 sustained projection (D-216)

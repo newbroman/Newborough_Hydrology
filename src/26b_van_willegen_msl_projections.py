@@ -15,15 +15,20 @@ UKCP18 RCP8.5 climate scenarios for the 2050s and 2080s. Output is a
 per-cluster trajectory plot showing the observed 2014-2025 MSL5 alongside
 the climate-perturbed equivalents.
 
-Method
-------
-Monthly Δh perturbation pattern (Script 21 / model_utils convention).
-For each cluster and each scenario:
+Method (2.0.0, D-216)
+---------------------
+For each cluster and each scenario the monthly forcing change over the observed
+climate record is
 
-    Δh_shift(m) = β₁·(P_scen(m) − P_base(m)) − β₂·(PET_scen(m) − PET_base(m))
+    Δf(t) = β₁·P(t)·(sP(m) − 1) − β₂·PET(t)·(sPET(m) − 1)
 
-where β₁ and β₂ are the cluster's SSM coefficients (Script 03), and
-P_scen(m) = P_base(m) · sP(m), PET_scen(m) = PET_base(m) · sPET(m).
+and the LEVEL it produces is the difference between a perturbed and a baseline
+SSM run, d(t) = (1 − β₃)·d(t−1) + Δf(t) (model_utils.scenario_delta_series), in
+which the intercept and the drainage datum cancel. The run starts from the
+sustained state (model_utils.sustained_monthly_response): the scenario
+climatology is taken to have been in force before the record began. β₁, β₂, β₃
+are the cluster's MODEL B coefficients (03_16_model_b_persistence.csv): the
+response is governed by the memory, and Model B's β₃ is datum-free.
 
 The UKCP18 multipliers sP / sPET are seasonal (Nov-Mar winter window;
 May-Sep summer window; April and October as shoulder months get the mean
@@ -33,14 +38,11 @@ estimates from Script 19's SCENARIO_PARAMS dict drive each scenario:
     2050s:   P_winter ×1.10   P_summer ×0.85   PET_winter ×1.05   PET_summer ×1.20
     2080s:   P_winter ×1.20   P_summer ×0.70   PET_winter ×1.10   PET_summer ×1.35
 
-Because the perturbation is linear in P and PET and the multipliers are
-constant year-on-year (climatology shift, not interannual sequence), the
-resulting MSL5 shift is a single constant per cluster per scenario:
-
-    ΔMSL5 = mean(Δh_Mar, Δh_Apr, Δh_May)
-
-The projected MSL5 trajectory is therefore the observed Script 26
-trajectory shifted down by this constant. The figure shows the
+Each window's ΔMSL5 is the mean of d over the spring months
+(config.MSL_SPRING_MONTHS, D-189) of the window's springs, so it varies a little
+from window to window with the observed sequence; its long-run value is the
+sustained spring response (msl5_shift_sustained_m). Until 2.0.0 this script
+added one month's Δf — a rate — as a level, over March-May. The figure shows the
 unmodified Script 26 line (same colours and markers) plus two
 scenario-shifted versions per cluster.
 
@@ -111,7 +113,22 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+__version__ = "2.0.0"  # Hollingham (2026) - 2026-10-01 (D-216; Martin: "Sustained, Model B").
+#   Two corrections. (1) SPRING MONTHS: delta_h[[2, 3, 4]] was March-May; D-189 moved spring to the
+#   bucketed February-April (config.MSL_SPRING_MONTHS) and this script was never moved. (2) A RATE
+#   WAS ADDED AS A LEVEL: the shift was one month's forcing change, beta_1*dP - beta_2*dPET (m/month),
+#   added to the MSL5 trajectory as if it were metres. A climate held every year accumulates through
+#   the drainage term; the shift is now the LEVEL difference between a perturbed and a baseline SSM
+#   run over the observed climate record (model_utils.scenario_delta_series, started from the
+#   sustained state so the first windows are not spun up from zero), averaged over each window's
+#   springs, so it varies a little by window. Coefficients are MODEL B (03_16 centroids): the
+#   response is set by the memory, and Model B's beta_3 is the datum-free one (D-109, D-216). A
+#   cluster whose Model B beta_3 fails Script 48's identifiability rule (C4) is withheld, not
+#   projected. The old quantity is kept as a diagnostic column (spring_one_month_rate_model_a_m).
+#   The per-well pathway (Script 19's validation target) follows the same convention. Figure: the
+#   2050s / 2080s lines carry different markers (square / triangle) and every line is named at its
+#   right-hand end; legend samples lengthened (Martin: "you cant tell which line is which").
+# 1.4.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number
 #   emits (no analysis change) - per (cluster, scenario) msl5_shift_mean_m and
 #   the largest-shift cluster per scenario, written to 26b_report_numbers.csv
 #   so the Methods Supplement S.18b.3 sentence binds to a citation row.
@@ -154,6 +171,13 @@ from utils.console_utils import (
 
 from utils import config, paths
 from utils.render_utils import render_figure
+from utils.model_utils import (scenario_delta_series, sustained_monthly_response,
+                               response_identified, climate_forcing_change_12)
+
+# Spring (D-189): the bucketed months config.MSL_SPRING_MONTHS, as 0-based calendar
+# indices into the 12-month arrays. Was a literal [2, 3, 4] (March-May) until 2.0.0.
+SPRING_IDX = [int(m) - 1 for m in config.MSL_SPRING_MONTHS]
+MODEL_B_N_PARAMS = 4          # beta_1, beta_2, beta_3 and the intercept
 
 # ── Output paths ──────────────────────────────────────────────────────────────
 paths.DIR_26B.mkdir(parents=True, exist_ok=True)
@@ -180,9 +204,9 @@ OUT_TXT    = paths.OUT_26B_RESULTS_TXT
 from utils.config import UKCP18_SCENARIOS
 
 SCENARIO_STYLES = {
-    "2050s": {"linestyle": (0, (4, 2)),       "linewidth": 1.4, "alpha": 0.85,
+    "2050s": {"linestyle": (0, (4, 2)),       "linewidth": 1.4, "alpha": 0.85, "marker": "s",
               "label": "UKCP18 RCP8.5 2050s (50th %ile)"},
-    "2080s": {"linestyle": (0, (1.5, 1.5)),   "linewidth": 1.4, "alpha": 0.85,
+    "2080s": {"linestyle": (0, (1.5, 1.5)),   "linewidth": 1.4, "alpha": 0.85, "marker": "^",
               "label": "UKCP18 RCP8.5 2080s (50th %ile)"},
 }
 
@@ -235,43 +259,50 @@ def _compute_monthly_delta_h(b1: float, b2: float,
     delta_PET = monthly_PET_m * (sPET - 1.0)
     return b1 * delta_P - b2 * delta_PET
 
+def _spring_shift_by_year(b1, b2, b3, clim_window, sP, sPET,
+                          monthly_P_m, monthly_PET_m) -> tuple[pd.Series, float]:
+    """(spring level shift per calendar year, sustained spring shift) under one
+    scenario — the D-216 level response. Spring months are calendar Feb-Apr, which
+    Script 26 assigns to the hydrology year of the same calendar year."""
+    m_idx = clim_window.index.month.values - 1
+    dF = (b1 * clim_window["P_m"].values * (sP[m_idx] - 1.0)
+          - b2 * clim_window["PET"].values * (sPET[m_idx] - 1.0))
+    dF12 = climate_forcing_change_12(b1, b2, monthly_P_m, monthly_PET_m, sP, sPET)
+    ss = sustained_monthly_response(b3, dF12)
+    d0 = float(ss[(int(clim_window.index[0].month) - 2) % 12])   # the month before the record
+    d = pd.Series(scenario_delta_series(b3, dF, d0=d0), index=clim_window.index)
+    spr = d[d.index.month.isin(config.MSL_SPRING_MONTHS)]
+    return spr.groupby(spr.index.year).mean(), float(np.mean(ss[SPRING_IDX]))
+
+
 def _compute_projected_msl5_trajectory(
         observed_traj: pd.DataFrame,
-        delta_h: np.ndarray,
+        spring_shift_by_year: pd.Series,
 ) -> pd.DataFrame:
     """
-    Apply the per-month Δh perturbation to the observed MSL5 trajectory.
-
-    Because the perturbation is linear in P and PET and the multipliers
-    are constant year-on-year (UKCP18 climatology shift, not an
-    interannual sequence), the resulting MSL5 shift is a constant per
-    cluster per scenario equal to the mean of the spring Δh values:
-
-        ΔMSL5 = mean(Δh_Mar, Δh_Apr, Δh_May)
-
-    The projected trajectory is therefore the observed trajectory shifted
-    down by this constant. This keeps the figure's observed line
-    byte-identical to Script 26's published trajectory; the scenario lines
-    are vertical translations.
+    Shift the observed MSL5 trajectory by each window's mean spring level shift
+    (2.0.0, D-216): window ending in hydrology year y averages the spring shifts of
+    y − MSL_DEFAULT_WINDOW_YEARS + 1 … y. The observed line stays byte-identical
+    to Script 26's published trajectory.
 
     Parameters
     ----------
     observed_traj : pd.DataFrame
         From Script 26's 26_msl_5yr_per_cluster.csv subset for one cluster,
         columns: window_end_year, MSL5_observed.
-    delta_h : np.ndarray, length 12
-        Monthly Δh shifts (m), indexed 0=Jan ... 11=Dec.
+    spring_shift_by_year : pd.Series
+        Spring level shift (m) per calendar year, from _spring_shift_by_year.
 
     Returns
     -------
     pd.DataFrame with columns: window_end_year, MSL5_perturbed, msl5_shift.
     """
-    # Spring (Mar, Apr, May) Δh values — calendar indices 2, 3, 4
-    msl5_shift = float(np.mean(delta_h[[2, 3, 4]]))
-
+    W = int(config.MSL_DEFAULT_WINDOW_YEARS)
     out = observed_traj.copy()
-    out["MSL5_perturbed"] = out["MSL5_observed"] + msl5_shift
-    out["msl5_shift"] = msl5_shift
+    out["msl5_shift"] = [
+        float(spring_shift_by_year.reindex(range(int(y) - W + 1, int(y) + 1)).mean())
+        for y in out["window_end_year"]]
+    out["MSL5_perturbed"] = out["MSL5_observed"] + out["msl5_shift"]
     return out[["window_end_year", "MSL5_perturbed", "msl5_shift"]]
 
 def _render_bar_panel(ax, projected_trajectories, cluster_ids_present):
@@ -292,10 +323,10 @@ def _render_bar_panel(ax, projected_trajectories, cluster_ids_present):
         cluster_labels.append(f"C{cid}")
         p50 = projected_trajectories.get((cid, "2050s"))
         p80 = projected_trajectories.get((cid, "2080s"))
-        bars_2050.append(float(p50["msl5_shift"].iloc[0]) * 100.0
-                         if p50 is not None and len(p50) else 0.0)
-        bars_2080.append(float(p80["msl5_shift"].iloc[0]) * 100.0
-                         if p80 is not None and len(p80) else 0.0)
+        bars_2050.append(float(p50["msl5_shift"].mean()) * 100.0
+                         if p50 is not None and len(p50) else np.nan)
+        bars_2080.append(float(p80["msl5_shift"].mean()) * 100.0
+                         if p80 is not None and len(p80) else np.nan)
 
     # Colour each bar by its cluster
     colours = [config.CLUSTER_COLOURS.get(cid, "#444")
@@ -307,13 +338,15 @@ def _render_bar_panel(ax, projected_trajectories, cluster_ids_present):
            edgecolor="black", linewidth=0.5, hatch="//",
            label="UKCP18 RCP8.5 2080s")
 
-    # Numeric labels at the bar ends
-    for xi, v in zip(x - width / 2, bars_2050):
-        ax.text(xi, v - 0.1, f"{v:+.1f}", ha="center", va="top",
-                fontsize=7.5, color="#222")
-    for xi, v in zip(x + width / 2, bars_2080):
-        ax.text(xi, v - 0.1, f"{v:+.1f}", ha="center", va="top",
-                fontsize=7.5, color="#222")
+    # Numeric labels at the bar ends; a withheld cluster (Model B beta_3 not
+    # identified, 2.0.0) is marked rather than drawn as a zero
+    for xs, vals in ((x - width / 2, bars_2050), (x + width / 2, bars_2080)):
+        for xi, v in zip(xs, vals):
+            if not np.isfinite(v):
+                ax.text(xi, 0, "n.i.", ha="center", va="bottom", fontsize=7, color="#666")
+                continue
+            ax.text(xi, v, f"{v:+.1f}", ha="center", va="top" if v < 0 else "bottom",
+                    fontsize=7.5, color="#222")
 
     ax.set_xticks(x)
     ax.set_xticklabels(cluster_labels, fontsize=9)
@@ -322,9 +355,10 @@ def _render_bar_panel(ax, projected_trajectories, cluster_ids_present):
     ax.axhline(0, color="#333", lw=0.5)
     ax.grid(axis="y", alpha=0.25)
     ax.tick_params(labelsize=8)
-    # Floor the y-axis a bit below the deepest bar so the labels don't clip
-    y_lo = min(bars_2080) - 1.0
-    ax.set_ylim(y_lo, 0.5)
+    # Room for labels on both sides of zero (shifts can be positive, 2.0.0)
+    finite = [v for v in bars_2050 + bars_2080 if np.isfinite(v)] or [0.0]
+    span = max(max(finite) - min(min(finite), 0.0), 1.0)
+    ax.set_ylim(min(min(finite), 0.0) - 0.15 * span, max(max(finite), 0.0) + 0.15 * span)
 
 def render_projection_figure(
         observed_trajectories: dict[int, pd.DataFrame],
@@ -334,17 +368,15 @@ def render_projection_figure(
     """
     Render the projection figure as a 2x3 small-multiple layout:
       • 5 trajectory panels (one per cluster), per-panel auto-scaled y-axis
-        so the 1-4 cm scenario shift is visible at the panel's own scale
+        so the scenario shift is visible at the panel's own scale
       • 1 summary bar chart (bottom-right) showing ΔMSL5 per cluster ×
         scenario in centimetres
 
     A figure-level horizontal legend strip sits below the suptitle.
 
-    Visual note. The Δh perturbation is small (1-4 cm) and constant per
-    cluster per scenario. On a panel with ~50 cm of inter-year variability
-    in MSL5, three trajectories drawn from the same dataset offset by 1 cm
-    are visually indistinguishable. Per-panel auto-scaling raises the
-    apparent shift; the bar chart provides the canonical magnitude view.
+    The scenario lines are the observed trajectory shifted by each window's
+    sustained level response (2.0.0, D-216); a cluster whose Model B β₃ is not
+    identified carries no scenario line. The bar chart gives the mean shift.
     """
     cluster_ids_present = sorted(observed_trajectories.keys())
 
@@ -359,6 +391,10 @@ def render_projection_figure(
         ax.plot(obs["window_end_year"], obs["MSL5_observed"],
                 color=col, marker="o", linewidth=1.8, markersize=4.5,
                 label="Observed", zorder=5)
+        _lo = obs.iloc[-1]
+        ax.annotate("observed", (_lo["window_end_year"], _lo["MSL5_observed"]),
+                    xytext=(5, 0), textcoords="offset points", va="center",
+                    fontsize=7, color=col, fontweight="bold")
 
         for scen in ["2050s", "2080s"]:
             proj = projected_trajectories.get((cid, scen))
@@ -366,9 +402,17 @@ def render_projection_figure(
                 continue
             sty = SCENARIO_STYLES[scen]
             ax.plot(proj["window_end_year"], proj["MSL5_perturbed"],
-                    color=col, marker="s", markersize=3.5,
+                    color=col, marker=sty["marker"], markersize=4,
+                    markerfacecolor="white", markeredgecolor=col,
                     linestyle=sty["linestyle"], linewidth=sty["linewidth"],
                     alpha=sty["alpha"], label=sty["label"], zorder=4)
+            # name the line at its right-hand end (2.0.0; Martin: "you cant tell which line is which")
+            last = proj.dropna(subset=["MSL5_perturbed"])
+            if len(last):
+                last = last.sort_values("window_end_year").iloc[-1]
+                ax.annotate(scen, (last["window_end_year"], last["MSL5_perturbed"]),
+                            xytext=(5, 0), textcoords="offset points", va="center",
+                            fontsize=7, color=col)
 
         # Curreli reference lines — drawn but only included in the y-range
         # if they're inside the observed envelope; otherwise the per-panel
@@ -377,7 +421,7 @@ def render_projection_figure(
         for scen in ["2050s", "2080s"]:
             p = projected_trajectories.get((cid, scen))
             if p is not None and len(p):
-                all_y.extend(p["MSL5_perturbed"].tolist())
+                all_y.extend(p["MSL5_perturbed"].dropna().tolist())
         y_min = float(min(all_y))
         y_max = float(max(all_y))
         y_range = y_max - y_min
@@ -393,9 +437,16 @@ def render_projection_figure(
         ax.axhline(-config.SD16,  ls="--", color="#cc0000", lw=0.8,
                    alpha=0.7, zorder=2)
         ax.set_ylim(y_lo, y_hi)
+        ax.set_xlim(right=float(obs["window_end_year"].max()) + 2.6)   # room for line names
+        ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
 
         ax.set_xlabel("Hydrology year (window end)", fontsize=9)
         ax.set_ylabel("5-year MSL (m, below ground)", fontsize=9)
+        if not any(projected_trajectories.get((cid, s_)) is not None
+                   and projected_trajectories[(cid, s_)]["msl5_shift"].notna().any()
+                   for s_ in ("2050s", "2080s")):
+            ax.text(0.5, 0.94, "no projection: Model B β₃ not identified", transform=ax.transAxes,
+                    ha="center", va="top", fontsize=8, color="#666")
         ax.set_title(f"{lbl}", fontsize=10)
         ax.grid(alpha=0.25)
         ax.tick_params(labelsize=8)
@@ -407,11 +458,13 @@ def render_projection_figure(
     # Figure-level legend strip
     legend_handles = [
         plt.Line2D([0], [0], color="#444", marker="o", lw=1.8, markersize=4.5,
-                   label="Observed (Method B baseline, Script 26 v1.1.2)"),
-        plt.Line2D([0], [0], color="#444", marker="s", lw=1.4, markersize=3.5,
+                   label="Observed (Script 26 cluster centroid)"),
+        plt.Line2D([0], [0], color="#444", marker="s", lw=1.4, markersize=4,
+                   markerfacecolor="white",
                    linestyle=SCENARIO_STYLES["2050s"]["linestyle"],
                    label="UKCP18 RCP8.5 2050s (central estimate)"),
-        plt.Line2D([0], [0], color="#444", marker="s", lw=1.4, markersize=3.5,
+        plt.Line2D([0], [0], color="#444", marker="^", lw=1.4, markersize=4,
+                   markerfacecolor="white",
                    linestyle=SCENARIO_STYLES["2080s"]["linestyle"],
                    label="UKCP18 RCP8.5 2080s (central estimate)"),
         plt.Line2D([0], [0], color="#1a7a1a", lw=0.8, ls="--",
@@ -421,12 +474,12 @@ def render_projection_figure(
     ]
     fig.legend(handles=legend_handles, loc="upper center",
                bbox_to_anchor=(0.5, 0.945), ncol=5, fontsize=8,
-               frameon=False)
+               frameon=False, handlelength=4.5)
 
     fig.suptitle("Per-cluster MSL5 trajectory under UKCP18 RCP8.5 climate "
                  "scenarios\n"
-                 "Cluster-centroid baseline (Method B, Script 26 v1.1.2) "
-                 "overlaid with monthly Δh perturbation from each scenario",
+                 "Cluster-centroid baseline (Script 26) shifted by the sustained level "
+                 "response to each scenario (Model B SSM, D-216)",
                  fontsize=11, y=0.995)
     fig.tight_layout(rect=[0, 0, 1, 0.92])
     render_figure(fig, out_path)
@@ -437,118 +490,71 @@ def render_projection_figure(
 def compute_perwell_msl5_summary(
     monthly_P_m: np.ndarray,
     monthly_PET_m: np.ndarray,
-    master_csv_path,
+    model_b_csv_path,
     out_csv_path,
 ) -> pd.DataFrame:
     """
-    Compute per-cluster ΔMSL5 under each UKCP18 scenario using **per-well
-    β coefficients** averaged within each cluster, rather than the
-    cluster-centroid β used by the main pathway.
+    Per-cluster ΔMSL5 from PER-WELL Model B coefficients (2.0.0, D-216): each
+    reference well's sustained spring level response to the scenario climatology,
+    averaged within its cluster. The validation target for Script 19's ΔMSL5 row,
+    which computes the same quantity with the same model_utils functions.
 
-    Algorithm
-    ---------
-    1. Read 03_master_data.csv (the same file Script 19 reads).
-    2. For each well with non-null β₁, compute the 12-month Δh array using
-       the same pure-climate formulation as _compute_monthly_delta_h.
-    3. Take the spring (Mar/Apr/May) mean → per-well ΔMSL5.
-    4. Aggregate to cluster mean (simple mean over the wells in each
-       cluster); a SITE-level row is the well-count-weighted mean across
-       all clusters.
-
-    The output CSV schema mirrors the centroid summary but adds an
-    n_wells column and replaces the centroid-fitted β columns with the
-    per-cluster mean of the per-well β.  An additional row per scenario
-    aggregates to a SITE level (well-count weighted).
-
-    Notes
-    -----
-    - Forest interception is **not** applied (this is the canonical
-      pure-climate perturbation, matching the centroid pathway exactly).
-    - Wells with null β₁ are silently skipped, matching Script 19's
-      `wt["b1"].notna()` filter.
-    - The well-cluster assignment in 03_master_data.csv is set by Script
-      03 from the same clustering output Script 19 uses for its
-      cluster-stats join, so the per-cluster well populations are
-      byte-identical between Script 19 and this function.
-    - This routine is independent of the centroid pathway: it does not
-      mutate any state used elsewhere in main(), and the centroid
-      OUT_TABLE / OUT_DELTAS / OUT_FIG remain unchanged.
-
-    Returns the DataFrame written to out_csv_path.
+    1. Read the well rows of 03_16_model_b_persistence.csv (comparison window).
+    2. Keep wells whose Model B β₃ passes Script 48's identifiability rule
+       (model_utils.response_identified); the rest are counted as withheld.
+    3. Per well: mean over config.MSL_SPRING_MONTHS of
+       sustained_monthly_response(β₃, climate_forcing_change_12(...)) — pure
+       climate, no canopy interception (the van Willegen convention).
+    4. Cluster mean and median; a SITE row weighted by identified wells.
     """
-    md = pd.read_csv(master_csv_path)
-    # Filter to wells with valid β₁ (matches Script 19 build_well_table)
-    md = md[md["beta_1_recharge"].notna() & md["beta_2_atmospheric_draw"].notna()]
-    if md.empty:
-        warn("compute_perwell_msl5_summary: no wells with valid β")
+    mb = pd.read_csv(model_b_csv_path)
+    mb = mb[(mb["level"] == "well") & mb["beta_1_B"].notna() & mb["beta_3_B"].notna()]
+    if mb.empty:
+        warn("compute_perwell_msl5_summary: no wells with Model B coefficients")
         return pd.DataFrame()
 
-    cluster_labels_map = {1: "C1 (Lake Edge)", 2: "C2 (Dune)",
-                          3: "C3 (Western Residual)", 4: "C4 (Main Forest)",
-                          5: "C5 (Coastal Forest)"}
-
     records = []
-    print(f"  Per-well ΔMSL5 aggregation: {len(md)} wells across "
-          f"{md['Cluster'].nunique()} clusters")
+    print(f"  Per-well ΔMSL5 (Model B, sustained): {len(mb)} wells across "
+          f"{mb['Cluster'].nunique()} clusters")
     for scen_key in ["2050s", "2080s"]:
         sP, sPET = _monthly_multipliers(scen_key)
+        per_well = []
+        for _, w in mb.iterrows():
+            ok, _ef, _rse = response_identified(w["beta_3_B"], w["pvalue_beta_3_B"],
+                                                w["n"], MODEL_B_N_PARAMS)
+            shift = np.nan
+            if ok:
+                dF12 = climate_forcing_change_12(w["beta_1_B"], w["beta_2_B"],
+                                                 monthly_P_m, monthly_PET_m, sP, sPET)
+                shift = float(np.mean(sustained_monthly_response(w["beta_3_B"], dF12)[SPRING_IDX]))
+            per_well.append((int(w["Cluster"]), shift))
 
-        # Compute per-well ΔMSL5
-        well_msl5 = {}
-        for _, well in md.iterrows():
-            b1 = float(well["beta_1_recharge"])
-            b2 = float(well["beta_2_atmospheric_draw"])
-            delta_h = _compute_monthly_delta_h(
-                b1, b2, monthly_P_m, monthly_PET_m, sP, sPET
-            )
-            well_msl5[well["Name_Original"]] = (
-                int(well["Cluster"]),
-                b1, b2,
-                float(np.mean(delta_h[[2, 3, 4]])),     # spring mean
-            )
-
-        # Cluster aggregation
-        total_wells = 0
-        site_weighted_sum = 0.0
-        for cid in sorted(cluster_labels_map.keys()):
-            in_cluster = [(b1, b2, m) for (c, b1, b2, m) in well_msl5.values()
-                          if c == cid]
-            if not in_cluster:
+        total, site_sum = 0, 0.0
+        for cid in sorted(config.CLUSTER_LABELS.keys()):
+            vals = [v for c, v in per_well if c == cid]
+            if not vals:
                 continue
-            n_cl = len(in_cluster)
-            mean_b1 = float(np.mean([b1 for b1, _, _ in in_cluster]))
-            mean_b2 = float(np.mean([b2 for _, b2, _ in in_cluster]))
-            mean_msl5 = float(np.mean([m for _, _, m in in_cluster]))
-            median_msl5 = float(np.median([m for _, _, m in in_cluster]))
+            ok_vals = [v for v in vals if np.isfinite(v)]
+            mean_ = float(np.mean(ok_vals)) if ok_vals else np.nan
             records.append({
-                "cluster_id":             cid,
-                "cluster_label":          cluster_labels_map[cid],
-                "scenario":               scen_key,
-                "beta_1_recharge_mean":   mean_b1,
-                "beta_2_atmospheric_draw_mean": mean_b2,
-                "spring_delta_h_mean_m":  mean_msl5,
-                "spring_delta_h_median_m": median_msl5,
-                "n_wells":                n_cl,
-                "aggregation":            "perwell",
+                "cluster_id": cid, "cluster_label": config.CLUSTER_LABELS[cid],
+                "scenario": scen_key,
+                "msl5_shift_sustained_mean_m": mean_,
+                "msl5_shift_sustained_median_m": float(np.median(ok_vals)) if ok_vals else np.nan,
+                "n_wells": len(ok_vals), "n_withheld_not_identified": len(vals) - len(ok_vals),
+                "model": "B", "aggregation": "perwell",
             })
-            total_wells += n_cl
-            site_weighted_sum += mean_msl5 * n_cl
-            print(f"    {scen_key}  C{cid}: n={n_cl:2d}  "
-                  f"β₁̄={mean_b1:.4f}  β₂̄={mean_b2:.4f}  "
-                  f"ΔMSL5 = {mean_msl5:+.4f} m")
-
-        # SITE-level row (well-count weighted)
-        if total_wells > 0:
+            if ok_vals:
+                total += len(ok_vals); site_sum += mean_ * len(ok_vals)
+            print(f"    {scen_key}  C{cid}: n={len(ok_vals):2d} (+{len(vals) - len(ok_vals)} withheld)  "
+                  f"ΔMSL5 = {mean_:+.4f} m")
+        if total:
             records.append({
-                "cluster_id":             None,
-                "cluster_label":          "SITE",
-                "scenario":               scen_key,
-                "beta_1_recharge_mean":   np.nan,
-                "beta_2_atmospheric_draw_mean": np.nan,
-                "spring_delta_h_mean_m":  site_weighted_sum / total_wells,
-                "spring_delta_h_median_m": np.nan,
-                "n_wells":                total_wells,
-                "aggregation":            "perwell",
+                "cluster_id": None, "cluster_label": "SITE", "scenario": scen_key,
+                "msl5_shift_sustained_mean_m": site_sum / total,
+                "msl5_shift_sustained_median_m": np.nan,
+                "n_wells": total, "n_withheld_not_identified": np.nan,
+                "model": "B", "aggregation": "perwell",
             })
 
     out_df = pd.DataFrame(records)
@@ -563,15 +569,20 @@ def main() -> int:
     print("Script 26b — UKCP18 MSL5 climate projections (Tool B)")
     print("=" * 72)
     print()
-    print("  Method: monthly Δh perturbation overlay on observed climatology")
+    print("  Method: sustained level response (Model B SSM, D-216) over the observed climate")
     print("  Convention: van Willegen 2025 5-year MSL (window-ends from "
           "Script 26)")
     print("  Scenarios: UKCP18 RCP8.5 Wales 50th %ile — 2050s and 2080s")
     print()
 
     # ── Load inputs ──────────────────────────────────────────────────────────
-    coeffs = pd.read_csv(paths.OUT_03_MECHANISTIC_TABLE)
-    print(f"  {paths.OUT_03_MECHANISTIC_TABLE.name:<48s} : {len(coeffs)} clusters")
+    # Model B centroids drive the projection (2.0.0, D-216); Model A's published
+    # coefficients feed only the one-month-rate diagnostic column.
+    mb_all = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
+    coeffs = mb_all[mb_all["level"] == "centroid"].copy()
+    print(f"  {paths.OUT_03_MODEL_B_PERSISTENCE.name:<48s} : {len(coeffs)} Model B centroids")
+    coeffs_a = pd.read_csv(paths.OUT_03_MECHANISTIC_TABLE).set_index("Cluster")
+    print(f"  {paths.OUT_03_MECHANISTIC_TABLE.name:<48s} : {len(coeffs_a)} clusters (diagnostic)")
 
     climate = pd.read_csv(paths.INT_CLIMATE)
     climate["Date"] = pd.to_datetime(climate["Date"])
@@ -609,9 +620,13 @@ def main() -> int:
     for _, row in coeffs.iterrows():
         cid = int(row["Cluster"])
 
-        b1 = float(row["beta_1_recharge"])
-        b2 = float(row["beta_2_atmospheric_draw"])
-        b3 = float(row["beta_3_drainage"])
+        b1 = float(row["beta_1_B"])
+        b2 = float(row["beta_2_B"])
+        b3 = float(row["beta_3_B"])
+        ident, efold, rel_se = response_identified(b3, row["pvalue_beta_3_B"], row["n"],
+                                                   MODEL_B_N_PARAMS)
+        a1 = float(coeffs_a.loc[cid, "beta_1_recharge"])
+        a2 = float(coeffs_a.loc[cid, "beta_2_atmospheric_draw"])
 
         # Observed MSL5 trajectory for this cluster (from Script 26)
         obs = observed_cluster[observed_cluster["cluster_id"] == cid].copy()
@@ -625,50 +640,62 @@ def main() -> int:
         observed_trajectories[cid] = obs_traj
 
         print(f"  Cluster {cid} ({row['Cluster_Label']}):")
-        print(f"    β₁ = {b1:.4f}   β₂ = {b2:.4f}   β₃ = {b3:.4f}")
+        print(f"    Model B  β₁ = {b1:.4f}   β₂ = {b2:.4f}   β₃ = {b3:.4f}   "
+              f"e-fold {efold:.1f} mo, rel SE {rel_se:.2f}"
+              + ("" if ident else "   -> NOT identified: withheld"))
 
         # For each scenario, compute the 12-month Δh array and project
         for scen_key in ["2050s", "2080s"]:
             sP, sPET = _monthly_multipliers(scen_key)
-            delta_h = _compute_monthly_delta_h(
-                b1, b2, monthly_P_m, monthly_PET_m, sP, sPET
-            )
-            # Record per-month Δh for the deltas CSV
+            dF12 = climate_forcing_change_12(b1, b2, monthly_P_m, monthly_PET_m, sP, sPET)
+            ss12 = sustained_monthly_response(b3, dF12) if 0.0 < b3 < 1.0 else np.full(12, np.nan)
+            rate_a = _compute_monthly_delta_h(a1, a2, monthly_P_m, monthly_PET_m, sP, sPET)
             for m_idx in range(12):
                 delta_h_records.append({
                     "cluster_id": cid,
                     "cluster_label": row["Cluster_Label"],
                     "scenario": scen_key,
                     "calendar_month": m_idx + 1,
-                    "delta_h_m": float(delta_h[m_idx]),
+                    "forcing_change_m_per_month": float(dF12[m_idx]),
+                    "level_shift_sustained_m": float(ss12[m_idx]) if ident else np.nan,
+                    "one_month_rate_model_a_m_per_month": float(rate_a[m_idx]),
                     "sP": float(sP[m_idx]),
                     "sPET": float(sPET[m_idx]),
                 })
 
-            # Apply Δh as a vertical shift to the Script 26 observed
-            # trajectory. The shift is constant per cluster per scenario
-            # (mean of spring Δh values).
-            traj = _compute_projected_msl5_trajectory(obs_traj, delta_h)
+            if ident:
+                by_year, sustained = _spring_shift_by_year(
+                    b1, b2, b3, clim_window, sP, sPET, monthly_P_m, monthly_PET_m)
+                traj = _compute_projected_msl5_trajectory(obs_traj, by_year)
+            else:
+                sustained = np.nan
+                traj = obs_traj.assign(MSL5_perturbed=np.nan, msl5_shift=np.nan)[
+                    ["window_end_year", "MSL5_perturbed", "msl5_shift"]]
             projected_trajectories[(cid, scen_key)] = traj
-
-            # Summary across all observed window-ends (the perturbed
-            # trajectory is on the same window-end grid by construction)
-            mean_shift = float(traj["msl5_shift"].iloc[0])
-            spring_delta_h = float(np.mean(delta_h[[2, 3, 4]]))  # Mar/Apr/May
-            print(f"    {scen_key}: spring Δh mean = "
-                  f"{spring_delta_h:+.4f} m/month;  "
-                  f"projected ΔMSL5 = {mean_shift:+.3f} m")
+            mean_shift = float(traj["msl5_shift"].mean()) if ident else np.nan
+            rate_a_spring = float(np.mean(rate_a[SPRING_IDX]))
+            print(f"    {scen_key}: ΔMSL5 mean over windows = {mean_shift:+.3f} m "
+                  f"(sustained {sustained:+.3f} m; one-month Model A rate "
+                  f"{rate_a_spring:+.4f} m/month)")
 
             summary_records.append({
                 "cluster_id":            cid,
                 "cluster_label":         row["Cluster_Label"],
                 "scenario":              scen_key,
+                "model":                 "B",
                 "beta_1_recharge":       b1,
                 "beta_2_atmospheric_draw": b2,
-                "spring_delta_h_mean_m": spring_delta_h,
+                "beta_3_drainage":       b3,
+                "efold_months":          efold,
+                "rel_se_beta_3":         rel_se,
+                "identified":            bool(ident),
                 "msl5_observed_window_mean_m": float(obs_traj["MSL5_observed"].mean()),
-                "msl5_perturbed_window_mean_m": float(traj["MSL5_perturbed"].mean()),
+                "msl5_perturbed_window_mean_m": float(traj["MSL5_perturbed"].mean()) if ident else np.nan,
                 "msl5_shift_mean_m":     mean_shift,
+                "msl5_shift_min_m":      float(traj["msl5_shift"].min()) if ident else np.nan,
+                "msl5_shift_max_m":      float(traj["msl5_shift"].max()) if ident else np.nan,
+                "msl5_shift_sustained_m": sustained,
+                "spring_one_month_rate_model_a_m": rate_a_spring,
                 "n_common_window_ends":  int(len(traj)),
             })
         print()
@@ -688,11 +715,20 @@ def main() -> int:
     _sdf = pd.DataFrame(summary_records)
     for _, rec in _sdf.iterrows():
         _lab = str(rec["cluster_label"]).lower().replace(" ", "_").replace("(", "").replace(")", "")
+        if not rec["identified"]:
+            continue
         rpt.add(f"msl5_shift_mean_m_{_lab}_{rec['scenario']}", rec["msl5_shift_mean_m"],
                 unit="m", well=str(rec["cluster_label"]), era=str(rec["scenario"]),
-                note="Mean MSL5 shift under UKCP18 monthly-multiplier overlay "
-                     "(26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m).")
-    for _scen, _g in _sdf.groupby("scenario"):
+                note="Mean over window-ends of the MSL5 shift: sustained level response, Model B "
+                     "(D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m).")
+        rpt.add(f"msl5_shift_sustained_m_{_lab}_{rec['scenario']}", rec["msl5_shift_sustained_m"],
+                unit="m", well=str(rec["cluster_label"]), era=str(rec["scenario"]),
+                note="Sustained spring level response to the scenario climatology, Model B (D-216).")
+    _wh = _sdf.loc[~_sdf["identified"], "cluster_label"].drop_duplicates()
+    rpt.add("msl5_projection_n_clusters_withheld", float(len(_wh)), unit="count",
+            note="clusters whose Model B beta_3 fails Script 48's identifiability rule and are "
+                 "not projected: " + (", ".join(_wh) or "none"))
+    for _scen, _g in _sdf[_sdf["identified"]].groupby("scenario"):
         _imax = _g["msl5_shift_mean_m"].abs().idxmax()
         _row = _g.loc[_imax]
         rpt.add(f"msl5_shift_largest_cluster_{_scen}", str(_row["cluster_label"]),
@@ -710,7 +746,7 @@ def main() -> int:
     compute_perwell_msl5_summary(
         monthly_P_m=monthly_P_m,
         monthly_PET_m=monthly_PET_m,
-        master_csv_path=paths.INT_MASTER_DATA,
+        model_b_csv_path=paths.OUT_03_MODEL_B_PERSISTENCE,
         out_csv_path=OUT_TABLE_PERWELL,
     )
 
@@ -722,10 +758,9 @@ def main() -> int:
     with OUT_TXT.open("w") as fh:
         fh.write("Script 26b — UKCP18 MSL5 climate projections\n")
         fh.write("=" * 60 + "\n\n")
-        fh.write("Method: Monthly Δh perturbation overlay on observed "
-                 "climatology.\n")
-        fh.write("Δh(m) = β₁·(P_scen(m) − P_base(m)) − β₂·(PET_scen(m) − "
-                 "PET_base(m))\n\n")
+        fh.write("Method (2.0.0, D-216): sustained level response, Model B SSM.\n")
+        fh.write("Δf(t) = β₁·P(t)·(sP−1) − β₂·PET(t)·(sPET−1);  d(t) = (1−β₃)·d(t−1) + Δf(t)\n")
+        fh.write("Spring = config.MSL_SPRING_MONTHS (D-189).\n\n")
         fh.write("This is NOT a forward time projection. The trajectories\n")
         fh.write("show what observed MSL5 over 2014–2025 would have been\n")
         fh.write("under each UKCP18 scenario's perturbed climatology.\n\n")
@@ -734,10 +769,11 @@ def main() -> int:
         for rec in summary_records:
             fh.write(f"Cluster {rec['cluster_id']} ({rec['cluster_label']})  "
                      f"{rec['scenario']}:\n")
-            fh.write(f"  β₁ = {rec['beta_1_recharge']:.4f}   "
-                     f"β₂ = {rec['beta_2_atmospheric_draw']:.4f}\n")
-            fh.write(f"  Spring Δh mean (Mar/Apr/May): "
-                     f"{rec['spring_delta_h_mean_m']:+.4f} m/month\n")
+            fh.write(f"  Model B β₁ = {rec['beta_1_recharge']:.4f}   "
+                     f"β₂ = {rec['beta_2_atmospheric_draw']:.4f}   "
+                     f"β₃ = {rec['beta_3_drainage']:.4f}   identified: {rec['identified']}\n")
+            fh.write(f"  Sustained spring shift:       "
+                     f"{rec['msl5_shift_sustained_m']:+.3f} m\n")
             fh.write(f"  Observed window MSL5 mean:    "
                      f"{rec['msl5_observed_window_mean_m']:+.3f} m\n")
             fh.write(f"  Perturbed window MSL5 mean:   "

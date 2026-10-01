@@ -43,7 +43,15 @@ Usage quick-reference
 
 from __future__ import annotations
 
-__version__ = "1.2.1"  # 2026-09-23: durations under two minutes print in seconds —
+__version__ = "1.3.0"  # 2026-10-01: progress() fits the terminal and redraws only on a change.
+#   A line wider than the terminal wraps, and the carriage return then goes back only to the start
+#   of the last wrapped row, so every redraw stacked up as text (Martin, seen on Script 03's
+#   1000-draw cluster bootstrap through tee). The line is now cut to the terminal's width (read
+#   from stdout, stderr or /dev/tty, so a run piped through tee still finds it; COLUMNS or 80
+#   otherwise), the label is the part shortened, the timing comes before it, and the bar redraws
+#   only when its whole percent changes or a second has passed, so a tee'd log carries at most
+#   about a hundred redraws per loop rather than one per item.
+# 1.2.1  # 2026-09-23: durations under two minutes print in seconds —
 #   "0m elapsed, ~0m left" over a 40 s loop said nothing (seen on Script 32).
 # 1.2.0  # 2026-09-23: track() — wrap any loop in one word and get
 #   progress() for free, so the twelve scripts that run past 30 s can show they are
@@ -51,7 +59,9 @@ __version__ = "1.2.1"  # 2026-09-23: durations under two minutes print in second
 # 1.1.0  # 2026-09-15: progress() — Martin's rule that a long run
 #   must show it is running (CLAUDE.md "SHOW PROGRESS"). Additive; nothing else changed.
 
+import os
 import sys
+import time
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -238,6 +248,29 @@ def _span(seconds: float) -> str:
     return f"{seconds / 60:.0f} min"
 
 
+_PB = {"cols": None, "pct": None, "t": 0.0, "len": 0}   # progress() state between calls
+
+
+def _term_cols() -> int:
+    """Terminal width, found even when stdout and stderr are piped (… 2>&1 | tee log)."""
+    if _PB["cols"] is None:
+        cols = None
+        for stream in (sys.stdout, sys.stderr):
+            try:
+                cols = os.get_terminal_size(stream.fileno()).columns
+                break
+            except (OSError, AttributeError, ValueError):
+                continue
+        if cols is None:
+            try:
+                with open("/dev/tty") as tty:
+                    cols = os.get_terminal_size(tty.fileno()).columns
+            except OSError:
+                cols = int(os.environ.get("COLUMNS", "80") or 80)
+        _PB["cols"] = max(40, cols)
+    return _PB["cols"]
+
+
 def progress(n: int, total: int, label: str = "", started: float | None = None,
              width: int = 30) -> None:
     """
@@ -248,20 +281,42 @@ def progress(n: int, total: int, label: str = "", started: float | None = None,
     caller should `print()` once after the loop to end it. `started` is the
     `time.time()` at the loop's start; without it only the count is shown.
 
+    The line never exceeds the terminal's width (a wrapped line cannot be
+    redrawn in place), and it is redrawn only when the whole percent changes, a
+    second has passed, or at the first and last item.
+
     Example output:
-         [##########....................]  37 %  112/298  2019-07-29  4m elapsed, ~7m left
+         [##########....................]  37 %  112/298  4m elapsed, ~7m left  2019-07-29
     """
-    import time                                               # noqa: PLC0415
     n = max(0, min(n, total))
+    pct = 100.0 * n / total if total else 100.0
+    now = time.time()
+    first, last = n <= 1, n >= total
+    if first:
+        _PB["pct"], _PB["len"] = None, 0
+    if not (first or last or int(pct) != _PB["pct"] or now - _PB["t"] >= 1.0):
+        return
+    _PB["pct"], _PB["t"] = int(pct), now
+    cols = _term_cols()
+    width = max(10, min(width, cols // 4))
     fill = int(width * n / total) if total else width
     bar = "#" * fill + "." * (width - fill)
-    pct = 100.0 * n / total if total else 100.0
     timing = ""
     if started is not None and n > 0:
-        el = time.time() - started
+        el = now - started
         eta = el / n * (total - n)
         timing = f"  {_span(el)} elapsed, ~{_span(eta)} left"
-    sys.stdout.write(f"\r  [{bar}] {pct:3.0f} %  {n}/{total}  {label}{timing}   ")
+    core = f"  [{bar}] {pct:3.0f} %  {n}/{total}{timing}"
+    room = cols - 1 - len(core) - 2
+    text = str(label)
+    if room < 2:
+        text = ""
+    elif len(text) > room:
+        text = text[:room - 1] + "…"
+    line = core + ("  " + text if text else "")
+    pad = " " * max(0, _PB["len"] - len(line))
+    _PB["len"] = len(line)
+    sys.stdout.write("\r" + line + pad)
     sys.stdout.flush()
 
 
@@ -283,7 +338,6 @@ def track(items, label: str = "", total: int | None = None, min_seconds: float =
         for name, build in track(figures, lambda f: f[0], lines=True):
             build()
     """
-    import time                                               # noqa: PLC0415
     seq = list(items) if total is None else items
     n_total = total if total is not None else len(seq)
     started = time.time()

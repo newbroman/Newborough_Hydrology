@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.85.0"  # Hollingham (2026) - 2026-09-30. DATUM_RAW_DEPTH_M: the zero datum (raw depth
+__version__ = "1.86.0"  # Hollingham (2026) - 2026-10-01 (D-217). MODEL_AB_SPLIT_DATE and
+#   MODEL_AB_MIN_TEST_MONTHS: the split-sample test of Model A against Model B in Script 48 1.4.0
+#   (each form fitted on one side of the split and free-run over the other). Additive.
+# 1.85.0  # Hollingham (2026) - 2026-09-30. DATUM_RAW_DEPTH_M: the zero datum (raw depth
 #   below ground, no drainage base) at which Script 03 1.22.0 fits the cluster centroids into
 #   03_19_datum_zero_fit.csv, so the report8 SS3.4 statement about fitting on raw depth cites a
 #   committed value (Martin 2026-09-30, "make a 0 datum csv"). No existing value moves.
@@ -607,6 +610,12 @@ PASTAS_WARMUP_YEARS = 15
 # response times of 20-70 months on a 100-month window, is where this bites.
 PASTAS_IDENT_EFOLD_WINDOW_FRAC = 0.5
 PASTAS_IDENT_MAX_REL_SE        = 0.5
+# Split-sample test of Model A against Model B (Script 48 1.4.0, D-217): each form is fitted
+# on the months before the split and free-run over the months after it from the first
+# reading there, and the reverse; a direction is scored only with at least
+# MODEL_AB_MIN_TEST_MONTHS observed months to score.
+MODEL_AB_SPLIT_DATE            = "2018-01-01"
+MODEL_AB_MIN_TEST_MONTHS       = 24
 # Script 48 fits every well on two bases — the report's comparison window and the
 # full record — and the figure shows one of them; the full record is where a slow
 # (forest) response can be identified, the comparison window is what the report's

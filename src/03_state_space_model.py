@@ -88,7 +88,13 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.23.0"  # Hollingham (2026) — 2026-10-01. _window_beta3_ratio_report_numbers(): on
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-10-01 (D-217). _partition_datum_range_report_numbers():
+#   how far the water-balance partition depends on the drainage datum (Martin: "does the model A datum
+#   choice affect the waterbalance?"). From 03_12 over the admissible datums (all_beta3_pos_sig_from_m
+#   in 03_18 to the deepest swept), per cluster: the drainage share of losses and the drainage flux
+#   at the shallowest admissible datum, at DRAINAGE_DATUM and at the deepest, and the flux at
+#   DRAINAGE_DATUM as a fraction of the deepest. Emit-only.
+# 1.23.0  # Hollingham (2026) — 2026-10-01. _window_beta3_ratio_report_numbers(): on
 #   the comparison-window centroid fits (03_14), the ratio of every other cluster's beta_3 to the
 #   smallest one's, emitted as window_beta3_ratio_to_min per cluster and its _min / _max
 #   (report9 SS4.2.2 "3.6 to 8.4 times smaller than any other cluster's"; the proof page could
@@ -1479,6 +1485,35 @@ def _window_beta3_ratio_report_numbers(rpt, win_df: pd.DataFrame) -> None:
                      f"{lab_min}); the Well cell is the cluster")
 
 
+def _partition_datum_range_report_numbers(rpt, part_df: pd.DataFrame, inv_df: pd.DataFrame) -> None:
+    """03_report_numbers.csv rows for 03_12 (1.24.0, D-217): the loss partition across the
+    admissible datum range, per cluster."""
+    lo = pd.to_numeric(inv_df.loc[inv_df["Cluster"] == 0, "all_beta3_pos_sig_from_m"],
+                       errors="coerce").dropna()
+    if lo.empty or part_df.empty:
+        return
+    lo = float(lo.iloc[0])
+    win = part_df[part_df["ref_depth"] >= lo - 1e-9]
+    hi = float(win["ref_depth"].max())
+    for cid, g in win.groupby("Cluster"):
+        g = g.set_index("ref_depth").sort_index()
+        lab = CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
+        at = {"min_datum": g.index.min(), "datum": g.index[np.argmin(np.abs(g.index - DRAINAGE_DATUM))],
+              "max_datum": g.index.max()}
+        for k, d in at.items():
+            rpt.add(f"partition_drainage_share_pct_at_{k}", float(g.loc[d, "drainage_share_pct"]), unit="%",
+                    well=lab, era=f"datum {d:g} m",
+                    note=f"drainage share of losses (drainage / (drainage + atmospheric draw)), centroid, "
+                         f"Model A at {d:g} m; admissible range {lo:g}-{hi:g} m (03_12, 03_18)")
+            rpt.add(f"partition_drainage_flux_m_month_at_{k}", float(g.loc[d, "drainage_flux_m_month"]),
+                    unit="m/month", well=lab, era=f"datum {d:g} m",
+                    note=f"mean drainage flux beta_3 * mean h_disp_prev, centroid, Model A at {d:g} m (03_12)")
+        rpt.add("partition_drainage_flux_ratio_datum_to_deepest",
+                float(g.loc[at["datum"], "drainage_flux_m_month"] / g.loc[at["max_datum"], "drainage_flux_m_month"]),
+                unit="ratio", well=lab, era=f"{at['datum']:g} m / {hi:g} m",
+                note="drainage flux at DRAINAGE_DATUM as a fraction of its value at the deepest swept datum (03_12)")
+
+
 def make_datum_sensitivity_figure(sens_df: pd.DataFrame,
                                    selected_datum: float,
                                    out_path) -> None:
@@ -2701,6 +2736,8 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
                 _datum_zero_report_numbers(rpt, extra["zero_df"])
             if extra.get("win_df") is not None:
                 _window_beta3_ratio_report_numbers(rpt, extra["win_df"])
+            if extra.get("part_df") is not None:
+                _partition_datum_range_report_numbers(rpt, extra["part_df"], extra["inv_df"])
         n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
         saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -3317,7 +3354,8 @@ def main() -> None:
     export_regional_averages_maod(cluster_df, climate,
                                   extra={"master_df": master_df, "sens_df": sens_df,
                                          "inv_df": inv_df, "well_opt_df": well_opt_df,
-                                         "zero_df": zero_df, "win_df": win_df})
+                                         "zero_df": zero_df, "win_df": win_df,
+                                         "part_df": part_df})
     export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----

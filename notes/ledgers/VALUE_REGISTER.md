@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**166 output file(s)** supply **1780 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
+**166 output file(s)** supply **1779 cited quantity(ies)**; **43 symbol sense(s)** registered, 20 bound to an output column, 23 not.
 
 ## Cited quantities by output file
 
@@ -1401,7 +1401,6 @@
 |  | C4 (Main Forest) / 2080s · msl5_perturbed_window_mean_m | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2050s · msl5_observed_window_mean_m | report9.md |
 |  | C5 (Coastal Forest) / 2050s · msl5_shift_mean_m | Newborough_Methods_Supplement.md |
-|  | C5 (Coastal Forest) / 2050s · spring_delta_h_mean_m | Newborough_Methods_Supplement.md |
 |  | C5 (Coastal Forest) / 2080s · msl5_observed_window_mean_m | report9.md |
 |  | C5 (Coastal Forest) / 2080s · msl5_perturbed_window_mean_m | report9.md |
 | `26b_msl5_ukcp18_projection_summary_perwell.csv` | C1 (Lake Edge) / 2050s / perwell · n_wells | report9.md |

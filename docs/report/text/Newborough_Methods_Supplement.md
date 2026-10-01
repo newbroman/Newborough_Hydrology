@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_71.odt — do not edit. source-sha256=8497ecc47116fe24 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_73.odt — do not edit. source-sha256=5b51daffd10e7a07 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.71 (October 2026).
+Document version: 2.0.73 (October 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2621,7 +2621,7 @@ The clearfell and thinning forest-β₂ multipliers (shown as "dyn." above) are 
 
 **ΔMSL5 row --- v2.8.0 (2026-05-27).** A new top row was added to the viewer's per-cluster scenario summary table, reporting the van Willegen et al. (2025) 5-year mean spring water-level shift defined as the mean of monthly Δh over March, April, and May. The row uses the same pure-climate perturbation formula *Δh(m) = β₁·P(m)·(sP(m)−1) − β₂·PET(m)·(sPET(m)−1)* that Script 26b uses, evaluated at *per-well* β coefficients arithmetically averaged within each cluster --- the existing viewer convention. Canopy interception is *not* applied to the ΔMSL5 row (the existing Δh/storage rows above do apply it for C4/C5); the asymmetry is documented in a footnote under the viewer table. MSL5 is in any case most ecologically relevant for the non-forest clusters C1--C3, where canopy interception does not enter the calculation. Under the pure-climate framing the four land-use presets (baseline, clearfell, broadleaf, thinning) produce ΔMSL5 = 0 identically; only the two UKCP18 climate presets carry non-zero ΔMSL5 values. The scenario summary CSV gains a corresponding *season=\"msl5\"* block (6 rows per scenario: 5 clusters plus a well-count-weighted SITE row; 12 non-zero rows for the two UKCP18 scenarios, 24 zero-valued rows for the four non-climate presets, consistent with the pure-climate framing). The CSV's *season=\"summer\"* block is the data source for Script 26c's §4.13.1 Δsummer-minimum bars.
 
-**Why per-well aggregation, and how it relates to Script 26b.** The viewer's per-well-averaged β does not algebraically reduce to Script 26b's cluster-centroid OLS, even on the same wells: the two aggregations differ by 0.5--3.7 mm per cluster per UKCP18 scenario, with the largest gap in C1 (lake-edge, n = 7, the most heterogeneous reference-network cluster). To anchor the viewer row against a matching canonical reference, Script 26b v1.1.0 (2026-05-27) added a parallel per-well aggregation pathway that writes *26b_msl5_ukcp18_projection_summary_perwell.csv* alongside the canonical centroid summary. The viewer's CSV-side computation includes a cross-script validation block that loads the 26b per-well CSV if present, iterates the 10 (cluster, UKCP18 scenario) pairs, and prints the maximum absolute difference; current state is 0.049 mm worst case (well within the 0.5 mm acceptance tolerance, a rounding artefact of the viewer CSV's 4-dp *round()*). The canonical report numbers for §3.7.5 / §4.8.3 / §4.13.1 remain anchored to the centroid-fitted *26b_msl5_ukcp18_projection_summary.csv* consumed by Script 26c (S.18c); the per-well CSV is a secondary artefact whose role is the viewer-row validation target.
+**Why per-well aggregation, and how it relates to Script 26b.** The viewer's per-well-averaged β does not algebraically reduce to Script 26b's cluster-centroid OLS, even on the same wells: the two aggregations differ by 0.5--3.7 mm per cluster per UKCP18 scenario, with the largest gap in C1 (lake-edge, n = 7, the most heterogeneous reference-network cluster). To anchor the viewer row against a matching canonical reference, Script 26b v1.1.0 (2026-05-27) added a parallel per-well aggregation pathway that writes *26b_msl5_ukcp18_projection_summary_perwell.csv* alongside the canonical centroid summary. The viewer's CSV-side computation includes a cross-script validation block that loads the 26b per-well CSV if present, iterates the 10 (cluster, UKCP18 scenario) pairs, and prints the maximum absolute difference; current state is 0.042 mm worst case (well within the 0.5 mm acceptance tolerance, a rounding artefact of the viewer CSV's 4-dp *round()*). The canonical report numbers for §3.7.5 / §4.8.3 / §4.13.1 remain anchored to the centroid-fitted *26b_msl5_ukcp18_projection_summary.csv* consumed by Script 26c (S.18c); the per-well CSV is a secondary artefact whose role is the viewer-row validation target.
 
 ### []{#anchor-368}[]{#anchor-369}[]{#anchor-370}Sub-script 20 --- Publication spatial figures
 
@@ -3679,11 +3679,11 @@ Per-cluster projected ΔMSL5 values are reproduced below (full numerical values 
 
   --------------------- ------ ------ ----------------- -----------------
   Cluster               β₁     β₂     ΔMSL5 2050s (m)   ΔMSL5 2080s (m)
-  C1 Lake Edge          4.58   0.91   −0.011            −0.021
-  C2 Dune               3.90   1.67   −0.016            −0.030
-  C3 Western Residual   3.76   1.78   −0.017            −0.031
-  C4 Main Forest        2.48   2.57   −0.022            −0.039
-  C5 Coastal Forest     2.41   1.25   −0.012            −0.021
+  C1 Lake Edge          3.73   3.09   +0.024            +0.052
+  C2 Dune               3.41   2.46   −0.033            −0.050
+  C3 Western Residual   3.55   2.08   −0.099            −0.169
+  C4 Main Forest        2.53   2.52                     
+  C5 Coastal Forest     2.41   1.25   −0.228            −0.406
   --------------------- ------ ------ ----------------- -----------------
 
 The projected MSL5 shifts are modest at all five clusters: between 1.1 and 2.1 cm under the 2050s scenario and between 2.1 and 3.9 cm under the 2080s scenario. Main Forest (C4) has the largest shift because its high β₂ makes it most responsive to PET increases; Lake Edge and Coastal Forest (lower β₂) have the smallest shifts. The signs are negative everywhere --- net drying --- because the PET-driven term dominates the rainfall-driven term across the spring window even when winter rainfall is projected to increase.

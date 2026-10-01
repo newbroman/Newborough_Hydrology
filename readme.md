@@ -105,7 +105,7 @@ Newborough_Hydrology/
 │   │   └── forecaster.html              ← interactive groundwater forecaster (built by 11b)
 │   ├── 19_spatial_groundwater/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
-│   ├── outputs_bw/                      ← greyscale figure tree (built by Phase 17, Script 27)
+│   ├── outputs_bw/                      ← greyscale figure tree (Script 27, on demand; local only, not committed)
 │   └── [other output directories]
 ├── src/                         Analysis scripts (<!--PL:total-->59<!--/PL:total--> steps; script 19 also builds the viewer)
 │   ├── utils/

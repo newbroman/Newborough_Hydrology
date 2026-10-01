@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=4b0e0cc696bd3a6c pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=90557f9db2f62172 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -235,7 +235,7 @@ The intercept form (Model B) leaves the level free. Its β₃ is then the rate a
 
 \(2\) The mean-reversion time can be measured without any model. The lag-1 autocorrelation of the observed deseasonalized monthly level gives a median e-folding time of 5.1 months across the reference wells. Model B gives 6.5 and Model A 15.8. Cluster by cluster, Model B sits with the observed value: 2.1 against 2.0 months at C1, 4.4 against 4.1 at C2, 7.4 against 6.3 at C3 and 13.3 against 12.0 at C5. Model A is three to five times longer.
 
-\(3\) The year-to-year correlation of spring level is −0.11 (median across wells). Model B predicts 0.17; Model A predicts 0.45.
+\(3\) The year-to-year correlation of spring level is −0.11 (median across wells). Model B predicts 0.15; Model A predicts 0.44.
 
 \(4\) Out of sample, Model B forecasts better. Each form was fitted on the record before 2018 and run freely over the years after. Model B\'s median Nash--Sutcliffe efficiency is 0.79 against Model A\'s 0.61, and Model B is better at 88 % of wells. In the reverse direction the figures are 0.78 against 0.67, and 77 % of wells. The advantage is clearest in the open dune (C1 to C3); at C5 the two forms are close.
 

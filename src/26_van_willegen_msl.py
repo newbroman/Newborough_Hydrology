@@ -100,7 +100,15 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.23.0"  # Hollingham (2026) - 2026-10-01 (D-216). The year-to-year persistence the
+__version__ = "1.24.0"  # Hollingham (2026) - 2026-10-01 (D-221). The persistence the drainage term
+#   predicts is now the exact discrete-time AR(1) lag-12 autocorrelation, (1 - beta_3)**12, for Model B
+#   (rho_ar1_expected) and Model A (rho_ar1_expected_model_a). exp(-12 beta_3) was its continuous-time
+#   approximation, always slightly higher, and implied a reversion time of 1/beta_3, not the
+#   mean-reversion time -1/ln(1 - beta_3) of D-218 that t_efold_B_months already reports (Martin
+#   2026-10-01: "switch"). Median Model B 0.170 -> 0.147, Model A 0.453 -> 0.441; no well moves more
+#   than about 0.02. Figure 26_metric_diagnostics panel (a) relabelled to match, and "memory"
+#   wording retired here as in the documents (D-218). No other output moves.
+# 1.23.0  # Hollingham (2026) - 2026-10-01 (D-216). The year-to-year persistence the
 #   drainage term predicts, rho_ar1_expected = exp(-12 beta_3), is read from MODEL B, whose beta_3 is
 #   datum-free (D-109; Martin 2026-09-30: persistence of memory is the case for Model B). Reference
 #   wells take beta_3_B from 03_16_model_b_persistence.csv (the comparison window, the basis their
@@ -1723,18 +1731,18 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
 
     1. Spring levels are close to independent from year to year. The drainage
        term read as a first-order recession predicts a year-to-year persistence
-       of exp(−12·β₃). On MODEL B, whose β₃ is datum-free (1.23.0, D-216; D-109),
-       that expectation is small — the aquifer's e-folding memory is about half
+       of (1 − β₃)¹² (1.24.0, D-221). On MODEL B, whose β₃ is datum-free (D-216; D-109),
+       that expectation is small — the mean-reversion time (D-218) is about half
        a year, as Script 48's Pastas fits and the level autocorrelation also
        find — and the observed lag-1 autocorrelation of annual spring level,
        near zero at every cluster (and biased low by about 1/n at 15-20
        springs), is consistent with it. Model A's β₃ carries the drainage datum
        and predicts persistence of ≈0.3 to ≈0.8; that is the datum's recession
-       constant, not the memory (D-109), and is kept as rho_ar1_expected_model_a.
+       constant, not the mean-reversion time (D-109), and is kept as rho_ar1_expected_model_a.
        The five-year mean therefore behaves as intended.
 
     2. Window sensitivity is nonetheless graded across the network, and it is a
-       matter of AMPLITUDE, not memory. What governs the interannual spring
+       matter of AMPLITUDE, not persistence. What governs the interannual spring
        standard deviation — and hence the standard error of a window mean — is
        β₂, not β₃. The two are themselves correlated across wells, which is why
        the recession time looks diagnostic when examined alone.
@@ -1792,10 +1800,10 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
             n_obs_ssm=e.get("n_obs", np.nan),
             spring_sd_mm=sd_mm,
             rho_lag1=rho,
-            rho_ar1_expected=float(np.exp(-12.0 * b3B)) if okB else np.nan,
+            rho_ar1_expected=float((1.0 - b3B) ** 12) if okB else np.nan,         # D-221
             t_efold_B_months=float(-1.0 / np.log(1.0 - b3B)) if okB else np.nan,
             beta_3_B=b3B,
-            rho_ar1_expected_model_a=float(np.exp(-12.0 * b3)),
+            rho_ar1_expected_model_a=float((1.0 - b3) ** 12) if b3 < 1 else np.nan,  # D-221
             t_R_months=1.0 / b3 if b3 > 0 else np.nan,
             beta_2=float(e["beta_2_atmospheric_draw"]),
             beta_3=b3,
@@ -1936,9 +1944,9 @@ def plot_metric_diagnostics(diag: pd.DataFrame, prec: pd.DataFrame,
              label="1:1 (AR(1) expectation)")
     ax1.axhline(0.0, lw=0.8, color="0.6", zorder=1)
     ax1.set_xlim(0, 1.0); ax1.set_ylim(*lim)
-    ax1.set_xlabel("Persistence implied by β₃,  exp(−12·β₃)  (Model B; Model A faint)")
+    ax1.set_xlabel("Persistence implied by β₃,  (1 − β₃)¹²  (Model B; Model A faint)")
     ax1.set_ylabel("Observed lag-1 autocorrelation of annual spring level")
-    ax1.set_title("(a) Spring persistence against the drainage memory", loc="left")
+    ax1.set_title("(a) Spring persistence against the mean-reversion time", loc="left")
     ax1.legend(fontsize=7, loc="upper left", framealpha=0.9)
 
     x = np.arange(len(p)); wbar = 0.38
@@ -2300,7 +2308,7 @@ def main() -> int:
     per_well_with_cluster = attach_cluster_ids(per_well, ref_clusters, ext_clusters)
 
     # ── MSL5 well exclusion (whole-analysis, flagged) ──────────────────────
-    # Ridge-flank forest wells whose drainage memory makes the 5-year MSL
+    # Ridge-flank forest wells whose slow, large-amplitude response makes the 5-year MSL
     # window unreliable (config.MSL5_EXCLUDED_WELLS). Rows are RETAINED in the
     # per-well CSV with an msl5_excluded flag; every derived MSL5 product uses
     # the included-only subset (per_well_incl). Method B centroid (Pass 3b) is a

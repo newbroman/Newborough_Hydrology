@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.49.0"  # Hollingham (2026) - 2026-09-30. 1.49.0: OUT_03_DATUM_ZERO, the cluster-centroid
+__version__ = "1.50.0"  # Hollingham (2026) - 2026-10-01 (D-217). OUT_48_MODEL_AB. Additive.
+# 1.49.0  # Hollingham (2026) - 2026-09-30. 1.49.0: OUT_03_DATUM_ZERO, the cluster-centroid
 #   Model A fit at config.DATUM_RAW_DEPTH_M (raw depth, no drainage base), Script 03 1.22.0.
 # 1.48.0: DATA_CLEARFELL, the 2017 clearfell
 #   polygon reprojected to EPSG:27700 (clearfell.geojson, from clearfell.kml as redefined by Martin on
@@ -1361,6 +1362,7 @@ OUT_48_AGREEMENT      = DIR_48 / "48_02_pastas_agreement.csv"    # r, rho, media
 OUT_48_SYNTHETIC      = DIR_48 / "48_03_synthetic_recovery.csv"  # the unit conversion checked on SSM-generated wells
 OUT_48_FIG            = DIR_48 / "48_01_pastas_vs_ssm.png"
 OUT_48_REPORT_NUMBERS = DIR_48 / "48_report_numbers.csv"
+OUT_48_MODEL_AB       = DIR_48 / "48_04_model_a_b_diagnostics.csv"  # split-sample, model-free memory, identification, loss partition (D-217)
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed
 # and moved to step 2 of Phase 1 on 2026-09-27 so its readers take it in the same run)

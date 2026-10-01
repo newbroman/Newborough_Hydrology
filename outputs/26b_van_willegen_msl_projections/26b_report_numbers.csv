@@ -1,13 +1,20 @@
 Parameter,Well,Era,Value,Unit,Note
-msl5_shift_mean_m_c1_lake_edge_2050s,C1 (Lake Edge),2050s,-0.0111484545273332,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c1_lake_edge_2080s,C1 (Lake Edge),2080s,-0.020806016973930617,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c2_dune_2050s,C2 (Dune),2050s,-0.016131325150855545,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c2_dune_2080s,C2 (Dune),2080s,-0.029535254642918063,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c3_western_residual_2050s,C3 (Western Residual),2050s,-0.016832338042137185,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c3_western_residual_2080s,C3 (Western Residual),2080s,-0.030754556674450456,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c4_main_forest_2050s,C4 (Main Forest),2050s,-0.021517563946064324,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c4_main_forest_2080s,C4 (Main Forest),2080s,-0.03882848163076882,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c5_coastal_forest_2050s,C5 (Coastal Forest),2050s,-0.011600652456581756,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_mean_m_c5_coastal_forest_2080s,C5 (Coastal Forest),2080s,-0.021158489970930814,m,"Mean MSL5 shift under UKCP18 monthly-multiplier overlay (26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
-msl5_shift_largest_cluster_2050s,,2050s,C4 (Main Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.
-msl5_shift_largest_cluster_2080s,,2080s,C4 (Main Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.
+msl5_shift_mean_m_c1_lake_edge_2050s,C1 (Lake Edge),2050s,0.02359187376525845,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c1_lake_edge_2050s,C1 (Lake Edge),2050s,0.023046302540860698,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_shift_mean_m_c1_lake_edge_2080s,C1 (Lake Edge),2080s,0.05152722923191009,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c1_lake_edge_2080s,C1 (Lake Edge),2080s,0.05045392084665612,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_shift_mean_m_c2_dune_2050s,C2 (Dune),2050s,-0.03323253978864257,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c2_dune_2050s,C2 (Dune),2050s,-0.03254509605115214,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_shift_mean_m_c2_dune_2080s,C2 (Dune),2080s,-0.049849151204224,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c2_dune_2080s,C2 (Dune),2080s,-0.04841032002424908,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_shift_mean_m_c3_western_residual_2050s,C3 (Western Residual),2050s,-0.09941661608131372,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c3_western_residual_2050s,C3 (Western Residual),2050s,-0.09754452581766689,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_shift_mean_m_c3_western_residual_2080s,C3 (Western Residual),2080s,-0.1692601453547497,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c3_western_residual_2080s,C3 (Western Residual),2080s,-0.16539686051570288,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_shift_mean_m_c5_coastal_forest_2050s,C5 (Coastal Forest),2050s,-0.22761403083349707,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c5_coastal_forest_2050s,C5 (Coastal Forest),2050s,-0.22361499154717746,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_shift_mean_m_c5_coastal_forest_2080s,C5 (Coastal Forest),2080s,-0.4055083503395239,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model B (D-216; 26b_msl5_ukcp18_projection_summary.csv, msl5_shift_mean_m)."
+msl5_shift_sustained_m_c5_coastal_forest_2080s,C5 (Coastal Forest),2080s,-0.39728226991271826,m,"Sustained spring level response to the scenario climatology, Model B (D-216)."
+msl5_projection_n_clusters_withheld,,,1.0,count,clusters whose Model B beta_3 fails Script 48's identifiability rule and are not projected: C4 (Main Forest)
+msl5_shift_largest_cluster_2050s,,2050s,C5 (Coastal Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.
+msl5_shift_largest_cluster_2080s,,2080s,C5 (Coastal Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.

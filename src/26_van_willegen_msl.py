@@ -100,7 +100,20 @@ Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
 
 from __future__ import annotations
 
-__version__ = "1.22.0"  # Hollingham (2026) - 2026-09-30. 26_report_numbers.csv gains the scrape-pair
+__version__ = "1.23.0"  # Hollingham (2026) - 2026-10-01 (D-216). The year-to-year persistence the
+#   drainage term predicts, rho_ar1_expected = exp(-12 beta_3), is read from MODEL B, whose beta_3 is
+#   datum-free (D-109; Martin 2026-09-30: persistence of memory is the case for Model B). Reference
+#   wells take beta_3_B from 03_16_model_b_persistence.csv (the comparison window, the basis their
+#   Model A beta already has); extended wells are fitted with fit_ssm(intercept=True) beside their
+#   Model A fit. Also (Martin 2026-10-01: "the legend is not clear, you cant tell which line is which")
+#   the trajectory figure labels its lines directly: each intervention line carries its name at the
+#   top (the 2015 scrape and the 2023 re-scrape shared one colour and a legend of short dash
+#   samples); the SD15b / SD16 lines are neutral grey, dashed / dotted, named on the line (they were
+#   green and red beside the green C2 and red C3); each cluster is named at the right of its line.
+#   Model A's expectation stays as rho_ar1_expected_model_a (t_R_months stays 1/beta_3_A), and the
+#   cluster rollups and report numbers carry _model_a twins. The docstring's reading changes from "each
+#   winter resets a long memory" to "the memory is about half a year, so springs are near-independent".
+# 1.22.0  # Hollingham (2026) - 2026-09-30. 26_report_numbers.csv gains the scrape-pair
 #   MSL5 summary (report9 SS4.5.4): msl5_scrape_pair_{treatment,control}_{min,max,mean}_m and
 #   msl5_scrape_pair_gap_{min,max,mean}_m (treatment minus control) over window-ends
 #   config.MSL5_SCRAPE_PAIR_FIRST_WINDOW_END to the last before SCRAPING_DATE_2_ISO, and
@@ -819,6 +832,13 @@ def cluster_centroid_trajectory(
     ).reset_index(drop=True)
 
 
+def _short_intervention_name(label: str) -> str:
+    """'Scrape (CEH36, Apr 2015)' -> 'Scrape 2015' — the on-line label (1.23.0)."""
+    import re as _re                                         # noqa: PLC0415
+    yr = _re.search(r"(\d{4})", label)
+    return f"{label.split(' (')[0]} {yr.group(1) if yr else ''}".strip()
+
+
 def _draw_intervention_markers(ax, xmin: int, xmax: int,
                                window_years: int = MSL_DEFAULT_WINDOW_YEARS):
     """
@@ -852,17 +872,22 @@ def _draw_intervention_markers(ax, xmin: int, xmax: int,
 
         col = m["colour"]
         # Solid: first impact window-end
+        name = _short_intervention_name(m["label"])
         if xmin <= first_post_hy <= xmax:
             h = ax.axvline(first_post_hy, color=col, linewidth=1.4,
                            linestyle="-", alpha=0.85, zorder=1)
             handles.append(h)
             labels.append(f"{m['label']}: 1st impact")
+            ax.text(first_post_hy, 0.985, f" {name}", transform=ax.get_xaxis_transform(),
+                    rotation=90, ha="right", va="top", fontsize=7, color=col)
         # Dashed: first fully-post-intervention window
         if xmin <= first_full_hy <= xmax:
             h = ax.axvline(first_full_hy, color=col, linewidth=1.2,
                            linestyle="--", alpha=0.75, zorder=1)
             handles.append(h)
             labels.append(f"{m['label']}: 1st full window")
+            ax.text(first_full_hy, 0.985, f" {name}, full window", transform=ax.get_xaxis_transform(),
+                    rotation=90, ha="right", va="top", fontsize=7, color=col)
     return handles, labels
 
 
@@ -935,12 +960,23 @@ def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
         # capture a handle for the combined legend
         cluster_handles.append(plt.Line2D([0], [0], color=col, marker="o", lw=1.6))
         cluster_labels.append(lbl)
+        # and name the line at its right-hand end (1.23.0)
+        last = sub.dropna(subset=["MSL5_m_bg_mean"]).iloc[-1]
+        ax.annotate(lbl.split(" ")[0], (last["window_end_year"], last["MSL5_m_bg_mean"]),
+                    xytext=(6, 0), textcoords="offset points", va="center",
+                    fontsize=8, color=col, fontweight="bold")
 
     # Curreli reference lines in depth-below-ground sign convention.
     # MSL is most-comparable on its level scale to the Curreli summer
     # thresholds (the wet/dry slack viability cutoffs).
-    h_sd15 = ax.axhline(-config.SD15b, ls="--", color="#1a7a1a", lw=1.0)
-    h_sd16 = ax.axhline(-config.SD16,  ls="--", color="#cc0000", lw=1.0)
+    # neutral grey, dashed / dotted (1.23.0): green and red read as C2 and C3
+    h_sd15 = ax.axhline(-config.SD15b, ls="--", color="0.35", lw=1.0)
+    h_sd16 = ax.axhline(-config.SD16,  ls=":",  color="0.35", lw=1.2)
+    for yv, txt in ((-config.SD15b, f"SD15b wet slack −{config.SD15b:.2f} m"),
+                    (-config.SD16,  f"SD16 dry slack −{config.SD16:.2f} m")):
+        ax.text(0.005, yv, txt, transform=ax.get_yaxis_transform(), ha="left", va="bottom",
+                fontsize=7, color="0.25",
+                bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=0.5))
     ax.axhline(0, color="#333", lw=0.6)
     cluster_handles += [h_sd15, h_sd16]
     cluster_labels  += [f"SD15b wet slack (−{config.SD15b:.2f} m)",
@@ -960,17 +996,20 @@ def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
     ax.autoscale_view()
     y_lo, y_hi = ax.get_ylim()
     legend_headroom = 0.45 * (y_hi - y_lo)   # ~45% extra below the data
-    ax.set_ylim(y_lo - legend_headroom, y_hi)
+    # headroom above the data for the intervention names (1.23.0)
+    ax.set_ylim(y_lo - legend_headroom, y_hi + 0.45 * (y_hi - y_lo))
 
     # Two-column legend: clusters + thresholds on the left, interventions on the right
     leg1 = ax.legend(cluster_handles, cluster_labels,
                      loc="lower left", fontsize=8, ncol=2,
                      title="Clusters & thresholds", title_fontsize=8)
     ax.add_artist(leg1)
+    # interventions are named on their lines (1.23.0); the key says what solid/dashed mean
     if int_handles:
-        ax.legend(int_handles, int_labels, loc="lower right", fontsize=7,
-                  title="Interventions  (solid = 1st impact, dashed = 1st full window)",
-                  title_fontsize=7)
+        ax.text(0.995, 0.02, "vertical lines: solid = first window-end affected; "
+                "dashed = first window wholly after", transform=ax.transAxes,
+                ha="right", va="bottom", fontsize=7, color="0.3")
+    ax.set_xlim(right=ax.get_xlim()[1] + 0.6)    # room for the line-end names
     ax.grid(alpha=0.25)
     fig.tight_layout()
     render_figure(fig, out)
@@ -1020,8 +1059,14 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
             "colour": col,
         })
 
-    h_sd15 = ax.axhline(-config.SD15b, ls="--", color="#1a7a1a", lw=1.0)
-    h_sd16 = ax.axhline(-config.SD16,  ls="--", color="#cc0000", lw=1.0)
+    # neutral grey, dashed / dotted (1.23.0): green and red read as C2 and C3
+    h_sd15 = ax.axhline(-config.SD15b, ls="--", color="0.35", lw=1.0)
+    h_sd16 = ax.axhline(-config.SD16,  ls=":",  color="0.35", lw=1.2)
+    for yv, txt in ((-config.SD15b, f"SD15b wet slack −{config.SD15b:.2f} m"),
+                    (-config.SD16,  f"SD16 dry slack −{config.SD16:.2f} m")):
+        ax.text(0.005, yv, txt, transform=ax.get_yaxis_transform(), ha="left", va="bottom",
+                fontsize=7, color="0.25",
+                bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=0.5))
     ax.axhline(0, color="#333", lw=0.6)
 
     ax.set_xlabel("Hydrology year (window end)")
@@ -1326,12 +1371,40 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                        se3=fit.get("se_beta_3", np.nan),
                        n_obs=fit.get("n", np.nan))
             if row:
+                # Model B on the same record (1.23.0, D-216): the datum-free beta_3
+                try:
+                    fb = fit_ssm(h_series=ext[w], climate=clim, intercept=True)
+                except Exception:
+                    fb = None
+                if fb:
+                    row.update(beta_3_B=fb.get("beta_3_drainage", np.nan),
+                               pvalue_beta_3_B=fb.get("pvalue_beta_3", np.nan),
+                               n_B=fb.get("n", np.nan))
                 rows.append(row); n_ext_fit += 1
         info(f"extended-network SSM fits contributing to EWI: {n_ext_fit}")
 
     ewi = pd.DataFrame(rows)
     if ewi.empty:
         return ewi
+    # Model B for the reference tier (1.23.0, D-216): Script 03's per-well fits on the
+    # comparison window, the basis the reference Model A beta above already has.
+    try:
+        mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
+        mb = mb[mb["level"] == "well"].copy()
+        mb["well"] = mb["well"].astype(str).str.strip().str.lower()
+        mb = mb.set_index("well")
+        is_ref = ewi["network"] == "reference"
+        for col_out, col_in in (("beta_3_B", "beta_3_B"), ("pvalue_beta_3_B", "pvalue_beta_3_B"),
+                                ("n_B", "n")):
+            vals = ewi.loc[is_ref, "well"].map(mb[col_in])
+            if col_out not in ewi.columns:
+                ewi[col_out] = np.nan
+            ewi.loc[is_ref, col_out] = vals
+    except Exception as e:
+        warn(f"Model B per-well fits (03_16) unavailable — persistence falls back to NaN: {e}")
+        for col in ("beta_3_B", "pvalue_beta_3_B", "n_B"):
+            if col not in ewi.columns:
+                ewi[col] = np.nan
     # attach canonical cluster for extended wells (Pearson site-wide integration:
     # reference keeps its Original_Cluster; extended takes Best_Match_Cluster).
     try:
@@ -1648,14 +1721,17 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
     Report §4.8.6 / §6.9 rest on three findings, all emitted here rather than
     computed in prose:
 
-    1. Spring levels are NOT serially correlated. Reading the fitted drainage
-       term as a first-order recession predicts a year-to-year persistence of
-       exp(−12·β₃) — from ≈0.3 at C1 to ≈0.8 at C4. The observed lag-1
-       autocorrelation of annual spring level is near zero at every cluster and
-       is uncorrelated with the recession time. Spring is the seasonal maximum,
-       reached after the winter recharge season, so each winter resets the
-       water table: the monthly recession operates within the annual cycle, not
-       across it. The five-year mean therefore behaves as intended.
+    1. Spring levels are close to independent from year to year. The drainage
+       term read as a first-order recession predicts a year-to-year persistence
+       of exp(−12·β₃). On MODEL B, whose β₃ is datum-free (1.23.0, D-216; D-109),
+       that expectation is small — the aquifer's e-folding memory is about half
+       a year, as Script 48's Pastas fits and the level autocorrelation also
+       find — and the observed lag-1 autocorrelation of annual spring level,
+       near zero at every cluster (and biased low by about 1/n at 15-20
+       springs), is consistent with it. Model A's β₃ carries the drainage datum
+       and predicts persistence of ≈0.3 to ≈0.8; that is the datum's recession
+       constant, not the memory (D-109), and is kept as rho_ar1_expected_model_a.
+       The five-year mean therefore behaves as intended.
 
     2. Window sensitivity is nonetheless graded across the network, and it is a
        matter of AMPLITUDE, not memory. What governs the interannual spring
@@ -1700,6 +1776,8 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
 
         b3 = float(e["beta_3_drainage"])
         se3 = e.get("se_beta_3", np.nan)
+        b3B = float(e.get("beta_3_B", np.nan))
+        okB = np.isfinite(b3B) and 0.0 < b3B < 1.0
         msl5_se = sd_mm / np.sqrt(win) if np.isfinite(sd_mm) else np.nan
         ewi_se_b3 = (float(e["EWI_se_m_beta3"]) * 1000.0
                      if np.isfinite(e.get("EWI_se_m_beta3", np.nan)) else np.nan)
@@ -1714,7 +1792,10 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
             n_obs_ssm=e.get("n_obs", np.nan),
             spring_sd_mm=sd_mm,
             rho_lag1=rho,
-            rho_ar1_expected=float(np.exp(-12.0 * b3)),
+            rho_ar1_expected=float(np.exp(-12.0 * b3B)) if okB else np.nan,
+            t_efold_B_months=float(-1.0 / np.log(1.0 - b3B)) if okB else np.nan,
+            beta_3_B=b3B,
+            rho_ar1_expected_model_a=float(np.exp(-12.0 * b3)),
             t_R_months=1.0 / b3 if b3 > 0 else np.nan,
             beta_2=float(e["beta_2_atmospheric_draw"]),
             beta_3=b3,
@@ -1751,6 +1832,8 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
                 n_wells_with_springs=int(len(gs)),
                 t_R_months_median=float(g["t_R_months"].median()),
                 rho_ar1_expected_mean=float(g["rho_ar1_expected"].mean()),
+                rho_ar1_expected_model_a_mean=float(g["rho_ar1_expected_model_a"].mean()),
+                t_efold_B_months_median=float(g["t_efold_B_months"].median()),
                 rho_lag1_mean=float(gs["rho_lag1"].mean()) if len(gs) else np.nan,
                 spring_sd_mm_median=float(gs["spring_sd_mm"].median()) if len(gs) else np.nan,
                 msl5_window_se_mm_median=float(gs["msl5_window_se_mm"].median()) if len(gs) else np.nan,
@@ -1774,7 +1857,12 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
         nums["rho_lag1_vs_tR_spearman_r"] = float(r)
         nums["rho_lag1_vs_tR_spearman_p"] = float(p)
         nums["rho_lag1_mean"] = float(d["rho_lag1"].mean())
-        nums["rho_ar1_expected_mean"] = float(d["rho_ar1_expected"].mean())
+        nums["rho_ar1_expected_mean"] = float(d["rho_ar1_expected"].mean())             # Model B (1.23.0)
+        nums["rho_ar1_expected_median"] = float(d["rho_ar1_expected"].median())
+        nums["rho_ar1_expected_model_a_mean"] = float(d["rho_ar1_expected_model_a"].mean())
+        nums["rho_ar1_expected_model_a_median"] = float(d["rho_ar1_expected_model_a"].median())
+        nums["rho_lag1_median"] = float(d["rho_lag1"].median())
+        nums["t_efold_B_months_median"] = float(d["t_efold_B_months"].median())
         r, p = stats.spearmanr(d["beta_2"], d["t_R_months"])
         nums["beta2_vs_tR_spearman_r"] = float(r)
         nums["beta2_vs_tR_spearman_p"] = float(p)
@@ -1824,7 +1912,7 @@ def plot_metric_diagnostics(diag: pd.DataFrame, prec: pd.DataFrame,
     """Two panels: the autocorrelation null, and index precision by cluster.
 
     Left  — observed lag-1 autocorrelation against the AR(1) value implied by
-            each well's β₃, with the 1:1 line. Points fall far below it.
+            each well's Model B β₃ (Model A faint), with the 1:1 line (1.23.0).
     Right — median standard error of the two indices per cluster, on a shared
             axis so the comparison is direct.
     """
@@ -1834,6 +1922,10 @@ def plot_metric_diagnostics(diag: pd.DataFrame, prec: pd.DataFrame,
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.0, 4.6))
 
+    # Model A's datum-carrying expectation, faint, for contrast (1.23.0, D-216)
+    da = diag.dropna(subset=["rho_lag1", "rho_ar1_expected_model_a"])
+    ax1.scatter(da["rho_ar1_expected_model_a"], da["rho_lag1"], s=14, marker="x",
+                color="0.65", linewidth=0.7, zorder=2, label="Model A β₃ (datum's recession)")
     for cid, g in d.groupby("cluster_id", dropna=True):
         ax1.scatter(g["rho_ar1_expected"], g["rho_lag1"], s=34,
                     color=config.CLUSTER_COLOURS.get(int(cid), "0.4"),
@@ -1844,9 +1936,9 @@ def plot_metric_diagnostics(diag: pd.DataFrame, prec: pd.DataFrame,
              label="1:1 (AR(1) expectation)")
     ax1.axhline(0.0, lw=0.8, color="0.6", zorder=1)
     ax1.set_xlim(0, 1.0); ax1.set_ylim(*lim)
-    ax1.set_xlabel("Persistence implied by β₃,  exp(−12·β₃)")
+    ax1.set_xlabel("Persistence implied by β₃,  exp(−12·β₃)  (Model B; Model A faint)")
     ax1.set_ylabel("Observed lag-1 autocorrelation of annual spring level")
-    ax1.set_title("(a) Spring levels are not serially correlated", loc="left")
+    ax1.set_title("(a) Spring persistence against the drainage memory", loc="left")
     ax1.legend(fontsize=7, loc="upper left", framealpha=0.9)
 
     x = np.arange(len(p)); wbar = 0.38

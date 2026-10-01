@@ -52,7 +52,13 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.2.0"   # Hollingham (2026) — 2026-09-21. D-190: Figure 44 becomes two
+__version__ = "1.3.0"   # Hollingham (2026) — 2026-10-01 (D-216). The ΔMSL5-against-Δsummer contrast
+#   takes BOTH bars from 19_scenario_summary.csv (its msl5 and summer rows): the same wells, the same
+#   Model B coefficients and the same convention — the sustained LEVEL response (Script 19 2.28.0,
+#   Script 26b 2.0.0). It set 26b's centroid ΔMSL5 beside Script 19's per-well summer mean, and both
+#   were one-month rates. A cluster not projected (Model B beta_3 not identified, C4) is marked
+#   "n.i." instead of a bar; the axis is no longer fixed to negative values.
+# 1.2.0   # Hollingham (2026) — 2026-09-21. D-190: Figure 44 becomes two
 #   panels — (a) MSL5 with no threshold lines, (b) the rolling annual minimum from
 #   26_curreli_min_per_cluster.csv against SD15b/SD16. The start year and the
 #   y-axis floor stop being literals (config.MSL_TRAJECTORY_START_YEAR; data-driven);
@@ -218,16 +224,11 @@ def render_trajectory(per_cluster: pd.DataFrame, per_cluster_min: pd.DataFrame,
 # ---------------------------------------------------------------------
 # figure 2 — ΔMSL5 vs Δsummer-min contrast (§4.10.1)
 # ---------------------------------------------------------------------
-def _scenario_msl_shifts(proj: pd.DataFrame, scenario: str) -> list[float]:
-    """ΔMSL5 per cluster (in CLUSTERS order) for the given scenario.
-
-    ``proj`` is loaded from
-    ``26b_msl5_ukcp18_projection_summary.csv``. ``scenario`` is the
-    short label ``"2050s"`` or ``"2080s"`` matching that file's
-    ``scenario`` column.
-    """
-    s = proj[proj.scenario == scenario].set_index("cluster_label")
-    return [s.loc[c, "msl5_shift_mean_m"] for c in CLUSTERS]
+def _scenario_msl_shifts(ss: pd.DataFrame, scenario_key: str) -> list[float]:
+    """ΔMSL5 per cluster (in SHORT order): Script 19's msl5 rows (1.3.0) — the
+    per-well Model B sustained spring response, the population of its summer rows."""
+    s = ss[(ss.scenario == scenario_key) & (ss.season == "msl5")].set_index("cluster")
+    return [float(s.loc[c, "dh_mean_m"]) if c in s.index else np.nan for c in SHORT]
 
 
 def _scenario_summer_min_shifts(ss: pd.DataFrame, scenario_key: str) -> list[float]:
@@ -236,16 +237,13 @@ def _scenario_summer_min_shifts(ss: pd.DataFrame, scenario_key: str) -> list[flo
     ``ss`` is loaded from ``19_scenario_summary.csv``.  ``scenario_key``
     is the long label that file uses, e.g. ``"ukcp18_2050s"``.
 
-    Note: Script 19's "summer" row is the *seasonal mean* of monthly Δh
-    over the SUMMER_MONTHS window. We treat this as the projected
-    summer-minimum shift in keeping with the perturbation framework used
-    throughout §4.10 — the SSM is a monthly-resolution model and the
-    seasonal-mean Δh is its closest available correlate to the annual
-    summer minimum.
+    Script 19's "summer" row is the mean over the SUMMER_MONTHS of the
+    sustained level response (2.28.0, D-216) — the monthly model's closest
+    correlate of the annual summer minimum.
     """
     s = ss[(ss.scenario == scenario_key) & (ss.season == "summer")]
     s = s.set_index("cluster")
-    return [s.loc[c, "dh_mean_m"] for c in SHORT]
+    return [float(s.loc[c, "dh_mean_m"]) if c in s.index else np.nan for c in SHORT]
 
 
 def _render_contrast_panel(ax, msl_shifts, sm_shifts, title) -> None:
@@ -261,19 +259,22 @@ def _render_contrast_panel(ax, msl_shifts, sm_shifts, title) -> None:
     for bars, vals, col in [(b1, msl_shifts, COL_MSL),
                             (b2, sm_shifts, COL_SUM)]:
         for rect, v in zip(bars, vals):
-            ax.text(
-                v - 0.0025,
-                rect.get_y() + rect.get_height() / 2,
-                f"{int(round(v * 1000)):d} mm",
-                color=col, fontsize=8.5, va="center", ha="right",
-            )
+            yc = rect.get_y() + rect.get_height() / 2
+            if not np.isfinite(v):
+                ax.text(0, yc, " n.i.", color="#777", fontsize=8.5, va="center", ha="left")
+                continue
+            ax.text(v + (-0.004 if v < 0 else 0.004), yc, f"{int(round(v * 1000)):d} mm",
+                    color=col, fontsize=8.5, va="center", ha="right" if v < 0 else "left")
 
     ax.set_yticks(y)
     ax.set_yticklabels(CLUSTERS)
     ax.invert_yaxis()
     ax.set_title(title, pad=4, loc="left", fontweight="normal", fontsize=11)
     ax.axvline(0, color="#333333", linewidth=0.6, zorder=2)
-    ax.set_xlim(-0.155, 0.005)
+    fin = [v for v in list(msl_shifts) + list(sm_shifts) if np.isfinite(v)] or [0.0]
+    lo, hi = min(min(fin), 0.0), max(max(fin), 0.0)
+    pad = 0.18 * max(hi - lo, 0.01)
+    ax.set_xlim(lo - pad, hi + pad)
     ax.grid(axis="x", color="#dddddd", linewidth=0.4)
     ax.grid(axis="y", visible=False)
 
@@ -282,8 +283,8 @@ def render_contrast(proj: pd.DataFrame,
                     ss: pd.DataFrame,
                     out_path: Path) -> None:
     """Write the §4.10.1 ΔMSL5 vs Δsummer-min contrast figure."""
-    msl_50 = _scenario_msl_shifts(proj, "2050s")
-    msl_80 = _scenario_msl_shifts(proj, "2080s")
+    msl_50 = _scenario_msl_shifts(ss, "ukcp18_2050s")
+    msl_80 = _scenario_msl_shifts(ss, "ukcp18_2080s")
     sm_50  = _scenario_summer_min_shifts(ss, "ukcp18_2050s")
     sm_80  = _scenario_summer_min_shifts(ss, "ukcp18_2080s")
 
@@ -297,7 +298,7 @@ def render_contrast(proj: pd.DataFrame,
         axs[1], msl_80, sm_80,
         "2080s — UKCP18 RCP8.5, 50th percentile",
     )
-    axs[1].set_xlabel("Δh (m, below ground) — negative = drier")
+    axs[1].set_xlabel("Sustained level shift (m) — negative = deeper; Model B, D-216")
 
     fig.legend(
         handles=[
@@ -368,8 +369,8 @@ def main() -> int:
     transcript.append(f"  SD16  (dry slack)  : {SD16:.2f} m below ground")
     transcript.append("")
     transcript.append("ΔMSL5 vs Δsummer-minimum, UKCP18 RCP8.5 (m, below ground):")
-    msl_50 = _scenario_msl_shifts(proj, "2050s")
-    msl_80 = _scenario_msl_shifts(proj, "2080s")
+    msl_50 = _scenario_msl_shifts(ss, "ukcp18_2050s")
+    msl_80 = _scenario_msl_shifts(ss, "ukcp18_2080s")
     sm_50  = _scenario_summer_min_shifts(ss, "ukcp18_2050s")
     sm_80  = _scenario_summer_min_shifts(ss, "ukcp18_2080s")
     transcript.append(

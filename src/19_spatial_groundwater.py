@@ -26,7 +26,19 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.27.0"  # Hollingham (2026) - 2026-09-29. T-96: 19_report_numbers.csv also carries
+__version__ = "2.28.0"  # Hollingham (2026) - 2026-10-01 (D-216; Martin: "Sustained, Model B").
+#   compute_scenario_summary(): the UKCP18 rows are the sustained LEVEL response (m) of each well to
+#   the scenario climatology on MODEL B (03_16 per-well coefficients; extended wells take their
+#   cluster's Model B centroid), via model_utils.climate_forcing_change_12 and
+#   sustained_monthly_response; a well (or centroid) whose Model B beta_3 fails Script 48's
+#   identifiability rule is not projected. Season values are the mean level over the season's
+#   months. They were one month's forcing change (m/month) on Model A, which report9 set against
+#   ΔMSL5 as if both were levels. The ΔMSL5 rows follow Script 26b 2.0.0 (per-well Model B, spring =
+#   config.MSL_SPRING_MONTHS, not March-May) and _cluster_msl5_shift() is retired. A new column,
+#   `response`, says which convention a row carries: the forestry rows (clearfell, broadleaf,
+#   thinning) stay one-month rates until the Script 21 batch, and the scenario viewer's JS is
+#   moved in that batch too, so until then the viewer still shows rates.
+# 2.27.0  # Hollingham (2026) - 2026-09-29. T-96: 19_report_numbers.csv also carries
 #   scenario_n_wells_forest_clusters, the SSM-fitted reference wells in config.FOREST_CIDS
 #   (report9 §4.13.2). Emit-only.
 # 2.26.0  # Hollingham (2026) - 2026-09-28. T-91: emits selected UKCP18/
@@ -300,7 +312,11 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+from utils.model_utils import (                       # D-216 (2.28.0)
+    sustained_monthly_response, climate_forcing_change_12, response_identified,
+)
 from utils.paths import (
+    OUT_03_MODEL_B_PERSISTENCE,
     make_all_dirs,
     DATA_DIR,
     DATA_DEM,
@@ -2435,41 +2451,6 @@ def _expand_seasonal_to_monthly(sP_w, sP_s, sPET_w, sPET_s):
     return sP, sPET
 
 
-def _cluster_msl5_shift(b1, b2, monthly_P_m_arr, monthly_PET_m_arr,
-                        sP_arr, sPET_arr):
-    """
-    Compute the per-cluster ΔMSL5 (m) — mean of monthly Δh over March,
-    April and May — under one scenario.  Follows Script 26b exactly:
-
-        Δh(m) = β₁ · P(m) · (sP(m) − 1) − β₂ · PET(m) · (sPET(m) − 1)
-        ΔMSL5 = mean(Δh_Mar, Δh_Apr, Δh_May)
-
-    NB this is a pure-climate perturbation: forest interception is *not*
-    applied to the recharge term, and β₂ is unscaled.  Consequently for
-    forest clusters (C4, C5) the ΔMSL5 row uses different physics from
-    the Δh-annual/winter/summer rows in the same table, which do apply
-    canopy interception and a per-scenario sB2.  This matches the
-    canonical 26b_msl5_ukcp18_projection_summary.csv and is the
-    convention published in van Willegen et al. (2025); the viewer's
-    cluster-summary table carries an explicit footnote flagging the
-    asymmetry.  MSL5 is in any case primarily a vegetation predictor
-    for the non-forest clusters C1-C3.
-
-    Parameters mirror Script 26b._compute_monthly_delta_h and
-    _compute_projected_msl5_trajectory.
-
-    Returns a float (m), or None if β₁ is unavailable.
-    """
-    if b1 is None or b2 is None:
-        return None
-    if pd.isna(b1) or pd.isna(b2):
-        return None
-    P_arr   = np.asarray(monthly_P_m_arr,   dtype=float)
-    PET_arr = np.asarray(monthly_PET_m_arr, dtype=float)
-    delta_h = b1 * P_arr * (sP_arr - 1.0) - b2 * PET_arr * (sPET_arr - 1.0)
-    return float(np.mean(delta_h[[2, 3, 4]]))      # Mar=2, Apr=3, May=4
-
-
 def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
     """
     Compute Delta-h (m per unit time) for a single well under one scenario
@@ -2601,6 +2582,41 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             "b3": sub["b3"].mean() if len(sub) else None,
         }
 
+    # ── D-216 (2.28.0): UKCP18 rows are the sustained LEVEL response on Model B ──
+    _mb = pd.read_csv(OUT_03_MODEL_B_PERSISTENCE)
+    _mbw = _mb[_mb["level"] == "well"].copy()
+    _mbw["id"] = _mbw["well"].apply(_norm)
+    _MB_N_PARAMS = 4                                   # beta_1, beta_2, beta_3, intercept
+
+    def _b_set(r):
+        ok = response_identified(r["beta_3_B"], r["pvalue_beta_3_B"], r["n"], _MB_N_PARAMS)[0]
+        return (float(r["beta_1_B"]), float(r["beta_2_B"]), float(r["beta_3_B"])) if ok else None
+    well_B = {r["id"]: _b_set(r) for _, r in _mbw.iterrows()}
+    cent_B = {int(r["Cluster"]): _b_set(r)
+              for _, r in _mb[_mb["level"] == "centroid"].iterrows()}
+    P12 = np.asarray(climate_stats["monthly_P_m_arr"], dtype=float)
+    PET12 = np.asarray(climate_stats["monthly_PET_m_arr"], dtype=float)
+    season_months = {"winter": WINTER_MONTHS, "summer": SUMMER_MONTHS,
+                     "annual": list(range(1, 13))}
+
+    def _well_level(row, sl, h_col, season):
+        """Sustained level response (m) of one well, mean over the season's months."""
+        if pd.isna(row.get(h_col)):
+            return None                                 # same population as _well_dh
+        if row["id"] in well_B:
+            B = well_B[row["id"]]                       # its own Model B fit (or None)
+        else:
+            cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
+            B = cent_B.get(cl_)                         # extended well: the cluster centroid
+        if B is None:
+            return None
+        cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
+        I_ = (sl["sI_c5" if cl_ == 5 else "sI_c4"]) if bool(row.get("in_forest", False)) else 0.0
+        sP12, sPET12 = _expand_seasonal_to_monthly(sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
+        ss = sustained_monthly_response(B[2], climate_forcing_change_12(
+            B[0], B[1], P12, PET12, sP12, sPET12, interception=I_))
+        return float(np.mean(ss[[m - 1 for m in season_months[season]]]))
+
     h_col_map = {"annual": "mh", "winter": "wh", "summer": "sh"}
     P_w, PET_w = climate_stats["winter"]
     P_s, PET_s = climate_stats["summer"]
@@ -2628,14 +2644,20 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             else:  # annual -- pass tuple of both seasonal baselines
                 P0, PET0 = (P_w, P_s, PET_w, PET_s), None
             h_col = h_col_map[sea]
-            dh = wt.apply(lambda r: _well_dh(r, sl, P0, PET0, h_col,
-                                             cluster_betas, sea), axis=1)
+            is_level = sc_name.startswith("ukcp18")       # D-216 (2.28.0)
+            response = "level_sustained_model_b" if is_level else "rate_one_month_model_a"
+            if is_level:
+                dh = wt.apply(lambda r: _well_level(r, sl, h_col, sea), axis=1)
+            else:
+                dh = wt.apply(lambda r: _well_dh(r, sl, P0, PET0, h_col,
+                                                 cluster_betas, sea), axis=1)
             wt_tmp = wt.assign(_dh=dh)
             for _, r in wt_tmp[wt_tmp["_dh"].notna()].iterrows():
                 sy = r["sy"]
                 perwell.append({
                     "well": r["id"], "cluster": f"C{int(r['Cluster'])}" if pd.notna(r["Cluster"]) else "",
                     "in_forest": bool(r["in_forest"]), "scenario": sc_name, "season": sea,
+                    "response": response,
                     "dh_m": float(r["_dh"]), "sy": float(sy) if pd.notna(sy) else np.nan,
                     "we_mm": float(sy * r["_dh"] * 1000.0) if pd.notna(sy) else np.nan,
                 })
@@ -2650,13 +2672,15 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                         ("broadleaf", "winter", 5),
                 ) and pd.notna(dh_mean):
                     rpt.add(f"scenario_dh_mean_{sc_name}_{sea}_C{cl_int}",
-                            float(dh_mean), unit="m/month",
+                            float(dh_mean), unit="m" if is_level else "m/month",
                             well=f"C{cl_int}", era=f"{sc_name} {sea}",
-                            note=f"cluster-mean monthly head perturbation, unrounded, "
-                                 f"n={len(sub)} wells (report9 quotes the rounded 3dp value)")
+                            note=(f"cluster-mean sustained level response, Model B (D-216), "
+                                  if is_level else "cluster-mean monthly head perturbation, ")
+                                 + f"unrounded, n={len(sub)} wells")
                 rows.append({
                     "scenario":    sc_name,
                     "season":      sea,
+                    "response":    response,
                     "cluster":     f"C{cl_int}",
                     "n_wells":     int(len(sub)),
                     "dh_mean_m":   round(dh_mean, 4) if pd.notna(dh_mean) else np.nan,
@@ -2667,6 +2691,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             rows.append({
                 "scenario":    sc_name,
                 "season":      sea,
+                "response":    response,
                 "cluster":     "SITE",
                 "n_wells":     int(len(sub_all)),
                 "dh_mean_m":   round(sub_all["_dh"].mean(),   4) if len(sub_all) else np.nan,
@@ -2674,54 +2699,39 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                 **_water_equivalent(sub_all),
             })
 
-        # ── v2.8.0 ΔMSL5 row (mean Mar/Apr/May Δh, van Willegen et al. 2025) ──
-        # Computed once per scenario at the cluster-centroid level (no per-well
-        # variation: the perturbation is the cluster-mean β times the shared
-        # monthly climatology).  Matches Script 26b
-        # _compute_monthly_delta_h + spring-mean exactly; canonical values
-        # validated against 26b_msl5_ukcp18_projection_summary.csv.
+        # ── ΔMSL5 rows (2.28.0, D-216): per-well Model B sustained spring response ──
+        # The same quantity, population and functions as Script 26b 2.0.0's per-well
+        # pathway (03_16 well rows, identified wells, spring = MSL_SPRING_MONTHS, pure
+        # climate with no canopy interception — the van Willegen convention).
+        if not sc_name.startswith("ukcp18"):
+            continue
         sP_arr, sPET_arr = _expand_seasonal_to_monthly(
-            sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"]
-        )
-        P_arr_m   = climate_stats["monthly_P_m_arr"]
-        PET_arr_m = climate_stats["monthly_PET_m_arr"]
-        msl5_per_cluster = {}
+            sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
+        spring_idx = [m - 1 for m in MSL_SPRING_MONTHS]
+        shifts = {}
+        for _, r in _mbw.iterrows():
+            B = well_B.get(r["id"])
+            if B is None:
+                continue
+            ss = sustained_monthly_response(B[2], climate_forcing_change_12(
+                B[0], B[1], P12, PET12, sP_arr, sPET_arr))
+            shifts.setdefault(int(r["Cluster"]), []).append(float(np.mean(ss[spring_idx])))
+        tot, acc = 0, 0.0
         for cl_int in [1, 2, 3, 4, 5]:
-            cb = cluster_betas[cl_int]
-            shift = _cluster_msl5_shift(
-                cb["b1"], cb["b2"], P_arr_m, PET_arr_m, sP_arr, sPET_arr
-            )
-            msl5_per_cluster[cl_int] = shift
-            sub = wt[(wt["Cluster"] == cl_int) & wt["b1"].notna()]
-            rows.append({
-                "scenario":    sc_name,
-                "season":      "msl5",
-                "cluster":     f"C{cl_int}",
-                "n_wells":     int(len(sub)),
-                "dh_mean_m":   round(shift, 4) if shift is not None else np.nan,
-                "dh_median_m": round(shift, 4) if shift is not None else np.nan,
-            })
-        # SITE-level ΔMSL5: simple mean of the five cluster shifts, weighted
-        # by the number of beta-equipped wells in each cluster (matches the
-        # cluster-aggregation convention used in the existing dh rows above,
-        # where SITE is the well-pooled mean).
-        valid = [(cl_int, msl5_per_cluster[cl_int]) for cl_int in [1,2,3,4,5]
-                 if msl5_per_cluster[cl_int] is not None]
-        if valid:
-            ws = []
-            for cl_int, shift in valid:
-                n_cl = int(((wt["Cluster"] == cl_int) & wt["b1"].notna()).sum())
-                ws.append((shift, n_cl))
-            tot = sum(n for _, n in ws)
-            site_msl5 = sum(s * n for s, n in ws) / tot if tot > 0 else np.nan
-            rows.append({
-                "scenario":    sc_name,
-                "season":      "msl5",
-                "cluster":     "SITE",
-                "n_wells":     int(tot),
-                "dh_mean_m":   round(site_msl5, 4) if pd.notna(site_msl5) else np.nan,
-                "dh_median_m": round(site_msl5, 4) if pd.notna(site_msl5) else np.nan,
-            })
+            v = shifts.get(cl_int, [])
+            m_ = float(np.mean(v)) if v else np.nan
+            rows.append({"scenario": sc_name, "season": "msl5",
+                         "response": "level_sustained_model_b", "cluster": f"C{cl_int}",
+                         "n_wells": len(v),
+                         "dh_mean_m": round(m_, 4) if v else np.nan,
+                         "dh_median_m": round(float(np.median(v)), 4) if v else np.nan})
+            if v:
+                tot += len(v); acc += m_ * len(v)
+        if tot:
+            rows.append({"scenario": sc_name, "season": "msl5",
+                         "response": "level_sustained_model_b", "cluster": "SITE",
+                         "n_wells": tot, "dh_mean_m": round(acc / tot, 4),
+                         "dh_median_m": np.nan})
 
     pw = pd.DataFrame(perwell)
     pw.to_csv(OUT_19_SCENARIO_PERWELL, index=False)
@@ -2760,8 +2770,9 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                                    & (out["season"] == "msl5")
                                    & (out["cluster"] == f"C{cid}")]["dh_mean_m"]
                     canon_val = canon_msl5[(canon_msl5["scenario"] == canon_scen)
-                                           & (canon_msl5["cluster_id"] == cid)]["spring_delta_h_mean_m"]
-                    if view_val.empty or canon_val.empty:
+                                           & (canon_msl5["cluster_id"] == cid)]["msl5_shift_sustained_mean_m"]
+                    if view_val.empty or canon_val.empty or not (
+                            np.isfinite(float(view_val.iloc[0])) and np.isfinite(float(canon_val.iloc[0]))):
                         continue
                     diff_mm = abs(float(view_val.iloc[0]) - float(canon_val.iloc[0])) * 1000.0
                     if diff_mm > worst_mm:

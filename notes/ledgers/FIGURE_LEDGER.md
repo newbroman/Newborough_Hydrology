@@ -99,7 +99,7 @@
 | 76 | 4.12 | The climate-response envelope of the spring water table: Dry-year spri | `outputs/33_envelope_amplification/33_dry_spring_depth.png` | yes |
 | 77 | 4.12.1 | Independent test of the chronic coastal-drying assumption: implied coa | `outputs/37_driver_validation/37_implied_delta0_trajectory.png` | yes |
 | 78 | 4.12.1 | Comparative footing of the drivers over the 2005–2025 horizon, on thre | `outputs/37b_driver_footing/37b_driver_footing.png` | yes |
-| 79 | 4.13.1 | Projected shift in the five-year mean spring water level (ΔMSL5, blue) | `outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png` | yes |
+| 79 | 4.13.1 | Projected sustained shift in the five-year mean spring water level (ΔM | `outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png` | yes |
 | 80 | 4.14.2 | Ranwell&apos;s 1951–53 water-table readings against the SSM hindcast,  | `outputs/44_ranwell_hindcast/44_07b_hindcast_report.png` | yes |
 | 81 | 4.14.2 | The slack floor against the water table, by distance from the eroding  | `outputs/44_ranwell_hindcast/44_09_slack_floor_datum.png` | yes |
 

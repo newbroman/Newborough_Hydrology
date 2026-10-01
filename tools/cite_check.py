@@ -45,7 +45,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.31.0"  # Hollingham (2026) — 2026-09-30. Tuple constants in config.py register their
+__version__ = "1.32.0"  # Hollingham (2026) — 2026-10-01. D-216: Script 26b 2.0.0 replaced the one-month
+#   spring rate with the sustained Model B response, renaming its columns. The two 26b tables register
+#   msl5_shift_sustained_m and spring_one_month_rate_model_a_m (summary) and msl5_shift_sustained_mean_m /
+#   _median_m (per well) in place of spring_delta_h_mean_m / _median_m.
+# 1.31.0  # Hollingham (2026) — 2026-09-30. Tuple constants in config.py register their
 #   members as NAME[i] (PEARSON_DELTA_SENS[0] = 0.03 …), so a sentence quoting a sensitivity threshold
 #   can trace to it (Martin, proof queue: the 0.03 "same as the 0.05 in this sentence").
 # 1.30.0  # Hollingham (2026) — 2026-09-28. T-91: twelve tables the report and the
@@ -815,13 +819,13 @@ EXTRA_VALUE_TABLES = [
      # HEADLINE_TABLES already carries, and registering them here would check
      # one number twice under two keys. Left in, they were 176 of this table's
      # 181 proposals — the table's own quantities are the five MSL5 ones.
-     ["spring_delta_h_mean_m",
+     ["msl5_shift_sustained_m", "spring_one_month_rate_model_a_m",
       "msl5_observed_window_mean_m", "msl5_perturbed_window_mean_m",
       "msl5_shift_mean_m", "n_common_window_ends"]),
     ("outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv",
      ("cluster_label", "scenario", "aggregation"),
      # same omission, same reason
-     ["spring_delta_h_mean_m", "spring_delta_h_median_m", "n_wells"]),
+     ["msl5_shift_sustained_mean_m", "msl5_shift_sustained_median_m", "n_wells"]),
 
     # 31, 39.4%. The validation summary is keyed on all three of tier, test and
     # descriptor: one descriptor is tested several ways and one test is applied
@@ -939,7 +943,7 @@ EXTRA_VALUE_TABLES = [
     ("outputs/26b_van_willegen_msl_projections/"
      "26b_msl5_ukcp18_projection_summary.csv",
      ("cluster_label", "scenario"),
-     ["spring_delta_h_mean_m", "msl5_observed_window_mean_m",
+     ["msl5_shift_sustained_m", "msl5_observed_window_mean_m",
       "msl5_perturbed_window_mean_m", "msl5_shift_mean_m"]),
     ("outputs/21_forestry_scenarios/21_forestry_04_baci_zone_means.csv",
      ("Zone", "Phase"),

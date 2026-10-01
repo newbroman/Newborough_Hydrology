@@ -52,7 +52,16 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-26. pflood_lambda docstring: the
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-01 (D-216). A sustained climate shift as a
+#   LEVEL: scenario_delta_series() runs the difference between a perturbed and a baseline SSM run,
+#   d(t) = (1 - b3)·d(t-1) + Δf(t), in which the intercept and the drainage datum cancel exactly;
+#   sustained_monthly_response() is its periodic steady state for a 12-month forcing change (the
+#   climatology in force every year); response_identified() is Script 48's identifiability rule
+#   (config.PASTAS_IDENT_*) applied to a fitted beta_3 and its p-value; fit_ssm(with_corr=True) adds
+#   the coefficient correlations and the means behind the loss partition (D-217); climate_forcing_change_12()
+#   is the monthly forcing change both scripts feed it. monthly_perturbation() is
+#   unchanged and stays the one-month RATE (its docstring now says so). Additive.
+# 1.7.1  # Hollingham (2026) — 2026-09-26. pflood_lambda docstring: the
 #   h_target example named -0.10 m as SD15b; it now points at config (D-201). Docstring only.
 # 1.7.0  # Hollingham (2026) — 2026-09-25 (D-195). build_ssm_frame()
 #   differences on the monthly CALENDAR. It used to dropna() first and shift the
@@ -240,7 +249,8 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
 def fit_ssm(h_series=None, climate=None, lag=None, window=None,
             drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
             intercept=False, extra_regressors=None, pre_built_frame=None,
-            provenance=None, exclude_interpolated=False, fixed_beta_3=None):
+            provenance=None, exclude_interpolated=False, fixed_beta_3=None,
+            with_corr=False):
     """
     Fit the SSM to a single water-level series via OLS.
 
@@ -325,6 +335,11 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
         If extra_regressors provided:
             For each user-supplied column 'foo':
                 foo, pvalue_foo, se_foo
+        If with_corr=True (1.8.0, D-217):
+            corr_beta_2_beta_3 (and corr_alpha_beta_3 with an intercept) — the
+            correlation of the coefficient estimates; mean_PET and
+            mean_h_disp_prev — the means over the fitted months, from which the
+            loss partition each form implies is computed
 
     Returns None if insufficient data or OLS fails.
 
@@ -433,6 +448,21 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
             result[col_name]              = float(model.params[col_name])
             result[f"pvalue_{col_name}"]  = float(model.pvalues[col_name])
             result[f"se_{col_name}"]      = float(model.bse[col_name])
+
+    if with_corr:                                   # 1.8.0, D-217 — opt-in, additive
+        cov = model.cov_params()
+
+        def _corr(a, b):
+            if a not in cov.index or b not in cov.index:
+                return float("nan")
+            den = np.sqrt(cov.loc[a, a] * cov.loc[b, b])
+            return float(cov.loc[a, b] / den) if den > 0 else float("nan")
+        result["corr_beta_2_beta_3"] = _corr("beta_2_atmospheric_draw", "beta_3_drainage")
+        if intercept:
+            result["corr_alpha_beta_3"] = _corr("const", "beta_3_drainage")
+        # the design matrix carries −PET and −h_disp_prev
+        result["mean_PET"] = float(-X["beta_2_atmospheric_draw"].mean())
+        result["mean_h_disp_prev"] = float(-X["beta_3_drainage"].mean()) if "beta_3_drainage" in X else float("nan")
 
     return result
 
@@ -681,7 +711,9 @@ def monthly_perturbation(b1, b2_base, b2_scen_arr,
     Δh_shift(m) = β₁·(P_scen(m) − P_base(m)) − (β₂_scen(m) − β₂_base)·PET(m)
 
     This is the immediate monthly forcing response — the first-year
-    adjustment, not a steady-state prediction. The β₃ drainage term
+    adjustment, not a steady-state prediction. It is a RATE (m/month), not a
+    level: a shift held year after year accumulates through the drainage term,
+    and the level it reaches is sustained_monthly_response() (D-216). The β₃ drainage term
     does not appear because in the first month after a change, h hasn't
     moved yet, so the drainage response to the *change* is zero.
 
@@ -718,6 +750,80 @@ def monthly_perturbation(b1, b2_base, b2_scen_arr,
     dP  = P_eff_scen - P_eff_base
     dB2 = b2_scen_arr - b2_base
     return b1 * dP - dB2 * monthly_PET
+
+
+def scenario_delta_series(b3, forcing_change, d0=0.0):
+    """Level difference between a perturbed and a baseline SSM run (D-216).
+
+    Both runs obey h(t) = (1 - β₃)·h(t-1) + β₁·P(t) − β₂·PET(t) − β₃·D [+ α], so
+    their difference d = h_scen − h_base obeys
+
+        d(t) = (1 − β₃)·d(t−1) + Δf(t),   Δf(t) = β₁·ΔP(t) − β₂·ΔPET(t)
+
+    in which the intercept α (Model B) and the drainage datum D (Model A) cancel
+    exactly. ``forcing_change`` is the monthly Δf series (m/month); ``d0`` the
+    difference before the first month (0 = both runs start from the same state;
+    pass the sustained value to start from a climatology already in force).
+    Returns the level difference (m) after each month.
+    """
+    f = np.asarray(forcing_change, dtype=float)
+    out = np.empty(len(f))
+    d = float(d0)
+    r = 1.0 - float(b3)
+    for t in range(len(f)):
+        d = r * d + f[t]
+        out[t] = d
+    return out
+
+
+def sustained_monthly_response(b3, forcing_change_12):
+    """Periodic steady state of scenario_delta_series() for a forcing change that
+    repeats every year: the level difference (m) in each calendar month, index
+    0 = January, once the shifted climatology has been in force long enough for
+    the memory to forget the start (D-216). Requires 0 < β₃ < 2."""
+    f = np.asarray(forcing_change_12, dtype=float)
+    if f.shape != (12,):
+        raise ValueError("forcing_change_12 must have 12 monthly values")
+    r = 1.0 - float(b3)
+    if not abs(r) < 1.0:
+        raise ValueError(f"beta_3 = {b3!r} has no steady state (needs 0 < beta_3 < 2)")
+    k = np.arange(12)
+    return np.array([np.sum(r ** k * f[(m - k) % 12]) for m in range(12)]) / (1.0 - r ** 12)
+
+
+def climate_forcing_change_12(b1, b2, P12, PET12, sP12, sPET12, interception=0.0):
+    """Monthly forcing change Δf (m/month, index 0 = January) when the 12-month
+    climatology P12 / PET12 is scaled by sP12 / sPET12, at a well whose recharge
+    passes through a fixed canopy interception fraction (0 off the forest):
+
+        Δf(m) = β₁·(1 − I)·P(m)·(sP(m) − 1) − β₂·PET(m)·(sPET(m) − 1)
+
+    The one-month RATE of D-216's level response; Scripts 19 and 26b share it."""
+    P12, PET12 = np.asarray(P12, dtype=float), np.asarray(PET12, dtype=float)
+    sP12, sPET12 = np.asarray(sP12, dtype=float), np.asarray(sPET12, dtype=float)
+    return (float(b1) * (1.0 - float(interception)) * P12 * (sP12 - 1.0)
+            - float(b2) * PET12 * (sPET12 - 1.0))
+
+
+def response_identified(beta_3, pvalue_beta_3, n_months, n_params):
+    """Script 48's identifiability rule on a fitted drainage coefficient: the
+    e-fold time −1/ln(1 − β₃) no longer than PASTAS_IDENT_EFOLD_WINDOW_FRAC of the
+    fitted months, and the relative standard error of β₃ (recovered from its
+    two-sided p-value on n_months − n_params degrees of freedom) no larger than
+    PASTAS_IDENT_MAX_REL_SE. Returns (identified, efold_months, rel_se)."""
+    from scipy import stats as _st                            # noqa: PLC0415
+    from utils.config import (PASTAS_IDENT_EFOLD_WINDOW_FRAC,  # noqa: PLC0415
+                              PASTAS_IDENT_MAX_REL_SE)
+    b = float(beta_3)
+    if not (0.0 < b < 1.0) or not np.isfinite(pvalue_beta_3):
+        return False, np.nan, np.nan
+    efold = -1.0 / np.log(1.0 - b)
+    dof = max(int(n_months) - int(n_params), 1)
+    p = min(max(float(pvalue_beta_3), 1e-300), 1.0)
+    t = _st.t.isf(p / 2.0, dof)
+    rel_se = 1.0 / t if t > 0 else np.inf
+    ok = (efold <= PASTAS_IDENT_EFOLD_WINDOW_FRAC * n_months) and (rel_se <= PASTAS_IDENT_MAX_REL_SE)
+    return bool(ok), float(efold), float(rel_se)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -115,8 +115,12 @@ partial_springSD_vs_beta2_given_tR_p,8.561511739846135e-08
 partial_springSD_vs_beta2_given_tR_r,0.6065126372242221
 partial_springSD_vs_tR_given_beta2_p,0.663251431576211
 partial_springSD_vs_tR_given_beta2_r,0.05503515311845816
-rho_ar1_expected_mean,0.48233793169063466
+rho_ar1_expected_mean,0.22736806420057146
+rho_ar1_expected_median,0.16992638846462432
+rho_ar1_expected_model_a_mean,0.48233793169063466
+rho_ar1_expected_model_a_median,0.4533580351949786
 rho_lag1_mean,-0.10552077450027057
+rho_lag1_median,-0.11312246387196745
 rho_lag1_vs_tR_spearman_p,0.2621374487603722
 rho_lag1_vs_tR_spearman_r,0.14112762237762239
 site_mean_spring_n_years,20
@@ -126,6 +130,7 @@ spring_sd_mm_median_c2,251.968335963157
 spring_sd_mm_median_c3,324.2414271093858
 spring_sd_mm_median_c4,403.831324394346
 spring_sd_mm_median_c5,290.6702244390605
+t_efold_B_months_median,6.257206804233774
 vw_repro_datum_offset_max_mm,412.6666666666662
 vw_repro_datum_offset_mean_mm,17.100091877970605
 vw_repro_datum_offset_min_mm,-402.9999999999996

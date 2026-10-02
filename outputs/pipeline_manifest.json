@@ -1,5 +1,7 @@
 {
-  "pipeline_version": "2.23.1",
+  "pipeline_version": "2.23.2",
+  "pipeline_release": "0.9.2.23",
+  "pipeline_release_date": "2026-10-02",
   "total_registered": 60,
   "total_phases": 19,
   "by_tier": {
@@ -15,7 +17,7 @@
   "analytical_phases": 17,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-10-02T06:44:52",
+  "generated": "2026-10-02T06:46:24",
   "steps": [
     {
       "index": 1,

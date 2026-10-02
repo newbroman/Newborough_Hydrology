@@ -12,21 +12,28 @@
 #   bash tools/cloud_setup.sh [DIR]        # DIR defaults to $HOME/NRG
 #
 # Drive (D-227 E5, route a): if rclone is configured with the remote that nrg_git.sh uses
-# (gdrive:NRG_documents) - for a cloud session, an rclone.conf supplied as the secret
-# NRG_RCLONE_CONF (the file's contents) - the ODTs are copied down with the same filter the
+# (gdrivefile:NRG_documents_v2) - for a cloud session, the [gdrivefile] section of rclone.conf supplied
+# as the secret NRG_RCLONE_CONF_B64 (base64, one line; tools/drive_token.sh writes it) or NRG_RCLONE_CONF - the ODTs are copied down with the same filter the
 # archive uses. Without it the session works from the committed mirrors and does not edit
 # ODTs. Taking the document lock (tools/doc_lock.py) before an ODT edit is still required.
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.0.1 — Hollingham (2026) — 2026-10-02. rclone installed when a token is supplied;
+# Version 1.1.0 — Hollingham (2026) — 2026-10-02. The remote is gdrivefile:NRG_documents_v2: the rclone
+#   client is published with the drive.file scope only, so its token no longer lapses weekly (T-65), and
+#   NRG_documents_v2 is the copy that remote created (rclone check: 656 files, 0 differences). The
+#   remote is tested with lsf, which drive.file always permits.
+# 1.0.3 — 2026-10-02. Reads NRG_RCLONE_CONF_B64 (one line, base64) as well as
+#   NRG_RCLONE_CONF: a multi-line value did not survive the environment editor.
+# 1.0.2 — 2026-10-02. The lapsed-token message names tools/drive_token.sh.
+# 1.0.1 — 2026-10-02. rclone installed when a token is supplied;
 #   a configured token that Drive refuses is reported as LAPSED with the refresh steps.
 # 1.0.0 — 2026-10-02 (D-227). First issue.
 set -euo pipefail
 DIR="${1:-$HOME/NRG}"
 PUB="${NRG_PUBLIC_URL:-https://github.com/newbroman/Newborough_Hydrology.git}"     # override for testing
 PRIV="${NRG_PRIVATE_URL:-https://github.com/newbroman/Newborough_Hydrology_working.git}"
-DRIVE_REMOTE="gdrive:NRG_documents"
+DRIVE_REMOTE="gdrivefile:NRG_documents_v2"
 step() { printf '\n  [%s] %s\n' "$1" "$2"; }
 
 # ── 1/6 public repository: the working tree ────────────────────────────────────
@@ -69,6 +76,12 @@ export PATH="$HOME/bin:$PATH"
 
 # ── 4/6 the ODTs from Drive ────────────────────────────────────────────────────
 step "4/6" "documents from Drive"
+# 1.0.3: the secret may come as NRG_RCLONE_CONF_B64 (the [gdrivefile] section base64-encoded on one line,
+# which survives any .env editor; tools/drive_token.sh writes it) or as NRG_RCLONE_CONF (raw, multi-line).
+if [ -z "${NRG_RCLONE_CONF:-}" ] && [ -n "${NRG_RCLONE_CONF_B64:-}" ]; then
+  NRG_RCLONE_CONF="$(printf '%s' "$NRG_RCLONE_CONF_B64" | base64 -d 2>/dev/null || true)"
+  [ -n "$NRG_RCLONE_CONF" ] || echo "      NRG_RCLONE_CONF_B64 is set but does not decode - re-copy it with tools/drive_token.sh"
+fi
 if [ -n "${NRG_RCLONE_CONF:-}" ] && [ ! -f "$HOME/.config/rclone/rclone.conf" ]; then
   mkdir -p "$HOME/.config/rclone"; printf '%s\n' "$NRG_RCLONE_CONF" > "$HOME/.config/rclone/rclone.conf"
   chmod 600 "$HOME/.config/rclone/rclone.conf"
@@ -77,18 +90,18 @@ if [ -n "${NRG_RCLONE_CONF:-}" ] && ! command -v rclone >/dev/null 2>&1; then
   curl -sSL https://rclone.org/install.sh | sudo bash >/dev/null 2>&1 \
     || echo "      rclone could not be installed here"
 fi
-if command -v rclone >/dev/null 2>&1 && rclone about "$DRIVE_REMOTE" >/dev/null 2>&1; then
+if command -v rclone >/dev/null 2>&1 && rclone lsf "$DRIVE_REMOTE" --max-depth 1 >/dev/null 2>&1; then
   rclone copy "$DRIVE_REMOTE" . --filter-from tools/rclone-odt-filter.txt --stats 10s --stats-one-line
   echo "      ODTs copied from $DRIVE_REMOTE"
 else
   if [ -n "${NRG_RCLONE_CONF:-}" ] && command -v rclone >/dev/null 2>&1; then
-    # A token is configured but Drive refuses it: the weekly lapse of the rclone-nrg client
-    # (still in Google's Testing status, T-65). Martin refreshes it weekly (2026-10-02), so
-    # say so loudly rather than burying it.
-    echo "      >>> DRIVE TOKEN LAPSED - refresh it: on the laptop run"
-    echo "      >>>     rclone config reconnect gdrive:"
-    echo "      >>> then paste the new [gdrive] section of ~/.config/rclone/rclone.conf into the"
-    echo "      >>> cloud environment's NRG_RCLONE_CONF and start a new session."
+    # A token is configured but Drive refuses it. Since 1.1.0 the client is published, so this
+    # is no longer the weekly Testing lapse (T-65): the token was revoked, or the secret is an old
+    # [gdrive] section. Say so loudly rather than burying it.
+    echo "      >>> DRIVE TOKEN REFUSED - refresh it: on the laptop run"
+    echo "      >>>     bash tools/drive_token.sh"
+    echo "      >>> which puts the new [gdrivefile] section on the clipboard; paste it into the cloud"
+    echo "      >>> environment's variables (NRG_RCLONE_CONF_B64=) and start a new session."
   else
     echo "      NOT FETCHED: no rclone remote $DRIVE_REMOTE here (rclone absent or NRG_RCLONE_CONF"
     echo "      unset). This session works from the committed mirrors and must not edit ODTs."

@@ -50,7 +50,8 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-26
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-10-02. REMOTE is gdrivefile:NRG_documents_v2 (the published
+#   drive.file client; nrg_git.sh 1.25.3). 1.0.0 — 2026-08-26.
 
 import argparse
 import datetime as _dt
@@ -62,7 +63,7 @@ from refresh_mirrors import SOURCES, _version_key  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 MARKER = REPO / ".last_drive_archive"
-REMOTE = "gdrive:NRG_documents"
+REMOTE = "gdrivefile:NRG_documents_v2"
 
 
 def canonical_documents() -> list[pathlib.Path]:

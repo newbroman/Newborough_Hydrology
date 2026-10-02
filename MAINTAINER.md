@@ -66,8 +66,8 @@ bash tools/nrg_env.sh --system      # sudo: git, rclone, LibreOffice, poppler; c
 bash tools/nrg_env.sh               # the environment; must end "the pipeline's environment"
 
 # 3. the documents
-rclone config                       # a remote named exactly "gdrive", scope 1 (full drive)
-rclone copy gdrive:NRG_documents . --filter-from tools/rclone-odt-filter.txt --progress
+rclone config                       # a remote named exactly "gdrivefile": the rclone-nrg client ID and secret, scope drive.file, Shared Drive n
+bash tools/drive_pull.sh            # the ODTs from gdrivefile:NRG_documents_v2
 
 # 4. orientation
 python3 tools/session_handover.py   # the state of the tree, generated
@@ -112,7 +112,7 @@ same session it is made. `DECISIONS_PUBLIC.md` is generated from it.
 
 | when | what |
 |---|---|
-| weekly, until the rclone app is published | refresh the Drive token: `rclone config reconnect gdrive:` |
+| when the cloud says DRIVE TOKEN REFUSED | `bash tools/drive_token.sh` and paste its line into the cloud environment (the client is published since 2026-10-02, so this is no longer weekly) |
 | after any OS update or reinstall | `bash tools/nrg_env.sh --rebuild`; `python3 tools/env_audit.py` must still say the pipeline's environment |
 | when offered a LibreOffice update | decline it, or hold it (`nrg_env.sh --system` prints the command): its version decides the bytes of every published PDF |
 | at each ship | nothing extra: option 17 archives the ODTs |

@@ -27,7 +27,8 @@ do not weaken the pattern.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-09-24. Martin: "if this is the case then it
+__version__ = "1.1.1"  # Hollingham (2026) - 2026-10-02. SKIP_PREFIX gains "gdrivefile:" (the Drive remote
+#   since nrg_git.sh 1.25.3). 1.1.0 - 2026-09-24. Martin: "if this is the case then it
 #   needs to be included as a gate" — the two description classes the audit note said
 #   no gate could see, now gated where they are mechanical: (1) a VERSION quoted for a
 #   tool or script on an undated line must be the file's current __version__ / VERSION;
@@ -58,7 +59,7 @@ PATH_RE = re.compile(
     r"((?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.(?:py|sh|csv|json|md|html|txt|png|kml|geojson|npz|odt|odm|pdf))"
     r"(?![\w/-])")
 SCRIPT_RE = re.compile(r"(?<![\w./-])((?:\d{2}[a-z]?_[A-Za-z0-9_]+|run_[A-Za-z0-9_]+)\.py)(?![\w/-])")
-SKIP_PREFIX = ("http://", "https://", "gdrive:", "$HOME", "~/", "/home/", "/tmp/", "/sessions/", "<")
+SKIP_PREFIX = ("http://", "https://", "gdrive:", "gdrivefile:", "$HOME", "~/", "/home/", "/tmp/", "/sessions/", "<")
 
 
 def load_exempt() -> dict[str, str]:

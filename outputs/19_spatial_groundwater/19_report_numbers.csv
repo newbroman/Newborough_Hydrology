@@ -1,6 +1,8 @@
 Parameter,Well,Era,Value,Unit,Note
 scenario_n_wells_forest_clusters,C4+C5,,14.0,wells,"SSM-fitted reference wells in the forest clusters, of 66 fitted reference wells"
 scenario_dh_mean_ukcp18_2080s_summer_C2,C2,ukcp18_2080s summer,-0.35899726528144127,m,"cluster-mean sustained level response, Model B (D-216), unrounded, n=19 wells"
+scenario_dh_mean_ukcp18_2080s_summer_C2_model_a,C2,ukcp18_2080s summer,-0.5345431247630869,m,"cluster-mean sustained level response, Model A (D-224), unrounded, n=19 wells"
 scenario_dh_mean_broadleaf_annual_C5,C5,broadleaf annual,0.01328818945340952,m/month,"cluster-mean monthly head perturbation, unrounded, n=5 wells"
 scenario_dh_mean_broadleaf_winter_C5,C5,broadleaf winter,0.020528940734846762,m/month,"cluster-mean monthly head perturbation, unrounded, n=5 wells"
 msl5_crosscheck_worst_diff_mm,,ukcp18_2050s C1,0.0422253552659034,mm,max abs diff vs 26b per-well ΔMSL5 CSV across (cluster x UKCP18 scenario); tolerance 0.5 mm
+msl5_crosscheck_worst_diff_mm_model_a,,ukcp18_2050s C2,8.326672684688674e-14,mm,max abs diff vs 26b per-well Model A ΔMSL5 CSV across (cluster x UKCP18 scenario); tolerance 0.5 mm (D-224)

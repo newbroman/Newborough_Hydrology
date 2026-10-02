@@ -60,7 +60,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-29. Three seconds a year (Martin: "the film
+__version__ = "1.8.1"  # Hollingham (2026) - 2026-10-01 (D-226; Martin: "lets proceed as you outline").
+#   The "And a little more" slide says why the film runs the published form at the project datum:
+#   run back into the drier 1989-96 epoch (the CCW wells, which no fit sees) that form reproduced the
+#   average level without a bias, where the faster-forgetting intercept form came out too wet (Script
+#   50, D-225). Text only, no figure typed; the model, datum and frames are unchanged.
+# 1.8.0  # Hollingham (2026) - 2026-09-29. Three seconds a year (Martin: "the film
 #   should be slower 3s a year ... draw the inbetween frame"; the last-decade clip keeps its
 #   span at the same speed): FILM_FRAMES_PER_MONTH frames a month, the in-between frames drawn
 #   at the level interpolated linearly to the next month (paint(i, frac); a drawing
@@ -983,7 +988,11 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
           f"within a factor of {s_ow:.1f}. The first two years are the model settling from its "
           f"starting guess.",
           "Winter rules all year. The curves come from November-to-March pictures; summer months "
-          "show what the water table would imply, not what a summer photograph would show."], None,
+          "show what the water table would imply, not what a summer photograph would show.",
+          "Why this version of the model. Run back into a drier spell no fitting has seen — "
+          "wells measured on the reserve in 1989–96 — it reproduced their average level without "
+          "a bias, where a faster-forgetting version came out too wet. The drier decades of the "
+          "film rest on that test (decision D-226)."], None,
          None),
         ("Credits and sources",
          ["Newborough Warren hydrology study, 2026 — Martin Hollingham.",

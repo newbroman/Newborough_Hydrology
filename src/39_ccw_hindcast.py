@@ -99,7 +99,10 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: write_report_numbers() emits
+__version__ = "1.5.1"  # Hollingham (2026) - 2026-10-01 (D-222). load_ccw, observed_series,
+#   hindcast_well, equilibrium_depth and usable_codes moved unchanged to utils/hindcast_utils.py, so
+#   Script 50 (record length) runs the same hindcast without a copy. Outputs identical.
+# 1.5.0  # Hollingham (2026) - 2026-09-29. T-96 batch 2: write_report_numbers() emits
 #   ccw_annual_range_vs_davy_2010_diff_m = config.CCW_ANNUAL_RANGE_DAVY_2010_M - ccw_annual_range_mean_m,
 #   after ccw_annual_range_n (report9 SS4.13, the Davy et al. 2010 cross-check). Additive.
 # 1.4.1  # Hollingham (2026) — 2026-09-28. T-91, per the signed-off spec
@@ -182,6 +185,8 @@ from utils import config, paths
 from scipy import stats
 
 from utils.model_utils import simulate_ssm, get_metrics
+from utils.hindcast_utils import (load_ccw, observed_series, hindcast_well,
+                                  equilibrium_depth, usable_codes, BETA_COLS)
 from utils.console_utils import banner, phase, step, info, warn, saved, note, result, done
 from utils.render_utils import render_figure
 from utils.report_numbers_utils import ReportNumbers
@@ -207,7 +212,6 @@ OUT_FULL_DECADAL = paths.OUT_39_FULL_DECADAL
 OUT_FULL_FIG = paths.OUT_39_FULL_FIG
 OUT_REPORT_NUMBERS = paths.OUT_39_REPORT_NUMBERS
 
-BETA_COLS = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")
 
 
 # ── report numbers (1.4.0, T-84) ─────────────────────────────────────────────
@@ -312,11 +316,7 @@ def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens)
 # ── data ──────────────────────────────────────────────────────────────────────
 def load_inputs():
     """Historic depths, the code map, climate, coefficients and elevations."""
-    obs = pd.read_csv(paths.CCW_DEPTHS)
-    obs["month"] = pd.PeriodIndex(obs["month"], freq="M").to_timestamp()
-
-    cmap = pd.read_csv(paths.CCW_CODE_MAP)
-    cmap["well"] = cmap["well"].fillna("").astype(str).str.lower().str.strip()
+    obs, cmap = load_ccw()
 
     cl = pd.read_csv(paths.INT_CLIMATE, index_col=0, parse_dates=True)
     cl = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
@@ -342,22 +342,6 @@ def load_inputs():
     return obs, cmap, cl, md, loc, ch
 
 
-def observed_series(obs: pd.DataFrame, code: str, offset_m: float):
-    """Monthly observed depth for one code, on the modern ground datum.
-
-    Returns (series, n_censored). Censored readings are dropped from the series
-    and counted, because a reading held at the pipe base is a lower bound rather
-    than a level and would drag any metric toward the model.
-    """
-    g = obs[obs["code"] == code].sort_values("month")
-    n_cens = int(g["censored_at_pipe_base"].sum())
-    g = g[~g["censored_at_pipe_base"]]
-    s = pd.Series(g["depth_m_bg"].values, index=g["month"].values, name=code)
-    if np.isfinite(offset_m):
-        s = s + offset_m
-    return s, n_cens
-
-
 def modern_mean(wells_clean: pd.DataFrame, well: str) -> float:
     """Mean modern level for one well, for the epoch-shift diagnostic."""
     col = {c.lower().strip(): c for c in wells_clean.columns}.get(well)
@@ -365,65 +349,6 @@ def modern_mean(wells_clean: pd.DataFrame, well: str) -> float:
         return np.nan
     s = pd.to_numeric(wells_clean[col], errors="coerce").dropna()
     return float(s.mean()) if len(s) else np.nan
-
-
-# ── hindcast ──────────────────────────────────────────────────────────────────
-def hindcast_well(cl: pd.DataFrame, betas: tuple, h0: float,
-                  first_month, last_month, beta1_scale: float = 1.0):
-    """Simulate from the start of the climate record and return the window.
-
-    The simulation runs from the first month of the committed climate record so
-    that the initial condition is forgotten long before the comparison window
-    opens; `spinup_months` is returned so the claim can be checked rather than
-    asserted.
-    """
-    b1, b2, b3 = betas
-    sub = cl.loc[:last_month]
-    h = simulate_ssm(h0, sub["P_m"].values, sub["PET"].values,
-                     b1 * beta1_scale, b2, b3, drainage_datum=DATUM)
-    sim = pd.Series(h, index=sub.index, name="predicted_m_bg")
-    spinup = int((sim.index < first_month).sum())
-    return sim.loc[first_month:last_month], spinup
-
-
-def equilibrium_depth(betas: tuple, p_mean: float, pet_mean: float) -> float:
-    """Steady-state depth implied by the coefficients under mean forcing.
-
-    Setting the monthly change to zero in the SSM recurrence gives
-    h* = (b1*P - b2*PET)/b3 - D. Used as the starting value, so the run begins
-    near its own attractor rather than at an arbitrary level.
-    """
-    b1, b2, b3 = betas
-    if not np.isfinite(b3) or b3 <= 0:
-        return np.nan
-    return (b1 * p_mean - b2 * pet_mean) / b3 - DATUM
-
-
-def usable_codes(cmap: pd.DataFrame, md: pd.DataFrame, obs: pd.DataFrame):
-    """Codes admissible to the headline: confirmed mapping, and a well with a
-    committed coefficient triple. Everything else is reported, never pooled."""
-    rows = []
-    for r in cmap.itertuples():
-        why = ""
-        if r.status != "confirmed":
-            why = f"mapping {r.status}"
-        elif not r.well:
-            why = "no well"
-        elif r.well not in md.index:
-            why = "no committed coefficients"
-        elif not all(np.isfinite(md.loc[r.well, c]) for c in BETA_COLS):
-            why = "coefficient triple incomplete"
-        elif md.loc[r.well, BETA_COLS[2]] <= 0:
-            why = "non-positive drainage coefficient"
-        n_c = int(obs.loc[obs["code"] == r.code, "censored_at_pipe_base"].sum())
-        n_t = int((obs["code"] == r.code).sum())
-        if not why and n_t and n_c / n_t > config.CCW_MAX_CENSORED_FRACTION:
-            why = f"censored in {n_c} of {n_t} months"
-        rows.append(dict(code=r.code, well=r.well, status=r.status,
-                         datum_offset_m=r.datum_offset_m,
-                         n_months=n_t, n_censored=n_c,
-                         admitted=(why == ""), excluded_because=why))
-    return pd.DataFrame(rows)
 
 
 # ── figure ────────────────────────────────────────────────────────────────────

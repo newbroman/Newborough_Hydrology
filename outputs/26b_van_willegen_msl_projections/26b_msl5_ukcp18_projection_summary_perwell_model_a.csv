@@ -1,0 +1,13 @@
+cluster_id,cluster_label,scenario,msl5_shift_sustained_mean_m,msl5_shift_sustained_median_m,n_wells,n_withheld_not_identified,model,aggregation
+1.0,C1 (Lake Edge),2050s,0.014293903036559145,-0.003126080915874227,7,0.0,A,perwell
+2.0,C2 (Dune),2050s,-0.14815638539218656,-0.13066722817992882,19,0.0,A,perwell
+3.0,C3 (Western Residual),2050s,-0.22694713821218798,-0.18583604717294272,26,0.0,A,perwell
+4.0,C4 (Main Forest),2050s,,,0,9.0,A,perwell
+5.0,C5 (Coastal Forest),2050s,-0.2055132772337426,-0.16032475967510285,5,0.0,A,perwell
+,SITE,2050s,-0.16917729791019706,,57,,A,perwell
+1.0,C1 (Lake Edge),2080s,0.03682935794601101,0.00259538602348583,7,0.0,A,perwell
+2.0,C2 (Dune),2080s,-0.2576908735957903,-0.22695661942000997,19,0.0,A,perwell
+3.0,C3 (Western Residual),2080s,-0.3994279604476602,-0.32801192290158615,26,0.0,A,perwell
+4.0,C4 (Main Forest),2080s,,,0,9.0,A,perwell
+5.0,C5 (Coastal Forest),2080s,-0.36514543011793876,-0.28393368573729477,5,0.0,A,perwell
+,SITE,2080s,-0.2955995651741543,,57,,A,perwell

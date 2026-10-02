@@ -26,7 +26,21 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.28.0"  # Hollingham (2026) - 2026-10-01 (D-216; Martin: "Sustained, Model B").
+__version__ = "2.29.0"  # Hollingham (2026) - 2026-10-01 (D-224; Martin: "report both", "3- add the toggle").
+#   compute_scenario_summary(): the UKCP18 sustained level response and the ΔMSL5 rows are also
+#   computed on MODEL A (reference wells on the comparison window from 03_master_data, extended wells
+#   on their cluster's 03_03 centroid; three-parameter identifiability rule), and Model A is projected
+#   only where Model B is too, so the pair is on the same wells and C4 is withheld under both. The
+#   Model A rows go to 19_scenario_summary_model_a.csv / 19_scenario_perwell_model_a.csv and carry
+#   `_model_a` report keys, so no Model B row, file or key moves. The 26b cross-check runs for both
+#   forms. The coefficient sets moved into projection_coefficient_sets(), shared with the viewer.
+#   Scenario viewer: a Response toggle - sustained level on Model B (default), sustained level on
+#   Model A, or the one-month change (the viewer's earlier measure, kept for the forest-management
+#   scenarios until T-97). The sustained modes port climate_forcing_change_12 and
+#   sustained_monthly_response to JS, read each well's paired coefficient set from the page, withhold
+#   clusters with no projected well, and draw ΔMSL5 over config.MSL_SPRING_MONTHS; the one-month
+#   mode's ΔMSL5 also reads MSL_SPRING_MONTHS now (it was hard-wired to March-May).
+# 2.28.0  # Hollingham (2026) - 2026-10-01 (D-216; Martin: "Sustained, Model B").
 #   compute_scenario_summary(): the UKCP18 rows are the sustained LEVEL response (m) of each well to
 #   the scenario climatology on MODEL B (03_16 per-well coefficients; extended wells take their
 #   cluster's Model B centroid), via model_utils.climate_forcing_change_12 and
@@ -325,6 +339,10 @@ from utils.paths import (
     KML_BROADLEAF,
     DIR_19,
     OUT_19_SCENARIO_PERWELL,
+    OUT_19_SCENARIO_SUMMARY_MODEL_A,     # D-224
+    OUT_19_SCENARIO_PERWELL_MODEL_A,     # D-224
+    OUT_03_MECHANISTIC_TABLE,            # D-224: Model A centroids for extended wells
+    OUT_26B_PROJECTION_TABLE_PERWELL_MODEL_A,   # D-224 cross-check target
     INT_LOCATIONS,
     INT_CLIMATE,
     INT_CLUSTER_STATS,
@@ -340,6 +358,8 @@ from utils.paths import (
 from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.config import (
     MSL_SPRING_MONTHS,
+    DRAINAGE_DATUM,                      # 2.29.0: named in the viewer's Model A note
+    LCSC_DATA_LIMIT,
     SUMMER_DRY_CLIMATE_MONTHS,
     WINTER_WET_CLIMATE_MONTHS,
     CLUSTER_LABELS,
@@ -1306,9 +1326,12 @@ def _wa_js(embed: str) -> str:
         "+'</div>';el.innerHTML=html;}\n"
     )
 
-def serialise_wells(wt):
+def serialise_wells(wt, sets=None):
+    def _set(t):
+        return None if t is None else [_r(v, 10) for v in t]
     rows = []
     for _, r in wt.iterrows():
+        pB, pA, oB, oA = paired_sets(r, sets) if sets is not None else (None,) * 4
         cl_int = int(r["Cluster"]) if pd.notna(r["Cluster"]) else 3
         rows.append({"n": r["id"], "cl": cl_int,
                      "E": round(float(r["E"])), "N": round(float(r["N"])),
@@ -1322,7 +1345,10 @@ def serialise_wells(wt):
                      # "fo": under canopy (land cover), NOT cl in (4,5). The
                      # viewer's go() keys interception on this; cl still selects
                      # WHICH slider value applies. D-046.
-                     "fo": 1 if bool(r.get("in_forest")) else 0})
+                     "fo": 1 if bool(r.get("in_forest")) else 0,
+                     # 2.29.0 (D-224): the sustained-response sets, as compute_scenario_summary
+                     # uses them (projection_coefficient_sets / paired_sets).
+                     "pB": _set(pB), "pA": _set(pA), "oB": _set(oB), "oA": _set(oA)})
     return rows
 
 
@@ -1347,9 +1373,12 @@ def serialise_climate(wt, climate_stats):
     # to avoid unit confusion -- the JS msl5 logic operates in SI metres,
     # matching Script 26b's _compute_monthly_delta_h.
     out["monthly_arrays_m"] = {
-        "P":   [_r(v, 7) for v in climate_stats["monthly_P_m_arr"]],
-        "PET": [_r(v, 7) for v in climate_stats["monthly_PET_m_arr"]],
+        "P":   [_r(v, 10) for v in climate_stats["monthly_P_m_arr"]],
+        "PET": [_r(v, 10) for v in climate_stats["monthly_PET_m_arr"]],
     }
+    # 2.29.0: the season and spring months the sustained modes average over, from config.
+    out["months"] = {"winter": list(WINTER_MONTHS), "summer": list(SUMMER_MONTHS),
+                     "shoulder": list(SHOULDER_MONTHS), "spring": list(SPRING_MONTHS)}
     cluster_betas = {}
     for cl_int in [1, 2, 3, 4, 5]:
         sub = wt[(wt["Cluster"] == cl_int) & wt["b1"].notna()]
@@ -1674,6 +1703,13 @@ footer a:hover{{text-decoration:underline;}}
   <div id="warnBox" class="warn" style="display:none"></div>
   <div id="extremeBox" class="warn warn-extreme" style="display:none"></div>
   <div class="baseline-label">All &#916;h values relative to 2005&#8211;2026 climatological mean (baseline era)</div>
+  <div class="phead" style="margin:4px 0 2px"><div class="rtabs">
+    <span style="font-size:11px;color:#555;margin-right:4px;align-self:center">Response:</span>
+    <button class="rt on" id="fm_B"    onclick="setForm('B')">Sustained level &#8212; Model B</button>
+    <button class="rt"    id="fm_A"    onclick="setForm('A')">Sustained level &#8212; Model A</button>
+    <button class="rt"    id="fm_rate" onclick="setForm('rate')">One-month change</button>
+  </div></div>
+  <div id="formNote" style="margin:4px 0 8px;padding:8px 10px;border-left:3px solid #1565c0;background:#E3F2FD;font-size:12px;line-height:1.45"></div>
   <div class="metrics" id="mrow"></div>
   <div id="wetArea" style="margin-top:6px"></div>
 
@@ -1852,6 +1888,65 @@ function setBasis(b){{
   }} else {{ d.style.display='none'; }}
   go();
 }}
+
+// ── 2.29.0 (D-224): the response form ──────────────────────────────────────
+// 'B' / 'A': the sustained LEVEL response (D-216) on the intercept form or the
+// published form, a port of model_utils.climate_forcing_change_12 and
+// sustained_monthly_response, on each well's paired set (pB/pA, from
+// projection_coefficient_sets / paired_sets in the Python). 'rate': the
+// viewer's earlier one-month change, kept for the forest scenarios (T-97).
+var FORM='B';
+var FORM_NOTE={{
+ B:'<b>Sustained level, intercept form (Model B).</b> The change in level once the scenario climate has been in force for years (D-216), on the form whose mean-reversion time matches the record. Wells whose drainage term Model B cannot identify are withheld under both forms &#8212; the Main Forest cluster &#8212; so the two forms are compared on the same wells (D-224); the wet-area panel holds a withheld cluster at its baseline. The coefficients are the comparison-window fits, so the basis buttons do not apply.',
+ A:'<b>Sustained level, published form (Model A, datum {drainage_datum} m).</b> The same quantity on the form that reproduced the drier 1989&#8211;96 CCW epoch without bias. Its drainage term is slower, so at most clusters its falls are larger than Model B&#8217;s: read the two forms as a bracket, not an average. Shown only where Model B is identified too (D-224). The report also quotes Model A at the datum the drier past best supports, where the fall is smaller (Script 50, D-226).',
+ rate:'<b>One-month change (Model A).</b> One month&#8217;s change in level under the scenario forcing &#8212; the viewer&#8217;s earlier measure, kept for the forest-management scenarios until their sustained form is adopted (T-97). It is not a projection of the level under a changed climate: use a sustained mode for the UKCP18 presets.'
+}};
+function setForm(f){{
+  FORM=f;
+  ['B','A','rate'].forEach(function(k){{document.getElementById('fm_'+k).classList.toggle('on',k===f);}});
+  document.getElementById('formNote').innerHTML=FORM_NOTE[f];
+  var dis=(f!=='rate');
+  ['bs_full','bs_win'].forEach(function(id){{var b=document.getElementById(id);if(b){{b.disabled=dis;b.style.opacity=dis?0.45:1;}}}});
+  if(dis){{var d=document.getElementById('basisNote');if(d)d.style.display='none';}}
+  else if(BASIS==='recent'){{setBasis('recent');return;}}
+  go();
+}}
+function _mi(list){{return list.map(function(m){{return m-1;}});}}
+function expand12(sl){{
+  // Script 19 _expand_seasonal_to_monthly: winter and summer months take their
+  // multiplier, the shoulder months the mean of the two.
+  var M=CLIMATE.months,sP=[],sPET=[],sB2=[];
+  for(var i=0;i<12;i++){{sP[i]=1;sPET[i]=1;sB2[i]=1;}}
+  M.winter.forEach(function(m){{sP[m-1]=sl.sP_w;sPET[m-1]=sl.sPET_w;sB2[m-1]=sl.sB2_w;}});
+  M.summer.forEach(function(m){{sP[m-1]=sl.sP_s;sPET[m-1]=sl.sPET_s;sB2[m-1]=sl.sB2_s;}});
+  M.shoulder.forEach(function(m){{sP[m-1]=0.5*(sl.sP_w+sl.sP_s);sPET[m-1]=0.5*(sl.sPET_w+sl.sPET_s);sB2[m-1]=0.5*(sl.sB2_w+sl.sB2_s);}});
+  return {{sP:sP,sPET:sPET,sB2:sB2}};
+}}
+function sustained12(b3,f){{
+  // model_utils.sustained_monthly_response: the periodic steady state, index 0 = January.
+  var r=1-b3,out=[],den=1-Math.pow(r,12);
+  for(var m=0;m<12;m++){{var s=0;for(var k=0;k<12;k++){{s+=Math.pow(r,k)*f[((m-k)%12+12)%12];}}out[m]=s/den;}}
+  return out;
+}}
+function forcing12(set,ex,I0,Isc,forest){{
+  // model_utils.climate_forcing_change_12, written so the forest sliders can move:
+  // with Isc = I0 and no beta_2 multiplier (every UKCP18 preset) it is that function.
+  var P=CLIMATE.monthly_arrays_m.P,PET=CLIMATE.monthly_arrays_m.PET,f=[];
+  for(var i=0;i<12;i++){{
+    var bm=forest?ex.sB2[i]:1;
+    f[i]=set[0]*P[i]*((1-Isc)*ex.sP[i]-(1-I0))-set[1]*PET[i]*(bm*ex.sPET[i]-1);
+  }}
+  return f;
+}}
+function seasonMean(ss,sea){{
+  var idx=sea==='winter'?_mi(CLIMATE.months.winter):sea==='summer'?_mi(CLIMATE.months.summer):[0,1,2,3,4,5,6,7,8,9,10,11];
+  var s=0;idx.forEach(function(i){{s+=ss[i];}});return s/idx.length;
+}}
+function wellSustained(w,sl,ex){{
+  var set=FORM==='B'?w.pB:w.pA;if(!set)return null;
+  var isF=(w.fo===1),Isc=isF?(w.cl===5?sl.sI_c5:sl.sI_c4):0,I0=isF?FOREST_INTERCEPTION:0;
+  return seasonMean(sustained12(set[2],forcing12(set,ex,I0,Isc,isF)),sea);
+}}
 function setMM(m){{mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('rt_'+m).classList.add('on');drawMap();}}
 function setCM(m){{cm=m;document.querySelectorAll('[id^="ct_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('ct_'+m).classList.add('on');renderBar();}}
 function syEff(w,mode){{if(mode>=0.5){{return Math.max((w.sy!=null?w.sy:(SY_LOWER[w.cl]||0.12)),SY_FLOOR[w.cl]||0.12);}}else{{return SY_LOWER[w.cl]||0.12;}}}}
@@ -1891,8 +1986,14 @@ function go(){{
     var b2sc=isForest?b2*sB2_cur:b2;
     return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
   }}
-  var well_dh={{}};
+  var well_dh={{}},ex=expand12(sl);
   for(var i=0;i<WELLS.length;i++){{
+    if(FORM!=='rate'){{                                  // 2.29.0: sustained level
+      var w0=WELLS[i],h0=sea==='annual'?w0.mh:sea==='winter'?w0.wh:w0.sh;
+      if(h0==null)continue;
+      var v0=wellSustained(w0,sl,ex);if(v0!=null)well_dh[w0.n]=v0;
+      continue;
+    }}
     var w=WELLS[i],_wb=wB(w),b1=_wb.b1,b2=_wb.b2,b3=_wb.b3;
     if(b1==null){{var cb=clB(w.cl);b1=cb.b1;b2=cb.b2;b3=cb.b3;}}
     if(b1==null)continue;
@@ -1912,8 +2013,8 @@ function go(){{
   for(var cl=1;cl<=5;cl++){{
     var wc=WELLS.filter(function(w){{return w.cl===cl;}}),sum=0,cnt=0;
     for(var i=0;i<wc.length;i++){{if(well_dh[wc[i].n]!=null){{sum+=well_dh[wc[i].n];cnt++;}}}}
-    dh[cl]=cnt>0?sum/cnt:0;
-    sh[cl]=(cld.cluster_heads[cl]||0)+dh[cl];
+    dh[cl]=cnt>0?sum/cnt:(FORM==='rate'?0:null);       // 2.29.0: withheld, not zero
+    sh[cl]=dh[cl]==null?null:(cld.cluster_heads[cl]||0)+dh[cl];
   }}
   DH=dh;SH=sh;
   // ── v2.8.0 ΔMSL5 (mean Mar/Apr/May Δh) ────────────────────────────────
@@ -1940,10 +2041,20 @@ function go(){{
     return sum/idxs.length;
   }}
   var msl5={{}}, windh={{}};
+  // 2.29.0: spring = config.MSL_SPRING_MONTHS (the readings dated March to May),
+  // winter = config.WINTER_WET_CLIMATE_MONTHS. Sustained modes: per-well, own fits
+  // only (oB / oA), pure climate - Script 19's and 26b's ΔMSL5 rows.
+  var SPR=_mi(CLIMATE.months.spring),WIN=_mi(CLIMATE.months.winter);
+  function _mean(a){{return a.length?a.reduce(function(x,y){{return x+y;}},0)/a.length:null;}}
   for(var cl=1;cl<=5;cl++){{
-    var cb=clB(cl);
-    msl5[cl]=_msl5One(cb.b1,cb.b2,[2,3,4]);         // spring Mar-May
-    windh[cl]=_msl5One(cb.b1,cb.b2,[10,11,0,1,2]);  // winter Nov-Mar
+    if(FORM==='rate'){{var cb=clB(cl);msl5[cl]=_msl5One(cb.b1,cb.b2,SPR);windh[cl]=_msl5One(cb.b1,cb.b2,WIN);continue;}}
+    var sp=[],wi=[];
+    for(var i=0;i<WELLS.length;i++){{var w=WELLS[i];if(w.cl!==cl)continue;
+      var set=FORM==='B'?w.oB:w.oA;if(!set)continue;
+      var ss=sustained12(set[2],forcing12(set,ex,0,0,false));
+      var a=0;SPR.forEach(function(k){{a+=ss[k];}});sp.push(a/SPR.length);
+      var b=0;WIN.forEach(function(k){{b+=ss[k];}});wi.push(b/WIN.length);}}
+    msl5[cl]=_mean(sp);windh[cl]=_mean(wi);
   }}
   MSL5=msl5; WINTER_DH=windh;
   for(var i=0;i<WELLS.length;i++){{
@@ -2114,7 +2225,7 @@ function drawMap(){{
   for(var i=0;i<WELLS.length;i++){{
     var w=WELLS[i];if(!w.E||!w.N)continue;
     if(w._sh!=null)headPts.push({{E:w.E,N:w.N,v:w._sh}});
-    dhPts.push({{E:w.E,N:w.N,v:w._dh!=null?w._dh:0}});
+    if(w._dh!=null||FORM==='rate')dhPts.push({{E:w.E,N:w.N,v:w._dh!=null?w._dh:0}});
   }}
   if(!headPts.length)return;
   // Ridge-mask logic now applies only in depth mode -- for elevation maps
@@ -2283,8 +2394,8 @@ document.addEventListener('DOMContentLoaded',function(){{
 
 function renderBar(){{
   var cls=[1,2,3,4,5];if(hChart)hChart.destroy();var ds,yL;
-  if(cm==='dh'){{yL='\u0394h (m)';ds=[{{label:'\u0394h vs baseline',data:cls.map(function(c){{return+(DH[c]||0).toFixed(4);}}),backgroundColor:cls.map(function(c){{var v=DH[c]||0;return v>0.001?'rgba(21,101,192,0.65)':v<-0.001?'rgba(183,28,28,0.65)':'rgba(120,120,120,0.3)'}}),borderColor:cls.map(function(c){{var v=DH[c]||0;return v>0.001?'#1565c0':v<-0.001?'#b71c1c':'#aaa'}}),borderWidth:1.5}}];}}
-  else{{yL='m AOD';ds=[{{label:'Baseline',data:cls.map(function(c){{return+(CLIMATE[sea].cluster_heads[c]||0).toFixed(3);}}),backgroundColor:'rgba(120,120,120,0.2)',borderColor:'rgba(120,120,120,0.55)',borderWidth:1}},{{label:'Scenario',data:cls.map(function(c){{return+(SH[c]||0).toFixed(3);}}),backgroundColor:cls.map(function(c){{return CL_COLS[c]+'99';}}),borderColor:cls.map(function(c){{return CL_COLS[c];}}),borderWidth:1.5}}];}}
+  if(cm==='dh'){{yL='\u0394h (m)';ds=[{{label:'\u0394h vs baseline',data:cls.map(function(c){{return DH[c]==null?null:+DH[c].toFixed(4);}}),backgroundColor:cls.map(function(c){{var v=DH[c]||0;return v>0.001?'rgba(21,101,192,0.65)':v<-0.001?'rgba(183,28,28,0.65)':'rgba(120,120,120,0.3)'}}),borderColor:cls.map(function(c){{var v=DH[c]||0;return v>0.001?'#1565c0':v<-0.001?'#b71c1c':'#aaa'}}),borderWidth:1.5}}];}}
+  else{{yL='m AOD';ds=[{{label:'Baseline',data:cls.map(function(c){{return+(CLIMATE[sea].cluster_heads[c]||0).toFixed(3);}}),backgroundColor:'rgba(120,120,120,0.2)',borderColor:'rgba(120,120,120,0.55)',borderWidth:1}},{{label:'Scenario',data:cls.map(function(c){{return SH[c]==null?null:+SH[c].toFixed(3);}}),backgroundColor:cls.map(function(c){{return CL_COLS[c]+'99';}}),borderColor:cls.map(function(c){{return CL_COLS[c];}}),borderWidth:1.5}}];}}
   hChart=new Chart(document.getElementById('hC').getContext('2d'),{{type:'bar',data:{{labels:cls.map(function(c){{return CL_LABS[c];}}),datasets:ds}},options:{{responsive:true,maintainAspectRatio:false,plugins:{{legend:{{labels:{{font:{{size:10}},boxWidth:9,padding:7}}}}}},scales:{{y:{{title:{{display:true,text:yL,font:{{size:10}}}},ticks:{{font:{{size:10}}}},grid:{{color:'rgba(0,0,0,0.06)'}}}},x:{{ticks:{{font:{{size:10}},maxRotation:15}}}}}}}}}});
 }}
 
@@ -2307,8 +2418,8 @@ function renderTable(){{
         return(v>=0?'+':'')+v.toFixed(3);
       }}),d:true}},
     {{l:'Baseline (m AOD)',v:cls.map(function(c){{return(cld.cluster_heads[c]||0).toFixed(2);}}),d:false}},
-    {{l:'Scenario (m AOD)',v:cls.map(function(c){{return(SH[c]||0).toFixed(2);}}),d:false}},
-    {{l:'\u0394 head (m)',v:cls.map(function(c){{return(DH[c]>=0?'+':'')+(DH[c]||0).toFixed(3);}}),d:true}},
+    {{l:'Scenario (m AOD)',v:cls.map(function(c){{return SH[c]==null?'\u2014':SH[c].toFixed(2);}}),d:false}},
+    {{l:'\u0394 head (m)',v:cls.map(function(c){{return DH[c]==null?'\u2014':(DH[c]>=0?'+':'')+DH[c].toFixed(3);}}),d:true}},
     {{l:'Mean Sy (%)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;return(s*100).toFixed(1)+'%';}}),d:false}},
     {{l:'Storage shift (mm)',v:cls.map(function(c){{var cw=WELLS.filter(function(w){{return w.cl===c;}});if(!cw.length||DH[c]==null)return'\u2014';var s=cw.reduce(function(acc,w){{return acc+syEff(w,sl.sSyMode);}},0)/cw.length;var shift=s*DH[c]*1000;return(shift>=0?'+':'')+shift.toFixed(1);}}),d:true}},
     {{l:'P\u2091\u2091 mm/mo',v:cls.map(function(c){{var sI_cur=c===4?sl.sI_c4:c===5?sl.sI_c5:0;return(((c===4||c===5)?P*sP*(1-sI_cur):P*sP)*1000).toFixed(1);}}),d:false}},
@@ -2351,7 +2462,8 @@ function renderMetrics(){{
   function fmtD(v){{return(v>=0?'+':'')+v.toFixed(3);}}
   function clSy(cid){{var cw=WELLS.filter(function(w){{return w.cl===cid;}});return cw.length?cw.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/cw.length:0.12;}}
   // All clusters
-  var mDH=cls.reduce(function(s,c){{return s+(DH[c]||0);}},0)/5;
+  var _cv=cls.filter(function(c){{return DH[c]!=null;}});
+  var mDH=_cv.length?_cv.reduce(function(s,c){{return s+DH[c];}},0)/_cv.length:0;
   var allW=WELLS.filter(function(w){{return cls.indexOf(w.cl)>=0;}});
   var mSy=allW.length?allW.reduce(function(s,w){{return s+syEff(w,sl.sSyMode);}},0)/allW.length:0.12;
   var mShift=mSy*mDH*1000;
@@ -2363,9 +2475,10 @@ function renderMetrics(){{
   var html=mg('All clusters',mc('\u0394h',fmtD(mDH),'m',dc(mDH))+mc('Sy',(mSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(mShift),'mm',dc(mDH)));
   for(var ci=0;ci<cls.length;ci++){{
     var c=cls[ci],dh=DH[c]||0,sy=clSy(c),sh=sy*dh*1000;
+    if(DH[c]==null){{html+=mg(CL_LABS[c],mc('\u0394h','withheld','','#777'));continue;}}
     html+=mg(CL_LABS[c],mc('\u0394h',fmtD(dh),'m',dc(dh))+mc('Sy',(sy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(sh),'mm',dc(dh)));
   }}
-  html+=mg('Forest (C4+C5)',mc('\u0394h',fmtD(fDH),'m',dc(fDH))+mc('Sy',(fSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(fShift),'mm',dc(fDH)));
+  html+=mg(DH[4]==null?'Forest (C5; C4 withheld)':'Forest (C4+C5)',mc('\u0394h',fmtD(fDH),'m',dc(fDH))+mc('Sy',(fSy*100).toFixed(1),'%','#333')+mc('Storage',fmtS(fShift),'mm',dc(fDH)));
   document.getElementById('mrow').innerHTML=html;
 }}
 
@@ -2410,7 +2523,7 @@ function toggleHelp(e){{e.stopPropagation();var dd=document.getElementById('help
 document.addEventListener('click',function(e){{var dd=document.getElementById('helpDd');if(dd&&!dd.contains(e.target))dd.classList.remove('open');}});
 function init(){{applyLayout();initSplitter();sizeMap();
   document.getElementById('vBg').textContent=Math.round(BG_ALPHA*100)+'%';
-  drawBg();document.getElementById('sI_c4').value=FOREST_INTERCEPTION;document.getElementById('sI_c5').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();go();
+  drawBg();document.getElementById('sI_c4').value=FOREST_INTERCEPTION;document.getElementById('sI_c5').value=FOREST_INTERCEPTION;rl();renderMonthlyTable();document.getElementById('formNote').innerHTML=FORM_NOTE[FORM];['bs_full','bs_win'].forEach(function(id){{var b=document.getElementById(id);if(b){{b.disabled=true;b.style.opacity=0.45;}}}});go();
   if(typeof ResizeObserver!=='undefined'){{var mw=document.getElementById('mwrap');if(mw){{new ResizeObserver(function(){{sizeMap();drawBg();drawMap();}}).observe(mw);}}}}
 }}
 setTimeout(init,60);
@@ -2532,6 +2645,67 @@ def _water_equivalent(sub) -> dict:
     }
 
 
+def projection_coefficient_sets(wt):
+    """The coefficient sets the sustained projections run on (D-216, D-224), shared by
+    compute_scenario_summary() and the scenario viewer so the page and the CSVs cannot
+    disagree. Returns (_mb, _mbw, well_B, cent_B, well_A, cent_A): the 03_16 table and its
+    well rows, then {well id: (b1, b2, b3) or None} and {cluster: (b1, b2, b3) or None} for
+    each form, None where Script 48's identifiability rule fails."""
+    # ── D-216 (2.28.0): UKCP18 rows are the sustained LEVEL response on Model B ──
+    _mb = pd.read_csv(OUT_03_MODEL_B_PERSISTENCE)
+    _mbw = _mb[_mb["level"] == "well"].copy()
+    _mbw["id"] = _mbw["well"].apply(_norm)
+    _MB_N_PARAMS = 4                                   # beta_1, beta_2, beta_3, intercept
+
+    def _b_set(r):
+        ok = response_identified(r["beta_3_B"], r["pvalue_beta_3_B"], r["n"], _MB_N_PARAMS)[0]
+        return (float(r["beta_1_B"]), float(r["beta_2_B"]), float(r["beta_3_B"])) if ok else None
+    well_B = {r["id"]: _b_set(r) for _, r in _mbw.iterrows()}
+    cent_B = {int(r["Cluster"]): _b_set(r)
+              for _, r in _mb[_mb["level"] == "centroid"].iterrows()}
+
+    # ── D-224 (2.29.0): the same sustained response on MODEL A, reported beside Model B ──
+    # Same months as Model B: reference wells on the comparison window (03_master_data, whose
+    # beta_3 p-value is p3w from 03_15), extended wells on their cluster's full-record centroid
+    # (03_03, the basis of the 03_16 centroid rows), under the same identifiability rule.
+    _MA_N_PARAMS = 3                                   # beta_1, beta_2, beta_3
+
+    def _a_set(b1, b2, b3, p3, n):
+        if any(pd.isna(v) for v in (b1, b2, b3, p3, n)):
+            return None
+        ok = response_identified(b3, p3, n, _MA_N_PARAMS)[0]
+        return (float(b1), float(b2), float(b3)) if ok else None
+    well_A = {r["id"]: _a_set(r["b1"], r["b2"], r["b3"], r.get("p3w"), LCSC_DATA_LIMIT)
+              for _, r in wt.iterrows() if pd.notna(r.get("b1"))}
+    _ca = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+    cent_A = {int(r["Cluster"]): _a_set(r["beta_1_recharge"], r["beta_2_atmospheric_draw"],
+                                        r["beta_3_drainage"], r["pvalue_beta_3"], r["n"])
+              for _, r in _ca.iterrows()}
+    return _mb, _mbw, well_B, cent_B, well_A, cent_A
+
+
+def paired_sets(row, sets):
+    """One well's sets as _well_level() uses them, without the head check: (pB, pA) are the
+    sets its level response runs on under each form (its own fit, or its cluster's centroid
+    for an extended well), with Model A only where Model B projects too (D-224); (oB, oA)
+    are its own fits for the ΔMSL5 rows (reference wells only, Model A again paired)."""
+    _mb, _mbw, well_B, cent_B, well_A, cent_A = sets
+    wid = row["id"]
+    cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
+    if wid in well_B:
+        pB = well_B[wid]
+    else:
+        pB = cent_B.get(cl_)
+    if wid in well_A:
+        pA = well_A[wid] if well_B.get(wid) is not None else None
+    else:
+        pA = cent_A.get(cl_) if cent_B.get(cl_) is not None else None
+    oB = well_B.get(wid)
+    oA = (well_A.get(wid) if (pd.notna(row.get("b1")) and well_B.get(wid) is not None)
+          else None)
+    return pB, pA, oB, oA
+
+
 def compute_scenario_summary(wt, climate_stats, out_dir):
     """
     For each scenario x season x cluster, compute the mean Delta-h across all
@@ -2582,32 +2756,27 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             "b3": sub["b3"].mean() if len(sub) else None,
         }
 
-    # ── D-216 (2.28.0): UKCP18 rows are the sustained LEVEL response on Model B ──
-    _mb = pd.read_csv(OUT_03_MODEL_B_PERSISTENCE)
-    _mbw = _mb[_mb["level"] == "well"].copy()
-    _mbw["id"] = _mbw["well"].apply(_norm)
-    _MB_N_PARAMS = 4                                   # beta_1, beta_2, beta_3, intercept
-
-    def _b_set(r):
-        ok = response_identified(r["beta_3_B"], r["pvalue_beta_3_B"], r["n"], _MB_N_PARAMS)[0]
-        return (float(r["beta_1_B"]), float(r["beta_2_B"]), float(r["beta_3_B"])) if ok else None
-    well_B = {r["id"]: _b_set(r) for _, r in _mbw.iterrows()}
-    cent_B = {int(r["Cluster"]): _b_set(r)
-              for _, r in _mb[_mb["level"] == "centroid"].iterrows()}
+    _mb, _mbw, well_B, cent_B, well_A, cent_A = projection_coefficient_sets(wt)
     P12 = np.asarray(climate_stats["monthly_P_m_arr"], dtype=float)
     PET12 = np.asarray(climate_stats["monthly_PET_m_arr"], dtype=float)
     season_months = {"winter": WINTER_MONTHS, "summer": SUMMER_MONTHS,
                      "annual": list(range(1, 13))}
 
-    def _well_level(row, sl, h_col, season):
-        """Sustained level response (m) of one well, mean over the season's months."""
+    def _well_level(row, sl, h_col, season, form="B"):
+        """Sustained level response (m) of one well, mean over the season's months,
+        on Model B (form "B", D-216) or Model A (form "A", D-224)."""
         if pd.isna(row.get(h_col)):
             return None                                 # same population as _well_dh
-        if row["id"] in well_B:
-            B = well_B[row["id"]]                       # its own Model B fit (or None)
+        wset, cset = (well_B, cent_B) if form == "B" else (well_A, cent_A)
+        cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
+        if row["id"] in wset:
+            B = wset[row["id"]]                         # its own fit (or None)
+            if form == "A" and well_B.get(row["id"]) is None:
+                B = None                                # D-224: a pair only where Model B projects too
         else:
-            cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
-            B = cent_B.get(cl_)                         # extended well: the cluster centroid
+            B = cset.get(cl_)                           # extended well: the cluster centroid
+            if form == "A" and cent_B.get(cl_) is None:
+                B = None
         if B is None:
             return None
         cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
@@ -2635,6 +2804,40 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             unit="wells", well="+".join(f"C{c}" for c in FOREST_CIDS),
             note=f"SSM-fitted reference wells in the forest clusters, of {len(_fitted)} "
                  f"fitted reference wells")
+    rows_A, perwell_A = [], []                         # D-224: Model A, separate files
+
+    def _aggregate_level_a(frame, sc_name, sea):
+        """Model A rows for one UKCP18 scenario and season, laid out exactly as the
+        Model B rows of 19_scenario_summary.csv / 19_scenario_perwell.csv."""
+        frame = frame[frame["_dh"].notna()]
+        for _, r in frame.iterrows():
+            sy = r["sy"]
+            perwell_A.append({
+                "well": r["id"], "cluster": f"C{int(r['Cluster'])}" if pd.notna(r["Cluster"]) else "",
+                "in_forest": bool(r["in_forest"]), "scenario": sc_name, "season": sea,
+                "response": "level_sustained_model_a",
+                "dh_m": float(r["_dh"]), "sy": float(sy) if pd.notna(sy) else np.nan,
+                "we_mm": float(sy * r["_dh"] * 1000.0) if pd.notna(sy) else np.nan,
+            })
+        for cl_int in [1, 2, 3, 4, 5]:
+            sub = frame[frame["Cluster"] == cl_int]
+            dh_mean = sub["_dh"].mean() if len(sub) else np.nan
+            dh_med = sub["_dh"].median() if len(sub) else np.nan
+            if (sc_name, sea, cl_int) == ("ukcp18_2080s", "summer", 2) and pd.notna(dh_mean):
+                rpt.add(f"scenario_dh_mean_{sc_name}_{sea}_C{cl_int}_model_a", float(dh_mean),
+                        unit="m", well=f"C{cl_int}", era=f"{sc_name} {sea}",
+                        note=f"cluster-mean sustained level response, Model A (D-224), unrounded, "
+                             f"n={len(sub)} wells")
+            rows_A.append({"scenario": sc_name, "season": sea, "response": "level_sustained_model_a",
+                           "cluster": f"C{cl_int}", "n_wells": int(len(sub)),
+                           "dh_mean_m": dh_mean, "dh_median_m": dh_med,
+                           **_water_equivalent(sub)})
+        rows_A.append({"scenario": sc_name, "season": sea, "response": "level_sustained_model_a",
+                       "cluster": "SITE", "n_wells": int(len(frame)),
+                       "dh_mean_m": frame["_dh"].mean() if len(frame) else np.nan,
+                       "dh_median_m": frame["_dh"].median() if len(frame) else np.nan,
+                       **_water_equivalent(frame)})
+
     for sc_name, sl in SCENARIO_PARAMS.items():
         for sea in SEASONS:
             if sea == "winter":
@@ -2698,6 +2901,9 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                 "dh_median_m": round(sub_all["_dh"].median(), 4) if len(sub_all) else np.nan,
                 **_water_equivalent(sub_all),
             })
+            if is_level:                               # D-224: Model A beside Model B
+                dhA = wt.apply(lambda r: _well_level(r, sl, h_col, sea, form="A"), axis=1)
+                _aggregate_level_a(wt.assign(_dh=dhA), sc_name, sea)
 
         # ── ΔMSL5 rows (2.28.0, D-216): per-well Model B sustained spring response ──
         # The same quantity, population and functions as Script 26b 2.0.0's per-well
@@ -2732,6 +2938,31 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                          "response": "level_sustained_model_b", "cluster": "SITE",
                          "n_wells": tot, "dh_mean_m": round(acc / tot, 4),
                          "dh_median_m": np.nan})
+        # D-224: the same ΔMSL5 rows on Model A (reference wells, comparison window)
+        shifts_A = {}
+        for _, r in wt[wt["b1"].notna()].iterrows():
+            A_ = well_A.get(r["id"])
+            if A_ is None or well_B.get(r["id"]) is None:     # D-224: like-for-like with Model B
+                continue
+            ss = sustained_monthly_response(A_[2], climate_forcing_change_12(
+                A_[0], A_[1], P12, PET12, sP_arr, sPET_arr))
+            shifts_A.setdefault(int(r["Cluster"]), []).append(float(np.mean(ss[spring_idx])))
+        tot, acc = 0, 0.0
+        for cl_int in [1, 2, 3, 4, 5]:
+            v = shifts_A.get(cl_int, [])
+            m_ = float(np.mean(v)) if v else np.nan
+            rows_A.append({"scenario": sc_name, "season": "msl5",
+                           "response": "level_sustained_model_a", "cluster": f"C{cl_int}",
+                           "n_wells": len(v),
+                           "dh_mean_m": m_ if v else np.nan,
+                           "dh_median_m": float(np.median(v)) if v else np.nan})
+            if v:
+                tot += len(v); acc += m_ * len(v)
+        if tot:
+            rows_A.append({"scenario": sc_name, "season": "msl5",
+                           "response": "level_sustained_model_a", "cluster": "SITE",
+                           "n_wells": tot, "dh_mean_m": acc / tot,
+                           "dh_median_m": np.nan})
 
     pw = pd.DataFrame(perwell)
     pw.to_csv(OUT_19_SCENARIO_PERWELL, index=False)
@@ -2740,6 +2971,11 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     out = pd.DataFrame(rows)
     out_csv = out_dir / "19_scenario_summary.csv"
     out.to_csv(out_csv, index=False)
+    out_A = pd.DataFrame(rows_A)
+    out_A.to_csv(OUT_19_SCENARIO_SUMMARY_MODEL_A, index=False)
+    pd.DataFrame(perwell_A).to_csv(OUT_19_SCENARIO_PERWELL_MODEL_A, index=False)
+    print(f"  Model A scenario CSVs (D-224): {OUT_19_SCENARIO_SUMMARY_MODEL_A.name} ({len(out_A)} rows), "
+          f"{OUT_19_SCENARIO_PERWELL_MODEL_A.name} ({len(perwell_A)} rows)")
     n_seasons_eff = len(SEASONS) + 1  # +1 for the v2.8.0 msl5 row block
     print(f"  Scenario summary CSV: {out_csv.name} "
           f"({len(out)} rows = {len(SCENARIO_PARAMS)} scenarios x "
@@ -2803,6 +3039,29 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         print(f"  ΔMSL5 cross-check skipped: 26b per-well CSV not yet generated "
               f"(rerun script 26b to enable validation).")
 
+    # D-224: the same ΔMSL5 cross-check for Model A, against 26b's Model A per-well table
+    if Path(OUT_26B_PROJECTION_TABLE_PERWELL_MODEL_A).exists():
+        canon_a = pd.read_csv(OUT_26B_PROJECTION_TABLE_PERWELL_MODEL_A)
+        canon_a = canon_a[canon_a["cluster_label"].str.startswith("C", na=False)]
+        worst_a, worst_a_lab = 0.0, ""
+        for view_scen, canon_scen in (("ukcp18_2050s", "2050s"), ("ukcp18_2080s", "2080s")):
+            for cid in [1, 2, 3, 4, 5]:
+                v_ = out_A[(out_A["scenario"] == view_scen) & (out_A["season"] == "msl5")
+                           & (out_A["cluster"] == f"C{cid}")]["dh_mean_m"]
+                c_ = canon_a[(canon_a["scenario"] == canon_scen)
+                             & (canon_a["cluster_id"] == cid)]["msl5_shift_sustained_mean_m"]
+                if v_.empty or c_.empty or not (np.isfinite(float(v_.iloc[0])) and np.isfinite(float(c_.iloc[0]))):
+                    continue
+                d_ = abs(float(v_.iloc[0]) - float(c_.iloc[0])) * 1000.0
+                if d_ > worst_a:
+                    worst_a, worst_a_lab = d_, f"{view_scen} C{cid}"
+        rpt.add("msl5_crosscheck_worst_diff_mm_model_a", float(worst_a), unit="mm", era=worst_a_lab,
+                note="max abs diff vs 26b per-well Model A ΔMSL5 CSV across (cluster x UKCP18 scenario); "
+                     "tolerance 0.5 mm (D-224)")
+        print(f"  ΔMSL5 cross-check, Model A: worst {worst_a:.3f} mm ({worst_a_lab or 'none'})")
+    else:
+        print("  ΔMSL5 cross-check, Model A, skipped: 26b Model A per-well CSV not yet generated")
+
     n_rpt = rpt.save(OUT_19_REPORT_NUMBERS)  # T-91
     print(f"  Saved → {OUT_19_REPORT_NUMBERS.name} ({n_rpt} report numbers)")
     return out
@@ -2837,7 +3096,7 @@ def main(out_path=None):
     polys = load_kml_polygons()
 
     print("\n[4/4] Generating HTML...")
-    wells_list   = serialise_wells(wt)
+    wells_list   = serialise_wells(wt, projection_coefficient_sets(wt))
     climate_data = serialise_climate(wt, climate_stats)
     sy_floor_js  = {str(k): v for k, v in SY_FLOOR.items()}
     sy_lower_js  = {str(k): v for k, v in SY_DEFAULTS.items()}
@@ -2902,6 +3161,7 @@ def main(out_path=None):
             {str(k): CLUSTER_COLOURS[k] for k in CLUSTER_LABELS},
             separators=(",", ":")),
         wet_area_block=wet_area_block,
+        drainage_datum=DRAINAGE_DATUM,
         **basis_labels(),
     )
 

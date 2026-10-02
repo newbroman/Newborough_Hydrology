@@ -19,7 +19,9 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.1.1 — Hollingham (2026) — 2026-10-02. rclone comes from its GitHub release into ~/bin: the
+# Version 1.1.2 — Hollingham (2026) — 2026-10-03. Refuses when the installed private exclude ignores
+#   working/ (the first cloud-ship dry run failed at lock-push on a stale tracked exclude, now corrected).
+# 1.1.1 — 2026-10-02. rclone comes from its GitHub release into ~/bin: the
 #   cloud proxy refuses rclone.org (403), found by the first claude.ai/code token test, which PASSED.
 # 1.1.0 — 2026-10-02. The remote is gdrivefile:NRG_documents_v2: the rclone
 #   client is published with the drive.file scope only, so its token no longer lapses weekly (T-65), and
@@ -65,6 +67,14 @@ else
   git --git-dir=.git-working --work-tree=. fetch --quiet origin
   # The private repo's own exclude is tracked inside it; install it.
   cp working/.git-working/info/exclude .git-working/info/exclude
+fi
+# 1.1.2: the private repo must be able to stage under working/ (its exclude ignores /* and re-includes
+# /working/). The tracked copy of that exclude was a pre-2026-08-27 version without the re-include, so the
+# first cloud-ship dry run could not stage the document lock. Fail here, naming the cause.
+if git --git-dir=.git-working --work-tree=. check-ignore -q working/DOCUMENT_LOCK.json; then
+  echo "      >>> the private repo IGNORES working/ - .git-working/info/exclude lacks !/working/"
+  echo "      >>> (it is installed from working/.git-working/info/exclude). Not continuing."
+  exit 1
 fi
 for k in user.name user.email; do
   v="$(git config "$k" || true)"; [ -n "$v" ] && git --git-dir=.git-working config "$k" "$v"

@@ -1,0 +1,48 @@
+# ship_watcher.service — systemd --user unit TEMPLATE for tools/ship_watcher.sh.
+#
+# Installed by tools/ship_watcher_install.sh as ~/.config/systemd/user/nrg-ship-watcher.service,
+# with @REPO@ replaced by the repository path (default %h/projects/NRG). Do not copy it by hand.
+#
+# Environment, from what working/nrg_git.sh --ship needs:
+#   * nrg_git activates venv/ itself (use_venv), so the venv is NOT put on PATH here;
+#   * pandoc 3.1.3 lives in ~/bin (tools/nrg_env.sh puts it there), uv in ~/.local/bin;
+#   * soffice, python3-uno (/usr/bin/python3, found by nrg_git's uno_python), pdftotext, git and
+#     rclone are system packages in /usr/bin (rclone's own installer uses /usr/local/bin);
+#   * rclone reads ~/.config/rclone/rclone.conf through HOME, which systemd sets;
+#   * git pushes with the credential helpers stored in .git/credentials and
+#     .git-working/credentials (CLAUDE.md section 4), so no agent or keyring is needed.
+#     GIT_TERMINAL_PROMPT=0 (set by the watcher) makes a missing credential fail at once.
+# The locale is inherited from the user manager (systemd reads /etc/default/locale on Mint), not
+# forced here: a ship from the watcher should sort and format exactly as one from a terminal.
+#
+# Version 1.0.0 — Hollingham (2026) — 2026-10-02. First issue.
+
+[Unit]
+Description=NRG ship watcher: runs working/nrg_git.sh --ship when working/.ship_request appears
+Documentation=file://@REPO@/tools/ship_watcher.sh
+# No network-online.target: a user manager cannot order on it. A ship that starts offline fails
+# at its fetch or push, and the status file and log say so.
+
+[Service]
+Type=simple
+WorkingDirectory=@REPO@
+Environment=NRG_REPO_DIR=@REPO@
+Environment=PATH=%h/bin:%h/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONIOENCODING=utf-8
+# Tunables (the defaults are in ship_watcher.sh): uncomment to change.
+#Environment=SHIP_WATCHER_POLL=20
+#Environment=SHIP_WATCHER_MAX_AGE=7200
+#Environment=SHIP_WATCHER_TIMEOUT=4h
+#Environment=SHIP_WATCHER_LO_POLICY=wait
+ExecStart=/bin/bash @REPO@/tools/ship_watcher.sh
+Restart=on-failure
+RestartSec=30
+# A stop while a ship runs kills the ship with it (the whole cgroup); the watcher records the
+# request as "interrupted" and never re-runs it. Give it time to write that.
+TimeoutStopSec=30
+Nice=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

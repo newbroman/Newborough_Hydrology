@@ -16,6 +16,10 @@
 - _to_delete/**
 - _transfer/**
 - _audit_tmp/**
+# --- archive/: superseded versions moved out of docs/ by prune_versions (D-151 note
+# --- 2026-10-02). Each was uploaded while it was still in docs/ - the ship archives BEFORE it
+# --- prunes - so uploading it again under archive/ would only duplicate it on Drive.
+- archive/**
 - **/_frozen/**
 - **/_superseded/**
 - **/backups/**

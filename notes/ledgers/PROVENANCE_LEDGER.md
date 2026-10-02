@@ -200,7 +200,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (443)
+## Outputs no exhibit renders (457)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -438,7 +438,9 @@
 - `18_wtf_08_cluster_half_life_summary.csv`
 - `19_report_numbers.csv`
 - `19_scenario_perwell.csv`
+- `19_scenario_perwell_model_a.csv`
 - `19_scenario_summary.csv`
+- `19_scenario_summary_model_a.csv`
 - `20_clearfell_gain_report_numbers.csv`
 - `20_drawdown_perwell.csv`
 - `20_driver_change_2005_2025.png`
@@ -528,7 +530,9 @@
 - `26b_monthly_delta_h_per_cluster.csv`
 - `26b_msl5_ukcp18_projection.png`
 - `26b_msl5_ukcp18_projection_summary.csv`
+- `26b_msl5_ukcp18_projection_summary_model_a.csv`
 - `26b_msl5_ukcp18_projection_summary_perwell.csv`
+- `26b_msl5_ukcp18_projection_summary_perwell_model_a.csv`
 - `26b_report_numbers.csv`
 - `28_c3_detrend.csv`
 - `28_c3_detrend_panel.png`
@@ -600,7 +604,3 @@
 - `40_07_storm_pair.csv`
 - `40_report_numbers.csv`
 - `41_01_canopy_index.csv`
-- `41_02_change_events.csv`
-- `41_03_registration.csv`
-- `41_04_canopy_series.png`
-- `41_report_numbers.csv`

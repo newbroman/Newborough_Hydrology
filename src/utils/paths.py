@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.50.0"  # Hollingham (2026) - 2026-10-01 (D-217). OUT_48_MODEL_AB. Additive.
+__version__ = "1.53.0"  # Hollingham (2026) - 2026-10-01 (D-225). OUT_50_*_DATUM. Additive.
+# 1.52.0  # Hollingham (2026) - 2026-10-01 (D-224). The Model A projection outputs of Scripts 19 and 26b
+#   (OUT_19_SCENARIO_*_MODEL_A, OUT_26B_PROJECTION_TABLE*_MODEL_A). Additive.
+# 1.51.0  # Hollingham (2026) - 2026-10-01 (D-222). DIR_50 and the Script 50 outputs. Additive.
+# 1.50.0  # Hollingham (2026) - 2026-10-01 (D-217). OUT_48_MODEL_AB. Additive.
 # 1.49.0  # Hollingham (2026) - 2026-09-30. 1.49.0: OUT_03_DATUM_ZERO, the cluster-centroid
 #   Model A fit at config.DATUM_RAW_DEPTH_M (raw depth, no drainage base), Script 03 1.22.0.
 # 1.48.0: DATA_CLEARFELL, the 2017 clearfell
@@ -1038,6 +1042,8 @@ OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 
 
 # Script 19 — Spatial groundwater analysis
 OUT_19_SCENARIO_PERWELL = DIR_19 / "19_scenario_perwell.csv"   # T-84: per-well scenario Δh and water equivalent
+OUT_19_SCENARIO_SUMMARY_MODEL_A = DIR_19 / "19_scenario_summary_model_a.csv"  # D-224: the UKCP18 sustained level response on Model A
+OUT_19_SCENARIO_PERWELL_MODEL_A = DIR_19 / "19_scenario_perwell_model_a.csv"  # D-224: per well, Model A
 OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.jpg"
 OUT_19_HEAD_MEAN_MAP  = DIR_19 / "19_head_mean_map.jpg"
 OUT_19_HEAD_WINTER    = DIR_19 / "19_head_surface_winter.jpg"
@@ -1364,6 +1370,19 @@ OUT_48_FIG            = DIR_48 / "48_01_pastas_vs_ssm.png"
 OUT_48_REPORT_NUMBERS = DIR_48 / "48_report_numbers.csv"
 OUT_48_MODEL_AB       = DIR_48 / "48_04_model_a_b_diagnostics.csv"  # split-sample, model-free memory, identification, loss partition (D-217)
 
+# Script 50 — what the record length decides (D-222)
+DIR_50 = OUT_DIR / "50_record_length"
+OUT_50_PER_WELL       = DIR_50 / "50_01_record_length_per_well.csv"   # well x form x experiment x L x placement
+OUT_50_BY_CLUSTER     = DIR_50 / "50_02_record_length_by_cluster.csv" # medians and p10/p90 by cluster
+OUT_50_CCW            = DIR_50 / "50_03_ccw_hindcast_by_length.csv"   # the CCW 1989-96 hindcast at each L
+OUT_50_STABLE         = DIR_50 / "50_05_stable_length_per_well.csv"   # each well's stable length, in months and mean-reversion times
+OUT_50_FIG            = DIR_50 / "50_04_record_length.png"
+OUT_50_CCW_DATUM      = DIR_50 / "50_06_ccw_hindcast_by_datum.csv"   # D-225: CCW hindcast, Model A at every datum
+OUT_50_SPLIT_DATUM    = DIR_50 / "50_07_split_by_datum.csv"          # D-225: split-sample NSE at every datum
+OUT_50_PROJ_DATUM     = DIR_50 / "50_08_projection_by_datum.csv"     # D-225: UKCP18 response and room left at every datum
+OUT_50_DATUM_FIG      = DIR_50 / "50_09_datum_against_the_drier_past.png"
+OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
+
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed
 # and moved to step 2 of Phase 1 on 2026-09-27 so its readers take it in the same run)
 DIR_01B = OUT_DIR / "01b_water_table"
@@ -1522,6 +1541,8 @@ OUT_26B_RESULTS_TXT       = DIR_26B / "26b_msl5_ukcp18_results.txt"
 # secondary artefact that serves as the validation target for the
 # Script 19 v2.8.0 viewer ΔMSL5 row. See 26b docstring for the rationale.
 OUT_26B_PROJECTION_TABLE_PERWELL = DIR_26B / "26b_msl5_ukcp18_projection_summary_perwell.csv"
+OUT_26B_PROJECTION_TABLE_MODEL_A = DIR_26B / "26b_msl5_ukcp18_projection_summary_model_a.csv"            # D-224: centroid pathway, Model A
+OUT_26B_PROJECTION_TABLE_PERWELL_MODEL_A = DIR_26B / "26b_msl5_ukcp18_projection_summary_perwell_model_a.csv"  # D-224: per-well pathway, Model A
 
 # Script 26c — MSL5 report-format figures (Phase 13, report companions)
 # Re-renders the trajectory and contrast figures cited in §4.8.4 / §4.10.1

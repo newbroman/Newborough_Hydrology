@@ -6,6 +6,7 @@ Sources:
   /home/john/projects/NRG/outputs/26_van_willegen_msl/26_curreli_min_per_cluster.csv
   /home/john/projects/NRG/outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv
   /home/john/projects/NRG/outputs/19_spatial_groundwater/19_scenario_summary.csv
+  /home/john/projects/NRG/outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv
 
 Outputs:
   /home/john/projects/NRG/outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png
@@ -22,3 +23,10 @@ Curreli (2013) reference values (four-year means of the annual minimum; drawn on
   C3 (Western Residual)        -0.0889    -0.2413      -0.1498    -0.4383
   C4 (Main Forest)                +nan       +nan         +nan       +nan
   C5 (Coastal Forest)          -0.0820    -0.1675      -0.1414    -0.3021
+
+The same on Model A (D-224; Model A projected only where Model B is):
+  C1 (Lake Edge)               +0.0143    -0.1299      +0.0368    -0.2480
+  C2 (Dune)                    -0.1482    -0.2920      -0.2577    -0.5345
+  C3 (Western Residual)        -0.2269    -0.3626      -0.3994    -0.6591
+  C4 (Main Forest)                +nan       +nan         +nan       +nan
+  C5 (Coastal Forest)          -0.2055    -0.2753      -0.3651    -0.4972

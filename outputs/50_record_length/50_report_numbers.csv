@@ -1,0 +1,572 @@
+Parameter,Well,Era,Value,Unit,Note
+reclen_nse_fwd_A_median_L24_all,,,-0.141263842974083,,"median free-run NSE, Model A, fitted on 24 months before 2018-01-01; n = 66 wells (all)"
+reclen_nse_fwd_A_median_L36_all,,,0.29293762814854374,,"median free-run NSE, Model A, fitted on 36 months before 2018-01-01; n = 66 wells (all)"
+reclen_nse_fwd_A_median_L48_all,,,0.044500586876924375,,"median free-run NSE, Model A, fitted on 48 months before 2018-01-01; n = 63 wells (all)"
+reclen_nse_fwd_A_median_L60_all,,,0.3331118418532076,,"median free-run NSE, Model A, fitted on 60 months before 2018-01-01; n = 62 wells (all)"
+reclen_nse_fwd_A_median_L80_all,,,0.5165621831586634,,"median free-run NSE, Model A, fitted on 80 months before 2018-01-01; n = 59 wells (all)"
+reclen_nse_fwd_A_median_L100_all,,,0.5946664776272095,,"median free-run NSE, Model A, fitted on 100 months before 2018-01-01; n = 28 wells (all)"
+reclen_nse_fwd_A_median_L120_all,,,0.6580883681413485,,"median free-run NSE, Model A, fitted on 120 months before 2018-01-01; n = 23 wells (all)"
+reclen_nse_fwd_A_median_L144_all,,,0.7486663511620417,,"median free-run NSE, Model A, fitted on 144 months before 2018-01-01; n = 4 wells (all)"
+reclen_nse_fwd_A_median_Lfull_all,,,0.6119815001294202,,"median free-run NSE, Model A, fitted on full months before 2018-01-01; n = 66 wells (all)"
+reclen_nse_fwd_B_median_L24_all,,,0.7203252350538227,,"median free-run NSE, Model B, fitted on 24 months before 2018-01-01; n = 66 wells (all)"
+reclen_nse_fwd_B_median_L36_all,,,0.7238315111781186,,"median free-run NSE, Model B, fitted on 36 months before 2018-01-01; n = 66 wells (all)"
+reclen_nse_fwd_B_median_L48_all,,,0.7598675314416226,,"median free-run NSE, Model B, fitted on 48 months before 2018-01-01; n = 63 wells (all)"
+reclen_nse_fwd_B_median_L60_all,,,0.785020543563469,,"median free-run NSE, Model B, fitted on 60 months before 2018-01-01; n = 62 wells (all)"
+reclen_nse_fwd_B_median_L80_all,,,0.754204814570733,,"median free-run NSE, Model B, fitted on 80 months before 2018-01-01; n = 59 wells (all)"
+reclen_nse_fwd_B_median_L100_all,,,0.7436186524296259,,"median free-run NSE, Model B, fitted on 100 months before 2018-01-01; n = 28 wells (all)"
+reclen_nse_fwd_B_median_L120_all,,,0.7740481098869639,,"median free-run NSE, Model B, fitted on 120 months before 2018-01-01; n = 23 wells (all)"
+reclen_nse_fwd_B_median_L144_all,,,0.7929770156986722,,"median free-run NSE, Model B, fitted on 144 months before 2018-01-01; n = 4 wells (all)"
+reclen_nse_fwd_B_median_Lfull_all,,,0.7865467156802144,,"median free-run NSE, Model B, fitted on full months before 2018-01-01; n = 66 wells (all)"
+reclen_nse_fwd_A_median_L24_C1,,,0.49456240023938147,,"median free-run NSE, Model A, fitted on 24 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_A_median_L36_C1,,,0.37224585729683535,,"median free-run NSE, Model A, fitted on 36 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_A_median_L48_C1,,,0.12013504028209632,,"median free-run NSE, Model A, fitted on 48 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_A_median_L60_C1,,,0.4005299568554147,,"median free-run NSE, Model A, fitted on 60 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_A_median_L80_C1,,,0.5747399758601472,,"median free-run NSE, Model A, fitted on 80 months before 2018-01-01; n = 6 wells (C1)"
+reclen_nse_fwd_A_median_L100_C1,,,0.6331710210104601,,"median free-run NSE, Model A, fitted on 100 months before 2018-01-01; n = 3 wells (C1)"
+reclen_nse_fwd_A_median_L120_C1,,,0.6096673778295905,,"median free-run NSE, Model A, fitted on 120 months before 2018-01-01; n = 3 wells (C1)"
+reclen_nse_fwd_A_median_Lfull_C1,,,0.6450737261016243,,"median free-run NSE, Model A, fitted on full months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_B_median_L24_C1,,,0.8402905029140254,,"median free-run NSE, Model B, fitted on 24 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_B_median_L36_C1,,,0.8375389368813205,,"median free-run NSE, Model B, fitted on 36 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_B_median_L48_C1,,,0.8449848935907744,,"median free-run NSE, Model B, fitted on 48 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_B_median_L60_C1,,,0.8493868434616842,,"median free-run NSE, Model B, fitted on 60 months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_B_median_L80_C1,,,0.850723425728162,,"median free-run NSE, Model B, fitted on 80 months before 2018-01-01; n = 6 wells (C1)"
+reclen_nse_fwd_B_median_L100_C1,,,0.8591681790138501,,"median free-run NSE, Model B, fitted on 100 months before 2018-01-01; n = 3 wells (C1)"
+reclen_nse_fwd_B_median_L120_C1,,,0.8646441967001759,,"median free-run NSE, Model B, fitted on 120 months before 2018-01-01; n = 3 wells (C1)"
+reclen_nse_fwd_B_median_Lfull_C1,,,0.8539467869388155,,"median free-run NSE, Model B, fitted on full months before 2018-01-01; n = 7 wells (C1)"
+reclen_nse_fwd_A_median_L24_C2,,,0.2894994840274844,,"median free-run NSE, Model A, fitted on 24 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_A_median_L36_C2,,,0.3011495239859301,,"median free-run NSE, Model A, fitted on 36 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_A_median_L48_C2,,,-0.06325159319285123,,"median free-run NSE, Model A, fitted on 48 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_A_median_L60_C2,,,0.32315423568166746,,"median free-run NSE, Model A, fitted on 60 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_A_median_L80_C2,,,0.47613078593296476,,"median free-run NSE, Model A, fitted on 80 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_A_median_L100_C2,,,0.5304275822037214,,"median free-run NSE, Model A, fitted on 100 months before 2018-01-01; n = 4 wells (C2)"
+reclen_nse_fwd_A_median_L120_C2,,,0.5122917564721807,,"median free-run NSE, Model A, fitted on 120 months before 2018-01-01; n = 3 wells (C2)"
+reclen_nse_fwd_A_median_L144_C2,,,0.6353440949481624,,"median free-run NSE, Model A, fitted on 144 months before 2018-01-01; n = 1 wells (C2)"
+reclen_nse_fwd_A_median_Lfull_C2,,,0.5989484297815995,,"median free-run NSE, Model A, fitted on full months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_B_median_L24_C2,,,0.7983140280317279,,"median free-run NSE, Model B, fitted on 24 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_B_median_L36_C2,,,0.7496683426057524,,"median free-run NSE, Model B, fitted on 36 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_B_median_L48_C2,,,0.7715951256861582,,"median free-run NSE, Model B, fitted on 48 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_B_median_L60_C2,,,0.813621279061608,,"median free-run NSE, Model B, fitted on 60 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_B_median_L80_C2,,,0.7809484949118575,,"median free-run NSE, Model B, fitted on 80 months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_B_median_L100_C2,,,0.7656645413164131,,"median free-run NSE, Model B, fitted on 100 months before 2018-01-01; n = 4 wells (C2)"
+reclen_nse_fwd_B_median_L120_C2,,,0.7829310797931059,,"median free-run NSE, Model B, fitted on 120 months before 2018-01-01; n = 3 wells (C2)"
+reclen_nse_fwd_B_median_L144_C2,,,0.7929985032766541,,"median free-run NSE, Model B, fitted on 144 months before 2018-01-01; n = 1 wells (C2)"
+reclen_nse_fwd_B_median_Lfull_C2,,,0.8086652435077769,,"median free-run NSE, Model B, fitted on full months before 2018-01-01; n = 19 wells (C2)"
+reclen_nse_fwd_A_median_L24_C3,,,-0.45698918231492536,,"median free-run NSE, Model A, fitted on 24 months before 2018-01-01; n = 26 wells (C3)"
+reclen_nse_fwd_A_median_L36_C3,,,0.4370564463361345,,"median free-run NSE, Model A, fitted on 36 months before 2018-01-01; n = 26 wells (C3)"
+reclen_nse_fwd_A_median_L48_C3,,,0.3375120703802261,,"median free-run NSE, Model A, fitted on 48 months before 2018-01-01; n = 23 wells (C3)"
+reclen_nse_fwd_A_median_L60_C3,,,0.4107746677027688,,"median free-run NSE, Model A, fitted on 60 months before 2018-01-01; n = 22 wells (C3)"
+reclen_nse_fwd_A_median_L80_C3,,,0.5694221631276872,,"median free-run NSE, Model A, fitted on 80 months before 2018-01-01; n = 20 wells (C3)"
+reclen_nse_fwd_A_median_L100_C3,,,0.6441892930125255,,"median free-run NSE, Model A, fitted on 100 months before 2018-01-01; n = 12 wells (C3)"
+reclen_nse_fwd_A_median_L120_C3,,,0.6732615854419359,,"median free-run NSE, Model A, fitted on 120 months before 2018-01-01; n = 11 wells (C3)"
+reclen_nse_fwd_A_median_L144_C3,,,0.7584781931433835,,"median free-run NSE, Model A, fitted on 144 months before 2018-01-01; n = 3 wells (C3)"
+reclen_nse_fwd_A_median_Lfull_C3,,,0.6619097804510998,,"median free-run NSE, Model A, fitted on full months before 2018-01-01; n = 26 wells (C3)"
+reclen_nse_fwd_B_median_L24_C3,,,0.6684928092961797,,"median free-run NSE, Model B, fitted on 24 months before 2018-01-01; n = 26 wells (C3)"
+reclen_nse_fwd_B_median_L36_C3,,,0.6844376638667065,,"median free-run NSE, Model B, fitted on 36 months before 2018-01-01; n = 26 wells (C3)"
+reclen_nse_fwd_B_median_L48_C3,,,0.732831805701631,,"median free-run NSE, Model B, fitted on 48 months before 2018-01-01; n = 23 wells (C3)"
+reclen_nse_fwd_B_median_L60_C3,,,0.7736330414423493,,"median free-run NSE, Model B, fitted on 60 months before 2018-01-01; n = 22 wells (C3)"
+reclen_nse_fwd_B_median_L80_C3,,,0.7334233825396721,,"median free-run NSE, Model B, fitted on 80 months before 2018-01-01; n = 20 wells (C3)"
+reclen_nse_fwd_B_median_L100_C3,,,0.7314141241302216,,"median free-run NSE, Model B, fitted on 100 months before 2018-01-01; n = 12 wells (C3)"
+reclen_nse_fwd_B_median_L120_C3,,,0.7535204448162659,,"median free-run NSE, Model B, fitted on 120 months before 2018-01-01; n = 11 wells (C3)"
+reclen_nse_fwd_B_median_L144_C3,,,0.7929555281206904,,"median free-run NSE, Model B, fitted on 144 months before 2018-01-01; n = 3 wells (C3)"
+reclen_nse_fwd_B_median_Lfull_C3,,,0.7711771549728073,,"median free-run NSE, Model B, fitted on full months before 2018-01-01; n = 26 wells (C3)"
+reclen_nse_fwd_A_median_L24_C4,,,-1.5232741346493608,,"median free-run NSE, Model A, fitted on 24 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_A_median_L36_C4,,,-0.35363207650550343,,"median free-run NSE, Model A, fitted on 36 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_A_median_L48_C4,,,-0.3689970620303966,,"median free-run NSE, Model A, fitted on 48 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_A_median_L60_C4,,,-0.10473712875228336,,"median free-run NSE, Model A, fitted on 60 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_A_median_L80_C4,,,0.23103785469231752,,"median free-run NSE, Model A, fitted on 80 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_A_median_L100_C4,,,0.13511023879391482,,"median free-run NSE, Model A, fitted on 100 months before 2018-01-01; n = 5 wells (C4)"
+reclen_nse_fwd_A_median_L120_C4,,,-2.362170893203149,,"median free-run NSE, Model A, fitted on 120 months before 2018-01-01; n = 3 wells (C4)"
+reclen_nse_fwd_A_median_Lfull_C4,,,0.2108412432964223,,"median free-run NSE, Model A, fitted on full months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_B_median_L24_C4,,,-0.48102632082752694,,"median free-run NSE, Model B, fitted on 24 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_B_median_L36_C4,,,-1.8538081207318884,,"median free-run NSE, Model B, fitted on 36 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_B_median_L48_C4,,,-0.8300075704117755,,"median free-run NSE, Model B, fitted on 48 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_B_median_L60_C4,,,0.0813894684098152,,"median free-run NSE, Model B, fitted on 60 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_B_median_L80_C4,,,0.23408376082328053,,"median free-run NSE, Model B, fitted on 80 months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_B_median_L100_C4,,,0.1011932575168013,,"median free-run NSE, Model B, fitted on 100 months before 2018-01-01; n = 5 wells (C4)"
+reclen_nse_fwd_B_median_L120_C4,,,-0.9378535662807568,,"median free-run NSE, Model B, fitted on 120 months before 2018-01-01; n = 3 wells (C4)"
+reclen_nse_fwd_B_median_Lfull_C4,,,0.08244046577949815,,"median free-run NSE, Model B, fitted on full months before 2018-01-01; n = 9 wells (C4)"
+reclen_nse_fwd_A_median_L24_C5,,,-1.2907149279666719,,"median free-run NSE, Model A, fitted on 24 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_A_median_L36_C5,,,0.22449469337367378,,"median free-run NSE, Model A, fitted on 36 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_A_median_L48_C5,,,0.31728118820519746,,"median free-run NSE, Model A, fitted on 48 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_A_median_L60_C5,,,0.34469593783927976,,"median free-run NSE, Model A, fitted on 60 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_A_median_L80_C5,,,0.5511091971947227,,"median free-run NSE, Model A, fitted on 80 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_A_median_L100_C5,,,0.7407132260071241,,"median free-run NSE, Model A, fitted on 100 months before 2018-01-01; n = 4 wells (C5)"
+reclen_nse_fwd_A_median_L120_C5,,,0.7385735974868266,,"median free-run NSE, Model A, fitted on 120 months before 2018-01-01; n = 3 wells (C5)"
+reclen_nse_fwd_A_median_Lfull_C5,,,0.7494879452759008,,"median free-run NSE, Model A, fitted on full months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_B_median_L24_C5,,,0.5254180804143472,,"median free-run NSE, Model B, fitted on 24 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_B_median_L36_C5,,,0.6698475290736212,,"median free-run NSE, Model B, fitted on 36 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_B_median_L48_C5,,,0.7435204543180632,,"median free-run NSE, Model B, fitted on 48 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_B_median_L60_C5,,,0.7709729103646427,,"median free-run NSE, Model B, fitted on 60 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_B_median_L80_C5,,,0.7270166449700783,,"median free-run NSE, Model B, fitted on 80 months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_fwd_B_median_L100_C5,,,0.8018965610814938,,"median free-run NSE, Model B, fitted on 100 months before 2018-01-01; n = 4 wells (C5)"
+reclen_nse_fwd_B_median_L120_C5,,,0.812046850516645,,"median free-run NSE, Model B, fitted on 120 months before 2018-01-01; n = 3 wells (C5)"
+reclen_nse_fwd_B_median_Lfull_C5,,,0.8145435371355597,,"median free-run NSE, Model B, fitted on full months before 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_A_median_L24_all,,,0.6013648184088543,,"median free-run NSE, Model A, fitted on 24 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_A_median_L36_all,,,0.5763046276284036,,"median free-run NSE, Model A, fitted on 36 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_A_median_L48_all,,,0.5044320669565074,,"median free-run NSE, Model A, fitted on 48 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_A_median_L60_all,,,0.4825302342632245,,"median free-run NSE, Model A, fitted on 60 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_A_median_L80_all,,,0.6784728776856912,,"median free-run NSE, Model A, fitted on 80 months from 2018-01-01; n = 63 wells (all)"
+reclen_nse_rev_A_median_Lfull_all,,,0.6737312915987114,,"median free-run NSE, Model A, fitted on full months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_B_median_L24_all,,,0.6844689148928078,,"median free-run NSE, Model B, fitted on 24 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_B_median_L36_all,,,0.6767581959015649,,"median free-run NSE, Model B, fitted on 36 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_B_median_L48_all,,,0.6663046067525875,,"median free-run NSE, Model B, fitted on 48 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_B_median_L60_all,,,0.6611869674056212,,"median free-run NSE, Model B, fitted on 60 months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_B_median_L80_all,,,0.7631618420638644,,"median free-run NSE, Model B, fitted on 80 months from 2018-01-01; n = 63 wells (all)"
+reclen_nse_rev_B_median_Lfull_all,,,0.7776478983988084,,"median free-run NSE, Model B, fitted on full months from 2018-01-01; n = 66 wells (all)"
+reclen_nse_rev_A_median_L24_C1,,,0.46499574111553454,,"median free-run NSE, Model A, fitted on 24 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_A_median_L36_C1,,,0.45345289447969284,,"median free-run NSE, Model A, fitted on 36 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_A_median_L48_C1,,,0.3588474905310488,,"median free-run NSE, Model A, fitted on 48 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_A_median_L60_C1,,,0.27553808817701264,,"median free-run NSE, Model A, fitted on 60 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_A_median_L80_C1,,,0.4249926378482808,,"median free-run NSE, Model A, fitted on 80 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_A_median_Lfull_C1,,,0.42308790142775043,,"median free-run NSE, Model A, fitted on full months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_B_median_L24_C1,,,0.7406484883386675,,"median free-run NSE, Model B, fitted on 24 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_B_median_L36_C1,,,0.792762611305024,,"median free-run NSE, Model B, fitted on 36 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_B_median_L48_C1,,,0.7574483958717296,,"median free-run NSE, Model B, fitted on 48 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_B_median_L60_C1,,,0.7446309739042802,,"median free-run NSE, Model B, fitted on 60 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_B_median_L80_C1,,,0.8066234667451063,,"median free-run NSE, Model B, fitted on 80 months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_B_median_Lfull_C1,,,0.8263918506546089,,"median free-run NSE, Model B, fitted on full months from 2018-01-01; n = 7 wells (C1)"
+reclen_nse_rev_A_median_L24_C2,,,0.603570456454124,,"median free-run NSE, Model A, fitted on 24 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_A_median_L36_C2,,,0.6719450163868739,,"median free-run NSE, Model A, fitted on 36 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_A_median_L48_C2,,,0.5136717479128092,,"median free-run NSE, Model A, fitted on 48 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_A_median_L60_C2,,,0.4855705105963466,,"median free-run NSE, Model A, fitted on 60 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_A_median_L80_C2,,,0.7141664412074755,,"median free-run NSE, Model A, fitted on 80 months from 2018-01-01; n = 17 wells (C2)"
+reclen_nse_rev_A_median_Lfull_C2,,,0.7046292489929494,,"median free-run NSE, Model A, fitted on full months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_B_median_L24_C2,,,0.754617256699499,,"median free-run NSE, Model B, fitted on 24 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_B_median_L36_C2,,,0.827756247951466,,"median free-run NSE, Model B, fitted on 36 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_B_median_L48_C2,,,0.7425393842910657,,"median free-run NSE, Model B, fitted on 48 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_B_median_L60_C2,,,0.7212348823125476,,"median free-run NSE, Model B, fitted on 60 months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_B_median_L80_C2,,,0.8182444912175639,,"median free-run NSE, Model B, fitted on 80 months from 2018-01-01; n = 17 wells (C2)"
+reclen_nse_rev_B_median_Lfull_C2,,,0.8059016858307102,,"median free-run NSE, Model B, fitted on full months from 2018-01-01; n = 19 wells (C2)"
+reclen_nse_rev_A_median_L24_C3,,,0.6943478309638573,,"median free-run NSE, Model A, fitted on 24 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_A_median_L36_C3,,,0.5979669939505526,,"median free-run NSE, Model A, fitted on 36 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_A_median_L48_C3,,,0.5798143433557865,,"median free-run NSE, Model A, fitted on 48 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_A_median_L60_C3,,,0.606598932642405,,"median free-run NSE, Model A, fitted on 60 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_A_median_L80_C3,,,0.7229640829996966,,"median free-run NSE, Model A, fitted on 80 months from 2018-01-01; n = 25 wells (C3)"
+reclen_nse_rev_A_median_Lfull_C3,,,0.7190974385096522,,"median free-run NSE, Model A, fitted on full months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_B_median_L24_C3,,,0.6294955160463238,,"median free-run NSE, Model B, fitted on 24 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_B_median_L36_C3,,,0.5813574601618995,,"median free-run NSE, Model B, fitted on 36 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_B_median_L48_C3,,,0.5819845173053007,,"median free-run NSE, Model B, fitted on 48 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_B_median_L60_C3,,,0.6033917307560608,,"median free-run NSE, Model B, fitted on 60 months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_B_median_L80_C3,,,0.7219605810387012,,"median free-run NSE, Model B, fitted on 80 months from 2018-01-01; n = 25 wells (C3)"
+reclen_nse_rev_B_median_Lfull_C3,,,0.7436220640203324,,"median free-run NSE, Model B, fitted on full months from 2018-01-01; n = 26 wells (C3)"
+reclen_nse_rev_A_median_L24_C4,,,0.561853938402888,,"median free-run NSE, Model A, fitted on 24 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_A_median_L36_C4,,,-9.164990121752053,,"median free-run NSE, Model A, fitted on 36 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_A_median_L48_C4,,,-3.4731363698399695,,"median free-run NSE, Model A, fitted on 48 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_A_median_L60_C4,,,-0.5969725374903869,,"median free-run NSE, Model A, fitted on 60 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_A_median_L80_C4,,,-0.33464812006500644,,"median free-run NSE, Model A, fitted on 80 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_A_median_Lfull_C4,,,0.1836570214047718,,"median free-run NSE, Model A, fitted on full months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_B_median_L24_C4,,,0.3358499803683276,,"median free-run NSE, Model B, fitted on 24 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_B_median_L36_C4,,,-3174.01571670346,,"median free-run NSE, Model B, fitted on 36 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_B_median_L48_C4,,,-7.031570756340773,,"median free-run NSE, Model B, fitted on 48 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_B_median_L60_C4,,,-1.0111112631052017,,"median free-run NSE, Model B, fitted on 60 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_B_median_L80_C4,,,-0.183256642861108,,"median free-run NSE, Model B, fitted on 80 months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_B_median_Lfull_C4,,,0.20239343559725276,,"median free-run NSE, Model B, fitted on full months from 2018-01-01; n = 9 wells (C4)"
+reclen_nse_rev_A_median_L24_C5,,,0.6748598583330065,,"median free-run NSE, Model A, fitted on 24 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_A_median_L36_C5,,,0.7386197732128374,,"median free-run NSE, Model A, fitted on 36 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_A_median_L48_C5,,,0.7086337977884076,,"median free-run NSE, Model A, fitted on 48 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_A_median_L60_C5,,,0.6915250664180659,,"median free-run NSE, Model A, fitted on 60 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_A_median_L80_C5,,,0.7572824669739135,,"median free-run NSE, Model A, fitted on 80 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_A_median_Lfull_C5,,,0.7766538529602527,,"median free-run NSE, Model A, fitted on full months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_B_median_L24_C5,,,0.4246522404928932,,"median free-run NSE, Model B, fitted on 24 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_B_median_L36_C5,,,0.7063555659986931,,"median free-run NSE, Model B, fitted on 36 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_B_median_L48_C5,,,0.666045302030657,,"median free-run NSE, Model B, fitted on 48 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_B_median_L60_C5,,,0.6665371938430178,,"median free-run NSE, Model B, fitted on 60 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_B_median_L80_C5,,,0.756481738624194,,"median free-run NSE, Model B, fitted on 80 months from 2018-01-01; n = 5 wells (C5)"
+reclen_nse_rev_B_median_Lfull_C5,,,0.715766119979804,,"median free-run NSE, Model B, fitted on full months from 2018-01-01; n = 5 wells (C5)"
+reclen_beta3_reldev_A_median_L24_all,,,0.15803309169676494,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 24; n = 65 wells (all)"
+reclen_identified_share_A_median_L24_all,,,0.8888888888888888,fraction,median over wells of the share of placements of 24 months on which Model A's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_A_median_L36_all,,,0.12024545517749097,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 36; n = 65 wells (all)"
+reclen_identified_share_A_median_L36_all,,,1.0,fraction,median over wells of the share of placements of 36 months on which Model A's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_A_median_L48_all,,,0.10797567787457762,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 48; n = 65 wells (all)"
+reclen_identified_share_A_median_L48_all,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model A's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_A_median_L60_all,,,0.08863612852890829,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 60; n = 65 wells (all)"
+reclen_identified_share_A_median_L60_all,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model A's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_A_median_L80_all,,,0.05613292932526148,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 80; n = 65 wells (all)"
+reclen_identified_share_A_median_L80_all,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model A's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_A_median_L100_all,,,0.054137741426640185,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 100; n = 65 wells (all)"
+reclen_identified_share_A_median_L100_all,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model A's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_A_median_L120_all,,,0.058911700148417845,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 120; n = 65 wells (all)"
+reclen_identified_share_A_median_L120_all,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model A's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_A_median_L144_all,,,0.027602715372986864,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 144; n = 62 wells (all)"
+reclen_identified_share_A_median_L144_all,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model A's beta_3 is identified; n = 63 wells (all)
+reclen_beta3_reldev_B_median_L24_all,,,0.376109911782513,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 24; n = 66 wells (all)"
+reclen_identified_share_B_median_L24_all,,,0.6,fraction,median over wells of the share of placements of 24 months on which Model B's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_B_median_L36_all,,,0.199477238267796,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 36; n = 66 wells (all)"
+reclen_identified_share_B_median_L36_all,,,0.8,fraction,median over wells of the share of placements of 36 months on which Model B's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_B_median_L48_all,,,0.21089438840647057,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 48; n = 66 wells (all)"
+reclen_identified_share_B_median_L48_all,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model B's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_B_median_L60_all,,,0.1183314146364216,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 60; n = 66 wells (all)"
+reclen_identified_share_B_median_L60_all,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model B's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_B_median_L80_all,,,0.12769657228388126,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 80; n = 66 wells (all)"
+reclen_identified_share_B_median_L80_all,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model B's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_B_median_L100_all,,,0.0788997866860828,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 100; n = 66 wells (all)"
+reclen_identified_share_B_median_L100_all,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model B's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_B_median_L120_all,,,0.043516577910762966,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 120; n = 66 wells (all)"
+reclen_identified_share_B_median_L120_all,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model B's beta_3 is identified; n = 66 wells (all)
+reclen_beta3_reldev_B_median_L144_all,,,0.049683752356099564,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 144; n = 63 wells (all)"
+reclen_identified_share_B_median_L144_all,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model B's beta_3 is identified; n = 63 wells (all)
+reclen_beta3_reldev_A_median_L24_C1,,,0.13631568397466087,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 24; n = 7 wells (C1)"
+reclen_identified_share_A_median_L24_C1,,,1.0,fraction,median over wells of the share of placements of 24 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L36_C1,,,0.12335297140713508,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 36; n = 7 wells (C1)"
+reclen_identified_share_A_median_L36_C1,,,1.0,fraction,median over wells of the share of placements of 36 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L48_C1,,,0.15099410746886638,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 48; n = 7 wells (C1)"
+reclen_identified_share_A_median_L48_C1,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L60_C1,,,0.06669232160093552,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 60; n = 7 wells (C1)"
+reclen_identified_share_A_median_L60_C1,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L80_C1,,,0.09003073402379175,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 80; n = 7 wells (C1)"
+reclen_identified_share_A_median_L80_C1,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L100_C1,,,0.09155659041344044,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 100; n = 7 wells (C1)"
+reclen_identified_share_A_median_L100_C1,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L120_C1,,,0.08020479049812335,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 120; n = 7 wells (C1)"
+reclen_identified_share_A_median_L120_C1,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L144_C1,,,0.024991885459090035,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 144; n = 7 wells (C1)"
+reclen_identified_share_A_median_L144_C1,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model A's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L24_C1,,,0.20710911487140393,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 24; n = 7 wells (C1)"
+reclen_identified_share_B_median_L24_C1,,,1.0,fraction,median over wells of the share of placements of 24 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L36_C1,,,0.155318992612897,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 36; n = 7 wells (C1)"
+reclen_identified_share_B_median_L36_C1,,,1.0,fraction,median over wells of the share of placements of 36 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L48_C1,,,0.22015993580622523,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 48; n = 7 wells (C1)"
+reclen_identified_share_B_median_L48_C1,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L60_C1,,,0.11091046903755541,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 60; n = 7 wells (C1)"
+reclen_identified_share_B_median_L60_C1,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L80_C1,,,0.06346914106969054,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 80; n = 7 wells (C1)"
+reclen_identified_share_B_median_L80_C1,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L100_C1,,,0.07880526661510356,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 100; n = 7 wells (C1)"
+reclen_identified_share_B_median_L100_C1,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L120_C1,,,0.03521648368875141,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 120; n = 7 wells (C1)"
+reclen_identified_share_B_median_L120_C1,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_B_median_L144_C1,,,0.039115562450157126,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 144; n = 7 wells (C1)"
+reclen_identified_share_B_median_L144_C1,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model B's beta_3 is identified; n = 7 wells (C1)
+reclen_beta3_reldev_A_median_L24_C2,,,0.14271201807893358,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 24; n = 19 wells (C2)"
+reclen_identified_share_A_median_L24_C2,,,1.0,fraction,median over wells of the share of placements of 24 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L36_C2,,,0.09284163686413982,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 36; n = 19 wells (C2)"
+reclen_identified_share_A_median_L36_C2,,,1.0,fraction,median over wells of the share of placements of 36 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L48_C2,,,0.08805481099017598,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 48; n = 19 wells (C2)"
+reclen_identified_share_A_median_L48_C2,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L60_C2,,,0.08154025972257661,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 60; n = 19 wells (C2)"
+reclen_identified_share_A_median_L60_C2,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L80_C2,,,0.04941054656411209,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 80; n = 19 wells (C2)"
+reclen_identified_share_A_median_L80_C2,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L100_C2,,,0.050078559584635474,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 100; n = 19 wells (C2)"
+reclen_identified_share_A_median_L100_C2,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L120_C2,,,0.06736322557046892,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 120; n = 19 wells (C2)"
+reclen_identified_share_A_median_L120_C2,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L144_C2,,,0.019049162781325513,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 144; n = 19 wells (C2)"
+reclen_identified_share_A_median_L144_C2,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model A's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L24_C2,,,0.25594548039845066,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 24; n = 19 wells (C2)"
+reclen_identified_share_B_median_L24_C2,,,0.75,fraction,median over wells of the share of placements of 24 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L36_C2,,,0.14574733192013611,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 36; n = 19 wells (C2)"
+reclen_identified_share_B_median_L36_C2,,,1.0,fraction,median over wells of the share of placements of 36 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L48_C2,,,0.16409824917640958,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 48; n = 19 wells (C2)"
+reclen_identified_share_B_median_L48_C2,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L60_C2,,,0.0701381543493238,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 60; n = 19 wells (C2)"
+reclen_identified_share_B_median_L60_C2,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L80_C2,,,0.11947383696050184,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 80; n = 19 wells (C2)"
+reclen_identified_share_B_median_L80_C2,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L100_C2,,,0.047800023790891766,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 100; n = 19 wells (C2)"
+reclen_identified_share_B_median_L100_C2,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L120_C2,,,0.04336411165752052,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 120; n = 19 wells (C2)"
+reclen_identified_share_B_median_L120_C2,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_B_median_L144_C2,,,0.04012751995871078,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 144; n = 19 wells (C2)"
+reclen_identified_share_B_median_L144_C2,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model B's beta_3 is identified; n = 19 wells (C2)
+reclen_beta3_reldev_A_median_L24_C3,,,0.1577733339277026,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 24; n = 26 wells (C3)"
+reclen_identified_share_A_median_L24_C3,,,0.8819444444444444,fraction,median over wells of the share of placements of 24 months on which Model A's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_A_median_L36_C3,,,0.09929526864981053,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 36; n = 26 wells (C3)"
+reclen_identified_share_A_median_L36_C3,,,1.0,fraction,median over wells of the share of placements of 36 months on which Model A's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_A_median_L48_C3,,,0.0763297664904039,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 48; n = 26 wells (C3)"
+reclen_identified_share_A_median_L48_C3,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model A's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_A_median_L60_C3,,,0.07236442183918662,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 60; n = 26 wells (C3)"
+reclen_identified_share_A_median_L60_C3,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model A's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_A_median_L80_C3,,,0.049299362252725104,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 80; n = 26 wells (C3)"
+reclen_identified_share_A_median_L80_C3,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model A's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_A_median_L100_C3,,,0.048631695659302254,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 100; n = 26 wells (C3)"
+reclen_identified_share_A_median_L100_C3,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model A's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_A_median_L120_C3,,,0.03895826805301361,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 120; n = 26 wells (C3)"
+reclen_identified_share_A_median_L120_C3,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model A's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_A_median_L144_C3,,,0.03267407415458168,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 144; n = 23 wells (C3)"
+reclen_identified_share_A_median_L144_C3,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model A's beta_3 is identified; n = 23 wells (C3)
+reclen_beta3_reldev_B_median_L24_C3,,,0.40482132501693757,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 24; n = 26 wells (C3)"
+reclen_identified_share_B_median_L24_C3,,,0.5,fraction,median over wells of the share of placements of 24 months on which Model B's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_B_median_L36_C3,,,0.199477238267796,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 36; n = 26 wells (C3)"
+reclen_identified_share_B_median_L36_C3,,,0.6666666666666666,fraction,median over wells of the share of placements of 36 months on which Model B's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_B_median_L48_C3,,,0.2072576991313892,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 48; n = 26 wells (C3)"
+reclen_identified_share_B_median_L48_C3,,,0.7083333333333333,fraction,median over wells of the share of placements of 48 months on which Model B's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_B_median_L60_C3,,,0.13660295677687548,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 60; n = 26 wells (C3)"
+reclen_identified_share_B_median_L60_C3,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model B's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_B_median_L80_C3,,,0.14157000846305245,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 80; n = 26 wells (C3)"
+reclen_identified_share_B_median_L80_C3,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model B's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_B_median_L100_C3,,,0.0800514307662542,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 100; n = 26 wells (C3)"
+reclen_identified_share_B_median_L100_C3,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model B's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_B_median_L120_C3,,,0.04172648619167685,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 120; n = 26 wells (C3)"
+reclen_identified_share_B_median_L120_C3,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model B's beta_3 is identified; n = 26 wells (C3)
+reclen_beta3_reldev_B_median_L144_C3,,,0.049683752356099564,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 144; n = 23 wells (C3)"
+reclen_identified_share_B_median_L144_C3,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model B's beta_3 is identified; n = 23 wells (C3)
+reclen_beta3_reldev_A_median_L24_C4,,,0.5613981793241107,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 24; n = 8 wells (C4)"
+reclen_identified_share_A_median_L24_C4,,,0.2222222222222222,fraction,median over wells of the share of placements of 24 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L36_C4,,,0.2985869965429865,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 36; n = 8 wells (C4)"
+reclen_identified_share_A_median_L36_C4,,,0.2,fraction,median over wells of the share of placements of 36 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L48_C4,,,0.265318775867864,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 48; n = 8 wells (C4)"
+reclen_identified_share_A_median_L48_C4,,,0.3333333333333333,fraction,median over wells of the share of placements of 48 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L60_C4,,,0.1830263628565551,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 60; n = 8 wells (C4)"
+reclen_identified_share_A_median_L60_C4,,,0.3333333333333333,fraction,median over wells of the share of placements of 60 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L80_C4,,,0.448308235713259,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 80; n = 8 wells (C4)"
+reclen_identified_share_A_median_L80_C4,,,0.5,fraction,median over wells of the share of placements of 80 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L100_C4,,,0.2762652328747639,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 100; n = 8 wells (C4)"
+reclen_identified_share_A_median_L100_C4,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L120_C4,,,0.1943450201376078,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 120; n = 8 wells (C4)"
+reclen_identified_share_A_median_L120_C4,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L144_C4,,,0.06269076967600495,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 144; n = 8 wells (C4)"
+reclen_identified_share_A_median_L144_C4,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model A's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L24_C4,,,1.6815019860992826,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 24; n = 9 wells (C4)"
+reclen_identified_share_B_median_L24_C4,,,0.0,fraction,median over wells of the share of placements of 24 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L36_C4,,,0.6906153992859188,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 36; n = 9 wells (C4)"
+reclen_identified_share_B_median_L36_C4,,,0.0,fraction,median over wells of the share of placements of 36 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L48_C4,,,0.7658578008904541,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 48; n = 9 wells (C4)"
+reclen_identified_share_B_median_L48_C4,,,0.0,fraction,median over wells of the share of placements of 48 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L60_C4,,,0.6547343924015308,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 60; n = 9 wells (C4)"
+reclen_identified_share_B_median_L60_C4,,,0.0,fraction,median over wells of the share of placements of 60 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L80_C4,,,0.5658253852590047,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 80; n = 9 wells (C4)"
+reclen_identified_share_B_median_L80_C4,,,0.0,fraction,median over wells of the share of placements of 80 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L100_C4,,,0.3048316338340209,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 100; n = 9 wells (C4)"
+reclen_identified_share_B_median_L100_C4,,,0.0,fraction,median over wells of the share of placements of 100 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L120_C4,,,0.30520377964058043,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 120; n = 9 wells (C4)"
+reclen_identified_share_B_median_L120_C4,,,0.0,fraction,median over wells of the share of placements of 120 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_B_median_L144_C4,,,0.1976072094166733,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 144; n = 9 wells (C4)"
+reclen_identified_share_B_median_L144_C4,,,0.0,fraction,median over wells of the share of placements of 144 months on which Model B's beta_3 is identified; n = 9 wells (C4)
+reclen_beta3_reldev_A_median_L24_C5,,,0.21307890888123765,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 24; n = 5 wells (C5)"
+reclen_identified_share_A_median_L24_C5,,,0.8888888888888888,fraction,median over wells of the share of placements of 24 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_A_median_L36_C5,,,0.1911672203482523,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 36; n = 5 wells (C5)"
+reclen_identified_share_A_median_L36_C5,,,1.0,fraction,median over wells of the share of placements of 36 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_A_median_L48_C5,,,0.16137005347523897,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 48; n = 5 wells (C5)"
+reclen_identified_share_A_median_L48_C5,,,1.0,fraction,median over wells of the share of placements of 48 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_A_median_L60_C5,,,0.07172628938440284,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 60; n = 5 wells (C5)"
+reclen_identified_share_A_median_L60_C5,,,1.0,fraction,median over wells of the share of placements of 60 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_A_median_L80_C5,,,0.05554822548263544,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 80; n = 5 wells (C5)"
+reclen_identified_share_A_median_L80_C5,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_A_median_L100_C5,,,0.07883630251408852,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 100; n = 5 wells (C5)"
+reclen_identified_share_A_median_L100_C5,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_A_median_L120_C5,,,0.028302278513042678,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 120; n = 5 wells (C5)"
+reclen_identified_share_A_median_L120_C5,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_A_median_L144_C5,,,0.04789779797463711,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model A, L = 144; n = 5 wells (C5)"
+reclen_identified_share_A_median_L144_C5,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model A's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L24_C5,,,0.6720619207455829,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 24; n = 5 wells (C5)"
+reclen_identified_share_B_median_L24_C5,,,0.25,fraction,median over wells of the share of placements of 24 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L36_C5,,,0.4788524956497706,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 36; n = 5 wells (C5)"
+reclen_identified_share_B_median_L36_C5,,,0.4,fraction,median over wells of the share of placements of 36 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L48_C5,,,0.26452041768138707,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 48; n = 5 wells (C5)"
+reclen_identified_share_B_median_L48_C5,,,0.5,fraction,median over wells of the share of placements of 48 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L60_C5,,,0.35021249153860456,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 60; n = 5 wells (C5)"
+reclen_identified_share_B_median_L60_C5,,,0.6666666666666666,fraction,median over wells of the share of placements of 60 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L80_C5,,,0.26804216152211807,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 80; n = 5 wells (C5)"
+reclen_identified_share_B_median_L80_C5,,,1.0,fraction,median over wells of the share of placements of 80 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L100_C5,,,0.146785177244124,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 100; n = 5 wells (C5)"
+reclen_identified_share_B_median_L100_C5,,,1.0,fraction,median over wells of the share of placements of 100 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L120_C5,,,0.1013370888012054,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 120; n = 5 wells (C5)"
+reclen_identified_share_B_median_L120_C5,,,1.0,fraction,median over wells of the share of placements of 120 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_beta3_reldev_B_median_L144_C5,,,0.0842460862459542,fraction,"median over wells of the median over placements of |beta_3(L)/beta_3(full) - 1|, Model B, L = 144; n = 5 wells (C5)"
+reclen_identified_share_B_median_L144_C5,,,1.0,fraction,median over wells of the share of placements of 144 months on which Model B's beta_3 is identified; n = 5 wells (C5)
+reclen_stable_length_months_A_median_all,,,24.0,months,"median stable length, Model A (tolerance 0.2); 64 of 66 wells reach it within the lengths tested (all)"
+reclen_stable_length_in_efolds_A_median_all,,,4.7485388200506495,,"median stable length in full-record Model B mean-reversion times, Model A (tolerance 0.2); 64 of 66 wells reach it within the lengths tested (all)"
+reclen_stable_n_wells_reached_A_all,,,64.0,count,wells whose Model A beta_3 becomes stable within the lengths tested (all)
+reclen_stable_length_months_B_median_all,,,60.0,months,"median stable length, Model B (tolerance 0.2); 62 of 66 wells reach it within the lengths tested (all)"
+reclen_stable_length_in_efolds_B_median_all,,,8.968261196725384,,"median stable length in full-record Model B mean-reversion times, Model B (tolerance 0.2); 62 of 66 wells reach it within the lengths tested (all)"
+reclen_stable_n_wells_reached_B_all,,,62.0,count,wells whose Model B beta_3 becomes stable within the lengths tested (all)
+reclen_stable_length_months_A_median_C1,,,24.0,months,"median stable length, Model A (tolerance 0.2); 7 of 7 wells reach it within the lengths tested (C1)"
+reclen_stable_length_in_efolds_A_median_C1,,,12.172833866321138,,"median stable length in full-record Model B mean-reversion times, Model A (tolerance 0.2); 7 of 7 wells reach it within the lengths tested (C1)"
+reclen_stable_n_wells_reached_A_C1,,,7.0,count,wells whose Model A beta_3 becomes stable within the lengths tested (C1)
+reclen_stable_length_months_B_median_C1,,,60.0,months,"median stable length, Model B (tolerance 0.2); 7 of 7 wells reach it within the lengths tested (C1)"
+reclen_stable_length_in_efolds_B_median_C1,,,20.86063528536703,,"median stable length in full-record Model B mean-reversion times, Model B (tolerance 0.2); 7 of 7 wells reach it within the lengths tested (C1)"
+reclen_stable_n_wells_reached_B_C1,,,7.0,count,wells whose Model B beta_3 becomes stable within the lengths tested (C1)
+reclen_stable_length_months_A_median_C2,,,24.0,months,"median stable length, Model A (tolerance 0.2); 19 of 19 wells reach it within the lengths tested (C2)"
+reclen_stable_length_in_efolds_A_median_C2,,,5.91022258213743,,"median stable length in full-record Model B mean-reversion times, Model A (tolerance 0.2); 19 of 19 wells reach it within the lengths tested (C2)"
+reclen_stable_n_wells_reached_A_C2,,,19.0,count,wells whose Model A beta_3 becomes stable within the lengths tested (C2)
+reclen_stable_length_months_B_median_C2,,,36.0,months,"median stable length, Model B (tolerance 0.2); 19 of 19 wells reach it within the lengths tested (C2)"
+reclen_stable_length_in_efolds_B_median_C2,,,8.703152222297426,,"median stable length in full-record Model B mean-reversion times, Model B (tolerance 0.2); 19 of 19 wells reach it within the lengths tested (C2)"
+reclen_stable_n_wells_reached_B_C2,,,19.0,count,wells whose Model B beta_3 becomes stable within the lengths tested (C2)
+reclen_stable_length_months_A_median_C3,,,24.0,months,"median stable length, Model A (tolerance 0.2); 26 of 26 wells reach it within the lengths tested (C3)"
+reclen_stable_length_in_efolds_A_median_C3,,,3.526204670306909,,"median stable length in full-record Model B mean-reversion times, Model A (tolerance 0.2); 26 of 26 wells reach it within the lengths tested (C3)"
+reclen_stable_n_wells_reached_A_C3,,,26.0,count,wells whose Model A beta_3 becomes stable within the lengths tested (C3)
+reclen_stable_length_months_B_median_C3,,,80.0,months,"median stable length, Model B (tolerance 0.2); 26 of 26 wells reach it within the lengths tested (C3)"
+reclen_stable_length_in_efolds_B_median_C3,,,9.351807388334517,,"median stable length in full-record Model B mean-reversion times, Model B (tolerance 0.2); 26 of 26 wells reach it within the lengths tested (C3)"
+reclen_stable_n_wells_reached_B_C3,,,26.0,count,wells whose Model B beta_3 becomes stable within the lengths tested (C3)
+reclen_stable_length_months_A_median_C4,,,120.0,months,"median stable length, Model A (tolerance 0.2); 7 of 9 wells reach it within the lengths tested (C4)"
+reclen_stable_length_in_efolds_A_median_C4,,,3.4173866738910275,,"median stable length in full-record Model B mean-reversion times, Model A (tolerance 0.2); 7 of 9 wells reach it within the lengths tested (C4)"
+reclen_stable_n_wells_reached_A_C4,,,7.0,count,wells whose Model A beta_3 becomes stable within the lengths tested (C4)
+reclen_stable_length_months_B_median_C4,,,144.0,months,"median stable length, Model B (tolerance 0.2); 5 of 9 wells reach it within the lengths tested (C4)"
+reclen_stable_length_in_efolds_B_median_C4,,,4.435578940252987,,"median stable length in full-record Model B mean-reversion times, Model B (tolerance 0.2); 5 of 9 wells reach it within the lengths tested (C4)"
+reclen_stable_n_wells_reached_B_C4,,,5.0,count,wells whose Model B beta_3 becomes stable within the lengths tested (C4)
+reclen_stable_length_months_A_median_C5,,,36.0,months,"median stable length, Model A (tolerance 0.2); 5 of 5 wells reach it within the lengths tested (C5)"
+reclen_stable_length_in_efolds_A_median_C5,,,3.8216101590695457,,"median stable length in full-record Model B mean-reversion times, Model A (tolerance 0.2); 5 of 5 wells reach it within the lengths tested (C5)"
+reclen_stable_n_wells_reached_A_C5,,,5.0,count,wells whose Model A beta_3 becomes stable within the lengths tested (C5)
+reclen_stable_length_months_B_median_C5,,,100.0,months,"median stable length, Model B (tolerance 0.2); 5 of 5 wells reach it within the lengths tested (C5)"
+reclen_stable_length_in_efolds_B_median_C5,,,8.492467020154546,,"median stable length in full-record Model B mean-reversion times, Model B (tolerance 0.2); 5 of 5 wells reach it within the lengths tested (C5)"
+reclen_stable_n_wells_reached_B_C5,,,5.0,count,wells whose Model B beta_3 becomes stable within the lengths tested (C5)
+reclen_ccw_nse_A_median_L24_start,,,-0.9990000975293116,,"CCW 1989-96 hindcast, Model A fitted on 24 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L24_start,,,0.03855412373748003,m,"CCW 1989-96 hindcast, Model A fitted on 24 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L24_start,,,0.8503060690470917,,"CCW 1989-96 hindcast, Model A fitted on 24 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L24_end,,,-1.350664909688065,,"CCW 1989-96 hindcast, Model A fitted on 24 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L24_end,,,-0.3632779736768179,m,"CCW 1989-96 hindcast, Model A fitted on 24 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L24_end,,,0.8513520096278275,,"CCW 1989-96 hindcast, Model A fitted on 24 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L36_start,,,-0.8486232225113344,,"CCW 1989-96 hindcast, Model A fitted on 36 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L36_start,,,0.09062808896478347,m,"CCW 1989-96 hindcast, Model A fitted on 36 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L36_start,,,0.8586821716693616,,"CCW 1989-96 hindcast, Model A fitted on 36 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L36_end,,,-0.7899101524399816,,"CCW 1989-96 hindcast, Model A fitted on 36 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L36_end,,,-0.17487385226055863,m,"CCW 1989-96 hindcast, Model A fitted on 36 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L36_end,,,0.8575490727490798,,"CCW 1989-96 hindcast, Model A fitted on 36 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L48_start,,,-0.3858896133349068,,"CCW 1989-96 hindcast, Model A fitted on 48 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L48_start,,,0.050817398951571995,m,"CCW 1989-96 hindcast, Model A fitted on 48 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L48_start,,,0.8597590690695917,,"CCW 1989-96 hindcast, Model A fitted on 48 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L48_end,,,0.08040379497546679,,"CCW 1989-96 hindcast, Model A fitted on 48 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L48_end,,,-0.01352726016246981,m,"CCW 1989-96 hindcast, Model A fitted on 48 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L48_end,,,0.8440974218300149,,"CCW 1989-96 hindcast, Model A fitted on 48 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L60_start,,,0.36285690680832283,,"CCW 1989-96 hindcast, Model A fitted on 60 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L60_start,,,-0.005566339224516029,m,"CCW 1989-96 hindcast, Model A fitted on 60 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L60_start,,,0.8586079702163543,,"CCW 1989-96 hindcast, Model A fitted on 60 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L60_end,,,-0.39930407515542243,,"CCW 1989-96 hindcast, Model A fitted on 60 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L60_end,,,0.08686764944069006,m,"CCW 1989-96 hindcast, Model A fitted on 60 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L60_end,,,0.8439988849068758,,"CCW 1989-96 hindcast, Model A fitted on 60 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L80_start,,,0.3141144676893398,,"CCW 1989-96 hindcast, Model A fitted on 80 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L80_start,,,0.004278688964384869,m,"CCW 1989-96 hindcast, Model A fitted on 80 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L80_start,,,0.8564301155623224,,"CCW 1989-96 hindcast, Model A fitted on 80 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L80_end,,,0.03198086737506711,,"CCW 1989-96 hindcast, Model A fitted on 80 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L80_end,,,0.0944961363423679,m,"CCW 1989-96 hindcast, Model A fitted on 80 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L80_end,,,0.8482955847399958,,"CCW 1989-96 hindcast, Model A fitted on 80 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L100_start,,,0.31205812163106517,,"CCW 1989-96 hindcast, Model A fitted on 100 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L100_start,,,0.0028973262426249136,m,"CCW 1989-96 hindcast, Model A fitted on 100 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L100_start,,,0.8569907819208225,,"CCW 1989-96 hindcast, Model A fitted on 100 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L100_end,,,-0.0646957015812577,,"CCW 1989-96 hindcast, Model A fitted on 100 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L100_end,,,-0.006713907028535693,m,"CCW 1989-96 hindcast, Model A fitted on 100 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L100_end,,,0.8556371678111,,"CCW 1989-96 hindcast, Model A fitted on 100 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L120_start,,,0.016636703044781043,,"CCW 1989-96 hindcast, Model A fitted on 120 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L120_start,,,0.029630264532736574,m,"CCW 1989-96 hindcast, Model A fitted on 120 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L120_start,,,0.8550948534992923,,"CCW 1989-96 hindcast, Model A fitted on 120 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L120_end,,,-0.2486248638161257,,"CCW 1989-96 hindcast, Model A fitted on 120 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L120_end,,,-0.04733337952144588,m,"CCW 1989-96 hindcast, Model A fitted on 120 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L120_end,,,0.8543726067689743,,"CCW 1989-96 hindcast, Model A fitted on 120 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L144_start,,,-0.417871672245683,,"CCW 1989-96 hindcast, Model A fitted on 144 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L144_start,,,0.00098981854237534,m,"CCW 1989-96 hindcast, Model A fitted on 144 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L144_start,,,0.8573757828236672,,"CCW 1989-96 hindcast, Model A fitted on 144 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_L144_end,,,-0.044181534825519675,,"CCW 1989-96 hindcast, Model A fitted on 144 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_L144_end,,,-0.040004455292318594,m,"CCW 1989-96 hindcast, Model A fitted on 144 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_L144_end,,,0.8552309981406679,,"CCW 1989-96 hindcast, Model A fitted on 144 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_A_median_Lfull_all,,,-0.1406250798912576,,"CCW 1989-96 hindcast, Model A fitted on full months from the all of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_A_median_Lfull_all,,,0.03188333993223958,m,"CCW 1989-96 hindcast, Model A fitted on full months from the all of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_A_median_Lfull_all,,,0.8555711809293955,,"CCW 1989-96 hindcast, Model A fitted on full months from the all of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L24_start,,,-2.7013041559331716,,"CCW 1989-96 hindcast, Model B fitted on 24 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L24_start,,,0.5102049636244987,m,"CCW 1989-96 hindcast, Model B fitted on 24 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L24_start,,,0.6395962236251354,,"CCW 1989-96 hindcast, Model B fitted on 24 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L24_end,,,-2.877244621199149,,"CCW 1989-96 hindcast, Model B fitted on 24 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L24_end,,,0.44224812373384287,m,"CCW 1989-96 hindcast, Model B fitted on 24 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L24_end,,,0.6230476047543626,,"CCW 1989-96 hindcast, Model B fitted on 24 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L36_start,,,-1.6182247165301122,,"CCW 1989-96 hindcast, Model B fitted on 36 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L36_start,,,0.41306350181396906,m,"CCW 1989-96 hindcast, Model B fitted on 36 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L36_start,,,0.6768544086633652,,"CCW 1989-96 hindcast, Model B fitted on 36 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L36_end,,,-2.185155065309382,,"CCW 1989-96 hindcast, Model B fitted on 36 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L36_end,,,0.43292951365913096,m,"CCW 1989-96 hindcast, Model B fitted on 36 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L36_end,,,0.6305013834365277,,"CCW 1989-96 hindcast, Model B fitted on 36 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L48_start,,,-1.5885327046178586,,"CCW 1989-96 hindcast, Model B fitted on 48 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L48_start,,,0.442280856459992,m,"CCW 1989-96 hindcast, Model B fitted on 48 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L48_start,,,0.6795293463023836,,"CCW 1989-96 hindcast, Model B fitted on 48 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L48_end,,,-2.195426634122453,,"CCW 1989-96 hindcast, Model B fitted on 48 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L48_end,,,0.43423168575974225,m,"CCW 1989-96 hindcast, Model B fitted on 48 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L48_end,,,0.6410014635926776,,"CCW 1989-96 hindcast, Model B fitted on 48 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L60_start,,,-1.2203090181434035,,"CCW 1989-96 hindcast, Model B fitted on 60 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L60_start,,,0.37250516721052945,m,"CCW 1989-96 hindcast, Model B fitted on 60 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L60_start,,,0.7176758635131006,,"CCW 1989-96 hindcast, Model B fitted on 60 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L60_end,,,-2.343145642523584,,"CCW 1989-96 hindcast, Model B fitted on 60 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L60_end,,,0.44823124199029035,m,"CCW 1989-96 hindcast, Model B fitted on 60 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L60_end,,,0.6625415771542035,,"CCW 1989-96 hindcast, Model B fitted on 60 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L80_start,,,-1.2139377584316784,,"CCW 1989-96 hindcast, Model B fitted on 80 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L80_start,,,0.3075844463680869,m,"CCW 1989-96 hindcast, Model B fitted on 80 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L80_start,,,0.7889761442092407,,"CCW 1989-96 hindcast, Model B fitted on 80 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L80_end,,,-1.5847454309141655,,"CCW 1989-96 hindcast, Model B fitted on 80 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L80_end,,,0.39060372311468156,m,"CCW 1989-96 hindcast, Model B fitted on 80 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L80_end,,,0.687632432480864,,"CCW 1989-96 hindcast, Model B fitted on 80 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L100_start,,,-1.3257389467679639,,"CCW 1989-96 hindcast, Model B fitted on 100 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L100_start,,,0.31883377746259634,m,"CCW 1989-96 hindcast, Model B fitted on 100 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L100_start,,,0.7718837458858819,,"CCW 1989-96 hindcast, Model B fitted on 100 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L100_end,,,-1.4253934512830764,,"CCW 1989-96 hindcast, Model B fitted on 100 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L100_end,,,0.3746167772735768,m,"CCW 1989-96 hindcast, Model B fitted on 100 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L100_end,,,0.7113557555153248,,"CCW 1989-96 hindcast, Model B fitted on 100 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L120_start,,,-1.3323923604979324,,"CCW 1989-96 hindcast, Model B fitted on 120 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L120_start,,,0.2793864212391847,m,"CCW 1989-96 hindcast, Model B fitted on 120 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L120_start,,,0.768227241187367,,"CCW 1989-96 hindcast, Model B fitted on 120 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L120_end,,,-1.389279019576375,,"CCW 1989-96 hindcast, Model B fitted on 120 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L120_end,,,0.37001391065447753,m,"CCW 1989-96 hindcast, Model B fitted on 120 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L120_end,,,0.7092511483964565,,"CCW 1989-96 hindcast, Model B fitted on 120 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L144_start,,,-1.2407706640751828,,"CCW 1989-96 hindcast, Model B fitted on 144 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L144_start,,,0.27055359917994587,m,"CCW 1989-96 hindcast, Model B fitted on 144 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L144_start,,,0.7741794208169017,,"CCW 1989-96 hindcast, Model B fitted on 144 months from the start of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_L144_end,,,-1.1829015318405718,,"CCW 1989-96 hindcast, Model B fitted on 144 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_L144_end,,,0.35067792074271803,m,"CCW 1989-96 hindcast, Model B fitted on 144 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_L144_end,,,0.7020004787930233,,"CCW 1989-96 hindcast, Model B fitted on 144 months from the end of the modern record; median over n = 9 wells"
+reclen_ccw_nse_B_median_Lfull_all,,,-1.4589221186882098,,"CCW 1989-96 hindcast, Model B fitted on full months from the all of the modern record; median over n = 9 wells"
+reclen_ccw_bias_m_B_median_Lfull_all,,,0.3036281942500145,m,"CCW 1989-96 hindcast, Model B fitted on full months from the all of the modern record; median over n = 9 wells"
+reclen_ccw_pearson_r_B_median_Lfull_all,,,0.7643590557084997,,"CCW 1989-96 hindcast, Model B fitted on full months from the all of the modern record; median over n = 9 wells"
+reclen_rho_ar1_expected_full_A_median_all,,,0.4679750878493173,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model A, full record; n = 66 wells (all)"
+reclen_efold_months_full_A_median_all,,,15.780718619637566,months,"median mean-reversion time -1/ln(1 - beta_3), Model A, full record; n = 65 wells (all)"
+reclen_rho_ar1_expected_full_B_median_all,,,0.1560158091912628,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model B, full record; n = 66 wells (all)"
+reclen_efold_months_full_B_median_all,,,6.459301091855726,months,"median mean-reversion time -1/ln(1 - beta_3), Model B, full record; n = 66 wells (all)"
+reclen_rho_ar1_expected_full_A_median_C1,,,0.3368037262769789,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model A, full record; n = 7 wells (C1)"
+reclen_efold_months_full_A_median_C1,,,11.026828031866044,months,"median mean-reversion time -1/ln(1 - beta_3), Model A, full record; n = 7 wells (C1)"
+reclen_rho_ar1_expected_full_B_median_C1,,,0.0031945639129621374,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model B, full record; n = 7 wells (C1)"
+reclen_efold_months_full_B_median_C1,,,2.088298592821318,months,"median mean-reversion time -1/ln(1 - beta_3), Model B, full record; n = 7 wells (C1)"
+reclen_rho_ar1_expected_full_A_median_C2,,,0.44682741038824186,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model A, full record; n = 19 wells (C2)"
+reclen_efold_months_full_A_median_C2,,,14.896046719455258,months,"median mean-reversion time -1/ln(1 - beta_3), Model A, full record; n = 19 wells (C2)"
+reclen_rho_ar1_expected_full_B_median_C2,,,0.0666316985738879,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model B, full record; n = 19 wells (C2)"
+reclen_efold_months_full_B_median_C2,,,4.430374133924467,months,"median mean-reversion time -1/ln(1 - beta_3), Model B, full record; n = 19 wells (C2)"
+reclen_rho_ar1_expected_full_A_median_C3,,,0.47614331829149614,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model A, full record; n = 26 wells (C3)"
+reclen_efold_months_full_A_median_C3,,,16.176402206252735,months,"median mean-reversion time -1/ln(1 - beta_3), Model A, full record; n = 26 wells (C3)"
+reclen_rho_ar1_expected_full_B_median_C3,,,0.1979003021224598,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model B, full record; n = 26 wells (C3)"
+reclen_efold_months_full_B_median_C3,,,7.4074515977100255,months,"median mean-reversion time -1/ln(1 - beta_3), Model B, full record; n = 26 wells (C3)"
+reclen_rho_ar1_expected_full_A_median_C4,,,0.7227609551834832,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model A, full record; n = 9 wells (C4)"
+reclen_efold_months_full_A_median_C4,,,34.81699002424675,months,"median mean-reversion time -1/ln(1 - beta_3), Model A, full record; n = 8 wells (C4)"
+reclen_rho_ar1_expected_full_B_median_C4,,,0.7337140556991023,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model B, full record; n = 9 wells (C4)"
+reclen_efold_months_full_B_median_C4,,,38.755196502555684,months,"median mean-reversion time -1/ln(1 - beta_3), Model B, full record; n = 9 wells (C4)"
+reclen_rho_ar1_expected_full_A_median_C5,,,0.5459366862259102,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model A, full record; n = 5 wells (C5)"
+reclen_efold_months_full_A_median_C5,,,19.82644363281093,months,"median mean-reversion time -1/ln(1 - beta_3), Model A, full record; n = 5 wells (C5)"
+reclen_rho_ar1_expected_full_B_median_C5,,,0.4060701027906097,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model B, full record; n = 5 wells (C5)"
+reclen_efold_months_full_B_median_C5,,,13.315143850953595,months,"median mean-reversion time -1/ln(1 - beta_3), Model B, full record; n = 5 wells (C5)"
+window_full_beta3_ratio_median_all,,,1.025640352000571,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 65 wells (all); T-103"
+window_full_beta3_ratio_p10_all,,,0.7780378815215561,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 65 wells (all); T-103"
+window_full_beta3_ratio_p90_all,,,1.1224339645668229,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 65 wells (all); T-103"
+window_full_beta3_ratio_median_C1,,,1.1384863967809118,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 7 wells (C1); T-103"
+window_full_beta3_ratio_p10_C1,,,1.108306445393498,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 7 wells (C1); T-103"
+window_full_beta3_ratio_p90_C1,,,1.1733296226736303,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 7 wells (C1); T-103"
+window_full_beta3_ratio_median_C2,,,1.05146274906779,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 19 wells (C2); T-103"
+window_full_beta3_ratio_p10_C2,,,1.0121496701400574,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 19 wells (C2); T-103"
+window_full_beta3_ratio_p90_C2,,,1.0866950840101564,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 19 wells (C2); T-103"
+window_full_beta3_ratio_median_C3,,,0.9955403946618417,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 26 wells (C3); T-103"
+window_full_beta3_ratio_p10_C3,,,0.9182908010071191,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 26 wells (C3); T-103"
+window_full_beta3_ratio_p90_C3,,,1.0616628831421053,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 26 wells (C3); T-103"
+window_full_beta3_ratio_median_C4,,,0.7324714902794833,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 8 wells (C4); T-103"
+window_full_beta3_ratio_p10_C4,,,0.42466689623054676,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 8 wells (C4); T-103"
+window_full_beta3_ratio_p90_C4,,,0.8201645621152558,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 8 wells (C4); T-103"
+window_full_beta3_ratio_median_C5,,,0.9445311814026528,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 5 wells (C5); T-103"
+window_full_beta3_ratio_p10_C5,,,0.8290048979868722,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 5 wells (C5); T-103"
+window_full_beta3_ratio_p90_C5,,,1.005607111472299,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 5 wells (C5); T-103"
+reclen_check_vs48_max_abs_nse_diff,,,2.220446049250313e-16,,identity check: full-length forecast / hindcast_within NSE against Script 48's split-sample NSE; largest absolute difference over 264 well-form-direction pairs (expected 0)
+reclen_check_vs39_max_abs_nse_diff,,,1.7680301667155618e-14,,"identity check: CCW hindcast NSE, Model A on the last 100 months, against Script 39; largest absolute difference over 9 wells (expected 0)"
+datum_ccw_supported_m,,,2.9,m,"datum maximizing the median CCW 1989-96 hindcast NSE, Model A on the comparison window (rule fixed before the run, D-225); n wells per datum up to 9"
+datum_ccw_band_min_m,,,2.8,m,shallowest datum within 0.05 NSE of the best (D-225)
+datum_ccw_band_max_m,,,2.9,m,deepest datum within 0.05 NSE of the best (D-225)
+datum_ccw_nse_median_at_D2.9,,,0.4351794682055905,,"median CCW hindcast NSE, Model A at datum 2.9 m, comparison window"
+datum_ccw_nse_median_at_D3.7,,,-0.0646957015812577,,"median CCW hindcast NSE, Model A at datum 3.7 m, comparison window"
+datum_ccw_best_abs_bias_m,,,2.6,m,"datum minimizing the median |CCW bias| (check, D-225)"
+datum_ccw_supported_open_ground_m,,,2.2,m,"datum maximizing the median CCW NSE over the open-ground wells only (check, D-225)"
+datum_split_nse_fwd_median_at_D2.9,,,0.6760456480397404,,"median split-sample NSE (fwd), Model A at datum 2.9 m"
+datum_split_nse_fwd_median_at_D3.7,,,0.6119815001294202,,"median split-sample NSE (fwd), Model A at datum 3.7 m"
+datum_split_nse_rev_median_at_D2.9,,,0.7215711042230244,,"median split-sample NSE (rev), Model A at datum 2.9 m"
+datum_split_nse_rev_median_at_D3.7,,,0.6737312915987114,,"median split-sample NSE (rev), Model A at datum 3.7 m"
+projection_2080s_summer_fall_median_at_supported,,,-0.4398589065009973,m,"median 2080s summer sustained level response, Model A at datum 2.9 m; n = 57 wells (forest withheld, D-224 pairing)"
+projection_2080s_summer_room_left_min_at_supported,,,0.22633163265445988,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 2.9 m"
+projection_2080s_summer_fall_median_at_band_min,,,-0.4302289880275579,m,"median 2080s summer sustained level response, Model A at datum 2.8 m; n = 57 wells (forest withheld, D-224 pairing)"
+projection_2080s_summer_room_left_min_at_band_min,,,0.13599843436706194,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 2.8 m"
+projection_2080s_summer_fall_median_at_band_max,,,-0.4398589065009973,m,"median 2080s summer sustained level response, Model A at datum 2.9 m; n = 57 wells (forest withheld, D-224 pairing)"
+projection_2080s_summer_room_left_min_at_band_max,,,0.22633163265445988,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 2.9 m"
+projection_2080s_summer_fall_median_at_project,,,-0.5080836352936623,m,"median 2080s summer sustained level response, Model A at datum 3.7 m; n = 57 wells (forest withheld, D-224 pairing)"
+projection_2080s_summer_room_left_min_at_project,,,0.933299371225778,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 3.7 m"
+projection_2080s_summer_fall_median_model_b,,,-0.3627044589228152,m,"median 2080s summer sustained level response, Model B, the same wells"
+reclen_check_datum_vs39_max_abs_nse_diff,,,1.7680301667155618e-14,,identity check at the project datum (expected 0)
+reclen_check_datum_vs48_max_abs_nse_diff,,,2.220446049250313e-16,,identity check at the project datum (expected 0)
+reclen_check_datum_vs19_max_abs_fall_diff_m,,,3.552713678800501e-15,,identity check at the project datum (expected 0)

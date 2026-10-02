@@ -1827,6 +1827,62 @@ Script 26 1.24.0 computes `rho_ar1_expected` (Model B) and `rho_ar1_expected_mod
 
 **Revisit if** a persistence model other than first-order (a second reservoir, a seasonal coefficient) is adopted, in which case the lag-12 autocorrelation is taken from that model.
 
+### D-222 — What the record length decides is measured, not assumed: Script 50, an opt-in experiment on coefficients, forecasting and hindcasting
+
+*2026-10-01*
+
+Script 50 `50_record_length.py` (tier X, exec optin; numbered 50 because 49 is the former name of 01b_water_table.py, still cited as such) refits Model A and Model B at every reference well on records of each length in `RECLEN_LENGTHS_MONTHS` and on the full record, and measures four things: forecast skill after `MODEL_AB_SPLIT_DATE`, within-record hindcast skill before it, the CCW 1989–96 hindcast (fits from the start or end of the modern record), and β₃ stability over every placement, with each well's stable length in months and in Model B mean-reversion times. Script 39's hindcast functions move unchanged to `src/utils/hindcast_utils.py` (Script 39 1.5.1; outputs byte-identical). Two identities run every time and are emitted: the full-length rows reproduce Script 48's split-sample NSE and the published-window CCW hindcast reproduces Script 39 (both to rounding on the first run). The step also emits full-record persistence (1 − β₃)¹² for both forms (D-221) and the per-well window/full-record β₃ ratio (T-103).
+
+**Revisit if** the CCW mapping or offsets change (Script 39), or the split date moves, in which case the experiment reruns and Paper M's §6 is re-read against it.
+
+### D-223 — The report keeps Model A on a 100-month minimum; both forms are reported for what each does, and Script 50 tells short-record sites what is achievable
+
+*2026-10-01*
+
+The report's published specification stays Model A, with the 100-month record (`MIN_RECORD_MONTHS` admission; `LCSC_DATA_LIMIT` comparison window) as its minimum, now justified by measurement rather than assumed. Paper M reports both forms honestly: what each identifies, how much record each needs, and where each forecasts or hindcasts well, with the record-length results presented as guidance for sites with short records.
+
+**Revisit if** the machine run of Script 50 differs materially from the sandbox run, or a longer independent record tests the forms again.
+
+### D-224 — Climate projections are reported under both forms, as a pair on like-for-like wells; the forest is withheld under both
+
+*2026-10-01*
+
+Scripts 19 and 26b compute the sustained level response and the MSL5 shift under both forms with the same functions (`climate_forcing_change_12`, `sustained_monthly_response`). Model B's rows keep their files and keys; Model A's go to separate `_model_a` files and `_model_a` report keys, so no citation moves and no key collides. Model A is projected only where Model B is identified (`response_identified`, three parameters for A, four for B), so the pair is always on the same wells; this withholds C4 under both forms. The documents present the two as a pair, never averaged, and say which form held up against the drier past and which forecasts better inside the modern record. The scenario viewer gains a form toggle carrying the same pairing.
+
+**Revisit if** C4's Model B β₃ is identified on a longer record (both forms then project it); a second independent epoch tests the sustained response and disagrees with CCW; Script 21 (T-97) adopts a different convention.
+
+### D-225 — The drier past chooses the datum for projections: Model A is refitted at every datum and hindcast against CCW 1989-96, by a rule fixed before the run
+
+*2026-10-01*
+
+Script 50 1.1.0 adds three experiments over the Script 03 datum sweep: E5, the CCW hindcast by datum (comparison window and full record); E6, the within-record split test by datum; E7, the 2050s and 2080s sustained response and the room left above the datum, by datum (forest withheld, D-224). The supported datum and band are read by the pre-stated rule; median |bias| and the open-ground subset are reported as checks. The 3.7 m comparison-window row reproduces Script 39 and the split rows reproduce Script 48 (identity checks, emitted).
+
+**Revisit if** the CCW mapping or offsets change (Script 39); the open-ground and all-well results diverge further; a second independent epoch is added.
+
+### D-226 — Coefficients stay at 3.7 m; projections are quoted at the CCW-supported datum beside Model B, with the range over the supported datums; the hindcast film is unchanged
+
+*2026-10-01*
+
+(1) The published coefficients, water balance, thresholds and hindcasts stay on Model A at `DRAINAGE_DATUM` (D-007, D-109, D-223 unchanged). (2) Projections quote Model A at the CCW-supported datum (`datum_ccw_supported_m`) beside Model B, and give Model A's range over the supported datums: from the open-ground check (`datum_ccw_supported_open_ground_m`) to the project datum, read from `50_report_numbers.csv` (`projection_2080s_summer_fall_median_*`). The room left above the datum at the projected summer minimum is quoted with it. (3) The hindcast film stays on Model A at the project datum: it reads wet area, which turns on absolute level, and the project datum is the one that reproduces the drier epoch's level without bias; its caption says so and cites D-225.
+
+**Revisit if** D-225's Revisit-if is met; the level-dependent drainage test shows the drier past is explained by a mechanism the single-reservoir form cannot carry (then the projection basis is reopened); or a moving-datum form is specified.
+
+### D-227 — The pipeline's machine is a pinned environment, not a host: any machine that builds it may run the pipeline, and the cloud becomes a machine of record
+
+*2026-10-02*
+
+The environment of record is Python 3.12.3 (uv-managed), `requirements.txt`, the externals in `tools/environment.json` and a pinned OpenBLAS kernel (`OPENBLAS_CORETYPE`, single-threaded BLAS). Any machine that builds it with `tools/nrg_env.sh` may run the pipeline and ship; env_audit compares the environment, not the hostname. Cloud sessions start with `tools/cloud_setup.sh` (both repositories in the two-git-dirs layout, the environment, the ODTs from Drive, the doc lock). Pushing stays Martin's call each time. Published PDFs are built only where LibreOffice is the recorded version.
+
+**Revisit if** two machines that both pass `env_audit --strict` produce outputs that differ beyond rounding in a way the pins cannot remove; the cloud's LibreOffice or pandoc cannot be held at the recorded versions.
+
+### D-228 — The pipeline is versioned 0.9.x until a paper is submitted; each release is a GitHub release that Zenodo archives, with .zenodo.json metadata
+
+*2026-10-02*
+
+One version string, `config.PIPELINE_VERSION`, on the 0.9.x line until the first paper is submitted (then 1.0.0); the next release is 0.9.1. A release is a tag `v0.9.N` and a GitHub release, which the Zenodo integration archives as a new version of the same record. A `.zenodo.json` at the repository root carries the creator (Hollingham, Martin; ORCID above), title, description, licence and related identifiers; a `CITATION.cff` carries the same for GitHub's "Cite this repository". The papers cite the concept DOI (all versions) and name the version DOI that produced their numbers. Publishing a release is Martin's call each time.
+
+**Revisit if** a paper is submitted (then 1.0.0), or the journal requires a different archive.
+
 ---
 
-220 decisions. Generated by `tools/build_public_decisions.py`.
+227 decisions. Generated by `tools/build_public_decisions.py`.

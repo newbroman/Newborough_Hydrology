@@ -40,7 +40,10 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.86.0"  # Hollingham (2026) - 2026-10-01 (D-217). MODEL_AB_SPLIT_DATE and
+__version__ = "1.88.0"  # Hollingham (2026) - 2026-10-01 (D-225). RECLEN_DATUM_NSE_TOL. Additive.
+# 1.87.0  # Hollingham (2026) - 2026-10-01 (D-222). RECLEN_LENGTHS_MONTHS,
+#   RECLEN_MIN_FIT_MONTHS, RECLEN_STABLE_TOL: the record-length experiment (Script 50). Additive.
+# 1.86.0  # Hollingham (2026) - 2026-10-01 (D-217). MODEL_AB_SPLIT_DATE and
 #   MODEL_AB_MIN_TEST_MONTHS: the split-sample test of Model A against Model B in Script 48 1.4.0
 #   (each form fitted on one side of the split and free-run over the other). Additive.
 # 1.85.0  # Hollingham (2026) - 2026-09-30. DATUM_RAW_DEPTH_M: the zero datum (raw depth
@@ -616,6 +619,20 @@ PASTAS_IDENT_MAX_REL_SE        = 0.5
 # MODEL_AB_MIN_TEST_MONTHS observed months to score.
 MODEL_AB_SPLIT_DATE            = "2018-01-01"
 MODEL_AB_MIN_TEST_MONTHS       = 24
+# The record-length experiment (Script 50, D-222): each form is fitted on records of these
+# lengths (counted in fitted monthly changes, i.e. rows of the SSM frame, so a gap in a record
+# lengthens the calendar span but not L) and on each well's full record. Fits shorter than
+# SSM_MIN_OBS are the point of the experiment, so it fits down to RECLEN_MIN_FIT_MONTHS — a
+# deliberate exception to SSM_MIN_OBS, confined to Script 50. A well's stable length is the
+# shortest L from which the median over placements of |beta_3(L)/beta_3(full) - 1| stays below
+# RECLEN_STABLE_TOL at every longer L.
+RECLEN_LENGTHS_MONTHS          = (24, 36, 48, 60, 80, 100, 120, 144)
+RECLEN_MIN_FIT_MONTHS          = 24
+RECLEN_STABLE_TOL              = 0.2
+# Script 50 1.1.0 (D-225): the CCW-supported datum is the datum of Script 03's sweep that maximizes
+# the median CCW 1989-96 hindcast NSE (Model A, comparison window); its band is every datum whose
+# median NSE lies within this tolerance of that maximum. Fixed before the run.
+RECLEN_DATUM_NSE_TOL           = 0.05
 # Script 48 fits every well on two bases — the report's comparison window and the
 # full record — and the figure shows one of them; the full record is where a slow
 # (forest) response can be identified, the comparison window is what the report's

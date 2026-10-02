@@ -164,8 +164,12 @@ def _reexec_under_venv() -> None:
     venv_py = Path(__file__).resolve().parent / "venv" / "bin" / "python3"
     if not venv_py.exists():
         return
+    # 2.23.1: compare the interpreter's PREFIX, not the resolved executable. A venv's python is a
+    # symlink to the system python, so the resolved paths are always equal and a bare
+    # `python3 run_analysis.py` passed this test while running with the system site-packages:
+    # on 2026-10-01 the film step died on "imageio-ffmpeg is not installed" under /usr/bin/python3.
     try:
-        if Path(sys.executable).resolve() == venv_py.resolve():
+        if Path(sys.prefix).resolve() == venv_py.parent.parent.resolve():
             return
     except OSError:
         return
@@ -186,7 +190,13 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.22.1"  # Hollingham (2026) - 2026-09-30. --step KEY prints a note when the bare number
+__version__ = "2.23.1"  # Hollingham (2026) - 2026-10-02. _reexec_under_venv() compares sys.prefix with the venv, not the
+#   resolved executable (a venv python is a symlink to the system one, so that test always passed and a bare
+#   `python3 run_analysis.py` ran on the system site-packages; the 2026-10-01 film run failed on it).
+# 2.23.0  # Hollingham (2026) - 2026-10-01 (D-222). Script 50 (record length) registered in
+#   Phase 19, tier X, opt-in; Phase 19 retitled "Independent Checks of the Per-Well SSM (Scripts 48, 50)".
+#   _DOCUMENTED_COUNTS: total_registered 59 -> 60, optin_diagnostic 6 -> 7, by_exec.optin 3 -> 4.
+# 2.22.1  # Hollingham (2026) - 2026-09-30. --step KEY prints a note when the bare number
 #   is also a different step's index (the 2026-09-29 "--step 38" hand-over ran Script 38 for step 38).
 #   No behaviour change; _DOCUMENTED_COUNTS untouched.
 # 2.22.0  # Hollingham (2026) - 2026-09-29. THE FULL RUN SETTLES ITSELF (D-212; Martin:
@@ -543,6 +553,7 @@ PHASE_18 = [
 
 PHASE_19 = [
     Step("48_pastas_crosscheck.py", "Pastas cross-check of the per-well SSM: gain, response time, evaporation factor and base level from an independent transfer-function model on the same monthly record, against Model B (its exact counterpart) and Model A (datum-conditional); the unit conversion verified on SSM-generated wells. Needs pastas (requirements.txt)", "A"),
+    Step("50_record_length.py",     "What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic", "X", "optin"),
 ]
 
 ALL_PHASES = [
@@ -564,7 +575,7 @@ ALL_PHASES = [
     ("PHASE 16 \u2014 Window Sensitivity, Coastal Transect, and Supplementary Cluster Diagnostics (Scripts 34, 38 default; 24b, 31, 31b opt-in)", PHASE_16),
     ("PHASE 17 \u2014 Synthesis Figures, Greyscale Conversion, and the Ranwell 1951\u201353 Record (Scripts 09f, 09g, 27, 43, 44)",  PHASE_17),
     ("PHASE 18 \u2014 Sentinel Wet-Area Model (Scripts 45, 46; film 47 on demand)",  PHASE_18),
-    ("PHASE 19 \u2014 Independent Cross-Check of the Per-Well SSM (Script 48)",  PHASE_19),
+    ("PHASE 19 \u2014 Independent Checks of the Per-Well SSM (Scripts 48, 50)",  PHASE_19),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -593,13 +604,13 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            59,
+    "total_registered":            60,
     "total_phases":                19,
     "by_tier.analytical_toplevel": 45,
     "by_tier.display_utility":      8,
-    "by_tier.optin_diagnostic":     6,
+    "by_tier.optin_diagnostic":     7,
     "by_exec.default":             54,
-    "by_exec.optin":                3,
+    "by_exec.optin":                4,
     "by_exec.ondemand":             2,
     "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document

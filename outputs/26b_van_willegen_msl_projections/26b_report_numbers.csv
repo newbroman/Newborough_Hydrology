@@ -18,3 +18,20 @@ msl5_shift_sustained_m_c5_coastal_forest_2080s,C5 (Coastal Forest),2080s,-0.3972
 msl5_projection_n_clusters_withheld,,,1.0,count,clusters whose Model B beta_3 fails Script 48's identifiability rule and are not projected: C4 (Main Forest)
 msl5_shift_largest_cluster_2050s,,2050s,C5 (Coastal Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.
 msl5_shift_largest_cluster_2080s,,2080s,C5 (Coastal Forest),,Cluster with the largest-magnitude msl5_shift_mean_m for this scenario.
+msl5_shift_mean_m_c1_lake_edge_2050s_model_a,C1 (Lake Edge),2050s,-0.03621076870873441,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c1_lake_edge_2050s_model_a,C1 (Lake Edge),2050s,-0.033238789838980994,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_shift_mean_m_c1_lake_edge_2080s_model_a,C1 (Lake Edge),2080s,-0.05618918028099594,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c1_lake_edge_2080s_model_a,C1 (Lake Edge),2080s,-0.05017618004893978,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_shift_mean_m_c2_dune_2050s_model_a,C2 (Dune),2050s,-0.1910325146296613,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c2_dune_2050s_model_a,C2 (Dune),2050s,-0.18651863634625085,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_shift_mean_m_c2_dune_2080s_model_a,C2 (Dune),2080s,-0.33649204310169567,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c2_dune_2080s_model_a,C2 (Dune),2080s,-0.32726584687475896,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_shift_mean_m_c3_western_residual_2050s_model_a,C3 (Western Residual),2050s,-0.21140917289884642,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c3_western_residual_2050s_model_a,C3 (Western Residual),2050s,-0.20703871272901475,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_shift_mean_m_c3_western_residual_2080s_model_a,C3 (Western Residual),2080s,-0.3730059858884337,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c3_western_residual_2080s_model_a,C3 (Western Residual),2080s,-0.364047437693695,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_shift_mean_m_c5_coastal_forest_2050s_model_a,C5 (Coastal Forest),2050s,-0.2301642830025204,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c5_coastal_forest_2050s_model_a,C5 (Coastal Forest),2050s,-0.22610483909089044,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_shift_mean_m_c5_coastal_forest_2080s_model_a,C5 (Coastal Forest),2080s,-0.41015589894273397,m,"Mean over window-ends of the MSL5 shift: sustained level response, Model A (D-224; 26b_msl5_ukcp18_projection_summary_model_a.csv)."
+msl5_shift_sustained_m_c5_coastal_forest_2080s_model_a,C5 (Coastal Forest),2080s,-0.4018065787795666,m,"Sustained spring level response to the scenario climatology, Model A (D-224)."
+msl5_projection_n_clusters_withheld_model_a,,,1.0,count,"clusters not projected on Model A: its beta_3 is not identified, or Model B's is not (D-224 pairing): C4 (Main Forest)"

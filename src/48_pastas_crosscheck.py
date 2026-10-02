@@ -59,7 +59,9 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-10-01 (D-217). A third form beside Model A
+__version__ = "1.5.1"  # Hollingham (2026) - 2026-10-02 (D-231). daily_stresses() calls the shared
+#   utils/pastas_utils.spread_daily() (moved there unchanged for Script 50 E8); outputs identical.
+# 1.5.0  # Hollingham (2026) - 2026-10-01 (D-217). A third form beside Model A
 #   and Model B in 48_04: Model A with each well's datum at its own depth to mean high water
 #   (ground_elev_m from 01_well_elevations less tide_mhw_m from 01b's report numbers; columns and
 #   report numbers tagged M). Martin: "reviewers cant argue the choice of datum on physical
@@ -116,6 +118,7 @@ import numpy as np                                            # noqa: E402
 import pandas as pd                                           # noqa: E402
 from scipy import stats as scipy_stats                        # noqa: E402
 
+from utils.pastas_utils import spread_daily  # noqa: E402
 from utils.paths import (                                     # noqa: E402
     DIR_48, OUT_48_PER_WELL, OUT_48_AGREEMENT, OUT_48_SYNTHETIC, OUT_48_FIG, OUT_48_REPORT_NUMBERS,
     OUT_48_MODEL_AB,
@@ -166,17 +169,10 @@ def load_inputs():
 def daily_stresses(cl: pd.DataFrame, first_head: pd.Timestamp):
     """The monthly P and PET totals spread evenly over each month's days (m/day),
     from PASTAS_WARMUP_YEARS before the first head to the end of the climate record.
-    A stress stamped YYYY-MM-01 is the total for that month (Script 01 convention)."""
+    A stress stamped YYYY-MM-01 is the total for that month (Script 01 convention).
+    1.5.1: the spreading is utils/pastas_utils.spread_daily(), shared with Script 50 E8."""
     start = pd.Timestamp(year=first_head.year - PASTAS_WARMUP_YEARS, month=1, day=1)
-    c = cl.loc[start:].dropna(subset=["P_m", "PET"])
-    days = pd.date_range(c.index[0], c.index[-1] + pd.offsets.MonthEnd(0), freq="D")
-    per = days.to_period("M")
-    ndays = pd.Series(days, index=days).groupby(per).size()
-    pm = c["P_m"].copy(); pm.index = pm.index.to_period("M")
-    em = c["PET"].copy(); em.index = em.index.to_period("M")
-    P = pd.Series((pm.reindex(per) / ndays.reindex(per)).to_numpy(), index=days, name="P")
-    E = pd.Series((em.reindex(per) / ndays.reindex(per)).to_numpy(), index=days, name="E")
-    return P.dropna(), E.dropna()
+    return spread_daily(cl, start)
 
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -570,3 +570,20 @@ projection_2080s_summer_fall_median_model_b,,,-0.3627044589228152,m,"median 2080
 reclen_check_datum_vs39_max_abs_nse_diff,,,1.7680301667155618e-14,,identity check at the project datum (expected 0)
 reclen_check_datum_vs48_max_abs_nse_diff,,,2.220446049250313e-16,,identity check at the project datum (expected 0)
 reclen_check_datum_vs19_max_abs_fall_diff_m,,,3.552713678800501e-15,,identity check at the project datum (expected 0)
+reclen_check_datum_vs44_max_abs_nse_diff,,,3.656459057754802e-08,,identity check at the project datum (expected 0)
+datum_ranwell_supported_m,,,0.7,m,"datum maximizing the median Ranwell 1951-53 NSE after offset over the 3 headline pairings, Model A on the comparison window (rule fixed before the run, D-229); empty when the curve is flat"
+datum_ranwell_band_min_m,,,0.5,m,shallowest datum within 0.05 NSE of the best (D-229)
+datum_ranwell_band_max_m,,,1.1,m,deepest datum within 0.05 NSE of the best (D-229)
+datum_ranwell_nse_spread,,,0.39987420357496783,,max minus min of the median headline NSE over the datum grid; below 0.05 the record does not discriminate
+datum_ranwell_verdict,,,-1.0,code,"disagrees (1 consistent with the CCW band, 0 does not discriminate, -1 disagrees; D-229)"
+ranwell_nse_median_at_project,,,0.4605793570856248,,"median NSE after offset, headline pairings, Model A at datum 3.7 m, comparison window"
+ranwell_nse_dry_year_median_at_project,,,0.8398248533311037,,"median NSE after offset, 1953 only, headline pairings, Model A at datum 3.7 m, comparison window"
+ranwell_range_ratio_median_at_project,,,1.0348733708289841,,"median model range / observed range, headline pairings, Model A at datum 3.7 m, comparison window"
+ranwell_nse_median_at_supported,,,0.8584414994499842,,"median NSE after offset, headline pairings, Model A at datum 0.7 m, comparison window"
+ranwell_nse_dry_year_median_at_supported,,,0.936025786495587,,"median NSE after offset, 1953 only, headline pairings, Model A at datum 0.7 m, comparison window"
+ranwell_range_ratio_median_at_supported,,,1.0290135361279968,,"median model range / observed range, headline pairings, Model A at datum 0.7 m, comparison window"
+ranwell_nse_median_model_b,,,0.8565624443565217,,"median NSE after offset, headline pairings, Model B (its own zero-drainage datum), comparison window"
+ranwell_nse_dry_year_median_model_b,,,0.9333835109118145,,"median NSE after offset, 1953 only, headline pairings, Model B (its own zero-drainage datum), comparison window"
+ranwell_range_ratio_median_model_b,,,1.0226531783360393,,"median model range / observed range, headline pairings, Model B (its own zero-drainage datum), comparison window"
+datum_ranwell_supported_all_pairings_m,,,0.8,m,"the same rule over every Script 44 pairing (check, D-229)"
+datum_ranwell_supported_dry_year_m,,,0.7,m,"the same rule on 1953 alone, below the surface (check against D-059, D-229)"

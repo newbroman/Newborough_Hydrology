@@ -217,8 +217,8 @@ tracked publicly.
   the ENVIRONMENT line alone, by design, so the L14 verdict comes from Martin's
   `./working/nrg_git.sh --ship`, which also rebuilds report.pdf and
   archives to Drive. Sweep the lock/tmp_obj residue into `_to_delete/` after
-  each git write. Stage by NAME, not `add -A`: `Claude outputs/` is untracked
-  and not ignored.
+  each git write. Stage by NAME, not `add -A`: `Claude outputs/` is ignored
+  (its earlier contents moved to the private repository on 2026-10-02).
   **A claim made here on 2026-09-02 that the project-instructions box states
   this unconditionally was WRONG, and is withdrawn.** The box reads *"Pushes
   cannot be made from the bridge UNLESS a credential helper has been

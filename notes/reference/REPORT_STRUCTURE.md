@@ -131,9 +131,9 @@ live document — confirm against the operator's `.odm`, not the mirror or the P
 
 - **Reference/number corrections:** delivered as search-string lists, verified
   against a fresh PDF export's caption sequence.
-- **Prose/section edits:** JSON manifest + `apply_report_edits.py` (operator runs
-  locally; default interactive walk shows before/after y/n/q; `--yes-all` skips it;
-  each edit carries `expect_count`).
+- **Prose/section edits:** `tools/odt_edit.py` (counted substitutions, four guards; never
+  odfpy for writing). The earlier `apply_report_edits.py` (JSON manifest, interactive walk)
+  wrote through odfpy and was retired to `archive/tools/` on 2026-10-02. <!-- former path -->
 - **Figure-reference integrity:** `tools/figref_lint.py` reads the exported
   PDF, reports caption-sequence gaps/duplicates, dangling references, and
   unreferenced figures. Wired into nrg_git.sh option 2 (warns, never blocks).

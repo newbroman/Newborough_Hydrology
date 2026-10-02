@@ -41,7 +41,7 @@ None of this is automatic. Each item is Martin's today.
       lapse every seven days (task T-65). A new maintainer either joins that project or creates
       their own client (rclone's documentation: "Making your own client_id"), and ideally
       publishes it so the weekly lapse ends.
-- [ ] **Zenodo:** the software record (doi:10.5281/zenodo.19567644) is created by Zenodo's GitHub
+- [ ] **Zenodo:** the software record (concept doi:10.5281/zenodo.19567643, all versions) is created by Zenodo's GitHub
       integration from Martin's account. New versions appear automatically when a GitHub release is
       published from the repository; the integration and the record's ownership stay with the
       account that enabled them unless transferred (Zenodo's record sharing).
@@ -134,12 +134,16 @@ the GitHub release and the Zenodo version:
 
 1. Set `PIPELINE_VERSION` and `PIPELINE_RELEASE_DATE` in `config.py` and `date-released` in
    `CITATION.cff`; run `python3 run_analysis.py --manifest-only`; ship.
-2. `git tag v<version> && git push origin v<version>`.
-3. On GitHub: Releases → Draft a new release → the tag → Publish. Zenodo archives it as a new
-   version of the record within minutes, using `.zenodo.json` for its metadata.
+2. On GitHub (https://github.com/newbroman/Newborough_Hydrology/releases/new): Choose a tag →
+   type `v<version>` → "Create new tag on publish", target `main`; a title; "Generate release
+   notes"; leave *pre-release* unticked; Publish. (A tag pushed from a Claude cloud session is
+   refused by its git connection, which is why the form makes the tag.) Zenodo archives the
+   release as a new version of the record within minutes, using `.zenodo.json` for its metadata.
+3. Add the new version DOI to `CITATION.cff` `identifiers`.
 
-Papers cite the record's *concept* DOI (all versions) and name the version that produced their
-numbers.
+Papers cite the record's *concept* DOI, 10.5281/zenodo.19567643 (all versions, always the
+latest), and name the version DOI that produced their numbers: 0.9.2.23 is
+10.5281/zenodo.23096072 (released 2026-10-02).
 
 ## 7. Where the knowledge lives
 

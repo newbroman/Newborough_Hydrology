@@ -660,3 +660,26 @@ two_store_nw9_winter2024_max_single_m,,,-0.26122476293004293,m,"nw9: highest lev
 two_store_nw9_winter2024_max_double_m,,,-0.2601423451637793,m,"nw9: highest level, winter ending 2024 (double; E8, D-231)"
 two_store_nw9_single_pass,,,0.0,flag,nw9 winters reproduced by the C5 single model (test 4b)
 two_store_nw9_double_pass,,,0.0,flag,nw9 winters reproduced by the C5 double model (test 4b)
+change_verdict,,,1.0,code,"cluster-specific change (2 site-wide, 1 cluster-specific, 0 none; E8b, rule fixed before the run, D-232)"
+change_common_date,,,,month,midpoint of the overlap of the change dates' 95% intervals across the clusters that need a term (E8b)
+change_C1_earns,,,0.0,flag,C1: a non-climatic term earns its place (E8b)
+change_C1_tstart,,,2008-04,month,"C1: fitted change date, best form step (E8b)"
+change_C2_earns,,,0.0,flag,C2: a non-climatic term earns its place (E8b)
+change_C2_tstart,,,2005-06,month,"C2: fitted change date, best form trend (E8b)"
+change_C3_earns,,,0.0,flag,C3: a non-climatic term earns its place (E8b)
+change_C3_tstart,,,2005-12,month,"C3: fitted change date, best form trend (E8b)"
+change_C4_earns,,,0.0,flag,C4: a non-climatic term earns its place (E8b)
+change_C4_tstart,,,2006-09,month,"C4: fitted change date, best form trend (E8b)"
+change_C5_earns,,,1.0,flag,C5: a non-climatic term earns its place (E8b)
+change_C5_tstart,,,2007-02,month,"C5: fitted change date, best form relax (E8b)"
+surface_verdict,,,0.0,code,"not supported (1 supported at a majority of clusters, 0 not; E8c, D-232)"
+surface_C1_passes,,,0.0,flag,C1: surface flow passes tests 1-3 (E8c)
+surface_C1_threshold_m,,,0.05,m,"C1: fitted surface-flow threshold, best form threshold, level relative to ground (E8c)"
+surface_C2_passes,,,0.0,flag,C2: surface flow passes tests 1-3 (E8c)
+surface_C2_threshold_m,,,-0.19584854508884175,m,"C2: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+surface_C3_passes,,,0.0,flag,C3: surface flow passes tests 1-3 (E8c)
+surface_C3_threshold_m,,,-0.9840074775304721,m,"C3: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+surface_C4_passes,,,0.0,flag,C4: surface flow passes tests 1-3 (E8c)
+surface_C4_threshold_m,,,-0.65,m,"C4: fitted surface-flow threshold, best form threshold, level relative to ground (E8c)"
+surface_C5_passes,,,0.0,flag,C5: surface flow passes tests 1-3 (E8c)
+surface_C5_threshold_m,,,-0.7906608233241997,m,"C5: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"

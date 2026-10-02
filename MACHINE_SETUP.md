@@ -11,7 +11,7 @@ it came from. Reconstructing it means fetching all three.
 |---|---|---|
 | this repository, public | code, tools, markdown mirrors, `DECISIONS_PUBLIC.md` | text that wants diffing and history |
 | `Newborough_Hydrology_working`, **private** | everything under `working/` — the decision log, changelogs, work register, working notes, and `nrg_git.sh` | text, but the deliberation rather than the conclusions |
-| `gdrive:NRG_documents` | the ODT documents themselves | zips: git cannot diff them and stores each save whole |
+| `gdrivefile:NRG_documents_v2` | the ODT documents themselves | zips: git cannot diff them and stores each save whole |
 
 The third split is not fastidiousness. An ODT is a zip, so two saves of a
 document share almost no bytes; `report9.odt` is 123 MB, and a fortnight of
@@ -269,12 +269,17 @@ one.
 ## 4. The documents
 
 ```bash
-rclone config          # n → name it exactly "gdrive" → drive → scope 1 → browser auth
-rclone copy gdrive:NRG_documents . --progress
+rclone config          # n → name it exactly "gdrivefile" → drive → the rclone-nrg client ID and secret
+                       #   → scope drive.file → browser auth → Shared Drive: n
+bash tools/drive_pull.sh
 ```
 
-Scope **1** (full access), not `drive.file`: the folder was created outside
-rclone, and `drive.file` only shows rclone what it made itself.
+Scope **`drive.file`**, and the **rclone-nrg client ID and secret** (Google Cloud project rclone-nrg,
+published 2026-10-02): `drive.file` shows rclone only the files that client created, and
+`NRG_documents_v2` was created by it, so a remote with any other client sees an empty folder. Answer
+the Shared Drive question **n**; `drive.file` may not list shared drives and rclone aborts on y. The
+old `gdrive:NRG_documents` (full scope, the Testing-status client) is the pre-2026-10-02 copy, kept
+untouched.
 
 About 404 MB. Then mark the archive current, so `tools/drive_lag.py` does not
 report drift that is not there:
@@ -289,7 +294,7 @@ in no repository, so between an edit and the next `rclone copy` they exist on
 one disk only. Re-touch the marker after every upload:
 
 ```bash
-rclone copy . gdrive:NRG_documents --include '*.odt' --include '*.odm' --progress
+rclone copy . gdrivefile:NRG_documents_v2 --filter-from tools/rclone-odt-filter.txt --progress
 touch .last_drive_archive
 ```
 

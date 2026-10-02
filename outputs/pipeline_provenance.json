@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T12:41:48",
+ "generated": "2026-10-02T15:01:30",
  "orchestrator": "2.23.2",
  "steps": {
   "00_climate_summary.py": {
@@ -1529,7 +1529,10 @@
     "outputs/50_record_length/50_12_two_store_by_cluster.csv": "32b504545e584e9cc065f0ded6503a1cb16db5980a9e148c8c1be13c80f52020",
     "outputs/50_record_length/50_13_two_store_check_well.csv": "b127d27ac2a505d9e522385ad5da402f293c844791778d05d7c53b0abe42b484",
     "outputs/50_record_length/50_14_two_store.png": "7b30070839a7c8afef05a0d2e567897d72b38f5927ddf1c92e31d216cf700d70",
-    "outputs/50_record_length/50_report_numbers.csv": "c298fc89e285dec99c86c0222745e9b785e0306e78d577e9675f5bb9dcdc320d"
+    "outputs/50_record_length/50_15_two_store_change.csv": "4020b06ca47047159e0a75c809ff991255e965d40f515b757a7c18d16e3699c3",
+    "outputs/50_record_length/50_16_surface_flow.csv": "03c59c6309c9945146a07c8ff806a8f18bc3b171cd857fba7c2a9218dfee1607",
+    "outputs/50_record_length/50_17_change_and_surface.png": "f4ff754364daf96ea0c701fd335004e11ce507cfc4d1bf9d449ffc638097bf90",
+    "outputs/50_record_length/50_report_numbers.csv": "d3004bc1a633aebcb90e146fae7d539b348124209a16324fa51227820c7104ac"
    },
    "fallbacks": [],
    "inputs": {
@@ -1548,9 +1551,9 @@
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "4c58ad67f3773551d464e9857e8eedda025fbc0a0030f9b5c81e0bf61e65118f"
    },
    "inputs_unresolved": [],
-   "seconds": 200.9,
-   "started": "2026-10-02T12:27:52",
-   "version": "1.3.0"
+   "seconds": 1601.2,
+   "started": "2026-10-02T14:34:49",
+   "version": "1.4.0"
   },
   "run_09_scraping.py": {
    "emitted": {

@@ -1,5 +1,5 @@
 # Which ODTs go to Drive. Used as:
-#   rclone copy . gdrive:NRG_documents --filter-from tools/rclone-odt-filter.txt
+#   rclone copy . gdrivefile:NRG_documents_v2 --filter-from tools/rclone-odt-filter.txt
 #
 # ORDER MATTERS: rclone takes the FIRST rule that matches a path, so the
 # exclusions must come before the inclusions. Mixing --include and --exclude on

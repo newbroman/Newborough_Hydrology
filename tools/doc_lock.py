@@ -32,7 +32,11 @@ WHAT IT IS NOT
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-25. First issue.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-02. Cloud ship (spec NRG_spec_cloud_ship_2026-10-02,
+#   signed off): the holder name may be fixed with NRG_DOC_LOCK_HOLDER (a cloud session has a new hostname
+#   every time, so it uses "cloud"); `release` refuses while documents have changed since the last Drive
+#   archive (.last_drive_archive) unless --force, and takes --note.
+# 1.0.0 — 2026-08-25. First issue.
 
 import argparse, datetime, json, os, pathlib, socket, subprocess, sys
 
@@ -41,6 +45,8 @@ LOCK = REPO / "working/DOCUMENT_LOCK.json"
 
 
 def _who() -> str:
+    if os.environ.get("NRG_DOC_LOCK_HOLDER"):
+        return os.environ["NRG_DOC_LOCK_HOLDER"]
     return f"{os.environ.get('USER') or os.environ.get('USERNAME') or '?'}@{socket.gethostname()}"
 
 
@@ -99,18 +105,48 @@ def acquire(note: str, force: bool) -> int:
     return 0
 
 
-def release() -> int:
+MARKER = REPO / ".last_drive_archive"
+_SKIP = ("_to_delete/", "_transfer/", "/_frozen/", "/_superseded/", "/backups/", "venv/", ".git")
+
+
+def unarchived() -> list[str] | None:
+    """Documents changed since the last Drive archive (nrg_git.sh documents_since_archive, in Python).
+    None when there has never been an archive here."""
+    if not MARKER.exists():
+        return None
+    t = MARKER.stat().st_mtime
+    out = []
+    for pat in ("*.odt", "*.odm"):
+        for f in REPO.rglob(pat):
+            r = f.relative_to(REPO).as_posix()
+            if any(k.strip("/") in r.split("/") or r.startswith(k) for k in _SKIP):
+                continue
+            if f.stat().st_mtime > t:
+                out.append(r)
+    return sorted(out)
+
+
+def release(note: str = "", force: bool = False) -> int:
     st = read()
     if st is None:
         print("  already unlocked")
         return 0
     me = _who()
+    # 1.1.0: releasing is the handover that says "Drive is current"; a cloud ship trusts it.
+    # Releasing with unarchived edits would hand over a Drive that is behind this machine.
+    pend = unarchived()
+    if pend and not force:
+        print(f"  REFUSED — {len(pend)} document(s) changed since the last Drive archive:")
+        for r in pend[:10]:
+            print(f"    {r}")
+        print("  Archive first (nrg_git.sh option 11, or ship), then release. --force releases anyway.")
+        return 1
     if st.get("holder") != me:
         print(f"  note: the lock is held by {st.get('holder')}, not by you — releasing anyway")
     # The bridge mount refuses unlink, so emptying beats deleting: a zero-holder
     # file reads as unlocked and never leaves a half-removed lock behind.
     LOCK.write_text(json.dumps({"holder": None, "since": _now(),
-                                "note": f"released by {me}"}, indent=2) + "\n", encoding="utf-8")
+                                "note": f"released by {me}" + (f": {note}" if note else "")}, indent=2) + "\n", encoding="utf-8")
     print("  documents released — commit and push the private repo")
     return 0
 
@@ -126,7 +162,7 @@ def main() -> int:
         return status(quiet=a.quiet) if a.action == "check" else (status(), 0)[1]
     if a.action == "take":
         return acquire(a.note, a.force)
-    return release()
+    return release(a.note, a.force)
 
 
 if __name__ == "__main__":

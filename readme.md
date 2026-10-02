@@ -354,7 +354,7 @@ These wells remain in all SSM fitting and clustering analyses — they are exclu
 
 Software under the MIT licence (`LICENSE`); data, figures and documents under CC BY 4.0
 (`LICENSE-docs`), with third-party material keeping its own terms. Cite as Hollingham (2026),
-Zenodo, doi:10.5281/zenodo.19567644 (`CITATION.cff`).
+Zenodo, doi:10.5281/zenodo.19567643, all versions; version 0.9.2.23 is doi:10.5281/zenodo.23096072 (`CITATION.cff`).
 
 - **Groundwater Data:** © M. Hollingham (2026)
 - **Topographic Data:** Contains NRW LiDAR information © Natural Resources Wales and Database Rights

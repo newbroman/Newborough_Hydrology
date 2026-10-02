@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.54.0"  # Hollingham (2026) - 2026-10-02 (D-229). OUT_50_RANWELL_DATUM. Additive.
+__version__ = "1.55.0"  # Hollingham (2026) - 2026-10-02 (D-231). OUT_50_TWO_STORE*. Additive.
+# 1.54.0  # Hollingham (2026) - 2026-10-02 (D-229). OUT_50_RANWELL_DATUM. Additive.
 # 1.53.0  # Hollingham (2026) - 2026-10-01 (D-225). OUT_50_*_DATUM. Additive.
 # 1.52.0  # Hollingham (2026) - 2026-10-01 (D-224). The Model A projection outputs of Scripts 19 and 26b
 #   (OUT_19_SCENARIO_*_MODEL_A, OUT_26B_PROJECTION_TABLE*_MODEL_A). Additive.
@@ -1383,6 +1384,9 @@ OUT_50_SPLIT_DATUM    = DIR_50 / "50_07_split_by_datum.csv"          # D-225: sp
 OUT_50_PROJ_DATUM     = DIR_50 / "50_08_projection_by_datum.csv"     # D-225: UKCP18 response and room left at every datum
 OUT_50_DATUM_FIG      = DIR_50 / "50_09_datum_against_the_drier_past.png"
 OUT_50_RANWELL_DATUM  = DIR_50 / "50_10_ranwell_hindcast_by_datum.csv"   # E9, D-229
+OUT_50_TWO_STORE      = DIR_50 / "50_12_two_store_by_cluster.csv"     # E8, D-231
+OUT_50_TWO_STORE_WELL = DIR_50 / "50_13_two_store_check_well.csv"     # E8, D-231
+OUT_50_TWO_STORE_FIG  = DIR_50 / "50_14_two_store.png"                 # E8, D-231
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

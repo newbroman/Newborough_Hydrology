@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.89.0"  # Hollingham (2026) - 2026-10-02 (D-228). PIPELINE_VERSION 2.3.0 -> 0.9.2.23,
+__version__ = "1.90.0"  # Hollingham (2026) - 2026-10-02 (D-231). TWO_STORE_* (Script 50 E8, the rule fixed
+#   before the run). Additive.
+# 1.89.0  # Hollingham (2026) - 2026-10-02 (D-228). PIPELINE_VERSION 2.3.0 -> 0.9.2.23,
 #   PIPELINE_RELEASE_DATE 2026-10-02: the release string, the tag, the GitHub release and Zenodo agree.
 # 1.88.0  # Hollingham (2026) - 2026-10-01 (D-225). RECLEN_DATUM_NSE_TOL. Additive.
 # 1.87.0  # Hollingham (2026) - 2026-10-01 (D-222). RECLEN_LENGTHS_MONTHS,
@@ -644,6 +646,30 @@ RECLEN_DATUM_NSE_TOL           = 0.05
 # (forest) response can be identified, the comparison window is what the report's
 # per-well coefficients stand on. Both are in the CSVs and the report numbers.
 PASTAS_FIGURE_BASIS = "full_record"
+
+# ── Script 50 E8: two drainage time scales per cluster (D-231) ─────────────────
+# Pastas's DoubleExponential (two parallel linear stores sharing the recharge) against Exponential, each
+# fitted to a cluster centroid and warmed up over the climate record from its last gap, so no starting level
+# is fitted. The optimizer starts the stores apart (fast and slow) inside these bounds, in DAYS. The rest is
+# the rule fixed before the run (spec NRG_spec_E8_two_store_2026-10-02): the early window and the share of
+# its residual the double must remove, the tolerance on the later RMSE, the CCW bias band, and the NW9
+# winters (labelled by the January year) with the surface tolerance and the near-surface tolerance.
+TWO_STORE_FAST_INIT_DAYS     = 90
+TWO_STORE_FAST_BOUNDS_DAYS   = (5, 600)
+TWO_STORE_SLOW_INIT_DAYS     = 1500
+TWO_STORE_SLOW_BOUNDS_DAYS   = (600, 10000)
+TWO_STORE_SLOW_SHARE_INIT    = 0.3
+TWO_STORE_EARLY_YEARS        = (2006, 2008)
+TWO_STORE_EARLY_REDUCTION    = 0.5
+TWO_STORE_LATER_RMSE_TOL_M   = 0.02
+TWO_STORE_CCW_BIAS_TOL_M     = 0.10
+TWO_STORE_CHECK_WELL         = "nw9"
+TWO_STORE_CHECK_CLUSTER      = 5
+TWO_STORE_FLOOD_WINTERS      = (2007,)
+TWO_STORE_NEAR_WINTERS       = (2009,)
+TWO_STORE_DRY_WINTERS        = (2014, 2016, 2024)
+TWO_STORE_SURFACE_TOL_M      = 0.05
+TWO_STORE_NEAR_TOL_M         = 0.15
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.

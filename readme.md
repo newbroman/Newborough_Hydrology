@@ -10,21 +10,16 @@ Reproducible Python workflow supporting the manuscript:
 ## Quick Start
 
 ```bash
-python3 --version                # must be 3.12.x — a floor AND a ceiling
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt  # the venv's full freeze — the environment
-python3 tools/env_audit.py       # is this the recorded environment?
-python3 tools/import_audit.py    # MISSING-DEP names anything still absent
-python3 run_analysis.py          # opens interactive menu
+bash tools/nrg_env.sh --system   # once per machine (sudo): git, rclone, LibreOffice, poppler
+bash tools/nrg_env.sh            # the pipeline's environment: uv Python 3.12.3, requirements.txt,
+                                 #   pandoc 3.1.3, the BLAS/SIMD pin; ends with env_audit's verdict
+python3 run_analysis.py          # opens the interactive menu (re-executes itself under venv/)
 ```
 
-`venv/` **is** the environment (D-093) and `requirements.txt` is its freeze;
-every published number came from those versions. Ubuntu 24.04's apt packages
-cannot run the pipeline (Script 03 needs matplotlib ≥ 3.9). Until 2026-09-24
-this section said the opposite — that the apt packages were the reference and
-the freeze came from an environment the project had never run in; that was the
-pre-2026-08-29 story, retracted in `MACHINE_SETUP.md` §1, which has the full
-account. pandoc ≥ 3.0 comes from apt, not from the freeze.
+The pipeline's machine is an **environment**, not a host (D-227): any machine that builds it with
+`tools/nrg_env.sh` produces byte-identical outputs. A Claude cloud session sets up the whole tree
+with `tools/cloud_setup.sh`. `MACHINE_SETUP.md` has the full account, and `MAINTAINER.md` is the
+guide for anyone taking the project over.
 
 ---
 
@@ -356,6 +351,10 @@ These wells remain in all SSM fitting and clustering analyses — they are exclu
 ---
 
 ## Licensing and Attribution
+
+Software under the MIT licence (`LICENSE`); data, figures and documents under CC BY 4.0
+(`LICENSE-docs`), with third-party material keeping its own terms. Cite as Hollingham (2026),
+Zenodo, doi:10.5281/zenodo.19567644 (`CITATION.cff`).
 
 - **Groundwater Data:** © M. Hollingham (2026)
 - **Topographic Data:** Contains NRW LiDAR information © Natural Resources Wales and Database Rights

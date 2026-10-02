@@ -17,16 +17,58 @@
 #
 # Usage:
 #   bash tools/nrg_env.sh            # build venv/ if absent, else sync it to requirements.txt
-#   bash tools/nrg_env.sh --rebuild  # delete venv/ and build it from scratch
+#   bash tools/nrg_env.sh --rebuild  # move venv/ aside and build it from scratch
+#   bash tools/nrg_env.sh --system   # FIRST, on a new machine (needs sudo): the system tools
+#                                    # (git, rclone, LibreOffice + python3-uno, poppler-utils),
+#                                    # then a LibreOffice version check against the record
+#
+# The two halves are different in kind. Everything under venv/ - Python itself, every library,
+# the BLAS/SIMD pin - is pinned and rebuilt identically anywhere, so an OS upgrade cannot move a
+# published NUMBER. LibreOffice is a system package: the OS decides its version, and it decides
+# the bytes of every published PDF (artefact_lint compares each PDF's Producer with the record).
+# --system therefore checks it and, when it matches, offers to hold it against upgrades.
 #
 # Prints a step line as it goes and ends with tools/env_audit.py's verdict.
 #
-# Version 1.0.0 — Hollingham (2026) — 2026-10-02 (D-227). First issue.
+# Version 1.1.0 — Hollingham (2026) — 2026-10-02. --system: installs the apt tools the pipeline
+#   shells out to and compares LibreOffice with the record (hold it, or build PDFs elsewhere).
+# 1.0.0 — 2026-10-02 (D-227). First issue.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT="$(pwd)"
 REC="tools/environment.json"
 step() { printf '  [%s] %s\n' "$1" "$2"; }
+
+# ── --system: the OS-level tools (run once per machine, before the rest) ─────────
+if [ "${1:-}" = "--system" ]; then
+  REC_LO="$(python3 -c "import json;print(json.load(open('$REC'))['externals']['soffice'])")"
+  PKGS="git rclone libreoffice python3-uno poppler-utils curl"
+  step "sys" "apt packages: $PKGS"
+  SUDO=""; [ "$(id -u)" -ne 0 ] && SUDO="sudo"
+  $SUDO apt-get update -qq && $SUDO apt-get install -y -qq $PKGS >/dev/null
+  have_lo="$(soffice --version 2>/dev/null | head -1 | awk '{print $2}')"
+  if [ "$have_lo" = "$REC_LO" ]; then
+    step "sys" "LibreOffice $have_lo = the recorded version: published PDFs can be built here"
+    held="$(apt-mark showhold 2>/dev/null | grep -c '^libreoffice' || true)"
+    if [ "$held" = "0" ]; then
+      echo "      It is NOT held, so the next system update may replace it. To hold it:"
+      echo "        sudo apt-mark hold \$(dpkg -l 'libreoffice*' 'python3-uno' | awk '/^ii/{print \$2}')"
+      echo "      and to release it later: the same with 'unhold'."
+    else
+      echo "      Held against upgrades ($held LibreOffice package(s))."
+    fi
+  else
+    step "sys" "LibreOffice ${have_lo:-ABSENT}, recorded $REC_LO — PDFs built here would be REFUSED"
+    echo "      (artefact_lint checks each published PDF's Producer). Either build PDFs in a cloud"
+    echo "      session (tools/cloud_setup.sh; its image carries $REC_LO), or move the whole project"
+    echo "      to the new version deliberately: rebuild every published PDF on it, then"
+    echo "      'venv/bin/python tools/env_audit.py --record' — a decision-log entry, not a quiet fix."
+  fi
+  for t in git rclone pdftotext; do command -v "$t" >/dev/null || echo "      MISSING: $t"; done
+  echo
+  echo "  Now build the Python side:  bash tools/nrg_env.sh"
+  exit 0
+fi
 
 PY_VER="$(python3 -c "import json;print(json.load(open('$REC'))['python']['version'])")"
 read -r PANDOC_VER < <(python3 -c "import json;print(json.load(open('$REC'))['externals']['pandoc'])")

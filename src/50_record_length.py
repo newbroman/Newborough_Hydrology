@@ -61,7 +61,20 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) - 2026-10-02 (D-231; Martin: "I approve the spec of the E8 model").
+__version__ = "1.4.0"  # Hollingham (2026) - 2026-10-02 (D-232; Martin: "go ahead with e8b and e8c" / "approve").
+#   E8b: one non-climatic term on E8's single store per cluster centroid - a step (ps.StepModel, One), a
+#   relaxing step (StepModel, Exponential), a linear trend (ps.LinearTrend) - its date fitted inside
+#   CHANGE_TSTART_BOUNDS; the best by BIC is kept if it beats the single store by TWO_STORE_BIC_STRONG and
+#   holds the split test (CHANGE_SPLIT_DIRECTIONS); direction, a common date across clusters, the NW9 winters,
+#   and the CCW check. E8c: surface flow - ps.TarsoModel (a second drainage above a fitted level) and the
+#   single store with ps.ThresholdTransform - judged by BIC, the split test, the bias of months starting within
+#   SURFACE_BAND_M of the ground, a threshold within SURFACE_THRESHOLD_MAX_DEPTH_M of it; CCW and Ranwell's C1
+#   sites as checks. 50_15_two_store_change.csv, 50_16_surface_flow.csv, 50_17_change_and_surface.png.
+#   Spec NRG_spec_E8b_E8c_2026-10-02, with its two amendments made before any real fit was read: E8b's split
+#   test is forward only (Martin, 13:20, "yes"; the reverse half trains after every admissible change date),
+#   and change dates and the threshold transform's level are PROFILED (_profile), because Pastas returns
+#   them at their initial value with a standard error of 0; the 95% intervals are profile intervals.
+# 1.3.0  # Hollingham (2026) - 2026-10-02 (D-231; Martin: "I approve the spec of the E8 model").
 #   E8: two drainage time scales per cluster. Pastas Exponential (term for term Model B) against
 #   DoubleExponential (two parallel linear stores sharing the recharge), fitted to each cluster centroid,
 #   warmed up over the climate record from its last gap (utils/pastas_utils), so no starting level is
@@ -113,6 +126,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
+    OUT_50_CHANGE, OUT_50_SURFACE, OUT_50_CHANGE_SURFACE_FIG,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -126,6 +140,9 @@ from utils.config import (                                    # noqa: E402
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
     TWO_STORE_CHECK_WELL, TWO_STORE_CHECK_CLUSTER, TWO_STORE_FLOOD_WINTERS, TWO_STORE_NEAR_WINTERS,
     TWO_STORE_DRY_WINTERS, TWO_STORE_SURFACE_TOL_M, TWO_STORE_NEAR_TOL_M, DAYS_PER_MONTH,
+    TWO_STORE_BIC_STRONG, CHANGE_TSTART_INIT, CHANGE_TSTART_BOUNDS, CHANGE_SPLIT_DIRECTIONS,
+    CHANGE_GRID_COARSE_MONTHS, SURFACE_THRESHOLD_GRID,
+    SURFACE_BAND_M, SURFACE_THRESHOLD_MAX_DEPTH_M,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, simulate_ssm, get_metrics,   # noqa: E402
@@ -1105,6 +1122,435 @@ def plot_two_store(tab, wtab, nw, warmup_start) -> None:
     plt.close(fig)
     saved(OUT_50_TWO_STORE_FIG.name)
 
+
+# ──────────────────────────────────────────────────────────────────────────────
+# E8b and E8c (1.4.0, D-232): a non-climatic change, and surface flow
+# ──────────────────────────────────────────────────────────────────────────────
+CHANGE_FORMS = ("step", "relax", "trend")
+SURFACE_FORMS = ("tarso", "threshold")
+CHANGE_VERDICT = {"site-wide change": 2, "cluster-specific change": 1, "no non-climatic term needed": 0}
+SURFACE_VERDICT = {"surface flow supported": 1, "not supported": 0}
+
+
+def _ordinal(d) -> int:
+    return pd.Timestamp(d).toordinal()
+
+
+def _from_ordinal(x) -> pd.Timestamp:
+    return pd.Timestamp.fromordinal(int(round(float(x)))) if np.isfinite(x) else pd.NaT
+
+
+def _single(ps, hm, P, E, name, noise=False):
+    return _ts_model(ps, hm, P, E, False, noise, name)
+
+
+def _change_model(ps, hm, P, E, form: str, name: str, fixed: dict, noise=False):
+    """The single store plus one non-climatic term, its date(s) FIXED at `fixed` (profiled by _profile)."""
+    ml = _single(ps, hm, P, E, name, noise)
+    if form in ("step", "relax"):
+        ps.StepModel(ml, tstart=CHANGE_TSTART_INIT, rfunc=ps.One() if form == "step" else ps.Exponential(),
+                     name="step")
+    else:
+        ps.LinearTrend(ml, tstart=CHANGE_TSTART_BOUNDS[0], tend=CHANGE_TSTART_BOUNDS[1], name="trend")
+    for k, v in fixed.items():
+        ml.set_parameter(k, initial=v, vary=False)
+    return ml
+
+
+def _surface_model(ps, hm, P, E, form: str, name: str, fixed: dict | None = None, noise=False):
+    if form == "tarso":
+        ml = ps.Model(hm, name=name, constant=False)
+        ps.TarsoModel(ml, P, E, oseries=hm, name="tarso")
+        if noise:
+            ml.add_noisemodel(ps.ArNoiseModel(ml))
+        return ml
+    ml = _single(ps, hm, P, E, name, noise)
+    tr = ps.ThresholdTransform(ml, value=-SURFACE_BAND_M, vmin=-2 * SURFACE_THRESHOLD_MAX_DEPTH_M, vmax=0.5,
+                               name="transform")
+    for k, v in (fixed or {}).items():     # a transform's parameters reach ml.parameters only at solve
+        tr.parameters.loc[k, ["initial", "vary"]] = [v, False]
+    return ml
+
+
+def _month_grid(a, b, step_months: int) -> list[int]:
+    return [_ordinal(d) for d in pd.date_range(a, b, freq=f"{step_months}MS")]
+
+
+def _change_grid(form: str):
+    """Coarse grid for the profiled date(s); _profile refines around the best point."""
+    a, b = CHANGE_TSTART_BOUNDS
+    if form in ("step", "relax"):
+        return [{"step_tstart": t} for t in _month_grid(a, b, CHANGE_GRID_COARSE_MONTHS)]
+    g = _month_grid(a, b, 12)
+    return [{"trend_tstart": t0, "trend_tend": t1} for t0 in g for t1 in g if t1 > t0]
+
+
+def _refine(best: dict, form: str):
+    """Monthly points around the coarse optimum (quarterly for the two dates of a trend)."""
+    lo, hi = (_ordinal(d) for d in CHANGE_TSTART_BOUNDS)
+    if form in ("step", "relax"):
+        t = _from_ordinal(best["step_tstart"])
+        pts = [_ordinal(t + pd.DateOffset(months=k)) for k in range(-CHANGE_GRID_COARSE_MONTHS, CHANGE_GRID_COARSE_MONTHS + 1)]
+        return [{"step_tstart": x} for x in pts if lo <= x <= hi]
+    t0, t1 = _from_ordinal(best["trend_tstart"]), _from_ordinal(best["trend_tend"])
+    out = []
+    for k0 in range(-6, 7, 3):
+        for k1 in range(-6, 7, 3):
+            x0, x1 = _ordinal(t0 + pd.DateOffset(months=k0)), _ordinal(t1 + pd.DateOffset(months=k1))
+            if lo <= x0 < x1 <= hi:
+                out.append({"trend_tstart": x0, "trend_tend": x1})
+    return out
+
+
+def _profile(make, P, grid, refine=None, tmin=None, tmax=None):
+    """Fit `make(fixed)` at every point of `grid` (then of `refine(best)`), keeping the least-squares best.
+
+    WHY: Pastas cannot optimize a change date or a threshold transform's level — the simulation is daily
+    and stepwise in them, so the finite-difference gradient is zero and the optimizer returns the initial
+    value with a standard error of 0 (seen 2026-10-02 on a synthetic step). Profiling fixes the parameter,
+    fits the rest, and keeps the best. The 95% interval is the profile's: every point with
+    n_eff * ln(SSE/SSE_min) <= 3.84, n_eff the residuals' AR(1)-adjusted sample size n(1-r)/(1+r)."""
+    rows, models = [], {}
+    def run(fx):
+        key = tuple(sorted(fx.items()))
+        if key in models:
+            return
+        try:
+            ml = _ts_solve(make(fx), P, tmin, tmax)
+            res = ml.residuals().dropna()
+            rows.append({**fx, "sse": float((res ** 2).sum()), "n": len(res)})
+            models[key] = ml
+        except Exception:
+            pass
+    for fx in grid:
+        run(fx)
+    if not rows:
+        return None, pd.DataFrame()
+    if refine is not None:
+        b = min(rows, key=lambda r: r["sse"])
+        for fx in refine({k: v for k, v in b.items() if k not in ("sse", "n")}):
+            run(fx)
+    prof = pd.DataFrame(rows)
+    b = prof.loc[prof["sse"].idxmin()]
+    keys = [k for k in prof.columns if k not in ("sse", "n")]
+    best = models[tuple(sorted((k, b[k]) for k in keys))]
+    res = best.residuals().dropna()
+    r1 = float(res.autocorr(1)) if len(res) > 2 else 0.0
+    n_eff = len(res) * (1 - r1) / (1 + r1) if r1 < 1 else 1.0
+    prof["inside95"] = n_eff * np.log(prof["sse"] / b["sse"]) <= 3.84
+    return best, prof
+
+
+def _interval(prof: pd.DataFrame, key: str):
+    """The 95% profile interval of one profiled parameter (its extent among the points inside)."""
+    g = prof[prof["inside95"]]
+    return (float(g[key].min()), float(g[key].max())) if len(g) else (np.nan, np.nan)
+
+
+def _bic_profiled(ml, k_extra: int) -> float:
+    """Pastas's BIC counts only varying parameters; a profiled one was estimated too."""
+    return float(ml.stats.bic()) + k_extra * np.log(len(ml.residuals().dropna()))
+
+
+def _split_nses(fit, hm, P, directions):
+    """Split-test NSE at MODEL_AB_SPLIT_DATE. `fit(tmin, tmax)` returns a model solved on the training
+    half (profiled there, for a term with a profiled date), which is then run over the other half."""
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    out = {}
+    for d_ in ("fwd", "rev"):
+        tmin, tmax = (None, split - pd.Timedelta(days=1)) if d_ == "fwd" else (split, None)
+        test = hm[hm.index >= split] if d_ == "fwd" else hm[hm.index < split]
+        try:
+            m2 = fit(tmin, tmax)
+            out[d_] = _nse(test, _ts_sim(m2, P, hm.index[0], hm.index[-1]).reindex(test.index)) if m2 is not None else np.nan
+        except Exception:
+            out[d_] = np.nan
+    used = [out[d] for d in directions if np.isfinite(out[d])]
+    out["rule"] = float(np.median(used)) if used else np.nan
+    return out
+
+
+def _ccw_bias_cluster(ml, P, c, ctx) -> tuple[float, int]:
+    if ctx is None:
+        return np.nan, 0
+    adm, obs, md, lev, lev_cols, h = ctx
+    biases = []
+    for r in adm.itertuples():
+        k = normalize_well_name(r.well)
+        if k not in md.index or int(md.loc[k, "Cluster"]) != c or k not in lev_cols:
+            continue
+        ob, _n = observed_series(obs, r.code, r.datum_offset_m)
+        if ob.empty:
+            continue
+        wl = lev[lev_cols[k]].dropna()
+        common = wl.index.intersection(h.index)
+        shift = float(wl.loc[common].mean() - h.loc[common].mean())
+        obm = ob.copy(); obm.index = pd.DatetimeIndex(obm.index) + pd.offsets.MonthEnd(0)
+        pr = _ts_sim(ml, P, obm.index[0], obm.index[-1]).reindex(obm.index) + shift
+        ok = pr.notna() & obm.notna()
+        if ok.any():
+            biases.append(float((pr[ok] - obm[ok]).mean()))
+    return (float(np.median(biases)) if biases else np.nan), len(biases)
+
+
+def _well_winters(ml, P, wl, h) -> pd.Series:
+    common = wl.index.intersection(h.index)
+    shift = float(wl.loc[common].mean() - h.loc[common].mean())
+    wm = wl.copy(); wm.index = wm.index + pd.offsets.MonthEnd(0)
+    return _winter_max(_ts_sim(ml, P, wm.index[0], wm.index[-1]).reindex(wm.index) + shift)
+
+
+def _winters_pass(wmax: pd.Series) -> bool:
+    fl = all(wmax.get(y, -9) >= -TWO_STORE_SURFACE_TOL_M for y in TWO_STORE_FLOOD_WINTERS)
+    nr = all(wmax.get(y, -9) >= -TWO_STORE_NEAR_TOL_M for y in TWO_STORE_NEAR_WINTERS)
+    dr = all(wmax.get(y, 9) < -TWO_STORE_SURFACE_TOL_M for y in TWO_STORE_DRY_WINTERS)
+    return bool(fl and nr and dr)
+
+
+def _residual_stats(ml, P, hm) -> dict:
+    sim = _ts_sim(ml, P, hm.index[0], hm.index[-1]).reindex(hm.index)
+    res = hm - sim
+    yr = res.groupby(res.index.year).mean()
+    early = yr.loc[TWO_STORE_EARLY_YEARS[0]:TWO_STORE_EARLY_YEARS[1]]
+    later = res[res.index.year > TWO_STORE_EARLY_YEARS[1]]
+    near = hm.shift(1) >= -SURFACE_BAND_M
+    return {"early_resid_m": float(early.mean()) if len(early) else np.nan,
+            "later_rmse_m": float(np.sqrt((later ** 2).mean())) if len(later) else np.nan,
+            "near_surface_resid_m": float(res[near].mean()) if near.any() else np.nan,
+            "near_surface_n": int(near.sum()),
+            "other_rmse_m": float(np.sqrt((res[~near] ** 2).mean())) if (~near).any() else np.nan,
+            "sim": sim}
+
+
+def change_and_surface(lev, lev_cols, cl, master):
+    """E8b and E8c (D-232) on each cluster centroid; the rule of the spec."""
+    import pastas as ps
+    ps.set_log_level("ERROR")
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    P, E = spread_daily(cl, continuous_start(cl))
+    md = master.set_index("_n")
+    ctx_base = None
+    if paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists():
+        obs, cmap = load_ccw()
+        mdk = pd.read_csv(INT_MASTER_DATA)
+        mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
+        adm = usable_codes(cmap, mdk.set_index("k"), obs)
+        ctx_base = (adm[adm["admitted"]], obs, md, lev, lev_cols)
+    kw_ = normalize_well_name(TWO_STORE_CHECK_WELL)
+    check_well = lev[lev_cols[kw_]].dropna() if kw_ in lev_cols else None
+    rw = None
+    if RANWELL_LEVELS.exists() and OUT_44_METRICS.exists():
+        lv = pd.read_csv(RANWELL_LEVELS, parse_dates=["date"])
+        lv["month"] = lv["date"].dt.to_period("M")
+        rw = (lv.groupby(["site_no", "month"])["level_m_od"].mean(), pd.read_csv(OUT_44_METRICS))
+    crow, srow, sims = [], [], {}
+    clusters = [int(c[1:]) for c in ra.columns if c.startswith("C") and c[1:].isdigit()]
+    for c in clusters:
+        h = ra[f"C{c}"].dropna()
+        hm = h.copy(); hm.index = hm.index + pd.offsets.MonthEnd(0)
+        ctx = (*ctx_base, h) if ctx_base else None
+        base = _ts_solve(_single(ps, hm, P, E, f"C{c}_single"), P)
+        bst = _residual_stats(base, P, hm)
+        single_fit = lambda tmin, tmax: _ts_solve(_single(ps, hm, P, E, f"C{c}_single_s"), P, tmin, tmax)
+        bsplit = _split_nses(single_fit, hm, P, CHANGE_SPLIT_DIRECTIONS)
+        bsplit_s = _split_nses(single_fit, hm, P, ("fwd", "rev"))
+        bccw, nccw = _ccw_bias_cluster(base, P, c, ctx)
+        sims[(c, "single")] = bst["sim"]
+        common = {"cluster": c, "bic_single": float(base.stats.bic()), "ccw_n_wells": nccw}
+        # E8b — the change date(s) profiled (see _profile)
+        for form in CHANGE_FORMS:
+            row = dict(common, form=form)
+            info(f"E8b C{c} {form}")
+            try:
+                mk = lambda fx, f=form: _change_model(ps, hm, P, E, f, f"C{c}_{f}", fx)
+                fitp = lambda tmin, tmax, f=form: _profile(
+                    lambda fx: _change_model(ps, hm, P, E, f, f"C{c}_{f}_s", fx), P, _change_grid(f),
+                    lambda bb: _refine(bb, f), tmin, tmax)[0]
+                ml, prof = _profile(mk, P, _change_grid(form), lambda bb, f=form: _refine(bb, f))
+                o = ml.parameters["optimal"]
+                st = _residual_stats(ml, P, hm)
+                sp = _split_nses(fitp, hm, P, CHANGE_SPLIT_DIRECTIONS)
+                tkey = "step_tstart" if form != "trend" else "trend_tstart"
+                lo95, hi95 = _interval(prof, tkey)
+                if form in ("step", "relax"):
+                    size = float(o["step_A"])
+                else:
+                    size = float(o["trend_a"]) * float(o["trend_tend"] - o["trend_tstart"])
+                row.update(bic=_bic_profiled(ml, 2 if form == "trend" else 1), aic=float(ml.stats.aic()),
+                           rsq=float(ml.stats.rsq()), tstart=_from_ordinal(o[tkey]),
+                           tstart_lo95=_from_ordinal(lo95), tstart_hi95=_from_ordinal(hi95),
+                           tstart_at_bound=bool(o[tkey] <= _ordinal(CHANGE_TSTART_BOUNDS[0])
+                                                or o[tkey] >= _month_grid(*CHANGE_TSTART_BOUNDS, 1)[-1]),
+                           tend=_from_ordinal(o["trend_tend"]) if form == "trend" else pd.NaT,
+                           relax_efold_months=float(o["step_a"]) / DAYS_PER_MONTH if form == "relax" else np.nan,
+                           change_m=size, split_nse_fwd=sp["fwd"], split_nse_rev=sp["rev"], split_nse_rule=sp["rule"],
+                           single_split_nse_rule=bsplit["rule"],
+                           early_resid_m=st["early_resid_m"], early_resid_single_m=bst["early_resid_m"],
+                           later_rmse_m=st["later_rmse_m"], later_rmse_single_m=bst["later_rmse_m"],
+                           ccw_bias_m=_ccw_bias_cluster(ml, P, c, ctx)[0], ccw_bias_single_m=bccw,
+                           profile_points=len(prof))
+                if c == TWO_STORE_CHECK_CLUSTER and check_well is not None:
+                    wm = _well_winters(ml, P, check_well, h)
+                    row["check_well_pass"] = _winters_pass(wm)
+                    for y in TWO_STORE_FLOOD_WINTERS + TWO_STORE_NEAR_WINTERS + TWO_STORE_DRY_WINTERS:
+                        row[f"check_well_winter{y}_max_m"] = float(wm.get(y, np.nan))
+                sims[(c, form)] = st["sim"]
+            except Exception as exc:
+                row["error"] = f"{type(exc).__name__}: {exc}"[:200]
+            crow.append(row)
+        # E8c — TARSO fits its threshold; the transform's level is profiled
+        for form in SURFACE_FORMS:
+            row = dict(common, form=form)
+            info(f"E8c C{c} {form}")
+            try:
+                if form == "tarso":
+                    ml = _ts_solve(_surface_model(ps, hm, P, E, form, f"C{c}_{form}"), P)
+                    fitp = lambda tmin, tmax: _ts_solve(_surface_model(ps, hm, P, E, "tarso", f"C{c}_tarso_s"), P, tmin, tmax)
+                    tkey, kx = "tarso_d1", 0
+                    pmn, pmx = ml.parameters.loc[tkey, "pmin"], ml.parameters.loc[tkey, "pmax"]
+                else:
+                    grid = [{"transform_d": v} for v in SURFACE_THRESHOLD_GRID]
+                    ml, _p = _profile(lambda fx: _surface_model(ps, hm, P, E, "threshold", f"C{c}_thr", fx), P, grid)
+                    fitp = lambda tmin, tmax: _profile(
+                        lambda fx: _surface_model(ps, hm, P, E, "threshold", f"C{c}_thr_s", fx), P, grid,
+                        None, tmin, tmax)[0]
+                    tkey, kx = "transform_d", 1
+                    pmn, pmx = SURFACE_THRESHOLD_GRID[0], SURFACE_THRESHOLD_GRID[-1]
+                o = ml.parameters["optimal"]
+                st = _residual_stats(ml, P, hm)
+                sp = _split_nses(fitp, hm, P, ("fwd", "rev"))
+                thr = float(o[tkey])
+                row.update(bic=_bic_profiled(ml, kx), aic=float(ml.stats.aic()), rsq=float(ml.stats.rsq()),
+                           threshold_m=thr, threshold_at_bound=bool(np.isclose(thr, pmn) or np.isclose(thr, pmx)),
+                           split_nse_fwd=sp["fwd"], split_nse_rev=sp["rev"], split_nse_rule=sp["rule"],
+                           single_split_nse_rule=bsplit_s["rule"],
+                           near_surface_resid_m=st["near_surface_resid_m"], near_surface_n=st["near_surface_n"],
+                           near_surface_resid_single_m=bst["near_surface_resid_m"],
+                           other_rmse_m=st["other_rmse_m"], other_rmse_single_m=bst["other_rmse_m"],
+                           ccw_bias_m=_ccw_bias_cluster(ml, P, c, ctx)[0], ccw_bias_single_m=bccw)
+                if c == 1 and rw is not None:
+                    row.update(_ranwell_check(ml, base, P, rw))
+                sims[(c, form)] = st["sim"]
+            except Exception as exc:
+                row["error"] = f"{type(exc).__name__}: {exc}"[:200]
+            srow.append(row)
+    return pd.DataFrame(crow), pd.DataFrame(srow), sims
+
+
+def _ranwell_check(ml, base, P, rw) -> dict:
+    """E8c check: the C1 centroid's surface-flow and single models at Ranwell's C1 headline sites, scored as
+    Script 44 scores them (offset removed, censored at the ground)."""
+    obs_month, pairs = rw
+    out = {}
+    for tag, m in (("surface", ml), ("single", base)):
+        vals = []
+        for pr in pairs[pairs["headline"]].itertuples():
+            if int(pr.site_no) not in obs_month.index.get_level_values(0):
+                continue
+            om = obs_month.loc[int(pr.site_no)]
+            a = om.index.min().to_timestamp() - pd.offsets.MonthEnd(1)
+            b = om.index.max().to_timestamp() + pd.offsets.MonthEnd(0)
+            sim = _ts_sim(m, P, a, b)
+            mid = sim.resample("ME").last()
+            mid = (mid + mid.shift(1)) / 2
+            mid.index = mid.index.to_period("M")
+            vals.append(compare_offset_censored(om, mid.dropna(), float(pr.ground_m_od))["nse_after_offset"])
+        out[f"ranwell_nse_{tag}"] = float(np.nanmedian(vals)) if vals else np.nan
+    return out
+
+
+def change_surface_verdicts(ch: pd.DataFrame, sf: pd.DataFrame):
+    per_c, per_s = [], []
+    for c in sorted(ch["cluster"].unique()):
+        g = ch[(ch.cluster == c) & ch["bic"].notna()]
+        if g.empty:
+            per_c.append({"cluster": c, "earns": False}); continue
+        b = g.loc[g["bic"].idxmin()]
+        earns = bool(b["bic_single"] - b["bic"] >= TWO_STORE_BIC_STRONG
+                     and b["split_nse_rule"] >= b["single_split_nse_rule"])
+        per_c.append({"cluster": c, "best_form": b["form"], "earns": earns, "drop": bool(b["change_m"] < 0),
+                      "tstart": b["tstart"], "tstart_lo95": b["tstart_lo95"], "tstart_hi95": b["tstart_hi95"],
+                      "tstart_at_bound": b["tstart_at_bound"],
+                      "check_well_pass": b.get("check_well_pass", np.nan)})
+    per_c = pd.DataFrame(per_c)
+    e = per_c[per_c["earns"]]
+    common_date = pd.NaT
+    if len(e) >= 2 and e["tstart_lo95"].notna().all() and e["tstart_hi95"].notna().all():
+        lo, hi = max(e["tstart_lo95"]), min(e["tstart_hi95"])
+        if lo <= hi:
+            common_date = lo + (hi - lo) / 2
+    verdict_c = ("site-wide change" if (len(e) > len(per_c) / 2 and pd.notna(common_date)) else
+                 "cluster-specific change" if len(e) else "no non-climatic term needed")
+    for c in sorted(sf["cluster"].unique()):
+        g = sf[(sf.cluster == c) & sf["bic"].notna()]
+        if g.empty:
+            per_s.append({"cluster": c, "passes": False}); continue
+        b = g.loc[g["bic"].idxmin()]
+        t1 = bool(b["bic_single"] - b["bic"] >= TWO_STORE_BIC_STRONG and b["split_nse_rule"] >= b["single_split_nse_rule"])
+        ns, ns0 = abs(b["near_surface_resid_m"]), abs(b["near_surface_resid_single_m"])
+        t2 = bool(np.isfinite(ns0) and ns0 > 0 and (ns0 - ns) / ns0 >= 0.5
+                  and b["other_rmse_m"] <= b["other_rmse_single_m"] + TWO_STORE_LATER_RMSE_TOL_M)
+        t3 = bool(b["threshold_m"] >= -SURFACE_THRESHOLD_MAX_DEPTH_M and not b["threshold_at_bound"])
+        per_s.append({"cluster": c, "best_form": b["form"], "test1": t1, "test2": t2, "test3": t3,
+                      "passes": bool(t1 and t2 and t3), "threshold_m": b["threshold_m"]})
+    per_s = pd.DataFrame(per_s)
+    verdict_s = "surface flow supported" if per_s["passes"].sum() > len(per_s) / 2 else "not supported"
+    return verdict_c, per_c, common_date, verdict_s, per_s
+
+
+def change_surface_report(rr, verdict_c, per_c, common_date, verdict_s, per_s) -> None:
+    rr.add("change_verdict", CHANGE_VERDICT[verdict_c], unit="code",
+           note=f"{verdict_c} (2 site-wide, 1 cluster-specific, 0 none; E8b, rule fixed before the run, D-232)")
+    rr.add("change_common_date", common_date.strftime("%Y-%m") if pd.notna(common_date) else np.nan, unit="month",
+           note="midpoint of the overlap of the change dates' 95% intervals across the clusters that need a term (E8b)")
+    for r in per_c.itertuples():
+        rr.add(f"change_C{r.cluster}_earns", float(r.earns), unit="flag", note=f"C{r.cluster}: a non-climatic term earns its place (E8b)")
+        if getattr(r, "best_form", None):
+            rr.add(f"change_C{r.cluster}_tstart", r.tstart.strftime("%Y-%m") if pd.notna(r.tstart) else np.nan,
+                   unit="month", note=f"C{r.cluster}: fitted change date, best form {r.best_form} (E8b)")
+    rr.add("surface_verdict", SURFACE_VERDICT[verdict_s], unit="code",
+           note=f"{verdict_s} (1 supported at a majority of clusters, 0 not; E8c, D-232)")
+    for r in per_s.itertuples():
+        rr.add(f"surface_C{r.cluster}_passes", float(r.passes), unit="flag", note=f"C{r.cluster}: surface flow passes tests 1-3 (E8c)")
+        if getattr(r, "best_form", None):
+            rr.add(f"surface_C{r.cluster}_threshold_m", r.threshold_m, unit="m",
+                   note=f"C{r.cluster}: fitted surface-flow threshold, best form {r.best_form}, level relative to ground (E8c)")
+
+
+def plot_change_surface(ch, sf, sims, per_c, per_s) -> None:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(MPL_DEFAULTS)
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    clusters = sorted(ch["cluster"].unique())
+    fig, axes = plt.subplots(3, 2, figsize=(9.0, 8.4), dpi=160, sharex=True)
+    for ax, c in zip(axes.ravel(), clusters):
+        h = ra[f"C{c}"].dropna()
+        ax.plot(h.index, h.values, "o", ms=1.6, color="0.35", label="observed")
+        pc = per_c[per_c.cluster == c].iloc[0]
+        ps_ = per_s[per_s.cluster == c].iloc[0]
+        for key, col, ls, lab in ((("single"), "0.15", "-", "single store"),
+                                  (pc.get("best_form"), "#b2182b", "--", f"with {pc.get('best_form')}"),
+                                  (ps_.get("best_form"), "#2166ac", ":", f"{ps_.get('best_form')}")):
+            sm = sims.get((c, key))
+            if sm is not None:
+                ax.plot(sm.index, sm.values, color=col, lw=0.9, ls=ls, label=lab)
+        ax.axhline(-SURFACE_BAND_M, color="#2166ac", lw=0.5, alpha=0.6)
+        ax.set_title(f"({'abcde'[clusters.index(c)]}) {CLUSTER_LABELS.get(c, f'C{c}')}: change "
+                     f"{'yes' if pc['earns'] else 'no'}, surface flow {'yes' if ps_['passes'] else 'no'}",
+                     loc="left", fontsize=8.5)
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=6, loc="lower left")
+    axes.ravel()[-1].set_visible(False)
+    axes[1, 1].xaxis.set_tick_params(labelbottom=True)   # panel (d) sits above the hidden panel, which took its labels
+    for a in axes[:, 0]:
+        a.set_ylabel("level (m, ground = 0)")
+    fig.tight_layout()
+    fig.savefig(OUT_50_CHANGE_SURFACE_FIG, dpi=160)
+    plt.close(fig)
+    saved(OUT_50_CHANGE_SURFACE_FIG.name)
+
 def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
     """Report numbers for 1.1.0."""
     best, lo, hi, med = supported_datum(ccw_d)
@@ -1377,7 +1823,20 @@ def main(no_fig: bool = False) -> int:
     if len(ts_well):
         ts_well.to_csv(OUT_50_TWO_STORE_WELL, index=False); saved(f"{OUT_50_TWO_STORE_WELL.name} ({len(ts_well)} rows)")
 
-    phase(8, "Outputs")
+    phase(8, "A non-climatic change (E8b) and surface flow (E8c), per cluster (1.4.0, D-232)")
+    cs_ch, cs_sf, cs_sims = change_and_surface(lev, lev_cols, cl, master)
+    cs_vc, cs_pc, cs_date, cs_vs, cs_ps = change_surface_verdicts(cs_ch, cs_sf)
+    for r in cs_pc.itertuples():
+        step(f"C{r.cluster} E8b: best {getattr(r, 'best_form', '-')}, earns {'yes' if r.earns else 'no'}"
+             + (f", change {r.tstart:%Y-%m}" if pd.notna(getattr(r, 'tstart', pd.NaT)) else ""))
+    for r in cs_ps.itertuples():
+        step(f"C{r.cluster} E8c: best {getattr(r, 'best_form', '-')}, passes {'yes' if r.passes else 'no'}")
+    result("E8b verdict", f"{cs_vc}" + (f" (common date {cs_date:%Y-%m})" if pd.notna(cs_date) else ""))
+    result("E8c verdict", cs_vs)
+    cs_ch.to_csv(OUT_50_CHANGE, index=False); saved(f"{OUT_50_CHANGE.name} ({len(cs_ch)} rows)")
+    cs_sf.to_csv(OUT_50_SURFACE, index=False); saved(f"{OUT_50_SURFACE.name} ({len(cs_sf)} rows)")
+
+    phase(9, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -1388,12 +1847,14 @@ def main(no_fig: bool = False) -> int:
     if len(rw):
         ranwell_report(rr, rw, lo, hi)
     two_store_report(rr, ts_tab, ts_per, ts_nw, ts_verdict)
+    change_surface_report(rr, cs_vc, cs_pc, cs_date, cs_vs, cs_ps)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)
         if len(ccw_d):
             plot_datum(ccw_d, split_d, proj_d, best, lo, hi, rw)
         plot_two_store(ts_tab, ts_well, ts_nw, ts_start)
+        plot_change_surface(cs_ch, cs_sf, cs_sims, cs_pc, cs_ps)
     result("record length", f"{df['well'].nunique()} wells; see {OUT_50_BY_CLUSTER.name}")
     done("50")
     return 0

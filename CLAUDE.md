@@ -65,7 +65,7 @@ the local branch has diverged from GitHub (an `--amend` after a ship does that).
 |---|---|
 | this repository, **public** | code, tools, markdown mirrors, `DECISIONS_PUBLIC.md` |
 | `Newborough_Hydrology_working`, **private** | `DECISION_LOG.md`, `changelogs/`, `updates/` (was `Updates_required/`), `WORK_REGISTER.md` (a signpost; the live register is `updates/NRG_WORK_REGISTER.md`), and this repo's own tooling |  <!-- former path -->
-| `gdrive:NRG_documents` | the ODTs themselves (git cannot diff a zip) |
+| `gdrivefile:NRG_documents_v2` | the ODTs themselves (git cannot diff a zip); `tools/drive_pull.sh` brings them down |
 
 Two git directories over **one** working tree. `./working/wgit` is the private one;
 plain `git` always means the public one. That asymmetry is deliberate — the
@@ -395,10 +395,11 @@ and runs the session handover. Without the secret, the session works from the
 committed mirrors and does not edit ODTs.
 
 - **Never ask for, accept or type a credential in the conversation.** The Drive
-  token reaches a session only as the `NRG_RCLONE_CONF` environment secret, set by
-  Martin. Its rclone client is in Google's Testing status, so it lapses weekly
-  (T-65); a Tuesday reminder is scheduled and `cloud_setup.sh` shouts when a
-  supplied token is refused.
+  token reaches a session only as the `NRG_RCLONE_CONF_B64` environment secret
+  (the `[gdrivefile]` section, written by `tools/drive_token.sh`), set by Martin.
+  Its rclone client is published with the `drive.file` scope only (2026-10-02), so
+  the weekly lapse (T-65) is over; `cloud_setup.sh` shouts when a supplied token is
+  refused.
 - **Pushing is still Martin's call each time** (§7). A cloud session commits, shows
   the commit, and pushes on his yes; long work goes on a branch.
 - **Unlike the bridge, a cloud process survives between tool calls**, so long runs

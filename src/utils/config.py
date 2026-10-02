@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.90.0"  # Hollingham (2026) - 2026-10-02 (D-231). TWO_STORE_* (Script 50 E8, the rule fixed
+__version__ = "1.91.0"  # Hollingham (2026) - 2026-10-02 (D-232). CHANGE_* and SURFACE_* (Script 50 E8b and
+#   E8c, the rule fixed before the run). Additive.
+# 1.90.0  # Hollingham (2026) - 2026-10-02 (D-231). TWO_STORE_* (Script 50 E8, the rule fixed
 #   before the run). Additive.
 # 1.89.0  # Hollingham (2026) - 2026-10-02 (D-228). PIPELINE_VERSION 2.3.0 -> 0.9.2.23,
 #   PIPELINE_RELEASE_DATE 2026-10-02: the release string, the tag, the GitHub release and Zenodo agree.
@@ -670,6 +672,28 @@ TWO_STORE_NEAR_WINTERS       = (2009,)
 TWO_STORE_DRY_WINTERS        = (2014, 2016, 2024)
 TWO_STORE_SURFACE_TOL_M      = 0.05
 TWO_STORE_NEAR_TOL_M         = 0.15
+
+# ── Script 50 E8b and E8c (D-232; spec NRG_spec_E8b_E8c_2026-10-02) ─────────────
+# E8b: one non-climatic term added to E8's single store (a step, a relaxing step, a linear trend), its date
+# fitted inside CHANGE_TSTART_BOUNDS; CHANGE_SPLIT_DIRECTIONS are the split-test directions the rule uses
+# (the reverse direction is fitted on the years after MODEL_AB_SPLIT_DATE, which cannot contain a change
+# dated before it). E8c: surface flow (Pastas TarsoModel; ThresholdTransform), judged on the months that
+# start within SURFACE_BAND_M of the ground, with a threshold that must lie within
+# SURFACE_THRESHOLD_MAX_DEPTH_M of it. A term earns its place only with a BIC better by TWO_STORE_BIC_STRONG.
+TWO_STORE_BIC_STRONG          = 10.0
+CHANGE_TSTART_INIT            = "2009-01-01"
+CHANGE_TSTART_BOUNDS          = ("2005-06-01", "2016-12-31")
+# E8b's test 1 uses the FORWARD split alone (Martin, 2026-10-02 13:20, "yes", before any fit was read): the
+# reverse split trains on the record from MODEL_AB_SPLIT_DATE, after every admissible change date, so it
+# cannot see the change it would be judging. Both directions are still computed and written to 50_15.
+CHANGE_SPLIT_DIRECTIONS       = ("fwd",)
+SURFACE_BAND_M                = 0.15
+SURFACE_THRESHOLD_MAX_DEPTH_M = 0.5
+# Pastas cannot optimize a change date or a threshold transform's level (zero finite-difference gradient),
+# so Script 50 profiles them: a coarse grid of CHANGE_GRID_COARSE_MONTHS, refined monthly around the best;
+# the threshold over SURFACE_THRESHOLD_GRID (m relative to ground).
+CHANGE_GRID_COARSE_MONTHS     = 3
+SURFACE_THRESHOLD_GRID        = tuple(round(-1.0 + 0.05 * i, 2) for i in range(31))
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.

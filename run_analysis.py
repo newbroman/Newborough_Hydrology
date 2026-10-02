@@ -190,7 +190,9 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.23.1"  # Hollingham (2026) - 2026-10-02. _reexec_under_venv() compares sys.prefix with the venv, not the
+__version__ = "2.23.2"  # Hollingham (2026) - 2026-10-02 (D-228). The manifest also carries
+#   pipeline_release / pipeline_release_date from config (config.py said it did; it did not).
+# 2.23.1  # Hollingham (2026) - 2026-10-02. _reexec_under_venv() compares sys.prefix with the venv, not the
 #   resolved executable (a venv python is a symlink to the system one, so that test always passed and a bare
 #   `python3 run_analysis.py` ran on the system site-packages; the 2026-10-01 film run failed on it).
 # 2.23.0  # Hollingham (2026) - 2026-10-01 (D-222). Script 50 (record length) registered in
@@ -744,6 +746,7 @@ def build_manifest(write: bool = True, record_inputs: bool = False) -> dict:
     )
     manifest = {
         "pipeline_version": __version__,
+        **_release_fields(),
         "total_registered": len(_ALL_STEPS),
         "total_phases": len(ALL_PHASES),
         "by_tier": by_tier,
@@ -845,6 +848,20 @@ def _check_version_guard() -> None:
         return
     say_info(f"pipeline release {_rel} ({_rel_date}); "
              f"orchestrator module v{__version__}")
+
+
+def _release_fields() -> dict:
+    """2.23.2 (D-228): the release string and its date, from config, for the manifest. Until now
+    config.py said build_manifest() stamped them and it did not; the manifest carried only the
+    orchestrator's own version."""
+    try:
+        if str(SRC_DIR) not in sys.path:
+            sys.path.insert(0, str(SRC_DIR))
+        from utils.config import PIPELINE_VERSION as _rel
+        from utils.config import PIPELINE_RELEASE_DATE as _rel_date
+        return {"pipeline_release": _rel, "pipeline_release_date": _rel_date}
+    except Exception:
+        return {}
 
 
 def _manifest_field(manifest: dict, dotted: str):

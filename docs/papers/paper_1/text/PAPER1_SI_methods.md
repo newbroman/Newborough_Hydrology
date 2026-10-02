@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_23.odt — do not edit. source-sha256=bfdffc0c72568a20 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_24.odt — do not edit. source-sha256=9121f2149cf373bf pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -494,7 +494,7 @@ The empirically fitted coastal-retreat reach (Figure 20 of the manuscript) is *n
 
 ## []{#anchor-17}S15. Software, parameters and reproducibility
 
-The full analysis pipeline is open source and version-controlled on GitHub at github.com/newbroman/Newborough_Hydrology (commit XXXXXXX at submission). A versioned snapshot of the code, the author-collected input data, and every output CSV referenced in this document is archived on Zenodo at DOI [10.5281/zenodo.XXXXXXX](https://doi.org/10.5281/zenodo.XXXXXXX). The pipeline version is recorded in the pipeline_version field of outputs/pipeline_manifest.json. The Zenodo deposit is the citable, immutable reference; the GitHub repository carries any subsequent updates.
+The full analysis pipeline is open source and version-controlled on GitHub at github.com/newbroman/Newborough_Hydrology (commit XXXXXXX at submission). A versioned snapshot of the code, the author-collected input data, and every output CSV referenced in this document is archived on Zenodo at DOI [10.5281/zenodo.19567643](https://doi.org/10.5281/zenodo.19567643). The pipeline release is recorded in the pipeline_release field of outputs/pipeline_manifest.json. The Zenodo deposit is the citable, immutable reference; the GitHub repository carries any subsequent updates.
 
 **Software environment.** Python 3.12.3. The complete, version-pinned environment is specified in requirements.txt; key packages are NumPy 2.4.6, SciPy 1.17.1, pandas 3.0.3 and statsmodels 0.14.6 (numerical and statistical processing); GeoPandas 1.1.3, Rasterio 1.5.0, Shapely 2.1.2 and pyproj 3.7.2 (spatial); and Matplotlib 3.10.9 (plotting). Random seeds for every stochastic step (bootstrap resampling, cluster stability) are defined centrally in utils/config.py, giving byte-equivalent reproduction.
 

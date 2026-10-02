@@ -16,8 +16,8 @@ WHAT IS KEPT, and why the oldest is in the set:
                           call, 2026-09-10.
     the next most recent  filling the quota, newest-first
 
-so with --keep 10 a family retains its newest, its oldest, and the eight most
-recent of the rest. A family at or below the quota is untouched.
+so with --keep 5 (the default since 2026-10-02, D-151 note) a family retains its
+newest, its oldest, and the three most recent of the rest. A family at or below the quota is untouched.
 
 WHAT IT REFUSES TO DO:
 
@@ -42,7 +42,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-10. First version.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-02. Default --keep 5 (D-151 note: Martin "only keep
+#   about 5"); the ship runs it after a successful Drive archive (nrg_git.sh 1.25.0).
+# 1.0.0  # Hollingham (2026) — 2026-09-10. First version.
 
 import argparse
 import json
@@ -103,7 +105,7 @@ def referenced_images() -> set[str]:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--keep", type=int, default=10,
+    ap.add_argument("--keep", type=int, default=5,
                     help="versions retained per family, newest + oldest included (default 10)")
     ap.add_argument("--only", help="substring of the family pattern")
     ap.add_argument("--apply", action="store_true", help="remove; default is a plan")

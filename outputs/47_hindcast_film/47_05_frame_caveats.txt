@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.8.0
+# Frame text — 47_hindcast_film.py 1.8.1
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -116,6 +116,7 @@ All of it is the model's account of what the weather would do to the reserve as 
 It is not a flood map. The squares are 10 m across; narrow margins, small pools and thin sheets over grass are invisible at that size — roughly a third of the water in a big flood. The moment a square lights is known only to within five or ten centimetres of water table.
 The model's mistakes carry through. Even corrected to the wells, it reproduces the measured water table to about twenty centimetres, and it still runs about ten centimetres low in the wettest months. A ten-centimetre error changes the open-water area by about half, because pools appear suddenly once the water nears the surface. Yellow is the steadier colour, good to about 15 %; blue is right to within a factor of 2.1. The first two years are the model settling from its starting guess.
 Winter rules all year. The curves come from November-to-March pictures; summer months show what the water table would imply, not what a summer photograph would show.
+Why this version of the model. Run back into a drier spell no fitting has seen — wells measured on the reserve in 1989–96 — it reproduced their average level without a bias, where a faster-forgetting version came out too wet. The drier decades of the film rest on that test (decision D-226).
 
 ### Credits and sources
 Newborough Warren hydrology study, 2026 — Martin Hollingham.

@@ -139,10 +139,10 @@
    "step": "23/59  WTF spatial analysis and Sy mapping"
   },
   "19_spatial_groundwater.py": {
-   "last_run": "2026-10-01T06:18:46",
-   "seconds": 4.5,
+   "last_run": "2026-10-02T05:25:32",
+   "seconds": 4.9,
    "status": "ok",
-   "step": "24/59  Spatial groundwater analysis"
+   "step": "24/60  Spatial groundwater analysis"
   },
   "20_spatial_figures.py": {
    "last_run": "2026-10-01T06:20:13",
@@ -193,16 +193,16 @@
    "step": "31/59  Van Willegen (2025) 5-year MSL aggregation"
   },
   "26b_van_willegen_msl_projections.py": {
-   "last_run": "2026-10-01T06:22:00",
-   "seconds": 3.0,
+   "last_run": "2026-10-02T05:25:25",
+   "seconds": 3.2,
    "status": "ok",
-   "step": "32/59  UKCP18 MSL5 climate projections (Tool B)"
+   "step": "32/60  UKCP18 MSL5 climate projections (Tool B)"
   },
   "26c_msl5_report_figures.py": {
-   "last_run": "2026-10-01T06:22:02",
-   "seconds": 2.2,
+   "last_run": "2026-10-02T05:25:36",
+   "seconds": 2.1,
    "status": "ok",
-   "step": "33/59  MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)"
+   "step": "33/60  MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)"
   },
   "28_c3_detrend_check.py": {
    "last_run": "2026-10-01T06:22:09",
@@ -283,10 +283,10 @@
    "step": "47/59  Coast-to-inland MAM transect \u2014 observational delta_0 diagnostic (\u00a75.7)"
   },
   "39_ccw_hindcast.py": {
-   "last_run": "2026-10-01T06:25:51",
-   "seconds": 4.6,
+   "last_run": "2026-10-02T05:25:21",
+   "seconds": 4.9,
    "status": "ok",
-   "step": "48/59  SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)"
+   "step": "48/60  SSM hindcast against the 1989\u201396 CCW record \u2014 out-of-sample validation (\u00a75.7.8)"
   },
   "40_shoreline_retreat.py": {
    "last_run": "2026-10-01T06:25:53",
@@ -325,10 +325,10 @@
    "step": "57/59  The public wet-area feed living/wet_area_model.json (D-178, T-36): the curves, the per-cell switching levels and the SSM history the scenario viewer and the film read. Assembles committed products; fits nothing"
   },
   "47_hindcast_film.py": {
-   "last_run": "2026-09-29T21:33:21",
-   "seconds": 606.9,
+   "last_run": "2026-10-02T05:37:59",
+   "seconds": 621.2,
    "status": "ok",
-   "step": "58/59  The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full"
+   "step": "58/60  The century hindcast film (T-39, D-178): a free-running SSM from 1930 through the wet-area model, calibrated to the well period. On demand only (--hindcast-film); renders a frame per month and needs ffmpeg, so it is not part of --full"
   },
   "48_pastas_crosscheck.py": {
    "last_run": "2026-10-01T06:39:39",
@@ -341,6 +341,12 @@
    "seconds": 63.9,
    "status": "ok",
    "step": "59/59  Groundwater flow between the slacks (D-205): the water table by kriging from the dipwells, drift chosen by test, with the sea, the river, Llyn Rhos-Ddu and the ridge well CEH12 as tested boundaries; flow arrows wet/mean/dry, radial and coast-normal transects, the Sentinel check (unconstrained, terrain shadow, floor edge) and the coastal damping check"
+  },
+  "50_record_length.py": {
+   "last_run": "2026-10-02T05:27:37",
+   "seconds": 119.1,
+   "status": "ok",
+   "step": "60/60  What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic"
   },
   "run_09_scraping.py": {
    "last_run": "2026-10-01T06:14:36",
@@ -355,5 +361,5 @@
    "step": "11/59  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-10-01T15:01:16"
+ "updated": "2026-10-02T05:37:59"
 }

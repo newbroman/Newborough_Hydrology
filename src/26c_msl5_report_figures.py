@@ -31,6 +31,7 @@ Inputs (all canonical pipeline outputs)
   outputs/26_van_willegen_msl/26_curreli_min_per_cluster.csv
   outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv
   outputs/19_spatial_groundwater/19_scenario_summary.csv
+  outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv   (1.4.0, D-224)
 
 Outputs
 -------
@@ -52,7 +53,12 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.3.0"   # Hollingham (2026) — 2026-10-01 (D-216). The ΔMSL5-against-Δsummer contrast
+__version__ = "1.4.0"   # Hollingham (2026) — 2026-10-01 (D-224; Martin: "report both", choice 2).
+#   The ΔMSL5-against-Δsummer contrast draws both forms: Model B as filled bars (19_scenario_summary.csv,
+#   rows filtered explicitly on response == "level_sustained_model_b") and Model A as hatched bars beside
+#   them (19_scenario_summary_model_a.csv, Script 19 2.29.0), on the same wells — Model A is projected only
+#   where Model B is (D-224), so C4 is "n.i." under both. The transcript gains the Model A columns.
+# 1.3.0   # Hollingham (2026) — 2026-10-01 (D-216). The ΔMSL5-against-Δsummer contrast
 #   takes BOTH bars from 19_scenario_summary.csv (its msl5 and summer rows): the same wells, the same
 #   Model B coefficients and the same convention — the sustained LEVEL response (Script 19 2.28.0,
 #   Script 26b 2.0.0). It set 26b's centroid ΔMSL5 beside Script 19's per-well summer mean, and both
@@ -224,10 +230,22 @@ def render_trajectory(per_cluster: pd.DataFrame, per_cluster_min: pd.DataFrame,
 # ---------------------------------------------------------------------
 # figure 2 — ΔMSL5 vs Δsummer-min contrast (§4.10.1)
 # ---------------------------------------------------------------------
+RESP_B = "level_sustained_model_b"     # Script 19's response labels (D-216, D-224)
+RESP_A = "level_sustained_model_a"
+
+
+def _rows(ss: pd.DataFrame, scenario_key: str, season: str) -> pd.DataFrame:
+    """One scenario and season of a Script 19 summary, filtered on its response
+    column so a file carrying more than one convention can never be mixed."""
+    resp = ss["response"].isin([RESP_B, RESP_A]) if "response" in ss else True
+    return ss[(ss.scenario == scenario_key) & (ss.season == season) & resp].set_index("cluster")
+
+
 def _scenario_msl_shifts(ss: pd.DataFrame, scenario_key: str) -> list[float]:
     """ΔMSL5 per cluster (in SHORT order): Script 19's msl5 rows (1.3.0) — the
-    per-well Model B sustained spring response, the population of its summer rows."""
-    s = ss[(ss.scenario == scenario_key) & (ss.season == "msl5")].set_index("cluster")
+    per-well sustained spring response, the population of its summer rows, on
+    whichever form ``ss`` carries (1.4.0)."""
+    s = _rows(ss, scenario_key, "msl5")
     return [float(s.loc[c, "dh_mean_m"]) if c in s.index else np.nan for c in SHORT]
 
 
@@ -241,39 +259,47 @@ def _scenario_summer_min_shifts(ss: pd.DataFrame, scenario_key: str) -> list[flo
     sustained level response (2.28.0, D-216) — the monthly model's closest
     correlate of the annual summer minimum.
     """
-    s = ss[(ss.scenario == scenario_key) & (ss.season == "summer")]
-    s = s.set_index("cluster")
+    s = _rows(ss, scenario_key, "summer")
     return [float(s.loc[c, "dh_mean_m"]) if c in s.index else np.nan for c in SHORT]
 
 
-def _render_contrast_panel(ax, msl_shifts, sm_shifts, title) -> None:
-    """Render a single horizontal paired-bar panel onto ``ax``."""
+def _render_contrast_panel(ax, msl_shifts, sm_shifts, title,
+                           msl_a=None, sm_a=None) -> None:
+    """Render a single horizontal grouped-bar panel onto ``ax``: per cluster,
+    ΔMSL5 and Δsummer-minimum on Model B (filled) and, when given, on Model A
+    (hatched, the same colour) — D-224."""
     y = np.arange(len(CLUSTERS))
-    h = 0.36
-
-    b1 = ax.barh(y - h / 2, msl_shifts, height=h, color=COL_MSL,
-                 label="ΔMSL5", zorder=3)
-    b2 = ax.barh(y + h / 2, sm_shifts, height=h, color=COL_SUM,
-                 label="Δsummer-minimum", zorder=3)
-
-    for bars, vals, col in [(b1, msl_shifts, COL_MSL),
-                            (b2, sm_shifts, COL_SUM)]:
+    both = msl_a is not None and sm_a is not None
+    series = ([(msl_shifts, COL_MSL, False), (msl_a, COL_MSL, True),
+               (sm_shifts, COL_SUM, False), (sm_a, COL_SUM, True)] if both else
+              [(msl_shifts, COL_MSL, False), (sm_shifts, COL_SUM, False)])
+    h = 0.8 / len(series)
+    offs = (np.arange(len(series)) - (len(series) - 1) / 2) * h
+    for k, ((vals, col, hatched), off) in enumerate(zip(series, offs)):
+        vals_plot = [v if np.isfinite(v) else 0.0 for v in vals]
+        bars = ax.barh(y + off, vals_plot, height=h * 0.92, zorder=3,
+                       color="white" if hatched else col, edgecolor=col,
+                       hatch="////" if hatched else None, linewidth=0.8)
         for rect, v in zip(bars, vals):
             yc = rect.get_y() + rect.get_height() / 2
             if not np.isfinite(v):
-                ax.text(0, yc, " n.i.", color="#777", fontsize=8.5, va="center", ha="left")
+                if k == 0:                              # one mark per withheld cluster
+                    ax.text(0, rect.get_y() + h * (len(series) - 1) / 2 + rect.get_height() / 2,
+                            " n.i. (not identified)", color="#777", fontsize=8,
+                            va="center", ha="left")
                 continue
             ax.text(v + (-0.004 if v < 0 else 0.004), yc, f"{int(round(v * 1000)):d} mm",
-                    color=col, fontsize=8.5, va="center", ha="right" if v < 0 else "left")
+                    color=col, fontsize=7.5, va="center", ha="right" if v < 0 else "left")
 
     ax.set_yticks(y)
     ax.set_yticklabels(CLUSTERS)
     ax.invert_yaxis()
     ax.set_title(title, pad=4, loc="left", fontweight="normal", fontsize=11)
     ax.axvline(0, color="#333333", linewidth=0.6, zorder=2)
-    fin = [v for v in list(msl_shifts) + list(sm_shifts) if np.isfinite(v)] or [0.0]
+    allv = list(msl_shifts) + list(sm_shifts) + (list(msl_a) + list(sm_a) if both else [])
+    fin = [v for v in allv if np.isfinite(v)] or [0.0]
     lo, hi = min(min(fin), 0.0), max(max(fin), 0.0)
-    pad = 0.18 * max(hi - lo, 0.01)
+    pad = 0.22 * max(hi - lo, 0.01)
     ax.set_xlim(lo - pad, hi + pad)
     ax.grid(axis="x", color="#dddddd", linewidth=0.4)
     ax.grid(axis="y", visible=False)
@@ -281,39 +307,35 @@ def _render_contrast_panel(ax, msl_shifts, sm_shifts, title) -> None:
 
 def render_contrast(proj: pd.DataFrame,
                     ss: pd.DataFrame,
-                    out_path: Path) -> None:
-    """Write the §4.10.1 ΔMSL5 vs Δsummer-min contrast figure."""
-    msl_50 = _scenario_msl_shifts(ss, "ukcp18_2050s")
-    msl_80 = _scenario_msl_shifts(ss, "ukcp18_2080s")
-    sm_50  = _scenario_summer_min_shifts(ss, "ukcp18_2050s")
-    sm_80  = _scenario_summer_min_shifts(ss, "ukcp18_2080s")
+                    out_path: Path,
+                    ss_a: pd.DataFrame = None) -> None:
+    """Write the §4.10.1 ΔMSL5 vs Δsummer-min contrast figure: Model B filled,
+    Model A hatched beside it when ``ss_a`` is given (1.4.0, D-224)."""
+    a = ss_a is not None
+    fig, axs = plt.subplots(2, 1, figsize=(9.0, 8.6 if a else 6.4), dpi=200, sharex=True)
+    for ax, key, dec in ((axs[0], "ukcp18_2050s", "2050s"), (axs[1], "ukcp18_2080s", "2080s")):
+        _render_contrast_panel(
+            ax, _scenario_msl_shifts(ss, key), _scenario_summer_min_shifts(ss, key),
+            f"{dec} — UKCP18 RCP8.5, 50th percentile",
+            msl_a=_scenario_msl_shifts(ss_a, key) if a else None,
+            sm_a=_scenario_summer_min_shifts(ss_a, key) if a else None,
+        )
+    axs[1].set_xlabel("Sustained level shift (m) — negative = deeper; "
+                      + ("filled: Model B, hatched: Model A (D-224)" if a else "Model B, D-216"))
 
-    fig, axs = plt.subplots(2, 1, figsize=(9.0, 6.4), dpi=200, sharex=True)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=COL_MSL),
+               plt.Rectangle((0, 0), 1, 1, color=COL_SUM)]
+    labels = ["ΔMSL5 (5-yr mean spring water level)", "Δsummer-minimum"]
+    if a:
+        handles += [plt.Rectangle((0, 0), 1, 1, facecolor="#555555", edgecolor="#555555"),
+                    plt.Rectangle((0, 0), 1, 1, facecolor="white", edgecolor="#555555",
+                                  hatch="////")]
+        labels += ["Model B (intercept form)", "Model A (published form)"]
+    fig.legend(handles=handles, labels=labels,
+               loc="upper center", bbox_to_anchor=(0.5, 1.005),
+               ncol=2, frameon=False, fontsize=10)
 
-    _render_contrast_panel(
-        axs[0], msl_50, sm_50,
-        "2050s — UKCP18 RCP8.5, 50th percentile",
-    )
-    _render_contrast_panel(
-        axs[1], msl_80, sm_80,
-        "2080s — UKCP18 RCP8.5, 50th percentile",
-    )
-    axs[1].set_xlabel("Sustained level shift (m) — negative = deeper; Model B, D-216")
-
-    fig.legend(
-        handles=[
-            plt.Rectangle((0, 0), 1, 1, color=COL_MSL),
-            plt.Rectangle((0, 0), 1, 1, color=COL_SUM),
-        ],
-        labels=[
-            "ΔMSL5 (5-yr mean spring water level)",
-            "Δsummer-minimum",
-        ],
-        loc="upper center", bbox_to_anchor=(0.5, 1.005),
-        ncol=2, frameon=False, fontsize=10,
-    )
-
-    plt.tight_layout(rect=(0, 0, 1, 0.96))
+    plt.tight_layout(rect=(0, 0, 1, 0.94 if a else 0.96))
     render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
 
@@ -334,6 +356,11 @@ def main() -> int:
     per_cluster_min = pd.read_csv(paths.OUT_26_CURRELI_MIN_PER_CLUSTER)
     proj        = pd.read_csv(paths.OUT_26B_PROJECTION_TABLE)
     ss          = pd.read_csv(paths.OUT_19_SCENARIO_SUMMARY)
+    ss_a        = (pd.read_csv(paths.OUT_19_SCENARIO_SUMMARY_MODEL_A)       # 1.4.0, D-224
+                   if paths.OUT_19_SCENARIO_SUMMARY_MODEL_A.exists() else None)
+    if ss_a is None:
+        warn(f"{paths.OUT_19_SCENARIO_SUMMARY_MODEL_A.name} absent - contrast drawn on Model B "
+             f"alone; run Script 19 first")
 
     print(f"  per-cluster trajectory rows : {len(per_cluster)}")
     print(f"  per-cluster annual-min rows : {len(per_cluster_min)}")
@@ -344,7 +371,7 @@ def main() -> int:
         render_trajectory(per_cluster, per_cluster_min, paths.OUT_26C_TRAJECTORY)
         print(f"  wrote {paths.OUT_26C_TRAJECTORY.name}")
 
-        render_contrast(proj, ss, paths.OUT_26C_CONTRAST)
+        render_contrast(proj, ss, paths.OUT_26C_CONTRAST, ss_a=ss_a)
         print(f"  wrote {paths.OUT_26C_CONTRAST.name}")
 
     # transcript — for provenance, mirroring 26 / 26b convention
@@ -357,6 +384,8 @@ def main() -> int:
     transcript.append(f"  {paths.OUT_26_CURRELI_MIN_PER_CLUSTER}")
     transcript.append(f"  {paths.OUT_26B_PROJECTION_TABLE}")
     transcript.append(f"  {paths.OUT_19_SCENARIO_SUMMARY}")
+    if ss_a is not None:
+        transcript.append(f"  {paths.OUT_19_SCENARIO_SUMMARY_MODEL_A}")
     transcript.append("")
     transcript.append("Outputs:")
     transcript.append(f"  {paths.OUT_26C_TRAJECTORY}")
@@ -384,6 +413,18 @@ def main() -> int:
             f"{msl_50[i]:>+10.4f} {sm_50[i]:>+10.4f}   "
             f"{msl_80[i]:>+10.4f} {sm_80[i]:>+10.4f}"
         )
+
+    if ss_a is not None:
+        transcript.append("")
+        transcript.append("The same on Model A (D-224; Model A projected only where Model B is):")
+        ma = {k: (_scenario_msl_shifts(ss_a, k), _scenario_summer_min_shifts(ss_a, k))
+              for k in ("ukcp18_2050s", "ukcp18_2080s")}
+        for i, c in enumerate(CLUSTERS):
+            transcript.append(
+                f"  {c:<25s} "
+                f"{ma['ukcp18_2050s'][0][i]:>+10.4f} {ma['ukcp18_2050s'][1][i]:>+10.4f}   "
+                f"{ma['ukcp18_2080s'][0][i]:>+10.4f} {ma['ukcp18_2080s'][1][i]:>+10.4f}"
+            )
 
     paths.OUT_26C_RESULTS_TXT.write_text("\n".join(transcript))
     print(f"  wrote {paths.OUT_26C_RESULTS_TXT.name}")

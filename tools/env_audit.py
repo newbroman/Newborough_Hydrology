@@ -53,7 +53,14 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-24. pastas joins LIBRARIES (Script 48).
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-02 (D-227). The environment, not the host, is
+#   the identity: a machine whose Python, externals, libraries and BLAS pin all match the record is
+#   the pipeline's environment, whatever its hostname, and gets the green verdict (the hostname is
+#   reported, not compared). New probe `blas`: the OPENBLAS_CORETYPE / OPENBLAS_NUM_THREADS /
+#   OMP_NUM_THREADS pins and the kernel OpenBLAS actually chose (threadpoolctl); compared against the
+#   record's `blas` block, which tools/nrg_env.sh reads to write the pin. A different host whose
+#   environment differs is treated as before (reported; only capability and record validity gate).
+# 1.1.0  # Hollingham (2026) — 2026-09-24. pastas joins LIBRARIES (Script 48).
 # 1.0.0  # Hollingham (2026) — 2026-08-26.
 
 import argparse
@@ -108,6 +115,16 @@ LIBRARIES = ["numpy", "pandas", "scipy", "statsmodels", "matplotlib",
 # a permanent false difference, corrected in the same pass.
 
 
+# 1.2.0 (D-227): environment variables that pin the BLAS kernel and its threading. Their values
+# live in the record's `blas` block; tools/nrg_env.sh writes them into the venv's sitecustomize.
+BLAS_PINS = ("OPENBLAS_CORETYPE", "OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS",
+             "NPY_DISABLE_CPU_FEATURES")
+# NPY_DISABLE_CPU_FEATURES=X86_V4 keeps numpy's own SIMD loops off AVX-512 where a host has it
+# (the cloud's Xeon does, the laptop's Ryzen 5850U does not), so both run the same AVX2 code:
+# measured 2026-10-02, it made Script 25's panel fit byte-identical where the BLAS pin alone
+# left it 1e-7 apart.
+
+
 def _run(cmd: list[str]) -> str | None:
     exe = shutil.which(cmd[0])
     if exe is None:
@@ -154,6 +171,18 @@ def probe() -> dict:
                     venv_target[f"{cand}/bin/{exe}"] = "<unresolvable>"
     venv_target = venv_target or None
 
+    # 1.2.0 (D-227): the BLAS kernel pin. OpenBLAS chooses its kernels at load time from the CPU
+    # (DYNAMIC_ARCH), so two CPUs move the last digits of every fit; the pin removes that.
+    blas = {k: os.environ.get(k) for k in BLAS_PINS}
+    try:
+        import numpy  # noqa: F401  (loads OpenBLAS so threadpoolctl can see it)
+        from threadpoolctl import threadpool_info
+        kern = sorted({i.get("architecture") for i in threadpool_info()
+                       if i.get("internal_api") == "openblas"} - {None})
+        blas["kernel"] = ",".join(kern) or None
+    except Exception:
+        blas["kernel"] = None
+
     return {
         "machine": {
             "hostname": platform.node(),
@@ -168,6 +197,7 @@ def probe() -> dict:
         },
         "externals": ext,
         "libraries": libs,
+        "blas": blas,
     }
 
 
@@ -239,6 +269,15 @@ def compare(live: dict, rec: dict, quiet: bool) -> list[str]:
             diffs.append(f"{name} {l}  (absent when recorded)")
         else:
             diffs.append(f"{name} {l}  (recorded {r})")
+
+    rb = rec.get("blas")
+    if rb is None:
+        diffs.append("BLAS pin not recorded (D-227: run tools/nrg_env.sh, then re-record)")
+    else:
+        lb = live.get("blas") or {}
+        for k in (*BLAS_PINS, "kernel"):
+            if lb.get(k) != rb.get(k):
+                diffs.append(f"BLAS {k} {lb.get(k)}  (recorded {rb.get(k)})")
     return diffs
 
 
@@ -387,9 +426,23 @@ def main() -> int:
             for d in ext:
                 print(f"      {d}")
 
+    if not diffs and not here:
+        # 1.2.0 (D-227): the environment is the identity. Another machine that has built it
+        # IS the pipeline's environment; the host is reported, never compared.
+        m, r = live["machine"], rec["machine"]
+        if a.quiet:
+            print(_c(f"  env_audit: the pipeline's environment (on {m['user']}@{m['hostname']}; "
+                     f"recorded on {r['user']}@{r['hostname']}), nothing has moved", C_GRN))
+        else:
+            print(f"  {m['user']}@{m['hostname']} — the pipeline's environment, built here "
+                  f"(recorded on {r['user']}@{r['hostname']}, D-227).")
+            print(_c("  every recorded version and the BLAS pin match.", C_GRN))
+        _report_universal()
+        return 1 if (a.gate and gate_fault) else 0
+
     if not here:
         m, r = live["machine"], rec["machine"]
-        print(_c("  NOT THE MACHINE THIS PIPELINE RUNS ON", C_RED))
+        print(_c("  NOT THE PIPELINE'S ENVIRONMENT (another machine, and it differs from the record)", C_RED))
         print(f"      here     {m['user']}@{m['hostname']}  ({m['system']})  "
               f"{m['repo_path']}")
         print(f"      recorded {r['user']}@{r['hostname']}  ({r['system']})  "

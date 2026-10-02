@@ -1,0 +1,27 @@
+Data, figures and documents — Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Martin Hollingham
+
+What this covers. Everything in this repository that is not software: the dipwell
+records and other data the author collected (data/), the pipeline outputs and figures
+(outputs/, living/), the documents and their text mirrors (docs/, report_edits/, notes/),
+the web pages (*.html) and the project's markdown. The software (src/, tools/,
+run_analysis.py and other scripts) is under the MIT licence in LICENSE.
+
+You may share and adapt this material for any purpose, including commercially, provided
+you give appropriate credit, provide a link to the licence, and indicate if changes were
+made. Cite it as:
+
+  Hollingham, M. (2026). Newborough Warren groundwater analysis pipeline.
+  Zenodo. https://doi.org/10.5281/zenodo.19567644
+
+Full licence text: https://creativecommons.org/licenses/by/4.0/legalcode
+Summary:           https://creativecommons.org/licenses/by/4.0/
+
+Third-party material keeps its own terms and is not relicensed here. In particular:
+RAF Valley climate data (Met Office, Open Government Licence v3.0; see
+data/CLIMATE_PROVENANCE.md); values digitised from Ranwell (1959) and the CCW 1989-96
+dipwell record (see data/RANWELL_PROVENANCE.md and the CCW files' notes); coastline and
+map data (see data/COASTLINE_PROVENANCE.md and data/geo/GEO_PROVENANCE.md); Copernicus
+Sentinel data (contains modified Copernicus Sentinel data, under the Copernicus licence).
+Where a file or its provenance note states other terms, those terms apply.

@@ -1,0 +1,31 @@
+{
+  "title": "Newborough Warren groundwater analysis pipeline",
+  "upload_type": "software",
+  "description": "<p>The analysis pipeline, data and documents of a twenty-one-year dipwell study of the coastal dune aquifer at Newborough Warren, Anglesey, Wales: a state-space model of monthly water-table change per well and per cluster, its out-of-sample tests, climate and forestry scenarios, and the technical report, Methods Supplement and papers built from its outputs.</p><p>Software under the MIT licence; data, figures and documents under CC BY 4.0 (see LICENSE and LICENSE-docs). Pre-submission release line 0.9: the last two parts of the version are the pipeline orchestrator's version (run_analysis.py).</p>",
+  "creators": [
+    {
+      "name": "Hollingham, Martin",
+      "orcid": "0000-0003-0253-9301"
+    }
+  ],
+  "license": "mit",
+  "access_right": "open",
+  "keywords": [
+    "groundwater",
+    "coastal dune aquifer",
+    "dune slack",
+    "water table",
+    "state-space model",
+    "Newborough Warren",
+    "Anglesey",
+    "hydrology"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/newbroman/Newborough_Hydrology",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "language": "eng"
+}

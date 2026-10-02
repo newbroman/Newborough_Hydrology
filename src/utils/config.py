@@ -24,8 +24,12 @@ over "all clusters" should iterate over CLUSTER_LABELS.keys().
 # Releases are dated. PIPELINE_RELEASE_DATE is the date this release string was
 # cut, in ISO form, and travels with it into the manifest so a reader can tell
 # which vintage of the pipeline produced a figure without reading a changelog.
-PIPELINE_VERSION = "2.3.0"
-PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
+# D-228 (2026-10-02): the release line is 0.9 until a paper is submitted (then 1.0.0), and the
+# last two parts are the orchestrator's major.minor (run_analysis.py __version__). The same string
+# is the git tag (v<PIPELINE_VERSION>), the GitHub release and the Zenodo version. It replaced
+# 2.3.0 (2026-08-13), which nothing outside this file and the manifest used.
+PIPELINE_VERSION = "0.9.2.23"
+PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 
 # ── Module version ───────────────────────────────────────────────────────────
 # Version of this config module itself (distinct from PIPELINE_VERSION, the
@@ -40,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-08-13"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.88.0"  # Hollingham (2026) - 2026-10-01 (D-225). RECLEN_DATUM_NSE_TOL. Additive.
+__version__ = "1.89.0"  # Hollingham (2026) - 2026-10-02 (D-228). PIPELINE_VERSION 2.3.0 -> 0.9.2.23,
+#   PIPELINE_RELEASE_DATE 2026-10-02: the release string, the tag, the GitHub release and Zenodo agree.
+# 1.88.0  # Hollingham (2026) - 2026-10-01 (D-225). RECLEN_DATUM_NSE_TOL. Additive.
 # 1.87.0  # Hollingham (2026) - 2026-10-01 (D-222). RECLEN_LENGTHS_MONTHS,
 #   RECLEN_MIN_FIT_MONTHS, RECLEN_STABLE_TOL: the record-length experiment (Script 50). Additive.
 # 1.86.0  # Hollingham (2026) - 2026-10-01 (D-217). MODEL_AB_SPLIT_DATE and

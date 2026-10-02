@@ -266,6 +266,11 @@ tracked publicly.
   most — it was 45 s until 2026-09-20, see §4c) and backgrounded jobs die with
   them. `check_all` and a full `cite_check` exceed it; `--claims-only` and
   `--index-only` take ~1 s.
+- **`device_commit_files` re-encodes images — gzip anything binary first.** It recognises a PNG by its
+  content, not its name (a `.bin` was re-encoded too), and writes a valid but different file: same
+  pixels, different bytes, so a committed output no longer matches its provenance hash. Measured
+  2026-10-02 on three Script 50 figures (`check_all` did not notice). Send `gzip -n` copies to
+  `scratch/` and decompress on the laptop; check the sha256 against `pipeline_provenance.json`.
 - **Do not leave files staged in his tree.** His next `nrg_git.sh` commit will
   sweep them into his message.
 

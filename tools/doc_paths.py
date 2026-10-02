@@ -12,8 +12,8 @@ WHY THIS EXISTS
   It also matters because of WHAT lives there. `report_edits/text/*.md` is the
   markdown mirror of every report chapter — the diffable surface of the whole
   corpus, and the thing `cite_check`, `symbol_check`, `reference_lint`,
-  `refresh_mirrors`, `doc_version_sync`, `export_lag`, `figref_lint` and
-  `snapshot_for_cloud` all read. On 2026-08-27 two directory moves each silently
+  `refresh_mirrors`, `doc_version_sync`, `export_lag` and `figref_lint` all read
+  (and `snapshot_for_cloud` did, until it was retired on 2026-10-02). On 2026-08-27 two directory moves each silently
   narrowed `docref_lint`'s net — 347 references to 287, then 357 to 290 — in the
   tool whose entire job is noticing a reference go missing. Nothing announced it
   either time. A move of the mirrors would put every one of those eight tools in

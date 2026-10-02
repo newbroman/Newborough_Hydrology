@@ -19,7 +19,9 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.1.0 — Hollingham (2026) — 2026-10-02. The remote is gdrivefile:NRG_documents_v2: the rclone
+# Version 1.1.1 — Hollingham (2026) — 2026-10-02. rclone comes from its GitHub release into ~/bin: the
+#   cloud proxy refuses rclone.org (403), found by the first claude.ai/code token test, which PASSED.
+# 1.1.0 — 2026-10-02. The remote is gdrivefile:NRG_documents_v2: the rclone
 #   client is published with the drive.file scope only, so its token no longer lapses weekly (T-65), and
 #   NRG_documents_v2 is the copy that remote created (rclone check: 656 files, 0 differences). The
 #   remote is tested with lsf, which drive.file always permits.
@@ -87,8 +89,17 @@ if [ -n "${NRG_RCLONE_CONF:-}" ] && [ ! -f "$HOME/.config/rclone/rclone.conf" ];
   chmod 600 "$HOME/.config/rclone/rclone.conf"
 fi
 if [ -n "${NRG_RCLONE_CONF:-}" ] && ! command -v rclone >/dev/null 2>&1; then
-  curl -sSL https://rclone.org/install.sh | sudo bash >/dev/null 2>&1 \
-    || echo "      rclone could not be installed here"
+  # 1.1.1: from rclone's GitHub release, into ~/bin. The cloud proxy refuses rclone.org (403, measured
+  # 2026-10-02 by the first claude.ai/code token test); GitHub downloads are allowed. No sudo needed.
+  RCLONE_VERSION="v1.68.2"
+  _rz="/tmp/rclone-${RCLONE_VERSION}.zip"
+  if curl -sSfL -o "$_rz" "https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip"; then
+    mkdir -p "$HOME/bin"
+    python3 -c "import zipfile,sys; z=zipfile.ZipFile(sys.argv[1]); n=[m for m in z.namelist() if m.endswith('/rclone')][0]; open(sys.argv[2],'wb').write(z.read(n))" \
+      "$_rz" "$HOME/bin/rclone" && chmod +x "$HOME/bin/rclone" && echo "      rclone ${RCLONE_VERSION} installed in ~/bin"
+  else
+    echo "      rclone could not be downloaded from GitHub here"
+  fi
 fi
 if command -v rclone >/dev/null 2>&1 && rclone lsf "$DRIVE_REMOTE" --max-depth 1 >/dev/null 2>&1; then
   rclone copy "$DRIVE_REMOTE" . --filter-from tools/rclone-odt-filter.txt --stats 10s --stats-one-line

@@ -405,6 +405,12 @@ committed mirrors and does not edit ODTs.
   Its rclone client is published with the `drive.file` scope only (2026-10-02), so
   the weekly lapse (T-65) is over; `cloud_setup.sh` shouts when a supplied token is
   refused.
+- **A cloud ship (D-233) is `tools/cloud_ship.sh`, run in a claude.ai/code session** on the environment
+  that holds the secret — never from a Cowork chat, whose built-in `cloud_default` environment carries no
+  custom variables. It refuses unless Drive matches the Drive manifest that every archive writes into
+  `working/` (nrg_git.sh 1.26.0), no mirror is ahead of
+  Drive, outputs are current and the doc lock is free; afterwards the L14 runs `tools/drive_pull.sh`
+  before editing (the lock note says so).
 - **Pushing is still Martin's call each time** (§7). A cloud session commits, shows
   the commit, and pushes on his yes; long work goes on a branch.
 - **Unlike the bridge, a cloud process survives between tool calls**, so long runs

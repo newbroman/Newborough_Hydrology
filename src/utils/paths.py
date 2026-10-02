@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.56.0"  # Hollingham (2026) - 2026-10-02 (D-232). OUT_50_CHANGE, OUT_50_SURFACE, OUT_50_CHANGE_SURFACE_FIG.
+__version__ = "1.57.0"  # Hollingham (2026) - 2026-10-02 (D-234). MIDAS_RAIN_DIR, OUT_50_RAIN_EVENTS, OUT_50_EVENT_STRESS,
+#   OUT_50_RAIN_EVENTS_FIG. Additive.
+# 1.56.0  # Hollingham (2026) - 2026-10-02 (D-232). OUT_50_CHANGE, OUT_50_SURFACE, OUT_50_CHANGE_SURFACE_FIG.
 #   Additive.
 # 1.55.0  # Hollingham (2026) - 2026-10-02 (D-231). OUT_50_TWO_STORE*. Additive.
 # 1.54.0  # Hollingham (2026) - 2026-10-02 (D-229). OUT_50_RANWELL_DATUM. Additive.
@@ -1226,6 +1228,7 @@ CCW_CODE_MAP = DATA_DIR / "ccw_1989_1996_code_map.csv"
 # Ranwell (1959) water-table data recovered from Figs 2, 4 and 7 - raw inputs of
 # Script 44 (D-145; provenance in data/RANWELL_PROVENANCE.md).
 RANWELL_LEVELS          = DATA_DIR / "ranwell_1951_53_water_levels.csv"
+MIDAS_RAIN_DIR          = DATA_DIR / "midas_rain"   # Met Office MIDAS Open daily rain gauges (E8d, D-234)
 RANWELL_RANGES          = DATA_DIR / "ranwell_1951_53_monthly_ranges.csv"
 RANWELL_PARC_MAWR_RAIN  = DATA_DIR / "ranwell_1950_53_parc_mawr_rain.csv"
 # Canopy state in 1989 and felling year per well, from site history. Optional:
@@ -1392,6 +1395,9 @@ OUT_50_TWO_STORE_FIG  = DIR_50 / "50_14_two_store.png"                 # E8, D-2
 OUT_50_CHANGE         = DIR_50 / "50_15_two_store_change.csv"         # E8b, D-232
 OUT_50_SURFACE        = DIR_50 / "50_16_surface_flow.csv"             # E8c, D-232
 OUT_50_CHANGE_SURFACE_FIG = DIR_50 / "50_17_change_and_surface.png"   # E8b/E8c, D-232
+OUT_50_RAIN_EVENTS = DIR_50 / "50_18_rain_events_by_winter.csv"       # E8d, D-234
+OUT_50_EVENT_STRESS = DIR_50 / "50_19_event_stress_by_cluster.csv"     # E8d, D-234
+OUT_50_RAIN_EVENTS_FIG = DIR_50 / "50_20_rain_events.png"              # E8d, D-234
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

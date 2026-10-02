@@ -62,7 +62,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-09. First version (W154, D-149).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-02. verify and --all-superseded also cover
+#   archive/, where prune_versions 1.2.0 now moves every superseded version (D-151 note).
+# 1.0.0  # Hollingham (2026) — 2026-09-09. First version (W154, D-149).
 
 import argparse
 import hashlib
@@ -265,7 +267,8 @@ def _retire(path: Path) -> None:
 def verify(quiet: bool = False) -> int:
     """Rebuild every stripped document IN MEMORY and check it. The gate."""
     bad = n = 0
-    for side_p in sorted(REPO.glob("docs/**/*.odt.media.json")):
+    for side_p in sorted([*REPO.glob("docs/**/*.odt.media.json"),
+                          *REPO.glob("archive/**/*.odt.media.json")]):
         odt = Path(str(side_p)[: -len(".media.json")])
         n += 1
         if not odt.is_file():
@@ -326,6 +329,11 @@ def superseded() -> list[Path]:
     for rel, pattern in FAMILIES:
         members = _family_members(REPO / rel, pattern)
         out.extend(members[:-1])
+        # 1.1.0: superseded versions now live in archive/ (prune_versions 1.2.0), in its
+        # current layout (archive/<path below docs/>) or the flatter one it replaced.
+        rx = re.compile(pattern)
+        arch = REPO / "archive"
+        out.extend(sorted(p for p in arch.rglob("*.odt") if rx.match(p.name)) if arch.is_dir() else [])
     return out
 
 

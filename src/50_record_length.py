@@ -61,7 +61,14 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-10-02 (D-232; Martin: "go ahead with e8b and e8c" / "approve").
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-10-02 (D-234; Martin: "approve", spec
+#   NRG_spec_E8d_rain_event_structure_2026-10-02). E8d: did long rain events, which a monthly total hides, drive
+#   the 2006-08 excess? Daily MIDAS gauges (Llyn Alaw primary, RAF Valley check; utils/midas_rain.py, a
+#   documented raw-input exception): per winter the share of rain in long events against the gauge's own
+#   1974-2005 baseline (tests 1-2), and per cluster centroid a long-event stress on the single store
+#   (test 3). 50_18_rain_events_by_winter.csv, 50_19_event_stress_by_cluster.csv, 50_20_rain_events.png;
+#   e8d_* report numbers. Phase 9 E8d, outputs become phase 10.
+# 1.4.0  # Hollingham (2026) - 2026-10-02 (D-232; Martin: "go ahead with e8b and e8c" / "approve").
 #   E8b: one non-climatic term on E8's single store per cluster centroid - a step (ps.StepModel, One), a
 #   relaxing step (StepModel, Exponential), a linear trend (ps.LinearTrend) - its date fitted inside
 #   CHANGE_TSTART_BOUNDS; the best by BIC is kept if it beats the single store by TWO_STORE_BIC_STRONG and
@@ -127,6 +134,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
     OUT_50_CHANGE, OUT_50_SURFACE, OUT_50_CHANGE_SURFACE_FIG,
+    MIDAS_RAIN_DIR, OUT_50_RAIN_EVENTS, OUT_50_EVENT_STRESS, OUT_50_RAIN_EVENTS_FIG,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -143,6 +151,10 @@ from utils.config import (                                    # noqa: E402
     TWO_STORE_BIC_STRONG, CHANGE_TSTART_INIT, CHANGE_TSTART_BOUNDS, CHANGE_SPLIT_DIRECTIONS,
     CHANGE_GRID_COARSE_MONTHS, SURFACE_THRESHOLD_GRID,
     SURFACE_BAND_M, SURFACE_THRESHOLD_MAX_DEPTH_M,
+    E8D_PRIMARY_GAUGE, E8D_CHECK_GAUGE, E8D_WET_DAY_MM, E8D_EVENT_MIN_DAYS, E8D_EVENT_PCTL,
+    E8D_BASELINE_END_YEAR, E8D_WINTER_MONTHS, E8D_MAX_MISSING_FRAC, E8D_UNUSUAL_PCTL, E8D_UNUSUAL_MIN_COUNT,
+    E8D_TEST_WINTERS, E8D_FLOOD_WINTER, E8D_LATER_WINTERS, E8D_FIT_START, E8D_FIT_END,
+    E8D_RESIDUAL_REDUCTION, E8D_CLUSTERS_WITH_EXCESS,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, simulate_ssm, get_metrics,   # noqa: E402
@@ -152,6 +164,7 @@ from utils.hindcast_utils import (                            # noqa: E402
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.pastas_utils import spread_daily, continuous_start  # noqa: E402
+from utils.midas_rain import read_daily  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 from utils.console_utils import banner, done, info, phase, result, saved, step, warn   # noqa: E402
 
@@ -1551,6 +1564,194 @@ def plot_change_surface(ch, sf, sims, per_c, per_s) -> None:
     plt.close(fig)
     saved(OUT_50_CHANGE_SURFACE_FIG.name)
 
+# ── E8d (1.5.0, D-234): rain event structure ─────────────────────────────────────────────────────────
+E8D_VERDICT = {"event structure supported": 2, "unusual rain, but it does not explain the excess": 1,
+               "not supported": 0}
+
+
+def _winter_of(idx: pd.DatetimeIndex) -> np.ndarray:
+    """October-March winter label: the year of its January."""
+    return np.where(idx.month >= 10, idx.year + 1, idx.year)
+
+
+def rain_events(gauge: str):
+    """Per gauge: the long-event threshold from its own baseline, a per-winter table of the event measures
+    with their baseline percentiles, and the day-level long-event flag."""
+    s = read_daily(MIDAS_RAIN_DIR / gauge)
+    full = s.reindex(pd.date_range(s.index.min(), s.index.max(), freq="D"))
+    wet = (full >= E8D_WET_DAY_MM).fillna(False)
+    run = (wet != wet.shift(fill_value=False)).cumsum()          # a missing day is not wet, so it ends a run
+    ev = full[wet].groupby(run[wet]).agg(["size", "sum"]).rename(columns={"size": "ndays", "sum": "total"})
+    ev["start"] = full[wet].index.to_series().groupby(run[wet].to_numpy()).min().to_numpy()
+    multi = ev[ev["ndays"] >= E8D_EVENT_MIN_DAYS]
+    base = multi[pd.DatetimeIndex(multi["start"]).year <= E8D_BASELINE_END_YEAR]
+    thr = float(np.percentile(base["total"], E8D_EVENT_PCTL))
+    long_ids = multi.index[multi["total"] >= thr]
+    in_long = wet & run.isin(long_ids)
+    win = pd.Series(_winter_of(full.index), index=full.index)
+    inwin = full.index.month.isin(E8D_WINTER_MONTHS)
+    rows = []
+    for w, idx in full[inwin].groupby(win[inwin]).groups.items():
+        d = full.loc[idx]
+        n_exp = len(pd.date_range(f"{w - 1}-10-01", f"{w}-03-31", freq="D"))
+        miss = 1 - d.notna().sum() / n_exp
+        tot = float(d.sum())
+        spell = run[idx][wet[idx]].value_counts()
+        rows.append({"gauge": gauge, "winter": int(w), "days_present": int(d.notna().sum()),
+                     "missing_frac": miss, "total_mm": tot,
+                     "long_event_mm": float(d[in_long[idx]].sum()),
+                     "event_share": float(d[in_long[idx]].sum()) / tot if tot > 0 else np.nan,
+                     "longest_wet_spell_days": int(spell.max()) if len(spell) else 0,
+                     "days_ge_20mm": int((d >= 20).sum())})
+    tab = pd.DataFrame(rows)
+    tab["complete"] = tab["missing_frac"] <= E8D_MAX_MISSING_FRAC
+    bl = tab[(tab["winter"] <= E8D_BASELINE_END_YEAR) & tab["complete"]]
+    for col in ("event_share", "longest_wet_spell_days", "days_ge_20mm", "total_mm"):
+        ref = bl[col].to_numpy()
+        tab[f"{col}_pctl"] = [float((ref <= x).mean() * 100) if np.isfinite(x) else np.nan for x in tab[col]]
+    tab["baseline_n_winters"] = len(bl)
+    tab["long_event_threshold_mm"] = thr
+    return tab, in_long, full
+
+
+def monthly_event_share(in_long: pd.Series, full: pd.Series) -> pd.Series:
+    """The share of each month's rain that fell in long events (months missing more than the tolerance are
+    NaN), on the YYYY-MM-01 month stamps the climate frame uses."""
+    m = full.groupby(full.index.to_period("M"))
+    tot = m.sum(); n = m.count(); exp = pd.Series([p.days_in_month for p in tot.index], index=tot.index)
+    lon = full.where(in_long).groupby(full.index.to_period("M")).sum()
+    sh = (lon / tot).where((1 - n / exp) <= E8D_MAX_MISSING_FRAC)
+    sh.index = sh.index.to_timestamp()
+    return sh
+
+
+def event_stress(cl, share: pd.Series):
+    """Test 3: the single store with and without a long-event stress (RAF Valley monthly rain x the gauge's
+    long-event share), per cluster centroid, fitted E8D_FIT_START..E8D_FIT_END."""
+    import pastas as ps
+    ps.set_log_level("ERROR")
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    start = continuous_start(cl)
+    P, E = spread_daily(cl, start)
+    # a month with no usable share (before the gauge, or too many missing days) takes that calendar month's
+    # mean share over the gauge's complete months - a neutral fill, reported as fill_months
+    clim = share.groupby(share.index.month).mean()
+    sh = share.reindex(cl.index)
+    fill = sh.isna() & cl["P_m"].notna()
+    sh = sh.fillna(pd.Series(cl.index.month.map(clim), index=cl.index))
+    cll = cl.copy(); cll["P_m"] = cl["P_m"] * sh
+    PL, _ = spread_daily(cll, start)
+    end = pd.Timestamp(E8D_FIT_END)
+    rows = []
+    for c in [int(k[1:]) for k in ra.columns if k.startswith("C") and k[1:].isdigit()]:
+        h = ra[f"C{c}"].dropna()
+        hm = h.copy(); hm.index = hm.index + pd.offsets.MonthEnd(0)
+        hm = hm[(hm.index >= pd.Timestamp(E8D_FIT_START)) & (hm.index <= end)]
+        info(f"E8d C{c}")
+
+        def with_stress(name):
+            ml = _single(ps, hm, P, E, name)
+            ps.StressModel(ml, PL, rfunc=ps.Exponential(), name="longev", settings="prec")
+            return ml
+        row = {"cluster": c, "fill_months": int(fill.loc[start:end].sum())}
+        try:
+            base = _ts_solve(_single(ps, hm, P, E, f"C{c}_e8d_single"), P)
+            ml = _ts_solve(with_stress(f"C{c}_e8d_event"), P)
+            o, se = ml.parameters["optimal"], ml.parameters["stderr"]
+            b0, b1 = _residual_stats(base, P, hm), _residual_stats(ml, P, hm)
+            sp0 = _split_nses(lambda a, b: _ts_solve(_single(ps, hm, P, E, f"C{c}_e8d_s0"), P, a, b), hm, P, ("fwd",))
+            sp1 = _split_nses(lambda a, b: _ts_solve(with_stress(f"C{c}_e8d_s1"), P, a, b), hm, P, ("fwd",))
+            gain, gse = float(o["longev_A"]), float(se["longev_A"])
+            red = ((b0["early_resid_m"] - b1["early_resid_m"]) / b0["early_resid_m"]
+                   if b0["early_resid_m"] and b0["early_resid_m"] > 0 else np.nan)
+            row.update(gain=gain, gain_se=gse,
+                       gain_lo95=gain - 1.96 * gse, gain_hi95=gain + 1.96 * gse,
+                       efold_days=float(o["longev_a"]),
+                       bic_single=float(base.stats.bic()), bic=float(ml.stats.bic()),
+                       dbic=float(base.stats.bic() - ml.stats.bic()),
+                       split_nse_fwd=sp1["fwd"], split_nse_fwd_single=sp0["fwd"],
+                       early_resid_m=b1["early_resid_m"], early_resid_single_m=b0["early_resid_m"],
+                       early_reduction=red,
+                       later_rmse_m=b1["later_rmse_m"], later_rmse_single_m=b0["later_rmse_m"])
+            row["earns"] = bool(row["gain_lo95"] > 0 and row["dbic"] >= TWO_STORE_BIC_STRONG
+                                and sp1["fwd"] >= sp0["fwd"] and np.isfinite(red)
+                                and red >= E8D_RESIDUAL_REDUCTION)
+        except Exception as exc:
+            row["error"] = f"{type(exc).__name__}: {exc}"[:200]
+            row["earns"] = False
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def e8d_verdict(prim: pd.DataFrame, chk: pd.DataFrame, st: pd.DataFrame):
+    t = prim.set_index("winter")
+    test = [w for w in E8D_TEST_WINTERS if w in t.index and t.loc[w, "complete"]]
+    unusual = [w for w in test if t.loc[w, "event_share_pctl"] >= E8D_UNUSUAL_PCTL]
+    t1 = len(unusual) >= E8D_UNUSUAL_MIN_COUNT
+    c = chk.set_index("winter")
+    cw = [w for w in E8D_TEST_WINTERS if w in c.index and c.loc[w, "complete"]]
+    check_agrees = bool(cw) and float(np.mean([c.loc[w, "event_share_pctl"] for w in cw])) > 50
+    later = [w for w in E8D_LATER_WINTERS if w in t.index and t.loc[w, "complete"]]
+    t2 = (E8D_FLOOD_WINTER in t.index and bool(later)
+          and all(t.loc[w, "event_share"] < t.loc[E8D_FLOOD_WINTER, "event_share"] for w in later))
+    ex = st[st["cluster"].isin(E8D_CLUSTERS_WITH_EXCESS)]
+    n_earn = int(ex["earns"].sum())
+    t3 = n_earn > len(ex) / 2
+    verdict = ("event structure supported" if (t1 and t3) else
+               "unusual rain, but it does not explain the excess" if t1 else "not supported")
+    return verdict, {"test1": t1, "unusual_winters": unusual, "check_gauge_agrees": check_agrees,
+                     "test2": bool(t2), "later_winters_used": later, "test3": t3, "clusters_earning": n_earn,
+                     "clusters_tested": len(ex)}
+
+
+def e8d_report(rr, prim, chk, st, verdict, info_d) -> None:
+    rr.add("e8d_verdict", E8D_VERDICT[verdict], unit="code",
+           note=f"{verdict} (2 supported, 1 unusual rain but no explanation, 0 not supported; E8d, D-234)")
+    rr.add("e8d_long_event_threshold_mm", float(prim["long_event_threshold_mm"].iloc[0]), unit="mm",
+           note=f"long-event threshold at {E8D_PRIMARY_GAUGE}: the {E8D_EVENT_PCTL}th percentile of multi-day event totals, baseline to {E8D_BASELINE_END_YEAR}")
+    t = prim.set_index("winter")
+    for w in sorted(set(E8D_TEST_WINTERS) | set(E8D_LATER_WINTERS)):
+        if w in t.index:
+            rr.add(f"e8d_event_share_{w}", t.loc[w, "event_share"], unit="fraction",
+                   note=f"share of the {w - 1}/{str(w)[2:]} winter's rain in long events at {E8D_PRIMARY_GAUGE}")
+            rr.add(f"e8d_event_share_pctl_{w}", t.loc[w, "event_share_pctl"], unit="percentile",
+                   note=f"{w - 1}/{str(w)[2:]} event share against the gauge's own baseline winters")
+    rr.add("e8d_test1_unusual", float(info_d["test1"]), unit="flag", note="E8d test 1: 2005-08 winters unusual in event share")
+    rr.add("e8d_test2_later_lower", float(info_d["test2"]), unit="flag", note="E8d test 2: later wet winters below 2006/07")
+    rr.add("e8d_clusters_earning", info_d["clusters_earning"], unit="count",
+           note=f"E8d test 3: clusters (of {info_d['clusters_tested']}, C2-C5) where the long-event stress earns its place")
+    rr.add("e8d_check_gauge_agrees", float(info_d["check_gauge_agrees"]), unit="flag",
+           note=f"{E8D_CHECK_GAUGE} points the same way on the test winters (reported, not the rule)")
+
+
+def plot_rain_events(prim, chk) -> None:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(MPL_DEFAULTS)
+    fig, axes = plt.subplots(2, 1, figsize=(9.0, 6.4), dpi=160, sharex=True)
+    for ax, tab, lab in ((axes[0], prim, E8D_PRIMARY_GAUGE), (axes[1], chk, E8D_CHECK_GAUGE)):
+        t = tab[tab["complete"]]
+        bl = t[t["winter"] <= E8D_BASELINE_END_YEAR]["event_share"]
+        ax.axhspan(np.percentile(bl, 20), np.percentile(bl, 80), color="0.85", label="baseline 20th-80th percentile")
+        ax.plot(t["winter"], t["event_share"], "o-", ms=3, lw=0.8, color="0.3", label="winter event share")
+        for w in E8D_TEST_WINTERS:
+            if w in set(t["winter"]):
+                ax.plot(w, t.set_index("winter").loc[w, "event_share"], "o", ms=7, color="#b2182b")
+        for w in E8D_LATER_WINTERS:
+            if w in set(t["winter"]):
+                ax.plot(w, t.set_index("winter").loc[w, "event_share"], "s", ms=7, color="#2166ac")
+        ax.set_title(f"{lab}: share of October-March rain in long events "
+                     f"(threshold {tab['long_event_threshold_mm'].iloc[0]:.0f} mm)", loc="left", fontsize=9)
+        ax.set_ylabel("share of winter rain")
+        ax.grid(alpha=0.3); ax.legend(fontsize=7, loc="upper left")
+    axes[1].set_xlabel("winter (labelled by January); red: 2005-08, blue: later wet winters")
+    fig.tight_layout()
+    fig.savefig(OUT_50_RAIN_EVENTS_FIG, dpi=160)
+    plt.close(fig)
+    saved(OUT_50_RAIN_EVENTS_FIG.name)
+
+
 def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
     """Report numbers for 1.1.0."""
     best, lo, hi, med = supported_datum(ccw_d)
@@ -1836,7 +2037,25 @@ def main(no_fig: bool = False) -> int:
     cs_ch.to_csv(OUT_50_CHANGE, index=False); saved(f"{OUT_50_CHANGE.name} ({len(cs_ch)} rows)")
     cs_sf.to_csv(OUT_50_SURFACE, index=False); saved(f"{OUT_50_SURFACE.name} ({len(cs_sf)} rows)")
 
-    phase(9, "Outputs")
+    phase(9, "Rain event structure (E8d), per winter and per cluster (1.5.0, D-234)")
+    e8_prim, e8_inlong, e8_full = rain_events(E8D_PRIMARY_GAUGE)
+    e8_chk, _, _ = rain_events(E8D_CHECK_GAUGE)
+    e8_share = monthly_event_share(e8_inlong, e8_full)
+    e8_st = event_stress(cl, e8_share)
+    e8_verdict, e8_info = e8d_verdict(e8_prim, e8_chk, e8_st)
+    tw = e8_prim.set_index("winter")
+    for w in sorted(set(E8D_TEST_WINTERS) | set(E8D_LATER_WINTERS)):
+        if w in tw.index:
+            step(f"winter {w - 1}/{str(w)[2:]}: event share {tw.loc[w, 'event_share']:.2f} "
+                 f"(baseline percentile {tw.loc[w, 'event_share_pctl']:.0f})")
+    for r in e8_st.itertuples():
+        step(f"C{r.cluster} E8d: earns {'yes' if r.earns else 'no'}")
+    result("E8d verdict", e8_verdict)
+    pd.concat([e8_prim, e8_chk], ignore_index=True).to_csv(OUT_50_RAIN_EVENTS, index=False)
+    saved(f"{OUT_50_RAIN_EVENTS.name} ({len(e8_prim) + len(e8_chk)} rows)")
+    e8_st.to_csv(OUT_50_EVENT_STRESS, index=False); saved(f"{OUT_50_EVENT_STRESS.name} ({len(e8_st)} rows)")
+
+    phase(10, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -1848,6 +2067,7 @@ def main(no_fig: bool = False) -> int:
         ranwell_report(rr, rw, lo, hi)
     two_store_report(rr, ts_tab, ts_per, ts_nw, ts_verdict)
     change_surface_report(rr, cs_vc, cs_pc, cs_date, cs_vs, cs_ps)
+    e8d_report(rr, e8_prim, e8_chk, e8_st, e8_verdict, e8_info)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)
@@ -1855,6 +2075,7 @@ def main(no_fig: bool = False) -> int:
             plot_datum(ccw_d, split_d, proj_d, best, lo, hi, rw)
         plot_two_store(ts_tab, ts_well, ts_nw, ts_start)
         plot_change_surface(cs_ch, cs_sf, cs_sims, cs_pc, cs_ps)
+        plot_rain_events(e8_prim, e8_chk)
     result("record length", f"{df['well'].nunique()} wells; see {OUT_50_BY_CLUSTER.name}")
     done("50")
     return 0

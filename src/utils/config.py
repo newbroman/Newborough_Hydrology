@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.91.0"  # Hollingham (2026) - 2026-10-02 (D-232). CHANGE_* and SURFACE_* (Script 50 E8b and
+__version__ = "1.92.0"  # Hollingham (2026) - 2026-10-02 (D-234). E8D_* (Script 50 E8d, rain event structure;
+#   the rule fixed before the run). Additive.
+# 1.91.0  # Hollingham (2026) - 2026-10-02 (D-232). CHANGE_* and SURFACE_* (Script 50 E8b and
 #   E8c, the rule fixed before the run). Additive.
 # 1.90.0  # Hollingham (2026) - 2026-10-02 (D-231). TWO_STORE_* (Script 50 E8, the rule fixed
 #   before the run). Additive.
@@ -694,6 +696,32 @@ SURFACE_THRESHOLD_MAX_DEPTH_M = 0.5
 # the threshold over SURFACE_THRESHOLD_GRID (m relative to ground).
 CHANGE_GRID_COARSE_MONTHS     = 3
 SURFACE_THRESHOLD_GRID        = tuple(round(-1.0 + 0.05 * i, 2) for i in range(31))
+
+# E8d (D-234, spec NRG_spec_E8d_rain_event_structure_2026-10-02, approved): did long rain events, which a
+# monthly total hides, drive the 2006-08 excess? Daily MIDAS gauges (utils/midas_rain.py). A wet day has at
+# least E8D_WET_DAY_MM; a long event is a run of at least E8D_EVENT_MIN_DAYS wet days whose total reaches the
+# E8D_EVENT_PCTL percentile of such events in the gauge's own baseline (to E8D_BASELINE_END_YEAR). Winters
+# are E8D_WINTER_MONTHS, labelled by January; a winter missing more than E8D_MAX_MISSING_FRAC of its days
+# is excluded. Test 1: at least E8D_UNUSUAL_MIN_COUNT of E8D_TEST_WINTERS at or above the baseline's
+# E8D_UNUSUAL_PCTL; test 2: E8D_LATER_WINTERS below E8D_FLOOD_WINTER; test 3: the long-event stress on the
+# single store, fitted E8D_FIT_START to E8D_FIT_END (the gauge's span), judged as E8b's terms are.
+E8D_PRIMARY_GAUGE      = "alaw_01146"
+E8D_CHECK_GAUGE        = "valley_01145"
+E8D_WET_DAY_MM         = 1.0
+E8D_EVENT_MIN_DAYS     = 2
+E8D_EVENT_PCTL         = 90
+E8D_BASELINE_END_YEAR  = 2005
+E8D_WINTER_MONTHS      = (10, 11, 12, 1, 2, 3)
+E8D_MAX_MISSING_FRAC   = 0.10
+E8D_UNUSUAL_PCTL       = 80
+E8D_UNUSUAL_MIN_COUNT  = 2
+E8D_TEST_WINTERS       = (2006, 2007, 2008)
+E8D_FLOOD_WINTER       = 2007
+E8D_LATER_WINTERS      = (2014, 2016)
+E8D_FIT_START          = "2005-01-01"
+E8D_FIT_END            = "2023-12-31"
+E8D_RESIDUAL_REDUCTION = 0.5
+E8D_CLUSTERS_WITH_EXCESS = (2, 3, 4, 5)
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.

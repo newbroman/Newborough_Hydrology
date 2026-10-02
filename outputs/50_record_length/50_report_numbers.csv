@@ -683,3 +683,19 @@ surface_C4_passes,,,0.0,flag,C4: surface flow passes tests 1-3 (E8c)
 surface_C4_threshold_m,,,-0.65,m,"C4: fitted surface-flow threshold, best form threshold, level relative to ground (E8c)"
 surface_C5_passes,,,0.0,flag,C5: surface flow passes tests 1-3 (E8c)
 surface_C5_threshold_m,,,-0.7906608233241997,m,"C5: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+e8d_verdict,,,0.0,code,"not supported (2 supported, 1 unusual rain but no explanation, 0 not supported; E8d, D-234)"
+e8d_long_event_threshold_mm,,,48.4,mm,"long-event threshold at alaw_01146: the 90th percentile of multi-day event totals, baseline to 2005"
+e8d_event_share_2006,,,0.5357094821788837,fraction,share of the 2005/06 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2006,,,86.20689655172413,percentile,2005/06 event share against the gauge's own baseline winters
+e8d_event_share_2007,,,0.4172329044383404,fraction,share of the 2006/07 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2007,,,75.86206896551724,percentile,2006/07 event share against the gauge's own baseline winters
+e8d_event_share_2008,,,0.3257042253521127,fraction,share of the 2007/08 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2008,,,62.06896551724138,percentile,2007/08 event share against the gauge's own baseline winters
+e8d_event_share_2014,,,0.4304468568543297,fraction,share of the 2013/14 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2014,,,79.3103448275862,percentile,2013/14 event share against the gauge's own baseline winters
+e8d_event_share_2016,,,0.47582017010935596,fraction,share of the 2015/16 winter's rain in long events at alaw_01146
+e8d_event_share_pctl_2016,,,79.3103448275862,percentile,2015/16 event share against the gauge's own baseline winters
+e8d_test1_unusual,,,0.0,flag,E8d test 1: 2005-08 winters unusual in event share
+e8d_test2_later_lower,,,0.0,flag,E8d test 2: later wet winters below 2006/07
+e8d_clusters_earning,,,0.0,count,"E8d test 3: clusters (of 4, C2-C5) where the long-event stress earns its place"
+e8d_check_gauge_agrees,,,1.0,flag,"valley_01145 points the same way on the test winters (reported, not the rule)"

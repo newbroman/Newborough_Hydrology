@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T15:01:30",
+ "generated": "2026-10-02T22:41:41",
  "orchestrator": "2.23.2",
  "steps": {
   "00_climate_summary.py": {
@@ -1532,7 +1532,10 @@
     "outputs/50_record_length/50_15_two_store_change.csv": "4020b06ca47047159e0a75c809ff991255e965d40f515b757a7c18d16e3699c3",
     "outputs/50_record_length/50_16_surface_flow.csv": "03c59c6309c9945146a07c8ff806a8f18bc3b171cd857fba7c2a9218dfee1607",
     "outputs/50_record_length/50_17_change_and_surface.png": "f4ff754364daf96ea0c701fd335004e11ce507cfc4d1bf9d449ffc638097bf90",
-    "outputs/50_record_length/50_report_numbers.csv": "d3004bc1a633aebcb90e146fae7d539b348124209a16324fa51227820c7104ac"
+    "outputs/50_record_length/50_18_rain_events_by_winter.csv": "c2e727eb4455ea4667dcd3bd6507bc18521d8fbee10b779677d7b1aa8f62990d",
+    "outputs/50_record_length/50_19_event_stress_by_cluster.csv": "785817d56944a923aafc86c79fcd83f60cb8d43c8ee29976ab5b2ce8e4219921",
+    "outputs/50_record_length/50_20_rain_events.png": "84cf6cecd52fc79dda1cbf38a75a0b889aeecdb4e114842fb3c0877c914675a3",
+    "outputs/50_record_length/50_report_numbers.csv": "b9d566cb5958b82039b6f6755e51c581c7ce9a187a823b9272eba93e69c23c64"
    },
    "fallbacks": [],
    "inputs": {
@@ -1543,6 +1546,7 @@
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff",
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371",
     "outputs/03_master_data.csv": "3ed41d9c4bddf3411987450bc9132521d605eaa76f211a5f803bad4c375ebba7",
+    "outputs/03_regional_averages.csv": "9d70076c57b631b267b510364d8bc3f998a1a4893aca69705039b2321b6b1b25",
     "outputs/03_state_space_model/03_15_per_well_window_sensitivity.csv": "02f26c43beb23ca51a97c91691cd72fb4eaf55cbfb04149920ec565a99715b2f",
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "6d7ac03f8e9802243cffecac2f381abf1ff62cbcfae3051696630da60b8a375d",
     "outputs/19_spatial_groundwater/19_scenario_perwell_model_a.csv": "1c57fedf84da62e161d63dfaf8ea1ad323ebbe9e7bc2edfd925ed0bbe23e8750",
@@ -1551,9 +1555,9 @@
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "4c58ad67f3773551d464e9857e8eedda025fbc0a0030f9b5c81e0bf61e65118f"
    },
    "inputs_unresolved": [],
-   "seconds": 1601.2,
-   "started": "2026-10-02T14:34:49",
-   "version": "1.4.0"
+   "seconds": 2409.6,
+   "started": "2026-10-02T22:01:31",
+   "version": "1.5.0"
   },
   "run_09_scraping.py": {
    "emitted": {

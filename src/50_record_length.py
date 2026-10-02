@@ -61,7 +61,16 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-10-02 (D-229; Martin: "Spec adding Ranwell" / "Approve").
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-10-02 (D-231; Martin: "I approve the spec of the E8 model").
+#   E8: two drainage time scales per cluster. Pastas Exponential (term for term Model B) against
+#   DoubleExponential (two parallel linear stores sharing the recharge), fitted to each cluster centroid,
+#   warmed up over the climate record from its last gap (utils/pastas_utils), so no starting level is
+#   fitted; with and without the AR(1) noise model. The four tests and the verdict are the rule fixed
+#   before the run (config TWO_STORE_*; spec NRG_spec_E8_two_store_2026-10-02): BIC and the split test;
+#   the CCW drier-decade bias at the cluster's CCW wells; agreement of the slow time scales; the 2006-08
+#   residual and the NW9 winters. C4 and C5 fitted whole (felling years in) and reported separately.
+#   50_12_two_store_by_cluster.csv, 50_13_two_store_check_well.csv, 50_14_two_store.png.
+# 1.2.0  # Hollingham (2026) - 2026-10-02 (D-229; Martin: "Spec adding Ranwell" / "Approve").
 #   E9: Ranwell's 1951-53 readings as the second drier epoch. Model A refitted at every datum and Model B,
 #   comparison window and full record, hindcast from the 1930 spin-up at Script 44's pairings and scored as
 #   Script 44 scores them (utils/hindcast_utils.compare_offset_censored: offset removed, censored at the
@@ -103,6 +112,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS,
     OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
+    OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -111,6 +121,11 @@ from utils.config import (                                    # noqa: E402
     RECLEN_DATUM_NSE_TOL, DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M,
     FOREST_INTERCEPTION, UKCP18_SCENARIOS, WINTER_WET_CLIMATE_MONTHS, SUMMER_DRY_CLIMATE_MONTHS,
     RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE,
+    TWO_STORE_FAST_INIT_DAYS, TWO_STORE_FAST_BOUNDS_DAYS, TWO_STORE_SLOW_INIT_DAYS,
+    TWO_STORE_SLOW_BOUNDS_DAYS, TWO_STORE_SLOW_SHARE_INIT, TWO_STORE_EARLY_YEARS,
+    TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
+    TWO_STORE_CHECK_WELL, TWO_STORE_CHECK_CLUSTER, TWO_STORE_FLOOD_WINTERS, TWO_STORE_NEAR_WINTERS,
+    TWO_STORE_DRY_WINTERS, TWO_STORE_SURFACE_TOL_M, TWO_STORE_NEAR_TOL_M, DAYS_PER_MONTH,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, simulate_ssm, get_metrics,   # noqa: E402
@@ -119,6 +134,7 @@ from utils.hindcast_utils import (                            # noqa: E402
     load_ccw, observed_series, hindcast_well, equilibrium_depth, usable_codes, compare_offset_censored,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
+from utils.pastas_utils import spread_daily, continuous_start  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 from utils.console_utils import banner, done, info, phase, result, saved, step, warn   # noqa: E402
 
@@ -820,6 +836,275 @@ def ranwell_identity_check(rw: pd.DataFrame) -> float:
          if (r.site_no, r.well) in m44.index and np.isfinite(r.nse_after_offset)]
     return float(max(d)) if d else np.nan
 
+
+# ──────────────────────────────────────────────────────────────────────────────
+# E8: two drainage time scales per cluster (1.3.0, D-231)
+# ──────────────────────────────────────────────────────────────────────────────
+TS_FORMS = (("single", False), ("double", True))
+TS_VERDICT = {"regional field": 2, "two stores supported": 1, "not resolved": 0}
+
+
+def _ts_model(ps, head: pd.Series, P, E, double: bool, noise: bool, name: str):
+    ml = ps.Model(head, name=name)
+    rf = ps.DoubleExponential() if double else ps.Exponential()
+    ps.RechargeModel(ml, P, E, rfunc=rf, name="rch", recharge=ps.rch.Linear())
+    if double:
+        ml.set_parameter("rch_a1", initial=TWO_STORE_FAST_INIT_DAYS,
+                         pmin=TWO_STORE_FAST_BOUNDS_DAYS[0], pmax=TWO_STORE_FAST_BOUNDS_DAYS[1])
+        ml.set_parameter("rch_a2", initial=TWO_STORE_SLOW_INIT_DAYS,
+                         pmin=TWO_STORE_SLOW_BOUNDS_DAYS[0], pmax=TWO_STORE_SLOW_BOUNDS_DAYS[1])
+        ml.set_parameter("rch_alpha", initial=TWO_STORE_SLOW_SHARE_INIT, pmin=0.0, pmax=1.0)
+    if noise:
+        ml.add_noisemodel(ps.ArNoiseModel(ml))
+    return ml
+
+
+def _ts_solve(ml, P, tmin=None, tmax=None):
+    start = pd.Timestamp(tmin) if tmin is not None else ml.oseries.series.index[0]
+    ml.solve(tmin=tmin, tmax=tmax, report=False, warmup=int((start - P.index[0]).days))
+    return ml
+
+
+def _ts_sim(ml, P, a, b) -> pd.Series:
+    a, b = pd.Timestamp(a), pd.Timestamp(b)
+    return ml.simulate(tmin=a, tmax=b, warmup=int((a - P.index[0]).days))
+
+
+def _nse(o: pd.Series, s: pd.Series) -> float:
+    o, s = o.align(s, join="inner")
+    ok = o.notna() & s.notna()
+    o, s = o[ok], s[ok]
+    den = float(((o - o.mean()) ** 2).sum())
+    return 1.0 - float(((o - s) ** 2).sum()) / den if len(o) > 2 and den > 0 else np.nan
+
+
+def _winter_max(s: pd.Series) -> pd.Series:
+    w = s[s.index.month.isin([10, 11, 12, 1, 2, 3])]
+    lab = np.where(w.index.month >= 10, w.index.year + 1, w.index.year)
+    return w.groupby(lab).max()
+
+
+def two_store(lev, lev_cols, cl, master):
+    """E8 (D-231): per cluster centroid, single against double exponential; the tests of the spec."""
+    import pastas as ps
+    ps.set_log_level("ERROR")
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    start = continuous_start(cl)
+    P, E = spread_daily(cl, start)
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    md = master.set_index("_n")
+    ccw_ok = paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists()
+    if ccw_ok:
+        obs, cmap = load_ccw()
+        mdk = pd.read_csv(INT_MASTER_DATA)
+        mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
+        adm = usable_codes(cmap, mdk.set_index("k"), obs)
+        adm = adm[adm["admitted"]]
+    rows, models, sims = [], {}, {}
+    clusters = [int(c[1:]) for c in ra.columns if c.startswith("C") and c[1:].isdigit()]
+    for c in clusters:
+        h = ra[f"C{c}"].dropna()
+        hm = h.copy(); hm.index = hm.index + pd.offsets.MonthEnd(0)
+        for form, dbl in TS_FORMS:
+            for noise in (False, True):
+                ml = _ts_solve(_ts_model(ps, hm, P, E, dbl, noise, f"C{c}_{form}_{int(noise)}"), P)
+                o, se = ml.parameters["optimal"], ml.parameters["stderr"]
+                sim = _ts_sim(ml, P, hm.index[0], hm.index[-1]).reindex(hm.index)
+                res = hm - sim
+                yr = res.groupby(res.index.year).mean()
+                early = yr.loc[TWO_STORE_EARLY_YEARS[0]:TWO_STORE_EARLY_YEARS[1]]
+                later = res[res.index.year > TWO_STORE_EARLY_YEARS[1]]
+                a_fast = float(o["rch_a1"] if dbl else o["rch_a"])
+                row = {"cluster": c, "form": form, "noise_ar1": noise, "n_obs": int(hm.notna().sum()),
+                       "warmup_from": f"{start:%Y-%m}",
+                       "fast_efold_months": a_fast / DAYS_PER_MONTH,
+                       "slow_efold_months": float(o["rch_a2"]) / DAYS_PER_MONTH if dbl else np.nan,
+                       "slow_efold_months_se": float(se["rch_a2"]) / DAYS_PER_MONTH if dbl else np.nan,
+                       "slow_share": float(o["rch_alpha"]) if dbl else 0.0,
+                       "slow_share_se": float(se["rch_alpha"]) if dbl else np.nan,
+                       "gain": float(o["rch_A"]) / DAYS_PER_MONTH, "f_evap": float(o["rch_f"]),
+                       "aic": float(ml.stats.aic()), "bic": float(ml.stats.bic()), "rsq": float(ml.stats.rsq()),
+                       "early_resid_m": float(early.mean()) if len(early) else np.nan,
+                       "later_rmse_m": float(np.sqrt((later ** 2).mean())) if len(later) else np.nan}
+                if not noise:
+                    models[(c, form)] = (ml, hm)
+                    sims[(c, form)] = sim
+                    nses = []
+                    for d_, kw, test in (("fwd", {"tmax": split - pd.Timedelta(days=1)}, hm[hm.index >= split]),
+                                         ("rev", {"tmin": split}, hm[hm.index < split])):
+                        try:
+                            m2 = _ts_solve(_ts_model(ps, hm, P, E, dbl, False, f"C{c}_{form}_{d_}"), P, **kw)
+                            s2 = _ts_sim(m2, P, hm.index[0], hm.index[-1]).reindex(test.index)
+                            v = _nse(test, s2)
+                        except Exception:
+                            v = np.nan
+                        row[f"split_nse_{d_}"] = v
+                        nses.append(v)
+                    row["split_nse_median"] = float(np.nanmedian(nses)) if np.isfinite(nses).any() else np.nan
+                    # test 2: the CCW drier decade at this cluster's CCW wells
+                    biases = []
+                    if ccw_ok:
+                        for r in adm.itertuples():
+                            k = normalize_well_name(r.well)
+                            if k not in md.index or int(md.loc[k, "Cluster"]) != c or k not in lev_cols:
+                                continue
+                            ob, _n = observed_series(obs, r.code, r.datum_offset_m)
+                            if ob.empty:
+                                continue
+                            wl = lev[lev_cols[k]].dropna()
+                            common = wl.index.intersection(h.index)
+                            shift = float(wl.loc[common].mean() - h.loc[common].mean())
+                            obm = ob.copy(); obm.index = pd.DatetimeIndex(obm.index) + pd.offsets.MonthEnd(0)
+                            pr = _ts_sim(ml, P, obm.index[0], obm.index[-1]).reindex(obm.index) + shift
+                            ok = pr.notna() & obm.notna()
+                            if ok.any():
+                                biases.append(float((pr[ok] - obm[ok]).mean()))
+                    row["ccw_n_wells"] = len(biases)
+                    row["ccw_bias_median_m"] = float(np.median(biases)) if biases else np.nan
+                rows.append(row)
+    tab = pd.DataFrame(rows)
+
+    # NW9 (test 4b): the check cluster's models run at the check well
+    wrows, nw = [], {}
+    k = normalize_well_name(TWO_STORE_CHECK_WELL)
+    if k in lev_cols and (TWO_STORE_CHECK_CLUSTER, "double") in models:
+        wl = lev[lev_cols[k]].dropna()
+        h = ra[f"C{TWO_STORE_CHECK_CLUSTER}"].dropna()
+        common = wl.index.intersection(h.index)
+        shift = float(wl.loc[common].mean() - h.loc[common].mean())
+        wm = wl.copy(); wm.index = wm.index + pd.offsets.MonthEnd(0)
+        out = pd.DataFrame({"observed_m": wm})
+        for form, _d in TS_FORMS:
+            ml, _hm = models[(TWO_STORE_CHECK_CLUSTER, form)]
+            out[f"{form}_m"] = _ts_sim(ml, P, wm.index[0], wm.index[-1]).reindex(wm.index) + shift
+        out.index.name = "month_end"
+        wmax = out.apply(_winter_max)
+        for form, _d in TS_FORMS:
+            col = f"{form}_m"
+            fl = all(wmax.loc[y, col] >= -TWO_STORE_SURFACE_TOL_M for y in TWO_STORE_FLOOD_WINTERS if y in wmax.index)
+            nr = all(wmax.loc[y, col] >= -TWO_STORE_NEAR_TOL_M for y in TWO_STORE_NEAR_WINTERS if y in wmax.index)
+            dr = all(wmax.loc[y, col] < -TWO_STORE_SURFACE_TOL_M for y in TWO_STORE_DRY_WINTERS if y in wmax.index)
+            nw[form] = {"flood": fl, "near": nr, "dry": dr, "pass": bool(fl and nr and dr)}
+        wrows = out.reset_index()
+        wrows["shift_m"] = shift
+        nw["winter_max"] = wmax
+    nw["sims"] = sims
+    return tab, (pd.DataFrame(wrows) if len(wrows) else pd.DataFrame()), nw, start
+
+
+def two_store_verdict(tab: pd.DataFrame, nw: dict) -> tuple[str, pd.DataFrame]:
+    """The rule fixed before the run (spec section 3)."""
+    base = tab[~tab["noise_ar1"]].set_index(["cluster", "form"])
+    ar1 = tab[tab["noise_ar1"]].set_index(["cluster", "form"])
+    per = []
+    for c in sorted(tab["cluster"].unique()):
+        s, d = base.loc[(c, "single")], base.loc[(c, "double")]
+        t1 = bool(d["bic"] < s["bic"] and d["split_nse_median"] >= s["split_nse_median"])
+        t2 = (bool(abs(d["ccw_bias_median_m"]) <= TWO_STORE_CCW_BIAS_TOL_M and t1)
+              if np.isfinite(d["ccw_bias_median_m"]) else np.nan)
+        es, ed = abs(s["early_resid_m"]), abs(d["early_resid_m"])
+        t4 = bool(es > 0 and (es - ed) / es >= TWO_STORE_EARLY_REDUCTION
+                  and d["later_rmse_m"] <= s["later_rmse_m"] + TWO_STORE_LATER_RMSE_TOL_M)
+        if c == TWO_STORE_CHECK_CLUSTER and "double" in nw:
+            t4 = bool(t4 and nw["double"]["pass"])
+        a = ar1.loc[(c, "double")] if (c, "double") in ar1.index else None
+        per.append({"cluster": c, "test1": t1, "test2": t2, "test4": t4,
+                    "slow_efold_months_ar1": float(a["slow_efold_months"]) if a is not None else np.nan,
+                    "slow_efold_months_ar1_se": float(a["slow_efold_months_se"]) if a is not None else np.nan})
+    per = pd.DataFrame(per)
+
+    def majority(col):
+        v = per[col].dropna().astype(bool)
+        return bool(len(v) and v.sum() > len(v) / 2)
+    supported = majority("test1") and majority("test2") and majority("test4")
+    p1 = per[per["test1"]]
+    regional = False
+    if len(p1) >= 2:
+        lo = p1["slow_efold_months_ar1"] - 1.96 * p1["slow_efold_months_ar1_se"]
+        hi = p1["slow_efold_months_ar1"] + 1.96 * p1["slow_efold_months_ar1_se"]
+        regional = bool(np.isfinite(lo).all() and np.isfinite(hi).all() and lo.max() <= hi.min())
+    per["test3_regional"] = regional
+    verdict = ("regional field" if supported and regional else
+               "two stores supported" if supported else "not resolved")
+    return verdict, per
+
+
+def two_store_report(rr, tab, per, nw, verdict) -> None:
+    rr.add("two_store_verdict", TS_VERDICT[verdict], unit="code",
+           note=f"{verdict} (2 regional field, 1 two stores supported, 0 not resolved; the rule fixed before the run, D-231)")
+    base = tab[~tab["noise_ar1"]]
+    for c in sorted(base["cluster"].unique()):
+        s = base[(base.cluster == c) & (base.form == "single")].iloc[0]
+        d = base[(base.cluster == c) & (base.form == "double")].iloc[0]
+        p = per[per.cluster == c].iloc[0]
+        for key, val, unit, note in (
+                ("slow_share", d["slow_share"], "", "share of the recharge through the slow store, double exponential"),
+                ("slow_efold_months", d["slow_efold_months"], "months", "slow store's e-folding time, double exponential"),
+                ("bic_double_minus_single", d["bic"] - s["bic"], "", "BIC, double minus single (negative favours two stores)"),
+                ("split_nse_single", s["split_nse_median"], "", "median split-test NSE, single exponential"),
+                ("split_nse_double", d["split_nse_median"], "", "median split-test NSE, double exponential"),
+                ("early_resid_single_m", s["early_resid_m"], "m", f"mean residual {TWO_STORE_EARLY_YEARS[0]}-{TWO_STORE_EARLY_YEARS[1]}, single"),
+                ("early_resid_double_m", d["early_resid_m"], "m", f"mean residual {TWO_STORE_EARLY_YEARS[0]}-{TWO_STORE_EARLY_YEARS[1]}, double"),
+                ("ccw_bias_single_m", s["ccw_bias_median_m"], "m", "median CCW 1989-96 bias at the cluster's CCW wells, single"),
+                ("ccw_bias_double_m", d["ccw_bias_median_m"], "m", "median CCW 1989-96 bias at the cluster's CCW wells, double"),
+                ("test1", float(p["test1"]), "flag", "test 1 passed (1) or not (0)"),
+                ("test4", float(p["test4"]), "flag", "test 4 passed (1) or not (0)")):
+            rr.add(f"two_store_C{c}_{key}", val, unit=unit, note=f"C{c}: {note} (E8, D-231)")
+    if "winter_max" in nw:
+        wm = nw["winter_max"]
+        for y in TWO_STORE_FLOOD_WINTERS + TWO_STORE_NEAR_WINTERS + TWO_STORE_DRY_WINTERS:
+            if y in wm.index:
+                for col in wm.columns:
+                    rr.add(f"two_store_{TWO_STORE_CHECK_WELL}_winter{y}_max_{col}", float(wm.loc[y, col]), unit="m",
+                           note=f"{TWO_STORE_CHECK_WELL}: highest level, winter ending {y} ({col.replace('_m', '')}; E8, D-231)")
+        for form in ("single", "double"):
+            if form in nw:
+                rr.add(f"two_store_{TWO_STORE_CHECK_WELL}_{form}_pass", float(nw[form]["pass"]), unit="flag",
+                       note=f"{TWO_STORE_CHECK_WELL} winters reproduced by the C{TWO_STORE_CHECK_CLUSTER} {form} model (test 4b)")
+
+
+def plot_two_store(tab, wtab, nw, warmup_start) -> None:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(MPL_DEFAULTS)
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    fig, axes = plt.subplots(3, 2, figsize=(9.0, 8.4), dpi=160, sharex=True)
+    clusters = sorted(tab["cluster"].unique())
+    for ax, c in zip(axes.ravel(), clusters):
+        h = ra[f"C{c}"].dropna()
+        ax.plot(h.index, h.values, "o", ms=1.6, color="0.35", label="observed")
+        for form, col, ls in (("single", "0.15", "-"), ("double", "#2166ac", "--")):
+            sm = nw.get("sims", {}).get((c, form))
+            if sm is not None:
+                ax.plot(sm.index, sm.values, color=col, lw=0.9, ls=ls,
+                        label="single store" if form == "single" else "two stores")
+        ax.axvspan(pd.Timestamp(f"{TWO_STORE_EARLY_YEARS[0]}-01-01"), pd.Timestamp(f"{TWO_STORE_EARLY_YEARS[1]}-12-31"),
+                   color="#fdb863", alpha=0.25, lw=0)
+        b = tab[(tab.cluster == c) & (~tab.noise_ar1)].set_index("form")
+        ax.set_title(f"({'abcde'[clusters.index(c)]}) {CLUSTER_LABELS.get(c, f'C{c}')}: slow share "
+                     f"{b.loc['double', 'slow_share']:.2f}, ΔBIC {b.loc['double', 'bic'] - b.loc['single', 'bic']:+.0f}",
+                     loc="left", fontsize=8.5)
+        ax.grid(alpha=0.3)
+    ax = axes.ravel()[len(clusters)]
+    if len(wtab):
+        t = pd.to_datetime(wtab["month_end"])
+        ax.plot(t, wtab["observed_m"], "o", ms=1.6, color="0.35", label="observed")
+        ax.plot(t, wtab["single_m"], color="0.15", lw=1.0, label="single store")
+        ax.plot(t, wtab["double_m"], color="#2166ac", lw=1.0, ls="--", label="two stores")
+        ax.axhline(0, color="#b2182b", lw=0.8)
+        for y in TWO_STORE_FLOOD_WINTERS + TWO_STORE_NEAR_WINTERS + TWO_STORE_DRY_WINTERS:
+            ax.axvspan(pd.Timestamp(f"{y - 1}-10-01"), pd.Timestamp(f"{y}-03-31"), color="0.85", lw=0)
+        ax.set_title(f"(f) {TWO_STORE_CHECK_WELL.upper()} (C{TWO_STORE_CHECK_CLUSTER} models at the well)", loc="left", fontsize=8.5)
+        ax.legend(fontsize=6.5, loc="lower left")
+        ax.grid(alpha=0.3)
+    for a in axes[:, 0]:
+        a.set_ylabel("level (m, ground = 0)")
+    fig.tight_layout()
+    fig.savefig(OUT_50_TWO_STORE_FIG, dpi=160)
+    plt.close(fig)
+    saved(OUT_50_TWO_STORE_FIG.name)
+
 def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
     """Report numbers for 1.1.0."""
     best, lo, hi, med = supported_datum(ccw_d)
@@ -1076,7 +1361,23 @@ def main(no_fig: bool = False) -> int:
     split_d.to_csv(OUT_50_SPLIT_DATUM, index=False); saved(f"{OUT_50_SPLIT_DATUM.name} ({len(split_d)} rows)")
     proj_d.to_csv(OUT_50_PROJ_DATUM, index=False); saved(f"{OUT_50_PROJ_DATUM.name} ({len(proj_d)} rows)")
 
-    phase(7, "Outputs")
+    phase(7, "Two drainage time scales per cluster (1.3.0, E8, D-231)")
+    ts_tab, ts_well, ts_nw, ts_start = two_store(lev, lev_cols, cl, master)
+    ts_verdict, ts_per = two_store_verdict(ts_tab, ts_nw)
+    for r in ts_per.itertuples():
+        b = ts_tab[(ts_tab.cluster == r.cluster) & (~ts_tab.noise_ar1) & (ts_tab.form == "double")].iloc[0]
+        step(f"C{r.cluster}: slow share {b.slow_share:.2f}, slow e-fold {b.slow_efold_months:.0f} months; "
+             f"test 1 {'pass' if r.test1 else 'fail'}, test 2 "
+             f"{'n/a' if pd.isna(r.test2) else ('pass' if r.test2 else 'fail')}, test 4 {'pass' if r.test4 else 'fail'}")
+    if "double" in ts_nw:
+        step(f"{TWO_STORE_CHECK_WELL}: single {'pass' if ts_nw['single']['pass'] else 'fail'}, "
+             f"two stores {'pass' if ts_nw['double']['pass'] else 'fail'} (test 4b)")
+    result("E8 verdict", f"{ts_verdict} (warm-up from {ts_start:%Y-%m})")
+    ts_tab.to_csv(OUT_50_TWO_STORE, index=False); saved(f"{OUT_50_TWO_STORE.name} ({len(ts_tab)} rows)")
+    if len(ts_well):
+        ts_well.to_csv(OUT_50_TWO_STORE_WELL, index=False); saved(f"{OUT_50_TWO_STORE_WELL.name} ({len(ts_well)} rows)")
+
+    phase(8, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -1086,11 +1387,13 @@ def main(no_fig: bool = False) -> int:
         datum_report(rr, ccw_d, split_d, proj_d, checks_d)
     if len(rw):
         ranwell_report(rr, rw, lo, hi)
+    two_store_report(rr, ts_tab, ts_per, ts_nw, ts_verdict)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)
         if len(ccw_d):
             plot_datum(ccw_d, split_d, proj_d, best, lo, hi, rw)
+        plot_two_store(ts_tab, ts_well, ts_nw, ts_start)
     result("record length", f"{df['well'].nunique()} wells; see {OUT_50_BY_CLUSTER.name}")
     done("50")
     return 0

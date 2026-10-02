@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T09:49:52",
+ "generated": "2026-10-02T12:41:48",
  "orchestrator": "2.23.2",
  "steps": {
   "00_climate_summary.py": {
@@ -1460,9 +1460,9 @@
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "6d7ac03f8e9802243cffecac2f381abf1ff62cbcfae3051696630da60b8a375d"
    },
    "inputs_unresolved": [],
-   "seconds": 39.0,
-   "started": "2026-10-02T06:08:00",
-   "version": "1.5.0"
+   "seconds": 61.9,
+   "started": "2026-10-02T12:40:46",
+   "version": "1.5.1"
   },
   "49_slack_flow.py": {
    "emitted": {
@@ -1526,7 +1526,10 @@
     "outputs/50_record_length/50_08_projection_by_datum.csv": "141f6a00df59bec17fd6946c680b7033a36a6422f0c1b4cab7960a21441dc051",
     "outputs/50_record_length/50_09_datum_against_the_drier_past.png": "67b61d60077e2736f8f99e0f7d2363b949786a334e7aaa416ac4978ecb3ed8b0",
     "outputs/50_record_length/50_10_ranwell_hindcast_by_datum.csv": "153a2f04681d479b4f3247b50563141be43690518980329a6cbb567e133c9425",
-    "outputs/50_record_length/50_report_numbers.csv": "7ef041c35136db4bbe20127c69d9685f443fc779ffb212e80678e25a3f6cc575"
+    "outputs/50_record_length/50_12_two_store_by_cluster.csv": "32b504545e584e9cc065f0ded6503a1cb16db5980a9e148c8c1be13c80f52020",
+    "outputs/50_record_length/50_13_two_store_check_well.csv": "b127d27ac2a505d9e522385ad5da402f293c844791778d05d7c53b0abe42b484",
+    "outputs/50_record_length/50_14_two_store.png": "7b30070839a7c8afef05a0d2e567897d72b38f5927ddf1c92e31d216cf700d70",
+    "outputs/50_record_length/50_report_numbers.csv": "c298fc89e285dec99c86c0222745e9b785e0306e78d577e9675f5bb9dcdc320d"
    },
    "fallbacks": [],
    "inputs": {
@@ -1545,9 +1548,9 @@
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "4c58ad67f3773551d464e9857e8eedda025fbc0a0030f9b5c81e0bf61e65118f"
    },
    "inputs_unresolved": [],
-   "seconds": 130.4,
-   "started": "2026-10-02T09:47:42",
-   "version": "1.2.0"
+   "seconds": 200.9,
+   "started": "2026-10-02T12:27:52",
+   "version": "1.3.0"
   },
   "run_09_scraping.py": {
    "emitted": {

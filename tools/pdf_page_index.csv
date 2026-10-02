@@ -73,221 +73,222 @@ crynodeb_academaidd,para,maesignalffinciliorarfor,8,docs/academic_summaries/cryn
 crynodeb_academaidd,para,maesaflehydroligygoedwig,8,docs/academic_summaries/crynodeb_academaidd.pdf,2026-10-02T04:49Z,1
 crynodeb_academaidd,para,maegrymoeddhinsawddacarf,8,docs/academic_summaries/crynodeb_academaidd.pdf,2026-10-02T04:49Z,1
 crynodeb_academaidd,para,drafftcyfieithiaddraffta,8,docs/academic_summaries/crynodeb_academaidd.pdf,2026-10-02T04:49Z,1
-PAPER1_SI_methods,para,thissupportinginformatio,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,Supporting Information,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,"Hollingham (2026), Paper 1 --- *A parameter-sparse state-space framework for aquifer characterization from long-term manual dipwell records: a 21-year case study at Newborough Warren*",1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thepipelineandoutputsare,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thegradientregressionabo,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13.6 Seasonal robustness (spring mean),1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thegradientisitselfseaso,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,becausetheforestfreepane,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13.7 Single-well leverage of δ₀,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,s1fieldprotocoldataprepa,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,Contents,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,the88wellmanualdipwellne,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,"S1. Field protocol, data preparation, and date semantics",3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thornthwaite1948definest,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,bucketingreadingsonphysi,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,datesemanticseverymonthl,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,aconcreteexampleforwellc,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,ht0610mendofjulyreadingh,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thestatespacemodelsectio,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,aboveordnancedatuminvari,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thedatapreparationstep01,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,watertablerecordsarescre,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S1.3 Cleaning and gap rules,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thereferencenetwork66wel,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S1.4 Reference-network selection,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theextendednetworkaddsth,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,cleanedmonthlyperwellfra,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S1.5 Output,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,allpipelineconstantsandt,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S2. Constants and configuration,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,allvaluesthatareconstant,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S2.1 Constants,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,drainagedatum37msensitiv,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,the24corsicanpinecanopyi,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,asinglecanonicaltableofp,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S2.2 Canonical pipeline parameters file,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,clusteridentification02c,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S3. Behavioural clustering and the *k* = 5 partition,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S3.1 Distance metric and linkage,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,wardshierarchicallinkage,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theclusteringliteratureo,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S3.2 Cluster-count selection,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,fornewboroughthesilhouet,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thiswasnotadoptedtheinte,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thisstudythereforeselect,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thereferencenetworkispar,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S3.3 The k = 5 partition table,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,1c1lakeedge7lakeadjacent,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,membershipcountscanonica,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,wardslinkageproducesclus,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S3.4 Canonical ID anchoring,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,bootstrapresamplingofthe,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S3.5 Stability,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theclusteringalgorithmas,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S4. Pearson affinity audit and spatial confidence,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,awellwithahighprimaryaff,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theauditshowsthreepatter,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thec2c3gradationisdiscus,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theoutput05pear01spatial,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,acrossthe66referencenetw,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thestatespacemodelssmist,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5. The state-space model --- displacement formulation,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,wherehtisthechangeinwate,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5.1 Equation,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thequantityzht1isthedisp,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theequationisamultipleli,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,allthreevaluesarereporte,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5.2 Sign conventions,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thedrainagetermusesthewa,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5.3 Why *h*(*t*−1) rather than *h*(*t*),11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,the37mdrainagedatumwasse,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5.4 Drainage datum,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theroleofthedatumistoshi,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,hisinvariantunderthechoi,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thessmisfittedattwodisti,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5.5 Implementation: two levels of fit,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,clustermeanfittheprimary,13,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,perwellfitthespatialprod,13,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,commondesignmatrixconstr,13,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,becausethessmisamonthlyt,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5.6 Residual serial correlation and inference validity,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,asarobustnesscheckthecoe,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,therechargetermusesthecu,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S5.7 Rainfall enters contemporaneously,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,sections55introducedthet,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S6. State-space regression and the Lumped Catchment Storage Coefficient,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,"S6.1 Per-well and cluster-mean fits, and where each is used",15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,table1clustermechanistic,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theclustermeanfitisthepr,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,threeofthepaper1outputsa,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thefullperclustervaluest,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S6.2 Cluster-mean coefficients,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theclustermeancoefficien,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S6.3 Caveats on OLS coefficient values,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,firstthecoefficientsarel,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,secondthessmislinearised,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thirdatmonthlytimesteppp,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thepracticalimplicationi,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thelumpedcatchmentstorag,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S6.4 Lumped Catchment Storage Coefficient,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,becauseisthewatertableri,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thecoefficientislumpedin,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thecontrastacrossthecano,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,perclusterlcscvaluesarer,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thessmsthirdcoefficientt,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S7. SSM vs traditional linear model (benchmarking),19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thetlmisthesimplestunphy,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,rainfallpetandanintercep,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thetlmisnotproposedasapu,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,ateachwellinthereference,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thessmoutperformsthetlma,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thetlmbenchmarkisreporte,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theperwellvaluessections,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S8. Spatial interpolation of SSM coefficients,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theidwexponentisp2aconve,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S8.1 IDW configuration,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,onlyonemonitoringwellceh,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S8.2 Masking,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theidwsearchbandwidthiss,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S8.3 Bandwidth and edge effects,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thethreeinterpolatedcoef,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S8.4 Coefficient atlas,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thestatespaceregressions,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S9. Residual-field diagnostics,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theresidualfieldcarriesn,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,ifaridgederivedlateralin,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S9.1 Cross-correlation lag test (23_ridge_recharge_lag_test.py),22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thetestreturnsanullresul,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thisnullresultmustbequal,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,iftheresidualfieldreflec,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S9.2 Seasonal climatology test (24_residual_seasonality.py),23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thetestdiscriminatesamon,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,aclusterstratifiedanalys,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thefullseasonalclimatolo,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theinterpolatedresiduals,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S9.3 Ridge-zone extrapolation,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thespatiallystructuredre,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S9.4 Status of the residual field,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thessmequationsections51,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S10. Water-balance decomposition,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theclusterwaterbalancede,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S10.1 Cluster water balance (primary analysis),25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,foreachclusterthepartiti,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,wherepandpetarethelongte,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thewaterbalanceclosurefo,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,themeanresidualiswhatthe,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,forc4mainforestandc5coas,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S10.2 Canopy interception at the forest clusters,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,wherei024isthecanopyinte,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,specificyieldsythedraina,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S11. Water-table-fluctuation specific yield,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thewatertablefluctuation,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S11.1 The water-table-fluctuation method,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,whereristhenetrechargera,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,approachawinterolstherat,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,approachbeventmediananev,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,approachcrapidrechargeev,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,clusterleveleventmedians,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S11.2 Cluster-level estimates,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,fortheforestedclustersc4,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,monthlyresolutionprevent,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S11.3 Caveats,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,aperwellsyfield18wtfspat,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S11.4 Spatial Sy surface,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,alongtermmeanwatertablee,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S12. Mean water-table surface and the Darcy flow field,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S12.1 Mean head per well,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theallrecordapproachhast,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theperwellmeanheadsarein,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S12.2 Spatial head surface,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thedarcyflowfieldfigure1,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S12.3 Darcy flow field,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,wherehisthespatialgradie,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thedirectionalpatternisr,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thenewboroughcoastlineat,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13. Coastal-retreat gradient regression,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thetest25coastalgradient,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13.1 Panel regression specification,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,wheretijisthemonthlywate,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,twofunctionalformsaretes,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,linearcappeddcfarmindlcg,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,bothformsarefittedbynonl,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,threenestedspecification,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13.2 Nested specifications,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,fullnetworkallopendunean,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,fittedparametersreadlive,33,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13.3 Parameter values,33,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,confidenceintervalsare95,33,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,modelselectionbyaicfavou,34,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13.4 Model selection,34,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theheadlinevaluesreporte,34,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thec5coastalforestwellnw,35,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S13.5 C5 out-of-sample sentinel,35,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,section411ofthemainmanus,35,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S14. Forest-interception drawdown reach (Figure 19),35,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,whereistheinlanddecaylen,35,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theparametersusedinfigur,35,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,withtheseinputs230mmatch,36,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thisistheonlyoutputofthe,36,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,theempiricallyfittedcoas,36,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,thefullanalysispipelinei,36,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,"S15. Software, parameters and reproducibility",36,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,softwareenvironmentpytho,37,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,cartographiccontextoverl,37,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,pipelineorchestrationthe,37,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,pipelineparameterstableh,37,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,dataavailabilitythedipwe,38,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,codeavailabilityallscrip,38,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,referencescitedonlyinthi,38,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,heading,S16. Supplementary references,38,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,calinskitandharabaszj197,38,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,crosbiersbinningpandkalm,38,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,liaotw2005clusteringofti,39,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,milligangwandcoopermc198,39,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
-PAPER1_SI_methods,para,allotherreferencesakaike,39,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-01T01:29Z,1
+PAPER1_SI_methods,para,thissupportinginformatio,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,Supporting Information,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,"Hollingham (2026), Paper 1 --- *A parameter-sparse state-space framework for aquifer characterization from long-term manual dipwell records: a 21-year case study at Newborough Warren*",1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thepipelineandoutputsare,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thegradientregressionabo,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13.6 Seasonal robustness (spring mean),1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thegradientisitselfseaso,1,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,becausetheforestfreepane,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13.7 Single-well leverage of δ₀,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,s1fieldprotocoldataprepa,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,Contents,2,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,the88wellmanualdipwellne,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,"S1. Field protocol, data preparation, and date semantics",3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thornthwaite1948definest,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,bucketingreadingsonphysi,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,datesemanticseverymonthl,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,aconcreteexampleforwellc,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,ht0610mendofjulyreadingh,3,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thestatespacemodelsectio,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,aboveordnancedatuminvari,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thedatapreparationstep01,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,watertablerecordsarescre,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S1.3 Cleaning and gap rules,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thereferencenetwork66wel,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S1.4 Reference-network selection,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theextendednetworkaddsth,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,cleanedmonthlyperwellfra,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S1.5 Output,4,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,allpipelineconstantsandt,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S2. Constants and configuration,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,allvaluesthatareconstant,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S2.1 Constants,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,drainagedatum37msensitiv,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,the24corsicanpinecanopyi,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,asinglecanonicaltableofp,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S2.2 Canonical pipeline parameters file,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,clusteridentification02c,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S3. Behavioural clustering and the *k* = 5 partition,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S3.1 Distance metric and linkage,5,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,wardshierarchicallinkage,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theclusteringliteratureo,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S3.2 Cluster-count selection,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,fornewboroughthesilhouet,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thiswasnotadoptedtheinte,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thisstudythereforeselect,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thereferencenetworkispar,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S3.3 The k = 5 partition table,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,1c1lakeedge7lakeadjacent,6,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,membershipcountscanonica,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,wardslinkageproducesclus,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S3.4 Canonical ID anchoring,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,bootstrapresamplingofthe,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S3.5 Stability,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theclusteringalgorithmas,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S4. Pearson affinity audit and spatial confidence,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,awellwithahighprimaryaff,7,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theauditshowsthreepatter,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thec2c3gradationisdiscus,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theoutput05pear01spatial,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,acrossthe66referencenetw,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thestatespacemodelssmist,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5. The state-space model --- displacement formulation,8,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,wherehtisthechangeinwate,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5.1 Equation,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thequantityzht1isthedisp,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theequationisamultipleli,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,allthreevaluesarereporte,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5.2 Sign conventions,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thedrainagetermusesthewa,9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5.3 Why *h*(*t*−1) rather than *h*(*t*),9,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,the37mdrainagedatumwasse,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5.4 Drainage datum,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theroleofthedatumistoshi,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,hisinvariantunderthechoi,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thessmisfittedattwodisti,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5.5 Implementation: two levels of fit,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,clustermeanfittheprimary,10,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,perwellfitthespatialprod,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,commondesignmatrixconstr,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,becausethessmisamonthlyt,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5.6 Residual serial correlation and inference validity,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,asarobustnesscheckthecoe,11,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,therechargetermusesthecu,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S5.7 Rainfall enters contemporaneously,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,sections55introducedthet,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S6. State-space regression and the Lumped Catchment Storage Coefficient,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,"S6.1 Per-well and cluster-mean fits, and where each is used",12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,table1clustermechanistic,12,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theclustermeanfitisthepr,13,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,threeofthepaper1outputsa,13,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thefullperclustervaluest,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S6.2 Cluster-mean coefficients,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theclustermeancoefficien,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S6.3 Caveats on OLS coefficient values,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,firstthecoefficientsarel,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,secondthessmislinearised,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thirdatmonthlytimesteppp,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thepracticalimplicationi,14,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thelumpedcatchmentstorag,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S6.4 Lumped Catchment Storage Coefficient,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,becauseisthewatertableri,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thecoefficientislumpedin,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thecontrastacrossthecano,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,perclusterlcscvaluesarer,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thessmsthirdcoefficientt,15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S7. SSM vs traditional linear model (benchmarking),15,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thetlmisthesimplestunphy,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,rainfallpetandanintercep,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thetlmisnotproposedasapu,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,ateachwellinthereference,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thessmoutperformsthetlma,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thetlmbenchmarkisreporte,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theperwellvaluessections,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S8. Spatial interpolation of SSM coefficients,16,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theidwexponentisp2aconve,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S8.1 IDW configuration,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,onlyonemonitoringwellceh,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S8.2 Masking,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theidwsearchbandwidthiss,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S8.3 Bandwidth and edge effects,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thethreeinterpolatedcoef,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S8.4 Coefficient atlas,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thestatespaceregressions,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S9. Residual-field diagnostics,17,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theresidualfieldcarriesn,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,ifaridgederivedlateralin,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S9.1 Cross-correlation lag test (23_ridge_recharge_lag_test.py),18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thetestreturnsanullresul,18,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thisnullresultmustbequal,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,iftheresidualfieldreflec,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S9.2 Seasonal climatology test (24_residual_seasonality.py),19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thetestdiscriminatesamon,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,aclusterstratifiedanalys,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thefullseasonalclimatolo,19,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theinterpolatedresiduals,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S9.3 Ridge-zone extrapolation,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thespatiallystructuredre,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S9.4 Status of the residual field,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thessmequationsections51,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S10. Water-balance decomposition,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theclusterwaterbalancede,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S10.1 Cluster water balance (primary analysis),20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,foreachclusterthepartiti,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,wherepandpetarethelongte,20,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thewaterbalanceclosurefo,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,themeanresidualiswhatthe,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,forc4mainforestandc5coas,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S10.2 Canopy interception at the forest clusters,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,wherei024isthecanopyinte,21,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,specificyieldsythedraina,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S11. Water-table-fluctuation specific yield,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thewatertablefluctuation,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S11.1 The water-table-fluctuation method,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,whereristhenetrechargera,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,approachawinterolstherat,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,approachbeventmediananev,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,approachcrapidrechargeev,22,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,clusterleveleventmedians,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S11.2 Cluster-level estimates,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,fortheforestedclustersc4,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,monthlyresolutionprevent,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S11.3 Caveats,23,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,aperwellsyfield18wtfspat,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S11.4 Spatial Sy surface,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,alongtermmeanwatertablee,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S12. Mean water-table surface and the Darcy flow field,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S12.1 Mean head per well,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theallrecordapproachhast,24,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theperwellmeanheadsarein,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S12.2 Spatial head surface,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thedarcyflowfieldfigure1,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S12.3 Darcy flow field,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,wherehisthespatialgradie,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thedirectionalpatternisr,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thenewboroughcoastlineat,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13. Coastal-retreat gradient regression,25,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thetest25coastalgradient,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13.1 Panel regression specification,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,wheretijisthemonthlywate,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,twofunctionalformsaretes,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,linearcappeddcfarmindlcg,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,bothformsarefittedbynonl,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,threenestedspecification,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13.2 Nested specifications,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,fullnetworkallopendunean,26,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,fittedparametersreadlive,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13.3 Parameter values,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,fulllinearcapped12006336,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,confidenceintervalsare95,27,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,modelselectionbyaicfavou,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13.4 Model selection,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theheadlinevaluesreporte,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thec5coastalforestwellnw,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S13.5 C5 out-of-sample sentinel,28,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,section411ofthemainmanus,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S14. Forest-interception drawdown reach (Figure 19),29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,whereistheinlanddecaylen,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theparametersusedinfigur,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,withtheseinputs230mmatch,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thisistheonlyoutputofthe,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,theempiricallyfittedcoas,29,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,thefullanalysispipelinei,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,"S15. Software, parameters and reproducibility",30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,softwareenvironmentpytho,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,cartographiccontextoverl,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,pipelineorchestrationthe,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,pipelineparameterstableh,30,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,dataavailabilitythedipwe,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,codeavailabilityallscrip,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,referencescitedonlyinthi,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,heading,S16. Supplementary references,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,calinskitandharabaszj197,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,crosbiersbinningpandkalm,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,liaotw2005clusteringofti,31,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,milligangwandcoopermc198,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
+PAPER1_SI_methods,para,allotherreferencesakaike,32,docs/papers/paper_1/PAPER1_SI_methods.pdf,2026-10-02T06:00Z,1
 Paper1,para,aparametersparsestatespa,1,docs/papers/paper_1/Paper1.pdf,2026-10-01T01:29Z,1
 Paper1,para,studyregionnewboroughwar,1,docs/papers/paper_1/Paper1.pdf,2026-10-01T01:29Z,1
 Paper1,heading,Abstract,1,docs/papers/paper_1/Paper1.pdf,2026-10-01T01:29Z,1

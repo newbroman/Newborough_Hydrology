@@ -102,7 +102,9 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-09-30. T-96 batch 3: emit the smallest and
+__version__ = "1.8.1"  # Hollingham (2026) — 2026-10-02. compare() moved, unchanged, to
+#   utils/hindcast_utils.compare_offset_censored() for Script 50 E9 (D-229); outputs identical.
+# 1.8.0  # Hollingham (2026) — 2026-09-30. T-96 batch 3: emit the smallest and
 #   largest distance to the nearest in_forest well over each of Ranwell's sketch_slack groups
 #   (ranwell_dist_nearest_forest_well_m_{group}_min / _max, from the per-site rows 1.7.0 added;
 #   report10 §5.7.9 "the Clwt Gwlyb sites, which lie 120-200 m from the nearest forest wells" is
@@ -189,6 +191,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 from utils import config, paths  # noqa: E402
 from utils.model_utils import simulate_ssm  # noqa: E402
+from utils.hindcast_utils import compare_offset_censored  # noqa: E402
 from utils.console_utils import banner, phase, step, info, warn, saved, note  # noqa: E402
 from utils.render_utils import apply_house_style, render_figure  # noqa: E402
 
@@ -301,36 +304,9 @@ def hindcast_series(cl, betas, h0, beta1_scale=1.0) -> pd.Series:
     return pd.Series(h, index=cl.index)
 
 
-def compare(obs_month: pd.Series, model_mid: pd.Series, ground_m_od: float):
-    """obs monthly means (m OD, PeriodIndex) vs modelled mid-month level (m OD,
-    PeriodIndex) over their common months.
-
-    Ranwell's pipe reads the free water surface, so a flooded slack reads at
-    the ground: the observation is CENSORED at the surface. The offset is
-    therefore fitted on the months that stand at least RANWELL_SURFACE_CENSOR_M
-    below the ground, and the offset model is then capped at the ground before
-    the metrics — the same instrument-matching cap the 2026-08-22 seasonal-range
-    comparison applied to the modern network. Returns n, n censored, offset, r,
-    NSE after offset (capped), ranges and the month of the 1951 minimum.
-    """
-    common = obs_month.index.intersection(model_mid.index)
-    o = obs_month.loc[common].astype(float)
-    p = model_mid.loc[common].astype(float)
-    if len(common) < 3:
-        return dict(n=len(common), n_at_surface=0, offset_m=np.nan, r=np.nan, nse_after_offset=np.nan,
-                    range_obs_m=np.nan, range_model_m=np.nan, min_month_obs="", min_month_model="")
-    free = o <= ground_m_od - config.RANWELL_SURFACE_CENSOR_M
-    off = float((o[free] - p[free]).mean()) if free.sum() >= 3 else float((o - p).mean())
-    pa = np.minimum(p + off, ground_m_od)
-    nse = 1 - float(((o - pa) ** 2).sum() / ((o - o.mean()) ** 2).sum())
-    r = float(np.corrcoef(o, pa)[0, 1])
-    o51 = o[o.index.year == 1951]
-    p51 = p[p.index.year == 1951]
-    return dict(n=int(len(common)), n_at_surface=int((~free).sum()), offset_m=off, r=r,
-                nse_after_offset=nse,
-                range_obs_m=float(o.max() - o.min()), range_model_m=float(pa.max() - pa.min()),
-                min_month_obs=str(o51.idxmin()) if len(o51) else "",
-                min_month_model=str(p51.idxmin()) if len(p51) else "")
+# compare() moved to utils/hindcast_utils.py as compare_offset_censored() (1.8.1, D-229), unchanged,
+# so Script 50's E9 scores Ranwell exactly as this script does.
+compare = compare_offset_censored
 
 
 # ── coast ─────────────────────────────────────────────────────────────────────

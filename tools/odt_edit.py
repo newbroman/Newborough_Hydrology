@@ -52,7 +52,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.7.1"  # Hollingham (2026) — 2026-09-29. The temp archive goes to
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-02. Adds replace_image(): new bytes under
+#   an existing Pictures/ entry, writing a NEW file (a versioned document is never edited in
+#   place), content.xml byte-identical, refused when the new image's aspect does not fit the
+#   frame. First use: Supplementary Material Figure S10.1 (tools/s10_schematic.py).
+# 1.7.1  # Hollingham (2026) — 2026-09-29. The temp archive goes to
 #   tempfile.gettempdir() (TMPDIR when set) instead of a literal /tmp: on the bridge VM /tmp
 #   holds a stale report9.odt.building owned by nobody from a killed session, which the mount
 #   cannot delete and which blocked every insert_figure on report9 (noted 27e). Behaviour on a
@@ -722,6 +726,68 @@ def _parse_template_table(xml: str, name: str):
         return None, (f"template table {name!r} has {len(rows)} row(s); a header row "
                       f"and at least one body row are needed to copy both styles")
     return (cols, n_cols, header_wrapped, rows), None
+
+
+def replace_image(src, dst, member: str, image_path, aspect_tol: float = 0.005) -> bool:
+    """Put new bytes under an existing embedded picture, writing dst (never src).
+
+    For a picture that is not a pipeline output, which reembed_figures cannot place (it
+    matches by an output's git history and rewrites in place). content.xml, styles and the
+    manifest are copied byte for byte: only `member` changes, so the frame, its caption and
+    its anchoring are untouched. Refused when the new image's aspect differs from the frame's
+    svg:width/svg:height by more than aspect_tol - stretching looks deliberate - and when
+    `member` is not referenced by exactly one frame.
+    """
+    src, dst, image_path = pathlib.Path(src), pathlib.Path(dst), pathlib.Path(image_path)
+    if src.resolve() == dst.resolve():
+        print(f"  ABORT: dst is src - write a new version"); return False
+    blob = image_path.read_bytes()
+    if blob[:8] != b"\x89PNG\r\n\x1a\n":
+        print(f"  ABORT: {image_path.name} is not a PNG"); return False
+    w_px, h_px = int.from_bytes(blob[16:20], "big"), int.from_bytes(blob[20:24], "big")
+    zin = zipfile.ZipFile(src)
+    names = zin.namelist()
+    if names[0] != "mimetype":
+        print(f"  ABORT {src.name}: mimetype is not the first archive entry"); zin.close(); return False
+    if member not in names:
+        print(f"  ABORT: {member} is not in {src.name}"); zin.close(); return False
+    xml = zin.read("content.xml").decode("utf-8")
+    frames = re.findall(r'<draw:frame\b([^>]*)>\s*<draw:image\b[^>]*?xlink:href="'
+                        + re.escape(member) + '"', xml, re.S)
+    if len(frames) != 1:
+        print(f"  ABORT: {member} is referenced by {len(frames)} frame(s), expected 1")
+        zin.close(); return False
+    wm = re.search(r'svg:width="([\d.]+)(cm|in|mm|pt)"', frames[0])
+    hm = re.search(r'svg:height="([\d.]+)(cm|in|mm|pt)"', frames[0])
+    if not (wm and hm and wm.group(2) == hm.group(2)):
+        print("  ABORT: the frame's size could not be read"); zin.close(); return False
+    frame_aspect, img_aspect = float(wm.group(1)) / float(hm.group(1)), w_px / h_px
+    if abs(img_aspect - frame_aspect) / frame_aspect > aspect_tol:
+        print(f"  ABORT: image aspect {img_aspect:.4f} does not fit the frame's "
+              f"{frame_aspect:.4f} ({wm.group(0)} {hm.group(0)})"); zin.close(); return False
+    if not _tier_gate(dst, tag_change=False):
+        zin.close(); return False
+    tmp = pathlib.Path(tempfile.gettempdir()) / (dst.name + ".ziptmp")
+    with zipfile.ZipFile(tmp, "w") as zout:
+        for info in zin.infolist():
+            payload = blob if info.filename == member else zin.read(info.filename)
+            ni = zipfile.ZipInfo(info.filename, date_time=info.date_time)
+            ni.external_attr = info.external_attr
+            ni.compress_type = info.compress_type
+            zout.writestr(ni, payload)
+    with zipfile.ZipFile(tmp) as zo:
+        ok = (zo.namelist() == names
+              and zo.getinfo("mimetype").compress_type == zipfile.ZIP_STORED
+              and zo.testzip() is None
+              and zo.read("content.xml") == zin.read("content.xml")
+              and zo.read(member) == blob)
+    zin.close()
+    if not ok:
+        print(f"  ABORT {src.name}: archive verification failed"); tmp.unlink(); return False
+    shutil.copyfile(tmp, dst)
+    tmp.unlink()
+    print(f"  OK  {dst.name}  ({member} replaced, {w_px}x{h_px}; content.xml unchanged)")
+    return True
 
 
 def insert_table(src, dst, before: str, header, rows, template_table: str,

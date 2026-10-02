@@ -380,6 +380,13 @@ echo "── document media (does every stripped ODT still rebuild?) ───�
 # no longer be reconstituted, which is the only thing the design gives up.
 python3 tools/odt_media.py verify || rc=1
 
+echo "── S10.1 schematic (does the picture still name the right figures?) ──"
+# Supplementary Material Figure S10.1 is a drawn schematic that names four report
+# figures INSIDE the picture, where no reference lint can see them. It said 63-66
+# for 73-76 until 2026-10-02. tools/s10_schematic.py draws it from figure_map.csv
+# and records the numbers it used; this fails when figure_map has moved since.
+python3 tools/s10_schematic.py --check || rc=1
+
 echo "── rounding (has new store-time rounding appeared?) ─────────────────"
 python3 tools/rounding_lint.py || rc=1
 

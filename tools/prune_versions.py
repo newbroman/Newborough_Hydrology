@@ -13,7 +13,7 @@ WHAT IT DOES, per versioned family (refresh_mirrors.SOURCES):
     the NEWEST            stays in docs/. Never moved, never removed.
     every older version   MOVES to archive/<its path below docs/>, with its
                           `.odt.media.json` sidecar (docs/report/X -> archive/report/X).
-    the archive           is capped at --keep backups (default 5): the OLDEST - the origin
+    the archive           is capped at --keep backups (default 10): the OLDEST - the origin
                           of the family, Martin's call 2026-09-10 - and the most recent of
                           the rest. Older backups are removed from this machine.
 
@@ -38,13 +38,15 @@ ORPHANED STORE IMAGES are reported, never deleted (D-081, D-149).
 
 Usage:
     python3 tools/prune_versions.py                 # plan, all families
-    python3 tools/prune_versions.py --keep 8        # backups kept in archive/
+    python3 tools/prune_versions.py --keep 12       # backups kept in archive/
     python3 tools/prune_versions.py --only Methods
     python3 tools/prune_versions.py --apply
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-02. docs/ keeps only the newest version;
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-10-02. Default --keep 10 backups (Martin: "lets
+#   keep it at 10 versions"; D-151 third note).
+# 1.2.0  # Hollingham (2026) — 2026-10-02. docs/ keeps only the newest version;
 #   older versions MOVE to archive/<path below docs/> (gitignored, not on Drive's upload
 #   filter); the archive keeps --keep backups (oldest + most recent); removal refused for a
 #   backup newer than .last_drive_archive. D-151 note 2026-10-02.
@@ -153,8 +155,8 @@ def _remove(f: Path) -> None:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--keep", type=int, default=5,
-                    help="backups kept in archive/ per family, the oldest included (default 5)")
+    ap.add_argument("--keep", type=int, default=10,
+                    help="backups kept in archive/ per family, the oldest included (default 10)")
     ap.add_argument("--only", help="substring of the family pattern")
     ap.add_argument("--apply", action="store_true", help="move and remove; default is a plan")
     a = ap.parse_args(argv[1:])

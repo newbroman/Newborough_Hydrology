@@ -100,7 +100,7 @@ the ODTs cannot be merged, and two machines editing one document lose work silen
 LibreOffice for prose and layout; scripted text edits go through `tools/odt_edit.py` only (never a
 library that rewrites the XML). Versioned documents (Methods Supplement, papers, summaries) are
 never edited in place: each batch saves a new `_vN` file. The ship then moves every older
-version out of `docs/` into `archive/` (not public; five backups per document, every version on
+version out of `docs/` into `archive/` (not public; ten backups per document, every version on
 Drive), so `docs/` always holds just the current documents. After an edit,
 `python3 tools/refresh_mirrors.py` rebuilds the markdown mirror that the gates read.
 

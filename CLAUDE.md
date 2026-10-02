@@ -10,7 +10,8 @@ and the non-negotiables — the things that have cost previous sessions hours to
 rediscover. It carries no counts and no state: those live in the manifest, in
 what `check_all` prints, and in the generated HANDOFF.
 
-**Start here, every session — two lines (D-143):**
+**Start here, every session — two lines (D-143):** (a Claude cloud session runs
+`tools/cloud_setup.sh` first, which builds the tree and ends with line 2 — §4g)
 
 1. Read `working/HANDOVER_BOOTSTRAP.md` — the Tier-0 read order, its budget,
    and `tools/context_for.py`, which surfaces the decisions that bind a file
@@ -139,14 +140,12 @@ tracked publicly.
   statsmodels, sklearn, geopandas, shapely, contextily and adjustText are **not
   importable there at all**. A session once told him to downgrade pandoc on that
   evidence. Only `$HOME/mnt/NRG` is real; `$HOME` is not his home directory.
-- **THE PIPELINE CANNOT BE RUN FROM HERE, and sharing more of his disk would not
-  change that.** Asked on 2026-09-02 whether granting the home directory would
-  help: it would not. The venv is built against his system Python and its
-  compiled wheels; mounting it does not change which machine executes. Installing
-  the libraries into the sandbox would not help either, because `env_audit`
-  refuses results from a machine that is not the recorded one — which is the
-  gate that makes the foreign-PDF class of error catchable. **Pipeline runs and
-  PDF builds are Martin's, by design.** Everything text-only runs here.
+- **THE PIPELINE CANNOT BE RUN FROM THE BRIDGE VM.** The pipeline runs on any
+  machine that has built the environment with `tools/nrg_env.sh` (D-227): the
+  laptop, or a Claude cloud session (§4g). The bridge VM has not built it and is
+  not meant to — its Python, pandoc and libraries are its own — so a run there
+  is not the pipeline's, and `env_audit` says so. Pipeline runs and published PDFs
+  come from a built environment; everything text-only runs on the bridge.
 - **DON'T HAND MARTIN WHAT THE BRIDGE CAN DO — RUN IT HERE, `tee` IT, READ IT.**
   Before handing over ANY command, ask what actually needs his machine. The
   bridge can install pandoc 3.1.3 (above), run `refresh_mirrors.py`,
@@ -163,10 +162,10 @@ tracked publicly.
   400 lines. `tee -a` to accumulate a session. Adopted 2026-09-02 (log-not-paste,
   at his request); **widened 2026-09-19** after a session handed him
   `refresh_mirrors`/`build_citation_index`/`check_all` it could have run itself.
-  What is genuinely HIS: pipeline runs (scipy/statsmodels/sklearn/geopandas not
-  importable here), the `report.pdf` rebuild, and the env-verified
-  `./working/nrg_git.sh --ship` — `env_audit` fails here by design, so the
-  authoritative `check_all` verdict is his.
+  What the bridge cannot do: pipeline runs, the `report.pdf` rebuild, and the
+  env-verified `./working/nrg_git.sh --ship` — `env_audit` fails on the bridge by
+  design. Those run on the laptop or in a cloud session that has built the
+  environment (D-227, §4g).
 - **SHOW PROGRESS.** Anything handed to Martin to run that takes more than a few
   seconds must print a completion indicator — a percentage, a count of N, or a bar with
   elapsed and remaining time — on its own line as it goes, not only at the end.
@@ -246,7 +245,9 @@ tracked publicly.
   from it; and that check is mtime-only, so a foreign build is newer than its
   source and reads as "current". The PDF was Martin's LibreOffice 24.2 replaced
   by the bridge's 26.2.5.2. **`artefact_lint` Check C now gates on the Producer
-  string, but the rule is simpler: PDFs are built on Martin's machine.** If one
+  string, but the rule is simpler: PDFs are built where LibreOffice is the
+  recorded version** (`tools/environment.json`; the laptop and the cloud image both
+  are, 2026-10-02 — after a laptop OS upgrade, check before building). If one
   needs replacing, DELETE it and re-run `build_pdfs.sh` there — the builder will
   not overwrite a file that looks newer than its source.
 - **A killed export leaves a LibreOffice lock on `report.odm`.** Backgrounding
@@ -380,6 +381,33 @@ cannot run it, so:
     git --git-dir=.git-working --work-tree=. commit -F - <<'MSG' … MSG
     git --git-dir=.git-working --work-tree=. push
 
+## 4g. Claude cloud sessions (D-227, 2026-10-02)
+
+A cloud session is a full machine for this project: it can run the pipeline, build
+PDFs and ship. Start it with
+
+    curl -sSL https://raw.githubusercontent.com/newbroman/Newborough_Hydrology/main/tools/cloud_setup.sh | bash
+
+which clones the public repository as the working tree, puts the private one at
+`.git-working` over the same tree (§4f), builds the environment, copies the ODTs
+down from Drive if the session has the `NRG_RCLONE_CONF` secret, shows the doc lock
+and runs the session handover. Without the secret, the session works from the
+committed mirrors and does not edit ODTs.
+
+- **Never ask for, accept or type a credential in the conversation.** The Drive
+  token reaches a session only as the `NRG_RCLONE_CONF` environment secret, set by
+  Martin. Its rclone client is in Google's Testing status, so it lapses weekly
+  (T-65); a Tuesday reminder is scheduled and `cloud_setup.sh` shouts when a
+  supplied token is refused.
+- **Pushing is still Martin's call each time** (§7). A cloud session commits, shows
+  the commit, and pushes on his yes; long work goes on a branch.
+- **Unlike the bridge, a cloud process survives between tool calls**, so long runs
+  (a full `--full --with-supplementary`, the film, a full `cite_check`) go in the
+  background with their log tee'd to a file the session reads.
+- **Third-party data that is not in either repository** stops a cloud run quietly:
+  Script 26's EbF pass needs `data/Ecohydrology_dataset.xlsx`, which lives in the
+  private repository for that reason. A new external input goes there too.
+
 ## 5. Where numbers come from
 
 **The committed CSVs under `outputs/` are the truth.** Documents quote them;
@@ -420,15 +448,23 @@ credential helper populated; if not, hand him the one line.
 
 **Never build a published PDF or run the pipeline over the bridge** — different
 LibreOffice, different Python, missing libraries. Read, search, edit text, run
-the text-only linters; leave anything that produces a published artefact to his
-machine.
+the text-only linters; anything that produces a published artefact runs where the
+environment is built: the laptop, or a cloud session (D-227).
 
 Show your working. He checks.
 
-## The bridge is not the pipeline's machine (D-155)
+## The bridge is not the pipeline's machine (D-155, D-227)
 
-Outputs committed to the repo are produced by the **publishing machine** running
-`run_analysis.py`. A bridge run reads, inspects, lints and proves a script parses
+**Since D-227 (2026-10-02) the pipeline's machine is an ENVIRONMENT, not a host:**
+Python 3.12.3 (uv-managed), `requirements.txt`, the externals and the BLAS/SIMD pin
+in `tools/environment.json`, built by `tools/nrg_env.sh`. Any machine that builds it
+produces byte-identical outputs — measured on 2026-10-02 between the laptop (Ryzen)
+and a cloud container (Xeon), 58 of 58 files — and may run the pipeline and ship.
+`env_audit` compares the environment; the hostname is reported, not compared.
+What follows is the history that made the pin necessary.
+
+Outputs committed to the repo are produced by a machine that has built the
+environment, running `run_analysis.py`. A bridge run reads, inspects, lints and proves a script parses
 — it does **not** produce committable artefacts.
 
 The two environments are genuinely different. The publishing machine resolves
@@ -443,7 +479,12 @@ by pyogrio and refused by fiona 1.10.1, which no longer lists the KML driver
 It is also why re-running Script 11 through the bridge moved **54 committed
 numbers by up to one ULP** and tripped `provenance_lint`: different numeric
 build, same arithmetic. Nothing was wrong with either result; they were produced
-by different machines.
+by different machines. The same last-digit drift appears between two machines
+with identical libraries when OpenBLAS picks different kernels or thread counts,
+or numpy uses AVX-512 on one and AVX2 on the other — which is what the D-227 pin
+removes. (The fiona-only geopandas described above was the venv of 2026-09-11;
+`requirements.txt` now pins both fiona and pyogrio, and every KML read goes
+through `utils/kml_io.py` either way.)
 
 **No pipeline script silences its warnings.** The blanket
 `warnings.filterwarnings('ignore')` was retired from the nine scripts D-155

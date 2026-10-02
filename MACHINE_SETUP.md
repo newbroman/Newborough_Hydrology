@@ -57,46 +57,42 @@ NRG/
 **Read this section rather than skimming it.** Until 2026-08-27 it told you to
 `pip install -r requirements.txt`, and that instruction was wrong twice over.
 
-### The interpreter
-
-**Python 3.12.** Not "3.10 or later": 3.12 is a floor *and* a ceiling. One module
-needed 3.12-only syntax until 2026-08-27, and the recorded library versions have
-no cp313 wheels, so 3.13 is untested and 3.11 will fail. Ubuntu 24.04 ships
-3.12.3, which is the recorded interpreter.
+### One command: `tools/nrg_env.sh` (D-227, 2026-10-02)
 
 ```bash
-python3 --version        # must say 3.12.x
+bash tools/nrg_env.sh            # build venv/ if absent, else sync it
+bash tools/nrg_env.sh --rebuild  # move the old venv/ to _to_delete/ and build afresh
 ```
 
-**`venv/` IS the environment.** Until 2026-08-29 this section said to ignore it
-and use the system interpreter with apt packages. That was wrong, and provably
-so: built exactly to the apt line this section used to give, the pipeline dies at
-Step 3 — `03_state_space_model.py` calls `ax.boxplot(tick_labels=…)`, and
-`tick_labels` was added in **matplotlib 3.9**, above the 3.6.3 that apt ships on
-noble. The documented environment could not run the code it documented.
+It builds **the pipeline's environment**, which since D-227 is a pinned recipe rather than a
+particular machine:
 
-Activate the venv, or call its interpreter directly:
+- **Python 3.12.3, installed by `uv`**, not the operating system's. Until 2026-10-02 `venv/` was
+  built from `/usr/bin/python3` and `venv/bin/python3` was a symlink to it, so the venv supplied
+  libraries but not the interpreter, and an OS upgrade (Mint, Ubuntu) could move the pipeline's
+  Python under it. A uv-managed interpreter does not move.
+- **`requirements.txt`**, the full freeze (below).
+- **The externals** in `tools/environment.json`: pandoc 3.1.3 is installed into `~/bin` if absent
+  or wrong; LibreOffice, pdftotext and git are checked and reported.
+- **The BLAS/SIMD pin**: `OPENBLAS_CORETYPE`, single-threaded OpenBLAS and OpenMP, and
+  `NPY_DISABLE_CPU_FEATURES=X86_V4`, written into the venv's `sitecustomize.py` from
+  `environment.json`'s `blas` block. Without it OpenBLAS chooses kernels per CPU and numpy uses
+  AVX-512 where a CPU has it, and the last digits of fitted numbers move between machines. With it,
+  the laptop (Ryzen 7 PRO 5850U) and a cloud container (Xeon) produced byte-identical outputs in
+  every file compared on 2026-10-02.
 
-```bash
-source venv/bin/activate
-python3 --version        # must say 3.12.3
-```
+It ends with `tools/env_audit.py`'s verdict, which must read *the pipeline's environment*.
 
-One trap survives from the old text and is worth keeping in mind:
-`venv/bin/python3` is a symlink to `/usr/bin/python3`, so the venv supplies
-libraries but **not** an interpreter. On a machine whose `python3` is not 3.12
-the venv appears to work and imports nothing — the same shape of failure that
-cost a day on 2026-08-26 with `src/venv`.  <!-- former path -->
-If `python3 --version` disagrees with
-`venv/lib/python3.12`, that is the cause.
+`run_analysis.py` re-executes itself under `venv/` when started with any other interpreter
+(2.23.1; before that its test compared resolved executables, which a symlinked venv always
+passed). Other tools do not: activate the venv, or call `venv/bin/python` directly.
+
+**Why not the apt packages.** Until 2026-08-29 this section said to use the system interpreter
+with apt packages. Built exactly to that line, the pipeline dies at Step 3:
+`03_state_space_model.py` calls `ax.boxplot(tick_labels=…)`, added in matplotlib 3.9, above the
+3.6.3 that apt ships on noble.
 
 ### The libraries: `requirements.txt`, and it is accurate
-
-```bash
-python3 -m venv venv                       # only if there is no venv/
-source venv/bin/activate
-pip install -r requirements.txt
-```
 
 `requirements.txt` is the venv's full freeze: the packages the pipeline imports
 directly — the ones `tools/env_audit.py` probes and `tools/environment.json`
@@ -367,20 +363,33 @@ Note the repository, not just the setting: `Newborough_Hydrology`. The private
 `Newborough_Hydrology_working` cannot serve Pages at all without Enterprise, and
 `Newborough_welllogger` is a different project.
 
-## 7. The second machine
+## 7. A second machine, and Claude cloud sessions
 
-Two machines share this project (a ThinkPad L14 and a ThinkPad A475). Follow
-§§1–6 on the new one, then read this.
+Any number of machines can run the pipeline (D-227). Follow §§1–6 on the new one: once
+`bash tools/nrg_env.sh` has built the environment, **`env_audit` reports it as the pipeline's
+environment whatever its hostname**, and its outputs are byte-identical to every other machine's.
+The hostname in `tools/environment.json` is information, not identity.
 
-**`env_audit` will report `NOT THE MACHINE THIS PIPELINE RUNS ON`, permanently,
-and that is correct.** `tools/environment.json` records one reference
-environment; a second machine is not it. The message is the tool telling you that
-any version-dependent line below it describes the machine you are sitting at.
+**`env_audit --record` is for a deliberate change of environment** (a new pin in
+`requirements.txt`, a new external version), not for a new machine. The record is tracked and
+pushed, so recording publishes it for every machine.
 
-**Do not run `env_audit --record` on the second machine.** The record is tracked
-and pushed, so recording there overwrites the reference, publishes it, and leaves
-every later run comparing against whichever machine recorded last. The tool
-refuses, and `--force` exists only for a genuine change of reference machine.
+**A Claude cloud session** builds its tree with one command, which lays out the public repository
+as the working tree and the private one as `.git-working` over it, builds the environment, copies
+the ODTs from Drive when the session has the `NRG_RCLONE_CONF` secret, and runs the session
+handover:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/newbroman/Newborough_Hydrology/main/tools/cloud_setup.sh | bash
+```
+
+The rclone client is still in Google's Testing status, so its token lapses weekly (T-65); a weekly
+reminder is scheduled for Tuesday, and `cloud_setup.sh` shouts when a supplied token is refused.
+A cloud session never pushes without Martin's yes.
+
+**The bridge VM is not a machine in this sense.** The Cowork bridge (`device_bash`) mounts the
+tree into a VM that has not built the environment: it reads, lints and edits text, and produces no
+committable pipeline artefact or published PDF (D-155).
 
 **Take the documents lock before editing any ODT.** Option 12, or
 `python3 tools/doc_lock.py take --note "what you are editing"`. The ODTs live on

@@ -61,7 +61,18 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-01 (D-225; Martin: "please spec it" / "I approve your
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-10-02 (D-229; Martin: "Spec adding Ranwell" / "Approve").
+#   E9: Ranwell's 1951-53 readings as the second drier epoch. Model A refitted at every datum and Model B,
+#   comparison window and full record, hindcast from the 1930 spin-up at Script 44's pairings and scored as
+#   Script 44 scores them (utils/hindcast_utils.compare_offset_censored: offset removed, censored at the
+#   ground). The rule fixed before the run: the datum maximizing the median NSE over the headline pairings
+#   (Model A, comparison window), the band within RECLEN_DATUM_NSE_TOL; "does not discriminate" when the
+#   median moves by less than that tolerance over the whole grid; otherwise "consistent" with CCW when the
+#   bands overlap, "disagrees" when they do not. Checks, never the rule: all pairings, the dry year 1953
+#   alone, the amplitude ratio, the full record. Identity check against Script 44 at the project datum.
+#   50_10_ranwell_hindcast_by_datum.csv; 50_09 gains the Ranwell panel. Spec
+#   NRG_spec_ranwell_by_datum_2026-10-02.
+# 1.1.0  # Hollingham (2026) - 2026-10-01 (D-225; Martin: "please spec it" / "I approve your
 #   choices"). Which datum does the drier past support? Model A refitted at every datum of Script 03's
 #   sweep: the CCW 1989-96 hindcast (comparison window and full record), the within-record split test,
 #   and the UKCP18 sustained projection with each well's room left above the datum (forest withheld by
@@ -91,6 +102,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_03_PER_WELL_WINDOW_SENS, OUT_48_MODEL_AB, OUT_39_PER_WELL,
     OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS,
     OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
+    OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -104,7 +116,7 @@ from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, simulate_ssm, get_metrics,   # noqa: E402
                                sustained_monthly_response, climate_forcing_change_12, response_identified)
 from utils.hindcast_utils import (                            # noqa: E402
-    load_ccw, observed_series, hindcast_well, equilibrium_depth, usable_codes,
+    load_ccw, observed_series, hindcast_well, equilibrium_depth, usable_codes, compare_offset_censored,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
@@ -664,6 +676,150 @@ def supported_datum(ccw: pd.DataFrame, subset=None, metric="nse"):
     return best, float(min(band)), float(max(band)), med
 
 
+
+# ──────────────────────────────────────────────────────────────────────────────
+# E9: Ranwell 1951-53, the second drier epoch (1.2.0, D-229)
+# ──────────────────────────────────────────────────────────────────────────────
+RANWELL_DRY_YEAR = 1953          # Ranwell's dry year: below the surface at the sites read through it (D-059)
+VERDICT_CODE = {"consistent": 1, "does not discriminate": 0, "disagrees": -1}
+
+
+def ranwell_by_datum(lev, lev_cols, cl) -> pd.DataFrame:
+    """E9: every Script 44 pairing, Model A at every datum and Model B, on the comparison window and the
+    full record, hindcast from the start of the climate record and scored as Script 44 scores it."""
+    if not (RANWELL_LEVELS.exists() and OUT_44_METRICS.exists()):
+        warn("Ranwell readings or Script 44's pairings not present — E9 is skipped")
+        return pd.DataFrame()
+    lv = pd.read_csv(RANWELL_LEVELS, parse_dates=["date"])
+    lv["month"] = lv["date"].dt.to_period("M")
+    obs_month = lv.groupby(["site_no", "month"])["level_m_od"].mean()
+    pairs = pd.read_csv(OUT_44_METRICS)
+    clh = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
+    p_mean, pet_mean = float(clh["P_m"].mean()), float(clh["PET"].mean())
+    first = pd.Timestamp(f"{obs_month.index.get_level_values('month').min().year - 1}-12-01")
+    last = obs_month.index.get_level_values("month").max().to_timestamp()
+
+    def score(om, betas, run_d, ground):
+        h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=run_d)
+        sim, spin = hindcast_well(clh, betas, h0, first, last, 1.0, drainage_datum=run_d)
+        mid = (sim + sim.shift(1)) / 2
+        mid.index = mid.index.to_period("M")
+        mid = mid.dropna()
+        m = compare_offset_censored(om, mid, ground)
+        od = om[om.index.year == RANWELL_DRY_YEAR]
+        dry = compare_offset_censored(od, mid, ground) if len(od) >= 3 else {"nse_after_offset": np.nan, "n": len(od)}
+        return m, dry, spin
+
+    rows = []
+    for pr in pairs.itertuples():
+        col = lev_cols.get(normalize_well_name(pr.well))
+        if col is None or int(pr.site_no) not in obs_month.index.get_level_values(0):
+            continue
+        om = obs_month.loc[int(pr.site_no)]
+        h = lev[col].dropna()
+        base = {"site_no": int(pr.site_no), "sketch_slack": pr.sketch_slack, "well": normalize_well_name(pr.well),
+                "headline": bool(pr.headline), "dist_m": float(pr.dist_m), "ground_m_od": float(pr.ground_m_od)}
+        for D in datum_grid():
+            frame = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D))
+            for basis, fr in (("comparison_window", frame.tail(LCSC_DATA_LIMIT)), ("full_record", frame)):
+                for form, intercept in FORMS:
+                    # Model B does not depend on the datum it is built at (the intercept absorbs it):
+                    # it is fitted once, at the project datum, and run at its own zero-drainage datum.
+                    if intercept and not np.isclose(D, DRAINAGE_DATUM):
+                        continue
+                    f = fit_frame(fr, intercept)
+                    row = dict(base, form=form, basis=basis, datum_m=float(D) if not intercept else np.nan)
+                    if f is None or not (f["beta_3_drainage"] > 0):
+                        rows.append(row)
+                        continue
+                    betas = (f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"])
+                    run_d = run_datum(f, intercept, base=float(D))
+                    m, dry, spin = score(om, betas, run_d, float(pr.ground_m_od))
+                    row.update(run_datum_m=run_d, beta_1=betas[0], beta_2=betas[1], beta_3=betas[2],
+                               n=m["n"], n_at_surface=m["n_at_surface"], r=m["r"],
+                               nse_after_offset=m["nse_after_offset"],
+                               range_ratio=(m["range_model_m"] / m["range_obs_m"]
+                                            if m.get("range_obs_m") and np.isfinite(m["range_obs_m"]) and m["range_obs_m"] > 0
+                                            else np.nan),
+                               nse_dry_year=dry["nse_after_offset"], n_dry_year=dry["n"], spinup_months=spin)
+                    rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def ranwell_supported(rw: pd.DataFrame, headline_only: bool = True, metric: str = "nse_after_offset"):
+    """The rule fixed before the run (D-229): Model A, comparison window, median over the headline
+    pairings; the best datum and the band within RECLEN_DATUM_NSE_TOL; no datum when the median moves by
+    less than the tolerance over the whole grid. Returns (best, lo, hi, spread, med)."""
+    c = rw[(rw["form"] == "A") & (rw["basis"] == "comparison_window") & rw[metric].notna()]
+    if headline_only:
+        c = c[c["headline"]]
+    if c.empty:
+        return np.nan, np.nan, np.nan, np.nan, pd.Series(dtype=float)
+    med = c.groupby("datum_m")[metric].median()
+    spread = float(med.max() - med.min())
+    if spread < RECLEN_DATUM_NSE_TOL:
+        return np.nan, np.nan, np.nan, spread, med
+    band = med[med >= med.max() - RECLEN_DATUM_NSE_TOL].index
+    return float(med.idxmax()), float(min(band)), float(max(band)), spread, med
+
+
+def ranwell_verdict(lo, hi, ccw_lo, ccw_hi) -> str:
+    if not np.isfinite(lo):
+        return "does not discriminate"
+    if not (np.isfinite(ccw_lo) and np.isfinite(ccw_hi)):
+        return "does not discriminate"
+    return "consistent" if (lo <= ccw_hi and ccw_lo <= hi) else "disagrees"
+
+
+def ranwell_report(rr, rw: pd.DataFrame, ccw_lo: float, ccw_hi: float) -> str:
+    best, lo, hi, spread, med = ranwell_supported(rw)
+    verdict = ranwell_verdict(lo, hi, ccw_lo, ccw_hi)
+    nh = int(rw[rw["headline"]]["site_no"].nunique()) if len(rw) else 0
+    rr.add("datum_ranwell_supported_m", best, unit="m",
+           note=f"datum maximizing the median Ranwell 1951-53 NSE after offset over the {nh} headline pairings, "
+                "Model A on the comparison window (rule fixed before the run, D-229); empty when the curve is flat")
+    rr.add("datum_ranwell_band_min_m", lo, unit="m", note=f"shallowest datum within {RECLEN_DATUM_NSE_TOL:g} NSE of the best (D-229)")
+    rr.add("datum_ranwell_band_max_m", hi, unit="m", note=f"deepest datum within {RECLEN_DATUM_NSE_TOL:g} NSE of the best (D-229)")
+    rr.add("datum_ranwell_nse_spread", spread, unit="",
+           note=f"max minus min of the median headline NSE over the datum grid; below {RECLEN_DATUM_NSE_TOL:g} the record does not discriminate")
+    rr.add("datum_ranwell_verdict", VERDICT_CODE[verdict], unit="code",
+           note=f"{verdict} (1 consistent with the CCW band, 0 does not discriminate, -1 disagrees; D-229)")
+    a = rw[(rw["form"] == "A") & (rw["basis"] == "comparison_window") & rw["headline"]]
+    b = rw[(rw["form"] == "B") & (rw["basis"] == "comparison_window") & rw["headline"]]
+    for tag, D in (("project", DRAINAGE_DATUM), ("supported", best)):
+        q = a[np.isclose(a["datum_m"], D)] if np.isfinite(D) else a.iloc[0:0]
+        for col, key, what in (("nse_after_offset", "nse", "NSE after offset"),
+                               ("nse_dry_year", "nse_dry_year", f"NSE after offset, {RANWELL_DRY_YEAR} only"),
+                               ("range_ratio", "range_ratio", "model range / observed range")):
+            rr.add(f"ranwell_{key}_median_at_{tag}", float(q[col].median()) if len(q) else np.nan, unit="",
+                   note=f"median {what}, headline pairings, Model A at datum {D:g} m, comparison window")
+    for col, key, what in (("nse_after_offset", "nse", "NSE after offset"),
+                           ("nse_dry_year", "nse_dry_year", f"NSE after offset, {RANWELL_DRY_YEAR} only"),
+                           ("range_ratio", "range_ratio", "model range / observed range")):
+        rr.add(f"ranwell_{key}_median_model_b", float(b[col].median()) if len(b) else np.nan, unit="",
+               note=f"median {what}, headline pairings, Model B (its own zero-drainage datum), comparison window")
+    b_all, _, _, _, _ = ranwell_supported(rw, headline_only=False)
+    rr.add("datum_ranwell_supported_all_pairings_m", b_all, unit="m",
+           note="the same rule over every Script 44 pairing (check, D-229)")
+    d_dry, _, _, _, _ = ranwell_supported(rw, metric="nse_dry_year")
+    rr.add("datum_ranwell_supported_dry_year_m", d_dry, unit="m",
+           note=f"the same rule on {RANWELL_DRY_YEAR} alone, below the surface (check against D-059, D-229)")
+    return verdict
+
+
+def ranwell_identity_check(rw: pd.DataFrame) -> float:
+    """Model A, comparison window, at the project datum against Script 44's committed NSE (expected ~0:
+    the same coefficients and scoring; the starting level differs, forgotten over the 1930 spin-up)."""
+    if not len(rw) or not OUT_44_METRICS.exists():
+        return np.nan
+    m44 = pd.read_csv(OUT_44_METRICS)
+    m44["well"] = m44["well"].astype(str).apply(normalize_well_name)
+    m44 = m44.set_index(["site_no", "well"])["nse_after_offset"]
+    a = rw[(rw["form"] == "A") & (rw["basis"] == "comparison_window") & np.isclose(rw["datum_m"].fillna(-1), DRAINAGE_DATUM)]
+    d = [abs(r.nse_after_offset - m44.loc[(r.site_no, r.well)]) for r in a.itertuples()
+         if (r.site_no, r.well) in m44.index and np.isfinite(r.nse_after_offset)]
+    return float(max(d)) if d else np.nan
+
 def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
     """Report numbers for 1.1.0."""
     best, lo, hi, med = supported_datum(ccw_d)
@@ -728,12 +884,15 @@ def datum_identity_checks(ccw_d, split_d, proj_d) -> dict:
     return out
 
 
-def plot_datum(ccw_d, split_d, proj_d, best, lo, hi) -> None:
+def plot_datum(ccw_d, split_d, proj_d, best, lo, hi, rw=None) -> None:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     plt.rcParams.update(MPL_DEFAULTS)
-    fig, axes = plt.subplots(1, 3, figsize=(11, 3.6), dpi=160)
+    # 1.2.0: 2 x 2 - (a) CCW 1989-96, (b) Ranwell 1951-53 (E9, D-229), (c) split test, (d) projection
+    fig, ax4 = plt.subplots(2, 2, figsize=(9.0, 6.8), dpi=160)
+    axes = [ax4[0, 0], ax4[1, 0], ax4[1, 1]]
+    axr = ax4[0, 1]
     c = ccw_d[(ccw_d["basis"] == "comparison_window")]
     g = c.groupby("datum_m")
     ax = axes[0]
@@ -749,7 +908,7 @@ def plot_datum(ccw_d, split_d, proj_d, best, lo, hi) -> None:
         if d_ in s.index.get_level_values(0):
             axes[1].plot(s.loc[d_].index, s.loc[d_].values, color="0.15", ls=ls, lw=1.2,
                          label="forecast after split" if d_ == "fwd" else "hindcast before split")
-    axes[1].set_title("(b) Within-record split test, median NSE", loc="left", fontsize=9)
+    axes[1].set_title("(c) Within-record split test, median NSE", loc="left", fontsize=9)
     axes[1].legend(fontsize=7)
     p = proj_d[(proj_d["scenario"] == "2080s") & (proj_d["season"] == "summer")]
     q = p.groupby("datum_m")["fall_model_a_m"]
@@ -758,8 +917,29 @@ def plot_datum(ccw_d, split_d, proj_d, best, lo, hi) -> None:
                          lw=0, label="Model A, 10th–90th percentile")
     axes[2].axhline(float(p[np.isclose(p["datum_m"], DRAINAGE_DATUM)]["fall_model_b_m"].median()), color="#2166ac",
                     lw=1.1, ls=":", label="Model B, median")
-    axes[2].set_title("(c) 2080s summer level change (m)", loc="left", fontsize=9)
+    axes[2].set_title("(d) 2080s summer level change (m)", loc="left", fontsize=9)
     axes[2].legend(fontsize=7)
+    if rw is not None and len(rw):
+        ra = rw[(rw["form"] == "A") & (rw["basis"] == "comparison_window")]
+        hm = ra[ra["headline"]].groupby("datum_m")["nse_after_offset"].median()
+        am = ra.groupby("datum_m")["nse_after_offset"].median()
+        dm = ra[ra["headline"]].groupby("datum_m")["nse_dry_year"].median()
+        axr.plot(hm.index, hm.values, color="0.15", lw=1.4, label="headline pairings, median")
+        axr.plot(am.index, am.values, color="0.15", lw=1.0, ls="--", label="all pairings, median")
+        axr.plot(dm.index, dm.values, color="#8c510a", lw=1.0, ls="-.", label=f"{RANWELL_DRY_YEAR} only, headline")
+        rb = rw[(rw["form"] == "B") & (rw["basis"] == "comparison_window") & rw["headline"]]["nse_after_offset"]
+        if len(rb.dropna()):
+            axr.axhline(float(rb.median()), color="#2166ac", lw=1.1, ls=":", label="Model B, headline median")
+        rbest, rlo, rhi, _sp, _m = ranwell_supported(rw)
+        if np.isfinite(rlo):
+            axr.axvspan(rlo, rhi, facecolor="none", edgecolor="#5e3c99", hatch="///", lw=0, alpha=0.6)
+        n_s = int(ra[ra["headline"]]["site_no"].nunique())
+        axr.set_title(f"(b) Ranwell 1951–53 hindcast, {n_s} sites (offset removed)", loc="left", fontsize=9)
+        axr.set_ylabel("median NSE after offset")
+        axr.legend(fontsize=6.5, loc="lower right")
+        axes = axes + [axr]
+    else:
+        axr.set_visible(False)
     for a in axes:
         a.set_xlabel("datum (m below ground)")
         a.grid(alpha=0.3)
@@ -880,6 +1060,18 @@ def main(no_fig: bool = False) -> int:
     checks_d = datum_identity_checks(ccw_d, split_d, proj_d)
     for k, v in checks_d.items():
         (step if (np.isfinite(v) and v < 1e-9) else warn)(f"{k}: {v:.3g}")
+    rw = ranwell_by_datum(lev, lev_cols, cl)
+    verdict = None
+    if len(rw):
+        rbest, rlo, rhi, rspread, _ = ranwell_supported(rw)
+        verdict = ranwell_verdict(rlo, rhi, lo, hi)
+        step(f"Ranwell 1951-53 (E9, D-229): {rw['site_no'].nunique()} sites, {rw['well'].nunique()} wells; "
+             + (f"supported datum {rbest:g} m (band {rlo:g}–{rhi:g} m)" if np.isfinite(rbest)
+                else f"median NSE moves {rspread:.3f} over the grid") + f" — {verdict}")
+        v44 = ranwell_identity_check(rw)
+        checks_d["datum_vs44_max_abs_nse_diff"] = v44
+        (step if (np.isfinite(v44) and v44 < 1e-6) else warn)(f"datum_vs44_max_abs_nse_diff: {v44:.3g}")
+        rw.to_csv(OUT_50_RANWELL_DATUM, index=False); saved(f"{OUT_50_RANWELL_DATUM.name} ({len(rw)} rows)")
     ccw_d.to_csv(OUT_50_CCW_DATUM, index=False); saved(f"{OUT_50_CCW_DATUM.name} ({len(ccw_d)} rows)")
     split_d.to_csv(OUT_50_SPLIT_DATUM, index=False); saved(f"{OUT_50_SPLIT_DATUM.name} ({len(split_d)} rows)")
     proj_d.to_csv(OUT_50_PROJ_DATUM, index=False); saved(f"{OUT_50_PROJ_DATUM.name} ({len(proj_d)} rows)")
@@ -892,11 +1084,13 @@ def main(no_fig: bool = False) -> int:
     rr = report_numbers(df, dev, stab, ccw, summ, checks)
     if len(ccw_d):
         datum_report(rr, ccw_d, split_d, proj_d, checks_d)
+    if len(rw):
+        ranwell_report(rr, rw, lo, hi)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)
         if len(ccw_d):
-            plot_datum(ccw_d, split_d, proj_d, best, lo, hi)
+            plot_datum(ccw_d, split_d, proj_d, best, lo, hi, rw)
     result("record length", f"{df['well'].nunique()} wells; see {OUT_50_BY_CLUSTER.name}")
     done("50")
     return 0

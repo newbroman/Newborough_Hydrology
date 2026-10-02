@@ -14,10 +14,17 @@ free-intercept fit (Model B) is Model A at the datum DRAINAGE_DATUM - alpha/beta
 and is run at that datum.
 
 What the hindcast is, and what it assumes, is set out in Script 39's docstring.
+
+compare_offset_censored() is Ranwell's comparison (Script 44, D-145), shared with Script 50's E9 (D-229):
+Ranwell's sites are not at the modern wells, so the mean offset is removed, and a flooded slack reads at
+the ground, so readings there are censored and the model is capped at the ground.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-01 (D-222). First issue: load_ccw, observed_series,
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-02 (D-229). Adds compare_offset_censored(), Script 44
+#   1.8.0's compare() moved here unchanged (offset fitted on the uncensored months, model capped at the
+#   ground, NSE after offset) so that Script 50's E9 scores Ranwell exactly as Script 44 does.
+# 1.0.0  # Hollingham (2026) - 2026-10-01 (D-222). First issue: load_ccw, observed_series,
 #   hindcast_well, equilibrium_depth and usable_codes moved from Script 39 1.5.0 unchanged, with a
 #   drainage_datum argument (default DRAINAGE_DATUM) on the two that use the datum.
 
@@ -113,3 +120,35 @@ def usable_codes(cmap: pd.DataFrame, md: pd.DataFrame, obs: pd.DataFrame):
                          n_months=n_t, n_censored=n_c,
                          admitted=(why == ""), excluded_because=why))
     return pd.DataFrame(rows)
+
+
+def compare_offset_censored(obs_month: pd.Series, model_mid: pd.Series, ground_m_od: float):
+    """obs monthly means (m OD, PeriodIndex) vs modelled mid-month level (m OD,
+    PeriodIndex) over their common months.
+
+    Ranwell's pipe reads the free water surface, so a flooded slack reads at
+    the ground: the observation is CENSORED at the surface. The offset is
+    therefore fitted on the months that stand at least RANWELL_SURFACE_CENSOR_M
+    below the ground, and the offset model is then capped at the ground before
+    the metrics — the same instrument-matching cap the 2026-08-22 seasonal-range
+    comparison applied to the modern network. Returns n, n censored, offset, r,
+    NSE after offset (capped), ranges and the month of the 1951 minimum.
+    """
+    common = obs_month.index.intersection(model_mid.index)
+    o = obs_month.loc[common].astype(float)
+    p = model_mid.loc[common].astype(float)
+    if len(common) < 3:
+        return dict(n=len(common), n_at_surface=0, offset_m=np.nan, r=np.nan, nse_after_offset=np.nan,
+                    range_obs_m=np.nan, range_model_m=np.nan, min_month_obs="", min_month_model="")
+    free = o <= ground_m_od - config.RANWELL_SURFACE_CENSOR_M
+    off = float((o[free] - p[free]).mean()) if free.sum() >= 3 else float((o - p).mean())
+    pa = np.minimum(p + off, ground_m_od)
+    nse = 1 - float(((o - pa) ** 2).sum() / ((o - o.mean()) ** 2).sum())
+    r = float(np.corrcoef(o, pa)[0, 1])
+    o51 = o[o.index.year == 1951]
+    p51 = p[p.index.year == 1951]
+    return dict(n=int(len(common)), n_at_surface=int((~free).sum()), offset_m=off, r=r,
+                nse_after_offset=nse,
+                range_obs_m=float(o.max() - o.min()), range_model_m=float(pa.max() - pa.min()),
+                min_month_obs=str(o51.idxmin()) if len(o51) else "",
+                min_month_model=str(p51.idxmin()) if len(p51) else "")

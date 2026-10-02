@@ -1,4 +1,11 @@
 {
+  "blas": {
+    "NPY_DISABLE_CPU_FEATURES": "X86_V4",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_CORETYPE": "Haswell",
+    "OPENBLAS_NUM_THREADS": "1",
+    "kernel": "Haswell"
+  },
   "externals": {
     "git": "2.43.0",
     "pandoc": "3.1.3",

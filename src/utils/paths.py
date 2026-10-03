@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.57.0"  # Hollingham (2026) - 2026-10-02 (D-234). MIDAS_RAIN_DIR, OUT_50_RAIN_EVENTS, OUT_50_EVENT_STRESS,
+__version__ = "1.59.0"  # Hollingham (2026) - 2026-10-03 (D-236). DATA_SHORE_CLEARANCE_2015, OUT_50_CLEARANCE_STEP,
+#   OUT_50_CLEARANCE_FIG. Additive.
+# 1.58.0  # Hollingham (2026) - 2026-10-02 (D-235). OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG.
+#   Additive.
+# 1.57.0  # Hollingham (2026) - 2026-10-02 (D-234). MIDAS_RAIN_DIR, OUT_50_RAIN_EVENTS, OUT_50_EVENT_STRESS,
 #   OUT_50_RAIN_EVENTS_FIG. Additive.
 # 1.56.0  # Hollingham (2026) - 2026-10-02 (D-232). OUT_50_CHANGE, OUT_50_SURFACE, OUT_50_CHANGE_SURFACE_FIG.
 #   Additive.
@@ -385,6 +389,7 @@ KML_BROADLEAF        = data_geo("broadleaf_restock.kml")
 DATA_FELLING_1998_1    = data_geo("felling_1998_1.geojson")
 DATA_FELLING_1998_2    = data_geo("felling_1998_2.geojson")
 DATA_FELLING_1998_3    = data_geo("felling_1998_3.geojson")
+DATA_SHORE_CLEARANCE_2015 = data_geo("forest shore clearance April 2015.kml")   # Martin, 2026-10-03; cleared Oct 2014-Mar 2015 (Landsat)
 DATA_BROADLEAF_RESTOCK = data_geo("broadleaf_restock.geojson")
 DATA_CLEARFELL         = data_geo("clearfell.geojson")   # the 2017 clearfell (clearfell.kml -> 27700), 1.48.0
 DATA_WELL_ELEVATIONS = DATA_WELL_METADATA  # consolidated; was Well_locations_height.csv
@@ -1398,6 +1403,11 @@ OUT_50_CHANGE_SURFACE_FIG = DIR_50 / "50_17_change_and_surface.png"   # E8b/E8c,
 OUT_50_RAIN_EVENTS = DIR_50 / "50_18_rain_events_by_winter.csv"       # E8d, D-234
 OUT_50_EVENT_STRESS = DIR_50 / "50_19_event_stress_by_cluster.csv"     # E8d, D-234
 OUT_50_RAIN_EVENTS_FIG = DIR_50 / "50_20_rain_events.png"              # E8d, D-234
+OUT_50_FELLING_DIST = DIR_50 / "50_21_felling_distance_by_well.csv"     # E8e, D-235
+OUT_50_NW9_TIMING = DIR_50 / "50_22_nw9_regrowth_timing.csv"           # E8e, D-235
+OUT_50_FELLING_FIG = DIR_50 / "50_23_felling_regrowth.png"              # E8e, D-235
+OUT_50_CLEARANCE_STEP = DIR_50 / "50_24_clearance_step_by_well.csv"   # E8f, D-236
+OUT_50_CLEARANCE_FIG = DIR_50 / "50_25_clearance_step.png"             # E8f, D-236
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

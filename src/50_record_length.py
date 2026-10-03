@@ -54,6 +54,9 @@ OUTPUTS (outputs/50_record_length/)
   50_03_ccw_hindcast_by_length.csv   the CCW hindcast per well x form x length x end
   50_05_stable_length_per_well.csv   each well's stable length, in months and in mean-reversion times
   50_04_record_length.png            stability, forecast, within-record and CCW hindcast against L
+  50_18 .. 50_20                     E8d, rain event structure (D-234)
+  50_21 .. 50_23                     E8e, the 1998 felling north of NW9 and its regrowth (D-235)
+  50_24 .. 50_25                     E8f, the 2014/15 shore clearance step (D-236)
   50_report_numbers.csv
 
 Registered in run_analysis.py, Phase 19, tier X, opt-in (--with-supplementary).
@@ -61,7 +64,21 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-10-02 (D-234; Martin: "approve", spec
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-03 (D-236; Martin: "Otherwise I approve", 07:49, spec
+#   NRG_spec_E8f_shore_clearance_step_2026-10-03). E8f: did the 2014/15 shore clearance put a step into the wells
+#   around it? Per well within E8F_NEAR_M of the strip, and placebo wells beyond E8F_FAR_M, the E8 single store against
+#   the same with one step whose date is profiled monthly over E8F_STEP_WINDOW; test 1, a step at the BACI coastal
+#   controls or the scrape control (E8F_CONTROL_WELLS); test 2, at most E8F_PLACEBO_MAX_FRAC of the placebo wells
+#   step. 50_24_clearance_step_by_well.csv, 50_25_clearance_step.png; e8f_* report numbers. Phase 11 E8f, outputs 12.
+# 1.6.0  # Hollingham (2026) - 2026-10-02 (D-235; Martin: "e8e spec approve", 23:33, spec
+#   NRG_spec_E8e_felling_regrowth_2026-10-02). E8e: was the 2006-08 high water at NW9 the 1998 felling north of
+#   it and the pine's return? Per well, the E8 single store on the full record (wells with E8E_MIN_EARLY_MONTHS
+#   readings in 2006-08): test 1, the excess falls with 01_locations dist_1998_replant_m (Spearman, p < E8E_P)
+#   more strongly than with dist_coast_m; test 2, NW9's half-decline year against the year Script 41's canopy
+#   ratio over felling_1998_1 (vp1) is halfway to its highest; test 3 (reported), open-dune wells beyond
+#   E8E_FAR_M. 50_21_felling_distance_by_well.csv, 50_22_nw9_regrowth_timing.csv, 50_23_felling_regrowth.png;
+#   e8e_* report numbers. Phase 10 E8e, outputs become phase 11.
+# 1.5.0  # Hollingham (2026) - 2026-10-02 (D-234; Martin: "approve", spec
 #   NRG_spec_E8d_rain_event_structure_2026-10-02). E8d: did long rain events, which a monthly total hides, drive
 #   the 2006-08 excess? Daily MIDAS gauges (Llyn Alaw primary, RAF Valley check; utils/midas_rain.py, a
 #   documented raw-input exception): per winter the share of rain in long events against the gauge's own
@@ -135,6 +152,8 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
     OUT_50_CHANGE, OUT_50_SURFACE, OUT_50_CHANGE_SURFACE_FIG,
     MIDAS_RAIN_DIR, OUT_50_RAIN_EVENTS, OUT_50_EVENT_STRESS, OUT_50_RAIN_EVENTS_FIG,
+    OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG,
+    OUT_50_CLEARANCE_STEP, OUT_50_CLEARANCE_FIG, DATA_SHORE_CLEARANCE_2015,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -155,6 +174,10 @@ from utils.config import (                                    # noqa: E402
     E8D_BASELINE_END_YEAR, E8D_WINTER_MONTHS, E8D_MAX_MISSING_FRAC, E8D_UNUSUAL_PCTL, E8D_UNUSUAL_MIN_COUNT,
     E8D_TEST_WINTERS, E8D_FLOOD_WINTER, E8D_LATER_WINTERS, E8D_FIT_START, E8D_FIT_END,
     E8D_RESIDUAL_REDUCTION, E8D_CLUSTERS_WITH_EXCESS,
+    E8E_MIN_EARLY_MONTHS, E8E_LATER_YEARS, E8E_P, E8E_NEAR_M, E8E_FAR_M, E8E_TIMING_BASE_YEARS,
+    E8E_TIMING_TOL_YEARS, E8E_CHECK_WELL, E8E_CANOPY_REGION, E8E_CANOPY_VIEWPOINT, LAKE_GAUGE_KEYS,
+    E8F_STEP_WINDOW, E8F_MIN_SIDE_MONTHS, E8F_NEAR_M, E8F_FAR_M, E8F_CONTROL_WELLS, E8F_PLACEBO_MAX_FRAC,
+    E8F_WIDE_WINDOW, E8F_WIDE_STEP_MONTHS,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, simulate_ssm, get_metrics,   # noqa: E402
@@ -1752,6 +1775,373 @@ def plot_rain_events(prim, chk) -> None:
     saved(OUT_50_RAIN_EVENTS_FIG.name)
 
 
+# ── E8e (1.6.0, D-235): the felling north of NW9, and the pine's return ──────────────────────────────
+E8E_VERDICT = {"felling and regrowth supported (local)": 2, "consistent in place, timing not resolved": 1,
+               "not supported": 0}
+
+
+def _decimal_year(t) -> float:
+    t = pd.Timestamp(t)
+    y0 = pd.Timestamp(year=t.year, month=1, day=1)
+    return t.year + (t - y0).days / (pd.Timestamp(year=t.year + 1, month=1, day=1) - y0).days
+
+
+def felling_by_well(lev, lev_cols, cl):
+    """Per well: the E8 single store on the full record, its 2006-08 excess and later level, and the two
+    distances from 01_locations.csv. Returns the table and NW9's monthly residual."""
+    import pastas as ps
+    ps.set_log_level("ERROR")
+    start = continuous_start(cl)
+    P, E = spread_daily(cl, start)
+    loc = pd.read_csv(INT_LOCATIONS)
+    loc["_n"] = loc["Name"].astype(str).apply(normalize_well_name)
+    loc = loc.drop_duplicates("_n").set_index("_n")
+    y0, y1 = TWO_STORE_EARLY_YEARS
+    rows, nw9_res = [], None
+    for k, col in sorted(lev_cols.items()):
+        if k in LAKE_GAUGE_KEYS or k not in loc.index:
+            continue
+        h = lev[col].dropna()
+        n_early = int(((h.index.year >= y0) & (h.index.year <= y1)).sum())
+        if n_early < E8E_MIN_EARLY_MONTHS:
+            continue
+        hm = h.copy(); hm.index = hm.index + pd.offsets.MonthEnd(0)
+        row = {"well": k, "n_obs": int(len(hm)), "n_early_months": n_early,
+               "first": f"{hm.index[0]:%Y-%m}", "last": f"{hm.index[-1]:%Y-%m}",
+               "dist_1998_felling_m": float(loc.loc[k, "dist_1998_replant_m"]),
+               "in_1998_felling": str(loc.loc[k, "in_1998_replant"]) if pd.notna(loc.loc[k, "in_1998_replant"]) else "",
+               "dist_coast_m": float(loc.loc[k, "dist_coast_m"]),
+               "in_forest": bool(loc.loc[k, "in_forest"])}
+        try:
+            ml = _ts_solve(_single(ps, hm, P, E, f"{k}_e8e"), P)
+            sim = _ts_sim(ml, P, hm.index[0], hm.index[-1]).reindex(hm.index)
+            res = hm - sim
+            yr = res.groupby(res.index.year).mean()
+            row.update(excess_m=float(yr.loc[y0:y1].mean()),
+                       later_m=float(yr.loc[E8E_LATER_YEARS[0]:E8E_LATER_YEARS[1]].mean()),
+                       rsq=float(ml.stats.rsq()), efold_months=float(ml.parameters.loc["rch_a", "optimal"]) / DAYS_PER_MONTH)
+            if k == normalize_well_name(E8E_CHECK_WELL):
+                nw9_res = res
+        except Exception as exc:
+            row["error"] = f"{type(exc).__name__}: {exc}"[:200]
+        rows.append(row)
+    tab = pd.DataFrame(rows)
+    tab["near"] = tab["dist_1998_felling_m"] <= E8E_NEAR_M
+    tab["far_open"] = (tab["dist_1998_felling_m"] > E8E_FAR_M) & ~tab["in_forest"]
+    return tab, nw9_res
+
+
+def canopy_halfway():
+    """The canopy frames of E8E_CANOPY_REGION at E8E_CANOPY_VIEWPOINT, and the decimal year the ratio is first
+    halfway from its first frame to its highest (linear between frames)."""
+    ci = pd.read_csv(paths.OUT_41_INDEX)
+    f = ci[(ci["region"] == E8E_CANOPY_REGION) & (ci["viewpoint"] == E8E_CANOPY_VIEWPOINT)
+           & ci["ratio_to_conifer"].notna()].copy()
+    f["t"] = pd.to_datetime(f["imagery_date"])
+    f = f.sort_values("t").reset_index(drop=True)
+    f["year"] = f["t"].apply(_decimal_year)
+    v0, vmax = float(f["ratio_to_conifer"].iloc[0]), float(f["ratio_to_conifer"].max())
+    target = v0 + 0.5 * (vmax - v0)
+    yr = np.nan
+    for i in range(1, len(f)):
+        a, b = f.loc[i - 1], f.loc[i]
+        if b["ratio_to_conifer"] >= target:
+            yr = a["year"] + (target - a["ratio_to_conifer"]) / (b["ratio_to_conifer"] - a["ratio_to_conifer"]) * (b["year"] - a["year"])
+            break
+    return f[["imagery_date", "frame", "leaf_state", "ratio_to_conifer", "year"]], v0, vmax, target, yr
+
+
+def e8e_tests(tab, nw9_res):
+    from scipy.stats import spearmanr, mannwhitneyu
+    t = tab[tab["excess_m"].notna()]
+    rf = spearmanr(t["dist_1998_felling_m"], t["excess_m"])
+    rc = spearmanr(t["dist_coast_m"], t["excess_m"])
+    near, rest = t[t["near"]]["excess_m"], t[~t["near"]]["excess_m"]
+    mw = mannwhitneyu(near, rest, alternative="greater") if len(near) and len(rest) else None
+    t1 = bool(rf.statistic < 0 and rf.pvalue < E8E_P and abs(rf.statistic) > abs(rc.statistic))
+    # checks, reported and never the rule: the two distances are themselves correlated, so each is also
+    # taken with the other held fixed (Spearman partial, on ranks), and the open-dune wells alone
+    rk = {c: pd.Series(t[c]).rank().to_numpy() for c in ("excess_m", "dist_1998_felling_m", "dist_coast_m")}
+
+    def _partial(y, x, z):
+        A = np.c_[np.ones(len(z)), z]
+        ry = y - A @ np.linalg.lstsq(A, y, rcond=None)[0]
+        rx = x - A @ np.linalg.lstsq(A, x, rcond=None)[0]
+        return float(np.corrcoef(ry, rx)[0, 1])
+    rho_dd = float(spearmanr(t["dist_1998_felling_m"], t["dist_coast_m"]).statistic)
+    pf = _partial(rk["excess_m"], rk["dist_1998_felling_m"], rk["dist_coast_m"])
+    pc = _partial(rk["excess_m"], rk["dist_coast_m"], rk["dist_1998_felling_m"])
+    op = t[~t["in_forest"]]
+    ro = spearmanr(op["dist_1998_felling_m"], op["excess_m"]) if len(op) > 2 else None
+    frames, v0, vmax, target, can_year = canopy_halfway()
+    # NW9: annual means; the first year after the base years below half their mean
+    nw = {"base_m": np.nan, "half_year": np.nan}
+    ann = pd.Series(dtype=float)
+    if nw9_res is not None:
+        ann = nw9_res.groupby(nw9_res.index.year).mean()
+        base = float(ann.loc[E8E_TIMING_BASE_YEARS[0]:E8E_TIMING_BASE_YEARS[1]].mean())
+        after = ann[ann.index > E8E_TIMING_BASE_YEARS[1]]
+        below = after[after < base / 2]
+        nw = {"base_m": base, "half_year": float(below.index[0]) if base > 0 and len(below) else np.nan}
+    # the residual year Y is the calendar year's mean: centred at Y + 0.5
+    gap = (nw["half_year"] + 0.5 - can_year) if np.isfinite(nw["half_year"]) and np.isfinite(can_year) else np.nan
+    t2 = bool(np.isfinite(gap) and abs(gap) <= E8E_TIMING_TOL_YEARS)
+    far = t[t["far_open"]]["excess_m"]
+    verdict = ("felling and regrowth supported (local)" if (t1 and t2) else
+               "consistent in place, timing not resolved" if t1 else "not supported")
+    info_e = {"n": len(t), "rho_felling": float(rf.statistic), "p_felling": float(rf.pvalue),
+              "rho_coast": float(rc.statistic), "p_coast": float(rc.pvalue),
+              "n_near": len(near), "n_rest": len(rest), "median_near_m": float(near.median()) if len(near) else np.nan,
+              "median_rest_m": float(rest.median()) if len(rest) else np.nan,
+              "mw_p": float(mw.pvalue) if mw is not None else np.nan,
+              "n_far_open": len(far), "median_far_open_m": float(far.median()) if len(far) else np.nan,
+              "test1": t1, "test2": t2, "nw9_base_m": nw["base_m"], "nw9_half_year": nw["half_year"],
+              "canopy_first": v0, "canopy_max": vmax, "canopy_target": target, "canopy_half_year": can_year,
+              "timing_gap_years": gap, "rho_distances": rho_dd, "partial_felling": pf, "partial_coast": pc,
+              "n_open": len(op), "rho_open_felling": float(ro.statistic) if ro is not None else np.nan}
+    timing = pd.concat([
+        pd.DataFrame({"series": "nw9_annual_residual_m", "year": ann.index.astype(float) + 0.5, "value": ann.values}),
+        pd.DataFrame({"series": f"canopy_ratio_{E8E_CANOPY_REGION}_{E8E_CANOPY_VIEWPOINT}", "year": frames["year"],
+                      "value": frames["ratio_to_conifer"], "imagery_date": frames["imagery_date"],
+                      "frame": frames["frame"], "leaf_state": frames["leaf_state"]})], ignore_index=True)
+    return verdict, info_e, timing
+
+
+def e8e_report(rr, verdict, ie) -> None:
+    rr.add("e8e_verdict", E8E_VERDICT[verdict], unit="code",
+           note=f"{verdict} (2 supported, 1 place only, 0 not supported; E8e, D-235)")
+    rr.add("e8e_n_wells", ie["n"], unit="count", note=f"wells with at least {E8E_MIN_EARLY_MONTHS} readings in 2006-08 and a single-store fit")
+    rr.add("e8e_rho_felling", ie["rho_felling"], unit="rho", note="Spearman rho, 2006-08 excess against distance to the nearest 1998 felling")
+    rr.add("e8e_p_felling", ie["p_felling"], unit="p", note="its p-value")
+    rr.add("e8e_rho_coast", ie["rho_coast"], unit="rho", note="Spearman rho, 2006-08 excess against distance to the coast")
+    rr.add("e8e_p_coast", ie["p_coast"], unit="p", note="its p-value")
+    rr.add("e8e_median_near_m", ie["median_near_m"], unit="m", note=f"median 2006-08 excess, wells within {E8E_NEAR_M:.0f} m of a 1998 felling (n {ie['n_near']})")
+    rr.add("e8e_median_rest_m", ie["median_rest_m"], unit="m", note=f"median 2006-08 excess, the other wells (n {ie['n_rest']})")
+    rr.add("e8e_mw_p", ie["mw_p"], unit="p", note="Mann-Whitney, near greater than the rest (reported, not the rule)")
+    rr.add("e8e_median_far_open_m", ie["median_far_open_m"], unit="m",
+           note=f"median 2006-08 excess, open-dune wells beyond {E8E_FAR_M:.0f} m (n {ie['n_far_open']}; test 3, reported)")
+    rr.add("e8e_rho_between_distances", ie["rho_distances"], unit="rho",
+           note="Spearman rho between the two distances over the same wells (check, not the rule)")
+    rr.add("e8e_partial_felling", ie["partial_felling"], unit="rho",
+           note="excess against felling distance with coast distance held fixed (Spearman partial; check)")
+    rr.add("e8e_partial_coast", ie["partial_coast"], unit="rho",
+           note="excess against coast distance with felling distance held fixed (Spearman partial; check)")
+    rr.add("e8e_rho_open_felling", ie["rho_open_felling"], unit="rho",
+           note=f"excess against felling distance, open-dune wells only (n {ie['n_open']}; check)")
+    rr.add("e8e_nw9_half_year", ie["nw9_half_year"], unit="year", note="first year NW9's annual mean residual is below half its 2006-07 mean")
+    rr.add("e8e_canopy_half_year", ie["canopy_half_year"], unit="year",
+           note=f"year {E8E_CANOPY_REGION}'s canopy ratio ({E8E_CANOPY_VIEWPOINT}) is halfway from its first frame to its highest")
+    rr.add("e8e_timing_gap_years", ie["timing_gap_years"], unit="years", note="NW9 half year (mid-year) minus the canopy half year")
+
+
+def plot_felling(tab, timing, ie) -> None:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(MPL_DEFAULTS)
+    fig = plt.figure(figsize=(9.0, 7.0), dpi=160)
+    gs = fig.add_gridspec(2, 2)
+    t = tab[tab["excess_m"].notna()]
+    k = normalize_well_name(E8E_CHECK_WELL)
+    for j, (col, lab, rho, p) in enumerate((("dist_1998_felling_m", "distance to the nearest 1998 felling (m)", ie["rho_felling"], ie["p_felling"]),
+                                            ("dist_coast_m", "distance to the coast (m)", ie["rho_coast"], ie["p_coast"]))):
+        ax = fig.add_subplot(gs[0, j])
+        for forest, mk, c in ((False, "o", "#b8860b"), (True, "^", "#1b7837")):
+            s = t[t["in_forest"] == forest]
+            ax.plot(s[col], s["excess_m"], mk, ms=5, color=c, alpha=0.8, label="forest" if forest else "open")
+        if k in set(t["well"]):
+            r = t[t["well"] == k].iloc[0]
+            ax.annotate(E8E_CHECK_WELL.upper(), (r[col], r["excess_m"]), xytext=(4, 4), textcoords="offset points", fontsize=7)
+        ax.axhline(0, color="0.5", lw=0.6)
+        if j == 0:
+            ax.axvline(E8E_NEAR_M, color="0.6", lw=0.6, ls="--")
+        ax.set_xlabel(lab); ax.set_ylabel("2006-08 mean residual (m)")
+        ax.set_title(f"Spearman rho {rho:+.2f} (" + ("p < 0.001" if p < 0.001 else f"p {p:.3f}") + ")",
+                     loc="left", fontsize=9)
+        ax.grid(alpha=0.3); ax.legend(fontsize=7)
+    ax = fig.add_subplot(gs[1, :])
+    r = timing[timing["series"] == "nw9_annual_residual_m"]
+    ax.bar(r["year"], r["value"], width=0.8, color="#2166ac", alpha=0.7, label=f"{E8E_CHECK_WELL.upper()} annual mean residual")
+    ax.axhline(0, color="0.5", lw=0.6)
+    if np.isfinite(ie["nw9_half_year"]):
+        ax.axvline(ie["nw9_half_year"] + 0.5, color="#2166ac", ls="--", lw=0.8)
+    ax.set_ylabel("residual of the single store (m)"); ax.set_xlabel("year")
+    ax2 = ax.twinx()
+    c = timing[timing["series"].str.startswith("canopy_ratio")]
+    ax2.plot(c["year"], c["value"], "o-", color="#1b7837", ms=4, lw=1, label=f"canopy ratio, {E8E_CANOPY_REGION} ({E8E_CANOPY_VIEWPOINT})")
+    if np.isfinite(ie["canopy_half_year"]):
+        ax2.axvline(ie["canopy_half_year"], color="#1b7837", ls="--", lw=0.8)
+    ax2.set_ylabel("canopy texture ratio to mature conifer")
+    h1, l1 = ax.get_legend_handles_labels(); h2, l2 = ax2.get_legend_handles_labels()
+    ax.legend(h1 + h2, l1 + l2, fontsize=7, loc="upper right")
+    ax.set_title("Dashed: NW9 at half its 2006-07 residual; the canopy halfway to its highest", loc="left", fontsize=9)
+    fig.tight_layout()
+    fig.savefig(OUT_50_FELLING_FIG, dpi=160)
+    plt.close(fig)
+    saved(OUT_50_FELLING_FIG.name)
+
+
+# ── E8f (1.7.0, D-236): the 2014/15 shore clearance — a step in the wells around it? ──────────────────
+E8F_VERDICT = {"clearance step at the controls": 2, "no clearance step at the controls": 1, "site-wide 2015 shift": 0}
+
+
+def clearance_steps(lev, lev_cols, cl):
+    """Per well near the clearance (and placebo wells far from it): the E8 single store against the same with one
+    step (One) whose date is profiled monthly over E8F_STEP_WINDOW."""
+    import pastas as ps
+    from shapely.geometry import Point
+    from utils.kml_io import read_kml
+    ps.set_log_level("ERROR")
+    strip = read_kml(DATA_SHORE_CLEARANCE_2015, quiet=True).geometry.union_all()
+    start = continuous_start(cl)
+    P, E = spread_daily(cl, start)
+    loc = pd.read_csv(INT_LOCATIONS)
+    loc["_n"] = loc["Name"].astype(str).apply(normalize_well_name)
+    loc = loc.drop_duplicates("_n").set_index("_n")
+    w0, w1 = (pd.Timestamp(x) for x in E8F_STEP_WINDOW)
+    grid = [{"step_tstart": _ordinal(t)} for t in pd.date_range(w0, w1, freq="MS")]
+    lake = {normalize_well_name(x) for x in LAKE_GAUGE_KEYS} | set(LAKE_GAUGE_KEYS)
+    rows = []
+    for k, col in sorted(lev_cols.items()):
+        if k in lake or k not in loc.index:
+            continue
+        d = float(strip.distance(Point(loc.loc[k, "E"], loc.loc[k, "N"])))
+        role = "near" if d <= E8F_NEAR_M else "placebo" if d > E8F_FAR_M else None
+        if role is None:
+            continue
+        h = lev[col].dropna()
+        hm = h.copy(); hm.index = hm.index + pd.offsets.MonthEnd(0)
+        n_before, n_after = int((hm.index < w0).sum()), int((hm.index > w1).sum())
+        row = {"well": k, "role": role, "control": k in E8F_CONTROL_WELLS, "dist_clearance_m": d,
+               "n_before": n_before, "n_after": n_after}
+        if min(n_before, n_after) < E8F_MIN_SIDE_MONTHS:
+            row["skipped"] = f"fewer than {E8F_MIN_SIDE_MONTHS} months on one side"
+            rows.append(row); continue
+        info(f"E8f {k} ({role}, {d:.0f} m)")
+        try:
+            base = _ts_solve(_single(ps, hm, P, E, f"{k}_e8f0"), P)
+            best, prof = _profile(lambda fx: _change_model(ps, hm, P, E, "step", f"{k}_e8f1", fx), P, grid)
+            if best is None:
+                raise RuntimeError("no profile point solved")
+            o, se = best.parameters["optimal"], best.parameters["stderr"]
+            a, s_ = float(o["step_A"]), float(se["step_A"])
+            lo_t, hi_t = _interval(prof, "step_tstart")
+            row.update(step_m=a, step_se_m=s_, step_lo95_m=a - 1.96 * s_, step_hi95_m=a + 1.96 * s_,
+                       step_date=f"{_from_ordinal(best.parameters.loc['step_tstart', 'optimal']):%Y-%m}",
+                       step_date_lo95=f"{_from_ordinal(lo_t):%Y-%m}", step_date_hi95=f"{_from_ordinal(hi_t):%Y-%m}",
+                       bic_single=float(base.stats.bic()), bic_step=_bic_profiled(best, 1))
+            row["dbic"] = row["bic_single"] - row["bic_step"]
+            row["has_step"] = bool(row["dbic"] >= TWO_STORE_BIC_STRONG
+                                   and (row["step_lo95_m"] > 0 or row["step_hi95_m"] < 0))
+            if role == "near" and row["has_step"]:
+                wg = [{"step_tstart": _ordinal(t)} for t in pd.date_range(*E8F_WIDE_WINDOW, freq=f"{E8F_WIDE_STEP_MONTHS}MS")]
+                wb, wp = _profile(lambda fx: _change_model(ps, hm, P, E, "step", f"{k}_e8fw", fx), P, wg)
+                if wb is not None:
+                    wd = _from_ordinal(wb.parameters.loc["step_tstart", "optimal"])
+                    row.update(wide_step_date=f"{wd:%Y-%m}", wide_step_m=float(wb.parameters.loc["step_A", "optimal"]),
+                               wide_in_window=bool(w0 - pd.DateOffset(months=E8F_WIDE_STEP_MONTHS) <= wd <= w1 + pd.DateOffset(months=E8F_WIDE_STEP_MONTHS)),
+                               wide_sse_ratio=float(wp["sse"].min() / prof["sse"].min()))
+                    # second check: the wide step held at its date, a SECOND step profiled in the clearance window
+                    t1_ = float(wb.parameters.loc["step_tstart", "optimal"])
+
+                    def two(fx, _t1=t1_, _k=k):
+                        ml = _change_model(ps, hm, P, E, "step", f"{_k}_e8f2", {"step_tstart": _t1})
+                        ps.StepModel(ml, tstart=E8F_STEP_WINDOW[0], rfunc=ps.One(), name="clr")
+                        ml.set_parameter("clr_tstart", initial=fx["clr_tstart"], vary=False)
+                        return ml
+                    g2 = [{"clr_tstart": _ordinal(t)} for t in pd.date_range(w0, w1, freq="MS")]
+                    b2, p2 = _profile(two, P, g2)
+                    if b2 is not None:
+                        a2, s2 = float(b2.parameters.loc["clr_A", "optimal"]), float(b2.parameters.loc["clr_A", "stderr"])
+                        dbic2 = _bic_profiled(wb, 1) - _bic_profiled(b2, 2)
+                        row.update(step2_m=a2, step2_lo95_m=a2 - 1.96 * s2, step2_hi95_m=a2 + 1.96 * s2,
+                                   step2_date=f"{_from_ordinal(b2.parameters.loc['clr_tstart', 'optimal']):%Y-%m}",
+                                   step2_dbic=dbic2,
+                                   step2_has=bool(dbic2 >= TWO_STORE_BIC_STRONG and (a2 - 1.96 * s2 > 0 or a2 + 1.96 * s2 < 0)))
+        except Exception as exc:
+            row["error"] = f"{type(exc).__name__}: {exc}"[:200]
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def e8f_verdict(tab: pd.DataFrame):
+    from scipy.stats import spearmanr
+    ok = tab[tab.get("has_step").notna()] if "has_step" in tab.columns else tab.iloc[0:0]
+    ctrl = ok[ok["control"]]
+    plc = ok[ok["role"] == "placebo"]
+    near = ok[ok["role"] == "near"]
+    t1 = bool(ctrl["has_step"].any()) if len(ctrl) else False
+    frac = float(plc["has_step"].mean()) if len(plc) else np.nan
+    t2 = bool(np.isfinite(frac) and frac <= E8F_PLACEBO_MAX_FRAC)
+    rho = spearmanr(near["dist_clearance_m"], near["step_m"]) if len(near) > 2 else None
+    verdict = ("site-wide 2015 shift" if not t2 else
+               "clearance step at the controls" if t1 else "no clearance step at the controls")
+    return verdict, {"test1": t1, "test2": t2, "placebo_frac": frac, "n_placebo": len(plc), "n_near": len(near),
+                     "controls_tested": list(ctrl["well"]), "controls_with_step": list(ctrl[ctrl["has_step"]]["well"]),
+                     "near_with_step": int(near["has_step"].sum()),
+                     "near_step_wide_in_window": int(near.get("wide_in_window", pd.Series(dtype=bool)).fillna(False).astype(bool).sum()),
+                     "near_step2": int(near.get("step2_has", pd.Series(dtype=bool)).fillna(False).astype(bool).sum()),
+                     "controls_step2": list(ctrl[ctrl.get("step2_has", pd.Series(False, index=ctrl.index)).fillna(False).astype(bool)]["well"]),
+                     "rho_step_distance": float(rho.statistic) if rho is not None else np.nan,
+                     "p_step_distance": float(rho.pvalue) if rho is not None else np.nan}
+
+
+def e8f_report(rr, tab, verdict, iv) -> None:
+    rr.add("e8f_verdict", E8F_VERDICT[verdict], unit="code",
+           note=f"{verdict} (2 step at the controls, 1 none, 0 site-wide shift; E8f, D-236)")
+    rr.add("e8f_n_near", iv["n_near"], unit="count", note=f"wells within {E8F_NEAR_M:.0f} m of the shore clearance that could be tested")
+    rr.add("e8f_near_with_step", iv["near_with_step"], unit="count", note="of those, wells with a step by the rule")
+    rr.add("e8f_near_step_wide_in_window", iv["near_step_wide_in_window"], unit="count",
+           note=f"of the near wells with a step, those whose step date profiled over {E8F_WIDE_WINDOW[0][:4]}-{E8F_WIDE_WINDOW[1][:4]} still lands in the clearance window (check, not the rule)")
+    rr.add("e8f_near_step2", iv["near_step2"], unit="count",
+           note="near wells with a clearance-window step IN ADDITION to their wide-window step (check, not the rule)")
+    rr.add("e8f_controls_step2", len(iv["controls_step2"]), unit="count",
+           note=f"of {', '.join(E8F_CONTROL_WELLS)}: controls with that additional step (check, not the rule)")
+    rr.add("e8f_n_placebo", iv["n_placebo"], unit="count", note=f"placebo wells beyond {E8F_FAR_M:.0f} m that could be tested")
+    rr.add("e8f_placebo_frac_with_step", iv["placebo_frac"], unit="fraction", note="share of placebo wells with a step (test 2)")
+    rr.add("e8f_rho_step_distance", iv["rho_step_distance"], unit="rho", note="Spearman rho, step size against distance to the clearance, near wells (reported)")
+    t = tab.set_index("well")
+    for w in E8F_CONTROL_WELLS:
+        if w in t.index and pd.notna(t.loc[w].get("step_m", np.nan)):
+            rr.add(f"e8f_step_{w}_m", t.loc[w, "step_m"], unit="m", note=f"{w}: fitted step at {t.loc[w, 'step_date']} (95% {t.loc[w, 'step_lo95_m']:+.3f} to {t.loc[w, 'step_hi95_m']:+.3f} m)")
+            rr.add(f"e8f_has_step_{w}", float(bool(t.loc[w, "has_step"])), unit="flag", note=f"{w}: step by the rule (BIC and interval)")
+    if "wmc3" in t.index and pd.notna(t.loc["wmc3"].get("step_m", np.nan)):
+        rr.add("e8f_step_wmc3_m", t.loc["wmc3", "step_m"], unit="m", note="WMC3 (clearfell impact): fitted step in the clearance window (reported)")
+
+
+def plot_clearance_steps(tab) -> None:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update(MPL_DEFAULTS)
+    t = tab[tab.get("step_m").notna()] if "step_m" in tab.columns else tab.iloc[0:0]
+    fig, ax = plt.subplots(figsize=(8.5, 4.8), dpi=160)
+    for role, c in (("near", "#b2182b"), ("placebo", "0.5")):
+        s = t[t["role"] == role]
+        ax.errorbar(s["dist_clearance_m"], s["step_m"], yerr=1.96 * s["step_se_m"], fmt="o", ms=4, color=c,
+                    ecolor=c, elinewidth=0.7, alpha=0.85, label=f"{role} wells")
+        hs = s[s["has_step"].astype(bool)]
+        ax.plot(hs["dist_clearance_m"], hs["step_m"], "o", ms=9, mfc="none", mec="k", lw=0.8)
+    if "step2_m" in t.columns:
+        s2 = t[t["step2_m"].notna()]
+        ax.errorbar(s2["dist_clearance_m"] + 8, s2["step2_m"], yerr=[s2["step2_m"] - s2["step2_lo95_m"], s2["step2_hi95_m"] - s2["step2_m"]],
+                    fmt="D", ms=4, color="#2166ac", ecolor="#2166ac", elinewidth=0.7,
+                    label="near wells: a second step in the window, the wide-window step held (check)")
+        hs2 = s2[s2["step2_has"].astype(bool)]
+        ax.plot(hs2["dist_clearance_m"] + 8, hs2["step2_m"], "D", ms=10, mfc="none", mec="#2166ac", lw=0.8)
+    for r in t[t["control"] | t["well"].isin(["wmc3", "ceh36", "ceh3"])].itertuples():
+        ax.annotate(r.well.upper(), (r.dist_clearance_m, r.step_m), xytext=(4, 4), textcoords="offset points", fontsize=7)
+    ax.axhline(0, color="0.4", lw=0.7)
+    ax.axvline(E8F_NEAR_M, color="0.7", lw=0.6, ls="--"); ax.axvline(E8F_FAR_M, color="0.7", lw=0.6, ls="--")
+    ax.set_xlabel("distance to the 2014/15 shore clearance (m)")
+    ax.set_ylabel("fitted step, Oct 2014 to Apr 2015 (m, 95%)")
+    ax.set_title("E8f: a step at the clearance? Ringed: a step by the rule. Red: the rule's step; blue: the same "
+                 "test after the 2008-11 step is allowed for", loc="left", fontsize=8)
+    ax.grid(alpha=0.3); ax.legend(fontsize=7)
+    fig.tight_layout(); fig.savefig(OUT_50_CLEARANCE_FIG, dpi=160); plt.close(fig)
+    saved(OUT_50_CLEARANCE_FIG.name)
+
+
 def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
     """Report numbers for 1.1.0."""
     best, lo, hi, med = supported_datum(ccw_d)
@@ -2055,7 +2445,40 @@ def main(no_fig: bool = False) -> int:
     saved(f"{OUT_50_RAIN_EVENTS.name} ({len(e8_prim) + len(e8_chk)} rows)")
     e8_st.to_csv(OUT_50_EVENT_STRESS, index=False); saved(f"{OUT_50_EVENT_STRESS.name} ({len(e8_st)} rows)")
 
-    phase(10, "Outputs")
+    phase(10, "The felling north of NW9 and its regrowth (E8e), per well (1.6.0, D-235)")
+    fe_tab, fe_nw9 = felling_by_well(lev, lev_cols, cl)
+    fe_verdict, fe_info, fe_timing = e8e_tests(fe_tab, fe_nw9)
+    step(f"place: rho {fe_info['rho_felling']:+.2f} (p {fe_info['p_felling']:.3f}) against the felling, "
+         f"{fe_info['rho_coast']:+.2f} (p {fe_info['p_coast']:.3f}) against the coast, n {fe_info['n']}; "
+         f"test 1 {'pass' if fe_info['test1'] else 'fail'}")
+    step(f"timing: {E8E_CHECK_WELL} half year {fe_info['nw9_half_year']}, canopy half year "
+         f"{fe_info['canopy_half_year']:.1f}; test 2 {'pass' if fe_info['test2'] else 'fail'}")
+    step(f"control: open-dune wells beyond {E8E_FAR_M:.0f} m, median excess {fe_info['median_far_open_m']:+.3f} m "
+         f"(n {fe_info['n_far_open']}); near wells {fe_info['median_near_m']:+.3f} m (n {fe_info['n_near']})")
+    step(f"checks: distances rho {fe_info['rho_distances']:+.2f}; partial felling {fe_info['partial_felling']:+.2f}, "
+         f"coast {fe_info['partial_coast']:+.2f}; open-dune wells alone {fe_info['rho_open_felling']:+.2f} (n {fe_info['n_open']})")
+    result("E8e verdict", fe_verdict)
+    fe_tab.to_csv(OUT_50_FELLING_DIST, index=False); saved(f"{OUT_50_FELLING_DIST.name} ({len(fe_tab)} rows)")
+    fe_timing.to_csv(OUT_50_NW9_TIMING, index=False); saved(f"{OUT_50_NW9_TIMING.name} ({len(fe_timing)} rows)")
+
+    phase(11, "The 2014/15 shore clearance: a step in the wells around it? (E8f, 1.7.0, D-236)")
+    cf_tab = clearance_steps(lev, lev_cols, cl)
+    cf_verdict, cf_info = e8f_verdict(cf_tab)
+    for r in cf_tab[cf_tab["control"]].itertuples():
+        if pd.notna(getattr(r, "step_m", np.nan)):
+            step(f"{r.well} ({r.dist_clearance_m:.0f} m): step {r.step_m:+.3f} m at {r.step_date}, dBIC {r.dbic:.1f}; "
+                 f"{'a step' if r.has_step else 'no step'} by the rule")
+    for r in cf_tab[cf_tab.get("wide_step_date", pd.Series(index=cf_tab.index, dtype=object)).notna()].itertuples():
+        step(f"  {r.well}: date free over {E8F_WIDE_WINDOW[0][:4]}-{E8F_WIDE_WINDOW[1][:4]} -> {r.wide_step_date} "
+             f"({r.wide_step_m:+.3f} m){'' if r.wide_in_window else ', outside the clearance window'}; "
+             + (f"a second step in the window {r.step2_m:+.3f} m, {'a step' if r.step2_has else 'no step'} by the rule"
+                if pd.notna(getattr(r, "step2_m", np.nan)) else "second step not fitted"))
+    step(f"near wells with a step: {cf_info['near_with_step']} of {cf_info['n_near']}; placebo "
+         f"{cf_info['placebo_frac']:.2f} of {cf_info['n_placebo']} (test 2 {'pass' if cf_info['test2'] else 'fail'})")
+    result("E8f verdict", cf_verdict)
+    cf_tab.to_csv(OUT_50_CLEARANCE_STEP, index=False); saved(f"{OUT_50_CLEARANCE_STEP.name} ({len(cf_tab)} rows)")
+
+    phase(12, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -2068,6 +2491,8 @@ def main(no_fig: bool = False) -> int:
     two_store_report(rr, ts_tab, ts_per, ts_nw, ts_verdict)
     change_surface_report(rr, cs_vc, cs_pc, cs_date, cs_vs, cs_ps)
     e8d_report(rr, e8_prim, e8_chk, e8_st, e8_verdict, e8_info)
+    e8e_report(rr, fe_verdict, fe_info)
+    e8f_report(rr, cf_tab, cf_verdict, cf_info)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)
@@ -2076,6 +2501,8 @@ def main(no_fig: bool = False) -> int:
         plot_two_store(ts_tab, ts_well, ts_nw, ts_start)
         plot_change_surface(cs_ch, cs_sf, cs_sims, cs_pc, cs_ps)
         plot_rain_events(e8_prim, e8_chk)
+        plot_felling(fe_tab, fe_timing, fe_info)
+        plot_clearance_steps(cf_tab)
     result("record length", f"{df['well'].nunique()} wells; see {OUT_50_BY_CLUSTER.name}")
     done("50")
     return 0

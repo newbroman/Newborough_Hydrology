@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>forest shore clearance April 2015.kml</name>
+	<StyleMap id="msn_ylw-pushpin">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#sn_ylw-pushpin</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_ylw-pushpin</styleUrl>
+		</Pair>
+	</StyleMap>
+	<Style id="sh_ylw-pushpin">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<PolyStyle>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<Style id="sn_ylw-pushpin">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<BalloonStyle>
+		</BalloonStyle>
+		<PolyStyle>
+			<fill>0</fill>
+		</PolyStyle>
+	</Style>
+	<Placemark>
+		<name>forest shore clearance April 2015</name>
+		<styleUrl>#msn_ylw-pushpin</styleUrl>
+		<Polygon>
+			<tessellate>1</tessellate>
+			<outerBoundaryIs>
+				<LinearRing>
+					<coordinates>
+						-4.386177537844402,53.14341752400595,0 -4.385156191820547,53.14314678500029,0 -4.384075954236653,53.14287604802568,0 -4.382544016846561,53.14247580075209,0 -4.38150308674079,53.14213435905787,0 -4.379853360161595,53.1416045208949,0 -4.379165999054463,53.14141614037556,0 -4.379067798851054,53.14136903531146,0 -4.37840030704047,53.14193451797562,0 -4.380168096867973,53.14321822520463,0 -4.380246696889864,53.14335956405903,0 -4.379775499699038,53.14370121741824,0 -4.380580783139708,53.14404270567063,0 -4.38116977022744,53.14359502116407,0 -4.381267909902017,53.14345365841889,0 -4.381660682575812,53.14347716086731,0 -4.382721202040598,53.14360657428061,0 -4.383644207535883,53.1435946501926,0 -4.384449312327657,53.14340605038257,0 -4.385725802613201,53.14333515159787,0 -4.386177537844402,53.14341752400595,0 
+					</coordinates>
+				</LinearRing>
+			</outerBoundaryIs>
+		</Polygon>
+		<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+	</Placemark>
+</Document>
+</kml>

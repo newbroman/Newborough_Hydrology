@@ -25,7 +25,9 @@
 # --dry-run stops after the checks, releases the lock, and tests the private push (CLAUDE.md 7: a
 # dry run pushes nothing but the lock).
 #
-# Version 1.0.0 — Hollingham (2026) — 2026-10-02. First issue.
+# Version 1.0.1 — Hollingham (2026) — 2026-10-03. Private pushes name origin HEAD:main rather than relying on
+#   an upstream (the dry3 dry run: a --bare clone sets none, so the lock push was refused).
+# 1.0.0 — 2026-10-02. First issue.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
@@ -57,7 +59,7 @@ step() { printf '\n  [%s] %s\n' "$1" "$2"; }
 lock_push() {   # commit and push the lock file privately
   "${WG[@]}" add working/DOCUMENT_LOCK.json \
     && "${WG[@]}" commit -q -m "$1" -- working/DOCUMENT_LOCK.json \
-    && "${WG[@]}" push -q
+    && "${WG[@]}" push -q origin HEAD:main
 }
 
 fail() {
@@ -139,6 +141,6 @@ mkdir -p working/ship_logs
 cp "$LOG" "working/ship_logs/${ID}.log"
 "${WG[@]}" add working/DOCUMENT_LOCK.json "working/ship_logs/${ID}.log" \
   && "${WG[@]}" commit -q -m "cloud ship ${ID}: lock released, log" \
-  && "${WG[@]}" push -q || echo "  note: lock release / log not pushed"
+  && "${WG[@]}" push -q origin HEAD:main || echo "  note: lock release / log not pushed"
 echo "${line:-SHIP: FAIL no-verdict (nrg_git.sh exit ${rc}; log ${LOG})}"
 exit "$rc"

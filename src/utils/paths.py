@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.59.0"  # Hollingham (2026) - 2026-10-03 (D-236). DATA_SHORE_CLEARANCE_2015, OUT_50_CLEARANCE_STEP,
+__version__ = "1.60.0"  # Hollingham (2026) - 2026-10-03 (T-99). OUT_03_DATUM_AOD. Additive.
+# 1.59.0  # Hollingham (2026) - 2026-10-03 (D-236). DATA_SHORE_CLEARANCE_2015, OUT_50_CLEARANCE_STEP,
 #   OUT_50_CLEARANCE_FIG. Additive.
 # 1.58.0  # Hollingham (2026) - 2026-10-02 (D-235). OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG.
 #   Additive.
@@ -580,6 +581,7 @@ OUT_03_DATUM_REGIME_FIG    = DIR_03 / "03_12_datum_regime.png"
 OUT_03_DATUM_INVARIANCE    = DIR_03 / "03_18_datum_invariance.csv"   # T-74: the sweep summarised per cluster (order invariance, flux fraction, cost of DRAINAGE_DATUM)
 OUT_03_DATUM_ZERO          = DIR_03 / "03_19_datum_zero_fit.csv"   # centroid Model A at DATUM_RAW_DEPTH_M (raw depth): sign and significance of beta_3 with no drainage base
 OUT_03_PER_WELL_RECESSION  = DIR_03 / "03_19_per_well_recession_full_record.csv"  # D-192: β₃, t½, 1/β₃ per well on the FULL record; Script 18 reads it
+OUT_03_DATUM_AOD           = DIR_03 / "03_20_datum_aod_sweep.csv"   # T-99 / D-163 route 4: Model A per well with the datum fixed in elevation (z0 m AOD)
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"

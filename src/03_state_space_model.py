@@ -88,7 +88,10 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-10-01 (D-217). _partition_datum_range_report_numbers():
+__version__ = "1.25.0"  # Hollingham (2026) — 2026-10-03 (T-99). datum_aod_sweep(): D-163 route 4 (the datum
+#   fixed in elevation, z0 m AOD, a per-well datum of ground - z0) emitted as 03_20_datum_aod_sweep.csv and the
+#   datum_aod_* report numbers report8 section 3.4.1 quotes. Additive: no existing output changes.
+# 1.24.0  # Hollingham (2026) — 2026-10-01 (D-217). _partition_datum_range_report_numbers():
 #   how far the water-balance partition depends on the drainage datum (Martin: "does the model A datum
 #   choice affect the waterbalance?"). From 03_12 over the admissible datums (all_beta3_pos_sig_from_m
 #   in 03_18 to the deepest swept), per cluster: the drainage share of losses and the drainage flux
@@ -291,7 +294,7 @@ from utils.paths import (
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
     OUT_03_MODEL_B_PERSISTENCE, OUT_03_UPSTAND_FRAME_SENS,
-    OUT_03_DATUM_INVARIANCE, OUT_03_DATUM_ZERO, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL,
+    OUT_03_DATUM_INVARIANCE, OUT_03_DATUM_ZERO, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL, OUT_03_DATUM_AOD,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -302,6 +305,7 @@ from utils.config import (
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
     LCSC_DATA_LIMIT, SSM_MIN_OBS,
     DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M, DATUM_RAW_DEPTH_M,
+    DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, DATUM_AOD_NONPOS_CHECK_M, LAKE_GAUGE_KEYS,
 )
 from utils.model_utils import (fit_ssm, fit_ssm_intercept, assert_physical_signs,
                                build_ssm_frame)
@@ -1483,6 +1487,70 @@ def _window_beta3_ratio_report_numbers(rpt, win_df: pd.DataFrame) -> None:
                 well=CLUSTER_LABELS.get(c, f"C{c}"),
                 note=f"{stat} over the other clusters of window_beta3_ratio_to_min (relative to "
                      f"{lab_min}); the Well cell is the cluster")
+
+
+def datum_aod_sweep(wells_clean: pd.DataFrame, climate: pd.DataFrame, locs: pd.DataFrame) -> pd.DataFrame:
+    """T-99 / D-163 route 4: every well's head referred to ONE level z0 above Ordnance Datum instead of a
+    depth below its own ground. In the SSM that is a per-well datum of (ground - z0), so Model A is refitted
+    with fit_ssm at each z0 of DATUM_AOD_SWEEP_*, over each well's full record, the lake gauge excluded. One
+    row per z0 (median R2, wells fitted, wells with beta_3 <= 0), plus the depth-datum row (z0 NaN,
+    datum_kind "depth") for comparison. D-163 found an interior optimum that fits worse than the depth datum
+    at every level; this emits the numbers report8 section 3.4.1 quotes."""
+    loc = locs.copy()
+    loc["_k"] = loc["Name"].astype(str).apply(normalize_well_name)
+    loc = loc.drop_duplicates("_k").set_index("_k")
+    lake = {normalize_well_name(x) for x in LAKE_GAUGE_KEYS} | set(LAKE_GAUGE_KEYS)
+    wells = []
+    for c in wells_clean.columns:
+        k = normalize_well_name(c)
+        if k in lake or k not in loc.index or pd.isna(loc.loc[k, "ground_elev_m"]):
+            continue
+        wells.append((c, float(loc.loc[k, "ground_elev_m"])))
+
+    def _row(kind, z0, datum_of):
+        r2, nonpos, n = [], 0, 0
+        for c, g in wells:
+            try:
+                r = fit_ssm(wells_clean[c].dropna(), climate, drainage_datum=datum_of(g))
+            except Exception:
+                r = None
+            if not r:
+                continue
+            n += 1
+            r2.append(r["R2"])
+            nonpos += int(r["beta_3_drainage"] <= 0)
+        return {"datum_kind": kind, "z0_m_aod": z0, "n_wells": n,
+                "r2_median": float(np.median(r2)) if r2 else np.nan, "n_beta3_nonpositive": nonpos}
+
+    rows = [_row("depth", np.nan, lambda g: DRAINAGE_DATUM)]
+    grid = np.arange(DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M + DATUM_AOD_SWEEP_STEP_M / 2,
+                     DATUM_AOD_SWEEP_STEP_M)
+    for z in grid:
+        z = round(float(z), 6)
+        rows.append(_row("elevation", z, lambda g, z=z: g - z))
+    return pd.DataFrame(rows)
+
+
+def _datum_aod_report_numbers(rpt, aod_df: pd.DataFrame) -> None:
+    """The D-163 route-4 numbers report8 section 3.4.1 quotes (T-99)."""
+    dep = aod_df[aod_df["datum_kind"] == "depth"].iloc[0]
+    el = aod_df[aod_df["datum_kind"] == "elevation"]
+    best = el.loc[el["r2_median"].idxmax()]
+    chk = el.loc[(el["z0_m_aod"] - DATUM_AOD_NONPOS_CHECK_M).abs().idxmin()]
+    rpt.add("datum_aod_optimum_m", float(best["z0_m_aod"]), unit="m AOD",
+            note=f"the common elevation datum maximizing the median per-well R2, Model A, full record "
+                 f"(grid {DATUM_AOD_SWEEP_MIN_M:g} to {DATUM_AOD_SWEEP_MAX_M:g} m AOD in {DATUM_AOD_SWEEP_STEP_M:g} m; D-163 route 4; 03_20)")
+    rpt.add("datum_aod_r2_median_at_optimum", float(best["r2_median"]), unit="-",
+            note="median per-well R2 at that elevation datum (03_20)")
+    rpt.add("datum_aod_r2_median_depth_datum", float(dep["r2_median"]), unit="-",
+            note=f"median per-well R2 at the depth datum DRAINAGE_DATUM = {DRAINAGE_DATUM:g} m, same wells (03_20)")
+    rpt.add("datum_aod_worse_than_depth_everywhere", float((el["r2_median"] < dep["r2_median"]).all()), unit="flag",
+            note="1 if the elevation datum fits worse (median R2) than the depth datum at every z0 of the grid")
+    rpt.add("datum_aod_n_wells", int(dep["n_wells"]), unit="count", note="wells fitted (full record, lake gauge excluded)")
+    rpt.add("datum_aod_nonpos_beta3_at_check", int(chk["n_beta3_nonpositive"]), unit="count",
+            note=f"wells with beta_3 <= 0 at z0 = {float(chk['z0_m_aod']):g} m AOD (DATUM_AOD_NONPOS_CHECK_M)")
+    rpt.add("datum_aod_nonpos_beta3_depth_datum", int(dep["n_beta3_nonpositive"]), unit="count",
+            note="wells with beta_3 <= 0 at the depth datum")
 
 
 def _partition_datum_range_report_numbers(rpt, part_df: pd.DataFrame, inv_df: pd.DataFrame) -> None:
@@ -2738,6 +2806,8 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
                 _window_beta3_ratio_report_numbers(rpt, extra["win_df"])
             if extra.get("part_df") is not None:
                 _partition_datum_range_report_numbers(rpt, extra["part_df"], extra["inv_df"])
+            if extra.get("aod_df") is not None:
+                _datum_aod_report_numbers(rpt, extra["aod_df"])
         n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
         saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -3351,11 +3421,16 @@ def main() -> None:
 
     # ---- Regional averages exports ----
     export_regional_averages(centroids, climate, master_df)
+    # ---- T-99 / D-163 route 4: the datum fixed in elevation ----
+    step("D-163 route 4: Model A per well with a common datum in m AOD")
+    aod_df = datum_aod_sweep(wells_clean, climate, locs_clean)
+    aod_df.to_csv(OUT_03_DATUM_AOD, index=False)
+    saved(f"{OUT_03_DATUM_AOD.name} ({len(aod_df)} rows)")
     export_regional_averages_maod(cluster_df, climate,
                                   extra={"master_df": master_df, "sens_df": sens_df,
                                          "inv_df": inv_df, "well_opt_df": well_opt_df,
                                          "zero_df": zero_df, "win_df": win_df,
-                                         "part_df": part_df})
+                                         "part_df": part_df, "aod_df": aod_df})
     export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----

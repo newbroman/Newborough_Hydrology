@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T09:12:31",
+ "generated": "2026-10-03T11:43:04",
  "orchestrator": "2.23.2",
  "steps": {
   "00_climate_summary.py": {
@@ -196,7 +196,8 @@
     "outputs/03_state_space_model/03_18_datum_invariance.csv": "08f46570b51093953e9b250a21f0490ba12f7263611d9cf6ea1f005210187bab",
     "outputs/03_state_space_model/03_19_datum_zero_fit.csv": "c08a60f7d69a33f399c5c65a7b6bdff9e05e89f0a3bb0fb6acf027eaf6dc0905",
     "outputs/03_state_space_model/03_19_per_well_recession_full_record.csv": "235d11f01f88a087336945f7b31ef8da3c9adb7a7b6001f8d4ecc7fa799bdc82",
-    "outputs/03_state_space_model/03_report_numbers.csv": "4ae49251b85a6452939cc6bd4088f7a53c42edb67153c22d102cc2640a0ab628"
+    "outputs/03_state_space_model/03_20_datum_aod_sweep.csv": "7371ecf1b608d51dcf5fb207973d82ea4cc21d0676bc67cc26e82a5b8f595793",
+    "outputs/03_state_space_model/03_report_numbers.csv": "7c4da50dcff58c232ee92970184b3738e6157d2c4930f57f9235a0aba32ed068"
    },
    "fallbacks": [],
    "inputs": {
@@ -209,9 +210,9 @@
     "outputs/02_clustering/02_08_cluster_amplitude_per_well.csv": "40ddcd63292275b0b91e3f01a33764ee4794e37890be456373d76b6fdec3a09c"
    },
    "inputs_unresolved": [],
-   "seconds": 88.2,
-   "started": "2026-10-02T06:05:50",
-   "version": "1.24.0"
+   "seconds": 136.7,
+   "started": "2026-10-03T11:40:47",
+   "version": "1.25.0"
   },
   "04_cluster_visualisations.py": {
    "emitted": {
@@ -512,11 +513,11 @@
   },
   "16_water_bal.py": {
    "emitted": {
-    "outputs/01_data_prep/pipeline_site_observations.csv": "36a15c8da08f7591100942e9d7585da70ec7d396f11732a144f177d4d7649687",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "252d905c91b39ab37069ddd24fbd945235c9e004a6e855e0aed41c7647ee4f34",
     "outputs/16_water_balance/16_report_numbers.csv": "76242a564e2c16bc1b500ed8060633455176b79ae075487e1fc7002d89891065",
-    "outputs/16_water_balance/16_water_bal_bar_lay.png": "abb425e616bc7aea228a72d6c987cf352369d62d3b0f86dc280d35359b07377e",
-    "outputs/16_water_balance/16_water_bal_bar_ms.png": "814eddbc63a5d49462dc2086a63d537b9ce5c14fadbe577c3fed9e0bbb429c9d",
-    "outputs/16_water_balance/16_water_bal_rec_table.csv": "663f0bf321d3dd21f608e5e08a687795b4700c32959587349c65ecc58892730b",
+    "outputs/16_water_balance/16_water_bal_bar_lay.png": "7f96c2af2c6318ebe8967e15ba4032d082e73fdee779786afc21c4ca5f7bfd2b",
+    "outputs/16_water_balance/16_water_bal_bar_ms.png": "ebbba7a921c776a3a8262a20acacca2f91f85264c3bcba1ba8e3473a87fcbcf4",
+    "outputs/16_water_balance/16_water_bal_rec_table.csv": "8f2c36c7e8c1b7b740957a6b1aa46a26853a0a5aebfe46a82bbc840e7528b0e8",
     "outputs/16_water_balance/16_water_bal_table.csv": "00fc1c4882623cf642843925cdb288296dc25f26addf31abe4fc1cee50d56180",
     "outputs/16_water_balance/16_water_bal_vol_table.csv": "448be35674c14f305cf4be4c25bd4efeb1efb870afe5485e83c653d4f9b84922"
    },
@@ -526,9 +527,9 @@
     "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv": "9c334393ecb2ee28e76d7aceb91df1a55ec86954a53c2d55f4287152add9e7a2"
    },
    "inputs_unresolved": [],
-   "seconds": 2.0,
-   "started": "2026-10-01T06:17:42",
-   "version": "1.7.0"
+   "seconds": 13.7,
+   "started": "2026-10-03T11:33:59",
+   "version": "1.8.0"
   },
   "17_wtf_specific_yield.py": {
    "emitted": {

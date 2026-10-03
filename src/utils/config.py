@@ -44,7 +44,11 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.92.0"  # Hollingham (2026) - 2026-10-02 (D-234). E8D_* (Script 50 E8d, rain event structure;
+__version__ = "1.94.0"  # Hollingham (2026) - 2026-10-03 (D-236). E8F_* (Script 50 E8f, the 2014/15 shore
+#   clearance step; the rule fixed before the run) and FOREST_FLOOR_GROUP_TEST_P (Script 44 1.9.0). Additive.
+# 1.93.0  # Hollingham (2026) - 2026-10-02 (D-235). E8E_* (Script 50 E8e, felling north of NW9 and its
+#   regrowth; the rule fixed before the run). Additive.
+# 1.92.0  # Hollingham (2026) - 2026-10-02 (D-234). E8D_* (Script 50 E8d, rain event structure;
 #   the rule fixed before the run). Additive.
 # 1.91.0  # Hollingham (2026) - 2026-10-02 (D-232). CHANGE_* and SURFACE_* (Script 50 E8b and
 #   E8c, the rule fixed before the run). Additive.
@@ -722,6 +726,46 @@ E8D_FIT_START          = "2005-01-01"
 E8D_FIT_END            = "2023-12-31"
 E8D_RESIDUAL_REDUCTION = 0.5
 E8D_CLUSTERS_WITH_EXCESS = (2, 3, 4, 5)
+
+# E8e (D-235, spec NRG_spec_E8e_felling_regrowth_2026-10-02, approved 23:33): was the 2006-08 high water at NW9
+# the felling north of it (data/geo/felling_1998_*) and the pine's return? Per well, the E8 single store fitted
+# on the full record; the excess is the mean of the annual mean residuals over TWO_STORE_EARLY_YEARS, counted
+# only at wells with at least E8E_MIN_EARLY_MONTHS readings in those years, and the later level the same over
+# E8E_LATER_YEARS. Test 1 (place): Spearman rho of excess against 01_locations dist_1998_replant_m below 0 at
+# p < E8E_P, and |rho| above that for dist_coast_m; Mann-Whitney within E8E_NEAR_M against the rest reported
+# beside it. Test 2 (timing): NW9's first year after E8E_TIMING_BASE_YEARS whose annual mean residual is below
+# half their mean, against the year the canopy ratio (Script 41, E8E_CANOPY_REGION, E8E_CANOPY_VIEWPOINT) is
+# halfway from its first frame to its highest, within E8E_TIMING_TOL_YEARS. Test 3 (reported): open-dune wells
+# beyond E8E_FAR_M.
+E8E_MIN_EARLY_MONTHS   = 12
+E8E_LATER_YEARS        = (2012, 2023)
+E8E_P                  = 0.05
+E8E_NEAR_M             = 250.0
+E8E_FAR_M              = 500.0
+E8E_TIMING_BASE_YEARS  = (2006, 2007)
+E8E_TIMING_TOL_YEARS   = 2.0
+E8E_CHECK_WELL         = "nw9"
+E8E_CANOPY_REGION      = "felling_1998_1"
+E8E_CANOPY_VIEWPOINT   = "vp1"
+
+# E8f (D-236, spec NRG_spec_E8f_shore_clearance_step_2026-10-03, approved 2026-10-03 07:49): did the shore clearance
+# (data/geo/forest shore clearance April 2015.kml; cleared between 2014-10-29 and 2015-03-21 by Landsat) put a step
+# into the wells around it? Per well, the E8 single store plus one step (One) whose date is profiled monthly over
+# E8F_STEP_WINDOW; a well needs E8F_MIN_SIDE_MONTHS readings either side. Near wells lie within E8F_NEAR_M of the
+# strip, placebo wells beyond E8F_FAR_M. A well has a step if BIC improves by TWO_STORE_BIC_STRONG and the step's
+# 95% interval excludes zero. Test 1: any of E8F_CONTROL_WELLS has a step; test 2: at most E8F_PLACEBO_MAX_FRAC of
+# the placebo wells do (else the shift is site-wide).
+E8F_STEP_WINDOW        = ("2014-10-01", "2015-04-01")
+E8F_MIN_SIDE_MONTHS    = 24
+E8F_NEAR_M             = 500.0
+E8F_FAR_M              = 1000.0
+E8F_CONTROL_WELLS      = ("ceh19", "ceh17", "ceh4")
+E8F_PLACEBO_MAX_FRAC   = 0.2
+# Check, reported and never the rule (added after the first exercise showed the near wells' steps dated at the window's
+# opening edge): at each near well with a step, the step date profiled quarterly over E8F_WIDE_WINDOW; a step that
+# belongs to the clearance should land inside E8F_STEP_WINDOW there too.
+E8F_WIDE_WINDOW        = ("2008-01-01", "2020-12-01")
+E8F_WIDE_STEP_MONTHS   = 3
 
 # Headline rainfall lag applied in the SSM and all per-well OLS regressions.
 # All scripts import this value rather than defining their own copy.
@@ -1978,6 +2022,9 @@ SLACK_FLOOR_BASELINE_CLUSTERS = (1, 2, 3)
 FOREST_CHANNEL_LINES  = ("Line 23",)
 FLOOR_RELIEF_RADIUS_M = 20.0     # m; radius of the DEM window for a floor's microrelief (SD, range)
 FOREST_FLOOR_FIG_SEED = 7        # jitter seed for the 44_10 strip plot (display only)
+# Script 44 1.9.0: the forest-floor group test (felled against unfelled canopy, two-sided Mann-Whitney) reads
+# "differs" below this p (Martin, 2026-10-03: "write an output for does not differ").
+FOREST_FLOOR_GROUP_TEST_P = 0.05
 # Under the canopy the surveyed ground is the litter surface; the mineral floor lies below it by up to this
 # (Martin, 2026-09-29: "leaf litter is 20cm at most"). An upper bound, applied as an allowance, not a measurement.
 FOREST_LITTER_MAX_M   = 0.20

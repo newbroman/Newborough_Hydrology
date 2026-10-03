@@ -1016,7 +1016,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | forest_floor_residual_median_C4_m |  |  | `44_report_numbers.csv` | 0.6125 |  | report9 | ok |
 | forest_floor_residual_median_C5_m |  |  | `44_report_numbers.csv` | -0.532423 |  | report9 | ok |
 | forest_floor_residual_median_canopy_m |  |  | `44_report_numbers.csv` | 0.435753 |  | report9 | ok |
-| forest_floor_residual_median_felled_1995_m |  |  | `44_report_numbers.csv` | 0.5325 |  | report9 | ok |
+| forest_floor_residual_median_felled_1993_m |  |  | `44_report_numbers.csv` | 0.598892 |  | report9 | ok |
 | forest_floor_residual_min_C4_m |  |  | `44_report_numbers.csv` | 0.405813 |  | report9 | ok |
 | forest_floor_retreat_since_preplant_modern_m |  |  | `44_report_numbers.csv` | 126.923 |  | report9 | ok |
 | forest_floor_retreat_since_preplant_steady_m |  |  | `44_report_numbers.csv` | 78.618 |  | report9 | ok |

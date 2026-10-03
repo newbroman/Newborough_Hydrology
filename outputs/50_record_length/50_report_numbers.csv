@@ -699,3 +699,36 @@ e8d_test1_unusual,,,0.0,flag,E8d test 1: 2005-08 winters unusual in event share
 e8d_test2_later_lower,,,0.0,flag,E8d test 2: later wet winters below 2006/07
 e8d_clusters_earning,,,0.0,count,"E8d test 3: clusters (of 4, C2-C5) where the long-event stress earns its place"
 e8d_check_gauge_agrees,,,1.0,flag,"valley_01145 points the same way on the test winters (reported, not the rule)"
+e8e_verdict,,,1.0,code,"consistent in place, timing not resolved (2 supported, 1 place only, 0 not supported; E8e, D-235)"
+e8e_n_wells,,,29.0,count,wells with at least 12 readings in 2006-08 and a single-store fit
+e8e_rho_felling,,,-0.8907500991323931,rho,"Spearman rho, 2006-08 excess against distance to the nearest 1998 felling"
+e8e_p_felling,,,9.591928713077935e-11,p,its p-value
+e8e_rho_coast,,,-0.786206896551724,rho,"Spearman rho, 2006-08 excess against distance to the coast"
+e8e_p_coast,,,4.303881259060025e-07,p,its p-value
+e8e_median_near_m,,,0.4199816710408013,m,"median 2006-08 excess, wells within 250 m of a 1998 felling (n 10)"
+e8e_median_rest_m,,,0.22652209027632875,m,"median 2006-08 excess, the other wells (n 19)"
+e8e_mw_p,,,7.67432325656018e-05,p,"Mann-Whitney, near greater than the rest (reported, not the rule)"
+e8e_median_far_open_m,,,0.13511641466234459,m,"median 2006-08 excess, open-dune wells beyond 500 m (n 11; test 3, reported)"
+e8e_rho_between_distances,,,0.6412119767814213,rho,"Spearman rho between the two distances over the same wells (check, not the rule)"
+e8e_partial_felling,,,-0.8153154977116565,rho,excess against felling distance with coast distance held fixed (Spearman partial; check)
+e8e_partial_coast,,,-0.6166021343353171,rho,excess against coast distance with felling distance held fixed (Spearman partial; check)
+e8e_rho_open_felling,,,-0.8586466165413533,rho,"excess against felling distance, open-dune wells only (n 20; check)"
+e8e_nw9_half_year,,,2009.0,year,first year NW9's annual mean residual is below half its 2006-07 mean
+e8e_canopy_half_year,,,2017.2967468172412,year,year felling_1998_1's canopy ratio (vp1) is halfway from its first frame to its highest
+e8e_timing_gap_years,,,-7.796746817241228,years,NW9 half year (mid-year) minus the canopy half year
+e8f_verdict,,,2.0,code,"clearance step at the controls (2 step at the controls, 1 none, 0 site-wide shift; E8f, D-236)"
+e8f_n_near,,,16.0,count,wells within 500 m of the shore clearance that could be tested
+e8f_near_with_step,,,11.0,count,"of those, wells with a step by the rule"
+e8f_near_step_wide_in_window,,,0.0,count,"of the near wells with a step, those whose step date profiled over 2008-2020 still lands in the clearance window (check, not the rule)"
+e8f_near_step2,,,2.0,count,"near wells with a clearance-window step IN ADDITION to their wide-window step (check, not the rule)"
+e8f_controls_step2,,,0.0,count,"of ceh19, ceh17, ceh4: controls with that additional step (check, not the rule)"
+e8f_n_placebo,,,42.0,count,placebo wells beyond 1000 m that could be tested
+e8f_placebo_frac_with_step,,,0.047619047619047616,fraction,share of placebo wells with a step (test 2)
+e8f_rho_step_distance,,,0.4647058823529412,rho,"Spearman rho, step size against distance to the clearance, near wells (reported)"
+e8f_step_ceh19_m,,,-0.1529992902573317,m,ceh19: fitted step at 2014-10 (95% -0.185 to -0.121 m)
+e8f_has_step_ceh19,,,1.0,flag,ceh19: step by the rule (BIC and interval)
+e8f_step_ceh17_m,,,-0.2274069463044695,m,ceh17: fitted step at 2014-10 (95% -0.280 to -0.175 m)
+e8f_has_step_ceh17,,,1.0,flag,ceh17: step by the rule (BIC and interval)
+e8f_step_ceh4_m,,,-0.23695442299139152,m,ceh4: fitted step at 2014-10 (95% -0.282 to -0.192 m)
+e8f_has_step_ceh4,,,1.0,flag,ceh4: step by the rule (BIC and interval)
+e8f_step_wmc3_m,,,0.0039994198457909335,m,WMC3 (clearfell impact): fitted step in the clearance window (reported)

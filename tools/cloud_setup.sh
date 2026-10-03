@@ -19,7 +19,9 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.1.2 — Hollingham (2026) — 2026-10-03. Refuses when the installed private exclude ignores
+# Version 1.1.3 — Hollingham (2026) — 2026-10-03. The private clone's main tracks origin/main (a --bare
+#   clone sets no upstream, so the dry3 dry run's lock push was refused).
+# 1.1.2 — 2026-10-03. Refuses when the installed private exclude ignores
 #   working/ (the first cloud-ship dry run failed at lock-push on a stale tracked exclude, now corrected).
 # 1.1.1 — 2026-10-02. rclone comes from its GitHub release into ~/bin: the
 #   cloud proxy refuses rclone.org (403), found by the first claude.ai/code token test, which PASSED.
@@ -65,6 +67,8 @@ else
   git --git-dir=.git-working --work-tree=. read-tree HEAD
   git --git-dir=.git-working --work-tree=. checkout-index -a -f
   git --git-dir=.git-working --work-tree=. fetch --quiet origin
+  # 1.1.3: a --bare clone sets no upstream, so a plain `push` was refused (the dry3 dry run).
+  git --git-dir=.git-working branch --quiet --set-upstream-to=origin/main main
   # The private repo's own exclude is tracked inside it; install it.
   cp working/.git-working/info/exclude .git-working/info/exclude
 fi

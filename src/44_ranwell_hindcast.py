@@ -102,7 +102,12 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.8.1"  # Hollingham (2026) — 2026-10-02. compare() moved, unchanged, to
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-03. The felling group is named from the recorded
+#   year in data/canopy_history.csv (felled 1993, replanted 1998 — Martin, 2026-10-03; it was a literal
+#   "felled_1995"), and the forest-floor groups gain their ranges and a test of "does not differ" (Martin:
+#   "write an output for does not differ"): forest_floor_felled_vs_canopy_mw_p / _differs, at
+#   FOREST_FLOOR_GROUP_TEST_P. report9's sentence then binds to a committed value.
+# 1.8.1  # Hollingham (2026) — 2026-10-02. compare() moved, unchanged, to
 #   utils/hindcast_utils.compare_offset_censored() for Script 50 E9 (D-229); outputs identical.
 # 1.8.0  # Hollingham (2026) — 2026-09-30. T-96 batch 3: emit the smallest and
 #   largest distance to the nearest in_forest well over each of Ranwell's sketch_slack groups
@@ -724,7 +729,8 @@ def forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_s
         felled = can.loc[w, "felled_year"] if w in can.index else np.nan
         prep = str(gp.loc[w, "ground_prep"]) if len(gp) and w in gp.index else ""
         replant = loc.loc[w, "in_1998_replant"] if "in_1998_replant" in loc.columns else np.nan
-        group = ("felled_1995" if felled == 1995 else "clearfell_2017" if felled == 2017
+        # 1.9.0: the felling group is named from the recorded year (data/canopy_history.csv), not a literal
+        group = ("clearfell_2017" if felled == 2017 else f"felled_{int(felled)}" if pd.notna(felled)
                  else "replant_1998" if pd.notna(replant) else "canopy")
         ddm = float(dd.loc[w, "dd_mm"]) if w in dd.index else np.nan
         rows.append(dict(
@@ -768,9 +774,10 @@ def forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_s
 def plot_forest_floor_excess(df: pd.DataFrame, fig_path):
     """Residual after retreat by felling group, wells coloured by cluster, ploughed
     wells open; the modelled canopy drawdown as a line. Caption-free."""
-    order = [g for g in ("canopy", "felled_1995", "replant_1998", "clearfell_2017") if g in set(df["group"])]
-    label = {"canopy": "unfelled canopy", "felled_1995": "clearfelled 1995", "replant_1998": "1998 replant",
-             "clearfell_2017": "clearfell 2017"}
+    felled = sorted(g for g in set(df["group"]) if g.startswith("felled_"))
+    order = [g for g in ["canopy"] + felled + ["replant_1998", "clearfell_2017"] if g in set(df["group"])]
+    label = {"canopy": "unfelled canopy", "replant_1998": "1998 polygon, no felling year",
+             "clearfell_2017": "clearfell 2017", **{g: f"clearfelled {g.split('_')[1]}" for g in felled}}
     fig, ax = plt.subplots(figsize=(8, 4.8))
     rng = np.random.default_rng(config.FOREST_FLOOR_FIG_SEED)
     for gi, g in enumerate(order):
@@ -1235,7 +1242,20 @@ def main() -> int:
     for g, sub_ in ffe.groupby("group"):
         v = sub_["residual_after_retreat_min_m"]
         rn += [(f"forest_floor_residual_median_{g}_m", float(v.median()), "m", f"{g}: median residual after retreat over {len(v)} forest wells"),
+               (f"forest_floor_residual_min_{g}_m", float(v.min()), "m", f"{g}: smallest residual after retreat"),
+               (f"forest_floor_residual_max_{g}_m", float(v.max()), "m", f"{g}: largest residual after retreat"),
                (f"forest_floor_n_{g}", len(v), "count", f"forest wells in the {g} group")]
+    # 1.9.0 (Martin, 2026-10-03: "write an output for does not differ"): the felled wells against the unfelled
+    # canopy, two-sided Mann-Whitney on the residual after retreat; "differs" at FOREST_FLOOR_GROUP_TEST_P
+    from scipy.stats import mannwhitneyu                       # noqa: PLC0415
+    fel = ffe[ffe["group"].str.startswith("felled_")]["residual_after_retreat_min_m"].dropna()
+    can_ = ffe[ffe["group"] == "canopy"]["residual_after_retreat_min_m"].dropna()
+    if len(fel) and len(can_):
+        mw = mannwhitneyu(fel, can_, alternative="two-sided")
+        rn += [("forest_floor_felled_vs_canopy_mw_p", float(mw.pvalue), "p",
+                f"two-sided Mann-Whitney, felled wells (n {len(fel)}) against unfelled canopy (n {len(can_)}), residual after retreat"),
+               ("forest_floor_felled_vs_canopy_differs", float(mw.pvalue < config.FOREST_FLOOR_GROUP_TEST_P), "flag",
+                f"1 if the felled and canopy residuals differ at p < {config.FOREST_FLOOR_GROUP_TEST_P} (0: they do not)")]
     if "climate_change_since_preplant_min_m" in ffe.columns:
         c4 = ffe[ffe["cluster"] == 4]
         rn += [("forest_floor_preplant_window", f"{config.PREPLANT_WINDOW[0]} to {config.PREPLANT_WINDOW[1]}", "-", "the pre-planting window the climate-only hindcast is compared over (config)"),

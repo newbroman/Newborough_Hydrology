@@ -1712,7 +1712,7 @@
 |  | forest_floor_residual_median_C4_m | report9.md |
 |  | forest_floor_residual_median_C5_m | report9.md |
 |  | forest_floor_residual_median_canopy_m | report9.md |
-|  | forest_floor_residual_median_felled_1995_m | report9.md |
+|  | forest_floor_residual_median_felled_1993_m | report9.md |
 |  | forest_floor_residual_min_C4_m | report9.md |
 |  | forest_floor_retreat_since_preplant_modern_m | report9.md |
 |  | forest_floor_retreat_since_preplant_steady_m | report9.md |

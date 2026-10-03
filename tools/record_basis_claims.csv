@@ -49,3 +49,5 @@ RB-50g,MS,S.23f Script 50,fitted to each cluster centroid on the full record,D-2
 RB-50h,MS,S.23f Script 50,refitted to each cluster centroid on the full record with one added term,D-232
 RB-50i,MS,S.23f Script 50,are refitted to each cluster centroid on the full record and judged,D-232
 RB-50j,MS,S.23f Script 50,is fitted to each cluster centroid from 2005 to the end of the gauge record,D-234
+RB-50k,MS,S.23f Script 50,is fitted to every well with at least E8E_MIN_EARLY_MONTHS readings in,D-235
+RB-50l,MS,S.23f Script 50,the single store is fitted with and without one step whose date is profiled monthly over the clearance window,D-236

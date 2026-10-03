@@ -1321,12 +1321,21 @@ that is not water.
 - **Source:** digitised by **Martin Hollingham** (KMZ → KML), 2026-09-06, from his knowledge of the 1998 felling; delineates the older felled-and-replanted blocks whose canopy-closure state W96 measures.
 - **CRS:** WGS84 lon/lat in the KML; reprojected to EPSG:27700 in Script 41.
 - **Read by:** `src/41_canopy_cover.py` v2.3.0 (regions `felling_1998_1/2/3`, kind `observed` — measured, not subtracted from the forest control). W96.
+- **Note, 2026-10-03 (Martin):** the trees around NW9 — `felling_1998_1` — are natural regeneration, not planted. NW9 itself is broadleaf and was never felled, though the polygon takes it in by about 5 m. Column and group names that say "replant" (`in_1998_replant`, Script 44 `replant_1998`) are names, not a record of planting.
 
 ### `felling_1998_1.geojson`, `felling_1998_2.geojson`, `felling_1998_3.geojson`, `broadleaf_restock.geojson` — EPSG:27700 reprojections (W96 / D-141)
 - **What:** committed EPSG:27700 GeoJSON reprojections of the three `felling_1998_{1,2,3}.kml` compartments (above) and of `broadleaf_restock.kml` (the 1993/1995 broadleaf restock block). Each is a `FeatureCollection` with one `Polygon`, structured to match `forest_boundary.geojson` — the outer ring is `features[0].geometry.coordinates[0]` as `[[E, N], ...]`.
 - **Source:** produced from the committed WGS84 KMLs by `tools/reproject_kml_to_osgb_geojson.py` (`gpd.read_file(kml).to_crs("EPSG:27700")`), 2026-09-06. Reprojected once and committed so the pipeline reads them with pure numpy and no CRS/GIS dependency — the same dependency-free pattern as `forest_boundary.geojson` and `coastline_eroding_hwm.geojson`.
 - **CRS:** EPSG:27700, declared in each file's `crs` member.
 - **Read by:** `src/01_data_prep.py` v1.15.0 `_replant_proximity()` (the `in_1998_replant` / `dist_1998_replant_m` / `dist_broadleaf_restock_m` columns of `01_locations.csv`) and `src/10a_ancova_baci.py` v1.12.0 (the exposure index of `10a_11_replant_proximity.csv`). W96 / D-141 canopy-confound sensitivity.
+
+### `forest shore clearance April 2015.kml`
+- **What:** a strip of pine cleared along the foreshore south-west of the 2017 clearfell, one polygon, 5.57 ha, about 540 m long and 100 m wide; 280 m from the clearfell at its nearest.
+- **Source:** digitised by **Martin Hollingham** (Google Earth Pro), supplied 2026-10-03, dated by him "April 2015, the same date as the CEH36 scraping".
+- **Dated from imagery (2026-10-03):** Landsat 7/8 bracket the clearance between **29 October 2014 and 21 March 2015**. A partial scene on 24 January 2015 suggests most of it was done by then. Sentinel-2 starts in July 2015 and shows the strip already bare. Findings: `working/updates/clearance2015/FINDINGS.md`.
+- **Wells within 250 m:** CEH3, CEH35, CEH19 and CEH17 (the two clearfell coastal controls), CEH4 (the CEH36 scrape-pair control), CEH38, NW9, CEH36, CEH31 and CEH16 (clearfell edge wells), FE3.
+- **CRS:** WGS84 lon/lat.
+- **Read by:** `src/50_record_length.py` 1.7.0 E8f (D-236), via `paths.DATA_SHORE_CLEARANCE_2015` and `utils/kml_io.read_kml`.
 
 ### `clearfell.geojson` — EPSG:27700 reprojection of the 2017 clearfell (added 2026-09-30)
 - **What:** the `clearfell.kml` compartment as a committed EPSG:27700 `FeatureCollection` with one `Polygon`, the same structure as the four reprojections above (outer ring at `features[0].geometry.coordinates[0]`, 23 vertices).

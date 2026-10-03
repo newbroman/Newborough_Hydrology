@@ -200,10 +200,14 @@ forest_floor_residual_median_felled_1993_m,0.5988917939020966,m,felled_1993: med
 forest_floor_residual_min_felled_1993_m,-0.5324233845340647,m,felled_1993: smallest residual after retreat
 forest_floor_residual_max_felled_1993_m,0.7922826702357996,m,felled_1993: largest residual after retreat
 forest_floor_n_felled_1993,4,count,forest wells in the felled_1993 group
-forest_floor_residual_median_replant_1998_m,0.18110237596134926,m,replant_1998: median residual after retreat over 3 forest wells
-forest_floor_residual_min_replant_1998_m,-0.8380357556924602,m,replant_1998: smallest residual after retreat
+forest_floor_residual_median_open_1989_m,-0.8380357556924602,m,open_1989: median residual after retreat over 1 forest wells
+forest_floor_residual_min_open_1989_m,-0.8380357556924602,m,open_1989: smallest residual after retreat
+forest_floor_residual_max_open_1989_m,-0.8380357556924602,m,open_1989: largest residual after retreat
+forest_floor_n_open_1989,1,count,forest wells in the open_1989 group
+forest_floor_residual_median_replant_1998_m,0.7368011879806747,m,replant_1998: median residual after retreat over 2 forest wells
+forest_floor_residual_min_replant_1998_m,0.18110237596134926,m,replant_1998: smallest residual after retreat
 forest_floor_residual_max_replant_1998_m,1.2925000000000002,m,replant_1998: largest residual after retreat
-forest_floor_n_replant_1998,3,count,forest wells in the replant_1998 group
+forest_floor_n_replant_1998,2,count,forest wells in the replant_1998 group
 forest_floor_felled_vs_canopy_mw_p,0.3676767676767677,p,"two-sided Mann-Whitney, felled wells (n 4) against unfelled canopy (n 8), residual after retreat"
 forest_floor_felled_vs_canopy_differs,0.0,flag,1 if the felled and canopy residuals differ at p < 0.05 (0: they do not)
 forest_floor_preplant_window,1953-01 to 1960-12,-,the pre-planting window the climate-only hindcast is compared over (config)

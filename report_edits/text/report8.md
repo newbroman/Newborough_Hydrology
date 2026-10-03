@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=86b8a6a3ba9eada3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=7cce5c268e7bf2d5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -386,7 +386,7 @@ $${\Delta_{\text{drift},t} = C_{\text{local},t}}-C_{\text{region},t}$$
 
 ### []{#anchor-19}Dune Scraping Intervention Analysis
 
-A two-tier hierarchical BACI framework was applied across five focal wells. Three wells served as scraping treatment sites --- CEH36 (central Warren, scraped April 2015), CEH18 (western boundary, scraped October 2023) and CEH21 (coastal margin, scraped October 2023) --- and two as local controls: CEH4 (central Warren, unmanipulated) and CEH22 (coastal margin, unmanipulated). A regional mean was computed as the arithmetic mean of five C3 climate control wells (CEH9, NW7, NW6, NW5, WMC2) to characterize background system-wide trends. NW8 and NW8B were excluded on the grounds of data quality.
+A two-tier hierarchical BACI framework was applied across five focal wells. Three wells served as scraping treatment sites --- CEH36 (central Warren, scraped April 2015), CEH18 (western boundary, scraped October 2023) and CEH21 (coastal margin, scraped October 2023) --- and two as local controls: CEH4 (central Warren, unmanipulated) and CEH22 (coastal margin, unmanipulated). A strip of foreshore pine about 120 m from CEH4 and 200 m from CEH36 was cleared in the same winter (between October 2014 and March 2015, dated from Landsat), so the scrape comparison carries that clearance as a confound. A regional mean was computed as the arithmetic mean of five C3 climate control wells (CEH9, NW7, NW6, NW5, WMC2) to characterize background system-wide trends. NW8 and NW8B were excluded on the grounds of data quality.
 
 The scraping programme extended beyond these three monitored sites. Two further slacks in the western dunes (Scrape A and Scrape B) were scraped in the same 2015 campaign as CEH36 but carry no monitoring dipwells, and three sites in the eastern dunes (CEH40, CEH41 and CEH42) were scraped earlier, in February 2013, with their dipwells first recording in July 2014 --- seventeen months after the works. None of these five provides a pre-scraping baseline, so the intervention analysis is necessarily restricted to CEH36, CEH18 and CEH21, the sites at which a before-and-after comparison is possible. The unmonitored and late-instrumented scrapes are represented in the combined spatial driver reconstruction (Section 3.8.1) but cannot be evaluated for benefit; where that reconstruction requires a per-scrape response for them, the measured CEH36 response is assumed, and this assumption is stated in the relevant figure captions.
 

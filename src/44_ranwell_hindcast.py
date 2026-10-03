@@ -102,7 +102,10 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-03. The felling group is named from the recorded
+__version__ = "1.9.1"  # Hollingham (2026) — 2026-10-03. A well recorded as open in 1989 in
+#   data/canopy_history.csv is kept out of the felling groups (group open_1989) even where a felling outline takes
+#   it in: NW9, broadleaf and never felled, sits about 5 m inside felling_1998_1 (Martin: "NW9 exclude from group").
+# 1.9.0  # Hollingham (2026) — 2026-10-03. The felling group is named from the recorded
 #   year in data/canopy_history.csv (felled 1993, replanted 1998 — Martin, 2026-10-03; it was a literal
 #   "felled_1995"), and the forest-floor groups gain their ranges and a test of "does not differ" (Martin:
 #   "write an output for does not differ"): forest_floor_felled_vs_canopy_mw_p / _differs, at
@@ -730,8 +733,11 @@ def forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_s
         prep = str(gp.loc[w, "ground_prep"]) if len(gp) and w in gp.index else ""
         replant = loc.loc[w, "in_1998_replant"] if "in_1998_replant" in loc.columns else np.nan
         # 1.9.0: the felling group is named from the recorded year (data/canopy_history.csv), not a literal
+        # 1.9.1: a well recorded as open in 1989 and never felled (NW9, broadleaf on the edge of the 1993 felling) is
+        # kept out of the felling groups even where a felling outline takes it in (Martin, 2026-10-03)
+        open89 = w in can.index and str(can.loc[w, "canopy_1989"]).strip().lower() == "open"
         group = ("clearfell_2017" if felled == 2017 else f"felled_{int(felled)}" if pd.notna(felled)
-                 else "replant_1998" if pd.notna(replant) else "canopy")
+                 else "open_1989" if open89 else "replant_1998" if pd.notna(replant) else "canopy")
         ddm = float(dd.loc[w, "dd_mm"]) if w in dd.index else np.nan
         rows.append(dict(
             well=w, cluster=int(r["cluster"]) if pd.notna(r["cluster"]) else pd.NA, group=group,
@@ -775,9 +781,10 @@ def plot_forest_floor_excess(df: pd.DataFrame, fig_path):
     """Residual after retreat by felling group, wells coloured by cluster, ploughed
     wells open; the modelled canopy drawdown as a line. Caption-free."""
     felled = sorted(g for g in set(df["group"]) if g.startswith("felled_"))
-    order = [g for g in ["canopy"] + felled + ["replant_1998", "clearfell_2017"] if g in set(df["group"])]
-    label = {"canopy": "unfelled canopy", "replant_1998": "1998 polygon, no felling year",
-             "clearfell_2017": "clearfell 2017", **{g: f"clearfelled {g.split('_')[1]}" for g in felled}}
+    order = [g for g in ["canopy"] + felled + ["replant_1998", "clearfell_2017", "open_1989"] if g in set(df["group"])]
+    label = {"canopy": "unfelled\ncanopy", "replant_1998": "1998 outline,\nno felling year",
+             "open_1989": "open in 1989,\nnever felled",
+             "clearfell_2017": "clearfell\n2017", **{g: f"clearfelled\n{g.split('_')[1]}" for g in felled}}
     fig, ax = plt.subplots(figsize=(8, 4.8))
     rng = np.random.default_rng(config.FOREST_FLOOR_FIG_SEED)
     for gi, g in enumerate(order):

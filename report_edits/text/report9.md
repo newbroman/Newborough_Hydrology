@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=91ed79839833fe1d pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=d8206f9ec85d498e pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -464,7 +464,7 @@ The annual summer minimum depth (June--September) --- the ecologically critical 
 
 **Directly-fitted Jun--Sep ANCOVA.** A directly-fitted summer-window ANCOVA was run on the same five-tier specification as the annual analysis (Section 3.5), restricted to June--September observations (n = 50 months). Against the Forest control, the Jun--Sep clearfell step at the Impact tier was −1 mm (95% CI \[−118, +116\], p = 0.99), with R² = 0.34. A sensitivity variant dropping the CWB covariate and the CWB × clearfell interaction from the design matrix produced an estimate of +91 mm (95% CI \[−35, +218\], p = 0.16), with R² = 0.07. The contrast between the full-specification and CWB-dropped estimates is discussed in Section 5.
 
-**Distributional comparison.** Figure 34 shows the distribution of summer minima across the five BACI tiers across three phases: pre-scraping baseline (2007 to April 2015), the 2015--17 era, and post-felling 2018 onwards. The Forest Control group shows stable summer minima throughout. The Impact and Edge tiers track the Forest Control trajectory across the three phases. The Coastal Control tier (CEH19, CEH17) shows progressive deepening across all three phases.
+**Distributional comparison.** Figure 34 shows the distribution of summer minima across the five BACI tiers across three phases: pre-scraping baseline (2007 to April 2015), the 2015--17 era, and post-felling 2018 onwards. The Forest Control group shows stable summer minima throughout. The Impact and Edge tiers track the Forest Control trajectory across the three phases. The Coastal Control tier (CEH19, CEH17) shows progressive deepening across all three phases. The two coastal controls stand 120--180 m from a strip of foreshore pine cleared between October 2014 and March 2015, inside the before period, and the comparison carries that clearance as a confound.
 
 **Four-zone pooled-panel cross-check (summer minimum).** Whereas the directly-fitted Jun--Sep ANCOVA above estimates the felling step from monthly observations in the Jun--Sep window as a differenced centroid, the four-zone pooled-panel model (Section 3.5.4) estimates every zone contrast from a single joint fit on the annual summer-minimum series (Script 10l) --- the annual deepest point rather than the summer-window mean. The three primary zone-versus-Forest contrasts were Impact−Forest −7 mm (95% CI \[−23, +8\], p = 0.36), Edge−Forest −29 mm (p = 0.16) and C3/Warren−Forest +12 mm (p = 0.26); joint model R² = 0.724, N = 181 well-years. No zone contrast resolves a significant differential felling response at the summer minimum.
 

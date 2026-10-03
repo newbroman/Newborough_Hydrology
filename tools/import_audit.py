@@ -48,20 +48,46 @@ WHAT THE VERDICTS MEAN
   OK        imports cleanly and writes nothing.
   WRITES    imports, but touches the filesystem while doing it. Each path is
             listed. This is a defect unless the module is deliberately a script.
+            Only writes that land INSIDE THE REPOSITORY count: see below.
   FAILED    does not import here. Read it with `env_audit` beside you: a
             ModuleNotFoundError for a third-party package is usually a statement
             about THIS machine, and is reported separately as MISSING-DEP for
             exactly that reason. A SyntaxError never is.
+
+WRITES THAT ARE A STATEMENT ABOUT THE MACHINE, NOT THE PROJECT
+
+  A write outside the repository tree is almost always a library warming its own
+  cache in the user's temp directory, and it says nothing about this code. On a
+  cold machine matplotlib builds its font list on first use, in a per-process
+  `$TMPDIR/matplotlib-*` when MPLCONFIGDIR is unset — so EVERY module appeared to
+  write, the count read 111 of 111, and a line that fires for everything can no
+  longer single anything out. That is the same category error MISSING-DEP already
+  guards against, so it is handled the same way:
+
+    * the sweep pre-warms ONE matplotlib cache directory and hands it to every
+      subprocess, so the font build happens once, before the tripwire is armed;
+    * any write that still lands outside the repo is reported separately, in a
+      line that names it as environment noise, and does NOT set the exit status.
+
+  Nothing is hidden: --all-writes lists the outside-repo paths in full.
 
 Usage:
     python3 tools/import_audit.py                # every module under src/
     python3 tools/import_audit.py utils          # only src/utils
     python3 tools/import_audit.py --quiet        # one verdict line (check_all)
     python3 tools/import_audit.py --strict       # non-zero on WRITES or FAILED
+    python3 tools/import_audit.py --all-writes   # also list outside-repo writes
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-03. --static: the
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-03. WRITES counts only
+#   writes that land inside the repository. A cold machine with MPLCONFIGDIR
+#   unset made matplotlib rebuild its font cache under the tripwire once per
+#   subprocess, so all 111 modules reported WRITES and the signal was dead:
+#   the sweep now pre-warms one cache dir and passes it down, and any remaining
+#   outside-repo write is reported as environment noise, like MISSING-DEP.
+#   --all-writes restores the full list. Daily cloud integrity check 2026-10-03.
+# v1.1.0  # Hollingham (2026) — 2026-09-03. --static: the
 #   source-only half of the audit, in milliseconds instead of minutes, so it
 #   can be a standing check. Covers src/utils/ as well as the flat scripts,
 #   which the guard grep could not — mask_streams_to_land.py was a script
@@ -70,8 +96,11 @@ __version__ = "1.1.0"  # Hollingham (2026) — 2026-09-03. --static: the
 
 import argparse
 import json
+import os
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -195,10 +224,53 @@ print("@@AUDIT@@" + json.dumps({"verdict": verdict, "detail": detail,
 '''
 
 
-def audit_one(modname: str) -> dict:
+# --- the environment each subprocess gets -----------------------------------
+# One warm matplotlib cache for the whole sweep, built OUTSIDE the tripwire and
+# OUTSIDE the repository. Without this every subprocess gets its own
+# $TMPDIR/matplotlib-* and rebuilds the font list under the hooks, which is how
+# the WRITES count came to read 111 of 111 and mean nothing.
+
+def warm_env() -> tuple[dict, str | None]:
+    """Return (env for the harness, temp dir to remove afterwards)."""
+    env = dict(os.environ)
+    if env.get("MPLCONFIGDIR"):
+        cache, scratch = env["MPLCONFIGDIR"], None
+    else:
+        cache = tempfile.mkdtemp(prefix="import_audit-mpl-")
+        scratch = cache
+        env["MPLCONFIGDIR"] = cache
+    try:
+        subprocess.run(
+            [sys.executable, "-c",
+             "import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot"],
+            capture_output=True, timeout=180, env=env, cwd=str(REPO))
+    except Exception:
+        pass            # matplotlib absent or slow: the audit still runs, the
+    return env, scratch  # font build just shows up as outside-repo noise.
+
+
+def in_repo(entry: str) -> bool:
+    """Does this recorded write land inside the repository tree?
+
+    Entries read '<kind> <target>'. The harness runs with cwd=REPO, so a
+    relative target is a repo path. '<buffer>' and '?' are not paths at all and
+    are treated as in-repo: unattributable, so not quietly discounted.
+    """
+    target = entry.split(" ", 1)[1].strip() if " " in entry else ""
+    if not target or target.startswith("<") or target == "?":
+        return True
+    try:
+        p = Path(target)
+        p = (REPO / p) if not p.is_absolute() else p
+        return REPO in p.resolve().parents or p.resolve() == REPO
+    except Exception:
+        return True
+
+
+def audit_one(modname: str, env: dict | None = None) -> dict:
     r = subprocess.run([sys.executable, "-c", HARNESS, str(SRC), modname],
                        capture_output=True, text=True, timeout=120,
-                       cwd=str(REPO))
+                       cwd=str(REPO), env=env)
     for line in (r.stdout or "").splitlines():
         if line.startswith("@@AUDIT@@"):
             return json.loads(line[len("@@AUDIT@@"):])
@@ -298,19 +370,32 @@ def main() -> int:
     ap.add_argument("--static", action="store_true",
                     help="fast source-only scan: which modules run work on "
                          "import with no __main__ guard (task_register T-18)")
+    ap.add_argument("--all-writes", action="store_true",
+                    help="also list the writes that land outside the repo "
+                         "(library caches — environment noise, not a defect)")
     a = ap.parse_args()
 
     if a.static:
         return 1 if (static_scan(a.quiet) and a.strict) else 0
 
-    writes, failed, syntax, missing, ok = {}, {}, {}, {}, 0
+    writes, outside, failed, syntax, missing, ok = {}, {}, {}, {}, {}, 0
     names = modules(a.only)
-    for name in names:
-        res = audit_one(name)
+    env, scratch = warm_env()
+    try:
+        results = [(n, audit_one(n, env)) for n in names]
+    finally:
+        if scratch:
+            shutil.rmtree(scratch, ignore_errors=True)
+
+    for name, res in results:
         v = res["verdict"]
-        if res["writes"]:
-            writes[name] = res["writes"]
-        if v == "OK" and not res["writes"]:
+        here = [w for w in res["writes"] if in_repo(w)]
+        there = [w for w in res["writes"] if not in_repo(w)]
+        if here:
+            writes[name] = here
+        if there:
+            outside[name] = there
+        if v == "OK" and not here:
             ok += 1
         elif v == "SYNTAX":
             syntax[name] = res["detail"]
@@ -340,6 +425,20 @@ def main() -> int:
               "would all do it")
         print("  without meaning to. Move the write behind an explicit call.")
 
+    if outside:
+        print(_c(f"  CACHE-WRITE — {len(outside)} module(s) wrote only OUTSIDE "
+                 f"the repository while importing", C_DIM))
+        print("  (library caches in the temp directory — a statement about "
+              "this machine, not a defect;")
+        print("   re-run with --all-writes to see the paths)")
+        if a.all_writes:
+            for k, v in outside.items():
+                print(f"      {k}")
+                for w in v[:8]:
+                    print(f"          {w}")
+                if len(v) > 8:
+                    print(f"          … and {len(v) - 8} more")
+
     if failed:
         print(_c(f"  FAILED — {len(failed)} module(s) raised on import:", C_RED))
         for k, v in failed.items():
@@ -357,8 +456,10 @@ def main() -> int:
 
     bad = bool(syntax or writes or failed)
     verdict = (f"  import_audit: {len(names)} module(s) — {ok} clean, "
-               f"{len(writes)} write on import, {len(syntax)} unparseable, "
-               f"{len(failed)} raise, {len(missing)} missing a dependency here")
+               f"{len(writes)} write to the repo on import, "
+               f"{len(syntax)} unparseable, "
+               f"{len(failed)} raise, {len(missing)} missing a dependency here"
+               + (f", {len(outside)} cache-write only" if outside else ""))
     print(_c(verdict, C_RED if bad else C_GRN))
     return 1 if (bad and a.strict) else 0
 

@@ -81,3 +81,10 @@ partition_drainage_flux_m_month_at_datum,C5 (Coastal Forest),datum 3.7 m,0.11477
 partition_drainage_share_pct_at_max_datum,C5 (Coastal Forest),datum 8 m,67.6406211877715,%,"drainage share of losses (drainage / (drainage + atmospheric draw)), centroid, Model A at 8 m; admissible range 1.6-8 m (03_12, 03_18)"
 partition_drainage_flux_m_month_at_max_datum,C5 (Coastal Forest),datum 8 m,0.1286140021315895,m/month,"mean drainage flux beta_3 * mean h_disp_prev, centroid, Model A at 8 m (03_12)"
 partition_drainage_flux_ratio_datum_to_deepest,C5 (Coastal Forest),3.7 m / 8 m,0.8924003209906879,ratio,drainage flux at DRAINAGE_DATUM as a fraction of its value at the deepest swept datum (03_12)
+datum_aod_optimum_m,,,2.5,m AOD,"the common elevation datum maximizing the median per-well R2, Model A, full record (grid -2 to 8 m AOD in 0.25 m; D-163 route 4; 03_20)"
+datum_aod_r2_median_at_optimum,,,0.735598807901657,-,median per-well R2 at that elevation datum (03_20)
+datum_aod_r2_median_depth_datum,,,0.738629427088582,-,"median per-well R2 at the depth datum DRAINAGE_DATUM = 3.7 m, same wells (03_20)"
+datum_aod_worse_than_depth_everywhere,,,1.0,flag,1 if the elevation datum fits worse (median R2) than the depth datum at every z0 of the grid
+datum_aod_n_wells,,,79.0,count,"wells fitted (full record, lake gauge excluded)"
+datum_aod_nonpos_beta3_at_check,,,18.0,count,wells with beta_3 <= 0 at z0 = 6 m AOD (DATUM_AOD_NONPOS_CHECK_M)
+datum_aod_nonpos_beta3_depth_datum,,,1.0,count,wells with beta_3 <= 0 at the depth datum

@@ -29,7 +29,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-10-01 (D-220). The temporary pandoc input is in.txt
+__version__ = "1.0.2"  # Hollingham (2026) — 2026-10-03 (T-105). Alias 50 for Script 50's report numbers (Paper M v1_2 §6).
+# 1.0.1  # Hollingham (2026) — 2026-10-01 (D-220). The temporary pandoc input is in.txt
 #   (read as markdown), so docref_lint does not take it for a cited document.
 # 1.0.0  # 2026-10-01 (D-219). First issue, for Paper M.
 
@@ -59,6 +60,7 @@ ALIASES = {
     "12": "outputs/12_figure_site_overview/12_report_numbers.csv",
     "26": "outputs/26_van_willegen_msl/26_report_numbers.csv",
     "48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
+    "50": "outputs/50_record_length/50_report_numbers.csv",
 }
 TOKEN = re.compile(r"⟪([^|⟫]+)\|([^|⟫]+)\|([^⟫]+)⟫")
 MARK = "ZQF{:04d}QZ"

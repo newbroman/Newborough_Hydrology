@@ -577,7 +577,7 @@ TABLES = [
         # summer less winter is ET, and their ratio is the fraction.
         "header": ["Cluster", "Winter decline (mm/month)", "Summer decline (mm/month)",
                    "ET = summer \u2212 winter (mm/month)", "n months (winter/summer)",
-                   "Drainage fraction (recession)", "Drainage fraction (SSM)"],
+                   "Drainage fraction (recession)", "Drainage fraction (SSM; admissible datum range)"],
         "columns": [
             {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
             # declines are negative in the CSV; tabulated as positive magnitudes
@@ -587,7 +587,10 @@ TABLES = [
             {"col": "ET_mm_month", "fmt": "fixed", "dp": 1},
             {"fmt": "template", "template": "{N_winter:.0f} / {N_summer:.0f}"},
             {"col": "Rec_drain_frac", "fmt": "fixed", "dp": 2},
-            {"col": "SSM_drain_frac", "fmt": "fixed", "dp": 2},
+            # 2026-10-03 (T-101, Martin: the table carries the admissible datum range): the SSM fraction at
+            # DRAINAGE_DATUM, with its value at the shallowest and deepest admissible datum (Script 16 1.8.0,
+            # from Script 03's partition rows) in brackets
+            {"fmt": "template", "template": "{SSM_drain_frac:.2f} ({SSM_drain_frac_min_datum:.2f}\u2013{SSM_drain_frac_max_datum:.2f})"},
         ],
     },
     {

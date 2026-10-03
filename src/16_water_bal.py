@@ -79,7 +79,12 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-09-30. Each cluster's own forcing in the
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-03. T-101 (Martin: Table 6 and Figure 11b carry the
+#   admissible datum range): the recession table gains the SSM drainage fraction at the shallowest and
+#   deepest admissible datum (Script 03 partition_drainage_share_pct_at_min_datum / _at_max_datum) and
+#   those datums; Figure 11b draws that range as a bracket at each loss bar, separate from the hatched
+#   SSM-recession band, which is unchanged, as is Table 7's mid-point.
+# 1.7.0  # Hollingham (2026) - 2026-09-30. Each cluster's own forcing in the
 #   volumetric balance (Martin 2026-09-30, option a): Table 7 (16_water_bal_vol_table.csv) and
 #   Figure 11b panel (b) used C1's P and PET ("same for all") for every cluster, although each
 #   cluster's partition is computed over its own fitted months, so C2/C3/C5 carried a rainfall
@@ -150,7 +155,7 @@ import matplotlib.patches as mpatches
 from utils.paths import (
     make_all_dirs, INT_REGIONAL_AVG, OUT_16_TABLE, OUT_16_VOL_TABLE,
     OUT_16_REC_TABLE, OUT_16_REPORT_NUMBERS,
-    OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE,
+    OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE, OUT_03_REPORT_NUMBERS,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
@@ -452,7 +457,30 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
     saved(f"{path.name}")
 
 
-def save_recession_table(summary, recession, path):
+def load_datum_range() -> dict:
+    """1.8.0 (T-101, Martin 2026-10-03: Table 6 and Figure 11b carry the admissible datum range): the SSM
+    drainage share at the shallowest and deepest admissible datum, per cluster, as Script 03 emits it
+    (partition_drainage_share_pct_at_min_datum / _at_max_datum). {cid: (frac_min, frac_max, datum_min, datum_max)};
+    empty if Script 03's report numbers are absent, and the table and figure then carry no range."""
+    out = {}
+    if not OUT_03_REPORT_NUMBERS.exists():
+        return out
+    rn = pd.read_csv(OUT_03_REPORT_NUMBERS)
+    for cid, lab in _CFG_LABELS.items():
+        def _get(k):
+            r = rn[(rn["Parameter"] == k) & (rn["Well"] == lab)]
+            if r.empty:
+                return np.nan, np.nan
+            d = pd.to_numeric(str(r["Era"].iloc[0]).replace("datum", "").replace("m", "").strip(), errors="coerce")
+            return float(r["Value"].iloc[0]) / 100.0, float(d)
+        lo, dlo = _get("partition_drainage_share_pct_at_min_datum")
+        hi, dhi = _get("partition_drainage_share_pct_at_max_datum")
+        if np.isfinite(lo) and np.isfinite(hi):
+            out[cid] = (lo, hi, dlo, dhi)
+    return out
+
+
+def save_recession_table(summary, recession, path, datum_range=None):
     """Save Table 1.4c: the seasonal-recession partition, method by method.
 
     The ET/drainage split quoted in Table 1.4b is the midpoint of two
@@ -470,6 +498,7 @@ def save_recession_table(summary, recession, path):
     falling months behind each mean, not events — the estimator is a ratio of
     two seasonal means, not a per-event distribution.
     """
+    datum_range = datum_range or {}
     rows = []
     for cid in sorted(summary.keys()):
         s = summary[cid]
@@ -497,6 +526,11 @@ def save_recession_table(summary, recession, path):
                                   else ssm_drain,
             "Spread_pp":          abs(ssm_drain - rec_drain) * 100 if pd.notna(rec_drain)
                                   else np.nan,
+            # 1.8.0 (T-101): the SSM fraction across the admissible datum range (Script 03)
+            "SSM_drain_frac_min_datum": datum_range.get(cid, (np.nan,) * 4)[0],
+            "SSM_drain_frac_max_datum": datum_range.get(cid, (np.nan,) * 4)[1],
+            "Datum_min_m":        datum_range.get(cid, (np.nan,) * 4)[2],
+            "Datum_max_m":        datum_range.get(cid, (np.nan,) * 4)[3],
         })
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.4f")
     saved(f"{path.name}")
@@ -506,7 +540,7 @@ def save_recession_table(summary, recession, path):
 # FIGURE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def make_figure(summary, recession, site_P_m, site_PET_m, ms=True):
+def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None):
     """Two-panel Figure 8.
 
     Panel (a): Head-space SSM decomposition — recharge vs ET + drainage.
@@ -658,6 +692,16 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True):
             )
             ax2.add_patch(rect)
 
+        # 1.8.0 (T-101): the SSM ET/drainage boundary across the admissible datum range, as a bracket at
+        # the loss bar's right edge (separate from the hatched SSM-recession band, which it does not widen)
+        if datum_range and cid in datum_range:
+            f_lo, f_hi = datum_range[cid][0], datum_range[cid][1]
+            y_a, y_b = P_net * (1 - f_hi), P_net * (1 - f_lo)
+            xb = x_l + width_loss / 2 + 0.03
+            ax2.plot([xb, xb], [y_a, y_b], color="black", lw=1.1, zorder=6)
+            ax2.plot([xb - 0.02, xb + 0.02], [y_a, y_a], color="black", lw=1.1, zorder=6)
+            ax2.plot([xb - 0.02, xb + 0.02], [y_b, y_b], color="black", lw=1.1, zorder=6)
+
         # Value labels
         et_label_y = et_lo / 2 if et_lo > 100 else et_mid / 2
         if et_mid > 120:
@@ -707,6 +751,11 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True):
               label='Partition uncertainty\n(SSM–recession range)',
               hatch='\\\\\\', alpha=0.45, linewidth=0.8),
     ]
+    if datum_range:
+        from matplotlib.lines import Line2D
+        d0 = min(v[2] for v in datum_range.values()); d1 = max(v[3] for v in datum_range.values())
+        legend_elements.append(Line2D([0], [0], color="black", lw=1.1,
+                                      label=f"SSM boundary across the\nadmissible datum ({d0:g}–{d1:g} m)"))
     ax2.legend(handles=legend_elements, loc='center right', fontsize=8.5,
                framealpha=0.9)
 
@@ -812,17 +861,18 @@ def main():
 
     site_P_m, site_PET_m = site_climate_means(df)
     save_volumetric_table(summary, recession, OUT_16_VOL_TABLE, site_P_m, site_PET_m)
-    save_recession_table(summary, recession, OUT_16_REC_TABLE)
+    datum_range = load_datum_range()
+    save_recession_table(summary, recession, OUT_16_REC_TABLE, datum_range)
 
     # ── Figure 8 ──
     # Manuscript version
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=datum_range)
     fig.savefig(OUT_16_BAR_MS, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close(fig)
     saved(f"{OUT_16_BAR_MS.name}")
 
     # Lay version
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False, datum_range=datum_range)
     fig.savefig(OUT_16_BAR_LAY, dpi=150, bbox_inches='tight')
     plt.close(fig)
     saved(f"{OUT_16_BAR_LAY.name}")

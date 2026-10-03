@@ -24,6 +24,10 @@ C5_Coastal_Forest_aic_optimal_datum_m_dp1,outputs/03_state_space_model/03_18_dat
 C5_Coastal_Forest_comparison_window_beta_3_pct_vs_full_record_dp0_plus,outputs/03_state_space_model/03_14_centroid_window_sensitivity.csv,C5 (Coastal Forest) / comparison_window · beta_3_pct_vs_full_record,1,,0,1,−,,born a field in PaperM
 C5_Coastal_Forest_delta_AIC_datum_vs_optimum_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C5 (Coastal Forest) · delta_AIC_datum_vs_optimum,1,,1,,−,,born a field in PaperM
 C5_Coastal_Forest_model_b_zero_drainage_level_m_dp2,outputs/03_state_space_model/03_18_datum_invariance.csv,C5 (Coastal Forest) · model_b_zero_drainage_level_m,1,,2,,−,,born a field in PaperM
+DATUM_AOD_NONPOS_CHECK_M_dp0,src/utils/config.py,DATUM_AOD_NONPOS_CHECK_M,1,,0,,−,,born a field in PaperM
+DATUM_AOD_SWEEP_MAX_M_dp0,src/utils/config.py,DATUM_AOD_SWEEP_MAX_M,1,,0,,−,,born a field in PaperM
+DATUM_AOD_SWEEP_MIN_M_dp0,src/utils/config.py,DATUM_AOD_SWEEP_MIN_M,1,,0,,−,,born a field in PaperM
+DATUM_AOD_SWEEP_STEP_M_dp2,src/utils/config.py,DATUM_AOD_SWEEP_STEP_M,1,,2,,−,,born a field in PaperM
 DATUM_RAW_DEPTH_M_dp0,src/utils/config.py,DATUM_RAW_DEPTH_M,1,,0,,−,,born a field in PaperM
 DATUM_SWEEP_MAX_M_dp0,src/utils/config.py,DATUM_SWEEP_MAX_M,1,,0,,−,,born a field in PaperM
 DATUM_SWEEP_MAX_M_dp1,src/utils/config.py,DATUM_SWEEP_MAX_M,1,,1,,−,,born a field in PaperM
@@ -44,10 +48,28 @@ Pre_scraping_baseline_years_CEH18_pre_2015_scrape_dp1,outputs/09_scraping_interv
 Pre_scraping_baseline_years_CEH21_pre_2015_scrape_dp1,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,Pre_scraping_baseline_years · CEH21 · pre_2015_scrape,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 Pre_scraping_baseline_years_CEH36_pre_2015_scrape_dp1,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,Pre_scraping_baseline_years · CEH36 · pre_2015_scrape,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 Pre_scraping_baseline_years_CEH4_pre_2015_scrape_dp1,outputs/09_scraping_intervention/09_scrape_report_numbers.csv,Pre_scraping_baseline_years · CEH4 · pre_2015_scrape,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
+RECLEN_DATUM_NSE_TOL_dp2,src/utils/config.py,RECLEN_DATUM_NSE_TOL,1,,2,,−,,born a field in PaperM
+RECLEN_MIN_FIT_MONTHS_dp0,src/utils/config.py,RECLEN_MIN_FIT_MONTHS,1,,0,,−,,born a field in PaperM
+RECLEN_STABLE_TOL_x100_dp0,src/utils/config.py,RECLEN_STABLE_TOL,100,,0,,−,,born a field in PaperM
 all_clusters_all_beta3_pos_sig_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,all clusters · all_beta3_pos_sig_from_m,1,,1,,−,,born a field in PaperM
 all_clusters_beta3_order_invariant_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,all clusters · beta3_order_invariant_from_m,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 all_clusters_flux_order_invariant_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,all clusters · flux_order_invariant_from_m,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 datum0_n_clusters_beta3_negative_dp0,outputs/03_state_space_model/03_report_numbers.csv,datum0_n_clusters_beta3_negative,1,,0,,−,,born a field in PaperM
+datum_aod_n_wells_dp0,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_n_wells,1,,0,,−,,born a field in PaperM
+datum_aod_nonpos_beta3_at_check_dp0,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_nonpos_beta3_at_check,1,,0,,−,,born a field in PaperM
+datum_aod_nonpos_beta3_depth_datum_dp0,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_nonpos_beta3_depth_datum,1,,0,,−,,born a field in PaperM
+datum_aod_optimum_m_dp1,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_optimum_m,1,,1,,−,,born a field in PaperM
+datum_aod_r2_median_at_optimum_dp3,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_r2_median_at_optimum,1,,3,,−,,born a field in PaperM
+datum_aod_r2_median_depth_datum_dp3,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_r2_median_depth_datum,1,,3,,−,,born a field in PaperM
+datum_ccw_band_max_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ccw_band_max_m,1,,1,,−,,born a field in PaperM
+datum_ccw_band_min_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ccw_band_min_m,1,,1,,−,,born a field in PaperM
+datum_ccw_best_abs_bias_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ccw_best_abs_bias_m,1,,1,,−,,born a field in PaperM
+datum_ccw_nse_median_at_D2_9_dp2,outputs/50_record_length/50_report_numbers.csv,datum_ccw_nse_median_at_D2.9,1,,2,,−,,born a field in PaperM
+datum_ccw_nse_median_at_D3_7_dp2,outputs/50_record_length/50_report_numbers.csv,datum_ccw_nse_median_at_D3.7,1,,2,,−,,born a field in PaperM
+datum_ccw_supported_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ccw_supported_m,1,,1,,−,,born a field in PaperM
+datum_ranwell_band_max_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ranwell_band_max_m,1,,1,,−,,born a field in PaperM
+datum_ranwell_band_min_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ranwell_band_min_m,1,,1,,−,,born a field in PaperM
+datum_ranwell_supported_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ranwell_supported_m,1,,1,,−,,born a field in PaperM
 forest_free_beta_1_recharge_n_dp0,outputs/07_spatial_coefficients/07_05_clusters_vs_covariates.csv,forest_free / beta_1_recharge · n,1,,0,,−,,converted from citation_index (report_edits/text/report8.md)
 forest_in_view_2018_06_28_aerial28_6_2018_png_index_dp3,outputs/41_canopy_cover/41_01_canopy_index.csv,forest_in_view / 2018-06-28 / aerial28-6-2018.png · index,1,,3,,−,,converted from citation_index (report_edits/text/report8.md)
 mean_annual_rain_well_record_dp0,outputs/00_climate_summary/00_report_numbers.csv,mean_annual_rain_well_record,1,,0,,−,,converted from citation_index (report_edits/text/report8.md)
@@ -88,6 +110,7 @@ modelab_nse_rev_A_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.
 modelab_nse_rev_B_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_all,1,,2,,−,,born a field in PaperM
 modelab_nse_rev_M_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_M_median_all,1,,2,,−,,born a field in PaperM
 modelab_nse_rev_share_B_better_all_x100_dp0,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_share_B_better_all,100,,0,,−,,born a field in PaperM
+n_wells_admitted_dp0,outputs/39_ccw_hindcast/39_report_numbers.csv,n_wells_admitted,1,,0,,−,,born a field in PaperM
 partition_drainage_flux_ratio_datum_to_deepest_C1_Lake_Edge_3_7_m_8_m_dp2,outputs/03_state_space_model/03_report_numbers.csv,partition_drainage_flux_ratio_datum_to_deepest · C1 (Lake Edge) · 3.7 m / 8 m,1,,2,,−,,born a field in PaperM
 partition_drainage_flux_ratio_datum_to_deepest_C2_Dune_3_7_m_8_m_dp2,outputs/03_state_space_model/03_report_numbers.csv,partition_drainage_flux_ratio_datum_to_deepest · C2 (Dune) · 3.7 m / 8 m,1,,2,,−,,born a field in PaperM
 partition_drainage_flux_ratio_datum_to_deepest_C3_Western_Residual_3_7_m_8_m_dp2,outputs/03_state_space_model/03_report_numbers.csv,partition_drainage_flux_ratio_datum_to_deepest · C3 (Western Residual) · 3.7 m / 8 m,1,,2,,−,,born a field in PaperM
@@ -119,6 +142,34 @@ pastas_vs_ssmB_beta_3_drainage_median_ratio_identified_full_dp2,outputs/48_pasta
 pastas_vs_ssmB_beta_3_drainage_rho_identified_full_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,pastas_vs_ssmB_beta_3_drainage_rho_identified_full,1,,2,,−,,born a field in PaperM
 pastas_vs_ssmB_efold_months_median_ratio_identified_full_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,pastas_vs_ssmB_efold_months_median_ratio_identified_full,1,,2,,−,,converted from citation_index (report_edits/text/report8.md)
 raf_valley_distance_km_dp0,outputs/00_climate_summary/00_report_numbers.csv,raf_valley_distance_km,1,,0,,−,,born a field in PaperM
+ranwell_nse_median_at_project_dp2,outputs/50_record_length/50_report_numbers.csv,ranwell_nse_median_at_project,1,,2,,−,,born a field in PaperM
+ranwell_nse_median_at_supported_dp2,outputs/50_record_length/50_report_numbers.csv,ranwell_nse_median_at_supported,1,,2,,−,,born a field in PaperM
+ranwell_nse_median_model_b_dp2,outputs/50_record_length/50_report_numbers.csv,ranwell_nse_median_model_b,1,,2,,−,,born a field in PaperM
+reclen_ccw_bias_m_A_median_L100_end_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_bias_m_A_median_L100_end,1,,2,,−,,born a field in PaperM
+reclen_ccw_bias_m_A_median_L80_end_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_bias_m_A_median_L80_end,1,,2,,−,,born a field in PaperM
+reclen_ccw_bias_m_A_median_Lfull_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_bias_m_A_median_Lfull_all,1,,2,,−,,born a field in PaperM
+reclen_ccw_bias_m_B_median_L144_start_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_bias_m_B_median_L144_start,1,,2,,−,,born a field in PaperM
+reclen_ccw_bias_m_B_median_L24_start_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_bias_m_B_median_L24_start,1,,2,,−,,born a field in PaperM
+reclen_ccw_bias_m_B_median_Lfull_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_bias_m_B_median_Lfull_all,1,,2,,−,,born a field in PaperM
+reclen_ccw_nse_A_median_Lfull_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_nse_A_median_Lfull_all,1,,2,,−,,born a field in PaperM
+reclen_ccw_nse_B_median_Lfull_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_ccw_nse_B_median_Lfull_all,1,,2,,−,,born a field in PaperM
+reclen_identified_share_B_median_L24_all_x100_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_identified_share_B_median_L24_all,100,,0,,−,,born a field in PaperM
+reclen_nse_fwd_A_median_L100_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_nse_fwd_A_median_L100_all,1,,2,,−,,born a field in PaperM
+reclen_nse_fwd_A_median_L24_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_nse_fwd_A_median_L24_all,1,,2,,−,,born a field in PaperM
+reclen_nse_fwd_A_median_Lfull_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_nse_fwd_A_median_Lfull_all,1,,2,,−,,born a field in PaperM
+reclen_nse_fwd_B_median_L24_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_nse_fwd_B_median_L24_all,1,,2,,−,,born a field in PaperM
+reclen_nse_fwd_B_median_Lfull_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_nse_fwd_B_median_Lfull_all,1,,2,,−,,born a field in PaperM
+reclen_rho_ar1_expected_full_A_median_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_rho_ar1_expected_full_A_median_all,1,,2,,−,,born a field in PaperM
+reclen_rho_ar1_expected_full_B_median_all_dp2,outputs/50_record_length/50_report_numbers.csv,reclen_rho_ar1_expected_full_B_median_all,1,,2,,−,,born a field in PaperM
+reclen_stable_length_in_efolds_A_median_all_dp1,outputs/50_record_length/50_report_numbers.csv,reclen_stable_length_in_efolds_A_median_all,1,,1,,−,,born a field in PaperM
+reclen_stable_length_in_efolds_B_median_all_dp1,outputs/50_record_length/50_report_numbers.csv,reclen_stable_length_in_efolds_B_median_all,1,,1,,−,,born a field in PaperM
+reclen_stable_length_months_A_median_C4_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_stable_length_months_A_median_C4,1,,0,,−,,born a field in PaperM
+reclen_stable_length_months_A_median_all_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_stable_length_months_A_median_all,1,,0,,−,,born a field in PaperM
+reclen_stable_length_months_B_median_C4_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_stable_length_months_B_median_C4,1,,0,,−,,born a field in PaperM
+reclen_stable_length_months_B_median_all_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_stable_length_months_B_median_all,1,,0,,−,,born a field in PaperM
+reclen_stable_n_wells_reached_A_all_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_stable_n_wells_reached_A_all,1,,0,,−,,born a field in PaperM
+reclen_stable_n_wells_reached_B_C4_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_stable_n_wells_reached_B_C4,1,,0,,−,,born a field in PaperM
+reclen_stable_n_wells_reached_B_all_dp0,outputs/50_record_length/50_report_numbers.csv,reclen_stable_n_wells_reached_B_all,1,,0,,−,,born a field in PaperM
 reference_n_wells_dp0,outputs/00_climate_summary/00_report_numbers.csv,reference_n_wells,1,,0,,−,,born a field in PaperM
 reference_record_months_max_dp0,outputs/00_climate_summary/00_report_numbers.csv,reference_record_months_max,1,,0,,−,,converted from citation_index (report_edits/text/report8.md)
 reference_record_months_median_dp0,outputs/00_climate_summary/00_report_numbers.csv,reference_record_months_median,1,,0,,−,,converted from citation_index (report_edits/text/report8.md)
@@ -131,3 +182,7 @@ summary_corr_upstand_vs_d_beta_3_value_dp3_hy,outputs/03_state_space_model/03_17
 sy_c3_dp3,outputs/20_spatial_figures/20_report_numbers.csv,sy_c3,1,,3,,−,,converted from citation_index (report_edits/text/report8.md)
 tide_mhw_m_dp2,outputs/01b_water_table/01b_report_numbers.csv,tide_mhw_m,1,,2,,−,,born a field in PaperM
 wells_classified_n_dp0,outputs/01_data_prep/01_report_numbers.csv,wells_classified_n,1,,0,,−,,born a field in PaperM
+window_full_beta3_ratio_median_C4_dp2,outputs/50_record_length/50_report_numbers.csv,window_full_beta3_ratio_median_C4,1,,2,,−,,born a field in PaperM
+window_full_beta3_ratio_median_all_dp2,outputs/50_record_length/50_report_numbers.csv,window_full_beta3_ratio_median_all,1,,2,,−,,born a field in PaperM
+window_full_beta3_ratio_p10_all_dp2,outputs/50_record_length/50_report_numbers.csv,window_full_beta3_ratio_p10_all,1,,2,,−,,born a field in PaperM
+window_full_beta3_ratio_p90_all_dp2,outputs/50_record_length/50_report_numbers.csv,window_full_beta3_ratio_p90_all,1,,2,,−,,born a field in PaperM

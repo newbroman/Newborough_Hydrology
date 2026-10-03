@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.94.0"  # Hollingham (2026) - 2026-10-03 (D-236). E8F_* (Script 50 E8f, the 2014/15 shore
+__version__ = "1.95.0"  # Hollingham (2026) - 2026-10-03 (T-99). DATUM_AOD_SWEEP_* and DATUM_AOD_NONPOS_CHECK_M
+#   (Script 03 1.25.0: D-163's datum fixed in elevation, emitted). Additive.
+# 1.94.0  # Hollingham (2026) - 2026-10-03 (D-236). E8F_* (Script 50 E8f, the 2014/15 shore
 #   clearance step; the rule fixed before the run) and FOREST_FLOOR_GROUP_TEST_P (Script 44 1.9.0). Additive.
 # 1.93.0  # Hollingham (2026) - 2026-10-02 (D-235). E8E_* (Script 50 E8e, felling north of NW9 and its
 #   regrowth; the rule fixed before the run). Additive.
@@ -600,6 +602,14 @@ DRAINAGE_DATUM = 3.7  # metres below ground surface
 DATUM_SWEEP_MIN_M  = 0.5
 DATUM_SWEEP_MAX_M  = 8.0
 DATUM_SWEEP_STEP_M = 0.1
+# D-163 route 4, emitted by Script 03 1.25.0 (T-99): every well's head referred to one level z0 above Ordnance
+# Datum instead of a depth below its own ground - in the SSM, a per-well datum of (ground - z0). Model A is fitted
+# at every well over z0 = DATUM_AOD_SWEEP_MIN_M .. _MAX_M in _STEP_M; report8 section 3.4.1 quotes the optimum of the
+# median R2 and the count of non-positive beta_3 at DATUM_AOD_NONPOS_CHECK_M.
+DATUM_AOD_SWEEP_MIN_M    = -2.0
+DATUM_AOD_SWEEP_MAX_M    = 8.0
+DATUM_AOD_SWEEP_STEP_M   = 0.25
+DATUM_AOD_NONPOS_CHECK_M = 6.0
 
 # The raw-depth datum: displacement measured from the ground surface itself, i.e. no
 # drainage base (h_disp_prev = h_prev). Below the sweep's DATUM_SWEEP_MIN_M on purpose —

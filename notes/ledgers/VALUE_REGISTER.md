@@ -1795,7 +1795,7 @@
 
 | Glyph | Sense | Meaning | Output file(s) carrying it |
 |---|---|---|---|
-| D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `11_forecast_pflood_summary.csv` … |
+| D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `03_20_datum_aod_sweep.csv` … |
 | L | `L_reach` | fitted inland reach of the coastal gradient | `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv` … |
 | d | `d_coast` | perpendicular distance to the eroding shoreline | `01_dist_coast_validation.csv`, `01_locations.csv`, `01_well_elevations.csv`, `07_05_clusters_vs_covariates.csv`, `10a_09_control_well_spread.csv`, `25_02_per_well_spring_mean_slopes.csv` … |
 | d | `d_days` | number of days in the month, Thornthwaite PET K-correction K | `50_19_event_stress_by_cluster.csv` |

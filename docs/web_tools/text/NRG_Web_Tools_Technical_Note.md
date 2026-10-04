@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_Technical_Note.odt — do not edit. source-sha256=123684b7aa603ff1 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_Technical_Note.odt — do not edit. source-sha256=846751f3a0e732f9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 **Newborough Warren**
@@ -11,7 +11,7 @@ Interactive Web Tools
 
 Hollingham (2026)
 
-June 2026
+October 2026
 
 **Part A**
 
@@ -19,7 +19,7 @@ June 2026
 
 # A1. Overview
 
-Document version --- updated 2026-08-12.
+Document version --- updated 2026-10-04.
 
 The Groundwater Flooding Forecaster (forecaster.html) is a single-page application built from a Jinja-style template (forecaster_template.html) and a JSON data bundle injected by Script 11b (11b_spatial_thresholds.py, v1.18.0). From the May 2026 simplification onwards, the forecaster presents the report's cluster-block equations (Tables 6, 7, and 10) with inline value substitution. From v1.2.0 it additionally presents an ecohydrology block (EWI, tiered EbF, and live MSL5 --- see A11). The per-well SSM iteration path (ssmIterate, horizonMonths, FORECAST_SOURCE tabs, and per-well SSM/P_flood coefficient exports) has been removed.
 

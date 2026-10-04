@@ -75,7 +75,10 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) - 2026-09-30. Emits report8 §3.6.3's worked P_flood
+__version__ = "1.19.0"  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The data bundle carries
+#   mp_bands (config.MP_ACHIEVABLE_MAX / MP_MARGINAL_MAX), and the Forecaster template (v1.4.0) classes
+#   wells by the report's three m_P classes instead of its own four bands (Martin, 2026-10-04).
+# 1.18.0  # Hollingham (2026) - 2026-09-30. Emits report8 §3.6.3's worked P_flood
 #   example - pflood_example_mP and pflood_example_mm (Well = config.PFLOOD_EXAMPLE_CLUSTER, Era = the
 #   h_0 of config.PFLOOD_EXAMPLE_H0_M) - by evaluating the committed threshold equation
 #   (slope_A * h_0 + intercept_B, over P_clim_total_mm) at that cluster and depth. Martin's ruling on the
@@ -221,6 +224,7 @@ from utils.config import (
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
     PFLOOD_EXAMPLE_CLUSTER, PFLOOD_EXAMPLE_H0_M,
+    MP_ACHIEVABLE_MAX, MP_MARGINAL_MAX,
 )
 from utils.model_utils import pflood_lambda
 
@@ -2203,6 +2207,9 @@ def build_forecaster_html() -> None:
             return
 
     bundle = _build_forecaster_data_bundle()
+    # The report's m_P classes (Conclusion 6), so the map and badges match Script 11c.
+    bundle["mp_bands"] = {"achievable_max": MP_ACHIEVABLE_MAX,
+                          "marginal_max": MP_MARGINAL_MAX}
 
     # The Well Logger app reads the forecast constants live rather than
     # carrying a baked copy that drifts. Hash-gated: a run that does not move

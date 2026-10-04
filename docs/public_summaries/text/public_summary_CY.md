@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit. source-sha256=717675e624e177ac pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit. source-sha256=591e24ab95e8d161 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Cwningar Niwbwrch: beth sy'n digwydd i lefel y dŵr yn y twyni
@@ -15,7 +15,7 @@ Am 21 mlynedd mae'r astudiaeth hon wedi dilyn lefel y dŵr yn y Cwningar, gan dd
 
 Mae dau rym yn tynnu lefel y dŵr yn y Cwningar i lawr, a'r ddau'n fwy na'r offer sydd ar gael i reoli'r safle.
 
-**Hinsawdd --- yr un cyson.** Ar draws y safle cyfan, mae lefel y dŵr yn gostwng o flwyddyn i flwyddyn --- wrth i ailwefru glaw ostwng ac i hafau cynnar fynd yn boethach ac yn sychach. Nid yw'n ddramatig mewn unrhyw flwyddyn unigol, ond nid yw byth yn peidio ac mae'n gweithredu *ym mhobman ar unwaith*. Gallwn weld y gostyngiad yn y lefelau eu hunain. Yr hyn na all un mlynedd ar hugain ei wneud yw dweud **pa mor gyflym** y mae'n digwydd, oherwydd bod yr amrywiad o un flwyddyn i'r nesaf yn fwy na'r duedd sydd wedi'i chuddio y tu mewn iddo. Felly rydym yn disgrifio'r pwysau hwn yn ôl ei gyfeiriad a'i gyrhaeddiad, ac nid ydym yn rhoi rhif ar ei gyfradd.
+**Hinsawdd --- yr un cyson.** Ar draws y safle cyfan, mae lefel y dŵr yn gostwng o flwyddyn i flwyddyn --- wrth i hafau cynnar fynd yn boethach ac yn sychach. Nid yw'n ddramatig mewn unrhyw flwyddyn unigol, ond nid yw byth yn peidio ac mae'n gweithredu *ym mhobman ar unwaith*. Gallwn weld y gostyngiad yn y lefelau eu hunain. Yr hyn na all un mlynedd ar hugain ei wneud yw dweud **pa mor gyflym** y mae'n digwydd, oherwydd bod yr amrywiad o un flwyddyn i'r nesaf yn fwy na'r duedd sydd wedi'i chuddio y tu mewn iddo. Felly rydym yn disgrifio'r pwysau hwn yn ôl ei gyfeiriad a'i gyrhaeddiad, ac nid ydym yn rhoi rhif ar ei gyfradd.
 
 **Erydiad arfordirol --- yr un cudd.** Lle mae'r môr yn bwyta i mewn i flaen y twyni, mae'n tynnu lefel y dŵr i lawr gydag ef. Mae'r effaith hon **gryfaf wrth y lan ac yn pylu wrth fynd i mewn i'r tir**, gan gyrraedd lefelau cefndir tua **900 metr** i mewn. Mae wedi bod yn hawdd ei anwybyddu, ond mae'n bwysau difrifol a pharhaus. Mae hefyd yn gweithio yn ôl yr *un ffiseg* ag un o'r offer rheoli isod.
 
@@ -29,15 +29,15 @@ Nodyn am sicrwydd: mae *maint* yr effaith arfordirol wedi'i fodelu, ac ni all y 
 
 ## []{#anchor}Mae rheolaeth yn helpu --- ond mae'n gyfyngedig, a gall un offeryn wneud niwed
 
-**Clirio'r goedwig.** Cododd cwympo'r blanhigfa gonwydd lefel *gyfartalog* y dŵr lle tynnwyd y coed allan --- tua **11 centimetr dros y flwyddyn** yn ein hamcangyfrif gorau. Ond ni chododd y **pwynt isel yn yr haf** --- a'r isel haf yw'r foment sy'n penderfynu mewn gwirionedd a yw llaciau'n aros yn wlyb. Felly mae cwympo'n helpu, yn gymedrol, ond nid yw'n trwsio'r tymor sydd bwysicaf.
+**Clirio'r goedwig.** Cododd cwympo'r blanhigfa gonwydd lefel *gyfartalog* y dŵr lle tynnwyd y coed allan --- tua **11 centimetr dros y flwyddyn** yn ein hamcangyfrif gorau. Daeth y rhan fwyaf o hynny yn y tair blynedd gyntaf ar ôl y cwympo; ers 2021 mae\'r ennill wedi bod yn llawer llai (tua 4 centimetr). Ond ni chododd y **pwynt isel yn yr haf** --- a'r isel haf yw'r foment sy'n penderfynu mewn gwirionedd a yw llaciau'n aros yn wlyb. Felly mae cwympo'n helpu, yn gymedrol, ond nid yw'n trwsio'r tymor sydd bwysicaf.
 
-**Crafu llaciau.** Mae crafu --- tynnu llaciau'n ôl i lawr at lefel y dŵr --- yn gwneud y pant a grafwyd ei hun yn wlypach yn ddibynadwy. Ond ger y lan mae'n gweithio yn ôl yr **un mecanwaith ag erydiad**: mae torri'n ôl i mewn i ymyl tir y llaciau yn tynnu lefel y dŵr i lawr yn y tir o'i gwmpas. Felly gall craf sychu ei gymdogion hyd yn oed wrth iddo wlychu ei hun. Mae lleoliad yn hollbwysig.
+**Crafu llaciau.** Mae crafu --- tynnu llaciau'n ôl i lawr at lefel y dŵr --- yn gwneud y pant a grafwyd ei hun yn wlypach yn ddibynadwy. Ond ger y lan mae'n gweithio yn ôl yr **un mecanwaith ag erydiad**: mae torri'n ôl i mewn i ymyl tir y llaciau yn tynnu lefel y dŵr i lawr yn y tir o'i gwmpas. Felly, yn y model, gall craf sychu ei gymdogion hyd yn oed wrth iddo wlychu ei hun --- ni all y ffynhonnau gadarnhau hynny eto. Mae lleoliad yn hollbwysig.
 
 Mae'r ddau ymyriad yn **lleol** --- maent yn newid y llaciau a weithir a'i gymdogion agos, nid y safle cyfan --- ac mae'r ddau'n cael eu **cysgodi gan erydiad arfordirol a chan y gostyngiad ar draws y Cwningar** (Ffigur 2). Nid yw rheolaeth yn ddiystyr; ond sgalpel ydyw, nid trosol ar y Cwningar cyfan.
 
 ![](Pictures/10000000000007D000000367AA4B3347.png){width="16cm" height="6.967cm"}
 
-**Ffigur 2 --- Beth mae rheolaeth yn ei wneud.** Crafu twyni a chlirio coedwig, cyn ac ar ôl: mae llaciau a dorrwyd yn llenwi â dŵr ond gall fan ychydig i mewn i'r tir ostwng ychydig; mae cwympo'n codi'r lefel dros y flwyddyn ond nid yr isel haf. Mae'r ddau'n lleol. Sgematig, nid i raddfa. (Mae testun y ffigur yn Saesneg.)
+**Ffigur 2 --- Beth mae rheolaeth yn ei wneud.** Crafu twyni a chlirio coedwig, cyn ac ar ôl: mae llaciau a dorrwyd yn llenwi â dŵr ond, yn y model, gall fan ychydig i mewn i'r tir ostwng ychydig; mae cwympo'n codi'r lefel dros y flwyddyn ond nid yr isel haf. Mae'r ddau'n lleol. Sgematig, nid i raddfa. (Mae testun y ffigur yn Saesneg.)
 
 ## []{#anchor}Mae'r broblem yn mynd yn anos ei gweld
 

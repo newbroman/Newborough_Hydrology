@@ -33,7 +33,23 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-09-29. T-96: emit-only rows in
+__version__ = "1.21.0"  # Hollingham (2026) — 2026-10-04. D-240: every clearfell ANCOVA step now carries
+#   autocorrelation-robust (Newey-West, Bartlett) errors beside the OLS ones. The residuals are strongly
+#   autocorrelated (lag-1 about 0.85 at Forest x Impact), so OLS overstates significance: the headline +108 mm
+#   goes from p = 0.003 to p = 0.10. Lags: config.BACI_HAC_MAXLAGS_MONTHS for the monthly fits, one year of
+#   the subset's own months for the Jun-Sep and Oct-Mar fits. New rows: <prefix>_clearfell_step_se_hac,
+#   _p_hac, _ci_lo_hac, _ci_hi_hac (and the _summer / _winter equivalents), and
+#   ANCOVA_Forest_Impact_clearfell_step_winter_minus_summer (+ _se_hac, _p_hac) from one fully interacted
+#   Jun-Mar model whose step estimates equal the two separate fits; and the comparison table
+#   10a_01 gains Clearfell_se_hac_m / _CI_lo_hac_m / _CI_hi_hac_m / _p_hac / _sig_hac. No point estimate moves (Martin,
+#   2026-10-04: "let's do the autocorrelation robust errors for the clear fell headline").
+# v1.20.0  # Hollingham (2026) — 2026-10-04. Changelog 2026-10-04d: a direct
+#   winter (Oct-Mar, WINTER_RECHARGE_MONTHS, D-100) ANCOVA for Forest x Impact, the
+#   counterpart of the Jun-Sep fit, with the same full specification. Emits
+#   ANCOVA_Forest_Impact_clearfell_step_winter (+ _winter_R2, _winter_N) to
+#   10a_report_numbers.csv, so Paper 2 Section 5.6 can quote the winter benefit
+#   beside the summer non-result (Martin, 2026-10-04). Emit-only; no value moves.
+# v1.19.0  # Hollingham (2026) — 2026-09-29. T-96: emit-only rows in
 #   10a_report_numbers.csv for quantities the report quoted with no row behind them:
 #   Network_n_wells (the five-tier design count; report Abstract, report6 Section 1);
 #   Fell_centroid_distance per network well + _min/_max per tier (report8 Section 3.5.4
@@ -243,6 +259,9 @@ from utils.clearfell_common import (
 )
 from utils.render_utils import render_figure
 from utils.config import SUMMER_MINIMUM_MONTHS
+from utils.config import WINTER_RECHARGE_MONTHS
+from utils.config import BACI_HAC_MAXLAGS_MONTHS
+import statsmodels.api as sm
 from utils.config import DAYS_PER_MONTH
 import pandas as pd
 import numpy as np
@@ -552,7 +571,7 @@ def main():
 
 
     def run_ancova(df, include_drift=None, include_scrape2=False,
-                   include_easting=None):
+                   include_easting=None, hac_lags=None):
         """Run ANCOVA on a prepared DataFrame.
 
     Parameters
@@ -618,6 +637,20 @@ def main():
         fit['clearfell_step'] = fit['b'][fell_idx]
         fit['clearfell_p'] = fit['p'][fell_idx]
         fit['clearfell_ci'] = (ci_lo, ci_hi)
+
+        # Autocorrelation-robust errors (D-240). Newey-West needs the rows in time
+        # order; the frame is monthly and sorted, and this asserts it rather than
+        # assuming it.
+        if not df.index.is_monotonic_increasing:
+            raise ValueError("ANCOVA frame is not in time order; Newey-West lags would be meaningless")
+        _L = BACI_HAC_MAXLAGS_MONTHS if hac_lags is None else int(hac_lags)
+        _h = sm.OLS(y, X).fit(cov_type='HAC', cov_kwds={'maxlags': _L})
+        _se = float(_h.bse[fell_idx])
+        fit['hac_lags'] = _L
+        fit['clearfell_se_hac'] = _se
+        fit['clearfell_p_hac'] = float(_h.pvalues[fell_idx])
+        fit['clearfell_ci_hac'] = (fit['clearfell_step'] - 1.96 * _se,
+                                   fit['clearfell_step'] + 1.96 * _se)
 
         # Scraping step
         scr_idx = col_names.index('scraping')
@@ -746,7 +779,8 @@ def main():
         # --- Fit A: full spec (mirrors annual model) ---
         use_easting = bool(df_summer['has_drift'].iloc[0])
         summer_fit_full = run_ancova(df_summer, include_drift=use_easting,
-                                     include_scrape2=False)
+                                     include_scrape2=False,
+                                     hac_lags=len(SUMMER_MONTHS))
         summer_results['full'] = summer_fit_full
 
         step_mm = summer_fit_full['clearfell_step'] * 1000
@@ -792,6 +826,60 @@ def main():
         daic = summer_fit_full['aic'] - fit_noCWB['aic']
         print(f"   ΔAIC (full − no-CWB) = {daic:+.2f}  "
               f"({'CWB retained' if daic < 0 else 'CWB dropped'} preferred)")
+    else:
+        skipped("Forest × Impact ANCOVA frame unavailable")
+
+    # ============================================================================
+    # 3a-w. DIRECT WINTER (Oct-Mar) ANCOVA — Forest × Impact (v1.20.0)
+    # The counterpart of the Jun-Sep fit above: the same full specification on
+    # the WINTER_RECHARGE_MONTHS subset (D-100), so the clearfell step can be read
+    # in the recharge half of the year as well as the summer-minimum months.
+    # ============================================================================
+    print("\n3a-w. Direct winter (Oct-Mar) ANCOVA — Forest × Impact...")
+    winter_results = {}
+    if SUMMER_KEY in ancova_frames:
+        df_winter = ancova_frames[SUMMER_KEY].loc[
+            ancova_frames[SUMMER_KEY].index.month.isin(list(WINTER_RECHARGE_MONTHS))
+        ].copy()
+        n_pre  = int((df_winter['D_fell'] == 0).sum())
+        n_post = int((df_winter['D_fell'] == 1).sum())
+        print(f"   Winter panel: N = {len(df_winter)}  (pre-fell {n_pre}, post-fell {n_post})")
+        winter_fit = run_ancova(df_winter,
+                                include_drift=bool(df_winter['has_drift'].iloc[0]),
+                                include_scrape2=False,
+                                hac_lags=len(WINTER_RECHARGE_MONTHS))
+        winter_results['full'] = winter_fit
+
+        # Winter minus summer (D-240): one fully interacted model on the Jun-Mar
+        # months, so both steps equal the separate fits above and their difference
+        # gets a Newey-West error over one year of those months.
+        if 'full' in summer_results:
+            _df = ancova_frames[SUMMER_KEY]
+            _df = _df.loc[_df.index.month.isin(list(WINTER_RECHARGE_MONTHS) + SUMMER_MONTHS)]
+            _y = _df['baci_disp'].values.astype(float)
+            _cols = ['cwb_c', 'D_scrape', 'D_fell', 'cwb_x_fell']
+            _dc = drift_term(_df, required=False)
+            if bool(_df['has_drift'].iloc[0]) and _dc is not None:
+                if BACI_DRIFT_DESIGN == 'coastal_fixed1':
+                    _y = _y - _df[_dc].values
+                else:
+                    _cols.append(_dc)
+            _W = _df.index.month.isin(list(WINTER_RECHARGE_MONTHS)).astype(float)
+            _X = np.column_stack([np.ones(len(_df))] + [_df[c].values for c in _cols] + [_W]
+                                 + [_W * _df[c].values for c in _cols])
+            _iw = 1 + len(_cols) + 1 + _cols.index('D_fell')
+            _L = len(WINTER_RECHARGE_MONTHS) + len(SUMMER_MONTHS)
+            _hd = sm.OLS(_y, _X).fit(cov_type='HAC', cov_kwds={'maxlags': _L})
+            winter_results['minus_summer'] = dict(
+                diff=float(_hd.params[_iw]), se_hac=float(_hd.bse[_iw]),
+                p_hac=float(_hd.pvalues[_iw]), lags=_L, n=len(_df))
+            print(f"   Winter − summer: {_hd.params[_iw]*1000:+.0f} mm  "
+                  f"Newey-West se {_hd.bse[_iw]*1000:.0f} mm, p = {format_p(_hd.pvalues[_iw])}")
+        print(f"   Full spec  : step = {winter_fit['clearfell_step'] * 1000:+.0f} mm  "
+              f"CI = [{winter_fit['clearfell_ci'][0] * 1000:+.0f}, "
+              f"{winter_fit['clearfell_ci'][1] * 1000:+.0f}]  "
+              f"p = {format_p(winter_fit['clearfell_p'])}  "
+              f"R² = {winter_fit['r2']:.3f}")
     else:
         skipped("Forest × Impact ANCOVA frame unavailable")
 
@@ -1059,6 +1147,12 @@ def main():
             'Oct2023_step_m': float(fit['m3_scrape2_coef']) if not np.isnan(fit['m3_scrape2_coef']) else '',
             'Oct2023_p': fit['m3_scrape2_p'] if not np.isnan(fit['m3_scrape2_p']) else '',
             'dAIC_M3_M2': float(fit['daic']) if not np.isnan(fit['daic']) else '',
+            # D-240: the autocorrelation-robust inference the tables now show.
+            'Clearfell_se_hac_m': fit['clearfell_se_hac'],
+            'Clearfell_CI_lo_hac_m': fit['clearfell_ci_hac'][0],
+            'Clearfell_CI_hi_hac_m': fit['clearfell_ci_hac'][1],
+            'Clearfell_p_hac': fit['clearfell_p_hac'],
+            'Clearfell_sig_hac': p_to_sig(fit['clearfell_p_hac']),
         })
 
     comp_df = pd.DataFrame(comp_rows)
@@ -2058,6 +2152,14 @@ def main():
 
     rpt = ReportNumbers()
 
+    def _emit_hac(rpt, key, fit, well, era):
+        """D-240: the autocorrelation-robust error, p and 95% CI beside an OLS step."""
+        _n = f"Newey-West (Bartlett), {fit['hac_lags']} lags"
+        rpt.add(f"{key}_se_hac", fit['clearfell_se_hac'], well=well, era=era, note=_n)
+        rpt.add(f"{key}_p_hac", fit['clearfell_p_hac'], unit="", well=well, era=era, note=_n)
+        rpt.add(f"{key}_ci_lo_hac", fit['clearfell_ci_hac'][0], well=well, era=era, note=_n)
+        rpt.add(f"{key}_ci_hi_hac", fit['clearfell_ci_hac'][1], well=well, era=era, note=_n)
+
     for (ctrl_label, zone_label), fit in results.items():
         prefix = f"ANCOVA_{ctrl_label}_{zone_label}"
 
@@ -2065,6 +2167,8 @@ def main():
                 well=zone_label, era="Post_felling",
                 note=f"p={format_p(fit['clearfell_p'])}, "
                      f"CI=[{fit['clearfell_ci'][0]:.4f},{fit['clearfell_ci'][1]:.4f}]")
+
+        _emit_hac(rpt, f"{prefix}_clearfell_step", fit, zone_label, "Post_felling")
 
         rpt.add(f"{prefix}_scraping_step", fit['scraping_step'],
                 well=zone_label, era="Post_scraping",
@@ -2152,6 +2256,7 @@ def main():
                 note=f"p={format_p(sf['clearfell_p'])}, "
                      f"CI=[{sf['clearfell_ci'][0]:.4f},{sf['clearfell_ci'][1]:.4f}], "
                      f"Jun-Sep subset, full ANCOVA spec")
+        _emit_hac(rpt, f"{prefix}_clearfell_step_summer", sf, "Impact", "Post_felling_Jun-Sep")
         rpt.add(f"{prefix}_summer_R2", sf['r2'], unit="",
                 well="Impact", era="Jun-Sep",
                 note="Summer model R² (full spec)")
@@ -2162,6 +2267,29 @@ def main():
             rpt.add(f"{prefix}_coeff_{cname}_summer", sf['b'][i],
                     well="Impact", era="Jun-Sep",
                     note=f"SE={sf['se'][i]:.6f}, p={format_p(sf['p'][i])}")
+
+    if 'full' in winter_results:
+        wf = winter_results['full']
+        prefix = "ANCOVA_Forest_Impact"
+        rpt.add(f"{prefix}_clearfell_step_winter", wf['clearfell_step'],
+                well="Impact", era="Post_felling_Oct-Mar",
+                note=f"p={format_p(wf['clearfell_p'])}, "
+                     f"CI=[{wf['clearfell_ci'][0]:.4f},{wf['clearfell_ci'][1]:.4f}], "
+                     f"Oct-Mar subset (WINTER_RECHARGE_MONTHS), full ANCOVA spec")
+        _emit_hac(rpt, f"{prefix}_clearfell_step_winter", wf, "Impact", "Post_felling_Oct-Mar")
+        if 'minus_summer' in winter_results:
+            _d = winter_results['minus_summer']
+            _n = (f"Oct-Mar step minus Jun-Sep step, one fully interacted Jun-Mar model (n={_d['n']}); "
+                  f"Newey-West (Bartlett), {_d['lags']} lags")
+            rpt.add(f"{prefix}_clearfell_step_winter_minus_summer", _d['diff'], well="Impact", era="Post_felling", note=_n)
+            rpt.add(f"{prefix}_clearfell_step_winter_minus_summer_se_hac", _d['se_hac'], well="Impact", era="Post_felling", note=_n)
+            rpt.add(f"{prefix}_clearfell_step_winter_minus_summer_p_hac", _d['p_hac'], unit="", well="Impact", era="Post_felling", note=_n)
+        rpt.add(f"{prefix}_winter_R2", wf['r2'], unit="",
+                well="Impact", era="Oct-Mar",
+                note="Winter model R² (full spec)")
+        rpt.add(f"{prefix}_winter_N", wf['n'], unit="months",
+                well="Impact", era="Oct-Mar",
+                note="Winter sample size (Oct-Mar months only)")
 
     if 'noCWB' in summer_results:
         sn = summer_results['noCWB']

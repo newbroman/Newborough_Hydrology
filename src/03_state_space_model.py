@@ -88,7 +88,11 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.25.0"  # Hollingham (2026) — 2026-10-03 (T-99). datum_aod_sweep(): D-163 route 4 (the datum
+__version__ = "1.26.0"  # Hollingham (2026) — 2026-10-03 (Martin: "one, yes"). _datum_frame_report_numbers(): the
+#   per-well frame test of 03_11 (each well's R2-max datum as an elevation, regressed on ground elevation) and
+#   its confound (that datum against mean depth to water) emitted as datum_frame_* report numbers, so Paper M
+#   section 4.6 and report8 can quote them as fields. Additive: 03_11 itself is unchanged.
+# 1.25.0  # Hollingham (2026) — 2026-10-03 (T-99). datum_aod_sweep(): D-163 route 4 (the datum
 #   fixed in elevation, z0 m AOD, a per-well datum of ground - z0) emitted as 03_20_datum_aod_sweep.csv and the
 #   datum_aod_* report numbers report8 section 3.4.1 quotes. Additive: no existing output changes.
 # 1.24.0  # Hollingham (2026) — 2026-10-01 (D-217). _partition_datum_range_report_numbers():
@@ -1553,6 +1557,30 @@ def _datum_aod_report_numbers(rpt, aod_df: pd.DataFrame) -> None:
             note="wells with beta_3 <= 0 at the depth datum")
 
 
+def _datum_frame_report_numbers(rpt, conf_df: pd.DataFrame) -> None:
+    """03_report_numbers.csv rows for the 03_11 frame test (1.26.0): the slope of each well's
+    R2-max datum, as an elevation, on its ground elevation, and the datum's correlation with the
+    well's mean depth to water - the confound that makes the slope descriptive."""
+    def _get(block, metric):
+        r = conf_df[(conf_df["block"] == block) & (conf_df["metric"] == metric)]
+        return (float(r["value"].iloc[0]), int(r["n"].iloc[0])) if len(r) else (None, None)
+    slope, n = _get("datum_vs_elevation", "slope_base_on_ground")
+    if slope is None:
+        return
+    r2, _ = _get("datum_vs_elevation", "r2")
+    rng, _ = _get("datum_vs_elevation", "ground_elev_range_m")
+    rr, nr = _get("corr_datum_meandepth", "r")
+    rpt.add("datum_frame_slope_base_on_ground", slope, unit="m/m",
+            note="each well's R2-max datum as an elevation (ground - depth) regressed on its ground elevation: "
+                 "0 = a fixed elevation, 1 = a base that follows the surface (03_11)")
+    rpt.add("datum_frame_r2", r2, unit="-", note="R2 of that regression (03_11)")
+    rpt.add("datum_frame_n_wells", n, unit="count", note="reference wells with an R2-max datum and a ground elevation (03_11)")
+    rpt.add("datum_frame_ground_range_m", rng, unit="m", note="spread of ground elevation across those wells (03_11)")
+    if rr is not None:
+        rpt.add("datum_frame_corr_datum_meandepth_r", rr, unit="Pearson r",
+                note=f"R2-max datum against the well's mean depth to water, n = {nr} (03_11): the confound")
+
+
 def _partition_datum_range_report_numbers(rpt, part_df: pd.DataFrame, inv_df: pd.DataFrame) -> None:
     """03_report_numbers.csv rows for 03_12 (1.24.0, D-217): the loss partition across the
     admissible datum range, per cluster."""
@@ -2808,6 +2836,8 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
                 _partition_datum_range_report_numbers(rpt, extra["part_df"], extra["inv_df"])
             if extra.get("aod_df") is not None:
                 _datum_aod_report_numbers(rpt, extra["aod_df"])
+            if extra.get("confound_df") is not None and not extra["confound_df"].empty:
+                _datum_frame_report_numbers(rpt, extra["confound_df"])
         n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
         saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -3430,7 +3460,8 @@ def main() -> None:
                                   extra={"master_df": master_df, "sens_df": sens_df,
                                          "inv_df": inv_df, "well_opt_df": well_opt_df,
                                          "zero_df": zero_df, "win_df": win_df,
-                                         "part_df": part_df, "aod_df": aod_df})
+                                         "part_df": part_df, "aod_df": aod_df,
+                                         "confound_df": confound_df})
     export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----

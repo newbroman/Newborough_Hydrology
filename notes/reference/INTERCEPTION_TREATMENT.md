@@ -101,6 +101,13 @@ clearfell recharge gain and the thing being measured.
 The same term is the defect in (a) and the signal in (b). **Levels no,
 differences yes.**
 
+> **Correction, 2026-10-03 (D-238).** The cancellation above holds when the
+> rainfall is the same in both runs. When a scenario also SCALES the rainfall
+> (UKCP18), writing `P_scen = sP·P·(1 − I)` multiplies the rainfall *change* by
+> `(1 − I)`, and that does not cancel: it subtracts the canopy a second time from
+> a coefficient fitted on gross rainfall. Scripts 19 and `utils/scraping_common.py`
+> did this on their climate rows until D-238; see §10.
+
 ### (c) The WTF estimator — reduce P, leave PET gross
 
 Scripts 17 and 18 estimate specific yield from rising-limb events,
@@ -323,3 +330,31 @@ standing candidates for the C4 semi-annual residual (D-022, Revisit-if).
 `outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv`;
 Sy from `outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv`; monthly
 climatology from `outputs/01_climate.csv`.
+
+## 10. Climate scenarios at forest wells (D-238, 2026-10-03)
+
+Every scenario now forms its forcing change as
+
+```
+Δf = β₁·P·[(sP − 1) + sP·(I − I_scen)] − β₂·PET·[m₂·sPET − 1]
+```
+
+The rainfall change `β₁·P·(sP − 1)` passes through β₁ unreduced, because β₁ was
+fitted on gross rainfall (§2, §3). Only a change *of* canopy adds a term,
+`β₁·sP·P·(I − I_scen)`, which is case (b)'s clearfell gain carried into the
+scenario climate. At baseline climate (`sP = 1`) this is the old forestry
+arithmetic exactly; under climate alone (`I_scen = I`) it is the open-dune
+expression at every well.
+
+Where it lives: `model_utils.climate_forcing_change_12` (1.9.0), Script 19's
+`_dh_one` and the viewer's `forcing12`/`dhOne` (2.30.0), and
+`scraping_common.compute_scenario_bars` (1.11.0). Scripts 26b and 50 already
+used the open-dune expression. The effect is confined to climate rows at forest
+wells. By the 2080s, C5's summer fall deepens by about 0.02 m under Model B and
+0.03 m under Model A, and the site mean moves by about 2 mm.
+
+The other reading of a gross-rainfall β₁ is that it is a throughfall coefficient
+scaled by `(1 − I)`. On that reading a clearfell would gain `β₁·I/(1 − I)·P`
+rather than `β₁·I·P`. The two readings agree on climate alone. They differ only
+on the size of a canopy change, which stays with T-97.
+

@@ -240,7 +240,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C3 (Western Residual) / 2017 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.185402 |  | Supplementary_Material | ok |
 | C3 (Western Residual) / 2021 · MAX5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -0.387769 |  | Supplementary_Material | ok |
 | C3 (Western Residual) / False · Sy_assumed | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.12 |  | report9 | ok |
-| C3 (Western Residual) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.263367 |  | Newborough_Methods_Supplement | ok |
+| C3 (Western Residual) / False · Sy_event_Q25 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.263367 |  | Newborough_Methods_Supplement, report9 | ok |
 | C3 (Western Residual) / False · Sy_event_Q75 | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.397564 |  | Newborough_Methods_Supplement | ok |
 | C3 (Western Residual) / False · Sy_event_median | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.324908 |  | Newborough_Methods_Supplement, Paper1, Supplementary_Material, report9 | ok |
 | C3 (Western Residual) / False · Sy_rapid_CI_hi | S_y | specific yield — WTF storage coefficient | `17_wtf_01_sy_estimates.csv` | 0.417783 |  | report9 | ok |

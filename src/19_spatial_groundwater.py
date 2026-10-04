@@ -26,7 +26,13 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.29.0"  # Hollingham (2026) - 2026-10-01 (D-224; Martin: "report both", "3- add the toggle").
+__version__ = "2.30.0"  # Hollingham (2026) - 2026-10-03 (D-238; Martin: "Let's do the fix"). Interception is
+#   counted once: a rainfall CHANGE at a forest well is no longer multiplied by (1 - I), because beta_1
+#   was fitted on gross rainfall (INTERCEPTION_TREATMENT §3). Fixed in the three places that did it -
+#   the sustained UKCP18 rows (model_utils 1.9.0), _dh_one() (the one-month rate), and the viewer's
+#   forcing12()/dhOne(). A change OF canopy still adds beta_1·sP·P·(I - I_scen), so every forestry row
+#   at baseline climate is unchanged; climate rows at forest wells move (C5 and the two C3 forest wells).
+# 2.29.0  # Hollingham (2026) - 2026-10-01 (D-224; Martin: "report both", "3- add the toggle").
 #   compute_scenario_summary(): the UKCP18 sustained level response and the ΔMSL5 rows are also
 #   computed on MODEL A (reference wells on the comparison window from 03_master_data, extended wells
 #   on their cluster's 03_03 centroid; three-parameter identifiability rule), and Model A is projected
@@ -1934,7 +1940,8 @@ function forcing12(set,ex,I0,Isc,forest){{
   var P=CLIMATE.monthly_arrays_m.P,PET=CLIMATE.monthly_arrays_m.PET,f=[];
   for(var i=0;i<12;i++){{
     var bm=forest?ex.sB2[i]:1;
-    f[i]=set[0]*P[i]*((1-Isc)*ex.sP[i]-(1-I0))-set[1]*PET[i]*(bm*ex.sPET[i]-1);
+    // D-238: the rainfall change passes through beta_1 unreduced; a change of canopy adds sP*(I0-Isc)
+    f[i]=set[0]*P[i]*((ex.sP[i]-1)+ex.sP[i]*(I0-Isc))-set[1]*PET[i]*(bm*ex.sPET[i]-1);
   }}
   return f;
 }}
@@ -1982,7 +1989,7 @@ function go(){{
     var Peff_0=isForest?P_base*(1-FOREST_INTERCEPTION):P_base;
     var net0=b1*Peff_0-b2*PET_base-b3*Math.abs(h);
     var Psc=P_base*sP,PETsc=PET_base*sPET;
-    var Peff_sc=isForest?Psc*(1-sI_cur):Psc;
+    var Peff_sc=isForest?Peff_0+(Psc-P_base)+Psc*(FOREST_INTERCEPTION-sI_cur):Psc;  // D-238
     var b2sc=isForest?b2*sB2_cur:b2;
     return (b1*Peff_sc-b2sc*PETsc-b3*Math.abs(h))-net0;
   }}
@@ -2602,7 +2609,14 @@ def _well_dh(row, sl, P0, PET0, h_col, cluster_betas, season):
         net0 = b1 * Peff_0 - b2 * PET_base - b3 * abs(h)
         Psc = P_base * sP
         PETsc = PET_base * sPET
-        Peff_sc = Psc * (1 - sl[sI_key]) if is_forest else Psc
+        # 2.30.0 (D-238): the rainfall change passes through beta_1 unreduced; only a change OF
+        # canopy adds Psc·(I - I_scen). At baseline climate this is P·(1 - I_scen), as before.
+        if not is_forest:
+            Peff_sc = Psc
+        elif sP == 1.0:                                   # baseline climate: as before, to the bit
+            Peff_sc = Psc * (1 - sl[sI_key])
+        else:
+            Peff_sc = Peff_0 + (Psc - P_base) + Psc * (FOREST_INTERCEPTION - sl[sI_key])
         b2_sc = b2 * sB2_cur if is_forest else b2
         net_sc = b1 * Peff_sc - b2_sc * PETsc - b3 * abs(h)
         return net_sc - net0
@@ -2780,10 +2794,11 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         if B is None:
             return None
         cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
-        I_ = (sl["sI_c5" if cl_ == 5 else "sI_c4"]) if bool(row.get("in_forest", False)) else 0.0
         sP12, sPET12 = _expand_seasonal_to_monthly(sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
+        # 2.30.0 (D-238): no interception here - the UKCP18 rows keep the canopy, and beta_1 already
+        # carries it, so the rainfall change passes through beta_1 unreduced.
         ss = sustained_monthly_response(B[2], climate_forcing_change_12(
-            B[0], B[1], P12, PET12, sP12, sPET12, interception=I_))
+            B[0], B[1], P12, PET12, sP12, sPET12))
         return float(np.mean(ss[[m - 1 for m in season_months[season]]]))
 
     h_col_map = {"annual": "mh", "winter": "wh", "summer": "sh"}

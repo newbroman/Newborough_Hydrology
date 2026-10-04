@@ -560,7 +560,7 @@ datum_split_nse_rev_median_at_D2.9,,,0.7215711042230244,,"median split-sample NS
 datum_split_nse_rev_median_at_D3.7,,,0.6737312915987114,,"median split-sample NSE (rev), Model A at datum 3.7 m"
 projection_2080s_summer_fall_median_at_supported,,,-0.4398589065009973,m,"median 2080s summer sustained level response, Model A at datum 2.9 m; n = 57 wells (forest withheld, D-224 pairing)"
 projection_2080s_summer_room_left_min_at_supported,,,0.22633163265445988,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 2.9 m"
-projection_2080s_summer_fall_median_at_band_min,,,-0.4302289880275579,m,"median 2080s summer sustained level response, Model A at datum 2.8 m; n = 57 wells (forest withheld, D-224 pairing)"
+projection_2080s_summer_fall_median_at_band_min,,,-0.4334218462236895,m,"median 2080s summer sustained level response, Model A at datum 2.8 m; n = 57 wells (forest withheld, D-224 pairing)"
 projection_2080s_summer_room_left_min_at_band_min,,,0.13599843436706194,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 2.8 m"
 projection_2080s_summer_fall_median_at_band_max,,,-0.4398589065009973,m,"median 2080s summer sustained level response, Model A at datum 2.9 m; n = 57 wells (forest withheld, D-224 pairing)"
 projection_2080s_summer_room_left_min_at_band_max,,,0.22633163265445988,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 2.9 m"

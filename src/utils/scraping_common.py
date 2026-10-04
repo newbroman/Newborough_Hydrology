@@ -31,7 +31,10 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS and SCENARIO_SUMMER_MONTHS both now from config.SUMMER_MINIMUM_MONTHS - this module held two copies of the same window.
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-03 (D-238). compute_scenario_bars(): the climate scenarios no
+#   longer multiply the rainfall change by (1 - I) at forest clusters - beta_1 was fitted on gross rainfall,
+#   so the canopy is already inside it. The forestry bars (sP = 1) are unchanged.
+# 1.10.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS and SCENARIO_SUMMER_MONTHS both now from config.SUMMER_MINIMUM_MONTHS - this module held two copies of the same window.
 #   Batch two of the seasonal-windows migration (D-100): the window's
 #   MONTHS ARE UNCHANGED and the constant is asserted equal to the literal it
 #   replaced, in value and in type, read mechanically out of git HEAD. No
@@ -529,11 +532,15 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
                               cp["b3"], cp["h_disp"])
 
             # Scenario flux
-            if config["sI"] is not None:
-                P_scen = summer_P * config["sP"] * (1 - config["sI"])
+            # 1.11.0 (D-238): the rainfall change passes through beta_1 unreduced; only a change
+            # OF canopy adds raw_P·(I - sI). At sP = 1 this is summer_P·(1 - sI), as before.
+            raw_P = summer_P * config["sP"]
+            if is_forest:
+                s_i = FOREST_INTERCEPTION if config["sI"] is None else config["sI"]
+                P_scen = (summer_P * config["sP"] * (1 - s_i) if config["sP"] == 1.0   # forestry: as before, to the bit
+                          else P_base + (raw_P - summer_P) + raw_P * (FOREST_INTERCEPTION - s_i))
             else:
-                raw_P = summer_P * config["sP"]
-                P_scen = raw_P * (1 - FOREST_INTERCEPTION) if is_forest else raw_P
+                P_scen = raw_P
 
             b2_scen = cp["b2"] * config["sB2"]
             PET_scen = summer_PET * config["sPET"]

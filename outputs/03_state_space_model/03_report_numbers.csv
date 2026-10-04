@@ -88,3 +88,8 @@ datum_aod_worse_than_depth_everywhere,,,1.0,flag,1 if the elevation datum fits w
 datum_aod_n_wells,,,79.0,count,"wells fitted (full record, lake gauge excluded)"
 datum_aod_nonpos_beta3_at_check,,,18.0,count,wells with beta_3 <= 0 at z0 = 6 m AOD (DATUM_AOD_NONPOS_CHECK_M)
 datum_aod_nonpos_beta3_depth_datum,,,1.0,count,wells with beta_3 <= 0 at the depth datum
+datum_frame_slope_base_on_ground,,,0.844528,m/m,"each well's R2-max datum as an elevation (ground - depth) regressed on its ground elevation: 0 = a fixed elevation, 1 = a base that follows the surface (03_11)"
+datum_frame_r2,,,0.785117,-,R2 of that regression (03_11)
+datum_frame_n_wells,,,66.0,count,reference wells with an R2-max datum and a ground elevation (03_11)
+datum_frame_ground_range_m,,,10.886,m,spread of ground elevation across those wells (03_11)
+datum_frame_corr_datum_meandepth_r,,,0.589111,Pearson r,"R2-max datum against the well's mean depth to water, n = 66 (03_11): the confound"

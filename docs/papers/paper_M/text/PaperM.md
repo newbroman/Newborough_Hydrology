@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_2.odt — do not edit. source-sha256=594a353ee240d05e pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_3.odt — do not edit. source-sha256=45da8720f0809fd2 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Which quantity does each model form identify? A procedure for reservoir models fitted to monthly groundwater-level records
@@ -89,7 +89,7 @@ A single network datum, z₀ = 3.7 m, is chosen on the plateau for the deepest c
 
 ## []{#anchor}4.6 Elevation or depth
 
-Is the drainage base a fixed height or a depth below ground? A common datum in elevation was fitted at every well on its full record (79 wells, reference and extended), at every level from −2 to 8 m above Ordnance Datum in 0.25 m steps. Its best median R² is 0.736, at 2.5 m, against 0.739 for a depth of 3.7 m below ground on the same wells; the elevation datum fits worse than the depth datum at every level tried. Higher levels also leave the drainage term unidentified at many wells: at 6 m above Ordnance Datum β₃ is non-positive at 18 wells, against 1 at the depth datum. The base follows the topography, each slack draining locally.
+Is the drainage base a fixed height or a depth below ground? Two tests address it. The first expresses each well's fit-optimal datum as an elevation and regresses it on the well's ground elevation: a fixed base predicts a slope of 0, a base that follows the surface a slope of 1. Across the 66 reference wells, which span 10.9 m of ground elevation, the slope is 0.84 (R² 0.79). The test is partly circular: a fit-optimal datum tracks the well's mean depth to water (r = 0.59; Section 4.3), and the water table itself follows the ground, so the slope describes how the base follows the ground rather than locating it. In the second, a common datum in elevation was fitted at every well on its full record (79 wells, reference and extended), at every level from −2 to 8 m above Ordnance Datum in 0.25 m steps. Its best median R² is 0.736, at 2.5 m, against 0.739 for a depth of 3.7 m below ground on the same wells; the elevation datum fits worse than the depth datum at every level tried. Higher levels also leave the drainage term unidentified at many wells: at 6 m above Ordnance Datum β₃ is non-positive at 18 wells, against 1 at the depth datum. The base follows the topography, each slack draining locally.
 
 ## []{#anchor}4.7 A physically anchored datum
 
@@ -166,7 +166,7 @@ For a head-dependent drainage model fitted to monthly levels without flux data:
 3.  **Fit the free-intercept form** and compute its zero-drainage level z₀ − α_B/β₃. If it coincides with each unit's fit-optimal datum, the data prefer mean reversion, and a datum chosen on fit alone would measure persistence, not drainage.
 4.  **Locate the flux plateau**: the datum from which β₃·mean(h_disp) stays within a stated fraction of its deepest-datum value. On the plateau the flux and the partition are insensitive to the datum; t½ is not, and is reported as conditional on the datum.
 5.  **Choose one datum** on or beyond the plateau for the unit with the deepest water table, below the fluctuation range everywhere and within the saturated thickness that boreholes allow.
-6.  **Decide the frame** (fixed elevation against depth below ground) by fitting a common datum in elevation across the network and comparing its fit with a depth below ground; test a physically anchored datum, such as the depth to mean high water, for the partition it gives and the skill it costs.
+6.  **Decide the frame** (fixed elevation against depth below ground) by regressing each well's fit-optimal datum, as an elevation, on ground elevation, and by fitting a common datum in elevation across the network and comparing its fit with a depth below ground; test a physically anchored datum, such as the depth to mean high water, for the partition it gives and the skill it costs.
 7.  **Publish the cost**: each unit's ΔAIC and ΔR² at the chosen datum, and the range over which the rankings by β₃ and by flux are unchanged.
 8.  **Referee the dynamics without a model**: compare each form's e-folding time with the lag-1 autocorrelation of the deseasonalized level, and run a split-sample free-run test.
 9.  **Assign each quantity to the form that identifies it**: no intercept for coefficients, water balance and thresholds; free intercept for persistence and forecasting within the climate of the record; for forward runs into a different climate, the form an independent epoch supports, with the other beside it; neither where β₃ is not identified.
@@ -192,7 +192,7 @@ Free-base transfer-function models, of which Pastas is the reference implementat
 
 ## []{#anchor}8.5 Limits
 
-The forcing comes from one climate station outside the site, at monthly resolution; Thornthwaite PET is an index of demand rather than a measured flux, so β₂ is an effective coefficient. The model is linear and time-invariant; changes in land cover over the record are handled elsewhere by before--after designs rather than within the model. The forest cluster's response is slow enough that its free-intercept drainage coefficient is not identified on the record, which withholds it from the quantities that depend on the mean-reversion time. The independent tests of the sustained response rest on 9 wells in one decade and three sites, approximately placed, in another. Finally, the frame test of Section 4.6 compares fit, which by Section 4.3 tracks mean levels; it shows that the drainage base follows the ground, not where it physically lies.
+The forcing comes from one climate station outside the site, at monthly resolution; Thornthwaite PET is an index of demand rather than a measured flux, so β₂ is an effective coefficient. The model is linear and time-invariant; changes in land cover over the record are handled elsewhere by before--after designs rather than within the model. The forest cluster's response is slow enough that its free-intercept drainage coefficient is not identified on the record, which withholds it from the quantities that depend on the mean-reversion time. The independent tests of the sustained response rest on 9 wells in one decade and three sites, approximately placed, in another. Finally, both frame tests of Section 4.6 rest on fit, which by Section 4.3 tracks mean levels; they show that the drainage base follows the ground, not where it physically lies.
 
 # []{#anchor}9. Conclusions
 

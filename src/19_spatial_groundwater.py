@@ -26,7 +26,10 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.31.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved", spec
+__version__ = "2.31.1"  # Hollingham (2026) - 2026-10-04 (audit 2026-10-04c). The viewer's Clearfell button no longer
+#   reads "interception->0, beta_2 up" (D-239: interception unchanged, the felled well's draw falls), and the one-month
+#   mode note no longer says the forest scenarios await their sustained form. Labels only; no value moves.
+# 2.31.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved", spec
 #   NRG_spec_T97_forestry_measured_2026-10-04). The forestry scenarios are anchored to what the December 2017
 #   felling measured at WMC3: the canopy's draw scaled by the felled well's beta_2 change net of the Climate
 #   controls (clearfell_common.load_clearfell_impact_b2_multiplier; thinning half of it; broadleaf its seasonal
@@ -1632,7 +1635,7 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc on" id="btn_baseline"    onclick="loadSc('baseline')">Baseline (2005&#8211;2026)</button>
   <button class="sc"    id="btn_ukcp18_2050s" onclick="loadSc('ukcp18_2050s')">UKCP18 2050s (RCP8.5)</button>
   <button class="sc"    id="btn_ukcp18_2080s" onclick="loadSc('ukcp18_2080s')">UKCP18 2080s (RCP8.5)</button>
-  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (interception&#8594;0, &#946;&#8322;&#8593;)</button>
+  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (felled-well draw &#8595;)</button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
   <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%)</button>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
@@ -1912,12 +1915,12 @@ function setBasis(b){{
 // published form, a port of model_utils.climate_forcing_change_12 and
 // sustained_monthly_response, on each well's paired set (pB/pA, from
 // projection_coefficient_sets / paired_sets in the Python). 'rate': the
-// viewer's earlier one-month change, kept for the forest scenarios (T-97).
+// viewer's earlier one-month change, kept as a diagnostic (the forest scenarios are sustained since 2.31.0).
 var FORM='B';
 var FORM_NOTE={{
  B:'<b>Sustained level, intercept form (Model B).</b> The change in level once the scenario climate has been in force for years (D-216), on the form whose mean-reversion time matches the record. Wells whose drainage term Model B cannot identify are withheld under both forms &#8212; the Main Forest cluster &#8212; so the two forms are compared on the same wells (D-224); the wet-area panel holds a withheld cluster at its baseline. The coefficients are the comparison-window fits, so the basis buttons do not apply.',
  A:'<b>Sustained level, published form (Model A, datum {drainage_datum} m).</b> The same quantity on the form that reproduced the drier 1989&#8211;96 CCW epoch without bias. Its drainage term is slower, so at most clusters its falls are larger than Model B&#8217;s: read the two forms as a bracket, not an average. Shown only where Model B is identified too (D-224). The report also quotes Model A at the datum the drier past best supports, where the fall is smaller (Script 50, D-226).',
- rate:'<b>One-month change (Model A).</b> One month&#8217;s change in level under the scenario forcing &#8212; the viewer&#8217;s earlier measure, kept for the forest-management scenarios until their sustained form is adopted (T-97). It is not a projection of the level under a changed climate: use a sustained mode for the UKCP18 presets.'
+ rate:'<b>One-month change (Model A).</b> One month&#8217;s change in level under the scenario forcing &#8212; the viewer&#8217;s earlier measure, kept as a diagnostic; every scenario, the forest-management ones included, is now given as a sustained level (D-239). It is not a projection of the level under a changed climate: use a sustained mode for the UKCP18 presets.'
 }};
 function setForm(f){{
   FORM=f;

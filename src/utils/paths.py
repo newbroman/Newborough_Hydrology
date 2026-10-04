@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.60.0"  # Hollingham (2026) - 2026-10-03 (T-99). OUT_03_DATUM_AOD. Additive.
+__version__ = "1.61.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). OUT_10E_SHIELDING.
+# 1.60.0  # Hollingham (2026) - 2026-10-03 (T-99). OUT_03_DATUM_AOD. Additive.
 # 1.59.0  # Hollingham (2026) - 2026-10-03 (D-236). DATA_SHORE_CLEARANCE_2015, OUT_50_CLEARANCE_STEP,
 #   OUT_50_CLEARANCE_FIG. Additive.
 # 1.58.0  # Hollingham (2026) - 2026-10-02 (D-235). OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG.
@@ -756,6 +757,7 @@ OUT_10E_COEFF_SHIFTS        = DIR_10 / "10e_01_coefficient_shifts.csv"
 # (2026-05-24). 10e no longer produces a predicted-vs-observed comparison.
 OUT_10E_FIG_COEFFS          = DIR_10 / "10e_03_coefficient_shifts.png"
 OUT_10E_REPORT              = DIR_10 / "10e_report_numbers.csv"
+OUT_10E_SHIELDING           = DIR_10 / "10e_04_shielding_seasonal_b2.csv"   # 1.61.0 (T-97, D-239)
 
 # Script 10f — Robustness analyses (SSM residual, synthetic control)
 OUT_10F_SSM_RESIDUAL        = DIR_10 / "10f_01_ssm_residual_results.csv"

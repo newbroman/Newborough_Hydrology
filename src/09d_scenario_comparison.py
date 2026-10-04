@@ -36,7 +36,12 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.10.2"  # Hollingham (2026) — 2026-08-19. Reads the per-well
+__version__ = "3.11.0"  # Hollingham (2026) — 2026-10-04 (D-239; Martin: "All five, then ship"). The hypothetical
+#   forestry bars at CEH36 are on the D-239 basis: the felled well's measured beta_2 change
+#   (clearfell_common.load_clearfell_impact_b2_multiplier; thinning half), and no interception recharge term -
+#   the pine baseline's P is kept in every forestry scenario. Broadleaf keeps its summer beta_2 multiplier.
+#   The observed scraping bar and the climate bars are unchanged.
+# 3.10.2  # Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
 #   (D-038). Pure path/symbol change, values identical.
 #
@@ -84,12 +89,12 @@ from utils.scraping_common import (
 from utils.config import (
     BW_MODE,
     DRAINAGE_DATUM,
-    FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, BROADLEAF_B2_SUMMER,
+    FOREST_INTERCEPTION, BROADLEAF_B2_SUMMER,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
     SCRAPE_RISE_BUFFER_M,
 )
-from utils.clearfell_common import load_clearfell_b2_multiplier
+from utils.clearfell_common import load_clearfell_impact_b2_multiplier
 
 import pandas as pd
 import numpy as np
@@ -327,13 +332,8 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
     Sy = params["Sy"]
 
     # Load BACI-corrected β₂ multipliers — prefer pipeline params file
-    try:
-        from utils.pipeline_params import load_params
-        _p = load_params(warn_defaults=False)
-        clearfell_b2_mult = _p["clearfell_b2_mult"]
-        thinning_b2_mult = _p["thinning_b2_mult"]
-    except (FileNotFoundError, KeyError):
-        clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_b2_multiplier()
+    # 3.11.0 (D-239): the felled well's measured change, not the Edge-tier multiplier
+    clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_impact_b2_multiplier(verbose=False)
     print(f"     β₂ multipliers: clearfell={clearfell_b2_mult:.4f}  "
           f"thinning={thinning_b2_mult:.4f}")
 
@@ -369,21 +369,19 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
     # Hypothetical: if CEH36 had pine and was clearfelled
     P_pine_base = P_force * (1 - FOREST_INTERCEPTION)
     flux_pine_base = b1 * P_pine_base - b2 * PET_force - b3 * h_disp
-    # Clearfell: full P restored, β₂ increases
-    flux_cf = b1 * P_force - b2 * clearfell_b2_mult * PET_force - b3 * h_disp
+    # Clearfell (3.11.0, D-239): P as under the pine - no interception recharge - and the felled well's beta_2 change
+    flux_cf = b1 * P_pine_base - b2 * clearfell_b2_mult * PET_force - b3 * h_disp
     scenarios["Clearfell\n(hypothetical)"] = round(
         (flux_cf - flux_pine_base) * Sy * 1000, 1)
 
     # Thinning 50%
-    P_thin = P_force * (1 - FOREST_INTERCEPTION * 0.5)
-    flux_thin = b1 * P_thin - b2 * thinning_b2_mult * PET_force - b3 * h_disp
+    flux_thin = b1 * P_pine_base - b2 * thinning_b2_mult * PET_force - b3 * h_disp   # 3.11.0 (D-239)
     scenarios["Thinning 50%\n(hypothetical)"] = round(
         (flux_thin - flux_pine_base) * Sy * 1000, 1)
 
     # Broadleaf conversion — seasonal β₂ profile: deciduous canopy has
     # higher transpiration in summer (full leaf) than evergreen pine.
-    P_bl = P_force * (1 - BROADLEAF_INTERCEPTION)
-    flux_bl = b1 * P_bl - b2 * BROADLEAF_B2_SUMMER * PET_force - b3 * h_disp
+    flux_bl = b1 * P_pine_base - b2 * BROADLEAF_B2_SUMMER * PET_force - b3 * h_disp   # 3.11.0 (D-239)
     scenarios["Broadleaf\n(hypothetical)"] = round(
         (flux_bl - flux_pine_base) * Sy * 1000, 1)
 

@@ -9,18 +9,18 @@
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_30.odt` | 2026-10-03T19:24:10Z | current |
-| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_24.odt` | 2026-10-03T19:24:12Z | current |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_31.odt` | 2026-10-04T09:24:14Z | current |
+| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_25.odt` | 2026-10-04T09:24:16Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_24.odt` | 2026-10-02T06:00:52Z | current |
 | `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_64.odt` | 2026-10-03T18:00:23Z | current |
-| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v25.odt` | 2026-10-04T04:57:52Z | current |
-| `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-09-05T22:49:36Z | unversioned |
-| `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-09-05T22:49:35Z | unversioned |
-| `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-09-05T22:49:35Z | unversioned |
+| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v26.odt` | 2026-10-04T09:24:19Z | current |
+| `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-10-04T09:24:17Z | unversioned |
+| `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-10-04T09:24:17Z | unversioned |
+| `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-10-04T09:24:17Z | unversioned |
 | `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_86.odt` | 2026-10-04T05:25:09Z | current |
 | `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_51.odt` | 2026-10-04T04:57:51Z | current |
-| `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-09-06T06:28:30Z | unversioned |
-| `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-09-26T19:45:59Z | unversioned |
+| `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-10-04T09:24:18Z | unversioned |
+| `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-10-04T09:24:19Z | unversioned |
 
 ## Authored directly (no source ODT)
 

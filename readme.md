@@ -148,7 +148,7 @@ The pipeline comprises **<!--PL:total-->60<!--/PL:total--> registered steps acro
 `tools/sync_index_counts.py`). Those steps are classified two independent ways: by
 tier — <!--PL:analytical-->45<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
 (Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->7<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->54<!--/PL:default--> run in a
-default pass, <!--PL:optin-->4<!--/PL:optin--> (Scripts 24b, 31 and 31b) only under `--with-supplementary`, and 2
+default pass, <!--PL:optin-->4<!--/PL:optin--> (Scripts 24b, 31, 31b and 50) only under `--with-supplementary`, and 2
 (Scripts 27 greyscale conversion and 47 the century hindcast film) only on demand.
 The two breakdowns each account for the same <!--PL:total-->60<!--/PL:total--> steps and are not additive with
 one another. Current values are written to `outputs/pipeline_manifest.json` on
@@ -183,8 +183,8 @@ colours and labels are centralised in `src/utils/config.py`.
 |-------|---------|-------|---------|
 | 1 | 01–04 | 1–5 | Core LCSC chain |
 | 2 | 05–06 | 6–7 | Pearson membership audit and extended network integration |
-| 3 | 07, 08, 09 suite, 10 suite, 11, 11b, 11c | 8–14 | Spatial coefficient mapping, model benchmarking, scraping (09a–e) and clearfell BACI (10a–m), forecasting and spatial threshold maps; 11c is the per-well P_flood achievability map for §5.9 / Conclusion 4 |
-| 4 | 00, 14, 14b, 12, 13 | 15–19 | Climate summary, trajectory projections, bootstrap year-of-crossing (14b, supporting §7 Conclusion 11), GIS figures |
+| 3 | 07, 08, 09 suite, 10 suite, 11, 11b, 11c | 8–14 | Spatial coefficient mapping, model benchmarking, scraping (09a–e) and clearfell BACI (10a–n), forecasting and spatial threshold maps; 11c is the per-well P_flood achievability map for §5.9 / Conclusion 6 |
+| 4 | 00, 14, 14b, 12, 13 | 15–19 | Climate summary, trajectory projections, bootstrap year-of-crossing (14b, supporting §7 Conclusion 13), GIS figures |
 | 5 | 15 | 20 | Depth-dependent PET analysis |
 | 6 | 17 | 21 | WTF cluster Sy estimation |
 | 7 | 16 | 22 | Water balance decomposition |
@@ -248,14 +248,14 @@ cross-check of the per-well SSM (§3.4), with the opt-in record-length experimen
 earlier phases as successors to their data source: `11c_pflood_achievability.py`
 (Phase 3, step 14, the per-well categorical priority map for §5.9 / Conclusion 4
 reading Script 11b's per-well m_P table) and `14b_year_of_crossing.py` (Phase 4,
-step 17, the bootstrap year-of-crossing diagnostic for §7 Conclusion 11 reading
+step 17, the bootstrap year-of-crossing diagnostic for §7 Conclusion 13 reading
 Script 14's annual summer-min series). References to "Script 25" mean coastal-gradient;
 "Script 26" means van Willegen MSL aggregation and the equilibrium wetness index; "Script 26b" means UKCP18 MSL
 projection; "Script 26c" means MSL5 report-format figures; "Script 09f" means
 management-vs-coastal spatial-reach synthesis; "Script 09g" means the
 mechanism-diagram grid + coastal reach; "Script 27" means
 greyscale post-processing; "Script 28" means C3 detrend check; "Script 29" means
-within-C3 variance attribution; "Script 30" means C4 constrained-β₃ triangulation;
+within-C3 variance attribution; "Script 30" means the C4 drainage identifiability diagnostic;
 "Script 36" means absolute climate-removed secular trend; "Script 37" means driver
 validation; "Script 37b" means comparative driver footing; "Script 38" means
 coast-to-inland MAM transect; "Script 11c" means P_flood achievability map;
@@ -264,7 +264,7 @@ Within the Script 10 clearfell BACI suite,
 `10c_forest_zone_analysis.py` runs in order but its outputs are treated as
 supplementary and `10m_wmc3_baci_dual.py` is a display figure (a WMC3-versus-
 forest-control dual-panel intervention plot that reads the 10a clearfell
-headline live); the other eleven sub-scripts (10a, 10b, 10d–10l) contribute to
+headline live); the other twelve sub-scripts (10a, 10b, 10d–10l and 10n) contribute to
 the primary report results.
 
 ---
@@ -275,30 +275,32 @@ The interactive scenario viewer is built by running **option 4** from the menu (
 
 - `outputs/19_spatial_groundwater/scenario_viewer.html` — standalone self-contained file; opens directly in any browser with no server required
 
-Scenario Δh values are computed dynamically in JavaScript via the SSM equilibrium equation — no precomputed difference maps are produced. The viewer supports interactive exploration of seven scenarios (baseline, UKCP18 2050s, UKCP18 2080s, clearfell, broadleaf, thinning, scraping) with per-well Δh visualisation.
+Scenario values are computed in JavaScript from each well's fitted coefficients: by default the sustained change in level on Model B, with Model A and the one-month change on a Response toggle — no precomputed difference maps are produced. The viewer has six presets (baseline, UKCP18 2050s, UKCP18 2080s, clearfell, broadleaf, thinning) with per-well visualisation.
 
-Each scenario also reports the modelled **slack-floor wet area** — open water and wet floor in hectares, baseline, scenario and difference, with uncertainty bands — from the Sentinel-2 area model (D-178). The hectares are totals for the warren study area; ground outside it is not assessed, and the curves are winter-fitted, so the spring-window figures are indicative, an illustration of the area–level relationship rather than a flood map.
+Each scenario also reports the modelled **slack-floor wet area** — open water and wet floor in hectares, baseline, scenario and difference, with uncertainty bands — from the Sentinel-2 area model (D-178). The hectares are totals for the 306.97 ha open slack-floor mask (forest excluded); ground outside it is not assessed, and the curves are winter-fitted, so the spring-window figures are indicative, an illustration of the area–level relationship rather than a flood map.
 
 **Colour convention:** red = drier / deeper than baseline; blue = wetter / shallower than baseline.
 
 **Scenario definitions (JavaScript parameters in scenario_viewer.html):**
 
-Scenario parameters are injected at viewer generation time. The clearfell and thinning β₂ multipliers are loaded dynamically from Script 10e output via `clearfell_common.load_clearfell_b2_multiplier()` — no hardcoded values remain.
+Scenario parameters are injected at viewer generation time. The clearfell and thinning β₂ multipliers are loaded dynamically from Script 10e output via `clearfell_common.load_clearfell_impact_b2_multiplier()`: the felled well's (WMC3) measured β₂ change net of the Climate controls (D-239) — no hardcoded values remain.
 
 | Scenario | sP_w | sP_s | sPET_w | sPET_s | sI | sB2 |
 |----------|------|------|--------|--------|----|-----|
 | Baseline | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 1.00 |
 | UKCP18 2050s | 1.10 | 0.85 | 1.05 | 1.20 | 0.24 | 1.00 |
 | UKCP18 2080s | 1.20 | 0.70 | 1.10 | 1.35 | 0.24 | 1.00 |
-| Full clearfell | 1.00 | 1.00 | 1.00 | 1.00 | 0 | BACI-corrected (loaded from 10e) |
-| Broadleaf conversion | 1.00 | 1.00 | 1.00 | 1.00 | 0.15 | 1.00 |
-| Forest thinning | 1.00 | 1.00 | 1.00 | 1.00 | 0.12 | half-perturbation (loaded from 10e) |
+| Full clearfell | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | felled-well change, 0.952 (loaded from 10e) |
+| Broadleaf conversion | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 0.882 winter / 1.075 summer |
+| Forest thinning | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | half the clearfell change, 0.976 (loaded from 10e) |
+
+No preset returns intercepted rain as recharge (D-239): the felled well's recharge did not rise. Lowering the interception slider gives the upper end of each forestry range; the clearfell note gives the open-dune end state as a bound.
 
 The clearfell and thinning `sB2` multipliers are read dynamically from Script 10e's
 `10e_01_coefficient_shifts.csv` — they are not fixed constants and update whenever
-the BACI analysis is re-run. See `clearfell_common.load_clearfell_b2_multiplier()`.
+the BACI analysis is re-run. See `clearfell_common.load_clearfell_impact_b2_multiplier()` (Impact tier, net of the Climate controls).
 
-Δh sign convention: **positive = water table deepens (drier)**; negative = shallower (wetter).
+Sign convention: **positive = water table rises (wetter)**; negative = deeper (drier).
 
 ---
 
@@ -344,7 +346,7 @@ These wells remain in all SSM fitting and clustering analyses — they are exclu
 - KML support in script 19 uses pure XML + pyproj + shapely (no fiona KML driver required).
 - Stream network skeletonisation (script 20) requires scikit-image.
 - The `outputs/` directory should be excluded from version control.
-- Scripts 18 and 19 accept a `--supplementary` flag to generate diagnostic figures not cited in the main paper body. `run_analysis.py` passes this flag automatically.
+- Script 18 accepts a `--supplementary` flag to generate diagnostic figures not cited in the main paper body. `run_analysis.py` passes this flag automatically.
 - Script 21 accepts a `--preview` flag for 150 dpi quick preview output.
 - Script 00 accepts `--profile {full,short,both}`; `run_analysis.py` invokes it with `--profile full` to produce the full 95-year record outputs including the summer warming trend figure (`00_03_summer_warming_trend.png`). The `short` variant restricts everything to the well-record overlap window (Apr 2005 – Feb 2026) and can be run manually if needed.
 

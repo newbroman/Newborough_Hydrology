@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit. source-sha256=3d2fc82c73a5c7aa pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit. source-sha256=717675e624e177ac pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Cwningar Niwbwrch: beth sy'n digwydd i lefel y dŵr yn y twyni
@@ -29,7 +29,7 @@ Nodyn am sicrwydd: mae *maint* yr effaith arfordirol wedi'i fodelu, ac ni all y 
 
 ## []{#anchor}Mae rheolaeth yn helpu --- ond mae'n gyfyngedig, a gall un offeryn wneud niwed
 
-**Clirio'r goedwig.** Cododd cwympo'r blanhigfa gonwydd lefel *gyfartalog* y dŵr lle tynnwyd y coed allan --- tua **12 centimetr dros y flwyddyn** yn ein hamcangyfrif gorau. Ond ni chododd y **pwynt isel yn yr haf** --- a'r isel haf yw'r foment sy'n penderfynu mewn gwirionedd a yw llaciau'n aros yn wlyb. Felly mae cwympo'n helpu, yn gymedrol, ond nid yw'n trwsio'r tymor sydd bwysicaf.
+**Clirio'r goedwig.** Cododd cwympo'r blanhigfa gonwydd lefel *gyfartalog* y dŵr lle tynnwyd y coed allan --- tua **11 centimetr dros y flwyddyn** yn ein hamcangyfrif gorau. Ond ni chododd y **pwynt isel yn yr haf** --- a'r isel haf yw'r foment sy'n penderfynu mewn gwirionedd a yw llaciau'n aros yn wlyb. Felly mae cwympo'n helpu, yn gymedrol, ond nid yw'n trwsio'r tymor sydd bwysicaf.
 
 **Crafu llaciau.** Mae crafu --- tynnu llaciau'n ôl i lawr at lefel y dŵr --- yn gwneud y pant a grafwyd ei hun yn wlypach yn ddibynadwy. Ond ger y lan mae'n gweithio yn ôl yr **un mecanwaith ag erydiad**: mae torri'n ôl i mewn i ymyl tir y llaciau yn tynnu lefel y dŵr i lawr yn y tir o'i gwmpas. Felly gall craf sychu ei gymdogion hyd yn oed wrth iddo wlychu ei hun. Mae lleoliad yn hollbwysig.
 
@@ -45,7 +45,7 @@ Wrth i lefel y dŵr ostwng, mae'r isel haf yn fwyfwy'n disgyn **islaw gwaelod y 
 
 ## []{#anchor}Mae'r ffenestr yn cau
 
-Mae'r llaciau bregus ar ochr ddwyreiniol y Cwningar wedi bod yn gwibio'n ôl ac ymlaen ar draws y trothwy gwlyb/sych **ers tua 2022**. Mae tir sy'n treulio mwy a mwy o'i amser ar ochr sych y llinell honno'n colli ei gymeriad llaciau gwlyb yn raddol. Yr amser i weithredu ar y tir y gellir ei achub o hyd yw **nawr**, nid yn hwyrach.
+Mae'r llaciau bregus ar ochr ddwyreiniol y Cwningar wedi bod yn gwibio'n ôl ac ymlaen ar draws y trothwy gwlyb/sych **ers 2018 (tri o\'r wyth haf diwethaf)**. Mae tir sy'n treulio mwy a mwy o'i amser ar ochr sych y llinell honno'n colli ei gymeriad llaciau gwlyb yn raddol. Yr amser i weithredu ar y tir y gellir ei achub o hyd yw **nawr**, nid yn hwyrach.
 
 ## []{#anchor}Beth mae hyn yn ei adael i'r rhai sy'n rheoli'r twyni
 

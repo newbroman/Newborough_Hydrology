@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit. source-sha256=8f7e5532c38709ec pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit. source-sha256=d3c99f9c497066c8 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Newborough Warren: co dzieje się z poziomem wód gruntowych w wydmach
@@ -29,7 +29,7 @@ Uwaga o pewności: *wielkość* efektu przybrzeżnego jest wynikiem modelowania 
 
 ## []{#anchor}Zarządzanie pomaga --- ale jest ograniczone, a jedno narzędzie może przynieść odwrotny skutek
 
-**Wycinka lasu.** Wycięcie plantacji iglastej podniosło *średni* poziom wody tam, gdzie usunięto drzewa --- o około **12 centymetrów w skali roku** według naszego najlepszego oszacowania. Ale nie podniosło **letniego minimum** --- a to letnie minimum decyduje w rzeczywistości o tym, czy niecka pozostaje wilgotna. Więc wycinka pomaga, umiarkowanie, ale nie naprawia sezonu, który liczy się najbardziej.
+**Wycinka lasu.** Wycięcie plantacji iglastej podniosło *średni* poziom wody tam, gdzie usunięto drzewa --- o około **11 centymetrów w skali roku** według naszego najlepszego oszacowania. Ale nie podniosło **letniego minimum** --- a to letnie minimum decyduje w rzeczywistości o tym, czy niecka pozostaje wilgotna. Więc wycinka pomaga, umiarkowanie, ale nie naprawia sezonu, który liczy się najbardziej.
 
 **Zdzieranie niecek (scraping).** Zdzieranie --- ścięcie niecki z powrotem do poziomu wody --- niezawodnie sprawia, że sama zdarta niecka staje się wilgotniejsza. Ale przy brzegu działa według **tego samego mechanizmu co erozja**: wcinanie się w lądową krawędź niecki ściąga poziom wody w gruncie wokół niej. Więc zdzieranie może osuszyć sąsiadów, nawet gdy samo się nawadnia. Umiejscowienie jest wszystkim.
 
@@ -45,7 +45,7 @@ W miarę obniżania się poziomu wody letnie minimum coraz częściej spada **po
 
 ## []{#anchor}Okno możliwości się zamyka
 
-Wrażliwe niecki po wschodniej stronie Warren wahają się tam i z powrotem przez próg mokro/sucho **od około 2022 roku**. Grunt, który spędza coraz więcej czasu po suchej stronie tej linii, stopniowo traci swój charakter wilgotnej niecki. Czas, by działać na gruncie, który wciąż można ocalić, jest **teraz**, a nie później.
+Wrażliwe niecki po wschodniej stronie Warren wahają się tam i z powrotem przez próg mokro/sucho **od 2018 roku (w trzech z ostatnich ośmiu lat)**. Grunt, który spędza coraz więcej czasu po suchej stronie tej linii, stopniowo traci swój charakter wilgotnej niecki. Czas, by działać na gruncie, który wciąż można ocalić, jest **teraz**, a nie później.
 
 ## []{#anchor}Co to daje osobom zarządzającym wydmami
 

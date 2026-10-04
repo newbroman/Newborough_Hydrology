@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_25.odt — do not edit. source-sha256=b008568f2668a90a pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_26.odt — do not edit. source-sha256=0c8cb33e2f5fa4ce pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -44,11 +44,11 @@ Gwerthuswyd rhagamcanion canradd-50 UKCP18 RCP8.5 fel y newid parhaus yn y lefel
 
 ![](Pictures/100000000000076200000446097E6DF6.png){width="14cm" height="8.1cm"}
 
-Ffigur 2. Llwybr isafswm haf rhagamcanol ar gyfer y pum parth yn erbyn trothwyon ecolegol Curreli et al. (2013). Ffenestr ymyrraeth critigol 2030--2039 wedi\'i chysgodi.
+Ffigur 2. Llwybr isafswm haf rhagamcanol ar gyfer y pum parth yn erbyn trothwyon ecolegol Curreli et al. (2013). Ffynhonnell: 14_climate_trajectory_summer.png.
 
-![](Pictures/10000000000006B2000004D245961E36.png){width="14cm" height="10.090cm"}
+![](Pictures/10000000000006B2000004D245961E36.png){width="14cm" height="13.5728cm"}
 
-Ffigur 3. Symudiad parhaus rhagamcanol yn lefel ddŵr gymedrig pum mlynedd y gwanwyn (MSL5, glas) ac yn lefel ddŵr yr haf (oren), fesul parth, o dan orfodaeth UKCP18 RCP8.5 ar gyfer y 2050au a\'r 2080au, ar gyfernodau\'r ffurf rhyngdoriad. Ni ragamcanir C4 (ni ellir adnabod ei gyfernod draenio). Negatif yw dyfnach. Mae metrig y gwanwyn yn symud llawer llai na lefel yr haf yn y twyni agored (C1, C2), a thua hanner cymaint yn C3 ac C5.
+Ffigur 3. Symudiad parhaus rhagamcanol yn lefel ddŵr gymedrig pum mlynedd y gwanwyn (MSL5, glas) ac yn lefel ddŵr yr haf (oren), fesul parth, o dan orfodaeth UKCP18 RCP8.5 ar gyfer y 2050au a\'r 2080au, o dan y ffurf rhyngdoriad (Model B, wedi\'i lenwi) a\'r ffurf gyhoeddedig heb ryngdoriad (Model A, wedi\'i groeslinellu). Ni ragamcanir C4 (ni ellir adnabod ei gyfernod draenio). Negatif yw dyfnach. Mae metrig y gwanwyn yn symud llawer llai na lefel yr haf yn y twyni agored (C1, C2), a thua thraean i hanner cymaint yn C3 ac C5 o dan Model B. Ffynhonnell: fig_msl5_vs_summer_min_projection.png.
 
 Dadansoddi ymyriadau rheoli
 
@@ -56,11 +56,11 @@ Crafu twyni --- CEH36 (Ebrill 2015) a CEH18/CEH21 (Hydref 2023)
 
 CEH36: Mae tri amcangyfrifwr annibynnol yn cynhyrchu effeithiau crafu cyson --- BACI pâr crai +128 mm, rheolydd synthetig +141 mm, gweddill-ymlaen SSM +100 mm. Y ffigur pennawd yw\'r symudiad BACI isafswm haf pâr: +195 mm (p = 0.004) o\'i gymharu â\'r rheolydd heb ei grafu CEH4. Mae hyn yn cynrychioli budd geometrig parhaol: mae wyneb y tir yn agosach at y lefel ddŵr, felly mae dyfnder cymharol y lefel ddŵr yn fwy bas waeth beth fo\'r lefel absoliwt. Mae CEH36 yn rhagflaenu ffenestri cymharu MSL5 (2013--2017 yn erbyn 2019--2023); nid yw ei godiad cychwynnol yn ymddangos yn Ffigur 4.
 
-CEH18/CEH21 (Hydref 2023): Cofnod ôl-ymyrraeth annigonol (\<2 flynedd) ar gyfer casgliad ystadegol. Mae\'r ddau safle mewn safleoedd mwy tua\'r môr lle mae graddiant cilio\'r arfordir yn ffactor cymysglyd. Nid oes signal ôl-grafu arwyddocaol yn ganfyddadwy yn y naill ffynnon na\'r llall yn erbyn cefndir amrywioldeb o flwyddyn i flwyddyn.
+CEH18/CEH21 (Hydref 2023): Dangosodd y ddau safle ymatebion cyfyngedig na wnaethant oroesi cywiriad ar gyfer drifft cefndirol. Mae\'r ddau safle mewn safleoedd mwy tua\'r môr lle mae graddiant cilio\'r arfordir yn ffactor cymysglyd. Nid oes signal ôl-grafu arwyddocaol yn ganfyddadwy yn y naill ffynnon na\'r llall yn erbyn cefndir amrywioldeb o flwyddyn i flwyddyn.
 
 BACI clirdorri --- Rhagfyr 2017 (4.2 ha)
 
-Cynllun ANCOVA-BACI pum haen: 17 ffynnon, tri diffiniad rheoli annibynnol (Coedwig, Hinsawdd, Cyfunol). Prif ganlyniad (rheolydd Coedwig, ffynnon effaith WMC3): cam clirdorri +0.108 m (p = 0.003, CI \[0.037, 0.180\]). Ymyl y Goedwig: +0.031 m (p = 0.23), heb fod yn arwyddocaol. Estyniad synthetig (10h, centroid WMC3 + FE2): +0.094 m (p = 0.002). ANCOVA haf yn unig (is-set Meh--Medi): −0.001 m (p = 0.99) --- heb fod yn arwyddocaol. Mae\'r di-ganlyniad haf yn gadarn ar draws pob diffiniad rheoli.
+Cynllun ANCOVA-BACI pum haen: 17 ffynnon, tri diffiniad rheoli annibynnol (Coedwig, Hinsawdd, Cyfunol). Prif ganlyniad (rheolydd Coedwig, ffynnon effaith WMC3): ar ôl y cwympo cododd y ffynnon +0.128 m dros Hydref--Mawrth (p = 0.048, CI \[0.001, 0.254\]) a dim o gwbl dros Mehefin--Medi; nid yw\'r cam clirdorri cymedrig blynyddol, +0.108 m, yn arwyddocaol ar ei ben ei hun pan ganiateir ar gyfer awtocydberthynas (p = 0.10, CI \[−0.021, 0.237\]; gwallau sy\'n gadarn i awtocydberthynas (Newey--West) drwyddi draw). Ymyl y Goedwig: +0.031 m (p = 0.50), heb fod yn arwyddocaol. Estyniad synthetig (10h, centroid WMC3 + FE2): +0.094 m (p = 0.12). ANCOVA haf yn unig (is-set Meh--Medi): −0.001 m (p = 0.99) --- heb fod yn arwyddocaol. Nid yw\'r cam yn sefydlog: +152 mm hyd at Ragfyr 2020 a +39 mm wedi hynny, gyda\'r adran yn cael ei chadw\'n glir gan bori (Sgript 10a). Mae\'r di-ganlyniad haf yn gadarn ar draws pob diffiniad rheoli.
 
 Nid yw\'r ffynnon a gwympwyd ei hun yn dangos cynnydd yn y sensitifrwydd ailwefru ar ôl y cwympo (β₁ 0.98 o\'i werth cyn y cwympo, net o\'r rheolyddion hinsawdd), ac mae\'r dynfa atmosfferig wedi gostwng 4.8% y tu hwnt i\'r rheolyddion hinsawdd, heb golli cysgodi haf y canopi (tynfa misoedd y canopi −1.7% net). Mae\'r cam yn y lefel fisol gymedrig, nid yn lefel yr haf. Mae gostyngiad cymedrig rhwydwaith yn y sensitifrwydd ailwefru (β₁ −4.6% ar draws y 17 ffynnon BACI) yn fecanwaith posibl ar gyfer dirywiad yr isafswm haf, ond prin y mae haen y Rheolydd Hinsawdd heb ei chwympo yn ei ddangos (−0.3%), felly nid yw ei annibyniaeth ar reolaeth wedi\'i sefydlu.
 
@@ -68,17 +68,17 @@ Mae\'r senarios coedwigaeth (D-239) wedi\'u hangori i\'r hyn a fesurodd cwympo R
 
 Newid sylfaenol y gwanwyn a arsylwyd a\'r strwythur gofodol
 
-Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau cymedrig y safle −105 mm (cymedr y rhwydwaith −467 i −572 mm). O 59 ffynnon â data dilys yn y ddwy ffenestr, dyfnhaodd 58 \>25 mm; aeth 0 yn fwy bas \>25 mm. Y gostyngiadau mwyaf ar ymyl arfordirol y de-orllewin (CEH22: −233 mm); y lleiaf ar Ymyl y Llyn dwyreiniol. Nid yw parth y clirdorri\'n dangos signal gwahaniaethadwy.
+Cymhariaeth MSL5 (diwedd-ffenestr 2017 yn erbyn diwedd-ffenestr 2023): dyfnhau cymedrig y safle −105 mm (MSL5 cymedrig y rhwydwaith o 467 i 572 mm o dan y ddaear). O 59 ffynnon â data dilys yn y ddwy ffenestr, dyfnhaodd 58 \>25 mm; aeth 0 yn fwy bas \>25 mm. Y gostyngiadau mwyaf ar ymyl arfordirol y de-orllewin (CEH22: −233 mm); y lleiaf ar Ymyl y Llyn dwyreiniol. Nid yw parth y clirdorri\'n dangos signal gwahaniaethadwy.
 
 ![](Pictures/10000001000009EE00000967C79BE1C0.png){width="13cm" height="9.377cm"}
 
 Ffigur 4. Newid MSL5 2017→2023. n=59 ffynnon; dyfnhaodd 58 \>25 mm, 0 yn fwy bas \>25 mm. Ffynhonnell: 20_msl5_change_2017_2023.png; Ffigur 72 yr adroddiad.
 
-Mae dadansoddiad symudiad gwanwyn gwahaniaethol (Sgript 32, 2011--2025) yn datgelu tueddiadau dargyfeiriol o fewn y rhwydwaith. Mae C4 Prif Goedwig yn unffurf bositif (+6.9 i +18.9 mm y flwyddyn⁻¹ o\'i gymharu â chymedr y safle, cymedr y clwstwr +13.7 mm y flwyddyn⁻¹); nid oes yr un yn arwyddocaol yn unigol ar ôl cywiriad AR(1). Mae hyn yn adlewyrchu dau fecanwaith atgyfnerthol: (1) mae\'r goedwig yn meddiannu uchafbwynt hydrolig y dyfrhaen, bellaf o unrhyw ffin pen-cyson (llyn i\'r dwyrain, Afon Menai i\'r de-ddwyrain, arfordir i\'r de-orllewin), gan roi\'r rhyddid mwyaf i\'r lefel ddŵr godi mewn blynyddoedd gwlyb a gostwng mewn rhai sych; (2) mae\'r swbstrad cynnyrch-penodol isel (tywod tenau dros graigwely) yn crynhoi ailwefru\'n newidiadau pen mwy. Mae gwanwynau gwlyb diweddar (2021, 2024) wedi mwyhau C4 o\'i gymharu â\'r rhwydwaith. Mae C1 Ymyl y Llyn yn gostwng −5.6 mm y flwyddyn⁻¹ (CEH11 yn arwyddocaol) ac C5 Coedwig Arfordirol −8.5 mm y flwyddyn⁻¹ (NW9, CEH17 a CEH19 yn arwyddocaol), wedi\'u gyrru gan signal ffin cilio\'r arfordir. Mae C2 Twyn tua\'n niwtral ar gyfartaledd.
+Mae dadansoddiad symudiad gwanwyn gwahaniaethol (Sgript 32, 2011--2025) yn datgelu tueddiadau dargyfeiriol o fewn y rhwydwaith. Mae C4 Prif Goedwig yn unffurf bositif (+6.9 i +18.9 mm y flwyddyn⁻¹ o\'i gymharu â chymedr y safle, cymedr y clwstwr +13.7 mm y flwyddyn⁻¹); nid oes yr un yn arwyddocaol yn unigol ar ôl cywiriad AR(1). Mae hyn yn adlewyrchu dau fecanwaith atgyfnerthol: (1) mae\'r goedwig yn meddiannu uchafbwynt hydrolig y dyfrhaen, bellaf o unrhyw ffin pen-cyson (llyn i\'r dwyrain, Afon Menai i\'r de-ddwyrain, arfordir i\'r de-orllewin), gan roi\'r rhyddid mwyaf i\'r lefel ddŵr godi mewn blynyddoedd gwlyb a gostwng mewn rhai sych; (2) mae\'r swbstrad cynnyrch-penodol isel (tywod tenau dros graigwely) yn crynhoi ailwefru\'n newidiadau pen mwy. Mae gwanwynau gwlyb diweddar (2021, 2024) wedi mwyhau C4 o\'i gymharu â\'r rhwydwaith. Mae C1 Ymyl y Llyn yn gostwng −5.6 mm y flwyddyn⁻¹ (CEH11 yn arwyddocaol) ac C5 Coedwig Arfordirol −8.5 mm y flwyddyn⁻¹ (NW9, CEH17 a CEH19 yn arwyddocaol), yr olaf yn gyson â signal ffin cilio\'r arfordir. Mae C2 Twyn tua\'n niwtral ar gyfartaledd.
 
 ![](Pictures/100000010000075D0000047A9BEF99AE.png){width="14.986cm" height="10.811cm"}
 
-Ffigur 5. Symudiad gwanwyn gwahaniaethol 2011--2025. C4 yn unffurf bositif (ymateb blwyddyn-wlyb wedi\'i fwyhau + safle uchafbwynt hydrolig); C5 yn unffurf negatif ac C1 yn negatif gan mwyaf (effaith ffin arfordirol). C2/C3 yn niwtral yn fras. Wedi\'i lenwi = arwyddocaol (p wedi\'i gywiro gan AR \< 0.05).
+Ffigur 5. Symudiad gwanwyn gwahaniaethol 2011--2025. C4 yn unffurf bositif (ymateb blwyddyn-wlyb wedi\'i fwyhau + safle uchafbwynt hydrolig); C5 yn unffurf negatif (effaith ffin arfordirol) ac C1 yn negatif gan mwyaf. C2/C3 yn niwtral yn fras. Wedi\'i lenwi = arwyddocaol (p wedi\'i gywiro gan AR \< 0.05).
 
 Signal cilio\'r arfordir
 
@@ -86,14 +86,14 @@ Mae atchweliad ar raddfa rhwydwaith o dueddiadau fesul ffynnon yn erbyn y pellte
 
 Graddfa\'r newid a arsylwyd yn ei gyd-destun
 
-Mae\'r ymyriadau rheoli a astudiwyd hyd yma wedi cynhyrchu effeithiau mesuradwy ar y raddfa leol: mae budd y crafu yn CEH36 yn gadarn yn ystadegol ac yn arwyddocaol yn ecolegol, a chynhyrchodd y clirdorri welliant canfyddadwy mewn lefelau dŵr misol cymedrig yn erbyn rheolyddion coedwig. Fodd bynnag, dyfnhaodd sylfaen gwanwyn y safle cyfan 105 mm rhwng ffenestri cymharu 2017 a 2023 --- newid sy\'n effeithio ar 58 o 59 ffynnon a fonitrwyd ar yr un pryd ac wedi\'i yrru gan rymoedd sy\'n gweithredu ar raddfa\'r dyfrhaen gyfan. Mae tymheredd yr haf wedi tueddu i fyny ar +0.014°C y flwyddyn⁻¹ ers 1931, gyda chynnydd cam o +0.94°C uwchlaw\'r llinell sylfaen ers 2013. Mae signal cilio\'r arfordir yn cyfrif am tua hanner dirywiad eithriadol parth y Goedwig Arfordirol, ac mae\'n ymestyn sawl can metr i mewn i\'r tir. Yn erbyn y signalau hyn, mae budd y crafu mewn un ffynnon (+195 mm) a gwelliant misol-cymedrig y clirdorri (+108 mm o\'i gymharu â choedwig heb ei chwympo) yn cynrychioli ymatebion lleol nad ydynt yn newid cyfeiriad y duedd ar draws y rhwydwaith. Mae rhagamcanion UKCP18 yn dangos gostyngiad pellach yn lefel ddŵr yr haf o tua 0.39 m ar draws y safle erbyn y 2080au (0.32 i 0.44 m ar draws y parthau a ragamcanwyd; ni ragamcanir C4), ar ben y 105 mm o ddyfnhau yn sylfaen y gwanwyn a fesurwyd eisoes rhwng ffenestri cymharu 2017 a 2023, gan ragori\'n sylweddol ar unrhyw effaith reoli a arsylwyd yn y cofnod hwn.
+Mae\'r ymyriadau rheoli a astudiwyd hyd yma wedi cynhyrchu effeithiau mesuradwy ar y raddfa leol: mae budd y crafu yn CEH36 yn gadarn yn ystadegol ac yn arwyddocaol yn ecolegol, ac ar ôl y clirdorri cododd y ffynnon a gwympwyd yn y gaeaf (+128 mm dros Hydref--Mawrth) ond nid yn yr haf, er nad yw\'r cam cymedrig blynyddol yn erbyn rheolyddion coedwig (+108 mm) yn arwyddocaol ar ei ben ei hun. Fodd bynnag, dyfnhaodd sylfaen gwanwyn y safle cyfan 105 mm rhwng ffenestri cymharu 2017 a 2023 --- newid sy\'n effeithio ar 58 o 59 ffynnon a fonitrwyd ar yr un pryd ac wedi\'i yrru gan rymoedd sy\'n gweithredu ar raddfa\'r dyfrhaen gyfan. Mae tymheredd yr haf wedi tueddu i fyny ar +0.014°C y flwyddyn⁻¹ ers 1931, gyda chynnydd cam o +0.94°C uwchlaw\'r llinell sylfaen ers 2013. Mae signal cilio\'r arfordir yn cyfrif am tua hanner dirywiad eithriadol parth y Goedwig Arfordirol, ac mae\'n ymestyn sawl can metr i mewn i\'r tir. Yn erbyn y signalau hyn, mae budd y crafu mewn un ffynnon (+195 mm) a gwelliant misol-cymedrig y clirdorri (+108 mm o\'i gymharu â choedwig heb ei chwympo) yn cynrychioli ymatebion lleol nad ydynt yn newid cyfeiriad y duedd ar draws y rhwydwaith. Mae rhagamcanion UKCP18 yn dangos gostyngiad pellach yn lefel ddŵr yr haf o tua 0.39 m ar draws y safle erbyn y 2080au (0.32 i 0.44 m ar draws y parthau a ragamcanwyd; ni ragamcanir C4), ar ben y 105 mm o ddyfnhau yn sylfaen y gwanwyn a fesurwyd eisoes rhwng ffenestri cymharu 2017 a 2023, gan ragori\'n sylweddol ar unrhyw effaith reoli a arsylwyd yn y cofnod hwn.
 
 Prif ganfyddiadau meintiol
 
   ------------------------------------------------------------------------- ------------------------------- ----------------
   Canfyddiad                                                                Gwerth                          Ffynhonnell
   Cam crafu CEH36 (BACI pâr)                                                \+ 195 mm p = 0.004             Script 09c
-  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)                    \+ 108 mm p = 0.003             Script 10a
+  Cam clirdorri yn erbyn rheolydd Coedwig (cymedr misol)                    \+ 108 mm p = 0.10              Script 10a
   Cam clirdorri yn erbyn rheolydd Coedwig (haf yn unig)                     − 1 mm p = 0.99 (n.s.)          Script 10a
   Newid MSL5 2017→2023 (cymedr y safle)                                     − 105 mm                        Script 26 / 20
   Ffynhonnau a ddyfnhaodd \>25 mm (o 59 dilys)                              58 (98%)                        Script 20
@@ -115,7 +115,7 @@ Casgliadau
 
 > • Crafu twyni mewn safleoedd mewndirol a ddewiswyd yn dda yw\'r ymyrraeth uniongyrchol fwyaf effeithiol sydd ar gael, ond nid yw\'n mynd i\'r afael â\'r gyrwyr sylfaenol. Mae\'r buddion yn erydu yn erbyn tuedd hinsawdd y cefndir.
 
-> • Mae clirdorri yn codi lefelau cymedrig y dŵr ym mharth y goedwig o\'i gymharu â rheolyddion heb eu cwympo ond nid yw\'n cynhyrchu gwelliant isafswm haf canfyddadwy, mae\'r cam ar ei fwyaf yn gynnar (+152 mm hyd at Ragfyr 2020, +39 mm wedi hynny) ac mae\'r ffynnon a gwympwyd yn dangos gostyngiad yn y dynfa heb gynnydd mewn ailwefru (D-239).
+> • Ar ôl clirdorri cododd y ffynnon a gwympwyd yn y gaeaf (+128 mm dros Hydref--Mawrth, p = 0.048) ond nid yn yr haf, nid yw\'r cam cymedrig blynyddol (+108 mm) yn arwyddocaol ar ei ben ei hun pan ganiateir ar gyfer awtocydberthynas, ac nid oes gwelliant isafswm haf canfyddadwy, mae\'r cam ar ei fwyaf yn gynnar (+152 mm hyd at Ragfyr 2020, +39 mm wedi hynny) ac mae\'r ffynnon a gwympwyd yn dangos gostyngiad yn y dynfa heb gynnydd mewn ailwefru (D-239).
 
 > • Mae gostyngiad ar draws y rhwydwaith yn y sensitifrwydd ailwefru yn fecanwaith posibl ar gyfer dirywiad yr isafswm haf; nid yw ei annibyniaeth ar reolaeth wedi\'i sefydlu.
 

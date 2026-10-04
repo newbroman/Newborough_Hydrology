@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit. source-sha256=d3c99f9c497066c8 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit. source-sha256=3f41916ae723f658 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Newborough Warren: co dzieje się z poziomem wód gruntowych w wydmach
@@ -15,7 +15,7 @@ Przez 21 lat badanie śledziło poziom wód gruntowych w Warren za pomocą sieci
 
 Dwie siły obniżają poziom wód gruntowych w Warren, i obie są większe niż narzędzia dostępne do zarządzania terenem.
 
-**Klimat --- ten stały.** W całym terenie poziom wody obniża się z roku na rok --- w miarę jak spada zasilanie z opadów, a wczesne lata stają się cieplejsze i bardziej spragnione wody. W pojedynczym roku nie jest to dramatyczne, ale nigdy nie ustaje i działa *wszędzie naraz*. Sam spadek widzimy w poziomach wody. Czego dwadzieścia jeden lat nie pozwala ustalić, to **jak szybko** on postępuje, ponieważ wahania z roku na rok są większe niż ukryty w nich trend. Dlatego opisujemy tę presję przez jej kierunek i zasięg, a nie podajemy liczby określającej jej tempo.
+**Klimat --- ten stały.** W całym terenie poziom wody obniża się z roku na rok --- w miarę jak wczesne lata stają się cieplejsze i bardziej spragnione wody. W pojedynczym roku nie jest to dramatyczne, ale nigdy nie ustaje i działa *wszędzie naraz*. Sam spadek widzimy w poziomach wody. Czego dwadzieścia jeden lat nie pozwala ustalić, to **jak szybko** on postępuje, ponieważ wahania z roku na rok są większe niż ukryty w nich trend. Dlatego opisujemy tę presję przez jej kierunek i zasięg, a nie podajemy liczby określającej jej tempo.
 
 **Erozja wybrzeża --- ta ukryta.** Tam, gdzie morze wgryza się w czoło wydmy, ściąga poziom wody wraz z sobą. Efekt ten jest **najsilniejszy tuż przy brzegu i słabnie w głąb lądu**, osiągając poziom tła około **900 metrów** w głąb. Łatwo było go przeoczyć, ale jest to poważna i trwała presja. Działa również według *tej samej fizyki* co jedno z narzędzi zarządzania poniżej.
 
@@ -29,15 +29,15 @@ Uwaga o pewności: *wielkość* efektu przybrzeżnego jest wynikiem modelowania 
 
 ## []{#anchor}Zarządzanie pomaga --- ale jest ograniczone, a jedno narzędzie może przynieść odwrotny skutek
 
-**Wycinka lasu.** Wycięcie plantacji iglastej podniosło *średni* poziom wody tam, gdzie usunięto drzewa --- o około **11 centymetrów w skali roku** według naszego najlepszego oszacowania. Ale nie podniosło **letniego minimum** --- a to letnie minimum decyduje w rzeczywistości o tym, czy niecka pozostaje wilgotna. Więc wycinka pomaga, umiarkowanie, ale nie naprawia sezonu, który liczy się najbardziej.
+**Wycinka lasu.** Wycięcie plantacji iglastej podniosło *średni* poziom wody tam, gdzie usunięto drzewa --- o około **11 centymetrów w skali roku** według naszego najlepszego oszacowania. Większość tego wzrostu przypadła na pierwsze trzy lata po wycince; od 2021 roku zysk jest znacznie mniejszy (około 4 centymetrów). Ale nie podniosło **letniego minimum** --- a to letnie minimum decyduje w rzeczywistości o tym, czy niecka pozostaje wilgotna. Więc wycinka pomaga, umiarkowanie, ale nie naprawia sezonu, który liczy się najbardziej.
 
-**Zdzieranie niecek (scraping).** Zdzieranie --- ścięcie niecki z powrotem do poziomu wody --- niezawodnie sprawia, że sama zdarta niecka staje się wilgotniejsza. Ale przy brzegu działa według **tego samego mechanizmu co erozja**: wcinanie się w lądową krawędź niecki ściąga poziom wody w gruncie wokół niej. Więc zdzieranie może osuszyć sąsiadów, nawet gdy samo się nawadnia. Umiejscowienie jest wszystkim.
+**Zdzieranie niecek (scraping).** Zdzieranie --- ścięcie niecki z powrotem do poziomu wody --- niezawodnie sprawia, że sama zdarta niecka staje się wilgotniejsza. Ale przy brzegu działa według **tego samego mechanizmu co erozja**: wcinanie się w lądową krawędź niecki ściąga poziom wody w gruncie wokół niej. Więc zdzieranie może, według modelu, osuszyć sąsiadów, nawet gdy samo się nawadnia --- studzienki nie potwierdzają tego jeszcze. Umiejscowienie jest wszystkim.
 
 Obie interwencje są **lokalne** --- zmieniają obrabianą nieckę i jej najbliższych sąsiadów, a nie cały teren --- i obie są **przyćmione przez erozję wybrzeża i przez ogólnoterenowe obniżenie** (Rycina 2). Zarządzanie nie jest bezcelowe; ale to skalpel, a nie dźwignia dla całego Warren.
 
 ![](Pictures/10000000000007D000000367AA4B3347.png){width="16cm" height="6.967cm"}
 
-**Rycina 2 --- Co robi zarządzanie.** Zdzieranie niecki i wycinka lasu, przed i po: zdarta niecka wypełnia się wodą, ale miejsce nieco w głąb lądu może trochę opaść; wycinka podnosi poziom w skali roku, ale nie letnie minimum. Oba efekty są lokalne. Schemat, nie w skali. (Tekst na rycinie jest w języku angielskim.)
+**Rycina 2 --- Co robi zarządzanie.** Zdzieranie niecki i wycinka lasu, przed i po: zdarta niecka wypełnia się wodą, ale według modelu miejsce nieco w głąb lądu może trochę opaść; wycinka podnosi poziom w skali roku, ale nie letnie minimum. Oba efekty są lokalne. Schemat, nie w skali. (Tekst na rycinie jest w języku angielskim.)
 
 ## []{#anchor}Problem staje się coraz trudniejszy do zaobserwowania
 

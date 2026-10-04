@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=ee86946882dd1031 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/web_tools/NRG_Web_Tools_User_Manual.odt — do not edit. source-sha256=cd8dcb25c8bd6450 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 2
@@ -13,7 +13,7 @@ Forecaster · Scenario Viewer · Seasonal Extremes Scatter
 
 Hollingham (2026)
 
-May 2026
+October 2026
 
 Part A
 
@@ -21,7 +21,7 @@ Groundwater Flooding Forecaster
 
 # A1. Introduction
 
-Document version --- updated 2026-08-12.
+Document version --- updated 2026-10-04.
 
 The Groundwater Flooding Forecaster is a self-contained, single-file HTML tool that provides per-well flood-risk assessments for the Newborough Warren dipwell network. It is designed to be opened in any modern web browser, on desktop or mobile, with no installation required.
 
@@ -136,10 +136,10 @@ P_flood = A · d_w + B
 
 The result is also expressed as m_P, the multiple of climatological rainfall:
 
--   Reachable (green): m_P \< 1.0 --- surface flooding possible under normal rainfall.
--   Wet winter required (amber): m_P 1.0--1.3.
--   Exceptional winter (red): m_P 1.3--2.0.
--   Structurally unreachable (grey): m_P \> 2.0 --- flooding essentially impossible.
+-   Achievable (green): m_P \< 1.5 --- reachable in normal to mildly wet winters.
+-   Marginal (amber): m_P 1.5--2.5 --- reachable only in wet winters.
+-   Unreachable (red): m_P ≥ 2.5 --- effectively unreachable under the current climate.
+-   No estimate (grey): no m_P can be computed for the well. These are the report's three achievability classes (Conclusion 6); the Forecaster reads the class edges from the pipeline.
 
 ## A7.4 Ecohydrology indices (EWI, EbF, MSL5)
 
@@ -157,13 +157,13 @@ These values update automatically from the project\'s live feed. If the page is 
 
 The map uses a square viewBox (1000 × 1000) matching the square base-layer extent (3800 m × 3800 m). Well dots occupy a horizontal strip across the middle of the map reflecting their actual geography. Each dot is coloured by P_flood vulnerability:
 
-  -------- -------------------------- ---------------------
-  Colour   Category                   m_P range
-  Green    Reachable                  \< 1.0× climatology
-  Amber    Wet winter required        1.0--1.3×
-  Red      Exceptional winter         1.3--2.0×
-  Grey     Structurally unreachable   \> 2.0×
-  -------- -------------------------- ---------------------
+  -------- ----------------------------- ---------------------
+  Colour   Category                      m_P range
+  Green    Achievable                    \< 1.5× climatology
+  Amber    Marginal (wet winters only)   1.5--2.5×
+  Red      Unreachable                   ≥ 2.5×
+  Grey     No estimate                   ---
+  -------- ----------------------------- ---------------------
 
 The legend and rainfall slider overlay the top-left and top-right corners of the map respectively. The map content is top-aligned within its container; any spare vertical space appears below as sand-coloured background.
 
@@ -178,10 +178,6 @@ Some wells are flagged with an asterisk (\*) and display a nearest-type assignme
 -   Compare the per-well long-term depths against the cluster averages in the well-details panel; large differences indicate the well behaves atypically within its cluster.
 -   The forecaster works entirely offline after the initial page load; you can save the HTML file to a USB stick or phone for field use.
 -   Drag the panel gutters to adjust the sidebar, map, and forecast panel widths to suit your screen.
-
-Part B
-
-Hydrological Scenario Viewer
 
 # A11. The Wet-Area Panel and Cell Layer
 
@@ -230,6 +226,10 @@ This matters most at the wet end. The open-water curve is steep --- a tenth of a
 ## A11.7 Provenance
 
 The panel and the layer both read living/wet_area_model.json, which is written by the sentinel_wet_floor tool from the committed model and is stamped with the hash of the file it came from. That stamp appears at the foot of the panel. If the feed and the page ever disagree, the page says so rather than drawing two fits at once.
+
+Part B
+
+Hydrological Scenario Viewer
 
 # B1. Introduction
 

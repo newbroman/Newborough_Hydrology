@@ -15,46 +15,82 @@ synth_pre_felling_months,FE1,,29.0,months,"observed monthly readings before CLEA
 synth_pre_felling_months,FE2,,29.0,months,"observed monthly readings before CLEARFELL_DATE, 2015-07 to 2017-11"
 ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_step,,,0.07800840150917744,m,
 ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_p,,,0.0013657317399145322,m,
+ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_se_hac,,,0.04792028489133343,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_p_hac,,,0.10355065100921843,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_ci_lo_hac,,,-0.015915356877836087,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_ci_hi_hac,,,0.17193215989619098,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_A_WMC3+FE1+FE2_Forest_R2,,,0.27840255531727265,m,
 ANCOVA_A_WMC3+FE1+FE2_Forest_N,,,162.0,m,
 ANCOVA_A_WMC3+FE1+FE2_Forest_net_clearfell,,,0.13651965697533155,m,Forest/Combined step minus Climate background
 ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_step,,,-0.058511255466154106,m,
 ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_p,,,0.07649939391729185,m,
+ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_se_hac,,,0.04485612283914567,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_p_hac,,,0.19209017879066814,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_ci_lo_hac,,,-0.1464292562308796,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Climate_clearfell_ci_hi_hac,,,0.029406745298571395,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_A_WMC3+FE1+FE2_Climate_R2,,,0.1033689845863569,m,
 ANCOVA_A_WMC3+FE1+FE2_Climate_N,,,140.0,m,
 ANCOVA_A_WMC3+FE1+FE2_Climate_net_clearfell,,,0.0,m,Forest/Combined step minus Climate background
 ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_step,,,0.031600866434749346,m,
 ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_p,,,0.022850713020598663,m,
+ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_se_hac,,,0.015796162384053354,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_p_hac,,,0.045441904971218826,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_ci_lo_hac,,,0.0006403881620047729,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_A_WMC3+FE1+FE2_Combined_clearfell_ci_hi_hac,,,0.06256134470749392,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_A_WMC3+FE1+FE2_Combined_R2,,,0.2028004445107784,m,
 ANCOVA_A_WMC3+FE1+FE2_Combined_N,,,138.0,m,
 ANCOVA_A_WMC3+FE1+FE2_Combined_net_clearfell,,,0.09011212190090345,m,Forest/Combined step minus Climate background
 ANCOVA_B_WMC3+FE2_Forest_clearfell_step,,,0.0941365338915583,m,
 ANCOVA_B_WMC3+FE2_Forest_clearfell_p,,,0.002450082948154835,m,
+ANCOVA_B_WMC3+FE2_Forest_clearfell_se_hac,,,0.06008768333839762,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Forest_clearfell_p_hac,,,0.1171958824881131,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Forest_clearfell_ci_lo_hac,,,-0.023635325451701036,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Forest_clearfell_ci_hi_hac,,,0.21190839323481764,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_B_WMC3+FE2_Forest_R2,,,0.3022560025869324,m,
 ANCOVA_B_WMC3+FE2_Forest_N,,,162.0,m,
 ANCOVA_B_WMC3+FE2_Forest_net_clearfell,,,0.13154446731551495,m,Forest/Combined step minus Climate background
 ANCOVA_B_WMC3+FE2_Climate_clearfell_step,,,-0.03740793342395665,m,
 ANCOVA_B_WMC3+FE2_Climate_clearfell_p,,,0.2027699265720709,m,
+ANCOVA_B_WMC3+FE2_Climate_clearfell_se_hac,,,0.04396747506166049,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Climate_clearfell_p_hac,,,0.3948753358266254,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Climate_clearfell_ci_lo_hac,,,-0.12358418454481121,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Climate_clearfell_ci_hi_hac,,,0.048768317696897906,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_B_WMC3+FE2_Climate_R2,,,0.17517328971664115,m,
 ANCOVA_B_WMC3+FE2_Climate_N,,,140.0,m,
 ANCOVA_B_WMC3+FE2_Climate_net_clearfell,,,0.0,m,Forest/Combined step minus Climate background
 ANCOVA_B_WMC3+FE2_Combined_clearfell_step,,,0.04906993034735461,m,
 ANCOVA_B_WMC3+FE2_Combined_clearfell_p,,,0.0016120336460646594,m,
+ANCOVA_B_WMC3+FE2_Combined_clearfell_se_hac,,,0.025007446122689257,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Combined_clearfell_p_hac,,,0.049737716783645546,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Combined_clearfell_ci_lo_hac,,,5.533594688366533e-05,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_B_WMC3+FE2_Combined_clearfell_ci_hi_hac,,,0.09808452474782556,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_B_WMC3+FE2_Combined_R2,,,0.3494052513193673,m,
 ANCOVA_B_WMC3+FE2_Combined_N,,,138.0,m,
 ANCOVA_B_WMC3+FE2_Combined_net_clearfell,,,0.08647786377131125,m,Forest/Combined step minus Climate background
 ANCOVA_C_WMC3_only_Forest_clearfell_step,,,0.10823026378394887,m,
 ANCOVA_C_WMC3_only_Forest_clearfell_p,,,0.003423016629000233,m,
+ANCOVA_C_WMC3_only_Forest_clearfell_se_hac,,,0.06571452852380504,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Forest_clearfell_p_hac,,,0.09956294002861903,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Forest_clearfell_ci_lo_hac,,,-0.020570212122708986,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Forest_clearfell_ci_hi_hac,,,0.23703073969060673,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_C_WMC3_only_Forest_R2,,,0.23151932242398543,m,
 ANCOVA_C_WMC3_only_Forest_N,,,162.0,m,
 ANCOVA_C_WMC3_only_Forest_net_clearfell,,,0.12753223895608323,m,Forest/Combined step minus Climate background
 ANCOVA_C_WMC3_only_Climate_clearfell_step,,,-0.019301975172134354,m,
 ANCOVA_C_WMC3_only_Climate_clearfell_p,,,0.4626042509000125,m,
+ANCOVA_C_WMC3_only_Climate_clearfell_se_hac,,,0.03940993624051905,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Climate_clearfell_p_hac,,,0.6242935963578358,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Climate_clearfell_ci_lo_hac,,,-0.09654545020355168,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Climate_clearfell_ci_hi_hac,,,0.05794149985928298,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_C_WMC3_only_Climate_R2,,,0.1887599012571306,m,
 ANCOVA_C_WMC3_only_Climate_N,,,140.0,m,
 ANCOVA_C_WMC3_only_Climate_net_clearfell,,,0.0,m,Forest/Combined step minus Climate background
 ANCOVA_C_WMC3_only_Combined_clearfell_step,,,0.0656004116094338,m,
 ANCOVA_C_WMC3_only_Combined_clearfell_p,,,0.0006887415927796343,m,
+ANCOVA_C_WMC3_only_Combined_clearfell_se_hac,,,0.027164939717535214,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Combined_clearfell_p_hac,,,0.015739850489295437,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Combined_clearfell_ci_lo_hac,,,0.012357129763064786,m,"Newey-West (Bartlett), 12 lags (D-240)"
+ANCOVA_C_WMC3_only_Combined_clearfell_ci_hi_hac,,,0.11884369345580283,m,"Newey-West (Bartlett), 12 lags (D-240)"
 ANCOVA_C_WMC3_only_Combined_R2,,,0.25922614052192827,m,
 ANCOVA_C_WMC3_only_Combined_N,,,138.0,m,
 ANCOVA_C_WMC3_only_Combined_net_clearfell,,,0.08490238678156817,m,Forest/Combined step minus Climate background

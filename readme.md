@@ -34,6 +34,7 @@ All documents are in [`docs/`](docs/) and linked from the
 | **Supplementary material** | `docs/report/Supplementary_Material.pdf` | Additional tables and figures |
 | **Methods Supplement** | `docs/report/Newborough_Methods_Supplement.pdf` | One chapter per pipeline script: inputs, method, outputs, caveats |
 | **Academic summary** | `docs/academic_summaries/academic_summary.pdf` | Concise research summary for researchers |
+| **Academic summary (CY)** | `docs/academic_summaries/crynodeb_academaidd.pdf` | Crynodeb academaidd Cymraeg |
 | **Public summary (EN)** | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | Plain-language overview |
 | **Public summary (CY)** | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | Crynodeb cyhoeddus Cymraeg |
 | **Public summary (PL)** | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | Podsumowanie po polsku |

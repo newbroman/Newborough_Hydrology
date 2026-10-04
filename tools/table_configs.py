@@ -110,7 +110,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) — 2026-09-26. sm/TableS72: the Supplementary
+__version__ = "1.15.0"  # Hollingham (2026) — 2026-10-04. D-240: report9/Table9, ms/Table31 and paper2/Table1 show the
+#   clearfell step's autocorrelation-robust (Newey-West) CI, p and Sig (10a_01 / 10h_02 *_hac columns); headers say so.
+# 1.14.0  # Hollingham (2026) — 2026-09-26. sm/TableS72: the Supplementary
 #   Material's new Table S7.2 (van Willegen quadrat datum offsets, Script 26 Pass 7b) is generated
 #   from 26_table_s7_2_vw_datum_offsets.csv (T-57, D-189).
 # 1.13.0  # Hollingham (2026) — 2026-09-24. ms/Script29Headline: the Methods
@@ -315,15 +317,17 @@ TABLES = [
         "sources": {"anc": "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv"},
         "rows": {"source": "anc",
                  "filter": {"Control": ["Forest", "Climate", "Combined"]}},  # FarField rows not shown
-        "header": ["Control", "Zone", "Clearfell step (m)", "95% CI (m)", "p", "Sig",
-                   "Scraping step (m)", "Scraping p", "R²", "n"],
+        # D-240: the clearfell CI, p and Sig are the autocorrelation-robust (Newey-West)
+        # values; the scraping p stays on ordinary errors, as the header says.
+        "header": ["Control", "Zone", "Clearfell step (m)", "95% CI (m), robust", "p, robust", "Sig",
+                   "Scraping step (m)", "Scraping p (OLS)", "R²", "n"],
         "columns": [
             {"col": "Control", "fmt": "text"},
             {"col": "Zone",    "fmt": "text"},
             {"col": "Clearfell_step_m", "fmt": "fixed", "dp": 3, "sign": True},
-            {"fmt": "ci", "cols": ["Clearfell_CI_lo_m", "Clearfell_CI_hi_m"], "dp": 3, "sign": True},
-            {"col": "Clearfell_p",   "fmt": "pvalue", "dp": 3},
-            {"col": "Clearfell_sig", "fmt": "text"},
+            {"fmt": "ci", "cols": ["Clearfell_CI_lo_hac_m", "Clearfell_CI_hi_hac_m"], "dp": 3, "sign": True},
+            {"col": "Clearfell_p_hac",   "fmt": "pvalue", "dp": 3},
+            {"col": "Clearfell_sig_hac", "fmt": "text"},
             {"col": "Scraping_step_m", "fmt": "fixed", "dp": 3, "sign": True},
             {"col": "Scraping_p",    "fmt": "pvalue", "dp": 3},
             {"col": "R2",            "fmt": "fixed", "dp": 3},
@@ -1025,7 +1029,8 @@ TABLES = [
         "rows": {"source": "an",
                  "filter": {"Control": ["Forest", "Climate"]},
                  "exclude": [{"Variant": "C (WMC3 only)", "Control": "Climate"}]},
-        "header": ["Variant", "Zone", "Step (mm)", "95% CI", "p"],
+        # D-240: CI and p are the autocorrelation-robust (Newey-West) values
+        "header": ["Variant", "Zone", "Step (mm)", "95% CI, robust", "p, robust"],
         "columns": [
             # the variant label is written in full on its Forest row and
             # reduced to the letter on the Climate row beneath it, as
@@ -1035,9 +1040,9 @@ TABLES = [
              "re": [[r"\+", " + "], [r" only\)", ")"]]},
             {"col": "Control", "fmt": "text"},
             {"col": "Clearfell_step_m", "fmt": "fixed", "dp": 0, "sign": True, "scale": 1000},
-            {"fmt": "ci", "cols": ["Clearfell_CI_lo_m", "Clearfell_CI_hi_m"],
+            {"fmt": "ci", "cols": ["Clearfell_CI_lo_hac_m", "Clearfell_CI_hi_hac_m"],
              "dp": 0, "sign": True, "scale": 1000},
-            {"col": "Clearfell_p", "fmt": "pvalue", "dp": 3, "re": [r"^<", "< "]},   # "< 0.001" with the space, as published
+            {"col": "Clearfell_p_hac", "fmt": "pvalue", "dp": 3, "re": [r"^<", "< "]},   # "< 0.001" with the space, as published
         ],
     },
     {
@@ -1239,14 +1244,15 @@ TABLES = [
         "sources": {"anc": "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv"},
         "rows": {"source": "anc",
                  "filter": {"Control": ["Forest", "Climate", "Combined"]}},   # FarField not shown
-        "header": ["Control", "Zone", "Clearfell step (m)", "95% CI", "p",
-                   "Scraping step (m)", "Scraping p", "R²", "n"],
+        # D-240: clearfell CI and p are the autocorrelation-robust (Newey-West) values
+        "header": ["Control", "Zone", "Clearfell step (m)", "95% CI, robust", "p, robust",
+                   "Scraping step (m)", "Scraping p (OLS)", "R²", "n"],
         "columns": [
             {"col": "Control", "fmt": "text"},
             {"col": "Zone",    "fmt": "text"},
             {"col": "Clearfell_step_m", "fmt": "fixed", "dp": 3, "sign": True},
-            {"fmt": "ci", "cols": ["Clearfell_CI_lo_m", "Clearfell_CI_hi_m"], "dp": 3, "sign": True},
-            {"col": "Clearfell_p",   "fmt": "pvalue", "dp": 3},
+            {"fmt": "ci", "cols": ["Clearfell_CI_lo_hac_m", "Clearfell_CI_hi_hac_m"], "dp": 3, "sign": True},
+            {"col": "Clearfell_p_hac",   "fmt": "pvalue", "dp": 3},
             {"col": "Scraping_step_m", "fmt": "fixed", "dp": 3, "sign": True},
             {"col": "Scraping_p",    "fmt": "pvalue", "dp": 3},
             {"col": "R2",            "fmt": "fixed", "dp": 3},

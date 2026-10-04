@@ -61,7 +61,12 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-29. T-96: 10h_report_numbers carries
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-04. D-240: the clearfell step carries Newey-West
+#   (Bartlett, config.BACI_HAC_MAXLAGS_MONTHS lags) errors beside the OLS ones, as Script 10a 1.21.0 does:
+#   new comparison columns Clearfell_se_hac_m / Clearfell_p_hac / Clearfell_CI_lo_hac_m / Clearfell_CI_hi_hac_m /
+#   Clearfell_sig_hac
+#   (appended) and report rows <prefix>_clearfell_se_hac / _p_hac / _ci_lo_hac / _ci_hi_hac. No estimate moves.
+# 1.9.0  # Hollingham (2026) - 2026-09-29. T-96: 10h_report_numbers carries
 #   synth_pre_felling_months (Well FE1 / FE2), each FE well's observed monthly readings before
 #   CLEARFELL_DATE, which report9 Section 4.6.1 quotes ("approximately 28 months"). Emit-only.
 # v1.8.0  # Hollingham (2026) - 2026-09-26. T-86: the retyped days-per-month literal is now
@@ -110,6 +115,8 @@ from utils.clearfell_common import (
 )
 from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS
 from utils.config import DAYS_PER_MONTH
+from utils.config import BACI_HAC_MAXLAGS_MONTHS
+import statsmodels.api as sm
 from utils.render_utils import render_figure
 import pandas as pd
 import numpy as np
@@ -474,6 +481,15 @@ def main():
         fit['clearfell_p'] = fit['p'][fell_idx]
         fit['clearfell_ci'] = (ci_lo, ci_hi)
 
+        # D-240: Newey-West errors, as in Script 10a; rows must be in time order.
+        if not df.index.is_monotonic_increasing:
+            raise ValueError("ANCOVA frame is not in time order; Newey-West lags would be meaningless")
+        _h = sm.OLS(y, X).fit(cov_type='HAC', cov_kwds={'maxlags': BACI_HAC_MAXLAGS_MONTHS})
+        _se = float(_h.bse[fell_idx])
+        fit['clearfell_se_hac'] = _se
+        fit['clearfell_p_hac'] = float(_h.pvalues[fell_idx])
+        fit['clearfell_ci_hac'] = (fit['clearfell_step'] - 1.96 * _se, fit['clearfell_step'] + 1.96 * _se)
+
         scr_idx = col_names.index('scraping')
         fit['scraping_step'] = fit['b'][scr_idx]
         fit['scraping_p'] = fit['p'][scr_idx]
@@ -555,6 +571,11 @@ def main():
                     if not np.isnan(fit['m3_scrape2_coef']) else np.nan,
                 'Oct2023_p': fit['m3_scrape2_p'],
                 'dAIC_M3_M2': float(fit['daic']) if not np.isnan(fit['daic']) else np.nan,
+                'Clearfell_se_hac_m': fit['clearfell_se_hac'],
+                'Clearfell_p_hac': fit['clearfell_p_hac'],
+                'Clearfell_CI_lo_hac_m': fit['clearfell_ci_hac'][0],
+                'Clearfell_CI_hi_hac_m': fit['clearfell_ci_hac'][1],
+                'Clearfell_sig_hac': p_to_sig(fit['clearfell_p_hac']),
             })
 
             # Full coefficients
@@ -980,6 +1001,11 @@ def main():
         prefix = prefix.replace(' ', '_').replace('(', '').replace(')', '')
         rpt.add(f"{prefix}_clearfell_step", row['Clearfell_step_m'], unit='m')
         rpt.add(f"{prefix}_clearfell_p", row['Clearfell_p'])
+        _n = f"Newey-West (Bartlett), {BACI_HAC_MAXLAGS_MONTHS} lags (D-240)"
+        rpt.add(f"{prefix}_clearfell_se_hac", row['Clearfell_se_hac_m'], unit='m', note=_n)
+        rpt.add(f"{prefix}_clearfell_p_hac", row['Clearfell_p_hac'], note=_n)
+        rpt.add(f"{prefix}_clearfell_ci_lo_hac", row['Clearfell_CI_lo_hac_m'], unit='m', note=_n)
+        rpt.add(f"{prefix}_clearfell_ci_hi_hac", row['Clearfell_CI_hi_hac_m'], unit='m', note=_n)
         rpt.add(f"{prefix}_R2", row['R2'])
         rpt.add(f"{prefix}_N", row['N'])
         if pd.notna(row.get('Net_clearfell_m')):

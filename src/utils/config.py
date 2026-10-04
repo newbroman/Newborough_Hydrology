@@ -44,7 +44,12 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.96.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). END_STATE_OPEN_DUNE_COUNTERPART and CANOPY_ON_MONTHS;
+__version__ = "1.97.0"  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). MP_ACHIEVABLE_MAX and
+#   MP_MARGINAL_MAX: the m_P class edges of the report's achievability scheme (Conclusion 6), lifted out of
+#   Script 11c so the Forecaster (11b) draws the same three classes (Martin, 2026-10-04: "Align the tool to
+#   the report"). No value moves. BACI_HAC_MAXLAGS_MONTHS: the Newey-West lag window for the clearfell
+#   ANCOVA's autocorrelation-robust errors (D-240; Script 10a 1.21.0).
+# 1.96.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239). END_STATE_OPEN_DUNE_COUNTERPART and CANOPY_ON_MONTHS;
 #   END_STATE_OPEN_DUNE_COUNTERPART: the open-dune end state of a clearfell, cluster basis (Script 19).
 # 1.95.0  # Hollingham (2026) - 2026-10-03 (T-99). DATUM_AOD_SWEEP_* and DATUM_AOD_NONPOS_CHECK_M
 #   (Script 03 1.25.0: D-163's datum fixed in elevation, emitted). Additive.
@@ -986,6 +991,15 @@ DRAWDOWN_QUOTE_LEVELS_MM = (50.0, 10.0)
 # WRITTEN ON A FIGURE OR PRINTED; it is never applied to the value used to build
 # the drawdown field, nor to the value stored in 20_report_numbers.csv.
 REACH_QUOTE_NEAREST_M = 10.0
+
+# m_P achievability classes (report Conclusion 6; Script 11c, and the Forecaster via 11b):
+#   achievable m_P < MP_ACHIEVABLE_MAX; marginal (wet winters only) up to MP_MARGINAL_MAX; unreachable at or above it.
+MP_ACHIEVABLE_MAX = 1.5
+MP_MARGINAL_MAX   = 2.5
+
+# Newey-West (Bartlett) lag window, in months, for the clearfell BACI ANCOVA (D-240): one year, so the
+# seasonal cycle the residuals carry is inside the window. A seasonal subset uses one year of its own months.
+BACI_HAC_MAXLAGS_MONTHS = 12
 
 # --- Scrape rise-zone + coastal-retreat geometry (Scripts 20, 09d, 09f) --------
 # Shared geometry constants for the scrape drain-cone and coastal-erosion fields.

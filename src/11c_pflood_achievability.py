@@ -38,7 +38,9 @@ index are in outputs/pipeline_manifest.json.
 
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The class edges are now
+#   config.MP_ACHIEVABLE_MAX / MP_MARGINAL_MAX, shared with the Forecaster (11b 1.19.0). No value moves.
+# 1.6.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
 #   11c_report_numbers.csv (paths.OUT_11C_REPORT_NUMBERS) - achievability_n and achievability_share_pct
 #   per category (Well = the category) over the wells of 11b_03 (report10 SS5.8.1: 59 / 24 / 5 of 88).
 #   The class edges LAMBDA_ACHIEVABLE_MAX / LAMBDA_MARGINAL_MAX stay local for now. Additive.
@@ -87,6 +89,7 @@ def main():
     from utils.config import (  # noqa: E402
         SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
         SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
+        MP_ACHIEVABLE_MAX, MP_MARGINAL_MAX,
     )
     from utils.render_utils import render_figure
     from utils.report_numbers_utils import ReportNumbers
@@ -106,8 +109,8 @@ def main():
     # is the "only wet winters" zone; m_P≥2.5 is the "effectively unreachable"
     # zone defined by requiring more than 2.5× the climatological winter mean.
 
-    LAMBDA_ACHIEVABLE_MAX = 1.5
-    LAMBDA_MARGINAL_MAX   = 2.5
+    LAMBDA_ACHIEVABLE_MAX = MP_ACHIEVABLE_MAX
+    LAMBDA_MARGINAL_MAX   = MP_MARGINAL_MAX
 
     CATEGORY_COLOURS = {
         "Achievable":  "#3a8f3a",  # forest green

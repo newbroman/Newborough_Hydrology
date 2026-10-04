@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit. source-sha256=cad4ca03ac7bf430 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit. source-sha256=298f8c67792d5151 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren: what is happening to the dune water table
@@ -17,7 +17,7 @@ For 21 years this study has followed the Warren's water table using a network of
 
 Two forces are pulling the Warren's water table down, and both are bigger than the tools available to manage the site.
 
-**Climate --- the steady one.** Right across the site, the water table is drifting down year on year --- as rainfall recharge falls and early summers grow hotter and thirstier. It is not dramatic in any single year, but it never stops and it acts *everywhere at once*. We can see the fall in the levels themselves. What twenty-one years cannot do is say **how fast** it is going, because the swing from one year to the next is larger than the drift hidden inside it. So we describe this pressure by its direction and its reach, and we do not put a number on its rate.
+**Climate --- the steady one.** Right across the site, the water table is drifting down year on year --- as early summers grow hotter and thirstier. It is not dramatic in any single year, but it never stops and it acts *everywhere at once*. We can see the fall in the levels themselves. What twenty-one years cannot do is say **how fast** it is going, because the swing from one year to the next is larger than the drift hidden inside it. So we describe this pressure by its direction and its reach, and we do not put a number on its rate.
 
 **Coastal erosion --- the sleeper.** Where the sea is cutting into the dune front, it draws the water table down with it. This effect is **strongest right at the shore and fades inland**, reaching background levels roughly **900 metres** in. It has been easy to overlook, but it is a serious and ongoing pressure. It also works by *exactly the same physics* as one of the management tools below --- a point we return to.
 
@@ -31,15 +31,15 @@ A note on certainty: the *size* of the coastal effect is modelled, and the well 
 
 ## []{#anchor}Management helps --- but it is limited, and one tool can backfire
 
-**Clearing the forest.** Felling the conifer plantation raised the *average* water table where the trees came out --- by around **11 centimetres over the year** in our best estimate. But it did **not** lift the **summer low point** --- and the summer low is the moment that actually decides whether a slack stays wet. So felling helps, modestly, but it does not fix the season that matters most.
+**Clearing the forest.** Felling the conifer plantation raised the *average* water table where the trees came out --- by around **11 centimetres over the year** in our best estimate. Most of that came in the first three years after felling; since 2021 the gain has been much smaller (about 4 centimetres). But it did **not** lift the **summer low point** --- and the summer low is the moment that actually decides whether a slack stays wet. So felling helps, modestly, but it does not fix the season that matters most.
 
-**Scraping slacks.** Scraping --- stripping a slack back down to the water table --- reliably makes the *scraped hollow itself* wetter. But near the coast it works by the **same mechanism as erosion**: cutting back into the landward edge of a slack draws the water table down in the ground just around it. So a scrape can **dry its neighbours even as it wets itself**. Placement is everything.
+**Scraping slacks.** Scraping --- stripping a slack back down to the water table --- reliably makes the *scraped hollow itself* wetter. But near the coast it works by the **same mechanism as erosion**: cutting back into the landward edge of a slack draws the water table down in the ground just around it. So a scrape can, in the model, **dry its neighbours even as it wets itself**. The wells cannot yet confirm that. Placement is everything.
 
 Both interventions are **local** --- they change the worked slack and its close neighbours, not the whole site --- and both are **dwarfed by coastal erosion and by the warren-wide decline** (Figure 2). Management is not pointless; but it is a scalpel, not a lever on the whole Warren.
 
 ![](Pictures/1.png){width="6.29921in" height="2.7433070866032in"}
 
-**Figure 2 --- What management does.** Dune scrape (left) and forest clearing (right), before and after. A cut slack fills with water but can draw down a spot just inland; felling lifts the table over the year but not the summer low. Both effects are local. Schematic, not to scale.
+**Figure 2 --- What management does.** Dune scrape (left) and forest clearing (right), before and after. A cut slack fills with water but, in the model, can draw down a spot just inland; felling lifts the table over the year but not the summer low. Both effects are local. Schematic, not to scale.
 
 ## []{#anchor}The problem is getting harder to see
 

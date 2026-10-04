@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=c48daa4f4cef74a6 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=2eebfd619f4e59e9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
@@ -72,6 +72,8 @@ Freeman, S. (2008) **The hydrological impact of Corsican pine plantation on the 
 Gash, J.H.C. (1979) An analytical model of rainfall interception by forests. Quarterly Journal of the Royal Meteorological Society, 105(443), pp. 43--55.
 
 Gash, J.H.C., Wright, I.R. and Lloyd, C.R. (1980) Comparative estimates of interception loss from three coniferous forests in Great Britain. Journal of Hydrology, 48, pp. 89--105.
+
+Gebhardt, T., Häberle, K.-H., Matyssek, R., Schulz, C. and Ammer, C. (2014) The more, the better? Water relations of Norway spruce stands after progressive thinning. Agricultural and Forest Meteorology, 197, pp. 235--243. https://doi.org/10.1016/j.agrformet.2014.05.013
 
 ****Gerla, P.J. (2019)**** Monitoring and Modeling the Effect of Agricultural Drainage and Recent Channel Incision on Adjacent Groundwater-Dependent Ecosystems. *Water* 11(4): 863. [*https://doi.org/10.3390/w11040863*](https://doi.org/10.3390/w11040863)
 
@@ -177,6 +179,8 @@ Robinson, E.L., Brown, M.J., Kay, A.L., Lane, R.A., Chapman, R., Bell, V.A. and 
 
 Robinson, M. and Dupeyrat, A. (2005) Effects of commercial timber harvesting on streamflow regimes in the Plynlimon catchments, mid-Wales. Hydrological Processes, 19(6), pp. 1213--1226.
 
+Roy, V., Plamondon, A.P. and Bernier, P.-Y. (2000) Influence of vegetation removal and regrowth on interception and water table level on wetlands. International Peat Journal, 10, pp. 3--12.
+
 Rutter, A.J., Kershaw, K.A., Robins, P.C. and Morton, A.J. (1971) A predictive model of rainfall interception in forests. I: Derivation of the model from observations in a plantation of Corsican pine. Agricultural Meteorology, 9, pp. 367--384.
 
 ****Scanlon, B.R., Healy, R.W. and Cook, P.G. (2002)**** Choosing appropriate techniques for quantifying groundwater recharge. **Hydrogeology Journal**, 10(1), 18--39. [**https://doi.org/10.1007/s10040-001-0176-2**](https://doi.org/10.1007/s10040-001-0176-2)
@@ -189,6 +193,8 @@ Sival, F.P. and Grootjans, A.P. (1996). Dynamics of seasonal bicarbonate supply 
 
 Smokorowski, K.E. and Randall, R.G., (2017). Cautions on using the Before-After-Control-Impact design in environmental effects monitoring programs. **FACETS** 2: 212--232. [**https://doi.org/10.1139/facets-2016-0058**](https://doi.org/10.1139/facets-2016-0058)
 
+Sonnenborg, T.O., Christiansen, J.R., Pang, B., Bruge, A., Stisen, S. and Gundersen, P. (2017) Analyzing the hydrological impact of afforestation and tree species in two catchments with contrasting soil properties using the spatially distributed model MIKE SHE SWET. Agricultural and Forest Meteorology, 239, pp. 118--133.
+
 Stewart-Oaten, A., Murdoch, W.W. and Parker, K.R. (1986) Environmental impact assessment: \'pseudoreplication\' in time? **Ecology** 67(4): 929--940. [**https://doi.org/10.2307/1939815**](https://doi.org/10.2307/1939815)
 
 Stratford, C. (2006) Review of Hydrological Reports for Newborough Warren, Anglesey. Unpublished report. Wallingford: Centre for Ecology and Hydrology.
@@ -196,6 +202,8 @@ Stratford, C. (2006) Review of Hydrological Reports for Newborough Warren, Angle
 Stratford, C., Ratcliffe, J., Hughes, A.G., Roberts, J. and Robins, N.S. (2007) Complex interaction between shallow groundwater and changing woodland, surface water, grazing and other influences in partly wooded duneland in Anglesey, Wales. In: Ribeiro, L., Chambel, A. and Condesso de Melo, M.T. (eds) IAH 35th Congress, Groundwater and Ecosystems, Lisbon.
 
 Stuyfzand, P. J. (1993) *Hydrochemistry and hydrology of the coastal dune area of the Western Netherlands*. (Doctoral dissertation, Vrije Universiteit Amsterdam)
+
+Sun, G., Riekerk, H. and Kornhak, L.V. (2000) Ground-water-table rise after forest harvesting on cypress-pine flatwoods in Florida. Wetlands, 20(1), pp. 101--112.
 
 Sun, G., Caldwell, P.V. and McNulty, S.G. (2015) Modelling the potential role of forest thinning in maintaining water supplies under a changing climate across the conterminous United States. Hydrological Processes, 29, pp. 5016--5030. https://doi.org/10.1002/hyp.10469
 

@@ -661,8 +661,20 @@ B2_tier_ratio_after_over_before,Edge,,0.957572914889988,,tier-mean b2_after / ti
 B2_tier_ratio_after_over_before,Forest Ctrl,,1.0466282276259713,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv,10e
 B2_tier_ratio_after_over_before,Coastal Ctrl,,0.8751611121340452,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv,10e
 B2_tier_ratio_after_over_before,Climate Ctrl,,0.9101019008426416,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv,10e
-B2_multiplier_clearfell,,,1.0474710140473464,,"Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Scripts 09d, 19, 21",10e
+B2_multiplier_clearfell,,,1.0474710140473464,,Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Script 09d (the scraping suite); the forestry scenarios use B2_multiplier_clearfell_impact (D-239),10e
 B2_multiplier_thinning,,,1.023735507023673,,1 + (clearfell multiplier − 1)/2,10e
+B2_multiplier_clearfell_impact,,,0.9519811767100492,,"Impact ratio (WMC3) − Climate Ctrl ratio + 1.0; used by the forestry scenarios of Scripts 19 and 21 and the shared forestry bars, with no interception recharge term (D-239)",10e
+B2_multiplier_thinning_impact,,,0.9759905883550246,,1 + (B2_multiplier_clearfell_impact − 1)/2,10e
+shield_ratio_canopy_on,Climate Ctrl,,0.9080334808924224,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off,Climate Ctrl,,1.0936592264763445,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on,Edge,,0.8577231815720885,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off,Edge,,0.7480944783444283,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on,Impact,,0.890958439203281,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_off,Impact,,1.2018358439540853,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)",10e
+shield_ratio_canopy_on_net,Impact,,0.9829249583108584,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_off_net,Impact,,1.108176617477741,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_on_net,Edge,,0.949689700679666,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
+shield_ratio_canopy_off_net,Edge,,0.654435251868084,,ratio − Climate Ctrl ratio + 1 (10e_04),10e
 SSM_Resid_Impact_mean_step,,,0.0806,m,n=1,10f
 SSM_Resid_Edge_mean_step,,,0.0218,m,n=4,10f
 SSM_Resid_Forest_Ctrl_mean_step,,,0.0533,m,n=5,10f
@@ -768,9 +780,9 @@ FourZone_contrast_Impact_vs_Forest,Impact - Forest,Post_felling,0.027,m,"primary
 FourZone_contrast_Impact_vs_Edge,Impact - Edge,Post_felling,0.0668,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0001)",10k
 FourZone_contrast_Impact_vs_C3Warren,Impact - C3/Warren,Post_felling,0.0191,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0000)",10k
 FourZone_contrast_Edge_vs_C3Warren,Edge - C3/Warren,Post_felling,-0.0477,m,"DERIVED contrast — point estimate exact, but SE/p are covariance-dependent and not comparable to primary contrasts; do not cite as significance (p_derived=0.0052)",10k
-FourZone_C3Warren_easting_sensitivity_step_delta_mm,C3/Warren,Post_felling,-0.2697612938795139,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
+FourZone_C3Warren_easting_sensitivity_step_delta_mm,C3/Warren,Post_felling,-0.2697612938795269,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
 FourZone_Edge_easting_sensitivity_step_delta_mm,Edge,Post_felling,-1.7437869317886712,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
-FourZone_Impact_easting_sensitivity_step_delta_mm,Impact,Post_felling,1.9852313494174711,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
+FourZone_Impact_easting_sensitivity_step_delta_mm,Impact,Post_felling,1.985231349417596,m,"without-easting minus with-easting clearfell step (mm), unrounded; robustness diagnostic, NOT an erosion decomposition (see Script 25)",10k
 FourZoneSummer_C3Warren_clearfell_step,C3/Warren,Post_felling_Jun-Sep,0.0119999999999998,m,"vs Forest; p=0.2572, CI=[-0.0088,0.0328]",10l
 FourZoneSummer_C3Warren_clearfell_step_se,C3/Warren,Post_felling_Jun-Sep,0.0105913375421158,m,,10l
 FourZoneSummer_C3Warren_N,C3/Warren,Jun-Sep,52.0,well-years,"n_pre=24, n_post=28, n_wells=4",10l

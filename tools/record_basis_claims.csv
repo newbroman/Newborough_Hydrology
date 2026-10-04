@@ -52,3 +52,4 @@ RB-50j,MS,S.23f Script 50,is fitted to each cluster centroid from 2005 to the en
 RB-50k,MS,S.23f Script 50,is fitted to every well with at least E8E_MIN_EARLY_MONTHS readings in,D-235
 RB-50l,MS,S.23f Script 50,the single store is fitted with and without one step whose date is profiled monthly over the clearance window,D-236
 RB-03d,report8,Modelling the Cluster water levels,"it fits worse than a depth below ground at every level tried",03_20 elevation-datum sweep (79 wells; full record; T-99)
+RB-10e,report9,Forest Management Scenarios,"draw in the canopy-on months (May–October) should have risen after felling",10e_04 shielding test (T-97; D-239)

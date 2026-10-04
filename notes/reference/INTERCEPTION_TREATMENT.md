@@ -358,3 +358,7 @@ scaled by `(1 − I)`. On that reading a clearfell would gain `β₁·I/(1 − I
 rather than `β₁·I·P`. The two readings agree on climate alone. They differ only
 on the size of a canopy change, which stays with T-97.
 
+## 11. The forestry scenarios no longer return interception as recharge (D-239, 2026-10-04)
+
+§8.3 left open whether total draw rises or falls when the canopy goes, with "the BACI record [as] the observational check". The check has been made. At the felled well (WMC3) the era fits show no rise in recharge sensitivity after the December 2017 felling, and a fall in draw of about 5 % beyond the climate controls. Case (b)'s clearfell gain β₁·I·P therefore does not appear in the record over eight years. Run as a sustained level it would overshoot the observed step three- to tenfold. The forestry scenarios (Scripts 19 and 21, `scraping_common`) now take the felled well's measured β₂ change with no interception recharge term. §10's formula is unchanged: the scenarios set I_scen = I.
+

@@ -243,5 +243,17 @@ B2_tier_ratio_after_over_before,Edge,,0.957572914889988,,tier-mean b2_after / ti
 B2_tier_ratio_after_over_before,Forest Ctrl,,1.0466282276259713,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
 B2_tier_ratio_after_over_before,Coastal Ctrl,,0.8751611121340452,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
 B2_tier_ratio_after_over_before,Climate Ctrl,,0.9101019008426415,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
-B2_multiplier_clearfell,,,1.0474710140473464,,"Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Scripts 09d, 19, 21"
+B2_multiplier_clearfell,,,1.0474710140473464,,Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Script 09d (the scraping suite); the forestry scenarios use B2_multiplier_clearfell_impact (D-239)
 B2_multiplier_thinning,,,1.023735507023673,,1 + (clearfell multiplier − 1)/2
+B2_multiplier_clearfell_impact,,,0.9519811767100492,,"Impact ratio (WMC3) − Climate Ctrl ratio + 1.0; used by the forestry scenarios of Scripts 19 and 21 and the shared forestry bars, with no interception recharge term (D-239)"
+B2_multiplier_thinning_impact,,,0.9759905883550246,,1 + (B2_multiplier_clearfell_impact − 1)/2
+shield_ratio_canopy_on,Climate Ctrl,,0.9080334808924225,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Climate Ctrl,,1.0936592264763443,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on,Edge,,0.8577231815720885,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Edge,,0.7480944783444283,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on,Impact,,0.890958439203281,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Impact,,1.2018358439540853,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_net,Impact,,0.9829249583108585,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_off_net,Impact,,1.108176617477741,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on_net,Edge,,0.949689700679666,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_off_net,Edge,,0.654435251868084,,ratio − Climate Ctrl ratio + 1 (10e_04)

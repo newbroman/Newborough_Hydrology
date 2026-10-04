@@ -70,7 +70,12 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.13.1"  # Hollingham (2026) - 2026-09-02. drift_term() and
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved").
+#   load_clearfell_impact_b2_multiplier(): the felled well's own measured beta_2 change (Impact tier, WMC3),
+#   net of the Climate-control tier, for the forestry scenarios of Scripts 19 and 21 and the shared
+#   forestry bars - the scenarios are anchored to what the felling measured (spec
+#   NRG_spec_T97_forestry_measured_2026-10-04). load_clearfell_b2_multiplier() (Edge tier) is unchanged.
+# 1.13.1  # Hollingham (2026) - 2026-09-02. drift_term() and
 #   coastal_differential_mm_yr(), for D-111's BACI_DRIFT_DESIGN. The accessor
 #   exists so that no downstream site names a drift design: five guards in 10a
 #   tested the literal 'easting_x_time' and each one guarded a CORRECTION, so a
@@ -1886,3 +1891,43 @@ def load_clearfell_b2_multiplier(verbose=True):
               f"Thinning: {thinning_mult:.4f}")
 
     return clearfell_mult, thinning_mult, tier_ratios
+
+
+def load_clearfell_impact_b2_multiplier(verbose=True):
+    """The felled well's measured beta_2 change, for the forestry scenarios (T-97, D-239).
+
+        clearfell = Impact_ratio − Climate_Ctrl_ratio + 1.0
+        thinning  = 1.0 + (clearfell − 1.0) / 2.0
+
+    where each ratio is the tier-mean b2_after / b2_before of 10e_01 (ratio of means),
+    exactly as load_clearfell_b2_multiplier() forms the Edge ratio. The Impact tier is
+    WMC3, the one well inside the December 2017 compartment: a single well, which is the
+    caveat the documents carry. It is used with NO interception recharge term - the
+    felled well's beta_1 did not rise after felling (10e_01), so the scenarios do not
+    return intercepted rain as recharge.
+
+    Returns (clearfell_mult, thinning_mult, tier_ratios), or the Edge-tier loader's
+    result when the Impact or Climate-control tier is missing (with a warning)."""
+    cf_edge, thin_edge, _ = load_clearfell_b2_multiplier(verbose=False)
+    if not OUT_10E_COEFF_SHIFTS.exists():
+        if verbose:
+            print(f"  WARNING: {OUT_10E_COEFF_SHIFTS.name} not found - Edge-tier multipliers used")
+        return cf_edge, thin_edge, {}
+    cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
+    ratios = {}
+    for tier in ("Impact", "Climate Ctrl"):
+        sub = cs[cs["Tier"] == tier]
+        if not sub.empty and sub["b2_before"].mean() > 0:
+            ratios[tier] = sub["b2_after"].mean() / sub["b2_before"].mean()
+    if len(ratios) < 2:
+        if verbose:
+            print("  WARNING: Impact or Climate Ctrl tier missing in 10e - Edge-tier multipliers used")
+        return cf_edge, thin_edge, ratios
+    clearfell_mult = ratios["Impact"] - ratios["Climate Ctrl"] + 1.0
+    thinning_mult = 1.0 + (clearfell_mult - 1.0) / 2.0
+    if verbose:
+        print(f"  Clearfell beta_2 multiplier (Impact - Climate Ctrl + 1): {clearfell_mult:.4f}"
+              f"  (Impact {ratios['Impact']:.4f}, Climate Ctrl {ratios['Climate Ctrl']:.4f});"
+              f" thinning {thinning_mult:.4f}")
+    return clearfell_mult, thinning_mult, ratios
+

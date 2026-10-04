@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit. source-sha256=c81b79695694ed85 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit. source-sha256=cad4ca03ac7bf430 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren: what is happening to the dune water table
@@ -31,7 +31,7 @@ A note on certainty: the *size* of the coastal effect is modelled, and the well 
 
 ## []{#anchor}Management helps --- but it is limited, and one tool can backfire
 
-**Clearing the forest.** Felling the conifer plantation raised the *average* water table where the trees came out --- by around **12 centimetres over the year** in our best estimate. But it did **not** lift the **summer low point** --- and the summer low is the moment that actually decides whether a slack stays wet. So felling helps, modestly, but it does not fix the season that matters most.
+**Clearing the forest.** Felling the conifer plantation raised the *average* water table where the trees came out --- by around **11 centimetres over the year** in our best estimate. But it did **not** lift the **summer low point** --- and the summer low is the moment that actually decides whether a slack stays wet. So felling helps, modestly, but it does not fix the season that matters most.
 
 **Scraping slacks.** Scraping --- stripping a slack back down to the water table --- reliably makes the *scraped hollow itself* wetter. But near the coast it works by the **same mechanism as erosion**: cutting back into the landward edge of a slack draws the water table down in the ground just around it. So a scrape can **dry its neighbours even as it wets itself**. Placement is everything.
 
@@ -47,7 +47,7 @@ As the water table falls, the summer low increasingly drops **below the bottom o
 
 ## []{#anchor}The window is closing
 
-The vulnerable slacks on the eastern side of the Warren have been flickering back and forth across the wet/dry threshold **since around 2022**. Ground that spends more and more of its time on the dry side of that line steadily loses its wet-slack character. The time to act on the ground that can still be saved is **now**, not later.
+The vulnerable slacks on the eastern side of the Warren have been flickering back and forth across the wet/dry threshold **since 2018 (three of the last eight summers)**. Ground that spends more and more of its time on the dry side of that line steadily loses its wet-slack character. The time to act on the ground that can still be saved is **now**, not later.
 
 ## []{#anchor}What this leaves for the people managing the dunes
 

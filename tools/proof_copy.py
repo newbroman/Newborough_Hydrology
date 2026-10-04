@@ -78,7 +78,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.32.0"  # Hollingham (2026) — 2026-10-01. Navigation carries on from the number you
+__version__ = "1.33.0"  # Hollingham (2026) — 2026-10-04 (Martin: "please ensure that all docs have a proof
+#   reading doc tool too"). BUNDLE_ORDER carries every mirrored document - Methods Supplement, Supplementary
+#   Material, Papers 1/2/M and Paper 1's SI, the academic and public summaries, the web-tools manual and
+#   technical note - so --refresh keeps a painted proof of each, and the bundle's switcher shows them under
+#   readable labels (BUNDLE_LABEL). --bundle uses the same order. No change to how a document is painted.
+# 1.32.0  # Hollingham (2026) — 2026-10-01. Navigation carries on from the number you
 #   last clicked (Martin: "no easy way to navigate to the next number in a category like denied after
 #   placing a comment on a denied field"): opening a number's pop-up makes it the current position,
 #   so a legend colour or n / p moves on from it, not from the last jump; a jump whose class does not
@@ -309,7 +314,23 @@ OUT_DIR = REPO / "scratch" / "proof"
 BUNDLE_DIR = REPO / "scratch" / "proof_bundle"          # --refresh writes here (gitignored)
 BUNDLE_STATE = REPO / "tools" / "proof_bundle_state.json"   # tracked: what the bundle was built from, what is published
 BUNDLE_ORDER = ["report", "report6", "report7", "report8", "report9", "report10", "report11", "report12",
-               "report13", "report14", "report15", "report16"]
+               "report13", "report14", "report15", "report16",
+               # 1.33.0 (Martin 2026-10-04: "please ensure that all docs have a proof reading doc tool too"):
+               # every mirrored document, not the report alone. A stem resolves through resolve_doc().
+               "Newborough_Methods_Supplement", "Supplementary_Material",
+               "Paper1", "PAPER1_SI_methods", "Hollingham_2026_Paper2_amended", "PaperM",
+               "academic_Summary", "crynodeb_academaidd",
+               "public_summary_EN", "public_summary_CY", "public_summary_PL",
+               "NRG_Web_Tools_User_Manual", "NRG_Web_Tools_Technical_Note"]
+# Pill labels for the bundle's document switcher; a stem not listed shows as itself.
+BUNDLE_LABEL = {"report": "Front matter", "Newborough_Methods_Supplement": "Methods Supplement",
+                "Supplementary_Material": "Supplementary Material", "Paper1": "Paper 1",
+                "PAPER1_SI_methods": "Paper 1 SI", "Hollingham_2026_Paper2_amended": "Paper 2",
+                "PaperM": "Paper M", "academic_Summary": "Academic summary",
+                "crynodeb_academaidd": "Crynodeb academaidd", "public_summary_EN": "Public summary EN",
+                "public_summary_CY": "Public summary CY", "public_summary_PL": "Public summary PL",
+                "NRG_Web_Tools_User_Manual": "Web tools manual",
+                "NRG_Web_Tools_Technical_Note": "Web tools technical note"}
 SECTION_MAP = REPO / "tools" / "section_map.csv"
 SCOPE_FILE = REPO / "tools" / "proof_scope.csv"
 MANIFEST = REPO / "tools" / "figure_table_manifest.csv"
@@ -2690,8 +2711,7 @@ def main() -> int:
         one(name, values, look, out_dir, a)
     write_index(out_dir)
     if a.bundle:
-        order = ["report", "report6", "report7", "report8", "report9", "report10", "report11", "report12",
-                 "report13", "report14", "report15", "report16"]
+        order = BUNDLE_ORDER
         stems = [st for st in order if (out_dir / f"{st}.html").exists()] + \
                 sorted(p.stem for p in out_dir.glob("*.html") if p.stem not in order and p.stem not in ("index", "NRG_proof"))
         b = write_bundle(out_dir, stems)
@@ -3482,7 +3502,7 @@ def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof
         if mx:
             red, amb = red + int(mx.group(1)), amb + int(mx.group(2))
         menu.append(f"<a href='#c={html.escape(st)}' data-doc='{html.escape(st)}' onclick=\"showChapter('{html.escape(st)}');return false;\">"
-                    f"{html.escape(st)}" + (f" <span class=red>{red}</span>" if red else "") + (f" <span class=amb>{amb}</span>" if amb else "") + "</a>")
+                    f"{html.escape(BUNDLE_LABEL.get(st, st))}" + (f" <span class=red>{red}</span>" if red else "") + (f" <span class=amb>{amb}</span>" if amb else "") + "</a>")
     for x in (extra_sections or []):
         m = re.search(r"data-doc='([^']+)'", x)
         if m:

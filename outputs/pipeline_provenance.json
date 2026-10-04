@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T06:10:31",
+ "generated": "2026-10-04T09:47:50",
  "orchestrator": "2.23.2",
  "steps": {
   "00_climate_summary.py": {
@@ -583,7 +583,7 @@
     "outputs/19_spatial_groundwater/19_scenario_perwell_model_a.csv": "1001edc00c253cfb54a45f0e6d704bf0daeb2cabb791065592ffb3872c7b659e",
     "outputs/19_spatial_groundwater/19_scenario_summary.csv": "951b4a0af77c43fb7fd5d5205a3c8f5a3702cd19ae262148cb62a71b7a42713e",
     "outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv": "ff7a248376e8150ee5091830f2dcaee62b97a7279c3f099f9b041c90d025eebe",
-    "outputs/19_spatial_groundwater/scenario_viewer.html": "5444557d31186611cf01a4dcce608a441d4039aa8a01e00049db902307aa7b5e"
+    "outputs/19_spatial_groundwater/scenario_viewer.html": "da4dcab001333886ff2ddb6cda4ce5004258cc249fcda956718549bef28d36d3"
    },
    "fallbacks": [],
    "inputs": {
@@ -609,9 +609,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 5.7,
-   "started": "2026-10-04T06:02:48",
-   "version": "2.31.0"
+   "seconds": 25.4,
+   "started": "2026-10-04T09:47:24",
+   "version": "2.31.1"
   },
   "20_spatial_figures.py": {
    "emitted": {

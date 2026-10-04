@@ -1,54 +1,54 @@
 Parameter,Well,Era,Value,Unit,Note
 scenario_sy_used,C4 (Main Forest),,0.252637703083317,-,specific yield the water-equivalent conversion uses (pipeline_scenario_params.csv)
-scenario_head_shift_m,C4 (Main Forest),clearfell · annual,0.037443371707884594,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),clearfell · annual,9.45960742397482,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),clearfell · winter,0.04828631411441503,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),clearfell · winter,12.198943488225364,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),clearfell · summer,0.0288268257248573,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),clearfell · summer,7.282743038311023,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),thinning_50pct · annual,0.018721685853942314,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),thinning_50pct · annual,4.729803711987414,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),thinning_50pct · winter,0.02414315705720753,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),thinning_50pct · winter,6.099471744112685,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),thinning_50pct · summer,0.014413412862428678,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),thinning_50pct · summer,3.6413715191555185,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),broadleaf · annual,0.011509944194762867,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),broadleaf · annual,2.9078458639820495,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),broadleaf · winter,0.024904658981953365,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),broadleaf · winter,6.291855841273998,mm/month,head shift × Sy (0.253) × 1000
-scenario_head_shift_m,C4 (Main Forest),broadleaf · summer,-0.01177358489184983,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
-scenario_water_equivalent_mm_per_month,C4 (Main Forest),broadleaf · summer,-2.9744514441333845,mm/month,head shift × Sy (0.253) × 1000
+scenario_head_shift_m,C4 (Main Forest),clearfell · annual,0.3634086167347586,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_storage_change_mm,C4 (Main Forest),clearfell · annual,91.81071821255489,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),clearfell · winter,0.3630403562069991,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 10,11,12,1,2,3"
+scenario_storage_change_mm,C4 (Main Forest),clearfell · winter,91.71768171868548,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),clearfell · summer,0.3685590322560319,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 6,7,8,9"
+scenario_storage_change_mm,C4 (Main Forest),clearfell · summer,93.11190735977405,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),thinning_50pct · annual,0.18170430836738002,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_storage_change_mm,C4 (Main Forest),thinning_50pct · annual,45.90535910627763,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),thinning_50pct · winter,0.18152017810350027,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 10,11,12,1,2,3"
+scenario_storage_change_mm,C4 (Main Forest),thinning_50pct · winter,45.85884085934292,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),thinning_50pct · summer,0.18427951612801668,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 6,7,8,9"
+scenario_storage_change_mm,C4 (Main Forest),thinning_50pct · summer,46.5559536798872,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),broadleaf · annual,-0.2718041560844368,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_storage_change_mm,C4 (Main Forest),broadleaf · annual,-68.6679776816715,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),broadleaf · winter,-0.2799244521436414,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 10,11,12,1,2,3"
+scenario_storage_change_mm,C4 (Main Forest),broadleaf · winter,-70.71947062642546,mm,sustained level × Sy (0.253) × 1000: the change in stored water
+scenario_head_shift_m,C4 (Main Forest),broadleaf · summer,-0.28090697655393704,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 6,7,8,9"
+scenario_storage_change_mm,C4 (Main Forest),broadleaf · summer,-70.96769333666583,mm,sustained level × Sy (0.253) × 1000: the change in stored water
 scenario_sy_used,C5 (Coastal Forest),,0.3082747458265741,-,specific yield the water-equivalent conversion uses (pipeline_scenario_params.csv)
-scenario_head_shift_m,C5 (Coastal Forest),clearfell · annual,0.039717813333021136,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),clearfell · annual,12.243998810024406,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),clearfell · winter,0.04866129424193563,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),clearfell · winter,15.001048114024842,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),clearfell · summer,0.03355616433851408,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),clearfell · summer,10.344518032370178,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · annual,0.019858906666510575,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),thinning_50pct · annual,6.121999405012206,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · winter,0.02433064712096782,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),thinning_50pct · winter,7.500524057012422,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · summer,0.016778082169257053,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),thinning_50pct · summer,5.172259016185093,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),broadleaf · annual,0.013664930284536697,m,"mean monthly head perturbation, positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · annual,4.212552910203406,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),broadleaf · winter,0.021548859040337764,m,"mean monthly head perturbation, positive = shallower; months 10,11,12,1,2,3"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · winter,6.642969043512798,mm/month,head shift × Sy (0.308) × 1000
-scenario_head_shift_m,C5 (Coastal Forest),broadleaf · summer,0.0016165813658650238,m,"mean monthly head perturbation, positive = shallower; months 6,7,8,9"
-scenario_water_equivalent_mm_per_month,C5 (Coastal Forest),broadleaf · summer,0.4983512096700162,mm/month,head shift × Sy (0.308) × 1000
-scenario_water_equivalent_ratio_C5_to_C4,C5/C4,clearfell · annual,1.2943453423862716,,C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_mm_per_month rows above)
-scenario_water_equivalent_ratio_C5_to_C4,C5/C4,thinning_50pct · annual,1.2943453423862712,,C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_mm_per_month rows above)
-scenario_water_equivalent_ratio_C5_to_C4,C5/C4,broadleaf · annual,1.448685077287649,,C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_mm_per_month rows above)
+scenario_head_shift_m,C5 (Coastal Forest),clearfell · annual,0.07234583636057759,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_storage_change_mm,C5 (Coastal Forest),clearfell · annual,22.302394315667982,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),clearfell · winter,0.07199535807054896,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 10,11,12,1,2,3"
+scenario_storage_change_mm,C5 (Coastal Forest),clearfell · winter,22.194350709891673,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),clearfell · summer,0.07505741781279078,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 6,7,8,9"
+scenario_storage_change_mm,C5 (Coastal Forest),clearfell · summer,23.138306398637056,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · annual,0.036172918180288796,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_storage_change_mm,C5 (Coastal Forest),thinning_50pct · annual,11.151197157833991,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · winter,0.03599767903527448,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 10,11,12,1,2,3"
+scenario_storage_change_mm,C5 (Coastal Forest),thinning_50pct · winter,11.097175354945836,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),thinning_50pct · summer,0.03752870890639539,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 6,7,8,9"
+scenario_storage_change_mm,C5 (Coastal Forest),thinning_50pct · summer,11.569153199318528,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),broadleaf · annual,-0.05410961130996409,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 1,2,3,4,5,6,7,8,9,10,11,12"
+scenario_storage_change_mm,C5 (Coastal Forest),broadleaf · annual,-16.680626673353903,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),broadleaf · winter,-0.05748112841797148,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 10,11,12,1,2,3"
+scenario_storage_change_mm,C5 (Coastal Forest),broadleaf · winter,-17.719980252874826,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_head_shift_m,C5 (Coastal Forest),broadleaf · summer,-0.05944011434590195,m,"mean sustained level response (1.13.0, D-239), positive = shallower; months 6,7,8,9"
+scenario_storage_change_mm,C5 (Coastal Forest),broadleaf · summer,-18.323886141885424,mm,sustained level × Sy (0.308) × 1000: the change in stored water
+scenario_storage_change_ratio_C5_to_C4,C5/C4,clearfell · annual,0.24291710978705952,,C5 annual storage change ÷ C4's (scenario_storage_change_mm rows above)
+scenario_storage_change_ratio_C5_to_C4,C5/C4,thinning_50pct · annual,0.24291710978705855,,C5 annual storage change ÷ C4's (scenario_storage_change_mm rows above)
+scenario_storage_change_ratio_C5_to_C4,C5/C4,broadleaf · annual,0.24291710978705885,,C5 annual storage change ÷ C4's (scenario_storage_change_mm rows above)
 hydrograph_sep_at_baseline_trough_m,C4,Baseline (Corsican pine),0.0,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_m,C4,Baseline (Corsican pine),0.0,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Jun; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_month,C4,Baseline (Corsican pine),Jun,,month of hydrograph_max_summer_separation_m
-hydrograph_sep_at_baseline_trough_m,C4,clearfell,0.041507842902359426,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
-hydrograph_max_summer_separation_m,C4,clearfell,0.041507842902359426,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_sep_at_baseline_trough_m,C4,clearfell,0.3739971993210087,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_m,C4,clearfell,0.3739971993210087,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_month,C4,clearfell,Sep,,month of hydrograph_max_summer_separation_m
-hydrograph_sep_at_baseline_trough_m,C4,thinning_50pct,0.020753921451179824,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
-hydrograph_max_summer_separation_m,C4,thinning_50pct,0.020753921451179824,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_sep_at_baseline_trough_m,C4,thinning_50pct,0.18699859966050503,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_m,C4,thinning_50pct,0.18699859966050503,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_month,C4,thinning_50pct,Sep,,month of hydrograph_max_summer_separation_m
-hydrograph_sep_at_baseline_trough_m,C4,broadleaf,0.0006908633814339815,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
-hydrograph_max_summer_separation_m,C4,broadleaf,-0.021086969664048105,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Aug; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
-hydrograph_max_summer_separation_month,C4,broadleaf,Aug,,month of hydrograph_max_summer_separation_m
+hydrograph_sep_at_baseline_trough_m,C4,broadleaf,-0.3131863092349563,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_m,C4,broadleaf,-0.3131863092349563,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
+hydrograph_max_summer_separation_month,C4,broadleaf,Sep,,month of hydrograph_max_summer_separation_m

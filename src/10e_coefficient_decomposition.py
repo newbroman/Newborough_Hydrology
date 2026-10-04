@@ -71,7 +71,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-09-29. T-96: 10e_report_numbers carries
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). Two additions, no existing value moves:
+#   (1) B2_multiplier_*_impact - the felled well's measured beta_2 change net of the Climate controls, which the
+#   forestry scenarios of Scripts 19 and 21 now use (clearfell_common.load_clearfell_impact_b2_multiplier);
+#   (2) the shielding test, shielding_seasonal_b2(): per well in the Impact, Edge and Climate-control tiers and
+#   per era, the draw coefficient split into canopy-on (config.CANOPY_ON_MONTHS) and canopy-off months with beta_3
+#   fixed at the well's full-record value; 10e_04_shielding_seasonal_b2.csv and the shield_* keys.
+# 1.13.0  # Hollingham (2026) - 2026-09-29. T-96: 10e_report_numbers carries
 #   CoeffShift_Network_n_wells (the 17-well count, Note-only before; report9 Section 4.6.4)
 #   and CoeffShift_Forest Ctrl_pine_mean_db2, the Forest Ctrl mean Δβ₂ over the wells outside
 #   the broadleaf restock block (dist_broadleaf_restock_m > 0 in 01_locations.csv; report10
@@ -120,7 +126,8 @@ from utils.clearfell_common import (
     CLEARFELL_DATE, SCRAPING_DATE, PRE_FELL_START, TIER_COLOURS,
     ReportNumbers, print_network_summary, get_tier,
 )
-from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS
+from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS, OUT_10E_SHIELDING
+from utils.config import CANOPY_ON_MONTHS
 from utils.model_utils import build_ssm_frame, fit_ssm
 from utils.render_utils import render_figure
 import pandas as pd
@@ -141,6 +148,68 @@ def tier_shift_p(td: pd.DataFrame, coeff: str) -> float:
     if not np.isfinite(se) or se <= 0:
         return np.nan
     return float(2.0 * norm.sf(abs(td[f'd{coeff}'].mean() / se)))
+
+
+def shielding_seasonal_b2(wells, climate):
+    """1.14.0 (T-97, D-239): canopy-on and canopy-off draw before and after the 2017 felling.
+
+    Per well of the Impact, Edge and Climate-control tiers, beta_3 is fixed at the well's full-record
+    Model A value (so the split cannot trade against drainage), and per era
+
+        Δh + β₃·h_disp_prev = β₁·P − β₂on·PET·[month in CANOPY_ON_MONTHS] − β₂off·PET·[otherwise]
+                              (+ the scraping dummy in the Before era, as the main era fits carry)
+
+    is fitted by least squares with no intercept. Loss of the canopy's shielding predicts β₂on rising
+    after felling at the felled well, relative to the climate controls."""
+    import numpy as _np
+    out = []
+    tiers = ("Impact", "Edge", "Climate Ctrl")
+    for w in ALL_NETWORK_WELLS:
+        if w not in wells.columns or get_tier(w) not in tiers:
+            continue
+        try:
+            fr = build_ssm_frame(wells[w], climate)
+            b3 = fit_ssm(pre_built_frame=fr, min_obs=8)["beta_3_drainage"]
+        except Exception as e:
+            warn(f"shielding fit skipped for {w}: {e}")
+            continue
+        for era, sub in (("before", fr[(fr.index >= PRE_FELL_START) & (fr.index < CLEARFELL_DATE)]),
+                         ("after", fr[fr.index >= CLEARFELL_DATE])):
+            if len(sub) < 24:
+                continue
+            on = sub.index.month.isin(CANOPY_ON_MONTHS).astype(float)
+            y = (sub["Delta_h"] + b3 * sub["h_disp_prev"]).values
+            cols = [sub["P"].values, -sub["PET"].values * on, -sub["PET"].values * (1 - on)]
+            if era == "before":
+                cols.append((sub.index >= SCRAPING_DATE).astype(float))
+            X = _np.column_stack(cols)
+            coef, *_ = _np.linalg.lstsq(X, y, rcond=None)
+            out.append({"well": w, "tier": get_tier(w), "era": era, "n": int(len(sub)),
+                        "beta_3_fixed": float(b3), "beta_1": float(coef[0]),
+                        "beta_2_canopy_on": float(coef[1]), "beta_2_canopy_off": float(coef[2])})
+    return pd.DataFrame(out)
+
+
+def _shielding_report_numbers(rpt, sh):
+    """shield_* keys: per tier, the after/before ratio of tier-mean canopy-on and canopy-off draw, and the
+    Impact and Edge ratios net of the Climate controls (ratio − Climate Ctrl ratio + 1, as the multipliers)."""
+    if sh.empty:
+        return
+    ratios = {}
+    for tier, g in sh.groupby("tier"):
+        b, a = g[g["era"] == "before"], g[g["era"] == "after"]
+        for part in ("canopy_on", "canopy_off"):
+            col = f"beta_2_{part}"
+            if len(b) and len(a) and b[col].mean() != 0:
+                r = a[col].mean() / b[col].mean()
+                ratios[(tier, part)] = r
+                rpt.add(f"shield_ratio_{part}", float(r), "", well=tier,
+                        note=f"tier-mean {col} after / before the felling, beta_3 fixed (10e_04)")
+    for tier in ("Impact", "Edge"):
+        for part in ("canopy_on", "canopy_off"):
+            if (tier, part) in ratios and ("Climate Ctrl", part) in ratios:
+                rpt.add(f"shield_ratio_{part}_net", float(ratios[(tier, part)] - ratios[("Climate Ctrl", part)] + 1.0),
+                        "", well=tier, note="ratio − Climate Ctrl ratio + 1 (10e_04)")
 
 
 def main():
@@ -536,11 +605,31 @@ def main():
                     well=_tier,
                     note="tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv")
         rpt.add("B2_multiplier_clearfell", float(_cf), "",
-                note="Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Scripts 09d, 19, 21")
+                note="Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Script 09d (the scraping "
+                     "suite); the forestry scenarios use B2_multiplier_clearfell_impact (D-239)")
         rpt.add("B2_multiplier_thinning", float(_thin), "",
                 note="1 + (clearfell multiplier − 1)/2")
     except Exception as e:
         note(f"β₂ multiplier report numbers skipped: {e}")
+
+    # 1.14.0 (T-97, D-239): the multipliers the forestry scenarios use - the felled well's own change
+    try:
+        from utils.clearfell_common import load_clearfell_impact_b2_multiplier
+        _cfi, _thini, _ri = load_clearfell_impact_b2_multiplier(verbose=False)
+        rpt.add("B2_multiplier_clearfell_impact", float(_cfi), "",
+                note="Impact ratio (WMC3) − Climate Ctrl ratio + 1.0; used by the forestry scenarios of Scripts 19 "
+                     "and 21 and the shared forestry bars, with no interception recharge term (D-239)")
+        rpt.add("B2_multiplier_thinning_impact", float(_thini), "",
+                note="1 + (B2_multiplier_clearfell_impact − 1)/2")
+    except Exception as e:
+        note(f"Impact β₂ multiplier report numbers skipped: {e}")
+
+    # 1.14.0 (T-97, D-239): the shielding test
+    phase(4, "Shielding test: canopy-on and canopy-off draw, before and after felling")
+    sh = shielding_seasonal_b2(wells, climate)
+    sh.to_csv(OUT_10E_SHIELDING, index=False)
+    saved(f"{OUT_10E_SHIELDING.name} ({len(sh)} rows)")
+    _shielding_report_numbers(rpt, sh)
 
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")

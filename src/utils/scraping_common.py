@@ -31,7 +31,11 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-03 (D-238). compute_scenario_bars(): the climate scenarios no
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). The forestry bars are anchored to the
+#   December 2017 felling: the canopy's draw scaled by the felled well's measured beta_2 change (Impact tier net of
+#   the Climate controls, clearfell_common.load_clearfell_impact_b2_multiplier) and no interception recharge term;
+#   compute_scenario_bars_from_params() passes those multipliers. The climate bars are unchanged.
+# 1.11.0  # Hollingham (2026) - 2026-10-03 (D-238). compute_scenario_bars(): the climate scenarios no
 #   longer multiply the rainfall change by (1 - I) at forest clusters - beta_1 was fitted on gross rainfall,
 #   so the canopy is already inside it. The forestry bars (sP = 1) are unchanged.
 # 1.10.0  # Hollingham (2026) - 2026-08-31. SUMMER_MONTHS and SCENARIO_SUMMER_MONTHS both now from config.SUMMER_MINIMUM_MONTHS - this module held two copies of the same window.
@@ -501,11 +505,13 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
         return b1 * P_eff - b2 * PET - b3 * h_disp
 
     for scenario_name, config in [
-        ("Clearfell",    {"sI": 0.0,                       "sB2": clearfell_b2_mult,
+        # 1.12.0 (D-239): no interception change (sI None keeps the canopy's) - the felled well's recharge
+        # did not rise; the draw takes the felled well's measured change.
+        ("Clearfell",    {"sI": None,                      "sB2": clearfell_b2_mult,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
-        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * 0.5, "sB2": thinning_b2_mult,
+        ("Thinning 50%", {"sI": None,                      "sB2": thinning_b2_mult,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
-        ("Broadleaf",    {"sI": BROADLEAF_INTERCEPTION,    "sB2": BROADLEAF_B2_SUMMER,
+        ("Broadleaf",    {"sI": None,                      "sB2": BROADLEAF_B2_SUMMER,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
         ("Climate dry",  {"sI": None,                      "sB2": 1.0,
                           "sP": UKCP18_DRY_P_SUMMER,       "sPET": UKCP18_DRY_PET_SUMMER,
@@ -567,11 +573,13 @@ def compute_scenario_bars_from_params():
     try:
         from utils.pipeline_params import load_params
         p = load_params()
+        from utils.clearfell_common import load_clearfell_impact_b2_multiplier
+        cf_imp, thin_imp, _ = load_clearfell_impact_b2_multiplier(verbose=False)   # 1.12.0 (D-239)
         return (
             compute_scenario_bars(
                 p["clusters"], p["summer_P"], p["summer_PET"],
-                clearfell_b2_mult=p["clearfell_b2_mult"],
-                thinning_b2_mult=p["thinning_b2_mult"],
+                clearfell_b2_mult=cf_imp,
+                thinning_b2_mult=thin_imp,
             ),
             p["clusters"],
             p["summer_P"],
@@ -581,8 +589,11 @@ def compute_scenario_bars_from_params():
         # Fallback to individual loaders (first-ever run, no params file)
         cluster_params = load_cluster_params()
         summer_P, summer_PET = load_summer_climate()
+        from utils.clearfell_common import load_clearfell_impact_b2_multiplier
+        cf_imp, thin_imp, _ = load_clearfell_impact_b2_multiplier(verbose=False)   # 1.12.0 (D-239)
         return (
-            compute_scenario_bars(cluster_params, summer_P, summer_PET),
+            compute_scenario_bars(cluster_params, summer_P, summer_PET,
+                                  clearfell_b2_mult=cf_imp, thinning_b2_mult=thin_imp),
             cluster_params,
             summer_P,
             summer_PET,

@@ -200,7 +200,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (473)
+## Outputs no exhibit renders (474)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -355,6 +355,7 @@
 - `10d_09_spring_means_forest_ctrl.png`
 - `10d_10_spring_means_climate_ctrl.png`
 - `10d_report_numbers.csv`
+- `10e_04_shielding_seasonal_b2.csv`
 - `10e_report_numbers.csv`
 - `10f_01_ssm_residual_results.csv`
 - `10f_02_synthetic_control_results.csv`
@@ -603,4 +604,3 @@
 - `40_05_dtm_profile.csv`
 - `40_06_coastal_sensitivity.csv`
 - `40_07_storm_pair.csv`
-- `40_report_numbers.csv`

@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.95.0"  # Hollingham (2026) - 2026-10-03 (T-99). DATUM_AOD_SWEEP_* and DATUM_AOD_NONPOS_CHECK_M
+__version__ = "1.96.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). END_STATE_OPEN_DUNE_COUNTERPART and CANOPY_ON_MONTHS;
+#   END_STATE_OPEN_DUNE_COUNTERPART: the open-dune end state of a clearfell, cluster basis (Script 19).
+# 1.95.0  # Hollingham (2026) - 2026-10-03 (T-99). DATUM_AOD_SWEEP_* and DATUM_AOD_NONPOS_CHECK_M
 #   (Script 03 1.25.0: D-163's datum fixed in elevation, emitted). Additive.
 # 1.94.0  # Hollingham (2026) - 2026-10-03 (D-236). E8F_* (Script 50 E8f, the 2014/15 shore
 #   clearance step; the rule fixed before the run) and FOREST_FLOOR_GROUP_TEST_P (Script 44 1.9.0). Additive.
@@ -840,6 +842,26 @@ FOREST_INTERCEPTION = 0.24
 # Was the literal 0.5 in both scripts until 2026-09-21; the documents call it
 # "50% thinning".
 THINNING_FRACTION = 0.5
+
+# Open-dune end state of a clearfell (T-97, D-239; Martin 2026-10-04: "in the scenario viewer just do the
+# analysis on a cluster basis"; "Isn't C4 C2 with trees, and C5 C3 with trees?"). Each felled forest cluster
+# takes its open-dune counterpart's centroid coefficients under each form - C4 the high ground, as C2; C5 the
+# low coastal ground, as C3 - and the change in the equilibrium level is reported as a BOUND (Script 19): a
+# cluster's equilibrium sits near its own mean depth, so the swap carries position and topography as well as
+# canopy. The scenarios themselves stay anchored to the felled well (D-239).
+END_STATE_OPEN_DUNE_COUNTERPART = {4: 2, 5: 3}   # forest cluster -> open-dune cluster
+
+# Shielding test (T-97, D-239; Martin 2026-10-04: "the shielding effect of the forest in preventing the drying of
+# the surface"): Script 10e splits the draw coefficient into canopy-on and canopy-off months before and after the
+# 2017 felling. Canopy-on is the May-Oct window the broadleaf beta_2 profile uses (BROADLEAF_B2_SUMMER below);
+# loss of shielding predicts the canopy-on draw rising after felling.
+CANOPY_ON_MONTHS = (5, 6, 7, 8, 9, 10)
+
+# Clearfell and broadleaf conversion as ranges (Martin 2026-10-04): the D-239 form (draw only) and a bound that
+# returns the canopy's interception difference as recharge (FOREST_INTERCEPTION -> 0 for clearfell, ->
+# BROADLEAF_INTERCEPTION for broadleaf). The felled compartment (4.2 ha) is narrower than the drawdown reach, so
+# a recharge gain there would spread into the surrounding forest; a felling wider than the reach would keep it.
+# The literature on sandy soils favours a gain under broadleaf (Sonnenborg et al., 2017).
 
 # Interception-fraction sweep (Script 17, 17_wtf_06). FOREST_INTERCEPTION is a
 # literature value (Freeman 2008), not a fitted one, so the Approach-B result

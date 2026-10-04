@@ -16,42 +16,42 @@ Baseline (Corsican pine),scenario,9,Sep,1.5555
 Baseline (Corsican pine),scenario,10,Oct,1.4716
 Baseline (Corsican pine),scenario,11,Nov,1.2475
 Baseline (Corsican pine),scenario,12,Dec,1.0694
-Full clearfell,scenario,1,Jan,0.8607
-Full clearfell,scenario,2,Feb,0.7997
-Full clearfell,scenario,3,Mar,0.7984
-Full clearfell,scenario,4,Apr,0.8631
-Full clearfell,scenario,5,May,0.9282
-Full clearfell,scenario,6,Jun,1.0933
-Full clearfell,scenario,7,Jul,1.2317
-Full clearfell,scenario,8,Aug,1.3692
-Full clearfell,scenario,9,Sep,1.514
-Full clearfell,scenario,10,Oct,1.4118
-Full clearfell,scenario,11,Nov,1.1906
-Full clearfell,scenario,12,Dec,1.0087
-50% thinning,scenario,1,Jan,0.8838
-50% thinning,scenario,2,Feb,0.8166
-50% thinning,scenario,3,Mar,0.8145
-50% thinning,scenario,4,Apr,0.8746
-50% thinning,scenario,5,May,0.9389
-50% thinning,scenario,6,Jun,1.1033
-50% thinning,scenario,7,Jul,1.2439
-50% thinning,scenario,8,Aug,1.3839
-50% thinning,scenario,9,Sep,1.5348
-50% thinning,scenario,10,Oct,1.4417
-50% thinning,scenario,11,Nov,1.219
-50% thinning,scenario,12,Dec,1.039
-Broadleaf conversion,scenario,1,Jan,0.8822
-Broadleaf conversion,scenario,2,Feb,0.8122
-Broadleaf conversion,scenario,3,Mar,0.8076
-Broadleaf conversion,scenario,4,Apr,0.8655
-Broadleaf conversion,scenario,5,May,0.9344
-Broadleaf conversion,scenario,6,Jun,1.121
-Broadleaf conversion,scenario,7,Jul,1.275
-Broadleaf conversion,scenario,8,Aug,1.4197
-Broadleaf conversion,scenario,9,Sep,1.5548
-Broadleaf conversion,scenario,10,Oct,1.4494
-Broadleaf conversion,scenario,11,Nov,1.2193
-Broadleaf conversion,scenario,12,Dec,1.0394
+Full clearfell,scenario,1,Jan,0.5464
+Full clearfell,scenario,2,Feb,0.4772
+Full clearfell,scenario,3,Mar,0.4771
+Full clearfell,scenario,4,Apr,0.5332
+Full clearfell,scenario,5,May,0.5941
+Full clearfell,scenario,6,Jun,0.7525
+Full clearfell,scenario,7,Jul,0.8888
+Full clearfell,scenario,8,Aug,1.0264
+Full clearfell,scenario,9,Sep,1.1815
+Full clearfell,scenario,10,Oct,1.0985
+Full clearfell,scenario,11,Nov,0.8779
+Full clearfell,scenario,12,Dec,0.7043
+50% thinning,scenario,1,Jan,0.7267
+50% thinning,scenario,2,Feb,0.6554
+50% thinning,scenario,3,Mar,0.6538
+50% thinning,scenario,4,Apr,0.7096
+50% thinning,scenario,5,May,0.7719
+50% thinning,scenario,6,Jun,0.9328
+50% thinning,scenario,7,Jul,1.0725
+50% thinning,scenario,8,Aug,1.2125
+50% thinning,scenario,9,Sep,1.3685
+50% thinning,scenario,10,Oct,1.285
+50% thinning,scenario,11,Nov,1.0627
+50% thinning,scenario,12,Dec,0.8868
+Broadleaf conversion,scenario,1,Jan,1.1817
+Broadleaf conversion,scenario,2,Feb,1.0955
+Broadleaf conversion,scenario,3,Mar,1.0782
+Broadleaf conversion,scenario,4,Apr,1.1193
+Broadleaf conversion,scenario,5,May,1.1748
+Broadleaf conversion,scenario,6,Jun,1.3539
+Broadleaf conversion,scenario,7,Jul,1.5253
+Broadleaf conversion,scenario,8,Aug,1.6992
+Broadleaf conversion,scenario,9,Sep,1.8687
+Broadleaf conversion,scenario,10,Oct,1.7815
+Broadleaf conversion,scenario,11,Nov,1.5461
+Broadleaf conversion,scenario,12,Dec,1.3561
 Observed C4 baseline,observed,1,Jan,0.9069
 Observed C4 baseline,observed,2,Feb,0.8336
 Observed C4 baseline,observed,3,Mar,0.8306
@@ -116,9 +116,9 @@ C2 Eastern mature dune (observed),observed,12,Dec,-0.067
 # BLOCK 2 — trough / separation summary. Sep_vs_baseline_at_baseline_trough_m anchors all series at the baseline trough month; Max_summer_separation_m is the largest Jun-Sep departure from baseline.
 Series,Series_type,Trough_month,Trough_month_num,Trough_depth_m,Sep_vs_baseline_at_baseline_trough_m,Max_summer_separation_m,Max_summer_separation_month
 Baseline (Corsican pine),scenario,Sep,9,1.5555,0.0,0.0,Jun
-Full clearfell,scenario,Sep,9,1.514,0.0415,0.0415,Sep
-50% thinning,scenario,Sep,9,1.5348,0.0208,0.0208,Sep
-Broadleaf conversion,scenario,Sep,9,1.5548,0.0007,-0.0211,Aug
+Full clearfell,scenario,Sep,9,1.1815,0.374,0.374,Sep
+50% thinning,scenario,Sep,9,1.3685,0.187,0.187,Sep
+Broadleaf conversion,scenario,Sep,9,1.8687,-0.3132,-0.3132,Sep
 Observed C4 baseline,observed,Sep,9,1.5555,0.0,0.0,Jun
 BACI annual benchmark,benchmark,Sep,9,1.6638,-0.1082,-0.1082,Jun
 BACI summer benchmark,benchmark,Sep,9,1.5565,-0.001,-0.001,Jun

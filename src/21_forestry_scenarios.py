@@ -87,7 +87,14 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-29. T-96: 21_report_numbers.csv also carries
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved"). The forestry scenarios
+#   are anchored to the December 2017 felling: the canopy's draw takes the felled well's measured beta_2 change
+#   (Impact tier net of the Climate controls, clearfell_common.load_clearfell_impact_b2_multiplier; thinning half;
+#   broadleaf its monthly profile) and there is NO interception recharge term (P unchanged in every scenario) -
+#   the felled well's beta_1 did not rise. Each scenario is the sustained LEVEL response (model_utils
+#   .sustained_monthly_response on the cluster's beta_3), as the climate projections are (D-216), so the
+#   hydrograph and the scenario_head_shift_m keys now carry a level, not a one-month perturbation.
+# 1.12.0  # Hollingham (2026) - 2026-09-29. T-96: 21_report_numbers.csv also carries
 #   scenario_water_equivalent_ratio_C5_to_C4 per scenario (annual), the C5:C4 ratio of the
 #   water-equivalent gains report10 §5.5.2 quotes as "roughly 30% more". Emit-only.
 # 1.11.0  # Hollingham (2026) - 2026-09-28. T-91: 21_report_numbers.csv also carries
@@ -165,7 +172,7 @@ from utils.config import (
     SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
     SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
 )
-from utils.model_utils import monthly_perturbation
+from utils.model_utils import monthly_perturbation, sustained_monthly_response
 from utils.report_numbers_utils import ReportNumbers
 
 
@@ -319,8 +326,10 @@ THINNING_B2_MULT  = None
 def _init_baci_params():
     """Call once at runtime to populate the module-level BACI constants."""
     global BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT, THINNING_B2_MULT
-    BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT = _load_baci_params()
-    THINNING_B2_MULT = 1.0 + (CLEARFELL_B2_MULT - 1.0) / 2  # 50% of clearfell effect
+    BACI_ANNUAL, BACI_SUMMER, _edge_mult = _load_baci_params()
+    # 1.13.0 (T-97, D-239): the felled well's measured beta_2 change, not the Edge-tier multiplier.
+    from utils.clearfell_common import load_clearfell_impact_b2_multiplier
+    CLEARFELL_B2_MULT, THINNING_B2_MULT, _ = load_clearfell_impact_b2_multiplier()
 
 # Summer months (Jun-Sep inclusive, 1-based)
 SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
@@ -496,11 +505,10 @@ def build_scenarios(master, climate, cluster="C4"):
     monthly_P   = clim.groupby(clim.index.month)["P_m"].mean().values
     monthly_PET = clim.groupby(clim.index.month)["PET"].mean().values
 
-    # P_eff variants
+    # P_eff: 1.13.0 (T-97, D-239) - the same in every scenario. The felled well's recharge did not
+    # rise after the 2017 felling, so no scenario returns intercepted rain as recharge.
     P_base = monthly_P * (1 - FOREST_INTERCEPTION)
-    P_cf   = monthly_P.copy()
-    P_thin = monthly_P * (1 - FOREST_INTERCEPTION * THINNING_FRACTION)
-    P_bl   = monthly_P * (1 - BROADLEAF_INTERCEPTION)
+    P_cf = P_thin = P_bl = P_base
 
     # β₂ arrays — uniform for pine/clearfell/thinning
     b2_cf   = np.full(12, b2 * CLEARFELL_B2_MULT)
@@ -514,14 +522,18 @@ def build_scenarios(master, climate, cluster="C4"):
     # off in winter below pine; full leaf in summer above it)
     b2_bl = b2 * np.asarray(BROADLEAF_B2_MONTHLY_MULT, dtype=float)
 
+    # 1.13.0 (T-97): each scenario's one-month forcing change, carried to its sustained level
+    # (the periodic steady state on the cluster's beta_3), as the climate projections are (D-216).
+    def _level(f12):
+        return sustained_monthly_response(b3, np.asarray(f12, dtype=float))
     scenario_shifts = {
         "Baseline (Corsican pine)": np.zeros(12),
-        "Full clearfell":  monthly_perturbation(
-            b1, b2, b2_cf,   P_base, P_cf,   monthly_PET),
-        "50% thinning":    monthly_perturbation(
-            b1, b2, b2_thin, P_base, P_thin, monthly_PET),
-        "Broadleaf conversion": monthly_perturbation(
-            b1, b2, b2_bl,   P_base, P_bl,   monthly_PET),
+        "Full clearfell":  _level(monthly_perturbation(
+            b1, b2, b2_cf,   P_base, P_cf,   monthly_PET)),
+        "50% thinning":    _level(monthly_perturbation(
+            b1, b2, b2_thin, P_base, P_thin, monthly_PET)),
+        "Broadleaf conversion": _level(monthly_perturbation(
+            b1, b2, b2_bl,   P_base, P_bl,   monthly_PET)),
     }
 
     return scenario_shifts, monthly_P, monthly_PET, b1, b2, b3
@@ -568,11 +580,13 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
                 head = float(np.mean(arr[idx]))
                 rpt.add("scenario_head_shift_m", head, unit="m", well=label,
                         era=f"{key} · {season}",
-                        note="mean monthly head perturbation, positive = shallower; "
+                        note="mean sustained level response (1.13.0, D-239), positive = shallower; "
                              f"months {','.join(str(m) for m in months)}")
-                rpt.add("scenario_water_equivalent_mm_per_month", head * sy * 1000.0,
-                        unit="mm/month", well=label, era=f"{key} · {season}",
-                        note=f"head shift × Sy ({sy:.3f}) × 1000")
+                # 1.13.0 (D-239): the head shift is a sustained level, so level × Sy is a change in
+                # stored water (mm), not a monthly rate; the key is renamed so no citation keeps the old meaning.
+                rpt.add("scenario_storage_change_mm", head * sy * 1000.0,
+                        unit="mm", well=label, era=f"{key} · {season}",
+                        note=f"sustained level × Sy ({sy:.3f}) × 1000: the change in stored water")
                 we[(cluster, key, season)] = head * sy * 1000.0
                 if season == "annual" or key == "broadleaf":
                     print(f"    {label:22s} {key:15s} {season:6s}  "
@@ -582,10 +596,9 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
     for key in names.values():
         c4, c5 = we.get(("C4", key, "annual")), we.get(("C5", key, "annual"))
         if c4 is not None and c5 is not None and c4 != 0:
-            rpt.add("scenario_water_equivalent_ratio_C5_to_C4", c5 / c4, unit="",
+            rpt.add("scenario_storage_change_ratio_C5_to_C4", c5 / c4, unit="",
                     well="C5/C4", era=f"{key} · annual",
-                    note="C5 annual water-equivalent gain ÷ C4's (scenario_water_equivalent_"
-                         "mm_per_month rows above)")
+                    note="C5 annual storage change ÷ C4's (scenario_storage_change_mm rows above)")
     # T-91: C4 synthetic-hydrograph separations (report10 §5.7.4), as returned
     # by plot_hydrograph() — scenario series only, unrounded.
     for sep in (hydro_separations or []):

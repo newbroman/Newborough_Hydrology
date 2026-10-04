@@ -6,6 +6,17 @@ drawdown_lambda_at_b_min,,,172.68033996234803,m,"λ at b = 3 m (DRAWDOWN_B_RANGE
 drawdown_lambda_at_b_max,,,281.9858143453891,m,"λ at b = 8 m (DRAWDOWN_B_RANGE_M max), K = 6 m/day, C3 Sy and β₃ as drawdown_lambda"
 beta_3_c3,C3,,0.0616150855443408,1/month,"SSM drainage coefficient (β₃), C3 centroid, live from 03_03_cluster_mechanistic_coefficients.csv — the value λ is built from"
 sy_c3,C3,,0.29820068578930775,-,"C3 WTF median specific yield, live from 18_wtf_01_well_sy_estimates.csv — the value λ is built from"
+clearfell_compartment_area_ha,WMC3,,4.168694021371034,ha,area of the December 2017 clearfell compartment (clearfell.geojson)
+clearfell_equiv_radius_m,WMC3,,115.19273065075167,m,radius of the disc of equal area
+clearfell_wmc3_from_centroid_m,WMC3,,87.57210150849775,m,WMC3's distance from the compartment centroid
+clearfell_gain_retained_centre,WMC3,,0.17952151036187547,-,"share of a full local recharge gain retained at the compartment centre, at drawdown_lambda"
+clearfell_gain_retained_wmc3,WMC3,,0.1475627080533658,-,"share of a full local recharge gain retained at WMC3, at drawdown_lambda"
+clearfell_gain_retained_wmc3_at_K_min,WMC3,,0.27584022160401134,-,"as clearfell_gain_retained_wmc3, λ at K = 2 m/day"
+clearfell_gain_retained_wmc3_at_K_max,WMC3,,0.06555781629587931,-,"as clearfell_gain_retained_wmc3, λ at K = 20 m/day"
+clearfell_gain_retained_edge_median,WMC3,,0.07717399845633688,-,"median share of a full local recharge gain reaching the Edge-tier wells (n=4), at drawdown_lambda, treating the compartment as its equal-area disc"
+clearfell_wmc3_b1_ratio_net_climate,WMC3,,0.9845583915848605,-,"WMC3 beta_1 after/before felling, net of the Climate-control tier mean ratio (10e_01)"
+clearfell_wmc3_b1_ratio_se,WMC3,,0.1266147254936451,-,approximate standard error of WMC3's beta_1 ratio (before and after SEs in quadrature)
+clearfell_local_gain_b1_ratio,WMC3,,1.3157894736842106,-,beta_1 ratio a full local return of FOREST_INTERCEPTION would give (fitted on gross rainfall)
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)
 drawdown_contour_50mm_m,,,244.91293472742785,m,"cost-distance at which the forest drawdown falls to 50 mm, λ·ln(H0/50)"
 drawdown_contour_10mm_m,,,603.7038989844276,m,"cost-distance at which the forest drawdown falls to 10 mm, λ·ln(H0/10)"

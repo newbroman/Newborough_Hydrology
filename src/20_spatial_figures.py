@@ -108,7 +108,13 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.60.0"  # Hollingham (2026) - 2026-09-30. T-96 batch 3: emit the net-state map's field over the
+__version__ = "1.61.0"  # Hollingham (2026) - 2026-10-04 (T-97; Martin: "the increased recharge quickly
+#   disperses into the surrounding area... Is this idea supported?"). 20_report_numbers.csv gains the clearfell
+#   dispersal rows (_clearfell_dispersal_rows): the compartment's area and equal-area radius, and the share of a
+#   full local recharge gain a disc that size retains at its centre, at WMC3 and at the Edge wells for the
+#   drawdown_lambda aquifer,
+#   beside WMC3's measured beta_1 ratio net of the Climate controls. Emit-only: no figure changes.
+# 1.60.0  # Hollingham (2026) - 2026-09-30. T-96 batch 3: emit the net-state map's field over the
 #   standing forest (report10 §5.7.5) - 20_report_numbers.csv gains net_state_forest_interior_min_mm / _max_mm /
 #   _median_mm over the cells inside the KML forest polygon and the site outline and outside the felling polygon;
 #   the field is factored into _net_state_field() so plot_net_state_map() and the rows read one computation.
@@ -1373,6 +1379,61 @@ def plot_slope_gradient(wt, features, dpi=300):
 # ─────────────────────────────────────────────────────────────────────────────
 # FIGURE 3 — FOREST DRAWDOWN PROPAGATION WITH HEAD SURFACE
 # ─────────────────────────────────────────────────────────────────────────────
+
+def _clearfell_dispersal_rows(wt, lam, b, lambda_at):
+    """Rows for the clearfell dispersal check (1.61.0, T-97): the share of a full local recharge gain the
+    felled well would retain, at λ and across the K range, and WMC3's own beta_1 change net of the Climate
+    controls (10e_01) to set it against. Returns (key, value, unit, note) tuples; empty if an input is missing."""
+    from scipy.special import k1 as _k1, i0 as _i0, i1 as _i1, k0 as _k0
+    from utils.clearfell_common import EDGE_WELLS
+    import geopandas as _gpd
+    from utils.paths import DATA_CLEARFELL, OUT_10E_COEFF_SHIFTS
+    if not (DATA_CLEARFELL.exists() and OUT_10E_COEFF_SHIFTS.exists()):
+        warnings.warn("clearfell dispersal rows skipped: clearfell.geojson or 10e_01 missing")
+        return []
+    poly = _gpd.read_file(DATA_CLEARFELL).to_crs(27700).geometry.union_all()
+    w = wt[wt["well"].str.lower() == "wmc3"]
+    if w.empty:
+        return []
+    R = float(np.sqrt(poly.area / np.pi))
+    r = float(np.hypot(w["E"].iloc[0] - poly.centroid.x, w["N"].iloc[0] - poly.centroid.y))
+
+    def _share(lam_, rr):
+        x = R / lam_
+        if rr > R:                                   # outside the disc
+            return float(x * _i1(x) * _k0(rr / lam_))
+        return float(1.0 - x * _k1(x) * _i0(rr / lam_))
+
+    cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
+    rat = {t: cs.loc[cs["Tier"] == t, "b1_after"].mean() / cs.loc[cs["Tier"] == t, "b1_before"].mean()
+           for t in ("Impact", "Climate Ctrl")}
+    imp = cs[cs["Tier"] == "Impact"].iloc[0]
+    se = float(np.hypot(imp["b1_SE_before"], imp["b1_SE_after"]) / imp["b1_before"])
+    rows = [("clearfell_compartment_area_ha", float(poly.area / 1e4), "ha",
+             "area of the December 2017 clearfell compartment (clearfell.geojson)"),
+            ("clearfell_equiv_radius_m", R, "m", "radius of the disc of equal area"),
+            ("clearfell_wmc3_from_centroid_m", r, "m", "WMC3's distance from the compartment centroid"),
+            ("clearfell_gain_retained_centre", _share(lam, 0.0), "-",
+             "share of a full local recharge gain retained at the compartment centre, at drawdown_lambda"),
+            ("clearfell_gain_retained_wmc3", _share(lam, r), "-",
+             "share of a full local recharge gain retained at WMC3, at drawdown_lambda")]
+    for _tag, _v in zip(("min", "max"), sorted(DRAWDOWN_K_RANGE_MDAY)):
+        rows.append((f"clearfell_gain_retained_wmc3_at_K_{_tag}", _share(lambda_at(_v, b), r), "-",
+                     f"as clearfell_gain_retained_wmc3, λ at K = {_v:g} m/day"))
+    e = wt[wt["well"].str.lower().isin(EDGE_WELLS)]
+    if len(e):
+        _sh = [_share(lam, float(np.hypot(x - poly.centroid.x, y - poly.centroid.y))) for x, y in zip(e["E"], e["N"])]
+        rows.append(("clearfell_gain_retained_edge_median", float(np.median(_sh)), "-",
+                     f"median share of a full local recharge gain reaching the Edge-tier wells (n={len(_sh)}), "
+                     f"at drawdown_lambda, treating the compartment as its equal-area disc"))
+    rows += [("clearfell_wmc3_b1_ratio_net_climate", float(rat["Impact"] - rat["Climate Ctrl"] + 1.0), "-",
+              "WMC3 beta_1 after/before felling, net of the Climate-control tier mean ratio (10e_01)"),
+             ("clearfell_wmc3_b1_ratio_se", se, "-",
+              "approximate standard error of WMC3's beta_1 ratio (before and after SEs in quadrature)"),
+             ("clearfell_local_gain_b1_ratio", float(1.0 / (1.0 - FOREST_INTERCEPTION)), "-",
+              "beta_1 ratio a full local return of FOREST_INTERCEPTION would give (fitted on gross rainfall)")]
+    return rows
+
 def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     """
     Figure 3: Estimated forest drawdown propagation, optionally overlaid on the
@@ -1643,6 +1704,14 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     rpt.add("sy_c3", float(Sy), unit="-", well="C3",
             note="C3 WTF median specific yield, live from "
                  "18_wtf_01_well_sy_estimates.csv — the value λ is built from")
+    # 1.61.0 (T-97, Martin 2026-10-04): does a recharge gain at the 2017 felling spread into the
+    # surrounding forest? The steady rise under a uniform extra recharge over a disc of radius R, in an
+    # aquifer whose drainage gives the same λ, is (R_extra/(Sy·β₃))·[1 − (R/λ)·K1(R/λ)·I0(r/λ)] inside the
+    # disc: the bracket is the share of a full local gain retained at radius r. The compartment's
+    # equal-area radius and WMC3's distance from its centroid give that share at the felled well.
+    _cf_rows = _clearfell_dispersal_rows(wt, lam, b, _lambda_at)
+    for _k, _v, _u, _n in _cf_rows:
+        rpt.add(_k, _v, unit=_u, well="WMC3", note=_n)
     rpt.add("drawdown_H0", float(H0), unit="mm",
             note="forest interception deficit at felling edge (config)")
     # 1.45.0 (T-84): where the forest field falls to each quoted level, λ·ln(H0/L).

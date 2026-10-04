@@ -52,7 +52,12 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-01 (D-216). A sustained climate shift as a
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-03 (D-238; Martin: "WE NEED TO ENSURE INTERCEPTION IS NOT
+#   DOUBLE counted", "Let's do the fix"). climate_forcing_change_12() no longer multiplies a rainfall
+#   CHANGE by (1 − I): beta_1 was fitted on gross rainfall, so the canopy is already inside it
+#   (INTERCEPTION_TREATMENT §3). A change of canopy enters as beta_1·sP·P·(I − I_scen), and a beta_2
+#   multiplier per month is accepted; with neither, and no interception, the result is bit-identical.
+# 1.8.0  # Hollingham (2026) — 2026-10-01 (D-216). A sustained climate shift as a
 #   LEVEL: scenario_delta_series() runs the difference between a perturbed and a baseline SSM run,
 #   d(t) = (1 - b3)·d(t-1) + Δf(t), in which the intercept and the drainage datum cancel exactly;
 #   sustained_monthly_response() is its periodic steady state for a 12-month forcing change (the
@@ -791,18 +796,34 @@ def sustained_monthly_response(b3, forcing_change_12):
     return np.array([np.sum(r ** k * f[(m - k) % 12]) for m in range(12)]) / (1.0 - r ** 12)
 
 
-def climate_forcing_change_12(b1, b2, P12, PET12, sP12, sPET12, interception=0.0):
+def climate_forcing_change_12(b1, b2, P12, PET12, sP12, sPET12, interception=0.0,
+                              interception_scen=None, b2_mult12=None):
     """Monthly forcing change Δf (m/month, index 0 = January) when the 12-month
-    climatology P12 / PET12 is scaled by sP12 / sPET12, at a well whose recharge
-    passes through a fixed canopy interception fraction (0 off the forest):
+    climatology P12 / PET12 is scaled by sP12 / sPET12 and, at a forest well, the
+    canopy's interception moves from `interception` (I, the baseline canopy) to
+    `interception_scen` (I_s; default I) and its draw is scaled by `b2_mult12`:
 
-        Δf(m) = β₁·(1 − I)·P(m)·(sP(m) − 1) − β₂·PET(m)·(sPET(m) − 1)
+        Δf(m) = β₁·P(m)·[(sP(m) − 1) + sP(m)·(I − I_s)] − β₂·PET(m)·[m₂(m)·sPET(m) − 1]
+
+    β₁ and β₂ were fitted on gross rainfall and above-canopy PET, so the canopy is
+    already inside them: a rainfall CHANGE passes through β₁ unreduced, and only a
+    change OF canopy adds β₁·sP·P·(I − I_s), the recharge gain of case (b) in
+    INTERCEPTION_TREATMENT.md (D-022, D-238). Before 1.9.0 the climate change was
+    multiplied by (1 − I) at forest wells, subtracting the canopy a second time.
+    With I = I_s and no multiplier this is β₁·P·(sP − 1) − β₂·PET·(sPET − 1) at
+    every well, bit-identical to the old expression wherever I was 0.
 
     The one-month RATE of D-216's level response; Scripts 19 and 26b share it."""
     P12, PET12 = np.asarray(P12, dtype=float), np.asarray(PET12, dtype=float)
     sP12, sPET12 = np.asarray(sP12, dtype=float), np.asarray(sPET12, dtype=float)
-    return (float(b1) * (1.0 - float(interception)) * P12 * (sP12 - 1.0)
-            - float(b2) * PET12 * (sPET12 - 1.0))
+    if interception_scen is None and b2_mult12 is None:
+        return (float(b1) * P12 * (sP12 - 1.0)
+                - float(b2) * PET12 * (sPET12 - 1.0))
+    i0 = float(interception)
+    i_s = i0 if interception_scen is None else float(interception_scen)
+    m2 = np.ones(12) if b2_mult12 is None else np.asarray(b2_mult12, dtype=float)
+    return (float(b1) * P12 * ((sP12 - 1.0) + sP12 * (i0 - i_s))
+            - float(b2) * PET12 * (m2 * sPET12 - 1.0))
 
 
 def response_identified(beta_3, pvalue_beta_3, n_months, n_params):

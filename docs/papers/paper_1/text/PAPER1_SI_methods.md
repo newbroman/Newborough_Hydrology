@@ -1,9 +1,9 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_24.odt — do not edit. source-sha256=9121f2149cf373bf pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_25.odt — do not edit. source-sha256=af7971f4d806daab pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
 
-## Hollingham (2026), Paper 1 --- *A parameter-sparse state-space framework for aquifer characterization from long-term manual dipwell records: a 21-year case study at Newborough Warren*
+## Hollingham (2026a), Paper 1 --- *A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records*
 
 This Supporting Information document gives the methodological detail underlying the analyses reported in the main text. It is self-contained: every parameter, equation, and design choice that supports a result in the manuscript is laid out here. Section numbers in the manuscript refer back to the headed sections here (S1--S16).
 

@@ -200,7 +200,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (474)
+## Outputs no exhibit renders (476)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -406,6 +406,7 @@
 - `11_forecast_spring_transfer_functions.csv`
 - `11b_05_table10_pflood_spreadsheet.csv`
 - `11b_report_numbers.csv`
+- `11b_threshold_source_sensitivity.csv`
 - `11c_pflood_achievability_per_well.csv`
 - `11c_report_numbers.csv`
 - `12_02_break_in_slope.csv`
@@ -517,6 +518,7 @@
 - `26_index_precision_by_cluster.csv`
 - `26_metric_diagnostics.png`
 - `26_metric_diagnostics_per_well.csv`
+- `26_msl5_handbook_counts.csv`
 - `26_msl5_vs_min5_per_cluster.csv`
 - `26_msl_5yr_latest_per_well.csv`
 - `26_msl_5yr_per_cluster.csv`
@@ -602,5 +604,3 @@
 - `40_03_control.csv`
 - `40_04_generalisation.csv`
 - `40_05_dtm_profile.csv`
-- `40_06_coastal_sensitivity.csv`
-- `40_07_storm_pair.csv`

@@ -8,8 +8,9 @@ the methods-style figures those scripts produce. Two outputs:
 
   1. fig_msl5_trajectory_report.png  (report Figure 44, two panels)
      (a) Cluster-mean 5-year MSL trajectory from MSL_TRAJECTORY_START_YEAR,
-         the van Willegen et al. (2025) vegetation-baseline metric, drawn
-         WITHOUT threshold lines: neither paper applies a threshold to it.
+         the van Willegen et al. (2025) vegetation-baseline metric, against the
+         SD15b/SD16 mean spring levels of the Dune Managers Handbook v2 (D-242):
+         neither van Willegen nor Curreli defines a level on the spring mean.
      (b) Cluster-mean rolling annual minimum over CURRELI_MIN_WINDOW_YEARS —
          the quantity the Curreli (2013) SD15b/SD16 values are four-year
          means of (D-190) — against those values, SD16 zone shaded, latest
@@ -53,7 +54,12 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.4.0"   # Hollingham (2026) — 2026-10-01 (D-224; Martin: "report both", choice 2).
+__version__ = "1.5.0"   # Hollingham (2026) — 2026-10-06 (D-242; spec NRG_spec_handbook_levels_2026-10-06).
+#   Panel (a) draws the Dune Managers Handbook v2 mean spring levels (config.HB_SD15b_MSL, HB_SD16_MSL;
+#   Martin: "Add the handbook MSL lines") — a guideline defined on the March–May mean, so on MSL5's own
+#   footing (T-59), labelled in the legend; (a)'s legend moves to a three-column band at the foot of the
+#   panel, clear of the C5 line. Panel (b) keeps the Curreli minima. No output value moves.
+# 1.4.0   # Hollingham (2026) — 2026-10-01 (D-224; Martin: "report both", choice 2).
 #   The ΔMSL5-against-Δsummer contrast draws both forms: Model B as filled bars (19_scenario_summary.csv,
 #   rows filtered explicitly on response == "level_sustained_model_b") and Model A as hatched bars beside
 #   them (19_scenario_summary_model_a.csv, Script 19 2.29.0), on the same wells — Model A is projected only
@@ -190,8 +196,13 @@ def render_trajectory(per_cluster: pd.DataFrame, per_cluster_min: pd.DataFrame,
 
     fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(9.0, 8.6), dpi=200, sharex=True)
 
-    # (a) MSL5 — the vegetation-baseline metric; no threshold is defined for it
+    # (a) MSL5 — the vegetation-baseline metric, against the handbook mean spring levels (D-242)
     low_a = _draw_cluster_lines(ax_a, per_cluster, "MSL5_m_bg_mean", start)
+    for y, col, name in ((-config.HB_SD15b_MSL, "#3B6D11", "SD15b mean spring level"),
+                         (-config.HB_SD16_MSL, "#A32D2D", "SD16 mean spring level")):
+        # labelled in the legend, not on the axes: on-axis text sat on the C3 line (1.5.0 review)
+        ax_a.axhline(y, color=col, linewidth=1.0, linestyle=(0, (6, 4)), zorder=1,
+                     label=f"{name} {y:.2f} m (handbook v2)".replace("-", "−"))
     ax_a.set_ylabel("5-year mean spring water level (m, below ground)")
     ax_a.set_title(f"(a)  Cluster-mean {config.MSL_DEFAULT_WINDOW_YEARS}-year MSL "
                    f"(van Willegen et al. 2025) — window ends {start}–{end}",
@@ -212,14 +223,17 @@ def render_trajectory(per_cluster: pd.DataFrame, per_cluster_min: pd.DataFrame,
                    pad=8, loc="left", fontweight="normal")
     ax_b.set_xlabel("Hydrology year (window end)")
 
-    ax_a.set_ylim(np.floor((low_a - 0.15) / 0.2) * 0.2, 0.05)
+    ax_a.set_ylim(np.floor((low_a - 0.40) / 0.2) * 0.2, 0.05)   # 1.5.0: room for the legend band
     ax_b.set_ylim(floor_b, 0.05)
     ax_b.set_xlim(start - 0.2, end + 0.9)
     ax_b.set_xticks(range(start, end + 1))
     # (b)'s legend sits in the empty band above SD15b, clear of the C5 label
-    for ax, loc in ((ax_a, "lower right"), (ax_b, "upper right")):
-        leg = ax.legend(loc=loc, frameon=True, framealpha=0.95,
-                        edgecolor="#cccccc", fontsize=9, ncol=1, labelspacing=0.4)
+    # (a)'s legend spans the empty band below the forest clusters, clear of the C5 line's
+    # right-hand end, which the single-column lower-right legend covered (figure check 2026-10-06)
+    for ax, loc, ncol in ((ax_a, "lower center", 3), (ax_b, "upper right", 1)):
+        leg = ax.legend(loc=loc, frameon=True, framealpha=0.95, edgecolor="#cccccc",
+                        fontsize=8 if ncol > 1 else 9, ncol=ncol, labelspacing=0.4,
+                        columnspacing=1.0, handlelength=1.8)
         leg.get_frame().set_linewidth(0.5)
 
     plt.tight_layout()

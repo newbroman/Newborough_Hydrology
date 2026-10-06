@@ -63,7 +63,9 @@ from utils.paths import (
 from utils.report_numbers_utils import ReportNumbers
 from utils.paths import OUT_00_PET_WARMING, OUT_00_PET_MONTHLY_TRENDS, OUT_00_CLIMATE_TIMESERIES_SHORT_FILM
 from utils.config import (REFERENCE_CUTOFF_DATE, CLEARFELL_DATE_ISO, MIN_RECORD_MONTHS,
-                          SD15b, SD16, SD16_REC, RAF_VALLEY_OSGB_E, RAF_VALLEY_OSGB_N,
+                          SD15b, SD16, SD16_REC, SD15b_WINTER, SD16_WINTER,
+                          HB_SD15b_MIN, HB_SD16_MIN, HB_SD15b_WINTER, HB_SD16_WINTER,
+                          RAF_VALLEY_OSGB_E, RAF_VALLEY_OSGB_N,
                           SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX, SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
                           FILM_SLIDE_BG)
 from utils.render_utils import render_figure
@@ -76,7 +78,11 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-09-29. T-96 emit list: 00_report_numbers.csv gains
+__version__ = "1.17.0"  # Hollingham (2026) - 2026-10-06 (D-242). 00_report_numbers.csv gains
+#   reference_summer_min_zone_count_by_source and reference_winter_max_reaching_n: the report9 §4.1.2 counts
+#   under Curreli et al. (2013) and the Dune Managers Handbook v2 side by side, on this script's per-well
+#   basis (Martin: winter "Give both counts"). Nothing already emitted moves.
+# 1.16.0  # Hollingham (2026) - 2026-09-29. T-96 emit list: 00_report_numbers.csv gains
 #   reference_network_mean_wl_m, reference_seasonal_amplitude_median_m and reference_winter_max_above_ground_n
 #   (report9 §4.1.2, column statistics of 00_02), pet_rolling12_min/median/max_mm (report9 §4.1.1, the Fig 4b line),
 #   pet_warming_early/late_mean_mm (report11 §6.4), trend_summer_pet/_rain_full_record and their _p (report10 §5.7.5)
@@ -1219,6 +1225,23 @@ def _run_all() -> None:
     rr.add("reference_winter_max_above_ground_n", int((_wmax > 0).sum()), unit="wells",
            note=f"reference wells whose mean annual winter maximum (Oct-Mar) is above ground "
                 f"(Mean_Winter_Max_m > 0), of n={len(_wmax)} (00_02). report9 §4.1.2")
+    # 1.17.0 (D-242): the same two report9 §4.1.2 comparisons under the Dune Managers Handbook v2
+    # levels beside Curreli's, on this script's own per-well basis, so the paragraph can give both.
+    for _src, _s15, _s16 in (("curreli", SD15b, SD16), ("handbook", HB_SD15b_MIN, HB_SD16_MIN)):
+        for _zone, _cnt in (("shallower than SD15b", (_dp < _s15).sum()),
+                            ("SD15b to SD16 (dry slack zone)", ((_dp >= _s15) & (_dp < _s16)).sum()),
+                            ("at or deeper than SD16", (_dp >= _s16).sum())):
+            rr.add("reference_summer_min_zone_count_by_source", int(_cnt), unit="wells", well=_zone,
+                   era=_src, note=f"reference network n={_n}, per-well mean annual summer minimum (00_02); "
+                                  f"levels {_s15:.2f} / {_s16:.2f} m below ground ({_src}; D-242)")
+    for _src, _w15, _w16 in (("curreli", SD15b_WINTER, SD16_WINTER),
+                             ("handbook", HB_SD15b_WINTER, HB_SD16_WINTER)):
+        # winter levels are depths below ground (negative = above); a mean winter maximum (signed,
+        # positive = above ground) reaches a level when it is at or above it
+        for _lvl, _w in (("SD15b winter level", _w15), ("SD16 winter level", _w16)):
+            rr.add("reference_winter_max_reaching_n", int((_wmax >= -_w).sum()), unit="wells", well=_lvl,
+                   era=_src, note=f"reference wells whose mean annual winter maximum (Oct-Mar) reaches "
+                                  f"{-_w:+.2f} m ({_src}; D-242), of n={len(_wmax)} (00_02). report9 §4.1.2")
     if fig1_stats and "pet_roll12" in fig1_stats:
         _pr = fig1_stats["pet_roll12"]
         for _k in ("min", "median", "max"):

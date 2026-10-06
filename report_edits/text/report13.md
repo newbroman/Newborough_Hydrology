@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=b6a4a626a8090a49 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=4a2e43cf9332b5c9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
@@ -52,6 +52,8 @@ Davy, A.J., Grootjans, A.P., Hiscock, K. and Petersen, J. (2006) Development of 
 Davy, A.J., Hiscock, K.M., Jones, M.L.M., Low, R., Robins, N.S. and Stratford, C. (2010) Protecting the plant communities and rare species of dune wetland systems: ecohydrological guidelines for wet dune habitats --- Phase 2. Bristol: Environment Agency. Science Report GEHO0310BSGV-E-E.
 
 Deng, Z., Priestley, S.C., Guan, H., Love, A.J. and Simmons, C.T. (2013). Canopy enhanced chloride deposition in coastal South Australia and its application for the chloride mass balance method. *Journal of Hydrology*, 497, 62--70. *https://doi.org/10.1016/j.jhydrol.2013.05.040*
+
+Denning, L., Pugh, M., Pitts, V. and Dynamic Dunescapes partners (2024) *The Sand Dune Managers Handbook*, Version 2, September 2024. Produced for the Dynamic Dunescapes project. https://dynamicdunescapes.co.uk/wp-content/uploads/2024/09/Dynamic-Dunescapes-Sand-Dune-Managers-Handbook-v2.pdf
 
 ****Desbarats, A.J., Logan, C.E., Hinton, M.J. and Sharpe, D.R. (2002)**** On the kriging of water table elevations using collateral information from a digital elevation model. **Journal of Hydrology**, 255(1--4), 25--38. [**https://doi.org/10.1016/S0022-1694(01)00504-2**](https://doi.org/10.1016/S0022-1694(01)00504-2)
 
@@ -122,8 +124,6 @@ Hypolite, J., Arvor, D., Bertrand, G., & Fovet, O. (2021) A state-space approach
 Jennings, T.A.H. (1990) The changing hydrology of the Newborough Dune System due to afforestation. Unpublished M.Sc. dissertation, University of North Wales, Bangor.
 
 JNCC (2026) Y Twyni o Abermenai i Aberffraw / Abermenai to Aberffraw Dunes, Special Area of Conservation UK0020021: site page. Peterborough: Joint Nature Conservation Committee. https://sac.jncc.gov.uk/site/UK0020021 (accessed 28 September 2026).
-
-****Jones, M.L.M., Rooney, P., Rhymes, J. and Dynamic Dunescapes partners (2021)**** **The Sand Dune Managers Handbook**, Version 1, June 2021. Produced for the Dynamic Dunescapes (DuneLIFE) project, LIFE17 NAT/UK/000570.
 
 Jordahl, K., Van den Bossche, J., Fleischmann, M., Wasserman, J., McBride, P., Gerard, J., \... & Ward, B. (2020). *geopandas/geopandas: v0.8.1*. Zenodo. **https://doi.org/10.5281/zenodo.3946761**
 

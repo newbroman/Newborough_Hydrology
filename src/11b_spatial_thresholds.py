@@ -51,6 +51,7 @@ Outputs
         11b_03_pflood.png                \u2014 P_flood spatial map (iterated)
         11b_03_pflood_per_well.csv       \u2014 per-well P_flood CSV (new)
         11b_04_flood_frequency.png       \u2014 winter flooding frequency map
+        11b_threshold_source_sensitivity.csv \u2014 zone counts, Curreli vs handbook v2 (D-242)
 
 Inputs (all from pipeline outputs/ directory)
 -----------------------------------------------
@@ -75,7 +76,15 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The data bundle carries
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+#   New output 11b_threshold_source_sensitivity.csv: the well counts in each summer zone (mean summer
+#   minimum against SD15b / SD16) and each winter zone (mean winter maximum against the SD15b / SD16
+#   winter levels) under Curreli et al. (2013), the primary source, and under the Sand Dune Managers
+#   Handbook v2 (config.HB_SD15b_MIN / HB_SD16_MIN / HB_SD15b_WINTER / HB_SD16_WINTER), side by
+#   side, with the wells that change zone named; for all wells and the reference network. Headline
+#   keys (threshold_source_zone_count, threshold_source_n_wells_changing_zone) join
+#   11b_report_numbers.csv. Maps, zones and colours are unchanged (Curreli); no existing value moves.
+# 1.19.0  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The data bundle carries
 #   mp_bands (config.MP_ACHIEVABLE_MAX / MP_MARGINAL_MAX), and the Forecaster template (v1.4.0) classes
 #   wells by the report's three m_P classes instead of its own four bands (Martin, 2026-10-04).
 # 1.18.0  # Hollingham (2026) - 2026-09-30. Emits report8 §3.6.3's worked P_flood
@@ -212,7 +221,7 @@ from utils.paths import (
     OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ,
     OUT_11B_PFLOOD_CLUSTER_SUMMARY,
     OUT_11B_TABLE10, OUT_11B_FORECASTER_HTML, SRC_FORECASTER_TEMPLATE,
-    LIVING_WET_AREA_MODEL, OUT_11B_REPORT_NUMBERS,
+    LIVING_WET_AREA_MODEL, OUT_11B_REPORT_NUMBERS, OUT_11B_THRESHOLD_SOURCE_SENS,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.map_utils import (load_dem_hillshade, add_idw_surface, add_kml_features, _safe_read_kml,
@@ -220,6 +229,7 @@ from utils.map_utils import (load_dem_hillshade, add_idw_surface, add_kml_featur
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, SD15b, SD15b_REC, SD16, SD16_REC,
     SD15b_WINTER, SD16_WINTER,
+    HB_SD15b_MIN, HB_SD16_MIN, HB_SD15b_WINTER, HB_SD16_WINTER, HB_SOURCE,
     SCRAPE_DEM_CORRECTION_M, DRAINAGE_DATUM,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
@@ -719,6 +729,8 @@ def load_well_data() -> pd.DataFrame:
 # FIGURE 1 — SUMMER MINIMA DEPTH MAP
 # ─────────────────────────────────────────────────────────────────────────────
 _ZONE_REPORT: list = []
+_WINTER_DEPTHS: list = []     # per-well mean winter maximum depth_bg, filled by the winter map
+_SOURCE_REPORT: list = []     # threshold-source sensitivity report numbers (1.20.0, D-242)
 
 
 def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
@@ -999,6 +1011,8 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         return
 
     wdf = pd.DataFrame(winter_rows)
+    _WINTER_DEPTHS.clear()
+    _WINTER_DEPTHS.extend(winter_rows)   # read by export_threshold_source_sensitivity() (1.20.0)
 
     # Zone summary counts
     n_sd15b = (wdf["depth_bg"] <= W_SD15b).sum()
@@ -1478,6 +1492,103 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # TABLE 10 EXPORT — spreadsheet-ready collapsed-form P_flood equations
 # ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# THRESHOLD-SOURCE SENSITIVITY — Curreli (2013) vs Dune Managers Handbook v2 (D-242)
+# ─────────────────────────────────────────────────────────────────────────────
+def _summer_zone(d: float, sd15b: float, sd16: float) -> str:
+    """Summer zone of a mean summer minimum depth below ground (the map's < / >= edges)."""
+    if d < sd15b:
+        return "above SD15b"
+    if d < sd16:
+        return "between SD15b and SD16"
+    return "at or below SD16"
+
+
+def _winter_zone(d: float, w15: float, w16: float) -> str:
+    """Winter zone of a mean winter maximum depth below ground (the winter map's edges)."""
+    if d <= w15:
+        return "SD15b winter met"
+    if d <= W_FLOOD:
+        return "flooded, short of SD15b"
+    if d <= w16:
+        return "SD16 winter met"
+    return "below SD16 winter"
+
+
+def export_threshold_source_sensitivity(df: pd.DataFrame) -> None:
+    """
+    Zone counts under Curreli et al. (2013) (the primary source, the map's zones)
+    and under the Sand Dune Managers Handbook v2 values (config.HB_*), side by side.
+
+    Summer: the mean summer minimum (df.depth_bg, as on the summer map) against
+    SD15b / SD16 - three zones; the recovery limits are Curreli-based project
+    assumptions (D-201) and are not part of the comparison. Winter: the mean
+    winter maximum (as on the winter map, captured in _WINTER_DEPTHS) against the
+    SD15b / SD16 winter levels and the ground surface - the map's four zones.
+    One row per (season, network, zone); wells changing zone are named on the
+    rows of the zone they leave and the zone they enter.
+
+    Writes OUT_11B_THRESHOLD_SOURCE_SENS; report numbers go to _SOURCE_REPORT.
+    """
+    DIR_11B.mkdir(parents=True, exist_ok=True)
+    _SOURCE_REPORT.clear()
+    summer = df[["well", "network", "depth_bg"]].copy()
+    winter = pd.DataFrame(_WINTER_DEPTHS)
+    if winter.empty:
+        warn("winter depths not captured (winter map not run) - winter rows omitted")
+        winter = pd.DataFrame(columns=["well", "network", "depth_bg"])
+    seasons = (
+        ("summer", summer, "mean summer minimum (Aug-Sep), depth below ground",
+         lambda d: _summer_zone(d, SD15b, SD16), lambda d: _summer_zone(d, HB_SD15b_MIN, HB_SD16_MIN),
+         ("above SD15b", "between SD15b and SD16", "at or below SD16"),
+         f"SD15b {SD15b} m, SD16 {SD16} m", f"SD15b {HB_SD15b_MIN} m, SD16 {HB_SD16_MIN} m"),
+        ("winter", winter[["well", "network", "depth_bg"]], "mean winter maximum, depth below ground",
+         lambda d: _winter_zone(d, SD15b_WINTER, SD16_WINTER),
+         lambda d: _winter_zone(d, HB_SD15b_WINTER, HB_SD16_WINTER),
+         ("SD15b winter met", "flooded, short of SD15b", "SD16 winter met", "below SD16 winter"),
+         f"SD15b {SD15b_WINTER} m, SD16 {SD16_WINTER} m",
+         f"SD15b {HB_SD15b_WINTER} m, SD16 {HB_SD16_WINTER} m"),
+    )
+    rows = []
+    for season, sdf, quantity, zc, zh, zones, lev_c, lev_h in seasons:
+        sdf = sdf.dropna(subset=["depth_bg"]).copy()
+        sdf["zone_curreli"] = sdf["depth_bg"].map(zc)
+        sdf["zone_handbook"] = sdf["depth_bg"].map(zh)
+        for net, sub in (("All", sdf), ("Reference", sdf[sdf["network"] == "Reference"])):
+            moved = sub[sub["zone_curreli"] != sub["zone_handbook"]]
+            era = f"{season}; {net} (n={len(sub)})"
+            for zone in zones:
+                out_w = moved[moved["zone_curreli"] == zone]
+                in_w = moved[moved["zone_handbook"] == zone]
+                n_c = int((sub["zone_curreli"] == zone).sum())
+                n_h = int((sub["zone_handbook"] == zone).sum())
+                rows.append(dict(
+                    season=season, network=net, n_wells_network=len(sub), zone=zone,
+                    n_wells_curreli=n_c, n_wells_handbook=n_h, n_change=n_h - n_c,
+                    wells_changing_zone="; ".join(
+                        [f"{w} (to {z})" for w, z in zip(out_w["well"], out_w["zone_handbook"])]
+                        + [f"{w} (from {z})" for w, z in zip(in_w["well"], in_w["zone_curreli"])]),
+                    quantity=quantity, levels_curreli_m=lev_c, levels_handbook_m=lev_h))
+                for src, cnt in (("Curreli et al. (2013)", n_c), ("handbook v2", n_h)):
+                    _SOURCE_REPORT.append(dict(
+                        parameter="threshold_source_zone_count", value=cnt, unit="wells",
+                        well=zone, era=f"{era}; {src}",
+                        note=f"{quantity}; levels {lev_c if src.startswith('Curreli') else lev_h}"
+                             " (positive = below ground); Script 11b threshold-source sensitivity (D-242)"))
+            _SOURCE_REPORT.append(dict(
+                parameter="threshold_source_n_wells_changing_zone", value=int(len(moved)),
+                unit="wells", well=", ".join(moved["well"]), era=era,
+                note=f"wells whose {season} zone differs between Curreli et al. (2013) and "
+                     f"{HB_SOURCE}; Script 11b threshold-source sensitivity (D-242)"))
+    out = pd.DataFrame(rows)
+    out["source_handbook"] = HB_SOURCE
+    out.to_csv(OUT_11B_THRESHOLD_SOURCE_SENS, index=False)
+    saved(f"{OUT_11B_THRESHOLD_SOURCE_SENS.name}")
+    for _, r in out[out["network"] == "Reference"].iterrows():
+        info(f"  {r['season']:<6s} {r['zone']:<24s} Curreli {r['n_wells_curreli']:>3d}  "
+             f"handbook {r['n_wells_handbook']:>3d}  {r['wells_changing_zone']}")
+
+
 def export_table10_spreadsheet() -> None:
     """
     Re-export the collapsed-form P_flood equations from Script 11's full
@@ -1581,7 +1692,7 @@ def export_table10_spreadsheet() -> None:
                     "the same worked example (report8 SS3.6.3)")
     else:
         warn(f"P_flood worked example not emitted: {len(_ex)} threshold row(s) for {PFLOOD_EXAMPLE_CLUSTER}")
-    for _r in _ZONE_REPORT:
+    for _r in _ZONE_REPORT + _SOURCE_REPORT:
         rn.add(_r["parameter"], _r["value"], unit=_r["unit"], well=_r["well"],
                era=_r["era"], note=_r["note"])
     rn.save(OUT_11B_REPORT_NUMBERS)
@@ -2255,7 +2366,7 @@ def main(preview: bool = False) -> None:
     print("Loading well data...")
     df = load_well_data()
 
-    # Six builders in one tracked sequence (console_utils.track 1.2.0, T-76): a
+    # Seven builders (six until 1.20.0) in one tracked sequence (console_utils.track 1.2.0, T-76): a
     # script past 30 s prints a completion line per builder with elapsed and
     # remaining time, per Martin's rule that a long run must show it is running.
     builders = [
@@ -2263,6 +2374,8 @@ def main(preview: bool = False) -> None:
         ("Winter maxima depth map", lambda: plot_winter_maxima_map(df, dpi=dpi)),
         ("P_flood map (iterated, Section 3.6.3)", lambda: plot_pflood_map(df, dpi=dpi)),
         ("Flood frequency map", lambda: plot_flood_frequency_map(df, dpi=dpi)),
+        ("Threshold-source sensitivity (Curreli vs handbook v2)",
+         lambda: export_threshold_source_sensitivity(df)),
         ("Table 10 (spreadsheet-ready P_flood equations)", lambda: export_table10_spreadsheet()),
         ("Interactive forecaster HTML", lambda: build_forecaster_html()),
     ]

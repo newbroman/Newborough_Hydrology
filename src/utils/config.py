@@ -44,7 +44,12 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.98.0"  # Hollingham (2026) - 2026-10-06 (T-109). SURVEY_*: the reduced field round
+__version__ = "1.99.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+#   HB_*: the Sand Dune Managers Handbook v2 (Denning et al., 2024, Table 2) dune-slack levels - the
+#   mean spring levels HB_SD15b_MSL / HB_SD16_MSL drawn on the spring-level (MSL5) series (Script 26),
+#   and the summer minima / winter maxima as a sensitivity beside Curreli (Script 11b) - and HB_SOURCE.
+#   Additive: no existing constant changes value.
+# 1.98.0  # Hollingham (2026) - 2026-10-06 (T-109). SURVEY_*: the reduced field round
 #   (tools/survey_round.py) - must-keep extras, cluster-cover tolerances, train/test splits, and the
 #   walking-time calibration (Martin: the full round of all wells took 10 hours). Additive.
 # 1.97.0  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). MP_ACHIEVABLE_MAX and
@@ -1483,6 +1488,25 @@ SD16_REC  = 1.20   # m — dry slack recovery limit  # source: project assumptio
 # these for its head axis (positive up).
 SD15b_WINTER = -0.21  # m — winter flooding level for wet slack  # source: Curreli et al. 2013 Table 4, SD15b (core, n=15) average maximum water level +0.21 m above ground, a 4-yr community MEAN (range +0.12 to +0.29) (D-201)
 SD16_WINTER  = 0.25  # m — winter flooding limit for dry slack  # source: Curreli et al. 2013 Table 4, SD16 (core, n=14) average maximum water level -0.25 m, a 4-yr community MEAN (range -0.82 to -0.02)
+# ── Dune-slack levels — Sand Dune Managers Handbook v2 (D-242) ───────────────
+# Denning et al. (2024) Table 2 (p. 12), "Typical water levels for dune slack communities":
+# nine-year averages 2006-2014 from dipwells and quadrats at Newborough Warren and Ainsdale,
+# after Stratford et al. (2014). Same sign convention as the Curreli constants above: positive =
+# depth below ground; a NEGATIVE winter value is ABOVE ground (as SD15b_WINTER is).
+# The mean spring level (MSL) is the March-May mean - the footing of van Willegen et al.'s MSL5 -
+# so HB_SD15b_MSL / HB_SD16_MSL are the levels drawn on the spring-level series (Script 26).
+# The minima and winter maxima are nine-year averages whose averaging is not stated in the
+# handbook; Curreli (four-year community means) stays primary for those, and these are applied
+# only as a sensitivity (Script 11b 11b_threshold_source_sensitivity.csv).
+HB_SOURCE = ("Denning et al. (2024), The Sand Dune Managers Handbook v2, Table 2 (p. 12), "
+             "after Stratford et al. (2014)")
+HB_SD15b_MSL = 0.13   # m — SD15b mean spring level  # source: Denning et al. 2024 Table 2, SD15b MSL (March-May mean) -0.13 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
+HB_SD16_MSL = 0.48    # m — SD16 mean spring level  # source: Denning et al. 2024 Table 2, SD16 MSL (March-May mean) -0.48 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
+HB_SD15b_MIN = 0.64   # m — SD15b summer minimum  # source: Denning et al. 2024 Table 2, SD15b minimum water level -0.64 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
+HB_SD16_MIN = 0.96    # m — SD16 summer minimum  # source: Denning et al. 2024 Table 2, SD16 minimum water level -0.96 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
+HB_SD15b_WINTER = -0.09  # m — SD15b winter maximum (0.09 m ABOVE ground)  # source: Denning et al. 2024 Table 2, SD15b maximum water level +0.09 m above ground, nine-year average 2006-2014, Newborough and Ainsdale; negative = above ground
+HB_SD16_WINTER = 0.34    # m — SD16 winter maximum  # source: Denning et al. 2024 Table 2, SD16 maximum water level -0.34 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
+
 # Script 14 fits its cluster trends on a fixed-effects cluster series (each well its own level,
 # D-202) over the full record, and repeats every fit from this hydrological year as robustness:
 # 2011 is the first full year clear of the 2010 install ramp (clearfell_common PRE_FELL_START).

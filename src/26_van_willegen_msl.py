@@ -80,7 +80,10 @@ Outputs (DIR_26 / "26_van_willegen_msl/"):
                                     Special > Unformatted text
   * 26_table_s7_1_ewi_per_well.md   The same table rendered for review (v1.5.0)
   * 26_metric_diagnostics.png       Two-panel diagnostic — report Fig XX
-  * 26_msl_5yr_trajectory.png       Cluster trajectories with Curreli refs
+  * 26_msl5_handbook_counts.csv     Wells / windows / EWI above, between and below the
+                                    handbook v2 mean spring levels (D-242)
+  * 26_msl_5yr_trajectory.png       Cluster trajectories with the handbook v2
+                                    mean spring levels (D-242)
   * 26_msl_5yr_quadrat_wells.png    Per-well trajectories at van-Willegen
                                     co-located quadrat wells (calibrated set)
   * 26_msl_results.txt              Run transcript
@@ -93,14 +96,28 @@ Five-year carry-over effects in dune slack vegetation response to
 hydrology. Ecological Indicators, 170, 113016.
 https://doi.org/10.1016/j.ecolind.2024.113016
 
-Curreli, A. et al. (2013) — SD15b/SD16 threshold reference lines.
+Curreli, A. et al. (2013) — SD15b/SD16 minima, applied to the annual-minimum series.
+
+Denning, L., Pugh, M., Pitts, V. et al. (2024) The Sand Dune Managers Handbook,
+Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
+(config.HB_SOURCE; D-242).
 
 """
 # 2026-07-19: figure saves routed through render_utils.render_figure (A4 dpi cap)
 
 from __future__ import annotations
 
-__version__ = "1.24.0"  # Hollingham (2026) - 2026-10-01 (D-221). The persistence the drainage term
+__version__ = "1.25.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+#   The spring-level figures (26_msl_5yr_trajectory.png, 26_msl_5yr_quadrat_wells.png) draw the
+#   Sand Dune Managers Handbook v2 mean spring levels (config.HB_SD15b_MSL / HB_SD16_MSL, March-May
+#   means, the footing of MSL5) in place of the Curreli minima, which were the basis mismatch T-59
+#   asked about. Curreli stays on the minimum series (Pass 3c, Table 20). The MSL5 map is unchanged
+#   (no reference lines; its colour scale still centres on SD15b). New output
+#   26_msl5_handbook_counts.csv: wells (latest window-end), five-year windows (all window-ends) and
+#   the calibrated EWI, each above the SD15b level, between the two and below the SD16 level, per
+#   cluster and network; headline counts join 26_report_numbers.csv as msl5_hb_* / ewi_msl5_hb_*.
+#   No existing output value moves.
+# 1.24.0  # Hollingham (2026) - 2026-10-01 (D-221). The persistence the drainage term
 #   predicts is now the exact discrete-time AR(1) lag-12 autocorrelation, (1 - beta_3)**12, for Model B
 #   (rho_ar1_expected) and Model A (rho_ar1_expected_model_a). exp(-12 beta_3) was its continuous-time
 #   approximation, always slightly higher, and implied a reversion time of 1/beta_3, not the
@@ -293,6 +310,7 @@ OUT_CURRELI_MIN_PER_WELL   = paths.OUT_26_CURRELI_MIN_PER_WELL
 OUT_CURRELI_MIN_PER_CLUSTER = paths.OUT_26_CURRELI_MIN_PER_CLUSTER
 OUT_CURRELI_MIN_THRESHOLD_SUMMARY = paths.OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY
 OUT_MSL5_MIN5_PER_CLUSTER = paths.OUT_26_MSL5_MIN5_PER_CLUSTER
+OUT_MSL5_HANDBOOK_COUNTS  = paths.OUT_26_MSL5_HANDBOOK_COUNTS   # 1.25.0 (D-242)
 # EWI outputs (v1.3.0) — canonical paths from utils.paths.
 OUT_EWI       = paths.OUT_26_EWI_PER_WELL
 OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
@@ -937,6 +955,140 @@ def _plot_with_gaps(ax, years, values, **kwargs):
             ax.plot(xs, ys, **kwargs)
 
 
+HB_TAG = "Dune Managers Handbook v2"   # short form of config.HB_SOURCE for figure labels
+
+
+def _draw_handbook_msl_lines(ax):
+    """Draw the handbook v2 SD15b / SD16 mean spring levels (1.25.0, D-242).
+
+    Neutral grey, dashed (SD15b) / dotted (SD16), each named on its line.
+    Returns the two line handles and their legend labels.
+    """
+    levels = ((config.HB_SD15b_MSL, "SD15b", "--", 1.0),
+              (config.HB_SD16_MSL,  "SD16",  ":",  1.2))
+    handles, labels = [], []
+    for depth, unit, ls, lw in levels:
+        handles.append(ax.axhline(-depth, ls=ls, color="0.35", lw=lw))
+        txt = f"{unit} mean spring level −{depth:.2f} m ({HB_TAG})"
+        ax.text(0.005, -depth, txt, transform=ax.get_yaxis_transform(), ha="left", va="bottom",
+                fontsize=7, color="0.25",
+                bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=0.5))
+        labels.append(f"{unit} mean spring level (−{depth:.2f} m, handbook v2)")
+    return handles[0], handles[1], labels
+
+
+def _hb_band_counts(values: pd.Series) -> dict:
+    """Counts above the SD15b mean spring level, between the two, below SD16.
+
+    Values are levels in the depth-below-ground frame (negative = below
+    ground), so "above SD15b" is v > -HB_SD15b_MSL and "below SD16" is
+    v < -HB_SD16_MSL; a value on either level counts as between.
+    """
+    v = pd.Series(values, dtype=float).dropna()
+    above = int((v > -config.HB_SD15b_MSL).sum())
+    below = int((v < -config.HB_SD16_MSL).sum())
+    return dict(n=int(len(v)), n_above_sd15b_msl=above,
+                n_between=int(len(v)) - above - below, n_below_sd16_msl=below)
+
+
+def msl5_handbook_counts(per_well_incl: pd.DataFrame, comp: pd.DataFrame):
+    """MSL5 (and the calibrated EWI) against the handbook v2 mean spring levels.
+
+    1.25.0 (D-242). Three bases, each per cluster and for the whole network,
+    under two scopes (the reference network; all wells, reference + extended):
+      * MSL5, latest window: wells with a valid MSL5 at the latest window-end
+        any well reaches (the D-146 MSL5 exclusion applied, as for the map);
+      * MSL5, all windows: every admitted five-year window (well, window-end);
+      * EWI on the MSL5 scale: the calibrated prediction MSL5 = a + b·EWI
+        (26_ewi_msl5_comparison.csv MSL5_pred_m_bg), one per well, with an
+        extra open-dune-scope row (C4/C5 predictions are flagged unreliable).
+    Returns the table and the headline report numbers (reference network).
+    """
+    latest_end = int(per_well_incl["window_end_year"].max())   # = msl5_mapped_latest_window_end
+    pw = per_well_incl.assign(scope_ref=per_well_incl["network"].eq("Reference"))
+    rows = []
+
+    def _emit(metric, basis, unit, frame, col, scope, cid_col, ends=None):
+        # Rows with no cluster are not dipwells (the Llyn Rhos-Ddu lake gauge rides in
+        # 01_wells_clean.csv) and are left out of every count, the totals included.
+        frame = frame[frame[cid_col].notna()]
+        groups = [(None, "All clusters", frame)]
+        for cid in sorted(config.CLUSTER_LABELS):
+            groups.append((cid, config.CLUSTER_LABELS[cid], frame[frame[cid_col] == cid]))
+        for cid, lab, g in groups:
+            rec = dict(metric=metric, basis=basis, network_scope=scope,
+                       cluster_id=cid, cluster_label=lab, unit=unit,
+                       window_end_first=(int(g[ends].min()) if ends and len(g) else None),
+                       window_end_last=(int(g[ends].max()) if ends and len(g) else None),
+                       n_wells=int(g["well"].nunique()))
+            rec.update(_hb_band_counts(g[col]))
+            rows.append(rec)
+        return rows
+
+    for scope, sub in (("reference", pw[pw["scope_ref"]]), ("all", pw)):
+        sub = sub.assign(cid=sub["cluster_id"].astype("float"))
+        _emit("MSL5", "latest_window", "wells",
+              sub[sub["window_end_year"] == latest_end], "MSL5_m_bg", scope, "cid",
+              ends="window_end_year")
+        _emit("MSL5", "all_windows", "windows", sub, "MSL5_m_bg", scope, "cid",
+              ends="window_end_year")
+
+    if comp is not None and not comp.empty:
+        _lab2id = {v: k for k, v in config.CLUSTER_LABELS.items()}
+        c = comp.assign(cid=comp["cluster"].map(_lab2id).astype("float"))
+        for scope, sub in (("reference", c[c["network"].str.lower() == "reference"]), ("all", c)):
+            _emit("EWI_on_MSL5_scale", "equilibrium", "wells", sub, "MSL5_pred_m_bg", scope,
+                  "cid")
+            od = sub[sub["open_dune_scope"].astype(bool) & sub["cid"].notna()]
+            rec = dict(metric="EWI_on_MSL5_scale", basis="equilibrium", network_scope=scope,
+                       cluster_id=None, cluster_label="Open-dune scope", unit="wells",
+                       window_end_first=None, window_end_last=None,
+                       n_wells=int(od["well"].nunique()))
+            rec.update(_hb_band_counts(od["MSL5_pred_m_bg"]))
+            rows.append(rec)
+
+    out = pd.DataFrame(rows)
+    out["cluster_id"] = out["cluster_id"].astype("Int64")
+    out["window_end_first"] = out["window_end_first"].astype("Int64")
+    out["window_end_last"] = out["window_end_last"].astype("Int64")
+    out["sd15b_msl_level_m"] = -config.HB_SD15b_MSL
+    out["sd16_msl_level_m"] = -config.HB_SD16_MSL
+    out["source"] = config.HB_SOURCE
+
+    nums = {"msl5_hb_latest_window_end": latest_end}
+    _bands = ("n_above_sd15b_msl", "n_between", "n_below_sd16_msl")
+    _short = {"n_above_sd15b_msl": "n_above_sd15b", "n_between": "n_between",
+              "n_below_sd16_msl": "n_below_sd16"}
+
+    def _row(metric, basis, label):
+        r = out[(out["metric"] == metric) & (out["basis"] == basis)
+                & (out["network_scope"] == "reference") & (out["cluster_label"] == label)]
+        return r.iloc[0] if len(r) else None
+
+    for stem, metric, basis in (("msl5_hb_latest", "MSL5", "latest_window"),
+                                ("msl5_hb_windows", "MSL5", "all_windows"),
+                                ("ewi_msl5_hb", "EWI_on_MSL5_scale", "equilibrium")):
+        r = _row(metric, basis, "All clusters")
+        if r is None:
+            continue
+        nums[f"{stem}_n"] = int(r["n"])
+        for b in _bands:
+            nums[f"{stem}_{_short[b]}"] = int(r[b])
+    r = _row("EWI_on_MSL5_scale", "equilibrium", "Open-dune scope")
+    if r is not None:
+        nums["ewi_msl5_hb_open_dune_n"] = int(r["n"])
+        for b in _bands:
+            nums[f"ewi_msl5_hb_open_dune_{_short[b]}"] = int(r[b])
+    lat = out[(out["metric"] == "MSL5") & (out["basis"] == "latest_window")
+              & (out["network_scope"] == "reference") & out["cluster_id"].notna()]
+    for _, r in lat.iterrows():
+        k = int(r["cluster_id"])
+        nums[f"msl5_hb_latest_n_c{k}"] = int(r["n"])
+        for b in _bands:
+            nums[f"msl5_hb_latest_{_short[b]}_c{k}"] = int(r[b])
+    return out, nums
+
+
 def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
     # Restrict to representative-network windows (see TRAJECTORY_START_YEAR
     # rationale in the script header).
@@ -974,21 +1126,14 @@ def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
                     xytext=(6, 0), textcoords="offset points", va="center",
                     fontsize=8, color=col, fontweight="bold")
 
-    # Curreli reference lines in depth-below-ground sign convention.
-    # MSL is most-comparable on its level scale to the Curreli summer
-    # thresholds (the wet/dry slack viability cutoffs).
+    # Reference lines in depth-below-ground sign convention: the handbook v2
+    # mean spring levels (1.25.0, D-242), a March-May mean like MSL5 itself.
+    # The Curreli minima are applied to the annual-minimum series instead.
     # neutral grey, dashed / dotted (1.23.0): green and red read as C2 and C3
-    h_sd15 = ax.axhline(-config.SD15b, ls="--", color="0.35", lw=1.0)
-    h_sd16 = ax.axhline(-config.SD16,  ls=":",  color="0.35", lw=1.2)
-    for yv, txt in ((-config.SD15b, f"SD15b wet slack −{config.SD15b:.2f} m"),
-                    (-config.SD16,  f"SD16 dry slack −{config.SD16:.2f} m")):
-        ax.text(0.005, yv, txt, transform=ax.get_yaxis_transform(), ha="left", va="bottom",
-                fontsize=7, color="0.25",
-                bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=0.5))
+    h_sd15, h_sd16, hb_labels = _draw_handbook_msl_lines(ax)
     ax.axhline(0, color="#333", lw=0.6)
     cluster_handles += [h_sd15, h_sd16]
-    cluster_labels  += [f"SD15b wet slack (−{config.SD15b:.2f} m)",
-                        f"SD16 dry slack (−{config.SD16:.2f} m)"]
+    cluster_labels  += hb_labels
 
     ax.set_xlabel("Hydrology year (window end)")
     ax.set_ylabel("5-year MSL (m, depth below ground)")
@@ -1067,14 +1212,8 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
             "colour": col,
         })
 
-    # neutral grey, dashed / dotted (1.23.0): green and red read as C2 and C3
-    h_sd15 = ax.axhline(-config.SD15b, ls="--", color="0.35", lw=1.0)
-    h_sd16 = ax.axhline(-config.SD16,  ls=":",  color="0.35", lw=1.2)
-    for yv, txt in ((-config.SD15b, f"SD15b wet slack −{config.SD15b:.2f} m"),
-                    (-config.SD16,  f"SD16 dry slack −{config.SD16:.2f} m")):
-        ax.text(0.005, yv, txt, transform=ax.get_yaxis_transform(), ha="left", va="bottom",
-                fontsize=7, color="0.25",
-                bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=0.5))
+    # handbook v2 mean spring levels (1.25.0, D-242); neutral grey (1.23.0)
+    h_sd15, h_sd16, hb_labels = _draw_handbook_msl_lines(ax)
     ax.axhline(0, color="#333", lw=0.6)
 
     ax.set_xlabel("Hydrology year (window end)")
@@ -1135,8 +1274,7 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
 
     # Combined legend: thresholds + intervention markers
     misc_handles = [h_sd15, h_sd16] + int_handles
-    misc_labels  = [f"SD15b (−{config.SD15b:.2f} m)",
-                    f"SD16 (−{config.SD16:.2f} m)"] + int_labels
+    misc_labels  = hb_labels + int_labels
     ax.legend(misc_handles, misc_labels, loc="lower left", fontsize=7, ncol=1)
     fig.tight_layout()
     render_figure(fig, out)
@@ -2597,6 +2735,19 @@ def main() -> int:
                     "ewi_msl5_forest_holdout_mean_bias_mm": float(forest["residual_mm"].mean()),
                     "ewi_msl5_open_dune_max_abs_residual_mm": float(am.max()),
                 })
+
+    # ── Pass 6b — handbook v2 mean spring levels (1.25.0, D-242) ──────────
+    print("\nPass 6b — MSL5 and EWI against the handbook v2 mean spring levels "
+          f"(SD15b −{config.HB_SD15b_MSL:.2f} m, SD16 −{config.HB_SD16_MSL:.2f} m)")
+    hb_tbl, hb_nums = msl5_handbook_counts(per_well_incl, comp)
+    hb_tbl.to_csv(OUT_MSL5_HANDBOOK_COUNTS, index=False)
+    report_nums.update(hb_nums)
+    for _, r in hb_tbl[(hb_tbl["network_scope"] == "reference")
+                       & (hb_tbl["cluster_label"].isin(["All clusters", "Open-dune scope"]))].iterrows():
+        info(f"  {r['metric']:<18s} {r['basis']:<14s} {r['cluster_label']:<16s} n={int(r['n']):>4d} {r['unit']:<7s} "
+             f"above SD15b {int(r['n_above_sd15b_msl']):>4d}  between {int(r['n_between']):>4d}  "
+             f"below SD16 {int(r['n_below_sd16_msl']):>4d}")
+    saved(f"{OUT_MSL5_HANDBOOK_COUNTS.name}")
 
     # ── Pass 7 — Ellenberg-F cross-validation (v1.3.3, external input) ─────
     print("\nPass 7 — Ellenberg-F cross-validation (MSL5 vs EWI; external dataset)")

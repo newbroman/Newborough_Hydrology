@@ -71,7 +71,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). Two additions, no existing value moves:
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-10-06. T-96: emits the NW10-CEH2 separation (m) and
+#   ground-level difference, from 01_locations.csv, which report10 quotes ("about 350 m downslope") when it
+#   sets the broadleaf well against its nearest pine neighbour. Emit-only.
+# 1.14.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239). Two additions, no existing value moves:
 #   (1) B2_multiplier_*_impact - the felled well's measured beta_2 change net of the Climate controls, which the
 #   forestry scenarios of Scripts 19 and 21 now use (clearfell_common.load_clearfell_impact_b2_multiplier);
 #   (2) the shielding test, shielding_seasonal_b2(): per well in the Impact, Edge and Climate-control tiers and
@@ -591,6 +594,16 @@ def main():
         else:
             warn(f"{INT_LOCATIONS.name} lacks dist_broadleaf_restock_m -- "
                  f"pine-only Forest Ctrl Δβ₂ not emitted")
+        # T-96: the broadleaf well against its nearest pine neighbour (report10 Section 5.6.2).
+        _l = _loc.assign(_k=_loc['Match_ID'].astype(str).str.lower().str.replace(' ', '')).set_index('_k')
+        if {'nw10', 'ceh2'}.issubset(_l.index) and {'E', 'N'}.issubset(_l.columns):
+            _d = float(np.hypot(_l.loc['nw10', 'E'] - _l.loc['ceh2', 'E'], _l.loc['nw10', 'N'] - _l.loc['ceh2', 'N']))
+            rpt.add("NW10_CEH2_separation_m", _d, unit="m", well="NW10",
+                    note="straight-line distance NW10 to CEH2 (its nearest pine neighbour), 01_locations.csv E/N")
+            if 'ground_elev_m' in _l.columns:
+                rpt.add("NW10_minus_CEH2_ground_m",
+                        float(_l.loc['nw10', 'ground_elev_m'] - _l.loc['ceh2', 'ground_elev_m']), unit="m", well="NW10",
+                        note="ground elevation NW10 minus CEH2, 01_locations.csv ground_elev_m")
     else:
         warn(f"{INT_LOCATIONS.name} not found -- pine-only Forest Ctrl Δβ₂ not emitted")
 

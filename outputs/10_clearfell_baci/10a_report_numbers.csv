@@ -5,6 +5,8 @@ ANCOVA_Forest_Impact_clearfell_step_p_hac,Impact,Post_felling,0.0995629400286059
 ANCOVA_Forest_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,-0.020570212122704712,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.23703073969061078,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.315507032929833,m,p=0.0047
+ANCOVA_Forest_Impact_scraping_step_se_hac,Impact,Post_scraping,0.1348227710133072,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_Forest_Impact_scraping_step_p_hac,Impact,Post_scraping,0.019275412328463627,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Forest_Impact_R2,Impact,,0.23151932242398565,,Model R²
 ANCOVA_Forest_Impact_N,Impact,,162.0,months,Sample size
 ANCOVA_Forest_Impact_coeff_intercept,Impact,,0.11104067062689059,m,"SE=0.025805, p=<0.001"
@@ -23,6 +25,8 @@ ANCOVA_Forest_Edge_clearfell_step_p_hac,Edge,Post_felling,0.500724496313573,,"Ne
 ANCOVA_Forest_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.05903990901529391,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,0.12083533821613501,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,0.5623001367935998,m,p=<0.001
+ANCOVA_Forest_Edge_scraping_step_se_hac,Edge,Post_scraping,0.18350208011866884,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_Forest_Edge_scraping_step_p_hac,Edge,Post_scraping,0.00218201017857742,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Forest_Edge_R2,Edge,,0.4546869619888051,,Model R²
 ANCOVA_Forest_Edge_N,Edge,,156.0,months,Sample size
 ANCOVA_Forest_Edge_coeff_intercept,Edge,,-0.021825460207778934,m,"SE=0.018652, p=0.2438"
@@ -41,6 +45,8 @@ ANCOVA_Climate_Impact_clearfell_step_p_hac,Impact,Post_felling,0.624293596357851
 ANCOVA_Climate_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,-0.09654545020354967,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.05794149985928339,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,0.013879852988866107,m,p=0.9141
+ANCOVA_Climate_Impact_scraping_step_se_hac,Impact,Post_scraping,0.13966343513593413,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_Climate_Impact_scraping_step_p_hac,Impact,Post_scraping,0.9208359887791545,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Climate_Impact_R2,Impact,,0.18875990125713038,,Model R²
 ANCOVA_Climate_Impact_N,Impact,,140.0,months,Sample size
 ANCOVA_Climate_Impact_coeff_intercept,Impact,,-0.5287009262435688,m,"SE=0.020374, p=<0.001"
@@ -57,6 +63,8 @@ ANCOVA_Climate_Edge_clearfell_step_p_hac,Edge,Post_felling,0.04159225813929528,,
 ANCOVA_Climate_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.20781280027274845,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,-0.004032814245768082,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Edge_scraping_step,Edge,Post_scraping,0.2730047561367969,m,p=0.5131
+ANCOVA_Climate_Edge_scraping_step_se_hac,Edge,Post_scraping,0.48225518553169716,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_Climate_Edge_scraping_step_p_hac,Edge,Post_scraping,0.571325668543549,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Climate_Edge_R2,Edge,,0.20320965798007562,,Model R²
 ANCOVA_Climate_Edge_N,Edge,,136.0,months,Sample size
 ANCOVA_Climate_Edge_coeff_intercept,Edge,,-0.6694564227137868,m,"SE=0.025467, p=<0.001"
@@ -73,6 +81,8 @@ ANCOVA_Combined_Impact_clearfell_step_p_hac,Impact,Post_felling,0.01573985048929
 ANCOVA_Combined_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,0.012357129763066299,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.1188436934558059,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Impact_scraping_step,Impact,Post_scraping,0.07049434293695495,m,p=0.3764
+ANCOVA_Combined_Impact_scraping_step_se_hac,Impact,Post_scraping,0.07628506113610412,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_Combined_Impact_scraping_step_p_hac,Impact,Post_scraping,0.35543890798451117,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Combined_Impact_R2,Impact,,0.25922614052192805,,Model R²
 ANCOVA_Combined_Impact_N,Impact,,138.0,months,Sample size
 ANCOVA_Combined_Impact_coeff_intercept,Impact,,-0.10936498305164072,m,"SE=0.014562, p=<0.001"
@@ -91,6 +101,8 @@ ANCOVA_Combined_Edge_clearfell_step_p_hac,Edge,Post_felling,0.39126580947574463,
 ANCOVA_Combined_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.06752470150538484,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,0.026428575896315958,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Edge_scraping_step,Edge,Post_scraping,0.3003906808483398,m,p=0.0194
+ANCOVA_Combined_Edge_scraping_step_se_hac,Edge,Post_scraping,0.19886339155461066,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_Combined_Edge_scraping_step_p_hac,Edge,Post_scraping,0.13090623773294222,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Combined_Edge_R2,Edge,,0.4514784283104366,,Model R²
 ANCOVA_Combined_Edge_N,Edge,,134.0,months,Sample size
 ANCOVA_Combined_Edge_coeff_intercept,Edge,,-0.25282764198350066,m,"SE=0.010863, p=<0.001"
@@ -109,6 +121,8 @@ ANCOVA_FarField_Impact_clearfell_step_p_hac,Impact,Post_felling,0.30075433095566
 ANCOVA_FarField_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,-0.24772337975127753,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.07652869076329546,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Impact_scraping_step,Impact,Post_scraping,-0.22463867619896266,m,p=0.1202
+ANCOVA_FarField_Impact_scraping_step_se_hac,Impact,Post_scraping,0.19216215199647982,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_FarField_Impact_scraping_step_p_hac,Impact,Post_scraping,0.24240128204499833,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_FarField_Impact_R2,Impact,,0.04965695428536654,,Model R²
 ANCOVA_FarField_Impact_N,Impact,,169.0,months,Sample size
 ANCOVA_FarField_Impact_coeff_intercept,Impact,,-0.655282939853016,m,"SE=0.043032, p=<0.001"
@@ -127,6 +141,8 @@ ANCOVA_FarField_Edge_clearfell_step_p_hac,Edge,Post_felling,0.09831820402641729,
 ANCOVA_FarField_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.3433661252873294,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,0.02916972774279275,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Edge_scraping_step,Edge,Post_scraping,-0.3044522231599817,m,p=0.1904
+ANCOVA_FarField_Edge_scraping_step_se_hac,Edge,Post_scraping,0.3390195687463106,m,"Newey-West (Bartlett), 12 lags (T-106)"
+ANCOVA_FarField_Edge_scraping_step_p_hac,Edge,Post_scraping,0.36916565625951103,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_FarField_Edge_R2,Edge,,0.0720850084967617,,Model R²
 ANCOVA_FarField_Edge_N,Edge,,171.0,months,Sample size
 ANCOVA_FarField_Edge_coeff_intercept,Edge,,-0.7819610210487703,m,"SE=0.045982, p=<0.001"

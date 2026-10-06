@@ -44,7 +44,10 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.97.0"  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). MP_ACHIEVABLE_MAX and
+__version__ = "1.98.0"  # Hollingham (2026) - 2026-10-06 (T-109). SURVEY_*: the reduced field round
+#   (tools/survey_round.py) - must-keep extras, cluster-cover tolerances, train/test splits, and the
+#   walking-time calibration (Martin: the full round of all wells took 10 hours). Additive.
+# 1.97.0  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). MP_ACHIEVABLE_MAX and
 #   MP_MARGINAL_MAX: the m_P class edges of the report's achievability scheme (Conclusion 6), lifted out of
 #   Script 11c so the Forecaster (11b) draws the same three classes (Martin, 2026-10-04: "Align the tool to
 #   the report"). No value moves. BACI_HAC_MAXLAGS_MONTHS: the Newey-West lag window for the clearfell
@@ -1000,6 +1003,20 @@ MP_MARGINAL_MAX   = 2.5
 # Newey-West (Bartlett) lag window, in months, for the clearfell BACI ANCOVA (D-240): one year, so the
 # seasonal cycle the residuals carry is inside the window. A seasonal subset uses one year of its own months.
 BACI_HAC_MAXLAGS_MONTHS = 12
+
+# Reduced field round (T-109; tools/survey_round.py, not a pipeline step). The experiment wells come
+# from clearfell_common / scraping_common; these are the extras Martin reads that no analysis lists.
+SURVEY_MUST_KEEP_EXTRA     = ("ceh40", "ceh41", "ceh42")   # scrapes read only since they were cut
+SURVEY_TOL_RMSE_MM         = 25.0    # cluster-mean monthly anomaly, held-out years
+SURVEY_TOL_TREND_MM_YR     = 2.0     # cluster-mean trend over the held-out years
+SURVEY_TOL_SUMMER_MIN_MM   = 30.0    # mean absolute error of the annual Jun-Sep minimum
+SURVEY_FIT_START           = "2011-01-01"
+SURVEY_SPLIT_ENDS          = ("2016-12-31", "2018-12-31", "2020-12-31")   # train to; test after
+SURVEY_PRIMARY_SPLIT_END   = "2018-12-31"
+SURVEY_FULL_ROUND_HOURS    = 10.0    # Martin, 2026-10-06: last month's round of all wells
+SURVEY_WALK_KMH            = 3.0     # assumed walking speed over dunes (to calibrate)
+SURVEY_PATH_FACTOR         = 1.3     # walked distance / straight-line route
+SURVEY_MAX_ROUND_HOURS     = 9.0     # Martin, 2026-10-04: keep the round under nine hours
 
 # --- Scrape rise-zone + coastal-retreat geometry (Scripts 20, 09d, 09f) --------
 # Shared geometry constants for the scrape drain-cone and coastal-erosion fields.

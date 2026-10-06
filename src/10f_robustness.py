@@ -52,12 +52,19 @@ from utils.paths import (
 )
 from utils.model_utils import build_ssm_frame, fit_ssm
 from utils.config import DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import BACI_HAC_MAXLAGS_MONTHS
 from utils.clearfell_common import (
     load_clearfell_data, print_network_summary, CLEARFELL_DATE,
     SCRAPING_DATE, ALL_NETWORK_WELLS, CORE_NETWORK_WELLS, ReportNumbers,
 )
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29. T-96: 10f_report_numbers carries
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-10-06. T-106 (D-240 extended): the synthetic-control and
+#   SSM-residual steps carry a Newey-West p beside the Welch p. The Welch test treats every month as
+#   independent; the HAC test regresses the monthly series (scraping era + felling era, time order) on a
+#   post-felling indicator with config.BACI_HAC_MAXLAGS_MONTHS lags, whose coefficient is the same step.
+#   New: P_value_hac columns in 10f_ssm_residual / 10f_synth_control; report rows Synth_<zone>_step_p_hac
+#   and SSM_Resid_<well>_step_p_hac for the Impact and Edge tiers. No estimate moves.
+# 1.4.0  # Hollingham (2026) — 2026-09-29. T-96: 10f_report_numbers carries
 #   SSM_Resid_Impact_minus_Forest_Ctrl_step, the Impact residual step net of the Forest Ctrl
 #   drift, which report9 Section 4.6.7 and report10 Section 5.5 quote (+27 mm). Emit-only.
 # v1.3.0  # Hollingham (2026) — 2026-08-29. CLEARFELL_DATE rename (T-17).
@@ -105,6 +112,23 @@ MIN_CAL_MONTHS = 36
 # ============================================================================
 # UTILITIES
 # ============================================================================
+
+def _step_p_hac(before, after):
+    """D-240 / T-106: Newey-West p of the after-minus-before difference in means.
+
+    OLS of the time-ordered series on a constant and an after-indicator; the slope
+    is the difference in means, its error allows for autocorrelation over
+    config.BACI_HAC_MAXLAGS_MONTHS lags.
+    """
+    y = pd.concat([before, after]).sort_index()
+    if len(before) < 3 or len(after) < 3:
+        return np.nan
+    post = y.index.isin(after.index).astype(float)
+    X = np.column_stack([np.ones(len(y)), post])
+    res = sm.OLS(y.values.astype(float), X).fit(cov_type='HAC',
+                                                cov_kwds={'maxlags': BACI_HAC_MAXLAGS_MONTHS})
+    return float(res.pvalues[1])
+
 
 def _p_fmt(p):
     """Format p-value for console."""
@@ -225,6 +249,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
 
         # Welch t-test on monthly normalised residuals
         p_val = np.nan
+        p_hac = np.nan
         if w_key in resid_series_store:
             rs = resid_series_store[w_key]
             # Subtract control mean series
@@ -248,6 +273,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
             if len(scrape_vals) >= 3 and len(fell_vals) >= 3:
                 _, p_val = sp_stats.ttest_ind(fell_vals, scrape_vals,
                                               equal_var=False)
+                p_hac = _step_p_hac(scrape_vals, fell_vals)
 
         norm_rows.append({
             'Well': r['well'], 'Zone': r['zone'],
@@ -257,7 +283,12 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
             'Norm_fell_m': round(norm_fell, 4),
             'Step_m': round(step, 4),
             'P_value': round(float(p_val), 4) if pd.notna(p_val) else np.nan,
+            'P_value_hac': p_hac,
         })
+        if r['zone'] in ('Impact', 'Edge') and pd.notna(p_hac):
+            rpt.add(f"SSM_Resid_{r['well']}_step_p_hac", p_hac, "",
+                    note=f"Newey-West ({BACI_HAC_MAXLAGS_MONTHS} lags) p of the {r['zone']} well's "
+                         f"normalised-residual step; Welch p = {_p_fmt(p_val)} (D-240, T-106)")
 
         print(f"   {r['well']:<8} [{r['zone']:<14}] "
               f"scrape={norm_scrape:+.3f}  fell={norm_fell:+.3f}  "
@@ -368,8 +399,10 @@ def synthetic_control_analysis(wells, valid_tiers, rpt):
                 else np.nan)
 
         p_val = np.nan
+        p_hac = np.nan
         if len(gap_scrape) >= 3 and len(gap_fell) >= 3:
             _, p_val = sp_stats.ttest_ind(gap_fell, gap_scrape, equal_var=False)
+            p_hac = _step_p_hac(gap_scrape, gap_fell)
 
         synth_rows.append({
             'Zone': zone_label,
@@ -379,6 +412,7 @@ def synthetic_control_analysis(wells, valid_tiers, rpt):
             'Gap_fell_m': round(mean_gap_fell, 4),
             'Step_m': round(step, 4) if pd.notna(step) else np.nan,
             'P_value': round(float(p_val), 4) if pd.notna(p_val) else np.nan,
+            'P_value_hac': p_hac,
         })
 
         print(f"   {zone_label}: scrape gap={mean_gap_scrape:+.3f}  "
@@ -387,6 +421,10 @@ def synthetic_control_analysis(wells, valid_tiers, rpt):
 
         rpt.add(f"Synth_{zone_label}_step", round(step, 4), "m",
                 note=f"p={_p_fmt(p_val)}, n_donors={len(synth_donors)}")
+        if pd.notna(p_hac):
+            rpt.add(f"Synth_{zone_label}_step_p_hac", p_hac, "",
+                    note=f"Newey-West ({BACI_HAC_MAXLAGS_MONTHS} lags) p of the synthetic-control step; "
+                         f"Welch p = {_p_fmt(p_val)} (D-240, T-106)")
 
     df_out = pd.DataFrame(synth_rows)
     df_out.to_csv(OUT_10F_SYNTH_CTRL, index=False, float_format="%.4f")

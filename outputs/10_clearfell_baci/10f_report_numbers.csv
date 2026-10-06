@@ -1,4 +1,9 @@
 Parameter,Well,Era,Value,Unit,Note
+SSM_Resid_WMC3_step_p_hac,,,0.000854154073541907,,"Newey-West (12 lags) p of the Impact well's normalised-residual step; Welch p = <0.001 (D-240, T-106)"
+SSM_Resid_CEH31_step_p_hac,,,0.6392344168229209,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = 0.325 (D-240, T-106)"
+SSM_Resid_CEH20_step_p_hac,,,0.013465485080695259,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)"
+SSM_Resid_CEH30_step_p_hac,,,0.009161682621320413,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)"
+SSM_Resid_CEH16_step_p_hac,,,0.03966727823601078,,"Newey-West (12 lags) p of the Edge well's normalised-residual step; Welch p = <0.001 (D-240, T-106)"
 SSM_Resid_Impact_mean_step,,,0.0806,m,n=1
 SSM_Resid_Edge_mean_step,,,0.0218,m,n=4
 SSM_Resid_Forest_Ctrl_mean_step,,,0.0533,m,n=5
@@ -6,4 +11,6 @@ SSM_Resid_Coastal_Ctrl_mean_step,,,-0.0952,m,n=2
 SSM_Resid_Climate_Ctrl_mean_step,,,-0.0153,m,n=5
 SSM_Resid_Impact_minus_Forest_Ctrl_step,,,0.027260000000000006,m,SSM_Resid_Impact_mean_step (n=1) minus SSM_Resid_Forest_Ctrl_mean_step (n=5)
 Synth_Impact_step,,,0.1013,m,"p=<0.001, n_donors=6"
+Synth_Impact_step_p_hac,,,0.0021891288985293857,,"Newey-West (12 lags) p of the synthetic-control step; Welch p = <0.001 (D-240, T-106)"
 Synth_Edge_step,,,0.0441,m,"p=0.189, n_donors=6"
+Synth_Edge_step_p_hac,,,0.2726108171958115,,"Newey-West (12 lags) p of the synthetic-control step; Welch p = 0.189 (D-240, T-106)"

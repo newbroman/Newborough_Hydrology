@@ -18,8 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.24.0 - 2026-10-01
+# VERSION 1.25.0 - 2026-10-06
 # CHANGELOG
+#   1.25.0 (2026-10-06): self-citation gate after cross-references - self_cite_lint: one
+#     fixed 2026 letter per work in every paper (tools/self_citations.csv; changelog 2026-10-06f).
 #   1.24.0 (2026-10-01): number-fields gate (D-219) after table cells - field_sync --check:
 #     every user field in every document is registered and equals its committed value.
 #   1.23.0 (2026-09-30): ship_regen_lint gate (D-213) beside rule_gate_lint - every
@@ -337,6 +339,13 @@ echo "── cross-references (does any chapter send the reader to the Supplemen
 # Martin has chosen, or has yet to rule on, each with its reason.
 python3 tools/xref_lint.py --selftest >/dev/null || rc=1
 python3 tools/xref_lint.py --quiet || rc=1
+echo
+
+echo "── self-citations (does each paper letter the author's 2026 works the same way?) ──"
+# "Hollingham, 2026a" meant the report in Paper 1 and Paper 1 in Papers 2 and M; Paper 2 used one
+# label for two works. tools/self_citations.csv fixes one letter per work (Martin, 2026-10-06).
+python3 tools/self_cite_lint.py --selftest >/dev/null || rc=1
+python3 tools/self_cite_lint.py || rc=1
 echo
 
 echo "── retired wording (does any retired phrase or number reappear?) ─────"

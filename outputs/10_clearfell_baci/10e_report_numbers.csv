@@ -238,6 +238,8 @@ CoeffShift_Network_mean_db1,Network,Delta,-0.12969411764705882,m,"mean db1 acros
 CoeffShift_Network_n_wells,Network,,17.0,wells,"BACI-network wells in 10e_01_coefficient_shifts.csv, excl. Far-field Ctrl: Impact 1, Edge 4, Forest Ctrl 5, Coastal Ctrl 2, Climate Ctrl 5"
 CoeffShift_Network_mean_db1_pct_of_before,Network,,-4.575583880862156,m,"ratio of network mean db1 to network mean b1_before, x100"
 CoeffShift_Forest Ctrl_pine_mean_db2,Forest Ctrl,Delta,0.157,m,"mean db2 over Forest Ctrl wells outside the broadleaf restock block (CEH32, CEH34, CEH33, CEH2), n_wells=4; excluded: NW10"
+NW10_CEH2_separation_m,NW10,,346.30810072104305,m,"straight-line distance NW10 to CEH2 (its nearest pine neighbour), 01_locations.csv E/N"
+NW10_minus_CEH2_ground_m,NW10,,0.33999999999999986,m,"ground elevation NW10 minus CEH2, 01_locations.csv ground_elev_m"
 B2_tier_ratio_after_over_before,Impact,,0.8620830775526908,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
 B2_tier_ratio_after_over_before,Edge,,0.957572914889988,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
 B2_tier_ratio_after_over_before,Forest Ctrl,,1.0466282276259713,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv

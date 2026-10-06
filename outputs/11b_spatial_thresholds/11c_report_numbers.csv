@@ -5,3 +5,9 @@ achievability_n,Unreachable,,5.0,wells,"wells in the Unreachable category (Unrea
 achievability_share_pct,Achievable,,67.04545454545455,%,share of the n=88 wells in the Achievable category
 achievability_share_pct,Marginal,,27.272727272727273,%,share of the n=88 wells in the Marginal category
 achievability_share_pct,Unreachable,,5.681818181818182,%,share of the n=88 wells in the Unreachable category
+achievability_depth_bg_min_m,Achievable,,0.6081249999999994,m,"shallowest summer-minimum depth below ground (depth_bg) among the Achievable wells, n=59"
+achievability_depth_bg_max_m,Achievable,,1.5066666666666677,m,"deepest summer-minimum depth below ground (depth_bg) among the Achievable wells, n=59"
+achievability_depth_bg_min_m,Marginal,,1.0074999999999994,m,"shallowest summer-minimum depth below ground (depth_bg) among the Marginal wells, n=24"
+achievability_depth_bg_max_m,Marginal,,2.136875,m,"deepest summer-minimum depth below ground (depth_bg) among the Marginal wells, n=24"
+achievability_depth_bg_min_m,Unreachable,,1.87,m,"shallowest summer-minimum depth below ground (depth_bg) among the Unreachable wells, n=5"
+achievability_depth_bg_max_m,Unreachable,,2.3022222222222224,m,"deepest summer-minimum depth below ground (depth_bg) among the Unreachable wells, n=5"

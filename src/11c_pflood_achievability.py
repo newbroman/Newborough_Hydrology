@@ -38,7 +38,9 @@ index are in outputs/pipeline_manifest.json.
 
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The class edges are now
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-06. T-96: emits the summer-minimum depth range
+#   (depth_bg min / max) of the wells in each category, which report10 quotes for the Unreachable wells. Emit-only.
+# 1.7.0  # Hollingham (2026) - 2026-10-04 (changelog 2026-10-04d). The class edges are now
 #   config.MP_ACHIEVABLE_MAX / MP_MARGINAL_MAX, shared with the Forecaster (11b 1.19.0). No value moves.
 # 1.6.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
 #   11c_report_numbers.csv (paths.OUT_11C_REPORT_NUMBERS) - achievability_n and achievability_share_pct
@@ -170,6 +172,14 @@ def main():
     for _cat, _n in total_counts.items():
         rpt.add("achievability_share_pct", 100.0 * float(_n) / _n_all, unit="%", well=_cat,
                 note=f"share of the n={_n_all} wells in the {_cat} category")
+    # T-96: the summer-minimum depth range of each category's wells (report10 SS5.8.1).
+    for _cat, _g in df_out.groupby("category"):
+        _dz = _g["depth_bg"].dropna()
+        if len(_dz):
+            rpt.add("achievability_depth_bg_min_m", float(_dz.min()), unit="m", well=_cat,
+                    note=f"shallowest summer-minimum depth below ground (depth_bg) among the {_cat} wells, n={len(_dz)}")
+            rpt.add("achievability_depth_bg_max_m", float(_dz.max()), unit="m", well=_cat,
+                    note=f"deepest summer-minimum depth below ground (depth_bg) among the {_cat} wells, n={len(_dz)}")
     _n_saved = rpt.save(paths.OUT_11C_REPORT_NUMBERS)
     saved(f"{paths.OUT_11C_REPORT_NUMBERS.name} ({_n_saved} rows)")
 

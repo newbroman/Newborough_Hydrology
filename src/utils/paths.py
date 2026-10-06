@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.61.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). OUT_10E_SHIELDING.
+__version__ = "1.62.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+#   OUT_26_MSL5_HANDBOOK_COUNTS (Script 26) and OUT_11B_THRESHOLD_SOURCE_SENS (Script 11b). Additive.
+# 1.61.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239). OUT_10E_SHIELDING.
 # 1.60.0  # Hollingham (2026) - 2026-10-03 (T-99). OUT_03_DATUM_AOD. Additive.
 # 1.59.0  # Hollingham (2026) - 2026-10-03 (D-236). DATA_SHORE_CLEARANCE_2015, OUT_50_CLEARANCE_STEP,
 #   OUT_50_CLEARANCE_FIG. Additive.
@@ -1541,6 +1543,7 @@ OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY = DIR_26 / "26_curreli_min_cluster_threshol
 # MSL5 against the five-year mean annual minimum (T-64): the Methods Supplement's
 # S.18 cross-check, emitted rather than "run as part of script verification".
 OUT_26_MSL5_MIN5_PER_CLUSTER         = DIR_26 / "26_msl5_vs_min5_per_cluster.csv"
+OUT_26_MSL5_HANDBOOK_COUNTS          = DIR_26 / "26_msl5_handbook_counts.csv"   # MSL5 / EWI against the handbook v2 spring levels (D-242)
 OUT_26_EBF_PREDICTION_SUMMARY = DIR_26 / "26_ebf_prediction_summary.csv"
 OUT_26_EBF_BAND_SUMMARY       = DIR_26 / "26_ebf_band_summary.csv"
 OUT_26_VW_REPRODUCTION        = DIR_26 / "26_vw_reproduction_per_pair.csv"   # pipeline MSL5 vs van Willegen's published, per (piezometer, window-end)
@@ -1606,6 +1609,7 @@ OUT_29_REPORT_NUMBERS = DIR_29 / "29_report_numbers.csv"   # §4.9.2 C3 gradient
 OUT_03_REPORT_NUMBERS = DIR_03 / "03_report_numbers.csv"
 OUT_06_REPORT_NUMBERS = DIR_06 / "06_report_numbers.csv"
 OUT_11B_REPORT_NUMBERS = DIR_11B / "11b_report_numbers.csv"
+OUT_11B_THRESHOLD_SOURCE_SENS = DIR_11B / "11b_threshold_source_sensitivity.csv"   # zone counts, Curreli vs handbook v2 (D-242)
 OUT_14_REPORT_NUMBERS = DIR_14 / "14_report_numbers.csv"
 OUT_15_REPORT_NUMBERS = DIR_15 / "15_report_numbers.csv"
 OUT_19_REPORT_NUMBERS = DIR_19 / "19_report_numbers.csv"

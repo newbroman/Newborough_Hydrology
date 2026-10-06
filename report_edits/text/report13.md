@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=2eebfd619f4e59e9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report13.odt — do not edit. source-sha256=b6a4a626a8090a49 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
@@ -21,7 +21,7 @@ Beven, K. (2012) Rainfall-Runoff Modelling: The Primer. 2nd edn. Chichester: Wil
 
 ****Bristow, C.S. (2003)**** The Impact of Forestry on Coastal Geomorphology at Newborough Warren / Ynys Llanddwyn NNR, SSSI, pSAC. Volumes 1--5. Contract FC 73-05-18, Final Report. Countryside Council for Wales. London: Birkbeck University of London.
 
-Bristow, C.S. and Bailey, S.D. (2001) Non-invasive investigation of water table and structures in coastal dunes using ground-penetrating radar (GPR): implications for dune management. In: Houston, J.A., Edmondson, S.E. and Rooney, P.J. (eds) **Coastal Dune Management: Shared Experience of European Conservation Practice.** Liverpool University Press, pp. 408--417
+Bristow, C.S. and Bailey, S.D. (2001) Non-invasive investigation of water table and structures in coastal dunes using ground-penetrating radar (GPR): implications for dune management. In: Houston, J.A., Edmondson, S.E. and Rooney, P.J. (eds) **Coastal Dune Management: Shared Experience of European Conservation Practice.** Liverpool University Press, pp. 408--417.
 
 ****Buglife (2019)**** **Coastal sand dunes.** Habitat management guidance. Buglife -- The Invertebrate Conservation Trust, Peterborough.
 
@@ -51,7 +51,7 @@ Davy, A.J., Grootjans, A.P., Hiscock, K. and Petersen, J. (2006) Development of 
 
 Davy, A.J., Hiscock, K.M., Jones, M.L.M., Low, R., Robins, N.S. and Stratford, C. (2010) Protecting the plant communities and rare species of dune wetland systems: ecohydrological guidelines for wet dune habitats --- Phase 2. Bristol: Environment Agency. Science Report GEHO0310BSGV-E-E.
 
-Deng, Z., Priestley, S.C., Guan, H., Love, A.J. and Simmons, C.T. (2013). Canopy enhanced chloride deposition in coastal South Australia and its application for the chloride mass balance method. *Journal of Hydrology*, 497, 62--70. *https://doi.org/10.1016/j.jhydrol.2013.05.038*
+Deng, Z., Priestley, S.C., Guan, H., Love, A.J. and Simmons, C.T. (2013). Canopy enhanced chloride deposition in coastal South Australia and its application for the chloride mass balance method. *Journal of Hydrology*, 497, 62--70. *https://doi.org/10.1016/j.jhydrol.2013.05.040*
 
 ****Desbarats, A.J., Logan, C.E., Hinton, M.J. and Sharpe, D.R. (2002)**** On the kriging of water table elevations using collateral information from a digital elevation model. **Journal of Hydrology**, 255(1--4), 25--38. [**https://doi.org/10.1016/S0022-1694(01)00504-2**](https://doi.org/10.1016/S0022-1694(01)00504-2)
 
@@ -77,7 +77,7 @@ Gebhardt, T., Häberle, K.-H., Matyssek, R., Schulz, C. and Ammer, C. (2014) The
 
 ****Gerla, P.J. (2019)**** Monitoring and Modeling the Effect of Agricultural Drainage and Recent Channel Incision on Adjacent Groundwater-Dependent Ecosystems. *Water* 11(4): 863. [*https://doi.org/10.3390/w11040863*](https://doi.org/10.3390/w11040863)
 
-Giddens, K.M., Parfitt, R.L. and Percival, H.J. (1997) Comparison of some soil properties under *Pinus radiata* and pasture. *New Zealand Journal of Agricultural Research*, 40(4), pp. 443--450
+Giddens, K.M., Parfitt, R.L. and Percival, H.J. (1997) Comparison of some soil properties under *Pinus radiata* and pasture. *New Zealand Journal of Agricultural Research*, 40(4), pp. 443--450.
 
 Gillies, S., & others. (2013) *Rasterio: Geospatial raster I/O for Python programmers*. GitHub repository. **https://github.com/rasterio/rasterio**
 
@@ -87,7 +87,7 @@ Grootjans, A.P., Geelen, H.W.T., Jansen, A.J.M. and Lammerts, E.J. (2002) Restor
 
 Grootjans, A. P., Adema, E. B., Bekker, R. M., & Lammerts, E. J. (2004) Why young coastal dune slacks sustain a high biodiversity. In M. L. Martínez & N. P. Psuty (Eds.), *Coastal Dunes: Ecology and Conservation* (Ecological Studies, Vol. 171, pp. 85-101). Springer-Verlag, Berlin, Heidelberg. [*https://doi.org/10.1007/978-3-662-06259-5_6*](https://www.google.com/search?q=https://doi.org/10.1007/978-3-662-06259-5_6)
 
-****Grootjans, A.P., Shahrudin, R., van der Craats, A., Kooijman, A., Oostermeijer, G., Peterson, J., Amatirsat, D., Bland, C. and Stuyfzand, P.J. (2017)**** Window of opportunity of *Liparis loeselii* populations during vegetation succession on the Wadden Sea islands. *Journal of Coastal Conservation*, 21, 45--55. [*https://doi.org/10.1007/s11852-016-0448-6*](https://doi.org/10.1007/s11852-016-0448-6)
+****Grootjans, A.P., Shahrudin, R., van de Craats, A., Kooijman, A., Oostermeijer, G., Petersen, J., Amatirsat, D., Bland, C. and Stuyfzand, P.J. (2017)**** Window of opportunity of *Liparis loeselii* populations during vegetation succession on the Wadden Sea islands. *Journal of Coastal Conservation*, 21(5), 631--641. [*https://doi.org/10.1007/s11852-016-0448-6*](https://doi.org/10.1007/s11852-016-0448-6)
 
 Gumuła-Kawęcka, A., Jaworska-Szulc, B., Szymkiewicz, A., Gorczewska-Langner, W., Pruszkowska-Caceres, M., Angulo-Jaramillo, R. and Šimůnek, J. (2021) Estimation of groundwater recharge in a shallow sandy aquifer using unsaturated zone modeling and water table fluctuation method. Journal of Hydrology, 605, 127283. [**https://doi.org/10.1016/j.jhydrol.2021.127283**](https://doi.org/10.1016/j.jhydrol.2021.127283)** **
 
@@ -161,7 +161,7 @@ Peters, E., Torfs, P.J.J.F., van Lanen, H.A.J. and Bier, G. (2003) Propagation o
 
 Pye, K. and Blott, S.J. (2024) **Dune rejuvenation AfterLIFE options for Twyni Penrhos, Newborough.** NRW Evidence Report No. 787, 73 pp. Natural Resources Wales, Bangor.
 
-Pye, K. and Saye, S. (2005) The Geomorphological Response of Welsh Sand Dunes to SeaLevel Rise Over the Next 100 Years and the Management Implications for SAC and SSSI Sites. CCW Contract Science Report No. 670. Bangor: Countryside Council for Wales.
+Pye, K. and Saye, S. (2005) The Geomorphological Response of Welsh Sand Dunes to Sea Level Rise Over the Next 100 Years and the Management Implications for SAC and SSSI Sites. CCW Contract Science Report No. 670. Bangor: Countryside Council for Wales.
 
 Ranwell, D.S. (1959) Newborough Warren, Anglesey 1. The dune system and dune slack habitat. Journal of Ecology, 47, pp. 571--601.
 
@@ -175,7 +175,7 @@ Robins, N. S., Jones, M. L. M., & Farr, G. (2013) Shallow groundwater in the dun
 
 Robins, N. S., Pye, K. and Wallace, H. (2013) Dynamic coastal dune spit: the impact of morphological change on dune slacks at Whiteford Burrows, South Wales, UK. *Journal of Coastal Conservation*, 17(3), 473--482. <https://doi.org/10.1007/s11852-013-0245-4>
 
-Robinson, E.L., Brown, M.J., Kay, A.L., Lane, R.A., Chapman, R., Bell, V.A. and Blyth, E.M. (2023) CHESS-SCAPE: high-resolution future projections of multiple climate scenarios for the United Kingdom derived from bias-corrected UKCP18 regional climate model output. Earth System Science Data, 15(12), pp. 5371--5401. https://doi.org/10.5194/essd-15-5371-2023
+Robinson, E.L., Huntingford, C., Semeena, V.S. and Bullock, J.M. (2023) CHESS-SCAPE: high-resolution future projections of multiple climate scenarios for the United Kingdom derived from downscaled United Kingdom Climate Projections 2018 regional climate model output. Earth System Science Data, 15(12), pp. 5371--5401. https://doi.org/10.5194/essd-15-5371-2023
 
 Robinson, M. and Dupeyrat, A. (2005) Effects of commercial timber harvesting on streamflow regimes in the Plynlimon catchments, mid-Wales. Hydrological Processes, 19(6), pp. 1213--1226.
 
@@ -191,7 +191,7 @@ Seabold, S., & Perktold, J. (2010). statsmodels: Econometric and statistical mod
 
 Sival, F.P. and Grootjans, A.P. (1996). Dynamics of seasonal bicarbonate supply in a dune slack: effects on organic matter, nitrogen pool and vegetation succession. *Vegetatio*, 126, 39--50.
 
-Smokorowski, K.E. and Randall, R.G., (2017). Cautions on using the Before-After-Control-Impact design in environmental effects monitoring programs. **FACETS** 2: 212--232. [**https://doi.org/10.1139/facets-2016-0058**](https://doi.org/10.1139/facets-2016-0058)
+Smokorowski, K.E. and Randall, R.G. (2017). Cautions on using the Before-After-Control-Impact design in environmental effects monitoring programs. **FACETS** 2: 212--232. [**https://doi.org/10.1139/facets-2016-0058**](https://doi.org/10.1139/facets-2016-0058)
 
 Sonnenborg, T.O., Christiansen, J.R., Pang, B., Bruge, A., Stisen, S. and Gundersen, P. (2017) Analyzing the hydrological impact of afforestation and tree species in two catchments with contrasting soil properties using the spatially distributed model MIKE SHE SWET. Agricultural and Forest Meteorology, 239, pp. 118--133.
 

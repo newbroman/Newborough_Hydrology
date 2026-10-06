@@ -35,9 +35,9 @@
 | 12 | 4.2.4 | Distribution of event-level specific yield (Sy) from monthly rising-li | `outputs/17_wtf_specific_yield/17_wtf_03_event_boxplot.png` | yes |
 | 13 | 4.2.4 | Interpolated WTF specific yield surface for the combined reference and | `outputs/18_wtf_spatial/18_wtf_04_sy_contour_extended.png` | yes |
 | 14 | 4.3 | Pearson affinity analysis of selected reference and extended network w | `outputs/06_pearson_extended/06_pear_01_affinity_chart_extended.png` | yes |
-| 15 | 4.3 | Spatial distribution of the five primary hydrogeological clusters vali | `outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png` | yes |
+| 15 | 4.3 | Spatial distribution of the five primary hydrogeological clusters chec | `outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png` | yes |
 | 16 | 4.4 | Dual-model performance comparison at Lake Edge well CEH6. Upper panel: | `outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png` | yes |
-| 17 | 4.4 | SSM gain over TLM across all 66 reference wells. Panel (a): iterative  | `outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png` | yes |
+| 17 | 4.4 | SSM gain over TLM across all 66 reference wells. Iterative R² improvem | `outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png` | yes |
 | 18 | 4.5.1 | Tier 1 background environmental drift analysis. CUSUM time series for  | `outputs/09_scraping_intervention/09_scrape_05_tier1_background_drift.png` | yes |
 | 19 | 4.5.2 | Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 (ce | `outputs/09_scraping_intervention/09_scrape_06_tier2_scraping_signal.png` | yes |
 | 20 | 4.5.2 | Three-method robustness assessment of the scraping signal at CEH36. (a | `outputs/09_scraping_intervention/09_scrape_08_ceh36_robustness.png` | yes |
@@ -60,7 +60,7 @@
 | 37 | 4.6.7 | Clearfell transect. (a) Monthly depth anomaly against each well&apos;s | `outputs/10_clearfell_baci/10g_02_clearfell_transect.png` | yes |
 | 38 | 4.6.8 | Canopy-texture trajectories from the dated aerial series, 2006 to 2026 | `outputs/41_canopy_cover/41_05_canopy_trajectory.png` | yes |
 | 39 | 4.6.8 | Early versus late clearfell BACI step against the Forest control, spli | `outputs/10_clearfell_baci/10a_14_era_split_decay.png` | yes |
-| 40 | 4.7.4 | Spatial distribution of mean annual summer minimum water table depth b | `outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png` | yes |
+| 40 | 4.7.4 | Spatial distribution of mean annual summer minimum (August–September)  | `outputs/11b_spatial_thresholds/11b_01_summer_minima_depth.png` | yes |
 | 41 | 4.7.4 | Spatial distribution of P_flood — the minimum cumulative winter rainfa | `outputs/11b_spatial_thresholds/11b_03_pflood.png` | yes |
 | 42 | 4.7.4 | Spatial distribution of mean annual winter maximum water table depth b | `outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png` | yes |
 | 43 | 4.7.4 | Winter flooding frequency across the full dipwell network (66 referenc | `outputs/11b_spatial_thresholds/11b_04_flood_frequency.png` | yes |
@@ -80,7 +80,7 @@
 | 57 | 4.9.5 | Mean water table against the ground surface, by DEM smoothing width. ( | `outputs/01b_water_table/01b_06_head_vs_dem.png` | yes |
 | 58 | 4.9.5 | Water-table transects across Newborough Warren. (a) Four coast-normal  | `outputs/01b_water_table/01b_02_transects.png` | yes |
 | 59 | 4.9.6 | SSM water balance residual across the Newborough Warren dune aquifer,  | `outputs/20_spatial_figures/20_residual_ssm.png` | yes |
-| 60 | 4.10.2 | Network-scale coastal-retreat gradient. Per-well summer-minimum slope  | `outputs/25_coastal_gradient/25_05_fit_diagnostic.jpg` | yes |
+| 60 | 4.10.2 | Network-scale coastal-retreat gradient. (a) Per-well summer-minimum sl | `outputs/25_coastal_gradient/25_05_fit_diagnostic.jpg` | yes |
 | 61 | 4.10.3 | Fixed-length rolling-window sensitivity of the cross-shore decay fit.  | `outputs/25_coastal_gradient/25_13_rolling_window.png` | yes |
 | 62 | 4.10.4 | Independent, model-free estimate of the coastal drawdown rate. The coa | `outputs/38_coastal_transect/38_coast_inland_difference.jpg` | yes |
 | 63 | 4.10.5 | Coastal-erosion drawdown at the western dune margin, Newborough Warren | `outputs/20_spatial_figures/20_coastal_erosion.png` | yes |
@@ -93,7 +93,7 @@
 | 70 | 4.12 | Net water-table state — parametric combination of five simultaneous an | `outputs/20_spatial_figures/20_net_state_map.png` | yes |
 | 71 | 4.12 | Modelled water-table change across Newborough Warren, 2005–2025 — full | `outputs/20_spatial_figures/20_driver_change_20yr.png` | yes |
 | 72 | 4.12 | Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clearfel | `outputs/20_spatial_figures/20_msl5_change_2017_2023.png` | yes |
-| 73 | 4.12 | Secular differential movement of the spring (March,April, May) water t | `outputs/32_differential_movement/32_differential_movement_2011_2025.png` | yes |
+| 73 | 4.12 | Secular differential movement of the spring (March, April, May) water  | `outputs/32_differential_movement/32_differential_movement_2011_2025.png` | yes |
 | 74 | 4.12 | Absolute climate-removed secular trend of the spring (March, April, Ma | `outputs/36_absolute_climate_trend/36_absolute_climate_trend_2005_2025.png` | yes |
 | 75 | 4.12 | The climate-response envelope of the spring water table. Relative ampl | `outputs/33_envelope_amplification/33_amplification_field.png` | yes |
 | 76 | 4.12 | The climate-response envelope of the spring water table: Dry-year spri | `outputs/33_envelope_amplification/33_dry_spring_depth.png` | yes |

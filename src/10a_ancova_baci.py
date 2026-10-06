@@ -33,7 +33,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.21.0"  # Hollingham (2026) — 2026-10-04. D-240: every clearfell ANCOVA step now carries
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-10-06. T-106 (D-240 Revisit-if): the scraping step in the
+#   same models carries Newey-West errors too: <prefix>_scraping_step_p_hac / _se_hac rows and
+#   Scraping_p_hac in 10a_01. No estimate moves.
+# v1.21.0  # Hollingham (2026) — 2026-10-04. D-240: every clearfell ANCOVA step now carries
 #   autocorrelation-robust (Newey-West, Bartlett) errors beside the OLS ones. The residuals are strongly
 #   autocorrelated (lag-1 about 0.85 at Forest x Impact), so OLS overstates significance: the headline +108 mm
 #   goes from p = 0.003 to p = 0.10. Lags: config.BACI_HAC_MAXLAGS_MONTHS for the monthly fits, one year of
@@ -651,6 +654,9 @@ def main():
         fit['clearfell_p_hac'] = float(_h.pvalues[fell_idx])
         fit['clearfell_ci_hac'] = (fit['clearfell_step'] - 1.96 * _se,
                                    fit['clearfell_step'] + 1.96 * _se)
+        _si = col_names.index('scraping')
+        fit['scraping_se_hac'] = float(_h.bse[_si])
+        fit['scraping_p_hac'] = float(_h.pvalues[_si])
 
         # Scraping step
         scr_idx = col_names.index('scraping')
@@ -1153,6 +1159,7 @@ def main():
             'Clearfell_CI_hi_hac_m': fit['clearfell_ci_hac'][1],
             'Clearfell_p_hac': fit['clearfell_p_hac'],
             'Clearfell_sig_hac': p_to_sig(fit['clearfell_p_hac']),
+            'Scraping_p_hac': fit['scraping_p_hac'],
         })
 
     comp_df = pd.DataFrame(comp_rows)
@@ -2173,6 +2180,10 @@ def main():
         rpt.add(f"{prefix}_scraping_step", fit['scraping_step'],
                 well=zone_label, era="Post_scraping",
                 note=f"p={format_p(fit['scraping_p'])}")
+        rpt.add(f"{prefix}_scraping_step_se_hac", fit['scraping_se_hac'],
+                well=zone_label, era="Post_scraping", note=f"Newey-West (Bartlett), {fit['hac_lags']} lags (T-106)")
+        rpt.add(f"{prefix}_scraping_step_p_hac", fit['scraping_p_hac'], unit="",
+                well=zone_label, era="Post_scraping", note=f"Newey-West (Bartlett), {fit['hac_lags']} lags (T-106)")
 
         rpt.add(f"{prefix}_R2", fit['r2'], unit="",
                 well=zone_label, note="Model R²")

@@ -10,21 +10,21 @@ ranwell_sites_surface_constrained,7,count,sites whose modern-surface leave-one-o
 ranwell_forcing_ratio_1951_53,0.9663588390501319,-,Parc Mawr / RAF Valley rainfall over Ranwell's span
 ranwell_forcing_r_1951_53,0.9205856402242211,-,monthly correlation of the two gauges over Ranwell's span
 ranwell_delta_m_site1,0.2296855307067246,m,"site 1 (PL): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site1,0.7803971294501288,m,site 1: four-term error
+ranwell_sigma_m_site1,0.7803971294501382,m,site 1: four-term error
 ranwell_delta_m_site4,-0.2598947261361562,m,"site 4 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site4,0.20754437742917184,m,site 4: four-term error
+ranwell_sigma_m_site4,0.20754437742917187,m,site 4: four-term error
 ranwell_delta_m_site8,-1.0499440943918277,m,"site 8 (AS): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site8,0.3733371992364133,m,site 8: four-term error
+ranwell_sigma_m_site8,0.3733371992364153,m,site 8: four-term error
 ranwell_delta_m_site11,-0.25247164088567253,m,"site 11 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site11,0.22120469761860842,m,site 11: four-term error
+ranwell_sigma_m_site11,0.22120469761860445,m,site 11: four-term error
 ranwell_delta_m_site12,0.01696977030995228,m,"site 12 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site12,0.2494616807321928,m,site 12: four-term error
+ranwell_sigma_m_site12,0.24946168073219271,m,site 12: four-term error
 ranwell_delta_m_site13,-0.028269078336634834,m,"site 13 (CG): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site13,0.17564092139152238,m,site 13: four-term error
+ranwell_sigma_m_site13,0.1756409213915223,m,site 13: four-term error
 ranwell_delta_m_site16,0.22016243716838352,m,"site 16 (PL): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site16,0.3050056012589355,m,site 16: four-term error
+ranwell_sigma_m_site16,0.30500560125893034,m,site 16: four-term error
 ranwell_delta_m_site18,-0.26070666318995184,m,"site 18 (AS): modern minus 1951-53, climate-corrected"
-ranwell_sigma_m_site18,0.45039892164037326,m,site 18: four-term error
+ranwell_sigma_m_site18,0.45039892164037526,m,site 18: four-term error
 ranwell_dist_nearest_forest_well_m_site1,962.2366029205017,m,"site 1 (PL): distance from the placed position to the nearest in_forest well (01_locations), nw11; 23 forest wells"
 ranwell_dist_nearest_forest_well_m_site4,199.34394899269492,m,"site 4 (CG): distance from the placed position to the nearest in_forest well (01_locations), nw11; 23 forest wells"
 ranwell_dist_nearest_forest_well_m_site8,615.1390709896476,m,"site 8 (AS): distance from the placed position to the nearest in_forest well (01_locations), wmc3; 23 forest wells"
@@ -50,27 +50,27 @@ ranwell_coastal_expectation_m_site12,0.0,m,"site 12: Script 25 rate at 1297 m fr
 ranwell_coastal_expectation_m_site13,0.0,m,"site 13: Script 25 rate at 1276 m from the eroding shoreline, carried across the interval (extrapolated)"
 ranwell_coastal_expectation_m_site16,0.0,m,"site 16: Script 25 rate at 1923 m from the eroding shoreline, carried across the interval (extrapolated)"
 ranwell_coastal_expectation_m_site18,-0.5121549840156567,m,"site 18: Script 25 rate at 679 m from the eroding shoreline, carried across the interval (extrapolated)"
-ranwell_delta_m_combined_all,-0.15357072208081843,m,COMBINED_ALL: inverse-variance mean over 8 sites
-ranwell_sigma_m_combined_all,0.09259574584946013,m,COMBINED_ALL: standard error
-ranwell_chi2_dof_combined_all,1.2860745932247148,-,COMBINED_ALL: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_all,-2.319507444895939,mm/yr,COMBINED_ALL: delta over the interval
+ranwell_delta_m_combined_all,-0.15357072208081732,m,COMBINED_ALL: inverse-variance mean over 8 sites
+ranwell_sigma_m_combined_all,0.09259574584945975,m,COMBINED_ALL: standard error
+ranwell_chi2_dof_combined_all,1.2860745932247135,-,COMBINED_ALL: chi-square per degree of freedom
+ranwell_rate_mm_yr_combined_all,-2.319507444895922,mm/yr,COMBINED_ALL: delta over the interval
 ranwell_resolved_combined_all,0,flag,COMBINED_ALL: |delta| > 2 sigma
-ranwell_delta_lower_2sigma_m_combined_all,-0.3387622137797387,m,COMBINED_ALL: delta - 2 x standard error; a fall larger than this is excluded
-ranwell_delta_upper_2sigma_m_combined_all,0.03162076961810184,m,COMBINED_ALL: delta + 2 x standard error; a rise larger than this is excluded
-ranwell_delta_m_combined_constrained,-0.159043370808956,m,COMBINED_CONSTRAINED: inverse-variance mean over 7 sites
-ranwell_sigma_m_combined_constrained,0.09325450587666327,m,COMBINED_CONSTRAINED: standard error
+ranwell_delta_lower_2sigma_m_combined_all,-0.3387622137797368,m,COMBINED_ALL: delta - 2 x standard error; a fall larger than this is excluded
+ranwell_delta_upper_2sigma_m_combined_all,0.031620769618102174,m,COMBINED_ALL: delta + 2 x standard error; a rise larger than this is excluded
+ranwell_delta_m_combined_constrained,-0.1590433708089547,m,COMBINED_CONSTRAINED: inverse-variance mean over 7 sites
+ranwell_sigma_m_combined_constrained,0.09325450587666285,m,COMBINED_CONSTRAINED: standard error
 ranwell_chi2_dof_combined_constrained,1.459649157895621,-,COMBINED_CONSTRAINED: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_constrained,-2.402165449600345,mm/yr,COMBINED_CONSTRAINED: delta over the interval
+ranwell_rate_mm_yr_combined_constrained,-2.402165449600325,mm/yr,COMBINED_CONSTRAINED: delta over the interval
 ranwell_resolved_combined_constrained,0,flag,COMBINED_CONSTRAINED: |delta| > 2 sigma
-ranwell_delta_lower_2sigma_m_combined_constrained,-0.34555238256228255,m,COMBINED_CONSTRAINED: delta - 2 x standard error; a fall larger than this is excluded
-ranwell_delta_upper_2sigma_m_combined_constrained,0.02746564094437054,m,COMBINED_CONSTRAINED: delta + 2 x standard error; a rise larger than this is excluded
-ranwell_delta_m_combined_beyond_reach,-0.08699285572327585,m,COMBINED_BEYOND_REACH: inverse-variance mean over 6 sites
-ranwell_sigma_m_combined_beyond_reach,0.09781012657866203,m,COMBINED_BEYOND_REACH: standard error
-ranwell_chi2_dof_combined_beyond_reach,0.543585316532558,-,COMBINED_BEYOND_REACH: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_beyond_reach,-1.3139260776328652,mm/yr,COMBINED_BEYOND_REACH: delta over the interval
+ranwell_delta_lower_2sigma_m_combined_constrained,-0.3455523825622804,m,COMBINED_CONSTRAINED: delta - 2 x standard error; a fall larger than this is excluded
+ranwell_delta_upper_2sigma_m_combined_constrained,0.02746564094437101,m,COMBINED_CONSTRAINED: delta + 2 x standard error; a rise larger than this is excluded
+ranwell_delta_m_combined_beyond_reach,-0.086992855723276,m,COMBINED_BEYOND_REACH: inverse-variance mean over 6 sites
+ranwell_sigma_m_combined_beyond_reach,0.0978101265786615,m,COMBINED_BEYOND_REACH: standard error
+ranwell_chi2_dof_combined_beyond_reach,0.5435853165325681,-,COMBINED_BEYOND_REACH: chi-square per degree of freedom
+ranwell_rate_mm_yr_combined_beyond_reach,-1.3139260776328676,mm/yr,COMBINED_BEYOND_REACH: delta over the interval
 ranwell_resolved_combined_beyond_reach,0,flag,COMBINED_BEYOND_REACH: |delta| > 2 sigma
-ranwell_delta_lower_2sigma_m_combined_beyond_reach,-0.28261310888059993,m,COMBINED_BEYOND_REACH: delta - 2 x standard error; a fall larger than this is excluded
-ranwell_delta_upper_2sigma_m_combined_beyond_reach,0.10862739743404821,m,COMBINED_BEYOND_REACH: delta + 2 x standard error; a rise larger than this is excluded
+ranwell_delta_lower_2sigma_m_combined_beyond_reach,-0.282613108880599,m,COMBINED_BEYOND_REACH: delta - 2 x standard error; a fall larger than this is excluded
+ranwell_delta_upper_2sigma_m_combined_beyond_reach,0.10862739743404701,m,COMBINED_BEYOND_REACH: delta + 2 x standard error; a rise larger than this is excluded
 slack_floor_baseline_depth_mean_m,0.4554595560533551,m,"inland baseline: median depth of the full-record mean below the slack floor, C1/2/3 wells at or beyond L"
 slack_floor_baseline_depth_mean_mad_m,0.09173354589085414,m,inland baseline (full-record mean): median absolute deviation
 slack_floor_baseline_depth_spring_m,0.21333333333333332,m,"inland baseline: median depth of the spring level (D-189/D-207) below the slack floor, C1/2/3 wells at or beyond L"

@@ -117,7 +117,10 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.9.0"  # Hollingham (2026) - 2026-09-30. T-96 batch 3: emit residual_sd_mm and
+__version__ = "3.10.0"  # Hollingham (2026) - 2026-10-05. T-108: emits coast_vs_easting_r per window, the
+#   Pearson r between the coastal signature (coast_i) and easting over the in-fit wells, which report9
+#   4.12.1 quotes as the collinearity that limits the scale-factor test. Emit-only.
+# 3.9.0  # Hollingham (2026) - 2026-09-30. T-96 batch 3: emit residual_sd_mm and
 #   residual_sd_n per fitted window to 37_report_numbers.csv - the sample SD (ddof=1) of the
 #   per-well residual (mm) over the in-fit wells (b3_correction_valid and not exclude_named),
 #   from the same in-memory frame the per-well CSV is written from, so report10 S5.7.5's
@@ -1384,6 +1387,11 @@ def main() -> int:
         rpt.add("residual_sd_n", len(_resid), unit="wells", era=window,
                 note=f"In-fit wells behind residual_sd_mm for the {window} window "
                      f"(b3_correction_valid True, exclude_named False).")
+        # T-108: collinearity of the coastal signature with easting over the same wells.
+        _cs = _frame.loc[_sel, ["coast_i", "E"]].dropna()
+        if len(_cs) >= 3:
+            rpt.add("coast_vs_easting_r", float(np.corrcoef(_cs["coast_i"], _cs["E"])[0, 1]), unit="-",
+                    era=window, note=f"Pearson r, coastal signature coast_i against easting E, in-fit wells, n={len(_cs)}")
     rpt.save(paths.OUT_37_REPORT_NUMBERS)
     saved(paths.OUT_37_REPORT_NUMBERS)
 

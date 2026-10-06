@@ -7,3 +7,6 @@ scrape_propagation_near_n_positive,,,7.0,count,uphill wells within 575 m of CEH3
 scrape_propagation_near_db3_mean,,,0.002930720825547111,per month,"mean BACI-corrected delta-beta3, uphill wells within 575 m of CEH36"
 scrape_propagation_near_db3_t,,,2.4740303288967653,-,"one-sample t against zero, df = 7"
 scrape_propagation_near_db3_p,,,0.042580817570413945,-,two-sided p of the one-sample t
+scrape_propagation_uphill_dist_r,,,-0.27995553107983073,-,"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10)"
+scrape_propagation_uphill_dist_p,,,0.43337945104883735,-,"two-sided p of Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10)"
+scrape_propagation_uphill_n_wells,,,10.0,count,uphill wells in the distance test

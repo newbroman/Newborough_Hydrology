@@ -95,7 +95,9 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-10-01. Streams off Figure 4 (unexplained wetness):
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-05. T-108: emits n_wells_kriged per state, the distinct
+#   wells in the leave-one-out frame (report9 4.9.5 quotes "the 83 wells" and "45 of the 83"). Emit-only.
+# 1.5.0  # Hollingham (2026) - 2026-10-01. Streams off Figure 4 (unexplained wetness):
 #   base() takes show_streams and the wetness map passes False, so surface routing stays only on
 #   Figure 1, beside the -grad h arrows it is compared with (D-215). Figure 4 legend drops the
 #   streams entry. Figure only; no output value moves.
@@ -611,7 +613,12 @@ def main(no_fig: bool = False) -> int:
             w = heads[st].iloc[i]
             loo_rows.append({"state": st, "well": w.well, "E": w.E, "N": w.N, "observed_m": w["head"],
                              "predicted_m": w["head"] + v, "error_m": v})
-    pd.DataFrame(loo_rows).to_csv(OUT_01B_LOO, index=False); saved(OUT_01B_LOO)
+    _loo = pd.DataFrame(loo_rows)
+    _loo.to_csv(OUT_01B_LOO, index=False); saved(OUT_01B_LOO)
+    # T-108: the kriged network size the documents quote, per state.
+    for _st, _g in _loo.groupby("state"):
+        rn.add("n_wells_kriged", int(_g["well"].nunique()), unit="wells", era=str(_st),
+               note="distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)")
     # the radial fan starts at the highest dipwell in the wet state, not at the surface maximum,
     # which the ridge boundary would move onto the ridge
     wh = heads["wet"].loc[heads["wet"]["head"].idxmax()]

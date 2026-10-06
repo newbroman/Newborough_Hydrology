@@ -30,7 +30,10 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-09-26. The uphill propagation test is
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-05. T-108: emits the distance-decay test across the
+#   uphill wells (Pearson r and p of BACI-corrected delta-beta3 against distance from CEH36, and n), which
+#   report9 4.11 quotes as the reason the modelled reach is not independently resolved. Emit-only.
+# 1.9.0  # Hollingham (2026) — 2026-09-26. The uphill propagation test is
 #   written out (T-84): 09b_report_numbers.csv gains the near-band one-sample t-test of the
 #   BACI-corrected delta-beta3 (wells within config.SCRAPE_PROPAGATION_NEAR_M of CEH36: n,
 #   n positive, mean, t, p) that report9 §4.5.5 quotes, and 09b_01 gains baci_db3_pct per
@@ -358,6 +361,14 @@ def main():
                note="two-sided p of the one-sample t")
     else:
         warn(f"only {len(near)} wells in the near band - t-test not written")
+    # T-108: distance decay across the uphill wells (report9 4.11).
+    _up = df[df["role"] == "uphill"]
+    if len(_up) >= 3:
+        _pr = _stats.pearsonr(_up["dist_m"], _up["baci_db3"])
+        _n = f"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = {len(_up)})"
+        rr.add("scrape_propagation_uphill_dist_r", float(_pr[0]), unit="-", note=_n)
+        rr.add("scrape_propagation_uphill_dist_p", float(_pr[1]), unit="-", note="two-sided p of " + _n)
+        rr.add("scrape_propagation_uphill_n_wells", int(len(_up)), unit="count", note="uphill wells in the distance test")
     n_rr = rr.save(OUT_09B_REPORT_NUMBERS)
     print(f"   \u2192 {OUT_09B_REPORT_NUMBERS.name} ({n_rr} rows)")
 

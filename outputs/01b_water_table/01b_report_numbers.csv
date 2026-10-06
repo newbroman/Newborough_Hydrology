@@ -22,22 +22,25 @@ ridge_well_error_without_boundary_m,,,-25.22955272101799,m,kriged surface withou
 drift_selected,,,o,,ordinary kriging (no drift)
 coastal_head_m,,,1.8749164882028226,m,"fitted to the coastal wells in [mean tide level, MHW]"
 coastal_head_flat,,,0.0,,True: the coastal wells could not choose and the midpoint is used
-loo_median_abs_wet_m,,wet,0.16676641796153469,m,
-loo_bias_wet_m,,wet,-0.011666420613439143,m,
-loo_median_abs_mean_m,,mean,0.14125344794027406,m,
+loo_median_abs_wet_m,,wet,0.1667664179615329,m,
+loo_bias_wet_m,,wet,-0.011666420613430262,m,
+loo_median_abs_mean_m,,mean,0.14125344794028294,m,
 loo_bias_mean_m,,mean,-0.005470548304295164,m,
-loo_median_abs_dry_m,,dry,0.13819719350118387,m,
-loo_bias_dry_m,,dry,0.0008738572622624119,m,
+loo_median_abs_dry_m,,dry,0.1381971935011812,m,
+loo_bias_dry_m,,dry,0.0008738572622783991,m,
 n_coastal_wells,,,17.0,wells,
+n_wells_kriged,,dry,83.0,wells,distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)
+n_wells_kriged,,mean,83.0,wells,distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)
+n_wells_kriged,,wet,83.0,wells,distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)
 wet_high_E,,,241292.0,m,
 wet_high_N,,,364488.0,m,
 wet_high_head_m,ceh14,wet,14.119047619047619,m,"highest dipwell, wet state"
 head_dem_r_raw,,,0.7577022204230642,,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
-head_dem_slope_raw,,,0.6611685456645162,m/m,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
+head_dem_slope_raw,,,0.6611685456645158,m/m,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
 head_dem_n_nodes,,,7939.0,nodes,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
 head_dem_headline_smoothing_m,,,300.0,m,config.HEAD_DEM_HEADLINE_SMOOTHING_M
-head_dem_r_smoothed,,,0.9231075902671835,,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
-head_dem_slope_smoothed,,,1.0141810809437128,m/m,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
+head_dem_r_smoothed,,,0.9231075902671838,,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
+head_dem_slope_smoothed,,,1.0141810809437124,m/m,"kriged mean-state water table against the LiDAR DEM at the 20 m grid nodes inside the convex hull of the reference network; DEM smoothed by a square mean filter of the stated width (0 = native). T-66, re-based on 01b (D-205)."
 wells_wt_ground_slope,,,0.9768047350932366,m/m,"mean-state head on surveyed ground at the reference wells: the slack-formation relation, not topographic control. T-66."
 wells_wt_ground_intercept,,,-0.5692756737158929,m,"mean-state head on surveyed ground at the reference wells: the slack-formation relation, not topographic control. T-66."
 wells_wt_ground_r,,,0.9858126232213945,,"mean-state head on surveyed ground at the reference wells: the slack-formation relation, not topographic control. T-66."
@@ -95,25 +98,25 @@ unexplained_floor_minus_well_wet_south_west_m,,,1.5090331256779306,m,"unexplaine
 unexplained_cells_east,,,128.0,cells,
 unexplained_floor_minus_well_wet_east_m,,,0.9549370428468515,m,"unexplained-cell floor minus the nearest well's wet-state head, cell-weighted mean"
 arrows_wet,,wet,822.0,arrows,
-median_gradient_wet,,wet,0.007084336061384346,m/m,
+median_gradient_wet,,wet,0.007084336061384746,m/m,
 arrows_mean,,mean,822.0,arrows,
-median_gradient_mean,,mean,0.006649008205286466,m/m,
+median_gradient_mean,,mean,0.0066490082052869225,m/m,
 arrows_dry,,dry,821.0,arrows,
-median_gradient_dry,,dry,0.0062152603082419764,m/m,
+median_gradient_dry,,dry,0.0062152603082412695,m/m,
 n_slacks,,,118.0,slacks,connected ever-wet cells passing the Sentinel check
 slacks_turning,,,0.0,slacks,wet-to-dry direction change > 45 deg
-median_turn_wet_dry_deg,,,4.724348952676621,deg,
+median_turn_wet_dry_deg,,,4.724348952678184,deg,
 n_slacks_with_turn,,,116.0,slacks,slacks with a direction in both the wet and the dry state (turn_wet_dry_deg defined); the base of slacks_turning and median_turn_wet_dry_deg. report9 §4.9.5
 n_slacks_turn_over_report_deg,,20 deg,7.0,slacks,"slacks whose wet-to-dry direction change exceeds SLACK_FLOW_TURN_REPORT_DEG (20 deg), of n_slacks_with_turn. report9 §4.9.5"
-sens_head_0_m_angle_deg,,,0.9676104556631913,deg,
-sens_head_mean_tide_level_angle_deg,,,0.8675769320581992,deg,
-sens_head_midpoint_angle_deg,,,0.45204150407417387,deg,
-sens_head_MHW_angle_deg,,,0.0028928931076279696,deg,
-sens_runner_up_drift_s_angle_deg,,,18.569140435928148,deg,
-sens_ridge_line_0_m_below_ground_angle_deg,,,2.7399469713187727,deg,
-sens_ridge_line_1_m_below_ground_angle_deg,,,2.2563889168157516,deg,
-sens_ridge_line_2_m_below_ground_angle_deg,,,1.7008221164476254,deg,
-sens_no_landward_boundary_angle_deg,,,2.0485191488875074,deg,
+sens_head_0_m_angle_deg,,,0.9676104556710357,deg,
+sens_head_mean_tide_level_angle_deg,,,0.8675769320455657,deg,
+sens_head_midpoint_angle_deg,,,0.4520415040697401,deg,
+sens_head_MHW_angle_deg,,,0.0028928931091911636,deg,
+sens_runner_up_drift_s_angle_deg,,,18.569140435933605,deg,
+sens_ridge_line_0_m_below_ground_angle_deg,,,2.739946971226402,deg,
+sens_ridge_line_1_m_below_ground_angle_deg,,,2.256388916801896,deg,
+sens_ridge_line_2_m_below_ground_angle_deg,,,1.7008221163735158,deg,
+sens_no_landward_boundary_angle_deg,,,2.048519148897597,deg,
 n_coast_normal_transects,,,4.0,transects,
 radial_merged,,,1.0,,
 wells_on_transects,,,45.0,wells,

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-28T20:50:23Z",
+  "generated": "2026-10-07T22:36:26Z",
   "method": "van Willegen 2025 MSL5 (5-yr mean spring level, m below ground)",
   "n_wells": 78,
   "wells": {
@@ -8,13 +8,13 @@
       "window_end_year": 2015,
       "n_years_in_window": 5
     },
-    "ceh15": {
-      "MSL5_m_bg": -0.698,
+    "ceh7": {
+      "MSL5_m_bg": -0.162,
       "window_end_year": 2017,
       "n_years_in_window": 5
     },
-    "ceh7": {
-      "MSL5_m_bg": -0.162,
+    "ceh15": {
+      "MSL5_m_bg": -0.698,
       "window_end_year": 2017,
       "n_years_in_window": 5
     },
@@ -38,93 +38,8 @@
       "window_end_year": 2025,
       "n_years_in_window": 5
     },
-    "wmc4": {
-      "MSL5_m_bg": -0.393,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "fe3": {
-      "MSL5_m_bg": -1.693,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "fe2": {
-      "MSL5_m_bg": -1.341,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "fe1": {
-      "MSL5_m_bg": -0.441,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh13": {
-      "MSL5_m_bg": -0.795,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh11": {
-      "MSL5_m_bg": -0.307,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "wmc2": {
-      "MSL5_m_bg": -0.322,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh10": {
-      "MSL5_m_bg": -0.926,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh27": {
-      "MSL5_m_bg": -0.057,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh26": {
-      "MSL5_m_bg": -0.155,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw9": {
-      "MSL5_m_bg": -0.632,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh25": {
-      "MSL5_m_bg": -0.121,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh30": {
-      "MSL5_m_bg": -1.429,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh3": {
-      "MSL5_m_bg": -1.035,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw8b": {
-      "MSL5_m_bg": -1.187,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh24": {
-      "MSL5_m_bg": -0.015,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh23": {
-      "MSL5_m_bg": -0.167,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "t41a": {
-      "MSL5_m_bg": -0.027,
+    "nw2": {
+      "MSL5_m_bg": -0.389,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
@@ -133,38 +48,8 @@
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "ceh28": {
-      "MSL5_m_bg": -0.141,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh33": {
-      "MSL5_m_bg": -1.423,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw7": {
-      "MSL5_m_bg": -0.99,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
     "nw6": {
       "MSL5_m_bg": -0.263,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh32": {
-      "MSL5_m_bg": -1.385,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh31": {
-      "MSL5_m_bg": -1.349,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh36": {
-      "MSL5_m_bg": -0.455,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
@@ -173,43 +58,13 @@
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "ceh34": {
-      "MSL5_m_bg": -0.509,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh40": {
-      "MSL5_m_bg": -0.313,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh4": {
-      "MSL5_m_bg": -0.554,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw4b": {
-      "MSL5_m_bg": -0.129,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh39": {
-      "MSL5_m_bg": -0.206,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
     "ceh21": {
       "MSL5_m_bg": -0.904,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "t41c": {
-      "MSL5_m_bg": -0.067,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "t41b": {
-      "MSL5_m_bg": -0.059,
+    "ceh33": {
+      "MSL5_m_bg": -1.423,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
@@ -218,83 +73,18 @@
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "ceh5": {
-      "MSL5_m_bg": -0.127,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh42": {
-      "MSL5_m_bg": -0.189,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw4": {
-      "MSL5_m_bg": -0.112,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh41": {
-      "MSL5_m_bg": -0.154,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d10": {
-      "MSL5_m_bg": -0.072,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh9": {
-      "MSL5_m_bg": -0.4,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw3": {
-      "MSL5_m_bg": -0.19,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh6": {
-      "MSL5_m_bg": -0.075,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d17": {
-      "MSL5_m_bg": -0.049,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw2": {
-      "MSL5_m_bg": -0.389,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d15": {
-      "MSL5_m_bg": 0.05,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d43": {
-      "MSL5_m_bg": -0.231,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d41": {
-      "MSL5_m_bg": -0.114,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
     "nw13": {
       "MSL5_m_bg": -0.357,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "ceh2": {
-      "MSL5_m_bg": -0.877,
+    "ceh10": {
+      "MSL5_m_bg": -0.926,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "ceh19": {
-      "MSL5_m_bg": -0.781,
+    "ceh1": {
+      "MSL5_m_bg": -0.242,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
@@ -303,13 +93,248 @@
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
+    "d17": {
+      "MSL5_m_bg": -0.049,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh14": {
+      "MSL5_m_bg": -0.579,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh11": {
+      "MSL5_m_bg": -0.307,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh13": {
+      "MSL5_m_bg": -0.795,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "t41c": {
+      "MSL5_m_bg": -0.067,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh26": {
+      "MSL5_m_bg": -0.155,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw3": {
+      "MSL5_m_bg": -0.19,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh28": {
+      "MSL5_m_bg": -0.141,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh31": {
+      "MSL5_m_bg": -1.349,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh32": {
+      "MSL5_m_bg": -1.385,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh30": {
+      "MSL5_m_bg": -1.429,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw11": {
+      "MSL5_m_bg": -0.417,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw10": {
+      "MSL5_m_bg": -0.649,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh23": {
+      "MSL5_m_bg": -0.167,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh2": {
+      "MSL5_m_bg": -0.877,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw8b": {
+      "MSL5_m_bg": -1.187,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw7": {
+      "MSL5_m_bg": -0.99,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh19": {
+      "MSL5_m_bg": -0.781,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "fe2": {
+      "MSL5_m_bg": -1.341,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
     "ceh18": {
       "MSL5_m_bg": -0.658,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "d38": {
-      "MSL5_m_bg": -0.287,
+    "ceh34": {
+      "MSL5_m_bg": -0.509,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw1": {
+      "MSL5_m_bg": -1.195,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "l7": {
+      "MSL5_m_bg": -1.187,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh36": {
+      "MSL5_m_bg": -0.455,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh39": {
+      "MSL5_m_bg": -0.206,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "d9": {
+      "MSL5_m_bg": -0.151,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh4": {
+      "MSL5_m_bg": -0.554,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "fe1": {
+      "MSL5_m_bg": -0.441,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "fe3": {
+      "MSL5_m_bg": -1.693,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh40": {
+      "MSL5_m_bg": -0.313,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh6": {
+      "MSL5_m_bg": -0.075,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "d8": {
+      "MSL5_m_bg": -0.068,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "d44": {
+      "MSL5_m_bg": -0.323,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh41": {
+      "MSL5_m_bg": -0.154,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh42": {
+      "MSL5_m_bg": -0.189,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "d7": {
+      "MSL5_m_bg": -0.135,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh5": {
+      "MSL5_m_bg": -0.127,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw9": {
+      "MSL5_m_bg": -0.632,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh24": {
+      "MSL5_m_bg": -0.015,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "wmc1": {
+      "MSL5_m_bg": -0.25,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh25": {
+      "MSL5_m_bg": -0.121,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh27": {
+      "MSL5_m_bg": -0.057,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw4": {
+      "MSL5_m_bg": -0.112,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "nw4b": {
+      "MSL5_m_bg": -0.129,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh3": {
+      "MSL5_m_bg": -1.035,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "d10": {
+      "MSL5_m_bg": -0.072,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "t41a": {
+      "MSL5_m_bg": -0.027,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "ceh17": {
+      "MSL5_m_bg": -1.925,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "t41b": {
+      "MSL5_m_bg": -0.059,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
@@ -323,73 +348,48 @@
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "nw11": {
-      "MSL5_m_bg": -0.417,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d44": {
-      "MSL5_m_bg": -0.323,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d9": {
-      "MSL5_m_bg": -0.151,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "d8": {
-      "MSL5_m_bg": -0.068,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw10": {
-      "MSL5_m_bg": -0.649,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "nw1": {
-      "MSL5_m_bg": -1.195,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh17": {
-      "MSL5_m_bg": -1.925,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
     "ceh16": {
       "MSL5_m_bg": -0.691,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "wmc1": {
-      "MSL5_m_bg": -0.25,
+    "ceh9": {
+      "MSL5_m_bg": -0.4,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "ceh14": {
-      "MSL5_m_bg": -0.579,
+    "d15": {
+      "MSL5_m_bg": 0.05,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
-    "d7": {
-      "MSL5_m_bg": -0.135,
+    "d41": {
+      "MSL5_m_bg": -0.114,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "d38": {
+      "MSL5_m_bg": -0.287,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "wmc2": {
+      "MSL5_m_bg": -0.322,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "d43": {
+      "MSL5_m_bg": -0.231,
+      "window_end_year": 2026,
+      "n_years_in_window": 5
+    },
+    "wmc4": {
+      "MSL5_m_bg": -0.393,
       "window_end_year": 2026,
       "n_years_in_window": 5
     },
     "wmc3": {
       "MSL5_m_bg": -0.944,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "ceh1": {
-      "MSL5_m_bg": -0.242,
-      "window_end_year": 2026,
-      "n_years_in_window": 5
-    },
-    "l7": {
-      "MSL5_m_bg": -1.187,
       "window_end_year": 2026,
       "n_years_in_window": 5
     }

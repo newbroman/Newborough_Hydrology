@@ -60,7 +60,7 @@ python3 living/publish_water_watch.py 2026-06 --pdf my.pdf  # or the PDF you exp
 
 It copies the issue into `water_watch/` (map images recompressed, about 1–2 MB an issue) and
 rebuilds `water_watch/index.html`; the next push puts it on
-https://newbroman.github.io/Newborough_Hydrology/water_watch/. `run_report.sh` also writes an
+https://newbroman.github.io/Newborough_Hydrology/water_watch/index.html once the web tools are republished (nrg_git.sh option 13 - Pages serves the gh-pages branch, not main). `run_report.sh` also writes an
 editable `.odt` beside the PDF.
 
 ---
@@ -77,6 +77,9 @@ three forecaster feeds, and commits + pushes them (it confirms before pushing).
 
 **No pipeline, no Script 11b, no rebuild of the page.** The deployed forecaster
 fetches the feeds, so it picks up the new month on the next page load.
+The site is served from the gh-pages branch, so the feeds reach it only when the web tools are
+republished (`./working/nrg_git.sh`, option 13); a push to main alone leaves the live forecaster on
+the previous month (found 2026-10-08: the site still showed August).
 
 ---
 

@@ -102,7 +102,14 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. The spring months are the readings dated
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-07. Two newsletter wording faults found on the
+#   September 2026 run: (1) rainfall at 70-90 % of average was called "close to the average"
+#   (73 % in Sep 2026) - it now reads "below the average"; (2) the "Rebound from Summer Low"
+#   section said levels "have risen by an average of -0.02 m". The section is now skipped when
+#   the summer-low month is the previous month (it repeated the month-on-month map), and its
+#   sentence says "fallen" when the mean change is negative. (3) fetch_wu_monthly retries:
+#   the WU page intermittently omits its embedded JSON, which printed "N/A" for a reporting gauge.
+# __version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. The spring months are the readings dated
 #   March-May, i.e. the end-of-month labels 2-4 (SPRING_MONTHS_BY_LABEL; D-189).
 # __version__ = "1.4.0"
 
@@ -572,7 +579,21 @@ def load_hillshade(dem_path, extent=MAP_EXTENT):
 
 # ─── Weather Underground Scraping ────────────────────────────────────────────
 
-def fetch_wu_monthly(station_id, year, month):
+def fetch_wu_monthly(station_id, year, month, attempts=4):
+    """Retry wrapper (1.6.0): the WU page intermittently arrives without its embedded
+    JSON (seen on the September 2026 run: one success in three for a station that was
+    reporting), so a single miss is not evidence the station has no data."""
+    import time
+    err = None
+    for i in range(attempts):
+        res, err = _fetch_wu_monthly_once(station_id, year, month)
+        if res is not None:
+            return res, None
+        time.sleep(3 * (i + 1))
+    return None, f"{err} (after {attempts} attempts)"
+
+
+def _fetch_wu_monthly_once(station_id, year, month):
     """
     Fetch monthly daily summary from Weather Underground PWS page.
     Parses the JSON embedded in <script id="app-root-state">.
@@ -1503,6 +1524,11 @@ def generate_pdf_report(output_dir, year, month, met_text,
                 f"{MONTH_NAMES[month]} was notably dry, with just {rain:.1f} mm at "
                 f"RAF Valley - only {pct:.0f}% of the average ({avg_rain:.1f} mm). "
             )
+        elif pct < 90:
+            rain_narrative = (
+                f"{MONTH_NAMES[month]} was drier than average, with {rain:.1f} mm at "
+                f"RAF Valley ({pct:.0f}% of the {avg_rain:.1f} mm average). "
+            )
         else:
             rain_narrative = (
                 f"{MONTH_NAMES[month]} saw {rain:.1f} mm at RAF Valley, "
@@ -1624,7 +1650,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
             ))
 
     # ── Cumulative (since summer low) map ──
-    if low_results and low_d1 and low_d2:
+    if low_results and low_d1 and low_d2 and low_d1 != mom_d1:
         low_label = f"{low_d1.strftime('%b%y')}-{low_d2.strftime('%b%y')}"
         map_path = os.path.join(output_dir, f"map_cumulative_{low_label}.png")
         if os.path.exists(map_path):
@@ -1634,10 +1660,12 @@ def generate_pdf_report(output_dir, year, month, met_text,
             ))
             low_valid = [z for _, _, z in low_results if not np.isnan(z)]
             if low_valid:
+                _m = float(np.mean(low_valid))
+                _verb = "risen" if _m > 0 else "fallen"
                 story.append(Paragraph(
-                    f"Since the summer low in {low_d1.strftime('%B %Y')}, water levels have risen "
-                    f"by an average of {np.mean(low_valid):+.2f} m across {len(low_valid)} wells, "
-                    f"with a maximum rise of {max(low_valid):+.2f} m.",
+                    f"Since the summer low in {low_d1.strftime('%B %Y')}, water levels have {_verb} "
+                    f"by an average of {abs(_m):.2f} m across {len(low_valid)} wells; "
+                    f"the largest rise was {max(low_valid):+.2f} m.",
                     style_body
                 ))
             img = Image(map_path, width=160*mm, height=130*mm)
@@ -2323,7 +2351,7 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         report.append(generate_difference_table(
             yoy_results, coords, f"Year-on-year ({label})"))
 
-    if low_results:
+    if low_results and low_d1 != mom_d1:
         label = f"{low_d1.strftime('%b %Y')} → {low_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
             low_results, coords, f"Since summer low ({label})"))

@@ -1,4 +1,4 @@
-37b_driver_footing v1.9.0 — Part B: Comparative Driver Footing
+37b_driver_footing v1.10.0 — Part B: Comparative Driver Footing
 ==========================================================================
 
 LIVE PARAMETERS
@@ -38,9 +38,9 @@ COMPARISON TABLE
       peak=-41.3 mm  area=-21074.5 mm·ha  volume=-62844.3 m³
       SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=4  relieve=0  (n=66)
 
-  Unexplained uniform decline (central estimate, not resolved) [Unexplained (uniform), uniform, loss, modelled]
-      peak=-220.4 mm  area=-209259.2 mm·ha  volume=-624012.3 m³
-      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=25  relieve=0  (n=66)
+  Unexplained residual decline (central estimate, applied uniformly by assumption) [Unexplained (residual), assumed uniform, loss, modelled]
+      peak=-169.6 mm  area=-161026.6 mm·ha  volume=-480182.3 m³
+      SD15b (wet-slack, 610 mm): worsen=0  relieve=0   SD16 (dry-slack, 980 mm): worsen=24  relieve=0  (n=66)
 
   Scrape NET (on-site + off-site)        [Dune scraping, redistributive, net, observed+modelled]
       peak=n/a  area=-20467.8 mm·ha  volume=-61035.1 m³

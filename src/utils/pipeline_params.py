@@ -40,7 +40,12 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-09-26. _DEFAULTS["drawdown_lambda_m"]
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-10-07. _DEFAULTS["uniform_residual_mm_yr"]
+#   -11.0 -> -8.5: Script 25 1.33.0 averages the coastal profile over each cluster's wells,
+#   which moves the open-dune residual mean Script 37b carries. Comment corrected: the
+#   clusters do not agree (spread 14.1 > mean), so the value is applied uniformly by
+#   assumption. Key name unchanged (an identifier).
+# 1.15.0  # Hollingham (2026) - 2026-09-26. _DEFAULTS["drawdown_lambda_m"]
 #   221.3 -> 222.9: Script 20 1.45.0 converts β₃ to per day with config.DAYS_PER_MONTH
 #   rather than a typed 30.0 (Martin, "change script 30"). Holds only once Script 20
 #   has been rerun; until then defaults_lint reports the committed 221.3. With the
@@ -366,15 +371,13 @@ _DEFAULTS = {
     "baci_coastal_trend_coastal_mm_yr":  -19.8152,
     "baci_coastal_trend_climate_mm_yr":  -12.2846,
     "baci_coastal_trend_farfield_mm_yr":   -0.0092,
-    "uniform_residual_mm_yr":  -11.0,   # mean over the open-dune clusters of
+    "uniform_residual_mm_yr":  -8.5,    # mean over the open-dune clusters of
                                          # (balanced observed decline − modelled coastal
                                          # gradient), 25_03_cluster_partition.csv. The
-                                         # spatially-uniform decline the footing carries
-                                         # (D-057). A CENTRAL ESTIMATE, not a resolved
-                                         # rate: the clusters agree because their
-                                         # year-to-year swings are common-mode, so the
-                                         # agreement shows uniformity and does not lower
-                                         # the detection floor on the magnitude
+                                         # residual decline the footing applies at every
+                                         # well BY ASSUMPTION (D-057): the clusters do not
+                                         # agree (C3 ≈ 0, C2 −14.6). A CENTRAL ESTIMATE,
+                                         # not a resolved rate
     "coast_retreat_rate_m_yr":   2.3207,  # Script 40, 2006->2026 on the modern
                                          # common frontage, 20.2 yr. The DIVISOR
                                          # in h0 = retreat x (delta_0/rate).

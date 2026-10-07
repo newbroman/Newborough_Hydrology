@@ -89,7 +89,14 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-09-29. T-96: 37b_report_numbers.csv also
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-07. The residual row is named for what the
+#   decomposition now shows. Script 25 1.33.0 averages the capped coastal profile over each
+#   cluster's wells, so the open-dune residuals are C1 -10.4, C2 -14.6, C3 -0.5 mm/yr: the
+#   spread (14.1) exceeds the mean (-8.5), and the residual is NOT spatially uniform. The row
+#   becomes "Unexplained residual decline (central estimate, applied uniformly by assumption)",
+#   group "Unexplained (residual)", character "assumed uniform"; docstring, figure note and
+#   comments follow (Martin 2026-10-07, "Residual, uniform by assumption"). No value changes here.
+# v1.9.0  # Hollingham (2026) - 2026-09-29. T-96: 37b_report_numbers.csv also
 #   carries site_area_ha, the site-mask area on the 50 m grid that normalises every
 #   equivalent depth (report9 §4.12.1, report10 §5.8.2 "the 949 ha mapped site"), and
 #   clearfell_step_pct_of_drawdown_h0, the observed clearfell step as a percentage of
@@ -217,7 +224,7 @@ COMPONENT_META = {
     "broadleaf":     ("Forest management",  "progressive", "loss",   False),
     "scrape_onsite": ("Dune scraping",      "step",        "gain",   True),
     "scrape_offsite":("Dune scraping",      "redistributive","loss", False),
-    "climate":       ("Unexplained (uniform)","uniform",  "loss",   False),
+    "climate":       ("Unexplained (residual)","assumed uniform", "loss", False),
 }
 COMPONENT_LABELS = {
     "coast_erosion":  "Coastal erosion (chronic drawdown)",
@@ -226,7 +233,7 @@ COMPONENT_LABELS = {
     "broadleaf":      "Broadleaf restock (canopy added)",
     "scrape_onsite":  "Scrape on-site (slack rise)",
     "scrape_offsite": "Scrape off-site (drain cone)",
-    "climate":        "Unexplained uniform decline (central estimate, not resolved)",
+    "climate":        "Unexplained residual decline (central estimate, applied uniformly by assumption)",
 }
 
 
@@ -267,27 +274,29 @@ def load_coastal_fit() -> tuple[float, float]:
 
 
 def load_uniform_residual() -> float:
-    """The spatially-uniform decline this footing carries, mm/yr, negative.
+    """The unexplained residual decline this footing carries at every well, mm/yr, negative.
 
     NOT the panel's fitted constant c. c is not separately identified — it
     trades off exactly against the cumulative-water-balance covariate and only
     their sum is recovered (D-039) — so a driver row computed from it ranks a
     quantity that has no rate. This function reads the MEASURED residual
     instead: per open-dune cluster, the balanced observed decline minus the
-    modelled coastal gradient at that cluster's mean distance to the coast, and
-    the mean of those.
+    modelled coastal gradient averaged over that cluster's wells (Script 25
+    1.33.0), and the mean of those.
 
     The open-dune clusters are the ones the coastal gradient is fitted on
     (forest-free, D-046); the forest clusters carry a canopy term this
     subtraction does not remove, which is why they are excluded here and why
     their own residuals differ.
 
-    What the agreement does and does not buy: the clusters agree closely, which
-    is evidence the remaining decline is SPATIALLY UNIFORM. It is not evidence
-    that the rate is resolved. Their year-to-year swings are common-mode — same
-    weather, same aquifer — so the errors do not average down, and the
-    detection floor of the site-mean trend still applies to this magnitude.
-    Anything consuming this value must carry that caveat with it (D-057).
+    The clusters do NOT agree: since Script 25 1.33.0 the residuals run from
+    about zero at C3 to -14.6 mm/yr at C2, a spread larger than their mean. The
+    footing applies the mean at every well BY ASSUMPTION; that is a modelling
+    choice, not an observation of uniformity. Nor is the rate resolved: the
+    clusters' year-to-year swings are common-mode — same weather, same aquifer —
+    so the errors do not average down, and the detection floor of the site-mean
+    trend still applies to this magnitude. Anything consuming this value must
+    carry both caveats with it (D-057).
     """
     try:
         df = pd.read_csv(OUT_25_CLUSTER_PARTITION)
@@ -295,7 +304,7 @@ def load_uniform_residual() -> float:
         resid = (open_dune["observed_balanced_annual_mean_mm_yr"]
                  - open_dune["coastal_gradient_mm_yr"])
         r = float(resid.mean())
-        info(f"uniform residual = {r:.2f} mm/yr (live, mean over "
+        info(f"residual decline = {r:.2f} mm/yr (live, mean over "
              f"{len(resid)} open-dune clusters; spread "
              f"{float(resid.max() - resid.min()):.2f} mm/yr) — central estimate, "
              f"not a resolved rate")
@@ -303,7 +312,7 @@ def load_uniform_residual() -> float:
     except Exception as exc:
         r = float(pipeline_params.default_value("uniform_residual_mm_yr"))
         warn(f"cannot read Script 25 cluster partition ({exc}) — using first-pass "
-             f"default uniform residual = {r}")
+             f"default residual decline = {r}")
         return r
 
 
@@ -530,11 +539,11 @@ def build_fields(gx, gy, s20, delta0, clearfell_step_mm, lam, fell_geom,
     scrape_field = np.nan_to_num(scrape_field, nan=0.0) if scrape_field is not None else np.zeros_like(gx)
     fields["scrape_offsite"] = -1.0 * scrape_field
 
-    # --- Climate: spatially-UNIFORM common-mode decline (negative / loss) ----
+    # --- Unexplained residual decline, applied uniformly by assumption (loss) ----
     #     c × horizon, flat everywhere (no reach decay). The one field with no
     #     spatial structure — the background warren-wide fall.
     fields["climate"] = np.full_like(gx, climate_c_mm_yr * HORIZON_YEARS)
-    peaks["climate"] = climate_c_mm_yr * HORIZON_YEARS   # uniform -> peak = value
+    peaks["climate"] = climate_c_mm_yr * HORIZON_YEARS   # applied uniformly -> peak = value
 
     return fields, peaks
 
@@ -642,7 +651,7 @@ def evaluate_component_at_wells(roster: pd.DataFrame, s20,
     out["broadleaf"] = bl_delta
     out["scrape_onsite"] = scrape_on_delta
     out["scrape_offsite"] = scrape_off_delta
-    out["climate"] = climate_c_mm_yr * HORIZON_YEARS   # uniform at every well
+    out["climate"] = climate_c_mm_yr * HORIZON_YEARS   # applied at every well by assumption
     return out
 
 
@@ -739,8 +748,8 @@ def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
 
     The climate / common-mode term is flagged apart from the spatially-
     structured drivers: its bars are hatched, a dotted separator sets it off,
-    and a note records that it is the spatially-uniform background decline,
-    not attributed to a specific mechanism."""
+    and a note records that it is the unexplained residual decline, applied
+    uniformly by assumption and not attributed to a specific mechanism."""
     comp_df = df[df.component != "scrape_net"].copy().reset_index(drop=True)
     labels = [COMPONENT_LABELS[c] for c in comp_df.component]
     colours = ["#c0392b" if g == "loss" else "#1a5276" for g in comp_df.gain_or_loss]
@@ -808,8 +817,8 @@ def plot_footing(df: pd.DataFrame, dpi: int = 150) -> None:
                      "forest · scrape · coast · climate on common measures "
                      f"({int(_H_START)}\u2192{int(_H_END)})", fontsize=10.5)
         fig.text(0.5, 0.005,
-                 "Climate / common-mode (hatched, below the separator) is the "
-                 "spatially-uniform background decline — shown apart from the "
+                 "Unexplained residual (hatched, below the separator) is applied "
+                 "uniformly by assumption — shown apart from the "
                  "mechanism-specific drivers and not attributed to a single driver.",
                  ha="center", fontsize=6.8, style="italic", color="0.35")
         fig.tight_layout(rect=[0, 0.02, 1, 0.93])

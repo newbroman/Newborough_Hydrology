@@ -79,14 +79,14 @@ RollingWindow_c_mean,forest_free,18-year windows,-0.3945972493588649,mm/yr,"25_1
 RollingWindow_c_sd,forest_free,18-year windows,4.562667858231403,mm/yr,"25_13 rolling-window sweep, spec forest_free, window length 18 yr, usable windows only (n=13); SD (ddof=1) of c across window positions."
 RollingWindow_n_windows,forest_free,18-year windows,13.0,windows,"25_13 rolling-window sweep, spec forest_free, window length 18 yr, usable windows only (n=13); number of usable windows."
 RollingWindow_corr_c_climate,forest_free,18-year windows,-0.5928213779136045,r,"25_13 rolling-window sweep, spec forest_free, window length 18 yr, usable windows only (n=13); Pearson r between c and the CWB climate term over the same windows."
-OpenDune_balanced_less_coastal,C1 (Lake Edge),,-10.974881583349337,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
+OpenDune_balanced_less_coastal,C1 (Lake Edge),,-10.382096869848361,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
 OpenDune_n_wells,C1 (Lake Edge),,7.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
 OpenDune_balanced_less_coastal,C2 (Dune),,-14.561039552837272,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
 OpenDune_n_wells,C2 (Dune),,22.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
-OpenDune_balanced_less_coastal,C3 (Western Residual),,-7.531105656702992,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
+OpenDune_balanced_less_coastal,C3 (Western Residual),,-0.5021990853569891,mm/yr,"observed_balanced_annual_mean_mm_yr minus coastal_gradient_mm_yr, summer-minimum partition (25_03)."
 OpenDune_n_wells,C3 (Western Residual),,22.0,wells,wells in the cluster's summer-minimum decomposition (25_03).
-OpenDune_balanced_less_coastal_mean,,,-11.022342264296533,mm/yr,"unweighted mean across the clusters outside FOREST_CIDS (C1 (Lake Edge), C2 (Dune), C3 (Western Residual)) of the balanced observed decline less the modelled coastal gradient."
-OpenDune_balanced_less_coastal_spread,,,7.02993389613428,mm/yr,"max minus min of the same quantity (C1 (Lake Edge), C2 (Dune), C3 (Western Residual))."
+OpenDune_balanced_less_coastal_mean,,,-8.481778502680873,mm/yr,"unweighted mean across the clusters outside FOREST_CIDS (C1 (Lake Edge), C2 (Dune), C3 (Western Residual)) of the balanced observed decline less the modelled coastal gradient."
+OpenDune_balanced_less_coastal_spread,,,14.058840467480284,mm/yr,"max minus min of the same quantity (C1 (Lake Edge), C2 (Dune), C3 (Western Residual))."
 CorrectionDiag_r2_distance_pct,ff_lincap,2005-2026,18.058212112572125,%,"25_14 correction diagnostic, metric summer_min, donor fit ff_lincap, 54 per-well slopes; share of the variance in per-well trend accounted for by the distance profile (r2_distance x 100)."
 CorrectionDiag_resid_sd,ff_lincap,2005-2026,14.890901113302561,mm/yr,"25_14 correction diagnostic, metric summer_min, donor fit ff_lincap, 54 per-well slopes; SD (ddof=1) of per-well trend about the fitted profile (resid_sd_mm_yr)."
 CorrectionDiag_r2_distance_pct,full_lincap_canopy,2005-2026,20.477442247209865,%,"25_14 correction diagnostic, metric summer_min, donor fit full_lincap_canopy, 59 per-well slopes; share of the variance in per-well trend accounted for by the distance profile (r2_distance x 100)."

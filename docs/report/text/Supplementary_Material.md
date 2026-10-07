@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_51.odt — do not edit. source-sha256=c72c034d1b9edba4 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_52.odt — do not edit. source-sha256=a79cafcb40c8fc1e pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -577,10 +577,10 @@ Table S8.2. Observed cluster slope on the declared balanced basis (observed_bala
 
   ----------------------- -------------------- -------------------- ------------------------- --------------------
   Cluster                 Summer obs (basis)   Spring obs (basis)   Spring coastal gradient   Spring unexplained
-  C1 (Lake Edge)          −11.0                +7.9                 0.0                       +5.2
+  C1 (Lake Edge)          −11.0                +7.9                 −0.6                      +5.8
   C2 (Dune)               −14.6                +0.6                 0.0                       −2.1
-  C3 (Western Residual)   −7.5                 +3.6                 0.0                       +1.0
-  C4 (Main Forest)        −6.5                 +11.9                −0.5                      +9.7
+  C3 (Western Residual)   −7.5                 +3.6                 −7.0                      +8.0
+  C4 (Main Forest)        −6.5                 +11.9                −4.8                      +14.1
   C5 (Coastal Forest)     −32.0                −23.9                −17.1                     −9.5
   ----------------------- -------------------- -------------------- ------------------------- --------------------
 

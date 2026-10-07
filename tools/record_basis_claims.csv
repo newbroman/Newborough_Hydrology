@@ -39,7 +39,7 @@ RB-04b,report8,Using Models to derive the Aquifer Architecture,The per-well rece
 RB-28,MS,S.23e Script 01b,the mean state is all months,Script 01b
 RB-12b,report9,Combined Driver Assessment and Observed Network Change,"from the datum-free drainage coefficient of the intercept form (Model B), fitted on the same record as the published coefficients",Script 26 persistence expectation (D-216)
 RB-27b,report8,Modelling the Cluster water levels,"Each form was fitted on the record before 2018 and run freely over the years after",Script 48 split-sample (D-217)
-RB-29,report8,Five-Year Mean Spring Water Level (MSL5) and Associated Forecasting Tools,"is not identified on its record (the rule of Section 3.4.1, Script 48) is not projected",Scripts 26b and 19 sustained projection (D-216)
+RB-29,report8,Five-Year Mean Spring Water Level (MSL5) and Associated Forecasting Tools,"is identified on the record (the rule of Section 3.4.1, Script 48), so C4 is withheld under both forms",Scripts 26b and 19 sustained projection (D-224/D-230)
 RB-50a,MS,S.23f Script 50,Forecast: fitted on the months immediately before MODEL_AB_SPLIT_DATE and run freely over every later month from the first reading there,D-222
 RB-50b,MS,S.23f Script 50,"CCW hindcast: at the wells Script 39 admits, fitted on the first or the last months of the modern record",D-222
 RB-50c,MS,S.23f Script 50,"Stability: every non-overlapping placement of each length within the record",D-222

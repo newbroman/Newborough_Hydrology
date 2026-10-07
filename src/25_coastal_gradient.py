@@ -126,7 +126,20 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.32.0"  # Hollingham (2026) — 2026-09-29. T-96: 25_report_numbers.csv gains rows for
+__version__ = "1.34.0"  # Hollingham (2026) — 2026-10-07. cluster_partition() also carries how far each
+#   cluster's coastal component moves with the reach (Martin 2026-10-07, "New values, with the reach
+#   range"): coastal_gradient_at_L_ci_lo/_hi_mm_yr (and _pct_of_basis) evaluate the per-well average at
+#   the well-basis CI ends of L_cg with δ₀ held at the headline (one at a time, so an overstatement:
+#   δ₀ and L covary), and coastal_gradient_loo_min/_max_mm_yr (and _pct) take the same average under
+#   each delete-one-well refit of the headline (25_16), which moves δ₀ and L together. Additive
+#   columns; no existing value moves.
+# 1.33.0  # Hollingham (2026) — 2026-10-07. cluster_partition(): each cluster's
+#   coastal component is the mean over its wells of the capped profile, not the profile at the
+#   cluster's mean distance (Martin, 2026-10-07: "some of the C3 wells are clearly within the coastal
+#   reach and some are without"; "Yes: per-well average, then rerun"). Same averaging as the
+#   balanced-mean basis and as tier_profile(). The at-mean value stays beside it as
+#   coastal_gradient_at_mean_dist_mm_yr, with n_wells_within_reach. 25_03 values move; 37b follows.
+# 1.32.0  # Hollingham (2026) — 2026-09-29. T-96: 25_report_numbers.csv gains rows for
 #   quantities the report quoted from a note, a comment or a difference of two rows:
 #   far_field_c_vif_raw_series / far_field_c_r2_raw_series (report9 §4.10.3, the raw-series
 #   collinearity, from the new raw_series_time_vif; the "about 151" in the fit_panel comment dates from
@@ -1585,7 +1598,9 @@ def cluster_partition(per_well: pd.DataFrame,
                       year_col: str,
                       fit_headline: dict,
                       script14_slopes: pd.DataFrame,
-                      cwb_trend_mm_yr: float) -> pd.DataFrame:
+                      cwb_trend_mm_yr: float,
+                      L_ci: tuple | None = None,
+                      loo: pd.DataFrame | None = None) -> pd.DataFrame:
     """Decompose each cluster's observed decline under the headline
     (forest-free linear-capped) fit.
 
@@ -1630,7 +1645,25 @@ def cluster_partition(per_well: pd.DataFrame,
         observed_s14 = s14.get(cn, np.nan) * 1000                   # mm/yr
         basis = balanced_annual_mean_slope(annual, year_col, wells)  # mm/yr
 
-        grad_only = float(model_linear_capped(mean_d, d0, L, 0))
+        # 1.33.0: the cluster's coastal component is the MEAN of its wells' components, the same
+        # averaging as the balanced-mean basis it is set against. The profile is capped at zero
+        # beyond L, so its value at the mean distance is not the mean of its values: C3's mean
+        # distance sits just beyond L while half its wells sit inside it (Martin, 2026-10-07).
+        grad_only = float(np.mean([float(model_linear_capped(d, d0, L, 0))
+                                   for d in sub["dist_coast_m"]]))
+        grad_at_mean = float(model_linear_capped(mean_d, d0, L, 0))
+        n_in_reach = int((sub["dist_coast_m"] < L).sum())
+
+        def comp_at(dd0, LL):
+            return float(np.mean([float(model_linear_capped(d, dd0, LL, 0))
+                                  for d in sub["dist_coast_m"]]))
+        at_lo = comp_at(d0, L_ci[0]) if L_ci else np.nan
+        at_hi = comp_at(d0, L_ci[1]) if L_ci else np.nan
+        if loo is not None and len(loo):
+            _lc = [comp_at(r.delta_0_loo_mm_yr, r.L_loo_m) for r in loo.itertuples()]
+            loo_min, loo_max = float(np.min(_lc)), float(np.max(_lc))
+        else:
+            loo_min = loo_max = np.nan
         modelled_total = grad_only + climate_cwb + c
         unexplained = basis - modelled_total
 
@@ -1647,6 +1680,12 @@ def cluster_partition(per_well: pd.DataFrame,
             DECOMPOSITION_BASIS_COLUMN: basis,
             "decomposition_basis": DECOMPOSITION_BASIS_COLUMN,
             "coastal_gradient_mm_yr": grad_only,
+            "coastal_gradient_at_mean_dist_mm_yr": grad_at_mean,
+            "n_wells_within_reach": n_in_reach,
+            "coastal_gradient_at_L_ci_lo_mm_yr": at_lo,
+            "coastal_gradient_at_L_ci_hi_mm_yr": at_hi,
+            "coastal_gradient_loo_min_mm_yr": loo_min,
+            "coastal_gradient_loo_max_mm_yr": loo_max,
             "climate_cwb_mm_yr": climate_cwb,
             "far_field_offset_mm_yr": c,
             "climate_plus_far_field_mm_yr": climate_cwb + c,
@@ -1656,6 +1695,10 @@ def cluster_partition(per_well: pd.DataFrame,
             "climate_cwb_pct_of_basis": pct(climate_cwb),
             "far_field_offset_pct_of_basis": pct(c),
             "unexplained_pct_of_basis": pct(unexplained),
+            "coastal_gradient_at_L_ci_lo_pct_of_basis": pct(at_lo),
+            "coastal_gradient_at_L_ci_hi_pct_of_basis": pct(at_hi),
+            "coastal_gradient_loo_min_pct_of_basis": pct(loo_min),
+            "coastal_gradient_loo_max_pct_of_basis": pct(loo_max),
         })
     return pd.DataFrame(rows)
 
@@ -4466,7 +4509,9 @@ def main() -> None:
         s14 = pd.read_csv(m["s14_csv"])
         annual, year_col = annual_metric_by_well(long_full, m["key"])
         part = cluster_partition(pw, annual, year_col, fit_ff_l, s14,
-                                 cwb_trend_ff)
+                                 cwb_trend_ff,
+                                 L_ci=(_ls["L_well_basis_ci_lo_m"], _ls["L_well_basis_ci_hi_m"]),
+                                 loo=loo)
         part.to_csv(m["out_partition"], index=False)
         print(part[["cluster_label", "mean_dist_coast_m",
                      "observed_centroid_mm_yr",

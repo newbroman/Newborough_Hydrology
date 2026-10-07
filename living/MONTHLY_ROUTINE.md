@@ -51,7 +51,17 @@ Produces, in `living/output/2026/June/`:
 - `map_month_*.png`, `map_yoy_*.png`, `map_cumulative_*.png` — the three maps
 - rainfall + difference CSVs
 
-The newsletter PDF goes to Drive / Facebook — it is **not** pushed to GitHub.
+The newsletter PDF goes to Drive / Facebook, **and** to the public site (since 2026-10-08):
+
+```bash
+python3 living/publish_water_watch.py 2026-06               # the run_report.sh PDF
+python3 living/publish_water_watch.py 2026-06 --pdf my.pdf  # or the PDF you exported after editing the ODT
+```
+
+It copies the issue into `water_watch/` (map images recompressed, about 1–2 MB an issue) and
+rebuilds `water_watch/index.html`; the next push puts it on
+https://newbroman.github.io/Newborough_Hydrology/water_watch/. `run_report.sh` also writes an
+editable `.odt` beside the PDF.
 
 ---
 

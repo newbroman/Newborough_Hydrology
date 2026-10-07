@@ -122,7 +122,10 @@ __version__ = "1.6.0"  # Hollingham (2026) - 2026-10-07. Two newsletter wording 
 #   (6) The report month is also set against the annual minima of the previous ten summers
 #   (Martin: "can we compare to the lowest month in the last 10yrs?"): each minimum found as in
 #   (4), each comparison paired well by well; the newsletter names the lowest of the ten and
-#   says how many of them this month is below.
+#   says how many of them this month is below. (7) Two figures for it (Martin: "a graph of
+#   previous years minima, and a surface map showing the difference between sept26 and aug 2019"):
+#   annual_minima_chart_*.png (each earlier minimum relative to the report month, paired well by
+#   well) and map_vs_lowest_min_*.png (report month minus the lowest of those minima).
 # __version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. The spring months are the readings dated
 #   March-May, i.e. the end-of-month labels 2-4 (SPRING_MONTHS_BY_LABEL; D-189).
 # __version__ = "1.4.0"
@@ -1108,6 +1111,44 @@ def write_difference_csv(results, filepath):
 
 # ─── Interpolation Map with Hillshade ────────────────────────────────────────
 
+def create_annual_minima_chart(decade, year, month, filepath):
+    """Bar per earlier summer: that summer's annual minimum relative to the report month (m),
+    paired well by well (so each bar is -1 x the mean of report-month minus that minimum).
+    Below zero = that minimum was lower than the level now. One hue; the lowest bar darker."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    rows = sorted(decade, key=lambda d: d['ym'])
+    vals = [-d['diff'] for d in rows]
+    lo = int(np.argmin(vals))
+    labels = [f"{pd.Timestamp(*d['ym'], 1).strftime('%b')}\n{d['ym'][0]}" for d in rows]
+    fig, ax = plt.subplots(figsize=(8, 4.2), dpi=200)
+    colours = ['#1a5276' if i == lo else '#7fb3d5' for i in range(len(rows))]
+    bars = ax.bar(range(len(rows)), vals, width=0.62, color=colours, zorder=3)
+    ax.axhline(0, color='#333333', lw=1.2, zorder=4)
+    ax.text(len(rows) - 0.5, 0, f"  {MONTH_NAMES[month]} {year}", va='center', ha='left',
+            fontsize=9, color='#333333')
+    for b, v, d in zip(bars, vals, rows):
+        ax.text(b.get_x() + b.get_width() / 2, v + (0.012 if v >= 0 else -0.012), f"{v:+.2f}",
+                ha='center', va='bottom' if v >= 0 else 'top', fontsize=8, color='#333333')
+    ax.set_xticks(range(len(rows)))
+    ax.set_xticklabels(labels, fontsize=8)
+    ax.set_ylabel(f"Annual minimum relative to\n{MONTH_NAMES[month]} {year} (m)", fontsize=9)
+    ax.set_xlim(-0.6, len(rows) - 0.4)
+    pad = 0.06
+    ax.set_ylim(min(vals) - pad, max(max(vals), 0) + pad)
+    ax.grid(axis='y', color='#e5e5e5', lw=0.6, zorder=0)
+    for sp in ('top', 'right'):
+        ax.spines[sp].set_visible(False)
+    ax.set_title("Annual minimum water level of each summer, against this month", fontsize=10.5)
+    fig.text(0.01, 0.01, "Each bar compares only wells read in both rounds (well by well); "
+             "below the line = that year's low was lower than now.", fontsize=7, color='#666666')
+    fig.tight_layout(rect=[0, 0.04, 1, 1])
+    fig.savefig(filepath)
+    plt.close(fig)
+    return filepath
+
+
 def create_difference_map(results, title, filepath, extent=MAP_EXTENT,
                           hillshade=None, hs_extent=None, kml_dir=None,
                           cluster_regions=True):
@@ -1724,6 +1765,23 @@ def generate_pdf_report(output_dir, year, month, met_text,
             f"{MONTH_NAMES[month]}'s level is {abs(_lo['diff']):.2f} m {_rel} it (across {_lo['n']} wells "
             f"read on both occasions), and lower than {_below} of the {len(_d)} annual minima.",
             style_body))
+        _cp = annual_min.get('chart_path')
+        if _cp and os.path.exists(_cp):
+            story.append(Paragraph("Annual Minima of Previous Years", style_h3))
+            story.append(Image(_cp, width=150*mm, height=150*mm*4.2/8))
+            story.append(Paragraph(
+                f"Each summer's annual minimum relative to {MONTH_NAMES[month]} {year}, compared well "
+                f"by well. Below the line, that year's low was lower than this month; the darker bar is "
+                f"the lowest of the period.", style_caption))
+        _mp = annual_min.get('map_path')
+        if _mp and os.path.exists(_mp):
+            _lt = annual_min['lowest_ts'].strftime('%b %Y')
+            story.append(Paragraph(
+                f"Difference from the Lowest Minimum: {_lt} to {MONTH_NAMES[month][:3]} {year}", style_h3))
+            story.append(Image(_mp, width=160*mm, height=130*mm))
+            story.append(Paragraph(
+                f"Water level change (m) from {_lt}, the lowest annual minimum of the period, to "
+                f"{MONTH_NAMES[month]} {year}. Blue = higher now, red = lower now.", style_caption))
     elif low_results and low_d1 and low_d1 == mom_d1:
         low_valid = [z for _, _, z in low_results if not np.isnan(z)]
         if low_valid:
@@ -2308,7 +2366,8 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
                 continue
             pr = compute_differences_by_index(wells, coords, m10['idx'], latest_idx)
             if len(pr) >= 10:
-                decade.append(dict(ym=m10['ym'], diff=float(np.mean([z for _, _, z in pr])), n=len(pr)))
+                decade.append(dict(ym=m10['ym'], diff=float(np.mean([z for _, _, z in pr])), n=len(pr),
+                                   idx=m10['idx']))
         annual_min['decade'] = decade
         if decade:
             _lo = max(decade, key=lambda d: d['diff'])   # the lowest past minimum = the one this month stands highest above
@@ -2350,6 +2409,24 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
                               os.path.join(output_dir, f"map_cumulative_{low_label}.png"),
                               hillshade=hillshade, hs_extent=hs_extent,
                               kml_dir=kml_dir)
+
+    if annual_min is not None and annual_min.get('decade'):
+        _d = annual_min['decade']
+        annual_min['chart_path'] = os.path.join(output_dir, f"annual_minima_chart_{year}_{month:02d}.png")
+        create_annual_minima_chart(_d, year, month, annual_min['chart_path'])
+        _lo = max(_d, key=lambda d: d['diff'])
+        _lo_res = compute_differences_by_index(wells, coords, _lo['idx'], latest_idx)
+        _lod = pd.Timestamp(*_lo['ym'], 1)
+        annual_min['lowest_ts'] = _lod
+        annual_min['map_path'] = os.path.join(
+            output_dir, f"map_vs_lowest_min_{_lod.strftime('%b%y')}-{pd.Timestamp(year, month, 1).strftime('%b%y')}.png")
+        create_difference_map(_lo_res,
+                              f"Water level change (m): {_lod.strftime('%b %y')} – "
+                              f"{pd.Timestamp(year, month, 1).strftime('%b %y')}",
+                              annual_min['map_path'], hillshade=hillshade, hs_extent=hs_extent,
+                              kml_dir=kml_dir)
+        write_difference_csv(_lo_res, os.path.join(
+            output_dir, f"{_lod.strftime('%b%y')}-{pd.Timestamp(year, month, 1).strftime('%b%y')}.csv"))
 
     if yoy_results:
         yoy_title = f"Water level change (m): {yoy_d1.strftime('%b %y')} – {yoy_d2.strftime('%b %y')}"

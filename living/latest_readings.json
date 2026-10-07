@@ -1,6 +1,6 @@
 {
   "as_of": "2026-09",
-  "generated": "2026-10-07T21:45:44Z",
+  "generated": "2026-10-07T22:36:25Z",
   "n_wells": 73,
   "wells": {
     "ceh1": {
@@ -184,8 +184,8 @@
       "depth_below_ground": -1.23
     },
     "fe1": {
-      "water_mAOD": 7.63,
-      "depth_below_ground": -1.07
+      "water_mAOD": 7.43,
+      "depth_below_ground": -1.27
     },
     "fe2": {
       "water_mAOD": 6.48,

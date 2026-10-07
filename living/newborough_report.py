@@ -115,6 +115,14 @@ __version__ = "1.6.0"  # Hollingham (2026) - 2026-10-07. Two newsletter wording 
 #   report month, with the lowest network mean over the wells read in every one of those rounds.
 #   When the report month IS the minimum (September 2026), the newsletter says so and compares it
 #   with the previous year's minimum instead of drawing a recovery map.
+#   (5) The newsletter is also written as an editable ODT (living/newsletter_odt.py, from the
+#   same story as the PDF), and in both a section heading stays on the page of its figure
+#   (Martin: "a header for a section followed by a picture on another page"): the PDF wraps
+#   heading .. figure .. caption in KeepTogether; the ODT uses keep-with-next.
+#   (6) The report month is also set against the annual minima of the previous ten summers
+#   (Martin: "can we compare to the lowest month in the last 10yrs?"): each minimum found as in
+#   (4), each comparison paired well by well; the newsletter names the lowest of the ten and
+#   says how many of them this month is below.
 # __version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. The spring months are the readings dated
 #   March-May, i.e. the end-of-month labels 2-4 (SPRING_MONTHS_BY_LABEL; D-189).
 # __version__ = "1.4.0"
@@ -1705,6 +1713,17 @@ def generate_pdf_report(output_dir, year, month, met_text,
             _txt += (f" Last year's minimum came in {_pm}; across {_v[1]} wells this "
                      f"month's level is {abs(_v[0]):.2f} m {_dir} than it.")
         story.append(Paragraph(_txt, style_body))
+    if annual_min is not None and annual_min.get('decade'):
+        _d = annual_min['decade']
+        _lo = max(_d, key=lambda d: d['diff'])
+        _below = sum(d['diff'] < 0 for d in _d)
+        _lom = pd.Timestamp(*_lo['ym'], 1).strftime('%B %Y')
+        _rel = "below" if _lo['diff'] < 0 else "above"
+        story.append(Paragraph(
+            f"Against the last {len(_d)} years: the lowest annual minimum of the period was {_lom}. "
+            f"{MONTH_NAMES[month]}'s level is {abs(_lo['diff']):.2f} m {_rel} it (across {_lo['n']} wells "
+            f"read on both occasions), and lower than {_below} of the {len(_d)} annual minima.",
+            style_body))
     elif low_results and low_d1 and low_d1 == mom_d1:
         low_valid = [z for _, _, z in low_results if not np.isnan(z)]
         if low_valid:
@@ -1810,6 +1829,36 @@ def generate_pdf_report(output_dir, year, month, met_text,
             f"Range: {min(valid_z):+.2f} to {max(valid_z):+.2f} m.",
             style_caption
         ))
+
+    # ── Keep each heading on the page of its figure (1.6.0) ──
+    def _is_heading(f):
+        return isinstance(f, Paragraph) and f.style.name in ("ReportH2", "ReportH3")
+    grouped, i = [], 0
+    while i < len(story):
+        f = story[i]
+        if _is_heading(f):
+            j = i + 1
+            while j < len(story) and not _is_heading(story[j]) and not isinstance(story[j], (Image, PageBreak)):
+                j += 1
+            if j < len(story) and isinstance(story[j], Image):
+                end = j + 2 if j + 1 < len(story) and isinstance(story[j + 1], Paragraph) \
+                    and story[j + 1].style.name == "Caption" else j + 1
+                grouped.append(KeepTogether(story[i:end]))
+                i = end
+                continue
+        grouped.append(f)
+        i += 1
+    story = grouped
+
+    # ── Editable ODT from the same story (1.6.0) ──
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from newsletter_odt import write_odt
+        odt_path = write_odt(story, pdf_path[:-4] + ".odt")
+        if odt_path:
+            print(f"    ODT report saved to {os.path.basename(odt_path)}")
+    except Exception as e:
+        print(f"    Warning: ODT generation failed: {e}")
 
     # ── Build PDF ──
     try:
@@ -2252,6 +2301,20 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         if amin_prev is not None:
             pair = compute_differences_by_index(wells, coords, amin_prev['idx'], latest_idx)
             annual_min['vs_prev_min'] = (float(np.mean([z for _, _, z in pair])), len(pair)) if pair else None
+        decade = []
+        for sy in range(summer_year - 10, summer_year):
+            m10 = find_annual_minimum(wells, dates, sy, sy + 1, 3)
+            if m10 is None:
+                continue
+            pr = compute_differences_by_index(wells, coords, m10['idx'], latest_idx)
+            if len(pr) >= 10:
+                decade.append(dict(ym=m10['ym'], diff=float(np.mean([z for _, _, z in pr])), n=len(pr)))
+        annual_min['decade'] = decade
+        if decade:
+            _lo = max(decade, key=lambda d: d['diff'])   # the lowest past minimum = the one this month stands highest above
+            print(f"      ten-year annual minima: {len(decade)}; lowest {_lo['ym'][0]}-{_lo['ym'][1]:02d} "
+                  f"(this month {_lo['diff']:+.2f} m vs it, {_lo['n']} wells); "
+                  f"below {sum(d['diff'] < 0 for d in decade)} of {len(decade)}")
         print(f"   c) Annual minimum so far: {amin['ym'][0]}-{amin['ym'][1]:02d} "
               f"(network mean over {amin['n_wells']} wells: {amin['means']})")
         if not annual_min['at_minimum']:
@@ -2433,6 +2496,9 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         if _p and _v:
             report.append(f"Previous year's minimum: {_p['ym'][0]}-{_p['ym'][1]:02d}; this month vs it: "
                           f"{_v[0]:+.2f} m over {_v[1]} wells.")
+        for _d in annual_min.get('decade', []):
+            report.append(f"- annual minimum {_d['ym'][0]}-{_d['ym'][1]:02d}: this month {_d['diff']:+.2f} m "
+                          f"({_d['n']} wells)")
         report.append("")
     if low_results and low_d1 != mom_d1:
         label = f"{low_d1.strftime('%b %Y')} → {low_d2.strftime('%b %Y')}"

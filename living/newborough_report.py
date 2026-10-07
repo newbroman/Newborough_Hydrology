@@ -109,6 +109,12 @@ __version__ = "1.6.0"  # Hollingham (2026) - 2026-10-07. Two newsletter wording 
 #   the summer-low month is the previous month (it repeated the month-on-month map), and its
 #   sentence says "fallen" when the mean change is negative. (3) fetch_wu_monthly retries:
 #   the WU page intermittently omits its embedded JSON, which printed "N/A" for a reporting gauge.
+#   (4) The recovery comparison starts from the ANNUAL MINIMUM, found each year, not a fixed
+#   August (Martin, 2026-10-07: "I used the annual recovery from the annual minima, last year it
+#   was August"). find_annual_minimum() takes the round, from April of the summer year up to the
+#   report month, with the lowest network mean over the wells read in every one of those rounds.
+#   When the report month IS the minimum (September 2026), the newsletter says so and compares it
+#   with the previous year's minimum instead of drawing a recovery map.
 # __version__ = "1.5.0"  # Hollingham (2026) - 2026-09-21. The spring months are the readings dated
 #   March-May, i.e. the end-of-month labels 2-4 (SPRING_MONTHS_BY_LABEL; D-189).
 # __version__ = "1.4.0"
@@ -1020,6 +1026,42 @@ def find_month_column(dates, year, month):
     return max(candidates, key=lambda x: x[1])
 
 
+def find_annual_minimum(wells, dates, summer_year, end_year, end_month):
+    """The annual-minimum round of a summer: among the rounds bucketing to April of
+    `summer_year` up to (end_year, end_month) - never beyond the following March - the one
+    with the lowest mean level over the wells read in EVERY one of those rounds (so the
+    comparison is like for like). Returns dict(idx, ym, mean, n_wells, means) or None."""
+    months = []
+    y, m = summer_year, 4
+    while (y, m) <= (end_year, end_month) and (y, m) <= (summer_year + 1, 3):
+        months.append((y, m))
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    cols = [(ym,) + find_month_column(dates, *ym) for ym in months]
+    cols = [(ym, i) for ym, i, _ in cols if i is not None]
+    if not cols:
+        return None
+    common = []
+    for well in wells:
+        lv = well['levels']
+        vals = []
+        for _, i in cols:
+            v = lv[i] if i < len(lv) else None
+            try:
+                v = float(v)
+            except (TypeError, ValueError):
+                v = float('nan')
+            vals.append(v)
+        if all(np.isfinite(vals)):
+            common.append(vals)
+    if not common:
+        return None
+    arr = np.array(common)
+    means = arr.mean(axis=0)
+    k = int(np.argmin(means))
+    return dict(idx=cols[k][1], ym=cols[k][0], mean=float(means[k]), n_wells=len(common),
+                means={f"{ym[0]}-{ym[1]:02d}": round(float(mu), 3) for (ym, _), mu in zip(cols, means)})
+
+
 def compute_differences_by_index(wells, coords, idx1, idx2):
     """
     Compute water level differences using column indices into the Absolute Level sheet.
@@ -1356,7 +1398,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
                         coords, wu_result=None, wu_warnings=None,
                         valley_df=None, wells=None, dates=None, latest_idx=None,
                         round_date=None, wu_station=None,
-                        wu_result_2=None, wu_station_2=None):
+                        wu_result_2=None, wu_station_2=None, annual_min=None):
     """
     Generate a PDF report in the style of the Newborough Warren
     Weather & Water Watch newsletter.
@@ -1649,13 +1691,32 @@ def generate_pdf_report(output_dir, year, month, met_text,
                 style_caption
             ))
 
-    # ── Cumulative (since summer low) map ──
+    # ── Annual minimum and recovery since it (1.6.0) ──
+    if annual_min is not None and annual_min.get('at_minimum'):
+        story.append(Paragraph("Annual Minimum", style_h3))
+        _txt = (f"This round is the lowest of the year so far: averaged over the "
+                f"{annual_min['n_wells']} wells read in every round since April, "
+                f"{MONTH_NAMES[month]}'s level is below every earlier month, so water levels "
+                f"have not yet begun their annual recovery.")
+        _p, _v = annual_min.get('prev'), annual_min.get('vs_prev_min')
+        if _p and _v:
+            _pm = pd.Timestamp(*_p['ym'], 1).strftime('%B %Y')
+            _dir = "lower" if _v[0] < 0 else "higher"
+            _txt += (f" Last year's minimum came in {_pm}; across {_v[1]} wells this "
+                     f"month's level is {abs(_v[0]):.2f} m {_dir} than it.")
+        story.append(Paragraph(_txt, style_body))
+    elif low_results and low_d1 and low_d1 == mom_d1:
+        low_valid = [z for _, _, z in low_results if not np.isnan(z)]
+        if low_valid:
+            story.append(Paragraph(
+                f"The annual minimum was {low_d1.strftime('%B %Y')}, so the month-on-month map "
+                f"above is also the recovery since it.", style_body))
     if low_results and low_d1 and low_d2 and low_d1 != mom_d1:
         low_label = f"{low_d1.strftime('%b%y')}-{low_d2.strftime('%b%y')}"
         map_path = os.path.join(output_dir, f"map_cumulative_{low_label}.png")
         if os.path.exists(map_path):
             story.append(Paragraph(
-                f"Rebound from Summer Low: {low_d1.strftime('%b %Y')} to {low_d2.strftime('%b %Y')}",
+                f"Recovery since the Annual Minimum: {low_d1.strftime('%b %Y')} to {low_d2.strftime('%b %Y')}",
                 style_h3
             ))
             low_valid = [z for _, _, z in low_results if not np.isnan(z)]
@@ -1663,7 +1724,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
                 _m = float(np.mean(low_valid))
                 _verb = "risen" if _m > 0 else "fallen"
                 story.append(Paragraph(
-                    f"Since the summer low in {low_d1.strftime('%B %Y')}, water levels have {_verb} "
+                    f"Since the annual minimum in {low_d1.strftime('%B %Y')}, water levels have {_verb} "
                     f"by an average of {abs(_m):.2f} m across {len(low_valid)} wells; "
                     f"the largest rise was {max(low_valid):+.2f} m.",
                     style_body
@@ -2177,17 +2238,27 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         yoy_results = []
         yoy_d1 = yoy_d2 = None
 
-    # c) Since summer low (August of the relevant year)
-    aug_year = year - 1 if month <= 8 else year
-    aug_col_idx, aug_date = find_month_column(dates, aug_year, 8)
-    if aug_col_idx is not None:
-        print(f"   c) Since summer low: {aug_date.strftime('%d %b %Y')} → "
-              f"{latest_date.strftime('%d %b %Y')}")
-        low_results = compute_differences_by_index(wells, coords, aug_col_idx, latest_idx)
-        low_d1, low_d2 = pd.Timestamp(aug_year, 8, 1), pd.Timestamp(year, month, 1)
-    else:
-        low_results = []
-        low_d1 = low_d2 = None
+    # c) Since the annual minimum (1.6.0: found each year, not a fixed August)
+    summer_year = year if month >= 4 else year - 1
+    amin = find_annual_minimum(wells, dates, summer_year, year, month)
+    amin_prev = find_annual_minimum(wells, dates, summer_year - 1, summer_year, 3)
+    annual_min = None
+    low_results = []
+    low_d1 = low_d2 = None
+    if amin is not None:
+        annual_min = dict(amin)
+        annual_min['at_minimum'] = amin['idx'] == latest_idx
+        annual_min['prev'] = amin_prev
+        if amin_prev is not None:
+            pair = compute_differences_by_index(wells, coords, amin_prev['idx'], latest_idx)
+            annual_min['vs_prev_min'] = (float(np.mean([z for _, _, z in pair])), len(pair)) if pair else None
+        print(f"   c) Annual minimum so far: {amin['ym'][0]}-{amin['ym'][1]:02d} "
+              f"(network mean over {amin['n_wells']} wells: {amin['means']})")
+        if not annual_min['at_minimum']:
+            low_results = compute_differences_by_index(wells, coords, amin['idx'], latest_idx)
+            low_d1, low_d2 = pd.Timestamp(*amin['ym'], 1), pd.Timestamp(year, month, 1)
+        else:
+            print("      the report month is the annual minimum so far - no recovery yet")
 
     # ── 6. Write CSVs ──
     print("\n6. Writing difference CSVs...")
@@ -2351,10 +2422,22 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         report.append(generate_difference_table(
             yoy_results, coords, f"Year-on-year ({label})"))
 
+    if annual_min is not None:
+        _ym = f"{annual_min['ym'][0]}-{annual_min['ym'][1]:02d}"
+        report.append("\n## Annual minimum")
+        report.append("")
+        report.append(f"Network mean over the {annual_min['n_wells']} wells read in every round since April "
+                      f"(m, as in the Absolute Level sheet): {annual_min['means']}. Minimum so far: {_ym}"
+                      + (" — the report month, so no recovery yet." if annual_min['at_minimum'] else "."))
+        _p, _v = annual_min.get('prev'), annual_min.get('vs_prev_min')
+        if _p and _v:
+            report.append(f"Previous year's minimum: {_p['ym'][0]}-{_p['ym'][1]:02d}; this month vs it: "
+                          f"{_v[0]:+.2f} m over {_v[1]} wells.")
+        report.append("")
     if low_results and low_d1 != mom_d1:
         label = f"{low_d1.strftime('%b %Y')} → {low_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
-            low_results, coords, f"Since summer low ({label})"))
+            low_results, coords, f"Since annual minimum ({label})"))
 
     if msl_summary:
         status = "provisional" if msl_summary['n_cur_months'] < 3 else "final"
@@ -2393,7 +2476,7 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         coords, wu_result=wu_result, wu_warnings=wu_warnings,
         valley_df=valley_df, wells=wells, dates=dates, latest_idx=latest_idx,
         round_date=latest_date, wu_station=wu_station,
-        wu_result_2=wu_result_2, wu_station_2=wu_station_2
+        wu_result_2=wu_result_2, wu_station_2=wu_station_2, annual_min=annual_min
     )
 
     print(f"\n{'═'*60}")

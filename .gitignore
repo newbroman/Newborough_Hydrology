@@ -19,6 +19,8 @@ __pycache__/
 Living_output/
 living/output/
 *Water_Watch*.pdf
+# ...except the published issues on the public site (2026-10-08a, Martin: make the newsletters public)
+!water_watch/Newborough_Water_Watch_*.pdf
 
 # --- LibreOffice lock files ---
 .~lock.*#

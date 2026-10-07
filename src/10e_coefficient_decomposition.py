@@ -71,7 +71,14 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-10-06. T-96: emits the NW10-CEH2 separation (m) and
+__version__ = "1.17.0"  # Hollingham (2026) - 2026-10-07. The same two correlations over the Forest
+#   Ctrl wells outside the broadleaf restock block (well "Forest Ctrl pine"), identified as T-96 does,
+#   from dist_broadleaf_restock_m. The Forest-tier r rests on NW10; Paper 2 Section 4.2.3 says so from
+#   a committed value (Martin 2026-10-07, "Restate from 10e, flag NW10").
+# 1.16.0  # Hollingham (2026) - 2026-10-07. 10e_report_numbers gains CoeffShift_corr_db1_db2
+#   and _pct (Pearson r of the beta1 against the beta2 shift; Forest Ctrl, BACI network, all wells), so
+#   Paper 2 Section 4.2.3 quotes committed values (Martin: "Emit from Script 10e and quote what it gives").
+# 1.15.0  # Hollingham (2026) - 2026-10-06. T-96: emits the NW10-CEH2 separation (m) and
 #   ground-level difference, from 01_locations.csv, which report10 quotes ("about 350 m downslope") when it
 #   sets the broadleaf well against its nearest pine neighbour. Emit-only.
 # 1.14.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239). Two additions, no existing value moves:
@@ -571,6 +578,26 @@ def main():
                     note="ratio of network mean db1 to network mean "
                          "b1_before, x100")
 
+    # 1.16.0: how the beta1 and beta2 shifts move together (Paper 2 Section 4.2.3 quoted r values
+    # no output carried). Pearson r of db1 against db2, on absolute shifts and on percentage
+    # shifts (d / before x 100), over three well sets: the Forest Ctrl tier, the BACI network
+    # (excl. Far-field Ctrl) and all wells in 10e_01_coefficient_shifts.csv.
+    _sets = (("Forest", shift_df[shift_df['Tier'] == 'Forest Ctrl']),
+             ("Network", shift_df[shift_df['Tier'] != 'Far-field Ctrl']),
+             ("All", shift_df))
+    for _lbl, _d in _sets:
+        _d = _d.dropna(subset=['db1', 'db2', 'b1_before', 'b2_before'])
+        if len(_d) < 3:
+            continue
+        _abs = float(np.corrcoef(_d['db1'], _d['db2'])[0, 1])
+        _pct = float(np.corrcoef(100.0 * _d['db1'] / _d['b1_before'],
+                                 100.0 * _d['db2'] / _d['b2_before'])[0, 1])
+        for _key, _val, _basis in (("CoeffShift_corr_db1_db2", _abs, "absolute shifts"),
+                                   ("CoeffShift_corr_db1_db2_pct", _pct, "percentage shifts (d/before x 100)")):
+            rpt.add(_key, _val, "", well=_lbl,
+                    note=f"Pearson r of the beta1 shift against the beta2 shift, {_basis}, "
+                         f"n={len(_d)} wells ({_lbl}: " + ", ".join(sorted(_d['Well'].astype(str))) + ")")
+
     # T-96: Forest Ctrl mean Δβ₂ over the intact-pine wells only -- the Forest
     # Ctrl wells outside the broadleaf restock block, identified from Script
     # 01's dist_broadleaf_restock_m (0 = inside the block), not by name
@@ -585,6 +612,20 @@ def main():
             _pine = _fc[~_fc['Well'].str.lower().isin(_bl)]
             _dropped = sorted(set(_fc['Well']) - set(_pine['Well']))
             if not _pine.empty:
+                _pp = _pine.dropna(subset=['db1', 'db2', 'b1_before', 'b2_before'])
+                if len(_pp) >= 3:
+                    for _key, _val, _basis in (
+                            ("CoeffShift_corr_db1_db2", float(np.corrcoef(_pp['db1'], _pp['db2'])[0, 1]),
+                             "absolute shifts"),
+                            ("CoeffShift_corr_db1_db2_pct",
+                             float(np.corrcoef(100.0 * _pp['db1'] / _pp['b1_before'],
+                                               100.0 * _pp['db2'] / _pp['b2_before'])[0, 1]),
+                             "percentage shifts (d/before x 100)")):
+                        rpt.add(_key, _val, "", well="Forest Ctrl pine",
+                                note=f"Pearson r of the beta1 shift against the beta2 shift, {_basis}, "
+                                     f"n={len(_pp)} Forest Ctrl wells outside the broadleaf restock block "
+                                     f"({', '.join(sorted(_pp['Well'].astype(str)))}); excluded: "
+                                     f"{', '.join(_dropped) or 'none'}")
                 rpt.add("CoeffShift_Forest Ctrl_pine_mean_db2", _pine['db2'].mean(),
                         well="Forest Ctrl", era="Delta",
                         note=(f"mean db2 over Forest Ctrl wells outside the broadleaf "

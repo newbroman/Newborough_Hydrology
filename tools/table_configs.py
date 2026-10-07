@@ -1276,6 +1276,32 @@ TABLES = [
         ],
     },
     {
+        # 2026-10-07: Paper 1 Table 9 had been hand-typed and was pre-D-196 in every row when
+        # Script 25 1.33.0 moved the partition; registered so it regenerates and is gated.
+        "id": "paper1/Table9",
+        "doc": "docs/papers/paper_1/Paper1_v*.odt",
+        "table_name": "Table9",
+        "caption": "Paper 1 - decomposition of cluster summer-minimum decline against the balanced basis (Script 25)",
+        "sources": {"dec": "outputs/25_coastal_gradient/25_03_cluster_partition.csv"},
+        "rows": {"source": "dec"},
+        "header": ["Cluster", "mean dist. (m)", "observed", "coastal-retreat",
+                   "climate + offset", "unexplained", "coastal %"],
+        "columns": [
+            {"col": "cluster_label", "fmt": "map", "map": {
+                "C1 (Lake Edge)": "C1 Lake Edge",
+                "C2 (Dune)": "C2 Dune",
+                "C3 (Western Residual)": "C3 Western Residual",
+                "C4 (Main Forest)": "C4 Main Forest (n = {n_wells})",
+                "C5 (Coastal Forest)": "C5 Coastal Forest (n = {n_wells}) \u2020"}},
+            {"fmt": "template", "template": "{mean_dist_coast_m:.0f}"},
+            {"col": "observed_balanced_annual_mean_mm_yr", "fmt": "fixed", "dp": 1},
+            {"col": "coastal_gradient_mm_yr", "fmt": "fixed", "dp": 1, "zero_text": "0"},
+            {"col": "climate_plus_far_field_mm_yr", "fmt": "fixed", "dp": 1, "sign": True},
+            {"col": "unexplained_mm_yr", "fmt": "fixed", "dp": 1},
+            {"col": "coastal_gradient_pct_of_basis", "fmt": "fixed", "dp": 0, "zero_text": "0"},
+        ],
+    },
+    {
         "id": "report9/Table16",
         "doc": 9,
         "table_name": "Table16",

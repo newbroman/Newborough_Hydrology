@@ -52,7 +52,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-02. Adds replace_image(): new bytes under
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-07. replace_image() accepts a JPEG as
+#   well as a PNG, and refuses bytes whose format does not match the member's extension (the
+#   manifest media-type and draw:mime-type are not rewritten, so a .jpg member must stay a
+#   JPEG). Needed by tools/reembed_paper_figures.py: the papers embed resampled JPEG copies.
+# 1.8.0  # Hollingham (2026) — 2026-10-02. Adds replace_image(): new bytes under
 #   an existing Pictures/ entry, writing a NEW file (a versioned document is never edited in
 #   place), content.xml byte-identical, refused when the new image's aspect does not fit the
 #   frame. First use: Supplementary Material Figure S10.1 (tools/s10_schematic.py).
@@ -728,11 +732,41 @@ def _parse_template_table(xml: str, name: str):
     return (cols, n_cols, header_wrapped, rows), None
 
 
+def _image_size(blob: bytes):
+    """(format, (width, height)) for PNG or baseline/progressive JPEG bytes; (None, None)
+    otherwise. Read from the headers, so odt_edit stays free of an imaging dependency."""
+    if blob[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png", (int.from_bytes(blob[16:20], "big"), int.from_bytes(blob[20:24], "big"))
+    if blob[:2] != b"\xff\xd8":
+        return None, None
+    i = 2
+    while i + 9 < len(blob):
+        if blob[i] != 0xFF:
+            return "jpeg", None
+        marker = blob[i + 1]
+        if marker == 0xFF:                       # fill byte
+            i += 1
+            continue
+        if marker in (0x01,) or 0xD0 <= marker <= 0xD7:
+            i += 2
+            continue
+        seglen = int.from_bytes(blob[i + 2:i + 4], "big")
+        if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                      0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+            h = int.from_bytes(blob[i + 5:i + 7], "big")
+            w = int.from_bytes(blob[i + 7:i + 9], "big")
+            return "jpeg", (w, h)
+        i += 2 + seglen
+    return "jpeg", None
+
+
 def replace_image(src, dst, member: str, image_path, aspect_tol: float = 0.005) -> bool:
     """Put new bytes under an existing embedded picture, writing dst (never src).
 
     For a picture that is not a pipeline output, which reembed_figures cannot place (it
-    matches by an output's git history and rewrites in place). content.xml, styles and the
+    matches by an output's git history and rewrites in place), and for the papers' resampled
+    copies (tools/reembed_paper_figures.py). PNG or JPEG; the bytes must be in the format
+    the member's extension declares. content.xml, styles and the
     manifest are copied byte for byte: only `member` changes, so the frame, its caption and
     its anchoring are untouched. Refused when the new image's aspect differs from the frame's
     svg:width/svg:height by more than aspect_tol - stretching looks deliberate - and when
@@ -742,9 +776,15 @@ def replace_image(src, dst, member: str, image_path, aspect_tol: float = 0.005) 
     if src.resolve() == dst.resolve():
         print(f"  ABORT: dst is src - write a new version"); return False
     blob = image_path.read_bytes()
-    if blob[:8] != b"\x89PNG\r\n\x1a\n":
-        print(f"  ABORT: {image_path.name} is not a PNG"); return False
-    w_px, h_px = int.from_bytes(blob[16:20], "big"), int.from_bytes(blob[20:24], "big")
+    fmt, size = _image_size(blob)
+    if fmt is None or size is None:
+        print(f"  ABORT: {image_path.name} is not a PNG or JPEG whose size can be read"); return False
+    want = {".png": "png", ".jpg": "jpeg", ".jpeg": "jpeg"}.get(pathlib.PurePath(member).suffix.lower())
+    if want != fmt:
+        print(f"  ABORT: {image_path.name} is {fmt.upper()} but {member} is declared "
+              f"{(want or 'another type').upper()} - encode it in the member's own format")
+        return False
+    w_px, h_px = size
     zin = zipfile.ZipFile(src)
     names = zin.namelist()
     if names[0] != "mimetype":

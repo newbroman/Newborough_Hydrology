@@ -14,7 +14,8 @@ Usage:
     python3 living/publish_water_watch.py --index-only            # rebuild the index page only
 
 Publish the issue you sent out: if you edited the ODT before sending, export that
-ODT to PDF and pass it with --pdf. The site updates when the repository is pushed.
+ODT to PDF and pass it with --pdf. The site serves the gh-pages branch, so the issue
+goes live when the web tools are republished (nrg_git.sh option 13), not on a plain push.
 
 __version__ = "1.0.0"  # Hollingham (2026) - 2026-10-08. New (Martin: "the newsletters for
 #   water watch arent public can we change that?"; chose the GitHub site).
@@ -154,7 +155,8 @@ def main():
               f"from {os.path.getsize(src) / 1e6:.1f} MB)")
     issues = build_index()
     print(f"  water_watch/index.html lists {len(issues)} issue(s)")
-    print("  public once pushed: https://newbroman.github.io/Newborough_Hydrology/water_watch/")
+    print("  goes live after nrg_git.sh option 13 (publish web tools): "
+          "https://newbroman.github.io/Newborough_Hydrology/water_watch/index.html")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@
 
 *Derived live from the ODT captions, `tools/table_configs.py`, `tools/figure_map.csv` and the papers' own exhibit manifests. Keyed by OUTPUT FILE, so the question it answers is: this script's output changed — which exhibits, in which documents, have to be re-checked?*
 
-**148 exhibit(s)** across the corpus, drawing on **145 output file(s)**.
+**147 exhibit(s)** across the corpus, drawing on **145 output file(s)**.
 
 | Output file | Document | Exhibit | Caption |
 |---|---|---|---|
@@ -53,7 +53,7 @@
 | `07_coeff_02_beta2_atm_draw.png` | Paper 1 | Figure 12 | β₂ atmospheric-draw surface |
 | `07_coeff_03_beta3_drainage.png` | Paper 1 | Figure 13 | β₃ drainage-rate surface |
 | `07_coeff_04_r2_quality.png` | report9.odt | Figure 54 | Figure 1.50: Spatial SSM coefficient atlas for the 66-well reference network, Ne |
-| `07_coeff_05_cluster_ranges.csv` | Paper 1 | Table 6 | Per-well SSM coefficient ranges by cluster |
+| `07_coeff_05_cluster_ranges.csv` | Paper 1 | Table 5 | Per-well SSM coefficient ranges by cluster |
 |  | report9.odt | Table 1.4 | Within-cluster range of the per-well SSM coefficients, reference network (Script |
 | `07_coeff_maps_data.csv` | Paper 1 | Figure 11 | β₁ recharge-sensitivity surface |
 |  | Paper 1 | Figure 12 | β₂ atmospheric-draw surface |
@@ -61,8 +61,7 @@
 | `08_lcsc_01_ceh6_showdown.png` | report9.odt | Figure 16 | Figure 1.13: Dual-model performance comparison at Lake Edge well CEH6. Upper pan |
 | `08_lcsc_02_r2_improvement_map.png` | Paper 1 | Figure 9 | SSM-over-TLM iterative NSE gain |
 |  | report9.odt | Figure 17 | Figure 1.14a: SSM gain over TLM across all 66 reference wells. Panel (a): iterat |
-| `08_lcsc_04_table3_benchmark_summary.csv` | Paper 1 | Table 5 | SSM (B) vs traditional linear model (A) benchmarking |
-|  | report9.odt | Table 1.9 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
+| `08_lcsc_04_table3_benchmark_summary.csv` | report9.odt | Table 1.9 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
 | `08_lcsc_model_stats.csv` | report9.odt | Table 1.9 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
 | `08_perwell_nse.csv` | Paper 1 | Figure 9 | SSM-over-TLM iterative NSE gain |
 | `09_scrape_04b_beta3_era_summary.csv` | report9.odt | Table 1.10 | Era-specific β₃ storage decay coefficients at scraping treatment and control wel |
@@ -89,7 +88,7 @@
 | `10a_report_numbers.csv` | Paper 2 | Table 1 | Three-counterfactual ANCOVA-BACI clearfell-step estimates (Forest/Climate/Combin |
 | `10b_spatial_fell_corrected.png` | report9.odt | Figure 35 | Figure 1.32: Climate-corrected spatial step-change map for the clearfell era (De |
 | `10b_spatial_scrape_corrected.png` | report9.odt | Figure 26 | Figure 1.23: Climate-corrected spatial step-change map for the scraping era (Apr |
-| `10c_forest_zone_correlations.csv` | Paper 1 | Table 8 | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r ( |
+| `10c_forest_zone_correlations.csv` | Paper 1 | Table 7 | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r ( |
 |  | report9.odt | Table 1.23 | Per-well spatial predictors of SSM coefficient variation within the forest zone |
 | `10d_02_summer_minima_shifts.csv` | report9.odt | Table 1.13 | Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well mi |
 | `10d_03_mixed_model_results.csv` | report9.odt | Table 1.14 | Mixed-effects model results: pooled clearfell step by tier against Forest contro |
@@ -131,7 +130,7 @@
 | `18_wtf_05_halflife_map.png` | Paper 1 | Figure 14 | Drainage decay half-life t½ = ln(2)/β₃ |
 |  | report9.odt | Figure 55 | Figure 1.51: Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well |
 | `18_wtf_05_storage_drainage_index.csv` | Paper 1 | Figure 14 | Drainage decay half-life t½ = ln(2)/β₃ |
-|  | Paper 1 | Table 7 | Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster |
+|  | Paper 1 | Table 6 | Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster |
 | `20_clearfell_baseline_drawdown.png` | report9.odt | Figure 68 | Figure 1.64: Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2 |
 | `20_clearfell_gain.png` | report9.odt | Figure 69 | Figure 1.65: Clearfell step-change map — climate-corrected mean water-table shif |
 | `20_coastal_erosion.png` | Paper 1 | Figure 19 | Episodic coastal-retreat reach |
@@ -156,7 +155,7 @@
 | `21_forestry_05_scenario_comparison.jpg` | Paper 2 | Figure 6 | Forest-management & climate scenarios |
 | `25_01_panel_fit_parameters.csv` | Paper 1 | Figure 20 | Conceptual coastal-vs-climate reach |
 | `25_03_cluster_partition.csv` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
-|  | Paper 1 | Table 9 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate ( |
+|  | Paper 1 | Table 8 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate ( |
 |  | report9.odt | Table 1.24 | Per-cluster decomposition of the observed summer-minimum decline under the fores |
 | `25_04_baci_corroboration.csv` | report9.odt | Table 1.12 | The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the |
 | `25_05_fit_diagnostic.jpg` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |

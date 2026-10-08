@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.99.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+__version__ = "1.99.1"  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: the Paper 1 SI
+#   section is S8.2 (was S9.2; SI S7 deleted). No value changes.
+# 1.99.0  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
 #   HB_*: the Sand Dune Managers Handbook v2 (Denning et al., 2024, Table 2) dune-slack levels - the
 #   mean spring levels HB_SD15b_MSL / HB_SD16_MSL drawn on the spring-level (MSL5) series (Script 26),
 #   and the summer minima / winter maxima as a sensitivity beside Curreli (Script 11b) - and HB_SOURCE.
@@ -1316,7 +1318,7 @@ RESIDUAL_DIAG_MIN_MONTHS = 140
 RESIDUAL_DIAG_EXCLUDED_WELLS = {'ceh3', 'ceh4', 'ceh7', 'ceh8', 'ceh37', 'llynrhos'}
 
 # Bootstrap settings for the per-cluster summer-minus-winter contrast reported by
-# Script 24. The contrast and its p-values are quoted in the Paper 1 SI (S9.2), so
+# Script 24. The contrast and its p-values are quoted in the Paper 1 SI (S8.2), so
 # the tests are emitted by the pipeline rather than computed ad hoc.
 RESIDUAL_DIAG_SW_BOOT_N    = 10000
 RESIDUAL_DIAG_SW_BOOT_SEED = 20260809

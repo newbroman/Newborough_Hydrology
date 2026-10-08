@@ -36,7 +36,11 @@ See claude/NRG_spec_chatbot_2026-10-08.md and the decision recorded with it.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-08. New: chatbot corpus builder
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-08. The fingerprint skips the
+#   manifest's `generated` timestamp. Every ship rewrites that field without changing a
+#   step, so the published chatbot read as stale after each ship and --check failed it
+#   (two ships, 2026-10-08). The corpus never quoted the timestamp.
+# 1.0.0  # Hollingham (2026) - 2026-10-08. New: chatbot corpus builder
 #   (stage 1). Allowlist tools/chat_corpus_sources.csv; hard denylist; heading
 #   chunker; CSV rows as numbers; literature manifest as references; page build
 #   from tools/chat_page_template.html; --check on a source fingerprint held in
@@ -234,6 +238,23 @@ def literature_refs(path: Path) -> list[dict]:
 
 
 # ---------------------------------------------------------------------- build
+VOLATILE_JSON_KEYS = {"generated"}   # rewritten by tools that change nothing else
+
+
+def _fingerprint_bytes(rel: str, raw: bytes) -> bytes:
+    """What the staleness fingerprint hashes: the file, less any field a ship
+    rewrites on its own (the manifest's `generated` time)."""
+    if not rel.endswith(".json"):
+        return raw
+    try:
+        obj = json.loads(raw.decode("utf-8"))
+    except ValueError:
+        return raw
+    if isinstance(obj, dict):
+        obj = {k: v for k, v in obj.items() if k not in VOLATILE_JSON_KEYS}
+    return json.dumps(obj, sort_keys=True, ensure_ascii=False).encode("utf-8")
+
+
 def collect() -> tuple[dict, list[str]]:
     corpus = {"chunks": [], "numbers": [], "references": [], "sources": []}
     problems: list[str] = []
@@ -253,7 +274,7 @@ def collect() -> tuple[dict, list[str]]:
                 continue
             p = ROOT / rel
             raw = p.read_bytes()
-            digest.update(rel.encode() + b"\0" + raw + b"\0")
+            digest.update(rel.encode() + b"\0" + _fingerprint_bytes(rel, raw) + b"\0")
             kind = src["kind"]
             title = src["title"]
             if kind == "md" and src["path"].startswith("report_edits/"):

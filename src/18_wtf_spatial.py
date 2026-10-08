@@ -53,7 +53,9 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-09-30. The event rules come from config
+__version__ = "1.17.1"  # Hollingham (2026) — 2026-10-08. Comments only: Paper 1's tables were renumbered when
+#   its benchmark table moved to Paper M (D-244), so "Paper 1 Table 7" now reads Table 6. No code or output changes.
+# 1.17.0  # Hollingham (2026) — 2026-09-30. The event rules come from config
 #   (WTF_EVENT_MIN_RISE_M / _MIN_NET_RECH_M / _SY_MIN / _SY_MAX) instead of module locals and literals,
 #   shared with Script 17. Values and outputs unchanged.
 # 1.16.0  # Hollingham (2026) — 2026-09-30. T-96 batch 3: 18_report_numbers.csv
@@ -94,7 +96,7 @@ __version__ = "1.17.0"  # Hollingham (2026) — 2026-09-30. The event rules come
 #   shows progress (T-76). No output changes.
 # 1.10.0  # Hollingham (2026) — 2026-09-05. Emits
 #   18_wtf_08_cluster_half_life_summary.csv: per-cluster t half min/median/max
-#   and n over the non-excluded wells (Paper 1 Table 7). Emission only; the
+#   and n over the non-excluded wells (Paper 1 Table 6). Emission only; the
 #   per-well 18_wtf_05 is unchanged. Full precision (D-035).
 # v1.9.2  # Hollingham (2026) — 2026-08-19. Reads the per-well
 #   WTF Sy table from OUT_18_WELL_SY_TABLE; INT_WTF_WELL_SY is retired
@@ -892,7 +894,7 @@ def compute_storage_drainage_index(well_results):
     # τ = Sy/β₃ is the storage–drainage index: a storage-weighted composite
     # diagnostic, NOT a residence time. t½ = ln(2)/β₃ is the drainage decay
     # half-life — Sy CANCELS, so it is specific-yield-independent, and it is the
-    # quantity reported in the manuscripts (Paper 1 Table 7, Figures 14 and 15).
+    # quantity reported in the manuscripts (Paper 1 Table 6, Figures 14 and 15).
     # Both are emitted so the committed CSV is self-describing; previously t½ was
     # computed only at render time and could not be read from this file.
     merged["storage_drainage_index_months"] = np.nan
@@ -1389,7 +1391,7 @@ def main(supplementary=True):
         sdi_df.to_csv(OUT_18_STORAGE_DRAINAGE_INDEX_CSV, index=False)
         print(f"  Saved → {OUT_18_STORAGE_DRAINAGE_INDEX_CSV.name}")
 
-        # Per-cluster t½ summary (Paper 1 Table 7): min/median/max and the well
+        # Per-cluster t½ summary (Paper 1 Table 6): min/median/max and the well
         # count over the NON-EXCLUDED wells (the same exclusions the per-well
         # table applies). Full precision — the config renders dp (D-035).
         valid_sdi = sdi_df[~sdi_df["Excluded"]]

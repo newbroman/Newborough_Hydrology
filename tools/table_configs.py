@@ -110,7 +110,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.15.0"  # Hollingham (2026) — 2026-10-04. D-240: report9/Table9, ms/Table31 and paper2/Table1 show the
+__version__ = "1.16.0"  # Hollingham (2026) — 2026-10-08. D-244: paper1/Table5 removed (the benchmark moves to
+#   Paper M); paperM/Table1 added (TLM / Model A / Model B per cluster, 08_cluster_nse_medians.csv). paper1/Table9 added 2026-10-07.
+# 1.15.0  # Hollingham (2026) — 2026-10-04. D-240: report9/Table9, ms/Table31 and paper2/Table1 show the
 #   clearfell step's autocorrelation-robust (Newey-West) CI, p and Sig (10a_01 / 10h_02 *_hac columns); headers say so.
 # 1.14.0  # Hollingham (2026) — 2026-09-26. sm/TableS72: the Supplementary
 #   Material's new Table S7.2 (van Willegen quadrat datum offsets, Script 26 Pass 7b) is generated
@@ -1127,23 +1129,32 @@ TABLES = [
              "when": {"Cluster": ["C4 (Main Forest)", "C5 (Coastal Forest)"]}, "else": "—"},
         ],
     },
+    # 2026-10-08 (D-244): paper1/Table5 (the TLM/SSM benchmark summary) moved to Paper M as paperM/Table1.
     {
-        "id": "paper1/Table5",
-        "doc": "docs/papers/paper_1/Paper1_v*.odt",
-        "table_name": "Table5",
-        "caption": "Paper 1 - SSM vs traditional-linear-model benchmarking (Script 08)",
-        # the paper shows the four summary metrics only; the three per-well
-        # diagnostic rows (Max NSE improvement, CEH6, CEH14) are not tabled.
-        "sources": {"bm": "outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv"},
-        "rows": {"source": "bm",
-                 "filter": {"Metric": ["Median one-step R2", "Median iterative R2",
-                                        "Median iterative NSE", "Wells with iterative NSE > 0"]}},
-        "header": ["Metric", "TLM (A)", "SSM (B)", "Δ (B−A)"],
+        "id": "paperM/Table1",
+        "doc": "docs/papers/paper_M/PaperM_v*.odt",
+        "table_name": "Table1",
+        "caption": "Paper M - free-running skill: TLM against Model A and Model B, per cluster (Script 08)",
+        # One row per cluster, in CSV order (C1..C5). Script 08 1.7.0 (D-244) emits the Model A and Model B
+        # medians and the three positive-NSE counts beside the TLM median.
+        "sources": {"nse": "outputs/08_model_benchmarking/08_cluster_nse_medians.csv"},
+        "rows": {"source": "nse"},
+        "header": ["Cluster", "n", "Median NSE, TLM", "Median NSE, Model A", "Median NSE, Model B",
+                   "NSE > 0, TLM", "NSE > 0, Model A", "NSE > 0, Model B"],
         "columns": [
-            {"col": "Metric",              "fmt": "text", "re": [r"R2", "R²"]},
-            {"col": "Traditional_Model_A", "fmt": "fixed", "dp": 3},
-            {"col": "StateSpace_Model_B",  "fmt": "fixed", "dp": 3},
-            {"col": "Delta_B_minus_A",     "fmt": "fixed", "dp": 4},   # as report9/Table7
+            {"col": "Cluster", "fmt": "map", "map": {
+                "C1": "C1 Lake Edge",
+                "C2": "C2 Dune",
+                "C3": "C3 Western Residual",
+                "C4": "C4 Main Forest",
+                "C5": "C5 Coastal Forest"}},
+            {"col": "n",                   "fmt": "int"},
+            {"col": "median_TLM_NSE",      "fmt": "fixed", "dp": 3},
+            {"col": "median_SSM_NSE",      "fmt": "fixed", "dp": 3},   # Model A (no intercept, z0 = DRAINAGE_DATUM)
+            {"col": "median_ModelB_NSE",   "fmt": "fixed", "dp": 3},
+            {"col": "positive_TLM_NSE",    "fmt": "int"},
+            {"col": "positive_SSM_NSE",    "fmt": "int"},
+            {"col": "positive_ModelB_NSE", "fmt": "int"},
         ],
     },
     {

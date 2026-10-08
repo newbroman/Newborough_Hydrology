@@ -34,7 +34,7 @@ Outputs:
     - outputs/07_spatial_coefficients/07_coeff_03_beta3_drainage.png
     - outputs/07_spatial_coefficients/07_coeff_04_r2_quality.png
     - outputs/07_spatial_coefficients/07_coeff_maps_data.csv
-    - outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv  (per-cluster beta ranges; Paper 1 Table 6)
+    - outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv  (per-cluster beta ranges; Paper 1 Table 5)
     - outputs/07_spatial_coefficients/07_cluster_coeff_means.csv  (per-cluster mean β₁/β₂/β₃; §4.9)
     - outputs/07_spatial_coefficients/07_report_numbers.csv
     - outputs/07_spatial_coefficients/07_05_clusters_vs_covariates.csv  (T-73: per-well β
@@ -43,7 +43,9 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. T-96: emits
+__version__ = "1.6.1"  # Hollingham (2026) — 2026-10-08. Comments only: Paper 1's tables were renumbered when
+#   its benchmark table moved to Paper M (D-244), so "Paper 1 Table 6" now reads Table 5. No code or output changes.
+# 1.6.0  # Hollingham (2026) — 2026-09-29. T-96: emits
 #   C4_beta2_beta3_corr_excl_ceh13_ceh14, the C4 per-well β₂-β₃ correlation with
 #   CEH13 and CEH14 both removed (report9 §4.2.2, the third of the sentence's three
 #   correlations). Additive; no existing output changes.
@@ -655,7 +657,7 @@ if __name__ == "__main__":
     step(f"Exported map data to {OUT_MAPS_DATA.name}")
 
     # ------------------------------------------------------------------
-    # Export per-cluster coefficient ranges (Paper 1 Table 6)
+    # Export per-cluster coefficient ranges (Paper 1 Table 5)
     # Per-cluster min/max of the per-well SSM coefficients, so the
     # tabulated ranges have a findable source CSV.
     # ------------------------------------------------------------------

@@ -15,11 +15,14 @@ below verified present in the committed tree.*
 | 2 | `16_water_balance/16_water_bal_table.csv` | 16 | Mean monthly head-space water balance (m/month) |
 | 3 | `16_water_balance/16_water_bal_vol_table.csv` | 16 | Indicative annual volumetric water balance (mm/yr) |
 | 4 | `17_wtf_specific_yield/17_wtf_01_sy_estimates.csv` | 17 | Specific yield by cluster, WTF method — event-median (Approach B) |
-| 5 | `08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv` | 08 | SSM (B) vs traditional linear model (A) benchmarking |
-| 6 | `07_spatial_coefficients/07_coeff_05_cluster_ranges.csv` | 07 | Per-well SSM coefficient ranges by cluster |
-| 7 | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv` | 18 | Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster |
-| 8 | `10c_forest_zone_correlations.csv` | 10c | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r (p) |
-| 9 | `25_coastal_gradient/25_03_cluster_partition.csv` | 25 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate (mm/yr) |
+| 5 | `07_spatial_coefficients/07_coeff_05_cluster_ranges.csv` | 07 | Per-well SSM coefficient ranges by cluster |
+| 6 | `18_wtf_spatial/18_wtf_05_storage_drainage_index.csv` | 18 | Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster |
+| 7 | `10c_forest_zone_correlations.csv` | 10c | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r (p) |
+| 8 | `25_coastal_gradient/25_03_cluster_partition.csv` | 25 | Decomposition of cluster summer-minimum decline into coastal-retreat + climate (mm/yr) |
+
+The SSM-versus-TLM benchmark table (formerly Table 5) moved to the companion methods paper
+on 2026-10-08 (D-244), where it is Paper M Table 1 (`08_model_benchmarking/08_cluster_nse_medians.csv`);
+Paper 1 now cites that paper, and its later tables were renumbered 6–9 → 5–8.
 
 ## Reading the sources
 
@@ -35,22 +38,22 @@ cluster-level event median in `17_wtf_01_sy_estimates.csv`, which is what Table 
 reports, and the median of per-well event estimates in `18_wtf_01_well_sy_estimates.csv`, which is
 what the pipeline consumes downstream.
 
-**Table 7 — read the `half_life_months` column.** The paper reports the drainage decay
+**Table 6 — read the `half_life_months` column.** The paper reports the drainage decay
 half-life **t½ = ln(2)/β₃**, which is specific-yield-independent. Do not read
 `storage_drainage_index_months` — that is the storage–drainage index τ = Sy/β₃, a
 storage-weighted diagnostic composite that Paper 1 deliberately does *not* report in
-Table 7 (see §4.7, which explains why the half-life is used instead). Both columns are
+Table 6 (see §4.7, which explains why the half-life is used instead). Both columns are
 present in the file; only `half_life_months` corresponds to the published table.
 
 The half-life is conditional on the 3.7 m displacement datum, since β₃ scales with that
 reference. Ratios between clusters are datum-invariant, so the cluster contrasts the
 table supports are not affected.
 
-**Table 8** — `10c_forest_zone_correlations.csv` is written to the `outputs/` root
+**Table 7** — `10c_forest_zone_correlations.csv` is written to the `outputs/` root
 rather than a per-script subdirectory. The `INT_`-prefixed path *variable* is cosmetic;
 the file is a genuine, findable output.
 
-**Table 9** — the well counts are the gradient-analysis subset (clearfell-zone wells
+**Table 8** — the well counts are the gradient-analysis subset (clearfell-zone wells
 dropped; a valid summer-minimum slope required), not the cluster sizes of Table 1.
 
 ## Cross-check on numbers

@@ -18,8 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.25.0 - 2026-10-06
+# VERSION 1.26.0 - 2026-10-08
 # CHANGELOG
+#   1.26.0 (2026-10-08): chatbot gate after public decisions - build_chat_corpus --selftest
+#     (the denylist still keeps the papers, the working log and copyrighted literature out)
+#     and --check (no denied path allowlisted; the published chatbot's stamp matches its
+#     sources). Spec claude/NRG_spec_chatbot_2026-10-08.md.
 #   1.25.0 (2026-10-06): self-citation gate after cross-references - self_cite_lint: one
 #     fixed 2026 letter per work in every paper (tools/self_citations.csv; changelog 2026-10-06f).
 #   1.24.0 (2026-10-01): number-fields gate (D-219) after table cells - field_sync --check:
@@ -474,6 +478,14 @@ python3 tools/context_for.py --audit || true
 # tracked. Nothing else would notice the two drifting apart, and the public one
 # is the only one a reader outside this machine can see.
 python3 tools/build_public_decisions.py --check || rc=1
+
+# The chatbot answers from an allowlisted corpus of PUBLISHED documents. The
+# denylist keeps the papers in preparation, the working decision log and the
+# copyrighted literature out whatever the allowlist says; --check also fails when
+# the sources have moved since the chatbot was last published (rebuild, republish,
+# commit outputs/chat/chat_corpus_stamp.json).
+python3 tools/build_chat_corpus.py --selftest >/dev/null || rc=1
+python3 tools/build_chat_corpus.py --check || rc=1
 
 echo
 echo "── records (did the last session leave the records a session needs?) ──"

@@ -113,6 +113,7 @@ report_edits/**/*~
 # republished. Add a row to store/README.md when you add a document.
 literature/*
 !literature/README.md
+!literature/open/
 
 # --- Historic map scans — LOCAL ONLY, licence-restricted ---
 # Georeferenced scans of third-party historic mapping (OS County Series and the
@@ -256,3 +257,9 @@ outputs/47_hindcast_film/47_03_hindcast_film.mp4
 /archive/
 /data/geo/_superseded/
 /notes/report_9-proposed_ edits
+
+# --- Chatbot build artefacts (tools/build_chat_corpus.py) ---
+# 4 MB each; rebuilt from the allowlisted sources. The committed record is
+# outputs/chat/chat_corpus_stamp.json.
+outputs/chat/chat_corpus.json
+outputs/chat/chatbot.html

@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.62.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+__version__ = "1.62.1"  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: OUT_18_CLUSTER_HALFLIFE_SUMMARY
+#   names Paper 1 Table 6 (was 7; the benchmark table moved to Paper M). No path changes.
+# 1.62.0  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
 #   OUT_26_MSL5_HANDBOOK_COUNTS (Script 26) and OUT_11B_THRESHOLD_SOURCE_SENS (Script 11b). Additive.
 # 1.61.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239). OUT_10E_SHIELDING.
 # 1.60.0  # Hollingham (2026) - 2026-10-03 (T-99). OUT_03_DATUM_AOD. Additive.
@@ -1054,7 +1056,7 @@ OUT_18_HALFLIFE_MAP         = DIR_18 / "18_wtf_05_halflife_map.png"
 OUT_18_STORAGE_DRAINAGE_INDEX_CSV = DIR_18 / "18_wtf_05_storage_drainage_index.csv"
 OUT_18_AQUIFER_SYNTHESIS    = DIR_18 / "18_wtf_06_aquifer_diagnostic_synthesis.png"
 OUT_18_SY_SPATIAL_TRENDS    = DIR_18 / "18_wtf_07_sy_spatial_trends.csv"  # open-dune Sy plane + within-forest Sy correlations
-OUT_18_CLUSTER_HALFLIFE_SUMMARY = DIR_18 / "18_wtf_08_cluster_half_life_summary.csv"  # per-cluster t half min/median/max + n over non-excluded wells (Paper 1 Table 7)
+OUT_18_CLUSTER_HALFLIFE_SUMMARY = DIR_18 / "18_wtf_08_cluster_half_life_summary.csv"  # per-cluster t half min/median/max + n over non-excluded wells (Paper 1 Table 6)
 OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 half-life / 1/β₃ stats
 
 # Script 19 — Spatial groundwater analysis

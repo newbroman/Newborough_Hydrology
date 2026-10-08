@@ -74,6 +74,9 @@ EXEMPT = {
     # (xref_lint, retired_phrase_lint, csv_mention_lint, docglob_lint,
     # record_basis_claims_lint)
     "report99.md", "fixture.md", "doc.md", "t.md", "Paper.md", "docs/paper/text/Paper.md",
+    # build_chat_corpus.py --selftest probes (D-245, 2026-10-08): paths the corpus allowlist
+    # must deny or allow, tested as STRINGS against its rules, never opened
+    "docs/report/text/Paper1_extract.md", "literature/open/van_willegen_2025.md",
     # the *_results.md memo pattern (scripts build a <script>_results.md memo);
     # written as prose in apply_main_guards.py and DECISION_LOG.md, not a filename
     "_results.md",

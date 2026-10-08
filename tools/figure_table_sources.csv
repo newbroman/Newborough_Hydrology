@@ -64,7 +64,6 @@ Paper1_v*.odt,Table,Table1,03_03_cluster_mechanistic_coefficients.csv
 Paper1_v*.odt,Table,Table2,16_water_bal_table.csv
 Paper1_v*.odt,Table,Table3,16_water_bal_vol_table.csv
 Paper1_v*.odt,Table,Table4,17_wtf_01_sy_estimates.csv
-Paper1_v*.odt,Table,Table5,08_lcsc_04_table3_benchmark_summary.csv
 Paper1_v*.odt,Table,Table6,07_coeff_05_cluster_ranges.csv
 Paper1_v*.odt,Table,Table8,10c_forest_zone_correlations.csv
 academic_Summary_v*.odt,Table,Table1,03_03_cluster_mechanistic_coefficients.csv
@@ -80,3 +79,4 @@ Newborough_Methods_Supplement_v*.odt,Table,Table78,29_headline_models.csv
 Supplementary_Material_v*.odt,Table,TableS72,26_table_s7_2_vw_datum_offsets.csv
 Supplementary_Material_v*.odt,Table,Table3,18_wtf_01_well_sy_estimates.csv
 Supplementary_Material_v*.odt,Table,Table2,03_03_cluster_mechanistic_coefficients.csv
+PaperM_v*.odt,Table,Table1,08_cluster_nse_medians.csv

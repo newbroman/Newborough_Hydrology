@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.32.0"  # Hollingham (2026) — 2026-10-01. D-216: Script 26b 2.0.0 replaced the one-month
+__version__ = "1.33.0"  # Hollingham (2026) — 2026-10-08. Script 08 1.7.0 (D-244) columns registered so Paper M's
+#   benchmark section can cite them: 08_cluster_nse_medians median_SSM_NSE, median_ModelB_NSE, median_dNSE_ModelB,
+#   positive_{TLM,SSM,ModelB}_NSE; 08_perwell_nse ModelB_NSE, dNSE_ModelB.
+# 1.32.0  # Hollingham (2026) — 2026-10-01. D-216: Script 26b 2.0.0 replaced the one-month
 #   spring rate with the sustained Model B response, renaming its columns. The two 26b tables register
 #   msl5_shift_sustained_m and spring_one_month_rate_model_a_m (summary) and msl5_shift_sustained_mean_m /
 #   _median_m (per well) in place of spring_delta_h_mean_m / _median_m.
@@ -546,11 +549,12 @@ EXTRA_VALUE_TABLES = [
     ("outputs/07_spatial_coefficients/07_coeff_maps_data.csv", "Name_Original",    # report8 3.2.3, report9 4.2.2, report9 4.9.2
      ["dem", "beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "pvalue_beta_1", "pvalue_beta_2", "pvalue_beta_3", "Model_R2"]),
     ("outputs/08_model_benchmarking/08_cluster_nse_medians.csv", "Cluster",    # report9 4.4, report10 5.2.4
-     ["median_dNSE", "median_TLM_NSE"]),
+     ["median_dNSE", "median_TLM_NSE", "median_SSM_NSE", "median_ModelB_NSE", "median_dNSE_ModelB",
+      "positive_TLM_NSE", "positive_SSM_NSE", "positive_ModelB_NSE"]),
     ("outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv", "Metric",    # report9 4.4, report10 5.2.4, report10 5.7.8
      ["Traditional_Model_A", "StateSpace_Model_B", "Delta_B_minus_A"]),
     ("outputs/08_model_benchmarking/08_perwell_nse.csv", "Well",    # report6 1, report9 4.4
-     ["TLM_NSE", "SSM_NSE", "dNSE"]),
+     ["TLM_NSE", "SSM_NSE", "dNSE", "ModelB_NSE", "dNSE_ModelB"]),
     ("outputs/09_scraping_intervention/09_scrape_02_beta3_significance.csv", ("Well", "Era"),    # report9 4.5.3, report10 5.8.2
      ["beta_3_drainage", "P_Value", "Conf_Low", "Conf_High"]),
     ("outputs/09_scraping_intervention/09b_01_individual_well_baci.csv", "well",    # report10 5.3.1, report10 5.4.3, report10 5.8.2

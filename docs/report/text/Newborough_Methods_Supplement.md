@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_92.odt — do not edit. source-sha256=10e29413f65b6159 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_93.odt — do not edit. source-sha256=a90a751f0f0a80a5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.92 (October 2026).
+Document version: 2.0.93 (October 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -1126,7 +1126,7 @@ Outputs.
   07_spatial_coefficients/07_coeff_04_r2_quality.png       R² map
   07_spatial_coefficients/07_coeff_maps_data.csv           Per-well data underlying the maps
   07_spatial_coefficients/07_cluster_coeff_means.csv       Per-cluster mean β₁, β₂, β₃ and R² (the §4.9 cluster-mean table)
-  07_spatial_coefficients/07_coeff_05_cluster_ranges.csv   Per-cluster min/max of β₁, β₂, β₃ with n (Paper 1 Table 6 source)
+  07_spatial_coefficients/07_coeff_05_cluster_ranges.csv   Per-cluster min/max of β₁, β₂, β₃ with n (Paper 1 Table 5 source)
   07_spatial_coefficients/07_report_numbers.csv            Per-cluster mean-β report values
   -------------------------------------------------------- -------------------------------------------------------------------
 

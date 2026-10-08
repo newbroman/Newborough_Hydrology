@@ -62,7 +62,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.2.1"  # Hollingham (2026).
+__version__ = "2.2.2"  # Hollingham (2026). 2026-10-08: --write measures Tier 0 again after
+#   writing the HANDOFF and archives then if over budget; the first pass measured before the new
+#   HANDOFF existed, so a HANDOFF that grew could leave a ship red at 602/600 with nothing archived.
+# 2.2.1  # Hollingham (2026).
 #   2.2.1 (2026-09-30): detector 7's advice names the shell + data file (proof_copy 1.31.0).
 #   2.2.0 (2026-09-30, D-213): --write archives the oldest dated HANDOVER_NOTE entries
 #     (verbatim, to HANDOVER_NOTE_archive_<first>_to_<last>.md, a stub left in place)
@@ -727,6 +730,15 @@ def main(argv):
     if "--write" in argv:
         dest = UPDATES / f"HANDOFF_{date.today().isoformat()}.md"
         dest.write_text(text, encoding="utf-8")
+        # The HANDOFF just written counts toward Tier 0, so the archive pass above
+        # measured a smaller Tier 0 than the one --check will see. Measure again and,
+        # if over budget, archive and rewrite the HANDOFF (2.2.2; two ships failed on
+        # 602/600 on 2026-10-08 with the archive pass reporting nothing to do).
+        rep = archive_oldest_entries()
+        if rep:
+            print(rep)
+            text = build(include_lag)
+            dest.write_text(text, encoding="utf-8")
         print(f"  WROTE  {dest.relative_to(REPO)}  ({len(text.splitlines())} lines)")
     else:
         print(text)

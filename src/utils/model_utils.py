@@ -52,7 +52,10 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-03 (D-238; Martin: "WE NEED TO ENSURE INTERCEPTION IS NOT
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-08. simulate_ssm() takes alpha=0.0, the free intercept
+#   of Model B, so Script 08 can free-run Model B with the shared recurrence (D-244). Default 0 leaves every
+#   existing caller's result unchanged.
+# 1.9.0  # Hollingham (2026) — 2026-10-03 (D-238; Martin: "WE NEED TO ENSURE INTERCEPTION IS NOT
 #   DOUBLE counted", "Let's do the fix"). climate_forcing_change_12() no longer multiplies a rainfall
 #   CHANGE by (1 − I): beta_1 was fitted on gross rainfall, so the canopy is already inside it
 #   (INTERCEPTION_TREATMENT §3). A change of canopy enters as beta_1·sP·P·(I − I_scen), and a beta_2
@@ -541,7 +544,7 @@ def horizon_months(peak_month: int) -> list:
 
 
 def simulate_ssm(h0, P, PET, b1, b2, b3,
-                 drainage_datum=DRAINAGE_DATUM):
+                 drainage_datum=DRAINAGE_DATUM, alpha=0.0):
     """
     Iterative forward simulation of the SSM from an initial condition.
 
@@ -579,7 +582,7 @@ def simulate_ssm(h0, P, PET, b1, b2, b3,
 
     for t in range(n):
         h_disp = drainage_datum + h_t
-        dh = b1 * P[t] - b2 * PET[t] - b3 * h_disp
+        dh = alpha + b1 * P[t] - b2 * PET[t] - b3 * h_disp
         h_t = h_t + dh
         h[t] = h_t
 

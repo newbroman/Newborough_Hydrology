@@ -32,7 +32,16 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. T-96: emits
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-10-08 (D-244). The benchmark gains Model B, the
+#   free-intercept form (model_utils.fit_ssm(intercept=True)), fitted on the same 100-month window and
+#   free-run with the shared recurrence (simulate_ssm alpha=). The TLM is Model B with beta_3 = 0, so
+#   TLM -> Model B isolates the drainage term, where TLM -> Model A also swaps a free constant for the
+#   datum-fixed -beta_3*z0. Per well: Iterative_NSE_ModelB, Iterative_NSE_Improvement_ModelB,
+#   Alpha_ModelB, Beta_3_ModelB, pvalue_beta_3_ModelB. 08_nse_cluster_medians.csv gains the median
+#   iterative NSE and positive-NSE count under each of TLM, Model A and Model B; report numbers
+#   benchmark_*_ModelB and C*_median_{TLM,SSM,ModelB}_NSE, C*_positive_{TLM,SSM,ModelB}_NSE.
+#   Additive: no existing column or key changes (Martin: "Approved, build it").
+# 1.6.0  # Hollingham (2026) — 2026-09-29. T-96: emits
 #   benchmark_negative_NSE_SSM and benchmark_negative_NSE_TLM, the counts of wells
 #   with a negative iterative NSE under each model (report12 §7, Conclusions),
 #   from the per-well frame already built. Additive; no existing output changes.
@@ -203,6 +212,11 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'Beta_P_StateSpace': np.nan,
         'Beta_PET_StateSpace': np.nan,
         'Beta_hdisp_StateSpace': np.nan,
+        'Iterative_NSE_ModelB': np.nan,
+        'Iterative_NSE_Improvement_ModelB': np.nan,
+        'Alpha_ModelB': np.nan,
+        'Beta_3_ModelB': np.nan,
+        'pvalue_beta_3_ModelB': np.nan,
     }
 
     if target_col is None:
@@ -292,6 +306,19 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     )
     h_lcsc_iter = np.concatenate([[h_obs[0]], h_lcsc_iter_raw])
 
+    # 1.7.0 (D-244): Model B, the free-intercept form, on the same frame and window. The TLM is
+    # Model B with beta_3 = 0, so TLM -> Model B isolates the drainage term.
+    ssm_b = fit_ssm(pre_built_frame=df, intercept=True)
+    if ssm_b is not None:
+        h_b_iter_raw = simulate_ssm(
+            h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
+            b1=float(ssm_b['beta_1_recharge']), b2=float(ssm_b['beta_2_atmospheric_draw']),
+            b3=float(ssm_b['beta_3_drainage']), alpha=float(ssm_b['alpha']))
+        h_b_iter = np.concatenate([[h_obs[0]], h_b_iter_raw])
+        nse_b, _, _ = get_metrics(h_obs, h_b_iter)
+    else:
+        nse_b = np.nan
+
     r2_trad_one = get_r2(h_obs, h_trad_one)
     r2_lcsc_one = get_r2(h_obs, h_lcsc_one)
 
@@ -326,6 +353,11 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'pvalue_beta_2_StateSpace': float(ssm['pvalue_beta_2']),
         'pvalue_beta_3_StateSpace': float(ssm['pvalue_beta_3']),
         'R2_StateSpace_fit': float(ssm['R2']),
+        'Iterative_NSE_ModelB': nse_b,
+        'Iterative_NSE_Improvement_ModelB': nse_b - nse_trad,
+        'Alpha_ModelB': float(ssm_b['alpha']) if ssm_b is not None else np.nan,
+        'Beta_3_ModelB': float(ssm_b['beta_3_drainage']) if ssm_b is not None else np.nan,
+        'pvalue_beta_3_ModelB': float(ssm_b['pvalue_beta_3']) if ssm_b is not None else np.nan,
     })
 
     payload = {
@@ -628,12 +660,16 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
     pw = ok_df[["Well", "Well_Normalized",
                 "Iterative_NSE_Traditional",
                 "Iterative_NSE_StateSpace",
-                "Iterative_NSE_Improvement"]].merge(
+                "Iterative_NSE_Improvement",
+                "Iterative_NSE_ModelB",
+                "Iterative_NSE_Improvement_ModelB"]].merge(
         master[keep], on="Well_Normalized", how="left")
     pw = pw.rename(columns={
         "Iterative_NSE_Traditional": "TLM_NSE",
         "Iterative_NSE_StateSpace":  "SSM_NSE",
         "Iterative_NSE_Improvement": "dNSE",
+        "Iterative_NSE_ModelB": "ModelB_NSE",
+        "Iterative_NSE_Improvement_ModelB": "dNSE_ModelB",
     })
     pw.to_csv(perwell_path, index=False)
     saved(f"{perwell_path.name} ({len(pw)} wells)")
@@ -646,6 +682,13 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
             "n": int(len(grp)),
             "median_dNSE": float(pd.to_numeric(grp["dNSE"], errors="coerce").median()),
             "median_TLM_NSE": float(pd.to_numeric(grp["TLM_NSE"], errors="coerce").median()),
+            # 1.7.0 (D-244): each form's own median and positive-NSE count, for Paper M's table
+            "median_SSM_NSE": float(pd.to_numeric(grp["SSM_NSE"], errors="coerce").median()),
+            "median_ModelB_NSE": float(pd.to_numeric(grp["ModelB_NSE"], errors="coerce").median()),
+            "median_dNSE_ModelB": float(pd.to_numeric(grp["dNSE_ModelB"], errors="coerce").median()),
+            "positive_TLM_NSE": int((pd.to_numeric(grp["TLM_NSE"], errors="coerce") > 0).sum()),
+            "positive_SSM_NSE": int((pd.to_numeric(grp["SSM_NSE"], errors="coerce") > 0).sum()),
+            "positive_ModelB_NSE": int((pd.to_numeric(grp["ModelB_NSE"], errors="coerce") > 0).sum()),
         })
     med_df = pd.DataFrame(med_rows).sort_values("Cluster")
     med_df.to_csv(medians_path, index=False)
@@ -669,6 +712,13 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
             note=f"wells with positive iterative NSE under the SSM, of {len(pw)}")
     rpt.add("benchmark_positive_NSE_TLM", int((pw["TLM_NSE"] > 0).sum()), unit="wells",
             note=f"wells with positive iterative NSE under the TLM, of {len(pw)}")
+    # 1.7.0 (D-244): Model B against the TLM - the comparison that isolates the drainage term
+    rpt.add("benchmark_median_NSE_ModelB", pw["ModelB_NSE"].median(), unit="",
+            note=f"median iterative NSE, Model B (free intercept), n={len(pw)}")
+    rpt.add("benchmark_median_dNSE_ModelB", pw["dNSE_ModelB"].median(), unit="",
+            note=f"median gain in iterative NSE, Model B over TLM, n={len(pw)}")
+    rpt.add("benchmark_positive_NSE_ModelB", int((pw["ModelB_NSE"] > 0).sum()), unit="wells",
+            note=f"wells with positive iterative NSE under Model B, of {len(pw)}")
     rpt.add("benchmark_n_wells", int(len(pw)), unit="wells",
             note="reference wells entering the benchmark")
     # T-96: the negative-NSE counts report12 §7 quotes directly ("1 of 66 SSM
@@ -694,6 +744,12 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
                 note=f"median ΔNSE (SSM−TLM), {r['Cluster']}, n={int(r['n'])}")
         rpt.add(f"{r['Cluster']}_median_TLM_NSE", r["median_TLM_NSE"], unit="",
                 note=f"median TLM iterative NSE, {r['Cluster']}, n={int(r['n'])}")
+        for _m, _lbl in (("SSM", "Model A (state-space, no intercept)"), ("ModelB", "Model B (free intercept)")):
+            rpt.add(f"{r['Cluster']}_median_{_m}_NSE", r[f"median_{_m}_NSE"], unit="",
+                    note=f"median iterative NSE, {_lbl}, {r['Cluster']}, n={int(r['n'])}")
+        for _m in ("TLM", "SSM", "ModelB"):
+            rpt.add(f"{r['Cluster']}_positive_{_m}_NSE", int(r[f"positive_{_m}_NSE"]), unit="wells",
+                    note=f"wells with positive iterative NSE under {_m}, {r['Cluster']}, of {int(r['n'])}")
     for coef, key in [("beta_3_drainage", "beta3"),
                       ("beta_2_atmospheric_draw", "beta2")]:
         if coef in pw.columns:

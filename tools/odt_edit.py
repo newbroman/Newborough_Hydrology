@@ -52,7 +52,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-07. replace_image() accepts a JPEG as
+__version__ = "1.9.1"  # Hollingham (2026) — 2026-10-08. The span-balance guard counts an
+#   opening <text:span> only when it is not self-closing. An empty <text:span .../> has no close,
+#   so removing a table that held one (Paper 1 Table 5, D-244) read as "-6 open, -5 close" and a
+#   sound edit was refused.
+# 1.9.0  # Hollingham (2026) — 2026-10-07. replace_image() accepts a JPEG as
 #   well as a PNG, and refuses bytes whose format does not match the member's extension (the
 #   manifest media-type and draw:mime-type are not rewritten, so a .jpg member must stay a
 #   JPEG). Needed by tools/reembed_paper_figures.py: the papers embed resampled JPEG copies.
@@ -217,7 +221,7 @@ def _tier_gate(dst, n_subs: int = 0, tag_change: bool = False) -> bool:
 
 
 def _span_balance(xml: str) -> tuple[int, int]:
-    return (len(re.findall(r"<text:span\b", xml)),
+    return (len(re.findall(r"<text:span\b[^>]*(?<!/)>", xml)),
             len(re.findall(r"</text:span>", xml)))
 
 

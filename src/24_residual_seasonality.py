@@ -53,7 +53,9 @@ C3 split threshold: 1000 m from ridge (forest-adjacent vs warren-interior)
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-09-29
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-10-08. Comment only: the Paper 1 SI
+#   section quoting the contrast is S8.2 (was S9.2; SI S7 deleted, D-244). No output changes.
+# 1.4.0  # Hollingham (2026) — 2026-09-29
 #
 # v1.4.0  # Hollingham (2026) -- 2026-09-29
 #   T-96: 24_report_numbers.csv also carries the wells analysed and the
@@ -507,7 +509,7 @@ def write_summary(clim_df, output_path, rpt=None):
                      "PER-CLUSTER SEASONAL STATISTICS table).")
 
     # Per-cluster significance of the summer-minus-winter contrast.
-    # The contrast is quoted in the Paper 1 SI (S9.2) with p-values, so the
+    # The contrast is quoted in the Paper 1 SI (S8.2) with p-values, so the
     # tests behind them are emitted here rather than computed ad hoc. Each is a
     # one-sample test of the per-well contrast against zero: the sign-rank test
     # is the headline (small n, no normality assumption), the t-test is given

@@ -547,7 +547,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 - `data` (raw data)
 - `06_pear_membership_audit_sitewide.csv` (Script 06 (step 7))
 - `07_coeff_maps_data.csv` (Script 07 (step 8))
-- `07_coeff_05_cluster_ranges.csv` (Script 07 (step 8)) — per-cluster beta ranges; Paper 1 Table 6
+- `07_coeff_05_cluster_ranges.csv` (Script 07 (step 8)) — per-cluster beta ranges; Paper 1 Table 5
 
 **Writes.**
 
@@ -1337,7 +1337,7 @@ Winter = Nov–Mar; Summer = May–Sep; April and October are shoulder months ta
 **Other.**
 
 - UKCP18 multipliers hardcoded in `UKCP18_SCENARIOS` at the top of the script; documented in the docstring; cross-referenced to Script 19's `SCENARIO_PARAMS` and `utils.config.UKCP18_*`
-- The level response uses `utils.model_utils.climate_forcing_change_12()`, `sustained_monthly_response()`, `scenario_delta_series()` and `response_identified()` (model_utils 1.9.0)
+- The level response uses `utils.model_utils.climate_forcing_change_12()`, `sustained_monthly_response()`, `scenario_delta_series()` and `response_identified()` (model_utils 1.10.0)
 - All output paths via `utils.paths.OUT_26B_*`
 - v2.1.0 (D-224): the centroid and per-well pathways also run on Model A — centroids from `03_03_cluster_mechanistic_coefficients.csv`, wells from `03_master_data.csv` — paired with Model B's identification, into `26b_msl5_ukcp18_projection_summary_model_a.csv` and `26b_msl5_ukcp18_projection_summary_perwell_model_a.csv`; the figure draws Model A as filled markers on a lighter line.
 

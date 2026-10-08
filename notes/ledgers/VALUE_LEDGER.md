@@ -649,11 +649,11 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | Long-term mean · P_PET_ratio | p | significance probability | `00_01_annual_climate_summary.csv` | 1.34779 |  | Newborough_Methods_Supplement, report10, report9 | ok |
 | MSL5 · pearson_r |  |  | `26_ebf_prediction_summary.csv` | 0.828958 |  | report9 | ok |
 | MSL_MIN_MONTHS_PER_SPRING |  |  | `config.py` | 3 |  | Newborough_Methods_Supplement | ok |
-| Median iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.371947 |  | Paper1, report9 | ok |
-| Median iterative R2 · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.156793 |  | Newborough_Methods_Supplement, Paper1, report9 | ok |
+| Median iterative NSE · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.371947 |  | report9 | ok |
+| Median iterative R2 · Delta_B_minus_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.156793 |  | Newborough_Methods_Supplement, report9 | ok |
 | Median iterative R2 · StateSpace_Model_B |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.787003 |  | report9 | ok |
-| Median iterative R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.630339 |  | Paper1, report9 | ok |
-| Median one-step R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.920815 |  | Paper1, report9 | ok |
+| Median iterative R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.630339 |  | report9 | ok |
+| Median one-step R2 · Traditional_Model_A |  |  | `08_lcsc_04_table3_benchmark_summary.csv` | 0.920815 |  | report9 | ok |
 | Model_R² · C5_max |  |  | `10c_forest_zone_cluster_summary.csv` | 0.757 |  | Newborough_Methods_Supplement | ok |
 | NW10 · db1 |  |  | `10e_01_coefficient_shifts.csv` | 0.2476 |  | report9 | ok |
 | NW4B / Far-field Ctrl / Forest · Pre_mean_gap_m |  |  | `10d_02_summer_minima_shifts.csv` | 0.996 |  | Newborough_Methods_Supplement | ok |

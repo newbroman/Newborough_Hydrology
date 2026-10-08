@@ -1,0 +1,381 @@
+<title>Ask Newborough Warren</title>
+<!-- chat_page_template.html 1.0.0 (2026-10-08) — the page tools/build_chat_corpus.py fills.
+     The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column for the conversation; sources open in a side sheet
+   (bottom sheet at phone width). Palette and faces are the project site's own. */
+:root{
+  --bg:#f4f0e6; --panel:#fbf9f3; --line:#d4c8a8; --fg:#2a3338; --muted:#5a6a72;
+  --water:#3f6f80; --water-pale:#e3eff3; --pine:#3d5c3a; --warn:#9a5b12; --warn-pale:#f6ead8;
+  --display:"Libre Baskerville",Georgia,"Times New Roman",serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1b2124; --panel:#232b2f; --line:#3a464c; --fg:#e4e0d6; --muted:#a3adb2;
+  --water:#8cc0d0; --water-pale:#22363d; --pine:#9cc497; --warn:#e3b06a; --warn-pale:#3a2e1d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1b2124; --panel:#232b2f; --line:#3a464c; --fg:#e4e0d6; --muted:#a3adb2;
+  --water:#8cc0d0; --water-pale:#22363d; --pine:#9cc497; --warn:#e3b06a; --warn-pale:#3a2e1d; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);padding:0 16px}
+.wrap{max-width:760px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:20px;padding-block:28px 0}
+header h1{font:700 1.6rem/1.2 var(--display);margin:0;text-wrap:balance}
+header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.scope{font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px}
+.scope b{color:var(--fg);font-weight:600}
+#log{display:flex;flex-direction:column;gap:22px;flex:1}
+.q{align-self:flex-end;max-width:85%;background:var(--water-pale);border:1px solid var(--line);border-radius:14px 14px 4px 14px;padding:10px 14px;white-space:pre-wrap}
+.a{min-width:0}
+.a .md p{margin:0 0 .7em;max-width:68ch}
+.a .md ul,.a .md ol{margin:0 0 .7em;padding-left:1.3em}
+.a .md h3,.a .md h4{font:700 1rem/1.3 var(--display);margin:1em 0 .4em}
+.a .md code{font:.88em var(--mono);background:var(--panel);padding:0 3px;border-radius:3px}
+.a .status{font-size:.88rem;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.a .status span::before{content:"› ";color:var(--water)}
+.a .note{font-size:.85rem;color:var(--warn);margin-top:6px}
+.chip{display:inline-flex;align-items:baseline;gap:4px;font:600 .72rem/1.3 var(--body);letter-spacing:.02em;
+  color:var(--water);background:var(--water-pale);border:1px solid transparent;border-radius:999px;padding:1px 8px;margin:0 1px;
+  cursor:pointer;vertical-align:1px;max-width:22ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip:hover,.chip:focus-visible{border-color:var(--water);outline:none}
+.chip.n{color:var(--pine)}
+.chip.bad{color:var(--warn);background:var(--warn-pale)}
+.welcome{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.welcome h2{font:400 1rem/1.3 var(--display);margin:0;font-style:italic}
+.ex{display:flex;flex-wrap:wrap;gap:8px}
+.ex button{font:inherit;font-size:.92rem;text-align:left;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+.ex button:hover,.ex button:focus-visible{border-color:var(--water);outline:none}
+.hits{display:flex;flex-direction:column;gap:10px}
+.hit{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.hit small{display:block;color:var(--muted);font-size:.8rem;margin-bottom:2px}
+form.ask{position:sticky;bottom:0;background:linear-gradient(to bottom,transparent,var(--bg) 30%);padding-block:16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:6px}
+.box{display:flex;gap:8px;align-items:flex-end;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px}
+.box:focus-within{border-color:var(--water)}
+textarea{flex:1;min-width:0;resize:none;border:0;background:transparent;color:var(--fg);font:inherit;max-height:9em;padding:4px 6px}
+textarea:focus{outline:none}
+.btn{font:600 .9rem var(--body);border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--water);background:var(--water);color:var(--bg)}
+.btn.ghost{background:transparent;color:var(--water)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.foot{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
+#mode{font-size:.8rem;color:var(--muted)}
+/* source sheet */
+#sheet{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--panel);border-left:1px solid var(--line);
+  box-shadow:-8px 0 24px rgba(0,0,0,.12);display:flex;flex-direction:column;z-index:10;padding-top:env(safe-area-inset-top,0px)}
+#sheet header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+#sheet h3{font:700 1rem/1.3 var(--display);margin:0}
+#sheet .path{font:.75rem var(--mono);color:var(--muted);word-break:break-all;margin-top:4px}
+#sheet .body{overflow:auto;padding:14px 18px calc(18px + env(safe-area-inset-bottom,0px));font-size:.93rem}
+#sheet table{border-collapse:collapse;font-size:.88rem;width:100%}
+#sheet td{border-bottom:1px solid var(--line);padding:4px 6px;vertical-align:top;word-break:break-word}
+#sheet td:first-child{color:var(--muted);white-space:nowrap}
+#sheet .md p{margin:0 0 .7em}
+@media (max-width:600px){#sheet{top:auto;height:72%;width:100%;border-left:0;border-top:1px solid var(--line);border-radius:14px 14px 0 0}}
+@media (prefers-reduced-motion:no-preference){.a{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Ask Newborough Warren</h1>
+    <p>Questions about the long-term groundwater study of the Newborough Warren dunes, answered from the published report, its supplements and the pipeline's committed numbers. Every statement links to the passage or number it rests on.</p>
+    <div class="scope" id="scope"></div>
+  </header>
+
+  <div id="log">
+    <section class="welcome" id="welcome">
+      <h2>Try one of these, or ask your own. Cymraeg a Polski hefyd / też.</h2>
+      <div class="ex" id="examples"></div>
+    </section>
+  </div>
+
+  <form class="ask" id="ask">
+    <div class="box">
+      <label for="qin" hidden>Your question</label>
+      <textarea id="qin" rows="1" placeholder="Ask about the water table, the clusters, the forest, the scrapes…"></textarea>
+      <button class="btn ghost" type="button" id="stop" hidden>Stop</button>
+      <button class="btn" type="submit" id="send">Ask</button>
+    </div>
+    <div class="foot"><span id="mode">Starting…</span><span id="build"></span></div>
+  </form>
+</div>
+
+<aside id="sheet" hidden aria-label="Source">
+  <header><div><h3 id="sh-title"></h3><div class="path" id="sh-path"></div></div>
+    <button class="btn ghost" type="button" id="sh-close">Close</button></header>
+  <div class="body" id="sh-body"></div>
+</aside>
+
+<script>
+const CORPUS = /*__CHAT_CORPUS__*/null;
+</script>
+<script>
+(function(){
+"use strict";
+const C = CORPUS || {chunks:[],numbers:[],references:[],sources:[],meta:{counts:{}}};
+
+// ---------------------------------------------------------------- ids
+C.chunks.forEach((c,i)=>c.k="d"+i);
+C.numbers.forEach((r,i)=>r.k="n"+i);
+C.references.forEach((r,i)=>r.k="r"+i);
+const BYK = new Map();
+[...C.chunks,...C.numbers,...C.references].forEach(o=>BYK.set(o.k,o));
+
+// ---------------------------------------------------------------- search
+const STOP = new Set("the a an and or of to in on for with by is are was were be been it its this that these those at as from what which who how why when does do did can could would should into about than then there their they we you your i me my".split(" "));
+const GREEK = {"β":"beta","τ":"tau","λ":"lambda","δ":"delta","σ":"sigma","ρ":"rho","α":"alpha","μ":"mu","½":"half"};
+function toks(s){
+  s = String(s||"").toLowerCase().replace(/[βτλδσραμ½]/g,m=>GREEK[m]+" ");
+  s = s.normalize("NFKD").replace(/\p{M}/gu,"");
+  const out=[];
+  for (let t of s.split(/[^\p{L}\p{N}]+/u)){
+    if(!t || STOP.has(t)) continue;
+    if(t.length>4 && t.endsWith("s") && !t.endsWith("ss")) t=t.slice(0,-1);
+    out.push(t);
+    const m=t.match(/^([a-z]+)(\d+[a-z]?)$/); if(m){out.push(m[1],m[2]);}
+  }
+  return out;
+}
+function bm25(docs, textOf){
+  const df=new Map(), lens=[], tfs=[]; let total=0;
+  docs.forEach(d=>{const tf=new Map(); const ts=toks(textOf(d));
+    ts.forEach(t=>tf.set(t,(tf.get(t)||0)+1)); tf.forEach((_,t)=>df.set(t,(df.get(t)||0)+1));
+    tfs.push(tf); lens.push(ts.length); total+=ts.length;});
+  const N=docs.length, avg=total/Math.max(N,1), k1=1.2, b=0.75;
+  return function(q,k){
+    const qs=[...new Set(toks(q))]; const sc=new Float64Array(N);
+    qs.forEach(t=>{const n=df.get(t); if(!n) return; const idf=Math.log(1+(N-n+.5)/(n+.5));
+      for(let i=0;i<N;i++){const f=tfs[i].get(t); if(f) sc[i]+=idf*f*(k1+1)/(f+k1*(1-b+b*lens[i]/avg));}});
+    const idx=[]; for(let i=0;i<N;i++) if(sc[i]>0) idx.push(i);
+    idx.sort((a,c)=>sc[c]-sc[a]); return idx.slice(0,k).map(i=>docs[i]);
+  };
+}
+const searchChunks = bm25(C.chunks, c=>c.title+" "+c.heading+" "+c.heading+" "+c.text);
+const rowText = r=>r.file.split("/").pop().replace(/_report_numbers\.csv$/,"")+" "+Object.entries(r.fields).map(([k,v])=>k+" "+v).join(" ");
+const searchNumbers = bm25(C.numbers, rowText);
+const searchRefs = bm25(C.references, r=>r.citation+" "+r.source);
+
+function snippet(c,q,n){
+  const text=c.text.replace(/\s+/g," "); const qs=toks(q);
+  let best=0,bi=0; const words=text.split(" ");
+  for(let i=0;i<words.length;i+=8){let s=0; const w=toks(words.slice(i,i+40).join(" "));
+    qs.forEach(t=>{if(w.includes(t)) s++;}); if(s>best){best=s;bi=i;}}
+  return (bi?"…":"")+words.slice(bi,bi+(n||70)).join(" ")+(bi+(n||70)<words.length?"…":"");
+}
+const chunkHit=(c,q)=>({id:c.k,document:c.title,section:c.heading||"(top)",language:c.lang,snippet:snippet(c,q)});
+const numHit=r=>({id:r.k,file:r.file,fields:r.fields});
+const refHit=r=>({id:r.k,citation:r.citation,source:r.source});
+
+// ---------------------------------------------------------------- tools
+let retrieved=new Set(); const everRetrieved=new Set();
+function track(list){list.forEach(o=>{retrieved.add(o.id);everRetrieved.add(o.id);}); return list;}
+const TOOLS=[
+  {name:"search_documents",
+   description:"Search the published report, supplements, summaries, glossaries, public decisions and site text. Pass several phrasings at once. Returns passage ids with a snippet; cite a passage as [[id]].",
+   inputSchema:{type:"object",properties:{queries:{type:"array",items:{type:"string"},description:"1-4 search phrasings"},k:{type:"integer",description:"results per query, default 5, max 8"}},required:["queries"]},
+   execute(inp){status("Searching the documents: "+[].concat(inp.queries||[]).join("; "));
+     const k=Math.min(8,Math.max(1,Number(inp.k)||5)); const seen=new Set(), out=[];
+     [].concat(inp.queries||[]).slice(0,4).forEach(q=>searchChunks(String(q),k).forEach(c=>{if(!seen.has(c.k)){seen.add(c.k);out.push(chunkHit(c,String(q)));}}));
+     return track(out);}},
+  {name:"read_passages",
+   description:"Full text of passages by id (from search_documents). Read before stating detail. Max 4 ids per call.",
+   inputSchema:{type:"object",properties:{ids:{type:"array",items:{type:"string"}}},required:["ids"]},
+   execute(inp){const ids=[].concat(inp.ids||[]).slice(0,4).map(String);
+     status("Reading "+ids.length+" passage"+(ids.length>1?"s":""));
+     return track(ids.map(id=>{const c=BYK.get(id); if(!c||!c.text) return {id,error:"no such passage"};
+       return {id,document:c.title,section:c.heading,path:c.source,text:c.text};}));}},
+  {name:"search_numbers",
+   description:"Search the committed pipeline CSVs (report numbers, figure map, cluster table, pipeline manifest). Every number you state must come from a row returned here; cite it as [[id]].",
+   inputSchema:{type:"object",properties:{queries:{type:"array",items:{type:"string"}},k:{type:"integer",description:"rows per query, default 8, max 15"}},required:["queries"]},
+   execute(inp){status("Looking up numbers: "+[].concat(inp.queries||[]).join("; "));
+     const k=Math.min(15,Math.max(1,Number(inp.k)||8)); const seen=new Set(),out=[];
+     [].concat(inp.queries||[]).slice(0,4).forEach(q=>searchNumbers(String(q),k).forEach(r=>{if(!seen.has(r.k)){seen.add(r.k);out.push(numHit(r));}}));
+     return track(out);}},
+  {name:"cluster_summary",
+   description:"Counts and well lists for each cluster in the current partition, from outputs/02_cluster_stats.csv. Cite as [[f:outputs/02_cluster_stats.csv]].",
+   execute(){status("Reading the cluster table"); const by={};
+     C.numbers.filter(r=>r.file==="outputs/02_cluster_stats.csv").forEach(r=>{const l=r.fields.Cluster_Label||r.fields.Cluster;(by[l]=by[l]||[]).push(r.fields.Match_ID);});
+     retrieved.add("f:outputs/02_cluster_stats.csv"); everRetrieved.add("f:outputs/02_cluster_stats.csv");
+     return {file:"outputs/02_cluster_stats.csv",clusters:Object.entries(by).map(([label,w])=>({label,wells:w.length,members:w.join(", ")}))};}},
+  {name:"find_reference",
+   description:"Look up a literature reference (author, year, title). Returns the full citation and where it is published. The texts themselves are not available. Cite as [[id]].",
+   inputSchema:{type:"object",properties:{query:{type:"string"}},required:["query"]},
+   execute(inp){status("Looking up the reference: "+inp.query); return track(searchRefs(String(inp.query||""),5).map(refHit));}}
+];
+
+const RULES = `You answer questions about the Newborough Warren hydrology study (a long-term record of the dune water table at Newborough Warren, Anglesey) for the page "Ask Newborough Warren". Answer ONLY from what the tools and the PRE-RETRIEVED block return. If they do not contain the answer, say it is not in the published record. Never answer from general knowledge about this site.
+
+Method
+- Write nothing before your final answer: no narration of searches.
+- Search with several phrasings; read passages before giving detail. Use search_numbers for any number.
+- Keep answers short and plain: two to five short paragraphs or a short list. Lead with the answer.
+
+Citing
+- Cite every factual sentence with the id of the passage or row it rests on, in double square brackets, e.g. [[d12]] or [[n340]]; several ids as [[d12]] [[n340]]. Use only ids the tools returned. Cluster counts: [[f:outputs/02_cluster_stats.csv]].
+- Every number must come from a returned row (search_numbers) or appear in a returned passage, with its unit. Quote it as the report quotes it where the passage gives it; otherwise to three decimal places. Never compute, convert, combine or extrapolate a new number.
+- Figure numbers only from figure-map rows; pipeline step counts only from the pipeline manifest row.
+
+Framing
+- Use "consistent with" or "indicates", not "confirms" or "proves", where the evidence is incomplete. Treat interventions and drivers even-handedly. Say when a quantity is modelled rather than measured.
+- τ (Sy/β₃) is the storage-drainage index, a diagnostic. Never call it a residence time or drainage timescale.
+- t½ = ln(2)/β₃ is the recession constant of the drainage term at the project datum. Never call it the aquifer's memory.
+- The network is 88 dipwells (66 reference + 22 extended). The Llyn Rhos-Ddu lake gauge is a measuring point, not a dipwell.
+- Do not extrapolate any fitted relationship outside the observed range.
+- Cluster C1 "Lake Edge" includes CEH11, which is far from the lake; do not apply lake reasoning to it.
+
+Scope
+- The corpus is the published report, Methods Supplement, Supplementary Material, public and academic summaries, glossaries, public decision record, web-tools manuals and committed numbers. Journal papers that are in preparation or under review are not included: say so if asked.
+- Literature: give the citation from find_reference. Describe what a source found only as the project's own documents describe it, citing that passage.
+
+Language: reply in the language of the question (English, Welsh or Polish). Use British spelling (-ize, -yse, -our).`;
+
+// ---------------------------------------------------------------- UI helpers
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+function inline(s){
+  s=esc(s);
+  s=s.replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>");
+  return s.replace(/\[\[([^\]]+)\]\]/g,(m,ids)=>ids.split(/[,\s]+/).filter(Boolean).map(chip).join(""));
+}
+function chip(id){
+  const o=BYK.get(id); let label, cls="chip", ok=true;
+  if(id.startsWith("f:")){label=id.slice(2).split("/").pop();cls+=" n";}
+  else if(!o){label=id; ok=false;}
+  else if(id[0]==="d"){label=o.title.replace(/^Report — /,"Report ")+(o.heading?" · "+o.heading.split(" > ").pop():"");}
+  else if(id[0]==="n"){cls+=" n"; label=(o.fields.Parameter||o.fields.number||o.fields.Match_ID||o.file.split("/").pop());}
+  else {label=(o.citation.match(/^[^(]{1,40}\(\d{4}[a-z]?\)/)||[o.citation.slice(0,30)])[0];}
+  if(answerScope && !answerScope.has(id) && !id.startsWith("f:")) ok=false;
+  if(!ok) cls+=" bad";
+  return `<button type="button" class="${cls}" data-src="${esc(id)}" title="${ok?esc(label):"This citation was not retrieved for this answer — check it"}">${esc(label)}</button>`;
+}
+let answerScope=null;
+function md(text){
+  const lines=String(text).replace(/\r/g,"").split("\n"); let html="", list=null, para=[];
+  const flushP=()=>{if(para.length){html+="<p>"+inline(para.join(" "))+"</p>";para=[];}};
+  const flushL=()=>{if(list){html+=`<${list.t}>`+list.items.map(i=>"<li>"+inline(i)+"</li>").join("")+`</${list.t}>`;list=null;}};
+  for(const raw of lines){const l=raw.trim();
+    let m;
+    if(!l){flushP();flushL();continue;}
+    if((m=l.match(/^#{1,4}\s+(.*)/))){flushP();flushL();html+="<h4>"+inline(m[1])+"</h4>";continue;}
+    if((m=l.match(/^[-*•]\s+(.*)/))){flushP(); if(!list||list.t!=="ul"){flushL();list={t:"ul",items:[]};} list.items.push(m[1]);continue;}
+    if((m=l.match(/^\d+[.)]\s+(.*)/))){flushP(); if(!list||list.t!=="ol"){flushL();list={t:"ol",items:[]};} list.items.push(m[1]);continue;}
+    if(list){list.items[list.items.length-1]+=" "+l;continue;}
+    para.push(l);}
+  flushP();flushL(); return html;
+}
+let statusEl=null;
+function status(t){if(!statusEl) return; const s=document.createElement("span"); s.textContent=t; statusEl.append(s);}
+
+function openSource(id){
+  const o=BYK.get(id); const sh=$("sheet"); let title, path, body;
+  if(id.startsWith("f:")){title="Cluster table";path=id.slice(2);
+    const rows=C.numbers.filter(r=>r.file===path);
+    body="<table>"+rows.map(r=>"<tr><td>"+esc(r.fields.Match_ID||"")+"</td><td>"+esc(r.fields.Cluster_Label||"")+"</td></tr>").join("")+"</table>";}
+  else if(!o){title="Not found";path=id;body="<p>This id does not exist in the corpus. The answer cited something it had not retrieved; treat that statement as unsupported.</p>";}
+  else if(id[0]==="d"){title=o.title;path=o.source+(o.heading?" — "+o.heading:"");body='<div class="md">'+md(o.text.replace(/\[\[/g,"[ ["))+"</div>";}
+  else if(id[0]==="n"){title=o.fields.Parameter||o.file.split("/").pop();path=o.file+(o.line?" (line "+o.line+")":"");
+    body="<table>"+Object.entries(o.fields).map(([k,v])=>"<tr><td>"+esc(k)+"</td><td>"+esc(v)+"</td></tr>").join("")+"</table>";}
+  else {title="Reference";path="literature/README.md";body="<p>"+inline(o.citation)+"</p><p><small>Source: "+esc(o.source)+"<br>Terms: "+esc(o.terms)+"</small></p><p><small>The text of this work is not held here; the project's documents describe what it contributes.</small></p>";}
+  $("sh-title").textContent=title; $("sh-path").textContent=path; $("sh-body").innerHTML=body; sh.hidden=false; $("sh-close").focus();
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-src]"); if(b){openSource(b.dataset.src);}});
+$("sh-close").onclick=()=>{$("sheet").hidden=true;};
+document.addEventListener("keydown",e=>{if(e.key==="Escape") $("sheet").hidden=true;});
+
+// ---------------------------------------------------------------- header facts
+(function(){
+  const c=C.meta.counts||{}; const docs=new Set(C.chunks.map(x=>x.title.replace(/^Report — .*/,"Report")));
+  $("scope").innerHTML=`<span><b>${docs.size}</b> documents</span><span><b>${(c.chunks||0).toLocaleString("en-GB")}</b> passages</span><span><b>${(c.numbers||0).toLocaleString("en-GB")}</b> committed numbers</span><span><b>${c.references||0}</b> literature references</span>`;
+  $("build").textContent="Corpus "+String((C.meta.source_sha256||"").slice(0,10));
+})();
+const EXAMPLES=[
+  "What drives the water table at Newborough Warren?",
+  "How many dipwells are in the network, and how are they grouped?",
+  "What effect did clearfelling the forest have on groundwater?",
+  "What is the storage–drainage index τ, and what is it not?",
+  "Beth yw'r prif ffactorau sy'n rheoli lefel y dŵr daear?",
+  "Which clusters dry out most in summer?"
+];
+EXAMPLES.forEach(q=>{const b=document.createElement("button");b.type="button";b.textContent=q;b.onclick=()=>{$("qin").value=q;ask();};$("examples").append(b);});
+
+// ---------------------------------------------------------------- the conversation
+const history=[]; // {role, content}
+let sample=null, toolsOK=false, busy=false, ctl=null;
+const qin=$("qin");
+qin.addEventListener("input",()=>{qin.style.height="auto";qin.style.height=Math.min(qin.scrollHeight,150)+"px";});
+qin.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask();}});
+$("ask").addEventListener("submit",e=>{e.preventDefault();ask();});
+$("stop").onclick=()=>ctl&&ctl.abort();
+
+function preRetrieve(q){
+  const d=searchChunks(q,6).map(c=>chunkHit(c,q)); const n=searchNumbers(q,8).map(numHit);
+  track(d); track(n);
+  return "PRE-RETRIEVED (search results for the question; use the tools for more):\n"+JSON.stringify({passages:d,numbers:n});
+}
+function bubble(cls){const el=document.createElement("div");el.className=cls;$("log").append(el);el.scrollIntoView({block:"end",behavior:"smooth"});return el;}
+
+function searchOnly(q){
+  const a=bubble("a"); const hits=searchChunks(q,8);
+  a.innerHTML=hits.length?`<div class="hits">${hits.map(c=>`<button type="button" class="hit" data-src="${c.k}"><small>${esc(c.title)}${c.heading?" · "+esc(c.heading):""}</small>${esc(snippet(c,q,45))}</button>`).join("")}</div>`
+    :"<p>No passage matches those words. Try different terms.</p>";
+}
+
+async function ask(){
+  const q=qin.value.trim(); if(!q||busy) return;
+  $("welcome")&&$("welcome").remove();
+  qin.value=""; qin.style.height="auto";
+  const qe=bubble("q"); qe.textContent=q;
+  if(!sample){searchOnly(q); return;}
+  busy=true; $("send").disabled=true; $("stop").hidden=false;
+  const a=bubble("a"); statusEl=document.createElement("div"); statusEl.className="status"; a.append(statusEl);
+  const out=document.createElement("div"); out.className="md"; a.append(out);
+  status("Thinking…");
+  retrieved=new Set(); answerScope=null;
+  const ctx=preRetrieve(q);
+  const turns=[{role:"user",content:RULES},{role:"assistant",content:"Understood. I will answer only from the tools and pre-retrieved results, citing every statement."},
+    ...history.slice(-6),{role:"user",content:ctx+"\n\nQUESTION: "+q}];
+  ctl=new AbortController();
+  try{
+    const opts={signal:ctl.signal,modelTier:"default",onText:({text})=>{out.innerHTML=md(text);}};
+    if(toolsOK) opts.tools=TOOLS; else opts.cache=false;
+    const r=await sample(turns,opts);
+    answerScope=everRetrieved; out.innerHTML=md(r.text); statusEl.remove();
+    if(r.truncated){const n=document.createElement("div");n.className="note";n.textContent="This answer was cut short. Ask about one part at a time.";a.append(n);}
+    if(out.querySelector(".chip.bad")){const n=document.createElement("div");n.className="note";n.textContent="Some citations (marked) were not among the sources retrieved for this answer. Treat those statements as unchecked.";a.append(n);}
+    if(!out.querySelector(".chip")){const n=document.createElement("div");n.className="note";n.textContent="This answer carries no citations. Treat it as unchecked.";a.append(n);}
+    history.push({role:"user",content:q},{role:"assistant",content:r.text});
+  }catch(e){
+    statusEl&&statusEl.remove(); answerScope=everRetrieved;
+    if(e&&e.text) out.innerHTML=md(e.text); else out.innerHTML="";
+    const n=document.createElement("div"); n.className="note";
+    const code=e&&e.code;
+    if(code==="cancelled"){n.textContent="Stopped.";}
+    else if(code==="not_granted"||code==="sampling_disabled"||code==="capability_disabled"||code==="not_declared"){
+      sample=null; setMode(); n.textContent="Claude isn't available to this page, so the box now searches the documents instead."; searchOnly(q);}
+    else if(code==="tools_unavailable"){toolsOK=false; n.textContent="This view can't run the search tools. Ask again and Claude will answer from the top search results only.";}
+    else if(code==="rate_limited"){n.textContent="Too many questions at once, or your Claude usage limit is reached. Try again in a while.";}
+    else if(code==="session_expired"){n.textContent="Your Claude session has expired. Sign in again, then ask.";}
+    else if(code==="prompt_too_large"){n.textContent="The conversation has grown too long. Reload the page to start a new one.";}
+    else if(code==="refused"){out.innerHTML="";n.textContent="Claude declined that question. Try asking it differently.";}
+    else {n.textContent="The answer was interrupted. Ask again to retry.";}
+    a.append(n);
+  }finally{busy=false; $("send").disabled=false; $("stop").hidden=true; statusEl=null; qin.focus();}
+}
+
+function setMode(){
+  $("mode").textContent = sample ? (toolsOK?"Answers by Claude, using your Claude account":"Answers by Claude from the top search results")
+                                 : "Search only — open this page in Claude to get written answers";
+  $("send").textContent = sample ? "Ask" : "Search";
+}
+setMode();
+(async function(){
+  try{
+    const s = window.claude && await window.claude.use("sample");
+    if(s){ sample=s; try{const lim=await s.limits(); toolsOK=!!(lim&&lim.tools);}catch(_){toolsOK=false;} }
+  }catch(_){ sample=null; }
+  setMode();
+})();
+})();
+</script>

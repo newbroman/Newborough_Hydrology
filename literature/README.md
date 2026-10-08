@@ -28,8 +28,8 @@ from their publishers.
 | `dynamic_dunescapes_2024_sand_dune_managers_handbook_v2.pdf` | Denning, L., Pugh, M., Pitts, V. and Dynamic Dunescapes partners (2024) *The Sand Dune Managers Handbook.* Version 2, September 2024. Dynamic Dunescapes. Table 2 (p. 12): hydrological guidelines for dune slack communities (MSL, winter/spring maximum, summer/autumn minimum), nine-year averages 2006–2014 at Newborough and Ainsdale after Stratford et al. (2014). Supersedes Version 1 (Jones, Rooney, Rhymes et al., 2021). | https://dynamicdunescapes.co.uk/wp-content/uploads/2024/09/Dynamic-Dunescapes-Sand-Dune-Managers-Handbook-v2.pdf; sent by Laurence Jones 2026-10-06, supplied by Martin the same day | freely downloadable; licence not stated; untracked |
 | `rhymes_2014_dune_wetlands_groundwater_nutrients_scitotenv.pdf` | Rhymes, J., Wallace, H., Fenner, N. and Jones, L. (2014) Evidence for sensitivity of dune wetlands to groundwater nutrients. *Science of the Total Environment* 490, 106–113. | Elsevier; supplied by Martin 2026-10-06 | publisher terms |
 | `saye_pye_2007_sea_level_rise_welsh_dunes_jcc.pdf` | Saye, S.E. and Pye, K. (2007) Implications of sea level rise for coastal dune habitat conservation in Wales, UK. *Journal of Coastal Conservation* 11, 31–52. doi:10.1007/s11852-007-0004-5 | Springer; held as `coast erosion pye.pdf`, renamed 2026-10-06 | publisher terms |
-| `stratford_robins_hollingham_nd_hydrology_land_use_two_welsh_dunes.pdf` | Stratford, C., Robins, N. and Hollingham, M. (n.d., after 2007) An assessment of the interactions between hydrology, land use and climate change at two coastal dune systems in Wales, UK. Manuscript (Newborough Warren and Whiteford Burrows). Publication details to confirm. | held as `Stratford et al_paper_final.pdf`, renamed 2026-10-06 | co-authored manuscript; untracked |
-| `callaghan_2021_petalophyllum_ralfsii_manuscript.docx` | Callaghan, D.A., van Willegen, L., Williams, G., Hollingham, M. and Jones, L. Pony trails, hydrology and habitat restoration: aspects of the ecology of *Petalophyllum ralfsii* in an oceanic dune system. Manuscript version (cited in the corpus as Callaghan et al., 2021). | held as `Petalophyllum ralfsii.docx`, renamed 2026-10-06 | co-authored manuscript; untracked |
+| `stratford_robins_hollingham_nd_hydrology_land_use_two_welsh_dunes.pdf` | Stratford, C., Robins, N. and Hollingham, M. (n.d., after 2007) An assessment of the interactions between hydrology, land use and climate change at two coastal dune systems in Wales, UK. Published (Martin, 2026-10-08); journal, year and DOI to confirm — not found by a web search on 2026-10-08. The held file is the author's final manuscript. | held as `Stratford et al_paper_final.pdf`, renamed 2026-10-06 | published work under the publisher's copyright; untracked |
+| `callaghan_2021_petalophyllum_ralfsii_manuscript.docx` | Callaghan, D.A., van Willegen, L., Williams, G., Hollingham, M. and Jones, L. (2021) Pony trails, hydrology and habitat restoration: aspects of the ecology of *Petalophyllum ralfsii* in a Welsh oceanic dune system. *Journal of Bryology* 43(2), 150–161. doi:10.1080/03736687.2020.1819719. The held file is the author's manuscript version. | held as `Petalophyllum ralfsii.docx`, renamed 2026-10-06 | published work under the publisher's copyright; untracked |
 
 `_duplicates/` holds second copies of three Ranwell papers (different JSTOR downloads of the same articles), kept when the files were renamed to this manifest on 2026-10-06; the copy listed above is the one whose text runs to the last page.
 
@@ -37,6 +37,14 @@ Rows above describe the documents in the folder (first supplied to the
 2026-08-22 session; later additions carry their own dates). Update this
 table when a document is added or removed; the filename column is the contract
 between this manifest and whatever cites it.
+
+## Open-licence text for the chatbot
+
+`literature/open/` is the one tracked subfolder: plain-text extracts of works
+whose licence permits redistribution (CC BY), each headed with its citation,
+licence and source. The project chatbot (`tools/build_chat_corpus.py`) may carry
+these in full; everything else here it cites from the manifest above and never
+contains.
 
 ## Wanted
 

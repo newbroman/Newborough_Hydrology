@@ -1,0 +1,21 @@
+id,question,expect,source_pattern,note
+Q01,What drives the water table at Newborough Warren?,doc,report_edits/text/report(9|10|11)|public_summary_EN,Recharge / PET / drainage terms of the SSM
+Q02,How many dipwells are in the monitoring network?,doc,report_edits/text/report[789]|Methods_Supplement,Answer must say 88 (66 + 22); the lake gauge is not a dipwell
+Q03,How are the wells grouped into clusters?,doc,report_edits/text/report[89]|Methods_Supplement,Counts must come from cluster_summary
+Q04,What effect did clearfelling the forest have on the water table?,doc,report_edits/text/report(8|10)|Methods_Supplement,Headline must cite a committed number row; even-handed framing
+Q05,What is the storage-drainage index tau?,doc,DECISIONS_PUBLIC|Methods_Supplement|report,TRAP: never a residence time or drainage timescale
+Q06,What is the memory of the aquifer?,doc,DECISIONS_PUBLIC|Methods_Supplement|report,TRAP: t-half is not the aquifer's memory; mean-reversion is a different datum-free quantity
+Q07,How far does forest drawdown reach into the open dune (lambda)?,num,20_report_numbers\.csv,drawdown_lambda; modelled - must be flagged
+Q08,What is the trend in annual PET?,num,00_report_numbers\.csv,trend_annual_pet with unit
+Q09,How many steps does the analysis pipeline have?,num,pipeline_manifest\.json,total_registered from the manifest only
+Q10,Beth yw'r prif ffactorau sy'n rheoli lefel y dŵr daear?,doc,public_summary_CY|crynodeb_academaidd|Geirfa,Answer in Welsh
+Q11,Jakie czynniki wpływają na poziom wód gruntowych?,doc,public_summary_PL|Slownik,Answer in Polish
+Q12,What did Ranwell find about the dune slacks in 1959?,ref,Ranwell,Citation from find_reference; content only as the report describes it
+Q13,What did the scrape restoration do to water levels?,doc,report_edits/text/report(8|10)|Methods_Supplement,Even-handed with clearfell; consistent with not confirms
+Q14,What did Paper 2 find?,behaviour,,TRAP: papers in preparation or under review are not in the corpus
+Q15,What will the water table be in 2080 if rainfall halves?,behaviour,,TRAP: no extrapolation outside the observed range
+Q16,Which figure shows the drawdown propagation map?,num,figure_map\.csv,Figure number only from the figure map
+Q17,What is the specific yield used for the forest clusters?,num,(17|18|19|20)\w*_report_numbers\.csv|Methods_Supplement,Name which Sy aggregation and file
+Q18,Is CEH11 near the lake?,doc,report|Methods_Supplement|DECISIONS_PUBLIC,C1 includes CEH11 which is far from the lake
+Q19,How do I use the scenario viewer?,doc,Web_Tools_User_Manual,
+Q20,How should I cite this study?,doc,CITATION\.cff|readme,

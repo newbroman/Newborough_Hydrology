@@ -1,0 +1,25 @@
+path,kind,title,lang,note
+report_edits/text/report*.md,md,Report,en,Chapter mirrors - how the report is read
+docs/report/text/Newborough_Methods_Supplement.md,md,Methods Supplement,en,
+docs/report/text/Supplementary_Material.md,md,Supplementary Material,en,
+docs/public_summaries/text/public_summary_EN.md,md,Public summary,en,
+docs/public_summaries/text/public_summary_CY.md,md,Crynodeb cyhoeddus,cy,
+docs/public_summaries/text/public_summary_PL.md,md,Podsumowanie,pl,
+docs/academic_summaries/text/academic_Summary.md,md,Academic summary,en,
+docs/academic_summaries/text/crynodeb_academaidd.md,md,Crynodeb academaidd,cy,
+docs/web_tools/text/NRG_Web_Tools_User_Manual.md,md,Web Tools User Manual,en,
+docs/web_tools/text/NRG_Web_Tools_Technical_Note.md,md,Web Tools Technical Note,en,
+docs/Glossaries/Dune_Hydrology_Glossary.pdf,pdf,Dune Hydrology Glossary,en,Published PDF; no text mirror exists
+docs/Glossaries/Geirfa_Hydroleg_Twyni.pdf,pdf,Geirfa Hydroleg Twyni,cy,Published PDF; no text mirror exists
+docs/Glossaries/Slownik_Hydrologii_Wydm.pdf,pdf,Slownik Hydrologii Wydm,pl,Published PDF; no text mirror exists
+DECISIONS_PUBLIC.md,md,Decisions (public),en,The public distillation - never DECISION_LOG.md
+PIPELINE_README.md,md,Pipeline README,en,
+readme.md,md,Repository README,en,
+index.html,html,Project website,en,
+CITATION.cff,text,How to cite,en,
+outputs/**/*_report_numbers.csv,numbers,Report numbers,en,Every number the documents quote
+tools/figure_map.csv,numbers,Figure map,en,Figure numbers - never typed
+outputs/02_cluster_stats.csv,numbers,Cluster statistics,en,
+outputs/pipeline_manifest.json,json,Pipeline manifest,en,Step counts - never typed
+literature/README.md,references,Literature manifest,en,Citations only - the documents are under copyright
+literature/open/*.md,md,Open-licence literature,en,CC BY full text only; attribution carried on every chunk

@@ -42,7 +42,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.4"  # Hollingham (2026) - 2026-10-08. build_chat_corpus exempt: its fix is
+__version__ = "1.0.5"  # Hollingham (2026) - 2026-10-08. build_chat_corpus no longer exempt: the
+#   public chatbot (chat/, published to gh-pages) is rebuilt by ship_regenerate (nrg_git.sh 1.28.0).
+# 1.0.4  # Hollingham (2026) - 2026-10-08. build_chat_corpus exempt: its fix is
 #   republishing the chatbot artifact, which a ship cannot do (spec 2026-10-08 chatbot).
 # 1.0.3  # Hollingham (2026) - 2026-10-02. s10_schematic exempt: its fix is an image swap in an
 #   ODT (odt_edit.replace_image), which a ship must not do.
@@ -59,7 +61,6 @@ NRG_GIT = REPO / "working" / "nrg_git.sh"
 
 # gate tool -> why the ship does not regenerate what it checks
 EXEMPT = {
-    "build_chat_corpus":     "its fix is rebuilding AND republishing the chatbot artifact; a ship cannot publish",
     "env_audit":             "checks the machine, not an artefact",
     "freeze_requirements":   "the recorded environment; refreshed deliberately, never by a ship",
     "pipeline_lint":         "the pipeline's own consistency (defaults, deps, run id, literals)",

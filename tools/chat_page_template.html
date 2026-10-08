@@ -1,5 +1,5 @@
 <title>Ask Newborough Warren</title>
-<!-- chat_page_template.html 1.0.0 (2026-10-08) — the page tools/build_chat_corpus.py fills.
+<!-- chat_page_template.html 1.1.0 (2026-10-08; 1.1.0 adds the public target) — the page tools/build_chat_corpus.py fills.
      The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,7 @@
 :root[data-theme="dark"]{
   --bg:#1b2124; --panel:#232b2f; --line:#3a464c; --fg:#e4e0d6; --muted:#a3adb2;
   --water:#8cc0d0; --water-pale:#22363d; --pine:#9cc497; --warn:#e3b06a; --warn-pale:#3a2e1d; color-scheme:dark}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);padding:0 16px}
 .wrap{max-width:760px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:20px;padding-block:28px 0}
@@ -61,6 +62,7 @@ textarea:focus{outline:none}
 .btn:disabled{opacity:.5;cursor:default}
 .btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .foot{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
+.foot a{color:var(--water)}
 #mode{font-size:.8rem;color:var(--muted)}
 /* source sheet */
 #sheet{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--panel);border-left:1px solid var(--line);
@@ -99,6 +101,7 @@ textarea:focus{outline:none}
       <button class="btn" type="submit" id="send">Ask</button>
     </div>
     <div class="foot"><span id="mode">Starting…</span><span id="build"></span></div>
+    <div class="foot" id="notice" hidden>Questions and answers are logged so wrong answers can be found and fixed. Please don't type personal information. <a id="privacy" href="privacy.html">Privacy</a></div>
   </form>
 </div>
 
@@ -110,11 +113,14 @@ textarea:focus{outline:none}
 
 <script>
 const CORPUS = /*__CHAT_CORPUS__*/null;
+const CHAT = /*__CHAT_SETTINGS__*/null;
 </script>
 <script>
 (function(){
 "use strict";
 const C = CORPUS || {chunks:[],numbers:[],references:[],sources:[],meta:{counts:{}}};
+const S = CHAT || {mode:"artifact",rules:"",tools:[],worker_url:"",limits:{}};
+const PUBLIC = S.mode==="public";
 
 // ---------------------------------------------------------------- ids
 C.chunks.forEach((c,i)=>c.k="d"+i);
@@ -171,65 +177,29 @@ const refHit=r=>({id:r.k,citation:r.citation,source:r.source});
 // ---------------------------------------------------------------- tools
 let retrieved=new Set(); const everRetrieved=new Set();
 function track(list){list.forEach(o=>{retrieved.add(o.id);everRetrieved.add(o.id);}); return list;}
-const TOOLS=[
-  {name:"search_documents",
-   description:"Search the published report, supplements, summaries, glossaries, public decisions and site text. Pass several phrasings at once. Returns passage ids with a snippet; cite a passage as [[id]].",
-   inputSchema:{type:"object",properties:{queries:{type:"array",items:{type:"string"},description:"1-4 search phrasings"},k:{type:"integer",description:"results per query, default 5, max 8"}},required:["queries"]},
-   execute(inp){status("Searching the documents: "+[].concat(inp.queries||[]).join("; "));
+const EXEC={
+  search_documents(inp){status("Searching the documents: "+[].concat(inp.queries||[]).join("; "));
      const k=Math.min(8,Math.max(1,Number(inp.k)||5)); const seen=new Set(), out=[];
      [].concat(inp.queries||[]).slice(0,4).forEach(q=>searchChunks(String(q),k).forEach(c=>{if(!seen.has(c.k)){seen.add(c.k);out.push(chunkHit(c,String(q)));}}));
-     return track(out);}},
-  {name:"read_passages",
-   description:"Full text of passages by id (from search_documents). Read before stating detail. Max 4 ids per call.",
-   inputSchema:{type:"object",properties:{ids:{type:"array",items:{type:"string"}}},required:["ids"]},
-   execute(inp){const ids=[].concat(inp.ids||[]).slice(0,4).map(String);
+     return track(out);},
+  read_passages(inp){const ids=[].concat(inp.ids||[]).slice(0,4).map(String);
      status("Reading "+ids.length+" passage"+(ids.length>1?"s":""));
      return track(ids.map(id=>{const c=BYK.get(id); if(!c||!c.text) return {id,error:"no such passage"};
-       return {id,document:c.title,section:c.heading,path:c.source,text:c.text};}));}},
-  {name:"search_numbers",
-   description:"Search the committed pipeline CSVs (report numbers, figure map, cluster table, pipeline manifest). Every number you state must come from a row returned here; cite it as [[id]].",
-   inputSchema:{type:"object",properties:{queries:{type:"array",items:{type:"string"}},k:{type:"integer",description:"rows per query, default 8, max 15"}},required:["queries"]},
-   execute(inp){status("Looking up numbers: "+[].concat(inp.queries||[]).join("; "));
+       return {id,document:c.title,section:c.heading,path:c.source,text:c.text};}));},
+  search_numbers(inp){status("Looking up numbers: "+[].concat(inp.queries||[]).join("; "));
      const k=Math.min(15,Math.max(1,Number(inp.k)||8)); const seen=new Set(),out=[];
      [].concat(inp.queries||[]).slice(0,4).forEach(q=>searchNumbers(String(q),k).forEach(r=>{if(!seen.has(r.k)){seen.add(r.k);out.push(numHit(r));}}));
-     return track(out);}},
-  {name:"cluster_summary",
-   description:"Counts and well lists for each cluster in the current partition, from outputs/02_cluster_stats.csv. Cite as [[f:outputs/02_cluster_stats.csv]].",
-   execute(){status("Reading the cluster table"); const by={};
+     return track(out);},
+  cluster_summary(){status("Reading the cluster table"); const by={};
      C.numbers.filter(r=>r.file==="outputs/02_cluster_stats.csv").forEach(r=>{const l=r.fields.Cluster_Label||r.fields.Cluster;(by[l]=by[l]||[]).push(r.fields.Match_ID);});
      retrieved.add("f:outputs/02_cluster_stats.csv"); everRetrieved.add("f:outputs/02_cluster_stats.csv");
-     return {file:"outputs/02_cluster_stats.csv",clusters:Object.entries(by).map(([label,w])=>({label,wells:w.length,members:w.join(", ")}))};}},
-  {name:"find_reference",
-   description:"Look up a literature reference (author, year, title). Returns the full citation and where it is published. The texts themselves are not available. Cite as [[id]].",
-   inputSchema:{type:"object",properties:{query:{type:"string"}},required:["query"]},
-   execute(inp){status("Looking up the reference: "+inp.query); return track(searchRefs(String(inp.query||""),5).map(refHit));}}
-];
+     return {file:"outputs/02_cluster_stats.csv",clusters:Object.entries(by).map(([label,w])=>({label,wells:w.length,members:w.join(", ")}))};},
+  find_reference(inp){status("Looking up the reference: "+inp.query); return track(searchRefs(String(inp.query||""),5).map(refHit));}
+};
+// Definitions come from tools/chat_tools.json (one source for this page and the Worker).
+const TOOLS=S.tools.filter(t=>EXEC[t.name]).map(t=>({name:t.name,description:t.description,inputSchema:t.input_schema,execute:EXEC[t.name]}));
 
-const RULES = `You answer questions about the Newborough Warren hydrology study (a long-term record of the dune water table at Newborough Warren, Anglesey) for the page "Ask Newborough Warren". Answer ONLY from what the tools and the PRE-RETRIEVED block return. If they do not contain the answer, say it is not in the published record. Never answer from general knowledge about this site.
-
-Method
-- Write nothing before your final answer: no narration of searches.
-- Search with several phrasings; read passages before giving detail. Use search_numbers for any number.
-- Keep answers short and plain: two to five short paragraphs or a short list. Lead with the answer.
-
-Citing
-- Cite every factual sentence with the id of the passage or row it rests on, in double square brackets, e.g. [[d12]] or [[n340]]; several ids as [[d12]] [[n340]]. Use only ids the tools returned. Cluster counts: [[f:outputs/02_cluster_stats.csv]].
-- Every number must come from a returned row (search_numbers) or appear in a returned passage, with its unit. Quote it as the report quotes it where the passage gives it; otherwise to three decimal places. Never compute, convert, combine or extrapolate a new number.
-- Figure numbers only from figure-map rows; pipeline step counts only from the pipeline manifest row.
-
-Framing
-- Use "consistent with" or "indicates", not "confirms" or "proves", where the evidence is incomplete. Treat interventions and drivers even-handedly. Say when a quantity is modelled rather than measured.
-- τ (Sy/β₃) is the storage-drainage index, a diagnostic. Never call it a residence time or drainage timescale.
-- t½ = ln(2)/β₃ is the recession constant of the drainage term at the project datum. Never call it the aquifer's memory.
-- The network is 88 dipwells (66 reference + 22 extended). The Llyn Rhos-Ddu lake gauge is a measuring point, not a dipwell.
-- Do not extrapolate any fitted relationship outside the observed range.
-- Cluster C1 "Lake Edge" includes CEH11, which is far from the lake; do not apply lake reasoning to it.
-
-Scope
-- The corpus is the published report, Methods Supplement, Supplementary Material, public and academic summaries, glossaries, public decision record, web-tools manuals and committed numbers. Journal papers that are in preparation or under review are not included: say so if asked.
-- Literature: give the citation from find_reference. Describe what a source found only as the project's own documents describe it, citing that passage.
-
-Language: reply in the language of the question (English, Welsh or Polish). Use British spelling (-ize, -yse, -our).`;
+const RULES = S.rules; // tools/chat_rules.md
 
 // ---------------------------------------------------------------- UI helpers
 const $=id=>document.getElementById(id);
@@ -301,9 +271,11 @@ const EXAMPLES=[
 EXAMPLES.forEach(q=>{const b=document.createElement("button");b.type="button";b.textContent=q;b.onclick=()=>{$("qin").value=q;ask();};$("examples").append(b);});
 
 // ---------------------------------------------------------------- the conversation
-const history=[]; // {role, content}
-let sample=null, toolsOK=false, busy=false, ctl=null;
+const history=[]; // {role, content} — plain text turns only
+let sample=null, toolsOK=false, busy=false, ctl=null, live=false;
+const L=Object.assign({max_rounds:4,max_history_turns:6,max_question_chars:1000},S.limits||{});
 const qin=$("qin");
+if(PUBLIC){ qin.maxLength=L.max_question_chars; $("notice").hidden=false; if(S.privacy_url) $("privacy").href=S.privacy_url; }
 qin.addEventListener("input",()=>{qin.style.height="auto";qin.style.height=Math.min(qin.scrollHeight,150)+"px";});
 qin.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask();}});
 $("ask").addEventListener("submit",e=>{e.preventDefault();ask();});
@@ -322,25 +294,68 @@ function searchOnly(q){
     :"<p>No passage matches those words. Try different terms.</p>";
 }
 
+// Artifact stage: Claude through the viewer's own account (the sample capability).
+async function viaSample(q,ctx,out){
+  const turns=[{role:"user",content:RULES},{role:"assistant",content:"Understood. I will answer only from the tools and pre-retrieved results, citing every statement."},
+    ...history.slice(-L.max_history_turns),{role:"user",content:ctx+"\n\nQUESTION: "+q}];
+  const opts={signal:ctl.signal,modelTier:"default",onText:({text})=>{out.innerHTML=md(text);}};
+  if(toolsOK) opts.tools=TOOLS; else opts.cache=false;
+  return await sample(turns,opts);
+}
+
+// Public stage: the page runs the tools; the Worker holds the key, the rules and the budget.
+async function viaWorker(q,ctx){
+  const qid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random());
+  const msgs=[...history.slice(-L.max_history_turns),{role:"user",content:ctx+"\n\nQUESTION: "+q}];
+  for(let round=0; round<=L.max_rounds; round++){
+    let r;
+    try{
+      r=await fetch(S.worker_url.replace(/\/$/,"")+"/ask",{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({qid,messages:msgs}),signal:ctl.signal});
+    }catch(e){ throw {code: ctl.signal.aborted?"cancelled":"upstream_error"}; }
+    let j={}; try{ j=await r.json(); }catch(_){}
+    if(!r.ok) throw {code:j.code||"upstream_error", message:j.message||""};
+    const text=(j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+    const uses=(j.content||[]).filter(b=>b.type==="tool_use");
+    if(j.stop_reason==="tool_use" && uses.length){
+      msgs.push({role:"assistant",content:j.content});
+      msgs.push({role:"user",content:uses.map(b=>{
+        let res; try{ res=EXEC[b.name]?EXEC[b.name](b.input||{}):{error:"unknown tool "+b.name}; }catch(e){ res={error:String(e&&e.message||e)}; }
+        return {type:"tool_result",tool_use_id:b.id,content:JSON.stringify(res).slice(0,30000)};
+      })});
+      continue;
+    }
+    return {text, truncated:j.stop_reason==="max_tokens"};
+  }
+  throw {code:"upstream_error"};
+}
+
+const MESSAGES={
+  cancelled:"Stopped.",
+  rate_limited:"That's a lot of questions in a short time. Please try again later.",
+  budget_exhausted:"This month's allowance for written answers is used up. The box now searches the documents instead.",
+  unavailable:"Written answers aren't available just now. The box now searches the documents instead.",
+  too_long:"That question is too long. Please shorten it.",
+  session_expired:"Your Claude session has expired. Sign in again, then ask.",
+  prompt_too_large:"The conversation has grown too long. Reload the page to start a new one.",
+  refused:"Claude declined that question. Try asking it differently."
+};
+
 async function ask(){
   const q=qin.value.trim(); if(!q||busy) return;
   $("welcome")&&$("welcome").remove();
   qin.value=""; qin.style.height="auto";
   const qe=bubble("q"); qe.textContent=q;
-  if(!sample){searchOnly(q); return;}
+  if(!live){searchOnly(q); return;}
   busy=true; $("send").disabled=true; $("stop").hidden=false;
   const a=bubble("a"); statusEl=document.createElement("div"); statusEl.className="status"; a.append(statusEl);
   const out=document.createElement("div"); out.className="md"; a.append(out);
   status("Thinking…");
   retrieved=new Set(); answerScope=null;
   const ctx=preRetrieve(q);
-  const turns=[{role:"user",content:RULES},{role:"assistant",content:"Understood. I will answer only from the tools and pre-retrieved results, citing every statement."},
-    ...history.slice(-6),{role:"user",content:ctx+"\n\nQUESTION: "+q}];
   ctl=new AbortController();
   try{
-    const opts={signal:ctl.signal,modelTier:"default",onText:({text})=>{out.innerHTML=md(text);}};
-    if(toolsOK) opts.tools=TOOLS; else opts.cache=false;
-    const r=await sample(turns,opts);
+    const r = PUBLIC ? await viaWorker(q,ctx) : await viaSample(q,ctx,out);
     answerScope=everRetrieved; out.innerHTML=md(r.text); statusEl.remove();
     if(r.truncated){const n=document.createElement("div");n.className="note";n.textContent="This answer was cut short. Ask about one part at a time.";a.append(n);}
     if(out.querySelector(".chip.bad")){const n=document.createElement("div");n.className="note";n.textContent="Some citations (marked) were not among the sources retrieved for this answer. Treat those statements as unchecked.";a.append(n);}
@@ -351,30 +366,36 @@ async function ask(){
     if(e&&e.text) out.innerHTML=md(e.text); else out.innerHTML="";
     const n=document.createElement("div"); n.className="note";
     const code=e&&e.code;
-    if(code==="cancelled"){n.textContent="Stopped.";}
-    else if(code==="not_granted"||code==="sampling_disabled"||code==="capability_disabled"||code==="not_declared"){
-      sample=null; setMode(); n.textContent="Claude isn't available to this page, so the box now searches the documents instead."; searchOnly(q);}
-    else if(code==="tools_unavailable"){toolsOK=false; n.textContent="This view can't run the search tools. Ask again and Claude will answer from the top search results only.";}
-    else if(code==="rate_limited"){n.textContent="Too many questions at once, or your Claude usage limit is reached. Try again in a while.";}
-    else if(code==="session_expired"){n.textContent="Your Claude session has expired. Sign in again, then ask.";}
-    else if(code==="prompt_too_large"){n.textContent="The conversation has grown too long. Reload the page to start a new one.";}
-    else if(code==="refused"){out.innerHTML="";n.textContent="Claude declined that question. Try asking it differently.";}
-    else {n.textContent="The answer was interrupted. Ask again to retry.";}
+    if(["not_granted","sampling_disabled","capability_disabled","not_declared","budget_exhausted","unavailable"].includes(code)){
+      live=false; setMode(); n.textContent=MESSAGES[code]||"Claude isn't available to this page, so the box now searches the documents instead."; a.append(n); searchOnly(q);
+      return;
+    }
+    if(code==="tools_unavailable"){toolsOK=false; n.textContent="This view can't run the search tools. Ask again and Claude will answer from the top search results only.";}
+    else n.textContent=MESSAGES[code]||"The answer was interrupted. Ask again to retry.";
     a.append(n);
   }finally{busy=false; $("send").disabled=false; $("stop").hidden=true; statusEl=null; qin.focus();}
 }
 
 function setMode(){
-  $("mode").textContent = sample ? (toolsOK?"Answers by Claude, using your Claude account":"Answers by Claude from the top search results")
-                                 : "Search only — open this page in Claude to get written answers";
-  $("send").textContent = sample ? "Ask" : "Search";
+  let t;
+  if(live) t = PUBLIC ? "Answers written by Claude from the published record" :
+               (toolsOK?"Answers by Claude, using your Claude account":"Answers by Claude from the top search results");
+  else t = PUBLIC ? "Search only — written answers are not available just now" :
+               "Search only — open this page in Claude to get written answers";
+  $("mode").textContent=t; $("send").textContent = live ? "Ask" : "Search";
 }
 setMode();
 (async function(){
+  if(PUBLIC){
+    if(!S.worker_url){ live=false; setMode(); return; }
+    try{ const r=await fetch(S.worker_url.replace(/\/$/,"")+"/status"); const j=await r.json(); live=!!(r.ok&&j.available); }
+    catch(_){ live=false; }
+    setMode(); return;
+  }
   try{
     const s = window.claude && await window.claude.use("sample");
-    if(s){ sample=s; try{const lim=await s.limits(); toolsOK=!!(lim&&lim.tools);}catch(_){toolsOK=false;} }
-  }catch(_){ sample=null; }
+    if(s){ sample=s; live=true; try{const lim=await s.limits(); toolsOK=!!(lim&&lim.tools);}catch(_){toolsOK=false;} }
+  }catch(_){ sample=null; live=false; }
   setMode();
 })();
 })();

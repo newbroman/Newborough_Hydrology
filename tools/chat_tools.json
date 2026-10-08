@@ -1,0 +1,88 @@
+[
+ {
+  "name": "search_documents",
+  "description": "Search the published report, supplements, summaries, glossaries, public decisions and site text. Pass several phrasings at once. Returns passage ids with a snippet; cite a passage as [[id]].",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "queries": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "1-4 search phrasings"
+    },
+    "k": {
+     "type": "integer",
+     "description": "results per query, default 5, max 8"
+    }
+   },
+   "required": [
+    "queries"
+   ]
+  }
+ },
+ {
+  "name": "read_passages",
+  "description": "Full text of passages by id (from search_documents). Read before stating detail. Max 4 ids per call.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "ids": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    }
+   },
+   "required": [
+    "ids"
+   ]
+  }
+ },
+ {
+  "name": "search_numbers",
+  "description": "Search the committed pipeline CSVs (report numbers, figure map, cluster table, pipeline manifest). Every number you state must come from a row returned here; cite it as [[id]].",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "queries": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "k": {
+     "type": "integer",
+     "description": "rows per query, default 8, max 15"
+    }
+   },
+   "required": [
+    "queries"
+   ]
+  }
+ },
+ {
+  "name": "cluster_summary",
+  "description": "Counts and well lists for each cluster in the current partition, from outputs/02_cluster_stats.csv. Cite as [[f:outputs/02_cluster_stats.csv]].",
+  "input_schema": {
+   "type": "object",
+   "properties": {}
+  }
+ },
+ {
+  "name": "find_reference",
+  "description": "Look up a literature reference (author, year, title). Returns the full citation and where it is published. The texts themselves are not available. Cite as [[id]].",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "query"
+   ]
+  }
+ }
+]

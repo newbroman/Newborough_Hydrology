@@ -482,8 +482,9 @@ python3 tools/build_public_decisions.py --check || rc=1
 # The chatbot answers from an allowlisted corpus of PUBLISHED documents. The
 # denylist keeps the papers in preparation, the working decision log and the
 # copyrighted literature out whatever the allowlist says; --check also fails when
-# the sources have moved since the chatbot was last published (rebuild, republish,
-# commit outputs/chat/chat_corpus_stamp.json).
+# the sources, rules, tools or page have moved since the chatbot was last built. The
+# ship rebuilds the public chatbot (chat/) itself; the private artifact copy is
+# republished by a session.
 python3 tools/build_chat_corpus.py --selftest >/dev/null || rc=1
 python3 tools/build_chat_corpus.py --check || rc=1
 

@@ -36,7 +36,15 @@ See claude/NRG_spec_chatbot_2026-10-08.md and the decision recorded with it.
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-08. The fingerprint skips the
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-08. The public target (spec
+#   claude/NRG_spec_chatbot_public_2026-10-08.md): --target public writes chat/index.html
+#   (the page wired to the Cloudflare Worker) and chat/chat_config.json (the rules, tool
+#   definitions, model and limits the Worker enforces). The rules and tool definitions
+#   move out of the template into tools/chat_rules.md and tools/chat_tools.json, one
+#   source for both stages. The stamp gains page_sha256 over those files, the template
+#   and tools/chat_public.json, so a rules change reads as stale until republished.
+#   --selftest also proves every defined tool has an implementation in the page.
+# 1.0.1  # Hollingham (2026) - 2026-10-08. The fingerprint skips the
 #   manifest's `generated` timestamp. Every ship rewrites that field without changing a
 #   step, so the published chatbot read as stale after each ship and --check failed it
 #   (two ships, 2026-10-08). The corpus never quoted the timestamp.
@@ -66,6 +74,14 @@ OUT_JSON = OUT_DIR / "chat_corpus.json"
 OUT_HTML = OUT_DIR / "chatbot.html"
 OUT_STAMP = OUT_DIR / "chat_corpus_stamp.json"
 PLACEHOLDER = "/*__CHAT_CORPUS__*/null"
+SETTINGS_PLACEHOLDER = "/*__CHAT_SETTINGS__*/null"
+RULES = ROOT / "tools" / "chat_rules.md"
+TOOL_DEFS = ROOT / "tools" / "chat_tools.json"
+PUBLIC_CFG = ROOT / "tools" / "chat_public.json"
+PUB_DIR = ROOT / "chat"
+PUB_HTML = PUB_DIR / "index.html"
+PUB_CONFIG = PUB_DIR / "chat_config.json"
+PAGE_INPUTS = [TEMPLATE, RULES, TOOL_DEFS, PUBLIC_CFG]
 
 # Never in the corpus, whatever the allowlist says. fnmatch on the repo-relative
 # path, case-insensitive. Unpublished work and the working record.
@@ -315,13 +331,70 @@ def collect() -> tuple[dict, list[str]]:
     return corpus, problems
 
 
-def write_page(corpus_json: str) -> None:
+def page_sha() -> str:
+    h = hashlib.sha256()
+    for p in PAGE_INPUTS:
+        h.update(p.name.encode() + b"\0" + p.read_bytes() + b"\0")
+    return h.hexdigest()
+
+
+def public_cfg() -> dict:
+    return {k: v for k, v in json.loads(PUBLIC_CFG.read_text(encoding="utf-8")).items()
+            if not k.startswith("_")}
+
+
+def settings(mode: str) -> dict:
+    cfg = public_cfg()
+    return {
+        "mode": mode,
+        "rules": RULES.read_text(encoding="utf-8"),
+        "tools": json.loads(TOOL_DEFS.read_text(encoding="utf-8")),
+        "worker_url": cfg.get("worker_url", "") if mode == "public" else "",
+        "privacy_url": cfg.get("privacy_url", ""),
+        "limits": {k: cfg[k] for k in ("max_rounds", "max_history_turns",
+                                       "max_question_chars") if k in cfg},
+    }
+
+
+def write_page(corpus_json: str, mode: str, out: Path) -> None:
     page = TEMPLATE.read_text(encoding="utf-8")
-    if PLACEHOLDER not in page:
-        sys.exit(f"template has no {PLACEHOLDER} placeholder")
+    for ph in (PLACEHOLDER, SETTINGS_PLACEHOLDER):
+        if ph not in page:
+            sys.exit(f"template has no {ph} placeholder")
     # A literal </script> inside the data would end the script element.
     safe = corpus_json.replace("</", "<\\/")
-    OUT_HTML.write_text(page.replace(PLACEHOLDER, safe), encoding="utf-8")
+    st = json.dumps(settings(mode), ensure_ascii=False).replace("</", "<\\/")
+    body = page.replace(PLACEHOLDER, safe).replace(SETTINGS_PLACEHOLDER, st)
+    if mode == "public":
+        # The artifact host wraps the page in a document; a static site does not.
+        body = ('<!doctype html>\n<html lang="en-GB">\n<head>\n<meta charset="utf-8">\n'
+                '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
+                '<meta name="description" content="Questions about the Newborough Warren groundwater '
+                'study, answered from the published report with every statement linked to its source.">\n'
+                '<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}</style>\n'
+                '</head>\n<body>\n' + body + '\n</body>\n</html>\n')
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(body, encoding="utf-8")
+
+
+def write_worker_config(corpus: dict) -> None:
+    """What the Worker enforces. It fetches this from the published site, so the
+    rules and tool definitions have one source: this repository."""
+    cfg = public_cfg()
+    out = {
+        "rules": RULES.read_text(encoding="utf-8"),
+        "tools": json.loads(TOOL_DEFS.read_text(encoding="utf-8")),
+        "model": cfg["model"],
+        "max_tokens": cfg["max_tokens"],
+        "max_rounds": cfg["max_rounds"],
+        "max_history_turns": cfg["max_history_turns"],
+        "max_question_chars": cfg["max_question_chars"],
+        "corpus_sha256": corpus["meta"]["source_sha256"],
+        "builder": corpus["meta"]["builder"],
+    }
+    PUB_DIR.mkdir(parents=True, exist_ok=True)
+    PUB_CONFIG.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n",
+                          encoding="utf-8")
 
 
 def check() -> int:
@@ -339,8 +412,12 @@ def check() -> int:
             print(f"  FAIL the published chatbot carries denied {path}")
             rc = 1
     if stamp.get("source_sha256") != corpus["meta"]["source_sha256"]:
-        print("  FAIL the published chatbot is stale — rebuild "
-              "(python3 tools/build_chat_corpus.py) and republish the artifact")
+        print("  FAIL the chatbot corpus is stale — rebuild "
+              "(python3 tools/build_chat_corpus.py) and republish")
+        rc = 1
+    if stamp.get("page_sha256") != page_sha():
+        print("  FAIL the chatbot's rules, tools, template or public settings changed "
+              "since it was built — rebuild (python3 tools/build_chat_corpus.py) and republish")
         rc = 1
     print(f"build_chat_corpus --check: {'OK' if rc == 0 else 'FAIL'}")
     return rc
@@ -364,6 +441,15 @@ def selftest() -> int:
     ]
     bad = [p for p in must_deny if not denied(p)] + \
           [p for p in must_allow if denied(p)]
+    # Every tool the rules offer Claude must exist in the page, and vice versa.
+    defined = {t["name"] for t in json.loads(TOOL_DEFS.read_text(encoding="utf-8"))}
+    page = TEMPLATE.read_text(encoding="utf-8")
+    m = re.search(r"const EXEC=\{(.*?)\n\};", page, re.S)
+    implemented = set(re.findall(r"(?m)^  (\w+)\(", m.group(1))) if m else set()
+    for t in sorted(defined ^ implemented):
+        bad.append(f"tool {t!r} is {'defined but not implemented' if t in defined else 'implemented but not defined'}")
+    if not RULES.read_text(encoding="utf-8").strip():
+        bad.append("tools/chat_rules.md is empty")
     for p in bad:
         print(f"  selftest FAIL: {p}")
     print(f"build_chat_corpus --selftest: {'OK' if not bad else 'FAIL'}")
@@ -374,6 +460,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--target", choices=("artifact", "public", "all"), default="all",
+                    help="artifact: outputs/chat/chatbot.html (stage 1); public: chat/ for the "
+                         "site and the Worker; all (default): both")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
@@ -388,9 +477,19 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     text = json.dumps(corpus, ensure_ascii=False, separators=(",", ":"))
     OUT_JSON.write_text(text, encoding="utf-8")
-    write_page(text)
+    built = []
+    if args.target in ("artifact", "all"):
+        write_page(text, "artifact", OUT_HTML)
+        built.append(OUT_HTML)
+    if args.target in ("public", "all"):
+        write_page(text, "public", PUB_HTML)
+        write_worker_config(corpus)
+        built += [PUB_HTML, PUB_CONFIG]
+        if not public_cfg().get("worker_url"):
+            print("  note tools/chat_public.json has no worker_url yet: the public page runs search-only")
     OUT_STAMP.write_text(json.dumps({
         "source_sha256": corpus["meta"]["source_sha256"],
+        "page_sha256": page_sha(),
         "builder": corpus["meta"]["builder"],
         "counts": corpus["meta"]["counts"],
         "sources": [s["path"] for s in corpus["sources"]],
@@ -399,7 +498,8 @@ def main() -> int:
     print(f"saved {OUT_JSON.relative_to(ROOT)} ({len(text) / 1e6:.2f} MB): "
           f"{c['sources']} sources, {c['chunks']} chunks, {c['numbers']} number rows, "
           f"{c['references']} references")
-    print(f"saved {OUT_HTML.relative_to(ROOT)}")
+    for b in built:
+        print(f"saved {b.relative_to(ROOT)}")
     print(f"saved {OUT_STAMP.relative_to(ROOT)} — commit it when the chatbot is republished")
     return 1 if problems else 0
 

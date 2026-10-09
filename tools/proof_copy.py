@@ -78,7 +78,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.35.0"  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_report_fields_2026-10-09): CHOSEN
+__version__ = "1.35.1"  # Hollingham (2026) — 2026-10-09 (Martin, 17:5x: "DO I TICK TO SAY YOU ARE RIGHT"): the
+#   Bindings buttons say what they judge ("binding is right / wrong"), and each item shows a "history:" line from
+#   the register's prov_* columns (the commit and changelog that introduced the number).
+# 1.35.0  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_report_fields_2026-10-09): CHOSEN
 #   records each number's winning candidate and runner-up as data, for tools/field_bind.py. Output unchanged.
 # 1.34.0  # Hollingham (2026) — 2026-10-09 (Martin's proof flags on report8/9): the slack-level
 #   constants match as levels as well as depths; Annual_P_mm and its kin read as mm, not p-values; "K =" is not a
@@ -2687,16 +2690,21 @@ def _bindings_sections() -> list[str]:
                 bound = "<i>no binding the tools trust</i>"
             rd = (f"<b>{html.escape(r['reader'] or '—')}</b> {html.escape(r['reader_reason'])}"
                   + (f" — suggests <code>{html.escape(r['reader_better'])}</code>" if r["reader_better"] else ""))
+            pv = ""
+            if r.get("prov_source"):
+                pv = (f"<div class=br>history: <b>{html.escape(r.get('prov_action', ''))}</b> "
+                      f"<code>{html.escape(r['prov_source'][:160])}</code> ({html.escape(r.get('prov_confidence', ''))} confidence"
+                      + (f"; {html.escape(r['prov_verify'])}" if r.get("prov_verify") else "") + f") — {html.escape(r.get('prov_evidence', '')[:240])}</div>")
             items.append(
                 f"<div class=bq data-rid='{html.escape(r['rid'])}' data-doc='{doc}'>"
                 f"<div class=bh><span class=btag>{html.escape(QUEUE_LABEL.get(r['queue'], r['queue']))}</span> "
                 f"<b>{html.escape(num)}</b> · §{html.escape(r['section'].split(' ')[0])} <span class=bstate></span></div>"
-                f"<div class=bs>…{ctx}…</div><div class=bb>{bound}</div><div class=br>reader: {rd}</div>"
-                f"<div class=bc><button class=bbtn data-v=ok>✓ right</button> <button class=bbtn data-v=wrong>✗ wrong</button> "
+                f"<div class=bs>…{ctx}…</div><div class=bb>{bound}</div><div class=br>reader: {rd}</div>{pv}"
+                f"<div class=bc><button class=bbtn data-v=ok>✓ binding is right</button> <button class=bbtn data-v=wrong>✗ binding is wrong</button> "
                 f"<input class=bnote placeholder='note or better source (optional)'> <button class=bbtn data-v=note>save note</button></div></div>")
         out.append(f"<section class=chapter data-doc='bindings_{doc}'><h2>Bindings — {html.escape(BUNDLE_LABEL.get(doc, doc))}</h2>"
                    f"<p class=secbar>{len(rows)} numbers for you to check before they become fields (spec 2026-10-09). "
-                   f"✓ = the bound value is what the sentence means; ✗ = it is not (add the right source if you know it). "
+                   f"You are judging the <b>binding shown</b> (“bound to …”), not the reader: ✓ = that value is what the sentence means; ✗ = it is not — add the right source in the note if you know it. Where the reader already says “wrong”, agreeing with the reader means ✗. "
                    f"Answers save to this page's store. <span id=bcount_{doc}></span> "
                    f"<label><input type=checkbox class=bhide data-doc='{doc}'> hide answered</label></p>"
                    + "".join(items) + "</section>")
@@ -3525,7 +3533,7 @@ BUNDLE_JS = r"""
 // ---- 1.35.0 bindings review: answers go to the artifact store, collection `bindings` ----
 let bindq = null;
 function bindMark(el, d){ el.classList.add('done'); el.classList.toggle('wrong', d.verdict === 'wrong');
-  el.querySelector('.bstate').textContent = d.verdict === 'ok' ? '✓ right' : d.verdict === 'wrong' ? '✗ wrong' : '✎ noted';
+  el.querySelector('.bstate').textContent = d.verdict === 'ok' ? '✓ binding right' : d.verdict === 'wrong' ? '✗ binding wrong' : '✎ noted';
   if (d.note) el.querySelector('.bnote').value = d.note; }
 function bindCount(){ document.querySelectorAll("[id^='bcount_']").forEach(c => { const doc = c.id.slice(7);
   const all = document.querySelectorAll(`.bq[data-doc='${doc}']`).length, done = document.querySelectorAll(`.bq.done[data-doc='${doc}']`).length;

@@ -1,5 +1,5 @@
 <title>Ask Newborough Warren</title>
-<!-- chat_page_template.html 1.2.2 (2026-10-09; 1.2.2: the logging notice says plainly that questions are recorded and the people asking are not; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
+<!-- chat_page_template.html 1.3.0 (2026-10-09; 1.3.0: anonymous feedback under each answer and in the footer, replies through GitHub issues, D-248; 1.2.2: the logging notice says plainly that questions are recorded and the people asking are not; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
      The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,7 +71,16 @@ textarea:focus{outline:none}
 .startclaude a.btn{text-decoration:none}
 .startclaude span{font-size:.85rem;color:var(--muted)}
 #claudefoot a{color:var(--water)}
-.q,.a,.handover{scroll-margin-bottom:150px}
+.fb{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px;font-size:.85rem;color:var(--muted)}
+.fb button.mini{font:600 .8rem var(--body);border-radius:999px;padding:3px 10px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg)}
+.fb button.mini:hover,.fb button.mini:focus-visible{border-color:var(--water);outline:none}
+.fbform{display:flex;flex-direction:column;gap:8px;margin-top:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.9rem}
+.fbform textarea{border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-height:4.5em;max-height:12em;resize:vertical;background:var(--bg)}
+.fbform .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fbform small{color:var(--muted)}
+.fbform a{color:var(--water)}
+#fbfoot a{color:var(--water);cursor:pointer}
+.q,.a,.handover,#fbgeneral,.fbform{scroll-margin-bottom:170px}
 #mode{font-size:.8rem;color:var(--muted)}
 /* source sheet */
 #sheet{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--panel);border-left:1px solid var(--line);
@@ -110,7 +119,7 @@ textarea:focus{outline:none}
       <button class="btn ghost" type="button" id="stop" hidden>Stop</button>
       <button class="btn" type="submit" id="send">Ask</button>
     </div>
-    <div class="foot"><span id="mode">Starting…</span><span id="left"></span><span id="claudefoot" hidden></span><span id="build"></span></div>
+    <div class="foot"><span id="mode">Starting…</span><span id="left"></span><span id="claudefoot" hidden></span><span id="fbfoot" hidden><a id="fbopen" role="button" tabindex="0">Send feedback</a></span><span id="build"></span></div>
     <div class="foot" id="notice" hidden><span><b>Your questions are recorded; you are not.</b> Each question and its answer is kept for a year so wrong answers can be found and fixed. Nothing that identifies you is stored: no name, account, IP address or cookie. Please don't type personal information. <a id="privacy" href="privacy.html">Privacy</a></span></div>
   </form>
 </div>
@@ -336,6 +345,60 @@ function searchOnly(q){
     :"<p>No passage matches those words. Try different terms.</p>";
 }
 
+// Anonymous feedback (public page only). Stored by the Worker with no identifier; a visitor
+// who wants a reply is pointed to the project's GitHub issues (D-248).
+const FEEDBACK = PUBLIC && !!S.worker_url;
+async function sendFeedback(body){
+  const r=await fetch(S.worker_url.replace(/\/$/,"")+"/feedback",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+  let j={}; try{ j=await r.json(); }catch(_){}
+  if(!r.ok) throw {code:j.code||"upstream_error"};
+}
+function issuesLine(){
+  return S.issues_url ? `Want a reply, or to discuss it? <a href="${esc(S.issues_url)}" target="_blank" rel="noopener">Open an issue on the project's GitHub page</a> (needs a GitHub account; issues are public).` : "";
+}
+function fbError(code){
+  return code==="rate_limited" ? "That's today's limit for feedback, thank you. For more, please use GitHub." :
+         code==="too_long" ? "That's too long; please shorten it to 1,000 characters." : "Sorry, that didn't send. Please try again later.";
+}
+// A small form: textarea, Send, Cancel. onDone(text) resolves the send.
+function fbFormEl(prompt, onSend, onCancel){
+  const f=document.createElement("div"); f.className="fbform";
+  f.innerHTML=`<label>${esc(prompt)}</label><textarea maxlength="1000"></textarea>`+
+    `<div class="row"><button type="button" class="btn">Send</button><button type="button" class="btn ghost">Cancel</button><small></small></div>`+
+    `<small>${issuesLine()} Feedback is recorded without anything that identifies you.</small>`;
+  const ta=f.querySelector("textarea"), [send,cancel]=f.querySelectorAll("button"), msg=f.querySelector(".row small");
+  send.onclick=async()=>{ const t=ta.value.trim(); if(!t){ ta.focus(); return; }
+    send.disabled=true; msg.textContent="Sending…";
+    try{ await onSend(t); }catch(e){ msg.textContent=fbError(e&&e.code); send.disabled=false; } };
+  cancel.onclick=()=>onCancel(f);
+  setTimeout(()=>ta.focus(),30);
+  return f;
+}
+function feedbackRowEl(qid){
+  const row=document.createElement("div"); row.className="fb";
+  row.innerHTML=`<span>Was this answer right?</span><button type="button" class="mini">Helpful</button><button type="button" class="mini">Something's wrong</button>`;
+  const [good,bad]=row.querySelectorAll("button");
+  const done=t=>{ row.innerHTML=`<span>${esc(t)}</span>`; };
+  good.onclick=async()=>{ good.disabled=bad.disabled=true;
+    try{ await sendFeedback({qid,kind:"helpful"}); done("Thanks, recorded."); }catch(e){ done(fbError(e&&e.code)); } };
+  bad.onclick=()=>{ good.disabled=bad.disabled=true;
+    const f=fbFormEl("What's wrong, or what do you disagree with?",
+      async t=>{ await sendFeedback({qid,kind:"wrong",text:t}); f.remove(); done("Thanks, recorded. It will be checked against the sources."); },
+      el=>{ el.remove(); good.disabled=bad.disabled=false; });
+    row.after(f); setTimeout(()=>f.scrollIntoView({block:"end",behavior:"smooth"}),50); };
+  return row;
+}
+function openGeneralFeedback(){
+  if(document.getElementById("fbgeneral")) { document.getElementById("fbgeneral").querySelector("textarea").focus(); return; }
+  const wrap=document.createElement("div"); wrap.id="fbgeneral"; $("log").append(wrap);
+  const f=fbFormEl("Feedback on this assistant: missing topics, suggestions, anything else.",
+    async t=>{ await sendFeedback({kind:"general",text:t}); wrap.innerHTML='<div class="fbform"><span>Thanks, recorded.</span></div>'; setTimeout(()=>wrap.remove(),4000); },
+    ()=>wrap.remove());
+  wrap.append(f); setTimeout(()=>wrap.scrollIntoView({block:"end",behavior:"smooth"}),50);
+}
+if(FEEDBACK){ $("fbfoot").hidden=false; $("fbopen").onclick=openGeneralFeedback;
+  $("fbopen").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openGeneralFeedback(); } }; }
+
 // Artifact stage: Claude through the viewer's own account (the sample capability).
 async function viaSample(q,ctx,out){
   const turns=[{role:"user",content:RULES},{role:"assistant",content:"Understood. I will answer only from the tools and pre-retrieved results, citing every statement."},
@@ -368,7 +431,7 @@ async function viaWorker(q,ctx){
       })});
       continue;
     }
-    return {text, truncated:j.stop_reason==="max_tokens"};
+    return {text, truncated:j.stop_reason==="max_tokens", qid};
   }
   throw {code:"upstream_error"};
 }
@@ -404,6 +467,7 @@ async function ask(){
     if(out.querySelector(".chip.bad")){const n=document.createElement("div");n.className="note";n.textContent="Some citations (marked) were not among the sources retrieved for this answer. Treat those statements as unchecked.";a.append(n);}
     if(!out.querySelector(".chip")){const n=document.createElement("div");n.className="note";n.textContent="This answer carries no citations. Treat it as unchecked.";a.append(n);}
     if(PUBLIC && remaining===0){ dailyDone=true; live=false; setMode(); a.append(handoverEl("That was your last written answer for today here.")); }
+    if(FEEDBACK && r.qid) a.append(feedbackRowEl(r.qid));
     history.push({role:"user",content:q},{role:"assistant",content:r.text});
   }catch(e){
     statusEl&&statusEl.remove(); answerScope=everRetrieved;

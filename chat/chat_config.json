@@ -88,11 +88,11 @@
    }
   }
  ],
- "model": "claude-opus-5-5",
+ "model": "claude-sonnet-5-5",
  "max_tokens": 1500,
  "max_rounds": 4,
  "max_history_turns": 6,
  "max_question_chars": 1000,
- "corpus_sha256": "33a2cb881e5d4606e77b82099f84d04991b39b05eca843212f38db4819598f61",
+ "corpus_sha256": "47b47a63e20c2d7df54b80506024a307420bab50aa8146bf839ae2b6ad7f67cb",
  "builder": "tools/build_chat_corpus.py 1.1.2"
 }

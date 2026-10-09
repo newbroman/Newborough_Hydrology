@@ -6,6 +6,8 @@ C1_Lake_Edge_delta_AIC_datum_vs_optimum_dp1,outputs/03_state_space_model/03_18_d
 C1_Lake_Edge_delta_R2_datum_vs_optimum_abs_dp3,outputs/03_state_space_model/03_18_datum_invariance.csv,C1 (Lake Edge) · delta_R2_datum_vs_optimum,1,1,3,,−,,born a field in PaperM
 C1_Lake_Edge_flux_frac_ge_80pct_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C1 (Lake Edge) · flux_frac_ge_80pct_from_m,1,,1,,−,,born a field in PaperM
 C1_Lake_Edge_model_b_zero_drainage_level_m_dp2,outputs/03_state_space_model/03_18_datum_invariance.csv,C1 (Lake Edge) · model_b_zero_drainage_level_m,1,,2,,−,,born a field in PaperM
+C1_median_dNSE_ModelB_dp2,outputs/08_model_benchmarking/08_cluster_nse_medians.csv,C1 · median_dNSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
+C1_median_dNSE_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,C1_median_dNSE,1,,2,,−,,born a field in PaperM (D-244)
 C2_Dune_aic_optimal_datum_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C2 (Dune) · aic_optimal_datum_m,1,,1,,−,,born a field in PaperM
 C2_Dune_comparison_window_beta_3_pct_vs_full_record_dp0_plus,outputs/03_state_space_model/03_14_centroid_window_sensitivity.csv,C2 (Dune) / comparison_window · beta_3_pct_vs_full_record,1,,0,1,−,,born a field in PaperM
 C2_Dune_delta_AIC_datum_vs_optimum_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C2 (Dune) · delta_AIC_datum_vs_optimum,1,,1,,−,,born a field in PaperM
@@ -20,10 +22,26 @@ C4_Main_Forest_delta_AIC_datum_vs_optimum_dp1,outputs/03_state_space_model/03_18
 C4_Main_Forest_flux_frac_ge_80pct_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C4 (Main Forest) · flux_frac_ge_80pct_from_m,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 C4_Main_Forest_flux_frac_ge_90pct_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C4 (Main Forest) · flux_frac_ge_90pct_from_m,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 C4_Main_Forest_model_b_zero_drainage_level_m_dp2,outputs/03_state_space_model/03_18_datum_invariance.csv,C4 (Main Forest) · model_b_zero_drainage_level_m,1,,2,,−,,born a field in PaperM
+C4_median_dNSE_ModelB_dp2,outputs/08_model_benchmarking/08_cluster_nse_medians.csv,C4 · median_dNSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
+C4_median_dNSE_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,C4_median_dNSE,1,,2,,−,,born a field in PaperM (D-244)
+C4_positive_SSM_NSE_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,C4_positive_SSM_NSE,1,,0,,−,,born a field in PaperM (D-244)
+C4_positive_TLM_NSE_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,C4_positive_TLM_NSE,1,,0,,−,,born a field in PaperM (D-244)
 C5_Coastal_Forest_aic_optimal_datum_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C5 (Coastal Forest) · aic_optimal_datum_m,1,,1,,−,,born a field in PaperM
 C5_Coastal_Forest_comparison_window_beta_3_pct_vs_full_record_dp0_plus,outputs/03_state_space_model/03_14_centroid_window_sensitivity.csv,C5 (Coastal Forest) / comparison_window · beta_3_pct_vs_full_record,1,,0,1,−,,born a field in PaperM
 C5_Coastal_Forest_delta_AIC_datum_vs_optimum_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C5 (Coastal Forest) · delta_AIC_datum_vs_optimum,1,,1,,−,,born a field in PaperM
 C5_Coastal_Forest_model_b_zero_drainage_level_m_dp2,outputs/03_state_space_model/03_18_datum_invariance.csv,C5 (Coastal Forest) · model_b_zero_drainage_level_m,1,,2,,−,,born a field in PaperM
+CEH13_ModelB_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH13 · ModelB_NSE,1,,2,,−,,born a field in PaperM (D-244)
+CEH14_ModelB_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH14 · ModelB_NSE,1,,2,,−,,born a field in PaperM (D-244)
+CEH14_SSM_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH14 · SSM_NSE,1,,2,,−,,born a field in PaperM (D-244)
+CEH14_TLM_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH14 · TLM_NSE,1,,2,,−,,born a field in PaperM (D-244)
+Check2_msl5raw_vs_summermin_n_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_n,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Check2_msl5raw_vs_summermin_pearson_p_dp3,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_pearson_p,1,,3,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Check2_msl5raw_vs_summermin_pearson_r_dp2,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_pearson_r,1,,2,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Check2_msl5raw_vs_summermin_spearman_p_dp3,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_spearman_p,1,,3,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Check2_msl5raw_vs_summermin_spearman_r_dp2,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_spearman_r,1,,2,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Check2_slope_years_max_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_slope_years_max,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Check2_slope_years_median_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_slope_years_median,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Check2_slope_years_min_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_slope_years_min,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 DATUM_AOD_NONPOS_CHECK_M_dp0,src/utils/config.py,DATUM_AOD_NONPOS_CHECK_M,1,,0,,−,,born a field in PaperM
 DATUM_AOD_SWEEP_MAX_M_dp0,src/utils/config.py,DATUM_AOD_SWEEP_MAX_M,1,,0,,−,,born a field in PaperM
 DATUM_AOD_SWEEP_MIN_M_dp0,src/utils/config.py,DATUM_AOD_SWEEP_MIN_M,1,,0,,−,,born a field in PaperM
@@ -34,7 +52,12 @@ DATUM_SWEEP_MAX_M_dp1,src/utils/config.py,DATUM_SWEEP_MAX_M,1,,1,,−,,born a fi
 DATUM_SWEEP_MIN_M_dp1,src/utils/config.py,DATUM_SWEEP_MIN_M,1,,1,,−,,born a field in PaperM
 DATUM_SWEEP_STEP_M_dp1,src/utils/config.py,DATUM_SWEEP_STEP_M,1,,1,,−,,born a field in PaperM
 DRAINAGE_DATUM_dp1,src/utils/config.py,DRAINAGE_DATUM,1,,1,,−,,born a field in PaperM
+ForestFree_d0_disagreement_lincap_vs_exp_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,ForestFree_d0_disagreement_lincap_vs_exp,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+ForestFree_ref_disagreement_lincap_vs_exp_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,ForestFree_ref_disagreement_lincap_vs_exp,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Headline_DeltaAIC_lincap_vs_exp_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,Headline_DeltaAIC_lincap_vs_exp,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 LCSC_DATA_LIMIT_dp0,src/utils/config.py,LCSC_DATA_LIMIT,1,,0,,−,,born a field in PaperM
+L_well_basis_se_m_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,L_well_basis_se_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+Median_one_step_R2_Traditional_Model_A_dp2,outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv,Median one-step R2 · Traditional_Model_A,1,,2,,−,,born a field in PaperM (D-244)
 Pre_felling_baseline_years_max_CEH16_Edge_dp1,outputs/10_clearfell_baci/10a_report_numbers.csv,Pre_felling_baseline_years_max · CEH16 · Edge,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 Pre_felling_baseline_years_max_CEH17_Coastal_control_dp1,outputs/10_clearfell_baci/10a_report_numbers.csv,Pre_felling_baseline_years_max · CEH17 · Coastal control,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 Pre_felling_baseline_years_max_CEH2_Forest_control_dp1,outputs/10_clearfell_baci/10a_report_numbers.csv,Pre_felling_baseline_years_max · CEH2 · Forest control,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
@@ -54,6 +77,17 @@ RECLEN_STABLE_TOL_x100_dp0,src/utils/config.py,RECLEN_STABLE_TOL,100,,0,,−,,bo
 all_clusters_all_beta3_pos_sig_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,all clusters · all_beta3_pos_sig_from_m,1,,1,,−,,born a field in PaperM
 all_clusters_beta3_order_invariant_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,all clusters · beta3_order_invariant_from_m,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 all_clusters_flux_order_invariant_from_m_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,all clusters · flux_order_invariant_from_m,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
+benchmark_median_NSE_ModelB_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
+benchmark_median_NSE_SSM_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_SSM,1,,2,,−,,born a field in PaperM (D-244)
+benchmark_median_NSE_TLM_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_TLM,1,,2,,−,,born a field in PaperM (D-244)
+benchmark_median_dNSE_ModelB_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_dNSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
+benchmark_median_dNSE_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_dNSE,1,,2,,−,,born a field in PaperM (D-244)
+benchmark_n_wells_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_n_wells,1,,0,,−,,born a field in PaperM (D-244)
+benchmark_negative_NSE_TLM_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_negative_NSE_TLM,1,,0,,−,,born a field in PaperM (D-244)
+benchmark_positive_NSE_ModelB_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_positive_NSE_ModelB,1,,0,,−,,born a field in PaperM (D-244)
+benchmark_positive_NSE_SSM_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_positive_NSE_SSM,1,,0,,−,,born a field in PaperM (D-244)
+c_far_well_basis_se_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,c_far_well_basis_se_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+dNSE_vs_beta3_r_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,dNSE_vs_beta3_r,1,,2,,−,,born a field in PaperM (D-244)
 datum0_n_clusters_beta3_negative_dp0,outputs/03_state_space_model/03_report_numbers.csv,datum0_n_clusters_beta3_negative,1,,0,,−,,born a field in PaperM
 datum_aod_n_wells_dp0,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_n_wells,1,,0,,−,,born a field in PaperM
 datum_aod_nonpos_beta3_at_check_dp0,outputs/03_state_space_model/03_report_numbers.csv,datum_aod_nonpos_beta3_at_check,1,,0,,−,,born a field in PaperM
@@ -75,8 +109,28 @@ datum_frame_slope_base_on_ground_dp2,outputs/03_state_space_model/03_report_numb
 datum_ranwell_band_max_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ranwell_band_max_m,1,,1,,−,,born a field in PaperM
 datum_ranwell_band_min_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ranwell_band_min_m,1,,1,,−,,born a field in PaperM
 datum_ranwell_supported_m_dp1,outputs/50_record_length/50_report_numbers.csv,datum_ranwell_supported_m,1,,1,,−,,born a field in PaperM
+delta0_loo_max_shift_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_max_shift_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta0_loo_max_to_second_ratio_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_max_to_second_ratio,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta0_loo_max_well_dist_m_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_max_well_dist_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta0_loo_n_wells_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_n_wells,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta0_well_basis_se_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_well_basis_se_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta_ref_loo_max_shift_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_loo_max_shift_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta_ref_well_basis_ci_hi_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_ci_hi_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta_ref_well_basis_ci_lo_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_ci_lo_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+delta_ref_well_basis_se_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_se_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 forest_free_beta_1_recharge_n_dp0,outputs/07_spatial_coefficients/07_05_clusters_vs_covariates.csv,forest_free / beta_1_recharge · n,1,,0,,−,,converted from citation_index (report_edits/text/report8.md)
+forest_free_exponential_L_m_dp0,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / exponential · L_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_L_m_dp0,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · L_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_L_m_dpm2,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · L_m,1,,-2,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_c_mm_yr_dp1,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · c_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_delta_0_mm_yr_dp1,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · delta_0_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_delta_ref_mm_yr_dp1,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · delta_ref_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_n_obs_dp0_th,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · n_obs,1,,0,,−,",",bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_n_wells_dp0,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · n_wells,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+forest_free_linear_capped_ref_distance_m_dp0,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · ref_distance_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 forest_in_view_2018_06_28_aerial28_6_2018_png_index_dp3,outputs/41_canopy_cover/41_01_canopy_index.csv,forest_in_view / 2018-06-28 / aerial28-6-2018.png · index,1,,3,,−,,converted from citation_index (report_edits/text/report8.md)
+full_linear_capped_n_obs_dp0_th,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,full / linear_capped · n_obs,1,,0,,−,",",bound by report9_demo_bind.csv (report_edits/text/report9.md)
+full_linear_capped_n_wells_dp0,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,full / linear_capped · n_wells,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 mean_annual_rain_well_record_dp0,outputs/00_climate_summary/00_report_numbers.csv,mean_annual_rain_well_record,1,,0,,−,,converted from citation_index (report_edits/text/report8.md)
 modelab_base_depth_B_m_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_base_depth_B_m_median_all,1,,1,,−,,born a field in PaperM
 modelab_corr_alpha_beta_3_B_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_corr_alpha_beta_3_B_median_all,1,,2,,−,,born a field in PaperM
@@ -191,24 +245,3 @@ window_full_beta3_ratio_median_C4_dp2,outputs/50_record_length/50_report_numbers
 window_full_beta3_ratio_median_all_dp2,outputs/50_record_length/50_report_numbers.csv,window_full_beta3_ratio_median_all,1,,2,,−,,born a field in PaperM
 window_full_beta3_ratio_p10_all_dp2,outputs/50_record_length/50_report_numbers.csv,window_full_beta3_ratio_p10_all,1,,2,,−,,born a field in PaperM
 window_full_beta3_ratio_p90_all_dp2,outputs/50_record_length/50_report_numbers.csv,window_full_beta3_ratio_p90_all,1,,2,,−,,born a field in PaperM
-Median_one_step_R2_Traditional_Model_A_dp2,outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv,Median one-step R2 · Traditional_Model_A,1,,2,,−,,born a field in PaperM (D-244)
-benchmark_n_wells_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_n_wells,1,,0,,−,,born a field in PaperM (D-244)
-benchmark_median_NSE_TLM_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_TLM,1,,2,,−,,born a field in PaperM (D-244)
-benchmark_negative_NSE_TLM_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_negative_NSE_TLM,1,,0,,−,,born a field in PaperM (D-244)
-benchmark_median_NSE_ModelB_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
-benchmark_median_dNSE_ModelB_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_dNSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
-benchmark_positive_NSE_ModelB_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_positive_NSE_ModelB,1,,0,,−,,born a field in PaperM (D-244)
-benchmark_median_NSE_SSM_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_SSM,1,,2,,−,,born a field in PaperM (D-244)
-benchmark_median_dNSE_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_dNSE,1,,2,,−,,born a field in PaperM (D-244)
-benchmark_positive_NSE_SSM_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_positive_NSE_SSM,1,,0,,−,,born a field in PaperM (D-244)
-dNSE_vs_beta3_r_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,dNSE_vs_beta3_r,1,,2,,−,,born a field in PaperM (D-244)
-C1_median_dNSE_ModelB_dp2,outputs/08_model_benchmarking/08_cluster_nse_medians.csv,C1 · median_dNSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
-C1_median_dNSE_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,C1_median_dNSE,1,,2,,−,,born a field in PaperM (D-244)
-C4_positive_TLM_NSE_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,C4_positive_TLM_NSE,1,,0,,−,,born a field in PaperM (D-244)
-C4_median_dNSE_ModelB_dp2,outputs/08_model_benchmarking/08_cluster_nse_medians.csv,C4 · median_dNSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
-C4_median_dNSE_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,C4_median_dNSE,1,,2,,−,,born a field in PaperM (D-244)
-C4_positive_SSM_NSE_dp0,outputs/08_model_benchmarking/08_report_numbers.csv,C4_positive_SSM_NSE,1,,0,,−,,born a field in PaperM (D-244)
-CEH14_SSM_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH14 · SSM_NSE,1,,2,,−,,born a field in PaperM (D-244)
-CEH14_TLM_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH14 · TLM_NSE,1,,2,,−,,born a field in PaperM (D-244)
-CEH14_ModelB_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH14 · ModelB_NSE,1,,2,,−,,born a field in PaperM (D-244)
-CEH13_ModelB_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH13 · ModelB_NSE,1,,2,,−,,born a field in PaperM (D-244)

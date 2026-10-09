@@ -16,13 +16,23 @@ Conservative by construction — a number is converted only when ALL hold:
   - the index row's context picks out exactly one such occurrence.
 Everything else is listed with its reason and left as it is.
 
+--bindings FILE (1.1.0) takes the numbers from FILE instead of the citation index: one row per number
+with quoted, before, after (plain text either side; after may be empty), source_csv, key, and
+optionally the rendering (scale, abs, dp, plus, minus, thousands; dp may be negative, field_sync 1.1.0)
+and a field name. The emit-first pass (spec NRG_spec_emit_first_report9_2026-10-09) binds each number
+to the key a script emits for it; the same guards apply, and a given rendering must reproduce the
+quoted text exactly.
+
 Usage:
     python3 tools/field_convert.py report8 --dry-run
     python3 tools/field_convert.py report8
+    python3 tools/field_convert.py report9 --bindings scratch/emit/report9_demo_bind.csv --dry-run
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-01 (D-219). First issue.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): --bindings
+#   FILE binds numbers to named keys from a file rather than the citation index; a negative dp is tagged _dpmN.
+# 1.0.0  # Hollingham (2026) — 2026-10-01 (D-219). First issue.
 
 import argparse
 import csv
@@ -73,7 +83,7 @@ def field_name(key: str, spec: dict) -> str:
         tag += "_x" + spec["scale"].replace(".", "p")
     if spec["abs"]:
         tag += "_abs"
-    tag += f"_dp{spec['dp']}"
+    tag += f"_dp{spec['dp']}".replace("-", "m")
     if spec["plus"]:
         tag += "_plus"
     if spec["minus"] == "-":
@@ -125,11 +135,17 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("stem", help="mirror stem, e.g. report8, Paper1, Newborough_Methods_Supplement")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--bindings", help="CSV of numbers to bind (quoted, before, after, source_csv, key[, rendering][, field])")
     a = ap.parse_args()
     src, mirror = doc_for(a.stem)
     rel_mirror = str(mirror.relative_to(REPO)) if mirror.is_absolute() else str(mirror)
-    rows = [r for r in csv.DictReader(open(REPO / "tools/citation_index.csv", encoding="utf-8"))
-            if r["status"] == "confirmed" and r["document"] == rel_mirror]
+    if a.bindings:
+        rows = list(csv.DictReader(open(a.bindings, encoding="utf-8")))
+        origin = f"bound by {pathlib.Path(a.bindings).name} ({rel_mirror})"
+    else:
+        rows = [r for r in csv.DictReader(open(REPO / "tools/citation_index.csv", encoding="utf-8"))
+                if r["status"] == "confirmed" and r["document"] == rel_mirror]
+        origin = f"converted from citation_index ({rel_mirror})"
     xml = fs.read_xml(src)
     reg = fs.load_register()
     vals = fs.values()
@@ -139,13 +155,19 @@ def main() -> int:
         v = vals.get((r["source_csv"], r["key"]))
         if v is None:
             skipped.append((r, "value no longer committed")); continue
-        spec = _spec_for(v, r["quoted"])
+        given = {k: (r.get(k) or "") for k in ("scale", "abs", "dp", "plus", "minus", "thousands")}
+        if given["dp"] != "":
+            given["scale"] = given["scale"] or "1"
+            given["minus"] = given["minus"] or "−"
+            spec = given if fs.render(v, given) == r["quoted"].strip() else None
+        else:
+            spec = _spec_for(v, r["quoted"])
         if spec is None:
             skipped.append((r, f"no rendering of {v!r} gives {r['quoted']!r} exactly")); continue
         occ = _occurrences(xml, html.escape(r["quoted"].strip(), quote=False))
         if not occ:
             skipped.append((r, "not found as one text run outside tables and fields")); continue
-        nb, na = _norm(r["before"])[-25:], _norm(r["after"])[:25]
+        nb, na = _norm(r.get("before") or "")[-25:], _norm(r.get("after") or "")[:25]
         hits = []
         for (x0, x1) in occ:
             pb, pa = _plain_around(xml, x0, x1)
@@ -157,9 +179,8 @@ def main() -> int:
         if (x0, x1) in taken:
             continue
         taken.add((x0, x1))
-        name = field_name(r["key"], spec)
-        row = dict(spec, field=name, source_csv=r["source_csv"], key=r["key"],
-                   note=f"converted from citation_index ({rel_mirror})")
+        name = (r.get("field") or "").strip() or field_name(r["key"], spec)
+        row = dict(spec, field=name, source_csv=r["source_csv"], key=r["key"], note=origin)
         if name in reg and any(reg[name].get(k) != row.get(k) for k in ("source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands")):
             skipped.append((r, f"field {name} already registered with a different spec")); continue
         new_fields[name] = row
@@ -182,7 +203,7 @@ def main() -> int:
                     i = k + len(anchor)
                     break
             spans.append((i, i, "<text:user-field-decls>" + dx + "</text:user-field-decls>"))
-    print(f"field_convert {a.stem}: {len(rows)} confirmed citation(s); {len(taken)} to convert, "
+    print(f"field_convert {a.stem}: {len(rows)} {'binding(s)' if a.bindings else 'confirmed citation(s)'}; {len(taken)} to convert, "
           f"{len(new_fields)} field(s), {len(skipped)} left as text")
     for r, why in skipped:
         print(f"   skip  {r['key'][:60]:60s} {r['quoted']!r:>12s}  {why}")

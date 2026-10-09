@@ -1,0 +1,36 @@
+section,quoted,before,after,source_csv,key,dp,description
+4.12,46,artefact of the window pair. Across the , wells carrying both meas,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_n,,wells carrying both an MSL5 2017→2023 change and a summer-minimum slope
+4.12,0.43,ull record (Section 4.10.2; Pearson r = ,", p = 0.003; Spearman ρ =",outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_pearson_r,,"Pearson r, MSL5 change against summer-minimum slope"
+4.12,0.003," (Section 4.10.2; Pearson r = 0.43, p = ","; Spearman ρ = 0.40, p = ",outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_pearson_p,,its p-value
+4.12,0.40,"arson r = 0.43, p = 0.003; Spearman ρ = ",", p = 0.006). The two met",outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_spearman_r,,"Spearman ρ, same pair"
+4.12,0.006,"0.43, p = 0.003; Spearman ρ = 0.40, p = ",). The two metrics are in,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_msl5raw_vs_summermin_spearman_p,,its p-value
+4.12,14,pe is a per-well linear regression over , to 21 years (median 16) ,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_slope_years_min,,shortest record behind a slope in that set (years)
+4.12,21,a per-well linear regression over 14 to , years (median 16) of ann,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_slope_years_max,,longest record behind a slope in that set (years)
+4.12,16, regression over 14 to 21 years (median ,) of annual April--Septem,outputs/25_coastal_gradient/25_report_numbers.csv,Check2_slope_years_median,,median record behind a slope in that set (years)
+4.10.2,"11,982",ted to the full 21-year monthly record (, observations across 67 w,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,full / linear_capped · n_obs,,"monthly observations, full-network panel"
+4.10.2,67,"thly record (11,982 observations across "," wells; FE wells, the scr",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,full / linear_capped · n_wells,,"wells, full-network panel"
+4.10.2,61, canopy on the land-cover flag dropped; ," wells, 10,909 observatio",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · n_wells,,"wells, forest-free (headline) panel"
+4.10.2,"10,909"," the land-cover flag dropped; 61 wells, "," observations), giving a ",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · n_obs,,"observations, forest-free panel"
+4.10.2,150,dline coast-edge trend is quoted at the ," m reference distance, wh",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · ref_distance_m,,reference distance for the headline rate (m)
+4.10.2,−26.4,e the observed range of well positions: , ± 3.5 mm yr⁻¹ (95 % CI −,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · delta_ref_mm_yr,,headline coast-edge trend at 150 m (mm/yr)
+4.10.2,3.5,served range of well positions: −26.4 ± , mm yr⁻¹ (95 % CI −33.2 t,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_se_mm_yr,,its well-basis SE
+4.10.2,−33.2,positions: −26.4 ± 3.5 mm yr⁻¹ (95 % CI ," to −19.5, well basis). T",outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_ci_lo_mm_yr,,"its 95 % CI, lower"
+4.10.2,−19.5,: −26.4 ± 3.5 mm yr⁻¹ (95 % CI −33.2 to ,", well basis). The fitted",outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_ci_hi_mm_yr,,"its 95 % CI, upper"
+4.10.2,−31.3," decay amplitude at the shoreline, δ₀ = "," ± 4.8 mm yr⁻¹, is report",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · delta_0_mm_yr,,"δ₀, fitted amplitude at the shoreline (mm/yr)"
+4.10.2,4.8,"mplitude at the shoreline, δ₀ = −31.3 ± "," mm yr⁻¹, is reported as ",outputs/25_coastal_gradient/25_report_numbers.csv,delta0_well_basis_se_mm_yr,,its well-basis SE
+4.10.2,9.3,rms disagree materially --- a spread of , mm yr⁻¹ there against 1.,outputs/25_coastal_gradient/25_report_numbers.csv,ForestFree_d0_disagreement_lincap_vs_exp,,linear-capped vs exponential spread at d = 0 (mm/yr)
+4.10.2,1.6,- a spread of 9.3 mm yr⁻¹ there against , mm yr⁻¹ at 150 m. The tw,outputs/25_coastal_gradient/25_report_numbers.csv,ForestFree_ref_disagreement_lincap_vs_exp,,the same spread at 150 m (mm/yr)
+4.10.2,902,ms also imply different inland reaches: , m for the linear-capped ,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · L_m,,"inland reach L_cg, linear-capped (m)"
+4.10.2,498,near-capped strip and a decay length of , ± 78 m for the exponenti,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / exponential · L_m,,"decay length, exponential (m)"
+4.10.2,176,the second-nearest well to the shore at ," m, moves δ₀ by 3.1 mm yr",outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_max_well_dist_m,,distance of the highest-leverage well (CEH3) from the shore (m)
+4.10.2,3.1,"well to the shore at 176 m, moves δ₀ by ", mm yr⁻¹ and the 150 m ra,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_max_shift_mm_yr,,shift in δ₀ when CEH3 is withheld (mm/yr)
+4.10.2,2.4,δ₀ by 3.1 mm yr⁻¹ and the 150 m rate by ," mm yr⁻¹, 1.9 times the n",outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_loo_max_shift_mm_yr,,shift in the 150 m rate when CEH3 is withheld (mm/yr)
+4.10.2,1.9,"yr⁻¹ and the 150 m rate by 2.4 mm yr⁻¹, ", times the next-largest s,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_max_to_second_ratio,,CEH3's shift as a multiple of the next-largest
+4.10.2,61,ft (each well withheld in turn over the ,-well panel; 25_16_delta0,outputs/25_coastal_gradient/25_report_numbers.csv,delta0_loo_n_wells,,wells refitted one at a time
+4.10.2,900,fit gives an inland reach L_cg of about ," m (± 144 m, well basis) ",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · L_m,-2,"inland reach L_cg, quoted to the nearest 100 m"
+4.10.2,144, an inland reach L_cg of about 900 m (± ," m, well basis) beyond wh",outputs/25_coastal_gradient/25_report_numbers.csv,L_well_basis_se_m,,its well-basis SE (m)
+4.10.2,−0.3,"hes, and a far-field asymptote c_far of ", ± 1.5 mm yr⁻¹ (well basis),outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · c_mm_yr,,far-field asymptote c_far (mm/yr)
+4.10.2,−6.0,IC favours the exponential form (ΔAIC = ,); the linear-with-cutoff,outputs/25_coastal_gradient/25_report_numbers.csv,Headline_DeltaAIC_lincap_vs_exp,,"ΔAIC, exponential minus linear-capped"
+4.10.2,150,.3 mm yr⁻¹ there against 1.6 mm yr⁻¹ at , m. The two forms also im,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · ref_distance_m,,"reference distance, repeated"
+4.10.2,150," 176 m, moves δ₀ by 3.1 mm yr⁻¹ and the "," m rate by 2.4 mm yr⁻¹, 1",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · ref_distance_m,,"reference distance, repeated"
+4.10.2,1.5,far-field asymptote c_far of −0.3 ± ," mm yr⁻¹ (well basis), which",outputs/25_coastal_gradient/25_report_numbers.csv,c_far_well_basis_se_mm_yr,,its well-basis SE (mm/yr)

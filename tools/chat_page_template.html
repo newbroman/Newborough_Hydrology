@@ -1,5 +1,5 @@
 <title>Ask Newborough Warren</title>
-<!-- chat_page_template.html 1.3.0 (2026-10-09; 1.3.0: anonymous feedback under each answer and in the footer, replies through GitHub issues, D-248; 1.2.2: the logging notice says plainly that questions are recorded and the people asking are not; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
+<!-- chat_page_template.html 1.4.0 (2026-10-10; 1.4.0: the project asks visitors to support it by starting in Claude, which costs it nothing; Start in Claude is the main button and a reminder follows the second answer, D-249; 1.3.0: anonymous feedback under each answer and in the footer, replies through GitHub issues, D-248; 1.2.2: the logging notice says plainly that questions are recorded and the people asking are not; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
      The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,6 +70,8 @@ textarea:focus{outline:none}
 .startclaude{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:4px}
 .startclaude a.btn{text-decoration:none}
 .startclaude span{font-size:.85rem;color:var(--muted)}
+.nudge{margin-top:8px;font-size:.88rem;color:var(--muted)}
+.nudge a{color:var(--water)}
 #claudefoot a{color:var(--water)}
 .fb{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px;font-size:.85rem;color:var(--muted)}
 .fb button.mini{font:600 .8rem var(--body);border-radius:999px;padding:3px 10px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg)}
@@ -307,17 +309,25 @@ function claudeLink(){
   return `<a class="btn" href="${esc(S.claude_url)}" target="_blank" rel="noopener">Continue in Claude &rarr;</a>`;
 }
 function allowanceText(){
-  return `You can ask <b>${perDay} questions a day</b> here, answered by Claude and paid for by the project. `+
-    (S.claude_url ? `After that you can carry on in the Claude version of this assistant, which uses <b>your own Claude account</b>. `+
-      `It starts a new conversation, so it won't know what you asked here. ` : "")+
+  return `<b>This is an unpaid project, and each written answer here is paid for by its author.</b> `+
+    (S.claude_url ? `If you have a Claude account, please support it by <b>starting in Claude</b>: the same assistant runs on your own account and costs the project nothing. `+
+      `Otherwise you can ask <b>${perDay} questions a day</b> here. ` : `You can ask <b>${perDay} questions a day</b> here. `)+
     `Searching the documents is unlimited.`;
 }
-// Up front: a visitor who expects a long session can start in the Claude version and keep
-// one conversation there, instead of moving across after ten and starting again.
+// Up front, and the main choice (D-249): the Claude version costs the project nothing and keeps
+// a visitor's whole conversation in one place. Asking here is the fallback.
 function startInClaudeEl(){
   const el=document.createElement("div"); el.className="startclaude";
-  el.innerHTML=`<a class="btn ghost" href="${esc(S.claude_url)}" target="_blank" rel="noopener">Start in Claude instead &rarr;</a>`+
-    `<span>Planning more than ${perDay} questions? Begin there so your whole conversation stays in one place. It uses your own Claude account.</span>`;
+  el.innerHTML=`<a class="btn" href="${esc(S.claude_url)}" target="_blank" rel="noopener">Start in Claude &rarr;</a>`+
+    `<span>Needs a Claude account; it uses your own plan's allowance. Or ask below.</span>`;
+  return el;
+}
+// Once, after a visitor's second answer here: a short reminder that Claude keeps it free.
+let nudged=false;
+function nudgeEl(){
+  const el=document.createElement("div"); el.className="nudge";
+  el.innerHTML=`Finding this useful? Carrying on in Claude keeps the free answers here for others. `+
+    `<a href="${esc(S.claude_url)}" target="_blank" rel="noopener">Continue in Claude</a> (it starts a new conversation).`;
   return el;
 }
 function handoverEl(lead){
@@ -467,6 +477,7 @@ async function ask(){
     if(out.querySelector(".chip.bad")){const n=document.createElement("div");n.className="note";n.textContent="Some citations (marked) were not among the sources retrieved for this answer. Treat those statements as unchecked.";a.append(n);}
     if(!out.querySelector(".chip")){const n=document.createElement("div");n.className="note";n.textContent="This answer carries no citations. Treat it as unchecked.";a.append(n);}
     if(PUBLIC && remaining===0){ dailyDone=true; live=false; setMode(); a.append(handoverEl("That was your last written answer for today here.")); }
+    else if(PUBLIC && S.claude_url && !nudged && remaining!=null && perDay-remaining>=2){ nudged=true; a.append(nudgeEl()); }
     if(FEEDBACK && r.qid) a.append(feedbackRowEl(r.qid));
     history.push({role:"user",content:q},{role:"assistant",content:r.text});
   }catch(e){

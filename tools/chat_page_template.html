@@ -1,5 +1,5 @@
 <title>Ask Newborough Warren</title>
-<!-- chat_page_template.html 1.2.1 (2026-10-09; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
+<!-- chat_page_template.html 1.2.2 (2026-10-09; 1.2.2: the logging notice says plainly that questions are recorded and the people asking are not; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
      The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -111,7 +111,7 @@ textarea:focus{outline:none}
       <button class="btn" type="submit" id="send">Ask</button>
     </div>
     <div class="foot"><span id="mode">Starting…</span><span id="left"></span><span id="claudefoot" hidden></span><span id="build"></span></div>
-    <div class="foot" id="notice" hidden>Questions and answers are logged so wrong answers can be found and fixed. Please don't type personal information. <a id="privacy" href="privacy.html">Privacy</a></div>
+    <div class="foot" id="notice" hidden><span><b>Your questions are recorded; you are not.</b> Each question and its answer is kept for a year so wrong answers can be found and fixed. Nothing that identifies you is stored: no name, account, IP address or cookie. Please don't type personal information. <a id="privacy" href="privacy.html">Privacy</a></span></div>
   </form>
 </div>
 

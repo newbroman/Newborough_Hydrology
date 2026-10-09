@@ -93,6 +93,6 @@
  "max_rounds": 4,
  "max_history_turns": 6,
  "max_question_chars": 1000,
- "corpus_sha256": "edc4d243e060d4346c135f43a790236c74dda5add71369726a987c360d1ec96f",
- "builder": "tools/build_chat_corpus.py 1.1.1"
+ "corpus_sha256": "33a2cb881e5d4606e77b82099f84d04991b39b05eca843212f38db4819598f61",
+ "builder": "tools/build_chat_corpus.py 1.1.2"
 }

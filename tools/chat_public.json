@@ -1,6 +1,6 @@
 {
  "_comment": "Public chatbot settings (spec claude/NRG_spec_chatbot_public_2026-10-08.md). worker_url is filled in once the Cloudflare Worker is deployed; empty means the public page runs search-only.",
- "worker_url": "",
+ "worker_url": "https://nrg-chat.newbroman.workers.dev",
  "model": "claude-opus-5-5",
  "max_tokens": 1500,
  "max_rounds": 4,

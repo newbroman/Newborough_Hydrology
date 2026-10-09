@@ -1,5 +1,5 @@
 <title>Ask Newborough Warren</title>
-<!-- chat_page_template.html 1.1.0 (2026-10-08; 1.1.0 adds the public target) — the page tools/build_chat_corpus.py fills.
+<!-- chat_page_template.html 1.2.0 (2026-10-09; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
      The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,6 +63,11 @@ textarea:focus{outline:none}
 .btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .foot{font-size:.78rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
 .foot a{color:var(--water)}
+.allow{margin:0;font-size:.92rem;color:var(--muted);max-width:68ch}
+.allow b{color:var(--fg)}
+.handover{display:flex;flex-direction:column;gap:8px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:8px;font-size:.92rem}
+.handover a.btn{text-decoration:none}
+.q,.a,.handover{scroll-margin-bottom:150px}
 #mode{font-size:.8rem;color:var(--muted)}
 /* source sheet */
 #sheet{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--panel);border-left:1px solid var(--line);
@@ -89,6 +94,7 @@ textarea:focus{outline:none}
   <div id="log">
     <section class="welcome" id="welcome">
       <h2>Try one of these, or ask your own. Cymraeg a Polski hefyd / też.</h2>
+      <p class="allow" id="allowance" hidden></p>
       <div class="ex" id="examples"></div>
     </section>
   </div>
@@ -100,7 +106,7 @@ textarea:focus{outline:none}
       <button class="btn ghost" type="button" id="stop" hidden>Stop</button>
       <button class="btn" type="submit" id="send">Ask</button>
     </div>
-    <div class="foot"><span id="mode">Starting…</span><span id="build"></span></div>
+    <div class="foot"><span id="mode">Starting…</span><span id="left"></span><span id="build"></span></div>
     <div class="foot" id="notice" hidden>Questions and answers are logged so wrong answers can be found and fixed. Please don't type personal information. <a id="privacy" href="privacy.html">Privacy</a></div>
   </form>
 </div>
@@ -273,9 +279,33 @@ EXAMPLES.forEach(q=>{const b=document.createElement("button");b.type="button";b.
 // ---------------------------------------------------------------- the conversation
 const history=[]; // {role, content} — plain text turns only
 let sample=null, toolsOK=false, busy=false, ctl=null, live=false;
+let perDay=(S.daily_questions||10), remaining=null, dailyDone=false;
 const L=Object.assign({max_rounds:4,max_history_turns:6,max_question_chars:1000},S.limits||{});
 const qin=$("qin");
 if(PUBLIC){ qin.maxLength=L.max_question_chars; $("notice").hidden=false; if(S.privacy_url) $("privacy").href=S.privacy_url; }
+
+// The daily allowance (public page only). The Worker counts; the page shows and explains.
+function showLeft(){
+  if(!PUBLIC||remaining==null) { $("left").textContent=""; return; }
+  $("left").textContent = remaining+" of "+perDay+" written answers left today";
+}
+function claudeLink(){
+  if(!S.claude_url) return "";
+  return `<a class="btn" href="${esc(S.claude_url)}" target="_blank" rel="noopener">Continue in Claude &rarr;</a>`;
+}
+function allowanceText(){
+  return `You can ask <b>${perDay} questions a day</b> here, answered by Claude and paid for by the project. `+
+    (S.claude_url ? `After that you can carry on in the Claude version of this assistant, which uses <b>your own Claude account</b>. `+
+      `It starts a new conversation, so it won't know what you asked here. ` : "")+
+    `Searching the documents is unlimited.`;
+}
+function handoverEl(lead){
+  const el=document.createElement("div"); el.className="handover";
+  el.innerHTML=`<span>${lead} `+(S.claude_url ? `To keep asking, open the Claude version of this assistant. It uses your own Claude account and starts a new conversation, so it won't see what you asked here. You can still search the documents below.</span>${claudeLink()}`
+    : `You can still search the documents. The allowance resets at midnight (UTC).</span>`);
+  setTimeout(()=>el.scrollIntoView({block:"end",behavior:"smooth"}),50);
+  return el;
+}
 qin.addEventListener("input",()=>{qin.style.height="auto";qin.style.height=Math.min(qin.scrollHeight,150)+"px";});
 qin.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask();}});
 $("ask").addEventListener("submit",e=>{e.preventDefault();ask();});
@@ -314,6 +344,7 @@ async function viaWorker(q,ctx){
         body:JSON.stringify({qid,messages:msgs}),signal:ctl.signal});
     }catch(e){ throw {code: ctl.signal.aborted?"cancelled":"upstream_error"}; }
     let j={}; try{ j=await r.json(); }catch(_){}
+    if(j.remaining!==undefined){ remaining=j.remaining; showLeft(); }
     if(!r.ok) throw {code:j.code||"upstream_error", message:j.message||""};
     const text=(j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
     const uses=(j.content||[]).filter(b=>b.type==="tool_use");
@@ -360,12 +391,18 @@ async function ask(){
     if(r.truncated){const n=document.createElement("div");n.className="note";n.textContent="This answer was cut short. Ask about one part at a time.";a.append(n);}
     if(out.querySelector(".chip.bad")){const n=document.createElement("div");n.className="note";n.textContent="Some citations (marked) were not among the sources retrieved for this answer. Treat those statements as unchecked.";a.append(n);}
     if(!out.querySelector(".chip")){const n=document.createElement("div");n.className="note";n.textContent="This answer carries no citations. Treat it as unchecked.";a.append(n);}
+    if(PUBLIC && remaining===0){ dailyDone=true; live=false; setMode(); a.append(handoverEl("That was your last written answer for today here.")); }
     history.push({role:"user",content:q},{role:"assistant",content:r.text});
   }catch(e){
     statusEl&&statusEl.remove(); answerScope=everRetrieved;
     if(e&&e.text) out.innerHTML=md(e.text); else out.innerHTML="";
     const n=document.createElement("div"); n.className="note";
     const code=e&&e.code;
+    if(code==="daily_limit"){
+      dailyDone=true; remaining=0; showLeft(); live=false; setMode();
+      a.append(handoverEl("You've used today's "+perDay+" questions here.")); searchOnly(q);
+      return;
+    }
     if(["not_granted","sampling_disabled","capability_disabled","not_declared","budget_exhausted","unavailable"].includes(code)){
       live=false; setMode(); n.textContent=MESSAGES[code]||"Claude isn't available to this page, so the box now searches the documents instead."; a.append(n); searchOnly(q);
       return;
@@ -380,7 +417,7 @@ function setMode(){
   let t;
   if(live) t = PUBLIC ? "Answers written by Claude from the published record" :
                (toolsOK?"Answers by Claude, using your Claude account":"Answers by Claude from the top search results");
-  else t = PUBLIC ? "Search only — written answers are not available just now" :
+  else t = PUBLIC ? (dailyDone ? "Search only — today's written answers are used" : "Search only — written answers are not available just now") :
                "Search only — open this page in Claude to get written answers";
   $("mode").textContent=t; $("send").textContent = live ? "Ask" : "Search";
 }
@@ -388,9 +425,16 @@ setMode();
 (async function(){
   if(PUBLIC){
     if(!S.worker_url){ live=false; setMode(); return; }
-    try{ const r=await fetch(S.worker_url.replace(/\/$/,"")+"/status"); const j=await r.json(); live=!!(r.ok&&j.available); }
-    catch(_){ live=false; }
-    setMode(); return;
+    try{
+      const r=await fetch(S.worker_url.replace(/\/$/,"")+"/status"); const j=await r.json();
+      live=!!(r.ok&&j.available);
+      if(j.per_day) perDay=j.per_day;
+      if(j.remaining!==undefined) remaining=j.remaining;
+      if(j.reason==="daily_limit") dailyDone=true;
+    }catch(_){ live=false; }
+    if(live || dailyDone){ const al=$("allowance"); al.innerHTML=allowanceText(); al.hidden=false; }
+    if(dailyDone && $("welcome")) $("welcome").append(handoverEl("You've used today's "+perDay+" questions here."));
+    showLeft(); setMode(); return;
   }
   try{
     const s = window.claude && await window.claude.use("sample");

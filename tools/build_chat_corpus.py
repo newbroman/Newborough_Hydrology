@@ -36,7 +36,9 @@ See claude/NRG_spec_chatbot_2026-10-08.md and the decision recorded with it.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-08. The public target (spec
+__version__ = "1.1.1"  # Hollingham (2026) - 2026-10-09. The page settings carry claude_url and
+#   daily_questions from tools/chat_public.json (D-247: 10 a day, then the Claude version).
+# 1.1.0  # Hollingham (2026) - 2026-10-08. The public target (spec
 #   claude/NRG_spec_chatbot_public_2026-10-08.md): --target public writes chat/index.html
 #   (the page wired to the Cloudflare Worker) and chat/chat_config.json (the rules, tool
 #   definitions, model and limits the Worker enforces). The rules and tool definitions
@@ -351,6 +353,8 @@ def settings(mode: str) -> dict:
         "tools": json.loads(TOOL_DEFS.read_text(encoding="utf-8")),
         "worker_url": cfg.get("worker_url", "") if mode == "public" else "",
         "privacy_url": cfg.get("privacy_url", ""),
+        "claude_url": cfg.get("claude_url", "") if mode == "public" else "",
+        "daily_questions": cfg.get("daily_questions", 10),
         "limits": {k: cfg[k] for k in ("max_rounds", "max_history_turns",
                                        "max_question_chars") if k in cfg},
     }

@@ -1,5 +1,5 @@
 <title>Ask Newborough Warren</title>
-<!-- chat_page_template.html 1.2.0 (2026-10-09; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
+<!-- chat_page_template.html 1.2.1 (2026-10-09; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
      The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,6 +67,10 @@ textarea:focus{outline:none}
 .allow b{color:var(--fg)}
 .handover{display:flex;flex-direction:column;gap:8px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:8px;font-size:.92rem}
 .handover a.btn{text-decoration:none}
+.startclaude{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:4px}
+.startclaude a.btn{text-decoration:none}
+.startclaude span{font-size:.85rem;color:var(--muted)}
+#claudefoot a{color:var(--water)}
 .q,.a,.handover{scroll-margin-bottom:150px}
 #mode{font-size:.8rem;color:var(--muted)}
 /* source sheet */
@@ -106,7 +110,7 @@ textarea:focus{outline:none}
       <button class="btn ghost" type="button" id="stop" hidden>Stop</button>
       <button class="btn" type="submit" id="send">Ask</button>
     </div>
-    <div class="foot"><span id="mode">Starting…</span><span id="left"></span><span id="build"></span></div>
+    <div class="foot"><span id="mode">Starting…</span><span id="left"></span><span id="claudefoot" hidden></span><span id="build"></span></div>
     <div class="foot" id="notice" hidden>Questions and answers are logged so wrong answers can be found and fixed. Please don't type personal information. <a id="privacy" href="privacy.html">Privacy</a></div>
   </form>
 </div>
@@ -299,6 +303,14 @@ function allowanceText(){
       `It starts a new conversation, so it won't know what you asked here. ` : "")+
     `Searching the documents is unlimited.`;
 }
+// Up front: a visitor who expects a long session can start in the Claude version and keep
+// one conversation there, instead of moving across after ten and starting again.
+function startInClaudeEl(){
+  const el=document.createElement("div"); el.className="startclaude";
+  el.innerHTML=`<a class="btn ghost" href="${esc(S.claude_url)}" target="_blank" rel="noopener">Start in Claude instead &rarr;</a>`+
+    `<span>Planning more than ${perDay} questions? Begin there so your whole conversation stays in one place. It uses your own Claude account.</span>`;
+  return el;
+}
 function handoverEl(lead){
   const el=document.createElement("div"); el.className="handover";
   el.innerHTML=`<span>${lead} `+(S.claude_url ? `To keep asking, open the Claude version of this assistant. It uses your own Claude account and starts a new conversation, so it won't see what you asked here. You can still search the documents below.</span>${claudeLink()}`
@@ -432,7 +444,9 @@ setMode();
       if(j.remaining!==undefined) remaining=j.remaining;
       if(j.reason==="daily_limit") dailyDone=true;
     }catch(_){ live=false; }
-    if(live || dailyDone){ const al=$("allowance"); al.innerHTML=allowanceText(); al.hidden=false; }
+    if(live || dailyDone){ const al=$("allowance"); al.innerHTML=allowanceText(); al.hidden=false;
+      if(S.claude_url && !dailyDone) al.after(startInClaudeEl()); }
+    if(S.claude_url){ const cf=$("claudefoot"); cf.innerHTML=`<a href="${esc(S.claude_url)}" target="_blank" rel="noopener">Use your Claude account instead</a>`; cf.hidden=false; }
     if(dailyDone && $("welcome")) $("welcome").append(handoverEl("You've used today's "+perDay+" questions here."));
     showLeft(); setMode(); return;
   }

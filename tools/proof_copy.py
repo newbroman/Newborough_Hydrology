@@ -78,7 +78,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.34.0"  # Hollingham (2026) — 2026-10-09 (Martin's proof flags on report8/9): the slack-level
+__version__ = "1.35.0"  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_report_fields_2026-10-09): CHOSEN
+#   records each number's winning candidate and runner-up as data, for tools/field_bind.py. Output unchanged.
+# 1.34.0  # Hollingham (2026) — 2026-10-09 (Martin's proof flags on report8/9): the slack-level
 #   constants match as levels as well as depths; Annual_P_mm and its kin read as mm, not p-values; "K =" is not a
 #   cluster count. Each had turned a correct number red or amber.
 # 1.33.0  # Hollingham (2026) — 2026-10-04 (Martin: "please ensure that all docs have a proof
@@ -468,6 +470,7 @@ def anchored_here(text: str, start: int, end: int, label: str,
 #       "stat" min/max/median/mean of a column; anchors = column words + stat words
 #       "roll" min/max of a 12-month rolling mean of a monthly series
 Cand = namedtuple("Cand", "rel label col value anchors form tier")
+CHOSEN: dict[tuple, tuple] = {}     # 1.35.0: (start, end) -> (winning Cand, runner-up Cand or None, score, margin), for field_bind
 # anchors: {"label": [...], "col": [...], "file": [...], "stat": [...], "roll": [...]} for the
 # CSV tiers; None for the registered tier, which anchors on its key through anchored_here().
 ROWS: dict[tuple, dict] = {}          # (rel, row label) -> {column: value}, for p-bounds
@@ -1960,6 +1963,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                 # "spans only 37 cm … (Curreli et al., 2013)" where config carries SD15b − SD16 = 37:
                 # the literature value IS the constant the pipeline uses — both are right, and
                 # the constant is the thing to check the prose against (Martin, 2026-09-21)
+                CHOSEN[(s, e)] = (c, None, best_sc, None)
                 marks.append((s, e, "traced", f"{c.label} = {c.value:g} [{pathlib.Path(c.rel).name}] — a literature value "
                                               f"({cite.group(0).strip()}) carried as a config constant; both hold"))
                 continue
@@ -1987,6 +1991,7 @@ def classify(text: str, look: dict, idx: dict, secs, scope_map: dict):
                         + (" — A NEAR TIE: read the sentence, the tool cannot choose" if margin <= 0.5 else ""))
             else:
                 det += " ‖ no rival candidate"
+            CHOSEN[(s, e)] = (c, rival[0][1] if rival is not None else None, best_sc, margin)
             marks.append((s, e, verdict, det))
         elif v in ("untraced", "count") and not options:
             ratio = _derived_ratio(masked, s, e, marks)
@@ -2654,6 +2659,50 @@ def _tasks_section(tasks_from: str | None = None) -> str:
             "its check command decides.</p><pre>" + html.escape(out) + "</pre>" + "".join(rows) + "</section>")
 
 
+QUEUE_LABEL = {"unresolved": "no trusted binding", "doubt": "reader doubts it", "literature": "literature / config value",
+               "reader-literal": "reader says: not a pipeline value", "sample": "random check (10%)", "check": "check"}
+
+
+def _bindings_sections() -> list[str]:
+    """1.35.0 (spec NRG_spec_report_fields_2026-10-09): one 'Bindings' chapter per document with a
+    register in tools/field_bindings/, listing the rows in Martin's queue. Each row shows the number in
+    its sentence, the binding (or the reader's suggestion), the reader's verdict, and buttons that write
+    Martin's answer to the artifact store collection `bindings` (doc id = the row's rid)."""
+    out = []
+    for f in sorted((REPO / "tools" / "field_bindings").glob("*.csv")):
+        doc = f.stem
+        rows = [r for r in csv.DictReader(open(f, encoding="utf8")) if r["queue"]]
+        order = {"unresolved": 0, "doubt": 1, "reader-literal": 2, "literature": 3, "sample": 4, "check": 5}
+        rows.sort(key=lambda r: (order.get(r["queue"], 9), r["section"]))
+        items = []
+        for r in rows:
+            sent, num = r["sentence"], r["number"]
+            i = sent.lower().find(num.lower())
+            ctx = (html.escape(sent[max(0, i - 160):i]) + f"<b class=bnum>{html.escape(num)}</b>" + html.escape(sent[i + len(num):i + len(num) + 160])) if i >= 0 else html.escape(sent[:320])
+            if r["key"]:
+                bound = (f"bound to <code>{html.escape(r['key'])}</code> = {html.escape(str(r['value'])[:14])} "
+                         f"<span class=bfile>[{html.escape(pathlib.Path(r['source_csv']).name)}]</span>"
+                         + (" <i>(the reader's correction, verified: it reproduces the printed text)</i>" if r["status"] == "rebind" else ""))
+            else:
+                bound = "<i>no binding the tools trust</i>"
+            rd = (f"<b>{html.escape(r['reader'] or '—')}</b> {html.escape(r['reader_reason'])}"
+                  + (f" — suggests <code>{html.escape(r['reader_better'])}</code>" if r["reader_better"] else ""))
+            items.append(
+                f"<div class=bq data-rid='{html.escape(r['rid'])}' data-doc='{doc}'>"
+                f"<div class=bh><span class=btag>{html.escape(QUEUE_LABEL.get(r['queue'], r['queue']))}</span> "
+                f"<b>{html.escape(num)}</b> · §{html.escape(r['section'].split(' ')[0])} <span class=bstate></span></div>"
+                f"<div class=bs>…{ctx}…</div><div class=bb>{bound}</div><div class=br>reader: {rd}</div>"
+                f"<div class=bc><button class=bbtn data-v=ok>✓ right</button> <button class=bbtn data-v=wrong>✗ wrong</button> "
+                f"<input class=bnote placeholder='note or better source (optional)'> <button class=bbtn data-v=note>save note</button></div></div>")
+        out.append(f"<section class=chapter data-doc='bindings_{doc}'><h2>Bindings — {html.escape(BUNDLE_LABEL.get(doc, doc))}</h2>"
+                   f"<p class=secbar>{len(rows)} numbers for you to check before they become fields (spec 2026-10-09). "
+                   f"✓ = the bound value is what the sentence means; ✗ = it is not (add the right source if you know it). "
+                   f"Answers save to this page's store. <span id=bcount_{doc}></span> "
+                   f"<label><input type=checkbox class=bhide data-doc='{doc}'> hide answered</label></p>"
+                   + "".join(items) + "</section>")
+    return out
+
+
 def refresh(a) -> int:
     st = _load_state()
     BUNDLE_DIR.mkdir(parents=True, exist_ok=True)
@@ -2667,7 +2716,7 @@ def refresh(a) -> int:
             if a.quiet:
                 print(f"  regenerated {s}")
     stems = [s for s in BUNDLE_ORDER if (BUNDLE_DIR / f"{s}.html").exists()]
-    b = write_bundle(BUNDLE_DIR, stems, extra_sections=[_tasks_section(a.tasks_from)])
+    b = write_bundle(BUNDLE_DIR, stems, extra_sections=[_tasks_section(a.tasks_from)] + _bindings_sections())
     st["bundle_sha256"] = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
     st["bundle_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
     _save_state(st)
@@ -3473,6 +3522,28 @@ def one(name, values, look, out_dir, a):
 
 
 BUNDLE_JS = r"""
+// ---- 1.35.0 bindings review: answers go to the artifact store, collection `bindings` ----
+let bindq = null;
+function bindMark(el, d){ el.classList.add('done'); el.classList.toggle('wrong', d.verdict === 'wrong');
+  el.querySelector('.bstate').textContent = d.verdict === 'ok' ? '✓ right' : d.verdict === 'wrong' ? '✗ wrong' : '✎ noted';
+  if (d.note) el.querySelector('.bnote').value = d.note; }
+function bindCount(){ document.querySelectorAll("[id^='bcount_']").forEach(c => { const doc = c.id.slice(7);
+  const all = document.querySelectorAll(`.bq[data-doc='${doc}']`).length, done = document.querySelectorAll(`.bq.done[data-doc='${doc}']`).length;
+  c.textContent = `${done} of ${all} answered.`; }); }
+async function bindInit(){
+  try { if (window.claude && typeof claude.use === 'function') { const db = await claude.use('db'); if (db) bindq = db.collection('bindings'); } } catch(e) { console.log('no bindings store', e); }
+  if (bindq) { try { const got = (await bindq.limit(1000).get()).docs; got.forEach(d => { const v = d.data(); const el = document.querySelector(`.bq[data-rid='${v.rid}']`); if (el) bindMark(el, v); }); } catch(e) { console.log('bindings read failed', e); } }
+  bindCount();
+}
+document.addEventListener('click', async e => { const b = e.target.closest('.bbtn'); if (!b) return; e.preventDefault(); e.stopImmediatePropagation();
+  const el = b.closest('.bq'); const d = { rid: el.dataset.rid, doc: el.dataset.doc, verdict: b.dataset.v, note: el.querySelector('.bnote').value.trim(), ts: new Date().toISOString() };
+  if (d.verdict === 'note' && !d.note) return;
+  if (bindq) { try { await bindq.doc(d.rid.replace(/[^A-Za-z0-9_\-.~:@+]/g, '_')).set(d); } catch(err) { alert('Could not save: ' + err); return; } }
+  else { try { const k = 'bind_' + d.rid; localStorage.setItem(k, JSON.stringify(d)); } catch(err) {} }
+  bindMark(el, d); bindCount(); }, true);
+document.addEventListener('change', e => { const c = e.target.closest('.bhide'); if (!c) return; const sec = c.closest('section'); sec.classList.toggle('bhidden', c.checked); });
+(typeof onBook === 'function' ? onBook : (f => window.addEventListener("load", f)))(bindInit);
+
 function showChapter(doc){
   document.querySelectorAll('section.chapter').forEach(sec => { sec.style.display = (sec.dataset.doc === doc) ? '' : 'none'; });
   document.querySelectorAll('#chapters a').forEach(a => a.classList.toggle('cur', a.dataset.doc === doc));
@@ -3517,7 +3588,8 @@ def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof
         m = re.search(r"data-doc='([^']+)'", x)
         if m:
             sections.append(x)
-            menu.append(f"<a href='#c={m.group(1)}' data-doc='{m.group(1)}' onclick=\"showChapter('{m.group(1)}');return false;\">{m.group(1)}</a>")
+            lab = ("Bindings: " + BUNDLE_LABEL.get(m.group(1)[9:], m.group(1)[9:])) if m.group(1).startswith("bindings_") else m.group(1)
+            menu.append(f"<a href='#c={m.group(1)}' data-doc='{m.group(1)}' onclick=\"showChapter('{m.group(1)}');return false;\"><b>{html.escape(lab)}</b></a>")
     legend = " ".join(f"<span class='n {k}'>{LEGEND_NAME[k]}</span>" for k, _ in LEGEND)
     stamp = (f"Generated by tools/proof_copy.py {__version__} from the committed mirrors. "
              f"Green = a committed value with its anchor sits here, not a proof the sentence means that value.")
@@ -3526,6 +3598,12 @@ def write_bundle(out_dir: pathlib.Path, stems: list[str], name: str = "NRG_proof
              "#chapters a{padding:.25em .6em;border:1px solid #ccc;border-radius:12px;text-decoration:none;color:#036;background:#fafafa}"
              "#chapters a.cur{background:#036;color:#fff;border-color:#036}#chapters .red{color:#f88;font-weight:bold}#chapters .amb{color:#fc8;font-weight:bold}"
              "#chapters a.cur .red{color:#ffb3b3}#chapters a.cur .amb{color:#ffe0a8}"
+             ".bq{border:1px solid #ddd;border-radius:6px;padding:.5em .7em;margin:.6em 0;font:14px/1.45 Georgia,serif}"
+             ".bq .bh{font:13px Helvetica,Arial,sans-serif}.bq .btag{background:#eef;border-radius:3px;padding:0 .4em;color:#335}"
+             ".bq .bs{margin:.3em 0}.bq .bnum{background:#fff3b0}.bq .bb,.bq .br{font:13px Helvetica,Arial,sans-serif;color:#333;margin:.2em 0}"
+             ".bq .bfile{color:#777}.bq .bc{margin-top:.35em}.bq .bnote{width:16em;font:13px Helvetica,Arial,sans-serif}"
+             ".bq.done{background:#f3faf3;border-color:#9c9}.bq.done.wrong{background:#fdf0f0;border-color:#d99}.bq .bstate{color:#2a7;font-weight:bold}"
+             ".bhidden .bq.done{display:none}"
              "</style>")
     head = (f"<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width, initial-scale=1'>"
             f"<title>{name} — proof copies</title>{style}")

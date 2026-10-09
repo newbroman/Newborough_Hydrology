@@ -21,6 +21,7 @@ HOW
   `key` is the label cite_check.collect_values() gives the row (Parameter, qualified by its Well/Era
   cells where the Parameter repeats). A value is rendered as
       x = value * scale (then |x| if abs); fixed to dp places; thousands separator if set;
+      a NEGATIVE dp rounds to tens, hundreds, ... and prints no decimals ("about 900 m": dp = -2);
       a leading `minus` character when negative after rounding, `+` when positive and plus=1.
   Rounding is a rendering decision (CLAUDE.md); the register says how, once, for every document.
 
@@ -38,7 +39,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-01 (D-219). First issue.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): dp may be
+#   negative, rounding to tens/hundreds for a number the text quotes round ("about 900 m" from L = 902).
+# 1.0.0  # Hollingham (2026) — 2026-10-01 (D-219). First issue.
 
 import argparse
 import csv
@@ -100,7 +103,10 @@ def render(v: float, row: dict) -> str:
     if str(row.get("abs") or "") in ("1", "True", "true"):
         x = abs(x)
     dp = int(row.get("dp") or 0)
-    body = f"{abs(x):,.{dp}f}" if row.get("thousands") == "," else f"{abs(x):.{dp}f}"
+    if dp < 0:                                   # 1.1.0: round to 10**-dp, print as a whole number
+        x = float(round(x, dp))
+    fdp = max(dp, 0)
+    body = f"{abs(x):,.{fdp}f}" if row.get("thousands") == "," else f"{abs(x):.{fdp}f}"
     if round(x, dp) < 0:
         return (row.get("minus") or "−") + body
     if round(x, dp) > 0 and str(row.get("plus") or "") in ("1", "True", "true"):

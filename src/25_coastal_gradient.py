@@ -126,7 +126,15 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.34.0"  # Hollingham (2026) — 2026-10-07. cluster_partition() also carries how far each
+__version__ = "1.35.0"  # Hollingham (2026) — 2026-10-09. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09,
+#   Martin 19:27 "go ahead"): every number report9 quotes comes from a key a script writes.
+#   (a) c_far_well_basis_se_mm_yr (+ _ci_lo/_ci_hi): the delete-one standard error of the far-field
+#   asymptote c, the same jackknife as delta_0, delta_ref and L (D-147). report9 §4.10.2 quoted the
+#   NOMINAL c_se from 25_01 as its uncertainty, against the paragraph's own well-basis rule.
+#   (b) Check2_slope_years_min/_median/_max: the record lengths (n_years) of the summer-minimum slopes
+#   over the wells in the Check 2 join — report9 §4.12 "14 to 21 years (median 16)", until now
+#   computed by hand (chat 2026-09-30, "False flags in artifact items"). Emit-only; no value moves.
+# 1.34.0  # Hollingham (2026) — 2026-10-07. cluster_partition() also carries how far each
 #   cluster's coastal component moves with the reach (Martin 2026-10-07, "New values, with the reach
 #   range"): coastal_gradient_at_L_ci_lo/_hi_mm_yr (and _pct_of_basis) evaluate the per-well average at
 #   the well-basis CI ends of L_cg with δ₀ held at the headline (one at a time, so an overstatement:
@@ -3255,7 +3263,7 @@ def _check2_correlation_rows(per_well: pd.DataFrame) -> list[dict]:
     slp["well"] = slp["well"].astype(str).str.lower().str.strip()
     slp["slope_mm_yr"] = slp["slope_m_yr"] * 1000.0
     m = (chg[["well", "raw_change_mm"]]
-         .merge(slp[["well", "slope_mm_yr"]], on="well", how="inner")
+         .merge(slp[["well", "slope_mm_yr", "n_years"]], on="well", how="inner")
          .dropna(subset=["raw_change_mm", "slope_mm_yr"]))
     n = len(m)
     if n < 3:
@@ -3287,6 +3295,15 @@ def _check2_correlation_rows(per_well: pd.DataFrame) -> list[dict]:
          "Well": "", "Era": "2017-2023 vs full record",
          "Value": int(n), "Unit": "wells",
          "Note": base_note + " (wells in the inner join of the two files)"},
+    ] + [
+        # 1.35.0: the record lengths behind the slopes in the join (report9 §4.12).
+        {"Parameter": f"Check2_slope_years_{stat}",
+         "Well": "", "Era": "2017-2023 vs full record",
+         "Value": float(getattr(m["n_years"], stat)()), "Unit": "years",
+         "Note": (f"{stat} record length (hydrological years with an April-September minimum) of the "
+                  f"per-well summer-minimum slopes over the {n} wells in the Check 2 join "
+                  f"(25_02_per_well_summer_min_slopes.csv n_years)")}
+        for stat in ("min", "median", "max")
     ]
 
 
@@ -3359,6 +3376,7 @@ def delta0_leave_one_out(df: pd.DataFrame, fit_ref: dict, decay_func, p0, bounds
     out.attrs["delta_0_headline_se"] = float(fit_ref["perr"][0])
     out.attrs["delta_ref_headline"] = float(ref_all["value"])
     out.attrs["L_headline"] = float(fit_ref["popt"][1])
+    out.attrs["c_headline"] = float(fit_ref["popt"][2])   # 1.35.0
     return out
 
 
@@ -3374,9 +3392,11 @@ def loo_summary(loo: pd.DataFrame, d_ref: float) -> dict:
     jk_se = _well_se(d0)
     ref_se = _well_se(loo["delta_ref_loo_mm_yr"].to_numpy(dtype=float))
     L_se = _well_se(loo["L_loo_m"].to_numpy(dtype=float))
+    c_se = _well_se(loo["c_loo_mm_yr"].to_numpy(dtype=float))   # 1.35.0
     d0_hat = float(loo.attrs.get("delta_0_headline", np.nan))
     ref_hat = float(loo.attrs.get("delta_ref_headline", np.nan))
     L_hat = float(loo.attrs.get("L_headline", np.nan))
+    c_hat = float(loo.attrs.get("c_headline", np.nan))
     top = loo.iloc[0]
     second = loo.iloc[1] if n > 1 else top
     return {
@@ -3395,6 +3415,9 @@ def loo_summary(loo: pd.DataFrame, d_ref: float) -> dict:
         "L_well_basis_se_m": L_se,
         "L_well_basis_ci_lo_m": L_hat - 1.96 * L_se,
         "L_well_basis_ci_hi_m": L_hat + 1.96 * L_se,
+        "c_far_well_basis_se_mm_yr": c_se,
+        "c_far_well_basis_ci_lo_mm_yr": c_hat - 1.96 * c_se,
+        "c_far_well_basis_ci_hi_mm_yr": c_hat + 1.96 * c_se,
         "delta0_loo_range_mm_yr": float(d0.max() - d0.min()),
         "delta_ref_loo_max_shift_mm_yr": float(
             loo.loc[loo["d_delta_ref_mm_yr"].abs().idxmax(), "d_delta_ref_mm_yr"]),
@@ -3842,6 +3865,8 @@ def build_report_numbers(fits: dict,
                   "delta0_well_basis_ci_hi_mm_yr": "mm/yr", "delta_ref_well_basis_se_mm_yr": "mm/yr",
                   "delta_ref_well_basis_ci_lo_mm_yr": "mm/yr", "delta_ref_well_basis_ci_hi_mm_yr": "mm/yr",
                   "L_well_basis_se_m": "m", "L_well_basis_ci_lo_m": "m", "L_well_basis_ci_hi_m": "m",
+                  "c_far_well_basis_se_mm_yr": "mm/yr", "c_far_well_basis_ci_lo_mm_yr": "mm/yr",
+                  "c_far_well_basis_ci_hi_mm_yr": "mm/yr",
                   "delta0_loo_range_mm_yr": "mm/yr",
                   "delta_ref_loo_max_shift_mm_yr": "mm/yr", "delta_ref_loo_max_shift_well": "well"}
         _notes = {
@@ -3850,6 +3875,8 @@ def build_report_numbers(fits: dict,
             "delta0_well_basis_se_mm_yr": "sqrt((n-1)/n * sum((delta_0_i - mean)^2)) over the delete-one refits: the standard error on delta_0 with the WELL as the unit of independence. THIS is the uncertainty the documents quote (D-147); the fitted SE in 25_01 treats the monthly rows as independent and is the model's nominal precision, not quoted as an uncertainty.",
             "delta_ref_well_basis_se_mm_yr": "the same delete-one standard error for the headline rate at the reference distance; the quoted uncertainty on the headline (D-147).",
             "L_well_basis_se_m": "the same delete-one standard error for the inland reach L_cg (D-147).",
+            "c_far_well_basis_se_mm_yr": "the same delete-one standard error for the far-field asymptote c_far (D-147); the c_se in 25_01 is its nominal precision and is not quoted.",
+            "c_far_well_basis_ci_lo_mm_yr": "headline c_far minus 1.96 well-basis SE.", "c_far_well_basis_ci_hi_mm_yr": "headline c_far plus 1.96 well-basis SE.",
             "delta0_well_basis_ci_lo_mm_yr": "headline delta_0 minus 1.96 well-basis SE.", "delta0_well_basis_ci_hi_mm_yr": "headline delta_0 plus 1.96 well-basis SE.",
             "delta_ref_well_basis_ci_lo_mm_yr": "headline reference-distance rate minus 1.96 well-basis SE.", "delta_ref_well_basis_ci_hi_mm_yr": "headline reference-distance rate plus 1.96 well-basis SE.",
             "L_well_basis_ci_lo_m": "headline L_cg minus 1.96 well-basis SE.", "L_well_basis_ci_hi_m": "headline L_cg plus 1.96 well-basis SE.",

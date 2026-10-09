@@ -78,7 +78,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.33.0"  # Hollingham (2026) — 2026-10-04 (Martin: "please ensure that all docs have a proof
+__version__ = "1.34.0"  # Hollingham (2026) — 2026-10-09 (Martin's proof flags on report8/9): the slack-level
+#   constants match as levels as well as depths; Annual_P_mm and its kin read as mm, not p-values; "K =" is not a
+#   cluster count. Each had turned a correct number red or amber.
+# 1.33.0  # Hollingham (2026) — 2026-10-04 (Martin: "please ensure that all docs have a proof
 #   reading doc tool too"). BUNDLE_ORDER carries every mirrored document - Methods Supplement, Supplementary
 #   Material, Papers 1/2/M and Paper 1's SI, the academic and public summaries, the web-tools manual and
 #   technical note - so --refresh keeps a painted proof of each, and the bundle's switcher shows them under
@@ -748,6 +751,12 @@ def build_index(values, deep: bool = True) -> dict:
     for src, lab, v in values:                       # the registered tier
         for r, form in _renderings(v):
             _add(look, r, Cand(src, lab, "", v, None, form, "reg"))
+        # 1.34.0: the slack-level constants are stored as DEPTHS below ground (SD15b = 0.61,
+        # HB_SD15b_WINTER = -0.09 = 0.09 m above ground) and quoted as LEVELS (-0.61 m, +0.09 m).
+        # The signed-number rule refused the stored sign; offer the level as well.
+        if src in cc.CONSTANT_SOURCES and re.match(r"(?i)^(HB_)?SD1", lab) and v:
+            for r, form in _renderings(-v):
+                _add(look, r, Cand(src, f"{lab} as a level (negative below ground)", "", -v, None, form, "reg"))
     # DERIVED from the thresholds: "spans only 37 cm" is SD16 − SD15b (Martin: "it's
     # the difference in the current thresholds; you should be able to read the
     # context and derive these numbers"). Every pairwise difference of the SD
@@ -1103,7 +1112,7 @@ _PCOL = re.compile(r"(?i)^(p|p_?val(ue)?|pvalue|p_value_.*|.*_p)$")
 # "p = 0.25" is a probability, not a slope (Martin, 2026-09-20): the letter before
 # "=" names the quantity, and only a candidate whose column or key is that quantity
 # may be cited for it. Applied to p, r, R², n, k.
-_QTY_BEFORE = re.compile(r"(?i)(?<![a-z0-9²_])(?:(p|r²|r2|r|n|k)\s*=\s*|(p|r²|r2|r)\s+)$")   # not m_P = 2.5; "(r 0.74" is an r
+_QTY_BEFORE = re.compile(r"(?i)(?<![a-z0-9²_])(?:(p|r²|r2|r|n|(?-i:k))\s*=\s*|(p|r²|r2|r)\s+)$")   # 1.34.0: k is lower-case only; "K = 6.0 m day⁻¹" is a conductivity   # not m_P = 2.5; "(r 0.74" is an r
 _QTY_PAT = {
     "p": re.compile(r"(?i)(^|_)(p|pval|pvalue|p_value|p_val|prob|significance)(_|$)|_p$|^p_"),
     "r": re.compile(r"(?i)(^|_)(r|rho|pearson|spearman|corr|correlation|affinity)(_|$)"),
@@ -1237,6 +1246,7 @@ _UNIT_DIMS = {"m": "m", "m aod": "m", "maod": "m", "metres": "m", "mm": "mm", "k
 _CAND_DIM_RULES = [
     ("id",       re.compile(r"(?i)(^|_)(id|code|well_id|match_id|date)(_|$)|^(cluster|cluster_k\d|k\d)$")),   # a label, never a quantity — but cluster_stability_median is a quantity ABOUT clusters
     ("m",        re.compile(r"^(P|P_m|PET|PET_m|P_bar|PET_bar|P_(winter|summer|annual|total|w|s)|PET_(winter|summer|annual|total))$")),   # rainfall and PET in metres, before "P" reads as a p-value
+    ("mm",       re.compile(r"(?i)(^|_)(p|pet|rain|rainfall|precip)(_[a-z]+)*_mm$")),   # 1.34.0: Annual_P_mm is rainfall, not a p-value
     ("prob",     re.compile(r"(?i)(^|_)(p|pval|pvalue|p_value|p_val|prob|significance)(_|$)|_p$")),
     ("r2",       re.compile(r"(?i)(^|_)(r2|rsq|r_squared|rsquared|adj_r2|r2_adj)(_|$)|r²")),
     ("corr",     re.compile(r"(?i)(^|_)(r|rho|pearson|spearman|corr|correlation|affinity)(_|$)")),

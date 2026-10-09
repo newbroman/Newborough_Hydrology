@@ -8,5 +8,6 @@
  "max_question_chars": 1000,
  "privacy_url": "privacy.html",
  "daily_questions": 10,
- "claude_url": "https://claude.ai/artifact/9RRuSzQWLFPQKNx3kGsNhc"
+ "claude_url": "https://claude.ai/artifact/9RRuSzQWLFPQKNx3kGsNhc",
+ "issues_url": "https://github.com/newbroman/Newborough_Hydrology/issues/new"
 }

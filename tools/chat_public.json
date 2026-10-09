@@ -1,13 +1,13 @@
 {
- "_comment": "Public chatbot settings (spec claude/NRG_spec_chatbot_public_2026-10-08.md). worker_url is filled in once the Cloudflare Worker is deployed; empty means the public page runs search-only. claude_url is the shared link to the Claude version (the artifact), offered when a visitor's daily questions are used; empty hides the button. daily_questions is for display; the Worker's RATE_PER_DAY is what counts.",
+ "_comment": "Public chatbot settings (spec claude/NRG_spec_chatbot_public_2026-10-08.md). worker_url is filled in once the Cloudflare Worker is deployed; empty means the public page runs search-only. claude_url is the shared link to the Claude version (the artifact), offered when a visitor's daily questions are used; empty hides the button. daily_questions is for display; the Worker's RATE_PER_DAY is what counts. D-249 (2026-10-10): Sonnet 5.5 for the free route and 5 a day, with visitors asked to start in Claude.",
  "worker_url": "https://nrg-chat.newbroman.workers.dev",
- "model": "claude-opus-5-5",
+ "model": "claude-sonnet-5-5",
  "max_tokens": 1500,
  "max_rounds": 4,
  "max_history_turns": 6,
  "max_question_chars": 1000,
  "privacy_url": "privacy.html",
- "daily_questions": 10,
+ "daily_questions": 5,
  "claude_url": "https://claude.ai/artifact/9RRuSzQWLFPQKNx3kGsNhc",
  "issues_url": "https://github.com/newbroman/Newborough_Hydrology/issues/new"
 }

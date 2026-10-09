@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask Newborough Warren: privacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+  :root { --bg:#f4f0e6; --fg:#2a3338; --muted:#5a6a72; --line:#d4c8a8; --link:#3f6f80; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1b2124; --fg:#e4e0d6; --muted:#a3adb2; --line:#3a464c; --link:#8cc0d0; color-scheme: dark; } }
+  body { font: 17px/1.6 "Source Sans 3", "Segoe UI", system-ui, sans-serif; max-width: 42rem; margin: 0 auto; padding: 2rem 16px 3rem; color: var(--fg); background: var(--bg); }
+  h1, h2 { font-family: "Libre Baskerville", Georgia, serif; text-wrap: balance; }
+  h1 { font-size: 1.5rem; margin-bottom: .3rem; }
+  h2 { font-size: 1.05rem; margin: 1.8rem 0 .4rem; }
+  p.sub { color: var(--muted); margin-top: 0; }
+  a { color: var(--link); }
+  table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+  td, th { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Privacy: Ask Newborough Warren</h1>
+<p class="sub">The chatbot on the <a href="../">Newborough Warren hydrology site</a>. Last updated 8 October 2026.</p>
+
+<p>Ask Newborough Warren answers questions about the Newborough Warren groundwater study from the
+study's published report and data. It is run by Martin Hollingham, the study's author, who is
+responsible for the information described here.</p>
+
+<h2>What is recorded</h2>
+<p>Each question you ask is recorded, with the answer it received. This is so that wrong or
+unhelpful answers can be found and fixed, and so the published material can be improved where
+people's questions show a gap.</p>
+<table>
+  <tr><th>Recorded</th><th>Not recorded</th></tr>
+  <tr><td>The question, as you typed it</td><td>Your IP address</td></tr>
+  <tr><td>The answer, and the passages and data it cited</td><td>Your browser or device</td></tr>
+  <tr><td>The date and time, to the minute</td><td>Cookies or any identifier that links your questions together</td></tr>
+  <tr><td>The language of the question, and the cost of answering it</td><td>Your name or any account</td></tr>
+</table>
+<p><strong>Please don't type personal information</strong> (names, addresses, contact details) into the box.</p>
+
+<h2>Rate limiting</h2>
+<p>To stop the service being overloaded, the number of questions from one connection is limited.
+This uses a one-way scrambled form of your IP address (a salted hash) that cannot be turned back
+into the address. It is held only for counting and deleted after two days, and it is never stored
+with your questions.</p>
+
+<h2>Who handles the information</h2>
+<ul>
+  <li><strong>Anthropic</strong> writes the answers. Your question, and the passages the page found
+  for it, are sent to Anthropic's Claude API. See
+  <a href="https://www.anthropic.com/legal/privacy">Anthropic's privacy policy</a>.</li>
+  <li><strong>Cloudflare</strong> runs the service that passes questions to Anthropic and stores the
+  record of questions. See <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>.</li>
+  <li><strong>GitHub</strong> serves the web page itself, as it does the rest of this site. See
+  <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub's privacy statement</a>.</li>
+</ul>
+<p>The questions are not sold, shared for advertising, or used for any purpose other than running
+and improving this service and the study's published material.</p>
+
+<h2>How long it is kept</h2>
+<p>Questions and answers are deleted automatically after 12 months.</p>
+
+<h2>Searching without sending anything</h2>
+<p>When written answers are unavailable, the box searches the published documents inside your
+browser instead. Nothing you type is sent anywhere in that mode.</p>
+
+<h2>Questions about this policy</h2>
+<p>Open an issue on the study's <a href="https://github.com/newbroman/Newborough_Hydrology/issues">GitHub page</a>.
+If you want a question you asked removed, say roughly when you asked it and what it said.</p>
+</body>
+</html>

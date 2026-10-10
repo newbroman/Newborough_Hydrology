@@ -112,4 +112,4 @@
 | 84 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 85 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-10-09 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-10-10 by `tools/build_figure_ledger.py` v2.3.0.*

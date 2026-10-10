@@ -102,7 +102,10 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-10-10. report9 SS4.14.2's "elevated" open-dune wells within the
+#   coastal reach follow a stated rule: excess over the inland baseline above config.RANWELL_ELEVATED_K_SIGMA x the
+#   combined 1951-53 standard error. Rows slack_floor_reach_* (counts, threshold, excess range). Emit-only.
+# 1.10.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the range of r over every same-basin pairing (not only the headline pairings) and the largest
 #   climate-only expectation over the compared sites; new rows ranwell_hindcast_r_min_all_pairings,
 #   ranwell_hindcast_r_max_all_pairings (44_04, all rows) and ranwell_climate_expectation_abs_max_m (44_05 site
@@ -1218,6 +1221,29 @@ def main() -> int:
                 + "/".join(str(c) for c in config.SLACK_FLOOR_BASELINE_CLUSTERS) + " wells at or beyond L"),
                (f"slack_floor_baseline_depth_{stat}_mad_m", base[stat][1], "m", f"inland baseline ({lab}): median absolute deviation")]
     rn.append(("slack_floor_baseline_n", base["min"][2], "count", "wells in the inland baseline"))
+    # 1.11.0: which open-dune wells within the coastal reach stand ELEVATED above the inland baseline -
+    # by more than config.RANWELL_ELEVATED_K_SIGMA standard errors of the combined 1951-53 comparison
+    # (report9 SS4.14.2).
+    if comb_all:
+        _thr = config.RANWELL_ELEVATED_K_SIGMA * float(comb_all["sigma_total_m"])
+        _od = wells_q4[~wells_q4["cluster"].isin(config.FOREST_CIDS) & wells_q4["within_coastal_reach"].astype(bool)]
+        _ev = _od[_od["excess_min_m"] > _thr]
+        _nev = _od[_od["excess_min_m"] <= _thr]
+        _k = f"{config.RANWELL_ELEVATED_K_SIGMA:g} x ranwell_sigma_m_combined_all"
+        rn += [("slack_floor_reach_open_dune_n", int(len(_od)), "count",
+                "open-dune wells (clusters not in FOREST_CIDS) within the coastal reach"),
+               ("slack_floor_reach_elevated_threshold_m", _thr, "m",
+                f"ELEVATED threshold on the annual-minimum excess over the inland baseline: {_k}"),
+               ("slack_floor_reach_elevated_n", int(len(_ev)), "count", f"of those, wells whose excess exceeds {_k}"),
+               ("slack_floor_reach_not_elevated_n", int(len(_nev)), "count", f"of those, wells whose excess does not exceed {_k}")]
+        if len(_ev):
+            rn += [("slack_floor_reach_elevated_excess_min_m", float(_ev["excess_min_m"].min()), "m",
+                    "smallest annual-minimum excess over the inland baseline among the elevated wells"),
+                   ("slack_floor_reach_elevated_excess_max_m", float(_ev["excess_min_m"].max()), "m",
+                    "largest annual-minimum excess over the inland baseline among the elevated wells")]
+        if len(_nev):
+            rn.append(("slack_floor_reach_not_elevated_excess_max_m", float(_nev["excess_min_m"].max()), "m",
+                       "largest annual-minimum excess among the wells that are not elevated"))
     for c, g in wells_q4.groupby("cluster"):
         c = int(c)
         rn += [(f"slack_floor_depth_min_median_C{c}_m", float(g["depth_min_m"].median()), "m", f"C{c}: median depth of the annual minimum below the floor"),

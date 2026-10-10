@@ -35,7 +35,10 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-09-29. T-96: emits, per cluster,
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-10. WET years by rainfall (config.WET_YEAR_PMINUSPET_PCTL of
+#   hydrological-year P - PET over the whole RAF Valley record), and each cluster's recent wet-year summer
+#   minima against SD16 (wet_year_* rows; report9 SS4.8.1, Martin "3 i"). Emit-only.
+# 1.10.0  # Hollingham (2026) - 2026-09-29. T-96: emits, per cluster,
 #   summer_min_years_below_SD15b / _SD16 (years the summer minimum sat deeper than each
 #   threshold; report9 §4.8.1), summer_min_mean_depth_beyond_SD15b / _SD16 (record-mean
 #   summer minimum relative to each threshold; report10 §5.8, moved here from 14b, which has
@@ -131,7 +134,7 @@ from utils.paths import (
     OUT_14_SPRING_TREND_CSV, OUT_14_CLIMATE_SPRING,
     OUT_14_ANNUAL_EXTREMES, OUT_14_WINTER_EXCEED, OUT_14_SEASONAL_SCATTER,
     OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, INT_WELLS_REFERENCE, make_all_dirs,
-    OUT_14_REPORT_NUMBERS,
+    OUT_14_REPORT_NUMBERS, INT_CLIMATE,
 )
 from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.config import (
@@ -140,6 +143,7 @@ from utils.config import (
     BW_MODE, CLUSTER_LABELS as _CFG_LABELS, CLUSTER_COLOURS as _CFG_COLOURS,
     CLUSTER_COLOURS_BW as _CFG_COLOURS_BW, CLUSTER_MARKERS as _CFG_MARKERS,
     BW_LINESTYLES, SD15b, SD16, SD15b_WINTER, SD16_WINTER,
+    WET_YEAR_PMINUSPET_PCTL, RECENT_SUMMER_MINIMA_N,
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
     TRAJECTORY_OBS_END, TRAJECTORY_PROJ_END, TRAJECTORY_YEAR_MIN,
     EXTREMES_ROBUSTNESS_START,
@@ -1024,6 +1028,43 @@ def main() -> None:
                    note=f"record-mean Summer_Min depth minus {_thr_name} ({_thr_depth:g} m); "
                         f"positive = mean summer minimum deeper than the threshold, "
                         f"n={len(_s)} years (14_annual_extremes.csv)")
+
+    # 1.11.0: WET years by rainfall, not by the water table (report9 SS4.8.1, Martin 2026-10-10 "3 i"):
+    # a hydrological year (Oct-Sep, the same labelling as the summer minima) is wet when its P - PET
+    # lies above config.WET_YEAR_PMINUSPET_PCTL of all complete hydrological years in the RAF Valley
+    # record. For each cluster, each wet year among the last config.RECENT_SUMMER_MINIMA_N summer minima
+    # gets its margin above SD16, with the range over them.
+    _cl = pd.read_csv(INT_CLIMATE, parse_dates=["Date"])
+    _cl["hydro_year"] = _cl["Date"].dt.year + (_cl["Date"].dt.month >= 10).astype(int)
+    _hy = _cl.groupby("hydro_year").agg(P=("P_m", "sum"), PET=("PET", "sum"), n=("P_m", "size"))
+    _hy = _hy[_hy["n"] == 12]
+    _pme = (_hy["P"] - _hy["PET"]) * 1000.0
+    _bar = float(np.percentile(_pme, WET_YEAR_PMINUSPET_PCTL))
+    rn.add("wet_year_pminuspet_threshold_mm", _bar, unit="mm",
+           era=f"{int(_pme.index.min())}-{int(_pme.index.max())}",
+           note=f"hydrological-year P - PET at the {WET_YEAR_PMINUSPET_PCTL}th percentile of the {len(_pme)} complete "
+                "hydrological years (Oct-Sep) in 01_climate.csv; a year above it is WET")
+    for c in TRAJECTORY_CLUSTERS:
+        if c not in summer_min or len(summer_min[c]) == 0:
+            continue
+        _s = summer_min[c].sort_index().iloc[-RECENT_SUMMER_MINIMA_N:]
+        _wet = [y for y in _s.index if y in _pme.index and _pme[y] > _bar]
+        _marg = {y: float(_s[y] + SD16) for y in _wet}          # m above the SD16 depth (positive = shallower)
+        for y, mg in _marg.items():
+            rn.add("wet_year_summer_min_margin_above_SD16", mg, unit="m", well=c, era=str(int(y)),
+                   note=f"summer minimum minus the SD16 level (-{SD16:g} m) in wet hydrological year {int(y)} "
+                        f"(P - PET {_pme[y]:.0f} mm > the record {WET_YEAR_PMINUSPET_PCTL}th percentile)")
+        if _marg:
+            rn.add("wet_year_summer_min_margin_above_SD16_min", min(_marg.values()), unit="m", well=c,
+                   era=f"last {RECENT_SUMMER_MINIMA_N} summers",
+                   note=f"smallest margin above SD16 over the {len(_marg)} wet years among the last "
+                        f"{RECENT_SUMMER_MINIMA_N} summer minima")
+            rn.add("wet_year_summer_min_margin_above_SD16_max", max(_marg.values()), unit="m", well=c,
+                   era=f"last {RECENT_SUMMER_MINIMA_N} summers",
+                   note=f"largest margin above SD16 over the same wet years")
+            rn.add("wet_year_recent_n", len(_marg), unit="years", well=c,
+                   era=f"last {RECENT_SUMMER_MINIMA_N} summers",
+                   note=f"wet hydrological years among the last {RECENT_SUMMER_MINIMA_N} summer minima")
 
     # T-96: the steepest full-record summer-minimum decline as a multiple of
     # each other cluster's (report9 §4.8.1, report10 §5.7.2, report12 §7), from

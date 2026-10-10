@@ -1697,3 +1697,6 @@ wt_mean_elev_aod_network_mean_dp2,outputs/01_data_prep/01_report_numbers.csv,wt_
 wtf_n_events_per_well_max_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_max,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_mean_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_mean,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_min,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+modelab_efold_obs_detr_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
+modelab_efold_obs_yw_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_yw_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
+modelab_efold_obs_detr_months_median_C5_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_C5,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)

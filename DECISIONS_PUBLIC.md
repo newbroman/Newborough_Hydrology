@@ -2051,14 +2051,6 @@ All three levers, Martin 2026-10-09 23:50 ("lets have a combination of all 3"). 
 
 **Revisit if** the Sonnet answers fail evaluation questions that Opus passed, or feedback marks them wrong more often; or monthly spend stays well under the cap, so the allowance can rise again.
 
-### D-250 — Paper M: elevation and depth frames are indistinguishable on fit; depth below ground is preferred because it keeps the drainage term identified
-
-*2026-10-10*
-
-Martin 12:03, "indistinguishable on fit; depth preferred because it keeps β₃ identified", plus one sentence in §4.7 saying the MHW datum is a single elevation and so one point of §4.6's sweep, expressed as a depth at each well. §4.6's last sentence now reads that the frames are indistinguishable on fit and depth is preferred because it keeps the drainage term identified, consistent with a base that follows the topography. Paper M v1_8.
-
-**Revisit if** a borehole or geophysical base is measured; an elevation datum is found at which β₃ stays identified at every well with no loss of fit.
-
 ### D-251 — Paper M carries one worked-example table of the procedure at Newborough, in shares, with no specific yield; volumes and site interpretation stay in Paper 1
 
 *2026-10-10*
@@ -2106,6 +2098,14 @@ The Worker (1.3.0) stores `prev_question` with each question: the visitor's prev
 (1) Script 48 1.6.0 emits, beside the published lag-1 estimate: the estimate after a linear trend is removed (fitted jointly with the calendar-month means); the Yule–Walker noise correction ρ₂/ρ₁ (D-109), alone and detrended; an SGI-style estimate (residual divided by the calendar month's SD; Bloomfield and Marchant 2013); and a threshold AR(1) wet/dry split, fitted only with at least `ASYM_MIN_PAIRS` pairs of each sign and judged at `ASYM_ALPHA` (Martin 17:06: 24 pairs, p < 0.05; linear trend only; no year split, because D-190 and D-216/D-221 settle that; SGI as a fifth estimate). The rule fixed before the run held: every estimate lies nearer Model B than Model A, so §5.2 and D-217 stand. No well's split is significant, and the symmetric model is kept. (2) Script 44 1.12.0 runs C4 wells on C3 and C5 wells on C2 (`PRECANOPY_ANALOGUE`). The C2-for-all version is retired (Martin 17:11, "replace"); the cited own-coefficient keys are unchanged. (3) Script 50 1.8.0 E8g ramps the coefficients along a logistic canopy share. The share is `PRECANOPY_W_TAILS` at planting and at closure, for planting years 1947, 1956 and 1965 and closure ages of 15 and 20 years (Forest Research, Corsican pine). That gives six cases per forest cluster. The ramped effective recharge β₁(t)P − β₂(t)PET is fed to the single and two-store responses, against the same with the forest coefficients throughout. The rule is strict and was fixed before the run (Martin 17:11): supported only if every case's two-store fit beats the better forest-throughout fit by `TWO_STORE_BIC_STRONG`, holds the forward split and shrinks |2006–08 residual|. **Result: not supported at C4 or C5 (0 of 6 cases at each; `precanopy_*` in 50_report_numbers.csv).** At C4, planting in 1956 or 1965 gives a slow store that fits better and cuts the early residual, but its forward split fails badly. At C5, one case comes within the BIC bar and no other case shows a slow store.
 
 **Revisit if** NRW sub-compartment planting dates arrive; Martin's view that closure takes longer than 20 years on the Newborough dunes is to be tested (the C4 1965 cases improve with later closure); a well's wet/dry split becomes significant on a longer record; E8 itself is ever rerun with the multi-start (its single-start two-store rows may be local optima).
+
+### D-256 — Paper M: elevation and depth frames are indistinguishable on fit; depth below ground is preferred because it keeps the drainage term identified
+
+*2026-10-10*
+
+Martin 12:03, "indistinguishable on fit; depth preferred because it keeps β₃ identified", plus one sentence in §4.7 saying the MHW datum is a single elevation and so one point of §4.6's sweep, expressed as a depth at each well. §4.6's last sentence now reads that the frames are indistinguishable on fit and depth is preferred because it keeps the drainage term identified, consistent with a base that follows the topography. Paper M v1_8.
+
+**Revisit if** a borehole or geophysical base is measured; an elevation datum is found at which β₃ stays identified at every well with no loss of fit.
 
 ---
 

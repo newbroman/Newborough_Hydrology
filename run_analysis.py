@@ -190,7 +190,11 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.23.2"  # Hollingham (2026) - 2026-10-02 (D-228). The manifest also carries
+__version__ = "2.24.0"  # Hollingham (2026) - 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10). A run is
+#   refused while ANOTHER chat holds the `pipeline` claim (tools/doc_lock.py; this chat's name is
+#   NRG_CHAT): two chats changing scripts in one tree produce outputs that match neither. --no-claim
+#   skips the check for a single read-only step and is refused with --full and --from.
+# 2.23.2  # Hollingham (2026) - 2026-10-02 (D-228). The manifest also carries
 #   pipeline_release / pipeline_release_date from config (config.py said it did; it did not).
 # 2.23.1  # Hollingham (2026) - 2026-10-02. _reexec_under_venv() compares sys.prefix with the venv, not the
 #   resolved executable (a venv python is a symlink to the system one, so that test always passed and a bare
@@ -2220,6 +2224,28 @@ def interactive_menu() -> None:
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 
+def _pipeline_claim_gate(args) -> None:
+    """2.24.0: refuse while another chat holds the `pipeline` claim (tools/doc_lock.py)."""
+    if args.no_claim:
+        if args.full or args.from_step is not None or args.greyscale_full:
+            say_err("--no-claim is for one read-only --step, not a full or resumed run"); sys.exit(1)
+        return
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent / "tools"))
+        import doc_lock
+        holder = doc_lock.holder_of("pipeline")
+    except Exception as e:                       # the check must never be the reason a run dies
+        say_warn(f"pipeline claim not checked ({e})")
+        return
+    me = doc_lock.chat_id()
+    if holder and holder != me:
+        say_err(f"chat {holder!r} holds the `pipeline` claim "
+                f"(python3 tools/doc_lock.py status). Two chats running the pipeline in one tree "
+                f"produce outputs that match neither chat's scripts. Ask that chat, or set NRG_CHAT "
+                f"if this IS that chat.")
+        sys.exit(1)
+
+
 def main() -> None:
     import argparse
     _default_idx = [rs.index for rs in _ALL_STEPS if rs.exec == "default"
@@ -2278,9 +2304,13 @@ def main() -> None:
                         help="Print the in-app help page and exit")
     parser.add_argument("--deps", action="store_true",
                         help="Print the down-pipeline dependency audit and exit")
+    parser.add_argument("--no-claim", dest="no_claim", action="store_true",
+                        help="Skip the pipeline-claim check (one --step only; refused with --full/--from)")
     args = parser.parse_args()
 
     _init_colour(disable=args.no_colour)
+    if not (args.explain or args.deps):
+        _pipeline_claim_gate(args)
 
     # ONE token per pass, set before anything is launched so every child
     # inherits it (steps run as subprocesses via _run_subprocess, and the

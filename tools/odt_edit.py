@@ -52,7 +52,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.9.1"  # Hollingham (2026) — 2026-10-08. The span-balance guard counts an
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-10. Claims (spec NRG_spec_parallel_chats_2026-10-10):
+#   a write into a document family that ANOTHER chat has claimed (tools/doc_lock.py) is refused, naming
+#   the holder. This chat's name is NRG_CHAT. An unclaimed family is written as before, and a ship
+#   (NRG_SHIP set: field_sync and doc_version_sync regenerating numbers and stamps) is not gated.
+# 1.9.1  # Hollingham (2026) — 2026-10-08. The span-balance guard counts an
 #   opening <text:span> only when it is not self-closing. An empty <text:span .../> has no close,
 #   so removing a table that held one (Paper 1 Table 5, D-244) read as "-6 open, -5 close" and a
 #   sound edit was refused.
@@ -198,11 +202,28 @@ EM_SPACE = chr(0x2003)
 REASON: str | None = os.environ.get("ODT_EDIT_REASON") or None
 
 
+def _claim_gate(dst) -> bool:
+    """1.10.0: refuse a write into a family another chat has claimed (tools/doc_lock.py)."""
+    if os.environ.get("NRG_SHIP"):
+        return True
+    try:
+        rel = pathlib.Path(dst).resolve().relative_to(pathlib.Path(__file__).resolve().parents[1]).as_posix()
+    except ValueError:                    # outside the repository (a temp copy): not a document
+        return True
+    import doc_lock
+    ok, why = doc_lock.check_write(rel)
+    if not ok:
+        print(f"  REFUSED {pathlib.Path(dst).name}: {why}")
+    return ok
+
+
 def _tier_gate(dst, n_subs: int = 0, tag_change: bool = False) -> bool:
     """Refuse, with the rule and the remedy, unless this write is allowed."""
     fam = doc_tier.family(dst)
     if fam is None:                       # not an ODT/ODM: nothing to gate
         return True
+    if not _claim_gate(dst):
+        return False
     st = doc_tier.state(fam)
     if st is None:
         print(f"  REFUSED {pathlib.Path(dst).name}: family {fam!r} has no row in "

@@ -18,8 +18,11 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.26.0 - 2026-10-08
+# VERSION 1.27.0 - 2026-10-10
 # CHANGELOG
+#   1.27.0 (2026-10-10): "claims (who is doing what?)", advisory: tools/work_board.py --gate names
+#     uncommitted work under a claim nobody holds and work a ship held back and never put back
+#     (spec NRG_spec_parallel_chats_2026-10-10). Plus the register_io and ship_scope self-tests, gated.
 #   1.26.0 (2026-10-08): chatbot gate after public decisions - build_chat_corpus --selftest
 #     (the denylist still keeps the papers, the working log and copyrighted literature out)
 #     and --check (no denied path allowlisted; the published chatbot's stamp matches its
@@ -467,6 +470,15 @@ echo
 # is it going quiet. Retire one by adding "Deferral discharged:" to its entry.
 echo "── deferred decisions (what is waiting on a person?) ─────────────────"
 python3 tools/deferred_report.py || true
+
+echo
+# 1.27.0: several chats work in this tree at once. REPORTED, NOT GATED: an unclaimed change is
+# Martin's own work as often as a chat's, and a ship takes it as it always did. The self-tests of
+# the two modules that keep chats apart (row merge, held-back work) ARE gated.
+echo "── claims (who is doing what?) ──────────────────────────────────────"
+python3 tools/work_board.py --gate || true
+python3 tools/register_io.py --selftest >/dev/null || { echo "  FAIL register_io selftest"; rc=1; }
+python3 tools/ship_scope.py --selftest >/dev/null || { echo "  FAIL ship_scope selftest"; rc=1; }
 
 echo
 echo "── decisions ────────────────────────────────────────────────────────"

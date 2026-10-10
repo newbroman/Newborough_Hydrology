@@ -14,7 +14,13 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-09-29. T-96 emit list: 02_report_numbers.csv gains
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the bootstrap stability bound ("four of the five clusters ... >= X") and C5's raw and
+#   climate-normalised amplitude change; new rows cluster_stability_median_min_stable_k<NUM_CLUSTERS> (lowest
+#   median co-assignment once the least stable cluster is set aside; config has no stability threshold) and
+#   c<id>_amp_change_pct / c<id>_amp_change_climnorm_pct per cluster (02_09's damping, unrounded) in
+#   02_report_numbers.csv. Emit-only; no other output moves.
+# 1.12.0  # Hollingham (2026) — 2026-09-29. T-96 emit list: 02_report_numbers.csv gains
 #   cluster_n_wells (per cluster) and forest_clusters_n_wells (config.FOREST_CIDS; report8 §3.4.4,
 #   report10 §5.7.2 "14 forest zone wells"), ward_top_merge_distance (report9 §4.2 "approximately 1.0"),
 #   cluster_mean_level_offset_m for every cluster pair (report9 §4.2.1 "0.3 m", "0.6 m deeper") and
@@ -1055,6 +1061,16 @@ def run_stability_diagnostics(wells_ref: pd.DataFrame) -> ReportNumbers:
         rr.add("cluster_stability_median", float(r["median_stability"]), well=str(r["cluster_label"]),
                era=f"k={NUM_CLUSTERS}", unit="",
                note=f"median per-well co-assignment over {N_BOOTSTRAP} well resamples; n = {int(r['n_wells'])}")
+    # 1.13.0 (emit-first, report9 §4.2): "four of the five clusters ... median per-well co-assignment
+    # >= X" — the lowest cluster median once the least stable cluster is set aside (no stability
+    # threshold is defined in config, so the excluded cluster is the weakest, not one below a cut)
+    _meds = summary.loc[summary["k"] == NUM_CLUSTERS, "median_stability"].astype(float).sort_values()
+    if len(_meds) > 1:
+        rr.add(f"cluster_stability_median_min_stable_k{NUM_CLUSTERS}", float(_meds.iloc[1]), unit="",
+               era=f"k={NUM_CLUSTERS}",
+               note=f"lowest per-cluster median co-assignment among the {len(_meds) - 1} most stable of the "
+                    f"{len(_meds)} k={NUM_CLUSTERS} clusters (least stable set aside), {N_BOOTSTRAP} resamples. "
+                    f"report9 §4.2 stability bound")
     rr.add("bootstrap_n_resamples", N_BOOTSTRAP, unit="count", note="config.CLUSTER_BOOT_N")
     rr.add("bootstrap_k_min", min(K_RANGE_BOOTSTRAP), unit="", note="config.CLUSTER_BOOT_K_RANGE")
     rr.add("bootstrap_k_max", max(K_RANGE_BOOTSTRAP), unit="", note="config.CLUSTER_BOOT_K_RANGE")
@@ -1616,6 +1632,10 @@ def compute_cluster_amplitude_descriptors(
                    summary["cluster"].map(lambda c: CLUSTER_LABELS.get(int(c), f"C{int(c)}")))
     summary = summary.rename(columns={"cluster": "cluster_id"})
 
+    # 1.13.0: the unrounded per-cluster summary rides on the returned frame for
+    # add_amplitude_damping_numbers (the CSV below is rounded for display)
+    per_well.attrs["cluster_summary"] = summary.copy()
+
     # Round numeric columns for readability; keep n_wells as int.
     num_cols = [c for c in summary.columns
                 if c not in ("cluster_id", "cluster_name", "n_wells")]
@@ -1725,6 +1745,30 @@ def add_amplitude_ratio_numbers(rr: ReportNumbers, per_well: pd.DataFrame) -> No
                well=CLUSTER_LABELS.get(int(cid), f"C{int(cid)}"),
                note=f"largest / smallest member post-2018 p90-p10 amplitude, n={len(vals)} wells "
                     f"(02_08_cluster_amplitude_per_well.csv)")
+
+
+def add_amplitude_damping_numbers(rr: ReportNumbers, per_well: pd.DataFrame) -> None:
+    """
+    Emit c<id>_amp_change_pct and c<id>_amp_change_climnorm_pct per canonical
+    cluster (1.13.0, emit-first): the pre- to post-2018 change in the cluster
+    median p90-p10 amplitude, raw and climate-normalised, as 02_09 carries them
+    (amplitude_damping_pct / _climnorm) but unrounded. report9 quotes C5's.
+    """
+    summ = per_well.attrs.get("cluster_summary")
+    if summ is None:
+        warn("amplitude summary not attached; c<id>_amp_change rows not emitted")
+        return
+    for _, r in summ.iterrows():
+        cid = int(r["cluster_id"])
+        lab = CLUSTER_LABELS.get(cid, f"C{cid}")
+        rr.add(f"c{cid}_amp_change_pct", float(r["amplitude_damping_pct"]), unit="%", well=lab,
+               note=f"{lab}: fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of "
+                    f"pre-2018 (positive = damping), raw levels, n={int(r['n_wells'])} wells "
+                    f"(02_09 amplitude_damping_pct)")
+        rr.add(f"c{cid}_amp_change_climnorm_pct", float(r["amplitude_damping_pct_climnorm"]), unit="%",
+               well=lab,
+               note=f"{lab}: the same amplitude change with drought summers climate-normalised, "
+                    f"% of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)")
 
 
 if __name__ == "__main__":
@@ -1968,6 +2012,7 @@ if __name__ == "__main__":
 
     amp_per_well = compute_cluster_amplitude_descriptors(wells_ref, cluster_df)
     add_amplitude_ratio_numbers(rr, amp_per_well)
+    add_amplitude_damping_numbers(rr, amp_per_well)
     n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the amplitude spread ratios
     step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the amplitude ratios)")
 

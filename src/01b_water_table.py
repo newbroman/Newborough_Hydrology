@@ -95,7 +95,12 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-05. T-108: emits n_wells_kriged per state, the distinct
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the 90th-percentile |LOO error| on the mean-state surface and CEH14's distance from the
+#   high-water mark; new rows loo_p90_abs_mean_m (percentile from config SLACK_FLOW_LOO_PCTL, over the
+#   01b_02 frame) and ceh14_d_hwm_km (the south-west sector's farthest well from the HWM, well id in Well)
+#   in 01b_report_numbers.csv. Emit-only; no other output moves.
+# 1.6.0  # Hollingham (2026) - 2026-10-05. T-108: emits n_wells_kriged per state, the distinct
 #   wells in the leave-one-out frame (report9 4.9.5 quotes "the 83 wells" and "45 of the 83"). Emit-only.
 # 1.5.0  # Hollingham (2026) - 2026-10-01. Streams off Figure 4 (unexplained wetness):
 #   base() takes show_streams and the wetness map passes False, so surface routing stays only on
@@ -619,6 +624,12 @@ def main(no_fig: bool = False) -> int:
     for _st, _g in _loo.groupby("state"):
         rn.add("n_wells_kriged", int(_g["well"].nunique()), unit="wells", era=str(_st),
                note="distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)")
+    # 1.7.0 (emit-first, report9): the upper percentile of |LOO error| on the mean-state surface,
+    # over the frame just written (01b_02), not the drift-selection pass
+    _lm = _loo.loc[_loo["state"] == "mean", "error_m"].abs()
+    rn.add(f"loo_p{C.SLACK_FLOW_LOO_PCTL}_abs_mean_m", float(np.percentile(_lm, C.SLACK_FLOW_LOO_PCTL)), era="mean",
+           note=f"{C.SLACK_FLOW_LOO_PCTL}th percentile of absolute leave-one-out error, mean-state surface, "
+                f"selected drift, over the {_lm.size} wells of 01b_02_loo_per_well.csv. report9 §4.9.5")
     # the radial fan starts at the highest dipwell in the wet state, not at the surface maximum,
     # which the ridge boundary would move onto the ridge
     wh = heads["wet"].loc[heads["wet"]["head"].idxmax()]
@@ -1097,6 +1108,14 @@ def _coastal_check(heads, coast, chk, rn) -> None:
         rn.add(f"ground_partial_p_{key}", r3[1], unit="")
         rn.add(f"nearest_well_to_hwm_{key}_m", float(s_.d_hwm_m.min()), unit="m")
     pd.DataFrame(rows).to_csv(OUT_01B_COASTAL_TESTS, index=False); saved(OUT_01B_COASTAL_TESTS)
+    # 1.7.0 (emit-first, report9): the inland end of the south-west damping gradient, the sector's
+    # farthest well from the HWM (the nearest is nearest_well_to_hwm_south_west_m), in km
+    _sw = w[w.sector == "south-west"]
+    if len(_sw):
+        _far = _sw.d_hwm_m.idxmax()
+        rn.add("ceh14_d_hwm_km", float(_sw.loc[_far, "d_hwm_m"]) / 1000.0, unit="km", well=str(_far),
+               note="distance from the high-water mark of the south-west sector's farthest well (01b_09 "
+                    "d_hwm_m / 1000), the inland end of the wet-to-dry damping gradient. report9 §4.9.5")
 
     for name in ("south-west", "east"):
         pk = w[(w.unexplained_cells > 0) & (w.sector == name)]

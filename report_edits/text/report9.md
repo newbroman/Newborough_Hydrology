@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=2253067f9aad5e7b pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=176fee44a39d4c01 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -905,7 +905,7 @@ Applied to C5\'s four wells, each at its own distance from the shore, and averag
 
 ### **What the fit cannot resolve: the far-field level**
 
-The decay model carries a third parameter, the constant c_far, to which the profile decays inland. On the committed fit it is −0.30 mm yr⁻¹ (SE 0.55) --- small, and indistinguishable from zero. That value should not be read as a measurement of the site-wide background rate, and the reason is worth setting out, because it is the same limitation Section 5.7.5 reaches from a different direction.
+The decay model carries a third parameter, the constant c_far, to which the profile decays inland. On the committed fit it is −0.30 mm yr⁻¹ (SE 1.46, well basis) --- small, and indistinguishable from zero. That value should not be read as a measurement of the site-wide background rate, and the reason is worth setting out, because it is the same limitation Section 5.7.5 reaches from a different direction.
 
 The constant is separately identified but not stably estimated. Within any one fitting window it is cleanly separable from the cumulative-water-balance covariate the panel uses to absorb spatially uniform climate forcing: its variance inflation factor against that covariate is 1.01 after within-well and month demeaning. Before those fixed effects are removed the same two covariates are very nearly collinear (variance inflation about 149), because a cumulative sum of a near-constant-mean series is almost a straight line in time; the small figure is a property of the demeaned design and should not be quoted without it. What moves the constant is the choice of window. Holding the well set (61 wells, 60 from August 2011) and the end of the fit fixed and advancing only the first month of the fit, the constant runs from −0.30 to +23.96 mm yr⁻¹ while the coast-edge amplitude stays negative throughout, but the reach falls from about 900 m to about 520 m once the window starts after August 2007 (455 to 904 m across the sweep). The instability is not sampling error: across fixed-length rolling windows the constant moves seven to sixteen times its own within-window standard error.
 

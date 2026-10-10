@@ -72,7 +72,11 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.6.0"  # Hollingham (2026) - 2026-09-29. T-96: 30_c4_report_numbers.csv also
+__version__ = "2.7.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the range of window β₃ over the C4 wells with significant positive β₃; new rows
+#   c4_perwell_sig_window100_beta3_min / _max, over the same wells c4_perwell_sig_window100 counts.
+#   Emit-only; no fit or output changes.
+# v2.6.0  # Hollingham (2026) - 2026-09-29. T-96: 30_c4_report_numbers.csv also
 #   carries the median per-well VIF on the comparison window for every cluster
 #   (perwell_vif_median_window, Well = cluster), the per-cluster median of the VIF
 #   column of 30_c4_perwell_beta3.csv that report9 §4.2.2 quotes for C4 ("the
@@ -368,7 +372,8 @@ def main():
          f"{n_neg} negative, {n_nonsig} non-significant (p>.05), "
          f"median VIF {c4pw['VIF'].median():.2f}")
 
-    sig_win = int(((c4pw["p3"] < 0.05) & (c4pw["beta3"] > 0)).sum())
+    _sig_win_mask = (c4pw["p3"] < 0.05) & (c4pw["beta3"] > 0)
+    sig_win = int(_sig_win_mask.sum())
     sig_full = int(((c4pw["p3_full"] < 0.05) & (c4pw["beta3_full"] > 0)).sum())
     n_neg_full = int((c4pw["beta3_full"] < 0).sum())
     info(f"  C4 per-well, full record: {len(c4pw)} wells, {n_neg_full} negative, "
@@ -455,6 +460,14 @@ def main():
             note="C4 per-well fits with non-significant β₃ (sampling noise, not collinearity)")
     rpt.add("c4_perwell_sig_window100", float(sig_win), unit="wells",
             note=f"C4 wells with significant positive β₃, {LCSC_DATA_LIMIT}-month window")
+    # v2.7.0 (emit-first, report9): the range of β₃ over those same wells.
+    if sig_win:
+        _b3_sig = c4pw.loc[_sig_win_mask, "beta3"]
+        for _tag, _v in (("min", _b3_sig.min()), ("max", _b3_sig.max())):
+            rpt.add(f"c4_perwell_sig_window100_beta3_{_tag}", float(_v), unit="per month",
+                    era=f"{LCSC_DATA_LIMIT}-month window",
+                    note=f"{'smallest' if _tag == 'min' else 'largest'} per-well window β₃ among the "
+                         f"{sig_win} C4 wells with significant positive β₃ (those c4_perwell_sig_window100 counts)")
     rpt.add("c4_perwell_sig_fullrecord", float(sig_full), unit="wells",
             note="C4 wells with significant positive β₃, full record")
     rpt.add("c4_centroid_beta3_excl", b3_excl, unit="per month",

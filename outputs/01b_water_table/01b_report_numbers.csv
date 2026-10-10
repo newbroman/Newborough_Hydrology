@@ -32,6 +32,7 @@ n_coastal_wells,,,17.0,wells,
 n_wells_kriged,,dry,83.0,wells,distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)
 n_wells_kriged,,mean,83.0,wells,distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)
 n_wells_kriged,,wet,83.0,wells,distinct wells in the leave-one-out frame (01b_02_loo_per_well.csv)
+loo_p90_abs_mean_m,,mean,0.6763999424707314,m,"90th percentile of absolute leave-one-out error, mean-state surface, selected drift, over the 83 wells of 01b_02_loo_per_well.csv. report9 §4.9.5"
 wet_high_E,,,241292.0,m,
 wet_high_N,,,364488.0,m,
 wet_high_head_m,ceh14,wet,14.119047619047619,m,"highest dipwell, wet state"
@@ -93,6 +94,7 @@ damping_partial_p_all,,,0.33409525058888806,,
 ground_partial_rho_all,,,0.19585659712018805,,distance from HWM partialled out
 ground_partial_p_all,,,0.07597931351669175,,
 nearest_well_to_hwm_all_m,,,145.13312900018863,m,
+ceh14_d_hwm_km,ceh14,,1.4002445410494069,km,"distance from the high-water mark of the south-west sector's farthest well (01b_09 d_hwm_m / 1000), the inland end of the wet-to-dry damping gradient. report9 §4.9.5"
 unexplained_cells_south_west,,,34.0,cells,
 unexplained_floor_minus_well_wet_south_west_m,,,1.5090331256779306,m,"unexplained-cell floor minus the nearest well's wet-state head, cell-weighted mean"
 unexplained_cells_east,,,128.0,cells,

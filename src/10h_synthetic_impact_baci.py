@@ -61,7 +61,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-04. D-240: the clearfell step carries Newey-West
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the FE1/FE2 donor-regression calibration R2 as a single floor; new row
+#   synth_fe_r2_cal_min (minimum R2_cal over the calibration table). Emit-only.
+# 1.10.0  # Hollingham (2026) - 2026-10-04. D-240: the clearfell step carries Newey-West
 #   (Bartlett, config.BACI_HAC_MAXLAGS_MONTHS lags) errors beside the OLS ones, as Script 10a 1.21.0 does:
 #   new comparison columns Clearfell_se_hac_m / Clearfell_p_hac / Clearfell_CI_lo_hac_m / Clearfell_CI_hi_hac_m /
 #   Clearfell_sig_hac
@@ -988,6 +991,13 @@ def main():
         rpt.add(f"{prefix}_postfell_divergence_mm", row['PostFell_divergence_mm'],
                 unit='mm')
         rpt.add(f"{prefix}_postfell_divergence_p", row['PostFell_divergence_p'])
+
+    # Emit-first (report9): the weakest donor-regression fit, which the text quotes as a floor.
+    if not cal_df.empty:
+        rpt.add("synth_fe_r2_cal_min", float(cal_df['R2_cal'].min()), unit='',
+                note=("minimum calibration R2 of the donor regressions over the synthetic-extension "
+                      f"FE wells ({', '.join(cal_df['Well'].astype(str))}); the floor quoted as "
+                      "'R2 above' in the text"))
 
     # T-96: observed monthly readings before CLEARFELL_DATE, per FE well.
     for fe_name, (n_pre, t0, t1) in fe_prefell.items():

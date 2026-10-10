@@ -3,3 +3,4 @@ mca_label_n,C1/C2/C3,,22.0,wells,"reference wells whose three strongest centroid
 mca_label_n,C2/C3/C4,,1.0,wells,"reference wells whose three strongest centroid correlations above PEARSON_MCA_THRESH are to C2/C3/C4 (MCA_Cluster_Label), of n=66"
 mca_label_n,C2/C3/C5,,13.0,wells,"reference wells whose three strongest centroid correlations above PEARSON_MCA_THRESH are to C2/C3/C5 (MCA_Cluster_Label), of n=66"
 mca_label_n,C3/C4/C5,,8.0,wells,"reference wells whose three strongest centroid correlations above PEARSON_MCA_THRESH are to C3/C4/C5 (MCA_Cluster_Label), of n=66"
+spy_max_abs_delta_r,,,0.014382565126181412,,"largest absolute difference between the assigned-centroid r and the best-match r among the 6 Spy wells (|Delta_Assigned_vs_NextBest|, 05_pear_membership_audit). report9 §4.3"

@@ -16,3 +16,11 @@ sy_ols_to_event_ratio,C5 (Coastal Forest),,1.1690141869256097,,Sy_OLS_winter / S
 sy_estimator_range,C5 (Coastal Forest),,0.10709970684952613,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
 sy_ols_to_event_ratio_mean,,,1.2651929002228213,,mean of sy_ols_to_event_ratio over the n=5 clusters (uncorrected run)
 sy_ols_to_event_ratio_n_above_1,,,4.0,clusters,"clusters whose Sy_OLS_winter exceeds Sy_event_median, of n=5"
+sy_event_n_min,,,35.0,events,"fewest qualifying rising-limb events (Sy_event_n) in any cluster run, all n=7 runs including interception-corrected forest rows"
+sy_event_n_max,,,65.0,events,"most qualifying rising-limb events (Sy_event_n) in any cluster run, all n=7 runs including interception-corrected forest rows"
+sy_event_n_pass_r_min,,,141.0,months,"fewest months meeting the net-recharge criterion (Sy_event_n_pass_R), n=5 uncorrected clusters"
+sy_event_n_pass_r_max,,,148.0,months,"most months meeting the net-recharge criterion (Sy_event_n_pass_R), n=5 uncorrected clusters"
+sy_event_n_pass_dh_min,,,93.0,months,"fewest months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n=7 runs"
+sy_event_n_pass_dh_max,,,114.0,months,"most months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n=7 runs"
+sy_event_pct_censored_min,,,39.583333333333336,%,"lowest percent of months clearing both criteria censored by the Sy ceiling 0.5 (Sy_event_pct_censored), n=5 uncorrected clusters"
+sy_event_median_unclipped_min,,,0.3014325463683142,,"lowest event-median Sy with the ceiling lifted (Sy_event_median_unclipped), n=5 uncorrected clusters"

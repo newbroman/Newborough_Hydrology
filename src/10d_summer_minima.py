@@ -47,7 +47,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-09-30. T-96: emit
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the number of wells in the summer-minima analysis; new row summer_minima_n_wells
+#   (distinct wells in the summer shifts table). Emit-only.
+# v1.12.0  # Hollingham (2026) - 2026-09-30. T-96: emit
 #   SummerMin_well_mean_spread (one row per pair of Forest Ctrl wells) -- the
 #   difference of two full-record mean summer minima, shallower minus deeper,
 #   well label "A-B". report10 Section 5.6.3 quotes the CEH34-CEH2 spread
@@ -702,6 +705,12 @@ def main():
                     well=row['Well'], era="Post_felling",
                     note=f"p={format_p(row['p_value'])}, "
                          f"n_pre={row['N_pre']}, n_post={row['N_post']}")
+
+        # Emit-first (report9): how many wells the summer-minima analysis covers.
+        if spec["key"] == "summer_min":
+            rpt.add("summer_minima_n_wells", int(shift_df['Well'].nunique()), unit="count",
+                    note="number of distinct wells in the summer-minimum pre/post-felling shifts "
+                         "table (10d_02), all tiers and both controls")
 
         # Tier means
         for ctrl_label in ['Forest', 'Climate']:

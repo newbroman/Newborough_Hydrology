@@ -30,7 +30,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): --bindings
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-10: --content FILE converts a content.xml taken out of
+#   the document (written to FILE.new, applied on the publishing machine by a whole-content odt_edit swap), so a
+#   chapter-sized binding file runs where there is no time limit; occurrences are cached per quoted string.
+# 1.1.0  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): --bindings
 #   FILE binds numbers to named keys from a file rather than the citation index; a negative dp is tagged _dpmN.
 # 1.0.0  # Hollingham (2026) — 2026-10-01 (D-219). First issue.
 
@@ -135,9 +138,17 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("stem", help="mirror stem, e.g. report8, Paper1, Newborough_Methods_Supplement")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--content", help="a content.xml to convert instead of the ODT; the result goes to CONTENT.new")
     ap.add_argument("--bindings", help="CSV of numbers to bind (quoted, before, after, source_csv, key[, rendering][, field])")
     a = ap.parse_args()
-    src, mirror = doc_for(a.stem)
+    if a.content:      # 1.2.0: the ODT may not be on this machine; the mirror names the document
+        src = None
+        hits = [p for p in list(REPO.glob("report_edits/text/*.md")) + list(REPO.glob("docs/**/text/*.md")) if p.stem == a.stem]
+        if len(hits) != 1:
+            raise SystemExit(f"--content: {len(hits)} mirrors with stem {a.stem!r}")
+        mirror = hits[0]
+    else:
+        src, mirror = doc_for(a.stem)
     rel_mirror = str(mirror.relative_to(REPO)) if mirror.is_absolute() else str(mirror)
     if a.bindings:
         rows = list(csv.DictReader(open(a.bindings, encoding="utf-8")))
@@ -146,7 +157,8 @@ def main() -> int:
         rows = [r for r in csv.DictReader(open(REPO / "tools/citation_index.csv", encoding="utf-8"))
                 if r["status"] == "confirmed" and r["document"] == rel_mirror]
         origin = f"converted from citation_index ({rel_mirror})"
-    xml = fs.read_xml(src)
+    xml = pathlib.Path(a.content).read_text(encoding="utf-8") if a.content else fs.read_xml(src)
+    _occ_cache: dict = {}
     reg = fs.load_register()
     vals = fs.values()
     spans, new_fields, skipped = [], {}, []
@@ -164,7 +176,10 @@ def main() -> int:
             spec = _spec_for(v, r["quoted"])
         if spec is None:
             skipped.append((r, f"no rendering of {v!r} gives {r['quoted']!r} exactly")); continue
-        occ = _occurrences(xml, html.escape(r["quoted"].strip(), quote=False))
+        _qx = html.escape(r["quoted"].strip(), quote=False)
+        if _qx not in _occ_cache:
+            _occ_cache[_qx] = _occurrences(xml, _qx)
+        occ = _occ_cache[_qx]
         if not occ:
             skipped.append((r, "not found as one text run outside tables and fields")); continue
         nb, na = _norm(r.get("before") or "")[-25:], _norm(r.get("after") or "")[:25]
@@ -180,6 +195,11 @@ def main() -> int:
             continue
         taken.add((x0, x1))
         name = (r.get("field") or "").strip() or field_name(r["key"], spec)
+        # 1.2.0: two keys from different files can sanitise to one name (C3 · p_value in 14_ and 21_);
+        # the second takes its file's stem as a prefix rather than overwriting the first.
+        _same = lambda d: d.get("source_csv") == r["source_csv"] and d.get("key") == r["key"]
+        if (name in new_fields and not _same(new_fields[name])) or (name in reg and not _same(reg[name])):
+            name = re.sub(r"[^A-Za-z0-9]+", "_", pathlib.Path(r["source_csv"]).stem).strip("_") + "__" + name
         row = dict(spec, field=name, source_csv=r["source_csv"], key=r["key"], note=origin)
         if name in reg and any(reg[name].get(k) != row.get(k) for k in ("source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands")):
             skipped.append((r, f"field {name} already registered with a different spec")); continue
@@ -208,6 +228,15 @@ def main() -> int:
     for r, why in skipped:
         print(f"   skip  {r['key'][:60]:60s} {r['quoted']!r:>12s}  {why}")
     if a.dry_run or not taken:
+        return 0
+    if a.content:
+        out = xml
+        for x0, x1, rep_ in sorted(spans, key=lambda t: (t[0], t[1]), reverse=True):
+            out = out[:x0] + rep_ + out[x1:]
+        pathlib.Path(a.content + ".new").write_text(out, encoding="utf-8")
+        reg.update(new_fields)
+        fs.save_register(reg)
+        print(f"  wrote {a.content}.new; registered {len(new_fields)} field(s) in tools/number_fields.csv")
         return 0
     import odt_edit
     odt_edit.REASON = "field_convert"

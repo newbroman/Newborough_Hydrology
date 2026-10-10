@@ -44,7 +44,10 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.99.1"  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: the Paper 1 SI
+__version__ = "1.100.0"  # Hollingham (2026) - 2026-10-10. PFLOOD_EXAMPLE2_CLUSTERS and PFLOOD_EXAMPLE2_H0_M:
+#   report9 §4.7's worked P_flood example (C3 against C2 at 1.0 m), so Script 11b can emit it (emit-first,
+#   spec NRG_spec_emit_first_report9_2026-10-09).
+# 1.99.1  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: the Paper 1 SI
 #   section is S8.2 (was S9.2; SI S7 deleted). No value changes.
 # 1.99.0  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
 #   HB_*: the Sand Dune Managers Handbook v2 (Denning et al., 2024, Table 2) dune-slack levels - the
@@ -531,6 +534,11 @@ PEARSON_DELTA_SENS = (0.03, 0.10)
 # so the sentence traces (1.82.0; the typed 1.05 / 448 mm belonged to the retired 5-month horizon).
 PFLOOD_EXAMPLE_CLUSTER = "C2"
 PFLOOD_EXAMPLE_H0_M    = 0.5      # m below ground, the September minimum of the example
+# report9 §4.7's worked example (1.100.0): a C3 well and a C2 well at the same mean summer minimum,
+# 1.0 m below ground, to show the clusters' difference sits in the intercept B. Script 11b emits
+# pflood_example2_mm / pflood_example2_mP per cluster and their difference (emit-first, 2026-10-10).
+PFLOOD_EXAMPLE2_CLUSTERS = ("C3", "C2")
+PFLOOD_EXAMPLE2_H0_M     = 1.0    # m below ground
 PEARSON_MCA_THRESH   = 0.90
 
 CLUSTER_COLOURS = {

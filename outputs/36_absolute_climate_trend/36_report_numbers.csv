@@ -14,6 +14,7 @@ abs_climate_trend_cluster_n,C4 (Main Forest),2005-2025,5.0,wells,wells mapped in
 abs_climate_trend_cluster_mean,C5 (Coastal Forest),2005-2025,-16.69642367333829,mm/yr,"mean of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=4"
 abs_climate_trend_cluster_median,C5 (Coastal Forest),2005-2025,-14.570477847839713,mm/yr,"median of per-well climate-removed secular trend (joint h ~ CWB + t fit), wells mapped in the primary window, n=4"
 abs_climate_trend_cluster_n,C5 (Coastal Forest),2005-2025,4.0,wells,wells mapped in the primary window
+n_wells_mapped_2005_2025,,2005-2025,30.0,wells,"wells with a climate-removed secular trend in the primary window, i.e. mapped on its figure; includes wells without a cluster id"
 abs_climate_trend_well,nw9,2005-2025,-26.961524865250162,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.156
 abs_climate_trend_well,ceh3,2005-2025,-26.885555327748584,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.118; no cluster id
 abs_climate_trend_well,ceh4,2005-2025,-20.93399495418069,mm/yr,per-well climate-removed secular trend; AR(1) p = 0.168

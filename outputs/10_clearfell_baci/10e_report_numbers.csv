@@ -237,6 +237,7 @@ CoeffShift_Network_mean_b1_after,Network,After,2.704794117647059,m,mean b1_after
 CoeffShift_Network_mean_db1,Network,Delta,-0.12969411764705882,m,"mean db1 across n=17 BACI-network wells (excl. Far-field Ctrl), n_decline=13"
 CoeffShift_Network_n_wells,Network,,17.0,wells,"BACI-network wells in 10e_01_coefficient_shifts.csv, excl. Far-field Ctrl: Impact 1, Edge 4, Forest Ctrl 5, Coastal Ctrl 2, Climate Ctrl 5"
 CoeffShift_Network_mean_db1_pct_of_before,Network,,-4.575583880862156,m,"ratio of network mean db1 to network mean b1_before, x100"
+wmc3_b2_fall_beyond_climate_control_pct,WMC3,Delta,4.800902513200446,percentage points,"WMC3 proportional fall in b2 (-db2/b2_before) minus the Climate Ctrl tier's (-mean db2/mean b2_before, n_wells=5), x100; positive = fell further than the climate controls"
 CoeffShift_corr_db1_db2,Forest,,-0.5750297718954485,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)"
 CoeffShift_corr_db1_db2_pct,Forest,,-0.5621587971145493,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)"
 CoeffShift_corr_db1_db2,Network,,-0.31173323579440154,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=17 wells (Network: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2, WMC3)"

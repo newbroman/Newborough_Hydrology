@@ -8,7 +8,10 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the largest |delta r| among the Spy wells; new row spy_max_abs_delta_r in
+#   05_report_numbers.csv, from the audit frame just written. Emit-only; no other output moves.
+# 1.6.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
 #   05_report_numbers.csv (paths.OUT_05_REPORT_NUMBERS) - mca_label_n, one row per MCA_Cluster_Label
 #   with the label in the Well cell (report9 SS4.3 quotes the label counts). The Core/Fuzzy/Spy counts are
 #   NOT emitted here: Script 06 already carries them as n_ref_core/n_ref_fuzzy/n_ref_spy. No other output moves.
@@ -179,6 +182,14 @@ def main():
         rpt.add("mca_label_n", int(_n), unit="wells", well=_lab,
                 note=(f"reference wells whose three strongest centroid correlations above "
                       f"PEARSON_MCA_THRESH are to {_lab} (MCA_Cluster_Label), of n={_n_audit}"))
+    # 1.7.0 (emit-first, report9): the largest |assigned r - best r| among the Spy wells
+    _spy = pd.to_numeric(audit_df.loc[audit_df["Class"] == "Spy", "Delta_Assigned_vs_NextBest"],
+                         errors="coerce").abs().dropna()
+    if len(_spy):
+        rpt.add("spy_max_abs_delta_r", float(_spy.max()), unit="",
+                note=(f"largest absolute difference between the assigned-centroid r and the best-match r "
+                      f"among the {len(_spy)} Spy wells (|Delta_Assigned_vs_NextBest|, 05_pear_membership_audit). "
+                      f"report9 §4.3"))
     n_saved = rpt.save(OUT_05_REPORT_NUMBERS)
     saved(f"{OUT_05_REPORT_NUMBERS.name} ({n_saved} rows)")
 

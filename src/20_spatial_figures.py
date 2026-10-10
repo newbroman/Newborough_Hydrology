@@ -108,7 +108,13 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.61.0"  # Hollingham (2026) - 2026-10-04 (T-97; Martin: "the increased recharge quickly
+__version__ = "1.62.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the open-dune Sy behind the inferred CEH36 cut depth, the coastal toe drawdown at the 20-yr and
+#   5-yr horizons (horizon x delta0) and WMC3's beta_1 rise from partial retention of the local gain; new rows
+#   scrape_sy_c3_median (20_scrape_report_numbers.csv), coastal_drawdown_20yr_mm, coastal_drawdown_5yr_mm and
+#   clearfell_wmc3_b1_rise_pct (20_report_numbers.csv). plot_driver_change_20yr's coastal horizon now reads
+#   config.MECHANISM_HORIZON_YEARS, as its docstring already said, instead of a literal (same value).
+# 1.61.0  # Hollingham (2026) - 2026-10-04 (T-97; Martin: "the increased recharge quickly
 #   disperses into the surrounding area... Is this idea supported?"). 20_report_numbers.csv gains the clearfell
 #   dispersal rows (_clearfell_dispersal_rows): the compartment's area and equal-area radius, and the share of a
 #   full local recharge gain a disc that size retains at its centre, at WMC3 and at the Edge wells for the
@@ -387,6 +393,7 @@ from utils.config import (CLUSTER_COLOURS, CLUSTER_LABELS, DRAINAGE_DATUM, FORES
                           REACH_QUOTE_NEAREST_M,
                           BROADLEAF_INTERCEPTION, BL_CANOPY_FRACTION_2005,
                           BL_CANOPY_FRACTION_2025, COAST_CHRONIC_YEARS,
+                          MECHANISM_HORIZON_YEARS,
                           COAST_RETREAT_M, COAST_RETREAT_RATE,
                           SCRAPE_RISE_BUFFER_M,
                           SLR_WINDOW_YEARS, SLR_RISE_M, SLR_SHORE_LEVEL_M,
@@ -1712,6 +1719,14 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     _cf_rows = _clearfell_dispersal_rows(wt, lam, b, _lambda_at)
     for _k, _v, _u, _n in _cf_rows:
         rpt.add(_k, _v, unit=_u, well="WMC3", note=_n)
+    # 1.62.0 (emit-first, report9): the beta_1 rise at WMC3 a partially retained local gain implies.
+    _cfd = {_k: _v for _k, _v, _u, _n in _cf_rows}
+    if "clearfell_local_gain_b1_ratio" in _cfd and "clearfell_gain_retained_wmc3" in _cfd:
+        rpt.add("clearfell_wmc3_b1_rise_pct",
+                float((_cfd["clearfell_local_gain_b1_ratio"] - 1.0)
+                      * _cfd["clearfell_gain_retained_wmc3"] * 100.0), unit="%", well="WMC3",
+                note="expected rise in WMC3's beta_1, percent: (clearfell_local_gain_b1_ratio - 1) x "
+                     "clearfell_gain_retained_wmc3 x 100, the full local gain scaled by the share retained")
     rpt.add("drawdown_H0", float(H0), unit="mm",
             note="forest interception deficit at felling edge (config)")
     # 1.45.0 (T-84): where the forest field falls to each quoted level, λ·ln(H0/L).
@@ -1785,6 +1800,16 @@ def plot_drawdown_propagation(wt, features, dpi=300, show_head=True):
     rpt.add("coastal_delta0", float(_d0), unit="mm/yr",
             note="live Script 25 forest-free linear_capped δ₀ (absolute); "
                  "fitted 2005-03 to 2026-02")
+    # 1.62.0 (emit-first, report9 §3.8.1/§5.8): the coastal toe drawdown on each driver-change map,
+    # horizon x δ₀ - the same product _driver_change_net() builds the coastal field from.
+    rpt.add("coastal_drawdown_20yr_mm", float(MECHANISM_HORIZON_YEARS * _d0), unit="mm",
+            era=f"{MECHANISM_HORIZON_YEARS:g} yr",
+            note="chronic coastal drawdown at the dune toe over the full-window horizon: "
+                 "MECHANISM_HORIZON_YEARS x coastal_delta0 (20_driver_change_20yr.png coastal field)")
+    rpt.add("coastal_drawdown_5yr_mm", float(COAST_CHRONIC_YEARS * _d0), unit="mm",
+            era=f"{COAST_CHRONIC_YEARS:g} yr",
+            note="chronic coastal drawdown at the dune toe over the near-term horizon: "
+                 "COAST_CHRONIC_YEARS x coastal_delta0 (20_driver_change_2005_2025.png coastal field)")
     rpt.add("coastal_retreat_rate", float(_rate), unit="m/yr",
             note=f"MEASURED, {_prov}. Supersedes config.COAST_RETREAT_RATE = "
                  f"{COAST_RETREAT_RATE} (a 2014-2020 window divided into a "
@@ -4753,7 +4778,7 @@ def plot_driver_change_20yr(wt, features, dpi=300):
     (Path B). Linear superposition — a first-order upper bound in overlap zones."""
     gx, gy = np.meshgrid(GRID_XI, GRID_YI)
     clearfell_mm = _load_clearfell_observed_mm()
-    d = _driver_change_net(gx, gy, coast_years=20.0, clearfell_mm=clearfell_mm)
+    d = _driver_change_net(gx, gy, coast_years=MECHANISM_HORIZON_YEARS, clearfell_mm=clearfell_mm)
     if d is None:
         return
     _render_driver_change(wt, d, OUT_20_DRIVER_CHANGE_20YR, dpi, log_scale=True)
@@ -4958,6 +4983,9 @@ def plot_scrape_drawdown(wt, features, dpi=300, show_head=True):
              note="edge drawdown: the measured CEH36 Pure_Scraping response (Script 09a)")
     srpt.add("scrape_inferred_cut_depth_m", float(D_inferred), unit="m",
              note="inferred, not surveyed: H0 / Sy (C3 median per-well Sy)")
+    srpt.add("scrape_sy_c3_median", float(Sy), unit="-", well="C3",
+             note="open-dune specific yield used for the inferred cut depth: median of the C3 wells' "
+                  "per-well WTF Sy_median (18_wtf_01_well_sy_estimates.csv)")
     srpt.add("scrape_lambda_m", float(lam), unit="m", note="decay length of the scrape field")
     for _lvl in DRAWDOWN_QUOTE_LEVELS_MM:
         _in = dd_grid >= _lvl

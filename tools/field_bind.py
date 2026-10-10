@@ -31,7 +31,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_report_fields_2026-10-09). First issue: propose.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-10: spec_for() tries the nearest 10 and 100 for a whole number
+#   ending in 0 (field_sync 1.1.0 negative dp); field_name tags it _dpmN.
+# 1.0.0  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_report_fields_2026-10-09). First issue: propose.
 
 import argparse
 import bisect
@@ -67,6 +69,14 @@ def spec_for(v: float, quoted: str) -> dict | None:
             row = dict(row0, scale=str(scale), abs=absf)
             if fs.render(v, row) == q:
                 return row
+    # 1.1.0: a whole number ending in 0 may be quoted to the nearest 10 or 100 ("about 900 m", "220 m")
+    if not frac and whole.endswith("0"):
+        for dpn in ("-1", "-2") if whole.endswith("00") else ("-1",):
+            for absf in ("", "1"):
+                for scale in SCALES:
+                    row = dict(row0, dp=dpn, scale=str(scale), abs=absf)
+                    if fs.render(v, row) == q:
+                        return row
     return None
 
 
@@ -75,7 +85,7 @@ def field_name(key: str, spec: dict) -> str:
     sc = spec["scale"]
     tag = "" if sc == "1" else "_x" + sc.replace(".", "p").replace("-", "neg")
     tag += "_abs" if spec["abs"] else ""
-    tag += f"_dp{spec['dp']}"
+    tag += f"_dp{spec['dp']}".replace("-", "m")
     tag += "_plus" if spec["plus"] else ""
     tag += "_hy" if spec["minus"] == "-" else ""
     tag += "_th" if spec["thousands"] else ""

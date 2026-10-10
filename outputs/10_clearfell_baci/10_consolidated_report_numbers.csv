@@ -155,6 +155,8 @@ ANCOVA_FarField_Edge_s_coast,Edge,,-1.7409782634871465,,"SE=0.7419, p vs 0=0.020
 ANCOVA_FarField_Edge_absorbed_minus_predicted_drift,Edge,,32.9369799451712,mm/yr,absorbed_drift_mm_yr +20.9205 minus coastal_differential_mm_yr -12.0165 (10a_09_coastal_scale_factor.csv); absorbed SE 8.9151 mm/yr,10a
 ANCOVA_FarField_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.0204486876496521,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.6724; moves the headline by +177.5 mm",10a
 ANCOVA_FarField_Edge_Oct2023_step,Edge,Oct2023,-0.3464739393822519,m,"p=0.2263, dAIC=0.47",10a
+ancova_forest_edge_cwb_x_fell_p,Edge,,0.2552499054248318,,"p of the CWB x clearfell interaction coefficient, monthly ANCOVA, forest control, edge zone, ordinary OLS errors, n=156 months",10a
+ancova_forest_impact_resid_lag1_autocorr,Impact,,0.8453703647124329,,"lag-1 autocorrelation (Pearson, consecutive rows) of the monthly ANCOVA residuals, forest control x impact zone, n=162 months; why the Newey-West errors are used",10a
 ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,-0.0009739263551823,m,"p=0.9871, CI=[-0.1181,0.1161], Jun-Sep subset, full ANCOVA spec",10a
 ANCOVA_Forest_Impact_clearfell_step_summer_se_hac,Impact,Post_felling_Jun-Sep,0.0598060978451256,m,"Newey-West (Bartlett), 4 lags",10a
 ANCOVA_Forest_Impact_clearfell_step_summer_p_hac,Impact,Post_felling_Jun-Sep,0.9870072369621544,,"Newey-West (Bartlett), 4 lags",10a
@@ -181,6 +183,9 @@ ANCOVA_Forest_Impact_winter_N,Impact,Oct-Mar,84.0,months,Winter sample size (Oct
 ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.0914817991820494,m,"p=0.1630, CI=[-0.0350,0.2180], Jun-Sep subset, CWB dropped (sensitivity variant)",10a
 ANCOVA_Forest_Impact_summer_noCWB_R2,Impact,Jun-Sep,0.0650071427345785,,Summer model R² (CWB dropped),10a
 ANCOVA_Forest_Impact_summer_noCWB_N,Impact,Jun-Sep,50.0,months,"Summer sample size (CWB dropped fit, Jun-Sep only)",10a
+ancova_forest_impact_summer_nocwb_p,Impact,Post_felling_Jun-Sep,0.1630361828198832,,"p of the Jun-Sep clearfell step, Forest x Impact, with the CWB terms dropped (sensitivity variant), ordinary OLS errors",10a
+ancova_forest_impact_summer_nocwb_ci_lo_mm,Impact,Post_felling_Jun-Sep,-34.99959668178687,mm,"lower 95% CI bound (step - 1.96 SE, ordinary errors) of the Jun-Sep clearfell step with CWB dropped, Forest x Impact, in mm",10a
+ancova_forest_impact_summer_nocwb_ci_hi_mm,Impact,Post_felling_Jun-Sep,217.96319504588575,mm,"upper 95% CI bound (step + 1.96 SE, ordinary errors) of the Jun-Sep clearfell step with CWB dropped, Forest x Impact, in mm",10a
 ANCOVA_Forest_Impact_coeff_cwb2_x_fell,Impact,,-14.420979829969507,mm per (100mm CWB)^2,"native=-1.442098e-06 m/mm^2, SE_native=1.166199e-06, p=0.2181, curvature variant — buffering term",10a
 ANCOVA_Forest_Impact_coeff_cwb2_x_fell_p,Impact,,0.2181257909078182,,"p-value of ANCOVA_Forest_Impact_coeff_cwb2_x_fell (CWB² × felling interaction, curvature variant), n=162 months",10a
 ANCOVA_Forest_Impact_coeff_cwb2_c,Impact,,-0.7427052581531748,mm per (100mm CWB)^2,"native=-7.427053e-08 m/mm^2, SE_native=7.923917e-07, p=0.9254, curvature variant — CWB² main effect",10a
@@ -195,6 +200,7 @@ ANCOVA_Forest_Edge_curv_clearfell_step,Edge,Post_felling,0.0330840024450038,m,"p
 ANCOVA_Forest_Edge_curv_R2,Edge,,0.4731061180190888,,Curvature model R²,10a
 ANCOVA_Forest_Edge_curv_dAIC,Edge,,-1.3602919199946657,,AIC(curvature) − AIC(linear); negative = curvature preferred,10a
 ANCOVA_Forest_Edge_curv_jointF,Edge,,2.586891958427362,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0787",10a
+ancova_forest_edge_curv_jointF_p,Edge,,0.078653544996184,,"p of the joint F-test that both CWB-squared terms (cwb2_c, cwb2_x_fell) are zero, curvature variant, forest control, edge zone, n=156 months",10a
 Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.108230263783955,m,"p=0.0034, R²=0.232",10a
 Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.0308977146004178,m,"p=0.2332, R²=0.455",10a
 Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,-0.0193019751721327,m,"p=0.4626, R²=0.189",10a
@@ -393,6 +399,7 @@ SummerMin_Forest_L7_shift,L7,Post_felling,-0.0679,m,"p=0.6999, n_pre=7, n_post=8
 SummerMin_Climate_L7_shift,L7,Post_felling,-0.0117,m,"p=0.8747, n_pre=7, n_post=8",10d
 SummerMin_Forest_CEH6_shift,CEH6,Post_felling,-0.1459,m,"p=0.4298, n_pre=7, n_post=8",10d
 SummerMin_Climate_CEH6_shift,CEH6,Post_felling,-0.0897,m,"p=0.1975, n_pre=7, n_post=8",10d
+summer_minima_n_wells,,,22.0,count,"number of distinct wells in the summer-minimum pre/post-felling shifts table (10d_02), all tiers and both controls",10d
 SummerMin_Forest_Impact_mean_shift,Impact,,-0.0073,m,"n_wells=1, n_sig=0",10d
 SummerMin_Forest_Edge_mean_shift,Edge,,-0.04315,m,"n_wells=4, n_sig=0",10d
 SummerMin_Forest_Forest Ctrl_mean_shift,Forest Ctrl,,-0.00112,m,"n_wells=5, n_sig=0",10d
@@ -717,6 +724,7 @@ CoeffShift_Network_mean_b1_after,Network,After,2.704794117647059,m,mean b1_after
 CoeffShift_Network_mean_db1,Network,Delta,-0.1296941176470588,m,"mean db1 across n=17 BACI-network wells (excl. Far-field Ctrl), n_decline=13",10e
 CoeffShift_Network_n_wells,Network,,17.0,wells,"BACI-network wells in 10e_01_coefficient_shifts.csv, excl. Far-field Ctrl: Impact 1, Edge 4, Forest Ctrl 5, Coastal Ctrl 2, Climate Ctrl 5",10e
 CoeffShift_Network_mean_db1_pct_of_before,Network,,-4.575583880862156,m,"ratio of network mean db1 to network mean b1_before, x100",10e
+wmc3_b2_fall_beyond_climate_control_pct,WMC3,Delta,4.800902513200446,percentage points,"WMC3 proportional fall in b2 (-db2/b2_before) minus the Climate Ctrl tier's (-mean db2/mean b2_before, n_wells=5), x100; positive = fell further than the climate controls",10e
 CoeffShift_corr_db1_db2,Forest,,-0.5750297718954485,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)",10e
 CoeffShift_corr_db1_db2_pct,Forest,,-0.5621587971145493,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)",10e
 CoeffShift_corr_db1_db2,Network,,-0.3117332357944015,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=17 wells (Network: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2, WMC3)",10e
@@ -787,6 +795,7 @@ synth_FE2_hindcast_months,,,47.0,m,,10h
 synth_FE2_pre_scraping_months,,,44.0,m,,10h
 synth_FE2_postfell_divergence_mm,,,28.75283606738303,mm,,10h
 synth_FE2_postfell_divergence_p,,,0.0005693227372796,m,,10h
+synth_fe_r2_cal_min,,,0.9943780185237052,,"minimum calibration R2 of the donor regressions over the synthetic-extension FE wells (FE1, FE2); the floor quoted as 'R2 above' in the text",10h
 synth_pre_felling_months,FE1,,29.0,months,"observed monthly readings before CLEARFELL_DATE, 2015-07 to 2017-11",10h
 synth_pre_felling_months,FE2,,29.0,months,"observed monthly readings before CLEARFELL_DATE, 2015-07 to 2017-11",10h
 ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_step,,,0.0780084015091774,m,,10h

@@ -30,7 +30,10 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-05. T-108: emits the distance-decay test across the
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the nearest and farthest uphill-well distance from CEH36; new rows
+#   scrape_propagation_uphill_dist_min_m and scrape_propagation_uphill_dist_max_m. Emit-only.
+# 1.10.0  # Hollingham (2026) - 2026-10-05. T-108: emits the distance-decay test across the
 #   uphill wells (Pearson r and p of BACI-corrected delta-beta3 against distance from CEH36, and n), which
 #   report9 4.11 quotes as the reason the modelled reach is not independently resolved. Emit-only.
 # 1.9.0  # Hollingham (2026) — 2026-09-26. The uphill propagation test is
@@ -369,6 +372,14 @@ def main():
         rr.add("scrape_propagation_uphill_dist_r", float(_pr[0]), unit="-", note=_n)
         rr.add("scrape_propagation_uphill_dist_p", float(_pr[1]), unit="-", note="two-sided p of " + _n)
         rr.add("scrape_propagation_uphill_n_wells", int(len(_up)), unit="count", note="uphill wells in the distance test")
+    # Emit-first (report9): the span of the uphill transect, nearest and farthest well from CEH36.
+    if len(_up):
+        rr.add("scrape_propagation_uphill_dist_min_m", float(_up["dist_m"].min()), unit="m",
+               note="distance from CEH36 to the nearest uphill well of the propagation transect "
+                    "(minimum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m")
+        rr.add("scrape_propagation_uphill_dist_max_m", float(_up["dist_m"].max()), unit="m",
+               note="distance from CEH36 to the farthest uphill well of the propagation transect "
+                    "(maximum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m")
     n_rr = rr.save(OUT_09B_REPORT_NUMBERS)
     print(f"   \u2192 {OUT_09B_REPORT_NUMBERS.name} ({n_rr} rows)")
 

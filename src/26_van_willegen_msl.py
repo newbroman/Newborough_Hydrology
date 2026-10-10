@@ -107,7 +107,14 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.25.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+__version__ = "1.26.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the Edge-well MSL5 deepening after the clearfell, each cluster's wettest/driest
+#   headline Curreli rolling minimum since MSL_TRAJECTORY_START_YEAR, the early-window cluster well
+#   counts and the reference-cluster EWI:MSL5 SE-ratio range; new rows in 26_report_numbers.csv:
+#   msl5_edge_deepening_{y}_{min,max}_m (utils.clearfell_common.EDGE_WELLS, felling hydro year to
+#   the next), curreli_min{w}_c{k}_{min,max}_m, msl5_early_nwells_c{k}_{min,max} with
+#   msl5_early_{first,last}_window_end, ewi_msl5_se_ratio_beta3_{min,max}. No existing output moves.
+# 1.25.0  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
 #   The spring-level figures (26_msl_5yr_trajectory.png, 26_msl_5yr_quadrat_wells.png) draw the
 #   Sand Dune Managers Handbook v2 mean spring levels (config.HB_SD15b_MSL / HB_SD16_MSL, March-May
 #   means, the footing of MSL5) in place of the Curreli minima, which were the basis mismatch T-59
@@ -2689,6 +2696,35 @@ def main() -> int:
             report_nums[f"msl5_scrape_pair_{_nm}_min_m"] = float(_s.min())
             report_nums[f"msl5_scrape_pair_{_nm}_max_m"] = float(_s.max())
             report_nums[f"msl5_scrape_pair_{_nm}_mean_m"] = float(_s.mean())
+    # 1.26.0 (emit-first, report9 SS4.6.4): MSL5 deepening at the clearfell Edge wells
+    # (utils.clearfell_common.EDGE_WELLS) from the window-end of the felling's hydrological
+    # year (config.CLEARFELL_DATE_ISO) to the next; positive = deeper. Range over the wells.
+    from utils.clearfell_common import EDGE_WELLS
+    _fell_y = _intervention_to_hydro_year(pd.Timestamp(config.CLEARFELL_DATE_ISO))
+    _ep = (per_well.assign(well=per_well["well"].str.lower())
+           .pivot(index="well", columns="window_end_year", values="MSL5_m_bg"))
+    if {_fell_y, _fell_y + 1} <= set(_ep.columns):
+        _deep = (_ep.reindex([w.lower() for w in EDGE_WELLS])[_fell_y]
+                 - _ep.reindex([w.lower() for w in EDGE_WELLS])[_fell_y + 1]).dropna()
+        if len(_deep):
+            report_nums[f"msl5_edge_deepening_{_fell_y + 1}_min_m"] = float(_deep.min())
+            report_nums[f"msl5_edge_deepening_{_fell_y + 1}_max_m"] = float(_deep.max())
+    # 1.26.0 (emit-first, report9 SS4.8.3 / Table 20): each cluster's wettest and driest
+    # headline rolling annual minimum over window-ends from MSL_TRAJECTORY_START_YEAR (_mh).
+    for _cid, _g in _mh.groupby("cluster_id"):
+        _stem = f"curreli_min{int(config.CURRELI_MIN_WINDOW_YEARS)}_c{int(_cid)}"
+        report_nums[f"{_stem}_max_m"] = float(_g["MINw_m_bg_mean"].max())
+        report_nums[f"{_stem}_min_m"] = float(_g["MINw_m_bg_mean"].min())
+    # 1.26.0 (emit-first, report9 SS3.6.4): cluster well counts over the early MSL5
+    # window-ends, from the first window-end every cluster reaches to the trajectory start.
+    _early_first = int(per_cluster.groupby("cluster_id")["window_end_year"].min().max())
+    _early = per_cluster[per_cluster["window_end_year"].between(_early_first, TRAJECTORY_START_YEAR)]
+    if len(_early):
+        report_nums["msl5_early_first_window_end"] = _early_first
+        report_nums["msl5_early_last_window_end"] = int(TRAJECTORY_START_YEAR)
+        for _cid, _g in _early.groupby("cluster_id"):
+            report_nums[f"msl5_early_nwells_c{int(_cid)}_min"] = int(_g["n_wells"].min())
+            report_nums[f"msl5_early_nwells_c{int(_cid)}_max"] = int(_g["n_wells"].max())
     if not ewi.empty:
         comp, calib = compute_ewi_msl5_comparison(ewi, latest)
         if not comp.empty:
@@ -2843,6 +2879,12 @@ def main() -> int:
             prec.to_csv(paths.OUT_26_INDEX_PRECISION, index=False)
             saved(f"{paths.OUT_26_INDEX_PRECISION.name}")
             report_nums.update(diag_nums)
+            # 1.26.0 (emit-first, report9 SS4.8.6): range over the reference clusters of
+            # the EWI-to-MSL5 standard-error ratio (beta_3-only EWI) at the cluster medians.
+            _rp = prec.loc[prec["network_scope"] == "reference", "ewi_over_msl5_ratio_beta3"].dropna()
+            if len(_rp):
+                report_nums["ewi_msl5_se_ratio_beta3_min"] = float(_rp.min())
+                report_nums["ewi_msl5_se_ratio_beta3_max"] = float(_rp.max())
 
             info(f"  autocorrelation (n={diag_nums.get('diag_n_wells', 0)} wells with "
                  f"≥{DIAG_MIN_SPRINGS} springs): observed lag-1 mean "

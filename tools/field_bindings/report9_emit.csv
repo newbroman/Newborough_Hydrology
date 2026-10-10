@@ -34,3 +34,5 @@ section,quoted,before,after,source_csv,key,dp,description
 4.10.2,150,.3 mm yr⁻¹ there against 1.6 mm yr⁻¹ at , m. The two forms also im,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · ref_distance_m,,"reference distance, repeated"
 4.10.2,150," 176 m, moves δ₀ by 3.1 mm yr⁻¹ and the "," m rate by 2.4 mm yr⁻¹, 1",outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · ref_distance_m,,"reference distance, repeated"
 4.10.2,1.5,far-field asymptote c_far of −0.3 ± ," mm yr⁻¹ (well basis), which",outputs/25_coastal_gradient/25_report_numbers.csv,c_far_well_basis_se_mm_yr,,its well-basis SE (mm/yr)
+4.10.2,144,imply inland reaches of 902 ± , m for the linear-capped strip,outputs/25_coastal_gradient/25_report_numbers.csv,L_well_basis_se_m,,well-basis SE of the linear-capped reach (m)
+4.10.2,225,and a decay length of 498 ± ," m for the exponential, which",outputs/25_coastal_gradient/25_report_numbers.csv,exp_L_well_basis_se_m,,well-basis SE of the exponential decay length (m)

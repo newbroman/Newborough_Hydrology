@@ -96,6 +96,8 @@ report_edits/**/*~
 
 # local trash folder + LibreOffice deleted-but-open relics — never commit
 /_to_delete/
+# a ship parks another chat's work here while it ships (tools/ship_scope.py, 2026-10-10)
+/.ship_hold/
 .fuse_hidden*
 
 # --- Reference library (store/) — READ LOCALLY, NEVER PUBLISHED ---

@@ -15,6 +15,7 @@
 # --- they guarded was verified. Not archive material.
 - _to_delete/**
 - _transfer/**
+- .ship_hold/**
 - _audit_tmp/**
 # --- archive/: superseded versions moved out of docs/ by prune_versions (D-151 note
 # --- 2026-10-02). Each was uploaded while it was still in docs/ - the ship archives BEFORE it

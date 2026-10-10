@@ -64,7 +64,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-26. Values are looked up by
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10): the index is read
+#   and written through tools/register_io, so rows another chat changed meanwhile are kept.
+# 1.1.0  # Hollingham (2026) — 2026-09-26. Values are looked up by
 #   (source_csv, key), as cite_check does, not by key alone: many labels (e.g.
 #   "C1 (Lake Edge) · beta_1_recharge") are published by several CSVs, and the first
 #   one collected was being compared against rows that cite another. The "not quoted"
@@ -129,10 +131,10 @@ def main() -> int:
     for _src, label, v in cc.collect_values():
         values.setdefault((_src, label), v)
 
+    import register_io
+    rows = register_io.read_rows(INDEX)
     with INDEX.open(encoding="utf-8") as fh:
-        rdr = csv.DictReader(fh)
-        fields = rdr.fieldnames
-        rows = list(rdr)
+        fields = csv.DictReader(fh).fieldnames
 
     moved, refused, same = [], [], 0
 
@@ -278,10 +280,7 @@ def main() -> int:
     if not args.apply:
         print("\n  dry run — nothing written")
         return 0
-    with INDEX.open("w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=fields)
-        w.writeheader()
-        w.writerows(rows)
+    register_io.write_rows(INDEX, fields, rows)
     print(f"\n  written: {INDEX.relative_to(REPO)}")
     return 0
 

@@ -39,7 +39,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): dp may be
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10): the register is
+#   read and written through tools/register_io, so a field another chat registered while this one
+#   ran is kept, not overwritten (a short lock file and a row merge).
+# 1.1.0  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): dp may be
 #   negative, rounding to tens/hundreds for a number the text quotes round ("about 900 m" from L = 902).
 # 1.0.0  # Hollingham (2026) — 2026-10-01 (D-219). First issue.
 
@@ -68,8 +71,8 @@ GET_RE = re.compile(r'<text:user-field-get\b[^>]*?text:name="([^"]+)"[^>]*>(.*?)
 def load_register() -> dict[str, dict]:
     if not REGISTER.exists():
         return {}
-    with REGISTER.open(encoding="utf-8", newline="") as fh:
-        rows = list(csv.DictReader(fh))
+    import register_io
+    rows = register_io.read_rows(REGISTER)
     reg = {}
     for r in rows:
         if r["field"] in reg:
@@ -79,11 +82,11 @@ def load_register() -> dict[str, dict]:
 
 
 def save_register(reg: dict[str, dict]) -> None:
-    with REGISTER.open("w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=COLUMNS)
-        w.writeheader()
-        for name in sorted(reg):
-            w.writerow({c: reg[name].get(c, "") for c in COLUMNS})
+    # 1.2.0: merged against the file as it is now, under a lock (tools/register_io.py), so fields
+    # another chat registered since load_register() survive.
+    import register_io
+    register_io.write_rows(REGISTER, COLUMNS, [{c: reg[name].get(c, "") for c in COLUMNS} for name in sorted(reg)],
+                           sort_key=lambda r: r["field"], key_cols=["field"])
 
 
 _VALUES: dict | None = None

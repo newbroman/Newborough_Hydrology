@@ -293,6 +293,29 @@ person's machines, not a mutex.
 
 Never run `refresh_mirrors.py` on a machine whose ODTs you have not just pulled.
 
+**Several chats in one tree (2026-10-10, spec `NRG_spec_parallel_chats_2026-10-10`).** The
+lock above is per MACHINE. Chats sharing the L14's tree each CLAIM what they work on — `doc:<family>`
+(`doc:report`, `doc:PaperM`, `doc:summaries`…), `pipeline` (src, outputs, data, run_analysis) or
+`tools` (tools/*.py, *.sh). The CSV registers in `tools/` are shared and merged row by row
+(`tools/register_io.py`), never claimed.
+
+    python3 tools/work_board.py                                      # who holds what; what is uncommitted
+    python3 tools/doc_lock.py take doc:PaperM --chat "Paper M" --note "v1_9 read-through"
+    export NRG_CHAT="Paper M"                                         # in EVERY shell call over the bridge
+    python3 tools/doc_lock.py release doc:PaperM --chat "Paper M"    # after the ship reaches GitHub
+
+A claim held by another chat refuses `odt_edit` writes into its documents and `run_analysis.py`
+while `pipeline` is held. An unclaimed area refuses nothing. **A ship request names the chat, its
+claims and any other paths it carries** —
+`{"id","requested_at","requested_by","message","chat","claims":[…],"paths":[…]}` — and
+`nrg_git.sh --ship` (1.29.0) parks every other chat's changed files in `.ship_hold/<id>/` before the
+regenerate step, ships, and puts them back before the Drive archive (`tools/ship_scope.py`). A
+family another chat holds with a NEW version file is parked too; one whose shipped file itself was
+edited (the report chapters, the public summaries) STOPS the ship with the holder's name — ship
+after that chat, or from one chat holding both claims. A request with no chat or claims is refused
+while anyone holds a claim; `nrg_git.sh --ship-all` is Martin's, by hand. A document chat that needs
+a new emit asks the `pipeline` holder.
+
 ## 4c. The bridge: what it can do, and three ways to break it (2026-09-20)
 
 LibreOffice **and UNO both work on the bridge** — `soffice` is on PATH,

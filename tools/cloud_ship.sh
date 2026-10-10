@@ -25,16 +25,23 @@
 # --dry-run stops after the checks, releases the lock, and tests the private push (CLAUDE.md 7: a
 # dry run pushes nothing but the lock).
 #
-# Version 1.0.1 — Hollingham (2026) — 2026-10-03. Private pushes name origin HEAD:main rather than relying on
+# Claims (1.1.0): --chat NAME (or NRG_CHAT) and --claims "doc:PaperM,pipeline" name the chat shipping
+#   and what it holds (tools/doc_lock.py). Step 3 refuses commits that touch another chat's claim
+#   (tools/ship_scope.py check), and the ship is given a request file so nrg_git.sh 1.29.0 scopes it.
+#
+# Version 1.1.0 — Hollingham (2026) — 2026-10-10. Claims (spec NRG_spec_parallel_chats_2026-10-10).
+# 1.0.1 — 2026-10-03. Private pushes name origin HEAD:main rather than relying on
 #   an upstream (the dry3 dry run: a --bare clone sets none, so the lock push was refused).
 # 1.0.0 — 2026-10-02. First issue.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
-ID="" APPROVED="" DRY=0 MSG=""
+ID="" APPROVED="" DRY=0 MSG="" CHAT="${NRG_CHAT:-}" CLAIMS=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --id) ID="$2"; shift 2 ;;
+    --chat) CHAT="$2"; shift 2 ;;
+    --claims) CLAIMS="$2"; shift 2 ;;
     --approved) APPROVED="$2"; shift 2 ;;
     --dry-run) DRY=1; shift ;;
     *) MSG="$1"; shift ;;
@@ -108,6 +115,9 @@ if ! "$VPY" tools/doc_lock.py check --quiet; then
   holder="$("$VPY" -c 'import json;print(json.load(open("working/DOCUMENT_LOCK.json")).get("holder"))' 2>/dev/null)"
   fail "docs-locked-by-${holder:-unknown}" "the documents are locked by ${holder}: release them there (after archiving) first"
 fi
+# 1.1.0: nothing this ship carries may be under a claim another chat holds.
+NRG_CHAT="$CHAT" "$VPY" tools/ship_scope.py check --chat "$CHAT" --range origin/main..HEAD \
+  || fail claimed-elsewhere "these commits touch files another chat has claimed (above): that chat ships them, or releases its claim"
 "$VPY" tools/doc_lock.py take --note "cloud ship ${ID}" >/dev/null && LOCKED=1
 lock_push "doc lock: cloud ship ${ID}" || fail lock-push "could not push the lock to the private repo"
 
@@ -130,7 +140,11 @@ if [ "$DRY" = 1 ]; then
 fi
 
 step 6/7 "ship (working/nrg_git.sh --ship)"
-./working/nrg_git.sh --ship "${MSG:-cloud ship ${ID}}"
+mkdir -p scratch
+REQF="scratch/cloud_ship_request_${ID}.json"
+"$VPY" -c 'import json,sys; json.dump({"id": sys.argv[1], "chat": sys.argv[2] or None, "claims": [c for c in sys.argv[3].replace(",", " ").split() if c], "paths": []}, open(sys.argv[4], "w"))' \
+  "$ID" "$CHAT" "$CLAIMS" "$REQF"
+NRG_CHAT="$CHAT" NRG_SHIP_REQUEST="$REQF" ./working/nrg_git.sh --ship "${MSG:-cloud ship ${ID}}"
 rc=$?
 line="$(grep -a '^SHIP: ' "$(ls -t scratch/ship_*.log 2>/dev/null | head -1)" 2>/dev/null | tail -1)"
 

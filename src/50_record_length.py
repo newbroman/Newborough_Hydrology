@@ -57,6 +57,7 @@ OUTPUTS (outputs/50_record_length/)
   50_18 .. 50_20                     E8d, rain event structure (D-234)
   50_21 .. 50_23                     E8e, the 1998 felling north of NW9 and its regrowth (D-235)
   50_24 .. 50_25                     E8f, the 2014/15 shore clearance step (D-236)
+  50_26_precanopy_by_case.csv        E8g, a store drawn down by the plantation: the pre-canopy test (T-121, D-255)
   50_report_numbers.csv
 
 Registered in run_analysis.py, Phase 19, tier X, opt-in (--with-supplementary).
@@ -64,7 +65,17 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-03 (D-236; Martin: "Otherwise I approve", 07:49, spec
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-10 (T-121, D-255; Martin 17:06-17:11, spec
+#   NRG_spec_precanopy_T121_T122_2026-10-10, "Please continue" 18:06). E8g: was a store drawn down by the plantation
+#   at C4 and C5? E8 warmed up on the forest coefficients from 1941, so it could not see one. Per forest cluster
+#   centroid, the effective recharge R = beta_1(t) P - beta_2(t) PET with the coefficients moving along a logistic
+#   canopy share from the open-dune analogue's (PRECANOPY_ANALOGUE, D-254) to the forest's, for each planting year
+#   x closure age (PRECANOPY_*), fed to the single and two-store responses; against the same with the forest
+#   coefficients throughout. Strict rule fixed before the run: supported only if every case's two-store fit beats
+#   the better forest-throughout fit by TWO_STORE_BIC_STRONG, holds the forward split, and shrinks |2006-08
+#   residual|. Two-store fits start from a grid (PRECANOPY_SLOW_STARTS_DAYS x PRECANOPY_SHARE_STARTS), lowest
+#   BIC kept: the fit is multi-modal. 50_26_precanopy_by_case.csv; precanopy_* report numbers. Phase 12 E8g, outputs 13.
+# 1.7.0  # Hollingham (2026) - 2026-10-03 (D-236; Martin: "Otherwise I approve", 07:49, spec
 #   NRG_spec_E8f_shore_clearance_step_2026-10-03). E8f: did the 2014/15 shore clearance put a step into the wells
 #   around it? Per well within E8F_NEAR_M of the strip, and placebo wells beyond E8F_FAR_M, the E8 single store against
 #   the same with one step whose date is profiled monthly over E8F_STEP_WINDOW; test 1, a step at the BACI coastal
@@ -154,6 +165,7 @@ from utils.paths import (                                     # noqa: E402
     MIDAS_RAIN_DIR, OUT_50_RAIN_EVENTS, OUT_50_EVENT_STRESS, OUT_50_RAIN_EVENTS_FIG,
     OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG,
     OUT_50_CLEARANCE_STEP, OUT_50_CLEARANCE_FIG, DATA_SHORE_CLEARANCE_2015,
+    OUT_03_MECHANISTIC_TABLE, OUT_50_PRECANOPY,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -178,6 +190,8 @@ from utils.config import (                                    # noqa: E402
     E8E_TIMING_TOL_YEARS, E8E_CHECK_WELL, E8E_CANOPY_REGION, E8E_CANOPY_VIEWPOINT, LAKE_GAUGE_KEYS,
     E8F_STEP_WINDOW, E8F_MIN_SIDE_MONTHS, E8F_NEAR_M, E8F_FAR_M, E8F_CONTROL_WELLS, E8F_PLACEBO_MAX_FRAC,
     E8F_WIDE_WINDOW, E8F_WIDE_STEP_MONTHS,
+    PRECANOPY_ANALOGUE, PRECANOPY_PLANTING_YEARS, PRECANOPY_CLOSURE_YEARS, PRECANOPY_W_TAILS,
+    PRECANOPY_SLOW_STARTS_DAYS, PRECANOPY_SHARE_STARTS,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, simulate_ssm, get_metrics,   # noqa: E402
@@ -2328,6 +2342,165 @@ def plot(summ: pd.DataFrame) -> None:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# ── E8g (1.8.0, T-121, D-255): a store drawn down by the plantation? The pre-canopy test ───────────────
+PRECANOPY_VERDICT = {"supported": 2, "not resolved": 1, "not supported": 0}
+
+
+def canopy_share(t: pd.DatetimeIndex, planting: int, closure: int) -> np.ndarray:
+    """The forest share of the coefficients: a logistic equal to PRECANOPY_W_TAILS at planting and at
+    closure (planting + closure years). Ones throughout when `planting` is None (forest throughout)."""
+    if planting is None:
+        return np.ones(len(t))
+    w0, w1 = PRECANOPY_W_TAILS
+    k = (np.log(w1 / (1 - w1)) - np.log(w0 / (1 - w0))) / closure
+    t_mid = planting + np.log(1 / w0 - 1) / k        # w(planting) = w0; = planting + closure/2 for symmetric tails
+    yr = t.year + (t.dayofyear - 0.5) / 365.25
+    return 1.0 / (1.0 + np.exp(-k * (np.asarray(yr) - t_mid)))
+
+
+def precanopy_stress(P: pd.Series, E: pd.Series, b_an: pd.Series, b_fo: pd.Series, planting, closure) -> pd.Series:
+    """R(t) = beta_1(t) P(t) - beta_2(t) PET(t), each coefficient moved along the canopy share from the
+    open-dune analogue's to the forest cluster's (both at DRAINAGE_DATUM). beta_3 cannot vary inside a
+    Pastas response, so the drainage time scales are fitted, as in E8."""
+    w = canopy_share(P.index, planting, closure)
+    b1 = (1 - w) * b_an["beta_1_recharge"] + w * b_fo["beta_1_recharge"]
+    b2 = (1 - w) * b_an["beta_2_atmospheric_draw"] + w * b_fo["beta_2_atmospheric_draw"]
+    E = E.reindex(P.index)
+    return pd.Series(b1 * P.to_numpy() - b2 * E.to_numpy(), index=P.index, name="R").dropna()
+
+
+def _stress_model(ps, head: pd.Series, R: pd.Series, double: bool, name: str,
+                  slow_init=TWO_STORE_SLOW_INIT_DAYS, share_init=TWO_STORE_SLOW_SHARE_INIT):
+    ml = ps.Model(head, name=name)
+    rf = ps.DoubleExponential() if double else ps.Exponential()
+    ps.StressModel(ml, R, rfunc=rf, name="rch", settings="prec")
+    if double:
+        ml.set_parameter("rch_a1", initial=TWO_STORE_FAST_INIT_DAYS,
+                         pmin=TWO_STORE_FAST_BOUNDS_DAYS[0], pmax=TWO_STORE_FAST_BOUNDS_DAYS[1])
+        ml.set_parameter("rch_a2", initial=slow_init,
+                         pmin=TWO_STORE_SLOW_BOUNDS_DAYS[0], pmax=TWO_STORE_SLOW_BOUNDS_DAYS[1])
+        ml.set_parameter("rch_alpha", initial=share_init, pmin=0.0, pmax=1.0)
+    return ml
+
+
+def _stress_fit(ps, head, R, double: bool, name: str, tmin=None, tmax=None):
+    """Solved model; a two-store fit from every PRECANOPY_SLOW_STARTS_DAYS x PRECANOPY_SHARE_STARTS start,
+    the lowest BIC kept (the fit is multi-modal). Returns (model, number of starts that converged)."""
+    starts = ([(a, s) for a in PRECANOPY_SLOW_STARTS_DAYS for s in PRECANOPY_SHARE_STARTS] if double
+              else [(TWO_STORE_SLOW_INIT_DAYS, TWO_STORE_SLOW_SHARE_INIT)])
+    best, n_ok = None, 0
+    for a, s in starts:
+        try:
+            ml = _ts_solve(_stress_model(ps, head, R, double, name, a, s), R, tmin, tmax)
+        except Exception:
+            continue
+        n_ok += 1
+        if best is None or float(ml.stats.bic()) < float(best.stats.bic()):
+            best = ml
+    if best is None:
+        raise RuntimeError("no start converged")
+    return best, n_ok
+
+
+def precanopy(cl):
+    """E8g (T-121): at each forest cluster centroid, the single and two-store responses to the effective
+    recharge of a canopy closing along a logistic after planting, against the same with the forest
+    coefficients throughout; every planting year x closure age. The rule was fixed before the run."""
+    import pastas as ps
+    ps.set_log_level("ERROR")
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    co = pd.read_csv(OUT_03_MECHANISTIC_TABLE).set_index("Cluster")
+    if not np.allclose(co["drainage_datum_m"], DRAINAGE_DATUM):
+        raise ValueError(f"{OUT_03_MECHANISTIC_TABLE.name} is not at DRAINAGE_DATUM")
+    start = continuous_start(cl)
+    P, E = spread_daily(cl, start)
+    cases = [(None, None)] + [(p_, c_) for p_ in PRECANOPY_PLANTING_YEARS for c_ in PRECANOPY_CLOSURE_YEARS]
+    rows = []
+    for c, an in sorted(PRECANOPY_ANALOGUE.items()):
+        if f"C{c}" not in ra.columns:
+            continue
+        hm = ra[f"C{c}"].dropna(); hm.index = hm.index + pd.offsets.MonthEnd(0)
+        for planting, closure in cases:
+            R = precanopy_stress(P, E, co.loc[an], co.loc[c], planting, closure)
+            w_rec = float(canopy_share(pd.DatetimeIndex([hm.index[0]]), planting, closure)[0])
+            for form, dbl in TS_FORMS:
+                info(f"E8g C{c} {form} planting {planting or 'none'} closure {closure or '-'}")
+                row = {"cluster": c, "analogue": an,
+                       "case": "forest_throughout" if planting is None else f"{planting}_{closure}",
+                       "planting_year": planting if planting is not None else np.nan,
+                       "closure_years": closure if closure is not None else np.nan,
+                       "form": form, "warmup_from": f"{start:%Y-%m}", "n_obs": int(hm.notna().sum()),
+                       "w_at_record_start": w_rec}
+                try:
+                    ml, n_ok = _stress_fit(ps, hm, R, dbl, f"C{c}_{form}_{row['case']}")
+                    o = ml.parameters["optimal"]
+                    st = _residual_stats(ml, R, hm)
+                    fitp = lambda tmin, tmax, d=dbl, nm=row["case"]: _stress_fit(
+                        ps, hm, R, d, f"C{c}_{form}_{nm}_s", tmin, tmax)[0]
+                    row["starts_converged"] = n_ok
+                    sp = _split_nses(fitp, hm, R, CHANGE_SPLIT_DIRECTIONS)
+                    row.update(bic=float(ml.stats.bic()), aic=float(ml.stats.aic()), rsq=float(ml.stats.rsq()),
+                               fast_efold_months=float(o["rch_a1"] if dbl else o["rch_a"]) / DAYS_PER_MONTH,
+                               slow_efold_months=float(o["rch_a2"]) / DAYS_PER_MONTH if dbl else np.nan,
+                               slow_share=float(o["rch_alpha"]) if dbl else 0.0,
+                               split_nse_fwd=sp["fwd"], split_nse_rule=sp["rule"],
+                               early_resid_m=st["early_resid_m"], later_rmse_m=st["later_rmse_m"])
+                except Exception as exc:
+                    row["error"] = f"{type(exc).__name__}: {exc}"[:200]
+                rows.append(row)
+    tab = pd.DataFrame(rows)
+    # the rule: each pre-canopy two-store fit against the better (by BIC) forest-throughout fit
+    tab["dbic_vs_forest"] = np.nan
+    tab["case_pass"] = pd.Series([pd.NA] * len(tab), dtype="boolean")
+    for c in tab["cluster"].unique():
+        base = tab[(tab.cluster == c) & (tab.case == "forest_throughout") & tab["bic"].notna()]
+        if base.empty:
+            continue
+        b = base.loc[base["bic"].idxmin()]
+        tab.loc[tab.cluster == c, "baseline_form"] = b["form"]
+        idx = tab.index[(tab.cluster == c) & (tab.case != "forest_throughout")]
+        tab.loc[idx, "dbic_vs_forest"] = b["bic"] - tab.loc[idx, "bic"]
+        for i in idx:
+            r = tab.loc[i]
+            if r["form"] != "double" or not np.isfinite(r.get("bic", np.nan)):
+                continue
+            t1 = bool(r["dbic_vs_forest"] >= TWO_STORE_BIC_STRONG)
+            t2 = bool(np.isfinite(r["split_nse_rule"]) and r["split_nse_rule"] >= b["split_nse_rule"])
+            t3 = bool(abs(r["early_resid_m"]) < abs(b["early_resid_m"]))
+            tab.loc[i, ["test1_bic", "test2_split", "test3_early"]] = [t1, t2, t3]
+            tab.loc[i, "case_pass"] = bool(t1 and t2 and t3)
+    return tab
+
+
+def precanopy_verdicts(tab: pd.DataFrame) -> dict:
+    out = {}
+    n_cases = len(PRECANOPY_PLANTING_YEARS) * len(PRECANOPY_CLOSURE_YEARS)
+    for c in sorted(tab["cluster"].unique()):
+        g = tab[(tab.cluster == c) & (tab.form == "double") & (tab.case != "forest_throughout")]
+        npass = int(g["case_pass"].fillna(False).astype(bool).sum())
+        complete = len(g) == n_cases and g["case_pass"].notna().all()
+        v = ("supported" if complete and npass == n_cases else "not supported" if npass == 0 else "not resolved")
+        out[c] = {"verdict": v, "n_pass": npass, "n_cases": n_cases,
+                  "dbic_min": float(g["dbic_vs_forest"].min()) if len(g) else np.nan,
+                  "dbic_max": float(g["dbic_vs_forest"].max()) if len(g) else np.nan}
+    return out
+
+
+def precanopy_report(rr, ver: dict) -> None:
+    for c, v in ver.items():
+        rr.add(f"precanopy_verdict_C{c}", PRECANOPY_VERDICT[v["verdict"]], unit="code",
+               note=f"C{c}: {v['verdict']} (2 supported, 1 not resolved, 0 not supported); a store drawn down by "
+                    f"the plantation, pre-canopy test E8g, strict rule fixed before the run (T-121, D-255)")
+        rr.add(f"precanopy_n_cases_pass_C{c}", v["n_pass"], unit="count",
+               note=f"C{c}: cases (of {v['n_cases']}, planting year x closure age) in which the pre-canopy two-store "
+                    f"fit passes all three tests (E8g)")
+        rr.add(f"precanopy_dbic_min_C{c}", v["dbic_min"], unit="BIC",
+               note=f"C{c}: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, "
+                    f"across the cases (E8g; positive favours the pre-canopy fit)")
+        rr.add(f"precanopy_dbic_max_C{c}", v["dbic_max"], unit="BIC",
+               note=f"C{c}: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)")
+
+
 def main(no_fig: bool = False) -> int:
     banner("50", "What the record length decides", version=__version__)
     DIR_50.mkdir(parents=True, exist_ok=True)
@@ -2478,7 +2651,19 @@ def main(no_fig: bool = False) -> int:
     result("E8f verdict", cf_verdict)
     cf_tab.to_csv(OUT_50_CLEARANCE_STEP, index=False); saved(f"{OUT_50_CLEARANCE_STEP.name} ({len(cf_tab)} rows)")
 
-    phase(12, "Outputs")
+    phase(12, "A store drawn down by the plantation? The pre-canopy test (E8g, 1.8.0, T-121, D-255)")
+    pc_tab = precanopy(cl)
+    pc_ver = precanopy_verdicts(pc_tab)
+    for r in pc_tab[pc_tab["form"] == "double"].itertuples():
+        if pd.notna(getattr(r, "bic", np.nan)):
+            step(f"C{r.cluster} {r.case}: slow share {r.slow_share:.2f}, slow e-fold {r.slow_efold_months:.0f} months, "
+                 f"dBIC {r.dbic_vs_forest:+.1f}, split NSE {r.split_nse_rule:.3f}, early residual {r.early_resid_m:+.3f} m"
+                 + ("" if pd.isna(r.case_pass) else f"; {'pass' if r.case_pass else 'fail'}"))
+    for c, v in pc_ver.items():
+        result(f"E8g verdict C{c}", f"{v['verdict']} ({v['n_pass']} of {v['n_cases']} cases pass)")
+    pc_tab.to_csv(OUT_50_PRECANOPY, index=False); saved(f"{OUT_50_PRECANOPY.name} ({len(pc_tab)} rows)")
+
+    phase(13, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -2493,6 +2678,7 @@ def main(no_fig: bool = False) -> int:
     e8d_report(rr, e8_prim, e8_chk, e8_st, e8_verdict, e8_info)
     e8e_report(rr, fe_verdict, fe_info)
     e8f_report(rr, cf_tab, cf_verdict, cf_info)
+    precanopy_report(rr, pc_ver)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)

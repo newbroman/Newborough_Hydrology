@@ -102,7 +102,12 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-10-10. report9 SS4.14.2's "elevated" open-dune wells within the
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-10-10 (T-122, D-254). The pre-planting sensitivity runs each
+#   forest well on the open-dune analogue of its cluster (config.PRECANOPY_ANALOGUE: C3 for C4, C2 for C5), not
+#   C2 for every forest well (Martin 2026-10-10 12:42, 17:11 "replace"). Columns *_c2_m become *_analogue_m with
+#   preplant_analogue_cluster; the uncited key ..._min_median_C4_c2_m becomes ..._C4_analogue_m, and C5's
+#   analogue keys are added. The own-coefficient keys (cited in report9) do not change.
+# 1.11.0  # Hollingham (2026) — 2026-10-10. report9 SS4.14.2's "elevated" open-dune wells within the
 #   coastal reach follow a stated rule: excess over the inland baseline above config.RANWELL_ELEVATED_K_SIGMA x the
 #   combined 1951-53 standard error. Rows slack_floor_reach_* (counts, threshold, excess range). Emit-only.
 # 1.10.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
@@ -664,7 +669,8 @@ def _preplant_hindcast(w, cluster, cl, md, cc, wc):
     well's own record. Own coefficients when beta_3 is identified (p below
     PREPLANT_BETA3_P_MAX); otherwise the cluster centroid's (OUT_03_MECHANISTIC_TABLE),
     because a near-zero beta_3 makes the steady state and the hindcast meaningless.
-    The C2 centroid is run beside it as the "pre-planting behaviour" sensitivity.
+    The open-dune analogue of the well's cluster (config.PRECANOPY_ANALOGUE, D-254: C3 for
+    C4, C2 for C5) is run beside it as the "pre-planting behaviour" sensitivity.
     Datum-free: both windows come from one simulation."""
     rec = pd.to_numeric(wc[w], errors="coerce").dropna()
     h0 = float(rec.mean())
@@ -676,7 +682,8 @@ def _preplant_hindcast(w, cluster, cl, md, cc, wc):
     else:
         row = cc.loc[int(cluster)]
         betas = tuple(float(row[k]) for k in BETA_COLS); basis = f"cluster_C{int(cluster)}"
-    c2 = tuple(float(cc.loc[2, k]) for k in BETA_COLS)
+    analogue = config.PRECANOPY_ANALOGUE.get(int(cluster))
+    alt = tuple(float(cc.loc[analogue, k]) for k in BETA_COLS) if analogue is not None else None
 
     def stats(h, lo, hi):
         s = h.loc[lo:hi]
@@ -684,8 +691,13 @@ def _preplant_hindcast(w, cluster, cl, md, cc, wc):
         amin = s.groupby(s.index.year).min()
         return float(s.mean()), float(spring), float(amin.median())
 
-    out = {"preplant_coef_basis": basis}
-    for lab, bt in (("", betas), ("_c2", c2)):
+    out = {"preplant_coef_basis": basis,
+           "preplant_analogue_cluster": analogue if analogue is not None else pd.NA}
+    for lab, bt in (("", betas), ("_analogue", alt)):
+        if bt is None:
+            for k in ("mean", "spring", "min"):
+                out[f"climate_change_since_preplant_{k}{lab}_m"] = np.nan
+            continue
         h = hindcast_series(cl, bt, h0)
         pre = stats(h, pd.Timestamp(a), pd.Timestamp(b) + pd.offsets.MonthEnd(0))
         mod = stats(h, rec.index.min(), rec.index.max())
@@ -1305,11 +1317,19 @@ def main() -> int:
                 f"1 if the felled and canopy residuals differ at p < {config.FOREST_FLOOR_GROUP_TEST_P} (0: they do not)")]
     if "climate_change_since_preplant_min_m" in ffe.columns:
         c4 = ffe[ffe["cluster"] == 4]
+        c5 = ffe[ffe["cluster"] == 5]
         rn += [("forest_floor_preplant_window", f"{config.PREPLANT_WINDOW[0]} to {config.PREPLANT_WINDOW[1]}", "-", "the pre-planting window the climate-only hindcast is compared over (config)"),
                ("forest_floor_climate_change_since_preplant_mean_median_C4_m", float(c4["climate_change_since_preplant_mean_m"].median()), "m",
                 "C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher)"),
                ("forest_floor_climate_change_since_preplant_min_median_C4_m", float(c4["climate_change_since_preplant_min_m"].median()), "m", "C4: the same for the annual minimum"),
-               ("forest_floor_climate_change_since_preplant_min_median_C4_c2_m", float(c4["climate_change_since_preplant_min_c2_m"].median()), "m", "C4: the same with the C2 centroid coefficients (pre-planting behaviour sensitivity)"),
+               ("forest_floor_climate_change_since_preplant_min_median_C4_analogue_m", float(c4["climate_change_since_preplant_min_analogue_m"].median()), "m",
+                f"C4: the same with its open-dune analogue's centroid coefficients (C{config.PRECANOPY_ANALOGUE[4]}; pre-planting behaviour sensitivity, D-254)"),
+               ("forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m", float(c4["climate_change_since_preplant_mean_analogue_m"].median()), "m",
+                f"C4: the mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[4]}, D-254)"),
+               ("forest_floor_climate_change_since_preplant_min_median_C5_analogue_m", float(c5["climate_change_since_preplant_min_analogue_m"].median()) if len(c5) else np.nan, "m",
+                f"C5: annual-minimum change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells"),
+               ("forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m", float(c5["climate_change_since_preplant_mean_analogue_m"].median()) if len(c5) else np.nan, "m",
+                f"C5: mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells"),
                ("forest_floor_retreat_since_preplant_steady_m", float(ffe["retreat_since_preplant_steady_m"].iloc[0]), "m", "shoreline retreat since the window, the 1899-2006 epoch spread evenly (assumption) plus 2006-2026"),
                ("forest_floor_retreat_since_preplant_modern_m", float(ffe["retreat_since_preplant_modern_m"].iloc[0]), "m", "sensitivity: the 2006-2026 rate carried back over the interval, capped at the measured total since 1899"),
                ("forest_floor_residual_after_climate_and_retreat_steady_median_C4_m", float(c4["residual_after_climate_and_retreat_steady_min_m"].median()), "m", "C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term"),

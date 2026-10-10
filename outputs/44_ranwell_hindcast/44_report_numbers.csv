@@ -223,7 +223,10 @@ forest_floor_felled_vs_canopy_differs,0.0,flag,1 if the felled and canopy residu
 forest_floor_preplant_window,1953-01 to 1960-12,-,the pre-planting window the climate-only hindcast is compared over (config)
 forest_floor_climate_change_since_preplant_mean_median_C4_m,0.07769122786993798,m,"C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher)"
 forest_floor_climate_change_since_preplant_min_median_C4_m,-0.006672819260187701,m,C4: the same for the annual minimum
-forest_floor_climate_change_since_preplant_min_median_C4_c2_m,-0.028280816141552978,m,C4: the same with the C2 centroid coefficients (pre-planting behaviour sensitivity)
+forest_floor_climate_change_since_preplant_min_median_C4_analogue_m,-0.020494338446670923,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254)"
+forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m,0.05985018322846469,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254)"
+forest_floor_climate_change_since_preplant_min_median_C5_analogue_m,-0.02828081383558878,m,"C5: annual-minimum change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells"
+forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m,0.05252533903221679,m,"C5: mean-level change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells"
 forest_floor_retreat_since_preplant_steady_m,78.61795838876313,m,"shoreline retreat since the window, the 1899-2006 epoch spread evenly (assumption) plus 2006-2026"
 forest_floor_retreat_since_preplant_modern_m,126.922893015752,m,"sensitivity: the 2006-2026 rate carried back over the interval, capped at the measured total since 1899"
 forest_floor_residual_after_climate_and_retreat_steady_median_C4_m,0.6596734705540046,m,C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term

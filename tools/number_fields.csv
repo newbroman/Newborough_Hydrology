@@ -56,7 +56,7 @@ ForestFree_d0_disagreement_lincap_vs_exp_dp1,outputs/25_coastal_gradient/25_repo
 ForestFree_ref_disagreement_lincap_vs_exp_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,ForestFree_ref_disagreement_lincap_vs_exp,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 Headline_DeltaAIC_lincap_vs_exp_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,Headline_DeltaAIC_lincap_vs_exp,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 LCSC_DATA_LIMIT_dp0,src/utils/config.py,LCSC_DATA_LIMIT,1,,0,,−,,born a field in PaperM
-L_well_basis_se_m_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,L_well_basis_se_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+L_well_basis_se_m_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,L_well_basis_se_m,1,,0,,−,,bound by r9_m.csv (report_edits/text/report9.md)
 Median_one_step_R2_Traditional_Model_A_dp2,outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv,Median one-step R2 · Traditional_Model_A,1,,2,,−,,born a field in PaperM (D-244)
 Pre_felling_baseline_years_max_CEH16_Edge_dp1,outputs/10_clearfell_baci/10a_report_numbers.csv,Pre_felling_baseline_years_max · CEH16 · Edge,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
 Pre_felling_baseline_years_max_CEH17_Coastal_control_dp1,outputs/10_clearfell_baci/10a_report_numbers.csv,Pre_felling_baseline_years_max · CEH17 · Coastal control,1,,1,,−,,converted from citation_index (report_edits/text/report8.md)
@@ -118,6 +118,7 @@ delta_ref_loo_max_shift_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.
 delta_ref_well_basis_ci_hi_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_ci_hi_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 delta_ref_well_basis_ci_lo_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_ci_lo_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 delta_ref_well_basis_se_mm_yr_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,delta_ref_well_basis_se_mm_yr,1,,1,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
+exp_L_well_basis_se_m_dp0,outputs/25_coastal_gradient/25_report_numbers.csv,exp_L_well_basis_se_m,1,,0,,−,,bound by r9_m.csv (report_edits/text/report9.md)
 forest_free_beta_1_recharge_n_dp0,outputs/07_spatial_coefficients/07_05_clusters_vs_covariates.csv,forest_free / beta_1_recharge · n,1,,0,,−,,converted from citation_index (report_edits/text/report8.md)
 forest_free_exponential_L_m_dp0,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / exponential · L_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)
 forest_free_linear_capped_L_m_dp0,outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv,forest_free / linear_capped · L_m,1,,0,,−,,bound by report9_demo_bind.csv (report_edits/text/report9.md)

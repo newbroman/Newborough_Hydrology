@@ -126,7 +126,13 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.35.0"  # Hollingham (2026) — 2026-10-09. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09,
+__version__ = "1.36.0"  # Hollingham (2026) — 2026-10-09. The exponential form is refitted once per withheld
+#   well as the linear-capped headline is (Martin 21:0x, "Compute it"): report9 §4.10.2 quotes the
+#   exponential decay length with the NOMINAL L_se of 25_01, in a paragraph whose uncertainties are on
+#   the well basis (D-147). New rows exp_loo_n_wells, exp_delta0_well_basis_se_mm_yr,
+#   exp_L_well_basis_se_m, exp_c_far_well_basis_se_mm_yr (same jackknife, same delta0_leave_one_out()
+#   with the exponential form, p0 and bounds of the ff_exp fit). Emit-only; no value moves.
+# 1.35.0  # Hollingham (2026) — 2026-10-09. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09,
 #   Martin 19:27 "go ahead"): every number report9 quotes comes from a key a script writes.
 #   (a) c_far_well_basis_se_mm_yr (+ _ci_lo/_ci_hi): the delete-one standard error of the far-field
 #   asymptote c, the same jackknife as delta_0, delta_ref and L (D-147). report9 §4.10.2 quoted the
@@ -3458,7 +3464,8 @@ def build_report_numbers(fits: dict,
                           decay_funcs: dict | None = None,
                           cov_range: pd.DataFrame | None = None,
                           loo: pd.DataFrame | None = None,
-                          window_sweep_df: pd.DataFrame | None = None) -> pd.DataFrame:
+                          window_sweep_df: pd.DataFrame | None = None,
+                          loo_exp: pd.DataFrame | None = None) -> pd.DataFrame:
     """Headline numbers in the project-standard
     `Parameter, Well, Era, Value, Unit, Note` format.
 
@@ -3850,6 +3857,20 @@ def build_report_numbers(fits: dict,
                              f"climate covariate is chosen differently. "
                              f"Source {paths.OUT_25_COVARIATE_SPEC_RANGE.name}; "
                              f"{_r['basis']}.")})
+    # 1.36.0: the exponential form's well-basis SEs, the same delete-one jackknife.
+    if loo_exp is not None and len(loo_exp):
+        _le = loo_summary(loo_exp, COASTAL_REFERENCE_DISTANCE_M)
+        _eb = (f"forest-free EXPONENTIAL fit refitted once per well with that well withheld, "
+               f"{_le['delta0_loo_n_wells']} wells, same starting values, bounds and covariate as "
+               f"the ff_exp fit; sqrt((n-1)/n * sum((x_i - mean)^2)) over the refits (D-147). "
+               f"The refits are not written to a file; 25_16 holds the linear-capped ones.")
+        for _k, _src, _u, _what in (
+                ("exp_loo_n_wells", "delta0_loo_n_wells", "wells", "wells refitted"),
+                ("exp_delta0_well_basis_se_mm_yr", "delta0_well_basis_se_mm_yr", "mm/yr", "well-basis SE of the exponential delta_0"),
+                ("exp_L_well_basis_se_m", "L_well_basis_se_m", "m", "well-basis SE of the exponential decay length L"),
+                ("exp_c_far_well_basis_se_mm_yr", "c_far_well_basis_se_mm_yr", "mm/yr", "well-basis SE of the exponential far-field asymptote c")):
+            rows.append({"Parameter": _k, "Well": "", "Era": "", "Value": _le[_src], "Unit": _u,
+                         "Note": f"{_what}: {_eb}"})
     # Leave-one-out leverage of delta_0 (D-046). Each key names its source file
     # and basis so the documents can quote it and cite_check can hold it.
     if loo is not None and len(loo):
@@ -4366,6 +4387,15 @@ def main() -> None:
     saved(paths.OUT_25_DELTA0_LOO.name)
     plot_delta0_leave_one_out(loo, paths.OUT_25_DELTA0_LOO_FIG)
     saved(paths.OUT_25_DELTA0_LOO_FIG.name)
+    # 1.36.0: the same for the exponential form, for its well-basis SEs (D-147)
+    loo_exp = delta0_leave_one_out(df_ff, fit_ff_e, model_exp,
+                                   p0=[-40.0, 600.0, -5.0],
+                                   bounds=([-200, 50, -30], [50, 5000, 30]),
+                                   d_ref=COASTAL_REFERENCE_DISTANCE_M)
+    _le = loo_summary(loo_exp, COASTAL_REFERENCE_DISTANCE_M)
+    print(f"    exponential: {len(loo_exp)} refits in {loo_exp.attrs['elapsed_s']:.0f} s; well-basis SE "
+          f"L {_le['L_well_basis_se_m']:.0f} m (fitted {fit_ff_e['perr'][1]:.0f}), "
+          f"δ₀ {_le['delta0_well_basis_se_mm_yr']:.2f}, c {_le['c_far_well_basis_se_mm_yr']:.2f} mm/yr")
     _ls = loo_summary(loo, COASTAL_REFERENCE_DISTANCE_M)
     print(f"    {len(loo)} refits in {loo.attrs['elapsed_s']:.0f} s; highest leverage "
           f"{_ls['delta0_loo_max_well']} ({_ls['delta0_loo_max_well_dist_m']:.0f} m): "
@@ -4584,7 +4614,7 @@ def main() -> None:
         report = build_report_numbers(
             fits, partitions["summer_min"], baci_corr, per_wells["summer_min"],
             decay_funcs=decay_funcs, cov_range=cov_range, loo=loo,
-            window_sweep_df=sweep)
+            window_sweep_df=sweep, loo_exp=loo_exp)
         # T-91: rolling-window summary (§4.10.3) and open-dune decomposition (§5.8.2).
         report = pd.concat(
             [report, pd.DataFrame(t91_rolling_and_open_dune_rows(

@@ -81,6 +81,13 @@ slack_floor_baseline_depth_spring_mad_m,0.08000000000000004,m,inland baseline (s
 slack_floor_baseline_depth_min_m,0.9275,m,"inland baseline: median depth of the annual minimum below the slack floor, C1/2/3 wells at or beyond L"
 slack_floor_baseline_depth_min_mad_m,0.10500000000000004,m,inland baseline (annual minimum): median absolute deviation
 slack_floor_baseline_n,38,count,wells in the inland baseline
+slack_floor_reach_open_dune_n,14,count,open-dune wells (clusters not in FOREST_CIDS) within the coastal reach
+slack_floor_reach_elevated_threshold_m,0.1851914916989195,m,ELEVATED threshold on the annual-minimum excess over the inland baseline: 2 x ranwell_sigma_m_combined_all
+slack_floor_reach_elevated_n,4,count,"of those, wells whose excess exceeds 2 x ranwell_sigma_m_combined_all"
+slack_floor_reach_not_elevated_n,10,count,"of those, wells whose excess does not exceed 2 x ranwell_sigma_m_combined_all"
+slack_floor_reach_elevated_excess_min_m,0.3325,m,smallest annual-minimum excess over the inland baseline among the elevated wells
+slack_floor_reach_elevated_excess_max_m,0.6875000000000002,m,largest annual-minimum excess over the inland baseline among the elevated wells
+slack_floor_reach_not_elevated_excess_max_m,0.13250000000000006,m,largest annual-minimum excess among the wells that are not elevated
 slack_floor_depth_min_median_C1_m,0.85,m,C1: median depth of the annual minimum below the floor
 slack_floor_depth_spring_median_C1_m,0.1983333333333333,m,C1: median depth of the spring level below the floor
 slack_floor_excess_min_median_C1_m,-0.07750000000000001,m,C1: median excess of the annual-minimum depth over the inland baseline

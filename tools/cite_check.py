@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.34.0"  # Hollingham (2026) — 2026-10-10. Emit-first report9 (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.34.1"  # Hollingham (2026) — 2026-10-10. 26_msl_5yr_per_cluster MSL5_m_bg_std registered (report9 §4.8.3,
+#   Martin "5 a": the within-cluster spread per cluster).
+# 1.34.0  # Hollingham (2026) — 2026-10-10. Emit-first report9 (spec NRG_spec_emit_first_report9_2026-10-09):
 #   EXTRA_VALUE_TABLES gains the cells report9 quotes that no value table covered (38 files, columns only; a column
 #   already registered is never registered twice), so they can be bound as number fields and checked for drift.
 # 1.33.0  # Hollingham (2026) — 2026-10-08. Script 08 1.7.0 (D-244) columns registered so Paper M's
@@ -1048,7 +1050,7 @@ EXTRA_VALUE_TABLES = [
     ('outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv', ('window_years', 'cluster_label'),
      ['n_wells_current', 'n_windows']),
     ('outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv', ('cluster_label', 'window_end_year'),
-     ['n_wells']),
+     ['n_wells', 'MSL5_m_bg_std']),          # 1.34.1: the within-cluster spread report9 SS4.8.3 quotes per cluster
     ('outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv', 'metric',
      ['rmse_ci_hi', 'rmse_ci_lo', 'rmse_ebf']),
     ('outputs/26_van_willegen_msl/26_ebf_band_summary.csv', 'band',

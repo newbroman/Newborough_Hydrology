@@ -55,8 +55,9 @@ Scientific note — the C3/Warren zone is a SECOND CONTROL
 --------------------------------------------------------
 C3/Warren is the open western-dune zone.  Forest-management
 perturbations propagate south-westward off the bedrock ridge; the
-C3/Warren wells are all > 500 m from the felled compartment and none
-lie in that propagation sector.  The zone is therefore expected to be
+C3/Warren wells lie beyond the felled compartment's edge (the nearest
+distance is written to 10k_report_numbers.csv) and none lie in that
+propagation sector.  The zone is therefore expected to be
 shielded from the felling signal: the EXPECTED RESULT IS
 phi_{C3/Warren} ≈ 0, behaving like the Forest control.  A clearly
 non-zero C3/Warren step is to be treated as a flag (possible unshielded
@@ -124,7 +125,7 @@ from utils.paths import (
     make_all_dirs,
     OUT_10K_ZONE_RESULTS, OUT_10K_PAIRWISE, OUT_10K_EASTING_SENS,
     OUT_10K_CENTROIDS_FIG, OUT_10K_CONTRAST_FIG, OUT_10K_FOREST_PLOT,
-    OUT_10K_REPORT, OUT_10J_MONTHLY_RESULTS,
+    OUT_10K_REPORT, OUT_10J_MONTHLY_RESULTS, INT_LOCATIONS,
 )
 from utils.clearfell_common import (
     load_clearfell_data, CLEARFELL_DATE, SCRAPING_DATE,
@@ -135,7 +136,11 @@ from utils.site_observations import update_site_observation
 from utils.config import DAYS_PER_MONTH
 from utils.render_utils import render_figure
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-09-28. T-91: emit the unrounded
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-10. The C3/Warren control's shortest distance to the
+#   felled compartment's edge is written (FourZone_C3Warren_min_dist_felled_edge_m); the docstring no longer
+#   types a distance (Martin 2026-10-10: report9 SS4.6.3 states the edge distance). Emit-only.
+#
+# v1.6.0  # Hollingham (2026) - 2026-09-28. T-91: emit the unrounded
 #   with/without-easting Impact clearfell-step delta (mm) to
 #   10k_report_numbers.csv (easting_sensitivity_impact_step_delta_mm) so the
 #   Section 5.5.1 "1.4 mm" citation binds to a committed value. No analysis
@@ -687,6 +692,17 @@ def write_report_numbers(fit, contrasts, path, fit_noeast=None):
            note='Joint model R²')
     rn.add('FourZone_N', fit['N'], unit='well-months', well='all_zones',
            note='Pooled-panel sample size')
+
+    # 1.7.0: how far the C3/Warren control sits from the felled compartment's edge
+    # (01_locations dist_clearfell_m), so report9 SS4.6.3's distance traces.
+    _loc = pd.read_csv(INT_LOCATIONS)
+    _loc = _loc[_loc['Name'].astype(str).str.lower().isin([w.lower() for w in C3_WARREN_WELLS])]
+    if len(_loc):
+        _near = _loc.loc[_loc['dist_clearfell_m'].idxmin()]
+        rn.add('FourZone_C3Warren_min_dist_felled_edge_m', float(_near['dist_clearfell_m']),
+               unit='m', well=str(_near['Name']),
+               note=f"shortest distance of the {len(_loc)} C3/Warren control wells to the felled compartment's "
+                    "edge (01_locations.csv dist_clearfell_m); report9 SS4.6.3")
 
     # Pairwise contrasts (skip the identity-demonstration row).
     # Primary contrasts carry SE/p normally; derived contrasts are

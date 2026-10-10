@@ -10,6 +10,7 @@ FourZone_Impact_clearfell_step_se,Impact,Post_felling,0.012034556407560678,m,
 FourZone_Impact_scraping_step,Impact,Post_scraping,0.045468586632820274,m,vs Forest; p=0.0440
 FourZone_R2,all_zones,,0.8477510247287864,,Joint model R²
 FourZone_N,all_zones,,2492.0,well-months,Pooled-panel sample size
+FourZone_C3Warren_min_dist_felled_edge_m,ceh1,,373.7381483627701,m,shortest distance of the 4 C3/Warren control wells to the felled compartment's edge (01_locations.csv dist_clearfell_m); report9 SS4.6.3
 FourZone_contrast_C3Warren_vs_Forest,C3/Warren - Forest,Post_felling,0.0079,m,"primary; p=0.5261, CI=[-0.0166,0.0325]"
 FourZone_contrast_Edge_vs_Forest,Edge - Forest,Post_felling,-0.0398,m,"primary; p=0.0548, CI=[-0.0803,0.0008]"
 FourZone_contrast_Impact_vs_Forest,Impact - Forest,Post_felling,0.027,m,"primary; p=0.0248, CI=[0.0034,0.0506]"

@@ -38,6 +38,11 @@ cluster_well_recession_time_min_months,C5 (Coastal Forest),,16.907803748929275,m
 cluster_well_recession_time_median_months,C5 (Coastal Forest),,22.49022011879132,months,"median of 1/beta_3_drainage over the 5 member wells with beta_3 > 0 (of 5), comparison window (03_master_data.csv)"
 cluster_well_recession_time_max_months,C5 (Coastal Forest),,25.643813280510212,months,"max of 1/beta_3_drainage over the 5 member wells with beta_3 > 0 (of 5), comparison window (03_master_data.csv)"
 C1_mean_elevation_aod_excl_network_min,C1 (Lake Edge),excluding ceh11,9.365705704486532,m AOD,"C1_mean_elevation_aod without ceh11, the reference well with the lowest mean water-table elevation (3.023 m AOD); n=6 wells"
+open_dune_r2_n_wells,,,52.0,wells,"per-well SSM R2 (comparison window, 03_master_data) over the 52 open-dune wells (clusters not in FOREST_CIDS)"
+open_dune_r2_p10,,,0.687573270783179,,"10th percentile of per-well SSM R2 (comparison window, 03_master_data) over the 52 open-dune wells (clusters not in FOREST_CIDS)"
+open_dune_r2_p90,,,0.8111377808438531,,"90th percentile of per-well SSM R2 (comparison window, 03_master_data) over the 52 open-dune wells (clusters not in FOREST_CIDS)"
+open_dune_r2_min,,,0.6434060610030531,,"minimum of per-well SSM R2 (comparison window, 03_master_data) over the 52 open-dune wells (clusters not in FOREST_CIDS)"
+open_dune_r2_max,,,0.8698667676495846,,"maximum of per-well SSM R2 (comparison window, 03_master_data) over the 52 open-dune wells (clusters not in FOREST_CIDS)"
 datum0_n_clusters_beta3_negative,,,2.0,count,"cluster centroids with beta_3 < 0 under Model A at DATUM_RAW_DEPTH_M (raw depth, no drainage base): C4, C5 (03_19_datum_zero_fit.csv)"
 datum0_n_clusters_beta3_pos_sig,,,3.0,count,cluster centroids with beta_3 > 0 and p < 0.05 at DATUM_RAW_DEPTH_M (03_19_datum_zero_fit.csv)
 window_beta3_ratio_to_min,C1 (Lake Edge),,8.422188303785378,ratio,"comparison-window centroid beta_3 of this cluster / that of C4 (Main Forest), the smallest (03_14_centroid_window_sensitivity.csv)"

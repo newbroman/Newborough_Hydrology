@@ -88,7 +88,10 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.26.0"  # Hollingham (2026) — 2026-10-03 (Martin: "one, yes"). _datum_frame_report_numbers(): the
+__version__ = "1.27.0"  # Hollingham (2026) — 2026-10-10. _open_dune_r2_report_numbers(): the spread of per-well
+#   SSM R2 over the open-dune wells at config.R2_SPREAD_PCTL, with n, min and max (report9 SS4.9.2,
+#   Martin "2 a"). Emit-only.
+# 1.26.0  # Hollingham (2026) — 2026-10-03 (Martin: "one, yes"). _datum_frame_report_numbers(): the
 #   per-well frame test of 03_11 (each well's R2-max datum as an elevation, regressed on ground elevation) and
 #   its confound (that datum against mean depth to water) emitted as datum_frame_* report numbers, so Paper M
 #   section 4.6 and report8 can quote them as fields. Additive: 03_11 itself is unchanged.
@@ -304,6 +307,7 @@ from utils.paths import (
     DATA_DIR,
 )
 from utils.config import (
+    FOREST_CIDS, R2_SPREAD_PCTL,
     SSM_BOOT_SEED,
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
@@ -2670,6 +2674,24 @@ def export_regional_averages(centroids: dict[int, pd.Series],
     saved(f"{INT_REGIONAL_AVG.name}")
 
 
+def _open_dune_r2_report_numbers(rpt, master_df: pd.DataFrame) -> None:
+    """1.27.0: the spread of per-well SSM R2 across the open-dune wells (clusters not in
+    FOREST_CIDS), at config.R2_SPREAD_PCTL, with the well count and the full range; the
+    comparison-window fits of 03_master_data (report9 SS4.9.2)."""
+    _c = pd.to_numeric(master_df["Cluster"], errors="coerce")
+    r2 = pd.to_numeric(master_df.loc[_c.notna() & ~_c.isin(FOREST_CIDS), "Model_R2"],
+                       errors="coerce").dropna()
+    if r2.empty:
+        return
+    lo, hi = R2_SPREAD_PCTL
+    _n = f"per-well SSM R2 (comparison window, 03_master_data) over the {len(r2)} open-dune wells (clusters not in FOREST_CIDS)"
+    rpt.add("open_dune_r2_n_wells", int(len(r2)), unit="wells", note=_n)
+    rpt.add(f"open_dune_r2_p{lo}", float(r2.quantile(lo / 100)), unit="", note=f"{lo}th percentile of {_n}")
+    rpt.add(f"open_dune_r2_p{hi}", float(r2.quantile(hi / 100)), unit="", note=f"{hi}th percentile of {_n}")
+    rpt.add("open_dune_r2_min", float(r2.min()), unit="", note=f"minimum of {_n}")
+    rpt.add("open_dune_r2_max", float(r2.max()), unit="", note=f"maximum of {_n}")
+
+
 def _t96_report_numbers(rpt, master_df: pd.DataFrame, sens_df: pd.DataFrame,
                         inv_df: pd.DataFrame, well_opt_df: pd.DataFrame,
                         well_mean_aod: pd.Series, cluster_df: pd.DataFrame) -> None:
@@ -2828,6 +2850,7 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
             _ref = [w for w in _ref if w in maod_df.columns]
             _t96_report_numbers(rpt, extra["master_df"], extra["sens_df"], extra["inv_df"],
                                 extra["well_opt_df"], maod_df[_ref].mean(), cluster_df)
+            _open_dune_r2_report_numbers(rpt, extra["master_df"])
             if extra.get("zero_df") is not None:
                 _datum_zero_report_numbers(rpt, extra["zero_df"])
             if extra.get("win_df") is not None:

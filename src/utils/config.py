@@ -44,7 +44,11 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.100.0"  # Hollingham (2026) - 2026-10-10. PFLOOD_EXAMPLE2_CLUSTERS and PFLOOD_EXAMPLE2_H0_M:
+__version__ = "1.102.0"  # Hollingham (2026) - 2026-10-10. RANWELL_ELEVATED_K_SIGMA and WET_YEAR_PMINUSPET_PCTL:
+#   the rules behind report9 SS4.14.2 "elevated" and SS4.8.1 "wet years" (Martin: "3 i, 4").
+# 1.101.0  # Hollingham (2026) - 2026-10-10. R2_SPREAD_PCTL: the percentiles of per-well SSM R2
+#   report9 SS4.9.2 quotes across the open-dune wells (Martin: "2 a").
+# 1.100.0  # Hollingham (2026) - 2026-10-10. PFLOOD_EXAMPLE2_CLUSTERS and PFLOOD_EXAMPLE2_H0_M:
 #   report9 §4.7's worked P_flood example (C3 against C2 at 1.0 m), so Script 11b can emit it (emit-first,
 #   spec NRG_spec_emit_first_report9_2026-10-09).
 # 1.99.1  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: the Paper 1 SI
@@ -900,6 +904,21 @@ INTERCEPTION_SWEEP_STEP = 0.02
 # interception correction in water-balance, WTF, and scenario scripts.
 # Under k=5: C4 (Main Forest) and C5 (Coastal Forest).
 FOREST_CIDS = (4, 5)
+# The percentiles report9 SS4.9.2 quotes for the spread of per-well SSM R2 across the open-dune wells
+# (the clusters not in FOREST_CIDS): the middle 80 % of wells, so one unusual well at either end does
+# not set the range. Script 03 emits them (1.101.0, Martin 2026-10-10).
+R2_SPREAD_PCTL = (10, 90)
+# report9 SS4.14.2: an open-dune well within the coastal reach counts as ELEVATED when its annual minimum
+# stands above the inland baseline by more than this many standard errors of the 1951-53 comparison
+# (ranwell_sigma_m_combined_all, Script 44): beyond what measurement and registration error explain.
+# 2 is the same 2-sigma the comparison already uses for "resolved" (Martin 2026-10-10: "4").
+RANWELL_ELEVATED_K_SIGMA = 2.0
+# report9 SS4.8.1: a WET year is a hydrological year (Oct-Sep) whose rainfall surplus P - PET lies above
+# this percentile of all complete hydrological years in the RAF Valley record - rainfall, not the water
+# table, so the sentence is not true by definition (Martin 2026-10-10: "3 i"). Script 14 emits it.
+WET_YEAR_PMINUSPET_PCTL = 50
+# report9 SS4.8.1 sets the recent C1 summers against the rule above: "three of the eight most recent years".
+RECENT_SUMMER_MINIMA_N = 8
 
 # --- WTF Approach C: rapid-recharge-event method (Script 17) -------------------
 # Third, methodologically independent Sy estimator after Crosbie et al. (2005).

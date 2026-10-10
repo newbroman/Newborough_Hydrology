@@ -66,6 +66,11 @@ SCHEMA (one dict per table)
                 ("{Variant:.1}" is its first character)
       cols      [lo, hi] for fmt "ci" -> "[lo, hi]" at dp places (`scale`
                 and `sign` apply as for fixed); [value, p] for fmt "val_p"
+      params    {name: {"source": alias, "param": "key_C{Cluster}"}} — read one
+                row of a report-numbers CSV (key "Parameter", value "Value" by
+                default) whose key is the template filled from this row's raw
+                fields, and add it to the row as `name` for a template
+                (table_gen 1.12.0)
       label     transpose only — the stub-column text of the row this spec makes
       re        [pattern, replacement] applied to the text after formatting,
                 or a list of such pairs applied in order
@@ -110,7 +115,11 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.16.0"  # Hollingham (2026) — 2026-10-08. D-244: paper1/Table5 removed (the benchmark moves to
+__version__ = "1.17.0"  # Hollingham (2026) — 2026-10-10. paperM/Table2 added: the worked example of the
+#   procedure at Newborough (Martin 2026-10-10, T-k): Model A centroid coefficients, drainage share and
+#   closure residual (16_water_bal_table.csv), Model B and observed mean-reversion times (48 report
+#   numbers) and stable-record lengths (50 report numbers), via table_gen 1.12.0 "params". No Sy.
+# 1.16.0  # Hollingham (2026) — 2026-10-08. D-244: paper1/Table5 removed (the benchmark moves to
 #   Paper M); paperM/Table1 added (TLM / Model A / Model B per cluster, 08_cluster_nse_medians.csv). paper1/Table9 added 2026-10-07.
 # 1.15.0  # Hollingham (2026) — 2026-10-04. D-240: report9/Table9, ms/Table31 and paper2/Table1 show the
 #   clearfell step's autocorrelation-robust (Newey-West) CI, p and Sig (10a_01 / 10h_02 *_hac columns); headers say so.
@@ -1155,6 +1164,42 @@ TABLES = [
             {"col": "positive_TLM_NSE",    "fmt": "int"},
             {"col": "positive_SSM_NSE",    "fmt": "int"},
             {"col": "positive_ModelB_NSE", "fmt": "int"},
+        ],
+    },
+    {
+        "id": "paperM/Table2",
+        "doc": "docs/papers/paper_M/PaperM_v*.odt",
+        "table_name": "Table2",
+        "caption": "Paper M - the procedure at Newborough, per cluster: each quantity under the form that identifies it",
+        # Rows: 16_water_bal_table.csv (Model A cluster centroids at DRAINAGE_DATUM, C1..C5 in CSV order).
+        # Mean-reversion times: Script 48 per-well medians (Model B and the model-free estimate); C4's
+        # Model B beta_3 is not identified (Paper M 5.2, 6.3), so its cell reads "n.i.". Stable record:
+        # Script 50 per-well medians over the wells that reach stability. No specific yield (D-next, T-k).
+        "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv",
+                    "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
+                    "r50": "outputs/50_record_length/50_report_numbers.csv"},
+        "rows": {"source": "wb"},
+        "header": ["Cluster", "β₁", "β₂", "β₃", "Drainage share (%)", "Residual (mm month⁻¹)",
+                   "τ_B / τ_obs (months)", "L_A / L_B (months)"],   # symbols defined in the caption
+        "columns": [
+            {"col": "Cluster", "fmt": "map", "map": {
+                "1": "C1 Lake Edge",
+                "2": "C2 Dune",
+                "3": "C3 Western Residual",
+                "4": "C4 Main Forest",
+                "5": "C5 Coastal Forest"}},
+            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 3},
+            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 3},
+            {"col": "beta_3_drainage",         "fmt": "fixed", "dp": 3},
+            {"col": "Drainage_pct",            "fmt": "fixed", "dp": 0},
+            {"col": "Residual_m_month",        "fmt": "fixed", "dp": 1, "scale": 1000},
+            {"fmt": "template", "template": "{b:.1f} / {o:.1f}",
+             "params": {"b": {"source": "r48", "param": "modelab_efold_B_months_median_C{Cluster}"},
+                        "o": {"source": "r48", "param": "modelab_efold_obs_months_median_C{Cluster}"}},
+             "unless": {"Cluster": "4"}, "else": "n.i."},
+            {"fmt": "template", "template": "{a:.0f} / {b:.0f}",
+             "params": {"a": {"source": "r50", "param": "reclen_stable_length_months_A_median_C{Cluster}"},
+                        "b": {"source": "r50", "param": "reclen_stable_length_months_B_median_C{Cluster}"}}},
         ],
     },
     {

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit. source-sha256=591e24ab95e8d161 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_CY.odt — do not edit. source-sha256=c972d6710743f9e5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Cwningar Niwbwrch: beth sy'n digwydd i lefel y dŵr yn y twyni
@@ -59,7 +59,11 @@ Mae'r astudiaeth yn rhoi set o offer ymarferol i'r bobl sy'n gofalu am y Cwninga
 
 Mae llaciau Niwbwrch dan ddau bwysau mawr, allanol yn bennaf --- gostyngiad **hinsawdd** ar draws y safle a ffrynt **erydiad arfordirol** --- sydd gyda'i gilydd yn drech na'r hyn y gall rheolaeth ei wneud. Mae rheolaeth yn dal i gyfrif: o'i lleoli'n dda, a'i barnu yn ôl yr **isel haf yn hytrach na'r cyfartaledd blynyddol**, gall brynu amser a diogelu'r tir gorau sy'n weddill. Ond y ddau brif yrrwr sy'n gosod cyfeiriad y daith, ac i'r llaciau mwyaf bregus mae'r ffenestr yn cau.
 
-## []{#anchor}Rhagor o wybodaeth
+## []{#anchor}Sut y darllenir y model y tu ôl i'r canfyddiadau hyn
+
+Mae'r canfyddiadau uchod yn seiliedig ar fodel syml o sut mae lefel y dŵr ym mhob ffynnon yn ymateb i law ac anweddiad. Mae papur dulliau cysylltiedig yn dangos bod modd darllen un rhif yn y model hwnnw mewn dwy ffordd: fel pa mor gyflym mae dŵr yn draenio tuag at lawr yn ddwfn yn y tywod, neu fel pa mor gyflym mae lefel y dŵr yn dychwelyd i'r arfer ar ôl cyfnod gwlyb neu sych. Mae'r ddau ddarlleniad yn wahanol o fwy na ffactor o ddau, ac mae pob un yn gywir ar gyfer cwestiwn gwahanol. Mae'r astudiaeth yn defnyddio pob un ar gyfer y cwestiwn y mae'n ei ateb yn unig --- y darlleniad draenio ar gyfer cyllideb y dŵr, a'r darlleniad dychwelyd-i'r-arfer ar gyfer pa mor hir mae effaith blwyddyn sych yn para --- ac mae'r papur yn nodi'r camau y gall safleoedd eraill eu dilyn i wneud yr un peth.
+
+## []{#anchor-1}Rhagor o wybodaeth
 
 Mae'r crynodeb hwn yn seiliedig ar yr adroddiad technegol llawn:
 

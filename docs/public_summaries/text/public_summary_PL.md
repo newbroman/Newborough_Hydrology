@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit. source-sha256=3f41916ae723f658 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_PL.odt — do not edit. source-sha256=170be8c9f5cae2c2 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Newborough Warren: co dzieje się z poziomem wód gruntowych w wydmach
@@ -59,7 +59,11 @@ Badanie pozostawia osobom opiekującym się Warren --- i innym podobnym systemom
 
 Niecki Newborough znajdują się pod dwiema dużymi, głównie zewnętrznymi presjami --- ogólnoterenowym obniżeniem **klimatycznym** i frontem **erozji wybrzeża** --- które razem przeważają nad tym, co może zdziałać zarządzanie. Zarządzanie wciąż ma znaczenie: dobrze umiejscowione i oceniane według **letniego minimum, a nie średniej rocznej**, może kupić czas i chronić najlepszy pozostały grunt. Ale to dwa główne czynniki wyznaczają kierunek zmian, a dla najbardziej wrażliwych niecek okno możliwości się zamyka.
 
-## []{#anchor}Więcej informacji
+## []{#anchor}Jak odczytywać model, na którym opierają się te wyniki
+
+Powyższe wyniki opierają się na prostym modelu tego, jak poziom wody w każdej studzience reaguje na opady i parowanie. Towarzyszący artykuł metodyczny pokazuje, że jedną liczbę w tym modelu można odczytać na dwa sposoby: jako tempo, w jakim woda odpływa w kierunku dna położonego głęboko w piasku, albo jako tempo, w jakim poziom wód gruntowych wraca do normy po okresie mokrym lub suchym. Oba odczyty różnią się ponad dwukrotnie i każdy z nich jest właściwy dla innego pytania. W badaniu każdy z nich jest używany tylko do pytania, na które odpowiada --- odczyt odpływu do bilansu wodnego, a odczyt powrotu do normy do tego, jak długo utrzymuje się wpływ suchego roku --- a artykuł opisuje kroki, które inne obszary mogą wykonać, aby postąpić tak samo.
+
+## []{#anchor-1}Więcej informacji
 
 Niniejsze podsumowanie opiera się na pełnym raporcie technicznym:
 

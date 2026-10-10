@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit. source-sha256=298f8c67792d5151 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/public_summaries/public_summary_EN.odt — do not edit. source-sha256=cf07cdc759bcb387 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren: what is happening to the dune water table
@@ -61,7 +61,11 @@ The study hands the people who look after the Warren --- and other dune systems 
 
 Newborough's slacks are under two large, mostly external pressures --- a site-wide **climate** drawdown and a **coastal-erosion** front --- that together outweigh what management can do. Management still matters: placed well, and judged against the **summer low rather than the annual average**, it can buy time and protect the best remaining ground. But the two big drivers set the direction of travel, and for the most vulnerable slacks the window is closing.
 
-## []{#anchor}Further information
+## []{#anchor}How the model behind these findings is read
+
+The findings above rest on a simple model of how the water level in each well responds to rain and evaporation. A companion methods paper shows that one number in that model can be read in two ways: as how fast water drains towards a floor deep in the sand, or as how quickly the water table returns to normal after a wet or dry spell. The two readings differ by more than a factor of two, and each is right for a different question. The study uses each only for the question it answers --- the drainage reading for the water budget, the return-to-normal reading for how long the effect of a dry year lingers --- and the paper sets out the steps other sites can follow to do the same.
+
+## []{#anchor-1}Further information
 
 This summary draws on the full technical report:
 

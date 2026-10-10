@@ -78,7 +78,12 @@ import re
 import os
 from scipy.stats import linregress
 
-__version__ = "1.17.0"  # Hollingham (2026) - 2026-10-06 (D-242). 00_report_numbers.csv gains
+__version__ = "1.18.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the reference record length in years, the shallowest and deepest per-well mean level and
+#   the highest per-well mean winter maximum; new rows reference_record_years_from_months_median,
+#   reference_mean_wl_shallowest_m, reference_mean_wl_deepest_m and reference_winter_max_highest_m in
+#   00_report_numbers.csv, from the 00_02 table in memory. Emit-only; nothing already emitted moves.
+# 1.17.0  # Hollingham (2026) - 2026-10-06 (D-242). 00_report_numbers.csv gains
 #   reference_summer_min_zone_count_by_source and reference_winter_max_reaching_n: the report9 §4.1.2 counts
 #   under Curreli et al. (2013) and the Dune Managers Handbook v2 side by side, on this script's per-well
 #   basis (Martin: winter "Give both counts"). Nothing already emitted moves.
@@ -1242,6 +1247,21 @@ def _run_all() -> None:
             rr.add("reference_winter_max_reaching_n", int((_wmax >= -_w).sum()), unit="wells", well=_lvl,
                    era=_src, note=f"reference wells whose mean annual winter maximum (Oct-Mar) reaches "
                                   f"{-_w:+.2f} m ({_src}; D-242), of n={len(_wmax)} (00_02). report9 §4.1.2")
+    # 1.18.0 (emit-first, report9): the record length in years, and the per-well extremes of mean
+    # level and mean winter maximum, previously column arithmetic on 00_02 done by hand.
+    rr.add("reference_record_years_from_months_median", float(_nm.median()) / 12.0, unit="years",
+           note="median count of valid monthly readings per reference well (reference_record_months_median) "
+                "divided by 12: the record length in years quoted in report9; not the calendar span")
+    _mwl = pd.to_numeric(table2_full["Mean_WL_m"], errors="coerce").dropna()
+    rr.add("reference_mean_wl_shallowest_m", float(-_mwl.max()), unit="m",
+           note=f"shallowest per-well mean water level of the reference network, as depth below ground "
+                f"(positive down; = -max Mean_WL_m), n={len(_mwl)} (00_02). report9 §4.1.2")
+    rr.add("reference_mean_wl_deepest_m", float(-_mwl.min()), unit="m",
+           note=f"deepest per-well mean water level of the reference network, as depth below ground "
+                f"(positive down; = -min Mean_WL_m), n={len(_mwl)} (00_02). report9 §4.1.2")
+    rr.add("reference_winter_max_highest_m", float(_wmax.max()), unit="m",
+           note=f"highest per-well mean annual winter maximum (Oct-Mar), signed, positive = above ground "
+                f"(max Mean_Winter_Max_m), n={len(_wmax)} (00_02). report9 §4.1.2")
     if fig1_stats and "pet_roll12" in fig1_stats:
         _pr = fig1_stats["pet_roll12"]
         for _k in ("min", "median", "max"):

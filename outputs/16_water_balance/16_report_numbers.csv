@@ -18,4 +18,7 @@ water_balance_P_mean_mm_min,,,74.11150793650792,mm/month,lowest cluster mean P
 water_balance_P_mean_mm_max,,,74.42259414225941,mm/month,highest cluster mean P
 water_balance_PET_mean_mm_min,,,54.15254270839557,mm/month,lowest cluster mean PET
 water_balance_PET_mean_mm_max,,,54.54679757685834,mm/month,highest cluster mean PET
+water_balance_P_mm_yr_min,,,889.3380952380951,mm/yr,lowest cluster annual rainfall: mean monthly P over the cluster's fitted months x 12 (Table 7 P_mm_yr)
+water_balance_P_mm_yr_max,,,893.0711297071128,mm/yr,highest cluster annual rainfall: mean monthly P over the cluster's fitted months x 12 (Table 7 P_mm_yr)
+water_balance_P_mm_yr_mean,,,892.0105711794267,mm/yr,mean across clusters of annual rainfall (Table 7 P_mm_yr): the approximate site annual rainfall the report quotes
 water_balance_closure_max_pct,,,1.7526558736874018,%,largest per-cluster residual as a share of total losses (C5 (Coastal Forest)): the balance closes to within this at every cluster

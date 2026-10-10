@@ -22,6 +22,9 @@ DeltaAIC_lincap_vs_exp_full,,2005-2026,-5.072259014312294,,"exp − lin-cap AIC 
 DeltaAIC_lincap_vs_exp_c3_only,,2005-2026,-9.857885755052848,,"exp − lin-cap AIC on the C3-only spec (compare Headline_DeltaAIC_lincap_vs_exp, the forest-free spec); positive favours lin-cap, negative favours exponential."
 WindowSweep_c_vs_farfield_observed_r,,,0.5366558986531972,,"Pearson r between the fitted far-field constant c and the observed far-field trend, across 108 usable forest-free windows in 25_12_window_sweep.csv."
 WindowSweep_c_vs_farfield_observed_bias,,,7.031526512871329,mm/yr,Mean of (c - observed far-field trend) across the same 108 windows: c is biased high relative to the observation it is meant to track.
+window_sweep_n_wells_first,,2005-03,61,wells,Wells in the forest-free window-sweep panel at the first (earliest-start) window of 25_12_window_sweep.csv.
+window_sweep_n_wells_min,,2011-08,60,wells,Fewest wells in any forest-free window of 25_12; Era is the first window start with that count.
+window_sweep_L_median_after_2007_08,,window start after 2007-08,523.7996184966444,m,Typical reach after the step: median L_m over usable forest-free windows from the largest window-to-window fall in L onward; Era names the last start before the fall.
 WindowSweep_farfield_observed_full_window,41 wells beyond the far-field distance threshold,2005-03 to 2026-02,-6.3512044831758825,mm/yr,Observed far-field trend at the full (widest) forest-free window in 25_12_window_sweep.csv.
 BACI_corroboration_Forest_Impact_distance_contrast,,BACI window,402.0,m,d_control_m minus d_target_m in 25_04_baci_corroboration.csv: mean distance to the shore of the Forest control (955 m) less the Impact zone (553 m).
 BACI_corroboration_Forest_Impact_z,,BACI window,-1.25,z,"BACI absorbs -16.1 mm/yr, model predicts -10.2 mm/yr; consistent=yes; distance contrast +402 m (target 553 m, control 955 m)"

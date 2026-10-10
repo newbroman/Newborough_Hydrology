@@ -89,6 +89,10 @@ reference_winter_max_reaching_n,SD15b winter level,curreli,0.0,wells,"reference 
 reference_winter_max_reaching_n,SD16 winter level,curreli,39.0,wells,"reference wells whose mean annual winter maximum (Oct-Mar) reaches -0.25 m (curreli; D-242), of n=66 (00_02). report9 §4.1.2"
 reference_winter_max_reaching_n,SD15b winter level,handbook,5.0,wells,"reference wells whose mean annual winter maximum (Oct-Mar) reaches +0.09 m (handbook; D-242), of n=66 (00_02). report9 §4.1.2"
 reference_winter_max_reaching_n,SD16 winter level,handbook,43.0,wells,"reference wells whose mean annual winter maximum (Oct-Mar) reaches -0.34 m (handbook; D-242), of n=66 (00_02). report9 §4.1.2"
+reference_record_years_from_months_median,,,16.0,years,median count of valid monthly readings per reference well (reference_record_months_median) divided by 12: the record length in years quoted in report9; not the calendar span
+reference_mean_wl_shallowest_m,,,0.26210622584996685,m,"shallowest per-well mean water level of the reference network, as depth below ground (positive down; = -max Mean_WL_m), n=66 (00_02). report9 §4.1.2"
+reference_mean_wl_deepest_m,,,2.0727616645649434,m,"deepest per-well mean water level of the reference network, as depth below ground (positive down; = -min Mean_WL_m), n=66 (00_02). report9 §4.1.2"
+reference_winter_max_highest_m,,,0.19849999999999998,m,"highest per-well mean annual winter maximum (Oct-Mar), signed, positive = above ground (max Mean_Winter_Max_m), n=66 (00_02). report9 §4.1.2"
 pet_rolling12_min_mm,,2006-03 to 2026-02,49.06972273341416,mm/month,min of the 12-month rolling mean of monthly PET as drawn in 00_01_climate_timeseries_short.png panel (b) (n=240 plotted months). report9 §4.1.1
 pet_rolling12_median_mm,,2006-03 to 2026-02,54.4005291563743,mm/month,median of the 12-month rolling mean of monthly PET as drawn in 00_01_climate_timeseries_short.png panel (b) (n=240 plotted months). report9 §4.1.1
 pet_rolling12_max_mm,,2006-03 to 2026-02,58.01280802504033,mm/month,max of the 12-month rolling mean of monthly PET as drawn in 00_01_climate_timeseries_short.png panel (b) (n=240 plotted months). report9 §4.1.1

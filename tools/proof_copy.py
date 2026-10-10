@@ -78,7 +78,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.35.1"  # Hollingham (2026) — 2026-10-09 (Martin, 17:5x: "DO I TICK TO SAY YOU ARE RIGHT"): the
+__version__ = "1.35.2"  # Hollingham (2026) — 2026-10-10: the Bindings chapter reads only binding files that
+#   carry a review queue; the emit-first files (report9_confirmed/_traced/_emitted.csv) have none and raised KeyError.
+# 1.35.1  # Hollingham (2026) — 2026-10-09 (Martin, 17:5x: "DO I TICK TO SAY YOU ARE RIGHT"): the
 #   Bindings buttons say what they judge ("binding is right / wrong"), and each item shows a "history:" line from
 #   the register's prov_* columns (the commit and changelog that introduced the number).
 # 1.35.0  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_report_fields_2026-10-09): CHOSEN
@@ -2674,7 +2676,7 @@ def _bindings_sections() -> list[str]:
     out = []
     for f in sorted((REPO / "tools" / "field_bindings").glob("*.csv")):
         doc = f.stem
-        rows = [r for r in csv.DictReader(open(f, encoding="utf8")) if r["queue"]]
+        rows = [r for r in csv.DictReader(open(f, encoding="utf8")) if r.get("queue")]   # 1.35.2: binding files without a queue column (the 2026-10-10 emit-first files) carry no review items
         order = {"unresolved": 0, "doubt": 1, "reader-literal": 2, "literature": 3, "sample": 4, "check": 5}
         rows.sort(key=lambda r: (order.get(r["queue"], 9), r["section"]))
         items = []

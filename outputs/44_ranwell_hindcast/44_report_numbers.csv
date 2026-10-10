@@ -2,6 +2,8 @@ key,value,unit,note
 ranwell_hindcast_sites,3,count,Ranwell sites with a printed series and a same-basin paired well
 ranwell_hindcast_r_median,0.7451854983016243,-,"median r, headline pairing, offset removed"
 ranwell_hindcast_r_min,0.7430597716344836,-,lowest r among the headline pairings
+ranwell_hindcast_r_min_all_pairings,0.6962438183149892,-,"lowest r over all 11 same-basin site-well pairings in 44_04 (headline and alternates), offset removed"
+ranwell_hindcast_r_max_all_pairings,0.9144478263767672,-,"highest r over all 11 same-basin site-well pairings in 44_04 (headline and alternates), offset removed"
 ranwell_hindcast_nse_median,0.4605793570846559,-,"median NSE after offset, headline pairing"
 ranwell_sites_compared,8,count,sites with a Ranwell mean and a modern surface
 ranwell_interval_years,66.20833333333326,y,modern record midpoint minus 1952
@@ -9,6 +11,7 @@ ranwell_shoreline_retreat_1899_2026_m,126.922893015752,m,"Script 40 median shore
 ranwell_sites_surface_constrained,7,count,sites whose modern-surface leave-one-out error is <= 0.5 m
 ranwell_forcing_ratio_1951_53,0.9663588390501319,-,Parc Mawr / RAF Valley rainfall over Ranwell's span
 ranwell_forcing_r_1951_53,0.9205856402242211,-,monthly correlation of the two gauges over Ranwell's span
+ranwell_climate_expectation_abs_max_m,0.07903301966711129,m,largest magnitude of the climate-only expectation (1951-53 against the modern hindcast) over the 8 compared sites in 44_05
 ranwell_delta_m_site1,0.2296855307067246,m,"site 1 (PL): modern minus 1951-53, climate-corrected"
 ranwell_sigma_m_site1,0.7803971294501382,m,site 1: four-term error
 ranwell_delta_m_site4,-0.2598947261361562,m,"site 4 (CG): modern minus 1951-53, climate-corrected"

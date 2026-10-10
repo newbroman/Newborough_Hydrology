@@ -33,7 +33,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.22.0"  # Hollingham (2026) — 2026-10-06. T-106 (D-240 Revisit-if): the scraping step in the
+__version__ = "1.23.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the forest-edge CWB x felling p, the forest-edge curvature joint-F p, the lag-1
+#   autocorrelation of the Forest x Impact residuals, and the p and 95% CI (mm) of the Jun-Sep
+#   CWB-dropped step; new rows ancova_forest_edge_cwb_x_fell_p, ancova_forest_edge_curv_jointF_p,
+#   ancova_forest_impact_resid_lag1_autocorr, ancova_forest_impact_summer_nocwb_p, _ci_lo_mm, _ci_hi_mm.
+#   Emit-only.
+# 1.22.0  # Hollingham (2026) — 2026-10-06. T-106 (D-240 Revisit-if): the scraping step in the
 #   same models carries Newey-West errors too: <prefix>_scraping_step_p_hac / _se_hac rows and
 #   Scraping_p_hac in 10a_01. No estimate moves.
 # v1.21.0  # Hollingham (2026) — 2026-10-04. D-240: every clearfell ANCOVA step now carries
@@ -2256,6 +2262,22 @@ def main():
                     well=zone_label, era="Oct2023",
                     note=f"p={format_p(fit['m3_scrape2_p'])}, dAIC={fit['daic']:.2f}")
 
+    # Emit-first (report9): two values the documents quote from the monthly fits.
+    _fe = results.get(('Forest', 'Edge'))
+    if _fe is not None and 'cwb_x_fell' in _fe['col_names']:
+        _i = _fe['col_names'].index('cwb_x_fell')
+        rpt.add("ancova_forest_edge_cwb_x_fell_p", _fe['p'][_i], unit="", well="Edge",
+                note="p of the CWB x clearfell interaction coefficient, monthly ANCOVA, "
+                     f"forest control, edge zone, ordinary OLS errors, n={_fe['n']} months")
+    _fi = results.get(SUMMER_KEY)
+    if _fi is not None and len(_fi['resid']) > 2:
+        _e = np.asarray(_fi['resid'], dtype=float)
+        rpt.add("ancova_forest_impact_resid_lag1_autocorr",
+                float(np.corrcoef(_e[:-1], _e[1:])[0, 1]), unit="", well="Impact",
+                note="lag-1 autocorrelation (Pearson, consecutive rows) of the monthly ANCOVA "
+                     f"residuals, forest control x impact zone, n={_fi['n']} months; why the "
+                     "Newey-West errors are used")
+
     # Summer (Jun-Sep) ANCOVA — Forest × Impact (Defect 14 fix)
     # These rows are consumed by Script 21's _load_baci_params() to construct
     # the seasonal BACI band on the forestry scenario hydrograph.
@@ -2316,6 +2338,19 @@ def main():
         rpt.add(f"{prefix}_summer_noCWB_N", sn['n'], unit="months",
                 well="Impact", era="Jun-Sep",
                 note="Summer sample size (CWB dropped fit, Jun-Sep only)")
+        # Emit-first (report9): the p and the 95% CI bounds (in mm) of this step, Note-only until now.
+        rpt.add("ancova_forest_impact_summer_nocwb_p", sn['clearfell_p'], unit="",
+                well="Impact", era="Post_felling_Jun-Sep",
+                note="p of the Jun-Sep clearfell step, Forest x Impact, with the CWB terms dropped "
+                     "(sensitivity variant), ordinary OLS errors")
+        rpt.add("ancova_forest_impact_summer_nocwb_ci_lo_mm", sn['clearfell_ci'][0] * 1000.0,
+                unit="mm", well="Impact", era="Post_felling_Jun-Sep",
+                note="lower 95% CI bound (step - 1.96 SE, ordinary errors) of the Jun-Sep clearfell "
+                     "step with CWB dropped, Forest x Impact, in mm")
+        rpt.add("ancova_forest_impact_summer_nocwb_ci_hi_mm", sn['clearfell_ci'][1] * 1000.0,
+                unit="mm", well="Impact", era="Post_felling_Jun-Sep",
+                note="upper 95% CI bound (step + 1.96 SE, ordinary errors) of the Jun-Sep clearfell "
+                     "step with CWB dropped, Forest x Impact, in mm")
 
     # Curvature (CWB² × felling) variant — Forest Impact + Edge (§4.6 buffering).
     # Reported SENSITIVITY VARIANT — the headline clearfell_step rows above are
@@ -2369,6 +2404,12 @@ def main():
         rpt.add(f"{prefix}_curv_jointF", fc['joint_F'], unit="",
                 well=zone_label,
                 note=f"joint F-test, cwb2_c + cwb2_x_fell, p={format_p(fc['joint_F_p'])}")
+        # Emit-first (report9): the joint-F p at the edge zone as its own value.
+        if zone_label == 'Edge':
+            rpt.add("ancova_forest_edge_curv_jointF_p", fc['joint_F_p'], unit="",
+                    well=zone_label,
+                    note="p of the joint F-test that both CWB-squared terms (cwb2_c, cwb2_x_fell) "
+                         f"are zero, curvature variant, forest control, edge zone, n={fc['n']} months")
 
     # Sensitivity results
     for _, row in sensitivity_df.iterrows():

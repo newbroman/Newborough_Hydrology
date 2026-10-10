@@ -102,7 +102,12 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.9.1"  # Hollingham (2026) — 2026-10-03. A well recorded as open in 1989 in
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the range of r over every same-basin pairing (not only the headline pairings) and the largest
+#   climate-only expectation over the compared sites; new rows ranwell_hindcast_r_min_all_pairings,
+#   ranwell_hindcast_r_max_all_pairings (44_04, all rows) and ranwell_climate_expectation_abs_max_m (44_05 site
+#   rows, largest |climate_expectation_m|). Emit-only; nothing already emitted moves.
+# 1.9.1  # Hollingham (2026) — 2026-10-03. A well recorded as open in 1989 in
 #   data/canopy_history.csv is kept out of the felling groups (group open_1989) even where a felling outline takes
 #   it in: NW9, broadleaf and never felled, sits about 5 m inside felling_1998_1 (Martin: "NW9 exclude from group").
 # 1.9.0  # Hollingham (2026) — 2026-10-03. The felling group is named from the recorded
@@ -1145,6 +1150,11 @@ def main() -> int:
         ("ranwell_hindcast_sites", len(hlm), "count", "Ranwell sites with a printed series and a same-basin paired well"),
         ("ranwell_hindcast_r_median", float(hlm["r"].median()) if len(hlm) else np.nan, "-", "median r, headline pairing, offset removed"),
         ("ranwell_hindcast_r_min", float(hlm["r"].min()) if len(hlm) else np.nan, "-", "lowest r among the headline pairings"),
+        # 1.10.0 (emit-first, report9): r over EVERY same-basin pairing, headline or not.
+        ("ranwell_hindcast_r_min_all_pairings", float(metrics["r"].min()) if len(metrics) else np.nan, "-",
+         f"lowest r over all {len(metrics)} same-basin site-well pairings in 44_04 (headline and alternates), offset removed"),
+        ("ranwell_hindcast_r_max_all_pairings", float(metrics["r"].max()) if len(metrics) else np.nan, "-",
+         f"highest r over all {len(metrics)} same-basin site-well pairings in 44_04 (headline and alternates), offset removed"),
         ("ranwell_hindcast_nse_median", float(hlm["nse_after_offset"].median()) if len(hlm) else np.nan, "-", "median NSE after offset, headline pairing"),
         ("ranwell_sites_compared", int((lc["row"] == "site").sum()), "count", "sites with a Ranwell mean and a modern surface"),
         ("ranwell_interval_years", dt_years, "y", "modern record midpoint minus 1952"),
@@ -1154,6 +1164,10 @@ def main() -> int:
         ("ranwell_forcing_ratio_1951_53", ratio_span, "-", "Parc Mawr / RAF Valley rainfall over Ranwell's span"),
         ("ranwell_forcing_r_1951_53", r_span, "-", "monthly correlation of the two gauges over Ranwell's span"),
     ]
+    _ce = lc.loc[lc["row"] == "site", "climate_expectation_m"].abs()
+    rn.append(("ranwell_climate_expectation_abs_max_m", float(_ce.max()) if _ce.notna().any() else np.nan, "m",
+               f"largest magnitude of the climate-only expectation (1951-53 against the modern hindcast) over the "
+               f"{int(_ce.notna().sum())} compared sites in 44_05"))
     for r in lc[lc["row"] == "site"].itertuples():
         rn.append((f"ranwell_delta_m_site{int(r.site_no)}", r.delta_m, "m", f"site {int(r.site_no)} ({r.sketch_slack}): modern minus 1951-53, climate-corrected"))
         rn.append((f"ranwell_sigma_m_site{int(r.site_no)}", r.sigma_total_m, "m", f"site {int(r.site_no)}: four-term error"))

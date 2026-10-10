@@ -126,7 +126,14 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.36.0"  # Hollingham (2026) — 2026-10-09. The exponential form is refitted once per withheld
+__version__ = "1.37.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 §4.10.3 quotes the window sweep's well count at the first window and its fewest, and the typical
+#   reach once the window starts after the reach's step down; new rows window_sweep_n_wells_first,
+#   window_sweep_n_wells_min (forest-free 25_12 windows) and window_sweep_L_median_after_2007_08 (median L_m over
+#   the usable forest-free windows from the largest window-to-window fall in L onward; the last window
+#   before it is carried in Era). The open-dune residual spread report9 quotes is already written as
+#   OpenDune_balanced_less_coastal_spread (1.30.0); not duplicated. Emit-only; no value moves.
+# 1.36.0  # Hollingham (2026) — 2026-10-09. The exponential form is refitted once per withheld
 #   well as the linear-capped headline is (Martin 21:0x, "Compute it"): report9 §4.10.2 quotes the
 #   exponential decay length with the NOMINAL L_se of 25_01, in a paragraph whose uncertainties are on
 #   the well basis (D-147). New rows exp_loo_n_wells, exp_delta0_well_basis_se_mm_yr,
@@ -3777,6 +3784,28 @@ def build_report_numbers(fits: dict,
                           "Well": "", "Era": "",
                           "Value": _bias, "Unit": "mm/yr",
                           "Note": rpt_note_bias})
+        # 1.37.0 (emit-first, report9 §4.10.3): the sweep's well set and the reach's step.
+        _ff = window_sweep_df[window_sweep_df["spec"] == "forest_free"].sort_values("window_start")
+        if not _ff.empty:
+            rows.append({"Parameter": "window_sweep_n_wells_first", "Well": "",
+                          "Era": str(_ff["window_start"].iloc[0]),
+                          "Value": int(_ff["n_wells"].iloc[0]), "Unit": "wells",
+                          "Note": ("Wells in the forest-free window-sweep panel at the first "
+                                   "(earliest-start) window of 25_12_window_sweep.csv.")})
+            rows.append({"Parameter": "window_sweep_n_wells_min", "Well": "",
+                          "Era": str(_ff.loc[_ff["n_wells"].idxmin(), "window_start"]),
+                          "Value": int(_ff["n_wells"].min()), "Unit": "wells",
+                          "Note": ("Fewest wells in any forest-free window of 25_12; Era is the "
+                                   "first window start with that count.")})
+        _swo = _sw.sort_values("window_start").reset_index(drop=True)
+        if len(_swo) >= 2:
+            _i_step = int(_swo["L_m"].diff().idxmin())
+            rows.append({"Parameter": "window_sweep_L_median_after_2007_08", "Well": "",
+                          "Era": f"window start after {_swo['window_start'].iloc[_i_step - 1]}",
+                          "Value": float(_swo["L_m"].iloc[_i_step:].median()), "Unit": "m",
+                          "Note": ("Typical reach after the step: median L_m over usable forest-free "
+                                   "windows from the largest window-to-window fall in L onward; Era "
+                                   "names the last start before the fall.")})
         if not _sw.empty:
             _wide = _sw.loc[_sw["window_years"].idxmax()]
             rows.append({"Parameter": "WindowSweep_farfield_observed_full_window",

@@ -30,7 +30,12 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-09-30. The Approach B event rules come from config
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 SS4.2.4 quotes the event-selection funnel ranges across clusters; new rows in 17_report_numbers.csv,
+#   summarised from the Sy table export_csv() builds: sy_event_n_min/_max and sy_event_n_pass_dh_min/_max (all
+#   runs, corrected forest rows included), sy_event_n_pass_r_min/_max, sy_event_pct_censored_min and
+#   sy_event_median_unclipped_min (uncorrected runs). Additive; no existing output changes.
+# 1.8.0  # Hollingham (2026) - 2026-09-30. The Approach B event rules come from config
 #   (WTF_EVENT_MIN_RISE_M / _MIN_NET_RECH_M / _SY_MIN / _SY_MAX) instead of module locals and literals,
 #   shared with Script 18; the figure title renders them. Values and outputs unchanged.
 # 1.7.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
@@ -879,6 +884,34 @@ def write_report_numbers(table, out_path):
             note=f"mean of sy_ols_to_event_ratio over the n={len(ratios)} clusters (uncorrected run)")
     rpt.add("sy_ols_to_event_ratio_n_above_1", int((ratios > 1).sum()), unit="clusters",
             note=f"clusters whose Sy_OLS_winter exceeds Sy_event_median, of n={len(ratios)}")
+    # 1.9.0 (emit-first, report9 SS4.2.4): event-selection funnel ranges across the clusters.
+    # The event count and rise-criterion ranges span every run (the corrected forest rows
+    # included), as the report sentence does; the rest span the uncorrected runs.
+    n_all, n_base = len(table), len(base)
+    sy_max = WTF_EVENT_SY_MAX
+    for key, frame, col, how, unit, note in (
+        ("sy_event_n_min", table, "Sy_event_n", "min", "events",
+         f"fewest qualifying rising-limb events (Sy_event_n) in any cluster run, all n={n_all} runs "
+         "including interception-corrected forest rows"),
+        ("sy_event_n_max", table, "Sy_event_n", "max", "events",
+         f"most qualifying rising-limb events (Sy_event_n) in any cluster run, all n={n_all} runs "
+         "including interception-corrected forest rows"),
+        ("sy_event_n_pass_r_min", base, "Sy_event_n_pass_R", "min", "months",
+         f"fewest months meeting the net-recharge criterion (Sy_event_n_pass_R), n={n_base} uncorrected clusters"),
+        ("sy_event_n_pass_r_max", base, "Sy_event_n_pass_R", "max", "months",
+         f"most months meeting the net-recharge criterion (Sy_event_n_pass_R), n={n_base} uncorrected clusters"),
+        ("sy_event_n_pass_dh_min", table, "Sy_event_n_pass_dh", "min", "months",
+         f"fewest months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n={n_all} runs"),
+        ("sy_event_n_pass_dh_max", table, "Sy_event_n_pass_dh", "max", "months",
+         f"most months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n={n_all} runs"),
+        ("sy_event_pct_censored_min", base, "Sy_event_pct_censored", "min", "%",
+         f"lowest percent of months clearing both criteria censored by the Sy ceiling {sy_max} "
+         f"(Sy_event_pct_censored), n={n_base} uncorrected clusters"),
+        ("sy_event_median_unclipped_min", base, "Sy_event_median_unclipped", "min", "",
+         f"lowest event-median Sy with the ceiling lifted (Sy_event_median_unclipped), "
+         f"n={n_base} uncorrected clusters"),
+    ):
+        rpt.add(key, float(getattr(frame[col].astype(float), how)()), unit=unit, note=note)
     n_saved = rpt.save(out_path)
     saved(f"{out_path.name} ({n_saved} rows)")
 

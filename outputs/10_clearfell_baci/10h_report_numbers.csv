@@ -11,6 +11,7 @@ synth_FE2_hindcast_months,,,47.0,m,
 synth_FE2_pre_scraping_months,,,44.0,m,
 synth_FE2_postfell_divergence_mm,,,28.75283606738303,mm,
 synth_FE2_postfell_divergence_p,,,0.0005693227372796095,m,
+synth_fe_r2_cal_min,,,0.9943780185237052,,"minimum calibration R2 of the donor regressions over the synthetic-extension FE wells (FE1, FE2); the floor quoted as 'R2 above' in the text"
 synth_pre_felling_months,FE1,,29.0,months,"observed monthly readings before CLEARFELL_DATE, 2015-07 to 2017-11"
 synth_pre_felling_months,FE2,,29.0,months,"observed monthly readings before CLEARFELL_DATE, 2015-07 to 2017-11"
 ANCOVA_A_WMC3+FE1+FE2_Forest_clearfell_step,,,0.07800840150917744,m,

@@ -2,6 +2,7 @@
 #
 # Newborough Warren Monthly Water Level Report
 # ============================================
+# v2.0.1  (2026-10-10) — MASTER_ODS follows Drive: ~/Drive (rclone mount) / 01 Projects/Newborough research
 # v2.0.0  (2026-07-04) — wired to the git clone layout (~/projects/NRG)
 #   * Reads coords/DEM/KML from the repo: data/well_metadata.csv, data/geo/.
 #   * Reads the MASTER workbook from its Google Drive home (one canonical copy;
@@ -29,7 +30,7 @@ VENV_DIR="${HOME}/.newborough_venv"
 # ── The one path you may need to edit: the private master workbook ───────────
 # Single canonical copy, left on Google Drive (backed up there). Scripts read it
 # in place — it is never copied into the repo.
-MASTER_ODS="${HOME}/Google Drive/projects/newborough/spreadsheets/Newborough_well_records.ods"
+MASTER_ODS="${HOME}/Drive/01 Projects/Newborough research/spreadsheets/Newborough_well_records.ods"
 
 # ── Derived inputs ───────────────────────────────────────────────────────────
 COORDS_FILE="${DATA_DIR}/well_metadata.csv"        # Name,E,N,...  (report reads Name/E/N)

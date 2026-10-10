@@ -79,7 +79,11 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-03. T-101 (Martin: Table 6 and Figure 11b carry the
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the lowest, highest and approximate annual rainfall across the clusters of the
+#   volumetric balance (Table 7 P_mm_yr); new rows water_balance_P_mm_yr_min, _max and _mean, from
+#   each cluster's own mean monthly P x 12 x 1000, as Table 7 computes it. No existing value moves.
+# 1.8.0  # Hollingham (2026) - 2026-10-03. T-101 (Martin: Table 6 and Figure 11b carry the
 #   admissible datum range): the recession table gains the SSM drainage fraction at the shallowest and
 #   deepest admissible datum (Script 03 partition_drainage_share_pct_at_min_datum / _at_max_datum) and
 #   those datums; Figure 11b draws that range as a bracket at each loss bar, separate from the hatched
@@ -817,6 +821,18 @@ def save_report_numbers(summary, path):
                note=f"lowest cluster mean {name}")
         rr.add(f"water_balance_{name}_mean_mm_max", max(d.values()), unit="mm/month",
                note=f"highest cluster mean {name}")
+    # Emit-first (1.9.0): annual rainfall per cluster as Table 7 (16_water_bal_vol_table.csv
+    # P_mm_yr) computes it, and its range and mean across clusters.
+    P_yr = [summary[cid]["P_m"] * 12 * 1000 for cid in summary]
+    rr.add("water_balance_P_mm_yr_min", min(P_yr), unit="mm/yr",
+           note="lowest cluster annual rainfall: mean monthly P over the cluster's fitted months x 12 "
+                "(Table 7 P_mm_yr)")
+    rr.add("water_balance_P_mm_yr_max", max(P_yr), unit="mm/yr",
+           note="highest cluster annual rainfall: mean monthly P over the cluster's fitted months x 12 "
+                "(Table 7 P_mm_yr)")
+    rr.add("water_balance_P_mm_yr_mean", float(np.mean(P_yr)), unit="mm/yr",
+           note="mean across clusters of annual rainfall (Table 7 P_mm_yr): the approximate site "
+                "annual rainfall the report quotes")
     rr.add("water_balance_closure_max_pct", worst[1], unit="%",
            note=f"largest per-cluster residual as a share of total losses ({worst[0]}): "
                 f"the balance closes to within this at every cluster")

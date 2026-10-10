@@ -97,7 +97,7 @@ chmod +x ~/projects/NRG/nrg_git.sh
 Paths the scripts use (each has a config block at the top — edit only if yours
 move):
 
-- **Master workbook:** `~/Google Drive/projects/newborough/spreadsheets/Newborough_well_records.ods`
+- **Master workbook:** `~/Drive/01 Projects/Newborough research/spreadsheets/Newborough_well_records.ods` (moved 2026-10-10 with the Drive tidy; `~/Drive` is the rclone mount)
 - **Recordsheet:** `~/Downloads/recordsheet.ods`
 - **Coordinates / DEM / KML:** `data/well_metadata.csv`, `data/geo/` — already in
   the repo, nothing to place

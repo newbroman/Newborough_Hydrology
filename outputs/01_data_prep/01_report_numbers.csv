@@ -83,3 +83,4 @@ wt_mean_elev_aod,wmc4,,11.321934717237367,m AOD,mean water-table elevation of th
 wt_mean_elev_aod,nw13,,11.363346249379036,m AOD,mean water-table elevation of the well over its record (column mean of 01_wells_clean_maod.csv); reference network n=66
 wt_mean_elev_aod,ceh14,,13.331873377345893,m AOD,mean water-table elevation of the well over its record (column mean of 01_wells_clean_maod.csv); reference network n=66
 coast_eroding_hwm_length_km,,,7.846198555965976,km,"length of the committed west-facing Caernarfon Bay high-water polyline (coastline_eroding_hwm.geojson, 49 vertices) that dist_coast_m is measured to. report8 §3.7.4"
+raf_valley_record_years,,Dec 1930-Feb 2026,95.17043121149898,years,"length of the RAF Valley monthly record in years: days from its first to its last month-start in 01_climate.csv, divided by 365.25. report9 record length"

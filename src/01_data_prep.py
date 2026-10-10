@@ -16,7 +16,10 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.27.0"  # Hollingham (2026) - 2026-09-30. 01_locations.csv gains in_clearfell and
+__version__ = "1.28.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the length of the RAF Valley record in years; new row raf_valley_record_years in
+#   01_report_numbers.csv, from the climate frame written to 01_climate.csv. Emit-only; no other output moves.
+# 1.27.0  # Hollingham (2026) - 2026-09-30. 01_locations.csv gains in_clearfell and
 #   dist_clearfell_m: each well's distance to the 2017 clearfell boundary (paths.DATA_CLEARFELL,
 #   clearfell.kml reprojected), 0.0 inside, by the same numpy geometry as the 1998 blocks in
 #   _replant_proximity(). Martin's ruling on the proof queue: report9 §4.12 / report8 quote FE1's
@@ -904,7 +907,7 @@ def _render_coverage_figure(wells_scope, states):
 
 
 def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network_counts=None,
-                            aod_means=None, coast_line=None):
+                            aod_means=None, coast_line=None, climate_record=None):
     """The ground-source counts report8 §3.1.2 states, read out of the frame just
     written: how many wells take their ground elevation from the DGPS survey, how
     many from the LiDAR DTM, and the total located. The DEM-vs-DGPS comparison that
@@ -958,6 +961,11 @@ def _report_elevation_check(elev_df, src, pet_cmp=None, rain_trend=None, network
                note=f"length of the committed west-facing Caernarfon Bay high-water polyline "
                     f"(coastline_eroding_hwm.geojson, {coast_line['n_vertices']} vertices) that "
                     f"dist_coast_m is measured to. report8 §3.7.4")
+    if climate_record:
+        rr.add("raf_valley_record_years", climate_record["years"], unit="years",
+               era=f"{climate_record['first']}-{climate_record['last']}",
+               note="length of the RAF Valley monthly record in years: days from its first to its "
+                    "last month-start in 01_climate.csv, divided by 365.25. report9 record length")
     n = rr.save(OUT_01_REPORT_NUMBERS)
     saved(f"{OUT_01_REPORT_NUMBERS.name} ({n} value(s))")
 
@@ -1058,6 +1066,11 @@ if __name__ == "__main__":
     rain_trend = {"slope": float(_lr.slope), "t": float(_lr.slope / _lr.stderr),
                   "p": float(_lr.pvalue), "n": int(len(_ann)),
                   "first": int(_ann.index.min()), "last": int(_ann.index.max())}
+    # 1.28.0 (emit-first, report9): the length of the RAF Valley record, first to last month
+    # of the frame just written to 01_climate.csv
+    climate_record = {"years": float((climate.index.max() - climate.index.min()).days / 365.25),
+                      "first": climate.index.min().strftime("%b %Y"),
+                      "last": climate.index.max().strftime("%b %Y")}
     info(f"annual rainfall trend, complete years {rain_trend['first']}-{rain_trend['last']}: "
          f"{rain_trend['slope']:+.2f} mm/yr, p = {rain_trend['p']:.3f} (n = {rain_trend['n']})")
     # How far the trailing-window heat index (D-036) moves PET from the published
@@ -1347,7 +1360,8 @@ if __name__ == "__main__":
     if elev_df is not None:
         _report_elevation_check(elev_df, src, pet_cmp, rain_trend,
                                 network_counts=(len(reference_wells), len(extended_wells)),
-                                aod_means=aod_means, coast_line=coast_line)
+                                aod_means=aod_means, coast_line=coast_line,
+                                climate_record=climate_record)
 
     # ------------------------------------------------------------------ #
     #  PIPELINE SCENARIO PARAMETERS                                       #

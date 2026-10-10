@@ -52,7 +52,10 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-01. Each later era's mean against the well's
+__version__ = "1.9.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the p of the CEH36 paired summer-minimum BACI shift, which lived only inside a
+#   Note; new row summer_min_baci_p_ceh36_paired (full-precision Welch p). Emit-only.
+# 1.8.0  # Hollingham (2026) — 2026-10-01. Each later era's mean against the well's
 #   first era, emitted as {param_era}_change_vs_first (m; positive = shallower), so a "raw
 #   improvement" the text quotes is a committed value, not arithmetic on two rows (report9 SS4.5.4
 #   CEH36 "198 mm"; reading pass 30 Sep needs_emit; Martin 2026-10-01). Emit-only.
@@ -399,6 +402,15 @@ def _run_metric(spec, wells, wells_provenance, all_wells,
                 "Control": ctrl_label, "Value": round(shift, 4), "Unit": "m",
                 "Note": f"n_pre={len(gaps_pre)}, n_post={len(gaps_post)}, p={format_p_value(p_val)}",
             })
+            # Emit-first (report9): the p of the CEH36 paired summer-minimum shift as its own value.
+            if spec["key"] == "summer_min" and w == "ceh36" and ctrl_label == "Paired":
+                report_rows.append({
+                    "Parameter": "summer_min_baci_p_ceh36_paired", "Well": w.upper(),
+                    "Control": ctrl_label, "Value": float(p_val), "Unit": "-",
+                    "Note": ("two-sided Welch t-test p of the CEH36 summer-minimum BACI shift "
+                             "against its paired control (post- vs pre-scrape annual gaps), "
+                             f"n_pre={len(gaps_pre)}, n_post={len(gaps_post)}"),
+                })
 
     shift_df = pd.DataFrame(shift_rows)
     shift_df.to_csv(spec["out_shifts"], index=False)

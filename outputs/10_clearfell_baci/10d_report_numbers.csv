@@ -81,6 +81,7 @@ SummerMin_Forest_L7_shift,L7,Post_felling,-0.0679,m,"p=0.6999, n_pre=7, n_post=8
 SummerMin_Climate_L7_shift,L7,Post_felling,-0.0117,m,"p=0.8747, n_pre=7, n_post=8"
 SummerMin_Forest_CEH6_shift,CEH6,Post_felling,-0.1459,m,"p=0.4298, n_pre=7, n_post=8"
 SummerMin_Climate_CEH6_shift,CEH6,Post_felling,-0.0897,m,"p=0.1975, n_pre=7, n_post=8"
+summer_minima_n_wells,,,22.0,count,"number of distinct wells in the summer-minimum pre/post-felling shifts table (10d_02), all tiers and both controls"
 SummerMin_Forest_Impact_mean_shift,Impact,,-0.0073,m,"n_wells=1, n_sig=0"
 SummerMin_Forest_Edge_mean_shift,Edge,,-0.04315,m,"n_wells=4, n_sig=0"
 SummerMin_Forest_Forest Ctrl_mean_shift,Forest Ctrl,,-0.0011200000000000001,m,"n_wells=5, n_sig=0"

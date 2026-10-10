@@ -54,7 +54,13 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) — 2026-09-26. A column spec may carry
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-10-10. A column spec may carry "params":
+#   {name: {"source": alias, "param": "key_C{Cluster}", "key": "Parameter", "col": "Value"}} — each
+#   reads one row of a report-numbers CSV whose key is the template filled from the row's raw
+#   fields, and adds it to the row as `name` before the cell renders (a lookup into a CSV with no
+#   column to join on). Exactly one match or the table is refused. First use: paperM/Table2, the
+#   worked example (Martin 2026-10-10 "Create the work example table").
+# 1.11.0  # Hollingham (2026) — 2026-09-26. A column spec may carry
 #   "case": "upper", applied after "re": 18_wtf_01_well_sy_estimates.csv writes well ids
 #   in mixed case (ceh11, D10) and Supplementary Table S4.1 prints them upper-case.
 # 1.10.0  # Hollingham (2026) — 2026-09-05. The cell parser
@@ -238,6 +244,16 @@ def render(spec: dict, row: dict, sources: dict) -> str:
     table shows exactly that.
     """
     fmt = spec.get("fmt", "text")
+    if "params" in spec:
+        # 1.12.0: report-number keys built from the row (no column to join on)
+        row = dict(row)
+        for name, p in spec["params"].items():
+            want = p["param"].format(**row)
+            kcol, vcol = p.get("key", "Parameter"), p.get("col", "Value")
+            hits = [r for r in sources[p["source"]] if r[kcol] == want]
+            if len(hits) != 1:
+                raise ValueError(f"params {name}: {len(hits)} match(es) for {kcol}={want!r}")
+            row[name] = hits[0][vcol]
     for key, want in (("when", True), ("unless", False)):
         for col, val in spec.get(key, {}).items():
             keep = set(val) if isinstance(val, (list, tuple)) else {val}

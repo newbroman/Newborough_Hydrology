@@ -62,7 +62,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.2.2"  # Hollingham (2026). 2026-10-08: --write measures Tier 0 again after
+__version__ = "2.3.0"  # Hollingham (2026). 2026-10-10: a session start prints the work board after the
+#   state (tools/work_board.py: claims, ships, uncommitted work by claim; spec
+#   NRG_spec_parallel_chats_2026-10-10). Printed only: the board changes by the minute, so it is not
+#   written into the HANDOFF, which is committed.
+# 2.2.2  # Hollingham (2026). 2026-10-08: --write measures Tier 0 again after
 #   writing the HANDOFF and archives then if over budget; the first pass measured before the new
 #   HANDOFF existed, so a HANDOFF that grew could leave a ship red at 602/600 with nothing archived.
 # 2.2.1  # Hollingham (2026).
@@ -742,6 +746,15 @@ def main(argv):
         print(f"  WROTE  {dest.relative_to(REPO)}  ({len(text.splitlines())} lines)")
     else:
         print(text)
+        # 2.3.0: who is doing what, at the moment this session starts.
+        try:
+            import work_board
+            print()
+            print(work_board.render(work_board.collect()))
+            print("  Take a claim before editing: python3 tools/doc_lock.py take <claim> --chat \"<this chat>\" "
+                  "--note \"...\", and export NRG_CHAT=\"<this chat>\" in every shell call.")
+        except Exception as e:                   # the board informs; it never stops a session start
+            print(f"  (work board not shown: {e})")
     return 0
 
 

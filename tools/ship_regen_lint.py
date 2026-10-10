@@ -42,7 +42,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.5"  # Hollingham (2026) - 2026-10-08. build_chat_corpus no longer exempt: the
+__version__ = "1.0.6"  # Hollingham (2026) - 2026-10-10. work_board exempt: an advisory read of the tree.
+# 1.0.5  # Hollingham (2026) - 2026-10-08. build_chat_corpus no longer exempt: the
 #   public chatbot (chat/, published to gh-pages) is rebuilt by ship_regenerate (nrg_git.sh 1.28.0).
 # 1.0.4  # Hollingham (2026) - 2026-10-08. build_chat_corpus exempt: its fix is
 #   republishing the chatbot artifact, which a ship cannot do (spec 2026-10-08 chatbot).
@@ -68,6 +69,7 @@ EXEMPT = {
     "output_lag":            "a script newer than its outputs needs a pipeline RUN, not a rebuild",
     "input_provenance_lint": "outputs against committed inputs: a pipeline run, not a rebuild",
     "s10_schematic":         "a redraw is not the fix: the image inside the Supplementary Material must be swapped (odt_edit.replace_image), a document edit",
+    "work_board":            "advisory board of claims and uncommitted work (2026-10-10f); it reads the tree and writes nothing",
     "build_table_ledger":    "TABLE_LEDGER.md is retired (2026-09-19); the builder refuses to regenerate it and --check passes on the banner",
 }
 # gates written without --check

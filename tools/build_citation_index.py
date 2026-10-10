@@ -77,8 +77,10 @@ def norm(s: str) -> str:
 def existing_rows() -> list[dict]:
     if not INDEX.exists():
         return []
-    with open(INDEX, encoding="utf8") as fh:
-        return list(csv.DictReader(fh))
+    # 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10): read and written through tools/register_io,
+    # so rows another chat added while this ran are kept.
+    import register_io
+    return register_io.read_rows(INDEX)
 
 
 class _Span:
@@ -208,10 +210,8 @@ def main() -> int:
         return 0
 
     INDEX.parent.mkdir(parents=True, exist_ok=True)
-    with open(INDEX, "w", newline="", encoding="utf8") as fh:
-        w = csv.DictWriter(fh, fieldnames=FIELDS)
-        w.writeheader()
-        w.writerows(rows)
+    import register_io
+    register_io.write_rows(INDEX, FIELDS, rows)
     print(f"\nwrote {INDEX.relative_to(REPO)} ({len(rows)} rows)")
     print("Review the `proposed` rows and set status=confirmed on the ones that "
           "are genuine citations.")

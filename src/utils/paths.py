@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.62.1"  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: OUT_18_CLUSTER_HALFLIFE_SUMMARY
+__version__ = "1.63.0"  # Hollingham (2026) - 2026-10-10 (T-121, D-255). OUT_50_PRECANOPY (E8g). Additive.
+# 1.62.1  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: OUT_18_CLUSTER_HALFLIFE_SUMMARY
 #   names Paper 1 Table 6 (was 7; the benchmark table moved to Paper M). No path changes.
 # 1.62.0  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
 #   OUT_26_MSL5_HANDBOOK_COUNTS (Script 26) and OUT_11B_THRESHOLD_SOURCE_SENS (Script 11b). Additive.
@@ -1416,6 +1417,7 @@ OUT_50_NW9_TIMING = DIR_50 / "50_22_nw9_regrowth_timing.csv"           # E8e, D-
 OUT_50_FELLING_FIG = DIR_50 / "50_23_felling_regrowth.png"              # E8e, D-235
 OUT_50_CLEARANCE_STEP = DIR_50 / "50_24_clearance_step_by_well.csv"   # E8f, D-236
 OUT_50_CLEARANCE_FIG = DIR_50 / "50_25_clearance_step.png"             # E8f, D-236
+OUT_50_PRECANOPY     = DIR_50 / "50_26_precanopy_by_case.csv"          # E8g, T-121, D-255
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

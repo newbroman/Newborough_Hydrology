@@ -732,3 +732,11 @@ e8f_has_step_ceh17,,,1.0,flag,ceh17: step by the rule (BIC and interval)
 e8f_step_ceh4_m,,,-0.23695442299139152,m,ceh4: fitted step at 2014-10 (95% -0.282 to -0.192 m)
 e8f_has_step_ceh4,,,1.0,flag,ceh4: step by the rule (BIC and interval)
 e8f_step_wmc3_m,,,0.0039994198457909335,m,WMC3 (clearfell impact): fitted step in the clearance window (reported)
+precanopy_verdict_C4,,,0.0,code,"C4: not supported (2 supported, 1 not resolved, 0 not supported); a store drawn down by the plantation, pre-canopy test E8g, strict rule fixed before the run (T-121, D-255)"
+precanopy_n_cases_pass_C4,,,0.0,count,"C4: cases (of 6, planting year x closure age) in which the pre-canopy two-store fit passes all three tests (E8g)"
+precanopy_dbic_min_C4,,,-10.761796877763913,BIC,"C4: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
+precanopy_dbic_max_C4,,,22.85703667502611,BIC,C4: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)
+precanopy_verdict_C5,,,0.0,code,"C5: not supported (2 supported, 1 not resolved, 0 not supported); a store drawn down by the plantation, pre-canopy test E8g, strict rule fixed before the run (T-121, D-255)"
+precanopy_n_cases_pass_C5,,,0.0,count,"C5: cases (of 6, planting year x closure age) in which the pre-canopy two-store fit passes all three tests (E8g)"
+precanopy_dbic_min_C5,,,-11.001538443540255,BIC,"C5: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
+precanopy_dbic_max_C5,,,9.836662280429891,BIC,C5: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)

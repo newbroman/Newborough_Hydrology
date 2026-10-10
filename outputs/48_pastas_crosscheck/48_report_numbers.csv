@@ -109,6 +109,73 @@ modelab_efold_obs_months_median_C5,,,12.017532851129051,months,"median e-folding
 modelab_efold_A_months_median_C5,,,19.82644363281093,months,"median e-folding memory: Model A, -1/ln(1 - beta_3); full record, n = 5 wells (C5)"
 modelab_efold_B_months_median_C5,,,13.315143850953595,months,"median e-folding memory: Model B, -1/ln(1 - beta_3); full record, n = 5 wells (C5)"
 modelab_efold_M_months_median_C5,,,19.01669656348416,months,"median e-folding memory: Model A at each well's depth to MHW, -1/ln(1 - beta_3); full record, n = 5 wells (C5)"
+modelab_efold_obs_detr_months_median_all,,,5.025697964314178,months,"median mean-reversion time, model-free: detrended (12 calendar-month means and a linear trend, fitted jointly), lag-1; full record, n = 66 wells (all)"
+modelab_efold_obs_yw_months_median_all,,,6.127767288869922,months,"median mean-reversion time, model-free: calendar-month anomaly, noise-corrected rho2/rho1; full record, n = 66 wells (all)"
+modelab_efold_obs_yw_detr_months_median_all,,,5.881989898632106,months,"median mean-reversion time, model-free: detrended, noise-corrected rho2/rho1; full record, n = 66 wells (all)"
+modelab_efold_obs_sgi_months_median_all,,,5.381886213246824,months,"median mean-reversion time, model-free: detrended and divided by its calendar month's standard deviation (SGI-style), lag-1; full record, n = 66 wells (all)"
+modelab_efold_pos_detr_months_median_all,,,5.296332599991969,months,"median mean-reversion time, model-free: detrended, wet anomalies (a > 0), two-regime AR(1); full record, n = 66 wells (all)"
+modelab_efold_neg_detr_months_median_all,,,4.696927791547646,months,"median mean-reversion time, model-free: detrended, dry anomalies (a < 0), two-regime AR(1); full record, n = 66 wells (all)"
+modelab_trend_m_per_year_median_all,,,0.007360115200392897,m/yr,median linear trend of the monthly level (joint fit with calendar-month means); n = 66 wells (all)
+modelab_asym_neg_pos_ratio_median_all,,,0.9369044836654543,,median over wells of dry/wet reversion-time ratio (detrended); n = 66 wells (all)
+modelab_asym_n_sig_all,,,0.0,wells,"wells whose wet/dry difference is significant at p < 0.05 (detrended; of 66 fitted, all)"
+modelab_asym_n_sig_dry_slower_all,,,0.0,wells,"of those, dry anomalies revert more slowly (all)"
+modelab_asym_n_sig_wet_slower_all,,,0.0,wells,"of those, wet anomalies revert more slowly (all)"
+modelab_efold_obs_detr_months_median_C1,,,1.9983465894100656,months,"median mean-reversion time, model-free: detrended (12 calendar-month means and a linear trend, fitted jointly), lag-1; full record, n = 7 wells (C1)"
+modelab_efold_obs_yw_months_median_C1,,,4.492597780825589,months,"median mean-reversion time, model-free: calendar-month anomaly, noise-corrected rho2/rho1; full record, n = 7 wells (C1)"
+modelab_efold_obs_yw_detr_months_median_C1,,,4.314374346949477,months,"median mean-reversion time, model-free: detrended, noise-corrected rho2/rho1; full record, n = 7 wells (C1)"
+modelab_efold_obs_sgi_months_median_C1,,,2.033450731084314,months,"median mean-reversion time, model-free: detrended and divided by its calendar month's standard deviation (SGI-style), lag-1; full record, n = 7 wells (C1)"
+modelab_efold_pos_detr_months_median_C1,,,2.1270962683778634,months,"median mean-reversion time, model-free: detrended, wet anomalies (a > 0), two-regime AR(1); full record, n = 7 wells (C1)"
+modelab_efold_neg_detr_months_median_C1,,,1.8794777377309195,months,"median mean-reversion time, model-free: detrended, dry anomalies (a < 0), two-regime AR(1); full record, n = 7 wells (C1)"
+modelab_trend_m_per_year_median_C1,,,0.0032601199638155887,m/yr,median linear trend of the monthly level (joint fit with calendar-month means); n = 7 wells (C1)
+modelab_asym_neg_pos_ratio_median_C1,,,0.8908128560069064,,median over wells of dry/wet reversion-time ratio (detrended); n = 7 wells (C1)
+modelab_asym_n_sig_C1,,,0.0,wells,"wells whose wet/dry difference is significant at p < 0.05 (detrended; of 7 fitted, C1)"
+modelab_asym_n_sig_dry_slower_C1,,,0.0,wells,"of those, dry anomalies revert more slowly (C1)"
+modelab_asym_n_sig_wet_slower_C1,,,0.0,wells,"of those, wet anomalies revert more slowly (C1)"
+modelab_efold_obs_detr_months_median_C2,,,3.938731574311089,months,"median mean-reversion time, model-free: detrended (12 calendar-month means and a linear trend, fitted jointly), lag-1; full record, n = 19 wells (C2)"
+modelab_efold_obs_yw_months_median_C2,,,5.540106780578128,months,"median mean-reversion time, model-free: calendar-month anomaly, noise-corrected rho2/rho1; full record, n = 19 wells (C2)"
+modelab_efold_obs_yw_detr_months_median_C2,,,5.3496936427040716,months,"median mean-reversion time, model-free: detrended, noise-corrected rho2/rho1; full record, n = 19 wells (C2)"
+modelab_efold_obs_sgi_months_median_C2,,,4.332886327824905,months,"median mean-reversion time, model-free: detrended and divided by its calendar month's standard deviation (SGI-style), lag-1; full record, n = 19 wells (C2)"
+modelab_efold_pos_detr_months_median_C2,,,4.291682383929949,months,"median mean-reversion time, model-free: detrended, wet anomalies (a > 0), two-regime AR(1); full record, n = 19 wells (C2)"
+modelab_efold_neg_detr_months_median_C2,,,3.6875031589270697,months,"median mean-reversion time, model-free: detrended, dry anomalies (a < 0), two-regime AR(1); full record, n = 19 wells (C2)"
+modelab_trend_m_per_year_median_C2,,,0.009361753676151163,m/yr,median linear trend of the monthly level (joint fit with calendar-month means); n = 19 wells (C2)
+modelab_asym_neg_pos_ratio_median_C2,,,0.8404978372711222,,median over wells of dry/wet reversion-time ratio (detrended); n = 19 wells (C2)
+modelab_asym_n_sig_C2,,,0.0,wells,"wells whose wet/dry difference is significant at p < 0.05 (detrended; of 19 fitted, C2)"
+modelab_asym_n_sig_dry_slower_C2,,,0.0,wells,"of those, dry anomalies revert more slowly (C2)"
+modelab_asym_n_sig_wet_slower_C2,,,0.0,wells,"of those, wet anomalies revert more slowly (C2)"
+modelab_efold_obs_detr_months_median_C3,,,6.115128725856836,months,"median mean-reversion time, model-free: detrended (12 calendar-month means and a linear trend, fitted jointly), lag-1; full record, n = 26 wells (C3)"
+modelab_efold_obs_yw_months_median_C3,,,6.820848091467538,months,"median mean-reversion time, model-free: calendar-month anomaly, noise-corrected rho2/rho1; full record, n = 26 wells (C3)"
+modelab_efold_obs_yw_detr_months_median_C3,,,6.763610593640624,months,"median mean-reversion time, model-free: detrended, noise-corrected rho2/rho1; full record, n = 26 wells (C3)"
+modelab_efold_obs_sgi_months_median_C3,,,5.70253171335085,months,"median mean-reversion time, model-free: detrended and divided by its calendar month's standard deviation (SGI-style), lag-1; full record, n = 26 wells (C3)"
+modelab_efold_pos_detr_months_median_C3,,,6.034187307797164,months,"median mean-reversion time, model-free: detrended, wet anomalies (a > 0), two-regime AR(1); full record, n = 26 wells (C3)"
+modelab_efold_neg_detr_months_median_C3,,,6.1686564228419165,months,"median mean-reversion time, model-free: detrended, dry anomalies (a < 0), two-regime AR(1); full record, n = 26 wells (C3)"
+modelab_trend_m_per_year_median_C3,,,0.006042301713530374,m/yr,median linear trend of the monthly level (joint fit with calendar-month means); n = 26 wells (C3)
+modelab_asym_neg_pos_ratio_median_C3,,,0.9419401320722607,,median over wells of dry/wet reversion-time ratio (detrended); n = 26 wells (C3)
+modelab_asym_n_sig_C3,,,0.0,wells,"wells whose wet/dry difference is significant at p < 0.05 (detrended; of 26 fitted, C3)"
+modelab_asym_n_sig_dry_slower_C3,,,0.0,wells,"of those, dry anomalies revert more slowly (C3)"
+modelab_asym_n_sig_wet_slower_C3,,,0.0,wells,"of those, wet anomalies revert more slowly (C3)"
+modelab_efold_obs_detr_months_median_C4,,,15.202321197175575,months,"median mean-reversion time, model-free: detrended (12 calendar-month means and a linear trend, fitted jointly), lag-1; full record, n = 9 wells (C4)"
+modelab_efold_obs_yw_months_median_C4,,,11.80712045482234,months,"median mean-reversion time, model-free: calendar-month anomaly, noise-corrected rho2/rho1; full record, n = 9 wells (C4)"
+modelab_efold_obs_yw_detr_months_median_C4,,,11.584203879299569,months,"median mean-reversion time, model-free: detrended, noise-corrected rho2/rho1; full record, n = 9 wells (C4)"
+modelab_efold_obs_sgi_months_median_C4,,,14.381700209022773,months,"median mean-reversion time, model-free: detrended and divided by its calendar month's standard deviation (SGI-style), lag-1; full record, n = 9 wells (C4)"
+modelab_efold_pos_detr_months_median_C4,,,13.751406923155274,months,"median mean-reversion time, model-free: detrended, wet anomalies (a > 0), two-regime AR(1); full record, n = 9 wells (C4)"
+modelab_efold_neg_detr_months_median_C4,,,14.84471552428824,months,"median mean-reversion time, model-free: detrended, dry anomalies (a < 0), two-regime AR(1); full record, n = 9 wells (C4)"
+modelab_trend_m_per_year_median_C4,,,0.005098430415067412,m/yr,median linear trend of the monthly level (joint fit with calendar-month means); n = 9 wells (C4)
+modelab_asym_neg_pos_ratio_median_C4,,,1.195010359551711,,median over wells of dry/wet reversion-time ratio (detrended); n = 9 wells (C4)
+modelab_asym_n_sig_C4,,,0.0,wells,"wells whose wet/dry difference is significant at p < 0.05 (detrended; of 9 fitted, C4)"
+modelab_asym_n_sig_dry_slower_C4,,,0.0,wells,"of those, dry anomalies revert more slowly (C4)"
+modelab_asym_n_sig_wet_slower_C4,,,0.0,wells,"of those, wet anomalies revert more slowly (C4)"
+modelab_efold_obs_detr_months_median_C5,,,10.396913496536616,months,"median mean-reversion time, model-free: detrended (12 calendar-month means and a linear trend, fitted jointly), lag-1; full record, n = 5 wells (C5)"
+modelab_efold_obs_yw_months_median_C5,,,12.408078169910418,months,"median mean-reversion time, model-free: calendar-month anomaly, noise-corrected rho2/rho1; full record, n = 5 wells (C5)"
+modelab_efold_obs_yw_detr_months_median_C5,,,10.827594925084947,months,"median mean-reversion time, model-free: detrended, noise-corrected rho2/rho1; full record, n = 5 wells (C5)"
+modelab_efold_obs_sgi_months_median_C5,,,10.364779452448678,months,"median mean-reversion time, model-free: detrended and divided by its calendar month's standard deviation (SGI-style), lag-1; full record, n = 5 wells (C5)"
+modelab_efold_pos_detr_months_median_C5,,,9.354183435844401,months,"median mean-reversion time, model-free: detrended, wet anomalies (a > 0), two-regime AR(1); full record, n = 5 wells (C5)"
+modelab_efold_neg_detr_months_median_C5,,,11.920222787417421,months,"median mean-reversion time, model-free: detrended, dry anomalies (a < 0), two-regime AR(1); full record, n = 5 wells (C5)"
+modelab_trend_m_per_year_median_C5,,,-0.013632252546807777,m/yr,median linear trend of the monthly level (joint fit with calendar-month means); n = 5 wells (C5)
+modelab_asym_neg_pos_ratio_median_C5,,,1.3120119763794078,,median over wells of dry/wet reversion-time ratio (detrended); n = 5 wells (C5)
+modelab_asym_n_sig_C5,,,0.0,wells,"wells whose wet/dry difference is significant at p < 0.05 (detrended; of 5 fitted, C5)"
+modelab_asym_n_sig_dry_slower_C5,,,0.0,wells,"of those, dry anomalies revert more slowly (C5)"
+modelab_asym_n_sig_wet_slower_C5,,,0.0,wells,"of those, wet anomalies revert more slowly (C5)"
+modelab_asym_sign_test_p_all,,,0.10885696440971612,,two-sided sign test across wells of dry > wet reversion time (detrended): 26 of 66
 modelab_corr_beta_2_beta_3_A_median_all,,,-0.6437428499098692,,"median over reference wells: beta_2 / beta_3 estimates, Model A; full record, n = 66"
 modelab_corr_beta_2_beta_3_B_median_all,,,0.44800202308300435,,"median over reference wells: beta_2 / beta_3 estimates, Model B; full record, n = 66"
 modelab_corr_alpha_beta_3_B_median_all,,,0.9628125770435957,,"median over reference wells: intercept / beta_3 estimates, Model B; full record, n = 66"

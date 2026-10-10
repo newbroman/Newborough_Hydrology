@@ -44,7 +44,12 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.102.0"  # Hollingham (2026) - 2026-10-10. RANWELL_ELEVATED_K_SIGMA and WET_YEAR_PMINUSPET_PCTL:
+__version__ = "1.103.0"  # Hollingham (2026) - 2026-10-10. ASYM_MIN_PAIRS, ASYM_ALPHA and MONTHS_PER_YEAR for
+#   Script 48 1.6.0's reversion-time diagnostics (T-119, D-255; Martin 17:06: 24 pairs, p < 0.05);
+#   PRECANOPY_ANALOGUE (D-254: C3 for C4, C2 for C5) for Script 44 1.12.0's pre-planting sensitivity (T-122);
+#   PRECANOPY_PLANTING_YEARS, PRECANOPY_CLOSURE_YEARS, PRECANOPY_W_TAILS, PRECANOPY_SLOW_STARTS_DAYS and
+#   PRECANOPY_SHARE_STARTS for Script 50 1.8.0's E8g (T-121).
+# 1.102.0  # Hollingham (2026) - 2026-10-10. RANWELL_ELEVATED_K_SIGMA and WET_YEAR_PMINUSPET_PCTL:
 #   the rules behind report9 SS4.14.2 "elevated" and SS4.8.1 "wet years" (Martin: "3 i, 4").
 # 1.101.0  # Hollingham (2026) - 2026-10-10. R2_SPREAD_PCTL: the percentiles of per-well SSM R2
 #   report9 SS4.9.2 quotes across the open-dune wells (Martin: "2 a").
@@ -674,6 +679,12 @@ PASTAS_IDENT_MAX_REL_SE        = 0.5
 # MODEL_AB_MIN_TEST_MONTHS observed months to score.
 MODEL_AB_SPLIT_DATE            = "2018-01-01"
 MODEL_AB_MIN_TEST_MONTHS       = 24
+# Reversion-time diagnostics beside the published model-free estimate (Script 48 1.6.0, T-119,
+# D-255): the wet/dry split is fitted only with ASYM_MIN_PAIRS consecutive-month pairs of each
+# sign (two years of each), and a well counts as asymmetric below ASYM_ALPHA (Martin 2026-10-10).
+ASYM_MIN_PAIRS                 = 24
+ASYM_ALPHA                     = 0.05
+MONTHS_PER_YEAR                = 12
 # The record-length experiment (Script 50, D-222): each form is fitted on records of these
 # lengths (counted in fitted monthly changes, i.e. rows of the SSM frame, so a gap in a record
 # lengthens the calendar span but not L) and on each well's full record. Fits shorter than
@@ -2150,6 +2161,23 @@ FOREST_LITTER_MAX_M   = 0.20
 # the cluster centroid's, because a near-zero beta_3 has no steady state.
 PREPLANT_WINDOW       = ("1953-01", "1960-12")
 PREPLANT_BETA3_P_MAX  = 0.05
+# Before the canopy closed the ground now under the plantation behaved as the open dune it then was
+# (D-254, Martin 2026-10-10): forest cluster -> open-dune analogue whose centroid coefficients stand in
+# for the pre-canopy years. Script 44 (pre-planting sensitivity, T-122); Script 50 E8g (T-121).
+PRECANOPY_ANALOGUE    = {4: 3, 5: 2}
+# E8g (Script 50 1.8.0, T-121, D-255): the canopy closes along a logistic whose forest share is
+# PRECANOPY_W_TAILS[0] at planting and PRECANOPY_W_TAILS[1] at closure. Closure ages from Forest Research,
+# Corsican pine: canopy closure "usually achieved by 15-20 years" (Martin 17:06: use the literature values,
+# though he expects closure later on the Newborough dunes). Planting years: the ends and middle of the
+# recorded planting band (Martin 17:11); the verdict must hold in every case.
+PRECANOPY_PLANTING_YEARS = (1947, 1956, 1965)
+PRECANOPY_CLOSURE_YEARS  = (15, 20)
+PRECANOPY_W_TAILS        = (0.05, 0.95)
+# The two-store fit is multi-modal (from TWO_STORE_SLOW_* alone it often stops at a zero slow share where a
+# far better optimum exists), so E8g starts every DoubleExponential fit from each slow time scale x slow share
+# below and keeps the lowest BIC: the verdict must not turn on the optimizer's start (T-121, D-255).
+PRECANOPY_SLOW_STARTS_DAYS = (1000, 3000, 7000)
+PRECANOPY_SHARE_STARTS     = (0.3, 0.6, 0.9)
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to

@@ -59,7 +59,16 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.5.1"  # Hollingham (2026) - 2026-10-02 (D-231). daily_stresses() calls the shared
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-10 (T-119, D-255). The model-free reversion time
+#   gains four estimates BESIDE the published one, which does not move (Paper M binds five of its keys):
+#   (1) detrended - each well's monthly level fitted jointly to twelve calendar-month means and one
+#   linear trend, the residual's lag-1 autocorrelation; (2) noise-corrected - rho2/rho1 (D-109's
+#   Yule-Walker ratio) on both anomaly series; (3) SGI-style - the detrended anomaly divided by its
+#   calendar month's standard deviation; (4) a sign split - a(t+1) = r*a(t) + d*a(t)*[a(t) < 0] through
+#   the origin, wet and dry carry-over and the p of d, skipped below ASYM_MIN_PAIRS of either sign.
+#   Columns into 48_04, modelab_* keys into the report numbers. Martin 2026-10-10 17:06: 24 pairs,
+#   p < 0.05, linear trend only, SGI as a fifth estimate; no yearly split (D-190, D-216, D-221).
+# 1.5.1  # Hollingham (2026) - 2026-10-02 (D-231). daily_stresses() calls the shared
 #   utils/pastas_utils.spread_daily() (moved there unchanged for Script 50 E8); outputs identical.
 # 1.5.0  # Hollingham (2026) - 2026-10-01 (D-217). A third form beside Model A
 #   and Model B in 48_04: Model A with each well's datum at its own depth to mean high water
@@ -130,6 +139,7 @@ from utils.config import (                                    # noqa: E402
     PASTAS_IDENT_EFOLD_WINDOW_FRAC, PASTAS_IDENT_MAX_REL_SE, PASTAS_FIGURE_BASIS,
     HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS,
     MODEL_AB_SPLIT_DATE, MODEL_AB_MIN_TEST_MONTHS,
+    ASYM_MIN_PAIRS, ASYM_ALPHA, MONTHS_PER_YEAR,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.data_utils import normalize_well_name              # noqa: E402
@@ -455,6 +465,64 @@ def mhw_datums() -> tuple[dict, float]:
     return {normalize_well_name(str(n)): float(g) - mhw for n, g in zip(el["Name"], el["ground_elev_m"])}, mhw
 
 
+def _efold(r: float) -> float:
+    """e-folding time, months, of a first-order decay with monthly carry-over r."""
+    return (-1.0 / np.log(r)) if (np.isfinite(r) and 0 < r < 1) else np.nan
+
+
+def _sign_split(a: pd.Series) -> dict:
+    """Two-regime AR(1) through the origin on consecutive monthly anomalies:
+    a(t+1) = r*a(t) + d*a(t)*[a(t) < 0]. r is the wet carry-over, r + d the dry one; the p of d
+    tests symmetry. NaN below ASYM_MIN_PAIRS pairs of either sign."""
+    nxt = a.shift(-1)
+    ok = a.notna() & nxt.notna()
+    x, y = a[ok].to_numpy(float), nxt[ok].to_numpy(float)
+    neg = (x < 0).astype(float)
+    n_pos, n_neg = int((x >= 0).sum()), int((x < 0).sum())
+    out = {"n_pos": n_pos, "n_neg": n_neg, "r_pos": np.nan, "r_neg": np.nan, "asym_d": np.nan,
+           "asym_p": np.nan, "efold_pos_months": np.nan, "efold_neg_months": np.nan}
+    if min(n_pos, n_neg) < ASYM_MIN_PAIRS:
+        return out
+    X = np.column_stack([x, x * neg])
+    coef, *_ = np.linalg.lstsq(X, y, rcond=None)
+    dof = len(y) - X.shape[1]
+    s2 = float(((y - X @ coef) ** 2).sum()) / dof
+    se_d = float(np.sqrt(s2 * np.linalg.inv(X.T @ X)[1, 1]))
+    r, d = float(coef[0]), float(coef[1])
+    out.update(r_pos=r, r_neg=r + d, asym_d=d,
+               asym_p=float(2 * scipy_stats.t.sf(abs(d / se_d), dof)) if se_d > 0 else np.nan,
+               efold_pos_months=_efold(r), efold_neg_months=_efold(r + d))
+    return out
+
+
+def reversion_diagnostics(hm: pd.Series, anom: pd.Series) -> dict:
+    """The published model-free estimate's companions (1.6.0, T-119): detrended, noise-corrected
+    (rho2/rho1), SGI-style, and the wet/dry split. `hm` is the monthly level on its MS calendar,
+    `anom` the published anomaly (level less its calendar-month mean)."""
+    s = hm.dropna()
+    months = s.index.month.to_numpy()
+    t = (s.index.year * MONTHS_PER_YEAR + s.index.month).to_numpy(float)
+    X = np.column_stack([(months == m).astype(float) for m in range(1, MONTHS_PER_YEAR + 1)]
+                        + [t - t.mean()])
+    coef, *_ = np.linalg.lstsq(X, s.to_numpy(float), rcond=None)
+    e = pd.Series(s.to_numpy(float) - X @ coef, index=s.index).reindex(hm.index)
+    sd = e.groupby(e.index.month).transform("std")
+    z = e / sd.where(sd > 0)
+    row = {"trend_m_per_year": float(coef[-1]) * MONTHS_PER_YEAR}
+    for tag, a in (("", anom), ("_detr", e)):
+        r1, r2 = a.autocorr(1), a.autocorr(2)
+        if tag:
+            row[f"obs_anomaly_lag1{tag}"] = r1
+            row[f"efold_obs{tag}_months"] = _efold(r1)
+        row[f"obs_anomaly_lag2{tag}"] = r2
+        row[f"efold_obs_yw{tag}_months"] = _efold(r2 / r1) if (np.isfinite(r1) and r1 != 0) else np.nan
+        row.update({f"{k}{tag}": v for k, v in _sign_split(a).items()})
+    r1z = z.autocorr(1)
+    row["obs_anomaly_lag1_sgi"] = r1z
+    row["efold_obs_sgi_months"] = _efold(r1z)
+    return row
+
+
 def model_ab_diagnostics(lev: pd.DataFrame, lev_cols: dict, cl: pd.DataFrame,
                          master: pd.DataFrame, mhw_datum: dict) -> pd.DataFrame:
     """Per reference well: split-sample skill, memory, identification and partition, for
@@ -495,6 +563,7 @@ def model_ab_diagnostics(lev: pd.DataFrame, lev_cols: dict, cl: pd.DataFrame,
         r1 = anom.autocorr(1)
         row["obs_anomaly_lag1"] = r1
         row["efold_obs_months"] = (-1.0 / np.log(r1)) if 0 < r1 < 1 else np.nan
+        row.update(reversion_diagnostics(hm, anom))     # 1.6.0, beside the published estimate
         # split-sample, both directions
         for d_, tr, te in (("fwd", h[h.index < split], h[h.index >= split]),
                            ("rev", h[h.index >= split], h[h.index < split])):
@@ -692,6 +761,38 @@ def main(no_fig: bool = False) -> int:
             v, n_ = _med(col, g)
             rr.add(f"modelab_{col}_median_{gname}", v, unit="months",
                    note=f"median e-folding memory: {lab}; full record, n = {n_} wells ({gname})")
+    # 1.6.0 (T-119, D-255): the published estimate's companions, beside it
+    for gname, g in groups:
+        for col, lab in (("efold_obs_detr_months", "detrended (12 calendar-month means and a linear trend, fitted jointly), lag-1"),
+                         ("efold_obs_yw_months", "calendar-month anomaly, noise-corrected rho2/rho1"),
+                         ("efold_obs_yw_detr_months", "detrended, noise-corrected rho2/rho1"),
+                         ("efold_obs_sgi_months", "detrended and divided by its calendar month's standard deviation (SGI-style), lag-1"),
+                         ("efold_pos_months_detr", "detrended, wet anomalies (a > 0), two-regime AR(1)"),
+                         ("efold_neg_months_detr", "detrended, dry anomalies (a < 0), two-regime AR(1)")):
+            v, n_ = _med(col, g)
+            key = {"efold_pos_months_detr": "efold_pos_detr_months",
+                   "efold_neg_months_detr": "efold_neg_detr_months"}.get(col, col)
+            rr.add(f"modelab_{key}_median_{gname}", v, unit="months",
+                   note=f"median mean-reversion time, model-free: {lab}; full record, n = {n_} wells ({gname})")
+        v, n_ = _med("trend_m_per_year", g)
+        rr.add(f"modelab_trend_m_per_year_median_{gname}", v, unit="m/yr",
+               note=f"median linear trend of the monthly level (joint fit with calendar-month means); n = {n_} wells ({gname})")
+        pair = g[["efold_pos_months_detr", "efold_neg_months_detr", "asym_p_detr"]].apply(pd.to_numeric, errors="coerce").dropna()
+        rr.add(f"modelab_asym_neg_pos_ratio_median_{gname}",
+               float((pair["efold_neg_months_detr"] / pair["efold_pos_months_detr"]).median()) if len(pair) else np.nan,
+               unit="", note=f"median over wells of dry/wet reversion-time ratio (detrended); n = {len(pair)} wells ({gname})")
+        sig = pair[pair["asym_p_detr"] < ASYM_ALPHA]
+        rr.add(f"modelab_asym_n_sig_{gname}", int(len(sig)), unit="wells",
+               note=f"wells whose wet/dry difference is significant at p < {ASYM_ALPHA} (detrended; of {len(pair)} fitted, {gname})")
+        rr.add(f"modelab_asym_n_sig_dry_slower_{gname}", int((sig["efold_neg_months_detr"] > sig["efold_pos_months_detr"]).sum()),
+               unit="wells", note=f"of those, dry anomalies revert more slowly ({gname})")
+        rr.add(f"modelab_asym_n_sig_wet_slower_{gname}", int((sig["efold_neg_months_detr"] < sig["efold_pos_months_detr"]).sum()),
+               unit="wells", note=f"of those, wet anomalies revert more slowly ({gname})")
+    pair = ab[["efold_pos_months_detr", "efold_neg_months_detr"]].apply(pd.to_numeric, errors="coerce").dropna()
+    k = int((pair["efold_neg_months_detr"] > pair["efold_pos_months_detr"]).sum())
+    rr.add("modelab_asym_sign_test_p_all",
+           float(scipy_stats.binomtest(k, len(pair), 0.5).pvalue) if len(pair) else np.nan, unit="",
+           note=f"two-sided sign test across wells of dry > wet reversion time (detrended): {k} of {len(pair)}")
     for col, lab in (("corr_beta_2_beta_3_A", "beta_2 / beta_3 estimates, Model A"),
                      ("corr_beta_2_beta_3_B", "beta_2 / beta_3 estimates, Model B"),
                      ("corr_alpha_beta_3_B", "intercept / beta_3 estimates, Model B"),

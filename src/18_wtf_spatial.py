@@ -53,7 +53,11 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.17.1"  # Hollingham (2026) — 2026-10-08. Comments only: Paper 1's tables were renumbered when
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the per-cluster mean of the per-well Sy_median; new rows well_sy_cluster_mean_c<k> in
+#   18_report_numbers.csv, one per cluster, from the in-memory well_results written to
+#   18_wtf_01_well_sy_estimates.csv. No analysis change.
+# 1.17.1  # Hollingham (2026) — 2026-10-08. Comments only: Paper 1's tables were renumbered when
 #   its benchmark table moved to Paper M (D-244), so "Paper 1 Table 7" now reads Table 6. No code or output changes.
 # 1.17.0  # Hollingham (2026) — 2026-09-30. The event rules come from config
 #   (WTF_EVENT_MIN_RISE_M / _MIN_NET_RECH_M / _SY_MIN / _SY_MAX) instead of module locals and literals,
@@ -1519,6 +1523,14 @@ def main(supplementary=True):
             rpt.add(f"wtf_n_events_per_well_{_stat}", float(_v), unit="events",
                     note=f"{_stat} of n_events over the {len(_ne)} reference wells of "
                          f"18_wtf_01_well_sy_estimates.csv")
+
+        # 1.18.0 (emit-first, report9): per-cluster mean of the per-well Sy_median
+        for _cid, _g in well_results.groupby("Cluster"):
+            _sy = _g["Sy_median"].dropna()
+            rpt.add(f"well_sy_cluster_mean_c{int(_cid)}", float(_sy.mean()), unit="",
+                    well=CLUSTER_LABELS.get(int(_cid), f"C{int(_cid)}"),
+                    note=f"mean of the per-well WTF Sy_median over the {len(_sy)} reference wells of "
+                         f"C{int(_cid)} in 18_wtf_01_well_sy_estimates.csv (interception-corrected at forest wells)")
 
         n_saved = rpt.save(OUT_18_REPORT_NUMBERS)
         print(f"  Saved → {OUT_18_REPORT_NUMBERS.name} ({n_saved} report numbers)")

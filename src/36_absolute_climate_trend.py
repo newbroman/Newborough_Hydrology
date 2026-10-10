@@ -92,7 +92,12 @@ from utils.console_utils import banner, phase, step, info, note, result, saved, 
 from utils.render_utils import render_figure
 from utils.report_numbers_utils import ReportNumbers  # T-91
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-28. T-91: writes
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the number of wells the primary-window climate-removed trend map carries; new row
+#   n_wells_mapped_<PRIMARY_PERIOD> (all wells with a primary-window trend, including any without a cluster
+#   id, which the per-cluster _n rows omit). Emit-only; the per-well CSV, maps and text are unchanged.
+#
+# 1.6.0  # Hollingham (2026) — 2026-09-28. T-91: writes
 #   36_report_numbers.csv (paths.OUT_36_REPORT_NUMBERS) — for the primary window
 #   (config.ACT_PRIMARY_PERIOD) the per-cluster mean, median and well count of the
 #   climate-removed secular trend, and every mapped well's own trend, which report9
@@ -866,6 +871,11 @@ def main() -> int:
                     unit="mm/yr", well=lab, era=_era, note="median of per-well " + _note)
             rpt.add("abs_climate_trend_cluster_n", int(len(g)), unit="wells",
                     well=lab, era=_era, note="wells mapped in the primary window")
+        # 1.7.0 (emit-first, report9): every well the primary-window map carries.
+        rpt.add(f"n_wells_mapped_{PRIMARY_PERIOD}", int(prim["slope_mm_yr"].notna().sum()),
+                unit="wells", era=_era,
+                note="wells with a climate-removed secular trend in the primary window, i.e. "
+                     "mapped on its figure; includes wells without a cluster id")
         for r in prim.sort_values("slope_mm_yr").itertuples():
             rpt.add("abs_climate_trend_well", float(r.slope_mm_yr), unit="mm/yr",
                     well=str(r.col), era=_era,

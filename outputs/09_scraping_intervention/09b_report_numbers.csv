@@ -10,3 +10,5 @@ scrape_propagation_near_db3_p,,,0.042580817570413945,-,two-sided p of the one-sa
 scrape_propagation_uphill_dist_r,,,-0.27995553107983073,-,"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10)"
 scrape_propagation_uphill_dist_p,,,0.43337945104883735,-,"two-sided p of Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10)"
 scrape_propagation_uphill_n_wells,,,10.0,count,uphill wells in the distance test
+scrape_propagation_uphill_dist_min_m,,,247.42675683927152,m,distance from CEH36 to the nearest uphill well of the propagation transect (minimum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m
+scrape_propagation_uphill_dist_max_m,,,775.693851155872,m,distance from CEH36 to the farthest uphill well of the propagation transect (maximum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m

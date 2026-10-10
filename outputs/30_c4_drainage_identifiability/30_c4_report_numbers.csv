@@ -7,6 +7,8 @@ c4_hd_sd,,,0.47823935103635035,m,C4 SD of displacement — largest of 5 clusters
 c4_closure_min_beta3,,,0.019,per month,β₃ minimising the C4 water-balance closure residual (near canonical)
 c4_perwell_n_nonsig,,,5.0,wells,"C4 per-well fits with non-significant β₃ (sampling noise, not collinearity)"
 c4_perwell_sig_window100,,,4.0,wells,"C4 wells with significant positive β₃, 100-month window"
+c4_perwell_sig_window100_beta3_min,,100-month window,0.022615706376002118,per month,smallest per-well window β₃ among the 4 C4 wells with significant positive β₃ (those c4_perwell_sig_window100 counts)
+c4_perwell_sig_window100_beta3_max,,100-month window,0.039969995298225605,per month,largest per-well window β₃ among the 4 C4 wells with significant positive β₃ (those c4_perwell_sig_window100 counts)
 c4_perwell_sig_fullrecord,,,7.0,wells,"C4 wells with significant positive β₃, full record"
 c4_centroid_beta3_excl,,,0.02905854278545607,per month,"C4 centroid β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, not the headline"
 c4_centroid_halflife_excl,,,23.85347350958247,months,"C4 t½ = ln(2)/β₃ under the same exclusion — sensitivity, not the headline"

@@ -17,6 +17,7 @@ clearfell_gain_retained_edge_median,WMC3,,0.07717399845633688,-,"median share of
 clearfell_wmc3_b1_ratio_net_climate,WMC3,,0.9845583915848605,-,"WMC3 beta_1 after/before felling, net of the Climate-control tier mean ratio (10e_01)"
 clearfell_wmc3_b1_ratio_se,WMC3,,0.1266147254936451,-,approximate standard error of WMC3's beta_1 ratio (before and after SEs in quadrature)
 clearfell_local_gain_b1_ratio,WMC3,,1.3157894736842106,-,beta_1 ratio a full local return of FOREST_INTERCEPTION would give (fitted on gross rainfall)
+clearfell_wmc3_b1_rise_pct,WMC3,,4.6598749911589215,%,"expected rise in WMC3's beta_1, percent: (clearfell_local_gain_b1_ratio - 1) x clearfell_gain_retained_wmc3 x 100, the full local gain scaled by the share retained"
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)
 drawdown_contour_50mm_m,,,244.91293472742785,m,"cost-distance at which the forest drawdown falls to 50 mm, λ·ln(H0/50)"
 drawdown_contour_10mm_m,,,603.7038989844276,m,"cost-distance at which the forest drawdown falls to 10 mm, λ·ln(H0/10)"
@@ -37,5 +38,7 @@ drawdown_ceh11,CEH11,,0.3298792353306782,mm,modelled steady-state forest drawdow
 coastal_h0,,,80.87170121870071,mm,"single-event edge drawdown, 6 m retreat × (δ₀/measured retreat rate); δ₀=31.28 mm/yr [Script 25 forest-free linear_capped, 2005-03 to 2026-02], rate=2.3207 m/yr [Script 40 measured 2006-2026 (20.2 yr)] — windows matched to 99 %, D-090"
 coastal_h0_per_metre,,,13.478616869783451,mm/m,δ₀/measured retreat rate — head per metre of shoreline retreat; the quantity Scripts 20 and 09f divide by
 coastal_delta0,,,31.28,mm/yr,live Script 25 forest-free linear_capped δ₀ (absolute); fitted 2005-03 to 2026-02
+coastal_drawdown_20yr_mm,,20 yr,625.6,mm,chronic coastal drawdown at the dune toe over the full-window horizon: MECHANISM_HORIZON_YEARS x coastal_delta0 (20_driver_change_20yr.png coastal field)
+coastal_drawdown_5yr_mm,,5 yr,156.4,mm,chronic coastal drawdown at the dune toe over the near-term horizon: COAST_CHRONIC_YEARS x coastal_delta0 (20_driver_change_2005_2025.png coastal field)
 coastal_retreat_rate,,,2.3207128967456545,m/yr,"MEASURED, Script 40 measured 2006-2026 (20.2 yr). Supersedes config.COAST_RETREAT_RATE = 8.3 (a 2014-2020 window divided into a whole-record δ₀ — D-090)"
 coastal_reach_L,,,902.0,m,live Script 25 forest-free linear_capped reach L_cg

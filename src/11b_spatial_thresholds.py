@@ -76,7 +76,19 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
+__version__ = "1.22.0"  # Hollingham (2026) - 2026-10-10. report9 SS4.7's worked P_flood example (C3 against C2 at
+#   1.0 m, config.PFLOOD_EXAMPLE2_*): pflood_example2_mm / _mP per cluster and pflood_example2_difference_mm.
+#   Emit-only.
+# 1.21.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes the assumed water-table benefit of one scrape and of a deeper scrape, the C4+C5
+#   well count and its split between the SD16-recoverable band and beyond it, the count of wells with
+#   m_P above 1, and (for Script 11, which has no report-numbers writer) the wettest complete
+#   recharge-horizon rainfall on record against the horizon's climatology and against the
+#   MP_MARGINAL_MAX demand; new rows scrape_benefit_single_m, scrape_benefit_deeper_m,
+#   pflood_n_forest_wells_c4_c5, forest_wells_sd16_recoverable_n, forest_wells_beyond_recoverable_n,
+#   pflood_n_wells_mP_gt_1, wettest_oct_feb_mm, wettest_oct_feb_over_climatology,
+#   wettest_oct_feb_pct_of_mP25_demand. The wettest season reads INT_CLIMATE (Script 01). Additive.
+# 1.20.0  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
 #   New output 11b_threshold_source_sensitivity.csv: the well counts in each summer zone (mean summer
 #   minimum against SD15b / SD16) and each winter zone (mean winter maximum against the SD15b / SD16
 #   winter levels) under Curreli et al. (2013), the primary source, and under the Sand Dune Managers
@@ -215,7 +227,7 @@ from utils.paths import (
     DATA_DIR, DATA_DEM, data_geo,
     INT_MASTER_DATA, INT_LOCATIONS, INT_WELLS_CLEAN,
     INT_WELLS_CLEAN_MAOD, INT_WELLS_EXTENDED, INT_WELL_ELEVATIONS,
-    INT_PEAR_AUDIT_SITEWIDE, INT_REGIONAL_AVG, INT_CLUSTER_PEAK_MONTHS,
+    INT_PEAR_AUDIT_SITEWIDE, INT_REGIONAL_AVG, INT_CLUSTER_PEAK_MONTHS, INT_CLIMATE,
     OUT_03_MECHANISTIC_TABLE, OUT_11_TABLE8_THRESHOLDS, OUT_11_TABLE6_WINTER,
     OUT_11_TABLE7_SUMMER, OUT_11_PFLOOD_SUMMARY, DIR_11B, OUT_11B_SUMMER_MAP, OUT_11B_WINTER_MAP,
     OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ,
@@ -233,8 +245,8 @@ from utils.config import (
     SCRAPE_DEM_CORRECTION_M, DRAINAGE_DATUM,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
     SITE_MAP_NORTH_MIN, SITE_MAP_NORTH_MAX,
-    PFLOOD_EXAMPLE_CLUSTER, PFLOOD_EXAMPLE_H0_M,
-    MP_ACHIEVABLE_MAX, MP_MARGINAL_MAX,
+    PFLOOD_EXAMPLE_CLUSTER, PFLOOD_EXAMPLE_H0_M, PFLOOD_EXAMPLE2_CLUSTERS, PFLOOD_EXAMPLE2_H0_M,
+    MP_ACHIEVABLE_MAX, MP_MARGINAL_MAX, FOREST_CIDS,
 )
 from utils.model_utils import pflood_lambda
 
@@ -731,6 +743,7 @@ def load_well_data() -> pd.DataFrame:
 _ZONE_REPORT: list = []
 _WINTER_DEPTHS: list = []     # per-well mean winter maximum depth_bg, filled by the winter map
 _SOURCE_REPORT: list = []     # threshold-source sensitivity report numbers (1.20.0, D-242)
+_PFLOOD_REPORT: list = []     # per-well P_flood counts and scrape benefits (1.21.0, emit-first)
 
 
 def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
@@ -1237,6 +1250,35 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     # Export per-well CSV for citation in report
     pf.to_csv(OUT_11B_PFLOOD_PER_WELL, index=False)
 
+    # 1.21.0 (emit-first): report9's counts over this per-well table, and the assumed
+    # scrape benefits behind the recovery limits, written by export_table10_spreadsheet().
+    _PFLOOD_REPORT.clear()
+    _forest = pf[pf["cluster"].isin(FOREST_CIDS)]
+    _fd = _forest["depth_bg"]
+    _forest_lbl = "+".join(f"C{c}" for c in FOREST_CIDS)
+    for _par, _val, _unit, _era, _note in (
+            ("scrape_benefit_single_m", SD15b_REC - SD15b, "m", "",
+             "Assumed water-table benefit of one scrape: SD15b_REC minus SD15b (config; D-201 "
+             "planning assumption, not an excavation depth)"),
+            ("scrape_benefit_deeper_m", SD16_REC - SD16, "m", "",
+             "Assumed water-table benefit of a deeper scrape: SD16_REC minus SD16 (config; D-201 "
+             "planning assumption, not an excavation depth)"),
+            ("pflood_n_forest_wells_c4_c5", int(len(_forest)), "wells", _forest_lbl,
+             "Number of forest-cluster wells (config FOREST_CIDS) in the per-well P_flood table "
+             "(11b_03_pflood_per_well.csv)"),
+            ("forest_wells_sd16_recoverable_n", int(((_fd >= SD16) & (_fd < SD16_REC)).sum()), "wells",
+             _forest_lbl,
+             "Forest-cluster wells whose mean summer minimum lies in the SD16-recoverable band "
+             "(SD16 to SD16_REC below ground); per-well P_flood table"),
+            ("forest_wells_beyond_recoverable_n", int((_fd >= SD16_REC).sum()), "wells", _forest_lbl,
+             "Forest-cluster wells whose mean summer minimum lies at or beyond SD16_REC below "
+             "ground (beyond scraping recovery); per-well P_flood table"),
+            ("pflood_n_wells_mP_gt_1", int(pf["exceeds_mean"].sum()), "wells", f"All (n={len(pf)})",
+             "Wells whose P_flood exceeds the recharge-horizon climatological total (m_P above 1, "
+             "unreachable wells included); per-well P_flood table exceeds_mean")):
+        _PFLOOD_REPORT.append(dict(parameter=_par, value=_val, unit=_unit, well="",
+                                   era=_era, note=_note))
+
     # Per-cluster P_flood summary (report9 Table 1.14): n, min/max/median of
     # pflood_mm over the classified network, and m_P = median / P_clim_mm (the
     # per-cluster threshold from OUT_11_PFLOOD_SUMMARY). Full precision (D-035);
@@ -1692,7 +1734,55 @@ def export_table10_spreadsheet() -> None:
                     "the same worked example (report8 SS3.6.3)")
     else:
         warn(f"P_flood worked example not emitted: {len(_ex)} threshold row(s) for {PFLOOD_EXAMPLE_CLUSTER}")
-    for _r in _ZONE_REPORT + _SOURCE_REPORT:
+    # 1.22.0: report9 SS4.7's worked example - two clusters at one depth (config.PFLOOD_EXAMPLE2_*):
+    # P_flood and m_P for each, and the first minus the second.
+    _ex2 = {}
+    for _c in PFLOOD_EXAMPLE2_CLUSTERS:
+        _rr = full[full["Cluster"].astype(str) == _c]
+        if len(_rr) != 1:
+            warn(f"report9 P_flood example not emitted for {_c}: {len(_rr)} threshold row(s)")
+            continue
+        _r2 = _rr.iloc[0]
+        _p2 = float(_r2["slope_A"]) * PFLOOD_EXAMPLE2_H0_M + float(_r2["intercept_B"])
+        _ex2[_c] = _p2
+        _era2 = f"h_0 = {PFLOOD_EXAMPLE2_H0_M:g} m"
+        rn.add("pflood_example2_mm", _p2, unit="mm", well=_c, era=_era2,
+               note=f"P_flood for a {_c} well with a mean summer minimum {PFLOOD_EXAMPLE2_H0_M:g} m below "
+                    "ground: slope_A * h_0 + intercept_B (report9 SS4.7 worked example); source "
+                    "outputs/11_forecast_pflood_threshold_equations.csv")
+        rn.add("pflood_example2_mP", _p2 / float(_r2["P_clim_total_mm"]), unit="", well=_c, era=_era2,
+               note="m_P = pflood_example2_mm / P_clim_total_mm for the same cluster (report9 SS4.7)")
+    if len(_ex2) == len(PFLOOD_EXAMPLE2_CLUSTERS) == 2:
+        _a, _b = PFLOOD_EXAMPLE2_CLUSTERS
+        rn.add("pflood_example2_difference_mm", _ex2[_a] - _ex2[_b], unit="mm",
+               era=f"h_0 = {PFLOOD_EXAMPLE2_H0_M:g} m",
+               note=f"P_flood of {_a} minus {_b} at the same depth (report9 SS4.7: the difference sits in intercept_B)")
+    # 1.21.0 (emit-first, on behalf of Script 11, which has no report-numbers writer): the wettest
+    # complete recharge season on record over the longest cluster horizon (Oct to its peak month),
+    # against that horizon's climatological total and against the MP_MARGINAL_MAX demand.
+    _lr = full.loc[full["horizon_months"].astype(int).idxmax()]
+    _hm = [int(m) for m in str(_lr["months_in_horizon"]).split(",")]
+    _clim = pd.read_csv(INT_CLIMATE, parse_dates=["Date"])
+    _clim = _clim[_clim["Date"].dt.month.isin(_hm)].copy()
+    _clim["hy"] = _clim["Date"].dt.year + (_clim["Date"].dt.month >= _hm[0]).astype(int)
+    _seas = _clim.groupby("hy")["P_m"].agg(["sum", "size"])
+    _seas = _seas[_seas["size"] == len(_hm)]["sum"] * 1000.0      # m -> mm
+    _wet_hy = int(_seas.idxmax())
+    _wet_mm = float(_seas.max())
+    _pc_lr = float(_lr["P_clim_total_mm"])
+    _hz = f"Oct-{MONTH_ABBREV[int(_lr['peak_month']) - 1]} ({len(_hm)} mo)"
+    _hy_era = f"{_hz}; hydrological year {_wet_hy}"
+    rn.add("wettest_oct_feb_mm", _wet_mm, unit="mm", era=_hy_era,
+           note=f"Wettest complete {_hz} rainfall total on record (RAF Valley, 01_climate.csv P_m), "
+                "the longest cluster recharge horizon; seasons labelled by their closing year")
+    rn.add("wettest_oct_feb_over_climatology", _wet_mm / _pc_lr, unit="", era=_hy_era,
+           note=f"Wettest {_hz} total divided by that horizon's climatological total "
+                f"(P_clim_total_mm, cluster {_lr['Cluster']}): the record season's m_P")
+    rn.add("wettest_oct_feb_pct_of_mP25_demand", 100.0 * _wet_mm / (MP_MARGINAL_MAX * _pc_lr), unit="%",
+           era=_hy_era,
+           note=f"Wettest {_hz} total as a percentage of the rainfall demand at m_P = MP_MARGINAL_MAX "
+                "(MP_MARGINAL_MAX x P_clim_total_mm), the threshold of the unreachable class")
+    for _r in _ZONE_REPORT + _SOURCE_REPORT + _PFLOOD_REPORT:
         rn.add(_r["parameter"], _r["value"], unit=_r["unit"], well=_r["well"],
                era=_r["era"], note=_r["note"])
     rn.save(OUT_11B_REPORT_NUMBERS)

@@ -71,7 +71,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.17.0"  # Hollingham (2026) - 2026-10-07. The same two correlations over the Forest
+__version__ = "1.18.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+#   report9 quotes how far the Impact well's (WMC3) proportional beta2 fall exceeds the Climate Ctrl
+#   tier's; new row wmc3_b2_fall_beyond_climate_control_pct (percentage points). Emit-only.
+# 1.17.0  # Hollingham (2026) - 2026-10-07. The same two correlations over the Forest
 #   Ctrl wells outside the broadleaf restock block (well "Forest Ctrl pine"), identified as T-96 does,
 #   from dist_broadleaf_restock_m. The Forest-tier r rests on NW10; Paper 2 Section 4.2.3 says so from
 #   a committed value (Martin 2026-10-07, "Restate from 10e, flag NW10").
@@ -134,7 +137,7 @@ from utils.console_utils import (
 from utils.clearfell_common import (
     load_clearfell_data, apply_ceh34_hindcast, ALL_NETWORK_WELLS,
     CLEARFELL_DATE, SCRAPING_DATE, PRE_FELL_START, TIER_COLOURS,
-    ReportNumbers, print_network_summary, get_tier,
+    ReportNumbers, print_network_summary, get_tier, IMPACT_WELLS,
 )
 from utils.paths import make_all_dirs, DIR_10, INT_LOCATIONS, OUT_10E_SHIELDING
 from utils.config import CANOPY_ON_MONTHS
@@ -577,6 +580,20 @@ def main():
                     well="Network",
                     note="ratio of network mean db1 to network mean "
                          "b1_before, x100")
+
+    # Emit-first (report9): how far the felled well's beta2 fell beyond the climate controls.
+    _cc = shift_df[shift_df['Tier'] == 'Climate Ctrl']
+    for _w in IMPACT_WELLS:
+        _r = shift_df[shift_df['Well'] == _w.upper()]
+        if _r.empty or _cc.empty or not _cc['b2_before'].mean():
+            continue
+        _r = _r.iloc[0]
+        rpt.add(f"{_w.lower()}_b2_fall_beyond_climate_control_pct",
+                -100.0 * (_r['db2'] / _r['b2_before'] - _cc['db2'].mean() / _cc['b2_before'].mean()),
+                unit="percentage points", well=_w.upper(), era="Delta",
+                note=(f"{_w.upper()} proportional fall in b2 (-db2/b2_before) minus the Climate Ctrl "
+                      f"tier's (-mean db2/mean b2_before, n_wells={len(_cc)}), x100; positive = fell "
+                      "further than the climate controls"))
 
     # 1.16.0: how the beta1 and beta2 shifts move together (Paper 2 Section 4.2.3 quoted r values
     # no output carried). Pearson r of db1 against db2, on absolute shifts and on percentage

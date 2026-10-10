@@ -155,6 +155,8 @@ ANCOVA_FarField_Edge_s_coast,Edge,,-1.7409782634871465,,"SE=0.7419, p vs 0=0.020
 ANCOVA_FarField_Edge_absorbed_minus_predicted_drift,Edge,,32.936979945171196,mm/yr,absorbed_drift_mm_yr +20.9205 minus coastal_differential_mm_yr -12.0165 (10a_09_coastal_scale_factor.csv); absorbed SE 8.9151 mm/yr
 ANCOVA_FarField_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.02044868764965216,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.6724; moves the headline by +177.5 mm"
 ANCOVA_FarField_Edge_Oct2023_step,Edge,Oct2023,-0.3464739393822519,m,"p=0.2263, dAIC=0.47"
+ancova_forest_edge_cwb_x_fell_p,Edge,,0.25524990542483184,,"p of the CWB x clearfell interaction coefficient, monthly ANCOVA, forest control, edge zone, ordinary OLS errors, n=156 months"
+ancova_forest_impact_resid_lag1_autocorr,Impact,,0.8453703647124329,,"lag-1 autocorrelation (Pearson, consecutive rows) of the monthly ANCOVA residuals, forest control x impact zone, n=162 months; why the Newey-West errors are used"
 ANCOVA_Forest_Impact_clearfell_step_summer,Impact,Post_felling_Jun-Sep,-0.0009739263551823663,m,"p=0.9871, CI=[-0.1181,0.1161], Jun-Sep subset, full ANCOVA spec"
 ANCOVA_Forest_Impact_clearfell_step_summer_se_hac,Impact,Post_felling_Jun-Sep,0.05980609784512565,m,"Newey-West (Bartlett), 4 lags"
 ANCOVA_Forest_Impact_clearfell_step_summer_p_hac,Impact,Post_felling_Jun-Sep,0.9870072369621543,,"Newey-West (Bartlett), 4 lags"
@@ -181,6 +183,9 @@ ANCOVA_Forest_Impact_winter_N,Impact,Oct-Mar,84.0,months,Winter sample size (Oct
 ANCOVA_Forest_Impact_clearfell_step_summer_noCWB,Impact,Post_felling_Jun-Sep,0.09148179918204946,m,"p=0.1630, CI=[-0.0350,0.2180], Jun-Sep subset, CWB dropped (sensitivity variant)"
 ANCOVA_Forest_Impact_summer_noCWB_R2,Impact,Jun-Sep,0.06500714273457853,,Summer model R² (CWB dropped)
 ANCOVA_Forest_Impact_summer_noCWB_N,Impact,Jun-Sep,50.0,months,"Summer sample size (CWB dropped fit, Jun-Sep only)"
+ancova_forest_impact_summer_nocwb_p,Impact,Post_felling_Jun-Sep,0.16303618281988327,,"p of the Jun-Sep clearfell step, Forest x Impact, with the CWB terms dropped (sensitivity variant), ordinary OLS errors"
+ancova_forest_impact_summer_nocwb_ci_lo_mm,Impact,Post_felling_Jun-Sep,-34.99959668178687,mm,"lower 95% CI bound (step - 1.96 SE, ordinary errors) of the Jun-Sep clearfell step with CWB dropped, Forest x Impact, in mm"
+ancova_forest_impact_summer_nocwb_ci_hi_mm,Impact,Post_felling_Jun-Sep,217.96319504588578,mm,"upper 95% CI bound (step + 1.96 SE, ordinary errors) of the Jun-Sep clearfell step with CWB dropped, Forest x Impact, in mm"
 ANCOVA_Forest_Impact_coeff_cwb2_x_fell,Impact,,-14.420979829969507,mm per (100mm CWB)^2,"native=-1.442098e-06 m/mm^2, SE_native=1.166199e-06, p=0.2181, curvature variant — buffering term"
 ANCOVA_Forest_Impact_coeff_cwb2_x_fell_p,Impact,,0.21812579090781828,,"p-value of ANCOVA_Forest_Impact_coeff_cwb2_x_fell (CWB² × felling interaction, curvature variant), n=162 months"
 ANCOVA_Forest_Impact_coeff_cwb2_c,Impact,,-0.7427052581531748,mm per (100mm CWB)^2,"native=-7.427053e-08 m/mm^2, SE_native=7.923917e-07, p=0.9254, curvature variant — CWB² main effect"
@@ -195,6 +200,7 @@ ANCOVA_Forest_Edge_curv_clearfell_step,Edge,Post_felling,0.03308400244500383,m,"
 ANCOVA_Forest_Edge_curv_R2,Edge,,0.47310611801908886,,Curvature model R²
 ANCOVA_Forest_Edge_curv_dAIC,Edge,,-1.3602919199946655,,AIC(curvature) − AIC(linear); negative = curvature preferred
 ANCOVA_Forest_Edge_curv_jointF,Edge,,2.586891958427362,,"joint F-test, cwb2_c + cwb2_x_fell, p=0.0787"
+ancova_forest_edge_curv_jointF_p,Edge,,0.07865354499618409,,"p of the joint F-test that both CWB-squared terms (cwb2_c, cwb2_x_fell) are zero, curvature variant, forest control, edge zone, n=156 months"
 Sensitivity_lambda200_Forest_Impact_clearfell,Impact,,0.10823026378395505,m,"p=0.0034, R²=0.232"
 Sensitivity_lambda200_Forest_Edge_clearfell,Edge,,0.03089771460041783,m,"p=0.2332, R²=0.455"
 Sensitivity_lambda200_Climate_Impact_clearfell,Impact,,-0.019301975172132783,m,"p=0.4626, R²=0.189"

@@ -29,6 +29,7 @@ cluster_stability_median,C5 (Coastal Forest),k=5,0.9903614457831325,,median per-
 cluster_stability_median,C3 (Western Residual),k=5,0.3827301216664618,,median per-well co-assignment over 1000 well resamples; n = 26
 cluster_stability_median,C2 (Dune),k=5,0.9874819828288526,,median per-well co-assignment over 1000 well resamples; n = 19
 cluster_stability_median,C1 (Lake Edge),k=5,0.9802567888414756,,median per-well co-assignment over 1000 well resamples; n = 7
+cluster_stability_median_min_stable_k5,,k=5,0.9802567888414756,,"lowest per-cluster median co-assignment among the 4 most stable of the 5 k=5 clusters (least stable set aside), 1000 resamples. report9 §4.2 stability bound"
 bootstrap_n_resamples,,,1000.0,count,config.CLUSTER_BOOT_N
 bootstrap_k_min,,,4.0,,config.CLUSTER_BOOT_K_RANGE
 bootstrap_k_max,,,7.0,,config.CLUSTER_BOOT_K_RANGE
@@ -95,3 +96,13 @@ post2018_p90_p10_max_min_ratio,C2 (Dune),,1.472611464968153,,"largest / smallest
 post2018_p90_p10_max_min_ratio,C3 (Western Residual),,2.135303265940902,,"largest / smallest member post-2018 p90-p10 amplitude, n=26 wells (02_08_cluster_amplitude_per_well.csv)"
 post2018_p90_p10_max_min_ratio,C4 (Main Forest),,1.5739514348785875,,"largest / smallest member post-2018 p90-p10 amplitude, n=9 wells (02_08_cluster_amplitude_per_well.csv)"
 post2018_p90_p10_max_min_ratio,C5 (Coastal Forest),,1.3775862068965512,,"largest / smallest member post-2018 p90-p10 amplitude, n=5 wells (02_08_cluster_amplitude_per_well.csv)"
+c1_amp_change_pct,C1 (Lake Edge),,-19.567827130852347,%,"C1 (Lake Edge): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=7 wells (02_09 amplitude_damping_pct)"
+c1_amp_change_climnorm_pct,C1 (Lake Edge),,-15.366146458583447,%,"C1 (Lake Edge): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c2_amp_change_pct,C2 (Dune),,2.515090543259571,%,"C2 (Dune): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=19 wells (02_09 amplitude_damping_pct)"
+c2_amp_change_climnorm_pct,C2 (Dune),,8.350100603621705,%,"C2 (Dune): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c3_amp_change_pct,C3 (Western Residual),,0.0913659205116391,%,"C3 (Western Residual): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=26 wells (02_09 amplitude_damping_pct)"
+c3_amp_change_climnorm_pct,C3 (Western Residual),,8.26861580630425,%,"C3 (Western Residual): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c4_amp_change_pct,C4 (Main Forest),,5.974025974026007,%,"C4 (Main Forest): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=9 wells (02_09 amplitude_damping_pct)"
+c4_amp_change_climnorm_pct,C4 (Main Forest),,6.147186147186122,%,"C4 (Main Forest): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"
+c5_amp_change_pct,C5 (Coastal Forest),,17.96610169491524,%,"C5 (Coastal Forest): fall in cluster-median post-2018 p90-p10 amplitude against pre-2018, % of pre-2018 (positive = damping), raw levels, n=5 wells (02_09 amplitude_damping_pct)"
+c5_amp_change_climnorm_pct,C5 (Coastal Forest),,20.790960451977387,%,"C5 (Coastal Forest): the same amplitude change with drought summers climate-normalised, % of pre-2018 (positive = damping) (02_09 amplitude_damping_pct_climnorm)"

@@ -24,6 +24,9 @@
 #   bash tools/slim_history.sh                 # dry run: what would go, how big each repo would be
 #   bash tools/slim_history.sh --apply         # back up, rewrite, force-push, resync this machine
 #   bash tools/slim_history.sh --resync        # ANOTHER machine after a slim: adopt GitHub's history
+#   A clone from before the slim has no copy of this script. Fetch it without pulling:
+#     git fetch -q origin && git show origin/main:tools/slim_history.sh > /tmp/slim_history.sh \
+#       && bash /tmp/slim_history.sh --resync
 #   options: --public-only | --private-only | --backup-dir DIR (default ~/NRG_history_backups)
 #
 # Every --apply writes a git bundle of each repository's full history BEFORE anything changes
@@ -32,7 +35,16 @@
 #
 # Pushing is Martin's call (CLAUDE.md section 7): --apply asks before the first push.
 #
-# Version 1.0.0 - Hollingham (2026) - 2026-10-11 (D-257). First issue.
+# Version 1.1.0 - Hollingham (2026) - 2026-10-11 (D-257). Three fixes after the first slim:
+#   --resync now handles a clone that was BEHIND GitHub before the slim (the A475): it saves any
+#   uncommitted changes to ~/NRG_resync_saved_<date>/ and carries on, refuses only for commits
+#   GitHub lacks (matched by author and committer time, author email and name, and subject with
+#   any quoted commit id masked - a rewrite keeps all of those but the ids), deletes local
+#   branches whose every commit GitHub already has (wt01b), and drops ORIG_HEAD before the gc.
+#   The dry run measures a freshly packed copy of GitHub's branches and tags, not this clone's
+#   loose objects (the L14's read 4.6 GB against GitHub's 2.3), and names local branches GitHub
+#   lacks. The working-copies message appears only when copies were actually made.
+# 1.0.0 - 2026-10-11 (D-257). First issue.
 set -euo pipefail
 
 PUB_URL="${NRG_PUBLIC_URL:-https://github.com/newbroman/Newborough_Hydrology.git}"
@@ -48,7 +60,7 @@ while (( $# )); do
     --public-only) DO_PRIV=0 ;;
     --private-only) DO_PUB=0 ;;
     --backup-dir) BACKUP_DIR="$2"; shift ;;
-    -h|--help) sed -n '2,36p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,/^set -euo/p' "$0" | sed '$d'; exit 0 ;;
     *) echo "unknown option: $1 (try --help)"; exit 2 ;;
   esac
   shift
@@ -67,7 +79,9 @@ cd "$ROOT"
 wgit(){ git --git-dir="$ROOT/.git-working" --work-tree="$ROOT" "$@"; }
 STAMP="$(date +%Y-%m-%d_%H%M)"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/nrg_slim.XXXXXX")"
-trap '[[ "$MODE" == apply ]] && echo -e "\n  working copies kept in ${WORK} (delete when done)" || rm -rf "$WORK"' EXIT
+# shellcheck disable=SC2034  # read inside the EXIT trap
+KEEP_WORK=0   # 1 once --apply has cloned something worth keeping for a retry
+trap 'if (( KEEP_WORK )); then echo -e "\n  working copies kept in ${WORK} (delete when done)"; else rm -rf "$WORK"; fi' EXIT
 
 # --- the private cache patterns: ONE list, in .gitignore between the markers ------------------
 cache_patterns(){
@@ -194,6 +208,24 @@ print(f"  expected size after: about {(total-gone)/M:.0f} MB")
 PY
 }
 
+# --- dry run: measure what GitHub holds, not this clone's storage --------------------------------
+# A clone keeps many objects loose (each version whole, no deltas), so summing its objects over-
+# states the history several times for PDFs. A local fetch into an empty repository repacks them.
+dry_copy(){   # $1 source git dir, $2 destination, $3 "tags" to include tags
+  local specs=( '+refs/remotes/origin/*:refs/heads/*' '^refs/remotes/origin/HEAD' )
+  [[ "${3:-}" == tags ]] && specs+=( '+refs/tags/*:refs/tags/*' )
+  git init -q --bare "$2"
+  echo "  packing a copy to measure (this takes a minute or two) ..."
+  git -C "$2" fetch --progress "file://$1" "${specs[@]}" || die "could not make the measuring copy"
+}
+local_only_branches(){   # local branches GitHub lacks keep old history alive on THIS machine
+  local b
+  while IFS= read -r b; do
+    "$@" rev-parse -q --verify "refs/remotes/origin/$b" >/dev/null \
+      || warn "local branch '$b' is not on GitHub (it does not affect GitHub; --apply's last step deletes it if GitHub already has every commit on it)"
+  done < <("$@" for-each-ref --format='%(refname:short)' refs/heads)
+}
+
 # --- push a rewritten branch in stages -----------------------------------------------------------
 push_staged(){
   local repo="$1" url="$2" branch="$3" revs n step i first=1 tries
@@ -218,68 +250,109 @@ push_staged(){
 }
 
 # --- adopt GitHub's rewritten history in this tree ----------------------------------------------
-# every local branch other than main: follow GitHub's rewritten copy, or say it pins old history
-adopt_branches(){
+# Works for a clone that was current before the slim (the publishing machine, at the end of --apply)
+# AND for one that was behind (another laptop). A rewrite keeps every commit's author and committer
+# time and email, so those identify a commit across the old and new histories; the hash does not.
+SAVE_DIR="${HOME}/NRG_resync_saved_${STAMP}"
+# A commit's identity across the rewrite: author time, committer time, author email and name, and
+# the subject. The rewrite updates commit ids quoted in messages, so hash-like tokens in the SUBJECT
+# (the last tab-separated field) are masked; the times and the leading real id are left alone.
+mask_hashes(){ perl -pe 's/^(.*\t)([^\t]*)$/my ($m, $t) = ($1, $2); $m . ($t =~ s{\b[0-9a-f]{7,40}\b}{#}gr)/e'; }
+
+# $1 label, $2 = "public"|"private", rest = git command
+adopt_history(){
+  local label="$1" kind="$2"; shift 2
+  say "${label} repository: adopting GitHub's history"
+  if [[ "$kind" == public ]]; then
+    "$@" fetch -q --force --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*' || die "${label}: fetch failed"
+  else
+    "$@" fetch -q --force --prune origin '+refs/heads/*:refs/remotes/origin/*' || die "${label}: fetch failed"
+  fi
+  "$@" rev-parse -q --verify refs/remotes/origin/main >/dev/null || die "${label}: GitHub has no main branch?"
+
+  # 1. commits here that GitHub has never seen: refuse, after saving them as patches
+  local theirs ours lost=()
+  theirs="$("$@" log --remotes=origin --format='%at %ct %ae %an%x09%s' 2>/dev/null | mask_hashes | sort -u)"
+  # gh-pages is left out: its old commits are dropped by design (one commit, no history)
+  ours="$("$@" log --exclude=gh-pages --branches --format='%H%x09%at %ct %ae %an%x09%s' 2>/dev/null | mask_hashes)"
+  local h meta subj
+  while IFS=$'\t' read -r h meta subj; do
+    [[ -z "$h" ]] && continue
+    grep -qxF -- "${meta}"$'\t'"${subj}" <<<"$theirs" || lost+=("$h")
+  done <<<"$ours"
+  if (( ${#lost[@]} )); then
+    mkdir -p "$SAVE_DIR/${label}_commits"
+    for h in "${lost[@]}"; do "$@" format-patch -q -1 "$h" -o "$SAVE_DIR/${label}_commits" >/dev/null 2>&1 || true; done
+    "$@" log --no-walk --format='      %h %ad %s' --date=short "${lost[@]}" | head -20
+    die "${label}: ${#lost[@]} commit(s) here are not on GitHub (saved as patches in $SAVE_DIR/${label}_commits). Nothing else changed. Push or move them across first."
+  fi
+
+  # 2. uncommitted changes to tracked files: save a patch and copies, then carry on
+  local changed
+  changed="$("$@" status --porcelain --untracked-files=no 2>/dev/null | grep -v '__pycache__/' || true)"
+  if [[ -n "$changed" ]]; then
+    mkdir -p "$SAVE_DIR/${label}_files"
+    "$@" diff HEAD > "$SAVE_DIR/${label}.patch" 2>/dev/null || true
+    "$@" diff HEAD --name-only --diff-filter=AMR 2>/dev/null | grep -v '__pycache__/' \
+      | while IFS= read -r f; do [[ -f "$f" ]] && cp --parents "$f" "$SAVE_DIR/${label}_files/"; done
+    warn "uncommitted changes to $(wc -l <<<"$changed") tracked file(s) saved to $SAVE_DIR (${label}.patch and ${label}_files/) before the reset"
+  fi
+
+  # 3. point main at GitHub's history and bring the tracked files up to it
+  if [[ "$kind" == public ]]; then
+    "$@" reset -q --hard origin/main
+  else
+    "$@" reset -q origin/main && "$@" checkout -- working   # the caches stay on disk, untracked
+  fi
+
+  # 4. other local branches: follow GitHub's copy, or go if GitHub already has every commit
   local b
   while IFS= read -r b; do
     [[ "$b" == main ]] && continue
     if "$@" rev-parse -q --verify "refs/remotes/origin/$b" >/dev/null; then
       "$@" update-ref "refs/heads/$b" "refs/remotes/origin/$b"
     else
-      warn "local branch '$b' is not on GitHub and still holds the old history - delete it (branch -D $b) or the space is not freed"
+      "$@" branch -q -D "$b" && ok "deleted local branch '$b' - every commit on it is already in GitHub's history"
     fi
   done < <("$@" for-each-ref --format='%(refname:short)' refs/heads)
-  "$@" rev-parse -q --verify refs/stash >/dev/null && warn "a stash exists and holds old history - drop it when done"
-  return 0
+  "$@" rev-parse -q --verify refs/stash >/dev/null && warn "a stash exists and holds old history - git stash list; drop it when done"
+
+  # 5. let go of the old objects
+  local gd; gd="$("$@" rev-parse --absolute-git-dir)"
+  rm -f "$gd/ORIG_HEAD"
+  "$@" reflog expire --expire=now --all && "$@" gc -q --prune=now
+  ok "${label} $(basename "$gd") now $(du -sh "$gd" | cut -f1)"
 }
-resync_public(){
-  say "public repository: adopting GitHub's history"
-  git fetch -q --force origin '+refs/heads/*:refs/remotes/origin/*' || die "fetch failed"
-  git fetch -q --force origin '+refs/tags/*:refs/tags/*' || die "tag fetch failed"
-  local here there
-  here="$(git rev-parse 'HEAD^{tree}')"; there="$(git rev-parse 'origin/main^{tree}')"
-  [[ "$here" == "$there" ]] || die "this machine's main has content GitHub's lacks (trees differ). Nothing changed here. Ship it first, or compare: git diff origin/main HEAD --stat"
-  git reset -q origin/main
-  adopt_branches git
-  git reflog expire --expire=now --all && git gc -q --prune=now
-  ok "public .git now $(du -sh .git | cut -f1)"
-}
-resync_private(){
-  say "private repository: adopting GitHub's history"
-  wgit fetch -q --force origin '+refs/heads/*:refs/remotes/origin/*' || die "private fetch failed"
-  # the private tip changes (the caches leave the index), so compare everything EXCEPT them
-  local pats=() p
-  while IFS= read -r p; do pats+=( ":(exclude,glob)${p%/}" ":(exclude,glob)${p%/}/**" ); done < <(cache_patterns)
-  if ! wgit diff --quiet origin/main HEAD -- working "${pats[@]}" 2>/dev/null; then
-    wgit diff --stat origin/main HEAD -- working "${pats[@]}" | tail -5 | sed 's/^/      /'
-    die "the private repo here has records GitHub's lacks - push them first (nrg_git.sh 2)"
-  fi
-  wgit reset -q origin/main
-  adopt_branches wgit
-  wgit reflog expire --expire=now --all && wgit gc -q --prune=now
-  ok "private .git-working now $(du -sh .git-working | cut -f1); the caches stay on disk, untracked and ignored"
-}
+resync_public(){ adopt_history public public git; }
+resync_private(){ adopt_history private private wgit; }
 
 # ================================================================================================
 echo -e "${C}${B}===== NRG history slim (${MODE}) =====${N}"
 
 if [[ "$MODE" == resync ]]; then
-  (( DO_PUB )) && { require_clean "public" git; resync_public; }
+  [[ -f working/.ship_watcher.lock ]] && die "a ship is running (working/.ship_watcher.lock) - wait for it"
+  (( DO_PUB )) && resync_public
   (( DO_PRIV )) && resync_private
   ok "this machine now matches GitHub"
+  [[ -d "$SAVE_DIR" ]] && warn "saved changes are in $SAVE_DIR - compare them with the current files before deleting"
   exit 0
 fi
 
 if [[ "$MODE" == dry ]]; then
   if (( DO_PUB )); then
-    say "public repository (from this clone; fetching GitHub's branches and tags first)"
-    git fetch -q origin '+refs/heads/*:refs/remotes/origin/*' --tags 2>/dev/null || warn "could not fetch - using what is here"
+    say "public repository: GitHub's branches and tags, freshly packed as GitHub stores them"
+    git fetch -q origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*' 2>/dev/null || warn "could not fetch - using what is here"
     [[ "$(git rev-parse --is-shallow-repository)" == true ]] && die "this clone is shallow - the dry run needs full history (git fetch --unshallow)"
-    plan_public "$ROOT/.git"
+    local_only_branches git
+    dry_copy "$ROOT/.git" "$WORK/dry_pub.git" tags
+    plan_public "$WORK/dry_pub.git"
   fi
   if (( DO_PRIV )); then
-    say "private repository (from this clone)"
-    plan_private "$ROOT/.git-working"
+    say "private repository: GitHub's branches, freshly packed"
+    wgit fetch -q origin '+refs/heads/*:refs/remotes/origin/*' 2>/dev/null || warn "could not fetch - using what is here"
+    local_only_branches wgit
+    dry_copy "$ROOT/.git-working" "$WORK/dry_priv.git"
+    plan_private "$WORK/dry_priv.git"
   fi
   echo ""
   echo "  Dry run only - nothing changed. To do it:  bash tools/slim_history.sh --apply"
@@ -296,6 +369,7 @@ mkdir -p "$BACKUP_DIR"
 
 if (( DO_PUB )); then
   say "public: fresh copy from GitHub"
+  KEEP_WORK=1
   git clone --progress --bare "$PUB_URL" "$WORK/pub.git" || die "clone failed"
   git -C "$WORK/pub.git" bundle create --progress "$BACKUP_DIR/Newborough_Hydrology_${STAMP}.bundle" --all
   git bundle verify -q "$BACKUP_DIR/Newborough_Hydrology_${STAMP}.bundle" >/dev/null || die "backup bundle failed to verify"
@@ -304,6 +378,7 @@ if (( DO_PUB )); then
 fi
 if (( DO_PRIV )); then
   say "private: fresh copy from GitHub"
+  KEEP_WORK=1
   git clone --progress --bare "$PRIV_URL" "$WORK/priv.git" || die "clone failed"
   git -C "$WORK/priv.git" bundle create --progress "$BACKUP_DIR/Newborough_Hydrology_working_${STAMP}.bundle" --all
   git bundle verify -q "$BACKUP_DIR/Newborough_Hydrology_working_${STAMP}.bundle" >/dev/null || die "backup bundle failed to verify"
@@ -315,7 +390,7 @@ echo ""
 echo -e "  ${B}Next: rewrite the copies above, then force-push them to GitHub.${N}"
 echo    "  Until the last push finishes, other machines and chats must not pull or ship."
 read -rp "$(echo -e "${Y}Type SLIM to rewrite and push, anything else to stop: ${N}")" go
-[[ "$go" == SLIM ]] || { echo "  Stopped. Nothing on GitHub or in this tree has changed; backups are in ${BACKUP_DIR}."; exit 0; }
+[[ "$go" == SLIM ]] || { echo "  Stopped. Nothing on GitHub or in this tree has changed; backups are in ${BACKUP_DIR}."; KEEP_WORK=0; exit 0; }
 
 if (( DO_PUB )); then
   say "public: rewriting"
@@ -359,7 +434,7 @@ fi
 
 say "pushing to GitHub"
 read -rp "$(echo -e "${Y}Force-push the rewritten history now? [y/N]: ${N}")" r
-[[ "$r" =~ ^[Yy]$ ]] || { echo "  Held back. Push later from the copies in ${WORK}, then run --resync here."; MODE=apply; exit 0; }
+[[ "$r" =~ ^[Yy]$ ]] || { echo "  Held back. Push later from the copies in ${WORK}, then run --resync here."; exit 0; }
 if (( DO_PUB )); then
   push_staged "$P" "$PUB_URL" main
   while IFS= read -r b; do
@@ -383,9 +458,11 @@ fi
 
 echo ""
 echo -e "${G}${B}Done.${N}"
-echo "  Backups:     ${BACKUP_DIR}  - copy them to the USB drive; restore with: git clone <bundle>"
+echo "  Backups:     ${BACKUP_DIR}  - if that is not already off this machine, copy it to the USB drive"
+echo "               or Drive; restore with: git clone <bundle>"
 echo "  Commit maps: ride the next ship (nrg_git.sh 2 or 17)"
 echo "  The A475 and any other existing clone: run  bash tools/slim_history.sh --resync  before"
 echo "  its next pull or ship (nrg_git.sh refuses to merge the old history back). Cloud sessions"
 echo "  clone fresh and need nothing."
-rm -rf "$WORK"; MODE=finished
+# shellcheck disable=SC2034
+KEEP_WORK=0

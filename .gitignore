@@ -268,3 +268,26 @@ outputs/chat/chatbot.html
 # the public page and the Worker's config, built by --target public and published to gh-pages
 chat/index.html
 chat/chat_config.json
+
+# >>> private-repo caches (D-257) ------------------------------------------------------------
+# Regenerable or re-downloadable working files under working/. They stay on the machine that
+# made them and are kept out of BOTH repositories: the public one ignores /working/ already
+# (.git/info/exclude), and this block is what keeps them out of the private one. nrg_git.sh's
+# push_working() stages working/ with -f, so it also reads this block and excludes each line
+# as a pathspec; tools/slim_history.sh reads it to strip the same paths from the private
+# history. ONE list for all three - edit it here and nowhere else.
+#   sentinel_cache/  per-scene Copernicus rasters; re-pulled by STAC id from the committed
+#                    data/sentinel/sentinel_scene_manifest.csv (tools/sentinel_wet_floor.py)
+#   W94_frames/      animation frames, rebuilt by warren_flood_prep.py --frames
+#   *.npz            numpy array caches
+#   *.mp4, *.gif     trial films and animations (the published film is outputs/47_hindcast_film/)
+#   __pycache__/     Python bytecode
+#   *.bundle         git transfer bundles, applied and done with
+working/updates/sentinel_cache/
+working/updates/W94_frames/
+working/**/*.npz
+working/**/*.mp4
+working/**/*.gif
+working/**/__pycache__/
+working/**/*.bundle
+# <<< private-repo caches ---------------------------------------------------------------------

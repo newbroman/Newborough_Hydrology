@@ -147,6 +147,20 @@ Papers cite the record's *concept* DOI, 10.5281/zenodo.19567643 (all versions, a
 latest), and name the version DOI that produced their numbers: 0.9.2.23 is
 10.5281/zenodo.23096072 (released 2026-10-02).
 
+## 6b. Keeping GitHub small (D-257)
+
+Git holds the files in use. Old versions of figures, PDFs and films are stripped from the history
+when the public repository passes 1.5 GB on GitHub (the private one 1 GB): `nrg_git.sh` 6) and the
+preflight report the sizes, and 18) runs `tools/slim_history.sh` - a dry run, then `--apply`. It
+keeps every version in a branch tip, a release tag or a current ODT, keeps all text history and
+every commit, writes a verified git bundle of each repository to `~/NRG_history_backups` first
+(copy those to the USB drive), and leaves old-to-new commit maps in `notes/history_maps/` and
+`working/history_maps/`. Any other existing clone then runs `bash tools/slim_history.sh --resync`
+before its next pull; `nrg_git.sh` refuses to pull or push until it has. `gh-pages` keeps no
+history at all: each publish replaces it. Regenerable caches under `working/` are listed once, in
+the `private-repo caches` block of `.gitignore`, and stay on disk only. Spec:
+`working/updates/NRG_spec_repo_storage_2026-10-11.md`.
+
 ## 7. Where the knowledge lives
 
 | question | where |

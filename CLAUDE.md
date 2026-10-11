@@ -443,6 +443,18 @@ committed mirrors and does not edit ODTs.
   Script 26's EbF pass needs `data/Ecohydrology_dataset.xlsx`, which lives in the
   private repository for that reason. A new external input goes there too.
 
+## 4h. GitHub size (D-257, 2026-10-11)
+
+**gh-pages is one commit with no history** — `publish_pages` replaces it and force-pushes. Publish
+only through `nrg_git.sh` 13); a hand-built gh-pages commit hung off the previous one brings the
+history back. **Superseded binaries are stripped from history** by `tools/slim_history.sh` when
+GitHub passes the D-257 thresholds; text history and every commit stay. After a slim, an older
+clone must run `bash tools/slim_history.sh --resync` before it pulls — `nrg_git.sh` refuses until
+it has, because a plain `git pull` would merge the old history back. A commit hash quoted in a dated
+record from before a slim is translated by `notes/history_maps/` (public) or `working/history_maps/`
+(private). Regenerable caches under `working/` are listed once, in `.gitignore`'s `private-repo
+caches` block; never force-add them.
+
 ## 5. Where numbers come from
 
 **The committed CSVs under `outputs/` are the truth.** Documents quote them;

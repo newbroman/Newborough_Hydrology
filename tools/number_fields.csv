@@ -1700,3 +1700,8 @@ wtf_n_events_per_well_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n
 modelab_efold_obs_detr_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
 modelab_efold_obs_yw_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_yw_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
 modelab_efold_obs_detr_months_median_C5_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_C5,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
+C1_Lake_Edge_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C1 (Lake Edge) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
+C2_Dune_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C2 (Dune) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
+C3_Western_Residual_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C3 (Western Residual) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
+C4_Main_Forest_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C4 (Main Forest) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
+C5_Coastal_Forest_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C5 (Coastal Forest) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)

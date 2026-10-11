@@ -450,7 +450,10 @@ only through `nrg_git.sh` 13); a hand-built gh-pages commit hung off the previou
 history back. **Superseded binaries are stripped from history** by `tools/slim_history.sh` when
 GitHub passes the D-257 thresholds; text history and every commit stay. After a slim, an older
 clone must run `bash tools/slim_history.sh --resync` before it pulls — `nrg_git.sh` refuses until
-it has, because a plain `git pull` would merge the old history back. A commit hash quoted in a dated
+it has, because a plain `git pull` would merge the old history back. A clone too old to have the
+script fetches it without pulling: `git fetch -q origin && git show origin/main:tools/slim_history.sh
+> /tmp/slim_history.sh && bash /tmp/slim_history.sh --resync` (1.1.0 handles a clone that was behind,
+saving any uncommitted edits to `~/NRG_resync_saved_<date>/` first). A commit hash quoted in a dated
 record from before a slim is translated by `notes/history_maps/` (public) or `working/history_maps/`
 (private). Regenerable caches under `working/` are listed once, in `.gitignore`'s `private-repo
 caches` block; never force-add them.

@@ -184,6 +184,7 @@ C1_Delta_NSE_dp3_plus,outputs/15_depth_dependent_pet/15_03_benchmark_table.csv,C
 C1_Dry_Slack_Exceedances_dp0,outputs/14_climate_projections/14_winter_exceedance.csv,C1 · Dry_Slack_Exceedances,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_2011_MAX5_m_bg_mean_x-1000_dp0,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,C1 (Lake Edge) / 2011 · MAX5_m_bg_mean,-1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_2015_n_wells_dp0,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,C1 (Lake Edge) / 2015 · n_wells,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
+C1_Lake_Edge_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C1 (Lake Edge) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions
 C1_Lake_Edge_False_Sy_OLS_R2_dp2,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C1 (Lake Edge) / False · Sy_OLS_R2,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_False_Sy_OLS_winter_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C1 (Lake Edge) / False · Sy_OLS_winter,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_False_Sy_event_Q25_x100_dp0,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C1 (Lake Edge) / False · Sy_event_Q25,100,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -250,6 +251,7 @@ C2_Dune_2015_n_wells_dp0,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,
 C2_Dune_2025_MSL5_m_bg_mean_dp3,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,C2 (Dune) / 2025 · MSL5_m_bg_mean,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_2050s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C2 (Dune) / 2050s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_2080s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C2 (Dune) / 2080s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C2_Dune_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C2 (Dune) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions
 C2_Dune_False_Sy_OLS_R2_dp2,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C2 (Dune) / False · Sy_OLS_R2,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_False_Sy_event_median_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C2 (Dune) / False · Sy_event_median,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_False_Sy_rapid_CI_hi_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C2 (Dune) / False · Sy_rapid_CI_hi,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -308,6 +310,7 @@ C3_Western_Residual_2015_n_wells_dp0,outputs/26_van_willegen_msl/26_msl_5yr_per_
 C3_Western_Residual_2025_MSL5_m_bg_mean_dp3,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,C3 (Western Residual) / 2025 · MSL5_m_bg_mean,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_Western_Residual_2050s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C3 (Western Residual) / 2050s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_Western_Residual_2080s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C3 (Western Residual) / 2080s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C3_Western_Residual_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C3 (Western Residual) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions
 C3_Western_Residual_False_Sy_OLS_R2_dp2,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C3 (Western Residual) / False · Sy_OLS_R2,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_Western_Residual_False_Sy_OLS_winter_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C3 (Western Residual) / False · Sy_OLS_winter,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_Western_Residual_False_Sy_event_median_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C3 (Western Residual) / False · Sy_event_median,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -368,6 +371,7 @@ C4_Main_Forest_2015_n_wells_dp0,outputs/26_van_willegen_msl/26_msl_5yr_per_clust
 C4_Main_Forest_2025_MSL5_m_bg_mean_dp3,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,C4 (Main Forest) / 2025 · MSL5_m_bg_mean,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C4_Main_Forest_Datum_max_m_dp0,outputs/16_water_balance/16_water_bal_rec_table.csv,C4 (Main Forest) · Datum_max_m,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C4_Main_Forest_Datum_min_m_dp1,outputs/16_water_balance/16_water_bal_rec_table.csv,C4 (Main Forest) · Datum_min_m,1,,1,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
+C4_Main_Forest_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C4 (Main Forest) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions
 C4_Main_Forest_ET_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C4 (Main Forest) · ET_pct,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C4_Main_Forest_False_Sy_event_median_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C4 (Main Forest) / False · Sy_event_median,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C4_Main_Forest_False_Sy_rapid_CI_hi_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C4 (Main Forest) / False · Sy_rapid_CI_hi,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -440,6 +444,7 @@ C5_Coastal_Forest_2024_MSL5_m_bg_mean_dp3,outputs/26_van_willegen_msl/26_msl_5yr
 C5_Coastal_Forest_2025_MSL5_m_bg_mean_dp3,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,C5 (Coastal Forest) / 2025 · MSL5_m_bg_mean,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_Coastal_Forest_2050s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C5 (Coastal Forest) / 2050s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_Coastal_Forest_2080s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C5 (Coastal Forest) / 2080s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C5_Coastal_Forest_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C5 (Coastal Forest) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions
 C5_Coastal_Forest_False_Sy_OLS_R2_dp2,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C5 (Coastal Forest) / False · Sy_OLS_R2,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_Coastal_Forest_False_Sy_event_median_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C5 (Coastal Forest) / False · Sy_event_median,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_Coastal_Forest_False_Sy_event_median_unclipped_dp2,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C5 (Coastal Forest) / False · Sy_event_median_unclipped,1,,2,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
@@ -1171,11 +1176,14 @@ modelab_efold_B_months_median_C3_dp1,outputs/48_pastas_crosscheck/48_report_numb
 modelab_efold_B_months_median_C5_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_B_months_median_C5,1,,1,,−,,born a field in PaperM
 modelab_efold_B_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_B_months_median_all,1,,1,,−,,born a field in PaperM
 modelab_efold_M_months_median_all_dp0,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_M_months_median_all,1,,0,,−,,born a field in PaperM
+modelab_efold_obs_detr_months_median_C5_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_C5,1,,1,,−,,born a field in PaperM v1_9 (D-255
+modelab_efold_obs_detr_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255
 modelab_efold_obs_months_median_C1_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_months_median_C1,1,,1,,−,,born a field in PaperM
 modelab_efold_obs_months_median_C2_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_months_median_C2,1,,1,,−,,born a field in PaperM
 modelab_efold_obs_months_median_C3_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_months_median_C3,1,,1,,−,,born a field in PaperM
 modelab_efold_obs_months_median_C5_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_months_median_C5,1,,1,,−,,born a field in PaperM
 modelab_efold_obs_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_months_median_all,1,,1,,−,,born a field in PaperM
+modelab_efold_obs_yw_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_yw_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255
 modelab_nse_fwd_A_median_C4_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_A_median_C4,1,,2,,−,,born a field in PaperM
 modelab_nse_fwd_A_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_A_median_all,1,,2,,−,,born a field in PaperM
 modelab_nse_fwd_B_median_C4_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C4,1,,2,,−,,born a field in PaperM
@@ -1697,11 +1705,3 @@ wt_mean_elev_aod_network_mean_dp2,outputs/01_data_prep/01_report_numbers.csv,wt_
 wtf_n_events_per_well_max_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_max,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_mean_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_mean,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_min,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
-modelab_efold_obs_detr_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
-modelab_efold_obs_yw_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_yw_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
-modelab_efold_obs_detr_months_median_C5_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_detr_months_median_C5,1,,1,,−,,born a field in PaperM v1_9 (D-255, T-123)
-C1_Lake_Edge_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C1 (Lake Edge) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
-C2_Dune_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C2 (Dune) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
-C3_Western_Residual_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C3 (Western Residual) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
-C4_Main_Forest_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C4 (Main Forest) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)
-C5_Coastal_Forest_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C5 (Coastal Forest) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions, Martin 2026-10-11)

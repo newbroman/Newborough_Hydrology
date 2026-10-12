@@ -1,7 +1,7 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_11.odt — do not edit. source-sha256=3e4362d63952a302 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_12.odt — do not edit. source-sha256=71e3e1b1f78f4d77 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
-Which quantity does each model form identify? A procedure for reservoir models fitted to monthly groundwater-level records
+Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
 
 M. Hollingham
 

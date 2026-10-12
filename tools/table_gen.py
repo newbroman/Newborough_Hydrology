@@ -54,7 +54,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-10-10. A column spec may carry "params":
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-10-12 (D-259). A "params" entry may carry "where":
+#   {column: template} to pick a report number qualified by more than its Parameter (03's partition rows are
+#   keyed by Parameter, Well and Era), and "scale" (fractions shown as percentages); a value rounding to zero renders without a minus. Paper M Table 3.
+# 1.12.0  # Hollingham (2026) — 2026-10-10. A column spec may carry "params":
 #   {name: {"source": alias, "param": "key_C{Cluster}", "key": "Parameter", "col": "Value"}} — each
 #   reads one row of a report-numbers CSV whose key is the template filled from the row's raw
 #   fields, and adds it to the row as `name` before the cell renders (a lookup into a CSV with no
@@ -228,7 +231,10 @@ class _Field(str):
     """
     def __format__(self, spec):
         if spec and _is_num(self):
-            return format(_num(self), spec).replace("-", MINUS)
+            out = format(_num(self), spec)
+            if out.startswith("-") and float(out) == 0:   # 1.13.0: a value that rounds to zero has no sign
+                out = out[1:]
+            return out.replace("-", MINUS)
         return format(str(self), spec)
 
 
@@ -250,10 +256,12 @@ def render(spec: dict, row: dict, sources: dict) -> str:
         for name, p in spec["params"].items():
             want = p["param"].format(**row)
             kcol, vcol = p.get("key", "Parameter"), p.get("col", "Value")
-            hits = [r for r in sources[p["source"]] if r[kcol] == want]
+            where = {c: t.format(**row) for c, t in p.get("where", {}).items()}   # 1.13.0
+            hits = [r for r in sources[p["source"]]
+                    if r[kcol] == want and all(r.get(c) == w for c, w in where.items())]
             if len(hits) != 1:
                 raise ValueError(f"params {name}: {len(hits)} match(es) for {kcol}={want!r}")
-            row[name] = hits[0][vcol]
+            row[name] = (str(float(hits[0][vcol]) * p["scale"]) if "scale" in p else hits[0][vcol])   # 1.13.0
     for key, want in (("when", True), ("unless", False)):
         for col, val in spec.get(key, {}).items():
             keep = set(val) if isinstance(val, (list, tuple)) else {val}

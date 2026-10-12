@@ -59,7 +59,10 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-10 (T-119, D-255). The model-free reversion time
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-12 (D-259; Martin 23:19 "lets go ahead"). The drainage share
+#   of losses by cluster under all three forms: modelab_drainage_share_B_median_C{n}, and the 10th/90th
+#   percentiles modelab_drainage_share_{A,B,M}_p{10,90}_C{n} and _B_p{10,90}_all, for Paper M Table 3. Additive.
+# 1.6.0  # Hollingham (2026) - 2026-10-10 (T-119, D-255). The model-free reversion time
 #   gains four estimates BESIDE the published one, which does not move (Paper M binds five of its keys):
 #   (1) detrended - each well's monthly level fitted jointly to twelve calendar-month means and one
 #   linear trend, the residual's lag-1 autocorrelation; (2) noise-corrected - rho2/rho1 (D-109's
@@ -751,6 +754,22 @@ def main(no_fig: bool = False) -> int:
         for q in (10, 90):
             rr.add(f"modelab_{col}_p{q}_all", float(np.percentile(v, q)) if len(v) else np.nan, unit="",
                    note=f"{q}th percentile over reference wells; n = {len(v)}")
+    # 1.7.0 (D-259): the drainage share's spread by cluster under all three forms (Paper M Table 3). Additive:
+    #   no existing key changes; the network-wide A and M percentiles above are not repeated.
+    share_labs = (("drainage_share_A", "Model A"), ("drainage_share_B", "Model B"),
+                  ("drainage_share_M", "Model A at the MHW datum"))
+    for gname, g in groups:
+        if gname != "all":
+            v, n_ = _med("drainage_share_B", g)
+            rr.add(f"modelab_drainage_share_B_median_{gname}", v, unit="",
+                   note=f"median: drainage share of losses, Model B; full record, n = {n_} wells ({gname})")
+        for col, lab in share_labs:
+            if gname == "all" and col != "drainage_share_B":
+                continue
+            v = pd.to_numeric(g[col], errors="coerce").dropna()
+            for q in (10, 90):
+                rr.add(f"modelab_{col}_p{q}_{gname}", float(np.percentile(v, q)) if len(v) else np.nan, unit="",
+                       note=f"{q}th percentile over wells: drainage share of losses, {lab}; full record, n = {len(v)} ({gname})")
     rr.add("modelab_datum_mhw_min_all", float(ab["datum_mhw_m"].min()), unit="m", note="shallowest depth to MHW, reference wells")
     rr.add("modelab_datum_mhw_max_all", float(ab["datum_mhw_m"].max()), unit="m", note="deepest depth to MHW, reference wells")
     for gname, g in groups:

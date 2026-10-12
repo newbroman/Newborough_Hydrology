@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T20:50:58",
+ "generated": "2026-10-12T23:20:53",
  "orchestrator": "2.24.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1447,7 +1447,7 @@
     "outputs/48_pastas_crosscheck/48_02_pastas_agreement.csv": "8915d44b821de4d1b806a7d0f58b2fc198576ca445cb3f0d320b4802d3a56144",
     "outputs/48_pastas_crosscheck/48_03_synthetic_recovery.csv": "3e0025be07a1dea67386e4862de854cc2e52fe9c952dcda25a79d04c22fdcbfd",
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "540d93373f369f480e3b74d740d64d6c6b4dcf6b195e46704b5d06287f10cd6c",
-    "outputs/48_pastas_crosscheck/48_report_numbers.csv": "d0238111107b7e597f5e46f0ece6cf3cd8f4fe9d193d75e5d430aa51dbdd2d25"
+    "outputs/48_pastas_crosscheck/48_report_numbers.csv": "24678eda7e5a9a99b9f6215192d9c4dc9161351444e43bdd592e1b9d7345cc20"
    },
    "fallbacks": [],
    "inputs": {
@@ -1460,9 +1460,9 @@
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "6d7ac03f8e9802243cffecac2f381abf1ff62cbcfae3051696630da60b8a375d"
    },
    "inputs_unresolved": [],
-   "seconds": 60.9,
-   "started": "2026-10-10T20:03:34",
-   "version": "1.6.0"
+   "seconds": 74.1,
+   "started": "2026-10-12T23:19:39",
+   "version": "1.7.0"
   },
   "49_slack_flow.py": {
    "emitted": {

@@ -115,7 +115,9 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.17.0"  # Hollingham (2026) — 2026-10-10. paperM/Table2 added: the worked example of the
+__version__ = "1.18.0"  # Hollingham (2026) — 2026-10-12 (D-259). paperM/Table3: the drainage share under each
+#   source of uncertainty (floor depth, wells, MHW datum, Model B).
+# 1.17.0  # Hollingham (2026) — 2026-10-10. paperM/Table2 added: the worked example of the
 #   procedure at Newborough (Martin 2026-10-10, T-k): Model A centroid coefficients, drainage share and
 #   closure residual (16_water_bal_table.csv), Model B and observed mean-reversion times (48 report
 #   numbers) and stable-record lengths (50 report numbers), via table_gen 1.12.0 "params". No Sy.
@@ -1200,6 +1202,48 @@ TABLES = [
             {"fmt": "template", "template": "{a:.0f} / {b:.0f}",
              "params": {"a": {"source": "r50", "param": "reclen_stable_length_months_A_median_C{Cluster}"},
                         "b": {"source": "r50", "param": "reclen_stable_length_months_B_median_C{Cluster}"}}},
+        ],
+    },
+    {
+        "id": "paperM/Table3",
+        "doc": "docs/papers/paper_M/PaperM_v*.odt",
+        "table_name": "Table3",
+        "caption": "Paper M - the drainage share of losses under each source of uncertainty, per cluster (D-259)",
+        # Rows: 16_water_bal_table.csv (C1..C5). Floor-depth columns: Script 03's partition at the identification
+        # floor, the network datum and the deepest datum swept (cluster centroids, Model A); 03's rows are keyed by
+        # Parameter and Well, hence "where". Across-wells columns: Script 48 per-well medians and 10th-90th
+        # percentiles on the full record, Model A at DRAINAGE_DATUM, Model A at each well's depth to MHW, Model B.
+        "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv",
+                    "r03": "outputs/03_state_space_model/03_report_numbers.csv",
+                    "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv"},
+        "rows": {"source": "wb"},
+        "header": ["Cluster", "Floor", "Network datum", "Deepest datum",
+                   "Model A, wells", "MHW datum, wells", "Model B, wells"],   # defined in the caption
+        "columns": [
+            {"col": "Cluster", "fmt": "map", "map": {
+                "1": "C1 Lake Edge",
+                "2": "C2 Dune",
+                "3": "C3 Western Residual",
+                "4": "C4 Main Forest",
+                "5": "C5 Coastal Forest"}},
+            {"fmt": "template", "template": "{v:.0f}",
+             "params": {"v": {"source": "r03", "param": "partition_drainage_share_pct_at_min_datum", "where": {"Well": "{Label}"}}}},
+            {"fmt": "template", "template": "{v:.0f}",
+             "params": {"v": {"source": "r03", "param": "partition_drainage_share_pct_at_datum", "where": {"Well": "{Label}"}}}},
+            {"fmt": "template", "template": "{v:.0f}",
+             "params": {"v": {"source": "r03", "param": "partition_drainage_share_pct_at_max_datum", "where": {"Well": "{Label}"}}}},
+            {"fmt": "template", "template": "{m:.0f} ({lo:.0f}–{hi:.0f})",
+             "params": {"m": {"source": "r48", "param": "modelab_drainage_share_A_median_C{Cluster}", "scale": 100},
+                        "lo": {"source": "r48", "param": "modelab_drainage_share_A_p10_C{Cluster}", "scale": 100},
+                        "hi": {"source": "r48", "param": "modelab_drainage_share_A_p90_C{Cluster}", "scale": 100}}},
+            {"fmt": "template", "template": "{m:.0f} ({lo:.0f}–{hi:.0f})",
+             "params": {"m": {"source": "r48", "param": "modelab_drainage_share_M_median_C{Cluster}", "scale": 100},
+                        "lo": {"source": "r48", "param": "modelab_drainage_share_M_p10_C{Cluster}", "scale": 100},
+                        "hi": {"source": "r48", "param": "modelab_drainage_share_M_p90_C{Cluster}", "scale": 100}}},
+            {"fmt": "template", "template": "{m:.0f} ({lo:.0f}–{hi:.0f})",
+             "params": {"m": {"source": "r48", "param": "modelab_drainage_share_B_median_C{Cluster}", "scale": 100},
+                        "lo": {"source": "r48", "param": "modelab_drainage_share_B_p10_C{Cluster}", "scale": 100},
+                        "hi": {"source": "r48", "param": "modelab_drainage_share_B_p90_C{Cluster}", "scale": 100}}},
         ],
     },
     {

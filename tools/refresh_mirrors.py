@@ -24,7 +24,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-10-01 (D-220). Paper M joins the mirrors and the
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-12 (D-258). PaperM_plain_v*.odt, the plain-language
+#   companion to Paper M, joins the mirrors (docs/papers/paper_M/text/PaperM_plain.md).
+# 1.5.0  # Hollingham (2026) - 2026-10-01 (D-220). Paper M joins the mirrors and the
 #   drift net (docs/papers/paper_M/PaperM_v*.odt).
 # 1.4.0  # Hollingham (2026) - 2026-10-01 (D-219). Number fields: pandoc 3.1.3 drops
 #   the displayed text of an ODF user field (<text:user-field-get>), so "Model B gives 6.5" mirrored as
@@ -94,6 +96,8 @@ SOURCES = [
      "docs/papers/paper_2/text", True),
     # Paper M (methods paper, D-220): born with number fields (tools/field_md_build.py).
     ("docs/papers/paper_M/PaperM_v*.odt", "docs/papers/paper_M/text", True),
+    # Paper M's plain-language companion (D-258): born with number fields, the same fields as the paper.
+    ("docs/papers/paper_M/PaperM_plain_v*.odt", "docs/papers/paper_M/text", True),
     # Reader-facing documents. They quote the same pipeline numbers as the
     # report, and until 2026-08-18 nothing would have told us when one drifted.
     ("docs/academic_summaries/academic_Summary_v*.odt",

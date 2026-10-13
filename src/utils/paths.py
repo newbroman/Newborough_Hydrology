@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.63.0"  # Hollingham (2026) - 2026-10-10 (T-121, D-255). OUT_50_PRECANOPY (E8g). Additive.
+__version__ = "1.64.0"  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). out_47_lang(): the per-language name of a
+#   Script 47 output (47_03_hindcast_presentation_cy.mp4 ...); English keeps the plain names. Additive.
+# 1.63.0  # Hollingham (2026) - 2026-10-10 (T-121, D-255). OUT_50_PRECANOPY (E8g). Additive.
 # 1.62.1  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: OUT_18_CLUSTER_HALFLIFE_SUMMARY
 #   names Paper 1 Table 6 (was 7; the benchmark table moved to Paper M). No path changes.
 # 1.62.0  # Hollingham (2026) - 2026-10-06 (spec NRG_spec_handbook_levels_2026-10-06, D-242).
@@ -1466,6 +1468,13 @@ def out_47_still(month: str):
     """47_04_hindcast_still_<YYYY-MM>.png — the name carries the month because
     which month is wettest is a result, not a constant."""
     return DIR_47 / f"47_04_hindcast_still_{month}.png"
+
+
+def out_47_lang(path, lang: str):
+    """The per-language name of a Script 47 output (1.64.0): 47_03_hindcast_presentation_cy.mp4,
+    47_05_frame_caveats_pl.txt ... English keeps the plain name, so every existing reference
+    (export_lag, the film page, the provenance ledger) is unchanged."""
+    return path if lang == "en" else path.with_name(f"{path.stem}_{lang}{path.suffix}")
 OUT_40_FIG             = DIR_40 / "40_01_alongshore_profile.png"
 
 # Coastline epochs. coast1899.kml carries TWO placemarks and labels neither;

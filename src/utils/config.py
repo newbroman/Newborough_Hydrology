@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.103.0"  # Hollingham (2026) - 2026-10-10. ASYM_MIN_PAIRS, ASYM_ALPHA and MONTHS_PER_YEAR for
+__version__ = "1.104.0"  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). FILM_LANGS: the languages the film is
+#   rendered in. Retired: FILM_OPEN_CLIP_LABEL (now the language table's "open_clip_label").
+# 1.103.0  # Hollingham (2026) - 2026-10-10. ASYM_MIN_PAIRS, ASYM_ALPHA and MONTHS_PER_YEAR for
 #   Script 48 1.6.0's reversion-time diagnostics (T-119, D-255; Martin 17:06: 24 pairs, p < 0.05);
 #   PRECANOPY_ANALOGUE (D-254: C3 for C4, C2 for C5) for Script 44 1.12.0's pre-planting sensitivity (T-122);
 #   PRECANOPY_PLANTING_YEARS, PRECANOPY_CLOSURE_YEARS, PRECANOPY_W_TAILS, PRECANOPY_SLOW_STARTS_DAYS and
@@ -2479,7 +2481,8 @@ FILM_AUDIO_BITRATE           = "96k"     # 1.80.0: 160k -> 96k; the track is syn
 FILM_SOUND_TRACK             = "warren"   # "warren" (1.3.0) or "classic" (the 1.1.0 tone + flood voice)
 FILM_OPEN_TITLE_S            = 7.0        # the short opening title page
 FILM_OPEN_CLIP_START         = "2015-01"  # the opening clip runs from here to the last month
-FILM_OPEN_CLIP_LABEL         = "The last decade"
+FILM_LANGS                   = ("en", "cy", "pl")   # 1.104.0: the languages the film is rendered in (en first: the reference wording)
+# FILM_OPEN_CLIP_LABEL retired 1.104.0: the clip label is the film text table's "open_clip_label"
 # The Warren track. The pad (FILM_AMBIENT_*, data-driven since 1.7.0) runs throughout; the
 # flood tone (1.5.0) rises with the water table; a held chord voice sounds above each line
 # drawn on the hydrograph; the winter breath (1.5.0) keeps time. (The January note of 1.3.0

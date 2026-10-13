@@ -45,7 +45,8 @@ EXIT
 """
 from __future__ import annotations
 
-__version__ = "1.1.1"  # Hollingham (2026) — 2026-09-29. PAGES_ROOT still -> 47_04_hindcast_still_2000-12.png (the current wettest-month still; the 2001-02 one was a 25 Sep render).
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-13 (Script 47 1.9.0). PAGES_ROOT: the Welsh and Polish film pages, mp4s and stills.
+# 1.1.1  # Hollingham (2026) — 2026-09-29. PAGES_ROOT still -> 47_04_hindcast_still_2000-12.png (the current wettest-month still; the 2001-02 one was a 25 Sep render).
 # 1.1.0  # Hollingham (2026) — 2026-08-28
 
 import argparse
@@ -256,8 +257,13 @@ def run(strict: bool, only: str | None = None) -> int:
 # repeating the answer.
 PAGES_ROOT = ["index.html", "scenario_viewer.html",
               "seasonal_extremes_scatter.html", "hindcast_film.html",
+              "hindcast_film_cy.html", "hindcast_film_pl.html",
               "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4",
+              "outputs/47_hindcast_film/47_03_hindcast_presentation_cy.mp4",
+              "outputs/47_hindcast_film/47_03_hindcast_presentation_pl.mp4",
               "outputs/47_hindcast_film/47_04_hindcast_still_2000-12.png",
+              "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_cy.png",
+              "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_pl.png",
               # forecaster runtime feeds (fetched by JS, not href-linked)
               "living/latest_readings.json",
               "living/forecaster_msl5.json",

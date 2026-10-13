@@ -18,8 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.27.0 - 2026-10-10
+# VERSION 1.28.0 - 2026-10-13
 # CHANGELOG
+#   1.28.0 (2026-10-13): film text gate after ledgers - film_text_lint: the three language
+#     tables of Script 47 1.9.0 (en, cy, pl) hold the same keys and template fields
 #   1.27.0 (2026-10-10): "claims (who is doing what?)", advisory: tools/work_board.py --gate names
 #     uncommitted work under a claim nobody holds and work a ship held back and never put back
 #     (spec NRG_spec_parallel_chats_2026-10-10). Plus the register_io and ship_scope self-tests, gated.
@@ -537,6 +539,13 @@ python3 tools/ms_chapters.py || rc=1
 # commented out. Same treatment as pipeline_lint's literal check and export_lag.
 ledger_out="$(python3 tools/ledger_lint.py 2>&1)" || rc=1
 printf '%s\n' "$ledger_out" | grep -E "row\(s\) with a stale version|^  ledger_lint:" || true
+
+echo
+echo "── film text (do the film's three language tables say the same things?) ──"
+# Script 47 1.9.0 reads every word it shows from utils/film_text_<lang>.py. A key
+# missing from a language falls back to English at render time; a template whose
+# fields differ raises mid-render. Gated from the day it landed (CLAUDE.md §4d).
+python3 tools/film_text_lint.py || rc=1
 
 echo
 echo "── document references (does every cited .md exist?) ─────────────────"

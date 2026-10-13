@@ -22,6 +22,10 @@
     header p{color:var(--dune);margin-top:.5rem;font-size:1.02rem;max-width:44rem;margin-left:auto;margin-right:auto;}
     .back{display:inline-block;margin:1rem auto 0;color:#cfe0e6;text-decoration:none;font-size:.92rem;}
     .back:hover{text-decoration:underline;}
+    .lang{margin-top:.9rem;font-size:.92rem;color:#cfe0e6;}
+    .lang a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);}
+    .lang a:hover{border-bottom-color:#fff;}
+    .lang strong{color:var(--dune);font-weight:600;}
     main{max-width:62rem;margin:0 auto;padding:2rem 1rem 3rem;}
     .stage{background:#000;border-radius:8px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.18);}
     video{display:block;width:100%;height:auto;}
@@ -33,6 +37,8 @@
     .note{background:var(--sand-dark);border-left:4px solid var(--dune);border-radius:4px;
           padding:1rem 1.2rem;margin:1.4rem 0;}
     .note strong{color:var(--pine);}
+    .unchecked{font-size:.9rem;color:var(--text-light);border:1px dashed var(--border);
+               border-radius:4px;padding:.7rem 1rem;margin:1.2rem 0;}
     footer{border-top:1px solid var(--border);margin-top:2.5rem;padding:1.4rem 1rem;
            text-align:center;color:var(--text-light);font-size:.88rem;}
     @media(max-width:520px){header h1{font-size:1.45rem;}}
@@ -42,6 +48,7 @@
   <header>
     <h1>Newborough Warren under a century of weather</h1>
     <p>How wet the dune slacks would have been, month by month, from 1930 to 2026 — if the reserve as it stands today had lived through the weather of each of those years.</p>
+    <p class="lang"><strong>English</strong> &middot; <a href="hindcast_film_cy.html" hreflang="cy">Cymraeg</a> &middot; <a href="hindcast_film_pl.html" hreflang="pl">Polski</a></p>
     <a class="back" href="index.html">&larr; Back to the research home</a>
   </header>
 
@@ -54,7 +61,7 @@
         <a href="outputs/47_hindcast_film/47_03_hindcast_presentation.mp4">Download the film (MP4)</a>.
       </video>
     </div>
-    <p class="dl"><a href="outputs/47_hindcast_film/47_03_hindcast_presentation.mp4">Download the film (MP4, ~9&nbsp;MB)</a></p>
+    <p class="dl"><a href="outputs/47_hindcast_film/47_03_hindcast_presentation.mp4">Download the film (MP4, ~30&nbsp;MB)</a></p>
 
     <div class="note">
       <strong>Only the warren is modelled, not the forest.</strong> Everything here is about the open
@@ -72,7 +79,8 @@
       <li>The title gives the total of each across the study area, in hectares.</li>
       <li>The line at the bottom is the water table — how far below or above the ground the groundwater
           sits, averaged over the reserve's monitoring wells. The red marker is where the film has got
-          to; the clock runs at about a year a second.</li>
+          to; the clock runs at three seconds a year, and between one month's reading and the next the
+          map is drawn at levels in between, so the water rises and drains smoothly.</li>
     </ul>
 
     <h2>How it was made</h2>

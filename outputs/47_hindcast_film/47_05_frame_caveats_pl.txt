@@ -1,0 +1,129 @@
+# Frame text — 47_hindcast_film.py 1.9.0 — pl (Polski)
+# wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
+# the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
+
+## CAPTION (every frame)
+Dzisiejszy rezerwat pod pogodą
+każdego minionego miesiąca. Nie to, co się
+naprawdę zdarzyło: „co by było, gdyby”. Zwierciadło
+wód gruntowych modelu jest skorygowane do
+pomiarów w piezometrach z lat 2005–2026.
+
+Niebieski: otwarta woda.  Żółty: mokre dno.
+Kwadraty 10 m ze zdjęć satelitarnych, 2016–2026.
+To nie mapa powodziowa: kałuże i brzegi są
+za małe, by je pokazać.
+
+Obrys to obszar badań: dna obniżeń
+międzywydmowych. Nic poza nim nie jest oceniane.
+
+Sumy w tytule pochodzą ze skorygowanego
+zwierciadła; otwarta woda jest trafna z dokładnością
+do czynnika 2.1, mokre dno do około 15 %.
+
+## CAPTION, appended when the month is beyond the fitted range
+TEN MIESIĄC JEST POZA ZAPISEM.
+Zwierciadło wód gruntowych jest powyżej powodzi
+2021 roku, najwyższej, jaką zmierzono. Sumy to
+krzywe przedłużone poza koniec danych; blady
+pomarańcz to dno obniżeń nigdy nie widziane
+mokre — mokrzej niż cokolwiek w zapisie,
+gdzie dokładnie, nie wiadomo.
+
+## SLIDES BEFORE THE FILM
+
+### O tym filmie
+Film o tym, jak mokre byłyby obniżenia międzywydmowe, miesiąc po miesiącu, od 1930 do 2026 roku — gdyby rezerwat w dzisiejszym kształcie przeżył pogodę każdego z tych lat.
+Newborough Warren to rezerwat wydmowy na wyspie Anglesey. Między wydmami leżą setki niskich zagłębień zwanych obniżeniami międzywydmowymi. W mokrą zimę zwierciadło wód gruntowych podnosi się do nich: grunt wilgotnieje, pojawiają się rozlewiska, a w bardzo mokrą wiosnę całe obniżenia stoją pod wodą.
+Modelowane są tylko wydmy, nie las. Wszystko tutaj dotyczy otwartych obniżeń międzywydmowych Newborough Warren — obszaru badań obrysowanego na mapie. Posadzony obok las nie jest częścią modelu i nie jest oceniany; brak żółtych i niebieskich komórek nie oznacza braku zalania, lecz to, że nie zostało zamodelowane.
+[footer] Studium hydrologiczne Newborough Warren, 2026 · Martin Hollingham
+
+### Jak czytać film
+ŻÓŁTY to mokre dno: grunt nasycony wodą albo cienka warstwa wody ukryta w trawie.
+NIEBIESKI to otwarta woda: rozlewiska widoczne z powietrza.
+Obrys na mapie to obszar badań — 307 hektarów dna obniżeń w obrębie wydm. Wszystko, co mówi film, dotyczy gruntu wewnątrz niego. Pustego gruntu poza obrysem nie oceniano; to nie jest twierdzenie, że był suchy.
+Tytuł podaje sumę każdej z nich na obszarze badań, w hektarach (hektar jest nieco większy od boiska do rugby).
+Linia u dołu to zwierciadło wód gruntowych — jak głęboko pod gruntem lub jak wysoko nad nim stoi woda gruntowa, uśrednione po piezometrach rezerwatu. Czerwony znacznik pokazuje, dokąd film doszedł. Zegar biegnie trzy sekundy na rok; między odczytem jednego miesiąca a następnego mapa jest rysowana dla poziomów pośrednich, więc woda podnosi się i opada płynnie, ale odczytami są miesiące.
+Kolejne slajdy pokazują, jak go zrobiono: model wód gruntowych, zdjęcia satelitarne i mapa tego, dokąd idzie woda, połączone razem, każdy obok rycin z raportu, które go kalibrują i testują.
+
+### 1.  Model wód gruntowych sterowany pogodą
+[figure] 00_01_climate_timeseries_short.png
+[figure] 47_06_free_run_vs_wells_pl.png
+Rycina 4 (po lewej) to pogoda i zwierciadło wód gruntowych razem, 2005–2026. (a) Opad, miesiąc po miesiącu, z wieloletnią średnią jako linią przerywaną. (b) Parowanie, które osiąga szczyt każdego lata. (c) Bieżący bilans opadu minus parowanie: rośnie w mokrych ciągach miesięcy i spada w suchych. (d) Zwierciadło wód gruntowych, uśrednione po piezometrach rezerwatu, z rozrzutem między piezometrami zaznaczonym cieniem. Panele (c) i (d) rosną i opadają razem: na tym związku zbudowano model.
+Z tego studium wyprowadziło prostą miesięczną regułę: zwierciadło podnosi się z opadem danego miesiąca, opada z jego parowaniem i drenuje się proporcjonalnie do tego, jak wysoko stoi.
+Wykres u góry po prawej to test, od którego zależy ten film. Niebieska linia to model uruchomiony wyłącznie na pogodzie z RAF Valley od 1930 roku, bez żadnego pomiaru z piezometrów, który by go korygował; czarna linia to to, co zmierzyły piezometry. Model podąża za mokrymi i suchymi latami wydm, średnio o 15 cm za nisko: to odchylenie usuwa następny slajd.
+[footer] Rycina 4 raportu, rozdział 4.1.1 · model wobec piezometrów: własny bieg tego filmu
+
+### Korekta modelu do piezometrów
+Puszczony swobodnie na stulecie model dryfuje: nie ma piezometrów, które by go trzymały. Jest więc korygowany tam, gdzie piezometry istnieją. Dla lat 2005–2026 miesiące modelu są porządkowane według wielkości wobec miesięcy zmierzonych, a każdy modelowany poziom zastępuje się zmierzonym poziomem o tej samej randze.
+Kolejność mokrych i suchych miesięcy jest własna modelu; korekta usuwa tylko jego odchylenie. Ta sama korekta jest potem przenoszona wstecz na lata sprzed piezometrów.
+
+### 2.  Zdjęcia satelitarne: pierwsza kalibracja
+[figure] 45_01_wet_area_model.png
+[satellite] 2019-04, 2023-02, 2020-03, 2021-02
+Sentinel-2 fotografuje wydmy co kilka dni od 2016 roku, w kwadratach 10 m. W bliskiej podczerwieni woda jest czarna, a trawa jasna, więc mokre dno obniżenia widać jako ciemną plamę. 43 zimowych zdjęć było wolnych od chmur.
+Na każdym z nich zlicza się ciemne kwadraty na dnie obniżeń, dzieląc je na otwartą wodę (najciemniejsze) i mokre dno, i zestawia ze zwierciadłem, które piezometry zmierzyły w tym samym miesiącu. Każda para punktów na rycinie to jedno zdjęcie. Cztery z nich pokazano poniżej w tym paśmie bliskiej podczerwieni, od najsuchszego do najmokrzejszego, każde przeskalowane do własnej jasności dna obniżeń, tak jak odczytuje ją metoda; każda linia prowadzi do swoich punktów.
+Punkty układają się na dwóch gładkich krzywych. Mokre dno przyrasta łagodnie, gdy zwierciadło się podnosi; otwarta woda pozostaje bliska zeru, dopóki woda nie zbliży się do powierzchni, a potem rośnie stromo. Te krzywe zamieniają zwierciadło filmu na hektary w jego tytule.
+Dopasowano je między −0.80 m a +0.03 m, w zakresie, który widziały zdjęcia. Powyżej film mówi POZA ZAPISEM.
+[footer] Rycina 49 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
+
+### Sprawdzian: model wobec satelity
+[figure] 45_02_ssm_through_nir_curves.png
+[satellite] 2019-04, 2023-02, 2020-03, 2021-02
+Zanim krzywym powierzy się model, są z nim testowane. Tutaj krzywe są sterowane zwierciadłem modelu zamiast piezometrami, a przewidywana przez nie powierzchnia jest porównywana, miesiąc po miesiącu, z powierzchnią faktycznie zmierzoną przez satelitę.
+Satelita nie bierze udziału w modelu, więc jest to niezależny test samego zwierciadła, a nie tylko krzywych. Te same cztery zdjęcia w bliskiej podczerwieni są poniżej; każda linia prowadzi do swojego miesiąca na górnym panelu i nazywa szczyt lub minimum, do którego należy.
+Mokre dno jest odtwarzane blisko. Otwarta woda, która pojawia się nagle, gdy woda sięga powierzchni, jest odtwarzana gorzej: mały błąd zwierciadła daje duży błąd powierzchni rozlewisk. Dlatego niebieski jest w filmie barwą mniej pewną.
+[footer] Rycina 50 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
+
+### 3.  Dokąd idzie woda: druga kalibracja
+[figure] 45_03_switching_levels_map.png
+Krzywe mówią, jak duża część dna jest mokra; nie mówią gdzie. Do tego służy własna historia każdego kwadratu 10 m na zdjęciach: poziom zwierciadła, przy którym po raz pierwszy odczytano mokre dno (a, mapa górna) i po raz pierwszy otwartą wodę (b, mapa dolna).
+Najniższe zagłębienia przełączają się pierwsze, wyższe brzegi ostatnie. Szare kwadraty nigdy nie przełączyły się w zakresie, który widziały zdjęcia, a las pominięto, bo pod drzewami satelita widzi korony, nie grunt.
+Film zapala każdy kwadrat, gdy zwierciadło modelu sięga jego poziomu. GDZIE pojawiają się barwy, nauczono się z satelity; KIEDY — to model.
+[footer] Rycina 51 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
+
+### Jak wydmy wyglądają z kosmosu
+[satellite] 2019-04, 2021-02
+Najsuchsze i najmokrzejsze z tych czterech zdjęć, każde obok własnej mapy filmu z tego samego miesiąca.
+Na zdjęciach zalane dna obniżeń to ciemne plamy między jasnymi wydmami. Film zapala swój żółty i niebieski w tych samych zagłębieniach, gdy jego zwierciadło się podnosi.
+To ilustracja, nie test. Gdzie pojawiają się barwy, nauczono się z tych samych zdjęć, więc część podobieństwa jest wbudowana. Niezależnym testem jest sprawdzian dwa slajdy wcześniej, w którym satelita nie bierze udziału w modelu.
+[footer] Zawiera zmodyfikowane dane Copernicus Sentinel 2019, 2021
+
+### Co słychać
+Dźwięk jest zrobiony z wody, miesiąc po miesiącu. Nic w nim nie jest nagrane.
+Przez cały czas brzmi miękki akord. Gdy grają miesiące, jeden z jego głosów nabrzmiewa z opadem każdego miesiąca, drugi z jego parowaniem, a najwyższy otwiera się, gdy zwierciadło się podnosi; w miesiącach poza zapisem drży.
+Stały akord narasta ze zwierciadłem, od ciszy w najsuchszych miesiącach do pełni u szczytu zapisu; powyżej żółtej linii dołącza do niego septyma, a akord się napina, gdy wydmy zalewa woda, przechylając się tam, gdzie ona jest: w prawo dla wschodu wydm, w lewo dla zachodu.
+Przeciągnięte dźwięki brzmią, gdy zwierciadło jest powyżej linii na wykresie u dołu: jeden powyżej żółtej linii, gdzie pojawia się mokre dno; wyższy powyżej niebieskiej, gdzie pojawia się otwarta woda; i najwyższy powyżej powodzi 2021 roku.
+Pod spodem oddech: jeden cichy dźwięk przez zimową połowę każdego roku, cisza przez lato, tak że rok trwa trzy sekundy.
+
+### Przeczytaj to przed obejrzeniem
+To dzisiejsze wydmy, nie wydmy tamtych czasów. Reguł nauczono się na latach 2005–2026, a grunt pochodzi z pomiarów z 2023 roku, z lasem Newborough w obecnym rozmiarze. Las posadzono dopiero w latach 1947–1965, a las obniża wokół siebie zwierciadło wód gruntowych. W 1939 roku lasu nie było. Film odpowiada na pytanie „co by było, gdyby” — co zrobiłby rezerwat taki, jaki jest teraz, pod tamtą pogodą — a nie na pytanie, co naprawdę się stało.
+Mapa obejmuje tylko obszar badań na wydmach; puste miejsce poza nim znaczy „nieoceniane”, nie „suche”.
+Zdjęcia satelitarne: Zawiera zmodyfikowane dane Copernicus Sentinel 2019, 2020, 2021, 2023. Ryciny raportu pochodzą ze studium hydrologicznego Newborough Warren.
+
+### Największe powodzie wykraczają poza wszystko, co zmierzono
+Najmokrzejszą wiosną w zapisie była wiosna 2021 roku. W niektórych miesiącach — 1939, 1959, 1961–62 i 2000–01 — model wypycha zwierciadło wyżej, powyżej +0.03 m, do których dopasowano krzywe.
+Żadne zdjęcie nie widziało wydm w takim stanie. Dlatego te miesiące są oznaczone POZA ZAPISEM, sumy to krzywe przedłużone poza koniec danych, a reszta dna obniżeń przybiera BLADY POMARAŃCZ: mokrzej niż cokolwiek w zapisie, gdzie dokładnie — nie umiemy powiedzieć.
+Uczciwe twierdzenie o tych zimach brzmi: były większe niż 2021, nic ponadto.
+
+## SLIDES AFTER THE FILM
+
+### Co mówi film, z zastrzeżeniami
+Lata 60. były mokrą dekadą, z kilkakrotnie większą otwartą wodą niż w przeciętnej zimie którejkolwiek innej dekady.
+Zimy 1961–62 i 2000–01 wyróżniają się jako dwie wielkie powodzie stulecia, za nimi 1938–39 i 1958–59; zima 2015–16 była najmokrzejszą ery satelitarnej po 2021 roku.
+Lata 70. i 90. były suchymi dekadami, z prawie żadną otwartą wodą w przeciętnej zimie.
+Wszystko to jest relacją modelu o tym, co pogoda zrobiłaby z rezerwatem w jego dzisiejszym kształcie.
+
+### I jeszcze trochę
+To nie jest mapa powodziowa. Kwadraty mają 10 m boku; wąskie brzegi, małe rozlewiska i cienkie warstwy wody nad trawą są w tej skali niewidoczne — mniej więcej jedna trzecia wody w dużej powodzi. Moment, w którym kwadrat się zapala, znany jest tylko z dokładnością do pięciu–dziesięciu centymetrów zwierciadła.
+Błędy modelu przenoszą się dalej. Nawet skorygowany do piezometrów odtwarza zmierzone zwierciadło z dokładnością do około dwudziestu centymetrów i w najmokrzejszych miesiącach wciąż biegnie około dziesięciu centymetrów za nisko. Błąd dziesięciu centymetrów zmienia powierzchnię otwartej wody mniej więcej o połowę, bo rozlewiska pojawiają się nagle, gdy woda zbliża się do powierzchni. Żółty jest barwą stabilniejszą, dobrą do około 15 %; niebieski jest trafny z dokładnością do czynnika 2.1. Pierwsze dwa lata to model dochodzący do siebie po początkowym zgadywaniu.
+Zima rządzi przez cały rok. Krzywe pochodzą ze zdjęć z listopada–marca; miesiące letnie pokazują to, co wynikałoby ze zwierciadła, a nie to, co pokazałoby letnie zdjęcie.
+Dlaczego ta wersja modelu. Puszczony wstecz w suchszy okres, którego żadne dopasowanie nie widziało — piezometry mierzone w rezerwacie w latach 1989–96 — odtworzył ich średni poziom bez odchylenia, podczas gdy wersja szybciej zapominająca wyszła za mokro. Na tym teście opierają się suchsze dekady filmu (decyzja D-226).
+
+### Podziękowania i źródła
+Studium hydrologiczne Newborough Warren, 2026 — Martin Hollingham.
+Pogoda: miesięczny zapis RAF Valley, 1930–2026. Zwierciadło wód gruntowych: sieć piezometrów rezerwatu, 2005–2026. Grunt: pomiary z 2023 roku.
+Zobrazowania: Copernicus Sentinel-2, 2016–2026, bezpłatne i otwarte na licencji Copernicus. Zawiera zmodyfikowane dane Copernicus Sentinel 2019, 2020, 2021, 2023.
+Model, kod i dane: github.com/newbroman/Newborough_Hydrology. Metoda jest zapisana jako decyzja D-178; pełny pisemny przewodnik towarzyszy temu filmowi.
+Dźwięk: zsyntezowany przez własny kod filmu z modelowanego zwierciadła i powierzchni; bez nagrań.
+

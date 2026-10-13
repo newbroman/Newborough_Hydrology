@@ -60,7 +60,16 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.8.1"  # Hollingham (2026) - 2026-10-01 (D-226; Martin: "lets proceed as you outline").
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-13 (spec NRG_spec_script47_v1_9_languages_2026-10-13;
+#   Martin: "make a Polish and Welsh version of the hindcast video"). Every word the film shows is read
+#   from a language table, utils/film_text_<lang>.py (en is the 1.8.1 wording, moved out unchanged;
+#   cy and pl new), chosen by --lang en|cy|pl|all. One language is one full render: the presentation
+#   cut, the still, the caveats file and the free-run chart take a _<lang> suffix (paths.out_47_lang);
+#   English keeps its names, and the bare cut is English only. Month names come from the table, not
+#   strftime (locale). Pictures, sound, timing and chapters are the same in every language; the
+#   report figures on the method slides keep their English axes. FILM_OPEN_CLIP_LABEL retired into
+#   the table ("open_clip_label").
+# 1.8.1  # Hollingham (2026) - 2026-10-01 (D-226; Martin: "lets proceed as you outline").
 #   The "And a little more" slide says why the film runs the published form at the project datum:
 #   run back into the drier 1989-96 epoch (the CCW wells, which no fit sees) that form reproduced the
 #   average level without a bias, where the faster-forgetting intercept form came out too wet (Script
@@ -222,7 +231,7 @@ from utils.paths import (                                     # noqa: E402
     LIVING_WET_AREA_MODEL, OUT_03_MECHANISTIC_TABLE,
     DIR_47, OUT_47_LEVEL_MONTHLY, OUT_47_CALIBRATION, OUT_47_QUANTILE_MAP,
     OUT_47_PRESENTATION, OUT_47_FILM, OUT_47_CAVEATS, OUT_47_BACKGROUND,
-    out_47_still, FIGURE_MAP,
+    out_47_still, out_47_lang, FIGURE_MAP,
     OUT_45_MODEL_FIG, OUT_45_SSM_CURVES_FIG, OUT_45_SWITCHING_LEVELS_MAP,
     OUT_45_MODEL_AXES, OUT_45_SSM_CURVES_AXES, OUT_45_SSM_CURVES,
     OUT_00_CLIMATE_TIMESERIES_SHORT, OUT_47_FREE_RUN_FIG,
@@ -240,7 +249,7 @@ from utils.config import (                                    # noqa: E402
     FILM_TONE_F_LOW_HZ, FILM_TONE_F_HIGH_HZ, FILM_TONE_GAIN, FILM_FLOOD_VOICE_GAIN,
     FILM_TREMOLO_HZ, FILM_TREMOLO_DEPTH, FILM_AUDIO_BITRATE,
     FILM_INDEX_VIEW_S, FILM_TONE_HARMONIC_GAIN,
-    FILM_SOUND_TRACK, FILM_OPEN_TITLE_S, FILM_OPEN_CLIP_START, FILM_OPEN_CLIP_LABEL,
+    FILM_SOUND_TRACK, FILM_OPEN_TITLE_S, FILM_OPEN_CLIP_START,
     FILM_PAD_RATIOS, FILM_PAD_DRIVER_PCT, FILM_PAD_REST, FILM_PAD_SPREAD,
     FILM_CHORD_SEMITONES, FILM_CHORD_RELEASE_S,
     FILM_MIX_PAD, FILM_MIX_CHORD,
@@ -280,9 +289,10 @@ FRAME_EDGE, CALLOUT = "#cfc8b8", "#b03a2e"
 THUMB_STRETCH_PCT, THUMB_GAMMA = (2, 98), 0.8     # one stretch for every true-colour thumbnail
 THUMB_NIR_TOP = 1.6                       # NIR thumbnails show 0 .. this x the scene's floor median
 CHECK_EXTREMUM_HALF_WINDOW = 3            # months either side: a peak/trough is the max/min in it
-FILM_TITLE = "Newborough Warren under a century of weather"
-FILM_SUBTITLE = "Today's reserve under the weather of every month since 1930: a what-if, not a history"
-FILM_BYLINE = "Newborough Warren hydrology study, 2026 · Martin Hollingham"
+# 1.9.0: the film's words. T is the language table (utils/film_text); main() sets it from --lang,
+# and every function reads T at call time, so the English default holds for imports and tests.
+from utils import film_text                                   # noqa: E402
+T = film_text.load(film_text.DEFAULT_LANG)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -612,12 +622,12 @@ def _foot(*sources) -> str:
         if num:
             parts.append((f"{num}{panel}", sec))
     if not parts:
-        return "Report figure"
+        return T["foot_none"]
     if len(parts) == 1:
         num, sec = parts[0]
-        return f"Report Figure {num}" + (f", section {sec}" if sec else "")
-    return "Report Figures " + " and ".join(
-        f"{num}" + (f" (section {sec})" if sec else "") for num, sec in parts)
+        return T.f("foot_one", num=num) + (T.f("foot_one_section", sec=sec) if sec else "")
+    return T["foot_many"] + T["foot_and"].join(
+        f"{num}" + (T.f("foot_many_section", sec=sec) if sec else "") for num, sec in parts)
 
 
 def load_thumbs(floor: np.ndarray | None = None) -> list:
@@ -687,25 +697,25 @@ def plot_free_run(level: pd.DataFrame, stats: dict | None) -> None:
     span = (t >= t[ok].min()) & (t <= t[ok].max())
     fig, ax = plt.subplots(figsize=(10, 4.4))
     ax.plot(t[span], level.loc[span, "median_level_modelled_m"], color=COL_WATER, lw=1.6,
-            label="the model: weather only, running since 1930"
-            + (f" (R² {stats['r2_raw']:.2f}, " + _minus(f"{stats['bias_raw'] * 100:+.0f}")
-               + " cm on average)"
+            label=T["fr_label_model"]
+            + (T.f("fr_label_model_stats", r2=stats["r2_raw"],
+                   bias=_minus(f"{stats['bias_raw'] * 100:+.0f}"))
                if stats else ""))
     obs = level["median_level_observed_m"].where(ok)
     ax.plot(t[span], obs[span], color="black", lw=1.6,
-            label=f"the dipwells: median of the reference network (months with "
-                  f"{QMAP_MIN_WELLS}+ wells)")
+            label=T.f("fr_label_wells", n=QMAP_MIN_WELLS))
     ax.axhline(0, color="grey", lw=0.6, ls=":")
-    ax.set_ylabel("water table, m (0 = ground)")
-    ax.set_title("The warren's water table: the model against the wells", fontsize=12,
+    ax.set_ylabel(T["fr_ylabel"])
+    ax.set_title(T["fr_title"], fontsize=12,
                  weight="bold", loc="left")
     ax.grid(alpha=0.3)
     ax.legend(fontsize=9, loc="lower left", framealpha=0.9)
     fig.tight_layout()
     DIR_47.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT_47_FREE_RUN_FIG, dpi=160, facecolor=FILM_SLIDE_BG)   # 1.6.0: the slide's ground
+    target = out_47_lang(OUT_47_FREE_RUN_FIG, T.lang)
+    fig.savefig(target, dpi=160, facecolor=FILM_SLIDE_BG)   # 1.6.0: the slide's ground
     plt.close(fig)
-    saved(OUT_47_FREE_RUN_FIG.name)
+    saved(target.name)
 
 
 def _minus(s: str) -> str:
@@ -714,7 +724,7 @@ def _minus(s: str) -> str:
 
 def _thumb_label(d: dict) -> str:
     lvl = _minus(f"{d['h']:+.2f}")
-    return d["date"].strftime("%d %b %Y").lstrip("0") + f" · wells {lvl} m"
+    return T.f("thumb_label", when=T.when_day(d["date"]), lvl=lvl)
 
 
 def _check_targets(thumbs: list) -> list:
@@ -743,12 +753,13 @@ def _check_targets(thumbs: list) -> list:
             continue
         i = months.index(d["month"])
         j, kind = min(ext, key=lambda e: abs(e[0] - i))
-        when = pd.Timestamp(months[j] + "-01").strftime("%b %Y")
-        rel = (f"the {kind}" if j == i else
-               f"{abs(i - j)} mo {'after' if i > j else 'before'} the {when} {kind}")
+        when = T.when(pd.Timestamp(months[j] + "-01"))
+        rel = (T.f("rel_same", kind=T[kind]) if j == i else
+               T.f("rel_other", n=abs(i - j), dir=T["after" if i > j else "before"],
+                   when=when, kind=T[kind]))
         x = mdates.date2num(pd.Timestamp(d["month"] + "-01"))
         out.append(dict(points=[(x, float(tot[i]))],
-                        label=f"{d['date'].strftime('%b %Y')}\n{rel}"))
+                        label=f"{T.when(d['date'])}\n{rel}"))
     return out
 
 
@@ -758,71 +769,33 @@ def method_slides(n: int, rng: dict, thumbs: list, stats: dict | None = None) ->
     slide, else a dict naming the layout. Numbers from the feed; figure numbers from
     tools/figure_map.csv."""
     lo_s, hi_s = (_minus(f"{float(rng[k]):+.2f}") for k in ("min", "max"))
-    cop = "Contains modified Copernicus Sentinel data"
+    cop = T["cop"]
     out = []
 
-    if OUT_00_CLIMATE_TIMESERIES_SHORT.exists() and OUT_47_FREE_RUN_FIG.exists():
+    fr_fig = out_47_lang(OUT_47_FREE_RUN_FIG, T.lang)      # 1.9.0: the language's own chart
+    if OUT_00_CLIMATE_TIMESERIES_SHORT.exists() and fr_fig.exists():
         n4, _ = report_figure(OUT_00_CLIMATE_TIMESERIES_SHORT)
-        f4 = f"Figure {n4}" if n4 else "The climate figure"
-        low = (f", on average {abs(stats['bias_raw']) * 100:.0f} cm "
-               f"{'low' if stats['bias_raw'] < 0 else 'high'}" if stats else "")
+        f4 = T.f("f4_number", n4=n4) if n4 else T["f4_none"]
+        low = (T.f("low_phrase", cm=abs(stats["bias_raw"]) * 100,
+                   dir=T["low" if stats["bias_raw"] < 0 else "high"]) if stats else "")
         out.append((
-            "1.  A weather-driven groundwater model",
-            [f"{f4} (left) is the weather and the water table together, 2005–2026. (a) Rain, "
-             f"month by month, with its long-term average as the dashed line. (b) Evaporation, "
-             f"which peaks every summer. (c) The running balance of rain minus evaporation: it "
-             f"climbs through wet runs of months and falls through dry ones. (d) The water table, "
-             f"averaged over the reserve's dipwells, with the spread between wells shaded. Panels "
-             f"(c) and (d) rise and fall together: that is the link the model is built on.",
-             "From it the study learned a simple monthly rule: the water table rises with the "
-             "month's rain, falls with its evaporation, and drains back in proportion to how high "
-             "it stands.",
-             f"The chart above right is the test this film depends on. The blue line is the model, "
-             f"run on nothing but RAF Valley's weather since 1930 with no well reading to correct "
-             f"it; the black line is what the dipwells measured. The model follows the warren's wet "
-             f"and dry years{low}: the bias the next slide removes."],
-            _foot(OUT_00_CLIMATE_TIMESERIES_SHORT) + " · the model against the wells: this film's "
-            "own run",
-            dict(kind="model", left=OUT_00_CLIMATE_TIMESERIES_SHORT, right=OUT_47_FREE_RUN_FIG)))
+            T["m1_title"],
+            [T.f("m1_p1", f4=f4), T["m1_p2"], T.f("m1_p3", low=low)],
+            _foot(OUT_00_CLIMATE_TIMESERIES_SHORT) + T["foot_model_run"],
+            dict(kind="model", left=OUT_00_CLIMATE_TIMESERIES_SHORT, right=fr_fig)))
     else:
         warn("the climate figure or the free-run chart is missing; slide 1 is text only")
     out.append((
-        "Correcting the model to the wells",
-        ["Run freely for a century, the model drifts: it has no wells to hold it. So it is "
-         "corrected where the wells exist. Over 2005–2026 the model's months are ranked against "
-         "the measured months, and each modelled level is replaced by the measured level of the "
-         "same rank.",
-         "The order of wet and dry months is the model's own; the correction only removes its "
-         "bias. That same correction is then carried back through the years before the wells."],
+        T["m2_title"],
+        [T["m2_p1"], T["m2_p2"]],
         None, None))
 
     specs = (
-        (OUT_45_MODEL_FIG, "2.  Satellite pictures: the first calibration",
-         [f"Sentinel-2 has photographed the warren every few days since 2016, in 10 m squares. In "
-          f"the near-infrared, water is black and grass is bright, so a wet slack floor shows as a "
-          f"dark patch. {n} winter pictures were clear of cloud.",
-          "In each one the dark squares on the slack floor are counted, split into open water "
-          "(the darkest) and wet floor, and set against the water table the dipwells measured in "
-          "the same month. Each pair of points on the figure is one picture. Four of them are "
-          "shown below in that near-infrared band, driest to wettest, each scaled to its own "
-          "slack-floor brightness as the method reads it; each line leads to its points.",
-          "The points fall on two smooth curves. Wet floor grows gently as the water table rises; "
-          "open water stays near nothing until the water is close to the surface, then climbs "
-          "steeply. These curves turn the film's water table into the hectares in its title.",
-          f"They are fitted between {lo_s} m and {hi_s} m, the range the pictures saw. Above "
-          f"that, the film says BEYOND THE RECORD."],
+        (OUT_45_MODEL_FIG, T["m3_title"],
+         [T.f("m3_p1", n=n), T["m3_p2"], T["m3_p3"], T.f("m3_p4", lo_s=lo_s, hi_s=hi_s)],
          "fit", OUT_45_MODEL_AXES),
-        (OUT_45_SSM_CURVES_FIG, "The check: the model against the satellite",
-         ["Before the curves are trusted with the model, they are tested with it. Here the "
-          "curves are driven by the model's water table instead of the wells, and the area they "
-          "predict is compared, month by month, with the area the satellite actually measured.",
-          "The satellite takes no part in the model, so this is an independent test of the water "
-          "table itself, not of the curves alone. The same four near-infrared pictures are below; each "
-          "line leads to its month on the upper panel and names the peak or trough it belongs "
-          "to.",
-          "Wet floor is reproduced closely. Open water, which appears suddenly as the water "
-          "reaches the surface, is reproduced less well: a small error in the water table makes a "
-          "large one in the area of pools. That is why the film's blue is the less certain colour."],
+        (OUT_45_SSM_CURVES_FIG, T["m4_title"],
+         [T["m4_p1"], T["m4_p2"], T["m4_p3"]],
          "check", OUT_45_SSM_CURVES_AXES),
     )
     check = _check_targets(thumbs) if thumbs else []
@@ -844,15 +817,8 @@ def method_slides(n: int, rng: dict, thumbs: list, stats: dict | None = None) ->
 
     if OUT_45_SWITCHING_LEVELS_MAP.exists():
         out.append((
-            "3.  Where the water goes: the second calibration",
-            ["The curves say how much of the floor is wet; they do not say where. For that, each "
-             "10 m square's own history in the pictures is used: the water-table level at which it "
-             "first read wet floor (a, upper map) and first read open water (b, lower map).",
-             "The lowest hollows switch first, the higher margins last. Grey squares never switched "
-             "within the range the pictures saw, and the forest is left out because under trees the "
-             "satellite sees the canopy, not the ground.",
-             "The film lights each square when the model's water table reaches its level. WHERE the "
-             "colours appear was learned from the satellite; WHEN is the model."],
+            T["m5_title"],
+            [T["m5_p1"], T["m5_p2"], T["m5_p3"]],
             _foot(OUT_45_SWITCHING_LEVELS_MAP) + f" · {cop}",
             dict(kind="figure", image=OUT_45_SWITCHING_LEVELS_MAP)))
     else:
@@ -861,15 +827,9 @@ def method_slides(n: int, rng: dict, thumbs: list, stats: dict | None = None) ->
     if len(thumbs) >= 2:
         dry, wet = thumbs[0], thumbs[-1]
         out.append((
-            "What the warren looks like from space",
-            ["The driest and the wettest of those four pictures, each beside the film's own map "
-             "of the same month.",
-             "In the pictures the flooded slack floors are the dark patches between the pale dunes. "
-             "The film lights its yellow and blue in the same hollows as its water table rises.",
-             "This is an illustration, not a test. Where the colours appear was learned from these "
-             "same pictures, so some of the likeness is built in. The independent test is the "
-             "check two slides back, where the satellite takes no part in the model."],
-            f"{cop} {dry['date'].year}, {wet['date'].year}",
+            T["m6_title"],
+            [T["m6_p1"], T["m6_p2"], T["m6_p3"]],
+            T.f("m6_foot", cop=cop, y0=dry["date"].year, y1=wet["date"].year),
             dict(kind="compare", pairs=[dry, wet])))
     return out
 
@@ -888,122 +848,32 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
     s_ow, s_wf = float(ow["sigma_factor"]), float(wf["sigma_factor"])
     rng = feed["fitted_range_m"]
     yrs = sorted({d["date"].year for d in (thumbs or [])})
-    cop_years = ("Contains modified Copernicus Sentinel data " + ", ".join(map(str, yrs))
-                 if yrs else "Contains modified Copernicus Sentinel data")
-    caption = (
-        "Today's reserve under the\nweather of each past month. Not what actually\n"
-        "happened: a what-if. The model's water table is\ncorrected to match the wells over 2005–2026.\n\n"
-        "Blue: open water.  Yellow: wet floor.\n10 m squares from satellite pictures, 2016–2026.\n"
-        "Not a flood map: puddles and margins are too\nsmall to show.\n\n"
-        "The outline is the study area: the warren slack\nfloor. Nothing outside it is assessed.\n\n"
-        f"Totals in the title are from the corrected water\ntable; open water is right to within a\n"
-        f"factor of {s_ow:.1f}, wet floor to about {(s_wf - 1) * 100:.0f} %.")
-    caption_beyond = (
-        "\n\nTHIS MONTH IS BEYOND THE RECORD.\nThe water table is above the 2021 flood, the\n"
-        "wettest ever measured. The totals are the curves\nrun past the end of the data; pale orange is\n"
-        "slack floor never seen wet — wetter than\nanything on record, where exactly unknown.")
+    cop_years = T.f("cop_years", years=", ".join(map(str, yrs))) if yrs else T["cop"]
+    wf_pct = (s_wf - 1) * 100
+    caption = T.f("caption", s_ow=s_ow, wf_pct=wf_pct)
+    caption_beyond = T["caption_beyond"]
     before = [
-        ("About this film",
-         ["A film of how wet the dune slacks would have been, month by month, from 1930 to 2026 — if "
-          "the reserve as it stands today had lived through the weather of each of those years.",
-          "Newborough Warren is a sand-dune reserve on Anglesey. Between the dunes lie hundreds of low "
-          "hollows called slacks. In a wet winter the water table rises into them: the ground goes "
-          "damp, pools appear, and in a very wet spring whole slacks stand under water.",
-          "Only the warren is modelled, not the forest. Everything here is about the open dune slacks "
-          "of Newborough Warren — the study area outlined on the map. The planted forest beside them "
-          "is not part of the model and is not assessed; absence of yellow and blue cells does not "
-          "imply an absence of flooding, rather it has not been modelled."],
-         FILM_BYLINE, None),
-        ("How to read the film",
-         ["YELLOW is wet floor: saturated ground, or a thin sheet of water hidden in the grass.",
-          "BLUE is open water: pools you could see from the air.",
-          f"The outline on the map is the study area — {floor_ha:.0f} hectares of slack floor within "
-          "the warren. Everything the film says is about the ground inside it. Blank ground outside "
-          "the outline was not assessed; it is not a claim that it was dry.",
-          "The title gives the total of each across the study area, in hectares (a hectare is a "
-          "little larger than a rugby pitch).",
-          "The line at the bottom is the water table — how far below or above the ground the "
-          "groundwater sits, averaged over the reserve's monitoring wells. The red marker is where "
-          "the film has got to. The clock runs at three seconds a year; between one month's "
-          "reading and the next the map is drawn at levels in between, so the water rises and "
-          "drains smoothly, but the readings are the months.",
-          "The slides that follow show how it was made: a groundwater model, satellite pictures "
-          "and a map of where the water goes, joined together, each beside the report figures "
-          "that calibrate and test it."], None, None),
+        (T["about_title"], [T["about_p1"], T["about_p2"], T["about_p3"]], T["byline"], None),
+        (T["howto_title"],
+         [T["howto_p1"], T["howto_p2"], T.f("howto_p3", floor_ha=floor_ha), T["howto_p4"],
+          T["howto_p5"], T["howto_p6"]], None, None),
         *method_slides(n, rng, thumbs or [], stats),
-        *([("What you hear",
-            ["The sound is made from the water, month by month. Nothing in it is recorded.",
-             "A soft chord runs throughout. While the months play, one of its voices swells "
-             "with each month's rain, another with its evaporation, and the highest opens as the "
-             "water table rises; in the months beyond the record it trembles.",
-             "A steady chord rises with the water table, from silence in the driest months to "
-             "full at the top of the record; above the yellow line a seventh joins it, and the "
-             "chord tightens as the warren floods, leaning toward where the water is: right for "
-             "the east of the warren, left for the west.",
-             "Held notes sound while the water table is above the lines on the chart at the bottom: "
-             "one above the yellow line, where wet floor appears; a higher one above the blue "
-             "line, where open water appears; and the highest above the 2021 flood.",
-             "Underneath, a breath: one soft note through the winter half of each year, silence "
-             "through the summer, so a year lasts three seconds."],
+        *([(T["hear_title"],
+            [T["hear_p1"], T["hear_p2"], T["hear_p3"], T["hear_p4"], T["hear_p5"]],
             None, None)] if FILM_SOUND_TRACK == "warren" else []),
-        ("Please read this before watching",
-         ["It is today's warren, not the warren of the time. The rules were learned from 2005–2026 "
-          "and the ground is the 2023 survey, with Newborough Forest at its present size. The forest "
-          "was only planted between 1947 and 1965, and a forest lowers the water table around it. In "
-          "1939 there was no forest. The film answers a what-if — what would the reserve as it is "
-          "now have done under that weather — not what actually happened.",
-          "The map covers the warren study area only; blank outside it means not assessed, not "
-          "dry.",
-          f"Satellite pictures: {cop_years}. Report figures are from the Newborough Warren "
-          f"hydrology study."], None, None),
-        ("The biggest floods go beyond anything measured",
-         [f"The wettest spring on record was 2021. In some months — 1939, 1959, 1961–62 and 2000–01 — "
-          f"the model pushes the water table higher than that, above the {rng['max']:+.2f} m the "
-          f"curves were fitted to.",
-          "No picture has seen the warren like that. So those months are marked BEYOND THE RECORD, "
-          "the totals are the curves run past the end of the data, and the rest of the slack floor "
-          "turns PALE ORANGE: wetter than anything on record, where exactly we cannot say.",
-          "The honest claim for those winters is that they were bigger than 2021, nothing finer."],
+        (T["read_title"], [T["read_p1"], T["read_p2"], T.f("read_p3", cop_years=cop_years)],
          None, None),
+        (T["big_title"],
+         [T.f("big_p1", hmax=float(rng["max"])), T["big_p2"], T["big_p3"]], None, None),
     ]
     after = [
-        ("What the film says, cautions attached",
-         ["The 1960s were the wet decade, with several times the open water of an average winter in "
-          "any other decade.",
-          "The winters of 1961–62 and 2000–01 stand out as the two great floods of the century, with "
-          "1938–39 and 1958–59 behind them; 2015–16 was the wettest of the satellite era after 2021.",
-          "The 1970s and 1990s were the dry decades, with almost no open water in an average winter.",
-          "All of it is the model's account of what the weather would do to the reserve as it stands "
-          "today."], None, None),
-        ("And a little more",
-         ["It is not a flood map. The squares are 10 m across; narrow margins, small pools and thin "
-          "sheets over grass are invisible at that size — roughly a third of the water in a big "
-          "flood. The moment a square lights is known only to within five or ten centimetres of "
-          "water table.",
-          f"The model's mistakes carry through. Even corrected to the wells, it reproduces the "
-          f"measured water table to about twenty centimetres, and it still runs about ten "
-          f"centimetres low in the wettest months. A ten-centimetre error changes the open-water "
-          f"area by about half, because pools appear suddenly once the water nears the surface. "
-          f"Yellow is the steadier colour, good to about {(s_wf - 1) * 100:.0f} %; blue is right to "
-          f"within a factor of {s_ow:.1f}. The first two years are the model settling from its "
-          f"starting guess.",
-          "Winter rules all year. The curves come from November-to-March pictures; summer months "
-          "show what the water table would imply, not what a summer photograph would show.",
-          "Why this version of the model. Run back into a drier spell no fitting has seen — "
-          "wells measured on the reserve in 1989–96 — it reproduced their average level without "
-          "a bias, where a faster-forgetting version came out too wet. The drier decades of the "
-          "film rest on that test (decision D-226)."], None,
-         None),
-        ("Credits and sources",
-         ["Newborough Warren hydrology study, 2026 — Martin Hollingham.",
-          "Weather: RAF Valley monthly record, 1930–2026. Water table: the reserve's dipwell "
-          "network, 2005–2026. Ground: 2023 survey.",
-          f"Imagery: Copernicus Sentinel-2, 2016–2026, free and open under the Copernicus "
-          f"licence. {cop_years}.",
-          "Model, code and data: github.com/newbroman/Newborough_Hydrology. The method is recorded "
-          "as decision D-178; the full written guide accompanies this film.",
-          "Sound: synthesised by the film's own code from the modelled water table and "
-          "areas; no recordings."], None, None),
+        (T["says_title"], [T["says_p1"], T["says_p2"], T["says_p3"], T["says_p4"]], None, None),
+        (T["more_title"],
+         [T["more_p1"], T.f("more_p2", wf_pct=wf_pct, s_ow=s_ow), T["more_p3"], T["more_p4"]],
+         None, None),
+        (T["credits_title"],
+         [T["credits_p1"], T["credits_p2"], T.f("credits_p3", cop_years=cop_years),
+          T["credits_p4"], T["credits_p5"]], None, None),
     ]
     return caption, caption_beyond, before, after
 
@@ -1012,7 +882,8 @@ def write_caveats(caption, caption_beyond, before, after, feed, arrivals=None) -
     """Every string the film shows, in one file, so the wording is lint-visible
     and diffable — a frame is not."""
     DIR_47.mkdir(parents=True, exist_ok=True)
-    L = [f"# Frame text — 47_hindcast_film.py {__version__}",
+    target = out_47_lang(OUT_47_CAVEATS, T.lang)
+    L = [f"# Frame text — 47_hindcast_film.py {__version__}" + (f" — {T.lang} ({T.name})" if T.lang != "en" else ""),
          f"# wet-area model {feed['source_hash']} ({feed['source']})"]
     if arrivals:
         L.append("# the trace's arrival lines — the level at which each class first covers 1 ha "
@@ -1033,8 +904,10 @@ def write_caveats(caption, caption_beyond, before, after, feed, arrivals=None) -
             L += ([f"### {title}"] + [f"[figure] {f}" for f in figs]
                   + ([f"[satellite] {', '.join(thumbs)}"] if thumbs else []) + list(paras)
                   + ([f"[footer] {foot}"] if foot else []) + [""])
-    OUT_47_CAVEATS.write_text("\n".join(L) + "\n", encoding="utf-8")
-    saved(OUT_47_CAVEATS.name)
+    if T.missing:
+        L += ["", "## KEYS SHOWN IN ENGLISH (missing from this language)"] + [f"- {k}" for k in T.missing]
+    target.write_text("\n".join(L) + "\n", encoding="utf-8")
+    saved(target.name)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1447,10 +1320,10 @@ def _bar(ax, y_top, y_bot, x=None):
 
 def _footer(ax, num=None):
     """1.6.0: the running footer (the film's title, small capitals) and the slide count."""
-    ax.text(FILM_MARGIN, 0.052, FILM_TITLE.upper(), fontsize=FILM_FOOTER_PT * 0.82,
+    ax.text(FILM_MARGIN, 0.052, T["title"].upper(), fontsize=FILM_FOOTER_PT * 0.82,
             va="center", color="#8a8272")
     if num:
-        ax.text(1 - FILM_MARGIN, 0.052, f"{num[0]} / {num[1]}", fontsize=FILM_FOOTER_PT,
+        ax.text(1 - FILM_MARGIN, 0.052, T.f("slide_count", a=num[0], b=num[1]), fontsize=FILM_FOOTER_PT,
                 va="center", ha="right", color="#8a8272")
 
 
@@ -1577,7 +1450,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     caption, caption_beyond, before, after = text
     # 1.4.0: the bold beyond-the-record heading on a line of its own (it is drawn bold, and
     # the reflow measures regular weight)
-    head_b = "THIS MONTH IS BEYOND THE RECORD."
+    head_b = T["caption_beyond_head"]
     caption_beyond = caption_beyond.replace(head_b, head_b + "\n\n", 1)
     hmax = float(feed["fitted_range_m"]["max"])
     t = pd.PeriodIndex(level["month"], freq="M").to_timestamp()
@@ -1763,9 +1636,9 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         fig, ax = new_slide()
         left_column(ax, title_, paras, foot, num, x1=0.33)
         xs = (0.35, 0.6725, 0.995)
-        ax.text((xs[0] + xs[1]) / 2, 0.86, "Sentinel-2, true colour", fontsize=11,
+        ax.text((xs[0] + xs[1]) / 2, 0.86, T["compare_left"], fontsize=11,
                 ha="center", va="top", weight="bold", color="#333")
-        ax.text((xs[1] + xs[2]) / 2, 0.86, "The film, the same month", fontsize=11,
+        ax.text((xs[1] + xs[2]) / 2, 0.86, T["compare_right"], fontsize=11,
                 ha="center", va="top", weight="bold", color="#333")
         rows = ((0.50, 0.82), (0.15, 0.47))
         for d, (y0, y1) in zip(ex["pairs"], rows):
@@ -1779,8 +1652,8 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
             ax.text(r1[0] + r1[2] / 2, r1[1] - 0.006, _thumb_label(d), fontsize=9.5,
                     ha="center", va="top", color="#333")
             ax.text(r2[0] + r2[2] / 2, r2[1] - 0.006,
-                    f"{t[i].strftime('%b %Y')} · model {_minus(f'{lvl[i]:+.2f}')} m · "
-                    f"{aw[i]:.0f} ha open water, {af[i]:.0f} ha wet floor",
+                    T.f("compare_row", when=T.when(t[i]), lvl=_minus(f"{lvl[i]:+.2f}"),
+                        aw=aw[i], af=af[i]),
                     fontsize=9.5, ha="center", va="top", color="#333")
         return grab(fig, hold(title_, paras, figure=True))
 
@@ -1790,10 +1663,10 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     def title_block(ax, y):
         """The title (wrapped to two lines), the strap and the accent rule, from y downward;
         returns the strap's foot."""
-        fs_t, n_l = _title(ax, FILM_TITLE, x0_t, x1_title, y, fs_max=TITLE_PT_FILM, lines_max=2)
+        fs_t, n_l = _title(ax, T["title"], x0_t, x1_title, y, fs_max=TITLE_PT_FILM, lines_max=2)
         lh_t = fs_t * FRAME_DPI / 72.0 * 1.25 / FRAME_H
         y_s = y - n_l * lh_t - 0.015
-        return _text_block(ax, [FILM_SUBTITLE], x0_t, x1_title, y_s, y_s - 0.14,
+        return _text_block(ax, [T["subtitle"]], x0_t, x1_title, y_s, y_s - 0.14,
                            sizes=(15.0, 14.0, 13.0))
 
     def index_slide(entries):
@@ -1802,7 +1675,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         y_s = title_block(ax, 0.92)
         y_r = y_s - 0.03
         ax.plot([x0_t, x1_title - 0.02], [y_r, y_r], color=COL_WATER, lw=2.2)
-        ax.text(x0_t, y_r - 0.03, "Contents", fontsize=13, weight="bold", va="top",
+        ax.text(x0_t, y_r - 0.03, T["contents"], fontsize=13, weight="bold", va="top",
                 color=FILM_COL_TITLE)
         # one column inside the text column (1.6.0): the size is the largest at which every
         # entry fits above the footer
@@ -1817,11 +1690,11 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
                     color=COL_WATER, weight="bold")
             ax.text(x0_t + 0.054, y, title_, fontsize=fs, va="top", color="#2a2a2a")
         _bar(ax, 0.92, y_first - (len(entries) - 1) * lh - lh * 0.75)
-        ax.text(x0_t, 0.052, FILM_BYLINE, fontsize=FILM_FOOTER_PT, va="center", color="#8a8272")
-        ax.text(x1_title - 0.02, 0.052, f"1 / {n_slides}", fontsize=FILM_FOOTER_PT, va="center",
+        ax.text(x0_t, 0.052, T["byline"], fontsize=FILM_FOOTER_PT, va="center", color="#8a8272")
+        ax.text(x1_title - 0.02, 0.052, T.f("slide_count", a=1, b=n_slides), fontsize=FILM_FOOTER_PT, va="center",
                 ha="right", color="#8a8272")
         # The contents are scanned, not read: a fixed glance per entry, not a word count.
-        words = len(FILM_TITLE.split()) + len(FILM_SUBTITLE.split())
+        words = len(T["title"].split()) + len(T["subtitle"].split())
         return grab(fig, FILM_SLIDE_LEAD_S + words / (FILM_WORDS_PER_MINUTE / 60.0)
                     + INDEX_ENTRY_S * len(entries) + FILM_INDEX_VIEW_S)
 
@@ -1832,7 +1705,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         y_r = y_s - 0.03
         ax.plot([x0_t, x1_title - 0.02], [y_r, y_r], color=COL_WATER, lw=2.2)
         _bar(ax, 0.62, y_r)
-        ax.text(x0_t, 0.052, FILM_BYLINE, fontsize=FILM_FOOTER_PT, va="center", color="#8a8272")
+        ax.text(x0_t, 0.052, T["byline"], fontsize=FILM_FOOTER_PT, va="center", color="#8a8272")
         return grab(fig, FILM_OPEN_TITLE_S)
 
     def build_slide(title_, paras, foot, extra, num):
@@ -1880,14 +1753,14 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     fmt_level = [_minus(f"{v:+.2f} m") for v in lvl]
     fmt_ow = [f"{v:.0f} ha" for v in aw]
     fmt_wf = [f"{v:.0f} ha" for v in af]
-    fmt_mname = [d.strftime("%B") for d in t]
+    fmt_mname = [T.month(d.month) for d in t]
     fmt_year = [d.strftime("%Y") for d in t]
-    study = f"study area {floor_ha:.0f} ha"
-    beyond = "BEYOND THE RECORD"
+    study = T.f("study", floor_ha=floor_ha)
+    beyond = T["beyond"]
     # The month name is right-aligned in its slot and the year follows at a fixed
     # place, so the year never moves as the month names change length.
-    fields = (("", fmt_mname), ("", fmt_year), ("water table", fmt_level),
-              ("open water", fmt_ow), ("wet floor", fmt_wf))
+    fields = (("", fmt_mname), ("", fmt_year), (T["readout_water_table"], fmt_level),
+              (T["readout_open_water"], fmt_ow), (T["readout_wet_floor"], fmt_wf))
 
     def line_width(fs):
         w = 0.0
@@ -1935,8 +1808,8 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     # Where each colour arrives. Drawn in its own colour so the line and the cells
     # it describes cannot be mixed up, and labelled, because an unlabelled
     # horizontal line on a hydrograph reads as a threshold someone chose.
-    for cls, colour, label in (("wet_floor", COL_FLOOR, "wet floor appears"),
-                               ("open_water", COL_WATER, "open water appears")):
+    for cls, colour, label in (("wet_floor", COL_FLOOR, T["arrival_wet_floor"]),
+                               ("open_water", COL_WATER, T["arrival_open_water"])):
         hv = arrivals.get(cls)
         if hv is None:
             continue
@@ -1952,16 +1825,16 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     ax2.set_ylim(TRACE_LO_M, TRACE_HI_M)
     ax2.set_xlim(t[0], t[-1])
     xlim_full = ax2.get_xlim()
-    ax2.set_ylabel("water table, m\n(0 = ground)", fontsize=9)
+    ax2.set_ylabel(T["hydro_ylabel"], fontsize=9)
     ax2.tick_params(labelsize=9)
     ax2.margins(x=0)
     # The eras head the axes (1.4.0); inside, they crowded the 2021 band.
-    era = [ax2.text(t[0], 1.03, "before the wells: model only, corrected to the well years",
+    era = [ax2.text(t[0], 1.03, T["era_before"],
                     transform=ax2.get_xaxis_transform(), fontsize=9, color="#555", va="bottom"),
-           ax2.text(wells_from, 1.03, "wells measured", transform=ax2.get_xaxis_transform(),
+           ax2.text(wells_from, 1.03, T["era_wells"], transform=ax2.get_xaxis_transform(),
                     fontsize=9, color="#555", va="bottom"),
            ax2.text(t[len(t) // 40], (hmax + TRACE_HI_M) / 2,
-                    "above the 2021 flood: beyond anything measured",
+                    T["era_above"],
                     fontsize=8.5, color="#b5532a", va="center")]
     marker = ax2.axvline(t[0], color="#c0504d", lw=1.4)
     # The opening clip's label (1.3.0), in the strip between the map and the hydrograph;
@@ -2040,7 +1913,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
     entries, pos = [], 0                           # (title, start frame) for the index
     for title_, fr in seg_before:
         entries.append((title_, pos)); pos += len(fr)
-    entries.append((f"The film: {t[0].year}–{t[-1].year}", pos)); pos += n_sim
+    entries.append((T.f("chapter_film", y0=t[0].year, y1=t[-1].year), pos)); pos += n_sim
     for title_, fr in seg_after:
         entries.append((title_, pos)); pos += len(fr)
     idx, opening, clip = [], [], []
@@ -2058,15 +1931,16 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
         idx = index_slide(entries)
         if len(idx) != shift:
             raise RuntimeError("the title page changed length between probe and render")
-        entries[:0] = [("Opening", 0),
-                       (f"{FILM_OPEN_CLIP_LABEL}: {t[c0].year}–{t[-1].year}", len(opening)),
-                       ("Title and contents", n_open)]
+        entries[:0] = [(T["chapter_opening"], 0),
+                       (T.f("chapter_clip", label=T["open_clip_label"], y0=t[c0].year, y1=t[-1].year),
+                        len(opening)),
+                       (T["chapter_title"], n_open)]
     open_marks = ([None] * len(opening) + [i for i in clip for _ in range(fpm)]
                   + [clip[-1]] * (2 * FILM_FPS)) if clip else []
     marks = (open_marks + [None] * len(idx) + [None] * sum(len(f) for _, f in seg_before)
              + sim_marks + [None] * sum(len(f) for _, f in seg_after))
 
-    target = OUT_47_PRESENTATION if presentation else OUT_47_FILM
+    target = out_47_lang(OUT_47_PRESENTATION, T.lang) if presentation else OUT_47_FILM
     quality = FILM_QUALITY_PRESENTATION if presentation else FILM_QUALITY_FULL
     import tempfile                                           # noqa: PLC0415
     import time as _time                                      # noqa: PLC0415
@@ -2083,7 +1957,7 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
                 n_written += 1
         if clip:
             put(opening)
-            clip_txt.set_text(FILM_OPEN_CLIP_LABEL)
+            clip_txt.set_text(T["open_clip_label"])
             # 1.4.0: the hydrograph zooms to the clip's years; the eras are off-screen
             ax2.set_xlim(t[clip[0]], t[-1])
             for e_ in era:
@@ -2135,16 +2009,22 @@ def render(level, cells, feed, floor_ha, text, arrivals, presentation, still_mon
           + (f", with sound and {len(entries)} chapters" if presentation else ""))
     if still:
         m, a = next(iter(still.items()))
-        Image.fromarray(a).save(out_47_still(m))
-        saved(out_47_still(m).name)
+        Image.fromarray(a).save(out_47_lang(out_47_still(m), T.lang))
+        saved(out_47_lang(out_47_still(m), T.lang).name)
     return 0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ENTRY POINT
 # ─────────────────────────────────────────────────────────────────────────────
-def main(no_film: bool = False, check_phase27: str | None = None) -> int:
-    banner("47", "The century hindcast film", version=__version__)
+def main(no_film: bool = False, check_phase27: str | None = None, lang: str = "en") -> int:
+    """One language per call: the recurrence and the CSVs are language-free and are written
+    identically each time; the words, the still, the caveats file, the free-run chart and the
+    presentation cut are the language's. The bare cut is English only."""
+    global T
+    T = film_text.load(lang, warn=warn)
+    banner("47", "The century hindcast film" + (f" — {T.name}" if lang != "en" else ""),
+           version=__version__)
     phase(1, "Committed inputs")
     clim = load_climate()
     betas = load_betas()
@@ -2208,7 +2088,8 @@ def main(no_film: bool = False, check_phase27: str | None = None) -> int:
         return 1
     rc = render(level, (ow, wf, floor), feed, floor_ha, text, arrivals, presentation=True,
                 still_month=wettest, climate=clim)
-    rc |= render(level, (ow, wf, floor), feed, floor_ha, text, arrivals, presentation=False)
+    if lang == "en":
+        rc |= render(level, (ow, wf, floor), feed, floor_ha, text, arrivals, presentation=False)
     done("47")
     return rc
 
@@ -2219,5 +2100,12 @@ if __name__ == "__main__":
                     help="write the CSVs and the frame text, render nothing")
     ap.add_argument("--check-phase27", metavar="CSV", default=None,
                     help="also report this run against a phase 27 *_hindcast_monthly.csv")
+    ap.add_argument("--lang", default=film_text.DEFAULT_LANG,
+                    choices=list(film_text.LANGS) + ["all"],
+                    help="the film's language (1.9.0): en, cy, pl, or all in turn")
     args = ap.parse_args()
-    sys.exit(main(no_film=args.no_film, check_phase27=args.check_phase27))
+    langs = list(film_text.LANGS) if args.lang == "all" else [args.lang]
+    rc_all = 0
+    for lang_ in langs:
+        rc_all |= main(no_film=args.no_film, check_phase27=args.check_phase27, lang=lang_)
+    sys.exit(rc_all)

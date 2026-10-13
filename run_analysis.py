@@ -190,7 +190,9 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.24.0"  # Hollingham (2026) - 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10). A run is
+__version__ = "2.25.0"  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). --film-lang en|cy|pl|all passes the
+#   film's language to Script 47 with --hindcast-film; default en, so the registered step is unchanged unless asked.
+# 2.24.0  # Hollingham (2026) - 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10). A run is
 #   refused while ANOTHER chat holds the `pipeline` claim (tools/doc_lock.py; this chat's name is
 #   NRG_CHAT): two chats changing scripts in one tree produce outputs that match neither. --no-claim
 #   skips the check for a single read-only step and is refused with --full and --from.
@@ -1979,7 +1981,7 @@ def run_greyscale(full_rerun: bool = False) -> None:
     print()
 
 
-def run_hindcast_film() -> None:
+def run_hindcast_film(lang: str = "en") -> None:
     """Render the century hindcast film (Script 47, on demand — T-39, D-178).
 
     Reads only committed inputs and the wet-area feed (Steps 45/46). Renders a
@@ -1987,8 +1989,8 @@ def run_hindcast_film() -> None:
     (imageio-ffmpeg; see MACHINE_SETUP.md), which is why it is not part of --full.
     """
     rs = _STEP_BY_SCRIPT["47_hindcast_film.py"]
-    say_info(f"Rendering the century hindcast film (step {rs.index}); needs ffmpeg.")
-    run_script(rs.script, rs.label)
+    say_info(f"Rendering the century hindcast film (step {rs.index}, language {lang}); needs ffmpeg.")
+    run_script(rs.script, rs.label, ["--lang", lang])
 
 
 def show_help() -> None:
@@ -2295,6 +2297,9 @@ def main() -> None:
                         help="Re-run full pipeline in B&W mode then convert (best quality)")
     parser.add_argument("--hindcast-film", dest="hindcast_film", action="store_true",
                         help="Render the century hindcast film (Script 47 only; needs ffmpeg)")
+    parser.add_argument("--film-lang", dest="film_lang", default="en",
+                        choices=["en", "cy", "pl", "all"],
+                        help="With --hindcast-film: the film's language, or all three in turn (2.25.0)")
     parser.add_argument("--manifest-only", dest="manifest_only", action="store_true",
                         help="Write outputs/pipeline_manifest.json and exit "
                              "(no steps are run)")
@@ -2371,7 +2376,7 @@ def main() -> None:
             run_greyscale(full_rerun=False)
         elif args.hindcast_film:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
-            run_hindcast_film()
+            run_hindcast_film(args.film_lang)
         elif args.supplementary:
             _banner("NEWBOROUGH WARREN GROUNDWATER ANALYSIS PIPELINE")
             run_supplementary()

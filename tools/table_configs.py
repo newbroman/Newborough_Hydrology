@@ -1215,9 +1215,10 @@ TABLES = [
         # percentiles on the full record, Model A at DRAINAGE_DATUM, Model A at each well's depth to MHW, Model B.
         "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv",
                     "r03": "outputs/03_state_space_model/03_report_numbers.csv",
-                    "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv"},
+                    "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
+                    "r08": "outputs/08_model_benchmarking/08_cluster_nse_medians.csv"},
         "rows": {"source": "wb"},
-        "header": ["Cluster", "Floor", "Network datum", "Deepest datum",
+        "header": ["Cluster", "n", "Floor", "Datum", "Deep",
                    "Model A, wells", "MHW datum, wells", "Model B, wells"],   # defined in the caption
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {
@@ -1226,6 +1227,8 @@ TABLES = [
                 "3": "C3 Western Residual",
                 "4": "C4 Main Forest",
                 "5": "C5 Coastal Forest"}},
+            {"fmt": "template", "template": "{n}",   # reference wells in the cluster (Script 08's count)
+             "params": {"n": {"source": "r08", "key": "Cluster", "col": "n", "param": "C{Cluster}"}}},
             {"fmt": "template", "template": "{v:.0f}",
              "params": {"v": {"source": "r03", "param": "partition_drainage_share_pct_at_min_datum", "where": {"Well": "{Label}"}}}},
             {"fmt": "template", "template": "{v:.0f}",

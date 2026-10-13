@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_0.odt — do not edit. source-sha256=12ef4f57f796c196 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_1.odt — do not edit. source-sha256=d5e14ca1606660a9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -135,7 +135,8 @@ A rule of thumb follows: a record should span several return times before the re
 
 The wells fall into five groups that behave alike: three in open dune (the Lake Edge, the Dune and the Western Residual) and two under pine (the Main Forest and the Coastal Forest). Using each version of the model for what it is good at, the paper reports for each group:
 
--   **How the water budget splits.** Drainage carries 86 % of the water lost at the lake edge, 69 % in the open dune, 65 % in the western dune, 63 % under the coastal forest and only 24 % under the main forest, where the trees take most of the rest. Evaporation and plant use take whatever drainage does not.
+-   **How the water budget splits.** With the floor anywhere on the plateau, drainage carries 86--89 % of the water lost at the lake edge, 69--72 % in the open dune, 65--69 % in the western dune, 63--68 % under the coastal forest and only 24--28 % under the main forest, where the trees take most of the rest. Evaporation and plant use take whatever drainage does not.
+-   **How sure is that?** Moving the floor around the plateau, or setting it at each well's depth to high tide, changes these figures by only a few points, and individual wells scatter a little around their group. The bigger uncertainty is the version of the model. Letting the model work out its own resting level (Model B) gives drainage only 29--60 % of the loss, and least at the lake edge (37 %). The paper argues that the fixed floor is the right basis for the water budget, because Model B's resting level sits close to the average water level rather than at anything physical; but only a direct measurement of drainage or evaporation at the site could settle it.
 -   **How quickly the water returns to normal.** From about 2.1 months at the lake edge to about 13.3 months under the coastal forest. Under the main forest it is too slow to measure on the present record.
 
 These are shares, not amounts. Turning them into millimetres of water needs one more property of the sand, how much water it releases as the water table falls, which the water levels alone cannot give. That is dealt with in the companion study of the site.

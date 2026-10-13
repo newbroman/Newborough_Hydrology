@@ -1,5 +1,5 @@
 <title>Ask Newborough Warren</title>
-<!-- chat_page_template.html 1.4.0 (2026-10-10; 1.4.0: the project asks visitors to support it by starting in Claude, which costs it nothing; Start in Claude is the main button and a reminder follows the second answer, D-249; 1.3.0: anonymous feedback under each answer and in the footer, replies through GitHub issues, D-248; 1.2.2: the logging notice says plainly that questions are recorded and the people asking are not; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
+<!-- chat_page_template.html 1.4.1 (2026-10-13; 1.4.1: says the report on this website, not the published report: none of the study's papers is published yet; 1.4.0: the project asks visitors to support it by starting in Claude, which costs it nothing; Start in Claude is the main button and a reminder follows the second answer, D-249; 1.3.0: anonymous feedback under each answer and in the footer, replies through GitHub issues, D-248; 1.2.2: the logging notice says plainly that questions are recorded and the people asking are not; 1.2.1: a "Start in Claude" button up front and in the footer, so a visitor who expects many questions begins there and keeps one conversation; 1.2.0: 10 questions a day and the handover to the Claude version, D-247; 1.1.0: the public target) — the page tools/build_chat_corpus.py fills.
      The corpus is embedded at the placeholder below; never edit outputs/chat/chatbot.html. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -102,7 +102,7 @@ textarea:focus{outline:none}
 <div class="wrap">
   <header>
     <h1>Ask Newborough Warren</h1>
-    <p>Questions about the long-term groundwater study of the Newborough Warren dunes, answered from the published report, its supplements and the pipeline's committed numbers. Every statement links to the passage or number it rests on.</p>
+    <p>Questions about the long-term groundwater study of the Newborough Warren dunes, answered from the study's report on this website, its supplements and the pipeline's committed numbers. The study's journal papers are still in preparation and are not included. Every statement links to the passage or number it rests on.</p>
     <div class="scope" id="scope"></div>
   </header>
 
@@ -502,7 +502,7 @@ async function ask(){
 
 function setMode(){
   let t;
-  if(live) t = PUBLIC ? "Answers written by Claude from the published record" :
+  if(live) t = PUBLIC ? "Answers written by Claude from the study's website" :
                (toolsOK?"Answers by Claude, using your Claude account":"Answers by Claude from the top search results");
   else t = PUBLIC ? (dailyDone ? "Search only — today's written answers are used" : "Search only — written answers are not available just now") :
                "Search only — open this page in Claude to get written answers";

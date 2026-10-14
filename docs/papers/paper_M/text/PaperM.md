@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_16.odt — do not edit. source-sha256=91d1140b03b2ddcd pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_17.odt — do not edit. source-sha256=fad4dcd43effdef9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
@@ -287,6 +287,10 @@ A second epoch, Ranwell's readings of 1951--53 (Ranwell, 1959), tests the same q
 
 The two epochs disagree, and in the way the two tests of Section 6.4 do. The swing favours a shallow datum or a free intercept. The sustained shift favours a datum on the plateau.
 
+What would the model need to match Ranwell's readings, and what could supply it? This was explored after the comparison above, so it describes rather than tests (Script 50, D-261). Scaling each coefficient of the paired wells, in turn and together, the readings ask for a weaker response to rain (β₁ ×0.7), a stronger evaporative draw (β₂ ×1.6) and faster drainage (β₃ ×4.0). The median efficiency across the 11 site--well pairs then rises from 0.57 to 0.84. Faster drainage is the shallow datum above in another form. On its own, though, the drainage scale is not identified: much slower and much faster drainage each improve the fit, and the pairs divide 7 to 4 between them.
+
+Each candidate cause was then sized against that need. The weather was ordinary: every seasonal statistic of 1951--53 lies between percentiles 43 and 68 of all three-year windows of the climate record, and the five years before them at percentile 48. Little of a departure survives two years in the model (a fraction of 0.03--0.29 at the three main pairs), so earlier years cannot carry over within it. Rain from Ranwell's own gauge on the site makes the hindcast worse at every pair (median efficiency −0.35). Ranwell's pipes could not read below about a metre, but capping the model there leaves the efficiency unchanged (0.57). A barer, rabbit-grazed dune would have recharged more and transpired less: lysimeters on dune sand drained 77 % of rain under bare sand and 44 % under natural dune vegetation (Minderman and Leeflang, 1968). That is the opposite of what is needed, and at its upper bound it lowers the efficiency to −0.03. The forest planted since now stands within its drawdown reach of one of the three sites. Open-ground wells within that reach differ from those beyond it by at most 11 % in any coefficient, two of the three in the wrong direction, and removing that difference at the 6 pairs concerned lifts the median efficiency only to 0.60. A sea level a few centimetres lower moves the drainage base the wrong way, and too little to matter. Two candidates point the right way: drains dug for the young plantation, and a lower outlet of Llyn Rhos-Ddu beside one of Ranwell's three sites. Neither is recorded, and the record cannot size either. What can be measured is the result: relative to the model, the seasonal swing at the three main pairs was 3--20 % smaller then than it is now.
+
 ## []{#anchor-1}6.6 A second, slower store?
 
 The two epochs ask for two time scales. One is a fast return of the level to its mean, which the seasonal swing of 1951--53 and the free-intercept form both show. The other is a slow one, which holds the level through the drier decade where the no-intercept form at the network datum places it. A single linear store has one time scale, so it can match one epoch or the other but not both. The natural explanation is a second, slower store in parallel with the first, responding to the same rainfall and evaporation.
@@ -388,7 +392,7 @@ The one exception is the pre-canopy test of Section 6.6, which moves the coeffic
 
 The forest cluster's free-intercept drainage coefficient is not identified on the record. This withholds it from the quantities that depend on the mean-reversion time. A slow response is one reading of that. A forcing that misrepresents the forest's evapotranspiration is another, and the direct test of Section 5.5 did not resolve between them.
 
-The independent tests of the sustained response rest on 9 wells in one decade, and on three sites, approximately placed, in another. Finally, both frame tests of Section 4.6 rest on fit, which by Section 4.3 tracks mean levels. They show that the drainage base follows the ground, not where it physically lies.
+The independent tests of the sustained response rest on 9 wells in one decade, and on three sites, approximately placed, in another; why the earlier epoch's swing differs is not resolved (Section 6.5). Finally, both frame tests of Section 4.6 rest on fit, which by Section 4.3 tracks mean levels. They show that the drainage base follows the ground, not where it physically lies.
 
 # []{#anchor-1}9. Conclusions
 
@@ -445,6 +449,8 @@ Knotters, M. and van Walsum, P.E.V. (1997) Estimating fluctuation quantities fro
 Met Office (2018) UKCP18 Regional Projections on a 12 km grid over the UK for 1980--2080. Centre for Environmental Data Analysis. Met Office Hadley Centre. Available at: https://catalogue.ceda.ac.uk/uuid/b4d24b3df3754b9d9028447eb3cbd878
 
 Met Office (2024) MIDAS Open: UK daily rainfall data, v202407. NERC EDS Centre for Environmental Data Analysis. doi:10.5285/8606115371e44b079e25d479cfec465c
+
+Minderman, G. and Leeflang, K.W.F. (1968) The amounts of drainage water and solutes from lysimeters planted with either oak, pine or natural dune vegetation, or without any vegetation cover. *Plant and Soil* 28(1), 61--80.
 
 Nash, J.E. and Sutcliffe, J.V. (1970) River flow forecasting through conceptual models. Part I --- A discussion of principles. *Journal of Hydrology* 10(3), 282--290.
 

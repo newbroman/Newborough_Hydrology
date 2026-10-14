@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.65.0"  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): OUT_50_FOREST_FORCING.
+__version__ = "1.66.0"  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_EPOCH_CANDIDATES,
+#   OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH.
+# 1.65.0  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): OUT_50_FOREST_FORCING.
 # 1.64.0  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). out_47_lang(): the per-language name of a
 #   Script 47 output (47_03_hindcast_presentation_cy.mp4 ...); English keeps the plain names. Additive.
 # 1.63.0  # Hollingham (2026) - 2026-10-10 (T-121, D-255). OUT_50_PRECANOPY (E8g). Additive.
@@ -1248,6 +1250,7 @@ RANWELL_LEVELS          = DATA_DIR / "ranwell_1951_53_water_levels.csv"
 MIDAS_RAIN_DIR          = DATA_DIR / "midas_rain"   # Met Office MIDAS Open daily rain gauges (E8d, D-234)
 RANWELL_RANGES          = DATA_DIR / "ranwell_1951_53_monthly_ranges.csv"
 RANWELL_PARC_MAWR_RAIN  = DATA_DIR / "ranwell_1950_53_parc_mawr_rain.csv"
+RANWELL_EPOCH_CANDIDATES = DATA_DIR / "ranwell_epoch_candidates.csv"   # E11: literature sizing of the candidates (D-261)
 # Canopy state in 1989 and felling year per well, from site history. Optional:
 # Script 39 emits blank columns without it. The modern in_forest flag cannot
 # stand in for this — several of these wells were felled between the two epochs.
@@ -1422,6 +1425,8 @@ OUT_50_CLEARANCE_STEP = DIR_50 / "50_24_clearance_step_by_well.csv"   # E8f, D-2
 OUT_50_CLEARANCE_FIG = DIR_50 / "50_25_clearance_step.png"             # E8f, D-236
 OUT_50_PRECANOPY     = DIR_50 / "50_26_precanopy_by_case.csv"          # E8g, T-121, D-255
 OUT_50_FOREST_FORCING = DIR_50 / "50_27_forest_forcing_by_well.csv"   # E10, D-260
+OUT_50_RANWELL_NEED  = DIR_50 / "50_28_ranwell_need_grid.csv"        # E11, D-261
+OUT_50_RANWELL_EPOCH = DIR_50 / "50_29_ranwell_epoch_candidates.csv" # E11, D-261
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

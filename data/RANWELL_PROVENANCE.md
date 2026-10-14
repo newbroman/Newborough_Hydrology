@@ -68,3 +68,13 @@ table profile, arbitrary datum); Fig. 8 (soil moisture). Text values used direct
 70–100 cm at all sites; winter flooding 1950–51 (pools to 5000 m² at Clwt Gwlyb, 1.5 m deep in
 younger slacks); a 2.5 cm rain event 10–13 April raising slack water tables about 20 cm; no
 tidal signal at Site 10.
+
+## `ranwell_epoch_candidates.csv` — literature sizing of what could have changed since 1951–53 (E11, D-261)
+
+Not digitised data: one row per candidate cause of the difference between Ranwell's epoch and the modern record,
+with the model coefficient it would act on, its direction, and the range of scale it could plausibly impose (`k_low`,
+`k_high`) or the shift of the drainage base (`base_shift_m_*`), each with its evidence and source. Written 2026-10-14
+by Claude Opus 5.5 (session 015vCVAbUkwZHg65xKiYZr5j, chat "PaperM-methods") from a literature search; the lysimeter
+figures (77 and 44 % of rain drained, 23 and 56 % evaporated, under bare sand and natural dune vegetation, 1952–61)
+were read from Minderman and Leeflang (1968) itself. Candidates with no quantitative evidence carry empty bounds and are
+reported for direction only. Script 50 sizes each against the need it measures; the file decides no verdict.

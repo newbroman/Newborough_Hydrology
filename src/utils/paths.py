@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.64.0"  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). out_47_lang(): the per-language name of a
+__version__ = "1.65.0"  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): OUT_50_FOREST_FORCING.
+# 1.64.0  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). out_47_lang(): the per-language name of a
 #   Script 47 output (47_03_hindcast_presentation_cy.mp4 ...); English keeps the plain names. Additive.
 # 1.63.0  # Hollingham (2026) - 2026-10-10 (T-121, D-255). OUT_50_PRECANOPY (E8g). Additive.
 # 1.62.1  # Hollingham (2026) - 2026-10-08 (D-244). Comment only: OUT_18_CLUSTER_HALFLIFE_SUMMARY
@@ -1420,6 +1421,7 @@ OUT_50_FELLING_FIG = DIR_50 / "50_23_felling_regrowth.png"              # E8e, D
 OUT_50_CLEARANCE_STEP = DIR_50 / "50_24_clearance_step_by_well.csv"   # E8f, D-236
 OUT_50_CLEARANCE_FIG = DIR_50 / "50_25_clearance_step.png"             # E8f, D-236
 OUT_50_PRECANOPY     = DIR_50 / "50_26_precanopy_by_case.csv"          # E8g, T-121, D-255
+OUT_50_FOREST_FORCING = DIR_50 / "50_27_forest_forcing_by_well.csv"   # E10, D-260
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

@@ -58,6 +58,7 @@ OUTPUTS (outputs/50_record_length/)
   50_21 .. 50_23                     E8e, the 1998 felling north of NW9 and its regrowth (D-235)
   50_24 .. 50_25                     E8f, the 2014/15 shore clearance step (D-236)
   50_26_precanopy_by_case.csv        E8g, a store drawn down by the plantation: the pre-canopy test (T-121, D-255)
+  50_27_forest_forcing_by_well.csv   E10, the forest forcing test (D-260)
   50_report_numbers.csv
 
 Registered in run_analysis.py, Phase 19, tier X, opt-in (--with-supplementary).
@@ -65,7 +66,17 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-10 (T-121, D-255; Martin 17:06-17:11, spec
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-13 (D-260; Martin 22:05 "1- 0.1, 2 agreed, 3 - yes to both. 4 script 50",
+#   22:08 "f3"; spec NRG_spec_forest_ET_forcing_2026-10-13 as revised). E10: is the forest's poor forecasting the
+#   drainage or the forcing? Every C4/C5 well under F0 observed forcing, F1 rainfall less FOREST_INTERCEPTION, F2
+#   interception scaled by Script 41's canopy (clearfell region at EDGE_WELLS, forest control elsewhere), F3 F2 with
+#   a post-felling evaporation coefficient at the edge wells (full record only: the felling falls at the split).
+#   Both forms; full-record BIC, forward/reverse split NSE, Model B identification, summer-minus-winter residual; the
+#   rule fixed before the run (FORCING_NSE_GAIN). 50_27_forest_forcing_by_well.csv; forest_forcing_* report numbers.
+#   Phase 13 E10, outputs 14. POST HOC (Martin 22:18 "b for the forest", after the rule's run; outside the rule,
+#   forest_forcing_posthoc_* keys): F2e changes only the edge wells' forcing; F2s replaces the inner wells' canopy
+#   with one step at the felling, a placebo for the inner-well forecast gain.
+# 1.8.0  # Hollingham (2026) - 2026-10-10 (T-121, D-255; Martin 17:06-17:11, spec
 #   NRG_spec_precanopy_T121_T122_2026-10-10, "Please continue" 18:06). E8g: was a store drawn down by the plantation
 #   at C4 and C5? E8 warmed up on the forest coefficients from 1941, so it could not see one. Per forest cluster
 #   centroid, the effective recharge R = beta_1(t) P - beta_2(t) PET with the coefficients moving along a logistic
@@ -165,7 +176,7 @@ from utils.paths import (                                     # noqa: E402
     MIDAS_RAIN_DIR, OUT_50_RAIN_EVENTS, OUT_50_EVENT_STRESS, OUT_50_RAIN_EVENTS_FIG,
     OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG,
     OUT_50_CLEARANCE_STEP, OUT_50_CLEARANCE_FIG, DATA_SHORE_CLEARANCE_2015,
-    OUT_03_MECHANISTIC_TABLE, OUT_50_PRECANOPY,
+    OUT_03_MECHANISTIC_TABLE, OUT_50_PRECANOPY, OUT_41_INDEX, OUT_50_FOREST_FORCING,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -192,6 +203,8 @@ from utils.config import (                                    # noqa: E402
     E8F_WIDE_WINDOW, E8F_WIDE_STEP_MONTHS,
     PRECANOPY_ANALOGUE, PRECANOPY_PLANTING_YEARS, PRECANOPY_CLOSURE_YEARS, PRECANOPY_W_TAILS,
     PRECANOPY_SLOW_STARTS_DAYS, PRECANOPY_SHARE_STARTS,
+    FORCING_NSE_GAIN, FOREST_FORCING_CLUSTERS, FOREST_FORCING_EDGE_REGION, FOREST_FORCING_BASE_REGION,
+    CLEARFELL_DATE_ISO,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, simulate_ssm, get_metrics,   # noqa: E402
@@ -202,6 +215,7 @@ from utils.hindcast_utils import (                            # noqa: E402
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.pastas_utils import spread_daily, continuous_start  # noqa: E402
 from utils.midas_rain import read_daily  # noqa: E402
+from utils.clearfell_common import EDGE_WELLS  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 from utils.console_utils import banner, done, info, phase, result, saved, step, warn   # noqa: E402
 
@@ -2501,6 +2515,198 @@ def precanopy_report(rr, ver: dict) -> None:
                note=f"C{c}: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)")
 
 
+# ── E10 (1.9.0, D-260): is the forest's poor forecasting the drainage or the forcing? ──────────────────
+FORCING_VARIANTS = ("F0", "F1", "F2", "F3")
+# Post hoc (Martin 2026-10-13, after the rule's run): outside the rule, reported separately.
+# F2e: only the clearfell edge wells' forcing changes (inner wells' canopy held at 1, so they fit as F0);
+# F2s: a placebo for the inner wells' gain - their canopy replaced by one step at the felling to the region's
+# post-felling mean, which tests whether that gain is a one-off shift rather than the canopy tracked.
+FORCING_POSTHOC = ("F2e", "F2s")
+FOREST_FORCING_VERDICT = {"supported": 2, "not resolved": 1, "not supported": 0}
+
+
+def canopy_monthly(index: pd.DatetimeIndex) -> dict:
+    """Script 41's canopy ratio for the edge and base regions, monthly on `index`: the mean over viewpoints
+    per imagery date, divided by the region's median before CLEARFELL_DATE_ISO (closed canopy = 1), clipped
+    to [0, 1], interpolated linearly between imagery dates and held beyond them."""
+    d = pd.read_csv(OUT_41_INDEX, parse_dates=["imagery_date"])
+    d = d[d["ratio_to_conifer"].notna()]
+    fell = pd.Timestamp(CLEARFELL_DATE_ISO)
+    out = {}
+    for reg in (FOREST_FORCING_EDGE_REGION, FOREST_FORCING_BASE_REGION):
+        g = d[d["region"] == reg].groupby("imagery_date")["ratio_to_conifer"].mean().sort_index()
+        ref = float(g[g.index < fell].median())
+        c = (g / ref).clip(0.0, 1.0)
+        x = c.index.map(pd.Timestamp.toordinal).to_numpy(float)
+        out[reg] = pd.Series(np.interp(index.map(pd.Timestamp.toordinal).to_numpy(float), x, c.to_numpy()),
+                             index=index)
+    return out
+
+
+def _forcing_climate(cl: pd.DataFrame, variant: str, canopy: pd.Series) -> pd.DataFrame:
+    """The climate frame a forest well is fitted with: F0 as observed; F1 rainfall less FOREST_INTERCEPTION;
+    F2 and F3 rainfall less FOREST_INTERCEPTION scaled by the canopy (interception goes with the canopy)."""
+    c = cl.copy()
+    if variant == "F1":
+        c["P_m"] = c["P_m"] * (1.0 - FOREST_INTERCEPTION)
+    elif variant in ("F2", "F3") + FORCING_POSTHOC:
+        c["P_m"] = c["P_m"] * (1.0 - FOREST_INTERCEPTION * canopy.reindex(c.index).fillna(1.0))
+    return c
+
+
+def _post_fell_fit(frame: pd.DataFrame, intercept: bool, post: pd.Series):
+    """F3 at a clearfell edge well: the SSM with one extra regressor, -PET in the months after felling, so felled
+    ground takes its own evaporation coefficient. Ordinary least squares on build_ssm_frame's columns (the
+    alignment is not reimplemented); returns the coefficients, the residuals and the BIC."""
+    X = np.column_stack([frame["P"], -frame["PET"], -frame["h_disp_prev"], -frame["PET"] * post.reindex(frame.index).fillna(0.0)])
+    if intercept:
+        X = np.column_stack([X, np.ones(len(frame))])
+    y = frame["Delta_h"].to_numpy(float)
+    beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+    resid = y - X @ beta
+    return beta, pd.Series(resid, index=frame.index), _bic(resid, X.shape[1])
+
+
+def _bic(resid, k: int) -> float:
+    r = np.asarray(resid, float)
+    r = r[np.isfinite(r)]
+    n = len(r)
+    return float(n * np.log(np.sum(r ** 2) / n) + k * np.log(n)) if n > k else np.nan
+
+
+def _ssm_resid(fit: dict, frame: pd.DataFrame, intercept: bool) -> pd.Series:
+    pred = (fit["beta_1_recharge"] * frame["P"] - fit["beta_2_atmospheric_draw"] * frame["PET"]
+            - fit["beta_3_drainage"] * frame["h_disp_prev"] + (fit.get("alpha", 0.0) if intercept else 0.0))
+    return frame["Delta_h"] - pred
+
+
+def _season_contrast(resid: pd.Series) -> float:
+    """Summer minus winter mean residual (m), the statistic of Script 24, on the one-step residuals."""
+    m = resid.index.month
+    s_ = resid[np.isin(m, SUMMER_DRY_CLIMATE_MONTHS)].mean()
+    w_ = resid[np.isin(m, WINTER_WET_CLIMATE_MONTHS)].mean()
+    return float(s_ - w_)
+
+
+def forest_forcing(lev, lev_cols, cl, master, df_full):
+    """E10 (D-260): every C4/C5 reference well under four forcings, both forms; F0 identity-checked against the
+    full-record fits of the record-length experiment (df_full)."""
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    fell = pd.Timestamp(CLEARFELL_DATE_ISO)
+    canopy = canopy_monthly(cl.index)
+    post = pd.Series((cl.index >= fell).astype(float), index=cl.index)
+    rows = []
+    sub = master[master["Cluster"].isin(FOREST_FORCING_CLUSTERS)]
+    for k, cluster in zip(sub["_n"], sub["Cluster"]):
+        if k not in lev_cols:
+            continue
+        h = lev[lev_cols[k]].dropna()
+        edge = k in EDGE_WELLS
+        can = canopy[FOREST_FORCING_EDGE_REGION if edge else FOREST_FORCING_BASE_REGION]
+        base = canopy[FOREST_FORCING_BASE_REGION]
+        posthoc_can = {"F2e": can if edge else pd.Series(1.0, index=cl.index),
+                       "F2s": can if edge else pd.Series(np.where(cl.index >= fell, float(base[base.index >= fell].mean()),
+                                                                  1.0), index=cl.index)}
+        for variant in FORCING_VARIANTS + FORCING_POSTHOC:
+            clv = _forcing_climate(cl, variant, posthoc_can.get(variant, can))
+            full = build_ssm_frame(h, clv, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
+            pre = build_ssm_frame(h[h.index < split], clv, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
+            postf = build_ssm_frame(h[h.index >= split], clv, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
+            for form, icpt in FORMS:
+                row = {"well": k, "cluster": int(cluster), "edge": edge, "variant": variant, "form": form}
+                f = fit_frame(full, icpt)
+                row.update({f"full_{a}": b for a, b in describe(f, icpt, full).items()})
+                if f is not None:
+                    res = _ssm_resid(f, full, icpt)
+                    row["bic"] = _bic(res, 3 + int(icpt))
+                    row["season_contrast_m"] = _season_contrast(res)
+                if variant == "F3" and edge and full is not None and len(full):
+                    beta, res, bic = _post_fell_fit(full, icpt, post)
+                    row.update(bic=bic, season_contrast_m=_season_contrast(res), beta_2_post_fell=float(beta[3]),
+                               full_beta_2=float(beta[1]), full_beta_3=float(beta[2]))
+                # split tests: F3's extra coefficient cannot be estimated on either side of the split (the
+                # felling falls at it), so F3 forecasts as F2 does
+                fp, fq = fit_frame(pre, icpt), fit_frame(postf, icpt)
+                row["fwd_nse"] = free_run(h[h.index >= split], clv, fp, icpt)["nse"]
+                row["rev_nse"] = free_run(h[h.index < split], clv, fq, icpt)["nse"]
+                rows.append(row)
+    tab = pd.DataFrame(rows)
+    # identity check: F0 must reproduce the record-length experiment's full-record fits
+    chk = np.nan
+    if len(df_full):
+        ref = df_full[(df_full["experiment"] == "stability") & (df_full["length"] == FULL)].set_index(["well", "form"])["beta_3"]
+        f0 = tab[tab["variant"] == "F0"].set_index(["well", "form"])["full_beta_3"]
+        both = pd.concat([f0, ref], axis=1, join="inner").dropna()
+        chk = float((both.iloc[:, 0] - both.iloc[:, 1]).abs().max()) if len(both) else np.nan
+    return tab, chk
+
+
+def forest_forcing_verdicts(tab: pd.DataFrame) -> dict:
+    """The rule fixed before the run (Martin 2026-10-13): per cluster, the best of F1-F3 by summed Model A BIC is
+    'supported' if it raises the median Model A forward NSE by FORCING_NSE_GAIN over F0, makes Model B's beta_3
+    identified at a majority of wells, and shrinks |summer - winter residual|; 'not supported' if no variant raises
+    the median forward NSE; 'not resolved' otherwise."""
+    out = {}
+    for c in sorted(tab["cluster"].unique()):
+        g = tab[tab["cluster"] == c]
+        A, B = g[g["form"] == "A"], g[g["form"] == "B"]
+        med = lambda d, v, col: float(d[d["variant"] == v][col].median())
+        bic = {v: float(A[A["variant"] == v]["bic"].sum()) for v in FORCING_VARIANTS}  # post hoc excluded
+        best = min(("F1", "F2", "F3"), key=lambda v: bic[v])
+        n_w = int(B[B["variant"] == best]["well"].nunique())
+        n_id = int(B[(B["variant"] == best) & (B["full_identified"] == True)]["well"].nunique())  # noqa: E712
+        gains = {v: med(A, v, "fwd_nse") - med(A, "F0", "fwd_nse") for v in ("F1", "F2", "F3")}
+        t1 = gains[best] >= FORCING_NSE_GAIN
+        t2 = n_id > n_w / 2
+        t3 = abs(med(A, best, "season_contrast_m")) < abs(med(A, "F0", "season_contrast_m"))
+        v = ("supported" if (t1 and t2 and t3) else
+             "not supported" if max(gains.values()) <= 0 else "not resolved")
+        out[c] = {"verdict": v, "best": best, "gain": gains[best], "gains": gains, "n_identified": n_id, "n_wells": n_w,
+                  "n_identified_F0": int(B[(B["variant"] == "F0") & (B["full_identified"] == True)]["well"].nunique()),  # noqa: E712
+                  "fwd_F0": med(A, "F0", "fwd_nse"), "fwd_best": med(A, best, "fwd_nse"),
+                  "season_F0": med(A, "F0", "season_contrast_m"), "season_best": med(A, best, "season_contrast_m"),
+                  "dbic_best": bic["F0"] - bic[best], "tests": (t1, t2, t3),
+                  "posthoc": {(v, part): float(A[(A["variant"] == v) & (A["edge"] == e)]["fwd_nse"].median())
+                              for v in ("F0", "F2") + FORCING_POSTHOC for part, e in (("inner", False), ("edge", True))},
+                  "posthoc_all": {v: med(A, v, "fwd_nse") for v in FORCING_POSTHOC}}
+    return out
+
+
+def forest_forcing_report(rr, ver: dict, chk: float) -> None:
+    code = {"F0": 0, "F1": 1, "F2": 2, "F3": 3}
+    for c, v in ver.items():
+        rr.add(f"forest_forcing_verdict_C{c}", FOREST_FORCING_VERDICT[v["verdict"]], unit="code",
+               note=f"C{c}: {v['verdict']} (2 supported, 1 not resolved, 0 not supported); E10, the forest forcing test, "
+                    f"rule fixed before the run (D-260)")
+        rr.add(f"forest_forcing_best_variant_C{c}", code[v["best"]], unit="code",
+               note=f"C{c}: best of F1-F3 by summed Model A BIC (1 interception, 2 interception with the canopy, "
+                    f"3 and a post-felling evaporation coefficient)")
+        rr.add(f"forest_forcing_fwd_nse_F0_median_C{c}", v["fwd_F0"], unit="", note=f"C{c}: median forward NSE, Model A, observed forcing")
+        rr.add(f"forest_forcing_fwd_nse_best_median_C{c}", v["fwd_best"], unit="", note=f"C{c}: median forward NSE, Model A, best forcing")
+        for var, g in v["gains"].items():
+            rr.add(f"forest_forcing_fwd_gain_{var}_C{c}", g, unit="", note=f"C{c}: median forward NSE gain over F0, Model A, {var}")
+        rr.add(f"forest_forcing_n_identified_B_best_C{c}", v["n_identified"], unit="wells",
+               note=f"C{c}: wells whose Model B beta_3 is identified under the best forcing (of {v['n_wells']})")
+        rr.add(f"forest_forcing_n_identified_B_F0_C{c}", v["n_identified_F0"], unit="wells",
+               note=f"C{c}: wells whose Model B beta_3 is identified under the observed forcing")
+        rr.add(f"forest_forcing_season_contrast_F0_median_C{c}", v["season_F0"], unit="m",
+               note=f"C{c}: median summer-minus-winter one-step residual, Model A, observed forcing")
+        rr.add(f"forest_forcing_season_contrast_best_median_C{c}", v["season_best"], unit="m",
+               note=f"C{c}: median summer-minus-winter one-step residual, Model A, best forcing")
+        rr.add(f"forest_forcing_dbic_best_C{c}", v["dbic_best"], unit="BIC",
+               note=f"C{c}: summed Model A BIC of F0 minus the best forcing's (positive favours the forcing)")
+    for c, v in ver.items():
+        for (var, part), x in v["posthoc"].items():
+            rr.add(f"forest_forcing_posthoc_fwd_nse_{var}_{part}_C{c}", x, unit="",
+                   note=f"C{c}: POST HOC, outside the D-260 rule - median forward NSE, Model A, {var}, {part} wells "
+                        f"(edge = clearfell_common.EDGE_WELLS)")
+        for var, x in v["posthoc_all"].items():
+            rr.add(f"forest_forcing_posthoc_fwd_nse_{var}_C{c}", x, unit="",
+                   note=f"C{c}: POST HOC, outside the D-260 rule - median forward NSE, Model A, {var}, all wells")
+    rr.add("forest_forcing_check_max_abs_beta3_diff", chk, unit="",
+           note="identity: F0 against the record-length experiment's full-record beta_3, both forms, forest wells")
+
+
 def main(no_fig: bool = False) -> int:
     banner("50", "What the record length decides", version=__version__)
     DIR_50.mkdir(parents=True, exist_ok=True)
@@ -2663,7 +2869,22 @@ def main(no_fig: bool = False) -> int:
         result(f"E8g verdict C{c}", f"{v['verdict']} ({v['n_pass']} of {v['n_cases']} cases pass)")
     pc_tab.to_csv(OUT_50_PRECANOPY, index=False); saved(f"{OUT_50_PRECANOPY.name} ({len(pc_tab)} rows)")
 
-    phase(13, "Outputs")
+    phase(13, "Is the forest's poor forecasting the drainage or the forcing? (E10, 1.9.0, D-260)")
+    ff_tab, ff_chk = forest_forcing(lev, lev_cols, cl, master, df)
+    ff_ver = forest_forcing_verdicts(ff_tab)
+    step(f"identity: F0 against the full-record fits, max |d beta_3| = {ff_chk:.2e}")
+    for c, v in ff_ver.items():
+        step(f"C{c}: best {v['best']}, forward NSE {v['fwd_F0']:.3f} -> {v['fwd_best']:.3f} (gain {v['gain']:+.3f}); "
+             f"Model B identified {v['n_identified_F0']} -> {v['n_identified']} of {v['n_wells']}; "
+             f"summer-winter {v['season_F0']*1000:+.1f} -> {v['season_best']*1000:+.1f} mm; dBIC {v['dbic_best']:+.1f}")
+        result(f"E10 verdict C{c}", v["verdict"])
+        p_ = v["posthoc"]
+        step(f"C{c} POST HOC forward NSE, inner / edge: F0 {p_[('F0','inner')]:.3f} / {p_[('F0','edge')]:.3f}; "
+             f"F2 {p_[('F2','inner')]:.3f} / {p_[('F2','edge')]:.3f}; F2s (step placebo) {p_[('F2s','inner')]:.3f}; "
+             f"F2e (edge only) all wells {v['posthoc_all']['F2e']:.3f}")
+    ff_tab.to_csv(OUT_50_FOREST_FORCING, index=False); saved(f"{OUT_50_FOREST_FORCING.name} ({len(ff_tab)} rows)")
+
+    phase(14, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -2679,6 +2900,7 @@ def main(no_fig: bool = False) -> int:
     e8e_report(rr, fe_verdict, fe_info)
     e8f_report(rr, cf_tab, cf_verdict, cf_info)
     precanopy_report(rr, pc_ver)
+    forest_forcing_report(rr, ff_ver, ff_chk)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)

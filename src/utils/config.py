@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.104.0"  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). FILM_LANGS: the languages the film is
+__version__ = "1.105.0"  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): FORCING_NSE_GAIN, FOREST_FORCING_CLUSTERS,
+#   FOREST_FORCING_EDGE_REGION, FOREST_FORCING_BASE_REGION - the forest forcing test's rule and canopy regions.
+# 1.104.0  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). FILM_LANGS: the languages the film is
 #   rendered in. Retired: FILM_OPEN_CLIP_LABEL (now the language table's "open_clip_label").
 # 1.103.0  # Hollingham (2026) - 2026-10-10. ASYM_MIN_PAIRS, ASYM_ALPHA and MONTHS_PER_YEAR for
 #   Script 48 1.6.0's reversion-time diagnostics (T-119, D-255; Martin 17:06: 24 pairs, p < 0.05);
@@ -2180,6 +2182,13 @@ PRECANOPY_W_TAILS        = (0.05, 0.95)
 # below and keeps the lowest BIC: the verdict must not turn on the optimizer's start (T-121, D-255).
 PRECANOPY_SLOW_STARTS_DAYS = (1000, 3000, 7000)
 PRECANOPY_SHARE_STARTS     = (0.3, 0.6, 0.9)
+# E10 (Script 50 1.9.0, D-260): is the forest's poor forecasting the drainage or the forcing? Martin 2026-10-13:
+# a gain of FORCING_NSE_GAIN in the median forward NSE counts; the clearfell edge wells take the clearfell region's
+# canopy index and the rest of the forest the forest-control region's; FOREST_INTERCEPTION applies at C4 and C5.
+FORCING_NSE_GAIN            = 0.10
+FOREST_FORCING_CLUSTERS     = (4, 5)
+FOREST_FORCING_EDGE_REGION  = "clearfell"
+FOREST_FORCING_BASE_REGION  = "forest_control"
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to

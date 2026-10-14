@@ -784,10 +784,10 @@ forest_forcing_posthoc_fwd_nse_F2s_inner_C5,,,0.8211442933041557,,"C5: POST HOC,
 forest_forcing_posthoc_fwd_nse_F2s_edge_C5,,,-5.263267186285866,,"C5: POST HOC, outside the D-260 rule - median forward NSE, Model A, F2s, edge wells (edge = clearfell_common.EDGE_WELLS)"
 forest_forcing_posthoc_fwd_nse_F2e_C5,,,0.7494879452759018,,"C5: POST HOC, outside the D-260 rule - median forward NSE, Model A, F2e, all wells"
 forest_forcing_posthoc_fwd_nse_F2s_C5,,,0.691723733167388,,"C5: POST HOC, outside the D-260 rule - median forward NSE, Model A, F2s, all wells"
-forest_forcing_check_max_abs_beta3_diff,,,9.71445146547012e-17,,"identity: F0 against the record-length experiment's full-record beta_3, both forms, forest wells"
+forest_forcing_check_max_abs_beta3_diff,,,0.0,,"identity: F0 against the record-length experiment's full-record beta_3, both forms, forest wells"
 ranwell_need_n_pairs,,,11.0,pairs,"Script 44 site-well pairings scored (E11, exploration not a test (D-261))"
 ranwell_need_nse_base_median,,,0.5733322418069309,,"median NSE after offset, coefficients as fitted (E11, exploration not a test (D-261))"
-ranwell_need_identity_max_abs_dnse,,,3.6564590133458814e-08,,"identity: k = 1 against Script 44's NSE, every pair"
+ranwell_need_identity_max_abs_dnse,,,3.656459013345881e-08,,"identity: k = 1 against Script 44's NSE, every pair"
 ranwell_need_single_k1,,,0.6,x,"best scale of recharge beta_1 alone (others unchanged), by median NSE (E11, exploration not a test (D-261))"
 ranwell_need_single_k1_nse,,,0.6952588977703844,,"median NSE at that scale (E11, exploration not a test (D-261))"
 ranwell_need_joint_k1,,,0.7,x,"recharge beta_1 at the jointly best cell (E11, exploration not a test (D-261))"
@@ -810,24 +810,24 @@ ranwell_need_nse_pipe_foot,,,0.5737766778385796,,"median NSE with the model capp
 ranwell_epoch_season_pct_P_summer,,,62.22222222222222,%,"1951-53 P_summer against every RANWELL_SEASON_WINDOW_YEARS window of the climate record (E11, exploration not a test (D-261))"
 ranwell_epoch_season_pct_P_winter,,,53.333333333333336,%,"1951-53 P_winter against every RANWELL_SEASON_WINDOW_YEARS window of the climate record (E11, exploration not a test (D-261))"
 ranwell_epoch_season_pct_PET_summer,,,67.77777777777779,%,"1951-53 PET_summer against every RANWELL_SEASON_WINDOW_YEARS window of the climate record (E11, exploration not a test (D-261))"
-ranwell_epoch_season_pct_net_summer,,,56.66666666666666,%,"1951-53 net_summer against every RANWELL_SEASON_WINDOW_YEARS window of the climate record (E11, exploration not a test (D-261))"
+ranwell_epoch_season_pct_net_summer,,,56.666666666666664,%,"1951-53 net_summer against every RANWELL_SEASON_WINDOW_YEARS window of the climate record (E11, exploration not a test (D-261))"
 ranwell_epoch_season_pct_net_winter,,,54.44444444444444,%,"1951-53 net_winter against every RANWELL_SEASON_WINDOW_YEARS window of the climate record (E11, exploration not a test (D-261))"
 ranwell_epoch_season_pct_contrast,,,43.333333333333336,%,"1951-53 contrast against every RANWELL_SEASON_WINDOW_YEARS window of the climate record (E11, exploration not a test (D-261))"
 ranwell_epoch_season_pct_min,,,43.333333333333336,%,lowest of the seasonal percentiles
 ranwell_epoch_season_pct_max,,,67.77777777777779,%,highest of the seasonal percentiles
 ranwell_epoch_antecedent_net_mm,,,1128.9369643940563,mm,P - PET over the RANWELL_ANTECEDENT_YEARS before the readings
 ranwell_epoch_antecedent_pct,,,47.77777777777778,%,its percentile among all such windows
-ranwell_epoch_memory_ceh25,,,0.0313558755712072,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair ceh25
+ranwell_epoch_memory_ceh25,,,0.031355875571207295,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair ceh25
 ranwell_epoch_memory_ceh27,,,0.0833370535587269,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair ceh27
 ranwell_epoch_memory_nw5,,,0.2932872341688213,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair nw5
-ranwell_epoch_memory_min,,,0.0313558755712072,,lowest share of a departure left after RANWELL_MEMORY_MONTHS
+ranwell_epoch_memory_min,,,0.031355875571207295,,lowest share of a departure left after RANWELL_MEMORY_MONTHS
 ranwell_epoch_memory_max,,,0.2932872341688213,,highest share of a departure left after RANWELL_MEMORY_MONTHS
 ranwell_epoch_local_rain_nse_median,,,-0.350066053784704,,median NSE with Parc Mawr rain in place of RAF Valley's
 ranwell_epoch_local_rain_n_better,,,0.0,pairs,pairs it improves (of 11)
-ranwell_epoch_swing_ratio_modern_ceh25,,,0.9164754170272712,,"SD observed / SD modelled, modern record"
+ranwell_epoch_swing_ratio_modern_ceh25,,,0.9164754170272711,,"SD observed / SD modelled, modern record"
 ranwell_epoch_swing_ratio_epoch_ceh25,,,0.8167534601209416,,"SD observed / SD modelled, 1951-53"
-ranwell_epoch_swing_ratio_modern_ceh27,,,0.9750376685027496,,"SD observed / SD modelled, modern record"
-ranwell_epoch_swing_ratio_epoch_ceh27,,,0.9498254792231652,,"SD observed / SD modelled, 1951-53"
+ranwell_epoch_swing_ratio_modern_ceh27,,,0.9750376685027495,,"SD observed / SD modelled, modern record"
+ranwell_epoch_swing_ratio_epoch_ceh27,,,0.9498254792231653,,"SD observed / SD modelled, 1951-53"
 ranwell_epoch_swing_ratio_modern_nw5,,,1.103876959162226,,"SD observed / SD modelled, modern record"
 ranwell_epoch_swing_ratio_epoch_nw5,,,0.8858126956372552,,"SD observed / SD modelled, 1951-53"
 ranwell_epoch_swing_smaller_pct_min,,,2.585765667730522,%,"1951-53 swing relative to the model, smaller than today's by at least"
@@ -841,9 +841,9 @@ ranwell_epoch_forest_n_sites_within,,,1.0,sites,Ranwell sites with a pair within
 ranwell_epoch_forest_nse_median,,,0.5971528697896782,,median NSE with the forest's difference removed at the pairs within its reach
 ranwell_epoch_cand_open_dune_cover_recharge_nse_at_k_low,,,0.5733322418069309,,open_dune_cover_recharge: median NSE at the low end of its range
 ranwell_epoch_cand_open_dune_cover_recharge_k_low,,,1.0,x,"open_dune_cover_recharge: beta_1 scale, low end"
-ranwell_epoch_cand_open_dune_cover_recharge_nse_at_k_high,,,-0.0256278935537597,,open_dune_cover_recharge: median NSE at the high end of its range
+ranwell_epoch_cand_open_dune_cover_recharge_nse_at_k_high,,,-0.025627893553759717,,open_dune_cover_recharge: median NSE at the high end of its range
 ranwell_epoch_cand_open_dune_cover_recharge_k_high,,,1.75,x,"open_dune_cover_recharge: beta_1 scale, high end"
-ranwell_epoch_cand_open_dune_cover_evapotranspiration_nse_at_k_low,,,0.4881145033743966,,open_dune_cover_evapotranspiration: median NSE at the low end of its range
+ranwell_epoch_cand_open_dune_cover_evapotranspiration_nse_at_k_low,,,0.48811450337439666,,open_dune_cover_evapotranspiration: median NSE at the low end of its range
 ranwell_epoch_cand_open_dune_cover_evapotranspiration_k_low,,,0.41,x,"open_dune_cover_evapotranspiration: beta_2 scale, low end"
 ranwell_epoch_cand_open_dune_cover_evapotranspiration_nse_at_k_high,,,0.5733322418069309,,open_dune_cover_evapotranspiration: median NSE at the high end of its range
 ranwell_epoch_cand_open_dune_cover_evapotranspiration_k_high,,,1.0,x,"open_dune_cover_evapotranspiration: beta_2 scale, high end"

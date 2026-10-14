@@ -1708,3 +1708,6 @@ wt_mean_elev_aod_network_mean_dp2,outputs/01_data_prep/01_report_numbers.csv,wt_
 wtf_n_events_per_well_max_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_max,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_mean_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_mean,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_min,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+forest_forcing_posthoc_fwd_nse_F0_inner_C4_dp2,outputs/50_record_length/50_report_numbers.csv,forest_forcing_posthoc_fwd_nse_F0_inner_C4,1,,2,,−,,born a field in PaperM (D-260)
+forest_forcing_posthoc_fwd_nse_F2_inner_C4_dp2,outputs/50_record_length/50_report_numbers.csv,forest_forcing_posthoc_fwd_nse_F2_inner_C4,1,,2,,−,,born a field in PaperM (D-260)
+forest_forcing_posthoc_fwd_nse_F2s_inner_C4_dp2,outputs/50_record_length/50_report_numbers.csv,forest_forcing_posthoc_fwd_nse_F2s_inner_C4,1,,2,,−,,born a field in PaperM (D-260)

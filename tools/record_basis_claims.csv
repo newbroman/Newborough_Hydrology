@@ -54,3 +54,4 @@ RB-50l,MS,S.23f Script 50,the single store is fitted with and without one step w
 RB-50m,MS,S.23f Script 50,which are fitted to the centroid on the full record and warmed up as E8,D-255
 RB-03d,report8,Modelling the Cluster water levels,"it fits worse than a depth below ground at every level tried",03_20 elevation-datum sweep (79 wells; full record; T-99)
 RB-10e,report9,Forest Management Scenarios,"draw in the canopy-on months (May–October) should have risen after felling",10e_04 shielding test (T-97; D-239)
+RB-50n,MS,S.23f Script 50,"Every C4 and C5 reference well is fitted on its full record, in both forms, under four forcings",D-260

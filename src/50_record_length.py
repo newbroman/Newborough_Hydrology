@@ -59,6 +59,8 @@ OUTPUTS (outputs/50_record_length/)
   50_24 .. 50_25                     E8f, the 2014/15 shore clearance step (D-236)
   50_26_precanopy_by_case.csv        E8g, a store drawn down by the plantation: the pre-canopy test (T-121, D-255)
   50_27_forest_forcing_by_well.csv   E10, the forest forcing test (D-260)
+  50_28_ranwell_need_grid.csv        E11, what Ranwell's readings need: every pairing x coefficient scales (D-261)
+  50_29_ranwell_epoch_candidates.csv E11, each candidate sized against the need (D-261)
   50_report_numbers.csv
 
 Registered in run_analysis.py, Phase 19, tier X, opt-in (--with-supplementary).
@@ -66,7 +68,19 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-13 (D-260; Martin 22:05 "1- 0.1, 2 agreed, 3 - yes to both. 4 script 50",
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-14 (D-261; Martin 07:22 "Let's include it in the paper. Test for
+#   effects of vegetation. What about years previous to 1951", 07:30 "say what the model needs to match the groundwater's
+#   water levels and then go through each possible intervention and size up its possible effects ... it's an exploration,
+#   not a test and put it into script 50"; spec NRG_spec_E11_ranwell_epoch_2026-10-14 as amended). E11: what Ranwell's
+#   1951-53 readings need of the model, and what could supply it. The need: every Script 44 pairing with beta_1, beta_2,
+#   beta_3 scaled over RANWELL_NEED_K*_GRID (single-coefficient profiles, the joint best and the cells within
+#   RANWELL_NEED_NSE_TOL), and the same profiles with the model capped at the pipe's foot. The candidates: seasonality
+#   (RANWELL_SEASON_WINDOW_YEARS windows), the years before (RANWELL_ANTECEDENT_YEARS; the model's memory over
+#   RANWELL_MEMORY_MONTHS), on-site rain (Parc Mawr), the swing then and now, today's forest (its drawdown reach, from the
+#   open-ground wells within and beyond it), and the literature candidates of
+#   data/ranwell_epoch_candidates.csv sized at the ends of their range. 50_28, 50_29; ranwell_need_*, ranwell_epoch_*.
+#   Phase 14 E11, outputs 15.
+# 1.9.0  # Hollingham (2026) - 2026-10-13 (D-260; Martin 22:05 "1- 0.1, 2 agreed, 3 - yes to both. 4 script 50",
 #   22:08 "f3"; spec NRG_spec_forest_ET_forcing_2026-10-13 as revised). E10: is the forest's poor forecasting the
 #   drainage or the forcing? Every C4/C5 well under F0 observed forcing, F1 rainfall less FOREST_INTERCEPTION, F2
 #   interception scaled by Script 41's canopy (clearfell region at EDGE_WELLS, forest control elsewhere), F3 F2 with
@@ -153,6 +167,7 @@ __version__ = "1.9.0"  # Hollingham (2026) - 2026-10-13 (D-260; Martin 22:05 "1-
 #   of 01b_water_table.py and is still cited by that name in the records.
 
 import argparse
+import warnings
 import sys
 from pathlib import Path
 
@@ -177,6 +192,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG,
     OUT_50_CLEARANCE_STEP, OUT_50_CLEARANCE_FIG, DATA_SHORE_CLEARANCE_2015,
     OUT_03_MECHANISTIC_TABLE, OUT_50_PRECANOPY, OUT_41_INDEX, OUT_50_FOREST_FORCING,
+    OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH, RANWELL_PARC_MAWR_RAIN, RANWELL_EPOCH_CANDIDATES, DATA_FOREST_BOUNDARY, OUT_20_REPORT_NUMBERS,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -204,6 +220,8 @@ from utils.config import (                                    # noqa: E402
     PRECANOPY_ANALOGUE, PRECANOPY_PLANTING_YEARS, PRECANOPY_CLOSURE_YEARS, PRECANOPY_W_TAILS,
     PRECANOPY_SLOW_STARTS_DAYS, PRECANOPY_SHARE_STARTS,
     FORCING_NSE_GAIN, FOREST_FORCING_CLUSTERS, FOREST_FORCING_EDGE_REGION, FOREST_FORCING_BASE_REGION,
+    RANWELL_NEED_K1_GRID, RANWELL_NEED_K2_GRID, RANWELL_NEED_K3_GRID, RANWELL_NEED_NSE_TOL, RANWELL_PIPE_FOOT_M,
+    RANWELL_SEASON_WINDOW_YEARS, RANWELL_ANTECEDENT_YEARS, RANWELL_MEMORY_MONTHS, RANWELL_SURFACE_CENSOR_M,
     CLEARFELL_DATE_ISO,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
@@ -2707,6 +2725,303 @@ def forest_forcing_report(rr, ver: dict, chk: float) -> None:
            note="identity: F0 against the record-length experiment's full-record beta_3, both forms, forest wells")
 
 
+# ── E11 (1.10.0, D-261): what Ranwell's 1951-53 readings need of the model, and what could supply it ──────
+# Exploration, not a test (Martin 2026-10-14 07:30): the results were seen before this step was written. The need is
+# found by scaling each coefficient of Script 44's pairings; each candidate is then sized against it, from the record
+# where it can be measured and from the literature (data/ranwell_epoch_candidates.csv) where it cannot.
+
+def _e11_inputs(cl):
+    lv = pd.read_csv(RANWELL_LEVELS, parse_dates=["date"])
+    lv["month"] = lv["date"].dt.to_period("M")
+    obs_month = lv.groupby(["site_no", "month"])["level_m_od"].mean()
+    foot = (lv.groupby("site_no")["depth_below_surface_cm"].max() / 100.0).clip(lower=RANWELL_PIPE_FOOT_M)
+    pairs = pd.read_csv(OUT_44_METRICS)
+    clh = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
+    months = obs_month.index.get_level_values("month")
+    first = pd.Timestamp(f"{months.min().year - 1}-12-01")
+    last = months.max().to_timestamp()
+    return obs_month, foot, pairs, clh, first, last
+
+
+def _e11_score(om, clh, betas, k, first, last, ground, foot=None):
+    """Script 44's hindcast with each coefficient scaled by k, scored as Script 44 scores it; with `foot`, the
+    model is also capped at the pipe's foot, as the instrument would have read it."""
+    b = (betas[0] * k[0], betas[1] * k[1], betas[2] * k[2])
+    h0 = equilibrium_depth(b, float(clh["P_m"].mean()), float(clh["PET"].mean()), drainage_datum=DRAINAGE_DATUM)
+    sim, _ = hindcast_well(clh, b, h0, first, last, 1.0, drainage_datum=DRAINAGE_DATUM)
+    mid = (sim + sim.shift(1)) / 2
+    mid.index = mid.index.to_period("M")
+    mid = mid.dropna() + ground
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)   # a flat model at the grid's extremes has no correlation
+        m = compare_offset_censored(om, mid, ground)
+        if foot is not None:
+            # the pipe cannot read below its foot: cap the offset model there, as the instrument would have seen it
+            o, pa = _offset_model(om, mid, ground)
+            pa = np.maximum(pa, ground - foot)
+            m = dict(m, nse_after_offset=1 - float(((o - pa) ** 2).sum() / ((o - o.mean()) ** 2).sum()),
+                     range_model_m=float(pa.max() - pa.min()))
+    m["mid"] = mid
+    return m
+
+
+def _offset_model(om, mid, ground):
+    """The model as compare_offset_censored scores it: offset fitted on the uncensored months, capped at the ground."""
+    common = om.index.intersection(mid.index)
+    o, p = om.loc[common].astype(float), mid.loc[common].astype(float)
+    free = o <= ground - RANWELL_SURFACE_CENSOR_M
+    off = float((o[free] - p[free]).mean()) if free.sum() >= 3 else float((o - p).mean())
+    return o, np.minimum(p + off, ground)
+
+
+def ranwell_need(cl):
+    """Every Script 44 pairing over RANWELL_NEED_K1/K2/K3_GRID; identity: k = 1 reproduces Script 44's NSE."""
+    if not (RANWELL_LEVELS.exists() and OUT_44_METRICS.exists()):
+        warn("Ranwell readings or Script 44's pairings not present — E11 is skipped")
+        return pd.DataFrame(), np.nan
+    obs_month, foot, pairs, clh, first, last = _e11_inputs(cl)
+    rows, chk = [], []
+    for pr in pairs.itertuples():
+        s = int(pr.site_no)
+        if s not in obs_month.index.get_level_values(0):
+            continue
+        om = obs_month.loc[s]
+        betas = (float(pr.beta_1), float(pr.beta_2), float(pr.beta_3))
+        base = dict(site_no=s, sketch_slack=pr.sketch_slack, well=normalize_well_name(pr.well), headline=bool(pr.headline))
+        for k1 in RANWELL_NEED_K1_GRID:
+            for k2 in RANWELL_NEED_K2_GRID:
+                for k3 in RANWELL_NEED_K3_GRID:
+                    m = _e11_score(om, clh, betas, (k1, k2, k3), first, last, float(pr.ground_m_od))
+                    rows.append(dict(base, k1=k1, k2=k2, k3=k3, pipe_foot=False, nse=m["nse_after_offset"],
+                                     range_ratio=m["range_obs_m"] / m["range_model_m"] if m["range_model_m"] else np.nan,
+                                     n=m["n"], n_at_surface=m["n_at_surface"]))
+                    if k1 == 1.0 and k2 == 1.0 and k3 == 1.0:
+                        chk.append(abs(m["nse_after_offset"] - float(pr.nse_after_offset)))
+        # the instrument: the same single-coefficient profiles with the model capped at the pipe's foot
+        for kk in ([(k, 1.0, 1.0) for k in RANWELL_NEED_K1_GRID] + [(1.0, k, 1.0) for k in RANWELL_NEED_K2_GRID]
+                   + [(1.0, 1.0, k) for k in RANWELL_NEED_K3_GRID]):
+            m = _e11_score(om, clh, betas, kk, first, last, float(pr.ground_m_od), foot=float(foot.loc[s]))
+            rows.append(dict(base, k1=kk[0], k2=kk[1], k3=kk[2], pipe_foot=True, nse=m["nse_after_offset"],
+                             range_ratio=m["range_obs_m"] / m["range_model_m"] if m["range_model_m"] else np.nan,
+                             n=m["n"], n_at_surface=m["n_at_surface"]))
+    return pd.DataFrame(rows), (float(max(chk)) if chk else np.nan)
+
+
+def _single_profile(g: pd.DataFrame, k: str) -> pd.Series:
+    others = [c for c in ("k1", "k2", "k3") if c != k]
+    sub = g[(g[others[0]] == 1.0) & (g[others[1]] == 1.0)]
+    return sub.groupby(k)["nse"].median()
+
+
+def ranwell_need_summary(grid: pd.DataFrame) -> dict:
+    g = grid[~grid["pipe_foot"]]
+    med = g.groupby(["k1", "k2", "k3"])["nse"].median()
+    best = med.idxmax()
+    near = med[med >= med.max() - RANWELL_NEED_NSE_TOL].reset_index()
+    out = dict(n_pairs=int(g.groupby(["site_no", "well"]).ngroups), nse_base=float(med.loc[(1.0, 1.0, 1.0)]),
+               joint=dict(k1=float(best[0]), k2=float(best[1]), k3=float(best[2]), nse=float(med.max())),
+               near={c: (float(near[c].min()), float(near[c].max())) for c in ("k1", "k2", "k3")}, single={})
+    for k in ("k1", "k2", "k3"):
+        p = _single_profile(g, k)
+        out["single"][k] = dict(k=float(p.idxmax()), nse=float(p.max()))
+    per = g.groupby(["site_no", "well"]).apply(
+        lambda d: _single_profile(d, "k3").idxmax(), include_groups=False)
+    out["k3_pairs_faster"] = int((per > 1).sum())
+    out["k3_pairs_slower"] = int((per < 1).sum())
+    pf = grid[grid["pipe_foot"] & (grid["k1"] == 1.0) & (grid["k2"] == 1.0) & (grid["k3"] == 1.0)]["nse"]
+    out["nse_pipe_foot"] = float(pf.median())
+    return out
+
+
+def ranwell_epoch_context(cl, lev, lev_cols, need: dict) -> tuple[pd.DataFrame, dict]:
+    """The measured checks (seasonality, the years before, the model's memory, on-site rain, the swing then and
+    now, the pipe's foot) and the literature candidates, each sized against the need."""
+    obs_month, foot, pairs, clh, first, last = _e11_inputs(cl)
+    y0, y1 = obs_month.index.get_level_values("month").min().year, obs_month.index.get_level_values("month").max().year
+    ctx, rows = {}, []
+    # seasonality: the readings' years against every window of the same length after the climate record's last gap
+    c = (clh * 1000.0).copy()
+    c["yr"], c["mo"] = c.index.year, c.index.month
+    full = c.groupby("yr").filter(lambda d: len(d) == 12)
+    def season(w):
+        s_, w_ = w[w.mo.isin(SUMMER_DRY_CLIMATE_MONTHS)], w[w.mo.isin(WINTER_WET_CLIMATE_MONTHS)]
+        n = w.yr.nunique()
+        return dict(P_summer=s_.P_m.sum() / n, P_winter=w_.P_m.sum() / n, PET_summer=s_.PET.sum() / n,
+                    net_summer=(s_.P_m - s_.PET).sum() / n, net_winter=(w_.P_m - w_.PET).sum() / n,
+                    contrast=((w_.P_m - w_.PET).sum() - (s_.P_m - s_.PET).sum()) / n)
+    yrs = sorted(full.yr.unique())
+    win = {a: season(full[(full.yr >= a) & (full.yr < a + RANWELL_SEASON_WINDOW_YEARS)])
+           for a in yrs if all(b in yrs for b in range(a, a + RANWELL_SEASON_WINDOW_YEARS))}
+    W = pd.DataFrame(win).T
+    ep = W.loc[y0]
+    ctx["season_pct"] = {k: float((W[k] < ep[k]).mean() * 100) for k in W.columns}
+    ann = full.groupby("yr").apply(lambda d: (d.P_m - d.PET).sum(), include_groups=False)
+    roll = ann.rolling(RANWELL_ANTECEDENT_YEARS).sum().dropna()
+    ctx["antecedent_net_mm"] = float(roll.loc[y0 - 1])
+    ctx["antecedent_pct"] = float((roll < roll.loc[y0 - 1]).mean() * 100)
+    hl = pairs[pairs["headline"]]
+    ctx["memory"] = {normalize_well_name(r.well): float((1 - r.beta_3) ** RANWELL_MEMORY_MONTHS) for r in hl.itertuples()}
+    # on-site rain (Parc Mawr) in place of RAF Valley where both exist
+    pm = pd.read_csv(RANWELL_PARC_MAWR_RAIN)
+    pm.index = pd.to_datetime(dict(year=pm["year"], month=pm["month"], day=1))
+    clp = clh.copy()
+    common = clp.index.intersection(pm.index)
+    clp.loc[common, "P_m"] = pm.loc[common, "rain_mm"].values / 1000.0
+    loc_rain, swing = [], []
+    for pr in pairs.itertuples():
+        s = int(pr.site_no)
+        om = obs_month.loc[s]
+        betas = (float(pr.beta_1), float(pr.beta_2), float(pr.beta_3))
+        loc_rain.append(_e11_score(om, clp, betas, (1, 1, 1), first, last, float(pr.ground_m_od))["nse_after_offset"])
+        if pr.headline:
+            col = lev_cols.get(normalize_well_name(pr.well))
+            hobs = lev[col].dropna().clip(upper=0.0) if col is not None else pd.Series(dtype=float)
+            if len(hobs):
+                h0 = equilibrium_depth(betas, float(clh["P_m"].mean()), float(clh["PET"].mean()), drainage_datum=DRAINAGE_DATUM)
+                sim, _ = hindcast_well(clh, betas, h0, hobs.index.min(), hobs.index.max(), 1.0, drainage_datum=DRAINAGE_DATUM)
+                sim = sim.clip(upper=0.0).reindex(hobs.index)
+                m = _e11_score(om, clh, betas, (1, 1, 1), first, last, float(pr.ground_m_od))
+                o, pa = _offset_model(om, m["mid"], float(pr.ground_m_od))
+                swing.append(dict(well=normalize_well_name(pr.well), site_no=s, modern=float(hobs.std() / sim.std()),
+                                  epoch=float(o.std() / pa.std()), n_modern=int(sim.notna().sum()), n_epoch=int(len(o))))
+    ctx["local_rain_nse"] = float(np.nanmedian(loc_rain))
+    ctx["local_rain_n_better"] = int(sum(1 for a, b in zip(loc_rain, pairs["nse_after_offset"]) if a > b))
+    ctx["n_pairs"] = len(loc_rain)
+    ctx["swing"] = swing
+    # candidates from the literature, sized at the ends of their range (single coefficient, others 1)
+    cand = pd.read_csv(RANWELL_EPOCH_CANDIDATES)
+    hbar = float(np.nanmedian([lev[lev_cols[normalize_well_name(w)]].mean() for w in hl["well"]
+                               if normalize_well_name(w) in lev_cols]))
+    idx = {"beta_1": 0, "beta_2": 1, "beta_3": 2}
+    for cd in cand.itertuples():
+        ks = []
+        if pd.notna(cd.k_low):
+            ks = [float(cd.k_low), float(cd.k_high)]
+        elif pd.notna(cd.base_shift_m_low):
+            # a deeper base: beta_3 scales roughly as 1/(z0 + mean h) on the plateau (Paper M Section 2.2)
+            ks = [(DRAINAGE_DATUM + hbar) / (DRAINAGE_DATUM + float(sh) + hbar)
+                  for sh in (cd.base_shift_m_low, cd.base_shift_m_high)]
+        need_k = need["joint"]["k" + str(idx[cd.coefficient] + 1)]   # the need is the jointly best cell
+        need_dir = "up" if need_k > 1 else "down" if need_k < 1 else "none"
+        nse = []
+        for kv in ks:
+            vals = []
+            for pr in pairs.itertuples():
+                kk = [1.0, 1.0, 1.0]
+                kk[idx[cd.coefficient]] = kv
+                vals.append(_e11_score(obs_month.loc[int(pr.site_no)], clh, (float(pr.beta_1), float(pr.beta_2),
+                                       float(pr.beta_3)), tuple(kk), first, last, float(pr.ground_m_od))["nse_after_offset"])
+            nse.append(float(np.nanmedian(vals)))
+        rows.append(dict(item=cd.candidate, kind="literature", coefficient=cd.coefficient, direction=cd.direction,
+                         k_low=ks[0] if ks else np.nan, k_high=ks[1] if ks else np.nan, need_k=need_k,
+                         direction_matches_need=bool(cd.direction == need_dir),
+                         nse_at_k_low=nse[0] if nse else np.nan, nse_at_k_high=nse[1] if nse else np.nan,
+                         nse_base=need["nse_base"], evidence=cd.evidence, source=cd.source))
+    # the forest planted since: today's coefficients near it carry its drawdown, which 1951-53 lacked. Sized from the
+    # open-ground wells (clusters outside FOREST_FORCING_CLUSTERS, not under canopy): the median of each coefficient
+    # beyond the drawdown reach (drawdown_lambda, Script 20) over its median within it, applied to the pairs within it
+    import json
+    from shapely.geometry import Point, shape
+    from shapely.ops import unary_union
+    forest = unary_union([shape(f["geometry"]) for f in json.load(open(DATA_FOREST_BOUNDARY))["features"]])
+    lam = float(pd.read_csv(OUT_20_REPORT_NUMBERS).set_index("Parameter").loc["drawdown_lambda", "Value"])
+    loc = pd.read_csv(INT_LOCATIONS)
+    loc["_n"] = loc["Name"].astype(str).apply(normalize_well_name)
+    dist = loc.drop_duplicates("_n").set_index("_n").apply(lambda r: forest.distance(Point(r["E"], r["N"])), axis=1)
+    md = pd.read_csv(INT_MASTER_DATA)
+    md["_n"] = md["Name_Original"].astype(str).apply(normalize_well_name)
+    md["d"] = md["_n"].map(dist)
+    op = md[~md["Cluster"].isin(FOREST_FORCING_CLUSTERS) & (md["d"] > 0)]
+    near, far = op[op["d"] <= lam], op[op["d"] > lam]
+    kf = tuple(float(far[c].median() / near[c].median())
+               for c in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"))
+    within = [pr for pr in pairs.itertuples() if dist.get(normalize_well_name(pr.well), np.inf) <= lam]
+    vals = []
+    for pr in pairs.itertuples():
+        kk = kf if (int(pr.site_no), pr.well) in {(int(w.site_no), w.well) for w in within} else (1.0, 1.0, 1.0)
+        vals.append(_e11_score(obs_month.loc[int(pr.site_no)], clh, (float(pr.beta_1), float(pr.beta_2), float(pr.beta_3)),
+                               kk, first, last, float(pr.ground_m_od))["nse_after_offset"])
+    need_dirs = [need["joint"][k] for k in ("k1", "k2", "k3")]
+    ctx["forest"] = dict(lam=lam, k=kf, n_near=len(near), n_far=len(far), n_pairs_within=len(within),
+                         sites_within=sorted({int(pr.site_no) for pr in within}),
+                         dist_min=float(min(dist.get(normalize_well_name(pr.well)) for pr in pairs.itertuples())),
+                         nse=float(np.nanmedian(vals)), shift_pct_max=float(max(abs(1 - x) for x in kf) * 100))
+    rows.append(dict(item="modern_forest", kind="measured", coefficient="beta_1, beta_2, beta_3",
+                     direction="/".join("up" if x > 1 else "down" for x in kf), k_low=min(kf), k_high=max(kf),
+                     need_k=np.nan, direction_matches_need=all((x > 1) == (n > 1) for x, n in zip(kf, need_dirs)),
+                     nse_at_k_low=ctx["forest"]["nse"], nse_at_k_high=np.nan, nse_base=need["nse_base"],
+                     evidence=(f"open-ground wells beyond the forest's drawdown reach ({len(far)}) against those within it "
+                               f"({len(near)}): beta_1 x{kf[0]:.3f}, beta_2 x{kf[1]:.3f}, beta_3 x{kf[2]:.3f}, applied to the "
+                               f"{len(within)} pairs within the reach (sites {sorted({int(pr.site_no) for pr in within})})"),
+                     source="data/geo/forest_boundary.geojson; 03_master_data.csv; drawdown_lambda (Script 20)"))
+    rows.append(dict(item="on_site_rain", kind="measured", coefficient="P", direction="", k_low=np.nan, k_high=np.nan,
+                     need_k=np.nan, direction_matches_need=bool(ctx["local_rain_nse"] > need["nse_base"]),
+                     nse_at_k_low=ctx["local_rain_nse"], nse_at_k_high=np.nan, nse_base=need["nse_base"],
+                     evidence="Parc Mawr monthly rain in place of RAF Valley's", source="Ranwell (1959) Fig. 2"))
+    rows.append(dict(item="pipe_foot", kind="measured", coefficient="", direction="", k_low=np.nan, k_high=np.nan,
+                     need_k=np.nan, direction_matches_need=bool(need["nse_pipe_foot"] > need["nse_base"] + RANWELL_NEED_NSE_TOL),
+                     nse_at_k_low=need["nse_pipe_foot"], nse_at_k_high=np.nan, nse_base=need["nse_base"],
+                     evidence="model capped at the pipe's foot (RANWELL_PIPE_FOOT_M, or the deepest reading)",
+                     source="data/RANWELL_PROVENANCE.md"))
+    return pd.DataFrame(rows), ctx
+
+
+def ranwell_epoch_report(rr, need: dict, ctx: dict, cand: pd.DataFrame, chk: float) -> None:
+    N = "E11, exploration not a test (D-261)"
+    rr.add("ranwell_need_n_pairs", need["n_pairs"], unit="pairs", note=f"Script 44 site-well pairings scored ({N})")
+    rr.add("ranwell_need_nse_base_median", need["nse_base"], unit="", note=f"median NSE after offset, coefficients as fitted ({N})")
+    rr.add("ranwell_need_identity_max_abs_dnse", chk, unit="", note="identity: k = 1 against Script 44's NSE, every pair")
+    for k, lab in (("k1", "recharge beta_1"), ("k2", "atmospheric draw beta_2"), ("k3", "drainage beta_3")):
+        rr.add(f"ranwell_need_single_{k}", need["single"][k]["k"], unit="x",
+               note=f"best scale of {lab} alone (others unchanged), by median NSE ({N})")
+        rr.add(f"ranwell_need_single_{k}_nse", need["single"][k]["nse"], unit="", note=f"median NSE at that scale ({N})")
+        rr.add(f"ranwell_need_joint_{k}", need["joint"][k], unit="x", note=f"{lab} at the jointly best cell ({N})")
+        rr.add(f"ranwell_need_near_{k}_min", need["near"][k][0], unit="x",
+               note=f"{lab}: lowest scale among cells within RANWELL_NEED_NSE_TOL of the joint best ({N})")
+        rr.add(f"ranwell_need_near_{k}_max", need["near"][k][1], unit="x",
+               note=f"{lab}: highest scale among cells within RANWELL_NEED_NSE_TOL of the joint best ({N})")
+    rr.add("ranwell_need_joint_nse", need["joint"]["nse"], unit="", note=f"median NSE at the jointly best cell ({N})")
+    rr.add("ranwell_need_k3_pairs_faster", need["k3_pairs_faster"], unit="pairs", note="pairs whose best drainage scale alone is above 1")
+    rr.add("ranwell_need_k3_pairs_slower", need["k3_pairs_slower"], unit="pairs", note="pairs whose best drainage scale alone is below 1")
+    rr.add("ranwell_need_nse_pipe_foot", need["nse_pipe_foot"], unit="", note="median NSE with the model capped at the pipe's foot, coefficients as fitted")
+    for k, v in ctx["season_pct"].items():
+        rr.add(f"ranwell_epoch_season_pct_{k}", v, unit="%", note=f"1951-53 {k} against every RANWELL_SEASON_WINDOW_YEARS window of the climate record ({N})")
+    rr.add("ranwell_epoch_season_pct_min", min(ctx["season_pct"].values()), unit="%", note="lowest of the seasonal percentiles")
+    rr.add("ranwell_epoch_season_pct_max", max(ctx["season_pct"].values()), unit="%", note="highest of the seasonal percentiles")
+    rr.add("ranwell_epoch_antecedent_net_mm", ctx["antecedent_net_mm"], unit="mm", note="P - PET over the RANWELL_ANTECEDENT_YEARS before the readings")
+    rr.add("ranwell_epoch_antecedent_pct", ctx["antecedent_pct"], unit="%", note="its percentile among all such windows")
+    for w, v in ctx["memory"].items():
+        rr.add(f"ranwell_epoch_memory_{w}", v, unit="", note=f"(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair {w}")
+    rr.add("ranwell_epoch_memory_min", min(ctx["memory"].values()), unit="", note="lowest share of a departure left after RANWELL_MEMORY_MONTHS")
+    rr.add("ranwell_epoch_memory_max", max(ctx["memory"].values()), unit="", note="highest share of a departure left after RANWELL_MEMORY_MONTHS")
+    rr.add("ranwell_epoch_local_rain_nse_median", ctx["local_rain_nse"], unit="", note="median NSE with Parc Mawr rain in place of RAF Valley's")
+    rr.add("ranwell_epoch_local_rain_n_better", ctx["local_rain_n_better"], unit="pairs", note=f"pairs it improves (of {ctx['n_pairs']})")
+    smaller = []
+    for sw in ctx["swing"]:
+        rr.add(f"ranwell_epoch_swing_ratio_modern_{sw['well']}", sw["modern"], unit="", note="SD observed / SD modelled, modern record")
+        rr.add(f"ranwell_epoch_swing_ratio_epoch_{sw['well']}", sw["epoch"], unit="", note="SD observed / SD modelled, 1951-53")
+        smaller.append((1 - sw["epoch"] / sw["modern"]) * 100)
+    if smaller:
+        rr.add("ranwell_epoch_swing_smaller_pct_min", min(smaller), unit="%", note="1951-53 swing relative to the model, smaller than today's by at least")
+        rr.add("ranwell_epoch_swing_smaller_pct_max", max(smaller), unit="%", note="and by at most")
+    f = ctx["forest"]
+    for i, c in enumerate(("beta1", "beta2", "beta3")):
+        rr.add(f"ranwell_epoch_forest_k_{c}", f["k"][i], unit="x",
+               note="open-ground wells beyond the forest's drawdown reach over those within it, median coefficient")
+    rr.add("ranwell_epoch_forest_shift_pct_max", f["shift_pct_max"], unit="%", note="largest of those differences")
+    rr.add("ranwell_epoch_forest_n_pairs_within", f["n_pairs_within"], unit="pairs", note="pairs within the drawdown reach of today's forest")
+    rr.add("ranwell_epoch_forest_n_sites_within", len(f["sites_within"]), unit="sites", note=f"Ranwell sites with a pair within it ({f['sites_within']})")
+    rr.add("ranwell_epoch_forest_nse_median", f["nse"], unit="", note="median NSE with the forest's difference removed at the pairs within its reach")
+    for r in cand.itertuples():
+        for end in ("low", "high"):
+            v = getattr(r, f"nse_at_k_{end}")
+            if pd.notna(v):
+                rr.add(f"ranwell_epoch_cand_{r.item}_nse_at_k_{end}", v, unit="", note=f"{r.item}: median NSE at the {end} end of its range")
+            kv = getattr(r, f"k_{end}")
+            if pd.notna(kv):
+                rr.add(f"ranwell_epoch_cand_{r.item}_k_{end}", kv, unit="x", note=f"{r.item}: {r.coefficient} scale, {end} end")
+
+
 def main(no_fig: bool = False) -> int:
     banner("50", "What the record length decides", version=__version__)
     DIR_50.mkdir(parents=True, exist_ok=True)
@@ -2884,7 +3199,23 @@ def main(no_fig: bool = False) -> int:
              f"F2e (edge only) all wells {v['posthoc_all']['F2e']:.3f}")
     ff_tab.to_csv(OUT_50_FOREST_FORCING, index=False); saved(f"{OUT_50_FOREST_FORCING.name} ({len(ff_tab)} rows)")
 
-    phase(14, "Outputs")
+    phase(14, "What Ranwell's 1951-53 readings need, and what could supply it (E11, 1.10.0, D-261)")
+    rn_grid, rn_chk = ranwell_need(cl)
+    if len(rn_grid):
+        rn_need = ranwell_need_summary(rn_grid)
+        rn_cand, rn_ctx = ranwell_epoch_context(cl, lev, lev_cols, rn_need)
+        step(f"identity: k = 1 against Script 44, max |dNSE| = {rn_chk:.2e}; {rn_need['n_pairs']} pairs")
+        j = rn_need["joint"]
+        step(f"need: median NSE {rn_need['nse_base']:.3f} as fitted; alone, beta_1 x{rn_need['single']['k1']['k']:.2f}, "
+             f"beta_2 x{rn_need['single']['k2']['k']:.2f}, beta_3 x{rn_need['single']['k3']['k']:.2f}; jointly "
+             f"x{j['k1']:.2f}, x{j['k2']:.2f}, x{j['k3']:.2f} -> {j['nse']:.3f}")
+        for r in rn_cand.itertuples():
+            step(f"{r.item}: {r.kind}, {r.coefficient or '-'} {r.direction or ''}; matches the need: {r.direction_matches_need}; "
+                 f"NSE {r.nse_at_k_low:.3f}" + ("" if pd.isna(r.nse_at_k_high) else f" / {r.nse_at_k_high:.3f}"))
+        rn_grid.to_csv(OUT_50_RANWELL_NEED, index=False); saved(f"{OUT_50_RANWELL_NEED.name} ({len(rn_grid)} rows)")
+        rn_cand.to_csv(OUT_50_RANWELL_EPOCH, index=False); saved(f"{OUT_50_RANWELL_EPOCH.name} ({len(rn_cand)} rows)")
+
+    phase(15, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -2901,6 +3232,8 @@ def main(no_fig: bool = False) -> int:
     e8f_report(rr, cf_tab, cf_verdict, cf_info)
     precanopy_report(rr, pc_ver)
     forest_forcing_report(rr, ff_ver, ff_chk)
+    if len(rn_grid):
+        ranwell_epoch_report(rr, rn_need, rn_ctx, rn_cand, rn_chk)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)

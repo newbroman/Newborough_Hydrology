@@ -17,7 +17,7 @@
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-10-10T16:14:45Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-10-10T16:14:44Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-10-10T16:14:45Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_96.odt` | 2026-10-14T02:48:10Z | current |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_97.odt` | 2026-10-14T08:59:30Z | current |
 | `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_52.odt` | 2026-10-07T20:12:35Z | current |
 | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-10-04T11:43:41Z | unversioned |
 | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-10-04T11:43:42Z | unversioned |

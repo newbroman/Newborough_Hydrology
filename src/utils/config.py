@@ -44,7 +44,10 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.105.0"  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): FORCING_NSE_GAIN, FOREST_FORCING_CLUSTERS,
+__version__ = "1.106.0"  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_NEED_K1_GRID,
+#   RANWELL_NEED_K2_GRID, RANWELL_NEED_K3_GRID, RANWELL_NEED_NSE_TOL, RANWELL_PIPE_FOOT_M, RANWELL_SEASON_WINDOW_YEARS,
+#   RANWELL_ANTECEDENT_YEARS, RANWELL_MEMORY_MONTHS - what Ranwell's 1951-53 readings need of the model, and the candidates.
+# 1.105.0  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): FORCING_NSE_GAIN, FOREST_FORCING_CLUSTERS,
 #   FOREST_FORCING_EDGE_REGION, FOREST_FORCING_BASE_REGION - the forest forcing test's rule and canopy regions.
 # 1.104.0  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). FILM_LANGS: the languages the film is
 #   rendered in. Retired: FILM_OPEN_CLIP_LABEL (now the language table's "open_clip_label").
@@ -2189,6 +2192,19 @@ FORCING_NSE_GAIN            = 0.10
 FOREST_FORCING_CLUSTERS     = (4, 5)
 FOREST_FORCING_EDGE_REGION  = "clearfell"
 FOREST_FORCING_BASE_REGION  = "forest_control"
+# E11 (Script 50 1.10.0, D-261): what the model needs to match Ranwell's 1951-53 readings, and what could supply it
+# (Martin 2026-10-14 07:30: exploration, not a test; find the need, then size each candidate against it). Each
+# coefficient of the Script 44 pairings is scaled by k over these grids; the need is the joint best cell and the cells
+# within RANWELL_NEED_NSE_TOL of it. RANWELL_PIPE_FOOT_M: Ranwell's pipes were driven to about 95 cm, so no reading
+# lies deeper (data/RANWELL_PROVENANCE.md); the deepest printed reading at a site is used where it is deeper.
+RANWELL_NEED_K1_GRID        = (0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3)
+RANWELL_NEED_K2_GRID        = (0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0)
+RANWELL_NEED_K3_GRID        = (0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0)
+RANWELL_NEED_NSE_TOL        = 0.02
+RANWELL_PIPE_FOOT_M         = 0.95
+RANWELL_SEASON_WINDOW_YEARS = 3
+RANWELL_ANTECEDENT_YEARS    = 5
+RANWELL_MEMORY_MONTHS       = 24
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to

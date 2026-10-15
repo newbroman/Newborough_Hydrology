@@ -24,7 +24,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-12 (D-258). PaperM_plain_v*.odt, the plain-language
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-15 (D-265). Paper1_plain_v*.odt, the plain-language
+#   companion to Paper 1, joins the mirrors (docs/papers/paper_1/text/Paper1_plain.md).
+# 1.6.0  # Hollingham (2026) - 2026-10-12 (D-258). PaperM_plain_v*.odt, the plain-language
 #   companion to Paper M, joins the mirrors (docs/papers/paper_M/text/PaperM_plain.md).
 # 1.5.0  # Hollingham (2026) - 2026-10-01 (D-220). Paper M joins the mirrors and the
 #   drift net (docs/papers/paper_M/PaperM_v*.odt).
@@ -88,6 +90,8 @@ SOURCES = [
     ("docs/report/Newborough_Methods_Supplement_v*.odt", "docs/report/text", True),
     ("docs/report/Supplementary_Material_v*.odt", "docs/report/text", True),
     ("docs/papers/paper_1/Paper1_v*.odt", "docs/papers/paper_1/text", True),
+    # Paper 1's plain-language companion (D-265): typed numbers, as the paper's own are.
+    ("docs/papers/paper_1/Paper1_plain_v*.odt", "docs/papers/paper_1/text", True),
     ("docs/papers/paper_1/PAPER1_SI_methods_v*.odt", "docs/papers/paper_1/text", True),
     # Paper 2's files are named Hollingham_2026_Paper2_amended[_v2].odt, so the
     # old "Paper2_v*.odt" pattern never matched anything and the paper was

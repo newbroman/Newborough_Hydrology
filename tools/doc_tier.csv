@@ -3,6 +3,7 @@ family,phase_live,current,set_by,note
 report,2,live,D-241,report6-16 and report.odm; stays live through the proofread (D-241); freezes when Martin closes it
 Newborough_Methods_Supplement,-,frozen,2026-09-07k,frozen once the Script 43 chapter landed (v1_9_115); method changes enter with reason= (D-144)
 Paper1,2,live,D-241,refreshing numbers and findings from the report (D-241)
+Paper1_plain,2,live,D-265,plain-language companion to Paper 1; typed numbers taken from the paper as the paper's own are typed
 PAPER1_SI_methods,2,live,D-241,
 Hollingham_2026_Paper2_amended,2,live,D-241,W32/W135 open in phase 2
 PaperM,2,live,D-241,methods paper; number fields (D-220)

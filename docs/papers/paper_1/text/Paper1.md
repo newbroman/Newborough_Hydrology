@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_78.odt — do not edit. source-sha256=8ef5ed86e58092f8 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_79.odt — do not edit. source-sha256=5b7db66a745851ae pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -121,7 +121,7 @@ The model is fitted at two scales, each on a declared record. The mechanistic ch
 
 []{#anchor-4}The per-well SSM coefficients are interpolated across the site by inverse-distance weighting. The interpolation runs over a regular grid built on a LiDAR-derived digital elevation model, with ridge cells and non-aquifer areas masked. The result is a set of continuous surfaces of recharge sensitivity, atmospheric draw and drainage rate, together with a model-fit-quality surface. These surfaces give a spatially resolved expression of aquifer behaviour that complements the cluster-level summaries.
 
-Within the forested zone, the canopy is broadly uniform but the per-well coefficients span much of the site-wide range. There, the per-well coefficients are regressed against elevation, distance from the ridge and easting. The regression tests whether the within-forest variation tracks topographic position and water-table depth, or canopy differences. The subsurface beneath the plantation is not cored, so elevation and position serve as proxies for substrate. The regression thus isolates this topographic control on the mechanistic coefficients beneath a constant land cover.
+Within the forested zone the per-well coefficients span much of the site-wide range. There, they are regressed against elevation, distance from the ridge and easting, and against canopy density measured at each well from the aerial imagery (Section 4.8). The regression tests whether the within-forest variation tracks topographic position and water-table depth, or canopy differences. The subsurface beneath the plantation is not cored, so elevation and position serve as proxies for substrate. The regression thus isolates this topographic control on the mechanistic coefficients beneath a single land cover.
 
 ## 3.7 Mean monthly water-balance decomposition
 

@@ -57,7 +57,8 @@ CLAIMS (1.2.0, spec NRG_spec_parallel_chats_2026-10-10)
 """
 from __future__ import annotations
 
-__version__ = "1.2.1"  # Hollingham (2026) - 2026-10-12 (D-258). doc:PaperM also covers PaperM_plain.
+__version__ = "1.2.2"  # Hollingham (2026) - 2026-10-15 (D-265). doc:Paper1 covers Paper1 and Paper1_plain.
+# 1.2.1  # Hollingham (2026) - 2026-10-12 (D-258). doc:PaperM also covers PaperM_plain.
 # 1.2.0  # Hollingham (2026) — 2026-10-10. Claims, held by a chat (spec
 #   NRG_spec_parallel_chats_2026-10-10): take/release NAME, who PATH, claims --json; every write to the
 #   lock file goes through a lock file of its own (tools/register_io.excl_lock) and keeps the other half.
@@ -200,6 +201,7 @@ def _update(fn) -> dict:
 ALIASES = {
     "doc:Paper2": ("Hollingham_2026_Paper2_amended",),
     "doc:PaperM": ("PaperM", "PaperM_plain"),   # the paper and its plain-language companion (D-258)
+    "doc:Paper1": ("Paper1", "Paper1_plain"),   # the paper and its plain-language companion (D-265)
     "doc:MS": ("Newborough_Methods_Supplement",),
     "doc:SM": ("Supplementary_Material",),
     "doc:summaries": ("public_summary_EN", "public_summary_CY", "public_summary_PL"),

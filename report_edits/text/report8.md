@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=7358e798e99a103d pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=1a003be49601384b pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -456,7 +456,7 @@ A five-tier hierarchical BACI experiment was conducted across 17 wells to assess
 
 -   **Edge:** CEH31, CEH20, CEH30, CEH16 (152--229 m, adjacent to the felling boundary; 7.4--10.3 years pre-felling).
 
--   **Forest control:** CEH32, CEH34, CEH33, NW10, CEH2 (C4 Main Forest interior, unaffected by felling, same canopy cover; 306--752 m; 7.3--11.6 years pre-felling).
+-   **Forest control:** CEH32, CEH34, CEH33, NW10, CEH2 (C4 Main Forest interior, under unfelled pine canopy; 306--752 m; 7.3--11.6 years pre-felling).
 
 -   **Coastal control:** CEH19, CEH17 (C5 Coastal Forest; separated from C4 on the basis of a distinct β₂ regime and non-overlapping elevation range --- Section 4.2; 9.7--10.3 years pre-felling).
 

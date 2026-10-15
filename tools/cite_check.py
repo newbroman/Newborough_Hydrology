@@ -45,7 +45,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.34.2"  # Hollingham (2026) — 2026-10-14 (D-262). 16_water_bal_vol_table ET_total_mid/lo/hi_mm_yr
+__version__ = "1.35.0"  # Hollingham (2026) — 2026-10-15. Claims register: range and comparison rules whose
+# bounds are pipeline values, not typed numbers (spec NRG_spec_claims_range_rules_2026-10-15; Martin 05:57 "i approve
+# include the first optional rule"): outside:<col>:<lo_col>:<hi_col>, inside:<col>:<lo_col>:<hi_col> (bounds read
+# from the same row, in either order) and cmp:<col>:<gt|lt>:<expect2> (the selected row against another row's value
+# in the same column). --selftest-claims proves each rule can come out false.
+# 1.34.2  # Hollingham (2026) — 2026-10-14 (D-262). 16_water_bal_vol_table ET_total_mid/lo/hi_mm_yr
 # (I + ET, Script 16 1.10.0) registered.
 # 1.34.1  # Hollingham (2026) — 2026-10-10. 26_msl_5yr_per_cluster MSL5_m_bg_std registered (report9 §4.8.3,
 #   Martin "5 a": the within-cluster spread per cluster).
@@ -1097,6 +1102,13 @@ def _key_columns(kcol) -> list:
 
 # Claims register. rule is evaluated against the named CSV.
 #   argmin:<col>  / argmax:<col>  -> `expect` must be the value of `key_col`
+#   band:<col>:<lo>:<hi>  -> the selected row's value lies in [lo, hi] (typed bounds)
+#   outside:<col>:<lo_col>:<hi_col> / inside:<col>:<lo_col>:<hi_col>
+#                         -> the selected row's value lies outside / inside the range its own
+#                            lo_col and hi_col give (bounds are pipeline values; either order)
+#   cmp:<col>:<gt|lt>:<expect2>
+#                         -> the selected row's value is greater / less than the value in the
+#                            row whose key_col is expect2 (same column, same CSV)
 # Extend this rather than restating a claim in prose.
 CLAIMS_REGISTER = "tools/claims_register.csv"
 
@@ -2321,6 +2333,79 @@ def _note_prose_corpus() -> dict:
     return out
 
 
+def _row_value(df, key_col, expect, col):
+    """The one numeric cell at (key_col == expect, col), or (None, why) — a FAULT, never a skip."""
+    if col not in df.columns:
+        return None, f"no column {col!r}"
+    hit = df[_claim_mask(df, key_col, expect)]
+    if len(hit) != 1:
+        return None, f"{key_col} == {expect!r} selects {len(hit)} row(s), needs exactly 1"
+    try:
+        return float(hit.iloc[0][col]), ""
+    except (TypeError, ValueError):
+        return None, f"{col!r} at {expect!r} is not numeric"
+
+
+def _eval_range_cmp(df, row):
+    """1.35.0: outside / inside / cmp. Returns (holds, detail, fault); fault is '' when evaluated."""
+    kind, _, rest = row["rule"].partition(":")
+    parts = rest.split(":")
+    if kind in {"outside", "inside"}:
+        if len(parts) != 3:
+            return None, "", f"{kind} needs {kind}:<col>:<lo_col>:<hi_col>, got {row['rule']!r}"
+        vals = []
+        for c in parts:
+            v, why = _row_value(df, row["key_col"], row["expect"], c)
+            if v is None:
+                return None, "", why
+            vals.append(v)
+        val, a, b = vals
+        lo, hi = min(a, b), max(a, b)
+        inside = lo <= val <= hi
+        holds = inside if kind == "inside" else not inside
+        where = "inside" if inside else "outside"
+        return holds, f"{parts[0]} is {val:.4g}, {where} [{lo:.4g}, {hi:.4g}] ({parts[1]}, {parts[2]})", ""
+    if kind == "cmp":
+        if len(parts) != 3 or parts[1] not in {"gt", "lt"}:
+            return None, "", f"cmp needs cmp:<col>:<gt|lt>:<expect2>, got {row['rule']!r}"
+        col, op, other = parts
+        v1, why = _row_value(df, row["key_col"], row["expect"], col)
+        if v1 is None:
+            return None, "", why
+        v2, why = _row_value(df, row["key_col"], other, col)
+        if v2 is None:
+            return None, "", why
+        holds = v1 > v2 if op == "gt" else v1 < v2
+        sym = ">" if op == "gt" else "<"
+        return holds, f"{col}: {row['expect']} {v1:.4g} is not {sym} {other} {v2:.4g}", ""
+    return None, "", f"unsupported rule {row['rule']!r}"
+
+
+def selftest_claims() -> int:
+    """1.35.0: each new rule must come out true AND false on a known table, or the gate is decoration."""
+    df = pd.DataFrame({"Label": ["A", "B", "C"], "x": [0.3, 0.6, 0.9],
+                       "lo": [0.5, 0.5, 0.95], "hi": [0.8, 0.4, 0.7]})
+    cases = [("outside:x:lo:hi", "A", True),    # 0.3 below [0.5, 0.8]
+             ("outside:x:lo:hi", "C", False),   # 0.9 within [0.7, 0.95]: bounds given high-first
+             ("inside:x:lo:hi", "C", True),
+             ("inside:x:lo:hi", "B", False),    # 0.6 above [0.4, 0.5]
+             ("cmp:x:gt:A", "C", True),
+             ("cmp:x:lt:A", "C", False)]
+    bad = 0
+    for rule, key, want in cases:
+        holds, detail, fault = _eval_range_cmp(df, {"rule": rule, "key_col": "Label", "expect": key})
+        ok = (fault == "") and holds is want
+        bad += not ok
+        print(f"  {'ok ' if ok else 'BAD'} {rule} @ {key}: expected {want}, got {holds} {fault or detail}")
+    for rule in ["outside:x:lo", "cmp:x:ge:A", "outside:x:lo:nope"]:
+        _, _, fault = _eval_range_cmp(df, {"rule": rule, "key_col": "Label", "expect": "A"})
+        ok = bool(fault)
+        bad += not ok
+        print(f"  {'ok ' if ok else 'BAD'} {rule}: faults ({fault})")
+    print(f"selftest_claims: {'OK' if not bad else 'FAIL'} — {len(cases) + 3} case(s)")
+    return 1 if bad else 0
+
+
 def check_claims(docs) -> int:
     reg = REPO / CLAIMS_REGISTER
     print()
@@ -2380,6 +2465,12 @@ def check_claims(docs) -> int:
             val = float(hit.iloc[0][col])
             holds = lo <= val <= hi
             detail = f"{col} is {val:.4g}, outside [{lo:g}, {hi:g}]"
+        elif kind in {"outside", "inside", "cmp"}:
+            holds, detail, fault = _eval_range_cmp(df, row)
+            if fault:
+                print(f"  FAULT  {row['claim_id']}: {fault} — this claim is NOT being checked")
+                bad += 1
+                continue
         else:
             # NOT a skip. An unrecognised rule used to print SKIP and pass,
             # which left a row sitting in the register looking like cover while
@@ -2526,6 +2617,8 @@ def main() -> int:
     ap.add_argument("--near", type=int, default=2,
                     help="near-miss span in units of the last decimal place")
     ap.add_argument("--claims-only", action="store_true")
+    ap.add_argument("--selftest-claims", action="store_true",
+                    help="prove the outside/inside/cmp rules can come out false (1.35.0)")
     ap.add_argument("--index-only", action="store_true",
                     help="exact citation-index check only; skip the heuristic "
                          "near-miss scan")
@@ -2555,6 +2648,8 @@ def main() -> int:
     ap.add_argument("--out", default=None,
                     help="also write everything printed to this file")
     args = ap.parse_args()
+    if args.selftest_claims:
+        return selftest_claims()
 
     tee = None
     if args.out:

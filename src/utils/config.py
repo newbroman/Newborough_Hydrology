@@ -44,7 +44,10 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.106.0"  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_NEED_K1_GRID,
+__version__ = "1.107.0"  # Hollingham (2026) - 2026-10-15. Canopy at the forest wells (Script 41 2.16.0, D-263;
+#   spec NRG_spec_canopy_at_wells_2026-10-15): CANOPY_WELL_BUFFER_M, CANOPY_WELL_BUFFER_SENS_M, WELL_CANOPY_TEST_P,
+#   WELL_CANOPY_COLLINEAR_R.
+# 1.106.0  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_NEED_K1_GRID,
 #   RANWELL_NEED_K2_GRID, RANWELL_NEED_K3_GRID, RANWELL_NEED_NSE_TOL, RANWELL_PIPE_FOOT_M, RANWELL_SEASON_WINDOW_YEARS,
 #   RANWELL_ANTECEDENT_YEARS, RANWELL_MEMORY_MONTHS - what Ranwell's 1951-53 readings need of the model, and the candidates.
 # 1.105.0  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): FORCING_NSE_GAIN, FOREST_FORCING_CLUSTERS,
@@ -1914,6 +1917,15 @@ CANOPY_MAX_GSD_M        = 2.0    # metres per pixel. Above this the texture
 # one of them is not a summary of anything. Script 41 checks this label against
 # the manifest and refuses to write an empty summary over a committed one.
 CANOPY_REPORT_VIEWPOINT = "vp1"
+# ── Canopy at the forest wells (Script 41 2.16.0, D-263) ─────────────────────
+# Paper 1 section 4.8 asserted a uniform canopy over the C4/C5 wells without measuring it
+# (Martin, 2026-10-15: "that canopy is not uniform, aerial photos show that"). The texture
+# index is read in a disc around each forest well. Martin 06:38: 30 m, sensitivity at 20
+# and 50 m, the test on the pre-felling frames, the rule fixed before the run.
+CANOPY_WELL_BUFFER_M      = 30.0          # disc radius, m: about crown-to-gap scale, ~2x the median registration error
+CANOPY_WELL_BUFFER_SENS_M = (20.0, 50.0)  # sensitivity radii, m
+WELL_CANOPY_TEST_P        = 0.05          # significance for the partial correlations of the rule
+WELL_CANOPY_COLLINEAR_R   = 0.8           # |r(canopy, elevation)| above this: the two are not separable on 14 wells
 # ── W94 flood surface on the warren (D-159) ─────────────────────────────────
 # A closed depression in the DEM counts as a SLACK when it holds at least this
 # depth of water before spilling into its neighbour. Martin, 2026-09-11, on

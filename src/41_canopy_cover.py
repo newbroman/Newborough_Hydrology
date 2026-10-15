@@ -150,11 +150,16 @@ THE IMAGERY IS NOT IN THE REPOSITORY BY DEFAULT
   frames are the test of the marker change, and a recovered frame with a poor
   residual is a false-positive match, not a recovery.
 
-__version__ : 2.15.0
+__version__ : 2.16.0
 """
 from __future__ import annotations
 
-__version__ = "2.15.0"  # Hollingham (2026) - 2026-09-29. T-96 batch 2: 41_report_numbers.csv gains
+__version__ = "2.16.0"  # Hollingham (2026) - 2026-10-15. Canopy at the forest wells (D-263; spec
+#   NRG_spec_canopy_at_wells_2026-10-15, signed off by Martin 06:38: 30 m, pre-felling test, rule fixed before the run).
+#   Phase 5 reads the texture index in a CANOPY_WELL_BUFFER_M disc around each C4/C5 well (marker pixels masked, the
+#   compartment gates), and tests beta_2 against canopy and elevation by partial correlation (41_06, 41_07, 41_08,
+#   well_canopy_* report numbers). Existing outputs unchanged.
+# 2.15.0  # Hollingham (2026) - 2026-09-29. T-96 batch 2: 41_report_numbers.csv gains
 #   clearfell_share_of_plantation_pct = 100 x clearfell_polygon_area_ha / config.PLANTATION_AREA_HA, beside
 #   the area row (report7 "about 0.6 % of the plantation"). Additive; nothing else moves.
 # 2.14.0  # Hollingham (2026) - 2026-09-29. T-96: 41_report_numbers.csv also
@@ -337,6 +342,7 @@ from utils.paths import (                                    # noqa: E402
     AERIAL_DIR, AERIAL_MANIFEST, KML_BROADLEAF, DATA_GEO_DIR, DIR_41,
     OUT_41_INDEX, OUT_41_CHANGE, OUT_41_REGISTRATION,
     OUT_41_SERIES_FIG, OUT_41_TRAJECTORY_FIG, OUT_41_REPORT_NUMBERS, INT_LOCATIONS,
+    OUT_07_MAPS_DATA, OUT_41_WELL_CANOPY, OUT_41_WELL_CANOPY_TEST, OUT_41_WELL_CANOPY_FIG,
 )
 from utils.config import (                                   # noqa: E402
     CANOPY_TEXTURE_WINDOW, CANOPY_MIN_REGION_PX, CANOPY_MIN_REF_SEPARATION,
@@ -349,7 +355,8 @@ from utils.config import (                                   # noqa: E402
     CANOPY_MATCH_MAX_ITER, CANOPY_MAX_GSD_M, CANOPY_REPORT_VIEWPOINT,
     LEAF_OFF_MONTHS, LEAF_EMERGING_MONTHS, LEAF_FULL_MONTHS,
     LEAF_SENESCING_MONTHS, CLEARFELL_DATE_ISO, CLEARFELL_ERA_SPLIT,
-    PLANTATION_AREA_HA,
+    PLANTATION_AREA_HA, FOREST_CIDS,
+    CANOPY_WELL_BUFFER_M, CANOPY_WELL_BUFFER_SENS_M, WELL_CANOPY_TEST_P, WELL_CANOPY_COLLINEAR_R,
 )
 from utils.console_utils import banner, phase, step, info, warn, saved, track  # noqa: E402
 from utils.render_utils import render_figure                 # noqa: E402
@@ -953,6 +960,211 @@ def _sample_to_grid(lum, fitted, EE, NN):
     return vals.reshape(EE.shape), ok.reshape(EE.shape)
 
 
+def _pin_mask(a: np.ndarray) -> np.ndarray:
+    """2.16.0: the rendered placemark pixels, dilated by the texture window.
+
+    Every forest well carries a marker at its own position, so a disc centred
+    on the well would otherwise measure the marker's edges as canopy texture.
+    The colour test is _detect_markers' own; the dilation covers the window
+    over which a marker pixel raises the local SD."""
+    from scipy import ndimage
+    r, g, b = a[:, :, 0], a[:, :, 1], a[:, :, 2]
+    pin = (b > 150) & (b - r > 45) & (b - g > 30)
+    return ndimage.binary_dilation(pin, iterations=int(CANOPY_TEXTURE_WINDOW))
+
+
+def _partial_r(y, x, z):
+    """Pearson r of y and x with z partialled out (OLS with intercept), and its two-sided p on n - 3 df."""
+    from scipy import stats
+    y, x, z = (np.asarray(v, float) for v in (y, x, z))
+    Z = np.column_stack([np.ones_like(z), z])
+    ry = y - Z @ np.linalg.lstsq(Z, y, rcond=None)[0]
+    rx = x - Z @ np.linalg.lstsq(Z, x, rcond=None)[0]
+    r = float(np.corrcoef(ry, rx)[0, 1])
+    df = len(y) - 3
+    t = r * np.sqrt(df / max(1e-300, 1.0 - r * r))
+    return r, float(2 * stats.t.sf(abs(t), df))
+
+
+def _canopy_at_wells(paths, cache, ref_stats, rasterise, regions) -> list:
+    """2.16.0 (D-263, spec NRG_spec_canopy_at_wells_2026-10-15).
+
+    Paper 1 section 4.8 reads the C4/C5 split in atmospheric draw (beta_2) as
+    elevation and substrate "beneath a common pine canopy". The canopy was never
+    measured at the wells. Here the texture index is read in a disc of
+    CANOPY_WELL_BUFFER_M around each forest well (C4, C5; the Table 7 set and
+    basis, 07_coeff_maps_data.csv), marker pixels masked, normalised in-frame
+    exactly as the compartment regions are, and gated the same way.
+
+    The TEST uses the pre-felling frames (imagery before CLEARFELL_DATE_ISO) on
+    CANOPY_REPORT_VIEWPOINT, because beta_2 is fitted over a record that is
+    mostly pre-felling; the full-record median is reported beside it. The rule
+    was fixed before the run (Martin, 2026-10-15 06:38):
+      not separable      |r(canopy, elevation)| > WELL_CANOPY_COLLINEAR_R
+      elevation stands   partial r(beta_2, elevation | canopy) has p < WELL_CANOPY_TEST_P
+                         and partial r(beta_2, canopy | elevation) does not
+      canopy contributes partial r(beta_2, canopy | elevation) has p < WELL_CANOPY_TEST_P
+      not separable      otherwise
+    The index is TEXTURE (canopy and understorey together), not canopy fraction.
+    Returns report-number rows for the primary radius."""
+    from PIL import Image
+    from scipy import stats
+    from shapely.geometry import Point
+    import matplotlib.pyplot as plt
+
+    coeff = pd.read_csv(OUT_07_MAPS_DATA)
+    forest = coeff[coeff["Cluster_ID"].isin(FOREST_CIDS)].copy()
+    forest["well"] = forest["Name_Original"].str.strip().str.upper()
+    felled = {n: g for n, (g, _) in regions.items()
+              if n.startswith("clearfell") or n.startswith("felling")}
+    radii = (float(CANOPY_WELL_BUFFER_M),) + tuple(float(x) for x in CANOPY_WELL_BUFFER_SENS_M)
+    cut = pd.Timestamp(CLEARFELL_DATE_ISO)
+
+    rows = []
+    for p in paths:
+        if p.name not in ref_stats or p.name not in cache:
+            continue
+        o_stat, sep, d, gsd, registered, fitted = ref_stats[p.name]
+        lum, tex = cache[p.name]
+        h_, w_ = lum.shape
+        a = np.asarray(Image.open(p).convert("RGB")).astype(float)
+        pins = _pin_mask(a)
+        area = _apply_window(np.ones((h_, w_), bool))
+        for R in radii:
+            for _, wr in forest.iterrows():
+                disc = Point(float(wr["E"]), float(wr["N"])).buffer(R, 64)
+                reason, npx, val = "", 0, np.nan
+                if not registered or fitted is None:
+                    reason = "frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)"
+                elif np.isfinite(gsd) and gsd > CANOPY_MAX_GSD_M:
+                    reason = f"ground sampling distance {gsd:.2f} m/px > {CANOPY_MAX_GSD_M}"
+                else:
+                    full = rasterise(disc, fitted, w_, h_)
+                    inview = full & area
+                    m = inview & ~pins
+                    npx = int(m.sum())
+                    # Containment is tested on the disc's projected outline, not on a pixel
+                    # count: the frames are perspective views, so a fixed metres-per-pixel
+                    # area underestimates the far (northern) side and would reject discs
+                    # that are wholly in view.
+                    cc = list(disc.exterior.coords)
+                    px, py = (np.asarray(v, float) for v in fitted([c[0] for c in cc], [c[1] for c in cc]))
+                    r0, r1, c0, c1 = _frame_window(h_, w_)
+                    if not ((px >= 0).all() and (px < w_).all() and (py >= 0).all() and (py < h_).all()):
+                        reason = "disc not wholly inside the frame"
+                    elif not ((px >= c0).all() and (px < c1).all() and (py >= r0).all() and (py < r1).all()):
+                        reason = "disc not wholly inside the usable window"
+                    elif npx < CANOPY_MIN_REGION_PX:
+                        reason = f"disc {npx} px after marker mask < {CANOPY_MIN_REGION_PX}"
+                    elif not np.isfinite(sep) or sep < CANOPY_MIN_REF_SEPARATION:
+                        reason = f"reference separation {sep:.4f} < {CANOPY_MIN_REF_SEPARATION}"
+                    else:
+                        r_stat, _ = _region_stat(tex, lum, m)
+                        val = (r_stat - o_stat) / sep
+                rows.append({"well": wr["well"], "cluster": int(wr["Cluster_ID"]), "radius_m": R,
+                             "imagery_date": d.date(), "frame": p.name, "viewpoint": _viewpoint(p.name),
+                             "pre_felling": bool(d < cut), "n_px": npx,
+                             "index": None if reason else float(val), "withheld_reason": reason})
+    det = pd.DataFrame(rows)
+    det.to_csv(OUT_41_WELL_CANOPY, index=False)
+    saved(OUT_41_WELL_CANOPY.name)
+
+    ok = det[det["index"].notna() & (det["viewpoint"] == CANOPY_REPORT_VIEWPOINT)]
+    per = []
+    for (w, R), g in ok.groupby(["well", "radius_m"]):
+        pre = g[g["pre_felling"]]["index"]
+        per.append({"well": w, "radius_m": R, "canopy_pre": float(pre.median()) if len(pre) else np.nan,
+                    "n_pre": int(len(pre)), "canopy_all": float(g["index"].median()), "n_all": int(len(g))})
+    per = pd.DataFrame(per)
+    forest["in_felled_compartment"] = [
+        ";".join(n for n, g in felled.items() if Point(e, n_).buffer(CANOPY_WELL_BUFFER_M).intersects(g))
+        for e, n_ in zip(forest["E"], forest["N"])]
+
+    tests, rn = [], []
+    for R in radii:
+        f = forest.merge(per[per["radius_m"] == R], on="well", how="left")
+        use = f.dropna(subset=["canopy_pre", "beta_2_atmospheric_draw", "dem"])
+        n = len(use)
+        row = {"radius_m": R, "basis": "pre-felling median, " + CANOPY_REPORT_VIEWPOINT,
+               "n_wells": n, "n_forest_wells": len(f),
+               "wells_without_value": ";".join(sorted(set(f["well"]) - set(use["well"]))),
+               "elevation_range_m": f"{use['dem'].min():.2f}-{use['dem'].max():.2f}" if n else ""}
+        if n >= 5:
+            b2, cz, el = use["beta_2_atmospheric_draw"], use["canopy_pre"], use["dem"]
+            row["r_beta2_canopy"], row["p_beta2_canopy"] = (float(v) for v in stats.pearsonr(b2, cz))
+            row["r_beta2_elevation"], row["p_beta2_elevation"] = (float(v) for v in stats.pearsonr(b2, el))
+            row["r_canopy_elevation"], row["p_canopy_elevation"] = (float(v) for v in stats.pearsonr(cz, el))
+            row["partial_r_beta2_canopy_given_elev"], row["partial_p_beta2_canopy_given_elev"] = _partial_r(b2, cz, el)
+            row["partial_r_beta2_elev_given_canopy"], row["partial_p_beta2_elev_given_canopy"] = _partial_r(b2, el, cz)
+            c4 = use[use["Cluster_ID"] == 4]["canopy_pre"]; c5 = use[use["Cluster_ID"] == 5]["canopy_pre"]
+            row["canopy_c4_median"] = float(c4.median()) if len(c4) else np.nan
+            row["canopy_c5_median"] = float(c5.median()) if len(c5) else np.nan
+            row["mw_p_c4_vs_c5"] = (float(stats.mannwhitneyu(c4, c5, alternative="two-sided").pvalue)
+                                    if len(c4) and len(c5) else np.nan)
+            if abs(row["r_canopy_elevation"]) > WELL_CANOPY_COLLINEAR_R:
+                v = "not separable"
+            elif (row["partial_p_beta2_elev_given_canopy"] < WELL_CANOPY_TEST_P
+                  and row["partial_p_beta2_canopy_given_elev"] >= WELL_CANOPY_TEST_P):
+                v = "elevation stands"
+            elif row["partial_p_beta2_canopy_given_elev"] < WELL_CANOPY_TEST_P:
+                v = "canopy contributes"
+            else:
+                v = "not separable"
+            row["verdict"] = v
+        else:
+            row["verdict"] = f"not evaluated: {n} wells with a pre-felling value"
+        tests.append(row)
+        info(f"  radius {R:g} m: {n}/{len(f)} wells; verdict: {row['verdict']}")
+        if R == radii[0]:
+            prim = use
+    tdf = pd.DataFrame(tests)
+    tdf.to_csv(OUT_41_WELL_CANOPY_TEST, index=False)
+    saved(OUT_41_WELL_CANOPY_TEST.name)
+
+    t0 = tests[0]
+    era = f"pre-felling ({CANOPY_REPORT_VIEWPOINT}, before {CLEARFELL_DATE_ISO[:7]})"
+    def add(k, v, unit, note):
+        rn.append({"Parameter": k, "Well": "", "Era": era, "Value": v, "Unit": unit, "Note": note})
+    add("well_canopy_n_wells", float(t0["n_wells"]), "wells",
+        f"forest wells (C4, C5) with a pre-felling canopy value at {CANOPY_WELL_BUFFER_M:g} m, of {t0['n_forest_wells']}")
+    for k, unit in [("r_beta2_canopy", "r"), ("p_beta2_canopy", "p"), ("r_canopy_elevation", "r"),
+                    ("partial_r_beta2_canopy_given_elev", "r"), ("partial_p_beta2_canopy_given_elev", "p"),
+                    ("partial_r_beta2_elev_given_canopy", "r"), ("partial_p_beta2_elev_given_canopy", "p"),
+                    ("canopy_c4_median", "index"), ("canopy_c5_median", "index"), ("mw_p_c4_vs_c5", "p")]:
+        if k in t0:
+            add(f"well_canopy_{k}", float(t0[k]), unit,
+                f"radius {CANOPY_WELL_BUFFER_M:g} m; beta_2 on the Table 7 basis (07_coeff_maps_data.csv); "
+                f"texture index (canopy and understorey), not canopy fraction")
+    code = {"elevation stands": 1.0, "canopy contributes": 2.0, "not separable": 0.0}.get(t0["verdict"], float("nan"))
+    add("well_canopy_verdict", code, "code",
+        f"{t0['verdict']} (1 elevation stands, 2 canopy contributes, 0 not separable); rule fixed before the run "
+        f"(WELL_CANOPY_TEST_P, WELL_CANOPY_COLLINEAR_R; D-263)")
+
+    if t0["n_wells"] >= 5:
+        fig, ax = plt.subplots(figsize=(7.5, 5.5))
+        mk = {4: "D", 5: "P"}
+        sc = None
+        for cid, g in prim.groupby("Cluster_ID"):
+            sc = ax.scatter(g["dem"], g["beta_2_atmospheric_draw"], c=g["canopy_pre"], cmap="viridis",
+                            vmin=float(prim["canopy_pre"].min()), vmax=float(prim["canopy_pre"].max()),
+                            marker=mk.get(int(cid), "o"), s=70, edgecolor="k", lw=0.5,
+                            label=f"C{int(cid)}")
+        for _, r_ in prim.iterrows():
+            ax.annotate(r_["well"], (r_["dem"], r_["beta_2_atmospheric_draw"]), fontsize=7,
+                        xytext=(4, 3), textcoords="offset points")
+        cb = fig.colorbar(sc, ax=ax)
+        cb.set_label(f"canopy texture index, {CANOPY_WELL_BUFFER_M:g} m disc, pre-felling median")
+        ax.set_xlabel("ground elevation (m OD)")
+        ax.set_ylabel("β₂ atmospheric draw")
+        ax.set_title(f"Forest wells: β₂ against elevation, coloured by canopy texture — {t0['verdict']}")
+        from matplotlib.lines import Line2D
+        ax.legend(handles=[Line2D([0], [0], marker=mk[c], color="w", markerfacecolor="0.6", markeredgecolor="k",
+                                  markersize=8, label=f"C{c}") for c in (4, 5)], fontsize=8, loc="upper left")
+        render_figure(fig, OUT_41_WELL_CANOPY_FIG)
+        saved(OUT_41_WELL_CANOPY_FIG.name)
+    return rn
+
+
 def main() -> int:
     banner("41", "Canopy and forest cover from the dated aerial series",
            version=__version__)
@@ -1105,6 +1317,7 @@ def main() -> int:
 
     phase(2, "Texture index per frame")
     reg_rows, idx_rows, cache, transforms = [], [], {}, {}
+    ref_stats = {}
     for p, d in track(zip(paths, man["imagery_date"]), lambda item: item[0].name,
                        total=len(paths), lines=True):
         r = reg.get(p.name, {})
@@ -1133,6 +1346,9 @@ def main() -> int:
             c_stat, _ = _region_stat(tex, lum, ref_con)
             o_stat, _ = _region_stat(tex, lum, ref_opn)
         sep = c_stat - o_stat
+        # 2.16.0: for the wells phase. The transform is captured here because phase 4 rebinds `reg`
+        # as a loop variable (`for reg, lab, col, mk in series`).
+        ref_stats[p.name] = (o_stat, sep, d, r.get("gsd_m", np.nan), registered, fitted)
         # The registration test comes FIRST. A frame that did not register
         # cannot have a meaningful reference separation either, and v1.0.0
         # reported that downstream symptom instead of the cause.
@@ -1451,6 +1667,10 @@ def main() -> int:
                    "Value": 100.0 * _cf_ha / PLANTATION_AREA_HA, "Unit": "%",
                    "Note": (f"100 x clearfell_polygon_area_ha / PLANTATION_AREA_HA "
                             f"({PLANTATION_AREA_HA:g} ha, Stratford et al. 2007)")})
+    # 2.16.0 (D-263): the canopy at each forest well, and whether it explains β₂ beyond elevation.
+    phase(5, "Canopy at the forest wells")
+    rn += _canopy_at_wells(paths, cache, ref_stats, _rasterise, regions)
+
     # An empty summary is REFUSED, not written. A step that could not produce
     # its numbers must leave the committed file alone rather than replace it with
     # nothing — `pd.DataFrame([]).to_csv()` writes a file with no header at all,

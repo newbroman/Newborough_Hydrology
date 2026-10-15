@@ -1,0 +1,1513 @@
+well,cluster,radius_m,imagery_date,frame,viewpoint,pre_felling,n_px,index,withheld_reason
+NW9,5,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1566,0.4485783837837255,
+NW10,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,895,0.6801207544342958,
+CEH2,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1287,1.97126315917268,
+CEH13,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1100,1.1720566139190156,
+CEH14,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1186,0.9724256920824211,
+CEH16,5,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1455,-0.1727236588654458,
+CEH17,5,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1434,1.246351874892949,
+CEH19,5,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,2032,1.4074474702581465,
+CEH20,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1383,1.4000566869757294,
+CEH30,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1210,0.1343119639859199,
+CEH31,5,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1545,-0.07038900519954074,
+CEH32,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1193,-0.16812060196639914,
+CEH33,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1164,-0.13880512312890642,
+CEH34,4,30.0,2006-01-01,aerial 1-1-2006.png,vp1,True,1652,1.6744529608913643,
+NW9,5,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,692,0.4271289847549808,
+NW10,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,589,2.025438753966541,
+CEH13,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,467,1.0648167931649124,
+CEH14,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,542,0.8444107364002172,
+CEH16,5,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,618,-0.18427489648411255,
+CEH17,5,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,566,1.2639322405272926,
+CEH19,5,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,929,1.4821797021380063,
+CEH20,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,647,1.4738318714982714,
+CEH30,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,472,0.1328675630608421,
+CEH31,5,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,726,-0.15971222457465215,
+CEH32,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,515,-0.185226440968439,
+CEH33,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2006-01-01,aerial 1-1-2006.png,vp1,True,747,1.9590116620918405,
+NW9,5,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4833,0.4663354260174213,
+NW10,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,2992,0.7908141271362871,
+CEH2,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,3701,1.9299777138352923,
+CEH13,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,3505,1.1419798593776254,
+CEH14,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,3060,1.0777059713601969,
+CEH16,5,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4661,-0.025438280835267044,
+CEH17,5,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4816,1.2596139102810737,
+CEH19,5,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,5518,1.3657323530074008,
+CEH20,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4080,1.5131951861578572,
+CEH30,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4257,0.09971273084939417,
+CEH31,5,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4431,0.06787062483986596,
+CEH32,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,3658,-0.07561252821817135,
+CEH33,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4119,-0.06942976069271596,
+CEH34,4,50.0,2006-01-01,aerial 1-1-2006.png,vp1,True,4150,1.6748317340624763,
+NW9,5,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW10,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH2,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH13,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH14,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH16,5,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH17,5,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH19,5,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH20,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH30,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH31,5,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH32,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH33,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH34,4,30.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW9,5,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW10,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH2,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH13,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH14,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH16,5,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH17,5,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH19,5,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH20,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH30,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH31,5,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH32,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH33,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH34,4,20.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW9,5,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW10,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH2,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH13,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH14,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH16,5,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH17,5,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH19,5,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH20,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH30,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH31,5,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH32,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH33,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH34,4,50.0,2006-01-01,site1-1-2006m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW9,5,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW10,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH2,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH13,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH14,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH16,5,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH17,5,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH19,5,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH20,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH30,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH31,5,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH32,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH33,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH34,4,30.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW9,5,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW10,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH2,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH13,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH14,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH16,5,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH17,5,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH19,5,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH20,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH30,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH31,5,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH32,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH33,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH34,4,20.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW9,5,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW10,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH2,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH13,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH14,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH16,5,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH17,5,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH19,5,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH20,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH30,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH31,5,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH32,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH33,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH34,4,50.0,2006-01-01,seabed1-1-2006.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW9,5,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1566,0.743843222940746,
+NW10,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,895,0.9203261278303735,
+CEH2,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1287,1.4756220140971554,
+CEH13,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1100,1.364611650476026,
+CEH14,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1186,1.1733282167567927,
+CEH16,5,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1455,0.24650779406499637,
+CEH17,5,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1434,1.2741489084545214,
+CEH19,5,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,2032,1.3591266337148018,
+CEH20,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1383,1.1801808556922864,
+CEH30,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1210,0.25085770502884347,
+CEH31,5,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1545,0.04008031998596684,
+CEH32,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1193,0.3643281863728402,
+CEH33,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1164,-0.0016269319831628604,
+CEH34,4,30.0,2009-04-20,aerial20-4-2009.png,vp1,True,1652,1.2590207069725905,
+NW9,5,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,692,0.8417279012161448,
+NW10,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,589,1.5942817516116787,
+CEH13,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,467,1.2773975475418922,
+CEH14,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,542,1.069447256799688,
+CEH16,5,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,618,0.2662241051342234,
+CEH17,5,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,566,1.3004968906030376,
+CEH19,5,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,929,1.3523168546207398,
+CEH20,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,647,1.2508519303887806,
+CEH30,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,472,0.28095614468278685,
+CEH31,5,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,726,-0.020827241124590026,
+CEH32,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,515,0.43078390641440206,
+CEH33,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2009-04-20,aerial20-4-2009.png,vp1,True,747,1.444069233434405,
+NW9,5,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4833,0.7089784546352501,
+NW10,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,2992,1.1092573598359607,
+CEH2,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,3701,1.388159644296126,
+CEH13,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,3505,1.3078015999264319,
+CEH14,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,3060,1.2518685935363483,
+CEH16,5,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4661,0.3661833491041306,
+CEH17,5,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4816,1.2729867091195186,
+CEH19,5,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,5518,1.3374790213713041,
+CEH20,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4080,1.2837517289145837,
+CEH30,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4257,0.2501101260697906,
+CEH31,5,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4431,0.1699157814039073,
+CEH32,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,3658,0.3976500207568126,
+CEH33,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4119,0.08670750023859046,
+CEH34,4,50.0,2009-04-20,aerial20-4-2009.png,vp1,True,4150,1.3332377395671196,
+NW9,5,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2009-04-20,site 20-4-2009m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW10,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH2,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH13,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH14,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH16,5,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH17,5,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH19,5,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH20,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH30,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH31,5,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH32,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH33,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH34,4,30.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW9,5,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW10,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH2,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH13,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH14,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH16,5,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH17,5,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH19,5,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH20,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH30,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH31,5,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH32,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH33,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH34,4,20.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW9,5,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW10,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH2,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH13,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH14,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH16,5,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH17,5,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH19,5,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH20,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH30,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH31,5,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH32,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH33,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+CEH34,4,50.0,2011-06-19,site27-5-2010m.png,vp2_2006,True,0,,ground sampling distance 2.95 m/px > 2.0
+NW9,5,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2011-06-19,site19-6-2011m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2012-05-26,site26-5-2012m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1566,0.8876901078369203,
+NW10,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,895,1.4868375861580891,
+CEH2,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1287,1.4076320541922351,
+CEH13,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1100,1.3055688726243475,
+CEH14,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1186,1.55346744222848,
+CEH16,5,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1455,0.4570804053334072,
+CEH17,5,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1434,1.1030176870256556,
+CEH19,5,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,2032,1.389575709088247,
+CEH20,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1383,0.9547548402844414,
+CEH30,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1210,0.332922524408032,
+CEH31,5,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1545,0.15041538154042774,
+CEH32,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1193,0.5115049213996473,
+CEH33,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1164,0.19594073054501637,
+CEH34,4,30.0,2012-05-26,aerial26-5-2012.png,vp1,True,1652,1.4689586767883358,
+NW9,5,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,692,0.9585417230727232,
+NW10,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,589,1.5405872394031452,
+CEH13,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,467,1.3221090202399615,
+CEH14,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,542,1.581506672533787,
+CEH16,5,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,618,0.5309905288224582,
+CEH17,5,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,566,1.0724847130250517,
+CEH19,5,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,929,1.4297544944058032,
+CEH20,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,647,1.0996181987543634,
+CEH30,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,472,0.39456663700930195,
+CEH31,5,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,726,0.12891322936491378,
+CEH32,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,515,0.4610537145612403,
+CEH33,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2012-05-26,aerial26-5-2012.png,vp1,True,747,1.6985533754268463,
+NW9,5,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4833,0.7453952647270604,
+NW10,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,2992,1.6277316698931028,
+CEH2,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,3701,1.3034225814491536,
+CEH13,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,3505,1.267227981851742,
+CEH14,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,3060,1.5613325243720502,
+CEH16,5,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4661,0.5124950256452604,
+CEH17,5,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4816,1.1263469185574706,
+CEH19,5,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,5518,1.2875013580350188,
+CEH20,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4080,1.1036598682898275,
+CEH30,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4257,0.27980148370275604,
+CEH31,5,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4431,0.2677521590688145,
+CEH32,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,3658,0.6483579549733863,
+CEH33,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4119,0.2757088894870682,
+CEH34,4,50.0,2012-05-26,aerial26-5-2012.png,vp1,True,4150,1.4128808588037887,
+NW9,5,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2017-03-24,site24-3-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1566,0.8171656413934049,
+NW10,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,895,0.9752802283374534,
+CEH2,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1287,1.2465373055045155,
+CEH13,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1100,1.2730687332478583,
+CEH14,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1186,1.2179385766594995,
+CEH16,5,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1456,0.6969270201482778,
+CEH17,5,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1434,1.2984899698101184,
+CEH19,5,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,2032,1.3677320092598064,
+CEH20,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1383,0.9929370691957726,
+CEH30,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1210,0.7997229971288713,
+CEH31,5,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1545,0.5438037532927432,
+CEH32,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1193,0.9187269635374381,
+CEH33,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1164,0.7099200162054042,
+CEH34,4,30.0,2017-03-24,aerial24-3-2017.png,vp1,True,1652,1.7220468144819454,
+NW9,5,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,692,0.861277393947192,
+NW10,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,589,1.448459149564474,
+CEH13,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,467,1.2692179003365947,
+CEH14,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,542,1.182329655303029,
+CEH16,5,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,618,0.775520549192125,
+CEH17,5,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,566,1.360726333263055,
+CEH19,5,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,929,1.4153157453255358,
+CEH20,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,647,1.115434817862148,
+CEH30,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,472,0.7655229954659122,
+CEH31,5,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,726,0.5147663413344533,
+CEH32,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,515,0.7571649909770105,
+CEH33,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2017-03-24,aerial24-3-2017.png,vp1,True,747,1.894315586616874,
+NW9,5,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4833,0.7772492245508198,
+NW10,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,2992,1.1032099338422219,
+CEH2,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,3701,1.349085129854521,
+CEH13,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,3505,1.2906292957879177,
+CEH14,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,3060,1.1875047750896262,
+CEH16,5,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4662,0.641193461768642,
+CEH17,5,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4816,1.2467105676718995,
+CEH19,5,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,5518,1.3269961494825677,
+CEH20,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4080,1.1395241445407902,
+CEH30,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4257,0.642950845179105,
+CEH31,5,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4431,0.7365992369543803,
+CEH32,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,3658,0.9773864607969949,
+CEH33,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4119,0.7261475032968824,
+CEH34,4,50.0,2017-03-24,aerial24-3-2017.png,vp1,True,4150,1.6871718449698334,
+NW9,5,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW10,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH2,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH13,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH14,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH16,5,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH17,5,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH19,5,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH20,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH30,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH31,5,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH32,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH33,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH34,4,30.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW9,5,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW10,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH2,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH13,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH14,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH16,5,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH17,5,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH19,5,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH20,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH30,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH31,5,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH32,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH33,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH34,4,20.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW9,5,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW10,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH2,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH13,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH14,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH16,5,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH17,5,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH19,5,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH20,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH30,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH31,5,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH32,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH33,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH34,4,50.0,2017-04-22,seabed22-4-2017-4.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW9,5,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+NW10,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH2,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH13,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH14,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH16,5,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH17,5,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH19,5,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH20,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH30,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH31,5,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH32,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH33,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH34,4,30.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+NW9,5,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+NW10,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH2,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH13,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH14,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH16,5,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH17,5,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH19,5,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH20,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH30,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH31,5,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH32,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH33,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH34,4,20.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+NW9,5,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+NW10,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH2,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH13,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH14,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH16,5,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH17,5,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH19,5,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH20,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH30,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH31,5,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH32,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH33,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+CEH34,4,50.0,2017-04-22,seabed22-4-2017-3.png,vp4,True,0,,ground sampling distance 2.04 m/px > 2.0
+NW9,5,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW10,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH2,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH13,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH14,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH16,5,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH17,5,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH19,5,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH20,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH30,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH31,5,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH32,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH33,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH34,4,30.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW9,5,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW10,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH2,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH13,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH14,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH16,5,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH17,5,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH19,5,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH20,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH30,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH31,5,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH32,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH33,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH34,4,20.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW9,5,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW10,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH2,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH13,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH14,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH16,5,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH17,5,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH19,5,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH20,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH30,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH31,5,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH32,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH33,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+CEH34,4,50.0,2017-04-22,seabed22-4-2017-2.png,vp4,True,0,,frame not registered (or residual over CANOPY_MAX_RESIDUAL_M)
+NW9,5,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,998,,reference separation 0.0051 < 0.02
+NW10,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,1421,,reference separation 0.0051 < 0.02
+CEH2,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,816,,reference separation 0.0051 < 0.02
+CEH13,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,1208,,reference separation 0.0051 < 0.02
+CEH14,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,1490,,reference separation 0.0051 < 0.02
+CEH16,5,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,1022,,reference separation 0.0051 < 0.02
+CEH17,5,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,960,,reference separation 0.0051 < 0.02
+CEH19,5,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,716,,reference separation 0.0051 < 0.02
+CEH20,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,732,,reference separation 0.0051 < 0.02
+CEH30,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,1090,,reference separation 0.0051 < 0.02
+CEH31,5,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,963,,reference separation 0.0051 < 0.02
+CEH32,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,1205,,reference separation 0.0051 < 0.02
+CEH33,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,783,,reference separation 0.0051 < 0.02
+CEH34,4,30.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,1183,,reference separation 0.0051 < 0.02
+NW9,5,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,458,,reference separation 0.0051 < 0.02
+NW10,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,646,,reference separation 0.0051 < 0.02
+CEH2,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,303,,disc 303 px after marker mask < 400
+CEH13,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,552,,reference separation 0.0051 < 0.02
+CEH14,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,684,,reference separation 0.0051 < 0.02
+CEH16,5,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,473,,reference separation 0.0051 < 0.02
+CEH17,5,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,454,,reference separation 0.0051 < 0.02
+CEH19,5,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,298,,disc 298 px after marker mask < 400
+CEH20,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,280,,disc 280 px after marker mask < 400
+CEH30,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,505,,reference separation 0.0051 < 0.02
+CEH31,5,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,463,,reference separation 0.0051 < 0.02
+CEH32,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,556,,reference separation 0.0051 < 0.02
+CEH33,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,356,,disc 356 px after marker mask < 400
+CEH34,4,20.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,547,,reference separation 0.0051 < 0.02
+NW9,5,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2700,,reference separation 0.0051 < 0.02
+NW10,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,3849,,reference separation 0.0051 < 0.02
+CEH2,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2786,,reference separation 0.0051 < 0.02
+CEH13,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,3260,,reference separation 0.0051 < 0.02
+CEH14,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,4049,,reference separation 0.0051 < 0.02
+CEH16,5,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2761,,reference separation 0.0051 < 0.02
+CEH17,5,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2350,,reference separation 0.0051 < 0.02
+CEH19,5,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2130,,reference separation 0.0051 < 0.02
+CEH20,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2477,,reference separation 0.0051 < 0.02
+CEH30,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2943,,reference separation 0.0051 < 0.02
+CEH31,5,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2353,,reference separation 0.0051 < 0.02
+CEH32,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,3261,,reference separation 0.0051 < 0.02
+CEH33,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,2404,,reference separation 0.0051 < 0.02
+CEH34,4,50.0,2017-04-22,seabed22-4-2017-1.png,vp4,True,3197,,reference separation 0.0051 < 0.02
+NW9,5,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2017-04-22,site22-4-2017m.png,vp2,True,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1077,,reference separation -0.0160 < 0.02
+NW10,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1585,,reference separation -0.0160 < 0.02
+CEH2,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1300,,reference separation -0.0160 < 0.02
+CEH13,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1412,,reference separation -0.0160 < 0.02
+CEH14,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1777,,reference separation -0.0160 < 0.02
+CEH16,5,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,827,,reference separation -0.0160 < 0.02
+CEH17,5,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,789,,reference separation -0.0160 < 0.02
+CEH19,5,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1064,,reference separation -0.0160 < 0.02
+CEH20,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,676,,reference separation -0.0160 < 0.02
+CEH30,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1175,,reference separation -0.0160 < 0.02
+CEH31,5,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1008,,reference separation -0.0160 < 0.02
+CEH32,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1348,,reference separation -0.0160 < 0.02
+CEH33,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,763,,reference separation -0.0160 < 0.02
+CEH34,4,30.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,1217,,reference separation -0.0160 < 0.02
+NW9,5,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,495,,reference separation -0.0160 < 0.02
+NW10,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,729,,reference separation -0.0160 < 0.02
+CEH2,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,603,,reference separation -0.0160 < 0.02
+CEH13,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,646,,reference separation -0.0160 < 0.02
+CEH14,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,810,,reference separation -0.0160 < 0.02
+CEH16,5,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,357,,disc 357 px after marker mask < 400
+CEH17,5,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,316,,disc 316 px after marker mask < 400
+CEH19,5,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,486,,reference separation -0.0160 < 0.02
+CEH20,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,118,,disc 118 px after marker mask < 400
+CEH30,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,546,,reference separation -0.0160 < 0.02
+CEH31,5,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,482,,reference separation -0.0160 < 0.02
+CEH32,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,610,,reference separation -0.0160 < 0.02
+CEH33,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,247,,disc 247 px after marker mask < 400
+CEH34,4,20.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,572,,reference separation -0.0160 < 0.02
+NW9,5,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2903,,reference separation -0.0160 < 0.02
+NW10,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,4172,,reference separation -0.0160 < 0.02
+CEH2,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,3524,,reference separation -0.0160 < 0.02
+CEH13,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,3823,,reference separation -0.0160 < 0.02
+CEH14,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,4814,,reference separation -0.0160 < 0.02
+CEH16,5,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2464,,reference separation -0.0160 < 0.02
+CEH17,5,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2410,,reference separation -0.0160 < 0.02
+CEH19,5,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2862,,reference separation -0.0160 < 0.02
+CEH20,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2738,,reference separation -0.0160 < 0.02
+CEH30,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2996,,reference separation -0.0160 < 0.02
+CEH31,5,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2620,,reference separation -0.0160 < 0.02
+CEH32,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,3528,,reference separation -0.0160 < 0.02
+CEH33,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,2736,,reference separation -0.0160 < 0.02
+CEH34,4,50.0,2017-04-22,seabed22-4-2017-o.png,vp6,True,3074,,reference separation -0.0160 < 0.02
+NW9,5,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1566,0.9512288691796347,
+NW10,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,895,1.0683984579010113,
+CEH2,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1287,1.0937660578558388,
+CEH13,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1100,1.3642682102251276,
+CEH14,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1186,1.5927505923748675,
+CEH16,5,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1455,0.8090377235763108,
+CEH17,5,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1434,1.1201690440153498,
+CEH19,5,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,2032,1.355912166457388,
+CEH20,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1383,0.9270238008100905,
+CEH30,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1210,0.6911080471796104,
+CEH31,5,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1545,0.4675495922825586,
+CEH32,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1193,0.9540528754076539,
+CEH33,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1164,0.6881658971761682,
+CEH34,4,30.0,2017-04-22,aerial22-4-2017.png,vp1,True,1652,1.4338067397872993,
+NW9,5,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,692,1.0371920217409965,
+NW10,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,589,1.1766419357108309,
+CEH13,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,467,1.3652979251995851,
+CEH14,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,542,1.5323524754091618,
+CEH16,5,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,618,0.8008253300474323,
+CEH17,5,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,566,1.0650654216814446,
+CEH19,5,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,929,1.3241741617511775,
+CEH20,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,647,0.8909919827972436,
+CEH30,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,472,0.6805122778511398,
+CEH31,5,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,726,0.49731458636339465,
+CEH32,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,515,0.790510636815472,
+CEH33,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2017-04-22,aerial22-4-2017.png,vp1,True,747,1.5407921228448076,
+NW9,5,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4833,0.8467861522827144,
+NW10,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,2992,1.2482750505374212,
+CEH2,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,3701,1.090628403114501,
+CEH13,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,3505,1.303248890456195,
+CEH14,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,3060,1.4832507650387903,
+CEH16,5,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4661,0.7445601561900226,
+CEH17,5,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4816,1.1238272462010226,
+CEH19,5,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,5518,1.2944042943237297,
+CEH20,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4080,1.1317369116532816,
+CEH30,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4257,0.6246105838849599,
+CEH31,5,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4431,0.6371182473552262,
+CEH32,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,3658,1.023779810617141,
+CEH33,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4119,0.759127043173658,
+CEH34,4,50.0,2017-04-22,aerial22-4-2017.png,vp1,True,4150,1.3468168278039934,
+NW9,5,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW10,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH2,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH13,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH14,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH16,5,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH17,5,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH19,5,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH20,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH30,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH31,5,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH32,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH33,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH34,4,30.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW9,5,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW10,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH2,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH13,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH14,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH16,5,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH17,5,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH19,5,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH20,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH30,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH31,5,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH32,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH33,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH34,4,20.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW9,5,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW10,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH2,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH13,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH14,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH16,5,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH17,5,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH19,5,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH20,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH30,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH31,5,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH32,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH33,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+CEH34,4,50.0,2017-04-22,seabed22-4-2017.png,vp3,True,0,,ground sampling distance 4.77 m/px > 2.0
+NW9,5,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1566,0.8969486504804923,
+NW10,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,895,1.1081956368080963,
+CEH2,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1287,1.2951138496352441,
+CEH13,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1100,1.3944432016904653,
+CEH14,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1186,1.254214152324422,
+CEH16,5,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1455,0.6429838301448946,
+CEH17,5,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1434,1.0484738701071947,
+CEH19,5,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,2032,1.227966766736406,
+CEH20,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1383,0.7561620964018786,
+CEH30,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1210,0.5766802184468725,
+CEH31,5,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1545,0.48482518227969335,
+CEH32,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1193,0.5528081397029255,
+CEH33,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1164,0.5521931286237651,
+CEH34,4,30.0,2018-06-28,aerial28-6-2018.png,vp1,False,1652,1.1990148529495759,
+NW9,5,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,692,1.0400193807640687,
+NW10,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,589,1.4819955421390179,
+CEH13,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,467,1.3323600146496666,
+CEH14,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,542,1.1412197039024983,
+CEH16,5,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,618,0.8154189296114512,
+CEH17,5,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,566,0.9850333415850943,
+CEH19,5,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,929,1.2647087076671757,
+CEH20,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,647,0.8116792648279634,
+CEH30,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,472,0.5848597396444762,
+CEH31,5,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,726,0.4130900713161523,
+CEH32,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,515,0.45408948934154175,
+CEH33,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2018-06-28,aerial28-6-2018.png,vp1,False,747,1.2820437036560226,
+NW9,5,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4833,0.9260801797605628,
+NW10,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,2992,1.3034035772609982,
+CEH2,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,3701,1.1992383444342363,
+CEH13,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,3505,1.2841523241386466,
+CEH14,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,3060,1.3067769920204353,
+CEH16,5,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4661,0.6764831172169136,
+CEH17,5,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4816,1.057496307521387,
+CEH19,5,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,5518,1.1830191837646153,
+CEH20,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4080,0.8633715841699254,
+CEH30,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4257,0.541106677224562,
+CEH31,5,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4431,0.6299353181857863,
+CEH32,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,3658,0.632590326038721,
+CEH33,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4119,0.606129985321984,
+CEH34,4,50.0,2018-06-28,aerial28-6-2018.png,vp1,False,4150,1.265019703989972,
+NW9,5,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2018-06-28,site28-6-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1565,1.0070878026392232,
+NW10,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,895,1.0685948162949173,
+CEH2,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1287,1.0988831712096603,
+CEH13,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1100,1.3446749741701358,
+CEH14,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1186,1.2626561162998344,
+CEH16,5,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1455,0.7931698567150335,
+CEH17,5,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1434,1.1805760225383506,
+CEH19,5,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,2032,1.2863294987593963,
+CEH20,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1383,0.9446914537312036,
+CEH30,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1210,0.6645221481329426,
+CEH31,5,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1546,0.5577520801116218,
+CEH32,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1193,0.8491883359306253,
+CEH33,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1164,0.7460788109094991,
+CEH34,4,30.0,2018-07-08,aerial8-7-2018.png,vp1,False,1652,1.27467829931475,
+NW9,5,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,692,1.1302088531540553,
+NW10,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,589,1.280074488870612,
+CEH13,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,467,1.3494064884289985,
+CEH14,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,542,1.1533481640543812,
+CEH16,5,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,618,0.8184139349211037,
+CEH17,5,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,566,1.1706008208174412,
+CEH19,5,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,929,1.3014985439234619,
+CEH20,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,647,0.9472824104678327,
+CEH30,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,472,0.6301345749223156,
+CEH31,5,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,727,0.5900196701823621,
+CEH32,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,515,0.6749887420399765,
+CEH33,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2018-07-08,aerial8-7-2018.png,vp1,False,747,1.368725536117034,
+NW9,5,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4832,0.931999693036804,
+NW10,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,2992,1.33283332839249,
+CEH2,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,3702,1.0843343299150923,
+CEH13,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,3511,1.245095235978444,
+CEH14,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,3060,1.322945796400748,
+CEH16,5,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4661,0.7735707950029119,
+CEH17,5,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4816,1.157727310125885,
+CEH19,5,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,5518,1.2431590195815694,
+CEH20,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4080,1.0629303517500681,
+CEH30,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4257,0.6359063867532755,
+CEH31,5,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4432,0.6351390989944106,
+CEH32,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,3658,0.8680354069556857,
+CEH33,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4119,0.7979620305106941,
+CEH34,4,50.0,2018-07-08,aerial8-7-2018.png,vp1,False,4150,1.2885516847102678,
+NW9,5,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2018-07-08,site8-7-2018m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+NW10,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH2,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH13,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH14,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH16,5,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH17,5,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH19,5,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH20,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH30,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH31,5,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH32,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH33,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH34,4,30.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+NW9,5,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+NW10,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH2,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH13,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH14,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH16,5,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH17,5,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH19,5,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH20,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH30,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH31,5,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH32,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH33,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH34,4,20.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+NW9,5,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+NW10,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH2,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH13,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH14,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH16,5,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH17,5,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH19,5,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH20,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH30,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH31,5,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH32,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH33,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+CEH34,4,50.0,2019-07-29,seabed29-7-2019-a.png,vp5,False,0,,ground sampling distance 2.96 m/px > 2.0
+NW9,5,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1565,1.0526859907422081,
+NW10,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,895,1.0672716614221682,
+CEH2,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1287,1.3103726211347235,
+CEH13,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1100,1.2401439773930112,
+CEH14,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1186,1.2184821371104377,
+CEH16,5,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1455,0.7303484647573626,
+CEH17,5,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1434,1.1484110145810804,
+CEH19,5,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,2032,1.309625932059273,
+CEH20,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1383,0.829803938408126,
+CEH30,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1210,0.7293366141174602,
+CEH31,5,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1546,0.5970513065665988,
+CEH32,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1193,0.7219584050270631,
+CEH33,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1164,0.6824762086788617,
+CEH34,4,30.0,2019-07-29,aerial29-7-2019.png,vp1,False,1652,1.4304356605328714,
+NW9,5,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,692,1.171805205189372,
+NW10,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,589,1.440441113864299,
+CEH13,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,467,1.2351663497438425,
+CEH14,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,542,1.1727671095638739,
+CEH16,5,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,618,0.7672987104612572,
+CEH17,5,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,566,1.1406077495745786,
+CEH19,5,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,929,1.3061659621589785,
+CEH20,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,647,0.9406143164966152,
+CEH30,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,472,0.6929655335064258,
+CEH31,5,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,727,0.5669447483420261,
+CEH32,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,515,0.550463139986287,
+CEH33,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2019-07-29,aerial29-7-2019.png,vp1,False,747,1.5932779684346905,
+NW9,5,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4832,1.0053518027068857,
+NW10,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,2992,1.2934591121216703,
+CEH2,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,3702,1.221482736436193,
+CEH13,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,3511,1.2319109921066405,
+CEH14,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,3060,1.280859188555422,
+CEH16,5,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4661,0.7707280931178317,
+CEH17,5,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4816,1.1253788848633983,
+CEH19,5,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,5518,1.2550783172986137,
+CEH20,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4080,0.9597768262935337,
+CEH30,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4257,0.657924139283464,
+CEH31,5,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4432,0.6531348224600914,
+CEH32,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,3658,0.7762083741751074,
+CEH33,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4119,0.7946143712019242,
+CEH34,4,50.0,2019-07-29,aerial29-7-2019.png,vp1,False,4150,1.397961570250513,
+NW9,5,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+NW10,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH2,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH13,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH14,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH16,5,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH17,5,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH19,5,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH20,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH30,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH31,5,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH32,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH33,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH34,4,30.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+NW9,5,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+NW10,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH2,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH13,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH14,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH16,5,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH17,5,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH19,5,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH20,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH30,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH31,5,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH32,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH33,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH34,4,20.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+NW9,5,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+NW10,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH2,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH13,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH14,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH16,5,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH17,5,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH19,5,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH20,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH30,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH31,5,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH32,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH33,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+CEH34,4,50.0,2019-07-29,seabed29-7-2019-b.png,vp5,False,0,,ground sampling distance 2.63 m/px > 2.0
+NW9,5,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2019-07-29,site29-7-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2019-09-11,site11-9-2019m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1565,1.030373540172839,
+NW10,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,895,1.1164087188085914,
+CEH2,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1287,1.1492476402964038,
+CEH13,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1100,1.3484447123266425,
+CEH14,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1186,1.2172448457198508,
+CEH16,5,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1455,0.7876365894957961,
+CEH17,5,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1434,1.1758484628624024,
+CEH19,5,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,2032,1.2027888167075518,
+CEH20,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1383,0.8383349949687768,
+CEH30,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1210,0.7461080530760583,
+CEH31,5,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1546,0.6616258642794752,
+CEH32,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1193,0.6792266237335174,
+CEH33,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1164,0.7851984646183497,
+CEH34,4,30.0,2019-09-11,aerial11-9-2019.png,vp1,False,1652,1.422342886681321,
+NW9,5,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,692,1.1139845914549356,
+NW10,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,589,1.3254577742668605,
+CEH13,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,467,1.1521749441511913,
+CEH14,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,542,1.1802728221927592,
+CEH16,5,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,618,0.8155293278121563,
+CEH17,5,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,566,1.201340683755556,
+CEH19,5,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,929,1.2579075934263289,
+CEH20,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,647,0.9141579877600057,
+CEH30,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,472,0.7488269764809111,
+CEH31,5,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,727,0.5876358636842961,
+CEH32,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,515,0.6359294340601289,
+CEH33,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2019-09-11,aerial11-9-2019.png,vp1,False,747,1.545867666617331,
+NW9,5,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4832,0.981060854104292,
+NW10,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,2992,1.237157238686233,
+CEH2,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,3702,1.155484907249048,
+CEH13,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,3511,1.286531783866601,
+CEH14,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,3060,1.2225235329800679,
+CEH16,5,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4661,0.7590441832079362,
+CEH17,5,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4816,1.1532151569879077,
+CEH19,5,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,5518,1.174292995049266,
+CEH20,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4080,0.9945467887455445,
+CEH30,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4257,0.6986680418974438,
+CEH31,5,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4432,0.7252448024659924,
+CEH32,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,3658,0.7750509583039351,
+CEH33,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4119,0.837102942152646,
+CEH34,4,50.0,2019-09-11,aerial11-9-2019.png,vp1,False,4150,1.3922036211806088,
+NW9,5,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1566,1.0075635422971565,
+NW10,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,895,1.0953508506745828,
+CEH2,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1287,1.0261769378629544,
+CEH13,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1100,1.024096131306724,
+CEH14,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1186,1.5056592891218867,
+CEH16,5,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1456,0.9676616713100072,
+CEH17,5,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1434,1.2069716332016585,
+CEH19,5,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,2032,1.1225583241290495,
+CEH20,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1383,0.9798452569281526,
+CEH30,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1210,-0.025781136261365727,
+CEH31,5,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1545,0.8432999629495702,
+CEH32,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1193,0.7036164625766337,
+CEH33,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1164,0.9801440021848212,
+CEH34,4,30.0,2020-03-31,aerial31-3-2020.png,vp1,False,1652,1.1142394202126602,
+NW9,5,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,692,1.0940237701887705,
+NW10,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,589,1.100596100787353,
+CEH13,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,467,1.0324594396870321,
+CEH14,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,542,1.5631843141646826,
+CEH16,5,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,618,1.05654752484125,
+CEH17,5,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,566,1.2483445869550267,
+CEH19,5,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,929,1.1721949686662232,
+CEH20,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,647,1.0898657667664635,
+CEH30,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,472,-0.04318503952548319,
+CEH31,5,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,726,0.7880231757052203,
+CEH32,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,515,0.6182024464437437,
+CEH33,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2020-03-31,aerial31-3-2020.png,vp1,False,747,1.164100683723724,
+NW9,5,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4833,0.9804909898869828,
+NW10,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,2992,1.366171544653302,
+CEH2,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,3701,1.013013673573708,
+CEH13,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,3505,1.0527969796312844,
+CEH14,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,3060,1.3896251419675876,
+CEH16,5,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4662,0.8757296120480551,
+CEH17,5,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4816,1.1989537889627773,
+CEH19,5,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,5518,1.111259401625549,
+CEH20,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4080,1.1062517084230985,
+CEH30,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4257,0.034792080000647145,
+CEH31,5,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4431,0.9148929113541122,
+CEH32,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,3658,0.722961743464629,
+CEH33,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4119,1.0091551362491984,
+CEH34,4,50.0,2020-03-31,aerial31-3-2020.png,vp1,False,4150,1.1296274792338976,
+NW9,5,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2020-03-31,site31-3-2020m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1566,1.1199976417986661,
+NW10,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,895,1.156975514866106,
+CEH2,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1287,0.9947602360572383,
+CEH13,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1100,0.8657788556234979,
+CEH14,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1186,1.4057326108913697,
+CEH16,5,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1455,1.0490867517126565,
+CEH17,5,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1434,1.0558024554344223,
+CEH19,5,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,2032,1.3063494403716167,
+CEH20,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1383,0.9170621132286224,
+CEH30,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1210,0.8197452577402602,
+CEH31,5,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1545,0.7903701284573691,
+CEH32,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1193,0.5808575008917677,
+CEH33,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1164,0.8436056741427955,
+CEH34,4,30.0,2020-04-24,aerial24-4-2020.png,vp1,False,1652,1.276119047293634,
+NW9,5,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,692,1.1656893301719475,
+NW10,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,348,,disc 348 px after marker mask < 400
+CEH2,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,589,1.122366725433212,
+CEH13,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,467,0.7950105810488,
+CEH14,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,542,1.3185773917151669,
+CEH16,5,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,618,1.0218755424427601,
+CEH17,5,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,566,1.0471060887678922,
+CEH19,5,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,929,1.3499705352852538,
+CEH20,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,647,0.8920146493143889,
+CEH30,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,472,0.7612526524197281,
+CEH31,5,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,726,0.7878874995104396,
+CEH32,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,515,0.5425651404255475,
+CEH33,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,340,,disc 340 px after marker mask < 400
+CEH34,4,20.0,2020-04-24,aerial24-4-2020.png,vp1,False,747,1.3488868942896715,
+NW9,5,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4833,1.0845525332761972,
+NW10,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,2992,1.3122612197360553,
+CEH2,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,3701,1.00117351961982,
+CEH13,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,3505,0.9207650328010355,
+CEH14,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,3060,1.3312456541641806,
+CEH16,5,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4661,0.9314146444107119,
+CEH17,5,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4816,1.0802163973972423,
+CEH19,5,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,5518,1.2248446594923952,
+CEH20,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4080,1.010572879443577,
+CEH30,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4257,0.7831630954278286,
+CEH31,5,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4431,0.8381589490793784,
+CEH32,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,3658,0.49577816135908315,
+CEH33,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4119,0.9289193601997405,
+CEH34,4,50.0,2020-04-24,aerial24-4-2020.png,vp1,False,4150,1.2399588128283277,
+NW9,5,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2021-03-24,site24-3-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2021-04-04,site4-4-2021m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1291,1.3748797888438977,
+NW10,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,771,0.6034040221051116,
+CEH2,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1049,0.7819668871222631,
+CEH13,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,941,1.1680130154973345,
+CEH14,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1007,0.8227993556154749,
+CEH16,5,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1186,1.477398179624995,
+CEH17,5,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1148,1.4437977612248207,
+CEH19,5,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1667,1.8239912316156328,
+CEH20,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1065,1.0155683918552418,
+CEH30,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,911,1.4728845099540233,
+CEH31,5,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1193,1.3612129451905517,
+CEH32,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,994,0.9910000535150902,
+CEH33,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,914,1.274035144343681,
+CEH34,4,30.0,2026-03-31,aerial31-3-2026.png,vp1,False,1375,1.4566158846666897,
+NW9,5,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,574,1.2874446386521123,
+NW10,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,314,,disc 314 px after marker mask < 400
+CEH2,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,472,0.6998591049624029,
+CEH13,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,410,1.1688615825083213,
+CEH14,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,468,0.9128058075626954,
+CEH16,5,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,512,1.344581550409952,
+CEH17,5,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,466,1.4609552155619419,
+CEH19,5,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,765,1.912536810927652,
+CEH20,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,478,1.0388198069929868,
+CEH30,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,331,,disc 331 px after marker mask < 400
+CEH31,5,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,558,1.256428359060866,
+CEH32,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,433,0.9084378691610854,
+CEH33,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,308,,disc 308 px after marker mask < 400
+CEH34,4,20.0,2026-03-31,aerial31-3-2026.png,vp1,False,633,1.528804131132128,
+NW9,5,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3854,1.3546963199739432,
+NW10,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,2476,0.8969822655104712,
+CEH2,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3015,0.9367668898010726,
+CEH13,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,2869,1.1691439748928971,
+CEH14,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,2641,0.6787894590060348,
+CEH16,5,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3696,1.3336234839914463,
+CEH17,5,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3826,1.4657432451449801,
+CEH19,5,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,4514,1.7190937228342527,
+CEH20,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3286,1.1017981126771985,
+CEH30,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3431,1.3634450220433496,
+CEH31,5,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3475,1.4033623028979312,
+CEH32,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,2964,1.0368268220008665,
+CEH33,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3319,1.364363276143128,
+CEH34,4,50.0,2026-03-31,aerial31-3-2026.png,vp1,False,3440,1.408136167195952,
+NW9,5,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,30.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,20.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW9,5,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+NW10,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH2,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH13,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH14,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH16,5,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH17,5,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH19,5,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH20,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH30,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH31,5,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH32,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH33,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0
+CEH34,4,50.0,2026-03-31,site31-3-2026m.png,vp2,False,0,,ground sampling distance 2.88 m/px > 2.0

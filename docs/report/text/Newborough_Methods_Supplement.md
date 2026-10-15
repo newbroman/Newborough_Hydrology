@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_97.odt — do not edit. source-sha256=860bfcd558798da9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_98.odt — do not edit. source-sha256=cf131a96a512bc04 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.97 (October 2026).
+Document version: 2.0.98 (October 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -4277,6 +4277,8 @@ The 2026 group sits 49 px from its aerial siblings and the *site* groups 91 px f
 **Only viewpoints that can resolve a crown are used.** *CANOPY_MAX_GSD_M* = 2.0 withholds any frame whose fitted ground sampling distance is coarser, judged on the distance measured from that frame's own transform rather than on a list of filenames, which would not survive the next capture session.
 
 **Change is differenced on the ground, not on the screen.** Consecutive imagery dates are compared, using only pairs where both frames registered, resampled onto a common OSGB grid at *CANOPY_CHANGE_GRID_M* = 2 m. The frames differ in viewpoint, so a pixel-by-pixel difference measures the perspective rather than the ground.
+
+**Canopy at the forest wells (2.16.0, D-263).** Paper 1 had read the C4--C5 split in atmospheric draw as substrate and elevation beneath a uniform canopy, which had not been measured. Phase 5 reads the index in a *CANOPY_WELL_BUFFER_M* (30 m) disc around each of the fourteen C4 and C5 wells on the aerial viewpoint, with the rendered marker pixels masked (dilated by the texture window) and the region gates applied. The test uses each well's median over the pre-felling frames (before *CLEARFELL_DATE_ISO*), because β₂ is fitted mostly on pre-felling months; β₂ is taken as fitted on the comparison window, the basis of Paper 1 Table 7 (*07_coeff_maps_data.csv*). The rule was fixed before the run: elevation stands if the partial correlation of β₂ with elevation given canopy is significant at *WELL_CANOPY_TEST_P* and the partial correlation with canopy given elevation is not; canopy contributes if the latter is significant; not separable otherwise, or if canopy and elevation correlate beyond *WELL_CANOPY_COLLINEAR_R*. Result: elevation stands at 30 m, and at the 20 m and 50 m sensitivity radii (*41_07_canopy_vs_coefficients.csv*). Containment in the frame is tested on each disc's projected outline rather than its pixel count, because the perspective of the captures shrinks the far side of the frame.
 
 ### []{#anchor-629}[]{#anchor-630}Outputs
 

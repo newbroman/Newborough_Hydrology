@@ -95,7 +95,10 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.7.1"  # Hollingham (2026) - 2026-10-15. Display only: Figure 1 panel (d) dot-size legend runs
+#   in one row across the foot of the panel instead of standing in the lower-right corner, where it covered
+#   the largest direction changes (Martin: "dot size legend in panel d is too high"). No value moves.
+# 1.7.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the 90th-percentile |LOO error| on the mean-state surface and CEH14's distance from the
 #   high-water mark; new rows loo_p90_abs_mean_m (percentile from config SLACK_FLOW_LOO_PCTL, over the
 #   01b_02 frame) and ceh14_d_hwm_km (the south-west sector's farthest well from the HWM, well id in Well)
@@ -1341,9 +1344,10 @@ def _figures(src, Z, area, coast, grids, ses, arrows, heads, slacks, chk, sel, c
     cb = fig.colorbar(sc, ax=ax, shrink=0.8, pad=0.02)
     cb.set_label("direction change (degrees)", fontsize=FS_S); cb.ax.tick_params(labelsize=FS_S)
     size_leg = [Line2D([0], [0], marker="o", color="w", markerfacecolor="0.4", markersize=np.sqrt(8 + 22 * r),
-                       label=f"dry gradient = {r:g} x wet") for r in (0.5, 1, 1.5)]
-    ax.legend(handles=size_leg, loc="lower right", fontsize=FS_S - 1, framealpha=0.9, title="dot size",
-              title_fontsize=FS_S - 1)
+                       label=f"{r:g}") for r in (0.5, 1, 1.5)]
+    # 1.7.1: one row along the foot of the panel, over the sea, so it covers no dots (Martin 2026-10-15)
+    ax.legend(handles=size_leg, loc="lower left", ncol=len(size_leg), fontsize=FS_S - 1, framealpha=0.9,
+              title="dot size: dry gradient / wet gradient", title_fontsize=FS_S - 1, borderpad=0.3, columnspacing=1.0, handletextpad=0.3)
     cb = fig.colorbar(q, ax=axs[0, 1], shrink=0.8, pad=0.02)
     cb.set_label("head gradient (m per m)", fontsize=FS_S); cb.ax.tick_params(labelsize=FS_S)
     fig.legend(handles=map_legend, loc="lower center", ncol=3, fontsize=FS_S, frameon=False,

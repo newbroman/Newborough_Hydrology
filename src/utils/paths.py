@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.66.0"  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_EPOCH_CANDIDATES,
+__version__ = "1.67.0"  # Hollingham (2026) - 2026-10-15. Script 41 2.16.0 (D-263): OUT_41_WELL_CANOPY,
+#   OUT_41_WELL_CANOPY_TEST, OUT_41_WELL_CANOPY_FIG.
+# 1.66.0  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_EPOCH_CANDIDATES,
 #   OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH.
 # 1.65.0  # Hollingham (2026) - 2026-10-14. E10 (Script 50 1.9.0, D-260): OUT_50_FOREST_FORCING.
 # 1.64.0  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). out_47_lang(): the per-language name of a
@@ -1300,6 +1302,9 @@ OUT_41_REGISTRATION   = DIR_41 / "41_03_registration.csv"
 OUT_41_SERIES_FIG     = DIR_41 / "41_04_canopy_series.png"
 OUT_41_TRAJECTORY_FIG = DIR_41 / "41_05_canopy_trajectory.png"
 OUT_41_REPORT_NUMBERS = DIR_41 / "41_report_numbers.csv"
+OUT_41_WELL_CANOPY      = DIR_41 / "41_06_canopy_at_wells.csv"
+OUT_41_WELL_CANOPY_TEST = DIR_41 / "41_07_canopy_vs_coefficients.csv"
+OUT_41_WELL_CANOPY_FIG  = DIR_41 / "41_08_beta2_elevation_canopy.png"
 
 # Script 43 - Ranwell (1959) historical water-table sites, georeferenced (W95)
 DIR_43 = OUT_DIR / "43_ranwell"

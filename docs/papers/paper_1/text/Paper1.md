@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_75.odt — do not edit. source-sha256=82f0183b9f93b8a6 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_76.odt — do not edit. source-sha256=a80df63bc2d5c568 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -201,7 +201,7 @@ The head-space water-balance decomposition (Table 2; Figure 7) closes to within 
   C5 Coastal Forest     0.179      0.068       0.115      0.183        −0.003     63 / 37
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
 
-The indicative volumetric conversion (Table 3) places all clusters under ≈892 mm/yr rainfall, with canopy interception removing ≈214 mm/yr at the forested clusters to leave ≈678 mm/yr of throughfall. The ET/drainage partition mid-point ranges from drainage-dominated at C1 (≈651 mm/yr drainage vs ≈242 mm/yr ET) to ET-dominated at C4 (≈252 vs ≈426 mm/yr). The ET column counts only what evaporates after the canopy has taken its share. Interception is itself evaporation, so a forest\'s total evaporative loss is I + ET: ≈641 mm/yr at C4, close to PET (≈655 mm/yr), against ≈440 mm/yr at C2. At C5 the total (≈428 mm/yr) is similar to C2\'s. C2\'s mid-point is the least certain in the table, because the two partitioning methods disagree most there (ET ≈275--606 mm/yr).
+The indicative volumetric conversion (Table 3) places all clusters under ≈892 mm/yr rainfall, with canopy interception removing ≈214 mm/yr at the forested clusters to leave ≈678 mm/yr of throughfall. The ET/drainage partition mid-point ranges from drainage-dominated at C1 (≈651 mm/yr drainage vs ≈242 mm/yr ET) to ET-dominated at C4 (≈252 vs ≈426 mm/yr). The ET column counts only what evaporates after the canopy has taken its share. Interception is itself evaporation, so a forest\'s total evaporative loss is I + ET: ≈641 mm/yr at C4, close to PET (≈655 mm/yr), against ≈440 mm/yr at C2. At C5 the total (≈428 mm/yr) is similar to C2\'s. C2\'s mid-point is the least certain in the table, because the two partitioning methods disagree most there (ET ≈275--606 mm/yr). At C2 and C4 the recession estimate lies outside the range the model gives across the admissible datum (1.6--8 m; the bar beside each loss bar in Figure 7b), so the split there depends on the method more than on the datum.
 
 **Table 3.** Indicative annual volumetric water balance (mm/yr). I = canopy interception (24% of P; Freeman, 2008), forested clusters only. ET is the evaporative loss after interception, from throughfall and the water table; because I is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET/drainage are mid-points of two independent partitioning methods; the SSM method is taken at the 3.7 m datum and is conditional on it (Section 4.5).
 
@@ -233,7 +233,7 @@ The water-table-fluctuation specific-yield estimates (Table 4; Figure 8) provide
 
 ![](Pictures/100000010000076600000616E444E17A.png){width="16.055cm" height="11.5793cm"}
 
-**Figure 8.** Interpolated water-table-fluctuation specific-yield surface; forest wells interception-corrected. The distribution varies smoothly, with no discontinuity at the cluster margins. The surface is a spatial diagnostic of a lumped-parameter model, not the output of a calibrated continuous-flow simulation. The interpolation extends over the rock-ridge bedrock outcrop on the northern boundary, which carries no monitoring wells; values shown there are extrapolations from the surrounding network and are not interpretable as model output on bedrock.
+**Figure 8.** Specific yield at each reference well, water-table-fluctuation method (the median of the well\'s events); forest wells (C4, C5) interception-corrected. Marker shape gives the cluster and colour the specific yield, over LiDAR elevation. Values change gradually across the network: neighbouring wells either side of a cluster margin differ about as much as neighbours within a cluster, so there is no step at the margins. The values are upper bounds from a lumped-parameter model, not calibrated aquifer properties.
 
 ## []{#anchor-10}4.6 Model benchmarking: SSM versus traditional linear model
 

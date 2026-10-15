@@ -115,7 +115,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-10-12 (D-259). paperM/Table3: the drainage share under each
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-10-14 (D-262). paper1/Table3 gains "I + ET (mid)" and report9/Table5 "I + ET mid (mm/yr)", the
+# canopy interception plus the evaporation after it (Script 16 1.10.0 ET_total_mid_mm_yr), so the forest's whole
+# evaporative loss is on the table beside the dune's.
+# 1.18.0  # Hollingham (2026) — 2026-10-12 (D-259). paperM/Table3: the drainage share under each
 #   source of uncertainty (floor depth, wells, MHW datum, Model B).
 # 1.17.0  # Hollingham (2026) — 2026-10-10. paperM/Table2 added: the worked example of the
 #   procedure at Newborough (Martin 2026-10-10, T-k): Model A centroid coefficients, drainage share and
@@ -271,7 +274,7 @@ TABLES = [
         "sources": {"vol": "outputs/16_water_balance/16_water_bal_vol_table.csv"},
         "rows": {"source": "vol"},
         "header": ["Cluster", "Label", "P (mm/yr)", "I (mm/yr)", "P_net (mm/yr)",
-                   "ET mid (mm/yr)", "Drainage mid (mm/yr)"],
+                   "ET mid (mm/yr)", "I + ET mid (mm/yr)", "Drainage mid (mm/yr)"],
         "columns": [
             {"fmt": "template", "template": "C{Cluster}"},
             {"col": "Label", "fmt": "text", "re": [r"^C\d \((.+)\)$", r"\1"]},
@@ -279,6 +282,7 @@ TABLES = [
             {"col": "I_mm_yr",       "fmt": "fixed", "dp": 0},
             {"col": "P_net_mm_yr",   "fmt": "fixed", "dp": 0},
             {"col": "ET_mid_mm_yr",  "fmt": "fixed", "dp": 0},
+            {"col": "ET_total_mid_mm_yr", "fmt": "fixed", "dp": 0},   # D-262: I + ET
             {"col": "Drain_mid_mm_yr", "fmt": "fixed", "dp": 0},
         ],
     },
@@ -1107,7 +1111,7 @@ TABLES = [
         "caption": "Paper 1 - annual volumetric water balance (Script 16)",
         "sources": {"vb": "outputs/16_water_balance/16_water_bal_vol_table.csv"},
         "rows": {"source": "vb"},
-        "header": ["Cluster", "P", "I", "P_net", "ET (mid)", "Drainage (mid)"],
+        "header": ["Cluster", "P", "I", "P_net", "ET (mid)", "I + ET (mid)", "Drainage (mid)"],
         "columns": [
             {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
             # annual mm/yr are whole-mm quantities: integer, as report9 renders them
@@ -1115,6 +1119,7 @@ TABLES = [
             {"col": "I_mm_yr",         "fmt": "fixed", "dp": 0},
             {"col": "P_net_mm_yr",     "fmt": "fixed", "dp": 0},
             {"col": "ET_mid_mm_yr",    "fmt": "fixed", "dp": 0},
+            {"col": "ET_total_mid_mm_yr", "fmt": "fixed", "dp": 0},   # D-262: I + ET
             {"col": "Drain_mid_mm_yr", "fmt": "fixed", "dp": 0},
         ],
     },

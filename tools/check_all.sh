@@ -18,8 +18,11 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.28.0 - 2026-10-13
+# VERSION 1.29.0 - 2026-10-15
 # CHANGELOG
+#   1.29.0 (2026-10-15): claims gate also runs cite_check --selftest-claims (1.35.0): the
+#     outside/inside/cmp rules, whose bounds are pipeline values, must be able to come out false
+#     (spec NRG_spec_claims_range_rules_2026-10-15).
 #   1.28.0 (2026-10-13): film text gate after ledgers - film_text_lint: the three language
 #     tables of Script 47 1.9.0 (en, cy, pl) hold the same keys and template fields
 #   1.27.0 (2026-10-10): "claims (who is doing what?)", advisory: tools/work_board.py --gate names
@@ -745,6 +748,7 @@ python3 tools/drive_lag.py || true
 echo
 echo "── claims ───────────────────────────────────────────────────────────"
 python3 tools/cite_check.py --claims-only || rc=1
+python3 tools/cite_check.py --selftest-claims >/dev/null || { echo "  cite_check --selftest-claims: FAIL"; rc=1; }
 
 echo
 echo "── citation drift (confirmed rows must match the committed CSV) ──────"

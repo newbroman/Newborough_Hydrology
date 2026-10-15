@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_74.odt — do not edit. source-sha256=b8c82a30a3987887 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_75.odt — do not edit. source-sha256=82f0183b9f93b8a6 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -201,22 +201,22 @@ The head-space water-balance decomposition (Table 2; Figure 7) closes to within 
   C5 Coastal Forest     0.179      0.068       0.115      0.183        −0.003     63 / 37
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
 
-The indicative volumetric conversion (Table 3) places all clusters under ≈892 mm/yr rainfall, with canopy interception removing ≈214 mm/yr at the forested clusters to leave ≈678 mm/yr of throughfall. The ET/drainage partition mid-point ranges from drainage-dominated at C1 (≈651 mm/yr drainage vs ≈242 mm/yr ET) to ET-dominated at C4 (≈252 vs ≈426 mm/yr).
+The indicative volumetric conversion (Table 3) places all clusters under ≈892 mm/yr rainfall, with canopy interception removing ≈214 mm/yr at the forested clusters to leave ≈678 mm/yr of throughfall. The ET/drainage partition mid-point ranges from drainage-dominated at C1 (≈651 mm/yr drainage vs ≈242 mm/yr ET) to ET-dominated at C4 (≈252 vs ≈426 mm/yr). The ET column counts only what evaporates after the canopy has taken its share. Interception is itself evaporation, so a forest\'s total evaporative loss is I + ET: ≈641 mm/yr at C4, close to PET (≈655 mm/yr), against ≈440 mm/yr at C2. At C5 the total (≈428 mm/yr) is similar to C2\'s. C2\'s mid-point is the least certain in the table, because the two partitioning methods disagree most there (ET ≈275--606 mm/yr).
 
-**Table 3.** Indicative annual volumetric water balance (mm/yr). I = canopy interception (24% of P; Freeman, 2008), forested clusters only. ET/drainage are mid-points of two independent partitioning methods; the SSM method is taken at the 3.7 m datum and is conditional on it (Section 4.5).
+**Table 3.** Indicative annual volumetric water balance (mm/yr). I = canopy interception (24% of P; Freeman, 2008), forested clusters only. ET is the evaporative loss after interception, from throughfall and the water table; because I is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET/drainage are mid-points of two independent partitioning methods; the SSM method is taken at the 3.7 m datum and is conditional on it (Section 4.5).
 
-  --------------------- ----- ----- ------- ---------- ----------------
-  Cluster               P     I     P_net   ET (mid)   Drainage (mid)
-  C1 Lake Edge          893   0     893     242        651
-  C2 Dune               892   0     892     440        452
-  C3 Western Residual   889   0     889     289        601
-  C4 Main Forest        893   214   679     426        252
-  C5 Coastal Forest     892   214   678     214        464
-  --------------------- ----- ----- ------- ---------- ----------------
+  --------------------- ----- ----- ------- ---------- -------------- ----------------
+  Cluster               P     I     P_net   ET (mid)   I + ET (mid)   Drainage (mid)
+  C1 Lake Edge          893   0     893     242        242            651
+  C2 Dune               892   0     892     440        440            452
+  C3 Western Residual   889   0     889     289        289            601
+  C4 Main Forest        893   214   679     426        641            252
+  C5 Coastal Forest     892   214   678     214        428            464
+  --------------------- ----- ----- ------- ---------- -------------- ----------------
 
 ![](Pictures/10000000000005BE00000640EA9072DD.jpg){width="15.983cm" height="18.0162cm"}
 
-**Figure 7.** Water-balance decomposition by cluster: head-space (recharge versus atmospheric draw and drainage) and indicative volumetric partition. In (b), the hatched partition-uncertainty band spans the two independent estimates of the ET/drainage split --- the SSM head-space ratio and the seasonal winter/summer recession ratio; it is smallest for C3, where the two methods agree to within 5 percentage points (drainage fractions 0.70 and 0.65).
+**Figure 7.** Water-balance decomposition by cluster: head-space (recharge versus atmospheric draw and drainage) and indicative volumetric partition. In (b), the hatched partition-uncertainty band spans the two independent estimates of the ET/drainage split --- the SSM head-space ratio and the seasonal winter/summer recession ratio; it is smallest for C3, where the two methods agree to within 5 percentage points (drainage fractions 0.70 and 0.65). The black bar beside each loss bar spans where the SSM ET/drainage boundary falls as the drainage datum is varied across its admissible range (1.6--8 m); it shows how far the SSM estimate depends on the datum and is not a statistical confidence interval.
 
 The water-table-fluctuation specific-yield estimates (Table 4; Figure 8) provide an independent test of whether the cluster contrasts reflect storage architecture or surface boundary conditions. Uncorrected, the forested-cluster event-median specific yields sit at or above the top of the open-dune range (C4: 0.315, against an open-dune maximum of 0.325; C5: 0.358, above it), because gross rainfall overstates the recharge flux beneath the canopy. Applying the canopy-interception correction to the recharge term brings the cluster-level event medians down to 0.261 (C4) and 0.330 (C5): C4 falls cleanly into the open-dune range (0.210--0.325), while C5 sits just above its upper edge. Aggregating instead as the median of the per-well estimates gives 0.253 and 0.308; the two aggregations are reported separately throughout and are not interchangeable. The correction is a single literature fraction rather than a fitted one, so the convergence is tested against it directly: re-evaluating the forest clusters' event medians over interception fractions from 0 to 0.40 (Section 3.8), both fall within the open-dune range only for fractions between 0.26 and 0.34 --- C4 for every fraction up to 0.34, C5 only from 0.26 --- so the C4 result does not depend on the particular value 0.24, while C5 sits just outside the range at that value. The seasonal residual analysis of Section 5.4 is an independent check whose cross-cluster ordering is likewise inconsistent with a mis-set fraction. Across the three open-dune clusters the per-well specific yields are well described by a planar spatial trend (n = 52, R² = 0.610, residual standard deviation 0.031), rising by 0.070 per kilometre along an azimuth of 231°, so that storage increases steadily toward the south-west. Both components are significant (easting −0.054 per kilometre, northing −0.044 per kilometre, each p \< 0.001). The trend is fitted to, and reported for, the open-dune network only: the forested wells lie outside its spatial domain and the surface is not extrapolated beneath the plantation. The C4 result indicates that the attenuated water-table response beneath the plantation reflects the surface canopy boundary condition rather than a fundamentally different substrate. The C5 estimate is the least reliable in the network --- a majority of its rising-limb events imply an event-level Sy at or above the porosity of dune sand, so its median is constrained by the physical-plausibility limit rather than freely estimated --- and it is reported as a weak corroborator only. All WTF medians exceed the assumed values used in the volumetric balance by a factor of two to three and are interpreted as upper bounds (Healy and Cook, 2002; Scanlon et al., 2002).
 

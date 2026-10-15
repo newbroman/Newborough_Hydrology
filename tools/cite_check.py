@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.34.1"  # Hollingham (2026) — 2026-10-10. 26_msl_5yr_per_cluster MSL5_m_bg_std registered (report9 §4.8.3,
+__version__ = "1.34.2"  # Hollingham (2026) — 2026-10-14 (D-262). 16_water_bal_vol_table ET_total_mid/lo/hi_mm_yr
+# (I + ET, Script 16 1.10.0) registered.
+# 1.34.1  # Hollingham (2026) — 2026-10-10. 26_msl_5yr_per_cluster MSL5_m_bg_std registered (report9 §4.8.3,
 #   Martin "5 a": the within-cluster spread per cluster).
 # 1.34.0  # Hollingham (2026) — 2026-10-10. Emit-first report9 (spec NRG_spec_emit_first_report9_2026-10-09):
 #   EXTRA_VALUE_TABLES gains the cells report9 quotes that no value table covered (38 files, columns only; a column
@@ -601,7 +603,7 @@ EXTRA_VALUE_TABLES = [
     ("outputs/16_water_balance/16_water_bal_rec_table.csv", "Label",    # report9 4.2.3
      ["Winter_dh_mm_month", "N_winter", "Summer_dh_mm_month", "N_summer", "ET_mm_month", "Rec_drain_frac", "Rec_ET_frac", "SSM_drain_frac", "SSM_ET_frac", "Mid_drain_frac", "Spread_pp"]),
     ("outputs/16_water_balance/16_water_bal_vol_table.csv", "Label",    # report9 4.2.3
-     ["P_mm_yr", "PET_mm_yr", "I_mm_yr", "P_net_mm_yr", "P_minus_PET_mm_yr", "ET_mid_mm_yr", "ET_lo_mm_yr", "ET_hi_mm_yr", "Drain_mid_mm_yr", "Drain_lo_mm_yr", "Drain_hi_mm_yr"]),
+     ["P_mm_yr", "PET_mm_yr", "I_mm_yr", "P_net_mm_yr", "P_minus_PET_mm_yr", "ET_mid_mm_yr", "ET_lo_mm_yr", "ET_hi_mm_yr", "Drain_mid_mm_yr", "Drain_lo_mm_yr", "Drain_hi_mm_yr", "ET_total_mid_mm_yr", "ET_total_lo_mm_yr", "ET_total_hi_mm_yr"]),
     ("outputs/15_depth_dependent_pet/15_03_benchmark_table.csv", "Cluster",    # report10 5.2.2
      ["Delta_NSE"]),
     ("outputs/20_spatial_figures/20_drawdown_perwell.csv", "well",    # report9 4.11

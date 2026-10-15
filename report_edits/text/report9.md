@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=935d8968d596545b pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=c76d673a614e7fa3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -168,25 +168,25 @@ The head-space decomposition of Table 5 is one way to split the losses into evap
 
 **Table : **Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). Winter and summer figures are the mean month-on-month decline of the cluster-mean water table over months in which it fell (Δh \< 0), in the windows November--February and June--September; March is excluded as transitional. n months is the number of falling months behind each mean --- note the asymmetry, 15 to 27 winter months against 50 to 72 summer months. The recession drainage fraction is the winter mean divided by the summer mean; the evapotranspiration fraction is its complement. Both terms are head declines, so specific yield cancels in the ratio and the partition is Sy-free. The SSM column is the corresponding head-space fraction implied by Table 5, shown for comparison, with its value at the shallowest and deepest admissible datum (1.6 and 8 m) in brackets; the spread between the two columns is the partition uncertainty reported as a mid-point in Table 7 and drawn as the hatched band of Figure 11b. (Source: 16_water_bal_rec_table.csv).
 
-An indicative volumetric expression of the water balance is presented in Table 7 and Figure 11b. Each cluster receives 889--893 mm/yr of rainfall over its own fitted months; for the forested clusters (C4, C5) canopy interception removes 214 mm/yr (24%; Freeman, 2008), leaving net rainfall of 678--679 mm/yr reaching the ground surface. The ET/drainage partition is bracketed by the two independent estimators of Table 6 --- the SSM head-space β₂/β₃ ratio and the seasonal recession ratio --- with the mid-point reported here. At steady state, total losses equal total inputs (P or P_net for forest clusters) and the hatched band in Figure 11b spans the partition uncertainty range between the two methods.
+An indicative volumetric expression of the water balance is presented in Table 7 and Figure 11b. Each cluster receives 889--893 mm/yr of rainfall over its own fitted months; for the forested clusters (C4, C5) canopy interception removes 214 mm/yr (24%; Freeman, 2008), leaving net rainfall of 678--679 mm/yr reaching the ground surface. The ET/drainage partition is bracketed by the two independent estimators of Table 6 --- the SSM head-space β₂/β₃ ratio and the seasonal recession ratio --- with the mid-point reported here. At steady state, total losses equal total inputs (P or P_net for forest clusters) and the hatched band in Figure 11b spans the partition uncertainty range between the two methods. The ET column counts only what evaporates after the canopy has taken its share. Interception is itself evaporation, so a forest\'s total evaporative loss is I + ET: 641 mm/yr at C4, close to its PET (655 mm/yr), against 440 mm/yr at C2. At C5 the total (428 mm/yr) is similar to C2\'s. C2\'s mid-point is the least certain in the table, because the two partitioning methods disagree most there (ET 275--606 mm/yr).
 
-+---------+------------------+----------+--------+---------+----------+---------------+
-| Cluster | Label            | P        | I (    | P_net   | ET mid ( | Drainage mid  |
-|         |                  |          |        |         |          |               |
-|         |                  | (mm/yr)  | mm/yr) | (mm/yr) | mm/yr)   | (mm/yr)       |
-+---------+------------------+----------+--------+---------+----------+---------------+
-| C1      | Lake Edge        | 893      | 0      | 893     | 242      | 651           |
-+---------+------------------+----------+--------+---------+----------+---------------+
-| C2      | Dune             | 892      | 0      | 892     | 440      | 452           |
-+---------+------------------+----------+--------+---------+----------+---------------+
-| C3      | Western Residual | 889      | 0      | 889     | 289      | 601           |
-+---------+------------------+----------+--------+---------+----------+---------------+
-| C4      | Main Forest      | 893      | 214    | 679     | 426      | 252           |
-+---------+------------------+----------+--------+---------+----------+---------------+
-| C5      | Coastal Forest   | 892      | 214    | 678     | 214      | 464           |
-+---------+------------------+----------+--------+---------+----------+---------------+
++---------+------------------+----------+--------+---------+----------+-------------+---------------+
+| Cluster | Label            | P        | I (    | P_net   | ET mid ( | I + ET mid  | Drainage mid  |
+|         |                  |          |        |         |          |             |               |
+|         |                  | (mm/yr)  | mm/yr) | (mm/yr) | mm/yr)   | (mm/yr)     | (mm/yr)       |
++---------+------------------+----------+--------+---------+----------+-------------+---------------+
+| C1      | Lake Edge        | 893      | 0      | 893     | 242      | 242         | 651           |
++---------+------------------+----------+--------+---------+----------+-------------+---------------+
+| C2      | Dune             | 892      | 0      | 892     | 440      | 440         | 452           |
++---------+------------------+----------+--------+---------+----------+-------------+---------------+
+| C3      | Western Residual | 889      | 0      | 889     | 289      | 289         | 601           |
++---------+------------------+----------+--------+---------+----------+-------------+---------------+
+| C4      | Main Forest      | 893      | 214    | 679     | 426      | 641         | 252           |
++---------+------------------+----------+--------+---------+----------+-------------+---------------+
+| C5      | Coastal Forest   | 892      | 214    | 678     | 214      | 428         | 464           |
++---------+------------------+----------+--------+---------+----------+-------------+---------------+
 
-***Table ****: **Indicative annual volumetric water balance by cluster, 2005--2026. At steady state, total losses (ET + drainage) equal total inputs (P for open dune clusters; P − I for forested clusters). I = canopy interception (24% of P; Freeman, 2008), applied to C4 and C5 only. ET and drainage mid-point values represent the mean of two independent partitioning methods: the SSM headspace β₂/β₃ ratio and seasonal recession curve analysis. The partition uncertainty range is shown graphically in Figure 11b as a hatched band. Interception appears identically on both input and loss bars of Figure 11b and cancels in the net surplus. (Source: 16_water_bal_vol_table.csv)*
+***Table ****: **Indicative annual volumetric water balance by cluster, 2005--2026. At steady state, total losses (ET + drainage) equal total inputs (P for open dune clusters; P − I for forested clusters). I = canopy interception (24% of P; Freeman, 2008), applied to C4 and C5 only. ET is the evaporative loss after interception, from net rainfall and the water table; because interception is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET and drainage mid-point values represent the mean of two independent partitioning methods: the SSM headspace β₂/β₃ ratio and seasonal recession curve analysis. The partition uncertainty range is shown graphically in Figure 11b as a hatched band. Interception appears identically on both input and loss bars of Figure 11b and cancels in the net surplus. (Source: 16_water_bal_vol_table.csv)*
 
 ![](Pictures/1000000100000CC600000DE531708043.png){width="6.2217in" height="7.0122in"}**Figure :** Water balance decomposition by hydrogeological cluster, Newborough Warren 2005--2026. (a) Mean monthly head-space decomposition: for each cluster, the left bar shows recharge (β₁·P̄) and the right bar shows losses decomposed into gravity drainage (β₃·h̄\_disp) and atmospheric draw (β₂·PET̄). Drainage and ET percentages are shown below each cluster label. All clusters receive near-identical climate forcing: P̄ = 74.1--74.4 mm/month, PET̄ = 54.2--54.5 mm/month. Drainage datum = 3.7 m b.g.s. Residuals \< 1.8% of losses. (b) Indicative annual volumetric water balance. All clusters receive P ≈ 890 mm/yr (889--893 by cluster); for forested clusters (C4, C5) canopy interception (I = 214 mm/yr, 24% of P; Freeman, 2008) appears identically on both input and loss bars and cancels in the net surplus. The hatched band spans the ET/drainage partition uncertainty between the SSM headspace ratio and seasonal recession analysis. The black bracket beside each loss bar spans the SSM ET/drainage boundary across the admissible datum (1.6--8 m). (Source: 16_water_bal_bar_ms.png).
 

@@ -79,7 +79,11 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-14. Total evaporation (Martin 2026-10-14: "the paper implies
+#   that ET in C2 is greater than in C4"; "add the I + ET column"): the volumetric table gains
+#   ET_total_mid/lo/hi_mm_yr = I + ET, the canopy interception plus the evaporation after it, so a
+#   table can show a forest's whole evaporative loss. No existing column moves.
+# 1.9.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the lowest, highest and approximate annual rainfall across the clusters of the
 #   volumetric balance (Table 7 P_mm_yr); new rows water_balance_P_mm_yr_min, _max and _mean, from
 #   each cluster's own mean monthly P x 12 x 1000, as Table 7 computes it. No existing value moves.
@@ -455,6 +459,10 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
             "Drain_mid_mm_yr": P_net * df_mid,
             "Drain_lo_mm_yr": P_net * df_lo,
             "Drain_hi_mm_yr": P_net * df_hi,
+            # 1.10.0: interception is itself evaporation, so a forest's whole loss is I + ET
+            "ET_total_mid_mm_yr": I_val + P_net * (1 - df_mid),
+            "ET_total_lo_mm_yr": I_val + P_net * (1 - df_hi),
+            "ET_total_hi_mm_yr": I_val + P_net * (1 - df_lo),
         })
 
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.1f")

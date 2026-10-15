@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T05:15:01",
+ "generated": "2026-10-15T10:16:39",
  "orchestrator": "2.25.0",
  "steps": {
   "00_climate_summary.py": {
@@ -77,7 +77,7 @@
   "01b_water_table.py": {
    "emitted": {
     "outputs/01b_water_table/01b_01_drift_selection.csv": "c7343948541e462c014afd066eff0671f43e4033b7a417114e3bbac7de6a943e",
-    "outputs/01b_water_table/01b_01_water_table_flow.png": "e2ece534f6bc3da5e5539588fd60f6bd910362668d690e76fdfe411f0bcb08b3",
+    "outputs/01b_water_table/01b_01_water_table_flow.png": "d13d0df33582618508c72b731391bb2060528af819af9b936591f87238735d7d",
     "outputs/01b_water_table/01b_02_loo_per_well.csv": "bb5c0374bb2663e4e7c07a94a4f3321a0c5a8b03b4c726cb6f545e0d154a3070",
     "outputs/01b_water_table/01b_02_transects.png": "5f8ee7202e5c9c8389d95846846d43d31c5a0ea626c567b9d8d4125978ef6f93",
     "outputs/01b_water_table/01b_03_drift_selection.png": "7ea9bfe8cf0410e3106d990866d78d5f48fd6af5ce46459d2842b90898454ac0",
@@ -122,9 +122,9 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
    },
    "inputs_unresolved": [],
-   "seconds": 73.5,
-   "started": "2026-10-10T10:49:06",
-   "version": "1.7.0"
+   "seconds": 59.7,
+   "started": "2026-10-15T06:31:43",
+   "version": "1.7.1"
   },
   "02_clustering.py": {
    "emitted": {
@@ -1266,7 +1266,17 @@
    "version": "1.8.0"
   },
   "41_canopy_cover.py": {
-   "emitted": {},
+   "emitted": {
+    "outputs/41_canopy_cover/41_01_canopy_index.csv": "9bd14dac7078809487856c1ec7b2a458ae348d2232d3e1553b046bf82da92e49",
+    "outputs/41_canopy_cover/41_02_change_events.csv": "c244e09a5f907961862f12aedda19ba674418b998c2fe1075f02c1a2e4edfdbb",
+    "outputs/41_canopy_cover/41_03_registration.csv": "764eaa83fdd351b833c52193ee3be79d0357d78cc507a67369a4be4d3b2a0e0b",
+    "outputs/41_canopy_cover/41_04_canopy_series.png": "467ff63face62790ce6f1d77adad2d4b47d28be8c6160c986173f8e1bd84350f",
+    "outputs/41_canopy_cover/41_05_canopy_trajectory.png": "91467c63da0b17aa464ad89b25fca0cf059faf17b04e1eae6fd78e6e9241b8cf",
+    "outputs/41_canopy_cover/41_06_canopy_at_wells.csv": "b28f9e1d3501ea4d6909b25ee91452b53c2ea8e50c77197d8057ca83a571c314",
+    "outputs/41_canopy_cover/41_07_canopy_vs_coefficients.csv": "4f50252075de860e0edbf1a8b3a50f7f23e600c6cbdd94d464323d25569df964",
+    "outputs/41_canopy_cover/41_08_beta2_elevation_canopy.png": "336fd0497da3e57de97e2582f413f006d14cceb9f4512e47c0e92c0702897d17",
+    "outputs/41_canopy_cover/41_report_numbers.csv": "745d1333d566afe106b330379ea4a8039c4ddf8ca6cb93ac54cdd9df49318818"
+   },
    "fallbacks": [],
    "inputs": {
     "data/geo/Features.kml": "51fadcc09830f40ea6a296b5444f07717611af04159f69931407f7c38e72b6db",
@@ -1282,9 +1292,9 @@
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff"
    },
    "inputs_unresolved": [],
-   "seconds": 1.6,
-   "started": "2026-10-10T11:11:14",
-   "version": "2.15.0"
+   "seconds": 122.5,
+   "started": "2026-10-15T10:14:37",
+   "version": "2.16.0"
   },
   "43_ranwell_sites.py": {
    "emitted": {

@@ -11,7 +11,10 @@ gruntowe" w odczycie), mokre dno, otwarta woda, obszar badań, poza zapisem, pie
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-13. First Polish table; unchecked by a native speaker.
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
+#   carry 1.8-2.4x the other decades' mean winter open water in 47_01); more_p4 (the D-226 datum paragraph)
+#   removed - the film keeps one straight story (Martin 2026-10-15: "keep the modeling simple").
+# 1.0.0  Hollingham (2026) - 2026-10-13. First Polish table; unchecked by a native speaker.
 
 NAME = "Polski"
 MONTHS = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień",
@@ -261,8 +264,8 @@ T = {
     # ---- slajdy po filmie ------------------------------------------------------------------
     "says_title": "Co mówi film, z zastrzeżeniami",
     "says_p1": (
-        "Lata 60. były mokrą dekadą, z kilkakrotnie większą otwartą wodą niż w przeciętnej zimie "
-        "którejkolwiek innej dekady."),
+        "Lata 60. były mokrą dekadą, z mniej więcej dwukrotnie większą otwartą wodą niż w przeciętnej "
+        "zimie pozostałych dekad."),
     "says_p2": (
         "Zimy 1961–62 i 2000–01 wyróżniają się jako dwie wielkie powodzie stulecia, za nimi "
         "1938–39 i 1958–59; zima 2015–16 była najmokrzejszą ery satelitarnej po 2021 roku."),
@@ -288,11 +291,6 @@ T = {
     "more_p3": (
         "Zima rządzi przez cały rok. Krzywe pochodzą ze zdjęć z listopada–marca; miesiące letnie "
         "pokazują to, co wynikałoby ze zwierciadła, a nie to, co pokazałoby letnie zdjęcie."),
-    "more_p4": (
-        "Dlaczego ta wersja modelu. Puszczony wstecz w suchszy okres, którego żadne dopasowanie nie "
-        "widziało — piezometry mierzone w rezerwacie w latach 1989–96 — odtworzył ich średni poziom "
-        "bez odchylenia, podczas gdy wersja szybciej zapominająca wyszła za mokro. Na tym teście "
-        "opierają się suchsze dekady filmu (decyzja D-226)."),
     "credits_title": "Podziękowania i źródła",
     "credits_p1": "Studium hydrologiczne Newborough Warren, 2026 — Martin Hollingham.",
     "credits_p2": (

@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.9.0 — pl (Polski)
+# Frame text — 47_hindcast_film.py 1.9.1 — pl (Polski)
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -109,7 +109,7 @@ Uczciwe twierdzenie o tych zimach brzmi: były większe niż 2021, nic ponadto.
 ## SLIDES AFTER THE FILM
 
 ### Co mówi film, z zastrzeżeniami
-Lata 60. były mokrą dekadą, z kilkakrotnie większą otwartą wodą niż w przeciętnej zimie którejkolwiek innej dekady.
+Lata 60. były mokrą dekadą, z mniej więcej dwukrotnie większą otwartą wodą niż w przeciętnej zimie pozostałych dekad.
 Zimy 1961–62 i 2000–01 wyróżniają się jako dwie wielkie powodzie stulecia, za nimi 1938–39 i 1958–59; zima 2015–16 była najmokrzejszą ery satelitarnej po 2021 roku.
 Lata 70. i 90. były suchymi dekadami, z prawie żadną otwartą wodą w przeciętnej zimie.
 Wszystko to jest relacją modelu o tym, co pogoda zrobiłaby z rezerwatem w jego dzisiejszym kształcie.
@@ -118,7 +118,6 @@ Wszystko to jest relacją modelu o tym, co pogoda zrobiłaby z rezerwatem w jego
 To nie jest mapa powodziowa. Kwadraty mają 10 m boku; wąskie brzegi, małe rozlewiska i cienkie warstwy wody nad trawą są w tej skali niewidoczne — mniej więcej jedna trzecia wody w dużej powodzi. Moment, w którym kwadrat się zapala, znany jest tylko z dokładnością do pięciu–dziesięciu centymetrów zwierciadła.
 Błędy modelu przenoszą się dalej. Nawet skorygowany do piezometrów odtwarza zmierzone zwierciadło z dokładnością do około dwudziestu centymetrów i w najmokrzejszych miesiącach wciąż biegnie około dziesięciu centymetrów za nisko. Błąd dziesięciu centymetrów zmienia powierzchnię otwartej wody mniej więcej o połowę, bo rozlewiska pojawiają się nagle, gdy woda zbliża się do powierzchni. Żółty jest barwą stabilniejszą, dobrą do około 15 %; niebieski jest trafny z dokładnością do czynnika 2.1. Pierwsze dwa lata to model dochodzący do siebie po początkowym zgadywaniu.
 Zima rządzi przez cały rok. Krzywe pochodzą ze zdjęć z listopada–marca; miesiące letnie pokazują to, co wynikałoby ze zwierciadła, a nie to, co pokazałoby letnie zdjęcie.
-Dlaczego ta wersja modelu. Puszczony wstecz w suchszy okres, którego żadne dopasowanie nie widziało — piezometry mierzone w rezerwacie w latach 1989–96 — odtworzył ich średni poziom bez odchylenia, podczas gdy wersja szybciej zapominająca wyszła za mokro. Na tym teście opierają się suchsze dekady filmu (decyzja D-226).
 
 ### Podziękowania i źródła
 Studium hydrologiczne Newborough Warren, 2026 — Martin Hollingham.

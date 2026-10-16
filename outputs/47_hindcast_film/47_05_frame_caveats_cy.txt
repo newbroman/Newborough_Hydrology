@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.9.0 — cy (Cymraeg)
+# Frame text — 47_hindcast_film.py 1.9.1 — cy (Cymraeg)
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -108,7 +108,7 @@ Yr honiad gonest am y gaeafau hynny yw eu bod yn fwy na 2021, a dim manylach.
 ## SLIDES AFTER THE FILM
 
 ### Yr hyn a ddywed y ffilm, â'i rybuddion
-Y 1960au oedd y degawd gwlyb, â sawl gwaith dŵr agored gaeaf cyffredin unrhyw ddegawd arall.
+Y 1960au oedd y degawd gwlyb, â thua dwywaith dŵr agored gaeaf cyffredin yn y degawdau eraill.
 Mae gaeafau 1961–62 a 2000–01 yn sefyll allan fel dwy lifogydd fawr y ganrif, â 1938–39 a 1958–59 y tu ôl iddynt; 2015–16 oedd y gwlypaf o oes y lloeren ar ôl 2021.
 Y 1970au a'r 1990au oedd y degawdau sych, â'r nesaf peth i ddim dŵr agored mewn gaeaf cyffredin.
 Cyfrif y model o'r hyn a wnâi'r tywydd i'r warchodfa fel y saif heddiw yw'r cyfan ohono.
@@ -117,7 +117,6 @@ Cyfrif y model o'r hyn a wnâi'r tywydd i'r warchodfa fel y saif heddiw yw'r cyf
 Nid map llifogydd ydyw. Mae'r sgwariau'n 10 m ar draws; mae ymylon cul, pyllau bach a haenau tenau dros laswellt yn anweledig ar y maint hwnnw — tua thraean y dŵr mewn llifogydd mawr. Dim ond i o fewn pump neu ddeg centimetr o lefel dŵr daear y gwyddys yr eiliad y mae sgwâr yn goleuo.
 Mae camgymeriadau'r model yn cario drwodd. Hyd yn oed wedi'i gywiro i'r ffynhonnau, mae'n atgynhyrchu'r lefel dŵr daear a fesurwyd i tua ugain centimetr, ac mae'n dal i redeg tua deg centimetr yn rhy isel yn y misoedd gwlypaf. Mae gwall o ddeg centimetr yn newid arwynebedd y dŵr agored tua'i hanner, am fod pyllau'n ymddangos yn sydyn unwaith y daw'r dŵr yn agos at yr wyneb. Melyn yw'r lliw mwy sefydlog, yn dda i tua 15 %; mae glas yn gywir i ffactor o 2.1. Y ddwy flynedd gyntaf yw'r model yn ymsefydlu o'i ddyfaliad cychwynnol.
 Y gaeaf sy'n rheoli drwy'r flwyddyn. Daw'r cromliniau o luniau Tachwedd-i-Fawrth; mae misoedd yr haf yn dangos yr hyn a awgrymai lefel y dŵr daear, nid yr hyn a ddangosai ffotograff haf.
-Pam y fersiwn hwn o'r model. O'i redeg yn ôl i gyfnod sychach na welodd unrhyw ffitio — ffynhonnau a fesurwyd ar y warchodfa yn 1989–96 — atgynhyrchodd eu lefel gyfartalog heb ogwydd, lle daeth fersiwn sy'n anghofio'n gyflymach allan yn rhy wlyb. Ar y prawf hwnnw y seilir degawdau sychach y ffilm (penderfyniad D-226).
 
 ### Cydnabyddiaethau a ffynonellau
 Astudiaeth hydroleg Tywyn Niwbwrch, 2026 — Martin Hollingham.

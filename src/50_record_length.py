@@ -68,7 +68,13 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-14 (D-261; Martin 07:22 "Let's include it in the paper. Test for
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-15 (D-266; Martin 13:08 "I approve the spec"; spec
+#   NRG_spec_E8_identified_timescales_2026-10-15). E8 and E8g report a store's e-folding time only where the fit
+#   identifies it: a store carrying under TWO_STORE_SHARE_MIN of the response has its e-fold (and SE) emitted as
+#   NaN, the fitted value kept in fast/slow_efold_months_raw, with fast/slow_identified; an identified e-fold within
+#   TWO_STORE_BOUND_TOL of its bound is flagged fast/slow_at_bound (lower/upper). No fit, share, BIC, split NSE or
+#   verdict changes. 50_12, 50_26 and the two_store_C*_slow_efold_months report numbers.
+# 1.10.0  # Hollingham (2026) - 2026-10-14 (D-261; Martin 07:22 "Let's include it in the paper. Test for
 #   effects of vegetation. What about years previous to 1951", 07:30 "say what the model needs to match the groundwater's
 #   water levels and then go through each possible intervention and size up its possible effects ... it's an exploration,
 #   not a test and put it into script 50"; spec NRG_spec_E11_ranwell_epoch_2026-10-14 as amended). E11: what Ranwell's
@@ -206,6 +212,7 @@ from utils.config import (                                    # noqa: E402
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
     TWO_STORE_CHECK_WELL, TWO_STORE_CHECK_CLUSTER, TWO_STORE_FLOOD_WINTERS, TWO_STORE_NEAR_WINTERS,
     TWO_STORE_DRY_WINTERS, TWO_STORE_SURFACE_TOL_M, TWO_STORE_NEAR_TOL_M, DAYS_PER_MONTH,
+    TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL,
     TWO_STORE_BIC_STRONG, CHANGE_TSTART_INIT, CHANGE_TSTART_BOUNDS, CHANGE_SPLIT_DIRECTIONS,
     CHANGE_GRID_COARSE_MONTHS, SURFACE_THRESHOLD_GRID,
     SURFACE_BAND_M, SURFACE_THRESHOLD_MAX_DEPTH_M,
@@ -983,6 +990,30 @@ def _winter_max(s: pd.Series) -> pd.Series:
     return w.groupby(lab).max()
 
 
+def _identify(row: dict, dbl: bool) -> dict:
+    """1.11.0 (D-266): blank the e-fold of a store the fit does not identify; flag one that sits on its bound."""
+    s = float(row.get("slow_share", 0.0)) if dbl else 0.0
+    for store, share, bounds in (("fast", 1.0 - s, TWO_STORE_FAST_BOUNDS_DAYS),
+                                 ("slow", s, TWO_STORE_SLOW_BOUNDS_DAYS)):
+        key = f"{store}_efold_months"
+        raw = row.get(key, np.nan)
+        row[f"{key}_raw"] = raw
+        present = dbl or store == "fast"
+        ident = bool(present and np.isfinite(raw) and share >= TWO_STORE_SHARE_MIN)
+        row[f"{store}_identified"] = ident
+        at = ""
+        if ident and dbl:
+            for side, b in (("lower", bounds[0]), ("upper", bounds[1])):
+                if abs(np.log(raw / (b / DAYS_PER_MONTH))) <= np.log1p(TWO_STORE_BOUND_TOL):
+                    at = side
+        row[f"{store}_at_bound"] = at
+        if not ident:
+            row[key] = np.nan
+            if f"{key}_se" in row:
+                row[f"{key}_se"] = np.nan
+    return row
+
+
 def two_store(lev, lev_cols, cl, master):
     """E8 (D-231): per cluster centroid, single against double exponential; the tests of the spec."""
     import pastas as ps
@@ -1060,7 +1091,7 @@ def two_store(lev, lev_cols, cl, master):
                                 biases.append(float((pr[ok] - obm[ok]).mean()))
                     row["ccw_n_wells"] = len(biases)
                     row["ccw_bias_median_m"] = float(np.median(biases)) if biases else np.nan
-                rows.append(row)
+                rows.append(_identify(row, dbl))
     tab = pd.DataFrame(rows)
 
     # NW9 (test 4b): the check cluster's models run at the check well
@@ -1138,7 +1169,8 @@ def two_store_report(rr, tab, per, nw, verdict) -> None:
         p = per[per.cluster == c].iloc[0]
         for key, val, unit, note in (
                 ("slow_share", d["slow_share"], "", "share of the recharge through the slow store, double exponential"),
-                ("slow_efold_months", d["slow_efold_months"], "months", "slow store's e-folding time, double exponential"),
+                ("slow_efold_months", d["slow_efold_months"], "months", "slow store's e-folding time, double exponential; "
+                 f"blank where the store carries under {TWO_STORE_SHARE_MIN:g} of the response (not identified, D-266)"),
                 ("bic_double_minus_single", d["bic"] - s["bic"], "", "BIC, double minus single (negative favours two stores)"),
                 ("split_nse_single", s["split_nse_median"], "", "median split-test NSE, single exponential"),
                 ("split_nse_double", d["split_nse_median"], "", "median split-test NSE, double exponential"),
@@ -2477,6 +2509,7 @@ def precanopy(cl):
                                slow_share=float(o["rch_alpha"]) if dbl else 0.0,
                                split_nse_fwd=sp["fwd"], split_nse_rule=sp["rule"],
                                early_resid_m=st["early_resid_m"], later_rmse_m=st["later_rmse_m"])
+                    _identify(row, dbl)
                 except Exception as exc:
                     row["error"] = f"{type(exc).__name__}: {exc}"[:200]
                 rows.append(row)

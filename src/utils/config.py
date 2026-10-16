@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.107.0"  # Hollingham (2026) - 2026-10-15. Canopy at the forest wells (Script 41 2.16.0, D-263;
+__version__ = "1.108.0"  # Hollingham (2026) - 2026-10-15 (D-266; spec NRG_spec_E8_identified_timescales_2026-10-15,
+#   Martin 13:08 "I approve the spec"). TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL (Script 50 1.11.0).
+# 1.107.0  # Hollingham (2026) - 2026-10-15. Canopy at the forest wells (Script 41 2.16.0, D-263;
 #   spec NRG_spec_canopy_at_wells_2026-10-15): CANOPY_WELL_BUFFER_M, CANOPY_WELL_BUFFER_SENS_M, WELL_CANOPY_TEST_P,
 #   WELL_CANOPY_COLLINEAR_R.
 # 1.106.0  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_NEED_K1_GRID,
@@ -738,6 +740,12 @@ TWO_STORE_NEAR_WINTERS       = (2009,)
 TWO_STORE_DRY_WINTERS        = (2014, 2016, 2024)
 TWO_STORE_SURFACE_TOL_M      = 0.05
 TWO_STORE_NEAR_TOL_M         = 0.15
+# D-266: a store of a two-store fit is identified only if it carries at least TWO_STORE_SHARE_MIN of the
+# response; otherwise its e-folding time has no effect on the fit and is emitted as NaN (the fitted value kept
+# in a *_raw column). An identified store whose e-fold lies within TWO_STORE_BOUND_TOL (as a fraction, on a
+# log scale) of a bound of TWO_STORE_FAST/SLOW_BOUNDS_DAYS is flagged at that bound: the time is then a limit.
+TWO_STORE_SHARE_MIN          = 0.01
+TWO_STORE_BOUND_TOL          = 0.01
 
 # ── Script 50 E8b and E8c (D-232; spec NRG_spec_E8b_E8c_2026-10-02) ─────────────
 # E8b: one non-climatic term added to E8's single store (a step, a relaxing step, a linear trend), its date

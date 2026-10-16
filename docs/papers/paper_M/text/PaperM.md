@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_18.odt — do not edit. source-sha256=ded30eed37f863b9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_20.odt — do not edit. source-sha256=0d6b2b28e928e603 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
@@ -115,7 +115,13 @@ Newborough Warren (Anglesey, Wales) is a coastal dune system of 865 ha. Its moni
 
 A reference network of 66 wells is admitted on record length. To be admitted, a well needs at least 100 months of record and must still be reporting at the end of the record. Admitted records are longer than this minimum, with a median of 192 months (range 140--252).
 
-The wells fall into five hydrogeological clusters by their per-well coefficients. Three are open dune: C1 Lake Edge, C2 Dune and C3 Western Residual. Two are pine forest: C4 Main Forest and C5 Coastal Forest. The clustering is the subject of a companion paper (Hollingham, 2026a) and is used here only as a grouping.
+The wells fall into five hydrogeological clusters by the shape of their records: Ward's linkage on one minus the correlation between their monthly level series, before any model is fitted. Three are open dune: C1 Lake Edge, C2 Dune and C3 Western Residual. Two are pine forest: C4 Main Forest and C5 Coastal Forest.
+
+The clusters are formed before any model is fitted. Each reference well's monthly level series is compared with every other well's by correlation, so the timing and shape of its rises and falls count and its depth below ground does not. The wells are grouped by Ward's linkage on one minus that correlation, and five clusters are kept.
+
+The silhouette score is highest at two clusters (0.58), which separates the main forest from the rest; at five it is 0.37. A well's assignment is stable when wells are resampled (median co-assignment 0.95) and when months are resampled in year-long blocks (0.99). Partitions built from two disjoint samples of the record agree only moderately, however: the adjusted Rand index is 0.53, with a 5--95 % range of 0.35--0.73. In every month-resampled replicate at least two clusters merge.
+
+The clusters are therefore a useful grouping of one continuous aquifer, not sharply bounded units (Hollingham, 2026a). The coefficients are fitted afterwards, both to each well and to each cluster centroid, the mean hydrograph of the cluster's members.
 
 Each reading is bucketed to the month it describes. Rainfall and PET enter for the same month, with no lag.
 
@@ -275,13 +281,13 @@ Pastas, which estimates the response time directly, tells the same story. It ide
 
 Inside the modern record, Model B forecasts better at every length. Each form was fitted on the months before January 2018 and run freely after it. Model B's median Nash--Sutcliffe efficiency is 0.72 from 24 months of record and 0.79 from all of it. Model A's rises from −0.14 to 0.59 at 100 months and 0.61 when fitted on all the months before 2018. A site with a few years of record can forecast its own water table with the free-intercept form.
 
-The one test no fit has seen is the Countryside Council for Wales record of 1989--96. It was read before the modern network was installed, at 9 wells that the network still reads, in a decade drier than any the fits contain. Hindcast from fits to the full modern record, Model A is close to unbiased, with a median bias of 0.03 m. Model B is too wet by 0.30 m. Their median efficiencies are −0.14 and −1.46 respectively. The ordering holds at every record length, whether the fit is taken from the start or the end of the modern record. Model B's median bias lies between 0.27 and 0.51 m. Model A's is within 0.09 m of zero once the fit spans four years.
+The one test no fit has seen is the Countryside Council for Wales record of 1989--96. It was read before the modern network was installed, at 9 wells that the network still reads, in a decade drier than any the fits contain. Hindcast from fits to the full modern record of each well, Model A is close to unbiased, with a median bias of 0.03 m. Model B is too wet by 0.30 m. Their median efficiencies are −0.14 and −1.46 respectively. The ordering holds at every record length, whether the fit is taken from the start or the end of the modern record. Model B's median bias lies between 0.27 and 0.51 m. Model A's is within 0.09 m of zero once the fit spans four years.
 
 The two tests split by what they score. A forecast inside the modern record is dominated by the seasonal swing, which a fast reversion follows well. The drier decade is a sustained shift of the mean level, which Model A carries and Model B does not.
 
 ## []{#anchor-1}6.5 What the drier past says about the datum
 
-If the drier decade favours Model A, it can also be asked which datum Model A should use. Model A was refitted on the comparison window at every datum of the sweep, and each fit was used to hindcast the same decade. By a rule fixed before the run, the datum that maximizes the median efficiency is 2.9 m, with a band of 2.8--2.9 m within 0.05 of the best (median efficiency 0.44 at that datum, against −0.06 at the network datum). The median absolute bias is smallest at 2.6 m. Deeper than the network datum, every measure is worse. The drier past therefore does not ask for a deeper datum, as might be expected under drying. The network datum lies below the supported band, but it is close to unbiased on the same fits (median bias −0.01 m).
+If the drier decade favours Model A, it can also be asked which datum Model A should use. Model A was refitted at each well on the comparison window at every datum of the sweep, and each fit was used to hindcast the same decade. By a rule fixed before the run, the datum that maximizes the median efficiency is 2.9 m, with a band of 2.8--2.9 m within 0.05 of the best (median efficiency 0.44 at that datum, against −0.06 at the network datum). The median absolute bias is smallest at 2.6 m. Deeper than the network datum, every measure is worse. The drier past therefore does not ask for a deeper datum, as might be expected under drying. The network datum lies below the supported band, but it is close to unbiased on the same fits (median bias −0.01 m).
 
 A second epoch, Ranwell's readings of 1951--53 (Ranwell, 1959), tests the same question nearly forty years earlier. The readings come from three sites whose positions are approximate, so this epoch is scored on the seasonal swing with the mean offset removed. By the same rule it supports 0.7 m (band 0.5--1.1 m). There Model A behaves as Model B does. The median efficiencies are 0.86 at that datum and 0.86 for Model B, against 0.46 at the network datum.
 
@@ -313,9 +319,23 @@ C5 is also the cluster nearest the retreating shore, and the coastal reading nee
 
 A cause outside the monthly forcing was also tested. Prolonged rain events lose less to interception and evaporation than their monthly totals imply, and a monthly model cannot represent this. Daily rainfall from a gauge on Anglesey (Met Office, 2024) shows three things. Only one of the three winters of the early excess was unusual in the share of its rain that fell in long events. Later wet winters had as large a share. Finally, a term for long events, though it fits the early years better, forecasts worse at every cluster with an excess. How the rain fell does not explain the early excess.
 
-## []{#anchor-1}6.7 Declaring the basis
+## []{#anchor-1}6.7 Per well or per cluster?
 
-Coefficients from the two bases differ where it matters most. Each analysis should therefore state which record it fitted and over which it was evaluated. Here a register lists, for every analysis, the wells, the record fitted and the record evaluated. The register is checked automatically against the fitting call in each script before results are published. Every coefficient in this paper carries its basis in its source file.
+Section 4's identification results come from the cluster centroids. The skill tests of Sections 5.5, 6.4 and 6.5 come from fits to each well. Whether that skill belongs to the coefficients the procedure reports depends on whether it survives a change of basis.
+
+Each test was therefore run twice: once on each well's own coefficients, and once on its cluster centroid's, fitted on the same span. A centroid run at a well is shifted by the mean difference between the well and its centroid over the fitted months. It is then scored on how the level rises and falls, not on the cluster's mean depth.
+
+A rule was fixed before the run. On a test, the cluster basis holds if its median efficiency is within 0.05 of the per-well basis or better. On the drier decade, its median absolute bias must also be within 0.05 m of the per-well basis or smaller.
+
+Under the no-intercept form the cluster basis holds on all three tests. On the drier decade its median efficiency is −0.18 against −0.14, and its median absolute bias 0.23 m against 0.26 m. Against Ranwell's readings it scores 0.49 against 0.46 on the three headline pairings, and 0.70 against 0.57 over all 11. Its seasonal range is 1.00 of Ranwell's on average, against 1.09 for the per-well fits. In the split-sample test it scores 0.70 against 0.61 forward and 0.66 against 0.67 backward.
+
+Under the free-intercept form the cluster basis also holds on all three tests, and on the drier decade it does markedly better. Its median efficiency is −0.41 against −1.46, and its median absolute bias 0.21 m against 0.30 m. One reading is that a single well's intercept carries that well's own mean level over the modern record, while the centroid's averages many wells and carries less of it into the past. The test does not separate this reading from others.
+
+The skill reported in this paper therefore does not depend on fitting each well separately. The per-cluster coefficients forecast and hindcast as well as each well's own, within the tolerance, and under the free-intercept form they transfer to the drier decade better.
+
+## []{#anchor-1}6.8 Declaring the basis
+
+Coefficients from the two bases differ where it matters most. Each analysis should therefore state which record it fitted and over which it was evaluated. Here a register lists, for every analysis, the wells, the record fitted and the record evaluated. The register is checked automatically against the fitting call in each script before results are published. Every coefficient in this paper carries its basis in its source file. Section 6.7 compares the two bases on the skill tests.
 
 # []{#anchor-1}7. A procedure for other sites
 

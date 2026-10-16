@@ -68,7 +68,14 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-15 (D-266; Martin 13:08 "I approve the spec"; spec
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-10-16 (D-268; Martin 11:07 "paper M needs to cover the clustering processes
+#   and how robust the model is relative to hindcasting, whether it's per cluster or per well", 11:34 the spec's three calls;
+#   spec NRG_spec_cluster_vs_well_hindcast_2026-10-16). E12: the CCW 1989-96 hindcast (full modern record), the Ranwell
+#   1951-53 hindcast (comparison window, Script 44's scoring) and the split-sample test (Script 48's), each on the well's
+#   own coefficients and on its cluster centroid's fitted on the same span, both forms; the centroid run shifted by the
+#   well-centroid mean difference over the fitted months. The rule fixed before the run (BASIS_TOL_NSE, BASIS_TOL_BIAS_M):
+#   basis_verdict_A/B. 50_30_basis_by_test.csv; basis_* report numbers; identity against Scripts 48 and 44.
+# 1.11.0  # Hollingham (2026) - 2026-10-15 (D-266; Martin 13:08 "I approve the spec"; spec
 #   NRG_spec_E8_identified_timescales_2026-10-15). E8 and E8g report a store's e-folding time only where the fit
 #   identifies it: a store carrying under TWO_STORE_SHARE_MIN of the response has its e-fold (and SE) emitted as
 #   NaN, the fitted value kept in fast/slow_efold_months_raw, with fast/slow_identified; an identified e-fold within
@@ -198,7 +205,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG,
     OUT_50_CLEARANCE_STEP, OUT_50_CLEARANCE_FIG, DATA_SHORE_CLEARANCE_2015,
     OUT_03_MECHANISTIC_TABLE, OUT_50_PRECANOPY, OUT_41_INDEX, OUT_50_FOREST_FORCING,
-    OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH, RANWELL_PARC_MAWR_RAIN, RANWELL_EPOCH_CANDIDATES, DATA_FOREST_BOUNDARY, OUT_20_REPORT_NUMBERS,
+    OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH, OUT_50_BASIS, RANWELL_PARC_MAWR_RAIN, RANWELL_EPOCH_CANDIDATES, DATA_FOREST_BOUNDARY, OUT_20_REPORT_NUMBERS,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -212,7 +219,7 @@ from utils.config import (                                    # noqa: E402
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
     TWO_STORE_CHECK_WELL, TWO_STORE_CHECK_CLUSTER, TWO_STORE_FLOOD_WINTERS, TWO_STORE_NEAR_WINTERS,
     TWO_STORE_DRY_WINTERS, TWO_STORE_SURFACE_TOL_M, TWO_STORE_NEAR_TOL_M, DAYS_PER_MONTH,
-    TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL,
+    TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL, BASIS_TOL_NSE, BASIS_TOL_BIAS_M,
     TWO_STORE_BIC_STRONG, CHANGE_TSTART_INIT, CHANGE_TSTART_BOUNDS, CHANGE_SPLIT_DIRECTIONS,
     CHANGE_GRID_COARSE_MONTHS, SURFACE_THRESHOLD_GRID,
     SURFACE_BAND_M, SURFACE_THRESHOLD_MAX_DEPTH_M,
@@ -3055,6 +3062,245 @@ def ranwell_epoch_report(rr, need: dict, ctx: dict, cand: pd.DataFrame, chk: flo
                 rr.add(f"ranwell_epoch_cand_{r.item}_k_{end}", kv, unit="x", note=f"{r.item}: {r.coefficient} scale, {end} end")
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# E12: per well or per cluster? (1.12.0, D-268)
+# ──────────────────────────────────────────────────────────────────────────────
+BASIS_TESTS = ("ccw", "ranwell", "split")
+
+
+def _centroid_fit(ra: pd.DataFrame, c: int, cl, intercept: bool, span: str, split=None):
+    """The cluster centroid fitted on the same span as the per-well fit it stands in for: 'full' (the
+    full record), 'window' (the last LCSC_DATA_LIMIT months), 'pre' or 'post' (either side of the split).
+    Returns (fit, centroid series)."""
+    h = ra[f"C{c}"].dropna()
+    if span == "pre":
+        h = h[h.index < split]
+    elif span == "post":
+        h = h[h.index >= split]
+    fr = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
+    if span == "window":
+        fr = fr.tail(LCSC_DATA_LIMIT)
+    f = fit_frame(fr, intercept)
+    return (f if f is not None and f["beta_3_drainage"] > 0 else None), h
+
+
+def basis_experiment(lev, lev_cols, cl, master):
+    """E12 (D-268): each hindcast and forecast on each well's own coefficients (as published) and on its
+    cluster centroid's, fitted on the same span. On the cluster basis the run is shifted by the mean
+    difference between the well and its centroid over the months the fit saw (as E8 runs a centroid at a
+    well), so the test scores the dynamics, not the cluster's mean level; the Ranwell scoring removes the
+    offset anyway. Returns (rows, identity checks)."""
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    md = master.set_index("_n")
+    clh = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
+    p_mean, pet_mean = float(clh["P_m"].mean()), float(clh["PET"].mean())
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    cache = {}
+
+    def cfit(c, icpt, span):
+        k = (c, icpt, span)
+        if k not in cache:
+            cache[k] = _centroid_fit(ra, c, cl, icpt, span, split)
+        return cache[k]
+
+    def shift_of(h_well, h_cent):
+        common = h_well.index.intersection(h_cent.index)
+        return float(h_well.loc[common].mean() - h_cent.loc[common].mean()) if len(common) else np.nan
+
+    rows, chk = [], {}
+    # 1. CCW 1989-96, fitted on the full modern record (Paper M 6.4)
+    if paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists():
+        obs, cmap = load_ccw()
+        mdk = pd.read_csv(INT_MASTER_DATA)
+        mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
+        adm = usable_codes(cmap, mdk.set_index("k"), obs)
+        adm = adm[adm["admitted"]]
+        first_month, last_month = obs["month"].min(), obs["month"].max()
+        for r in adm.itertuples():
+            k = normalize_well_name(r.well)
+            col = lev_cols.get(k)
+            if col is None or k not in md.index:
+                continue
+            o, _n = observed_series(obs, r.code, r.datum_offset_m)
+            if o.empty:
+                continue
+            c = int(md.loc[k, "Cluster"])
+            hw = lev[col].dropna()
+            for form, icpt in FORMS:
+                for basis in ("well", "cluster"):
+                    if basis == "well":
+                        f = fit_frame(build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), icpt)
+                        f = f if f is not None and f["beta_3_drainage"] > 0 else None
+                        sh = 0.0
+                    else:
+                        f, hc = cfit(c, icpt, "full")
+                        sh = shift_of(hw, hc)
+                    row = {"test": "ccw", "well": k, "site_no": np.nan, "headline": np.nan, "cluster": c,
+                           "form": form, "basis": basis, "direction": "", "shift_m": sh}
+                    if f is not None:
+                        betas = (f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"])
+                        datum = run_datum(f, icpt)
+                        h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=datum)
+                        pred, _s = hindcast_well(clh, betas, h0, first_month, last_month, 1.0, drainage_datum=datum)
+                        pred = pred + sh
+                        common = o.index.intersection(pred.index)
+                        nse, rmse, bias = get_metrics(o.loc[common], pred.loc[common])
+                        row.update(n_test=int(len(common)), nse=float(nse), bias_m=float(bias), rmse_m=float(rmse),
+                                   beta_1=betas[0], beta_2=betas[1], beta_3=betas[2])
+                    rows.append(row)
+    # 2. Ranwell 1951-53, fitted on the comparison window, scored as Script 44 scores it
+    if RANWELL_LEVELS.exists() and OUT_44_METRICS.exists():
+        lv = pd.read_csv(RANWELL_LEVELS, parse_dates=["date"])
+        lv["month"] = lv["date"].dt.to_period("M")
+        obs_month = lv.groupby(["site_no", "month"])["level_m_od"].mean()
+        pairs = pd.read_csv(OUT_44_METRICS)
+        first = pd.Timestamp(f"{obs_month.index.get_level_values('month').min().year - 1}-12-01")
+        last = obs_month.index.get_level_values("month").max().to_timestamp()
+        for pr in pairs.itertuples():
+            k = normalize_well_name(pr.well)
+            col = lev_cols.get(k)
+            if col is None or k not in md.index or int(pr.site_no) not in obs_month.index.get_level_values(0):
+                continue
+            om = obs_month.loc[int(pr.site_no)]
+            c = int(md.loc[k, "Cluster"])
+            hw = lev[col].dropna()
+            for form, icpt in FORMS:
+                for basis in ("well", "cluster"):
+                    if basis == "well":
+                        fr = build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM).tail(LCSC_DATA_LIMIT)
+                        f = fit_frame(fr, icpt)
+                        f = f if f is not None and f["beta_3_drainage"] > 0 else None
+                    else:
+                        f, _hc = cfit(c, icpt, "window")
+                    row = {"test": "ranwell", "well": k, "site_no": int(pr.site_no), "headline": bool(pr.headline),
+                           "cluster": c, "form": form, "basis": basis, "direction": "", "shift_m": np.nan}
+                    if f is not None:
+                        betas = (f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"])
+                        run_d = run_datum(f, icpt)
+                        h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=run_d)
+                        sim, _spin = hindcast_well(clh, betas, h0, first, last, 1.0, drainage_datum=run_d)
+                        mid = (sim + sim.shift(1)) / 2
+                        mid.index = mid.index.to_period("M")
+                        m = compare_offset_censored(om, mid.dropna(), float(pr.ground_m_od))
+                        rr_ = (m["range_model_m"] / m["range_obs_m"]
+                               if m.get("range_obs_m") and np.isfinite(m["range_obs_m"]) and m["range_obs_m"] > 0 else np.nan)
+                        row.update(n_test=int(m["n"]), nse=float(m["nse_after_offset"]), r=float(m["r"]), range_ratio=rr_,
+                                   beta_1=betas[0], beta_2=betas[1], beta_3=betas[2])
+                    rows.append(row)
+    # 3. the split-sample test (Script 48's), both directions
+    for k, r in md.iterrows():
+        col = lev_cols.get(k)
+        if col is None:
+            continue
+        c = int(r["Cluster"])
+        hw = lev[col].dropna()
+        pre_h, post_h = hw[hw.index < split], hw[hw.index >= split]
+        for form, icpt in FORMS:
+            for direction, tr, te, span in (("fwd", pre_h, post_h, "pre"), ("rev", post_h, pre_h, "post")):
+                for basis in ("well", "cluster"):
+                    if basis == "well":
+                        f = fit_frame(build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), icpt)
+                        sh = 0.0
+                    else:
+                        f, hc = cfit(c, icpt, span)
+                        sh = shift_of(tr, hc)
+                    res = free_run(te - sh, cl, f, icpt) if (f is not None and np.isfinite(sh)) else \
+                        {"n_test": 0, "nse": np.nan, "rmse_m": np.nan, "bias_m": np.nan}
+                    rows.append({"test": "split", "well": k, "site_no": np.nan, "headline": np.nan, "cluster": c,
+                                 "form": form, "basis": basis, "direction": direction, "shift_m": sh,
+                                 "n_test": res["n_test"], "nse": res["nse"], "bias_m": res["bias_m"],
+                                 "rmse_m": res["rmse_m"]})
+    tab = pd.DataFrame(rows)
+    # identity: the per-well arm reproduces what is published
+    if len(tab) and OUT_48_MODEL_AB.exists():
+        ab = pd.read_csv(OUT_48_MODEL_AB)
+        ab["well"] = ab["well"].astype(str).apply(normalize_well_name)
+        ab = ab.set_index("well")
+        s = tab[(tab.test == "split") & (tab.basis == "well")]
+        d = [abs(x.nse - ab.loc[x.well, f"nse_{x.direction}_{x.form}"]) for x in s.itertuples()
+             if x.well in ab.index and np.isfinite(x.nse) and np.isfinite(ab.loc[x.well, f"nse_{x.direction}_{x.form}"])]
+        chk["basis_vs48_max_abs_nse_diff"] = float(max(d)) if d else np.nan
+    if len(tab) and OUT_44_METRICS.exists():
+        p44 = pd.read_csv(OUT_44_METRICS)
+        p44["k"] = p44["well"].astype(str).apply(normalize_well_name)
+        p44 = p44.set_index(["site_no", "k"])["nse_after_offset"]
+        s = tab[(tab.test == "ranwell") & (tab.basis == "well") & (tab.form == "A")]
+        d = [abs(x.nse - p44.loc[(x.site_no, x.well)]) for x in s.itertuples() if (x.site_no, x.well) in p44.index and np.isfinite(x.nse)]
+        chk["basis_vs44_max_abs_nse_diff"] = float(max(d)) if d else np.nan
+    return tab, chk
+
+
+def basis_verdict(tab: pd.DataFrame) -> dict:
+    """The rule fixed before the run (D-268), per form: on each test the cluster basis holds if its median
+    score is within BASIS_TOL_NSE of the per-well basis or better (CCW: and its median |bias| within
+    BASIS_TOL_BIAS_M or smaller; split: in both directions; Ranwell: Script 44's headline pairings). Verdict 2
+    'cluster better for transfer' (holds on all three and better by more than BASIS_TOL_NSE on CCW or Ranwell),
+    1 'basis-robust' (holds on all three), 0 'basis matters'."""
+    out = {}
+    for form in ("A", "B"):
+        t = tab[tab.form == form]
+        med = {}
+        for test in BASIS_TESTS:
+            s = t[t.test == test]
+            if test == "ranwell":
+                s = s[s.headline.astype(bool)]
+            for basis in ("well", "cluster"):
+                b = s[s.basis == basis]
+                if test == "split":
+                    for d_ in ("fwd", "rev"):
+                        med[(test, basis, d_)] = float(b[b.direction == d_]["nse"].median())
+                else:
+                    med[(test, basis, "")] = float(b["nse"].median())
+                if test == "ccw":
+                    med[(test, basis, "absbias")] = float(b["bias_m"].abs().median())
+        hold, better = {}, {}
+        for test in BASIS_TESTS:
+            dirs = ("fwd", "rev") if test == "split" else ("",)
+            gaps = [med[(test, "cluster", d_)] - med[(test, "well", d_)] for d_ in dirs]
+            h = all(np.isfinite(g) and g >= -BASIS_TOL_NSE for g in gaps)
+            if test == "ccw":
+                h = h and med[("ccw", "cluster", "absbias")] <= med[("ccw", "well", "absbias")] + BASIS_TOL_BIAS_M
+            hold[test] = bool(h)
+            better[test] = bool(all(np.isfinite(g) and g > BASIS_TOL_NSE for g in gaps))
+        code = (2 if all(hold.values()) and (better["ccw"] or better["ranwell"]) else
+                1 if all(hold.values()) else 0)
+        out[form] = {"med": med, "hold": hold, "better": better, "code": code}
+    return out
+
+
+BASIS_VERDICT = {2: "cluster better for transfer", 1: "basis-robust", 0: "basis matters"}
+
+
+def basis_report(rr, tab: pd.DataFrame, ver: dict, chk: dict) -> None:
+    for form, v in ver.items():
+        rr.add(f"basis_verdict_{form}", v["code"], unit="code",
+               note=f"Model {form}: {BASIS_VERDICT[v['code']]} (2 cluster better for transfer, 1 basis-robust, 0 basis matters; "
+                    f"the rule fixed before the run, D-268)")
+        for test in BASIS_TESTS:
+            rr.add(f"basis_{test}_holds_{form}", float(v["hold"][test]), unit="flag",
+                   note=f"Model {form}, {test}: the cluster basis holds (1) or not (0), E12, D-268")
+        for (test, basis, d_), val in v["med"].items():
+            if d_ == "absbias":
+                rr.add(f"basis_{test}_absbias_median_{basis}_{form}", val, unit="m",
+                       note=f"Model {form}, CCW 1989-96: median |bias| on the {basis} basis, E12, D-268")
+            else:
+                sfx = f"_{d_}" if d_ else ""
+                what = {"ccw": "CCW 1989-96 hindcast", "ranwell": "Ranwell 1951-53 hindcast, headline pairings, NSE after the offset",
+                        "split": f"split-sample test ({d_})"}[test]
+                rr.add(f"basis_{test}_nse_median_{basis}_{form}{sfx}", val,
+                       note=f"Model {form}, {what}: median NSE on the {basis} basis, E12, D-268")
+    rw = tab[(tab.test == "ranwell")]
+    for form in ("A", "B"):
+        for basis in ("well", "cluster"):
+            s = rw[(rw.form == form) & (rw.basis == basis)]
+            rr.add(f"basis_ranwell_nse_median_all_{basis}_{form}", float(s["nse"].median()),
+                   note=f"Model {form}, Ranwell 1951-53, all {len(s)} pairings: median NSE after the offset on the {basis} basis, E12, D-268")
+            rr.add(f"basis_ranwell_range_ratio_median_{basis}_{form}", float(s["range_ratio"].median()),
+                   note=f"Model {form}, Ranwell 1951-53, all pairings: median model/observed seasonal range on the {basis} basis, E12, D-268")
+    for k, v in chk.items():
+        rr.add(k, v, note="E12 identity: the per-well arm against the published script (D-268)")
+
+
 def main(no_fig: bool = False) -> int:
     banner("50", "What the record length decides", version=__version__)
     DIR_50.mkdir(parents=True, exist_ok=True)
@@ -3248,7 +3494,21 @@ def main(no_fig: bool = False) -> int:
         rn_grid.to_csv(OUT_50_RANWELL_NEED, index=False); saved(f"{OUT_50_RANWELL_NEED.name} ({len(rn_grid)} rows)")
         rn_cand.to_csv(OUT_50_RANWELL_EPOCH, index=False); saved(f"{OUT_50_RANWELL_EPOCH.name} ({len(rn_cand)} rows)")
 
-    phase(15, "Outputs")
+    phase(15, "Per well or per cluster? Hindcast and forecast skill on both bases (E12, 1.12.0, D-268)")
+    bs_tab, bs_chk = basis_experiment(lev, lev_cols, cl, master)
+    bs_ver = basis_verdict(bs_tab)
+    for k, v in bs_chk.items():   # Script 44 runs its own hindcast loop, matched to 1e-6 as E9's check is
+        (step if (np.isfinite(v) and v < (1e-6 if "vs44" in k else 1e-9)) else warn)(f"{k}: {v:.3g}")
+    for form, v in bs_ver.items():
+        m = v["med"]
+        step(f"Model {form}: CCW NSE {m[('ccw', 'well', '')]:.3f} well / {m[('ccw', 'cluster', '')]:.3f} cluster, "
+             f"|bias| {m[('ccw', 'well', 'absbias')]:.3f} / {m[('ccw', 'cluster', 'absbias')]:.3f} m; Ranwell {m[('ranwell', 'well', '')]:.3f} / "
+             f"{m[('ranwell', 'cluster', '')]:.3f}; split fwd {m[('split', 'well', 'fwd')]:.3f} / {m[('split', 'cluster', 'fwd')]:.3f}, "
+             f"rev {m[('split', 'well', 'rev')]:.3f} / {m[('split', 'cluster', 'rev')]:.3f}")
+        result(f"E12 Model {form}", f"{BASIS_VERDICT[v['code']]}; holds: " + ", ".join(f"{t} {'yes' if h else 'no'}" for t, h in v["hold"].items()))
+    bs_tab.to_csv(OUT_50_BASIS, index=False); saved(f"{OUT_50_BASIS.name} ({len(bs_tab)} rows)")
+
+    phase(16, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
@@ -3267,6 +3527,7 @@ def main(no_fig: bool = False) -> int:
     forest_forcing_report(rr, ff_ver, ff_chk)
     if len(rn_grid):
         ranwell_epoch_report(rr, rn_need, rn_ctx, rn_cand, rn_chk)
+    basis_report(rr, bs_tab, bs_ver, bs_chk)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)

@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.108.0"  # Hollingham (2026) - 2026-10-15 (D-266; spec NRG_spec_E8_identified_timescales_2026-10-15,
+__version__ = "1.109.0"  # Hollingham (2026) - 2026-10-16 (D-268; spec NRG_spec_cluster_vs_well_hindcast_2026-10-16,
+#   Martin 11:34): BASIS_TOL_NSE, BASIS_TOL_BIAS_M (Script 50 1.12.0, E12).
+# 1.108.0  # Hollingham (2026) - 2026-10-15 (D-266; spec NRG_spec_E8_identified_timescales_2026-10-15,
 #   Martin 13:08 "I approve the spec"). TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL (Script 50 1.11.0).
 # 1.107.0  # Hollingham (2026) - 2026-10-15. Canopy at the forest wells (Script 41 2.16.0, D-263;
 #   spec NRG_spec_canopy_at_wells_2026-10-15): CANOPY_WELL_BUFFER_M, CANOPY_WELL_BUFFER_SENS_M, WELL_CANOPY_TEST_P,
@@ -2225,6 +2227,12 @@ RANWELL_PIPE_FOOT_M         = 0.95
 RANWELL_SEASON_WINDOW_YEARS = 3
 RANWELL_ANTECEDENT_YEARS    = 5
 RANWELL_MEMORY_MONTHS       = 24
+# E12 (Script 50 1.12.0, D-268): each hindcast and forecast run on each well's own coefficients and on its cluster
+# centroid's, fitted on the same span. The rule, fixed before the run: on a test, the cluster basis holds if its median
+# score is within BASIS_TOL_NSE of the per-well basis or better (and, on the CCW decade, its median |bias| within
+# BASIS_TOL_BIAS_M or smaller); it is better if it beats the per-well median by more than BASIS_TOL_NSE.
+BASIS_TOL_NSE               = 0.05
+BASIS_TOL_BIAS_M            = 0.05
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T10:16:39",
+ "generated": "2026-10-15T20:20:17",
  "orchestrator": "2.25.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1536,7 +1536,7 @@
     "outputs/50_record_length/50_08_projection_by_datum.csv": "27633ba22f2d2e9cfe205c92e272be5699726ca680fa1f410a19362f097709e5",
     "outputs/50_record_length/50_09_datum_against_the_drier_past.png": "8dfe10f89e6ab4f1cc13beb8f2a437e7237eb885e39734a82ea7f57f516ca078",
     "outputs/50_record_length/50_10_ranwell_hindcast_by_datum.csv": "153a2f04681d479b4f3247b50563141be43690518980329a6cbb567e133c9425",
-    "outputs/50_record_length/50_12_two_store_by_cluster.csv": "32b504545e584e9cc065f0ded6503a1cb16db5980a9e148c8c1be13c80f52020",
+    "outputs/50_record_length/50_12_two_store_by_cluster.csv": "876be011c5392524e1a8d6b0106a5fe9f5f76c5e496e9c30152c637323438e38",
     "outputs/50_record_length/50_13_two_store_check_well.csv": "b127d27ac2a505d9e522385ad5da402f293c844791778d05d7c53b0abe42b484",
     "outputs/50_record_length/50_14_two_store.png": "7b30070839a7c8afef05a0d2e567897d72b38f5927ddf1c92e31d216cf700d70",
     "outputs/50_record_length/50_15_two_store_change.csv": "4020b06ca47047159e0a75c809ff991255e965d40f515b757a7c18d16e3699c3",
@@ -1550,14 +1550,19 @@
     "outputs/50_record_length/50_23_felling_regrowth.png": "5ccc883961552ae5814f2cf9045067e51bd427b819f4e0350b0a1ce790ada088",
     "outputs/50_record_length/50_24_clearance_step_by_well.csv": "3a0ab058afdf1798a62de41a67016efface953c975b339898971017f602be78b",
     "outputs/50_record_length/50_25_clearance_step.png": "0eeb36f6350cacd037add80be1d6b31d1935a659121a8c0d87c368370a4e8482",
-    "outputs/50_record_length/50_26_precanopy_by_case.csv": "dbe9b6b9e56c3bfedebb00135a0f22182bef43040ecfe5cd1eaca2a295d1abbe",
-    "outputs/50_record_length/50_report_numbers.csv": "f9b2c6c2a0ab20ef8e1e2c149679b5c3dd5722d713f2dfd31a53652482ad4aca"
+    "outputs/50_record_length/50_26_precanopy_by_case.csv": "187f727f26cf1118f95d450c88781fbe63e3d6b551ccaccb9bfe58144c459d3b",
+    "outputs/50_record_length/50_27_forest_forcing_by_well.csv": "6d24cab2d97bda57a1dd2061ee0e54deef406b47392366cc6400f661113f2b2d",
+    "outputs/50_record_length/50_28_ranwell_need_grid.csv": "973671cbc2e763e92466f87dfd1a4e915dcf7ced584a058aee0778959f8f1942",
+    "outputs/50_record_length/50_29_ranwell_epoch_candidates.csv": "f242df804a8c331ed2b8c39ad2ab9918c869a17f3b926d35342086cd4f65c8ef",
+    "outputs/50_record_length/50_report_numbers.csv": "72f7e2e006d37f8889197f40d0f10ca5e3f43d93866e66f37f34ed34cff43330"
    },
    "fallbacks": [],
    "inputs": {
     "data/ccw_1989_1996_code_map.csv": "263f6bb0ca75aa63290608599625831d171857f33bd1b59773bb832f8ac9e1c7",
     "data/ccw_1989_1996_depths.csv": "56d9fc8881afd0af77783882dc5c0d37fb7b0bc0f4f33b81cb143145d1682ac9",
+    "data/ranwell_1950_53_parc_mawr_rain.csv": "14f67c35b10a52aa628f1a6a782b51506bac61bee4da4e9698f709d8d0dbe788",
     "data/ranwell_1951_53_water_levels.csv": "8e037d809b0b02cfcde8b79aaf3e5041361c357159f3526115288e53de7b69d8",
+    "data/ranwell_epoch_candidates.csv": "02850a62e9325fdffab260aad65c1231c5fb1815faff5c33baaa4c148317ce84",
     "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff",
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371",
@@ -1575,9 +1580,9 @@
    "inputs_unresolved": [
     "2015.kml"
    ],
-   "seconds": 2770.0,
-   "started": "2026-10-10T20:04:48",
-   "version": "1.8.0"
+   "seconds": 1939.4,
+   "started": "2026-10-15T19:47:58",
+   "version": "1.11.0"
   },
   "run_09_scraping.py": {
    "emitted": {

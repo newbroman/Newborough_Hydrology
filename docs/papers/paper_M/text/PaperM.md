@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_17.odt — do not edit. source-sha256=fad4dcd43effdef9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_18.odt — do not edit. source-sha256=ded30eed37f863b9 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
@@ -295,7 +295,7 @@ Each candidate cause was then sized against that need. The weather was ordinary:
 
 The two epochs ask for two time scales. One is a fast return of the level to its mean, which the seasonal swing of 1951--53 and the free-intercept form both show. The other is a slow one, which holds the level through the drier decade where the no-intercept form at the network datum places it. A single linear store has one time scale, so it can match one epoch or the other but not both. The natural explanation is a second, slower store in parallel with the first, responding to the same rainfall and evaporation.
 
-That store was fitted at each cluster centroid beside the first. It was warmed up over the climate record since 1941, so that its starting level is not a free parameter. The two-store fit was compared with the one-store fit by the Bayesian information criterion. At every cluster the fit sent the slow store's share to zero, and the criterion preferred one store. A slow response to the same climate therefore does not explain why the water table stood above the single-store model in the early years of the record.
+That store was fitted at each cluster centroid beside the first. It was warmed up over the climate record since 1941, so that its starting level is not a free parameter. The two-store fit was compared with the one-store fit by the Bayesian information criterion. At every cluster the fit put essentially all of the response through one of the two stores, so it reduced to a single store, and the criterion preferred one store. A slow response to the same climate therefore does not explain why the water table stood above the single-store model in the early years of the record.
 
 At a site with a pine plantation, a second store invites a specific reading. The reading is that the plantation has drawn down a body of water that was once there, and that the early record caught the last of it. Two features of the record bear on it.
 

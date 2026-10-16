@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T20:20:17",
+ "generated": "2026-10-16T09:18:09",
  "orchestrator": "2.25.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1425,30 +1425,25 @@
     "outputs/47_hindcast_film/47_02_calibration.csv": "0fb3daa9d375018e1152f9802d2f63687e08d3cf81dddda2f8381f1183d204da",
     "outputs/47_hindcast_film/47_02_quantile_map.csv": "9728205958073825eb62f53fc02b39f452e236db50248ce32bbec89e210cf6ba",
     "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "7a82d7c383112cf65a10841ce897b8574a8be6940d72bdf16efd7a45f58c5a9d",
-    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "219644d90467f49b3f4e2616f8105848c8ecc417779b5e16af7c06875bd78755",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "86e97ffca11b8f17c52795e4a2419ebc31c02fc673219e03b049c1ad3364499f",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation_cy.mp4": "1654c923c6aaaa2cae8e3216fbc306c2d3c844ba8eed0e97446cf4d84851bf39",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation_pl.mp4": "d3d6716aae10117fbe2674d8d3a1b18311f52187a35d8070f8d73ed0fa128d61",
     "outputs/47_hindcast_film/47_04_hindcast_still_2000-12.png": "09c41106d2af85ea2edf60dc98b05f125510252cb793c454e8bec198c976c328",
-    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "0936e9459c5b57c5a872c72cc0370f0da51c8dc1c8ce5202e2caa676aa7ad8b9",
-    "outputs/47_hindcast_film/47_06_free_run_vs_wells.png": "795db47d2a637a9550f9170d477983c97ed046067ed77a527fb9190f6c1e917a"
+    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_cy.png": "d0d68687371538a4d25f25edf5fcab6108333bc45a4b1061de6d16f9f7d7c74c",
+    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_pl.png": "f57b3e7c41d5e58f6d718c738ed4d7893053ff44198b738e675629b501e66aad",
+    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "8f5709f87900a7f4536c4ae24671b4edae91667349f7639e8fe44d12124813ce",
+    "outputs/47_hindcast_film/47_05_frame_caveats_cy.txt": "afc7dc8350b9142e110f3c1695e487b7e65054f48d529fef52e4de0020f9353f",
+    "outputs/47_hindcast_film/47_05_frame_caveats_pl.txt": "02d4855b21e28fe73c0db7ae09d19d260e75a431091e809035400c89af4a5a86",
+    "outputs/47_hindcast_film/47_06_free_run_vs_wells.png": "795db47d2a637a9550f9170d477983c97ed046067ed77a527fb9190f6c1e917a",
+    "outputs/47_hindcast_film/47_06_free_run_vs_wells_cy.png": "364e85f50151664d6231e6b69b15a9b4da9a9ca858bbe781b088f0a7e3f84c80",
+    "outputs/47_hindcast_film/47_06_free_run_vs_wells_pl.png": "dc4f7ec70b74a168c2a2626eb2d2bda96f4d555b4ca71569426c0d07f7795818"
    },
    "fallbacks": [],
-   "inputs": {
-    "data/sentinel/two_class_series.csv": "0ba92d4bcc210a37dfdd51ce07e20d80af44d4b036a308b304bbcbd2b57e4088",
-    "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
-    "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371",
-    "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
-    "outputs/03_master_data.csv": "3ed41d9c4bddf3411987450bc9132521d605eaa76f211a5f803bad4c375ebba7",
-    "outputs/03_regional_averages.csv": "9d70076c57b631b267b510364d8bc3f998a1a4893aca69705039b2321b6b1b25",
-    "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv": "9c334393ecb2ee28e76d7aceb91df1a55ec86954a53c2d55f4287152add9e7a2",
-    "outputs/45_wet_area/45_02_ssm_through_nir_curves.csv": "78951b7e181f8be19d70f05eefe4cf2a6e7ad3d9108eced7e0bda521945634f7",
-    "outputs/47_hindcast_film/47_00_background_2021-04-04.png": "9e7e2a23b04648cc67a1858aa56c814a82b421497444013a05bb1f0b6de3b4f1"
-   },
-   "inputs_unresolved": [
-    "_film.png",
-    "wet_area_model.json"
-   ],
-   "seconds": 621.2,
-   "started": "2026-10-02T05:27:38",
-   "version": "1.8.1"
+   "inputs": {},
+   "inputs_unresolved": [],
+   "seconds": 1372.1,
+   "started": "2026-10-16T08:55:16",
+   "version": "1.9.1"
   },
   "48_pastas_crosscheck.py": {
    "emitted": {

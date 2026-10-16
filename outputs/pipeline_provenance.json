@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T09:18:09",
+ "generated": "2026-10-16T12:37:40",
  "orchestrator": "2.25.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1549,7 +1549,8 @@
     "outputs/50_record_length/50_27_forest_forcing_by_well.csv": "6d24cab2d97bda57a1dd2061ee0e54deef406b47392366cc6400f661113f2b2d",
     "outputs/50_record_length/50_28_ranwell_need_grid.csv": "973671cbc2e763e92466f87dfd1a4e915dcf7ced584a058aee0778959f8f1942",
     "outputs/50_record_length/50_29_ranwell_epoch_candidates.csv": "f242df804a8c331ed2b8c39ad2ab9918c869a17f3b926d35342086cd4f65c8ef",
-    "outputs/50_record_length/50_report_numbers.csv": "72f7e2e006d37f8889197f40d0f10ca5e3f43d93866e66f37f34ed34cff43330"
+    "outputs/50_record_length/50_30_basis_by_test.csv": "036c822bc288d731094eda127b0fdf034901046630f4585f27020e7dd4e87cb7",
+    "outputs/50_record_length/50_report_numbers.csv": "14a2d1c77e8f1dddccbd25fa08248fa03bd06457e02b2cc27d053f981e37c709"
    },
    "fallbacks": [],
    "inputs": {
@@ -1575,9 +1576,9 @@
    "inputs_unresolved": [
     "2015.kml"
    ],
-   "seconds": 1939.4,
-   "started": "2026-10-15T19:47:58",
-   "version": "1.11.0"
+   "seconds": 1777.8,
+   "started": "2026-10-16T12:08:02",
+   "version": "1.12.0"
   },
   "run_09_scraping.py": {
    "emitted": {

@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.67.0"  # Hollingham (2026) - 2026-10-15. Script 41 2.16.0 (D-263): OUT_41_WELL_CANOPY,
+__version__ = "1.68.0"  # Hollingham (2026) - 2026-10-16. Script 50 1.12.0 (E12, D-268): OUT_50_BASIS.
+# 1.67.0  # Hollingham (2026) - 2026-10-15. Script 41 2.16.0 (D-263): OUT_41_WELL_CANOPY,
 #   OUT_41_WELL_CANOPY_TEST, OUT_41_WELL_CANOPY_FIG.
 # 1.66.0  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_EPOCH_CANDIDATES,
 #   OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH.
@@ -1432,6 +1433,7 @@ OUT_50_PRECANOPY     = DIR_50 / "50_26_precanopy_by_case.csv"          # E8g, T-
 OUT_50_FOREST_FORCING = DIR_50 / "50_27_forest_forcing_by_well.csv"   # E10, D-260
 OUT_50_RANWELL_NEED  = DIR_50 / "50_28_ranwell_need_grid.csv"        # E11, D-261
 OUT_50_RANWELL_EPOCH = DIR_50 / "50_29_ranwell_epoch_candidates.csv" # E11, D-261
+OUT_50_BASIS         = DIR_50 / "50_30_basis_by_test.csv"            # E12, D-268
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_1.odt — do not edit. source-sha256=d5e14ca1606660a9 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_2.odt — do not edit. source-sha256=4fb68f76efaf4b21 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -120,6 +120,8 @@ Here the result is the other way round. With the floor at about 0.7 metres below
 ## []{#anchor}Why both can be true
 
 The two old records ask different questions. Ranwell's seasons ask how fast the water table bounces back, and the answer is: quickly. The dry decade asks whether the water table can stay low through a long run of dry years, and the answer is: yes, more than a quick bounce would allow. The aquifer seems to do both. A model with a single floor can only do one or the other, which is why the paper uses each version only for the question it answers.
+
+These tests used each well's own numbers. Run instead with the numbers of the well's group, which are the ones the paper reports, the model does as well: for the dry decade Model A scores −0.18 against −0.14, and for Ranwell's seasons 0.49 against 0.46. Model B does much better on the dry decade with the group's numbers (−0.41 against −1.46).
 
 # []{#anchor}7. How much record you need
 

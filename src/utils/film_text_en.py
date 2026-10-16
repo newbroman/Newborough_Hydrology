@@ -8,7 +8,10 @@ unchanged (the English caveats file is byte-identical before and after the move)
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-13. The 1.8.1 English, moved out of Script 47.
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
+#   carry 1.8-2.4x the other decades' mean winter open water in 47_01); more_p4 (the D-226 datum paragraph)
+#   removed - the film keeps one straight story (Martin 2026-10-15: "keep the modeling simple").
+# 1.0.0  Hollingham (2026) - 2026-10-13. The 1.8.1 English, moved out of Script 47.
 
 NAME = "English"
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
@@ -252,8 +255,8 @@ T = {
     # ---- the slides after the film ---------------------------------------------------------
     "says_title": "What the film says, cautions attached",
     "says_p1": (
-        "The 1960s were the wet decade, with several times the open water of an average winter in "
-        "any other decade."),
+        "The 1960s were the wet decade, with about twice the open water of an average winter in "
+        "the other decades."),
     "says_p2": (
         "The winters of 1961–62 and 2000–01 stand out as the two great floods of the century, with "
         "1938–39 and 1958–59 behind them; 2015–16 was the wettest of the satellite era after 2021."),
@@ -279,11 +282,6 @@ T = {
     "more_p3": (
         "Winter rules all year. The curves come from November-to-March pictures; summer months "
         "show what the water table would imply, not what a summer photograph would show."),
-    "more_p4": (
-        "Why this version of the model. Run back into a drier spell no fitting has seen — "
-        "wells measured on the reserve in 1989–96 — it reproduced their average level without "
-        "a bias, where a faster-forgetting version came out too wet. The drier decades of the "
-        "film rest on that test (decision D-226)."),
     "credits_title": "Credits and sources",
     "credits_p1": "Newborough Warren hydrology study, 2026 — Martin Hollingham.",
     "credits_p2": (

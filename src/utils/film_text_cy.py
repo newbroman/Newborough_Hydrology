@@ -11,7 +11,10 @@ y tu hwnt i'r cofnod, ffynhonnau monitro.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-13. First Welsh table; unchecked by a Welsh speaker.
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
+#   carry 1.8-2.4x the other decades' mean winter open water in 47_01); more_p4 (the D-226 datum paragraph)
+#   removed - the film keeps one straight story (Martin 2026-10-15: "keep the modeling simple").
+# 1.0.0  Hollingham (2026) - 2026-10-13. First Welsh table; unchecked by a Welsh speaker.
 
 NAME = "Cymraeg"
 MONTHS = ["Ionawr", "Chwefror", "Mawrth", "Ebrill", "Mai", "Mehefin", "Gorffennaf", "Awst",
@@ -259,8 +262,8 @@ T = {
     # ---- y sleidiau ar ôl y ffilm ----------------------------------------------------------
     "says_title": "Yr hyn a ddywed y ffilm, â'i rybuddion",
     "says_p1": (
-        "Y 1960au oedd y degawd gwlyb, â sawl gwaith dŵr agored gaeaf cyffredin unrhyw ddegawd "
-        "arall."),
+        "Y 1960au oedd y degawd gwlyb, â thua dwywaith dŵr agored gaeaf cyffredin yn y degawdau "
+        "eraill."),
     "says_p2": (
         "Mae gaeafau 1961–62 a 2000–01 yn sefyll allan fel dwy lifogydd fawr y ganrif, â 1938–39 "
         "a 1958–59 y tu ôl iddynt; 2015–16 oedd y gwlypaf o oes y lloeren ar ôl 2021."),
@@ -287,11 +290,6 @@ T = {
         "Y gaeaf sy'n rheoli drwy'r flwyddyn. Daw'r cromliniau o luniau Tachwedd-i-Fawrth; mae "
         "misoedd yr haf yn dangos yr hyn a awgrymai lefel y dŵr daear, nid yr hyn a ddangosai "
         "ffotograff haf."),
-    "more_p4": (
-        "Pam y fersiwn hwn o'r model. O'i redeg yn ôl i gyfnod sychach na welodd unrhyw ffitio — "
-        "ffynhonnau a fesurwyd ar y warchodfa yn 1989–96 — atgynhyrchodd eu lefel gyfartalog heb "
-        "ogwydd, lle daeth fersiwn sy'n anghofio'n gyflymach allan yn rhy wlyb. Ar y prawf hwnnw y "
-        "seilir degawdau sychach y ffilm (penderfyniad D-226)."),
     "credits_title": "Cydnabyddiaethau a ffynonellau",
     "credits_p1": "Astudiaeth hydroleg Tywyn Niwbwrch, 2026 — Martin Hollingham.",
     "credits_p2": (

@@ -60,7 +60,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-13 (spec NRG_spec_script47_v1_9_languages_2026-10-13;
+__version__ = "1.9.1"  # Hollingham (2026) - 2026-10-15. Text only (film_text_* 1.0.1): the "And a little more"
+#   slide drops its datum paragraph (more_p4, added at 1.8.1 for D-226), and "What the film says" reads "about
+#   twice" for the 1960s, not "several times" (1.8-2.4x in 47_01). Martin 2026-10-15: "keep the modeling simple,
+#   and so the story is straight". Model, datum, calibration and frames unchanged.
+# 1.9.0  # Hollingham (2026) - 2026-10-13 (spec NRG_spec_script47_v1_9_languages_2026-10-13;
 #   Martin: "make a Polish and Welsh version of the hindcast video"). Every word the film shows is read
 #   from a language table, utils/film_text_<lang>.py (en is the 1.8.1 wording, moved out unchanged;
 #   cy and pl new), chosen by --lang en|cy|pl|all. One language is one full render: the presentation
@@ -869,7 +873,7 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
     after = [
         (T["says_title"], [T["says_p1"], T["says_p2"], T["says_p3"], T["says_p4"]], None, None),
         (T["more_title"],
-         [T["more_p1"], T.f("more_p2", wf_pct=wf_pct, s_ow=s_ow), T["more_p3"], T["more_p4"]],
+         [T["more_p1"], T.f("more_p2", wf_pct=wf_pct, s_ow=s_ow), T["more_p3"]],
          None, None),
         (T["credits_title"],
          [T["credits_p1"], T["credits_p2"], T.f("credits_p3", cop_years=cop_years),

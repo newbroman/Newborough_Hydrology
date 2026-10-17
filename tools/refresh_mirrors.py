@@ -24,7 +24,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-15 (D-265). Paper1_plain_v*.odt, the plain-language
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-17 (D-270). Paper2_plain_v*.odt, the plain-language
+#   companion to Paper 2, joins the mirrors (docs/papers/paper_2/text/Paper2_plain.md).
+# 1.7.0  # Hollingham (2026) - 2026-10-15 (D-265). Paper1_plain_v*.odt, the plain-language
 #   companion to Paper 1, joins the mirrors (docs/papers/paper_1/text/Paper1_plain.md).
 # 1.6.0  # Hollingham (2026) - 2026-10-12 (D-258). PaperM_plain_v*.odt, the plain-language
 #   companion to Paper M, joins the mirrors (docs/papers/paper_M/text/PaperM_plain.md).
@@ -98,6 +100,8 @@ SOURCES = [
     # silently outside the corpus - present in this list, absent from the net.
     ("docs/papers/paper_2/Hollingham_2026_Paper2_amended*.odt",
      "docs/papers/paper_2/text", True),
+    # Paper 2's plain-language companion (D-270): typed numbers, as the paper's own are.
+    ("docs/papers/paper_2/Paper2_plain_v*.odt", "docs/papers/paper_2/text", True),
     # Paper M (methods paper, D-220): born with number fields (tools/field_md_build.py).
     ("docs/papers/paper_M/PaperM_v*.odt", "docs/papers/paper_M/text", True),
     # Paper M's plain-language companion (D-258): born with number fields, the same fields as the paper.

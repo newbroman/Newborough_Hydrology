@@ -13,7 +13,7 @@
 | `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_26.odt` | 2026-10-04T11:43:39Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_31.odt` | 2026-10-15T09:57:13Z | current |
 | `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_79.odt` | 2026-10-15T10:42:53Z | current |
-| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v38.odt` | 2026-10-16T10:08:47Z | current |
+| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v39.odt` | 2026-10-17T21:01:37Z | current |
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-10-10T16:14:45Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-10-10T16:14:44Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-10-10T16:14:45Z | unversioned |
@@ -32,4 +32,4 @@
 
 > `report.pdf` is deliberately **absent** from `PDF_MANIFEST.txt` and from this ledger: it is built from the `report.odm` master via `tools/export_master_pdf.py`, not `build_pdfs.sh`. See the project working rules.
 
-*Generated 2026-10-16 by `tools/build_doc_ledger.py` v1.1.0.*
+*Generated 2026-10-17 by `tools/build_doc_ledger.py` v1.1.0.*

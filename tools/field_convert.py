@@ -30,7 +30,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-10: --content FILE converts a content.xml taken out of
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-10-17. The context test's conditional sat inside endswith(),
+#   so a number at the start of a paragraph (empty text before it) raised TypeError; an empty side now fails the
+#   match explicitly when the binding names context for it.
+# 1.2.0  # Hollingham (2026) — 2026-10-10: --content FILE converts a content.xml taken out of
 #   the document (written to FILE.new, applied on the publishing machine by a whole-content odt_edit swap), so a
 #   chapter-sized binding file runs where there is no time limit; occurrences are cached per quoted string.
 # 1.1.0  # Hollingham (2026) — 2026-10-09 (spec NRG_spec_emit_first_report9_2026-10-09): --bindings
@@ -186,7 +189,7 @@ def main() -> int:
         hits = []
         for (x0, x1) in occ:
             pb, pa = _plain_around(xml, x0, x1)
-            if (not nb or pb.endswith(nb[-min(len(nb), len(pb)):] if pb else False)) and (not na or pa.startswith(na[:min(len(na), len(pa))])):
+            if (not nb or (pb.endswith(nb[-min(len(nb), len(pb)):]) if pb else False)) and (not na or (pa.startswith(na[:min(len(na), len(pa))]) if pa else False)):
                 hits.append((x0, x1))
         if len(hits) != 1:
             skipped.append((r, f"context matches {len(hits)} occurrence(s) of {len(occ)}")); continue

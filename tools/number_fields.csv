@@ -1896,3 +1896,4 @@ wmc3_b2_fall_canopy_on_pct_dp1,outputs/10_clearfell_baci/10_consolidated_report_
 ANCOVA_Combined_Edge_scraping_step_p_dp3,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,ANCOVA_Combined_Edge_scraping_step_p,1,,3,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 CEH32_Step_m_dp3_plus,outputs/10_clearfell_baci/10f_01_ssm_residual_results.csv,CEH32 · Step_m,1,,3,1,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 modelab_efold_obs_months_median_C4_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_months_median_C4,1,,1,,−,,born a field in Paper1 v1_80 (Martin 2026-10-18)
+ANCOVA_Forest_Impact_clearfell_step_dp3,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,ANCOVA_Forest_Impact_clearfell_step,1,,3,,−,,born a field in Paper2_plain

@@ -29,7 +29,8 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.2"  # Hollingham (2026) — 2026-10-03 (T-105). Alias 50 for Script 50's report numbers (Paper M v1_2 §6).
+__version__ = "1.0.3"  # Hollingham (2026) — 2026-10-18 (T-125). spec_of accepts a negative dpN (dp-1: round to tens), as field_sync.render already does.
+# 1.0.2  # Hollingham (2026) — 2026-10-03 (T-105). Alias 50 for Script 50's report numbers (Paper M v1_2 §6).
 # 1.0.1  # Hollingham (2026) — 2026-10-01 (D-220). The temporary pandoc input is in.txt
 #   (read as markdown), so docref_lint does not take it for a cited document.
 # 1.0.0  # 2026-10-01 (D-219). First issue, for Paper M.
@@ -68,11 +69,11 @@ MARK = "ZQF{:04d}QZ"
 
 def spec_of(s: str) -> dict:
     parts = s.split()
-    dp = [p for p in parts if re.fullmatch(r"dp\d+", p)]
+    dp = [p for p in parts if re.fullmatch(r"dp-?\d+", p)]
     if len(dp) != 1:
         raise ValueError(f"spec {s!r}: exactly one dpN required")
     scale = next((p[1:] for p in parts if re.fullmatch(r"x[\d.]+", p)), "1")
-    unknown = [p for p in parts if not re.fullmatch(r"dp\d+|x[\d.]+|abs|plus|th|hy", p)]
+    unknown = [p for p in parts if not re.fullmatch(r"dp-?\d+|x[\d.]+|abs|plus|th|hy", p)]
     if unknown:
         raise ValueError(f"spec {s!r}: unknown {unknown}")
     return {"scale": scale, "abs": "1" if "abs" in parts else "", "dp": dp[0][2:],

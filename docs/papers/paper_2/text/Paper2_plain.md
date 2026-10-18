@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_0.odt — do not edit. source-sha256=312d88b934da227c pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_1.odt — do not edit. source-sha256=789bbe442fb802a1 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What felling and scraping did to the water table: a plain-language guide to the dune-restoration paper
@@ -84,6 +84,10 @@ The summer minimum showed no significant change at any tier; felled and unfelled
 Four further methods, none like-for-like with the main test, do not all point the same way, and the paper reports the disagreement rather than smoothing it over. The one direct check, using the wells inside the felled block, returns a step of similar size, though not significant on its own. Two others give a positive step at the felled well, but once the unfelled forest wells' own drift is removed (about two-thirds of the step, in one of them), neither leaves a felling-specific part that can be told apart from zero.
 
 The step also rests on the coastal-drift allowance: without it, the felled well's step is small and not significant.
+
+## []{#anchor}Rereading the old verdict on the forest
+
+The plantation has long been blamed for lowering the water table. The earlier studies that said so (Betson et al., 2002) were made during the driest decade in the long rainfall record from RAF Valley, and without a design that compared treated with untreated ground and allowed for the weather. This study agrees that the canopy holds the water table down: the wells under the trees respond less to rain, and the felled well rose in winter after the felling. But the felling left the summer lows unchanged. The paper therefore reads the earlier picture as a mixture of the forest's effect and an exceptionally dry decade, whose seasonal pattern could not be untangled at the time.
 
 ## []{#anchor}Inside the model
 
@@ -199,9 +203,9 @@ Climate is the leading candidate for the unexplained site-wide decline, which ou
 
 The numbers belong to Newborough; the approach travels:
 
-1.  Judge a felling by the season it affects. Quote its winter gain, and do not credit it in advance with a summer benefit where the objective is the summer minimum.
+1.  Judge a felling by what it delivers, which is the mean level, not the summer minimum. Quote its winter gain, and do not credit it in advance with a summer benefit. Ainsdale, on the Sefton Coast, is the closest British parallel: there too, tree cover and a drying climate act on the slack water table together (Clarke and Sanitwong Na Ayutthaya, 2010).
 2.  Treat a scrape as a drain. Its length, its alignment with the slope of the water table and the level it drains to govern how it draws down the dune around it.
-3.  Where a shore is retreating, expect the interior water table to fall for reasons management cannot influence, and judge interventions against that.
+3.  Where a shore is retreating, expect the interior water table to fall for reasons management cannot influence, and judge interventions against that. This does not rest on Newborough alone: at Whiteford Burrows on the Gower coast, the loss of some 4% of the width of the dune spit lowered its water table by about a metre (Robins et al., 2013). What carries over between sites is the direction and the mechanism, not the rate.
 4.  Put interventions and background forces on a common footing across the whole site, so that a local gain is set against its cost elsewhere. It is the ranking exercise that transfers, not the order it produced here.
 5.  Commit to long baselines. A short window can mistake a passing state for a lasting result, as the fading felling gain shows.
 
@@ -235,6 +239,10 @@ The numbers belong to Newborough; the approach travels:
 
 # []{#anchor}Further reading
 
+Betson, M., Robins, N.S., Hulme, P.J. (2002) Hydrogeology of the Newborough Warren dune system, Anglesey. British Geological Survey / Environment Agency.
+
+Clarke, D., Sanitwong Na Ayutthaya, S. (2010) Predicted effects of climate change, vegetation and tree cover on dune slack habitats at Ainsdale on the Sefton Coast, UK. *Journal of Coastal Conservation* 14, 115--125.
+
 Curreli, A., Wallace, H., Freeman, C., Hollingham, M., Stratford, C., Johnson, H., Jones, L. (2013) Eco-hydrological requirements of dune slack vegetation and the implications of climate change. *Science of the Total Environment*.
 
 Hollingham, M. (2026a) A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records. In preparation.
@@ -244,5 +252,7 @@ Hollingham, M. (2026b) Hydrological response of a coastal dune aquifer to planta
 Hollingham, M. (2026c) Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you. In preparation.
 
 Hollingham, M. (2026d) Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales. Technical report.
+
+Robins, N.S., Pye, K., Wallace, H. (2013) Dynamic coastal dune spit: the impact of morphological change on dune slacks at Whiteford Burrows, South Wales, UK. *Journal of Coastal Conservation* 17, 473--482.
 
 The project's data, analysis, documents and interactive tools: https://github.com/newbroman/Newborough_Hydrology

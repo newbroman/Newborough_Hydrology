@@ -77,7 +77,11 @@ is retired by D-200 (T-88): the raw WMC3 step is within the record's noise.
 ====================================================================================
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-09-26. T-88 / D-200: panel (a)'s
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+#   Martin 22:12): emit-only. 09f_report_numbers.csv carries scrape_head_at_wmc3_mm, the scrape-head
+#   profile interpolated (unrounded) at the CEH36 -> WMC3 distance panel (a) already reads, so Paper 2
+#   §4.1.3's drain-cone prediction is a field. The figure and 09f_01 are unchanged.
+# v1.10.0  # Hollingham (2026) — 2026-09-26. T-88 / D-200: panel (a)'s
 #   WMC3 point is no longer a filled "measured off-cut drawdown". It is a hollow diamond
 #   with a ±1 SE bar from Script 10m (the 2015 step and its _se row), labelled "WMC3 raw
 #   step (not resolved)"; the modelled dipole at that distance lies inside the bar.
@@ -121,7 +125,7 @@ from utils.paths import (
     OUT_20_REPORT_NUMBERS, OUT_25_FIT_PARAMETERS, OUT_10A_REPORT, OUT_10M_REPORT,
     OUT_03_MECHANISTIC_TABLE,
     OUT_09F_EFFECTS, OUT_09F_EFFECTS_PUBLIC,
-    OUT_09F_REACH_CSV,
+    OUT_09F_REACH_CSV, OUT_09F_REPORT,
 )
 from utils.console_utils import banner, phase, info, warn, saved
 from utils.site_observations import load_site_observation
@@ -132,6 +136,7 @@ from utils.config import (SCRAPE_RISE_BUFFER_M, COAST_RETREAT_M,
 from utils.pipeline_params import default_value
 from utils.coastal_utils import coastal_edge_h0
 from utils.render_utils import render_figure
+from utils.report_numbers_utils import ReportNumbers
 
 
 # ----------------------------------------------------------------------------
@@ -437,6 +442,7 @@ def _plot_reach(ax, lam, forest_h0_mm, scrape,
         "coastal_5yr_head_mm": coastal_5yr,
     })
     prof.to_csv(OUT_09F_REACH_CSV, index=False, float_format="%.2f")
+    return float(np.interp(wmc3_dist_m, r, scrape_head))
 
 
 def _plot_timescale(ax, forest_h0_mm, clearfell_measured_mm,
@@ -584,7 +590,7 @@ def main():
 
     phase(2, "Plotting reach + timescale figure (stacked)")
     fig, (axA, axB) = plt.subplots(2, 1, figsize=(9.4, 12.2), dpi=300)
-    _plot_reach(axA, lam, forest_h0, scrape,
+    scrape_at_wmc3 = _plot_reach(axA, lam, forest_h0, scrape,
                 coast_edge_6m, coast_L, coast_edge_5yr, scrape_edge_head,
                 wmc3_dist, wmc3_step, wmc3_se,
                 clearfell_measured_mm=clearfell_recovery_mm)
@@ -604,6 +610,13 @@ def main():
     plt.close(fig)
     saved(out.name)
     saved(OUT_09F_REACH_CSV.name)
+
+    rpt = ReportNumbers()
+    rpt.add("scrape_head_at_wmc3_mm", scrape_at_wmc3, unit="mm", well="WMC3",
+            note=f"modelled steady-state scrape head (09f_01 scrape_head_mm) interpolated at the "
+                 f"CEH36 -> WMC3 distance, {wmc3_dist:.1f} m (09b dist_m); modelled, not measured (D-200)")
+    rpt.save(OUT_09F_REPORT)
+    saved(OUT_09F_REPORT.name)
     print("\nDone.")
 
 

@@ -47,7 +47,10 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+#   Martin 22:12): each mixed-effects clearfell estimate gains a _p row (the p its Note already
+#   prints), so Paper 2 §4.2.2's p = 0.12 is a field. Emit-only.
+# 1.13.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the number of wells in the summer-minima analysis; new row summer_minima_n_wells
 #   (distinct wells in the summer shifts table). Emit-only.
 # v1.12.0  # Hollingham (2026) - 2026-09-30. T-96: emit
@@ -732,6 +735,9 @@ def main():
                     well=row['Tier'],
                     note=f"p={format_p(row['Clearfell_p'])}, "
                          f"model={row['Model']}, N={row['N']}")
+            rpt.add(f"{spec['mixed_prefix']}_{row['Control']}_{row['Tier']}_clearfell_p",
+                    row['Clearfell_p'], unit="", well=row['Tier'],
+                    note=f"p of the clearfell coefficient, model={row['Model']}, N={row['N']}")
 
         # Clearfell no-decay comparator (Task G): post-felling OLS slope of WMC3's
         # seasonal-metric forest-control gap. Matched-currency reference for the

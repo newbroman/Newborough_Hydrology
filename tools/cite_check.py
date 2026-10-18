@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.35.0"  # Hollingham (2026) — 2026-10-15. Claims register: range and comparison rules whose
+__version__ = "1.36.0"  # Hollingham (2026) — 2026-10-17. Three Paper 2 values registered for its fields
+# conversion (T-125): 10a_09 p_vs_one, 10a_10 clearfell_step_fixed1_p, and 10f_01's per-well Step_m (by Well);
+# a constant defined as A +/- B of two constants registers its value (CURRELI_SD16_SD15B_GAP_M; Martin 22:12).
+# 1.35.0 — 2026-10-15. Claims register: range and comparison rules whose
 # bounds are pipeline values, not typed numbers (spec NRG_spec_claims_range_rules_2026-10-15; Martin 05:57 "i approve
 # include the first optional rule"): outside:<col>:<lo_col>:<hi_col>, inside:<col>:<lo_col>:<hi_col> (bounds read
 # from the same row, in either order) and cmp:<col>:<gt|lt>:<expect2> (the selected row against another row's value
@@ -486,6 +489,7 @@ _CONSTANT_RE = re.compile(r"(?m)^([A-Z][A-Za-z0-9_]{2,})\s*=\s*(-?\d+(?:\.\d+)?)
 # 1.31.0: a tuple of numbers registers each member as NAME[i] — PEARSON_DELTA_SENS = (0.03, 0.10),
 # DRAWDOWN_K_RANGE_MDAY, DRAWDOWN_B_RANGE_M; the report quotes the members and nothing held them.
 _CONSTANT_TUPLE_RE = re.compile(r"(?m)^([A-Z][A-Za-z0-9_]{2,})\s*=\s*\(\s*(-?\d+(?:\.\d+)?(?:\s*,\s*-?\d+(?:\.\d+)?)+)\s*,?\s*\)\s*(?:#|$)")
+_CONSTANT_DERIVED_RE = re.compile(r"(?m)^([A-Z][A-Za-z0-9_]{2,})\s*=\s*([A-Z][A-Za-z0-9_]*)\s*([-+])\s*([A-Z][A-Za-z0-9_]*)\s*(?:#|$)")
 
 
 HEADLINE_TABLES = [
@@ -912,9 +916,10 @@ EXTRA_VALUE_TABLES = [
     ("outputs/10_clearfell_baci/10k_03_easting_sensitivity.csv", ("zone", "specification"),
      ["clearfell_step_m", "clearfell_p"]),
     ("outputs/10_clearfell_baci/10a_09_coastal_scale_factor.csv", ("control_tier", "zone"),
-     ["s_coast", "s_coast_se", "coastal_differential_mm_yr"]),
+     ["s_coast", "s_coast_se", "coastal_differential_mm_yr", "p_vs_one"]),
     ("outputs/10_clearfell_baci/10a_10_coastal_fixed1_sensitivity.csv", ("control_tier", "zone"),
-     ["clearfell_step_free_m", "clearfell_step_fixed1_m", "s_coast_fitted"]),
+     ["clearfell_step_free_m", "clearfell_step_fixed1_m", "s_coast_fitted", "clearfell_step_fixed1_p"]),
+    ("outputs/10_clearfell_baci/10f_01_ssm_residual_results.csv", "Well", ["Step_m"]),
 
     # ── Added 2026-08-31 by the coverage sweep described in the v1.12.0 note.
     # Seven tables, each carrying quantities watched nowhere else. The cluster
@@ -1684,6 +1689,13 @@ def collect_values() -> list[tuple[str, str, float]]:
         for m in _CONSTANT_TUPLE_RE.finditer(_txt):
             for i, v in enumerate(m.group(2).split(",")):
                 vals.append((rel, f"{m.group(1)}[{i}]", float(v)))
+        # 1.36.0: a constant defined as the sum or difference of two constants in the same file
+        # (CURRELI_SD16_SD15B_GAP_M = SD16 - SD15b) registers its computed value.
+        _here = {k: v for r_, k, v in vals if r_ == rel}
+        for m in _CONSTANT_DERIVED_RE.finditer(_txt):
+            a, op, b = m.group(2), m.group(3), m.group(4)
+            if a in _here and b in _here:
+                vals.append((rel, m.group(1), _here[a] + _here[b] if op == "+" else _here[a] - _here[b]))
 
     for rel, kcol, vcols in list(HEADLINE_TABLES) + list(EXTRA_VALUE_TABLES):
         p = REPO / rel

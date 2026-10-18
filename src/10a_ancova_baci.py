@@ -33,7 +33,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.23.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.24.0"  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+#   Martin 22:12 "3 yes"): the ordinary-error p of each zone's scraping step and clearfell step gets
+#   its own row (_scraping_step_p, _clearfell_step_p; the value each Note already prints), so Paper 2's
+#   robustness-table p is a field. Emit-only.
+# 1.23.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the forest-edge CWB x felling p, the forest-edge curvature joint-F p, the lag-1
 #   autocorrelation of the Forest x Impact residuals, and the p and 95% CI (mm) of the Jun-Sep
 #   CWB-dropped step; new rows ancova_forest_edge_cwb_x_fell_p, ancova_forest_edge_curv_jointF_p,
@@ -2181,11 +2185,15 @@ def main():
                 note=f"p={format_p(fit['clearfell_p'])}, "
                      f"CI=[{fit['clearfell_ci'][0]:.4f},{fit['clearfell_ci'][1]:.4f}]")
 
+        rpt.add(f"{prefix}_clearfell_step_p", fit['clearfell_p'], unit="",
+                well=zone_label, era="Post_felling", note="ordinary-error p of the clearfell step")
         _emit_hac(rpt, f"{prefix}_clearfell_step", fit, zone_label, "Post_felling")
 
         rpt.add(f"{prefix}_scraping_step", fit['scraping_step'],
                 well=zone_label, era="Post_scraping",
                 note=f"p={format_p(fit['scraping_p'])}")
+        rpt.add(f"{prefix}_scraping_step_p", fit['scraping_p'], unit="",
+                well=zone_label, era="Post_scraping", note="ordinary-error p of the scraping step")
         rpt.add(f"{prefix}_scraping_step_se_hac", fit['scraping_se_hac'],
                 well=zone_label, era="Post_scraping", note=f"Newey-West (Bartlett), {fit['hac_lags']} lags (T-106)")
         rpt.add(f"{prefix}_scraping_step_p_hac", fit['scraping_p_hac'], unit="",

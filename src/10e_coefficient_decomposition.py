@@ -71,7 +71,11 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.19.0"  # Hollingham (2026) - 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+#   Martin 22:12): new row wmc3_b2_fall_canopy_on_pct = (1 - shield_ratio_canopy_on_net at Impact) x 100,
+#   the canopy-on fall in beta2 net of the Climate controls (positive = fell), so Paper 2 §5.3's 1.7% is
+#   a field. Emit-only.
+# 1.18.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes how far the Impact well's (WMC3) proportional beta2 fall exceeds the Climate Ctrl
 #   tier's; new row wmc3_b2_fall_beyond_climate_control_pct (percentage points). Emit-only.
 # 1.17.0  # Hollingham (2026) - 2026-10-07. The same two correlations over the Forest
@@ -223,6 +227,12 @@ def _shielding_report_numbers(rpt, sh):
             if (tier, part) in ratios and ("Climate Ctrl", part) in ratios:
                 rpt.add(f"shield_ratio_{part}_net", float(ratios[(tier, part)] - ratios[("Climate Ctrl", part)] + 1.0),
                         "", well=tier, note="ratio − Climate Ctrl ratio + 1 (10e_04)")
+                if tier == "Impact" and part == "canopy_on":
+                    rpt.add("wmc3_b2_fall_canopy_on_pct",
+                            float((1.0 - (ratios[(tier, part)] - ratios[("Climate Ctrl", part)] + 1.0)) * 100.0),
+                            "percentage points", well="WMC3",
+                            note="(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall "
+                                 "net of the Climate controls; positive = fell")
 
 
 def main():

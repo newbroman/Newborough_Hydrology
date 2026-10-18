@@ -265,6 +265,7 @@ shield_ratio_canopy_off,Edge,,0.7480944783444283,,"tier-mean beta_2_canopy_off a
 shield_ratio_canopy_on,Impact,,0.890958439203281,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
 shield_ratio_canopy_off,Impact,,1.2018358439540853,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
 shield_ratio_canopy_on_net,Impact,,0.9829249583108585,,ratio − Climate Ctrl ratio + 1 (10e_04)
+wmc3_b2_fall_canopy_on_pct,WMC3,,1.7075041689141535,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
 shield_ratio_canopy_off_net,Impact,,1.108176617477741,,ratio − Climate Ctrl ratio + 1 (10e_04)
 shield_ratio_canopy_on_net,Edge,,0.949689700679666,,ratio − Climate Ctrl ratio + 1 (10e_04)
 shield_ratio_canopy_off_net,Edge,,0.654435251868084,,ratio − Climate Ctrl ratio + 1 (10e_04)

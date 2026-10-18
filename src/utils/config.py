@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.109.0"  # Hollingham (2026) - 2026-10-16 (D-268; spec NRG_spec_cluster_vs_well_hindcast_2026-10-16,
+__version__ = "1.110.0"  # Hollingham (2026) - 2026-10-17 (T-125; spec NRG_spec_paper2_emit_keys_2026-10-17,
+#   Martin 22:12 "constant in config"): CURRELI_SD16_SD15B_GAP_M = SD16 - SD15b, derived, not a new value.
+# 1.109.0  # Hollingham (2026) - 2026-10-16 (D-268; spec NRG_spec_cluster_vs_well_hindcast_2026-10-16,
 #   Martin 11:34): BASIS_TOL_NSE, BASIS_TOL_BIAS_M (Script 50 1.12.0, E12).
 # 1.108.0  # Hollingham (2026) - 2026-10-15 (D-266; spec NRG_spec_E8_identified_timescales_2026-10-15,
 #   Martin 13:08 "I approve the spec"). TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL (Script 50 1.11.0).
@@ -1541,6 +1543,7 @@ SD15b     = 0.61   # m — wet slack viability  # source: Curreli et al. 2013 Ta
 SD15b_REC = 0.75   # m — wet slack recovery limit  # source: project assumption (D-201) - SD15b plus the water-table benefit of a single scrape, about 0.14 m (a benefit, not the excavation depth); no literature value
 SD16      = 0.98   # m — dry slack threshold  # source: Curreli et al. 2013 Table 4, SD16 (core, n=14) average minimum water level -0.98 m, a 4-yr community MEAN (range -1.57 to -0.81), not a limit
 SD16_REC  = 1.20   # m — dry slack recovery limit  # source: project assumption (D-201) - SD16 plus the water-table benefit of a single scrape, about 0.22 m (a benefit, not the excavation depth); no literature value
+CURRELI_SD16_SD15B_GAP_M = SD16 - SD15b  # m — gap between the dry- and wet-slack community-mean summer minima (Paper 2 §1); derived from the two above, never typed
 
 # Winter thresholds: the community-mean winter MAXIMUM water level, as a depth below
 # ground like the summer thresholds above - so a NEGATIVE value is ABOVE ground. The wet

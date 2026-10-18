@@ -1,10 +1,12 @@
 Parameter,Well,Era,Value,Unit,Note
 ANCOVA_Forest_Impact_clearfell_step,Impact,Post_felling,0.10823026378395303,m,"p=0.0034, CI=[0.0369,0.1796]"
+ANCOVA_Forest_Impact_clearfell_step_p,Impact,Post_felling,0.003423016628998919,,ordinary-error p of the clearfell step
 ANCOVA_Forest_Impact_clearfell_step_se_hac,Impact,Post_felling,0.06571452852380498,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Impact_clearfell_step_p_hac,Impact,Post_felling,0.09956294002860598,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,-0.020570212122704712,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.23703073969061078,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Impact_scraping_step,Impact,Post_scraping,0.315507032929833,m,p=0.0047
+ANCOVA_Forest_Impact_scraping_step_p,Impact,Post_scraping,0.0046671970685722396,,ordinary-error p of the scraping step
 ANCOVA_Forest_Impact_scraping_step_se_hac,Impact,Post_scraping,0.1348227710133072,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Forest_Impact_scraping_step_p_hac,Impact,Post_scraping,0.019275412328463627,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Forest_Impact_R2,Impact,,0.23151932242398565,,Model R²
@@ -20,11 +22,13 @@ ANCOVA_Forest_Impact_absorbed_minus_predicted_drift,Impact,,-5.473155993497842,m
 ANCOVA_Forest_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.07712984158467358,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0018; moves the headline by -31.1 mm"
 ANCOVA_Forest_Impact_Oct2023_step,Impact,Oct2023,0.4254236508939984,m,"p=<0.001, dAIC=-9.38"
 ANCOVA_Forest_Edge_clearfell_step,Edge,Post_felling,0.030897714600420557,m,"p=0.2332, CI=[-0.0197,0.0815]"
+ANCOVA_Forest_Edge_clearfell_step_p,Edge,Post_felling,0.23316002735738345,,ordinary-error p of the clearfell step
 ANCOVA_Forest_Edge_clearfell_step_se_hac,Edge,Post_felling,0.045886542661078805,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Edge_clearfell_step_p_hac,Edge,Post_felling,0.500724496313573,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.05903990901529391,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,0.12083533821613501,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Forest_Edge_scraping_step,Edge,Post_scraping,0.5623001367935998,m,p=<0.001
+ANCOVA_Forest_Edge_scraping_step_p,Edge,Post_scraping,6.0273659832560136e-05,,ordinary-error p of the scraping step
 ANCOVA_Forest_Edge_scraping_step_se_hac,Edge,Post_scraping,0.18350208011866884,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Forest_Edge_scraping_step_p_hac,Edge,Post_scraping,0.00218201017857742,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Forest_Edge_R2,Edge,,0.4546869619888051,,Model R²
@@ -40,11 +44,13 @@ ANCOVA_Forest_Edge_absorbed_minus_predicted_drift,Edge,,-1.7323745980310932,mm/y
 ANCOVA_Forest_Edge_clearfell_step_s_fixed1,Edge,Post_felling,0.02139287934121785,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.2215; moves the headline by -9.5 mm"
 ANCOVA_Forest_Edge_Oct2023_step,Edge,Oct2023,0.6437782373945049,m,"p=<0.001, dAIC=-13.94"
 ANCOVA_Climate_Impact_clearfell_step,Impact,Post_felling,-0.019301975172133144,m,"p=0.4626, CI=[-0.0707,0.0321]"
+ANCOVA_Climate_Impact_clearfell_step_p,Impact,Post_felling,0.4626042509000382,,ordinary-error p of the clearfell step
 ANCOVA_Climate_Impact_clearfell_step_se_hac,Impact,Post_felling,0.03940993624051864,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Impact_clearfell_step_p_hac,Impact,Post_felling,0.6242935963578511,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,-0.09654545020354967,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.05794149985928339,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Impact_scraping_step,Impact,Post_scraping,0.013879852988866107,m,p=0.9141
+ANCOVA_Climate_Impact_scraping_step_p,Impact,Post_scraping,0.914113957045584,,ordinary-error p of the scraping step
 ANCOVA_Climate_Impact_scraping_step_se_hac,Impact,Post_scraping,0.13966343513593413,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Climate_Impact_scraping_step_p_hac,Impact,Post_scraping,0.9208359887791545,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Climate_Impact_R2,Impact,,0.18875990125713038,,Model R²
@@ -58,11 +64,13 @@ ANCOVA_Climate_Impact_coeff_coastal_x_time,Impact,,-8.712570169628217,m,"SE=3.52
 ANCOVA_Climate_Impact_s_coast_identified,Impact,,0.0,,"NOT IDENTIFIED: s_coast = -8.71 ± 3.52, and an SE above 2.0 cannot separate s = 1 from s = 0. The coastal differential here is -0.93 mm/yr — these tiers sit at nearly the same distance from the shore, so the ratio is a small denominator, not a measurement"
 ANCOVA_Climate_Impact_Oct2023_step,Impact,Oct2023,0.09559945895251845,m,"p=0.4670, dAIC=1.44"
 ANCOVA_Climate_Edge_clearfell_step,Edge,Post_felling,-0.10592280725925826,m,"p=0.0015, CI=[-0.1700,-0.0419]"
+ANCOVA_Climate_Edge_clearfell_step_p,Edge,Post_felling,0.0015156272110606551,,ordinary-error p of the clearfell step
 ANCOVA_Climate_Edge_clearfell_step_se_hac,Edge,Post_felling,0.05198469031300519,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Edge_clearfell_step_p_hac,Edge,Post_felling,0.04159225813929528,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.20781280027274845,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,-0.004032814245768082,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Climate_Edge_scraping_step,Edge,Post_scraping,0.2730047561367969,m,p=0.5131
+ANCOVA_Climate_Edge_scraping_step_p,Edge,Post_scraping,0.513093509302537,,ordinary-error p of the scraping step
 ANCOVA_Climate_Edge_scraping_step_se_hac,Edge,Post_scraping,0.48225518553169716,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Climate_Edge_scraping_step_p_hac,Edge,Post_scraping,0.571325668543549,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Climate_Edge_R2,Edge,,0.20320965798007562,,Model R²
@@ -76,11 +84,13 @@ ANCOVA_Climate_Edge_coeff_coastal_x_time,Edge,,44.2040816802178,m,"SE=16.209761,
 ANCOVA_Climate_Edge_s_coast_identified,Edge,,0.0,,"NOT IDENTIFIED: s_coast = +44.20 ± 16.21, and an SE above 2.0 cannot separate s = 1 from s = 0. The coastal differential here is +0.26 mm/yr — these tiers sit at nearly the same distance from the shore, so the ratio is a small denominator, not a measurement"
 ANCOVA_Climate_Edge_Oct2023_step,Edge,Oct2023,-0.46531005553468857,m,"p=0.2958, dAIC=0.84"
 ANCOVA_Combined_Impact_clearfell_step,Impact,Post_felling,0.0656004116094361,m,"p=<0.001, CI=[0.0286,0.1026]"
+ANCOVA_Combined_Impact_clearfell_step_p,Impact,Post_felling,0.0006887415927793057,,ordinary-error p of the clearfell step
 ANCOVA_Combined_Impact_clearfell_step_se_hac,Impact,Post_felling,0.02716493971753561,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Impact_clearfell_step_p_hac,Impact,Post_felling,0.015739850489293234,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,0.012357129763066299,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.1188436934558059,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Impact_scraping_step,Impact,Post_scraping,0.07049434293695495,m,p=0.3764
+ANCOVA_Combined_Impact_scraping_step_p,Impact,Post_scraping,0.3764290524733456,,ordinary-error p of the scraping step
 ANCOVA_Combined_Impact_scraping_step_se_hac,Impact,Post_scraping,0.07628506113610412,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Combined_Impact_scraping_step_p_hac,Impact,Post_scraping,0.35543890798451117,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Combined_Impact_R2,Impact,,0.25922614052192805,,Model R²
@@ -96,11 +106,13 @@ ANCOVA_Combined_Impact_absorbed_minus_predicted_drift,Impact,,-0.482118003501788
 ANCOVA_Combined_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.0627533414523221,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=<0.001; moves the headline by -2.8 mm"
 ANCOVA_Combined_Impact_Oct2023_step,Impact,Oct2023,0.19848711499207147,m,"p=0.0137, dAIC=-4.43"
 ANCOVA_Combined_Edge_clearfell_step,Edge,Post_felling,-0.02054806280453444,m,"p=0.1459, CI=[-0.0481,0.0070]"
+ANCOVA_Combined_Edge_clearfell_step_p,Edge,Post_felling,0.1459475105687446,,ordinary-error p of the clearfell step
 ANCOVA_Combined_Edge_clearfell_step_se_hac,Edge,Post_felling,0.023967672806556328,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Edge_clearfell_step_p_hac,Edge,Post_felling,0.39126580947574463,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.06752470150538484,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,0.026428575896315958,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_Combined_Edge_scraping_step,Edge,Post_scraping,0.3003906808483398,m,p=0.0194
+ANCOVA_Combined_Edge_scraping_step_p,Edge,Post_scraping,0.019425977952849772,,ordinary-error p of the scraping step
 ANCOVA_Combined_Edge_scraping_step_se_hac,Edge,Post_scraping,0.19886339155461066,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Combined_Edge_scraping_step_p_hac,Edge,Post_scraping,0.13090623773294222,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_Combined_Edge_R2,Edge,,0.4514784283104366,,Model R²
@@ -116,11 +128,13 @@ ANCOVA_Combined_Edge_absorbed_minus_predicted_drift,Edge,,2.564368325259362,mm/y
 ANCOVA_Combined_Edge_clearfell_step_s_fixed1,Edge,Post_felling,-0.005735682872492051,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.5478; moves the headline by +14.8 mm"
 ANCOVA_Combined_Edge_Oct2023_step,Edge,Oct2023,0.1297553932814911,m,"p=0.3397, dAIC=1.03"
 ANCOVA_FarField_Impact_clearfell_step,Impact,Post_felling,-0.08559734449399103,m,"p=0.1713, CI=[-0.2077,0.0365]"
+ANCOVA_FarField_Impact_clearfell_step_p,Impact,Post_felling,0.17130607371221776,,ordinary-error p of the clearfell step
 ANCOVA_FarField_Impact_clearfell_step_se_hac,Impact,Post_felling,0.082717364927187,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Impact_clearfell_step_p_hac,Impact,Post_felling,0.30075433095566306,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Impact_clearfell_step_ci_lo_hac,Impact,Post_felling,-0.24772337975127753,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Impact_clearfell_step_ci_hi_hac,Impact,Post_felling,0.07652869076329546,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Impact_scraping_step,Impact,Post_scraping,-0.22463867619896266,m,p=0.1202
+ANCOVA_FarField_Impact_scraping_step_p,Impact,Post_scraping,0.12019973648766027,,ordinary-error p of the scraping step
 ANCOVA_FarField_Impact_scraping_step_se_hac,Impact,Post_scraping,0.19216215199647982,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_FarField_Impact_scraping_step_p_hac,Impact,Post_scraping,0.24240128204499833,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_FarField_Impact_R2,Impact,,0.04965695428536654,,Model R²
@@ -136,11 +150,13 @@ ANCOVA_FarField_Impact_absorbed_minus_predicted_drift,Impact,,33.270861677231565
 ANCOVA_FarField_Impact_clearfell_step_s_fixed1,Impact,Post_felling,0.1031256286590626,m,"SENSITIVITY, not the headline (D-076): the clearfell step with the coastal correction imposed at the fitted amplitude (s_coast = 1) instead of estimated. p=0.0202; moves the headline by +188.7 mm"
 ANCOVA_FarField_Impact_Oct2023_step,Impact,Oct2023,-0.04370731052634734,m,"p=0.7989, dAIC=1.93"
 ANCOVA_FarField_Edge_clearfell_step,Edge,Post_felling,-0.15709819877226833,m,"p=0.0200, CI=[-0.2882,-0.0260]"
+ANCOVA_FarField_Edge_clearfell_step_p,Edge,Post_felling,0.02003453779203942,,ordinary-error p of the clearfell step
 ANCOVA_FarField_Edge_clearfell_step_se_hac,Edge,Post_felling,0.09503465638523524,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Edge_clearfell_step_p_hac,Edge,Post_felling,0.09831820402641729,,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Edge_clearfell_step_ci_lo_hac,Edge,Post_felling,-0.3433661252873294,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Edge_clearfell_step_ci_hi_hac,Edge,Post_felling,0.02916972774279275,m,"Newey-West (Bartlett), 12 lags"
 ANCOVA_FarField_Edge_scraping_step,Edge,Post_scraping,-0.3044522231599817,m,p=0.1904
+ANCOVA_FarField_Edge_scraping_step_p,Edge,Post_scraping,0.19044363849570314,,ordinary-error p of the scraping step
 ANCOVA_FarField_Edge_scraping_step_se_hac,Edge,Post_scraping,0.3390195687463106,m,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_FarField_Edge_scraping_step_p_hac,Edge,Post_scraping,0.36916565625951103,,"Newey-West (Bartlett), 12 lags (T-106)"
 ANCOVA_FarField_Edge_R2,Edge,,0.0720850084967617,,Model R²

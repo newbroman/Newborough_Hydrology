@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.68.0"  # Hollingham (2026) - 2026-10-16. Script 50 1.12.0 (E12, D-268): OUT_50_BASIS.
+__version__ = "1.69.0"  # Hollingham (2026) - 2026-10-17. Script 09f 1.11.0 (T-125): OUT_09F_REPORT.
+# 1.68.0  # Hollingham (2026) - 2026-10-16. Script 50 1.12.0 (E12, D-268): OUT_50_BASIS.
 # 1.67.0  # Hollingham (2026) - 2026-10-15. Script 41 2.16.0 (D-263): OUT_41_WELL_CANOPY,
 #   OUT_41_WELL_CANOPY_TEST, OUT_41_WELL_CANOPY_FIG.
 # 1.66.0  # Hollingham (2026) - 2026-10-14. E11 (Script 50 1.10.0, D-261): RANWELL_EPOCH_CANDIDATES,
@@ -678,6 +679,7 @@ OUT_09D_SCENARIO_CSV        = DIR_09 / "09d_01_scenario_comparison.csv"
 OUT_09F_EFFECTS             = DIR_09 / "09f_management_effects.png"
 OUT_09F_EFFECTS_PUBLIC      = DIR_09 / "09f_management_effects_public.png"
 OUT_09F_REACH_CSV           = DIR_09 / "09f_01_reach_profile.csv"
+OUT_09F_REPORT              = DIR_09 / "09f_report_numbers.csv"
 # Script 09g — mechanism diagrams: driver schematic grid + coastal reach
 # reach (§5.8 conceptual figure; display/utility, tier D). SVG is the editable
 # master; PNG is the report/summary placement copy.

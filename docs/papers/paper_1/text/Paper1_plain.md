@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_0.odt — do not edit. source-sha256=19a90e80db97bdc3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_1.odt — do not edit. source-sha256=64ba0e7bf5d29795 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -51,7 +51,7 @@ The biggest division separates the Main Forest from everything else. The next sp
 
 ## []{#anchor}Are the boundaries sharp?
 
-No. A second check, comparing each well with the typical record of every group, supports the grouping of 60 of the 66 wells. Many wells resemble two neighbouring groups almost equally, as you would expect in one continuous body of sand. The Western Residual is the most blurred, and the paper reads it as the more cushioned south-western continuation of the open dune rather than a separate block.
+No. A second check, comparing each well with the typical record of every group, supports the grouping of 60 of the 66 wells. Many wells resemble two neighbouring groups almost equally, as you would expect in one continuous body of sand. The Western Residual is the most blurred, and the paper reads it as the more cushioned south-western continuation of the open dune rather than a separate block.
 
 # []{#anchor}4. The model in one picture
 
@@ -113,7 +113,7 @@ With the floor at 3.7 m, drainage takes 85% of the water lost at the Lake Edge b
 
 One measure is the time the water above the floor takes to halve under drainage alone, the **half-life**: typically 8.0 months at the Lake Edge and 23.0 months in the Main Forest, with the others between. The order holds at every floor depth tested, but the values grow as the floor is set deeper.
 
-The half-life is not the time the water table takes to settle back after a wet or dry spell. Measured straight from the readings, with no model, that is much shorter: a median of 5.1 months. The two describe different things.
+The half-life is not the time the water table takes to settle back after a wet or dry spell. Measured straight from the readings, with no model, it is shorter: a wet or dry spell shrinks to about a third of its size in 2.0 months at the Lake Edge, 4.1 in the Dune, 6.3 in the Western Residual, 12.0 in the Coastal Forest and 15.6 in the Main Forest. The gap is widest in the open dune and narrowest in the Coastal Forest. The two describe different things.
 
 # []{#anchor}7. How well does it forecast?
 

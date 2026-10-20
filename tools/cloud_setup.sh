@@ -19,7 +19,8 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.1.3 — Hollingham (2026) — 2026-10-03. The private clone's main tracks origin/main (a --bare
+# Version 1.1.4 — Hollingham (2026) — 2026-10-20. T-117: RCLONE_VERSION v1.68.2 -> v1.75.2, the version the L14 runs.
+# 1.1.3 — Hollingham (2026) — 2026-10-03. The private clone's main tracks origin/main (a --bare
 #   clone sets no upstream, so the dry3 dry run's lock push was refused).
 # 1.1.2 — 2026-10-03. Refuses when the installed private exclude ignores
 #   working/ (the first cloud-ship dry run failed at lock-push on a stale tracked exclude, now corrected).
@@ -105,7 +106,7 @@ fi
 if [ -n "${NRG_RCLONE_CONF:-}" ] && ! command -v rclone >/dev/null 2>&1; then
   # 1.1.1: from rclone's GitHub release, into ~/bin. The cloud proxy refuses rclone.org (403, measured
   # 2026-10-02 by the first claude.ai/code token test); GitHub downloads are allowed. No sudo needed.
-  RCLONE_VERSION="v1.68.2"
+  RCLONE_VERSION="v1.75.2"
   _rz="/tmp/rclone-${RCLONE_VERSION}.zip"
   if curl -sSfL -o "$_rz" "https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip"; then
     mkdir -p "$HOME/bin"

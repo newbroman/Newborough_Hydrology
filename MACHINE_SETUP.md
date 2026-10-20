@@ -281,6 +281,13 @@ the Shared Drive question **n**; `drive.file` may not list shared drives and rcl
 old `gdrive:NRG_documents` (full scope, the Testing-status client) is the pre-2026-10-02 copy, kept
 untouched.
 
+**`NRG_documents_v2` must stay at the top level of My Drive.** The remote addresses it by path
+(`gdrivefile:NRG_documents_v2`), and `drive.file` sees only folders its own client created, so moving
+it into another folder (01 Projects, say) leaves ships, the archive step and `drive_pull.sh` seeing
+nothing. To file it elsewhere, first pin the remote to the folder's ID (`root_folder_id` in the
+`gdrivefile` section of `rclone.conf`, with the commands then naming paths inside it), and check with
+`rclone lsd gdrivefile:` before moving it. (T-115)
+
 About 404 MB. Then mark the archive current, so `tools/drive_lag.py` does not
 report drift that is not there:
 

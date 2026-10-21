@@ -98,6 +98,11 @@ Paths the scripts use (each has a config block at the top — edit only if yours
 move):
 
 - **Master workbook:** `~/Drive/01 Projects/Newborough research/spreadsheets/Newborough_well_records.ods` (moved 2026-10-10 with the Drive tidy; `~/Drive` is the rclone mount)
+- **Workbook backup (T-116):** each night, just before restic runs, the L14 backup copies the `.ods` files
+  only from that `spreadsheets/` folder into a folder under `~/backups` (copy line below), so restic keeps dated versions of the
+  workbook (`~/Drive` itself is excluded from restic; the USB drive-mirror keeps overwritten files by date in its `--backup-dir`, but restic adds the regular daily/weekly/monthly snapshots). Only `*.ods`:
+  the folder also holds a file that must never be copied into a backup or the repo. Copy line:
+  `rclone copy "gdrive:01 Projects/Newborough research/spreadsheets" ~/backups/well_records --include "*.ods"`
 - **Recordsheet:** `~/Downloads/recordsheet.ods`
 - **Coordinates / DEM / KML:** `data/well_metadata.csv`, `data/geo/` — already in
   the repo, nothing to place

@@ -19,7 +19,10 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.1.4 — Hollingham (2026) — 2026-10-20. T-117: RCLONE_VERSION v1.68.2 -> v1.75.2, the version the L14 runs.
+# Version 1.2.0 — Hollingham (2026) — 2026-10-21. T-118: step 4 fetches only the files working/DRIVE_MANIFEST.json
+#   names (tools/drive_manifest_list.py), not the superseded versions Drive keeps; the filter is the fallback
+#   when the private store or its manifest is absent; an MD5 report follows.
+# 1.1.4 — Hollingham (2026) — 2026-10-20. T-117: RCLONE_VERSION v1.68.2 -> v1.75.2, the version the L14 runs.
 # 1.1.3 — Hollingham (2026) — 2026-10-03. The private clone's main tracks origin/main (a --bare
 #   clone sets no upstream, so the dry3 dry run's lock push was refused).
 # 1.1.2 — 2026-10-03. Refuses when the installed private exclude ignores
@@ -117,8 +120,16 @@ if [ -n "${NRG_RCLONE_CONF:-}" ] && ! command -v rclone >/dev/null 2>&1; then
   fi
 fi
 if command -v rclone >/dev/null 2>&1 && rclone lsf "$DRIVE_REMOTE" --max-depth 1 >/dev/null 2>&1; then
-  rclone copy "$DRIVE_REMOTE" . --filter-from tools/rclone-odt-filter.txt --stats 10s --stats-one-line
-  echo "      ODTs copied from $DRIVE_REMOTE"
+  _list="$(mktemp)"
+  if python3 tools/drive_manifest_list.py list "$DRIVE_REMOTE" > "$_list" 2>/dev/null; then
+    rclone copy "$DRIVE_REMOTE" . --files-from "$_list" --no-traverse --stats 10s --stats-one-line
+    echo "      $(wc -l < "$_list") current documents copied from $DRIVE_REMOTE (by working/DRIVE_MANIFEST.json)"
+    python3 tools/drive_manifest_list.py verify | sed 's/^  /      /'
+  else
+    rclone copy "$DRIVE_REMOTE" . --filter-from tools/rclone-odt-filter.txt --stats 10s --stats-one-line
+    echo "      ODTs copied from $DRIVE_REMOTE by filter (no usable manifest: superseded versions included)"
+  fi
+  rm -f "$_list"
 else
   if [ -n "${NRG_RCLONE_CONF:-}" ] && command -v rclone >/dev/null 2>&1; then
     # A token is configured but Drive refuses it. Since 1.1.0 the client is published, so this

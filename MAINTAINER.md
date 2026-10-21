@@ -22,7 +22,7 @@ It lives in three stores, by kind:
 |---|---|
 | GitHub `newbroman/Newborough_Hydrology` (public) | code, tools, outputs, markdown mirrors of every document, `DECISIONS_PUBLIC.md` |
 | GitHub `newbroman/Newborough_Hydrology_working` (private) | `working/`: the decision log, changelogs, handover notes, task register, `nrg_git.sh`; also third-party data that may not be republished |
-| Google Drive `NRG_documents` | the ODT documents themselves (git cannot diff a zip) |
+| Google Drive `NRG_documents_v2` (top level of My Drive) | the ODT documents themselves (git cannot diff a zip) |
 
 The two git repositories share **one working tree**: the private one is a second git directory,
 `.git-working`, over the same folder (`CLAUDE.md` section 4f). Plain `git` is the public one;
@@ -35,12 +35,14 @@ None of this is automatic. Each item is Martin's today.
 - [ ] **GitHub, public repository:** collaborator with write access, or a transfer of ownership.
 - [ ] **GitHub, private repository:** the same. Without it you cannot see the decision log, the
       changelogs or the handover notes — the reasoning behind every choice.
-- [ ] **Google Drive `NRG_documents`:** shared with edit rights, or moved to a shared drive.
+- [ ] **Google Drive `NRG_documents_v2`:** shared with edit rights, or moved to a shared drive. It must stay at
+      the top level of My Drive unless the rclone remote is first pinned to its folder ID (`MACHINE_SETUP.md`).
 - [ ] **The rclone Google app** used to copy ODTs to and from Drive: a Google Cloud OAuth client
-      named rclone-nrg in Martin's Google Cloud project, still in *Testing* status, so its tokens
-      lapse every seven days (task T-65). A new maintainer either joins that project or creates
-      their own client (rclone's documentation: "Making your own client_id"), and ideally
-      publishes it so the weekly lapse ends.
+      named rclone-nrg in Martin's Google Cloud project, published on 2026-10-02 with the
+      `drive.file` scope only, so its tokens no longer lapse weekly (task T-65 tracks the rest of the
+      switch). A new maintainer either joins that project or creates their own client (rclone's
+      documentation: "Making your own client_id"); with `drive.file`, a new client sees only what it
+      created, so it starts from a fresh copy of the documents.
 - [ ] **Zenodo:** the software record (concept doi:10.5281/zenodo.19567643, all versions) is created by Zenodo's GitHub
       integration from Martin's account. New versions appear automatically when a GitHub release is
       published from the repository; the integration and the record's ownership stay with the

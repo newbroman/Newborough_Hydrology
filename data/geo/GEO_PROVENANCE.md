@@ -136,7 +136,8 @@ regenerates them, so nothing would catch an error.
   already designated for historic sheets, ignored by directory so no per-file
   rule is needed and a further sheet cannot be committed by accident.
 - **Off-repository archive — it already existed.** The full working set is in
-  Google Drive under `projects/newborough/NEWBRO_DEM/`, dated February 2022:
+  Google Drive under `01 Projects/Newborough research/NEWBRO_DEM/` (its home since the
+  2026-10-10 Drive tidy), dated February 2022:
   the original scan (*1900 copy.png* (archive)), two georeferenced rasters, a world file,
   and — the useful one — the **QGIS `.points` control-point files** that record
   the georeferencing and its residuals. That archive is what makes the
@@ -917,7 +918,7 @@ buy. The existing decision is therefore sound and unchanged.
 
 **The backup exists.** Keeping it out of git is a licensing decision; having no
 copy anywhere would have been an accident. The Google Drive archive at
-`projects/newborough/NEWBRO_DEM/` holds the original scan, both georeferenced
+`01 Projects/Newborough research/NEWBRO_DEM/` holds the original scan, both georeferenced
 rasters and the control-point files, and is the authoritative copy. The working
 copy in `data/geo/histmaps/` is local and gitignored.
 

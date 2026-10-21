@@ -6,13 +6,18 @@
 # detection, so the lock is the protocol.
 #
 # --update: a file that is NEWER here than on Drive is kept, never overwritten — so an edit not yet
-# archived survives a pull. Only the ODT/ODM set in tools/rclone-odt-filter.txt is touched.
+# archived survives a pull. 1.1.0 (T-118): only the files working/DRIVE_MANIFEST.json names are fetched
+# (the current set the last archive wrote), not the superseded versions Drive keeps; without a usable
+# manifest it falls back to the ODT/ODM set in tools/rclone-odt-filter.txt, with a warning. After the
+# copy, each file's MD5 is compared with the manifest and differences are reported, never fatal.
 # The remote is read from working/nrg_git.sh (DRIVE_REMOTE), so it is named in one place.
 #
 # Usage:  bash tools/drive_pull.sh             # pull
 #         bash tools/drive_pull.sh --dry-run   # list what would change, change nothing
 #
-# Version 1.0.0 — Hollingham (2026) — 2026-10-02. First issue (with the switch to gdrivefile:NRG_documents_v2).
+# Version 1.1.0 — Hollingham (2026) — 2026-10-21. T-118 (spec NRG_spec_T118_drive_pull_manifest_2026-10-21,
+#   Martin 21:29): pull by the manifest (tools/drive_manifest_list.py), filter as the fallback; MD5 report.
+# 1.0.0 — Hollingham (2026) — 2026-10-02. First issue (with the switch to gdrivefile:NRG_documents_v2).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 step() { printf '  [%s] %s\n' "$1" "$2"; }
@@ -33,5 +38,13 @@ rclone lsf "$REMOTE" --max-depth 1 >/dev/null 2>&1 \
   || { echo "  cannot reach $REMOTE - run: bash tools/drive_token.sh"; exit 1; }
 
 step "3/3" "copying documents down${DRY:+ (dry run: nothing changes)}"
-rclone copy "$REMOTE" . --filter-from tools/rclone-odt-filter.txt --update $DRY --progress
+LIST="$(mktemp)"; trap 'rm -f "$LIST"' EXIT
+if python3 tools/drive_manifest_list.py list "$REMOTE" > "$LIST"; then
+  echo "  the manifest names $(wc -l < "$LIST") current documents; superseded versions on Drive stay there"
+  rclone copy "$REMOTE" . --files-from "$LIST" --no-traverse --update $DRY --progress
+  [ -z "$DRY" ] && python3 tools/drive_manifest_list.py verify
+else
+  echo "  WARNING: no usable working/DRIVE_MANIFEST.json - copying by filter, so superseded versions come down too"
+  rclone copy "$REMOTE" . --filter-from tools/rclone-odt-filter.txt --update $DRY --progress
+fi
 echo "  done. Take the lock before editing:  python3 tools/doc_lock.py take --note \"what you are editing\""

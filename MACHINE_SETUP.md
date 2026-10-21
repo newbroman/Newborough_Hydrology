@@ -278,8 +278,8 @@ Scope **`drive.file`**, and the **rclone-nrg client ID and secret** (Google Clou
 published 2026-10-02): `drive.file` shows rclone only the files that client created, and
 `NRG_documents_v2` was created by it, so a remote with any other client sees an empty folder. Answer
 the Shared Drive question **n**; `drive.file` may not list shared drives and rclone aborts on y. The
-old `gdrive:NRG_documents` (full scope, the Testing-status client) is the pre-2026-10-02 copy, kept
-untouched.
+old `gdrive:NRG_documents` (full scope, the Testing-status client) is the pre-2026-10-02 copy; since
+the 2026-10-10 Drive tidy it sits in `05 Archive` as `NRG_documents (superseded by v2)` and is not used.
 
 **`NRG_documents_v2` must stay at the top level of My Drive.** The remote addresses it by path
 (`gdrivefile:NRG_documents_v2`), and `drive.file` sees only folders its own client created, so moving

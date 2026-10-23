@@ -219,6 +219,25 @@ of differing density, and should not be read as bounding it.**
 **Not a measurement input.** It is an epoch the series already has; using it as
 a series line would double-count 2006.
 
+### `coast2009.kml` — the 2009 split of the 2006→2017 interval (added 2026-10-23)
+
+- **Traced by:** Martin Hollingham, Google Earth Pro 7.3.7, 2026-10-23, on the
+  **20 April 2009** imagery (Getmapping). Dune edge, traced as the series above
+  was. 116 vertices; it runs about 140 m further NW and 300 m further SE than
+  `coast2006.kml`, so only the common band is measured.
+- **Original export:** `Hw 2009.kml` (placemark `<name>Hw 2009</name>`); renamed
+  here to the imagery-date convention. The two files differ only in the
+  document `<name>`. Despite the "Hw" in the placemark name, the line lies a
+  median 3.3 m from the 2006 dune edge, where a high-water line would lie of the
+  order of 100 m seaward (the 1899 pair, above), so it is a dune-edge trace.
+- **2011 was attempted and abandoned:** Martin, 2026-10-23, "2011 the image is
+  not clear enough". No `coast2011.kml` exists.
+- **Read by:** no pipeline code. Measured by a scratch run of Script 40's own
+  functions (`_measure`, signed shore-normal, `SHORE_NORMAL_SPACING_M`,
+  `SHORE_NORMAL_MAX_RANGE_M`, common northing band of 2006/2009/2017); the
+  result is in `working/updates/coast2009_split_2026-10-23/`. It is not an
+  epoch of `40_01_epoch_series.csv`.
+
 ### `coast2019-09-11.kml` / `coast2020-03-31.kml` — the STORM PAIR, not epochs
 
 **Two shorelines bracketing one winter.** Digitised by Martin Hollingham in

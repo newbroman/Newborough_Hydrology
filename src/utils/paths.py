@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.69.0"  # Hollingham (2026) - 2026-10-17. Script 09f 1.11.0 (T-125): OUT_09F_REPORT.
+__version__ = "1.71.0"  # Hollingham (2026) - 2026-10-24. Script 50 1.14.0 (E13b, D-274): OUT_50_E13B_CMP,
+#   OUT_50_E13B_FIG, OUT_50_E13B_RESID, OUT_50_E13B_INPUTS. Additive.
+# 1.70.0  # Hollingham (2026) - 2026-10-23. Script 50 1.13.0 (E13, D-273): MIDAS_WEATHER_DIR,
+#   OUT_50_PET_ALT, OUT_50_E13_PET, OUT_50_E13_BREAK, OUT_50_E13_WEATHER, OUT_50_E13_FIG. Additive.
+# 1.69.0  # Hollingham (2026) - 2026-10-17. Script 09f 1.11.0 (T-125): OUT_09F_REPORT.
 # 1.68.0  # Hollingham (2026) - 2026-10-16. Script 50 1.12.0 (E12, D-268): OUT_50_BASIS.
 # 1.67.0  # Hollingham (2026) - 2026-10-15. Script 41 2.16.0 (D-263): OUT_41_WELL_CANOPY,
 #   OUT_41_WELL_CANOPY_TEST, OUT_41_WELL_CANOPY_FIG.
@@ -1253,6 +1257,7 @@ CCW_CODE_MAP = DATA_DIR / "ccw_1989_1996_code_map.csv"
 # Script 44 (D-145; provenance in data/RANWELL_PROVENANCE.md).
 RANWELL_LEVELS          = DATA_DIR / "ranwell_1951_53_water_levels.csv"
 MIDAS_RAIN_DIR          = DATA_DIR / "midas_rain"   # Met Office MIDAS Open daily rain gauges (E8d, D-234)
+MIDAS_WEATHER_DIR       = DATA_DIR / "midas_weather" / "valley_01145"   # MIDAS Open hourly weather + radiation, Valley (E13, D-273)
 RANWELL_RANGES          = DATA_DIR / "ranwell_1951_53_monthly_ranges.csv"
 RANWELL_PARC_MAWR_RAIN  = DATA_DIR / "ranwell_1950_53_parc_mawr_rain.csv"
 RANWELL_EPOCH_CANDIDATES = DATA_DIR / "ranwell_epoch_candidates.csv"   # E11: literature sizing of the candidates (D-261)
@@ -1436,6 +1441,15 @@ OUT_50_FOREST_FORCING = DIR_50 / "50_27_forest_forcing_by_well.csv"   # E10, D-2
 OUT_50_RANWELL_NEED  = DIR_50 / "50_28_ranwell_need_grid.csv"        # E11, D-261
 OUT_50_RANWELL_EPOCH = DIR_50 / "50_29_ranwell_epoch_candidates.csv" # E11, D-261
 OUT_50_BASIS         = DIR_50 / "50_30_basis_by_test.csv"            # E12, D-268
+OUT_50_PET_ALT       = DIR_50 / "50_31_pet_alternatives_monthly.csv"  # E13, D-273
+OUT_50_E13_PET       = DIR_50 / "50_32_e13_pet_by_cluster.csv"        # E13, D-273
+OUT_50_E13_BREAK     = DIR_50 / "50_33_e13_beta1_break_by_well.csv"   # E13, D-273
+OUT_50_E13_WEATHER   = DIR_50 / "50_34_e13_weather_summary.csv"       # E13, D-273
+OUT_50_E13_FIG       = DIR_50 / "50_35_e13.png"                       # E13, D-273
+OUT_50_E13B_CMP      = DIR_50 / "50_36_pet_comparison.csv"            # E13b, D-274
+OUT_50_E13B_FIG      = DIR_50 / "50_37_pet_comparison.png"            # E13b, D-274
+OUT_50_E13B_RESID    = DIR_50 / "50_38_residual_seasonality_pm.csv"   # E13b, D-274
+OUT_50_E13B_INPUTS   = DIR_50 / "50_39_midas_annual_inputs.csv"      # E13b, D-274: the inputs' homogeneity
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed

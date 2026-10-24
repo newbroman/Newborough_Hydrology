@@ -1,0 +1,16 @@
+quantity,value
+u2_early_ms,4.881904903125527
+u2_later_ms,4.872227723696591
+ea_early_kpa,1.1042276090984897
+ea_later_kpa,1.089553264786626
+pm_early_mm_yr,633.4090797013439
+pm_later_mm_yr,671.6170157370076
+th_early_mm_yr,648.3191959400239
+th_later_mm_yr,653.6359700444468
+pm_minus_th_shift_mm_yr,-32.89116193124073
+wind_resid_corr_C3,-0.000571955378556622
+wind_resid_corr_C4,0.024197229670755504
+wind_resid_corr_C5,0.08342258044248108
+pm_months_filled,3.0
+pm_months,804.0
+scaled_identity_max_m,7.323251338675618e-09

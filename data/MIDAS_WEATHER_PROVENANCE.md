@@ -3,7 +3,7 @@
 Hourly weather and radiation records for Valley, for the E13 test (spec `working/updates/NRG_spec_E13_evaporation_forcing_2026-10-22.md`). E13 asks whether a wind- and humidity-aware evaporation estimate (FAO-56 Penman–Monteith) removes the 2006–08 water-table excess that a temperature-only Thornthwaite PET leaves.
 
 - Added 2026-10-23.
-- Not yet read by any script. When a reader is written, it will be a documented raw-input exception, as `src/utils/midas_rain.py` is for `data/midas_rain/`.
+- Read only by `src/utils/pet_alternatives.py` (Script 50 E13, D-273, from 2026-10-23), a documented raw-input exception as `src/utils/midas_rain.py` is for `data/midas_rain/`. The station height and the span are read from the files' own headers.
 
 ## Source
 

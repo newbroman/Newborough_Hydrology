@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_33.odt — do not edit. source-sha256=911698dd231dc710 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_34.odt — do not edit. source-sha256=7a79b7303f99f7f3 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -11,7 +11,7 @@ Full report, methods supplement and data: github.com/newbroman/Newborough_Hydrol
 
 Study design and methods
 
-A 21-year dipwell monitoring dataset (2005--2026) covering 88 wells (66 reference, 22 extended) across Newborough Warren SAC was analysed using a 60-step reproducible Python pipeline. Monthly water levels were combined with RAF Valley climate data (rainfall, Thornthwaite PET). The core analytical tool is a state-space model (SSM) fitted independently to each well, estimating three physical coefficients: recharge sensitivity (β₁), atmospheric draw (β₂) and drainage (β₃). SSM performance was benchmarked against a traditional linear model (TLM) lacking the drainage term; the SSM achieved positive Nash--Sutcliffe efficiency in iterative forecast mode at 65 of 66 reference wells (vs 55 of 66 for the traditional linear model).
+A 21-year dipwell monitoring dataset (2005--2026) covering 88 wells (66 reference, 22 extended) across Newborough Warren SAC was analysed using a 61-step reproducible Python pipeline. Monthly water levels were combined with RAF Valley climate data (rainfall, Thornthwaite PET). The core analytical tool is a state-space model (SSM) fitted independently to each well, estimating three physical coefficients: recharge sensitivity (β₁), atmospheric draw (β₂) and drainage (β₃). SSM performance was benchmarked against a traditional linear model (TLM) lacking the drainage term; the SSM achieved positive Nash--Sutcliffe efficiency in iterative forecast mode at 65 of 66 reference wells (vs 55 of 66 for the traditional linear model).
 
 Cluster analysis (hierarchical Ward, k=5) partitioned the reference network into five hydrogeological zones. Management interventions were assessed via ANCOVA-BACI with five-tier experimental design and three independent control groups. Climate projections used UKCP18 RCP8.5 50th-percentile forcing. Ecological thresholds follow Curreli et al. (2013): wet-slack summer minimum −0.61 m, dry-slack −0.98 m. Spring baseline change was assessed using the van Willegen et al. (2025) MSL5 metric.
 

@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-24T21:47:24",
- "orchestrator": "2.25.0",
+ "generated": "2026-10-24T23:26:15",
+ "orchestrator": "2.26.0",
  "steps": {
   "00_climate_summary.py": {
    "emitted": {
@@ -1593,6 +1593,35 @@
    "seconds": 1950.3,
    "started": "2026-10-24T21:14:53",
    "version": "1.14.1"
+  },
+  "51_cluster_gap_fill.py": {
+   "emitted": {
+    "outputs/51_cluster_gap_fill/51_01_ccw_cross_decade.csv": "4040f02a60b961526b72c9841b6cdf1b5e3462fbd28a748ee7c9e43b8898ed97",
+    "outputs/51_cluster_gap_fill/51_02_ccw_martin_groups.csv": "8e4989ae606e578e2d70123694b6b1697fdbb10119d58098b53a983bfa6fd9e8",
+    "outputs/51_cluster_gap_fill/51_03_gapfill_holdout.csv": "abdffcde441bb32e60588eab9bc2bfb5c4e76c671a9d5bd2d83346a3ac3c3c2a",
+    "outputs/51_cluster_gap_fill/51_04_gapfill_scores.csv": "026b99629d958fa79392bc8897d482c1b3baaa19b96dd8a78d5133b772e066bb",
+    "outputs/51_cluster_gap_fill/51_05_gapfill_reconstructed_monthly.csv": "ef6b9a4b138fc75255f0679eefc89131100acfbcd6d89d429c076c2aa3c0e8bd",
+    "outputs/51_cluster_gap_fill/51_06_gapfill_pairs.csv": "6d5ca693a6c8f2d01412fab3c9c4c6fab9238ca701af2e68eeb57b9b4f9cfb8f",
+    "outputs/51_cluster_gap_fill/51_07_cluster_gap_fill.png": "3f1065a066fa588f6586718e6d7a8cda99f2e2fc41f6040d058edbed4993c7b5",
+    "outputs/51_cluster_gap_fill/51_08_gapfill_reconstructed_monthly_partial.csv": "6539d7cafb7a9fc17440d50eb6d7e1689519831991b7b9b39e9b46030bbb5275",
+    "outputs/51_cluster_gap_fill/51_09_gapfill_pairs_partial.csv": "6e0ce002b57ba51091022263a455f235777d4d541ee95cd9cadba92b98ab36a4",
+    "outputs/51_cluster_gap_fill/51_report_numbers.csv": "7bd83e6bf11847016840046853bb6c7919110e599594126c599c71de8a9f7091"
+   },
+   "fallbacks": [],
+   "inputs": {
+    "data/ccw_1989_1996_code_map.csv": "263f6bb0ca75aa63290608599625831d171857f33bd1b59773bb832f8ac9e1c7",
+    "data/ccw_1989_1996_depths.csv": "56d9fc8881afd0af77783882dc5c0d37fb7b0bc0f4f33b81cb143145d1682ac9",
+    "data/ccw_similarity_groups_martin.csv": "2597dded639d1d5b5a1201fc7ed25f762de067286d7e96a1843010efc92b9571",
+    "data/well_metadata.csv": "44f7fc688250f9fca92c3a6d7347cdbef5a639819ed2a82ebabcbc06a0a2d7c4",
+    "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
+    "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
+    "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
+    "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
+   },
+   "inputs_unresolved": [],
+   "seconds": 41.0,
+   "started": "2026-10-24T23:25:34",
+   "version": "1.0.0"
   },
   "run_09_scraping.py": {
    "emitted": {

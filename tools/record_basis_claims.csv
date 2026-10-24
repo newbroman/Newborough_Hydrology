@@ -60,3 +60,4 @@ RB-41a,MS,S.23 Script 41,"fitted on the comparison window",D-263
 RB-50p,MS,S.23f Script 50,"fitted on the same span",D-268
 RB-50q,MS,S.23f Script 50,"the model is run freely from the first month after the climate record",D-273
 RB-50r,MS,S.23f Script 50,"over the complete years in which every month has measured radiation",D-274
+RB-51a,MS,S.23g Script 51,"Each donor line is fitted over at least DONOR_MIN_OVERLAP_MONTHS outside the window",D-275

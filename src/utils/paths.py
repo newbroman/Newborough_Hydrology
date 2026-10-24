@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.71.0"  # Hollingham (2026) - 2026-10-24. Script 50 1.14.0 (E13b, D-274): OUT_50_E13B_CMP,
+__version__ = "1.72.0"  # Hollingham (2026) - 2026-10-24. Script 51 1.0.0 (D-275): DIR_51 and its outputs;
+#   DATA_CCW_SIMILARITY_MARTIN. Additive.
+# 1.71.0  # Hollingham (2026) - 2026-10-24. Script 50 1.14.0 (E13b, D-274): OUT_50_E13B_CMP,
 #   OUT_50_E13B_FIG, OUT_50_E13B_RESID, OUT_50_E13B_INPUTS. Additive.
 # 1.70.0  # Hollingham (2026) - 2026-10-23. Script 50 1.13.0 (E13, D-273): MIDAS_WEATHER_DIR,
 #   OUT_50_PET_ALT, OUT_50_E13_PET, OUT_50_E13_BREAK, OUT_50_E13_WEATHER, OUT_50_E13_FIG. Additive.
@@ -1253,6 +1255,7 @@ OUT_25_DELTA0_LOO_FIG                   = DIR_25 / "25_16_delta0_leave_one_out.p
 # Script 24 for sunshine hours.
 CCW_DEPTHS   = DATA_DIR / "ccw_1989_1996_depths.csv"
 CCW_CODE_MAP = DATA_DIR / "ccw_1989_1996_code_map.csv"
+DATA_CCW_SIMILARITY_MARTIN = DATA_DIR / "ccw_similarity_groups_martin.csv"   # Martin's CCW chart groups (Script 51, D-275)
 # Ranwell (1959) water-table data recovered from Figs 2, 4 and 7 - raw inputs of
 # Script 44 (D-145; provenance in data/RANWELL_PROVENANCE.md).
 RANWELL_LEVELS          = DATA_DIR / "ranwell_1951_53_water_levels.csv"
@@ -1451,6 +1454,19 @@ OUT_50_E13B_FIG      = DIR_50 / "50_37_pet_comparison.png"            # E13b, D-
 OUT_50_E13B_RESID    = DIR_50 / "50_38_residual_seasonality_pm.csv"   # E13b, D-274
 OUT_50_E13B_INPUTS   = DIR_50 / "50_39_midas_annual_inputs.csv"      # E13b, D-274: the inputs' homogeneity
 OUT_50_REPORT_NUMBERS = DIR_50 / "50_report_numbers.csv"
+
+# Script 51 - filling gaps in the record from cluster-mates (D-275)
+DIR_51 = OUT_DIR / "51_cluster_gap_fill"
+OUT_51_CCW_CROSS      = DIR_51 / "51_01_ccw_cross_decade.csv"
+OUT_51_CCW_MARTIN     = DIR_51 / "51_02_ccw_martin_groups.csv"
+OUT_51_HOLDOUT        = DIR_51 / "51_03_gapfill_holdout.csv"
+OUT_51_SCORES         = DIR_51 / "51_04_gapfill_scores.csv"
+OUT_51_RECON          = DIR_51 / "51_05_gapfill_reconstructed_monthly.csv"
+OUT_51_PAIRS          = DIR_51 / "51_06_gapfill_pairs.csv"
+OUT_51_RECON_PARTIAL  = DIR_51 / "51_08_gapfill_reconstructed_monthly_partial.csv"
+OUT_51_PAIRS_PARTIAL  = DIR_51 / "51_09_gapfill_pairs_partial.csv"
+OUT_51_FIG            = DIR_51 / "51_07_cluster_gap_fill.png"
+OUT_51_REPORT_NUMBERS = DIR_51 / "51_report_numbers.csv"
 
 # Script 01b — the water table by kriging, and flow between the slacks (D-205; was Script 49, renamed
 # and moved to step 2 of Phase 1 on 2026-09-27 so its readers take it in the same run)

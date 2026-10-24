@@ -190,7 +190,10 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.25.0"  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). --film-lang en|cy|pl|all passes the
+__version__ = "2.26.0"  # Hollingham (2026) - 2026-10-24 (D-275). Script 51 (filling gaps from cluster-mates) registered
+#   in a new Phase 20, tier X, opt-in. _DOCUMENTED_COUNTS: total_registered 60 -> 61, total_phases 19 -> 20,
+#   optin_diagnostic 7 -> 8, by_exec.optin 4 -> 5.
+# 2.25.0  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). --film-lang en|cy|pl|all passes the
 #   film's language to Script 47 with --hindcast-film; default en, so the registered step is unchanged unless asked.
 # 2.24.0  # Hollingham (2026) - 2026-10-10 (spec NRG_spec_parallel_chats_2026-10-10). A run is
 #   refused while ANOTHER chat holds the `pipeline` claim (tools/doc_lock.py; this chat's name is
@@ -564,6 +567,10 @@ PHASE_19 = [
     Step("50_record_length.py",     "What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic", "X", "optin"),
 ]
 
+PHASE_20 = [
+    Step("51_cluster_gap_fill.py",  "Filling gaps in the record from cluster-mates (D-275): the CCW wells clustered on 1989\u201396 alone against the modern clusters; a hold-out test of five donor rules (nearest, best-correlated, nearest cluster-mate, cluster median, and Model A as reference) over an early and a late window, with the rule adopted by a rule fixed before the run; and every well's gaps filled by it, flagged reconstructed and kept out of every other step. Opt-in diagnostic", "X", "optin"),
+]
+
 ALL_PHASES = [
     ("PHASE 1  — Core LCSC Chain and the Water Table",          PHASE_1),
     ("PHASE 2  — Pearson Membership Audit",                     PHASE_2),
@@ -584,6 +591,7 @@ ALL_PHASES = [
     ("PHASE 17 \u2014 Synthesis Figures, Greyscale Conversion, and the Ranwell 1951\u201353 Record (Scripts 09f, 09g, 27, 43, 44)",  PHASE_17),
     ("PHASE 18 \u2014 Sentinel Wet-Area Model (Scripts 45, 46; film 47 on demand)",  PHASE_18),
     ("PHASE 19 \u2014 Independent Checks of the Per-Well SSM (Scripts 48, 50)",  PHASE_19),
+    ("PHASE 20 \u2014 Filling Gaps from Cluster-Mates (Script 51)",  PHASE_20),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -612,13 +620,13 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            60,
-    "total_phases":                19,
+    "total_registered":            61,
+    "total_phases":                20,
     "by_tier.analytical_toplevel": 45,
     "by_tier.display_utility":      8,
-    "by_tier.optin_diagnostic":     7,
+    "by_tier.optin_diagnostic":     8,
     "by_exec.default":             54,
-    "by_exec.optin":                4,
+    "by_exec.optin":                5,
     "by_exec.ondemand":             2,
     "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document

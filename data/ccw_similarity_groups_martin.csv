@@ -1,0 +1,97 @@
+chart,title,similar,code
+Chart 4,Transect 1- Inland,no,1A
+Chart 4,Transect 1- Inland,no,1B
+Chart 4,Transect 1- Inland,no,1C
+Chart 4,Transect 1- Inland,no,1D
+Chart 4,Transect 1- Inland,no,1E
+Chart 4,Transect 1- Inland,no,1F
+Chart 5,Transect 2-Seaward,no,2A
+Chart 5,Transect 2-Seaward,no,2B
+Chart 5,Transect 2-Seaward,no,2C
+Chart 5,Transect 2-Seaward,no,2D
+Chart 5,Transect 2-Seaward,no,2E
+Chart 5,Transect 2-Seaward,no,2F
+Chart 5,Transect 2-Seaward,no,2G
+Chart 36,All CCW Wells,no,1A
+Chart 36,All CCW Wells,no,1B
+Chart 36,All CCW Wells,no,1C
+Chart 36,All CCW Wells,no,1D
+Chart 36,All CCW Wells,no,1E
+Chart 36,All CCW Wells,no,1F
+Chart 36,All CCW Wells,no,2A
+Chart 36,All CCW Wells,no,2B
+Chart 36,All CCW Wells,no,2C
+Chart 36,All CCW Wells,no,2D
+Chart 36,All CCW Wells,no,2E
+Chart 36,All CCW Wells,no,2F
+Chart 36,All CCW Wells,no,2G
+Chart 2,Forest wells,no,1A
+Chart 2,Forest wells,no,1B
+Chart 2,Forest wells,no,1C
+Chart 2,Forest wells,no,2A
+Chart 2,Forest wells,no,2B
+Chart 2,Forest wells,no,2C
+Chart 3,Warren Wells,no,1D
+Chart 3,Warren Wells,no,1E
+Chart 3,Warren Wells,no,1F
+Chart 3,Warren Wells,no,2D
+Chart 3,Warren Wells,no,2E
+Chart 3,Warren Wells,no,2F
+Chart 3,Warren Wells,no,2G
+Chart 13,Mainly Forest wells,no,1B
+Chart 13,Mainly Forest wells,no,1C
+Chart 13,Mainly Forest wells,no,1D
+Chart 13,Mainly Forest wells,no,2B
+Chart 6,Transect 1 - Forest wells,no,1A
+Chart 6,Transect 1 - Forest wells,no,1B
+Chart 6,Transect 1 - Forest wells,no,1C
+Chart 12,Transect 2 - Forest and Border wells,no,2A
+Chart 12,Transect 2 - Forest and Border wells,no,2B
+Chart 12,Transect 2 - Forest and Border wells,no,2C
+Chart 12,Transect 2 - Forest and Border wells,no,2D
+Chart 22,All Forest and Border Wells,no,1A
+Chart 22,All Forest and Border Wells,no,1B
+Chart 22,All Forest and Border Wells,no,1C
+Chart 22,All Forest and Border Wells,no,1D
+Chart 22,All Forest and Border Wells,no,2A
+Chart 22,All Forest and Border Wells,no,2B
+Chart 22,All Forest and Border Wells,no,2C
+Chart 22,All Forest and Border Wells,no,2D
+Chart 34,Transect 2 - Warren and Border,no,2D
+Chart 34,Transect 2 - Warren and Border,no,2E
+Chart 34,Transect 2 - Warren and Border,no,2F
+Chart 34,Transect 2 - Warren and Border,no,2G
+Chart 44,Transect 1 - Warren and Border,no,1D
+Chart 44,Transect 1 - Warren and Border,no,1E
+Chart 44,Transect 1 - Warren and Border,no,1F
+Chart 8,Transect 1 - Far Warren Wells,no,1E
+Chart 8,Transect 1 - Far Warren Wells,no,1F
+Chart 7,Similar Forest and Border wells,yes,1C
+Chart 7,Similar Forest and Border wells,yes,1D
+Chart 7,Similar Forest and Border wells,yes,2B
+Chart 11,Similar Transect 2 Warren wells,yes,2E
+Chart 11,Similar Transect 2 Warren wells,yes,2F
+Chart 11,Similar Transect 2 Warren wells,yes,2G
+Chart 21,transect 2 warren wells with 2 similar forest wells,no,1D
+Chart 21,transect 2 warren wells with 2 similar forest wells,no,2B
+Chart 21,transect 2 warren wells with 2 similar forest wells,no,2E
+Chart 21,transect 2 warren wells with 2 similar forest wells,no,2F
+Chart 21,transect 2 warren wells with 2 similar forest wells,no,2G
+Chart 35,"Similar Transect 2 wells, Note 2c is a forest well",yes,2C
+Chart 35,"Similar Transect 2 wells, Note 2c is a forest well",yes,2E
+Chart 35,"Similar Transect 2 wells, Note 2c is a forest well",yes,2F
+Chart 35,"Similar Transect 2 wells, Note 2c is a forest well",yes,2G
+Chart 15,"1D is Border, 2B is Forest, 2G is Warren",no,1D
+Chart 15,"1D is Border, 2B is Forest, 2G is Warren",no,2B
+Chart 15,"1D is Border, 2B is Forest, 2G is Warren",no,2G
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,1C
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,1D
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,2B
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,2C
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,2E
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,2F
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,2G
+Chart 45,"1D is Border, 1C and 2B are Forest, 2G is Warren",no,1C
+Chart 45,"1D is Border, 1C and 2B are Forest, 2G is Warren",no,1D
+Chart 45,"1D is Border, 1C and 2B are Forest, 2G is Warren",no,2B
+Chart 45,"1D is Border, 1C and 2B are Forest, 2G is Warren",no,2G

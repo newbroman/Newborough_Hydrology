@@ -1,0 +1,20 @@
+chart,title,similar,codes,wells,modern_clusters,ccw_clusters,one_modern_cluster
+Chart 4,Transect 1- Inland,no,1A 1B 1C 1D 1E 1F,nw12 nw10 nw11 nw13 nw3 nw4,4 4 3 3 2 2,4 3 3 3 2 2,False
+Chart 5,Transect 2-Seaward,no,2A 2B 2C 2D 2E 2F 2G,? nw9 wmc3 nw8 nw6 nw5 wmc2,5 3 5 3 3 3,3 3 1 1 2 2 2,False
+Chart 36,All CCW Wells,no,1A 1B 1C 1D 1E 1F 2A 2B 2C 2D 2E 2F 2G,nw12 nw10 nw11 nw13 nw3 nw4 ? nw9 wmc3 nw8 nw6 nw5 wmc2,4 4 3 3 2 2 5 3 5 3 3 3,4 3 3 3 2 2 3 3 1 1 2 2 2,False
+Chart 2,Forest wells,no,1A 1B 1C 2A 2B 2C,nw12 nw10 nw11 ? nw9 wmc3,4 4 3 5 3,4 3 3 3 3 1,False
+Chart 3,Warren Wells,no,1D 1E 1F 2D 2E 2F 2G,nw13 nw3 nw4 nw8 nw6 nw5 wmc2,3 2 2 5 3 3 3,3 2 2 1 2 2 2,False
+Chart 13,Mainly Forest wells,no,1B 1C 1D 2B,nw10 nw11 nw13 nw9,4 3 3 5,3 3 3 3,False
+Chart 6,Transect 1 - Forest wells,no,1A 1B 1C,nw12 nw10 nw11,4 4 3,4 3 3,False
+Chart 12,Transect 2 - Forest and Border wells,no,2A 2B 2C 2D,? nw9 wmc3 nw8,5 3 5,3 3 1 1,False
+Chart 22,All Forest and Border Wells,no,1A 1B 1C 1D 2A 2B 2C 2D,nw12 nw10 nw11 nw13 ? nw9 wmc3 nw8,4 4 3 3 5 3 5,4 3 3 3 3 3 1 1,False
+Chart 34,Transect 2 - Warren and Border,no,2D 2E 2F 2G,nw8 nw6 nw5 wmc2,5 3 3 3,1 2 2 2,False
+Chart 44,Transect 1 - Warren and Border,no,1D 1E 1F,nw13 nw3 nw4,3 2 2,3 2 2,False
+Chart 8,Transect 1 - Far Warren Wells,no,1E 1F,nw3 nw4,2 2,2 2,True
+Chart 7,Similar Forest and Border wells,yes,1C 1D 2B,nw11 nw13 nw9,3 3 5,3 3 3,False
+Chart 11,Similar Transect 2 Warren wells,yes,2E 2F 2G,nw6 nw5 wmc2,3 3 3,2 2 2,True
+Chart 21,transect 2 warren wells with 2 similar forest wells,no,1D 2B 2E 2F 2G,nw13 nw9 nw6 nw5 wmc2,3 5 3 3 3,3 3 2 2 2,False
+Chart 35,"Similar Transect 2 wells, Note 2c is a forest well",yes,2C 2E 2F 2G,wmc3 nw6 nw5 wmc2,3 3 3 3,1 2 2 2,True
+Chart 15,"1D is Border, 2B is Forest, 2G is Warren",no,1D 2B 2G,nw13 nw9 wmc2,3 5 3,3 3 2,False
+Chart 46,"1D is Border, 1C, 2B and 2C are Forest, 2E, 2F and 2G are Warren",no,1C 1D 2B 2C 2E 2F 2G,nw11 nw13 nw9 wmc3 nw6 nw5 wmc2,3 3 5 3 3 3 3,3 3 3 1 2 2 2,False
+Chart 45,"1D is Border, 1C and 2B are Forest, 2G is Warren",no,1C 1D 2B 2G,nw11 nw13 nw9 wmc2,3 3 5 3,3 3 3 2,False

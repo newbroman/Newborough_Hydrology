@@ -348,6 +348,12 @@
    "status": "ok",
    "step": "60/60  What the record length decides (D-222): Model A and Model B refitted at every reference well on records of RECLEN_LENGTHS_MONTHS and the full record \u2014 coefficient stability, split-sample forecast and within-record hindcast skill, and the CCW 1989\u201396 hindcast (Script 39's, via utils/hindcast_utils.py) at each length. Opt-in diagnostic"
   },
+  "51_cluster_gap_fill.py": {
+   "last_run": "2026-10-24T23:26:15",
+   "seconds": 41.0,
+   "status": "ok",
+   "step": "61/61  Filling gaps in the record from cluster-mates (D-275): the CCW wells clustered on 1989\u201396 alone against the modern clusters; a hold-out test of five donor rules (nearest, best-correlated, nearest cluster-mate, cluster median, and Model A as reference) over an early and a late window, with the rule adopted by a rule fixed before the run; and every well's gaps filled by it, flagged reconstructed and kept out of every other step. Opt-in diagnostic"
+  },
   "run_09_scraping.py": {
    "last_run": "2026-10-17T22:44:53",
    "seconds": 10.7,
@@ -361,5 +367,5 @@
    "step": "11/60  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-10-24T21:47:24"
+ "updated": "2026-10-24T23:26:15"
 }

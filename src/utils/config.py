@@ -44,7 +44,8 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.112.0"  # Hollingham (2026) - 2026-10-24 (D-274; spec NRG_spec_E13b_pet_comparison_2026-10-24). E13b
+__version__ = "1.113.0"  # Hollingham (2026) - 2026-10-24 (D-274): E13B_SEASON_A_MONTHS, E13B_SEASON_B_MONTHS. Additive.
+# 1.112.0  # Hollingham (2026) - 2026-10-24 (D-274; spec NRG_spec_E13b_pet_comparison_2026-10-24). E13b
 #   (Script 50 1.14.0): E13B_WINDOW_YEARS, E13B_RESID_SUMMER_MONTHS, E13B_RESID_WINTER_MONTHS (Script 24's seasons),
 #   E13B_RESID_WINTER_PHASE. Additive.
 # 1.111.0  # Hollingham (2026) - 2026-10-23 (D-273; spec NRG_spec_E13_build_2026-10-23, approved by Martin
@@ -2272,6 +2273,10 @@ RADIATION_PET_FILL_MONTHS   = 2
 # residual-seasonality test re-run under each PET uses Script 24's own seasons (it hard-codes JJA and DJF; named
 # here); a residual whose sinusoid phase month is >= E13B_RESID_WINTER_PHASE[0] or <= [1] is winter-phased (Script 24's test).
 E13B_WINDOW_YEARS               = 30
+# The two seasons the report quotes the Penman-Monteith/Thornthwaite difference over (ratio of the seasonal totals):
+# where Penman-Monteith runs high (late winter to spring) and where it runs low (late summer to autumn).
+E13B_SEASON_A_MONTHS            = (1, 2, 3, 4)
+E13B_SEASON_B_MONTHS            = (7, 8, 9, 10)
 E13B_RESID_SUMMER_MONTHS        = (6, 7, 8)
 E13B_RESID_WINTER_MONTHS        = (12, 1, 2)
 E13B_RESID_WINTER_PHASE         = (11, 3)

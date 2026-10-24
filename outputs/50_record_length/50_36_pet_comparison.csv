@@ -6,6 +6,9 @@ all,,t_last_window_c,10.791388888888887,C
 all,,window_years,30.0,years
 all,Thornthwaite,annual_mean_mm,639.6970782379527,mm/yr
 all,Thornthwaite,ratio_to_thornthwaite,1.0,ratio
+all,Thornthwaite,pct_diff_annual,0.0,%
+all,Thornthwaite,pct_diff_season_a,0.0,%
+all,Thornthwaite,pct_diff_season_b,0.0,%
 all,Thornthwaite,corr_monthly,1.0,r
 all,Thornthwaite,corr_monthly_anomaly,1.0,r
 all,Thornthwaite,corr_annual,1.0,r
@@ -41,6 +44,9 @@ all,Thornthwaite,month_12_mean_mm,18.34944076771092,mm/month
 all,Thornthwaite,month_12_ratio,1.0,ratio
 all,Penman-Monteith,annual_mean_mm,633.2128711909805,mm/yr
 all,Penman-Monteith,ratio_to_thornthwaite,0.9898636287900002,ratio
+all,Penman-Monteith,pct_diff_annual,-1.0136371209999773,%
+all,Penman-Monteith,pct_diff_season_a,29.493507293052467,%
+all,Penman-Monteith,pct_diff_season_b,-15.77316765524792,%
 all,Penman-Monteith,corr_monthly,0.9293316159551347,r
 all,Penman-Monteith,corr_monthly_anomaly,0.5039060096912906,r
 all,Penman-Monteith,corr_annual,0.5583093318373438,r
@@ -76,6 +82,9 @@ all,Penman-Monteith,month_12_mean_mm,21.746259453931597,mm/month
 all,Penman-Monteith,month_12_ratio,1.185118376588238,ratio
 all,Hargreaves,annual_mean_mm,571.3573442477519,mm/yr
 all,Hargreaves,ratio_to_thornthwaite,0.8931686007095065,ratio
+all,Hargreaves,pct_diff_annual,-10.683139929049347,%
+all,Hargreaves,pct_diff_season_a,6.88057137916831,%
+all,Hargreaves,pct_diff_season_b,-20.368306702701922,%
 all,Hargreaves,corr_monthly,0.936141452501115,r
 all,Hargreaves,corr_monthly_anomaly,0.5851481720937602,r
 all,Hargreaves,corr_annual,0.624106609374599,r
@@ -111,6 +120,9 @@ all,Hargreaves,month_12_mean_mm,8.543172871987395,mm/month
 all,Hargreaves,month_12_ratio,0.46558219294729764,ratio
 all,Priestley-Taylor,annual_mean_mm,592.997706885595,mm/yr
 all,Priestley-Taylor,ratio_to_thornthwaite,0.9269976791499638,ratio
+all,Priestley-Taylor,pct_diff_annual,-7.300232085003621,%
+all,Priestley-Taylor,pct_diff_season_a,-2.064599351751839,%
+all,Priestley-Taylor,pct_diff_season_b,-14.802001860830904,%
 all,Priestley-Taylor,corr_monthly,0.9225925125947901,r
 all,Priestley-Taylor,corr_monthly_anomaly,0.5452565489369848,r
 all,Priestley-Taylor,corr_annual,0.6611527940972802,r
@@ -146,6 +158,9 @@ all,Priestley-Taylor,month_12_mean_mm,0.06096703261461424,mm/month
 all,Priestley-Taylor,month_12_ratio,0.0033225553512179233,ratio
 all,Makkink,annual_mean_mm,495.16798008817796,mm/yr
 all,Makkink,ratio_to_thornthwaite,0.7740663462964681,ratio
+all,Makkink,pct_diff_annual,-22.59336537035319,%
+all,Makkink,pct_diff_season_a,-7.136698447559731,%
+all,Makkink,pct_diff_season_b,-31.18280307812905,%
 all,Makkink,corr_monthly,0.9174523559909378,r
 all,Makkink,corr_monthly_anomaly,0.4507546501866848,r
 all,Makkink,corr_annual,0.5280104463320325,r
@@ -186,6 +201,9 @@ measured,,t_last_window_c,11.031770833333333,C
 measured,,window_years,8.0,years
 measured,Thornthwaite,annual_mean_mm,651.4736605105986,mm/yr
 measured,Thornthwaite,ratio_to_thornthwaite,1.0,ratio
+measured,Thornthwaite,pct_diff_annual,0.0,%
+measured,Thornthwaite,pct_diff_season_a,0.0,%
+measured,Thornthwaite,pct_diff_season_b,0.0,%
 measured,Thornthwaite,corr_monthly,1.0,r
 measured,Thornthwaite,corr_monthly_anomaly,1.0,r
 measured,Thornthwaite,corr_annual,1.0,r
@@ -221,6 +239,9 @@ measured,Thornthwaite,month_12_mean_mm,19.748950854593474,mm/month
 measured,Thornthwaite,month_12_ratio,1.0,ratio
 measured,Penman-Monteith,annual_mean_mm,656.6190108252266,mm/yr
 measured,Penman-Monteith,ratio_to_thornthwaite,1.0078980174127,ratio
+measured,Penman-Monteith,pct_diff_annual,0.7898017412699909,%
+measured,Penman-Monteith,pct_diff_season_a,30.93719968309978,%
+measured,Penman-Monteith,pct_diff_season_b,-14.233541789804827,%
 measured,Penman-Monteith,corr_monthly,0.9339156520493719,r
 measured,Penman-Monteith,corr_monthly_anomaly,0.5853118727610196,r
 measured,Penman-Monteith,corr_annual,0.6285524475297255,r
@@ -256,6 +277,9 @@ measured,Penman-Monteith,month_12_mean_mm,22.952933337339314,mm/month
 measured,Penman-Monteith,month_12_ratio,1.1622355793143622,ratio
 measured,Hargreaves,annual_mean_mm,571.5549685514898,mm/yr
 measured,Hargreaves,ratio_to_thornthwaite,0.877326288377535,ratio
+measured,Hargreaves,pct_diff_annual,-12.267371162246498,%
+measured,Hargreaves,pct_diff_season_a,6.743796908248623,%
+measured,Hargreaves,pct_diff_season_b,-21.810725776304697,%
 measured,Hargreaves,corr_monthly,0.9353260758619801,r
 measured,Hargreaves,corr_monthly_anomaly,0.6310160664371008,r
 measured,Hargreaves,corr_annual,0.5834369291860192,r
@@ -291,6 +315,9 @@ measured,Hargreaves,month_12_mean_mm,8.581428513840757,mm/month
 measured,Hargreaves,month_12_ratio,0.43452579213061204,ratio
 measured,Priestley-Taylor,annual_mean_mm,597.9817006059927,mm/yr
 measured,Priestley-Taylor,ratio_to_thornthwaite,0.9178908325124288,ratio
+measured,Priestley-Taylor,pct_diff_annual,-8.210916748757125,%
+measured,Priestley-Taylor,pct_diff_season_a,-2.1443193519209425,%
+measured,Priestley-Taylor,pct_diff_season_b,-15.82566672916027,%
 measured,Priestley-Taylor,corr_monthly,0.9218551836406966,r
 measured,Priestley-Taylor,corr_monthly_anomaly,0.5965259688414899,r
 measured,Priestley-Taylor,corr_annual,0.602137543462172,r
@@ -326,6 +353,9 @@ measured,Priestley-Taylor,month_12_mean_mm,0.1962351702563249,mm/month
 measured,Priestley-Taylor,month_12_ratio,0.009936485826571487,ratio
 measured,Makkink,annual_mean_mm,496.44018662699335,mm/yr
 measured,Makkink,ratio_to_thornthwaite,0.7620264896633022,ratio
+measured,Makkink,pct_diff_annual,-23.797351033669777,%
+measured,Makkink,pct_diff_season_a,-6.662369291997061,%
+measured,Makkink,pct_diff_season_b,-32.791061112941236,%
 measured,Makkink,corr_monthly,0.9112797185845672,r
 measured,Makkink,corr_monthly_anomaly,0.5151143153443335,r
 measured,Makkink,corr_annual,0.42399347487632094,r

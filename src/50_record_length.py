@@ -74,7 +74,11 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-10-24 (D-274; Martin 05:30 "a comparison analysis against
+__version__ = "1.14.1"  # Hollingham (2026) - 2026-10-24 (D-274; the text walk-through, Martin 21:05-21:20). E13b also
+#   emits each series' percentage difference from Thornthwaite over the year and over E13B_SEASON_A_MONTHS and
+#   E13B_SEASON_B_MONTHS (ratio of the seasonal totals), so the report's seasonal figures bind to committed keys. No
+#   other value changes.
+# 1.14.0  # Hollingham (2026) - 2026-10-24 (D-274; Martin 05:30 "a comparison analysis against
 #   thornthwaite and include that in the report", 05:37 "does PM resolve [the residual-by-month analysis]?", 05:43 "build E13b
 #   into the batch"; spec NRG_spec_E13b_pet_comparison_2026-10-24). E13b: Penman-Monteith (and the radiation estimates)
 #   against Thornthwaite over the MIDAS span and over the measured-radiation years - annual means and ratios, each calendar
@@ -262,7 +266,7 @@ from utils.config import (                                    # noqa: E402
     RANWELL_SEASON_WINDOW_YEARS, RANWELL_ANTECEDENT_YEARS, RANWELL_MEMORY_MONTHS, RANWELL_SURFACE_CENSOR_M,
     CLEARFELL_DATE_ISO, RAF_VALLEY_LAT_DEG,
     E13_EXCESS_SHARE, E13_RMSE_TOL, E13_CLUSTERS, E13_BREAK_WINDOW, E13_MIN_LATER_MONTHS,
-    E13B_WINDOW_YEARS, E13B_RESID_SUMMER_MONTHS, E13B_RESID_WINTER_MONTHS, E13B_RESID_WINTER_PHASE,
+    E13B_WINDOW_YEARS, E13B_SEASON_A_MONTHS, E13B_SEASON_B_MONTHS, E13B_RESID_SUMMER_MONTHS, E13B_RESID_WINTER_MONTHS, E13B_RESID_WINTER_PHASE,
     RESIDUAL_DIAG_MIN_MONTHS, MIDAS_MONTH_MIN_DAYS,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
@@ -3668,6 +3672,10 @@ def e13b_comparison(mon: pd.DataFrame) -> pd.DataFrame:
             y = _complete_years(s)
             add(basis, name, "annual_mean_mm", y.mean(), "mm/yr")
             add(basis, name, "ratio_to_thornthwaite", y.mean() / th_y.mean(), "ratio")
+            add(basis, name, "pct_diff_annual", 100 * (y.mean() / th_y.mean() - 1), "%")
+            for lab, months in (("season_a", E13B_SEASON_A_MONTHS), ("season_b", E13B_SEASON_B_MONTHS)):
+                ms = s.index.month.isin(months)
+                add(basis, name, f"pct_diff_{lab}", 100 * (s[ms].sum() / th[ms].sum() - 1), "%")
             add(basis, name, "corr_monthly", s.corr(th), "r")
             an = s - s.groupby(s.index.month).transform("mean")
             an_t = th - th.groupby(th.index.month).transform("mean")
@@ -3790,7 +3798,7 @@ def e13b_resid_summary(rs: pd.DataFrame) -> dict:
 
 
 def e13b_report(rr, cmp_: pd.DataFrame, rsum: dict, ident: float) -> None:
-    keep = ("annual_mean_mm", "ratio_to_thornthwaite", "corr_monthly", "corr_monthly_anomaly", "corr_annual",
+    keep = ("annual_mean_mm", "ratio_to_thornthwaite", "pct_diff_annual", "pct_diff_season_a", "pct_diff_season_b", "corr_monthly", "corr_monthly_anomaly", "corr_annual",
             "trend_mm_per_decade", "trend_p", "first_window_mean_mm", "last_window_mean_mm", "elasticity_to_temperature")
     for r in cmp_.itertuples():
         if r.pet == "":

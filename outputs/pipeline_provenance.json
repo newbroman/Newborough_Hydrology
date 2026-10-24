@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-17T22:47:05",
+ "generated": "2026-10-24T09:43:02",
  "orchestrator": "2.25.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1551,10 +1551,20 @@
     "outputs/50_record_length/50_28_ranwell_need_grid.csv": "973671cbc2e763e92466f87dfd1a4e915dcf7ced584a058aee0778959f8f1942",
     "outputs/50_record_length/50_29_ranwell_epoch_candidates.csv": "f242df804a8c331ed2b8c39ad2ab9918c869a17f3b926d35342086cd4f65c8ef",
     "outputs/50_record_length/50_30_basis_by_test.csv": "036c822bc288d731094eda127b0fdf034901046630f4585f27020e7dd4e87cb7",
-    "outputs/50_record_length/50_report_numbers.csv": "14a2d1c77e8f1dddccbd25fa08248fa03bd06457e02b2cc27d053f981e37c709"
+    "outputs/50_record_length/50_31_pet_alternatives_monthly.csv": "9bd179f11410de80c662b78db62721d6da947bcd7cb97812e3382f84399096e2",
+    "outputs/50_record_length/50_32_e13_pet_by_cluster.csv": "abbf4745681b88c1f5960605cfa464fb64060493bd9e78ade3f32467fe0c1ca1",
+    "outputs/50_record_length/50_33_e13_beta1_break_by_well.csv": "bd27a1e11237f2cd504e6011e199c8388588640b1d847be1013503a6d3471ba8",
+    "outputs/50_record_length/50_34_e13_weather_summary.csv": "4ae572593c320f2b5b0615923d2034d46702a44f906788914997fd46f8ca9a0a",
+    "outputs/50_record_length/50_35_e13.png": "429ee24da9d6c0bff194dfcb48a166b349ad5c319c1e7beebccadecc28ba9693",
+    "outputs/50_record_length/50_36_pet_comparison.csv": "4e6749f7cbb3ac0f5024077113f5ce36262a02e9fe0a6ea1ede606bae22a6a90",
+    "outputs/50_record_length/50_37_pet_comparison.png": "8efbf81bac66ece78d553ffc40e8d6080d81e8e953b745f3bcf4d7ec3efce425",
+    "outputs/50_record_length/50_38_residual_seasonality_pm.csv": "0ab627ec5a36969b401923448744d1a5dea365676c238baf20dac78028ff0aa8",
+    "outputs/50_record_length/50_39_midas_annual_inputs.csv": "3b3b702337ea0b811bec73928bd25dcef483e6e77ffe1e19196d10daad9f4217",
+    "outputs/50_record_length/50_report_numbers.csv": "c4b31709ced74e02f5d84aaf7635e3538a33b53caa49071658d670e9817b2659"
    },
    "fallbacks": [],
    "inputs": {
+    "data/RAF_Valley_Climate.csv": "4919c822504c42959faa52403ec3daad852719e39e1343fd43c3fa70a3bb092f",
     "data/ccw_1989_1996_code_map.csv": "263f6bb0ca75aa63290608599625831d171857f33bd1b59773bb832f8ac9e1c7",
     "data/ccw_1989_1996_depths.csv": "56d9fc8881afd0af77783882dc5c0d37fb7b0bc0f4f33b81cb143145d1682ac9",
     "data/ranwell_1950_53_parc_mawr_rain.csv": "14f67c35b10a52aa628f1a6a782b51506bac61bee4da4e9698f709d8d0dbe788",
@@ -1563,12 +1573,15 @@
     "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff",
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371",
+    "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
+    "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
     "outputs/03_master_data.csv": "3ed41d9c4bddf3411987450bc9132521d605eaa76f211a5f803bad4c375ebba7",
     "outputs/03_regional_averages.csv": "9d70076c57b631b267b510364d8bc3f998a1a4893aca69705039b2321b6b1b25",
     "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv": "9c334393ecb2ee28e76d7aceb91df1a55ec86954a53c2d55f4287152add9e7a2",
     "outputs/03_state_space_model/03_15_per_well_window_sensitivity.csv": "02f26c43beb23ca51a97c91691cd72fb4eaf55cbfb04149920ec565a99715b2f",
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "6d7ac03f8e9802243cffecac2f381abf1ff62cbcfae3051696630da60b8a375d",
     "outputs/19_spatial_groundwater/19_scenario_perwell_model_a.csv": "1001edc00c253cfb54a45f0e6d704bf0daeb2cabb791065592ffb3872c7b659e",
+    "outputs/24_residual_climatology.csv": "1c190f6c8b3379d4f0d1d6a9aa4217287a06f620b2350422742ee7ab10168186",
     "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "1294f374ffacbc8ea9be509094c129acefdc1b607ae553d2170b28b485cd1019",
     "outputs/41_canopy_cover/41_01_canopy_index.csv": "9bd14dac7078809487856c1ec7b2a458ae348d2232d3e1553b046bf82da92e49",
     "outputs/44_ranwell_hindcast/44_04_hindcast_metrics.csv": "af54ff1528215e7e3865b13e1dae2c669a95d3da4e58d1b85567543aec1f89c3",
@@ -1577,9 +1590,9 @@
    "inputs_unresolved": [
     "2015.kml"
    ],
-   "seconds": 1777.8,
-   "started": "2026-10-16T12:08:02",
-   "version": "1.12.0"
+   "seconds": 1873.0,
+   "started": "2026-10-24T09:11:49",
+   "version": "1.14.0"
   },
   "run_09_scraping.py": {
    "emitted": {

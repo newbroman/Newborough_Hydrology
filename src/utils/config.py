@@ -44,7 +44,13 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.110.0"  # Hollingham (2026) - 2026-10-17 (T-125; spec NRG_spec_paper2_emit_keys_2026-10-17,
+__version__ = "1.112.0"  # Hollingham (2026) - 2026-10-24 (D-274; spec NRG_spec_E13b_pet_comparison_2026-10-24). E13b
+#   (Script 50 1.14.0): E13B_WINDOW_YEARS, E13B_RESID_SUMMER_MONTHS, E13B_RESID_WINTER_MONTHS (Script 24's seasons),
+#   E13B_RESID_WINTER_PHASE. Additive.
+# 1.111.0  # Hollingham (2026) - 2026-10-23 (D-273; spec NRG_spec_E13_build_2026-10-23, approved by Martin
+#   23:20 "Make e13 a proper step"). E13 (Script 50 1.13.0): E13_EXCESS_SHARE, E13_RMSE_TOL, E13_CLUSTERS,
+#   E13_BREAK_WINDOW, E13_MIN_LATER_MONTHS; MIDAS hourly-weather constants for utils/pet_alternatives.py. Additive.
+# 1.110.0  # Hollingham (2026) - 2026-10-17 (T-125; spec NRG_spec_paper2_emit_keys_2026-10-17,
 #   Martin 22:12 "constant in config"): CURRELI_SD16_SD15B_GAP_M = SD16 - SD15b, derived, not a new value.
 # 1.109.0  # Hollingham (2026) - 2026-10-16 (D-268; spec NRG_spec_cluster_vs_well_hindcast_2026-10-16,
 #   Martin 11:34): BASIS_TOL_NSE, BASIS_TOL_BIAS_M (Script 50 1.12.0, E12).
@@ -2236,6 +2242,39 @@ RANWELL_MEMORY_MONTHS       = 24
 # BASIS_TOL_BIAS_M or smaller); it is better if it beats the per-well median by more than BASIS_TOL_NSE.
 BASIS_TOL_NSE               = 0.05
 BASIS_TOL_BIAS_M            = 0.05
+# E13 (Script 50 1.13.0, D-273): does an evaporation estimate other than Thornthwaite, or a change in recharge, explain
+# the 2006-08 excess (D-231)? The rule, fixed before the first (scratch) run of 2026-10-22: an estimate explains it
+# only if, at every cluster in E13_CLUSTERS under Model A, it removes at least E13_EXCESS_SHARE of the 2006-08 excess,
+# worsens the forward out-of-sample RMSE by no more than E13_RMSE_TOL (a fraction), and does not move the CCW 1989-96
+# hindcast further from the readings. The beta_1 break is profiled monthly over E13_BREAK_WINDOW at every well with
+# E8E_MIN_EARLY_MONTHS readings in TWO_STORE_EARLY_YEARS and E13_MIN_LATER_MONTHS in E8E_LATER_YEARS; it is
+# supported only if a majority of those wells have a positive pre-break change whose 95% interval excludes zero and
+# the median share of the excess removed is at least E13_EXCESS_SHARE.
+E13_EXCESS_SHARE            = 0.5
+E13_RMSE_TOL                = 0.05
+E13_CLUSTERS                = (3, 4, 5)
+E13_BREAK_WINDOW            = ("2008-01-01", "2011-12-01")
+E13_MIN_LATER_MONTHS        = 60
+# MIDAS Open hourly weather for Valley (utils/pet_alternatives.py): a day needs MIDAS_DAY_MIN_HOURS hourly values of
+# a field (dew point was 3-hourly over MIDAS_DEWPOINT_3HOURLY_YEARS, where MIDAS_DEWPOINT_3HOURLY_MIN suffice);
+# measured radiation needs MIDAS_RAD_MIN_HOURS hourly values; a month needs MIDAS_MONTH_MIN_DAYS valid days. The
+# anemometer is at the WMO standard height. Monthly radiation-based PET gaps up to RADIATION_PET_FILL_MONTHS long
+# are interpolated.
+MIDAS_DAY_MIN_HOURS         = 18
+MIDAS_DEWPOINT_3HOURLY_YEARS = (1968, 1972)
+MIDAS_DEWPOINT_3HOURLY_MIN  = 7
+MIDAS_RAD_MIN_HOURS         = 22
+MIDAS_MONTH_MIN_DAYS        = 25
+MIDAS_ANEMOMETER_HEIGHT_M   = 10.0
+RADIATION_PET_FILL_MONTHS   = 2
+# E13b (Script 50 1.14.0, D-274): the PET comparison's two windows are the first and last E13B_WINDOW_YEARS complete
+# years of the MIDAS span (as report section 5.3 compares the first and last thirty for Thornthwaite); Script 24's
+# residual-seasonality test re-run under each PET uses Script 24's own seasons (it hard-codes JJA and DJF; named
+# here); a residual whose sinusoid phase month is >= E13B_RESID_WINTER_PHASE[0] or <= [1] is winter-phased (Script 24's test).
+E13B_WINDOW_YEARS               = 30
+E13B_RESID_SUMMER_MONTHS        = (6, 7, 8)
+E13B_RESID_WINTER_MONTHS        = (12, 1, 2)
+E13B_RESID_WINTER_PHASE         = (11, 3)
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to

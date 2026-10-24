@@ -1,0 +1,14 @@
+code,well,status,modern_cluster,n_readings,ccw_cluster,modern_record_group,censored_share
+1A,nw12,confirmed,4.0,78,4,4.0,0.04878048780487805
+1B,nw10,confirmed,4.0,19,3,3.0,0.7682926829268293
+1C,nw11,confirmed,3.0,82,3,3.0,0.0
+1D,nw13,confirmed,3.0,82,3,3.0,0.0
+1E,nw3,confirmed,2.0,82,2,1.0,0.0
+1F,nw4,confirmed,2.0,82,2,1.0,0.0
+2A,,unidentified,,82,3,,0.0
+2B,nw9,confirmed,5.0,82,3,2.0,0.0
+2C,wmc3,confirmed,3.0,67,1,3.0,0.18292682926829268
+2D,nw8,confirmed,5.0,81,1,2.0,0.012195121951219513
+2E,nw6,confirmed,3.0,82,2,3.0,0.0
+2F,nw5,confirmed,3.0,82,2,3.0,0.0
+2G,wmc2,confirmed,3.0,82,2,3.0,0.0

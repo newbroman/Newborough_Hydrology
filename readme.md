@@ -52,13 +52,13 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs the default pass (<!--PL:default-->54<!--/PL:default--> of <!--PL:total-->60<!--/PL:total--> registered steps) in order from the beginning |
+| **1 — Run full pipeline** | Runs the default pass (<!--PL:default-->54<!--/PL:default--> of <!--PL:total-->61<!--/PL:total--> registered steps) in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
 | **5 — Run supplementary diagnostics** | Runs scripts 22–24 (residual lag, ridge recharge, seasonality) |
 | **6 — Convert figures to greyscale** | Journal-ready B&W conversion (sub-options 6a quick / 6b full B&W re-run / 6h help) |
-| **7 — Show step list** | Lists all <!--PL:total-->60<!--/PL:total--> registered steps with script names and availability status |
+| **7 — Show step list** | Lists all <!--PL:total-->61<!--/PL:total--> registered steps with script names and availability status |
 
 For non-interactive use (e.g. in a batch job):
 
@@ -103,7 +103,7 @@ Newborough_Hydrology/
 │   │   └── scenario_viewer.html        ← self-contained interactive viewer (standalone)
 │   ├── outputs_bw/                      ← greyscale figure tree (Script 27, on demand; local only, not committed)
 │   └── [other output directories]
-├── src/                         Analysis scripts (<!--PL:total-->60<!--/PL:total--> steps; script 19 also builds the viewer)
+├── src/                         Analysis scripts (<!--PL:total-->61<!--/PL:total--> steps; script 19 also builds the viewer)
 │   ├── utils/
 │   │   ├── config.py            Cluster colours, labels, DRAINAGE_DATUM, HEADLINE_LAG, FOREST_INTERCEPTION
 │   │   ├── data_utils.py        Cleaning and normalisation helpers
@@ -144,14 +144,14 @@ Newborough_Hydrology/
 
 ## Pipeline Phases
 
-The pipeline comprises **<!--PL:total-->60<!--/PL:total--> registered steps across <!--PL:phases-->19<!--/PL:phases--> phases** (the committed
+The pipeline comprises **<!--PL:total-->61<!--/PL:total--> registered steps across <!--PL:phases-->20<!--/PL:phases--> phases** (the committed
 `outputs/pipeline_manifest.json` is the count; these numbers are stamped from it by
 `tools/sync_index_counts.py`). Those steps are classified two independent ways: by
 tier — <!--PL:analytical-->45<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
-(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->7<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->54<!--/PL:default--> run in a
-default pass, <!--PL:optin-->4<!--/PL:optin--> (Scripts 24b, 31, 31b and 50) only under `--with-supplementary`, and 2
+(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->8<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->54<!--/PL:default--> run in a
+default pass, <!--PL:optin-->5<!--/PL:optin--> (Scripts 24b, 31, 31b and 50) only under `--with-supplementary`, and 2
 (Scripts 27 greyscale conversion and 47 the century hindcast film) only on demand.
-The two breakdowns each account for the same <!--PL:total-->60<!--/PL:total--> steps and are not additive with
+The two breakdowns each account for the same <!--PL:total-->61<!--/PL:total--> steps and are not additive with
 one another. Current values are written to `outputs/pipeline_manifest.json` on
 every run — cite that file if it disagrees with this text. Validation
 checkpoints run after Phases 1, 3, 9, and 10.
@@ -201,6 +201,7 @@ colours and labels are centralised in `src/utils/config.py`.
 | 17 | 09f, 09g, 27, 43, 44 | 51–55 | Management-interventions-vs-coastal-retreat spatial-reach synthesis figure for §5.8 (09f, display/utility, two-pass — reads Scripts 20/25/09d/10a); mechanism grid + coastal reach for §5.8 (09g, display/utility — reads 09f/10m/10a); greyscale figure conversion utility (27, journal-ready B&W, on demand); Ranwell's 1959 water-table sites placed and basin-tested (43, display/utility) and his 1951–53 record set against the modern network and the SSM hindcast (44, analytical) |
 | 18 | 45, 46, 47 | 56–58 | Sentinel-2 wet-area model (D-178), all display tier: the two Band-8 slack-floor area curves against the median well level (45), its public feed `living/wet_area_model.json` (46), and the century hindcast film rendered on demand (47) — an illustration of the area–level relationship, not a flood map |
 | 19 | 48, 50 (opt-in) | 59–60 | The Pastas cross-check of the per-well SSM (an implementation check: Pastas fits a free base as Model B does) and the Model A against Model B evidence of D-217 — split-sample skill, model-free memory, identification, loss partition, and Model A at each well's depth to mean high water (48, analytical-default); and what the record length decides (50, opt-in diagnostic, D-222) — coefficient stability, forecast and hindcast skill, and the CCW 1989–96 hindcast at each length fitted |
+| 20 | 51 (opt-in) | 61 | Filling gaps in the record from cluster-mates (D-275): the CCW wells' 1989–96 grouping against the modern clusters, a hold-out test of five donor rules over an early and a late window (rule adopted by a rule fixed before the run), and every well's gaps filled by it — tested and partial products, flagged reconstructed and read by no other step |
 
 Phases 1–11 produce the main analytical results documented in the report. Phase 12
 (Scripts 22–24) runs supplementary residual diagnostics. Phase 13 runs the van

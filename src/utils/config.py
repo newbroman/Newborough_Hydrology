@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.113.0"  # Hollingham (2026) - 2026-10-24 (D-274): E13B_SEASON_A_MONTHS, E13B_SEASON_B_MONTHS. Additive.
+__version__ = "1.114.0"  # Hollingham (2026) - 2026-10-24 (D-275; spec NRG_spec_cluster_gap_filling_2026-10-24). Script 51:
+#   DONOR_*, GAPFILL_*. Additive.
+# 1.113.0  # Hollingham (2026) - 2026-10-24 (D-274): E13B_SEASON_A_MONTHS, E13B_SEASON_B_MONTHS. Additive.
 # 1.112.0  # Hollingham (2026) - 2026-10-24 (D-274; spec NRG_spec_E13b_pet_comparison_2026-10-24). E13b
 #   (Script 50 1.14.0): E13B_WINDOW_YEARS, E13B_RESID_SUMMER_MONTHS, E13B_RESID_WINTER_MONTHS (Script 24's seasons),
 #   E13B_RESID_WINTER_PHASE. Additive.
@@ -2280,6 +2282,36 @@ E13B_SEASON_B_MONTHS            = (7, 8, 9, 10)
 E13B_RESID_SUMMER_MONTHS        = (6, 7, 8)
 E13B_RESID_WINTER_MONTHS        = (12, 1, 2)
 E13B_RESID_WINTER_PHASE         = (11, 3)
+
+# Script 51 (D-275): filling gaps in the record from cluster-mates. A donor is a well read through the
+# hidden months whose line h_target = a + b*h_donor is fitted over at least DONOR_MIN_OVERLAP_MONTHS read by
+# both, with r >= DONOR_MIN_R for the nearest-type rules; a donor within DONOR_TWIN_EXCLUDE_M is a twin and
+# is excluded from the headline. The hold-out hides GAPFILL_HOLDOUT_MONTHS from GAPFILL_EARLY_START (the
+# late-starting wells' own gap, holding the 2006-08 excess) and the same length ending at
+# REFERENCE_CUTOFF_DATE; a well is a target, or a donor, when it was read in at least
+# GAPFILL_MIN_WINDOW_COVER of the window. The cluster median needs GAPFILL_MIN_CLUSTER_MEMBERS read that
+# month. The rule adopted is the one with the lowest pooled median |MSL error|, or, within its bootstrap
+# 95% interval (GAPFILL_N_BOOT), the first of GAPFILL_RULE_ORDER (simplest first). The CCW 1989-96 grouping
+# is durable if its adjusted Rand index beats GAPFILL_N_PERM permutations at E8E_P and at least
+# GAPFILL_DURABLE_PAIR_SHARE of the same-cluster pairs share a 1989-96 group. Values: spec, Martin 22:47.
+DONOR_MIN_R                     = 0.95
+DONOR_TWIN_EXCLUDE_M            = 50.0
+DONOR_MIN_OVERLAP_MONTHS        = 48
+GAPFILL_HOLDOUT_MONTHS          = 54
+GAPFILL_EARLY_START             = "2006-03-01"
+GAPFILL_MIN_WINDOW_COVER        = 0.8
+GAPFILL_MIN_CLUSTER_MEMBERS     = 2
+GAPFILL_N_BOOT                  = 2000
+GAPFILL_N_PERM                  = 10000
+GAPFILL_SEED                    = 20261024
+GAPFILL_DURABLE_PAIR_SHARE      = 2 / 3
+GAPFILL_RULE_ORDER              = ("cluster_median", "nearest_cluster", "nearest", "best_r")
+# The "partial" product (Martin, 2026-10-24 23:05): a donor read in at least this share of a gap may fill the
+# months it was read. A separately stated rule the hold-out did not test; the tested product stays the headline.
+GAPFILL_PRODUCT_PARTIAL_COVER   = 0.5
+# Script 51 sensitivity (outside the rule): a CCW well with more than this share of its 1989-96 readings held at the
+# pipe base is left out of the second sensitivity run (Martin, 2026-10-24 23:18).
+GAPFILL_CCW_MAX_CENSORED_SHARE  = 0.1
 
 # Script 19 - the scenario viewer's water table (D-205 extended). The viewer draws head and depth to
 # water as W.h + c: Script 01b's mean-state kriging weights on a fixed grid, applied in the browser to

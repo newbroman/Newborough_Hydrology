@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-24T09:43:02",
+ "generated": "2026-10-24T21:47:24",
  "orchestrator": "2.25.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1556,11 +1556,11 @@
     "outputs/50_record_length/50_33_e13_beta1_break_by_well.csv": "bd27a1e11237f2cd504e6011e199c8388588640b1d847be1013503a6d3471ba8",
     "outputs/50_record_length/50_34_e13_weather_summary.csv": "4ae572593c320f2b5b0615923d2034d46702a44f906788914997fd46f8ca9a0a",
     "outputs/50_record_length/50_35_e13.png": "429ee24da9d6c0bff194dfcb48a166b349ad5c319c1e7beebccadecc28ba9693",
-    "outputs/50_record_length/50_36_pet_comparison.csv": "4e6749f7cbb3ac0f5024077113f5ce36262a02e9fe0a6ea1ede606bae22a6a90",
+    "outputs/50_record_length/50_36_pet_comparison.csv": "1e9ae40b8e5820da363ad7b30da205741f45fde259e3983ecaa612fae48d0e09",
     "outputs/50_record_length/50_37_pet_comparison.png": "8efbf81bac66ece78d553ffc40e8d6080d81e8e953b745f3bcf4d7ec3efce425",
     "outputs/50_record_length/50_38_residual_seasonality_pm.csv": "0ab627ec5a36969b401923448744d1a5dea365676c238baf20dac78028ff0aa8",
     "outputs/50_record_length/50_39_midas_annual_inputs.csv": "3b3b702337ea0b811bec73928bd25dcef483e6e77ffe1e19196d10daad9f4217",
-    "outputs/50_record_length/50_report_numbers.csv": "c4b31709ced74e02f5d84aaf7635e3538a33b53caa49071658d670e9817b2659"
+    "outputs/50_record_length/50_report_numbers.csv": "ba203dff718b651a9d68f8551558f85038bc30c3c425779e451bb73945e68c82"
    },
    "fallbacks": [],
    "inputs": {
@@ -1590,9 +1590,9 @@
    "inputs_unresolved": [
     "2015.kml"
    ],
-   "seconds": 1873.0,
-   "started": "2026-10-24T09:11:49",
-   "version": "1.14.0"
+   "seconds": 1950.3,
+   "started": "2026-10-24T21:14:53",
+   "version": "1.14.1"
   },
   "run_09_scraping.py": {
    "emitted": {

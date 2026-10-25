@@ -18,8 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.29.0 - 2026-10-15
+# VERSION 1.30.0 - 2026-10-25
 # CHANGELOG
+#   1.30.0 (2026-10-25): references gate runs repoint_refs --selftest (1.7.0) first: the
+#     matcher's refusals (block crossing, script figure ids, filename stems) are what kept
+#     the 2026-10-25a renumber from corrupting 18 Methods Supplement labels only after the
+#     fact; a selftest that nothing runs rots.
 #   1.29.0 (2026-10-15): claims gate also runs cite_check --selftest-claims (1.35.0): the
 #     outside/inside/cmp rules, whose bounds are pipeline values, must be able to come out false
 #     (spec NRG_spec_claims_range_rules_2026-10-15).
@@ -638,6 +642,9 @@ echo "── references (do typed Table/Figure numbers still resolve?) ───
 # Captions auto-number; in-text references are typed by hand and fall out of
 # step silently. Read from the ODTs in master order, so no PDF export is needed
 # and the check cannot run on a stale artefact.
+# The renumber matcher's own cases (1.30.0): repoint_refs is run only at renumber
+# time, so its regressions would otherwise surface as corrupted documents.
+python3 tools/repoint_refs.py --selftest >/dev/null || { echo "  repoint_refs --selftest: FAIL"; rc=1; }
 python3 tools/reference_lint.py --kind table || rc=1
 # FIGURES, since 2026-09-01. nrg_git.sh runs figref_lint at push time and its own
 # comment says what that does NOT cover: "Semantic mistakes (a reference pointing

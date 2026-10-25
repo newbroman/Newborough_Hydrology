@@ -63,7 +63,16 @@ Exit 0 if every reference moved exactly as planned, 1 otherwise.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-19. First issue, the day
+__version__ = "1.1.0"  # 2026-10-25. Refuses the three non-references that
+#   repoint_refs 1.7.0 refuses, written here independently (this file never
+#   imports the matcher it checks). On the 2026-10-25a renumber this verifier
+#   would have passed all 18 false moves in the Methods Supplement: `\s+` let
+#   "Supplementary figure" at the end of one --wrap=none table row run into
+#   "17_wtf_03_..." on the next, and "script figure 21-01" read as Figure 21.
+#   A reference now never crosses a newline, is never preceded by "script",
+#   and is never followed by "_" (a filename stem) or "-0N" (a script id).
+#   Without this, a correct 1.7.0 pass would read here as NOT MOVED.
+# 1.0.0  # Hollingham (2026) — 2026-09-19. First issue, the day
 #   after nothing in check_all could see a reference that had been moved twice.
 
 import argparse
@@ -77,9 +86,12 @@ import sys
 # Kept deliberately separate from repoint_refs' own patterns — a verifier that
 # imports the matcher it is verifying cannot see a matcher bug.
 PAT = {
-    "figure": re.compile(r"(?i)\bfig(?:ure)?s?\.?\s+(\d{1,3})(?!\d)(?!\.\d)"),
-    "table":  re.compile(r"(?i)\btab(?:le)?s?\.?\s+(\d{1,3})(?!\d)(?!\.\d)"),
+    "figure": re.compile(r"(?i)\bfig(?:ure)?s?\.?[^\S\n]+(\d{1,3})(?!\d)(?!\.\d)(?!_)(?!-0\d)"),
+    "table":  re.compile(r"(?i)\btab(?:le)?s?\.?[^\S\n]+(\d{1,3})(?!\d)(?!\.\d)(?!_)(?!-0\d)"),
 }
+# 1.1.0: a reference after the word "script" is a script figure id, not a
+# report figure ("script figure 21-01", "script figures 21-03").
+_AFTER_SCRIPT = re.compile(r"(?i)\bscript[^\S\n]+$")
 
 
 def _git(*args) -> str:
@@ -91,6 +103,8 @@ def _refs(text: str, kind: str):
     """[(value, start_of_digits, end_of_digits)] in document order."""
     out = []
     for m in PAT[kind].finditer(text):
+        if _AFTER_SCRIPT.search(text, max(0, m.start() - 24), m.start()):
+            continue
         out.append((int(m.group(1)), m.start(1), m.end(1)))
     return out
 

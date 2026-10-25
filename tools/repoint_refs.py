@@ -31,10 +31,37 @@ WHAT IT REFUSES TO DO
 Usage:
     python3 tools/repoint_refs.py --dry-run
     python3 tools/repoint_refs.py --apply
+    python3 tools/repoint_refs.py --selftest
 """
 from __future__ import annotations
 
-__version__ = "1.6.1"  # 2026-09-19. --abbrev-only now REFUSES unless
+__version__ = "1.7.0"  # 2026-10-25. THREE NON-REFERENCES REFUSED. The
+#   2026-10-25a renumber (16-85 -> 17-86) moved numbers in the Methods
+#   Supplement that were never figure references, and csv_mention_lint caught
+#   them only on the second ship attempt:
+#   (1) BLOCK CROSSING. _text_view() puts a newline at every block end, and the
+#       FIG/SEC/TAB gap was `\s`, which includes it. A table cell ending
+#       "Supplementary figure" fused with the NEXT cell's "17_wtf_03_..." and
+#       the 17 was moved (17_wtf_03, 17_wtf_05, 18_wtf_04, 18_wtf_05, the
+#       25_coastal_gradient paths). 13 such cells in MS v2_0_105 alone; one
+#       ("figures" / "10e") was spared only because 10 was not in the plan.
+#       A reference never spans a line or block boundary on any surface this
+#       tool reads: the ODT text view, the --wrap=none mirrors, the repo texts.
+#       The gap and the PLURAL region now stop at a newline.
+#   (2) SCRIPT FIGURE. SCRIPT_FIG was defined at 1.2.x and never USED: only
+#       PLURAL carried a "script " lookbehind, so singular "script figure 21-01"
+#       moved its 21 (9 occurrences). The prefix is now checked for every
+#       figure/table match, plural or singular, by a function rather than by a
+#       fixed-width lookbehind.
+#   (3) FILENAME / SCRIPT ID. A digit run followed by "_" is a filename stem,
+#       and one followed by "-0N" is a script figure id (a range never ends on
+#       a zero-padded number); neither is a reference wherever it stands.
+#   Refusals are NOT "left for review" (they are not references). Those that
+#   carry a number the plan would have moved are printed as "refused", so a
+#   genuine reference wrongly refused would still be visible (D-068).
+#   tools/repoint_verify.py 1.1.0 refuses the same three forms, independently.
+#
+# v1.6.1  # 2026-09-19. --abbrev-only now REFUSES unless
 #   --pre-1-6-catchup is also given. It was written as a one-off catch-up for
 #   "Fig N", which no matcher before 1.6.0 could see. At 1.6.0 the FIG pattern
 #   itself gained `\bfigs?\.?(?=\s*\d)`, so a default pass ALREADY moves the
@@ -199,6 +226,28 @@ RANGE = re.compile(r'(\d{1,3})\s*[–—-]\s*(\d{1,3})')
 # currently collides with a moving report number, but a matcher that cannot tell
 # them apart is one renumber away from corrupting a script reference.
 SCRIPT_FIG = re.compile(r'(?i)\bscript\s+figures?\b')
+# Used, since 1.7.0, through _refusal(): the text just before a figure or table
+# word. (Defined at 1.2.x and never referenced until then.)
+_SCRIPT_PREFIX = re.compile(r'(?i)\bscript\s+$')
+_SCRIPT_ID_TAIL = re.compile(r'-0\d')
+
+
+def _refusal(text: str, word_start: int, gap: str, d_end: int,
+             kind: str) -> str | None:
+    """Why a matched word + number is NOT a reference, or None if it is one.
+
+    1.7.0. Each reason is a false move that reached a shipped document.
+    """
+    if "\n" in gap:
+        return "crosses a line or block boundary"
+    if kind in ("figure", "table") and _SCRIPT_PREFIX.search(
+            text[max(0, word_start - 24):word_start]):
+        return "script figure id"
+    if text[d_end:d_end + 1] == "_":
+        return "filename stem"
+    if kind in ("figure", "table") and _SCRIPT_ID_TAIL.match(text, d_end):
+        return "script id (NN-0N)"
+    return None
 
 
 
@@ -353,9 +402,15 @@ def _section_guard(sec: dict) -> list[str]:
 
 
 def spans_for(text_or_xml: str, fig: dict, sec: dict, tab: dict | None = None,
-              is_xml: bool = True):
-    """[(start, end, new, kind, old)] in XML coordinates, plus notes."""
+              is_xml: bool = True, refused: list | None = None):
+    """[(start, end, new, kind, old)] in XML coordinates, plus notes.
+
+    `refused`, if given, collects (kind, number, reason, context) for every
+    non-reference (see _refusal) whose number the plan WOULD have moved.
+    """
     tab = tab or {}
+    if refused is None:
+        refused = []
     if is_xml:
         text, idx = _text_view(text_or_xml)
         caps = _caption_ranges(text_or_xml)
@@ -384,6 +439,12 @@ def spans_for(text_or_xml: str, fig: dict, sec: dict, tab: dict | None = None,
         for m in rx.finditer(text):
             num = m.group(3)
             new = table.get(num)
+            why = _refusal(text, m.start(1), m.group(2), m.end(3), kind)
+            if why:
+                if new is not None and new != num:
+                    refused.append((kind, num, why,
+                                    text[max(0, m.start() - 30):m.end(3) + 12]))
+                continue
             if kind == "section" and sec and known and num not in known and new is None:
                 # a typed section number that is no heading anywhere: not moved,
                 # but said, because it is exactly the stale reference a renumber
@@ -396,6 +457,17 @@ def spans_for(text_or_xml: str, fig: dict, sec: dict, tab: dict | None = None,
 
     for m in PLURAL.finditer(text):
         region, base = m.group(1), m.start(1)
+        # 1.7.0: a list stops at a line or block boundary, and a plural
+        # "script figures" is a list of script ids
+        cut = region.find("\n")
+        if cut >= 0:
+            region = region[:cut]
+        if _SCRIPT_PREFIX.search(text[max(0, m.start() - 24):m.start()]):
+            for nm in NUM.finditer(region):
+                if fig.get(nm.group(0), nm.group(0)) != nm.group(0):
+                    refused.append(("figure", nm.group(0), "script figure id",
+                                    text[max(0, m.start() - 30):base + len(region)]))
+            continue
         for rm in RANGE.finditer(region):
             lo, hi = rm.group(1), rm.group(2)
             if lo in fig or hi in fig:
@@ -407,16 +479,29 @@ def spans_for(text_or_xml: str, fig: dict, sec: dict, tab: dict | None = None,
             new = fig.get(num)
             if new is None or new == num:
                 continue
-            add(base + nm.start(), base + nm.end(), new, "figure", num)
+            end = base + nm.end()
+            if text[end:end + 1] == "_" or _SCRIPT_ID_TAIL.match(text, end):
+                refused.append(("figure", num, "filename stem or script id",
+                                text[max(0, m.start() - 30):end + 12]))
+                continue
+            add(base + nm.start(), end, new, "figure", num)
 
     for m in PLURAL_TAB.finditer(text):
         region, base = m.group(1), m.start(1)
+        cut = region.find("\n")
+        if cut >= 0:
+            region = region[:cut]
         for nm in NUM.finditer(region):
             num = nm.group(0)
             new = tab.get(num)
             if new is None or new == num:
                 continue
-            add(base + nm.start(), base + nm.end(), new, "table", num)
+            end = base + nm.end()
+            if text[end:end + 1] == "_" or _SCRIPT_ID_TAIL.match(text, end):
+                refused.append(("table", num, "filename stem or script id",
+                                text[max(0, m.start() - 30):end + 12]))
+                continue
+            add(base + nm.start(), end, new, "table", num)
 
     for word, plan in (("figure", fig), ("table", tab)):
         rx = re.compile(rf'(?i)\b{word}\s+\d{{1,3}}\s*(?:and|,)\s*(\d{{1,3}})\b')
@@ -436,13 +521,18 @@ def process(name, path, fig, sec, tab, apply_):
     is_odt = p.suffix in (".odt", ".odm")
     text = (zipfile.ZipFile(p).read("content.xml").decode("utf-8") if is_odt
             else p.read_text(encoding="utf8"))
-    spans, skipped = spans_for(text, fig, sec, tab, is_xml=is_odt)
+    refused: list = []
+    spans, skipped = spans_for(text, fig, sec, tab, is_xml=is_odt,
+                               refused=refused)
     kinds = {"figure": 0, "section": 0, "table": 0}
     for _, _, _, k, _ in spans:
         kinds[k] += 1
     print(f"  {name:<32} figure {kinds['figure']:>4}   section {kinds['section']:>4}"
           f"   table {kinds['table']:>4}"
-          f"   not matched: {len(skipped)}")
+          f"   not matched: {len(skipped)}"
+          + (f"   refused: {len(refused)}" if refused else ""))
+    for kind, num, why, ctx in refused:
+        print(f"      refused {kind} {num} ({why}): {ctx!r}")
     if not apply_ or not spans:
         return spans, skipped
     payload = [(a, b, new) for a, b, new, _, _ in spans]
@@ -459,9 +549,62 @@ def process(name, path, fig, sec, tab, apply_):
     return spans, skipped
 
 
+# (input, figure plan, expected output) — every case is a form seen in the
+# corpus. The first four are the 2026-10-25a false moves; the rest are genuine
+# references that must keep moving. Run with --selftest.
+_SELFTEST = [
+    ("Supplementary figure\n17_wtf_03_event_boxplot.png", {"17": "18"},
+     "Supplementary figure\n17_wtf_03_event_boxplot.png"),
+    ("For script figure 21-01 (synthetic)", {"21": "22"},
+     "For script figure 21-01 (synthetic)"),
+    ("script figures 21-03 (scraping-era)", {"21": "22"},
+     "script figures 21-03 (scraping-era)"),
+    ("a new figure 25_07_cluster_decomposition.png", {"25": "26"},
+     "a new figure 25_07_cluster_decomposition.png"),
+    ("4-panel figures\n10e", {"10": "11"}, "4-panel figures\n10e"),
+    ("shown in Figure 17.", {"17": "18"}, "shown in Figure 18."),
+    ("Figure 17a shows", {"17": "18"}, "Figure 18a shows"),
+    ("report Fig 59 and", {"59": "60"}, "report Fig 60 and"),
+    ("Figures 17 and 18", {"17": "18", "18": "19"}, "Figures 18 and 19"),
+    ("Figures 17–19 show", {"17": "18", "18": "19", "19": "20"},
+     "Figures 18–20 show"),
+    ("see Table 4,", {}, "see Table 4,"),
+]
+
+
+def _selftest() -> int:
+    bad = 0
+    for src, fig, want in _SELFTEST:
+        spans, _ = spans_for(src, fig, {}, {}, is_xml=False)
+        got = src
+        for a, b, new, *_ in reversed(spans):
+            got = got[:a] + new + got[b:]
+        ok = got == want
+        bad += not ok
+        print(f"  {'ok  ' if ok else 'FAIL'}  {src!r} -> {got!r}")
+    # the ODT text view: a cell ending "figure" and a cell starting with a number
+    xml = ('<table:table-cell><text:p>Supplementary figure</text:p>'
+           '</table:table-cell><table:table-cell><text:p>17_wtf_03.png'
+           '</text:p></table:table-cell><text:p>see Figure <text:span>1'
+           '</text:span>7.</text:p>')
+    spans, _ = spans_for(xml, {"17": "18"}, {}, {}, is_xml=True)
+    out = xml
+    for a, b, new, *_ in reversed(spans):
+        out = out[:a] + new + out[b:]
+    got = _text_view(out)[0]
+    ok = "17_wtf_03.png" in got and "see Figure 18." in got
+    bad += not ok
+    print(f"  {'ok  ' if ok else 'FAIL'}  ODT: cell boundary refused, split-run "
+          f"reference moved -> {got!r}")
+    print(f"repoint_refs selftest: {'OK' if not bad else f'FAIL ({bad})'}")
+    return 1 if bad else 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--selftest", action="store_true",
+                    help="run the built-in matcher cases and exit")
     ap.add_argument("--dry-run", action="store_true")
     # Re-running --apply over an already-applied document DOUBLE-APPLIES the
     # permutation: 63 becomes 56, and a second pass reads that 56 as an old
@@ -504,6 +647,8 @@ def main() -> int:
                     help="comma-separated: figure, section, table (default "
                          "figure,section)")
     args = ap.parse_args()
+    if args.selftest:
+        return _selftest()
     if not (args.apply or args.dry_run):
         ap.error("choose --dry-run or --apply")
     if args.symbol_only and args.missed_only:

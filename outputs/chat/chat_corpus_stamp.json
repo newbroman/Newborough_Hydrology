@@ -1,11 +1,11 @@
 {
- "source_sha256": "2c3d1bfb38d5fee4b5238c53398e44fc63f11a16faeaa08ebeda6f5c594d49b1",
+ "source_sha256": "78bae94ea12b2480fe2923898514d18a6e39e6115fcadb2116475af681219e70",
  "page_sha256": "fc04711a322b47576f2323c4db64fba335ff8d4bc0de683884522bc055a33504",
  "builder": "tools/build_chat_corpus.py 1.1.2",
  "counts": {
-  "sources": 103,
-  "chunks": 1361,
-  "numbers": 6561,
+  "sources": 105,
+  "chunks": 1367,
+  "numbers": 6632,
   "references": 17
  },
  "sources": [
@@ -107,6 +107,8 @@
   "outputs/48_pastas_crosscheck/48_report_numbers.csv",
   "outputs/50_record_length/50_report_numbers.csv",
   "outputs/51_cluster_gap_fill/51_report_numbers.csv",
+  "outputs/53_ccw_forest_drift/53_report_numbers.csv",
+  "outputs/54_dry_year_hysteresis/54_report_numbers.csv",
   "tools/figure_map.csv",
   "outputs/02_cluster_stats.csv",
   "outputs/pipeline_manifest.json",

@@ -18,8 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.30.0 - 2026-10-25
+# VERSION 1.31.0 - 2026-10-25
 # CHANGELOG
+#   1.31.0 (2026-10-25): references gate gains tools/paper_refs.py (--selftest, then the check):
+#     the papers type their caption numbers, alt text and references by hand, and nothing
+#     checked any of them; reference_lint reads only the report master. Caption meanings are
+#     pinned in tools/paper_caption_snapshot.csv.
 #   1.30.0 (2026-10-25): references gate runs repoint_refs --selftest (1.7.0) first: the
 #     matcher's refusals (block crossing, script figure ids, filename stems) are what kept
 #     the 2026-10-25a renumber from corrupting 18 Methods Supplement labels only after the
@@ -646,6 +650,9 @@ echo "── references (do typed Table/Figure numbers still resolve?) ───
 # time, so its regressions would otherwise surface as corrupted documents.
 python3 tools/repoint_refs.py --selftest >/dev/null || { echo "  repoint_refs --selftest: FAIL"; rc=1; }
 python3 tools/reference_lint.py --kind table || rc=1
+# The papers (1.31.0): typed captions, alt text and references, per paper family.
+python3 tools/paper_refs.py --selftest >/dev/null || { echo "  paper_refs --selftest: FAIL"; rc=1; }
+python3 tools/paper_refs.py --quiet || rc=1
 # FIGURES, since 2026-09-01. nrg_git.sh runs figref_lint at push time and its own
 # comment says what that does NOT cover: "Semantic mistakes (a reference pointing
 # at the wrong existing figure) are NOT caught here." figref_lint asks whether a

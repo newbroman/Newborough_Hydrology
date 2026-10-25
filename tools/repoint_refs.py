@@ -35,7 +35,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # 2026-10-25. THREE NON-REFERENCES REFUSED. The
+__version__ = "1.8.0"  # 2026-10-25. --scope: the papers. Until now every pass ran over the
+#   report family (the chapters, the master, the Methods Supplement, the Supplementary Material,
+#   the academic summary and three repo texts), because those documents cite REPORT figure
+#   numbers. The papers number their own figures and tables, so a report plan must never touch
+#   them and a paper plan must never touch the report. --scope paper1|paper2|paperM runs over
+#   that family only (the paper, its SI and its plain companion; tools/paper_refs.py FAMILIES)
+#   and REQUIRES --plan, so the report's renumber_plan.csv can never be applied to a paper by
+#   default. Paper captions and alt text are typed, so the same pass moves them with the
+#   references (tools/paper_refs.py checks the result). Matchers unchanged.
+# 1.7.0  # 2026-10-25. THREE NON-REFERENCES REFUSED. The
 #   2026-10-25a renumber (16-85 -> 17-86) moved numbers in the Methods
 #   Supplement that were never figure references, and csv_mention_lint caught
 #   them only on the second ship attempt:
@@ -643,6 +652,10 @@ def main() -> int:
     ap.add_argument("--missed-only", action="store_true",
                     help="only references immediately followed by '.' — repairs "
                          "a v1.0 pass, and is a no-op on anything else")
+    ap.add_argument("--scope", default="report",
+                    help="report (default: the report family) or a paper family from "
+                         "tools/paper_refs.py (paper1, paper2, paperM); a paper scope "
+                         "requires --plan")
     ap.add_argument("--kind", default="figure,section",
                     help="comma-separated: figure, section, table (default "
                          "figure,section)")
@@ -720,7 +733,21 @@ def main() -> int:
     print(f"  plan: {len(fig)} figure, {len(sec)} section and {len(tab)} "
           f"table mapping(s)\n")
     tot_f = tot_s = tot_t = tot_skip = 0
-    jobs = list(ODTS.items()) + [(t, t) for t in TEXTS]
+    if args.scope == "report":
+        jobs = list(ODTS.items()) + [(t, t) for t in TEXTS]
+    else:
+        from paper_refs import FAMILIES, current
+        if args.scope not in FAMILIES:
+            ap.error(f"unknown scope {args.scope!r}: report or one of {', '.join(FAMILIES)}")
+        if not args.plan:
+            ap.error(f"--scope {args.scope} needs --plan: the default renumber_plan.csv is "
+                     f"the REPORT's, and applying it to a paper would move the wrong numbers")
+        if "section" in kinds:
+            ap.error("a paper scope moves figures and tables only (--kind figure or table)")
+        stem, others = FAMILIES[args.scope]
+        jobs = [(q.stem, str(q.relative_to(REPO)))
+                for q in (current(x) for x in [stem] + others) if q]
+        print(f"  scope {args.scope}: {', '.join(j[0] for j in jobs)}\n")
     if args.only:
         # "readme.md" is a SUBSTRING of "PIPELINE_README.md", so a substring
         # filter meant for one of them silently selects both — and a second run

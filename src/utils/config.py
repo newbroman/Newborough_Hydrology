@@ -44,7 +44,12 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.114.0"  # Hollingham (2026) - 2026-10-24 (D-275; spec NRG_spec_cluster_gap_filling_2026-10-24). Script 51:
+__version__ = "1.115.0"  # Hollingham (2026) - 2026-10-25 (spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25,
+#   approved Martin 07:36). Script 53: E14_NEAR_M, E14_SPAN, E14_N_BOOT, E14_SEED, E14_LOO_MIN_PASS,
+#   E14_STEP_TAU_MONTHS; Script 54 (spec NRG_spec_E15_dry_year_hysteresis_2026-10-25, approved Martin 07:41):
+#   E15_DRY_PCTL, E15_WET_PCTL, E15_LAG_YEARS, E15_WINDOW_MONTHS, E15_SHARE, E15_MIN_WINDOW_COVER,
+#   E15_CLUSTERS_JUDGED, E15_MIN_CLUSTERS. Additive only.
+# 1.114.0  # Hollingham (2026) - 2026-10-24 (D-275; spec NRG_spec_cluster_gap_filling_2026-10-24). Script 51:
 #   DONOR_*, GAPFILL_*. Additive.
 # 1.113.0  # Hollingham (2026) - 2026-10-24 (D-274): E13B_SEASON_A_MONTHS, E13B_SEASON_B_MONTHS. Additive.
 # 1.112.0  # Hollingham (2026) - 2026-10-24 (D-274; spec NRG_spec_E13b_pet_comparison_2026-10-24). E13b
@@ -3439,3 +3444,37 @@ SLACK_FLOW_BAY_LANDWARD_AZ        = (0.0, 110.0)
 SLACK_FLOW_SHORE_TANGENT_M        = 200.0
 SLACK_FLOW_TRANSECT_STEP_M        = 5.0
 SLACK_FLOW_EXTRA_TRANSECTS        = ()   # ((name, (E0, N0), (E1, N1)), ...) Martin's named lines
+
+# E14 (Script 53, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25, approved Martin 07:36): did the water
+# table near the forest fall relative to the climate model through the CCW epoch? Per admitted CCW well, the
+# OLS slope of its Script 39 residual (model - observed) over E14_SPAN, against its distance to today's forest
+# edge (inside counts as 0). Test 1: Spearman rho negative at p < E8E_P by exact permutation. Test 2: near
+# (<= E14_NEAR_M) minus far median slope positive, bootstrap interval clear of zero (E14_N_BOOT, E14_SEED).
+# Test 3: both keep their sign with each well dropped, and test 2's interval stays clear at E14_LOO_MIN_PASS
+# of the drops. Test 4: both hold on the full-record coefficients. The relaxing-step dating of the near-far
+# difference profiles its date and e-fold time over E14_STEP_TAU_MONTHS; it is reported, never judged.
+E14_NEAR_M          = 250.0
+E14_SPAN            = ("1989-05", "1996-04")
+E14_N_BOOT          = 10000
+E14_SEED            = 20261025
+E14_LOO_MIN_PASS    = 8
+E14_STEP_TAU_MONTHS = (1, 3, 6, 12, 24, 48)
+
+# E15 (Script 54, spec NRG_spec_E15_dry_year_hysteresis_2026-10-25, approved Martin 07:41): does a dry year
+# prime the warren? Hydrological years (Oct-Sep) are ranked by P - PET over the whole RAF Valley record. A
+# dry-to-wet sequence is a year at or below the E15_DRY_PCTL percentile followed within E15_LAG_YEARS by one at
+# or above E15_WET_PCTL; a control is a wet year whose two preceding years are both above E15_DRY_PCTL. Each is
+# measured over the E15_WINDOW_MONTHS from the October that opens its first wet year, as the mean residual of
+# the E13 single store (cluster member-mean centroid, Model A, full record, free run) minus the mean over every
+# month in no window; scored only where the centroid has E15_MIN_WINDOW_COVER of the window. Test 1: each later
+# sequence shows at least E15_SHARE of its cluster's 2005-sequence response, positive, at E15_MIN_CLUSTERS of
+# E15_CLUSTERS_JUDGED. Test 2: the median over the sequences exceeds the median over the controls at
+# E15_MIN_CLUSTERS of them.
+E15_DRY_PCTL         = 20
+E15_WET_PCTL         = 65
+E15_LAG_YEARS        = 2
+E15_WINDOW_MONTHS    = 24
+E15_SHARE            = 0.5
+E15_MIN_WINDOW_COVER = 0.75
+E15_CLUSTERS_JUDGED  = (2, 3, 4, 5)
+E15_MIN_CLUSTERS     = 3

@@ -76,7 +76,14 @@ Run directly:  python3 src/51_cluster_gap_fill.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-24 (D-275; Martin 21:32 "clustering suggests a way of filling
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-25. Two claims made in prose had no key to
+#   bind (owed by 2026-10-25a): "less than half as much as Model A" (report10, Paper M) and the
+#   "two-thirds" pair-share threshold (report8). Emitted now, from values already computed:
+#   gapfill_<pooled|early|late>_adopted_to_model_a_msl_err_ratio (adopted rule's median |MSL
+#   error| over Model A's, twins excluded) and gapfill_ccw_pair_share_threshold
+#   (GAPFILL_DURABLE_PAIR_SHARE). Martin 2026-10-25 06:52 "build the ratio claim". No method
+#   change; every existing key and output is unchanged.
+# 1.0.0  # Hollingham (2026) - 2026-10-24 (D-275; Martin 21:32 "clustering suggests a way of filling
 #   in missing records", 21:40 the spec's calls, 22:47 "proceed", the Paper 1 split; spec
 #   NRG_spec_cluster_gap_filling_2026-10-24). First issue; the CCW pipe-base sensitivities added on Martin's 23:18 note.
 
@@ -522,6 +529,8 @@ def report_numbers(cd, sc, adopted, best_rule, dr, pairs, recon, pairs_p, recon_
             rr.add(f"gapfill_ccw_{k}", cd[k], unit="" if k in ("ari", "pair_share", "control_ari", "sens_ari_censored_kept",
                                                             "sens_ari_low_censored") else ("p" if k == "p" else "count"),
                    note=f"CCW wells, {cd['span']}, clustered as Script 02 and compared with the modern clusters (D-275)")
+        rr.add("gapfill_ccw_pair_share_threshold", float(GAPFILL_DURABLE_PAIR_SHARE), unit="fraction",
+               note="GAPFILL_DURABLE_PAIR_SHARE: the pair share the durability rule requires (D-275)")
         rr.add("gapfill_ccw_durable", "durable" if cd["durable"] else "not shown", unit="text",
                note="the rule fixed before the run: p < E8E_P and pair share >= GAPFILL_DURABLE_PAIR_SHARE (D-275)")
     for r in sc.itertuples():
@@ -536,6 +545,14 @@ def report_numbers(cd, sc, adopted, best_rule, dr, pairs, recon, pairs_p, recon_
             rr.add(f"{key}_same_cluster_share", r.same_cluster_share, unit="fraction",
                    note="share of chosen donors in the target's cluster (D-275)")
     rr.add("gapfill_adopted_rule", adopted, unit="text", note="adopted by the rule fixed before the run (D-275)")
+    # 1.1.0: the adopted rule's error as a share of Model A's, per window (twins excluded), so
+    # "less than half as much" and its early/late comparison bind to a committed value.
+    ex = sc[sc["twins"] == "excluded"].set_index(["window", "rule"])["msl_abs_err_median"]
+    for w in ("pooled", "early", "late"):
+        a, m = ex.get((w, adopted), np.nan), ex.get((w, "ssm_model_a"), np.nan)
+        if pd.notna(a) and pd.notna(m) and m > 0:
+            rr.add(f"gapfill_{w}_adopted_to_model_a_msl_err_ratio", float(a / m), unit="ratio",
+                   note=f"median |MSL error|, {adopted} over ssm_model_a, twins excluded (D-275)")
     rr.add("gapfill_best_rule", best_rule, unit="text", note="lowest pooled median |MSL error| (D-275)")
     rr.add("gapfill_distance_rho", dr["rho"], unit="rho", note=f"Spearman, |MSL error| against donor distance, n {dr['n']} (D-275)")
     rr.add("gapfill_distance_p", dr["p"], unit="p", note="(D-275)")

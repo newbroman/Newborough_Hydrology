@@ -63,7 +63,12 @@ Exit 0 if every reference moved exactly as planned, 1 otherwise.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # 2026-10-25. Refuses the three non-references that
+__version__ = "1.2.0"  # 2026-10-25. --path: verify only changed files whose path contains the
+#   given text (repeatable). A paper plan (repoint_refs --scope paper1) moves the paper's own numbers;
+#   without a filter this checked EVERY changed mirror against it, and on 2026-10-25 reported 73
+#   "failures" in the Methods Supplement, report8 and PROVENANCE_LEDGER, which cite report figures and
+#   were never in the paper's scope. Use --path docs/papers/paper_1 for a Paper 1 plan.
+# 1.1.0  # 2026-10-25. Refuses the three non-references that
 #   repoint_refs 1.7.0 refuses, written here independently (this file never
 #   imports the matcher it checks). On the 2026-10-25a renumber this verifier
 #   would have passed all 18 false moves in the Methods Supplement: `\s+` let
@@ -126,6 +131,9 @@ def main() -> int:
     ap.add_argument("--since", default="HEAD",
                     help="the commit holding the PRE-pass text (default HEAD)")
     ap.add_argument("--quiet", action="store_true", help="print only faults")
+    ap.add_argument("--path", action="append", default=[],
+                    help="only changed files whose path contains this (repeatable); "
+                         "a paper plan: --path docs/papers/paper_1")
     args = ap.parse_args()
 
     plan = _load_plan(pathlib.Path(args.plan), args.kind)
@@ -134,7 +142,7 @@ def main() -> int:
         return 1
 
     changed = [f for f in _git("diff", "--name-only", args.since).split()
-               if f.endswith(".md")]
+               if f.endswith(".md") and (not args.path or any(q in f for q in args.path))]
     if not changed:
         print(f"  no changed .md file against {args.since} — nothing to verify")
         return 0

@@ -11,6 +11,7 @@ gapfill_ccw_sens_ari_low_censored,,,0.16974169741697417,,"CCW wells, 1989-05 to 
 gapfill_ccw_sens_n_low_censored,,,10.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
 gapfill_ccw_martin_similar_one_cluster,,,2.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
 gapfill_ccw_martin_similar_n,,,3.0,count,"CCW wells, 1989-05 to 1996-04, clustered as Script 02 and compared with the modern clusters (D-275)"
+gapfill_ccw_pair_share_threshold,,,0.6666666666666666,fraction,GAPFILL_DURABLE_PAIR_SHARE: the pair share the durability rule requires (D-275)
 gapfill_ccw_durable,,,not shown,text,the rule fixed before the run: p < E8E_P and pair share >= GAPFILL_DURABLE_PAIR_SHARE (D-275)
 gapfill_early_best_r_allowed_msl_abs_err_median,,,0.07709831062763672,m,"median |MSL error|, 23 targets (D-275)"
 gapfill_early_best_r_allowed_msl_ci_hi,,,0.10718568317156753,m,bootstrap 95% upper (D-275)
@@ -175,6 +176,9 @@ gapfill_pooled_ssm_model_a_excluded_rmse_median,,,0.16569206144830653,m,median m
 gapfill_pooled_ssm_model_a_excluded_bias_median,,,-0.052153487226293906,m,median monthly bias (D-275)
 gapfill_pooled_ssm_model_a_excluded_n,,,81.0,wells,targets scored (D-275)
 gapfill_adopted_rule,,,nearest_cluster,text,adopted by the rule fixed before the run (D-275)
+gapfill_pooled_adopted_to_model_a_msl_err_ratio,,,0.29193154082831496,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
+gapfill_early_adopted_to_model_a_msl_err_ratio,,,0.43568143980278,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
+gapfill_late_adopted_to_model_a_msl_err_ratio,,,0.2775482253750636,ratio,"median |MSL error|, nearest_cluster over ssm_model_a, twins excluded (D-275)"
 gapfill_best_rule,,,nearest_cluster,text,lowest pooled median |MSL error| (D-275)
 gapfill_distance_rho,,,0.6068917977388052,rho,"Spearman, |MSL error| against donor distance, n 182 (D-275)"
 gapfill_distance_p,,,1.0751634734674824e-19,p,(D-275)

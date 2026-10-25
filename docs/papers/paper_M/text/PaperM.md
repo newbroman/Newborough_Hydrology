@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_21.odt — do not edit. source-sha256=343111f69f3728c3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_22.odt — do not edit. source-sha256=0687c10d4d227bfa pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
@@ -319,6 +319,8 @@ C5 is also the cluster nearest the retreating shore, and the coastal reading nee
 
 A cause outside the monthly forcing was also tested. Prolonged rain events lose less to interception and evaporation than their monthly totals imply, and a monthly model cannot represent this. Daily rainfall from a gauge on Anglesey (Met Office, 2024) shows three things. Only one of the three winters of the early excess was unusual in the share of its rain that fell in long events. Later wet winters had as large a share. Finally, a term for long events, though it fits the early years better, forecasts worse at every cluster with an excess. How the rain fell does not explain the early excess.
 
+Whatever caused the early excess, a well read at the time carries it, and the record can test this. Two stretches of 54 months were hidden in turn: one from March 2006, which includes the excess, and one ending with the record. Each well's mean spring level was then put back in two ways: from its nearest cluster-mate, by a straight line fitted outside the hidden stretch, and from Model A fitted outside the stretch and run freely on the climate (Hollingham, 2026a). In the first stretch the median misses were 0.065 m for the cluster-mate and 0.149 m for Model A; in the last, 0.037 m and 0.132 m. The cluster-mate's advantage is at least as large outside the excess years as within them: its miss is 0.44 of Model A's in the first stretch and 0.28 in the last. The test therefore measures what neighbouring wells share in any years, not the excess itself. What it does show is that a gap in a well's record is better filled from a measured neighbour than from the model.
+
 ## []{#anchor-1}6.7 Per well or per cluster?
 
 Section 4's identification results come from the cluster centroids. The skill tests of Sections 5.5, 6.4 and 6.5 come from fits to each well. Whether that skill belongs to the coefficients the procedure reports depends on whether it survives a change of basis.
@@ -350,7 +352,7 @@ The procedure below is for a head-dependent drainage model fitted to monthly lev
 7.  **Publish the cost**. Report each unit's ΔAIC and ΔR² at the chosen datum, and the range over which the rankings by β₃ and by flux are unchanged.
 8.  **Referee the dynamics without a model**. Compare each form's e-folding time with the lag-1 autocorrelation of the deseasonalized level. Run a split-sample free-run test, and a free run against the same model without its drainage term.
 9.  **Assign each quantity to the form that identifies it**. Use the no-intercept form for coefficients, water balance and thresholds. Use the free-intercept form for persistence and for forecasting within the climate of the record. For forward runs into a different climate, use the form an independent epoch supports, with the other beside it. Use neither where β₃ is not identified.
-10. **Declare the fitting basis** of every analysis. Measure how long a record each form needs before reading its β₃. Wherever an independent epoch exists, test a sustained response against it.
+10. **Declare the fitting basis** of every analysis. Measure how long a record each form needs before reading its β₃. Wherever an independent epoch exists, test a sustained response against it. Before filling a gap in a well's record from the model, test the model against the well's measured neighbours: hide months that were read and see which puts them back better. At Newborough the nearest cluster-mate missed by a median of 0.041 m, against 0.139 m for Model A (Section 6.6).
 
 ## []{#anchor-1}7.1 The procedure at Newborough
 

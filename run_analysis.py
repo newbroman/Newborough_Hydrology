@@ -190,7 +190,10 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.26.0"  # Hollingham (2026) - 2026-10-24 (D-275). Script 51 (filling gaps from cluster-mates) registered
+__version__ = "2.27.0"  # Hollingham (2026) - 2026-10-25. PHASE 21 with Scripts 53 (E14, the forest-side drift in
+#   the CCW epoch) and 54 (E15, dry-year hysteresis and the 2006-08 excess), both tier X, opt-in. Counts 61 -> 63
+#   steps, 20 -> 21 phases, opt-in diagnostic 8 -> 10, by_exec opt-in 5 -> 7.
+# 2.26.0  # Hollingham (2026) - 2026-10-24 (D-275). Script 51 (filling gaps from cluster-mates) registered
 #   in a new Phase 20, tier X, opt-in. _DOCUMENTED_COUNTS: total_registered 60 -> 61, total_phases 19 -> 20,
 #   optin_diagnostic 7 -> 8, by_exec.optin 4 -> 5.
 # 2.25.0  # Hollingham (2026) - 2026-10-13 (Script 47 1.9.0). --film-lang en|cy|pl|all passes the
@@ -571,6 +574,11 @@ PHASE_20 = [
     Step("51_cluster_gap_fill.py",  "Filling gaps in the record from cluster-mates (D-275): the CCW wells clustered on 1989\u201396 alone against the modern clusters; a hold-out test of five donor rules (nearest, best-correlated, nearest cluster-mate, cluster median, and Model A as reference) over an early and a late window, with the rule adopted by a rule fixed before the run; and every well's gaps filled by it, flagged reconstructed and kept out of every other step. Opt-in diagnostic", "X", "optin"),
 ]
 
+PHASE_21 = [
+    Step("53_ccw_forest_drift.py",  "Did the water table near the forest fall through the CCW epoch? (E14): the Script 39 hindcast rebuilt on both coefficient bases, each admitted well's 1989-96 residual slope against its distance to the forest edge, judged by a rule fixed before the run (rank correlation, near against far, leave one out, second basis). Opt-in diagnostic", "X", "optin"),
+    Step("54_dry_year_hysteresis.py",  "Does a dry year prime the warren? (E15): the record's dry-to-wet sequences and ordinary wet years, chosen from the climate alone, and the E13 single store's response after each, judged by a rule fixed before the run (replication of the 2006-08 excess after 2022, and sequences against controls). Opt-in diagnostic", "X", "optin"),
+]
+
 ALL_PHASES = [
     ("PHASE 1  — Core LCSC Chain and the Water Table",          PHASE_1),
     ("PHASE 2  — Pearson Membership Audit",                     PHASE_2),
@@ -592,6 +600,7 @@ ALL_PHASES = [
     ("PHASE 18 \u2014 Sentinel Wet-Area Model (Scripts 45, 46; film 47 on demand)",  PHASE_18),
     ("PHASE 19 \u2014 Independent Checks of the Per-Well SSM (Scripts 48, 50)",  PHASE_19),
     ("PHASE 20 \u2014 Filling Gaps from Cluster-Mates (Script 51)",  PHASE_20),
+    ("PHASE 21 \u2014 Testing the Departures from the Climate Model (Scripts 53, 54)",  PHASE_21),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -620,13 +629,13 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            61,
-    "total_phases":                20,
+    "total_registered":            63,
+    "total_phases":                21,
     "by_tier.analytical_toplevel": 45,
     "by_tier.display_utility":      8,
-    "by_tier.optin_diagnostic":     8,
+    "by_tier.optin_diagnostic":    10,
     "by_exec.default":             54,
-    "by_exec.optin":                5,
+    "by_exec.optin":                7,
     "by_exec.ondemand":             2,
     "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document

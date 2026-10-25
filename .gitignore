@@ -291,3 +291,7 @@ working/**/*.gif
 working/**/__pycache__/
 working/**/*.bundle
 # <<< private-repo caches ---------------------------------------------------------------------
+
+# Martin's Weather Underground station IANGLESE3, raw daily JSON as downloaded (2026-10-25). Stays on the L14;
+# the committed form is data/wu_ianglese3_daily.csv (see data/WU_IANGLESE3_PROVENANCE.md).
+data/wu_ianglese3/

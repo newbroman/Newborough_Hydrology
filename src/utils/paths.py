@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.72.0"  # Hollingham (2026) - 2026-10-24. Script 51 1.0.0 (D-275): DIR_51 and its outputs;
+__version__ = "1.73.0"  # Hollingham (2026) - 2026-10-25. Scripts 53 1.0.0 (E14) and 54 1.0.0 (E15): DIR_53, DIR_54 and their outputs.
+#   Additive only.
+# 1.72.0  # Hollingham (2026) - 2026-10-24. Script 51 1.0.0 (D-275): DIR_51 and its outputs;
 #   DATA_CCW_SIMILARITY_MARTIN. Additive.
 # 1.71.0  # Hollingham (2026) - 2026-10-24. Script 50 1.14.0 (E13b, D-274): OUT_50_E13B_CMP,
 #   OUT_50_E13B_FIG, OUT_50_E13B_RESID, OUT_50_E13B_INPUTS. Additive.
@@ -1681,3 +1683,22 @@ OUT_34_REPORT_NUMBERS = DIR_34 / "34_report_numbers.csv"
 OUT_37_REPORT_NUMBERS = DIR_37 / "37_report_numbers.csv"
 OUT_37B_REPORT_NUMBERS = DIR_37B / "37b_report_numbers.csv"
 OUT_36_REPORT_NUMBERS = DIR_36 / "36_report_numbers.csv"
+
+# Script 53 (E14): the forest-side drift in the CCW 1989-96 epoch
+DIR_53 = OUT_DIR / "53_ccw_forest_drift"
+OUT_53_PER_WELL       = DIR_53 / "53_01_per_well_slopes.csv"
+OUT_53_TESTS          = DIR_53 / "53_02_tests.csv"
+OUT_53_LOO            = DIR_53 / "53_03_leave_one_out.csv"
+OUT_53_DATING         = DIR_53 / "53_04_dating_profile.csv"
+OUT_53_FIG            = DIR_53 / "53_05_forest_side_drift.png"
+OUT_53_REPORT_NUMBERS = DIR_53 / "53_report_numbers.csv"
+
+# Script 54 (E15): does a dry year prime the warren? The 2006-08 excess as hysteresis
+DIR_54 = OUT_DIR / "54_dry_year_hysteresis"
+OUT_54_YEARS          = DIR_54 / "54_01_hydrological_years.csv"
+OUT_54_WINDOWS        = DIR_54 / "54_02_windows.csv"
+OUT_54_RESPONSES      = DIR_54 / "54_03_responses_by_cluster.csv"
+OUT_54_TESTS          = DIR_54 / "54_04_tests.csv"
+OUT_54_RESIDUALS      = DIR_54 / "54_05_residual_monthly.csv"
+OUT_54_FIG            = DIR_54 / "54_06_dry_year_hysteresis.png"
+OUT_54_REPORT_NUMBERS = DIR_54 / "54_report_numbers.csv"

@@ -5,7 +5,7 @@
 
 *Derived live from the ODT captions, `tools/table_configs.py`, `tools/figure_map.csv` and the papers' own exhibit manifests. Keyed by OUTPUT FILE, so the question it answers is: this script's output changed — which exhibits, in which documents, have to be re-checked?*
 
-**147 exhibit(s)** across the corpus, drawing on **145 output file(s)**.
+**148 exhibit(s)** across the corpus, drawing on **146 output file(s)**.
 
 | Output file | Document | Exhibit | Caption |
 |---|---|---|---|
@@ -21,10 +21,10 @@
 | `01_locations.csv` | Paper 1 | Figure 1 | Site topography, geology & monitoring network |
 |  | Paper 1 | Figure 5 | Spatial cluster distribution, Pearson-affinity validation |
 | `01b_01_water_table_flow.png` | Paper 1 | Figure 15 | Kriged water table + flow arrows sized by gradient (the Delaunay `20_head_surfac |
-|  | report9.odt | Figure 56 | Figure 1.53: The water table of Newborough Warren kriged from the dipwells in (a |
-| `01b_02_transects.png` | report9.odt | Figure 58 | Figure 0: Water-table transects across Newborough Warren. (a) Four coast-normal |
-| `01b_04_unexplained_wetness.png` | report9.odt | Figure 52 | Figure 0: Sentinel-2 switching levels tested against the kriged water table. Eac |
-| `01b_06_head_vs_dem.png` | report9.odt | Figure 57 | Figure 1.54: Mean water table against the ground surface, by DEM smoothing width |
+|  | report9.odt | Figure 57 | Figure 1.53: The water table of Newborough Warren kriged from the dipwells in (a |
+| `01b_02_transects.png` | report9.odt | Figure 59 | Figure 0: Water-table transects across Newborough Warren. (a) Four coast-normal |
+| `01b_04_unexplained_wetness.png` | report9.odt | Figure 53 | Figure 0: Sentinel-2 switching levels tested against the kriged water table. Eac |
+| `01b_06_head_vs_dem.png` | report9.odt | Figure 58 | Figure 1.54: Mean water table against the ground surface, by DEM smoothing width |
 | `01b_report_numbers.csv` | Paper 1 | Figure 15 | Kriged water table + flow arrows sized by gradient (the Delaunay `20_head_surfac |
 | `02_01_dendrogram.png` | Paper 1 | Figure 4 | Ward's dendrogram + dual-metric k-selection |
 |  | report9.odt | Figure 8 | Figure 1.5: Clustering results: Ward&apos;s hierarchical clustering dendrogram f |
@@ -42,7 +42,7 @@
 | `03_08_datum_sensitivity.csv` | Paper 1 | Figure 10 | Per-well optimal drainage datum + R² gain over 3.7 m |
 | `03_09_well_optimal_datums.csv` | Paper 1 | Figure 10 | Per-well optimal drainage datum + R² gain over 3.7 m |
 | `03_10_well_datum_r2max_map.png` | Paper 1 | Figure 10 | Per-well optimal drainage datum + R² gain over 3.7 m |
-|  | report9.odt | Figure 53 | Figure 1.49a: Per-well optimal SSM drainage datum across the 66-well reference n |
+|  | report9.odt | Figure 54 | Figure 1.49a: Per-well optimal SSM drainage datum across the 66-well reference n |
 | `03_10_well_r2_gain_map.png` | Paper 1 | Figure 10 | Per-well optimal drainage datum + R² gain over 3.7 m |
 | `03_14_centroid_window_sensitivity.csv` | report9.odt | Table 1.3 | Cluster mechanistic characterization derived from the displacement-formulation S |
 | `05_pear_01_spatial_confidence_map.png` | Paper 1 | Figure 5 | Spatial cluster distribution, Pearson-affinity validation |
@@ -52,67 +52,67 @@
 | `07_coeff_01_beta1_recharge.png` | Paper 1 | Figure 11 | β₁ recharge-sensitivity surface |
 | `07_coeff_02_beta2_atm_draw.png` | Paper 1 | Figure 12 | β₂ atmospheric-draw surface |
 | `07_coeff_03_beta3_drainage.png` | Paper 1 | Figure 13 | β₃ drainage-rate surface |
-| `07_coeff_04_r2_quality.png` | report9.odt | Figure 54 | Figure 1.50: Spatial SSM coefficient atlas for the 66-well reference network, Ne |
+| `07_coeff_04_r2_quality.png` | report9.odt | Figure 55 | Figure 1.50: Spatial SSM coefficient atlas for the 66-well reference network, Ne |
 | `07_coeff_05_cluster_ranges.csv` | Paper 1 | Table 5 | Per-well SSM coefficient ranges by cluster |
 |  | report9.odt | Table 1.4 | Within-cluster range of the per-well SSM coefficients, reference network (Script |
 | `07_coeff_maps_data.csv` | Paper 1 | Figure 11 | β₁ recharge-sensitivity surface |
 |  | Paper 1 | Figure 12 | β₂ atmospheric-draw surface |
 |  | Paper 1 | Figure 13 | β₃ drainage-rate surface |
-| `08_lcsc_01_ceh6_showdown.png` | report9.odt | Figure 16 | Figure 1.13: Dual-model performance comparison at Lake Edge well CEH6. Upper pan |
+| `08_lcsc_01_ceh6_showdown.png` | report9.odt | Figure 17 | Figure 1.13: Dual-model performance comparison at Lake Edge well CEH6. Upper pan |
 | `08_lcsc_02_r2_improvement_map.png` | Paper 1 | Figure 9 | SSM-over-TLM iterative NSE gain |
-|  | report9.odt | Figure 17 | Figure 1.14a: SSM gain over TLM across all 66 reference wells. Panel (a): iterat |
+|  | report9.odt | Figure 18 | Figure 1.14a: SSM gain over TLM across all 66 reference wells. Iterative R² impr |
 | `08_lcsc_04_table3_benchmark_summary.csv` | report9.odt | Table 1.9 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
 | `08_lcsc_model_stats.csv` | report9.odt | Table 1.9 | Model benchmarking summary comparing the Traditional Linear Model (TLM) and Stat |
 | `08_perwell_nse.csv` | Paper 1 | Figure 9 | SSM-over-TLM iterative NSE gain |
 | `09_scrape_04b_beta3_era_summary.csv` | report9.odt | Table 1.10 | Era-specific β₃ storage decay coefficients at scraping treatment and control wel |
-| `09_scrape_05_tier1_background_drift.png` | report9.odt | Figure 18 | Figure 1.15: Tier 1 background environmental drift analysis. CUSUM time series f |
-| `09_scrape_06_tier2_scraping_signal.png` | report9.odt | Figure 19 | Figure 1.16: Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 |
-| `09_scrape_07_beta3_confidence.png` | report9.odt | Figure 21 | Figure 1.18: Era-specific β₃ storage decay coefficients with 95% confidence inte |
+| `09_scrape_05_tier1_background_drift.png` | report9.odt | Figure 19 | Figure 1.15: Tier 1 background environmental drift analysis. CUSUM time series f |
+| `09_scrape_06_tier2_scraping_signal.png` | report9.odt | Figure 20 | Figure 1.16: Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 |
+| `09_scrape_07_beta3_confidence.png` | report9.odt | Figure 22 | Figure 1.18: Era-specific β₃ storage decay coefficients with 95% confidence inte |
 | `09_scrape_08_ceh36_robustness.png` | Paper 2 | Figure 1 | CEH36 three-method scraping robustness |
-|  | report9.odt | Figure 20 | Figure 1.17: Three-method robustness assessment of the scraping signal at CEH36. |
-| `09b_03_ceh36_equilibration.jpg` | report9.odt | Figure 25 | Figure 1.22: Climate-corrected anomaly trajectory at CEH36 (scraped) vs CEH4 (co |
-| `09c_03_summer_minima_climate_ctrl.png` | report9.odt | Figure 23 | Figure 1.20: Summer minima analysis for the scraping intervention against the cl |
+|  | report9.odt | Figure 21 | Figure 1.17: Three-method robustness assessment of the scraping signal at CEH36. |
+| `09b_03_ceh36_equilibration.jpg` | report9.odt | Figure 26 | Figure 1.22: Climate-corrected anomaly trajectory at CEH36 (scraped) vs CEH4 (co |
+| `09c_03_summer_minima_climate_ctrl.png` | report9.odt | Figure 24 | Figure 1.20: Summer minima analysis for the scraping intervention against the cl |
 | `09c_04_summer_minima_paired.png` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
-|  | report9.odt | Figure 24 | Figure 1.21: Paired BACI summer minimum analysis: CEH36 (scraped) vs CEH4 (contr |
-| `09d_01_scenario_comparison.jpg` | report9.odt | Figure 27 | Figure 1.24: Scenario comparison at CEH36 (scraped site) — annual-mean forcing. |
-| `09d_02_summer_scenario_comparison.png` | report9.odt | Figure 28 | Figure 1.25: Scenario comparison at CEH36 (scraped site) — summer (July–Septembe |
-| `09f_management_effects.png` | report10.odt | Figure 83 | Figure 1.2: Spatial reach and development timescale of the management interventi |
+|  | report9.odt | Figure 25 | Figure 1.21: Paired BACI summer minimum analysis: CEH36 (scraped) vs CEH4 (contr |
+| `09d_01_scenario_comparison.jpg` | report9.odt | Figure 28 | Figure 1.24: Scenario comparison at CEH36 (scraped site) — annual-mean forcing. |
+| `09d_02_summer_scenario_comparison.png` | report9.odt | Figure 29 | Figure 1.25: Scenario comparison at CEH36 (scraped site) — summer (July–Septembe |
+| `09f_management_effects.png` | report10.odt | Figure 84 | Figure 1.2: Spatial reach and development timescale of the management interventi |
 | `09g_coastal_vs_climate_reach.png` | Paper 1 | Figure 20 | Conceptual coastal-vs-climate reach |
-| `09g_mechanism_grid.png` | report10.odt | Figure 84 | Figure 1.3: Three drivers of water-table change and the undisturbed state — sche |
+| `09g_mechanism_grid.png` | report10.odt | Figure 85 | Figure 1.3: Three drivers of water-table change and the undisturbed state — sche |
 | `10a_01_ancova_comparison_table.csv` | report9.odt | Table 1.11 | Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each r |
-| `10a_06_climate_sensitivity.png` | report9.odt | Figure 29 | Figure 1.26: Climate sensitivity: cumulative water balance (CWB) vs BACI displac |
+| `10a_06_climate_sensitivity.png` | report9.odt | Figure 30 | Figure 1.26: Climate sensitivity: cumulative water balance (CWB) vs BACI displac |
 | `10a_07_cusum_impact.png` | Paper 2 | Figure 3 | Forest-control BACI + CUSUM (Impact) |
-|  | report9.odt | Figure 31 | Figure 1.28: Forest control BACI timeseries and CUSUM for the Impact tier (WMC3) |
-| `10a_08_cusum_edge.png` | report9.odt | Figure 32 | Figure 1.29: Forest control BACI timeseries and CUSUM for the Edge tier (CEH31, |
-| `10a_14_era_split_decay.png` | report9.odt | Figure 39 | Figure 1.36: Early versus late clearfell BACI step against the Forest control, s |
+|  | report9.odt | Figure 32 | Figure 1.28: Forest control BACI timeseries and CUSUM for the Impact tier (WMC3) |
+| `10a_08_cusum_edge.png` | report9.odt | Figure 33 | Figure 1.29: Forest control BACI timeseries and CUSUM for the Edge tier (CEH31, |
+| `10a_14_era_split_decay.png` | report9.odt | Figure 40 | Figure 1.36: Early versus late clearfell BACI step against the Forest control, s |
 | `10a_report_numbers.csv` | Paper 2 | Table 1 | Three-counterfactual ANCOVA-BACI clearfell-step estimates (Forest/Climate/Combin |
-| `10b_spatial_fell_corrected.png` | report9.odt | Figure 35 | Figure 1.32: Climate-corrected spatial step-change map for the clearfell era (De |
-| `10b_spatial_scrape_corrected.png` | report9.odt | Figure 26 | Figure 1.23: Climate-corrected spatial step-change map for the scraping era (Apr |
+| `10b_spatial_fell_corrected.png` | report9.odt | Figure 36 | Figure 1.32: Climate-corrected spatial step-change map for the clearfell era (De |
+| `10b_spatial_scrape_corrected.png` | report9.odt | Figure 27 | Figure 1.23: Climate-corrected spatial step-change map for the scraping era (Apr |
 | `10c_forest_zone_correlations.csv` | Paper 1 | Table 7 | Within-forest spatial predictors of per-well coefficients (n = 14) — Pearson r ( |
 |  | report9.odt | Table 1.23 | Per-well spatial predictors of SSM coefficient variation within the forest zone |
 | `10d_02_summer_minima_shifts.csv` | report9.odt | Table 1.13 | Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well mi |
 | `10d_03_mixed_model_results.csv` | report9.odt | Table 1.14 | Mixed-effects model results: pooled clearfell step by tier against Forest contro |
-| `10d_04_summer_minima_forest_ctrl.png` | report9.odt | Figure 33 | Figure 1.30: Summer minima analysis against the Forest control. (a) Raw annual s |
+| `10d_04_summer_minima_forest_ctrl.png` | report9.odt | Figure 34 | Figure 1.30: Summer minima analysis against the Forest control. (a) Raw annual s |
 | `10e_01_coefficient_shifts.csv` | report9.odt | Table 1.15 | Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BA |
 | `10e_03_coefficient_shifts.png` | Paper 2 | Figure 5 | Before/after SSM coefficient dumbbells by tier; β₁/β₂ %-shift summary |
-|  | report9.odt | Figure 36 | Figure 1.33: Before- and after-clearfell SSM coefficient estimates with 95% CI f |
-| `10g_02_clearfell_transect.png` | report9.odt | Figure 37 | Figure 1.34: Clearfell transect. (a) Monthly depth anomaly against each well&apo |
-| `10m_02_wmc3_baci_dual.png` | report9.odt | Figure 30 | Figure 1.27: WMC3 (Impact well) and the forest-control mean across the three int |
+|  | report9.odt | Figure 37 | Figure 1.33: Before- and after-clearfell SSM coefficient estimates with 95% CI f |
+| `10g_02_clearfell_transect.png` | report9.odt | Figure 38 | Figure 1.34: Clearfell transect. (a) Monthly depth anomaly against each well&apo |
+| `10m_02_wmc3_baci_dual.png` | report9.odt | Figure 31 | Figure 1.27: WMC3 (Impact well) and the forest-control mean across the three int |
 | `11_forecast_pflood_summary.csv` | report9.odt | Table 1.19 | Cluster-specific linear forms derived from the iterated closed-form P_flood solu |
 | `11_forecast_summer_transfer_functions.csv` | report9.odt | Table 1.17 | Summer drought prediction equations (Section 3.6.2). P_summer = total April–Sept |
 | `11_forecast_winter_transfer_functions.csv` | report9.odt | Table 1.16 | Winter peak prediction equations fitted at hydrological-year resolution (Section |
-| `11b_01_summer_minima_depth.png` | report9.odt | Figure 40 | Figure 1.37: Spatial distribution of mean annual summer minimum water table dept |
-| `11b_02_winter_maxima_depth.png` | report9.odt | Figure 42 | Figure 1.39: Spatial distribution of mean annual winter maximum water table dept |
-| `11b_03_pflood.png` | report9.odt | Figure 41 | Figure 1.38: Spatial distribution of P_flood — the minimum cumulative winter rai |
+| `11b_01_summer_minima_depth.png` | report9.odt | Figure 41 | Figure 1.37: Spatial distribution of mean annual summer minimum (August–Septembe |
+| `11b_02_winter_maxima_depth.png` | report9.odt | Figure 43 | Figure 1.39: Spatial distribution of mean annual winter maximum water table dept |
+| `11b_03_pflood.png` | report9.odt | Figure 42 | Figure 1.38: Spatial distribution of P_flood — the minimum cumulative winter rai |
 | `11b_03_pflood_per_well.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
-| `11b_04_flood_frequency.png` | report9.odt | Figure 43 | Figure 1.40: Winter flooding frequency across the full dipwell network (66 refer |
+| `11b_04_flood_frequency.png` | report9.odt | Figure 44 | Figure 1.40: Winter flooding frequency across the full dipwell network (66 refer |
 | `11b_06_pflood_cluster_summary.csv` | report9.odt | Table 1.18 | Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood |
-| `11c_pflood_achievability.png` | report10.odt | Figure 85 | Figure 1.4: Per-well achievability categorization against the P_flood rainfall m |
+| `11c_pflood_achievability.png` | report10.odt | Figure 86 | Figure 1.4: Per-well achievability categorization against the P_flood rainfall m |
 | `12_01_dem_site_overview.png` | Paper 1 | Figure 1 | Site topography, geology & monitoring network |
 |  | report7.odt | Figure 1 | Figure 1.1: Site topography and hydrogeological features. Digital elevation mode |
 | `13_01_experimental_setup_map.png` | report7.odt | Figure 2 | Figure 1.2: Hierarchical experimental design. Spatial layout of the monitoring n |
-| `14_climate_trajectory_stacked.png` | report9.odt | Figure 46 | Figure 1.43: Climate trajectory and threshold exceedance analysis for Newborough |
-| `14b_year_of_crossing.png` | report9.odt | Figure 47 | Figure 1.44: Bootstrap year-of-crossing for the five-cluster summer-minimum tren |
+| `14_climate_trajectory_stacked.png` | report9.odt | Figure 47 | Figure 1.43: Climate trajectory and threshold exceedance analysis for Newborough |
+| `14b_year_of_crossing.png` | report9.odt | Figure 48 | Figure 1.44: Bootstrap year-of-crossing for the five-cluster summer-minimum tren |
 | `16_water_bal_bar_ms.png` | Paper 1 | Figure 7 | Water-balance decomposition by cluster |
 |  | report9.odt | Figure 11 | Figure 1.8: Water balance decomposition by hydrogeological cluster, Newborough W |
 | `16_water_bal_rec_table.csv` | report9.odt | Table 1.6 | Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). W |
@@ -128,30 +128,30 @@
 | `18_wtf_02_spatial_sy_map.png` | Paper 1 | Figure 8 | Interception-corrected WTF specific-yield surface |
 | `18_wtf_04_sy_contour_extended.png` | report9.odt | Figure 13 | Figure 1.10: Interpolated WTF specific yield surface for the combined reference |
 | `18_wtf_05_halflife_map.png` | Paper 1 | Figure 14 | Drainage decay half-life t½ = ln(2)/β₃ |
-|  | report9.odt | Figure 55 | Figure 1.51: Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well |
+|  | report9.odt | Figure 56 | Figure 1.51: Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well |
 | `18_wtf_05_storage_drainage_index.csv` | Paper 1 | Figure 14 | Drainage decay half-life t½ = ln(2)/β₃ |
 |  | Paper 1 | Table 6 | Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster |
-| `20_clearfell_baseline_drawdown.png` | report9.odt | Figure 68 | Figure 1.64: Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2 |
-| `20_clearfell_gain.png` | report9.odt | Figure 69 | Figure 1.65: Clearfell step-change map — climate-corrected mean water-table shif |
+| `20_clearfell_baseline_drawdown.png` | report9.odt | Figure 69 | Figure 1.64: Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2 |
+| `20_clearfell_gain.png` | report9.odt | Figure 70 | Figure 1.65: Clearfell step-change map — climate-corrected mean water-table shif |
 | `20_coastal_erosion.png` | Paper 1 | Figure 19 | Episodic coastal-retreat reach |
-|  | report9.odt | Figure 63 | Figure 1.59: Coastal-erosion drawdown at the western dune margin, Newborough War |
-| `20_coastal_net_effect.png` | report9.odt | Figure 65 | Figure 1.61: Net coastal-margin change at the western dune margin: the cell-by-c |
+|  | report9.odt | Figure 64 | Figure 1.59: Coastal-erosion drawdown at the western dune margin, Newborough War |
+| `20_coastal_net_effect.png` | report9.odt | Figure 66 | Figure 1.61: Net coastal-margin change at the western dune margin: the cell-by-c |
 | `20_drawdown_propagation_nohead.png` | Paper 1 | Figure 18 | Forest-interception drawdown reach |
 |  | Paper 2 | Figure 7 | Plantation drawdown reach (SW propagation) |
-|  | report9.odt | Figure 66 | Figure 1.62: Forest drawdown propagation across the Newborough Warren dune aquif |
-| `20_driver_change_20yr.png` | report9.odt | Figure 71 | Figure 1.67: Modelled water-table change across Newborough Warren, 2005–2025 — f |
-| `20_msl5_change_2017_2023.png` | report9.odt | Figure 72 | Figure 1.68: Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clear |
-| `20_net_state_map.png` | report9.odt | Figure 70 | Figure 1.66: Net water-table state — parametric combination of five simultaneous |
+|  | report9.odt | Figure 67 | Figure 1.62: Forest drawdown propagation across the Newborough Warren dune aquif |
+| `20_driver_change_20yr.png` | report9.odt | Figure 72 | Figure 1.67: Modelled water-table change across Newborough Warren, 2005–2025 — f |
+| `20_msl5_change_2017_2023.png` | report9.odt | Figure 73 | Figure 1.68: Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clear |
+| `20_net_state_map.png` | report9.odt | Figure 71 | Figure 1.66: Net water-table state — parametric combination of five simultaneous |
 | `20_residual_perwell.csv` | Paper 1 | Figure 16 | SSM water-balance residual at the wells |
 | `20_residual_ssm.png` | Paper 1 | Figure 16 | SSM water-balance residual at the wells |
-|  | report9.odt | Figure 59 | Figure 1.55: SSM water balance residual across the Newborough Warren dune aquife |
+|  | report9.odt | Figure 60 | Figure 1.55: SSM water balance residual across the Newborough Warren dune aquife |
 | `20_scrape_drawdown_nohead.png` | Paper 2 | Figure 8 | Scrape-induced drawdown / cascade |
-|  | report9.odt | Figure 67 | Figure 1.63: Dune-scrape drawdown across all eight mapped cuts, Newborough Warre |
-| `20_slr_response.png` | report9.odt | Figure 64 | Figure 1.60: Sea-level-rise head response at the western dune margin, on the sam |
-| `21_forestry_01_hydrograph.png` | report10.odt | Figure 82 | Figure 1.1: Synthetic mean-year hydrograph for the C4 Forest cluster under four |
-| `21_forestry_03_scraping_eras.png` | report9.odt | Figure 22 | Figure 1.19: Annual summer minimum depth below ground surface at scraping treatm |
+|  | report9.odt | Figure 68 | Figure 1.63: Dune-scrape drawdown across all eight mapped cuts, Newborough Warre |
+| `20_slr_response.png` | report9.odt | Figure 65 | Figure 1.60: Sea-level-rise head response at the western dune margin, on the sam |
+| `21_forestry_01_hydrograph.png` | report10.odt | Figure 83 | Figure 1.1: Synthetic mean-year hydrograph for the C4 Forest cluster under four |
+| `21_forestry_03_scraping_eras.png` | report9.odt | Figure 23 | Figure 1.19: Annual summer minimum depth below ground surface at scraping treatm |
 | `21_forestry_04_baci_zone_violin.png` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
-|  | report9.odt | Figure 34 | Figure 1.31: Summer minimum depth distributions by BACI tier, Newborough Warren |
+|  | report9.odt | Figure 35 | Figure 1.31: Summer minimum depth distributions by BACI tier, Newborough Warren |
 | `21_forestry_05_scenario_comparison.jpg` | Paper 2 | Figure 6 | Forest-management & climate scenarios |
 | `25_01_panel_fit_parameters.csv` | Paper 1 | Figure 20 | Conceptual coastal-vs-climate reach |
 | `25_03_cluster_partition.csv` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
@@ -159,42 +159,43 @@
 |  | report9.odt | Table 1.24 | Per-cluster decomposition of the observed summer-minimum decline under the fores |
 | `25_04_baci_corroboration.csv` | report9.odt | Table 1.12 | The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the |
 | `25_05_fit_diagnostic.jpg` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
-|  | report9.odt | Figure 60 | Figure 1.56: Network-scale coastal-retreat gradient. Per-well summer-minimum slo |
-| `25_13_rolling_window.png` | report9.odt | Figure 61 | Figure 1.57: Fixed-length rolling-window sensitivity of the cross-shore decay fi |
+|  | report9.odt | Figure 61 | Figure 1.56: Network-scale coastal-retreat gradient. (a) Per-well summer-minimum |
+| `25_13_rolling_window.png` | report9.odt | Figure 62 | Figure 1.57: Fixed-length rolling-window sensitivity of the cross-shore decay fi |
 | `25_report_numbers.csv` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
 |  | Paper 1 | Figure 19 | Episodic coastal-retreat reach |
 | `26_curreli_min_cluster_threshold_summary.csv` | report9.odt | Table 1.20 | Cluster-mean four-year mean annual minimum water level at window-end 2025, with |
 | `26_ebf_band_summary.csv` | report9.odt | Table 1.22 | Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetne |
-| `26_ebf_prediction_scatter.png` | report9.odt | Figure 48 | Figure 1.45: Between-well prediction of mean Ellenberg-F moisture by three water |
+| `26_ebf_prediction_scatter.png` | report9.odt | Figure 49 | Figure 1.45: Between-well prediction of mean Ellenberg-F moisture by three water |
 | `26_ebf_prediction_summary.csv` | report9.odt | Table 1.21 | Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the |
-| `26_msl_5yr_map.png` | report9.odt | Figure 45 | Figure 1.42: Spatial pattern of the latest available 5-year mean spring water le |
-| `32_differential_movement_2011_2025.png` | report9.odt | Figure 73 | Figure 1.69: Secular differential movement of the spring (March,April, May) wate |
-| `33_amplification_field.png` | report9.odt | Figure 75 | Figure 1.71: The climate-response envelope of the spring water table. Relative a |
-| `33_dry_spring_depth.png` | report9.odt | Figure 76 | Figure 1.72: The climate-response envelope of the spring water table: Dry-year s |
-| `36_absolute_climate_trend_2005_2025.png` | report9.odt | Figure 74 | Figure 1.70: Absolute climate-removed secular trend of the spring (March, April, |
-| `37_implied_delta0_trajectory.png` | report9.odt | Figure 77 | Figure 1.73: Independent test of the chronic coastal-drying assumption: implied |
+| `26_msl_5yr_map.png` | report9.odt | Figure 46 | Figure 1.42: Spatial pattern of the latest available 5-year mean spring water le |
+| `32_differential_movement_2011_2025.png` | report9.odt | Figure 74 | Figure 1.69: Secular differential movement of the spring (March, April, May) wat |
+| `33_amplification_field.png` | report9.odt | Figure 76 | Figure 1.71: The climate-response envelope of the spring water table. Relative a |
+| `33_dry_spring_depth.png` | report9.odt | Figure 77 | Figure 1.72: The climate-response envelope of the spring water table: Dry-year s |
+| `36_absolute_climate_trend_2005_2025.png` | report9.odt | Figure 75 | Figure 1.70: Absolute climate-removed secular trend of the spring (March, April, |
+| `37_implied_delta0_trajectory.png` | report9.odt | Figure 78 | Figure 1.73: Independent test of the chronic coastal-drying assumption: implied |
 | `37b_driver_footing.csv` | report9.odt | Table 1.25 | Site-wide footing of each water-table driver. Equivalent depth averaged over the |
-| `37b_driver_footing.png` | report9.odt | Figure 78 | Figure 1.74: Comparative footing of the drivers over the 2005–2025 horizon, on t |
+| `37b_driver_footing.png` | report9.odt | Figure 79 | Figure 1.74: Comparative footing of the drivers over the 2005–2025 horizon, on t |
 | `38_coast_inland_difference.jpg` | Paper 1 | Figure 17 | Coastal-retreat gradient; per-cluster decomposition; transect corroboration |
-|  | report9.odt | Figure 62 | Figure 1.58: Independent, model-free estimate of the coastal drawdown rate. The |
-| `41_05_canopy_trajectory.png` | report9.odt | Figure 38 | Figure 1.35: Canopy-texture trajectories from the dated aerial series, 2006 to 2 |
-| `44_07b_hindcast_report.png` | report9.odt | Figure 80 | Figure 1.76: Ranwell&apos;s 1951–53 water-table readings against the SSM hindcas |
-| `44_09_slack_floor_datum.png` | report9.odt | Figure 81 | Figure 0: The slack floor against the water table, by distance from the eroding |
-| `45_01_wet_area_model.png` | report9.odt | Figure 49 | Figure 1.46: Slack-floor wet area against the modelled water table. Near-infrare |
-| `45_02_ssm_through_nir_curves.png` | report9.odt | Figure 50 | Figure 1.47: Modelled versus satellite-observed slack-floor wet area — an out-of |
-| `45_03_switching_levels_map.png` | report9.odt | Figure 51 | Figure 1.48: Per-cell switching levels of the Newborough Warren slack floor from |
+|  | report9.odt | Figure 63 | Figure 1.58: Independent, model-free estimate of the coastal drawdown rate. The |
+| `41_05_canopy_trajectory.png` | report9.odt | Figure 39 | Figure 1.35: Canopy-texture trajectories from the dated aerial series, 2006 to 2 |
+| `44_07b_hindcast_report.png` | report9.odt | Figure 81 | Figure 1.76: Ranwell&apos;s 1951–53 water-table readings against the SSM hindcas |
+| `44_09_slack_floor_datum.png` | report9.odt | Figure 82 | Figure 0: The slack floor against the water table, by distance from the eroding |
+| `45_01_wet_area_model.png` | report9.odt | Figure 50 | Figure 1.46: Slack-floor wet area against the modelled water table. Near-infrare |
+| `45_02_ssm_through_nir_curves.png` | report9.odt | Figure 51 | Figure 1.47: Modelled versus satellite-observed slack-floor wet area — an out-of |
+| `45_03_switching_levels_map.png` | report9.odt | Figure 52 | Figure 1.48: Per-cell switching levels of the Newborough Warren slack floor from |
+| `51_07_cluster_gap_fill.png` | report9.odt | Figure 16 | Figure 0: Filling gaps from cluster-mates. (a) The error in the held-out spring |
 | `fig_clearfell_baci_cusum.jpg` | Paper 2 | Figure 3 | Forest-control BACI + CUSUM (Impact) |
 | `fig_coeff_decomposition.jpg` | Paper 2 | Figure 5 | Before/after SSM coefficient dumbbells by tier; β₁/β₂ %-shift summary |
 | `fig_forest_drawdown_reach.jpg` | Paper 2 | Figure 7 | Plantation drawdown reach (SW propagation) |
-| `fig_msl5_trajectory_report.png` | report9.odt | Figure 44 | Figure 1.41: Cluster-mean five-year mean spring water level (MSL5), window-ends |
-| `fig_msl5_vs_summer_min_projection.png` | report9.odt | Figure 79 | Figure 1.75: Projected shift in the five-year mean spring water level (ΔMSL5, bl |
+| `fig_msl5_trajectory_report.png` | report9.odt | Figure 45 | Figure 1.41: Cluster-mean five-year mean spring water level (MSL5), window-ends |
+| `fig_msl5_vs_summer_min_projection.png` | report9.odt | Figure 80 | Figure 1.75: Projected sustained shift in the five-year mean spring water level |
 | `fig_scenario_comparison.jpg` | Paper 2 | Figure 6 | Forest-management & climate scenarios |
 | `fig_scrape_drawdown.jpg` | Paper 2 | Figure 8 | Scrape-induced drawdown / cascade |
 | `fig_scraping_robustness.jpg` | Paper 2 | Figure 1 | CEH36 three-method scraping robustness |
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (512)
+## Outputs no exhibit renders (511)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 

@@ -1,0 +1,1004 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Folder>
+	<name>DIPwells</name>
+	<open>1</open>
+	<Placemark>
+		<name>CEH 6</name>
+		<description>Installed May 2006. 42mm O.D. 2m deep, upstand 0.15m  GL. 8.46m 242621 364724</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.355183,53.156351,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW4/1f</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7tfARlyOJvh-GfDPtgOpxGksaETigtgCIhasynpYf5WzTTJGKU5VQoNTbp-10b5d8OFpXWDsobR2DtCRrDdsWf4H4gvTbnXuzboxGshhKVOM-yIFeBEQLs3N1Wps42KGafFfVlePe63m63nLgnkXiB46RWxQV_AqhC" height="200" width="auto" /><br><br>Installed 1989, 35mm O.D. pipe. CCW diver until 2009. upstand   0.07m, 9.16m, 242431 363744 records from 13/4/05<br> <br> From Wells newbro https://photos.app.goo.gl/pAYNJjh56NPbUCuE6]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7tfARlyOJvh-GfDPtgOpxGksaETigtgCIhasynpYf5WzTTJGKU5VQoNTbp-10b5d8OFpXWDsobR2DtCRrDdsWf4H4gvTbnXuzboxGshhKVOM-yIFeBEQLs3N1Wps42KGafFfVlePe63m63nLgnkXiB46RWxQV_AqhC</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.357549,53.147478,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>wmc1</name>
+		<description>Installed by WMC in 2007. Diver GL. 7.29m upstand 0.05m  242765 3636436</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.352517,53.14668000000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D9</name>
+		<description>Installed April 2010 GL 9.14m upstand 0.02m  242710 363910</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.353697,53.149022,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D8</name>
+		<description>Installed April 2010 GL.9.28m upstand 0.05m  242676 364024</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.3536543,53.1499749,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D10</name>
+		<description>Installed April 2010, GL 9.60m upstand 0.04m 242613 364118</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.355028,53.150683,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 8</name>
+		<description>installed May 2006 GL 5.38m upstand 0.07m  243385  363612</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.346573,53.144428,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH9</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4h_7PGYHoN5FhPuq40PdYSdGQuJ5cQM1Egbakf2JktsAcBMTQujezOt52yERK_vHbkbodOUTBKWZLcUmaPS4w9glOnpfW01Nef_aNSIqOE3vR8YdjeB7Wxx1tts3H7h5MHZP03U9N_DzIDn2Y34BcuHa1zi3iqo8o" height="200" width="auto" /><br><br>Installed Apr 2006. 42mm O.D. 2m deep, upstand 0.00m, GL. 7.98 241718 363464 CEH diver<br><br> <br>https://photos.app.goo.gl/qny3ZyLPDr8uRfsA7]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v4h_7PGYHoN5FhPuq40PdYSdGQuJ5cQM1Egbakf2JktsAcBMTQujezOt52yERK_vHbkbodOUTBKWZLcUmaPS4w9glOnpfW01Nef_aNSIqOE3vR8YdjeB7Wxx1tts3H7h5MHZP03U9N_DzIDn2Y34BcuHa1zi3iqo8o</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.368074,53.144544,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 18</name>
+		<description>Warren. Installed June 2007. 42mm O.D. 2m deep, upstand 0.06m, GL. 5.14m 241267 363202</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.374597,53.142279,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH16</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7FWxQEKTlD9qn8P8ta7GA01mjoEu94CixM-Yiw2d3pFg7_YHkwoHsahdbldKbtjP5BJQGmmea7k2Dykxj2oYCxfAwMZ10ZtLX8jJCOVN11qMFZfE4lYVWWNeIqx0Nl_MGObZn3c-Nm0LAr0SLTj0pQGW8R4AgQKeTg" height="200" width="auto" /><br><br>Clearing. Installed June 2008. 42mm O.D. 2m deep, upstand 0.07m, GL. 6.10m 240988.214 363614.897 <br> <br>https://photos.app.goo.gl/xsF3uiw3i3VJ3fAE7 https://photos.app.goo.gl/8qMcmQGWRgzKo1s89<br><br><img src="https://lh3.googleusercontent.com/umsh/AN6v0v5O8OkK_HOJJwDNWnEuux_irwx2EYRvBmgj2tQNThnghr_Muk5TfRm9Pk3joEGDIlT0LLcZVH7D4cikuzzBERwqdcdhBwegJffVg4png7BPwHppd6FDfMmSz4KT4mzUO1fBXLbMmu5EPdnK40ZNbsPaSpKLccJNCD0" height="200" width="auto" />]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7FWxQEKTlD9qn8P8ta7GA01mjoEu94CixM-Yiw2d3pFg7_YHkwoHsahdbldKbtjP5BJQGmmea7k2Dykxj2oYCxfAwMZ10ZtLX8jJCOVN11qMFZfE4lYVWWNeIqx0Nl_MGObZn3c-Nm0LAr0SLTj0pQGW8R4AgQKeTg https://lh3.googleusercontent.com/umsh/AN6v0v5O8OkK_HOJJwDNWnEuux_irwx2EYRvBmgj2tQNThnghr_Muk5TfRm9Pk3joEGDIlT0LLcZVH7D4cikuzzBERwqdcdhBwegJffVg4png7BPwHppd6FDfMmSz4KT4mzUO1fBXLbMmu5EPdnK40ZNbsPaSpKLccJNCD0</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.379017,53.14592099999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH20</name>
+		<description>42mm OD pipe. elevation 8.61m, upstand  0.11m,  241107	363753 Installed 30/10/2008</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.376872,53.147472,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 1</name>
+		<description>Installed Apr 2006. 42mm O.D. 2m deep, upstand 0.04m GL10.652m 241595 363948</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.370059,53.1491,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH2</name>
+		<description>Installed Apr 2006. 42mm O.D. 3m deep, upstand 0.71m GL. 11.32m  241421	363979</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.372655,53.149325,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW10/1B</name>
+		<description>Installed in 1989, CCW diver. 32mm O.D. pipe, 1.7m deep, upstand 0.14m GL. 11.66m 241435	364325 records from 31/5/07</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.372741,53.152343,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW11/1C</name>
+		<description>Installed in 1989, CCW diver. 32mm O.D. pipe, upstand 0.15m GL. 11.95m 241689	364237 records from 31/5/07</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.368911,53.15177,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH14</name>
+		<description>Installed May 2006 .42mm O.D pipe 2m deep, upstand 0.00m. GL. 14.42m 241292	364488</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.375402,53.15396999999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW12/1A</name>
+		<description><![CDATA[CCW well installed in 1989. 35mm O.D. Pipe<br>CCW diver. 1.83m deep, upstand 0.08m. GL.13.72m  241262	364524 records from 13/5/07-1/7/11]]></description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.374983,53.15431100000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH13</name>
+		<description>Installed May 2006. 42mm O.D. 2m deep, upstand 0.09m GL 11.23m 240964 364066</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.379565,53.149923,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW5/2F</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7rrLf2hCnG1KDseeASAD4WGSKZGjgosDt8Z1YfhluqTLVXx7-rf4LOTQDQi1HcamBBbli-3oIlbdc2yumrA-od5pPQXHy6iSHspMUjQw3bfI5iFZX1wm8G_XMR2aoeC5mNjJkyFjSTcaQ5rZCUcLYj-xNrQz5-jH2u" height="200" width="auto" /><br><br>Installed 1989. 35mm O.D. 2m deep, upstand 0.00m, 5.75m 241715	363021 records from 13/4/05 depth 1.25m<br> <br>https://photos.app.goo.gl/vW3FsXqHmkZHRahm6]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7rrLf2hCnG1KDseeASAD4WGSKZGjgosDt8Z1YfhluqTLVXx7-rf4LOTQDQi1HcamBBbli-3oIlbdc2yumrA-od5pPQXHy6iSHspMUjQw3bfI5iFZX1wm8G_XMR2aoeC5mNjJkyFjSTcaQ5rZCUcLYj-xNrQz5-jH2u</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.367977,53.140708,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW6/2E</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4zPPJdvOPlLrRr4WpFKKE-qK4PQlhqT7KavN7QMdLdS14jA6x1Ukm9uSC7oyUhH6pxV5NgTz3Un_P8lPh0djoXc_aCl2z3b7ACGJMLnGESGEId7FzdENdZ1ba8eFYNtaLwav-y19zhPDLTQa7AqLA5Cyt6Vpt4vksG" height="200" width="auto" /><br><br>Installed 1989. CCW diver, (missing diver 1/9/11, top removed also, up stand now 0.03m) 1 42mm O.D. 1m deep, upstand 0.08m, GL 6.36m 241446	363316 Records from 13/4/05<br><br>https://photos.app.goo.gl/KdaUAPyanNhA9emF8]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v4zPPJdvOPlLrRr4WpFKKE-qK4PQlhqT7KavN7QMdLdS14jA6x1Ukm9uSC7oyUhH6pxV5NgTz3Un_P8lPh0djoXc_aCl2z3b7ACGJMLnGESGEId7FzdENdZ1ba8eFYNtaLwav-y19zhPDLTQa7AqLA5Cyt6Vpt4vksG</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.372076,53.143373,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW9/2B</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5oPRMjFTMWCyhG24ngQJX-FpeW1o0nVaC_nkip4ZY4iGNNJNCljy4wIyLYSGoNPXrD0mRxRpcqMC9BFXD8J_w3a-OqJYxxxNqUF4v9-Ef-rLJdrm55UYNSRJriIdGd8p3QxqMZLavMY2vKBlqQSCqOpwRGSn4EF5A" height="200" width="auto" /><br><br>Installed around 1989. 35mm O.D pipe, upstand 0.03m, GL. 5.15m 24093  363567 Records from 5/3/06<br> <br>https://photos.app.goo.gl/bXh4u3gmexeoPWGo8]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v5oPRMjFTMWCyhG24ngQJX-FpeW1o0nVaC_nkip4ZY4iGNNJNCljy4wIyLYSGoNPXrD0mRxRpcqMC9BFXD8J_w3a-OqJYxxxNqUF4v9-Ef-rLJdrm55UYNSRJriIdGd8p3QxqMZLavMY2vKBlqQSCqOpwRGSn4EF5A</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.379886,53.14550299999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>WMC2/2G</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6vbo94CkBkfHC3PRuBeE45JbpQhRee3VMuQmiLWTrY_4Zh-kdjXXw4Nhq5GywODX_l48YbxVv8IiW4mvTU2sAAKuI_nyyBmQkRnMCjvudjMMIB7m5bNtCtU3klbmlWXpigWJdtNy6KzAfmKZJrPoPdMjpQm7mEiA03" height="200" width="auto" /><br><br>Reinstalled 2008 by WMC. CCW diver. 35mm O.D. pipe, upstand 0.05m. GL. 7 4.50m 241885 362855<br> <br>https://photos.app.goo.gl/28nuRSFkWXcYEyeM9]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v6vbo94CkBkfHC3PRuBeE45JbpQhRee3VMuQmiLWTrY_4Zh-kdjXXw4Nhq5GywODX_l48YbxVv8IiW4mvTU2sAAKuI_nyyBmQkRnMCjvudjMMIB7m5bNtCtU3klbmlWXpigWJdtNy6KzAfmKZJrPoPdMjpQm7mEiA03</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.365306,53.139305,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH11</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7ieMhOe6uLfA1nvLO_juYsQdpr5AM5U6GAEudcZI2SOXvJpdMlgEN8HF9TAe8V7rlpYrSjvS87yu_MVjnv_vNuVxmwUOPMfqfHRxUEnO3nOsmOshp7bS5u5l8rDlEz6BN2TYRwBEqSmBim53xwj78TMLqbHgokuEF2" height="200" width="auto" /><br><br>Installed Apr 2007. 42mm O.D. 2m deep, upstand 0.05m GL 3.53m 4	242618 362688. <br> <br>https://photos.app.goo.gl/nJNhC5bNwSazjw8r5]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7ieMhOe6uLfA1nvLO_juYsQdpr5AM5U6GAEudcZI2SOXvJpdMlgEN8HF9TAe8V7rlpYrSjvS87yu_MVjnv_vNuVxmwUOPMfqfHRxUEnO3nOsmOshp7bS5u5l8rDlEz6BN2TYRwBEqSmBim53xwj78TMLqbHgokuEF2</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.354202,53.138076,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH19</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4t-QmDIZ06z1JT2CjEiNRbyjl7mRymp0eXTeg3OhIAHGwcFYC1zT3veYG-sJ0kcr6Qnlu_baGOQtn90Yzm4G_syjq8d0-slKgwpxfGRRagQ-ouPM79FvTb6jucSX4mtyDbjRkAjebSANkVhnJGf82HmfmrqTDHClz1" height="200" width="auto" /><br><br>EDGE, Installed Mar 2008. 42mm O.D. 2m deep, upstand 0.15m, GL. 4.65m 241145 363821<br> <br>https://photos.app.goo.gl/BPqEd4euBDGw42W4A<br> <br>https://photos.app.goo.gl/BbhxeG9R8AnaJF9w6<br><br><img src="https://lh3.googleusercontent.com/umsh/AN6v0v6IFsnKyAkIAu-zPrgTO2ApnUMgsRFML_cEYVUpY1Kl1xs_s-D5ofzmSCFWqTeaZ1kwC0kKDJVYCoPpN6IxIoxMpIJDMeImQTDoxNrBLHKQHCc6wis2jqZhO7Xv9KUzpUtF--sHNEywMfRxemFawmGWgN7d6NlT0hg8" height="200" width="auto" />]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v4t-QmDIZ06z1JT2CjEiNRbyjl7mRymp0eXTeg3OhIAHGwcFYC1zT3veYG-sJ0kcr6Qnlu_baGOQtn90Yzm4G_syjq8d0-slKgwpxfGRRagQ-ouPM79FvTb6jucSX4mtyDbjRkAjebSANkVhnJGf82HmfmrqTDHClz1 https://lh3.googleusercontent.com/umsh/AN6v0v6IFsnKyAkIAu-zPrgTO2ApnUMgsRFML_cEYVUpY1Kl1xs_s-D5ofzmSCFWqTeaZ1kwC0kKDJVYCoPpN6IxIoxMpIJDMeImQTDoxNrBLHKQHCc6wis2jqZhO7Xv9KUzpUtF--sHNEywMfRxemFawmGWgN7d6NlT0hg8</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.380755,53.14556,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 17</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5Dev2uEbKFQrUXnrp9TJdymj8EkE58IheWLU-ofDESrUWawDJv8cYfqoZrph5s6R9KV_xQasKHxW3SzXkRsKZvvmOcKM2C0OC9yuApBtdkvIz-0dGSDjAJ2L7butQauqjJksC6NUndeCnEeRJZd7rVElDOKNZgSugm" height="200" width="auto" /><br><br>FOREST Installed Aug 2007. 42mm O.D. 3m deep, upstand 0.09m, 240804.5974 363576.0695<br> <br> From Wells newbro (http://picasaweb.google.co.uk/martin.hollingham/WellsNewbro?feat=embedwebsite)]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v5Dev2uEbKFQrUXnrp9TJdymj8EkE58IheWLU-ofDESrUWawDJv8cYfqoZrph5s6R9KV_xQasKHxW3SzXkRsKZvvmOcKM2C0OC9yuApBtdkvIz-0dGSDjAJ2L7butQauqjJksC6NUndeCnEeRJZd7rVElDOKNZgSugm</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.381678,53.14549,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH15</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6ZwcUSAow8gjzr4H43kqBJTO-eRjBGu_3-U24ORvtiYFaUOOn9k2VnBsz0AYbTnxF-tOWOo8I_NHo8ZkqB0SYIeu4dljEEc5mqYpTy02IeR-2BWslVa3WNRNd4NqigsXr1xiEEJ_jwFCDpqQyVNbfnyBy8ROiK2HHs" height="200" width="auto" /><br><br>CAR PARK Installed Aug 2007. 42mm O.D. 2m deep, upstand 0.05m, GL. 5.87m 240679 363754 Pine cone blocking pipe. was previously vandalized hence restriction at 1m. <br> <br>https://photos.app.goo.gl/kPZFiHLyTEBjjTcG7]]></description>
+		<styleUrl>#icon-157</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v6ZwcUSAow8gjzr4H43kqBJTO-eRjBGu_3-U24ORvtiYFaUOOn9k2VnBsz0AYbTnxF-tOWOo8I_NHo8ZkqB0SYIeu4dljEEc5mqYpTy02IeR-2BWslVa3WNRNd4NqigsXr1xiEEJ_jwFCDpqQyVNbfnyBy8ROiK2HHs</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.383695,53.1467,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D45</name>
+		<description>Installed April 2010 monitored until Sept 2011 GL. 2.75m Upstand 0.04m  242898. 362614</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.350071,53.13746499999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D39</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6ca8hud3j5TTXCwyEOSH8j84Wctt2--BNWMmPNyGXLnNQ9gg_bcDprVALfDtfqVjd3h4N5NPq--ED_Bri9weFNFXqb8ClzKlV2DXX6hLOIwKo-9REGEx_-xHPVYeBYGXe84VUjpdhhKk-jUbLx3ZWlpT151CdqZiOK" height="200" width="auto" /><br><br>Installed April 2010 63mm O.D pipe, upstand 0.13m, GL. 3.95m 243004 362903 Monitoring ceased in Sept 2019<br><br>https://photos.app.goo.gl/s5SERji2vo5WFsUG7]]></description>
+		<styleUrl>#icon-157</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v6ca8hud3j5TTXCwyEOSH8j84Wctt2--BNWMmPNyGXLnNQ9gg_bcDprVALfDtfqVjd3h4N5NPq--ED_Bri9weFNFXqb8ClzKlV2DXX6hLOIwKo-9REGEx_-xHPVYeBYGXe84VUjpdhhKk-jUbLx3ZWlpT151CdqZiOK</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.348655,53.140039,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D34</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v74c4TDuggLqYcRtbGhOzIasN8NlGwCPkGH6Pxu10n-kb5Qi8CYeBbiJ1hfVs09W3dpL9O4EMILID9M9Wk0gGAf6GBXgKiBytI_GAhb9_ify8TW5znjGDRuWYx9zsU6kw-eJOLkOMnIoK0RwqS6uLZvmN-h95wp7vi9" height="200" width="auto" /><br><br>Installed April 2010, 63mm O.D. upstand 0.00m, GL. 3.34m 241251	363920. Ceased monitoring 1/9/11<br><br>https://photos.app.goo.gl/nkQwLT8ugrqP9NBGA]]></description>
+		<styleUrl>#icon-157</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v74c4TDuggLqYcRtbGhOzIasN8NlGwCPkGH6Pxu10n-kb5Qi8CYeBbiJ1hfVs09W3dpL9O4EMILID9M9Wk0gGAf6GBXgKiBytI_GAhb9_ify8TW5znjGDRuWYx9zsU6kw-eJOLkOMnIoK0RwqS6uLZvmN-h95wp7vi9</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.349341,53.140412,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D33</name>
+		<description>GL 4.57m upstand 0.11m 243166 363196 installed March 2010 monitoring ceased in Sept 2011.</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.346005,53.142819,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D44</name>
+		<description>Installed April 2010.GL. 5.73m Upstand  0.08m 1	242819 363279</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.351691,53.14325,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>T41d</name>
+		<description>Installed April 2010. GL. 5.49m upstand 0.4m  242709 363275</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.353257,53.143321,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>T41d</name>
+		<description>Installed April 2010. GL. 6.23m upstand 0.11m 242731 363353</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.352946,53.14406099999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>T41b</name>
+		<description>Installed April 2010. GL. 5.64m upstand  0.00m   242715 363309</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.35315,53.143598,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>T41c</name>
+		<description>Installed April 2010. GL 5.8m upstand  0.09m  242721 363323</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.353043,53.143887,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D41</name>
+		<description>Installed April 2010. GL 3.95m Upstand 0.08m  242771 363342</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.35212,53.14404200000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D43</name>
+		<description>Installed April 2010. GL. 6.91m upstand 0m  242664  363428</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.353869,53.14466600000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D38</name>
+		<description>Installed April 2010 GL.4.66m upstand  0.11m  242711 363069</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.353408,53.141532,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH7</name>
+		<description>Installed Apr 2006. 42mm O.D. 1m deep, upstand 0.07m  GL. 5.38m 243385 363612.</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.343204,53.146667,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH30</name>
+		<description><![CDATA[42mm OD elevation 8.61m, upstand  0.06m   241072	363760<br>installed 1/7/2010]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.377654,53.147032,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH31</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5ROlaKkdB7s1nb-BPlrr53jdsEwBq4OUDV9T0m_nOmygHDPiQlARExpF6PZLBIEqv32eY87C_W0qMY_J2499P73rx5s8JUWwjf3_aS-6HyXDxvtWxoXuWsq6N8zjEKMW8cklcscuFLk23sFhe9pU2V1wPRZtxGJJ0" height="200" width="auto" /><br><br>Location marked at 23 Jun 2010,12:07: 42mm O.D.pipe, upstand 0.17m, 241075 363538 <br> <br> From Wells newbro (http://picasaweb.google.co.uk/martin.hollingham/WellsNewbro?feat=embedwebsite)]]></description>
+		<styleUrl>#icon-ci-1</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v5ROlaKkdB7s1nb-BPlrr53jdsEwBq4OUDV9T0m_nOmygHDPiQlARExpF6PZLBIEqv32eY87C_W0qMY_J2499P73rx5s8JUWwjf3_aS-6HyXDxvtWxoXuWsq6N8zjEKMW8cklcscuFLk23sFhe9pU2V1wPRZtxGJJ0</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.377987,53.145068,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>WMC3/2C</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6oqv4UeS6PrcCb3ST3e4OI9smRl7ptRqYEgteHU7M7lWPqKHRggLMO4RUdjpMqruPJLHKN0Yb2CbuVIzvpruvk22h4EZYiuAhh2WuefxrOLqg9v0D5FBJmmcuDUMftiMrnMjOdFjJ7CqE1lr4QM289zOiDtGKzF22L" height="200" width="auto" /><br><br>32mm O.D. pipe. upstand 0.06cm   241219 363595 8.69m  CCW diver, probable location of 2c. Now in clear fell area. Monitored from 30/6/2009<br><br> <br>https://photos.app.goo.gl/Jxan65dV2QdowJmb7]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v6oqv4UeS6PrcCb3ST3e4OI9smRl7ptRqYEgteHU7M7lWPqKHRggLMO4RUdjpMqruPJLHKN0Yb2CbuVIzvpruvk22h4EZYiuAhh2WuefxrOLqg9v0D5FBJmmcuDUMftiMrnMjOdFjJ7CqE1lr4QM289zOiDtGKzF22L</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.375541,53.145509,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW8/2D</name>
+		<description>Installed 1989. 35mm O.D. CCW Diver. 2m deep, upstand 0.09m, GL. 7.24m Monitored until 1/3/16. Run over by CCW contractors in 2015.  241276 363480 records from 5/12/06</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.374436,53.145187,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW7</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7ftKJItLrb3D1-hu7lpmK3BQdKKe7ueB1Xj3i8-qgBg0C7mwulrIIKPe80jD7S5PRXXhYIvMN2m7-5vSj8ivs9tQfViwTsW_-I5ZCGg20GeJyrx5QCk0C3CHDpJoavQNZEtOKZXWMMyJ9PxTbL4Fu4_HVT_Wup60td" height="200" width="auto" /><br><br>Installed around 2000. records from Aug 2006 63mm ).D. pipe, upstand 0.03m, GL 8.47m 241423 363584<br> <br>https://photos.app.goo.gl/yK1bYZgJbCeJFfnQ6]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7ftKJItLrb3D1-hu7lpmK3BQdKKe7ueB1Xj3i8-qgBg0C7mwulrIIKPe80jD7S5PRXXhYIvMN2m7-5vSj8ivs9tQfViwTsW_-I5ZCGg20GeJyrx5QCk0C3CHDpJoavQNZEtOKZXWMMyJ9PxTbL4Fu4_HVT_Wup60td</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.372054,53.14605600000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 3</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4UYArR7KjyAeQM_4wIuFJaYkj9IG3KpbMQ_0WKHO7c2rnQFIso_vBx2jSp1Gg-tdb49VC6llcbgmzpdZBoyNENsHln1FKxlGQ4UBY4VgkSSO6p-nB9hLn902QvOnQmN1DfGD3rtzrgHGK8-nHDHeBp59leItxMabLC" height="200" width="auto" /><br><br>Installed May 2006. 42mm O.D. 2m deep, upstand 0.01m, GL. 4.63m 240743 363388<br> <br>https://photos.app.goo.gl/6AmCzpWHgtUbzxLa9]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v4UYArR7KjyAeQM_4wIuFJaYkj9IG3KpbMQ_0WKHO7c2rnQFIso_vBx2jSp1Gg-tdb49VC6llcbgmzpdZBoyNENsHln1FKxlGQ4UBY4VgkSSO6p-nB9hLn902QvOnQmN1DfGD3rtzrgHGK8-nHDHeBp59leItxMabLC</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.382654,53.143842,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>ceh 32</name>
+		<description>Installed 2/8/10. 42mm O.D. 3m deep, upstand 0.04m, elevation 10.87m, 241167	364003</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.376593,53.149434,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>ceh33</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5kX50kegrAW9norp3kBKi47DQG7WCeI5Q2vIwBYCJ9Uj5kPLd3a8LyEE40w4Z-uRDudlSzzEgdTrdk7LqyEUYWkRTiVJB35jysjoJLNNN2G-0ks25vqHVndA6vzgra7HtH9LLKCyYoyqROkxlO-fWG09wx1W3T6_PJ" height="200" width="auto" /><br><br>Installed 2/8/10  42mm OD<br>elevation 8.77m, upstand 0.06m 240936	363808<br> <br>https://photos.app.goo.gl/1NF5mUAidt23jFqx9]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v5kX50kegrAW9norp3kBKi47DQG7WCeI5Q2vIwBYCJ9Uj5kPLd3a8LyEE40w4Z-uRDudlSzzEgdTrdk7LqyEUYWkRTiVJB35jysjoJLNNN2G-0ks25vqHVndA6vzgra7HtH9LLKCyYoyqROkxlO-fWG09wx1W3T6_PJ</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.379994,53.14751699999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D25</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6sKetGjYW8KYFClYxLQeTgbWmkHqaZObRRyxJ0rnAdZ2Ap4s-fWvkbl95UL8UQnGlb5g8-Zie1zhUGA1o9ueNYOf6HvZTam4YRvkjk6jONbR8hyA_t9c8Y3Gbo6JqPIKTA_VUaadlZdMeiQqKdPuKrLHrjqS3_4eqm" height="200" width="auto" /><br><br>Installed April 2010. 63mm O.D. pipe. GL 5.35m Upstand 0.05m, 242450	363537<br><br> <br>https://photos.app.goo.gl/kG9anqnbZP4Ur1Pz7]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v6sKetGjYW8KYFClYxLQeTgbWmkHqaZObRRyxJ0rnAdZ2Ap4s-fWvkbl95UL8UQnGlb5g8-Zie1zhUGA1o9ueNYOf6HvZTam4YRvkjk6jONbR8hyA_t9c8Y3Gbo6JqPIKTA_VUaadlZdMeiQqKdPuKrLHrjqS3_4eqm</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.3608,53.141983,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH21</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7ZRN90q6ZvXrVzeYZPhBiQXpLnjwR69jOfSjtqRTnyhR8UNFyG9BOWene-sX6TUJtAw2koWXKhY2IUOCS8R9ka3SQ9oaE09wX_V6Z1oCaRJwuLeNSl3ygKfb3EbiE4M7bwcjyX7u0z_W9rqdPKBhXjvEU5FS3epJhv" height="200" width="auto" /><br><br>2m deep 42mm O.D. upstand 0.05m. GL. 4.17m installed July 2010, 241472 362941 Slack same as measured by Ranwell in 1950's<br> <br>https://photos.app.goo.gl/PpZGXa8BF6ygAkgW8]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7ZRN90q6ZvXrVzeYZPhBiQXpLnjwR69jOfSjtqRTnyhR8UNFyG9BOWene-sX6TUJtAw2koWXKhY2IUOCS8R9ka3SQ9oaE09wX_V6Z1oCaRJwuLeNSl3ygKfb3EbiE4M7bwcjyX7u0z_W9rqdPKBhXjvEU5FS3epJhv</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.371454,53.139936,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH4</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7KGiUKdRTZlmnUSJVOjLx9kc9XoW8LHUYMXNvCiYgHWWZI5WTHeqisFcVB1Rxzdv4TBP3LisknWbAmo0tahLRkLqsacpCTHVc-MYBGO67QLPs43_tObbzbi9ouPo1S7dJ5Mv_EUK5iw2BiNqP0oWmyNlKbSSzAjKqd" height="200" width="auto" /><br><br>Installed Apr 2006. 42mm O.D. 2m deep, upstand 0.07m, GL.4.48m  241138 363211 <br> <br>https://photos.app.goo.gl/8fqBbSkEEWDNjGYJ6]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7KGiUKdRTZlmnUSJVOjLx9kc9XoW8LHUYMXNvCiYgHWWZI5WTHeqisFcVB1Rxzdv4TBP3LisknWbAmo0tahLRkLqsacpCTHVc-MYBGO67QLPs43_tObbzbi9ouPo1S7dJ5Mv_EUK5iw2BiNqP0oWmyNlKbSSzAjKqd</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.3767,53.142324,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D15</name>
+		<description>Installed April 2010 GL 10.37m upstand 0.15m  241980 363895</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.364448,53.148694,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D5</name>
+		<description>Installed April 2010 GL 10.50m upstand 0.1m 1242083 363901</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.362806,53.14881700000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D6</name>
+		<description>Installed April 2010 GL 10.83m upstand 0.05m  242114  364021</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.362398,53.149852,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH10</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7hM6kbbYHDKkasEtHPmdT3zBnkb2grnktuJPwgCGqtdKOsYgBEaMAfaCVg6wcxJ-Jmk7AJKF-tUO1o8apWYXUGDcZ03Hmxus_5-QaIIGO70hLNwkkX44imsObuy0VfmWkpq94CTVuKVOr9D1liSoJCUvxMF_V-Ok0" height="200" width="auto" /><br><br>Installed May 2006, 42mm O.D.pipe, 2m deep. Deepened to 3m in July 2010, upstand 0.04m, GL. 5.82m 241435 364325. Water levels rise here when the slack with NW4 floods<br><br> <br>https://photos.app.goo.gl/MPjd8vBYUi3Cf9dQ9]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7hM6kbbYHDKkasEtHPmdT3zBnkb2grnktuJPwgCGqtdKOsYgBEaMAfaCVg6wcxJ-Jmk7AJKF-tUO1o8apWYXUGDcZ03Hmxus_5-QaIIGO70hLNwkkX44imsObuy0VfmWkpq94CTVuKVOr9D1liSoJCUvxMF_V-Ok0</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.355693,53.142394,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D17</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7HXjfmN0NXEGwzI-a043bZKZqwIdyjc7zWzfpABRy8XAYAbBv_VbR5TKCL_AdBG_8A98rFXv1ncpSA8bWCZ2oO2sd_pzOfxzFN-F-xe5thie-dtcaBmzJpSFhx_sgbxETU4jWC1izJ2o5ZPdvC0crSES28ILTxLvA" height="200" width="auto" /><br><br>Installed April 2010. 42mm O.D. GL 7.93m Upstand 0.05m, 242450	363537.<br> <br>https://photos.app.goo.gl/3HCm2FLh8kGLDjqt9<br> <br>https://photos.app.goo.gl/srzPS9Se5A7Pvi9W6<br><br><img src="https://lh3.googleusercontent.com/umsh/AN6v0v7iNOHbNoLgvP4JlLMlrFl_twRS9EjcTLgOBqQIxV50g8mIxBWCrL1IkYWE9okIwtV43LsN6KLh5H_KcVDzFVB8nEWqxstS5pcXfYzB90vf2r_Oes2VLhPlZOa-owWHwaMQM2cUxw-ssxlSazS-OoCMCidqhV0hGZo" height="200" width="auto" />]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v7HXjfmN0NXEGwzI-a043bZKZqwIdyjc7zWzfpABRy8XAYAbBv_VbR5TKCL_AdBG_8A98rFXv1ncpSA8bWCZ2oO2sd_pzOfxzFN-F-xe5thie-dtcaBmzJpSFhx_sgbxETU4jWC1izJ2o5ZPdvC0crSES28ILTxLvA https://lh3.googleusercontent.com/umsh/AN6v0v7iNOHbNoLgvP4JlLMlrFl_twRS9EjcTLgOBqQIxV50g8mIxBWCrL1IkYWE9okIwtV43LsN6KLh5H_KcVDzFVB8nEWqxstS5pcXfYzB90vf2r_Oes2VLhPlZOa-owWHwaMQM2cUxw-ssxlSazS-OoCMCidqhV0hGZo</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.357281,53.145483,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>L7</name>
+		<description>42mm OD installed Nov 2011 242812	364395 upstand 0.06m</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.351991,53.153449,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>L4</name>
+		<styleUrl>#icon-157-nodesc</styleUrl>
+		<Point>
+			<coordinates>-4.350865,53.152934,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>L1</name>
+		<styleUrl>#icon-157-nodesc</styleUrl>
+		<Point>
+			<coordinates>-4.351187,53.153501,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH25</name>
+		<description>Installed April 2010 63mm OD 9.05m Upstand 0.25m  242512 364638</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.357077,53.155534,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH26</name>
+		<description>Installed April 2010 63mm OD 10.43m Upstand 0.025m   242172  364362</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.361615,53.152877,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH22</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4-rZOsE63bul65MqGuRnWRJUss_bFiQWUQgV5qr8o7KrgebeuubxRKgotywtFcnkqytG-sfaMGPaOtRBhHUpt9tdHQth6USByT9vc3uJYsGnj3-D5WfNII0POa3hR-5Jaxq8cmryI1haxeWAmIFtYe3yaefUN7vr1H" height="200" width="auto" /><br><br>Installed April 2010, 42mm O.D. 2m deep, upstand 0.05m.GL. 3.23m 241376	362910 <br> <br>https://photos.app.goo.gl/kek5miuripEkBwnYA]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v4-rZOsE63bul65MqGuRnWRJUss_bFiQWUQgV5qr8o7KrgebeuubxRKgotywtFcnkqytG-sfaMGPaOtRBhHUpt9tdHQth6USByT9vc3uJYsGnj3-D5WfNII0POa3hR-5Jaxq8cmryI1haxeWAmIFtYe3yaefUN7vr1H</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.37288,53.13964,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D29</name>
+		<description>63 mm pipe, 1.68m deep, Installed April 2010, renewed in 42mm pipe, 1.86m deep in Aug 2010, 3 m NE. Conductivity diver. Ceased monitoring 1/9/11 GL. 3.80m upstand 0.05m  243600 363438</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.339905,53.145163,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D29B</name>
+		<description>42mm pipe, 1.86m deep, installed 22/8/10 Monitoring ceased Sept 2011</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.339849,53.14517899999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>T29</name>
+		<description>63mm pipe. Ceased monitoring 1/9/11 GL 3.98m upstand 0.05m 243586 363467</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.340136,53.1453211,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 24</name>
+		<description>Installed April 2010 63mm OD. GL. 5.81m Upstand 0.15m  242938 363392</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.349771,53.144396,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D31</name>
+		<description>installed April 2010 GL 4.61m upstand 0.05m 243282 363259</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.344589,53.143392,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH23</name>
+		<description>Installed April 2010 63mm OD pipe GL. 9.958m Upstand  0.06m 242325 364428</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.359426,53.153607,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 27</name>
+		<description>Installed April 2010, 63mm O.D. pipe. GL. 10.90m Upstand  0.04m  242005. 364330</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.364265,53.152587,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH28</name>
+		<description>Installed April 2010 63mm OD. GL. 10.54m  Upstand -0.14m  242331 364122</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.359255,53.15088799999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>D7</name>
+		<description>Installed April 2010 GL 9.78m upstand 0.1m 242610 364205</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.355114,53.15178899999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 34</name>
+		<description>installed August 2010 63mm OD. GL. 9.75m  upstand 0.05m  241251	363920</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.374575,53.14851399999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW3</name>
+		<description>Installed June 1989, CCW Diver, 35mm O.D. 2m deep, upstand 0.05m, 10.65m. 242091 363939 records from 13/4/05.  depth 1.1m</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.362677,53.149161,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH12</name>
+		<description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5Vmu8SAetRFKTBVfxVNPiCmWNO1p2TXlGpYKgj-iplmRpj_8_jO7HX3whsXrnWiQLaqt5Bc54AnyJldk_wqnQ5aDBcrLdWNXGXeLSbGveWPNripoXvMxObdq4I2Nph2oQNafBXXE2z0gy9_zpk7xFn1TsIpKwgFpU" height="200" width="auto" /><br><br>Installed May 2006. 42mm O.D. pipe, 2m deep. Upstand 0.02m . GL. 34.88m 240339 364588. Readings stopped April 2008. recommenced Feb 2010, removed Dec 2010 by felling contractors thinning.<br><br> <br> From Wells newbro (http://picasaweb.google.co.uk/martin.hollingham/WellsNewbro?feat=embedwebsite)]]></description>
+		<styleUrl>#icon-157</styleUrl>
+		<ExtendedData>
+			<Data name="gx_media_links">
+				<value>https://lh3.googleusercontent.com/umsh/AN6v0v5Vmu8SAetRFKTBVfxVNPiCmWNO1p2TXlGpYKgj-iplmRpj_8_jO7HX3whsXrnWiQLaqt5Bc54AnyJldk_wqnQ5aDBcrLdWNXGXeLSbGveWPNripoXvMxObdq4I2Nph2oQNafBXXE2z0gy9_zpk7xFn1TsIpKwgFpU</value>
+			</Data>
+		</ExtendedData>
+		<Point>
+			<coordinates>-4.389124,53.154491,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW2</name>
+		<description>Installed around 2000, obsevation well for pump test at NW1. 63mm O.D.pipe, upstand 0.59m, elevatrion 11.47m	241703.008	364112.082 records from 13/4/05</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.368675,53.15058000000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW1</name>
+		<description>Pump test well installed around 2000. 150mm O.D. pipe, upstand 0.27m 12.36m elevation 241725	364139 records from 13/4/05</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.368299,53.150721,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>Canada pool</name>
+		<description>located, but not monitored</description>
+		<styleUrl>#icon-61</styleUrl>
+		<Point>
+			<coordinates>-4.40659,53.155958,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 11</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.411601,53.155617,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 12/NF1</name>
+		<description>located but not monitored. Monitored From Jan 2006 to April 2008.  GL. 8.12m 0.12m  239670	364833</description>
+		<styleUrl>#icon-61</styleUrl>
+		<Point>
+			<coordinates>-4.399295,53.156383,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>Uni Lanc Well1/NF2b</name>
+		<description>NW2, located but not monitored. Monitored From Jan 2006 to April 2008 GL 4.68m upstand 0.14m  239663	265034</description>
+		<styleUrl>#icon-61</styleUrl>
+		<Point>
+			<coordinates>-4.399552,53.158197,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>Uni Lancs well 2/ NF2</name>
+		<description>NF2B, located but not monitored. Monitored From Jan 2006 to April 2008 GL. 4.46m upstand 0.07m 239672	365041 Grid ref a bit out. Well is in line with NF2b parallel to the ditch</description>
+		<styleUrl>#icon-61</styleUrl>
+		<Point>
+			<coordinates>-4.399574,53.15857,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>Uni Lanc well 3</name>
+		<description>located but not monitored.</description>
+		<styleUrl>#icon-61</styleUrl>
+		<Point>
+			<coordinates>-4.399638,53.158789,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 17</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.39363,53.164655,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 14</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.392257,53.16261000000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 17</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.393802,53.162584,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 15</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.394081,53.16277699999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 10</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.388738,53.161246,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>Newt pool</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.388008,53.159329,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 1</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.37861,53.163292,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 2</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.378362,53.16304,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 4</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.381056,53.16528600000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 5</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.381142,53.164977,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 6</name>
+		<description>Found 8/1/10 up -3cm 63mm diam. Located in middle of slack which shows signs of surface flooding. Felling contractors break the pipe cap during thinning operation 7/1/10.</description>
+		<styleUrl>#icon-157</styleUrl>
+		<Point>
+			<coordinates>-4.373095,53.163768,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 9</name>
+		<description>Lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.384704,53.152548,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 8</name>
+		<description>Lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.387236,53.151442,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 7</name>
+		<description>Lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.390411,53.15058000000001,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>FC well 3</name>
+		<description>lost</description>
+		<styleUrl>#icon-123</styleUrl>
+		<Point>
+			<coordinates>-4.378417,53.16455199999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CCW well 5/NF5</name>
+		<description><![CDATA[Installed in 2001 as part of C. Bristow modelling.<br>Not now monitored but always dry. Upstand 0.09m  239770	363775]]></description>
+		<styleUrl>#icon-123</styleUrl>
+		<gx:balloonVisibility>1</gx:balloonVisibility>
+		<Point>
+			<coordinates>-4.397353,53.147079,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 37</name>
+		<description><![CDATA[Installed 20/1/11. 42mm OD. 1.4m deep, although pipe is to 2 m. Screened. 4cm upstand.<br>242886 363346]]></description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.350615,53.14406,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 35</name>
+		<description>installed 19/1/11. 42mm OD. 2m deep 3cm upstand. 241081 363212 Swamped by sand after CCW works 2/2/16</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.377561,53.142224,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 36</name>
+		<description>installed 19/1/11. 2m deep, 42mm  OD.upstand 3cm . 241161 363306 excavation works Nov 2016 removed 20 cm of slack surface</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.376292,53.143167,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 39</name>
+		<description>42mm OD upstand 0.04m  241719	363435</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.36801,53.14447299999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW4b</name>
+		<description>Installed around 2000, 63mm O.D. 2m deep, upstand 0.08m records from Aug 2006 242414 363751</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.357796,53.147543,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH38</name>
+		<description>63mm OD 241130 363261 installed Aug 2010 Lost to sand Nov 2011 found again in Feb 2018</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.377317,53.142546,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>NW13</name>
+		<description>CCW well 1D.monitored 1989-1996. located again in March 2012 241761	364180</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.3675422,53.1511122,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>WMC4</name>
+		<description>Installed by Water Management Consultants in 2007(?) 42mm OD. Diver. Located by me in March 2012 241761	364180</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.367554,53.15110199999999,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH40</name>
+		<description>installed July 2017 63mm OD. 7.80m  upstand 0.05 m 2420603	363398</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.3628298,53.1442271,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH 41</name>
+		<description>Installed July 2017 63mm OD. upstand 0.06m GL 6.87m 242284 363324</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.3594985,53.1436745,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>LLyn Rhos Ddu</name>
+		<description>Level board installed by CCW. was changed but all records corrected for this. Zero on the board is 0.52m from the top of board. .  Top of board 7.34m  242560 364820</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.3556272,53.1574596,0</coordinates>
+		</Point>
+	</Placemark>
+	<Placemark>
+		<name>CEH42</name>
+		<description>installed July 2017 63mm OD. upstand 0.13m GL 3.615m 242120 362743</description>
+		<styleUrl>#icon-22</styleUrl>
+		<Point>
+			<coordinates>-4.3616836,53.1383801,0</coordinates>
+		</Point>
+	</Placemark>
+	<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.7.1155"></atom:link>
+</Folder>
+</kml>

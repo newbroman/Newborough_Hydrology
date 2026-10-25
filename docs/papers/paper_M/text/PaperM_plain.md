@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_2.odt — do not edit. source-sha256=4fb68f76efaf4b21 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_3.odt — do not edit. source-sha256=a3c493b9d7855e5f pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -145,6 +145,10 @@ These are shares, not amounts. Turning them into millimetres of water needs one 
 
 # []{#anchor}9. The questions people will ask
 
+## []{#anchor}What was the early high water?
+
+From 2006 to 2008 the water table stood well above what the model gives for that weather: by about 0.3 m in the western dune and almost a metre under the two forest groups. Nothing in the weather explains it. The questions below are the explanations that were tested.
+
 ## []{#anchor}Is there a second, slower store of water?
 
 The two old records ask for two speeds: a quick return and a slow hold. The obvious idea is a second, slower store of water working alongside the first. The paper fitted one, and at every group the fit gave it nothing to do: one store was better.
@@ -160,6 +164,14 @@ The coastal forest group is nearest the eroding shore, and a retreating coast lo
 ## []{#anchor}Was it how the rain fell?
 
 Rain that falls in long, steady spells loses less to evaporation than a month's total suggests, and a monthly model cannot see that. Daily rainfall from a gauge on Anglesey shows that only one of the three wet winters at the start of the record was unusual in this way, and later wet winters had as much long-spell rain without the same effect. How the rain fell does not explain the early high water.
+
+## []{#anchor}Was it the 1998 fellings?
+
+The high water was greatest next to the patches of forest felled in 1998 and faded with distance from them, so the fellings fit where it happened. They do not fit when: the water had fallen back long before the trees on the felled ground grew back. The question stays open.
+
+## []{#anchor}Was it a dry year before?
+
+The very dry 2005 came just before the high water, so perhaps a wet spell on a dried-out warren raises the water table more than usual. The only other such sequence in the record, dry 2022 then wet 2023--24, did not do the same, so that is not supported either.
 
 # []{#anchor}10. A checklist for other sites
 

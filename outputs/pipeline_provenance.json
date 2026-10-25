@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-24T23:26:15",
- "orchestrator": "2.26.0",
+ "generated": "2026-10-25T22:25:51",
+ "orchestrator": "2.27.0",
  "steps": {
   "00_climate_summary.py": {
    "emitted": {
@@ -160,9 +160,9 @@
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77"
    },
    "inputs_unresolved": [],
-   "seconds": 35.6,
-   "started": "2026-10-10T10:50:20",
-   "version": "1.13.0"
+   "seconds": 28.0,
+   "started": "2026-10-25T22:25:23",
+   "version": "1.13.1"
   },
   "03_state_space_model.py": {
    "emitted": {

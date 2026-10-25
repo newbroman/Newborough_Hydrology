@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_1.odt — do not edit. source-sha256=64ba0e7bf5d29795 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_2.odt — do not edit. source-sha256=d174184cd387152e pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -52,6 +52,10 @@ The biggest division separates the Main Forest from everything else. The next sp
 ## []{#anchor}Are the boundaries sharp?
 
 No. A second check, comparing each well with the typical record of every group, supports the grouping of 60 of the 66 wells. Many wells resemble two neighbouring groups almost equally, as you would expect in one continuous body of sand. The Western Residual is the most blurred, and the paper reads it as the more cushioned south-western continuation of the open dune rather than a separate block.
+
+## []{#anchor}Can a neighbour fill a gap?
+
+Many wells were not read every month. Hiding months that had been read showed that a well's nearest neighbour in the same group puts them back better than the climate model does: a typical miss of 0.041 m against 0.139 m. That only holds for the modern record. Grouped on their readings from 1989--96, the twelve older wells did not fall into today's groups, so the groups are not carried back that far.
 
 # []{#anchor}4. The model in one picture
 

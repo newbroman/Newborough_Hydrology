@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_81.odt — do not edit. source-sha256=bc262032c9d6a945 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_82.odt — do not edit. source-sha256=c37d225921951b92 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -187,7 +187,7 @@ The five units recover the broad substrate contrast between the responsive, stor
 
 ![](Pictures/1000000000000CEC00000B0C1A478986.jpg){width="15.84cm" height="12.501cm"}
 
-**Figure 5.** Spatial distribution of the five hydrogeological clusters (Pearson affinity validation), reference network (66 wells). Points coloured by k-means assignment; circles = Core (Δr \> 0.05), diamonds = Fuzzy (Δr \< 0.05; number inside diamond = secondary cluster), stars = Spy (Pearson best-match ≠ assigned; number inside star = best-match cluster). Hollow overlays = Multi-Cluster Affinity (r \> 0.90 with ≥3 clusters). LiDAR: © NRW & OS.
+**Figure 5.** Spatial distribution of the five hydrogeological clusters (Pearson affinity validation), reference network (66 wells). Points coloured by assigned cluster (Ward's linkage); circles = Core (Δr \> 0.05), diamonds = Fuzzy (Δr \< 0.05; number inside diamond = secondary cluster), stars = Spy (Pearson best-match ≠ assigned; number inside star = best-match cluster). Hollow overlays = Multi-Cluster Affinity (r \> 0.90 with ≥3 clusters). LiDAR: © NRW & OS.
 
 ![](Pictures/1000000000000640000003EA9FB80F41.jpg){width="15.96cm" height="9.996cm"}
 

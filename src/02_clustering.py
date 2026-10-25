@@ -14,7 +14,9 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.13.1"  # Hollingham (2026) — 2026-10-25. The console banner said "k-Means Clustering"; the
+#   method is Ward's hierarchical clustering (linkage method="ward" throughout). Banner text only.
+# 1.13.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the bootstrap stability bound ("four of the five clusters ... >= X") and C5's raw and
 #   climate-normalised amplitude change; new rows cluster_stability_median_min_stable_k<NUM_CLUSTERS> (lowest
 #   median co-assignment once the least stable cluster is set aside; config has no stability threshold) and
@@ -1772,7 +1774,7 @@ def add_amplitude_damping_numbers(rr: ReportNumbers, per_well: pd.DataFrame) -> 
 
 
 if __name__ == "__main__":
-    banner("02", "k-Means Clustering & Partition", version=__version__)
+    banner("02", "Hierarchical clustering & partition (Ward)", version=__version__)
     make_all_dirs()
     print("--- Starting 02: Reference Clustering ---")
 

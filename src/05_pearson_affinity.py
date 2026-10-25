@@ -8,7 +8,10 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.7.1"  # Hollingham (2026) - 2026-10-25. Label correction (Martin 22:01 "fix the k-means
+#   reference"): the confidence map's title and cluster-legend heading said "k-means"; the clusters come from
+#   Script 02's Ward linkage, and no k-means is run anywhere in the pipeline. Figure text only; no data moves.
+# 1.7.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the largest |delta r| among the Spy wells; new row spy_max_abs_delta_r in
 #   05_report_numbers.csv, from the audit frame just written. Emit-only; no other output moves.
 # 1.6.0  # Hollingham (2026) - 2026-09-29. T-96 (batch 2): first report-numbers file,
@@ -300,7 +303,7 @@ def main():
                 )
 
         texts = [ax.text(row["E"],row["N"],row["Well_Normalised"].upper(),fontsize=7,alpha=0.85,zorder=7) for _,row in map_df.iterrows()]
-        ax.set_title("Membership Affinity Map: k-means assignment with Pearson-affinity audit",fontweight="bold")
+        ax.set_title("Membership affinity map: cluster assignment with Pearson-affinity audit",fontweight="bold")
         ax.grid(True,linestyle="--",alpha=0.4)
         status_handles = [
             Line2D([0],[0],marker="o",color="w",markerfacecolor="grey",markeredgecolor="black",markersize=8,linestyle="None",label="Core"),
@@ -309,7 +312,7 @@ def main():
         ]
         cl1 = ax.legend(handles=status_handles,title="Status / Confidence",loc="upper left",frameon=True); ax.add_artist(cl1)
         cluster_handles = [Line2D([0],[0],marker="o",color="w",markerfacecolor=CLUSTER_COLOURS[c],markeredgecolor="black",markersize=8,label=CLUSTER_LABELS.get(c,f"C{c}")) for c in EXPECTED_CLUSTERS]
-        cl2 = ax.legend(handles=cluster_handles,title="Assigned cluster (k-means)",loc="lower right",frameon=True); ax.add_artist(cl2)
+        cl2 = ax.legend(handles=cluster_handles,title="Assigned cluster",loc="lower right",frameon=True); ax.add_artist(cl2)
 
         if mca_handles:
             cl3 = ax.legend(handles=mca_handles,title="MCA Cx/Cy/Cz",loc="upper right",frameon=True)

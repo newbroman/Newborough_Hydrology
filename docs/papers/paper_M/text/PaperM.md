@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_23.odt — do not edit. source-sha256=9aa2db0732718192 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_24.odt — do not edit. source-sha256=17eaed2792d8abcc pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
@@ -35,7 +35,7 @@ The drainage coefficient is read in two incompatible ways. In the first, it is a
 
 This paper makes those choices explicit and shows what each decides. It uses a long monthly record from a coastal dune aquifer. There the drainage base is physically uncertain, the water table lies within a few metres of the surface, and the network spans open dune and pine plantation with very different response speeds. The paper makes five contributions.
 
-First, the no-intercept and free-intercept forms are one model family, separated only by the datum. The free-intercept form is the no-intercept form at a fitted datum, and it is term for term the exponential-response model of Pastas. Without the drainage term it reduces to a linear transfer of climate, whose free run drifts (Sections 2 and 5.4).
+First, the no-intercept and free-intercept forms are one model family, separated only by the datum. The free-intercept form is the no-intercept form at a fitted datum. It is also the Pastas exponential-response model (Collenteur et al., 2019) written month by month, with each term matching one in Pastas. Without the drainage term it reduces to a linear transfer of climate, whose free run drifts (Sections 2 and 5.4).
 
 Second, without an intercept the datum is not inert. A datum sweep exposes a regime boundary. Below it, the drainage reading holds and the water balance becomes insensitive to the datum, while the recession constant does not (Section 4).
 

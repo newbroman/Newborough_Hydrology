@@ -1,20 +1,20 @@
 Parameter,Well,Era,Value,Unit,Note
 n_wells_admitted,,,9.0,wells,wells hindcast against the CCW record
 n_open,,,6.0,wells,open ground (in_forest False)
-pearson_r_median,,,0.8556371678111002,,"observed vs predicted, all wells"
-pearson_r_min,,,0.6576824995851999,,all wells
-pearson_r_max,,,0.9444287858169548,,all wells
-n_nse_negative,,,5.0,wells,Nash-Sutcliffe below zero
-nse_bias_removed_min_excl_persistent_forest,,,0.325692105987784,,"bias-removed NSE, wells other than the one under forest in both epochs"
-nse_bias_removed_max_excl_persistent_forest,,,0.868818259218948,,as above
+pearson_r_median,,,0.8479441562614406,,"observed vs predicted, all wells"
+pearson_r_min,,,0.6517821307284544,,all wells
+pearson_r_max,,,0.943455801033085,,all wells
+n_nse_negative,,,6.0,wells,Nash-Sutcliffe below zero
+nse_bias_removed_min_excl_persistent_forest,,,0.18659373221072395,,"bias-removed NSE, wells other than the one under forest in both epochs"
+nse_bias_removed_max_excl_persistent_forest,,,0.8584573544922086,,as above
 nse_bias_removed_persistent_forest,NW11,,-0.09908556907319732,,the well under forest in both epochs
-residual_mean_all,,,-0.024040775510499324,m,"observed less predicted, mean over wells"
-residual_mean_open,,,0.11102887509748434,m,"as above, open ground"
+residual_mean_all,,,-0.034762908803687244,m,"observed less predicted, mean over wells"
+residual_mean_open,,,0.10901873018816222,m,"as above, open ground"
 epoch_shift_min,,,-0.13463930248796008,m,smallest shift (1989-96 mean less modern mean)
 epoch_shift_max,,,-0.8347554606475993,m,largest shift
 epoch_shift_median,,,-0.5888264072218719,m,all wells
-open_pearson_r_median,,,0.9074073422488278,,open ground
-open_nse_bias_removed_median,,,0.7863401538429426,,open ground
+open_pearson_r_median,,,0.9026190231730179,,open ground
+open_nse_bias_removed_median,,,0.7423419287402555,,open ground
 open_epoch_shift_median,,,-0.3466287544870408,m,open ground
 rain_mean_window_m_yr,,,0.7700714285714284,m/yr,mean annual rainfall 1989-05 to 1996-04
 surplus_mean_window_m_yr,,,0.1272508214047226,m/yr,mean annual P - PET 1989-05 to 1996-04
@@ -26,15 +26,15 @@ ccw_annual_range_n,,,51.0,well-years,as above
 ccw_annual_range_vs_davy_2010_diff_m,,,0.025490196078431282,m,"CCW_ANNUAL_RANGE_DAVY_2010_M (0.75 m, Davy et al. 2010; SD 0.27 m) minus ccw_annual_range_mean_m"
 epoch_midpoint_gap_yr,,,22.833675564681723,yr,years between the two records' midpoints
 epoch_rate_if_linear_mm_yr,,,15.180593834099719,mm/yr,"NOT a rate: the open-ground median shift divided by the midpoint gap, quoted in the text only to be disclaimed"
-open_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,0.14732549379510737,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.00 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.00,,beta1 scale 1.00,-0.11102887509748434,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.00"
-canopy_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,-1.3315363689688053,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.00"
-open_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,0.3345329628872101,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.03 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.03,,beta1 scale 1.03,0.014471999490616408,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.03"
-canopy_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,-2.887671069005082,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.03"
-open_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,0.1552649463419927,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.06 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.06,,beta1 scale 1.06,0.13997287407871756,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.06"
-canopy_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,-5.018173167481829,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.06"
-open_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-0.6538320533763509,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.10 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.10,,beta1 scale 1.10,0.3073073735295187,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.10"
-canopy_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-8.752303029691577,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.10"
+open_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,0.09037790557652732,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.00 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.00,,beta1 scale 1.00,-0.10901873018816222,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.00"
+canopy_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,-1.6436707660236014,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.00"
+open_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,0.2713916164237744,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.03 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.03,,beta1 scale 1.03,0.016338244949197084,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.03"
+canopy_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,-3.255016497589152,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.03"
+open_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,0.08658983769339469,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.06 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.06,,beta1 scale 1.06,0.14169522008655666,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.06"
+canopy_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,-5.378272903686304,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.06"
+open_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-0.7288588510678622,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.10 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.10,,beta1 scale 1.10,0.3088378536030357,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.10"
+canopy_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-9.005586938864996,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.10"

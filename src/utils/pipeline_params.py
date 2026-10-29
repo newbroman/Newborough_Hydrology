@@ -40,7 +40,8 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.16.0"  # Hollingham (2026) - 2026-10-07. _DEFAULTS["uniform_residual_mm_yr"]
+__version__ = "1.17.0"  # Hollingham (2026) - 2026-10-28. _DEFAULTS["drawdown_lambda_m"] refreshed 222.9 -> 222.3 after the D-281 full rerun (defaults_lint).
+# 1.16.0  # Hollingham (2026) - 2026-10-07. _DEFAULTS["uniform_residual_mm_yr"]
 #   -11.0 -> -8.5: Script 25 1.33.0 averages the coastal profile over each cluster's wells,
 #   which moves the open-dune residual mean Script 37b carries. Comment corrected: the
 #   clusters do not agree (spread 14.1 > mean), so the value is applied uniformly by
@@ -343,7 +344,7 @@ _DEFAULTS = {
     # -29.0 / 894, which is the PRE-D-046 parameter block T-18c spent a morning
     # clearing out of the Methods Supplement. Leaving the same pair here as the
     # pipeline's own fallback is how it would have come back.
-    "drawdown_lambda_m":        222.9,   # 20_report_numbers.csv (drawdown_lambda);
+    "drawdown_lambda_m":        222.3,   # 20_report_numbers.csv (drawdown_lambda);
                                          # 221.3 until Script 20 1.45.0 took β₃ per
                                          # day from config.DAYS_PER_MONTH (2026-09-26)
     "coast_delta0_mm_yr":       -31.28,  # 25_01 forest_free/linear_capped δ₀;

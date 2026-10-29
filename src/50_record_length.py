@@ -65,6 +65,7 @@ OUTPUTS (outputs/50_record_length/)
   50_28_ranwell_need_grid.csv        E11, what Ranwell's readings need: every pairing x coefficient scales (D-261)
   50_29_ranwell_epoch_candidates.csv E11, each candidate sized against the need (D-261)
   50_30_basis_by_test.csv            E12, per well or per cluster (D-268)
+  50_40_placement_by_test.csv        E12b, can a short record place a new well? (D-282)
   50_31 .. 50_35                     E13, other evaporation estimates and a beta_1 break (D-273)
   50_36 .. 50_39                     E13b, Penman-Monteith against Thornthwaite; residual seasonality under each (D-274)
   50_report_numbers.csv
@@ -74,7 +75,43 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.14.1"  # Hollingham (2026) - 2026-10-24 (D-274; the text walk-through, Martin 21:05-21:20). E13b also
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-10-28 (D-287; spec NRG_spec_E16_paperM_and_E17_cluster_base_2026-10-28,
+#   Martin 04:28 "S"). E17: a drainage base in elevation per cluster, every member well at ground - z_c, z_c chosen from
+#   the modern record only (S: E16's split NSE per cluster, primary; R: 03_09 R2-max datums; B: 48_04 Model B bases),
+#   then tested on the drier epochs cluster by cluster against the depth datum by the rule fixed before the run
+#   (e17_verdict). Writes 50_43_cluster_base_by_test.csv, 50_44_cluster_base_summary.csv, e17_* report numbers;
+#   --only-e17. E16 gains per-cluster report numbers (e16_ccw_nse_median_C*, e16_ccw_n_*, e16_efold_median_C*,
+#   e16_r2_median_*, e16_ranwell_n) for Paper M's fields. elevation_datum_tests takes specs and datum_of. Additive.
+# 1.19.0  # Hollingham (2026) - 2026-10-28 (D-286; Martin 03:15 "please write the script"). E16: Model A(ii),
+#   every well referred to ONE drainage base z0 m AOD (a per-well datum of ground - z0, Script 03's datum_aod_sweep), over
+#   DATUM_AOD_SWEEP_* and mean high water, scored on the forward tests on E5/E9/E6's code paths (CCW 1989-96, Ranwell
+#   1951-53, the within-record split) against Model A at the depth datum on the same wells, with beta_3's identification
+#   and the Spearman rho of beta_3 against the per-well datum (does beta_3 only restate the height above the base?).
+#   The adoption rule is fixed before the run (elevation_datum_verdict). Writes 50_41_elevation_datum_by_test.csv and
+#   50_42_elevation_datum_summary.csv and the e16_* report numbers; --only-e16 runs E16 alone and replaces only the
+#   e16_* rows. The verdict compares like for like: the best datum is chosen among the datums that score every well the
+#   depth datum scores (the first run chose 7 m AOD on 5 of 9 CCW wells; same verdict either way). Additive.
+# 1.18.0  # Hollingham (2026) - 2026-10-27 (D-281, tier 1; Martin 02:14 "Agree with the 3 tiers"). E7's
+#   Model A refit at each datum, behind the projections, passes the well's dry-month bounds (the censored fit, model_utils
+#   1.12.0) on the fixed calendar comparison window, instead of tailing a frame that dropped its dry months. Model B (03_16)
+#   and the depth-dependent sets (15_05) come in already treated. The forecast tests (E1-E6, E9, E12) are tier 2.
+# 1.17.0  # Hollingham (2026) - 2026-10-27 (D-282; Martin 02:14 "Add the script 50 short record placement
+#   test ... Carry out the short record test"). E12b: each reference well is placed from its first PLACEMENT_LENGTHS_MONTHS
+#   months alone (Pearson r with each centroid built without it, Script 06's allocation), shifted to that centroid over
+#   those months only, and run through E12's three tests on the placed cluster's coefficients; E12's rule against the
+#   per-well basis decides. 50_40_placement_by_test.csv; placement_* report numbers. Additive: no existing value changes.
+# 1.16.0  # Hollingham (2026) - 2026-10-27 (D-280; Martin 01:21 "Add the depth-dependent model as a third
+#   projection beside Model A and Model B, in Script 50 and the viewer"). E7 projects each well under the depth-dependent
+#   set from 15_05_ddp_per_well.csv at the project datum (model_utils.sustained_monthly_response_ddp, the difference of
+#   two periodic steady states): 50_08 gains fall_ddp_m; report numbers projection_<scen>_n_wells_trio and
+#   _summer_fall_median_trio_{model_a,model_b,ddp}; identity check projection_check_ddp_k0_vs_closed_form. The pair's
+#   keys are unchanged.
+# 1.15.0  # Hollingham (2026) - 2026-10-26 (D-279; Martin 08:38 "Like numbers fields, this should be standard
+#   with every edit that we do. Make scripts to produce the figures where they cannot be typed"). E7's report numbers
+#   carry the 2050s beside the 2080s (projection_2050s_*), with projection_<scen>_n_wells_pair; water_balance_report()
+#   emits each scenario's annual P - PET shift and the CCW epoch's shift from the same modern mean. The seasonal
+#   multipliers move into scenario_scales_12(), shared by both; no existing value changes.
+# 1.14.1  # Hollingham (2026) - 2026-10-24 (D-274; the text walk-through, Martin 21:05-21:20). E13b also
 #   emits each series' percentage difference from Thornthwaite over the year and over E13B_SEASON_A_MONTHS and
 #   E13B_SEASON_B_MONTHS (ratio of the seasonal totals), so the report's seasonal figures bind to committed keys. No
 #   other value changes.
@@ -223,7 +260,7 @@ from utils.paths import (                                     # noqa: E402
     DIR_50, OUT_50_PER_WELL, OUT_50_BY_CLUSTER, OUT_50_CCW, OUT_50_STABLE, OUT_50_FIG,
     OUT_50_REPORT_NUMBERS, INT_WELLS_CLEAN, INT_CLIMATE, INT_MASTER_DATA,
     OUT_03_PER_WELL_WINDOW_SENS, OUT_48_MODEL_AB, OUT_39_PER_WELL,
-    OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS,
+    OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS, OUT_15_DDP_PER_WELL,
     OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
@@ -232,14 +269,15 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_FELLING_DIST, OUT_50_NW9_TIMING, OUT_50_FELLING_FIG,
     OUT_50_CLEARANCE_STEP, OUT_50_CLEARANCE_FIG, DATA_SHORE_CLEARANCE_2015,
     OUT_03_MECHANISTIC_TABLE, OUT_50_PRECANOPY, OUT_41_INDEX, OUT_50_FOREST_FORCING,
-    OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH, OUT_50_BASIS, OUT_50_PET_ALT, OUT_50_E13_PET, OUT_50_E13_BREAK, OUT_50_E13_WEATHER,
-    OUT_50_E13_FIG, OUT_50_E13B_CMP, OUT_50_E13B_FIG, OUT_50_E13B_RESID, OUT_50_E13B_INPUTS, INT_24_CLIMATOLOGY_TABLE, MIDAS_WEATHER_DIR, INT_WELLS_REFERENCE, INT_WELLS_EXTENDED, RANWELL_PARC_MAWR_RAIN, RANWELL_EPOCH_CANDIDATES, DATA_FOREST_BOUNDARY, OUT_20_REPORT_NUMBERS,
+    OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH, OUT_50_BASIS, OUT_50_PLACEMENT, OUT_50_PET_ALT, OUT_50_E13_PET, OUT_50_E13_BREAK, OUT_50_E13_WEATHER,
+    OUT_50_E13_FIG, OUT_50_ELEV_DATUM_TESTS, OUT_50_ELEV_DATUM_SUMMARY, OUT_01B_REPORT_NUMBERS, OUT_50_CLUSTER_BASE_TESTS, OUT_50_CLUSTER_BASE_SUMMARY, OUT_03_WELL_OPTIMAL_DATUMS, OUT_50_E13B_CMP, OUT_50_E13B_FIG, OUT_50_E13B_RESID, OUT_50_E13B_INPUTS, INT_24_CLIMATOLOGY_TABLE, MIDAS_WEATHER_DIR, INT_WELLS_REFERENCE, INT_WELLS_EXTENDED, RANWELL_PARC_MAWR_RAIN, RANWELL_EPOCH_CANDIDATES, DATA_FOREST_BOUNDARY, OUT_20_REPORT_NUMBERS,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
     MODEL_AB_SPLIT_DATE, MODEL_AB_MIN_TEST_MONTHS, PASTAS_IDENT_EFOLD_WINDOW_FRAC,
     RECLEN_LENGTHS_MONTHS, RECLEN_MIN_FIT_MONTHS, RECLEN_STABLE_TOL,
     RECLEN_DATUM_NSE_TOL, DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M,
+    DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, E17_CANDIDATES, E17_PRIMARY_CANDIDATE,
     FOREST_INTERCEPTION, UKCP18_SCENARIOS, WINTER_WET_CLIMATE_MONTHS, SUMMER_DRY_CLIMATE_MONTHS,
     RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE,
     TWO_STORE_FAST_INIT_DAYS, TWO_STORE_FAST_BOUNDS_DAYS, TWO_STORE_SLOW_INIT_DAYS,
@@ -247,7 +285,7 @@ from utils.config import (                                    # noqa: E402
     TWO_STORE_EARLY_REDUCTION, TWO_STORE_LATER_RMSE_TOL_M, TWO_STORE_CCW_BIAS_TOL_M,
     TWO_STORE_CHECK_WELL, TWO_STORE_CHECK_CLUSTER, TWO_STORE_FLOOD_WINTERS, TWO_STORE_NEAR_WINTERS,
     TWO_STORE_DRY_WINTERS, TWO_STORE_SURFACE_TOL_M, TWO_STORE_NEAR_TOL_M, DAYS_PER_MONTH,
-    TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL, BASIS_TOL_NSE, BASIS_TOL_BIAS_M,
+    TWO_STORE_SHARE_MIN, TWO_STORE_BOUND_TOL, BASIS_TOL_NSE, BASIS_TOL_BIAS_M, PLACEMENT_LENGTHS_MONTHS,
     TWO_STORE_BIC_STRONG, CHANGE_TSTART_INIT, CHANGE_TSTART_BOUNDS, CHANGE_SPLIT_DIRECTIONS,
     CHANGE_GRID_COARSE_MONTHS, SURFACE_THRESHOLD_GRID,
     SURFACE_BAND_M, SURFACE_THRESHOLD_MAX_DEPTH_M,
@@ -271,7 +309,8 @@ from utils.config import (                                    # noqa: E402
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, fit_ssm_intercept, simulate_ssm, get_metrics,   # noqa: E402
-                               sustained_monthly_response, climate_forcing_change_12, response_identified)
+                               sustained_monthly_response, climate_forcing_change_12, response_identified,
+                               sustained_monthly_response_ddp, dry_bounds)
 from utils.hindcast_utils import (                            # noqa: E402
     load_ccw, observed_series, hindcast_well, equilibrium_depth, usable_codes, compare_offset_censored,
 )
@@ -760,6 +799,56 @@ def split_by_datum(lev, lev_cols, cl, master) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def scenario_scales_12(s: dict) -> tuple[np.ndarray, np.ndarray]:
+    """The UKCP18 seasonal multipliers of one scenario as 12 monthly factors for P and PET: winter months
+    take the winter factor, summer months the summer factor, the shoulder months the mean of the two."""
+    sP, sPET = np.ones(12), np.ones(12)
+    for m in WINTER_WET_CLIMATE_MONTHS:
+        sP[m - 1], sPET[m - 1] = s["sP_w"], s["sPET_w"]
+    for m in SUMMER_DRY_CLIMATE_MONTHS:
+        sP[m - 1], sPET[m - 1] = s["sP_s"], s["sPET_s"]
+    for m in range(1, 13):
+        if m not in WINTER_WET_CLIMATE_MONTHS and m not in SUMMER_DRY_CLIMATE_MONTHS:
+            sP[m - 1], sPET[m - 1] = 0.5 * (s["sP_w"] + s["sP_s"]), 0.5 * (s["sPET_w"] + s["sPET_s"])
+    return sP, sPET
+
+
+def water_balance_report(rr, cl) -> None:
+    """1.15.0: the annual water-balance shift (P - PET, mm/yr) each UKCP18 scenario applies to the modern
+    climatology the projections scale, beside the shift of the CCW 1989-96 epoch from the same modern mean,
+    so Paper M can say which scenario the drier-decade hindcast has tested (D-279)."""
+    clim = cl.loc[RECORD_START_DISPLAY:REFERENCE_CUTOFF_DATE]
+    P12 = clim.groupby(clim.index.month)["P_m"].mean().reindex(range(1, 13)).values
+    PET12 = clim.groupby(clim.index.month)["PET"].mean().reindex(range(1, 13)).values
+    base = float(np.sum(P12 - PET12)) * 1000.0
+    for scen in UKCP18_SCENARIOS:
+        sP, sPET = scenario_scales_12(UKCP18_SCENARIOS[scen])
+        rr.add(f"projection_{scen}_annual_wb_shift_mm_yr", float(np.sum(P12 * sP - PET12 * sPET)) * 1000.0 - base,
+               unit="mm/yr", note=f"UKCP18 {scen} change in annual P - PET applied to the modern monthly climatology "
+                                  f"({RECORD_START_DISPLAY[:7]} to {REFERENCE_CUTOFF_DATE[:7]})")
+    if paths.CCW_DEPTHS.exists():
+        months = pd.read_csv(paths.CCW_DEPTHS)["month"].dropna()
+        ep = cl.loc[f"{months.min()}-01":f"{months.max()}-01"]
+        rr.add("ccw_epoch_annual_wb_shift_mm_yr", float((ep["P_m"] - ep["PET"]).mean() - (clim["P_m"] - clim["PET"]).mean()) * 12000.0,
+               unit="mm/yr", note=f"annual P - PET over the CCW epoch ({months.min()} to {months.max()}, n = {len(ep)} months) "
+                                  "less the modern mean, as 12 x the monthly mean difference")
+
+
+def ddp_identity_check() -> float:
+    """1.16.0: sustained_monthly_response_ddp at kappa = 0 against the closed form, over a small grid of
+    coefficients spanning the fitted range and both scenarios, with and without interception."""
+    P12 = np.linspace(0.04, 0.12, 12); PET12 = np.linspace(0.005, 0.09, 12)
+    worst = 0.0
+    for scen in UKCP18_SCENARIOS:
+        sP, sPET = scenario_scales_12(UKCP18_SCENARIOS[scen])
+        for b1, b2, b3 in ((4.5, 0.9, 0.09), (3.7, 1.6, 0.06), (2.4, 2.6, 0.012)):
+            for I_ in (0.0, FOREST_INTERCEPTION):
+                cf = sustained_monthly_response(b3, climate_forcing_change_12(b1, b2, P12, PET12, sP, sPET, interception=I_))
+                dd = sustained_monthly_response_ddp(b1, b2, b3, 0.0, P12, PET12, sP, sPET, DRAINAGE_DATUM, interception=I_)[0]
+                worst = max(worst, float(np.max(np.abs(cf - dd))))
+    return worst
+
+
 def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
     """E7: the UKCP18 sustained level response (Script 19's functions, climatology, seasons and
     forest interception) on Model A's comparison-window fit at every datum, where Model B also
@@ -774,6 +863,14 @@ def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
     mb = mb[mb["level"] == "well"].copy()
     mb["_n"] = mb["well"].astype(str).apply(normalize_well_name)
     mb = mb.set_index("_n")
+    # 1.16.0 (D-280): the depth-dependent set per well (Script 15, comparison window, cluster kappa),
+    # projected at the project datum only -- the form is fitted on the network datum, not swept.
+    dd = {}
+    if OUT_15_DDP_PER_WELL.exists():
+        _d = pd.read_csv(OUT_15_DDP_PER_WELL)
+        _d = _d[(_d["level"] == "well") & _d["identified"].astype(bool)]
+        dd = {str(w): (float(a), float(b_), float(c), float(k))
+              for w, a, b_, c, k in zip(_d["well"], _d["b1"], _d["b2"], _d["b3"], _d["kappa"])}
     rows = []
     for _, r in master.iterrows():
         col = lev_cols.get(r["_n"])
@@ -786,30 +883,33 @@ def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
         hs = h[h.index.month.isin(list(SUMMER_DRY_CLIMATE_MONTHS))]
         summer_min = float(hs.groupby(hs.index.year).min().mean()) if len(hs) else np.nan
         I_ = FOREST_INTERCEPTION if loc_forest.get(r["_n"], False) else 0.0
+        db = dry_bounds(col)                            # 1.18.0 (D-281): dry months censored
+        db = db if len(db) else None
         for D in datum_grid():
-            fr = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D)).tail(LCSC_DATA_LIMIT)
-            f = fit_frame(fr, False)
+            try:
+                f = fit_ssm(h, cl, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT, drainage_datum=float(D),
+                            min_obs=RECLEN_MIN_FIT_MONTHS, dry_bound=db)
+            except Exception:
+                f = None
             if f is None or not response_identified(f["beta_3_drainage"], f["pvalue_beta_3"], f["n"], 3)[0]:
                 continue
             for scen in UKCP18_SCENARIOS:
-                s = UKCP18_SCENARIOS[scen]
-                sP, sPET = np.ones(12), np.ones(12)
-                for m in WINTER_WET_CLIMATE_MONTHS:
-                    sP[m - 1], sPET[m - 1] = s["sP_w"], s["sPET_w"]
-                for m in SUMMER_DRY_CLIMATE_MONTHS:
-                    sP[m - 1], sPET[m - 1] = s["sP_s"], s["sPET_s"]
-                for m in range(1, 13):
-                    if m not in WINTER_WET_CLIMATE_MONTHS and m not in SUMMER_DRY_CLIMATE_MONTHS:
-                        sP[m - 1], sPET[m - 1] = 0.5 * (s["sP_w"] + s["sP_s"]), 0.5 * (s["sPET_w"] + s["sPET_s"])
+                sP, sPET = scenario_scales_12(UKCP18_SCENARIOS[scen])
                 ssA = sustained_monthly_response(f["beta_3_drainage"], climate_forcing_change_12(
                     f["beta_1_recharge"], f["beta_2_atmospheric_draw"], P12, PET12, sP, sPET, interception=I_))
                 ssB = sustained_monthly_response(b["beta_3_B"], climate_forcing_change_12(
                     b["beta_1_B"], b["beta_2_B"], P12, PET12, sP, sPET, interception=I_))
+                ssD = None
+                if np.isclose(D, DRAINAGE_DATUM) and r["_n"] in dd:
+                    d1, d2, d3, dk = dd[r["_n"]]
+                    ssD = sustained_monthly_response_ddp(d1, d2, d3, dk, P12, PET12, sP, sPET,
+                                                         DRAINAGE_DATUM, interception=I_)[0]
                 for sea, months in seasons.items():
                     idx = [m - 1 for m in months]
                     row = {"well": r["_n"], "cluster": int(r["Cluster"]), "datum_m": float(D),
                            "scenario": scen, "season": sea, "beta_3": f["beta_3_drainage"],
-                           "fall_model_a_m": float(np.mean(ssA[idx])), "fall_model_b_m": float(np.mean(ssB[idx]))}
+                           "fall_model_a_m": float(np.mean(ssA[idx])), "fall_model_b_m": float(np.mean(ssB[idx])),
+                           "fall_ddp_m": float(np.mean(ssD[idx])) if ssD is not None else np.nan}
                     if sea == "summer":
                         row["room_left_m"] = float(D + summer_min + np.mean(ssA[idx]))
                     rows.append(row)
@@ -2284,19 +2384,34 @@ def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
                     rr.add(f"datum_split_nse_{d_}_median_at_D{_dkey(D)}", float(s.loc[D]), unit="",
                            note=f"median split-sample NSE ({d_}), Model A at datum {D:g} m")
     if len(proj_d):
-        p = proj_d[(proj_d["scenario"] == "2080s") & (proj_d["season"] == "summer")]
-        for tag, D in (("supported", best), ("band_min", lo), ("band_max", hi), ("project", DRAINAGE_DATUM)):
-            q = p[np.isclose(p["datum_m"], D)] if np.isfinite(D) else p.iloc[0:0]
-            rr.add(f"projection_2080s_summer_fall_median_at_{tag}", float(q["fall_model_a_m"].median()) if len(q) else np.nan,
-                   unit="m", note=f"median 2080s summer sustained level response, Model A at datum {D:g} m; "
-                                  f"n = {len(q)} wells (forest withheld, D-224 pairing)")
-            rr.add(f"projection_2080s_summer_room_left_min_at_{tag}", float(q["room_left_m"].min()) if len(q) else np.nan,
-                   unit="m", note=f"smallest room left above the datum at the projected 2080s summer minimum, datum {D:g} m")
-        q = p[np.isclose(p["datum_m"], DRAINAGE_DATUM)]
-        rr.add("projection_2080s_summer_fall_median_model_b", float(q["fall_model_b_m"].median()) if len(q) else np.nan,
-               unit="m", note="median 2080s summer sustained level response, Model B, the same wells")
+        for scen in ("2080s", "2050s"):                 # 1.15.0: the 2050s beside the 2080s (D-279)
+            p = proj_d[(proj_d["scenario"] == scen) & (proj_d["season"] == "summer")]
+            for tag, D in (("supported", best), ("band_min", lo), ("band_max", hi), ("project", DRAINAGE_DATUM)):
+                q = p[np.isclose(p["datum_m"], D)] if np.isfinite(D) else p.iloc[0:0]
+                rr.add(f"projection_{scen}_summer_fall_median_at_{tag}", float(q["fall_model_a_m"].median()) if len(q) else np.nan,
+                       unit="m", note=f"median {scen} summer sustained level response, Model A at datum {D:g} m; "
+                                      f"n = {len(q)} wells (forest withheld, D-224 pairing)")
+                rr.add(f"projection_{scen}_summer_room_left_min_at_{tag}", float(q["room_left_m"].min()) if len(q) else np.nan,
+                       unit="m", note=f"smallest room left above the datum at the projected {scen} summer minimum, datum {D:g} m")
+            q = p[np.isclose(p["datum_m"], DRAINAGE_DATUM)]
+            rr.add(f"projection_{scen}_summer_fall_median_model_b", float(q["fall_model_b_m"].median()) if len(q) else np.nan,
+                   unit="m", note=f"median {scen} summer sustained level response, Model B, the same wells")
+            rr.add(f"projection_{scen}_n_wells_pair", float(len(q)), unit="count",
+                   note=f"wells projected under both forms at the project datum ({scen}, forest withheld, D-224)")
+            # 1.16.0 (D-280): the trio -- wells where Model A, Model B and the depth-dependent form all
+            # project -- with each form's median on those same wells.
+            if "fall_ddp_m" in q.columns:
+                t = q[q["fall_ddp_m"].notna()]
+                rr.add(f"projection_{scen}_n_wells_trio", float(len(t)), unit="count",
+                       note=f"wells projected under Model A, Model B and the depth-dependent form ({scen}, project datum)")
+                for col, tag in (("fall_model_a_m", "model_a"), ("fall_model_b_m", "model_b"), ("fall_ddp_m", "ddp")):
+                    rr.add(f"projection_{scen}_summer_fall_median_trio_{tag}", float(t[col].median()) if len(t) else np.nan,
+                           unit="m", note=f"median {scen} summer sustained level response, {tag}, on the trio wells")
     for k, v in checks_d.items():
         rr.add(f"reclen_check_{k}", v, unit="", note="identity check at the project datum (expected 0)")
+    rr.add("projection_check_ddp_k0_vs_closed_form", ddp_identity_check(), unit="m",
+           note="identity check: the depth-dependent sustained response at kappa = 0 less the closed form, "
+                "max over a coefficient grid (expected 0 to 1e-9)")
 
 
 def datum_identity_checks(ccw_d, split_d, proj_d) -> dict:
@@ -3116,13 +3231,30 @@ def _centroid_fit(ra: pd.DataFrame, c: int, cl, intercept: bool, span: str, spli
     return (f if f is not None and f["beta_3_drainage"] > 0 else None), h
 
 
-def basis_experiment(lev, lev_cols, cl, master):
+def basis_experiment(lev, lev_cols, cl, master, placement=None):
     """E12 (D-268): each hindcast and forecast on each well's own coefficients (as published) and on its
     cluster centroid's, fitted on the same span. On the cluster basis the run is shifted by the mean
     difference between the well and its centroid over the months the fit saw (as E8 runs a centroid at a
     well), so the test scores the dynamics, not the cluster's mean level; the Ranwell scoring removes the
-    offset anyway. Returns (rows, identity checks)."""
+    offset anyway. Returns (rows, identity checks).
+
+    With `placement` = (L, {side: {well: placed cluster}}) (E12b, 1.17.0, D-282) the one arm run is 'placed':
+    the cluster the well's first L months choose, shifted to that centroid over those L months alone, which is
+    all a new well would have. The hindcasts are fitted on the full modern record, so side 'all' places them
+    from the first L months of record; the split-sample test places and shifts from the first L months of its
+    training side ('pre' forward, 'post' in reverse), so no tested month informs the placement. Wells the
+    placement leaves out (records shorter than L) are skipped."""
     ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    bases = ("well", "cluster") if placement is None else ("placed",)
+    p_len, p_map = (None, {}) if placement is None else placement
+
+    def cluster_of(k, side="all"):
+        if placement is None:
+            return int(md.loc[k, "Cluster"])
+        return p_map.get(side, {}).get(k)
+
+    def shift_well(hw):
+        return hw if placement is None else hw.iloc[:p_len]
     md = master.set_index("_n")
     clh = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
     p_mean, pet_mean = float(clh["P_m"].mean()), float(clh["PET"].mean())
@@ -3156,17 +3288,19 @@ def basis_experiment(lev, lev_cols, cl, master):
             o, _n = observed_series(obs, r.code, r.datum_offset_m)
             if o.empty:
                 continue
-            c = int(md.loc[k, "Cluster"])
+            c = cluster_of(k)
+            if c is None:
+                continue
             hw = lev[col].dropna()
             for form, icpt in FORMS:
-                for basis in ("well", "cluster"):
+                for basis in bases:
                     if basis == "well":
                         f = fit_frame(build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), icpt)
                         f = f if f is not None and f["beta_3_drainage"] > 0 else None
                         sh = 0.0
                     else:
                         f, hc = cfit(c, icpt, "full")
-                        sh = shift_of(hw, hc)
+                        sh = shift_of(shift_well(hw), hc)
                     row = {"test": "ccw", "well": k, "site_no": np.nan, "headline": np.nan, "cluster": c,
                            "form": form, "basis": basis, "direction": "", "shift_m": sh}
                     if f is not None:
@@ -3194,10 +3328,12 @@ def basis_experiment(lev, lev_cols, cl, master):
             if col is None or k not in md.index or int(pr.site_no) not in obs_month.index.get_level_values(0):
                 continue
             om = obs_month.loc[int(pr.site_no)]
-            c = int(md.loc[k, "Cluster"])
+            c = cluster_of(k)
+            if c is None:
+                continue
             hw = lev[col].dropna()
             for form, icpt in FORMS:
-                for basis in ("well", "cluster"):
+                for basis in bases:
                     if basis == "well":
                         fr = build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM).tail(LCSC_DATA_LIMIT)
                         f = fit_frame(fr, icpt)
@@ -3224,18 +3360,23 @@ def basis_experiment(lev, lev_cols, cl, master):
         col = lev_cols.get(k)
         if col is None:
             continue
-        c = int(r["Cluster"])
         hw = lev[col].dropna()
         pre_h, post_h = hw[hw.index < split], hw[hw.index >= split]
         for form, icpt in FORMS:
             for direction, tr, te, span in (("fwd", pre_h, post_h, "pre"), ("rev", post_h, pre_h, "post")):
-                for basis in ("well", "cluster"):
+                c = cluster_of(k, span)
+                if c is None:
+                    continue
+                for basis in bases:
                     if basis == "well":
                         f = fit_frame(build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), icpt)
                         sh = 0.0
-                    else:
+                    elif basis == "cluster":
                         f, hc = cfit(c, icpt, span)
                         sh = shift_of(tr, hc)
+                    else:   # placed: placement and shift from the first L months of the training side alone
+                        f, hc = cfit(c, icpt, span)
+                        sh = shift_of(shift_well(tr), hc)
                     res = free_run(te - sh, cl, f, icpt) if (f is not None and np.isfinite(sh)) else \
                         {"n_test": 0, "nse": np.nan, "rmse_m": np.nan, "bias_m": np.nan}
                     rows.append({"test": "split", "well": k, "site_no": np.nan, "headline": np.nan, "cluster": c,
@@ -3243,6 +3384,11 @@ def basis_experiment(lev, lev_cols, cl, master):
                                  "n_test": res["n_test"], "nse": res["nse"], "bias_m": res["bias_m"],
                                  "rmse_m": res["rmse_m"]})
     tab = pd.DataFrame(rows)
+    if placement is not None:
+        if len(tab):
+            tab["placement_months"] = p_len
+            tab["true_cluster"] = tab["well"].map(lambda w: int(md.loc[w, "Cluster"]) if w in md.index else np.nan)
+        return tab, chk
     # identity: the per-well arm reproduces what is published
     if len(tab) and OUT_48_MODEL_AB.exists():
         ab = pd.read_csv(OUT_48_MODEL_AB)
@@ -3301,6 +3447,92 @@ def basis_verdict(tab: pd.DataFrame) -> dict:
 
 
 BASIS_VERDICT = {2: "cluster better for transfer", 1: "basis-robust", 0: "basis matters"}
+
+
+def place_wells(lev, lev_cols, master, length: int, side: str = "all") -> pd.DataFrame:
+    """E12b (1.17.0, D-282): each reference well placed from its first `length` months of record alone, by its
+    Pearson r with each cluster centroid built from that cluster's other members (Script 06's allocation, with
+    the well itself left out so it cannot vote for its own cluster). `side` 'pre' or 'post' takes the first
+    months on that side of MODEL_AB_SPLIT_DATE instead. Wells with a shorter record there are left out."""
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    md = master.set_index("_n")
+    cols = {k: lev_cols[k] for k in md.index if k in lev_cols}
+    members = {int(c): [cols[k] for k in md.index[md["Cluster"] == c] if k in cols]
+               for c in sorted(md["Cluster"].dropna().unique())}
+    rows = []
+    for k, col in cols.items():
+        h = lev[col].dropna()
+        if side == "pre":
+            h = h[h.index < split]
+        elif side == "post":
+            h = h[h.index >= split]
+        if len(h) < length:
+            continue
+        seg = h.iloc[:length]
+        r = {}
+        for c, mem in members.items():
+            others = [m for m in mem if m != col]
+            if not others:
+                continue
+            cent = lev[others].mean(axis=1).reindex(seg.index)
+            ok = cent.notna()
+            r[c] = float(seg[ok].corr(cent[ok])) if ok.sum() >= 3 else np.nan
+        best = max((c for c in r if np.isfinite(r[c])), key=lambda c: r[c], default=None)
+        rows.append({"well": k, "placement_months": length, "side": side, "true_cluster": int(md.loc[k, "Cluster"]),
+                     "placed_cluster": best, "placed_r": r.get(best, np.nan),
+                     "first_month": seg.index.min().strftime("%Y-%m"), "last_month": seg.index.max().strftime("%Y-%m"),
+                     **{f"r_C{c}": v for c, v in r.items()}})
+    return pd.DataFrame(rows)
+
+
+def placement_experiment(lev, lev_cols, cl, master, bs_tab):
+    """E12b: for each length, place every well, run E12's three tests on the placed cluster, and apply E12's
+    rule against the per-well rows E12 already ran (bs_tab). Returns (placements, test rows, verdicts)."""
+    plc, tabs, ver = [], [], {}
+    well_rows = bs_tab[bs_tab["basis"] == "well"]
+    for L in PLACEMENT_LENGTHS_MONTHS:
+        pmap = {}
+        for side in ("all", "pre", "post"):
+            p = place_wells(lev, lev_cols, master, L, side)
+            plc.append(p)
+            pmap[side] = {r.well: int(r.placed_cluster) for r in p.itertuples() if pd.notna(r.placed_cluster)}
+        t, _ = basis_experiment(lev, lev_cols, cl, master, placement=(L, pmap))
+        tabs.append(t)
+        # E12's rule on the same wells and directions the placed arm could run
+        keys = set(zip(t["test"], t["well"], t["direction"].fillna("")))
+        wr = well_rows[[k in keys for k in zip(well_rows["test"], well_rows["well"], well_rows["direction"].fillna(""))]]
+        both = pd.concat([wr, t.assign(basis="cluster")], ignore_index=True)
+        ver[L] = basis_verdict(both)
+    return pd.concat(plc, ignore_index=True), pd.concat(tabs, ignore_index=True), ver
+
+
+def placement_report(rr, plc: pd.DataFrame, ver: dict) -> None:
+    for L, g in plc[plc["side"] == "all"].groupby("placement_months"):
+        ok = g["placed_cluster"] == g["true_cluster"]
+        rr.add(f"placement_L{L}_n_wells", int(len(g)), unit="wells",
+               note=f"E12b: reference wells with at least {L} months of record, placed from their first {L} months (D-282)")
+        rr.add(f"placement_L{L}_share_correct_pct", 100.0 * float(ok.mean()), unit="%",
+               note=f"E12b: share of wells whose first {L} months place them in their own cluster (D-282)")
+        for c, gc in g.groupby("true_cluster"):
+            rr.add(f"placement_L{L}_share_correct_pct_C{int(c)}", 100.0 * float((gc["placed_cluster"] == c).mean()), unit="%",
+                   note=f"E12b: share of C{int(c)} wells placed in C{int(c)} from their first {L} months (D-282)")
+        for form, v in ver[L].items():
+            rr.add(f"placement_L{L}_verdict_{form}", v["code"], unit="code",
+                   note=f"E12b, Model {form}, placed from {L} months: {BASIS_VERDICT[v['code']]} against the per-well basis "
+                        f"(E12's rule, D-282)")
+            for test in BASIS_TESTS:
+                rr.add(f"placement_L{L}_{test}_holds_{form}", float(v["hold"][test]), unit="flag",
+                       note=f"E12b, Model {form}, {test}, placed from {L} months: holds (1) or not (0), D-282")
+            for (test, basis, d_), val in v["med"].items():
+                if basis != "cluster":
+                    continue
+                if d_ == "absbias":
+                    rr.add(f"placement_L{L}_{test}_absbias_median_{form}", val, unit="m",
+                           note=f"E12b, Model {form}, CCW 1989-96, placed from {L} months: median |bias| (D-282)")
+                else:
+                    sfx = f"_{d_}" if d_ else ""
+                    rr.add(f"placement_L{L}_{test}_nse_median_{form}{sfx}", val,
+                           note=f"E12b, Model {form}, {test}{' ' + d_ if d_ else ''}, placed from {L} months: median NSE (D-282)")
 
 
 def basis_report(rr, tab: pd.DataFrame, ver: dict, chk: dict) -> None:
@@ -3877,7 +4109,497 @@ def plot_e13b(mon: pd.DataFrame, rs: pd.DataFrame) -> None:
     saved(OUT_50_E13B_FIG.name)
 
 
-def main(no_fig: bool = False) -> int:
+
+# ──────────────────────────────────────────────────────────────────────────────
+# E16: Model A(ii) — one drainage base in elevation for every well (1.19.0, D-286)
+# ──────────────────────────────────────────────────────────────────────────────
+# Model A refers each well's head to a depth below its own ground (DRAINAGE_DATUM). Model A(ii) refers every
+# well to ONE level z0 above Ordnance Datum, a per-well datum of ground - z0 (Script 03's datum_aod_sweep, D-163
+# route 4). Script 03 found the two indistinguishable on fit (D-256). Since Model A's job is now the forward run
+# (D-230, D-283), E16 scores A(ii) on the forward tests: the CCW 1989-96 hindcast, Ranwell 1951-53 and the
+# within-record split, on the same code paths as E5, E9 and E6, against Model A at the depth datum on the same
+# wells. It also measures how far beta_3 under each datum only restates the height above that datum (Spearman
+# rho of beta_3 against the per-well datum), which is what Martin asked of A(ii)'s beta_3 (2026-10-28 03:15).
+# The adoption rule is fixed before the run (E16_* in config, D-286).
+def _e16_grounds() -> dict:
+    loc = pd.read_csv(INT_LOCATIONS)
+    g = pd.to_numeric(loc["ground_elev_m"], errors="coerce")
+    return {normalize_well_name(n): float(v) for n, v in zip(loc["Name"], g) if np.isfinite(v)}
+
+
+def _e16_mhw() -> float:
+    if not OUT_01B_REPORT_NUMBERS.exists():
+        return np.nan
+    r = pd.read_csv(OUT_01B_REPORT_NUMBERS)
+    v = r.loc[r["Parameter"] == "tide_mhw_m", "Value"]
+    return float(v.iloc[0]) if len(v) else np.nan
+
+
+def e16_specs() -> list:
+    """(kind, z0, label): the depth datum, every z0 of Script 03's DATUM_AOD_SWEEP_* grid, and mean high water."""
+    specs = [("depth", np.nan, f"depth {DRAINAGE_DATUM:g} m")]
+    grid = np.arange(DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M + DATUM_AOD_SWEEP_STEP_M / 2, DATUM_AOD_SWEEP_STEP_M)
+    specs += [("elevation", round(float(z), 6), f"{float(z):g} m AOD") for z in grid]
+    mhw = _e16_mhw()
+    if np.isfinite(mhw):
+        specs.append(("mhw", mhw, f"MHW {mhw:g} m AOD"))
+    return specs
+
+
+def _e16_datum(kind: str, z0: float, ground: float) -> float:
+    return DRAINAGE_DATUM if kind == "depth" else ground - z0
+
+
+def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) -> pd.DataFrame:
+    """E16: one row per well x datum x test (ccw, ranwell, split_fwd, split_rev, fit). Model A, comparison window,
+    as E5/E9/E6 fit it; the depth rows reproduce 50_06/50_10/50_07 at DRAINAGE_DATUM (identity check).
+    E17 (1.20.0) passes its own specs and datum_of(kind, z0, ground, cluster), a base per cluster."""
+    grounds = _e16_grounds()
+    specs = e16_specs() if specs is None else specs
+    if datum_of is None:
+        def datum_of(kind, z0, g, c):
+            return _e16_datum(kind, z0, g)
+    clh = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
+    p_mean, pet_mean = float(clh["P_m"].mean()), float(clh["PET"].mean())
+    rows = []
+
+    def _base(test, well, cluster, kind, z0, D):
+        return {"test": test, "well": well, "cluster": cluster, "datum_kind": kind, "z0_m_aod": z0, "datum_m": D}
+
+    # fit diagnostics and the split test: every reference well
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    for _, r in master.iterrows():
+        col = lev_cols.get(r["_n"])
+        if col is None or r["_n"] not in grounds:
+            continue
+        h = lev[col].dropna()
+        g = grounds[r["_n"]]
+        pre_h, post_h = h[h.index < split], h[h.index >= split]
+        for kind, z0, _lab in specs:
+            D = datum_of(kind, z0, g, int(r["Cluster"]))
+            fr = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D)).tail(LCSC_DATA_LIMIT)
+            f = fit_frame(fr, False)
+            row = _base("fit", r["_n"], int(r["Cluster"]), kind, z0, D)
+            if f is not None:
+                b3 = f["beta_3_drainage"]
+                row.update(beta_1=f["beta_1_recharge"], beta_2=f["beta_2_atmospheric_draw"], beta_3=b3,
+                           p_beta_3=f["pvalue_beta_3"], R2=f["R2"], n_fit=int(f["n"]),
+                           efold_months=(1.0 / b3) if b3 > 0 else np.nan,
+                           mean_h_disp_prev=f["mean_h_disp_prev"])
+            rows.append(row)
+            for direction, tr, te in (("split_fwd", pre_h, post_h), ("split_rev", post_h, pre_h)):
+                ft = fit_frame(build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=float(D)), False)
+                res = free_run(te, cl, ft, False, base=float(D))
+                rows.append(dict(_base(direction, r["_n"], int(r["Cluster"]), kind, z0, D),
+                                 nse=res["nse"], bias_m=res["bias_m"], n_test=res["n_test"]))
+
+    # the CCW 1989-96 hindcast: E5's wells, scoring and comparison-window fit
+    if paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists():
+        obs, cmap = load_ccw()
+        md = pd.read_csv(INT_MASTER_DATA)
+        md["k"] = md["Name_Original"].astype(str).str.lower().str.strip()
+        md = md.set_index("k")
+        adm = usable_codes(cmap, md, obs)
+        adm = adm[adm["admitted"]]
+        first_month, last_month = obs["month"].min(), obs["month"].max()
+        for r in adm.itertuples():
+            k = normalize_well_name(r.well)
+            col = lev_cols.get(k)
+            if col is None or k not in grounds:
+                continue
+            o, _n = observed_series(obs, r.code, r.datum_offset_m)
+            if o.empty:
+                continue
+            h = lev[col].dropna()
+            for kind, z0, _lab in specs:
+                D = datum_of(kind, z0, grounds[k], int(md.loc[r.well, "Cluster"]))
+                f = fit_frame(build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D)).tail(LCSC_DATA_LIMIT), False)
+                row = _base("ccw", k, int(md.loc[r.well, "Cluster"]), kind, z0, D)
+                row["code"] = r.code
+                if f is not None and f["beta_3_drainage"] > 0:
+                    betas = (f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"])
+                    h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=float(D))
+                    pred, _s = hindcast_well(clh, betas, h0, first_month, last_month, 1.0, drainage_datum=float(D))
+                    common = o.index.intersection(pred.index)
+                    nse, _rmse, bias = get_metrics(o.loc[common], pred.loc[common])
+                    row.update(nse=float(nse), bias_m=float(bias), n_test=int(len(common)), beta_3=f["beta_3_drainage"])
+                rows.append(row)
+    else:
+        warn("CCW historic inputs not present — E16's CCW test is skipped")
+
+    # Ranwell 1951-53: E9's pairings and scoring, Model A, comparison window
+    if RANWELL_LEVELS.exists() and OUT_44_METRICS.exists():
+        lv = pd.read_csv(RANWELL_LEVELS, parse_dates=["date"])
+        lv["month"] = lv["date"].dt.to_period("M")
+        obs_month = lv.groupby(["site_no", "month"])["level_m_od"].mean()
+        pairs = pd.read_csv(OUT_44_METRICS)
+        first = pd.Timestamp(f"{obs_month.index.get_level_values('month').min().year - 1}-12-01")
+        last = obs_month.index.get_level_values("month").max().to_timestamp()
+        for pr in pairs.itertuples():
+            k = normalize_well_name(pr.well)
+            col = lev_cols.get(k)
+            if col is None or k not in grounds or int(pr.site_no) not in obs_month.index.get_level_values(0):
+                continue
+            om = obs_month.loc[int(pr.site_no)]
+            h = lev[col].dropna()
+            cl_k = master.loc[master["_n"] == k, "Cluster"]
+            for kind, z0, _lab in specs:
+                D = datum_of(kind, z0, grounds[k], int(cl_k.iloc[0]) if len(cl_k) else -1)
+                f = fit_frame(build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D)).tail(LCSC_DATA_LIMIT), False)
+                row = _base("ranwell", k, int(cl_k.iloc[0]) if len(cl_k) else -1, kind, z0, D)
+                row.update(site_no=int(pr.site_no), headline=bool(pr.headline))
+                if f is not None and f["beta_3_drainage"] > 0:
+                    betas = (f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"])
+                    h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=float(D))
+                    sim, _spin = hindcast_well(clh, betas, h0, first, last, 1.0, drainage_datum=float(D))
+                    mid = (sim + sim.shift(1)) / 2
+                    mid.index = mid.index.to_period("M")
+                    m = compare_offset_censored(om, mid.dropna(), float(pr.ground_m_od))
+                    row.update(nse=m["nse_after_offset"], n_test=m["n"], beta_3=f["beta_3_drainage"])
+                rows.append(row)
+    else:
+        warn("Ranwell readings or Script 44's pairings not present — E16's Ranwell test is skipped")
+    return pd.DataFrame(rows)
+
+
+def elevation_datum_summary(t: pd.DataFrame) -> pd.DataFrame:
+    """One row per datum: the medians each test is judged on, beta_3's identification, and the topography check."""
+    out = []
+    for (kind, z0), g in t.groupby(["datum_kind", "z0_m_aod"], dropna=False, sort=False):
+        fit = g[g["test"] == "fit"]
+        ok = fit[fit["beta_3"].notna()]
+        ccw = g[(g["test"] == "ccw") & g["nse"].notna()]
+        rw = g[(g["test"] == "ranwell") & g["nse"].notna()]
+        rw = rw[rw["headline"].astype(bool)] if "headline" in rw.columns else rw.iloc[0:0]
+        sp = g[g["test"].isin(["split_fwd", "split_rev"]) & g["nse"].notna()]
+        pos = ok[ok["beta_3"] > 0]
+        rho = (float(pos[["beta_3", "datum_m"]].corr(method="spearman").iloc[0, 1])
+               if len(pos) > 5 and pos["datum_m"].nunique() > 1 else np.nan)
+        out.append({
+            "datum_kind": kind, "z0_m_aod": z0,
+            "n_wells_fit": int(len(ok)), "n_beta3_nonpositive": int((ok["beta_3"] <= 0).sum()),
+            "n_beta3_not_sig": int(((ok["beta_3"] <= 0) | (ok["p_beta_3"] >= SIG_P)).sum()),
+            "r2_median": float(ok["R2"].median()) if len(ok) else np.nan,
+            "efold_median_months": float(pos["efold_months"].median()) if len(pos) else np.nan,
+            "rho_beta3_vs_datum": rho,
+            "ccw_n": int(len(ccw)), "ccw_nse_median": float(ccw["nse"].median()) if len(ccw) else np.nan,
+            "ccw_abs_bias_median_m": float(ccw["bias_m"].abs().median()) if len(ccw) else np.nan,
+            "ccw_bias_median_m": float(ccw["bias_m"].median()) if len(ccw) else np.nan,
+            "ranwell_n": int(len(rw)), "ranwell_nse_median": float(rw["nse"].median()) if len(rw) else np.nan,
+            "split_n": int(len(sp)), "split_nse_median": float(sp["nse"].median()) if len(sp) else np.nan,
+        })
+        for c in range(1, 6):
+            pc = pos[pos["cluster"] == c]
+            out[-1][f"efold_median_C{c}_months"] = float(pc["efold_months"].median()) if len(pc) else np.nan
+    return pd.DataFrame(out)
+
+
+def elevation_datum_verdict(s: pd.DataFrame) -> dict:
+    """The rule fixed before the run (D-286): z0* maximizes the median CCW NSE over the elevation grid (D-225's
+    choice rule), among the datums that score the same wells as the depth datum (added after the first run). A(ii) is adopted only if, at z0*, against Model A at the depth datum on the same wells:
+    (1) the median CCW NSE is at least as high; (2) the median CCW |bias| is no larger; (3) the median Ranwell
+    NSE after offset and (4) the median split-sample NSE are no lower by more than RECLEN_DATUM_NSE_TOL; and
+    (5) no more wells have beta_3 <= 0."""
+    dep = s[s["datum_kind"] == "depth"].iloc[0]
+    # Like for like (corrected after the first run, D-286): only datums at which every CCW well and Ranwell pairing
+    # scored at the depth datum is still scored. A datum where beta_3 fails drops those wells from the medians, and
+    # the first run's rule chose 7 m AOD on 5 of the 9 CCW wells.
+    el = s[(s["datum_kind"] == "elevation") & s["ccw_nse_median"].notna()
+           & (s["ccw_n"] == dep["ccw_n"]) & (s["ranwell_n"] == dep["ranwell_n"])]
+    if el.empty or not np.isfinite(dep["ccw_nse_median"]):
+        return {"verdict": "not run", "z0": np.nan, "tests": {}}
+    best = el.loc[el["ccw_nse_median"].idxmax()]
+    tol = RECLEN_DATUM_NSE_TOL
+    tests = {
+        "ccw_nse": bool(best["ccw_nse_median"] >= dep["ccw_nse_median"]),
+        "ccw_bias": bool(best["ccw_abs_bias_median_m"] <= dep["ccw_abs_bias_median_m"]),
+        "ranwell": bool(not np.isfinite(dep["ranwell_nse_median"])
+                        or best["ranwell_nse_median"] >= dep["ranwell_nse_median"] - tol),
+        "split": bool(best["split_nse_median"] >= dep["split_nse_median"] - tol),
+        "identified": bool(best["n_beta3_nonpositive"] <= dep["n_beta3_nonpositive"]),
+    }
+    return {"verdict": "adopted" if all(tests.values()) else "not adopted", "z0": float(best["z0_m_aod"]),
+            "tests": tests, "best": best, "depth": dep}
+
+
+def e16_identity_check(t: pd.DataFrame) -> float:
+    """The depth rows against E5's committed comparison-window CCW NSE at DRAINAGE_DATUM (expected 0)."""
+    if not OUT_50_CCW_DATUM.exists():
+        return np.nan
+    e5 = pd.read_csv(OUT_50_CCW_DATUM)
+    e5 = e5[(e5["basis"] == "comparison_window") & np.isclose(e5["datum_m"], DRAINAGE_DATUM) & e5["nse"].notna()]
+    e5 = e5.assign(k=e5["well"].astype(str).apply(normalize_well_name)).groupby(["k", "code"])["nse"].first()
+    d = t[(t["test"] == "ccw") & (t["datum_kind"] == "depth") & t["nse"].notna()].groupby(["well", "code"])["nse"].first()
+    j = pd.concat([e5.rename("a"), d.rename("b")], axis=1, join="inner")
+    return float((j["a"] - j["b"]).abs().max()) if len(j) else np.nan
+
+
+def e16_report(rr, s: pd.DataFrame, v: dict, ident: float, t: pd.DataFrame | None = None) -> None:
+    code = {"adopted": 1, "not adopted": 0, "not run": -1}[v["verdict"]]
+    rr.add("e16_verdict", code, unit="code",
+           note=f"Model A(ii), one drainage base in elevation: {v['verdict']} (1 adopted, 0 not adopted, -1 not run); "
+                "rule fixed before the run (D-286)")
+    if v["verdict"] == "not run":
+        return
+    b, d = v["best"], v["depth"]
+    rr.add("e16_z0_best_m_aod", v["z0"], unit="m AOD",
+           note="the elevation datum maximizing the median CCW 1989-96 NSE, Model A, comparison window, among the datums "
+                "that score the same wells as the depth datum (E16, D-286)")
+    el = s[(s["datum_kind"] == "elevation") & s["ccw_nse_median"].notna()]
+    if len(el):
+        rr.add("e16_z0_best_any_coverage_m_aod", float(el.loc[el["ccw_nse_median"].idxmax(), "z0_m_aod"]), unit="m AOD",
+               note="the same choice without the like-for-like condition (the first run's rule), for the record")
+    for key, col, unit, what in (("ccw_nse_median", "ccw_nse_median", "", "median CCW 1989-96 NSE"),
+                                 ("ccw_abs_bias_median", "ccw_abs_bias_median_m", "m", "median CCW |bias|"),
+                                 ("ranwell_nse_median", "ranwell_nse_median", "", "median Ranwell NSE after offset, headline pairings"),
+                                 ("split_nse_median", "split_nse_median", "", "median split-sample NSE, both directions"),
+                                 ("n_beta3_nonpositive", "n_beta3_nonpositive", "count", "wells with beta_3 <= 0, comparison window"),
+                                 ("efold_median_months", "efold_median_months", "months", "median 1/beta_3 over wells with beta_3 > 0"),
+                                 ("rho_beta3_vs_datum", "rho_beta3_vs_datum", "", "Spearman rho of beta_3 against the per-well datum")):
+        rr.add(f"e16_{key}_at_best", float(b[col]), unit=unit, note=f"{what}, at the best elevation datum (E16)")
+        rr.add(f"e16_{key}_at_depth", float(d[col]), unit=unit, note=f"{what}, at the depth datum {DRAINAGE_DATUM:g} m (E16)")
+    for name, ok in v["tests"].items():
+        rr.add(f"e16_test_{name}_pass", int(ok), unit="flag", note=f"E16 adoption test '{name}' passed at the best elevation datum (D-286)")
+    m = s[s["datum_kind"] == "mhw"]
+    if len(m):
+        m = m.iloc[0]
+        for key, col in (("ccw_nse_median", "ccw_nse_median"), ("rho_beta3_vs_datum", "rho_beta3_vs_datum"),
+                         ("efold_median_months", "efold_median_months")):
+            rr.add(f"e16_{key}_at_mhw", float(m[col]), unit="", note=f"{col} with every well's base at mean high water (E16)")
+    if t is not None and v["verdict"] != "not run":
+        # 1.20.0: per cluster, so Paper M can quote the split by cluster as fields (D-286)
+        z = v["z0"]
+        sel = {"depth": t["datum_kind"] == "depth",
+               "best": (t["datum_kind"] == "elevation") & np.isclose(t["z0_m_aod"].astype(float), z)}
+        ccw = t[(t["test"] == "ccw") & t["nse"].notna()]
+        for c in sorted(CLUSTER_LABELS):
+            for tag, m in sel.items():
+                x = ccw[m.reindex(ccw.index, fill_value=False) & (ccw["cluster"] == c)]
+                if len(x):
+                    rr.add(f"e16_ccw_nse_median_C{c}_at_{tag}", float(x["nse"].median()), unit="",
+                           note=f"median CCW 1989-96 NSE, C{c}, {'depth datum' if tag == 'depth' else 'best elevation datum'} (E16)")
+            n = int(((ccw["cluster"] == c) & sel["depth"].reindex(ccw.index, fill_value=False)).sum())
+            if n:
+                rr.add(f"e16_ccw_n_C{c}", n, unit="count", note=f"CCW wells in C{c} (E16)")
+            fit = t[(t["test"] == "fit") & sel["best"] & (t["cluster"] == c) & (t["beta_3"] > 0)]
+            if len(fit):
+                rr.add(f"e16_efold_median_C{c}_months_at_best", float(fit["efold_months"].median()), unit="months",
+                       note=f"median 1/beta_3, C{c}, at the best elevation datum (E16)")
+        a = ccw[sel["depth"].reindex(ccw.index, fill_value=False)].set_index(["well", "code"])["nse"]
+        b = ccw[sel["best"].reindex(ccw.index, fill_value=False)].set_index(["well", "code"])["nse"]
+        j = pd.concat([a.rename("a"), b.rename("b")], axis=1, join="inner")
+        rr.add("e16_ccw_n_better_at_best", int((j["b"] >= j["a"]).sum()), unit="count",
+               note="CCW wells whose NSE is as high or higher at the best elevation datum than at the depth datum (E16)")
+        rr.add("e16_r2_median_at_best", float(v["best"]["r2_median"]), unit="", note="median R2, comparison window, best elevation datum (E16)")
+        rr.add("e16_r2_median_at_depth", float(v["depth"]["r2_median"]), unit="", note="median R2, comparison window, depth datum (E16)")
+        rr.add("e16_ranwell_n", int(v["best"]["ranwell_n"]), unit="count", note="Ranwell headline pairings scored (E16)")
+    rr.add("e16_identity_ccw_max_abs_dnse", ident, unit="",
+           note="max |NSE difference|, E16 depth rows against E5 (50_06) at the project datum; expected 0")
+
+
+def _e16_merge_report_numbers(rr, prefix: str = "e16_") -> None:
+    """--only-e16 / --only-e17: replace the <prefix>* rows of the committed 50_report_numbers.csv, keep every other row."""
+    new = rr.to_dataframe()
+    if OUT_50_REPORT_NUMBERS.exists():
+        old = pd.read_csv(OUT_50_REPORT_NUMBERS)
+        old = old[~old["Parameter"].astype(str).str.startswith(prefix)]
+        new = pd.concat([old, new], ignore_index=True)
+    new.to_csv(OUT_50_REPORT_NUMBERS, index=False)
+
+
+def run_e16(lev, lev_cols, cl, master):
+    """E16's tests, summary, verdict and identity check; writes 50_41 and 50_42. The report numbers are added
+    by the caller (main's Outputs phase, or --only-e16, which replaces only the e16_* rows)."""
+    t = elevation_datum_tests(lev, lev_cols, cl, master)
+    s = elevation_datum_summary(t)
+    v = elevation_datum_verdict(s)
+    ident = e16_identity_check(t)
+    step(f"identity: depth rows against E5 at {DRAINAGE_DATUM:g} m, max |dNSE| = {ident:.2e}")
+    if v["verdict"] != "not run":
+        b, d = v["best"], v["depth"]
+        step(f"best elevation datum {v['z0']:g} m AOD: CCW NSE {b['ccw_nse_median']:.3f} (depth {d['ccw_nse_median']:.3f}), "
+             f"|bias| {b['ccw_abs_bias_median_m']:.3f} m ({d['ccw_abs_bias_median_m']:.3f}), Ranwell {b['ranwell_nse_median']:.3f} "
+             f"({d['ranwell_nse_median']:.3f}), split {b['split_nse_median']:.3f} ({d['split_nse_median']:.3f}), "
+             f"beta_3 <= 0 at {int(b['n_beta3_nonpositive'])} ({int(d['n_beta3_nonpositive'])})")
+        step(f"beta_3 against the per-well datum at {v['z0']:g} m AOD: Spearman rho {b['rho_beta3_vs_datum']:+.2f}")
+    step(f"E16 verdict: {v['verdict']}  {v['tests']}")
+    t.to_csv(OUT_50_ELEV_DATUM_TESTS, index=False); saved(f"{OUT_50_ELEV_DATUM_TESTS.name} ({len(t)} rows)")
+    s.to_csv(OUT_50_ELEV_DATUM_SUMMARY, index=False); saved(f"{OUT_50_ELEV_DATUM_SUMMARY.name} ({len(s)} rows)")
+    return t, s, v, ident
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# E17: a drainage base per cluster, chosen from the modern record alone (1.20.0, D-287)
+# ──────────────────────────────────────────────────────────────────────────────
+# E16 found one base in elevation suits the western block (C3) and fails the open dune (C2). E17 gives each cluster
+# its own base z_c m AOD, every well in the cluster at datum ground - z_c, with the base chosen from the modern record
+# only (spec NRG_spec_E16_paperM_and_E17_cluster_base_2026-10-28, Martin 04:28 "S"):
+#   S  the z of E16's elevation grid maximizing the median within-record split NSE of the cluster's wells (primary);
+#   R  the median over member wells of the R2-maximizing datum as an elevation (03_09, max_R2_datum);
+#   B  the median over member wells of Model B's zero-drainage level as an elevation (48_04, base_depth_B_m).
+# The drier epochs (CCW 1989-96, Ranwell 1951-53) then test the primary candidate against the depth datum, cluster by
+# cluster, by the rule fixed before the run (e17_verdict). C4 has no drier-epoch wells and is reported as untested.
+def _e17_cluster_of(master) -> dict:
+    return {r["_n"]: int(r["Cluster"]) for _, r in master.iterrows()}
+
+
+def e17_bases(t16: pd.DataFrame, master) -> pd.DataFrame:
+    grounds = _e16_grounds()
+    cof = _e17_cluster_of(master)
+    sp = t16[t16["test"].isin(["split_fwd", "split_rev"]) & (t16["datum_kind"] == "elevation") & t16["nse"].notna()]
+    med = sp.groupby(["cluster", "z0_m_aod"])["nse"].median()
+
+    def _elev(df, col):
+        out = {}
+        for w, d in zip(df["well"], df[col]):
+            k = normalize_well_name(w)
+            if k in grounds and k in cof and np.isfinite(d):
+                out.setdefault(cof[k], []).append(grounds[k] - float(d))
+        return {c: float(np.median(v)) for c, v in out.items()}
+
+    base_r = _elev(pd.read_csv(OUT_03_WELL_OPTIMAL_DATUMS), "max_R2_datum")
+    base_b = _elev(pd.read_csv(OUT_48_MODEL_AB), "base_depth_B_m")
+    rows = []
+    for c in sorted(CLUSTER_LABELS):
+        mc = med.loc[c] if c in med.index.get_level_values(0) else pd.Series(dtype=float)
+        rows.append({"cluster": c,
+                     "base_S_m_aod": float(mc.idxmax()) if len(mc) else np.nan,
+                     "split_nse_median_at_S": float(mc.max()) if len(mc) else np.nan,
+                     "base_R_m_aod": base_r.get(c, np.nan), "base_B_m_aod": base_b.get(c, np.nan),
+                     "n_member_wells": int(sum(1 for v in cof.values() if v == c))})
+    return pd.DataFrame(rows)
+
+
+def _e17_key(df: pd.DataFrame) -> pd.Series:
+    tag = df["code"].astype(str) if "code" in df.columns else ""
+    if "site_no" in df.columns:
+        tag = np.where(df["test"] == "ranwell", df["site_no"].astype(str), tag)
+    return df["well"].astype(str) + "|" + pd.Series(tag, index=df.index).astype(str)
+
+
+def e17_cluster_table(t: pd.DataFrame) -> pd.DataFrame:
+    """Per cluster and candidate: the drier-epoch medians, and the primary candidate's pass/fail against the depth datum."""
+    t = t.assign(key=_e17_key(t))
+    rows = []
+    for c in sorted(CLUSTER_LABELS):
+        for kind in ("depth",) + tuple(E17_CANDIDATES):
+            g = t[(t["cluster"] == c) & (t["datum_kind"] == kind)]
+            ccw = g[(g["test"] == "ccw") & g["nse"].notna()]
+            rw = g[(g["test"] == "ranwell") & g["nse"].notna()]
+            rw = rw[rw["headline"].astype(bool)] if "headline" in rw.columns else rw.iloc[0:0]
+            sp = g[g["test"].isin(["split_fwd", "split_rev"]) & g["nse"].notna()]
+            fit = g[(g["test"] == "fit") & g["beta_3"].notna()]
+            pos = fit[fit["beta_3"] > 0]
+            rows.append({"cluster": c, "candidate": kind,
+                         "datum_m_median": float(g.loc[g["test"] == "fit", "datum_m"].median()),
+                         "ccw_n": int(len(ccw)), "ccw_nse_median": float(ccw["nse"].median()) if len(ccw) else np.nan,
+                         "ccw_abs_bias_median_m": float(ccw["bias_m"].abs().median()) if len(ccw) else np.nan,
+                         "ranwell_n": int(len(rw)), "ranwell_nse_median": float(rw["nse"].median()) if len(rw) else np.nan,
+                         "split_nse_median": float(sp["nse"].median()) if len(sp) else np.nan,
+                         "n_beta3_nonpositive": int((fit["beta_3"] <= 0).sum()),
+                         "efold_median_months": float(pos["efold_months"].median()) if len(pos) else np.nan})
+    return pd.DataFrame(rows)
+
+
+def e17_verdict(t: pd.DataFrame) -> dict:
+    """The rule fixed before the run (D-287). For the primary candidate, a cluster with drier-epoch wells passes if,
+    on every drier-epoch test it has (CCW for C2, C3, C5; Ranwell headline pairings for C1, C3), every well scored at
+    the depth datum is still scored, the median NSE is at least as high as at the depth datum, and (CCW) the median
+    |bias| is no larger. Supported: every testable cluster passes and no more wells site-wide have beta_3 <= 0.
+    Not supported: more than half the testable clusters fail. Not resolved: otherwise."""
+    prim = E17_PRIMARY_CANDIDATE
+    t = t.assign(key=_e17_key(t))
+    per = {}
+    for c in sorted(CLUSTER_LABELS):
+        checks = []
+        for test in ("ccw", "ranwell"):
+            sub = t[(t["test"] == test) & (t["cluster"] == c)]
+            if test == "ranwell" and "headline" in sub.columns:
+                sub = sub[sub["headline"].astype(bool)]
+            dep = sub[(sub["datum_kind"] == "depth") & sub["nse"].notna()]
+            if dep.empty:
+                continue
+            can = sub[(sub["datum_kind"] == prim) & sub["nse"].notna()]
+            ok = set(dep["key"]) <= set(can["key"]) and can["nse"].median() >= dep["nse"].median()
+            if test == "ccw" and ok:
+                ok = can["bias_m"].abs().median() <= dep["bias_m"].abs().median()
+            checks.append((test, bool(ok)))
+        if checks:
+            per[c] = {"tests": checks, "pass": all(ok for _t, ok in checks)}
+    fit = t[(t["test"] == "fit") & t["beta_3"].notna()]
+    nonpos = {k: int((fit.loc[fit["datum_kind"] == k, "beta_3"] <= 0).sum()) for k in ("depth", prim)}
+    ident = nonpos[prim] <= nonpos["depth"]
+    n_fail = sum(1 for v in per.values() if not v["pass"])
+    if per and n_fail == 0 and ident:
+        verdict = "supported"
+    elif per and n_fail > len(per) / 2:
+        verdict = "not supported"
+    elif per:
+        verdict = "not resolved"
+    else:
+        verdict = "not run"
+    return {"verdict": verdict, "per": per, "identified": ident, "nonpos": nonpos, "primary": prim}
+
+
+def e17_report(rr, bases: pd.DataFrame, ctab: pd.DataFrame, v: dict) -> None:
+    code = {"supported": 1, "not resolved": 0, "not supported": -1, "not run": -2}[v["verdict"]]
+    rr.add("e17_verdict", code, unit="code",
+           note=f"a drainage base per cluster, candidate {v['primary']}: {v['verdict']} (1 supported, 0 not resolved, "
+                "-1 not supported, -2 not run); rule fixed before the run (D-287)")
+    for r in bases.itertuples():
+        for kind in E17_CANDIDATES:
+            rr.add(f"e17_base_{kind}_C{r.cluster}_m_aod", getattr(r, f"base_{kind}_m_aod"), unit="m AOD",
+                   note=f"C{r.cluster} drainage base under candidate {kind} (E17, chosen from the modern record only)")
+    for r in ctab.itertuples():
+        tag = "depth" if r.candidate == "depth" else r.candidate
+        for col, unit in (("ccw_nse_median", ""), ("ccw_abs_bias_median_m", "m"), ("ranwell_nse_median", ""),
+                          ("split_nse_median", ""), ("efold_median_months", "months")):
+            val = getattr(r, col)
+            if np.isfinite(val):
+                rr.add(f"e17_{col}_C{r.cluster}_{tag}", val, unit=unit,
+                       note=f"C{r.cluster}, {col.replace('_', ' ')}, {'depth datum' if tag == 'depth' else 'candidate ' + tag} (E17)")
+        for col in ("ccw_n", "ranwell_n"):
+            if getattr(r, col) and tag == "depth":
+                rr.add(f"e17_{col}_C{r.cluster}", getattr(r, col), unit="count", note=f"C{r.cluster} wells or pairings in the {col[:-2]} test (E17)")
+    for c, d in v["per"].items():
+        rr.add(f"e17_cluster_pass_C{c}", int(d["pass"]), unit="flag",
+               note=f"C{c}: candidate {v['primary']} passes the drier-epoch tests it has ({', '.join(t_ for t_, _ in d['tests'])}) (D-287)")
+    for k, n in v["nonpos"].items():
+        rr.add(f"e17_n_beta3_nonpositive_{k}", n, unit="count", note=f"wells with beta_3 <= 0, comparison window, {k} (E17)")
+
+
+def run_e17(lev, lev_cols, cl, master, t16: pd.DataFrame | None = None):
+    if t16 is None:
+        if not OUT_50_ELEV_DATUM_TESTS.exists():
+            warn("E16's tests are not on disk — E17 needs them for its split-chosen bases; run E16 first")
+            return None
+        t16 = pd.read_csv(OUT_50_ELEV_DATUM_TESTS)
+    bases = e17_bases(t16, master)
+    bmap = {k: dict(zip(bases["cluster"], bases[f"base_{k}_m_aod"])) for k in E17_CANDIDATES}
+    for r in bases.itertuples():
+        step(f"C{r.cluster}: base S {r.base_S_m_aod:g}, R {r.base_R_m_aod:.2f}, B {r.base_B_m_aod:.2f} m AOD")
+    specs = [("depth", np.nan, f"depth {DRAINAGE_DATUM:g} m")] + [(k, np.nan, f"base {k}") for k in E17_CANDIDATES]
+
+    def datum_of(kind, z0, g, c):
+        if kind == "depth":
+            return DRAINAGE_DATUM
+        b = bmap[kind].get(c, np.nan)
+        return g - b if np.isfinite(b) else np.nan
+
+    t = elevation_datum_tests(lev, lev_cols, cl, master, specs=specs, datum_of=datum_of)
+    ctab = e17_cluster_table(t)
+    v = e17_verdict(t)
+    for c, d in v["per"].items():
+        step(f"C{c} ({', '.join(t_ for t_, _ in d['tests'])}): {'pass' if d['pass'] else 'fail'}")
+    step(f"beta_3 <= 0: depth {v['nonpos']['depth']}, {v['primary']} {v['nonpos'][v['primary']]}")
+    step(f"E17 verdict: {v['verdict']}")
+    t.to_csv(OUT_50_CLUSTER_BASE_TESTS, index=False); saved(f"{OUT_50_CLUSTER_BASE_TESTS.name} ({len(t)} rows)")
+    out = ctab.merge(bases, on="cluster", how="left")
+    out.to_csv(OUT_50_CLUSTER_BASE_SUMMARY, index=False); saved(f"{OUT_50_CLUSTER_BASE_SUMMARY.name} ({len(out)} rows)")
+    return bases, ctab, v
+
+
+def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False) -> int:
     banner("50", "What the record length decides", version=__version__)
     DIR_50.mkdir(parents=True, exist_ok=True)
 
@@ -3885,6 +4607,25 @@ def main(no_fig: bool = False) -> int:
     lev, lev_cols, cl, master = load_inputs()
     info(f"{len(master)} reference wells; lengths {', '.join(LENGTHS)} (fitted monthly changes); "
          f"split {MODEL_AB_SPLIT_DATE}; stability tolerance {RECLEN_STABLE_TOL:g}")
+    if only_e16 or only_e17:
+        t16 = None
+        if only_e16:
+            phase("17b", "Model A(ii): one drainage base in elevation, scored on the forward tests (E16, 1.19.0, D-286)")
+            t16, s16, v16, i16 = run_e16(lev, lev_cols, cl, master)
+            rr = ReportNumbers()
+            e16_report(rr, s16, v16, i16, t16)
+            _e16_merge_report_numbers(rr, "e16_")
+            saved(f"{OUT_50_REPORT_NUMBERS.name} (e16_* rows replaced, {len(rr.rows)} rows)")
+        if only_e17:
+            phase("17c", "A drainage base per cluster, chosen from the modern record (E17, 1.20.0, D-287)")
+            r17 = run_e17(lev, lev_cols, cl, master, t16)
+            if r17 is not None:
+                rr = ReportNumbers()
+                e17_report(rr, *r17)
+                _e16_merge_report_numbers(rr, "e17_")
+                saved(f"{OUT_50_REPORT_NUMBERS.name} (e17_* rows replaced, {len(rr.rows)} rows)")
+        done("50")
+        return 0
 
     phase(2, "Forecast, within-record hindcast and stability, both forms, every well")
     rows = []
@@ -4084,6 +4825,22 @@ def main(no_fig: bool = False) -> int:
         result(f"E12 Model {form}", f"{BASIS_VERDICT[v['code']]}; holds: " + ", ".join(f"{t} {'yes' if h else 'no'}" for t, h in v["hold"].items()))
     bs_tab.to_csv(OUT_50_BASIS, index=False); saved(f"{OUT_50_BASIS.name} ({len(bs_tab)} rows)")
 
+    phase("15b", "Can a short record place a new well? Placement from the first months, then E12's tests (E12b, 1.17.0, D-282)")
+    pl_plc, pl_tab, pl_ver = placement_experiment(lev, lev_cols, cl, master, bs_tab)
+    for L, g in pl_plc[pl_plc["side"] == "all"].groupby("placement_months"):
+        step(f"{L} months: {len(g)} wells, {100.0 * (g.placed_cluster == g.true_cluster).mean():.1f} % placed in their own cluster")
+        for form, v in pl_ver[L].items():
+            m = v["med"]
+            result(f"E12b {L} months, Model {form}",
+                   f"{BASIS_VERDICT[v['code']]}; CCW NSE {m[('ccw', 'cluster', '')]:.3f} (well {m[('ccw', 'well', '')]:.3f}), "
+                   f"|bias| {m[('ccw', 'cluster', 'absbias')]:.3f} (well {m[('ccw', 'well', 'absbias')]:.3f}) m; split fwd "
+                   f"{m[('split', 'cluster', 'fwd')]:.3f} (well {m[('split', 'well', 'fwd')]:.3f}); holds: "
+                   + ", ".join(f"{t} {'yes' if h else 'no'}" for t, h in v["hold"].items()))
+    pl_tab["side"] = np.where(pl_tab["test"] == "split", np.where(pl_tab["direction"] == "fwd", "pre", "post"), "all")
+    pl_out = pl_tab.merge(pl_plc[["well", "placement_months", "side", "placed_cluster", "placed_r", "first_month", "last_month"]],
+                          on=["well", "placement_months", "side"], how="left")
+    pl_out.to_csv(OUT_50_PLACEMENT, index=False); saved(f"{OUT_50_PLACEMENT.name} ({len(pl_out)} rows)")
+
     phase(16, "Does another evaporation estimate, or a recharge break, explain the 2006-08 excess? (E13, 1.13.0, D-273)")
     e13_rad, e13_pm, e13_wx, e13_mon, (e13_clim, e13_W) = e13_evaporation(cl, master)
     e13_br = e13_break(e13_clim, e13_W, master)
@@ -4126,6 +4883,12 @@ def main(no_fig: bool = False) -> int:
     e13b_in.to_csv(OUT_50_E13B_INPUTS); saved(f"{OUT_50_E13B_INPUTS.name} ({len(e13b_in)} rows)")
     e13b_rs.to_csv(OUT_50_E13B_RESID, index=False); saved(f"{OUT_50_E13B_RESID.name} ({len(e13b_rs)} rows)")
 
+    phase("17b", "Model A(ii): one drainage base in elevation, scored on the forward tests (E16, 1.19.0, D-286)")
+    e16 = run_e16(lev, lev_cols, cl, master)
+
+    phase("17c", "A drainage base per cluster, chosen from the modern record (E17, 1.20.0, D-287)")
+    e17 = run_e17(lev, lev_cols, cl, master, e16[0])
+
     phase(18, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
@@ -4134,6 +4897,7 @@ def main(no_fig: bool = False) -> int:
     rr = report_numbers(df, dev, stab, ccw, summ, checks)
     if len(ccw_d):
         datum_report(rr, ccw_d, split_d, proj_d, checks_d)
+    water_balance_report(rr, cl)
     if len(rw):
         ranwell_report(rr, rw, lo, hi)
     two_store_report(rr, ts_tab, ts_per, ts_nw, ts_verdict)
@@ -4146,8 +4910,12 @@ def main(no_fig: bool = False) -> int:
     if len(rn_grid):
         ranwell_epoch_report(rr, rn_need, rn_ctx, rn_cand, rn_chk)
     basis_report(rr, bs_tab, bs_ver, bs_chk)
+    placement_report(rr, pl_plc, pl_ver)
     e13_report(rr, e13_rad, e13_pm, e13_bv, e13_wx)
     e13b_report(rr, e13b_cmp, e13b_sum, e13b_ident)
+    e16_report(rr, e16[1], e16[2], e16[3], e16[0])
+    if e17 is not None:
+        e17_report(rr, *e17)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)
@@ -4168,5 +4936,10 @@ def main(no_fig: bool = False) -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="What the record length decides")
     ap.add_argument("--no-fig", action="store_true", help="write the CSVs only, no figure")
+    ap.add_argument("--only-e16", action="store_true",
+                    help="run E16 alone (Model A(ii), D-286): writes 50_41/50_42 and replaces only the e16_* report numbers")
+    ap.add_argument("--only-e17", action="store_true",
+                    help="run E17 alone (a base per cluster, D-287; reads E16's 50_41 unless --only-e16 is also given): "
+                         "writes 50_43/50_44 and replaces only the e17_* report numbers")
     args = ap.parse_args()
-    sys.exit(main(no_fig=args.no_fig))
+    sys.exit(main(no_fig=args.no_fig, only_e16=args.only_e16, only_e17=args.only_e17))

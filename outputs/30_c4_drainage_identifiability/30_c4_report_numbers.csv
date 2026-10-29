@@ -8,7 +8,7 @@ c4_closure_min_beta3,,,0.019,per month,β₃ minimising the C4 water-balance clo
 c4_perwell_n_nonsig,,,5.0,wells,"C4 per-well fits with non-significant β₃ (sampling noise, not collinearity)"
 c4_perwell_sig_window100,,,4.0,wells,"C4 wells with significant positive β₃, 100-month window"
 c4_perwell_sig_window100_beta3_min,,100-month window,0.022615706376002118,per month,smallest per-well window β₃ among the 4 C4 wells with significant positive β₃ (those c4_perwell_sig_window100 counts)
-c4_perwell_sig_window100_beta3_max,,100-month window,0.039969995298225605,per month,largest per-well window β₃ among the 4 C4 wells with significant positive β₃ (those c4_perwell_sig_window100 counts)
+c4_perwell_sig_window100_beta3_max,,100-month window,0.04300117406451294,per month,largest per-well window β₃ among the 4 C4 wells with significant positive β₃ (those c4_perwell_sig_window100 counts)
 c4_perwell_sig_fullrecord,,,7.0,wells,"C4 wells with significant positive β₃, full record"
 c4_centroid_beta3_excl,,,0.02905854278545607,per month,"C4 centroid β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, not the headline"
 c4_centroid_halflife_excl,,,23.85347350958247,months,"C4 t½ = ln(2)/β₃ under the same exclusion — sensitivity, not the headline"
@@ -17,9 +17,9 @@ centroid_recession_time_months,C2 (Dune),,15.90332131760335,months,"t_R = 1/β�
 centroid_recession_time_months,C3 (Western Residual),,16.22979163569216,months,"t_R = 1/β₃ at the cluster centroid (canonical Model A fit, 30_c4_identifiability_by_cluster.csv beta3)"
 centroid_recession_time_months,C4 (Main Forest),,54.153803585238734,months,"t_R = 1/β₃ at the cluster centroid (canonical Model A fit, 30_c4_identifiability_by_cluster.csv beta3)"
 centroid_recession_time_months,C5 (Coastal Forest),,22.20006542038077,months,"t_R = 1/β₃ at the cluster centroid (canonical Model A fit, 30_c4_identifiability_by_cluster.csv beta3)"
-perwell_vif_median_window,C1 (Lake Edge),100-month window,2.1950283714792627,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 7 wells; not the centroid VIF"
-perwell_vif_median_window,C2 (Dune),100-month window,1.642030477431607,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 19 wells; not the centroid VIF"
-perwell_vif_median_window,C3 (Western Residual),100-month window,1.4322116204460915,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 26 wells; not the centroid VIF"
+perwell_vif_median_window,C1 (Lake Edge),100-month window,2.1990235534431077,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 7 wells; not the centroid VIF"
+perwell_vif_median_window,C2 (Dune),100-month window,1.653167292971665,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 19 wells; not the centroid VIF"
+perwell_vif_median_window,C3 (Western Residual),100-month window,1.432748659699767,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 26 wells; not the centroid VIF"
 perwell_vif_median_window,C4 (Main Forest),100-month window,1.2027877973434866,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 9 wells; not the centroid VIF"
 perwell_vif_median_window,C5 (Coastal Forest),100-month window,1.3012241450466504,,"median over the cluster's per-well fits of the VIF of h_disp_prev on {P,PET} (30_c4_perwell_beta3.csv VIF), n = 5 wells; not the centroid VIF"
 c4_centroid_recession_time_excl,,,34.41328794025089,months,"C4 t_R = 1/β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, not the headline"

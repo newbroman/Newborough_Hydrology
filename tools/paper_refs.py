@@ -53,7 +53,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-25. First issue (Martin 06:52: "set up
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-27. SKIP, not FAIL, when the checkout carries no paper
+#   document at all (the public clone; T-127 read "broken" in the daily cloud check).
+# 1.0.0  # Hollingham (2026) - 2026-10-25. First issue (Martin 06:52: "set up
 #   mechanisms so that renumbering for new figures and tables in the papers is already set up").
 
 import argparse
@@ -262,8 +264,15 @@ def main() -> int:
             ap.error("--plan needs exactly one of --insert N or --remove N")
         return write_plan(a.plan, a.kind, a.insert, a.remove)
     snap = {} if a.snapshot else load_snapshot()
+    fams = [a.family] if a.family else list(FAMILIES)
+    # 1.0.1: a checkout with NO paper document at all (the public clone: the ODTs live in Drive, by
+    # design) cannot answer, and says so as SKIP rather than as a FAIL that reads like a project fault.
+    # One missing family where others are present is still a FAIL.
+    if not a.snapshot and all(current(FAMILIES[f][0]) is None for f in fams):
+        print("paper_refs: SKIP (no paper document in this checkout; the ODTs are not in the public repo)")
+        return 0
     bad, pins = 0, []
-    for fam in ([a.family] if a.family else FAMILIES):
+    for fam in fams:
         b, p = check(fam, snap, verbose=not a.quiet)
         bad += b
         pins += p

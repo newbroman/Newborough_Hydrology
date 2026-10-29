@@ -59,7 +59,10 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-10-12 (D-259; Martin 23:19 "lets go ahead"). The drainage share
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-27 (Martin 02:47 "Add the 3 spearman p values"). modelab_rho_datum_mhw_vs_*:
+#   Spearman rho (and p) of each well's depth to MHW against beta_3 at the MHW datum, beta_3 at the network datum and the
+#   model-free e-folding time, so Paper M §5.5 can show the anchored datum carries the topography into beta_3. Additive.
+# 1.7.0  # Hollingham (2026) - 2026-10-12 (D-259; Martin 23:19 "lets go ahead"). The drainage share
 #   of losses by cluster under all three forms: modelab_drainage_share_B_median_C{n}, and the 10th/90th
 #   percentiles modelab_drainage_share_{A,B,M}_p{10,90}_C{n} and _B_p{10,90}_all, for Paper M Table 3. Additive.
 # 1.6.0  # Hollingham (2026) - 2026-10-10 (T-119, D-255). The model-free reversion time
@@ -772,6 +775,17 @@ def main(no_fig: bool = False) -> int:
                        note=f"{q}th percentile over wells: drainage share of losses, {lab}; full record, n = {len(v)} ({gname})")
     rr.add("modelab_datum_mhw_min_all", float(ab["datum_mhw_m"].min()), unit="m", note="shallowest depth to MHW, reference wells")
     rr.add("modelab_datum_mhw_max_all", float(ab["datum_mhw_m"].max()), unit="m", note="deepest depth to MHW, reference wells")
+    # 1.8.0 (Paper M §5.5; Martin 2026-10-27 02:47 "Add the 3 spearman p values"): does the anchored datum carry the
+    #   topography into beta_3? Spearman rho of each well's depth to MHW against beta_3 at that datum, against beta_3 at
+    #   the network datum, and against the model-free e-folding time. Additive: no existing key changes.
+    for col, lab in (("beta_3_M", "beta_3 at the MHW datum"), ("beta_3_A", f"beta_3 at the {DRAINAGE_DATUM} m datum"),
+                     ("efold_obs_months", "model-free e-folding time (lag-1 autocorrelation)")):
+        pair = ab[["datum_mhw_m", col]].apply(pd.to_numeric, errors="coerce").dropna()
+        res = scipy_stats.spearmanr(pair["datum_mhw_m"], pair[col]) if len(pair) > 2 else None
+        rr.add(f"modelab_rho_datum_mhw_vs_{col}_all", float(res.correlation) if res is not None else np.nan, unit="rho",
+               note=f"Spearman rho, depth to MHW against {lab}; full record, n = {len(pair)} reference wells")
+        rr.add(f"modelab_rho_datum_mhw_vs_{col}_p_all", float(res.pvalue) if res is not None else np.nan, unit="p",
+               note=f"p-value of modelab_rho_datum_mhw_vs_{col}_all")
     for gname, g in groups:
         for col, lab in (("efold_obs_months", "observed deseasonalised level, lag-1 autocorrelation"),
                          ("efold_A_months", "Model A, -1/ln(1 - beta_3)"),

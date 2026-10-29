@@ -11,7 +11,11 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.73.0"  # Hollingham (2026) - 2026-10-25. Scripts 53 1.0.0 (E14) and 54 1.0.0 (E15): DIR_53, DIR_54 and their outputs.
+__version__ = "1.76.0"  # Hollingham (2026) - 2026-10-28. Script 50 1.20.0 (E17, D-287): OUT_50_CLUSTER_BASE_TESTS, OUT_50_CLUSTER_BASE_SUMMARY, OUT_03_WELL_OPTIMAL_DATUMS.
+# 1.75.0  # Hollingham (2026) - 2026-10-28. Script 50 1.19.0 (E16, D-286): OUT_50_ELEV_DATUM_TESTS, OUT_50_ELEV_DATUM_SUMMARY.
+# 1.74.0  # Hollingham (2026) - 2026-10-27. Script 50 1.17.0 (E12b, D-282): OUT_50_PLACEMENT. Script 03 1.28.0
+#   (D-281): OUT_03_DRY_FILL.
+# 1.73.0  # Hollingham (2026) - 2026-10-25. Scripts 53 1.0.0 (E14) and 54 1.0.0 (E15): DIR_53, DIR_54 and their outputs.
 #   Additive only.
 # 1.72.0  # Hollingham (2026) - 2026-10-24. Script 51 1.0.0 (D-275): DIR_51 and its outputs;
 #   DATA_CCW_SIMILARITY_MARTIN. Additive.
@@ -605,6 +609,7 @@ OUT_03_DATUM_INVARIANCE    = DIR_03 / "03_18_datum_invariance.csv"   # T-74: the
 OUT_03_DATUM_ZERO          = DIR_03 / "03_19_datum_zero_fit.csv"   # centroid Model A at DATUM_RAW_DEPTH_M (raw depth): sign and significance of beta_3 with no drainage base
 OUT_03_PER_WELL_RECESSION  = DIR_03 / "03_19_per_well_recession_full_record.csv"  # D-192: β₃, t½, 1/β₃ per well on the FULL record; Script 18 reads it
 OUT_03_DATUM_AOD           = DIR_03 / "03_20_datum_aod_sweep.csv"   # T-99 / D-163 route 4: Model A per well with the datum fixed in elevation (z0 m AOD)
+OUT_03_DRY_FILL            = DIR_03 / "03_21_dry_member_fill.csv"   # D-281: each dry member-month, its bound and the level the centroids use
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
@@ -912,6 +917,7 @@ OUT_15_LAMBDA_PROFILE   = DIR_15 / "15_01_lambda_profile.png"
 OUT_15_FIT_COMPARISON   = DIR_15 / "15_02_fit_comparison.png"
 OUT_15_BENCHMARK_TABLE  = DIR_15 / "15_03_benchmark_table.csv"
 OUT_15_BEST_PARAMS      = DIR_15 / "15_04_best_params.csv"
+OUT_15_DDP_PER_WELL     = DIR_15 / "15_05_ddp_per_well.csv"   # 1.9.0 (D-280): per-well and centroid depth-dependent sets
 
 # Script 12 — Figure: site overview
 OUT_12_DEM_OVERVIEW         = DIR_12 / "12_01_dem_site_overview.png"
@@ -1082,6 +1088,8 @@ OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 
 OUT_19_SCENARIO_PERWELL = DIR_19 / "19_scenario_perwell.csv"   # T-84: per-well scenario Δh and water equivalent
 OUT_19_SCENARIO_SUMMARY_MODEL_A = DIR_19 / "19_scenario_summary_model_a.csv"  # D-224: the UKCP18 sustained level response on Model A
 OUT_19_SCENARIO_PERWELL_MODEL_A = DIR_19 / "19_scenario_perwell_model_a.csv"  # D-224: per well, Model A
+OUT_19_SCENARIO_SUMMARY_DDP = DIR_19 / "19_scenario_summary_ddp.csv"  # D-280: the UKCP18 sustained level response, depth-dependent form
+OUT_19_SCENARIO_PERWELL_DDP = DIR_19 / "19_scenario_perwell_ddp.csv"  # D-280: per well, depth-dependent form
 OUT_19_THICKNESS_MAP  = DIR_19 / "19_aquifer_thickness.jpg"
 OUT_19_HEAD_MEAN_MAP  = DIR_19 / "19_head_mean_map.jpg"
 OUT_19_HEAD_WINTER    = DIR_19 / "19_head_surface_winter.jpg"
@@ -1447,6 +1455,12 @@ OUT_50_RANWELL_NEED  = DIR_50 / "50_28_ranwell_need_grid.csv"        # E11, D-26
 OUT_50_RANWELL_EPOCH = DIR_50 / "50_29_ranwell_epoch_candidates.csv" # E11, D-261
 OUT_50_BASIS         = DIR_50 / "50_30_basis_by_test.csv"            # E12, D-268
 OUT_50_PET_ALT       = DIR_50 / "50_31_pet_alternatives_monthly.csv"  # E13, D-273
+OUT_50_PLACEMENT     = DIR_50 / "50_40_placement_by_test.csv"        # E12b, D-282
+OUT_50_ELEV_DATUM_TESTS   = DIR_50 / "50_41_elevation_datum_by_test.csv"    # E16, D-286
+OUT_50_ELEV_DATUM_SUMMARY = DIR_50 / "50_42_elevation_datum_summary.csv"    # E16, D-286
+OUT_50_CLUSTER_BASE_TESTS   = DIR_50 / "50_43_cluster_base_by_test.csv"    # E17, D-287
+OUT_50_CLUSTER_BASE_SUMMARY = DIR_50 / "50_44_cluster_base_summary.csv"    # E17, D-287
+OUT_03_WELL_OPTIMAL_DATUMS  = DIR_03 / "03_09_well_optimal_datums.csv"     # read by Script 50 E17 (written by Script 03)
 OUT_50_E13_PET       = DIR_50 / "50_32_e13_pet_by_cluster.csv"        # E13, D-273
 OUT_50_E13_BREAK     = DIR_50 / "50_33_e13_beta1_break_by_well.csv"   # E13, D-273
 OUT_50_E13_WEATHER   = DIR_50 / "50_34_e13_weather_summary.csv"       # E13, D-273

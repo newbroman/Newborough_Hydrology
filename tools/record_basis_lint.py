@@ -33,6 +33,11 @@ Three verification modes, declared per row in the `verify` column:
   manual       Not mechanically checkable — era windows, aggregation windows,
                admission rules. Reported, never silently passed.
 
+Every row also declares `dry_months` (D-281, 2026-10-27): `censored` (dry months
+enter the fit as levels below a bound; the named script's fit calls must pass
+dry_bound=), `filled` (a centroid averaged from members whose dry months were filled
+with their expected level below the bound; checked the same way), `excluded` (dry months are dropped, as before), `inherited` or `n/a`.
+
 Usage:
     python3 tools/record_basis_lint.py
     python3 tools/record_basis_lint.py --quiet
@@ -69,6 +74,36 @@ def call_arg_names(tree) -> set[str]:
                     if isinstance(sub, ast.Name):
                         names.add(sub.id)
     return names
+
+
+DRY_MONTHS = {"censored", "filled", "excluded", "inherited", "n/a"}
+
+
+def passes_dry_bound(path: Path) -> bool:
+    """True if any fit call in the module passes dry_bound= (the censored fit, D-281)."""
+    tree = ast.parse(path.read_text(encoding="utf8"))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            fn = node.func
+            name = fn.attr if isinstance(fn, ast.Attribute) else getattr(fn, "id", "")
+            if name in FIT_CALLS and any(k.arg == "dry_bound" for k in node.keywords):
+                return True
+    return False
+
+
+def uses_dry_fill(path: Path) -> bool:
+    """True if the module builds its levels through the D-281 fill (apply_dry_fill or
+    donor_censored_fill) or passes dry_bound= to a fit."""
+    if passes_dry_bound(path):
+        return True
+    tree = ast.parse(path.read_text(encoding="utf8"))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            fn = node.func
+            name = fn.attr if isinstance(fn, ast.Attribute) else getattr(fn, "id", "")
+            if name in ("apply_dry_fill", "donor_censored_fill"):
+                return True
+    return False
 
 
 def window_exprs(path: Path) -> list[str]:
@@ -110,6 +145,21 @@ def main() -> int:
     for row in rows:
         rid, mode = row["id"], row["verify"].strip()
         scripts = [s.strip() for s in row["scripts"].split(";") if s.strip()]
+        # D-281: every row says how its fits treat dry months; a row declared censored must
+        # name a script whose fit calls pass dry_bound=
+        dm = (row.get("dry_months") or "").strip()
+        if dm not in DRY_MONTHS:
+            print(f"  {R}FAIL{N}   {rid}  dry_months {dm!r} is not one of {sorted(DRY_MONTHS)}")
+            fail += 1
+        elif dm in ("censored", "filled"):
+            for s_ in scripts:
+                p_ = SRC / s_ if (SRC / s_).exists() else ROOT / s_
+                ok_ = passes_dry_bound(p_) if dm == "censored" else uses_dry_fill(p_)
+                if p_.exists() and not ok_:
+                    print(f"  {R}FAIL{N}   {rid}  declares dry months {dm}, but {s_} "
+                          + ("passes dry_bound= to no fit call" if dm == "censored"
+                             else "neither fills dry months nor passes dry_bound="))
+                    fail += 1
         if mode == "manual":
             manual += 1
             if not args.quiet:

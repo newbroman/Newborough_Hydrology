@@ -2,11 +2,11 @@ Parameter,Well,Era,Value,Unit,Note
 scrape_H0_mm,,,128.0873724489796,mm,edge drawdown: the measured CEH36 Pure_Scraping response (Script 09a)
 scrape_inferred_cut_depth_m,,,0.42953413104984983,m,"inferred, not surveyed: H0 / Sy (C3 median per-well Sy)"
 scrape_sy_c3_median,C3,,0.29820068578930775,-,open-dune specific yield used for the inferred cut depth: median of the C3 wells' per-well WTF Sy_median (18_wtf_01_well_sy_estimates.csv)
-scrape_lambda_m,,,222.929360297203,m,decay length of the scrape field
-scrape_reach_50mm_m,,,468.17014171397716,m,largest distance from a cut edge at which the field is >= 50 mm
+scrape_lambda_m,,,222.32356157057382,m,decay length of the scrape field
+scrape_reach_50mm_m,,,465.11569000011025,m,largest distance from a cut edge at which the field is >= 50 mm
 scrape_reach_10mm_m,,,808.3515871929752,m,largest distance from a cut edge at which the field is >= 10 mm
-scrape_ceh36_reach_50mm_m,,,196.54113927630965,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 50 mm
-scrape_ceh36_reach_10mm_m,,,555.6269368820866,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 10 mm
-clearfell_baseline_drawdown_max_mm,,,251.72846447361968,mm,"maximum of the combined scrape (Feb 2013 + Apr 2015 cuts) plus Storm Brendan retreat drawdown on the pre-fell baseline, within the site outline (20_clearfell_baseline_drawdown.png)"
+scrape_ceh36_reach_50mm_m,,,196.0203368983664,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 50 mm
+scrape_ceh36_reach_10mm_m,,,554.0839310182884,m,CEH36 cut alone: largest distance from its edge at which its own field (with coastal image) is >= 10 mm
+clearfell_baseline_drawdown_max_mm,,,251.73665453881011,mm,"maximum of the combined scrape (Feb 2013 + Apr 2015 cuts) plus Storm Brendan retreat drawdown on the pre-fell baseline, within the site outline (20_clearfell_baseline_drawdown.png)"
 clearfell_baseline_drawdown_max_E_m,,,241350.0,m,easting (OSGB36) of the grid cell holding clearfell_baseline_drawdown_max_mm
 clearfell_baseline_drawdown_max_N_m,,,363050.0,m,northing (OSGB36) of the grid cell holding clearfell_baseline_drawdown_max_mm

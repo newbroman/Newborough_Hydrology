@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.36.0"  # Hollingham (2026) — 2026-10-17. Three Paper 2 values registered for its fields
+__version__ = "1.37.0"  # Hollingham (2026) — 2026-10-28. 16_water_bal_rec_table and _vol_table register B_drain_frac,
+#   B_ET_frac, Lo_drain_frac, Hi_drain_frac (Script 16 1.12.0, D-283), so the partition can be quoted as fields.
+# 1.36.0  # Hollingham (2026) — 2026-10-17. Three Paper 2 values registered for its fields
 # conversion (T-125): 10a_09 p_vs_one, 10a_10 clearfell_step_fixed1_p, and 10f_01's per-well Step_m (by Well);
 # a constant defined as A +/- B of two constants registers its value (CURRELI_SD16_SD15B_GAP_M; Martin 22:12).
 # 1.35.0 — 2026-10-15. Claims register: range and comparison rules whose
@@ -610,9 +612,11 @@ EXTRA_VALUE_TABLES = [
     ("outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv", "Cluster_Label",    # report9 4.7.4, report10 5.9
      ["pflood_min", "pflood_max", "pflood_median", "m_P"]),
     ("outputs/16_water_balance/16_water_bal_rec_table.csv", "Label",    # report9 4.2.3
-     ["Winter_dh_mm_month", "N_winter", "Summer_dh_mm_month", "N_summer", "ET_mm_month", "Rec_drain_frac", "Rec_ET_frac", "SSM_drain_frac", "SSM_ET_frac", "Mid_drain_frac", "Spread_pp"]),
+     ["Winter_dh_mm_month", "N_winter", "Summer_dh_mm_month", "N_summer", "ET_mm_month", "Rec_drain_frac", "Rec_ET_frac", "SSM_drain_frac", "SSM_ET_frac", "Mid_drain_frac", "Spread_pp",
+      "B_drain_frac", "B_ET_frac", "Lo_drain_frac", "Hi_drain_frac"]),   # Script 16 1.12.0 (D-283)
     ("outputs/16_water_balance/16_water_bal_vol_table.csv", "Label",    # report9 4.2.3
-     ["P_mm_yr", "PET_mm_yr", "I_mm_yr", "P_net_mm_yr", "P_minus_PET_mm_yr", "ET_mid_mm_yr", "ET_lo_mm_yr", "ET_hi_mm_yr", "Drain_mid_mm_yr", "Drain_lo_mm_yr", "Drain_hi_mm_yr", "ET_total_mid_mm_yr", "ET_total_lo_mm_yr", "ET_total_hi_mm_yr"]),
+     ["P_mm_yr", "PET_mm_yr", "I_mm_yr", "P_net_mm_yr", "P_minus_PET_mm_yr", "ET_mid_mm_yr", "ET_lo_mm_yr", "ET_hi_mm_yr", "Drain_mid_mm_yr", "Drain_lo_mm_yr", "Drain_hi_mm_yr", "ET_total_mid_mm_yr", "ET_total_lo_mm_yr", "ET_total_hi_mm_yr",
+      "B_drain_frac", "B_ET_frac", "Lo_drain_frac", "Hi_drain_frac"]),   # Script 16 1.12.0 (D-283)
     ("outputs/15_depth_dependent_pet/15_03_benchmark_table.csv", "Cluster",    # report10 5.2.2
      ["Delta_NSE"]),
     ("outputs/20_spatial_figures/20_drawdown_perwell.csv", "well",    # report9 4.11

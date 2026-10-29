@@ -52,7 +52,19 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-08. simulate_ssm() takes alpha=0.0, the free intercept
+__version__ = "1.12.0"  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 "A your recommendation, B wells
+#   deepest reading, c both"). (1) The comparison window is a fixed calendar span: build_ssm_frame's `window`
+#   counts calendar months ending at the last aligned row, not valid rows, and last_calendar_months() gives the
+#   same cut for callers that tail a frame. (2) fit_ssm_censored(): dry months enter as levels below a bound
+#   (Tobit-type maximum likelihood, GHK orthant on fixed Sobol draws); with no dry month it returns fit_ssm's
+#   result unchanged. dry_bounds(well) builds the bounds from Script 01's intermediates (pipe-top dry depth less
+#   the upstand; the well's floor where no depth was recorded). censored_fill() gives a dry month's expected
+#   level for the cluster centroids.
+# 1.11.0  # Hollingham (2026) — 2026-10-27 (D-280; Martin 01:21 "Add the depth-dependent model as a
+#   third projection beside Model A and Model B, in Script 50 and the viewer"). periodic_steady_state_ddp() and
+#   sustained_monthly_response_ddp(): the sustained response of the depth-dependent SSM, which has no closed
+#   form, as the difference of two periodic steady states; at kappa = 0 it equals the closed form. Additive.
+# 1.10.0  # Hollingham (2026) — 2026-10-08. simulate_ssm() takes alpha=0.0, the free intercept
 #   of Model B, so Script 08 can free-run Model B with the shared recurrence (D-244). Default 0 leaves every
 #   existing caller's result unchanged.
 # 1.9.0  # Hollingham (2026) — 2026-10-03 (D-238; Martin: "WE NEED TO ENSURE INTERCEPTION IS NOT
@@ -178,8 +190,9 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
         Month lag applied to rainfall. None defaults to HEADLINE_LAG
         from config.py.
     window : int or None
-        Keep only the most recent `window` observations after alignment.
-        None disables windowing and returns the full aligned record.
+        Keep only the rows in the last `window` calendar months of the aligned
+        record (1.12.0, D-281; before, the last `window` valid rows, which reached
+        further back at a well with gaps). None returns the full aligned record.
     drainage_datum : float
         Reference depth (m below ground surface) for displacement.
     provenance : pd.Series or None
@@ -244,8 +257,12 @@ def build_ssm_frame(h_series, climate, lag=None, window=None,
 
     df = df.dropna(subset=["h", "Delta_h", "P", "PET", "h_disp_prev"])
 
-    if window is not None and len(df) > window:
-        df = df.iloc[-window:]
+    if window is not None and len(df):
+        # 1.12.0 (D-281): the last `window` CALENDAR months ending at the frame's last
+        # row, not the last `window` valid rows. A well with gaps now covers the same
+        # months as a well without them (Martin 2026-10-27: "The gaps are a surprise.
+        # and I think it is inconsistent."); a complete record is unchanged.
+        df = last_calendar_months(df, window)
 
     return df
 
@@ -258,7 +275,7 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
             drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
             intercept=False, extra_regressors=None, pre_built_frame=None,
             provenance=None, exclude_interpolated=False, fixed_beta_3=None,
-            with_corr=False):
+            with_corr=False, dry_bound=None):
     """
     Fit the SSM to a single water-level series via OLS.
 
@@ -284,7 +301,7 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
         Rainfall lag in months. None → HEADLINE_LAG from config.py.
         Ignored if pre_built_frame is given.
     window : int or None
-        Keep only the most recent `window` observations after alignment.
+        Calendar months ending at the last aligned row (see build_ssm_frame).
         None disables windowing. Ignored if pre_built_frame is given.
     drainage_datum : float
         Reference depth for displacement (default from config). Ignored
@@ -349,6 +366,14 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
             mean_h_disp_prev — the means over the fitted months, from which the
             loss partition each form implies is computed
 
+    dry_bound : pd.Series or None
+        1.12.0 (D-281). Upper bounds on h for the months the well was found
+        dry (dry_bounds(well) builds them). When given, the fit is
+        fit_ssm_censored(): dry months enter as levels below the bound instead
+        of being dropped. With no dry month in the window the result is this
+        function's own. Not combinable with pre_built_frame, extra_regressors,
+        fixed_beta_3 or exclude_interpolated.
+
     Returns None if insufficient data or OLS fails.
 
     Notes
@@ -357,6 +382,14 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
     fit_ssm(intercept=True, ...) for backward compatibility with Scripts
     07, 08, 22, 24.
     """
+    if dry_bound is not None:
+        if pre_built_frame is not None or extra_regressors or fixed_beta_3 is not None \
+                or exclude_interpolated:
+            raise ValueError("fit_ssm: dry_bound (the censored fit) does not combine with "
+                             "pre_built_frame, extra_regressors, fixed_beta_3 or exclude_interpolated")
+        return fit_ssm_censored(h_series, climate, dry_bound, lag=lag, window=window,
+                                drainage_datum=drainage_datum, min_obs=min_obs,
+                                intercept=intercept, with_corr=with_corr)
     if pre_built_frame is not None:
         df = pre_built_frame
         # Validate the pre-built frame has the required columns
@@ -480,7 +513,7 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def fit_ssm_intercept(h_series, climate, lag=None, window=None,
-                      drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS):
+                      drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS, dry_bound=None):
     """
     Fit the SSM with a constant intercept term (Model B).
 
@@ -512,7 +545,455 @@ def fit_ssm_intercept(h_series, climate, lag=None, window=None,
     """
     return fit_ssm(h_series, climate, lag=lag, window=window,
                    drainage_datum=drainage_datum, min_obs=min_obs,
-                   intercept=True)
+                   intercept=True, dry_bound=dry_bound)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CENSORED FIT — DRY MONTHS AS LEVELS BELOW A BOUND (1.12.0, D-281)
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# A dipwell found dry says the water table was below the bottom of the pipe that
+# month: an observation h <= c, not a missing value. Dropping it removes the
+# driest months from the fit, which is a selection on the response itself. The
+# censored fit keeps them. The state equation of the SSM,
+#     h(t) = (1 - b3)·h(t-1) + b1·P(t) - b2·PET(t) - b3·z0 [+ alpha] + e(t),
+# e ~ N(0, sigma^2), is linear-Gaussian, so a run of J dry months between two
+# readings is a Gaussian vector conditioned on the readings either side, and its
+# likelihood is the density of the reading after the run times the probability
+# that every latent month in the run lies below its bound. That probability is a
+# multivariate normal orthant, computed by the GHK simulator on a fixed set of
+# scrambled Sobol draws (common random numbers, so the likelihood is smooth in the
+# parameters and the fit is deterministic). A run of one month is exact. With no
+# dry month in the window the fit IS fit_ssm (returned unchanged), so the published
+# coefficients move only where a well was found dry.
+
+from scipy.optimize import minimize as _minimize                  # noqa: E402
+from scipy.stats import qmc as _qmc                                # noqa: E402
+from scipy.special import log_ndtr as _log_ndtr, ndtri as _ndtri  # noqa: E402
+_LOG_SQRT_2PI = 0.5 * np.log(2 * np.pi)
+
+
+def _logpdf(x, loc=0.0, scale=1.0):
+    z = (np.asarray(x) - loc) / scale
+    return -0.5 * z * z - np.log(scale) - _LOG_SQRT_2PI
+
+
+def _psf(z):
+    """Two-sided normal p-value for a z statistic."""
+    return float(2.0 * np.exp(_log_ndtr(-abs(z))))
+
+CENSORED_STATES = ("dry_recorded", "dry_inferred")
+CENSORED_GHK_DRAWS = 2048          # Sobol points (a power of two) for the GHK orthant
+CENSORED_GHK_SEED = 20261027       # fixed: the fit must be reproducible run to run
+_GHK_CACHE: dict = {}
+_BOUND_CACHE: dict = {}
+
+
+def _ghk_uniforms(dim: int) -> np.ndarray:
+    if dim not in _GHK_CACHE:
+        u = _qmc.Sobol(d=dim, scramble=True, seed=CENSORED_GHK_SEED).random(CENSORED_GHK_DRAWS)
+        _GHK_CACHE[dim] = np.clip(u, 1e-12, 1 - 1e-12)
+    return _GHK_CACHE[dim]
+
+
+def _ghk(mu, S, c, want_mean=False):
+    """log P(x <= c) for x ~ N(mu, S), and optionally E[x | x <= c] (GHK)."""
+    J = len(mu)
+    if J == 1:
+        s = float(np.sqrt(S[0, 0])); a = (c[0] - mu[0]) / s
+        lp = float(_log_ndtr(a))
+        if not want_mean:
+            return lp, None
+        lam = float(np.exp(_logpdf(a) - lp))
+        return lp, np.array([mu[0] - s * lam])
+    L = np.linalg.cholesky(S + 1e-18 * np.eye(J))
+    U = _ghk_uniforms(J)
+    R = U.shape[0]
+    z = np.zeros((R, J)); logw = np.zeros(R)
+    for k in range(J):
+        b = (c[k] - mu[k] - z[:, :k] @ L[k, :k]) / L[k, k]
+        lpk = _log_ndtr(b)
+        logw += lpk
+        z[:, k] = _ndtri(np.clip(U[:, k] * np.exp(lpk), 1e-300, 1 - 1e-16))
+        z[:, k] = np.minimum(z[:, k], b)
+    m = logw.max()
+    w = np.exp(logw - m)
+    lp = float(m + np.log(w.mean()))
+    if not want_mean:
+        return lp, None
+    x = mu + z @ L.T
+    return lp, (w[:, None] * x).sum(axis=0) / w.sum()
+
+
+def _run_moments(h0, u, a, sig2, has_after):
+    """Mean and covariance of the latent path x_1..x_J (and the reading after it,
+    as the last element, when has_after) started from the reading h0."""
+    n = len(u)
+    m = np.empty(n); prev = h0
+    for k in range(n):
+        prev = a * prev + u[k]; m[k] = prev
+    i = np.arange(n)
+    M = np.where(i[:, None] >= i[None, :], a ** np.clip(i[:, None] - i[None, :], 0, None), 0.0)
+    return m, sig2 * (M @ M.T)
+
+
+def dry_bounds(well: str) -> pd.Series:
+    """Upper bounds on the ground-referenced level (m, negative below ground) for
+    each month the well was found dry, indexed by month. The bound is the dry
+    depth recorded that month where there is one; dry depths are sounded from the
+    pipe top, so the upstand is subtracted. A dry month with no recorded depth
+    takes the well's floor: the deeper of its deepest measured reading and its
+    deepest recorded dry depth, either of which shows the pipe base lies at least
+    that deep (D-281, Martin 2026-10-27 "B wells deepest reading"). Read from
+    Script 01's intermediates, never from raw data. Empty if the well was never dry."""
+    from utils.paths import (INT_OBSERVATION_STATES, INT_DRY_DEPTHS, INT_WELL_ELEVATIONS,
+                             INT_WELLS_CLEAN, INT_WELLS_PROVENANCE)
+    if not _BOUND_CACHE:
+        st = pd.read_csv(INT_OBSERVATION_STATES, index_col=0, parse_dates=True)
+        _BOUND_CACHE["states"] = st.rename(columns=str.lower)
+        dd = pd.read_csv(INT_DRY_DEPTHS, parse_dates=["month"])
+        dd["well"] = dd["well"].str.lower()
+        _BOUND_CACHE["depths"] = dd
+        el = pd.read_csv(INT_WELL_ELEVATIONS)
+        _BOUND_CACHE["upstand"] = {str(n).lower(): (float(u) if pd.notna(u) else 0.0)
+                                  for n, u in zip(el["Name_norm"], el["Upstand_m"])}
+        wc = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True).rename(columns=str.lower)
+        pv = pd.read_csv(INT_WELLS_PROVENANCE, index_col=0, parse_dates=True).rename(columns=str.lower)
+        _BOUND_CACHE["deepest"] = {c: float(-wc[c].where(pv.reindex(index=wc.index)[c] == "measured").min())
+                                   if c in pv.columns else float(-wc[c].min()) for c in wc.columns}
+    w = str(well).lower()
+    st = _BOUND_CACHE["states"]
+    if w not in st.columns:
+        return pd.Series(dtype=float, name=w)
+    dry = st.index[st[w].isin(CENSORED_STATES)]
+    if not len(dry):
+        return pd.Series(dtype=float, name=w)
+    up = _BOUND_CACHE["upstand"].get(w, 0.0)
+    dd = _BOUND_CACHE["depths"]
+    ground = (dd.loc[dd["well"] == w].set_index("month")["dry_depth_m"] - up)
+    ground = ground[~ground.index.duplicated(keep="first")]
+    floor = np.nanmax([_BOUND_CACHE["deepest"].get(w, np.nan),
+                       ground.max() if len(ground) else np.nan])
+    depth = ground.reindex(dry).fillna(floor)
+    return (-depth).dropna().rename(w)
+
+
+def _censored_layout(h_series, climate, dry_bound, lag, window):
+    df = pd.DataFrame({"h": pd.to_numeric(h_series, errors="coerce"),
+                       "P": pd.to_numeric(climate["P_m"], errors="coerce"),
+                       "PET": pd.to_numeric(climate["PET"], errors="coerce")})
+    df = _on_monthly_calendar(df)
+    if lag and lag > 0:
+        df["P"] = df["P"].shift(lag)
+    per = pd.DatetimeIndex(df.index).to_period("M")
+    cb = pd.Series(np.nan, index=per)
+    if dry_bound is not None and len(dry_bound):
+        b = pd.Series(np.asarray(dry_bound, dtype=float),
+                      index=pd.DatetimeIndex(dry_bound.index).to_period("M"))
+        b = b[~b.index.duplicated(keep="first")]
+        cb = b.reindex(per)
+    clim_ok = (df["P"].notna() & df["PET"].notna()).values
+    cvals = cb.values
+    hv = df["h"].values.copy()
+    hv[~np.isnan(cvals)] = np.nan          # a dry month's filled value is not a reading
+    status = np.where(~clim_ok, "x", np.where(~np.isnan(cvals), "c", np.where(np.isnan(hv), "x", "o")))
+    live = np.where(status != "x")[0]
+    if not len(live):
+        return None
+    last = live[-1]
+    first_row = 0 if window is None else max(0, last - int(window) + 1)
+    return dict(df=df, per=per, h=hv, c=cvals, status=status, first_row=first_row, last=last)
+
+
+def _censored_pieces(lay):
+    """Walk the window: one-step transitions between readings, and runs of dry
+    months anchored on the reading before them (closed by the reading after, or
+    open at a gap or the end of the record)."""
+    st, h = lay["status"], lay["h"]
+    trans, runs = [], []
+    anchor, run = None, []
+    for t in range(max(lay["first_row"] - 1, 0), lay["last"] + 1):
+        in_win = t >= lay["first_row"]
+        s = st[t]
+        if s == "x":
+            if anchor is not None and run:
+                runs.append((anchor, run, None))
+            anchor, run = None, []
+        elif s == "c":
+            if anchor is not None and in_win:
+                run.append(t)
+        else:
+            if anchor is not None and in_win:
+                if run:
+                    runs.append((anchor, run, t))
+                else:
+                    trans.append(t)
+            anchor, run = t, []
+    if anchor is not None and run:
+        runs.append((anchor, run, None))
+    return np.array(trans, dtype=int), runs
+
+
+def _censored_negll(theta, lay, trans, runs, z0, intercept):
+    b1, b2, b3 = theta[:3]
+    alpha = theta[3] if intercept else 0.0
+    sig = float(np.exp(theta[-1])); sig2 = sig * sig
+    P, E, h, c = lay["df"]["P"].values, lay["df"]["PET"].values, lay["h"], lay["c"]
+    a = 1.0 - b3
+    u = b1 * P - b2 * E - b3 * z0 + alpha
+    ll = 0.0
+    if len(trans):
+        e = h[trans] - (a * h[trans - 1] + u[trans])
+        ll += float(np.sum(_logpdf(e, scale=sig)))
+    for anc, run, after in runs:
+        idx = run + ([after] if after is not None else [])
+        m, S = _run_moments(h[anc], u[idx], a, sig2, after is not None)
+        J = len(run)
+        if after is not None:
+            myy, Syy = m[J], S[J, J]
+            ll += float(_logpdf(h[after], loc=myy, scale=np.sqrt(Syy)))
+            Sxy = S[:J, J]
+            mu = m[:J] + Sxy * (h[after] - myy) / Syy
+            Sc = S[:J, :J] - np.outer(Sxy, Sxy) / Syy
+        else:
+            mu, Sc = m, S
+        ll += _ghk(mu, Sc, c[run])[0]
+    return -ll if np.isfinite(ll) else 1e300
+
+
+def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
+                     drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
+                     intercept=False, with_corr=False, force_ml=False):
+    """
+    Fit the SSM with dry months treated as censored observations (D-281).
+
+    Same model, alignment, calendar window and return keys as fit_ssm, plus
+    n_censored, n_transitions, sigma, loglik, converged and method. `dry_bound`
+    is a Series of upper bounds on h indexed by month (dry_bounds(well) gives it);
+    `window` counts calendar months ending at the last month that is either a
+    reading or a dry month. Maximum likelihood: readings enter through the
+    one-step state equation exactly as in OLS; each run of dry months enters
+    through the reading after it and the GHK orthant probability. Standard errors
+    come from the numerical Hessian of the log-likelihood; p-values are normal.
+    With no dry month in the window this returns fit_ssm's own result, unless
+    force_ml (the identity check: ML on readings alone reproduces OLS).
+    """
+    if lag is None:
+        lag = HEADLINE_LAG
+    lay = _censored_layout(h_series, climate, dry_bound, lag, window)
+    if lay is None:
+        return None
+    h_masked = pd.Series(lay["h"], index=lay["df"].index)
+    win = (lay["first_row"], lay["last"])
+    trans, runs = _censored_pieces(lay)
+    n_cens = int(sum(len(r[1]) for r in runs))
+
+    def _ols():
+        sub = h_masked.iloc[max(win[0] - 1, 0): win[1] + 1]
+        return fit_ssm(sub, climate, lag=lag, window=None, drainage_datum=drainage_datum,
+                       min_obs=min_obs, intercept=intercept, with_corr=with_corr)
+    if n_cens == 0 and not force_ml:
+        if dry_bound is None or not np.isfinite(lay["c"]).any():
+            return fit_ssm(h_series, climate, lag=lag, window=window, drainage_datum=drainage_datum,
+                           min_obs=min_obs, intercept=intercept, with_corr=with_corr)
+        out = _ols()
+        if out is not None:
+            out.update(n_censored=0, n_transitions=out["n"], method="ols")
+        return out
+    if len(trans) + n_cens < min_obs:
+        return None
+    start = _ols()
+    if start is None:
+        return None
+    th0 = [start["beta_1_recharge"], start["beta_2_atmospheric_draw"], start["beta_3_drainage"]]
+    if intercept:
+        th0.append(start["alpha"])
+    th0.append(np.log(max(float(np.std(start["resid"])), 1e-6)))
+    th0 = np.array(th0, dtype=float)
+    z0 = float(drainage_datum)
+    fn = lambda th: _censored_negll(th, lay, trans, runs, z0, intercept)
+    res = _minimize(fn, th0, method="BFGS", options={"gtol": 1e-6, "maxiter": 2000})
+    if not res.success:
+        res2 = _minimize(fn, res.x, method="Nelder-Mead",
+                         options={"xatol": 1e-10, "fatol": 1e-12, "maxiter": 40000, "maxfev": 80000})
+        if res2.fun <= res.fun:
+            res = res2
+    th = res.x
+    # Hessian by central differences (the GHK draws are fixed, so this is smooth)
+    k = len(th); H = np.empty((k, k)); step = 1e-4 * np.maximum(np.abs(th), 1e-2)
+    for i in range(k):
+        for j in range(i, k):
+            ei = np.zeros(k); ej = np.zeros(k); ei[i] = step[i]; ej[j] = step[j]
+            H[i, j] = H[j, i] = (fn(th + ei + ej) - fn(th + ei - ej) - fn(th - ei + ej)
+                                 + fn(th - ei - ej)) / (4 * step[i] * step[j])
+    n_used = int(len(trans) + n_cens + sum(1 for r in runs if r[2] is not None))
+    try:
+        # ML variance carries 1/n; scale to OLS's 1/(n - p) so the standard errors of
+        # the two paths are comparable (with no dry month they then agree)
+        p_beta = 4 if intercept else 3
+        cov = np.linalg.inv(H) * (n_used / max(n_used - p_beta, 1))
+        se = np.sqrt(np.clip(np.diag(cov), 0, None))
+    except np.linalg.LinAlgError:
+        cov = np.full((k, k), np.nan); se = np.full(k, np.nan)
+    pv = lambda i: _psf(th[i] / se[i]) if se[i] > 0 else float("nan")
+    b1, b2, b3 = th[:3]; alpha = th[3] if intercept else 0.0
+    fr = lay["df"]
+    P, E, h = fr["P"].values, fr["PET"].values, lay["h"]
+    y = h[trans] - h[trans - 1]
+    yhat = b1 * P[trans] - b2 * E[trans] - b3 * (z0 + h[trans - 1]) + alpha
+    ssr = float(np.sum((y - yhat) ** 2))
+    sst = float(np.sum((y - y.mean()) ** 2)) if intercept else float(np.sum(y ** 2))
+    out = {
+        "beta_1_recharge": float(b1), "beta_2_atmospheric_draw": float(b2), "beta_3_drainage": float(b3),
+        "pvalue_beta_1": pv(0), "pvalue_beta_2": pv(1), "pvalue_beta_3": pv(2),
+        "se_beta_1": float(se[0]), "se_beta_2": float(se[1]), "se_beta_3": float(se[2]),
+        "R2": 1.0 - ssr / sst if sst > 0 else float("nan"),
+        "n": n_used,
+        "resid": pd.Series(y - yhat, index=fr.index[trans], name="resid"),
+        "n_censored": n_cens, "n_transitions": int(len(trans)),
+        "sigma": float(np.exp(th[-1])), "loglik": float(-res.fun),
+        "converged": bool(res.success), "method": "censored_ml_ghk",
+    }
+    if intercept:
+        out.update(alpha=float(alpha), pvalue_alpha=pv(3), se_alpha=float(se[3]))
+    if with_corr:
+        d = np.sqrt(np.diag(cov))
+        out["corr_beta_2_beta_3"] = float(cov[1, 2] / (d[1] * d[2])) if d[1] * d[2] > 0 else float("nan")
+        if intercept:
+            out["corr_alpha_beta_3"] = float(cov[3, 2] / (d[3] * d[2])) if d[3] * d[2] > 0 else float("nan")
+        out["mean_PET"] = float(np.mean(E[trans]))
+        out["mean_h_disp_prev"] = float(np.mean(z0 + h[trans - 1]))
+    return out
+
+
+def censored_fill(h_series, climate, dry_bound, fit, lag=None, drainage_datum=DRAINAGE_DATUM):
+    """The well's level series with each dry month set to its expected level under
+    `fit` given the readings either side and its bound, E[h | readings, h <= c].
+    Used to build cluster centroids without the driest members dropping out."""
+    if lag is None:
+        lag = HEADLINE_LAG
+    lay = _censored_layout(h_series, climate, dry_bound, lag, None)
+    out = pd.to_numeric(h_series, errors="coerce").copy()
+    if lay is None or fit is None:
+        return out
+    _, runs = _censored_pieces(dict(lay, first_row=0))
+    b1, b2, b3 = fit["beta_1_recharge"], fit["beta_2_atmospheric_draw"], fit["beta_3_drainage"]
+    alpha = fit.get("alpha", 0.0) or 0.0
+    sig2 = float(fit.get("sigma", np.std(fit["resid"]))) ** 2
+    fr = lay["df"]; h, c = lay["h"], lay["c"]
+    u = b1 * fr["P"].values - b2 * fr["PET"].values - b3 * float(drainage_datum) + alpha
+    a = 1.0 - b3
+    for anc, run, after in runs:
+        idx = run + ([after] if after is not None else [])
+        m, S = _run_moments(h[anc], u[idx], a, sig2, after is not None)
+        J = len(run)
+        if after is not None:
+            Sxy = S[:J, J]
+            mu = m[:J] + Sxy * (h[after] - m[J]) / S[J, J]
+            Sc = S[:J, :J] - np.outer(Sxy, Sxy) / S[J, J]
+        else:
+            mu, Sc = m, S
+        _, ex = _ghk(mu, Sc, c[run], want_mean=True)
+        out.loc[fr.index[run]] = ex
+    return out
+
+
+def donor_censored_fill(h_series, dry_bound, donors, fit=None, climate=None, min_overlap=None,
+                        min_r=None, lag=None, drainage_datum=DRAINAGE_DATUM):
+    """Fill each dry month of a well with its expected level below the bound, centred on its nearest
+    cluster-mate's reading (D-281; Martin 2026-10-27 "use nearest neighbour to fill dry members with their
+    censored expected level"). `donors` is a list of (name, series), nearest first, each with its own dry
+    months already blank. A donor qualifies by Script 51's rule: at least `min_overlap` months read at both
+    wells and r >= `min_r` over them. For a dry month the first qualifying donor read that month gives
+    mu = a + b·h_donor from the straight line over the overlap, with s its residual standard deviation, and
+    the fill is E[h | h ~ N(mu, s^2), h <= c]. A dry month no qualifying donor was read in falls back on the
+    well's own censored fit (censored_fill), when `fit` is given. Returns (filled series, audit DataFrame)."""
+    from utils.config import DONOR_MIN_OVERLAP_MONTHS, DONOR_MIN_R
+    min_overlap = DONOR_MIN_OVERLAP_MONTHS if min_overlap is None else min_overlap
+    min_r = DONOR_MIN_R if min_r is None else min_r
+    h = pd.to_numeric(h_series, errors="coerce").copy()
+    b = dry_bound.dropna() if dry_bound is not None else pd.Series(dtype=float)
+    b = b[b.index.isin(h.index)]
+    h_read = h.copy(); h_read.loc[b.index] = np.nan
+    lines = []
+    for name, d in donors:
+        d = pd.to_numeric(d, errors="coerce").reindex(h.index)
+        ok = h_read.notna() & d.notna()
+        if ok.sum() < min_overlap:
+            continue
+        r = float(np.corrcoef(h_read[ok], d[ok])[0, 1])
+        if not np.isfinite(r) or r < min_r:
+            continue
+        slope, icpt = np.polyfit(d[ok].values, h_read[ok].values, 1)
+        res = h_read[ok].values - (icpt + slope * d[ok].values)
+        lines.append((name, d, float(icpt), float(slope), float(np.std(res, ddof=2)), r, int(ok.sum())))
+    out = h_read.copy()
+    rows, left = [], []
+    for t, c in b.items():
+        hit = next((ln for ln in lines if pd.notna(ln[1].get(t))), None)
+        if hit is None:
+            left.append(t)
+            continue
+        name, d, a_, b_, s_, r_, n_ = hit
+        mu = a_ + b_ * float(d.loc[t])
+        z = (c - mu) / s_
+        val = float(mu - s_ * np.exp(_logpdf(z) - _log_ndtr(z)))
+        out.loc[t] = val
+        rows.append(dict(month=t, bound_m=float(c), fill_m=val, mu_m=float(mu), s_m=s_, source="donor",
+                         donor=name, donor_r=r_, donor_overlap=n_))
+    if left:
+        if fit is not None and climate is not None:
+            mf = censored_fill(h_read, climate, b, fit, lag=lag, drainage_datum=drainage_datum)
+            for t in left:
+                v = mf.get(t)
+                ok = v is not None and pd.notna(v)
+                if ok:
+                    out.loc[t] = float(v)
+                rows.append(dict(month=t, bound_m=float(b.loc[t]), fill_m=float(v) if ok else np.nan, mu_m=np.nan,
+                                 s_m=np.nan, source="model" if ok else "unfilled", donor="", donor_r=np.nan,
+                                 donor_overlap=0))
+        else:
+            for t in left:
+                rows.append(dict(month=t, bound_m=float(b.loc[t]), fill_m=np.nan, mu_m=np.nan, s_m=np.nan,
+                                 source="unfilled", donor="", donor_r=np.nan, donor_overlap=0))
+    return out, pd.DataFrame(rows)
+
+
+def apply_dry_fill(wells: pd.DataFrame) -> pd.DataFrame:
+    """The level frame cluster centroids are built from (D-281): `wells` with each dry
+    member-month replaced by the level Script 03 filled it with (03_21_dry_member_fill.csv:
+    its expected level below the bound, centred on its nearest cluster-mate). Any script that
+    averages members into a centroid reads this rather than re-deriving the fill, so every
+    centroid in the pipeline is the same one. Unchanged if the fill file is absent."""
+    from utils.paths import OUT_03_DRY_FILL
+    out = wells.copy()
+    if not OUT_03_DRY_FILL.exists():
+        return out
+    f = pd.read_csv(OUT_03_DRY_FILL)
+    if f.empty:
+        return out
+    f = f[f["fill_m"].notna()]
+    cols = {str(c).lower(): c for c in out.columns}
+    idx = pd.DatetimeIndex(out.index)
+    for w, g in f.groupby(f["well"].astype(str).str.lower()):
+        c = cols.get(w)
+        if c is None:
+            continue
+        m = pd.to_datetime(g["month"].astype(str) + "-01")
+        ok = m.isin(idx)
+        out.loc[m[ok].values, c] = g.loc[ok.values, "fill_m"].values
+    return out
+
+
+def last_calendar_months(frame: pd.DataFrame, n: int) -> pd.DataFrame:
+    """The rows of an SSM frame that fall in its last `n` calendar months (D-281).
+    The comparison window is a fixed calendar span, not the last n valid rows, so a
+    well with gaps covers the same months as a well without them."""
+    if n is None or not len(frame):
+        return frame
+    per = pd.DatetimeIndex(frame.index).to_period("M") if not isinstance(frame.index, pd.PeriodIndex) \
+        else frame.index
+    return frame[np.asarray(per > per.max() - int(n))]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -797,6 +1278,55 @@ def sustained_monthly_response(b3, forcing_change_12):
         raise ValueError(f"beta_3 = {b3!r} has no steady state (needs 0 < beta_3 < 2)")
     k = np.arange(12)
     return np.array([np.sum(r ** k * f[(m - k) % 12]) for m in range(12)]) / (1.0 - r ** 12)
+
+
+def periodic_steady_state_ddp(b1, b2, b3, kappa, P12, PET12, drainage_datum, b2_mult12=None,
+                              rain_mult12=None, tol=1e-12, max_years=20000, h0=0.0):
+    """1.11.0 (D-280): the periodic steady state (m, ground-referenced, index 0 = January) of the
+    depth-dependent SSM run on a repeating 12-month climatology:
+
+        h(t) = h(t-1) + β₁·r(m)·P(m) − β₂·m₂(m)·exp(−κ·max(−h(t-1), 0))·PET(m) − β₃·(z₀ + h(t-1))
+
+    with r(m) the rainfall multiplier and m₂(m) the PET multiplier. Iterated year by year until no
+    month moves by more than `tol` between successive years. Returns (levels_12, years_used); raises
+    if it does not converge, so a well never returns a silent NaN. At κ = 0 the model is linear and
+    the difference of two steady states equals sustained_monthly_response() exactly."""
+    P12, PET12 = np.asarray(P12, dtype=float), np.asarray(PET12, dtype=float)
+    m2 = np.ones(12) if b2_mult12 is None else np.asarray(b2_mult12, dtype=float)
+    rm = np.ones(12) if rain_mult12 is None else np.asarray(rain_mult12, dtype=float)
+    b1, b2, b3, kap, z0 = float(b1), float(b2), float(b3), float(kappa), float(drainage_datum)
+    h = float(h0)
+    prev = None
+    for year in range(1, max_years + 1):
+        cur = np.empty(12)
+        for m in range(12):
+            d = max(-h, 0.0)
+            h = h + b1 * rm[m] * P12[m] - b2 * m2[m] * np.exp(-kap * d) * PET12[m] - b3 * (z0 + h)
+            cur[m] = h
+        if prev is not None and np.max(np.abs(cur - prev)) < tol:
+            return cur, year
+        prev = cur
+    raise RuntimeError(f"depth-dependent steady state did not converge in {max_years} years "
+                       f"(b3={b3:g}, kappa={kap:g})")
+
+
+def sustained_monthly_response_ddp(b1, b2, b3, kappa, P12, PET12, sP12, sPET12, drainage_datum,
+                                   interception=0.0, interception_scen=None, b2_mult12=None):
+    """1.11.0 (D-280): the sustained level response (m, index 0 = January) of the depth-dependent
+    SSM to a scaled climatology: the scenario's periodic steady state less the baseline's. The
+    forcing follows climate_forcing_change_12() term for term — rainfall scaled by
+    sP·(1 + I − I_s), PET by m₂·sPET — so at κ = 0 the result equals
+    sustained_monthly_response(b3, climate_forcing_change_12(...)) to rounding. Returns
+    (response_12, years_used) with years_used the larger of the two runs."""
+    sP12, sPET12 = np.asarray(sP12, dtype=float), np.asarray(sPET12, dtype=float)
+    i0 = float(interception)
+    i_s = i0 if interception_scen is None else float(interception_scen)
+    m2 = np.ones(12) if b2_mult12 is None else np.asarray(b2_mult12, dtype=float)
+    base, y0 = periodic_steady_state_ddp(b1, b2, b3, kappa, P12, PET12, drainage_datum)
+    scen, y1 = periodic_steady_state_ddp(b1, b2, b3, kappa, P12, PET12, drainage_datum,
+                                         b2_mult12=m2 * sPET12, rain_mult12=sP12 * (1.0 + i0 - i_s),
+                                         h0=float(base[-1]))
+    return scen - base, max(y0, y1)
 
 
 def climate_forcing_change_12(b1, b2, P12, PET12, sP12, sPET12, interception=0.0,

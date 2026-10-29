@@ -20,6 +20,8 @@
 # ============================================================================
 # VERSION 1.31.0 - 2026-10-25
 # CHANGELOG
+#   1.32.0 (2026-10-28): model-form section (form_label_lint, D-284), advisory until the
+#     2026-10-28 edit set lands.
 #   1.31.0 (2026-10-25): references gate gains tools/paper_refs.py (--selftest, then the check):
 #     the papers type their caption numbers, alt text and references by hand, and nothing
 #     checked any of them; reference_lint reads only the report master. Caption meanings are
@@ -282,6 +284,14 @@ python3 tools/record_basis_lint.py --quiet || rc=1
 # fragment each section must contain; code -> register -> sentence.
 python3 tools/record_basis_claims_lint.py --selftest >/dev/null || rc=1
 python3 tools/record_basis_claims_lint.py --quiet || rc=1
+
+echo
+echo "── model form (does every split and timescale say Model A or Model B?) ──"
+# D-284 (Martin 2026-10-28 "all 3 please"): since D-283 the split is Model B's and most
+# other quantities Model A's, so a share or timescale with no form named is ambiguous.
+# ADVISORY until the 2026-10-28 edit set lands (claude/NRG_spec_form_labels_D283_text_2026-10-28.md);
+# then change `|| true` to `|| rc=1`.
+python3 tools/form_label_lint.py 2>&1 | tail -1 || true
 
 echo
 echo "── month bucketing (one implementation of Script 01's day<=15 rule?) ──"

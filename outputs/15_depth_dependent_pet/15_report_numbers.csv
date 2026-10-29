@@ -3,9 +3,53 @@ depth_dependent_pet_best_kappa,C1,,2.3,m^-1,"Best-fit PET depth-attenuation coef
 depth_dependent_pet_best_kappa,C2,,0.95,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
 depth_dependent_pet_best_kappa,C3,,0.45,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
 depth_dependent_pet_best_kappa,C4,,0.05,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
-depth_dependent_pet_best_kappa,C5,,0.45,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
+depth_dependent_pet_best_kappa,C5,,0.4,m^-1,"Best-fit PET depth-attenuation coefficient κ (grid-search argmax NSE_iterative), unrounded; 15_04_best_params.csv Best_Kappa"
 depth_dependent_pet_efold_depth,C1,,0.4347826086956522,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
 depth_dependent_pet_efold_depth,C2,,1.0526315789473684,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
 depth_dependent_pet_efold_depth,C3,,2.2222222222222223,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
 depth_dependent_pet_efold_depth,C4,,20.0,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
-depth_dependent_pet_efold_depth,C5,,2.2222222222222223,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
+depth_dependent_pet_efold_depth,C5,,2.5,m,"1/e decay depth of the PET depth attenuation, 1/κ from the best-fit κ (depth_dependent_pet_best_kappa), unrounded"
+depth_dependent_pet_drainage_share_ssm_full_pct,C1,,85.08856523077777,%,"drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 238)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C1,,56.8626213213119,%,"the same share with the PET term attenuated by exp(-kappa d), kappa from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C1,,-28.225943909465876,percentage points,"depth-dependent minus standard, full record"
+depth_dependent_pet_best_kappa_full,C1,,2.2,m^-1,best-fit kappa on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C1,,-1.4210854715202004e-14,percentage points,identity check: full-record standard share less Script 03's partition at the project datum (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C2,,66.36102755461047,%,"drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 251)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C2,,55.89968936702423,%,"the same share with the PET term attenuated by exp(-kappa d), kappa from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C2,,-10.461338187586243,percentage points,"depth-dependent minus standard, full record"
+depth_dependent_pet_best_kappa_full,C2,,0.75,m^-1,best-fit kappa on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C2,,1.2789769243681803e-13,percentage points,identity check: full-record standard share less Script 03's partition at the project datum (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C3,,64.56786634863867,%,"drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 251)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C3,,58.07805480668636,%,"the same share with the PET term attenuated by exp(-kappa d), kappa from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C3,,-6.489811541952314,percentage points,"depth-dependent minus standard, full record"
+depth_dependent_pet_best_kappa_full,C3,,0.5,m^-1,best-fit kappa on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C3,,-2.2737367544323206e-13,percentage points,identity check: full-record standard share less Script 03's partition at the project datum (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C4,,24.746620902304986,%,"drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 238)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C4,,18.84900257067992,%,"the same share with the PET term attenuated by exp(-kappa d), kappa from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C4,,-5.897618331625065,percentage points,"depth-dependent minus standard, full record"
+depth_dependent_pet_best_kappa_full,C4,,0.15,m^-1,best-fit kappa on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C4,,1.0658141036401503e-14,percentage points,identity check: full-record standard share less Script 03's partition at the project datum (expected 0)
+depth_dependent_pet_drainage_share_ssm_full_pct,C5,,60.99003586617077,%,"drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = 240)"
+depth_dependent_pet_drainage_share_ddp_full_pct,C5,,60.99003586617077,%,"the same share with the PET term attenuated by exp(-kappa d), kappa from a full-record grid search"
+depth_dependent_pet_drainage_share_shift_full_pts,C5,,0.0,percentage points,"depth-dependent minus standard, full record"
+depth_dependent_pet_best_kappa_full,C5,,0.0,m^-1,best-fit kappa on the full record (grid-search argmax NSE_iterative)
+depth_dependent_pet_check_ssm_full_vs_03,C5,,4.263256414560601e-14,percentage points,identity check: full-record standard share less Script 03's partition at the project datum (expected 0)
+ddp_per_well_n_wells,,,66.0,count,"reference wells fitted under the depth-dependent form (comparison window, cluster kappa)"
+ddp_per_well_n_identified,,,60.0,count,"of which identified (beta_1, beta_2 > 0; beta_3 by response_identified, 3 parameters)"
+ddp_per_well_dnse_median,,,0.040889228973708835,,"median iterative NSE gain of the depth-dependent set over the kappa = 0 refit, per well"
+ddp_per_well_check_b3_k0_vs_03,,,0.0060454272387936575,,identity check: max |beta_3 at kappa = 0 less 03_master_data beta_3| over the wells (expected 0)
+depth_dependent_pet_drainage_share_ssm_pct,C1,,92.41238694010694,%,"drainage share of the modelled mean loss, standard SSM (kappa = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C1,,65.30801033455361,%,the same share with the PET term attenuated by exp(-kappa d) at the best-fit kappa
+depth_dependent_pet_drainage_share_shift_pts,C1,,-27.104376605553327,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C2,,71.50050818283769,%,"drainage share of the modelled mean loss, standard SSM (kappa = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C2,,56.29940126943383,%,the same share with the PET term attenuated by exp(-kappa d) at the best-fit kappa
+depth_dependent_pet_drainage_share_shift_pts,C2,,-15.201106913403862,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C3,,66.88144751142086,%,"drainage share of the modelled mean loss, standard SSM (kappa = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C3,,59.634314228434604,%,the same share with the PET term attenuated by exp(-kappa d) at the best-fit kappa
+depth_dependent_pet_drainage_share_shift_pts,C3,,-7.247133282986255,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C4,,17.163938601342593,%,"drainage share of the modelled mean loss, standard SSM (kappa = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C4,,14.256874193400629,%,the same share with the PET term attenuated by exp(-kappa d) at the best-fit kappa
+depth_dependent_pet_drainage_share_shift_pts,C4,,-2.9070644079419647,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET
+depth_dependent_pet_drainage_share_ssm_pct,C5,,63.095758209200966,%,"drainage share of the modelled mean loss, standard SSM (kappa = 0), this script's centroid on the comparison window; head units, Sy-free"
+depth_dependent_pet_drainage_share_ddp_pct,C5,,57.61847461085044,%,the same share with the PET term attenuated by exp(-kappa d) at the best-fit kappa
+depth_dependent_pet_drainage_share_shift_pts,C5,,-5.477283598350525,percentage points,depth-dependent minus standard drainage share; negative = loss moved from drainage to ET

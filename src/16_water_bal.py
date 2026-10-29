@@ -79,7 +79,17 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-14. Total evaporation (Martin 2026-10-14: "the paper implies
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-10-27 (D-283; Martin 02:37 "lets adopt it, but we also need the c4 and
+#   c5 ET/ drainage partition estimates", 02:41 "proceed"). The headline ET/drainage partition is Model B's (03_16 centroid:
+#   drainage = beta_3_B * h_disp - alpha_B, the same at every datum); the range spans Model A, Model B, the depth-dependent
+#   model and the recession ratio (Lo/Hi_drain_frac). Until 1.11.0 the headline was the midpoint of Model A and the
+#   recession ratio. Table 7 and Figure 8 follow (panel (a) is Model B's decomposition); the forest clusters carry
+#   interception as before. water_balance_* partition report numbers per cluster.
+# 1.11.0  # Hollingham (2026) - 2026-10-27 (D-279; Martin 01:25 "3rd estimator - additive"). The
+#   volumetric and recession tables gain the depth-dependent estimator (Script 15 1.8.0, full record):
+#   DDP_drain_frac / DDP_ET_frac, and DDP_drain_mm_yr / DDP_ET_mm_yr in the volumetric table. Additive: it does
+#   not enter Mid_drain_frac or the lo/hi range, so no published value moves.
+# 1.10.0  # Hollingham (2026) - 2026-10-14. Total evaporation (Martin 2026-10-14: "the paper implies
 #   that ET in C2 is greater than in C4"; "add the I + ET column"): the volumetric table gains
 #   ET_total_mid/lo/hi_mm_yr = I + ET, the canopy interception plus the evaporation after it, so a
 #   table can show a forest's whole evaporative loss. No existing column moves.
@@ -163,7 +173,8 @@ import matplotlib.patches as mpatches
 from utils.paths import (
     make_all_dirs, INT_REGIONAL_AVG, OUT_16_TABLE, OUT_16_VOL_TABLE,
     OUT_16_REC_TABLE, OUT_16_REPORT_NUMBERS,
-    OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE, OUT_03_REPORT_NUMBERS,
+    OUT_16_BAR_LAY, OUT_16_BAR_MS, OUT_03_MECHANISTIC_TABLE, OUT_03_REPORT_NUMBERS, OUT_15_REPORT_NUMBERS,
+    OUT_03_MODEL_B_PERSISTENCE,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
@@ -249,11 +260,24 @@ def load_data():
     return df, betas
 
 
+def load_model_b() -> pd.DataFrame:
+    """1.12.0 (D-283): Model B, the free-intercept form, fitted to each cluster centroid on the full
+    record by Script 03 (03_16_model_b_persistence.csv, level = centroid): alpha_B, beta_1_B..beta_3_B.
+    Its loss partition is the headline (D-283); empty frame if the file is absent."""
+    if not OUT_03_MODEL_B_PERSISTENCE.exists():
+        warn(f"{OUT_03_MODEL_B_PERSISTENCE.name} not found: no Model B partition, the headline falls back to Model A")
+        return pd.DataFrame()
+    mb = pd.read_csv(OUT_03_MODEL_B_PERSISTENCE)
+    mb = mb[mb["level"] == "centroid"].copy()
+    mb["Cluster"] = pd.to_numeric(mb["Cluster"], errors="coerce").astype(int)
+    return mb.set_index("Cluster")[["alpha_B", "beta_1_B", "beta_2_B", "beta_3_B", "pvalue_beta_3_B"]]
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # HEADSPACE WATER BALANCE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def compute_headspace(df, betas):
+def compute_headspace(df, betas, mb=None):
     """Compute mean monthly head-space water balance components.
 
     SSM equation (displacement formulation, HEADLINE_LAG = 0):
@@ -296,7 +320,25 @@ def compute_headspace(df, betas):
         drain_pct = 100.0 * drainage / total_loss if total_loss > 0 else 0
         et_pct    = 100.0 * et_draw / total_loss if total_loss > 0 else 0
 
-        summary[cid] = dict(
+        # 1.12.0 (D-283): Model B's partition on the same months. Its drainage is the head term less
+        # the intercept, beta_3_B * h_disp - alpha_B: a datum shift moves the intercept and nothing else,
+        # so this split is the same at every datum and rests on beta_1_B and beta_2_B.
+        if mb is not None and len(mb) and cid in mb.index:
+            m = mb.loc[cid]
+            rB, eB = m["beta_1_B"] * P_m, m["beta_2_B"] * PET_m
+            dB = m["beta_3_B"] * h_disp_mean - m["alpha_B"]
+            lB = eB + dB
+            bpart = dict(recharge_B=rB, et_draw_B=eB, drainage_B=dB, total_loss_B=lB, residual_B=rB - lB,
+                         drain_pct_B=100.0 * dB / lB if lB > 0 else np.nan,
+                         et_pct_B=100.0 * eB / lB if lB > 0 else np.nan,
+                         b1_B=m["beta_1_B"], b2_B=m["beta_2_B"], b3_B=m["beta_3_B"], alpha_B=m["alpha_B"],
+                         p_b3_B=m["pvalue_beta_3_B"])
+        else:
+            bpart = dict(recharge_B=np.nan, et_draw_B=np.nan, drainage_B=np.nan, total_loss_B=np.nan,
+                         residual_B=np.nan, drain_pct_B=np.nan, et_pct_B=np.nan, b1_B=np.nan, b2_B=np.nan,
+                         b3_B=np.nan, alpha_B=np.nan, p_b3_B=np.nan)
+
+        summary[cid] = dict(**bpart,
             lcsc=lcsc, b1=b1, b2=b2, b3=b3,
             P_m=P_m, PET_m=PET_m,
             h_depth_mean=h_depth_mean, h_disp_mean=h_disp_mean,
@@ -377,6 +419,18 @@ def save_headspace_table(summary, path):
             "Residual_m_month": s["residual"],
             "Drainage_pct": s["drain_pct"],
             "ET_pct": s["et_pct"],
+            # 1.12.0 (D-283): Model B on the same months
+            "alpha_B": s["alpha_B"],
+            "beta_1_B": s["b1_B"],
+            "beta_2_B": s["b2_B"],
+            "beta_3_B": s["b3_B"],
+            "pvalue_beta_3_B": s["p_b3_B"],
+            "Recharge_B_m_month": s["recharge_B"],
+            "ET_draw_B_m_month": s["et_draw_B"],
+            "Drainage_B_m_month": s["drainage_B"],
+            "Residual_B_m_month": s["residual_B"],
+            "Drainage_B_pct": s["drain_pct_B"],
+            "ET_B_pct": s["et_pct_B"],
         })
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.6f")
     saved(f"{path.name}")
@@ -394,7 +448,18 @@ def site_climate_means(df):
     return float(sub["P_m"].mean()), float(sub["PET"].mean())
 
 
-def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
+def partition_estimates(s: dict, r: dict, ddp_frac=np.nan) -> dict:
+    """1.12.0 (D-283): the drainage fraction of the loss by each estimator, the headline and its range.
+    Headline: Model B (falls back to Model A where Model B is absent). Range: the lowest and highest
+    of Model A, Model B, the depth-dependent model and the recession ratio, wherever each exists."""
+    est = {"A": s["drain_pct"] / 100.0, "B": s.get("drain_pct_B", np.nan) / 100.0,
+           "DDP": ddp_frac, "Rec": r.get("drain_frac", np.nan)}
+    vals = [v for v in est.values() if pd.notna(v)]
+    head = est["B"] if pd.notna(est["B"]) else est["A"]
+    return dict(est=est, mid=head, lo=min(vals), hi=max(vals))
+
+
+def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m, ddp=None):
     """Save Table 3b: volumetric water balance partition.
 
     Shows P, I, and the ET/Drainage partition bracketed by SSM and recession
@@ -424,7 +489,7 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
         I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0.0
         P_net = P_annual - I_val
 
-        # SSM partition (from headspace ratios)
+        # SSM partition (from headspace ratios): Model A, and Model B (1.12.0, D-283)
         ssm_drain_frac = s["drain_pct"] / 100.0
         ssm_et_frac = s["et_pct"] / 100.0
 
@@ -432,13 +497,10 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
         rec_drain_frac = r.get("drain_frac", np.nan)
         rec_et_frac = r.get("et_frac", np.nan)
 
-        # Midpoint and range
-        if pd.notna(rec_drain_frac):
-            df_lo = min(ssm_drain_frac, rec_drain_frac)
-            df_hi = max(ssm_drain_frac, rec_drain_frac)
-            df_mid = (ssm_drain_frac + rec_drain_frac) / 2
-        else:
-            df_lo = df_hi = df_mid = ssm_drain_frac
+        # 1.12.0 (D-283): the headline is Model B's fraction; the range spans the four estimators
+        # (until 1.11.0 the midpoint of Model A and the recession ratio, and the range between them)
+        pe = partition_estimates(s, r, (ddp or {}).get(cid, np.nan))
+        df_mid, df_lo, df_hi = pe["mid"], pe["lo"], pe["hi"]
 
         rows.append({
             "Cluster": cid,
@@ -450,9 +512,13 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
             "P_minus_PET_mm_yr": P_annual - PET_annual,
             "SSM_drain_frac": ssm_drain_frac,
             "SSM_ET_frac": ssm_et_frac,
+            "B_drain_frac": pe["est"]["B"],
+            "B_ET_frac": 1.0 - pe["est"]["B"],
             "Rec_drain_frac": rec_drain_frac,
             "Rec_ET_frac": rec_et_frac,
             "Mid_drain_frac": df_mid,
+            "Lo_drain_frac": df_lo,
+            "Hi_drain_frac": df_hi,
             "ET_mid_mm_yr": P_net * (1 - df_mid),
             "ET_lo_mm_yr": P_net * (1 - df_hi),
             "ET_hi_mm_yr": P_net * (1 - df_lo),
@@ -463,10 +529,32 @@ def save_volumetric_table(summary, recession, path, site_P_m, site_PET_m):
             "ET_total_mid_mm_yr": I_val + P_net * (1 - df_mid),
             "ET_total_lo_mm_yr": I_val + P_net * (1 - df_hi),
             "ET_total_hi_mm_yr": I_val + P_net * (1 - df_lo),
+            # 1.11.0: the third estimator, additive - not in Mid/lo/hi
+            "DDP_drain_frac": (ddp or {}).get(cid, np.nan),
+            "DDP_ET_frac": 1.0 - (ddp or {}).get(cid, np.nan),
+            "DDP_drain_mm_yr": P_net * (ddp or {}).get(cid, np.nan),
+            "DDP_ET_mm_yr": P_net * (1.0 - (ddp or {}).get(cid, np.nan)),
         })
 
-    pd.DataFrame(rows).to_csv(path, index=False, float_format="%.1f")
+    pd.DataFrame(rows).to_csv(path, index=False, float_format="%.4f")   # 1.12.0: fractions need more than 1 dp
     saved(f"{path.name}")
+
+
+def load_ddp_share() -> dict:
+    """1.11.0 (D-279; Martin 2026-10-27 01:25 "3rd estimator - additive"): the depth-dependent drainage share
+    of the modelled mean loss per cluster, full record, as Script 15 emits it
+    (depth_dependent_pet_drainage_share_ddp_full_pct). {cid: fraction}; empty if Script 15's report numbers
+    are absent. Carried beside the SSM and recession fractions as a third estimator; it does NOT enter
+    Mid_drain_frac or the lo/hi range, so no published value moves."""
+    out = {}
+    if not OUT_15_REPORT_NUMBERS.exists():
+        return out
+    rn = pd.read_csv(OUT_15_REPORT_NUMBERS)
+    for cid in _CFG_LABELS:
+        r = rn[(rn["Parameter"] == "depth_dependent_pet_drainage_share_ddp_full_pct") & (rn["Well"] == f"C{cid}")]
+        if not r.empty:
+            out[cid] = float(r["Value"].iloc[0]) / 100.0
+    return out
 
 
 def load_datum_range() -> dict:
@@ -492,7 +580,7 @@ def load_datum_range() -> dict:
     return out
 
 
-def save_recession_table(summary, recession, path, datum_range=None):
+def save_recession_table(summary, recession, path, datum_range=None, ddp=None):
     """Save Table 1.4c: the seasonal-recession partition, method by method.
 
     The ET/drainage split quoted in Table 1.4b is the midpoint of two
@@ -517,6 +605,7 @@ def save_recession_table(summary, recession, path, datum_range=None):
         r = recession.get(cid, {})
         rec_drain = r.get("drain_frac", np.nan)
         ssm_drain = s["drain_pct"] / 100.0
+        pe = partition_estimates(s, r, (ddp or {}).get(cid, np.nan))
         rows.append({
             "Cluster": cid,
             "Label": _CFG_LABELS[cid],
@@ -534,15 +623,21 @@ def save_recession_table(summary, recession, path, datum_range=None):
             "Rec_ET_frac":        r.get("et_frac", np.nan),
             "SSM_drain_frac":     ssm_drain,
             "SSM_ET_frac":        s["et_pct"] / 100.0,
-            "Mid_drain_frac":     (ssm_drain + rec_drain) / 2 if pd.notna(rec_drain)
-                                  else ssm_drain,
-            "Spread_pp":          abs(ssm_drain - rec_drain) * 100 if pd.notna(rec_drain)
-                                  else np.nan,
+            # 1.12.0 (D-283): the headline is Model B; the spread is that of all four estimators
+            "B_drain_frac":       pe["est"]["B"],
+            "B_ET_frac":          1.0 - pe["est"]["B"],
+            "Mid_drain_frac":     pe["mid"],
+            "Lo_drain_frac":      pe["lo"],
+            "Hi_drain_frac":      pe["hi"],
+            "Spread_pp":          (pe["hi"] - pe["lo"]) * 100,
             # 1.8.0 (T-101): the SSM fraction across the admissible datum range (Script 03)
             "SSM_drain_frac_min_datum": datum_range.get(cid, (np.nan,) * 4)[0],
             "SSM_drain_frac_max_datum": datum_range.get(cid, (np.nan,) * 4)[1],
             "Datum_min_m":        datum_range.get(cid, (np.nan,) * 4)[2],
             "Datum_max_m":        datum_range.get(cid, (np.nan,) * 4)[3],
+            # 1.11.0: the depth-dependent estimator (Script 15, full record), beside the other two
+            "DDP_drain_frac":     (ddp or {}).get(cid, np.nan),
+            "DDP_ET_frac":        1.0 - (ddp or {}).get(cid, np.nan),
         })
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.4f")
     saved(f"{path.name}")
@@ -552,7 +647,7 @@ def save_recession_table(summary, recession, path, datum_range=None):
 # FIGURE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None):
+def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None, ddp=None):
     """Two-panel Figure 8.
 
     Panel (a): Head-space SSM decomposition — recharge vs ET + drainage.
@@ -578,9 +673,12 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
 
     # ── Panel (a): Headspace ──────────────────────────────────────────────
     width = 0.35
-    rech_vals = [summary[c]["recharge"] for c in cids]
-    et_vals   = [summary[c]["et_draw"]  for c in cids]
-    drain_vals = [summary[c]["drainage"] for c in cids]
+    # 1.12.0 (D-283): panel (a) is Model B's decomposition, the form the partition is quoted from
+    _B = all(pd.notna(summary[c].get("drain_pct_B")) for c in cids)
+    _k = (lambda c, key: summary[c][f"{key}_B"]) if _B else (lambda c, key: summary[c][key])
+    rech_vals = [_k(c, "recharge") for c in cids]
+    et_vals   = [_k(c, "et_draw")  for c in cids]
+    drain_vals = [_k(c, "drainage") for c in cids]
 
     ax1.bar(x - width/2, rech_vals, width, color=C_RECH, edgecolor="black" if BW_MODE else "white",
             linewidth=0.5, label="Recharge (β₁·P̄)", zorder=3, hatch=H_RECH)
@@ -588,10 +686,12 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
             linewidth=0.5, label="ET draw (β₂·PET̄)", zorder=3, hatch=H_ET)
     ax1.bar(x + width/2, drain_vals, width, bottom=et_vals, color=C_DRAIN,
             edgecolor="black" if BW_MODE else "white", linewidth=0.5,
-            label="Drainage (β₃·h̄ᵈⁱˢᵖ)", zorder=3, hatch=H_DRAIN)
+            label=("Drainage (β₃·h̄ᵈⁱˢᵖ − α)" if _B else "Drainage (β₃·h̄ᵈⁱˢᵖ)"), zorder=3, hatch=H_DRAIN)
 
     for i, cid in enumerate(cids):
-        s = summary[cid]
+        s0 = summary[cid]
+        s = ({k: s0[f"{k}_B"] for k in ("recharge", "et_draw", "drainage", "drain_pct", "et_pct")}
+             if _B else s0)
         # Recharge label above bar
         ax1.text(i - width/2, s["recharge"] + 0.004, f'{s["recharge"]:.3f}',
                  ha='center', va='bottom', fontsize=8, color='#333')
@@ -617,7 +717,8 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     ax1.set_xticks(x)
     ax1.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
     ax1.set_ylabel("Head-space flux (m/month)", fontsize=11)
-    ax1.set_title("(a) Mean monthly head-space water balance decomposition",
+    ax1.set_title("(a) Mean monthly head-space water balance decomposition"
+                  + (" (Model B)" if _B else ""),
                   fontsize=12, fontweight='bold')
     ax1.legend(loc='upper right', fontsize=9, framealpha=0.9)
     ax1.set_xlim(-0.6, len(cids) - 0.4)
@@ -630,9 +731,10 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     P_all = [summary[c]["P_m"] * 1000 for c in cids]
     PET_all = [summary[c]["PET_m"] * 1000 for c in cids]
     datum = DRAINAGE_DATUM
+    _rk, _lk = ("residual_B", "total_loss_B") if _B else ("residual", "total_loss")
     max_resid_pct = max(
-        100 * abs(summary[c]["residual"]) / summary[c]["total_loss"]
-        for c in cids if summary[c]["total_loss"] > 0
+        100 * abs(summary[c][_rk]) / summary[c][_lk]
+        for c in cids if summary[c][_lk] > 0
     )
     ax1.text(0.5, -0.17,
              f"All clusters receive near-identical forcing: P̄ = {min(P_all):.1f}–{max(P_all):.1f} mm/month, "
@@ -652,14 +754,9 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
         I_val = FOREST_INTERCEPTION * P_annual if is_forest else 0
         P_net = P_annual - I_val
 
-        # Partition fractions
-        ssm_df = summary[cid]["drain_pct"] / 100.0
-        rec_df = recession.get(cid, {}).get("drain_frac", ssm_df)
-        if pd.isna(rec_df):
-            rec_df = ssm_df
-        df_lo  = min(ssm_df, rec_df)
-        df_hi  = max(ssm_df, rec_df)
-        df_mid = (ssm_df + rec_df) / 2
+        # Partition fractions: Model B headline, range over the four estimators (1.12.0, D-283)
+        pe = partition_estimates(summary[cid], recession.get(cid, {}), (ddp or {}).get(cid, np.nan))
+        df_lo, df_hi, df_mid = pe["lo"], pe["hi"], pe["mid"]
 
         et_mid    = P_net * (1 - df_mid)
         drain_mid = P_net * df_mid
@@ -760,22 +857,22 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
         Patch(facecolor=C_INTCP, edgecolor='white',
               label='Interception (Freeman 2008)', hatch='///'),
         Patch(facecolor='white', edgecolor='#333',
-              label='Partition uncertainty\n(SSM–recession range)',
+              label='Partition range (Model A, Model B,\ndepth-dependent, recession)',
               hatch='\\\\\\', alpha=0.45, linewidth=0.8),
     ]
     if datum_range:
         from matplotlib.lines import Line2D
         d0 = min(v[2] for v in datum_range.values()); d1 = max(v[3] for v in datum_range.values())
         legend_elements.append(Line2D([0], [0], color="black", lw=1.1,
-                                      label=f"SSM boundary across the\nadmissible datum ({d0:g}–{d1:g} m)"))
-    ax2.legend(handles=legend_elements, loc='center right', fontsize=8.5,
-               framealpha=0.9)
+                                      label=f"Model A boundary across the\nadmissible datum ({d0:g}–{d1:g} m)"))
+    ax2.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(0.785, 0.5), fontsize=8.5,
+               framealpha=0.9)   # 1.12.0: clear of the C5 loss bar
 
     ax2.set_xticks(x)
     ax2.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
     ax2.set_ylabel("Annual flux (mm/yr)", fontsize=11)
-    ax2.set_title("(b) Volumetric water balance: ET/drainage partition bracketed "
-                  "by SSM and recession analysis",
+    ax2.set_title("(b) Volumetric water balance: ET/drainage partition from Model B, "
+                  "bracketed by four estimators",
                   fontsize=12, fontweight='bold')
     ax2.set_xlim(-0.8, len(cids) + 1.2)
     ax2.set_ylim(0, max(P_by_cid.values()) * 1.12)
@@ -787,8 +884,8 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     ax2.text(0.5, -0.14,
              f"Rainfall P = {min(P_by_cid.values()):.0f}–{max(P_by_cid.values()):.0f} mm/yr by cluster "
              f"(each over its own months). At steady state, "
-             f"total losses = P. The hatched band spans the ET/drainage\nboundary "
-             f"range between SSM headspace ratios and seasonal recession analysis. "
+             f"total losses = P. The bars split the losses by Model B; the hatched band spans the ET/drainage\nboundary "
+             f"across Model A, Model B, the depth-dependent model and seasonal recession analysis. "
              f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
              f"appears identically on both bars and cancels in the net surplus.",
              transform=ax2.transAxes, ha='center', va='top', fontsize=8.5,
@@ -802,7 +899,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def save_report_numbers(summary, path):
+def save_report_numbers(summary, path, recession=None, ddp=None):
     """The closure of the head-space balance: |residual| as a percentage of total
     losses, per cluster, and the largest of them — the "closes to within N%" the
     documents quote."""
@@ -844,6 +941,46 @@ def save_report_numbers(summary, path):
     rr.add("water_balance_closure_max_pct", worst[1], unit="%",
            note=f"largest per-cluster residual as a share of total losses ({worst[0]}): "
                 f"the balance closes to within this at every cluster")
+    # 1.12.0 (D-283): the partition as quoted. Model B's drainage share of the modelled loss is the
+    # headline; the range spans Model A, Model B, the depth-dependent model and the recession ratio.
+    # Volumes are on the rain left after interception (FOREST_INTERCEPTION of P at C4, C5), as Table 7.
+    recession = recession or {}
+    for cid in sorted(summary.keys()):
+        s = summary[cid]
+        pe = partition_estimates(s, recession.get(cid, {}), (ddp or {}).get(cid, np.nan))
+        lab = _CFG_LABELS[cid]
+        P_yr = s["P_m"] * 12 * 1000
+        PET_yr = s["PET_m"] * 12 * 1000
+        I_yr = FOREST_INTERCEPTION * P_yr if cid in FOREST_CIDS else 0.0
+        Pn = P_yr - I_yr
+        for key, val, unit, note in (
+            ("water_balance_drain_share_pct", 100 * pe["mid"], "%",
+             "drainage share of the modelled loss, the headline (Model B, D-283)"),
+            ("water_balance_et_share_pct", 100 * (1 - pe["mid"]), "%",
+             "evaporation share of the modelled loss, the headline (Model B, D-283)"),
+            ("water_balance_drain_share_lo_pct", 100 * pe["lo"], "%",
+             "lowest drainage share of the four estimators (Model A, Model B, depth-dependent, recession)"),
+            ("water_balance_drain_share_hi_pct", 100 * pe["hi"], "%",
+             "highest drainage share of the four estimators (Model A, Model B, depth-dependent, recession)"),
+            ("water_balance_drain_share_A_pct", 100 * pe["est"]["A"], "%",
+             "drainage share of the modelled loss under Model A at DRAINAGE_DATUM (bracket)"),
+            ("water_balance_drain_share_B_pct", 100 * pe["est"]["B"], "%",
+             "drainage share of the modelled loss under Model B (the headline)"),
+            ("water_balance_drain_mm_yr", Pn * pe["mid"], "mm/yr",
+             "drainage, headline share of the rain left after interception (Table 7 Drain_mid_mm_yr)"),
+            ("water_balance_et_wt_mm_yr", Pn * (1 - pe["mid"]), "mm/yr",
+             "evaporation after interception, headline share (Table 7 ET_mid_mm_yr)"),
+            ("water_balance_interception_mm_yr", I_yr, "mm/yr",
+             "canopy interception, FOREST_INTERCEPTION of P at the forest clusters, else 0"),
+            ("water_balance_et_total_mm_yr", I_yr + Pn * (1 - pe["mid"]), "mm/yr",
+             "total evaporation: interception plus the headline evaporation (Table 7 ET_total_mid_mm_yr)"),
+            ("water_balance_et_total_over_pet", (I_yr + Pn * (1 - pe["mid"])) / PET_yr, "ratio",
+             "total evaporation over Thornthwaite PET over the cluster's months"),
+            ("water_balance_residual_B_pct", 100 * abs(s["residual_B"]) / s["total_loss_B"]
+             if s["total_loss_B"] and s["total_loss_B"] > 0 else np.nan, "%",
+             "|Residual_B_m_month| / total Model B loss of 16_water_bal_table.csv"),
+        ):
+            rr.add(key, val, unit=unit, well=lab, note=note)
     n = rr.save(path)
     saved(f"{path.name} ({n} rows)")
 
@@ -853,9 +990,10 @@ def main():
     print("Starting 16: Water Balance Decomposition...")
 
     df, betas = load_data()
+    mb = load_model_b()
 
     # ── Headspace balance ──
-    summary = compute_headspace(df, betas)
+    summary = compute_headspace(df, betas, mb)
 
     print("\n  HEAD-SPACE WATER BALANCE (m/month)")
     print(f"  {'Cluster':<22} {'Rech':>8} {'ET':>8} {'Drain':>8} "
@@ -868,7 +1006,6 @@ def main():
               f"{s['drain_pct']:>4.0f}% {s['et_pct']:>4.0f}%")
 
     save_headspace_table(summary, OUT_16_TABLE)
-    save_report_numbers(summary, OUT_16_REPORT_NUMBERS)
 
     # ── Recession analysis ──
     recession = compute_recession_partition(df)
@@ -884,19 +1021,21 @@ def main():
                   f"{r['drain_frac']:>7.2f} {r['n_winter']:>5} {r['n_summer']:>5}")
 
     site_P_m, site_PET_m = site_climate_means(df)
-    save_volumetric_table(summary, recession, OUT_16_VOL_TABLE, site_P_m, site_PET_m)
+    ddp = load_ddp_share()
+    save_volumetric_table(summary, recession, OUT_16_VOL_TABLE, site_P_m, site_PET_m, ddp=ddp)
     datum_range = load_datum_range()
-    save_recession_table(summary, recession, OUT_16_REC_TABLE, datum_range)
+    save_recession_table(summary, recession, OUT_16_REC_TABLE, datum_range, ddp=ddp)
+    save_report_numbers(summary, OUT_16_REPORT_NUMBERS, recession=recession, ddp=ddp)
 
     # ── Figure 8 ──
     # Manuscript version
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=datum_range)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=datum_range, ddp=ddp)
     fig.savefig(OUT_16_BAR_MS, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close(fig)
     saved(f"{OUT_16_BAR_MS.name}")
 
     # Lay version
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False, datum_range=datum_range)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False, datum_range=datum_range, ddp=ddp)
     fig.savefig(OUT_16_BAR_LAY, dpi=150, bbox_inches='tight')
     plt.close(fig)
     saved(f"{OUT_16_BAR_LAY.name}")

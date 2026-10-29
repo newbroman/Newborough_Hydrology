@@ -55,7 +55,9 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-21. Option B for the record basis.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-27. Paper M joins DOCS (RB-50s, the projection by datum, is stated in
+#   its §4.7).
+# 1.0.0  # Hollingham (2026) — 2026-09-21. Option B for the record basis.
 
 REPO = Path(__file__).resolve().parents[1]
 REGISTER = REPO / "tools/record_basis.csv"
@@ -69,6 +71,7 @@ DOCS = {
     "SM": "docs/report/text/Supplementary_Material.md",
     "Paper1": "docs/papers/paper_1/text/Paper1.md",
     "Paper2": "docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md",
+    "PaperM": "docs/papers/paper_M/text/PaperM.md",   # 2026-10-27: RB-50s (the projection by datum) is stated there
 }
 BASIS_WORDS = re.compile(r"record|window|months|\bpre-|\bpost-|event|scene|frame|\bfit|refit|no fit|"
                          r"interpolat|inherit|panel|aggregat|seeded|year|calibrat|driven", re.I)

@@ -54,7 +54,7 @@ number,document,title
 53,report9.odt,Sentinel-2 switching levels tested against the kriged water table. Each wetted slack-floor
 54,report9.odt,"a: Per-well optimal SSM drainage datum across the 66-well reference network, Newborough Wa"
 55,report9.odt,"Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. Per-we"
-56,report9.odt,"Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well reference network (CEH"
+56,report9.odt,"Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the network datum) across the "
 57,report9.odt,The water table of Newborough Warren kriged from the dipwells in (a) the wet state (the we
 58,report9.odt,"Mean water table against the ground surface, by DEM smoothing width. (a) The kriged mean-s"
 59,report9.odt,"Water-table transects across Newborough Warren. (a) Four coast-normal transects (C1–C4, re"

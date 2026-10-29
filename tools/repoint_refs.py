@@ -35,7 +35,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.8.0"  # 2026-10-25. --scope: the papers. Until now every pass ran over the
+__version__ = "1.8.1"  # 2026-10-27. ODTS resolves lazily (_LazyODTS): the versioned documents are found when a
+#   pass first reads ODTS, not at import, so importers that need only _text_view, and --selftest, run in a clone with
+#   no ODTs (T-126 and T-127 read "broken" in the daily cloud check). No pass changes what it edits.
+# 1.8.0  # 2026-10-25. --scope: the papers. Until now every pass ran over the
 #   report family (the chapters, the master, the Methods Supplement, the Supplementary Material,
 #   the academic summary and three repo texts), because those documents cite REPORT figure
 #   numbers. The papers number their own figures and tables, so a report plan must never touch
@@ -122,6 +125,7 @@ __version_prev__ = "1.1.0"
 #   typed. Caption sequence fields are now excluded BY CONSTRUCTION rather than
 #   by the accident of chapter-prefixed numbering.
 
+from collections.abc import Mapping
 import argparse
 import csv
 import re
@@ -157,7 +161,9 @@ def _versioned(stem: str) -> str:
     raise SystemExit(f"no current document found for {stem!r}")
 
 
-ODTS = {
+def _build_odts() -> dict:
+    """Every ODT the passes edit, resolved when first asked for (1.8.1)."""
+    return {
     # report6, report7 and the master were outside this list until 2026-09-08:
     # report6 carries a dozen typed section references (the introduction's
     # forward pointers), report7 six figure references, and the master's
@@ -185,7 +191,33 @@ ODTS = {
     "Newborough_Methods_Supplement": _versioned("Newborough_Methods_Supplement"),
     "Supplementary_Material":        _versioned("Supplementary_Material"),
     "academic_Summary":              _versioned("academic_Summary"),
-}
+    }
+
+
+class _LazyODTS(Mapping):
+    """ODTS, resolved on first use rather than at import (1.8.1, 2026-10-27). _versioned() exits when a
+    versioned document is absent, and at module level that made every importer fail with it: paper_refs,
+    ref_audit and fix_stale_refs, which use only _text_view, and repoint_refs --selftest, which reads no
+    document, all exited 1 in a clone that carries no ODTs (the daily cloud check). A pass that does touch
+    the documents still resolves them, and still exits loudly if one is missing."""
+    _d = None
+
+    def _get(self) -> dict:
+        if self._d is None:
+            self._d = _build_odts()
+        return self._d
+
+    def __getitem__(self, k):
+        return self._get()[k]
+
+    def __iter__(self):
+        return iter(self._get())
+
+    def __len__(self):
+        return len(self._get())
+
+
+ODTS = _LazyODTS()
 # Plain-text files that are re-pointed. changelogs/ and DECISION_LOG.md are NOT:
 # they are dated records, and rewriting them would falsify what was true when
 # they were written (Martin, 2026-08-23).

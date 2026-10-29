@@ -63,3 +63,6 @@ RB-50r,MS,S.23f Script 50,"over the complete years in which every month has meas
 RB-51a,MS,S.23g Script 51,"Each donor line is fitted over at least DONOR_MIN_OVERLAP_MONTHS outside the window",D-275
 RB-53a,MS,S.23h Script 53,the full-record coefficients,D-276
 RB-54a,MS,S.23i Script 54,Model A fitted on its full record,D-277
+RB-50s,PaperM,What the record projects,"applied as seasonal changes to the observed rainfall and PET, with comparison-window fits at the",Script 50 E7 projection (D-224/D-280; censored refits D-281)
+RB-50t,PaperM,A physically anchored datum,Model A was refitted at each well with its datum at the,Script 50 E16 (D-286): one elevation base on the comparison-window fits
+RB-50u,PaperM,A physically anchored datum,Chosen for each cluster from the modern record alone and then tested on the two earlier,Script 50 E17 (D-287): a base per cluster chosen in-record

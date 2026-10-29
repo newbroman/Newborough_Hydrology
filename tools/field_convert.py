@@ -30,7 +30,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-10-17. The context test's conditional sat inside endswith(),
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-10-28 (after the D-281 rerun). --stale: a confirmed citation whose
+#   committed value has moved is converted in the quoted text's own rendering (dp, sign, separators; the scale that
+#   puts the new value within a factor of two of the old), logged old -> new for review; field_sync --write then
+#   prints the new value. Without --stale nothing changes.
+# 1.2.1  # Hollingham (2026) — 2026-10-17. The context test's conditional sat inside endswith(),
 #   so a number at the start of a paragraph (empty text before it) raised TypeError; an empty side now fails the
 #   match explicitly when the binding names context for it.
 # 1.2.0  # Hollingham (2026) — 2026-10-10: --content FILE converts a content.xml taken out of
@@ -47,6 +51,7 @@ import pathlib
 import re
 import shutil
 import sys
+import math
 import tempfile
 import zipfile
 
@@ -80,6 +85,35 @@ def _spec_for(v: float, quoted: str):
             if fs.render(v, row) == q:
                 return row
     return None
+
+
+def _stale_spec_for(v: float, quoted: str):
+    """1.3.0: the rendering the quoted text was written in, applied to the value now committed: the quoted
+    string's decimals, sign style and separators, at the scale (and abs) that puts the committed value nearest
+    the quoted number. None when no scale lands within a factor of two of it (a wrong binding, not a moved
+    value). The field then carries the old text until field_sync --write renders the new value."""
+    q = quoted.strip()
+    m = re.fullmatch(r"([+−\-]?)(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?", q)
+    if not m:
+        return None
+    sign, whole, frac = m.groups()
+    qv = float(whole.replace(",", "") + ("." + frac if frac else "")) * (-1 if sign in ("−", "-") else 1)
+    best = None
+    for scale in SCALES:
+        for absf in ("", "1"):
+            x = v * scale
+            x = abs(x) if absf else x
+            if qv == 0 and x == 0:
+                d = 0.0
+            elif qv == 0 or x == 0 or (x > 0) != (qv > 0):
+                continue
+            else:
+                d = abs(math.log(abs(x) / abs(qv)))
+            if d <= math.log(2) and (best is None or d < best[0]):
+                best = (d, {"scale": str(scale), "abs": absf, "dp": str(len(frac or "")),
+                            "plus": "1" if sign == "+" else "", "minus": sign if sign in ("−", "-") else "−",
+                            "thousands": "," if "," in whole else ""})
+    return best[1] if best else None
 
 
 def field_name(key: str, spec: dict) -> str:
@@ -143,6 +177,10 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--content", help="a content.xml to convert instead of the ODT; the result goes to CONTENT.new")
     ap.add_argument("--bindings", help="CSV of numbers to bind (quoted, before, after, source_csv, key[, rendering][, field])")
+    ap.add_argument("--stale", action="store_true",
+                    help="1.3.0: also convert confirmed citations whose committed value has MOVED since the text was "
+                         "written, in the quoted text's own rendering; each is listed old -> new in "
+                         "scratch/stale_rebinds_<stem>.csv, and field_sync --write then prints the new value")
     a = ap.parse_args()
     if a.content:      # 1.2.0: the ODT may not be on this machine; the mirror names the document
         src = None
@@ -165,6 +203,7 @@ def main() -> int:
     reg = fs.load_register()
     vals = fs.values()
     spans, new_fields, skipped = [], {}, []
+    stale_log = []
     taken = set()
     for r in rows:
         v = vals.get((r["source_csv"], r["key"]))
@@ -177,6 +216,14 @@ def main() -> int:
             spec = given if fs.render(v, given) == r["quoted"].strip() else None
         else:
             spec = _spec_for(v, r["quoted"])
+        if spec is None and a.stale and given["dp"] == "":
+            spec = _stale_spec_for(v, r["quoted"])
+            if spec is not None:
+                stale_log.append({"key": r["key"], "source_csv": r["source_csv"], "quoted": r["quoted"].strip(),
+                                  "now": fs.render(v, spec), "value": v,
+                                  "rel_change": (abs(v * float(spec["scale"])) / abs(float(re.sub(r"[^0-9.]", "", r["quoted"]) or "nan")) - 1)
+                                  if re.sub(r"[^0-9.]", "", r["quoted"]).strip(".") not in ("", "0") else float("nan"),
+                                  "context": (r.get("before") or "")[-40:] + " [#] " + (r.get("after") or "")[:40]})
         if spec is None:
             skipped.append((r, f"no rendering of {v!r} gives {r['quoted']!r} exactly")); continue
         _qx = html.escape(r["quoted"].strip(), quote=False)
@@ -230,6 +277,13 @@ def main() -> int:
           f"{len(new_fields)} field(s), {len(skipped)} left as text")
     for r, why in skipped:
         print(f"   skip  {r['key'][:60]:60s} {r['quoted']!r:>12s}  {why}")
+    if stale_log:
+        _sp = REPO / "scratch" / f"stale_rebinds_{a.stem}.csv"
+        _sp.parent.mkdir(exist_ok=True)
+        with open(_sp, "w", newline="", encoding="utf-8") as fh:
+            w = csv.DictWriter(fh, fieldnames=list(stale_log[0]))
+            w.writeheader(); w.writerows(stale_log)
+        print(f"  {len(stale_log)} moved value(s) bound in their quoted rendering -> {_sp.relative_to(REPO)}")
     if a.dry_run or not taken:
         return 0
     if a.content:

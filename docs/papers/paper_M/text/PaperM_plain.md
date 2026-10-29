@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_3.odt — do not edit. source-sha256=a3c493b9d7855e5f pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_4.odt — do not edit. source-sha256=9e18d0e3005a0c3d pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -60,7 +60,7 @@ Shallower than about 1.6 metres the floor sits inside the range the water table 
 
 ## []{#anchor}Deep enough, and the water budget settles
 
-Below that depth something useful happens. The drainage coefficient keeps getting smaller as the floor goes deeper, but the *amount* of water draining away each month hardly changes, and neither does the split of the water budget between drainage and evaporation. At the lake edge, for example, drainage takes 73 % of the water lost with the floor at 1.6 metres, 86 % at 3.7 metres and 89 % at 8 metres. The paper calls this steady range the **plateau**.
+Below that depth something useful happens. The drainage coefficient keeps getting smaller as the floor goes deeper, but the *amount* of water draining away each month hardly changes, and neither does the split of the water budget between drainage and evaporation. At the lake edge, for example, drainage takes 73 % of the water lost with the floor at 1.6 metres, 85 % at 3.7 metres and 88 % at 8 metres. The paper calls this steady range the **plateau**.
 
 So the water budget can be trusted once the floor is deep enough, even though nobody knows where the real floor is. The study uses a single floor of 3.7 metres for every well, which lies on the plateau everywhere.
 
@@ -87,7 +87,7 @@ At a typical well the two readings differ by more than a factor of two. A conven
 
 Which is right about how the water table behaves? The paper measured it directly from the readings. If this month's level is unusually high, how much of that is still there next month? The answer, worked out over the whole record, gives a return time without any model at all: 5.1 months at a typical well. That is close to Model B and about a third of Model A.
 
-The check was repeated with two corrections that push in opposite directions: taking out any long-term trend in a well's record (5.0 months), and allowing for small errors in the readings (6.1 months). Either way Model B stays the closer. Rises and falls also return at the same rate: a wet spell fades as quickly as a dry one.
+The check, measured without a model, was repeated with two corrections that push in opposite directions: taking out any long-term trend in a well's record (5.0 months), and allowing for small errors in the readings (6.1 months). Either way Model B stays the closer. Rises and falls also return at the same rate: a wet spell fades as quickly as a dry one.
 
 ## []{#anchor}Does a dry year carry over to the next spring?
 
@@ -99,7 +99,7 @@ The paper fitted each model on the years before 2018 and asked it to forecast th
 
 ## []{#anchor}Why the drainage term matters at all
 
-The simplest model of all leaves drainage out entirely: rain in, evaporation out, nothing else. Left to run on its own, that model drifts, because nothing pulls the water table back towards a normal level, and each month's error carries into the next. At a typical well its forecast skill is 0.42 on a scale where 1 is perfect, and at 11 wells it does worse than simply guessing the average. Adding the drainage term lifts the typical score to 0.82. The drainage term is what keeps the model anchored.
+The simplest model of all leaves drainage out entirely: rain in, evaporation out, nothing else. Left to run on its own, that model drifts, because nothing pulls the water table back towards a normal level, and each month's error carries into the next. At a typical well its forecast skill is 0.43 on a scale where 1 is perfect, and at 8 wells it does worse than simply guessing the average. Adding the drainage term lifts the typical score to 0.82. The drainage term is what keeps the model anchored.
 
 # []{#anchor}6. What the old records say
 
@@ -121,7 +121,7 @@ Here the result is the other way round. With the floor at about 0.7 metres below
 
 The two old records ask different questions. Ranwell's seasons ask how fast the water table bounces back, and the answer is: quickly. The dry decade asks whether the water table can stay low through a long run of dry years, and the answer is: yes, more than a quick bounce would allow. The aquifer seems to do both. A model with a single floor can only do one or the other, which is why the paper uses each version only for the question it answers.
 
-These tests used each well's own numbers. Run instead with the numbers of the well's group, which are the ones the paper reports, the model does as well: for the dry decade Model A scores −0.18 against −0.14, and for Ranwell's seasons 0.49 against 0.46. Model B does much better on the dry decade with the group's numbers (−0.41 against −1.46).
+These tests used each well's own numbers. Run instead with the numbers of the well's group, which are the ones the paper reports, the model does as well: for the dry decade Model A scores −0.17 against −0.14, and for Ranwell's seasons 0.49 against 0.46. Model B does much better on the dry decade with the group's numbers (−0.27 against −1.46).
 
 # []{#anchor}7. How much record you need
 
@@ -137,9 +137,9 @@ A rule of thumb follows: a record should span several return times before the re
 
 The wells fall into five groups that behave alike: three in open dune (the Lake Edge, the Dune and the Western Residual) and two under pine (the Main Forest and the Coastal Forest). Using each version of the model for what it is good at, the paper reports for each group:
 
--   **How the water budget splits.** With the floor anywhere on the plateau, drainage carries 86--89 % of the water lost at the lake edge, 69--72 % in the open dune, 65--69 % in the western dune, 63--68 % under the coastal forest and only 24--28 % under the main forest, where the trees take most of the rest. Evaporation and plant use take whatever drainage does not.
+-   **How the water budget splits.** With the floor anywhere on the plateau, drainage carries 85--88 % of the water lost at the lake edge, 66--69 % in the open dune, 65--68 % in the western dune, 61--66 % under the coastal forest and only 25--29 % under the main forest, where the trees take most of the rest. Evaporation and plant use take whatever drainage does not.
 -   **How sure is that?** Moving the floor around the plateau, or setting it at each well's depth to high tide, changes these figures by only a few points, and individual wells scatter a little around their group. The bigger uncertainty is the version of the model. Letting the model work out its own resting level (Model B) gives drainage only 29--60 % of the loss, and least at the lake edge (37 %). The paper argues that the fixed floor is the right basis for the water budget, because Model B's resting level sits close to the average water level rather than at anything physical; but only a direct measurement of drainage or evaporation at the site could settle it.
--   **How quickly the water returns to normal.** From about 2.1 months at the lake edge to about 13.3 months under the coastal forest. Under the main forest it is too slow to measure on the present record.
+-   **How quickly the water returns to normal.** In the free-intercept model, from about 2.1 months at the lake edge to about 13.3 months under the coastal forest. Under the main forest it is too slow to measure on the present record.
 
 These are shares, not amounts. Turning them into millimetres of water needs one more property of the sand, how much water it releases as the water table falls, which the water levels alone cannot give. That is dealt with in the companion study of the site.
 

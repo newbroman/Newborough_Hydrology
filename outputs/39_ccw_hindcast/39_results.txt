@@ -5,12 +5,12 @@ climate forcing from 1930-12
 Per well (beta_1 at its fitted value):
   nw11   (1C)  NSE -2.935  r +0.658  NSE with the level offset removed -0.099  bias +0.454 m  RMSE 0.535 m  n 82  censored dropped 0
   nw13   (1D)  NSE -0.414  r +0.749  NSE with the level offset removed +0.410  bias +0.296 m  RMSE 0.388 m  n 82  censored dropped 0
-  nw3    (1E)  NSE +0.365  r +0.902  NSE with the level offset removed +0.739  bias -0.195 m  RMSE 0.253 m  n 82  censored dropped 0
-  nw4    (1F)  NSE +0.199  r +0.913  NSE with the level offset removed +0.834  bias -0.237 m  RMSE 0.266 m  n 82  censored dropped 0
+  nw3    (1E)  NSE +0.269  r +0.892  NSE with the level offset removed +0.651  bias -0.196 m  RMSE 0.272 m  n 82  censored dropped 0
+  nw4    (1F)  NSE +0.206  r +0.913  NSE with the level offset removed +0.834  bias -0.235 m  RMSE 0.265 m  n 82  censored dropped 0
   nw9    (2B)  NSE -0.554  r +0.824  NSE with the level offset removed +0.580  bias +0.217 m  RMSE 0.254 m  n 82  censored dropped 0
-  wmc3   (2C)  NSE -0.506  r +0.686  NSE with the level offset removed +0.326  bias +0.211 m  RMSE 0.284 m  n 67  censored dropped 15
-  nw6    (2E)  NSE +0.650  r +0.856  NSE with the level offset removed +0.650  bias -0.007 m  RMSE 0.159 m  n 82  censored dropped 0
-  nw5    (2F)  NSE +0.149  r +0.944  NSE with the level offset removed +0.869  bias -0.253 m  RMSE 0.275 m  n 82  censored dropped 0
+  wmc3   (2C)  NSE -1.443  r +0.652  NSE with the level offset removed +0.187  bias +0.296 m  RMSE 0.362 m  n 67  censored dropped 15
+  nw6    (2E)  NSE +0.568  r +0.848  NSE with the level offset removed +0.583  bias +0.033 m  RMSE 0.177 m  n 82  censored dropped 0
+  nw5    (2F)  NSE -0.023  r +0.943  NSE with the level offset removed +0.857  bias -0.279 m  RMSE 0.301 m  n 82  censored dropped 0
   wmc2   (2G)  NSE -0.065  r +0.936  NSE with the level offset removed +0.858  bias -0.272 m  RMSE 0.292 m  n 82  censored dropped 0
 
 Read r against NSE. r is whether the hindcast reproduces the SHAPE
@@ -30,15 +30,15 @@ Epoch shift, each well's 1989-96 mean less its modern mean (network median -0.58
   nw5    (2F)  -0.251 m
   wmc2   (2G)  -0.135 m
 
-mean residual (observed minus hindcast) across wells: -0.024 m
+mean residual (observed minus hindcast) across wells: -0.035 m
   positive means the record sits SHALLOWER than the climate-only hindcast
-largest initial-condition sensitivity over the window: 1.85e-11 m — the spin-up has forgotten the starting value
+largest initial-condition sensitivity over the window: 5.77e-15 m — the spin-up has forgotten the starting value
 
 beta_1 sensitivity (the coefficients are fitted 2005-2026 and the site-wide beta_1 decline means 1989 values were plausibly higher):
-  scale 1.00:  open ground (n=6) mean NSE +0.147, mean bias -0.111 m   |  under canopy (n=3) mean NSE -1.332, mean bias +0.294 m
-  scale 1.03:  open ground (n=6) mean NSE +0.335, mean bias +0.014 m   |  under canopy (n=3) mean NSE -2.888, mean bias +0.417 m
-  scale 1.06:  open ground (n=6) mean NSE +0.155, mean bias +0.140 m   |  under canopy (n=3) mean NSE -5.018, mean bias +0.541 m
-  scale 1.10:  open ground (n=6) mean NSE -0.654, mean bias +0.307 m   |  under canopy (n=3) mean NSE -8.752, mean bias +0.705 m
+  scale 1.00:  open ground (n=6) mean NSE +0.090, mean bias -0.109 m   |  under canopy (n=3) mean NSE -1.644, mean bias +0.322 m
+  scale 1.03:  open ground (n=6) mean NSE +0.271, mean bias +0.016 m   |  under canopy (n=3) mean NSE -3.255, mean bias +0.439 m
+  scale 1.06:  open ground (n=6) mean NSE +0.087, mean bias +0.142 m   |  under canopy (n=3) mean NSE -5.378, mean bias +0.557 m
+  scale 1.10:  open ground (n=6) mean NSE -0.729, mean bias +0.309 m   |  under canopy (n=3) mean NSE -9.006, mean bias +0.713 m
 
 The two groups are reported apart because the canopy state of 1989 is not observed and the coefficients are fitted over 2005-2026, which for the clearfell-zone wells spans the felling. Transfer of a canopy well's coefficients to 1989 is therefore an assumption the open-ground wells do not require.
 
@@ -54,23 +54,23 @@ Full-record hindcast (open-ground panel, modern coefficients applied to the whol
   so the curve is internally consistent and carries no observed-to-modelled offset.
 
   Decadal site anomaly (m):
-    1930s  -0.079
-    1940s  -0.235
+    1930s  -0.078
+    1940s  -0.236
     1950s  -0.019
-    1960s  +0.175
-    1970s  -0.380
+    1960s  +0.174
+    1970s  -0.381
     1980s  -0.042
     1990s  -0.476
     2000s  -0.003
-    2010s  -0.008
+    2010s  -0.009
     2020s  +0.022
 
   Epoch check over the CCW window, each series against its own modern mean:
     nw13   (1D)  observed -0.696 m   hindcast -0.480 m
-    nw3    (1E)  observed -0.433 m   hindcast -0.468 m
-    nw4    (1F)  observed -0.260 m   hindcast -0.411 m
-    nw6    (2E)  observed -0.597 m   hindcast -0.435 m
-    nw5    (2F)  observed -0.251 m   hindcast -0.474 m
+    nw3    (1E)  observed -0.433 m   hindcast -0.474 m
+    nw4    (1F)  observed -0.260 m   hindcast -0.412 m
+    nw6    (2E)  observed -0.597 m   hindcast -0.437 m
+    nw5    (2F)  observed -0.251 m   hindcast -0.484 m
     wmc2   (2G)  observed -0.135 m   hindcast -0.495 m
 
   The coefficients are fitted 2005-2026 and are applied unchanged across the whole record.

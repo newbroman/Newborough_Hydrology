@@ -2283,6 +2283,86 @@ The station's daily record is committed as `data/wu_ianglese3_daily.csv` (proven
 
 **Revisit if** - an on-site or nearby gauge with 2005–09 data is found; - the station's archive turns out to hold more than was downloaded; - a test of rain amount, rather than event structure, against Llyn Alaw is proposed.
 
+### D-279 — Paper M is restructured around forecasting, tested by hindcasts; datum, sea level and depth-dependent ET reduced to caveats
+
+*2026-10-26*
+
+Paper M v1_27 follows `claude/NRG_spec_PaperM_restructure_2026-10-26.md`. §4 "Can the record forecast?" is the centre: split-sample skill within the recorded climate, the CCW 1989–96 and Ranwell 1951–53 hindcasts as the test of a different climate, record length, cluster basis, which form to forecast with, and UKCP18 RCP8.5 projections (2050s inside the hindcast-tested range, 2080s reported as a Model A / Model B pair, labelled extrapolation). The datum, physical datum and Model B identification move to a shorter §5. §6 becomes a procedure for managers. - Moved out of the main text, with pointers to the Methods Supplement: the second-store tests (old §6.6, S.23f), the Ranwell cause search beyond one paragraph, the elevation-regression frame test, Table 3 (drainage share under each source of uncertainty) and most of the datum-sweep detail. Three references no longer cited are dropped (Forest Research n.d.; Met Office 2024; Minderman and Leeflang 1968). - New: a groundwater-ET caveat in §2.4 and §7.4 — Model A's drainage share leans high because evaporation from a shallow water table varies with head and is booked to β₃. - The sea-level paragraph proposed for old §4.6 is dropped: old §4.7 (mean high water) already makes the physical-datum case.
+
+**Revisit if** - the journal's limit turns out materially lower or higher than 8,000 words; - a reviewer asks for the partition or second-store analysis in the main text; - the 2050s figures or the "2050s ≈ 1989–96 water balance" statement fail to trace once emitted (owed, below).
+
+### D-280 — The depth-dependent model becomes the third projection form, beside Model A and Model B
+
+*2026-10-27*
+
+- κ per well is its cluster's comparison-window κ (Script 15), not a per-well grid search; β₁–β₃ refitted per well on the comparison window; a set is used only where identified (β₁, β₂ > 0; β₃ by Script 48's rule). - The sustained response, which has no closed form under the nonlinear PET term, is the difference of two periodic steady states (`model_utils.sustained_monthly_response_ddp`); at κ = 0 it equals the closed form (gate: `projection_check_ddp_k0_vs_closed_form`). - The three forms are compared on the wells where all three project (the "trio"); the existing Model A / Model B pair keys are unchanged. - Viewer: a third Response mode, climate scenarios only; forest-management scenarios are withheld under it. - Script 16 carries the depth-dependent drainage share (full record) as an additive third estimator; it does not enter the published midpoint or range.
+
+**Revisit if** a per-well κ becomes identifiable (a longer window); the depth-dependent form is adopted as the operational model; the projections are rerun with a different datum.
+
+### D-281 — The comparison window is a fixed calendar span, and dry months are censored observations
+
+*2026-10-27*
+
+- The window is the last `LCSC_DATA_LIMIT` calendar months ending at the last aligned month (`build_ssm_frame`, `last_calendar_months`); a complete window is unchanged. - A month a well was found dry (`dry_recorded`, `dry_inferred`) is an observation h ≤ c, fitted by censored maximum likelihood (`fit_ssm_censored`: the state equation's Gaussian path, the GHK orthant on fixed Sobol draws); with no dry month the fit is OLS's own. - The bound c is the month's dry depth less the upstand (dry depths are sounded from the pipe top); with no depth recorded, the well's floor, the deeper of its deepest measured reading and its deepest recorded dry depth. - Both bases, full record and comparison window, are censored. Rollout in three tiers: (1) Script 03 per-well and centroid fits and the refits behind the projections and viewer (15, 50, 19); (2) the forecast tests, scored on read months only; (3) diagnostics and Pastas keep excluding dry months, labelled in `tools/record_basis.csv`. - Cluster centroids: a dry member-month is filled before averaging with its censored expected level, centred on its nearest cluster-mate's measured level (the donor rule of Script 51) where one was read that month, otherwise on the well's own censored fit; then the centroid is fitted as now.
+
+**Revisit if** the dipwell base depths are surveyed (the bound would then be the base, not the floor); a censored fit for the depth-dependent model or Pastas becomes available; the identity (no dry month reproduces OLS) fails.
+
+### D-282 — Can a short record place a new well? A pre-registered placement arm in E12
+
+*2026-10-27*
+
+Script 50 1.17.0 E12b. Each reference well is placed from its first `PLACEMENT_LENGTHS_MONTHS` (24, 36, 60) months alone, by its Pearson r with each cluster centroid built from the other members; it is shifted to that centroid over those months only, and run through E12's three tests on the placed cluster's coefficients. The split-sample test places and shifts from the first months of its training side, so no tested month informs the placement. E12's rule against the per-well basis decides.
+
+**Revisit if** the partition changes; the placement rule changes (for example, a placement from location or vegetation instead of the hydrograph); tier 1 of D-281 moves the centroid coefficients.
+
+### D-283 — The ET/drainage partition is estimated by Model B (Pastas-equivalent); Model A, the depth-dependent model and the recession ratio bracket it
+
+*2026-10-27*
+
+The mean loss partition (drainage share of the modelled loss) is quoted from Model B, the free-intercept form, fitted to each cluster centroid. Model A at the network datum, the depth-dependent model (Script 15) and the seasonal recession ratio (Script 16) are carried beside it as the bracket. Model A stays the published form for the coefficients, thresholds, hindcasts and the fixed-datum projection (D-217's other clauses stand). The forest clusters are quoted on the same footing, with interception (`FOREST_INTERCEPTION` of P) added to the evaporation as Script 16 already does.
+
+**Revisit if** a direct drainage or ET measurement at the site; the depth-dependent model or a censored refit moves Model B's split outside the bracket; Model B's β₁ or β₂ loses identification at a cluster.
+
+### D-284 — Every quoted partition, half-life or reversion time names the model form it comes from; form_label_lint enforces it
+
+*2026-10-28*
+
+Each document that quotes a loss partition, a drainage share, t½, an e-fold or a mean-reversion time states once which form each comes from (Model A, the no-intercept form at the network datum, for coefficients, t½, thresholds and projections; Model B, the free-intercept form, for the ET/drainage split, D-283; model-free for the observed reversion time), and every such sentence, table header or caption names its form. The values carry number fields (36 new rows in `tools/number_fields.csv`). Applied: report8, report9, report10, Methods Supplement v2_0_107, Paper 2 v42, Paper M v1_34 (tables v1_35), Paper M plain v1_4; `tools/table_configs.py` 1.20.0 (report9 Tables 1.7 and 1.5 headers and Model B fraction, Paper M Table 2 Model B share; paperM/Table3 retired, moved out by D-279). `tools/form_label_lint.py` 1.0.0 checks every registered partition/half-life field and typed value against a form word in its sentence, table or caption (exemptions in `tools/form_label_exempt.csv`); advisory in `check_all` until Paper 1 and its plain companion are labelled, then a gate.
+
+**Revisit if** a single form is adopted for every quantity; the lint's form vocabulary misses a legitimate label (extend `FORM`, do not exempt).
+
+### D-285 — The cluster characterisations follow Model B's split: C1 is evaporation-led, and C3 drains like C2 rather than more slowly
+
+*2026-10-28*
+
+C1 is characterised as evaporation-led under Model B (Model A, which puts most of the loss into drainage at the network datum, is stated beside it with its label, D-284); C3 is characterised as draining at the same rate as C2, its distinction carried by its lower recharge sensitivity and record, not by slower drainage. Every quoted figure is a number field. To apply: Paper 1 and Paper1_plain (cluster profiles, Table 3 headers), report10's C1 narrative, the Methods Supplement lines held to this answer.
+
+**Revisit if** the full rerun after D-281 (Scripts 07, 08, 18, 20, 30) separates C2 and C3 in β₃ beyond their intervals, or moves C1's Model B drainage share above one half.
+
+### D-286 — Model A(ii), one drainage base in elevation, is tested on the forward tests and not adopted: better on the drier epochs, worse on the within-record split and on beta_3's identification
+
+*2026-10-28*
+
+Script 50 1.19.0 E16 refits Model A with every well referred to one base z0 m AOD (a per-well datum of ground − z0; Script 03's grid, `DATUM_AOD_SWEEP_*`, and mean high water) and scores it on the forward tests on E5, E9 and E6's code paths (CCW 1989-96, Ranwell 1951-53 headline pairings, the within-record split, both directions), against Model A at `DRAINAGE_DATUM` on the same wells. Rule: z0* maximizes the median CCW NSE; A(ii) is adopted only if, at z0*, CCW NSE is at least as high, CCW |bias| no larger, Ranwell and split NSE no lower by more than `RECLEN_DATUM_NSE_TOL`, and no more wells have β₃ ≤ 0. Verdict **not adopted** (`e16_verdict`): A(ii) at `e16_z0_best_m_aod` hindcasts both drier epochs better (`e16_ccw_*`, `e16_ranwell_*`) but forecasts the within-record split worse, beyond the tolerance (`e16_split_nse_median_*`; C4 and C1 lose most), and loses β₃ at one more well (CEH13). The forward runs stay Model A at the depth datum (D-230 stands).
+
+**Revisit if** the full rerun after D-281 or the tier-2 censoring moves the split comparison inside the tolerance; a further drier epoch with more wells; a measured base (borehole, geophysics, estuary discharge).
+
+### D-287 — A drainage base per cluster, chosen from the modern record, is not supported by the drier epochs (E17)
+
+*2026-10-28*
+
+Script 50 1.20.0 E17 gives each cluster one base in elevation, chosen from the modern record only, so the drier epochs test it rather than choose it. Primary candidate S: the base on E16's grid maximizing the cluster's median within-record split NSE. Checks: R (median member-well R²-maximizing datum as an elevation) and B (median member-well Model B zero-drainage level as an elevation). Rule fixed before the run: a testable cluster (C1 by Ranwell; C2, C3, C5 by CCW; C3 also by Ranwell) passes if every well scored at the depth datum is still scored, its median NSE is at least as high and (CCW) its median |bias| no larger; supported if all pass and no more wells lose β₃; not supported if more than half fail. Verdict **not supported** (`e17_verdict`): C1 passes, C2, C3 and C5 fail (`e17_cluster_pass_C*`), and S loses β₃ at two more wells (`e17_n_beta3_nonpositive_*`). The forward runs stay Model A at the depth datum (D-230); Paper M keeps the depth datum's justification.
+
+**Revisit if** a measured base (boreholes, geophysics, estuary discharge); more drier-epoch wells; the full rerun after D-281 or the tier-2 censoring changes a cluster's pass.
+
+### D-288 — The benchmark keeps a well with at least BENCHMARK_MIN_WINDOW_MONTHS fitted months in the fixed comparison window
+
+*2026-10-28*
+
+Script 08 1.8.0 keeps a well with at least `BENCHMARK_MIN_WINDOW_MONTHS` (config 1.118.0) fitted months in the window and fits the TLM, Model A and Model B on the same rows; `Months_Used` records the count. Threshold set at 80 of 100 as proposed: 64 of the 66 reference wells qualify; CEH28 (72) and D25 (75) do not.
+
+**Revisit if** the tier-2 censoring (D-281) reaches Script 08 (dry months then enter as bounds, and the TLM needs the same treatment); a threshold choice changes a cluster median by more than the reporting precision.
+
 ---
 
-277 decisions. Generated by `tools/build_public_decisions.py`.
+287 decisions. Generated by `tools/build_public_decisions.py`.

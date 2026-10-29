@@ -44,7 +44,11 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.115.0"  # Hollingham (2026) - 2026-10-25 (spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25,
+__version__ = "1.118.0"  # Hollingham (2026) - 2026-10-28. BENCHMARK_MIN_WINDOW_MONTHS (Script 08 1.8.0, D-288). Additive.
+# 1.117.0  # Hollingham (2026) - 2026-10-28. E17_CANDIDATES, E17_PRIMARY_CANDIDATE (Script 50 1.20.0, E17, D-287; Martin 04:28 "S"). Additive.
+# 1.116.0  # Hollingham (2026) - 2026-10-27. PLACEMENT_LENGTHS_MONTHS (Script 50 1.17.0, E12b, D-282; Martin
+#   02:14 "Add the script 50 short record placement test").
+# 1.115.0  # Hollingham (2026) - 2026-10-25 (spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25,
 #   approved Martin 07:36). Script 53: E14_NEAR_M, E14_SPAN, E14_N_BOOT, E14_SEED, E14_LOO_MIN_PASS,
 #   E14_STEP_TAU_MONTHS; Script 54 (spec NRG_spec_E15_dry_year_hysteresis_2026-10-25, approved Martin 07:41):
 #   E15_DRY_PCTL, E15_WET_PCTL, E15_LAG_YEARS, E15_WINDOW_MONTHS, E15_SHARE, E15_MIN_WINDOW_COVER,
@@ -1423,6 +1427,12 @@ SSM_MIN_OBS = 30
 # model_utils.py and in Scripts 03 and 08 (D-016).
 LCSC_DATA_LIMIT = 100
 
+# Script 08 1.8.0 (D-288; Martin 2026-10-28 04:47 "keep a well if it has at least a set number of the 100 months"):
+# since D-281 the comparison window is a fixed span of LCSC_DATA_LIMIT calendar months, so a well with a gap or a dry
+# month in it has fewer rows. The benchmark keeps a well with at least this many fitted months in the window and fits
+# the TLM, Model A and Model B on the same rows.
+BENCHMARK_MIN_WINDOW_MONTHS = 80
+
 # Reference-network admission threshold: a well is admitted at more than this
 # many months of valid record (and must still report after REFERENCE_CUTOFF_DATE).
 # One number, three consumers — Script 01 admits, Script 02 clusters the admitted
@@ -2250,6 +2260,11 @@ RANWELL_MEMORY_MONTHS       = 24
 # BASIS_TOL_BIAS_M or smaller); it is better if it beats the per-well median by more than BASIS_TOL_NSE.
 BASIS_TOL_NSE               = 0.05
 BASIS_TOL_BIAS_M            = 0.05
+# E12b (Script 50 1.17.0, D-282): can a short record place a new well? Each reference well is placed from its first
+# PLACEMENT_LENGTHS_MONTHS months alone, by its Pearson r with each cluster centroid built without it (Script 06's
+# allocation, whose minimum is the first length), shifted to the centroid over those months only, and run through E12's
+# three tests on the placed cluster's coefficients. Same rule as E12, against the per-well basis.
+PLACEMENT_LENGTHS_MONTHS    = (24, 36, 60)
 # E13 (Script 50 1.13.0, D-273): does an evaporation estimate other than Thornthwaite, or a change in recharge, explain
 # the 2006-08 excess (D-231)? The rule, fixed before the first (scratch) run of 2026-10-22: an estimate explains it
 # only if, at every cluster in E13_CLUSTERS under Model A, it removes at least E13_EXCESS_SHARE of the 2006-08 excess,
@@ -3478,3 +3493,11 @@ E15_SHARE            = 0.5
 E15_MIN_WINDOW_COVER = 0.75
 E15_CLUSTERS_JUDGED  = (2, 3, 4, 5)
 E15_MIN_CLUSTERS     = 3
+
+# E17 (Script 50 1.20.0, D-287; spec NRG_spec_E16_paperM_and_E17_cluster_base_2026-10-28, Martin 2026-10-28 04:28 "S"):
+# a drainage base in elevation per cluster, chosen from the modern record only. S = the base of the elevation grid that
+# maximizes the cluster's median within-record split NSE; R = the median member-well R2-maximizing datum as an
+# elevation; B = the median member-well Model B zero-drainage level as an elevation. The primary is the test; the
+# others are reported as checks.
+E17_CANDIDATES        = ("S", "R", "B")
+E17_PRIMARY_CANDIDATE = "S"

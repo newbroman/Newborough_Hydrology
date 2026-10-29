@@ -26,7 +26,14 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.31.1"  # Hollingham (2026) - 2026-10-04 (audit 2026-10-04c). The viewer's Clearfell button no longer
+__version__ = "2.32.0"  # Hollingham (2026) - 2026-10-27 (D-280; Martin 01:21 "Add the depth-dependent model as a
+#   third projection beside Model A and Model B, in Script 50 and the viewer"). projection_coefficient_sets() and
+#   paired_sets() carry the depth-dependent sets from Script 15's 15_05_ddp_per_well.csv (reference wells their own,
+#   extended wells their cluster's full-record centroid; paired with Model B as Model A is). compute_scenario_summary()
+#   writes 19_scenario_summary_ddp.csv / 19_scenario_perwell_ddp.csv for the UKCP18 rows (sustained_monthly_response_ddp)
+#   and scenario_dh_mean_ukcp18_2080s_summer_C2_ddp. The viewer's Response toggle gains "Sustained level - depth-
+#   dependent", a JS port of the periodic steady state; climate scenarios only. No existing row, file or key moves.
+# 2.31.1  # Hollingham (2026) - 2026-10-04 (audit 2026-10-04c). The viewer's Clearfell button no longer
 #   reads "interception->0, beta_2 up" (D-239: interception unchanged, the felled well's draw falls), and the one-month
 #   mode note no longer says the forest scenarios await their sustained form. Labels only; no value moves.
 # 2.31.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved", spec
@@ -349,6 +356,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from utils.model_utils import (                       # D-216 (2.28.0)
     sustained_monthly_response, climate_forcing_change_12, response_identified,
+    sustained_monthly_response_ddp,                   # 2.32.0 (D-280)
 )
 from utils.paths import (
     OUT_03_MODEL_B_PERSISTENCE,
@@ -362,6 +370,9 @@ from utils.paths import (
     OUT_19_SCENARIO_PERWELL,
     OUT_19_SCENARIO_SUMMARY_MODEL_A,     # D-224
     OUT_19_SCENARIO_PERWELL_MODEL_A,     # D-224
+    OUT_19_SCENARIO_SUMMARY_DDP,         # D-280
+    OUT_19_SCENARIO_PERWELL_DDP,         # D-280
+    OUT_15_DDP_PER_WELL,                 # D-280
     OUT_03_MECHANISTIC_TABLE,            # D-224: Model A centroids for extended wells
     OUT_26B_PROJECTION_TABLE_PERWELL_MODEL_A,   # D-224 cross-check target
     INT_LOCATIONS,
@@ -1352,7 +1363,7 @@ def serialise_wells(wt, sets=None):
         return None if t is None else [_r(v, 10) for v in t]
     rows = []
     for _, r in wt.iterrows():
-        pB, pA, oB, oA = paired_sets(r, sets) if sets is not None else (None,) * 4
+        pB, pA, oB, oA, pD, oD = paired_sets(r, sets) if sets is not None else (None,) * 6
         cl_int = int(r["Cluster"]) if pd.notna(r["Cluster"]) else 3
         rows.append({"n": r["id"], "cl": cl_int,
                      "E": round(float(r["E"])), "N": round(float(r["N"])),
@@ -1369,7 +1380,9 @@ def serialise_wells(wt, sets=None):
                      "fo": 1 if bool(r.get("in_forest")) else 0,
                      # 2.29.0 (D-224): the sustained-response sets, as compute_scenario_summary
                      # uses them (projection_coefficient_sets / paired_sets).
-                     "pB": _set(pB), "pA": _set(pA), "oB": _set(oB), "oA": _set(oA)})
+                     "pB": _set(pB), "pA": _set(pA), "oB": _set(oB), "oA": _set(oA),
+                     # 2.32.0 (D-280): the depth-dependent sets, (b1, b2, b3, kappa)
+                     "pD": _set(pD), "oD": _set(oD)})
     return rows
 
 
@@ -1728,6 +1741,7 @@ footer a:hover{{text-decoration:underline;}}
     <span style="font-size:11px;color:#555;margin-right:4px;align-self:center">Response:</span>
     <button class="rt on" id="fm_B"    onclick="setForm('B')">Sustained level &#8212; Model B</button>
     <button class="rt"    id="fm_A"    onclick="setForm('A')">Sustained level &#8212; Model A</button>
+    <button class="rt"    id="fm_D"    onclick="setForm('D')">Sustained level &#8212; depth-dependent</button>
     <button class="rt"    id="fm_rate" onclick="setForm('rate')">One-month change</button>
   </div></div>
   <div id="formNote" style="margin:4px 0 8px;padding:8px 10px;border-left:3px solid #1565c0;background:#E3F2FD;font-size:12px;line-height:1.45"></div>
@@ -1920,11 +1934,12 @@ var FORM='B';
 var FORM_NOTE={{
  B:'<b>Sustained level, intercept form (Model B).</b> The change in level once the scenario climate has been in force for years (D-216), on the form whose mean-reversion time matches the record. Wells whose drainage term Model B cannot identify are withheld under both forms &#8212; the Main Forest cluster &#8212; so the two forms are compared on the same wells (D-224); the wet-area panel holds a withheld cluster at its baseline. The coefficients are the comparison-window fits, so the basis buttons do not apply.',
  A:'<b>Sustained level, published form (Model A, datum {drainage_datum} m).</b> The same quantity on the form that reproduced the drier 1989&#8211;96 CCW epoch without bias. Its drainage term is slower, so at most clusters its falls are larger than Model B&#8217;s: read the two forms as a bracket, not an average. Shown only where Model B is identified too (D-224). The report also quotes Model A at the datum the drier past best supports, where the fall is smaller (Script 50, D-226).',
+ D:'<b>Sustained level, depth-dependent form (datum {drainage_datum} m).</b> Model A with evaporation that weakens as the water table falls, &#946;&#8322;&#183;exp(&#8722;&#954;&#183;depth)&#183;PET, &#954; from the well&#8217;s cluster (Script 15). In a drier climate the falling water table evaporates less, so the fall is damped where &#954; is large (Lake Edge, Dune). The form is nonlinear, so the response is computed by running the climatology forward to its repeating annual cycle, under the baseline and under the scenario. Climate scenarios only; shown where Model B is identified too (D-224, D-280).',
  rate:'<b>One-month change (Model A).</b> One month&#8217;s change in level under the scenario forcing &#8212; the viewer&#8217;s earlier measure, kept as a diagnostic; every scenario, the forest-management ones included, is now given as a sustained level (D-239). It is not a projection of the level under a changed climate: use a sustained mode for the UKCP18 presets.'
 }};
 function setForm(f){{
   FORM=f;
-  ['B','A','rate'].forEach(function(k){{document.getElementById('fm_'+k).classList.toggle('on',k===f);}});
+  ['B','A','D','rate'].forEach(function(k){{document.getElementById('fm_'+k).classList.toggle('on',k===f);}});
   document.getElementById('formNote').innerHTML=FORM_NOTE[f];
   var dis=(f!=='rate');
   ['bs_full','bs_win'].forEach(function(id){{var b=document.getElementById(id);if(b){{b.disabled=dis;b.style.opacity=dis?0.45:1;}}}});
@@ -1960,13 +1975,38 @@ function forcing12(set,ex,I0,Isc,forest){{
   }}
   return f;
 }}
+var DDP_DATUM={drainage_datum};
+function ddpSteady12(set,rm,m2,h0){{
+  // 2.32.0 (D-280): model_utils.periodic_steady_state_ddp, index 0 = January.
+  var P=CLIMATE.monthly_arrays_m.P,PET=CLIMATE.monthly_arrays_m.PET,h=h0,prev=null;
+  for(var y=0;y<20000;y++){{
+    var cur=[];
+    for(var m=0;m<12;m++){{var d=Math.max(-h,0);h=h+set[0]*rm[m]*P[m]-set[1]*m2[m]*Math.exp(-set[3]*d)*PET[m]-set[2]*(DDP_DATUM+h);cur[m]=h;}}
+    if(prev){{var mx=0;for(var k=0;k<12;k++){{mx=Math.max(mx,Math.abs(cur[k]-prev[k]));}}if(mx<1e-12)return cur;}}
+    prev=cur;
+  }}
+  return null;
+}}
+function ddp12(set,ex,I0,Isc,forest){{
+  // model_utils.sustained_monthly_response_ddp: the scenario's steady state less the baseline's.
+  var one=[],rm=[],m2=[];
+  for(var i=0;i<12;i++){{one[i]=1;rm[i]=ex.sP[i]*(1+I0-Isc);m2[i]=(forest?ex.sB2[i]:1)*ex.sPET[i];}}
+  var b=ddpSteady12(set,one,one,0);if(!b)return null;
+  var s=ddpSteady12(set,rm,m2,b[11]);if(!s)return null;
+  var out=[];for(var j=0;j<12;j++){{out[j]=s[j]-b[j];}}return out;
+}}
 function seasonMean(ss,sea){{
   var idx=sea==='winter'?_mi(CLIMATE.months.winter):sea==='summer'?_mi(CLIMATE.months.summer):[0,1,2,3,4,5,6,7,8,9,10,11];
   var s=0;idx.forEach(function(i){{s+=ss[i];}});return s/idx.length;
 }}
 function wellSustained(w,sl,ex){{
-  var set=FORM==='B'?w.pB:w.pA;if(!set)return null;
+  var set=FORM==='B'?w.pB:FORM==='A'?w.pA:w.pD;if(!set)return null;
   var isF=(w.fo===1),Isc=isF?(w.cl===5?sl.sI_c5:sl.sI_c4):0,I0=isF?FOREST_INTERCEPTION:0;
+  if(FORM==='D'){{
+    // D-280: climate scenarios only -- a forest-management scenario is withheld under this form.
+    if(CUR_SC&&!/^ukcp18|^baseline|^custom/.test(CUR_SC))return null;
+    var dd=ddp12(set,ex,I0,Isc,isF);return dd?seasonMean(dd,sea):null;
+  }}
   return seasonMean(sustained12(set[2],forcing12(set,ex,I0,Isc,isF)),sea);
 }}
 function setMM(m){{mm=m;document.querySelectorAll('[id^="rt_"]').forEach(function(b){{b.classList.remove('on');}});document.getElementById('rt_'+m).classList.add('on');drawMap();}}
@@ -2072,8 +2112,8 @@ function go(){{
     if(FORM==='rate'){{var cb=clB(cl);msl5[cl]=_msl5One(cb.b1,cb.b2,SPR);windh[cl]=_msl5One(cb.b1,cb.b2,WIN);continue;}}
     var sp=[],wi=[];
     for(var i=0;i<WELLS.length;i++){{var w=WELLS[i];if(w.cl!==cl)continue;
-      var set=FORM==='B'?w.oB:w.oA;if(!set)continue;
-      var ss=sustained12(set[2],forcing12(set,ex,0,0,false));
+      var set=FORM==='B'?w.oB:FORM==='A'?w.oA:w.oD;if(!set)continue;
+      var ss=FORM==='D'?ddp12(set,ex,0,0,false):sustained12(set[2],forcing12(set,ex,0,0,false));if(!ss)continue;
       var a=0;SPR.forEach(function(k){{a+=ss[k];}});sp.push(a/SPR.length);
       var b=0;WIN.forEach(function(k){{b+=ss[k];}});wi.push(b/WIN.length);}}
     msl5[cl]=_mean(sp);windh[cl]=_mean(wi);
@@ -2710,7 +2750,20 @@ def projection_coefficient_sets(wt):
     cent_A = {int(r["Cluster"]): _a_set(r["beta_1_recharge"], r["beta_2_atmospheric_draw"],
                                         r["beta_3_drainage"], r["pvalue_beta_3"], r["n"])
               for _, r in _ca.iterrows()}
-    return _mb, _mbw, well_B, cent_B, well_A, cent_A
+    # ── D-280 (2.32.0): the depth-dependent form, the third projection ──
+    # Reference wells: their own comparison-window set from Script 15 (kappa fixed at the cluster's,
+    # beta refitted), None where it is not identified; extended wells: their cluster's full-record
+    # centroid set, as under Model A. Each set is (b1, b2, b3, kappa).
+    well_D, cent_D = {}, {}
+    if OUT_15_DDP_PER_WELL.exists():
+        _dd = pd.read_csv(OUT_15_DDP_PER_WELL)
+        for _, r in _dd[_dd["level"] == "well"].iterrows():
+            ok = bool(r["identified"])
+            well_D[_norm(r["well"])] = ((float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["kappa"]))
+                                        if ok else None)
+        for _, r in _dd[(_dd["level"] == "centroid") & (_dd["basis"] == "full_record")].iterrows():
+            cent_D[int(r["Cluster"])] = (float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["kappa"]))
+    return _mb, _mbw, well_B, cent_B, well_A, cent_A, well_D, cent_D
 
 
 def paired_sets(row, sets):
@@ -2718,7 +2771,7 @@ def paired_sets(row, sets):
     sets its level response runs on under each form (its own fit, or its cluster's centroid
     for an extended well), with Model A only where Model B projects too (D-224); (oB, oA)
     are its own fits for the ΔMSL5 rows (reference wells only, Model A again paired)."""
-    _mb, _mbw, well_B, cent_B, well_A, cent_A = sets
+    _mb, _mbw, well_B, cent_B, well_A, cent_A, well_D, cent_D = sets
     wid = row["id"]
     cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
     if wid in well_B:
@@ -2732,7 +2785,13 @@ def paired_sets(row, sets):
     oB = well_B.get(wid)
     oA = (well_A.get(wid) if (pd.notna(row.get("b1")) and well_B.get(wid) is not None)
           else None)
-    return pB, pA, oB, oA
+    # D-280: the depth-dependent set, paired with Model B as Model A is (D-224)
+    if wid in well_D:
+        pD = well_D[wid] if well_B.get(wid) is not None else None
+    else:
+        pD = cent_D.get(cl_) if cent_B.get(cl_) is not None else None
+    oD = well_D.get(wid) if well_B.get(wid) is not None else None
+    return pB, pA, oB, oA, pD, oD
 
 
 def _end_state_text(climate_stats):
@@ -2820,7 +2879,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             "b3": sub["b3"].mean() if len(sub) else None,
         }
 
-    _mb, _mbw, well_B, cent_B, well_A, cent_A = projection_coefficient_sets(wt)
+    _mb, _mbw, well_B, cent_B, well_A, cent_A, well_D, cent_D = projection_coefficient_sets(wt)
     P12 = np.asarray(climate_stats["monthly_P_m_arr"], dtype=float)
     PET12 = np.asarray(climate_stats["monthly_PET_m_arr"], dtype=float)
     season_months = {"winter": WINTER_MONTHS, "summer": SUMMER_MONTHS,
@@ -2917,6 +2976,56 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                        "dh_median_m": frame["_dh"].median() if len(frame) else np.nan,
                        **_water_equivalent(frame)})
 
+    rows_D, perwell_D = [], []                         # D-280: the depth-dependent form, separate files
+
+    def _well_level_ddp(row, sl, h_col, season):
+        """2.32.0 (D-280): sustained level response (m) of one well under the depth-dependent form,
+        mean over the season's months; paired with Model B as Model A is (D-224). No closed form:
+        model_utils.sustained_monthly_response_ddp, the difference of two periodic steady states."""
+        if pd.isna(row.get(h_col)):
+            return None
+        cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
+        if row["id"] in well_D:
+            D_ = well_D[row["id"]] if well_B.get(row["id"]) is not None else None
+        else:
+            D_ = cent_D.get(cl_) if cent_B.get(cl_) is not None else None
+        if D_ is None:
+            return None
+        sP12, sPET12 = _expand_seasonal_to_monthly(sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
+        ss = sustained_monthly_response_ddp(D_[0], D_[1], D_[2], D_[3], P12, PET12, sP12, sPET12,
+                                            DRAINAGE_DATUM)[0]
+        return float(np.mean(ss[[m - 1 for m in season_months[season]]]))
+
+    def _aggregate_level_d(frame, sc_name, sea):
+        """The depth-dependent rows, laid out as the Model A rows (D-280)."""
+        frame = frame[frame["_dh"].notna()]
+        for _, r in frame.iterrows():
+            sy = r["sy"]
+            perwell_D.append({
+                "well": r["id"], "cluster": f"C{int(r['Cluster'])}" if pd.notna(r["Cluster"]) else "",
+                "in_forest": bool(r["in_forest"]), "scenario": sc_name, "season": sea,
+                "response": "level_sustained_ddp",
+                "dh_m": float(r["_dh"]), "sy": float(sy) if pd.notna(sy) else np.nan,
+                "we_mm": float(sy * r["_dh"] * 1000.0) if pd.notna(sy) else np.nan,
+            })
+        for cl_int in [1, 2, 3, 4, 5]:
+            sub = frame[frame["Cluster"] == cl_int]
+            dh_mean = sub["_dh"].mean() if len(sub) else np.nan
+            if (sc_name, sea, cl_int) == ("ukcp18_2080s", "summer", 2) and pd.notna(dh_mean):
+                rpt.add(f"scenario_dh_mean_{sc_name}_{sea}_C{cl_int}_ddp", float(dh_mean),
+                        unit="m", well=f"C{cl_int}", era=f"{sc_name} {sea}",
+                        note=f"cluster-mean sustained level response, depth-dependent form (D-280), unrounded, "
+                             f"n={len(sub)} wells")
+            rows_D.append({"scenario": sc_name, "season": sea, "response": "level_sustained_ddp",
+                           "cluster": f"C{cl_int}", "n_wells": int(len(sub)),
+                           "dh_mean_m": dh_mean, "dh_median_m": sub["_dh"].median() if len(sub) else np.nan,
+                           **_water_equivalent(sub)})
+        rows_D.append({"scenario": sc_name, "season": sea, "response": "level_sustained_ddp",
+                       "cluster": "SITE", "n_wells": int(len(frame)),
+                       "dh_mean_m": frame["_dh"].mean() if len(frame) else np.nan,
+                       "dh_median_m": frame["_dh"].median() if len(frame) else np.nan,
+                       **_water_equivalent(frame)})
+
     for sc_name, sl in SCENARIO_PARAMS.items():
         for sea in SEASONS:
             if sea == "winter":
@@ -2986,6 +3095,9 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             if is_level:                               # D-224: Model A beside Model B
                 dhA = wt.apply(lambda r: _well_level(r, sl, h_col, sea, form="A", forestry=forestry), axis=1)
                 _aggregate_level_a(wt.assign(_dh=dhA), sc_name, sea)
+            if is_level and not forestry:              # D-280: the depth-dependent form, UKCP18 rows only
+                dhD = wt.apply(lambda r: _well_level_ddp(r, sl, h_col, sea), axis=1)
+                _aggregate_level_d(wt.assign(_dh=dhD), sc_name, sea)
 
         # ── ΔMSL5 rows (2.28.0, D-216): per-well Model B sustained spring response ──
         # The same quantity, population and functions as Script 26b 2.0.0's per-well
@@ -3116,6 +3228,10 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     out_A = pd.DataFrame(rows_A)
     out_A.to_csv(OUT_19_SCENARIO_SUMMARY_MODEL_A, index=False)
     pd.DataFrame(perwell_A).to_csv(OUT_19_SCENARIO_PERWELL_MODEL_A, index=False)
+    pd.DataFrame(rows_D).to_csv(OUT_19_SCENARIO_SUMMARY_DDP, index=False)          # D-280
+    pd.DataFrame(perwell_D).to_csv(OUT_19_SCENARIO_PERWELL_DDP, index=False)
+    print(f"  Depth-dependent scenario CSVs (D-280): {OUT_19_SCENARIO_SUMMARY_DDP.name} ({len(rows_D)} rows), "
+          f"{OUT_19_SCENARIO_PERWELL_DDP.name} ({len(perwell_D)} rows)")
     print(f"  Model A scenario CSVs (D-224): {OUT_19_SCENARIO_SUMMARY_MODEL_A.name} ({len(out_A)} rows), "
           f"{OUT_19_SCENARIO_PERWELL_MODEL_A.name} ({len(perwell_A)} rows)")
     n_seasons_eff = len(SEASONS) + 1  # +1 for the v2.8.0 msl5 row block

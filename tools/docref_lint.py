@@ -286,7 +286,9 @@ def check_signposts() -> int:
                 # check exists for is a path that resolves under NONE.
                 roots = [REPO, f.parent, REPO / "src", REPO / "outputs",
                          REPO / "working", REPO / ".git", REPO / "docs"]
-                if any((r / path).exists() for r in roots):
+                # 2026-10-28: a link counts. venv/bin/python links to the uv interpreter
+                # in ~/.local, which the bridge cannot see; the path itself is right.
+                if any((r / path).exists() or (r / path).is_symlink() for r in roots):
                     continue
                 # a glob or a pattern is not a claim that a file is there
                 if any(c in path for c in "*?["):

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_24.odt — do not edit. source-sha256=17eaed2792d8abcc pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_40.odt — do not edit. source-sha256=ad7a33242b4e39f0 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
@@ -9,45 +9,31 @@ Draft --- 2026
 
 # []{#anchor}Abstract
 
-Monthly water-level records from shallow dipwells are common; measurements of the fluxes that drive them are not. Simple reservoir models fitted to such records are widely used to infer the water balance, but three choices that decide what their coefficients mean are seldom stated: whether the model has an intercept, how deep the drainage base is placed, and which part of the record is fitted. We test all three on 66 wells in a coastal dune aquifer at Newborough Warren, Wales. Without an intercept, the drainage coefficient depends on the assumed base. Once the base lies below an identification floor, the drainage flux and the split of the water budget between drainage and evapotranspiration stop changing with it, but the recession constant does not. With an intercept, the same model measures how quickly the water table returns to its own mean. The two readings differ more than twofold: e-folding times of 15.8 and 6.5 months at the median well. A model-free estimate (2.0 to 15.6 months by cluster, 5.1 at the median well) and a split-sample test favour the second for the dynamics; an independent, drier decade before the network favours the first for the level. At Newborough, with the drainage base on the plateau, drainage carries 24--89 % of the mean loss across the five units (under a fitted base, 29--60 %), and away from the main forest the water table returns to its mean within 2.1--13.3 months. The no-intercept coefficient is stable on 24 months of record at the median well; the free-intercept one needs 60, and under pine forest both need far more. We give a procedure that assigns each reported quantity to the form that identifies it.
+Monthly water-level records from shallow dipwells are often the only long record a wetland manager has. Simple reservoir models fitted to them are used to forecast the water table and to judge the aquifer, but whether such a model can be trusted to forecast is rarely tested. We test one linear-reservoir model in its two common forms, without an intercept and with a free one, on 66 wells of a coastal dune aquifer at Newborough Warren, Wales. Within the climate of the record the free-intercept form forecasts better: fitted before 2018 and run freely after it, its median Nash--Sutcliffe efficiency is 0.79 against 0.61, and a few years of record suffice. Against a drier decade that no fit has seen, 1989--96, the order reverses: the no-intercept form is close to unbiased (0.03 m) and the free-intercept form too wet by 0.30 m. The forms differ because their drainage coefficients measure different things: a recession above an assumed datum, and the time the water table takes to return to its own mean (15.8 against 6.5 months at the median well; 5.1 months without a model). Under a 2080s high-emissions climate the two forms bracket a median fall of the summer level of 0.37--0.52 m. We give a procedure that tells a manager which form to use for each question, and when a record is long enough to answer it.
 
-**Keywords:** groundwater time series; linear reservoir; drainage datum; mean-reversion time; dune slack; model identification
+**Keywords:** groundwater forecasting; hindcast; linear reservoir; drainage datum; mean-reversion time; dune slack
 
 # []{#anchor}Plain-language summary
 
-Many wetlands depend on groundwater, such as the damp hollows (dune slacks) among sand dunes. They are usually monitored by measuring the water level in shallow pipes about once a month. What is almost never measured is where the water comes from and where it goes: how much rain soaks in, how much is drawn back up by plants and the sun, and how much drains away underground. Scientists therefore try to work these out from the water levels alone, by fitting a simple mathematical model to the record.
+Many wetlands depend on groundwater, such as the damp hollows (dune slacks) among sand dunes. They are usually monitored by measuring the water level in shallow pipes about once a month. Managers want to know what those levels will do next, especially as the climate changes, and a simple mathematical model fitted to the record is the usual way to find out.
 
-This paper shows that three choices made when fitting such a model, usually without comment, change what its answers mean: whether the model includes a constant term, how deep the notional floor is that the water is assumed to drain towards, and which part of the record is used. All three are tested on 66 monitoring wells at Newborough Warren, a coastal dune system on Anglesey in Wales.
+This paper asks when such a model can be trusted to forecast. It tests two common versions of the same model on 66 monitoring wells at Newborough Warren, a coastal dune system on Anglesey in Wales. Because the future cannot yet be checked, the models were tested in two other ways: on recent years held back from the fit, and on old records from drier times, made before the present wells were installed.
 
-The key finding is that the model's drainage number can be read in two different ways. Without the constant, it describes drainage towards the chosen floor, and its value depends strongly on where that floor is placed; once the floor is deep enough, however, the split of the water budget between drainage and evaporation stops changing. With the constant, the floor is in effect worked out from the data, and the number describes how quickly the water table returns to its normal level after a wet or dry spell.
+The two tests disagree. One version forecasts the recent years better; the other reproduces the drier past better. The reason is that the model's drainage number means something different in each version: in one, how fast stored water drains towards an assumed floor; in the other, how quickly the water table returns to its normal level after a wet or dry spell. Under a high-emissions climate in the 2080s the two versions together put the typical fall of the summer water table at between about a third and a half of a metre.
 
-The two readings differ by more than a factor of two. At a typical well, the first says that a disturbance takes about 16 months to shrink to about a third of its size, and the second about 6.5 months. Two checks favour the second for how the water table behaves over time: a method that uses no model at all gives 2.0 months at the Lake Edge to 15.6 under the Main Forest (5.1 at a typical well), and the second reading also does better on data held back from the fit. An independent record from an earlier, drier decade, made before the present wells were installed, points the other way and favours the first reading for the level itself.
-
-The two readings also need different amounts of data. At a typical well the first is stable on 24 months of readings and the second needs 60, while under pine forest both need much longer. The paper ends with a step-by-step procedure that tells users which version of the model to trust for each quantity they want to report.
+The paper ends with a step-by-step procedure that tells managers which version to use for each question, and how long a record each needs.
 
 # []{#anchor}1. Introduction
 
-Shallow groundwater governs the condition of dune slacks, fens, wet heaths and other groundwater-dependent wetlands. In most places, the record on which their management rests is a network of dipwells read by hand about once a month. Recharge, drainage and evapotranspiration are rarely measured at such sites. What is known about the water balance is therefore inferred from the levels themselves. This is done by fitting a model that turns rainfall and evaporative demand into a water-level response.
+Shallow groundwater governs the condition of dune slacks, fens, wet heaths and other groundwater-dependent wetlands. In most places, the record on which their management rests is a network of dipwells read by hand about once a month. What managers most want from that record is a forecast: how the water table will respond to the coming years, and to a changing climate. Recharge, drainage and evapotranspiration are rarely measured at such sites, so the forecast comes from a model fitted to the levels themselves.
 
-Two families of head-only model are in common use. Transfer-function-noise models represent the level as the convolution of each driver with an impulse response. The simplest such response is the exponential response of a single linear reservoir (von Asmuth et al., 2002; Knotters and Bierkens, 2000). These models are implemented in open software, notably Pastas (Collenteur et al., 2019) and HydroSight (Peterson and Western, 2014). They have been applied to shallow unconfined aquifers in a range of settings (Obergfell et al., 2019; Bakker and Schaars, 2019). State-space or difference-equation forms write the same reservoir directly as a monthly balance. In that balance, the change in level is driven by rainfall, by evaporative demand, and by a drainage loss proportional to the head above a base (Knotters and van Walsum, 1997; Peters et al., 2003). The two families are closely related. Both return a small number of coefficients that are read physically: a recharge sensitivity, an evaporative coefficient and a drainage rate or response time.
+Two families of head-only model are in common use. Transfer-function-noise models represent the level as the convolution of each driver with an impulse response, the simplest being the exponential response of a single linear reservoir (von Asmuth et al., 2002; Knotters and Bierkens, 2000). They are implemented in open software, notably Pastas (Collenteur et al., 2019) and HydroSight (Peterson and Western, 2014), and have been applied to shallow unconfined aquifers in a range of settings (Obergfell et al., 2019; Bakker and Schaars, 2019). State-space or difference-equation forms write the same reservoir directly as a monthly balance, in which the change in level is driven by rainfall, by evaporative demand and by a drainage loss proportional to the head above a base (Knotters and van Walsum, 1997; Peters et al., 2003).
 
-The drainage coefficient is read in two incompatible ways. In the first, it is a linearized Darcy coefficient: the fraction of the stored head above the drainage base that leaves each month. A drainage flux follows from it, and so does a partition of the mean loss between drainage and evapotranspiration. In the second, it is a response time or "memory": how long a departure of the water table from its usual level persists. Both readings appear in applied studies, often of the same coefficient. The quantities derived from the coefficient, such as half-lives, persistence of anomalies and sustained responses to a change in climate, inherit whichever reading was intended. Which reading a given fit actually supports depends on choices that are seldom reported: whether an intercept is fitted, where the drainage base is placed, and which months enter the fit.
+Such a model can be fitted with or without an intercept, and the choice is seldom reported. It changes what the drainage coefficient means, and with it how the model behaves when run forward. A forecast cannot be checked until the future arrives. What can be checked, before it does, is how each form behaves on months it has not seen: recent years held back from the fit, and records from a past climate that differs from the one the model was fitted on. The second test is the nearer stand-in for a changed future, and it is rarely available.
 
-This paper makes those choices explicit and shows what each decides. It uses a long monthly record from a coastal dune aquifer. There the drainage base is physically uncertain, the water table lies within a few metres of the surface, and the network spans open dune and pine plantation with very different response speeds. The paper makes five contributions.
+This paper makes that test at a coastal dune aquifer with two independent historical epochs, and asks what a head-only model can be trusted to forecast. It makes four contributions. First, the no-intercept and free-intercept forms are one model family, separated only by the datum. The free-intercept form is the no-intercept form at a fitted datum. It is also the Pastas exponential-response model (Collenteur et al., 2019) written month by month, with each term matching one in Pastas (Section 2). Second, the two forms forecast differently, and the tests that favour each differ: the free-intercept form wins within the recorded climate, and the no-intercept form against a drier past (Section 4). Third, the drainage coefficient carries two readings, a recession above an assumed datum and a mean-reversion time, and a model-free estimate shows which the dynamics follow (Section 5). Fourth, the record decides how far either can be trusted. Section 6 sets these out as a procedure that a manager with a monthly record can follow.
 
-First, the no-intercept and free-intercept forms are one model family, separated only by the datum. The free-intercept form is the no-intercept form at a fitted datum. It is also the Pastas exponential-response model (Collenteur et al., 2019) written month by month, with each term matching one in Pastas. Without the drainage term it reduces to a linear transfer of climate, whose free run drifts (Sections 2 and 5.4).
-
-Second, without an intercept the datum is not inert. A datum sweep exposes a regime boundary. Below it, the drainage reading holds and the water balance becomes insensitive to the datum, while the recession constant does not (Section 4).
-
-Third, a physically anchored datum reproduces that water balance but degrades the model's dynamics (Section 4.7).
-
-Fourth, the free-intercept form measures the mean-reversion time. A model-free autocorrelation estimate and an out-of-sample test both support it. Each form should therefore be used for the quantity it identifies (Section 5).
-
-Fifth, the record decides how far either reading can be trusted. The two forms need different lengths of record. An independent epoch drier than the fitted record separates them where fit within the record cannot (Section 6).
-
-Section 7 sets these out as a procedure that any site with a monthly head record can follow.
-
-# []{#anchor}2. The model family
+# []{#anchor}2. The model
 
 ## []{#anchor}2.1 The displacement form
 
@@ -57,9 +43,7 @@ The model predicts how much the water level changes in a month. Three things dri
 
 Here *h* is the water level, measured from the ground surface and negative below it. P is the month's rainfall and PET its potential evapotranspiration. The coefficients β₁, β₂ and β₃ are fitted to the record.
 
-The drainage term needs a reference level, the drainage datum, at depth z₀ below ground. h_disp is the height of the water table above that datum. Written this way, β₃ is positive wherever the water table lies above the datum, and drainage is proportional to head above a base. This is the linearized Darcy flux of a shallow unconfined aquifer draining to a boundary (Knotters and van Walsum, 1997). The term uses the level at the start of the month, h(t−1), so that the month's change is not regressed on its own end-point.
-
-The datum matters. Measured from the ground surface instead (z₀ = 0), 2 of the five clusters at this site return a negative β₃, which would mean drainage grows as the water table falls. Depth below ground on its own therefore does not represent the gradient that drives drainage.
+The drainage term needs a reference level, the drainage datum, at depth z₀ below ground. h_disp is the height of the water table above that datum. Written this way, β₃ is positive wherever the water table lies above the datum, and drainage is proportional to head above a base. This is the linearized Darcy flux of a shallow unconfined aquifer draining to a boundary (Knotters and van Walsum, 1997). The term uses the level at the start of the month, h(t−1), so that the month's change is not regressed on its own end-point. Measured from the ground surface instead (z₀ = 0), 2 of the five clusters at this site return a negative β₃, which would mean drainage grows as the water table falls.
 
 ## []{#anchor}2.2 Model A and Model B
 
@@ -71,376 +55,214 @@ The constant can be folded into the drainage term. Because −β₃·z₀ is als
 
 z_B = z₀ − α_B/β₃,
 
-the level at which the fitted drainage is zero. The two forms are therefore one family, and they differ only in where the datum comes from: Model A fixes it in advance, Model B fits it. Two consequences follow, and the rest of the paper is organized around them.
+the level at which the fitted drainage is zero. The two forms are therefore one family, and they differ only in where the datum comes from: Model A fixes it in advance, Model B fits it.
 
-First, in Model A the choice of datum changes the coefficients. There is no constant to absorb a change in z₀, so moving the datum shifts β₁, β₂ and β₃ together. The mean drainage loss, β₃ times the mean height above the datum, must still balance the mean water budget. So as the datum is set deeper, β₃ falls, roughly as 1/(z₀ + mean h) once the flux has settled (Section 4.4), and the recession half-life t½ = ln 2/β₃ rises. t½ describes the chosen datum as much as the aquifer.
-
-Second, in Model B the datum drops out. β₃ is then the fraction of a departure from the water table's own equilibrium level that is recovered each month. Under steady weather a departure shrinks by a factor (1 − β₃) each month, so its e-folding time, the time it takes to fall to 1/e of its size, is −1/ln(1 − β₃). This is the mean-reversion time. This is a property of the record, not of any reference level.
-
-## []{#anchor}2.3 Relation to Pastas
-
-Pastas (Collenteur et al., 2019) is widely used software for the same task. It models the level as a base level plus the response to a recharge series. In its linear setting, recharge is rainfall plus a (negative) fraction of PET, and the response to recharge builds up exponentially:
-
-R(t) = P(t) + *f*·PET(t), θ(t) = *A*·(1 − exp(−t/*a*)),
-
-where *A* is the long-run gain, *a* the response time, *f* the evaporation factor and *d* the base level. If recharge is steady within each month, one monthly step of this response is exactly
-
-h(t) − *d* = exp(−1/*a*)·(h(t−1) − *d*) + *A*·(1 − exp(−1/*a*))·R(t).
-
-This is Model B, with the parameters related by
-
-β₃ = 1 − exp(−1/*a*), β₁ = *A*·β₃, β₂ = −*f*·*A*·β₃, *d* = −(z₀ − α_B/β₃),
-
-so Pastas's base level is Model B's zero-drainage level. Pastas works in days; its parameters were converted to months with the mean month length, and the conversion was checked by fitting Pastas to synthetic wells generated from the cluster coefficients.
-
-Model A has no Pastas equivalent, because Pastas has neither a fixed datum nor a separate drainage term. Agreement between Pastas and Model B therefore checks the code. It is not independent evidence for either form (Section 5.6).
-
-## []{#anchor}2.4 What neither form can decide
-
-The water table loses water in two ways: by drainage, and by atmospheric draw (evapotranspiration). Heads alone cannot say how the loss splits between them, because the split depends on the level drainage is measured from. Model A sets that level by assumption and Model B by fit. Without an independent measurement of at least one flux (drainage, evapotranspiration or recharge), neither form can fix the true split. The split is therefore reported here as conditional on the datum, with the range of datums over which it holds (Section 4).
-
-## []{#anchor}2.5 The family without drainage
+In Model A the choice of datum changes the coefficients. There is no constant to absorb a change in z₀, so moving the datum shifts β₁, β₂ and β₃ together. The mean drainage loss, β₃ times the mean height above the datum, must still balance the mean water budget, so as the datum is set deeper β₃ falls and the recession half-life t½ = ln 2/β₃ rises. In Model B the datum drops out. β₃ is then the fraction of a departure from the water table's own equilibrium level that is recovered each month. Under steady weather a departure shrinks by a factor (1 − β₃) each month, so its e-folding time is −1/ln(1 − β₃). This is the mean-reversion time, a property of the record rather than of any reference level.
 
 Setting β₃ = 0 in Model B removes drainage:
 
 Δh(t) = α₀ + β₁·P(t) − β₂·PET(t).
 
-This is the traditional linear model (TLM), the usual first model of how a water table responds to climate. Rain and evaporative demand change the level, and nothing depends on the level itself. Run forward from a starting level, the TLM has nothing pulling the level back towards a mean, so each month's error is carried into every later month. The drainage term provides that pull.
+This is the traditional linear model (TLM), the usual first model of how a water table responds to climate. Run forward, the TLM has nothing pulling the level back towards a mean, so each month's error is carried into every later month. The drainage term provides that pull.
 
-The TLM sits inside Model B and differs from it by the drainage term alone. It differs from Model A in two ways: Model A adds the drainage term, and it replaces the TLM's free constant with −β₃·z₀, which is set by the datum and tied to the drainage rate (Section 2.2).
+## []{#anchor}2.3 Relation to Pastas
 
-# []{#anchor}3. Site, record and the fitting bases
+Pastas (Collenteur et al., 2019) is widely used software for the same task. It models the level as a base level, *d*, plus the response to a recharge series. In its linear setting, recharge is rainfall plus a (negative) fraction of PET, and the response to recharge builds up exponentially:
 
-Newborough Warren (Anglesey, Wales) is a coastal dune system of 865 ha. Its monitoring network has 88 dipwells, read at the end of each month. Monthly rainfall and Thornthwaite PET come from a single station, RAF Valley, 16 km away.
+R(t) = P(t) + *f*·PET(t), θ(t) = *A*·(1 − exp(−t/*a*)),
+
+where *A* is the long-run gain, *a* the response time and *f* the evaporation factor. If recharge is steady within each month, one monthly step of this response is exactly
+
+h(t) − *d* = exp(−1/*a*)·(h(t−1) − *d*) + *A*·(1 − exp(−1/*a*))·R(t).
+
+This is Model B, with
+
+β₃ = 1 − exp(−1/*a*), β₁ = *A*·(1 − exp(−1/*a*)), β₂ = −*f*·*A*·(1 − exp(−1/*a*)), *d* = −z_B.
+
+The drainage rate is set by the response time alone, the gain *A* scales the response to rainfall and evaporation, and Pastas's base level is Model B's zero-drainage level (Section 2.2), with its sign reversed because Pastas measures levels upwards. Pastas works in days; its parameters were converted to months with the mean month length, and the conversion was checked by fitting Pastas to synthetic wells generated from the cluster coefficients. Model A has no Pastas equivalent, because Pastas has neither a fixed datum nor a separate drainage term. Agreement between Pastas and Model B therefore checks the code. It is not independent evidence for either form (Section 5.6).
+
+## []{#anchor}2.4 What neither form can decide
+
+The water table loses water in two ways: by drainage, and by atmospheric draw (evapotranspiration). Heads alone cannot say how the loss splits between them, because the split depends on the level drainage is measured from. Model A sets that level by assumption and Model B by fit. Without an independent measurement of at least one flux (drainage, evapotranspiration or recharge), neither form can fix the true split.
+
+A second limit applies to Model A's split. Evaporation from a shallow water table falls as the water table deepens, so it varies with head as drainage does, and the fit books it to β₃. Letting evaporative draw decline with depth to water moves part of the loss from drainage to evapotranspiration, most where the water table is shallowest. The drainage share of Model A therefore leans high, and is reported here only as conditional on the datum; the split is quoted from Model B (Section 5.6). A forecast does not depend on the split: it needs the coefficients together, not the fluxes apart.
+
+# []{#anchor}3. Site, record and fitting bases
+
+Newborough Warren (Anglesey, Wales) is a coastal dune system of 865 ha. Its monitoring network has 88 dipwells, read at the end of each month. Monthly rainfall and Thornthwaite PET come from a single station, RAF Valley, 16 km away. Each reading is bucketed to the month it describes, and rainfall and PET enter for the same month, with no lag.
 
 A reference network of 66 wells is admitted on record length. To be admitted, a well needs at least 100 months of record and must still be reporting at the end of the record. Admitted records are longer than this minimum, with a median of 192 months (range 140--252).
 
-The wells fall into five hydrogeological clusters by the shape of their records: Ward's linkage on one minus the correlation between their monthly level series, before any model is fitted. Three are open dune: C1 Lake Edge, C2 Dune and C3 Western Residual. Two are pine forest: C4 Main Forest and C5 Coastal Forest.
+The wells fall into five clusters by the shape of their records, before any model is fitted. Each well's monthly level series is compared with every other well's by correlation, so the timing and shape of its rises and falls count and its depth below ground does not, and the wells are grouped by Ward's linkage on one minus that correlation. Three clusters are open dune: C1 Lake Edge, C2 Dune and C3 Western Residual. Two are pine forest: C4 Main Forest and C5 Coastal Forest. The silhouette score is highest at two clusters (0.58), which separates the main forest from the rest; at five it is 0.37. Assignments are stable when wells are resampled (median co-assignment 0.95) and when months are resampled in year-long blocks (0.99), but partitions built from two disjoint samples of the record agree only moderately (adjusted Rand index 0.53, 5--95 % range 0.35--0.73). The clusters are therefore a useful grouping of one continuous aquifer, not sharply bounded units (Hollingham, 2026a).
 
-The clusters are formed before any model is fitted. Each reference well's monthly level series is compared with every other well's by correlation, so the timing and shape of its rises and falls count and its depth below ground does not. The wells are grouped by Ward's linkage on one minus that correlation, and five clusters are kept.
+The coefficients a study reports belong to the record they were fitted on, and in a network installed progressively the record is not one thing. Two fitting bases are used. The first is the cluster centroid on the full record: one hydrograph per cluster, the mean of its members, fitted with every month available. The second is the per-well fit, either on each well's full record or on a common comparison window, the most recent 100 months at every well, so that wells are compared under the same climate. The split-sample tests fit each well on one side of January 2018 and test it on the other. A register lists, for every analysis, the wells, the record fitted and the record evaluated, and is checked automatically against the fitting call in each script before results are published; every coefficient here carries its basis in its source file.
 
-The silhouette score is highest at two clusters (0.58), which separates the main forest from the rest; at five it is 0.37. A well's assignment is stable when wells are resampled (median co-assignment 0.95) and when months are resampled in year-long blocks (0.99). Partitions built from two disjoint samples of the record agree only moderately, however: the adjusted Rand index is 0.53, with a 5--95 % range of 0.35--0.73. In every month-resampled replicate at least two clusters merge.
+# []{#anchor}4. Can the record forecast?
 
-The clusters are therefore a useful grouping of one continuous aquifer, not sharply bounded units (Hollingham, 2026a). The coefficients are fitted afterwards, both to each well and to each cluster centroid, the mean hydrograph of the cluster's members.
+## []{#anchor}4.1 What the drainage term adds
 
-Each reading is bucketed to the month it describes. Rainfall and PET enter for the same month, with no lag.
-
-Two fitting bases are used. Every analysis declares which one it uses, in a register that is checked automatically against each script's fitting call. The first basis is the cluster centroid on the full record: one hydrograph per cluster, the mean of its members, fitted with every month available. The second is the per-well fit on a common comparison window, the most recent 100 months at every well, so that wells are compared under the same climate.
-
-Section 4 uses the first basis. Sections 4.7 and 5, and the common-elevation test of Section 4.6, fit each well on its own full record. The first test of Section 4.6 uses the per-well comparison-window fits. The split-sample tests fit each well on one side of January 2018 and test it on the other. Section 6 shows why the distinction matters for the drainage coefficient, and what the length of the record decides.
-
-# []{#anchor}4. What the datum decides (Model A)
-
-## []{#anchor}4.1 The sweep
-
-The cluster-centroid Model A was refitted at every datum from 0.5 to 8.0 m below ground, in 0.1 m steps. At each datum we recorded β₃, its significance, R², AIC (Akaike, 1974) and the mean drainage flux β₃·mean(h_disp) (Figure 1).
-
-## []{#anchor}4.2 An identification floor
-
-The sweep shows a floor at 1.6 m. Shallower than this, at least one cluster's β₃ is non-positive or not significant. From this depth down, every cluster's β₃ is positive and significant (p \< 0.05) at every deeper datum. Shallower than the floor, the datum lies within the range the water table occupies, and the drainage term is not identified.
-
-## []{#anchor}4.3 What fit prefers, and why it is not the datum
-
-The datum that minimizes AIC differs by cluster: 0.7, 1.2, 2.2, 6.0 and 3.7 m for C1--C5.
-
-Model B's zero-drainage level, z₀ − α_B/β₃, at the same centroids is 0.69, 1.18, 2.16, 6.00 and 3.66 m. At every cluster the two agree within one sweep step.
-
-This is the algebra of Section 2.2 made visible: the best-fitting Model A is Model B. A datum chosen on fit alone therefore measures mean reversion, not drainage.
-
-## []{#anchor}4.4 A flux plateau
-
-Deeper than the floor, β₃ keeps falling but the mean drainage flux does not.
-
-At 3.7 m the flux is 0.97, 0.96, 0.93, 0.82 and 0.89 of its value at the deepest datum swept (C1--C5). It stays within 80 % of that value at every datum deeper than a depth that ranges from 1.7 m (C1) to 3.6 m (C4).
-
-On the plateau the drainage share of the mean loss settles too. Taken at the floor, at 3.7 m and at 8 m, it runs 73, 86 and 89 % at C1; 57, 69 and 72 % at C2; 47, 65 and 69 % at C3; 26, 63 and 68 % at C5; and 4, 24 and 28 % at C4.
-
-Two regimes therefore exist. Near the water table, the partition swings with the datum and β₃ behaves as a reversion rate. On the plateau, the partition and the flux are insensitive to the datum, and β₃ reads as a Darcy discharge coefficient. t½, however, continues to scale with the datum there, and must be reported as conditional on it.
-
-## []{#anchor}4.5 The cost of one datum
-
-A single network datum, z₀ = 3.7 m, is chosen. It lies on the plateau for the deepest cluster and below the fluctuation range everywhere.
-
-Against each cluster's own optimum, this datum costs 92.8, 28.5, 8.0, 0.4 and 0.0 AIC units for C1--C5. R² is lower by at most 0.086 (C1). The cost is largest where the water table is shallowest, and it vanishes under the forest.
-
-The ranking of clusters by β₃ is the same at every swept datum from 0.5 m. The ranking by mean flux is the same from 1.2 m.
-
-## []{#anchor}4.6 Elevation or depth
-
-Is the drainage base a fixed height, or a depth below ground? Two tests address the question.
-
-The first test expresses each well's fit-optimal datum as an elevation and regresses it on the well's ground elevation. A fixed base predicts a slope of 0; a base that follows the surface predicts a slope of 1. Across the 66 reference wells, which span 10.9 m of ground elevation, the slope is 0.84 (R² 0.79). This test is partly circular. A fit-optimal datum tracks the well's mean depth to water (r = 0.59; Section 4.3), and the water table itself follows the ground. The slope therefore describes how the base follows the ground, rather than locating it.
-
-The second test fitted a common datum in elevation at every well on its full record (79 wells, reference and extended). The datum was set at every level from −2 to 8 m above Ordnance Datum, in 0.25 m steps. Its best median R² is 0.736, at 2.5 m. On the same wells, a depth datum of 3.7 m below ground gives 0.739. The elevation datum fits worse than the depth datum at every level tried, but only marginally.
-
-Higher levels also leave the drainage term unidentified at many wells. At 6 m above Ordnance Datum, β₃ is non-positive at 18 wells, against 1 at the depth datum.
-
-On fit, therefore, the two frames are indistinguishable. Depth below ground is preferred because it keeps the drainage term identified. It is also consistent with a base that follows the topography, with each slack draining locally.
-
-## []{#anchor}4.7 A physically anchored datum
-
-At a coastal site, the most defensible physical datum is the level to which the aquifer ultimately drains. Mean high water is a single elevation. This datum is therefore one point of the elevation sweep of Section 4.6, expressed as a depth at each well.
-
-Each well was fitted on its full record with its own datum, set at its depth to mean high water (1.88 m above Ordnance Datum). This places the datums between 1.7 and 12.5 m below ground (median 6.7 m).
-
-The anchored datum reproduces the water-balance partition of the single 3.7 m datum. The median drainage share is 68 % against 68 %. The 10th--90th percentile spread across wells is almost unchanged (43--78 % against 39--79 %). This is because nearly every well's depth to mean high water lies on the plateau.
-
-It is nonetheless the worse model. The deeper datum passes into β₃, and the implied e-folding time roughly doubles: 29 months, against 16 at 3.7 m and 5.1 observed. Out-of-sample efficiency falls (Section 5.5), to 0.46 forward and 0.53 in reverse, against 0.61 and 0.67. The anchored datum forecasts better at only 17 % of wells.
-
-A datum chosen on physical grounds thus answers the objection that a single depth is arbitrary, because the partition is the same. It is not the one adopted, because the dynamics are worse.
-
-# []{#anchor}5. What the intercept decides, and what the drainage term adds
-
-## []{#anchor-1}5.1 Two time scales from one coefficient
-
-In both forms the drainage coefficient sets an e-folding time, 1/β₃, but the two forms measure it from different reference levels and so answer different questions. In Model A the drainage term acts on the height of the water table above the fixed project datum. Its e-folding time is a recession time: how long the storage above the datum would take to fall by a factor of e if rain and evaporation stopped. In Model B the free intercept absorbs that fixed level, and the drainage term acts on the departure from the level the climate normally sustains. Its e-folding time is a mean-reversion time: how quickly a wet or dry anomaly dies away while the climate continues. The recession time depends on where the datum is set (Section 4); the mean-reversion time does not. Fitted per well on the full record, the median well's recession time is 15.8 months and its mean-reversion time 6.5.
-
-## []{#anchor-2}5.2 A model-free referee
-
-The mean-reversion time can be measured without either model. Take each month's level less the mean for its calendar month. If this is treated as a first-order autoregressive process with lag-1 autocorrelation ρ₁, anomalies decay with the e-folding time −1/ln ρ₁ (Delworth and Manabe, 1988). Level autocorrelation is used in the same way to characterize groundwater drought persistence (Bloomfield and Marchant, 2013). The median is 5.1 months.
-
-Cluster by cluster, Model B sits with it: 2.1 against 2.0 months at C1, 4.4 against 4.1 at C2, 7.4 against 6.3 at C3 and 13.3 against 12.0 at C5. Model A's median is about three times the observed value. At C4, where the observed time is 15.6 months, Model B's β₃ is not identified on the record (Section 6.3).
-
-The estimate is exposed to two biases in opposite directions. A trend in a well's record lengthens it, and reading error shortens it. Removing a linear trend gives a median of 5.0 months. Correcting ρ₁ for reading error with ρ₂/ρ₁ gives 6.1. With either correction, or both, Model B remains the nearer form at every cluster where it is identified. The largest change is at C5, where removing the trend gives 10.4 months against the 12.0 above. Anomalies above and below the calendar-month mean return at the same rate: at no well does the difference reach significance.
-
-## []{#anchor-2}5.3 Year-to-year persistence
-
-A short mean-reversion time predicts that spring levels in successive years are close to independent. The drainage term implies an expected lag-1 autocorrelation of spring level, which is the lag-12 autocorrelation of the monthly recurrence, (1 − β₃)¹². With each form fitted on the well's full record, this is 0.16 at the median well under Model B and 0.47 under Model A. The observed lag-1 autocorrelation of spring levels is −0.11. Taken at face value, Model A's expectation would make a five-year mean of spring levels a poorly averaged quantity. The record does not support that.
-
-## []{#anchor-2}5.4 What the drainage term adds
-
-At each reference well, three models were fitted on the comparison window, the most recent 100 months: the TLM, Model A at the network datum of 3.7 m, and Model B. Each was then run freely over the same months. The run starts from the first observed level, and each month is computed from the model's own previous level. Skill is the Nash--Sutcliffe efficiency of the simulated level (Table 1).
-
-The test is in-sample. It asks whether a model that has seen the months can reproduce their trajectory without being corrected by them. A forecast (Section 5.5) has not seen the months it is scored on. Two comparisons follow from Section 2.5. The TLM against Model B isolates the drainage term, since the TLM is Model B with β₃ = 0. The TLM against Model A adds the drainage term and, with it, replaces the free constant by the datum-fixed −β₃·z₀.
-
-If the models are instead corrected each month by the observed level, the TLM and Model A are indistinguishable, with a median R² of 0.92 for both. The observed level supplies the return the TLM lacks.
+At each reference well, three models were fitted on the comparison window: the TLM, Model A at the network datum of 3.7 m, and Model B. Each was then run freely over the same months, from the first observed level, each month computed from the model's own previous level (Table 1). The test is in-sample: it asks whether a model that has seen the months can reproduce their trajectory without being corrected by them.
 
 **Table 1.** Free-running skill of the traditional linear model (TLM), the no-intercept state-space model at z₀ = 3.7 m (Model A) and the free-intercept form (Model B), each fitted per well on the reference well's 100-month comparison window and scored over the same months. NSE is the Nash--Sutcliffe efficiency of the simulated level; n is the number of wells.
 
   --------------------- ---- ------- ------- ------- ---- ---- ----
   C1 Lake Edge          7    0.308   0.745   0.878   5    7    7
-  C2 Dune               19   0.389   0.763   0.840   14   19   19
-  C3 Western Residual   26   0.438   0.800   0.824   22   26   26
-  C4 Main Forest        9    0.541   0.662   0.691   9    8    9
-  C5 Coastal Forest     5    0.622   0.823   0.809   5    5    5
+  C2 Dune               18   0.391   0.766   0.848   14   18   18
+  C3 Western Residual   25   0.439   0.804   0.823   24   25   25
+  C4 Main Forest        9    0.541   0.662   0.697   8    8    9
+  C5 Coastal Forest     5    0.655   0.830   0.809   5    5    5
   --------------------- ---- ------- ------- ------- ---- ---- ----
 
-Run freely, the TLM drifts. Across the 66 wells its median efficiency is 0.42. It is negative at 11 wells, where a constant at the observed mean would do better. With the drainage term alone, as in Model B, the median rises to 0.82, a median per-well gain of 0.40, and the efficiency is positive at all 66 wells. With the drainage term at the network datum, as in Model A, the median is 0.77, a median gain of 0.37, and the efficiency is positive at 65 wells.
+Run freely, the TLM drifts. Across the 64 wells its median Nash--Sutcliffe efficiency (NSE; Nash and Sutcliffe, 1970) is 0.43, and it is negative at 8 wells, where a constant at the observed mean would do better. With the drainage term alone, as in Model B, the median rises to 0.82, and the NSE is positive at all 64 wells. With the drainage term at the network datum, as in Model A, the median is 0.77, positive at 63 wells. If the models are instead corrected each month by the observed level, the TLM and Model A are indistinguishable (median R² 0.92): the observed level supplies the return the TLM lacks.
 
-The gain rises with the drainage coefficient: Pearson r = 0.42 between Model A's per-well gain and its β₃ (p \< 0.001). The gain is largest at the fastest-draining cluster, C1, where it is 0.57 under Model B and 0.45 under Model A. C1 is also where the two forms differ most, as the single datum costs most there (Section 4.5). At C5 Model A is marginally the higher.
+The gain rises with the drainage coefficient (Pearson r = 0.46 between Model A's per-well gain and its β₃, p \< 0.001), and is largest at the fastest-draining cluster, C1. The pine forest is the exception: at C4 drainage is slow and the TLM's accumulation of error does least harm. At one C4 well, CEH14, Model A's drainage coefficient on the window is negative and its free run diverges (NSE −12.87 against −0.04 for the TLM), while Model B, whose datum is fitted, scores 0.38. A model without drainage cannot forecast; where a fixed datum leaves the drainage term unidentified, the term can cost more than it adds.
 
-The pine forest is the exception. At C4 the drainage is slow, and the TLM's accumulation of error does least harm. The TLM is positive at all 9 wells. The median gain is 0.15 under Model B and 0.12 under Model A, and Model A is positive at 8. At two C4 wells, CEH13 and CEH14, Model A scores below the TLM. At CEH14 its drainage coefficient on the window is negative, and the free run diverges: its efficiency is −7.54 against 0.25 for the TLM. Model B, whose datum is fitted, scores 0.43 there and 0.44 at CEH13.
+## []{#anchor}4.2 Forecasting within the recorded climate
 
-What the drainage term adds is the return a free-running model needs. Without it, a linear transfer of climate accumulates its errors, and how much that costs depends on how fast the aquifer drains. Where a fixed datum leaves the drainage term unidentified at a well, as at CEH14, the term can cost more than it adds.
+Each form was fitted on the record before January 2018 and run freely over the years after, each month from the model's own previous level; the test was then run in reverse. Forward, Model B's median NSE is 0.79 against 0.61 for Model A, and Model B is better at 88 % of wells. In reverse, Model B's median is 0.78 against 0.67, better at 77 % of wells. The advantage is clearest in the open dune; under the coastal forest the two forms are close.
 
-## []{#anchor-2}5.5 Out-of-sample skill
+At C4 both forecast poorly, with forward medians of 0.08 for Model B and 0.21 for Model A. The split at January 2018 falls a month after the December 2017 clearfell beside the main forest, so the forest forecasts are scored over years in which the canopy changed. The 100-month comparison window likewise begins, for most wells, in November 2017, a month before the felling.
 
-Each form was fitted on the record before January 2018 and run freely over the years after, each month from the model's own previous level. The test was then run in reverse. Forward, Model B's median Nash--Sutcliffe efficiency (Nash and Sutcliffe, 1970) is 0.79 against 0.61 for Model A, and Model B is better at 88 % of wells. In reverse, Model B's median is 0.78 against 0.67 for Model A, and Model B is better at 77 % of wells. The advantage is clearest in the open dune. Under the coastal forest the two forms are close. At C4 both forecast poorly, with forward medians of 0.08 for Model B and 0.21 for Model A.
+## []{#anchor}4.3 Forecasting into a different climate
 
-The poor forecast at C4 could reflect the forcing rather than the drainage. One PET index and one fitted β₂ stand for every unit. That includes a pine canopy whose interception changes when it is thinned or felled. A test fixed before the run (Script 50, D-260) refitted every C4 and C5 well with the canopy's interception taken out of the rainfall. Interception was removed either as a constant fraction or following a satellite canopy index. A constant fraction is absorbed by β₁ and changes nothing. Letting interception follow the canopy raised the median forward efficiency at the inner C4 wells from 0.22 to 0.53. However, it worsened the full-record fit by the Bayesian information criterion (BIC), and it left both Model B's identification and the summer-minus-winter residual unchanged. At the four wells beside the clearfell of December 2017, it made the forecast far worse. In a check added after the run, a single step in the inner wells' rainfall at the felling recovered most of the gain (0.49). The gain therefore reflects a one-off shift after 2018, not the canopy being tracked. By the rule, the forcing reading is not resolved at either forest cluster.
+A forecast inside the modern record is dominated by the seasonal swing. A changed climate asks something else of the model: a sustained shift of the mean level. The one test of that which no fit has seen is the Countryside Council for Wales record of 1989--96, read before the modern network was installed, at 9 wells that the network still reads, in a decade drier than any the fits contain. Hindcast from fits to the full modern record of each well, Model A is close to unbiased, with a median bias of 0.03 m. Model B is too wet by 0.30 m. Their median NSE values are −0.14 and −1.46. Both are below zero: the hindcast's monthly errors are larger than the spread of the levels about their own 1989--96 mean, so a constant at that mean would score better. That mean is not something a forecast could know in advance; it is the shift the test asks the model to find. On this test bias, not NSE, is the measure that separates the forms. The ordering holds at every record length, whether the fit is taken from the start or the end of the modern record: Model B's median bias lies between 0.27 and 0.51 m, and Model A's is within 0.09 m of zero once the fit spans four years. The two tests split by what they score: a fast reversion follows the seasonal swing well, and the sustained shift is what Model A carries and Model B does not.
 
-## []{#anchor-2}5.6 Identification, and why Model B does not set the datum
+The same decade can be asked which datum Model A should use. Model A was refitted at each well on the comparison window at every datum of the sweep, and each fit used to hindcast 1989--96. By a rule fixed before the run, the datum that maximizes the median NSE is 2.9 m, with a band of 2.8--2.9 m within 0.05 of the best (median NSE 0.44, against −0.06 at the network datum). Deeper than the network datum every measure is worse, so the drier past does not ask for a deeper datum. The network datum lies below the supported band, but it is close to unbiased on the same fits (median bias −0.01 m). A base fixed in elevation rather than a depth below ground was tested on the same decade and is reported in Section 5.5.
 
-Model B pays for its fit. Its intercept and β₃ are almost interchangeable: their estimates correlate at 0.96 at the median well. The level its drainage refers to is therefore fitted rather than physical. That level lies near each well's mean, a median 1.6 m below ground, at the identification floor of Section 4.2. With it, more of the mean loss is booked to atmospheric draw: a drainage share of 45 % against Model A's 68 %. Adopting it as the datum would make Model A identical to Model B. In Model A the β₂ and β₃ estimates are negatively correlated (−0.64). Atmospheric draw and drainage compete for the mean loss, which is the partition question again.
+A second epoch, Ranwell's readings of 1951--53 (Ranwell, 1959), tests the same question nearly forty years earlier. The readings come from three sites whose positions are approximate, so this epoch is scored on the seasonal swing with the mean offset removed. By the same rule it supports 0.7 m (band 0.5--1.1 m), and there Model A behaves as Model B does: the median NSE values are 0.86 at that datum and 0.86 for Model B, against 0.46 at the network datum of 3.7 m. The two epochs disagree because they score different things: with its mean removed, Ranwell's record tests only the seasonal swing, which a fast return to the mean follows and which Model A reproduces only with a shallow datum; the drier decade tests a sustained shift of the mean, which the plateau datum carries.
 
-Pastas, fitted to the same wells on the full record, agrees with Model B well by well (Figure 2). Spearman ρ is 1.00 for β₁, 0.96 for β₂ and 0.98 for β₃, on the 63 wells whose response time Pastas identifies. By Section 2.3 that agreement is expected. It checks the implementation rather than the form.
+Why Ranwell's swing differs was explored after the comparison, so it describes rather than tests. The readings ask for a weaker response to rain, a stronger evaporative draw and faster drainage than today's coefficients give, and relative to the model the seasonal swing at the three main pairs was 3--20 % smaller then than it is now. Ordinary weather, carry-over from earlier years, Ranwell's own rain gauge, the depth limit of his pipes, a barer rabbit-grazed dune, the forest planted since and a slightly lower sea each fail to supply it. Drains dug for the young plantation and a lower outlet of Llyn Rhos-Ddu point the right way, but neither is recorded.
 
-## []{#anchor-2}5.7 Which form for which quantity
+The two epochs ask for two time scales, a fast return to the mean and a slow one that holds the level through a drier decade. A single linear store has one. A second, slower store driven by the same climate was therefore fitted at every cluster centroid, including one drawn down by the plantation as its canopy closed. No version passed the tests fixed before the fit: either the information criterion preferred one store, or the slow store forecast worse beyond 2018. A head-only model at this site has one time scale, and the form chosen decides which.
 
-Model A, at a datum on the plateau, serves the coefficients, the water balance and thresholds inverted from the coefficients. Model B serves the quantities set by the mean-reversion time: the year-to-year persistence of the level, and forecasting within the climate the record spans.
+## []{#anchor}4.4 How much record a forecast needs
 
-A forward run into a different climate, whether a hindcast of a drier past or a projection, asks for a sustained shift of the mean level. There the one independent test favours Model A (Section 6.4). Every forward run here therefore uses Model A at the network datum, with Model B beside it as the fast-reversion bound. The two are reported as a pair on the same wells and never averaged.
+Within the modern record, Model B forecasts better at every length of fit. Fitted on 24 months before 2018 its median forward NSE is already 0.72, and 0.79 from all of it. Model A's rises from −0.14 to 0.59 at 100 months and 0.61 on all the months before 2018. A site with a few years of record can forecast its own water table with the free-intercept form.
 
-Model A's β₃ carries its datum. The datum the drier decade supports (Section 6.5) is therefore carried as the sensitivity of a projection, not its basis. Take a 2080s high-emissions scenario (UKCP18 RCP8.5; Met Office, 2018), with comparison-window fits at the 57 wells both forms identify. The median sustained fall of the summer level is 0.51 m under Model A at the network datum, 0.44 m under Model A at 2.9 m and 0.36 m under Model B. Neither form serves a quantity where its β₃ is not identified.
+The coefficients need more. Each well's β₃ was refitted on every non-overlapping placement of each length, and its stable length taken as the shortest record on which the median departure from the full-record β₃ is within 20 %. Model A's β₃ is the more robust: its median stable length is 24 months, the shortest length tested and so an upper bound, reached at 64 wells. Model B's is 60 months (62 wells), and its β₃ is identified on only 60 % of 24-month placements at the median well. Measured in each well's mean-reversion times, the stable length is 4.7 for Model A and 9.0 for Model B: a record must span several mean-reversion times, and the rule binds the free-intercept form harder.
 
-# []{#anchor-2}6. What the record decides
+The forest is the exception for both forms. At C4 Model A needs 120 months and Model B 144, and Model B reaches stability within the lengths tested at only 5 of its wells. Fitting the comparison window instead of the full record shifts the C4 centroid's β₃ by −35 %, against +17 % or less elsewhere. Pastas tells the same story: the wells whose response time it loses on the window are mainly forest wells (9 at C4).
 
-## []{#anchor-2}6.1 Two bases, two questions
+## []{#anchor}4.5 Per well or per cluster?
 
-The coefficients a study reports belong to the record they were fitted on. In a network installed progressively, the record is not one thing. The cluster centroid is fitted on its full record, to characterize the cluster's mechanism with every month available. The per-well fit uses the common comparison window, the most recent 100 months at every well. Wells are then compared under the same climate, rather than over histories of different length and wetness.
+Clusters are formed from the hydrographs alone (Section 3), so a well can be placed in one by correlating its record with the cluster centroids, without fitting it. Lending it the cluster's coefficients then rests on two things: that a short record places the well correctly, and that cluster coefficients forecast as well as its own. The second is tested here: each skill test was run twice: on each well's own coefficients, and on its cluster centroid's fitted on the same span, shifted by the mean difference between the well and its centroid over the fitted months. By a rule fixed before the run, the cluster basis holds on a test if its median NSE is within 0.05 of the per-well basis or better, and, on the drier decade, its median absolute bias within 0.05 m or smaller.
 
-To measure what the length of the record decides, both forms were refitted at every reference well. The records fitted ran from 24 months to twelve years long, and the full record was fitted too. Each fit was scored three ways: the stability of β₃, forecast skill inside the modern record, and a hindcast of an epoch no fit has seen.
+With Model A, the cluster coefficients pass all three tests. On the drier decade their median NSE is −0.17 against −0.14 for the wells' own coefficients, and their median absolute bias 0.23 m against 0.26 m. Both NSE values are below zero, as in Section 4.3, so on this test the comparison rests mainly on bias. Forecasting forward from the January 2018 split, their median NSE is 0.72 against 0.61. With Model B they also pass all three, and on the drier decade they do much better than the wells' own (median NSE −0.27 against −1.46). Within the tolerances set before the run, cluster coefficients forecast and hindcast as well as each well's own.
 
-## []{#anchor-2}6.2 What the window does to β₃
+Where a well's own record has a gap, it is better filled from a measured neighbour than from the model. With stretches of 54 months hidden in turn, each well's mean spring level was put back from its nearest cluster-mate with a median miss of 0.041 m, against 0.139 m from Model A run on the climate.
 
-At the cluster centroids, fitting the comparison window instead of the full record shifts β₃ by +16 % at C1, +8 % at C2, +1 % at C3 and −3 % at C5, but by −34 % at C4. Well by well the picture is the same. The ratio of Model A's comparison-window β₃ to its full-record β₃ has a median of 1.03 (10th--90th percentile 0.78--1.12), and 0.73 at C4. The forest is where it matters, because its response is slow.
+## []{#anchor}4.6 Which form to forecast with
 
-## []{#anchor-2}6.3 How much record each form needs
+Within the climate the record spans, Model B is the form to forecast with: it forecasts better, needs only a few years of record, and its mean-reversion time is the one the record supports (Section 5). A forward run into a different climate, whether a hindcast of a drier past or a projection, asks for a sustained shift of the mean level, and there the one independent test favours Model A. Forward runs into a changed climate therefore use Model A at the network datum, with Model B beside it as the fast-reversion bound. The two are reported as a pair on the same wells and never averaged, and the datum the drier decade supports is carried as a sensitivity. Neither form serves a quantity where its β₃ is not identified, which withholds the main forest from projection.
 
-Each well's β₃ was refitted on every non-overlapping placement of each length. Its stable length was taken as the shortest record on which the median departure from the full-record β₃ is within 20 %.
+## []{#anchor}4.7 What the record projects
 
-Model A's β₃ is the more robust. Its median stable length is 24 months. That is the shortest length tested, and so an upper bound. Model A reaches stability within the lengths tested at 64 wells. Model B's median stable length is 60 months (62 wells), and its β₃ is identified on only 60 % of 24-month placements at the median well.
+Take the UKCP18 high-emissions scenario (RCP8.5; Met Office, 2018), applied as seasonal changes to the observed rainfall and PET, with comparison-window fits at the 57 wells both forms identify. In the 2050s the median sustained fall of the summer level is 0.28 m under Model A at the network datum, 0.24 m under Model A at 2.9 m and 0.20 m under Model B. The 2050s scenario lowers the annual water balance (rainfall less PET) by 117 mm a year, about as much as the drier decade of 1989--96 fell below the modern record (110 mm a year), so this projection sits inside the range the hindcast of Section 4.3 has tested.
 
-Measured in each well's Model B mean-reversion times, the stable length is 4.7 for Model A and 9.0 for Model B. The Model A figure is a maximum, because its stable length is on the floor of the test. The rule that a record must span several mean-reversion times holds, and it binds the free-intercept form harder.
+In the 2080s the median fall of the summer level is 0.52 m under Model A at the network datum, 0.44 m at 2.9 m and 0.37 m under Model B. The 2080s scenario lowers the annual water balance by 210 mm a year, beyond anything in the record, so this projection is an extrapolation. It is reported as the range between the two forms, not as a single figure, and the range itself is the honest statement of what a head-only model can say about a climate it has not seen.
 
-The forest is the exception for both forms. At C4 Model A needs 120 months and Model B 144. Model B reaches stability within the lengths tested at only 5 of its wells.
+In both periods the fall is larger in summer than over the year, and larger under Model A, whose slower recession carries the summer deficit forward. The main forest is not projected, because its drainage coefficient is not identified on the record.
 
-Pastas, which estimates the response time directly, tells the same story. It identifies the response time at 53 of 66 wells on the comparison window and at 63 on the full record. The wells it loses on the window are mainly forest wells (9 at C4), whose response time is comparable with the window. The same rule withholds C4 from every quantity set by the mean-reversion time (Section 5.7).
+# []{#anchor}5. What the coefficients mean
 
-## []{#anchor-2}6.4 Forecasting and hindcasting
+## []{#anchor}5.1 Two time scales from one coefficient
 
-Inside the modern record, Model B forecasts better at every length. Each form was fitted on the months before January 2018 and run freely after it. Model B's median Nash--Sutcliffe efficiency is 0.72 from 24 months of record and 0.79 from all of it. Model A's rises from −0.14 to 0.59 at 100 months and 0.61 when fitted on all the months before 2018. A site with a few years of record can forecast its own water table with the free-intercept form.
+In both forms the drainage coefficient sets an e-folding time, 1/β₃, but the two forms measure it from different reference levels and so answer different questions. In Model A the drainage term acts on the height of the water table above the fixed datum, and its e-folding time is a recession time: how long the storage above the datum would take to fall by a factor of e if rain and evaporation stopped. In Model B the free intercept absorbs that fixed level, and the drainage term acts on the departure from the level the climate normally sustains. Its e-folding time is a mean-reversion time: how quickly a wet or dry anomaly dies away while the climate continues. The recession time depends on where the datum is set (Section 5.4); the mean-reversion time does not. Fitted per well on the full record, the median well's recession time (Model A) is 15.8 months and its mean-reversion time (Model B) 6.5.
 
-The one test no fit has seen is the Countryside Council for Wales record of 1989--96. It was read before the modern network was installed, at 9 wells that the network still reads, in a decade drier than any the fits contain. Hindcast from fits to the full modern record of each well, Model A is close to unbiased, with a median bias of 0.03 m. Model B is too wet by 0.30 m. Their median efficiencies are −0.14 and −1.46 respectively. The ordering holds at every record length, whether the fit is taken from the start or the end of the modern record. Model B's median bias lies between 0.27 and 0.51 m. Model A's is within 0.09 m of zero once the fit spans four years.
+## []{#anchor}5.2 A model-free referee
 
-The two tests split by what they score. A forecast inside the modern record is dominated by the seasonal swing, which a fast reversion follows well. The drier decade is a sustained shift of the mean level, which Model A carries and Model B does not.
+The mean-reversion time can be measured without either model. Take each month's level less the mean for its calendar month. If this is treated as a first-order autoregressive process with lag-1 autocorrelation ρ₁, anomalies decay with the e-folding time −1/ln ρ₁ (Delworth and Manabe, 1988), as level autocorrelation is used to characterize groundwater drought persistence (Bloomfield and Marchant, 2013). The model-free median is 5.1 months.
 
-## []{#anchor-2}6.5 What the drier past says about the datum
+Cluster by cluster, Model B sits with it: 2.1 against 2.0 months at C1, 4.4 against 4.1 at C2, 7.4 against 6.3 at C3 and 13.3 against 12.0 at C5. Model A's median is about three times the observed value. At C4, where the observed time is 15.6 months, Model B's β₃ is not identified on the record (Section 4.4). Removing a linear trend gives a median of 5.0 months, and correcting ρ₁ for reading error 6.1; with either correction Model B remains the nearer form at every cluster where it is identified.
 
-If the drier decade favours Model A, it can also be asked which datum Model A should use. Model A was refitted at each well on the comparison window at every datum of the sweep, and each fit was used to hindcast the same decade. By a rule fixed before the run, the datum that maximizes the median efficiency is 2.9 m, with a band of 2.8--2.9 m within 0.05 of the best (median efficiency 0.44 at that datum, against −0.06 at the network datum). The median absolute bias is smallest at 2.6 m. Deeper than the network datum, every measure is worse. The drier past therefore does not ask for a deeper datum, as might be expected under drying. The network datum lies below the supported band, but it is close to unbiased on the same fits (median bias −0.01 m).
+## []{#anchor}5.3 Year-to-year persistence
 
-A second epoch, Ranwell's readings of 1951--53 (Ranwell, 1959), tests the same question nearly forty years earlier. The readings come from three sites whose positions are approximate, so this epoch is scored on the seasonal swing with the mean offset removed. By the same rule it supports 0.7 m (band 0.5--1.1 m). There Model A behaves as Model B does. The median efficiencies are 0.86 at that datum and 0.86 for Model B, against 0.46 at the network datum.
+A short mean-reversion time predicts that spring levels in successive years are close to independent. The drainage term implies an expected lag-1 autocorrelation of spring level of (1 − β₃)¹², which is 0.16 at the median well under Model B and 0.47 under Model A. The observed value is −0.11. Taken at face value, Model A would make a five-year mean of spring levels a poorly averaged quantity; the record does not support that.
 
-The two epochs disagree, and in the way the two tests of Section 6.4 do. The swing favours a shallow datum or a free intercept. The sustained shift favours a datum on the plateau.
+## []{#anchor}5.4 What the datum decides in Model A
 
-What would the model need to match Ranwell's readings, and what could supply it? This was explored after the comparison above, so it describes rather than tests (Script 50, D-261). Scaling each coefficient of the paired wells, in turn and together, the readings ask for a weaker response to rain (β₁ ×0.7), a stronger evaporative draw (β₂ ×1.6) and faster drainage (β₃ ×4.0). The median efficiency across the 11 site--well pairs then rises from 0.57 to 0.84. Faster drainage is the shallow datum above in another form. On its own, though, the drainage scale is not identified: much slower and much faster drainage each improve the fit, and the pairs divide 7 to 4 between them.
+The cluster-centroid Model A was refitted at every datum from 0.5 to 8.0 m below ground (Figure 1). Shallower than 1.6 m, at least one cluster's β₃ is non-positive or not significant: the datum lies within the range the water table occupies and the drainage term is not identified. The datum that fits best differs by cluster (0.7--7.1 m by AIC; Akaike, 1974) and agrees at every cluster, within one sweep step, with Model B's zero-drainage level. The best-fitting Model A is Model B, so a datum chosen on fit alone measures mean reversion, not drainage.
 
-Each candidate cause was then sized against that need. The weather was ordinary: every seasonal statistic of 1951--53 lies between percentiles 43 and 68 of all three-year windows of the climate record, and the five years before them at percentile 48. Little of a departure survives two years in the model (a fraction of 0.03--0.29 at the three main pairs), so earlier years cannot carry over within it. Rain from Ranwell's own gauge on the site makes the hindcast worse at every pair (median efficiency −0.35). Ranwell's pipes could not read below about a metre, but capping the model there leaves the efficiency unchanged (0.57). A barer, rabbit-grazed dune would have recharged more and transpired less: lysimeters on dune sand drained 77 % of rain under bare sand and 44 % under natural dune vegetation (Minderman and Leeflang, 1968). That is the opposite of what is needed, and at its upper bound it lowers the efficiency to −0.03. The forest planted since now stands within its drawdown reach of one of the three sites. Open-ground wells within that reach differ from those beyond it by at most 11 % in any coefficient, two of the three in the wrong direction, and removing that difference at the 6 pairs concerned lifts the median efficiency only to 0.60. A sea level a few centimetres lower moves the drainage base the wrong way, and too little to matter. Two candidates point the right way: drains dug for the young plantation, and a lower outlet of Llyn Rhos-Ddu beside one of Ranwell's three sites. Neither is recorded, and the record cannot size either. What can be measured is the result: relative to the model, the seasonal swing at the three main pairs was 3--20 % smaller then than it is now.
+Deeper than the floor, β₃ keeps falling but the mean drainage flux does not. At 3.7 m the flux is 0.81--0.97 of its value at the deepest datum swept, and Model A's drainage share of the mean loss is within five points of its deep value at every cluster. On this plateau the coefficients' ranking and the water balance are insensitive to the datum, but t½ continues to scale with it and must be reported as conditional on it. A single network datum, 3.7 m, lies on the plateau for the deepest cluster and below the fluctuation range everywhere. Against each cluster's own optimum it costs 94.0 AIC units at C1, where the water table is shallowest, and almost nothing under the forest.
 
-## []{#anchor-2}6.6 A second, slower store?
+## []{#anchor}5.5 A physically anchored datum
 
-Fitted to each cluster's mean level and run freely on the climate since 1941, Model A at the project datum leaves the water table of 2006--08 higher than it does later. The mean residual over 2006--08 exceeds that over 2012--23 by 0.30 m at the western residual cluster (C3), and by 0.85 m and 0.98 m at the main and coastal forest clusters (C4, C5). This early excess falls in the years before most of the network was read, and it is the largest departure from the climate model that the record holds at those clusters. The rest of this section asks what produced it.
+Is the drainage base a fixed height or a depth below ground? A common datum in elevation, fitted at every well, fits slightly worse than the depth datum at every level tried (best median R² 0.738 against 0.740), and higher levels leave the drainage term unidentified at many wells. At a coastal site the most defensible physical datum is the level to which the aquifer ultimately drains. Each well was therefore fitted on its full record with its own datum at its depth to mean high water (1.88 m above Ordnance Datum), which places the datums between 1.7 and 12.5 m below ground.
 
-The two epochs ask for two time scales. One is a fast return of the level to its mean, which the seasonal swing of 1951--53 and the free-intercept form both show. The other is a slow one, which holds the level through the drier decade where the no-intercept form at the network datum places it. A single linear store has one time scale, so it can match one epoch or the other but not both. The natural explanation is a second, slower store in parallel with the first, responding to the same rainfall and evaporation.
+The anchored datum reproduces Model A's water-balance partition at the network datum (median drainage share 68 % at the anchored datum against 68 % at the network datum, both Model A), because nearly every well's depth to mean high water lies on the plateau. It is nonetheless the worse forecaster. The deeper datum passes into β₃ and the implied e-folding time roughly doubles, to 29 months against 16 at 3.7 m and 5.1 observed. Out-of-sample NSE falls to 0.46 forward and 0.53 in reverse, against 0.61 and 0.67. A physical datum answers the objection that a single depth is arbitrary, because the partition is the same; it is not adopted, because the dynamics are worse.
 
-That store was fitted at each cluster centroid beside the first. It was warmed up over the climate record since 1941, so that its starting level is not a free parameter. The two-store fit was compared with the one-store fit by the Bayesian information criterion. At every cluster the fit put essentially all of the response through one of the two stores, so it reduced to a single store, and the criterion preferred one store. A slow response to the same climate therefore does not explain why the water table stood above the single-store model in the early years of the record.
+A single base in elevation was also tested as a forecaster. Model A was refitted at each well with its datum at the well's height above one common base, between −2 and 8 m above Ordnance Datum, and run forward as in Section 4.3. By the rule fixed before the run, the best base is 2.75 m, just above mean high water. Against the network datum on the same wells, it hindcasts the drier decade better (both Model A: median NSE 0.25 against −0.06) and Ranwell's swing better (0.58 against 0.46, 3 pairings), but forecasts the modern record worse (median split-sample NSE 0.56 against 0.64), and one more well loses its drainage term. It is not adopted. The medians hide a split by cluster. 5 of the 6 drier-decade wells in the Western Residual hindcast better on the common base (median NSE 0.42 against −0.24), while the 2 open-dune wells fail (median NSE −3.37 against 0.28 at the network datum). Under one base, β₃ falls with each well's height above it (Spearman ρ −0.74), so the e-folding time is short near the coast and long inland. A drainage path to a coastal base would predict that pattern, but the no-intercept form produces it mechanically too, so the fit cannot tell the two apart. A base per cluster does no better. Chosen for each cluster from the modern record alone and then tested on the two earlier epochs, it beats the network datum only at the Lake Edge, and fails in the open dune, the Western Residual and the coastal forest. The level the aquifer drains to varies within clusters as well as between them, which is why a datum that follows the ground serves every cluster.
 
-At a site with a pine plantation, a second store invites a specific reading. The reading is that the plantation has drawn down a body of water that was once there, and that the early record caught the last of it. Two features of the record bear on it.
+## []{#anchor}5.6 Why Model B does not set the datum
 
-First, a step, a relaxing step and a ramp were each fitted at every cluster centroid, with the date profiled. They find the early excess to be a transient that drained within a few years, not the tail of a higher baseline. By rules fixed before the fit, a term earns its place only at the coastal-forest cluster (C5). At C2, C3 and C4 it improves the fit but fails the out-of-sample test. C1 does not need it. No dated felling falls within the fitted interval.
+Model B pays for its fit. Its intercept and β₃ are almost interchangeable: their estimates correlate at 0.96 at the median well. The level its drainage refers to is therefore fitted rather than physical, and lies near each well's mean, a median 1.6 m below ground, at the identification floor. With it, more of the mean loss is booked to atmospheric draw: a drainage share of 45 % against Model A's 68 %. That is the split this paper quotes: it follows from β₁ and β₂, which Model B identifies and Pastas reproduces, and an intercept that absorbs the datum leaves it the same at every datum. Adopting Model B's base as the datum would make Model A identical to Model B.
 
-Second, with any such term the drier decade before the network becomes markedly too wet at the clusters that have wells from that decade. The level was therefore not held higher then. The main-forest cluster (C4) has no wells from that decade.
+Pastas, fitted to the same wells on the full record, agrees with Model B well by well (Figure 2): Spearman ρ is 1.00 for β₁, 0.96 for β₂ and 0.98 for β₃, on the 63 wells whose response time Pastas identifies. By Section 2.3 that agreement is expected; it checks the implementation rather than the form.
 
-Neither is a fair test of the forest reading at the forest clusters themselves. Until the canopy closed, the ground now under C4 and C5 behaved as open dune. A model warmed up from 1941 on today's forest coefficients therefore cannot hold a store filled before planting.
+# []{#anchor}6. A procedure for managers
 
-The fair test runs those years on the coefficients of the open-dune clusters the ground then resembled: C3 for C4, and C2 for C5. It then moves to the forest coefficients as the canopy closes. The move follows an S-shaped curve over the 15--20 years a Corsican pine canopy usually takes to close (Forest Research, n.d.). It was run for planting in 1947, 1956 and 1965, the start, middle and end of the planting.
+The procedure below is for a manager with a monthly water-level record and no measured fluxes, who wants to know what the record can forecast and what its coefficients mean.
 
-A rule was fixed before the fit. A store drawn down by the plantation is supported only if, in every one of these cases, the two-store fit does three things: it beats the fit on forest coefficients throughout by a clear margin in the information criterion, it holds the forward out-of-sample test, and it reduces the early excess. No case passes at either cluster. At C4, planting in 1956 or 1965 yields a slow store with a time scale of one to two decades. That store fits better and reduces the 2006--08 excess by about a third, but its forecast beyond 2018 is far worse than that of the forest-throughout fit. At C5 a slow store appears only for the latest planting, and it falls short of the margin. On this record, a store drawn down across the open dune is not supported, and nor is a store drawn down by the plantation at C4 or C5.
+1.  **Fit both forms**, with and without an intercept, at the scale at which results will be used: each well, or each group of wells that rise and fall together. For the no-intercept form, sweep the datum and choose one on the plateau where the mean drainage flux stops changing, below the range the water table occupies.
+2.  **Test what the drainage term adds**. Run each form freely from the first observed level and compare it with the same model without drainage. A model that drifts without its drainage term cannot forecast.
+3.  **Test forecasts within the record**. Fit on one part of the record and run freely over the other, in both directions. Use the form that wins here, at Newborough the free-intercept form, to forecast within the climate the record spans.
+4.  **Test against a different climate** wherever an older record exists, even a few wells or a few years. A sustained shift of the mean level is the nearest test of a changed future. Use the form it supports for projections, with the other beside it, and report the pair, not an average.
+5.  **Check the record is long enough**. Refit on shorter stretches and see when the drainage coefficient stops moving. The record should span several mean-reversion times; slow forest wells need much longer.
+6.  **Referee the time scale without a model**. Compare each form's e-folding time with the lag-1 autocorrelation of the deseasonalized level, and report the mean-reversion time as how quickly the water table recovers, not the recession half-life, which depends on the datum.
+7.  **Treat the coefficients as coefficients, not fluxes**. The split of the loss between drainage and evaporation depends on the datum and leans towards drainage where the water table is shallow; report it as conditional, or not at all.
+8.  **Declare the fitting basis** of every result, and fill gaps in a well's record from measured neighbours rather than from the model.
 
-C5 is also the cluster nearest the retreating shore, and the coastal reading needs the same test. A retreating coast lowers the water table near it progressively, at a rate set by the retreat (Hollingham, 2026a). The change that earns its place at C5 is not of that form. It is a fall concentrated in a few years that then settled, which the relaxing step fits markedly better than a ramp. A discrete erosion event could produce such a fall, and so could a change in the canopy. Heads alone cannot separate the two at a single cluster, so a forest-linked or coast-linked change at C5 remains possible.
+Table 2 sets out what the procedure gives at Newborough, with each quantity under the form that identifies it.
 
-A cause outside the monthly forcing was also tested. Prolonged rain events lose less to interception and evaporation than their monthly totals imply, and a monthly model cannot represent this. Daily rainfall from a gauge on Anglesey (Met Office, 2024) shows three things. Only one of the three winters of the early excess was unusual in the share of its rain that fell in long events. Later wet winters had as large a share. Finally, a term for long events, though it fits the early years better, forecasts worse at every cluster with an excess. How the rain fell does not explain the early excess.
-
-Three further tests bear on it. Across the 29 wells read through 2006--08, the excess is largest beside the 1998 fellings and fades with distance from them: the median is 0.42 m within 250 m of a felling and 0.23 m elsewhere, and Spearman's ρ is −0.89 against distance. That holds with distance from the coast held fixed (partial ρ −0.82). The timing is not resolved, however: the excess had drained before the canopy on the felled ground was halfway to recovery, in 2017. No other estimate of evaporation explains it: Hargreaves, Priestley--Taylor, Makkink and Penman--Monteith each remove less than half of it at C3, C4 and C5, the threshold fixed before the run. A higher rainfall coefficient before 2008--11 is resolved at 7 western wells but does not meet its rule. Nor does a dry year prime the aquifer: the record's other dry year followed by wet ones, 2022 before 2023--24, left no comparable rise (Script 54). The early excess is therefore consistent with the 1998 fellings in place, and remains unexplained in time (Script 50).
-
-Whatever caused the early excess, a well read at the time carries it, and the record can test this. Two stretches of 54 months were hidden in turn: one from March 2006, which includes the excess, and one ending with the record. Each well's mean spring level was then put back in two ways: from its nearest cluster-mate, by a straight line fitted outside the hidden stretch, and from Model A fitted outside the stretch and run freely on the climate (Hollingham, 2026a). In the first stretch the median misses were 0.065 m for the cluster-mate and 0.149 m for Model A; in the last, 0.037 m and 0.132 m. The cluster-mate's advantage is at least as large outside the excess years as within them: its miss is 0.44 of Model A's in the first stretch and 0.28 in the last. The test therefore measures what neighbouring wells share in any years, not the excess itself. What it does show is that a gap in a well's record is better filled from a measured neighbour than from the model.
-
-## []{#anchor-2}6.7 Per well or per cluster?
-
-Section 4's identification results come from the cluster centroids. The skill tests of Sections 5.5, 6.4 and 6.5 come from fits to each well. Whether that skill belongs to the coefficients the procedure reports depends on whether it survives a change of basis.
-
-Each test was therefore run twice: once on each well's own coefficients, and once on its cluster centroid's, fitted on the same span. A centroid run at a well is shifted by the mean difference between the well and its centroid over the fitted months. It is then scored on how the level rises and falls, not on the cluster's mean depth.
-
-A rule was fixed before the run. On a test, the cluster basis holds if its median efficiency is within 0.05 of the per-well basis or better. On the drier decade, its median absolute bias must also be within 0.05 m of the per-well basis or smaller.
-
-Under the no-intercept form the cluster basis holds on all three tests. On the drier decade its median efficiency is −0.18 against −0.14, and its median absolute bias 0.23 m against 0.26 m. Against Ranwell's readings it scores 0.49 against 0.46 on the three headline pairings, and 0.70 against 0.57 over all 11. Its seasonal range is 1.00 of Ranwell's on average, against 1.09 for the per-well fits. In the split-sample test it scores 0.70 against 0.61 forward and 0.66 against 0.67 backward.
-
-Under the free-intercept form the cluster basis also holds on all three tests, and on the drier decade it does markedly better. Its median efficiency is −0.41 against −1.46, and its median absolute bias 0.21 m against 0.30 m. One reading is that a single well's intercept carries that well's own mean level over the modern record, while the centroid's averages many wells and carries less of it into the past. The test does not separate this reading from others.
-
-The skill reported in this paper therefore does not depend on fitting each well separately. The per-cluster coefficients forecast and hindcast as well as each well's own, within the tolerance, and under the free-intercept form they transfer to the drier decade better.
-
-## []{#anchor-2}6.8 Declaring the basis
-
-Coefficients from the two bases differ where it matters most. Each analysis should therefore state which record it fitted and over which it was evaluated. Here a register lists, for every analysis, the wells, the record fitted and the record evaluated. The register is checked automatically against the fitting call in each script before results are published. Every coefficient in this paper carries its basis in its source file. Section 6.7 compares the two bases on the skill tests.
-
-# []{#anchor-2}7. A procedure for other sites
-
-The procedure below is for a head-dependent drainage model fitted to monthly levels. It applies at a site where no water-balance flux (drainage, evapotranspiration or recharge) is measured independently.
-
-1.  **Sweep the datum** over the plausible range of the drainage base. At each datum, refit at the scale at which the coefficients will be published, and record β₃, its significance, R², AIC and the mean drainage flux β₃·mean(h_disp).
-2.  **Find the identification floor**. This is the shallowest datum from which every unit's β₃ is positive and significant at every deeper datum.
-3.  **Fit the free-intercept form** and compute its zero-drainage level, z₀ − α_B/β₃. If this level coincides with each unit's fit-optimal datum, the data prefer mean reversion. A datum chosen on fit alone would then measure persistence, not drainage.
-4.  **Locate the flux plateau**. It starts at the datum from which β₃·mean(h_disp) stays within a stated fraction of its deepest-datum value. On the plateau the flux and the partition are insensitive to the datum. t½ is not, and is reported as conditional on the datum.
-5.  **Choose one datum** on or beyond the plateau for the unit with the deepest water table. It should lie below the fluctuation range everywhere and within the saturated thickness that boreholes allow.
-6.  **Decide the frame**: fixed elevation, or depth below ground. First, regress each well's fit-optimal datum, as an elevation, on ground elevation. Second, fit a common datum in elevation across the network and compare its fit with that of a depth below ground. Then test a physically anchored datum, such as the depth to mean high water, for the partition it gives and the skill it costs.
-7.  **Publish the cost**. Report each unit's ΔAIC and ΔR² at the chosen datum, and the range over which the rankings by β₃ and by flux are unchanged.
-8.  **Referee the dynamics without a model**. Compare each form's e-folding time with the lag-1 autocorrelation of the deseasonalized level. Run a split-sample free-run test, and a free run against the same model without its drainage term.
-9.  **Assign each quantity to the form that identifies it**. Use the no-intercept form for coefficients, water balance and thresholds. Use the free-intercept form for persistence and for forecasting within the climate of the record. For forward runs into a different climate, use the form an independent epoch supports, with the other beside it. Use neither where β₃ is not identified.
-10. **Declare the fitting basis** of every analysis. Measure how long a record each form needs before reading its β₃. Wherever an independent epoch exists, test a sustained response against it. Before filling a gap in a well's record from the model, test the model against the well's measured neighbours: hide months that were read and see which puts them back better. At Newborough the nearest cluster-mate missed by a median of 0.041 m, against 0.139 m for Model A (Section 6.6).
-
-## []{#anchor-2}7.1 The procedure at Newborough
-
-Table 2 sets out what the procedure gives at Newborough, with each quantity under the form that identifies it. The coefficients and the partition of the mean loss come from the no-intercept form at the network datum, which lies on every cluster's flux plateau (Section 4.4). The mean-reversion time comes from the free-intercept form, shown beside its model-free estimate (Section 5.2). The table also gives the record each form needs before its β₃ is stable (Section 6.3).
-
-The partition is a share of the modelled loss, in units of water-table change. Converting it to a depth of water needs a specific yield, which heads alone do not give. The share is also the quantity most open to doubt (Table 3). Moving the datum along the plateau, or to each well's depth to mean high water, changes it by a few points. The wells of a cluster also scatter around the centroid's value. The larger change comes from the form. Under a fitted base (Model B) the share falls to between 29 and 60 %. It falls furthest at the lake edge (37 % at C1), because the fitted base lies near each well's mean level (Section 5.6). The no-intercept form at a datum on the plateau remains the basis for the partition (Section 5.7), and the partition is reported with that condition.
-
-**Table 2.** The procedure applied at Newborough, per cluster, each quantity under the form that identifies it. Coefficients, drainage share and closure residual (Residual): the no-intercept form (Model A) fitted to each cluster centroid at z₀ = 3.7 m; the residual of the mean water balance is in units of water-table change. τ_B, mean-reversion time: median over the cluster's wells of the free-intercept form's e-folding time; τ_obs, the model-free estimate from the level's lag-1 autocorrelation (Section 5.2); n.i., not identified on the record. L_A and L_B, record for a stable β₃ in each form: median, over the wells that reach it within the lengths tested, of the shortest record on which the median departure from the full-record β₃ is within 20 % (Section 6.3); a value equal to the shortest length tested is an upper bound. Table 3 gives the drainage share under each source of uncertainty.
+**Table 2.** The procedure applied at Newborough, per cluster, each quantity under the form that identifies it. Coefficients and closure residual (Residual): the no-intercept form (Model A) fitted to each cluster centroid at z₀ = 3.7 m; the residual of the mean water balance is in units of water-table change. Drainage share: the free-intercept form (Model B) at each cluster centroid, the split this paper quotes (Section 5.6); Model A's share at the network datum is in Section 5.4. τ_B, mean-reversion time: median over the cluster's wells of the free-intercept form's e-folding time; τ_obs, the model-free estimate from the level's lag-1 autocorrelation (Section 5.2); n.i., not identified on the record. L_A and L_B, record for a stable β₃ in each form: median, over the wells that reach it within the lengths tested, of the shortest record on which the median departure from the full-record β₃ is within 20 % (Section 4.4); a value equal to the shortest length tested is an upper bound.
 
   --------------------- ------- ------- ------- ---- ------ ------------- -----------
-  C1 Lake Edge          4.578   0.911   0.089   86   −4.1   2.1 / 2.0     24 / 60
-  C2 Dune               3.896   1.666   0.063   69   −3.3   4.4 / 4.1     24 / 36
-  C3 Western Residual   3.758   1.778   0.062   65   0.3    7.4 / 6.3     24 / 80
-  C4 Main Forest        2.476   2.570   0.018   24   0.1    n.i.          120 / 144
-  C5 Coastal Forest     2.412   1.248   0.045   63   −3.2   13.3 / 12.0   36 / 100
+  C1 Lake Edge          4.577   0.942   0.088   38   −4.2   2.1 / 2.0     24 / 60
+  C2 Dune               3.989   1.842   0.062   45   −2.7   4.4 / 4.1     24 / 36
+  C3 Western Residual   3.808   1.833   0.062   56   0.3    7.4 / 6.3     24 / 80
+  C4 Main Forest        2.502   2.564   0.019   29   0.2    n.i.          120 / 144
+  C5 Coastal Forest     2.462   1.336   0.045   61   −3.2   13.3 / 12.0   36 / 100
   --------------------- ------- ------- ------- ---- ------ ------------- -----------
 
-**Table 3.** The drainage share of the mean loss (%) under each source of uncertainty, per cluster. Floor, Datum and Deep: the no-intercept form (Model A) fitted to each cluster centroid with the datum at the identification floor (1.6 m), at the network datum (3.7 m) and at the deepest datum swept (8 m) (Section 4.4). Model A, MHW datum and Model B, wells: median over the cluster's n reference wells fitted on their full records, with the 10th--90th percentile in brackets, under the no-intercept form at the network datum, the same form at each well's depth to mean high water (Section 4.7) and the free-intercept form (Section 5.6). Statistical uncertainty in the fitted coefficients is not included. A negative value marks wells at which the drainage term is not identified.
+# []{#anchor}7. Discussion
 
-  --------------------- ---- ---- ---- ---- ------------- ------------- -------------
-  C1 Lake Edge          7    73   86   89   87 (79--95)   89 (76--99)   37 (29--45)
-  C2 Dune               19   57   69   72   71 (65--74)   72 (67--75)   42 (38--49)
-  C3 Western Residual   26   47   65   69   65 (50--75)   67 (52--77)   55 (38--61)
-  C4 Main Forest        9    4    24   28   31 (4--41)    34 (0--45)    29 (−5--42)
-  C5 Coastal Forest     5    26   63   68   63 (60--72)   64 (61--70)   60 (50--67)
-  --------------------- ---- ---- ---- ---- ------------- ------------- -------------
+## []{#anchor}7.1 What heads alone can and cannot give
 
-# []{#anchor-2}8. Discussion
+A head-only model can always close the mean balance, because the water level records the net of what enters and leaves. What it can be trusted to forecast depends on the test it has passed. Within the recorded climate, the split-sample test and a model-free time scale agree on the free-intercept form. Beyond it, only an independent epoch can say, and here it says something different: the drier decade is reproduced by the slower no-intercept form, and a second store driven by the same climate does not reconcile the two. A manager forecasting next year's spring level and one projecting the 2080s should not use the same form, and should know why.
 
-## []{#anchor-2}8.1 What heads alone can and cannot give
+What heads alone cannot give is the split of the loss between evapotranspiration and drainage. Model A answers by an assumption about where drainage is measured from, and Model B by a fitted equilibrium level, and the two answers differ (68 against 45 % drainage at the median well). Only an independent flux measurement, from tracers, outflow gauging or eddy covariance, can close that question. The literature also calls both readings of β₃ a memory: the time a groundwater system takes to re-equilibrate with a change in recharge (Cuthbert et al., 2019), and the persistence of level anomalies (Nygren et al., 2022). Neither is a memory, and here the two differ more than twofold. Reading persistence through the recession constant overstates it by a factor that grows with the datum.
 
-The water level records the net of what enters and leaves. A head-only model can therefore always close the mean balance. On its own, however, it cannot say how the mean loss divides between evapotranspiration and drainage. Model A answers by an assumption about where drainage is measured from, and Model B by a fitted equilibrium level. The two answers differ (68 against 45 % drainage at the median well). Only an independent flux measurement, from tracers, outflow gauging or eddy covariance, can close that question.
+## []{#anchor}7.2 The regime boundary as a site property
 
-What heads alone do give is substantial. They give the ranking of units by recharge sensitivity, evaporative draw and drainage, and here that ranking does not change across the plateau. They give the dynamics, on which two independent checks agree. And they give the range of the partition over the datums the record admits. Reporting the partition as a range conditional on the datum is more honest than a single figure. As Section 4.7 shows, it is also more robust than it might appear, because a physically motivated datum lands on the same plateau.
+The identification floor sits near the shallow end of the water table's range, and Model B's zero-drainage level sits on it. Both are properties of this aquifer's water-table depths, not general constants, and so is the plateau, whose onset at each cluster follows that cluster's mean depth to water. At another site the sweep must be repeated, not the numbers reused, and the same holds for the record length each form needs.
 
-## []{#anchor-2}8.2 The regime boundary as a site property
+## []{#anchor}7.3 Relation to transfer-function practice
 
-The identification floor sits near the shallow end of the water table's range, and Model B's zero-drainage level sits on it. Both are properties of this aquifer's water-table depths, not general constants. At a site with a deeper or shallower water table the boundary moves. The sweep must therefore be repeated there, rather than the number reused. The same holds for the plateau. Its onset at each cluster follows that cluster's mean depth to water. This is why a single network datum has to be chosen for the deepest unit, and why its cost is paid mainly where the water table is shallowest.
+Free-base transfer-function models, of which Pastas is the reference implementation, estimate the mean-reversion form. That is the right form for forecasting within the recorded climate, and its agreement here with the model-free estimate and the split-sample test supports its use. Its agreement with Pastas is an identity check, not independent evidence. What transfer-function practice does not do is test a forecast against a different climate, and at this site that test reverses the ranking. The two practices are complementary: the free-base model serves the dynamics within the record, and the fixed-datum model on the plateau, tested against an independent epoch, serves the sustained response.
 
-## []{#anchor-2}8.3 Naming the quantity
+## []{#anchor}7.4 Limits
 
-The literature calls both readings of β₃ a memory. One is the time a groundwater system takes to re-equilibrate with a change in recharge, its "hydraulic memory" (Cuthbert et al., 2019). The other is the persistence of level anomalies, measured by their autocorrelation (Nygren et al., 2022). Neither is a memory, and here the two differ more than twofold.
+The forcing comes from one climate station outside the site, at monthly resolution. Thornthwaite PET is an index of demand rather than a measured flux, so β₂ is an effective coefficient, and β₃ under Model A includes evaporation from the water table as well as drainage. The model is linear and time-invariant; changes in land cover over the record are handled elsewhere, by before--after designs. The projections scale the observed climate by seasonal factors and assume the coefficients hold under a climate the record has not seen, which the hindcasts test only to the 2050s.
 
-The no-intercept recession constant describes how storage above an assumed base drains, and it scales with that base. The free-intercept mean-reversion time describes how quickly the level forgets a disturbance, and it does not depend on any base. Persistence of anomalies and the averaging behaviour of multi-year metrics depend on the second. In a one-store model the sustained response to a climate shift would depend on it too, but here it does not. The drier decade of Section 6.4 is reproduced by the slower no-intercept form, not by the mean-reversion time. A second store driven by the same climate does not reconcile the two (Section 6.6).
+The forest cluster's free-intercept drainage coefficient is not identified on the record, which withholds it from forecasting and projection. A slow response is one reading of that, and a forcing that misrepresents the forest's evapotranspiration is another, and the record does not resolve between them. The independent tests of the sustained response rest on 9 wells in one decade, and on three approximately placed sites in another, and why the earlier epoch's swing differs is not resolved.
 
-Interpreting persistence and multi-year averages through the first, as the no-intercept form invites, overstates persistence by a factor that grows with the datum, and with it the case that spring levels carry the previous year's anomaly. Naming the quantity removes an ambiguity that otherwise propagates silently into persistence, projection and ecological interpretation.
+# []{#anchor}8. Conclusions
 
-## []{#anchor-2}8.4 Relation to transfer-function practice
+A head-only model fitted to a monthly water-level record can forecast that record's water table, but which form can be trusted depends on what is being forecast. Within the climate the record spans, the free-intercept form forecasts better, needs only a few years of record, and measures the time the water table takes to return to its mean, which a model-free estimate confirms. Against a drier decade that no fit had seen, the no-intercept form at a datum on the flux plateau reproduces the sustained shift of the level, and the free-intercept form does not.
 
-Free-base transfer-function models, of which Pastas is the reference implementation, estimate the mean-reversion form. That is the right form for forecasting and for persistence. Its agreement here with the model-free autocorrelation estimate and the split-sample test supports its use. Its agreement with Pastas is an identity check, not independent evidence.
+Projections into a changed climate should therefore use the form an independent epoch supports, with the other beside it, and report the pair. At Newborough, under a high-emissions climate, the two forms put the median fall of the summer level at 0.20--0.28 m in the 2050s, within the range the hindcast has tested, and 0.37--0.52 m in the 2080s, beyond it. The main forest is withheld, because its drainage coefficient is not identified on the record.
 
-A drainage reading of the same coefficient, and the water-balance partition that comes with it, requires the datum and the plateau test, which transfer-function practice does not perform. The reason is that the free base absorbs exactly the information the test needs. The two practices are therefore complementary rather than competing. The free-base model serves the dynamics, and the fixed-datum model on the plateau serves the balance. Each is checked against the other through the identity of Section 2.2.
+The coefficients themselves are not fluxes. The split of the loss between drainage and evapotranspiration is conditional on the datum and leans towards drainage where the water table is shallow, and the recession half-life describes the datum as much as the aquifer. Each quantity should be taken from the form that identifies it, with the fitting basis declared and the tests repeated at every site.
 
-## []{#anchor-2}8.5 Limits
-
-The forcing comes from one climate station outside the site, at monthly resolution. Thornthwaite PET is an index of demand rather than a measured flux, so β₂ is an effective coefficient. The model is linear and time-invariant. Changes in land cover over the record are handled elsewhere, by before--after designs, rather than within the model.
-
-The one exception is the pre-canopy test of Section 6.6, which moves the coefficients through canopy closure. Its timing rests on three planting years spanning the planting period and a literature closure age, not on compartment records. A slower closure on the dunes is untested.
-
-The forest cluster's free-intercept drainage coefficient is not identified on the record. This withholds it from the quantities that depend on the mean-reversion time. A slow response is one reading of that. A forcing that misrepresents the forest's evapotranspiration is another, and the direct test of Section 5.5 did not resolve between them.
-
-The independent tests of the sustained response rest on 9 wells in one decade, and on three sites, approximately placed, in another; why the earlier epoch's swing differs is not resolved (Section 6.5). Finally, both frame tests of Section 4.6 rest on fit, which by Section 4.3 tracks mean levels. They show that the drainage base follows the ground, not where it physically lies.
-
-# []{#anchor-2}9. Conclusions
-
-A head-dependent drainage model fitted to monthly water levels returns a drainage coefficient whose meaning depends on the intercept, the datum and the record.
-
-Without an intercept, and with the datum below an identification floor, the coefficient reads as a Darcy discharge coefficient. The drainage flux and the partition of the mean loss are then insensitive to the datum, and the recession constant is conditional on it. With a free intercept, the same model measures the mean-reversion time, which an autocorrelation estimate and an out-of-sample test both support. A physically anchored datum reproduces the partition but not the dynamics.
-
-The record decides how far either reading can be trusted. The no-intercept coefficient stabilizes on a short record, while the free-intercept one needs several mean-reversion times. Only an independent epoch, here a drier decade, tests a sustained response.
-
-At Newborough, with the drainage base on the plateau, drainage takes between a quarter of the mean loss under the main forest (24--28 %) and most of it at the lake edge (86--89 %). The open dune is at 65--72 % and the coastal forest at 63--68 %, and evapotranspiration takes the rest. Under a fitted base the share is lower, 29--60 %, most so at the lake edge. Away from the main forest the water table returns to its mean within 2.1--13.3 months. A second, slower store, whether across the open dune or drawn down by the plantation, is not supported.
-
-Each quantity should be taken from the form that identifies it, with the fitting basis declared and the datum sweep repeated at every site.
-
-# []{#anchor-2}Data availability
+# []{#anchor}Data availability
 
 The monitoring record, the analysis pipeline and every committed output from which the numbers in this paper are set are available in the project repository (https://github.com/newbroman/Newborough_Hydrology). Each number quoted in the text is read from a named committed output file.
 
-# []{#anchor-2}Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
+# []{#anchor}Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
 
 During the preparation of this work the author used Anthropic's Claude (successive Claude Opus and Claude Fable models, accessed through the Claude desktop application) for substantial drafting and editing of the manuscript text: composing prose from the author's analytical outputs and decisions, structuring and restructuring sections, and correcting the text against the study's committed analytical outputs. The conception and design of the study, the twenty-one-year manual dipwell record on which it rests, the analytical decisions, and the interpretation of the results are the author's own. Numerical values in the manuscript are set from the committed outputs of the analysis pipeline, and a decision log records the methodological and editorial calls made by the author during the work. After using this tool the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 
-# []{#anchor-2}Figures
+# []{#anchor}Figures
 
 ![](Pictures/0.png){width="468pt" height="386.64pt"}
 
@@ -450,7 +272,7 @@ Figure 1. Datum sweep of the cluster-centroid no-intercept model. Top: the fitte
 
 Figure 2. Per-well coefficients of Pastas's exponential-response model against the state-space model on the full record: Model B filled, Model A hollow; crosses mark wells whose response time Pastas does not identify. Dashed: 1:1.
 
-# []{#anchor-2}References
+# []{#anchor}References
 
 Akaike, H. (1974) A new look at the statistical model identification. *IEEE Transactions on Automatic Control* 19(6), 716--723. doi:10.1109/TAC.1974.1100705
 
@@ -464,8 +286,6 @@ Cuthbert, M.O., Gleeson, T., Moosdorf, N., Befus, K.M., Schneider, A., Hartmann,
 
 Delworth, T.L. and Manabe, S. (1988) The influence of potential evaporation on the variabilities of simulated soil wetness and climate. *Journal of Climate* 1(5), 523--547. doi:10.1175/1520-0442(1988)001\<0523:TIOPEO\>2.0.CO;2
 
-Forest Research (n.d.) Corsican pine (CP). Tree species database. Forest Research, Farnham. https://www.forestresearch.gov.uk/tools-and-resources/tree-species-database/131590-corsican-pine-cp-2 (accessed 11 October 2026).
-
 Hollingham, M. (2026a) A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records. Companion paper.
 
 Knotters, M. and Bierkens, M.F.P. (2000) Physical basis of time series models for water table depths. *Water Resources Research* 36(1), 181--188. doi:10.1029/1999WR900288
@@ -473,10 +293,6 @@ Knotters, M. and Bierkens, M.F.P. (2000) Physical basis of time series models fo
 Knotters, M. and van Walsum, P.E.V. (1997) Estimating fluctuation quantities from time series of water-table depths using models with a stochastic component. *Journal of Hydrology* 197(1--4), 25--46. doi:10.1016/S0022-1694(96)03278-7
 
 Met Office (2018) UKCP18 Regional Projections on a 12 km grid over the UK for 1980--2080. Centre for Environmental Data Analysis. Met Office Hadley Centre. Available at: https://catalogue.ceda.ac.uk/uuid/b4d24b3df3754b9d9028447eb3cbd878
-
-Met Office (2024) MIDAS Open: UK daily rainfall data, v202407. NERC EDS Centre for Environmental Data Analysis. doi:10.5285/8606115371e44b079e25d479cfec465c
-
-Minderman, G. and Leeflang, K.W.F. (1968) The amounts of drainage water and solutes from lysimeters planted with either oak, pine or natural dune vegetation, or without any vegetation cover. *Plant and Soil* 28(1), 61--80.
 
 Nash, J.E. and Sutcliffe, J.V. (1970) River flow forecasting through conceptual models. Part I --- A discussion of principles. *Journal of Hydrology* 10(3), 282--290.
 

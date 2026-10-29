@@ -195,7 +195,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (524)
+## Outputs no exhibit renders (533)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -275,6 +275,7 @@
 - `03_19_datum_zero_fit.csv`
 - `03_19_per_well_recession_full_record.csv`
 - `03_20_datum_aod_sweep.csv`
+- `03_21_dry_member_fill.csv`
 - `03_cluster_peak_months.csv`
 - `03_master_data.csv`
 - `03_regional_averages.csv`
@@ -425,6 +426,7 @@
 - `15_02_fit_comparison.png`
 - `15_03_benchmark_table.csv`
 - `15_04_best_params.csv`
+- `15_05_ddp_per_well.csv`
 - `15_report_numbers.csv`
 - `16_report_numbers.csv`
 - `16_water_bal_bar_lay.png`
@@ -440,8 +442,10 @@
 - `18_wtf_08_cluster_half_life_summary.csv`
 - `19_report_numbers.csv`
 - `19_scenario_perwell.csv`
+- `19_scenario_perwell_ddp.csv`
 - `19_scenario_perwell_model_a.csv`
 - `19_scenario_summary.csv`
+- `19_scenario_summary_ddp.csv`
 - `19_scenario_summary_model_a.csv`
 - `20_clearfell_gain_report_numbers.csv`
 - `20_drawdown_perwell.csv`
@@ -595,7 +599,3 @@
 - `39_03_beta1_sensitivity.csv`
 - `39_04_hindcast.png`
 - `39_05_full_hindcast_site.csv`
-- `39_06_full_hindcast_decadal.csv`
-- `39_07_full_hindcast.png`
-- `39_report_numbers.csv`
-- `40_01_alongshore_profile.png`

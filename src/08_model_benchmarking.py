@@ -32,7 +32,11 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-10-08 (D-244). The benchmark gains Model B, the
+__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-28 (D-288; Martin 04:47). A well is kept with at least
+#   BENCHMARK_MIN_WINDOW_MONTHS fitted months in the comparison window, not exactly LCSC_DATA_LIMIT: since D-281 the
+#   window is a fixed calendar span and the exact-count test dropped every well with a gap or dry month (66 -> 48).
+#   The TLM, Model A and Model B are still fitted on the same rows; Months_Used records the count.
+# 1.7.0  # Hollingham (2026) — 2026-10-08 (D-244). The benchmark gains Model B, the
 #   free-intercept form (model_utils.fit_ssm(intercept=True)), fitted on the same 100-month window and
 #   free-run with the shared recurrence (simulate_ssm alpha=). The TLM is Model B with beta_3 = 0, so
 #   TLM -> Model B isolates the drainage term, where TLM -> Model A also swaps a free constant for the
@@ -124,7 +128,7 @@ from utils.model_utils import (get_metrics, get_r2, build_ssm_frame, simulate_ss
 from utils.map_utils import add_kml_features, load_dem_layer, add_en_axes
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_MARKERS, DRAINAGE_DATUM, HEADLINE_LAG, BW_MODE,
-    LCSC_DATA_LIMIT,
+    LCSC_DATA_LIMIT, BENCHMARK_MIN_WINDOW_MONTHS,
 )
 from pathlib import Path
 
@@ -232,7 +236,9 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     # Use shared build_ssm_frame for alignment, lag, displacement
     df = build_ssm_frame(well_series, climate, window=LCSC_DATA_LIMIT)
 
-    if len(df) < LCSC_DATA_LIMIT:
+    # 1.8.0 (D-288): the window is a fixed calendar span since D-281, so a gap or dry month leaves fewer rows;
+    # keep the well with at least BENCHMARK_MIN_WINDOW_MONTHS of them (all three forms fit the same rows).
+    if len(df) < BENCHMARK_MIN_WINDOW_MONTHS:
         base_row['Status'] = 'insufficient_data'
         base_row['Months_Used'] = len(df)
         return base_row, None

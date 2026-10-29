@@ -12,72 +12,72 @@ under each UKCP18 scenario's perturbed climatology.
 Per-cluster results:
 ------------------------------------------------------------
 Cluster 1 (C1 (Lake Edge))  2050s:
-  Model B β₁ = 3.7270   β₂ = 3.0884   β₃ = 0.3518   identified: True
+  Model B β₁ = 3.7150   β₂ = 3.1435   β₃ = 0.3536   identified: True
   Sustained spring shift:       +0.023 m
   Observed window MSL5 mean:    -0.196 m
-  Perturbed window MSL5 mean:   -0.172 m
-  Mean shift:                   +0.024 m  (over 15 common window-ends)
+  Perturbed window MSL5 mean:   -0.173 m
+  Mean shift:                   +0.023 m  (over 15 common window-ends)
 
 Cluster 1 (C1 (Lake Edge))  2080s:
-  Model B β₁ = 3.7270   β₂ = 3.0884   β₃ = 0.3518   identified: True
+  Model B β₁ = 3.7150   β₂ = 3.1435   β₃ = 0.3536   identified: True
   Sustained spring shift:       +0.050 m
   Observed window MSL5 mean:    -0.196 m
   Perturbed window MSL5 mean:   -0.145 m
-  Mean shift:                   +0.052 m  (over 15 common window-ends)
+  Mean shift:                   +0.051 m  (over 15 common window-ends)
 
 Cluster 2 (C2 (Dune))  2050s:
-  Model B β₁ = 3.4085   β₂ = 2.4567   β₃ = 0.1716   identified: True
-  Sustained spring shift:       -0.033 m
-  Observed window MSL5 mean:    -0.269 m
-  Perturbed window MSL5 mean:   -0.303 m
-  Mean shift:                   -0.033 m  (over 16 common window-ends)
+  Model B β₁ = 3.5000   β₂ = 2.6186   β₃ = 0.1666   identified: True
+  Sustained spring shift:       -0.041 m
+  Observed window MSL5 mean:    -0.270 m
+  Perturbed window MSL5 mean:   -0.312 m
+  Mean shift:                   -0.042 m  (over 16 common window-ends)
 
 Cluster 2 (C2 (Dune))  2080s:
-  Model B β₁ = 3.4085   β₂ = 2.4567   β₃ = 0.1716   identified: True
-  Sustained spring shift:       -0.048 m
-  Observed window MSL5 mean:    -0.269 m
-  Perturbed window MSL5 mean:   -0.319 m
-  Mean shift:                   -0.050 m  (over 16 common window-ends)
+  Model B β₁ = 3.5000   β₂ = 2.6186   β₃ = 0.1666   identified: True
+  Sustained spring shift:       -0.063 m
+  Observed window MSL5 mean:    -0.270 m
+  Perturbed window MSL5 mean:   -0.335 m
+  Mean shift:                   -0.065 m  (over 16 common window-ends)
 
 Cluster 3 (C3 (Western Residual))  2050s:
-  Model B β₁ = 3.5475   β₂ = 2.0838   β₃ = 0.1055   identified: True
-  Sustained spring shift:       -0.098 m
-  Observed window MSL5 mean:    -0.542 m
-  Perturbed window MSL5 mean:   -0.641 m
-  Mean shift:                   -0.099 m  (over 16 common window-ends)
+  Model B β₁ = 3.6037   β₂ = 2.1264   β₃ = 0.1034   identified: True
+  Sustained spring shift:       -0.104 m
+  Observed window MSL5 mean:    -0.544 m
+  Perturbed window MSL5 mean:   -0.650 m
+  Mean shift:                   -0.106 m  (over 16 common window-ends)
 
 Cluster 3 (C3 (Western Residual))  2080s:
-  Model B β₁ = 3.5475   β₂ = 2.0838   β₃ = 0.1055   identified: True
-  Sustained spring shift:       -0.165 m
-  Observed window MSL5 mean:    -0.542 m
-  Perturbed window MSL5 mean:   -0.711 m
-  Mean shift:                   -0.169 m  (over 16 common window-ends)
+  Model B β₁ = 3.6037   β₂ = 2.1264   β₃ = 0.1034   identified: True
+  Sustained spring shift:       -0.177 m
+  Observed window MSL5 mean:    -0.544 m
+  Perturbed window MSL5 mean:   -0.726 m
+  Mean shift:                   -0.181 m  (over 16 common window-ends)
 
 Cluster 4 (C4 (Main Forest))  2050s:
-  Model B β₁ = 2.5347   β₂ = 2.5190   β₃ = 0.0111   identified: False
+  Model B β₁ = 2.5780   β₂ = 2.4988   β₃ = 0.0097   identified: False
   Sustained spring shift:       +nan m
-  Observed window MSL5 mean:    -1.129 m
+  Observed window MSL5 mean:    -1.126 m
   Perturbed window MSL5 mean:   +nan m
   Mean shift:                   +nan m  (over 15 common window-ends)
 
 Cluster 4 (C4 (Main Forest))  2080s:
-  Model B β₁ = 2.5347   β₂ = 2.5190   β₃ = 0.0111   identified: False
+  Model B β₁ = 2.5780   β₂ = 2.4988   β₃ = 0.0097   identified: False
   Sustained spring shift:       +nan m
-  Observed window MSL5 mean:    -1.129 m
+  Observed window MSL5 mean:    -1.126 m
   Perturbed window MSL5 mean:   +nan m
   Mean shift:                   +nan m  (over 15 common window-ends)
 
 Cluster 5 (C5 (Coastal Forest))  2050s:
-  Model B β₁ = 2.4092   β₂ = 1.2514   β₃ = 0.0455   identified: True
-  Sustained spring shift:       -0.224 m
+  Model B β₁ = 2.4625   β₂ = 1.3351   β₃ = 0.0446   identified: True
+  Sustained spring shift:       -0.245 m
   Observed window MSL5 mean:    -1.054 m
-  Perturbed window MSL5 mean:   -1.282 m
-  Mean shift:                   -0.228 m  (over 16 common window-ends)
+  Perturbed window MSL5 mean:   -1.303 m
+  Mean shift:                   -0.249 m  (over 16 common window-ends)
 
 Cluster 5 (C5 (Coastal Forest))  2080s:
-  Model B β₁ = 2.4092   β₂ = 1.2514   β₃ = 0.0455   identified: True
-  Sustained spring shift:       -0.397 m
+  Model B β₁ = 2.4625   β₂ = 1.3351   β₃ = 0.0446   identified: True
+  Sustained spring shift:       -0.436 m
   Observed window MSL5 mean:    -1.054 m
-  Perturbed window MSL5 mean:   -1.460 m
-  Mean shift:                   -0.406 m  (over 16 common window-ends)
+  Perturbed window MSL5 mean:   -1.498 m
+  Mean shift:                   -0.444 m  (over 16 common window-ends)
 

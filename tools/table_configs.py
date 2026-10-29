@@ -115,7 +115,8 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-10-14 (D-262). paper1/Table3 gains "I + ET (mid)" and report9/Table5 "I + ET mid (mm/yr)", the
+__version__ = "1.20.0"  # Hollingham (2026) — 2026-10-28 (D-283, D-284). report9/Table5 ET, I + ET and drainage columns are Model B; report9/Table3 leads with Model B's drainage fraction; paperM/Table2 drainage share is Model B (Drainage_B_pct); paperM/Table3 retired (D-279 moved it out of Paper M).
+# 1.19.0  # Hollingham (2026) — 2026-10-14 (D-262). paper1/Table3 gains "I + ET (mid)" and report9/Table5 "I + ET mid (mm/yr)", the
 # canopy interception plus the evaporation after it (Script 16 1.10.0 ET_total_mid_mm_yr), so the forest's whole
 # evaporative loss is on the table beside the dune's.
 # 1.18.0  # Hollingham (2026) — 2026-10-12 (D-259). paperM/Table3: the drainage share under each
@@ -274,7 +275,7 @@ TABLES = [
         "sources": {"vol": "outputs/16_water_balance/16_water_bal_vol_table.csv"},
         "rows": {"source": "vol"},
         "header": ["Cluster", "Label", "P (mm/yr)", "I (mm/yr)", "P_net (mm/yr)",
-                   "ET mid (mm/yr)", "I + ET mid (mm/yr)", "Drainage mid (mm/yr)"],
+                   "ET, Model B (mm/yr)", "I + ET, Model B (mm/yr)", "Drainage, Model B (mm/yr)"],   # D-283
         "columns": [
             {"fmt": "template", "template": "C{Cluster}"},
             {"col": "Label", "fmt": "text", "re": [r"^C\d \((.+)\)$", r"\1"]},
@@ -598,7 +599,7 @@ TABLES = [
         # summer less winter is ET, and their ratio is the fraction.
         "header": ["Cluster", "Winter decline (mm/month)", "Summer decline (mm/month)",
                    "ET = summer \u2212 winter (mm/month)", "n months (winter/summer)",
-                   "Drainage fraction (recession)", "Drainage fraction (SSM; admissible datum range)"],
+                   "Drainage fraction (recession)", "Drainage fraction: Model B; Model A (admissible datum range)"],   # D-283
         "columns": [
             {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
             # declines are negative in the CSV; tabulated as positive magnitudes
@@ -611,7 +612,8 @@ TABLES = [
             # 2026-10-03 (T-101, Martin: the table carries the admissible datum range): the SSM fraction at
             # DRAINAGE_DATUM, with its value at the shallowest and deepest admissible datum (Script 16 1.8.0,
             # from Script 03's partition rows) in brackets
-            {"fmt": "template", "template": "{SSM_drain_frac:.2f} ({SSM_drain_frac_min_datum:.2f}\u2013{SSM_drain_frac_max_datum:.2f})"},
+            # 2026-10-28 (D-283, D-284): Model B's fraction first, the one the split is quoted from, then Model A's with its datum range
+            {"fmt": "template", "template": "{B_drain_frac:.2f}; {SSM_drain_frac:.2f} ({SSM_drain_frac_min_datum:.2f}\u2013{SSM_drain_frac_max_datum:.2f})"},
         ],
     },
     {
@@ -1186,7 +1188,7 @@ TABLES = [
                     "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
                     "r50": "outputs/50_record_length/50_report_numbers.csv"},
         "rows": {"source": "wb"},
-        "header": ["Cluster", "β₁", "β₂", "β₃", "Drainage share (%)", "Residual (mm month⁻¹)",
+        "header": ["Cluster", "β₁", "β₂", "β₃", "Drainage share, Model B (%)", "Residual (mm month⁻¹)",
                    "τ_B / τ_obs (months)", "L_A / L_B (months)"],   # symbols defined in the caption
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {
@@ -1198,7 +1200,7 @@ TABLES = [
             {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 3},
             {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 3},
             {"col": "beta_3_drainage",         "fmt": "fixed", "dp": 3},
-            {"col": "Drainage_pct",            "fmt": "fixed", "dp": 0},
+            {"col": "Drainage_B_pct",          "fmt": "fixed", "dp": 0},   # D-283: Model B's split
             {"col": "Residual_m_month",        "fmt": "fixed", "dp": 1, "scale": 1000},
             {"fmt": "template", "template": "{b:.1f} / {o:.1f}",
              "params": {"b": {"source": "r48", "param": "modelab_efold_B_months_median_C{Cluster}"},
@@ -1209,51 +1211,7 @@ TABLES = [
                         "b": {"source": "r50", "param": "reclen_stable_length_months_B_median_C{Cluster}"}}},
         ],
     },
-    {
-        "id": "paperM/Table3",
-        "doc": "docs/papers/paper_M/PaperM_v*.odt",
-        "table_name": "Table3",
-        "caption": "Paper M - the drainage share of losses under each source of uncertainty, per cluster (D-259)",
-        # Rows: 16_water_bal_table.csv (C1..C5). Floor-depth columns: Script 03's partition at the identification
-        # floor, the network datum and the deepest datum swept (cluster centroids, Model A); 03's rows are keyed by
-        # Parameter and Well, hence "where". Across-wells columns: Script 48 per-well medians and 10th-90th
-        # percentiles on the full record, Model A at DRAINAGE_DATUM, Model A at each well's depth to MHW, Model B.
-        "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv",
-                    "r03": "outputs/03_state_space_model/03_report_numbers.csv",
-                    "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
-                    "r08": "outputs/08_model_benchmarking/08_cluster_nse_medians.csv"},
-        "rows": {"source": "wb"},
-        "header": ["Cluster", "n", "Floor", "Datum", "Deep",
-                   "Model A, wells", "MHW datum, wells", "Model B, wells"],   # defined in the caption
-        "columns": [
-            {"col": "Cluster", "fmt": "map", "map": {
-                "1": "C1 Lake Edge",
-                "2": "C2 Dune",
-                "3": "C3 Western Residual",
-                "4": "C4 Main Forest",
-                "5": "C5 Coastal Forest"}},
-            {"fmt": "template", "template": "{n}",   # reference wells in the cluster (Script 08's count)
-             "params": {"n": {"source": "r08", "key": "Cluster", "col": "n", "param": "C{Cluster}"}}},
-            {"fmt": "template", "template": "{v:.0f}",
-             "params": {"v": {"source": "r03", "param": "partition_drainage_share_pct_at_min_datum", "where": {"Well": "{Label}"}}}},
-            {"fmt": "template", "template": "{v:.0f}",
-             "params": {"v": {"source": "r03", "param": "partition_drainage_share_pct_at_datum", "where": {"Well": "{Label}"}}}},
-            {"fmt": "template", "template": "{v:.0f}",
-             "params": {"v": {"source": "r03", "param": "partition_drainage_share_pct_at_max_datum", "where": {"Well": "{Label}"}}}},
-            {"fmt": "template", "template": "{m:.0f} ({lo:.0f}–{hi:.0f})",
-             "params": {"m": {"source": "r48", "param": "modelab_drainage_share_A_median_C{Cluster}", "scale": 100},
-                        "lo": {"source": "r48", "param": "modelab_drainage_share_A_p10_C{Cluster}", "scale": 100},
-                        "hi": {"source": "r48", "param": "modelab_drainage_share_A_p90_C{Cluster}", "scale": 100}}},
-            {"fmt": "template", "template": "{m:.0f} ({lo:.0f}–{hi:.0f})",
-             "params": {"m": {"source": "r48", "param": "modelab_drainage_share_M_median_C{Cluster}", "scale": 100},
-                        "lo": {"source": "r48", "param": "modelab_drainage_share_M_p10_C{Cluster}", "scale": 100},
-                        "hi": {"source": "r48", "param": "modelab_drainage_share_M_p90_C{Cluster}", "scale": 100}}},
-            {"fmt": "template", "template": "{m:.0f} ({lo:.0f}–{hi:.0f})",
-             "params": {"m": {"source": "r48", "param": "modelab_drainage_share_B_median_C{Cluster}", "scale": 100},
-                        "lo": {"source": "r48", "param": "modelab_drainage_share_B_p10_C{Cluster}", "scale": 100},
-                        "hi": {"source": "r48", "param": "modelab_drainage_share_B_p90_C{Cluster}", "scale": 100}}},
-        ],
-    },
+    # paperM/Table3 retired 2026-10-28: D-279 (Paper M v1_27) moved the table to the Methods Supplement; no Table3 exists in Paper M since.
     {
         "id": "paper1/Table6",
         "doc": "docs/papers/paper_1/Paper1_v*.odt",

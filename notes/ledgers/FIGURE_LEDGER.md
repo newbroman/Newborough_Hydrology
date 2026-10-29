@@ -76,7 +76,7 @@
 | 53 | 4.8.5 | Sentinel-2 switching levels tested against the kriged water table. Eac | `outputs/01b_water_table/01b_04_unexplained_wetness.png` | yes |
 | 54 | 4.9.1 | Per-well optimal SSM drainage datum across the 66-well reference netwo | `outputs/03_state_space_model/03_10_well_datum_r2max_map.png` | yes |
 | 55 | 4.9.2 | Spatial SSM coefficient atlas for the 66-well reference network, Newbo | `outputs/07_spatial_coefficients/07_coeff_04_r2_quality.png` | yes |
-| 56 | 4.9.3 | Drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well re | `outputs/18_wtf_spatial/18_wtf_05_halflife_map.png` | yes |
+| 56 | 4.9.3 | Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the networ | `outputs/18_wtf_spatial/18_wtf_05_halflife_map.png` | yes |
 | 57 | 4.9.5 | The water table of Newborough Warren kriged from the dipwells in (a) t | `outputs/01b_water_table/01b_01_water_table_flow.png` | yes |
 | 58 | 4.9.5 | Mean water table against the ground surface, by DEM smoothing width. ( | `outputs/01b_water_table/01b_06_head_vs_dem.png` | yes |
 | 59 | 4.9.5 | Water-table transects across Newborough Warren. (a) Four coast-normal  | `outputs/01b_water_table/01b_02_transects.png` | yes |
@@ -113,4 +113,4 @@
 | 85 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 86 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-10-25 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-10-29 by `tools/build_figure_ledger.py` v2.3.0.*

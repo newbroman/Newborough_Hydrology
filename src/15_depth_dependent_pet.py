@@ -45,7 +45,31 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal κ and β coefficients per cluster
 """
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-09-29. T-96: emits
+__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 "c both", 02:14 "Agree with the 3 tiers").
+#   The centroids and the per-well sets are fitted to the level frame in which each dry month carries Script 03's fill
+#   (model_utils.apply_dry_fill: its expected level below the bound, centred on its nearest cluster-mate); the centroids
+#   are then exactly Script 03's. The depth-dependent model is nonlinear, so the fill is the approximation to censoring.
+#   The comparison window is the last DATA_LIMIT calendar months (model_utils.last_calendar_months), not valid rows.
+# 1.9.0  # Hollingham (2026) — 2026-10-27 (D-280; Martin 01:21 "Add the depth-dependent model as a
+#   third projection", 01:25 "I will follow your recommendations"). New 15_05_ddp_per_well.csv: each reference
+#   well's depth-dependent set on the comparison window, kappa fixed at its cluster's, beta refitted, with the
+#   identifiability flag; centroid sets on both bases beside it. fit_at_kappa also returns the beta_3 p-value
+#   and n. Report numbers: ddp_per_well_n_wells, _n_identified, _dnse_median and the identity check
+#   ddp_per_well_check_b3_k0_vs_03. No existing value changes.
+#
+# 1.8.0  # Hollingham (2026) — 2026-10-27 (D-279; Martin 01:19 "the fit window, use both"). The
+#   partition is also computed on each centroid's full record with its own kappa grid search:
+#   depth_dependent_pet_drainage_share_{ssm,ddp}_full_pct, _shift_full_pts, depth_dependent_pet_best_kappa_full,
+#   and the identity check depth_dependent_pet_check_ssm_full_vs_03 against Script 03's 03_12 at the project
+#   datum. The 1.7.0 keys stay as the comparison-window set. No existing value changes.
+#
+# 1.7.0  # Hollingham (2026) — 2026-10-26 (D-279; Martin 11:14 "Can we give script 15 the same
+#   treatment"). Emits the drainage share of the modelled mean loss at each centroid under the standard SSM and
+#   the depth-dependent fit, and the shift between them (depth_dependent_pet_drainage_share_{ssm,ddp}_pct,
+#   _shift_pts), also as two new columns of 15_04_best_params.csv; loss_partition() follows Script 03's definition.
+#   DATA_LIMIT now reads config.LCSC_DATA_LIMIT (same value). No existing value changes.
+#
+# 1.6.0  # Hollingham (2026) — 2026-09-29. T-96: emits
 #   depth_dependent_pet_efold_depth per cluster, the 1/e decay depth 1/κ of the
 #   best-fit κ (report9 §4.4, "a 1/e decay depth of 0.43 m at C1"). Additive; no
 #   existing output changes.
@@ -102,15 +126,16 @@ from utils.paths import (
     INT_LOCATIONS, INT_WELL_ELEVATIONS,
     OUT_15_LAMBDA_PROFILE, OUT_15_FIT_COMPARISON,
     OUT_15_BENCHMARK_TABLE, OUT_15_BEST_PARAMS, OUT_15_REPORT_NUMBERS,
+    OUT_03_PARTITION_VS_DATUM, OUT_15_DDP_PER_WELL, INT_MASTER_DATA,
 )
-from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG
+from utils.config import CLUSTER_LABELS, CLUSTER_COLOURS, DRAINAGE_DATUM, HEADLINE_LAG, LCSC_DATA_LIMIT
 
 from utils.console_utils import (
     banner, phase, step, info, saved, warn, error, note, done, result,
     hr, skipped,
 )
 from utils.render_utils import render_figure
-from utils.model_utils import fit_ssm            # T-14 E7, 2026-08-28
+from utils.model_utils import fit_ssm, apply_dry_fill, last_calendar_months   # T-14 E7; 1.10.0 D-281
 from utils.report_numbers_utils import ReportNumbers  # T-91
 make_all_dirs()
 
@@ -126,7 +151,7 @@ OUT_BEST_PARAMS     = OUT_15_BEST_PARAMS
 KAPPA_MIN   = 0.0
 KAPPA_MAX   = 6.0
 KAPPA_STEP  = 0.05
-DATA_LIMIT   = 100   # months — same cap as script 03
+DATA_LIMIT   = LCSC_DATA_LIMIT   # months — the comparison window, from config (1.7.0; was a local 100)
 
 # HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
 
@@ -225,6 +250,8 @@ def fit_at_kappa(df: pd.DataFrame, kap: float,
         "b2":  model.params["beta_2_atmospheric_draw"],
         "b3":  model.params["beta_3_drainage"],
         "r2":  model.rsquared,
+        "pvalue_b3": model.pvalues["beta_3_drainage"],   # 1.9.0: for the identifiability rule
+        "n":   int(len(df)),
     }
 
 
@@ -353,9 +380,9 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
     df["P"] = df["P_m"].shift(HEADLINE_LAG)
 
     df = df.dropna(subset=["Delta_h", "P", "PET", "h_prev", "h_disp_prev"])
-    if len(df) > data_limit:
-        df = df.iloc[-data_limit:]
-    return df
+    # 1.10.0 (D-281): the last data_limit CALENDAR months, as model_utils' window, not the last
+    # data_limit valid rows (which reached further back at a well with gaps)
+    return last_calendar_months(df, data_limit) if data_limit is not None else df
 
 
 # ---------------------------------------------------------------------------
@@ -448,6 +475,51 @@ def grid_search_kappa(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 CLUSTER_ORDER = sorted(CLUSTER_LABELS.keys())   # all clusters under k=5
+
+
+def loss_partition(df: pd.DataFrame, b2: float, b3: float, kap: float) -> dict:
+    """1.7.0: the drainage share of the modelled mean loss at a centroid, in head units, as Script 03's
+    partition defines it (drainage = beta_3 * mean h_disp_prev; atmospheric draw = beta_2 * mean of the
+    PET term), with the PET term attenuated by exp(-kappa * depth to water) as in the fit (kappa = 0 is
+    the standard SSM). Sy-free: a share, not a depth of water."""
+    d_prev = np.maximum(-df["h_prev"].values, 0.0)
+    drain = float(b3 * df["h_disp_prev"].mean())
+    draw = float(b2 * np.mean(np.exp(-kap * d_prev) * df["PET"].values))
+    tot = drain + draw
+    return {"drain": drain, "draw": draw, "share_pct": 100.0 * drain / tot if tot > 0 else np.nan}
+
+
+def per_well_ddp(wells_clean, climate, cluster_stats, well_col_lookup, kappa_by_cluster) -> pd.DataFrame:
+    """1.9.0 (D-280): each reference well's depth-dependent set on the comparison window, with
+    kappa fixed at its cluster's comparison-window value (a per-well kappa is weakly identified on
+    LCSC_DATA_LIMIT months) and beta_1..beta_3 refitted by no-intercept OLS at that kappa. A set is
+    identified when beta_1, beta_2 > 0 and beta_3 passes response_identified (Script 48's rule,
+    three parameters) -- the rule the Model A / Model B pair already uses. The kappa = 0 refit is
+    carried beside it (b3_k0) so it can be checked against Script 03's per-well fit."""
+    from utils.model_utils import response_identified   # noqa: PLC0415
+    rows = []
+    for _, r in cluster_stats.iterrows():
+        cid = int(pd.to_numeric(r["Cluster"], errors="coerce")) if pd.notna(r["Cluster"]) else None
+        col = well_col_lookup.get(normalize_well_name(r["Match_ID"]))
+        if col is None or cid not in kappa_by_cluster:
+            continue
+        df = build_regression_df(wells_clean[col], climate)
+        if len(df) <= 30:
+            continue
+        kap = float(kappa_by_cluster[cid])
+        f = fit_at_kappa(df, kap)
+        f0 = fit_at_kappa(df, 0.0)
+        ok_signs = f["b1"] > 0 and f["b2"] > 0 and f["b3"] > 0
+        ident = bool(ok_signs and response_identified(f["b3"], f["pvalue_b3"], f["n"], 3)[0])
+        nse_d = evaluate_iterative_nse(df, kap, f["b1"], f["b2"], f["b3"]) if ok_signs else np.nan
+        nse_0 = (evaluate_iterative_nse(df, 0.0, f0["b1"], f0["b2"], f0["b3"])
+                 if (f0["b1"] > 0 and f0["b2"] > 0 and f0["b3"] > 0) else np.nan)
+        rows.append({"level": "well", "basis": "comparison_window", "well": normalize_well_name(r["Match_ID"]),
+                     "Cluster": cid, "kappa": kap, "b1": f["b1"], "b2": f["b2"], "b3": f["b3"],
+                     "pvalue_b3": f["pvalue_b3"], "n": f["n"], "r2_onestep": f["r2"],
+                     "nse_iterative": nse_d, "nse_iterative_k0": nse_0, "b3_k0": f0["b3"],
+                     "identified": ident})
+    return pd.DataFrame(rows)
 
 
 def plot_kappa_profiles(profiles: dict, ssm_baselines: dict):
@@ -571,6 +643,11 @@ def main():
 
     # Load
     wells_clean, climate, cluster_stats, locations, well_col_lookup, upstand_map = load_data()
+    # 1.10.0 (D-281): centroids and per-well sets are fitted to the level frame in which each dry
+    # month carries Script 03's fill (its expected level below the bound). The depth-dependent model
+    # is nonlinear, so the exact censored likelihood Script 03 uses does not apply; fitting it to the
+    # filled frame is the approximation, and the centroids are then exactly Script 03's.
+    wells_clean = apply_dry_fill(wells_clean)
     centroids = build_cluster_centroids(wells_clean, cluster_stats, well_col_lookup, upstand_map)
 
     # Build regression DataFrames
@@ -690,8 +767,13 @@ def main():
     saved(f"{OUT_BENCHMARK_TABLE.name}")
 
     params_rows = []
+    partitions = {}
     for cid, bp in best_params.items():
-        ssm = ssm_baselines.get(cid, {})
+        ssm = ssm_baselines.get(cid) or {}
+        df_c = regression_dfs[cid]
+        p_ssm = loss_partition(df_c, ssm["b2"], ssm["b3"], 0.0) if ssm else {"share_pct": np.nan}
+        p_ddp = loss_partition(df_c, bp["b2"], bp["b3"], bp["best_kappa"])
+        partitions[cid] = (p_ssm, p_ddp)
         params_rows.append({
             "Cluster":        f"C{cid}",
             "Label":          CLUSTER_LABELS.get(cid, ""),
@@ -706,6 +788,8 @@ def main():
             "SSM_b2":         ssm.get("b2", np.nan),
             "SSM_b3":         ssm.get("b3", np.nan),
             "SSM_NSE":        ssm.get("nse_iterative", np.nan),
+            "SSM_Drainage_Share_pct": partitions[cid][0]["share_pct"],
+            "DDP_Drainage_Share_pct": partitions[cid][1]["share_pct"],
         })
     pd.DataFrame(params_rows).to_csv(OUT_BEST_PARAMS, index=False)
     saved(f"{OUT_BEST_PARAMS.name}")
@@ -728,6 +812,86 @@ def main():
                    unit="m", well=f"C{cid}",
                    note="1/e decay depth of the PET depth attenuation, 1/κ from the "
                         "best-fit κ (depth_dependent_pet_best_kappa), unrounded")
+    # 1.8.0 (D-279; Martin 2026-10-27 01:19 "the fit window, use both"): the same partition on each
+    # centroid's FULL record, with its own kappa grid search, so the report's water-balance estimators
+    # sit on one basis. The full-record standard share must reproduce Script 03's partition at the
+    # project datum (03_12_partition_vs_datum.csv) -- an identity check, expected 0.
+    full_parts = {}
+    full_sets = {}
+    for cid, (centroid, _u) in centroids.items():
+        df_f = build_regression_df(centroid, climate, data_limit=len(centroid) + 1)
+        ssm_f = fit_standard_ssm(df_f)
+        if ssm_f is None or len(df_f) <= 30:
+            continue
+        prof_f = grid_search_kappa(df_f).dropna(subset=["nse_iterative"])
+        if prof_f.empty:
+            continue
+        bf = prof_f.loc[prof_f["nse_iterative"].idxmax()]
+        full_parts[cid] = (loss_partition(df_f, ssm_f["b2"], ssm_f["b3"], 0.0),
+                           loss_partition(df_f, bf["b2"], bf["b3"], bf["kappa"]), float(bf["kappa"]), len(df_f))
+        full_sets[cid] = {"kappa": float(bf["kappa"]), "b1": float(bf["b1"]), "b2": float(bf["b2"]),
+                          "b3": float(bf["b3"]), "n": len(df_f), "nse_iterative": float(bf["nse_iterative"])}
+    p03 = None
+    if OUT_03_PARTITION_VS_DATUM.exists():
+        p03 = pd.read_csv(OUT_03_PARTITION_VS_DATUM)
+        p03 = p03[np.isclose(p03["ref_depth"], DRAINAGE_DATUM)].set_index("Cluster")["drainage_share_pct"]
+    for cid, (p_ssm, p_ddp, kap_f, n_f) in full_parts.items():
+        rn.add("depth_dependent_pet_drainage_share_ssm_full_pct", p_ssm["share_pct"], unit="%", well=f"C{cid}",
+               note=f"drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = {n_f})")
+        rn.add("depth_dependent_pet_drainage_share_ddp_full_pct", p_ddp["share_pct"], unit="%", well=f"C{cid}",
+               note="the same share with the PET term attenuated by exp(-kappa d), kappa from a full-record grid search")
+        rn.add("depth_dependent_pet_drainage_share_shift_full_pts", p_ddp["share_pct"] - p_ssm["share_pct"],
+               unit="percentage points", well=f"C{cid}", note="depth-dependent minus standard, full record")
+        rn.add("depth_dependent_pet_best_kappa_full", kap_f, unit="m^-1", well=f"C{cid}",
+               note="best-fit kappa on the full record (grid-search argmax NSE_iterative)")
+        if p03 is not None and cid in p03.index:
+            rn.add("depth_dependent_pet_check_ssm_full_vs_03", p_ssm["share_pct"] - float(p03.loc[cid]),
+                   unit="percentage points", well=f"C{cid}",
+                   note="identity check: full-record standard share less Script 03's partition at the project datum (expected 0)")
+
+    # 1.9.0 (D-280): the per-well depth-dependent sets for the third projection form (Scripts 50, 19),
+    # with the centroid sets on both bases beside them (extended wells in the viewer take their
+    # cluster's full-record centroid, as they do under Model A).
+    pw = per_well_ddp(wells_clean, climate, cluster_stats, well_col_lookup,
+                      {cid: bp["best_kappa"] for cid, bp in best_params.items()})
+    cent_rows = []
+    for cid, bp in best_params.items():
+        cent_rows.append({"level": "centroid", "basis": "comparison_window", "well": "", "Cluster": cid,
+                          "kappa": bp["best_kappa"], "b1": bp["b1"], "b2": bp["b2"], "b3": bp["b3"],
+                          "n": len(regression_dfs[cid]), "nse_iterative": bp["nse_iterative"], "identified": True})
+    for cid, fs_ in full_sets.items():
+        cent_rows.append({"level": "centroid", "basis": "full_record", "well": "", "Cluster": cid,
+                          **fs_, "identified": True})
+    ddp_all = pd.concat([pw, pd.DataFrame(cent_rows)], ignore_index=True)
+    ddp_all.to_csv(OUT_15_DDP_PER_WELL, index=False)
+    saved(f"{OUT_15_DDP_PER_WELL.name} ({len(pw)} wells, {int(pw['identified'].sum()) if len(pw) else 0} identified)")
+    if len(pw):
+        rn.add("ddp_per_well_n_wells", float(len(pw)), unit="count", note="reference wells fitted under the depth-dependent form (comparison window, cluster kappa)")
+        rn.add("ddp_per_well_n_identified", float(pw["identified"].sum()), unit="count",
+               note="of which identified (beta_1, beta_2 > 0; beta_3 by response_identified, 3 parameters)")
+        d_nse = (pw["nse_iterative"] - pw["nse_iterative_k0"]).dropna()
+        rn.add("ddp_per_well_dnse_median", float(d_nse.median()) if len(d_nse) else np.nan, unit="",
+               note="median iterative NSE gain of the depth-dependent set over the kappa = 0 refit, per well")
+        if INT_MASTER_DATA.exists():
+            m = pd.read_csv(INT_MASTER_DATA)
+            name_col = "Match_ID" if "Match_ID" in m.columns else "Name_Original"
+            m["_n"] = m[name_col].astype(str).apply(normalize_well_name)
+            j = pw.merge(m[["_n", "beta_3_drainage"]], left_on="well", right_on="_n", how="inner")
+            rn.add("ddp_per_well_check_b3_k0_vs_03", float((j["b3_k0"] - j["beta_3_drainage"]).abs().max()) if len(j) else np.nan,
+                   unit="", note="identity check: max |beta_3 at kappa = 0 less 03_master_data beta_3| over the wells (expected 0)")
+
+    # 1.7.0 (D-279): how far letting the PET term weaken with depth to water moves the drainage share of
+    # the modelled mean loss, on this script's own basis (centroids on the comparison window), so the
+    # documents' caveat that the SSM's drainage share leans high binds to committed values.
+    for cid, (p_ssm, p_ddp) in partitions.items():
+        rn.add("depth_dependent_pet_drainage_share_ssm_pct", p_ssm["share_pct"], unit="%", well=f"C{cid}",
+               note="drainage share of the modelled mean loss, standard SSM (kappa = 0), this script's centroid "
+                    "on the comparison window; head units, Sy-free")
+        rn.add("depth_dependent_pet_drainage_share_ddp_pct", p_ddp["share_pct"], unit="%", well=f"C{cid}",
+               note="the same share with the PET term attenuated by exp(-kappa d) at the best-fit kappa")
+        rn.add("depth_dependent_pet_drainage_share_shift_pts", p_ddp["share_pct"] - p_ssm["share_pct"],
+               unit="percentage points", well=f"C{cid}",
+               note="depth-dependent minus standard drainage share; negative = loss moved from drainage to ET")
     rn.save(OUT_15_REPORT_NUMBERS)
     saved(f"{OUT_15_REPORT_NUMBERS.name}")
 

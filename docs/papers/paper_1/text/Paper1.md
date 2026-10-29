@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_82.odt — do not edit. source-sha256=c37d225921951b92 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_89.odt — do not edit. source-sha256=1e92210dbfdaa275 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -215,11 +215,11 @@ The displacement-formulation SSM, fitted to each cluster-centroid hydrograph, ch
 
   --------------------- --------- ------- ------- ------- ---------- -------
   Cluster               n wells   β₁      β₂      −β₃     LCSC (%)   R²
-  C1 Lake Edge          7         4.578   0.911   0.089   21.844     0.734
-  C2 Dune               19        3.896   1.666   0.063   25.669     0.745
-  C3 Western Residual   26        3.758   1.778   0.062   26.611     0.825
-  C4 Main Forest        9         2.476   2.570   0.018   40.392     0.733
-  C5 Coastal Forest     5         2.412   1.248   0.045   41.462     0.677
+  C1 Lake Edge          7         4.577   0.942   0.088   21.849     0.729
+  C2 Dune               19        3.989   1.842   0.062   25.072     0.764
+  C3 Western Residual   26        3.808   1.833   0.062   26.263     0.827
+  C4 Main Forest        9         2.502   2.564   0.019   39.975     0.733
+  C5 Coastal Forest     5         2.462   1.336   0.045   40.621     0.706
   --------------------- --------- ------- ------- ------- ---------- -------
 
 []{#cluster-mechanistic-coefficients}Recharge sensitivity β₁ is highest at the Lake Edge (C1: 4.58). This indicates that each millimetre of rainfall drives a proportionally larger water-table rise in the shallow-till eastern aquifer than in the Dune (C2: 3.90) or the Western Residual (C3: 3.76). The two forested clusters return near-identical and substantially lower recharge sensitivities (C4: 2.48, C5: 2.41). This is consistent with canopy interception suppressing the rainfall signal that reaches the water table. Expressed as LCSC (100/β₁), about 22--26 mm of rainfall raises the water table by 100 mm at the Lake Edge and Dune. The figure is 27 mm in the Western Residual and 40--41 mm beneath the plantation. Beneath the canopy, nearly twice as much rain is therefore needed for the same rise.
@@ -238,11 +238,11 @@ The drainage partition varies markedly. Drainage accounts for 85% of total losse
 
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
   Cluster               Recharge   Atm. draw   Drainage   Total loss   Residual   Drain % / ET %
-  C1 Lake Edge          0.341      0.050       0.295      0.345        −0.004     86 / 14
-  C2 Dune               0.290      0.090       0.203      0.293        −0.003     69 / 31
-  C3 Western Residual   0.278      0.097       0.181      0.278        \<0.001    65 / 35
-  C4 Main Forest        0.184      0.140       0.044      0.184        \<0.001    24 / 76
-  C5 Coastal Forest     0.179      0.068       0.115      0.183        −0.003     63 / 37
+  C1 Lake Edge          0.341      0.051       0.293      0.345        −0.004     85 / 15
+  C2 Dune               0.296      0.100       0.198      0.298        −0.003     66 / 34
+  C3 Western Residual   0.282      0.100       0.182      0.282        \<0.001    65 / 35
+  C4 Main Forest        0.186      0.140       0.046      0.186        \<0.001    25 / 75
+  C5 Coastal Forest     0.183      0.073       0.114      0.186        −0.003     61 / 39
   --------------------- ---------- ----------- ---------- ------------ ---------- ----------------
 
 The indicative volumetric conversion (Table 3) places all clusters under ≈892 mm/yr rainfall. At the forested clusters, canopy interception removes ≈214 mm/yr, leaving ≈678 mm/yr of throughfall. The mid-point of the ET/drainage partition ranges from drainage-dominated at C1 (≈651 mm/yr drainage vs ≈242 mm/yr ET) to ET-dominated at C4 (≈252 vs ≈426 mm/yr). The ET column counts only what evaporates after the canopy has taken its share. Interception is itself evaporation, so a forest's total evaporative loss is I + ET: ≈641 mm/yr at C4, close to PET (≈655 mm/yr), against ≈440 mm/yr at C2. At C5 the total (≈428 mm/yr) is similar to C2's. C2's mid-point is the least certain in the table, because the two partitioning methods disagree most there (ET ≈275--606 mm/yr). At C2 and C4 the recession estimate lies outside the range the model gives across the admissible datum (1.6--8 m; the bar beside each loss bar in Figure 8b), so the split there depends on the method more than on the datum.
@@ -251,18 +251,18 @@ The indicative volumetric conversion (Table 3) places all clusters under ≈892 
 
   --------------------- ----- ----- ------- ---------- -------------- ----------------
   Cluster               P     I     P_net   ET (mid)   I + ET (mid)   Drainage (mid)
-  C1 Lake Edge          893   0     893     242        242            651
-  C2 Dune               892   0     892     440        440            452
-  C3 Western Residual   889   0     889     289        289            601
-  C4 Main Forest        893   214   679     426        641            252
-  C5 Coastal Forest     892   214   678     214        428            464
+  C1 Lake Edge          893   0     893     553        553            340
+  C2 Dune               889   0     889     488        488            401
+  C3 Western Residual   889   0     889     387        387            502
+  C4 Main Forest        893   214   679     481        695            198
+  C5 Coastal Forest     892   214   678     264        478            414
   --------------------- ----- ----- ------- ---------- -------------- ----------------
 
 ![](Pictures/10000000000005BE00000640EA9072DD.jpg){width="15.983cm" height="18.0162cm"}
 
 **Figure 8.** Water-balance decomposition by cluster: head-space (recharge versus atmospheric draw and drainage) and indicative volumetric partition. In (b), the hatched partition-uncertainty band spans the two independent estimates of the ET/drainage split --- the SSM head-space ratio and the seasonal winter/summer recession ratio; it is smallest for C3, where the two methods agree to within 5 percentage points (drainage fractions 0.70 and 0.65). The black bar beside each loss bar spans where the SSM ET/drainage boundary falls as the drainage datum is varied across its admissible range (1.6--8 m); it shows how far the SSM estimate depends on the datum and is not a statistical confidence interval.
 
-The water-table-fluctuation (WTF) specific-yield estimates (Table 4; Figure 9) provide an independent test. They ask whether the cluster contrasts reflect storage architecture or surface boundary conditions. Uncorrected, the forested-cluster event-median specific yields sit at or above the top of the open-dune range (C4: 0.315, against an open-dune maximum of 0.325; C5: 0.358, above it). This is because gross rainfall overstates the recharge flux beneath the canopy. Applying the canopy-interception correction to the recharge term brings the cluster-level event medians down to 0.261 (C4) and 0.330 (C5). C4 then falls cleanly into the open-dune range (0.210--0.325), while C5 sits just above its upper edge. Aggregating instead as the median of the per-well estimates gives 0.253 and 0.308. The two aggregations are reported separately throughout and are not interchangeable.
+The water-table-fluctuation (WTF) specific-yield estimates (Table 4; Figure 9) provide an independent test. They ask whether the cluster contrasts reflect storage architecture or surface boundary conditions. Uncorrected, the forested-cluster event-median specific yields sit at or above the top of the open-dune range (C4: 0.315, against an open-dune maximum of 0.325; C5: 0.358, above it). This is because gross rainfall overstates the recharge flux beneath the canopy. Applying the canopy-interception correction to the recharge term brings the cluster-level event medians down to 0.256 (C4) and 0.330 (C5). C4 then falls cleanly into the open-dune range (0.210--0.325), while C5 sits just above its upper edge. Aggregating instead as the median of the per-well estimates gives 0.253 and 0.308. The two aggregations are reported separately throughout and are not interchangeable.
 
 The correction uses a single literature fraction rather than a fitted one, so the convergence is tested against that fraction directly. The forest clusters' event medians were re-evaluated over interception fractions from 0 to 0.40 (Section 3.8). Both fall within the open-dune range only for fractions between 0.26 and 0.34: C4 for every fraction up to 0.34, C5 only from 0.26. The C4 result therefore does not depend on the particular value 0.24, while C5 sits just outside the range at that value. The seasonal residual analysis of Section 5.4 is an independent check, and its cross-cluster ordering is likewise inconsistent with a mis-set fraction.
 
@@ -275,10 +275,10 @@ The C4 result indicates that the attenuated water-table response beneath the pla
   --------------------- ------------ ------------------------- ---------------------------
   Cluster               Sy assumed   Sy WTF median (uncorr.)   Sy WTF median (corrected)
   C1 Lake Edge          0.08         0.210                     ---
-  C2 Dune               0.12         0.255                     ---
-  C3 Western Residual   0.12         0.325                     ---
-  C4 Main Forest        0.12         0.315                     0.261
-  C5 Coastal Forest     0.12         0.358                     0.330
+  C2 Dune               0.12         0.270                     ---
+  C3 Western Residual   0.12         0.312                     ---
+  C4 Main Forest        0.12         0.321                     0.256
+  C5 Coastal Forest     0.12         0.364                     0.316
   --------------------- ------------ ------------------------- ---------------------------
 
 ![](Pictures/100000010000076600000616E444E17A.png){width="16.055cm" height="11.5793cm"}
@@ -304,10 +304,10 @@ Interpolating the per-well coefficients yields continuous surfaces (per-well ran
   --------------------- -------------- --------------- ---------------
   Cluster               β₁ range       β₂ range        β₃ range
   C1 Lake Edge          4.267--6.237   −0.400--1.251   0.088--0.134
-  C2 Dune               3.439--4.716   1.034--2.531    0.057--0.090
+  C2 Dune               3.425--4.876   1.039--2.531    0.057--0.094
   C3 Western Residual   2.332--5.514   0.884--2.185    0.034--0.109
-  C4 Main Forest        2.072--3.481   2.062--3.792    −0.020--0.040
-  C5 Coastal Forest     2.125--2.752   0.776--1.359    0.039--0.059
+  C4 Main Forest        2.101--3.493   2.084--3.880    −0.024--0.039
+  C5 Coastal Forest     2.151--2.752   0.776--1.359    0.039--0.061
   --------------------- -------------- --------------- ---------------
 
 ![](Pictures/100000010000094B0000077E3B314DC1.png){width="14.774cm" height="11.9111cm"}
@@ -327,9 +327,9 @@ The eastern open dune drains fastest (C1 median 8.0 months, C2 10.7). The wester
   --------------------- -------- ----------- -------- ----
   Cluster               t½ min   t½ median   t½ max   n
   C1 Lake Edge          5.9      8.0         8.9      7
-  C2 Dune               8.0      10.7        12.8     19
-  C3 Western Residual   6.1      11.6        19.4     26
-  C4 Main Forest        16.3     23.0        41.6     7
+  C2 Dune               8.3      10.7        13.0     19
+  C3 Western Residual   6.0      11.5        19.9     26
+  C4 Main Forest        16.8     23.0        45.4     7
   C5 Coastal Forest     11.3     14.1        15.7     5
   --------------------- -------- ----------- -------- ----
 
@@ -344,9 +344,9 @@ Within the forested zone the per-well coefficients span much of the site-wide ra
 **Table 7.** Within-forest spatial predictors of per-well SSM coefficients (n = 14). Pearson r (p).
 
   -------------- ------------------ ------------------ ----------------
-  β₁ recharge    0.167 (0.568)      −0.489 (0.076)     0.556 (0.039)
-  β₂ atm. draw   0.989 (\<0.001)    −0.909 (\<0.001)   0.744 (0.002)
-  β₃ drainage    −0.833 (\<0.001)   0.651 (0.012)      −0.484 (0.080)
+  β₁ recharge    0.130 (0.657)      −0.452 (0.104)     0.529 (0.052)
+  β₂ atm. draw   0.989 (\<0.001)    −0.909 (\<0.001)   0.743 (0.002)
+  β₃ drainage    −0.836 (\<0.001)   0.657 (0.011)      −0.487 (0.077)
   -------------- ------------------ ------------------ ----------------
 
 ## 4.9 Mean water-table surface and flow field

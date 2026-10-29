@@ -22,15 +22,15 @@ the recharge season.
 | Cluster | Achievable | Marginal | Unreachable | Cluster total |
 |---|---|---|---|---|
 | C1 | 9 | 0 | 0 | 9 |
-| C2 | 22 | 2 | 0 | 24 |
+| C2 | 23 | 1 | 0 | 24 |
 | C3 | 27 | 4 | 0 | 31 |
 | C4 | 1 | 10 | 2 | 13 |
 | C5 | 0 | 8 | 3 | 11 |
-| **All clusters** | **59** | **24** | **5** | **88** |
+| **All clusters** | **60** | **23** | **5** | **88** |
 
 ## Reading
 
-- **Open dune zone (C1, C2, C3): 58 of 64 wells achievable**, with the remaining 6 marginal — none unreachable. This is the operational domain Conclusion 6 identifies for scrape targeting.
+- **Open dune zone (C1, C2, C3): 59 of 64 wells achievable**, with the remaining 5 marginal — none unreachable. This is the operational domain Conclusion 6 identifies for scrape targeting.
 - **Forest zone (C4, C5): 1 of 24 wells achievable**, with 18 marginal and 5 unreachable. Most forest wells require more than mildly-wet winters; the unreachable wells split 3 in C5 Coastal Forest and 2 in C4 Main Forest.
 
 The cluster pattern reflects the underlying mechanism. The open dune clusters
@@ -48,7 +48,7 @@ Insert as a new paragraph in §5.9 after the topographic-scraping discussion,
 between the existing "the operational zone for this intervention" sentence and
 the prediction-equations paragraph:
 
-> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 6. Of 58 wells across the open-dune clusters C1, C2 and C3, all but 6 are in the achievable category (m_P < 1.5); none are unreachable. By contrast, of the 24 forest-zone wells in C4 and C5, only 1 sit in the achievable band and 5 are in the unreachable band (m_P ≥ 2.5): 3 in C5 Coastal Forest (CEH17, FE3 and CEH31) and 2 in C4 Main Forest (CEH33 and CEH30). The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = 6) define the upper edge of the operational envelope under current climate.*
+> *Per-well categorisation against the P_flood multiplier (Figure N; `11c_pflood_achievability_per_well.csv`) operationalises the priority criterion identified in Conclusion 6. Of 59 wells across the open-dune clusters C1, C2 and C3, all but 5 are in the achievable category (m_P < 1.5); none are unreachable. By contrast, of the 24 forest-zone wells in C4 and C5, only 1 sit in the achievable band and 5 are in the unreachable band (m_P ≥ 2.5): 3 in C5 Coastal Forest (CEH17, FE3 and CEH31) and 2 in C4 Main Forest (CEH33 and CEH30). The categorisation provides a direct per-well lookup for scrape-targeting decisions: achievable wells in the C1/C2/C3 transitional zone are the operationally feasible candidates; the small number of marginal wells in the open dune (n = 5) define the upper edge of the operational envelope under current climate.*
 
 ## Suggested figure caption
 

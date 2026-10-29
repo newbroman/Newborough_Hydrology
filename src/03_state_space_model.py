@@ -88,7 +88,15 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.27.0"  # Hollingham (2026) — 2026-10-10. _open_dune_r2_report_numbers(): the spread of per-well
+__version__ = "1.28.0"  # Hollingham (2026) - 2026-10-27 (D-281; Martin 01:53 "A your recommendation, B wells deepest
+#   reading, c both"; 02:14 "use nearest neighbour to fill dry members with their censored expected level, then fit as
+#   now"). Every per-well fit passes the well's dry-month bounds (fit_ssm(..., dry_bound=)), so a dry month is a level
+#   below a bound, fitted by censored maximum likelihood, on both bases; a well never found dry fits as before. The
+#   comparison window is a fixed calendar span (model_utils 1.12.0). The centroids, and the bootstrap, leave-one-out,
+#   composition and C1 split fits built from members, average a frame in which each dry member-month is its expected
+#   level below the bound, centred on its nearest cluster-mate read that month (fill_dry_members); 03_21_dry_member_fill.csv
+#   records each one. The maOD centroids (Script 21's input) are not yet filled.
+# 1.27.0  # Hollingham (2026) — 2026-10-10. _open_dune_r2_report_numbers(): the spread of per-well
 #   SSM R2 over the open-dune wells at config.R2_SPREAD_PCTL, with n, min and max (report9 SS4.9.2,
 #   Martin "2 a"). Emit-only.
 # 1.26.0  # Hollingham (2026) — 2026-10-03 (Martin: "one, yes"). _datum_frame_report_numbers(): the
@@ -301,7 +309,7 @@ from utils.paths import (
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
     OUT_03_MODEL_B_PERSISTENCE, OUT_03_UPSTAND_FRAME_SENS,
-    OUT_03_DATUM_INVARIANCE, OUT_03_DATUM_ZERO, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL, OUT_03_DATUM_AOD,
+    OUT_03_DATUM_INVARIANCE, OUT_03_DATUM_ZERO, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL, OUT_03_DATUM_AOD, OUT_03_DRY_FILL,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
@@ -316,7 +324,7 @@ from utils.config import (
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, DATUM_AOD_NONPOS_CHECK_M, LAKE_GAUGE_KEYS,
 )
 from utils.model_utils import (fit_ssm, fit_ssm_intercept, assert_physical_signs,
-                               build_ssm_frame)
+                               build_ssm_frame, dry_bounds, donor_censored_fill)
 from utils.render_utils import render_figure
 
 
@@ -525,6 +533,78 @@ def upstand_audit(cluster_df: pd.DataFrame,
         print(f"    C{cid}: {name:10s}  upstand = {u:.3f} m")
 
 
+# ── Dry months (1.28.0, D-281) ────────────────────────────────────────────────
+# A month a well was found dry is a level below a bound, not a missing value. Every per-well
+# fit here passes the well's bounds (fit_ssm(..., dry_bound=)), which makes it the censored
+# fit; a well never found dry fits exactly as before. The centroids average member levels,
+# and a mean of levels cannot be censored, so each dry member-month is filled first with its
+# expected level below the bound, centred on its nearest cluster-mate read that month
+# (fill_dry_members).
+_DRY: dict[str, pd.Series] = {}
+
+
+def _db(name, shift: float = 0.0):
+    """The dry-month bounds of the well whose series is `name`, or None if it was never dry.
+    `shift` moves them with the series (the pipe-top frame subtracts the upstand)."""
+    b = _DRY.get(str(name))
+    if b is None or b.empty:
+        return None
+    return b - shift if shift else b
+
+
+def fill_dry_members(cluster_df: pd.DataFrame, wells_clean: pd.DataFrame,
+                     climate: pd.DataFrame, well_col_lookup: dict[str, str],
+                     locs: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """The level frame the centroids are built from: wells_clean with every dry month of a
+    reference well replaced by its expected level below the bound (D-281). The centre is the
+    nearest cluster-mate read that month, carried across by the straight line over the months
+    both were read (Script 51's donor rule: DONOR_MIN_OVERLAP_MONTHS and DONOR_MIN_R); a
+    month no qualifying mate was read in takes the well's own censored full-record fit.
+    Returns (filled frame, audit rows)."""
+    xy = locs.drop_duplicates("Match_ID").set_index("Match_ID")[["E", "N"]]
+    clus = pd.to_numeric(cluster_df["Cluster"], errors="coerce")
+    members = {}
+    for w, c in zip(cluster_df["Match_ID"], clus):
+        col = well_col_lookup.get(normalize_well_name(w))
+        if col is not None and pd.notna(c):
+            members[col] = int(c)
+
+    def blank(col):
+        h = pd.to_numeric(wells_clean[col], errors="coerce").copy()
+        b = _db(col)
+        if b is not None:
+            h.loc[h.index.intersection(b.index)] = np.nan
+        return h
+
+    def dist(a, b):
+        na, nb = normalize_well_name(a), normalize_well_name(b)
+        if na not in xy.index or nb not in xy.index:
+            return np.inf
+        return float(np.hypot(*(xy.loc[na].values - xy.loc[nb].values)))
+
+    filled = wells_clean.copy()
+    audit = []
+    for col, c in members.items():
+        b = _db(col)
+        if b is None:
+            continue
+        mates = sorted((m for m, k in members.items() if k == c and m != col), key=lambda m: dist(col, m))
+        donors = [(m, blank(m)) for m in mates]
+        own = fit_ssm(wells_clean[col], climate, lag=HEADLINE_LAG, window=None,
+                      min_obs=MIN_OBS_PER_WELL, dry_bound=b)
+        h_f, a = donor_censored_fill(wells_clean[col], b, donors, fit=own, climate=climate)
+        filled[col] = h_f
+        if len(a):
+            a.insert(0, "Cluster", c)
+            a.insert(0, "well", col)
+            a["donor_distance_m"] = [dist(col, d) if d else np.nan for d in a["donor"]]
+            audit.append(a)
+    aud = pd.concat(audit, ignore_index=True) if audit else pd.DataFrame()
+    if len(aud):
+        aud["month"] = pd.to_datetime(aud["month"]).dt.strftime("%Y-%m")
+    return filled, aud
+
+
 def build_cluster_centroids(cluster_df: pd.DataFrame,
                             wells_clean: pd.DataFrame,
                             well_col_lookup: dict[str, str]
@@ -613,7 +693,7 @@ def per_well_window_sensitivity(master_df: pd.DataFrame,
         for basis, window in (("full_record", None),
                               ("comparison_window", LCSC_DATA_LIMIT)):
             fit = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=window,
-                          min_obs=MIN_OBS_PER_WELL)
+                          min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
             if fit is None:
                 continue
             fit_start, fit_end = _fit_span(fit)
@@ -839,7 +919,7 @@ def per_well_fits(cluster_df: pd.DataFrame,
 
         fit = fit_ssm(h_series, climate, lag=HEADLINE_LAG,
                       window=LCSC_DATA_LIMIT,
-                      min_obs=MIN_OBS_PER_WELL)
+                      min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
 
         # Empirical LCSC — ratio of rainfall to water-table rise during
         # unambiguous recharge events. Kept for cross-comparison with the
@@ -1036,9 +1116,9 @@ def model_b_persistence(centroids: dict[int, pd.Series],
             continue
         h_series = wells_clean[target_col]
         fit_a = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
-                        min_obs=MIN_OBS_PER_WELL)
+                        min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
         fit_b = fit_ssm_intercept(h_series, climate, lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
-                                  min_obs=MIN_OBS_PER_WELL)
+                                  min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
         span = _fit_span(fit_a) if fit_a else ("", "")
         cid = r.get("Cluster")
         try:
@@ -1519,7 +1599,7 @@ def datum_aod_sweep(wells_clean: pd.DataFrame, climate: pd.DataFrame, locs: pd.D
         r2, nonpos, n = [], 0, 0
         for c, g in wells:
             try:
-                r = fit_ssm(wells_clean[c].dropna(), climate, drainage_datum=datum_of(g))
+                r = fit_ssm(wells_clean[c].dropna(), climate, drainage_datum=datum_of(g), dry_bound=_db(c))
             except Exception:
                 r = None
             if not r:
@@ -1888,7 +1968,8 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         for d in datums:
             fit = fit_ssm(h_series, climate,
                           lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
-                          drainage_datum=d, min_obs=MIN_OBS_PER_WELL)
+                          drainage_datum=d, min_obs=MIN_OBS_PER_WELL,
+                          dry_bound=_db(h_series.name))
             if fit is None:
                 full_rows.append({
                     "well": well_name, "Cluster": cid,
@@ -1976,7 +2057,8 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
         fit_uniform = fit_ssm(h_series, climate,
                                lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
                                drainage_datum=DRAINAGE_DATUM,
-                               min_obs=MIN_OBS_PER_WELL)
+                               min_obs=MIN_OBS_PER_WELL,
+                               dry_bound=_db(h_series.name))
         if fit_uniform is not None:
             opt["R2_at_uniform"] = fit_uniform["R2"]
             opt["beta_3_at_uniform"] = fit_uniform["beta_3_drainage"]
@@ -2961,9 +3043,9 @@ def upstand_frame_sensitivity(wells_clean, climate, well_col_lookup,
         series = wells_clean[col].dropna()
         try:
             ground = fit_ssm(h_series=series, climate=climate,
-                             lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT)
+                             lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT, dry_bound=_db(col))
             pipe = fit_ssm(h_series=series - u, climate=climate,
-                           lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT)
+                           lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT, dry_bound=_db(col, shift=u))
         except Exception:
             continue
         if not ground or not pipe:
@@ -3088,6 +3170,13 @@ def main() -> None:
     upstand_lookup = build_upstand_lookup(INT_WELL_ELEVATIONS)
     upstand_audit(cluster_df, upstand_lookup)
 
+    # ---- Dry months: bounds for every well, censored in every per-well fit (D-281) ----
+    _DRY.clear()
+    _DRY.update({c: dry_bounds(c) for c in wells_clean.columns})
+    n_dry_wells = sum(1 for b in _DRY.values() if len(b))
+    info(f"  dry months: {sum(len(b) for b in _DRY.values())} at {n_dry_wells} wells, "
+         f"censored in the per-well fits (D-281)")
+
     # ---- Per-well SSM fits ----
     print("\n -> Fitting per-well SSM and computing LCSC...")
     master_df = per_well_fits(cluster_df, locs_clean, wells_clean,
@@ -3177,8 +3266,19 @@ def main() -> None:
     ].mean().round(3))
 
     # ---- Build cluster centroids ----
+    # Dry member-months are filled first (D-281): a centroid that let its dry members drop
+    # out read wetter than its cluster in exactly the driest months.
+    print("\n -> Filling dry member-months for the centroids (D-281)...")
+    wells_filled, fill_audit = fill_dry_members(cluster_df, wells_clean, climate,
+                                                well_col_lookup, locs_clean)
+    fill_audit.to_csv(OUT_03_DRY_FILL, index=False)
+    if len(fill_audit):
+        src_counts = fill_audit["source"].value_counts().to_dict()
+        info(f"  {len(fill_audit)} dry member-months: " +
+             ", ".join(f"{k} {v}" for k, v in src_counts.items()))
+    saved(f"{OUT_03_DRY_FILL.name}")
     print("\n -> Building cluster centroids...")
-    centroids = build_cluster_centroids(cluster_df, wells_clean,
+    centroids = build_cluster_centroids(cluster_df, wells_filled,
                                           well_col_lookup)
 
     # ---- Centroid headline fits (the CSV the report cites) ----
@@ -3218,7 +3318,7 @@ def main() -> None:
 
     # ---- Centroid composition sensitivity (diagnostic; headline unchanged) ----
     step("Centroid composition sensitivity (growing vs stable membership)...")
-    comp_df = centroid_composition_sensitivity(cluster_df, wells_clean,
+    comp_df = centroid_composition_sensitivity(cluster_df, wells_filled,
                                                 well_col_lookup, centroids,
                                                 climate)
     # Inline DIR_03 path, matching this script's convention for its secondary
@@ -3442,7 +3542,7 @@ def main() -> None:
     # ---- Bootstrap CIs on centroid fits ----
     print(f"\n -> Bootstrapping centroid fits (B = {N_BOOTSTRAP}, "
           f"seed = {BOOTSTRAP_SEED})...")
-    boot_df = bootstrap_centroid_fits(cluster_df, wells_clean, climate,
+    boot_df = bootstrap_centroid_fits(cluster_df, wells_filled, climate,
                                         well_col_lookup)
     boot_path = DIR_03 / "03_05_bootstrap_ci.csv"
     boot_df.to_csv(boot_path, index=False)
@@ -3450,7 +3550,7 @@ def main() -> None:
 
     # ---- Leave-one-out per cluster ----
     print("\n -> Leave-one-well-out centroid fits...")
-    loo_df = leave_one_out_fits(cluster_df, wells_clean, climate,
+    loo_df = leave_one_out_fits(cluster_df, wells_filled, climate,
                                   well_col_lookup)
     loo_path = DIR_03 / "03_06_leave_one_out.csv"
     loo_df.to_csv(loo_path, index=False)
@@ -3458,7 +3558,7 @@ def main() -> None:
 
     # ---- C1 Lake pre/post-2018 split ----
     print("\n -> C1 Lake pre/post-2018 split-window diagnostic...")
-    split_df = c1_split_window_diagnostic(centroids, cluster_df, wells_clean,
+    split_df = c1_split_window_diagnostic(centroids, cluster_df, wells_filled,
                                             climate, well_col_lookup)
     split_path = DIR_03 / "03_07_c1_split_window.csv"
     split_df.to_csv(split_path, index=False)

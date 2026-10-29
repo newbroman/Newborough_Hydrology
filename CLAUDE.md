@@ -127,7 +127,7 @@ tracked publicly.
   from the image bytes, so **the mirror built from the stripped copy is
   BYTE-IDENTICAL to the one built from the full document** (verified 2026-09-02
   against a mirror generated on Martin's own machine: diff 0 lines). Write the
-  stripped copy to the VM's own home, never into the mounted folder. **A read path only** —
+  stripped copy to the VM's `/tmp` (its home volume is full), never into the mounted folder. **A read path only** —
   never commit or edit the stripped file, and never let it near
   `report_edits/odt/`.
   `refresh_mirrors.py` refuses below 3.0 — let it.
@@ -140,11 +140,17 @@ tracked publicly.
   statsmodels, sklearn, geopandas, shapely, contextily and adjustText are **not
   importable there at all**. A session once told him to downgrade pandoc on that
   evidence. Only `$HOME/mnt/NRG` is real; `$HOME` is not his home directory.
+  **`source tools/bridge_py.sh` at the start of every call** (2026-10-28): it gives
+  `nrgpy` (uv CPython 3.12.3 on the venv's site-packages, kept in `venv/.bridge/`,
+  BLAS pin applied — numbers match the L14), pandoc 3.1.3 on `PATH`, and
+  `TMPDIR=/tmp`. The VM's `/sessions` home volume is full and shared with old
+  bridge sessions it cannot clean: write nothing large to `$HOME`.
 - **THE PIPELINE CANNOT BE RUN FROM THE BRIDGE VM.** The pipeline runs on any
   machine that has built the environment with `tools/nrg_env.sh` (D-227): the
-  laptop, or a Claude cloud session (§4g). The bridge VM has not built it and is
-  not meant to — its Python, pandoc and libraries are its own — so a run there
-  is not the pipeline's, and `env_audit` says so. Pipeline runs and published PDFs
+  laptop, or a Claude cloud session (§4g). On the bridge, `nrgpy` runs single scripts on
+  the venv's libraries, but a call stops at 180 s and background jobs die with it,
+  and its LibreOffice, git and pandoc are its own, so a full run there is not the
+  pipeline's, and `env_audit` says so. Pipeline runs and published PDFs
   come from a built environment; everything text-only runs on the bridge.
 - **DON'T HAND MARTIN WHAT THE BRIDGE CAN DO — RUN IT HERE, `tee` IT, READ IT.**
   Before handing over ANY command, ask what actually needs his machine. The
@@ -154,7 +160,7 @@ tracked publicly.
   and read the result — never rely on Martin pasting output back. `scratch/` is
   gitignored and inside the mount, so capture anything into it and grep the file:
   ```bash
-  export PATH="$HOME/bin:$PATH"                          # the pandoc 3.1.3 installed above
+  source tools/bridge_py.sh                              # nrgpy, pandoc 3.1.3, TMPDIR=/tmp
   python3 tools/refresh_mirrors.py 2>&1 | tee scratch/refresh.log
   bash tools/check_all.sh 2>&1 | tee scratch/last_run.log
   ```

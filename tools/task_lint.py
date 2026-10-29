@@ -44,6 +44,13 @@ A BROKEN CHECK IS NOT A PASS
       command produces nothing -> ERROR, and the run fails
       output != expect        -> OPEN
       output == expect        -> DONE
+      output is "<tool>: SKIP …" -> SKIPPED (1.1.0)
+
+  SKIPPED is for a check whose inputs are absent BY DESIGN in this checkout — the
+  ODT documents, which the public repository does not carry. The tool itself must
+  decide that and say SKIP; task_lint never infers it. It is counted on its own,
+  never as done, open or broken, so a cloud run without the documents reports the
+  project's state instead of a broken check every day.
 
   ERROR is louder than OPEN, deliberately. An open task is work; a broken check
   is a lie waiting to happen.
@@ -63,7 +70,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-25.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-27. SKIPPED: a check that answers "<tool>: SKIP …" (its inputs are
+#   absent by design, e.g. the ODTs in the public clone) is counted on its own, not as broken (T-126, T-127 in the
+#   daily cloud check).
+# 1.0.0  # Hollingham (2026) — 2026-08-25.
 
 import argparse
 import csv
@@ -89,6 +99,10 @@ FORBIDDEN = re.compile(
     r"(?:^|[\s;|&(])(?:rm|mv|cp|dd|mkfs|chmod|chown|truncate|shred)\s"
     r"|>\s*[^&|]|>>|git\s+(?:push|commit|reset|checkout|clean|rm)\b",
     re.I)
+
+
+# 1.1.0: a check's answer of the form "<tool>: SKIP ..." (or "SKIP ...")
+SKIP_RE = re.compile(r"^(?:[\w.-]+:\s+)?SKIP\b")
 
 
 def is_read_only(cmd: str) -> bool:
@@ -127,11 +141,13 @@ def main() -> int:
     with REGISTER.open(encoding="utf-8") as fh:
         rows = [r for r in csv.DictReader(fh) if r.get("id", "").strip()]
 
-    done, open_, errors = [], [], []
+    done, open_, errors, skipped = [], [], [], []
     for r in rows:
         out, note = run_check(r["check"])
         if out is None:
             errors.append((r, note))
+        elif SKIP_RE.match(out):
+            skipped.append((r, out))
         elif out == r["expect"].strip():
             done.append(r)
         else:
@@ -158,11 +174,17 @@ def main() -> int:
             print(f"                {out}  (want {r['expect'].strip()})"
                   f"   opened {r.get('opened','')}")
 
+    if skipped and not args.quiet:
+        print(f"\n  {len(skipped)} skipped (inputs absent in this checkout by design):")
+        for r, out in skipped:
+            print(f"      SKIP  {r['id']}  {r['title'][:60]}")
+            print(f"                {out[:110]}")
+
     if args.quiet:
         print("task_lint: " + ("FAIL" if errors else "OK"))
     else:
         print(f"\n  {len(rows)} task(s): {len(done)} done, {len(open_)} open, "
-              f"{len(errors)} broken")
+              f"{len(errors)} broken" + (f", {len(skipped)} skipped" if skipped else ""))
     return 1 if errors else 0
 
 

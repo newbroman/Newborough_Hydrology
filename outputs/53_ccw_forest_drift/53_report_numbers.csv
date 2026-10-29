@@ -2,21 +2,21 @@ Parameter,Well,Era,Value,Unit,Note
 e14_n_wells,,,9.0,wells,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
 e14_n_near,,,4.0,wells,"within E14_NEAR_M of today's forest edge; E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
 e14_n_far,,,5.0,wells,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
-e14_rho,,,-0.5594023904871687,rho,"Spearman, distance to the forest edge against residual slope; comparison_window"
-e14_p,,,0.06340939153439154,p,one-sided exact permutation; comparison_window
+e14_rho,,,-0.6950150912113306,rho,"Spearman, distance to the forest edge against residual slope; comparison_window"
+e14_p,,,0.023544973544973546,p,one-sided exact permutation; comparison_window
 e14_near_median_slope,,,0.0470944102345148,m/yr,model - observed; comparison_window
-e14_far_median_slope,,,-0.0038640745835421203,m/yr,model - observed; comparison_window
-e14_diff,,,0.05095848481805692,m/yr,near minus far median slope; comparison_window
-e14_ci_lo,,,-0.008980621101404759,m/yr,bootstrap 95% lower; comparison_window
-e14_ci_hi,,,0.0836158746263094,m/yr,bootstrap 95% upper; comparison_window
-e14_full_rho,,,-0.5594023904871687,rho,"Spearman, distance to the forest edge against residual slope; full_record"
-e14_full_p,,,0.06340939153439154,p,one-sided exact permutation; full_record
-e14_full_near_median_slope,,,0.0457635608149661,m/yr,model - observed; full_record
-e14_full_far_median_slope,,,-0.004446413995122213,m/yr,model - observed; full_record
-e14_full_diff,,,0.05020997481008831,m/yr,near minus far median slope; full_record
-e14_full_ci_lo,,,-0.00353621357835787,m/yr,bootstrap 95% lower; full_record
-e14_full_ci_hi,,,0.08246449874280232,m/yr,bootstrap 95% upper; full_record
-e14_loo_ci_clear_n,,,2.0,count,of 9 single-well drops
+e14_far_median_slope,,,-9.62860282816771e-05,m/yr,model - observed; comparison_window
+e14_diff,,,0.047190696262796476,m/yr,near minus far median slope; comparison_window
+e14_ci_lo,,,-0.0063977059937547764,m/yr,bootstrap 95% lower; comparison_window
+e14_ci_hi,,,0.08209288922829847,m/yr,bootstrap 95% upper; comparison_window
+e14_full_rho,,,-0.6611119160302902,rho,"Spearman, distance to the forest edge against residual slope; full_record"
+e14_full_p,,,0.03159722222222222,p,one-sided exact permutation; full_record
+e14_full_near_median_slope,,,0.04523622678274774,m/yr,model - observed; full_record
+e14_full_far_median_slope,,,-0.004213521430636302,m/yr,model - observed; full_record
+e14_full_diff,,,0.04944974821338404,m/yr,near minus far median slope; full_record
+e14_full_ci_lo,,,-0.001911027736753973,m/yr,bootstrap 95% lower; full_record
+e14_full_ci_hi,,,0.0822316061783164,m/yr,bootstrap 95% upper; full_record
+e14_loo_ci_clear_n,,,3.0,count,of 9 single-well drops
 e14_test3,,,fail,text,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
 e14_test4,,,fail,text,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
 e14_verdict,,,not supported,text,"the rule fixed before the run; E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"

@@ -1,2 +1,2 @@
 n_months,bias_raw,bias_mapped,rmse_raw,rmse_mapped,r2_raw,wet_end_bias_raw,wet_end_bias_mapped,level_max_raw,level_max_mapped
-226,-0.148,0.0,0.223,0.164,0.781,-0.208,-0.054,0.43,0.18
+226,-0.026,0.0,0.169,0.161,0.788,-0.065,-0.052,0.623,0.194

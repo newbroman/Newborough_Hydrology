@@ -66,6 +66,8 @@ OUTPUTS (outputs/50_record_length/)
   50_29_ranwell_epoch_candidates.csv E11, each candidate sized against the need (D-261)
   50_30_basis_by_test.csv            E12, per well or per cluster (D-268)
   50_40_placement_by_test.csv        E12b, can a short record place a new well? (D-282)
+  50_45_ccw_quantile_map.csv         E18, does a modern-record calibration transfer to CCW 1989-96? (D-290)
+  50_46 .. 50_47                     E19, does the film's correction transfer to CCW 1989-96? months and years (D-292)
   50_31 .. 50_35                     E13, other evaporation estimates and a beta_1 break (D-273)
   50_36 .. 50_39                     E13b, Penman-Monteith against Thornthwaite; residual seasonality under each (D-274)
   50_report_numbers.csv
@@ -75,7 +77,24 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-10-28 (D-287; spec NRG_spec_E16_paperM_and_E17_cluster_base_2026-10-28,
+__version__ = "1.22.0"  # Hollingham (2026) - 2026-11-01 (T-133, D-292; Martin 2026-11-01 "Test A otherwise c", "no model B
+#   arms, approve majority of years"). E19: does the FILM's correction transfer to CCW 1989-96? E18 tested a per-well map;
+#   the film maps one series, the open-dune warren run (Script 47's load_warren / run_recurrence, read through importlib,
+#   the Script 30 precedent) onto the network's observed median. E19 runs exactly that, then scores three arms against
+#   the median of the admitted CCW wells over the months every one of them reads uncensored: raw, quantile-mapped
+#   (Script 47's calibrate, unchanged) and offset only (the modern mean bias over the same calibration months). The
+#   rule is E18's, fixed before the run, with "a majority of the 9-year record's years" (D-207 hydrology years, May to
+#   April, at least E19_MIN_MONTHS_PER_YEAR scored months) in place of "a majority of wells". Outcome: the map if it
+#   passes, else the offset if it passes, else neither (the film keeps its map, caveated). Writes 50_46 (months) and
+#   50_47 (years) and the e19_* report numbers; --only-e19 runs it alone. Nothing else moves. Additive.
+# 1.21.0  # Hollingham (2026) - 2026-10-29 (T-130, D-290; findings NRG_findings_ccw_quantile_map_2026-10-29,
+#   Martin 2026-10-29 "Yes, rule as proposed"). E18: does a calibration fitted on the modern record transfer to the CCW
+#   1989-96 decade? Script 39's CCW protocol unchanged (each well's own Model A at the project datum, its equilibrium
+#   seed, censored months dropped), and the same on E12's cluster basis; per well, utils.hindcast_utils.quantile_map
+#   (Script 47's map) fitted on the well's modern record against the SAME continuous run, and applied unchanged to
+#   1989-96. The rule is fixed before the run (e18_verdict, config.E18_*). Writes 50_45_ccw_quantile_map.csv and the
+#   e_qm_* report numbers; --only-e18 runs E18 alone and replaces only the e_qm_* rows. Ranwell is not used. Additive.
+# 1.20.0  # Hollingham (2026) - 2026-10-28 (D-287; spec NRG_spec_E16_paperM_and_E17_cluster_base_2026-10-28,
 #   Martin 04:28 "S"). E17: a drainage base in elevation per cluster, every member well at ground - z_c, z_c chosen from
 #   the modern record only (S: E16's split NSE per cluster, primary; R: 03_09 R2-max datums; B: 48_04 Model B bases),
 #   then tested on the drier epochs cluster by cluster against the depth datum by the rule fixed before the run
@@ -244,6 +263,7 @@ __version__ = "1.20.0"  # Hollingham (2026) - 2026-10-28 (D-287; spec NRG_spec_E
 #   of 01b_water_table.py and is still cited by that name in the records.
 
 import argparse
+import importlib.util
 import warnings
 import sys
 from pathlib import Path
@@ -270,7 +290,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_CLEARANCE_STEP, OUT_50_CLEARANCE_FIG, DATA_SHORE_CLEARANCE_2015,
     OUT_03_MECHANISTIC_TABLE, OUT_50_PRECANOPY, OUT_41_INDEX, OUT_50_FOREST_FORCING,
     OUT_50_RANWELL_NEED, OUT_50_RANWELL_EPOCH, OUT_50_BASIS, OUT_50_PLACEMENT, OUT_50_PET_ALT, OUT_50_E13_PET, OUT_50_E13_BREAK, OUT_50_E13_WEATHER,
-    OUT_50_E13_FIG, OUT_50_ELEV_DATUM_TESTS, OUT_50_ELEV_DATUM_SUMMARY, OUT_01B_REPORT_NUMBERS, OUT_50_CLUSTER_BASE_TESTS, OUT_50_CLUSTER_BASE_SUMMARY, OUT_03_WELL_OPTIMAL_DATUMS, OUT_50_E13B_CMP, OUT_50_E13B_FIG, OUT_50_E13B_RESID, OUT_50_E13B_INPUTS, INT_24_CLIMATOLOGY_TABLE, MIDAS_WEATHER_DIR, INT_WELLS_REFERENCE, INT_WELLS_EXTENDED, RANWELL_PARC_MAWR_RAIN, RANWELL_EPOCH_CANDIDATES, DATA_FOREST_BOUNDARY, OUT_20_REPORT_NUMBERS,
+    OUT_50_E13_FIG, OUT_50_ELEV_DATUM_TESTS, OUT_50_ELEV_DATUM_SUMMARY, OUT_01B_REPORT_NUMBERS, OUT_50_CLUSTER_BASE_TESTS, OUT_50_CLUSTER_BASE_SUMMARY, OUT_03_WELL_OPTIMAL_DATUMS, OUT_50_CCW_QMAP, OUT_50_CCW_FILM_MAP, OUT_50_CCW_FILM_MAP_YEARS, OUT_50_E13B_CMP, OUT_50_E13B_FIG, OUT_50_E13B_RESID, OUT_50_E13B_INPUTS, INT_24_CLIMATOLOGY_TABLE, MIDAS_WEATHER_DIR, INT_WELLS_REFERENCE, INT_WELLS_EXTENDED, RANWELL_PARC_MAWR_RAIN, RANWELL_EPOCH_CANDIDATES, DATA_FOREST_BOUNDARY, OUT_20_REPORT_NUMBERS,
 )
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
@@ -278,6 +298,7 @@ from utils.config import (                                    # noqa: E402
     RECLEN_LENGTHS_MONTHS, RECLEN_MIN_FIT_MONTHS, RECLEN_STABLE_TOL,
     RECLEN_DATUM_NSE_TOL, DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M,
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, E17_CANDIDATES, E17_PRIMARY_CANDIDATE,
+    E18_RMSE_CUT_M, E18_BASES, E18_PRIMARY_BASIS, QMAP_MIN_MONTHS, QMAP_MIN_WELLS, E19_MIN_MONTHS_PER_YEAR,
     FOREST_INTERCEPTION, UKCP18_SCENARIOS, WINTER_WET_CLIMATE_MONTHS, SUMMER_DRY_CLIMATE_MONTHS,
     RECORD_START_DISPLAY, REFERENCE_CUTOFF_DATE,
     TWO_STORE_FAST_INIT_DAYS, TWO_STORE_FAST_BOUNDS_DAYS, TWO_STORE_SLOW_INIT_DAYS,
@@ -313,6 +334,7 @@ from utils.model_utils import (build_ssm_frame, fit_ssm, fit_ssm_intercept, simu
                                sustained_monthly_response_ddp, dry_bounds)
 from utils.hindcast_utils import (                            # noqa: E402
     load_ccw, observed_series, hindcast_well, equilibrium_depth, usable_codes, compare_offset_censored,
+    quantile_map,
 )
 from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.pastas_utils import spread_daily, continuous_start  # noqa: E402
@@ -4599,7 +4621,311 @@ def run_e17(lev, lev_cols, cl, master, t16: pd.DataFrame | None = None):
     return bases, ctab, v
 
 
-def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False) -> int:
+# ──────────────────────────────────────────────────────────────────────────────
+# E18: does a calibration fitted on the modern record transfer? (1.21.0, T-130, D-290)
+# ──────────────────────────────────────────────────────────────────────────────
+def e18_tests(lev, lev_cols, cl, master) -> pd.DataFrame:
+    """Per admitted CCW well x basis: Model A at the project datum fitted on the full modern record (basis 'well',
+    Script 39's protocol) or the well's cluster centroid fitted on the same span and shifted to the well (basis
+    'cluster', E12's arm); one continuous run from the start of the climate record at the equilibrium seed; the
+    quantile map fitted on that run against the well's modern readings, applied unchanged to the run over 1989-96.
+    Scored raw and mapped on the uncensored CCW months."""
+    if not (paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists()):
+        warn("CCW historic inputs not present — E18 is skipped")
+        return pd.DataFrame()
+    obs, cmap = load_ccw()
+    mdk = pd.read_csv(INT_MASTER_DATA)
+    mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
+    adm = usable_codes(cmap, mdk.set_index("k"), obs)
+    adm = adm[adm["admitted"]]
+    md = master.set_index("_n")
+    ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
+    clh = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
+    p_mean, pet_mean = float(clh["P_m"].mean()), float(clh["PET"].mean())
+    first_month, last_month = obs["month"].min(), obs["month"].max()
+    cache, rows = {}, []
+    for r in adm.itertuples():
+        k = normalize_well_name(r.well)
+        col = lev_cols.get(k)
+        if col is None or k not in md.index:
+            continue
+        o, n_cens = observed_series(obs, r.code, r.datum_offset_m)
+        if o.empty:
+            continue
+        c = int(md.loc[k, "Cluster"])
+        hw = lev[col].dropna()
+        for basis in E18_BASES:
+            row = {"well": k, "code": r.code, "cluster": c, "basis": basis, "n_censored_ccw": int(n_cens)}
+            if basis == "well":
+                f = fit_frame(build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), False)
+                f = f if f is not None and f["beta_3_drainage"] > 0 else None
+                sh = 0.0
+            else:
+                if c not in cache:
+                    cache[c] = _centroid_fit(ra, c, cl, False, "full")
+                f, hc = cache[c]
+                common = hw.index.intersection(hc.index)
+                sh = float(hw.loc[common].mean() - hc.loc[common].mean()) if len(common) else np.nan
+            row["shift_m"] = sh
+            if f is None or not np.isfinite(sh):
+                rows.append(row)
+                continue
+            betas = (f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"])
+            h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=DRAINAGE_DATUM)
+            run, _s = hindcast_well(clh, betas, h0, clh.index.min(), max(hw.index.max(), last_month), 1.0,
+                                    drainage_datum=DRAINAGE_DATUM)
+            run = run + sh
+            cm = hw.index.intersection(run.index)
+            cc = o.index.intersection(run.index)
+            row.update(beta_1=betas[0], beta_2=betas[1], beta_3=betas[2],
+                       n_modern=int(len(cm)), n_test=int(len(cc)))
+            nse0, rmse0, bias0 = get_metrics(o.loc[cc], run.loc[cc])
+            row.update(nse_raw=float(nse0), rmse_raw_m=float(rmse0), bias_raw_m=float(bias0))
+            if len(cm) < QMAP_MIN_MONTHS or len(cc) < MODEL_AB_MIN_TEST_MONTHS:
+                rows.append(row)
+                continue
+            qm, _m, _o = quantile_map(run.loc[cm].to_numpy(float), hw.loc[cm].to_numpy(float))
+            mapped = pd.Series(qm(run.loc[cc].to_numpy(float)), index=cc)
+            nse1, rmse1, bias1 = get_metrics(o.loc[cc], mapped)
+            row.update(nse_mapped=float(nse1), rmse_mapped_m=float(rmse1), bias_mapped_m=float(bias1),
+                       rmse_cut_m=float(rmse0 - rmse1), improved=bool(rmse1 < rmse0))
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def e18_verdict(t: pd.DataFrame) -> dict:
+    """The rule fixed before the run (D-290), per basis: 'transfers' if the median RMSE falls by at least
+    E18_RMSE_CUT_M, the map lowers RMSE at a majority of wells, and the median |bias| is no larger than raw;
+    otherwise 'does not transfer'. The primary basis is the verdict."""
+    per = {}
+    for basis in E18_BASES:
+        g = t[(t["basis"] == basis)].dropna(subset=["rmse_mapped_m"]) if len(t) else pd.DataFrame()
+        if g.empty:
+            per[basis] = {"verdict": "not run", "n": 0}
+            continue
+        d = {"n": int(len(g)),
+             "rmse_raw": float(g["rmse_raw_m"].median()), "rmse_mapped": float(g["rmse_mapped_m"].median()),
+             "abs_bias_raw": float(g["bias_raw_m"].abs().median()),
+             "abs_bias_mapped": float(g["bias_mapped_m"].abs().median()),
+             "nse_raw": float(g["nse_raw"].median()), "nse_mapped": float(g["nse_mapped"].median()),
+             "n_improved": int(g["improved"].astype(bool).sum())}
+        d["rmse_cut"] = d["rmse_raw"] - d["rmse_mapped"]
+        d["tests"] = {"rmse_cut": d["rmse_cut"] >= E18_RMSE_CUT_M,
+                      "majority": d["n_improved"] > d["n"] / 2,
+                      "bias": d["abs_bias_mapped"] <= d["abs_bias_raw"]}
+        d["verdict"] = "transfers" if all(d["tests"].values()) else "does not transfer"
+        per[basis] = d
+    return {"per": per, "verdict": per.get(E18_PRIMARY_BASIS, {}).get("verdict", "not run")}
+
+
+def e18_report(rr, t: pd.DataFrame, v: dict) -> None:
+    rr.add("e_qm_rmse_cut_threshold_m", E18_RMSE_CUT_M, unit="m",
+           note="E18 rule: the median RMSE must fall by at least this (config.E18_RMSE_CUT_M, D-290)")
+    rr.add("e_qm_transfers", int(v["verdict"] == "transfers"), unit="",
+           note=f"E18 verdict on the {E18_PRIMARY_BASIS} basis: a modern-record quantile map transfers to CCW 1989-96 (1) or not (0), D-290")
+    for basis, d in v["per"].items():
+        if d.get("verdict") == "not run":
+            continue
+        _n = f"CCW 1989-96, Model A at the project datum, {basis} basis, {d['n']} wells (E18, D-290)"
+        rr.add(f"e_qm_n_wells_{basis}", d["n"], unit="wells", note=f"wells scored, {_n}")
+        rr.add(f"e_qm_n_improved_{basis}", d["n_improved"], unit="wells", note=f"wells where the map lowers RMSE, {_n}")
+        for key, lab, unit in (("rmse_raw", "median RMSE, raw run", "m"), ("rmse_mapped", "median RMSE, mapped", "m"),
+                               ("rmse_cut", "median raw RMSE less median mapped RMSE", "m"),
+                               ("abs_bias_raw", "median |bias|, raw run", "m"),
+                               ("abs_bias_mapped", "median |bias|, mapped", "m"),
+                               ("nse_raw", "median NSE, raw run", ""), ("nse_mapped", "median NSE, mapped", "")):
+            rr.add(f"e_qm_{key}_{basis}" + ("_m" if unit == "m" else ""), d[key], unit=unit, note=f"{lab}, {_n}")
+        rr.add(f"e_qm_transfers_{basis}", int(d["verdict"] == "transfers"), unit="",
+               note=f"E18 rule on the {basis} basis: transfers (1) or not (0), D-290")
+    if len(t):
+        n_cens = t[t["basis"] == E18_PRIMARY_BASIS]["n_censored_ccw"]
+        rr.add("e_qm_n_censored_months", int(n_cens.sum()), unit="months",
+               note="CCW months censored at the pipe base and dropped, summed over the E18 wells (as Script 39)")
+
+
+def run_e18(lev, lev_cols, cl, master):
+    t = e18_tests(lev, lev_cols, cl, master)
+    v = e18_verdict(t)
+    for basis, d in v["per"].items():
+        if d.get("verdict") == "not run":
+            step(f"{basis} basis: not run")
+            continue
+        step(f"{basis} basis, {d['n']} wells: median RMSE {d['rmse_raw']:.3f} -> {d['rmse_mapped']:.3f} m "
+             f"(cut {d['rmse_cut']:.3f}), improved at {d['n_improved']}, median |bias| {d['abs_bias_raw']:.3f} -> "
+             f"{d['abs_bias_mapped']:.3f} m, NSE {d['nse_raw']:.2f} -> {d['nse_mapped']:.2f}: {d['verdict']} "
+             f"{ {k: bool(x) for k, x in d['tests'].items()} }")
+    step(f"E18 verdict ({E18_PRIMARY_BASIS} basis): {v['verdict']}")
+    if len(t):
+        t.to_csv(OUT_50_CCW_QMAP, index=False); saved(f"{OUT_50_CCW_QMAP.name} ({len(t)} rows)")
+    return t, v
+
+# ──────────────────────────────────────────────────────────────────────────────
+# E19: does the FILM's correction transfer? (1.22.0, T-133, D-292)
+# ──────────────────────────────────────────────────────────────────────────────
+E19_ARMS = ("raw", "mapped", "offset")
+
+
+def _script47():
+    """Script 47 by path (numeric filename; the Script 30 precedent). Its functions build the film's run and map; E19
+    reuses them unchanged so it tests what the film does, not a copy of it."""
+    path = Path(__file__).resolve().parent / "47_hindcast_film.py"
+    spec = importlib.util.spec_from_file_location("_s47", path)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def _hydro_year(idx: pd.PeriodIndex) -> np.ndarray:
+    """D-207's MSL hydrology year: bucketed months May to April, labelled by the April's year."""
+    return np.where(idx.month <= 4, idx.year, idx.year + 1)
+
+
+def e19_tests():
+    """The film's run and map (Script 47, unchanged) against the median of the admitted CCW wells. Returns
+    (months table, modern-calibration stats, composition check) or (empty, None, None) when inputs are absent."""
+    if not (paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists()):
+        warn("CCW historic inputs not present — E19 is skipped")
+        return pd.DataFrame(), None, None
+    s47 = _script47()
+    clim = s47.load_climate()
+    warren = s47.load_warren()
+    wells = s47.load_wells()
+    lvl = s47.run_recurrence(clim, warren).merge(s47.observed_median(wells), on="month", how="left")
+    cal, stats, _q = s47.calibrate(lvl)
+    if stats is None:
+        warn("the film's map was refused (too few calibration months) — E19 is not run")
+        return pd.DataFrame(), None, None
+    ok = lvl["median_level_observed_m"].notna() & (lvl["n_wells_observed"] >= QMAP_MIN_WELLS)
+    offset = float((lvl.loc[ok, "median_level_observed_m"] - lvl.loc[ok, "median_level_modelled_m"]).mean())
+    run = pd.DataFrame({"raw": lvl["median_level_modelled_m"].to_numpy(float), "mapped": cal,
+                        "offset": lvl["median_level_modelled_m"].to_numpy(float) + offset},
+                       index=pd.PeriodIndex(lvl["month"], freq="M"))
+    stats = dict(stats, offset_m=offset)
+
+    obs, cmap = load_ccw()
+    mdk = pd.read_csv(INT_MASTER_DATA)
+    mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
+    adm = usable_codes(cmap, mdk.set_index("k"), obs)
+    adm = adm[adm["admitted"]]
+    cols, n_cens = {}, 0
+    for r in adm.itertuples():
+        o, nc = observed_series(obs, r.code, r.datum_offset_m)
+        if not o.empty:
+            cols[normalize_well_name(r.well)] = o
+            n_cens += int(nc)
+    C = pd.DataFrame(cols)
+    C.index = pd.PeriodIndex(C.index, freq="M")
+    full = C.notna().all(axis=1)          # every admitted well reads uncensored: the dry tail is clipped, as Script 39
+    tgt = C[full].median(axis=1)
+    rows = pd.DataFrame({"month": tgt.index.astype(str), "hydro_year": _hydro_year(tgt.index),
+                         "ccw_median_m": tgt.to_numpy(float), "n_wells": C[full].notna().sum(axis=1).to_numpy(int)})
+    for a in E19_ARMS:
+        rows[f"{a}_m"] = run[a].reindex(tgt.index).to_numpy(float)
+
+    # composition: the CCW wells' own median against the network median over the modern record (context, not scored)
+    ref = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+    names = {normalize_well_name(c): c for c in ref.columns}
+    sub = [names[k] for k in C.columns if k in names]
+    d = (ref[sub].median(axis=1) - ref[list(wells["well"])].median(axis=1)).dropna()
+    comp = {"n_wells": len(sub), "n_months": int(len(d)), "mean": float(d.mean()), "sd": float(d.std()),
+            "n_censored": n_cens, "n_months_dropped": int((~full).sum()), "n_wells_ccw": int(C.shape[1])}
+    return rows, stats, comp
+
+
+def e19_years(rows: pd.DataFrame) -> pd.DataFrame:
+    out = []
+    for y, g in rows.groupby("hydro_year"):
+        r = {"hydro_year": int(y), "n_months": int(len(g))}
+        for a in E19_ARMS:
+            r[f"rmse_{a}_m"] = float(get_metrics(g["ccw_median_m"], g[f"{a}_m"])[1])
+        out.append(r)
+    return pd.DataFrame(out)
+
+
+def e19_verdict(rows: pd.DataFrame, years: pd.DataFrame) -> dict:
+    """The rule fixed before the run (D-292, E18's with years for wells), per corrected arm: kept if the RMSE falls by
+    at least E18_RMSE_CUT_M, the arm lowers RMSE in a majority of the years with >= E19_MIN_MONTHS_PER_YEAR scored
+    months, and its |bias| is no larger than raw. Outcome: 'map' if the map passes, else 'offset' if the offset passes,
+    else 'neither'."""
+    if rows.empty:
+        return {"outcome": "not run", "per": {}}
+    m = {}
+    for a in E19_ARMS:
+        nse, rmse, bias = get_metrics(rows["ccw_median_m"], rows[f"{a}_m"])
+        m[a] = {"nse": float(nse), "rmse": float(rmse), "bias": float(bias)}
+    yy = years[years["n_months"] >= E19_MIN_MONTHS_PER_YEAR]
+    per = {}
+    for a in ("mapped", "offset"):
+        d = dict(m[a])
+        d["rmse_cut"] = m["raw"]["rmse"] - m[a]["rmse"]
+        d["n_years"] = int(len(yy))
+        d["n_improved"] = int((yy[f"rmse_{a}_m"] < yy["rmse_raw_m"]).sum())
+        d["tests"] = {"rmse_cut": d["rmse_cut"] >= E18_RMSE_CUT_M,
+                      "majority": d["n_improved"] > d["n_years"] / 2,
+                      "bias": abs(m[a]["bias"]) <= abs(m["raw"]["bias"])}
+        d["pass"] = all(d["tests"].values())
+        per[a] = d
+    outcome = "map" if per["mapped"]["pass"] else ("offset" if per["offset"]["pass"] else "neither")
+    return {"outcome": outcome, "per": per, "raw": m["raw"], "n_months": int(len(rows))}
+
+
+def e19_report(rr, rows, years, v, stats, comp) -> None:
+    if v.get("outcome") == "not run":
+        return
+    code = {"map": 2, "offset": 1, "neither": 0}[v["outcome"]]
+    _n = f"film's warren run against the median of the admitted CCW wells, {v['n_months']} months 1989-96 (E19, D-292)"
+    rr.add("e19_outcome", code, unit="",
+           note="E19 outcome (D-292): 2 = the film's quantile map transfers, 1 = only the offset does, 0 = neither (the film keeps its map, caveated)")
+    rr.add("e19_rmse_cut_threshold_m", E18_RMSE_CUT_M, unit="m", note="E19 rule: RMSE must fall by at least this (config.E18_RMSE_CUT_M, D-292)")
+    rr.add("e19_n_months", v["n_months"], unit="months", note=f"CCW months scored, every admitted well uncensored; {_n}")
+    rr.add("e19_n_months_dropped", comp["n_months_dropped"], unit="months", note="CCW months dropped because an admitted well was censored at its pipe base (E19)")
+    rr.add("e19_n_wells_ccw", comp["n_wells_ccw"], unit="wells", note="admitted CCW wells in the median (Script 39's admission, E19)")
+    for k, lab in (("rmse", "RMSE"), ("bias", "bias (modelled minus observed)"), ("nse", "NSE")):
+        rr.add(f"e19_{k}_raw" + ("_m" if k != "nse" else ""), v["raw"][k], unit="m" if k != "nse" else "", note=f"{lab}, raw run, {_n}")
+    for a, key in (("mapped", "map"), ("offset", "offset")):
+        d = v["per"][a]
+        for k, lab in (("rmse", "RMSE"), ("bias", "bias (modelled minus observed)"), ("nse", "NSE"), ("rmse_cut", "raw RMSE less this arm's")):
+            rr.add(f"e19_{k}_{key}" + ("_m" if k != "nse" else ""), d[k], unit="m" if k != "nse" else "", note=f"{lab}, {a} arm, {_n}")
+        rr.add(f"e19_n_years_improved_{key}", d["n_improved"], unit="years", note=f"hydrology years where the {a} arm lowers RMSE (E19)")
+        rr.add(f"e19_pass_{key}", int(d["pass"]), unit="", note=f"E19 rule on the {a} arm: kept (1) or not (0), D-292")
+    rr.add("e19_n_years", v["per"]["mapped"]["n_years"], unit="years",
+           note="D-207 hydrology years with at least E19_MIN_MONTHS_PER_YEAR scored months (E19)")
+    rr.add("e19_offset_m", stats["offset_m"], unit="m", note="the offset arm: mean observed minus modelled over the film's calibration months (E19)")
+    for k, lab in (("bias_raw", "bias, raw"), ("bias_mapped", "bias, mapped"), ("rmse_raw", "RMSE, raw"),
+                   ("rmse_mapped", "RMSE, mapped"), ("wet_end_bias_raw", "wet-end bias, raw"),
+                   ("wet_end_bias_mapped", "wet-end bias, mapped")):
+        rr.add(f"e19_modern_{k}_m", float(stats[k]), unit="m",
+               note=f"{lab}: the film's calibration over its {stats['n_months']} modern months (Script 47's calibrate, read by E19)")
+    for k, lab in (("level_max_raw", "raw"), ("level_max_mapped", "mapped")):
+        rr.add(f"e19_century_{k}_m", float(stats[k]), unit="m",
+               note=f"highest monthly level of the film's century run, {lab} (Script 47's calibrate, read by E19)")
+    rr.add("e19_composition_mean_m", comp["mean"], unit="m",
+           note=f"modern record: the CCW wells' median less the network median, mean over {comp['n_months']} months (context, not scored)")
+    rr.add("e19_composition_sd_m", comp["sd"], unit="m", note="the same difference, standard deviation (E19 context)")
+
+
+def run_e19():
+    rows, stats, comp = e19_tests()
+    if rows.empty:
+        return rows, pd.DataFrame(), {"outcome": "not run"}, stats, comp
+    years = e19_years(rows)
+    v = e19_verdict(rows, years)
+    r = v["raw"]
+    step(f"{v['n_months']} CCW months ({comp['n_months_dropped']} dropped, censored), {comp['n_wells_ccw']} wells; "
+         f"raw RMSE {r['rmse']:.3f} m, bias {r['bias']:+.3f}, NSE {r['nse']:.2f}")
+    for a, d in v["per"].items():
+        step(f"{a}: RMSE {d['rmse']:.3f} (cut {d['rmse_cut']:+.3f}), bias {d['bias']:+.3f}, NSE {d['nse']:.2f}, "
+             f"better in {d['n_improved']}/{d['n_years']} years: {'pass' if d['pass'] else 'fail'} "
+             f"{ {k: bool(x) for k, x in d['tests'].items()} }")
+    step(f"composition (modern): CCW wells' median less network median {comp['mean']:+.3f} m, sd {comp['sd']:.3f}")
+    step(f"E19 outcome: {v['outcome']}")
+    rows.to_csv(OUT_50_CCW_FILM_MAP, index=False); saved(f"{OUT_50_CCW_FILM_MAP.name} ({len(rows)} rows)")
+    years.to_csv(OUT_50_CCW_FILM_MAP_YEARS, index=False); saved(f"{OUT_50_CCW_FILM_MAP_YEARS.name} ({len(years)} rows)")
+    return rows, years, v, stats, comp
+
+
+def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, only_e18: bool = False,
+         only_e19: bool = False) -> int:
     banner("50", "What the record length decides", version=__version__)
     DIR_50.mkdir(parents=True, exist_ok=True)
 
@@ -4607,7 +4933,7 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False) -
     lev, lev_cols, cl, master = load_inputs()
     info(f"{len(master)} reference wells; lengths {', '.join(LENGTHS)} (fitted monthly changes); "
          f"split {MODEL_AB_SPLIT_DATE}; stability tolerance {RECLEN_STABLE_TOL:g}")
-    if only_e16 or only_e17:
+    if only_e16 or only_e17 or only_e18 or only_e19:
         t16 = None
         if only_e16:
             phase("17b", "Model A(ii): one drainage base in elevation, scored on the forward tests (E16, 1.19.0, D-286)")
@@ -4624,6 +4950,20 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False) -
                 e17_report(rr, *r17)
                 _e16_merge_report_numbers(rr, "e17_")
                 saved(f"{OUT_50_REPORT_NUMBERS.name} (e17_* rows replaced, {len(rr.rows)} rows)")
+        if only_e18:
+            phase("17d", "Does a modern-record calibration transfer to CCW 1989-96? (E18, 1.21.0, D-290)")
+            t18, v18 = run_e18(lev, lev_cols, cl, master)
+            rr = ReportNumbers()
+            e18_report(rr, t18, v18)
+            _e16_merge_report_numbers(rr, "e_qm_")
+            saved(f"{OUT_50_REPORT_NUMBERS.name} (e_qm_* rows replaced, {len(rr.rows)} rows)")
+        if only_e19:
+            phase("17e", "Does the film's correction transfer to CCW 1989-96? (E19, 1.22.0, D-292)")
+            r19 = run_e19()
+            rr = ReportNumbers()
+            e19_report(rr, *r19)
+            _e16_merge_report_numbers(rr, "e19_")
+            saved(f"{OUT_50_REPORT_NUMBERS.name} (e19_* rows replaced, {len(rr.rows)} rows)")
         done("50")
         return 0
 
@@ -4889,6 +5229,12 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False) -
     phase("17c", "A drainage base per cluster, chosen from the modern record (E17, 1.20.0, D-287)")
     e17 = run_e17(lev, lev_cols, cl, master, e16[0])
 
+    phase("17d", "Does a modern-record calibration transfer to CCW 1989-96? (E18, 1.21.0, D-290)")
+    e18 = run_e18(lev, lev_cols, cl, master)
+
+    phase("17e", "Does the film's correction transfer to CCW 1989-96? (E19, 1.22.0, D-292)")
+    e19 = run_e19()
+
     phase(18, "Outputs")
     df.to_csv(OUT_50_PER_WELL, index=False); saved(f"{OUT_50_PER_WELL.name} ({len(df)} rows)")
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
@@ -4916,6 +5262,8 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False) -
     e16_report(rr, e16[1], e16[2], e16[3], e16[0])
     if e17 is not None:
         e17_report(rr, *e17)
+    e18_report(rr, *e18)
+    e19_report(rr, *e19)
     rr.save(OUT_50_REPORT_NUMBERS); saved(f"{OUT_50_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     if not no_fig:
         plot(summ)
@@ -4941,5 +5289,12 @@ if __name__ == "__main__":
     ap.add_argument("--only-e17", action="store_true",
                     help="run E17 alone (a base per cluster, D-287; reads E16's 50_41 unless --only-e16 is also given): "
                          "writes 50_43/50_44 and replaces only the e17_* report numbers")
+    ap.add_argument("--only-e18", action="store_true",
+                    help="run E18 alone (does a modern-record quantile map transfer to CCW 1989-96, D-290): "
+                         "writes 50_45 and replaces only the e_qm_* report numbers")
+    ap.add_argument("--only-e19", action="store_true",
+                    help="run E19 alone (does the film's correction transfer to CCW 1989-96, D-292): "
+                         "writes 50_46/50_47 and replaces only the e19_* report numbers")
     args = ap.parse_args()
-    sys.exit(main(no_fig=args.no_fig, only_e16=args.only_e16, only_e17=args.only_e17))
+    sys.exit(main(no_fig=args.no_fig, only_e16=args.only_e16, only_e17=args.only_e17, only_e18=args.only_e18,
+                  only_e19=args.only_e19))

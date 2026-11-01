@@ -21,7 +21,10 @@ the ground, so readings there are censored and the model is capped at the ground
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-02 (D-229). Adds compare_offset_censored(), Script 44
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-10-29 (T-130, D-290). quantile_map() moved here from Script 47 1.9.1
+#   unchanged (its tail fraction now an argument, default config.QMAP_TAIL_FRACTION), so Script 47's film calibration
+#   and Script 50's E18 transfer test use one map.
+# 1.1.0  # Hollingham (2026) - 2026-10-02 (D-229). Adds compare_offset_censored(), Script 44
 #   1.8.0's compare() moved here unchanged (offset fitted on the uncensored months, model capped at the
 #   ground, NSE after offset) so that Script 50's E9 scores Ranwell exactly as Script 44 does.
 # 1.0.0  # Hollingham (2026) - 2026-10-01 (D-222). First issue: load_ccw, observed_series,
@@ -152,3 +155,27 @@ def compare_offset_censored(obs_month: pd.Series, model_mid: pd.Series, ground_m
                 range_obs_m=float(o.max() - o.min()), range_model_m=float(pa.max() - pa.min()),
                 min_month_obs=str(o51.idxmin()) if len(o51) else "",
                 min_month_model=str(p51.idxmin()) if len(p51) else "")
+
+
+def quantile_map(model, observed, tail_fraction: float | None = None):
+    """f(x): a free run's level mapped onto an observed distribution (Script 47's
+    calibration, moved here at 1.2.0 unchanged).
+
+    Ranks are kept, so the ORDER of the run is the model's; the mean bias goes; and
+    beyond either end of the fitted range the map continues on the outer
+    `tail_fraction` of the distribution's own slope rather than flattening.
+    Returns (f, sorted model, sorted observed).
+    """
+    tf = config.QMAP_TAIL_FRACTION if tail_fraction is None else tail_fraction
+    m, o = np.sort(np.asarray(model, float)), np.sort(np.asarray(observed, float))
+    k = max(5, int(len(m) * tf))
+    slo, shi = np.polyfit(m[:k], o[:k], 1)[0], np.polyfit(m[-k:], o[-k:], 1)[0]
+
+    def f(x):
+        x = np.asarray(x, float)
+        q = np.interp(x, m, o)
+        lo, hi = x < m[0], x > m[-1]
+        q[lo] = o[0] + slo * (x[lo] - m[0])
+        q[hi] = o[-1] + shi * (x[hi] - m[-1])
+        return q
+    return f, m, o

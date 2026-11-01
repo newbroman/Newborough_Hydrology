@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.9.1 — pl (Polski)
+# Frame text — 47_hindcast_film.py 1.10.0 — pl (Polski)
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -50,8 +50,8 @@ Kolejne slajdy pokazują, jak go zrobiono: model wód gruntowych, zdjęcia satel
 [figure] 00_01_climate_timeseries_short.png
 [figure] 47_06_free_run_vs_wells_pl.png
 Rycina 4 (po lewej) to pogoda i zwierciadło wód gruntowych razem, 2005–2026. (a) Opad, miesiąc po miesiącu, z wieloletnią średnią jako linią przerywaną. (b) Parowanie, które osiąga szczyt każdego lata. (c) Bieżący bilans opadu minus parowanie: rośnie w mokrych ciągach miesięcy i spada w suchych. (d) Zwierciadło wód gruntowych, uśrednione po piezometrach rezerwatu, z rozrzutem między piezometrami zaznaczonym cieniem. Panele (c) i (d) rosną i opadają razem: na tym związku zbudowano model.
-Z tego studium wyprowadziło prostą miesięczną regułę: zwierciadło podnosi się z opadem danego miesiąca, opada z jego parowaniem i drenuje się proporcjonalnie do tego, jak wysoko stoi.
-Wykres u góry po prawej to test, od którego zależy ten film. Niebieska linia to model uruchomiony wyłącznie na pogodzie z RAF Valley od 1930 roku, bez żadnego pomiaru z piezometrów, który by go korygował; czarna linia to to, co zmierzyły piezometry. Model podąża za mokrymi i suchymi latami wydm, średnio o 15 cm za nisko: to odchylenie usuwa następny slajd.
+Z tego studium wyprowadziło prostą miesięczną regułę: zwierciadło podnosi się z opadem danego miesiąca, opada z jego parowaniem i drenuje się proporcjonalnie do tego, jak wysoko stoi. Film używa jednej takiej reguły, dopasowanej do piezometrów otwartych wydm; piezometry w lesie są pominięte, tak jak las jest pominięty na mapach.
+Wykres u góry po prawej to test, od którego zależy ten film. Niebieska linia to model uruchomiony wyłącznie na pogodzie z RAF Valley od 1930 roku, bez żadnego pomiaru z piezometrów, który by go korygował; czarna linia to to, co zmierzyły piezometry. Model podąża za mokrymi i suchymi latami wydm, średnio o 3 cm za nisko: to odchylenie usuwa następny slajd.
 [footer] Rycina 4 raportu, rozdział 4.1.1 · model wobec piezometrów: własny bieg tego filmu
 
 ### Korekta modelu do piezometrów
@@ -65,7 +65,7 @@ Sentinel-2 fotografuje wydmy co kilka dni od 2016 roku, w kwadratach 10 m. W bli
 Na każdym z nich zlicza się ciemne kwadraty na dnie obniżeń, dzieląc je na otwartą wodę (najciemniejsze) i mokre dno, i zestawia ze zwierciadłem, które piezometry zmierzyły w tym samym miesiącu. Każda para punktów na rycinie to jedno zdjęcie. Cztery z nich pokazano poniżej w tym paśmie bliskiej podczerwieni, od najsuchszego do najmokrzejszego, każde przeskalowane do własnej jasności dna obniżeń, tak jak odczytuje ją metoda; każda linia prowadzi do swoich punktów.
 Punkty układają się na dwóch gładkich krzywych. Mokre dno przyrasta łagodnie, gdy zwierciadło się podnosi; otwarta woda pozostaje bliska zeru, dopóki woda nie zbliży się do powierzchni, a potem rośnie stromo. Te krzywe zamieniają zwierciadło filmu na hektary w jego tytule.
 Dopasowano je między −0.80 m a +0.03 m, w zakresie, który widziały zdjęcia. Powyżej film mówi POZA ZAPISEM.
-[footer] Rycina 49 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
+[footer] Rycina 50 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
 
 ### Sprawdzian: model wobec satelity
 [figure] 45_02_ssm_through_nir_curves.png
@@ -73,14 +73,14 @@ Dopasowano je między −0.80 m a +0.03 m, w zakresie, który widziały zdjęcia
 Zanim krzywym powierzy się model, są z nim testowane. Tutaj krzywe są sterowane zwierciadłem modelu zamiast piezometrami, a przewidywana przez nie powierzchnia jest porównywana, miesiąc po miesiącu, z powierzchnią faktycznie zmierzoną przez satelitę.
 Satelita nie bierze udziału w modelu, więc jest to niezależny test samego zwierciadła, a nie tylko krzywych. Te same cztery zdjęcia w bliskiej podczerwieni są poniżej; każda linia prowadzi do swojego miesiąca na górnym panelu i nazywa szczyt lub minimum, do którego należy.
 Mokre dno jest odtwarzane blisko. Otwarta woda, która pojawia się nagle, gdy woda sięga powierzchni, jest odtwarzana gorzej: mały błąd zwierciadła daje duży błąd powierzchni rozlewisk. Dlatego niebieski jest w filmie barwą mniej pewną.
-[footer] Rycina 50 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
+[footer] Rycina 51 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
 
 ### 3.  Dokąd idzie woda: druga kalibracja
 [figure] 45_03_switching_levels_map.png
 Krzywe mówią, jak duża część dna jest mokra; nie mówią gdzie. Do tego służy własna historia każdego kwadratu 10 m na zdjęciach: poziom zwierciadła, przy którym po raz pierwszy odczytano mokre dno (a, mapa górna) i po raz pierwszy otwartą wodę (b, mapa dolna).
 Najniższe zagłębienia przełączają się pierwsze, wyższe brzegi ostatnie. Szare kwadraty nigdy nie przełączyły się w zakresie, który widziały zdjęcia, a las pominięto, bo pod drzewami satelita widzi korony, nie grunt.
 Film zapala każdy kwadrat, gdy zwierciadło modelu sięga jego poziomu. GDZIE pojawiają się barwy, nauczono się z satelity; KIEDY — to model.
-[footer] Rycina 51 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
+[footer] Rycina 52 raportu, rozdział 4.8.5 · Zawiera zmodyfikowane dane Copernicus Sentinel
 
 ### Jak wydmy wyglądają z kosmosu
 [satellite] 2019-04, 2021-02
@@ -109,7 +109,7 @@ Uczciwe twierdzenie o tych zimach brzmi: były większe niż 2021, nic ponadto.
 ## SLIDES AFTER THE FILM
 
 ### Co mówi film, z zastrzeżeniami
-Lata 60. były mokrą dekadą, z mniej więcej dwukrotnie większą otwartą wodą niż w przeciętnej zimie pozostałych dekad.
+Lata 60. były mokrą dekadą, z mniej więcej 1.7 raza większą otwartą wodą niż w przeciętnej zimie pozostałych dekad.
 Zimy 1961–62 i 2000–01 wyróżniają się jako dwie wielkie powodzie stulecia, za nimi 1938–39 i 1958–59; zima 2015–16 była najmokrzejszą ery satelitarnej po 2021 roku.
 Lata 70. i 90. były suchymi dekadami, z prawie żadną otwartą wodą w przeciętnej zimie.
 Wszystko to jest relacją modelu o tym, co pogoda zrobiłaby z rezerwatem w jego dzisiejszym kształcie.

@@ -44,7 +44,15 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.118.0"  # Hollingham (2026) - 2026-10-28. BENCHMARK_MIN_WINDOW_MONTHS (Script 08 1.8.0, D-288). Additive.
+__version__ = "1.121.0"  # Hollingham (2026) - 2026-11-01. E19_MIN_MONTHS_PER_YEAR (Script 50 1.22.0, E19, T-133, D-292; Martin
+#   2026-11-01 "approve majority of years"). Additive.
+# 1.120.0  # Hollingham (2026) - 2026-10-30. MSL9_WINDOW_YEARS, MSL9_MIN_YEARS_IN_WINDOW, MSL9_HANDBOOK_WINDOW_END,
+#   HB_COMMUNITY_TABLE (Script 26 1.27.0, T-131, D-291; Martin 2026-10-30 "Put MSL9 in script 26 ... the same spec as the June
+#   handbook. Otherwise, we use 7 out of 9. Use the vegetation table from the second edition"). Additive.
+# 1.119.0  # Hollingham (2026) - 2026-10-29. FILM_WARREN_CLUSTERS, FILM_DECADE_MONTHS, FILM_WET_DECADE (Script 03 1.29.0,
+#   Script 47 1.10.0, T-129, D-289; Martin 2026-10-29 "Script 03", "One run", "Field, not fixed text"). E18_RMSE_CUT_M,
+#   E18_BASES, E18_PRIMARY_BASIS (Script 50 1.21.0, T-130, D-290; Martin 2026-10-29 "Yes, rule as proposed"). Additive.
+# 1.118.0  # Hollingham (2026) - 2026-10-28. BENCHMARK_MIN_WINDOW_MONTHS (Script 08 1.8.0, D-288). Additive.
 # 1.117.0  # Hollingham (2026) - 2026-10-28. E17_CANDIDATES, E17_PRIMARY_CANDIDATE (Script 50 1.20.0, E17, D-287; Martin 04:28 "S"). Additive.
 # 1.116.0  # Hollingham (2026) - 2026-10-27. PLACEMENT_LENGTHS_MONTHS (Script 50 1.17.0, E12b, D-282; Martin
 #   02:14 "Add the script 50 short record placement test").
@@ -1592,6 +1600,22 @@ HB_SD16_MSL = 0.48    # m — SD16 mean spring level  # source: Denning et al. 2
 HB_SD15b_MIN = 0.64   # m — SD15b summer minimum  # source: Denning et al. 2024 Table 2, SD15b minimum water level -0.64 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
 HB_SD16_MIN = 0.96    # m — SD16 summer minimum  # source: Denning et al. 2024 Table 2, SD16 minimum water level -0.96 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
 HB_SD15b_WINTER = -0.09  # m — SD15b winter maximum (0.09 m ABOVE ground)  # source: Denning et al. 2024 Table 2, SD15b maximum water level +0.09 m above ground, nine-year average 2006-2014, Newborough and Ainsdale; negative = above ground
+# The whole of the handbook's community table (T-131, D-291): Denning et al. (2024) Table 2 = Jones et
+# al. (2021) Table 1 (values identical; both in literature/), "cm above ground surface", stored here
+# in metres in the HANDBOOK's sign (positive = above ground, negative = below), which is also the
+# sign of Script 26's *_m_bg levels. (msl, winter/spring max, average, summer/autumn min); None
+# where the handbook gives none (SD13: insufficient data, omitted; grassland minimum: n/a).
+# HB_SD15b_* / HB_SD16_* above are the same numbers in the positive-down convention their consumers
+# use; Script 26 asserts the two agree.
+HB_COMMUNITY_TABLE = {
+    "SD14b": (-0.15,  0.09, -0.26, -0.66),
+    "SD14d": (-0.33, -0.13, -0.47, -0.83),
+    "SD15b": (-0.13,  0.09, -0.27, -0.64),
+    "SD15a": (-0.46, -0.33, -0.61, -0.93),
+    "SD16":  (-0.48, -0.34, -0.63, -0.96),
+    "SD17":  (-0.29,  0.11, -0.32, -0.71),
+    "Dune grassland": (-0.89, -0.70, -1.03, None),
+}
 HB_SD16_WINTER = 0.34    # m — SD16 winter maximum  # source: Denning et al. 2024 Table 2, SD16 maximum water level -0.34 m, nine-year average 2006-2014, Newborough and Ainsdale; positive = below ground
 
 # Script 14 fits its cluster trends on a fixed-effects cluster series (each well its own level,
@@ -1648,6 +1672,18 @@ MSL_HYDRO_YEAR_START_MONTH_DATED = MSL_HYDRO_YEAR_START_MONTH + 1
 MSL_DEFAULT_WINDOW_YEARS   = 5
 MSL_MIN_MONTHS_PER_SPRING  = 3
 MSL_MIN_YEARS_IN_WINDOW    = 5
+
+# MSL9 (T-131, D-291): the Sand Dune Managers Handbook's spring metric - the March-May mean
+# (readings DATED March-May, the same MSL_SPRING_MONTHS) averaged over nine years (Table 1 of
+# Version 1, June 2021; Table 2 of Version 2, 2024: "9-year averages (2006-2014)"). The handbook
+# states no completeness rule, so a window needs MSL9_MIN_YEARS_IN_WINDOW valid springs of nine
+# (Martin 2026-10-30); each spring still needs MSL_MIN_MONTHS_PER_SPRING months, as for MSL5. A
+# rolling series per well, beside MSL5, which is unchanged. MSL9_HANDBOOK_WINDOW_END is the
+# hydrology year (labelled by its end, MSL_HYDRO_YEAR_START_MONTH) whose nine-spring window holds
+# the springs of 2006-2014: the spring of calendar year y belongs to hydrology year y.
+MSL9_WINDOW_YEARS          = 9
+MSL9_MIN_YEARS_IN_WINDOW   = 7
+MSL9_HANDBOOK_WINDOW_END   = 2014
 
 # Plot-presentation: trajectory figures restricted to window-ends ≥ this year.
 # The reference + extended network expanded materially between 2007 and 2010
@@ -2584,6 +2620,18 @@ HINDCAST_SEED_MONTHS         = (8, 9)                 # Aug-Sep
 # ignore.
 HINDCAST_SPIN_UP_YEARS       = 2
 
+# The open-dune warren the film runs (T-129, D-289). One Model A rule, fitted at
+# the project datum to the centroid of every member well of these clusters, and
+# run once: the film shows the warren, and the forest wells sit under the canopy
+# the maps leave out. Script 03 writes the fit (OUT_03_WARREN); Script 47 reads it.
+FILM_WARREN_CLUSTERS         = (1, 2, 3)              # Lake Edge, Dune, Western Residual
+
+# The film's "wet decade" sentence is bound to a number (T-129). Winter open water,
+# averaged per decade over these months with the spin-up excluded, the named decade
+# set against the median of the other decades' means.
+FILM_DECADE_MONTHS           = (12, 1, 2, 3)          # Dec-Mar
+FILM_WET_DECADE              = 1960
+
 # The quantile map that calibrates the free run to the well period. A month
 # counts as observed only with at least QMAP_MIN_WELLS wells read, and the map is
 # refused altogether below QMAP_MIN_MONTHS such months — a map fitted on a short
@@ -3501,3 +3549,18 @@ E15_MIN_CLUSTERS     = 3
 # others are reported as checks.
 E17_CANDIDATES        = ("S", "R", "B")
 E17_PRIMARY_CANDIDATE = "S"
+
+# E18 (Script 50 1.21.0, T-130, D-290; Martin 2026-10-29 "Yes, rule as proposed"): does a calibration fitted on the
+# modern record transfer to the CCW 1989-96 decade? Per well, a quantile map fitted on that well's modern record and
+# applied unchanged to its CCW hindcast. The rule, fixed before the run, per basis: "transfers" if the median RMSE over
+# wells falls by at least E18_RMSE_CUT_M, the map lowers RMSE at a majority of wells, and the median |bias| is no larger
+# than raw; otherwise "does not transfer". Both of E12's bases are run; the primary is the verdict.
+E18_RMSE_CUT_M        = 0.05
+E18_BASES             = ("well", "cluster")
+E18_PRIMARY_BASIS     = "well"
+
+# E19 (Script 50 1.22.0, T-133, D-292; Martin 2026-11-01 "Test A otherwise c", "no model B arms, approve majority of
+# years"): the film's own correction (one warren run quantile-mapped onto the network median) scored against the CCW
+# 1989-96 median by E18's rule, with "a majority of years" for "a majority of wells". A D-207 hydrology year counts
+# toward that majority only with at least this many scored months.
+E19_MIN_MONTHS_PER_YEAR = 6

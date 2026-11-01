@@ -2363,6 +2363,38 @@ Script 08 1.8.0 keeps a well with at least `BENCHMARK_MIN_WINDOW_MONTHS` (config
 
 **Revisit if** the tier-2 censoring (D-281) reaches Script 08 (dry months then enter as bounds, and the TLM needs the same treatment); a threshold choice changes a cluster median by more than the reporting precision.
 
+### D-289 — The hindcast film runs one rule, the open-dune warren's, fitted to every C1-C3 member well; the forest wells are left out of the run
+
+*2026-10-29*
+
+Script 03 1.29.0 fits Model A at the project datum, `HEADLINE_LAG`, full record, to the mean hydrograph of every member well of `config.FILM_WARREN_CLUSTERS` (C1-C3; each well counted once, from the D-281 dry-filled frame) and writes it with its seed (the mean over years of the centroid's `HINDCAST_SEED_MONTHS` minimum) to `03_22_warren_open_dune_coefficients.csv`, with `warren_open_*` report numbers. Script 47 1.10.0 runs that one rule once from 1930-12, seeded once; the quantile map to the reference network's observed median is unchanged. The wet-decade ratio (winter `FILM_DECADE_MONTHS` open water, spin-up excluded, the `FILM_WET_DECADE` mean over the median of the other decades' means) is emitted as `film_wet_decade_ratio` in `47_report_numbers.csv` and formatted into `says_p1` in all three languages; `m1_p2` gains one sentence naming the rule (film_text 1.0.2).
+
+**Revisit if** the open-dune partition changes (FILM_WARREN_CLUSTERS); the tier-2 censoring (D-281) reaches the centroid fill; a reader needs the forest's own trajectory on the film.
+
+### D-290 — A quantile map fitted on each well's modern record does not transfer to the CCW 1989-96 decade on the per-well basis (E18)
+
+*2026-10-29*
+
+Script 50 1.21.0 E18. Script 39's CCW protocol unchanged (each admitted well's own Model A at the project datum, full modern record, equilibrium seed, censored months dropped), and the same on E12's cluster basis; one continuous run per well; `utils.hindcast_utils.quantile_map` (Script 47's map, moved there unchanged, hindcast_utils 1.2.0) fitted on the run against the well's modern readings and applied unchanged to 1989-96. Rule fixed before the run (config `E18_*`), per basis: "transfers" if the median RMSE falls by at least `E18_RMSE_CUT_M`, the map lowers RMSE at a majority of wells, and the median |bias| is no larger than raw. Verdict on the primary (well) basis: **does not transfer** (`e_qm_transfers`): the median RMSE falls by more than the threshold and the median |bias| falls, but the map helps fewer than half the wells. On the cluster basis it helps a majority but the median RMSE falls by less than the threshold, so that basis fails too (`e_qm_*_cluster`).
+
+**Revisit if** more drier-epoch wells; the tier-2 censoring (D-281) enters the CCW scoring; a map with fewer degrees of freedom (an offset or a linear map) is proposed as a test in its own right.
+
+### D-291 — MSL9, the handbook's nine-year mean spring level, joins Script 26 as a rolling series beside MSL5, set against the whole handbook community table
+
+*2026-10-30*
+
+Script 26 1.27.0 Pass 4b. MSL9(y) is the mean of the valid annual spring levels (readings dated March-May, MSL_SPRING_MONTHS; 3 of 3 months, as MSL5) over hydrology years y-8..y, kept with at least `MSL9_MIN_YEARS_IN_WINDOW` (7) of `MSL9_WINDOW_YEARS` (9); rolling, per well, reference and extended tiers, MSL5_EXCLUDED_WELLS flagged and left out of the cluster and community tables as for MSL5. The whole of the handbook table (Denning et al. 2024 Table 2 = Jones et al. 2021 Table 1, values identical) is `config.HB_COMMUNITY_TABLE`; the SD15b/SD16 constants are asserted against it. Each included well is set against the table at two window ends, the handbook's (`MSL9_HANDBOOK_WINDOW_END`) and the latest in the network: the community whose MSL is nearest and the difference. A band of water regime, not a claim about the vegetation at the well. MSL5 and every other output unchanged.
+
+**Revisit if** Stratford et al. (2014) or Laurence gives the handbook's window or completeness rule; the network before 2010 (few wells) makes the handbook window unrepresentative (its well count is `msl9_handbook_n_wells`).
+
+### D-292 — The film's own correction does not pass E18's rule on CCW 1989-96 (E19); the film keeps its quantile map, caveated as untested before the wells
+
+*2026-11-01*
+
+Script 50 1.22.0 E19 (`--only-e19`; phase 17e in the full run). Script 47's `load_warren`, `run_recurrence`, `observed_median` and `calibrate` read unchanged through importlib, so the test is the film's construction, not a copy. Three arms against the median of the CCW wells Script 39 admits, over the months every one of them reads uncensored: raw, quantile-mapped, and offset only (the modern mean bias over the map's own calibration months). E18's rule, fixed before the run, per corrected arm: kept if the RMSE falls by at least `E18_RMSE_CUT_M`, the arm lowers RMSE in a majority of the D-207 hydrology years with at least `E19_MIN_MONTHS_PER_YEAR` scored months, and |bias| is no larger than raw. Outcome order: the map if it passes, else the offset, else neither. **Outcome: neither** (`e19_outcome`). The map lowers RMSE and |bias| and is better in a majority of years but its RMSE cut is short of the threshold; the offset barely moves anything. So, as agreed (C), the film keeps its map and its caveat says the correction is fitted on the well years and untested before them.
+
+**Revisit if** a wetter independent epoch with readings (the only test of the wet end); a map with fewer degrees of freedom on the wet tail; the film's run changes again (D-289).
+
 ---
 
-287 decisions. Generated by `tools/build_public_decisions.py`.
+291 decisions. Generated by `tools/build_public_decisions.py`.

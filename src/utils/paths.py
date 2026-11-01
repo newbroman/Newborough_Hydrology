@@ -11,7 +11,12 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.76.0"  # Hollingham (2026) - 2026-10-28. Script 50 1.20.0 (E17, D-287): OUT_50_CLUSTER_BASE_TESTS, OUT_50_CLUSTER_BASE_SUMMARY, OUT_03_WELL_OPTIMAL_DATUMS.
+__version__ = "1.79.0"  # Hollingham (2026) - 2026-11-01. Script 50 1.22.0 (E19, T-133, D-292): OUT_50_CCW_FILM_MAP, OUT_50_CCW_FILM_MAP_YEARS.
+# 1.78.0  # Hollingham (2026) - 2026-10-30. Script 26 1.27.0 (T-131, D-291): OUT_26_MSL9_PER_WELL, OUT_26_MSL9_PER_CLUSTER,
+#   OUT_26_MSL9_COMMUNITY, OUT_26_MSL9_TRAJECTORY.
+# 1.77.0  # Hollingham (2026) - 2026-10-29. Script 03 1.29.0 (T-129, D-289): OUT_03_WARREN. Script 47 1.10.0: OUT_47_REPORT_NUMBERS.
+#   Script 50 1.21.0 (T-130, D-290): OUT_50_CCW_QMAP.
+# 1.76.0  # Hollingham (2026) - 2026-10-28. Script 50 1.20.0 (E17, D-287): OUT_50_CLUSTER_BASE_TESTS, OUT_50_CLUSTER_BASE_SUMMARY, OUT_03_WELL_OPTIMAL_DATUMS.
 # 1.75.0  # Hollingham (2026) - 2026-10-28. Script 50 1.19.0 (E16, D-286): OUT_50_ELEV_DATUM_TESTS, OUT_50_ELEV_DATUM_SUMMARY.
 # 1.74.0  # Hollingham (2026) - 2026-10-27. Script 50 1.17.0 (E12b, D-282): OUT_50_PLACEMENT. Script 03 1.28.0
 #   (D-281): OUT_03_DRY_FILL.
@@ -610,6 +615,7 @@ OUT_03_DATUM_ZERO          = DIR_03 / "03_19_datum_zero_fit.csv"   # centroid Mo
 OUT_03_PER_WELL_RECESSION  = DIR_03 / "03_19_per_well_recession_full_record.csv"  # D-192: β₃, t½, 1/β₃ per well on the FULL record; Script 18 reads it
 OUT_03_DATUM_AOD           = DIR_03 / "03_20_datum_aod_sweep.csv"   # T-99 / D-163 route 4: Model A per well with the datum fixed in elevation (z0 m AOD)
 OUT_03_DRY_FILL            = DIR_03 / "03_21_dry_member_fill.csv"   # D-281: each dry member-month, its bound and the level the centroids use
+OUT_03_WARREN              = DIR_03 / "03_22_warren_open_dune_coefficients.csv"   # T-129 / D-289: Model A on the centroid of every FILM_WARREN_CLUSTERS well (the film's one rule)
 
 # Script 04 — Cluster visualisations
 OUT_04_ARCHITECTURE_MAP = DIR_04 / "04_01_core_architecture_map.png"
@@ -1412,6 +1418,7 @@ OUT_47_FILM            = DIR_47 / "47_03_hindcast_film.mp4"           # gitignor
 OUT_47_CAVEATS         = DIR_47 / "47_05_frame_caveats.txt"
 OUT_47_BACKGROUND      = DIR_47 / "47_00_background_2021-04-04.png"
 OUT_47_FREE_RUN_FIG    = DIR_47 / "47_06_free_run_vs_wells.png"   # the weather-only run against the wells (slide 1)
+OUT_47_REPORT_NUMBERS  = DIR_47 / "47_report_numbers.csv"   # T-129: the film's bound numbers (the wet-decade ratio)
 
 # ── Script 48 — the Pastas cross-check of the per-well SSM (2026-09-24) ──────
 # Analytical tier, default. Created by the script when it runs (the DIR_43/44/47 rule).
@@ -1460,6 +1467,9 @@ OUT_50_ELEV_DATUM_TESTS   = DIR_50 / "50_41_elevation_datum_by_test.csv"    # E1
 OUT_50_ELEV_DATUM_SUMMARY = DIR_50 / "50_42_elevation_datum_summary.csv"    # E16, D-286
 OUT_50_CLUSTER_BASE_TESTS   = DIR_50 / "50_43_cluster_base_by_test.csv"    # E17, D-287
 OUT_50_CLUSTER_BASE_SUMMARY = DIR_50 / "50_44_cluster_base_summary.csv"    # E17, D-287
+OUT_50_CCW_QMAP             = DIR_50 / "50_45_ccw_quantile_map.csv"         # E18, T-130 / D-290: per well x basis, raw and mapped CCW skill
+OUT_50_CCW_FILM_MAP         = DIR_50 / "50_46_ccw_film_map_months.csv"      # E19, T-133 / D-292: the film's run raw, mapped and offset against the CCW median
+OUT_50_CCW_FILM_MAP_YEARS   = DIR_50 / "50_47_ccw_film_map_years.csv"       # E19, T-133 / D-292: RMSE per arm per hydrology year
 OUT_03_WELL_OPTIMAL_DATUMS  = DIR_03 / "03_09_well_optimal_datums.csv"     # read by Script 50 E17 (written by Script 03)
 OUT_50_E13_PET       = DIR_50 / "50_32_e13_pet_by_cluster.csv"        # E13, D-273
 OUT_50_E13_BREAK     = DIR_50 / "50_33_e13_beta1_break_by_well.csv"   # E13, D-273
@@ -1629,6 +1639,10 @@ OUT_26_VW_REPRODUCTION        = DIR_26 / "26_vw_reproduction_per_pair.csv"   # p
 OUT_26_METRIC_DIAGNOSTICS = DIR_26 / "26_metric_diagnostics_per_well.csv"
 OUT_26_INDEX_PRECISION    = DIR_26 / "26_index_precision_by_cluster.csv"
 OUT_26_REPORT_NUMBERS     = DIR_26 / "26_report_numbers.csv"
+OUT_26_MSL9_PER_WELL      = DIR_26 / "26_msl9_per_well.csv"        # T-131 / D-291: rolling nine-year MSL per well
+OUT_26_MSL9_PER_CLUSTER   = DIR_26 / "26_msl9_per_cluster.csv"     # the same, by cluster (fixed effects, D-202)
+OUT_26_MSL9_COMMUNITY     = DIR_26 / "26_msl9_community.csv"       # each well's latest / handbook-window MSL9 against the handbook table
+OUT_26_MSL9_TRAJECTORY    = DIR_26 / "26_msl9_trajectory.png"      # cluster MSL9 with the handbook community MSLs
 OUT_26_METRIC_DIAG_FIG    = DIR_26 / "26_metric_diagnostics.png"
 # Supplementary Table S7.1 emitter (v1.5.0). Display-formatted renderings of the
 # per-well EWI reconstruction for paste into Supplementary_Material — the CSV via

@@ -6,9 +6,9 @@ calibrated to the well period, through the wet-area model (T-39, D-178)
 
 WHAT THIS IS
 
-  Today's reserve under the weather of every month since December 1930. The
-  cluster state-space model is run forward from a seed, one month at a time, over
-  the whole RAF Valley record; the modelled median water table is quantile-mapped
+  Today's reserve under the weather of every month since December 1930. One
+  state-space rule, the open-dune warren's (03_22; 1.10.0), is run forward from a seed,
+  one month at a time, over the whole RAF Valley record; the modelled water table is quantile-mapped
   onto the observed one over the years the dipwells exist; the calibrated level
   goes through D-178's two area curves; and each 10 m cell is lit at the level
   Sentinel-2 was seen to light it. It is a what-if, not a history: the ground,
@@ -60,7 +60,17 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.9.1"  # Hollingham (2026) - 2026-10-15. Text only (film_text_* 1.0.1): the "And a little more"
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-29 (T-129, D-289; spec NRG_spec_film_one_warren_model_2026-10-29;
+#   Martin 2026-10-29 "Script 03", "One run", "Field, not fixed text"). The film runs ONE rule, the open-dune warren:
+#   Model A fitted by Script 03 to the centroid of every member well of config.FILM_WARREN_CLUSTERS (03_22), seeded once
+#   from that centroid's mean Aug-Sep minimum, instead of a run per well on its cluster's coefficients and the median
+#   of the runs. The forest wells are left out of the run as the forest is left out of the maps. The calibration target
+#   is unchanged (the observed median of the reference network) and so is the quantile map. The "wet decade" sentence
+#   is bound to a number: wet_decade_ratio() emits it to OUT_47_REPORT_NUMBERS and says_p1 formats it ({r60});
+#   m1_p2 gains one sentence saying which rule the film runs (film_text_* 1.0.2). median_level_modelled_m keeps its
+#   name for its readers (45, 46, verify_wet_area_panel) though it is now one run, and n_wells_run is the centroid's
+#   member-well count. quantile_map() moves to utils.hindcast_utils unchanged (shared with Script 50's E18, T-130).
+# 1.9.1  # Hollingham (2026) - 2026-10-15. Text only (film_text_* 1.0.1): the "And a little more"
 #   slide drops its datum paragraph (more_p4, added at 1.8.1 for D-226), and "What the film says" reads "about
 #   twice" for the 1960s, not "several times" (1.8-2.4x in 47_01). Martin 2026-10-15: "keep the modeling simple,
 #   and so the story is straight". Model, datum, calibration and frames unchanged.
@@ -232,7 +242,7 @@ import pandas as pd                                           # noqa: E402
 
 from utils.paths import (                                     # noqa: E402
     INT_CLIMATE, INT_MASTER_DATA, INT_WELLS_CLEAN, INT_WELLS_REFERENCE,
-    LIVING_WET_AREA_MODEL, OUT_03_MECHANISTIC_TABLE,
+    LIVING_WET_AREA_MODEL, OUT_03_WARREN, OUT_47_REPORT_NUMBERS,
     DIR_47, OUT_47_LEVEL_MONTHLY, OUT_47_CALIBRATION, OUT_47_QUANTILE_MAP,
     OUT_47_PRESENTATION, OUT_47_FILM, OUT_47_CAVEATS, OUT_47_BACKGROUND,
     out_47_still, out_47_lang, FIGURE_MAP,
@@ -246,7 +256,8 @@ from utils.paths import (                                     # noqa: E402
 from utils.config import (                                    # noqa: E402
     WET_AREA_CELL_NEVER,
     DRAINAGE_DATUM, HINDCAST_SEED_MONTHS, HINDCAST_SPIN_UP_YEARS,
-    QMAP_MIN_WELLS, QMAP_MIN_MONTHS, QMAP_TAIL_FRACTION,
+    FILM_DECADE_MONTHS, FILM_WET_DECADE,
+    QMAP_MIN_WELLS, QMAP_MIN_MONTHS,
     FILM_FPS, FILM_FRAMES_PER_MONTH, FILM_WORDS_PER_MINUTE, FILM_SLIDE_LEAD_S,
     FILM_QUALITY_PRESENTATION, FILM_QUALITY_FULL, FILM_FIGURE_VIEW_S,
     FILM_AUDIO_RATE_HZ, FILM_AUDIO_FADE_S, FILM_AMBIENT_ROOT_HZ, FILM_AMBIENT_GAIN,
@@ -266,6 +277,7 @@ from utils.config import (                                    # noqa: E402
     FILM_TITLE_PHOTO_FRAC, FILM_TITLE_PHOTO_FEATHER,
 )
 from utils.model_utils import simulate_ssm                    # noqa: E402
+from utils.hindcast_utils import quantile_map                 # noqa: E402  (moved there at 1.10.0, shared with Script 50 E18)
 from utils.console_utils import (                             # noqa: E402
     banner, done, info, phase, progress, result, saved, step, warn,
 )
@@ -327,25 +339,27 @@ def load_climate() -> pd.DataFrame:
     return c
 
 
-def load_betas() -> dict:
-    """{cluster id: (b1, b2, b3)} in the table's own units — m per mm of a climate
-    series in mm, equivalently m per m of one in metres. The two cancel; the
-    climate above is metres, so the coefficients are used as written."""
-    B = pd.read_csv(OUT_03_MECHANISTIC_TABLE, float_precision="round_trip")
-    out = {}
-    for _, r in B.iterrows():
-        cid = int(str(r["Cluster"]).replace("C", ""))
-        b3 = float(r["beta_3_drainage"])
-        if b3 < 0:
-            warn(f"C{cid}: beta_3 = {b3:.4f} is negative (expected positive under the "
-                 f"displacement formulation); magnitude used")
-        out[cid] = (float(r["beta_1_recharge"]), float(r["beta_2_atmospheric_draw"]), abs(b3))
-    step(f"beta for {len(out)} cluster(s) from {OUT_03_MECHANISTIC_TABLE.name}")
+def load_warren() -> dict:
+    """The film's one rule (03_22, T-129): (b1, b2, b3) in the table's own units — m per
+    mm of a climate series in mm, equivalently m per m of one in metres; the two cancel
+    and the climate above is metres — with the seed and the member-well count Script 03
+    wrote beside them."""
+    r = pd.read_csv(OUT_03_WARREN, float_precision="round_trip").iloc[0]
+    b3 = float(r["beta_3_drainage"])
+    if b3 < 0:
+        warn(f"warren beta_3 = {b3:.4f} is negative (expected positive under the "
+             f"displacement formulation); magnitude used")
+    out = {"betas": (float(r["beta_1_recharge"]), float(r["beta_2_atmospheric_draw"]), abs(b3)),
+           "seed_m": float(r["seed_level_m"]), "n_wells": int(r["n_wells"]),
+           "clusters": str(r["clusters"])}
+    step(f"one rule from {OUT_03_WARREN.name}: {out['clusters']}, {out['n_wells']} wells, "
+         f"seed {out['seed_m']:+.3f} m")
     return out
 
 
-def load_wells(betas: dict) -> pd.DataFrame:
-    """The reference network with its cluster and its seed.
+def load_wells() -> pd.DataFrame:
+    """The reference network with its cluster and its seed — the calibration target's
+    wells (1.10.0: the run itself is the warren centroid, load_warren()).
 
     The seed is the well's mean August-September minimum over its own record
     (config.HINDCAST_SEED_MONTHS) — phase 27's seed, and deliberately NOT
@@ -362,7 +376,7 @@ def load_wells(betas: dict) -> pd.DataFrame:
     rows = []
     for w in ref.columns:
         cid = cl.get(w)
-        if cid is None or cid not in betas or w not in obs.columns:
+        if cid is None or w not in obs.columns:
             continue
         s = obs[w].dropna()
         m = s[s.index.month.isin(HINDCAST_SEED_MONTHS)]
@@ -472,9 +486,10 @@ def _simulate_across_holes(h0, P, E, ok, b1, b2, b3):
     return h
 
 
-def run_recurrence(clim: pd.DataFrame, wells: pd.DataFrame, betas: dict) -> pd.DataFrame:
-    """Per well, forward from its seed over the whole climate record; the monthly
-    level is the MEDIAN across wells, matching phase 27's median_level_modelled_m.
+def run_recurrence(clim: pd.DataFrame, warren: dict) -> pd.DataFrame:
+    """ONE run (1.10.0, T-129): the warren rule forward from the warren seed over the
+    whole climate record. The column keeps the name median_level_modelled_m that its
+    readers expect; it is the one run, not a median of runs.
 
     Seeded once and never re-seeded — phase 27's Mode C. A month with no P or PET
     is skipped and the recurrence carries over, which is phase 27's rule and is
@@ -483,23 +498,46 @@ def run_recurrence(clim: pd.DataFrame, wells: pd.DataFrame, betas: dict) -> pd.D
     P = clim["P_m"].to_numpy(float)
     E = clim["PET"].to_numpy(float)
     ok = np.isfinite(P) & np.isfinite(E)
-    H = np.full((len(clim), len(wells)), np.nan)
-    for j, (_, w) in enumerate(wells.iterrows()):
-        b1, b2, b3 = betas[int(w["cluster"])]
-        H[:, j] = _simulate_across_holes(-abs(w["seed_m"]), P, E, ok, b1, b2, b3)
+    b1, b2, b3 = warren["betas"]
+    h = _simulate_across_holes(-abs(warren["seed_m"]), P, E, ok, b1, b2, b3)
     out = pd.DataFrame({
         "month": clim["month"],
-        "median_level_modelled_m": np.nanmedian(H, axis=1),
-        "n_wells_run": int(len(wells)),
+        "median_level_modelled_m": h,
+        "n_wells_run": int(warren["n_wells"]),
         "climate_flagged": clim["climate_flagged"].to_numpy(),
     })
     # Two YEARS from the first month, not two calendar years: the record starts in
     # December, so the calendar reading gave 13 months where the guide slide says
     # "the first two years are the model settling from its starting guess".
     out["spin_up"] = np.arange(len(out)) < 12 * HINDCAST_SPIN_UP_YEARS
-    step(f"recurrence over {len(out)} months x {len(wells)} wells; "
+    step(f"one recurrence over {len(out)} months ({warren['clusters']} centroid rule); "
          f"first {int(out['spin_up'].sum())} months flagged spin_up")
     return out
+
+
+def wet_decade_ratio(level: pd.DataFrame) -> float:
+    """The number behind the film's "wet decade" sentence (T-129). Winter open water
+    (config.FILM_DECADE_MONTHS, spin-up excluded), averaged per decade; the
+    config.FILM_WET_DECADE mean over the median of the other decades' means."""
+    m = pd.PeriodIndex(level["month"], freq="M")
+    sel = np.isin(m.month, FILM_DECADE_MONTHS) & ~level["spin_up"].to_numpy(bool)
+    dec = pd.Series(level.loc[sel, "open_water_ha"].to_numpy(float),
+                    index=(m[sel].year // 10) * 10)
+    means = dec.groupby(level=0).mean()
+    if FILM_WET_DECADE not in means.index or len(means) < 2:
+        raise SystemExit(f"no {FILM_WET_DECADE}s winter months to set against the other decades")
+    return float(means[FILM_WET_DECADE] / means.drop(FILM_WET_DECADE).median())
+
+
+def write_report_numbers(ratio: float) -> None:
+    from utils.report_numbers_utils import ReportNumbers  # noqa: PLC0415
+    rpt = ReportNumbers()
+    mths = "/".join(str(k) for k in FILM_DECADE_MONTHS)
+    rpt.add("film_wet_decade_ratio", ratio, unit="x",
+            note=f"mean winter (months {mths}) open water of the {FILM_WET_DECADE}s over the median "
+                 f"of the other decades' means, spin-up excluded (47_01, T-129)")
+    n = rpt.save(OUT_47_REPORT_NUMBERS)
+    saved(f"{OUT_47_REPORT_NUMBERS.name} ({n} report numbers)")
 
 
 def check_against_phase27(level: pd.DataFrame, path: Path) -> None:
@@ -527,27 +565,6 @@ def check_against_phase27(level: pd.DataFrame, path: Path) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # THE CALIBRATION
 # ─────────────────────────────────────────────────────────────────────────────
-def quantile_map(model, observed):
-    """f(x): the free run's level mapped onto the observed distribution.
-
-    Verbatim from the prototype. Ranks are kept, so the ORDER of the century is
-    the model's; the mean bias goes; and beyond either end of the fitted range
-    the map continues on the outer decile's own slope rather than flattening.
-    """
-    m, o = np.sort(np.asarray(model, float)), np.sort(np.asarray(observed, float))
-    k = max(5, int(len(m) * QMAP_TAIL_FRACTION))
-    slo, shi = np.polyfit(m[:k], o[:k], 1)[0], np.polyfit(m[-k:], o[-k:], 1)[0]
-
-    def f(x):
-        x = np.asarray(x, float)
-        q = np.interp(x, m, o)
-        lo, hi = x < m[0], x > m[-1]
-        q[lo] = o[0] + slo * (x[lo] - m[0])
-        q[hi] = o[-1] + shi * (x[hi] - m[-1])
-        return q
-    return f, m, o
-
-
 def calibrate(level: pd.DataFrame) -> tuple:
     """Fit the map on the months with wells, apply it to every month."""
     ok = (level["median_level_observed_m"].notna()
@@ -839,7 +856,7 @@ def method_slides(n: int, rng: dict, thumbs: list, stats: dict | None = None) ->
 
 
 def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
-               stats: dict | None = None) -> tuple:
+               stats: dict | None = None, r60: float | None = None) -> tuple:
     """The caption and the slides, with every figure read from the feed.
 
     The prototype typed "41 clear winter pictures"; the committed model says 43,
@@ -871,7 +888,7 @@ def build_text(feed: dict, floor_ha: float, thumbs: list | None = None,
          [T.f("big_p1", hmax=float(rng["max"])), T["big_p2"], T["big_p3"]], None, None),
     ]
     after = [
-        (T["says_title"], [T["says_p1"], T["says_p2"], T["says_p3"], T["says_p4"]], None, None),
+        (T["says_title"], [T.f("says_p1", r60=r60), T["says_p2"], T["says_p3"], T["says_p4"]], None, None),
         (T["more_title"],
          [T["more_p1"], T.f("more_p2", wf_pct=wf_pct, s_ow=s_ow), T["more_p3"]],
          None, None),
@@ -2031,12 +2048,12 @@ def main(no_film: bool = False, check_phase27: str | None = None, lang: str = "e
            version=__version__)
     phase(1, "Committed inputs")
     clim = load_climate()
-    betas = load_betas()
-    wells = load_wells(betas)
+    warren = load_warren()
+    wells = load_wells()
     feed = load_feed()
 
-    phase(2, "The recurrence, 1930 on — Mode C, seeded once")
-    level = run_recurrence(clim, wells, betas)
+    phase(2, "The recurrence, 1930 on — one warren rule, seeded once")
+    level = run_recurrence(clim, warren)
     if check_phase27:
         check_against_phase27(level, Path(check_phase27))
 
@@ -2069,12 +2086,16 @@ def main(no_film: bool = False, check_phase27: str | None = None, lang: str = "e
     result("beyond the fitted range", f"{n_over} of {len(level)} month(s); wettest {wettest} "
                                      f"at {level['open_water_ha'].max():.0f} ha open water")
 
+    r60 = wet_decade_ratio(level)
+    result("wet decade", f"{FILM_WET_DECADE}s winter open water {r60:.2f} x the other decades' median")
+    write_report_numbers(r60)
+
     step("The level at which each colour arrives on the map")
     arrivals = first_hectare_levels((ow, wf, floor))
 
     phase(5, "The words")
     thumbs = load_thumbs(floor)
-    text = build_text(feed, floor_ha, thumbs, stats)
+    text = build_text(feed, floor_ha, thumbs, stats, r60)
     write_caveats(*text, feed, arrivals)
 
     if no_film:

@@ -88,7 +88,13 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.28.0"  # Hollingham (2026) - 2026-10-27 (D-281; Martin 01:53 "A your recommendation, B wells deepest
+__version__ = "1.29.0"  # Hollingham (2026) - 2026-10-29 (T-129, D-289; Martin 2026-10-29 "Script 03", "One run").
+#   warren_open_dune_fit(): one Model A fit, at the project datum and HEADLINE_LAG on the full record, to the centroid
+#   of every member well of config.FILM_WARREN_CLUSTERS, built from the same dry-filled frame as the cluster centroids
+#   (D-281). Written to OUT_03_WARREN (03_22) with its fit span, the member-well count and the seed Script 47 starts
+#   from (the mean over years of the centroid's HINDCAST_SEED_MONTHS minimum); warren_open_* report numbers. Additive:
+#   03_03 and every other output unchanged.
+# 1.28.0  # Hollingham (2026) - 2026-10-27 (D-281; Martin 01:53 "A your recommendation, B wells deepest
 #   reading, c both"; 02:14 "use nearest neighbour to fill dry members with their censored expected level, then fit as
 #   now"). Every per-well fit passes the well's dry-month bounds (fit_ssm(..., dry_bound=)), so a dry month is a level
 #   below a bound, fitted by censored maximum likelihood, on both bases; a well never found dry fits as before. The
@@ -309,13 +315,13 @@ from utils.paths import (
     OUT_03_DATUM_CONFOUND, OUT_03_PARTITION_VS_DATUM, OUT_03_DATUM_REGIME_FIG,
     OUT_03_CENTROID_WINDOW_SENS, OUT_03_PER_WELL_WINDOW_SENS,
     OUT_03_MODEL_B_PERSISTENCE, OUT_03_UPSTAND_FRAME_SENS,
-    OUT_03_DATUM_INVARIANCE, OUT_03_DATUM_ZERO, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL, OUT_03_DATUM_AOD, OUT_03_DRY_FILL,
+    OUT_03_DATUM_INVARIANCE, OUT_03_DATUM_ZERO, OUT_03_PER_WELL_RECESSION, OUT_48_PER_WELL, OUT_03_DATUM_AOD, OUT_03_DRY_FILL, OUT_03_WARREN,
     DIR_03,
     OUT_02_AMP_PER_WELL,
     DATA_DIR,
 )
 from utils.config import (
-    FOREST_CIDS, R2_SPREAD_PCTL,
+    FOREST_CIDS, R2_SPREAD_PCTL, FILM_WARREN_CLUSTERS, HINDCAST_SEED_MONTHS,
     SSM_BOOT_SEED,
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
@@ -2774,6 +2780,58 @@ def _open_dune_r2_report_numbers(rpt, master_df: pd.DataFrame) -> None:
     rpt.add("open_dune_r2_max", float(r2.max()), unit="", note=f"maximum of {_n}")
 
 
+def warren_open_dune_fit(cluster_df: pd.DataFrame, wells_filled: pd.DataFrame,
+                         well_col_lookup: dict[str, str],
+                         climate: pd.DataFrame) -> pd.DataFrame:
+    """
+    The film's one rule (T-129, D-289): Model A at the project datum, full record,
+    HEADLINE_LAG, fitted to the mean hydrograph of EVERY member well of
+    config.FILM_WARREN_CLUSTERS - a pooled centroid, not a mean of the cluster
+    centroids, so each well counts once. Built from the dry-filled frame the
+    cluster centroids use (D-281).
+
+    Also carries the seed Script 47 starts its run from: the mean over years of the
+    centroid's minimum across HINDCAST_SEED_MONTHS. One row.
+    """
+    cl = pd.to_numeric(cluster_df["Cluster"], errors="coerce")
+    members = cluster_df.loc[cl.isin(FILM_WARREN_CLUSTERS), "Match_ID"].astype(str)
+    cols = [well_col_lookup.get(normalize_well_name(w)) for w in members]
+    cols = [c for c in cols if c is not None]
+    centroid = wells_filled[cols].mean(axis=1)
+    fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
+    c = centroid.dropna()
+    seed_months = c[c.index.month.isin(HINDCAST_SEED_MONTHS)]
+    seed = float(seed_months.groupby(seed_months.index.year).min().mean())
+    row = {"clusters": "+".join(f"C{k}" for k in FILM_WARREN_CLUSTERS),
+           "n_wells": len(cols), "drainage_datum_m": DRAINAGE_DATUM,
+           "seed_level_m": seed}
+    if fit is None:
+        row.update({k: np.nan for k in ("beta_1_recharge", "pvalue_beta_1",
+                    "beta_2_atmospheric_draw", "pvalue_beta_2", "beta_3_drainage",
+                    "pvalue_beta_3", "R2")})
+        row.update({"n": 0, "fit_start": "", "fit_end": ""})
+    else:
+        fs, fe = _fit_span(fit)
+        row.update({k: fit[k] for k in ("beta_1_recharge", "pvalue_beta_1",
+                    "beta_2_atmospheric_draw", "pvalue_beta_2", "beta_3_drainage",
+                    "pvalue_beta_3", "R2", "n")})
+        row.update({"fit_start": fs, "fit_end": fe})
+    return pd.DataFrame([row])
+
+
+def _warren_report_numbers(rpt, warren_df: pd.DataFrame) -> None:
+    """1.29.0: the film's one rule (03_22), for Paper M and the film's method slide."""
+    r = warren_df.iloc[0]
+    _n = (f"Model A at the project datum, full record, on the centroid of every member well of "
+          f"{r['clusters']} (03_22, T-129)")
+    rpt.add("warren_open_beta_1", float(r["beta_1_recharge"]), unit="", note=f"beta_1, {_n}")
+    rpt.add("warren_open_beta_2", float(r["beta_2_atmospheric_draw"]), unit="", note=f"beta_2, {_n}")
+    rpt.add("warren_open_beta_3", float(r["beta_3_drainage"]), unit="/month", note=f"beta_3, {_n}")
+    rpt.add("warren_open_r2", float(r["R2"]), unit="", note=f"R2, {_n}")
+    rpt.add("warren_open_n_wells", int(r["n_wells"]), unit="wells", note=f"member wells, {_n}")
+    rpt.add("warren_open_n_months", int(r["n"]), unit="months", note=f"months fitted, {_n}")
+
+
 def _t96_report_numbers(rpt, master_df: pd.DataFrame, sens_df: pd.DataFrame,
                         inv_df: pd.DataFrame, well_opt_df: pd.DataFrame,
                         well_mean_aod: pd.Series, cluster_df: pd.DataFrame) -> None:
@@ -2943,6 +3001,8 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
                 _datum_aod_report_numbers(rpt, extra["aod_df"])
             if extra.get("confound_df") is not None and not extra["confound_df"].empty:
                 _datum_frame_report_numbers(rpt, extra["confound_df"])
+            if extra.get("warren_df") is not None:
+                _warren_report_numbers(rpt, extra["warren_df"])
         n_saved = rpt.save(OUT_03_REPORT_NUMBERS)
         saved(f"{OUT_03_REPORT_NUMBERS.name} ({n_saved} report numbers)")
 
@@ -3287,6 +3347,16 @@ def main() -> None:
     mech_df.to_csv(OUT_03_MECHANISTIC_TABLE, index=False)
     saved(f"{OUT_03_MECHANISTIC_TABLE.name}")
 
+    # ---- The film's one rule: the open-dune warren (T-129, D-289) ----
+    step("Open-dune warren fit for the film (one rule, pooled member wells)...")
+    warren_df = warren_open_dune_fit(cluster_df, wells_filled, well_col_lookup, climate)
+    warren_df.to_csv(OUT_03_WARREN, index=False)
+    _w = warren_df.iloc[0]
+    info(f"  {_w['clusters']}: {int(_w['n_wells'])} wells, beta_1 {_w['beta_1_recharge']:.3f}, "
+         f"beta_2 {_w['beta_2_atmospheric_draw']:.3f}, beta_3 {_w['beta_3_drainage']:.4f}, "
+         f"R2 {_w['R2']:.3f}, n {int(_w['n'])}, seed {_w['seed_level_m']:.3f} m")
+    saved(f"{OUT_03_WARREN.name}")
+
     # ---- Model B persistence beside Model A (D-109; R3 route a) --------------
     step("Model B (intercept) persistence beside Model A, same bases...")
     mb_df = model_b_persistence(centroids, master_df, wells_clean, well_col_lookup, climate)
@@ -3584,7 +3654,8 @@ def main() -> None:
                                          "inv_df": inv_df, "well_opt_df": well_opt_df,
                                          "zero_df": zero_df, "win_df": win_df,
                                          "part_df": part_df, "aod_df": aod_df,
-                                         "confound_df": confound_df})
+                                         "confound_df": confound_df,
+                                         "warren_df": warren_df})
     export_cluster_peak_months(centroids)
 
     # ---- Hard halt if centroid sign assertions failed ----

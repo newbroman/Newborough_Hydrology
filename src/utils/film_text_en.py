@@ -8,7 +8,10 @@ unchanged (the English caveats file is byte-identical before and after the move)
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
+__version__ = "1.0.2"  # Hollingham (2026) - 2026-10-29 (T-129, D-289). says_p1 binds the wet-decade ratio as a field
+#   ({r60}, Script 47 1.10.0, 47_report_numbers.csv) in place of "about twice"; m1_p2 adds one sentence naming the one
+#   open-dune rule the film runs. Welsh and Polish unchecked by a native speaker (T-120).
+# 1.0.1  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
 #   carry 1.8-2.4x the other decades' mean winter open water in 47_01); more_p4 (the D-226 datum paragraph)
 #   removed - the film keeps one straight story (Martin 2026-10-15: "keep the modeling simple").
 # 1.0.0  Hollingham (2026) - 2026-10-13. The 1.8.1 English, moved out of Script 47.
@@ -104,7 +107,8 @@ T = {
     "m1_p2": (
         "From it the study learned a simple monthly rule: the water table rises with the "
         "month's rain, falls with its evaporation, and drains back in proportion to how high "
-        "it stands."),
+        "it stands. The film runs one such rule, fitted to the wells of the open dune; the forest "
+        "wells are left out, as the forest is left out of the maps."),
     "m1_p3": (
         "The chart above right is the test this film depends on. The blue line is the model, "
         "run on nothing but RAF Valley's weather since 1930 with no well reading to correct "
@@ -255,7 +259,7 @@ T = {
     # ---- the slides after the film ---------------------------------------------------------
     "says_title": "What the film says, cautions attached",
     "says_p1": (
-        "The 1960s were the wet decade, with about twice the open water of an average winter in "
+        "The 1960s were the wet decade, with about {r60:.1f} times the open water of an average winter in "
         "the other decades."),
     "says_p2": (
         "The winters of 1961–62 and 2000–01 stand out as the two great floods of the century, with "

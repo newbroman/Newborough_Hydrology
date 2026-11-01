@@ -195,7 +195,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (533)
+## Outputs no exhibit renders (542)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -276,6 +276,7 @@
 - `03_19_per_well_recession_full_record.csv`
 - `03_20_datum_aod_sweep.csv`
 - `03_21_dry_member_fill.csv`
+- `03_22_warren_open_dune_coefficients.csv`
 - `03_cluster_peak_months.csv`
 - `03_master_data.csv`
 - `03_regional_averages.csv`
@@ -524,6 +525,10 @@
 - `26_metric_diagnostics_per_well.csv`
 - `26_msl5_handbook_counts.csv`
 - `26_msl5_vs_min5_per_cluster.csv`
+- `26_msl9_community.csv`
+- `26_msl9_per_cluster.csv`
+- `26_msl9_per_well.csv`
+- `26_msl9_trajectory.png`
 - `26_msl_5yr_latest_per_well.csv`
 - `26_msl_5yr_per_cluster.csv`
 - `26_msl_5yr_per_cluster_centroid.csv`
@@ -594,8 +599,3 @@
 - `37b_report_numbers.csv`
 - `38_report_numbers.csv`
 - `38_transect.csv`
-- `39_01_hindcast_per_well.csv`
-- `39_02_hindcast_series.csv`
-- `39_03_beta1_sensitivity.csv`
-- `39_04_hindcast.png`
-- `39_05_full_hindcast_site.csv`

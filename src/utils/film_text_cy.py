@@ -11,7 +11,10 @@ y tu hwnt i'r cofnod, ffynhonnau monitro.
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
+__version__ = "1.0.2"  # Hollingham (2026) - 2026-10-29 (T-129, D-289). says_p1 binds the wet-decade ratio as a field
+#   ({r60}, Script 47 1.10.0, 47_report_numbers.csv) in place of "about twice"; m1_p2 adds one sentence naming the one
+#   open-dune rule the film runs. Welsh and Polish unchecked by a native speaker (T-120).
+# 1.0.1  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
 #   carry 1.8-2.4x the other decades' mean winter open water in 47_01); more_p4 (the D-226 datum paragraph)
 #   removed - the film keeps one straight story (Martin 2026-10-15: "keep the modeling simple").
 # 1.0.0  Hollingham (2026) - 2026-10-13. First Welsh table; unchecked by a Welsh speaker.
@@ -109,7 +112,9 @@ T = {
         "codwyd y model arno."),
     "m1_p2": (
         "Ohono dysgodd yr astudiaeth reol fisol syml: mae lefel y dŵr daear yn codi gyda glaw y "
-        "mis, yn disgyn gyda'i anweddiad, ac yn draenio'n ôl yn gymesur â pha mor uchel y saif."),
+        "mis, yn disgyn gyda'i anweddiad, ac yn draenio'n ôl yn gymesur â pha mor uchel y saif. Mae'r ffilm yn rhedeg un rheol o'r fath, wedi'i "
+        "ffitio i ffynhonnau'r twyni agored; gadewir ffynhonnau'r goedwig allan, fel y gadewir y "
+        "goedwig allan o'r mapiau."),
     "m1_p3": (
         "Y siart uchod ar y dde yw'r prawf y mae'r ffilm hon yn dibynnu arno. Y llinell las yw'r "
         "model, wedi'i redeg ar ddim ond tywydd RAF y Fali er 1930 heb unrhyw ddarlleniad ffynnon "
@@ -262,7 +267,7 @@ T = {
     # ---- y sleidiau ar ôl y ffilm ----------------------------------------------------------
     "says_title": "Yr hyn a ddywed y ffilm, â'i rybuddion",
     "says_p1": (
-        "Y 1960au oedd y degawd gwlyb, â thua dwywaith dŵr agored gaeaf cyffredin yn y degawdau "
+        "Y 1960au oedd y degawd gwlyb, â thua {r60:.1f} gwaith dŵr agored gaeaf cyffredin yn y degawdau "
         "eraill."),
     "says_p2": (
         "Mae gaeafau 1961–62 a 2000–01 yn sefyll allan fel dwy lifogydd fawr y ganrif, â 1938–39 "

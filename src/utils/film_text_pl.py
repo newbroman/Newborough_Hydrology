@@ -11,7 +11,10 @@ gruntowe" w odczycie), mokre dno, otwarta woda, obszar badań, poza zapisem, pie
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
+__version__ = "1.0.2"  # Hollingham (2026) - 2026-10-29 (T-129, D-289). says_p1 binds the wet-decade ratio as a field
+#   ({r60}, Script 47 1.10.0, 47_report_numbers.csv) in place of "about twice"; m1_p2 adds one sentence naming the one
+#   open-dune rule the film runs. Welsh and Polish unchecked by a native speaker (T-120).
+# 1.0.1  # Hollingham (2026) - 2026-10-15. says_p1 "several times" -> "about twice" (the 1960s
 #   carry 1.8-2.4x the other decades' mean winter open water in 47_01); more_p4 (the D-226 datum paragraph)
 #   removed - the film keeps one straight story (Martin 2026-10-15: "keep the modeling simple").
 # 1.0.0  Hollingham (2026) - 2026-10-13. First Polish table; unchecked by a native speaker.
@@ -109,7 +112,8 @@ T = {
     "m1_p2": (
         "Z tego studium wyprowadziło prostą miesięczną regułę: zwierciadło podnosi się z opadem "
         "danego miesiąca, opada z jego parowaniem i drenuje się proporcjonalnie do tego, jak "
-        "wysoko stoi."),
+        "wysoko stoi. Film używa jednej takiej reguły, dopasowanej do piezometrów otwartych wydm; "
+        "piezometry w lesie są pominięte, tak jak las jest pominięty na mapach."),
     "m1_p3": (
         "Wykres u góry po prawej to test, od którego zależy ten film. Niebieska linia to model "
         "uruchomiony wyłącznie na pogodzie z RAF Valley od 1930 roku, bez żadnego pomiaru z "
@@ -264,7 +268,7 @@ T = {
     # ---- slajdy po filmie ------------------------------------------------------------------
     "says_title": "Co mówi film, z zastrzeżeniami",
     "says_p1": (
-        "Lata 60. były mokrą dekadą, z mniej więcej dwukrotnie większą otwartą wodą niż w przeciętnej "
+        "Lata 60. były mokrą dekadą, z mniej więcej {r60:.1f} raza większą otwartą wodą niż w przeciętnej "
         "zimie pozostałych dekad."),
     "says_p2": (
         "Zimy 1961–62 i 2000–01 wyróżniają się jako dwie wielkie powodzie stulecia, za nimi "

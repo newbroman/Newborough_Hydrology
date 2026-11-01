@@ -107,7 +107,17 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.26.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.27.0"  # Hollingham (2026) - 2026-10-30 (T-131, D-291; Martin 2026-10-30 "Put MSL9 in script 26",
+#   "the same spec as the June handbook. Otherwise, we use 7 out of 9", "Use the vegetation table from the second edition",
+#   "go ahead with the spec as outlined"). Pass 4b: MSL9, the handbook's nine-year mean spring level, as a rolling series
+#   beside MSL5 (rolling_5yr with config.MSL9_WINDOW_YEARS / MSL9_MIN_YEARS_IN_WINDOW; the spring and hydrology year
+#   are MSL5's). Writes 26_msl9_per_well.csv (MSL5_EXCLUDED_WELLS flagged, as for MSL5), 26_msl9_per_cluster.csv
+#   (fixed effects, D-202), 26_msl9_community.csv (every included well at the handbook window,
+#   config.MSL9_HANDBOOK_WINDOW_END, and at the latest network window end, against the whole of
+#   config.HB_COMMUNITY_TABLE: the community whose MSL is nearest and the difference) and 26_msl9_trajectory.png;
+#   msl9_* report numbers. Asserts HB_COMMUNITY_TABLE agrees with HB_SD15b_* / HB_SD16_*. MSL5 and every other
+#   output unchanged.
+# 1.26.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the Edge-well MSL5 deepening after the clearfell, each cluster's wettest/driest
 #   headline Curreli rolling minimum since MSL_TRAJECTORY_START_YEAR, the early-window cluster well
 #   counts and the reference-cluster EWI:MSL5 SE-ratio range; new rows in 26_report_numbers.csv:
@@ -1094,6 +1104,114 @@ def msl5_handbook_counts(per_well_incl: pd.DataFrame, comp: pd.DataFrame):
         for b in _bands:
             nums[f"msl5_hb_latest_{_short[b]}_c{k}"] = int(r[b])
     return out, nums
+
+
+# ── Pass 4b: MSL9, the handbook's nine-year mean spring level (1.27.0, T-131, D-291) ──
+def _hb_table_agrees() -> None:
+    """HB_COMMUNITY_TABLE (handbook sign, m above ground) against the positive-down HB_SD15b_* /
+    HB_SD16_* constants older consumers read: one table, two conventions, no drift."""
+    t = config.HB_COMMUNITY_TABLE
+    pairs = ((t["SD15b"][0], -config.HB_SD15b_MSL), (t["SD15b"][1], -config.HB_SD15b_WINTER),
+             (t["SD15b"][3], -config.HB_SD15b_MIN), (t["SD16"][0], -config.HB_SD16_MSL),
+             (t["SD16"][1], -config.HB_SD16_WINTER), (t["SD16"][3], -config.HB_SD16_MIN))
+    bad = [(a, b) for a, b in pairs if abs(a - b) > 1e-9]
+    if bad:
+        raise SystemExit(f"config.HB_COMMUNITY_TABLE disagrees with HB_SD15b_*/HB_SD16_*: {bad}")
+
+
+def rolling_msl9(annual: pd.DataFrame) -> pd.DataFrame:
+    """MSL9(y): the mean of the valid annual spring levels in hydrology years y-8..y, kept when at
+    least MSL9_MIN_YEARS_IN_WINDOW of the nine are valid; MSL5's annual levels and machinery."""
+    out = rolling_5yr(annual, window=config.MSL9_WINDOW_YEARS,
+                      min_years=config.MSL9_MIN_YEARS_IN_WINDOW)
+    return out.rename(columns={"MSL5_m_bg": "MSL9_m_bg", "MAX5_m_bg": "MAX9_m_bg"})
+
+
+def msl9_cluster_trajectory(per_well_incl: pd.DataFrame) -> pd.DataFrame:
+    """cluster_trajectory() on the MSL9 columns (fixed effects, D-202), names put back."""
+    tmp = per_well_incl.rename(columns={"MSL9_m_bg": "MSL5_m_bg", "MAX9_m_bg": "MAX5_m_bg"})
+    out = cluster_trajectory(tmp)
+    return out.rename(columns={c: c.replace("MSL5", "MSL9").replace("MAX5", "MAX9") for c in out.columns})
+
+
+def nearest_community(v: float) -> tuple[str, float, float]:
+    """The handbook community whose mean spring level is nearest v: (name, its MSL, v - MSL).
+    Positive difference = the well's spring water table stands higher (wetter) than the community's."""
+    name, (msl, *_r) = min(config.HB_COMMUNITY_TABLE.items(), key=lambda kv: abs(v - kv[1][0]))
+    return name, msl, v - msl
+
+
+def msl9_community_table(per_well_incl: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Every included well at two window ends, the handbook's (MSL9_HANDBOOK_WINDOW_END) and the latest
+    in the network, set against the handbook table. A band of water regime, not a vegetation claim."""
+    latest_end = int(per_well_incl["window_end_year"].max())
+    rows = []
+    for basis, end in (("handbook", int(config.MSL9_HANDBOOK_WINDOW_END)), ("latest", latest_end)):
+        sub = per_well_incl[per_well_incl["window_end_year"] == end]
+        for _, r in sub.iterrows():
+            name, msl, d = nearest_community(float(r["MSL9_m_bg"]))
+            rows.append({"basis": basis, "window_end_year": end, "well": r["well"],
+                         "cluster_id": r.get("cluster_id"), "cluster_label": r.get("cluster_label"),
+                         "n_years_in_window": int(r["n_years_in_window"]),
+                         "MSL9_m_bg": float(r["MSL9_m_bg"]), "nearest_community": name,
+                         "nearest_community_msl_m": msl, "MSL9_minus_community_msl_m": d})
+    return pd.DataFrame(rows), {"handbook": int(config.MSL9_HANDBOOK_WINDOW_END), "latest": latest_end}
+
+
+def msl9_report_numbers(comm: pd.DataFrame, per_cluster9: pd.DataFrame, ends: dict) -> dict:
+    nums = {"msl9_window_years": int(config.MSL9_WINDOW_YEARS),
+            "msl9_min_years_in_window": int(config.MSL9_MIN_YEARS_IN_WINDOW)}
+    for basis, end in ends.items():
+        g = comm[comm["basis"] == basis]
+        nums[f"msl9_{basis}_window_end"] = int(end)
+        nums[f"msl9_{basis}_window_start"] = int(end) - int(config.MSL9_WINDOW_YEARS) + 1
+        nums[f"msl9_{basis}_n_wells"] = int(len(g))
+        if len(g):
+            nums[f"msl9_{basis}_median_m"] = float(g["MSL9_m_bg"].median())
+            nums[f"msl9_{basis}_min_m"] = float(g["MSL9_m_bg"].min())
+            nums[f"msl9_{basis}_max_m"] = float(g["MSL9_m_bg"].max())
+        for name in config.HB_COMMUNITY_TABLE:
+            slug = name.lower().replace(" ", "_")
+            nums[f"msl9_{basis}_n_nearest_{slug}"] = int((g["nearest_community"] == name).sum())
+        pc = per_cluster9[per_cluster9["window_end_year"] == end]
+        for _, r in pc.iterrows():
+            nums[f"msl9_{basis}_c{int(r['cluster_id'])}_m"] = float(r["MSL9_m_bg_mean"])
+            nums[f"msl9_{basis}_c{int(r['cluster_id'])}_n_wells"] = int(r["n_wells"])
+    return nums
+
+
+def plot_msl9_trajectory(per_cluster9: pd.DataFrame, out: Path) -> None:
+    """Cluster MSL9 (fixed effects) from the handbook window on, with every handbook community MSL."""
+    d = per_cluster9[per_cluster9["window_end_year"] >= int(config.MSL9_HANDBOOK_WINDOW_END)]
+    if d.empty:
+        warn("no MSL9 cluster windows from the handbook window on - figure skipped")
+        return
+    fig, ax = plt.subplots(figsize=(10, 6))
+    _prev = None
+    for name, (msl, *_r) in sorted(config.HB_COMMUNITY_TABLE.items(), key=lambda kv: kv[1][0]):
+        ax.axhline(msl, color="0.55", lw=0.8, ls=":")
+        # two levels a few cm apart: the upper label sits above its line, the lower below
+        close = _prev is not None and abs(msl - _prev) < 0.04
+        ax.text(1.005, msl, f"{name} {msl:+.2f}", transform=ax.get_yaxis_transform(),
+                va="bottom" if close else ("top" if any(abs(msl - v[0]) < 0.04 and v[0] > msl
+                                                        for v in config.HB_COMMUNITY_TABLE.values()) else "center"),
+                ha="left", fontsize=7, color="0.3")
+        _prev = msl
+    for cid, sub in d.groupby("cluster_id"):
+        sub = sub.sort_values("window_end_year")
+        col = config.CLUSTER_COLOURS.get(int(cid), "#444")
+        lbl = config.CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
+        _plot_with_gaps(ax, sub["window_end_year"].tolist(), sub["MSL9_m_bg_mean"].tolist(),
+                        marker="o", linewidth=1.6, color=col, label=lbl)
+    ax.axvline(int(config.MSL9_HANDBOOK_WINDOW_END), color="0.3", lw=0.8, ls="--")
+    ax.axhline(0, color="#333", lw=0.6)
+    ax.set_xlabel("Hydrology year (window end)")
+    ax.set_ylabel("Nine-year mean spring level (m, relative to ground)")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.11), fontsize=8, ncol=5, frameon=False)
+    ax.grid(alpha=0.25)
+    fig.tight_layout()
+    render_figure(fig, out)
+    plt.close(fig)
 
 
 def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
@@ -2555,6 +2673,34 @@ def main() -> int:
     print(f"\nPass 4 — latest MSL5 per well: {len(latest)} wells")
     saved(f"{OUT_LATEST.name}")
 
+    # ── Pass 4b — MSL9, the handbook's nine-year mean spring level (1.27.0, T-131, D-291) ──
+    _hb_table_agrees()
+    per_well9 = attach_cluster_ids(rolling_msl9(annual), ref_clusters, ext_clusters)
+    _wl9 = per_well9["well"].astype(str).str.strip().str.lower()
+    per_well9["msl9_excluded"] = _wl9.isin(_excl)
+    per_well9.to_csv(paths.OUT_26_MSL9_PER_WELL, index=False)
+    per_well9_incl = per_well9[~per_well9["msl9_excluded"]].copy()
+    per_cluster9 = msl9_cluster_trajectory(per_well9_incl)
+    per_cluster9.to_csv(paths.OUT_26_MSL9_PER_CLUSTER, index=False)
+    comm9, ends9 = msl9_community_table(per_well9_incl)
+    comm9.to_csv(paths.OUT_26_MSL9_COMMUNITY, index=False)
+    msl9_nums = msl9_report_numbers(comm9, per_cluster9, ends9)
+    print(f"\nPass 4b — MSL9 ({config.MSL9_WINDOW_YEARS}-year rolling, >= {config.MSL9_MIN_YEARS_IN_WINDOW} valid "
+          f"springs): {len(per_well9)} (well, end_year) rows across {per_well9['well'].nunique()} wells")
+    for _b, _e in ends9.items():
+        _g = comm9[comm9["basis"] == _b]
+        print(f"    {_b:<9s} window {_e - config.MSL9_WINDOW_YEARS + 1}-{_e}: {len(_g)} wells, median "
+              f"{_g['MSL9_m_bg'].median():+.3f} m; nearest community: "
+              + ", ".join(f"{k} {v}" for k, v in _g["nearest_community"].value_counts().items()))
+    saved(f"{paths.OUT_26_MSL9_PER_WELL.name}")
+    saved(f"{paths.OUT_26_MSL9_PER_CLUSTER.name}")
+    saved(f"{paths.OUT_26_MSL9_COMMUNITY.name}")
+    try:
+        plot_msl9_trajectory(per_cluster9, paths.OUT_26_MSL9_TRAJECTORY)
+        saved(f"{paths.OUT_26_MSL9_TRAJECTORY.name}")
+    except Exception as e:
+        warn(f"MSL9 trajectory figure failed ({type(e).__name__}: {str(e)[:80]}) — CSVs were written")
+
     # ── Pass 5 — Equilibrium Wetness Index (v1.3.1) ────────────────────────
     print("\nPass 5 — equilibrium wetness index (EWI) from SSM coefficients")
     ewi = compute_equilibrium_wetness_index(elev, locations)
@@ -2579,6 +2725,7 @@ def main() -> int:
     calib: dict = {}
     report_nums: dict = {}
     report_nums.update(report_nums_methodab)  # T-91: Method A/B divergence (Pass 3b)
+    report_nums.update(msl9_nums)             # Pass 4b (1.27.0, D-291)
     # MSL5 completeness counts (v1.7.0) — committed trace for the report
     # §3.7.5 gap-fill sentence. Counted over admitted (valid) annual spring
     # means and admitted 5-year windows; interpolated months are Script 01's

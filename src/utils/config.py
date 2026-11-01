@@ -44,7 +44,11 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.121.0"  # Hollingham (2026) - 2026-11-01. E19_MIN_MONTHS_PER_YEAR (Script 50 1.22.0, E19, T-133, D-292; Martin
+__version__ = "1.123.0"  # Hollingham (2026) - 2026-11-01. CROSSING_MIN_YEARS, CROSSING_HORIZON_YEAR, CROSSING_CI (Script 14b
+#   2.0.0, D-294; Martin 2026-11-01 "redo the year of crossing analysis but with a per well count"). Additive.
+# 1.122.0  # Hollingham (2026) - 2026-11-01. MSL9_BAND_COMMUNITIES (Script 26 1.28.0, D-293; Martin 2026-11-01
+#   "report bands"). Additive.
+# 1.121.0  # Hollingham (2026) - 2026-11-01. E19_MIN_MONTHS_PER_YEAR (Script 50 1.22.0, E19, T-133, D-292; Martin
 #   2026-11-01 "approve majority of years"). Additive.
 # 1.120.0  # Hollingham (2026) - 2026-10-30. MSL9_WINDOW_YEARS, MSL9_MIN_YEARS_IN_WINDOW, MSL9_HANDBOOK_WINDOW_END,
 #   HB_COMMUNITY_TABLE (Script 26 1.27.0, T-131, D-291; Martin 2026-10-30 "Put MSL9 in script 26 ... the same spec as the June
@@ -1607,6 +1611,10 @@ HB_SD15b_WINTER = -0.09  # m — SD15b winter maximum (0.09 m ABOVE ground)  # s
 # where the handbook gives none (SD13: insufficient data, omitted; grassland minimum: n/a).
 # HB_SD15b_* / HB_SD16_* above are the same numbers in the positive-down convention their consumers
 # use; Script 26 asserts the two agree.
+# MSL9 against the handbook as bands (Script 26 1.28.0, D-293; Martin 2026-11-01 "report bands"): the community means
+# bunch within a few cm (SD14b/SD15b, SD17/SD14d, SD15a/SD16), so a "nearest community" turns on a centimetre. The
+# band edges are these communities' mean spring levels, read from HB_COMMUNITY_TABLE below (never typed here).
+MSL9_BAND_COMMUNITIES = ("SD15b", "SD16", "Dune grassland")
 HB_COMMUNITY_TABLE = {
     "SD14b": (-0.15,  0.09, -0.26, -0.66),
     "SD14d": (-0.33, -0.13, -0.47, -0.83),
@@ -2804,6 +2812,14 @@ SUMMER_DROUGHT_MONTHS        = (4, 5, 6, 7, 8, 9)     # Apr-Sep
 TRAJECTORY_OBS_END           = 2025
 TRAJECTORY_PROJ_END          = 2035
 TRAJECTORY_YEAR_MIN          = 2000
+
+# Script 14b 2.0.0 (D-294): each well's own summer-minimum trend against the Curreli levels. A well needs at least
+# CROSSING_MIN_YEARS annual minima for a trend; its trend is read at its last year of record ("now") and at
+# CROSSING_HORIZON_YEAR, with the CROSSING_CI confidence interval of the fitted mean at the horizon. A straight line
+# describes the record; reading it at the horizon assumes the record's direction continues.
+CROSSING_MIN_YEARS           = 10
+CROSSING_HORIZON_YEAR        = 2050
+CROSSING_CI                  = 0.90
 
 # Per-well recession constants (D-192). A recession slower than the comparison
 # window cannot be seen in the window — on the 100 months none of the nine C4

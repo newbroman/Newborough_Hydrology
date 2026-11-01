@@ -107,7 +107,19 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.27.0"  # Hollingham (2026) - 2026-10-30 (T-131, D-291; Martin 2026-10-30 "Put MSL9 in script 26",
+__version__ = "1.29.0"  # Hollingham (2026) - 2026-11-01 (D-294; Martin 2026-11-01 "state the rule as stated"). Pass 3e:
+#   the Curreli levels are compared WELL BY WELL. Each well's four-year mean annual minimum (Pass 3c, the D-190
+#   quantity) is banded against SD15b/SD16 (utils.community_bands) at every window-end from TRAJECTORY_START_YEAR,
+#   counted by cluster and for all wells -> 26_curreli_min_well_bands.csv and curreli_min4_wells_* report numbers.
+#   The cluster-mean threshold summary (Table 20's source) is still written and retires with the document batch.
+# 1.28.0  # Hollingham (2026) - 2026-11-01 (T-131, D-293; Martin 2026-11-01 "Keep 2014, report bands, move the
+#   msl 5 section to msl 9, as listed"). MSL9 against the handbook as BANDS, not nearest community: the community means
+#   bunch within a few cm, so the edges are config.MSL9_BAND_COMMUNITIES (SD15b, SD16, dune grassland; levels read from
+#   HB_COMMUNITY_TABLE). msl9_band() / msl9_band_counts(); 26_msl9_community.csv gains `band`; msl9_{basis}_n_band_*
+#   and msl9_{basis}_c{k}_n_band_* report numbers. 26_msl9_trajectory.png draws only the band edges. The handbook mean
+#   spring levels leave the MSL5 trajectories (both MSL5 figures): they are nine-year means, so the comparison moves to
+#   MSL9. msl5_hb_* counts still written, no longer quoted (D-293). Nothing else moves.
+# 1.27.0  # Hollingham (2026) - 2026-10-30 (T-131, D-291; Martin 2026-10-30 "Put MSL9 in script 26",
 #   "the same spec as the June handbook. Otherwise, we use 7 out of 9", "Use the vegetation table from the second edition",
 #   "go ahead with the spec as outlined"). Pass 4b: MSL9, the handbook's nine-year mean spring level, as a rolling series
 #   beside MSL5 (rolling_5yr with config.MSL9_WINDOW_YEARS / MSL9_MIN_YEARS_IN_WINDOW; the spring and hydrology year
@@ -301,6 +313,7 @@ from utils.console_utils import (
 
 from utils import config, paths
 from utils.model_utils import fit_ssm
+from utils.community_bands import CURRELI_SUMMER, band_names, band_counts   # D-294 (1.29.0)
 from utils.map_utils import (
     load_dem_hillshade,
     add_idw_surface,
@@ -674,6 +687,30 @@ def cluster_min_trajectory(per_well_min_with_cluster: pd.DataFrame) -> pd.DataFr
     return out.reset_index().sort_values(["window_years", "cluster_id", "window_end_year"])
 
 
+def curreli_min_well_bands(per_well_min: pd.DataFrame, start_year: int) -> tuple[pd.DataFrame, dict]:
+    """D-294: each well's own CURRELI_MIN_WINDOW_YEARS mean annual minimum banded against SD15b/SD16, counted per
+    window-end by cluster and for all wells. Rows without a cluster (the lake gauge) are not dipwells and are left
+    out. Report numbers are the latest window-end's counts."""
+    w = per_well_min[(per_well_min["window_years"] == config.CURRELI_MIN_WINDOW_YEARS)
+                     & (per_well_min["window_end_year"] >= start_year) & per_well_min["cluster_id"].notna()]
+    names = band_names(CURRELI_SUMMER)
+    rows = []
+    for end, g in w.groupby("window_end_year"):
+        groups = [(f"C{int(c)}", gc) for c, gc in g.groupby("cluster_id")] + [("all", g)]
+        for cl, gc in groups:
+            rows.append({"window_end_year": int(end), "cluster": cl, **band_counts(gc["MINw_m_bg"], CURRELI_SUMMER)})
+    out = pd.DataFrame(rows)
+    nums = {}
+    if len(out):
+        latest = int(out["window_end_year"].max())
+        nums["curreli_min4_wells_latest_window_end"] = latest
+        for _, r in out[out["window_end_year"] == latest].iterrows():
+            nums[f"curreli_min4_wells_latest_n_{r['cluster'].lower()}"] = int(r["n"])
+            for b in names:
+                nums[f"curreli_min4_wells_latest_{b}_{r['cluster'].lower()}"] = int(r[b])
+    return out, nums
+
+
 def curreli_min_cluster_threshold_summary(per_cluster_min: pd.DataFrame,
                                           per_cluster_msl5: pd.DataFrame,
                                           start_year: int) -> pd.DataFrame:
@@ -972,26 +1009,6 @@ def _plot_with_gaps(ax, years, values, **kwargs):
             ax.plot(xs, ys, **kwargs)
 
 
-HB_TAG = "Dune Managers Handbook v2"   # short form of config.HB_SOURCE for figure labels
-
-
-def _draw_handbook_msl_lines(ax):
-    """Draw the handbook v2 SD15b / SD16 mean spring levels (1.25.0, D-242).
-
-    Neutral grey, dashed (SD15b) / dotted (SD16), each named on its line.
-    Returns the two line handles and their legend labels.
-    """
-    levels = ((config.HB_SD15b_MSL, "SD15b", "--", 1.0),
-              (config.HB_SD16_MSL,  "SD16",  ":",  1.2))
-    handles, labels = [], []
-    for depth, unit, ls, lw in levels:
-        handles.append(ax.axhline(-depth, ls=ls, color="0.35", lw=lw))
-        txt = f"{unit} mean spring level −{depth:.2f} m ({HB_TAG})"
-        ax.text(0.005, -depth, txt, transform=ax.get_yaxis_transform(), ha="left", va="bottom",
-                fontsize=7, color="0.25",
-                bbox=dict(facecolor="white", edgecolor="none", alpha=0.8, pad=0.5))
-        labels.append(f"{unit} mean spring level (−{depth:.2f} m, handbook v2)")
-    return handles[0], handles[1], labels
 
 
 def _hb_band_counts(values: pd.Series) -> dict:
@@ -1141,6 +1158,34 @@ def nearest_community(v: float) -> tuple[str, float, float]:
     return name, msl, v - msl
 
 
+def msl9_band_edges() -> list:
+    """(name, level) of config.MSL9_BAND_COMMUNITIES, wettest first, levels from HB_COMMUNITY_TABLE (handbook sign)."""
+    return sorted(((n, float(config.HB_COMMUNITY_TABLE[n][0])) for n in config.MSL9_BAND_COMMUNITIES),
+                  key=lambda kv: -kv[1])
+
+
+def msl9_band(v: float) -> str:
+    """The band a nine-year mean spring level falls in, between consecutive band communities' MSL (1.28.0, D-293).
+    A value on an edge counts with the wetter band below it, as _hb_band_counts counts a value on a level as between."""
+    e = msl9_band_edges()
+    if v > e[0][1]:
+        return f"above_{_slug(e[0][0])}"
+    for (a, la), (b, lb) in zip(e, e[1:]):
+        if v >= lb:
+            return f"{_slug(a)}_to_{_slug(b)}"
+    return f"below_{_slug(e[-1][0])}"
+
+
+def msl9_band_names() -> list:
+    e = msl9_band_edges()
+    return ([f"above_{_slug(e[0][0])}"] + [f"{_slug(a)}_to_{_slug(b)}" for (a, _x), (b, _y) in zip(e, e[1:])]
+            + [f"below_{_slug(e[-1][0])}"])
+
+
+def _slug(name: str) -> str:
+    return name.lower().replace(" ", "_")
+
+
 def msl9_community_table(per_well_incl: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     """Every included well at two window ends, the handbook's (MSL9_HANDBOOK_WINDOW_END) and the latest
     in the network, set against the handbook table. A band of water regime, not a vegetation claim."""
@@ -1154,13 +1199,16 @@ def msl9_community_table(per_well_incl: pd.DataFrame) -> tuple[pd.DataFrame, dic
                          "cluster_id": r.get("cluster_id"), "cluster_label": r.get("cluster_label"),
                          "n_years_in_window": int(r["n_years_in_window"]),
                          "MSL9_m_bg": float(r["MSL9_m_bg"]), "nearest_community": name,
-                         "nearest_community_msl_m": msl, "MSL9_minus_community_msl_m": d})
+                         "nearest_community_msl_m": msl, "MSL9_minus_community_msl_m": d,
+                         "band": msl9_band(float(r["MSL9_m_bg"]))})
     return pd.DataFrame(rows), {"handbook": int(config.MSL9_HANDBOOK_WINDOW_END), "latest": latest_end}
 
 
 def msl9_report_numbers(comm: pd.DataFrame, per_cluster9: pd.DataFrame, ends: dict) -> dict:
     nums = {"msl9_window_years": int(config.MSL9_WINDOW_YEARS),
             "msl9_min_years_in_window": int(config.MSL9_MIN_YEARS_IN_WINDOW)}
+    for name, level in msl9_band_edges():          # 1.28.0: the band edges, as the text quotes them
+        nums[f"msl9_band_edge_{_slug(name)}_m"] = level
     for basis, end in ends.items():
         g = comm[comm["basis"] == basis]
         nums[f"msl9_{basis}_window_end"] = int(end)
@@ -1173,6 +1221,10 @@ def msl9_report_numbers(comm: pd.DataFrame, per_cluster9: pd.DataFrame, ends: di
         for name in config.HB_COMMUNITY_TABLE:
             slug = name.lower().replace(" ", "_")
             nums[f"msl9_{basis}_n_nearest_{slug}"] = int((g["nearest_community"] == name).sum())
+        for b in msl9_band_names():
+            nums[f"msl9_{basis}_n_band_{b}"] = int((g["band"] == b).sum())
+            for cid, gc in g.groupby("cluster_id"):
+                nums[f"msl9_{basis}_c{int(cid)}_n_band_{b}"] = int((gc["band"] == b).sum())
         pc = per_cluster9[per_cluster9["window_end_year"] == end]
         for _, r in pc.iterrows():
             nums[f"msl9_{basis}_c{int(r['cluster_id'])}_m"] = float(r["MSL9_m_bg_mean"])
@@ -1181,22 +1233,17 @@ def msl9_report_numbers(comm: pd.DataFrame, per_cluster9: pd.DataFrame, ends: di
 
 
 def plot_msl9_trajectory(per_cluster9: pd.DataFrame, out: Path) -> None:
-    """Cluster MSL9 (fixed effects) from the handbook window on, with every handbook community MSL."""
+    """Cluster MSL9 (fixed effects) from the handbook window on, with the band edges (config.MSL9_BAND_COMMUNITIES,
+    1.28.0, D-293): the handbook communities' means bunch within a few cm, so only the edges are drawn."""
     d = per_cluster9[per_cluster9["window_end_year"] >= int(config.MSL9_HANDBOOK_WINDOW_END)]
     if d.empty:
         warn("no MSL9 cluster windows from the handbook window on - figure skipped")
         return
     fig, ax = plt.subplots(figsize=(10, 6))
-    _prev = None
-    for name, (msl, *_r) in sorted(config.HB_COMMUNITY_TABLE.items(), key=lambda kv: kv[1][0]):
-        ax.axhline(msl, color="0.55", lw=0.8, ls=":")
-        # two levels a few cm apart: the upper label sits above its line, the lower below
-        close = _prev is not None and abs(msl - _prev) < 0.04
-        ax.text(1.005, msl, f"{name} {msl:+.2f}", transform=ax.get_yaxis_transform(),
-                va="bottom" if close else ("top" if any(abs(msl - v[0]) < 0.04 and v[0] > msl
-                                                        for v in config.HB_COMMUNITY_TABLE.values()) else "center"),
-                ha="left", fontsize=7, color="0.3")
-        _prev = msl
+    for name, msl in msl9_band_edges():
+        ax.axhline(msl, color="0.45", lw=0.9, ls=(0, (6, 4)))
+        ax.text(1.005, msl, f"{name} {msl:.2f} m".replace("-", "−"), transform=ax.get_yaxis_transform(),
+                va="center", ha="left", fontsize=8, color="0.25")
     for cid, sub in d.groupby("cluster_id"):
         sub = sub.sort_values("window_end_year")
         col = config.CLUSTER_COLOURS.get(int(cid), "#444")
@@ -1251,14 +1298,9 @@ def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
                     xytext=(6, 0), textcoords="offset points", va="center",
                     fontsize=8, color=col, fontweight="bold")
 
-    # Reference lines in depth-below-ground sign convention: the handbook v2
-    # mean spring levels (1.25.0, D-242), a March-May mean like MSL5 itself.
-    # The Curreli minima are applied to the annual-minimum series instead.
-    # neutral grey, dashed / dotted (1.23.0): green and red read as C2 and C3
-    h_sd15, h_sd16, hb_labels = _draw_handbook_msl_lines(ax)
+    # 1.28.0 (D-293): the handbook mean spring levels are nine-year means and are drawn on MSL9
+    # (26_msl9_trajectory.png), not here. The Curreli minima are applied to the annual-minimum series.
     ax.axhline(0, color="#333", lw=0.6)
-    cluster_handles += [h_sd15, h_sd16]
-    cluster_labels  += hb_labels
 
     ax.set_xlabel("Hydrology year (window end)")
     ax.set_ylabel("5-year MSL (m, depth below ground)")
@@ -1280,7 +1322,7 @@ def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
     # Two-column legend: clusters + thresholds on the left, interventions on the right
     leg1 = ax.legend(cluster_handles, cluster_labels,
                      loc="lower left", fontsize=8, ncol=2,
-                     title="Clusters & thresholds", title_fontsize=8)
+                     title="Clusters", title_fontsize=8)
     ax.add_artist(leg1)
     # interventions are named on their lines (1.23.0); the key says what solid/dashed mean
     if int_handles:
@@ -1337,8 +1379,7 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
             "colour": col,
         })
 
-    # handbook v2 mean spring levels (1.25.0, D-242); neutral grey (1.23.0)
-    h_sd15, h_sd16, hb_labels = _draw_handbook_msl_lines(ax)
+    # 1.28.0 (D-293): the handbook mean spring levels are drawn on MSL9, not on MSL5
     ax.axhline(0, color="#333", lw=0.6)
 
     ax.set_xlabel("Hydrology year (window end)")
@@ -1398,8 +1439,8 @@ def plot_quadrat_wells(per_well_with_cluster: pd.DataFrame, out: Path) -> None:
         )
 
     # Combined legend: thresholds + intervention markers
-    misc_handles = [h_sd15, h_sd16] + int_handles
-    misc_labels  = hb_labels + int_labels
+    misc_handles = int_handles   # 1.28.0 (D-293): the handbook levels are drawn on MSL9
+    misc_labels  = int_labels
     ax.legend(misc_handles, misc_labels, loc="lower left", fontsize=7, ncol=1)
     fig.tight_layout()
     render_figure(fig, out)
@@ -2619,6 +2660,13 @@ def main() -> int:
     saved(f"{OUT_CURRELI_MIN_PER_CLUSTER.name}")
     saved(f"{OUT_CURRELI_MIN_THRESHOLD_SUMMARY.name}")
 
+    # ── Pass 3e — the Curreli levels well by well (1.29.0, D-294) ───────────
+    min_bands, min_band_nums = curreli_min_well_bands(per_well_min, TRAJECTORY_START_YEAR)
+    min_bands.to_csv(paths.OUT_26_CURRELI_MIN_WELL_BANDS, index=False)
+    print(f"\nPass 3e — four-year mean annual minimum per well against SD15b/SD16, window-ends "
+          f"{TRAJECTORY_START_YEAR}+: {len(min_bands)} (window-end, cluster) rows")
+    saved(f"{paths.OUT_26_CURRELI_MIN_WELL_BANDS.name}")
+
     # ── Pass 3d — MSL5 against the five-year mean annual minimum (T-64) ────
     _m5_tbl, msl5_min5_nums = msl5_vs_min5(annual, per_well_incl, per_well_min, TRAJECTORY_START_YEAR)
     _m5_tbl.to_csv(OUT_MSL5_MIN5_PER_CLUSTER, index=False)
@@ -2726,6 +2774,7 @@ def main() -> int:
     report_nums: dict = {}
     report_nums.update(report_nums_methodab)  # T-91: Method A/B divergence (Pass 3b)
     report_nums.update(msl9_nums)             # Pass 4b (1.27.0, D-291)
+    report_nums.update(min_band_nums)         # Pass 3e (1.29.0, D-294)
     # MSL5 completeness counts (v1.7.0) — committed trace for the report
     # §3.7.5 gap-fill sentence. Counted over admitted (valid) annual spring
     # means and admitted 5-year windows; interpolated months are Script 01's

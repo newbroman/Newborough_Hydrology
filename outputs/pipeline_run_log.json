@@ -103,16 +103,16 @@
    "step": "19/63  Figure: Experimental design GIS map"
   },
   "14_climate_projections.py": {
-   "last_run": "2026-10-28T03:09:17",
-   "seconds": 3.6,
+   "last_run": "2026-11-01T16:17:00",
+   "seconds": 5.1,
    "status": "ok",
    "step": "16/63  Figure: Climate trajectory projections"
   },
   "14b_year_of_crossing.py": {
-   "last_run": "2026-10-28T03:09:19",
+   "last_run": "2026-11-01T16:17:05",
    "seconds": 2.2,
    "status": "ok",
-   "step": "17/63  Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 13)"
+   "step": "17/63  Wells below the Curreli summer levels, now and at the horizon (D-294)"
   },
   "15_depth_dependent_pet.py": {
    "last_run": "2026-10-28T03:10:17",
@@ -187,20 +187,20 @@
    "step": "27/63  Coastal-retreat gradient analysis"
   },
   "26_van_willegen_msl.py": {
-   "last_run": "2026-10-28T03:14:16",
-   "seconds": 18.3,
+   "last_run": "2026-11-01T16:17:27",
+   "seconds": 19.7,
    "status": "ok",
    "step": "31/63  Van Willegen (2025) 5-year MSL aggregation"
   },
   "26b_van_willegen_msl_projections.py": {
-   "last_run": "2026-10-28T03:14:19",
+   "last_run": "2026-11-01T16:17:32",
    "seconds": 2.9,
    "status": "ok",
    "step": "32/63  UKCP18 MSL5 climate projections (Tool B)"
   },
   "26c_msl5_report_figures.py": {
-   "last_run": "2026-10-28T03:14:21",
-   "seconds": 2.0,
+   "last_run": "2026-11-01T16:17:36",
+   "seconds": 1.9,
    "status": "ok",
    "step": "33/63  MSL5 report-format figures (Figures for \u00a74.8.4 / \u00a74.10.1)"
   },
@@ -379,5 +379,5 @@
    "step": "11/63  Clear-fell BACI analysis suite (10a\u201310m)"
   }
  },
- "updated": "2026-11-01T07:08:46"
+ "updated": "2026-11-01T16:17:36"
 }

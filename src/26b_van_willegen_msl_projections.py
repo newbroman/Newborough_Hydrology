@@ -113,7 +113,10 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "2.1.0"  # Hollingham (2026) - 2026-10-01 (D-224; Martin: "report both"). The projection
+__version__ = "2.2.0"  # Hollingham (2026) - 2026-11-01 (D-294; D-190's T-61 pairing). The per-cluster projection figure
+#   no longer draws SD15b/SD16: they are community means of the annual minimum, set against single wells only, and
+#   these panels are cluster MSL5 series. Projected change only; every CSV unchanged.
+# 2.1.0  # Hollingham (2026) - 2026-10-01 (D-224; Martin: "report both"). The projection
 #   on MODEL A beside Model B, from the same functions: the centroid pathway on Script 03's full-record
 #   centroid coefficients (03_03, the basis of the 03_16 centroid rows) and the per-well pathway on the
 #   comparison-window coefficients, under Script 48's identifiability rule with three parameters. In
@@ -465,14 +468,6 @@ def render_projection_figure(
         y_pad = max(0.05 * y_range, 0.02)
         y_lo = y_min - y_pad
         y_hi = y_max + y_pad
-        # Conditionally include thresholds if they're within or close to range
-        for thr in (-config.SD15b, -config.SD16):
-            if y_lo - 0.05 < thr < y_hi + 0.05:
-                pass  # already in range; line will be drawn
-        ax.axhline(-config.SD15b, ls="--", color="#1a7a1a", lw=0.8,
-                   alpha=0.7, zorder=2)
-        ax.axhline(-config.SD16,  ls="--", color="#cc0000", lw=0.8,
-                   alpha=0.7, zorder=2)
         ax.set_ylim(y_lo, y_hi)
         ax.set_xlim(right=float(obs["window_end_year"].max()) + 2.6)   # room for line names
         ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
@@ -507,13 +502,9 @@ def render_projection_figure(
         plt.Line2D([0], [0], color="#444", marker="^", lw=0.9, markersize=3.5, alpha=0.55,
                    markerfacecolor="#444", linestyle=SCENARIO_STYLES["2080s"]["linestyle"],
                    label="Model A (filled; D-224)"),
-        plt.Line2D([0], [0], color="#1a7a1a", lw=0.8, ls="--",
-                   label=f"SD15b (−{config.SD15b:.2f} m, summer ref.)"),
-        plt.Line2D([0], [0], color="#cc0000", lw=0.8, ls="--",
-                   label=f"SD16 (−{config.SD16:.2f} m, summer ref.)"),
     ]
     fig.legend(handles=legend_handles, loc="upper center",
-               bbox_to_anchor=(0.5, 0.945), ncol=6, fontsize=8,
+               bbox_to_anchor=(0.5, 0.945), ncol=4, fontsize=8,
                frameon=False, handlelength=4.5)
 
     fig.suptitle("Per-cluster MSL5 trajectory under UKCP18 RCP8.5 climate "

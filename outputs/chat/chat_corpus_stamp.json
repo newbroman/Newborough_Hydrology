@@ -1,11 +1,11 @@
 {
- "source_sha256": "f5286550fb0d030322f045775f10549ab53b869dea0ac8e69dce4c1409730787",
+ "source_sha256": "b851dcadd90df57c3d334f2cba931b277af365eb4e1fc028021c4bbc6970161e",
  "page_sha256": "fc04711a322b47576f2323c4db64fba335ff8d4bc0de683884522bc055a33504",
  "builder": "tools/build_chat_corpus.py 1.1.2",
  "counts": {
-  "sources": 106,
-  "chunks": 1382,
-  "numbers": 7094,
+  "sources": 107,
+  "chunks": 1384,
+  "numbers": 7341,
   "references": 18
  },
  "sources": [
@@ -70,6 +70,7 @@
   "outputs/11b_spatial_thresholds/11c_report_numbers.csv",
   "outputs/12_figure_site_overview/12_report_numbers.csv",
   "outputs/14_climate_projections/14_report_numbers.csv",
+  "outputs/14_climate_projections/14b_report_numbers.csv",
   "outputs/15_depth_dependent_pet/15_report_numbers.csv",
   "outputs/16_water_balance/16_report_numbers.csv",
   "outputs/17_wtf_specific_yield/17_report_numbers.csv",

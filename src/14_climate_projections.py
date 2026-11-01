@@ -35,7 +35,15 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-10. WET years by rainfall (config.WET_YEAR_PMINUSPET_PCTL of
+__version__ = "1.12.0"  # Hollingham (2026) - 2026-11-01 (D-294; spec NRG_spec_per_well_community_levels_2026-11-01,
+#   Martin 2026-11-01 "state the rule as stated"). Community levels are compared WELL BY WELL: the clusters are groups
+#   on SSM behaviour, not on depth, so a cluster mean is never set against a Curreli level. New: each reference well's
+#   own annual summer minimum and winter maximum (same months, hydrological year and MIN_MONTHS as the cluster series),
+#   banded against the Curreli summer and winter levels (utils.community_bands) -> 14_per_well_extremes.csv,
+#   14_per_well_band_counts.csv (cluster x season x year), 14_per_well_summer_bands.png, and wellband_* report numbers.
+#   The cluster figures keep their trends and lose the community bands, lines and the exceedance inset. The cluster
+#   summer_min_*_SD* and winter-exceedance outputs are still written and retire with the document batch (D-294).
+# 1.11.0  # Hollingham (2026) - 2026-10-10. WET years by rainfall (config.WET_YEAR_PMINUSPET_PCTL of
 #   hydrological-year P - PET over the whole RAF Valley record), and each cluster's recent wet-year summer
 #   minima against SD16 (wet_year_* rows; report9 SS4.8.1, Martin "3 i"). Emit-only.
 # 1.10.0  # Hollingham (2026) - 2026-09-29. T-96: emits, per cluster,
@@ -135,6 +143,7 @@ from utils.paths import (
     OUT_14_ANNUAL_EXTREMES, OUT_14_WINTER_EXCEED, OUT_14_SEASONAL_SCATTER,
     OUT_00_WELL_NETWORK_TABLE, INT_CLUSTER_STATS, INT_WELLS_REFERENCE, make_all_dirs,
     OUT_14_REPORT_NUMBERS, INT_CLIMATE,
+    OUT_14_PER_WELL_EXTREMES, OUT_14_PER_WELL_BAND_COUNTS, OUT_14_PER_WELL_BANDS_FIG,
 )
 from utils.report_numbers_utils import ReportNumbers  # T-91
 from utils.config import (
@@ -149,7 +158,8 @@ from utils.config import (
     EXTREMES_ROBUSTNESS_START,
 )
 from utils.render_utils import render_figure
-from utils.cluster_series import fixed_effect_centroids
+from utils.cluster_series import fixed_effect_centroids, cluster_membership
+from utils.community_bands import CURRELI_SUMMER, CURRELI_WINTER, band, band_names, band_counts   # D-294
 
 OBS_START = 2004
 # OBS_END is the last complete observational *year* for the climate
@@ -262,26 +272,9 @@ def _compute_winter_exceedance(filepath) -> dict:
     return result
 
 
-def build_winter_exceedance_text(exceedance: dict) -> str:
-    """Create a stable, reviewer-readable summary string for the inset box."""
-    lines = ["Wet slack flooding frequency (SD15b threshold):"]
-    for c in TRAJECTORY_CLUSTERS:
-        stats_c = exceedance.get(c)
-        if stats_c is None:
-            continue
-        pct_wet = int(round(100 * stats_c["wet"] / stats_c["n"]))
-        lines.append(
-            f"  {CLUSTER_LABELS[c]:<30} {stats_c['wet']:>2} / {stats_c['n']:<2} years  ({pct_wet:>2}%)"
-        )
-    return "\n".join(lines)
-
-
 def add_winter_background(ax: plt.Axes) -> None:
-    """Add winter threshold zones and reference lines shared by both figures."""
-    ax.axhspan(WINTER_YTOP, WET_SLACK_WINTER, alpha=0.06, color="#1a7a1a", zorder=0)
-    ax.axhspan(WET_SLACK_WINTER, DRY_SLACK_WINTER, alpha=0.06, color="#ff9900", zorder=0)
-    ax.axhspan(DRY_SLACK_WINTER, -1.35, alpha=0.04, color="#cc0000", zorder=0)
-
+    """The ground-surface reference line shared by both winter figures. 1.12.0 (D-294): no community levels on a
+    cluster series; they are compared well by well (14_per_well_summer_bands.png, 14_per_well_band_counts.csv)."""
     ax.axhline(0.00, color="#aaaaaa", linewidth=0.8, linestyle=":", zorder=2)
     ax.text(
         YEAR_MIN + 0.5,
@@ -292,40 +285,9 @@ def add_winter_background(ax: plt.Axes) -> None:
         va="bottom",
         zorder=7,
     )
-    ax.axhline(
-        WET_SLACK_WINTER,
-        color="#1a7a1a",
-        linewidth=1.4,
-        linestyle="--",
-        zorder=3,
-        label=f"Wet slack winter level SD15b ({WET_SLACK_WINTER:+.2f} m, above ground)",
-    )
-    ax.axhline(
-        DRY_SLACK_WINTER,
-        color="#7a3e00",
-        linewidth=1.4,
-        linestyle="--",
-        zorder=3,
-        label=f"Dry slack winter limit SD16 ({DRY_SLACK_WINTER} m)",
-    )
 
 
-def add_winter_exceedance_box(ax: plt.Axes, exceedance: dict) -> None:
-    """Render the standardized exceedance frequency inset."""
-    ax.text(
-        0.99,
-        0.97,
-        build_winter_exceedance_text(exceedance),
-        transform=ax.transAxes,
-        fontsize=8.0,
-        family="monospace",
-        bbox=dict(boxstyle="round,pad=0.5", facecolor="white", edgecolor="#cccccc", alpha=0.92),
-        va="top",
-        ha="right",
-        zorder=9,
-    )
-
-def load_annual_extremes(filepath) -> tuple[dict, dict]:
+def load_annual_extremes(filepath, columns=None) -> tuple[dict, dict]:
     """
     Load 03_regional_averages.csv and extract annual summer minima and
     winter maxima per cluster.
@@ -343,11 +305,12 @@ def load_annual_extremes(filepath) -> tuple[dict, dict]:
     df["hydro_year"] = df.index.year + (df.index.month >= 10).astype(int)
     df = df[(df.index.year >= OBS_START) & (df.index.year <= OBS_END)]
 
-    summer_min = {c: {} for c in CLUSTER_LABELS}
-    winter_max = {c: {} for c in CLUSTER_LABELS}
+    cols = list(columns) if columns is not None else list(CLUSTER_LABELS)   # 1.12.0: wells too (D-294)
+    summer_min = {c: {} for c in cols}
+    winter_max = {c: {} for c in cols}
 
     for year, grp in df.groupby("hydro_year"):
-        for c in CLUSTER_LABELS:
+        for c in cols:
             if c not in df.columns:
                 continue
             summer = grp[grp.index.month.isin(SUMMER_MONTHS)][c].dropna()
@@ -439,11 +402,6 @@ def render_summer_figure(
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
 
-    # Threshold bands
-    ax.axhspan(WET_SLACK_SUMMER, 0.10, alpha=0.06, color="#1155aa", zorder=0)
-    ax.axhspan(DRY_SLACK_SUMMER, WET_SLACK_SUMMER, alpha=0.06, color="#ff9900", zorder=0)
-    ax.axhspan(-2.10, DRY_SLACK_SUMMER, alpha=0.04, color="#cc0000", zorder=0)
-
     for idx, (c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra)) in enumerate(summer_data.items()):
         colour = CLUSTER_COLOURS[c]
         label = CLUSTER_LABELS[c]
@@ -470,51 +428,12 @@ def render_summer_figure(
                 zorder=6,
             )
 
-    # Threshold lines
-    ax.axhline(
-        WET_SLACK_SUMMER,
-        color="#1155aa",
-        linewidth=1.4,
-        linestyle="--",
-        zorder=3,
-        label=f"Wet slack summer limit SD15b ({WET_SLACK_SUMMER} m)",
-    )
-    ax.axhline(
-        DRY_SLACK_SUMMER,
-        color="#7a3e00",
-        linewidth=1.4,
-        linestyle="--",
-        zorder=3,
-        label=f"Dry slack summer limit SD16 ({DRY_SLACK_SUMMER} m)",
-    )
-
-
-    # Threshold annotations
-    ax.text(
-        YEAR_MIN + 0.5,
-        WET_SLACK_SUMMER + 0.025,
-        "Wet slack viability limit (SD15b)",
-        color="#1155aa",
-        fontsize=7.8,
-        va="bottom",
-        zorder=7,
-    )
-    ax.text(
-        YEAR_MIN + 0.5,
-        DRY_SLACK_SUMMER + 0.025,
-        "Dry slack viability limit (SD16)",
-        color="#7a3e00",
-        fontsize=7.8,
-        va="bottom",
-        zorder=7,
-    )
-
     ax.set_xlim(YEAR_MIN, YEAR_MAX)
     ax.set_ylim(-2.10, 0.10)
     ax.set_xlabel("Year", fontsize=11)
     ax.set_ylabel("Summer Minimum Water Table Depth (m)", fontsize=11)
     ax.set_title(
-        "Projected Summer Minimum Trajectory vs Ecological Thresholds: Newborough Warren",
+        "Summer Minimum Trajectory by Cluster: Newborough Warren",
         fontsize=12,
         pad=10,
     )
@@ -531,7 +450,6 @@ def render_summer_figure(
 def render_winter_figure(
     winter_data: dict,
     out_path: Path,
-    exceedance: dict,
 ) -> None:
     """
     Plot observed annual winter maxima for all trajectory clusters against
@@ -591,14 +509,12 @@ def render_winter_figure(
                         color=colour, linewidth=2.0, linestyle="-",
                         alpha=0.85, zorder=6)
 
-    add_winter_exceedance_box(ax, exceedance)
-
     ax.set_xlim(YEAR_MIN, YEAR_MAX)
     ax.set_ylim(-1.35, WINTER_YTOP)
     ax.set_xlabel("Year", fontsize=11)
     ax.set_ylabel("Winter Maximum Water Table Depth (m)", fontsize=11)
     ax.set_title(
-        "(B) Observed Winter Maximum Water Table vs Flooding Thresholds",
+        "(B) Observed Winter Maximum Water Table by Cluster",
         fontsize=12,
         pad=10,
     )
@@ -683,7 +599,6 @@ def render_stacked_figure(
     summer_data: dict,
     winter_data: dict,
     out_path: Path,
-    exceedance: dict,
 ) -> None:
     """
     Two-panel stacked figure (summer trajectory above, winter observed below).
@@ -693,9 +608,6 @@ def render_stacked_figure(
 
     # --- Top panel: summer ---
     ax_top.set_facecolor("white")
-    ax_top.axhspan(WET_SLACK_SUMMER, 0.10, alpha=0.06, color="#1155aa", zorder=0)
-    ax_top.axhspan(DRY_SLACK_SUMMER, WET_SLACK_SUMMER, alpha=0.06, color="#ff9900", zorder=0)
-    ax_top.axhspan(-2.10, DRY_SLACK_SUMMER, alpha=0.04, color="#cc0000", zorder=0)
 
     for idx, (c, (yobs, vobs, yproj, tproj, cu, cl, slope, *_extra)) in enumerate(summer_data.items()):
         colour = CLUSTER_COLOURS[c]
@@ -721,26 +633,10 @@ def render_stacked_figure(
                 zorder=6,
             )
 
-    ax_top.axhline(
-        WET_SLACK_SUMMER,
-        color="#1155aa",
-        linewidth=1.4,
-        linestyle="--",
-        zorder=3,
-        label=f"Wet slack summer limit SD15b ({WET_SLACK_SUMMER} m)",
-    )
-    ax_top.axhline(
-        DRY_SLACK_SUMMER,
-        color="#7a3e00",
-        linewidth=1.4,
-        linestyle="--",
-        zorder=3,
-        label=f"Dry slack summer limit SD16 ({DRY_SLACK_SUMMER} m)",
-    )
     ax_top.set_xlim(YEAR_MIN, YEAR_MAX)
     ax_top.set_ylim(-2.10, 0.10)
     ax_top.set_ylabel("Summer Minimum Depth (m)", fontsize=11)
-    ax_top.set_title("(A) Summer Minimum Trajectory vs Ecological Thresholds", fontsize=12, pad=10)
+    ax_top.set_title("(A) Summer Minimum Trajectory by Cluster", fontsize=12, pad=10)
     ax_top.yaxis.grid(True, color="#eaeaea", linewidth=0.5, zorder=0)
     ax_top.set_axisbelow(True)
     ax_top.legend(loc="best", fontsize=8.0, frameon=True, framealpha=0.92, edgecolor="#cccccc")
@@ -794,13 +690,11 @@ def render_stacked_figure(
                             color=colour, linewidth=2.0, linestyle="-",
                             alpha=0.85, zorder=6)
 
-    add_winter_exceedance_box(ax_bot, exceedance)
-
     ax_bot.set_xlim(YEAR_MIN, YEAR_MAX)
     ax_bot.set_ylim(-1.35, WINTER_YTOP)
     ax_bot.set_xlabel("Year", fontsize=11)
     ax_bot.set_ylabel("Winter Maximum Depth (m)", fontsize=11)
-    ax_bot.set_title("(B) Observed Winter Maximum Water Table vs Flooding Thresholds", fontsize=12, pad=10)
+    ax_bot.set_title("(B) Observed Winter Maximum Water Table by Cluster", fontsize=12, pad=10)
     ax_bot.yaxis.grid(True, color="#eaeaea", linewidth=0.5, zorder=0)
     ax_bot.set_axisbelow(True)
     # Add mean/median legend entries
@@ -814,7 +708,7 @@ def render_stacked_figure(
                   loc="lower right", fontsize=8.0, frameon=True, framealpha=0.92, edgecolor="#cccccc")
 
     fig.suptitle(
-        "Projected Climate Trajectory vs Ecological/Flooding Thresholds: Newborough Warren",
+        "Climate Trajectory by Cluster: Newborough Warren",
         fontsize=13,
         y=0.985,
     )
@@ -823,6 +717,99 @@ def render_stacked_figure(
     render_figure(plt.gcf(), out_path, facecolor="white")
     plt.close(fig)
     print(f"  [14] Saved: {out_path.name}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# D-294 (1.12.0): community levels compared well by well
+# ─────────────────────────────────────────────────────────────────────────────
+_SEASONS = (("summer", "summer_min_m", CURRELI_SUMMER), ("winter", "winter_max_m", CURRELI_WINTER))
+_BAND_COLOURS = ("#1155aa", "#ff9900", "#cc0000")   # wet, between, dry: the colours the cluster figures used
+
+
+def per_well_annual_extremes() -> pd.DataFrame:
+    """Each reference well's own annual summer minimum and winter maximum, by the cluster series' rule (months,
+    hydrological year, MIN_MONTHS), with its cluster and its Curreli band in each season."""
+    wells = pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True).sort_index()
+    wells.columns = wells.columns.astype(str).str.strip().str.lower().str.replace(" ", "")
+    members = cluster_membership(pd.read_csv(INT_CLUSTER_STATS), wells.columns)
+    cols = [w for ws in members.values() for w in ws]
+    smin, wmax = load_annual_extremes(wells, columns=cols)
+    rows = []
+    for cid, ws in sorted(members.items()):
+        for w in ws:
+            for y in sorted(set(smin[w].index) | set(wmax[w].index)):
+                s, x = float(smin[w].get(y, np.nan)), float(wmax[w].get(y, np.nan))
+                rows.append({"well": w, "cluster": f"C{cid}", "hydro_year": int(y),
+                             "summer_min_m": s, "winter_max_m": x,
+                             "summer_band": band(s, CURRELI_SUMMER), "winter_band": band(x, CURRELI_WINTER)})
+    return pd.DataFrame(rows)
+
+
+def per_well_band_counts(pw: pd.DataFrame) -> pd.DataFrame:
+    """Wells in each band, per season x cluster (and all clusters) x hydrological year."""
+    rows = []
+    for season, col, edges in _SEASONS:
+        for cl, g in [(c, pw[pw["cluster"] == c]) for c in TRAJECTORY_CLUSTERS] + [("All", pw)]:
+            for y, gy in g.groupby("hydro_year"):
+                rows.append({"season": season, "cluster": cl, "hydro_year": int(y), **band_counts(gy[col], edges)})
+    return pd.DataFrame(rows)
+
+
+def per_well_report_numbers(rn: "ReportNumbers", pw: pd.DataFrame) -> None:
+    """wellband_* rows: per cluster and for all clusters, (a) each well's record-mean extreme in its band and
+    (b) well-years in each band."""
+    for season, col, edges in _SEASONS:
+        levels = ", ".join(f"{n} {v:+.2f} m" for n, v in edges)
+        for cl, g in [(c, pw[pw["cluster"] == c]) for c in TRAJECTORY_CLUSTERS] + [("all", pw)]:
+            rec = g.groupby("well")[col].mean()
+            bc = band_counts(rec, edges)
+            rn.add(f"wellband_{season}_record_n_wells", bc["n"], unit="wells", well=cl,
+                   note=f"reference wells with a record-mean annual {season} extreme (14_per_well_extremes.csv, D-294)")
+            for b in band_names(edges):
+                rn.add(f"wellband_{season}_record_{b}", bc[b], unit="wells", well=cl,
+                       note=f"wells whose record-mean annual {season} extreme lies {b.replace('_', ' ')} "
+                            f"(Curreli {season} levels {levels}; 14_per_well_extremes.csv, D-294)")
+            wy = band_counts(g[col], edges)
+            rn.add(f"wellband_{season}_wellyears_n", wy["n"], unit="well-years", well=cl,
+                   note=f"well-years with an annual {season} extreme (14_per_well_extremes.csv, D-294)")
+            for b in band_names(edges):
+                rn.add(f"wellband_{season}_wellyears_{b}", wy[b], unit="well-years", well=cl,
+                       note=f"well-years whose annual {season} extreme lies {b.replace('_', ' ')} "
+                            f"(Curreli {season} levels {levels}; D-294)")
+
+
+def render_per_well_bands(bc: pd.DataFrame, out_path: Path) -> None:
+    """Per cluster, the share of reference wells whose own summer minimum fell in each Curreli band, year by year."""
+    s = bc[bc["season"] == "summer"]
+    names = band_names(CURRELI_SUMMER)
+    labels = [f"Above SD15b ({CURRELI_SUMMER[0][1]:+.2f} m)".replace("-", "−"),
+              f"Between SD15b and SD16",
+              f"Below SD16 ({CURRELI_SUMMER[1][1]:+.2f} m)".replace("-", "−")]
+    panels = list(TRAJECTORY_CLUSTERS) + ["All"]
+    fig, axes = plt.subplots(3, 2, figsize=(12, 10), sharex=True, sharey=True)
+    for ax, cl in zip(axes.ravel(), panels):
+        g = s[s["cluster"] == cl].sort_values("hydro_year")
+        n = g["n"].replace(0, np.nan)
+        bottom = np.zeros(len(g))
+        for b, col_, lab in zip(names, _BAND_COLOURS, labels):
+            share = (g[b] / n).fillna(0).to_numpy()
+            ax.bar(g["hydro_year"], share, bottom=bottom, color=col_, alpha=0.75, width=0.85, label=lab)
+            bottom += share
+        ax.set_title(CLUSTER_LABELS.get(cl, "All reference wells") if cl != "All" else "All reference wells",
+                     fontsize=10)
+        ax.set_ylim(0, 1)
+        ax.yaxis.grid(True, color="#eaeaea", linewidth=0.5)
+        ax.set_axisbelow(True)
+    for ax in axes[:, 0]:
+        ax.set_ylabel("Share of wells")
+    for ax in axes[-1, :]:
+        ax.set_xlabel("Hydrological year")
+    h, l = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", ncol=3, frameon=False, fontsize=9)
+    fig.suptitle("Each well's own annual summer minimum against the Curreli et al. (2013) levels", fontsize=12)
+    plt.tight_layout(rect=[0, 0.04, 1, 0.97])
+    render_figure(fig, out_path, facecolor="white")
+    plt.close(fig)
 
 
 def main() -> None:
@@ -880,10 +867,8 @@ def main() -> None:
             }
 
     render_summer_figure(summer_data, OUT_14_CLIMATE_SUMMER)
-    render_winter_figure(winter_data, OUT_14_CLIMATE_WINTER,
-                         exceedance=winter_exceedance)
-    render_stacked_figure(summer_data, winter_data, OUT_14_CLIMATE_STACKED,
-                          exceedance=winter_exceedance)
+    render_winter_figure(winter_data, OUT_14_CLIMATE_WINTER)
+    render_stacked_figure(summer_data, winter_data, OUT_14_CLIMATE_STACKED)
 
     # ── Export summer trend stats and annual extremes to CSV ─────────────────
 
@@ -1080,6 +1065,16 @@ def main() -> None:
                    note=f"full-record summer-minimum OLS slope of {_steep} (the steepest decline) "
                         f"divided by that of {c}, unrounded slopes (14_summer_trend_stats.csv "
                         "Slope_m_per_yr)")
+
+    # ── D-294 (1.12.0): community levels well by well ─────────────────────────
+    pw = per_well_annual_extremes()
+    pw.to_csv(OUT_14_PER_WELL_EXTREMES, index=False)
+    saved(f"{OUT_14_PER_WELL_EXTREMES.name} ({pw['well'].nunique()} wells, {len(pw)} well-years)")
+    bc = per_well_band_counts(pw)
+    bc.to_csv(OUT_14_PER_WELL_BAND_COUNTS, index=False)
+    saved(f"{OUT_14_PER_WELL_BAND_COUNTS.name} ({len(bc)} rows)")
+    per_well_report_numbers(rn, pw)
+    render_per_well_bands(bc, OUT_14_PER_WELL_BANDS_FIG)
     rn.save(OUT_14_REPORT_NUMBERS)
     saved(f"{OUT_14_REPORT_NUMBERS.name}")
 

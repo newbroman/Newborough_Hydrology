@@ -1,5 +1,5 @@
 {
-  "pipeline_version": "2.27.0",
+  "pipeline_version": "2.28.0",
   "pipeline_release": "0.9.2.23",
   "pipeline_release_date": "2026-10-02",
   "total_registered": 63,
@@ -17,7 +17,7 @@
   "analytical_phases": 17,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-11-01T07:21:53",
+  "generated": "2026-11-01T17:36:01",
   "steps": [
     {
       "index": 1,
@@ -167,7 +167,7 @@
       "index": 17,
       "total": 63,
       "script": "14b_year_of_crossing.py",
-      "desc": "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 13)",
+      "desc": "Wells below the Curreli summer levels, now and at the horizon (D-294)",
       "tier": "A",
       "exec": "default",
       "phase": 4

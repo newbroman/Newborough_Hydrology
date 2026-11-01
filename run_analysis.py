@@ -190,7 +190,9 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.27.0"  # Hollingham (2026) - 2026-10-25. PHASE 21 with Scripts 53 (E14, the forest-side drift in
+__version__ = "2.28.0"  # Hollingham (2026) - 2026-11-01. Step 14b relabelled for its per-well rewrite (D-294); no step added,
+#   removed or re-tiered.
+# 2.27.0  # Hollingham (2026) - 2026-10-25. PHASE 21 with Scripts 53 (E14, the forest-side drift in
 #   the CCW epoch) and 54 (E15, dry-year hysteresis and the 2006-08 excess), both tier X, opt-in. Counts 61 -> 63
 #   steps, 20 -> 21 phases, opt-in diagnostic 8 -> 10, by_exec opt-in 5 -> 7.
 # 2.26.0  # Hollingham (2026) - 2026-10-24 (D-275). Script 51 (filling gaps from cluster-mates) registered
@@ -493,7 +495,7 @@ PHASE_3 = [
 PHASE_4 = [
     Step("00_climate_summary.py",            "Climate summary outputs",                                                    "A"),
     Step("14_climate_projections.py",        "Figure: Climate trajectory projections",                                     "A"),
-    Step("14b_year_of_crossing.py",          "Bootstrap year-of-crossing for Curreli thresholds (\u00a77 Conclusion 13)",  "A"),
+    Step("14b_year_of_crossing.py",          "Wells below the Curreli summer levels, now and at the horizon (D-294)",     "A"),
     Step("12_figure_site_overview.py",       "Figure: DEM site overview",                                                  "A"),
     Step("13_figure_experimental_design.py", "Figure: Experimental design GIS map",                                        "A"),
 ]

@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.79.0"  # Hollingham (2026) - 2026-11-01. Script 50 1.22.0 (E19, T-133, D-292): OUT_50_CCW_FILM_MAP, OUT_50_CCW_FILM_MAP_YEARS.
+__version__ = "1.80.0"  # Hollingham (2026) - 2026-11-01. Script 14 1.12.0 (D-294): OUT_14_PER_WELL_EXTREMES,
+#   OUT_14_PER_WELL_BAND_COUNTS, OUT_14_PER_WELL_BANDS_FIG; Script 14b 2.0.0: OUT_14B_PER_WELL_TRENDS, OUT_14B_CROSSING_COUNTS,
+#   OUT_14B_PER_WELL_FIG, OUT_14B_REPORT_NUMBERS; Script 26 1.29.0: OUT_26_CURRELI_MIN_WELL_BANDS.
+# 1.79.0  # Hollingham (2026) - 2026-11-01. Script 50 1.22.0 (E19, T-133, D-292): OUT_50_CCW_FILM_MAP, OUT_50_CCW_FILM_MAP_YEARS.
 # 1.78.0  # Hollingham (2026) - 2026-10-30. Script 26 1.27.0 (T-131, D-291): OUT_26_MSL9_PER_WELL, OUT_26_MSL9_PER_CLUSTER,
 #   OUT_26_MSL9_COMMUNITY, OUT_26_MSL9_TRAJECTORY.
 # 1.77.0  # Hollingham (2026) - 2026-10-29. Script 03 1.29.0 (T-129, D-289): OUT_03_WARREN. Script 47 1.10.0: OUT_47_REPORT_NUMBERS.
@@ -917,6 +920,10 @@ OUT_14_SEASONAL_SCATTER   = DIR_14 / "14_seasonal_extremes_scatter.html"
 OUT_14B_CROSSING_CSV      = DIR_14 / "14b_year_of_crossing.csv"
 OUT_14B_CROSSING_FIG      = DIR_14 / "14b_year_of_crossing.png"
 OUT_14B_RESULTS_MEMO      = DIR_14 / "14b_year_of_crossing_results.md"
+OUT_14B_PER_WELL_TRENDS   = DIR_14 / "14b_per_well_trends.csv"       # D-294: each well's summer-minimum trend, now and at the horizon
+OUT_14B_CROSSING_COUNTS   = DIR_14 / "14b_crossing_counts.csv"       # D-294: wells per Curreli band now / at the horizon, by cluster
+OUT_14B_PER_WELL_FIG      = DIR_14 / "14b_per_well_crossing.png"     # D-294
+OUT_14B_REPORT_NUMBERS    = DIR_14 / "14b_report_numbers.csv"        # D-294: crossing_* counts
 
 # Script 15 — Depth-dependent PET
 OUT_15_LAMBDA_PROFILE   = DIR_15 / "15_01_lambda_profile.png"
@@ -1625,6 +1632,7 @@ OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
 OUT_26_CURRELI_MIN_PER_WELL          = DIR_26 / "26_curreli_min_per_well.csv"
 OUT_26_CURRELI_MIN_PER_CLUSTER       = DIR_26 / "26_curreli_min_per_cluster.csv"
 OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY = DIR_26 / "26_curreli_min_cluster_threshold_summary.csv"
+OUT_26_CURRELI_MIN_WELL_BANDS        = DIR_26 / "26_curreli_min_well_bands.csv"   # D-294: wells per Curreli band, window-end x cluster
 # MSL5 against the five-year mean annual minimum (T-64): the Methods Supplement's
 # S.18 cross-check, emitted rather than "run as part of script verification".
 OUT_26_MSL5_MIN5_PER_CLUSTER         = DIR_26 / "26_msl5_vs_min5_per_cluster.csv"
@@ -1700,6 +1708,9 @@ OUT_06_REPORT_NUMBERS = DIR_06 / "06_report_numbers.csv"
 OUT_11B_REPORT_NUMBERS = DIR_11B / "11b_report_numbers.csv"
 OUT_11B_THRESHOLD_SOURCE_SENS = DIR_11B / "11b_threshold_source_sensitivity.csv"   # zone counts, Curreli vs handbook v2 (D-242)
 OUT_14_REPORT_NUMBERS = DIR_14 / "14_report_numbers.csv"
+OUT_14_PER_WELL_EXTREMES    = DIR_14 / "14_per_well_extremes.csv"      # D-294: each well's annual extremes and Curreli bands
+OUT_14_PER_WELL_BAND_COUNTS = DIR_14 / "14_per_well_band_counts.csv"   # D-294: wells per band, season x cluster x year
+OUT_14_PER_WELL_BANDS_FIG   = DIR_14 / "14_per_well_summer_bands.png"  # D-294: share of wells per band, by cluster
 OUT_15_REPORT_NUMBERS = DIR_15 / "15_report_numbers.csv"
 OUT_19_REPORT_NUMBERS = DIR_19 / "19_report_numbers.csv"
 OUT_22_REPORT_NUMBERS = DIR_22 / "22_report_numbers.csv"

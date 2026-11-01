@@ -195,7 +195,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (542)
+## Outputs no exhibit renders (550)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -416,11 +416,18 @@
 - `14_climate_trajectory_spring.png`
 - `14_climate_trajectory_summer.png`
 - `14_climate_trajectory_winter_flooding.png`
+- `14_per_well_band_counts.csv`
+- `14_per_well_extremes.csv`
+- `14_per_well_summer_bands.png`
 - `14_report_numbers.csv`
 - `14_spring_trend_stats.csv`
 - `14_summer_trend_stats.csv`
 - `14_winter_exceedance.csv`
 - `14_winter_trend_stats.csv`
+- `14b_crossing_counts.csv`
+- `14b_per_well_crossing.png`
+- `14b_per_well_trends.csv`
+- `14b_report_numbers.csv`
 - `14b_year_of_crossing.csv`
 - `15_00_lambda_profiles_raw.csv`
 - `15_01_lambda_profile.png`
@@ -517,6 +524,7 @@
 - `25_16_delta0_leave_one_out.png`
 - `26_curreli_min_per_cluster.csv`
 - `26_curreli_min_per_well.csv`
+- `26_curreli_min_well_bands.csv`
 - `26_ebf_comparison.csv`
 - `26_equilibrium_wetness_index_per_well.csv`
 - `26_ewi_msl5_comparison.csv`
@@ -591,11 +599,3 @@
 - `36_absolute_climate_trend_2011_2025.png`
 - `36_absolute_climate_trend_per_well.csv`
 - `36_report_numbers.csv`
-- `37_driver_validation_per_well.csv`
-- `37_predicted_vs_observed.png`
-- `37_report_numbers.csv`
-- `37_residual_map.png`
-- `37_scale_factors_by_window.csv`
-- `37b_report_numbers.csv`
-- `38_report_numbers.csv`
-- `38_transect.csv`

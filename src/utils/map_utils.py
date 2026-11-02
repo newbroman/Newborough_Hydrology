@@ -45,7 +45,12 @@ plot_metric_map(map_df, value_col, title, output_path, cmap, data_dir, vmin, vma
     cluster-shape markers, dual colorbars, and legend.
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-01. add_kml_features(): streams OFF by
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-11-02. add_idw_surface(): the ridge mask now covers the
+#   hull-buffer extension (the well-DEM reference is extended the same way as the value surface); until now the
+#   extension was never ridge-masked, so seaward dune cells carried the nearest well's value (CEH21, 11b_01;
+#   Martin 2026-11-02 "there are ridges there"). Every map drawn with add_idw_surface can lose edge cells; no
+#   value inside the hull moves.
+# 1.10.0  # Hollingham (2026) — 2026-10-01. add_kml_features(): streams OFF by
 #   default (include_streams=False). streams.kml is DEM surface routing, not groundwater flow
 #   (D-082; T-66), and Martin (2026-10-01, D-215) keeps it only on figures that compare directly
 #   with groundwater flow; those draw it themselves (Script 01b Figure 1, Script 20 residual map).
@@ -592,7 +597,12 @@ def add_idw_surface(
             and dem_col in df.columns):
 
         # IDW-interpolate well DEM elevations to the same grid
-        surf_dem = griddata(pts, df[dem_col].values, (gx, gy), method=method)
+        # 1.11.0: the well-DEM reference gets the SAME hull-buffer extension as the value surface.
+        # Linear griddata alone is NaN outside the well hull, and (DEM - NaN) > threshold is False, so
+        # until 1.11.0 the extension band was never ridge-masked, contrary to this docstring: a seaward
+        # cell on a dune carried its nearest well's value (seen at CEH21 on 11b_01, Martin 2026-11-02).
+        surf_dem = interpolate_surface(pts, df[dem_col].values, gx, gy, method=method,
+                                       hull_buffer_m=hull_buffer_m)
 
         # Resample DEM raster to grid resolution
         dem_interp = RegularGridInterpolator(

@@ -35,7 +35,13 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-11-01 (D-294; spec NRG_spec_per_well_community_levels_2026-11-01,
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). report9 4.8.1
+#   states the clusters' ORDER on the annual summer minimum, not their levels against a community: summer_order_*
+#   report numbers count, over the hydrological years in which every trajectory cluster has a summer minimum, the
+#   years in which both forest clusters (config FOREST_CIDS) lie deeper than every open-dune cluster and the years
+#   in which the shallowest cluster is C1 or C2. Additive; nothing else moves. The D-294 per-well banding and the
+#   community counts stay until the documents stop citing them (retired in a later pass, D-296).
+# 1.12.0  # Hollingham (2026) - 2026-11-01 (D-294; spec NRG_spec_per_well_community_levels_2026-11-01,
 #   Martin 2026-11-01 "state the rule as stated"). Community levels are compared WELL BY WELL: the clusters are groups
 #   on SSM behaviour, not on depth, so a cluster mean is never set against a Curreli level. New: each reference well's
 #   own annual summer minimum and winter maximum (same months, hydrological year and MIN_MONTHS as the cluster series),
@@ -152,7 +158,7 @@ from utils.config import (
     BW_MODE, CLUSTER_LABELS as _CFG_LABELS, CLUSTER_COLOURS as _CFG_COLOURS,
     CLUSTER_COLOURS_BW as _CFG_COLOURS_BW, CLUSTER_MARKERS as _CFG_MARKERS,
     BW_LINESTYLES, SD15b, SD16, SD15b_WINTER, SD16_WINTER,
-    WET_YEAR_PMINUSPET_PCTL, RECENT_SUMMER_MINIMA_N,
+    WET_YEAR_PMINUSPET_PCTL, RECENT_SUMMER_MINIMA_N, FOREST_CIDS,
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
     TRAJECTORY_OBS_END, TRAJECTORY_PROJ_END, TRAJECTORY_YEAR_MIN,
     EXTREMES_ROBUSTNESS_START,
@@ -1065,6 +1071,22 @@ def main() -> None:
                    note=f"full-record summer-minimum OLS slope of {_steep} (the steepest decline) "
                         f"divided by that of {c}, unrounded slopes (14_summer_trend_stats.csv "
                         "Slope_m_per_yr)")
+
+    # 1.13.0 (D-296): the clusters' order on the annual summer minimum (report9 4.8.1)
+    _sm = pd.DataFrame({c: summer_min[c] for c in TRAJECTORY_CLUSTERS if c in summer_min}).dropna()
+    _forest = [f"C{k}" for k in FOREST_CIDS if f"C{k}" in _sm.columns]
+    _open = [c for c in _sm.columns if c not in _forest]
+    _span = f"{int(_sm.index.min())}-{int(_sm.index.max())}" if len(_sm) else ""
+    rn.add("summer_order_n_years", len(_sm), unit="years", era=_span,
+           note="hydrological years in which every trajectory cluster has a fixed-effects summer minimum "
+                "(14_annual_extremes.csv)")
+    rn.add("summer_order_forest_deepest_n_years",
+           int((_sm[_forest].max(axis=1) < _sm[_open].min(axis=1)).sum()), unit="years", era=_span,
+           note=f"of those years, the years in which both forest clusters ({', '.join(_forest)}) lie deeper "
+                f"than every open-dune cluster ({', '.join(_open)})")
+    rn.add("summer_order_c1_or_c2_shallowest_n_years",
+           int(_sm.idxmax(axis=1).isin(["C1", "C2"]).sum()), unit="years", era=_span,
+           note="of those years, the years in which the shallowest cluster summer minimum is C1 or C2")
 
     # ── D-294 (1.12.0): community levels well by well ─────────────────────────
     pw = per_well_annual_extremes()

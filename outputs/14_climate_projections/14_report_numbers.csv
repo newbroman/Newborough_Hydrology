@@ -273,6 +273,9 @@ summer_trend_slope_ratio_steepest_to,C1,,2.5322404096809357,,"full-record summer
 summer_trend_slope_ratio_steepest_to,C2,,2.032474458872878,,"full-record summer-minimum OLS slope of C5 (the steepest decline) divided by that of C2, unrounded slopes (14_summer_trend_stats.csv Slope_m_per_yr)"
 summer_trend_slope_ratio_steepest_to,C3,,1.6688235290100872,,"full-record summer-minimum OLS slope of C5 (the steepest decline) divided by that of C3, unrounded slopes (14_summer_trend_stats.csv Slope_m_per_yr)"
 summer_trend_slope_ratio_steepest_to,C4,,2.5272055326365974,,"full-record summer-minimum OLS slope of C5 (the steepest decline) divided by that of C4, unrounded slopes (14_summer_trend_stats.csv Slope_m_per_yr)"
+summer_order_n_years,,2006-2025,20.0,years,hydrological years in which every trajectory cluster has a fixed-effects summer minimum (14_annual_extremes.csv)
+summer_order_forest_deepest_n_years,,2006-2025,20.0,years,"of those years, the years in which both forest clusters (C4, C5) lie deeper than every open-dune cluster (C1, C2, C3)"
+summer_order_c1_or_c2_shallowest_n_years,,2006-2025,20.0,years,"of those years, the years in which the shallowest cluster summer minimum is C1 or C2"
 wellband_summer_record_n_wells,C1,,7.0,wells,"reference wells with a record-mean annual summer extreme (14_per_well_extremes.csv, D-294)"
 wellband_summer_record_above_sd15b,C1,,0.0,wells,"wells whose record-mean annual summer extreme lies above sd15b (Curreli summer levels SD15b -0.61 m, SD16 -0.98 m; 14_per_well_extremes.csv, D-294)"
 wellband_summer_record_sd15b_to_sd16,C1,,7.0,wells,"wells whose record-mean annual summer extreme lies sd15b to sd16 (Curreli summer levels SD15b -0.61 m, SD16 -0.98 m; 14_per_well_extremes.csv, D-294)"

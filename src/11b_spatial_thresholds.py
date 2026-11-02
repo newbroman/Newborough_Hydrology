@@ -76,7 +76,14 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.22.0"  # Hollingham (2026) - 2026-10-10. report9 SS4.7's worked P_flood example (C3 against C2 at
+__version__ = "1.23.0"  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed": the band maps
+#   are relabelled as plain depth classes). Without surveyed slack floors a well's depth is not read as a community, so
+#   the summer- and winter-maxima maps (11b_01, 11b_02) keep their zone edges and colours (config SD15b, SD15b_REC,
+#   SD16, SD16_REC, SD15b_WINTER, SD16_WINTER; D-201) but label them as depths, with no community or scrape-recovery
+#   names on the colour bars, legends, stats box or titles. The flooding-frequency map (11b_04) writes its per-well
+#   values to 11b_04_flood_frequency_per_well.csv and flood_freq_* per-cluster counts to 11b_report_numbers.csv; its
+#   contour levels come from config.FLOOD_FREQ_CONTOUR_PCT instead of literals. Zone-count report keys unchanged.
+# 1.22.0  # Hollingham (2026) - 2026-10-10. report9 SS4.7's worked P_flood example (C3 against C2 at
 #   1.0 m, config.PFLOOD_EXAMPLE2_*): pflood_example2_mm / _mP per cluster and pflood_example2_difference_mm.
 #   Emit-only.
 # 1.21.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
@@ -230,7 +237,7 @@ from utils.paths import (
     INT_PEAR_AUDIT_SITEWIDE, INT_REGIONAL_AVG, INT_CLUSTER_PEAK_MONTHS, INT_CLIMATE,
     OUT_03_MECHANISTIC_TABLE, OUT_11_TABLE8_THRESHOLDS, OUT_11_TABLE6_WINTER,
     OUT_11_TABLE7_SUMMER, OUT_11_PFLOOD_SUMMARY, DIR_11B, OUT_11B_SUMMER_MAP, OUT_11B_WINTER_MAP,
-    OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ,
+    OUT_11B_PFLOOD_MAP, OUT_11B_PFLOOD_PER_WELL, OUT_11B_FLOOD_FREQ, OUT_11B_FLOOD_FREQ_PER_WELL,
     OUT_11B_PFLOOD_CLUSTER_SUMMARY,
     OUT_11B_TABLE10, OUT_11B_FORECASTER_HTML, SRC_FORECASTER_TEMPLATE,
     LIVING_WET_AREA_MODEL, OUT_11B_REPORT_NUMBERS, OUT_11B_THRESHOLD_SOURCE_SENS,
@@ -240,7 +247,7 @@ from utils.map_utils import (load_dem_hillshade, add_idw_surface, add_kml_featur
                              load_site_outline)
 from utils.config import (
     CLUSTER_LABELS, CLUSTER_COLOURS, SD15b, SD15b_REC, SD16, SD16_REC,
-    SD15b_WINTER, SD16_WINTER,
+    SD15b_WINTER, SD16_WINTER, FLOOD_FREQ_CONTOUR_PCT,
     HB_SD15b_MIN, HB_SD16_MIN, HB_SD15b_WINTER, HB_SD16_WINTER, HB_SOURCE,
     SCRAPE_DEM_CORRECTION_M, DRAINAGE_DATUM,
     SITE_MAP_EAST_MIN, SITE_MAP_EAST_MAX,
@@ -741,6 +748,7 @@ def load_well_data() -> pd.DataFrame:
 # FIGURE 1 — SUMMER MINIMA DEPTH MAP
 # ─────────────────────────────────────────────────────────────────────────────
 _ZONE_REPORT: list = []
+_FLOOD_REPORT: list = []    # 1.23.0 (D-296), filled by plot_flood_frequency_map()
 _WINTER_DEPTHS: list = []     # per-well mean winter maximum depth_bg, filled by the winter map
 _SOURCE_REPORT: list = []     # threshold-source sensitivity report numbers (1.20.0, D-242)
 _PFLOOD_REPORT: list = []     # per-well P_flood counts and scrape benefits (1.21.0, emit-first)
@@ -814,11 +822,11 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     )
     cb.set_label("Mean summer minimum depth below ground (m)", fontsize=9)
     cb.ax.set_yticklabels([
-        "0 m\n(flooding)",
-        f"{SD15b} m\nSD15b\nwet slack",
-        f"{SD15b_REC} m\nSD15b\nrecovery\nlimit",
-        f"{SD16} m\nSD16\ndry slack",
-        f"{SD16_REC} m\nSD16\nrecovery\nlimit",
+        "0 m\n(ground)",
+        f"{SD15b} m",
+        f"{SD15b_REC} m",
+        f"{SD16} m",
+        f"{SD16_REC} m",
         "3.0 m",
     ], fontsize=7.5)
 
@@ -879,24 +887,17 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                     path_effects=[_pe.withStroke(linewidth=2.5, foreground="white")],
                 )
 
-    stats_txt = (
-        f"Above SD15b — wet slack viable:              {n_wet}/{n_tot} "
-        f"({100*n_wet/n_tot:.0f}%)\n"
-        f"SD15b–{SD15b_REC} m — recoverable, one scrape:  {n_sr15b}/{n_tot} "
-        f"({100*n_sr15b/n_tot:.0f}%)\n"
-        f"{SD15b_REC}–SD16 m  — SD16 dry slack:             {n_marg}/{n_tot} "
-        f"({100*n_marg/n_tot:.0f}%)\n"
-        f"SD16–{SD16_REC} m  — recoverable, deeper scrape: {n_sr16}/{n_tot} "
-        f"({100*n_sr16/n_tot:.0f}%)\n"
-        f"Beyond {SD16_REC} m — beyond recovery:          {n_crit}/{n_tot} "
-        f"({100*n_crit/n_tot:.0f}%)\n"
+    stats_txt = (                                   # 1.23.0 (D-296): depth classes, no community names
+        f"Shallower than {SD15b} m:    {n_wet}/{n_tot} ({100*n_wet/n_tot:.0f}%)\n"
+        f"{SD15b}–{SD15b_REC} m:          {n_sr15b}/{n_tot} ({100*n_sr15b/n_tot:.0f}%)\n"
+        f"{SD15b_REC}–{SD16} m:          {n_marg}/{n_tot} ({100*n_marg/n_tot:.0f}%)\n"
+        f"{SD16}–{SD16_REC} m:           {n_sr16}/{n_tot} ({100*n_sr16/n_tot:.0f}%)\n"
+        f"Deeper than {SD16_REC} m:      {n_crit}/{n_tot} ({100*n_crit/n_tot:.0f}%)\n"
         f"Ref: {(df['network']=='Reference').sum()}  "
         f"Extended: {(df['network']=='Extended').sum()}  "
         f"Total: {n_tot}\n"
         + "  |  ".join(f"{w.upper()}: DEM −{d:.2f} m" for w, d in SCRAPE_DEM_CORRECTION_M.items())
-        + "  (DEM-corrected only; full record used)\n"
-        + f"Recovery limits: planning assumption of ~{SD15b_REC - SD15b:.2f} / "
-          f"~{SD16_REC - SD16:.2f} m of scraping benefit"
+        + "  (DEM-corrected only; full record used)"
     )
     ax.text(
         0.01, 0.99, stats_txt,
@@ -907,28 +908,19 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
         zorder=7,
     )
 
-    zone_handles = [
-        mpatches.Patch(facecolor="#1a7abf", alpha=0.8,
-                       label=f"Wet slack — viable (< {SD15b} m)"),
-        mpatches.Patch(facecolor="#a8d8a8", alpha=0.8,
-                       label=f"SD15b recoverable by one scrape ({SD15b}–{SD15b_REC} m)"),
-        mpatches.Patch(facecolor="#ffffb2", alpha=0.8,
-                       label=f"SD16 dry slack ({SD15b_REC}–{SD16} m)"),
-        mpatches.Patch(facecolor="#fd8d3c", alpha=0.8,
-                       label=f"SD16 recoverable by a deeper scrape ({SD16}–{SD16_REC} m)"),
-        mpatches.Patch(facecolor="#bd0026", alpha=0.8,
-                       label=f"Beyond scraping recovery (> {SD16_REC} m)"),
-        Line2D([0], [0], color="#005fa3", lw=2.0, ls="--",
-               label=f"SD15b wet slack threshold ({SD15b} m)"),
-        Line2D([0], [0], color="#2e8b2e", lw=1.8, ls=":",
-               label=f"SD15b recovery limit ({SD15b_REC} m; ~{SD15b_REC - SD15b:.2f} m benefit assumed)"),
-        Line2D([0], [0], color="#a30000", lw=2.0, ls="--",
-               label=f"SD16 dry slack threshold ({SD16} m)"),
-        Line2D([0], [0], color="#4a0000", lw=1.8, ls="-.",
-               label=f"SD16 recovery limit ({SD16_REC} m; ~{SD16_REC - SD16:.2f} m benefit assumed)"),
+    zone_handles = [                                # 1.23.0 (D-296): depth classes
+        mpatches.Patch(facecolor=ZONE_COLOURS[0], alpha=0.8, label=f"Shallower than {SD15b} m"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[1], alpha=0.8, label=f"{SD15b}–{SD15b_REC} m"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[2], alpha=0.8, label=f"{SD15b_REC}–{SD16} m"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[3], alpha=0.8, label=f"{SD16}–{SD16_REC} m"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[4], alpha=0.8, label=f"Deeper than {SD16_REC} m"),
+        Line2D([0], [0], color="#005fa3", lw=2.0, ls="--", label=f"{SD15b} m depth contour"),
+        Line2D([0], [0], color="#2e8b2e", lw=1.8, ls=":", label=f"{SD15b_REC} m depth contour"),
+        Line2D([0], [0], color="#a30000", lw=2.0, ls="--", label=f"{SD16} m depth contour"),
+        Line2D([0], [0], color="#4a0000", lw=1.8, ls="-.", label=f"{SD16_REC} m depth contour"),
         Line2D([0], [0], marker="*", color="w",
                markerfacecolor="grey", markeredgecolor="black",
-               markersize=12, label="Above SD15b on average (\u2605 labelled)"),
+               markersize=12, label=f"Shallower than {SD15b} m on average (\u2605 labelled)"),
         Line2D([0], [0], marker="o", color="w",
                markerfacecolor="grey", markeredgecolor="black",
                markersize=8, label="Reference well"),
@@ -1083,21 +1075,21 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     cb.ax.invert_yaxis()
     cb.set_label("Mean winter maximum depth below ground (m)", fontsize=9)
     cb.ax.set_yticklabels([
-        f"{W_SD15b:.2f} m\nSD15b winter\n(above ground)",
+        f"{W_SD15b:.2f} m\n(above ground)",
         f"{W_FLOOD:.2f} m\nGround\nsurface",
-        f"{W_SD16:.2f} m\nSD16\nwinter",
+        f"{W_SD16:.2f} m",
     ], fontsize=7.5)
 
     # Legend
     legend_patches = [
         mpatches.Patch(color=WINTER_ZONE_COLOURS[0],
-                       label=f"SD15b winter met (flooded ≥ {-W_SD15b:.2f} m, n={n_sd15b})"),
+                       label=f"Flooded {-W_SD15b:.2f} m or more (n={n_sd15b})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[1],
-                       label=f"Flooded, short of SD15b (0 to {-W_SD15b:.2f} m, n={n_flood})"),
+                       label=f"Flooded 0–{-W_SD15b:.2f} m (n={n_flood})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[2],
-                       label=f"SD16 winter met (<{W_SD16} m, n={n_sd16})"),
+                       label=f"0–{W_SD16} m below ground (n={n_sd16})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[3],
-                       label=f"Below SD16 winter (>{W_SD16} m, n={n_below})"),
+                       label=f"Deeper than {W_SD16} m (n={n_below})"),
         Line2D([0],[0], marker="o", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Reference well"),
         Line2D([0],[0], marker="D", color="w", markerfacecolor="#999",
@@ -1112,7 +1104,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_title(
         "Mean Annual Winter Maximum — Depth Below Ground (m)\n"
         "Newborough Warren 2005–2026  |  Full network  |  "
-        "Dune ridges masked  |  Curreli et al. (2013) winter thresholds",
+        "Dune ridges masked  |  depth classes",
         fontsize=10, fontweight="bold")
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
@@ -1441,6 +1433,7 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
         if np.isnan(freq):
             continue
         ff_rows.append({
+            "well": row["well"], "n_winters": len(_winter_maxima(series)),
             "E": row["E"], "N": row["N"],
             "cluster": row["cluster"], "network": row["network"],
             "dem": row["dem"],
@@ -1452,6 +1445,21 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
         return
 
     ff = pd.DataFrame(ff_rows)
+    # 1.23.0 (D-296): per-well values and per-cluster counts behind report9 4.8.2 / Figure 44
+    ff[["well", "cluster", "network", "n_winters", "freq"]].rename(columns={"freq": "flood_freq_pct"}) \
+        .to_csv(OUT_11B_FLOOD_FREQ_PER_WELL, index=False)
+    saved(f"{OUT_11B_FLOOD_FREQ_PER_WELL.name}")
+    _FLOOD_REPORT.clear()
+    for _c, _g in ff.groupby("cluster"):
+        _lbl = f"C{int(_c)}"
+        _FLOOD_REPORT.append(dict(parameter="flood_freq_n_wells", value=int(len(_g)), unit="wells", well=_lbl,
+                                  era="", note="wells with >= 5 winters in the flooding-frequency map"))
+        _FLOOD_REPORT.append(dict(parameter="flood_freq_n_ever", value=int((_g.freq > 0).sum()), unit="wells",
+                                  well=_lbl, era="", note="wells whose winter maximum reached the ground in any winter"))
+        for _t in FLOOD_FREQ_CONTOUR_PCT:
+            _FLOOD_REPORT.append(dict(parameter=f"flood_freq_n_ge{_t}pct", value=int((_g.freq >= _t).sum()),
+                                      unit="wells", well=_lbl, era="",
+                                      note=f"wells flooding in at least {_t}% of their winters"))
 
     fig, ax = plt.subplots(figsize=(12, 10), facecolor="white")
     _, ok, dem_e_arr, dem_n_arr, dem_data = load_dem_hillshade(
@@ -1479,8 +1487,8 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
     surf = _fill_and_mask(surf, gx, gy, ff, ff["freq"].values)
 
     for level, col, ls, lw, lbl in [
-        (25,  "white",  "--", 2.0, "25% frequency contour"),
-        (50,  "black",  "-",  2.0, "50% frequency contour"),
+        (FLOOD_FREQ_CONTOUR_PCT[0], "white", "--", 2.0, f"{FLOOD_FREQ_CONTOUR_PCT[0]}% frequency contour"),
+        (FLOOD_FREQ_CONTOUR_PCT[1], "black", "-",  2.0, f"{FLOOD_FREQ_CONTOUR_PCT[1]}% frequency contour"),
     ]:
         try:
             cs = ax.contour(gx, gy, surf, levels=[level], colors=[col],
@@ -1504,8 +1512,8 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
         mpatches.Patch(facecolor="#8c510a", label="Never floods (0%)"),
         mpatches.Patch(facecolor="#c7eae5", edgecolor="#aaa", label="Occasionally floods (~50%)"),
         mpatches.Patch(facecolor="#003c30", label="Frequently floods (>75%)"),
-        Line2D([0],[0], color="white", lw=2.0, ls="--", label="25% frequency contour"),
-        Line2D([0],[0], color="black", lw=2.0, ls="-", label="50% frequency contour"),
+        Line2D([0],[0], color="white", lw=2.0, ls="--", label=f"{FLOOD_FREQ_CONTOUR_PCT[0]}% frequency contour"),
+        Line2D([0],[0], color="black", lw=2.0, ls="-", label=f"{FLOOD_FREQ_CONTOUR_PCT[1]}% frequency contour"),
         Line2D([0],[0], marker="o", color="w", markerfacecolor="#999",
                markeredgecolor="grey", ms=6, label="Reference well"),
         Line2D([0],[0], marker="D", color="w", markerfacecolor="#999",
@@ -1520,7 +1528,7 @@ def plot_flood_frequency_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_title(
         "Winter Flooding Frequency (%) — Newborough Warren 2005–2026\n"
         "Years water table reached ground surface  |  Full network  |  "
-        "Dune ridges masked  |  Curreli et al. (2013): SD15b requires annual flooding",
+        "Dune ridges masked",
         fontsize=10, fontweight="bold")
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)
@@ -1782,7 +1790,7 @@ def export_table10_spreadsheet() -> None:
            era=_hy_era,
            note=f"Wettest {_hz} total as a percentage of the rainfall demand at m_P = MP_MARGINAL_MAX "
                 "(MP_MARGINAL_MAX x P_clim_total_mm), the threshold of the unreachable class")
-    for _r in _ZONE_REPORT + _SOURCE_REPORT + _PFLOOD_REPORT:
+    for _r in _ZONE_REPORT + _SOURCE_REPORT + _PFLOOD_REPORT + _FLOOD_REPORT:
         rn.add(_r["parameter"], _r["value"], unit=_r["unit"], well=_r["well"],
                era=_r["era"], note=_r["note"])
     rn.save(OUT_11B_REPORT_NUMBERS)

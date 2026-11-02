@@ -4,3 +4,24 @@ window_change_envelope_max_mm,,,228.95531037913526,mm,"Maximum site-mean MSL5 ch
 window_change_n_admissible_pairs,,,55.0,pairs,"Count of admissible (baseline, current) window pairs (common panel >= MIN_PANEL)."
 window_change_n_negative,,,17.0,pairs,Admissible pairs with change_mm < 0 (falling).
 window_change_n_positive,,,38.0,pairs,Admissible pairs with change_mm > 0 (rising).
+msl9_window_change_envelope_min_mm,,,-66.69445812964436,mm,Minimum site-mean MSL9 change over admissible window pairs (34_window_matrix_msl9.csv).
+msl9_window_change_envelope_max_mm,,,130.10877241560303,mm,Maximum site-mean MSL9 change over admissible window pairs (34_window_matrix_msl9.csv).
+msl9_window_change_n_admissible_pairs,,,36.0,pairs,Admissible MSL9 window pairs (common panel >= MIN_PANEL).
+msl9_window_change_n_negative,,,12.0,pairs,Admissible MSL9 pairs falling.
+msl9_window_change_n_positive,,,24.0,pairs,Admissible MSL9 pairs rising.
+msl9_window_change_first_admissible_end,,,2017.0,year,Earliest baseline window-end in any admissible MSL9 pair.
+msl9_window_change_c1_min_mm,,,-39.1997354497355,mm,C1: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
+msl9_window_change_c1_max_mm,,,113.96014308632017,mm,C1: maximum cluster-mean MSL9 change over the admissible pairs.
+msl9_window_change_c1_n_negative,,,7.0,pairs,C1: admissible pairs in which the cluster-mean MSL9 fell.
+msl9_window_change_c2_min_mm,,,-56.90211640211637,mm,C2: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
+msl9_window_change_c2_max_mm,,,135.51421957671954,mm,C2: maximum cluster-mean MSL9 change over the admissible pairs.
+msl9_window_change_c2_n_negative,,,8.0,pairs,C2: admissible pairs in which the cluster-mean MSL9 fell.
+msl9_window_change_c3_min_mm,,,-75.89120350292178,mm,C3: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
+msl9_window_change_c3_max_mm,,,142.23734622112354,mm,C3: maximum cluster-mean MSL9 change over the admissible pairs.
+msl9_window_change_c3_n_negative,,,11.0,pairs,C3: admissible pairs in which the cluster-mean MSL9 fell.
+msl9_window_change_c4_min_mm,,,-81.64021164021165,mm,C4: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
+msl9_window_change_c4_max_mm,,,173.7169312169312,mm,C4: maximum cluster-mean MSL9 change over the admissible pairs.
+msl9_window_change_c4_n_negative,,,11.0,pairs,C4: admissible pairs in which the cluster-mean MSL9 fell.
+msl9_window_change_c5_min_mm,,,-87.3015873015873,mm,C5: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).
+msl9_window_change_c5_max_mm,,,89.50617283950614,mm,C5: maximum cluster-mean MSL9 change over the admissible pairs.
+msl9_window_change_c5_n_negative,,,19.0,pairs,C5: admissible pairs in which the cluster-mean MSL9 fell.

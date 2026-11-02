@@ -7,14 +7,11 @@ Report-format figures derived from Scripts 26 and 26b — companions to
 the methods-style figures those scripts produce. Two outputs:
 
   1. fig_msl5_trajectory_report.png  (report Figure 44, two panels)
-     (a) Cluster-mean 5-year MSL trajectory from MSL_TRAJECTORY_START_YEAR,
-         the van Willegen et al. (2025) vegetation-baseline metric, against the
-         SD15b/SD16 mean spring levels of the Dune Managers Handbook v2 (D-242):
-         neither van Willegen nor Curreli defines a level on the spring mean.
-     (b) Cluster-mean rolling annual minimum over CURRELI_MIN_WINDOW_YEARS —
-         the quantity the Curreli (2013) SD15b/SD16 values are four-year
-         means of (D-190) — against those values, SD16 zone shaded, latest
-         values labelled at the right of each trajectory.
+     (a) Cluster 5-year MSL trajectory from MSL_TRAJECTORY_START_YEAR,
+         the van Willegen et al. (2025) vegetation-baseline metric.
+     (b) Cluster rolling annual minimum over CURRELI_MIN_WINDOW_YEARS, the
+         summer-trough counterpart of MSL5.
+     Neither panel carries a community level (D-296).
      Until 1.2.0 this was a single MSL5 panel carrying the thresholds.
 
   2. fig_msl5_vs_summer_min_projection.png
@@ -54,7 +51,12 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.7.0"   # Hollingham (2026) — 2026-11-01 (D-294; Martin 2026-11-01 "state the rule as stated"). Panel (b)
+__version__ = "1.8.0"   # Hollingham (2026) — 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). Without
+#   surveyed slack floors the community levels are not set against the record. Panel (b) returns to the cluster
+#   trajectories of the four-year mean annual minimum (26_curreli_min_per_cluster.csv, fixed effects), drawn as
+#   a trajectory like panel (a), with no SD15b/SD16 lines, no SD16 shading and no per-well strip. Panel (a) and
+#   the projection figure unchanged.
+# 1.7.0   # Hollingham (2026) — 2026-11-01 (D-294; Martin 2026-11-01 "state the rule as stated"). Panel (b)
 #   no longer sets the cluster-mean four-year annual minimum against the Curreli values: each WELL's own four-year
 #   mean annual minimum at the latest window-end is drawn as a point, grouped by cluster, against SD15b and SD16
 #   (26_curreli_min_per_well.csv). Panel (a), the cluster MSL5 trajectories, is unchanged and carries no levels.
@@ -107,18 +109,10 @@ from utils.console_utils import (
 )
 from utils.render_utils import render_figure
 from utils import config
-from utils.config import SD15b as _SD15b_cfg, SD16 as _SD16_cfg
 
 # ---------------------------------------------------------------------
 # constants
 # ---------------------------------------------------------------------
-# Curreli (2013) eco-hydrological thresholds. config.py holds them as POSITIVE
-# depths below ground (SD15b, SD16); this figure plots depth on a negative-down
-# axis, so they are negated once here. Never restate the numeric values — a
-# sign-flipped local copy will not track a config change.
-SD15b = -_SD15b_cfg
-SD16  = -_SD16_cfg
-
 # Cluster ordering, labels and colours — the canonical maps (config.py), keyed
 # by label as the per-cluster CSVs carry them.
 CLUSTERS = [config.CLUSTER_LABELS[k] for k in sorted(config.CLUSTER_LABELS)
@@ -179,71 +173,53 @@ def _draw_cluster_lines(ax, df: pd.DataFrame, ycol: str, start_year: int) -> flo
     return lowest
 
 
-def render_trajectory(per_cluster: pd.DataFrame, per_well_min: pd.DataFrame,
+def render_trajectory(per_cluster: pd.DataFrame, per_cluster_min: pd.DataFrame,
                       out_path: Path) -> None:
-    """Write report Figure 44 to ``out_path``: (a) MSL5, (b) the rolling
-    annual minimum against the Curreli reference values (D-190).
+    """Write the report MSL5 trajectory figure to ``out_path``: (a) MSL5,
+    (b) the rolling annual minimum. Cluster series only; no community level
+    is drawn (D-296).
 
     Parameters
     ----------
     per_cluster : DataFrame
         ``26_msl_5yr_per_cluster.csv`` — ``cluster_label``,
         ``window_end_year``, ``MSL5_m_bg_mean``.
-    per_well_min : DataFrame
-        ``26_curreli_min_per_well.csv`` — ``well``, ``window_years``,
-        ``window_end_year``, ``MINw_m_bg``, ``cluster_label``; each well's
-        headline-window value at the latest window-end is drawn (D-294).
+    per_cluster_min : DataFrame
+        ``26_curreli_min_per_cluster.csv`` — the same keys plus
+        ``window_years`` and ``MINw_m_bg_mean``; the headline window
+        (config.CURRELI_MIN_WINDOW_YEARS) is drawn.
     out_path : Path
         Destination PNG.
     """
     start = config.MSL_TRAJECTORY_START_YEAR
     w = config.CURRELI_MIN_WINDOW_YEARS
-    mins = per_well_min[(per_well_min.window_years == w) & per_well_min.cluster_label.isin(CLUSTERS)]
-    end = int(per_cluster.window_end_year.max())
-    end_b = int(mins.window_end_year.max())
-    last = mins[mins.window_end_year == end_b]
+    mins = per_cluster_min[per_cluster_min.window_years == w]
+    end = int(max(per_cluster.window_end_year.max(), mins.window_end_year.max()))
 
-    fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(9.0, 8.6), dpi=200)
+    fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(9.0, 8.6), dpi=200, sharex=True)
 
-    # (a) MSL5 — the vegetation-baseline metric. 1.6.0 (D-293): the handbook mean spring levels are nine-year
-    # means and are set against MSL9 in Script 26's 26_msl9_trajectory.png, not drawn here.
+    # (a) MSL5 — the vegetation-baseline metric
     low_a = _draw_cluster_lines(ax_a, per_cluster, "MSL5_m_bg_mean", start)
     ax_a.set_ylabel("5-year mean spring water level (m, below ground)")
-    ax_a.set_title(f"(a)  Cluster-mean {config.MSL_DEFAULT_WINDOW_YEARS}-year MSL "
+    ax_a.set_title(f"(a)  Cluster {config.MSL_DEFAULT_WINDOW_YEARS}-year MSL "
                    f"(van Willegen et al. 2025) — window ends {start}–{end}",
                    pad=8, loc="left", fontweight="normal")
 
-    # (b) each WELL's own four-year mean annual minimum — the quantity SD15b/SD16 are means of (D-190) — at the
-    # latest window-end, grouped by cluster (D-294: a cluster mean is never set against a community level)
-    rng = np.random.default_rng(0)            # fixed jitter so the figure is reproducible run to run
-    for i_c, label in enumerate(CLUSTERS):
-        v = last[last.cluster_label == label]["MINw_m_bg"].dropna().to_numpy()
-        xs = i_c + rng.uniform(-0.18, 0.18, len(v))
-        ax_b.scatter(xs, v, s=22, color=CC[label], marker=MK[label], edgecolor="white", linewidth=0.4,
-                     zorder=3, label=f"{label} (n = {len(v)})")
-    low_b = float(last["MINw_m_bg"].min()) if len(last) else SD16
-    floor_b = np.floor((min(low_b, SD16) - 0.15) / 0.2) * 0.2
-    ax_b.axhspan(floor_b, SD16, facecolor="#F09595", alpha=0.18, zorder=0)
-    for y, col, name in ((SD15b, "#3B6D11", "SD15b (wet slack"),
-                         (SD16, "#A32D2D", "SD16 (dry slack")):
-        ax_b.axhline(y, color=col, linewidth=1.0, linestyle=(0, (6, 4)), zorder=1)
-        ax_b.text(-0.45, y + 0.018, f"{name}, {y:.2f} m)".replace("-", "−"),
-                  color=col, fontsize=9, va="bottom", ha="left")
+    # (b) rolling annual minimum — the summer trough, as a trajectory (D-296: no community lines)
+    low_b = _draw_cluster_lines(ax_b, mins, "MINw_m_bg_mean", start)
     ax_b.set_ylabel(f"{w}-year mean annual minimum (m, below ground)")
-    ax_b.set_title(f"(b)  Each well's {w}-year mean annual minimum at window-end {end_b} against the "
-                   f"Curreli et al. (2013) reference values", pad=8, loc="left", fontweight="normal")
-    ax_b.set_xticks(range(len(CLUSTERS)))
-    ax_b.set_xticklabels(CLUSTERS, fontsize=9)
-    ax_b.set_xlim(-0.5, len(CLUSTERS) - 0.5)
-    ax_a.set_xlabel("Hydrology year (window end)")
+    ax_b.set_title(f"(b)  Cluster {w}-year mean annual minimum — window ends {start}–{end}",
+                   pad=8, loc="left", fontweight="normal")
+    ax_b.set_xlabel("Hydrology year (window end)")
 
     ax_a.set_ylim(np.floor((low_a - 0.40) / 0.2) * 0.2, 0.05)   # 1.5.0: room for the legend band
-    ax_b.set_ylim(floor_b, 0.05)
-    ax_a.set_xlim(start - 0.2, end + 0.9)
-    ax_a.set_xticks(range(start, end + 1))
-    leg = ax_a.legend(loc="lower center", frameon=True, framealpha=0.95, edgecolor="#cccccc",
-                      fontsize=8, ncol=3, labelspacing=0.4, columnspacing=1.0, handlelength=1.8)
-    leg.get_frame().set_linewidth(0.5)
+    ax_b.set_ylim(np.floor((low_b - 0.40) / 0.2) * 0.2, 0.05)
+    ax_b.set_xlim(start - 0.2, end + 0.9)
+    ax_b.set_xticks(range(start, end + 1))
+    for ax in (ax_a, ax_b):
+        leg = ax.legend(loc="lower center", frameon=True, framealpha=0.95, edgecolor="#cccccc",
+                        fontsize=8, ncol=3, labelspacing=0.4, columnspacing=1.0, handlelength=1.8)
+        leg.get_frame().set_linewidth(0.5)
 
     plt.tight_layout()
     render_figure(plt.gcf(), out_path, facecolor="white")
@@ -376,7 +352,7 @@ def main() -> int:
 
     # load canonical sources
     per_cluster = pd.read_csv(paths.OUT_26_5YR_PER_CLUSTER)
-    per_well_min = pd.read_csv(paths.OUT_26_CURRELI_MIN_PER_WELL)       # 1.7.0, D-294
+    per_cluster_min = pd.read_csv(paths.OUT_26_CURRELI_MIN_PER_CLUSTER)   # 1.8.0, D-296
     proj        = pd.read_csv(paths.OUT_26B_PROJECTION_TABLE)
     ss          = pd.read_csv(paths.OUT_19_SCENARIO_SUMMARY)
     ss_a        = (pd.read_csv(paths.OUT_19_SCENARIO_SUMMARY_MODEL_A)       # 1.4.0, D-224
@@ -386,12 +362,12 @@ def main() -> int:
              f"alone; run Script 19 first")
 
     print(f"  per-cluster trajectory rows : {len(per_cluster)}")
-    print(f"  per-well annual-min rows    : {len(per_well_min)}")
+    print(f"  per-cluster annual-min rows : {len(per_cluster_min)}")
     print(f"  projection summary rows     : {len(proj)}")
     print(f"  scenario summary rows       : {len(ss)}")
 
     with mpl.rc_context(PLOT_RC):
-        render_trajectory(per_cluster, per_well_min, paths.OUT_26C_TRAJECTORY)
+        render_trajectory(per_cluster, per_cluster_min, paths.OUT_26C_TRAJECTORY)
         print(f"  wrote {paths.OUT_26C_TRAJECTORY.name}")
 
         render_contrast(proj, ss, paths.OUT_26C_CONTRAST, ss_a=ss_a)
@@ -404,7 +380,7 @@ def main() -> int:
     transcript.append("")
     transcript.append("Sources:")
     transcript.append(f"  {paths.OUT_26_5YR_PER_CLUSTER}")
-    transcript.append(f"  {paths.OUT_26_CURRELI_MIN_PER_WELL}")
+    transcript.append(f"  {paths.OUT_26_CURRELI_MIN_PER_CLUSTER}")
     transcript.append(f"  {paths.OUT_26B_PROJECTION_TABLE}")
     transcript.append(f"  {paths.OUT_19_SCENARIO_SUMMARY}")
     if ss_a is not None:
@@ -414,11 +390,7 @@ def main() -> int:
     transcript.append(f"  {paths.OUT_26C_TRAJECTORY}")
     transcript.append(f"  {paths.OUT_26C_CONTRAST}")
     transcript.append("")
-    transcript.append(f"Curreli (2013) reference values (four-year means of the annual "
-                      f"minimum; drawn on the {config.CURRELI_MIN_WINDOW_YEARS}-year "
-                      f"mean annual minimum, panel b — D-190):")
-    transcript.append(f"  SD15b (wet slack)  : {SD15b:.2f} m below ground")
-    transcript.append(f"  SD16  (dry slack)  : {SD16:.2f} m below ground")
+    transcript.append("No community level is drawn on either panel (D-296).")
     transcript.append("")
     transcript.append("ΔMSL5 vs Δsummer-minimum, UKCP18 RCP8.5 (m, below ground):")
     msl_50 = _scenario_msl_shifts(ss, "ukcp18_2050s")

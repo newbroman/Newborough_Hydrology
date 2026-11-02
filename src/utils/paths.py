@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.80.0"  # Hollingham (2026) - 2026-11-01. Script 14 1.12.0 (D-294): OUT_14_PER_WELL_EXTREMES,
+__version__ = "1.81.0"  # Hollingham (2026) - 2026-11-02. Script 34 0.8.0 (D-296): OUT_34_MATRIX_MSL9.
+#   Script 11b 1.23.0 (D-296): OUT_11B_FLOOD_FREQ_PER_WELL.
+# 1.80.0  # Hollingham (2026) - 2026-11-01. Script 14 1.12.0 (D-294): OUT_14_PER_WELL_EXTREMES,
 #   OUT_14_PER_WELL_BAND_COUNTS, OUT_14_PER_WELL_BANDS_FIG; Script 14b 2.0.0: OUT_14B_PER_WELL_TRENDS, OUT_14B_CROSSING_COUNTS,
 #   OUT_14B_PER_WELL_FIG, OUT_14B_REPORT_NUMBERS; Script 26 1.29.0: OUT_26_CURRELI_MIN_WELL_BANDS.
 # 1.79.0  # Hollingham (2026) - 2026-11-01. Script 50 1.22.0 (E19, T-133, D-292): OUT_50_CCW_FILM_MAP, OUT_50_CCW_FILM_MAP_YEARS.
@@ -883,6 +885,7 @@ OUT_11B_WINTER_MAP      = DIR_11B / "11b_02_winter_maxima_depth.png"
 OUT_11B_PFLOOD_MAP      = DIR_11B / "11b_03_pflood.png"
 OUT_11B_PFLOOD_PER_WELL = DIR_11B / "11b_03_pflood_per_well.csv"
 OUT_11B_FLOOD_FREQ      = DIR_11B / "11b_04_flood_frequency.png"
+OUT_11B_FLOOD_FREQ_PER_WELL = DIR_11B / "11b_04_flood_frequency_per_well.csv"   # D-296
 OUT_11B_TABLE10         = DIR_11B / "11b_05_table10_pflood_spreadsheet.csv"
 OUT_11B_PFLOOD_CLUSTER_SUMMARY = DIR_11B / "11b_06_pflood_cluster_summary.csv"  # per-cluster P_flood n/min/max/median + m_P (report9 Table 1.14)
 OUT_11B_FORECASTER_HTML = DIR_11B / "forecaster.html"
@@ -1046,6 +1049,7 @@ OUT_37B_RESULTS    = DIR_37B / "37b_results.txt"
 DIR_34 = OUT_DIR / "34_window_sensitivity"
 OUT_34_MATRIX               = DIR_34 / "34_window_matrix.csv"
 OUT_34_RESULTS              = DIR_34 / "34_results.txt"
+OUT_34_MATRIX_MSL9          = DIR_34 / "34_window_matrix_msl9.csv"   # D-296: the same envelope on MSL9
 OUT_34_FIG                  = DIR_34 / "34_window_sensitivity.png"
 
 # Script 38 — coast-to-inland MAM transect (observational delta_0 diagnostic).

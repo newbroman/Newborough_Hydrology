@@ -69,3 +69,23 @@ pflood_n_forest_wells_c4_c5,,C4+C5,24.0,wells,Number of forest-cluster wells (co
 forest_wells_sd16_recoverable_n,,C4+C5,6.0,wells,Forest-cluster wells whose mean summer minimum lies in the SD16-recoverable band (SD16 to SD16_REC below ground); per-well P_flood table
 forest_wells_beyond_recoverable_n,,C4+C5,18.0,wells,Forest-cluster wells whose mean summer minimum lies at or beyond SD16_REC below ground (beyond scraping recovery); per-well P_flood table
 pflood_n_wells_mP_gt_1,,All (n=88),88.0,wells,"Wells whose P_flood exceeds the recharge-horizon climatological total (m_P above 1, unreachable wells included); per-well P_flood table exceeds_mean"
+flood_freq_n_wells,C1,,8.0,wells,wells with >= 5 winters in the flooding-frequency map
+flood_freq_n_ever,C1,,8.0,wells,wells whose winter maximum reached the ground in any winter
+flood_freq_n_ge25pct,C1,,7.0,wells,wells flooding in at least 25% of their winters
+flood_freq_n_ge50pct,C1,,7.0,wells,wells flooding in at least 50% of their winters
+flood_freq_n_wells,C2,,23.0,wells,wells with >= 5 winters in the flooding-frequency map
+flood_freq_n_ever,C2,,19.0,wells,wells whose winter maximum reached the ground in any winter
+flood_freq_n_ge25pct,C2,,17.0,wells,wells flooding in at least 25% of their winters
+flood_freq_n_ge50pct,C2,,16.0,wells,wells flooding in at least 50% of their winters
+flood_freq_n_wells,C3,,30.0,wells,wells with >= 5 winters in the flooding-frequency map
+flood_freq_n_ever,C3,,23.0,wells,wells whose winter maximum reached the ground in any winter
+flood_freq_n_ge25pct,C3,,17.0,wells,wells flooding in at least 25% of their winters
+flood_freq_n_ge50pct,C3,,6.0,wells,wells flooding in at least 50% of their winters
+flood_freq_n_wells,C4,,12.0,wells,wells with >= 5 winters in the flooding-frequency map
+flood_freq_n_ever,C4,,6.0,wells,wells whose winter maximum reached the ground in any winter
+flood_freq_n_ge25pct,C4,,0.0,wells,wells flooding in at least 25% of their winters
+flood_freq_n_ge50pct,C4,,0.0,wells,wells flooding in at least 50% of their winters
+flood_freq_n_wells,C5,,11.0,wells,wells with >= 5 winters in the flooding-frequency map
+flood_freq_n_ever,C5,,1.0,wells,wells whose winter maximum reached the ground in any winter
+flood_freq_n_ge25pct,C5,,0.0,wells,wells flooding in at least 25% of their winters
+flood_freq_n_ge50pct,C5,,0.0,wells,wells flooding in at least 50% of their winters

@@ -74,7 +74,13 @@ from utils import config, paths
 from utils.console_utils import banner, phase, step, info, note, result, saved, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "0.7.0"  # Hollingham (2026) - 2026-09-28. T-91: added report-number
+__version__ = "0.8.0"  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). The same
+#   all-pairs envelope on MSL9, the nine-year mean spring level, read from Script 26's committed
+#   26_msl9_per_well.csv (MSL9's own completeness rule, excluded wells dropped) so no rolling mean is re-derived
+#   here; the admissibility rule is MSL5's (common panel >= MSL5_WINDOW_MIN_PANEL). Writes
+#   34_window_matrix_msl9.csv and msl9_window_change_* report numbers, site-wide and per cluster. MSL5 unchanged.
+#
+# 0.7.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number
 #   emits (no analysis change) - window_change_envelope_{min,max}_mm,
 #   window_change_n_{admissible_pairs,negative,positive}, written to
 #   34_report_numbers.csv so the report §5.7.5 sentence binds to a citation row.
@@ -92,6 +98,7 @@ VERSION = __version__
 #   OUT_26_ANNUAL_PER_WELL  (26_msl_annual_per_well.csv)   per-well annual spring MSL
 #   OUT_00_ANNUAL_CLIMATE_TABLE (00_01_annual_climate_summary.csv)  window rainfall context
 #   OUT_32_SITE_MEAN_TREND  (32_site_mean_trend.csv)        canonical AR-corrected secular trend
+#   OUT_26_MSL9_PER_WELL    (26_msl9_per_well.csv)          per-well MSL9 (0.8.0, D-296)
 OUT_MATRIX = paths.OUT_34_MATRIX
 OUT_TXT = paths.OUT_34_RESULTS
 OUT_FIG = paths.OUT_34_FIG
@@ -152,6 +159,68 @@ def build_pairs(piv: pd.DataFrame, ends: list[int]) -> pd.DataFrame:
         rows.append((i, j, float(pj[cc].mean() - pi[cc].mean()), len(cc), True))
     return pd.DataFrame(rows, columns=["baseline_end", "current_end",
                                        "change_mm", "n_common", "admissible"])
+
+
+def build_pairs_from_windows(q: pd.DataFrame) -> pd.DataFrame:
+    """Every admissible ordered pair of window-ends for a metric already rolled per well
+    (``q``: wells x window_end_year, mm). Same fixed-common-panel rule as build_pairs."""
+    rows = []
+    for i, j in itertools.combinations(sorted(q.columns), 2):
+        cc = q[[i, j]].dropna()
+        if len(cc) < MIN_PANEL:
+            continue
+        rows.append((int(i), int(j), float((cc[j] - cc[i]).mean()), len(cc), True))
+    return pd.DataFrame(rows, columns=["baseline_end", "current_end",
+                                       "change_mm", "n_common", "admissible"])
+
+
+def msl9_envelope(rpt) -> str:
+    """MSL9 all-pairs envelope (D-296): site-wide and per cluster, from 26_msl9_per_well.csv.
+    Adds msl9_window_change_* rows to ``rpt``; writes OUT_34_MATRIX_MSL9; returns a results-text block."""
+    m = pd.read_csv(paths.OUT_26_MSL9_PER_WELL)
+    m = m[~m["msl9_excluded"].astype(bool)].copy()
+    m["mm"] = m["MSL9_m_bg"] * 1000.0
+    q = m.pivot_table(index="well", columns="window_end_year", values="mm")
+    d9 = build_pairs_from_windows(q)
+    d9.sort_values("change_mm").to_csv(paths.OUT_34_MATRIX_MSL9, index=False)
+    saved(paths.OUT_34_MATRIX_MSL9)
+    lo, hi = float(d9.change_mm.min()), float(d9.change_mm.max())
+    n_neg, n_pos = int((d9.change_mm < 0).sum()), int((d9.change_mm > 0).sum())
+    first = int(d9.baseline_end.min())
+    result("MSL9 admissible pairs", f"{len(d9)}; envelope {lo:+.0f} to {hi:+.0f} mm; "
+           f"{n_neg} falling / {n_pos} rising; first admissible window-end {first}")
+    nm = config.MSL9_WINDOW_YEARS
+    rpt.add("msl9_window_change_envelope_min_mm", lo, unit="mm",
+            note=f"Minimum site-mean MSL{nm} change over admissible window pairs (34_window_matrix_msl9.csv).")
+    rpt.add("msl9_window_change_envelope_max_mm", hi, unit="mm",
+            note=f"Maximum site-mean MSL{nm} change over admissible window pairs (34_window_matrix_msl9.csv).")
+    rpt.add("msl9_window_change_n_admissible_pairs", len(d9), unit="pairs",
+            note="Admissible MSL9 window pairs (common panel >= MIN_PANEL).")
+    rpt.add("msl9_window_change_n_negative", n_neg, unit="pairs", note="Admissible MSL9 pairs falling.")
+    rpt.add("msl9_window_change_n_positive", n_pos, unit="pairs", note="Admissible MSL9 pairs rising.")
+    rpt.add("msl9_window_change_first_admissible_end", first, unit="year",
+            note="Earliest baseline window-end in any admissible MSL9 pair.")
+    # per cluster, on each admissible pair's own common panel
+    cl = m.groupby("well")["cluster_id"].first()
+    lines = [f"MSL{nm} envelope: {lo:+.0f} to {hi:+.0f} mm over {len(d9)} admissible pairs "
+             f"({n_neg} falling / {n_pos} rising); first admissible window-end {first}"]
+    per = {}
+    for r in d9.itertuples():
+        cc = q[[r.baseline_end, r.current_end]].dropna()
+        g = (cc[r.current_end] - cc[r.baseline_end]).groupby(cl.reindex(cc.index)).mean()
+        for k, v in g.items():
+            if pd.notna(k):
+                per.setdefault(int(k), []).append(float(v))
+    for k in sorted(per):
+        v = pd.Series(per[k])
+        rpt.add(f"msl9_window_change_c{k}_min_mm", v.min(), unit="mm",
+                note=f"C{k}: minimum cluster-mean MSL9 change over the admissible pairs (each pair's panel).")
+        rpt.add(f"msl9_window_change_c{k}_max_mm", v.max(), unit="mm",
+                note=f"C{k}: maximum cluster-mean MSL9 change over the admissible pairs.")
+        rpt.add(f"msl9_window_change_c{k}_n_negative", int((v < 0).sum()), unit="pairs",
+                note=f"C{k}: admissible pairs in which the cluster-mean MSL9 fell.")
+        lines.append(f"  C{k}: {v.min():+.0f} to {v.max():+.0f} mm; falling in {int((v < 0).sum())} of {len(v)}")
+    return "\n".join(lines) + "\n"
 
 
 def window_rainfall_pct(end: int, annual_p: pd.Series, ref_mean: float) -> float:
@@ -354,6 +423,8 @@ def main() -> int:
             note="Admissible pairs with change_mm < 0 (falling).")
     rpt.add("window_change_n_positive", n_pos, unit="pairs",
             note="Admissible pairs with change_mm > 0 (rising).")
+    phase(6, "MSL9: the same envelope (D-296)")
+    msl9_text = msl9_envelope(rpt)
     rpt.save(paths.OUT_34_REPORT_NUMBERS)
     saved(paths.OUT_34_REPORT_NUMBERS)
     OUT_TXT.write_text(
@@ -375,7 +446,7 @@ def main() -> int:
         f"cannot resolve absolute site-wide change.\n"
         f"Thin 7-well 2005-2009 baseline auto-excluded by the panel rule.\n"
         % MIN_PANEL
-        + secular_line)
+        + secular_line + "\n" + msl9_text)
     saved(OUT_TXT)
 
     make_figure(d, piv, annual_p, ref_mean, lo, hi, n_neg, n_pos, secular=secular)

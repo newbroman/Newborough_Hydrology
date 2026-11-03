@@ -20,6 +20,13 @@ what `check_all` prints, and in the generated HANDOFF.
    End every session with `--write`, a dated entry (≤40 lines) at the top of
    `working/updates/HANDOVER_NOTE.md`, and `--check` green. `check_all` gates it.
 
+**Working sessions run in the cloud by default (D-298)**: claude.ai/code on the
+environment holding the Drive secret, or a claude.ai chat with both repositories
+attached. **Before sending Martin to the L14 for anything, read
+`notes/reference/SESSION_MODES.md`** — which kind of session this is and what it
+can do. Pipeline runs, gates, PDFs and pushes all work in a cloud session; only
+ODT access depends on the session holding the Drive secret.
+
 ---
 
 ## 1. The one command
@@ -299,6 +306,13 @@ person's machines, not a mutex.
 
 Never run `refresh_mirrors.py` on a machine whose ODTs you have not just pulled.
 
+**A bridge session takes the machine lock under the L14's own name (D-299, doc_lock 1.3.0).** The bridge
+edits the L14's files, so for the documents it is the L14. Before 1.3.0 it locked as the VM's
+`rcw-<session>@claude`, the L14 saw that as another machine, and every archive refused from 2026-10-26
+to 2026-11-03 while Drive fell a week behind. Now the L14 records its name in `.git/nrg_machine` on every
+`doc_lock` call, the bridge reads it, and `take` on the bridge refuses if it is missing. The archive and
+the release after it stay the L14's (the bridge has no rclone config).
+
 **Several chats in one tree (2026-10-10, spec `NRG_spec_parallel_chats_2026-10-10`).** The
 lock above is per MACHINE. Chats sharing the L14's tree each CLAIM what they work on — `doc:<family>`
 (`doc:report`, `doc:PaperM`, `doc:summaries`…), `pipeline` (src, outputs, data, run_analysis) or
@@ -440,6 +454,14 @@ committed mirrors and does not edit ODTs.
   `working/` (since nrg_git.sh 1.26.0), no mirror is ahead of
   Drive, outputs are current and the doc lock is free; afterwards the L14 runs `tools/drive_pull.sh`
   before editing (the lock note says so).
+- **A claude.ai chat (Cowork) session is a cloud session too, minus the ODTs**
+  (measured 2026-11-03, `notes/reference/SESSION_MODES.md`). Attach both repositories
+  with push access through the linked GitHub account, run `cloud_setup.sh`, and it
+  runs the pipeline, the gates and the PDF tools and pushes both repositories. It
+  cannot reach Drive, so an ODT step in such a session is handed on to a
+  claude.ai/code session or the bridge, not the whole job to the L14. The Google
+  Drive connector is not a route for ODTs: it returns files through the
+  conversation and cannot replace one in place.
 - **Pushing is still Martin's call each time** (§7). A cloud session commits, shows
   the commit, and pushes on his yes; long work goes on a branch.
 - **Unlike the bridge, a cloud process survives between tool calls**, so long runs

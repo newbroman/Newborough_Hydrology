@@ -17,7 +17,11 @@
 #
 # Usage:  bash tools/drive_token.sh
 #
-# Version 1.2.0 — Hollingham (2026) — 2026-10-02. The remote is gdrivefile (drive.file, published client);
+# Version 1.3.0 — Hollingham (2026) — 2026-11-03. The clipboard is tried, not assumed: wl-copy only under a
+#   Wayland session, xclip/xsel only under X, each falling through on failure to the private file. On the L14
+#   (X11, wl-copy installed) 1.2.0 died at step 3 with "Failed to connect to a Wayland server" under set -e,
+#   after the token had already been renewed.
+# 1.2.0 — Hollingham (2026) — 2026-10-02. The remote is gdrivefile (drive.file, published client);
 #   the check is lsf of NRG_documents_v2. 1.1.0 — 2026-10-02. One NRG_RCLONE_CONF_B64= line (a multi-line
 #   value did not survive the environment editor). 1.0.0 — 2026-10-02. First issue.
 set -euo pipefail
@@ -43,10 +47,15 @@ SECTION="$(awk -v s="[${REMOTE}]" '$0==s{p=1;print;next} /^\[/{p=0} p' "$CONF")"
 [ -n "$SECTION" ] || { echo "      no [${REMOTE}] section in $CONF"; exit 1; }
 # One line, base64: a multi-line value does not survive the environment editor (2026-10-02).
 SECTION="NRG_RCLONE_CONF_B64=$(printf '%s\n' "$SECTION" | base64 -w0)"
-if command -v wl-copy >/dev/null 2>&1; then printf '%s\n' "$SECTION" | wl-copy; where="clipboard (wl-copy)"
-elif command -v xclip >/dev/null 2>&1; then printf '%s\n' "$SECTION" | xclip -selection clipboard; where="clipboard (xclip)"
-elif command -v xsel >/dev/null 2>&1; then printf '%s\n' "$SECTION" | xsel --clipboard --input; where="clipboard (xsel)"
-else
+where=""
+# 1.3.0: try each clipboard only where its display server is running, and fall through on failure.
+if [ -z "$where" ] && [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1 \
+   && printf '%s\n' "$SECTION" | wl-copy 2>/dev/null; then where="clipboard (wl-copy)"; fi
+if [ -z "$where" ] && [ -n "${DISPLAY:-}" ] && command -v xclip >/dev/null 2>&1 \
+   && printf '%s\n' "$SECTION" | xclip -selection clipboard 2>/dev/null; then where="clipboard (xclip)"; fi
+if [ -z "$where" ] && [ -n "${DISPLAY:-}" ] && command -v xsel >/dev/null 2>&1 \
+   && printf '%s\n' "$SECTION" | xsel --clipboard --input 2>/dev/null; then where="clipboard (xsel)"; fi
+if [ -z "$where" ]; then
   OUT="${HOME}/.config/rclone/nrg_rclone_conf_for_cloud.txt"
   ( umask 077; printf '%s\n' "$SECTION" > "$OUT" ); where="$OUT (readable by you only; delete it after pasting)"
 fi

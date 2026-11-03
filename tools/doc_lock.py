@@ -57,7 +57,12 @@ CLAIMS (1.2.0, spec NRG_spec_parallel_chats_2026-10-10)
 """
 from __future__ import annotations
 
-__version__ = "1.2.3"  # Hollingham (2026) - 2026-10-17 (D-270). doc:Paper2 covers Paper 2 and Paper2_plain.
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-03 (D-299). A bridge session takes the machine lock under the
+#   L14's own name: off the bridge, every call records USER@host in .git/nrg_machine (untracked, inside the mount);
+#   on the bridge (HOME under /sessions/) _who() reads it, and `take` refuses when it is absent rather than locking
+#   under the VM's rcw-<session>@claude, which made the L14 refuse its own archives from 2026-10-26 to 2026-11-03.
+#   status flags any rcw-*@claude holder as a bridge lock under the wrong name.
+# 1.2.3  # Hollingham (2026) - 2026-10-17 (D-270). doc:Paper2 covers Paper 2 and Paper2_plain.
 # 1.2.2  # Hollingham (2026) - 2026-10-15 (D-265). doc:Paper1 covers Paper1 and Paper1_plain.
 # 1.2.1  # Hollingham (2026) - 2026-10-12 (D-258). doc:PaperM also covers PaperM_plain.
 # 1.2.0  # Hollingham (2026) — 2026-10-10. Claims, held by a chat (spec
@@ -76,10 +81,46 @@ LOCK = REPO / "working/DOCUMENT_LOCK.json"
 sys.path.insert(0, str(REPO / "tools"))
 
 
+# 1.3.0 (D-299): the machine whose tree this is, recorded where the bridge can read it. .git is inside
+# the connected folder, so the bridge sees this file; it is untracked, so every clone has its own.
+MACHINE_FILE = REPO / ".git" / "nrg_machine"
+# The holder name a bridge VM produced before 1.3.0: USER rcw-<session id>, host "claude".
+BRIDGE_HOLDER = re.compile(r"^rcw-[0-9a-z]+@claude$")
+
+
+def on_bridge() -> bool:
+    """The Cowork bridge VM: its home is under /sessions/ (the test tools/bridge_py.sh uses)."""
+    return (os.environ.get("HOME") or "").startswith("/sessions/")
+
+
+def _native() -> str:
+    return f"{os.environ.get('USER') or os.environ.get('USERNAME') or '?'}@{socket.gethostname()}"
+
+
 def _who() -> str:
+    """The lock holder for this process. "" on the bridge when the machine's name is not recorded."""
     if os.environ.get("NRG_DOC_LOCK_HOLDER"):
         return os.environ["NRG_DOC_LOCK_HOLDER"]
-    return f"{os.environ.get('USER') or os.environ.get('USERNAME') or '?'}@{socket.gethostname()}"
+    if on_bridge():
+        # The bridge edits the L14's own files, so for the documents it IS the L14 (D-299).
+        try:
+            return MACHINE_FILE.read_text(encoding="utf-8").strip()
+        except OSError:
+            return ""
+    me = _native()
+    try:
+        if MACHINE_FILE.parent.is_dir() and (not MACHINE_FILE.exists()
+                                             or MACHINE_FILE.read_text(encoding="utf-8").strip() != me):
+            MACHINE_FILE.write_text(me + "\n", encoding="utf-8")
+    except OSError:
+        pass
+    return me
+
+
+def _wrong_name_note(holder: str | None) -> None:
+    if holder and BRIDGE_HOLDER.match(holder):
+        print("    >>> a BRIDGE lock under the wrong name (the bridge VM's user, not the L14's): the documents")
+        print("    >>> are the L14's. On the L14: archive (nrg_git.sh 11), then take --force and release (D-299).")
 
 
 def _now() -> str:
@@ -114,12 +155,18 @@ def status(quiet: bool = False) -> int:
         print(f"    holder {st.get('holder')}   since {st.get('since')}")
         if st.get("note"):
             print(f"    note   {st['note']}")
+        _wrong_name_note(st.get("holder"))
     return 0 if mine else 1
 
 
 def acquire(note: str, force: bool) -> int:
     st = read()
     me = _who()
+    if not me:
+        print("  REFUSED — this is the bridge, and the L14's own name is not recorded in .git/nrg_machine,")
+        print("  so a lock taken here would carry the VM's name and block the L14's archives (D-299).")
+        print("  On the L14 run once:  python3 tools/doc_lock.py status   (any nrg_git.sh option also records it)")
+        return 1
     # `st.get("holder")` FIRST. A released lock is a file with holder null — this
     # module says so at status() and the bridge mount's refusal to unlink is why.
     # Without that clause `None != me` is true, so every correctly released lock
@@ -162,7 +209,7 @@ def release(note: str = "", force: bool = False) -> int:
     if st is None:
         print("  already unlocked")
         return 0
-    me = _who()
+    me = _who() or "the bridge (L14 name not recorded)"
     # 1.1.0: releasing is the handover that says "Drive is current"; a cloud ship trusts it.
     # Releasing with unarchived edits would hand over a Drive that is behind this machine.
     pend = unarchived()

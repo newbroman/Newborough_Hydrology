@@ -107,7 +107,11 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.30.0"  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 "Curreli and van Willgen wells are on
+__version__ = "1.31.0"  # Hollingham (2026) - 2026-11-03 (D-297; Martin 2026-11-03 "yes include the quadrat table in the
+#   supplementary materials"). Supplementary Table S7.3 from Pass 7c: per quadrat, the four-year mean annual minimum on
+#   quadrat ground at Curreli's window and at the latest window-end, with its SD15b/SD16 band at each
+#   (26_table_s7_3_quadrat_community_levels.csv and 26_table_s7_3_quadrat_community_levels.md). Display strings only; no value moves.
+# 1.30.0  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 "Curreli and van Willgen wells are on
 #   the slack floor near the quadrats"; "amendment as above"). Pass 7c: the community comparison where the floor is
 #   surveyed. Each van Willegen quadrat's four-year mean annual minimum on its OWN ground: the pipeline level at its
 #   piezometer less the quadrat's datum offset (Pass 7b, Table S7.2: pipeline minus published, fixed per quadrat),
@@ -2541,6 +2545,44 @@ def write_supplementary_table_s7_1(out: pd.DataFrame, caption: str,
 
 
 TABLE_S7_2_COLUMNS = ["Quadrat", "Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)"]
+BAND_TEXT = {"above_sd15b": "above SD15b", "sd15b_to_sd16": "SD15b–SD16", "below_sd16": "below SD16"}
+
+
+def _window_label(end: int) -> str:
+    """'2007–10' for the four-year window ending in 2010 (config.CURRELI_MIN_WINDOW_YEARS)."""
+    return f"{end - config.CURRELI_MIN_WINDOW_YEARS + 1}–{str(end)[-2:]}"
+
+
+def emit_supplementary_table_s7_3(qb: pd.DataFrame, nums: dict):
+    """Supplementary Table S7.3 (1.31.0, D-297): Pass 7c per quadrat at Curreli's window and the latest window-end."""
+    a_end = int(nums["curreli_quadrat_curreli_window_window_end"])
+    b_end = int(nums["curreli_quadrat_latest_window_end"])
+    a = qb[qb["window_end_year"] == a_end].set_index("quadrat")
+    b = qb[qb["window_end_year"] == b_end].set_index("quadrat")
+    qs = sorted(set(a.index) | set(b.index), key=lambda q: (q.rsplit("-", 1)[0], int(q.rsplit("-", 1)[1])
+                                                             if q.rsplit("-", 1)[1].isdigit() else 0, q))
+    la, lb = _window_label(a_end), _window_label(b_end)
+    cols = ["Quadrat", "Piezometer", "Cluster", f"{la} (m)", f"{lb} (m)", f"Band ({la} → {lb})"]
+
+    def lvl(df, q):
+        return _fmt(float(df.loc[q, "MINw_quadrat_m"]), 2, "—").replace("-", "−") if q in df.index else "—"
+
+    def bnd(df, q):
+        return BAND_TEXT.get(df.loc[q, "band"], "—") if q in df.index else "—"
+
+    rows = []
+    for q in qs:
+        src = a if q in a.index else b
+        rows.append([q, str(src.loc[q, "piezometer"]), str(src.loc[q, "cluster_label"]).split(" (")[0],
+                     lvl(a, q), lvl(b, q), f"{bnd(a, q)} → {bnd(b, q)}"])
+    out = pd.DataFrame(rows, columns=cols)
+    caption = (f"Table S7.3: Four-year mean annual minimum water level at each van Willegen et al. (2025) vegetation "
+               f"quadrat, on the quadrat's own ground (the piezometer's level less the quadrat's Table S7.2 offset; m, "
+               f"negative below ground), over Curreli et al.'s window ({la}) and the latest ({lb}), with its band against "
+               f"the Curreli et al. (2013) community means, SD15b {-config.SD15b:.2f} m and SD16 {-config.SD16:.2f} m. "
+               f"{nums['curreli_quadrat_change_n_common']} quadrats are read in both windows; every one is deeper in "
+               f"{lb}. — where a quadrat's piezometer has no complete window. (Source: 26_curreli_min_quadrat_bands.csv).")
+    return out, caption
 
 
 def emit_supplementary_table_s7_2(repro: pd.DataFrame, nums: dict, clusters: pd.DataFrame):
@@ -3128,6 +3170,9 @@ def main() -> int:
             qb.to_csv(paths.OUT_26_CURRELI_MIN_QUADRAT_BANDS, index=False)
             saved(f"{paths.OUT_26_CURRELI_MIN_QUADRAT_BANDS.name}")
             report_nums.update(qb_nums)
+            s7_3, s7_3_caption = emit_supplementary_table_s7_3(qb, qb_nums)          # 1.31.0
+            write_supplementary_table_s7_1(s7_3, s7_3_caption, paths.OUT_26_TABLE_S7_3_CSV, paths.OUT_26_TABLE_S7_3_MD)
+            saved(f"{paths.OUT_26_TABLE_S7_3_CSV.name}")
             for _t in ("curreli_window", "latest"):
                 info(f"  quadrats at window-end {qb_nums[f'curreli_quadrat_{_t}_window_end']}: "
                      + ", ".join(f"{b} {qb_nums[f'curreli_quadrat_{_t}_{b}']}" for b in band_names(CURRELI_SUMMER))

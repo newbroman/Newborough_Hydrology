@@ -395,9 +395,11 @@ handover:
 curl -sSL https://raw.githubusercontent.com/newbroman/Newborough_Hydrology/main/tools/cloud_setup.sh | bash
 ```
 
-The rclone client is still in Google's Testing status, so its token lapses weekly (T-65); a weekly
-reminder is scheduled for Tuesday, and `cloud_setup.sh` shouts when a supplied token is refused.
-A cloud session never pushes without Martin's yes.
+The rclone client has been published with the `drive.file` scope since 2026-10-02, so the weekly
+token lapse (T-65) is over; `cloud_setup.sh` (1.1.0+) shouts when a supplied token is refused, which
+now means it was revoked or the secret is stale (`bash tools/drive_token.sh` writes a new one).
+A cloud session never pushes without Martin's yes. Which kind of session can do what (a
+claude.ai chat session has no Drive secret) is in `notes/reference/SESSION_MODES.md`.
 
 **The bridge VM is not a machine in this sense.** The Cowork bridge (`device_bash`) mounts the
 tree into a VM that has not built the environment: it reads, lints and edits text, and produces no

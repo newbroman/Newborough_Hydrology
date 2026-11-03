@@ -19,12 +19,15 @@ Usage:  python3 tools/work_board.py [--json] [--gate]
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-10. First issue (spec NRG_spec_parallel_chats_2026-10-10).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-03 (D-299). The machine-lock line flags a bridge lock under the
+#   VM's rcw-<session>@claude name (doc_lock.BRIDGE_HOLDER), which blocked the L14's archives for eight days.
+# 1.0.0  # Hollingham (2026) — 2026-10-10. First issue (spec NRG_spec_parallel_chats_2026-10-10).
 
 import argparse
 import collections
 import json
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -87,6 +90,8 @@ def render(B: dict) -> str:
     ml = B["machine_lock"]
     L.append(f"  documents (machine lock): {ml.get('holder') or 'free'}"
              + (f" since {ml.get('since')}" if ml.get("holder") else ""))
+    if ml.get("holder") and re.match(r"^rcw-[0-9a-z]+@claude$", ml["holder"]):   # 1.1.0, D-299
+        L.append("    >>> a BRIDGE lock under the wrong name: archive on the L14, then take --force and release there")
     L.append("  CLAIMS")
     free = []
     for n, c in B["claims"].items():

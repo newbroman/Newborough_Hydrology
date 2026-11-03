@@ -306,6 +306,13 @@ person's machines, not a mutex.
 
 Never run `refresh_mirrors.py` on a machine whose ODTs you have not just pulled.
 
+**A bridge session takes the machine lock under the L14's own name (D-299, doc_lock 1.3.0).** The bridge
+edits the L14's files, so for the documents it is the L14. Before 1.3.0 it locked as the VM's
+`rcw-<session>@claude`, the L14 saw that as another machine, and every archive refused from 2026-10-26
+to 2026-11-03 while Drive fell a week behind. Now the L14 records its name in `.git/nrg_machine` on every
+`doc_lock` call, the bridge reads it, and `take` on the bridge refuses if it is missing. The archive and
+the release after it stay the L14's (the bridge has no rclone config).
+
 **Several chats in one tree (2026-10-10, spec `NRG_spec_parallel_chats_2026-10-10`).** The
 lock above is per MACHINE. Chats sharing the L14's tree each CLAIM what they work on — `doc:<family>`
 (`doc:report`, `doc:PaperM`, `doc:summaries`…), `pipeline` (src, outputs, data, run_analysis) or

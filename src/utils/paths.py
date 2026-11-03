@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.81.0"  # Hollingham (2026) - 2026-11-02. Script 34 0.8.0 (D-296): OUT_34_MATRIX_MSL9.
+__version__ = "1.82.0"  # Hollingham (2026) - 2026-11-02. Script 26 1.30.0 (D-297): OUT_26_CURRELI_MIN_QUADRAT_BANDS.
+# 1.81.0  # Hollingham (2026) - 2026-11-02. Script 34 0.8.0 (D-296): OUT_34_MATRIX_MSL9.
 #   Script 11b 1.23.0 (D-296): OUT_11B_FLOOD_FREQ_PER_WELL.
 # 1.80.0  # Hollingham (2026) - 2026-11-01. Script 14 1.12.0 (D-294): OUT_14_PER_WELL_EXTREMES,
 #   OUT_14_PER_WELL_BAND_COUNTS, OUT_14_PER_WELL_BANDS_FIG; Script 14b 2.0.0: OUT_14B_PER_WELL_TRENDS, OUT_14B_CROSSING_COUNTS,
@@ -1643,6 +1644,7 @@ OUT_26_MSL5_MIN5_PER_CLUSTER         = DIR_26 / "26_msl5_vs_min5_per_cluster.csv
 OUT_26_MSL5_HANDBOOK_COUNTS          = DIR_26 / "26_msl5_handbook_counts.csv"   # MSL5 / EWI against the handbook v2 spring levels (D-242)
 OUT_26_EBF_PREDICTION_SUMMARY = DIR_26 / "26_ebf_prediction_summary.csv"
 OUT_26_EBF_BAND_SUMMARY       = DIR_26 / "26_ebf_band_summary.csv"
+OUT_26_CURRELI_MIN_QUADRAT_BANDS = DIR_26 / "26_curreli_min_quadrat_bands.csv"   # D-297: quadrat-referenced annual minimum against Curreli
 OUT_26_VW_REPRODUCTION        = DIR_26 / "26_vw_reproduction_per_pair.csv"   # pipeline MSL5 vs van Willegen's published, per (piezometer, window-end)
 # Metric diagnostics (v1.4.0) — window sensitivity of MSL5 and the precision of
 # the two indices, per well and rolled up per cluster. Supplies the cited

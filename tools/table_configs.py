@@ -838,9 +838,8 @@ TABLES = [
         "id": "report9/Table19",
         "doc": 9,
         "table_name": "Table19",
-        "caption": "Table 1.20 — cluster-mean rolling annual minimum at the latest window-end, "
-                   "with counts of window-ends below the Curreli SD15b / SD16 reference values, "
-                   "and the cluster-mean MSL5 at the same window-end for reference (Script 26, D-190)",
+        "caption": "Table 1.20 — cluster MSL5 and four-year mean annual minimum at the latest "
+                   "window-end (Script 26; D-296: no community-level counts)",
         "sources": {"th": "outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv"},
         # the headline window only; the five-year sensitivity rows stay in the CSV
         "rows": {"source": "th", "filter": {"window_years": ["4"]}},
@@ -848,14 +847,13 @@ TABLES = [
         # window_end_current: a later window-end fails this assertion rather
         # than refreshing the cells under a stale "(2025)". MSL5 carries no
         # threshold count: neither paper applies one to it.
-        "header": ["Cluster", "n wells (2025)", "MSL5 (m)", "4-yr mean annual minimum (m)", "below SD15b", "below SD16"],
+        "header": ["Cluster", "n wells (2025)", "MSL5 (m)", "4-yr mean annual minimum (m)"],
         "columns": [
             {"col": "cluster_label", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},   # "C4 (Main Forest)" -> "C4 Main Forest"
             {"col": "n_wells_current",       "fmt": "int"},
             {"col": "MSL5_current_m_bg",     "fmt": "fixed", "dp": 3},
             {"col": "MINw_current_m_bg",     "fmt": "fixed", "dp": 3},
-            {"col": "n_windows_below_SD15b", "fmt": "int"},
-            {"col": "n_windows_below_SD16",  "fmt": "int"},
+            # D-296 (2026-11-02): the two community-level count columns were removed from the table
         ],
     },
     {

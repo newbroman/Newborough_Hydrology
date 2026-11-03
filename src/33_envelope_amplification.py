@@ -85,7 +85,9 @@ from utils.render_utils import render_figure
 from utils.report_numbers_utils import ReportNumbers
 from scipy import stats as scipy_stats
 
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). The dry-year
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 "amendment as above"). The two contours
+#   are labelled as the depth of each Curreli community mean ("0.61 m: SD15b community mean"). Labels only.
+# 1.8.0  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). The dry-year
 #   spring-depth maps keep their two contours (config.ENVELOPE_ECO_THRESHOLDS_MM) but label them as depths, not as
 #   Curreli communities: without surveyed slack floors a well's depth is not read as a community. Legend, contour
 #   labels and titles change; no value moves.
@@ -367,7 +369,9 @@ def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
                     colors=[level_colour[l] for l in sorted_levels],
                     linewidths=1.8, linestyles="solid", zorder=4)
     # 1.8.0 (D-296): depth labels, no community names
-    labels = {t: f"{-t/1000:.2f} m below ground" for t in ECO_THRESHOLDS_MM}
+    # 1.9.0 (D-297): the depth of each community mean, named
+    labels = {t: f"{-t/1000:.2f} m: {config.ENVELOPE_ECO_THRESHOLD_LABELS[t].split(' ')[0]} community mean"
+              for t in ECO_THRESHOLDS_MM}
     fmt = {t: f"{-t/1000:.2f} m" for t in ECO_THRESHOLDS_MM}
     ax.clabel(cs, fmt=fmt, fontsize=8)
     # markers: regular wells as dots; slack-edge (diamond) and flagged single-dry (triangle) distinct
@@ -384,7 +388,7 @@ def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
                                      label=labels.get(ECO_THRESHOLDS_MM[0], "SD15b")),
                               Line2D([0], [0], color=level_colour[ECO_THRESHOLDS_MM[1]], lw=2.2,
                                      label=labels.get(ECO_THRESHOLDS_MM[1], "SD16"))],
-                     fontsize=8.5, loc="lower left", framealpha=0.9, title="Depth contours")
+                     fontsize=8.5, loc="lower left", framealpha=0.9, title="Curreli et al. (2013) depths")
     ax.add_artist(leg1)
     extra = []
     if len(edge):
@@ -402,7 +406,8 @@ def fig_dry_spring_depth(df, GX, GY, out_path, title=None):
     cb.set_label("dry-year spring depth to water (mm below ground)", fontsize=9.5)
     if title is None:
         title = ("Newborough Warren: dry-year spring water-table depth (springs 2011/12/19)\n"
-                 "Depth contours. Inter-dune ridges masked. Lake gauge excluded.")
+                 "Contours at the Curreli et al. (2013) SD15b/SD16 community-mean depths. Inter-dune ridges masked. "
+                 "Lake gauge excluded.")
     ax.set_title(_wrap_title(title), fontsize=10.5, loc="left")
     render_figure(fig, out_path); plt.close(fig)
 
@@ -544,7 +549,7 @@ def main() -> int:
     dry_recent_title = (
         f"Newborough Warren (recent, extended network): dry-spring water-table depth\n"
         f"springs {'/'.join(str(y)[2:] for y in RECENT_DRY_YEARS)}. RECENT minimum (milder than "
-        f"2011/12) — a conservative lower bound. Depth contours. Ridges masked.")
+        f"2011/12) — a conservative lower bound. Curreli community-mean depth contours. Ridges masked.")
     recent_figs = [
         ("recent amplification field", lambda: (
             fig_amplification(rdf[~rdf.flagged], GX, GY, OUT_FIG_AMP_RECENT, title=amp_recent_title),

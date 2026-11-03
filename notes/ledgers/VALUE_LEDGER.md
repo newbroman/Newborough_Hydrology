@@ -145,8 +145,6 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C1 (Lake Edge) · well_max_R2_gain |  |  | `03_18_datum_invariance.csv` | 0.0799361 |  | report9 | ok |
 | C1 (Lake Edge) · well_median_max_R2_datum_m |  |  | `03_18_datum_invariance.csv` | 0.8 |  | report9 | ok |
 | C1 / SD16 · year_crossing_5 |  |  | `14b_year_of_crossing.csv` | 2021.4 |  | report9 | ok |
-| C1 / SD16 · year_crossing_50 |  |  | `14b_year_of_crossing.csv` | 2027.2 |  | report9 | ok |
-| C1 / SD16 · year_crossing_95 |  |  | `14b_year_of_crossing.csv` | 2046.1 |  | report9 | ok |
 | C1 · Best_Kappa |  |  | `15_04_best_params.csv` | 2.3 |  | Newborough_Methods_Supplement | ok |
 | C1 · Delta_NSE |  |  | `15_03_benchmark_table.csv` | 0.147 |  | Newborough_Methods_Supplement | ok |
 | C1 · broadleaf_b2_summer |  |  | `pipeline_scenario_params.csv` | 1.075 |  | INTERCEPTION_TREATMENT, Newborough_Methods_Supplement, PIPELINE_README, Supplementary_Material, report10, report9 | ok |

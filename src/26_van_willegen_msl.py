@@ -107,7 +107,14 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.29.0"  # Hollingham (2026) - 2026-11-01 (D-294; Martin 2026-11-01 "state the rule as stated"). Pass 3e:
+__version__ = "1.30.0"  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 "Curreli and van Willgen wells are on
+#   the slack floor near the quadrats"; "amendment as above"). Pass 7c: the community comparison where the floor is
+#   surveyed. Each van Willegen quadrat's four-year mean annual minimum on its OWN ground: the pipeline level at its
+#   piezometer less the quadrat's datum offset (Pass 7b, Table S7.2: pipeline minus published, fixed per quadrat),
+#   banded against SD15b/SD16 (utils.community_bands) at every window-end. Writes 26_curreli_min_quadrat_bands.csv
+#   and curreli_quadrat_* report numbers at Curreli's own window (config.CURRELI_WINDOW_END_YEAR) and at the latest
+#   window-end. Additive; nothing else moves.
+# 1.29.0  # Hollingham (2026) - 2026-11-01 (D-294; Martin 2026-11-01 "state the rule as stated"). Pass 3e:
 #   the Curreli levels are compared WELL BY WELL. Each well's four-year mean annual minimum (Pass 3c, the D-190
 #   quantity) is banded against SD15b/SD16 (utils.community_bands) at every window-end from TRAJECTORY_START_YEAR,
 #   counted by cluster and for all wells -> 26_curreli_min_well_bands.csv and curreli_min4_wells_* report numbers.
@@ -313,7 +320,7 @@ from utils.console_utils import (
 
 from utils import config, paths
 from utils.model_utils import fit_ssm
-from utils.community_bands import CURRELI_SUMMER, band_names, band_counts   # D-294 (1.29.0)
+from utils.community_bands import CURRELI_SUMMER, band, band_names, band_counts   # D-294 (1.29.0); band 1.30.0
 from utils.map_utils import (
     load_dem_hillshade,
     add_idw_surface,
@@ -1956,6 +1963,68 @@ def _partial_spearman(frame: pd.DataFrame, x: str, y: str, z: str):
 
 
 # ── Pass 7b: reproduction of van Willegen's published spring levels ──────────
+def curreli_min_quadrat_bands(repro_df: pd.DataFrame, per_well_min: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """D-297 (1.30.0): each quadrat's rolling annual minimum on its own surveyed ground, banded against Curreli.
+
+    The quadrat level is the piezometer's pipeline level less the quadrat's datum offset (``datum_offset_m``,
+    pipeline minus published, Pass 7b), on the headline window (config.CURRELI_MIN_WINDOW_YEARS)."""
+    w = config.CURRELI_MIN_WINDOW_YEARS
+    off = repro_df.groupby("quadrat").agg(piezo=("piezo", "first"), datum_offset_m=("datum_offset_m", "first"))
+    pm = per_well_min[per_well_min["window_years"] == w]
+    rows = []
+    for q, r in off.iterrows():
+        sub = pm[pm["well"] == str(r["piezo"]).lower()]
+        for x in sub.itertuples():
+            lvl = float(x.MINw_m_bg) - float(r["datum_offset_m"])
+            rows.append(dict(quadrat=q, piezometer=r["piezo"], cluster_label=x.cluster_label,
+                             window_end_year=int(x.window_end_year), MINw_piezometer_m_bg=float(x.MINw_m_bg),
+                             datum_offset_m=float(r["datum_offset_m"]), MINw_quadrat_m=lvl,
+                             band=band(lvl, CURRELI_SUMMER)))
+    qb = pd.DataFrame(rows)
+    nums = {}
+    if qb.empty:
+        return qb, nums
+    for tag, end in (("curreli_window", config.CURRELI_WINDOW_END_YEAR), ("latest", int(qb["window_end_year"].max()))):
+        g = qb[qb["window_end_year"] == end]
+        bc = band_counts(g["MINw_quadrat_m"], CURRELI_SUMMER)
+        nums[f"curreli_quadrat_{tag}_window_end"] = end
+        nums[f"curreli_quadrat_{tag}_n_quadrats"] = int(bc["n"])
+        nums[f"curreli_quadrat_{tag}_n_piezometers"] = int(g["piezometer"].nunique())
+        for b in band_names(CURRELI_SUMMER):
+            nums[f"curreli_quadrat_{tag}_{b}"] = int(bc[b])
+        nums[f"curreli_quadrat_{tag}_median_m"] = float(g["MINw_quadrat_m"].median()) if len(g) else np.nan
+    # change from Curreli's own window on the quadrats present at both ends (fixed panel), at the latest
+    # window-end and across every later window-end (the window-choice check, as Script 34 does for MSL5)
+    piv = qb.pivot(index="quadrat", columns="window_end_year", values="MINw_quadrat_m")
+    base = config.CURRELI_WINDOW_END_YEAR
+    meds, all_deeper = [], True
+    for end in [c for c in piv.columns if c > base + config.CURRELI_MIN_WINDOW_YEARS - 1]:
+        c = piv[[base, end]].dropna()
+        if c.empty:
+            continue
+        d = c[end] - c[base]
+        meds.append(float(d.median()))
+        all_deeper &= bool((d < 0).all())
+        if end == piv.columns.max():
+            nums["curreli_quadrat_change_n_common"] = int(len(d))
+            nums["curreli_quadrat_change_n_piezometers"] = int(qb[qb.quadrat.isin(c.index)]["piezometer"].nunique())
+            nums["curreli_quadrat_change_n_deeper"] = int((d < 0).sum())
+            nums["curreli_quadrat_change_median_m"] = float(d.median())
+            nums["curreli_quadrat_change_min_m"] = float(d.min())
+            nums["curreli_quadrat_change_max_m"] = float(d.max())
+            for b in band_names(CURRELI_SUMMER):
+                nums[f"curreli_quadrat_change_base_{b}"] = int((qb[(qb.window_end_year == base)
+                                                                  & qb.quadrat.isin(c.index)]["band"] == b).sum())
+                nums[f"curreli_quadrat_change_latest_{b}"] = int((qb[(qb.window_end_year == end)
+                                                                    & qb.quadrat.isin(c.index)]["band"] == b).sum())
+    if meds:
+        nums["curreli_quadrat_change_later_ends_median_shallowest_m"] = max(meds)
+        nums["curreli_quadrat_change_later_ends_median_deepest_m"] = min(meds)
+        nums["curreli_quadrat_change_later_ends_n"] = len(meds)
+        nums["curreli_quadrat_change_later_ends_all_deeper"] = int(all_deeper)
+    return qb, nums
+
+
 def compute_vw_reproduction(per_well: pd.DataFrame):
     """How closely the pipeline's per-well MSL5 reproduces van Willegen et al.'s
     own five-year mean spring levels — per QUADRAT, which is how they publish.
@@ -3052,6 +3121,18 @@ def main() -> int:
              f"of relief between one dipwell's quadrats); after removing them: mean |residual| "
              f"{repro_nums['vw_repro_mad_mm']:.1f} mm (median {repro_nums['vw_repro_median_abs_mm']:.1f}, "
              f"RMSE {repro_nums['vw_repro_rmse_mm']:.1f})")
+
+        # Pass 7c (1.30.0, D-297): the community comparison at the quadrats, on their own ground
+        qb, qb_nums = curreli_min_quadrat_bands(repro_df, per_well_min)
+        if not qb.empty:
+            qb.to_csv(paths.OUT_26_CURRELI_MIN_QUADRAT_BANDS, index=False)
+            saved(f"{paths.OUT_26_CURRELI_MIN_QUADRAT_BANDS.name}")
+            report_nums.update(qb_nums)
+            for _t in ("curreli_window", "latest"):
+                info(f"  quadrats at window-end {qb_nums[f'curreli_quadrat_{_t}_window_end']}: "
+                     + ", ".join(f"{b} {qb_nums[f'curreli_quadrat_{_t}_{b}']}" for b in band_names(CURRELI_SUMMER))
+                     + f" (n={qb_nums[f'curreli_quadrat_{_t}_n_quadrats']} quadrats, "
+                       f"{qb_nums[f'curreli_quadrat_{_t}_n_piezometers']} piezometers)")
 
         # Supplementary Table S7.2 — the per-piezometer datum offsets (v1.11.0)
         s7_2, s7_2_caption = emit_supplementary_table_s7_2(repro_df, repro_nums, ref_clusters)

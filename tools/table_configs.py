@@ -812,6 +812,19 @@ TABLES = [
         "columns": [{"col": c, "fmt": "text"} for c in
                     ["Quadrat", "Piezometer", "Cluster", "n", "Datum offset (mm)", "Residual MAD (mm)"]],
     },
+    # ── 2026-11-03: Supplementary Material Table S7.3 (Script 26 Pass 7c; D-297) ─
+    {
+        "id": "sm/TableS73",
+        "doc": "docs/report/Supplementary_Material_v*.odt",
+        "table_name": "TableS73",
+        "caption": "Table S7.3 — community levels at the van Willegen quadrats, on quadrat ground (Script 26)",
+        "sources": {"t": "outputs/26_van_willegen_msl/26_table_s7_3_quadrat_community_levels.csv"},
+        # the file ends with its caption as a comment row; keep only quadrat rows
+        "rows": {"source": "t", "filter": {"Cluster": ["C1", "C2", "C3", "C4", "C5", "Extended"]}},
+        "header": ["Quadrat", "Piezometer", "Cluster", "2007–10 (m)", "2022–25 (m)", "Band (2007–10 → 2022–25)"],
+        "columns": [{"col": c, "fmt": "text"} for c in
+                    ["Quadrat", "Piezometer", "Cluster", "2007–10 (m)", "2022–25 (m)", "Band (2007–10 → 2022–25)"]],
+    },
     # ── 2026-09-22: Supplementary Material Table S8.2 (Script 25_08) ──────────
     # The SM had no generated tables; this one had been hand-typed from an
     # earlier run and disagreed with its own text (Phase B of D-189).

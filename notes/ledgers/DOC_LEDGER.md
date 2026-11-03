@@ -9,16 +9,16 @@
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_37.odt` | 2026-11-03T00:35:04Z | current |
-| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_29.odt` | 2026-10-25T20:43:18Z | current |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_38.odt` | 2026-11-03T01:08:45Z | current |
+| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_30.odt` | 2026-11-03T01:08:47Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_33.odt` | 2026-10-29T08:03:25Z | current |
 | `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_89.odt` | 2026-10-29T08:03:23Z | current |
-| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v42.odt` | 2026-10-29T08:03:24Z | current |
+| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v43.odt` | 2026-11-03T01:08:48Z | current |
 | `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-10-10T16:14:45Z | unversioned |
 | `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-10-10T16:14:44Z | unversioned |
 | `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-10-10T16:14:45Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_116.odt` | 2026-11-03T00:35:00Z | current |
-| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_58.odt` | 2026-11-03T00:35:02Z | current |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_117.odt` | 2026-11-03T01:08:41Z | current |
+| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_59.odt` | 2026-11-03T01:08:44Z | current |
 | `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-10-04T11:43:41Z | unversioned |
 | `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-10-04T11:43:42Z | unversioned |
 

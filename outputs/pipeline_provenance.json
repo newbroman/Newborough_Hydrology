@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-02T23:27:33",
+ "generated": "2026-11-03T00:59:23",
  "orchestrator": "2.28.0",
  "steps": {
   "00_climate_summary.py": {
@@ -901,6 +901,8 @@
     "outputs/26_van_willegen_msl/26_table_s7_1_ewi_per_well.md": "1f23df37ff51487652bb9b720e5b392ece9ca4c4fc973461a13a41bc1f5f5cce",
     "outputs/26_van_willegen_msl/26_table_s7_2_vw_datum_offsets.csv": "f13de420f23168aa8b092828dceb8cd6da04934a66033e07a49ff934d094666e",
     "outputs/26_van_willegen_msl/26_table_s7_2_vw_datum_offsets.md": "b4948519fe808a402cbb5dc1017b739e3fbab9e1ef12b594d9af469bdb1c02ef",
+    "outputs/26_van_willegen_msl/26_table_s7_3_quadrat_community_levels.csv": "83086ed54b94be15744961fa80c37bd51515ab3957049245b526060fb20a9b44",
+    "outputs/26_van_willegen_msl/26_table_s7_3_quadrat_community_levels.md": "4f8232cd2f16d9821d1710e8258617d46aa67ceedab471ed6d30694474b82ba0",
     "outputs/26_van_willegen_msl/26_vw_reproduction_per_pair.csv": "7eec4042c353fbe84a295dffb8ce42de6b437c6668e2b8f5651e319d12acc39f"
    },
    "fallbacks": [],
@@ -918,9 +920,9 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 20.1,
-   "started": "2026-11-02T23:26:28",
-   "version": "1.30.0"
+   "seconds": 19.8,
+   "started": "2026-11-03T00:59:03",
+   "version": "1.31.0"
   },
   "26b_van_willegen_msl_projections.py": {
    "emitted": {

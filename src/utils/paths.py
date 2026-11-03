@@ -11,7 +11,8 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.82.0"  # Hollingham (2026) - 2026-11-02. Script 26 1.30.0 (D-297): OUT_26_CURRELI_MIN_QUADRAT_BANDS.
+__version__ = "1.83.0"  # Hollingham (2026) - 2026-11-03. Script 26 1.31.0 (D-297): OUT_26_TABLE_S7_3_CSV/MD.
+# 1.82.0  # Hollingham (2026) - 2026-11-02. Script 26 1.30.0 (D-297): OUT_26_CURRELI_MIN_QUADRAT_BANDS.
 # 1.81.0  # Hollingham (2026) - 2026-11-02. Script 34 0.8.0 (D-296): OUT_34_MATRIX_MSL9.
 #   Script 11b 1.23.0 (D-296): OUT_11B_FLOOD_FREQ_PER_WELL.
 # 1.80.0  # Hollingham (2026) - 2026-11-01. Script 14 1.12.0 (D-294): OUT_14_PER_WELL_EXTREMES,
@@ -1665,6 +1666,8 @@ OUT_26_TABLE_S7_1_CSV     = DIR_26 / "26_table_s7_1_ewi_per_well.csv"
 OUT_26_TABLE_S7_1_MD      = DIR_26 / "26_table_s7_1_ewi_per_well.md"
 OUT_26_TABLE_S7_2_CSV     = DIR_26 / "26_table_s7_2_vw_datum_offsets.csv"   # per-piezometer datum offset vs van Willegen (Pass 7b)
 OUT_26_TABLE_S7_2_MD      = DIR_26 / "26_table_s7_2_vw_datum_offsets.md"
+OUT_26_TABLE_S7_3_CSV     = DIR_26 / "26_table_s7_3_quadrat_community_levels.csv"   # D-297: quadrat-ground annual minimum, Curreli band
+OUT_26_TABLE_S7_3_MD      = DIR_26 / "26_table_s7_3_quadrat_community_levels.md"
 
 # Script 26b — Van Willegen MSL UKCP18 climate projections (Phase 13, Tool B)
 # Pairs with Script 11 Section 5 (Tool A) and Script 26 (observational MSL5).

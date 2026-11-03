@@ -1,13 +1,13 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_4.odt — do not edit. source-sha256=9e18d0e3005a0c3d pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_5.odt — do not edit. source-sha256=f545bdbc9eaf4a89 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
 
 M. Hollingham
 
-October 2026
+November 2026
 
-This guide explains, without equations, a scientific paper about how groundwater models are fitted to monthly water-level records: *Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you* (Hollingham, 2026). It follows the paper section by section. Every number in it is taken from the same project files as the paper, so the two always agree. Words in **bold** on first use are explained in the glossary at the end.
+This guide explains, without equations, a scientific paper about whether a simple groundwater model fitted to monthly water levels can be trusted to forecast: *Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you* (Hollingham, 2026). It follows the paper section by section, with the same section numbers. Every number in it is taken from the same project files as the paper, so the two always agree. Words in **bold** on first use are explained in the glossary at the end.
 
 # []{#anchor}1. Why this matters
 
@@ -15,11 +15,13 @@ Dune slacks, the damp hollows between sand dunes, are among the richest wildlife
 
 At most sites the only record of that groundwater is a set of shallow pipes, called **dipwells**, in which someone measures the water level by hand about once a month. Newborough Warren on Anglesey has 88 of them across 865 hectares of dunes and pine forest, and some have been read for over twenty years.
 
-What managers usually want to know is not the level itself but what lies behind it. How much of the rain that soaks in drains away underground, and how much is drawn back up by plants and the sun? If a dry year lowers the water table, how long does the effect last? Neither question can be answered by measuring directly at most sites, because that needs expensive instruments. So scientists fit a simple model to the water levels and read the answers from the model.
+What managers most want from that record is a forecast: how the water table will respond to the coming years, and to a changing climate. The rain that soaks in, the water that drains away underground and the water drawn back up by plants and the sun are rarely measured at such sites, so the forecast comes from a simple model fitted to the water levels themselves.
 
-The paper asks how far those answers can be trusted. It finds that three choices made when fitting the model, usually without comment, change what the answers mean.
+That model can be fitted in two common ways, and which one was used is seldom reported. The choice changes what the model's main number means, and how the model behaves when it is run forward. A forecast cannot be checked until the future arrives, so the paper checks what can be checked now: how each version does on recent years held back from the fit, and how each does on old records from a drier climate than the one it was fitted on. It asks what a model like this can be trusted to forecast.
 
 # []{#anchor}2. The model in one picture
+
+## []{#anchor}The bath with a slow leak
 
 Think of the ground as a bath with a slow leak. Each month:
 
@@ -27,165 +29,183 @@ Think of the ground as a bath with a slow leak. Each month:
 -   **evaporation and plant use** draw water back out from the top;
 -   **drainage** lets water leak away underground, faster when the water stands higher.
 
-The model fitted at Newborough says exactly this, one month at a time. It has three numbers, worked out from the record at each well:
+The model says exactly this, one month at a time, and predicts how far the water level will move. It has three numbers, worked out from the record at each well:
 
 -   how much the water rises for each millimetre of rain;
 -   how much it falls for each millimetre of evaporating power in the air;
 -   how quickly it drains away, which the paper calls the **drainage coefficient**.
 
-The third number is the one this paper is about, because two quite different things can be read from it.
+## []{#anchor}The floor, and two versions of the model
 
-# []{#anchor}3. Three hidden choices
+Drainage has to be measured from somewhere. The model takes it to run faster the higher the water stands above an imaginary floor, the **datum**, at a fixed depth below the ground. There are two ways to deal with that floor.
 
-Before the model can be fitted, three choices have to be made. They are rarely reported, but each one changes what the drainage coefficient means.
+-   In **Model A** the floor is chosen in advance. The study uses a single depth of 3.7 metres for every well.
+-   In **Model B** the model adds a constant to the sum and so finds its own floor, wherever the record puts it.
 
-1.  **Is there a constant term?** The model can include an extra fixed amount that is added every month, or leave it out. The paper calls the version without it **Model A** and the version with it **Model B**.
-2.  **How deep is the floor?** Model A assumes the water drains towards an imaginary floor, the **datum**, at a fixed depth below the ground, and drains faster the higher the water stands above it. Somebody has to choose that depth.
-3.  **Which stretch of record?** The model can be fitted to all the months a well has, or to a shorter, common stretch so that all wells are compared over the same weather.
+The two are one model family, separated only by where the floor comes from: Model B is Model A with the floor moved to the level at which the fitted drainage is zero.
 
-# []{#anchor}4. The floor (the datum)
+The drainage coefficient means something different in each. In Model A it describes water draining towards the chosen floor, so its value changes if the floor is moved. In Model B it describes how quickly the water table returns to its own normal level after a wet or dry spell, and that does not depend on any floor.
 
-## []{#anchor}How the floor changes the answer
+Leaving drainage out altogether gives the simplest model of all, the **traditional linear model**: rain in, evaporation out, nothing else. Run forward on its own, it has nothing pulling the water table back towards a usual level, so each month's error is carried into every month after it.
 
-Where the floor is placed decides how the drainage coefficient behaves.
+## []{#anchor}A check against widely used software
 
--   With a **deep floor**, the water table always stands far above it. Drainage is then a steady, slow pull, and the model's water table recovers slowly after a wet or dry spell.
--   With a **shallow floor**, the water table sits close to it. Small rises and falls change the drainage a lot, and the model snaps back quickly.
+Pastas is widely used software that does the same job. Model B is exactly what Pastas fits, written one month at a time, so when the two agree that shows the code is right. It is not independent evidence that either version is right. Model A has no match in Pastas, which has no fixed floor.
 
-The paper tried every floor depth from 0.5 to 8 metres down and watched what happened.
+## []{#anchor}What neither version can decide
 
-## []{#anchor}Too shallow, and the model cannot tell
+The water table loses water in two ways: by drainage, and by evaporation and plant use. The levels alone cannot say how the loss splits between them, because the split depends on the level that drainage is measured from. Model A sets that level by assumption and Model B by fit. Without a direct measurement of drainage, evaporation or recharge, neither can fix the true split. Model A's drainage share also leans high, because it counts some evaporation from a shallow water table as drainage. A forecast does not need the split: it needs the model's numbers working together, not each flow apart.
 
-Shallower than about 1.6 metres the floor sits inside the range the water table moves through, and at some parts of the site the model cannot work out a drainage rate at all. The paper calls this depth the **identification floor**.
+# []{#anchor}3. The site, the record and the wells
 
-## []{#anchor}Deep enough, and the water budget settles
+Newborough Warren is a coastal dune system of 865 hectares. The 88 dipwells are read at the end of each month. Monthly rainfall and evaporating power come from one weather station, RAF Valley, 16 km away.
 
-Below that depth something useful happens. The drainage coefficient keeps getting smaller as the floor goes deeper, but the *amount* of water draining away each month hardly changes, and neither does the split of the water budget between drainage and evaporation. At the lake edge, for example, drainage takes 73 % of the water lost with the floor at 1.6 metres, 85 % at 3.7 metres and 88 % at 8 metres. The paper calls this steady range the **plateau**.
+The study uses a reference network of 66 wells: those with at least 100 months of record that are still being read at the end of it. Their records are longer than that minimum, with a median of 192 months (from 140 to 252).
 
-So the water budget can be trusted once the floor is deep enough, even though nobody knows where the real floor is. The study uses a single floor of 3.7 metres for every well, which lies on the plateau everywhere.
+The wells fall into five groups that rise and fall together, found from the shape of their records before any model was fitted. Three groups are open dune (the Lake Edge, the Dune and the Western Residual) and two are under pine (the Main Forest and the Coastal Forest). The groups are stable when wells or months are left out at random, but groups built separately from two halves of the record agree only moderately (a score of 0.53 where 1 is identical). So they are a useful way of dividing one continuous aquifer, not sharply bounded units.
 
-## []{#anchor}What fitting alone would choose
+The numbers a study reports belong to the stretch of record they were fitted on, so the paper says which applies to every result. One basis is the average hydrograph of each group, fitted on every month available. The other is each well on its own, on its full record or on a common window, the most recent 100 months at every well, so that wells are compared under the same weather. The tests that split the record fit each well on the years before January 2018 and test it on the years after.
 
-If the floor depth is simply chosen to make the model fit the record best, it comes out shallow at the open-dune wells and deeper under the forest. That best-fitting floor turns out to be exactly the floor that Model B works out for itself. In other words, choosing the floor by fit alone turns Model A into Model B, and gives an answer about how quickly the water returns to normal, not about drainage.
+# []{#anchor}4. Can the record forecast?
 
-## []{#anchor}Height above sea level, or depth below ground?
+## []{#anchor}4.1 What the drainage term adds
 
-Is the floor a fixed height, the same everywhere, or does it follow the shape of the ground? The two fit the record almost equally well, but a fixed height leaves the drainage rate impossible to work out at many wells. A depth below ground does not, so the study uses depth. It also tried a floor set by the sea: the level of high tide, worked out as a depth at each well. That gives the same water budget (68 % drainage at a typical well, against 68 % with the 3.7-metre floor), but the model then forecasts worse, so it was not adopted.
+At each well, three models were fitted on the common window: the traditional linear model, Model A and Model B. Each was then run freely over the same months, starting from the first observed level and working out each month from the model's own previous month, never from the readings. That is a hard test: it asks whether a model can reproduce the course of the water table without being corrected by it.
 
-# []{#anchor}5. Two readings of one number
+Results are scored with the **forecast skill**, on a scale where 1 is perfect, 0 is no better than the average level, and below 0 is worse. Across 64 wells the traditional linear model scores 0.43 at the median well, and at 8 wells it does worse than simply guessing the average. Adding the drainage term lifts the median to 0.82 for Model B, positive at all 64 wells, and 0.77 for Model A, positive at 63.
 
-## []{#anchor}Draining to a floor, or returning to normal
+The pine forest is the exception, because drainage there is slow and the traditional model's build-up of error does least harm. At one forest well, CEH14, Model A's drainage coefficient is negative and its free run diverges (a skill of −12.87, against −0.04 for the traditional model), while Model B scores 0.38. A model without drainage cannot forecast. But where a fixed floor leaves the drainage term unidentified, the term can cost more than it adds.
 
-The drainage coefficient can be read in two ways.
+## []{#anchor}4.2 Forecasting within the recorded climate
 
--   In **Model A** it describes water draining towards the chosen floor. Its value depends on where the floor is.
--   In **Model B** the constant lets the model find its own resting level, and the number describes how quickly the water table returns to that level after a wet or dry spell. It does not depend on any floor.
+Each version was fitted on the record before January 2018 and run freely over the years after, and then the test was run the other way round. Looking forward, Model B's median skill is 0.79 against 0.61 for Model A, and Model B is better at 88 % of wells. Looking back, Model B scores 0.78 against 0.67, and is better at 77 % of wells. The advantage is clearest in the open dune. Under the coastal forest the two are close.
 
-At a typical well the two readings differ by more than a factor of two. A convenient way to compare them is the time a disturbance takes to shrink to about a third of its size, the **e-folding time**. Model A says about 16 months; Model B says about 6.5.
+Under the main forest both forecast poorly: Model B scores 0.08 and Model A 0.21. The split at January 2018 falls a month after the December 2017 clearfell beside the main forest, so those forecasts are scored over years in which the canopy changed.
 
-## []{#anchor}A check that uses no model
+## []{#anchor}4.3 Forecasting into a different climate
 
-Which is right about how the water table behaves? The paper measured it directly from the readings. If this month's level is unusually high, how much of that is still there next month? The answer, worked out over the whole record, gives a return time without any model at all: 5.1 months at a typical well. That is close to Model B and about a third of Model A.
+A forecast inside the modern record is dominated by the yearly swing. A changing climate asks something else of the model: a lasting shift in the level. The one test of that which no fit has seen is the Countryside Council for Wales record of 1989--96, read before the present network was installed, at 9 wells that are still read today. That decade was drier than anything in the modern record.
 
-The check, measured without a model, was repeated with two corrections that push in opposite directions: taking out any long-term trend in a well's record (5.0 months), and allowing for small errors in the readings (6.1 months). Either way Model B stays the closer. Rises and falls also return at the same rate: a wet spell fades as quickly as a dry one.
+Run back over that decade from the fit to each well's whole modern record, Model A is close to unbiased: its water level is off by 0.03 metres at the median well. Model B puts the water table too high by 0.30 metres. Both forecast skills are below zero (−0.14 for Model A and −1.46 for Model B), because that decade's average is exactly the shift the test asks the model to find, so it is the bias, not the skill score, that separates the two. The ordering holds at every record length tried. The two tests split by what they score: a fast return follows the yearly swing well, and the lasting shift is what Model A carries and Model B does not.
 
-## []{#anchor}Does a dry year carry over to the next spring?
+The same decade can be asked which floor Model A should use. The floor that fits it best is 2.9 metres (band 2.8 to 2.9), where the median skill is 0.44, against −0.06 at the study's 3.7 metres. Deeper floors do worse on every measure, so the dry decade does not ask for a deeper floor, and the study's floor is close to unbiased on the same fits (off by −0.01 metres).
 
-A short return time means that one spring's level says little about the next. The readings agree: spring levels in successive years are close to independent. Model A on its own would suggest that a dry year lingers into the next spring much more than it does.
+A second old record is Derek Ranwell's readings of 1951--53 at three places on the Warren. Their positions are uncertain, so the test uses only the *seasonal rise and fall*. Here the answer is the other way round. A floor of 0.7 metres (band 0.5 to 1.1) makes Model A behave as Model B does, both scoring 0.86, against 0.46 at the study's floor. That 0.7 metres is not a water level or an error: it is the floor depth that makes Model A fast enough to follow the seasons, which is how Model B behaves anyway.
 
-## []{#anchor}Forecasting
+The two old records disagree because they score different things. With its average removed, Ranwell's record tests only the yearly swing, which a fast return follows. The dry decade tests a lasting shift of the average, which the deeper floor carries. Why Ranwell's swing differs was explored after the comparison, so the paper describes it rather than tests it: his seasonal swing was 3--20 % smaller, relative to the model, than it is now, and ordinary weather, his rain gauge, the forest planted since and a slightly lower sea each fail to supply it. Drains dug for the young plantation point the right way, but are not recorded.
 
-The paper fitted each model on the years before 2018 and asked it to forecast the years after, without seeing them. Model B did better at 88 % of wells. Even with only 24 months of record to learn from, Model B forecasts its own well usefully (a skill of 0.72).
+The two records seem to ask for two speeds: a quick return, and a slow hold that keeps the level down through a drier decade. A single store has only one. So a second, slower store was tried at every group, including one drawn down by the pine plantation as its canopy closed. No version passed the tests fixed before the fit. At Newborough a model fitted to water levels alone has one speed, and which version is used decides which.
 
-## []{#anchor}Why the drainage term matters at all
+## []{#anchor}4.4 How much record a forecast needs
 
-The simplest model of all leaves drainage out entirely: rain in, evaporation out, nothing else. Left to run on its own, that model drifts, because nothing pulls the water table back towards a normal level, and each month's error carries into the next. At a typical well its forecast skill is 0.43 on a scale where 1 is perfect, and at 8 wells it does worse than simply guessing the average. Adding the drainage term lifts the typical score to 0.82. The drainage term is what keeps the model anchored.
+Within the modern record, Model B forecasts better at every length of fit. Fitted on only 24 months before 2018, its median skill is already 0.72, and it reaches 0.79 with all of them. Model A starts at −0.14 and reaches 0.61 with all of them. A site with a few years of record can forecast its own water table with Model B.
 
-# []{#anchor}6. What the old records say
+The drainage numbers need more. Each well's drainage coefficient was refitted on shorter and shorter stretches, and the length at which it settles taken as the shortest record on which it lies within 20 % of the full-record value. For Model A that is about 24 months at a typical well, the shortest length tried, so it may need less. For Model B it is 60 months. Counted in each well's own return times, the stable length is 4.7 for Model A and 9.0 for Model B. A rule of thumb follows: a record should span several return times before the return time read from it is trusted, and the rule binds Model B harder.
 
-The modern network does not cover a long enough or varied enough period to settle everything, but two older sets of readings do something no model has seen.
+The forest is the exception for both. Under the main forest Model A needs 120 months and Model B 144, and Model B settles within the lengths tried at only 5 of its wells.
 
-## []{#anchor}The drier decade, 1989--96
+## []{#anchor}4.5 Per well, or per group?
 
-The Countryside Council for Wales read water levels at Newborough between 1989 and 1996, before the present network was installed, at 9 wells that are still read today. That decade was drier than anything in the modern record, so it tests whether a model can carry a lasting shift in the water table.
+The groups come from the shape of the hydrographs alone, so a new well can be placed in one by comparing its record with the group averages, without fitting it. Can it then borrow the group's numbers? The paper tests this by running each skill test twice, on each well's own numbers and on its group's, with the tolerances fixed before the run: 0.05 in skill, and for the dry decade 0.05 metres in the typical error of the level.
 
-Run back over that decade from today's record, Model A is close to right on average (off by 0.03 metres), while Model B puts the water table too high by 0.30 metres. For a long run of dry years, Model A does better. Asked which floor depth fits that decade best, the answer is about 2.9 metres: close to the 3.7 metres used, and not deeper.
+With both versions the group numbers pass all three tests. With Model A, on the dry decade, their median skill is −0.17 against −0.14 for the wells' own, and forecasting forward from January 2018 they score 0.72 against 0.61. So within the tolerances set before the run, group numbers forecast and look back as well as each well's own.
 
-## []{#anchor}Ranwell's readings, 1951--53
+Where a well's own record has a gap, it is better filled from a measured neighbour than from the model. With stretches of 54 months hidden in turn, each well's average spring level was put back from its nearest neighbour in the same group with a typical miss of 0.041 metres, against 0.139 metres from Model A run on the weather.
 
-Derek Ranwell measured water levels at three places on the Warren between 1951 and 1953. Their exact positions are uncertain, so his average level cannot be trusted, and the test uses only the *seasonal rise and fall* he recorded.
+## []{#anchor}4.6 Which form to forecast with
 
-Here the result is the other way round. With the floor at about 0.7 metres below ground, Model A reproduces Ranwell's seasons as well as Model B does (a score of 0.86 for both), and with the floor at 3.7 metres it does much worse (0.46). That 0.7 metres is not a water level or an error: it is the floor depth that makes Model A behave quickly enough to follow the seasons, which is how Model B behaves anyway.
+Within the climate the record spans, use Model B: it forecasts better, needs only a few years of record, and its return time is the one the record supports (Section 5). A forecast into a different climate, whether a look back at a drier past or a projection, asks for a lasting shift of the level, and there the one independent test favours Model A. So forward runs into a changed climate use Model A at the study's floor, with Model B beside it as the fast-return bound. The two are reported as a pair on the same wells and never averaged, and the floor that the dry decade supports is carried as a check. Neither version serves a quantity it cannot work out. That is why the main forest is withheld from projection.
 
-## []{#anchor}Why both can be true
+## []{#anchor}4.7 What the record projects
 
-The two old records ask different questions. Ranwell's seasons ask how fast the water table bounces back, and the answer is: quickly. The dry decade asks whether the water table can stay low through a long run of dry years, and the answer is: yes, more than a quick bounce would allow. The aquifer seems to do both. A model with a single floor can only do one or the other, which is why the paper uses each version only for the question it answers.
+The paper takes the Met Office's high-emissions climate scenario (UKCP18), applied as seasonal changes to the observed rain and evaporating power, with fits on the common window at the 57 wells for which both versions work.
 
-These tests used each well's own numbers. Run instead with the numbers of the well's group, which are the ones the paper reports, the model does as well: for the dry decade Model A scores −0.17 against −0.14, and for Ranwell's seasons 0.49 against 0.46. Model B does much better on the dry decade with the group's numbers (−0.27 against −1.46).
+In the 2050s, the typical lasting fall of the summer water level is 0.28 metres under Model A at the study's floor, 0.24 metres under Model A at 2.9 metres, and 0.20 metres under Model B. That scenario lowers the yearly balance of rain less evaporation by 117 millimetres, about as much as the dry decade of 1989--96 fell below the modern record (110 millimetres). So this projection sits inside the range that the look back has tested.
 
-# []{#anchor}7. How much record you need
+In the 2080s the fall is 0.52 metres under Model A at the study's floor, 0.44 at 2.9 metres and 0.37 under Model B. That scenario lowers the balance by 210 millimetres a year, more than anything in the record, so this is an extrapolation. It is reported as the range between the two versions, not as one figure. That range is the honest statement of what a model fitted to water levels alone can say about a climate it has not seen.
 
-The paper refitted every well on records of different lengths and asked how long a record each version needs before its drainage number stops changing.
+In both periods the fall is larger in summer than over the year, and larger under Model A, whose slower recession carries the summer deficit forward. The main forest is not projected, because its drainage number cannot be worked out from the record.
 
--   **Model A** settles on about 24 months at a typical well. That was the shortest length tried, so it may need less.
--   **Model B** needs about 60 months.
--   **Under the main pine forest** both need far longer: about 120 and 144 months. The forest responds so slowly that Model B's return time cannot be pinned down there at all.
+# []{#anchor}5. What the numbers mean
 
-A rule of thumb follows: a record should span several return times before the return time read from it is trusted.
+## []{#anchor}5.1 Two time scales from one number
 
-# []{#anchor}8. What it finds at Newborough
+In both versions the drainage coefficient sets a time scale, the **e-folding time**: how long it takes a disturbance to shrink to about a third of its size. But the two versions measure it from different levels, so they answer different questions. In Model A it is a **recession time**: how long the water stored above the floor would take to fall to about a third if rain and evaporation stopped. In Model B it is a **return time**: how quickly a wet or dry spell dies away while the climate carries on. The recession time depends on where the floor is set; the return time does not. At the median well the recession time under Model A is 15.8 months and the return time under Model B is 6.5.
 
-The wells fall into five groups that behave alike: three in open dune (the Lake Edge, the Dune and the Western Residual) and two under pine (the Main Forest and the Coastal Forest). Using each version of the model for what it is good at, the paper reports for each group:
+## []{#anchor}5.2 A check that uses no model
 
--   **How the water budget splits.** With the floor anywhere on the plateau, drainage carries 85--88 % of the water lost at the lake edge, 66--69 % in the open dune, 65--68 % in the western dune, 61--66 % under the coastal forest and only 25--29 % under the main forest, where the trees take most of the rest. Evaporation and plant use take whatever drainage does not.
--   **How sure is that?** Moving the floor around the plateau, or setting it at each well's depth to high tide, changes these figures by only a few points, and individual wells scatter a little around their group. The bigger uncertainty is the version of the model. Letting the model work out its own resting level (Model B) gives drainage only 29--60 % of the loss, and least at the lake edge (37 %). The paper argues that the fixed floor is the right basis for the water budget, because Model B's resting level sits close to the average water level rather than at anything physical; but only a direct measurement of drainage or evaporation at the site could settle it.
--   **How quickly the water returns to normal.** In the free-intercept model, from about 2.1 months at the lake edge to about 13.3 months under the coastal forest. Under the main forest it is too slow to measure on the present record.
+The return time can be measured without either model. Take each month's level less the usual level for that calendar month, and ask how much of an unusual month is still there the month after. Over the whole record the model-free answer is a return time of 5.1 months at the median well. That is close to Model B and about a third of Model A.
 
-These are shares, not amounts. Turning them into millimetres of water needs one more property of the sand, how much water it releases as the water table falls, which the water levels alone cannot give. That is dealt with in the companion study of the site.
+Group by group, Model B sits with it: at the lake edge 2.1 months against 2.0 measured, and under the coastal forest 13.3 against 12.0. Under the main forest the measured time is 15.6 months and Model B's drainage number cannot be worked out. The model-free check was repeated with two corrections that push in opposite directions. Taking out any long-term trend in a well's record, the model-free time is 5.0 months. Allowing for small errors in the readings, it is 6.1 months, a model-free figure too. With either, Model B stays the nearer version at every group where it can be worked out.
 
-# []{#anchor}9. The questions people will ask
+## []{#anchor}5.3 Does a dry year carry over to the next spring?
 
-## []{#anchor}What was the early high water?
+A short return time means that one spring's level says little about the next. If the drainage term is right, the link from one spring to the next should be 0.16 at the median well under Model B and 0.47 under Model A, on a scale where 0 means no link. The readings give −0.11: successive springs are close to independent. Taken at face value, Model A would make a five-year average of spring levels a poorly averaged quantity, and the record does not support that.
 
-From 2006 to 2008 the water table stood well above what the model gives for that weather: by about 0.3 m in the western dune and almost a metre under the two forest groups. Nothing in the weather explains it. The questions below are the explanations that were tested.
+## []{#anchor}5.4 What the floor decides in Model A
 
-## []{#anchor}Is there a second, slower store of water?
+The paper refitted Model A at every floor depth from 0.5 to 8 metres down.
 
-The two old records ask for two speeds: a quick return and a slow hold. The obvious idea is a second, slower store of water working alongside the first. The paper fitted one, and at every group the fit gave it nothing to do: one store was better.
+**Too shallow, and the model cannot tell.** Shallower than 1.6 metres the floor sits inside the range the water table moves through, and at some groups the model cannot work out a drainage rate at all. The paper calls this depth the **identification floor**.
 
-## []{#anchor}Did the plantation drain a store that was once there?
+**What fitting alone would choose.** The floor that fits each group best differs from group to group, from 0.7 metres at the lake edge to 7.1 under the main forest. At every group it matches, within one step of the sweep, the floor that Model B works out for itself. So choosing the floor by fit alone turns Model A into Model B, and gives an answer about how quickly the water table returns to normal, not about drainage.
 
-The pine plantation was planted between 1947 and 1965. Perhaps it drew down water that had built up before the trees, and the early years of the record caught the last of it. To test this fairly, the years before the canopy closed were modelled as the open dune they then were, and the forest's effect was brought in gradually as the trees grew, over the 15 to 20 years a Corsican pine canopy usually takes to close. Three planting years and two closure times were tried, and the rule for a "yes" was fixed before the test was run. No case passed. Under the main forest a slow store fits the early years better if the planting was late, but it then forecasts the recent years far worse. On this record, a store drawn down by the plantation is not supported.
+**Deep enough, and the water budget settles.** Below the identification floor the drainage coefficient keeps getting smaller as the floor goes deeper, but the *amount* of water draining each month hardly changes: at 3.7 metres it is 0.81 to 0.97 of its value at the deepest floor tried. The paper calls this steady range the **plateau**. The recession time keeps scaling with the floor, so it must always be reported as depending on it. The study uses a single floor of 3.7 metres for every well, which lies on the plateau and below the range of the water table everywhere.
 
-## []{#anchor}Was it the retreating coast?
+## []{#anchor}5.5 Can the floor be tied to something physical?
 
-The coastal forest group is nearest the eroding shore, and a retreating coast lowers the water table near it gradually. The change found there is not gradual: it is a fall over a few years that then settled. A storm that cut back the shore could do that, and so could a change in the trees. The water levels alone cannot tell the two apart at one group.
+Is the floor a fixed height, the same everywhere, or a depth below ground that follows the shape of the land? A common height fits slightly worse than a depth at every level tried, and higher levels leave the drainage term unidentified at many wells. So the study uses depth.
 
-## []{#anchor}Was it how the rain fell?
+At a coastal site the most defensible floor is the level the aquifer finally drains to. Each well was refitted with its floor at its depth to mean high water (1.88 metres above Ordnance Datum), which puts the floors between 1.7 and 12.5 metres below ground. This gives the same water budget (68 % drainage at the typical well, against 68 % with the 3.7-metre floor). But it is the worse forecaster. In Model A the recession time roughly doubles, to 29 months against 16 at the study's floor, when the model-free time is 5.1. The forecast skill falls to 0.46 looking forward, against 0.61. A physical floor answers the objection that one depth is arbitrary, because the budget is the same. It is not adopted, because the dynamics are worse.
 
-Rain that falls in long, steady spells loses less to evaporation than a month's total suggests, and a monthly model cannot see that. Daily rainfall from a gauge on Anglesey shows that only one of the three wet winters at the start of the record was unusual in this way, and later wet winters had as much long-spell rain without the same effect. How the rain fell does not explain the early high water.
+A single common height, tried as a forecaster, looks back at the dry decade better but forecasts the modern record worse (a skill of 0.56 against 0.64), and one more well loses its drainage term. The medians hide a split by group: it helps most of the Western Residual wells and fails at the open-dune wells. Under one common base the return time is short near the coast and long inland. A drainage path to a coastal base would predict that pattern, but Model A produces it mechanically too, so the fit cannot tell the two apart. It is not adopted. The level the aquifer drains to varies within groups as well as between them, which is why a floor that follows the ground serves every group.
 
-## []{#anchor}Was it the 1998 fellings?
+## []{#anchor}5.6 Why Model B does not set the floor
 
-The high water was greatest next to the patches of forest felled in 1998 and faded with distance from them, so the fellings fit where it happened. They do not fit when: the water had fallen back long before the trees on the felled ground grew back. The question stays open.
+Model B pays for its fit. Its constant and its drainage number are almost interchangeable: their estimates correlate at 0.96 at the median well. So the level its drainage refers to is fitted rather than physical, and lies near each well's own average, a median 1.6 metres below ground, at the identification floor. With it, more of the loss is booked to evaporation and plant use: a drainage share of 45 % against Model A's 68 %. That is the split the paper quotes. It follows from the rain and evaporation numbers, which Model B identifies and Pastas reproduces, and a constant that absorbs the floor leaves it the same at every floor. Using Model B's base as the floor would simply make Model A identical to Model B.
 
-## []{#anchor}Was it a dry year before?
+Pastas, fitted to the same wells on the full record, agrees with Model B well by well: rank correlations of 1.00, 0.96 and 0.98 for the rain, evaporation and drainage numbers, on the 63 wells for which Pastas works out a response time. That agreement is expected: it checks the implementation, not the model.
 
-The very dry 2005 came just before the high water, so perhaps a wet spell on a dried-out warren raises the water table more than usual. The only other such sequence in the record, dry 2022 then wet 2023--24, did not do the same, so that is not supported either.
+# []{#anchor}6. A checklist for other sites
 
-# []{#anchor}10. A checklist for other sites
+For a site with a monthly water-level record and no direct measurement of where the water goes, the paper's procedure comes down to these steps.
 
-For any site with a monthly water-level record and no direct measurement of where the water goes, the paper's procedure comes down to these steps.
+1.  Fit both versions, with and without the constant, at the scale at which the results will be used: each well, or each group of wells that rise and fall together. For the version without the constant, try the floor at many depths and choose one on the plateau, below the range the water table occupies.
+2.  Test what the drainage term adds. Run each version freely from the first observed level and compare it with the same model without drainage.
+3.  Test forecasts within the record. Fit on one part and run freely over the other, in both directions. Use the version that wins, at Newborough Model B, to forecast within the climate the record spans.
+4.  Test against a different climate wherever an older record exists, even a few wells or a few years. Use the version it supports for projections, with the other beside it, and report the pair, not an average.
+5.  Check the record is long enough. Refit on shorter stretches and see when the drainage number stops moving. The record should span several return times.
+6.  Check the time scale without a model, and report the return time as how quickly the water table recovers, not the recession time, which depends on the floor.
+7.  Treat the numbers as coefficients, not as flows of water. Report the split of the loss between drainage and evaporation as depending on the floor, or not at all.
+8.  Say which stretch of record every result comes from, and fill gaps in a well's record from measured neighbours rather than from the model.
 
-1.  Try the floor at many depths, and note how the drainage number, the fit and the amount drained change.
-2.  Find the shallowest floor at which every part of the site gives a sensible drainage rate.
-3.  Fit the version with the constant as well. If the best-fitting floor matches its resting level, a floor chosen on fit alone is measuring the return time, not drainage.
-4.  Find where the amount drained stops changing with depth (the plateau), and choose one floor there, deep enough for the part of the site with the deepest water table.
-5.  Check whether the floor should follow the ground or be a fixed height, and what a physically meaningful floor would give.
-6.  Report what the chosen floor costs in fit at each part of the site.
-7.  Check the return time with the no-model method, and test forecasts on years the model has not seen.
-8.  Use each version for what it is good at: the version without the constant for the water budget; the version with it for how long effects last and for short forecasts; for long-term changes, whichever version an independent old record supports, with the other alongside.
-9.  Say which stretch of record every result comes from, check that the record is long enough for the number being read, and test long-term behaviour against an independent period wherever one exists.
+# []{#anchor}7. What the record cannot tell us
+
+## []{#anchor}7.1 What water levels alone can and cannot give
+
+A model fitted to water levels can always balance the average books, because the level records the net of what comes in and goes out. What it can be trusted to forecast depends on the test it has passed. Within the recorded climate, the test on held-back years and the time scale measured without a model agree on Model B. Beyond it, only an independent record can say, and here it favours Model A. Someone forecasting next year's spring level and someone projecting the 2080s should not use the same version, and should know why.
+
+What water levels alone cannot give is the split of the loss between evaporation and drainage. Model A answers with an assumption and Model B with a fitted resting level, and the two answers differ (68 against 45 % drainage at the median well). Only an independent measurement of a flow, from tracers, outflow gauging or eddy covariance, can settle it. The scientific literature often calls the drainage number a "memory". Neither reading is a memory, and the two differ by more than a factor of two.
+
+## []{#anchor}7.2 These are properties of this aquifer
+
+The identification floor, Model B's resting level and the plateau are properties of the water-table depths at Newborough, not general constants. At another site the depth sweep must be repeated, not the numbers reused, and so must the record length each version needs.
+
+## []{#anchor}7.3 Relation to common practice
+
+Transfer-function models such as Pastas estimate the Model B form. That is the right form for forecasting within the recorded climate. What this practice does not usually do is test a forecast against a different climate, and at this site that test reverses the ranking.
+
+## []{#anchor}7.4 Limits
+
+The weather comes from one station outside the site, at monthly resolution, and the evaporation figure is an index of demand rather than a measured flow. The model is straight-line and unchanging in time, and the projections assume its numbers hold under a climate the record has not seen, which the look-back tests reach only as far as the 2050s. Under the main forest, Model B's drainage number cannot be worked out. A slow response is one reading of that, and a forcing that misrepresents the forest's evaporation is another, and the record does not tell them apart. The independent tests of the lasting response rest on 9 wells in one decade and three approximately placed sites in another.
+
+# []{#anchor}8. In short
+
+A model fitted to a monthly water-level record can forecast that record's water table, but which version can be trusted depends on what is being forecast. Within the climate the record spans, the version with a free constant (Model B) forecasts better, needs only a few years of record, and measures the time the water table takes to return to its usual level, which a measurement that uses no model confirms. Against a drier decade that no fit had seen, the version without the constant (Model A), with its floor on the plateau, reproduces the lasting shift of the level, and Model B does not.
+
+Projections into a changed climate should therefore use the version an independent record supports, with the other beside it, and report the pair. At Newborough, under a high-emissions climate, the two versions put the typical fall of the summer water level at 0.20--0.28 metres in the 2050s, inside the range the look back has tested, and 0.37--0.52 metres in the 2080s, beyond it. The main forest is withheld, because its drainage number cannot be worked out from the record.
+
+The numbers themselves are not flows of water. The split of the loss between drainage and evaporation depends on the floor, and the recession time describes the floor as much as the aquifer. Each quantity should be taken from the version that identifies it, with the stretch of record declared and the tests repeated at every site.
 
 # []{#anchor}Glossary
 
@@ -193,7 +213,7 @@ For any site with a monthly water-level record and no direct measurement of wher
 
 **Constant (intercept).** A fixed amount added to the model every month. Including it (Model B) lets the model find its own resting level.
 
-**Datum (floor).** The imaginary depth below ground that Model A assumes the water drains towards.
+**Datum (floor).** The imaginary depth below ground that drainage is measured from. Model A fixes it; Model B finds it.
 
 **Dipwell.** A shallow perforated pipe in which the water level is measured by hand.
 
@@ -201,17 +221,23 @@ For any site with a monthly water-level record and no direct measurement of wher
 
 **Drainage share.** The part of the water lost each month that drains away underground rather than being taken by evaporation and plants.
 
-**E-folding time.** The time a disturbance takes to shrink to about a third (more exactly 37 %) of its size. A convenient measure of how quickly the water table returns to normal.
+**E-folding time.** The time a disturbance takes to shrink to about a third (more exactly 37 %) of its size.
 
 **Forecast skill (efficiency).** A score of how well a model's run matches the readings: 1 is perfect, 0 is no better than the average level, and below 0 is worse.
+
+**Free run.** A model run forward from the first observed level, each month worked out from its own previous month and never corrected by a reading.
 
 **Identification floor.** The shallowest floor depth at which every part of the site gives a sensible drainage rate.
 
 **Model A, Model B.** The model without the constant (Model A) and with it (Model B).
 
-**Plateau.** The range of floor depths over which the water budget no longer changes with the depth chosen.
+**Plateau.** The range of floor depths over which the amount of water draining no longer changes with the depth chosen.
 
-**Return time.** How quickly the water table goes back to its usual level after a wet or dry spell; measured here by the e-folding time.
+**Recession time.** In Model A, the e-folding time of the water stored above the floor; it depends on where the floor is set.
+
+**Return time.** In Model B, the e-folding time with which the water table goes back to its usual level after a wet or dry spell; it does not depend on any floor.
+
+**Traditional linear model.** The model with no drainage term: rain in, evaporation out, nothing pulling the level back.
 
 # []{#anchor}Further reading
 

@@ -2429,9 +2429,9 @@ The rule: (1) a community level is compared only with a single well's level, for
 
 ### D-298 — Cloud sessions are the default for working sessions; the L14 is asked for only for what a session's own probe shows it cannot do
 
-*2026-11-03 · **proposed***
+*2026-11-03*
 
-(proposed) D-227 and D-233 already made a cloud session a full machine of record; what was missing was a rule for when to use it. (1) A working session starts in the cloud: claude.ai/code on the environment holding `NRG_RCLONE_CONF_B64` by default, or a claude.ai chat session with both repositories attached with push access. (2) Before asking Martin to run anything on the L14, a session reads `notes/reference/SESSION_MODES.md` and runs its probe; it hands on only the step its session cannot do (in a chat session, an ODT step), never the whole job. (3) The L14 remains the machine for Martin's own LibreOffice review of a document, and a publishing machine while its LibreOffice is the recorded version.
+D-227 and D-233 already made a cloud session a full machine of record; what was missing was a rule for when to use it. (1) A working session starts in the cloud: claude.ai/code on the environment holding `NRG_RCLONE_CONF_B64` by default, or a claude.ai chat session with both repositories attached with push access. (2) Before asking Martin to run anything on the L14, a session reads `notes/reference/SESSION_MODES.md` and runs its probe; it hands on only the step its session cannot do (in a chat session, an ODT step), never the whole job. (3) The L14 remains the machine for Martin's own LibreOffice review of a document, and a publishing machine while its LibreOffice is the recorded version.
 
 **Revisit if** a chat session gains custom environment variables (it then reaches Drive and can ship); the cloud image's LibreOffice changes from the recorded version; GitHub access for the linked account is withdrawn.
 

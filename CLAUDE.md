@@ -20,7 +20,9 @@ what `check_all` prints, and in the generated HANDOFF.
    End every session with `--write`, a dated entry (≤40 lines) at the top of
    `working/updates/HANDOVER_NOTE.md`, and `--check` green. `check_all` gates it.
 
-**Before sending Martin to the L14 for anything, read
+**Working sessions run in the cloud by default (D-298)**: claude.ai/code on the
+environment holding the Drive secret, or a claude.ai chat with both repositories
+attached. **Before sending Martin to the L14 for anything, read
 `notes/reference/SESSION_MODES.md`** — which kind of session this is and what it
 can do. Pipeline runs, gates, PDFs and pushes all work in a cloud session; only
 ODT access depends on the session holding the Drive secret.

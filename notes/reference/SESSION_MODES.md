@@ -32,7 +32,7 @@ Re-measure rather than trust it: the probe commands are at the end.
   that is his machine's by nature.
 
 The default for a working session is therefore **claude.ai/code on the
-environment that holds the secret**. A chat session is fine for code and
+environment that holds the secret** (D-298, confirmed by Martin 2026-11-03). A chat session is fine for code and
 pipeline work; when it reaches an ODT step it hands that step on rather than
 sending Martin to the L14 for the whole job.
 
@@ -44,6 +44,20 @@ sending Martin to the L14 for the whole job.
 
 Credentials come from Martin's linked GitHub account, freshly each session. Never
 ask for, accept or type a token in the conversation (CLAUDE.md §4g).
+
+## Setting the Drive secret (Martin, once; again only if a session says DRIVE TOKEN REFUSED)
+
+On the L14:
+
+    cd ~/projects/NRG && bash tools/drive_token.sh
+
+A browser opens for Google's consent (answer **n** to the Shared Drive question).
+The script checks the token against `NRG_documents_v2` and puts one line starting
+`NRG_RCLONE_CONF_B64=` on the clipboard, never on the screen. Paste that line into
+the claude.ai/code environment's environment variables (replacing any old value),
+save, and start a **new** session on that environment: a running session does not
+see a changed variable. `cloud_setup.sh` step 4 then reports the documents copied
+and the MD5 check. Never paste the line into a chat.
 
 ## Why not the Google Drive connector?
 

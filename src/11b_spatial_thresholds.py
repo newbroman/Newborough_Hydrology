@@ -76,7 +76,12 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.23.0"  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed": the band maps
+__version__ = "1.24.0"  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 18:11 "amendment as above  keep the
+#   recoverable bands"). The summer- and winter-maxima maps label their class edges as the DEPTH of each Curreli et al.
+#   (2013) community mean ("0.61 m: SD15b community mean") and the scrape-recoverable edges as a planning assumption;
+#   the titles name the source. A class is a depth below the well's own ground; the report caption says it marks a
+#   community only where the well stands on the slack floor. Labels only; no value moves.
+# 1.23.0  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed": the band maps
 #   are relabelled as plain depth classes). Without surveyed slack floors a well's depth is not read as a community, so
 #   the summer- and winter-maxima maps (11b_01, 11b_02) keep their zone edges and colours (config SD15b, SD15b_REC,
 #   SD16, SD16_REC, SD15b_WINTER, SD16_WINTER; D-201) but label them as depths, with no community or scrape-recovery
@@ -823,10 +828,10 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     cb.set_label("Mean summer minimum depth below ground (m)", fontsize=9)
     cb.ax.set_yticklabels([
         "0 m\n(ground)",
-        f"{SD15b} m",
-        f"{SD15b_REC} m",
-        f"{SD16} m",
-        f"{SD16_REC} m",
+        f"{SD15b} m\nSD15b\nmean",
+        f"{SD15b_REC} m\nSD15b\nrecovery\n(planning)",
+        f"{SD16} m\nSD16\nmean",
+        f"{SD16_REC} m\nSD16\nrecovery\n(planning)",
         "3.0 m",
     ], fontsize=7.5)
 
@@ -887,17 +892,18 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
                     path_effects=[_pe.withStroke(linewidth=2.5, foreground="white")],
                 )
 
-    stats_txt = (                                   # 1.23.0 (D-296): depth classes, no community names
-        f"Shallower than {SD15b} m:    {n_wet}/{n_tot} ({100*n_wet/n_tot:.0f}%)\n"
-        f"{SD15b}–{SD15b_REC} m:          {n_sr15b}/{n_tot} ({100*n_sr15b/n_tot:.0f}%)\n"
-        f"{SD15b_REC}–{SD16} m:          {n_marg}/{n_tot} ({100*n_marg/n_tot:.0f}%)\n"
-        f"{SD16}–{SD16_REC} m:           {n_sr16}/{n_tot} ({100*n_sr16/n_tot:.0f}%)\n"
-        f"Deeper than {SD16_REC} m:      {n_crit}/{n_tot} ({100*n_crit/n_tot:.0f}%)\n"
+    stats_txt = (                                   # 1.24.0 (D-297): community-mean depths, planning edges
+        f"Shallower than {SD15b} m (SD15b mean):        {n_wet}/{n_tot} ({100*n_wet/n_tot:.0f}%)\n"
+        f"{SD15b}–{SD15b_REC} m (one-scrape planning band):   {n_sr15b}/{n_tot} ({100*n_sr15b/n_tot:.0f}%)\n"
+        f"{SD15b_REC}–{SD16} m (to the SD16 mean):          {n_marg}/{n_tot} ({100*n_marg/n_tot:.0f}%)\n"
+        f"{SD16}–{SD16_REC} m (deeper-scrape planning band): {n_sr16}/{n_tot} ({100*n_sr16/n_tot:.0f}%)\n"
+        f"Deeper than {SD16_REC} m:                    {n_crit}/{n_tot} ({100*n_crit/n_tot:.0f}%)\n"
         f"Ref: {(df['network']=='Reference').sum()}  "
         f"Extended: {(df['network']=='Extended').sum()}  "
         f"Total: {n_tot}\n"
         + "  |  ".join(f"{w.upper()}: DEM −{d:.2f} m" for w, d in SCRAPE_DEM_CORRECTION_M.items())
-        + "  (DEM-corrected only; full record used)"
+        + "  (DEM-corrected only; full record used)\n"
+        + f"Planning bands: an assumed ~{SD15b_REC - SD15b:.2f} / ~{SD16_REC - SD16:.2f} m of scraping benefit"
     )
     ax.text(
         0.01, 0.99, stats_txt,
@@ -909,15 +915,19 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     )
 
     zone_handles = [                                # 1.23.0 (D-296): depth classes
-        mpatches.Patch(facecolor=ZONE_COLOURS[0], alpha=0.8, label=f"Shallower than {SD15b} m"),
-        mpatches.Patch(facecolor=ZONE_COLOURS[1], alpha=0.8, label=f"{SD15b}–{SD15b_REC} m"),
-        mpatches.Patch(facecolor=ZONE_COLOURS[2], alpha=0.8, label=f"{SD15b_REC}–{SD16} m"),
-        mpatches.Patch(facecolor=ZONE_COLOURS[3], alpha=0.8, label=f"{SD16}–{SD16_REC} m"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[0], alpha=0.8, label=f"Shallower than {SD15b} m (the SD15b community mean)"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[1], alpha=0.8,
+                       label=f"{SD15b}–{SD15b_REC} m: within one scrape of SD15b (planning)"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[2], alpha=0.8, label=f"{SD15b_REC}–{SD16} m: to the SD16 community mean"),
+        mpatches.Patch(facecolor=ZONE_COLOURS[3], alpha=0.8,
+                       label=f"{SD16}–{SD16_REC} m: within a deeper scrape of SD16 (planning)"),
         mpatches.Patch(facecolor=ZONE_COLOURS[4], alpha=0.8, label=f"Deeper than {SD16_REC} m"),
-        Line2D([0], [0], color="#005fa3", lw=2.0, ls="--", label=f"{SD15b} m depth contour"),
-        Line2D([0], [0], color="#2e8b2e", lw=1.8, ls=":", label=f"{SD15b_REC} m depth contour"),
-        Line2D([0], [0], color="#a30000", lw=2.0, ls="--", label=f"{SD16} m depth contour"),
-        Line2D([0], [0], color="#4a0000", lw=1.8, ls="-.", label=f"{SD16_REC} m depth contour"),
+        Line2D([0], [0], color="#005fa3", lw=2.0, ls="--", label=f"{SD15b} m: SD15b community mean (Curreli et al. 2013)"),
+        Line2D([0], [0], color="#2e8b2e", lw=1.8, ls=":",
+               label=f"{SD15b_REC} m: SD15b recovery limit (~{SD15b_REC - SD15b:.2f} m benefit assumed)"),
+        Line2D([0], [0], color="#a30000", lw=2.0, ls="--", label=f"{SD16} m: SD16 community mean (Curreli et al. 2013)"),
+        Line2D([0], [0], color="#4a0000", lw=1.8, ls="-.",
+               label=f"{SD16_REC} m: SD16 recovery limit (~{SD16_REC - SD16:.2f} m benefit assumed)"),
         Line2D([0], [0], marker="*", color="w",
                markerfacecolor="grey", markeredgecolor="black",
                markersize=12, label=f"Shallower than {SD15b} m on average (\u2605 labelled)"),
@@ -949,7 +959,8 @@ def plot_summer_minima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_xlabel("Easting (m, OSGB36)", fontsize=10)
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=10)
     ax.tick_params(labelsize=8)
-    ax.set_title("Mean annual summer minimum — depth below ground, 2005–2026",
+    ax.set_title("Mean annual summer minimum — depth below ground, 2005–2026 (classes at the Curreli et al. 2013 "
+                 "community-mean depths)",
                  fontsize=11, fontweight="bold")
 
     fig.tight_layout()
@@ -1075,19 +1086,19 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     cb.ax.invert_yaxis()
     cb.set_label("Mean winter maximum depth below ground (m)", fontsize=9)
     cb.ax.set_yticklabels([
-        f"{W_SD15b:.2f} m\n(above ground)",
+        f"{W_SD15b:.2f} m\nSD15b winter\nmean",
         f"{W_FLOOD:.2f} m\nGround\nsurface",
-        f"{W_SD16:.2f} m",
+        f"{W_SD16:.2f} m\nSD16 winter\nmean",
     ], fontsize=7.5)
 
     # Legend
     legend_patches = [
         mpatches.Patch(color=WINTER_ZONE_COLOURS[0],
-                       label=f"Flooded {-W_SD15b:.2f} m or more (n={n_sd15b})"),
+                       label=f"Flooded {-W_SD15b:.2f} m or more: the SD15b winter mean (n={n_sd15b})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[1],
                        label=f"Flooded 0–{-W_SD15b:.2f} m (n={n_flood})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[2],
-                       label=f"0–{W_SD16} m below ground (n={n_sd16})"),
+                       label=f"0–{W_SD16} m below ground: within the SD16 winter mean (n={n_sd16})"),
         mpatches.Patch(color=WINTER_ZONE_COLOURS[3],
                        label=f"Deeper than {W_SD16} m (n={n_below})"),
         Line2D([0],[0], marker="o", color="w", markerfacecolor="#999",
@@ -1104,7 +1115,7 @@ def plot_winter_maxima_map(df: pd.DataFrame, dpi: int = 300) -> None:
     ax.set_title(
         "Mean Annual Winter Maximum — Depth Below Ground (m)\n"
         "Newborough Warren 2005–2026  |  Full network  |  "
-        "Dune ridges masked  |  depth classes",
+        "Dune ridges masked  |  classes at the Curreli et al. (2013) community-mean winter depths",
         fontsize=10, fontweight="bold")
     ax.set_xlim(240100, 243900)
     ax.set_ylim(362100, 365900)

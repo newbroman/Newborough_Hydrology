@@ -5,7 +5,7 @@
 
 *Derived live from `tools/figure_map.py`: the Source column is each figure's caption `Source:` marker, resolved on disk. Regenerate, do not hand-edit.*
 
-**86 report figures** across 4 documents — 86 resolve to a source on disk, 0 flagged.
+**85 report figures** across 4 documents — 85 resolve to a source on disk, 0 flagged.
 
 ## report7.odt
 
@@ -65,52 +65,51 @@
 | 42 | 4.7.4 | Spatial distribution of P_flood — the minimum cumulative winter rainfa | `outputs/11b_spatial_thresholds/11b_03_pflood.png` | yes |
 | 43 | 4.7.4 | Spatial distribution of mean annual winter maximum water table depth b | `outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png` | yes |
 | 44 | 4.7.4 | Winter flooding frequency across the full dipwell network (66 referenc | `outputs/11b_spatial_thresholds/11b_04_flood_frequency.png` | yes |
-| 45 | 4.8.3 | Cluster-mean five-year mean spring water level (MSL5), window-ends 201 | `outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png` | yes |
+| 45 | 4.8.3 | Cluster five-year mean spring water level (MSL5), window-ends 2014–202 | `outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png` | yes |
 | 46 | 4.8.3 | Spatial pattern of the latest available 5-year mean spring water level | `outputs/26_van_willegen_msl/26_msl_5yr_map.png` | yes |
-| 47 | 4.8.3 | Climate trajectory and threshold exceedance analysis for Newborough Wa | `outputs/14_climate_projections/14_climate_trajectory_stacked.png` | yes |
-| 48 | 4.8.3 | Bootstrap year-of-crossing for the five-cluster summer-minimum trends  | `outputs/14_climate_projections/14b_year_of_crossing.png` | yes |
-| 49 | 4.8.4 | Between-well prediction of mean Ellenberg-F moisture by three water-ta | `outputs/26_van_willegen_msl/26_ebf_prediction_scatter.png` | yes |
-| 50 | 4.8.5 | Slack-floor wet area against the modelled water table. Near-infrared w | `outputs/45_wet_area/45_01_wet_area_model.png` | yes |
-| 51 | 4.8.5 | Modelled versus satellite-observed slack-floor wet area — an out-of-sa | `outputs/45_wet_area/45_02_ssm_through_nir_curves.png` | yes |
-| 52 | 4.8.5 | Per-cell switching levels of the Newborough Warren slack floor from 43 | `outputs/45_wet_area/45_03_switching_levels_map.png` | yes |
-| 53 | 4.8.5 | Sentinel-2 switching levels tested against the kriged water table. Eac | `outputs/01b_water_table/01b_04_unexplained_wetness.png` | yes |
-| 54 | 4.9.1 | Per-well optimal SSM drainage datum across the 66-well reference netwo | `outputs/03_state_space_model/03_10_well_datum_r2max_map.png` | yes |
-| 55 | 4.9.2 | Spatial SSM coefficient atlas for the 66-well reference network, Newbo | `outputs/07_spatial_coefficients/07_coeff_04_r2_quality.png` | yes |
-| 56 | 4.9.3 | Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the networ | `outputs/18_wtf_spatial/18_wtf_05_halflife_map.png` | yes |
-| 57 | 4.9.5 | The water table of Newborough Warren kriged from the dipwells in (a) t | `outputs/01b_water_table/01b_01_water_table_flow.png` | yes |
-| 58 | 4.9.5 | Mean water table against the ground surface, by DEM smoothing width. ( | `outputs/01b_water_table/01b_06_head_vs_dem.png` | yes |
-| 59 | 4.9.5 | Water-table transects across Newborough Warren. (a) Four coast-normal  | `outputs/01b_water_table/01b_02_transects.png` | yes |
-| 60 | 4.9.6 | SSM water balance residual across the Newborough Warren dune aquifer,  | `outputs/20_spatial_figures/20_residual_ssm.png` | yes |
-| 61 | 4.10.2 | Network-scale coastal-retreat gradient. (a) Per-well summer-minimum sl | `outputs/25_coastal_gradient/25_05_fit_diagnostic.jpg` | yes |
-| 62 | 4.10.3 | Fixed-length rolling-window sensitivity of the cross-shore decay fit.  | `outputs/25_coastal_gradient/25_13_rolling_window.png` | yes |
-| 63 | 4.10.4 | Independent, model-free estimate of the coastal drawdown rate. The coa | `outputs/38_coastal_transect/38_coast_inland_difference.jpg` | yes |
-| 64 | 4.10.5 | Coastal-erosion drawdown at the western dune margin, Newborough Warren | `outputs/20_spatial_figures/20_coastal_erosion.png` | yes |
-| 65 | 4.10.5 | Sea-level-rise head response at the western dune margin, on the same h | `outputs/20_spatial_figures/20_slr_response.png` | yes |
-| 66 | 4.10.5 | Net coastal-margin change at the western dune margin: the cell-by-cell | `outputs/20_spatial_figures/20_coastal_net_effect.png` | yes |
-| 67 | 4.11 | Forest drawdown propagation across the Newborough Warren dune aquifer, | `outputs/20_spatial_figures/20_drawdown_propagation_nohead.png` | yes |
-| 68 | 4.11 | Dune-scrape drawdown across all eight mapped cuts, Newborough Warren ( | `outputs/20_spatial_figures/20_scrape_drawdown_nohead.png` | yes |
-| 69 | 4.12 | Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2017 | `outputs/20_spatial_figures/20_clearfell_baseline_drawdown.png` | yes |
-| 70 | 4.12 | Clearfell step-change map — climate-corrected mean water-table shift,  | `outputs/20_spatial_figures/20_clearfell_gain.png` | yes |
-| 71 | 4.12 | Net water-table state — parametric combination of five simultaneous an | `outputs/20_spatial_figures/20_net_state_map.png` | yes |
-| 72 | 4.12 | Modelled water-table change across Newborough Warren, 2005–2025 — full | `outputs/20_spatial_figures/20_driver_change_20yr.png` | yes |
-| 73 | 4.12 | Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clearfel | `outputs/20_spatial_figures/20_msl5_change_2017_2023.png` | yes |
-| 74 | 4.12 | Secular differential movement of the spring (March, April, May) water  | `outputs/32_differential_movement/32_differential_movement_2011_2025.png` | yes |
-| 75 | 4.12 | Absolute climate-removed secular trend of the spring (March, April, Ma | `outputs/36_absolute_climate_trend/36_absolute_climate_trend_2005_2025.png` | yes |
-| 76 | 4.12 | The climate-response envelope of the spring water table. Relative ampl | `outputs/33_envelope_amplification/33_amplification_field.png` | yes |
-| 77 | 4.12 | The climate-response envelope of the spring water table: Dry-year spri | `outputs/33_envelope_amplification/33_dry_spring_depth.png` | yes |
-| 78 | 4.12.1 | Independent test of the chronic coastal-drying assumption: implied coa | `outputs/37_driver_validation/37_implied_delta0_trajectory.png` | yes |
-| 79 | 4.12.1 | Comparative footing of the drivers over the 2005–2025 horizon, on thre | `outputs/37b_driver_footing/37b_driver_footing.png` | yes |
-| 80 | 4.13.1 | Projected sustained shift in the five-year mean spring water level (ΔM | `outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png` | yes |
-| 81 | 4.14.2 | Ranwell&apos;s 1951–53 water-table readings against the SSM hindcast,  | `outputs/44_ranwell_hindcast/44_07b_hindcast_report.png` | yes |
-| 82 | 4.14.2 | The slack floor against the water table, by distance from the eroding  | `outputs/44_ranwell_hindcast/44_09_slack_floor_datum.png` | yes |
+| 47 | 4.8.3 | Climate trajectory by cluster for Newborough Warren. Panel (a): observ | `outputs/14_climate_projections/14_climate_trajectory_stacked.png` | yes |
+| 48 | 4.8.4 | Between-well prediction of mean Ellenberg-F moisture by three water-ta | `outputs/26_van_willegen_msl/26_ebf_prediction_scatter.png` | yes |
+| 49 | 4.8.5 | Slack-floor wet area against the modelled water table. Near-infrared w | `outputs/45_wet_area/45_01_wet_area_model.png` | yes |
+| 50 | 4.8.5 | Modelled versus satellite-observed slack-floor wet area — an out-of-sa | `outputs/45_wet_area/45_02_ssm_through_nir_curves.png` | yes |
+| 51 | 4.8.5 | Per-cell switching levels of the Newborough Warren slack floor from 43 | `outputs/45_wet_area/45_03_switching_levels_map.png` | yes |
+| 52 | 4.8.5 | Sentinel-2 switching levels tested against the kriged water table. Eac | `outputs/01b_water_table/01b_04_unexplained_wetness.png` | yes |
+| 53 | 4.9.1 | Per-well optimal SSM drainage datum across the 66-well reference netwo | `outputs/03_state_space_model/03_10_well_datum_r2max_map.png` | yes |
+| 54 | 4.9.2 | Spatial SSM coefficient atlas for the 66-well reference network, Newbo | `outputs/07_spatial_coefficients/07_coeff_04_r2_quality.png` | yes |
+| 55 | 4.9.3 | Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the networ | `outputs/18_wtf_spatial/18_wtf_05_halflife_map.png` | yes |
+| 56 | 4.9.5 | The water table of Newborough Warren kriged from the dipwells in (a) t | `outputs/01b_water_table/01b_01_water_table_flow.png` | yes |
+| 57 | 4.9.5 | Mean water table against the ground surface, by DEM smoothing width. ( | `outputs/01b_water_table/01b_06_head_vs_dem.png` | yes |
+| 58 | 4.9.5 | Water-table transects across Newborough Warren. (a) Four coast-normal  | `outputs/01b_water_table/01b_02_transects.png` | yes |
+| 59 | 4.9.6 | SSM water balance residual across the Newborough Warren dune aquifer,  | `outputs/20_spatial_figures/20_residual_ssm.png` | yes |
+| 60 | 4.10.2 | Network-scale coastal-retreat gradient. (a) Per-well summer-minimum sl | `outputs/25_coastal_gradient/25_05_fit_diagnostic.jpg` | yes |
+| 61 | 4.10.3 | Fixed-length rolling-window sensitivity of the cross-shore decay fit.  | `outputs/25_coastal_gradient/25_13_rolling_window.png` | yes |
+| 62 | 4.10.4 | Independent, model-free estimate of the coastal drawdown rate. The coa | `outputs/38_coastal_transect/38_coast_inland_difference.jpg` | yes |
+| 63 | 4.10.5 | Coastal-erosion drawdown at the western dune margin, Newborough Warren | `outputs/20_spatial_figures/20_coastal_erosion.png` | yes |
+| 64 | 4.10.5 | Sea-level-rise head response at the western dune margin, on the same h | `outputs/20_spatial_figures/20_slr_response.png` | yes |
+| 65 | 4.10.5 | Net coastal-margin change at the western dune margin: the cell-by-cell | `outputs/20_spatial_figures/20_coastal_net_effect.png` | yes |
+| 66 | 4.11 | Forest drawdown propagation across the Newborough Warren dune aquifer, | `outputs/20_spatial_figures/20_drawdown_propagation_nohead.png` | yes |
+| 67 | 4.11 | Dune-scrape drawdown across all eight mapped cuts, Newborough Warren ( | `outputs/20_spatial_figures/20_scrape_drawdown_nohead.png` | yes |
+| 68 | 4.12 | Combined drawdown imposed on the clearfell pre-fell baseline (Oct 2017 | `outputs/20_spatial_figures/20_clearfell_baseline_drawdown.png` | yes |
+| 69 | 4.12 | Clearfell step-change map — climate-corrected mean water-table shift,  | `outputs/20_spatial_figures/20_clearfell_gain.png` | yes |
+| 70 | 4.12 | Net water-table state — parametric combination of five simultaneous an | `outputs/20_spatial_figures/20_net_state_map.png` | yes |
+| 71 | 4.12 | Modelled water-table change across Newborough Warren, 2005–2025 — full | `outputs/20_spatial_figures/20_driver_change_20yr.png` | yes |
+| 72 | 4.12 | Observed MSL5 change: window end 2017 (springs 2013–2017, pre-clearfel | `outputs/20_spatial_figures/20_msl5_change_2017_2023.png` | yes |
+| 73 | 4.12 | Secular differential movement of the spring (March, April, May) water  | `outputs/32_differential_movement/32_differential_movement_2011_2025.png` | yes |
+| 74 | 4.12 | Absolute climate-removed secular trend of the spring (March, April, Ma | `outputs/36_absolute_climate_trend/36_absolute_climate_trend_2005_2025.png` | yes |
+| 75 | 4.12 | The climate-response envelope of the spring water table. Relative ampl | `outputs/33_envelope_amplification/33_amplification_field.png` | yes |
+| 76 | 4.12 | The climate-response envelope of the spring water table: Dry-year spri | `outputs/33_envelope_amplification/33_dry_spring_depth.png` | yes |
+| 77 | 4.12.1 | Independent test of the chronic coastal-drying assumption: implied coa | `outputs/37_driver_validation/37_implied_delta0_trajectory.png` | yes |
+| 78 | 4.12.1 | Comparative footing of the drivers over the 2005–2025 horizon, on thre | `outputs/37b_driver_footing/37b_driver_footing.png` | yes |
+| 79 | 4.13.1 | Projected sustained shift in the five-year mean spring water level (ΔM | `outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png` | yes |
+| 80 | 4.14.2 | Ranwell&apos;s 1951–53 water-table readings against the SSM hindcast,  | `outputs/44_ranwell_hindcast/44_07b_hindcast_report.png` | yes |
+| 81 | 4.14.2 | The slack floor against the water table, by distance from the eroding  | `outputs/44_ranwell_hindcast/44_09_slack_floor_datum.png` | yes |
 
 ## report10.odt
 
 | Fig. | § | Caption | Source | On disk |
 |---|---|---|---|---|
-| 83 | 5.7.4 | Synthetic mean-year hydrograph for the C4 Forest cluster under four ma | `outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png` | yes |
-| 84 | 5.8.2 | Spatial reach and development timescale of the management intervention | `outputs/09_scraping_intervention/09f_management_effects.png` | yes |
-| 85 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
-| 86 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
+| 82 | 5.7.4 | Synthetic mean-year hydrograph for the C4 Forest cluster under four ma | `outputs/21_forestry_scenarios/21_forestry_01_hydrograph.png` | yes |
+| 83 | 5.8.2 | Spatial reach and development timescale of the management intervention | `outputs/09_scraping_intervention/09f_management_effects.png` | yes |
+| 84 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
+| 85 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-11-02 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-11-03 by `tools/build_figure_ledger.py` v2.3.0.*

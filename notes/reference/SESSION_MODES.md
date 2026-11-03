@@ -90,6 +90,13 @@ as the documents-only reds, and treat any OTHER red as real. The binding verdict
 comes from a session that has the documents (claude.ai/code with the secret, the
 bridge, or the ship itself, which regenerates them, D-213).
 
+## The document lock from the bridge
+
+A bridge chat takes the machine lock as the L14 (D-299): `doc_lock` reads the L14's name from
+`.git/nrg_machine`. If `take` refuses because the name is missing, Martin runs
+`python3 tools/doc_lock.py status` once on the L14. Archiving to Drive and releasing after it are
+done on the L14. A holder shaped `rcw-…@claude` is a pre-D-299 bridge lock under the wrong name.
+
 ## After a Mint upgrade on the L14
 
 The recorded LibreOffice is the one Ubuntu 24.04 ships, which the cloud image

@@ -80,10 +80,8 @@ Outputs (DIR_26 / "26_van_willegen_msl/"):
                                     Special > Unformatted text
   * 26_table_s7_1_ewi_per_well.md   The same table rendered for review (v1.5.0)
   * 26_metric_diagnostics.png       Two-panel diagnostic — report Fig XX
-  * 26_msl5_handbook_counts.csv     Wells / windows / EWI above, between and below the
-                                    handbook v2 mean spring levels (D-242)
-  * 26_msl_5yr_trajectory.png       Cluster trajectories with the handbook v2
-                                    mean spring levels (D-242)
+  * 26_msl_5yr_trajectory.png       Cluster MSL5 trajectories (no community
+                                    levels drawn, D-293, D-296)
   * 26_msl_5yr_quadrat_wells.png    Per-well trajectories at van-Willegen
                                     co-located quadrat wells (calibrated set)
   * 26_msl_results.txt              Run transcript
@@ -107,7 +105,17 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.31.0"  # Hollingham (2026) - 2026-11-03 (D-297; Martin 2026-11-03 "yes include the quadrat table in the
+__version__ = "1.33.0"  # Hollingham (2026) - 2026-11-03 (Martin 2026-11-03 "Let's add it"). Pass 7d, a
+#   sensitivity: the EWI open-dune calibration refitted on each well's latest MSL9, both calibrations on the wells
+#   carrying both metrics, and Ellenberg-F against MSL9 (ewi_msl9_*, ebf_msl9_*). No existing output moves.
+# 1.32.0  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). Retired, as
+#   nothing cites them since the D-296/D-297 documents: Pass 3e (26_curreli_min_well_bands.csv, curreli_min4_wells_*);
+#   the threshold counts of the cluster summary (n_windows_below_SD15b/SD16; the file and its levels stay, Table 20
+#   reads them); MSL9 against the handbook communities (26_msl9_community.csv, the nearest-community and band numbers,
+#   26_msl9_trajectory.png with its band edges) - the MSL9 series, per well and per cluster, stays, with msl9_*_c{k}_m
+#   at the handbook and latest window-ends; Pass 6b, MSL5 and EWI against the handbook mean spring levels
+#   (26_msl5_handbook_counts.csv, msl5_hb_*, ewi_msl5_hb_*). Pass 7c (the quadrats) and Table S7.3 are unchanged.
+# 1.31.0  # Hollingham (2026) - 2026-11-03 (D-297; Martin 2026-11-03 "yes include the quadrat table in the
 #   supplementary materials"). Supplementary Table S7.3 from Pass 7c: per quadrat, the four-year mean annual minimum on
 #   quadrat ground at Curreli's window and at the latest window-end, with its SD15b/SD16 band at each
 #   (26_table_s7_3_quadrat_community_levels.csv and 26_table_s7_3_quadrat_community_levels.md). Display strings only; no value moves.
@@ -351,7 +359,6 @@ OUT_CURRELI_MIN_PER_WELL   = paths.OUT_26_CURRELI_MIN_PER_WELL
 OUT_CURRELI_MIN_PER_CLUSTER = paths.OUT_26_CURRELI_MIN_PER_CLUSTER
 OUT_CURRELI_MIN_THRESHOLD_SUMMARY = paths.OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY
 OUT_MSL5_MIN5_PER_CLUSTER = paths.OUT_26_MSL5_MIN5_PER_CLUSTER
-OUT_MSL5_HANDBOOK_COUNTS  = paths.OUT_26_MSL5_HANDBOOK_COUNTS   # 1.25.0 (D-242)
 # EWI outputs (v1.3.0) — canonical paths from utils.paths.
 OUT_EWI       = paths.OUT_26_EWI_PER_WELL
 OUT_EWI_COMPARISON = paths.OUT_26_EWI_MSL5_COMPARISON
@@ -698,39 +705,14 @@ def cluster_min_trajectory(per_well_min_with_cluster: pd.DataFrame) -> pd.DataFr
     return out.reset_index().sort_values(["window_years", "cluster_id", "window_end_year"])
 
 
-def curreli_min_well_bands(per_well_min: pd.DataFrame, start_year: int) -> tuple[pd.DataFrame, dict]:
-    """D-294: each well's own CURRELI_MIN_WINDOW_YEARS mean annual minimum banded against SD15b/SD16, counted per
-    window-end by cluster and for all wells. Rows without a cluster (the lake gauge) are not dipwells and are left
-    out. Report numbers are the latest window-end's counts."""
-    w = per_well_min[(per_well_min["window_years"] == config.CURRELI_MIN_WINDOW_YEARS)
-                     & (per_well_min["window_end_year"] >= start_year) & per_well_min["cluster_id"].notna()]
-    names = band_names(CURRELI_SUMMER)
-    rows = []
-    for end, g in w.groupby("window_end_year"):
-        groups = [(f"C{int(c)}", gc) for c, gc in g.groupby("cluster_id")] + [("all", g)]
-        for cl, gc in groups:
-            rows.append({"window_end_year": int(end), "cluster": cl, **band_counts(gc["MINw_m_bg"], CURRELI_SUMMER)})
-    out = pd.DataFrame(rows)
-    nums = {}
-    if len(out):
-        latest = int(out["window_end_year"].max())
-        nums["curreli_min4_wells_latest_window_end"] = latest
-        for _, r in out[out["window_end_year"] == latest].iterrows():
-            nums[f"curreli_min4_wells_latest_n_{r['cluster'].lower()}"] = int(r["n"])
-            for b in names:
-                nums[f"curreli_min4_wells_latest_{b}_{r['cluster'].lower()}"] = int(r[b])
-    return out, nums
-
-
 def curreli_min_cluster_threshold_summary(per_cluster_min: pd.DataFrame,
                                           per_cluster_msl5: pd.DataFrame,
                                           start_year: int) -> pd.DataFrame:
     """Table 20 source: per cluster and window length, the rolling annual
-    minimum at the latest window-end and the count of window-ends from
-    `start_year` (config.MSL_TRAJECTORY_START_YEAR) in which the cluster-mean
-    sat below the Curreli et al. (2013) SD15b and SD16 values — which are
-    themselves four-year means of this quantity (D-190). Levels are in the
-    depth-below-ground frame, so "below SD15b" is MINw < -config.SD15b.
+    minimum at the latest window-end over window-ends from `start_year`
+    (config.MSL_TRAJECTORY_START_YEAR). 1.32.0 (D-296): the counts of window-ends
+    below the Curreli values are retired; a cluster series is not set against a
+    community level.
 
     The cluster-mean MSL5 at the same window-end rides along as a reference
     column (MSL5_current_m_bg, with its own well count) and carries NO
@@ -755,8 +737,6 @@ def curreli_min_cluster_threshold_summary(per_cluster_min: pd.DataFrame,
             n_windows=int(len(g)),
             n_wells_current=int(cur["n_wells"]),
             MINw_current_m_bg=float(cur["MINw_m_bg_mean"]),
-            n_windows_below_SD15b=int((g["MINw_m_bg_mean"] < -config.SD15b).sum()),
-            n_windows_below_SD16=int((g["MINw_m_bg_mean"] < -config.SD16).sum()),
             MSL5_current_m_bg=(float(ref["MSL5_m_bg_mean"]) if ref is not None else np.nan),
             n_wells_msl5_current=(int(ref["n_wells"]) if ref is not None else 0),
         ))
@@ -1022,119 +1002,6 @@ def _plot_with_gaps(ax, years, values, **kwargs):
 
 
 
-def _hb_band_counts(values: pd.Series) -> dict:
-    """Counts above the SD15b mean spring level, between the two, below SD16.
-
-    Values are levels in the depth-below-ground frame (negative = below
-    ground), so "above SD15b" is v > -HB_SD15b_MSL and "below SD16" is
-    v < -HB_SD16_MSL; a value on either level counts as between.
-    """
-    v = pd.Series(values, dtype=float).dropna()
-    above = int((v > -config.HB_SD15b_MSL).sum())
-    below = int((v < -config.HB_SD16_MSL).sum())
-    return dict(n=int(len(v)), n_above_sd15b_msl=above,
-                n_between=int(len(v)) - above - below, n_below_sd16_msl=below)
-
-
-def msl5_handbook_counts(per_well_incl: pd.DataFrame, comp: pd.DataFrame):
-    """MSL5 (and the calibrated EWI) against the handbook v2 mean spring levels.
-
-    1.25.0 (D-242). Three bases, each per cluster and for the whole network,
-    under two scopes (the reference network; all wells, reference + extended):
-      * MSL5, latest window: wells with a valid MSL5 at the latest window-end
-        any well reaches (the D-146 MSL5 exclusion applied, as for the map);
-      * MSL5, all windows: every admitted five-year window (well, window-end);
-      * EWI on the MSL5 scale: the calibrated prediction MSL5 = a + b·EWI
-        (26_ewi_msl5_comparison.csv MSL5_pred_m_bg), one per well, with an
-        extra open-dune-scope row (C4/C5 predictions are flagged unreliable).
-    Returns the table and the headline report numbers (reference network).
-    """
-    latest_end = int(per_well_incl["window_end_year"].max())   # = msl5_mapped_latest_window_end
-    pw = per_well_incl.assign(scope_ref=per_well_incl["network"].eq("Reference"))
-    rows = []
-
-    def _emit(metric, basis, unit, frame, col, scope, cid_col, ends=None):
-        # Rows with no cluster are not dipwells (the Llyn Rhos-Ddu lake gauge rides in
-        # 01_wells_clean.csv) and are left out of every count, the totals included.
-        frame = frame[frame[cid_col].notna()]
-        groups = [(None, "All clusters", frame)]
-        for cid in sorted(config.CLUSTER_LABELS):
-            groups.append((cid, config.CLUSTER_LABELS[cid], frame[frame[cid_col] == cid]))
-        for cid, lab, g in groups:
-            rec = dict(metric=metric, basis=basis, network_scope=scope,
-                       cluster_id=cid, cluster_label=lab, unit=unit,
-                       window_end_first=(int(g[ends].min()) if ends and len(g) else None),
-                       window_end_last=(int(g[ends].max()) if ends and len(g) else None),
-                       n_wells=int(g["well"].nunique()))
-            rec.update(_hb_band_counts(g[col]))
-            rows.append(rec)
-        return rows
-
-    for scope, sub in (("reference", pw[pw["scope_ref"]]), ("all", pw)):
-        sub = sub.assign(cid=sub["cluster_id"].astype("float"))
-        _emit("MSL5", "latest_window", "wells",
-              sub[sub["window_end_year"] == latest_end], "MSL5_m_bg", scope, "cid",
-              ends="window_end_year")
-        _emit("MSL5", "all_windows", "windows", sub, "MSL5_m_bg", scope, "cid",
-              ends="window_end_year")
-
-    if comp is not None and not comp.empty:
-        _lab2id = {v: k for k, v in config.CLUSTER_LABELS.items()}
-        c = comp.assign(cid=comp["cluster"].map(_lab2id).astype("float"))
-        for scope, sub in (("reference", c[c["network"].str.lower() == "reference"]), ("all", c)):
-            _emit("EWI_on_MSL5_scale", "equilibrium", "wells", sub, "MSL5_pred_m_bg", scope,
-                  "cid")
-            od = sub[sub["open_dune_scope"].astype(bool) & sub["cid"].notna()]
-            rec = dict(metric="EWI_on_MSL5_scale", basis="equilibrium", network_scope=scope,
-                       cluster_id=None, cluster_label="Open-dune scope", unit="wells",
-                       window_end_first=None, window_end_last=None,
-                       n_wells=int(od["well"].nunique()))
-            rec.update(_hb_band_counts(od["MSL5_pred_m_bg"]))
-            rows.append(rec)
-
-    out = pd.DataFrame(rows)
-    out["cluster_id"] = out["cluster_id"].astype("Int64")
-    out["window_end_first"] = out["window_end_first"].astype("Int64")
-    out["window_end_last"] = out["window_end_last"].astype("Int64")
-    out["sd15b_msl_level_m"] = -config.HB_SD15b_MSL
-    out["sd16_msl_level_m"] = -config.HB_SD16_MSL
-    out["source"] = config.HB_SOURCE
-
-    nums = {"msl5_hb_latest_window_end": latest_end}
-    _bands = ("n_above_sd15b_msl", "n_between", "n_below_sd16_msl")
-    _short = {"n_above_sd15b_msl": "n_above_sd15b", "n_between": "n_between",
-              "n_below_sd16_msl": "n_below_sd16"}
-
-    def _row(metric, basis, label):
-        r = out[(out["metric"] == metric) & (out["basis"] == basis)
-                & (out["network_scope"] == "reference") & (out["cluster_label"] == label)]
-        return r.iloc[0] if len(r) else None
-
-    for stem, metric, basis in (("msl5_hb_latest", "MSL5", "latest_window"),
-                                ("msl5_hb_windows", "MSL5", "all_windows"),
-                                ("ewi_msl5_hb", "EWI_on_MSL5_scale", "equilibrium")):
-        r = _row(metric, basis, "All clusters")
-        if r is None:
-            continue
-        nums[f"{stem}_n"] = int(r["n"])
-        for b in _bands:
-            nums[f"{stem}_{_short[b]}"] = int(r[b])
-    r = _row("EWI_on_MSL5_scale", "equilibrium", "Open-dune scope")
-    if r is not None:
-        nums["ewi_msl5_hb_open_dune_n"] = int(r["n"])
-        for b in _bands:
-            nums[f"ewi_msl5_hb_open_dune_{_short[b]}"] = int(r[b])
-    lat = out[(out["metric"] == "MSL5") & (out["basis"] == "latest_window")
-              & (out["network_scope"] == "reference") & out["cluster_id"].notna()]
-    for _, r in lat.iterrows():
-        k = int(r["cluster_id"])
-        nums[f"msl5_hb_latest_n_c{k}"] = int(r["n"])
-        for b in _bands:
-            nums[f"msl5_hb_latest_{_short[b]}_c{k}"] = int(r[b])
-    return out, nums
-
-
-# ── Pass 4b: MSL9, the handbook's nine-year mean spring level (1.27.0, T-131, D-291) ──
 def _hb_table_agrees() -> None:
     """HB_COMMUNITY_TABLE (handbook sign, m above ground) against the positive-down HB_SD15b_* /
     HB_SD16_* constants older consumers read: one table, two conventions, no drift."""
@@ -1155,121 +1022,26 @@ def rolling_msl9(annual: pd.DataFrame) -> pd.DataFrame:
     return out.rename(columns={"MSL5_m_bg": "MSL9_m_bg", "MAX5_m_bg": "MAX9_m_bg"})
 
 
-def msl9_cluster_trajectory(per_well_incl: pd.DataFrame) -> pd.DataFrame:
-    """cluster_trajectory() on the MSL9 columns (fixed effects, D-202), names put back."""
-    tmp = per_well_incl.rename(columns={"MSL9_m_bg": "MSL5_m_bg", "MAX9_m_bg": "MAX5_m_bg"})
-    out = cluster_trajectory(tmp)
-    return out.rename(columns={c: c.replace("MSL5", "MSL9").replace("MAX5", "MAX9") for c in out.columns})
-
-
-def nearest_community(v: float) -> tuple[str, float, float]:
-    """The handbook community whose mean spring level is nearest v: (name, its MSL, v - MSL).
-    Positive difference = the well's spring water table stands higher (wetter) than the community's."""
-    name, (msl, *_r) = min(config.HB_COMMUNITY_TABLE.items(), key=lambda kv: abs(v - kv[1][0]))
-    return name, msl, v - msl
-
-
-def msl9_band_edges() -> list:
-    """(name, level) of config.MSL9_BAND_COMMUNITIES, wettest first, levels from HB_COMMUNITY_TABLE (handbook sign)."""
-    return sorted(((n, float(config.HB_COMMUNITY_TABLE[n][0])) for n in config.MSL9_BAND_COMMUNITIES),
-                  key=lambda kv: -kv[1])
-
-
-def msl9_band(v: float) -> str:
-    """The band a nine-year mean spring level falls in, between consecutive band communities' MSL (1.28.0, D-293).
-    A value on an edge counts with the wetter band below it, as _hb_band_counts counts a value on a level as between."""
-    e = msl9_band_edges()
-    if v > e[0][1]:
-        return f"above_{_slug(e[0][0])}"
-    for (a, la), (b, lb) in zip(e, e[1:]):
-        if v >= lb:
-            return f"{_slug(a)}_to_{_slug(b)}"
-    return f"below_{_slug(e[-1][0])}"
-
-
-def msl9_band_names() -> list:
-    e = msl9_band_edges()
-    return ([f"above_{_slug(e[0][0])}"] + [f"{_slug(a)}_to_{_slug(b)}" for (a, _x), (b, _y) in zip(e, e[1:])]
-            + [f"below_{_slug(e[-1][0])}"])
-
-
-def _slug(name: str) -> str:
-    return name.lower().replace(" ", "_")
-
-
-def msl9_community_table(per_well_incl: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """Every included well at two window ends, the handbook's (MSL9_HANDBOOK_WINDOW_END) and the latest
-    in the network, set against the handbook table. A band of water regime, not a vegetation claim."""
-    latest_end = int(per_well_incl["window_end_year"].max())
-    rows = []
-    for basis, end in (("handbook", int(config.MSL9_HANDBOOK_WINDOW_END)), ("latest", latest_end)):
-        sub = per_well_incl[per_well_incl["window_end_year"] == end]
-        for _, r in sub.iterrows():
-            name, msl, d = nearest_community(float(r["MSL9_m_bg"]))
-            rows.append({"basis": basis, "window_end_year": end, "well": r["well"],
-                         "cluster_id": r.get("cluster_id"), "cluster_label": r.get("cluster_label"),
-                         "n_years_in_window": int(r["n_years_in_window"]),
-                         "MSL9_m_bg": float(r["MSL9_m_bg"]), "nearest_community": name,
-                         "nearest_community_msl_m": msl, "MSL9_minus_community_msl_m": d,
-                         "band": msl9_band(float(r["MSL9_m_bg"]))})
-    return pd.DataFrame(rows), {"handbook": int(config.MSL9_HANDBOOK_WINDOW_END), "latest": latest_end}
-
-
-def msl9_report_numbers(comm: pd.DataFrame, per_cluster9: pd.DataFrame, ends: dict) -> dict:
+def msl9_report_numbers(per_cluster9: pd.DataFrame) -> dict:
+    """1.32.0 (D-296): the MSL9 series' own numbers, no community: window rule, and each cluster's fixed-effects MSL9
+    with its well count at the handbook window-end (config.MSL9_HANDBOOK_WINDOW_END) and at the latest window-end."""
     nums = {"msl9_window_years": int(config.MSL9_WINDOW_YEARS),
             "msl9_min_years_in_window": int(config.MSL9_MIN_YEARS_IN_WINDOW)}
-    for name, level in msl9_band_edges():          # 1.28.0: the band edges, as the text quotes them
-        nums[f"msl9_band_edge_{_slug(name)}_m"] = level
-    for basis, end in ends.items():
-        g = comm[comm["basis"] == basis]
-        nums[f"msl9_{basis}_window_end"] = int(end)
-        nums[f"msl9_{basis}_window_start"] = int(end) - int(config.MSL9_WINDOW_YEARS) + 1
-        nums[f"msl9_{basis}_n_wells"] = int(len(g))
-        if len(g):
-            nums[f"msl9_{basis}_median_m"] = float(g["MSL9_m_bg"].median())
-            nums[f"msl9_{basis}_min_m"] = float(g["MSL9_m_bg"].min())
-            nums[f"msl9_{basis}_max_m"] = float(g["MSL9_m_bg"].max())
-        for name in config.HB_COMMUNITY_TABLE:
-            slug = name.lower().replace(" ", "_")
-            nums[f"msl9_{basis}_n_nearest_{slug}"] = int((g["nearest_community"] == name).sum())
-        for b in msl9_band_names():
-            nums[f"msl9_{basis}_n_band_{b}"] = int((g["band"] == b).sum())
-            for cid, gc in g.groupby("cluster_id"):
-                nums[f"msl9_{basis}_c{int(cid)}_n_band_{b}"] = int((gc["band"] == b).sum())
-        pc = per_cluster9[per_cluster9["window_end_year"] == end]
-        for _, r in pc.iterrows():
+    for basis, end in (("handbook", int(config.MSL9_HANDBOOK_WINDOW_END)),
+                       ("latest", int(per_cluster9["window_end_year"].max()))):
+        nums[f"msl9_{basis}_window_end"] = end
+        nums[f"msl9_{basis}_window_start"] = end - int(config.MSL9_WINDOW_YEARS) + 1
+        for _, r in per_cluster9[per_cluster9["window_end_year"] == end].iterrows():
             nums[f"msl9_{basis}_c{int(r['cluster_id'])}_m"] = float(r["MSL9_m_bg_mean"])
             nums[f"msl9_{basis}_c{int(r['cluster_id'])}_n_wells"] = int(r["n_wells"])
     return nums
 
 
-def plot_msl9_trajectory(per_cluster9: pd.DataFrame, out: Path) -> None:
-    """Cluster MSL9 (fixed effects) from the handbook window on, with the band edges (config.MSL9_BAND_COMMUNITIES,
-    1.28.0, D-293): the handbook communities' means bunch within a few cm, so only the edges are drawn."""
-    d = per_cluster9[per_cluster9["window_end_year"] >= int(config.MSL9_HANDBOOK_WINDOW_END)]
-    if d.empty:
-        warn("no MSL9 cluster windows from the handbook window on - figure skipped")
-        return
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for name, msl in msl9_band_edges():
-        ax.axhline(msl, color="0.45", lw=0.9, ls=(0, (6, 4)))
-        ax.text(1.005, msl, f"{name} {msl:.2f} m".replace("-", "−"), transform=ax.get_yaxis_transform(),
-                va="center", ha="left", fontsize=8, color="0.25")
-    for cid, sub in d.groupby("cluster_id"):
-        sub = sub.sort_values("window_end_year")
-        col = config.CLUSTER_COLOURS.get(int(cid), "#444")
-        lbl = config.CLUSTER_LABELS.get(int(cid), f"C{int(cid)}")
-        _plot_with_gaps(ax, sub["window_end_year"].tolist(), sub["MSL9_m_bg_mean"].tolist(),
-                        marker="o", linewidth=1.6, color=col, label=lbl)
-    ax.axvline(int(config.MSL9_HANDBOOK_WINDOW_END), color="0.3", lw=0.8, ls="--")
-    ax.axhline(0, color="#333", lw=0.6)
-    ax.set_xlabel("Hydrology year (window end)")
-    ax.set_ylabel("Nine-year mean spring level (m, relative to ground)")
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.11), fontsize=8, ncol=5, frameon=False)
-    ax.grid(alpha=0.25)
-    fig.tight_layout()
-    render_figure(fig, out)
-    plt.close(fig)
+def msl9_cluster_trajectory(per_well_incl: pd.DataFrame) -> pd.DataFrame:
+    """cluster_trajectory() on the MSL9 columns (fixed effects, D-202), names put back."""
+    tmp = per_well_incl.rename(columns={"MSL9_m_bg": "MSL5_m_bg", "MAX9_m_bg": "MAX5_m_bg"})
+    out = cluster_trajectory(tmp)
+    return out.rename(columns={c: c.replace("MSL5", "MSL9").replace("MAX5", "MAX9") for c in out.columns})
 
 
 def plot_cluster_trajectory(per_cluster: pd.DataFrame, out: Path) -> None:
@@ -1805,6 +1577,52 @@ def compute_ewi_msl5_comparison(ewi: pd.DataFrame,
 
 
 
+
+
+def ewi_msl9_sensitivity(comp: pd.DataFrame, per_well9_incl: pd.DataFrame,
+                         ebf_df: pd.DataFrame | None) -> dict:
+    """1.33.0 (Martin 2026-11-03 "Let's add it"): the EWI calibration and the Ellenberg-F test repeated on MSL9.
+
+    Each well's latest admissible MSL9 (Pass 4b) replaces its latest MSL5. The calibration is refitted on the
+    same open-dune scope (C1-C3) as Pass 6, over every open-dune well with an MSL9, and both calibrations are
+    refitted on the wells carrying both metrics so the two are compared on one sample. Ellenberg-F is
+    correlated with MSL9 across the Pass 7 piezometers that carry one. A sensitivity: MSL5 stays the
+    calibration target and the vegetation benchmark, as van Willegen et al.'s metric."""
+    nums: dict = {}
+    if comp is None or comp.empty or per_well9_incl.empty:
+        return nums
+    lat9 = (per_well9_incl.dropna(subset=["MSL9_m_bg"]).sort_values("window_end_year")
+            .groupby("well").tail(1))
+    lat9 = lat9.assign(well=lat9["well"].astype(str).str.strip().str.upper())
+    x = comp.merge(lat9[["well", "MSL9_m_bg"]], on="well", how="left")
+    od = x[x["open_dune_scope"].astype(bool)]
+
+    def _fit(df: pd.DataFrame, y: str) -> dict:
+        df = df.dropna(subset=["EWI_m_bg", y])
+        b, a = np.polyfit(df["EWI_m_bg"].to_numpy(), df[y].to_numpy(), 1)
+        res = (a + b * df["EWI_m_bg"] - df[y]) * 1000.0
+        return dict(n=int(len(df)), intercept_a=float(a), slope_b=float(b),
+                    r=float(np.corrcoef(df["EWI_m_bg"], df[y])[0, 1]),
+                    rmse_mm=float(np.sqrt((res ** 2).mean())))
+
+    if od.dropna(subset=["EWI_m_bg", "MSL9_m_bg"]).shape[0] < 3:
+        warn("too few open-dune wells with both EWI and MSL9 — MSL9 sensitivity skipped")
+        return nums
+    nums.update({f"ewi_msl9_{k}": v for k, v in _fit(od, "MSL9_m_bg").items()})
+    both = od.dropna(subset=["EWI_m_bg", "MSL5_obs_m_bg", "MSL9_m_bg"])
+    f5, f9 = _fit(both, "MSL5_obs_m_bg"), _fit(both, "MSL9_m_bg")
+    nums.update({"ewi_msl9_common_n": f5["n"],
+                 "ewi_msl9_common_r_msl5": f5["r"], "ewi_msl9_common_rmse_mm_msl5": f5["rmse_mm"],
+                 "ewi_msl9_common_r_msl9": f9["r"], "ewi_msl9_common_rmse_mm_msl9": f9["rmse_mm"],
+                 "ewi_msl9_common_msl5_minus_msl9_median_mm":
+                     float(((both["MSL5_obs_m_bg"] - both["MSL9_m_bg"]) * 1000.0).median())})
+    if ebf_df is not None and not ebf_df.empty:
+        e = ebf_df.assign(well=ebf_df["piezo"].astype(str).str.strip().str.upper())
+        e = e.merge(lat9[["well", "MSL9_m_bg"]], on="well", how="left").dropna(subset=["EbF", "MSL9_m_bg"])
+        if len(e) >= 3:
+            nums.update({"ebf_msl9_n": int(len(e)),
+                         "ebf_msl9_r": float(np.corrcoef(e["EbF"], e["MSL9_m_bg"])[0, 1])})
+    return nums
 
 
 def compute_ebf_crossvalidation(elev: pd.DataFrame):
@@ -2765,18 +2583,11 @@ def main() -> int:
           f"(all {len(config.SUMMER_MINIMUM_MONTHS)} summer months present)")
     for _, r in _min_thr[_min_thr["window_years"] == config.CURRELI_MIN_WINDOW_YEARS].iterrows():
         print(f"    {r['cluster_label']:<22s} MIN{int(r['window_years'])} {r['MINw_current_m_bg']:+.3f} m "
-              f"({r['window_end_current']}, n={r['n_wells_current']})  below SD15b {r['n_windows_below_SD15b']}/{r['n_windows']}  "
-              f"below SD16 {r['n_windows_below_SD16']}/{r['n_windows']}   MSL5 {r['MSL5_current_m_bg']:+.3f} m")
+              f"({r['window_end_current']}, n={r['n_wells_current']}, {r['n_windows']} window-ends)   "
+              f"MSL5 {r['MSL5_current_m_bg']:+.3f} m")
     saved(f"{OUT_CURRELI_MIN_PER_WELL.name}")
     saved(f"{OUT_CURRELI_MIN_PER_CLUSTER.name}")
     saved(f"{OUT_CURRELI_MIN_THRESHOLD_SUMMARY.name}")
-
-    # ── Pass 3e — the Curreli levels well by well (1.29.0, D-294) ───────────
-    min_bands, min_band_nums = curreli_min_well_bands(per_well_min, TRAJECTORY_START_YEAR)
-    min_bands.to_csv(paths.OUT_26_CURRELI_MIN_WELL_BANDS, index=False)
-    print(f"\nPass 3e — four-year mean annual minimum per well against SD15b/SD16, window-ends "
-          f"{TRAJECTORY_START_YEAR}+: {len(min_bands)} (window-end, cluster) rows")
-    saved(f"{paths.OUT_26_CURRELI_MIN_WELL_BANDS.name}")
 
     # ── Pass 3d — MSL5 against the five-year mean annual minimum (T-64) ────
     _m5_tbl, msl5_min5_nums = msl5_vs_min5(annual, per_well_incl, per_well_min, TRAJECTORY_START_YEAR)
@@ -2841,24 +2652,11 @@ def main() -> int:
     per_well9_incl = per_well9[~per_well9["msl9_excluded"]].copy()
     per_cluster9 = msl9_cluster_trajectory(per_well9_incl)
     per_cluster9.to_csv(paths.OUT_26_MSL9_PER_CLUSTER, index=False)
-    comm9, ends9 = msl9_community_table(per_well9_incl)
-    comm9.to_csv(paths.OUT_26_MSL9_COMMUNITY, index=False)
-    msl9_nums = msl9_report_numbers(comm9, per_cluster9, ends9)
+    msl9_nums = msl9_report_numbers(per_cluster9)          # 1.32.0: no community table, no band figure (D-296)
     print(f"\nPass 4b — MSL9 ({config.MSL9_WINDOW_YEARS}-year rolling, >= {config.MSL9_MIN_YEARS_IN_WINDOW} valid "
           f"springs): {len(per_well9)} (well, end_year) rows across {per_well9['well'].nunique()} wells")
-    for _b, _e in ends9.items():
-        _g = comm9[comm9["basis"] == _b]
-        print(f"    {_b:<9s} window {_e - config.MSL9_WINDOW_YEARS + 1}-{_e}: {len(_g)} wells, median "
-              f"{_g['MSL9_m_bg'].median():+.3f} m; nearest community: "
-              + ", ".join(f"{k} {v}" for k, v in _g["nearest_community"].value_counts().items()))
     saved(f"{paths.OUT_26_MSL9_PER_WELL.name}")
     saved(f"{paths.OUT_26_MSL9_PER_CLUSTER.name}")
-    saved(f"{paths.OUT_26_MSL9_COMMUNITY.name}")
-    try:
-        plot_msl9_trajectory(per_cluster9, paths.OUT_26_MSL9_TRAJECTORY)
-        saved(f"{paths.OUT_26_MSL9_TRAJECTORY.name}")
-    except Exception as e:
-        warn(f"MSL9 trajectory figure failed ({type(e).__name__}: {str(e)[:80]}) — CSVs were written")
 
     # ── Pass 5 — Equilibrium Wetness Index (v1.3.1) ────────────────────────
     print("\nPass 5 — equilibrium wetness index (EWI) from SSM coefficients")
@@ -2885,7 +2683,6 @@ def main() -> int:
     report_nums: dict = {}
     report_nums.update(report_nums_methodab)  # T-91: Method A/B divergence (Pass 3b)
     report_nums.update(msl9_nums)             # Pass 4b (1.27.0, D-291)
-    report_nums.update(min_band_nums)         # Pass 3e (1.29.0, D-294)
     # MSL5 completeness counts (v1.7.0) — committed trace for the report
     # §3.7.5 gap-fill sentence. Counted over admitted (valid) annual spring
     # means and admitted 5-year windows; interpolated months are Script 01's
@@ -3079,19 +2876,6 @@ def main() -> int:
                     "ewi_msl5_open_dune_max_abs_residual_mm": float(am.max()),
                 })
 
-    # ── Pass 6b — handbook v2 mean spring levels (1.25.0, D-242) ──────────
-    print("\nPass 6b — MSL5 and EWI against the handbook v2 mean spring levels "
-          f"(SD15b −{config.HB_SD15b_MSL:.2f} m, SD16 −{config.HB_SD16_MSL:.2f} m)")
-    hb_tbl, hb_nums = msl5_handbook_counts(per_well_incl, comp)
-    hb_tbl.to_csv(OUT_MSL5_HANDBOOK_COUNTS, index=False)
-    report_nums.update(hb_nums)
-    for _, r in hb_tbl[(hb_tbl["network_scope"] == "reference")
-                       & (hb_tbl["cluster_label"].isin(["All clusters", "Open-dune scope"]))].iterrows():
-        info(f"  {r['metric']:<18s} {r['basis']:<14s} {r['cluster_label']:<16s} n={int(r['n']):>4d} {r['unit']:<7s} "
-             f"above SD15b {int(r['n_above_sd15b_msl']):>4d}  between {int(r['n_between']):>4d}  "
-             f"below SD16 {int(r['n_below_sd16_msl']):>4d}")
-    saved(f"{OUT_MSL5_HANDBOOK_COUNTS.name}")
-
     # ── Pass 7 — Ellenberg-F cross-validation (v1.3.3, external input) ─────
     print("\nPass 7 — Ellenberg-F cross-validation (MSL5 vs EWI; external dataset)")
     ebf_df, ebf_summary = compute_ebf_crossvalidation(elev)
@@ -3148,6 +2932,18 @@ def main() -> int:
         except Exception as e:
             warn(f"EbF scatter (Fig XX) render failed ({type(e).__name__}: "
                  f"{str(e)[:80]}) — comparison CSV was written; figure not produced")
+
+    # ── Pass 7d — the EWI calibration and Ellenberg-F test on MSL9 (1.33.0, sensitivity) ──
+    print("\nPass 7d — EWI calibration and Ellenberg-F on MSL9 (sensitivity; MSL5 stays the target)")
+    msl9_sens = ewi_msl9_sensitivity(comp, per_well9_incl, ebf_df)
+    report_nums.update(msl9_sens)
+    if msl9_sens:
+        info(f"  open-dune MSL9 = {msl9_sens['ewi_msl9_intercept_a']:+.3f} + {msl9_sens['ewi_msl9_slope_b']:.3f}·EWI "
+             f"(n={msl9_sens['ewi_msl9_n']}, r={msl9_sens['ewi_msl9_r']:.3f}, "
+             f"RMSE={msl9_sens['ewi_msl9_rmse_mm']:.0f} mm); on the {msl9_sens['ewi_msl9_common_n']} common wells "
+             f"r {msl9_sens['ewi_msl9_common_r_msl5']:.3f} (MSL5) / {msl9_sens['ewi_msl9_common_r_msl9']:.3f} (MSL9)"
+             + (f"; EbF r = {msl9_sens['ebf_msl9_r']:+.3f} on MSL9 (n={msl9_sens['ebf_msl9_n']})"
+                if "ebf_msl9_r" in msl9_sens else ""))
 
     # ── Pass 7b — reproduction of van Willegen's published MSL5 (v1.10.0) ──
     print("\nPass 7b — pipeline MSL5 against van Willegen's published five-year spring levels")

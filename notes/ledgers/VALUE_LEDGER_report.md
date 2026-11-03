@@ -37,8 +37,6 @@
 
 - **C4 (Main Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.256 vs committed 0.256441  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C5 (Coastal Forest) (corrected) / True · Sy_event_median** [S_y] — quoted 0.316 vs committed 0.316352  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
-- **C5 · Wet_Slack_Exceedances**  — quoted 1.00 vs committed 0 ⚠  ·  `14_winter_exceedance.csv`
-- **C5 · Dry_Slack_Exceedances**  — quoted 1.00 vs committed 1  ·  `14_winter_exceedance.csv`
 - **RAF_VALLEY_LAT_DEG**  — quoted 53.25 vs committed 53.25  ·  `config.py`
 - **ceh21 · depth_to_water_m**  — quoted 1.07 vs committed 1.06945  ·  `29_within_c3_variance.csv`
 - **full / linear_capped · delta_0_se**  — quoted 1.95 vs committed 1.94 ⚠  ·  `25_01_panel_fit_parameters.csv`
@@ -636,8 +634,6 @@
 - **Elevation_m · C4_max**  — quoted 14.42 vs committed 14.42  ·  `10c_forest_zone_cluster_summary.csv`
 - **Model_R² · C5_max**  — quoted 0.747 vs committed 0.757 ⚠  ·  `10c_forest_zone_cluster_summary.csv`
 - **Pearson / ward / 5 · ARI_vs_canonical**  — quoted 1.000 vs committed 1  ·  `31_method_robustness_ari.csv`
-- **C5 · Wet_Slack_Exceedances**  — quoted 1.000 vs committed 0 ⚠  ·  `14_winter_exceedance.csv`
-- **C5 · Dry_Slack_Exceedances**  — quoted 1.000 vs committed 1  ·  `14_winter_exceedance.csv`
 - **C5_median_TLM_NSE**  — quoted 0.306 vs committed 0.654503 ⚠  ·  `08_report_numbers.csv`
 - **ANCOVA_Forest_Impact_coeff_clearfell**  — quoted 0.113 vs committed 0.10823 ⚠  ·  `10_consolidated_report_numbers.csv`
 - **ANCOVA_Forest_Impact_clearfell_step_summer_noCWB**  — quoted 0.123 vs committed 0.0914818 ⚠  ·  `10_consolidated_report_numbers.csv`
@@ -767,7 +763,6 @@
 - **NW4B / Far-field Ctrl / Forest · Pre_mean_gap_m**  — quoted 1.00 vs committed 0.996  ·  `10d_02_summer_minima_shifts.csv`
 - **CEH6 / Far-field Ctrl / Forest · Post_mean_gap_m**  — quoted 1.00 vs committed 0.9972  ·  `10d_02_summer_minima_shifts.csv`
 - **c3_only_mam / linear_capped_cfix · c_mm_yr**  — quoted 2.48 vs committed 2.47 ⚠  ·  `25_01_panel_fit_parameters.csv`
-- **5 / C2 (Dune) · n_windows_below_SD16**  — quoted 11.00 vs committed 11  ·  `26_curreli_min_cluster_threshold_summary.csv`
 - **ceh20 · p_ar_2011_2025** [p] — quoted 0.128 vs committed 0.127997  ·  `32_differential_movement_per_well.csv`  — _significance probability_
 - **ceh27 · p_ar_2011_2025** [p] — quoted 0.853 vs committed 0.85269  ·  `32_differential_movement_per_well.csv`  — _significance probability_
 - **d44 · p_ar_2005_2025** [p] — quoted 0.853 vs committed 0.854926 ⚠  ·  `32_differential_movement_per_well.csv`  — _significance probability_
@@ -1650,8 +1645,6 @@
 
 ## NRG_Web_Tools_Technical_Note
 
-- **C5 · Wet_Slack_Exceedances**  — quoted 1.00 vs committed 0 ⚠  ·  `14_winter_exceedance.csv`
-- **C5 · Dry_Slack_Exceedances**  — quoted 1.00 vs committed 1  ·  `14_winter_exceedance.csv`
 - **UKCP18_DRY_P_WINTER**  — quoted 1.05 vs committed 1.05  ·  `config.py`
 - **UKCP18_DRY_PET_WINTER**  — quoted 1.05 vs committed 1.05  ·  `config.py`
 - **UKCP18_WET_P_SUMMER**  — quoted 1.10 vs committed 1.1  ·  `config.py`
@@ -3086,7 +3079,6 @@
 - **C4_halflife_max** [τ] — quoted 45 vs committed 45.3817  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_mean** [τ] — quoted 27 vs committed 26.6929  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C3 (Western Residual) · VIF**  — quoted 1.31 vs committed 1.30638  ·  `30_c4_identifiability_by_cluster.csv`
-- **C1 / SD16 · year_crossing_5**  — quoted 2021 vs committed 2021.4  ·  `14b_year_of_crossing.csv`
 - **ANCOVA_Forest_Impact_summer_R2** [R²] — quoted 0.34 vs committed 0.343602  ·  `10_consolidated_report_numbers.csv`  — _coefficient of determination_
 - **ewi_msl5_r**  — quoted 0.96 vs committed 0.963457  ·  `26_report_numbers.csv`
 - **trend_annual_rain_full_record_p**  — quoted 0.57 vs committed 0.571536  ·  `01_report_numbers.csv`
@@ -3976,6 +3968,7 @@
 - _(untracked)_ 95% — …Ellenberg-F units) are given with 95% confidence intervals. The two…
 - _(untracked)_ 79 mm — …racy: a root-mean-square error of 79 mm across the 41 open-dune wells…
 - _(untracked)_ 60 mm — …side van Willegen\'s set, against 60 mm at the 20 wells of their seve…
+- _(untracked)_ 57 wells — …RMSE = 69 mm for MSL5 on the same 57 wells; and MSL9 predicts Ellenberg-…
 - _(untracked)_ 182 mm — …andard deviation rises from about 182 mm at C1 through 252 mm at C2 an…
 - _(untracked)_ 324 mm — …mm at C1 through 252 mm at C2 and 324 mm at C3 to 291 mm at C5 and 404…
 - _(untracked)_ 291 mm — …252 mm at C2 and 324 mm at C3 to 291 mm at C5 and 404 mm at C4, givin…

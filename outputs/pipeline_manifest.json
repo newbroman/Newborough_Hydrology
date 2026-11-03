@@ -1,23 +1,23 @@
 {
-  "pipeline_version": "2.28.0",
+  "pipeline_version": "2.29.0",
   "pipeline_release": "0.9.2.23",
   "pipeline_release_date": "2026-10-02",
   "total_registered": 63,
   "total_phases": 21,
   "by_tier": {
-    "analytical_toplevel": 45,
+    "analytical_toplevel": 44,
     "display_utility": 8,
-    "optin_diagnostic": 10
+    "optin_diagnostic": 11
   },
   "by_exec": {
-    "default": 54,
+    "default": 53,
     "optin": 7,
-    "ondemand": 2
+    "ondemand": 3
   },
   "analytical_phases": 17,
   "scraping_substeps": 5,
   "clearfell_substeps": 14,
-  "generated": "2026-11-03T01:13:08",
+  "generated": "2026-11-03T10:33:39",
   "steps": [
     {
       "index": 1,
@@ -167,9 +167,9 @@
       "index": 17,
       "total": 63,
       "script": "14b_year_of_crossing.py",
-      "desc": "Wells below the Curreli summer levels, now and at the horizon (D-294)",
-      "tier": "A",
-      "exec": "default",
+      "desc": "Year-of-crossing bootstrap, withdrawn from the report (D-296) \u2014 on demand only, via --step 14b",
+      "tier": "X",
+      "exec": "ondemand",
       "phase": 4
     },
     {

@@ -1,172 +1,374 @@
 """
-14b_year_of_crossing.py — how many wells are below each Curreli et al. (2013) summer level now, and how many would be
-by a horizon year on their own summer-minimum trends (D-294).
+14b_year_of_crossing.py — Bootstrap year-of-crossing for per-cluster
+annual summer-minimum trends against Curreli et al. (2013) ecological
+thresholds.
 
-Until 2.0.0 this script bootstrapped the year at which each CLUSTER's summer-minimum trend crossed SD15b and SD16.
-The clusters are Ward's groups on SSM coefficient behaviour, not on water-table depth, so a cluster series averages
-wells at every topographic position and a community level cannot be set against it (D-294, Martin 2026-11-01). The
-question is now asked of each well:
+Routed from the 2026-05-29 main-report editorial review (gap B in the
+post-review priorities list). Main report §7 Conclusion 13 currently
+states "C1 summer minima approaching the SD16 dry slack viability
+threshold around 2030–2032" without a stated confidence interval. This
+script replaces the qualitative date band with a bootstrap CI on the
+crossing year per cluster × threshold.
 
-1. Each reference well's own annual summer minimum (Script 14 1.12.0, 14_per_well_extremes.csv: the cluster series'
-   months, hydrological year and month count).
-2. Wells with at least config.CROSSING_MIN_YEARS years get an OLS trend, depth = a + b·year.
-3. "Now" is the trend's value at the well's last year of record; the horizon is config.CROSSING_HORIZON_YEAR. At the
-   horizon the config.CROSSING_CI confidence interval of the fitted mean is computed (t, n − 2).
-4. Each well is banded against SD15b and SD16 (utils.community_bands) now and at the horizon, and at the horizon is
-   also classed against SD16 as below (the whole interval below the level), above (the whole interval above) or
-   unresolved (the interval spans it).
-5. Counts by cluster and for all wells go to 14b_report_numbers.csv; the per-well table and the counts to CSVs; one
-   figure shows every well, now and at the horizon, against the two levels.
+Procedure:
+1. Load Script 14's per-cluster annual summer-minimum series
+   (`14_annual_extremes.csv`).
+2. For each cluster: fit a linear trend (depth_below_ground = a + b·year)
+   over the observed years.
+3. Bootstrap by resampling years with replacement (n = 1000); for each
+   resample refit the trend and compute the year at which the linear
+   extrapolation crosses each Curreli threshold (SD15b at 0.61 m below
+   ground; SD16 at 0.98 m below ground).
+4. Tabulate 5th / 50th / 95th percentile crossing years per
+   cluster × threshold.
 
-Limitations (stated with the result): a straight line is a description of the record, not a forecast; extrapolating
-it past the record assumes the recent climate's direction continues, and the interval covers the sampling
-uncertainty of the line, not that assumption. Reads only Script 14 output.
+Standalone diagnostic following the pattern of `11b_spatial_thresholds.py`
+relative to `11_forecasting_thresholds.py`. Reads only Script 14 output;
+writes to `outputs/14_climate_projections/`.
+
+Limitations:
+- Linear extrapolation is fragile beyond the observed window. The bootstrap
+  captures sampling uncertainty in the slope/intercept but not model-form
+  uncertainty (a linear trend may not extrapolate cleanly into a regime
+  where summer-min approaches a basement controlled by drainage geometry
+  or where climate trajectory diverges from observed).
+- Per-cluster centroid summer-min averages over wells with different
+  ground elevations within the cluster. The threshold (depth below ground)
+  is therefore an effective threshold against the centroid, not against
+  any specific well. C1 sits closest to its SD16 threshold and is the
+  cluster the Conclusion 13 claim is built around.
 """
 
 from __future__ import annotations
 
-__version__ = "2.0.0"  # Hollingham (2026) - 2026-11-01 (D-294; Martin 2026-11-01 "redo the year of crossing analysis but
-#   with a per well count"). Per-well trends and counts replace the per-cluster bootstrap crossing year. Writes
-#   14b_per_well_trends.csv, 14b_crossing_counts.csv, 14b_per_well_crossing.png and 14b_report_numbers.csv. The old
-#   14b_year_of_crossing.csv, 14b_year_of_crossing.png and
-#   14b_year_of_crossing_results.md are no longer written; they stay committed until the documents that
-#   cite them are rewritten (D-294 document batch), then retire.
+__version__ = "3.0.0"  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). On demand only
+#   (run_analysis 2.29.0, `--step 14b`); withdrawn from the report. The 1.2.1 cluster bootstrap is restored, unchanged,
+#   so the step that stays registered still runs: 2.0.0 (D-294, per-well crossing counts) read
+#   14_per_well_extremes.csv, which Script 14 1.14.0 no longer writes, and is retired with it. Its outputs
+#   (14b_year_of_crossing.csv, .png, _results.md) are written only when the step is asked for and are not committed.
+# 2.0.0  # Hollingham (2026) - 2026-11-01 (D-294): per-well crossing counts (retired 2026-11-03).
 # 1.2.1  # Hollingham (2026) - 2026-09-28. Text only: the crossing-year conclusion is now §7 Conclusion 13 (was 11).
+# 1.2.0  # Hollingham (2026) — 2026-05-29
+#
+# Nothing in this module should restate a pipeline result as a literal: model
+# inputs come from utils/config.py, pipeline-derived quantities are read live
+# from the committed CSVs (falling back to utils/pipeline_params.default_value()
+# with a console warning on a first pass).
 
 import sys
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy import stats
+from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+# ── Pipeline imports ──────────────────────────────────────────────────────
+def main():
+    _HERE = Path(__file__).resolve().parent
+    REPO = _HERE.parent
+    sys.path.insert(0, str(_HERE))
 
-from utils.console_utils import banner, phase, step, info, saved, warn, done   # noqa: E402
-from utils import paths                                                         # noqa: E402
-from utils.config import (                                                      # noqa: E402
-    CLUSTER_LABELS, CLUSTER_COLOURS, CROSSING_MIN_YEARS, CROSSING_HORIZON_YEAR, CROSSING_CI,
-)
-from utils.community_bands import CURRELI_SUMMER, band, band_names, band_counts   # noqa: E402
-from utils.render_utils import render_figure                                      # noqa: E402
-from utils.report_numbers_utils import ReportNumbers                              # noqa: E402
+    from utils.console_utils import (
+        banner, phase, step, info, saved, warn, error, note, done, result,
+        hr, skipped,
+    )
+    from utils import paths  # noqa: E402
+    from utils.config import (  # noqa: E402
+        CLUSTER_LABELS, CLUSTER_COLOURS,
+        get_cluster_colour, BW_MODE,
+        SD15b, SD16,
+    )
+    from utils.render_utils import render_figure
 
-CLUSTERS = [f"C{k}" for k in sorted(CLUSTER_LABELS)]
-SD16_NAME, SD16_LEVEL = CURRELI_SUMMER[-1]
-
-
-def well_trend(g: pd.DataFrame) -> dict | None:
-    """OLS of the annual summer minimum on year; the fitted value now and at the horizon, with the interval there."""
-    g = g.dropna(subset=["summer_min_m"]).sort_values("hydro_year")
-    n = len(g)
-    if n < CROSSING_MIN_YEARS:
-        return None
-    x, y = g["hydro_year"].to_numpy(float), g["summer_min_m"].to_numpy(float)
-    fit = stats.linregress(x, y)
-    resid = y - (fit.intercept + fit.slope * x)
-    s = np.sqrt(np.sum(resid ** 2) / (n - 2))
-    xh = float(CROSSING_HORIZON_YEAR)
-    se_h = s * np.sqrt(1.0 / n + (xh - x.mean()) ** 2 / np.sum((x - x.mean()) ** 2))
-    t = stats.t.ppf(0.5 + CROSSING_CI / 2.0, n - 2)
-    now_year = int(x.max())
-    now = float(fit.intercept + fit.slope * now_year)
-    hz = float(fit.intercept + fit.slope * xh)
-    lo, hi = hz - t * se_h, hz + t * se_h
-    sd16 = "below" if hi < SD16_LEVEL else ("above" if lo >= SD16_LEVEL else "unresolved")
-    return {"n_years": n, "first_year": int(x.min()), "last_year": now_year, "slope_m_per_yr": float(fit.slope),
-            "p_value": float(fit.pvalue), "fitted_now_m": now, "fitted_horizon_m": hz,
-            "horizon_ci_lo_m": float(lo), "horizon_ci_hi_m": float(hi),
-            "band_now": band(now, CURRELI_SUMMER), "band_horizon": band(hz, CURRELI_SUMMER),
-            "horizon_vs_sd16": sd16}
-
-
-def counts(t: pd.DataFrame, cl: str) -> dict:
-    d = {"cluster": cl, "n_wells": int(len(t))}
-    for when in ("now", "horizon"):
-        bc = band_counts(t[f"fitted_{when}_m"], CURRELI_SUMMER)
-        for b in band_names(CURRELI_SUMMER):
-            d[f"{when}_{b}"] = bc[b]
-    for k in ("below", "above", "unresolved"):
-        d[f"horizon_sd16_{k}"] = int((t["horizon_vs_sd16"] == k).sum())
-    below = f"below_{SD16_NAME.lower()}"
-    d["cross_sd16_by_horizon"] = int(((t["band_now"] != below) & (t["band_horizon"] == below)).sum())
-    d["declining"] = int((t["slope_m_per_yr"] < 0).sum())
-    return d
-
-
-def plot(t: pd.DataFrame, out: Path) -> None:
-    fig, axes = plt.subplots(len(CLUSTERS), 1, figsize=(11, 2.6 * len(CLUSTERS)), sharey=True)
-    for ax, cl in zip(np.atleast_1d(axes), CLUSTERS):
-        g = t[t["cluster"] == cl].sort_values("fitted_now_m", ascending=False).reset_index(drop=True)
-        col = CLUSTER_COLOURS.get(int(cl[1:]), "#444")
-        xs = np.arange(len(g))
-        ax.vlines(xs, g["horizon_ci_lo_m"], g["horizon_ci_hi_m"], color=col, alpha=0.35, lw=3)
-        ax.scatter(xs, g["fitted_now_m"], color=col, marker="o", s=22, zorder=3,
-                   label="Trend value, last year of record")
-        ax.scatter(xs, g["fitted_horizon_m"], color=col, marker="v", s=26, zorder=3,
-                   label=f"Trend value in {CROSSING_HORIZON_YEAR} ({int(round(CROSSING_CI * 100))}% interval)")
-        for name, lev in CURRELI_SUMMER:
-            ax.axhline(lev, color="0.35", lw=0.9, ls=(0, (6, 4)))
-            ax.text(1.003, lev, f"{name} {lev:.2f} m".replace("-", "−"), transform=ax.get_yaxis_transform(),
-                    va="center", ha="left", fontsize=8, color="0.25")
-        ax.set_xticks(xs)
-        ax.set_xticklabels([w.upper() for w in g["well"]], rotation=90, fontsize=6.5)
-        ax.set_title(CLUSTER_LABELS[int(cl[1:])], fontsize=10, loc="left")
-        ax.set_ylabel("Summer minimum (m)")
-        ax.yaxis.grid(True, color="#eaeaea", lw=0.5)
-        ax.set_axisbelow(True)
-    np.atleast_1d(axes)[0].legend(loc="lower left", fontsize=8, frameon=False)
-    fig.suptitle("Each well's own summer-minimum trend against the Curreli et al. (2013) levels", fontsize=12)
-    fig.tight_layout(rect=[0, 0, 0.95, 0.98])
-    render_figure(fig, out, facecolor="white")
-    plt.close(fig)
-
-
-def main() -> int:
-    banner("14b", "Wells below the Curreli summer levels, now and at the horizon", version=__version__)
     paths.make_all_dirs()
-    phase(1, "Per-well trends")
-    pw = pd.read_csv(paths.OUT_14_PER_WELL_EXTREMES)
+
+    # Read Script 14's annual summer-min table
+    F_ANNUAL  = paths.OUT_14_ANNUAL_EXTREMES
+
+    # Outputs — canonical OUT_14B_* constants in paths.py (share Script 14's
+    # directory). Single source of truth.
+    OUT_CSV   = paths.OUT_14B_CROSSING_CSV
+    OUT_FIG   = paths.OUT_14B_CROSSING_FIG
+    OUT_MEMO  = paths.OUT_14B_RESULTS_MEMO
+
+    # Curreli (2013) thresholds. Values from utils.config (depth below ground, m).
+    # Signed against the data convention: 14_annual_extremes.csv stores depth as
+    # negative below ground (Value_m = -0.89 ≡ water table 0.89 m below ground).
+    THRESHOLDS = {
+        "SD15b": -SD15b,  # -0.61 m (wet slack viability)
+        "SD16":  -SD16,   # -0.98 m (dry slack threshold)
+    }
+
+    N_BOOT  = 1000
+    RNG     = np.random.default_rng(20260529)
+
+    # ── Procedure ─────────────────────────────────────────────────────────────
+
+    print("─" * 72)
+    print("14b — Bootstrap year-of-crossing for per-cluster summer-min trends")
+    print("─" * 72)
+
+    ann = pd.read_csv(F_ANNUAL)
+    sm  = ann[ann["Season"] == "Summer_Min"].copy()
+    print(f"Loaded {len(sm)} summer-min rows across {sm['Cluster'].nunique()} clusters")
+
+    def year_of_crossing(year_arr, depth_arr, threshold_val, year_cap=2080):
+        """Fit y = a + b·x and solve for x where y = threshold_val.
+    Return year_cap (sentinel) if slope >= 0 (no crossing in the relevant
+    direction) or crossing year exceeds year_cap. Returns NaN if fit fails."""
+        if len(year_arr) < 3:
+            return np.nan
+        try:
+            b, a = np.polyfit(year_arr, depth_arr, deg=1)
+        except (np.linalg.LinAlgError, ValueError):
+            return np.nan
+        if b >= 0:
+            # Slope is non-decreasing — water table not declining → no crossing
+            return year_cap
+        yr_cross = (threshold_val - a) / b
+        if yr_cross > year_cap or yr_cross < year_arr.min():
+            return year_cap
+        return float(yr_cross)
+
+
     rows = []
-    for (w, cl), g in pw.groupby(["well", "cluster"]):
-        r = well_trend(g)
-        if r is not None:
-            rows.append({"well": w, "cluster": cl, **r})
-    t = pd.DataFrame(rows)
-    info(f"{len(t)} of {pw['well'].nunique()} wells with >= {CROSSING_MIN_YEARS} years; horizon {CROSSING_HORIZON_YEAR}, "
-         f"{int(round(CROSSING_CI * 100))}% interval")
-    t.to_csv(paths.OUT_14B_PER_WELL_TRENDS, index=False)
-    saved(f"{paths.OUT_14B_PER_WELL_TRENDS.name} ({len(t)} wells)")
+    boot_traces = {}  # for figure
 
-    phase(2, "Counts by cluster")
-    c = pd.DataFrame([counts(t[t["cluster"] == cl], cl) for cl in CLUSTERS] + [counts(t, "all")])
-    c.to_csv(paths.OUT_14B_CROSSING_COUNTS, index=False)
-    saved(f"{paths.OUT_14B_CROSSING_COUNTS.name}")
-    for _, r in c.iterrows():
-        step(f"{r['cluster']:>3}: {r['n_wells']:>2} wells; below SD16 now {r['now_below_sd16']:>2}, in "
-             f"{CROSSING_HORIZON_YEAR} {r['horizon_below_sd16']:>2} (interval wholly below {r['horizon_sd16_below']}, "
-             f"unresolved {r['horizon_sd16_unresolved']}); crossing by then {r['cross_sd16_by_horizon']}")
+    for cluster in sorted(sm["Cluster"].unique()):
+        sub = sm[sm["Cluster"] == cluster].dropna(subset=["Value_m", "HydroYear"])
+        sub = sub.sort_values("HydroYear")
+        years  = sub["HydroYear"].astype(float).values
+        depths = sub["Value_m"].astype(float).values
+        n_yr   = len(years)
 
-    rn = ReportNumbers()
-    rn.add("crossing_horizon_year", CROSSING_HORIZON_YEAR, unit="year", note="config.CROSSING_HORIZON_YEAR (D-294)")
-    rn.add("crossing_min_years", CROSSING_MIN_YEARS, unit="years", note="config.CROSSING_MIN_YEARS (D-294)")
-    rn.add("crossing_ci_pct", CROSSING_CI * 100.0, unit="%", note="config.CROSSING_CI (D-294)")
-    for _, r in c.iterrows():
-        for k, v in r.items():
-            if k == "cluster":
+        if n_yr < 5:
+            print(f"{cluster}: only {n_yr} years — skipping")
+            continue
+
+        # Point-estimate fit on the full series
+        b_pt, a_pt = np.polyfit(years, depths, 1)
+        label = sub["Cluster"].iloc[0]  # actual label is in CLUSTER_LABELS, but we use the short
+
+        # Bootstrap: resample years with replacement
+        boot_yc = {name: np.full(N_BOOT, np.nan) for name in THRESHOLDS}
+        boot_b  = np.full(N_BOOT, np.nan)
+        boot_a  = np.full(N_BOOT, np.nan)
+        for k in range(N_BOOT):
+            idx = RNG.integers(0, n_yr, size=n_yr)
+            # Avoid pathological all-same-year resamples (rare but possible)
+            if len(np.unique(years[idx])) < 3:
                 continue
-            rn.add(f"crossing_{k}", int(v), unit="wells", well=r["cluster"],
-                   note="per-well summer-minimum trend counts against the Curreli levels (14b_crossing_counts.csv, D-294)")
-    rn.save(paths.OUT_14B_REPORT_NUMBERS)
-    saved(f"{paths.OUT_14B_REPORT_NUMBERS.name}")
+            try:
+                b_k, a_k = np.polyfit(years[idx], depths[idx], 1)
+            except (np.linalg.LinAlgError, ValueError):
+                continue
+            boot_b[k] = b_k
+            boot_a[k] = a_k
+            for name, tval in THRESHOLDS.items():
+                boot_yc[name][k] = year_of_crossing(years[idx], depths[idx], tval)
 
-    phase(3, "Figure")
-    plot(t, paths.OUT_14B_PER_WELL_FIG)
-    done("14b")
-    return 0
+        # Percentiles for each threshold
+        boot_traces[cluster] = {
+            "years": years, "depths": depths,
+            "a_pt": a_pt, "b_pt": b_pt,
+            "boot_a": boot_a[~np.isnan(boot_a)],
+            "boot_b": boot_b[~np.isnan(boot_b)],
+        }
+
+        for tname, tval in THRESHOLDS.items():
+            yc_pt = year_of_crossing(years, depths, tval)
+            yc_boot = boot_yc[tname][~np.isnan(boot_yc[tname])]
+            if len(yc_boot) > 0:
+                pcts = np.percentile(yc_boot, [5, 50, 95])
+            else:
+                pcts = [np.nan, np.nan, np.nan]
+            rows.append({
+                "Cluster":           cluster,
+                "Threshold":         tname,
+                "Threshold_m":       tval,
+                "n_years_obs":       n_yr,
+                "slope_pt_m_per_yr": round(b_pt, 5),
+                "intercept_pt":      round(a_pt, 3),
+                "current_depth_2025": round(a_pt + b_pt * 2025, 3),
+                "year_crossing_pt":  round(yc_pt, 1) if not np.isnan(yc_pt) else None,
+                "year_crossing_5":   round(pcts[0], 1) if not np.isnan(pcts[0]) else None,
+                "year_crossing_50":  round(pcts[1], 1) if not np.isnan(pcts[1]) else None,
+                "year_crossing_95":  round(pcts[2], 1) if not np.isnan(pcts[2]) else None,
+                "n_boot_resolved":   int(len(yc_boot)),
+            })
+
+    out = pd.DataFrame(rows)
+    out.to_csv(OUT_CSV, index=False)
+    print(f"\nWrote {OUT_CSV.relative_to(REPO)}")
+
+    # ── Console summary ───────────────────────────────────────────────────────
+    print()
+    print("─── Year of crossing (median, 95% CI) ───")
+    print(f"{'Cluster':6} {'Threshold':10} {'slope (mm/yr)':>15} {'crossing yr (5–50–95)':>30}")
+    print("-" * 72)
+    for _, r in out.iterrows():
+        if pd.isna(r['year_crossing_50']):
+            rng = "—"
+        else:
+            rng = f"{r['year_crossing_5']:>5.0f} – {r['year_crossing_50']:>5.0f} – {r['year_crossing_95']:>5.0f}"
+        slp = r['slope_pt_m_per_yr'] * 1000  # mm/yr
+        print(f"{r['Cluster']:6} {r['Threshold']:10} {slp:>+15.2f} {rng:>30}")
+
+    # ── Figure: 3-over-2 stacked per-cluster panels ───────────────────────────
+    from matplotlib.lines import Line2D     # noqa: E402
+    from matplotlib.patches import Patch    # noqa: E402
+
+    clusters_sorted = sorted(boot_traces.keys())
+    x_proj = np.arange(2005, 2061)
+
+    # 2 rows × 3 cols, filled row-major: C1/C2/C3 on top, C4/C5 on the bottom.
+    # The sixth cell (bottom-right) is reserved for a shared legend.
+    fig, axgrid = plt.subplots(2, 3, figsize=(15, 9), sharey=True,
+                               facecolor="white")
+    axes_flat = axgrid.flatten()
+    left_col_axes = {axgrid[0, 0], axgrid[1, 0]}  # only these show the y-axis label
+
+    for i, cluster in enumerate(clusters_sorted):
+        ax = axes_flat[i]
+        trace = boot_traces[cluster]
+        cnum = int(cluster.replace("C", "")) if cluster.startswith("C") else None
+        col  = get_cluster_colour(cnum) if cnum is not None else "#444"
+        label = CLUSTER_LABELS.get(cnum, cluster)
+
+        # Observed
+        ax.scatter(trace["years"], trace["depths"], s=26,
+                    color=col, alpha=0.85, edgecolor="white", linewidth=0.5,
+                    label="Observed", zorder=3)
+        # Point-estimate trend
+        y_pt = trace["a_pt"] + trace["b_pt"] * x_proj
+        ax.plot(x_proj, y_pt, color=col, linewidth=2.0, zorder=2,
+                 label="OLS trend")
+        # 95% CI cone from bootstrap
+        boot_pred = np.array([
+            trace["boot_a"][j] + trace["boot_b"][j] * x_proj
+            for j in range(min(len(trace["boot_a"]), len(trace["boot_b"])))
+        ])
+        if len(boot_pred) > 0:
+            lo = np.percentile(boot_pred, 5, axis=0)
+            hi = np.percentile(boot_pred, 95, axis=0)
+            ax.fill_between(x_proj, lo, hi, color=col, alpha=0.18,
+                             linewidth=0, label="95% CI", zorder=1)
+
+        # Threshold lines — labelled inside the panel (right edge) so the text
+        # does not spill into the adjacent panel of the grid.
+        for tname, tval in THRESHOLDS.items():
+            ax.axhline(tval, color="black", linewidth=0.7, linestyle="--", alpha=0.7)
+            ax.text(2059, tval, tname, fontsize=8, va="bottom", ha="right",
+                     color="#333")
+
+        # Crossing-year median + 5–95 band from the table
+        sub_rows = out[out["Cluster"] == cluster]
+        for _, r in sub_rows.iterrows():
+            if r["year_crossing_50"] is not None and r["year_crossing_50"] < 2061:
+                ax.axvspan(r["year_crossing_5"], r["year_crossing_95"],
+                            alpha=0.15, color="black", linewidth=0)
+                ax.axvline(r["year_crossing_50"], color="black",
+                            linewidth=0.8, alpha=0.6)
+
+        ax.set_title(label, fontsize=11, fontweight="bold", pad=8)
+        ax.set_xlabel("Year")
+        ax.set_xlim(2005, 2060)
+        ax.grid(alpha=0.3, linewidth=0.4)
+        if ax in left_col_axes:
+            ax.set_ylabel("Summer-min depth\n(m, negative below ground)")
+        else:
+            ax.tick_params(labelleft=False)
+
+    # Hide any unused panels (the sixth cell) and host the shared legend there.
+    for ax in axes_flat[len(clusters_sorted):]:
+        ax.axis("off")
+
+    legend_handles = [
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#666",
+               markeredgecolor="white", markersize=8,
+               label="Observed annual summer minimum"),
+        Line2D([0], [0], color="#444", linewidth=2.0,
+               label="OLS trend (point estimate)"),
+        Patch(facecolor="#888", alpha=0.18, label="95% bootstrap CI cone"),
+        Line2D([0], [0], color="black", linewidth=0.8, linestyle="--",
+               label="Curreli (2013) threshold"),
+        Patch(facecolor="black", alpha=0.15, label="Crossing-year 5–95% band"),
+        Line2D([0], [0], color="black", linewidth=0.8, alpha=0.6,
+               label="Crossing-year median"),
+    ]
+    legend_host = axes_flat[-1]  # the hidden sixth cell
+    legend_host.legend(handles=legend_handles, loc="center", fontsize=9,
+                       framealpha=0.95, title="Legend", title_fontsize=10)
+
+    fig.suptitle("Bootstrap year-of-crossing for per-cluster summer-minimum trends "
+                 "against Curreli (2013) ecological thresholds",
+                 fontsize=13, fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    render_figure(fig, OUT_FIG, facecolor="white")
+    print(f"\nWrote {OUT_FIG.relative_to(REPO)}")
+
+
+    # ── Memo ──────────────────────────────────────────────────────────────────
+    memo_lines = ["# Bootstrap year-of-crossing — results\n",
+                  "",
+                  "*Diagnostic from `14b_year_of_crossing.py`. Routed from the 2026-05-29",
+                  "main-report review (gap B: stated CI on the C1 SD16 crossing year claimed",
+                  "in §7 Conclusion 13).*",
+                  "",
+                  "## Headline table",
+                  "",
+                  "| Cluster | Threshold | Slope (mm/yr) | Crossing year (5 — 50 — 95) |",
+                  "|---|---|---|---|"]
+    for _, r in out.iterrows():
+        if r['year_crossing_50'] is None:
+            rng = "—"
+        else:
+            rng = f"**{r['year_crossing_5']:.0f}** — **{r['year_crossing_50']:.0f}** — **{r['year_crossing_95']:.0f}**"
+        slp = r['slope_pt_m_per_yr'] * 1000
+        memo_lines.append(f"| {r['Cluster']} | {r['Threshold']} | {slp:+.2f} | {rng} |")
+
+    memo_lines += [
+        "",
+        "Year-of-crossing values of 2080 are sentinel values where the slope is non-decreasing or the linear projection does not reach the threshold within the year-2080 horizon.",
+        "",
+        "## Reading",
+        "",
+        "- The report's §7 Conclusion 13 statement *\"C1 summer minima approaching the SD16 dry slack viability threshold around 2030–2032\"* is replaced by a stated CI on the C1 SD16 crossing year. **Replace with:** \"C1 summer minima are projected to cross the SD16 threshold in **{median} (95% CI {p5}–{p95})**\" using the C1 row above.".format(
+            median=int(out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_50'].iloc[0])
+                if not out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_50'].isna().any() else "—",
+            p5=int(out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_5'].iloc[0])
+                if not out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_5'].isna().any() else "—",
+            p95=int(out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_95'].iloc[0])
+                if not out[(out['Cluster']=='C1')&(out['Threshold']=='SD16')]['year_crossing_95'].isna().any() else "—",
+        ),
+        "- C5 has the steepest decline and crosses SD15b and SD16 within the observed-data window or close to it. Existing report prose handles C5's anomalous decline separately (§5.7.2).",
+        "- C3 and C4 have non-significant trends (Script 14) — their bootstrap CIs are correspondingly wide.",
+        "",
+        "## Caveats",
+        "",
+        "- Linear extrapolation. The bootstrap captures sampling uncertainty in slope and intercept; it does NOT capture model-form uncertainty (the assumption that the linear trend extrapolates cleanly into a regime where summer-min approaches a drainage-controlled basement or where climate trajectory diverges from observed). Consider this an upper-bound horizon, not a calibrated projection.",
+        "- The cluster-centroid summer-min averages over wells with different ground elevations within each cluster, so the threshold (\"depth below ground\") is an effective threshold against the centroid, not against any specific well.",
+        "- Year-resampling bootstrap preserves the ordering of the trend signal but does not preserve year-to-year autocorrelation. For trends with strong autocorrelation this can produce a slightly narrower CI than a block bootstrap would. Inspection of `14_annual_extremes.csv` summer-min residuals does not show strong autocorrelation; a block bootstrap is unlikely to materially widen the CIs.",
+        "- C5's exceptional decline (§4.8.1) reflects a coastal-retreat gradient mechanism (Script 25) plus other candidates discussed in §5.7.2 — extrapolating it linearly may understate (if the gradient retreats further inland) or overstate (if coastal retreat itself slows) the C5 crossing year.",
+        "",
+        "## Cross-references",
+        "",
+        "- §7 Conclusion 13 — replace the \"around 2030–2032\" qualitative date with the stated CI from this table.",
+        "- §4.10.1 / §5.7.1 — the climate-trajectory discussion that frames Conclusion 13 can cite the figure (`14b_year_of_crossing.png`).",
+        "- §5.9 — the \"intervention window\" framing can quote the bootstrap CI directly when discussing the C1 timeline.",
+        "",
+        "## Outputs",
+        "",
+        "- `14b_year_of_crossing.csv` — per-cluster × threshold table.",
+        "- `14b_year_of_crossing.png` — five-cluster figure in a 3-over-2 stacked layout (observed points, OLS trend + 95% CI cone, threshold lines, crossing-year CI bands; shared legend).",
+        "- `14b_year_of_crossing_results.md` — this memo.",
+    ]
+    OUT_MEMO.write_text("\n".join(memo_lines))
+    print(f"Wrote {OUT_MEMO.relative_to(REPO)}")
+    print()
+    print("─" * 72)
+    done()
+    print("─" * 72)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

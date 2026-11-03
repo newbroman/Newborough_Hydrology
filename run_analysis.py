@@ -190,7 +190,11 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.28.0"  # Hollingham (2026) - 2026-11-01. Step 14b relabelled for its per-well rewrite (D-294); no step added,
+__version__ = "2.29.0"  # Hollingham (2026) - 2026-11-03 (D-296; Martin 2026-11-03 "b"). Step 14b (the bootstrap
+#   year-of-crossing) is withdrawn from the report: it stays REGISTERED (no step number moves) but becomes tier X,
+#   exec "ondemand", reached only by --step 14b; --full no longer runs it. _DOCUMENTED_COUNTS: analytical_toplevel
+#   45 -> 44, optin_diagnostic 10 -> 11, by_exec.default 54 -> 53, by_exec.ondemand 2 -> 3; total unchanged.
+# 2.28.0  # Hollingham (2026) - 2026-11-01. Step 14b relabelled for its per-well rewrite (D-294); no step added,
 #   removed or re-tiered.
 # 2.27.0  # Hollingham (2026) - 2026-10-25. PHASE 21 with Scripts 53 (E14, the forest-side drift in
 #   the CCW epoch) and 54 (E15, dry-year hysteresis and the 2006-08 excess), both tier X, opt-in. Counts 61 -> 63
@@ -495,7 +499,7 @@ PHASE_3 = [
 PHASE_4 = [
     Step("00_climate_summary.py",            "Climate summary outputs",                                                    "A"),
     Step("14_climate_projections.py",        "Figure: Climate trajectory projections",                                     "A"),
-    Step("14b_year_of_crossing.py",          "Wells below the Curreli summer levels, now and at the horizon (D-294)",     "A"),
+    Step("14b_year_of_crossing.py",          "Year-of-crossing bootstrap, withdrawn from the report (D-296) \u2014 on demand only, via --step 14b",     "X", "ondemand"),
     Step("12_figure_site_overview.py",       "Figure: DEM site overview",                                                  "A"),
     Step("13_figure_experimental_design.py", "Figure: Experimental design GIS map",                                        "A"),
 ]
@@ -633,12 +637,12 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 _DOCUMENTED_COUNTS = {
     "total_registered":            63,
     "total_phases":                21,
-    "by_tier.analytical_toplevel": 45,
+    "by_tier.analytical_toplevel": 44,
     "by_tier.display_utility":      8,
-    "by_tier.optin_diagnostic":    10,
-    "by_exec.default":             54,
+    "by_tier.optin_diagnostic":    11,
+    "by_exec.default":             53,
     "by_exec.optin":                7,
-    "by_exec.ondemand":             2,
+    "by_exec.ondemand":             3,
     "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document
 }
@@ -1553,7 +1557,8 @@ def run_phase(phase_label: str, from_step: int = 1, include_optin: bool = False,
         if rs.script in exclude_scripts:
             continue
         if rs.exec == "ondemand":
-            _od_flag = "--hindcast-film" if rs.script == "47_hindcast_film.py" else "--greyscale"
+            _od_flag = {"47_hindcast_film.py": "--hindcast-film",
+                        "14b_year_of_crossing.py": "--step 14b"}.get(rs.script, "--greyscale")   # 2.29.0
             print("  " + paint(
                 f"{GLYPH_SKIP} skip step {rs.label.strip()}  (on demand — use {_od_flag})",
                 _Ansi.GREY))

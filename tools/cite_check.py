@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.37.0"  # Hollingham (2026) — 2026-10-28. 16_water_bal_rec_table and _vol_table register B_drain_frac,
+__version__ = "1.38.0"  # Hollingham (2026) — 2026-11-03 (D-296 retirement pass). 14_winter_exceedance.csv and
+#   14b_year_of_crossing.csv are no longer published, and the cluster threshold summary has lost its two count
+#   columns; their registrations are removed.
+# 1.37.0  # Hollingham (2026) — 2026-10-28. 16_water_bal_rec_table and _vol_table register B_drain_frac,
 #   B_ET_frac, Lo_drain_frac, Hi_drain_frac (Script 16 1.12.0, D-283), so the partition can be quoted as fields.
 # 1.36.0  # Hollingham (2026) — 2026-10-17. Three Paper 2 values registered for its fields
 # conversion (T-125): 10a_09 p_vs_one, 10a_10 clearfell_step_fixed1_p, and 10f_01's per-well Step_m (by Well);
@@ -649,7 +652,7 @@ EXTRA_VALUE_TABLES = [
       "msl5_window_se_mm_median"]),
     ("outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv",    # report9 4.8.3, Table 20 (D-190)
      ("window_years", "cluster_label"),
-     ["MINw_current_m_bg", "MSL5_current_m_bg", "n_windows_below_SD15b", "n_windows_below_SD16"]),
+     ["MINw_current_m_bg", "MSL5_current_m_bg"]),
     ("outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv", ("cluster_label", "window_end_year"),    # report9 4.8.3
      ["MSL5_m_bg_mean", "MSL5_m_bg_median", "MAX5_m_bg_mean", "MAX5_m_bg_median"]),
     ("outputs/30_c4_drainage_identifiability/30_c4_centroid_sensitivity.csv", "basis",    # report10 §5.2.3
@@ -737,14 +740,6 @@ EXTRA_VALUE_TABLES = [
      ["n_years", "Slope_m_per_yr", "R2", "p_value"]),
     ("outputs/14_climate_projections/14_winter_trend_stats.csv", "Cluster",
      ["n_years", "Slope_m_per_yr", "R2", "p_value"]),
-    ("outputs/14_climate_projections/14_winter_exceedance.csv", "Cluster",
-     ["Wet_Slack_Exceedances", "Dry_Slack_Exceedances", "n_years",
-      "Wet_Slack_Pct"]),
-    ("outputs/14_climate_projections/14b_year_of_crossing.csv",
-     ("Cluster", "Threshold"),
-     ["Threshold_m", "n_years_obs", "slope_pt_m_per_yr", "current_depth_2025",
-      "year_crossing_pt", "year_crossing_5", "year_crossing_50",
-      "year_crossing_95"]),
 
     # 11, 15.9%. The forecast transfer functions — the a_P / a_h / a_E
     # coefficients W130 renamed, quoted in both Web Tools documents and the
@@ -1059,8 +1054,6 @@ EXTRA_VALUE_TABLES = [
      ['n']),
     ('outputs/14_climate_projections/14_summer_trend_stats.csv', 'Cluster',
      ['Slope_m_per_yr_robust', 'p_value_robust']),
-    ('outputs/14_climate_projections/14b_year_of_crossing.csv', ('Cluster', 'Threshold'),
-     ['n_boot_resolved']),
     ('outputs/14_climate_projections/14_winter_trend_stats.csv', 'Cluster',
      ['p_value_robust']),
     ('outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv', ('window_years', 'cluster_label'),

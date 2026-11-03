@@ -93,6 +93,9 @@ EXEMPT = {
     # tools/build_diary.py names its own --public output, which exists only once
     # that flag is used. A path a tool CREATES is not a dangling reference.
     "notes/PROJECT_HISTORY.md",
+    # Script 14b is on demand only since run_analysis 2.29.0 (D-296): its memo is
+    # written by --step 14b and git-ignored. A path a tool CREATES is not dangling.
+    "14b_year_of_crossing_results.md",
     # scratch names constructed inside a tool at run time, never on disk
     "out.md", "probe.md", "a.md", "b.md",
     # placeholders with a stand-in for a number, written as prose in the

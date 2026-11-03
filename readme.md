@@ -52,7 +52,7 @@ All documents are in [`docs/`](docs/) and linked from the
 
 | Option | Description |
 |--------|-------------|
-| **1 — Run full pipeline** | Runs the default pass (<!--PL:default-->54<!--/PL:default--> of <!--PL:total-->63<!--/PL:total--> registered steps) in order from the beginning |
+| **1 — Run full pipeline** | Runs the default pass (<!--PL:default-->53<!--/PL:default--> of <!--PL:total-->63<!--/PL:total--> registered steps) in order from the beginning |
 | **2 — Resume from step** | Skips completed steps; useful after a partial run |
 | **3 — Run a single step** | Runs one script in isolation for debugging or re-running |
 | **4 — Prepare scenario viewer** | Runs script 19 to build the self-contained HTML viewer |
@@ -63,7 +63,7 @@ All documents are in [`docs/`](docs/) and linked from the
 For non-interactive use (e.g. in a batch job):
 
 ```bash
-python run_analysis.py --full          # run the default pass (<!--PL:default-->54<!--/PL:default--> steps)
+python run_analysis.py --full          # run the default pass (<!--PL:default-->53<!--/PL:default--> steps)
 python run_analysis.py --from 14       # resume from step 14
 python run_analysis.py --viewer        # build scenario viewer only
 python run_analysis.py --supplementary # run supplementary diagnostics (22–24) only
@@ -147,8 +147,8 @@ Newborough_Hydrology/
 The pipeline comprises **<!--PL:total-->63<!--/PL:total--> registered steps across <!--PL:phases-->21<!--/PL:phases--> phases** (the committed
 `outputs/pipeline_manifest.json` is the count; these numbers are stamped from it by
 `tools/sync_index_counts.py`). Those steps are classified two independent ways: by
-tier — <!--PL:analytical-->45<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
-(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->10<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->54<!--/PL:default--> run in a
+tier — <!--PL:analytical-->44<!--/PL:analytical--> analytical, <!--PL:display-->8<!--/PL:display--> display/utility
+(Scripts 26c, 09f, 09g, 27, 43, 45, 46 and 47) and <!--PL:diagnostic-->11<!--/PL:diagnostic--> diagnostic; and by execution — <!--PL:default-->53<!--/PL:default--> run in a
 default pass, <!--PL:optin-->7<!--/PL:optin--> (Scripts 24b, 31, 31b and 50) only under `--with-supplementary`, and 2
 (Scripts 27 greyscale conversion and 47 the century hindcast film) only on demand.
 The two breakdowns each account for the same <!--PL:total-->63<!--/PL:total--> steps and are not additive with

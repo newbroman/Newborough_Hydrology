@@ -11,7 +11,10 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.83.0"  # Hollingham (2026) - 2026-11-03. Script 26 1.31.0 (D-297): OUT_26_TABLE_S7_3_CSV/MD.
+__version__ = "1.84.0"  # Hollingham (2026) - 2026-11-03. D-296 retirement pass: removed OUT_14B_PER_WELL_TRENDS, OUT_14B_CROSSING_COUNTS, OUT_14B_PER_WELL_FIG, OUT_14B_REPORT_NUMBERS
+#   (Script 14b 2.0.0); OUT_14_PER_WELL_EXTREMES, OUT_14_PER_WELL_BAND_COUNTS, OUT_14_PER_WELL_BANDS_FIG, OUT_14_WINTER_EXCEED (Script 14 1.14.0);
+#   OUT_26_CURRELI_MIN_WELL_BANDS, OUT_26_MSL9_COMMUNITY, OUT_26_MSL9_TRAJECTORY, OUT_26_MSL5_HANDBOOK_COUNTS (Script 26 1.32.0). No live writer or reader.
+# 1.83.0  # Hollingham (2026) - 2026-11-03. Script 26 1.31.0 (D-297): OUT_26_TABLE_S7_3_CSV/MD.
 # 1.82.0  # Hollingham (2026) - 2026-11-02. Script 26 1.30.0 (D-297): OUT_26_CURRELI_MIN_QUADRAT_BANDS.
 # 1.81.0  # Hollingham (2026) - 2026-11-02. Script 34 0.8.0 (D-296): OUT_34_MATRIX_MSL9.
 #   Script 11b 1.23.0 (D-296): OUT_11B_FLOOD_FREQ_PER_WELL.
@@ -918,17 +921,12 @@ OUT_14_SUMMER_TREND_CSV   = DIR_14 / "14_summer_trend_stats.csv"
 OUT_14_WINTER_TREND_CSV   = DIR_14 / "14_winter_trend_stats.csv"
 OUT_14_SPRING_TREND_CSV   = DIR_14 / "14_spring_trend_stats.csv"  # v1.4.0 (MAM centroid trend)
 OUT_14_ANNUAL_EXTREMES    = DIR_14 / "14_annual_extremes.csv"
-OUT_14_WINTER_EXCEED      = DIR_14 / "14_winter_exceedance.csv"
 OUT_14_SEASONAL_SCATTER   = DIR_14 / "14_seasonal_extremes_scatter.html"
 
 # Script 14b — Bootstrap year-of-crossing diagnostic (shares DIR_14)
 OUT_14B_CROSSING_CSV      = DIR_14 / "14b_year_of_crossing.csv"
 OUT_14B_CROSSING_FIG      = DIR_14 / "14b_year_of_crossing.png"
 OUT_14B_RESULTS_MEMO      = DIR_14 / "14b_year_of_crossing_results.md"
-OUT_14B_PER_WELL_TRENDS   = DIR_14 / "14b_per_well_trends.csv"       # D-294: each well's summer-minimum trend, now and at the horizon
-OUT_14B_CROSSING_COUNTS   = DIR_14 / "14b_crossing_counts.csv"       # D-294: wells per Curreli band now / at the horizon, by cluster
-OUT_14B_PER_WELL_FIG      = DIR_14 / "14b_per_well_crossing.png"     # D-294
-OUT_14B_REPORT_NUMBERS    = DIR_14 / "14b_report_numbers.csv"        # D-294: crossing_* counts
 
 # Script 15 — Depth-dependent PET
 OUT_15_LAMBDA_PROFILE   = DIR_15 / "15_01_lambda_profile.png"
@@ -1638,11 +1636,9 @@ OUT_26_EBF_SCATTER        = DIR_26 / "26_ebf_prediction_scatter.png"
 OUT_26_CURRELI_MIN_PER_WELL          = DIR_26 / "26_curreli_min_per_well.csv"
 OUT_26_CURRELI_MIN_PER_CLUSTER       = DIR_26 / "26_curreli_min_per_cluster.csv"
 OUT_26_CURRELI_MIN_THRESHOLD_SUMMARY = DIR_26 / "26_curreli_min_cluster_threshold_summary.csv"
-OUT_26_CURRELI_MIN_WELL_BANDS        = DIR_26 / "26_curreli_min_well_bands.csv"   # D-294: wells per Curreli band, window-end x cluster
 # MSL5 against the five-year mean annual minimum (T-64): the Methods Supplement's
 # S.18 cross-check, emitted rather than "run as part of script verification".
 OUT_26_MSL5_MIN5_PER_CLUSTER         = DIR_26 / "26_msl5_vs_min5_per_cluster.csv"
-OUT_26_MSL5_HANDBOOK_COUNTS          = DIR_26 / "26_msl5_handbook_counts.csv"   # MSL5 / EWI against the handbook v2 spring levels (D-242)
 OUT_26_EBF_PREDICTION_SUMMARY = DIR_26 / "26_ebf_prediction_summary.csv"
 OUT_26_EBF_BAND_SUMMARY       = DIR_26 / "26_ebf_band_summary.csv"
 OUT_26_CURRELI_MIN_QUADRAT_BANDS = DIR_26 / "26_curreli_min_quadrat_bands.csv"   # D-297: quadrat-referenced annual minimum against Curreli
@@ -1656,8 +1652,6 @@ OUT_26_INDEX_PRECISION    = DIR_26 / "26_index_precision_by_cluster.csv"
 OUT_26_REPORT_NUMBERS     = DIR_26 / "26_report_numbers.csv"
 OUT_26_MSL9_PER_WELL      = DIR_26 / "26_msl9_per_well.csv"        # T-131 / D-291: rolling nine-year MSL per well
 OUT_26_MSL9_PER_CLUSTER   = DIR_26 / "26_msl9_per_cluster.csv"     # the same, by cluster (fixed effects, D-202)
-OUT_26_MSL9_COMMUNITY     = DIR_26 / "26_msl9_community.csv"       # each well's latest / handbook-window MSL9 against the handbook table
-OUT_26_MSL9_TRAJECTORY    = DIR_26 / "26_msl9_trajectory.png"      # cluster MSL9 with the handbook community MSLs
 OUT_26_METRIC_DIAG_FIG    = DIR_26 / "26_metric_diagnostics.png"
 # Supplementary Table S7.1 emitter (v1.5.0). Display-formatted renderings of the
 # per-well EWI reconstruction for paste into Supplementary_Material — the CSV via
@@ -1717,9 +1711,6 @@ OUT_06_REPORT_NUMBERS = DIR_06 / "06_report_numbers.csv"
 OUT_11B_REPORT_NUMBERS = DIR_11B / "11b_report_numbers.csv"
 OUT_11B_THRESHOLD_SOURCE_SENS = DIR_11B / "11b_threshold_source_sensitivity.csv"   # zone counts, Curreli vs handbook v2 (D-242)
 OUT_14_REPORT_NUMBERS = DIR_14 / "14_report_numbers.csv"
-OUT_14_PER_WELL_EXTREMES    = DIR_14 / "14_per_well_extremes.csv"      # D-294: each well's annual extremes and Curreli bands
-OUT_14_PER_WELL_BAND_COUNTS = DIR_14 / "14_per_well_band_counts.csv"   # D-294: wells per band, season x cluster x year
-OUT_14_PER_WELL_BANDS_FIG   = DIR_14 / "14_per_well_summer_bands.png"  # D-294: share of wells per band, by cluster
 OUT_15_REPORT_NUMBERS = DIR_15 / "15_report_numbers.csv"
 OUT_19_REPORT_NUMBERS = DIR_19 / "19_report_numbers.csv"
 OUT_22_REPORT_NUMBERS = DIR_22 / "22_report_numbers.csv"

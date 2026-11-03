@@ -295,3 +295,8 @@ working/**/*.bundle
 # Martin's Weather Underground station IANGLESE3, raw daily JSON as downloaded (2026-10-25). Stays on the L14;
 # the committed form is data/wu_ianglese3_daily.csv (see data/WU_IANGLESE3_PROVENANCE.md).
 data/wu_ianglese3/
+
+# D-296 (2026-11-03): Step 14b is on demand only; its outputs are not committed
+outputs/14_climate_projections/14b_year_of_crossing.csv
+outputs/14_climate_projections/14b_year_of_crossing.png
+outputs/14_climate_projections/14b_year_of_crossing_results.md

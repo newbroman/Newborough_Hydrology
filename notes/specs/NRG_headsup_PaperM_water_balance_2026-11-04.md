@@ -4,7 +4,7 @@
 **For:** whichever chat holds `doc:PaperM`. No action on the document yet; this is a warning so
 current wording is not polished only to be reopened.
 
-**What is coming.** A new diagnostic, the fixed-storage water balance (spec
+**What is coming.** A new diagnostic, water-balance residual analysis (spec
 `claude/NRG_spec_water_balance_diagnostic_2026-11-04.md`, awaiting Martin's sign-off). It fixes Sy from
 Script 18 and treats rainfall less PET less storage change as drainage, then regresses that on head.
 It is not Script 08's TLM, and must not be called "TLM" in Paper M.

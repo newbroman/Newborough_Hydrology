@@ -1,6 +1,6 @@
 # Spec: water-balance drainage diagnostic (fixed Sy, residual drainage law)
 
-**Status:** DESIGN. Signed off 23:20 except D1 (name), which is open. No code, document text or citation until signed off. Revised 21:34 (Stages H and I, decisions D9–D11).
+**Status:** DESIGN, SIGNED OFF in full (D1–D11, 23:20–23:23). Ready to build. No code, document text or citation until signed off. Revised 21:34 (Stages H and I, decisions D9–D11).
 **Written:** 2026-11-04, claude.ai chat session (Claude Opus 5.5), against public `main` as cloned at 18:30.
 **Provenance of the numbers below:** scratch scripts in that chat, run against committed CSVs on public
 `main`. They are INDICATIVE ONLY: they show what the step is expected to find, and serve as a regression
@@ -44,7 +44,7 @@ constant ties the level to the modern mean. It is a diagnostic.
 
 **Name: a decision for Martin (§8, D1).** The project already has a "TLM": Script 08's traditional
 linear model, Δh = α + β₁P − β₂PET, with free coefficients and no drainage term. This step is not that
-model. Proposed name in documents: **"the fixed-storage water balance"**, with code identifier `wb_`.
+model. Name in documents (D1, signed off): **"water-balance residual analysis"**, with code prefix `wb_`.
 Calling it "TLM" anywhere would collide with Script 08 and Paper 1 §3.5.
 
 ## 2. Indicative findings (scratch, not citable)
@@ -215,10 +215,10 @@ Figures follow `MPL_DEFAULTS`; captions are supplied in document text, not in th
 
 ## 8. Decisions for Martin (sign-off)
 
-- **D1 Name. OPEN (Martin, 23:20).** Storage is not fixed; Sy is. It is the traditional linear model
-  with its rainfall and PET coefficients set to 1/Sy, and the residual is what is analysed. Options:
-  "water-balance residual analysis" (recommended; methods text states the TLM link in one sentence),
-  "Sy-constrained TLM", "residual drainage analysis". Never bare "TLM" (Script 08). Code prefix `wb_`.
+- **D1 Name. SIGNED OFF (Martin, 23:23): "water-balance residual analysis".** In documents always
+  that phrase, never bare "TLM" (Script 08's fitted model). The methods text states in one sentence
+  that it is the traditional linear model with its rainfall and PET coefficients set to 1/Sy, and
+  that the residual is what is analysed. Code prefix `wb_`.
 - **D2 Placement. SIGNED OFF.** Script 55, tier X, opt-in.
 - **D3 Sy source. SIGNED OFF.** Script 18 per-well `Sy_median` (the value the rest of the pipeline uses;
   forest wells already interception-corrected), Script 17 as a sensitivity only.
@@ -256,7 +256,7 @@ Figures follow `MPL_DEFAULTS`; captions are supplied in document text, not in th
   sensitivity text notes that a lower Sy lengthens the reach.
 
 **Decision-log entries to write in the build session** (take IDs immediately after pulling `main`; the
-Paper M chat is also adding entries): (i) the fixed-storage water balance adopted as a diagnostic,
+Paper M chat is also adding entries): (i) water-balance residual analysis adopted as a diagnostic,
 not a forecaster, with its Revisit-if; (ii) D4, the interception write-up; (iii) the C1
 receiving-position reading, with CEH11 and the below-ground test as its evidence; (iv) the
 winter joint fit as an independent Sy bracket (D11), with its Revisit-if (a direct Sy measurement,
@@ -265,7 +265,7 @@ station is a candidate).
 
 ## 9. Document plan (after the step is on `main`; each edit walked through first)
 
-**Paper M** (via the chat holding `doc:PaperM`): a short new **§5.3** "Fixing storage: a fourth
+**Paper M** (via the chat holding `doc:PaperM`): a short new **§5.3** "Water-balance residual analysis: a fourth
 reading of the split", placed straight after §5.2's recession reading which it complements, one
 figure (Stage B or D), detail in the SI. Inserting it renumbers current §5.3–§5.6 to §5.4–§5.7 and
 moves six typed internal references (two to §5.4, one to §5.5, three to §5.6). The Paper M chat runs

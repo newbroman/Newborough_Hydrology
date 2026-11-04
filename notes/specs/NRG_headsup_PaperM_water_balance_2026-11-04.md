@@ -27,7 +27,12 @@ It is not Script 08's TLM, and must not be called "TLM" in Paper M.
 - **§4 and §7.3, forecasting.** It forecasts like Model A within the record and fails the drier decade
   in the same direction as Model B, which supports the paper's argument that a fitted base is what
   breaks outside the recorded climate.
-- A short new §5.7 and one figure are proposed; the drafted passages will come as a file.
+- **Same basis as §7.1's figures.** Its drainage share is of the annual loss at the median well, the
+  quantity behind the 68 % / 45 %, so it is the first independent reading directly comparable with
+  the two forms (§5.2's is a share of summer recession). Indicative only: about 0.30.
+- **Numbering.** The new section is **§5.3**, placed straight after §5.2; current §5.3–§5.6 become
+  §5.4–§5.7. The renumber is yours to run (you hold doc:PaperM), by the §4d recipe. The drafts will
+  use §5.3 and name later sections by title as well as number.
 
 **What not to do.** Do not type any of its numbers. They are scratch results until Script 55 is on
 `main` with its `report_numbers` CSV. The drafted passages will cite field keys.

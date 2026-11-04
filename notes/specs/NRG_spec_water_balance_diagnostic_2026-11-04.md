@@ -28,7 +28,11 @@ and regress that residual on head to get a drainage rate.
 drainage (Model A 68 %, Model B 45 % at the median well). As of v1_42 (`380a497`) it leaves the two
 forms' answers apart and constrains the split by §2.4's floor and §5.2's recession reading, the
 latter presented as a third estimate independent of both forms. Fixing Sy from outside the fit, and
-trusting PET only in winter when it is small, gives a fourth reading. It also answers two of the
+trusting PET only in winter when it is small, gives a fourth reading. It is also the only one of the
+four on the SAME BASIS as the 68 % / 45 % §7.1 quotes, a drainage share of the annual loss at the
+median well (indicative per-well median: 0.295, interception counted as loss, 66 wells), where §5.2's
+recession share is a share of summer recession. That makes it the first independent reading directly
+comparable with the two forms. It also answers two of the
 three caveats §5.2 gives for the recession reading (months chosen on the fall; head inflating the
 winter rate) through Stages H and I. It came out at about a third of the loss
 on the open dune, below both forms, and it accounts for the gap: the SSM's free coefficients book only
@@ -166,7 +170,7 @@ the script, its comments or its docstring.
 | A | Cluster-mean month: P−PET (P_eff in forest) on mean Δh; slope = apparent Sy, intercept = drainage at steady level | `55_01_surplus_vs_dh.csv`, `55_01_surplus_vs_dh.png` |
 | B | Per well: residual D on h_prev, line and threshold, per-well Sy; cluster summaries | `55_02_drainage_law_per_well.csv`, `55_03_drainage_law_by_cluster.csv`, `55_02_drainage_law.png` |
 | C | Annual water balance from the fitted law: P, interception, PET, drainage, storage change | `55_04_water_balance.csv` |
-| D | Winter law (Nov–Feb) predicted from head in every month; ET backed out; months outside the winter head range excluded and counted | `55_05_winter_law_et.csv`, `55_06_et_monthly.csv`, `55_05_et_vs_pet.png` |
+| D | Winter law (Nov–Feb) predicted from head in every month; ET backed out; months outside the winter head range excluded and counted; per-well drainage share of annual loss and its network median (the §7.1 basis), rerun at the Stage I low and high Sy so the share carries the Sy bracket | `55_05_winter_law_et.csv`, `55_06_et_monthly.csv`, `55_05_et_vs_pet.png` |
 | E | Sensitivities: C1 without CEH11; below-ground-only winter fit; Sy = Script 17 cluster median | `55_07_sensitivity.csv` |
 | F | Forest interception scan, total loss / PET at each fraction; the closing fraction by interpolation | `55_08_interception_scan.csv` |
 | G | Split-sample free run (Script 48's rule) and CCW 1989–96 hindcast (Script 39's series and censoring) | `55_09_split_sample.csv`, `55_10_ccw_hindcast.csv` |
@@ -180,7 +184,7 @@ Figures follow `MPL_DEFAULTS`; captions are supplied in document text, not in th
 `wb_et_pet_summer_C{1..5}`, `wb_et_pet_year_C{1..5}`, `wb_drain_share_C{1..5}`,
 `wb_interception_close_C4`, `wb_interception_close_C5`, `wb_nse_fwd_median`, `wb_nse_rev_median`,
 `wb_ccw_bias_line_m`, `wb_ccw_bias_hinge_m`, `wb_c1_no_ceh11_et_pet_summer`,
-`wb_c1_below_ground_et_pet_summer`, `wb_k_dry_all_C{1..5}`, `wb_k_dry_winter_C{1..5}`,
+`wb_c1_below_ground_et_pet_summer`, `wb_drain_share_median` (per-well median, the §7.1 basis), `wb_drain_share_median_sy_lo`, `wb_drain_share_median_sy_hi`, `wb_k_dry_all_C{1..5}`, `wb_k_dry_winter_C{1..5}`,
 `wb_R2_dry_all_C{1..5}`, `wb_dry_summer_share`, `wb_sy_winter_lo_C{1..5}`, `wb_sy_winter_hi_C{1..5}`,
 `wb_sy_winter_mid_C{1..5}`, `wb_k_winter_joint_C{1..5}`, `wb_sy_winter_spearman_lo`,
 `wb_sy_winter_spearman_hi`, plus the basis counts (`wb_n_wells`, `wb_n_split_wells`,
@@ -244,9 +248,14 @@ station is a candidate).
 
 ## 9. Document plan (after the step is on `main`; each edit walked through first)
 
-**Paper M** (via the chat holding `doc:PaperM`): a short §5.7 "Fixing storage: a fourth reading of
-the split", one figure (Stage B or D), detail in the SI, placed after §5.2's recession reading
-which it complements; one added clause in §7.1 beside §2.4's floor and §5.2's reading (v1_42 wording
+**Paper M** (via the chat holding `doc:PaperM`): a short new **§5.3** "Fixing storage: a fourth
+reading of the split", placed straight after §5.2's recession reading which it complements, one
+figure (Stage B or D), detail in the SI. Inserting it renumbers current §5.3–§5.6 to §5.4–§5.7 and
+moves six typed internal references (two to §5.4, one to §5.5, three to §5.6). The Paper M chat runs
+that renumber, by the CLAUDE.md §4d recipe (plan pass, figure_map.py, repoint_verify, reference_lint
+--snapshot, ref_audit), because reference_lint alone cannot see a reference that moved twice. The
+drafted passages therefore call the new section §5.3 and name any later section by its title as
+well as its post-renumber number; one added clause in §7.1 beside §2.4's floor and §5.2's reading (v1_42 wording
 stands); a sentence each in §7.4 (the forest forcing reading) and §8. The plain companion
 (PaperM_plain) follows in its next pass.
 

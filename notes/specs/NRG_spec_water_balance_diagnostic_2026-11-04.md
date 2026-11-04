@@ -185,7 +185,7 @@ Figures follow `MPL_DEFAULTS`; captions are supplied in document text, not in th
 `wb_et_pet_summer_C{1..5}`, `wb_et_pet_year_C{1..5}`, `wb_drain_share_C{1..5}`,
 `wb_interception_close_C4`, `wb_interception_close_C5`, `wb_nse_fwd_median`, `wb_nse_rev_median`,
 `wb_ccw_bias_line_m`, `wb_ccw_bias_hinge_m`, `wb_c1_no_ceh11_et_pet_summer`,
-`wb_c1_below_ground_et_pet_summer`, `wb_drain_share_median` (per-well median, the §7.1 basis), `wb_drain_share_median_sy_lo`, `wb_drain_share_median_sy_hi`, `wb_k_dry_all_C{1..5}`, `wb_k_dry_winter_C{1..5}`,
+`wb_c1_below_ground_et_pet_summer`, `wb_drain_share_median` (per-well median of the annual share, the §7.1 basis: the same quantity as the existing `modelab_drainage_share_A_median_all` / `_B_` fields, so match their rendering suffix convention when the field is registered), `wb_drain_share_median_sy_lo`, `wb_drain_share_median_sy_hi`, `wb_k_dry_all_C{1..5}`, `wb_k_dry_winter_C{1..5}`,
 `wb_R2_dry_all_C{1..5}`, `wb_dry_summer_share`, `wb_sy_winter_lo_C{1..5}`, `wb_sy_winter_hi_C{1..5}`,
 `wb_sy_winter_mid_C{1..5}`, `wb_k_winter_joint_C{1..5}`, `wb_sy_winter_spearman_lo`,
 `wb_sy_winter_spearman_hi`, plus the basis counts (`wb_n_wells`, `wb_n_split_wells`,

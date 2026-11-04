@@ -62,7 +62,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.3.0"  # Hollingham (2026). 2026-10-10: a session start prints the work board after the
+__version__ = "2.4.0"  # Hollingham (2026) - 2026-11-04 (D-300, R6c). The work board's one-line digest
+#   prints BEFORE the handover, so a session that reads no further still sees an absent private store or
+#   another chat's claim (tools/work_board.py --digest). Tier 0 is unaffected: the digest is printed, not written.
+# 2.3.0  # Hollingham (2026). 2026-10-10: a session start prints the work board after the
 #   state (tools/work_board.py: claims, ships, uncommitted work by claim; spec
 #   NRG_spec_parallel_chats_2026-10-10). Printed only: the board changes by the minute, so it is not
 #   written into the HANDOFF, which is committed.
@@ -745,12 +748,22 @@ def main(argv):
             dest.write_text(text, encoding="utf-8")
         print(f"  WROTE  {dest.relative_to(REPO)}  ({len(text.splitlines())} lines)")
     else:
+        # 2.4.0 (D-300, R6c): the board in one line BEFORE the handover, because a session that
+        # reads no further must still see an absent private store or another chat's claim.
+        board = None
+        try:
+            import work_board
+            board = work_board.collect(do_probe=True)
+            print(work_board.digest(board))
+            print()
+        except Exception as e:
+            print(f"  (work board digest not shown: {e})")
         print(text)
         # 2.3.0: who is doing what, at the moment this session starts.
         try:
             import work_board
             print()
-            print(work_board.render(work_board.collect()))
+            print(work_board.render(board if board is not None else work_board.collect()))
             print("  Take a claim before editing: python3 tools/doc_lock.py take <claim> --chat \"<this chat>\" "
                   "--note \"...\", and export NRG_CHAT=\"<this chat>\" in every shell call.")
         except Exception as e:                   # the board informs; it never stops a session start

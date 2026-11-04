@@ -35,6 +35,9 @@
 #
 # Pushing is Martin's call (CLAUDE.md section 7): --apply asks before the first push.
 #
+# Version 1.2.0 - Hollingham (2026) - 2026-11-04 (D-300). require_quiet refuses unless the claim store reads
+#   PRESENT: `claims --json`'s `held` is {} when the private repository is absent, so an unreadable lock used to
+#   PASS the "no chat holds a claim" check exactly when it could not see the claims.
 # Version 1.1.0 - Hollingham (2026) - 2026-10-11 (D-257). Three fixes after the first slim:
 #   --resync now handles a clone that was BEHIND GitHub before the slim (the A475): it saves any
 #   uncommitted changes to ~/NRG_resync_saved_<date>/ and carries on, refuses only for commits
@@ -111,6 +114,14 @@ require_pushed(){
 }
 require_quiet(){
   [[ -f working/.ship_watcher.lock ]] && die "the ship watcher holds working/.ship_watcher.lock - wait for the ship"
+  # D-300: `held` is {} when the private store is absent, so an unreadable lock would PASS this
+  # check exactly when it cannot see the claims. Refuse on anything but PRESENT.
+  local store
+  store="$(python3 tools/doc_lock.py claims --json 2>/dev/null \
+           | python3 -c 'import json,sys; print(json.load(sys.stdin).get("store") or "?")' 2>/dev/null || echo "?")"
+  if [[ "$store" != "PRESENT" ]]; then
+    die "the claims cannot be read (store: $store) - attach the private repository before rewriting history, or an UNKNOWN claim would read as free (D-300)"
+  fi
   local held
   held="$(python3 tools/doc_lock.py claims --json 2>/dev/null \
           | python3 -c 'import json,sys; h=json.load(sys.stdin).get("held") or {}; print("\n".join(f"{k}  ({v.get(\"chat\")})" for k,v in h.items()))' 2>/dev/null || true)"

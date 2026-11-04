@@ -306,7 +306,7 @@ person's machines, not a mutex.
 
 Never run `refresh_mirrors.py` on a machine whose ODTs you have not just pulled.
 
-**A bridge session takes the machine lock under the L14's own name (D-299, doc_lock 1.3.0).** The bridge
+**A bridge session takes the machine lock under the L14's own name (D-299, doc_lock 1.4.0).** The bridge
 edits the L14's files, so for the documents it is the L14. Before 1.3.0 it locked as the VM's
 `rcw-<session>@claude`, the L14 saw that as another machine, and every archive refused from 2026-10-26
 to 2026-11-03 while Drive fell a week behind. Now the L14 records its name in `.git/nrg_machine` on every
@@ -320,12 +320,25 @@ lock above is per MACHINE. Chats sharing the L14's tree each CLAIM what they wor
 (`tools/register_io.py`), never claimed.
 
     python3 tools/work_board.py                                      # who holds what; what is uncommitted
+    python3 tools/board_artifact.py --check                           # is Martin's page behind? (R6a)
     python3 tools/doc_lock.py take doc:PaperM --chat "Paper M" --note "v1_9 read-through"
     export NRG_CHAT="Paper M"                                         # in EVERY shell call over the bridge
     python3 tools/doc_lock.py release doc:PaperM --chat "Paper M"    # after the ship reaches GitHub
 
 A claim held by another chat refuses `odt_edit` writes into its documents and `run_analysis.py`
-while `pipeline` is held. An unclaimed area refuses nothing. **A ship request names the chat, its
+while `pipeline` is held. An unclaimed area refuses nothing.
+
+**A board that cannot read the lock says UNKNOWN, not free (D-300).** The lock is in the PRIVATE
+repository, so a session holding only the public one can see nothing — and until 2026-11-04 it was
+told every claim was free, which is how a chat read `doc:PaperM` as free while another chat was
+editing Paper M. Attach both repositories (§4g, `notes/reference/SESSION_MODES.md`). Without them
+`take` refuses and a write into a `doc:` family is refused; `pipeline` and `tools` warn and permit.
+**Staleness is measured from a claim's last ACTIVITY, not from when it was taken** — anything
+passing a claim gate refreshes it — so a chat working all evening is never flagged, and a flag
+(STALE 24 h, ABANDONED 72 h) never releases anything: `release --force --by NAME` is the only
+override and every one is logged to `working/claim_overrides.csv`. Martin's own view of the board is
+a private artifact (`tools/board_artifact.py`), the 06:30 dashboard, and the one-line digest that
+opens every session handover. **A ship request names the chat, its
 claims and any other paths it carries** —
 `{"id","requested_at","requested_by","message","chat","claims":[…],"paths":[…]}` — and
 `nrg_git.sh --ship` (1.29.0) parks every other chat's changed files in `.ship_hold/<id>/` before the

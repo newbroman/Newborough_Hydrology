@@ -1,6 +1,6 @@
 # Spec: water-balance drainage diagnostic (fixed Sy, residual drainage law)
 
-**Status:** DESIGN, awaiting Martin's sign-off. No code, document text or citation until signed off. Revised 21:34 (Stages H and I, decisions D9–D11).
+**Status:** DESIGN. Signed off 23:20 except D1 (name), which is open. No code, document text or citation until signed off. Revised 21:34 (Stages H and I, decisions D9–D11).
 **Written:** 2026-11-04, claude.ai chat session (Claude Opus 5.5), against public `main` as cloned at 18:30.
 **Provenance of the numbers below:** scratch scripts in that chat, run against committed CSVs on public
 `main`. They are INDICATIVE ONLY: they show what the step is expected to find, and serve as a regression
@@ -154,8 +154,9 @@ biases Sy high) and P on Δh (level error biases Sy low).
 - `WB_MIN_MONTHS` = 36, `WB_MIN_WINTER_MONTHS` = 20 — admission
 - `WB_MIN_WELLS_PER_MONTH` = 2 — cluster-mean months
 - `WB_INTERCEPTION_SCAN` = (0.0, 0.40, 0.02) — the interception scan
-- `WB_DRY_RAIN_QUANTILE` = 0.25 — a dry month is one whose rainfall is in the well's lowest quarter
-  of its own record (Stage H); selection on rainfall only
+- `WB_DRY_RAIN_QUANTILE` = 0.25 — a dry month is one whose rainfall is in the lowest quarter of the
+  site climate record over the reference period (Stage H); selection on rainfall only
+- `WB_RISE_MARGIN_M` — the rise counted as real in a dry month (above reading error)
 - `WB_DRY_WINTER_MONTHS` = (11, 12, 1, 2, 3) — the dry-winter subset of Stage H. Not
   `WB_WINTER_MONTHS`: March is included to give the subset enough months; agree or tighten (D9)
 - Stage I reuses `WINTER_RECESSION_MONTHS` (Nov–Feb, already in config and used by Script 16)
@@ -214,27 +215,43 @@ Figures follow `MPL_DEFAULTS`; captions are supplied in document text, not in th
 
 ## 8. Decisions for Martin (sign-off)
 
-- **D1 Name.** "Fixed-storage water balance" in documents, `wb_` in code, never "TLM".
-- **D2 Placement.** Script 55, tier X, opt-in.
-- **D3 Sy source.** Script 18 per-well `Sy_median` (the value the rest of the pipeline uses;
+- **D1 Name. OPEN (Martin, 23:20).** Storage is not fixed; Sy is. It is the traditional linear model
+  with its rainfall and PET coefficients set to 1/Sy, and the residual is what is analysed. Options:
+  "water-balance residual analysis" (recommended; methods text states the TLM link in one sentence),
+  "Sy-constrained TLM", "residual drainage analysis". Never bare "TLM" (Script 08). Code prefix `wb_`.
+- **D2 Placement. SIGNED OFF.** Script 55, tier X, opt-in.
+- **D3 Sy source. SIGNED OFF.** Script 18 per-well `Sy_median` (the value the rest of the pipeline uses;
   forest wells already interception-corrected), Script 17 as a sensitivity only.
-- **D4 Interception.** `FOREST_INTERCEPTION` stays at 0.24. The documents report the closure scan: C5
+- **D4 Interception. SIGNED OFF.** `FOREST_INTERCEPTION` stays at 0.24. The documents report the closure scan: C5
   consistent with 0.20–0.24 (the cluster containing the measurement site), C4 pointing lower but
   unresolved because its drainage law is a constant. The sparse canopy is a reason to expect a value
   below the conifer literature. (Agreed in discussion 21:02–21:04; needs a D-entry.)
-- **D5 Winter months.** Nov–Feb.
-- **D6 Threshold rule.** Threshold only where ΔBIC < −2; otherwise the line. Equal weight per well in
+- **D5 Winter months. SIGNED OFF.** Nov–Feb.
+- **D6 Threshold rule. SIGNED OFF.** Threshold only where ΔBIC < −2; otherwise the line. Equal weight per well in
   cluster summaries.
-- **D7 Shared code.** `simulate_water_balance()` added to `model_utils`.
-- **D8 Split-sample leakage.** Sy comes from the full record, so the forward test leaks slightly;
-  accept and state it, or refit Sy pre-split (Script 18 would need a windowed mode). Recommend:
-  accept and state.
-- **D9 Dry-month definition (Stage H).** Rainfall in the well's lowest quarter, chosen on rainfall
-  only, never on the fall; dry-winter subset Nov–Mar. Report the dry-winter k as the cleaner
-  estimate and the all-season dry k as an upper bound.
-- **D10 Winter months (Stage I).** Reuse `WINTER_RECESSION_MONTHS`, so Script 16 and this step share
+- **D7 Shared code. SIGNED OFF.** `simulate_water_balance()` added to `model_utils`.
+- **D8 Split-sample leakage. SIGNED OFF: windowed Script 18 (Martin, 23:20).** A forecasting test is
+  run as a forecasting model, so Stage G uses Sy estimated on the fit side only. Script 18 gains a
+  windowed mode that leaves every existing output unchanged and writes per-well Sy before and after
+  `MODEL_AB_SPLIT_DATE` to a new file (proposed `18_wtf_06_well_sy_by_window.csv`); Stage G reads the
+  pre-split Sy for the forward test and the post-split Sy for the reverse. Script 18 version bump,
+  inline changelog, SCRIPT_LEDGER row and a `record_basis` row; no new pipeline step. A well with too
+  few recharge events in a window is skipped in that direction and counted.
+- **D9 Dry months. SIGNED OFF, amended (Martin, 23:20).** A dry month is one whose rainfall is in the
+  lowest quarter of the SITE climate record over the reference period (one gauge, so one set of dry
+  months for every well), chosen on rainfall only; dry-winter subset Nov–Mar. Dry-winter k is the
+  cleaner estimate, all-season dry k an upper bound. Stage H also counts dry months in which the level
+  ROSE by more than a reading-error margin, per well and by cluster, split winter half and summer, with
+  the previous month's rainfall for rising and falling dry months. Martin's reading: a rise in a dry
+  month means water arrived from elsewhere. Scratch result: rises are rare (cluster medians 0.017 to
+  0.069), fall in the winter half, none in summer, and follow a wetter previous month (75.8 vs about
+  64 mm; C4 118.4 vs 62.6), so they look like the previous month's rain still draining down, not
+  lateral inflow. C1 has the fewest, so the test neither shows nor rules out C1 inflow, which would
+  appear as a slower summer fall rather than a rise. New constant `WB_RISE_MARGIN_M` (scratch used
+  0.02 m); `WB_DRY_RAIN_QUANTILE` now applies to the site record.
+- **D10 Winter months (Stage I). SIGNED OFF.** Reuse `WINTER_RECESSION_MONTHS`, so Script 16 and this step share
   one definition; exclude months at or above ground.
-- **D11 Sy bracket.** Report the winter joint-fit Sy as a two-direction bracket beside the WTF Sy,
+- **D11 Sy bracket. SIGNED OFF.** Report the winter joint-fit Sy as a two-direction bracket beside the WTF Sy,
   not as a replacement. `FOREST_INTERCEPTION`, the Script 18 Sy and λ are unchanged; the λ
   sensitivity text notes that a lower Sy lengthens the reach.
 

@@ -113,3 +113,53 @@ then a sentence in §2.4 or §5.6, the numbers as fields. The conductance needs 
 Sy uncertainty propagated before it goes in prose at all — the `pipeline` claim holder's job.
 
 Decisions recorded: none.
+
+---
+
+## 5. CORRECTION, same day: it is not a ceiling on the split the paper quotes
+
+**Section 2's "ceiling" does not hold as a bound on the annual drainage share, and the
+title of this note overstates it.** Appended rather than substituted (CLAUDE.md §3).
+Martin asked for the bound to be cited; working out the basis reconciliation that
+Section 2 left owed showed there is no bound to cite.
+
+`compute_recession_partition`'s own docstring says what the ratio is: "Ratio
+winter/summer gives drainage fraction of **summer losses**." The quantity Model A and
+Model B report (68 % and 45 %) is a drainage share of the mean loss over the whole
+record. Reconciling the two bases turns the single bias of Section 2 into two, running
+opposite ways:
+
+| | effect on Rec as an estimate of the ANNUAL share |
+|---|---|
+| winter heads are higher, drainage rises with head | numerator too large — pushes Rec **up** |
+| summer months are the highest-loss months | denominator too large — pushes Rec **down** |
+
+Both the numerator and the denominator are inflated relative to their annual means, so
+the ratio's error has no determined sign. Section 2's inequality chain does not compose:
+`Rec ≥ summer_share` and `annual_share ≥ summer_share` point the same way and bracket
+nothing. The direction argument that made the head bias model-free gives no bound once
+the basis changes.
+
+A third objection, not in Section 2 at all. `winter_rate` is the mean of the winter
+months **in which the level fell**, and those are a selected minority: `N_winter` is 15
+to 27 of the record's ~84 winter months (18-32 %), against `N_summer` 50 to 72 (60-86 %).
+Nov-Feb is the wet season, so a winter month with a net decline is one in which recharge
+happened to be low. The winter rate is therefore drainage less some recharge over the
+drier part of the wet season, not drainage alone.
+
+Why the identification looked sound: `16_water_bal_vol_table.csv` multiplies all four
+fractions, `Rec_drain_frac` included, by the same annual `P_net_mm_yr` to get
+`Drain_mid/lo/hi_mm_yr`, and `Lo_/Hi_drain_frac` are the min and max across them. The
+pipeline already treats the four as estimates of one annual quantity. That identification
+is an assumption of Script 16's reporting, not an arithmetic result, and Section 2 inherited
+it without checking it. **It is still the corpus's treatment and nothing here says Table 6
+is wrong** — four estimators with a reported spread is the honest presentation. What cannot
+be built on it is a bound.
+
+What survives, and is what went into Paper M v1_42 §5.2: the recession ratio is a **third
+estimate** of the split that comes from neither form and needs neither a datum nor a
+specific yield, reported with all three limitations above. Section 2's bracket table is
+withdrawn; the floor in §2.4 stands on its own, as it did before this note.
+
+Section 3 (the conductance) is untouched by this correction and its conclusion is unchanged:
+a consistency check, not a discriminator, and not yet fit for prose.

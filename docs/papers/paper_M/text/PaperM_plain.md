@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_5.odt — do not edit. source-sha256=f545bdbc9eaf4a89 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_6.odt — do not edit. source-sha256=259e24f3d9174e3f pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -54,7 +54,7 @@ Pastas is widely used software that does the same job. Model B is exactly what P
 
 ## []{#anchor}What neither version can decide
 
-The water table loses water in two ways: by drainage, and by evaporation and plant use. The levels alone cannot say how the loss splits between them, because the split depends on the level that drainage is measured from. Model A sets that level by assumption and Model B by fit. Without a direct measurement of drainage, evaporation or recharge, neither can fix the true split. Model A's drainage share also leans high, because it counts some evaporation from a shallow water table as drainage. A forecast does not need the split: it needs the model's numbers working together, not each flow apart.
+The water table loses water in two ways: by drainage, and by evaporation and plant use. The levels alone cannot say how the loss splits between them, because the split depends on the level that drainage is measured from. Model A sets that level by assumption and Model B by fit. Without a direct measurement of drainage, evaporation or recharge, neither can fix the true split. One thing can be said without measuring anything. Evaporation and plant use cannot take more water than the weather asks for, and over a record this long the water stored underground has not drifted up or down, so drainage must carry at least the rain left over once that demand is met. That is a minimum for drainage, whichever version of the model is used, and it holds wherever the floor is put. It is a low minimum, and it does not fix the split: it bounds it. It also fails under the trees, where the canopy evaporates more in winter than the weather figures allow. Model A's drainage share also leans high, because it counts some evaporation from a shallow water table as drainage. A forecast does not need the split: it needs the model's numbers working together, not each flow apart.
 
 # []{#anchor}3. The site, the record and the wells
 

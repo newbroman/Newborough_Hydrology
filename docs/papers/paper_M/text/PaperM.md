@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_40.odt — do not edit. source-sha256=ad7a33242b4e39f0 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_v1_41.odt — do not edit. source-sha256=cca47c6dc3e4ef30 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you
@@ -83,7 +83,7 @@ The drainage rate is set by the response time alone, the gain *A* scales the res
 
 ## []{#anchor}2.4 What neither form can decide
 
-The water table loses water in two ways: by drainage, and by atmospheric draw (evapotranspiration). Heads alone cannot say how the loss splits between them, because the split depends on the level drainage is measured from. Model A sets that level by assumption and Model B by fit. Without an independent measurement of at least one flux (drainage, evapotranspiration or recharge), neither form can fix the true split.
+The water table loses water in two ways: by drainage, and by atmospheric draw (evapotranspiration). Heads alone cannot say how the loss splits between them, because the split depends on the level drainage is measured from. Model A sets that level by assumption and Model B by fit. Without an independent measurement of at least one flux (drainage, evapotranspiration or recharge), neither form can fix the true split. One bound, however, needs no such measurement. Actual evapotranspiration cannot exceed the potential, and over a long record the mean change in storage is negligible, so the water balance puts drainage at or above the excess of rainfall over PET. That floor depends on neither the datum nor the fitted form. It fails under a canopy, where interception evaporates more in winter than a temperature-based PET allows, and it does not fix the split. It bounds it.
 
 A second limit applies to Model A's split. Evaporation from a shallow water table falls as the water table deepens, so it varies with head as drainage does, and the fit books it to β₃. Letting evaporative draw decline with depth to water moves part of the loss from drainage to evapotranspiration, most where the water table is shallowest. The drainage share of Model A therefore leans high, and is reported here only as conditional on the datum; the split is quoted from Model B (Section 5.6). A forecast does not depend on the split: it needs the coefficients together, not the fluxes apart.
 

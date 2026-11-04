@@ -256,7 +256,15 @@ that renumber, by the CLAUDE.md §4d recipe (plan pass, figure_map.py, repoint_v
 --snapshot, ref_audit), because reference_lint alone cannot see a reference that moved twice. The
 drafted passages therefore call the new section §5.3 and name any later section by its title as
 well as its post-renumber number; one added clause in §7.1 beside §2.4's floor and §5.2's reading (v1_42 wording
-stands); a sentence each in §7.4 (the forest forcing reading) and §8. The plain companion
+stands);
+the §7.1 clause frames the four readings by what each is free of (Paper M chat, 23:14):
+§2.4's floor needs no datum, no fitted base and no Sy, gives bounds only and fails under canopy;
+§5.2's recession ratio needs no datum and no Sy but is a share of summer recession; Models A and B
+give the annual-loss share but each needs a datum or a fitted base, and they disagree; the water
+balance gives the annual-loss share at the median well but needs Sy, hence its bracket. The floor and
+the water balance then bear on §7.1's quantity from opposite directions, and §5.2's independence of
+Sy stays its own virtue. Field keys go to the Paper M chat first so it can register them; the
+insertion and the renumber go in as one version bump; a sentence each in §7.4 (the forest forcing reading) and §8. The plain companion
 (PaperM_plain) follows in its next pass.
 
 **Paper 1:** §4.4/§4.5 cite the third bracket beside the 85 %/24 % split and soften Table 3's C1

@@ -25,8 +25,12 @@ and regress that residual on head to get a drainage rate.
     k = c / Sy  (fraction of the head above h₀ drained per month)
 
 **Why it earns a step.** Paper M §7.1 says heads alone cannot split the loss between ET and
-drainage (Model A 68 %, Model B 45 % at the median well). Fixing Sy from outside the fit, and trusting
-PET only in winter when it is small, gives a third reading. It came out at about a third of the loss
+drainage (Model A 68 %, Model B 45 % at the median well). As of v1_42 (`380a497`) it leaves the two
+forms' answers apart and constrains the split by §2.4's floor and §5.2's recession reading, the
+latter presented as a third estimate independent of both forms. Fixing Sy from outside the fit, and
+trusting PET only in winter when it is small, gives a fourth reading. It also answers two of the
+three caveats §5.2 gives for the recession reading (months chosen on the fall; head inflating the
+winter rate) through Stages H and I. It came out at about a third of the loss
 on the open dune, below both forms, and it accounts for the gap: the SSM's free coefficients book only
 β₂/β₁ ≈ 0.4–0.5 of PET as ET, against water-balance ET/PET ≈ 0.86–0.94.
 
@@ -240,9 +244,11 @@ station is a candidate).
 
 ## 9. Document plan (after the step is on `main`; each edit walked through first)
 
-**Paper M** (via the chat holding `doc:PaperM`): a short §5.7 "Fixing storage: a third reading of the
-split", one figure (Stage B or D), detail in the SI; a sentence each in §7.1 (the split), §7.4 (the
-forest forcing reading) and §8.
+**Paper M** (via the chat holding `doc:PaperM`): a short §5.7 "Fixing storage: a fourth reading of
+the split", one figure (Stage B or D), detail in the SI, placed after §5.2's recession reading
+which it complements; one added clause in §7.1 beside §2.4's floor and §5.2's reading (v1_42 wording
+stands); a sentence each in §7.4 (the forest forcing reading) and §8. The plain companion
+(PaperM_plain) follows in its next pass.
 
 **Paper 1:** §4.4/§4.5 cite the third bracket beside the 85 %/24 % split and soften Table 3's C1
 mid-point; §4.5 and Conclusion 3 state that the water-balance closure and the Sy convergence point

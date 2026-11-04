@@ -10,10 +10,18 @@ Script 18 and treats rainfall less PET less storage change as drainage, then reg
 It is not Script 08's TLM, and must not be called "TLM" in Paper M.
 
 **Where it touches Paper M:**
-- **§7.1 and §5.6, the split.** The latest ship (`c2d292a`, "Paper M v1_41's bound on the split")
-  bounds the split by Model A and Model B. The water balance puts drainage below both on the open
-  dune, and attributes the difference to the SSM's β₂/β₁ (how much of PET the fitted model books as
-  ET). Wording that presents A and B as the bracket will need to say there is a third reading.
+- **§7.1 and §5.2, the split.** *Corrected 23:10 against v1_42 (`380a497`); the first version of
+  this note misread the paper.* §7.1 does not bracket the split by Model A and Model B. It leaves the
+  two forms' answers apart and constrains the split by §2.4's floor and §5.2's recession reading,
+  which v1_42 presents as a third estimate independent of both forms. The water balance is therefore
+  a FOURTH reading: one clause in §7.1 beside the other two, not a rewrite. It puts drainage at about
+  a third of the annual loss on the open dune, below both forms, and attributes the gap to the SSM's
+  β₂/β₁ (how much of PET the fitted form books as ET). Not the same quantity as §5.2's share, which is
+  a share of summer recession, not of the annual loss.
+- **§5.2's own caveats.** Two of the three caveats v1_42 gives for the recession reading are ones
+  the diagnostic addresses directly: it selects dry months on rainfall rather than on the level having
+  fallen, and it fits drainage against head in winter rather than letting head inflate a winter mean
+  rate. That makes it a natural companion to §5.2, not a replacement for it.
 - **§7.4, the forest.** Paper M leaves open whether C4's unidentified β₃ is a slow response or a
   mis-specified ET forcing. The water balance favours the forcing reading.
 - **§4 and §7.3, forecasting.** It forecasts like Model A within the record and fails the drier decade

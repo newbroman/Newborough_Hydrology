@@ -1,3 +1,5 @@
 doc,match,reason
 *,Residuals,the closure residual of the balance is a share of losses but not a split between forms
 *,closes the mean balance,the closure residual of the balance is a share of losses but not a split between forms
+Paper1_plain,drainage share runs from 73% to 89% at the Lake Edge,the plain guide names the form as 'the floor' throughout (a fixed datum is Model A); the same paragraph opens 'With the floor at 3.7 m' and says the split depends on where the floor is put. Model A/B is jargon this companion deliberately avoids (D-265)
+Paper1_plain,typically 8.0 months at the Lake Edge,"same: 'the time the water above the floor takes to halve' names the fixed-datum form in plain words, and the next paragraph contrasts it with the model-free estimate measured straight from the readings"

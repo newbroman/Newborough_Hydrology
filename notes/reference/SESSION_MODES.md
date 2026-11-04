@@ -45,6 +45,17 @@ sending Martin to the L14 for the whole job.
 Credentials come from Martin's linked GitHub account, freshly each session. Never
 ask for, accept or type a token in the conversation (CLAUDE.md §4g).
 
+**Attaching BOTH is not optional, and since D-300 the tools say so rather than
+guessing.** The claim lock lives in `working/DOCUMENT_LOCK.json`, in the private
+repository. A session holding only the public one used to be told every claim was
+`free` — which is how the 2026-11-04 water-balance chat came to read `doc:PaperM`
+as free while another chat was editing Paper M. `doc_lock` and `work_board` now
+report **UNKNOWN**, the board says so in its first line, `take` refuses with the
+two lines above, and a write into a `doc:` family is refused (`pipeline` and
+`tools` are warned and permitted, so a deliberately public-only session still
+runs; `NRG_NO_PRIVATE_STORE=1` declares that intent). If a board says UNKNOWN,
+attach the private repository — do not take a claim and hope.
+
 ## Setting the Drive secret (Martin, once; again only if a session says DRIVE TOKEN REFUSED)
 
 On the L14:

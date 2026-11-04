@@ -20,6 +20,12 @@
 # ============================================================================
 # VERSION 1.31.0 - 2026-10-25
 # CHANGELOG
+#   1.33.0 (2026-11-04): claims gate gains doc_lock --selftest (GATED, like the other two modules
+#     that keep chats apart) and board_artifact --check (advisory: it says the phone view is behind,
+#     which only a session can fix by republishing). doc_lock 1.4.0 refuses to call an unreadable
+#     lock "free" - D-300, after a public-only clone was told every claim was free while another
+#     chat held doc:PaperM. The selftest runs the whole of the spec's section 6 against throwaway
+#     trees; it never reads or writes the real lock.
 #   1.32.0 (2026-10-28): model-form section (form_label_lint, D-284), advisory until the
 #     2026-10-28 edit set lands.
 #   1.31.0 (2026-10-25): references gate gains tools/paper_refs.py (--selftest, then the check):
@@ -500,8 +506,10 @@ echo
 # the two modules that keep chats apart (row merge, held-back work) ARE gated.
 echo "── claims (who is doing what?) ──────────────────────────────────────"
 python3 tools/work_board.py --gate || true
+python3 tools/board_artifact.py --check || true          # 1.33.0: advisory - only a session can republish
 python3 tools/register_io.py --selftest >/dev/null || { echo "  FAIL register_io selftest"; rc=1; }
 python3 tools/ship_scope.py --selftest >/dev/null || { echo "  FAIL ship_scope selftest"; rc=1; }
+python3 tools/doc_lock.py --selftest >/dev/null || { echo "  FAIL doc_lock selftest"; rc=1; }
 
 echo
 echo "── decisions ────────────────────────────────────────────────────────"

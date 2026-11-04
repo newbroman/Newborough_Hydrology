@@ -1,0 +1,200 @@
+pastas_n_wells_dp0	66	… common forms, without an intercept and with a free one, on 
+modelab_nse_fwd_B_median_all_dp2	0.79	…un freely after it, its median Nash–Sutcliffe efficiency is 
+modelab_nse_fwd_A_median_all_dp2	0.61	…er it, its median Nash–Sutcliffe efficiency is 0.79 against 
+reclen_ccw_bias_m_A_median_Lfull_all_dp2	0.03	…order reverses: the no-intercept form is close to unbiased (
+reclen_ccw_bias_m_B_median_Lfull_all_dp2	0.30	…to unbiased (0.03 m) and the free-intercept form too wet by 
+modelab_efold_A_months_median_all_dp1	15.8	…d the time the water table takes to return to its own mean (
+modelab_efold_B_months_median_all_dp1	6.5	…e water table takes to return to its own mean (15.8 against 
+modelab_efold_obs_months_median_all_dp1	5.1	…o its own mean (15.8 against 6.5 months at the median well; 
+projection_2080s_summer_fall_median_model_b_abs_dp2	0.37	… the two forms bracket a median fall of the summer level of 
+projection_2080s_summer_fall_median_at_project_abs_dp2	0.52	…two forms bracket a median fall of the summer level of 0.37–
+pastas_n_wells_dp0	66	…forecast. It tests two common versions of the same model on 
+DATUM_RAW_DEPTH_M_dp0	0	…n end-point. Measured from the ground surface instead (z₀ = 
+datum0_n_clusters_beta3_negative_dp0	2	…d-point. Measured from the ground surface instead (z₀ = 0), 
+study_area_ha_dp0	865	…orough Warren (Anglesey, Wales) is a coastal dune system of 
+wells_classified_n_dp0	88	…a coastal dune system of 865 ha. Its monitoring network has 
+raf_valley_distance_km_dp0	16	…nd Thornthwaite PET come from a single station, RAF Valley, 
+reference_n_wells_dp0	66	…ter for the same month, with no lag. A reference network of 
+LCSC_DATA_LIMIT_dp0	100	…ted on record length. To be admitted, a well needs at least 
+reference_record_months_median_dp0	192	…tted records are longer than this minimum, with a median of 
+reference_record_months_min_dp0	140	…onger than this minimum, with a median of 192 months (range 
+reference_record_months_max_dp0	252	…r than this minimum, with a median of 192 months (range 140–
+silhouette_k2_dp2	0.58	…al Forest. The silhouette score is highest at two clusters (
+silhouette_k5_dp2	0.37	…hich separates the main forest from the rest; at five it is 
+cluster_stability_wells_median_dp2	0.95	…s are stable when wells are resampled (median co-assignment 
+cluster_stability_months_median_dp2	0.99	…nt 0.95) and when months are resampled in year-long blocks (
+cluster_splithalf_ari_mean_dp2	0.53	…es of the record agree only moderately (adjusted Rand index 
+cluster_splithalf_ari_p05_dp2	0.35	…ree only moderately (adjusted Rand index 0.53, 5–95 % range 
+cluster_splithalf_ari_p95_dp2	0.73	…nly moderately (adjusted Rand index 0.53, 5–95 % range 0.35–
+LCSC_DATA_LIMIT_dp0	100	…ll record or on a common comparison window, the most recent 
+DRAINAGE_DATUM_dp1	3.7	…comparison window: the TLM, Model A at the network datum of 
+DRAINAGE_DATUM_dp1	3.7	…ear model (TLM), the no-intercept state-space model at z₀ = 
+LCSC_DATA_LIMIT_dp0	100	…orm (Model B), each fitted per well on the reference well’s 
+benchmark_n_wells_dp0	64	…tents">55 Run freely, the TLM drifts. Across the 
+benchmark_median_NSE_TLM_dp2	0.43	…ash–Sutcliffe efficiency (NSE; Nash and Sutcliffe, 1970) is 
+benchmark_negative_NSE_TLM_dp0	8	…E; Nash and Sutcliffe, 1970) is 0.43, and it is negative at 
+benchmark_median_NSE_ModelB_dp2	0.82	…the drainage term alone, as in Model B, the median rises to 
+benchmark_positive_NSE_ModelB_dp0	64	…B, the median rises to 0.82, and the NSE is positive at all 
+benchmark_median_NSE_SSM_dp2	0.77	…age term at the network datum, as in Model A, the median is 
+benchmark_positive_NSE_SSM_dp0	63	…twork datum, as in Model A, the median is 0.77, positive at 
+Median_one_step_R2_Traditional_Model_A_dp2	0.92	…level, the TLM and Model A are indistinguishable (median R² 
+dNSE_vs_beta3_r_dp2	0.46	…. The gain rises with the drainage coefficient (Pearson r = 
+CEH14_SSM_NSE_dp2	−12.87	…nt on the window is negative and its free run diverges (NSE 
+CEH14_TLM_NSE_dp2	−0.04	…w is negative and its free run diverges (NSE −12.87 against 
+CEH14_ModelB_NSE_dp2	0.38	… for the TLM), while Model B, whose datum is fitted, scores 
+modelab_nse_fwd_B_median_all_dp2	0.79	…t was then run in reverse. Forward, Model B’s median NSE is 
+modelab_nse_fwd_A_median_all_dp2	0.61	…n in reverse. Forward, Model B’s median NSE is 0.79 against 
+modelab_nse_fwd_share_B_better_all_x100_dp0	88	… is 0.79 against 0.61 for Model A, and Model B is better at 
+modelab_nse_rev_B_median_all_dp2	0.78	…is better at 88 % of wells. In reverse, Model B’s median is 
+modelab_nse_rev_A_median_all_dp2	0.67	…88 % of wells. In reverse, Model B’s median is 0.78 against 
+modelab_nse_rev_share_B_better_all_x100_dp0	77	…n reverse, Model B’s median is 0.78 against 0.67, better at 
+modelab_nse_fwd_B_median_C4_dp2	0.08	… close. At C4 both forecast poorly, with forward medians of 
+modelab_nse_fwd_A_median_C4_dp2	0.21	…recast poorly, with forward medians of 0.08 for Model B and 
+LCSC_DATA_LIMIT_dp0	100	…asts are scored over years in which the canopy changed. The 
+n_wells_admitted_dp0	9	…f 1989–96, read before the modern network was installed, at 
+reclen_ccw_bias_m_A_median_Lfull_all_dp2	0.03	…h well, Model A is close to unbiased, with a median bias of 
+reclen_ccw_bias_m_B_median_Lfull_all_dp2	0.30	…biased, with a median bias of 0.03 m. Model B is too wet by 
+reclen_ccw_nse_A_median_Lfull_all_dp2	−0.14	…. Model B is too wet by 0.30 m. Their median NSE values are 
+reclen_ccw_nse_B_median_Lfull_all_dp2	−1.46	…is too wet by 0.30 m. Their median NSE values are −0.14 and 
+reclen_ccw_bias_m_B_median_L144_start_dp2	0.27	…nd of the modern record: Model B’s median bias lies between 
+reclen_ccw_bias_m_B_median_L24_start_dp2	0.51	… modern record: Model B’s median bias lies between 0.27 and 
+reclen_ccw_bias_m_A_median_L80_end_dp2	0.09	… bias lies between 0.27 and 0.51 m, and Model A’s is within 
+datum_ccw_supported_m_dp1	2.9	… before the run, the datum that maximizes the median NSE is 
+datum_ccw_band_min_m_dp1	2.8	…atum that maximizes the median NSE is 2.9 m, with a band of 
+datum_ccw_band_max_m_dp1	2.9	… that maximizes the median NSE is 2.9 m, with a band of 2.8–
+RECLEN_DATUM_NSE_TOL_dp2	0.05	…s the median NSE is 2.9 m, with a band of 2.8–2.9 m within 
+datum_ccw_nse_median_at_D2_9_dp2	0.44	…ith a band of 2.8–2.9 m within 0.05 of the best (median NSE 
+datum_ccw_nse_median_at_D3_7_dp2	−0.06	…p1">2.9 m within 0.05 of the best (median NSE 0.44, against 
+reclen_ccw_bias_m_A_median_L100_end_dp2	−0.01	…, but it is close to unbiased on the same fits (median bias 
+datum_ranwell_supported_m_dp1	0.7	… with the mean offset removed. By the same rule it supports 
+datum_ranwell_band_min_m_dp1	0.5	…an offset removed. By the same rule it supports 0.7 m (band 
+datum_ranwell_band_max_m_dp1	1.1	…ffset removed. By the same rule it supports 0.7 m (band 0.5–
+ranwell_nse_median_at_supported_dp2	0.86	… Model A behaves as Model B does: the median NSE values are 
+ranwell_nse_median_model_b_dp2	0.86	…el B does: the median NSE values are 0.86 at that datum and 
+ranwell_nse_median_at_project_dp2	0.46	…values are 0.86 at that datum and 0.86 for Model B, against 
+DRAINAGE_DATUM_dp1	3.7	… and 0.86 for Model B, against 0.46 at the network datum of 
+ranwell_epoch_swing_smaller_pct_min_dp0	3	…to the model the seasonal swing at the three main pairs was 
+ranwell_epoch_swing_smaller_pct_max_dp0	20	… the model the seasonal swing at the three main pairs was 3–
+RECLEN_MIN_FIT_MONTHS_dp0	24	… Model B forecasts better at every length of fit. Fitted on 
+reclen_nse_fwd_B_median_L24_all_dp2	0.72	… on 24 months before 2018 its median forward NSE is already 
+reclen_nse_fwd_B_median_Lfull_all_dp2	0.79	…ths before 2018 its median forward NSE is already 0.72, and 
+reclen_nse_fwd_A_median_L24_all_dp2	−0.14	…already 0.72, and 0.79 from all of it. Model A’s rises from 
+reclen_nse_fwd_A_median_L100_all_dp2	0.59	….72, and 0.79 from all of it. Model A’s rises from −0.14 to 
+reclen_nse_fwd_A_median_Lfull_all_dp2	0.61	…of it. Model A’s rises from −0.14 to 0.59 at 100 months and 
+RECLEN_STABLE_TOL_x100_dp0	20	…hich the median departure from the full-record β₃ is within 
+reclen_stable_length_months_A_median_all_dp0	24	…odel A’s β₃ is the more robust: its median stable length is 
+reclen_stable_n_wells_reached_A_all_dp0	64	…he shortest length tested and so an upper bound, reached at 
+reclen_stable_length_months_B_median_all_dp0	60	…ed and so an upper bound, reached at 64 wells. Model B’s is 
+reclen_stable_n_wells_reached_B_all_dp0	62	…n upper bound, reached at 64 wells. Model B’s is 60 months (
+reclen_identified_share_B_median_L24_all_x100_dp0	60	…s is 60 months (62 wells), and its β₃ is identified on only 
+RECLEN_MIN_FIT_MONTHS_dp0	24	…months (62 wells), and its β₃ is identified on only 60 % of 
+reclen_stable_length_in_efolds_A_median_all_dp1	4.7	…d in each well’s mean-reversion times, the stable length is 
+reclen_stable_length_in_efolds_B_median_all_dp1	9.0	…n-reversion times, the stable length is 4.7 for Model A and 
+reclen_stable_length_months_A_median_C4_dp0	120	…forest is the exception for both forms. At C4 Model A needs 
+reclen_stable_length_months_B_median_C4_dp0	144	… for both forms. At C4 Model A needs 120 months and Model B 
+reclen_stable_n_wells_reached_B_C4_dp0	5	…Model B reaches stability within the lengths tested at only 
+C4_Main_Forest_comparison_window_beta_3_pct_vs_full_record_dp0_plus	−35	…w instead of the full record shifts the C4 centroid’s β₃ by 
+C1_Lake_Edge_comparison_window_beta_3_pct_vs_full_record_dp0_plus	+17	…e full record shifts the C4 centroid’s β₃ by −35 %, against 
+pastas_n_not_identified_C4_comparison_window_dp0	9	…sponse time it loses on the window are mainly forest wells (
+BASIS_TOL_NSE_dp2	0.05	…e cluster basis holds on a test if its median NSE is within 
+BASIS_TOL_BIAS_M_dp2	0.05	…, and, on the drier decade, its median absolute bias within 
+basis_ccw_nse_median_cluster_A_dp2	−0.17	…ss all three tests. On the drier decade their median NSE is 
+basis_ccw_nse_median_well_A_dp2	−0.14	…ests. On the drier decade their median NSE is −0.17 against 
+basis_ccw_absbias_median_cluster_A_dp2	0.23	…the wells’ own coefficients, and their median absolute bias 
+basis_ccw_absbias_median_well_A_dp2	0.26	…coefficients, and their median absolute bias 0.23 m against 
+basis_split_nse_median_cluster_A_fwd_dp2	0.72	…ng forward from the January 2018 split, their median NSE is 
+basis_split_nse_median_well_A_fwd_dp2	0.61	…om the January 2018 split, their median NSE is 0.72 against 
+basis_ccw_nse_median_cluster_B_dp2	−0.27	… decade they do much better than the wells’ own (median NSE 
+basis_ccw_nse_median_well_B_dp2	−1.46	…o much better than the wells’ own (median NSE −0.27 against 
+GAPFILL_HOLDOUT_MONTHS_dp0	54	…a measured neighbour than from the model. With stretches of 
+gapfill_pooled_nearest_cluster_excluded_msl_abs_err_median_dp3	0.041	…ut back from its nearest cluster-mate with a median miss of 
+gapfill_pooled_ssm_model_a_excluded_msl_abs_err_median_dp3	0.139	…nearest cluster-mate with a median miss of 0.041 m, against 
+projection_2050s_n_wells_pair_dp0	57	…served rainfall and PET, with comparison-window fits at the 
+projection_2050s_summer_fall_median_at_project_abs_dp2	0.28	… the 2050s the median sustained fall of the summer level is 
+projection_2050s_summer_fall_median_at_supported_abs_dp2	0.24	… summer level is 0.28 m under Model A at the network datum, 
+datum_ccw_supported_m_dp1	2.9	…under Model A at the network datum, 0.24 m under Model A at 
+projection_2050s_summer_fall_median_model_b_abs_dp2	0.20	…l A at the network datum, 0.24 m under Model A at 2.9 m and 
+projection_2050s_annual_wb_shift_mm_yr_abs_dp0	117	…ario lowers the annual water balance (rainfall less PET) by 
+ccw_epoch_annual_wb_shift_mm_yr_abs_dp0	110	…s the drier decade of 1989–96 fell below the modern record (
+projection_2080s_summer_fall_median_at_project_abs_dp2	0.52	…tested. In the 2080s the median fall of the summer level is 
+projection_2080s_summer_fall_median_at_supported_abs_dp2	0.44	… summer level is 0.52 m under Model A at the network datum, 
+datum_ccw_supported_m_dp1	2.9	…vel is 0.52 m under Model A at the network datum, 0.44 m at 
+projection_2080s_summer_fall_median_model_b_abs_dp2	0.37	…2 m under Model A at the network datum, 0.44 m at 2.9 m and 
+projection_2080s_annual_wb_shift_mm_yr_abs_dp0	210	…el B. The 2080s scenario lowers the annual water balance by 
+modelab_efold_A_months_median_all_dp1	15.8	… full record, the median well’s recession time (Model A) is 
+modelab_efold_B_months_median_all_dp1	6.5	…del A) is 15.8 months and its mean-reversion time (Model B) 
+modelab_efold_obs_months_median_all_dp1	5.1	…e (Bloomfield and Marchant, 2013). The model-free median is 
+modelab_efold_B_months_median_C1_dp1	2.1	…an is 5.1 months. Cluster by cluster, Model B sits with it: 
+modelab_efold_obs_months_median_C1_dp1	2.0	…nths. Cluster by cluster, Model B sits with it: 2.1 against 
+modelab_efold_B_months_median_C2_dp1	4.4	…luster, Model B sits with it: 2.1 against 2.0 months at C1, 
+modelab_efold_obs_months_median_C2_dp1	4.1	…hs_median_C1_dp1">2.1 against 2.0 months at C1, 4.4 against 
+modelab_efold_B_months_median_C3_dp1	7.4	…ths_median_C1_dp1">2.0 months at C1, 4.4 against 4.1 at C2, 
+modelab_efold_obs_months_median_C3_dp1	6.3	…_B_months_median_C2_dp1">4.4 against 4.1 at C2, 7.4 against 
+modelab_efold_B_months_median_C5_dp1	13.3	…_months_median_C2_dp1">4.1 at C2, 7.4 against 6.3 at C3 and 
+modelab_efold_obs_months_median_C5_dp1	12.0	…onths_median_C3_dp1">7.4 against 6.3 at C3 and 13.3 against 
+modelab_efold_obs_months_median_C4_dp1	15.6	…times the observed value. At C4, where the observed time is 
+modelab_efold_obs_detr_months_median_all_dp1	5.0	…rd (Section 4.4). Removing a linear trend gives a median of 
+modelab_efold_obs_yw_months_median_all_dp1	6.1	…a median of 5.0 months, and correcting ρ₁ for reading error 
+reclen_rho_ar1_expected_full_B_median_all_dp2	0.16	…g-1 autocorrelation of spring level of (1 − β₃)¹², which is 
+reclen_rho_ar1_expected_full_A_median_all_dp2	0.47	…− β₃)¹², which is 0.16 at the median well under Model B and 
+rho_lag1_median_dp2	−0.11	…under Model B and 0.47 under Model A. The observed value is 
+DATUM_SWEEP_MIN_M_dp1	0.5	…e cluster-centroid Model A was refitted at every datum from 
+DATUM_SWEEP_MAX_M_dp1	8.0	…er-centroid Model A was refitted at every datum from 0.5 to 
+all_clusters_all_beta3_pos_sig_from_m_dp1	1.6	…m from 0.5 to 8.0 m below ground (Figure 1). Shallower than 
+C1_Lake_Edge_aic_optimal_datum_m_dp1	0.7	…ot identified. The datum that fits best differs by cluster (
+C4_Main_Forest_aic_optimal_datum_m_dp1	7.1	…dentified. The datum that fits best differs by cluster (0.7–
+DRAINAGE_DATUM_dp1	3.7	…r, β₃ keeps falling but the mean drainage flux does not. At 
+partition_drainage_flux_ratio_datum_to_deepest_C4_Main_Forest_3_7_m_8_m_dp2	0.81	…g but the mean drainage flux does not. At 3.7 m the flux is 
+partition_drainage_flux_ratio_datum_to_deepest_C1_Lake_Edge_3_7_m_8_m_dp2	0.97	… the mean drainage flux does not. At 3.7 m the flux is 0.81–
+DRAINAGE_DATUM_dp1	3.7	…t be reported as conditional on it. A single network datum, 
+C1_Lake_Edge_delta_AIC_datum_vs_optimum_dp1	94.0	…nge everywhere. Against each cluster’s own optimum it costs 
+datum_aod_r2_median_at_optimum_dp3	0.738	…e than the depth datum at every level tried (best median R² 
+datum_aod_r2_median_depth_datum_dp3	0.740	…th datum at every level tried (best median R² 0.738 against 
+tide_mhw_m_dp2	1.88	… record with its own datum at its depth to mean high water (
+modelab_datum_mhw_min_all_dp1	1.7	…88 m above Ordnance Datum), which places the datums between 
+modelab_datum_mhw_max_all_dp1	12.5	…ve Ordnance Datum), which places the datums between 1.7 and 
+modelab_drainage_share_M_median_all_x100_dp0	68	…lance partition at the network datum (median drainage share 
+modelab_drainage_share_A_median_all_x100_dp0	68	…m (median drainage share 68 % at the anchored datum against 
+modelab_efold_M_months_median_all_dp0	29	… into β₃ and the implied e-folding time roughly doubles, to 
+modelab_efold_A_months_median_all_dp0	16	…mplied e-folding time roughly doubles, to 29 months against 
+DRAINAGE_DATUM_dp1	3.7	… e-folding time roughly doubles, to 29 months against 16 at 
+modelab_efold_obs_months_median_all_dp1	5.1	…s, to 29 months against 16 at 3.7 m and 
+modelab_nse_fwd_M_median_all_dp2	0.46	…0">16 at 3.7 m and 5.1 observed. Out-of-sample NSE falls to 
+modelab_nse_rev_M_median_all_dp2	0.53	…d 5.1 observed. Out-of-sample NSE falls to 0.46 forward and 
+modelab_nse_fwd_A_median_all_dp2	0.61	…mple NSE falls to 0.46 forward and 0.53 in reverse, against 
+modelab_nse_rev_A_median_all_dp2	0.67	…all_dp2">0.46 forward and 0.53 in reverse, against 0.61 and 
+DATUM_AOD_SWEEP_MIN_M_dp0	−2	…s datum at the well’s height above one common base, between 
+DATUM_AOD_SWEEP_MAX_M_dp0	8	… at the well’s height above one common base, between −2 and 
+e16_z0_best_m_aod_dp2	2.75	…ion 4.3. By the rule fixed before the run, the best base is 
+e16_ccw_nse_median_at_best_dp2	0.25	…hindcasts the drier decade better (both Model A: median NSE 
+e16_ccw_nse_median_at_depth_dp2	−0.06	… drier decade better (both Model A: median NSE 0.25 against 
+e16_ranwell_nse_median_at_best_dp2	0.58	… median NSE 0.25 against −0.06) and Ranwell’s swing better (
+e16_ranwell_nse_median_at_depth_dp2	0.46	….25 against −0.06) and Ranwell’s swing better (0.58 against 
+e16_ranwell_n_dp0	3	…_dp2">−0.06) and Ranwell’s swing better (0.58 against 0.46, 
+e16_split_nse_median_at_best_dp2	0.56	… forecasts the modern record worse (median split-sample NSE 
+e16_split_nse_median_at_depth_dp2	0.64	…e modern record worse (median split-sample NSE 0.56 against 
+e16_ccw_n_better_at_best_dp0	5	…rm. It is not adopted. The medians hide a split by cluster. 
+e16_ccw_n_C3_dp0	6	… not adopted. The medians hide a split by cluster. 5 of the 
+e16_ccw_nse_median_C3_at_best_dp2	0.42	…ern Residual hindcast better on the common base (median NSE 
+e16_ccw_nse_median_C3_at_depth_dp2	−0.24	…hindcast better on the common base (median NSE 0.42 against 
+e16_ccw_n_C2_dp0	2	… the common base (median NSE 0.42 against −0.24), while the 
+e16_ccw_nse_median_C2_at_best_dp2	−3.37	…gainst −0.24), while the 2 open-dune wells fail (median NSE 
+e16_ccw_nse_median_C2_at_depth_dp2	0.28	… while the 2 open-dune wells fail (median NSE −3.37 against 
+e16_rho_beta3_vs_datum_at_best_dp2	−0.74	…base, β₃ falls with each well’s height above it (Spearman ρ 
+modelab_corr_alpha_beta_3_B_median_all_dp2	0.96	…β₃ are almost interchangeable: their estimates correlate at 
+modelab_base_depth_B_m_median_all_dp1	1.6	…her than physical, and lies near each well’s mean, a median 
+modelab_drainage_share_B_median_all_x100_dp0	45	…ean loss is booked to atmospheric draw: a drainage share of 
+modelab_drainage_share_A_median_all_x100_dp0	68	…tmospheric draw: a drainage share of 45 % against Model A’s 
+pastas_vs_ssmB_beta_1_recharge_rho_identified_full_dp2	1.00	… agrees with Model B well by well (Figure 2): Spearman ρ is 
+pastas_vs_ssmB_beta_2_atmospheric_draw_rho_identified_full_dp2	0.96	…Model B well by well (Figure 2): Spearman ρ is 1.00 for β₁, 
+pastas_vs_ssmB_beta_3_drainage_rho_identified_full_dp2	0.98	…well (Figure 2): Spearman ρ is 1.00 for β₁, 0.96 for β₂ and 
+pastas_n_identified_full_record_dp0	63	…>1.00 for β₁, 0.96 for β₂ and 0.98 for β₃, on the 
+DRAINAGE_DATUM_dp1	3.7	…cept form (Model A) fitted to each cluster centroid at z₀ = 
+RECLEN_STABLE_TOL_x100_dp0	20	…hich the median departure from the full-record β₃ is within 
+modelab_drainage_share_A_median_all_x100_dp0	68	… by a fitted equilibrium level, and the two answers differ (
+modelab_drainage_share_B_median_all_x100_dp0	45	…d equilibrium level, and the two answers differ (68 against 
+n_wells_admitted_dp0	9	…em. The independent tests of the sustained response rest on 
+projection_2050s_summer_fall_median_model_b_abs_dp2	0.20	…e, the two forms put the median fall of the summer level at 
+projection_2050s_summer_fall_median_at_project_abs_dp2	0.28	…e two forms put the median fall of the summer level at 0.20–
+projection_2080s_summer_fall_median_model_b_abs_dp2	0.37	…in the 2050s, within the range the hindcast has tested, and 
+projection_2080s_summer_fall_median_at_project_abs_dp2	0.52	…e 2050s, within the range the hindcast has tested, and 0.37–

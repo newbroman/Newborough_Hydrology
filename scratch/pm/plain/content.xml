@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" office:version="1.3">
+  <office:font-face-decls>
+    <style:font-face style:name="Courier New" style:font-family-generic="modern" style:font-pitch="fixed" svg:font-family="'Courier New'" />
+  </office:font-face-decls>
+  <office:automatic-styles>
+    <text:list-style style:name="L1">
+      <text:list-level-style-bullet text:level="1" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="2" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.75in" fo:text-indent="-0.25in" fo:margin-left="0.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="3" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.0in" fo:text-indent="-0.25in" fo:margin-left="1.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="4" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.25in" fo:text-indent="-0.25in" fo:margin-left="1.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="5" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.5in" fo:text-indent="-0.25in" fo:margin-left="1.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="6" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.75in" fo:text-indent="-0.25in" fo:margin-left="1.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="7" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.0in" fo:text-indent="-0.25in" fo:margin-left="2.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="8" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.25in" fo:text-indent="-0.25in" fo:margin-left="2.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="9" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.5in" fo:text-indent="-0.25in" fo:margin-left="2.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="10" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+    </text:list-style>
+    <text:list-style style:name="L2">
+      <text:list-level-style-bullet text:level="1" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="2" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.75in" fo:text-indent="-0.25in" fo:margin-left="0.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="3" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.0in" fo:text-indent="-0.25in" fo:margin-left="1.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="4" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.25in" fo:text-indent="-0.25in" fo:margin-left="1.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="5" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.5in" fo:text-indent="-0.25in" fo:margin-left="1.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="6" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.75in" fo:text-indent="-0.25in" fo:margin-left="1.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="7" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.0in" fo:text-indent="-0.25in" fo:margin-left="2.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="8" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.25in" fo:text-indent="-0.25in" fo:margin-left="2.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="9" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.5in" fo:text-indent="-0.25in" fo:margin-left="2.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="10" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+    </text:list-style>
+    <text:list-style style:name="L3">
+      <text:list-level-style-number text:level="1" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="1" style:num-suffix=".">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-number>
+    </text:list-style>
+    <text:list-style style:name="L4">
+      <text:list-level-style-bullet text:level="1" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="2" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.75in" fo:text-indent="-0.25in" fo:margin-left="0.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="3" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.0in" fo:text-indent="-0.25in" fo:margin-left="1.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="4" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.25in" fo:text-indent="-0.25in" fo:margin-left="1.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="5" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.5in" fo:text-indent="-0.25in" fo:margin-left="1.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="6" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.75in" fo:text-indent="-0.25in" fo:margin-left="1.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="7" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.0in" fo:text-indent="-0.25in" fo:margin-left="2.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="8" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.25in" fo:text-indent="-0.25in" fo:margin-left="2.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="9" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.5in" fo:text-indent="-0.25in" fo:margin-left="2.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="10" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+    </text:list-style>
+    <text:list-style style:name="L5">
+      <text:list-level-style-bullet text:level="1" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="2" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.75in" fo:text-indent="-0.25in" fo:margin-left="0.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="3" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.0in" fo:text-indent="-0.25in" fo:margin-left="1.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="4" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.25in" fo:text-indent="-0.25in" fo:margin-left="1.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="5" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.5in" fo:text-indent="-0.25in" fo:margin-left="1.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="6" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.75in" fo:text-indent="-0.25in" fo:margin-left="1.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="7" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.0in" fo:text-indent="-0.25in" fo:margin-left="2.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="8" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.25in" fo:text-indent="-0.25in" fo:margin-left="2.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="9" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.5in" fo:text-indent="-0.25in" fo:margin-left="2.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="10" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+    </text:list-style>
+    <text:list-style style:name="L6">
+      <text:list-level-style-bullet text:level="1" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="2" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.75in" fo:text-indent="-0.25in" fo:margin-left="0.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="3" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.0in" fo:text-indent="-0.25in" fo:margin-left="1.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="4" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.25in" fo:text-indent="-0.25in" fo:margin-left="1.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="5" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.5in" fo:text-indent="-0.25in" fo:margin-left="1.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="6" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.75in" fo:text-indent="-0.25in" fo:margin-left="1.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="7" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.0in" fo:text-indent="-0.25in" fo:margin-left="2.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="8" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.25in" fo:text-indent="-0.25in" fo:margin-left="2.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="9" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.5in" fo:text-indent="-0.25in" fo:margin-left="2.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="10" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+    </text:list-style>
+    <text:list-style style:name="L7">
+      <text:list-level-style-bullet text:level="1" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="2" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.75in" fo:text-indent="-0.25in" fo:margin-left="0.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="3" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.0in" fo:text-indent="-0.25in" fo:margin-left="1.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="4" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.25in" fo:text-indent="-0.25in" fo:margin-left="1.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="5" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.5in" fo:text-indent="-0.25in" fo:margin-left="1.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="6" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.75in" fo:text-indent="-0.25in" fo:margin-left="1.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="7" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.0in" fo:text-indent="-0.25in" fo:margin-left="2.0in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="8" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="◦">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.25in" fo:text-indent="-0.25in" fo:margin-left="2.25in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="9" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="▪">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.5in" fo:text-indent="-0.25in" fo:margin-left="2.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+      <text:list-level-style-bullet text:level="10" text:style-name="Bullet_20_Symbols" style:num-suffix="." text:bullet-char="•">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in" />
+        </style:list-level-properties>
+      </text:list-level-style-bullet>
+    </text:list-style>
+    <text:list-style style:name="L8">
+      <text:list-level-style-number text:level="1" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="1" style:num-suffix=".">
+        <style:list-level-properties text:list-level-position-and-space-mode="label-alignment" fo:text-align="right">
+          <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in" />
+        </style:list-level-properties>
+      </text:list-level-style-number>
+    </text:list-style>
+    <style:style style:name="T1" style:family="text"><style:text-properties fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic" /></style:style>
+    <style:style style:name="T2" style:family="text"><style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold" /></style:style>
+    <style:style style:name="fr2" style:family="graphic" style:parent-style-name="Formula"><style:graphic-properties style:vertical-pos="middle" style:vertical-rel="text" style:horizontal-pos="center" style:horizontal-rel="paragraph-content" style:wrap="none" /></style:style>
+    <style:style style:name="fr1" style:family="graphic" style:parent-style-name="Formula"><style:graphic-properties style:vertical-pos="middle" style:vertical-rel="text" /></style:style>
+    <style:style style:name="P1" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L1">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+    <style:style style:name="P2" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L2">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+    <style:style style:name="P3" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L3">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+    <style:style style:name="P4" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L4">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+    <style:style style:name="P5" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L5">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+    <style:style style:name="P6" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L6">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+    <style:style style:name="P7" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L7">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+    <style:style style:name="P8" style:family="paragraph" style:parent-style-name="Text_20_body" style:list-style-name="L8">
+      <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0in" />
+    </style:style>
+  </office:automatic-styles>
+<office:body>
+<office:text><text:user-field-decls><text:user-field-decl office:value-type="string" office:string-value="8" text:name="DATUM_SWEEP_MAX_M_dp0"/><text:user-field-decl office:value-type="string" office:string-value="0.5" text:name="DATUM_SWEEP_MIN_M_dp1"/><text:user-field-decl office:value-type="string" office:string-value="3.7" text:name="DRAINAGE_DATUM_dp1"/><text:user-field-decl office:value-type="string" office:string-value="24" text:name="RECLEN_MIN_FIT_MONTHS_dp0"/><text:user-field-decl office:value-type="string" office:string-value="1.6" text:name="all_clusters_all_beta3_pos_sig_from_m_dp1"/><text:user-field-decl office:value-type="string" office:string-value="0.82" text:name="benchmark_median_NSE_ModelB_dp2"/><text:user-field-decl office:value-type="string" office:string-value="0.43" text:name="benchmark_median_NSE_TLM_dp2"/><text:user-field-decl office:value-type="string" office:string-value="8" text:name="benchmark_negative_NSE_TLM_dp0"/><text:user-field-decl office:value-type="string" office:string-value="2.9" text:name="datum_ccw_supported_m_dp1"/><text:user-field-decl office:value-type="string" office:string-value="0.7" text:name="datum_ranwell_supported_m_dp1"/><text:user-field-decl office:value-type="string" office:string-value="68" text:name="modelab_drainage_share_A_median_all_x100_dp0"/><text:user-field-decl office:value-type="string" office:string-value="37" text:name="modelab_drainage_share_B_median_C1_x100_dp0"/><text:user-field-decl office:value-type="string" office:string-value="29" text:name="modelab_drainage_share_B_median_C4_x100_dp0"/><text:user-field-decl office:value-type="string" office:string-value="60" text:name="modelab_drainage_share_B_median_C5_x100_dp0"/><text:user-field-decl office:value-type="string" office:string-value="68" text:name="modelab_drainage_share_M_median_all_x100_dp0"/><text:user-field-decl office:value-type="string" office:string-value="16" text:name="modelab_efold_A_months_median_all_dp0"/><text:user-field-decl office:value-type="string" office:string-value="2.1" text:name="modelab_efold_B_months_median_C1_dp1"/><text:user-field-decl office:value-type="string" office:string-value="13.3" text:name="modelab_efold_B_months_median_C5_dp1"/><text:user-field-decl office:value-type="string" office:string-value="6.5" text:name="modelab_efold_B_months_median_all_dp1"/><text:user-field-decl office:value-type="string" office:string-value="5.0" text:name="modelab_efold_obs_detr_months_median_all_dp1"/><text:user-field-decl office:value-type="string" office:string-value="5.1" text:name="modelab_efold_obs_months_median_all_dp1"/><text:user-field-decl office:value-type="string" office:string-value="6.1" text:name="modelab_efold_obs_yw_months_median_all_dp1"/><text:user-field-decl office:value-type="string" office:string-value="88" text:name="modelab_nse_fwd_share_B_better_all_x100_dp0"/><text:user-field-decl office:value-type="string" office:string-value="9" text:name="n_wells_admitted_dp0"/><text:user-field-decl office:value-type="string" office:string-value="85" text:name="partition_drainage_share_pct_at_datum_C1_Lake_Edge_datum_3_7_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="66" text:name="partition_drainage_share_pct_at_datum_C2_Dune_datum_3_7_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="65" text:name="partition_drainage_share_pct_at_datum_C3_Western_Residual_datum_3_7_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="25" text:name="partition_drainage_share_pct_at_datum_C4_Main_Forest_datum_3_7_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="61" text:name="partition_drainage_share_pct_at_datum_C5_Coastal_Forest_datum_3_7_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="88" text:name="partition_drainage_share_pct_at_max_datum_C1_Lake_Edge_datum_8_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="69" text:name="partition_drainage_share_pct_at_max_datum_C2_Dune_datum_8_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="68" text:name="partition_drainage_share_pct_at_max_datum_C3_Western_Residual_datum_8_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="29" text:name="partition_drainage_share_pct_at_max_datum_C4_Main_Forest_datum_8_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="66" text:name="partition_drainage_share_pct_at_max_datum_C5_Coastal_Forest_datum_8_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="73" text:name="partition_drainage_share_pct_at_min_datum_C1_Lake_Edge_datum_1_6_m_dp0"/><text:user-field-decl office:value-type="string" office:string-value="0.46" text:name="ranwell_nse_median_at_project_dp2"/><text:user-field-decl office:value-type="string" office:string-value="0.86" text:name="ranwell_nse_median_at_supported_dp2"/><text:user-field-decl office:value-type="string" office:string-value="0.03" text:name="reclen_ccw_bias_m_A_median_Lfull_all_dp2"/><text:user-field-decl office:value-type="string" office:string-value="0.30" text:name="reclen_ccw_bias_m_B_median_Lfull_all_dp2"/><text:user-field-decl office:value-type="string" office:string-value="0.72" text:name="reclen_nse_fwd_B_median_L24_all_dp2"/><text:user-field-decl office:value-type="string" office:string-value="120" text:name="reclen_stable_length_months_A_median_C4_dp0"/><text:user-field-decl office:value-type="string" office:string-value="24" text:name="reclen_stable_length_months_A_median_all_dp0"/><text:user-field-decl office:value-type="string" office:string-value="144" text:name="reclen_stable_length_months_B_median_C4_dp0"/><text:user-field-decl office:value-type="string" office:string-value="60" text:name="reclen_stable_length_months_B_median_all_dp0"/><text:user-field-decl office:value-type="string" office:string-value="865" text:name="study_area_ha_dp0"/><text:user-field-decl office:value-type="string" office:string-value="88" text:name="wells_classified_n_dp0"/><text:user-field-decl office:value-type="string" office:string-value="−0.17" text:name="basis_ccw_nse_median_cluster_A_dp2"/><text:user-field-decl office:value-type="string" office:string-value="−0.14" text:name="basis_ccw_nse_median_well_A_dp2"/><text:user-field-decl office:value-type="string" office:string-value="0.49" text:name="basis_ranwell_nse_median_cluster_A_dp2"/><text:user-field-decl office:value-type="string" office:string-value="0.46" text:name="basis_ranwell_nse_median_well_A_dp2"/><text:user-field-decl office:value-type="string" office:string-value="−0.27" text:name="basis_ccw_nse_median_cluster_B_dp2"/><text:user-field-decl office:value-type="string" office:string-value="−1.46" text:name="basis_ccw_nse_median_well_B_dp2"/></text:user-field-decls>
+<text:p text:style-name="Title">What monthly water levels can tell us: a plain-language guide to the methods paper</text:p>
+<text:p text:style-name="Author">M. Hollingham</text:p>
+<text:p text:style-name="Date">October 2026</text:p>
+<text:p text:style-name="Text_20_body">This guide explains, without equations, a scientific paper about how groundwater models are fitted to monthly water-level records: <text:span text:style-name="T1">Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you</text:span> (Hollingham, 2026). It follows the paper section by section. Every number in it is taken from the same project files as the paper, so the two always agree. Words in <text:span text:style-name="T2">bold</text:span> on first use are explained in the glossary at the end.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="why-this-matters" />1. Why this matters<text:bookmark-end text:name="why-this-matters" /></text:h>
+<text:p text:style-name="First_20_paragraph">Dune slacks, the damp hollows between sand dunes, are among the richest wildlife habitats on the coast, and they depend on groundwater. How wet a slack is in spring and how far the water falls in summer decide which plants and animals can live there.</text:p>
+<text:p text:style-name="Text_20_body">At most sites the only record of that groundwater is a set of shallow pipes, called <text:span text:style-name="T2">dipwells</text:span>, in which someone measures the water level by hand about once a month. Newborough Warren on Anglesey has <text:user-field-get text:name="wells_classified_n_dp0">88</text:user-field-get> of them across <text:user-field-get text:name="study_area_ha_dp0">865</text:user-field-get> hectares of dunes and pine forest, and some have been read for over twenty years.</text:p>
+<text:p text:style-name="Text_20_body">What managers usually want to know is not the level itself but what lies behind it. How much of the rain that soaks in drains away underground, and how much is drawn back up by plants and the sun? If a dry year lowers the water table, how long does the effect last? Neither question can be answered by measuring directly at most sites, because that needs expensive instruments. So scientists fit a simple model to the water levels and read the answers from the model.</text:p>
+<text:p text:style-name="Text_20_body">The paper asks how far those answers can be trusted. It finds that three choices made when fitting the model, usually without comment, change what the answers mean.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="the-model-in-one-picture" />2. The model in one picture<text:bookmark-end text:name="the-model-in-one-picture" /></text:h>
+<text:p text:style-name="First_20_paragraph">Think of the ground as a bath with a slow leak. Each month:</text:p>
+<text:list text:style-name="L1">
+  <text:list-item>
+    <text:p text:style-name="P1"><text:span text:style-name="T2">rain</text:span> tops it up;</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P1"><text:span text:style-name="T2">evaporation and plant use</text:span> draw water back out from the top;</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P1"><text:span text:style-name="T2">drainage</text:span> lets water leak away underground, faster when the water stands higher.</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">The model fitted at Newborough says exactly this, one month at a time. It has three numbers, worked out from the record at each well:</text:p>
+<text:list text:style-name="L2">
+  <text:list-item>
+    <text:p text:style-name="P2">how much the water rises for each millimetre of rain;</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P2">how much it falls for each millimetre of evaporating power in the air;</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P2">how quickly it drains away, which the paper calls the <text:span text:style-name="T2">drainage coefficient</text:span>.</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">The third number is the one this paper is about, because two quite different things can be read from it.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="three-hidden-choices" />3. Three hidden choices<text:bookmark-end text:name="three-hidden-choices" /></text:h>
+<text:p text:style-name="First_20_paragraph">Before the model can be fitted, three choices have to be made. They are rarely reported, but each one changes what the drainage coefficient means.</text:p>
+<text:list text:style-name="L3">
+  <text:list-item>
+    <text:p text:style-name="P3"><text:span text:style-name="T2">Is there a constant term?</text:span> The model can include an extra fixed amount that is added every month, or leave it out. The paper calls the version without it <text:span text:style-name="T2">Model A</text:span> and the version with it <text:span text:style-name="T2">Model B</text:span>.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:span text:style-name="T2">How deep is the floor?</text:span> Model A assumes the water drains towards an imaginary floor, the <text:span text:style-name="T2">datum</text:span>, at a fixed depth below the ground, and drains faster the higher the water stands above it. Somebody has to choose that depth.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:span text:style-name="T2">Which stretch of record?</text:span> The model can be fitted to all the months a well has, or to a shorter, common stretch so that all wells are compared over the same weather.</text:p>
+  </text:list-item>
+</text:list>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="the-floor-the-datum" />4. The floor (the datum)<text:bookmark-end text:name="the-floor-the-datum" /></text:h>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="how-the-floor-changes-the-answer" />How the floor changes the answer<text:bookmark-end text:name="how-the-floor-changes-the-answer" /></text:h>
+<text:p text:style-name="First_20_paragraph">Where the floor is placed decides how the drainage coefficient behaves.</text:p>
+<text:list text:style-name="L4">
+  <text:list-item>
+    <text:p text:style-name="P4">With a <text:span text:style-name="T2">deep floor</text:span>, the water table always stands far above it. Drainage is then a steady, slow pull, and the model’s water table recovers slowly after a wet or dry spell.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P4">With a <text:span text:style-name="T2">shallow floor</text:span>, the water table sits close to it. Small rises and falls change the drainage a lot, and the model snaps back quickly.</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">The paper tried every floor depth from <text:user-field-get text:name="DATUM_SWEEP_MIN_M_dp1">0.5</text:user-field-get> to <text:user-field-get text:name="DATUM_SWEEP_MAX_M_dp0">8</text:user-field-get> metres down and watched what happened.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="too-shallow-and-the-model-cannot-tell" />Too shallow, and the model cannot tell<text:bookmark-end text:name="too-shallow-and-the-model-cannot-tell" /></text:h>
+<text:p text:style-name="First_20_paragraph">Shallower than about <text:user-field-get text:name="all_clusters_all_beta3_pos_sig_from_m_dp1">1.6</text:user-field-get> metres the floor sits inside the range the water table moves through, and at some parts of the site the model cannot work out a drainage rate at all. The paper calls this depth the <text:span text:style-name="T2">identification floor</text:span>.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="deep-enough-and-the-water-budget-settles" />Deep enough, and the water budget settles<text:bookmark-end text:name="deep-enough-and-the-water-budget-settles" /></text:h>
+<text:p text:style-name="First_20_paragraph">Below that depth something useful happens. The drainage coefficient keeps getting smaller as the floor goes deeper, but the <text:span text:style-name="T1">amount</text:span> of water draining away each month hardly changes, and neither does the split of the water budget between drainage and evaporation. At the lake edge, for example, drainage takes <text:user-field-get text:name="partition_drainage_share_pct_at_min_datum_C1_Lake_Edge_datum_1_6_m_dp0">73</text:user-field-get> % of the water lost with the floor at <text:user-field-get text:name="all_clusters_all_beta3_pos_sig_from_m_dp1">1.6</text:user-field-get> metres, <text:user-field-get text:name="partition_drainage_share_pct_at_datum_C1_Lake_Edge_datum_3_7_m_dp0">85</text:user-field-get> % at <text:user-field-get text:name="DRAINAGE_DATUM_dp1">3.7</text:user-field-get> metres and <text:user-field-get text:name="partition_drainage_share_pct_at_max_datum_C1_Lake_Edge_datum_8_m_dp0">88</text:user-field-get> % at <text:user-field-get text:name="DATUM_SWEEP_MAX_M_dp0">8</text:user-field-get> metres. The paper calls this steady range the <text:span text:style-name="T2">plateau</text:span>.</text:p>
+<text:p text:style-name="Text_20_body">So the water budget can be trusted once the floor is deep enough, even though nobody knows where the real floor is. The study uses a single floor of <text:user-field-get text:name="DRAINAGE_DATUM_dp1">3.7</text:user-field-get> metres for every well, which lies on the plateau everywhere.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="what-fitting-alone-would-choose" />What fitting alone would choose<text:bookmark-end text:name="what-fitting-alone-would-choose" /></text:h>
+<text:p text:style-name="First_20_paragraph">If the floor depth is simply chosen to make the model fit the record best, it comes out shallow at the open-dune wells and deeper under the forest. That best-fitting floor turns out to be exactly the floor that Model B works out for itself. In other words, choosing the floor by fit alone turns Model A into Model B, and gives an answer about how quickly the water returns to normal, not about drainage.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="height-above-sea-level-or-depth-below-ground" />Height above sea level, or depth below ground?<text:bookmark-end text:name="height-above-sea-level-or-depth-below-ground" /></text:h>
+<text:p text:style-name="First_20_paragraph">Is the floor a fixed height, the same everywhere, or does it follow the shape of the ground? The two fit the record almost equally well, but a fixed height leaves the drainage rate impossible to work out at many wells. A depth below ground does not, so the study uses depth. It also tried a floor set by the sea: the level of high tide, worked out as a depth at each well. That gives the same water budget (<text:user-field-get text:name="modelab_drainage_share_M_median_all_x100_dp0">68</text:user-field-get> % drainage at a typical well, against <text:user-field-get text:name="modelab_drainage_share_A_median_all_x100_dp0">68</text:user-field-get> % with the <text:user-field-get text:name="DRAINAGE_DATUM_dp1">3.7</text:user-field-get>-metre floor), but the model then forecasts worse, so it was not adopted.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="two-readings-of-one-number" />5. Two readings of one number<text:bookmark-end text:name="two-readings-of-one-number" /></text:h>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="draining-to-a-floor-or-returning-to-normal" />Draining to a floor, or returning to normal<text:bookmark-end text:name="draining-to-a-floor-or-returning-to-normal" /></text:h>
+<text:p text:style-name="First_20_paragraph">The drainage coefficient can be read in two ways.</text:p>
+<text:list text:style-name="L5">
+  <text:list-item>
+    <text:p text:style-name="P5">In <text:span text:style-name="T2">Model A</text:span> it describes water draining towards the chosen floor. Its value depends on where the floor is.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P5">In <text:span text:style-name="T2">Model B</text:span> the constant lets the model find its own resting level, and the number describes how quickly the water table returns to that level after a wet or dry spell. It does not depend on any floor.</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">At a typical well the two readings differ by more than a factor of two. A convenient way to compare them is the time a disturbance takes to shrink to about a third of its size, the <text:span text:style-name="T2">e-folding time</text:span>. Model A says about <text:user-field-get text:name="modelab_efold_A_months_median_all_dp0">16</text:user-field-get> months; Model B says about <text:user-field-get text:name="modelab_efold_B_months_median_all_dp1">6.5</text:user-field-get>.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="a-check-that-uses-no-model" />A check that uses no model<text:bookmark-end text:name="a-check-that-uses-no-model" /></text:h>
+<text:p text:style-name="First_20_paragraph">Which is right about how the water table behaves? The paper measured it directly from the readings. If this month’s level is unusually high, how much of that is still there next month? The answer, worked out over the whole record, gives a return time without any model at all: <text:user-field-get text:name="modelab_efold_obs_months_median_all_dp1">5.1</text:user-field-get> months at a typical well. That is close to Model B and about a third of Model A.</text:p>
+<text:p text:style-name="Text_20_body">The check, measured without a model, was repeated with two corrections that push in opposite directions: taking out any long-term trend in a well’s record (<text:user-field-get text:name="modelab_efold_obs_detr_months_median_all_dp1">5.0</text:user-field-get> months), and allowing for small errors in the readings (<text:user-field-get text:name="modelab_efold_obs_yw_months_median_all_dp1">6.1</text:user-field-get> months). Either way Model B stays the closer. Rises and falls also return at the same rate: a wet spell fades as quickly as a dry one.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="does-a-dry-year-carry-over-to-the-next-spring" />Does a dry year carry over to the next spring?<text:bookmark-end text:name="does-a-dry-year-carry-over-to-the-next-spring" /></text:h>
+<text:p text:style-name="First_20_paragraph">A short return time means that one spring’s level says little about the next. The readings agree: spring levels in successive years are close to independent. Model A on its own would suggest that a dry year lingers into the next spring much more than it does.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="forecasting" />Forecasting<text:bookmark-end text:name="forecasting" /></text:h>
+<text:p text:style-name="First_20_paragraph">The paper fitted each model on the years before 2018 and asked it to forecast the years after, without seeing them. Model B did better at <text:user-field-get text:name="modelab_nse_fwd_share_B_better_all_x100_dp0">88</text:user-field-get> % of wells. Even with only <text:user-field-get text:name="RECLEN_MIN_FIT_MONTHS_dp0">24</text:user-field-get> months of record to learn from, Model B forecasts its own well usefully (a skill of <text:user-field-get text:name="reclen_nse_fwd_B_median_L24_all_dp2">0.72</text:user-field-get>).</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="why-the-drainage-term-matters-at-all" />Why the drainage term matters at all<text:bookmark-end text:name="why-the-drainage-term-matters-at-all" /></text:h>
+<text:p text:style-name="First_20_paragraph">The simplest model of all leaves drainage out entirely: rain in, evaporation out, nothing else. Left to run on its own, that model drifts, because nothing pulls the water table back towards a normal level, and each month’s error carries into the next. At a typical well its forecast skill is <text:user-field-get text:name="benchmark_median_NSE_TLM_dp2">0.43</text:user-field-get> on a scale where 1 is perfect, and at <text:user-field-get text:name="benchmark_negative_NSE_TLM_dp0">8</text:user-field-get> wells it does worse than simply guessing the average. Adding the drainage term lifts the typical score to <text:user-field-get text:name="benchmark_median_NSE_ModelB_dp2">0.82</text:user-field-get>. The drainage term is what keeps the model anchored.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="what-the-old-records-say" />6. What the old records say<text:bookmark-end text:name="what-the-old-records-say" /></text:h>
+<text:p text:style-name="First_20_paragraph">The modern network does not cover a long enough or varied enough period to settle everything, but two older sets of readings do something no model has seen.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="the-drier-decade-198996" />The drier decade, 1989–96<text:bookmark-end text:name="the-drier-decade-198996" /></text:h>
+<text:p text:style-name="First_20_paragraph">The Countryside Council for Wales read water levels at Newborough between 1989 and 1996, before the present network was installed, at <text:user-field-get text:name="n_wells_admitted_dp0">9</text:user-field-get> wells that are still read today. That decade was drier than anything in the modern record, so it tests whether a model can carry a lasting shift in the water table.</text:p>
+<text:p text:style-name="Text_20_body">Run back over that decade from today’s record, Model A is close to right on average (off by <text:user-field-get text:name="reclen_ccw_bias_m_A_median_Lfull_all_dp2">0.03</text:user-field-get> metres), while Model B puts the water table too high by <text:user-field-get text:name="reclen_ccw_bias_m_B_median_Lfull_all_dp2">0.30</text:user-field-get> metres. For a long run of dry years, Model A does better. Asked which floor depth fits that decade best, the answer is about <text:user-field-get text:name="datum_ccw_supported_m_dp1">2.9</text:user-field-get> metres: close to the <text:user-field-get text:name="DRAINAGE_DATUM_dp1">3.7</text:user-field-get> metres used, and not deeper.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="ranwells-readings-195153" />Ranwell’s readings, 1951–53<text:bookmark-end text:name="ranwells-readings-195153" /></text:h>
+<text:p text:style-name="First_20_paragraph">Derek Ranwell measured water levels at three places on the Warren between 1951 and 1953. Their exact positions are uncertain, so his average level cannot be trusted, and the test uses only the <text:span text:style-name="T1">seasonal rise and fall</text:span> he recorded.</text:p>
+<text:p text:style-name="Text_20_body">Here the result is the other way round. With the floor at about <text:user-field-get text:name="datum_ranwell_supported_m_dp1">0.7</text:user-field-get> metres below ground, Model A reproduces Ranwell’s seasons as well as Model B does (a score of <text:user-field-get text:name="ranwell_nse_median_at_supported_dp2">0.86</text:user-field-get> for both), and with the floor at <text:user-field-get text:name="DRAINAGE_DATUM_dp1">3.7</text:user-field-get> metres it does much worse (<text:user-field-get text:name="ranwell_nse_median_at_project_dp2">0.46</text:user-field-get>). That <text:user-field-get text:name="datum_ranwell_supported_m_dp1">0.7</text:user-field-get> metres is not a water level or an error: it is the floor depth that makes Model A behave quickly enough to follow the seasons, which is how Model B behaves anyway.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="why-both-can-be-true" />Why both can be true<text:bookmark-end text:name="why-both-can-be-true" /></text:h>
+<text:p text:style-name="First_20_paragraph">The two old records ask different questions. Ranwell’s seasons ask how fast the water table bounces back, and the answer is: quickly. The dry decade asks whether the water table can stay low through a long run of dry years, and the answer is: yes, more than a quick bounce would allow. The aquifer seems to do both. A model with a single floor can only do one or the other, which is why the paper uses each version only for the question it answers.</text:p><text:p text:style-name="Text_20_body">These tests used each well’s own numbers. Run instead with the numbers of the well’s group, which are the ones the paper reports, the model does as well: for the dry decade Model A scores <text:user-field-get text:name="basis_ccw_nse_median_cluster_A_dp2">−0.17</text:user-field-get> against <text:user-field-get text:name="basis_ccw_nse_median_well_A_dp2">−0.14</text:user-field-get>, and for Ranwell’s seasons <text:user-field-get text:name="basis_ranwell_nse_median_cluster_A_dp2">0.49</text:user-field-get> against <text:user-field-get text:name="basis_ranwell_nse_median_well_A_dp2">0.46</text:user-field-get>. Model B does much better on the dry decade with the group’s numbers (<text:user-field-get text:name="basis_ccw_nse_median_cluster_B_dp2">−0.27</text:user-field-get> against <text:user-field-get text:name="basis_ccw_nse_median_well_B_dp2">−1.46</text:user-field-get>).</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="how-much-record-you-need" />7. How much record you need<text:bookmark-end text:name="how-much-record-you-need" /></text:h>
+<text:p text:style-name="First_20_paragraph">The paper refitted every well on records of different lengths and asked how long a record each version needs before its drainage number stops changing.</text:p>
+<text:list text:style-name="L6">
+  <text:list-item>
+    <text:p text:style-name="P6"><text:span text:style-name="T2">Model A</text:span> settles on about <text:user-field-get text:name="reclen_stable_length_months_A_median_all_dp0">24</text:user-field-get> months at a typical well. That was the shortest length tried, so it may need less.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P6"><text:span text:style-name="T2">Model B</text:span> needs about <text:user-field-get text:name="reclen_stable_length_months_B_median_all_dp0">60</text:user-field-get> months.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P6"><text:span text:style-name="T2">Under the main pine forest</text:span> both need far longer: about <text:user-field-get text:name="reclen_stable_length_months_A_median_C4_dp0">120</text:user-field-get> and <text:user-field-get text:name="reclen_stable_length_months_B_median_C4_dp0">144</text:user-field-get> months. The forest responds so slowly that Model B’s return time cannot be pinned down there at all.</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">A rule of thumb follows: a record should span several return times before the return time read from it is trusted.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="what-it-finds-at-newborough" />8. What it finds at Newborough<text:bookmark-end text:name="what-it-finds-at-newborough" /></text:h>
+<text:p text:style-name="First_20_paragraph">The wells fall into five groups that behave alike: three in open dune (the Lake Edge, the Dune and the Western Residual) and two under pine (the Main Forest and the Coastal Forest). Using each version of the model for what it is good at, the paper reports for each group:</text:p>
+<text:list text:style-name="L7">
+  <text:list-item>
+    <text:p text:style-name="P7"><text:span text:style-name="T2">How the water budget splits.</text:span> With the floor anywhere on the plateau, drainage carries <text:user-field-get text:name="partition_drainage_share_pct_at_datum_C1_Lake_Edge_datum_3_7_m_dp0">85</text:user-field-get>–<text:user-field-get text:name="partition_drainage_share_pct_at_max_datum_C1_Lake_Edge_datum_8_m_dp0">88</text:user-field-get> % of the water lost at the lake edge, <text:user-field-get text:name="partition_drainage_share_pct_at_datum_C2_Dune_datum_3_7_m_dp0">66</text:user-field-get>–<text:user-field-get text:name="partition_drainage_share_pct_at_max_datum_C2_Dune_datum_8_m_dp0">69</text:user-field-get> % in the open dune, <text:user-field-get text:name="partition_drainage_share_pct_at_datum_C3_Western_Residual_datum_3_7_m_dp0">65</text:user-field-get>–<text:user-field-get text:name="partition_drainage_share_pct_at_max_datum_C3_Western_Residual_datum_8_m_dp0">68</text:user-field-get> % in the western dune, <text:user-field-get text:name="partition_drainage_share_pct_at_datum_C5_Coastal_Forest_datum_3_7_m_dp0">61</text:user-field-get>–<text:user-field-get text:name="partition_drainage_share_pct_at_max_datum_C5_Coastal_Forest_datum_8_m_dp0">66</text:user-field-get> % under the coastal forest and only <text:user-field-get text:name="partition_drainage_share_pct_at_datum_C4_Main_Forest_datum_3_7_m_dp0">25</text:user-field-get>–<text:user-field-get text:name="partition_drainage_share_pct_at_max_datum_C4_Main_Forest_datum_8_m_dp0">29</text:user-field-get> % under the main forest, where the trees take most of the rest. Evaporation and plant use take whatever drainage does not.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P7"><text:span text:style-name="T2">How sure is that?</text:span> Moving the floor around the plateau, or setting it at each well’s depth to high tide, changes these figures by only a few points, and individual wells scatter a little around their group. The bigger uncertainty is the version of the model. Letting the model work out its own resting level (Model B) gives drainage only <text:user-field-get text:name="modelab_drainage_share_B_median_C4_x100_dp0">29</text:user-field-get>–<text:user-field-get text:name="modelab_drainage_share_B_median_C5_x100_dp0">60</text:user-field-get> % of the loss, and least at the lake edge (<text:user-field-get text:name="modelab_drainage_share_B_median_C1_x100_dp0">37</text:user-field-get> %). The paper argues that the fixed floor is the right basis for the water budget, because Model B’s resting level sits close to the average water level rather than at anything physical; but only a direct measurement of drainage or evaporation at the site could settle it.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P7"><text:span text:style-name="T2">How quickly the water returns to normal.</text:span> In the free-intercept model, from about <text:user-field-get text:name="modelab_efold_B_months_median_C1_dp1">2.1</text:user-field-get> months at the lake edge to about <text:user-field-get text:name="modelab_efold_B_months_median_C5_dp1">13.3</text:user-field-get> months under the coastal forest. Under the main forest it is too slow to measure on the present record.</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">These are shares, not amounts. Turning them into millimetres of water needs one more property of the sand, how much water it releases as the water table falls, which the water levels alone cannot give. That is dealt with in the companion study of the site.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="the-questions-people-will-ask" />9. The questions people will ask<text:bookmark-end text:name="the-questions-people-will-ask" /></text:h>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="what-was-the-early-high-water"/>What was the early high water?<text:bookmark-end text:name="what-was-the-early-high-water"/></text:h>
+<text:p text:style-name="First_20_paragraph">From 2006 to 2008 the water table stood well above what the model gives for that weather: by about 0.3 m in the western dune and almost a metre under the two forest groups. Nothing in the weather explains it. The questions below are the explanations that were tested.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="is-there-a-second-slower-store-of-water" />Is there a second, slower store of water?<text:bookmark-end text:name="is-there-a-second-slower-store-of-water" /></text:h>
+<text:p text:style-name="First_20_paragraph">The two old records ask for two speeds: a quick return and a slow hold. The obvious idea is a second, slower store of water working alongside the first. The paper fitted one, and at every group the fit gave it nothing to do: one store was better.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="did-the-plantation-drain-a-store-that-was-once-there" />Did the plantation drain a store that was once there?<text:bookmark-end text:name="did-the-plantation-drain-a-store-that-was-once-there" /></text:h>
+<text:p text:style-name="First_20_paragraph">The pine plantation was planted between 1947 and 1965. Perhaps it drew down water that had built up before the trees, and the early years of the record caught the last of it. To test this fairly, the years before the canopy closed were modelled as the open dune they then were, and the forest’s effect was brought in gradually as the trees grew, over the 15 to 20 years a Corsican pine canopy usually takes to close. Three planting years and two closure times were tried, and the rule for a “yes” was fixed before the test was run. No case passed. Under the main forest a slow store fits the early years better if the planting was late, but it then forecasts the recent years far worse. On this record, a store drawn down by the plantation is not supported.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="was-it-the-retreating-coast" />Was it the retreating coast?<text:bookmark-end text:name="was-it-the-retreating-coast" /></text:h>
+<text:p text:style-name="First_20_paragraph">The coastal forest group is nearest the eroding shore, and a retreating coast lowers the water table near it gradually. The change found there is not gradual: it is a fall over a few years that then settled. A storm that cut back the shore could do that, and so could a change in the trees. The water levels alone cannot tell the two apart at one group.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="was-it-how-the-rain-fell" />Was it how the rain fell?<text:bookmark-end text:name="was-it-how-the-rain-fell" /></text:h>
+<text:p text:style-name="First_20_paragraph">Rain that falls in long, steady spells loses less to evaporation than a month’s total suggests, and a monthly model cannot see that. Daily rainfall from a gauge on Anglesey shows that only one of the three wet winters at the start of the record was unusual in this way, and later wet winters had as much long-spell rain without the same effect. How the rain fell does not explain the early high water.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="was-it-the-1998-fellings"/>Was it the 1998 fellings?<text:bookmark-end text:name="was-it-the-1998-fellings"/></text:h>
+<text:p text:style-name="First_20_paragraph">The high water was greatest next to the patches of forest felled in 1998 and faded with distance from them, so the fellings fit where it happened. They do not fit when: the water had fallen back long before the trees on the felled ground grew back. The question stays open.</text:p>
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:bookmark-start text:name="was-it-a-dry-year-before"/>Was it a dry year before?<text:bookmark-end text:name="was-it-a-dry-year-before"/></text:h>
+<text:p text:style-name="First_20_paragraph">The very dry 2005 came just before the high water, so perhaps a wet spell on a dried-out warren raises the water table more than usual. The only other such sequence in the record, dry 2022 then wet 2023–24, did not do the same, so that is not supported either.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="a-checklist-for-other-sites" />10. A checklist for other sites<text:bookmark-end text:name="a-checklist-for-other-sites" /></text:h>
+<text:p text:style-name="First_20_paragraph">For any site with a monthly water-level record and no direct measurement of where the water goes, the paper’s procedure comes down to these steps.</text:p>
+<text:list text:style-name="L8">
+  <text:list-item>
+    <text:p text:style-name="P8">Try the floor at many depths, and note how the drainage number, the fit and the amount drained change.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Find the shallowest floor at which every part of the site gives a sensible drainage rate.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Fit the version with the constant as well. If the best-fitting floor matches its resting level, a floor chosen on fit alone is measuring the return time, not drainage.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Find where the amount drained stops changing with depth (the plateau), and choose one floor there, deep enough for the part of the site with the deepest water table.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Check whether the floor should follow the ground or be a fixed height, and what a physically meaningful floor would give.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Report what the chosen floor costs in fit at each part of the site.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Check the return time with the no-model method, and test forecasts on years the model has not seen.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Use each version for what it is good at: the version without the constant for the water budget; the version with it for how long effects last and for short forecasts; for long-term changes, whichever version an independent old record supports, with the other alongside.</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P8">Say which stretch of record every result comes from, check that the record is long enough for the number being read, and test long-term behaviour against an independent period wherever one exists.</text:p>
+  </text:list-item>
+</text:list>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="glossary" />Glossary<text:bookmark-end text:name="glossary" /></text:h>
+<text:p text:style-name="First_20_paragraph"><text:span text:style-name="T2">Aquifer.</text:span> Water-saturated sand or rock below the water table; here, the dune sand.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Constant (intercept).</text:span> A fixed amount added to the model every month. Including it (Model B) lets the model find its own resting level.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Datum (floor).</text:span> The imaginary depth below ground that Model A assumes the water drains towards.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Dipwell.</text:span> A shallow perforated pipe in which the water level is measured by hand.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Drainage coefficient.</text:span> The model number that sets how quickly water drains away. Its meaning depends on the version of the model.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Drainage share.</text:span> The part of the water lost each month that drains away underground rather than being taken by evaporation and plants.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">E-folding time.</text:span> The time a disturbance takes to shrink to about a third (more exactly 37 %) of its size. A convenient measure of how quickly the water table returns to normal.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Forecast skill (efficiency).</text:span> A score of how well a model’s run matches the readings: 1 is perfect, 0 is no better than the average level, and below 0 is worse.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Identification floor.</text:span> The shallowest floor depth at which every part of the site gives a sensible drainage rate.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Model A, Model B.</text:span> The model without the constant (Model A) and with it (Model B).</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Plateau.</text:span> The range of floor depths over which the water budget no longer changes with the depth chosen.</text:p>
+<text:p text:style-name="Text_20_body"><text:span text:style-name="T2">Return time.</text:span> How quickly the water table goes back to its usual level after a wet or dry spell; measured here by the e-folding time.</text:p>
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:bookmark-start text:name="further-reading" />Further reading<text:bookmark-end text:name="further-reading" /></text:h>
+<text:p text:style-name="First_20_paragraph">Hollingham, M. (2026) Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you. In preparation.</text:p>
+<text:p text:style-name="Text_20_body">Ranwell, D.S. (1959) Newborough Warren, Anglesey. I. The dune system and dune slack habitat. <text:span text:style-name="T1">Journal of Ecology</text:span> 47(3), 571–601.</text:p>
+<text:p text:style-name="Text_20_body">The project’s data, analysis and documents: https://github.com/newbroman/Newborough_Hydrology</text:p>
+</office:text>
+</office:body>
+</office:document-content>

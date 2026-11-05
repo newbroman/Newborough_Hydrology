@@ -70,7 +70,13 @@ Run directly:  python3 src/55_water_balance_drainage.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-05, after Martin read 55_02: the §7.1 drainage
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-11-05 (D-311, Martin's points 1 and 2).
+#   Panel A of 55_02 draws the 37 wells whose hinge LOST to the straight line hollow, so the eye is not
+#   invited to read a trend partly carried by parameters the model rejected. Drainage at the ground
+#   surface is reported, computed on the SELECTED form (D_surface_selected), per well and per cluster,
+#   with the quartiles, the full range, the count of physically impossible NEGATIVE values and the
+#   within-cluster CV beside every median - C4 goes into print as a range, never as a bare 0.0116.
+# 1.1.0  # Hollingham (2026) - 2026-11-05, after Martin read 55_02: the §7.1 drainage
 #   share gets a figure of its own (55_06, per cluster with the Stage I Sy bracket, which sits ABOVE the
 #   published value because both bounds lie below the fluctuation-method Sy), and 55_02's right-panel
 #   label no longer runs off the canvas - a two-line rotated ylabel that tight_layout did not rescue.
@@ -301,15 +307,39 @@ def stage_b(frames: dict, sy: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame,
             bic_hinge=hinge.get("bic", np.nan), dBIC=dbic,
             threshold_beats_line=bool(np.isfinite(dbic) and dbic < -WB_BIC_MARGIN),
             form_selected=sel["form"],
-            k_selected=sel["c"] / s, r2_selected=sel["r2"]))
+            k_selected=sel["c"] / s, r2_selected=sel["r2"],
+            # D-311: drainage predicted at the ground surface, h = 0, on the SELECTED form. For a
+            # line that is simply its intercept; for a threshold it is a + c*h0_depth. Computed on
+            # the selected form and never on the hinge for all 66, because at the 37 wells where
+            # the hinge lost the h0 it would use is a parameter the model rejected.
+            D_surface_selected=(sel["a"] + sel["c"] * -sel["h0"]
+                                if sel["form"] == "threshold" else sel["a"])))
     per = pd.DataFrame(rows).sort_values(["Cluster", "Well"]).reset_index(drop=True)
     cols = ["Sy", "k_line", "r2_line", "k_hinge", "h0_depth_below_ground_m", "r2_hinge",
-            "k_selected", "r2_selected"]
+            "k_selected", "r2_selected", "D_surface_selected"]
     by = _cluster_stats(per, cols)
     wins = per.groupby("Cluster")["threshold_beats_line"].sum()
     by["n_threshold_beats_line"] = by["Cluster"].map(wins).astype(int)
     by["Cluster_Label"] = by["Cluster"].map(CLUSTER_LABELS)
     by["bic_margin"] = WB_BIC_MARGIN
+    # D-311: the scatter of D_surface WITHIN each cluster, reported beside the median because at C4
+    # it exceeds the mean (CV 1.46 over 9 wells, 2026-11-05) - the contrast between C4 and the rest
+    # is real, but C4 has no characteristic rate and the median must never be quoted as if it had.
+    spread = per.groupby("Cluster")["D_surface_selected"].agg(
+        lambda v: float(v.std() / abs(v.mean())) if len(v) > 1 and v.mean() else np.nan)
+    by["D_surface_selected_cv"] = by["Cluster"].map(spread)
+    # D-311, Martin 2026-11-05 ("Yes, a range"): C4 is reported as a RANGE, never a bare median.
+    # Its nine wells span -0.0075 to 0.0555 and TWO are negative - drainage at the ground surface
+    # cannot be negative, and nothing constrains the line form's slope to be positive. ceh14 is
+    # independently flagged by Script 07 (beta_3 <= 0), so its drainage is unidentifiable rather
+    # than mis-fitted here. The quartiles are emitted for every cluster so all five can be quoted
+    # the same way.
+    gds = per.groupby("Cluster")["D_surface_selected"]
+    for lab, fn in (("p25", lambda v: v.quantile(0.25)), ("p75", lambda v: v.quantile(0.75)),
+                    ("min", "min"), ("max", "max")):
+        by[f"D_surface_selected_{lab}"] = by["Cluster"].map(gds.agg(fn))
+    by["D_surface_selected_n_negative"] = by["Cluster"].map(
+        gds.agg(lambda v: int((v < 0).sum()))).astype(int)
     return per, by, laws
 
 
@@ -872,12 +902,22 @@ def plot_law(per: pd.DataFrame) -> None:
     plt = _plt()
     fig, axes = plt.subplots(1, 2, figsize=(9.0, 3.4), dpi=160)
     ax = axes[0]
+    # 1.2.0 (D-311): the 37 wells whose hinge LOST to the straight line are drawn hollow. Every
+    # well has a fitted h₀, but at those 37 it is a parameter the model rejected, so a filled
+    # scatter of all 66 invited the eye to read a trend partly carried by rejected parameters.
     for k in CLUSTERS:
         g = per[per["Cluster"] == k]
-        ax.scatter(g["h0_depth_below_ground_m"], g["k_hinge"], s=18, lw=0, label=f"C{k}")
+        adopted, rejected = g[g["threshold_beats_line"]], g[~g["threshold_beats_line"]]
+        c = f"C{k - 1}" if k <= 10 else None
+        ax.scatter(adopted["h0_depth_below_ground_m"], adopted["k_hinge"],
+                   s=20, lw=0, color=c, label=f"C{k}")
+        ax.scatter(rejected["h0_depth_below_ground_m"], rejected["k_hinge"],
+                   s=20, facecolors="none", edgecolors=c, linewidths=0.7)
     ax.set_xlabel("h₀ (m below ground)")
     ax.set_ylabel("k above h₀ (/month)")
-    ax.legend(fontsize=7, frameon=False)
+    h, lab = ax.get_legend_handles_labels()
+    ax.legend(h, lab, fontsize=7, frameon=False, title="filled: threshold adopted\nhollow: hinge rejected",
+              title_fontsize=6)
     ax = axes[1]
     w = per.groupby("Cluster")["threshold_beats_line"].agg(["sum", "size"])
     ax.bar([f"C{k}" for k in w.index], w["sum"] / w["size"], color="#2166ac")
@@ -1131,14 +1171,27 @@ def main() -> int:
         rr.add(f"wb_d_surface_C{k}", r.D_surface_selected_median, unit="m/month",
                note=f"drainage the SELECTED law predicts with the water table at the ground "
                     f"surface, h = 0; on the selected form, never the hinge at the 37 wells that "
-                    f"rejected it; quote it only with wb_d_surface_cv_C{k} beside it; {MED}; "
-                    f"D-311; {SPEC}")
+                    f"rejected it; at C4 quote the RANGE, not this (D-311, Martin: \"Yes, a "
+                    f"range\"); {MED}; {SPEC}")
+        rr.add(f"wb_d_surface_lo_C{k}", r.D_surface_selected_p25, unit="m/month",
+               note=f"lower quartile of D at the surface within cluster {k}; D-311; {SPEC}")
+        rr.add(f"wb_d_surface_hi_C{k}", r.D_surface_selected_p75, unit="m/month",
+               note=f"upper quartile of D at the surface within cluster {k}; D-311; {SPEC}")
+        rr.add(f"wb_d_surface_min_C{k}", r.D_surface_selected_min, unit="m/month",
+               note=f"lowest D at the surface in cluster {k}; negative where the fitted line has a "
+                    f"non-positive slope, which is unphysical and is why C4 is a range; {SPEC}")
+        rr.add(f"wb_d_surface_max_C{k}", r.D_surface_selected_max, unit="m/month",
+               note=f"highest D at the surface in cluster {k}; {SPEC}")
+        rr.add(f"wb_d_surface_negatives_C{k}", int(r.D_surface_selected_n_negative), unit="count",
+               note=f"wells in cluster {k} whose selected law predicts NEGATIVE drainage at the "
+                    f"surface, which is physically impossible: the drainage is unidentifiable "
+                    f"there, not mis-fitted. ceh14 is independently flagged by Script 07 "
+                    f"(beta_3 <= 0); D-311; {SPEC}")
         rr.add(f"wb_d_surface_cv_C{k}", r.D_surface_selected_cv, unit="",
                note=f"coefficient of variation of D at the surface WITHIN cluster {k} "
-                    f"({int(r.n_wells)} wells). At C4 it exceeds 1, so that cluster has no "
-                    f"characteristic surface rate and its median is not to be quoted as one; "
-                    f"the CONTRAST between C4 and the open clusters is what the reading rests "
-                    f"on; D-311; {SPEC}")
+                    f"({int(r.n_wells)} wells). Above 1 at C4, so that cluster has no "
+                    f"characteristic surface rate; the CONTRAST with the open clusters is what "
+                    f"the reading rests on; D-311; {SPEC}")
     for r in dby.itertuples():
         k = int(r.Cluster)
         rr.add(f"wb_et_pet_summer_C{k}", r.et_pet_summer_median, unit="",

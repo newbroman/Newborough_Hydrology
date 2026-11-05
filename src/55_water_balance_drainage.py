@@ -1128,6 +1128,17 @@ def main() -> int:
         rr.add(f"wb_hinge_wells_C{k}", int(r.n_threshold_beats_line), unit="count",
                note=f"wells where the threshold beats the line by more than {WB_BIC_MARGIN} in BIC "
                     f"(h0 counted as a third parameter), of {int(r.n_wells)}; {SPEC}")
+        rr.add(f"wb_d_surface_C{k}", r.D_surface_selected_median, unit="m/month",
+               note=f"drainage the SELECTED law predicts with the water table at the ground "
+                    f"surface, h = 0; on the selected form, never the hinge at the 37 wells that "
+                    f"rejected it; quote it only with wb_d_surface_cv_C{k} beside it; {MED}; "
+                    f"D-311; {SPEC}")
+        rr.add(f"wb_d_surface_cv_C{k}", r.D_surface_selected_cv, unit="",
+               note=f"coefficient of variation of D at the surface WITHIN cluster {k} "
+                    f"({int(r.n_wells)} wells). At C4 it exceeds 1, so that cluster has no "
+                    f"characteristic surface rate and its median is not to be quoted as one; "
+                    f"the CONTRAST between C4 and the open clusters is what the reading rests "
+                    f"on; D-311; {SPEC}")
     for r in dby.itertuples():
         k = int(r.Cluster)
         rr.add(f"wb_et_pet_summer_C{k}", r.et_pet_summer_median, unit="",
@@ -1137,6 +1148,9 @@ def main() -> int:
                note=f"as wb_et_pet_summer_C{k} over every month; {MED}; {SPEC}")
         rr.add(f"wb_drain_share_C{k}", r.drainage_share_median, unit="",
                note=f"drainage share of the annual loss, interception counted as loss; {MED}; {SPEC}")
+    rr.add("wb_d_surface_median", float(bper["D_surface_selected"].median()), unit="m/month",
+           note=f"per-well median over the reference network of the drainage the selected law "
+                f"predicts at the ground surface; D-311; {SPEC}")
     rr.add("wb_drain_share_median", share_med, unit="",
            note=f"per-well median of the annual drainage share over the reference network - the "
                 f"Paper M §7.1 basis, the same quantity as modelab_drainage_share_A/B_median_all; {SPEC}")

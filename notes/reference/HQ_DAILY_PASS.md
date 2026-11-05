@@ -31,7 +31,8 @@ snapshot. A wrong report costs a conversation; a wrong release costs another cha
    code, never the exit code of `tee`. It writes `scratch/check_all_summary.json`: a verdict per
    section (`check_all.sh` 1.34.0), which is what you read instead of grepping the log for "FAIL".
 6. `python3 tools/hq_snapshot.py --db-ops --probe` — the board, the task register (it runs every
-   row's check, about two minutes), that gate summary, the queue and the chat register, gathered
+   row's check, about two minutes), that gate summary, the queue, the chat register and
+   **`rule_audit`'s findings** (the conduct checks, below), gathered
    into `scratch/hq/payload.json`, with the page's documents written one per file under
    `scratch/hq/db/` and indexed in `scratch/hq/db/ops.json`. It also appends one run to
    `working/hq_history.json`, which is where the task trend and "newly red" come from.
@@ -77,10 +78,38 @@ branches unmerged for more than a week.
     (CLAUDE.md §4f), so if you touch anything public, commit both halves.
 11. `python3 tools/chat_register.py status --chat "HQ daily pass" --set done --outcome "<one line>"`.
 
+## The conduct checks (T-137 landed 2026-11-05)
+
+`tools/rule_audit.py` makes the findings above systematic, and step 6 above now calls it: it reads
+the commits in the window, the handover entries, the decision log, the lock's history, the override
+log, the registers and the gate summary, and returns findings with a `serious` flag that matches
+"What to report, and how loudly" above. **It is still report-only (D-302)**: `--check` returns 0
+with serious findings outstanding and says so, because an open finding is work outstanding, not a
+broken check.
+
+Three things this routine needs to know about it.
+
+- **The window is a watermark**, `working/rule_audit_state.json`. `hq_snapshot --db-ops` moves it
+  after a successful pass, so each morning audits the day before and not the whole corpus. With no
+  state — a first run, a fresh clone — the window is the last two days. Do not pass `--since`
+  unless you mean to re-audit old history.
+- **Attribution is by the `Claude-Session` trailer**, matched against the register's `link` column.
+  Commits without it are reported as a serious `session-trailer` finding, and their claim coverage
+  is reported as UNKNOWN in one aggregate finding rather than as a breach. So a morning with many
+  untrailered commits is a true report about the records, not a pile of accusations — say so that
+  way in your report.
+- **A finding you judge deliberate is suppressed with a REASON**, never by editing the rule:
+  a row in `working/rule_audit_suppress.csv` (`rule,subject,reason,by,when`). A row with an empty
+  reason suppresses nothing, by design. The first such row is the
+  `notes/2026-11-04-water-balance-handovers` branch, which stays unmerged because it is for reading.
+  **Adding a suppression is Martin's call, not this routine's** — report the finding and say that
+  suppressing it is available; do not write the row yourself (D-302: report, never intervene).
+
+`python3 tools/rule_audit.py` on its own prints the findings as text, which is the quickest way to
+see what the page will show before you write the db.
+
 ## What is not built yet
 
-`rule_audit` (T-137) is the module that will make the findings above systematic — reading commits,
-handover entries, the decision log and the lock's history. Until it lands, report what the gate
-summary, the board and the task register show, and say in your report that the conduct checks are
-not implemented. **Do not improvise them**: a hand-rolled audit that disagrees with the eventual
-module would be worse than none, and spec §8 is explicit that a rule is checked in one place only.
+Phase 4 — T-138, making registration a refusal rather than a warning
+(`REGISTRATION_REQUIRED = True` in `doc_lock.py`). It waits deliberately until registration has run
+for a few days (spec §11), and flipping it is not this routine's to do.

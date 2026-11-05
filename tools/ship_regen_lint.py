@@ -42,7 +42,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.8"  # Hollingham (2026) — 2026-11-05. EXEMPT gains the four NRG HQ modules
+__version__ = "1.0.9"  # Hollingham (2026) — 2026-11-05 (D-301 phase 3, T-137). rule_audit exempt:
+#   its findings are READ from the tree's own history and this script's gate summary, so a ship has no
+#   artefact to rebuild, and the watermark it keeps moves with the HQ pass rather than with a ship.
+# 1.0.8  # Hollingham (2026) — 2026-11-05. EXEMPT gains the four NRG HQ modules
 #   (D-301): two registers chats write themselves, and two renderers whose publishing is a session's act.
 # 1.0.7  # Hollingham (2026) - 2026-11-04 (D-300). board_artifact exempt: it renders into gitignored
 #   scratch/ and publishing is a session's act, so no ship can regenerate it; the gate says a republish is owed.
@@ -80,6 +83,7 @@ EXEMPT = {
     "hq_snapshot":           "the HQ page's payload (D-301): it renders into gitignored scratch/hq/ and the db is written by a SESSION, which no ship can do - the gate only says whether the pieces are there",
     "hq_page":               "the HQ page shell (D-301): gitignored scratch/hq/index.html, and PUBLISHING is a session's act - the gate is advisory and says a republish is owed",
     "build_table_ledger":    "TABLE_LEDGER.md is retired (2026-09-19); the builder refuses to regenerate it and --check passes on the banner",
+    "rule_audit":            "the conduct checks (D-301 phase 3, D-302): findings READ from the commits, the registers, the lock's history and this script's own gate summary. There is no artefact to rebuild - the evidence is the tree's history - and the watermark it keeps moves with the HQ pass, never with a ship. --check reports and never fails",
 }
 # gates written without --check
 EXTRA_GATES = {"export_lag": "the published PDFs (build_pdfs.sh inside build_docs_pdfs)"}

@@ -1,7 +1,7 @@
 # Handover: NRG HQ, a landing page for every chat, with a daily rule-checking agent
 
 **Status:** HANDOVER for the chat holding `tools`. D1–D8 SIGNED OFF by Martin (2026-11-05 03:09) as
-recommended in §10. The builder still gives its own design for sign-off before code.
+recommended in §10; D9, the job queue (§14), signed off 03:16. The builder still gives its own design for sign-off before code.
 **Written:** 2026-11-05 03:05, claude.ai chat session (Claude Opus 5.5), against public `main` at
 `cd42999` (the private repository was not attached to the writing session).
 **Builder:** a Claude Code session with BOTH repositories attached (notes/reference/SESSION_MODES.md),
@@ -160,6 +160,8 @@ JSON also helps every chat that today greps the log for "FAIL".
 - **D5 Gate summary.** Instrument `check_all` (recommended) or parse its log.
 - **D6 Task trend window.** Trend over the last 7 daily runs (recommended).
 - **D7 The NRG Work Board page.** Fold into HQ and stop republishing it (recommended), or keep both.
+- **D9 Job queue (§14).** Signed off 03:16: a queue of jobs that fire themselves when their conditions
+  are met, so Martin stops carrying messages between chats.
 - **D8 Task ownership.** Optionally add a `claim` column to `task_register.csv` so each task shows
   who should do it (T-135 → `pipeline`). Recommended, as an optional column task_lint ignores.
 
@@ -187,3 +189,42 @@ Version bumps and inline changelogs (`doc_lock.py`, `work_board.py`, `task_lint.
 new `rule_audit.py`); a CHANGELOG_delta; a decision-log entry for the registration rule and one for
 the agent's report-only remit; CLAUDE.md §4b, SESSION_MODES.md, the project instructions; a task row
 for each build phase not finished in the first session; the handover entry.
+
+## 14. The job queue (D9, signed off 03:16)
+
+Martin's request: "is there a way of automating this", meaning: one chat finishing should start the
+next without him passing prompts by hand.
+
+**The register.** `working/job_queue.csv` in the private repository, written through `register_io` so
+chats merge row by row. Columns: `id`, `title`, `brief` (path to a self-contained brief file, never
+the prompt inline), `claim` (what the job will take), `waits_for` (conditions, all of which must
+hold), `target` (`new_session` or `notify`), `status` (`queued` / `ready` / `fired` / `done` /
+`held`), `trigger_id`, `fired_at`, `fired_by`, `note`.
+
+**Conditions** (`waits_for`, semicolon-separated, each machine-checkable):
+`claim_free:<name>`, `job_done:<id>`, `on_main:<path>` (a file exists on `main`),
+`task_done:<T-id>`, `held_by_martin` (never fires until he clears it).
+
+**Firing.** Each `new_session` job gets a poke-only scheduled task (create_trigger with no schedule)
+whose prompt is "Run job <id>: read <brief> and follow it". A job is fired, by the HQ agent's daily
+run and by `doc_lock.py release` (which prints any job its release made ready, and the session
+releasing then fires it), once every condition holds. Firing records `trigger_id`, `fired_at`,
+`fired_by`, and sends Martin a phone notification. A `notify` job, for work that must go to an existing
+chat (one cannot message another session), only notifies Martin with the brief to paste.
+
+**Guards.** A job never fires while its `claim` is held. One job per claim at a time. A fired session
+that meets a design question stops and waits for Martin (every brief says so); the queue does not
+make decisions, it only removes the relaying. If the private store is absent, nothing fires and the
+HQ page says why.
+
+**The page** shows the queue as its own band: each job, its conditions with which hold and which do
+not, and status.
+
+**Seeded on first build** (the build session writes these rows as its final step):
+- **J-1** Script 55 build. Brief `notes/specs/NRG_brief_script55_build_2026-11-05.md`. Claim
+  `pipeline`. Waits for: HQ shipped (`on_main:tools/rule_audit.py` or the HQ build's own marker) and
+  `claim_free:pipeline`. Target `new_session`. With HQ shipped, it is ready at once, so the build
+  session fires it after its own ship and release.
+- **J-2** Paper M §5.3 passages and the §7.1 clause. Waits for `job_done:J-1`. Target `notify`
+  (the Paper M chat holds `doc:PaperM`; Martin passes it the keys and drafts), unless that chat has
+  released `doc:PaperM` by then, in which case a new session takes it.

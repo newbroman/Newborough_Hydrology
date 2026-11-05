@@ -306,7 +306,7 @@ person's machines, not a mutex.
 
 Never run `refresh_mirrors.py` on a machine whose ODTs you have not just pulled.
 
-**A bridge session takes the machine lock under the L14's own name (D-299, doc_lock 1.4.1).** The bridge
+**A bridge session takes the machine lock under the L14's own name (D-299, doc_lock 1.5.0).** The bridge
 edits the L14's files, so for the documents it is the L14. Before 1.3.0 it locked as the VM's
 `rcw-<session>@claude`, the L14 saw that as another machine, and every archive refused from 2026-10-26
 to 2026-11-03 while Drive fell a week behind. Now the L14 records its name in `.git/nrg_machine` on every
@@ -320,13 +320,40 @@ lock above is per MACHINE. Chats sharing the L14's tree each CLAIM what they wor
 (`tools/register_io.py`), never claimed.
 
     python3 tools/work_board.py                                      # who holds what; what is uncommitted
-    python3 tools/board_artifact.py --check                           # is Martin's page behind? (R6a)
+    python3 tools/hq_page.py --check                                  # is Martin's HQ page behind? (D-301)
+    python3 tools/chat_register.py register --chat "Paper M" --kind document --claim doc:PaperM \
+        --purpose "v1_9 read-through"                                 # COMPULSORY, before any claim (D-301)
     python3 tools/doc_lock.py take doc:PaperM --chat "Paper M" --note "v1_9 read-through"
     export NRG_CHAT="Paper M"                                         # in EVERY shell call over the bridge
     python3 tools/doc_lock.py release doc:PaperM --chat "Paper M"    # after the ship reaches GitHub
 
 A claim held by another chat refuses `odt_edit` writes into its documents and `run_analysis.py`
 while `pipeline` is held. An unclaimed area refuses nothing.
+
+**EVERY CHAT REGISTERS ITSELF, AND THE QUEUE PASSES THE WORK ON (D-301, 2026-11-05).** NRG HQ is a
+private page that answers "who is working on this, what does the tree look like, and what is
+owed" — the landing page for every chat. Three things it adds that bind a session:
+
+- **Registration is compulsory** and happens BEFORE the first claim or commit, in
+  `working/chat_register.csv` (private, merged row by row). `doc_lock take` warns a chat that is not
+  there; `doc_lock.REGISTRATION_REQUIRED` turns that into a refusal, and flipping it is the whole of
+  T-138. A row written for ANOTHER chat is marked **SEEDED** and is not evidence that chat read the
+  rule. Set your status when you finish: `chat_register.py status --chat NAME --set done --outcome "…"`.
+- **`working/job_queue.csv` is the queue.** A job carries a brief FILE (never a prompt inline), a
+  claim, and conditions of five kinds (`claim_free:`, `job_done:`, `on_main:`, `task_done:`,
+  `held_by_martin`). **A job does not fire itself**: it fires when something is already running, so
+  `doc_lock release` prints the jobs its release made ready and the line that fires each, and HQ's
+  daily pass is the backstop. Nothing fires without the private store, into a held claim, behind
+  another active job for the same claim, or with a brief nobody can read.
+- **`check_all` now says which section went red** — `scratch/check_all_summary.json` (1.34.0). Read
+  that instead of grepping the log for "FAIL". `tools/hq_snapshot.py` gathers the board, the tasks,
+  that summary and the queue into one payload; a SESSION writes it to the page's store, because a
+  script cannot. A run without the private store writes **nothing** and says so (D-302).
+
+The agent that audits the chats (`rule_audit`, spec §8) is **not built yet** — T-137, which carries
+the list of checks. HQ
+reports the state of the tree today, not yet the conduct of the chats. It reports and never
+intervenes: it releases no claim and edits nothing under another chat's claim (D-302).
 
 **A board that cannot read the lock says UNKNOWN, not free (D-300).** The lock is in the PRIVATE
 repository, so a session holding only the public one can see nothing — and until 2026-11-04 it was

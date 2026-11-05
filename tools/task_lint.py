@@ -70,18 +70,26 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-10-27. SKIPPED: a check that answers "<tool>: SKIP …" (its inputs are
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
+#   signed off). --json for the HQ page's tasks band and its 7-run trend, carrying the store state because a task's
+#   status is store-dependent; evaluate() shared with the printed report so the two cannot disagree; D8's optional
+#   `claim` column read and reported, never used to decide a status.
+# 1.1.0  # Hollingham (2026) — 2026-10-27. SKIPPED: a check that answers "<tool>: SKIP …" (its inputs are
 #   absent by design, e.g. the ODTs in the public clone) is counted on its own, not as broken (T-126, T-127 in the
 #   daily cloud check).
 # 1.0.0  # Hollingham (2026) — 2026-08-25.
 
 import argparse
 import csv
+import datetime
+import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "tools"))          # 1.2.0: doc_lock, for the store state in --json
 REGISTER = REPO / "tools/task_register.csv"
 TIMEOUT = 120
 
@@ -128,19 +136,9 @@ def run_check(cmd: str) -> tuple[str | None, str]:
     return out, ""
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--quiet", action="store_true")
-    ap.add_argument("--open", action="store_true", dest="only_open")
-    args = ap.parse_args()
-
-    if not REGISTER.exists():
-        print(f"  SKIP  {REGISTER.name} not in this checkout")
-        return 0
-
-    with REGISTER.open(encoding="utf-8") as fh:
-        rows = [r for r in csv.DictReader(fh) if r.get("id", "").strip()]
-
+def evaluate(rows: list[dict]) -> tuple[list, list, list, list]:
+    """Run every row's check once and sort the rows four ways. Shared by the printed report and
+    --json (1.2.0), so the HQ snapshot cannot disagree with what the gate printed."""
     done, open_, errors, skipped = [], [], [], []
     for r in rows:
         out, note = run_check(r["check"])
@@ -152,6 +150,63 @@ def main() -> int:
             done.append(r)
         else:
             open_.append((r, out))
+    return done, open_, errors, skipped
+
+
+def read_register() -> list[dict]:
+    with REGISTER.open(encoding="utf-8") as fh:
+        return [r for r in csv.DictReader(fh) if r.get("id", "").strip()]
+
+
+def as_json() -> dict:
+    """1.2.0 (D-301): the register, machine-readable, for the HQ page's tasks band and its trend.
+
+    It carries the STORE STATE, because a task's status is store-dependent: a session holding only
+    the public repository measured 133 tasks / 104 done / 28 open on 2026-11-05 where a session with
+    both measured 134 / 120 / 14. Writing that into the HQ snapshot would invent 14 open tasks, so
+    the consumer refuses a snapshot whose store is ABSENT (D-300 applied to the auditor itself)."""
+    import doc_lock
+    state, why = doc_lock.store_state()
+    rows = read_register() if REGISTER.exists() else []
+    done, open_, errors, skipped = evaluate(rows)
+    def row(r, status, got="", note=""):
+        # D8: `claim` is an OPTIONAL column. task_lint ignores it when deciding status - it only
+        # says who should pick the task up - so a register without it behaves exactly as before.
+        return {"id": r.get("id", ""), "title": r.get("title", ""),
+                "implements": r.get("implements", ""), "check": r.get("check", ""),
+                "want": (r.get("expect") or "").strip(), "got": got, "status": status,
+                "opened": r.get("opened", ""), "claim": (r.get("claim") or "").strip(),
+                "note": note or (r.get("note") or "")[:400]}
+    return {
+        "store": state, "store_why": why,
+        "generated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "counts": {"total": len(rows), "done": len(done), "open": len(open_),
+                   "broken": len(errors), "skipped": len(skipped)},
+        "has_claim_column": any((r.get("claim") or "").strip() for r in rows),
+        "tasks": ([row(r, "DONE", (r.get("expect") or "").strip()) for r in done]
+                  + [row(r, "OPEN", o) for r, o in open_]
+                  + [row(r, "BROKEN", "", n) for r, n in errors]
+                  + [row(r, "SKIP", o) for r, o in skipped]),
+    }
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--open", action="store_true", dest="only_open")
+    ap.add_argument("--json", action="store_true", help="the register machine-readable (1.2.0, D-301)")
+    args = ap.parse_args()
+
+    if args.json:
+        print(json.dumps(as_json(), indent=2))
+        return 0
+
+    if not REGISTER.exists():
+        print(f"  SKIP  {REGISTER.name} not in this checkout")
+        return 0
+
+    rows = read_register()
+    done, open_, errors, skipped = evaluate(rows)
 
     if errors:
         print(f"  FAIL  {len(errors)} check(s) could not answer — "

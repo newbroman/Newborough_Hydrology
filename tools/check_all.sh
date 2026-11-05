@@ -20,6 +20,15 @@
 # ============================================================================
 # VERSION 1.31.0 - 2026-10-25
 # CHANGELOG
+#   1.34.0 (2026-11-05): per-section verdicts (D-301, spec D5a). `section` replaces the fifty
+#     `echo "── … ──"` headers, printing each one byte-identically and recording the previous
+#     section's verdict; it RESETS rc, because rc is sticky and a snapshot without a reset reads
+#     every section after the first failure as green. `_total_rc` carries the run. Writes
+#     scratch/check_all_summary.json (override with NRG_GATE_SUMMARY), each section keyed by
+#     position as well as name. cite_check's section is renamed "asserted claims": it and the chat
+#     claims board were both headed "claims", and a page reporting one of them had to say which.
+#     New gates: chat_register
+#     and job_queue --selftest and --check (D-301).
 #   1.33.0 (2026-11-04): claims gate gains doc_lock --selftest (GATED, like the other two modules
 #     that keep chats apart) and board_artifact --check (advisory: it says the phone view is behind,
 #     which only a session can fix by republishing). doc_lock 1.4.0 refuses to call an unreadable
@@ -184,6 +193,70 @@ FIX=0
 [ "${1:-}" = "--fix" ] && FIX=1
 rc=0
 
+# ── per-section verdicts (1.34.0, D-301, spec NRG_handover_HQ_page_2026-11-05 D5a) ──
+#
+# This script printed ONE verdict for fifty sections, so the HQ page could not say which section
+# went red, and every chat that wanted to know grepped the log for "FAIL".
+#
+# `section` prints the header EXACTLY as the fifty `echo "── … ──"` lines did - byte for byte, so
+# anything grepping `^──` is unaffected - and records the previous section's verdict on the way past.
+#
+# IT RESETS rc, AND THAT IS THE WHOLE TRICK. rc is sticky: once a check sets rc=1 it stays 1 to the
+# end. Snapshotting it per section without resetting would attribute the first failure correctly and
+# then read every later section as green, because rc was already 1 when they started. So rc becomes
+# the CURRENT section's flag, `_total_rc` carries the run's, and none of the ninety-seven `rc=1`
+# sites needs touching. Measured before changing anything: rc was read in exactly two places, the
+# two lines at the end of this file.
+GATE_SUMMARY="${NRG_GATE_SUMMARY:-scratch/check_all_summary.json}"
+_sec_tsv="$(mktemp "${TMPDIR:-/tmp}/check_all_sections.XXXXXX")"
+_sec_name=""
+_sec_t0=0
+_total_rc=0
+
+_sec_flush() {
+    [ -z "$_sec_name" ] && return 0
+    local verdict="OK"
+    if [ "$rc" != "0" ]; then verdict="FAIL"; _total_rc=1; fi
+    printf '%s\t%s\t%s\n' "$_sec_name" "$verdict" "$(( $(date +%s) - _sec_t0 ))" >> "$_sec_tsv"
+    rc=0
+}
+
+section() {
+    _sec_flush
+    echo "$1"
+    # the section's NAME: the header text before the trailing dashes and before any "(question)"
+    local t="${1#── }"
+    t="${t%%─*}"
+    t="${t%% (*}"
+    _sec_name="$(printf '%s' "$t" | sed -e 's/[[:space:]]*$//')"
+    _sec_t0="$(date +%s)"
+}
+
+_sec_write_summary() {
+    _sec_flush
+    mkdir -p "$(dirname "$GATE_SUMMARY")" 2>/dev/null || true
+    python3 - "$_sec_tsv" "$GATE_SUMMARY" "$_total_rc" <<'PYSUM' || true
+import datetime, json, pathlib, platform, sys
+tsv, out, total = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]
+secs = []
+for line in tsv.read_text(encoding="utf-8").splitlines():
+    if not line.strip():
+        continue
+    name, verdict, seconds = (line.split("\t") + ["", "", ""])[:3]
+    secs.append({"index": len(secs) + 1, "key": f"{len(secs) + 1:02d} {name}",
+                 "section": name, "verdict": verdict, "seconds": int(seconds or 0)})
+out.write_text(json.dumps({
+    "generated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "host": platform.node(),
+    "verdict": "OK" if total == "0" else "FAIL",
+    "sections": secs,
+    "counts": {"sections": len(secs),
+               "failed": len([x for x in secs if x["verdict"] != "OK"])},
+}, indent=2) + "\n", encoding="utf-8")
+PYSUM
+    rm -f "$_sec_tsv" 2>/dev/null || true
+}
+
 # Run under the project venv (the recorded interpreter) unless a virtualenv is
 # already active. Spares a forgotten `source venv/bin/activate` dropping the run
 # onto system python (env_audit then fails on the wrong libs, as it did on
@@ -220,7 +293,7 @@ fi
 # one-command fix. Until this date the line ended `|| true`: it ran, printed the
 # whole finding, and could not fail, which is how a recorded reference that
 # CANNOT RUN THE PIPELINE sat here for weeks with every gate green (D-093).
-echo "── environment (is this the machine the pipeline runs on?) ──────────"
+section "── environment (is this the machine the pipeline runs on?) ──────────"
 python3 tools/env_audit.py --quiet --gate || rc=1
 # requirements.txt must equal venv/ (D-093). env_audit compares the RECORD
 # against the pins but probes only the libraries the pipeline imports directly;
@@ -231,7 +304,7 @@ python3 tools/env_audit.py --quiet --gate || rc=1
 python3 tools/freeze_requirements.py --check --quiet || rc=1
 
 echo
-echo "── document versions (does the text agree with the filename?) ───────"
+section "── document versions (does the text agree with the filename?) ───────"
 if [ "$FIX" = "1" ]; then
     python3 tools/doc_version_sync.py --quiet || rc=1
 else
@@ -242,7 +315,7 @@ else
 fi
 
 echo
-echo "── mirrors ──────────────────────────────────────────────────────────"
+section "── mirrors ──────────────────────────────────────────────────────────"
 if [ "$FIX" = "1" ]; then
     python3 tools/refresh_mirrors.py || rc=1
 else
@@ -259,7 +332,7 @@ fi
 echo "  (content check, on demand: python3 tools/refresh_mirrors.py --verify)"
 
 echo
-echo "── pipeline (are the SCRIPTS importing the right numbers?) ───────────"
+section "── pipeline (are the SCRIPTS importing the right numbers?) ───────────"
 # defaults and backward dependencies GATE: a default masquerading as a result,
 # or a script reading an output that does not exist yet, both put a wrong number
 # into the outputs silently. The literal lint is advisory — it over-reports, and
@@ -283,7 +356,7 @@ python3 tools/pipeline_lint.py --check literals 2>/dev/null | grep -cE "FAIL" \
 python3 tools/defaults_lint.py || rc=1
 
 echo
-echo "── record basis (does §F.6 still describe the code?) ─────────────────"
+section "── record basis (does §F.6 still describe the code?) ─────────────────"
 python3 tools/record_basis_lint.py --quiet || rc=1
 # ... and does each methods section STATE it? Option B (Martin, 2026-09-21): a
 # statement per method, gated — tools/record_basis_claims.csv carries the
@@ -292,7 +365,7 @@ python3 tools/record_basis_claims_lint.py --selftest >/dev/null || rc=1
 python3 tools/record_basis_claims_lint.py --quiet || rc=1
 
 echo
-echo "── model form (does every split and timescale say Model A or Model B?) ──"
+section "── model form (does every split and timescale say Model A or Model B?) ──"
 # D-284 (Martin 2026-10-28 "all 3 please"): since D-283 the split is Model B's and most
 # other quantities Model A's, so a share or timescale with no form named is ambiguous.
 # ADVISORY until the 2026-10-28 edit set lands (claude/NRG_spec_form_labels_D283_text_2026-10-28.md);
@@ -300,7 +373,7 @@ echo "── model form (does every split and timescale say Model A or Model B?)
 python3 tools/form_label_lint.py 2>&1 | tail -1 || true
 
 echo
-echo "── month bucketing (one implementation of Script 01's day<=15 rule?) ──"
+section "── month bucketing (one implementation of Script 01's day<=15 rule?) ──"
 # T-32. The rule had five correct implementations and three written as
 # `d - pd.offsets.MonthBegin(1)`, which is a NO-OP for days 2-15: the day<=15
 # branch reads as applied and is not. It was fixed in one place on 2026-09-13
@@ -312,7 +385,7 @@ echo "── month bucketing (one implementation of Script 01's day<=15 rule?) �
 python3 tools/month_bucket_lint.py || rc=1
 
 echo
-echo "── month steps (is every monthly change one calendar month?) ──────────"
+section "── month steps (is every monthly change one calendar month?) ──────────"
 # D-195. A month no visit buckets to had no row (June 2005, December 2022), the
 # bridge filled the first month of longer gaps, and build_ssm_frame differenced
 # across holes: 151 of 13,211 reference-network pairs spanned 2-23 months.
@@ -320,30 +393,30 @@ python3 tools/month_step_lint.py || rc=1
 python3 tools/month_step_lint.py --selftest >/dev/null || rc=1
 
 echo
-echo "── table sources (config, map and caption agree on number->source?) ──"
+section "── table sources (config, map and caption agree on number->source?) ──"
 python3 tools/table_source_lint.py || rc=1
 echo
 
-echo "── table provenance (does every table trace to a committed CSV?) ─────"
+section "── table provenance (does every table trace to a committed CSV?) ─────"
 # R23: table_provenance_lint.py is the enforcer CLAUDE.md §4e names ("a table
 # cannot have no CSV") but was run by nothing until 2026-09-21.
 python3 tools/table_provenance_lint.py --quiet || rc=1
 
 echo
-echo "── table cells (does every generated table cell match its source CSV?) ──"
+section "── table cells (does every generated table cell match its source CSV?) ──"
 # Gate added 2026-09-19: table_source_lint checks a table DECLARES its source;
 # this checks the cells MATCH it. 110 stale cells across 9 tables sat behind a
 # green gate until this was wired (the W101/D-006 failure, for tables).
 python3 tools/table_gen.py --check || rc=1
 
 echo
-echo "── number fields (does every field in every document equal its committed value?) ──"
+section "── number fields (does every field in every document equal its committed value?) ──"
 # Gate added 2026-10-01 (D-219): a pipeline number in a document is a user field named in
 # tools/number_fields.csv; the ship sets them (field_sync --write), this proves it happened.
 python3 tools/field_sync.py --check || rc=1
 
 echo
-echo "── drift term (does any consumer name 10a's drift column by literal?) ──"
+section "── drift term (does any consumer name 10a's drift column by literal?) ──"
 # D-111 swept the PRODUCER and not the consumers: 10a stopped emitting
 # easting_x_time, Script 25 went on filtering on that literal, matched nothing,
 # wrote a one-byte file over a committed artefact and killed a full pipeline
@@ -354,11 +427,11 @@ python3 tools/drift_term_lint.py --selftest || rc=1
 python3 tools/drift_term_lint.py || rc=1
 
 echo
-echo "── seasons (is any seasonal window defined outside config.py?) ──────"
+section "── seasons (is any seasonal window defined outside config.py?) ──────"
 python3 tools/season_lint.py --quiet || rc=1
 echo
 
-echo "── pipeline counts (does the corpus agree with the manifest?) ──────"
+section "── pipeline counts (does the corpus agree with the manifest?) ──────"
 # CLAUDE.md's first non-negotiable is that the step count is derived, never
 # hard-typed. On 2026-09-09 it was found typed in nine places at FOUR different
 # vintages (43 / 52 / 53 / 54), every one of them in a sentence that also told
@@ -368,7 +441,7 @@ echo "── pipeline counts (does the corpus agree with the manifest?) ──�
 python3 tools/pipeline_count_lint.py || rc=1
 echo
 
-echo "── cross-references (does any chapter send the reader to the Supplement?) ──"
+section "── cross-references (does any chapter send the reader to the Supplement?) ──"
 # CLAUDE.md: "Do not send a reader to the Methods Supplement. Say the thing, or
 # name the script that does it." A rule in a prose file is re-broken by every
 # fresh session; this is what checks it. xref_allow.csv lists the pointers
@@ -377,14 +450,14 @@ python3 tools/xref_lint.py --selftest >/dev/null || rc=1
 python3 tools/xref_lint.py --quiet || rc=1
 echo
 
-echo "── self-citations (does each paper letter the author's 2026 works the same way?) ──"
+section "── self-citations (does each paper letter the author's 2026 works the same way?) ──"
 # "Hollingham, 2026a" meant the report in Paper 1 and Paper 1 in Papers 2 and M; Paper 2 used one
 # label for two works. tools/self_citations.csv fixes one letter per work (Martin, 2026-10-06).
 python3 tools/self_cite_lint.py --selftest >/dev/null || rc=1
 python3 tools/self_cite_lint.py || rc=1
 echo
 
-echo "── retired wording (does any retired phrase or number reappear?) ─────"
+section "── retired wording (does any retired phrase or number reappear?) ─────"
 # tau as a residence time, 117 measuring points, 8.4 ha, 1,172 ha, 53.15, the
 # stale step counts, an em space, a Pye & Blott figure: tools/retired_phrases.csv
 # is the list, each row with its reason; YYYY-MM-DD dates are advisory.
@@ -392,14 +465,14 @@ python3 tools/retired_phrase_lint.py --selftest >/dev/null || rc=1
 python3 tools/retired_phrase_lint.py --quiet || rc=1
 echo
 
-echo "── document net (is every ODT and mirror inside the drift net?) ──────"
+section "── document net (is every ODT and mirror inside the drift net?) ──────"
 # The gap that has appeared three times: a glob that does not match the
 # filename hides a document from cite_check and audit_number_drift.
 python3 tools/docglob_lint.py --selftest >/dev/null || rc=1
 python3 tools/docglob_lint.py --quiet || rc=1
 echo
 
-echo "── file mentions (does every CSV or JSON a document names exist?) ────"
+section "── file mentions (does every CSV or JSON a document names exist?) ────"
 # 17_wtf_well_sy.csv was retired on 2026-08-19 and four documents still named
 # it as current on 2026-09-21; nine more names were typos one script over.
 python3 tools/csv_mention_lint.py --selftest >/dev/null || rc=1
@@ -417,7 +490,7 @@ python3 tools/mention_lint.py || rc=1
 # the stamp ran only when somebody remembered, and readme.md sat at 57/52/18/43.
 python3 tools/sync_index_counts.py --check || rc=1
 
-echo "── document media (does every stripped ODT still rebuild?) ──────────"
+section "── document media (does every stripped ODT still rebuild?) ──────────"
 # Superseded versions carry their images in docs/media_store rather than inside
 # the zip (W154, D-149). The guarantee is byte-identity, so it is checked rather
 # than assumed: every stripped document is rebuilt IN MEMORY and compared with
@@ -425,18 +498,18 @@ echo "── document media (does every stripped ODT still rebuild?) ───�
 # no longer be reconstituted, which is the only thing the design gives up.
 python3 tools/odt_media.py verify || rc=1
 
-echo "── S10.1 schematic (does the picture still name the right figures?) ──"
+section "── S10.1 schematic (does the picture still name the right figures?) ──"
 # Supplementary Material Figure S10.1 is a drawn schematic that names four report
 # figures INSIDE the picture, where no reference lint can see them. It said 63-66
 # for 73-76 until 2026-10-02. tools/s10_schematic.py draws it from figure_map.csv
 # and records the numbers it used; this fails when figure_map has moved since.
 python3 tools/s10_schematic.py --check || rc=1
 
-echo "── rounding (has new store-time rounding appeared?) ─────────────────"
+section "── rounding (has new store-time rounding appeared?) ─────────────────"
 python3 tools/rounding_lint.py || rc=1
 
 echo
-echo "── store round trip (does rewriting a store move rows nobody touched?) ─"
+section "── store round trip (does rewriting a store move rows nobody touched?) ─"
 # The sibling of rounding_lint, and the only check that can see this fault.
 # A store written one row at a time is read whole and rewritten whole, and
 # pandas' default C float parser is not correctly rounded — so every write moved
@@ -447,7 +520,7 @@ python3 tools/store_roundtrip_lint.py --selftest || rc=1
 python3 tools/store_roundtrip_lint.py || rc=1
 
 echo
-echo "── artefacts (is a committed output truthful about itself?) ─────────"
+section "── artefacts (is a committed output truthful about itself?) ─────────"
 # The gate the other fifteen did not cover: an output checked against ITSELF.
 # Row arithmetic (a quantity must be reproduced by the columns that define it)
 # and the empty artefact (a step that could not run must not overwrite its
@@ -455,7 +528,7 @@ echo "── artefacts (is a committed output truthful about itself?) ───�
 python3 tools/artefact_lint.py || rc=1
 
 echo
-echo "── geographic inputs ────────────────────────────────────────────────"
+section "── geographic inputs ────────────────────────────────────────────────"
 # Advisory, not a gate: the open TO CONFIRM fields are questions only Martin can
 # answer, and failing the build on them every run would just teach us to ignore
 # it. What would be a real failure is a layer with no entry at all, or an entry
@@ -466,7 +539,7 @@ python3 tools/geo_consistency.py || true   # W73: withdrawn geo values must not 
 python3 tools/make_site_outline.py --check || rc=1
 
 echo
-echo "── manifest (is the committed one what the orchestrator produces?) ───"
+section "── manifest (is the committed one what the orchestrator produces?) ───"
 # The manifest is the number every document cites, and it is the one committed
 # output any full pipeline run rewrites - so a run from an older tree silently
 # reverts it. That happened on 2026-08-29 and dropped a registered script.
@@ -474,7 +547,7 @@ echo "── manifest (is the committed one what the orchestrator produces?) ─
 python3 tools/manifest_lint.py || rc=1
 
 echo
-echo "── step/phase locators (do the MS step numbers match the manifest?) ──"
+section "── step/phase locators (do the MS step numbers match the manifest?) ──"
 # D-023 put the HEADLINE counts under the manifest guard; nothing watched the
 # per-step "Script XX ... step N/T, Phase P" LOCATORS in the prose, so they
 # drifted silently (Script 27 read "step 44" and "step 49" while the manifest
@@ -484,7 +557,7 @@ python3 tools/step_number_lint.py --selftest >/dev/null || rc=1
 python3 tools/step_number_lint.py || rc=1
 
 echo
-echo "── withheld headlines ───────────────────────────────────────────────"
+section "── withheld headlines ───────────────────────────────────────────────"
 # Script 40 withholds its own rate when its gate fails (D-085). A silent
 # absence reads as success, so the state is REPORTED here. Reported, not gated:
 # withholding is the script working, and failing the build on it would teach us
@@ -497,22 +570,32 @@ echo
 # REPORTED, NOT GATED: a deferral is a session declining to make someone else's
 # call, which is the behaviour that keeps the record honest. What must not happen
 # is it going quiet. Retire one by adding "Deferral discharged:" to its entry.
-echo "── deferred decisions (what is waiting on a person?) ─────────────────"
+section "── deferred decisions (what is waiting on a person?) ─────────────────"
 python3 tools/deferred_report.py || true
 
 echo
 # 1.27.0: several chats work in this tree at once. REPORTED, NOT GATED: an unclaimed change is
 # Martin's own work as often as a chat's, and a ship takes it as it always did. The self-tests of
 # the two modules that keep chats apart (row merge, held-back work) ARE gated.
-echo "── claims (who is doing what?) ──────────────────────────────────────"
+section "── claims (who is doing what?) ──────────────────────────────────────"
 python3 tools/work_board.py --gate || true
 python3 tools/board_artifact.py --check || true          # 1.33.0: advisory - only a session can republish
 python3 tools/register_io.py --selftest >/dev/null || { echo "  FAIL register_io selftest"; rc=1; }
 python3 tools/ship_scope.py --selftest >/dev/null || { echo "  FAIL ship_scope selftest"; rc=1; }
 python3 tools/doc_lock.py --selftest >/dev/null || { echo "  FAIL doc_lock selftest"; rc=1; }
+# 1.34.0 (D-301): the two registers NRG HQ runs on. Their self-tests are gated for the same reason
+# the three above are - they are what keeps one chat's work out of another's - and each register's
+# own --check lands on the day it is written (§4d: a generated artefact with no --check rots).
+python3 tools/chat_register.py --selftest >/dev/null || { echo "  FAIL chat_register selftest"; rc=1; }
+python3 tools/job_queue.py --selftest >/dev/null || { echo "  FAIL job_queue selftest"; rc=1; }
+python3 tools/chat_register.py --check || rc=1
+python3 tools/job_queue.py --check || rc=1
+python3 tools/hq_snapshot.py --selftest >/dev/null || { echo "  FAIL hq_snapshot selftest"; rc=1; }
+python3 tools/hq_snapshot.py --check || rc=1
+python3 tools/hq_page.py --check || true                 # advisory - only a session can republish
 
 echo
-echo "── decisions ────────────────────────────────────────────────────────"
+section "── decisions ────────────────────────────────────────────────────────"
 python3 tools/decision_lint.py --quiet || rc=1
 # Every entry must say what it governs, or context_for cannot surface it and the
 # next session works without it (D-080).
@@ -532,7 +615,7 @@ python3 tools/build_chat_corpus.py --selftest >/dev/null || rc=1
 python3 tools/build_chat_corpus.py --check || rc=1
 
 echo
-echo "── records (did the last session leave the records a session needs?) ──"
+section "── records (did the last session leave the records a session needs?) ──"
 # D-143. A rule that lives only in prose, an artefact nothing consumes and a
 # verdict that depends on neither is how the onboarding system was forgotten.
 # If this fails, the fix is to WRITE the record it names, never to skip it.
@@ -548,7 +631,7 @@ python3 tools/ship_regen_lint.py --selftest >/dev/null || rc=1
 python3 tools/ship_regen_lint.py --quiet || rc=1
 
 echo
-echo "── phases (which document is live; is every frozen write reasoned?) ──"
+section "── phases (which document is live; is every frozen write reasoned?) ──"
 # D-144: one live document family at a time. odt_edit refuses a prose write to a
 # frozen family without a recorded reason; this gate keeps the register it
 # consults complete and consistent, so the refusal never fires for a missing row.
@@ -556,7 +639,7 @@ python3 tools/doc_tier_lint.py --selftest >/dev/null || rc=1
 python3 tools/doc_tier_lint.py || rc=1
 
 echo
-echo "── ledgers (does SCRIPT_LEDGER still describe the code?) ─────────────"
+section "── ledgers (does SCRIPT_LEDGER still describe the code?) ─────────────"
 # D-144 §4: a registered step the Supplement does not document is refused at
 # registration; the same derived check runs here so a missing chapter is red
 # before anyone runs the pipeline.
@@ -570,14 +653,14 @@ ledger_out="$(python3 tools/ledger_lint.py 2>&1)" || rc=1
 printf '%s\n' "$ledger_out" | grep -E "row\(s\) with a stale version|^  ledger_lint:" || true
 
 echo
-echo "── film text (do the film's three language tables say the same things?) ──"
+section "── film text (do the film's three language tables say the same things?) ──"
 # Script 47 1.9.0 reads every word it shows from utils/film_text_<lang>.py. A key
 # missing from a language falls back to English at render time; a template whose
 # fields differ raises mid-render. Gated from the day it landed (CLAUDE.md §4d).
 python3 tools/film_text_lint.py || rc=1
 
 echo
-echo "── document references (does every cited .md exist?) ─────────────────"
+section "── document references (does every cited .md exist?) ─────────────────"
 # Gates on NEW dangling references only. 32 were already dangling on the day
 # this landed - 99 citations, mostly build-era specs and audits that lived
 # beside the project rather than in it - and they are frozen in the tool's
@@ -588,12 +671,12 @@ printf '%s\n' "$docref_out" | grep -E "known-missing document|^  docref_lint: (O
 
 
 echo
-echo "── bibliography (is every entry cited, and every citation an entry?) ──"
+section "── bibliography (is every entry cited, and every citation an entry?) ──"
 # Both directions against the report mirrors; exemptions carry a reason and a date.
 python3 tools/bib_lint.py 2>&1 | grep -E "^  (UNCITED|UNRESOLVED|EXEMPT)|^bib_lint:" || true
 python3 tools/bib_lint.py >/dev/null 2>&1 || rc=1
 echo
-echo "── tasks (is any outstanding job now finished, or newly broken?) ─────"
+section "── tasks (is any outstanding job now finished, or newly broken?) ─────"
 # Gates ONLY on a check that could not answer. An open task is work in hand and
 # must not fail the build; a broken check is a lie waiting to happen, and does.
 # task_lint executes every registered check, several of which invoke other
@@ -610,7 +693,7 @@ printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): " || true
 # exist that does. Typed counts are advisory.
 python3 tools/register_lint.py || rc=1
 
-echo "── proof copies (is the proof page current?) ─────────────────────────"
+section "── proof copies (is the proof page current?) ─────────────────────────"
 # ADVISORY. proof_copy --refresh regenerates only the chapters whose inputs changed
 # (mirror, citation index, reading verdicts, pipeline run log) into
 # scratch/proof_bundle/, rebuilds the bundle with a tasks tab from the task_lint
@@ -631,7 +714,7 @@ rm -f "$proof_tasks"
 python3 tools/inequality_lint.py || rc=1
 
 echo
-echo "── symbols (does the register contradict itself?) ───────────────────"
+section "── symbols (does the register contradict itself?) ───────────────────"
 # The register GATES; the ambiguous-glyph inventory is advisory and prints only.
 # Split deliberately: the backlog is 148 entries and gating on it kept this tool
 # out of the chain entirely, which is how the register came to hand z to d_depth
@@ -660,7 +743,7 @@ printf '%s\n' "$starmath_out" | grep -E "^  starmath_log:|MathML and StarMath di
 # no --check (R22) and sat 16 lines stale from 2026-08-27 to 2026-09-24.
 
 echo
-echo "── references (do typed Table/Figure numbers still resolve?) ─────────"
+section "── references (do typed Table/Figure numbers still resolve?) ─────────"
 # Captions auto-number; in-text references are typed by hand and fall out of
 # step silently. Read from the ODTs in master order, so no PDF export is needed
 # and the check cannot run on a stale artefact.
@@ -699,7 +782,7 @@ python3 tools/build_value_ledger.py --check || rc=1
 python3 tools/build_table_ledger.py --check || rc=1
 
 echo
-echo "── references by meaning (does a number point at what the text names?) ─"
+section "── references by meaning (does a number point at what the text names?) ─"
 # reference_lint asks whether a number RESOLVES. These two ask whether it points
 # at the right thing, which is a different question and the one that was missed:
 # on 2026-08-23 nine table references and fifteen figure references were wrong
@@ -718,7 +801,7 @@ sectionrefaudit_out="$(python3 tools/section_ref_audit.py 2>&1)" || rc=1
 printf '%s\n' "$sectionrefaudit_out" | grep -E "^  reference forms|^      [A-Z§]|^section_ref_audit:|disagree" || true
 
 echo
-echo "── exports (is each published PDF newer than its sources?) ──────────"
+section "── exports (is each published PDF newer than its sources?) ──────────"
 # ADVISORY. A PDF export is slow and manual, and a gate firing between every ODT
 # edit and the next export gets switched off inside a week — the same reasoning
 # check_all already applies to pipeline_lint's literal check. It prints loudly
@@ -751,7 +834,7 @@ python3 tools/export_lag.py --no-pages | grep -E "^  (STALE|MISSING|UNMAPPED|UNB
 python3 tools/output_lag.py --quiet --gate || rc=1
 
 echo
-echo "── input provenance (do the outputs match the committed INPUTS?) ────"
+section "── input provenance (do the outputs match the committed INPUTS?) ────"
 # W132: output_lag watches script->output; this watches input->output. A raw
 # record can change under a corpus of committed numbers with every other gate
 # green (the D-115 case). Skips cleanly until run_analysis.py records the
@@ -761,7 +844,7 @@ python3 tools/input_provenance_lint.py --selftest >/dev/null || rc=1
 python3 tools/input_provenance_lint.py --gate || rc=1
 
 echo
-echo "── step provenance (was each output made from the committed upstream?) ─"
+section "── step provenance (was each output made from the committed upstream?) ─"
 # S1: D-133 records what the pipeline STARTED from; this records what each step
 # READ from other steps and whether it fell back on a default. The remedy a
 # failure names is the step to re-run, never skipping the check (D-102).
@@ -769,7 +852,7 @@ python3 tools/provenance_lint.py --selftest >/dev/null || rc=1
 python3 tools/provenance_lint.py || rc=1
 
 echo
-echo "── archive (are the canonical documents anywhere but this disk?) ─────"
+section "── archive (are the canonical documents anywhere but this disk?) ─────"
 # Advisory, like export_lag and for the same reason: an rclone copy is slow and
 # manual. But it is the only check on the ONE risk the .gitignore creates - the
 # .odt/.odm documents are in no repository, so between an edit and the next sync
@@ -778,12 +861,12 @@ echo "── archive (are the canonical documents anywhere but this disk?) ─�
 python3 tools/drive_lag.py || true
 
 echo
-echo "── claims ───────────────────────────────────────────────────────────"
+section "── asserted claims ──────────────────────────────────────────────────"
 python3 tools/cite_check.py --claims-only || rc=1
 python3 tools/cite_check.py --selftest-claims >/dev/null || { echo "  cite_check --selftest-claims: FAIL"; rc=1; }
 
 echo
-echo "── citation drift (confirmed rows must match the committed CSV) ──────"
+section "── citation drift (confirmed rows must match the committed CSV) ──────"
 # Gate added 2026-09-19: the confirmed-citation index-check. cite_check exits
 # non-zero when a CONFIRMED citation no longer renders equal to its committed
 # value. This is the drift that caught the 13 stale Sy citations; it was run
@@ -791,7 +874,7 @@ echo "── citation drift (confirmed rows must match the committed CSV) ──
 python3 tools/cite_check.py --index-only || rc=1
 
 echo
-echo "── citations (advisory: full triage list, does not gate) ─────────────"
+section "── citations (advisory: full triage list, does not gate) ─────────────"
 # The claims gate above is instant. This triage LINE runs the full sweep —
 # 1,700 committed values against 30 documents — and since the minus-tolerant
 # match and the constants sources landed it takes the best part of a minute,
@@ -805,5 +888,6 @@ else
 fi
 
 echo
-[ "$rc" = "0" ] && echo "check_all: OK" || echo "check_all: FAIL"
-exit "$rc"
+_sec_write_summary
+[ "$_total_rc" = "0" ] && echo "check_all: OK" || echo "check_all: FAIL"
+exit "$_total_rc"

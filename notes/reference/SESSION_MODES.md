@@ -78,6 +78,29 @@ not a route for ODTs: a download comes back through the conversation as base64
 replace a file's content, which would break `working/DRIVE_MANIFEST.json` and so
 every cloud ship after it. Use rclone.
 
+## Register, whatever kind of session this is (D-301)
+
+Compulsory, before the first claim or commit — and before it, attach BOTH repositories, because the
+register is in the private half:
+
+    python3 tools/chat_register.py register --chat "<a short name>" \
+        --kind pipeline|document|tools|readonly|fieldwork \
+        --claim <the one claim you will take, or omit for read-only> \
+        --purpose "<one line: what this chat is for>"
+
+Then `python3 tools/work_board.py`, then take that claim. When the work is done and the ship has
+reached GitHub: `chat_register.py status --chat "<name>" --set done --outcome "<one line>"`, and
+release the claim.
+
+A chat that registers another chat's row is recorded as having done so (`registered_by`, shown as
+SEEDED). That is not a reproach — seeding an existing chat's row is useful — but the row is not
+evidence that chat read the rules, and the agent treats it accordingly.
+
+**Starting a new chat?** Do it from the NRG HQ page, which writes the brief for the kind of work and
+tells the new chat to register. A release also prints any queued job it made ready
+(`working/job_queue.csv`) and the line that fires it: a job fires when a session is already running,
+so firing it is the releasing session's last act, or HQ's next pass.
+
 ## Probe (run at the start of any session in doubt)
 
     echo "drive secret: ${NRG_RCLONE_CONF_B64:+set}"

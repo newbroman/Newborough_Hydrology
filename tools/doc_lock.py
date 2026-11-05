@@ -91,7 +91,11 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.4.1"  # Hollingham (2026) — 2026-11-05. --selftest 1g/1h/2d: the machine-lock
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
+#   signed off). `take` tells a chat that is not in the chat register, and REFUSES it once REGISTRATION_REQUIRED is
+#   flipped - which is the whole of phase 4 (T-138). `release` prints the queued jobs it made ready and the line that
+#   fires each: a job fires when something is already running, and a release is one of the two such moments.
+# 1.4.1  # Hollingham (2026) — 2026-11-05. --selftest 1g/1h/2d: the machine-lock
 #   line reads UNKNOWN with no private store and "free" with a store and no holder (work_board 1.2.1).
 # 1.4.0  # Hollingham (2026) - 2026-11-04 (D-300, spec NRG_handover_control_board_2026-11-04,
 #   signed off). The control board. R1: store_state() tells an ABSENT private store from a free claim; every claim
@@ -152,6 +156,12 @@ ABANDONED_CLAIM_HOURS = 72    #   through the evening on one document is normal 
 TOUCH_THROTTLE_S = 60         # ship_scope calls check_write once PER PATH. Without a throttle a scoped
                               #   ship would rewrite the lock file hundreds of times in a second.
 WORKING_GIT = ".git-working"  # the private repository's git directory, over this same tree (CLAUDE.md 4f)
+# D-301 phase 4. Registration in working/chat_register.csv is COMPULSORY from 2026-11-05, but the
+# refusal waits: spec §11 conditions it on "registration having run for a few days", because a
+# refusal that fires on every chat before the habit exists is a tool nobody uses. The mechanism is
+# below and warns; flipping this to True is the whole of phase 4, and T-138 checks for the flip.
+REGISTRATION_REQUIRED = False
+
 OVERRIDES = "working/claim_overrides.csv"     # R7: append-only, merged row by row by register_io
 PUBLISH_OWED = "working/.board_publish_owed"  # R6(a): a take/release leaves this; a session republishes
 
@@ -664,6 +674,35 @@ def check_write(rel: str, chat: str | None = None) -> tuple[bool, str]:
                    + "Ask that chat to release it, or ask Martin.")
 
 
+def registration_note(chat: str | None) -> tuple[bool, list[str]]:
+    """(may proceed, lines to print). D-301: a chat that has not registered is told, and under
+    REGISTRATION_REQUIRED refused. Import late and defensively - chat_register imports this module,
+    and a tree without the register must still be able to take the first claim."""
+    try:
+        import chat_register
+    except Exception:                                                 # pragma: no cover
+        return True, []
+    if not chat or chat_register.is_registered(chat):
+        return True, []
+    lines = [f"  chat {chat!r} is not in {chat_register.REGISTER.name} — registration is compulsory"
+             f" (D-301). Register it with:",
+             f"      python3 tools/chat_register.py register --chat {chat!r} --kind "
+             f"pipeline|document|tools|readonly|fieldwork --purpose \"<one line>\""]
+    if REGISTRATION_REQUIRED:
+        return False, ["  REFUSED - " + lines[0][7:]] + lines[1:]
+    return True, ["  WARNING:" + lines[0][2:]] + lines[1:]
+
+
+def jobs_made_ready() -> list[str]:
+    """D-301: a job fires when something is already running, and a release is one of the two such
+    moments. So a release says what it unblocked - the session that released then fires it."""
+    try:
+        import job_queue
+        return [j["id"] for j in job_queue.ready(promote=True, quiet=True)]
+    except Exception:                                                 # pragma: no cover
+        return []
+
+
 def take_claim(name: str, chat: str | None, note: str, force: bool,
                link: str | None = None, by: str | None = None) -> int:
     if not store_ok():
@@ -675,6 +714,11 @@ def take_claim(name: str, chat: str | None, note: str, force: bool,
         return 1
     if name not in claim_names():
         print(f"  REFUSED - no claim called {name!r}. Claims: {', '.join(claim_names())}")
+        return 1
+    may, lines = registration_note(me)
+    for line in lines:
+        print(line, file=sys.stderr if not may else sys.stdout)
+    if not may:
         return 1
     # R7: a forced TAKE is the destructive override - it leaves the other chat's unshipped work
     # unprotected - so it must be signed. A forced release is not, and defaults --by instead.
@@ -746,6 +790,12 @@ def release_claim(name: str, chat: str | None, force: bool, by: str | None = Non
         log_override("forced-release", name, out["held_by"], None,
                      (by or "").strip() or me or "unknown", out.get("note", ""))
     mark_publish_owed(f"release {name}")
+    ready = jobs_made_ready()
+    if ready:
+        print(f"  this release made {len(ready)} job(s) ready: {', '.join(ready)}")
+        for jid in ready:
+            print(f"      python3 tools/job_queue.py fire {jid} --by {me or '<this chat>'!r}")
+        print("  fire them now, or they wait for HQ's next pass (D-301).")
     return 0
 
 
@@ -950,6 +1000,52 @@ def _selftest() -> int:
         rc, out = _run(["work_board.py", "--no-probe"], t9)
         check("9a the private repository is shown 2 behind origin/main", "2 behind" in out, out)
         check("9b the board reports a fetch time", "as of fetch" in out, out)
+
+        # 10 (1.5.0, D-301). Registration warns and does not refuse; a release names the jobs it
+        # made ready. The refusal itself is phase 4 and is exercised by flipping the switch.
+        t10 = _mktree(T / "d301", private=True, lock={"holder": None, "claims": {}})
+        rc, out = _run(["doc_lock.py", "take", "tools", "--chat", "Unregistered"], t10)
+        check("10a an unregistered chat is warned", rc == 0 and "is not in chat_register.csv" in out, out)
+        check("10b and the warning gives the register command", "chat_register.py register" in out, out)
+        rc, out = _run(["doc_lock.py", "release", "tools", "--chat", "Unregistered"], t10)
+        check("10c release works", rc == 0, out)
+        # the same take with the switch flipped is a refusal, which is all phase 4 is (T-138)
+        src = (HERE / "tools/doc_lock.py").read_text(encoding="utf-8")
+        (t10 / "tools").mkdir(exist_ok=True)
+        for mod in ("register_io.py", "chat_register.py", "job_queue.py", "doc_tier.py"):
+            f = HERE / "tools" / mod
+            if f.exists():
+                (t10 / "tools" / mod).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+        (t10 / "tools/doc_lock.py").write_text(
+            src.replace("REGISTRATION_REQUIRED = False", "REGISTRATION_REQUIRED = True"),
+            encoding="utf-8")
+        r = subprocess.run([sys.executable, str(t10 / "tools/doc_lock.py"), "take", "tools",
+                            "--chat", "Unregistered"], capture_output=True, text=True,
+                           env=dict(os.environ, NRG_REPO_ROOT=str(t10)), cwd=str(t10))
+        check("10d with REGISTRATION_REQUIRED the same take is REFUSED",
+              r.returncode == 1 and "REFUSED" in (r.stdout + r.stderr), r.stdout + r.stderr)
+
+        # a release that frees a claim a queued job waits for names that job
+        t11 = _mktree(T / "d301b", private=True, lock={
+            "holder": None, "claims": {"pipeline": {"chat": "Mine", "since": _ago(1),
+                                                    "touched": _ago(0.1), "note": ""}}})
+        import csv as _csv
+        import job_queue as _jq
+        (t11 / "notes/specs").mkdir(parents=True, exist_ok=True)
+        # assembled, not written out: docref_lint reads any *.md token in tools/*.py as a citation
+        # of a document that should exist, and this one is a throwaway-tree fixture (same reason as
+        # job_queue.py's `absent`).
+        fixture = "notes/specs/throwaway_brief" + ".md"
+        (t11 / fixture).write_text("brief", encoding="utf-8")
+        with (t11 / "working/job_queue.csv").open("w", encoding="utf-8", newline="") as fh:
+            w = _csv.DictWriter(fh, fieldnames=_jq.FIELDS, lineterminator="\n")
+            w.writeheader()
+            w.writerow({"id": "J-7", "title": "waiting on pipeline", "brief": fixture,
+                        "claim": "pipeline", "waits_for": "claim_free:pipeline",
+                        "target": "new_session", "status": "queued"})
+        rc, out = _run(["doc_lock.py", "release", "pipeline", "--chat", "Mine"], t11)
+        check("10e the release names the job it made ready", "J-7" in out and "made" in out, out)
+        check("10f and gives the line that fires it", "job_queue.py fire J-7" in out, out)
 
     print("doc_lock selftest (control board, spec section 6):", "OK" if ok else "FAIL")
     return 0 if ok else 1

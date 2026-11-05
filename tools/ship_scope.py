@@ -31,6 +31,14 @@ HOW
   restore  Puts it all back after the ship. A file the ship itself changed meanwhile (a mirror the
            ship rebuilt, a file the pull brought in) is NOT overwritten: it stays in .ship_hold with
            a line saying so, and nothing is lost.
+  resolve  Closes a hold `restore` could not finish, without pretending it restored it. It checks
+           each unrestored item against the tree - identical bytes, or every parked line still
+           occurring in the file - and refuses unless the work is accounted for (or --force). The
+           manifest gains `resolved` (who, when, why, what was verified); `restored` is left alone,
+           and the parked copy stays. Added 1.1.0 because `restore`'s refusal is correct but left
+           the board reading "not put back" for ever, and the alternatives were deleting the
+           evidence or editing the manifest by hand - which is what certified a foreign PDF into
+           the published corpus on 2026-09-01 (CLAUDE.md 4).
   check    For a cloud ship (its own clone, so nothing to hold back): refuse if a changed file is
            under a claim another chat holds.
 
@@ -38,13 +46,16 @@ Usage:
   python3 tools/ship_scope.py plan    --request FILE [--json]
   python3 tools/ship_scope.py park    --request FILE --id ID
   python3 tools/ship_scope.py restore --id ID
+  python3 tools/ship_scope.py resolve --id ID --reason TEXT [--chat NAME] [--force]
   python3 tools/ship_scope.py check   [--chat NAME]
   python3 tools/ship_scope.py --selftest
 Exit: 0 go, 1 refused or stopped (the reason printed), 2 usage.
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-10-10. First issue (spec NRG_spec_parallel_chats_2026-10-10).
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-05. `resolve`: close a hold whose parked work the
+#   tree already carries. restore() rightly refuses to overwrite a moved file, but nothing could then clear the
+#   board's "not put back" line except deleting the evidence or editing the manifest by hand (T-149, D-301).
 
 import argparse
 import datetime
@@ -362,6 +373,106 @@ def restore(sid: str) -> int:
     return 0 if not left else 3
 
 
+# ── resolve: close a hold whose parked work the tree already carries ────────
+_TEXT_SUFFIX = {".py", ".sh", ".md", ".csv", ".txt", ".json", ".yml", ".yaml", ".cfg", ".toml"}
+
+
+def _lines(p: pathlib.Path) -> list[str] | None:
+    """The file's non-blank lines, trailing whitespace stripped. None if it is not readable text."""
+    try:
+        txt = p.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    return [ln.rstrip() for ln in txt.splitlines() if ln.strip()]
+
+
+def verify_entry(e: dict, files: pathlib.Path) -> dict:
+    """Is the parked copy's content already in the tree? Reports one of:
+
+      identical   the file now has the parked copy's exact bytes
+      contained   every non-blank line of the parked copy also OCCURS in the file now. That is
+                  weaker than it sounds - a line can occur somewhere else entirely - so it says
+                  nothing is MISSING, never that the file is equivalent. A reason is still required.
+      absent      some parked lines are nowhere in the file (they are listed), or the comparison
+                  cannot be made at all (a deleted entry, an ODT, a binary, no file in the tree).
+    """
+    rel = e["path"]
+    held, tree = files / rel, REPO / rel
+    v = {"path": rel, "kind": e.get("kind")}
+    if e.get("kind") == "deleted":
+        return {**v, "verdict": "absent", "why": "a deleted entry: there is nothing to compare"}
+    if not held.exists():
+        return {**v, "verdict": "absent", "why": "the parked copy is gone from .ship_hold"}
+    if not tree.exists():
+        return {**v, "verdict": "absent", "why": "no file of that name in the tree"}
+    if held.read_bytes() == tree.read_bytes():
+        return {**v, "verdict": "identical"}
+    if pathlib.Path(rel).suffix.lower() not in _TEXT_SUFFIX:
+        return {**v, "verdict": "absent", "why": "not a text file: only identical bytes can be checked"}
+    hl, tl = _lines(held), _lines(tree)
+    if hl is None or tl is None:
+        return {**v, "verdict": "absent", "why": "not readable as text"}
+    missing = [ln for ln in hl if ln not in set(tl)]
+    if missing:
+        return {**v, "verdict": "absent", "missing": len(missing), "examples": missing[:5],
+                "why": f"{len(missing)} parked line(s) are nowhere in the file now"}
+    return {**v, "verdict": "contained", "missing": 0}
+
+
+def resolve(sid: str, reason: str | None, chat: str | None, force: bool) -> int:
+    """Close a hold the tool itself could not restore, WITHOUT claiming it restored it.
+
+    restore() refuses to overwrite a file the tree has moved on from (ship_scope 1.0.0), which is
+    right - but it then leaves the board reading "not put back" for ever, and the only ways to
+    clear it were to delete the evidence or to edit the manifest by hand. Hand-editing a manifest
+    is what certified a foreign PDF into the published corpus on 2026-09-01 (CLAUDE.md 4); this is
+    the verb that was missing instead.
+
+    It records `resolved` and never touches `restored`, so the manifest keeps saying what the tool
+    did and what a person decided. The parked copy stays in .ship_hold.
+    """
+    root = HOLD / sid
+    mf = root / "manifest.json"
+    if not mf.exists():
+        print(f"  nothing parked under {sid}")
+        return 1
+    man = json.loads(mf.read_text(encoding="utf-8"))
+    if man.get("resolved"):
+        r = man["resolved"]
+        print(f"  {sid}: already resolved {r.get('at')} - {r.get('reason')!r}")
+        return 0
+    if man.get("restored"):
+        print(f"  {sid}: fully restored already; nothing to resolve")
+        return 0
+    if not reason:
+        print("  resolve needs --reason: the manifest records WHY a person closed this hold")
+        return 1
+    files = root / "files"
+    open_entries = [e for e in man["entries"] if not e.get("restored")]
+    ver = [verify_entry(e, files) for e in open_entries]
+    for v in ver:
+        if v["verdict"] == "identical":
+            print(f"    {v['path']}: identical - the tree has the parked bytes")
+        elif v["verdict"] == "contained":
+            print(f"    {v['path']}: contained - every parked line occurs in the file now")
+        else:
+            print(f"    {v['path']}: ABSENT - {v.get('why')}")
+            for ex in v.get("examples", []):
+                print(f"        parked line not found: {ex[:100]}")
+    bad = [v for v in ver if v["verdict"] == "absent"]
+    if bad and not force:
+        print(f"  REFUSED: {len(bad)} of {len(ver)} item(s) are not accounted for in the tree.")
+        print("  Put the work back by hand and run this again, or --force if it is genuinely"
+              " to be dropped (the manifest records that it was forced).")
+        return 1
+    man["resolved"] = {"at": _now(), "chat": chat or os.environ.get("NRG_CHAT") or "",
+                       "reason": reason, "forced": bool(bad), "verified": ver}
+    mf.write_text(json.dumps(man, indent=1) + "\n", encoding="utf-8")
+    how = "FORCED" if bad else "verified"
+    print(f"  {sid}: resolved ({how}), {len(ver)} item(s); the parked copy stays in"
+          f" {root.relative_to(REPO)}")
+    return 0
+
 def check(chat: str | None, rng: str | None = None) -> int:
     """For a ship from a clone of its own: no changed file - in the tree, or in the commits of
     rng (e.g. origin/main..HEAD) - may be under a claim another chat holds."""
@@ -427,6 +538,36 @@ def _selftest() -> int:
                 print("FAIL restore"); ok = False
             if (dd / "src/a.py").read_text() != "a=2\n" or (dd / "src/new.py").read_text() != "n\n":
                 print("FAIL restored tree"); ok = False
+            # 1.1.0: resolve. Park src/a.py again, let the tree move past it, and check that
+            # restore refuses while resolve accounts for it - and refuses when it cannot.
+            (dd / "src/a.py").write_text("a=3\n")
+            P4 = plan({"chat": "A", "claims": ["tools"], "paths": []})
+            if park(P4, "t2") != 0:
+                print("FAIL park t2"); ok = False
+            (dd / "src/a.py").write_text("a=3\nextra=1\n")        # a superset of the parked copy
+            if restore("t2") == 0:
+                print("FAIL: restore did not refuse a moved file"); ok = False
+            if resolve("t2", None, "A", False) == 0:
+                print("FAIL: resolve accepted no --reason"); ok = False
+            if resolve("t2", "superseded in the tree", "A", False) != 0:
+                print("FAIL: resolve refused a contained item"); ok = False
+            m2 = json.loads((dd / ".ship_hold/t2/manifest.json").read_text())
+            if m2.get("restored") or not m2.get("resolved"):
+                print("FAIL: resolve touched restored, or recorded nothing"); ok = False
+            if m2["resolved"]["forced"] or m2["resolved"]["verified"][0]["verdict"] != "contained":
+                print("FAIL: resolve verdict", m2["resolved"]["verified"]); ok = False
+            if resolve("t2", "again", "A", False) != 0:
+                print("FAIL: resolve was not idempotent"); ok = False
+            (dd / "src/a.py").write_text("something else entirely\n")   # the parked lines are gone
+            (dd / ".ship_hold/t2/manifest.json").write_text(json.dumps(
+                {k: v for k, v in m2.items() if k != "resolved"}, indent=1))
+            if resolve("t2", "dropping it", "A", False) == 0:
+                print("FAIL: resolve did not refuse an unaccounted item"); ok = False
+            if resolve("t2", "dropping it", "A", True) != 0:
+                print("FAIL: --force did not close it"); ok = False
+            if not json.loads((dd / ".ship_hold/t2/manifest.json").read_text())["resolved"]["forced"]:
+                print("FAIL: a forced resolve was not recorded as forced"); ok = False
+
             P2 = plan({})
             if not P2["stop"]:
                 print("FAIL: a claimless ship was not stopped while B holds pipeline"); ok = False
@@ -442,11 +583,14 @@ def _selftest() -> int:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
-    ap.add_argument("action", nargs="?", choices=["plan", "park", "restore", "check"])
+    ap.add_argument("action", nargs="?", choices=["plan", "park", "restore", "resolve", "check"])
     ap.add_argument("--request", default=os.environ.get("NRG_SHIP_REQUEST"))
     ap.add_argument("--id", default=None)
     ap.add_argument("--chat", default=None)
     ap.add_argument("--range", default=None, help="check: also the files changed by these commits")
+    ap.add_argument("--reason", default=None, help="resolve: why a person is closing this hold")
+    ap.add_argument("--force", action="store_true",
+                    help="resolve: close it even though an item is not accounted for")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
@@ -458,6 +602,10 @@ def main() -> int:
         if not a.id:
             ap.error("restore needs --id")
         return restore(a.id)
+    if a.action == "resolve":
+        if not a.id:
+            ap.error("resolve needs --id")
+        return resolve(a.id, a.reason, a.chat, a.force)
     if not a.action:
         ap.error("an action is needed")
     P = plan(read_request(a.request))

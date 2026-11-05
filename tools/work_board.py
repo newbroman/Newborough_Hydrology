@@ -8,7 +8,8 @@ working/DOCUMENT_LOCK.json (tools/doc_lock.py), the ship watcher's status, git, 
   CLAIMS          each claim, its chat, since when, and its note
   SHIPS           the watcher's last ship and any request waiting; the last commits
   CHANGES         uncommitted files in the tree, grouped by the claim that covers them
-  HELD BACK       work a ship parked that was not put back (tools/ship_scope.py restore)
+  HELD BACK       work a ship parked that was not put back (tools/ship_scope.py restore), and
+                  separately any hold a person has closed with `resolve` and why (1.3.0)
 
 It runs at the start of every session (tools/session_handover.py), in the ship log, and in the
 06:30 dashboard snapshot (working/dashboard/emit_status.py reads --json).
@@ -41,7 +42,11 @@ Usage:  python3 tools/work_board.py [--json] [--gate] [--probe|--no-probe]
 """
 from __future__ import annotations
 
-__version__ = "1.2.1"  # Hollingham (2026) — 2026-11-05. R1 reached the CLAIMS but not the machine-lock
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-05. A hold a person closed with
+#   `ship_scope resolve` (1.1.0) no longer reads as outstanding: HELD BACK counts the unresolved ones, and a resolved
+#   hold gets one quiet line with its reason. Before this the only ways to clear the line were to delete the parked
+#   evidence or to edit the manifest by hand (T-149).
+# 1.2.1  # Hollingham (2026) — 2026-11-05. R1 reached the CLAIMS but not the machine-lock
 #   line, which still read "free" with no private store while doc_lock status read UNKNOWN - the same defect one line
 #   up. Found from a public-only clone at cd42999. The state now travels on the machine_lock dict, so the board, the
 #   artifact page and anything else reading --json all say UNKNOWN together; doc_lock --selftest covers it.
@@ -182,15 +187,24 @@ def collect(do_probe: bool = False) -> dict:
         by[doc_lock.claim_for_path(pth) or RECORDS_LABEL].append(pth)
     status = _json(REPO / "working/.ship_status.json") or {}
     pending = (REPO / "working/.ship_request").exists()
-    holds = []
+    holds: list[dict] = []
+    resolved: list[dict] = []
     hd = REPO / ".ship_hold"
     if hd.is_dir():
         for m in sorted(hd.glob("*/manifest.json")):
             man = _json(m) or {}
-            if not man.get("restored"):
-                holds.append({"id": man.get("id", m.parent.name), "chat": man.get("chat"),
-                              "left": man.get("left") or [e["path"] for e in man.get("entries", [])
-                                                          if not e.get("restored")]})
+            if man.get("restored"):
+                continue
+            rec = {"id": man.get("id", m.parent.name), "chat": man.get("chat"),
+                   "left": man.get("left") or [e["path"] for e in man.get("entries", [])
+                                               if not e.get("restored")]}
+            # 1.3.0: resolved by a person (ship_scope resolve) - recorded, not outstanding.
+            r = man.get("resolved")
+            if r:
+                resolved.append({**rec, "at": r.get("at"), "reason": r.get("reason"),
+                                 "forced": bool(r.get("forced"))})
+            else:
+                holds.append(rec)
     return {
         "store": store,
         "store_why": store_why,
@@ -215,6 +229,7 @@ def collect(do_probe: bool = False) -> dict:
         "last_commits": [l for l in _git("log", "-4", "--format=%h %ad %s", "--date=format:%m-%d %H:%M").splitlines()],
         "changes": {k: sorted(v) for k, v in sorted(by.items())},
         "held_back": holds,
+        "held_resolved": resolved,
     }
 
 
@@ -315,6 +330,10 @@ def render(B: dict) -> str:
         L.append("  HELD BACK BY A SHIP AND NOT PUT BACK  (python3 tools/ship_scope.py restore --id ID)")
         for h in B["held_back"]:
             L.append(f"    {h['id']} (chat {h.get('chat')!r}): {len(h['left'])} item(s)")
+    for h in B.get("held_resolved") or []:
+        how = "FORCED" if h.get("forced") else "verified"
+        L.append(f"  held back and closed by hand ({how}): {h['id']} "
+                 f"(chat {h.get('chat')!r}) - {h.get('reason')}")
     return "\n".join(L)
 
 

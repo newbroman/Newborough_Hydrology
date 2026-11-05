@@ -41,7 +41,11 @@ Usage:  python3 tools/work_board.py [--json] [--gate] [--probe|--no-probe]
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-04 (D-300, spec NRG_handover_control_board_2026-11-04,
+__version__ = "1.2.1"  # Hollingham (2026) — 2026-11-05. R1 reached the CLAIMS but not the machine-lock
+#   line, which still read "free" with no private store while doc_lock status read UNKNOWN - the same defect one line
+#   up. Found from a public-only clone at cd42999. The state now travels on the machine_lock dict, so the board, the
+#   artifact page and anything else reading --json all say UNKNOWN together; doc_lock --selftest covers it.
+# 1.2.0  # Hollingham (2026) — 2026-11-04 (D-300, spec NRG_handover_control_board_2026-11-04,
 #   signed off). The control board. R1: an ABSENT private store reads UNKNOWN on every claim instead of free, in the
 #   board's first line. R2: freshness per repository, probed read-only with ls-remote (never fetch - no .git writes,
 #   no lock residue) and off by default for --gate/--json. R3: one block per repository - branch, HEAD, ahead/behind
@@ -199,7 +203,9 @@ def collect(do_probe: bool = False) -> dict:
                   for k, v in held.items() if doc_lock.staleness(v)},
         "stale_hours": doc_lock.stale_hours(),
         "abandoned_hours": doc_lock.abandoned_hours(),
-        "machine_lock": {k: lock.get(k) for k in ("holder", "since", "note")},
+        # R1 (1.2.1): the machine lock lives in the SAME private file as the claims, so with no store
+        # its holder reads None - which is "free", the very answer D-300 is about. Carry the state.
+        "machine_lock": {k: lock.get(k) for k in ("holder", "since", "note")} | {"unknown": absent},
         # R1: UNKNOWN, not free. None would be indistinguishable from "nobody holds it".
         "claims": ({n: "UNKNOWN" for n in doc_lock.claim_names()} if absent
                    else {n: held.get(n) for n in doc_lock.claim_names()}),
@@ -254,8 +260,11 @@ def render(B: dict) -> str:
         for r in B["repos"]:
             L += _repo_line(r)
     ml = B["machine_lock"]
-    L.append(f"  documents (machine lock): {ml.get('holder') or 'free'}"
-             + (f" since {ml.get('since')}" if ml.get("holder") else ""))
+    if ml.get("unknown"):
+        L.append("  documents (machine lock): UNKNOWN - the lock cannot be read from this session")
+    else:
+        L.append(f"  documents (machine lock): {ml.get('holder') or 'free'}"
+                 + (f" since {ml.get('since')}" if ml.get("holder") else ""))
     if ml.get("holder") and re.match(r"^rcw-[0-9a-z]+@claude$", ml["holder"]):   # 1.1.0, D-299
         L.append("    >>> a BRIDGE lock under the wrong name: archive on the L14, then take --force and release there")
     L.append("  CLAIMS")

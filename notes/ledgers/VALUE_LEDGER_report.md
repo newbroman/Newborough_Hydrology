@@ -2917,6 +2917,8 @@
 - _(untracked)_ 95 cm — …n only from Ranwell's text (about 95 cm), and readings deeper than th…
 - _(untracked)_ 145 records — …d Ranwell tables, the exception D-145 records as D-051 did for Script 39 --…
 - _(untracked)_ 20 years — …pine canopy usually closes by 15--20 years; Forest Research), six cases…
+- _(untracked)_ 68 % — …e model disagree, Model A booking 68 % of the loss as drainage at th…
+- _(untracked)_ 45 % — …ge at the median well and Model B 45 %. Two further readings bound t…
 - _(untracked)_ 0.5 % — …(CLAHE-style auto-contrast with a 0.5 % cutoff, plus light sharpening…
 
 ## Supplementary_Material
@@ -5574,7 +5576,6 @@
 - **C5 (Coastal Forest) · flux_frac_ge_80pct_from_m**  — quoted 3.1 vs committed 3.1  ·  `03_18_datum_invariance.csv`
 - **C1 (Lake Edge) · flux_frac_ge_90pct_from_m**  — quoted 2.3 vs committed 2.3  ·  `03_18_datum_invariance.csv`
 - **C3 (Western Residual) · flux_frac_ge_90pct_from_m**  — quoted 3.4 vs committed 3.4  ·  `03_18_datum_invariance.csv`
-- **pastas_n_identified_full_record**  — quoted 63 vs committed 63  ·  `48_report_numbers.csv`
 - **msl5_n_windows_with_interp**  — quoted 29 vs committed 29  ·  `26_report_numbers.csv`
 - **Pre_scraping_baseline_years · CEH36 · pre_2015_scrape**  — quoted 4.2 vs committed 4.24641  ·  `09_scrape_report_numbers.csv`
 - _(untracked)_ 96 record — …t-of-sample test against the 1989--96 record (Script 39, Section 4.14.1),…
@@ -5640,6 +5641,10 @@
 - **forest_free / beta_1_recharge · F_pvalue**  — quoted 0.045 vs committed 0.0446097  ·  `07_05_clusters_vs_covariates.csv`
 - **forest_free / beta_3_drainage · F_pvalue**  — quoted 0.0045 vs committed 0.00448383  ·  `07_05_clusters_vs_covariates.csv`
 - **Pre_felling_baseline_years_min · CEH34 · Forest control**  — quoted 7.3 vs committed 7.25257  ·  `10_consolidated_report_numbers.csv`
+
+### §3.2.2 Agglomeration Strategy
+
+- **pastas_n_identified_full_record**  — quoted 63 vs committed 63  ·  `48_report_numbers.csv`
 
 ### §3.2.3 Cluster Determination and Robustness Assessment
 

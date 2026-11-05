@@ -62,7 +62,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.4.0"  # Hollingham (2026) - 2026-11-04 (D-300, R6c). The work board's one-line digest
+__version__ = "2.5.0"  # Hollingham (2026) - 2026-11-05 (D-307): TIER0_PROSE_BUDGET 600 -> 650.
+#   The measurement counts the HANDOFF's git-status fences, so it moves with whether the tree
+#   happens to be committed; the constant carries the arithmetic. Martin's call, 2026-11-05.
+# 2.4.0  # Hollingham (2026) - 2026-11-04 (D-300, R6c). The work board's one-line digest
 #   prints BEFORE the handover, so a session that reads no further still sees an absent private store or
 #   another chat's claim (tools/work_board.py --digest). Tier 0 is unaffected: the digest is printed, not written.
 # 2.3.0  # Hollingham (2026). 2026-10-10: a session start prints the work board after the
@@ -128,7 +131,15 @@ CHANGELOGS = REPO / "working" / "changelogs"
 NOTE_LONG_ENTRY = 40         # per dated entry in HANDOVER_NOTE.md — advisory
 NOTE_KEEP_ENTRIES = 6        # --write never archives below this many dated entries
 NOTE_ARCHIVE_MARGIN = 30     # lines under the budget that an archive pass aims for
-TIER0_PROSE_BUDGET = 600     # lines, excluding the one-line-per-decision index (D-080)
+TIER0_PROSE_BUDGET = 650     # lines, excluding the one-line-per-decision index (D-080, D-307)
+# 650 since 2026-11-05 (D-307, Martin's call), from 600 under D-150 and 250 under D-080.
+# Raised because the budget is measured with the HANDOFF's repository-status fences in it:
+# the same tree measured 625 with 39 files uncommitted and about 577 once they were committed,
+# and a ship regenerates the HANDOFF and runs the gates BEFORE it commits. The cap still
+# binds — 625 of 650 on the day it was raised — and the archiver regains its lever as soon as
+# the live entries age past NOTE_KEEP_ENTRIES, which is what deadlocked it: all six were
+# written on 2026-11-04 and 2026-11-05. Measuring the HANDOFF's prose WITHOUT those fences
+# remains the better fix and is left open (T-140); this raise does not close it.
 CHANGELOG_WINDOW_DAYS = 3    # script commits this recent must have a changelog
 CHANGELOG_LEAD_DAYS = 2      # a changelog may precede its commit by this much
 # Records the gate itself produces; a commit that touches only these does not

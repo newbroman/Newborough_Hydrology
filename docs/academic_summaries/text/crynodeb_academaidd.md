@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_30.odt — do not edit. source-sha256=e68a8c80aa996fc1 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/crynodeb_academaidd_v1_31.odt — do not edit. source-sha256=7566b2bbb0392327 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Astudiaeth Dŵr Daear Cwningar Niwbwrch
@@ -11,7 +11,7 @@ Full report, methods supplement and data: github.com/newbroman/Newborough_Hydrol
 
 Cynllun a dulliau\'r astudiaeth
 
-Dadansoddwyd set ddata monitro ffynhonnau (dipwell) 21 mlynedd (2005--2026) yn cwmpasu 88 ffynnon (66 cyfeirnod, 22 estynedig) ar draws ACA Cwningar Niwbwrch gan ddefnyddio piblinell Python ailadroddadwy 63-cam. Cyfunwyd lefelau dŵr misol â data hinsawdd RAF Valley (glawiad, PET Thornthwaite). Yr offeryn dadansoddol craidd yw model gofod-cyflwr (SSM) a ffitiwyd yn annibynnol i bob ffynnon, gan amcangyfrif tri chyfernod ffisegol: sensitifrwydd ailwefru (β₁), tynfa atmosfferig (β₂) a draenio (β₃). Meincnodwyd perfformiad yr SSM yn erbyn model llinol traddodiadol (TLM) heb y term draenio; cyflawnodd yr SSM effeithlonrwydd Nash--Sutcliffe positif mewn modd rhagolygu ailadroddol mewn 65 o\'r 66 ffynnon gyfeirnod (o\'i gymharu â 55 o 66 ar gyfer y model llinol traddodiadol).
+Dadansoddwyd set ddata monitro ffynhonnau (dipwell) 21 mlynedd (2005--2026) yn cwmpasu 88 ffynnon (66 cyfeirnod, 22 estynedig) ar draws ACA Cwningar Niwbwrch gan ddefnyddio piblinell Python ailadroddadwy 64-cam. Cyfunwyd lefelau dŵr misol â data hinsawdd RAF Valley (glawiad, PET Thornthwaite). Yr offeryn dadansoddol craidd yw model gofod-cyflwr (SSM) a ffitiwyd yn annibynnol i bob ffynnon, gan amcangyfrif tri chyfernod ffisegol: sensitifrwydd ailwefru (β₁), tynfa atmosfferig (β₂) a draenio (β₃). Meincnodwyd perfformiad yr SSM yn erbyn model llinol traddodiadol (TLM) heb y term draenio; cyflawnodd yr SSM effeithlonrwydd Nash--Sutcliffe positif mewn modd rhagolygu ailadroddol mewn 65 o\'r 66 ffynnon gyfeirnod (o\'i gymharu â 55 o 66 ar gyfer y model llinol traddodiadol).
 
 Rhannodd dadansoddiad clystyru (Ward hierarchaidd, k=5) y rhwydwaith cyfeirnod yn bum parth hydroddaearegol. Aseswyd ymyriadau rheoli trwy ANCOVA-BACI gyda chynllun arbrofol pum haen a thri grŵp rheoli annibynnol. Defnyddiodd rhagamcanion hinsawdd orfodaeth ganradd-50 UKCP18 RCP8.5. Mae lefelau dŵr y cymunedau yn dilyn Curreli et al. (2013): llaciau gwlyb (SD15b) −0.61 m a llaciau sych (SD16) −0.98 m ar yr isafswm blynyddol cymedrig pedair blynedd, wedi\'u cymhwyso yng nghwadradau arolygedig van Willegen. Aseswyd newid sylfaenol y gwanwyn gan ddefnyddio metrig MSL5 van Willegen et al. (2025).
 

@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.84.0"  # Hollingham (2026) - 2026-11-03. D-296 retirement pass: removed OUT_14B_PER_WELL_TRENDS, OUT_14B_CROSSING_COUNTS, OUT_14B_PER_WELL_FIG, OUT_14B_REPORT_NUMBERS
+__version__ = "1.85.0"  # Hollingham (2026) - 2026-11-05. Script 55 1.0.0 (the water-balance residual analysis):
+#   DIR_55 and its outputs; and OUT_18_WELL_SY_BY_WINDOW for Script 18 1.19.0's windowed mode (D8). Additive.
+# 1.84.0  # Hollingham (2026) - 2026-11-03. D-296 retirement pass: removed OUT_14B_PER_WELL_TRENDS, OUT_14B_CROSSING_COUNTS, OUT_14B_PER_WELL_FIG, OUT_14B_REPORT_NUMBERS
 #   (Script 14b 2.0.0); OUT_14_PER_WELL_EXTREMES, OUT_14_PER_WELL_BAND_COUNTS, OUT_14_PER_WELL_BANDS_FIG, OUT_14_WINTER_EXCEED (Script 14 1.14.0);
 #   OUT_26_CURRELI_MIN_WELL_BANDS, OUT_26_MSL9_COMMUNITY, OUT_26_MSL9_TRAJECTORY, OUT_26_MSL5_HANDBOOK_COUNTS (Script 26 1.32.0). No live writer or reader.
 # 1.83.0  # Hollingham (2026) - 2026-11-03. Script 26 1.31.0 (D-297): OUT_26_TABLE_S7_3_CSV/MD.
@@ -1098,6 +1100,7 @@ OUT_18_HALFLIFE_MAP         = DIR_18 / "18_wtf_05_halflife_map.png"
 OUT_18_STORAGE_DRAINAGE_INDEX_CSV = DIR_18 / "18_wtf_05_storage_drainage_index.csv"
 OUT_18_AQUIFER_SYNTHESIS    = DIR_18 / "18_wtf_06_aquifer_diagnostic_synthesis.png"
 OUT_18_SY_SPATIAL_TRENDS    = DIR_18 / "18_wtf_07_sy_spatial_trends.csv"  # open-dune Sy plane + within-forest Sy correlations
+OUT_18_WELL_SY_BY_WINDOW     = DIR_18 / "18_wtf_06_well_sy_by_window.csv"  # per-well Sy either side of MODEL_AB_SPLIT_DATE (D8), for Script 55 Stage G
 OUT_18_CLUSTER_HALFLIFE_SUMMARY = DIR_18 / "18_wtf_08_cluster_half_life_summary.csv"  # per-cluster t half min/median/max + n over non-excluded wells (Paper 1 Table 6)
 OUT_18_REPORT_NUMBERS       = DIR_18 / "18_report_numbers.csv"        # §4.9.3 half-life / 1/β₃ stats
 
@@ -1741,3 +1744,26 @@ OUT_54_TESTS          = DIR_54 / "54_04_tests.csv"
 OUT_54_RESIDUALS      = DIR_54 / "54_05_residual_monthly.csv"
 OUT_54_FIG            = DIR_54 / "54_06_dry_year_hysteresis.png"
 OUT_54_REPORT_NUMBERS = DIR_54 / "54_report_numbers.csv"
+
+# Script 55 - the water-balance residual analysis (spec NRG_spec_water_balance_diagnostic_2026-11-04, D2: tier X,
+# opt-in). Fixed Sy from Script 18, the residual read as drainage, and the drainage law regressed on head.
+DIR_55 = OUT_DIR / "55_water_balance_drainage"
+OUT_55_SURPLUS_VS_DH      = DIR_55 / "55_01_surplus_vs_dh.csv"             # A: cluster-mean month, apparent Sy
+OUT_55_SURPLUS_FIG        = DIR_55 / "55_01_surplus_vs_dh.png"
+OUT_55_LAW_PER_WELL       = DIR_55 / "55_02_drainage_law_per_well.csv"     # B: line and threshold, per well
+OUT_55_LAW_BY_CLUSTER     = DIR_55 / "55_03_drainage_law_by_cluster.csv"
+OUT_55_LAW_FIG            = DIR_55 / "55_02_drainage_law.png"
+OUT_55_WATER_BALANCE      = DIR_55 / "55_04_water_balance.csv"             # C: annual balance from the fitted law
+OUT_55_WINTER_LAW_ET      = DIR_55 / "55_05_winter_law_et.csv"             # D: winter law, ET backed out
+OUT_55_ET_MONTHLY         = DIR_55 / "55_06_et_monthly.csv"
+OUT_55_ET_VS_PET_FIG      = DIR_55 / "55_05_et_vs_pet.png"
+OUT_55_SENSITIVITY        = DIR_55 / "55_07_sensitivity.csv"               # E: CEH11, below-ground, Script 17 Sy
+OUT_55_INTERCEPTION_SCAN  = DIR_55 / "55_08_interception_scan.csv"         # F: forest closure scan
+OUT_55_SPLIT_SAMPLE       = DIR_55 / "55_09_split_sample.csv"              # G: Script 48's rule, windowed Sy
+OUT_55_CCW_HINDCAST       = DIR_55 / "55_10_ccw_hindcast.csv"              # G: Script 39's series and censoring
+OUT_55_DRY_LAW_PER_WELL   = DIR_55 / "55_11_dry_month_law_per_well.csv"    # H: dry-month drainage law
+OUT_55_DRY_LAW_BY_CLUSTER = DIR_55 / "55_12_dry_month_law_by_cluster.csv"
+OUT_55_WINTER_SY_PER_WELL = DIR_55 / "55_13_winter_sy_per_well.csv"        # I: winter joint fit of Sy and drainage
+OUT_55_WINTER_SY_CLUSTER  = DIR_55 / "55_14_winter_sy_by_cluster.csv"
+OUT_55_WINTER_SY_FIG      = DIR_55 / "55_13_winter_sy_bracket.png"
+OUT_55_REPORT_NUMBERS     = DIR_55 / "55_report_numbers.csv"               # wb_*

@@ -2467,6 +2467,46 @@ It **reports and never intervenes**. It releases no claim, edits nothing under a
 
 **Revisit if** Martin asks for a specific intervention (releasing a claim past the abandoned age is the likely first); a finding class becomes exact rather than inferential, in which case acting on that class alone could be reopened.
 
+### D-303 — The water-balance residual analysis is adopted as a diagnostic, not a forecaster, and is never called "TLM"
+
+*2026-11-05*
+
+(1) It is **Script 55**, tier X, opt-in, Phase 22 — a **diagnostic, not a forecaster**. Its drainage share may be quoted as a fourth reading of §7.1's quantity; its free runs are reported to show what the step cannot do, never offered as predictions. (2) In documents it is always "**water-balance residual analysis**", with code prefix `wb_`, and **never bare "TLM"** — that name belongs to Script 08's traditional linear model, which fits free rainfall and PET coefficients and carries no drainage term (Paper 1 §3.5). The methods text states in one sentence that this is that model with its rainfall and PET coefficients set to 1/Sy, and that the residual is what is analysed. (3) The specific yield comes from Script 18's per-well `Sy_median`, fixed from outside the fit; Script 17's cluster values enter as a sensitivity only. There is **no default Sy**: a well without one is skipped, and the stage is skipped when the table is absent. (4) The drainage share is reported with the D-306 Sy bracket beside it.
+
+**Revisit if** a direct specific-yield measurement replaces the fluctuation-method value (the share would stop needing a bracket); the step is given a drainage law that does not tie its level to the modern mean, at which point its standing as a forecaster could be reopened; Script 08's TLM is retired, which would free the name.
+
+### D-304 — The forest interception fraction stays at 0.24, and the closure scan is reported as a test rather than a measurement
+
+*2026-11-05*
+
+**`FOREST_INTERCEPTION` stays at 0.24.** The documents report the closure scan as a test, with its two results and the reason they do not settle a value: C5 closes at **0.196**, consistent with the 0.20–0.24 range and the cluster that contains the measurement site; C4 closes at **0.146**, pointing lower but unresolved, because under the plantation the drainage shows no dependence on head at any fraction scanned, so its drainage law is a constant assumed rather than tested. λ, the Script 18 Sy and Figure 19 are untouched while this holds.
+
+**Revisit if** the forest drainage law becomes testable rather than assumed (C4's closure would then mean something); a second interception measurement is made, at C4 or under a sparser canopy; `INTERCEPTION_TREATMENT.md`'s case (c) treatment is reopened.
+
+### D-305 — C1's evapotranspiration shortfall is read as a receiving position on shallow till, not as a lake-proximity or ponding effect
+
+*2026-11-05*
+
+It is read as **C1's wells standing in receiving positions on shallow till and taking in groundwater**, which a single-column balance has nowhere to book and so books as missing evapotranspiration. The two alternatives are tested and rejected: dropping CEH11, the well nearest the lake, leaves summer ET/PET at **0.712** (`wb_c1_no_ceh11_et_pet_summer`), so the shortfall is shared by the cluster rather than being a lake-proximity effect; and fitting C1's winter law on below-ground months only leaves it at **0.718** (`wb_c1_below_ground_et_pet_summer`), so ponding does not explain it either. The shared C1/C2 drainage threshold — h₀ at **0.603** and **0.635** m below ground against C3's **0.878** — is reported as supporting evidence for the shallow-till eastern block.
+
+**Revisit if** the till surface is mapped under C1 and C2 (the reading becomes testable rather than inferred); a C1 well is instrumented for lateral flux; the summer recession rate at C1 is compared against C3's at matched head, which would test inflow directly.
+
+### D-306 — The winter joint fit gives an independent specific-yield BRACKET, reported beside the fluctuation-method value and never instead of it
+
+*2026-11-05*
+
+It is reported as a **two-direction bracket beside** the fluctuation-method Sy, never as a replacement. Both regression directions are fitted, because the rainfall comes from an off-site gauge and the head change carries reading error, and errors-in-variables pulls the two opposite ways: Δh on rainfall gives 1/Sy and is biased high, rainfall on Δh gives Sy and is biased low. The bracket per cluster is **0.138–0.299** (C1), 0.157–0.253, 0.189–0.262, 0.148–0.247 and 0.184–0.270, with geometric-mean midpoints 0.198, 0.199, 0.219, 0.187 and 0.223. Months at or above ground at either end are excluded, ponded storage being near 1 rather than Sy, and `WINTER_RECESSION_MONTHS` is reused so Script 16 and this step share one winter definition (D10). **`FOREST_INTERCEPTION`, the Script 18 Sy and λ are unchanged**; the drainage share of D-303 is reported across the bracket (0.357 at the high bound to 0.546 at the low).
+
+**Revisit if** a direct specific-yield measurement is made (the bracket becomes a check on it rather than an estimate); a rain gauge is installed on site, which would remove the rainfall-error side of the bracket — Martin's IANGLESE3 station is a candidate; the capillary-fringe reading of the fluctuation-method bias is tested independently.
+
+### D-307 — The Tier 0 prose budget rises to 650, and the measurement that forced it is recorded as the thing still to fix
+
+*2026-11-05*
+
+`TIER0_PROSE_BUDGET` becomes **650** (`session_handover.py` 2.5.0), from 600 under D-150 and 250 under D-080. The constant carries the arithmetic beside it, because the number is only defensible with it. `NOTE_KEEP_ENTRIES` stays at 6 and `NOTE_LONG_ENTRY` stays advisory at 40 — neither is touched. **The measurement defect is not closed by this**: it is written up as **T-140**, to measure the HANDOFF's prose without its repository-status fences.
+
+**Revisit if** T-140 lands, in which case the budget should come back down to what the prose alone needs (577 on the day this was written, so 600 would fit again); the archiver's floor is lowered, which would restore its lever independently; Tier 0 passes 650 without a transient status block in the measurement, which would mean the reading load has genuinely grown and something must leave Tier 0 rather than the cap move again.
+
 ---
 
-300 decisions. Generated by `tools/build_public_decisions.py`.
+305 decisions. Generated by `tools/build_public_decisions.py`.

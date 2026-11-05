@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.125.0"  # Hollingham (2026) - 2026-11-03. MSL9_BAND_COMMUNITIES retired (Script 26 1.32.0, D-296 retirement
+__version__ = "1.126.0"  # Hollingham (2026) - 2026-11-05. WB_* (Script 55 1.0.0, the water-balance residual
+#   analysis; spec NRG_spec_water_balance_diagnostic_2026-11-04, D1-D11 signed off). Additive; no existing value moves.
+# 1.125.0  # Hollingham (2026) - 2026-11-03. MSL9_BAND_COMMUNITIES retired (Script 26 1.32.0, D-296 retirement
 #   pass): MSL9 is no longer banded against the handbook communities. HB_COMMUNITY_TABLE stays (Script 26 asserts it).
 #   CROSSING_MIN_YEARS, CROSSING_HORIZON_YEAR, CROSSING_CI retired with Script 14b 2.0.0 (14b 3.0.0 is the 1.x bootstrap).
 # 1.124.0  # Hollingham (2026) - 2026-11-02. FLOOD_FREQ_CONTOUR_PCT (Script 11b 1.23.0, D-296): the two
@@ -3577,3 +3579,32 @@ E18_PRIMARY_BASIS     = "well"
 # 1989-96 median by E18's rule, with "a majority of years" for "a majority of wells". A D-207 hydrology year counts
 # toward that majority only with at least this many scored months.
 E19_MIN_MONTHS_PER_YEAR = 6
+
+# Script 55 (the water-balance residual analysis; spec NRG_spec_water_balance_diagnostic_2026-11-04, D1-D11 signed
+# off by Martin 2026-11-04 23:20-23:23). A basic water balance whose storage term is the water table through a FIXED
+# specific yield, so that what is left over is drainage:
+#     D(t) = P_eff(t) - PET(t) - Sy * dh(t)          (m water / month)
+# with P_eff = P * (1 - FOREST_INTERCEPTION) under the canopy and gross P elsewhere
+# (INTERCEPTION_TREATMENT.md case (c): reduce P, leave PET gross), and Sy the per-well Sy_median of Script 18,
+# taken from outside the fit rather than fitted (D3). The residual is then regressed on the previous month's head
+# as a line, D = a + c*h_prev, and as a threshold, D = a + c*max(h_prev - h0, 0); k = c/Sy is the fraction of the
+# head above h0 drained per month. It is a DIAGNOSTIC, not a forecaster (D-303), and it is NOT Script 08's
+# traditional linear model: in documents it is always "water-balance residual analysis", never "TLM" (D1).
+WB_WINTER_MONTHS        = (11, 12, 1, 2)      # the winter law is fitted here, where ET is small enough to trust PET
+WB_SUMMER_MONTHS        = (5, 6, 7, 8, 9)     # the summer ET/PET ratio
+WB_HINGE_GRID_PCT       = (5, 95)             # h0 is searched between these percentiles of the well's h_prev
+WB_HINGE_GRID_N         = 91                  # at this many points
+WB_BIC_MARGIN           = 2                   # the threshold must beat the line by more than this in BIC (D6).
+#   h0 is a fitted parameter, so the threshold's BIC counts THREE (a, c, h0) against the line's two - without
+#   that penalty the threshold wins at 48 of 66 wells instead of 29, because the grid search is free.
+WB_MIN_MONTHS           = 36                  # admission: months of aligned record
+WB_MIN_WINTER_MONTHS    = 20                  # admission: winter months, for the winter law and the joint fit
+WB_MIN_WELLS_PER_MONTH  = 2                   # a cluster-mean month needs this many wells reporting
+WB_INTERCEPTION_SCAN    = (0.0, 0.40, 0.02)   # (start, stop, step) of the forest interception closure scan
+WB_DRY_RAIN_QUANTILE    = 0.25                # a dry month is one in the lowest quarter of the SITE rainfall record
+#   (D9: one gauge, so one set of dry months for every well), chosen on RAINFALL ONLY - dh sits inside the
+#   residual, so selecting months because the level fell would select on the outcome.
+WB_RISE_MARGIN_M        = 0.02                # a rise in a dry month counts as real above this (reading error)
+WB_DRY_WINTER_MONTHS    = (11, 12, 1, 2, 3)   # the dry-winter subset of Stage H (D9: March included, to give the
+#   subset enough months per well). Deliberately not WB_WINTER_MONTHS.
+# Stage I reuses WINTER_RECESSION_MONTHS (Nov-Feb), so Script 16 and this step share one winter definition (D10).

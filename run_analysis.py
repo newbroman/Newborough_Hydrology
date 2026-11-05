@@ -190,7 +190,14 @@ import uuid
 from collections import namedtuple
 from pathlib import Path
 
-__version__ = "2.29.0"  # Hollingham (2026) - 2026-11-03 (D-296; Martin 2026-11-03 "b"). Step 14b (the bootstrap
+__version__ = "2.30.0"  # Hollingham (2026) - 2026-11-05. Phase 22: Script 55, the water-balance residual
+#   analysis (spec NRG_spec_water_balance_diagnostic_2026-11-04, D2: tier X, opt-in). Two-pass, like 09f: it
+#   reads Scripts 18 (per-well Sy, full record and windowed), 48 (the Model A/B split-sample scores) and 39
+#   (the CCW series), so it registers after all three and a first run on a clean tree skips the stages whose
+#   inputs do not exist yet. Counts 63 -> 64 steps, 21 -> 22 phases, optin_diagnostic 11 -> 12, by_exec.optin
+#   7 -> 8. Also T-135: the pipeline claim gate calls doc_lock.touch("pipeline") once it permits the run, so a
+#   chat doing nothing but pipeline runs is not flagged STALE while it works (D-300 R4, changelog 2026-11-04g).
+# 2.29.0  # Hollingham (2026) - 2026-11-03 (D-296; Martin 2026-11-03 "b"). Step 14b (the bootstrap
 #   year-of-crossing) is withdrawn from the report: it stays REGISTERED (no step number moves) but becomes tier X,
 #   exec "ondemand", reached only by --step 14b; --full no longer runs it. _DOCUMENTED_COUNTS: analytical_toplevel
 #   45 -> 44, optin_diagnostic 10 -> 11, by_exec.default 54 -> 53, by_exec.ondemand 2 -> 3; total unchanged.
@@ -585,6 +592,10 @@ PHASE_21 = [
     Step("54_dry_year_hysteresis.py",  "Does a dry year prime the warren? (E15): the record's dry-to-wet sequences and ordinary wet years, chosen from the climate alone, and the E13 single store's response after each, judged by a rule fixed before the run (replication of the 2006-08 excess after 2022, and sequences against controls). Opt-in diagnostic", "X", "optin"),
 ]
 
+PHASE_22 = [
+    Step("55_water_balance_drainage.py",  "The water-balance residual analysis: a fourth reading of the loss split (spec NRG_spec_water_balance_diagnostic_2026-11-04). Rainfall less PET with the storage change taken as the water table through Script 18's FIXED per-well Sy, so the remainder is drainage; that residual regressed on head as a line and as a threshold; the winter law used to back ET out of every month and read the drainage share of the annual loss - the Paper M \u00a77.1 basis - with a Sy bracket from a winter joint fit that borrows no Sy at all. Two-pass: reads Scripts 18, 48 and 39. Opt-in diagnostic", "X", "optin"),
+]
+
 ALL_PHASES = [
     ("PHASE 1  — Core LCSC Chain and the Water Table",          PHASE_1),
     ("PHASE 2  — Pearson Membership Audit",                     PHASE_2),
@@ -607,6 +618,7 @@ ALL_PHASES = [
     ("PHASE 19 \u2014 Independent Checks of the Per-Well SSM (Scripts 48, 50)",  PHASE_19),
     ("PHASE 20 \u2014 Filling Gaps from Cluster-Mates (Script 51)",  PHASE_20),
     ("PHASE 21 \u2014 Testing the Departures from the Climate Model (Scripts 53, 54)",  PHASE_21),
+    ("PHASE 22 \u2014 The Water-Balance Residual Analysis (Script 55)",  PHASE_22),
 ]
 
 # Phase number = 1-based position in ALL_PHASES (the orchestrator phase order).
@@ -635,13 +647,13 @@ _PHASE_NUM = {label: i for i, (label, _entries) in enumerate(ALL_PHASES, start=1
 # this pipeline and is cited in the report, which is what puts it in tier A
 # rather than among the opt-in diagnostics.
 _DOCUMENTED_COUNTS = {
-    "total_registered":            63,
-    "total_phases":                21,
+    "total_registered":            64,
+    "total_phases":                22,
     "by_tier.analytical_toplevel": 44,
     "by_tier.display_utility":      8,
-    "by_tier.optin_diagnostic":    11,
+    "by_tier.optin_diagnostic":    12,
     "by_exec.default":             53,
-    "by_exec.optin":                7,
+    "by_exec.optin":                8,
     "by_exec.ondemand":             3,
     "analytical_phases":           17,   # phases carrying >=1 tier-A step; emitted
                                          # for completeness, NOT cited in any document
@@ -2270,6 +2282,7 @@ def _pipeline_claim_gate(args) -> None:
                 f"produce outputs that match neither chat's scripts. Ask that chat, or set NRG_CHAT "
                 f"if this IS that chat.")
         sys.exit(1)
+    doc_lock.touch("pipeline")        # D-300 R4: activity, so a long run is not flagged STALE
 
 
 def main() -> None:

@@ -15,6 +15,9 @@ WHAT IT GATHERS
   queue          tools/job_queue.py   - jobs and which of their conditions hold
   chats          tools/chat_register.py
   owed           republishes owed, the proof page behind its bundle, stale unmerged branches
+  audit          tools/rule_audit.py  - the conduct checks (step 5, phase 3): commits against the
+                 claims held at the time, handover entries, decision fields, version bumps, the
+                 chat register and the override log. It re-implements no lint.
 
 HISTORY LIVES IN THE PRIVATE REPOSITORY, NOT IN THE DB (decided 2026-11-05)
 
@@ -41,7 +44,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-05 (D-301 phase 3, T-137). Step 5 wired in:
+#   collect() calls rule_audit.audit() with the board and newly-red list it has already computed, db_ops
+#   writes the `findings` collection with `serious` set EXPLICITLY on every row (the page's band renders
+#   serious !== false, so a missing field would read as serious), and run_record keeps the finding KEYS
+#   so the next run can say which are newly found.
+# 1.0.0  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
 #   signed off). First issue: the payload for the HQ page's db, the 7-run task trend and the newly-red gate
 #   comparison from working/hq_history.json (private), and a refusal to write anything without the private store.
 #   --db-ops writes the ArtifactData batch, one file per document, with the snake_case -> camelCase contract in
@@ -63,6 +71,7 @@ import doc_lock                                                       # noqa: E4
 import work_board                                                     # noqa: E402
 import job_queue                                                      # noqa: E402
 import chat_register                                                  # noqa: E402
+import rule_audit                                                     # noqa: E402
 
 HISTORY = REPO / "working/hq_history.json"
 HISTORY_RUNS = 30                 # enough for D6's 7-run trend with room to look further back
@@ -275,6 +284,12 @@ def collect(do_tasks: bool = True, do_probe: bool = False) -> dict:
         "owed": owed(),
         "history_runs": len(runs),
     }
+    # Step 5 (spec §7): the conduct checks. rule_audit is given the board and the newly-red list
+    # this pass has already computed, so work_board is not walked twice and the two agree by
+    # construction. It returns its own refusal when the store is absent, which cannot happen here -
+    # collect() is only reached with the store present - but the field is carried either way, so
+    # the page can say "UNKNOWN" rather than show an empty findings band as if it were clean.
+    payload["audit"] = rule_audit.audit(board=board, newly_red=payload["gate_newly_red"])
     if tasks:
         for t in tasks["tasks"]:
             t["trend"] = trend(t["id"], t.get("got", ""), runs)
@@ -291,6 +306,9 @@ def run_record(payload: dict) -> dict:
         "counts": ((payload.get("tasks") or {}).get("counts") or {}),
         "tasks": {t["id"]: {"got": t.get("got", ""), "status": t.get("status")}
                   for t in ((payload.get("tasks") or {}).get("tasks") or [])},
+        # The findings' KEYS, so the next run can say which are newly found - the same contract
+        # gate_sections uses for newly_red(). Keys only: the titles would bloat 30 runs of history.
+        "finding_keys": sorted(f["key"] for f in ((payload.get("audit") or {}).get("findings") or [])),
     }
 
 
@@ -366,6 +384,16 @@ def db_ops(payload: dict) -> list[dict]:
             "waitsFor": j.get("waits_for"), "conditions": j.get("conditions") or [],
             "allHold": j.get("all_hold"), "blockedBy": j.get("blocked_by"),
             "firedAt": j.get("fired_at"), "firedBy": j.get("fired_by"), "note": j.get("note"),
+        })
+    # findings (phase 3, T-137). The page's "Needs you" band renders f.serious !== false, so every
+    # finding carries `serious` EXPLICITLY - a missing field would read as serious.
+    for f in (payload.get("audit") or {}).get("findings") or []:
+        put("findings", _slug(f.get("key", "")), {
+            "key": f.get("key"), "rule": f.get("rule"), "subject": f.get("subject"),
+            "title": f.get("title"), "detail": f.get("detail"), "evidence": f.get("evidence"),
+            "serious": bool(f.get("serious")), "chat": f.get("chat"), "commit": f.get("commit"),
+            "file": f.get("file"), "at": f.get("at"),
+            "generated": payload["generated"],
         })
     for c in (payload.get("chats") or {}).get("chats") or []:
         put("chats", _slug(c.get("chat", "")), {
@@ -504,7 +532,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(PAYLOAD))
     ap.add_argument("--no-tasks", action="store_true", help="skip the 1-2 minute task sweep")
-    ap.add_argument("--no-history", action="store_true", help="do not append to working/hq_history.json")
+    ap.add_argument("--no-history", action="store_true",
+                    help="do not append to working/hq_history.json, and do not move the "
+                         "audit watermark (the two go together)")
     ap.add_argument("--probe", action="store_true", help="ask each origin whether it has moved")
     ap.add_argument("--db-ops", dest="db_ops", action="store_true",
                     help="also write the ArtifactData batch (scratch/hq/db/, index ops.json)")
@@ -530,6 +560,11 @@ def main() -> int:
     out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     ops = db_ops(payload) if a.db_ops else []
     kept = append_history(run_record(payload)) if not a.no_history else len(history())
+    # The audit's watermark moves with the history, and for the same reason: both say "this run
+    # happened". --no-history holds both back, so a test or a dry run never advances the window and
+    # silently hides a day's conduct from the next pass.
+    if not a.no_history and (payload.get("audit") or {}).get("can_report"):
+        rule_audit.write_state(payload["audit"])
     if not a.quiet:
         g = payload.get("gate") or {}
         t = payload.get("tasks") or {}
@@ -549,6 +584,17 @@ def main() -> int:
             if any(o.get("create_if_missing") for o in ops):
                 print("      (meta/links is an update with create_if_missing: an update to a "
                       "document that\n       does not exist is refused, and a batch is atomic)")
+        au = payload.get("audit") or {}
+        if au.get("can_report"):
+            ac = au.get("counts") or {}
+            print(f"    findings {ac.get('total', 0)}: {ac.get('serious', 0)} serious,"
+                  f" {ac.get('suppressed', 0)} suppressed"
+                  f"  (window {(au.get('window') or {}).get('commits', 0)} commit(s))")
+            for f in (au.get("findings") or []):
+                if f.get("serious"):
+                    print(f"      >>> SERIOUS [{f['rule']}] {f['title']}")
+        elif au:
+            print(f"    findings: CANNOT AUDIT — {au.get('why_nothing', '')}")
         print(f"    queue {len(payload['queue'].get('jobs') or [])} job(s);"
               f" chats {len(payload['chats'].get('chats') or [])};"
               f" owed {len(payload['owed'])};  history {kept} run(s)")

@@ -18,8 +18,13 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.31.0 - 2026-10-25
+# VERSION 1.35.0 - 2026-11-05
 # CHANGELOG
+#   1.35.0 (2026-11-05): the conduct checks (D-301 phase 3, T-137). tools/rule_audit.py gains a
+#     gated --selftest and an advisory --check in the claims section: it audits the audit trail -
+#     commits against claims, handover entries, decision fields, document and script version bumps,
+#     the chat register, the override log - and reads this script's own summary for every rule that
+#     already has a gate, so no lint is implemented twice. --check never fails the run (D-302).
 #   1.34.0 (2026-11-05): per-section verdicts (D-301, spec D5a). `section` replaces the fifty
 #     `echo "── … ──"` headers, printing each one byte-identically and recording the previous
 #     section's verdict; it RESETS rc, because rc is sticky and a snapshot without a reset reads
@@ -593,6 +598,12 @@ python3 tools/job_queue.py --check || rc=1
 python3 tools/hq_snapshot.py --selftest >/dev/null || { echo "  FAIL hq_snapshot selftest"; rc=1; }
 python3 tools/hq_snapshot.py --check || rc=1
 python3 tools/hq_page.py --check || true                 # advisory - only a session can republish
+# 1.35.0 (D-301 phase 3, T-137): the conduct checks. The SELFTEST gates - a broken auditor is a
+# broken check - while --check only REPORTS, and returns 0 with serious findings outstanding,
+# because rule_audit reports and never intervenes (D-302) and an open finding is work outstanding,
+# not a red gate. It re-implements no lint: it reads this script's own per-section summary.
+python3 tools/rule_audit.py --selftest >/dev/null || { echo "  FAIL rule_audit selftest"; rc=1; }
+python3 tools/rule_audit.py --check || true              # report-only by design (D-302)
 
 echo
 section "── decisions ────────────────────────────────────────────────────────"

@@ -14,7 +14,7 @@ Two passes, both over the documents the mirrors are made from:
           a drainage or ET share, a drainage/ET fraction, a half-life, an e-folding or
           mean-reversion time -- must have a FORM WORD in its sentence (Model A, Model B,
           no-intercept, free-intercept, depth-dependent, model-free, observed, Pastas, the
-          recession ratio). A field in a table is checked against the table and its caption.
+          recession ratio, the water balance). A field in a table is checked against the table and its caption.
   typed   Every typed sentence in the mirrors that gives such a quantity as a number
           ("24 % of losses", "a half-life of 7.8 months") is held to the same rule.
 
@@ -28,7 +28,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-28. First issue (D-284).
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-05. FORM gains the water-balance basis
+#   (water balance, fluctuation method, specific yield fixed): Script 55's share fixes Sy from outside
+#   the fit, so it is neither Model A nor Model B, and the gate had no word for a basis the corpus now
+#   uses (T-131 session; D-311). Three of the six Paper M v1_43 failures were sentences that already
+#   named the balance.
+# 1.0.0  # Hollingham (2026) - 2026-10-28. First issue (D-284).
 
 import argparse
 import csv
@@ -49,6 +54,9 @@ FORM = re.compile(r"Model\s*A|Model\s*B|no-intercept|free-intercept|without an i
                   r"free intercept|intercept form|depth-dependent|model-free|without (a|either) model|observed|"
                   r"Pastas|recession ratio|seasonal recession|lag-1|autocorrelation|both forms|either form|"
                   r"each form|two forms|three estimators|four estimators|"
+                  # the water balance fixes Sy from outside the fit, so its share is neither
+                  # Model A nor Model B (D-311, Script 55): naming the balance names the basis
+                  r"water[- ]balance|water balance|fluctuation method|specific yield fixed|"
                   # a datum below ground implies the no-intercept form: Model B has none (D-217)
                   r"(at|to|of) (the|a|each well's|every) (project|network|network-wide|anchored|physical|MHW|common) datum|"
                   r"at the datum|(project|network|anchored|MHW|depth) datum|\d\.\d m datum|datum of \d|"

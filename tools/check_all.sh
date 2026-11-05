@@ -18,8 +18,14 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.35.0 - 2026-11-05
+# VERSION 1.36.0 - 2026-11-05
 # CHANGELOG
+#   1.36.0 (2026-11-05): the model-form section GATES. form_label_lint was advisory from 1.32.0
+#     "until the 2026-10-28 edit set lands"; it has landed, and the suppression had been printing
+#     FAIL - 6 field(s) without a form into a section whose verdict read OK. Martin 2026-11-05:
+#     "act on the third finding ... we need to resolve this". The six are fixed (form_label_lint
+#     1.1.0 knows the water-balance basis; Paper M v1_44 names it in the bracket sentence), so the
+#     gate turns on with nothing owed. `tail -1` dropped so a failure names the value.
 #   1.35.0 (2026-11-05): the conduct checks (D-301 phase 3, T-137). tools/rule_audit.py gains a
 #     gated --selftest and an advisory --check in the claims section: it audits the audit trail -
 #     commits against claims, handover entries, decision fields, document and script version bumps,
@@ -373,9 +379,12 @@ echo
 section "── model form (does every split and timescale say Model A or Model B?) ──"
 # D-284 (Martin 2026-10-28 "all 3 please"): since D-283 the split is Model B's and most
 # other quantities Model A's, so a share or timescale with no form named is ambiguous.
-# ADVISORY until the 2026-10-28 edit set lands (claude/NRG_spec_form_labels_D283_text_2026-10-28.md);
-# then change `|| true` to `|| rc=1`.
-python3 tools/form_label_lint.py 2>&1 | tail -1 || true
+# GATED since 2026-11-05: the edit set has landed and the lint reads 0 without a form, which is
+# the condition the advisory period was waiting for. It was advisory for eight days and spent the
+# last of them printing FAIL into a section that reported OK - the shape of defect this whole
+# evening was spent on - so the `|| true` the comment above used to prescribe replacing is replaced.
+# `tail -1` went with it: a gating check must show WHICH value is unlabelled, not just how many.
+python3 tools/form_label_lint.py 2>&1 || rc=1
 
 echo
 section "── month bucketing (one implementation of Script 01's day<=15 rule?) ──"

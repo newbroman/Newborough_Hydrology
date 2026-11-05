@@ -52,7 +52,10 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-05 (T-142, Martin's call: "a band of its own").
+#   renderNoted() renders the note-level findings rule_audit writes - every finding with serious === false,
+#   which renderNeeds() filters out and nothing else read, so they were stored and displayed nowhere.
+# 1.0.1  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
 #   D1-D9 signed off). First issue: the nine bands, the start console, the job queue band, and a shell that
 #   carries no data because it renders from the db.
 # 1.0.1  # Hollingham (2026) — 2026-11-05. Martin, 11:59: the page "doesn't render nicely on the mobile
@@ -299,6 +302,11 @@ BODY = """
         <div id="gate"><div class="empty">Loading&hellip;</div></div>
       </section>
 
+      <section aria-labelledby="notedH" id="notedSec" hidden>
+        <h2 id="notedH">Noted &mdash; no action</h2>
+        <div id="noted"></div>
+      </section>
+
       <section aria-labelledby="owedH">
         <h2 id="owedH">Coming up and owed</h2>
         <div id="owed"><div class="empty">Loading&hellip;</div></div>
@@ -435,6 +443,24 @@ function renderNeeds() {
     + (f.evidence ? '<span class="mono muted">' + esc(f.evidence) + '</span>' : '')
     + '</li>').join('') + '</ul>';
   $('#needs').innerHTML = h;
+}
+
+/* ── noted: the findings that do NOT need him (T-142) ────────────────────────────────────── */
+/* rule_audit writes every finding to the store, serious or not. Until now renderNeeds() was the
+   only reader and it filtered `f.serious !== false`, so the note-level half - a dozen or more on
+   the day it landed - was stored and displayed nowhere, while spec §7 says it waits on the page.
+   Martin's call, 2026-11-05: a band of its own. Deliberately NOT a sub-list under "Needs you":
+   that band means something needs him, and a note does not. */
+function renderNoted() {
+  const rows = FIND.filter(f => f.serious === false);
+  $('#notedSec').hidden = !rows.length;
+  if (!rows.length) return;
+  $('#noted').innerHTML = '<ul class="plain">' + rows.map(f =>
+    '<li><strong>' + esc(f.title || f.rule || 'finding') + '</strong>'
+    + (f.chat ? ' ' + pill(f.chat, 'quiet') : '')
+    + '<span class="muted">' + esc(f.detail || '') + '</span>'
+    + (f.evidence ? '<span class="mono muted">' + esc(f.evidence) + '</span>' : '')
+    + '</li>').join('') + '</ul>';
 }
 
 /* ── the job queue, condition by condition ───────────────────────────────────────────────── */
@@ -710,7 +736,8 @@ renderKinds(); renderFilters();
   sub(db.doc('tasks/current'), s => { TASKS = s.exists ? s.data() : {}; renderTasks(); });
   sub(db.collection('jobs'), s => { JOBS = s.docs.map(d => ({ id: d.id, ...d.data() })); renderJobs(); });
   sub(db.collection('chats'), s => { CHATS = s.docs.map(d => ({ id: d.id, ...d.data() })); renderChats(); });
-  sub(db.collection('findings'), s => { FIND = s.docs.map(d => ({ id: d.id, ...d.data() })); renderNeeds(); });
+  sub(db.collection('findings'), s => { FIND = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderNeeds(); renderNoted(); });
   sub(db.collection('gate_runs'), s => {
     GATES = s.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')));

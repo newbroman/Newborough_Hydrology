@@ -42,7 +42,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.7"  # Hollingham (2026) - 2026-11-04 (D-300). board_artifact exempt: it renders into gitignored
+__version__ = "1.0.8"  # Hollingham (2026) — 2026-11-05. EXEMPT gains the four NRG HQ modules
+#   (D-301): two registers chats write themselves, and two renderers whose publishing is a session's act.
+# 1.0.7  # Hollingham (2026) - 2026-11-04 (D-300). board_artifact exempt: it renders into gitignored
 #   scratch/ and publishing is a session's act, so no ship can regenerate it; the gate says a republish is owed.
 # 1.0.6  # Hollingham (2026) - 2026-10-10. work_board exempt: an advisory read of the tree.
 # 1.0.5  # Hollingham (2026) - 2026-10-08. build_chat_corpus no longer exempt: the
@@ -73,6 +75,10 @@ EXEMPT = {
     "s10_schematic":         "a redraw is not the fix: the image inside the Supplementary Material must be swapped (odt_edit.replace_image), a document edit",
     "work_board":            "advisory board of claims and uncommitted work (2026-10-10f); it reads the tree and writes nothing",
     "board_artifact":        "the board page Martin reads (D-300 R6a): it renders into gitignored scratch/board/, and PUBLISHING is a session's act that no ship can perform - the gate is advisory and says a republish is owed",
+    "chat_register":         "a REGISTER chats write themselves (D-301), not a generated artefact: a ship has nothing to rebuild, and rebuilding it would mean inventing rows",
+    "job_queue":             "a REGISTER of queued work (D-301): rows are added by chats and fired by a release or the HQ pass, so a ship has nothing to regenerate",
+    "hq_snapshot":           "the HQ page's payload (D-301): it renders into gitignored scratch/hq/ and the db is written by a SESSION, which no ship can do - the gate only says whether the pieces are there",
+    "hq_page":               "the HQ page shell (D-301): gitignored scratch/hq/index.html, and PUBLISHING is a session's act - the gate is advisory and says a republish is owed",
     "build_table_ledger":    "TABLE_LEDGER.md is retired (2026-09-19); the builder refuses to regenerate it and --check passes on the banner",
 }
 # gates written without --check

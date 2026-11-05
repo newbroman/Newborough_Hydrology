@@ -1,0 +1,10 @@
+test,Cluster,Cluster_Label,et_pet_summer_median,et_pet_year_median,drainage_share_median,n_wells,note
+C1 as published,1,C1 (Lake Edge),0.7232602452700057,0.8100047556262213,0.47204313405190584,7,every C1 well
+C1 without CEH11,1,C1 (Lake Edge),0.7123987863775454,0.811691688423932,0.4780205785105006,6,CEH11 is the well nearest the lake; dropping it tests whether C1's shortfall is a lake-proximity effect or is shared by the cluster
+CEH11 alone,1,C1 (Lake Edge),0.7271612830661489,0.7978739304771956,0.4287358990293827,1,the lake-edge well on its own
+C1 winter law on below-ground months only,1,C1 (Lake Edge),0.7178383005663086,0.7903278986691837,0.3456552347253635,7,"0.463 of C1's winter months are below ground; ponded months carry a storage coefficient near 1, not Sy"
+Sy = Script 17 cluster median,1,C1 (Lake Edge),,,,7,k median 0.4995 at Sy = 0.2101 (Script 17 event median); Script 18 per-well Sy is the headline
+Sy = Script 17 cluster median,2,C2 (Dune),,,,19,k median 0.3241 at Sy = 0.2700 (Script 17 event median); Script 18 per-well Sy is the headline
+Sy = Script 17 cluster median,3,C3 (Western Residual),,,,26,k median 0.1866 at Sy = 0.3124 (Script 17 event median); Script 18 per-well Sy is the headline
+Sy = Script 17 cluster median,4,C4 (Main Forest),,,,9,k median 0.0202 at Sy = 0.2564 (Script 17 event median); Script 18 per-well Sy is the headline
+Sy = Script 17 cluster median,5,C5 (Coastal Forest),,,,5,k median 0.1132 at Sy = 0.3164 (Script 17 event median); Script 18 per-well Sy is the headline

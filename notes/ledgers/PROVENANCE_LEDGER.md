@@ -194,7 +194,7 @@
 | `fig_scraping_summer_minima.jpg` | Paper 2 | Figure 2 | CEH36 vs CEH4 paired summer minima |
 | `fig_summer_minima_violin.jpg` | Paper 2 | Figure 4 | Summer-minimum distributions by tier |
 
-## Outputs no exhibit renders (541)
+## Outputs no exhibit renders (561)
 
 *Not a fault on its own — most outputs are intermediates. Listed so that an output which SHOULD be on a page is visible when it is not.*
 
@@ -437,6 +437,7 @@
 - `18_wtf_03_sy_contour.png`
 - `18_wtf_05a_recip_beta3_map.png`
 - `18_wtf_06_aquifer_diagnostic_synthesis.png`
+- `18_wtf_06_well_sy_by_window.csv`
 - `18_wtf_07_sy_spatial_trends.csv`
 - `18_wtf_08_cluster_half_life_summary.csv`
 - `19_report_numbers.csv`
@@ -597,4 +598,3 @@
 - `37b_report_numbers.csv`
 - `38_report_numbers.csv`
 - `38_transect.csv`
-- `39_01_hindcast_per_well.csv`

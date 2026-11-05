@@ -52,7 +52,11 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 "A your recommendation, B wells
+__version__ = "1.13.0"  # Hollingham (2026) — 2026-11-05. simulate_water_balance(): the free-running
+#   fixed-Sy water balance of the water-balance residual analysis (Script 55 1.0.0, D7 — here rather than in
+#   Script 55 so a later script cannot reimplement it). simulate_ssm has no fixed-Sy, threshold form.
+#   Additive; no existing function changes.
+# 1.12.0  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 "A your recommendation, B wells
 #   deepest reading, c both"). (1) The comparison window is a fixed calendar span: build_ssm_frame's `window`
 #   counts calendar months ending at the last aligned row, not valid rows, and last_calendar_months() gives the
 #   same cut for callers that tail a frame. (2) fit_ssm_censored(): dry months enter as levels below a bound
@@ -1065,6 +1069,70 @@ def simulate_ssm(h0, P, PET, b1, b2, b3,
         h_disp = drainage_datum + h_t
         dh = alpha + b1 * P[t] - b2 * PET[t] - b3 * h_disp
         h_t = h_t + dh
+        h[t] = h_t
+
+    return h
+
+
+def simulate_water_balance(h0, P_eff, PET, sy, a, c, hinge=None):
+    """
+    Free-running fixed-Sy water balance with a head-dependent drainage law.
+
+    The recurrence of the water-balance residual analysis (Script 55, spec
+    NRG_spec_water_balance_diagnostic_2026-11-04, D7):
+
+        D(h) = a + c·h                      (the linear law)
+        D(h) = a + c·max(h − hinge, 0)      (the threshold law, hinge given)
+        h(t) = h(t-1) + (P_eff(t) − PET(t) − D(h(t-1))) / Sy
+
+    This is NOT ``simulate_ssm``. There the storage coefficient is absorbed into
+    free β₁/β₂/β₃; here Sy is fixed from outside the fit (Script 18's per-well
+    ``Sy_median``, D3), the rainfall and PET coefficients are 1/Sy by construction,
+    and only the drainage law is fitted. ``simulate_ssm`` has no fixed-Sy form and
+    no threshold, which is why this lives here rather than in Script 55 — so that a
+    later script reaches for it instead of writing the recurrence again.
+
+    ``P_eff`` is effective rainfall: the caller has already applied canopy
+    interception where it applies (INTERCEPTION_TREATMENT.md case (c): reduce P,
+    leave PET gross), and has already lag-aligned it if a lag is in use.
+
+    The run is NOT clamped at the ground surface or anywhere else. A law fitted on
+    one epoch and run on another can walk away; the caller scores the run and is
+    expected to notice, exactly as Script 48 does with ``simulate_ssm``.
+
+    Parameters
+    ----------
+    h0 : float
+        Initial water table (negative convention, m below ground surface).
+    P_eff : array-like
+        Effective rainfall (m/month), lag-aligned by the caller.
+    PET : array-like
+        PET (m/month), contemporaneous, gross.
+    sy : float
+        Specific yield, fixed. Must be positive.
+    a, c : float
+        Intercept and head coefficient of the drainage law (m water / month, and
+        m water / month per m of head).
+    hinge : float or None
+        h₀ of the threshold law, in the same negative-below-ground convention as
+        ``h0``. None gives the linear law.
+
+    Returns
+    -------
+    np.ndarray of simulated h, length = len(P_eff). h[0] is the result of the
+    first timestep, not the initial condition — as ``simulate_ssm`` returns it.
+    """
+    P_eff = np.asarray(P_eff, dtype=float)
+    PET = np.asarray(PET, dtype=float)
+    if not (np.isfinite(sy) and sy > 0):
+        raise ValueError(f"simulate_water_balance needs a positive specific yield, got {sy!r}")
+    n = len(P_eff)
+    h = np.full(n, np.nan)
+    h_t = float(h0)
+
+    for t in range(n):
+        drain = a + c * (max(h_t - hinge, 0.0) if hinge is not None else h_t)
+        h_t = h_t + (P_eff[t] - PET[t] - drain) / sy
         h[t] = h_t
 
     return h

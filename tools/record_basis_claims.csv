@@ -39,11 +39,11 @@ RB-04b,report8,Using Models to derive the Aquifer Architecture,The per-well rece
 RB-28,MS,S.23e Script 01b,the mean state is all months,Script 01b
 RB-12b,report9,Combined Driver Assessment and Observed Network Change,"from the datum-free drainage coefficient of the intercept form (Model B), fitted on the same record as the published coefficients",Script 26 persistence expectation (D-216)
 RB-12c,none,,,"MSL9 (T-131, D-291): not yet in any document; the report and Supplementary Material paragraphs follow the run and Martin's walk-through, not Paper 1 or Paper M (Martin 2026-10-30)"
-RB-27b,report8,Modelling the Cluster water levels,"Each form was fitted on the record before 2018 and run freely over the years after",Script 48 split-sample (D-217)
+RB-27b,report8,Modelling the Cluster water levels,Each form was fitted on the record before 2018 and run freely over the years after,Script 48 split-sample (D-217)
 RB-29,report8,Five-Year Mean Spring Water Level (MSL5) and Associated Forecasting Tools,"is identified on the record (the rule of Section 3.4.1, Script 48), so C4 is withheld under both forms",Scripts 26b and 19 sustained projection (D-224/D-230)
 RB-50a,MS,S.23f Script 50,Forecast: fitted on the months immediately before MODEL_AB_SPLIT_DATE and run freely over every later month from the first reading there,D-222
 RB-50b,MS,S.23f Script 50,"CCW hindcast: at the wells Script 39 admits, fitted on the first or the last months of the modern record",D-222
-RB-50c,MS,S.23f Script 50,"Stability: every non-overlapping placement of each length within the record",D-222
+RB-50c,MS,S.23f Script 50,Stability: every non-overlapping placement of each length within the record,D-222
 RB-50d,MS,S.23f Script 50,Model A is refitted at every datum of Script 03’s sweep,D-225
 RB-50e,MS,S.23f Script 50,"the wells Script 44 pairs with them, on the comparison window and the full record",D-229
 RB-50g,MS,S.23f Script 50,fitted to each cluster centroid on the full record,D-231
@@ -53,16 +53,16 @@ RB-50j,MS,S.23f Script 50,is fitted to each cluster centroid from 2005 to the en
 RB-50k,MS,S.23f Script 50,is fitted to every well with at least E8E_MIN_EARLY_MONTHS readings in,D-235
 RB-50l,MS,S.23f Script 50,the single store is fitted with and without one step whose date is profiled monthly over the clearance window,D-236
 RB-50m,MS,S.23f Script 50,which are fitted to the centroid on the full record and warmed up as E8,D-255
-RB-03d,report8,Modelling the Cluster water levels,"it fits worse than a depth below ground at every level tried",03_20 elevation-datum sweep (79 wells; full record; T-99)
+RB-03d,report8,Modelling the Cluster water levels,it fits worse than a depth below ground at every level tried,03_20 elevation-datum sweep (79 wells; full record; T-99)
 RB-03e,none,,,"The film's one rule (T-129, D-289): stated only in the hindcast film's own text (film_text m1_p2), which is not a claims document; Paper M and the report do not present 03_22"
-RB-10e,report9,Forest Management Scenarios,"draw in the canopy-on months (May–October) should have risen after felling",10e_04 shielding test (T-97; D-239)
+RB-10e,report9,Forest Management Scenarios,draw in the canopy-on months (May–October) should have risen after felling,10e_04 shielding test (T-97; D-239)
 RB-50n,MS,S.23f Script 50,"Every C4 and C5 reference well is fitted on its full record, in both forms, under four forcings",D-260
-RB-50o,MS,S.23f Script 50,"window of the climate record",D-261
-RB-41a,MS,S.23 Script 41,"fitted on the comparison window",D-263
-RB-50p,MS,S.23f Script 50,"fitted on the same span",D-268
-RB-50q,MS,S.23f Script 50,"the model is run freely from the first month after the climate record",D-273
-RB-50r,MS,S.23f Script 50,"over the complete years in which every month has measured radiation",D-274
-RB-51a,MS,S.23g Script 51,"Each donor line is fitted over at least DONOR_MIN_OVERLAP_MONTHS outside the window",D-275
+RB-50o,MS,S.23f Script 50,window of the climate record,D-261
+RB-41a,MS,S.23 Script 41,fitted on the comparison window,D-263
+RB-50p,MS,S.23f Script 50,fitted on the same span,D-268
+RB-50q,MS,S.23f Script 50,the model is run freely from the first month after the climate record,D-273
+RB-50r,MS,S.23f Script 50,over the complete years in which every month has measured radiation,D-274
+RB-51a,MS,S.23g Script 51,Each donor line is fitted over at least DONOR_MIN_OVERLAP_MONTHS outside the window,D-275
 RB-53a,MS,S.23h Script 53,the full-record coefficients,D-276
 RB-54a,MS,S.23i Script 54,Model A fitted on its full record,D-277
 RB-50s,PaperM,What the record projects,"applied as seasonal changes to the observed rainfall and PET, with comparison-window fits at the",Script 50 E7 projection (D-224/D-280; censored refits D-281)
@@ -70,3 +70,10 @@ RB-50t,PaperM,A physically anchored datum,Model A was refitted at each well with
 RB-50u,PaperM,A physically anchored datum,Chosen for each cluster from the modern record alone and then tested on the two earlier,Script 50 E17 (D-287): a base per cluster chosen in-record
 RB-50v,report9,The 1989--96 record,a quantile map was fitted between the hindcast and the well,"Script 50 E18 (D-290): fitted on each well's modern record, applied unchanged to 1989-96; report only, not Paper M (Martin 2026-10-30)"
 RB-50w,none,,,"E19 (T-133, D-292): not yet in any document; the outcome sets the film's caveat and the Sentinel note's wording (Martin 2026-11-01 'Test A otherwise c')"
+RB-18w,MS,S.23j Script 55,18_wtf_06_well_sy_by_window.csv,"D8; the windowed estimate is stated where it is used, in the Record basis paragraph: ""the specific yield of THAT window, never the full-record value, which has seen the test months"""
+RB-55a,MS,S.23j Script 55,The drainage law and the annual balance use the full record and are evaluated in sample,D-303
+RB-55b,MS,S.23j Script 55,The winter law is fitted on winter months alone and evaluated on the months whose head lies inside the range it was fitted on,D-303
+RB-55c,MS,S.23j Script 55,"fitted on one side of the split date with the specific yield of THAT window, never the full-record value, which has seen the test months","D8, D-303"
+RB-55d,MS,S.23j Script 55,"hindcast applies the full-record law forward over the committed climate record from its first month, excluding readings held at the pipe base",D-303
+RB-55e,MS,S.23j Script 55,The dry-month law is fitted on the dry subsets only,"D9, D-303"
+RB-55f,MS,S.23j Script 55,the winter joint fit on below-ground winter months with no external specific yield at all,"D11, D-306"

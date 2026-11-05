@@ -53,7 +53,14 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.18.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.19.0"  # Hollingham (2026) — 2026-11-05. D8 (spec NRG_spec_water_balance_diagnostic_2026-11-04,
+#   signed off Martin 23:20): a WINDOWED mode. wtf_windowed_wells() runs the same event rule over the months
+#   before and after config.MODEL_AB_SPLIT_DATE and writes per-well Sy for each side to
+#   18_wtf_06_well_sy_by_window.csv, so Script 55's split-sample test can fit its Sy on the side it trains on
+#   instead of borrowing a full-record value that has seen the test months. A well with fewer than MIN_WINDOW_EVENTS
+#   qualifying events in a window is skipped in that direction and counted in the row. Additive: no existing
+#   output changes, and no new pipeline step.
+# 1.18.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the per-cluster mean of the per-well Sy_median; new rows well_sy_cluster_mean_c<k> in
 #   18_report_numbers.csv, one per cluster, from the in-memory well_results written to
 #   18_wtf_01_well_sy_estimates.csv. No analysis change.
@@ -151,6 +158,7 @@ from utils.paths import (
     OUT_18_AQUIFER_SYNTHESIS, OUT_18_REPORT_NUMBERS,
     OUT_18_SY_SPATIAL_TRENDS,
     OUT_18_CLUSTER_HALFLIFE_SUMMARY,
+    OUT_18_WELL_SY_BY_WINDOW,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (
@@ -159,6 +167,7 @@ from utils.config import (
     BW_MODE, get_cmap, REFERENCE_CUTOFF_DATE,
     RIDGE_REF_E, RIDGE_REF_N, PER_WELL_RECESSION_BASIS,
     WTF_EVENT_MIN_RISE_M, WTF_EVENT_MIN_NET_RECH_M, WTF_EVENT_SY_MIN, WTF_EVENT_SY_MAX,
+    MODEL_AB_SPLIT_DATE,
 )
 from utils.render_utils import render_figure
 make_all_dirs()
@@ -188,6 +197,11 @@ TAU_EXCLUDE = ['ceh13']
 # FOREST_INTERCEPTION and FOREST_CIDS imported from config.py.
 EXCLUDE_CLUSTERS    = []         # under k=5 all clusters are analytically usable
 MIN_EVENTS          = 15         # minimum qualifying events for confidence flag
+# A window holds roughly half the record, so the full-record floor of 5 events would admit a Sy
+# resting on almost nothing. 1.19.0 keeps the same floor for each window and records which wells it
+# drops, rather than lowering it: a direction with too few recharge events has no Sy, and Script 55
+# skips that well in that direction (D8).
+MIN_WINDOW_EVENTS   = 5          # qualifying events needed in a window for a windowed Sy
 
 plt.rcParams.update({
     'font.family': 'sans-serif',
@@ -289,6 +303,89 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations,
     df = pd.DataFrame(rows).sort_values(["Cluster","Well"]).reset_index(drop=True)
     print(f"  {len(df)} wells processed  "
           f"({len(df[df['Confidence']=='High'])} high confidence)")
+    return df
+
+
+def wtf_windowed_wells(wells_df, climate, cluster_df,
+                       split_date=None) -> pd.DataFrame:
+    """
+    Per-well WTF Sy on each side of ``split_date`` — the windowed mode of D8.
+
+    Same event rule, same interception correction and the same D-195 calendar
+    differencing as wtf_individual_wells(); the only difference is that the aligned
+    frame is cut at ``split_date`` before events are selected. One row per well,
+    carrying both windows, so a caller can see at a glance whether a well has a Sy
+    in the direction it needs.
+
+    Why it exists. Script 55's split-sample test (Stage G) is a FORECASTING test, and
+    a forecasting model may not be handed a specific yield estimated partly on the
+    months it is about to predict. The full-record ``Sy_median`` of 18_wtf_01 has seen
+    every month, so the forward test reads the pre-split Sy here and the reverse test
+    the post-split one.
+
+    A window with fewer than MIN_WINDOW_EVENTS qualifying events yields no Sy for that
+    side: the column is NaN and ``skipped_windows`` names the direction. Nothing is
+    substituted — there is no defensible default Sy for a well.
+
+    Locations are not looked up: this table is not mapped.
+    """
+    split = pd.Timestamp(split_date or MODEL_AB_SPLIT_DATE)
+    rows = []
+
+    for well in track(wells_df.columns, lambda w: w):
+        well_norm = well.lower().strip().replace(" ", "")
+
+        match = cluster_df[cluster_df["norm"].str.replace(" ", "") == well_norm]
+        if match.empty:
+            continue
+        cluster = int(match["Cluster"].iloc[0])
+        if cluster in EXCLUDE_CLUSTERS:
+            continue
+
+        # Differenced on the monthly calendar BEFORE incomplete months drop (D-195),
+        # exactly as the full-record loop does, so the two agree well by well.
+        merged = wells_df[[well]].join(climate[["P_m", "PET"]], how="inner").sort_index()
+        merged["dh"] = merged[well].diff()
+        merged = merged.dropna(subset=[well, "P_m", "PET"])
+        if merged.empty:
+            continue
+
+        if cluster in FOREST_CIDS:
+            merged["net_R"] = merged["P_m"] * (1 - FOREST_INTERCEPTION) - merged["PET"]
+            corrected = True
+        else:
+            merged["net_R"] = merged["P_m"] - merged["PET"]
+            corrected = False
+
+        row = {"Well": well, "Cluster": cluster, "Corrected": corrected,
+               "split_date": split.strftime("%Y-%m-%d")}
+        skipped = []
+        for tag, sub in (("pre", merged[merged.index < split]),
+                         ("post", merged[merged.index >= split])):
+            events = sub[(sub["net_R"] > WTF_EVENT_MIN_NET_RECH_M) &
+                         (sub["dh"] > WTF_EVENT_MIN_RISE_M)].copy()
+            events["sy_i"] = events["net_R"] / events["dh"]
+            events = events[(events["sy_i"] > WTF_EVENT_SY_MIN) &
+                            (events["sy_i"] < WTF_EVENT_SY_MAX)]
+            n = len(events)
+            row[f"n_months_{tag}"] = int(len(sub))
+            row[f"n_events_{tag}"] = n
+            if n < MIN_WINDOW_EVENTS:
+                row[f"Sy_median_{tag}"] = np.nan
+                row[f"Sy_Q25_{tag}"] = np.nan
+                row[f"Sy_Q75_{tag}"] = np.nan
+                skipped.append(tag)
+            else:
+                row[f"Sy_median_{tag}"] = float(events["sy_i"].median())
+                row[f"Sy_Q25_{tag}"] = float(events["sy_i"].quantile(0.25))
+                row[f"Sy_Q75_{tag}"] = float(events["sy_i"].quantile(0.75))
+        row["skipped_windows"] = " ".join(skipped)
+        rows.append(row)
+
+    df = pd.DataFrame(rows).sort_values(["Cluster", "Well"]).reset_index(drop=True)
+    n_pre = int(df["Sy_median_pre"].notna().sum())
+    n_post = int(df["Sy_median_post"].notna().sum())
+    print(f"  {len(df)} wells: {n_pre} with a pre-{split:%Y-%m} Sy, {n_post} with a post-{split:%Y-%m} Sy")
     return df
 
 
@@ -1348,6 +1445,13 @@ def main(supplementary=True):
     print("\nExporting reference well Sy table...")
     well_results.to_csv(path_well_sy, index=False)
     print(f"  Saved → {path_well_sy.name}")
+
+    # Windowed Sy, either side of MODEL_AB_SPLIT_DATE (D8) — for Script 55's split-sample
+    # test, which may not borrow a full-record Sy that has seen its test months.
+    print("\nRunning windowed WTF analysis (either side of the split date)...")
+    window_results = wtf_windowed_wells(wells_df, climate, cluster_df)
+    window_results.to_csv(OUT_18_WELL_SY_BY_WINDOW, index=False)
+    saved(f"{OUT_18_WELL_SY_BY_WINDOW.name} ({len(window_results)} rows)")
 
     # ── Spatial Sy trends — always generated (paper-citable) ─────────────
     # Diagnostic re-run with the canopy interception correction disabled; used

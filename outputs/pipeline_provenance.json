@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-03T10:16:54",
- "orchestrator": "2.29.0",
+ "generated": "2026-11-05T12:59:44",
+ "orchestrator": "2.30.0",
  "steps": {
   "00_climate_summary.py": {
    "emitted": {
@@ -26,8 +26,8 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
    },
    "inputs_unresolved": [],
-   "seconds": 7.8,
-   "started": "2026-10-28T03:09:06",
+   "seconds": 9.9,
+   "started": "2026-11-05T12:02:49",
    "version": "1.18.0"
   },
   "01_data_prep.py": {
@@ -37,7 +37,7 @@
     "outputs/01_data_prep/01_coverage_states_reference.png": "743196d5deaf6e0fecc4b2e66db67a16bcfe6a2af835c22ac8a1977f6330f52b",
     "outputs/01_data_prep/01_report_numbers.csv": "1570bbb5fe9351233c8dffebcfedf037c6419bd9eebe0807b72f6920375b98fe",
     "outputs/01_data_prep/pipeline_scenario_params.csv": "f5313fbd7567da9c58c651a674dc2ee246e411468c5433b475b518a7279bed7d",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "f10cb92f6c3330b37b6af0660736ebc318fe46c4c53c34075ee9462374f91cb9",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "26fc6c4544c725cc74ae595b4c38a5b9ae2d8d0f8754a760bb39968347bb55b3",
     "outputs/01_dist_coast_validation.csv": "50006352dec16f45608e4eefcb40fae9e4a662bff52d0ee76b7e35a4a4a86c84",
     "outputs/01_dry_depths.csv": "719e00f8f8afd8478c1247cf3d3a1681b275809141de3151ff9cb9f44de95d87",
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff",
@@ -70,8 +70,8 @@
    "inputs_unresolved": [
     "3.geojson"
    ],
-   "seconds": 13.3,
-   "started": "2026-10-28T02:36:05",
+   "seconds": 16.5,
+   "started": "2026-11-05T11:23:38",
    "version": "1.28.0"
   },
   "01b_water_table.py": {
@@ -122,8 +122,8 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
    },
    "inputs_unresolved": [],
-   "seconds": 55.7,
-   "started": "2026-10-28T02:36:18",
+   "seconds": 81.1,
+   "started": "2026-11-05T11:23:55",
    "version": "1.7.1"
   },
   "02_clustering.py": {
@@ -160,8 +160,8 @@
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77"
    },
    "inputs_unresolved": [],
-   "seconds": 24.0,
-   "started": "2026-10-28T02:37:14",
+   "seconds": 30.3,
+   "started": "2026-11-05T11:25:16",
    "version": "1.13.1"
   },
   "03_state_space_model.py": {
@@ -198,7 +198,8 @@
     "outputs/03_state_space_model/03_19_per_well_recession_full_record.csv": "a42b8d5a83077dc5b115818257d2d9346aab763c8fa46b07b6dbc8913b841083",
     "outputs/03_state_space_model/03_20_datum_aod_sweep.csv": "59362d0ea6200fb7b214462500765a2c60c3140413cae2e605ddc9eca5657888",
     "outputs/03_state_space_model/03_21_dry_member_fill.csv": "eebff99b34eddf8ffa0c032a4e9530bf462f999b45f15ec24b858d4b6f515319",
-    "outputs/03_state_space_model/03_report_numbers.csv": "0faf01a4fe304ba461bd06d093c55d62ef2f0076247088e30bf89177631a1bbb"
+    "outputs/03_state_space_model/03_22_warren_open_dune_coefficients.csv": "a09f32bf03d78e235b6c15ef92e47e461f63e3c904d7477de87657c66ffd892e",
+    "outputs/03_state_space_model/03_report_numbers.csv": "0c09f252707f2ec05e2a5ae61e62ecbcdf2fbf88ee70b17b796c3662efc83683"
    },
    "fallbacks": [],
    "inputs": {
@@ -214,9 +215,9 @@
     "outputs/02_clustering/02_08_cluster_amplitude_per_well.csv": "40ddcd63292275b0b91e3f01a33764ee4794e37890be456373d76b6fdec3a09c"
    },
    "inputs_unresolved": [],
-   "seconds": 1581.4,
-   "started": "2026-10-28T02:37:38",
-   "version": "1.28.0"
+   "seconds": 1864.3,
+   "started": "2026-11-05T11:25:47",
+   "version": "1.29.0"
   },
   "04_cluster_visualisations.py": {
    "emitted": {
@@ -228,8 +229,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 15.6,
-   "started": "2026-10-28T03:04:00",
+   "seconds": 16.9,
+   "started": "2026-11-05T11:56:51",
    "version": "1.1.0"
   },
   "05_pearson_affinity.py": {
@@ -245,8 +246,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 16.3,
-   "started": "2026-10-28T03:04:16",
+   "seconds": 18.5,
+   "started": "2026-11-05T11:57:08",
    "version": "1.7.1"
   },
   "06_pearson_extended.py": {
@@ -263,8 +264,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 29.7,
-   "started": "2026-10-28T03:04:32",
+   "seconds": 34.2,
+   "started": "2026-11-05T11:57:27",
    "version": "1.5.0"
   },
   "07_spatial_coefficients.py": {
@@ -272,9 +273,9 @@
     "outputs/07_coefficient_summary.csv": "62d4852172639478d5bf342e16aef103a7291904f5bcdf081c9a13b26cb15605",
     "outputs/07_spatial_coefficients/07_05_clusters_vs_covariates.csv": "282adbacb6608eec9cb228527922bdd6e4bb3d51d387940e19da5d152758384e",
     "outputs/07_spatial_coefficients/07_cluster_coeff_means.csv": "028ac4334e80c11e4a29bbed78a30aad2bdf3da183676e161041fb691676a505",
-    "outputs/07_spatial_coefficients/07_coeff_01_beta1_recharge.png": "85592e273aba6145f4556547c1ecf1bb2f5c570a040c223ca47aabca00c6feb3",
-    "outputs/07_spatial_coefficients/07_coeff_02_beta2_atm_draw.png": "3c9421f374b7c03511e53d6a21072109c86709e35cf4e34448f50b22059c9ed6",
-    "outputs/07_spatial_coefficients/07_coeff_03_beta3_drainage.png": "f0d8ad9ed1df4b295e8f4636d91f3c1cfc6c5121be88b9f4543a26a32d75b644",
+    "outputs/07_spatial_coefficients/07_coeff_01_beta1_recharge.png": "69f00fda47084a4f57ebd11ed4831188d2cd2ebe6850184d0dfbd1de255d5492",
+    "outputs/07_spatial_coefficients/07_coeff_02_beta2_atm_draw.png": "bcb3bd3ecfe10792de100610c3792a04365a0f384d6e7c17faa97c684cde8f8f",
+    "outputs/07_spatial_coefficients/07_coeff_03_beta3_drainage.png": "f01f4f3a674798b4bead57d94b66acf9456162c34c05a12497aec46a187a821e",
     "outputs/07_spatial_coefficients/07_coeff_04_r2_quality.png": "60bee610f97c2f58387b9e42394008b4b07b7832ab109e0560dc7b7acacd2c9a",
     "outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv": "af23b80e967d94fdd0f82feb7d67af52765b744710aedc35f8c0180b566f9d62",
     "outputs/07_spatial_coefficients/07_coeff_maps_data.csv": "750a83e06f9caff8fb8db85c2ed02b3e9a13fe496837b32ed24218e5b0529f8f",
@@ -287,8 +288,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 42.1,
-   "started": "2026-10-28T03:05:02",
+   "seconds": 49.4,
+   "started": "2026-11-05T11:58:01",
    "version": "1.6.1"
   },
   "08_model_benchmarking.py": {
@@ -310,8 +311,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 23.8,
-   "started": "2026-10-28T05:03:58",
+   "seconds": 22.9,
+   "started": "2026-11-05T11:58:51",
    "version": "1.8.0"
   },
   "09f_management_effects.py": {
@@ -331,8 +332,8 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 2.2,
-   "started": "2026-10-28T04:03:10",
+   "seconds": 2.4,
+   "started": "2026-11-05T12:16:19",
    "version": "1.11.0"
   },
   "09g_mechanism_diagrams.py": {
@@ -353,8 +354,8 @@
     "outputs/10_clearfell_baci/10a_report_numbers.csv": "e46e5cecd0a49545b408f8ab33260add57cd7b7639b3cc83458bda8c4db9bd95"
    },
    "inputs_unresolved": [],
-   "seconds": 1.2,
-   "started": "2026-10-28T03:20:14",
+   "seconds": 1.3,
+   "started": "2026-11-05T12:16:22",
    "version": "1.8.0"
   },
   "11_forecasting_thresholds.py": {
@@ -373,8 +374,8 @@
     "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv": "c465e55c847ab87ec01c04518dc95e5635e0af07cd51c7448389a29ff6ab561b"
    },
    "inputs_unresolved": [],
-   "seconds": 3.0,
-   "started": "2026-10-28T03:07:55",
+   "seconds": 3.7,
+   "started": "2026-11-05T12:01:27",
    "version": "1.4.0"
   },
   "11b_spatial_thresholds.py": {
@@ -414,13 +415,13 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 53.7,
-   "started": "2026-11-02T23:25:32",
+   "seconds": 60.7,
+   "started": "2026-11-05T12:01:31",
    "version": "1.24.0"
   },
   "11c_pflood_achievability.py": {
    "emitted": {
-    "outputs/11b_spatial_thresholds/11c_pflood_achievability.png": "d74b906d8cbffd647d6c82ba5ad579a1de7b8eca88317d96823f99bc33857f3c",
+    "outputs/11b_spatial_thresholds/11c_pflood_achievability.png": "b1632ae2c466e17e1a4923e819770089dc55fe0285650633ff5c2f9903834ad3",
     "outputs/11b_spatial_thresholds/11c_pflood_achievability_per_well.csv": "ac55edb3bd558e9f14ab22f612bd2b71926ac4fd8d5c6cbd0c775c26e569a4f6",
     "outputs/11b_spatial_thresholds/11c_pflood_achievability_results.md": "61e517a23e47459d19194036c5f3ffd4499c9f2619436fa60fadd1c78071eef2",
     "outputs/11b_spatial_thresholds/11c_report_numbers.csv": "b4c935d36dc2497b368d19b1a3b99c8f86ab15f5f5869668b2a4459b58d8dad8"
@@ -428,8 +429,8 @@
    "fallbacks": [],
    "inputs": {},
    "inputs_unresolved": [],
-   "seconds": 15.1,
-   "started": "2026-10-28T03:08:50",
+   "seconds": 17.0,
+   "started": "2026-11-05T12:02:32",
    "version": "1.8.0"
   },
   "12_figure_site_overview.py": {
@@ -445,8 +446,8 @@
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff"
    },
    "inputs_unresolved": [],
-   "seconds": 26.1,
-   "started": "2026-10-28T03:09:20",
+   "seconds": 32.2,
+   "started": "2026-11-05T12:03:03",
    "version": "1.10.0"
   },
   "13_figure_experimental_design.py": {
@@ -456,8 +457,8 @@
    "fallbacks": [],
    "inputs": {},
    "inputs_unresolved": [],
-   "seconds": 25.8,
-   "started": "2026-10-28T03:09:46",
+   "seconds": 32.8,
+   "started": "2026-11-05T12:03:36",
    "version": "1.5.0"
   },
   "14_climate_projections.py": {
@@ -481,8 +482,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 3.3,
-   "started": "2026-11-03T10:16:29",
+   "seconds": 4.0,
+   "started": "2026-11-05T12:02:59",
    "version": "1.14.0"
   },
   "15_depth_dependent_pet.py": {
@@ -504,13 +505,13 @@
     "outputs/03_state_space_model/03_21_dry_member_fill.csv": "eebff99b34eddf8ffa0c032a4e9530bf462f999b45f15ec24b858d4b6f515319"
    },
    "inputs_unresolved": [],
-   "seconds": 5.4,
-   "started": "2026-10-28T03:10:12",
+   "seconds": 7.2,
+   "started": "2026-11-05T12:04:09",
    "version": "1.10.0"
   },
   "16_water_bal.py": {
    "emitted": {
-    "outputs/01_data_prep/pipeline_site_observations.csv": "26fc6c4544c725cc74ae595b4c38a5b9ae2d8d0f8754a760bb39968347bb55b3",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "9bfc57f6d74e564322327f4b6f206230a2fd7f86bc4a0c398ea2ccf0fc882206",
     "outputs/16_water_balance/16_report_numbers.csv": "6e2660d1721919ca5e804c9650fdfb2999706fc092dcff1a14fa2b8f7ef36805",
     "outputs/16_water_balance/16_water_bal_bar_lay.png": "7ed7f81186b4c3a80ca8d768bc040461fcc79f2dcb15da38e8cb27f4062de48a",
     "outputs/16_water_balance/16_water_bal_bar_ms.png": "5d8f7d7236200ae541a0c2287ac11a7a4baeaa270454b79668fa50f1fe1b7751",
@@ -525,8 +526,8 @@
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "cb2da2ee1b2461586a94530d5a79702d3226d5772482a9b0c8b70ddf412a4b75"
    },
    "inputs_unresolved": [],
-   "seconds": 1.9,
-   "started": "2026-10-28T03:10:20",
+   "seconds": 2.7,
+   "started": "2026-11-05T12:04:20",
    "version": "1.12.0"
   },
   "17_wtf_specific_yield.py": {
@@ -546,8 +547,8 @@
     "outputs/03_regional_averages.csv": "0ab98d8358452c0cf3c4ea8fb41ba8124fdc489689218c45c69ac7d652ea4af7"
    },
    "inputs_unresolved": [],
-   "seconds": 2.6,
-   "started": "2026-10-28T03:10:17",
+   "seconds": 3.4,
+   "started": "2026-11-05T12:04:16",
    "version": "1.9.0"
   },
   "18_wtf_spatial.py": {
@@ -560,6 +561,7 @@
     "outputs/18_wtf_spatial/18_wtf_05_halflife_map.png": "626cc5fd018f36685692e236aeaf082a23ab54f06746503fb11aa983d51f2e92",
     "outputs/18_wtf_spatial/18_wtf_05_storage_drainage_index.csv": "152dfc5df2f6f7a2df3433902e5db551e7f349120e92bd47b8a0043f7c4f3729",
     "outputs/18_wtf_spatial/18_wtf_06_aquifer_diagnostic_synthesis.png": "3fe0b5e3dbf81c9923631079ffb28abef0c2f4a6082e2bb777bb6351049c43a5",
+    "outputs/18_wtf_spatial/18_wtf_06_well_sy_by_window.csv": "fd80ecbf6e383d3034fc56db3aea9891d2bfa7d99c18b119374250a50216774f",
     "outputs/18_wtf_spatial/18_wtf_07_sy_spatial_trends.csv": "e9cb147ae637b8fb2b7f67897c975be458012801cb47bd0a14de58db4c9cdd55",
     "outputs/18_wtf_spatial/18_wtf_08_cluster_half_life_summary.csv": "fb5d498aa9966129ce4e255e76256d506ab064c4a7d7500094927c6605052a6a"
    },
@@ -570,9 +572,9 @@
     "outputs/08_lcsc_model_stats.csv": "a3225ba351fbc418e21c35f39715c965b3cc1a6e6715ebfb913df279aff5a7a0"
    },
    "inputs_unresolved": [],
-   "seconds": 60.4,
-   "started": "2026-10-28T05:04:27",
-   "version": "1.18.0"
+   "seconds": 70.8,
+   "started": "2026-11-05T12:04:23",
+   "version": "1.19.0"
   },
   "19_spatial_groundwater.py": {
    "emitted": {
@@ -609,8 +611,8 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 4.7,
-   "started": "2026-10-28T04:02:47",
+   "seconds": 6.7,
+   "started": "2026-11-05T12:05:34",
    "version": "2.32.0"
   },
   "20_spatial_figures.py": {
@@ -667,8 +669,8 @@
    "inputs_unresolved": [
     "17_wtf_well_sy.csv"
    ],
-   "seconds": 80.8,
-   "started": "2026-10-28T03:11:22",
+   "seconds": 111.7,
+   "started": "2026-11-05T12:05:41",
    "version": "1.62.0"
   },
   "21_forestry_scenarios.py": {
@@ -703,8 +705,8 @@
     "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv": "7a78872ced028d97af0f5b7827d30b820fcab86a2b3c558940fa07a28c39ea15"
    },
    "inputs_unresolved": [],
-   "seconds": 5.9,
-   "started": "2026-10-28T03:12:43",
+   "seconds": 7.0,
+   "started": "2026-11-05T12:07:33",
    "version": "1.13.0"
   },
   "22_residual_lag_analysis.py": {
@@ -727,8 +729,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 6.0,
-   "started": "2026-10-28T03:13:34",
+   "seconds": 7.7,
+   "started": "2026-11-05T12:08:39",
    "version": "1.5.0"
   },
   "23_ridge_recharge_lag_test.py": {
@@ -750,8 +752,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 6.0,
-   "started": "2026-10-28T03:13:41",
+   "seconds": 7.5,
+   "started": "2026-11-05T12:08:47",
    "version": "1.5.0"
   },
   "24_residual_seasonality.py": {
@@ -772,8 +774,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 10.3,
-   "started": "2026-10-28T03:13:47",
+   "seconds": 12.2,
+   "started": "2026-11-05T12:08:55",
    "version": "1.4.1"
   },
   "24b_residual_climatology.py": {
@@ -790,8 +792,8 @@
     "outputs/22_residuals_wide.csv": "3d421b94a85c5f10bce60f244b85332ad41b61df2e1f5c668f48e81eb5940778"
    },
    "inputs_unresolved": [],
-   "seconds": 2.6,
-   "started": "2026-10-28T03:17:30",
+   "seconds": 3.0,
+   "started": "2026-11-05T12:13:17",
    "version": "1.5.0"
   },
   "25_coastal_gradient.py": {
@@ -841,8 +843,8 @@
     "outputs/20_spatial_figures/20_msl5_change_perwell.csv": "74a27e42eb1fc9edd4ef896575b0660dc623ad8ce89ed69c15e63dfcf05e7dd2"
    },
    "inputs_unresolved": [],
-   "seconds": 45.4,
-   "started": "2026-10-28T03:12:49",
+   "seconds": 59.1,
+   "started": "2026-11-05T12:07:40",
    "version": "1.37.0"
   },
   "26_van_willegen_msl.py": {
@@ -896,8 +898,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 19.0,
-   "started": "2026-11-03T10:16:35",
+   "seconds": 22.4,
+   "started": "2026-11-05T12:09:08",
    "version": "1.33.0"
   },
   "26b_van_willegen_msl_projections.py": {
@@ -920,13 +922,12 @@
     "outputs/26_van_willegen_msl/26_msl_5yr_per_cluster_centroid.csv": "c0fcbdd1a3195e986ff9bf593190fdc6483684093fe71a3806e0c995aadec3e7"
    },
    "inputs_unresolved": [],
-   "seconds": 2.9,
-   "started": "2026-11-01T16:17:29",
+   "seconds": 3.4,
+   "started": "2026-11-05T12:09:30",
    "version": "2.2.0"
   },
   "26c_msl5_report_figures.py": {
    "emitted": {
-    "outputs/11b_spatial_thresholds/11b_02_winter_maxima_depth.png": "ebff1c1e32d8e9539b5a44e8cd763459bc96b7d639fce5b82406dd1583c5c2ae",
     "outputs/26c_msl5_report_figures/26c_results.txt": "d01ab98ae34d215016e9c21516aae858e6d84191ea2db468f7b6bf3e75a3bda6",
     "outputs/26c_msl5_report_figures/fig_msl5_trajectory_report.png": "f8d76aaf5608dd8762b546b95d11e5030fa3cbdfe22cc631e3474800b98b7499",
     "outputs/26c_msl5_report_figures/fig_msl5_vs_summer_min_projection.png": "46b1a0a5d3cbde0916c67b700902e65cd4702be5d5d85abfdfa93eafd0064b9d"
@@ -940,8 +941,8 @@
     "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv": "b4ba1a8d429950c621e11a5945bb283f32f2a57000eb494fb83a4e3fd5ba464f"
    },
    "inputs_unresolved": [],
-   "seconds": 2.0,
-   "started": "2026-11-02T15:28:41",
+   "seconds": 2.3,
+   "started": "2026-11-05T12:09:34",
    "version": "1.8.0"
   },
   "28_c3_detrend_check.py": {
@@ -956,8 +957,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 5.9,
-   "started": "2026-10-28T03:14:21",
+   "seconds": 7.0,
+   "started": "2026-11-05T12:09:36",
    "version": "1.3.0"
   },
   "29_c3_within_variance_check.py": {
@@ -982,8 +983,8 @@
     "outputs/25_coastal_gradient/25_02_per_well_summer_min_slopes.csv": "d693845933c5056804b726fac6a9a034e3de6c70705e3a47824b964d1d1d290d"
    },
    "inputs_unresolved": [],
-   "seconds": 2.1,
-   "started": "2026-10-28T03:14:27",
+   "seconds": 2.5,
+   "started": "2026-11-05T12:09:43",
    "version": "1.11.0"
   },
   "30_c4_drainage_identifiability.py": {
@@ -1001,8 +1002,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 3.3,
-   "started": "2026-10-28T03:14:29",
+   "seconds": 4.1,
+   "started": "2026-11-05T12:09:46",
    "version": "2.7.0"
   },
   "31_cluster_validation.py": {
@@ -1022,8 +1023,8 @@
     "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv": "7a78872ced028d97af0f5b7827d30b820fcab86a2b3c558940fa07a28c39ea15"
    },
    "inputs_unresolved": [],
-   "seconds": 11.4,
-   "started": "2026-10-28T03:17:33",
+   "seconds": 13.1,
+   "started": "2026-11-05T12:13:20",
    "version": "1.4.2"
   },
   "31b_separation_vs_recoverability.py": {
@@ -1039,8 +1040,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 3.3,
-   "started": "2026-10-28T03:17:45",
+   "seconds": 3.5,
+   "started": "2026-11-05T12:13:34",
    "version": "1.3.1"
   },
   "32_differential_movement.py": {
@@ -1059,8 +1060,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 40.2,
-   "started": "2026-10-28T03:14:33",
+   "seconds": 47.5,
+   "started": "2026-11-05T12:09:50",
    "version": "1.9.0"
   },
   "33_envelope_amplification.py": {
@@ -1083,8 +1084,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 42.5,
-   "started": "2026-11-02T23:26:51",
+   "seconds": 49.7,
+   "started": "2026-11-05T12:10:38",
    "version": "1.9.0"
   },
   "34_window_sensitivity.py": {
@@ -1103,8 +1104,8 @@
     "outputs/32_differential_movement/32_site_mean_trend.csv": "e581c37980c7a0a6f793c4c6a097577a112dc54520675d08a0d0e835fc6d48f7"
    },
    "inputs_unresolved": [],
-   "seconds": 2.2,
-   "started": "2026-11-02T15:29:33",
+   "seconds": 2.6,
+   "started": "2026-11-05T12:13:37",
    "version": "0.8.0"
   },
   "35_per_well_amplification.py": {
@@ -1123,8 +1124,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 14.8,
-   "started": "2026-10-28T03:15:56",
+   "seconds": 17.0,
+   "started": "2026-11-05T12:11:28",
    "version": "1.4.0"
   },
   "36_absolute_climate_trend.py": {
@@ -1143,8 +1144,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 56.6,
-   "started": "2026-10-28T03:16:11",
+   "seconds": 65.3,
+   "started": "2026-11-05T12:11:45",
    "version": "1.7.0"
   },
   "37_driver_validation.py": {
@@ -1167,8 +1168,8 @@
     "outputs/36_absolute_climate_trend/36_absolute_climate_trend_per_well.csv": "a30622ceda22e0edb1d3a2109dba9a6eca27696f94df46091bec9f29d5c73560"
    },
    "inputs_unresolved": [],
-   "seconds": 14.9,
-   "started": "2026-10-28T03:17:07",
+   "seconds": 17.3,
+   "started": "2026-11-05T12:12:51",
    "version": "3.10.0"
   },
   "37b_driver_footing.py": {
@@ -1190,8 +1191,8 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 7.4,
-   "started": "2026-10-28T04:02:51",
+   "seconds": 9.0,
+   "started": "2026-11-05T12:13:08",
    "version": "1.10.0"
   },
   "38_coastal_transect.py": {
@@ -1209,8 +1210,8 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 3.3,
-   "started": "2026-10-28T03:17:50",
+   "seconds": 3.8,
+   "started": "2026-11-05T12:13:40",
    "version": "1.7.0"
   },
   "39_ccw_hindcast.py": {
@@ -1233,8 +1234,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 4.7,
-   "started": "2026-10-28T03:17:54",
+   "seconds": 5.4,
+   "started": "2026-11-05T12:13:44",
    "version": "1.5.1"
   },
   "40_shoreline_retreat.py": {
@@ -1265,8 +1266,8 @@
     "outputs/25_coastal_gradient/25_12_window_sweep.csv": "209715ab47307db3550b286e360b192ddbecc135367aff2c87c5bec59b9bf19b"
    },
    "inputs_unresolved": [],
-   "seconds": 2.1,
-   "started": "2026-10-28T03:17:59",
+   "seconds": 2.3,
+   "started": "2026-11-05T12:13:50",
    "version": "1.8.0"
   },
   "41_canopy_cover.py": {
@@ -1297,8 +1298,8 @@
     "outputs/07_spatial_coefficients/07_coeff_maps_data.csv": "750a83e06f9caff8fb8db85c2ed02b3e9a13fe496837b32ed24218e5b0529f8f"
    },
    "inputs_unresolved": [],
-   "seconds": 130.5,
-   "started": "2026-10-28T03:18:01",
+   "seconds": 146.4,
+   "started": "2026-11-05T12:13:52",
    "version": "2.16.0"
   },
   "43_ranwell_sites.py": {
@@ -1329,7 +1330,7 @@
    },
    "inputs_unresolved": [],
    "seconds": 7.7,
-   "started": "2026-10-28T03:20:16",
+   "started": "2026-11-05T12:16:23",
    "version": "2.1.0"
   },
   "44_ranwell_hindcast.py": {
@@ -1379,8 +1380,8 @@
     "outputs/43_ranwell/43_07_modern_well_basins.csv": "d4938d352e042a18d2a05ca3f3fe519f06fde5fe8b13b262e953493a489dfa92"
    },
    "inputs_unresolved": [],
-   "seconds": 5.8,
-   "started": "2026-10-28T03:20:24",
+   "seconds": 6.1,
+   "started": "2026-11-05T12:16:31",
    "version": "1.12.0"
   },
   "45_wet_area_model.py": {
@@ -1407,8 +1408,8 @@
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4"
    },
    "inputs_unresolved": [],
-   "seconds": 4.0,
-   "started": "2026-10-28T03:20:30",
+   "seconds": 4.3,
+   "started": "2026-11-05T12:16:38",
    "version": "1.6.0"
   },
   "46_wet_area_feed.py": {
@@ -1421,7 +1422,7 @@
    },
    "inputs_unresolved": [],
    "seconds": 0.4,
-   "started": "2026-10-28T03:20:34",
+   "started": "2026-11-05T12:16:42",
    "version": "1.0.0"
   },
   "47_hindcast_film.py": {
@@ -1470,8 +1471,8 @@
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "cb2da2ee1b2461586a94530d5a79702d3226d5772482a9b0c8b70ddf412a4b75"
    },
    "inputs_unresolved": [],
-   "seconds": 43.5,
-   "started": "2026-10-28T03:20:34",
+   "seconds": 46.1,
+   "started": "2026-11-05T12:16:43",
    "version": "1.8.0"
   },
   "49_slack_flow.py": {
@@ -1567,10 +1568,12 @@
     "outputs/50_record_length/50_40_placement_by_test.csv": "954858f6d89ae6ee7f9e75a209c73b442e371bb82fe63bb64e3aad4c64d91dc2",
     "outputs/50_record_length/50_41_elevation_datum_by_test.csv": "694c96da7101fa6d36304bc6b7ad75800895a7942d90aacd05b0cbd80e1c480f",
     "outputs/50_record_length/50_42_elevation_datum_summary.csv": "143fee2b47a8a9fdef6c32ab22e15595f2dc25c69867e8ef09bb8564874b3b57",
-    "outputs/50_record_length/50_report_numbers.csv": "204ec0cc03bcdc417e18c39120d8b4d4f36b91dcac88d30ef144c8f448695387",
-    "outputs/chat/chat_corpus.json": "14ef2b084a4d43d4baef3dd0c3b81674f23c11fc326a24d01f10a8ae8d983f24",
-    "outputs/chat/chat_corpus_stamp.json": "ad4d53de6471723502aa6431b796588c1ae54354a81097c035b8b50ad2a339c1",
-    "outputs/chat/chatbot.html": "026b8545d09dfac10971d0258cafd0d0c30c514e307c294b7d32496ef15e1ec3"
+    "outputs/50_record_length/50_43_cluster_base_by_test.csv": "8b3deb91b02651ccc02832854f7217b742c51ab6a1263856df73d16c9362b0b7",
+    "outputs/50_record_length/50_44_cluster_base_summary.csv": "b1e6b4028fa388b5cea4a17e7ccc7767829c7b1465f74971c54f5566602fb800",
+    "outputs/50_record_length/50_45_ccw_quantile_map.csv": "10c918020d4818ef9086b08e9fc9cce69c6947e1c97431c076dc9b50180cb0a6",
+    "outputs/50_record_length/50_46_ccw_film_map_months.csv": "60061dbcc5a51209a05576f990ee742bc655eb9aeb4682ec8c5de916f34397e1",
+    "outputs/50_record_length/50_47_ccw_film_map_years.csv": "d4a124725b369504f161ba6dc28527f45e80e39b1118ab125e70730420a70f2d",
+    "outputs/50_record_length/50_report_numbers.csv": "3a3ebcf40c922b5d63504452b61d75826b1b4055cd104cee60cd0e448ed50c4e"
    },
    "fallbacks": [],
    "inputs": {
@@ -1587,11 +1590,14 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371",
     "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
+    "outputs/01b_water_table/01b_report_numbers.csv": "e78bb6f1ed49aa17adc7c22e1d68ea64ff7455dc45dfec23a4f272eb2ff9955d",
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4",
     "outputs/03_regional_averages.csv": "0ab98d8358452c0cf3c4ea8fb41ba8124fdc489689218c45c69ac7d652ea4af7",
     "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv": "c465e55c847ab87ec01c04518dc95e5635e0af07cd51c7448389a29ff6ab561b",
+    "outputs/03_state_space_model/03_09_well_optimal_datums.csv": "8018f157919c36ced0ef33e0a3369f0263d510d1d01a95118e954ca7099d299a",
     "outputs/03_state_space_model/03_15_per_well_window_sensitivity.csv": "3195fd494b53c1ba354eb2d7b8b8a5d7c3617a2d88a48f04bbf28685bb0d3fa3",
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "cb2da2ee1b2461586a94530d5a79702d3226d5772482a9b0c8b70ddf412a4b75",
+    "outputs/03_state_space_model/03_22_warren_open_dune_coefficients.csv": "a09f32bf03d78e235b6c15ef92e47e461f63e3c904d7477de87657c66ffd892e",
     "outputs/19_spatial_groundwater/19_scenario_perwell_model_a.csv": "091a09b7f096209408a9077d4daff65d3330dba9c357d0dd124823f047706e24",
     "outputs/24_residual_climatology.csv": "1c190f6c8b3379d4f0d1d6a9aa4217287a06f620b2350422742ee7ab10168186",
     "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "353b5427ee59f25df85e4a5f1cb7067a23af09726d846e21c2b69f2328c56805",
@@ -1602,9 +1608,9 @@
    "inputs_unresolved": [
     "2015.kml"
    ],
-   "seconds": 2327.5,
-   "started": "2026-10-28T03:21:18",
-   "version": "1.19.0"
+   "seconds": 2477.0,
+   "started": "2026-11-05T12:17:29",
+   "version": "1.22.0"
   },
   "51_cluster_gap_fill.py": {
    "emitted": {
@@ -1631,8 +1637,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 42.1,
-   "started": "2026-10-28T04:00:06",
+   "seconds": 42.3,
+   "started": "2026-11-05T12:58:46",
    "version": "1.1.0"
   },
   "53_ccw_forest_drift.py": {
@@ -1656,8 +1662,8 @@
     "outputs/39_ccw_hindcast/39_02_hindcast_series.csv": "4c9a05e63257fa965358b44026dea9b358bf270a74ec04f064720c12b4a8e399"
    },
    "inputs_unresolved": [],
-   "seconds": 2.7,
-   "started": "2026-10-28T04:00:48",
+   "seconds": 2.6,
+   "started": "2026-11-05T12:59:29",
    "version": "1.0.0"
   },
   "54_dry_year_hysteresis.py": {
@@ -1676,16 +1682,55 @@
     "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
     "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4",
-    "outputs/50_record_length/50_report_numbers.csv": "ca3a5df94042b4d77093278c4b7607705728015d1bdd4ef5739d260ab87cca75"
+    "outputs/50_record_length/50_report_numbers.csv": "3a3ebcf40c922b5d63504452b61d75826b1b4055cd104cee60cd0e448ed50c4e"
    },
    "inputs_unresolved": [],
-   "seconds": 2.5,
-   "started": "2026-11-01T07:08:43",
+   "seconds": 2.2,
+   "started": "2026-11-05T12:59:31",
+   "version": "1.0.0"
+  },
+  "55_water_balance_drainage.py": {
+   "emitted": {
+    "outputs/55_water_balance_drainage/55_01_surplus_vs_dh.csv": "3f9ebf06e5264459975ae55aa6f4d2c86a077d8ddd81a41af992f675cf76a3bc",
+    "outputs/55_water_balance_drainage/55_01_surplus_vs_dh.png": "f60b18a921b46b801e2511c5df9cd9bcb7c07f73991d4b06ba247695243d074d",
+    "outputs/55_water_balance_drainage/55_02_drainage_law.png": "b96886722e8e049a7e3d86f08034bc661455c06748611ef10df95280dc489562",
+    "outputs/55_water_balance_drainage/55_02_drainage_law_per_well.csv": "8de3ceaf53de8ac3dd5379b8093eca57bb51d82fe9affa3f147690af87ea3e70",
+    "outputs/55_water_balance_drainage/55_03_drainage_law_by_cluster.csv": "f4ddc1684f1721eda4950ce533ab34f26ca68863be090ef873e71bd6ef94adf4",
+    "outputs/55_water_balance_drainage/55_04_water_balance.csv": "7457464d67c135b45e2f4172a9e838b731b42b8020d9ee2af440a24712648f4f",
+    "outputs/55_water_balance_drainage/55_05_et_vs_pet.png": "ca2ef4654ac1eba441997db6bd35944a6709165f89d53f765849c3ec94a5153a",
+    "outputs/55_water_balance_drainage/55_05_winter_law_et.csv": "b0d7c101a5d2974c2475c935a46577f1dcb178f0fa9420b86178d8cef090450c",
+    "outputs/55_water_balance_drainage/55_06_et_monthly.csv": "d3120202f8cd7eb57ac48dfa94e4fc99bd49422b6174cbe668d95d19bc4774a3",
+    "outputs/55_water_balance_drainage/55_07_sensitivity.csv": "c3b07501bc8dd214073ad25623cbe88cc6cb3c5cd6a886644670938f696e4d57",
+    "outputs/55_water_balance_drainage/55_08_interception_scan.csv": "b35f057223e600beb234dcbb6dba0cb1d1cec8f19c507eabee824ce88cc33132",
+    "outputs/55_water_balance_drainage/55_09_split_sample.csv": "1482c3b18c83082bab4e4b830f33dd64fe6d9a318971432fd0ec3b18cfa947c6",
+    "outputs/55_water_balance_drainage/55_10_ccw_hindcast.csv": "5d0b02aac188d95531b1b610b5a11731e7d03265c897f540a59be096404a2dc3",
+    "outputs/55_water_balance_drainage/55_11_dry_month_law_per_well.csv": "56459d8861260fa06bf553de14119ce6f8f97de624b5bd664dd62a3055ea379b",
+    "outputs/55_water_balance_drainage/55_12_dry_month_law_by_cluster.csv": "649d21ca436a5dbe153bcb46db417591c3acb09c17ea7765512f5bed8db9809c",
+    "outputs/55_water_balance_drainage/55_13_winter_sy_bracket.png": "b74c3eda79ecc0e527f6cc27381431b95612eb717451b8129580babcfe0832d4",
+    "outputs/55_water_balance_drainage/55_13_winter_sy_per_well.csv": "6963fe4895d537ee5d8c2bbb1a6fd62ff8617703830ed7d4cc16d83fad593341",
+    "outputs/55_water_balance_drainage/55_14_winter_sy_by_cluster.csv": "7d269c1b75be8578d682fdca537a7cb8097d5058eeec2785723250a4ab36407b",
+    "outputs/55_water_balance_drainage/55_report_numbers.csv": "41299c8cfa783f2121194adebb73a19b52e45b11fe9c9bdd42bb244a2f2372ce"
+   },
+   "fallbacks": [],
+   "inputs": {
+    "data/ccw_1989_1996_code_map.csv": "263f6bb0ca75aa63290608599625831d171857f33bd1b59773bb832f8ac9e1c7",
+    "data/ccw_1989_1996_depths.csv": "56d9fc8881afd0af77783882dc5c0d37fb7b0bc0f4f33b81cb143145d1682ac9",
+    "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
+    "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
+    "outputs/03_master_data.csv": "e34b18330b5e96c6871ee392a1ccdb337cdc45cea2aeab3f7270b537839da7c4",
+    "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv": "638e0f00d8f3e118fc244e151b597ad47a085d6f358b61a1f7ccd4ab630f94d6",
+    "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv": "7a78872ced028d97af0f5b7827d30b820fcab86a2b3c558940fa07a28c39ea15",
+    "outputs/18_wtf_spatial/18_wtf_06_well_sy_by_window.csv": "fd80ecbf6e383d3034fc56db3aea9891d2bfa7d99c18b119374250a50216774f",
+    "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "540d93373f369f480e3b74d740d64d6c6b4dcf6b195e46704b5d06287f10cd6c"
+   },
+   "inputs_unresolved": [],
+   "seconds": 9.8,
+   "started": "2026-11-05T12:59:34",
    "version": "1.0.0"
   },
   "run_09_scraping.py": {
    "emitted": {
-    "outputs/01_data_prep/pipeline_site_observations.csv": "26fc6c4544c725cc74ae595b4c38a5b9ae2d8d0f8754a760bb39968347bb55b3",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "5b7f207ff2dccfb5264aa796a6bbfa0e966f12970031e142026973e42c937f5c",
     "outputs/09_scraping_intervention/09_scrape_01_full_parameters.csv": "022493cf3c96eaf4393de0cc48f97ab50a198d564b73ff210cc0a2d191f02d1c",
     "outputs/09_scraping_intervention/09_scrape_02_beta3_significance.csv": "3dbe89eb36824569c9a113989ccc9d6bd91bd09d051b5a3c04f845c66e189a48",
     "outputs/09_scraping_intervention/09_scrape_03_baci_shifts.csv": "564a3ec7c5605468b05c045c7dad88e788b81893f6c0ba00f0092d076e738552",
@@ -1745,14 +1790,14 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 10.3,
-   "started": "2026-10-28T04:02:59",
+   "seconds": 12.0,
+   "started": "2026-11-05T11:59:14",
    "version": "1.0.0"
   },
   "run_10_clearfell.py": {
    "emitted": {
     "outputs/01_data_prep/pipeline_scenario_params.csv": "f5313fbd7567da9c58c651a674dc2ee246e411468c5433b475b518a7279bed7d",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "26fc6c4544c725cc74ae595b4c38a5b9ae2d8d0f8754a760bb39968347bb55b3",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "bb72e4defd654e2dbf0265260c9b6a2ba179babe8b2d52484b69c91529e9c41d",
     "outputs/10_clearfell_baci/10_consolidated_report_numbers.csv": "6af18e80705598a5dd442c45e83b2786880161878d01bf92939e59ca65e7f41f",
     "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv": "3b15902bab37ff70886098168bd560f038661aa71fe42b2b79e54440015ffdb2",
     "outputs/10_clearfell_baci/10a_02_ancova_full_coefficients.csv": "03f103415ee8158dde0223721c284d9e14240616b2773fe80aca3aaed69eee99",
@@ -1774,10 +1819,10 @@
     "outputs/10_clearfell_baci/10a_S2_baci_timeseries_edge_3panel.png": "83d3a404150029cf9bc719ea1dd5501d55df180831793c710bfa813d986fb3c7",
     "outputs/10_clearfell_baci/10a_S3_climate_sensitivity_3panel.png": "b3b6926f7e98bdecc563a7f2c87b43d75438596e60c0ecc9e8aa08532aa580d0",
     "outputs/10_clearfell_baci/10a_report_numbers.csv": "e46e5cecd0a49545b408f8ab33260add57cd7b7639b3cc83458bda8c4db9bd95",
-    "outputs/10_clearfell_baci/10b_spatial_fell_corrected.png": "e89626e6c5151ed6c4e267910c70f612a2c54ff9cb8e7bc2bd9b06a795270e3f",
-    "outputs/10_clearfell_baci/10b_spatial_fell_raw.png": "123889b67cdc94bfc0cd39a1cf589e6175d91fee375f94a4b8266fb4a70305e3",
-    "outputs/10_clearfell_baci/10b_spatial_scrape_corrected.png": "e93c3013fde1ac559d3e23eec7cb2cc58237f7cd739e8cf7a9005249deed863f",
-    "outputs/10_clearfell_baci/10b_spatial_scrape_raw.png": "1a0688a061f60cefe33591692aa75e796a99d6838da699e845260e104f181845",
+    "outputs/10_clearfell_baci/10b_spatial_fell_corrected.png": "04cdd4cd8224fe6aabc1040651ab794b9ddedac7ace2d57f5a1a0c73c696a090",
+    "outputs/10_clearfell_baci/10b_spatial_fell_raw.png": "4914f1aefca7e97b9b7d5382245a49703d5bba983d43cb8b88f6d7f934ad210b",
+    "outputs/10_clearfell_baci/10b_spatial_scrape_corrected.png": "23666cddf6d3b48c9a43204d62da16f9a8342b69c975d01f217ccfcc9a8893dc",
+    "outputs/10_clearfell_baci/10b_spatial_scrape_raw.png": "003b4dc68e4a49bb1f215ceff54de0a0c0846455b4b8f774650f40891b688e21",
     "outputs/10_clearfell_baci/10b_spatial_step_data.csv": "bfd412f433b134242ea554f413010dd28ff6814d10a43f8f925a314f87789fe1",
     "outputs/10_clearfell_baci/10c_report_numbers.csv": "8fa658df98a7187e242dae137814de13909df74021fdc4b7ad3f30d1e4094d01",
     "outputs/10_clearfell_baci/10d_01_summer_minima.csv": "74f4ef99ad475fcca0c763b0ef6ce8ff0d74d87f7394793ebdb10b969015ad43",
@@ -1882,8 +1927,8 @@
    "inputs_unresolved": [
     "3.geojson"
    ],
-   "seconds": 101.6,
-   "started": "2026-10-28T04:01:05",
+   "seconds": 120.3,
+   "started": "2026-11-05T11:59:26",
    "version": "1.2.0"
   }
  }

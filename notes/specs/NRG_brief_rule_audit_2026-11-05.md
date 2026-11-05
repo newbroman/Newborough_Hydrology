@@ -19,6 +19,50 @@ self-contained, plus what the phase-1/2 build learned.
 agent that monitors the chats. The page reports the state of the TREE and is live. This is the half
 that reports on the CHATS. T-137 is its register row.
 
+## Step one: merge `fix/hq-mobile-wrap` and record the publish
+
+The first piece of WORK, before `rule_audit.py` itself. **Before the code** below still comes first — register the chat, take `tools`, read the spec — because this merge lands in `tools/`.
+
+Martin, 2026-11-05: "merge branch fix/hq-mobile-wrap (hq_page 1.0.1: phone wrapping, the
+machine-lock card wording, the fired pill). It is already published to the HQ artifact from a
+public-only chat; after check_all, record it with
+`python3 tools/hq_page.py --published https://claude.ai/artifact/QV6MQcRvVx3eiDqgmFZCyt`"
+
+    git fetch -q origin && git merge --no-ff origin/fix/hq-mobile-wrap
+
+One commit, `97e94152`, one file, +28/-7, all of it `tools/hq_page.py`. Inspected 2026-11-05 from
+this chat: it is **rendering only**. `.cond`'s text column becomes `minmax(0, 1fr)` (a bare `1fr`
+has a min-content floor, so one long brief path widened the column past a phone screen), list items
+and flex rows get `min-width: 0` and `overflow-wrap: anywhere`, the `fired` pill gains the amber it
+was missing, and the machine-lock card now says what the lock MEANS — the machine whose copy of the
+ODTs is the working copy, which since D-299 a bridge chat takes under the L14's name — instead of
+reading as a laptop in use. It adds no data to the shell, which still renders from its own store,
+and `fmt()` (used by the new `since` rendering) is defined at line 398. `tools/` is J-3's claim, so
+this merge is in scope.
+
+**Then, after `check_all`, record it. `--published` RECORDS; it does not publish.** It stamps the
+url, the time and the local `__version__` into `working/.hq_artifact.json` and clears
+`working/.hq_publish_owed` — nothing is sent to claude.ai. Order matters: merge first, so the
+version it stamps is 1.0.1 and not 1.0.0.
+
+**Why the step exists at all, and it is worth understanding before running it.**
+`working/.hq_artifact.json` is in the PRIVATE repository. The chat that published the page holds
+only the public one, so it could publish and could not record. That is the whole of this step.
+
+**Do NOT republish the shell here.** The artifact already carries a version published after this
+session's (`1793880105-b284`, read 2026-11-05), so a republish needs the url read again and the
+edits merged onto that version first. The merge plus `--published` leaves the live page exactly as
+it is and only makes the repo's record true.
+
+**And a gap in `--check` that this exposes, which is reportable under §8 rather than something to
+fix here.** The check compares the RECORDED `shell_version` against the local `__version__`
+(`hq_page.py:779`). It never looks at the artifact. So right now, with the record at 1.0.0, the repo
+at 1.0.0 and the live page at 1.0.1, it prints `OK — is current (shell 1.0.0)`: it can see a repo
+that is ahead of the page and is blind to a page that is ahead of the repo. Between the merge and
+`--published` it will say "republish it", which is also wrong, because the page is already 1.0.1.
+Both readings are honest about what it measures and wrong about the world. Note it as a finding;
+widening it is not this job.
+
 ## What it is
 
 One new module, `tools/rule_audit.py`, that reads evidence and emits findings. **Each finding names
@@ -95,7 +139,7 @@ reading output, not by a gate — an unanchored `grep` that matched the selftest
 T-138 as DONE while the switch was off; `grep -c` exiting 1 on a count of zero, which `task_lint`
 correctly calls BROKEN rather than a pass; and two `check_all` sections both named "claims".
 
-## Before any code
+## Before the code (do this first of all)
 
 - Register the chat (compulsory in practice, D-301):
   `python3 tools/chat_register.py register --chat "<name>" --kind tools --claim tools

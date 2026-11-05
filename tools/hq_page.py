@@ -52,9 +52,17 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
 #   D1-D9 signed off). First issue: the nine bands, the start console, the job queue band, and a shell that
 #   carries no data because it renders from the db.
+# 1.0.1  # Hollingham (2026) — 2026-11-05. Martin, 11:59: the page "doesn't render nicely on the mobile
+#   claude app — jobs waiting doesn't wrap", and "it says the L14 still has a lock; the L14 isn't editing".
+#   (1) Long ids, brief paths and job conditions now wrap on a phone: .cond's text column is minmax(0,1fr)
+#   (a bare 1fr has a min-content floor, so one long path widened the column past the screen), list items
+#   and flex rows get min-width 0 and overflow-wrap anywhere. (2) The machine-lock card says what the lock
+#   means — the machine whose copy of the ODTs is newer than Drive, which since D-299 a bridge chat takes
+#   under the L14's name — rather than reading as a laptop in use. (3) The 'fired' job pill had no
+#   style; it takes the amber of 'ready'. Rendering only; no data change.
 
 import argparse
 import datetime
@@ -149,7 +157,7 @@ section.alert { border-color: var(--crit); border-left-width: 4px; }
 .card .meta { color: var(--ink-2); font-size: 0.8rem; margin-top: 5px; overflow-wrap: anywhere; }
 .pill { font: 500 0.72rem var(--mono); padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
 .p-ok { background: var(--ok-bg); color: var(--ok); }
-.p-warn, .p-active, .p-ready { background: var(--warn-bg); color: var(--warn); }
+.p-warn, .p-active, .p-ready, .p-fired { background: var(--warn-bg); color: var(--warn); }
 .p-crit, .p-broken { background: var(--crit-bg); color: var(--crit); }
 .p-quiet, .p-parked, .p-starting, .p-queued, .p-done, .p-skip { background: var(--quiet-bg); color: var(--ink-2); }
 table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
@@ -164,7 +172,12 @@ td.mono, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .empty { color: var(--ink-2); border: 1px dashed var(--rule); border-radius: 9px; padding: 15px;
   text-align: center; font-size: 0.92rem; }
 ul.plain { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
-ul.plain li { display: grid; gap: 2px; }
+ul.plain li { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+/* 1.0.1: long ids, paths and conditions wrap on a phone instead of pushing the column wide */
+.row { min-width: 0; } .row > * { min-width: 0; overflow-wrap: anywhere; }
+.mono, .muted { overflow-wrap: anywhere; }
+@media (max-width: 520px) { .tablewrap td, .tablewrap th { font-size: 0.82rem; }
+  a.btn { padding: 7px 11px; } }
 ol.how { margin: 0; padding-left: 1.15em; color: var(--ink-2); font-size: 0.92rem;
   display: grid; gap: 4px; }
 label.f { display: grid; gap: 4px; font: 500 0.74rem var(--body); letter-spacing: 0.08em;
@@ -182,7 +195,8 @@ textarea { min-height: 80px; resize: vertical; }
 .filters button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px;
   flex-wrap: wrap; }
-.cond { font: 400 0.82rem var(--mono); display: grid; grid-template-columns: 1.6rem 1fr; gap: 2px 6px; }
+.cond { font: 400 0.82rem var(--mono); display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 2px 6px; }
+.cond span { min-width: 0; overflow-wrap: anywhere; }
 .cond .y { color: var(--ok); } .cond .n { color: var(--warn); }
 .trend-closer { color: var(--ok); } .trend-further { color: var(--crit); }
 .trend-unchanged, .trend-new, .trend-changed { color: var(--ink-2); }
@@ -521,11 +535,18 @@ function renderBoard() {
     + (r.last_fetch ? '<br>fetched ' + esc(r.last_fetch) : '') + '</div></div>').join('') + '</div>';
 
   const ml = b.machine_lock || {};
+  // 1.0.1: the holder is a MACHINE, and since D-299 a chat working through the bridge takes it under
+  // the L14's name - so "held by the L14" reads as "the laptop is editing" when it means "the L14's copy
+  // of the ODTs is the current one". Say what it means, and who took it.
   h += '<div class="card"><h3>documents &mdash; machine lock</h3><div class="big">'
-    + esc(ml.unknown ? 'UNKNOWN' : (ml.holder || 'free')) + '</div><div class="meta">'
+    + esc(ml.unknown ? 'UNKNOWN' : (ml.holder ? 'current copy: ' + ml.holder : 'free')) + '</div><div class="meta">'
     + esc(ml.unknown ? 'the lock cannot be read from the session that ran HQ'
-          : (ml.holder ? 'since ' + ml.since + (ml.note ? ' — ' + ml.note : '')
-             : 'take it before editing any ODT')) + '</div></div>';
+          : (ml.holder ? 'since ' + fmt(ml.since) + (ml.note ? ' — ' + ml.note : '')
+             : 'take it before editing any ODT'))
+    + (ml.holder && !ml.unknown ? '<br>This names the machine whose copy of the ODTs is the working copy, '
+        + 'not a machine in use: a chat editing documents through the bridge takes it under the L14’s '
+        + 'name (D-299). It clears when that chat archives to Drive and releases it.' : '')
+    + '</div></div>';
 
   const cl = b.claims || {};
   const held = Object.entries(cl).filter(([, v]) => v && v !== 'UNKNOWN');

@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.85.0"  # Hollingham (2026) - 2026-11-05. Script 55 1.0.0 (the water-balance residual analysis):
+__version__ = "1.86.0"  # Hollingham (2026) - 2026-11-05. OUT_55_SHARE_FIG for Script 55 1.1.0:
+#   the §7.1 drainage share per cluster with the Stage I Sy bracket, asked for by Martin after reading 55_02. Additive.
+# 1.85.0  # Hollingham (2026) - 2026-11-05. Script 55 1.0.0 (the water-balance residual analysis):
 #   DIR_55 and its outputs; and OUT_18_WELL_SY_BY_WINDOW for Script 18 1.19.0's windowed mode (D8). Additive.
 # 1.84.0  # Hollingham (2026) - 2026-11-03. D-296 retirement pass: removed OUT_14B_PER_WELL_TRENDS, OUT_14B_CROSSING_COUNTS, OUT_14B_PER_WELL_FIG, OUT_14B_REPORT_NUMBERS
 #   (Script 14b 2.0.0); OUT_14_PER_WELL_EXTREMES, OUT_14_PER_WELL_BAND_COUNTS, OUT_14_PER_WELL_BANDS_FIG, OUT_14_WINTER_EXCEED (Script 14 1.14.0);
@@ -1757,6 +1759,7 @@ OUT_55_WATER_BALANCE      = DIR_55 / "55_04_water_balance.csv"             # C: 
 OUT_55_WINTER_LAW_ET      = DIR_55 / "55_05_winter_law_et.csv"             # D: winter law, ET backed out
 OUT_55_ET_MONTHLY         = DIR_55 / "55_06_et_monthly.csv"
 OUT_55_ET_VS_PET_FIG      = DIR_55 / "55_05_et_vs_pet.png"
+OUT_55_SHARE_FIG          = DIR_55 / "55_06_drainage_share.png"   # D: the §7.1 share, with the Stage I Sy bracket
 OUT_55_SENSITIVITY        = DIR_55 / "55_07_sensitivity.csv"               # E: CEH11, below-ground, Script 17 Sy
 OUT_55_INTERCEPTION_SCAN  = DIR_55 / "55_08_interception_scan.csv"         # F: forest closure scan
 OUT_55_SPLIT_SAMPLE       = DIR_55 / "55_09_split_sample.csv"              # G: Script 48's rule, windowed Sy

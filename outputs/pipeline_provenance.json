@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-05T12:59:44",
+ "generated": "2026-11-05T14:47:06",
  "orchestrator": "2.30.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1693,12 +1693,13 @@
    "emitted": {
     "outputs/55_water_balance_drainage/55_01_surplus_vs_dh.csv": "3f9ebf06e5264459975ae55aa6f4d2c86a077d8ddd81a41af992f675cf76a3bc",
     "outputs/55_water_balance_drainage/55_01_surplus_vs_dh.png": "f60b18a921b46b801e2511c5df9cd9bcb7c07f73991d4b06ba247695243d074d",
-    "outputs/55_water_balance_drainage/55_02_drainage_law.png": "b96886722e8e049a7e3d86f08034bc661455c06748611ef10df95280dc489562",
+    "outputs/55_water_balance_drainage/55_02_drainage_law.png": "d239a8a9fa8f3b8ab6fbb1cfcbe36f049d6474b5b7b1c11515be91459a327b19",
     "outputs/55_water_balance_drainage/55_02_drainage_law_per_well.csv": "8de3ceaf53de8ac3dd5379b8093eca57bb51d82fe9affa3f147690af87ea3e70",
     "outputs/55_water_balance_drainage/55_03_drainage_law_by_cluster.csv": "f4ddc1684f1721eda4950ce533ab34f26ca68863be090ef873e71bd6ef94adf4",
     "outputs/55_water_balance_drainage/55_04_water_balance.csv": "7457464d67c135b45e2f4172a9e838b731b42b8020d9ee2af440a24712648f4f",
     "outputs/55_water_balance_drainage/55_05_et_vs_pet.png": "ca2ef4654ac1eba441997db6bd35944a6709165f89d53f765849c3ec94a5153a",
     "outputs/55_water_balance_drainage/55_05_winter_law_et.csv": "b0d7c101a5d2974c2475c935a46577f1dcb178f0fa9420b86178d8cef090450c",
+    "outputs/55_water_balance_drainage/55_06_drainage_share.png": "f699401c63f2273546af445369a1fde7186b4aa4e0c31da21a4356210388a28a",
     "outputs/55_water_balance_drainage/55_06_et_monthly.csv": "d3120202f8cd7eb57ac48dfa94e4fc99bd49422b6174cbe668d95d19bc4774a3",
     "outputs/55_water_balance_drainage/55_07_sensitivity.csv": "c3b07501bc8dd214073ad25623cbe88cc6cb3c5cd6a886644670938f696e4d57",
     "outputs/55_water_balance_drainage/55_08_interception_scan.csv": "b35f057223e600beb234dcbb6dba0cb1d1cec8f19c507eabee824ce88cc33132",
@@ -1724,9 +1725,9 @@
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "540d93373f369f480e3b74d740d64d6c6b4dcf6b195e46704b5d06287f10cd6c"
    },
    "inputs_unresolved": [],
-   "seconds": 9.8,
-   "started": "2026-11-05T12:59:34",
-   "version": "1.0.0"
+   "seconds": 14.0,
+   "started": "2026-11-05T14:46:52",
+   "version": "1.1.0"
   },
   "run_09_scraping.py": {
    "emitted": {

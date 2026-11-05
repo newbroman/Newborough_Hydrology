@@ -70,7 +70,11 @@ Run directly:  python3 src/55_water_balance_drainage.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-11-05. First issue (spec
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-05, after Martin read 55_02: the §7.1 drainage
+#   share gets a figure of its own (55_06, per cluster with the Stage I Sy bracket, which sits ABOVE the
+#   published value because both bounds lie below the fluctuation-method Sy), and 55_02's right-panel
+#   label no longer runs off the canvas - a two-line rotated ylabel that tight_layout did not rescue.
+# 1.0.0  # Hollingham (2026) - 2026-11-05. First issue (spec
 #   NRG_spec_water_balance_diagnostic_2026-11-04, D1-D11; Martin 2026-11-04 "take a basic water balance ...
 #   and regress that residual on head to get a drainage rate"). Per-cluster and network statistics are
 #   per-well MEDIANS, matching the modelab_drainage_share_*_median_* fields this step is quoted beside
@@ -91,7 +95,7 @@ from utils import paths                                       # noqa: E402
 from utils.paths import (                                     # noqa: E402
     DIR_55, OUT_55_SURPLUS_VS_DH, OUT_55_SURPLUS_FIG, OUT_55_LAW_PER_WELL, OUT_55_LAW_BY_CLUSTER,
     OUT_55_LAW_FIG, OUT_55_WATER_BALANCE, OUT_55_WINTER_LAW_ET, OUT_55_ET_MONTHLY,
-    OUT_55_ET_VS_PET_FIG, OUT_55_SENSITIVITY, OUT_55_INTERCEPTION_SCAN, OUT_55_SPLIT_SAMPLE,
+    OUT_55_ET_VS_PET_FIG, OUT_55_SHARE_FIG, OUT_55_SENSITIVITY, OUT_55_INTERCEPTION_SCAN, OUT_55_SPLIT_SAMPLE,
     OUT_55_CCW_HINDCAST, OUT_55_DRY_LAW_PER_WELL, OUT_55_DRY_LAW_BY_CLUSTER,
     OUT_55_WINTER_SY_PER_WELL, OUT_55_WINTER_SY_CLUSTER, OUT_55_WINTER_SY_FIG,
     OUT_55_REPORT_NUMBERS, INT_CLIMATE, INT_WELLS_REFERENCE, INT_MASTER_DATA,
@@ -877,7 +881,11 @@ def plot_law(per: pd.DataFrame) -> None:
     ax = axes[1]
     w = per.groupby("Cluster")["threshold_beats_line"].agg(["sum", "size"])
     ax.bar([f"C{k}" for k in w.index], w["sum"] / w["size"], color="#2166ac")
-    ax.set_ylabel(f"wells where the threshold beats the line\n(ΔBIC < −{WB_BIC_MARGIN})")
+    # 1.1.0: this was a two-line ROTATED label, and tight_layout does not rescue it - the final
+    # letter ran off the top of the canvas (measured 2026-11-05: dark pixels in row 0). The
+    # condition moves to the title, where it has the width to sit on one line.
+    ax.set_ylabel("fraction of wells")
+    ax.set_title(f"threshold adopted (ΔBIC < −{WB_BIC_MARGIN})", fontsize=8)
     ax.set_ylim(0, 1)
     fig.tight_layout()
     fig.savefig(OUT_55_LAW_FIG)
@@ -900,6 +908,44 @@ def plot_et(dper: pd.DataFrame) -> None:
     ax.legend(fontsize=7, frameon=False)
     fig.tight_layout()
     fig.savefig(OUT_55_ET_VS_PET_FIG)
+    plt.close(fig)
+
+
+def plot_share(dper: pd.DataFrame, dby: pd.DataFrame, share_med: float) -> None:
+    """The §7.1 quantity itself: the drainage share of the annual loss per cluster, each with the
+    Stage I specific-yield bracket, against the network median.
+
+    The bracket is NOT a confidence interval and is not centred on the bar, so it is drawn as a
+    span rather than an error bar. The Stage I bounds mostly lie below the fluctuation-method Sy
+    (D-306), and a smaller Sy books less storage and so a larger drainage share: at C2, C3, C4 and
+    C5 the bracket therefore sits wholly ABOVE the published value (C3, for instance, 0.398-0.557
+    against 0.301). C1 is the exception and STRADDLES it, 0.209-0.608 against 0.472 - the same
+    cluster D-305 records as the one most sensitive to choices this balance cannot settle, so the
+    exception is where that reading predicts it.
+    """
+    plt = _plt()
+    fig, ax = plt.subplots(figsize=(5.6, 3.4), dpi=160)
+    ks = [int(k) for k in dby["Cluster"]]
+    x = np.arange(len(ks))
+    bars = [float(v) for v in dby["drainage_share_median"]]
+    ax.bar(x, bars, width=0.56, color="#2166ac", zorder=2, label="published (Script 18 Sy)")
+    for i, k in enumerate(ks):
+        g = dper[dper["Cluster"] == k]
+        lo, hi = g["drainage_share_sy_lo"].median(), g["drainage_share_sy_hi"].median()
+        if not (np.isfinite(lo) and np.isfinite(hi)):
+            continue
+        a, b = sorted((float(lo), float(hi)))
+        ax.plot([x[i], x[i]], [a, b], color="#b2182b", lw=5, solid_capstyle="butt",
+                alpha=0.55, zorder=3, label="Stage I Sy bracket" if i == 0 else None)
+    ax.axhline(share_med, color="0.25", lw=1.0, ls="--", zorder=4,
+               label=f"network median {share_med:.3f}")
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"C{k}" for k in ks])
+    ax.set_ylabel("drainage share of the annual loss")
+    ax.set_ylim(0, 1)
+    ax.legend(fontsize=7, frameon=False, loc="upper right")
+    fig.tight_layout()
+    fig.savefig(OUT_55_SHARE_FIG)
     plt.close(fig)
 
 
@@ -1065,6 +1111,7 @@ def main() -> int:
         plot_surplus(wells, cl, sy, a); saved(OUT_55_SURPLUS_FIG.name)
         plot_law(bper); saved(OUT_55_LAW_FIG.name)
         plot_et(dper); saved(OUT_55_ET_VS_PET_FIG.name)
+        plot_share(dper, dby, share_med); saved(OUT_55_SHARE_FIG.name)
         plot_winter_sy(iper); saved(OUT_55_WINTER_SY_FIG.name)
 
     phase(11, "Report numbers")

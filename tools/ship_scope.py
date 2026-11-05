@@ -31,6 +31,9 @@ HOW
   restore  Puts it all back after the ship. A file the ship itself changed meanwhile (a mirror the
            ship rebuilt, a file the pull brought in) is NOT overwritten: it stays in .ship_hold with
            a line saying so, and nothing is lost.
+  pathspec One `:(exclude,literal)<path>` per still-parked entry, for the ship to pass to
+           `git add`. 1.2.0, T-149: parking restored a file to its committed state and then left
+           that state undefended, so anything rewriting the file before the stage shipped anyway.
   resolve  Closes a hold `restore` could not finish, without pretending it restored it. It checks
            each unrestored item against the tree - identical bytes, or every parked line still
            occurring in the file - and refuses unless the work is accounted for (or --force). The
@@ -47,19 +50,24 @@ Usage:
   python3 tools/ship_scope.py park    --request FILE --id ID
   python3 tools/ship_scope.py restore --id ID
   python3 tools/ship_scope.py resolve --id ID --reason TEXT [--chat NAME] [--force]
+  python3 tools/ship_scope.py pathspec --id ID
   python3 tools/ship_scope.py check   [--chat NAME]
   python3 tools/ship_scope.py --selftest
 Exit: 0 go, 1 refused or stopped (the reason printed), 2 usage.
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-05. `resolve`: close a hold whose parked work the
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-05. `pathspec`: the paths a ship must keep out of
+#   its stage, so a parked file cannot be committed by whoever rewrites it next (T-149, ship 3dbe1626).
+# 1.1.0  # Hollingham (2026) — 2026-11-05. `resolve`: close a hold whose parked work the
 #   tree already carries. restore() rightly refuses to overwrite a moved file, but nothing could then clear the
 #   board's "not put back" line except deleting the evidence or editing the manifest by hand (T-149, D-301).
 
 import argparse
+import contextlib
 import datetime
 import hashlib
+import io
 import json
 import os
 import pathlib
@@ -419,6 +427,30 @@ def verify_entry(e: dict, files: pathlib.Path) -> dict:
     return {**v, "verdict": "contained", "missing": 0}
 
 
+def pathspec(sid: str) -> int:
+    """Print one git pathspec per still-parked entry, for the ship's stage to exclude.
+
+    T-149: `park` puts a held-back file back to its committed state, and then NOTHING defended that
+    state. nrg_git.sh staged with a bare `git add -A`, so whatever rewrote the file between the park
+    and the stage - the regenerate step, or another chat still editing its own claimed file - was
+    committed under the shipping chat's message. Ship 3dbe1626 took 14 lines of a parked Script 55
+    that way. Excluding the parked paths AT THE STAGE does not depend on the timing at all.
+
+    `literal` as well as `exclude`, so a path containing pathspec magic cannot be reinterpreted.
+    Silent and exit 0 when there is no hold, so the caller can run it unconditionally.
+    """
+    mf = HOLD / sid / "manifest.json"
+    if not mf.exists():
+        return 0
+    man = json.loads(mf.read_text(encoding="utf-8"))
+    if man.get("restored") or man.get("resolved"):
+        return 0          # put back, or closed by a person: nothing left to defend
+    for e in man.get("entries", []):
+        if not e.get("restored"):
+            print(f":(exclude,literal){e['path']}")
+    return 0
+
+
 def resolve(sid: str, reason: str | None, chat: str | None, force: bool) -> int:
     """Close a hold the tool itself could not restore, WITHOUT claiming it restored it.
 
@@ -568,6 +600,36 @@ def _selftest() -> int:
             if not json.loads((dd / ".ship_hold/t2/manifest.json").read_text())["resolved"]["forced"]:
                 print("FAIL: a forced resolve was not recorded as forced"); ok = False
 
+            # 1.2.0: pathspec, and the T-149 shape it defends against. Park, then let ANOTHER
+            # chat rewrite the parked file before the stage, and check that `git add -A` with these
+            # pathspecs cannot commit it - which is what ship 3dbe1626 did.
+            (dd / "src/a.py").write_text("a=4\n")
+            P5 = plan({"chat": "A", "claims": ["tools"], "paths": []})
+            if park(P5, "t3") != 0:
+                print("FAIL park t3"); ok = False
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                pathspec("t3")
+            specs = [l for l in buf.getvalue().splitlines() if l.strip()]
+            if sorted(specs) != [":(exclude,literal)src/a.py", ":(exclude,literal)src/new.py"]:
+                print("FAIL pathspec", specs); ok = False
+            (dd / "src/a.py").write_text("chat B writes again mid-ship\n")   # the T-149 moment
+            subprocess.run(["git", "-C", str(dd), "add", "-A", "--", ".", *specs], check=True)
+            staged = subprocess.run(["git", "-C", str(dd), "diff", "--cached", "--name-only"],
+                                    capture_output=True, text=True).stdout.split()
+            if "src/a.py" in staged:
+                print("FAIL: a parked file reached the stage (T-149)", staged); ok = False
+            subprocess.run(["git", "-C", str(dd), "reset", "-q"], check=True)
+            if restore("t3") == 0:
+                print("FAIL: restore did not refuse the rewritten file"); ok = False
+            if resolve("t3", "test", "A", True) != 0:
+                print("FAIL resolve t3"); ok = False
+            buf2 = io.StringIO()
+            with contextlib.redirect_stdout(buf2):
+                pathspec("t3")
+            if buf2.getvalue().strip():
+                print("FAIL: a resolved hold still excluded paths"); ok = False
+
             P2 = plan({})
             if not P2["stop"]:
                 print("FAIL: a claimless ship was not stopped while B holds pipeline"); ok = False
@@ -583,7 +645,7 @@ def _selftest() -> int:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
-    ap.add_argument("action", nargs="?", choices=["plan", "park", "restore", "resolve", "check"])
+    ap.add_argument("action", nargs="?", choices=["plan", "park", "restore", "resolve", "pathspec", "check"])
     ap.add_argument("--request", default=os.environ.get("NRG_SHIP_REQUEST"))
     ap.add_argument("--id", default=None)
     ap.add_argument("--chat", default=None)
@@ -602,6 +664,10 @@ def main() -> int:
         if not a.id:
             ap.error("restore needs --id")
         return restore(a.id)
+    if a.action == "pathspec":
+        if not a.id:
+            ap.error("pathspec needs --id")
+        return pathspec(a.id)
     if a.action == "resolve":
         if not a.id:
             ap.error("resolve needs --id")

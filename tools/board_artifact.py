@@ -32,7 +32,9 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-04 (D-300, R6(a), spec
+__version__ = "1.0.1"  # Hollingham (2026) — 2026-11-05. The machine-lock card reads UNKNOWN,
+#   not free, when the private store is absent (work_board 1.2.1).
+# 1.0.0  # Hollingham (2026) — 2026-11-04 (D-300, R6(a), spec
 #   NRG_handover_control_board_2026-11-04, signed off). First issue.
 
 import argparse
@@ -179,6 +181,9 @@ def render_html(B: dict) -> str:
         P.append(f'<div class="card"><h3>held</h3><div class="big">{esc(ml["holder"])}</div>'
                  f'<div class="meta">since {esc(ml.get("since"))}'
                  + (f'<br>{esc(ml.get("note"))}' if ml.get("note") else "") + '</div></div>')
+    elif ml.get("unknown"):   # 1.0.1: the lock is in the private store; absent is not free (D-300)
+        P.append('<div class="card"><h3>unknown</h3><div class="big">UNKNOWN</div>'
+                 '<div class="meta">the lock cannot be read from this session — a machine may hold it</div></div>')
     else:
         P.append('<div class="card"><h3>free</h3><div class="big">no machine holds the ODTs</div>'
                  '<div class="meta">take it before editing any ODT, so Drive cannot fall behind</div></div>')

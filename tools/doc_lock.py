@@ -91,7 +91,9 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-11-04 (D-300, spec NRG_handover_control_board_2026-11-04,
+__version__ = "1.4.1"  # Hollingham (2026) — 2026-11-05. --selftest 1g/1h/2d: the machine-lock
+#   line reads UNKNOWN with no private store and "free" with a store and no holder (work_board 1.2.1).
+# 1.4.0  # Hollingham (2026) - 2026-11-04 (D-300, spec NRG_handover_control_board_2026-11-04,
 #   signed off). The control board. R1: store_state() tells an ABSENT private store from a free claim; every claim
 #   reads UNKNOWN without it, `take` refuses with the attach lines, and check_write refuses doc:* while warning on
 #   pipeline/tools (NRG_NO_PRIVATE_STORE=1 to mean it). R4: `touched` is refreshed by every write that passes a
@@ -824,6 +826,12 @@ def _selftest() -> int:
         rc, out = _run(["work_board.py", "--no-probe"], t1)
         check("1e public-only: the board says ABSENT first", "PRIVATE STORE ABSENT" in out, out)
         check("1f public-only: the board does not say free", "    free:" not in out, out)
+        # 1.4.1: the machine-lock line is read from the SAME private file, so it read "free" while
+        # every claim above it read UNKNOWN. Found from a public-only clone at cd42999.
+        check("1g public-only: the machine-lock line reads UNKNOWN",
+              "documents (machine lock): UNKNOWN" in out, out)
+        check("1h public-only: the machine-lock line does not say free",
+              "machine lock): free" not in out, out)
 
         # 2. Both repositories, no lock yet: the first-ever take MUST still be possible.
         t2 = _mktree(T / "no_lock_yet", private=True, lock=None)
@@ -833,6 +841,11 @@ def _selftest() -> int:
         check("2b present-no-lock: the first take succeeds", rc == 0, out)
         held = json.loads((t2 / "working/DOCUMENT_LOCK.json").read_text())["claims"]["tools"]
         check("2c the take records mode and activity", bool(held.get("mode")) and bool(held.get("touched")), str(held))
+        # 1.4.1: the other half of 1g - with the store PRESENT and nobody holding the ODTs, the
+        # machine-lock line must still read "free". UNKNOWN is the absent store, not the empty lock.
+        rc, out = _run(["work_board.py", "--no-probe"], t2)
+        check("2d present-no-lock: the machine-lock line reads free",
+              "documents (machine lock): free" in out, out)
 
         # 3. Staleness is measured from ACTIVITY, not from `since` (R4).
         base = {"holder": None, "since": _ago(200), "note": "", "claims": {

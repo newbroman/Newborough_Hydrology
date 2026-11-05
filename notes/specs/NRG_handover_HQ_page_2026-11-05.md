@@ -1,6 +1,7 @@
 # Handover: NRG HQ, a landing page for every chat, with a daily rule-checking agent
 
-**Status:** HANDOVER for the chat holding `tools`. Design → Martin's sign-off → build. No code first.
+**Status:** HANDOVER for the chat holding `tools`. D1–D8 SIGNED OFF by Martin (2026-11-05 03:09) as
+recommended in §10. The builder still gives its own design for sign-off before code.
 **Written:** 2026-11-05 03:05, claude.ai chat session (Claude Opus 5.5), against public `main` at
 `cd42999` (the private repository was not attached to the writing session).
 **Builder:** a Claude Code session with BOTH repositories attached (notes/reference/SESSION_MODES.md),
@@ -149,7 +150,7 @@ Each check reads evidence; each finding names the commit, file, chat and rule.
 Recommend (a). `check_all` is under `tools`, so it is the builder's to change, and the per-section
 JSON also helps every chat that today greps the log for "FAIL".
 
-## 10. Decisions for Martin
+## 10. Decisions (signed off 03:09, all as recommended)
 
 - **D1 Name.** "NRG HQ", matching "MOTS HQ".
 - **D2 Kinds of work** in the start console: the five in §4.2, or a different list.

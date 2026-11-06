@@ -504,6 +504,18 @@ committed mirrors and does not edit ODTs.
   conversation and cannot replace one in place.
 - **Pushing is still Martin's call each time** (§7). A cloud session commits, shows
   the commit, and pushes on his yes; long work goes on a branch.
+- **THE PROJECT'S BRANCH IS `main`, AND A SESSION CHECKS WHICH BRANCH IT IS ON BEFORE
+  SHIPPING.** An agent harness may check the public tree out on a branch of its own
+  (`claude/<name>`), level with origin's `main`. That is not a route to GitHub: every
+  gate, mirror, published PDF and index count in this corpus reads `main`, and until
+  `nrg_git.sh` 1.32.0 the ship counted its commits against origin's `main` while a bare
+  `git push` followed the current branch's upstream — so on a branch tracking itself
+  the work went to the side branch and `Pushed.` printed with `main` unmoved
+  (measured 2026-11-06: 1 commit ahead before the push, still 1 ahead after it).
+  `push_if_ahead` now **refuses** off `main` and names its target `origin HEAD:main`,
+  as `tools/cloud_ship.sh` 1.0.1 already did privately. Ship from `main`
+  (`git checkout main && git merge --ff-only <branch>`); a branch kept on purpose is
+  pushed by hand, never by a ship.
 - **Unlike the bridge, a cloud process survives between tool calls**, so long runs
   (a full `--full --with-supplementary`, the film, a full `cite_check`) go in the
   background with their log tee'd to a file the session reads.
@@ -560,6 +572,8 @@ value corrections, the Methods Supplement and Supplementary Material — he has
 asked to be done and then reported, not asked about first.
 
 **Git: run it, but ASK BEFORE EVERY PUSH (2026-09-01, his instruction).**
+Check the branch first: the project ships from `main` and the ship refuses
+elsewhere (§4g).
 Commits over the bridge are fine — sweep the lock residue after each one. Pushing
 is his call each time, so show the command and wait. He may or may not have a
 credential helper populated; if not, hand him the one line.

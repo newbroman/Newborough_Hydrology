@@ -104,6 +104,7 @@ so firing it is the releasing session's last act, or HQ's next pass.
 ## Probe (run at the start of any session in doubt)
 
     echo "drive secret: ${NRG_RCLONE_CONF_B64:+set}"
+    git rev-parse --abbrev-ref HEAD        # must be main before any ship - see below
     soffice --version; python3 -c 'import uno; print("uno ok")'; pandoc --version | head -1
     python3 -c "import json;print(json.load(open('tools/environment.json'))['externals']['soffice'])"
     git push --dry-run origin HEAD:refs/heads/_probe
@@ -113,6 +114,22 @@ Measured 2026-11-03 in a claude.ai chat session: secret unset; LibreOffice
 repo; both repos attached with push access; `cloud_setup.sh` built the full tree
 and `nrg_env.sh` reported every recorded version and the BLAS pin matching; step 4
 reported NOT FETCHED, as expected without the secret.
+
+## Which branch is the tree on? (2026-11-06)
+
+**The project ships from `main`, and a harness branch is not a route to GitHub.** An agent
+harness may check the public tree out on a branch of its own — `claude/<name>`, level with
+origin's `main` — and the probe's first new line is there to catch it. Every gate, mirror,
+published PDF and index count in this corpus reads `main`. Until `nrg_git.sh` 1.32.0 the ship
+counted its commits against origin's `main` while a bare `git push` followed the current branch's
+upstream, so on a branch tracking itself the commits landed on the side branch and `Pushed.`
+printed with `main` unmoved: measured 2026-11-06 in a throwaway pair of repositories, 1 commit
+ahead of origin's `main` before the push and still 1 ahead after it, exit code 0 throughout.
+`push_if_ahead` now refuses off `main` and names its target `origin HEAD:main`, which
+`tools/cloud_ship.sh` 1.0.1 had already adopted privately on 2026-10-03 for the same reason.
+
+So: ship from `main` (`git checkout main && git merge --ff-only <branch>`). A branch kept on
+purpose — CLAUDE.md §4g's "long work goes on a branch" — is pushed by hand, never by a ship.
 
 ## `check_all` cannot go green without the ODTs
 

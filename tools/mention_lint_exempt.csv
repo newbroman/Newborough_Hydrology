@@ -1,2 +1,3 @@
 mention,reason
 30_c4_constrained_fit.py,"retired predecessor of 30_c4_drainage_identifiability.py (D-001); PIPELINE_README Phase 14 names it as the thing superseded, which is history not a claim"
+scratch/check_all_summary.json,"check_all writes it; scratch/ is gitignored, so it does not exist until a run has happened and no fresh clone has it. CLAUDE.md 4b names the path because reading that file is the instruction (check_all 1.34.0, D-301) - the sentence is right and the file is a run artefact, which is what this list is for. Added 2026-11-06 after the 06:41 HQ daily pass reported check_all FAIL on a fresh clone and this tree read green only because its scratch/ was warm; reproduced here by moving the file aside."

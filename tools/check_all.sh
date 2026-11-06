@@ -18,8 +18,14 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.36.0 - 2026-11-05
+# VERSION 1.37.0 - 2026-11-06
 # CHANGELOG
+#   1.37.0 (2026-11-06, T-156): the claims section SHOWS the doc_lock selftest's failing lines.
+#     The call was `--selftest >/dev/null || echo FAIL`, so a red printed one bare line and
+#     discarded every line naming the assertion - the same defect as the `tail -1` at line 378
+#     that 1.36.0 removed the day before. It cost a session the whole NRG_DOC_LOCK_HOLDER
+#     diagnosis: the ship reported "FAIL doc_lock selftest" and nothing else. Negative-tested
+#     with a stub that fails and prints two FAIL lines: both are shown, indented, and rc=1.
 #   1.36.0 (2026-11-05): the model-form section GATES. form_label_lint was advisory from 1.32.0
 #     "until the 2026-10-28 edit set lands"; it has landed, and the suppression had been printing
 #     FAIL - 6 field(s) without a form into a section whose verdict read OK. Martin 2026-11-05:
@@ -596,7 +602,17 @@ python3 tools/work_board.py --gate || true
 python3 tools/board_artifact.py --check || true          # 1.33.0: advisory - only a session can republish
 python3 tools/register_io.py --selftest >/dev/null || { echo "  FAIL register_io selftest"; rc=1; }
 python3 tools/ship_scope.py --selftest >/dev/null || { echo "  FAIL ship_scope selftest"; rc=1; }
-python3 tools/doc_lock.py --selftest >/dev/null || { echo "  FAIL doc_lock selftest"; rc=1; }
+# 2026-11-06 (T-156): the detail is SHOWN on failure. This was `>/dev/null || echo FAIL`,
+# so a red printed one bare line and threw away every line naming the assertion that broke -
+# the same defect as the `tail -1` this file carried at line 378 until 1.36.0 (changelog
+# 2026-11-05j). It cost a session the whole of the NRG_DOC_LOCK_HOLDER diagnosis on
+# 2026-11-06: the ship said "FAIL doc_lock selftest" and nothing else, while the selftest
+# itself names 8a and 8b. A gate that knows what is wrong must say it.
+_dl_out="$(python3 tools/doc_lock.py --selftest 2>&1)" || {
+  echo "  FAIL doc_lock selftest"
+  printf '%s\n' "$_dl_out" | grep -E "FAIL|REFUSED" | sed 's/^/    /'
+  rc=1
+}
 # 1.34.0 (D-301): the two registers NRG HQ runs on. Their self-tests are gated for the same reason
 # the three above are - they are what keeps one chat's work out of another's - and each register's
 # own --check lands on the day it is written (§4d: a generated artefact with no --check rots).

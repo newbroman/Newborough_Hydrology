@@ -60,8 +60,12 @@ import register_io                                                    # noqa: E4
 import doc_lock                                                       # noqa: E402
 
 REGISTER = REPO / "working/chat_register.csv"
+# `hq_row` (2026-11-06, T-152): the id of the chats row the HQ page seeded when Martin started this
+# chat from its launcher, passed in by `--adopt`. hq_snapshot writes the chat AT that id, so the
+# registration OVERWRITES the seed instead of adding a second document. Empty for a chat started by
+# hand, which has no seeded row - and that case falls back to the slug (see hq_snapshot.db_ops).
 FIELDS = ["chat", "kind", "claim", "mode", "link", "opened", "touched", "status", "purpose",
-          "outcome", "registered_by"]
+          "outcome", "registered_by", "hq_row"]
 
 # The five kinds of work the HQ start console offers (spec §4.2). A kind outside this list is not
 # refused - a chat that does something new should say so rather than pick the nearest wrong word -
@@ -110,7 +114,7 @@ def is_registered(chat: str | None) -> bool:
 
 
 def register(chat: str, kind: str, claim: str, purpose: str, link: str, status: str,
-             by: str | None = None) -> int:
+             by: str | None = None, hq_row: str = "") -> int:
     """`by` is the chat doing the registering. When it is not the chat being registered the row is
     SEEDED, not self-reported, and says so - which matters, because "every chat registers itself"
     is the rule the HQ agent audits, and a row written on another chat's behalf is not evidence of
@@ -127,7 +131,7 @@ def register(chat: str, kind: str, claim: str, purpose: str, link: str, status: 
     else:
         what = "updated"
     r.update({k: v for k, v in (("kind", kind), ("claim", claim), ("purpose", purpose),
-                                ("link", link), ("status", status)) if v})
+                                ("link", link), ("status", status), ("hq_row", hq_row)) if v})
     me = (by or doc_lock.chat_id() or chat).strip()
     seeded = me != chat.strip()
     if not seeded or not r.get("mode"):
@@ -329,6 +333,10 @@ def main() -> int:
     ap.add_argument("--kind", default="")
     ap.add_argument("--claim", default="")
     ap.add_argument("--purpose", default="")
+    ap.add_argument("--adopt", default="", metavar="HQ_ROW",
+                    help="the chats row id the HQ page seeded for this chat (T-152): the registration "
+                         "then overwrites that row instead of creating a second one. The HQ brief "
+                         "carries it; omit it for a chat started by hand.")
     ap.add_argument("--outcome", default="")
     ap.add_argument("--link", default=os.environ.get("NRG_SESSION_LINK", ""))
     ap.add_argument("--by", default=os.environ.get("NRG_CHAT"),
@@ -350,7 +358,7 @@ def main() -> int:
         if not a.chat:
             print("  REFUSED — --chat (or NRG_CHAT) names the chat", file=sys.stderr)
             return 1
-        return register(a.chat, a.kind, a.claim, a.purpose, a.link, "active", a.by)
+        return register(a.chat, a.kind, a.claim, a.purpose, a.link, "active", a.by, a.adopt)
     if a.cmd == "status":
         if not a.chat or not a.set_to:
             print("  REFUSED — --chat and --set are both needed", file=sys.stderr)

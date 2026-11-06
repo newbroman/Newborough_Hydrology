@@ -37,13 +37,29 @@ Usage:
 #     measured sheet. This is the canonical geometry basis (matches seed_living_hub)
 #     and recovers wells the master lacks/names differently (e.g. ceh40-42, FE1-4,
 #     the forest/edge/warren short labels). Depth-below-ground stays upstand-depth.
+# v1.3.0 (2026-11-06)  T-150
+#   * read_logger accepts the CURRENT logger export. It exports depth_bpt_cm,
+#     depth_bpt_m (below pipe top) and depth_bgl_m (below ground); read_logger
+#     looked only for depth_m / depth, so col() returned None and the parse died
+#     with `KeyError: None` on the first row. Measured 2026-11-06 on the 03 Nov
+#     round, whose check had to be run on a shimmed copy. `depth` stays BELOW
+#     PIPE TOP throughout, because wte = pipe_top - depth downstream; a missing
+#     depth column now raises with the names it looked for instead of KeyError.
+#   * depth_bgl_m is carried as dfs_logger and cross-checked against our own
+#     upstand - depth, with its own QA section. NOTE THE SIGN: our dfs is negative
+#     below ground, the logger's depth_bgl_m positive, so the test is dfs == -bgl.
+#     Written the wrong way round first, which reported all 72 wells as failures
+#     when every one agreed exactly - a check that cries wolf is worse than none. This is the check that finally
+#     uses Martin's TWO independent captures of each reading against each other;
+#     it catches a stale upstand or geometry in the logger app (the 03 Nov round
+#     had four such wells: CEH42, CEH39, CEH36, 1D) without touching the depth.
 # v1.2.1 (2026-07-04)
 #   * ODS write is now optional (--no-ods) and best-effort: guarded so a missing
 #     LibreOffice/uno module or a headless failure no longer aborts the run with
 #     a traceback. QA and the hub append are written first, so they always land.
 #     The master normally auto-populates from its recordsheet link, so the ODS
 #     copy is incidental for the forecaster/hub workflow.
-__version__ = "1.2.1"
+__version__ = "1.3.0"
 
 import argparse, os, re, sys, math, subprocess, time, datetime as dt
 import pandas as pd
@@ -125,13 +141,23 @@ def read_logger(path):
         for n in names:
             if n in cols: return cols[n]
         return None
-    c_id = col('wellid', 'well', 'id'); c_d = col('depth_m', 'depth')
+    c_id = col('wellid', 'well', 'id')
+    # 1.3.0 (T-150): the logger exports depth_bpt_m (below pipe top) and
+    # depth_bgl_m (below ground); older files carried depth_m. `depth` here is
+    # ALWAYS below pipe top, because wte = pipe_top - depth downstream.
+    c_d = col('depth_m', 'depth', 'depth_bpt_m')
+    c_bgl = col('depth_bgl_m')
     c_w = col('wte_maod', 'wte'); c_dt = col('date', 'datedisplay')
+    if c_d is None:
+        raise ValueError(
+            f"no depth-below-pipe-top column in {path}; looked for "
+            f"depth_m / depth / depth_bpt_m, found {sorted(cols)}")
     out = {}
     for _, r in df.iterrows():
         w = NORM(r[c_id]); depth = _num(r[c_d])
         if not w or depth is None: continue
         out[w] = dict(depth=depth, wte_logger=_num(r[c_w]) if c_w else None,
+                      dfs_logger=_num(r[c_bgl]) if c_bgl else None,
                       date=r[c_dt] if c_dt else None, raw=str(r[c_id]).strip())
     dates = [pd.to_datetime(v['date']) for v in out.values() if v['date']]
     coldate = max(dates) if dates else None
@@ -156,7 +182,8 @@ def read_recordsheet(path, target_month):
         if not w or w == 'nan': continue
         cm = _num(d.iat[ri, col])
         if cm is None: continue
-        out[w] = dict(depth=cm / 100.0, wte_logger=None, date=coldate, raw=str(d.iat[ri, 0]).strip())
+        out[w] = dict(depth=cm / 100.0, wte_logger=None, dfs_logger=None,
+                      date=coldate, raw=str(d.iat[ri, 0]).strip())
     return out, coldate
 
 def load_metadata(path):
@@ -193,7 +220,8 @@ def load_metadata(path):
 def compute(master, readings, tol, outlier):
     geom, prev = master['geom'], master['prev_wte']
     vals = {}          # well -> dict(depth, wte, dfs)
-    qa = dict(unmatched=[], no_geometry=[], crosscheck=[], outliers=[])
+    qa = dict(unmatched=[], no_geometry=[], crosscheck=[], dfs_crosscheck=[],
+              outliers=[])
     for w, r in readings.items():
         g = geom.get(w)
         if g is None:
@@ -206,6 +234,17 @@ def compute(master, readings, tol, outlier):
         vals[w] = dict(depth=round(depth, 3), wte=wte, dfs=dfs, raw=r['raw'])
         if r['wte_logger'] is not None and abs(wte - r['wte_logger']) > tol:
             qa['crosscheck'].append((r['raw'], wte, r['wte_logger'], round(wte - r['wte_logger'], 3)))
+        # 1.3.0: the logger's own depth-below-ground against ours. This is the
+        # one check that uses Martin's two independent captures of the same
+        # reading against each other (2026-11-06). It catches a wrong UPSTAND or
+        # a stale geometry in the logger app without touching the depth itself.
+        # SIGN: our dfs is negative below ground (upstand - depth); the logger's
+        # depth_bgl_m is positive below ground. So they agree when dfs == -bgl.
+        # Compared the wrong way round on first writing, which made all 72 wells
+        # "fail" when every one of them agreed exactly (2026-11-06).
+        if r.get('dfs_logger') is not None and abs(dfs + r['dfs_logger']) > tol:
+            qa['dfs_crosscheck'].append(
+                (r['raw'], dfs, -r['dfs_logger'], round(dfs + r['dfs_logger'], 3)))
         if w in prev and abs(wte - prev[w]) > outlier:
             qa['outliers'].append((r['raw'], prev[w], wte, round(wte - prev[w], 3)))
     read_wells = set(readings)
@@ -223,6 +262,9 @@ def write_qa(qa, path, month, coldate, n_written):
     sec("Unmatched — in input, no master row (add these)", qa['unmatched'], lambda x: f"- {x}")
     sec("No geometry in master (cannot compute)", qa['no_geometry'], lambda x: f"- {x}")
     sec("Cross-check fails (computed wte vs logger wte > tol)", qa['crosscheck'],
+        lambda x: f"- {x[0]}: computed {x[1]}  logger {x[2]}  diff {x[3]} m")
+    sec("Depth-below-ground cross-check fails (ours vs logger depth_bgl_m > tol)",
+        qa.get('dfs_crosscheck', []),
         lambda x: f"- {x[0]}: computed {x[1]}  logger {x[2]}  diff {x[3]} m")
     sec("Outliers (month-over-month change beyond threshold)", qa['outliers'],
         lambda x: f"- {x[0]}: {x[1]} -> {x[2]} m (change {x[3]} m)")

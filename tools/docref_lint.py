@@ -105,6 +105,39 @@ EXEMPT = {
     # a generic pointer, not a document with that name; the project keeps
     # dated deltas in changelogs/ (T-10 ruling, 2026-09-04)
     "CHANGELOG.md",
+    # ── 2026-11-06, T-154 (Martin's ruling: exempt with reasons, and explicitly NOT
+    # "treat any untracked path as out of scope"). check_all section 37 was red in
+    # every fresh clone. All five name working documents kept BESIDE the project and
+    # never in it - the class section 6 of CLAUDE.md describes - cited from records
+    # that must not be rewritten: six of the eight citations are in DECISION_LOG.md
+    # and two in dated notes/findings/ documents, so repointing would falsify a dated
+    # record (CLAUDE.md section 3).
+    #
+    # Session working files written under the gitignored scratch/ (.gitignore:73) by
+    # the audit each one reports, and cited BY that audit's own dated record. They
+    # were never committed artefacts and were never meant to be: the finding is the
+    # committed thing, the scratch file was its workings.
+    "scratch/proof/gate_coverage_audit.md", "scratch/proof/unsourced_trace_24l.md",
+    "scratch/resolve_martin_2026-09-29.md",
+    #
+    # Both of the next two are gitignored by decision 2026-08-24 (.gitignore lines
+    # 152-153, in the block headed "Working records: private by decision", whose own
+    # comment ends "These stay on disk and out of git") - on disk and maintained,
+    # deliberately untracked in BOTH halves, since the private repo's exclude is /*
+    # plus two re-includes; cited from a dated record that was true when written.
+    #
+    # Checked with `git check-ignore -v <path>`, which is the question to ask first:
+    # absence from history is not absence from the project. A 2026-11-06 pass instead
+    # deepened the clone to 1023 commits, found neither path in any commit, and read
+    # that as "written beside the project and never in it" (CLAUDE.md section 6). The
+    # facts were right and the cause was wrong - they appear in no commit because a
+    # decision put them in .gitignore. Same shape as section 5's rule about
+    # citation_index: find the occurrence and read its header before believing the
+    # report. The 2026-08-23 log entry calling PAPER2_EDITS.md "kept and maintained"
+    # PREDATES that ignore decision by one day, says nothing about the repository,
+    # and is true as written - so it gets no Note (Martin 2026-11-06).
+    "PAPER2_EDITS.md", "docs/papers/paper_2/PAPER2_EDITS.md",
+    "living/HANDOVER_pipeline_forecaster_regen_2026-07-04.md",
 }
 
 # A reference inside a URL is a link to someone else's repository, not a
@@ -295,6 +328,20 @@ def check_signposts() -> int:
                     continue
                 # a glob or a pattern is not a claim that a file is there
                 if any(c in path for c in "*?["):
+                    continue
+                # 2026-11-06 (T-154): a path under a directory this linter ALREADY skips
+                # is not project content, so a signpost naming it is not a pointer to a
+                # document. SKIP_PARTS is a fixed, named list - `_audit_tmp`, `venv`,
+                # `_to_delete`, `node_modules` and the graveyards - so this is not the
+                # rejected rule "an untracked path is out of scope" (Martin 2026-11-06:
+                # a path missing because nobody committed it is indistinguishable from a
+                # gitignored one, so that rule would silence the fault the gate exists
+                # for). It is the narrower statement the linter already makes elsewhere.
+                # The two it clears: MACHINE_SETUP.md's "What is deliberately not
+                # reproduced" section, whose whole point is that `_audit_tmp/` is absent
+                # here, and CLAUDE.md's `venv/.bridge/`, which bridge_py.sh creates on
+                # the bridge VM and no other machine has.
+                if set(pathlib.Path(path).parts) & SKIP_PARTS:
                     continue
                 faults.append((rel, n, path))
     if faults:

@@ -91,7 +91,11 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
+__version__ = "1.5.1"  # Hollingham (2026) — 2026-11-06 (T-155). _run() strips NRG_DOC_LOCK_HOLDER and
+#   NRG_DOC_LOCK_FILE, so the selftest is not decided by a caller's override: cloud_ship.sh exports
+#   NRG_DOC_LOCK_HOLDER="cloud" for the whole run and it reached this selftest through nrg_git.sh --ship
+#   and check_all, failing 8a/8b and so every cloud ship since check_all 1.33.0 gated it (2026-11-04).
+# "1.5.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
 #   signed off). `take` tells a chat that is not in the chat register, and REFUSES it once REGISTRATION_REQUIRED is
 #   flipped - which is the whole of phase 4 (T-138). `release` prints the queued jobs it made ready and the line that
 #   fires each: a job fires when something is already running, and a release is one of the two such moments.
@@ -828,6 +832,19 @@ def _run(args: list[str], tree: pathlib.Path, **env_extra) -> tuple[int, str]:
     env.pop("NRG_CHAT", None)
     env.pop("NRG_NO_PRIVATE_STORE", None)
     env.pop("NRG_SESSION_LINK", None)
+    # 2026-11-06 (T-155): the two LOCK overrides, for the same reason as the three above - a
+    # selftest declares its own world, and anything it inherits decides a test it did not set.
+    # tools/cloud_ship.sh:59 exports NRG_DOC_LOCK_HOLDER="cloud" for the whole run, correctly:
+    # during a cloud ship the lock IS held as "cloud". That export reaches nrg_git.sh --ship at
+    # its line 147, then check_all, then this selftest, where _who() honours the override before
+    # consulting .git/nrg_machine - so tests 8a and 8b could never reach the D-299 path they
+    # assert and both failed. check_all 1.33.0 made this selftest a GATE on 2026-11-04, so from
+    # that day every cloud ship failed at section 31 with no cloud ship in between to notice.
+    # Measured 2026-11-06: selftest exit 0 bare, exit 1 under the override, 8a and 8b the only
+    # failures. Fixed here rather than in cloud_ship because the caller is right and a selftest
+    # that reads ambient state is wrong whoever set it.
+    env.pop("NRG_DOC_LOCK_HOLDER", None)
+    env.pop("NRG_DOC_LOCK_FILE", None)
     env.update({k: v for k, v in env_extra.items() if v is not None})
     for k, v in env_extra.items():
         if v is None:

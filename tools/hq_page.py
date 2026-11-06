@@ -52,6 +52,13 @@ Usage
 """
 from __future__ import annotations
 
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-06 (T-152, T-153, Martin's rulings).
+#   T-153: ofRun() filters BOTH findings bands on the snapshot's `generated`, so a superseded finding
+#   leaves the band without leaving the store - a read-time filter, never a delete, because pruning a
+#   findings store is rewriting a dated record. Fixing only renderNeeds() would have moved the noise
+#   into renderNoted(). No-snapshot fallback shows everything rather than a false all-clear.
+#   T-152: the launcher mints the seeded row id BEFORE the brief and quotes it, so the new chat's
+#   `chat_register register --adopt <id>` overwrites that row instead of opening a second one.
 __version__ = "1.1.0"  # Hollingham (2026) — 2026-11-05 (T-142, Martin's call: "a band of its own").
 #   renderNoted() renders the note-level findings rule_audit writes - every finding with serious === false,
 #   which renderNeeds() filters out and nothing else read, so they were stored and displayed nowhere.
@@ -426,9 +433,40 @@ function renderDigest() {
     + 'repository.' + (s.historyRuns ? '  ' + s.historyRuns + ' run(s) of history.' : '');
 }
 
+/* ── T-153: a finding belongs to the run that wrote it ───────────────────────────────────────
+   Both bands below render the WHOLE findings collection filtered only on `serious`, and db_ops
+   only ever set()s - it deletes from neither. A finding id keyed by timestamp (gate-verdict:<at>)
+   therefore adds a row every run and no row is ever retired, so superseded verdicts sat in
+   "Needs you" beside current ones, distinguishable only by reading each row's `at`. Measured
+   2026-11-06: the store held a 3-red verdict and newly-red rows for sections 20 and 42 after
+   both had gone green.
+
+   Martin's ruling 2026-11-06: filter at READ time on the snapshot's `generated`, and do NOT
+   prune in db_ops. A delete is irreversible and throws away the history working/hq_history.json
+   exists to carry, and - the deciding reason - PRUNING A FINDINGS STORE IS REWRITING A DATED
+   RECORD, which this project forbids outright. A read-time filter is reversible, leaves the
+   store whole, and goes in where both bands already read, so ONE helper covers both. Fixing
+   only "Needs you" would have moved the noise into "Noted" (T-142), not removed it.
+
+   The no-snapshot fallback is deliberate: before meta/snapshot arrives, SNAP.generated is
+   undefined and filtering on it would empty BOTH bands, which reads as "nothing needs you" -
+   a false all-clear, the one failure mode worse than the noise. */
+function ofRun(pred) {
+  const rows = FIND.filter(pred);
+  const g = SNAP.generated;
+  if (!g) return { rows: rows, hidden: 0 };
+  const live = rows.filter(f => f.generated === g);
+  return { rows: live, hidden: rows.length - live.length };
+}
+function olderLine(n) {
+  return n ? '<div class="meta">' + n + ' finding(s) from earlier runs are not shown; they stay '
+    + 'in the store and in the private history.</div>' : '';
+}
+
 /* ── needs you ───────────────────────────────────────────────────────────────────────────── */
 function renderNeeds() {
-  const rows = FIND.filter(f => f.serious !== false);
+  const got = ofRun(f => f.serious !== false);
+  const rows = got.rows;
   const red = (SNAP.gateNewlyRed || []);
   const has = rows.length || red.length;
   $('#needsSec').hidden = !has;
@@ -441,7 +479,7 @@ function renderNeeds() {
     + (f.chat ? ' ' + pill(f.chat, 'warn') : '')
     + '<span class="muted">' + esc(f.detail || '') + '</span>'
     + (f.evidence ? '<span class="mono muted">' + esc(f.evidence) + '</span>' : '')
-    + '</li>').join('') + '</ul>';
+    + '</li>').join('') + '</ul>' + olderLine(got.hidden);
   $('#needs').innerHTML = h;
 }
 
@@ -452,7 +490,8 @@ function renderNeeds() {
    Martin's call, 2026-11-05: a band of its own. Deliberately NOT a sub-list under "Needs you":
    that band means something needs him, and a note does not. */
 function renderNoted() {
-  const rows = FIND.filter(f => f.serious === false);
+  const got = ofRun(f => f.serious === false);   /* T-153: the same run filter as "Needs you" */
+  const rows = got.rows;
   $('#notedSec').hidden = !rows.length;
   if (!rows.length) return;
   $('#noted').innerHTML = '<ul class="plain">' + rows.map(f =>
@@ -460,7 +499,7 @@ function renderNoted() {
     + (f.chat ? ' ' + pill(f.chat, 'quiet') : '')
     + '<span class="muted">' + esc(f.detail || '') + '</span>'
     + (f.evidence ? '<span class="mono muted">' + esc(f.evidence) + '</span>' : '')
-    + '</li>').join('') + '</ul>';
+    + '</li>').join('') + '</ul>' + olderLine(got.hidden);
 }
 
 /* ── the job queue, condition by condition ───────────────────────────────────────────────── */
@@ -654,8 +693,16 @@ function renderFilters() {
   document.querySelectorAll('#filters button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.f === filter)));
 }
-function makeBrief(what) {
-  return 'New NRG chat: ' + kind + '.\\n\\n' + what.trim() + '\\n\\n' + BRIEFS[kind] + '\\n\\n' + RULES;
+/* T-152: the brief carries the id of the row this launcher is about to seed, so step 3's
+   register command ADOPTS that row instead of creating a second one. The id is made here, before
+   the brief, because the brief has to quote it. A chat started by hand never sees this line and
+   registers without --adopt, which hq_snapshot falls back to the slug for. */
+function makeBrief(what, rowId) {
+  return 'New NRG chat: ' + kind + '.\\n\\n' + what.trim() + '\\n\\n' + BRIEFS[kind] + '\\n\\n'
+    + (rowId ? 'Add --adopt ' + rowId + ' to the chat_register.py register command in step 3, so this\\n'
+               + 'chat adopts the row HQ has already opened for it rather than creating a second one\\n'
+               + '(T-152). Everything else in the setup is unchanged.\\n\\n' : '')
+    + RULES;
 }
 
 document.addEventListener('click', e => {
@@ -672,7 +719,9 @@ $('#startForm').addEventListener('submit', async e => {
   const msg = $('#startMsg');
   if (!what.trim()) { $('#what').focus(); msg.hidden = false;
     msg.textContent = 'Say in a line what the chat is for.'; return; }
-  const brief = makeBrief(what);
+  /* the seeded row's id is made first: the brief quotes it (T-152) and the write below uses it */
+  const rowId = db ? 'starting-' + Date.now().toString(36) : '';
+  const brief = makeBrief(what, rowId);
   $('#brief').value = brief;
   let copied = false;
   try { await navigator.clipboard.writeText(brief); copied = true; } catch (_) {}
@@ -689,7 +738,7 @@ $('#startForm').addEventListener('submit', async e => {
     : 'Copy the brief below, then start a new chat in the project and paste it.')
     + (href && href !== '#' ? '' : ' (No project link recorded yet — HQ adds it on its next pass.)');
   if (db) {
-    const id = 'starting-' + Date.now().toString(36);
+    const id = rowId;
     try {
       await db.collection('chats').doc(id).set({
         chat: what.trim().split('\\n')[0].slice(0, 70), kind: KINDS[kind], claim: '',

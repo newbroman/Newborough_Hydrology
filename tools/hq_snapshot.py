@@ -396,7 +396,37 @@ def db_ops(payload: dict) -> list[dict]:
             "generated": payload["generated"],
         })
     for c in (payload.get("chats") or {}).get("chats") or []:
-        put("chats", _slug(c.get("chat", "")), {
+        # T-152: a chat started from the HQ launcher carries the id of the row the page seeded
+        # (chat_register --adopt, column hq_row). Writing the registration AT THAT ID overwrites
+        # the seed rather than adding a second document, which is what made the "who is working on
+        # what" band overstate the live chats - nothing linked the row HQ seeded to the row the
+        # chat registered, because the chat picks its own name. Measured 2026-11-06: 5 unresolvable
+        # `starting-` rows, one chat seeded three times inside sixteen seconds.
+        #
+        # AN EMPTY hq_row FALLS BACK TO THE SLUG, and that line is not incidental: a chat started
+        # by hand has no seeded row and no hq_row, so writing only at hq_row would give it NO
+        # document at all - a worse bug than the one this fixes, and invisible in exactly the same
+        # way (Martin 2026-11-06).
+        #
+        # The seeding stays visible, as a property of the chat rather than a stranded row: hqRow
+        # keeps the id, seededBy records that the launcher opened it, and seededAt is recovered
+        # from the id itself, which is 'starting-' + Date.now() in base 36.
+        seed = (c.get("hq_row") or "").strip()
+        at = ""
+        if seed.startswith("starting-"):
+            try:
+                at = datetime.datetime.fromtimestamp(
+                    int(seed[len("starting-"):], 36) / 1000, datetime.timezone.utc
+                ).strftime("%Y-%m-%dT%H:%M:%SZ")
+            except (ValueError, OSError, OverflowError):
+                at = ""
+        # `if seed else`, NOT `_slug(seed) or ...`: _slug("") returns the placeholder "x", which is
+        # TRUTHY, so the or-form never reached the fallback and wrote EVERY hand-started chat to one
+        # shared document called "x". Caught 2026-11-06 by asserting the id rather than that a
+        # document existed - which is the whole point of the fallback having its own test.
+        put("chats", _slug(seed) if seed else _slug(c.get("chat", "")), {
+            "hqRow": seed, "seededBy": "the HQ page" if seed else "",
+            "seededAt": at,
             "chat": c.get("chat"), "kind": c.get("kind"), "claim": c.get("claim"),
             "mode": c.get("mode"), "link": c.get("link"), "status": c.get("status"),
             "purpose": c.get("purpose"), "outcome": c.get("outcome"),

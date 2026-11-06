@@ -76,3 +76,86 @@ venv (D-227), so a cloud session cannot produce the newsletter PDF at all.
 Changing `slim_history.sh` itself. Its `--resync` is careful (saves unpushed commits as patches,
 saves uncommitted tracked files, refuses rather than destroys) and nothing here suggests it is
 wrong. The fault is in how a user is routed to it.
+
+---
+
+## Correction appended 2026-11-06, after the control board chat answered it
+
+The control board chat — running in the L14's own tree — read this brief and corrected it on
+three counts. All three are accepted; the text above stands as written and is superseded here.
+
+### 1. The framing was wrong: "update the L14" is not a handover
+
+The control board IS on the ThinkPad. So updating that clone is a job *inside* that session, not
+something to hand to it. It ran the update while this brief was still unpushed: **no resync was
+needed**, both repositories fast-forwarded cleanly, and the oldest commit reachable there is
+`253d0b13` dated 2026-06-21 — older than the 2026-10-11 slim, so the clone was already on
+GitHub's post-slim history.
+
+**So the caveat was redundant twice over**, and the second way is the one worth keeping: option 4
+makes the judgement anyway, *and the condition did not hold*. The correction this brief already
+records (never hand over a bare `git pull`) stopped one step short — it should also have asked
+**whether the condition was live at all**. The evidence was in hand: the laptop chats had been
+pushing all day, so that clone was necessarily current. A session that cannot check a
+precondition should say which observation would settle it, not pass the doubt along.
+
+### 2. The newsletter-PDF premise was false, and the real defect is the toolchain
+
+This brief argued the routing question partly on "a cloud session cannot produce the newsletter
+PDF at all". **It can.** `reportlab` installed to a directory on `PYTHONPATH`, outside the pinned
+venv, produced it within the hour; the nine other outputs were byte-identical to the run without
+it, so nothing drifted. That argument is withdrawn.
+
+The control board names the actual defect: **the newsletter PDF is built today by a route outside
+the environment pin and outside the Producer gate.** Measured here:
+
+| | Producer | pages | bytes |
+|---|---|---|---|
+| reportlab (today's route) | `ReportLab PDF Library - (opensource)` | 5 | 8,072,969 |
+| LibreOffice, from the ODT the engine already writes | **`LibreOffice 24.2`** | 5 | **1,727,955** |
+
+`artefact_lint` Check C compares each manifest PDF's `/Producer` major.minor against
+`externals.soffice`, which is `24.2.7.2`. `reportlab` appears in **neither** `requirements.txt`
+**nor** `tools/environment.json`. So a reportlab-built newsletter entering the published corpus
+would **fail Check C**, and committing the newsletter is therefore *not independent* of the
+toolchain decision — it requires it first.
+
+**On the measurements, the LibreOffice route wins on every axis**: it passes the existing gate
+unchanged, needs no new dependency, uses the `.odt` the engine already writes beside the PDF, and
+is 4.7x smaller — which matters for a committed artefact under D-257's thresholds. Recommended
+over adding `reportlab` to the pin, though the ruling is Martin's.
+
+### 3. The design question is answered better than either option offered
+
+Neither of this brief's two options. **Split by what each artefact is:**
+
+- **The accumulated `living/output/` maps are regenerable intermediate** (96 MB even in this fresh
+  container; more in the L14 tree). Do not commit them, and **do not build a monthly Drive
+  hand-off folder for them either** — nothing needs handing off, because they regenerate where
+  they are needed. A documented manual hand-off with no gate is the shape of the hand-edited
+  `PDF_MANIFEST.txt` that kept a foreign PDF in the published corpus for three days.
+- **The newsletter is a published artefact and it is small.** It belongs where this corpus keeps
+  published artefacts — committed, under `PDF_MANIFEST.txt` and Check C — not in gitignored
+  `living/output/`. Put it there and the pull brings it, and **the fourth unguarded mechanism
+  stops existing** rather than needing a route invented for it.
+
+That is strictly better than the Drive hand-off this brief proposed, and it retires that proposal.
+Note the ordering it implies: the toolchain decision in §2 comes first, because committing a
+reportlab-built PDF would fail the gate on arrival.
+
+**Still worth building**, for the two mechanisms that are real: one "Update this machine" that
+pulls both repositories through the existing guard and runs `drive_pull.sh`. Once the newsletter
+is committed, the workbook on Drive is the only genuine residue.
+
+### 4. A second rule for CLAUDE.md §4b — shared records are owned by their tools
+
+Three chats hit the same fault tonight: the Pipeline chat hit the shared-record merge conflict and
+aborted, this chat hit it and resolved it (private `d92749f`, "six conflicts, both sides' records
+kept"), and the control board caused the mirror image by releasing a claim after a push. **One
+cause:** `DOCUMENT_LOCK.json`, `chat_register.csv` and the markers are owned by their tools at
+both ends, and **a chat's commit should carry them only when a tool wrote them in that session.**
+
+This chat's own evidence for it: resolving `DOCUMENT_LOCK.json` by taking `origin/main`'s version
+silently **erased this chat's own `pipeline` claim**, with nothing to say so. The control board
+will write this rule and the no-bare-`git pull` rule into §4b when `tools` frees up; recorded here
+so the evidence sits with the job.

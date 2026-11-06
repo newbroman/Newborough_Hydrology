@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_6.odt — do not edit. source-sha256=259e24f3d9174e3f pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_7.odt — do not edit. source-sha256=f6e040bfebc77505 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -108,7 +108,7 @@ The forest is the exception for both. Under the main forest Model A needs 120 mo
 
 The groups come from the shape of the hydrographs alone, so a new well can be placed in one by comparing its record with the group averages, without fitting it. Can it then borrow the group's numbers? The paper tests this by running each skill test twice, on each well's own numbers and on its group's, with the tolerances fixed before the run: 0.05 in skill, and for the dry decade 0.05 metres in the typical error of the level.
 
-With both versions the group numbers pass all three tests. With Model A, on the dry decade, their median skill is −0.17 against −0.14 for the wells' own, and forecasting forward from January 2018 they score 0.72 against 0.61. So within the tolerances set before the run, group numbers forecast and look back as well as each well's own.
+Both models pass all three tests with the group's numbers. For Model A, the dry decade scores −0.17 with the group's numbers against −0.14 with each well's own, Ranwell's seasons 0.49 against 0.46, and the forecast forward from January 2018 0.72 against 0.61. Model B scores the same on Ranwell's seasons either way (0.86), and does much better on the dry decade with the group's numbers (−0.27 against −1.46). So within the tolerances set before the run, group numbers forecast and look back at least as well as each well's own.
 
 Where a well's own record has a gap, it is better filled from a measured neighbour than from the model. With stretches of 54 months hidden in turn, each well's average spring level was put back from its nearest neighbour in the same group with a typical miss of 0.041 metres, against 0.139 metres from Model A run on the weather.
 

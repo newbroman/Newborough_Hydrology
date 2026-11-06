@@ -102,7 +102,16 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-11-06. FOUR newsletter faults Martin named, all
+__version__ = "1.7.1"  # Hollingham (2026) - 2026-11-06. _flat_jpeg(): every image embedded in the
+#   PDF is flattened onto white and JPEGed at quality 80 before it goes in. reportlab 5.1.0 was
+#   embedding the map and chart PNGs LOSSLESSLY and keeping their alpha as a soft mask - about
+#   2,632 K per map against 427 K for the same map in the September issue, which is JPEG at the
+#   same 271 ppi - and that alone took the October issue to 7.79 MB against 0.90-2.53 MB for every
+#   previous one. 7.79 -> 1.62 MB, 6 pages either way. Quality 80 is the project's own choice for
+#   embedded images (CLAUDE.md on export_master_pdf.py). Same class as W126: a size jump that is
+#   the image filter, not the toolchain it would be easy to blame - and it would have put a 6x
+#   outlier into a corpus under D-257 size management.
+# __version__ = "1.7.0"  # Hollingham (2026) - 2026-11-06. FOUR newsletter faults Martin named, all
 #   measured before they were changed. (a) The "hydrological year" cumulative compared UNEQUAL
 #   WINDOWS in October and November: it summed this year's months >= 10 - one month in October -
 #   against each historical year's months >= 10, always Oct+Nov+Dec, so October 2026 read 102 mm
@@ -1703,6 +1712,41 @@ def generate_difference_table(results, coords, label, dry=None):
 
 # ─── PDF Report Generation ───────────────────────────────────────────────────
 
+def _flat_jpeg(path, quality=80):
+    """A JPEG copy of a chart/map PNG, flattened onto white, for embedding.
+
+    Measured 2026-11-06: reportlab 5.1.0 embeds these PNGs LOSSLESSLY and keeps
+    their alpha as a soft mask - about 2,632 K per map against 427 K for the
+    same map in the September issue, which is JPEG at the same 271 ppi. That
+    alone took the October issue to 7.79 MB against 0.90-2.53 MB for every
+    previous one, with no visual gain. Quality 80 is the project's own choice
+    for embedded images (CLAUDE.md on export_master_pdf.py: "exports JPEG at
+    quality 80 because that is what Martin does by hand"), and this is the same
+    class of fault as W126 - a size jump that is the image filter, not the
+    toolchain it would be easy to blame.
+
+    Falls back to the original path if anything goes wrong: a bigger PDF is a
+    far smaller problem than no PDF.
+    """
+    try:
+        from PIL import Image as _PILImage
+        im = _PILImage.open(path)
+        if im.mode in ('RGBA', 'LA', 'P'):
+            im = im.convert('RGBA')
+            bg = _PILImage.new('RGB', im.size, (255, 255, 255))
+            bg.paste(im, mask=im.split()[-1])
+            im = bg
+        else:
+            im = im.convert('RGB')
+        out = os.path.splitext(path)[0] + '_embed.jpg'
+        im.save(out, 'JPEG', quality=quality, optimize=True)
+        return out
+    except Exception as _e:
+        print(f"    ! could not JPEG {os.path.basename(path)} for embedding "
+              f"({type(_e).__name__}); using it as is")
+        return path
+
+
 def generate_pdf_report(output_dir, year, month, met_text,
                         mom_results, mom_d1, mom_d2,
                         yoy_results, yoy_d1, yoy_d2,
@@ -1992,7 +2036,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
                 f"Month-on-Month Change: {mom_d1.strftime('%b %Y')} to {mom_d2.strftime('%b %Y')}",
                 style_h3
             ))
-            img = Image(map_path, width=160*mm, height=130*mm)
+            img = Image(_flat_jpeg(map_path), width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
                 f"Water level change (m) from {mom_d1.strftime('%b %Y')} to "
@@ -2029,7 +2073,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
         _cp = annual_min.get('chart_path')
         if _cp and os.path.exists(_cp):
             story.append(Paragraph("Annual Minima of Previous Years", style_h3))
-            story.append(Image(_cp, width=150*mm, height=150*mm*4.2/8))
+            story.append(Image(_flat_jpeg(_cp), width=150*mm, height=150*mm*4.2/8))
             story.append(Paragraph(
                 f"Each summer's annual minimum relative to {MONTH_NAMES[month]} {year}, compared well "
                 f"by well. Below the line, that year's low was lower than this month; the darker bar is "
@@ -2039,7 +2083,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
             _lt = annual_min['lowest_ts'].strftime('%b %Y')
             story.append(Paragraph(
                 f"Difference from the Lowest Minimum: {_lt} to {MONTH_NAMES[month][:3]} {year}", style_h3))
-            story.append(Image(_mp, width=160*mm, height=130*mm))
+            story.append(Image(_flat_jpeg(_mp), width=160*mm, height=130*mm))
             story.append(Paragraph(
                 f"Water level change (m) from {_lt}, the lowest annual minimum of the period, to "
                 f"{MONTH_NAMES[month]} {year}. Blue = higher now, red = lower now.", style_caption))
@@ -2067,7 +2111,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
                     f"the largest rise was {max(low_valid):+.2f} m.",
                     style_body
                 ))
-            img = Image(map_path, width=160*mm, height=130*mm)
+            img = Image(_flat_jpeg(map_path), width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
                 f"Cumulative water level change since {low_d1.strftime('%b %Y')}.",
@@ -2077,7 +2121,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
     # ── Each same month, against this one (beside the minima) ──
     if month_series and month_series_path and os.path.exists(month_series_path):
         story.append(Paragraph(f"Every {MONTH_NAMES[month]} So Far", style_h3))
-        story.append(Image(month_series_path, width=150*mm, height=150*mm*4.2/8))
+        story.append(Image(_flat_jpeg(month_series_path), width=150*mm, height=150*mm*4.2/8))
         _above = sum(h['diff'] > 0 for h in month_series)
         story.append(Paragraph(
             f"Each earlier {MONTH_NAMES[month]} relative to {MONTH_NAMES[month]} {year}, "
@@ -2134,7 +2178,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
         yoy_label = f"{yoy_d1.strftime('%b%y')}-{yoy_d2.strftime('%b%y')}"
         yoy_map_path = os.path.join(output_dir, f"map_yoy_{yoy_label}.png")
         if os.path.exists(yoy_map_path):
-            img = Image(yoy_map_path, width=160*mm, height=130*mm)
+            img = Image(_flat_jpeg(yoy_map_path), width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
                 f"Year-on-year water level change from {yoy_d1.strftime('%b %Y')} to "

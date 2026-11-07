@@ -100,10 +100,76 @@ D-302 and so need a log entry:
 **My recommendation: build 3a, change nothing else, and see whether (b) still hurts once jobs fire
 on time.** Most of today's cost was a chat waiting, not a chat unable to fix something.
 
-## 5. Open question I could not answer from the tree
+## 5. Who opens the session (corrected 2026-11-07, after Martin: "Doesn't the pass run in the
+background as each task finishes?")
 
-Who runs the pass? HQ's daily pass is a session Martin starts. A coordinator that fires jobs is
-only as prompt as its own trigger, so a queue runner that wakes once a day has not removed the
-wait, only shortened it. A scheduled task would, but that is a standing automation on Martin's
-account and outside anything this chat should set up. **This is the part of the design I do not
-have an answer for, and it determines whether 3a is worth building at all.**
+**It does, and the first draft of this section was wrong to ask who runs the pass.** `doc_lock
+release` calls `jobs_made_ready()`, which evaluates the whole queue with `promote=True` at the
+moment a task finishes; `job_queue.py fire` then runs every gate — conditions met, claim free, no
+other active job on that claim, a brief that exists. The pass is already at the right place.
+
+**The wall is one step later: firing a job does not open a chat.** `fire` marks the row `fired`
+and prints `>>> start the session with: Run job <id>: read <brief> and follow it` — a line for a
+person to paste. Nothing in the project can create a Claude session, which is what CLAUDE.md §4b's
+"a job does not fire itself" actually encodes.
+
+So the real question is **who opens the session the pass names**, and the answer depends on where
+the coordinator lives:
+
+- **A script on the L14 cannot.** No amount of work on `job_queue.py` gets past this.
+- **A cloud session can.** A claude.ai/code session has session-creating tooling
+  (`create_session`) and can schedule its own wake-ups (`create_trigger`). So a coordinating chat
+  is able to start the sibling chats its pass names. That is a remit decision for Martin, not a
+  missing mechanism.
+
+What a coordinator cannot escape is needing to be **awake at the moment of release**. A release by
+another chat at 22:40 reaches nobody if the coordinator last ran at 06:30. That is the only place a
+schedule earns its keep, and it is a standing automation on Martin's account — so it is his to
+create, not a session's to set up unasked.
+
+**Residual recommendation unchanged:** build the job runner (§3a), let it open the sessions its
+pass names, and leave §3b alone. Whether it also needs a schedule is answerable only after seeing
+how often a release lands with no coordinator awake.
+
+## 6. The sweep in sections (Martin, 2026-11-07: "the coordinator should be informed of what each
+chat is changing so the pass sweep can be run in sections")
+
+**The motivating cost is real and was paid today.** T-136 and T-171 touched `tools/` only, and
+this chat ran the full 50-section `check_all` twice at ~20 minutes each to learn that `tools/`
+was fine. A sweep narrowed to the sections a change can actually reach would have cost a minute.
+
+**What already exists.** The coordinator can see what each chat is changing without anyone
+telling it: `work_board.py` prints the uncommitted paths in the tree and each repository's
+position, `claim_for_path` maps a path to its claim, and `scratch/check_all_summary.json` (1.34.0)
+carries a per-section verdict with the section's name and seconds.
+
+**What does not exist.** Two things:
+
+1. **A path → section map.** Nothing says which of the 50 gates a change to a given path can
+   reach. This has to be written, and it is a claim about coupling that can be wrong.
+2. **A selector in `check_all.sh`.** `section()` prints the header and records timing; there is no
+   `--only`, no skip, and no way to ask for a subset. All 50 always run.
+
+**The safety property that decides the design.** A sectioned sweep must never be able to stand in
+for the full run. CLAUDE.md §1 and `--ship` are built on the full gate set, and a map that wrongly
+says "`tools/` cannot reach the mirrors section" would hide a red exactly where no gate is looking
+— the same shape as the three failures of 2026-09-01 that `artefact_lint` was written for. So:
+
+- **the subset run is advisory, for feedback while working; the full run still gates every ship**,
+  and the ship must refuse a verdict that came from a subset (the summary json should record which
+  sections were asked for, so a partial verdict is self-identifying rather than trusted);
+- **the map fails open, never closed.** A path matching no pattern selects ALL sections. Narrowing
+  happens only where a pattern explicitly claims it is safe;
+- **the map gets its own `--check` on the day it is written** (§4d: a generated artefact with no
+  check rots silently — TABLE_LEDGER did). The check: every section name in the map exists in the
+  summary json, and every section in the summary json is reachable from at least one pattern.
+
+**Recommended shape.** `tools/gate_scope.py`: patterns → section names, a `--for <paths>` mode
+printing the sections to run, a `--check` as above, and `NRG_ONLY_SECTIONS` honoured by
+`section()` in `check_all.sh` (skipped sections recorded as `SKIPPED`, not `OK`, so a partial run
+cannot read as a clean one). Both files are under `tools`, so they are the builder's to change.
+
+**One honest caveat.** The first version of the map will be wrong somewhere, and it will be wrong
+in the direction of narrowing too much, because that is the direction the author is motivated to
+take. Failing open limits the damage; the ship still running everything is what makes it safe to
+be wrong at all.

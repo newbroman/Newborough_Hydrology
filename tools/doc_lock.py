@@ -91,6 +91,15 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-06 (D-314, Martin: "allow pushes for locks").
+#   A CLAIM IS NOT A CLAIM UNTIL GITHUB HAS IT. take and release now commit and push the lock record
+#   themselves, through _update(publish=...), and apply the change ON TOP OF ORIGIN'S record rather than
+#   merging into it. Until now the whole durability mechanism was two print() calls asking a human to
+#   commit and push - which a session that releases AFTER its ship has nothing left to carry. Three
+#   failures in one evening, one in each direction. Never fatal: an unpublishable claim is still taken
+#   and says LOCAL ONLY. Off under NRG_NO_LOCK_PUSH=1 and where there is no remote, so --selftest's
+#   temp trees cannot reach the real repository. The `touched` refresh is NOT published, or every
+#   claim-gate pass would push.
 __version__ = "1.5.1"  # Hollingham (2026) — 2026-11-06 (T-155). _run() strips NRG_DOC_LOCK_HOLDER and
 #   NRG_DOC_LOCK_FILE, so the selftest is not decided by a caller's override: cloud_ship.sh exports
 #   NRG_DOC_LOCK_HOLDER="cloud" for the whole run and it reached this selftest through nrg_git.sh --ship
@@ -463,9 +472,9 @@ def acquire(note: str, force: bool) -> int:
         print("  Ask that machine to release, or --force if you know it is idle.")
         print("  Forcing while the other machine has unarchived edits loses them.")
         return 1
-    _update(lambda d: d.update({"holder": me, "since": _now(), "note": note}))
+    _update(lambda d: d.update({"holder": me, "since": _now(), "note": note}),
+            publish=f"documents locked to {me}")
     print(f"  documents locked to {me}")
-    print("  commit and push the private repo so the other machine can see it.")
     return 0
 
 
@@ -510,24 +519,116 @@ def release(note: str = "", force: bool = False) -> int:
     # The bridge mount refuses unlink, so emptying beats deleting: a zero-holder
     # file reads as unlocked and never leaves a half-removed lock behind.
     _update(lambda d: d.update({"holder": None, "since": _now(),
-                                "note": f"released by {me}" + (f": {note}" if note else "")}))
-    print("  documents released — commit and push the private repo")
+                                "note": f"released by {me}" + (f": {note}" if note else "")}),
+            publish=f"documents released by {me}")
+    print("  documents released")
     mark_publish_owed("machine lock released")
     return 0
 
 
+# ── D-314: a claim is not a claim until GitHub has it ────────────────────────
+# Martin, 2026-11-06, after three failures in one evening, one in each direction: a take that
+# never reached the lock file, his `tools` release that reached only his tree (803cdce), and this
+# chat's release that reached only its container. Each looked like a lock failure and was not: the
+# lock reported what GitHub held, correctly. Until now the ENTIRE durability mechanism was two
+# print() calls - "commit and push the private repo so the other machine can see it" - i.e. a
+# human instruction, which a session that releases AFTER its ship has nothing left to carry.
+#
+# His ruling: a LOCK PUSH IS NOT A CONTENT PUSH. It publishes no code, no prose and no numbers,
+# only "chat X holds Y", so it is exempt from "ask before every push" (CLAUDE.md section 7), which
+# exists to control what reaches the published corpus.
+#
+# Two halves, and the second matters as much as the first:
+#   1. the record is pushed the moment it changes, so a claim exists as soon as it is taken;
+#   2. the change is applied ON TOP OF ORIGIN'S record, never merged into it - restore from
+#      origin first, then let the tool rewrite its row. That is the rule the same evening
+#      produced twice over: these files are owned by their tools at both ends, and a git-side
+#      merge of them is how a claim gets silently dropped or reinstated.
+# Half 2 is safe only BECAUSE of half 1: it would discard an unpushed local claim, and after this
+# change there are none. During the transition there may be, which is why it says what it did.
+#
+# It never fails the operation. A claim that cannot be published is still taken locally and says
+# so loudly - the one thing it must not do is report success for a claim nobody else can see.
+RECORD_PATHS = ("working/DOCUMENT_LOCK.json", "working/claim_overrides.csv")
+_WGIT = ("git", "--no-optional-locks")
+
+
+def _wgit(*args: str, timeout: int = 60):
+    import subprocess
+    return subprocess.run([*_WGIT, f"--git-dir={REPO / WORKING_GIT}", f"--work-tree={REPO}", *args],
+                          cwd=str(REPO), capture_output=True, text=True, timeout=timeout)
+
+
+def _publishing() -> bool:
+    """Off when asked, and off where there is nothing to push to - a temp tree in --selftest has a
+    .git-working directory but no remote, and must never reach the real repository."""
+    if os.environ.get("NRG_NO_LOCK_PUSH"):
+        return False
+    if not (REPO / WORKING_GIT).is_dir():
+        return False
+    try:
+        return bool(_wgit("config", "--get", "remote.origin.url").stdout.strip())
+    except (OSError, Exception):
+        return False
+
+
+def _rebase_records_on_origin() -> None:
+    """Half 2: start from origin's record, so the row is written on top of truth, never merged."""
+    try:
+        if _wgit("fetch", "-q", "origin", "main", timeout=120).returncode:
+            return
+        behind = _wgit("rev-list", "--count", "HEAD..origin/main").stdout.strip()
+        if behind in ("", "0"):
+            return
+        local = _wgit("status", "--porcelain", "--", *RECORD_PATHS).stdout.strip()
+        if local:
+            print(f"  note: the private half is {behind} commit(s) behind origin and these records"
+                  f" differ here;\n        taking origin's and re-applying this change on top of it (D-314).")
+        _wgit("checkout", "origin/main", "--", *RECORD_PATHS)
+    except (OSError, Exception):
+        pass
+
+
+def publish_records(paths=RECORD_PATHS, what: str = "the claim") -> None:
+    """Half 1: commit and push JUST these records, immediately. Never fatal."""
+    if not _publishing():
+        return
+    try:
+        present = [p for p in paths if (REPO / p).exists()]
+        if not present:
+            return
+        _wgit("add", "--", *present)
+        if not _wgit("diff", "--cached", "--quiet", "--", *present).returncode:
+            return                                      # nothing staged: already current
+        if _wgit("commit", "-q", "-m", f"doc_lock: {what}", "--", *present).returncode:
+            print("  WARNING: could not commit the record — the claim is LOCAL ONLY (D-314)")
+            return
+        r = _wgit("push", "-q", "origin", "HEAD:main", timeout=180)
+        if r.returncode:
+            print("  WARNING: the record is committed but NOT PUSHED — no other chat can see this")
+            print("           claim yet (D-314). " + (r.stderr.strip().splitlines() or [""])[-1][:120])
+            print("           Fetch, then re-run this command: the tool rewrites its row on top of origin.")
+    except (OSError, Exception) as e:
+        print(f"  WARNING: the claim is LOCAL ONLY — could not publish it ({type(e).__name__}) (D-314)")
+
+
 # ── the lock file, written whole under its own lock ──────────────────────────
-def _update(fn) -> dict:
+def _update(fn, publish: str | None = None) -> dict:
     """Read the lock file, apply fn(dict) in place, write it back, all under a lock file, so a
-    claim taken by one chat and the machine lock taken by another never overwrite each other."""
+    claim taken by one chat and the machine lock taken by another never overwrite each other.
+    With `publish`, the result is committed and pushed at once (D-314)."""
     import register_io
     LOCK.parent.mkdir(parents=True, exist_ok=True)
+    if publish:
+        _rebase_records_on_origin()
     with register_io.excl_lock(LOCK):
         d = read() or {"holder": None, "since": _now(), "note": ""}
         if d.get("holder") == "UNREADABLE":
             raise SystemExit("  working/DOCUMENT_LOCK.json is corrupt; repair it by hand before taking anything")
         fn(d)
         LOCK.write_text(json.dumps(d, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if publish:
+        publish_records(what=publish)
     return d
 
 
@@ -747,7 +848,7 @@ def take_claim(name: str, chat: str | None, note: str, force: bool,
         if lk:
             rec["link"] = lk              # R5: stored when known, never required
         d.setdefault("claims", {})[name] = rec
-    _update(fn)
+    _update(fn, publish=f"{name} claimed by chat {me!r}")
     if "refused" in out:
         c = out["refused"]
         print(f"  REFUSED - {name} is held by chat {c['chat']!r} since {c.get('since')} ({c.get('note') or 'no note'}).")
@@ -780,7 +881,7 @@ def release_claim(name: str, chat: str | None, force: bool, by: str | None = Non
         out["held_by"] = c.get("chat")
         out["note"] = c.get("note") or ""
         d["claims"].pop(name, None)
-    _update(fn)
+    _update(fn, publish=f"{name} released by chat {me!r}")
     if out.get("free"):
         print(f"  {name} was not claimed")
         return 0

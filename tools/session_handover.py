@@ -62,7 +62,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.5.0"  # Hollingham (2026) - 2026-11-05 (D-307): TIER0_PROSE_BUDGET 600 -> 650.
+__version__ = "2.6.0"  # Hollingham (2026) — 2026-11-06 (T-140/T-162, Martin: "exclude the fences,
+#   leave the budget at 650 for now"). tier0_measure() counts PROSE: lines inside ``` fences no longer
+#   count, so the budget stops being a function of how many paths happen to be uncommitted — which is
+#   what made the archiver unable to converge (each pass writes an archive file, which is one more line
+#   in the HANDOFF's git-status fence). The budget constant is unchanged at 650.
+# "2.5.0"  # Hollingham (2026) - 2026-11-05 (D-307): TIER0_PROSE_BUDGET 600 -> 650.
 #   The measurement counts the HANDOFF's git-status fences, so it moves with whether the tree
 #   happens to be committed; the constant carries the arithmetic. Martin's call, 2026-11-05.
 # 2.4.0  # Hollingham (2026) - 2026-11-04 (D-300, R6c). The work board's one-line digest
@@ -357,16 +362,41 @@ def _latest_handoff() -> Path | None:
     return files[-1] if files else None
 
 
+def _unfenced(text: str) -> int:
+    """Lines outside ``` fences. T-140/T-162, 2026-11-06.
+
+    The HANDOFF embeds generated listings in fences — above all a git status, ONE LINE PER
+    UNCOMMITTED PATH — and counting them made the budget a function of how dirty the tree happened
+    to be. Two consequences, both measured: the same tree read 625 before its commit and about 577
+    after, so a ship could refuse over a number its own commit would clear (D-307 raised the budget
+    to 650 as the smaller change and left this open); and the archiver could not converge, because
+    EACH ARCHIVE PASS WRITES A NEW HANDOVER_NOTE_archive_*.md, which is one more uncommitted path,
+    which is one more line in the fence. On 2026-11-06 that ran 738 -> 707 -> 729 -> 741 while
+    archiving five entries, and the session rightly stopped rather than shred more dated records.
+    Fenced output is not prose, which is what the budget is for; excluding all of it rather than
+    only the status block keeps the measure stable whatever the generator adds next.
+    """
+    n, fenced = 0, False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+            continue
+        if not fenced:
+            n += 1
+    return n
+
+
 def tier0_measure() -> tuple[int, int, list[str]]:
-    """(total lines, prose lines, per-member rows). The index is excluded from prose."""
+    """(total lines, prose lines, per-member rows). The index is excluded from prose, and so is
+    anything inside a fence (T-140) — see _unfenced."""
     members = [BOOTSTRAP, _latest_handoff(), NOTE if NOTE.is_file() else None, INDEX]
     total, rows = 0, []
     for m in members:
         if m and m.is_file():
-            n = len(m.read_text(encoding="utf-8").splitlines())
+            n = _unfenced(m.read_text(encoding="utf-8"))
             total += n
             rows.append(f"- `{m.relative_to(REPO)}` — {n} lines")
-    index_lines = len(INDEX.read_text(encoding="utf-8").splitlines()) if INDEX.is_file() else 0
+    index_lines = _unfenced(INDEX.read_text(encoding="utf-8")) if INDEX.is_file() else 0
     return total, total - index_lines, rows
 
 
@@ -389,7 +419,21 @@ def archive_oldest_entries() -> str | None:
         return None
     # the archivable block runs from an entry heading to the first archive stub
     # (or the end); entries are newest first, so the oldest are the last headings
-    stub_at = next((i for i, l in enumerate(lines) if re.match(r"^## \d{4}-\d{2}-\d{2} to \d{4}-\d{2}-\d{2} — archived", l)), len(lines))
+    # T-162, 2026-11-06: the stub that ENDS the archivable region is the first one BELOW the
+    # oldest entry, not the first one in the file. It used to be the latter, and with a stub
+    # sitting ABOVE the entries being archived - which 34 existing stubs made certain, several
+    # of them dated the same day as live entries - last_i came out BELOW first_i, so the
+    # rewrite `lines[:first_i] + stub + lines[last_i:]` DUPLICATED everything between them
+    # while the archive file got an empty block. Measured 2026-11-06: 773 -> 869 -> 1061 ->
+    # 1445 -> 2213 -> 3749 -> 6821 prose lines over three --write passes, the note going from
+    # 484 lines to 6532 and six archive files written, each pass doubling the damage. Martin had
+    # already seen the growth (738 -> 707 -> 729 -> 741) and stopped rather than shred more
+    # dated records; he was right, and the session that then ran it three times to "test
+    # convergence" was not.
+    _stub_re = re.compile(r"^## \d{4}-\d{2}-\d{2} to \d{4}-\d{2}-\d{2} — archived")
+    _oldest_head = heads[-1]
+    stub_at = next((i for i, l in enumerate(lines) if i > _oldest_head and _stub_re.match(l)),
+                   len(lines))
     excess = prose - (TIER0_PROSE_BUDGET - NOTE_ARCHIVE_MARGIN)
     take: list[int] = []            # indices into heads, oldest first
     freed = 0
@@ -403,6 +447,12 @@ def archive_oldest_entries() -> str | None:
     if not take:
         return None
     first_i, last_i = heads[min(take)], stub_at if max(take) == len(heads) - 1 else heads[max(take) + 1]
+    # T-162: refuse rather than rewrite when the region is empty or inverted. A slice with
+    # last_i <= first_i yields an EMPTY archive and a note that grows by the span between them,
+    # so this is the guard that makes the defect above impossible to repeat by any other route.
+    if last_i <= first_i:
+        return ("  ARCHIVE REFUSED  the archivable region is empty or inverted "
+                f"(first={first_i}, last={last_i}); nothing moved, nothing rewritten (T-162)")
     block = lines[first_i:last_i]
     dates = [_ENTRY_RE.match(lines[heads[k]]).group(1) for k in take]
     d_first, d_last = min(dates), max(dates)

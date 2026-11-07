@@ -978,7 +978,14 @@ def _wells_summer_mins(well_list, df, dates, well_names, elev,
         return np.array([])
     import warnings
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+        # D-155: named, not blanket. pd.concat of per-well depth series with unequal and
+        # partly non-monotonic indices warns about sort order and about the all-NaN slices
+        # that .mean() then skips; both are expected when a well is absent for a span.
+        # Anything else pandas raises is now heard. (T-81 greps filterwarnings, not
+        # simplefilter, so this site was invisible to it.)
+        warnings.filterwarnings("ignore", message=".*sort.*", category=FutureWarning)
+        warnings.filterwarnings("ignore", message=".*Mean of empty slice.*",
+                                category=RuntimeWarning)
         combined = pd.concat(well_depths, axis=1, sort=False).mean(axis=1)
     mins = []
     for yr in sorted(combined.index.year.unique()):

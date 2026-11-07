@@ -304,7 +304,15 @@ def make_coefficient_map(
     # Contours
     if contour_levels is not None:
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+            # D-155: by message and module, not a blanket ignore. ax.contour warns when a
+            # requested level lies outside the surface's range, or when the grid is all-NaN
+            # in a masked region — both expected here, because the levels are fixed across
+            # panels and the ridge/non-aquifer areas are masked out. Anything else matplotlib
+            # raises is now heard. (T-81 could not see this site: it greps filterwarnings,
+            # and this is simplefilter.)
+            warnings.filterwarnings("ignore", message=".*No contour levels were found.*",
+                                    module="matplotlib")
+            warnings.filterwarnings("ignore", message=".*All-NaN.*", category=RuntimeWarning)
             try:
                 cs = ax.contour(
                     gx, gy, surf,

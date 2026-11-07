@@ -63,9 +63,10 @@ conforming machine can still produce different figures.
 
 ## Not established
 
-- Whether the laptop has `/etc/matplotlib/matplotlibrc` or sets `MATPLOTLIBRC`. If it does, the
-  2026-11-05 artefacts came from a third environment and this note's framing needs revisiting.
-  One line answers it: `echo "$MATPLOTLIBRC"; ls -l /etc/matplotlib/matplotlibrc`
+- ~~Whether the laptop has it.~~ **ANSWERED 2026-11-07 by Martin on the L14:** `MATPLOTLIBRC` is
+  empty and `/etc/matplotlib/matplotlibrc` does not exist ("No such file or directory"). So the
+  laptop uses matplotlib's stock configuration, the committed artefacts are stock-config builds,
+  and the divergence is entirely the cloud image's. The framing above stands.
 - Whether the 2026-10-02 byte-identical check would still pass today, i.e. whether the image
   gained this file after that date.
 - Which other outputs are affected. Every figure with text is a candidate; CSVs are not

@@ -77,7 +77,15 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.22.0"  # Hollingham (2026) - 2026-11-01 (T-133, D-292; Martin 2026-11-01 "Test A otherwise c", "no model B
+__version__ = "1.23.0"  # Hollingham (2026) - 2026-11-07 (J-6, Martin: "I want j6 run and sorted").
+#   split_series() keeps the Jan-2018 split-sample free run MONTH BY MONTH for BOTH forms
+#   (50_48_split_series.csv), and plot_split_series() draws it (50_49_split_both_models.png).
+#   Scenario 1 -- the case inside the recorded climate, the one Model B is supposed to win --
+#   had 10,032 rows of NSE in 50_07 and no series anyone could plot, so every hindcast figure
+#   in the corpus showed ONE form. Emit-only: same fit, free run and datum convention as
+#   split_by_datum, verified by recomputing Model A NSE against 50_07 at DRAINAGE_DATUM
+#   (max |difference| 2.8e-14 over 132 well/direction pairs).
+# "1.22.0"  # Hollingham (2026) - 2026-11-01 (T-133, D-292; Martin 2026-11-01 "Test A otherwise c", "no model B
 #   arms, approve majority of years"). E19: does the FILM's correction transfer to CCW 1989-96? E18 tested a per-well map;
 #   the film maps one series, the open-dune warren run (Script 47's load_warren / run_recurrence, read through importlib,
 #   the Script 30 precedent) onto the network's observed median. E19 runs exactly that, then scores three arms against
@@ -281,7 +289,8 @@ from utils.paths import (                                     # noqa: E402
     OUT_50_REPORT_NUMBERS, INT_WELLS_CLEAN, INT_CLIMATE, INT_MASTER_DATA,
     OUT_03_PER_WELL_WINDOW_SENS, OUT_48_MODEL_AB, OUT_39_PER_WELL,
     OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS, OUT_15_DDP_PER_WELL,
-    OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
+    OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_SPLIT_SERIES, OUT_50_SPLIT_FIG,
+    OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
     OUT_50_CHANGE, OUT_50_SURFACE, OUT_50_CHANGE_SURFACE_FIG,
@@ -336,7 +345,8 @@ from utils.hindcast_utils import (                            # noqa: E402
     load_ccw, observed_series, hindcast_well, equilibrium_depth, usable_codes, compare_offset_censored,
     quantile_map,
 )
-from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
+from utils.render_utils import (MPL_DEFAULTS, apply_house_style,   # noqa: E402
+                                render_figure)                     # noqa: E402  (J-6)
 from utils.pastas_utils import spread_daily, continuous_start  # noqa: E402
 from utils.midas_rain import read_daily  # noqa: E402
 from utils.pet_alternatives import monthly_radiation_pet, midas_monthly_pm, midas_span, read_raf_monthly  # noqa: E402
@@ -819,6 +829,113 @@ def split_by_datum(lev, lev_cols, cl, master) -> pd.DataFrame:
                 rows.append({"well": r["_n"], "cluster": int(r["Cluster"]), "datum_m": float(D),
                              "direction": direction, "nse": res["nse"], "n_test": res["n_test"]})
     return pd.DataFrame(rows)
+
+
+def split_series(lev, lev_cols, cl, master) -> pd.DataFrame:
+    """J-6: the Jan-2018 split-sample free run kept MONTH BY MONTH, for BOTH forms.
+
+    `split_by_datum` (E6) sweeps the datum and keeps only the NSE, so scenario 1 -- the case INSIDE
+    the recorded climate, the one Model B is supposed to win -- has 10,032 rows of skill and no
+    series anyone can plot. Every hindcast figure in the corpus therefore shows ONE form, while the
+    argument the figures are there to support is that the two forms answer different questions.
+
+    Here the datum is the project's (Model A is run at DRAINAGE_DATUM; Model B at the datum its own
+    fitted intercept implies, via run_datum) and the sweep is dropped, so the output is one row per
+    well, form, direction and month rather than a grid. Emit-only: the fit, the free run and the
+    datum convention are exactly `split_by_datum`'s, so the NSE recomputed from these series
+    reproduces 50_07 at DRAINAGE_DATUM for Model A.
+    """
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    rows = []
+    for _, r in master.iterrows():
+        col = lev_cols.get(r["_n"])
+        if col is None:
+            continue
+        h = lev[col].dropna()
+        pre_h, post_h = h[h.index < split], h[h.index >= split]
+        for direction, tr, te in (("fwd", pre_h, post_h), ("rev", post_h, pre_h)):
+            fr = build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
+            for form, intercept in (("A", False), ("B", True)):
+                f = fit_frame(fr, intercept)
+                if f is None:
+                    continue
+                t = te.dropna()
+                if len(t) < MODEL_AB_MIN_TEST_MONTHS + 1:
+                    continue
+                months = pd.date_range(t.index[0], t.index[-1], freq="MS")
+                clim = cl.reindex(months)
+                if clim[["P_m", "PET"]].iloc[1:].isna().any().any():
+                    continue
+                sim = pd.Series(simulate_ssm(float(t.iloc[0]), clim["P_m"].values[1:],
+                                             clim["PET"].values[1:], f["beta_1_recharge"],
+                                             f["beta_2_atmospheric_draw"], f["beta_3_drainage"],
+                                             drainage_datum=run_datum(f, intercept, DRAINAGE_DATUM)),
+                                index=months[1:])
+                obs = t.iloc[1:]
+                for m in sim.index:
+                    if m not in obs.index:
+                        continue
+                    rows.append({"well": r["_n"], "cluster": int(r["Cluster"]), "form": form,
+                                 "direction": direction, "month": m.strftime("%Y-%m"),
+                                 "observed_m": float(obs.loc[m]), "predicted_m": float(sim.loc[m])})
+    return pd.DataFrame(rows)
+
+
+def plot_split_series(series: pd.DataFrame) -> None:
+    """J-6: scenario 1 drawn at last -- the Jan-2018 split, with BOTH forms on the same axes.
+
+    This is the case INSIDE the recorded climate, fitted on one side of January 2018 and free-run
+    over the other, and it is the one Model B is supposed to win. Until now it existed only as NSE
+    in a 10,032-row datum sweep, so the corpus argued that the two forms answer different questions
+    and illustrated it with figures showing one form.
+
+    One panel per cluster, the well with the most test months standing for its cluster. Observed in
+    black; Model A and Model B as free runs from the first test reading. No beta_1 envelope here --
+    this scenario applies the coefficients inside the record they were fitted in, so the stationarity
+    worry that the envelope exists for does not arise.
+    """
+    if series is None or series.empty:
+        return
+    fwd = series[series["direction"] == "fwd"]
+    if fwd.empty:
+        return
+    pick = (fwd[fwd["form"] == "A"].groupby(["cluster", "well"]).size().rename("n")
+            .reset_index().sort_values("n", ascending=False)
+            .groupby("cluster").head(1).sort_values("cluster"))
+    if pick.empty:
+        return
+    import matplotlib                                  # deferred, as every figure here does
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    apply_house_style()                                # T-178: the house style, not an inline dict
+    n = len(pick)
+    fig, axes = plt.subplots(n, 1, figsize=(10.0, 2.3 * n), sharex=False)
+    axes = np.atleast_1d(axes)
+    for ax, (_, row) in zip(axes, pick.iterrows()):
+        w = row["well"]
+        g = fwd[fwd["well"] == w]
+        obs = g[g["form"] == "A"][["month", "observed_m"]].drop_duplicates("month")
+        x = pd.to_datetime(obs["month"])
+        ax.plot(x, obs["observed_m"].values, color="black", lw=1.8, label="observed", zorder=3)
+        for form, col, lab in (("A", "#c2452d", "Model A (fixed datum)"),
+                               ("B", "#2b6cb0", "Model B (fitted intercept)")):
+            f = g[g["form"] == form].drop_duplicates("month")
+            if f.empty:
+                continue
+            o, p_ = f["observed_m"].values, f["predicted_m"].values
+            nse = 1 - ((o - p_) ** 2).sum() / ((o - o.mean()) ** 2).sum()
+            ax.plot(pd.to_datetime(f["month"]), p_, color=col, lw=1.3, alpha=0.9,
+                    label=f"{lab}  NSE {nse:.2f}")
+        ax.set_title(f"C{int(row['cluster'])} \u2014 {w}", fontsize=10, loc="left")
+        ax.set_ylabel("head (m)")
+        ax.legend(fontsize=7, ncol=3, loc="lower left", framealpha=0.85)
+    axes[-1].set_xlabel("month")
+    fig.suptitle("Scenario 1 \u2014 the modern split at January 2018: fitted before, free-run after\n"
+                 "both forms on the same axes; one well per cluster (most test months)",
+                 fontsize=11)
+    fig.tight_layout(rect=(0, 0, 1, 0.97))
+    render_figure(fig, OUT_50_SPLIT_FIG)
+    plt.close(fig)
 
 
 def scenario_scales_12(s: dict) -> tuple[np.ndarray, np.ndarray]:
@@ -5026,6 +5143,10 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
         rw.to_csv(OUT_50_RANWELL_DATUM, index=False); saved(f"{OUT_50_RANWELL_DATUM.name} ({len(rw)} rows)")
     ccw_d.to_csv(OUT_50_CCW_DATUM, index=False); saved(f"{OUT_50_CCW_DATUM.name} ({len(ccw_d)} rows)")
     split_d.to_csv(OUT_50_SPLIT_DATUM, index=False); saved(f"{OUT_50_SPLIT_DATUM.name} ({len(split_d)} rows)")
+    # J-6: the same split, kept month by month for both forms, so scenario 1 can be drawn
+    split_s = split_series(lev, lev_cols, cl, master)
+    split_s.to_csv(OUT_50_SPLIT_SERIES, index=False); saved(f"{OUT_50_SPLIT_SERIES.name} ({len(split_s)} rows)")
+    plot_split_series(split_s); saved(OUT_50_SPLIT_FIG.name)
     proj_d.to_csv(OUT_50_PROJ_DATUM, index=False); saved(f"{OUT_50_PROJ_DATUM.name} ({len(proj_d)} rows)")
 
     phase(7, "Two drainage time scales per cluster (1.3.0, E8, D-231)")

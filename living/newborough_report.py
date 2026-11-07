@@ -102,7 +102,33 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.4"  # Hollingham (2026) - 2026-11-07. read_wu_export_csv() and --wu_csv /
+__version__ = "1.7.6"  # Hollingham (2026) - 2026-11-07. A figure keeps ALL its captions, not just
+#   the first, and the October 2026 issue is REISSUED on the August baseline (Martin: "lets do the
+#   august 2026 comparison in october 2026 news letter, what I meant by in the future was starting
+#   from now"). The grouping pass of 1.6.0 put heading..figure..ONE caption in a KeepTogether, but
+#   three figures carry a SECOND caption - the by-area cluster prose under the month-on-month and
+#   year-on-year maps, and 1.7.5\'s baseline note under the August map. Measured on the 1.7.5
+#   rebuild: the two lines D-315 added pushed the last two lines of the year-on-year area prose
+#   onto a SEVENTH page that held nothing else at all, in an issue that had been six. The reissue
+#   is seven pages because the section D-315 adds is a section, but every page now opens with a
+#   heading and carries a figure or a table, and the published text diff against the October issue
+#   is confined to D-315 with every number identical.
+# __version__ = "1.7.5"  # Hollingham (2026) - 2026-11-07. D-315: AUGUST is the baseline for the
+#   "Difference from the Lowest Minimum" map, by convention and every year, so that each year's
+#   comparison runs from the same month - Martin's ruling: "I want the map keyed to August as a
+#   state of convention... in the future we're going to run and compare August to the month that's
+#   currently being monitored". It replaces a baseline that was the LOWEST annual minimum of the
+#   previous ten years, which was Aug 2019 for the October 2026 issue and would be a different
+#   year every time: that answers "how does now compare with the worst we have seen", not "how far
+#   has it come back since this summer". August is NOT always the lowest round, and where it is not
+#   the caption says which was and by how much - summer 2026's low was SEPTEMBER, 0.02 m below
+#   August over the 72 wells read in every round from April (6.5225 against 6.5394 m), and it holds
+#   on every well set tried, including the raw per-round set (median -0.035 m, 23 of 36 wells
+#   lower in September). Also: the report now ALWAYS says where this year\'s low was and how far it
+#   has recovered. Until now that sentence sat in an `elif` needing no past minima - never true
+#   with 21 years of record - and a section guarded by `low_d1 != mom_d1`, which drops it exactly
+#   when the low IS last month, the usual case in autumn. The October 2026 issue said neither.
+# __version__ = "1.7.4"  # Hollingham (2026) - 2026-11-07. read_wu_export_csv() and --wu_csv /
 #   --wu_csv_2: the local-gauge data comes from WU's own "Export CSV" button on the table view
 #   instead of scraping a page that no longer carries the observations (T-163). One click a month,
 #   no credential, nothing to rotate, and it backfills months already gone - which the API route
@@ -2277,7 +2303,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
         _lom = pd.Timestamp(*_lo['ym'], 1).strftime('%B %Y')
         _rel = "below" if _lo['diff'] < 0 else "above"
         story.append(Paragraph(
-            f"Against the last {len(_d)} years: the lowest annual minimum of the period was {_lom}. "
+            f"Against the last {len(_d)} years: the deepest annual minimum of those years was {_lom}. "
             f"{MONTH_NAMES[month]}'s level is {abs(_lo['diff']):.2f} m {_rel} it (across {_lo['n']} wells "
             f"read on both occasions), and lower than {_below} of the {len(_d)} annual minima.",
             style_body))
@@ -2289,21 +2315,37 @@ def generate_pdf_report(output_dir, year, month, met_text,
                 f"Each summer's annual minimum relative to {MONTH_NAMES[month]} {year}, compared well "
                 f"by well. Below the line, that year's low was lower than this month; the darker bar is "
                 f"the lowest of the period.", style_caption))
+        # Where this year's low was, and how far it has come back - unconditionally.
+        # Until 1.7.5 this was an `elif` on the block above and a section guarded by
+        # `low_d1 != mom_d1`, so it printed in neither of the two cases that matter:
+        # the elif needs NO past minima (never, with 21 years of record), and the
+        # guard drops the sentence precisely when the low IS last month, which is the
+        # usual case in autumn. The October 2026 issue therefore never said that the
+        # low was September or that the warren had risen 0.07 m since it.
+        if not annual_min.get('at_minimum'):
+            _yl = pd.Timestamp(*annual_min['ym'], 1)
+            _lr = [z for _, _, z in low_results if not np.isnan(z)] if low_results else []
+            _s = f"This year's lowest round was {_yl.strftime('%B %Y')}"
+            if _lr:
+                _m = float(np.mean(_lr))
+                _s += (f"; since it the water table has {'risen' if _m > 0 else 'fallen'} "
+                       f"{abs(_m):.2f} m across {len(_lr)} wells")
+            story.append(Paragraph(_s + ".", style_body))
         _mp = annual_min.get('map_path')
         if _mp and os.path.exists(_mp):
             _lt = annual_min['lowest_ts'].strftime('%b %Y')
             story.append(Paragraph(
                 f"Difference from the Lowest Minimum: {_lt} to {MONTH_NAMES[month][:3]} {year}", style_h3))
             story.append(Image(_flat_jpeg(_mp), width=160*mm, height=130*mm))
-            story.append(Paragraph(
-                f"Water level change (m) from {_lt}, the lowest annual minimum of the period, to "
-                f"{MONTH_NAMES[month]} {year}. Blue = higher now, red = lower now.", style_caption))
-    elif low_results and low_d1 and low_d1 == mom_d1:
-        low_valid = [z for _, _, z in low_results if not np.isnan(z)]
-        if low_valid:
-            story.append(Paragraph(
-                f"The annual minimum was {low_d1.strftime('%B %Y')}, so the month-on-month map "
-                f"above is also the recovery since it.", style_body))
+            # No apposition in the August case: "from Aug 2026, the August baseline"
+            # says it twice, and the note below already says what the baseline is.
+            _base_desc = ("" if annual_min.get('baseline_is_august')
+                          else ", this summer's lowest round, there being no August round that year")
+            _cap = (f"Water level change (m) from {_lt}{_base_desc} to "
+                    f"{MONTH_NAMES[month]} {year}. Blue = higher now, red = lower now.")
+            if annual_min.get('baseline_note'):
+                _cap += " " + annual_min['baseline_note']
+            story.append(Paragraph(_cap, style_caption))
     if low_results and low_d1 and low_d2 and low_d1 != mom_d1:
         low_label = f"{low_d1.strftime('%b%y')}-{low_d2.strftime('%b%y')}"
         map_path = os.path.join(output_dir, f"map_cumulative_{low_label}.png")
@@ -2458,8 +2500,18 @@ def generate_pdf_report(output_dir, year, month, met_text,
             while j < len(story) and not _is_heading(story[j]) and not isinstance(story[j], (Image, PageBreak)):
                 j += 1
             if j < len(story) and isinstance(story[j], Image):
-                end = j + 2 if j + 1 < len(story) and isinstance(story[j + 1], Paragraph) \
-                    and story[j + 1].style.name == "Caption" else j + 1
+                # ALL the captions that follow the figure, not just the first
+                # (1.7.5). A figure may carry a second caption - the by-area
+                # cluster prose under the month-on-month and year-on-year maps,
+                # and the baseline note under the August map - and keeping only
+                # the first in the group lets the rest break away on their own.
+                # Measured: the two extra lines D-315 added pushed the last two
+                # lines of the year-on-year area prose onto a SEVENTH page that
+                # held nothing else, in an issue that had been six.
+                end = j + 1
+                while end < len(story) and isinstance(story[end], Paragraph) \
+                        and story[end].style.name == "Caption":
+                    end += 1
                 grouped.append(KeepTogether(story[i:end]))
                 i = end
                 continue
@@ -3001,9 +3053,38 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         _d = annual_min['decade']
         annual_min['chart_path'] = os.path.join(output_dir, f"annual_minima_chart_{year}_{month:02d}.png")
         create_annual_minima_chart(_d, year, month, annual_min['chart_path'])
-        _lo = max(_d, key=lambda d: d['diff'])
-        _lo_res = compute_differences_by_index(wells, coords, _lo['idx'], latest_idx)
-        _lod = pd.Timestamp(*_lo['ym'], 1)
+        # D-315 (Martin, 2026-11-07): AUGUST is the baseline, by convention, so that
+        # every year's comparison runs from the same month. It is NOT necessarily the
+        # lowest round of the summer - in 2026 September was 0.02 m lower - and where
+        # it is not, the caption says so rather than letting "lowest" stand unqualified.
+        # This replaced a baseline that was the lowest annual minimum of the previous
+        # ten years (Aug 2019 for the October 2026 issue): a different year every time,
+        # which answered "how does now compare with the worst we have seen" and not
+        # Martin's question, "how far has it come back since this summer".
+        _aug_idx, _aug_read = find_month_column(dates, summer_year, 8)
+        _base_idx, _base_ts, _base_is_aug = _aug_idx, pd.Timestamp(summer_year, 8, 1), True
+        if _base_idx is None:
+            # No August round that summer: fall back to the lowest round there was,
+            # and say which it is. A missing baseline is not a reason to show nothing.
+            _base_idx, _base_ts, _base_is_aug = amin['idx'], pd.Timestamp(*amin['ym'], 1), False
+        annual_min['baseline_ts'] = _base_ts
+        annual_min['baseline_is_august'] = _base_is_aug
+        # The note that outlives this issue: when the lowest round was not August,
+        # every future report of that summer carries the fact, with the margin.
+        annual_min['baseline_note'] = None
+        _amin_ts = pd.Timestamp(*amin['ym'], 1)
+        if _base_is_aug and amin['ym'] != (summer_year, 8):
+            _mu = amin.get('means') or {}
+            _ga = _mu.get(f"{summer_year}-08")
+            _gl = _mu.get(f"{amin['ym'][0]}-{amin['ym'][1]:02d}")
+            _gap = f", {abs(_ga - _gl):.2f} m below August" if (_ga is not None and _gl is not None) else ""
+            annual_min['baseline_note'] = (
+                f"August is the baseline every year, so each year's comparison runs from the same "
+                f"month; the lowest round of summer {summer_year} was in fact "
+                f"{_amin_ts.strftime('%B %Y')}{_gap}.")
+        _lo_res = compute_differences_by_index(wells, coords, _base_idx, latest_idx)
+        annual_min['baseline_res'] = _lo_res
+        _lod = _base_ts
         annual_min['lowest_ts'] = _lod
         annual_min['map_path'] = os.path.join(
             output_dir, f"map_vs_lowest_min_{_lod.strftime('%b%y')}-{pd.Timestamp(year, month, 1).strftime('%b%y')}.png")
@@ -3014,6 +3095,10 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
                               kml_dir=kml_dir)
         write_difference_csv(_lo_res, os.path.join(
             output_dir, f"{_lod.strftime('%b%y')}-{pd.Timestamp(year, month, 1).strftime('%b%y')}.csv"))
+        print(f"      baseline (D-315): {_lod.strftime('%b %Y')}"
+              f"{'' if _base_is_aug else ' (no August round that summer)'}"
+              f" -> {pd.Timestamp(year, month, 1).strftime('%b %Y')}, {len(_lo_res)} wells"
+              + (f"; lowest round was {_amin_ts.strftime('%b %Y')}" if annual_min['baseline_note'] else ""))
 
     if yoy_results:
         yoy_title = f"Water level change (m): {yoy_d1.strftime('%b %y')} – {yoy_d2.strftime('%b %y')}"

@@ -590,7 +590,7 @@ reclen_check_datum_vs39_max_abs_nse_diff,,,0.9364031911644028,,identity check at
 reclen_check_datum_vs48_max_abs_nse_diff,,,2.220446049250313e-16,,identity check at the project datum (expected 0)
 reclen_check_datum_vs19_max_abs_fall_diff_m,,,3.552713678800501e-15,,identity check at the project datum (expected 0)
 reclen_check_datum_vs44_max_abs_nse_diff,,,0.016659192248057675,,identity check at the project datum (expected 0)
-projection_check_ddp_k0_vs_closed_form,,,1.1812328892801816e-11,m,"identity check: the depth-dependent sustained response at kappa = 0 less the closed form, max over a coefficient grid (expected 0 to 1e-9)"
+projection_check_ddp_k0_vs_closed_form,,,1.1812328892801816e-11,m,"identity check: the depth-dependent sustained response at 1/L_E = 0 less the closed form, max over a coefficient grid (expected 0 to 1e-9)"
 projection_2050s_annual_wb_shift_mm_yr,,,-117.15548925127737,mm/yr,UKCP18 2050s change in annual P - PET applied to the modern monthly climatology (2005-04 to 2026-02)
 projection_2080s_annual_wb_shift_mm_yr,,,-209.8142491795254,mm/yr,UKCP18 2080s change in annual P - PET applied to the modern monthly climatology (2005-04 to 2026-02)
 ccw_epoch_annual_wb_shift_mm_yr,,,-109.98073362971856,mm/yr,"annual P - PET over the CCW epoch (1989-05 to 1996-04, n = 84 months) less the modern mean, as 12 x the monthly mean difference"

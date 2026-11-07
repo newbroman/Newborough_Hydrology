@@ -91,7 +91,13 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-06 (D-314, Martin: "allow pushes for locks").
+__version__ = "1.7.0"  # Hollingham (2026) — 2026-11-07 (T-175, Martin: "2b"). publish_records
+#   refuses the push when commits between origin/main and HEAD touch anything beside the records,
+#   printing LOCAL ONLY and naming them. D-314 exempts publishing "chat X holds Y" from "ask
+#   before every push"; it never covered the rest of the branch, which `push HEAD:main` carried
+#   anyway — measured 2026-11-07, when a take and a queue publish together sent six unapproved
+#   private commits to GitHub. The record is still committed locally, so the claim holds here.
+# "1.6.0"  # Hollingham (2026) — 2026-11-06 (D-314, Martin: "allow pushes for locks").
 #   A CLAIM IS NOT A CLAIM UNTIL GITHUB HAS IT. take and release now commit and push the lock record
 #   themselves, through _update(publish=...), and apply the change ON TOP OF ORIGIN'S record rather than
 #   merging into it. Until now the whole durability mechanism was two print() calls asking a human to
@@ -550,6 +556,12 @@ def release(note: str = "", force: bool = False) -> int:
 # It never fails the operation. A claim that cannot be published is still taken locally and says
 # so loudly - the one thing it must not do is report success for a claim nobody else can see.
 RECORD_PATHS = ("working/DOCUMENT_LOCK.json", "working/claim_overrides.csv")
+# Every record that publishes itself under D-314 as widened on 2026-11-06 (Martin: "to all
+# shared records locks should be automatic"). T-175's rider test uses this UNION, not just the
+# paths of the call in hand: an unpushed `chat_register` or `job_queue` commit is itself a
+# self-publishing record, so it must not block a lock from publishing. Anything outside this
+# set is work someone has to choose to push (CLAUDE.md §7).
+SHARED_RECORD_PATHS = RECORD_PATHS + ("working/chat_register.csv", "working/job_queue.csv")
 _WGIT = ("git", "--no-optional-locks")
 
 
@@ -589,6 +601,44 @@ def _rebase_records_on_origin() -> None:
         pass
 
 
+def _unpublished_non_record_commits(paths=SHARED_RECORD_PATHS) -> list[str]:
+    """T-175 / fix (b): the commits between origin/main and HEAD that touch anything BESIDE the
+    SELF-PUBLISHING shared records (SHARED_RECORD_PATHS, not just this call's paths). D-314 exempts a lock push from "ask before every push" because it publishes only
+    "chat X holds Y" — but the push is `HEAD:main`, which carries the WHOLE branch, so the
+    exemption holds only while nothing else is sitting unpushed. Measured 2026-11-07: a
+    `take doc:Paper2` carried five unapproved private commits to GitHub, and a queue publish
+    carried a sixth.
+
+    Each commit is asked for its own file list rather than parsed out of one combined
+    `--name-only` stream: the combined form has to be split into commits by guessing which lines
+    are headers, and the first version of this function both double-counted a commit and flagged
+    the lock's own record commit. One call per commit, and these ranges are short.
+
+    Returns "<sha> <subject>" per offending commit, newest first; empty means the push really
+    does publish nothing but the records.
+    """
+    try:
+        log = _wgit("log", "--format=%h %s", "origin/main..HEAD", timeout=60)
+        if log.returncode:
+            return []                        # no origin/main to compare; _publishing() gates that
+        keep = []
+        for line in log.stdout.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            sha = line.split(" ", 1)[0]
+            shown = _wgit("show", "--name-only", "--format=", sha, timeout=60)
+            if shown.returncode:
+                keep.append(line)            # cannot tell: treat as a rider, the safe direction
+                continue
+            files = [f.strip() for f in shown.stdout.split("\n") if f.strip()]
+            if any(f not in SHARED_RECORD_PATHS for f in files):
+                keep.append(line)
+        return keep
+    except (OSError, Exception):
+        return []
+
+
 def publish_records(paths=RECORD_PATHS, what: str = "the claim") -> None:
     """Half 1: commit and push JUST these records, immediately. Never fatal."""
     if not _publishing():
@@ -602,6 +652,21 @@ def publish_records(paths=RECORD_PATHS, what: str = "the claim") -> None:
             return                                      # nothing staged: already current
         if _wgit("commit", "-q", "-m", f"doc_lock: {what}", "--", *present).returncode:
             print("  WARNING: could not commit the record — the claim is LOCAL ONLY (D-314)")
+            return
+        # T-175 fix (b), Martin 2026-11-07: the push is HEAD:main, so it carries the whole
+        # branch. D-314's exemption covers the RECORD, not whatever else is unpushed, so refuse
+        # rather than publish someone's unapproved work as a side effect of taking a claim.
+        riders = _unpublished_non_record_commits(tuple(present))
+        if riders:
+            print(f"  the record is committed but NOT PUSHED — the claim is LOCAL ONLY (D-314, T-175).")
+            print(f"           {len(riders)} unpushed commit(s) here touch more than the record, and a lock")
+            print( "           push would publish them too, which D-314 does not cover:")
+            for c in riders[:5]:
+                print(f"             {c[:96]}")
+            if len(riders) > 5:
+                print(f"             ... and {len(riders) - 5} more")
+            print( "           Push them yourself when you mean to (CLAUDE.md §7), then re-run this")
+            print( "           command and the claim publishes on its own.")
             return
         r = _wgit("push", "-q", "origin", "HEAD:main", timeout=180)
         if r.returncode:

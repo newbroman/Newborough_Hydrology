@@ -187,7 +187,14 @@ def load_forest_polygon():
         # Script 29, which had the decency to crash.
         from utils.kml_io import read_kml
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+            # D-155: named, not blanket — and this one matters. The comment above records
+            # that a SWALLOWED DriverError once turned the forest-edge predictor silently to
+            # NaN; a blanket ignore around the replacement read is the same trap set again.
+            # Only the driver-availability chatter fiona/pyogrio emit on a KML open is
+            # silenced. A DriverError is not a warning and was never caught here, but any
+            # OTHER warning the read raises is now heard.
+            warnings.filterwarnings("ignore", message=".*driver.*", module="pyogrio")
+            warnings.filterwarnings("ignore", message=".*Sequential read of iterator.*")
             gdf = read_kml(DATA_KML_FEATURES, None, quiet=True)
         name_col = "Name" if "Name" in gdf.columns else gdf.columns[0]
         forest = gdf[gdf[name_col].astype(str).str.lower().str.contains("forest")]

@@ -53,7 +53,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-10-02 (D-227). The environment, not the host, is
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-07 (T-176, Martin: "3 both"). probe()
+#   records the effective matplotlib configuration — MATPLOTLIBRC, whether the active rc file is
+#   matplotlib's own, and text.hinting / text.hinting_factor — and compare() flags a difference.
+#   D-227 pinned Python, the libraries and the BLAS kernel but not matplotlib's own config, which a
+#   host image can set from outside the repository; measured 2026-11-07, a cloud container's
+#   /etc/matplotlib/matplotlibrc moved every text-bearing figure while this tool read green.
+# "1.2.0"  # Hollingham (2026) — 2026-10-02 (D-227). The environment, not the host, is
 #   the identity: a machine whose Python, externals, libraries and BLAS pin all match the record is
 #   the pipeline's environment, whatever its hostname, and gets the green verdict (the hostname is
 #   reported, not compared). New probe `blas`: the OPENBLAS_CORETYPE / OPENBLAS_NUM_THREADS /
@@ -183,6 +189,33 @@ def probe() -> dict:
     except Exception:
         blas["kernel"] = None
 
+    # 1.3.0 (T-176): the matplotlib configuration THE PIPELINE WILL SEE. D-227 pins Python, the
+    # libraries and the BLAS kernel but not matplotlib's own config, which a host image can set
+    # from outside the repository via MATPLOTLIBRC. Measured 2026-11-07: a cloud container carried
+    # `text.hinting: no_hinting`, which render_utils did not override, and every text-bearing
+    # figure came out different while this tool reported the environment correct.
+    #
+    # Probed in a CHILD with MATPLOTLIBRC removed, because that is the state run_analysis.py now
+    # guarantees for every pipeline process. Auditing this shell instead would fail the gate on any
+    # host that merely sets the variable, even though no committed artefact can be affected by it.
+    # The host's own setting is recorded separately as `host_MATPLOTLIBRC`, reported and NOT
+    # compared: it is information about the machine, not a difference in the environment.
+    mpl = {"host_MATPLOTLIBRC": os.environ.get("MATPLOTLIBRC")}
+    try:
+        import subprocess as _sp
+        _env = {k: v for k, v in os.environ.items() if k != "MATPLOTLIBRC"}
+        _probe = ("import matplotlib, json;"
+                  "print(json.dumps({"
+                  "'rc_file_is_matplotlibs_own': 'mpl-data' in matplotlib.matplotlib_fname(),"
+                  "'text.hinting': str(matplotlib.rcParams['text.hinting']),"
+                  "'text.hinting_factor': str(matplotlib.rcParams['text.hinting_factor'])}))")
+        out = _sp.run([sys.executable, "-c", _probe], capture_output=True, text=True,
+                      timeout=60, env=_env)
+        mpl.update(json.loads(out.stdout.strip()) if out.returncode == 0 else
+                   {"rc_file_is_matplotlibs_own": None})
+    except Exception:
+        mpl["rc_file_is_matplotlibs_own"] = None
+
     return {
         "machine": {
             "hostname": platform.node(),
@@ -198,6 +231,7 @@ def probe() -> dict:
         "externals": ext,
         "libraries": libs,
         "blas": blas,
+        "matplotlib_config": mpl,
     }
 
 
@@ -278,6 +312,18 @@ def compare(live: dict, rec: dict, quiet: bool) -> list[str]:
         for k in (*BLAS_PINS, "kernel"):
             if lb.get(k) != rb.get(k):
                 diffs.append(f"BLAS {k} {lb.get(k)}  (recorded {rb.get(k)})")
+
+    # T-176: the matplotlib configuration. A record made before 1.3.0 has none; say so once rather
+    # than reporting every key as changed, because an un-recorded field is not a mismatch.
+    rm = rec.get("matplotlib_config")
+    if rm is None:
+        diffs.append("matplotlib config not recorded (T-176: re-record with tools/env_audit.py --record)")
+    else:
+        lm = live.get("matplotlib_config") or {}
+        for k in ("rc_file_is_matplotlibs_own", "text.hinting", "text.hinting_factor"):
+            if lm.get(k) != rm.get(k):
+                diffs.append(f"matplotlib {k} {lm.get(k)!r}  (recorded {rm.get(k)!r}) — a host "
+                             f"matplotlibrc changes figure bytes without changing any number")
     return diffs
 
 

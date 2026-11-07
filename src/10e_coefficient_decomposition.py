@@ -71,7 +71,13 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) - 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-11-07 (Martin: "add the emit and edit the
+#   prose to show no overall effect"). The beta1/beta2 shift correlation gains two well sets --
+#   Climate Ctrl (nothing was done to those wells, so any anti-correlation there is the fit
+#   trading variance, not management) and all controls together -- and a Fisher-z 95% CI on the
+#   absolute-shift r for every set including the four pine controls Paper 2 Section 4.2.3
+#   quotes. Emit-only; no existing value moves.
+# "1.19.0"  # Hollingham (2026) - 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
 #   Martin 22:12): new row wmc3_b2_fall_canopy_on_pct = (1 - shield_ratio_canopy_on_net at Impact) x 100,
 #   the canopy-on fall in beta2 net of the Climate controls (positive = fell), so Paper 2 §5.3's 1.7% is
 #   a field. Emit-only.
@@ -609,7 +615,18 @@ def main():
     # no output carried). Pearson r of db1 against db2, on absolute shifts and on percentage
     # shifts (d / before x 100), over three well sets: the Forest Ctrl tier, the BACI network
     # (excl. Far-field Ctrl) and all wells in 10e_01_coefficient_shifts.csv.
+    # 1.20.0 (Martin 2026-11-07): two more sets and a confidence interval. The sets: the
+    # Climate Ctrl tier, where nothing was done to the wells, so any anti-correlation there
+    # MUST be the fit trading variance between two seasonally anti-correlated regressors
+    # rather than a management effect; and every control well together. The interval: a
+    # Fisher-z 95% CI on the absolute-shift r, because the per-tier well counts are small
+    # enough that r alone says nothing -- the four pine controls Paper 2 Section 4.2.3 quotes
+    # give r = +0.17 with a CI spanning nearly [-1, +1], and the Edge tier (also n = 4) gives
+    # r = +0.77, the opposite sign to the resolved all-wells value. Emit-only.
+    _CTRL_TIERS = ('Climate Ctrl', 'Coastal Ctrl', 'Forest Ctrl')
     _sets = (("Forest", shift_df[shift_df['Tier'] == 'Forest Ctrl']),
+             ("Climate Ctrl", shift_df[shift_df['Tier'] == 'Climate Ctrl']),
+             ("Controls", shift_df[shift_df['Tier'].isin(_CTRL_TIERS)]),
              ("Network", shift_df[shift_df['Tier'] != 'Far-field Ctrl']),
              ("All", shift_df))
     for _lbl, _d in _sets:
@@ -624,6 +641,16 @@ def main():
             rpt.add(_key, _val, "", well=_lbl,
                     note=f"Pearson r of the beta1 shift against the beta2 shift, {_basis}, "
                          f"n={len(_d)} wells ({_lbl}: " + ", ".join(sorted(_d['Well'].astype(str))) + ")")
+        # the Fisher-z interval on the absolute-shift r. se = 1/sqrt(n-3), so it needs n >= 4;
+        # |r| = 1 has no transform. A CI that spans zero means this set cannot resolve the sign.
+        if len(_d) >= 4 and abs(_abs) < 1.0:
+            _z, _se = np.arctanh(_abs), 1.0 / np.sqrt(len(_d) - 3)
+            for _key, _val, _end in (("CoeffShift_corr_db1_db2_ci_lo", float(np.tanh(_z - 1.96 * _se)), "lower"),
+                                     ("CoeffShift_corr_db1_db2_ci_hi", float(np.tanh(_z + 1.96 * _se)), "upper")):
+                rpt.add(_key, _val, "", well=_lbl,
+                        note=f"{_end} end of the Fisher-z 95% CI on the absolute-shift r, n={len(_d)} "
+                             f"wells ({_lbl}); an interval spanning 0 cannot resolve the sign of the "
+                             "beta1/beta2 relationship at this set size")
 
     # T-96: Forest Ctrl mean Δβ₂ over the intact-pine wells only -- the Forest
     # Ctrl wells outside the broadleaf restock block, identified from Script
@@ -653,6 +680,18 @@ def main():
                                      f"n={len(_pp)} Forest Ctrl wells outside the broadleaf restock block "
                                      f"({', '.join(sorted(_pp['Well'].astype(str)))}); excluded: "
                                      f"{', '.join(_dropped) or 'none'}")
+                    # 1.20.0: and its interval, the point of the exercise -- this is the set
+                    # Paper 2 Section 4.2.3 quotes, and at n = 4 the CI spans nearly [-1, +1].
+                    _pr = float(np.corrcoef(_pp['db1'], _pp['db2'])[0, 1])
+                    if len(_pp) >= 4 and abs(_pr) < 1.0:
+                        _z, _se = np.arctanh(_pr), 1.0 / np.sqrt(len(_pp) - 3)
+                        for _key, _val, _end in (
+                                ("CoeffShift_corr_db1_db2_ci_lo", float(np.tanh(_z - 1.96 * _se)), "lower"),
+                                ("CoeffShift_corr_db1_db2_ci_hi", float(np.tanh(_z + 1.96 * _se)), "upper")):
+                            rpt.add(_key, _val, "", well="Forest Ctrl pine",
+                                    note=f"{_end} end of the Fisher-z 95% CI on the absolute-shift r, "
+                                         f"n={len(_pp)} Forest Ctrl wells outside the broadleaf restock "
+                                         "block; an interval spanning 0 cannot resolve the sign")
                 rpt.add("CoeffShift_Forest Ctrl_pine_mean_db2", _pine['db2'].mean(),
                         well="Forest Ctrl", era="Delta",
                         note=(f"mean db2 over Forest Ctrl wells outside the broadleaf "

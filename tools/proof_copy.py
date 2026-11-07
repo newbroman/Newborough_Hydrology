@@ -78,7 +78,12 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.35.2"  # Hollingham (2026) — 2026-10-10: the Bindings chapter reads only binding files that
+__version__ = "1.36.0"  # Hollingham (2026) — 2026-11-07 (T-136). refresh() stamps bundle_at
+#   only when the bundle sha changes, and writes tools/proof_bundle_state.json only when the
+#   state actually moves, so check_all:623 stops dirtying a tracked file on every run.
+#   _state_text() and _iso_now() added beside the state helpers; stamp_published uses
+#   _iso_now() too. No change to the bundle, the chapters or any output.
+# "1.35.2"  # Hollingham (2026) — 2026-10-10: the Bindings chapter reads only binding files that
 #   carry a review queue; the emit-first files (report9_confirmed/_traced/_emitted.csv) have none and raised KeyError.
 # 1.35.1  # Hollingham (2026) — 2026-10-09 (Martin, 17:5x: "DO I TICK TO SAY YOU ARE RIGHT"): the
 #   Bindings buttons say what they judge ("binding is right / wrong"), and each item shows a "history:" line from
@@ -369,6 +374,10 @@ def _window(text: str, start: int, end: int, n: int = cc.ANCHOR_WINDOW) -> str:
 GLYPH_FORMS = {
     "delta0": ["δ₀", "δ0", "delta0", "shoreline amplitude", "decay amplitude"],
     "delta_0": ["δ₀", "δ0"], "lambda": ["λ", "reach"], "tau": ["τ"],
+    # D-316: the published symbol is the LENGTH L_E; the fitted quantity is its reciprocal.
+    # "kappa" is kept as a key so older documents still anchor while they are refreshed.
+    "L_E": ["L_E", "L꜒E", "attenuation length", "depth-coupling", "depth coupling"],
+    "inv_L_E": ["1/L_E", "inverse attenuation length", "depth-coupling", "depth coupling"],
     "kappa": ["κ", "depth-coupling", "depth coupling"], "gamma": ["γ"],
     "dnse": ["δnse", "δ nse", "nse"], "nse": ["nse", "nash"],
     "halflife": ["t½", "half-life", "half life"], "t_half": ["t½", "half-life"],
@@ -2639,6 +2648,16 @@ def _save_state(st: dict) -> None:
     BUNDLE_STATE.write_text(json.dumps(st, indent=1, sort_keys=True) + "\n", encoding="utf8")
 
 
+def _state_text(st: dict) -> str:
+    """The exact bytes _save_state would write, so refresh() can tell whether the
+    state actually moved before dirtying a tracked file (T-136)."""
+    return json.dumps(st, indent=1, sort_keys=True) + "\n"
+
+
+def _iso_now() -> str:
+    return __import__("datetime").datetime.now().isoformat(timespec="seconds")
+
+
 def _tasks_section(tasks_from: str | None = None) -> str:
     """The register as a tab: task_lint --open verbatim (or the output check_all has
     just captured, via --tasks-from, so the checks are not run twice), then the
@@ -2715,6 +2734,7 @@ def _bindings_sections() -> list[str]:
 
 def refresh(a) -> int:
     st = _load_state()
+    _as_loaded = _state_text(st)            # T-136: write only if this moves
     BUNDLE_DIR.mkdir(parents=True, exist_ok=True)
     stale = [s for s in BUNDLE_ORDER if st["chapters"].get(s) != _chapter_inputs_hash(s) or not (BUNDLE_DIR / f"{s}.html").exists()]
     if stale:
@@ -2727,9 +2747,12 @@ def refresh(a) -> int:
                 print(f"  regenerated {s}")
     stems = [s for s in BUNDLE_ORDER if (BUNDLE_DIR / f"{s}.html").exists()]
     b = write_bundle(BUNDLE_DIR, stems, extra_sections=[_tasks_section(a.tasks_from)] + _bindings_sections())
-    st["bundle_sha256"] = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
-    st["bundle_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
-    _save_state(st)
+    _sha = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
+    if st.get("bundle_sha256") != _sha:
+        st["bundle_sha256"] = _sha
+        st["bundle_at"] = _iso_now()        # the build time of THIS bundle, not of this run
+    if _state_text(st) != _as_loaded:       # T-136: an unchanged bundle leaves the file alone
+        _save_state(st)
     current = st["published_sha256"] == st["bundle_sha256"]
     print(f"  proof bundle: {len(stale)} chapter(s) regenerated, {len(stems)} in the bundle ({b.stat().st_size // 1024} KB)")
     print(f"  {'OK   ' if current else 'STALE'}  proof artifact {'is the current bundle' if current else 'is behind the bundle — a session republishes scratch/proof_bundle/NRG_proof_shell.html with proof_chapters.json to the claude.ai artifact and runs proof_copy.py --published <version>'}"
@@ -2745,7 +2768,7 @@ def stamp_published(version: str) -> int:
     st["published_sha256"] = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
     st["bundle_sha256"] = st["published_sha256"]
     st["published_version"] = version
-    st["published_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
+    st["published_at"] = _iso_now()
     _save_state(st)
     print(f"  stamped: bundle {st['published_sha256']} published as artifact version {version}")
     return 0

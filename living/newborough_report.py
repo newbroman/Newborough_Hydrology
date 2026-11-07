@@ -102,7 +102,23 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.7"  # Hollingham (2026) - 2026-11-07. The WU exports live in living/inbox/ and
+__version__ = "1.7.8"  # Hollingham (2026) - 2026-11-07. The flood outlook says BY WHAT DATE, and the
+#   rain-so-far window was anchored to the wrong year outside Oct-Dec. Martin: "Flood Outlook for the
+#   Coming Winter.. it doesnt say what the window is c1 495mm by what date?" - and it never did,
+#   though the window was computed all along and simply not printed. There is no single date to give:
+#   C1's water table peaks in JANUARY over a four-month window (10,11,12,1; typical 399.6 mm), C2-C5 in
+#   FEBRUARY over five (10,11,12,1,2; 460.6 mm), so the sentence carries the nearest area's window and
+#   the table gains a `By` column. The caption now also says the 'typical' total is the climatology for
+#   that SAME window, which is what makes the ratio like for like.
+#   THE BUG UNDER THE QUESTION: `so_far` anchored the window to the REPORT's year, which is only the
+#   same thing from October to December. Measured - for a January report (year=2027, month=1) the old
+#   expression placed October in 2027, eight months in the FUTURE, and summed January and February
+#   while omitting October, November and December; February had not fallen so it contributed 0, and the
+#   error showed only as a silent undercount of three autumn months. Every issue published so far is
+#   October-December and correct. Now anchored to the window's own October and compared on that clock.
+#   Also: the sentence's elapsed count took flood[0] while the window took _near, which disagree in any
+#   month where the nearest area is not the first row of the equations CSV.
+# __version__ = "1.7.7"  # Hollingham (2026) - 2026-11-07. The WU exports live in living/inbox/ and
 #   are found there by name - no --wu_csv needed (Martin: "the wu exports should go in living/inbox").
 #   Same place as valleydata.txt and the round's well files: the month's inputs, dropped in and read
 #   in place, and the directory is gitignored, so the exports stay local while the newsletter remains
@@ -1693,14 +1709,32 @@ def flood_outlook(wells_path, valley_df, year, month,
         d = float(np.mean(ds))
         need = float(e['slope_A']) * d + float(e['intercept_B'])
         months = [int(x) for x in str(e['months_in_horizon']).split(',')]
-        # rain already fallen inside the horizon, counting from this October
-        so_far = sum(rain.get((year if m >= 10 else year + 1, m), 0.0)
-                     for m in months if (m >= 10 and m <= month) or (m < 10 and month < 10))
+        # THE WINDOW IS ANCHORED TO OCTOBER, and before 1.7.8 it was anchored to the
+        # report's own year, which is only the same thing from October to December.
+        # Measured 2026-11-07: for a JANUARY report (year=2027, month=1) the old
+        # expression put October in 2027 - eight months in the FUTURE - and summed
+        # January and February while omitting October, November and December
+        # entirely; February's rain had not fallen, so it contributed 0 and the
+        # error showed as a silent undercount of three autumn months. October to
+        # December was correct, which is every issue published so far.
+        wsy = year if month >= 10 else year - 1          # the window's October
+        ym_of = lambda m: (wsy if m >= 10 else wsy + 1, m)
+        elapsed = [ym_of(m) for m in months if ym_of(m) <= (year, month)]
+        so_far = sum(rain.get(ym, 0.0) for ym in elapsed)
+        _end_y, _end_m = ym_of(months[-1])
         out.append({
             'cluster': cname, 'label': str(e['Label']), 'n_wells': len(ds),
             'd_m': d, 'need_mm': need, 'clim_mm': float(e['P_clim_total_mm']),
             'horizon': str(e['horizon_months']), 'months': months,
             'so_far_mm': so_far,
+            # The window, so the page can say BY WHAT DATE (Martin, 2026-11-07:
+            # "it doesnt say what the window is c1 495mm by what date?"). It was
+            # computed all along and never printed: C1 peaks in January over four
+            # months, C2-C5 in February over five, so there is no single date and
+            # the table has to carry it per cluster.
+            'window_from': pd.Timestamp(wsy, 10, 1),
+            'window_to': pd.Timestamp(_end_y, _end_m, 1),
+            'n_months': len(months), 'n_elapsed': len(elapsed),
             'ratio': need / float(e['P_clim_total_mm']) if float(e['P_clim_total_mm']) else None,
         })
     return out
@@ -2450,16 +2484,32 @@ def generate_pdf_report(output_dir, year, month, met_text,
     if flood:
         story.append(Paragraph("Flood Outlook for the Coming Winter", style_h3))
         _near = min(flood, key=lambda f: f['ratio'])
+        # Every threshold is "by" a date, and until 1.7.8 the page named none of them
+        # (Martin: "it doesnt say what the window is c1 495mm by what date?"). There is
+        # no single date to give: C1's water table peaks in JANUARY over a four-month
+        # window, C2-C5 in FEBRUARY over five, so the window goes in the sentence for
+        # the nearest area and in a column of its own for the rest.
+        _wf = _near['window_from'].strftime('%B %Y')
+        _wt = _near['window_to'].strftime('%B %Y')
+        # _near, not flood[0]: the sentence names the nearest area's window, so the
+        # elapsed count has to be that same area's or the two disagree in any month
+        # where the nearest area is not the first row of the equations CSV.
+        _el = _near
         story.append(Paragraph(
             f"Each part of the warren has a measured rainfall threshold: the amount that "
-            f"would have to fall over the coming months to bring the water table up to the "
-            f"ground surface, given how deep it fell this summer. "
-            f"<b>{_near['label']} is closest</b>, needing {_near['need_mm']:.0f} mm against "
-            f"a typical {_near['clim_mm']:.0f} mm — about {_near['ratio']:.0%} of an average "
-            f"season — and {flood[0]['so_far_mm']:.0f} mm has fallen so far.", style_body))
-        _rows = [["Area", "Summer low (m)", "Rain needed", "Typical", "Needed / typical"]]
+            f"would have to fall <b>between {_wf} and the end of {_wt}</b> to bring the "
+            f"water table up to the ground surface, given how deep it fell this summer. "
+            f"The window ends when that area's water table peaks, which is why it differs "
+            f"between areas. "
+            f"<b>{_near['label']} is closest</b>, needing {_near['need_mm']:.0f} mm by the end "
+            f"of {_wt} against a typical {_near['clim_mm']:.0f} mm — about "
+            f"{_near['ratio']:.0%} of an average season. "
+            f"So far {_el['so_far_mm']:.0f} mm has fallen, with "
+            f"{_el['n_elapsed']} of those {_el['n_months']} months elapsed.", style_body))
+        _rows = [["Area", "Summer low (m)", "Rain needed", "By", "Typical", "Needed / typical"]]
         for f in flood:
             _rows.append([f['label'], f"{f['d_m']:.2f}", f"{f['need_mm']:.0f} mm",
+                          f"end {f['window_to'].strftime('%b %Y')}",
                           f"{f['clim_mm']:.0f} mm", f"{f['ratio']:.2f}"])
         _t = Table(_rows, hAlign='LEFT')
         _t.setStyle(TableStyle([
@@ -2473,7 +2523,9 @@ def generate_pdf_report(output_dir, year, month, met_text,
         story.append(Paragraph(
             "A ratio above 1 means a wetter-than-average season would be needed for the "
             "water table to reach the surface there; below 1, an average season would do "
-            "it. These are rainfall thresholds, not probabilities.", style_caption))
+            "it. The \u2018typical\u2019 figure is the climatological total for that same "
+            "window, so the two are like for like. These are rainfall thresholds, not "
+            "probabilities.", style_caption))
 
     # ── Year-on-year comparison ──
     if yoy_results and yoy_d1 and yoy_d2:

@@ -102,7 +102,68 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-10-07. Two newsletter wording faults found on the
+__version__ = "1.7.4"  # Hollingham (2026) - 2026-11-07. read_wu_export_csv() and --wu_csv /
+#   --wu_csv_2: the local-gauge data comes from WU's own "Export CSV" button on the table view
+#   instead of scraping a page that no longer carries the observations (T-163). One click a month,
+#   no credential, nothing to rotate, and it backfills months already gone - which the API route
+#   could not do legitimately and the daily-poll route could not do at all. THE COLUMN IS
+#   `Precip. Accum.`, NOT `Precip. Rate`: Rate is the day's PEAK rate, and on the October 2026
+#   IHOLYH29 export it sums to 166.8 mm against Accum's 115.1, so taking it would over-report the
+#   month by 64 %. The second gauge moves to IHOLYH29 "Capel Gwyn" (14.2 km), the other live
+#   station, restoring the two-gauge cross-check that died with IBODOR6. October 2026 measured:
+#   Rhianfa 87.4 mm over 29/31 days (0.86 of RAF Valley), Capel Gwyn 115.1 over 31/31 (1.13), with
+#   RAF Valley's 101.8 sitting between them and the two gauges agreeing day to day to a mean
+#   absolute difference of 1.05 mm.
+# __version__ = "1.7.3"  # Hollingham (2026) - 2026-11-07. The local gauges were not merely unreadable,
+#   they are DEAD: ILLANF24's dashboard says OFFLINE outright and IBODOR6 renders no readings,
+#   measured on the rendered page. DEFAULT_WU_STATION moves to IBODOR4 "Rhianfa", the only live
+#   one and 6.6 km from the study-area centroid against IBODOR6's 7.2 km. This does NOT by itself
+#   restore the local-gauge block: T-163's parser fault is independent and still blocks every
+#   station. Note the routine's caution - Bodorgan was the published figure precisely because
+#   ILLANF24 over-reads, and Rhianfa now does both jobs unmeasured.
+# __version__ = "1.7.2"  # Hollingham (2026) - 2026-11-06. Three things Martin asked for on the
+#   October issue. (a) A gauge that cannot be read is now SAID so: before this the block was
+#   skipped and the newsletter simply had no local gauge and no rainfall-pattern paragraph, so a
+#   broken feed looked like a quiet month (T-163: WU no longer serves app-root-state, and that
+#   fails on any machine). (b) cluster_changes() and cluster_pattern_prose() describe each
+#   difference map BY AREA, using the project's own cluster names from the equations file and
+#   membership from the committed per-well flood table - "C2 (Dune) rose most (+0.13 m), and C4
+#   (Main Forest) was the only area to fall (-0.08 m)" - and say what the outlines on the map are.
+#   The prose is sign-aware: "moved most/least" ranks magnitude and reads as nonsense when one
+#   area went the other way, which is exactly the interesting case here. (c) The October issue was
+#   built with --no_wu, which is why the gauges were "unavailable" in the first place; that was a
+#   flag, not a fact, and it also removed the pattern paragraph.
+# __version__ = "1.7.1"  # Hollingham (2026) - 2026-11-06. _flat_jpeg(): every image embedded in the
+#   PDF is flattened onto white and JPEGed at quality 80 before it goes in. reportlab 5.1.0 was
+#   embedding the map and chart PNGs LOSSLESSLY and keeping their alpha as a soft mask - about
+#   2,632 K per map against 427 K for the same map in the September issue, which is JPEG at the
+#   same 271 ppi - and that alone took the October issue to 7.79 MB against 0.90-2.53 MB for every
+#   previous one. 7.79 -> 1.62 MB, 6 pages either way. Quality 80 is the project's own choice for
+#   embedded images (CLAUDE.md on export_master_pdf.py). Same class as W126: a size jump that is
+#   the image filter, not the toolchain it would be easy to blame - and it would have put a 6x
+#   outlier into a corpus under D-257 size management.
+# __version__ = "1.7.0"  # Hollingham (2026) - 2026-11-06. FOUR newsletter faults Martin named, all
+#   measured before they were changed. (a) The "hydrological year" cumulative compared UNEQUAL
+#   WINDOWS in October and November: it summed this year's months >= 10 - one month in October -
+#   against each historical year's months >= 10, always Oct+Nov+Dec, so October 2026 read 102 mm
+#   against an "average" of 299 mm, 34%, when the October average alone is 101.6 mm. Replaced by
+#   rolling_year_rain(): the 12 months ENDING at the report month against the 1991-2020 average of
+#   the same window - 864 mm against 857, 101%. Right in every month, not just from December.
+#   (b) dry_wells_for_column() reads the master's ANNOTATIONS, which pandas cannot see, so the
+#   newsletter can say which wells were visited and found dry (4 this round) instead of leaving
+#   them as an unexplained gap between 73 visited and 68 tabulated. (c) create_month_history_chart()
+#   and month_history() put every previous October beside the annual minima, which is the
+#   like-for-like comparison a reader actually makes. (d) flood_outlook() reads each cluster's
+#   PUBLISHED threshold equation P_flood = A*d + B and substitutes THIS year's observed summer
+#   minimum depth, so the newsletter can say how much rain would bring the water table to the
+#   surface - a required rainfall against climatology, never a probability, because the equations
+#   give a threshold (Martin ruled "live", 2026-11-06). Two defects of my own were caught in test
+#   and are worth the warning: the October comparison first counted the sign BACKWARDS (diff =
+#   later - earlier, so positive means this month is higher) and would have published "higher than
+#   9 of 10" for its exact inverse; and the dry lookup was passed mom_d2, the BUCKETED MONTH, where
+#   the annotations hang on the column date, while a bare `except` turned the miss into a silent
+#   "no dry wells". The except now reports.
+# __version__ = "1.6.0"  # Hollingham (2026) - 2026-10-07. Two newsletter wording faults found on the
 #   September 2026 run: (1) rainfall at 70-90 % of average was called "close to the average"
 #   (73 % in Sep 2026) - it now reads "below the average"; (2) the "Rebound from Summer Low"
 #   section said levels "have risen by an average of -0.02 m". The section is now skipped when
@@ -163,8 +224,20 @@ DEFAULT_VALLEY = 'data/valleydata.txt'
 DEFAULT_DEM = 'data/newborough_dem.tif'
 DEFAULT_COORDS_CSV = 'data/Well_locations_height.csv'
 DEFAULT_KML_DIR = 'kml'
-DEFAULT_WU_STATION = 'ILLANF24'
-DEFAULT_WU_STATION_2 = 'IBODOR6'   # second local gauge, reported alongside the first
+# Local gauges, 2026-11-07. ILLANF24 and IBODOR6 are BOTH DEAD: ILLANF24's
+# dashboard says OFFLINE in as many words, and IBODOR6 renders no readings at all
+# (only its lat/long). IBODOR4 "Rhianfa" is live and is 6.6 km from the study-area
+# centroid against IBODOR6's 7.2 km, so the substitute is no further away.
+# IBODOR6 is kept as the second gauge so the two-gauge cross-check resumes by
+# itself if Trefdraeth comes back.
+# CAUTION, and it is the routine's own: MONTHLY_ROUTINE.md makes Bodorgan/IBODOR6
+# the PUBLISHED figure and ILLANF24 pattern-only because ILLANF24 over-reads on
+# intense-rain days. Rhianfa now does both jobs and its behaviour is unmeasured,
+# so sanity-check its monthly total against RAF Valley before publishing it.
+DEFAULT_WU_STATION = 'IBODOR4'     # Rhianfa, 6.6 km from the warren - live (2026-11-07)
+DEFAULT_WU_STATION_2 = 'IHOLYH29'  # Capel Gwyn, 14.2 km - live; the two-gauge cross-check
+# IBODOR6 Trefdraeth (7.2 km) and ILLANF24 were the pair until 2026-11-07 and are both DEAD:
+# ILLANF24's dashboard says OFFLINE outright, IBODOR6 renders no readings at all.
 DEFAULT_OUTPUT_DIR = 'output'
 
 # Map extent for interpolation (Newborough Warren area, OSGB)
@@ -700,6 +773,78 @@ def _fetch_wu_monthly_once(station_id, year, month):
     }, None
 
 
+def read_wu_export_csv(path, station_id=None, year=None, month=None):
+    """Read a Weather Underground 'Export CSV' file into the same shape
+    fetch_wu_monthly returns, so everything downstream works unchanged.
+
+    WHY THIS EXISTS (T-163, 2026-11-07). WU stopped serving the embedded
+    observations the scraper read, and the only key on offer is WU's own, which
+    is their credential and not ours to use. The table view, however, carries an
+    `Export CSV` button that any visitor can click, and it yields exactly what
+    the newsletter needs: one row per day with the month's precipitation. One
+    click a month, no credential, nothing to rotate.
+
+    THE COLUMN IS `Precip. Accum.`, NOT `Precip. Rate`. Rate is the PEAK rate
+    observed that day, not a total: on the October 2026 export of IHOLYH29 the
+    Accum column sums to 115.1 mm against RAF Valley's 101.8 (ratio 1.13, sane
+    for a gauge 14 km away) while Rate sums to 166.8 mm, which would over-report
+    the month by 64 %. Taking the wrong one is the easy mistake here.
+
+    The file has no year in it - `Time` reads `10/1` - so the year is taken from
+    the argument or the filename (`weather-history-2026-10-01.csv`).
+    """
+    import csv as _csv, calendar as _cal
+    num = lambda v: (float(re.sub(r'[^0-9.\-]', '', v or '')) if re.search(r'\d', v or '') else None)
+    try:
+        with open(path, newline='', encoding='utf-8-sig') as f:
+            rows = list(_csv.DictReader(f))
+    except Exception as e:
+        return None, f"could not read {os.path.basename(path)}: {e}"
+    if not rows:
+        return None, f"{os.path.basename(path)} is empty"
+    col = next((c for c in rows[0] if c and c.strip().lower().startswith('precip. accum')), None)
+    if col is None:
+        return None, (f"{os.path.basename(path)} has no 'Precip. Accum.' column "
+                      f"(found {sorted(k for k in rows[0] if k)})")
+    if year is None:
+        m = re.search(r'(20\d{2})-(\d{2})', os.path.basename(path))
+        if m:
+            year, month = int(m.group(1)), month or int(m.group(2))
+    daily = []
+    for r in rows:
+        t = (r.get('Time') or '').strip()
+        mm = re.match(r'(\d{1,2})/(\d{1,2})', t)
+        if not mm:
+            continue
+        mo, da = int(mm.group(1)), int(mm.group(2))
+        if month and mo != month:
+            continue
+        daily.append({'date': f"{year:04d}-{mo:02d}-{da:02d}" if year else t,
+                      'precip_mm': num(r.get(col))})
+    if not daily:
+        return None, f"{os.path.basename(path)} has no rows for month {month}"
+    have = [d for d in daily if d['precip_mm'] is not None]
+    total = sum(d['precip_mm'] for d in have)
+    days_in_month = _cal.monthrange(year, month)[1] if (year and month) else len(daily)
+    spikes = [d for d in have if d['precip_mm'] > 150]
+    if spikes:
+        excl = sum(d['precip_mm'] for d in have if d['precip_mm'] <= 150)
+        warn = (f"Suspect spike on {', '.join(d['date'] for d in spikes)} "
+                f"({', '.join(str(round(d['precip_mm'])) + 'mm' for d in spikes)}). "
+                f"Total excluding spikes: {excl:.1f} mm.")
+    else:
+        excl, warn = total, None
+    return {
+        'station': station_id or 'CSV export',
+        'year': year, 'month': month,
+        'total_mm': total, 'total_excl_spikes_mm': excl,
+        'days_with_data': len(have), 'days_expected': days_in_month,
+        'missing_days': days_in_month - len(have),
+        'spike_warning': warn, 'daily': daily,
+        'source': f"Export CSV ({os.path.basename(path)})",
+    }, None
+
+
 def assess_wu_reliability(wu_result, valley_rain_mm=None):
     """
     Assess whether WU station data is reliable for this month.
@@ -1111,6 +1256,121 @@ def write_difference_csv(results, filepath):
 
 # ─── Interpolation Map with Hillshade ────────────────────────────────────────
 
+# ───────────────────────── rolling year, dry wells (2026-11-06) ─────────────
+def _month_back(y, m, k):
+    """The (year, month) k months before (y, m)."""
+    t = (y * 12 + (m - 1)) - k
+    return t // 12, t % 12 + 1
+
+
+def rolling_year_rain(valley_df, year, month):
+    """Rainfall over the 12 months ENDING at (year, month), with the 1991-2020
+    average of the SAME 12-month window. Returns (total_mm, avg_mm, n_months).
+
+    Replaces the old Oct->month 'hydrological year' cumulative, which compared
+    UNEQUAL WINDOWS in October and November. For month >= 10 it summed this
+    year's months >= 10 - one month in October - against each historical year's
+    months >= 10, which is always Oct+Nov+Dec. So October 2026 read 102 mm
+    against an "average" of 299 mm, 34%, when the October average alone is
+    101.6 mm; 299/3 = 99.7 gives the game away. It was wrong in October and
+    November and right from December. A rolling 12-month window is the same
+    length in every month, so actual and average always cover the same span.
+    """
+    rain = {}
+    for _, r in valley_df.iterrows():
+        try:
+            if pd.notna(r.get('rain')):
+                rain[(int(r['year']), int(r['month']))] = float(r['rain'])
+        except (TypeError, ValueError):
+            continue
+
+    def total(y, m):
+        vals = [rain.get(_month_back(y, m, k)) for k in range(12)]
+        have = [v for v in vals if v is not None]
+        return sum(have), len(have)
+
+    cur, n_cur = total(year, month)
+    avgs = [t for yy in range(1991, 2021)
+            for t, n in [total(yy, month)] if n == 12]
+    return cur, (float(np.mean(avgs)) if avgs else 0.0), n_cur
+
+
+def dry_wells_for_column(wells_path, coldate):
+    """Wells the master ANNOTATES as dry in the `measured` column for this
+    reading date: {well: (note, depth_m_below_ground)}.
+
+    A dry well has no value - the dipper reached the bottom - and the record of
+    it is a LibreOffice annotation on the empty cell, which pandas cannot see.
+    The cm/m rule mirrors utils.comment_states.DRY_DEPTH_CM_THRESHOLD (10.0);
+    this lane does not import from src/ (D-063), so the rule is restated here
+    and must be changed in both places if it ever moves.
+    """
+    import re as _re, zipfile as _zip, xml.etree.ElementTree as _ET
+    TNS = 'urn:oasis:names:tc:opendocument:xmlns:table:1.0'
+    ONS = 'urn:oasis:names:tc:opendocument:xmlns:office:1.0'
+    T = lambda a: '{%s}%s' % (TNS, a)
+    O = lambda a: '{%s}%s' % (ONS, a)
+    want = pd.Timestamp(coldate).strftime('%Y-%m-%d')
+    try:
+        root = _ET.fromstring(_zip.ZipFile(wells_path).read('content.xml'))
+    except Exception:
+        return {}
+    table = next((t for t in root.iter(T('table'))
+                  if t.get(T('name')) == 'measured'), None)
+    if table is None:
+        return {}
+    rows = []
+    for r in table:
+        if r.tag != T('table-row'):
+            continue
+        rows.extend([r] * int(r.get(T('number-rows-repeated'), 1)))
+    if len(rows) < 2:
+        return {}
+
+    def cells(row, upto):
+        out = []
+        for c in row:
+            if c.tag not in (T('table-cell'), T('covered-table-cell')):
+                continue
+            rep = int(c.get(T('number-columns-repeated'), 1))
+            ann = c.find(O('annotation'))
+            own = ''.join(t for e in c for t in ([] if e is ann else e.itertext())).strip()
+            item = (c.get(O('date-value')), c.get(O('value')), own,
+                    ''.join(ann.itertext()).strip() if ann is not None else None)
+            if rep > 1 and len(out) + rep > upto + 1:
+                rep = upto + 1 - len(out)
+            out.extend([item] * max(rep, 0))
+            if len(out) > upto:
+                break
+        return out
+
+    hdr = cells(rows[1], 400)
+    col = next((i for i, c in enumerate(hdr)
+                if c[0] and c[0][:10] == want), None)
+    if col is None:
+        return {}
+    strip = lambda t: _re.sub(r'^Unknown Author\d{4}-\d{2}-\d{2}T[\d:]+', '', t).strip()
+    out = {}
+    for row in rows[2:]:
+        cs = cells(row, col)
+        if len(cs) <= max(10, col):
+            continue
+        name = cs[10][2]
+        _d, val, _own, ann = cs[col]
+        if not name or val is not None or not ann:
+            continue
+        txt = strip(ann)
+        if 'dry' not in txt.lower():
+            continue
+        m = _re.search(r'(\d+\.?\d*)', txt)
+        depth = None
+        if m:
+            v = float(m.group(1))
+            depth = round(v / 100.0, 3) if v > 10.0 else v
+        out[name.strip()] = (txt, depth)
+    return out
+
+
 def create_annual_minima_chart(decade, year, month, filepath):
     """Bar per earlier summer: that summer's annual minimum relative to the report month (m),
     paired well by well (so each bar is -1 x the mean of report-month minus that minimum).
@@ -1147,6 +1407,213 @@ def create_annual_minima_chart(decade, year, month, filepath):
     fig.savefig(filepath)
     plt.close(fig)
     return filepath
+
+
+# ───────────────────────── flood outlook (Martin, 2026-11-06) ───────────────
+FLOOD_EQ_CSV = 'outputs/11_forecasting_thresholds/11_forecast_pflood_threshold_equations.csv'
+FLOOD_WELLS_CSV = 'outputs/11b_spatial_thresholds/11b_03_pflood_per_well.csv'
+
+
+def cluster_changes(results, coords,
+                    eq_csv=FLOOD_EQ_CSV, wells_csv=FLOOD_WELLS_CSV):
+    """Mean change per SSM cluster for a difference set, with the cluster's name.
+
+    The difference maps already outline the five clusters (D-118), but nothing
+    said what the reader was looking at or what each area did - Martin, 2026-11-06:
+    "theres no description of the pattens in the maps, no mention of the cluster
+    names". Membership comes from the committed per-well flood table and the
+    labels from the cluster equations, so the newsletter uses the project's own
+    names rather than inventing any.
+    """
+    try:
+        lab = {str(r['Cluster']).strip(): str(r['Label']).strip()
+               for _, r in pd.read_csv(eq_csv).iterrows()}
+        mem = pd.read_csv(wells_csv)
+    except Exception:
+        return []
+    cl = {}
+    for _, r in mem.iterrows():
+        try:
+            cl[str(r['well']).strip().lower()] = f"C{int(r['cluster'])}"
+        except (TypeError, ValueError):
+            continue
+    name_at = {(e, n): nm for nm, (e, n) in coords.items()}
+    buckets = {}
+    for e, n, z in results:
+        if np.isnan(z):
+            continue
+        nm = name_at.get((e, n))
+        c = cl.get(str(nm).strip().lower()) if nm else None
+        if c:
+            buckets.setdefault(c, []).append(z)
+    out = []
+    for c in sorted(buckets):
+        v = buckets[c]
+        out.append({'cluster': c, 'label': lab.get(c, c), 'n': len(v),
+                    'mean': float(np.mean(v)),
+                    'lo': float(np.min(v)), 'hi': float(np.max(v))})
+    return out
+
+
+def cluster_pattern_prose(rows, what="changed"):
+    """One sentence naming which parts of the warren moved most and least."""
+    if len(rows) < 2:
+        return ""
+    hi = max(rows, key=lambda r: r['mean'])
+    lo = min(rows, key=lambda r: r['mean'])
+    bits = "; ".join(f"{r['label']} {r['mean']:+.2f} m ({r['n']})" for r in rows)
+    # Sign-aware: "moved most/least" reads as a ranking of magnitude and is wrong
+    # when an area went the other way, which is exactly the interesting case -
+    # in October 2026 the forest FELL while every other area rose.
+    fell = [r for r in rows if r['mean'] < 0]
+    risen = [r for r in rows if r['mean'] > 0]
+    if fell and risen:
+        if len(fell) == 1:
+            tail = (f"{hi['label']} rose most ({hi['mean']:+.2f} m), and "
+                    f"{fell[0]['label']} was the only area to fall "
+                    f"({fell[0]['mean']:+.2f} m)")
+        else:
+            tail = (f"{hi['label']} rose most ({hi['mean']:+.2f} m) while "
+                    f"{len(fell)} areas fell, {lo['label']} furthest "
+                    f"({lo['mean']:+.2f} m)")
+    elif risen:
+        tail = (f"{hi['label']} rose most ({hi['mean']:+.2f} m) and "
+                f"{lo['label']} least ({lo['mean']:+.2f} m); every area rose")
+    else:
+        tail = (f"{lo['label']} fell furthest ({lo['mean']:+.2f} m) and "
+                f"{hi['label']} least ({hi['mean']:+.2f} m); every area fell")
+    return (f"By area — {bits}. {tail}; the figures in brackets are the wells "
+            f"compared in each. The outlines on the map are these five areas "
+            f"(nearest-well partitions of the cluster membership, a rendering of "
+            f"membership rather than a surveyed boundary).")
+
+
+def create_month_history_chart(rows, year, month, filepath):
+    """Bar per earlier year's SAME month: that month's level relative to this one,
+    paired well by well. Beside the annual-minima chart (Martin, 2026-11-06), it
+    answers the like-for-like question a reader actually asks - how does this
+    October compare with previous Octobers - which a chart of summer minima
+    cannot. Below zero = that year's same month was lower than now."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    rows = sorted(rows, key=lambda d: d['year'])
+    if not rows:
+        return None
+    vals = [-d['diff'] for d in rows]
+    lo = int(np.argmin(vals))
+    labels = [str(d['year']) for d in rows]
+    fig, ax = plt.subplots(figsize=(8, 4.2), dpi=200)
+    colours = ['#1a5276' if i == lo else '#a2c8b0' for i in range(len(rows))]
+    bars = ax.bar(range(len(rows)), vals, width=0.62, color=colours, zorder=3)
+    ax.axhline(0, color='#333333', lw=1.2, zorder=4)
+    ax.text(len(rows) - 0.5, 0, f"  {MONTH_NAMES[month]} {year}", va='center', ha='left',
+            fontsize=9, color='#333333')
+    for b, v in zip(bars, vals):
+        ax.text(b.get_x() + b.get_width() / 2, v + (0.012 if v >= 0 else -0.012), f"{v:+.2f}",
+                ha='center', va='bottom' if v >= 0 else 'top', fontsize=8, color='#333333')
+    ax.set_xticks(range(len(rows)))
+    ax.set_xticklabels(labels, fontsize=8)
+    ax.set_ylabel(f"Each {MONTH_NAMES[month]} relative to\n{MONTH_NAMES[month]} {year} (m)", fontsize=9)
+    ax.set_xlim(-0.6, len(rows) - 0.4)
+    pad = 0.06
+    ax.set_ylim(min(vals + [0]) - pad, max(vals + [0]) + pad)
+    ax.grid(axis='y', color='#e5e5e5', lw=0.6, zorder=0)
+    for sp in ('top', 'right'):
+        ax.spines[sp].set_visible(False)
+    ax.set_title(f"Water level each {MONTH_NAMES[month]}, against this one", fontsize=10.5)
+    fig.text(0.01, 0.01, "Each bar compares only wells read in both rounds (well by well); "
+             "below the line = that year was lower than now.", fontsize=7, color='#666666')
+    fig.tight_layout(rect=[0, 0.04, 1, 1])
+    fig.savefig(filepath)
+    plt.close(fig)
+    return filepath
+
+
+def month_history(wells, coords, dates, year, month, latest_idx, back=10):
+    """For each of the previous `back` years, this month's level relative to the
+    report month, paired well by well."""
+    out = []
+    for y in range(year - back, year):
+        idx, _d = find_month_column(dates, y, month)   # returns (index, date)
+        if idx is None or idx == latest_idx:
+            continue
+        res = compute_differences_by_index(wells, coords, idx, latest_idx)
+        vals = [z for _, _, z in res if not np.isnan(z)]
+        if len(vals) >= 5:
+            out.append({'year': y, 'diff': float(np.mean(vals)), 'n': len(vals)})
+    return out
+
+
+def flood_outlook(wells_path, valley_df, year, month,
+                  eq_csv=FLOOD_EQ_CSV, wells_csv=FLOOD_WELLS_CSV):
+    """How much rain this winter would bring the water table to the surface.
+
+    LIVE, not climatological (Martin's ruling, 2026-11-06): the published
+    per-well pflood values use the FITTED climatological summer minimum h_0,
+    whereas this substitutes THIS year's observed summer-minimum depth into the
+    cluster's own published equation P_flood = A*d + B, where d is the summer
+    minimum as a POSITIVE depth below ground.
+
+    It reports a REQUIRED RAINFALL against climatology, never a probability:
+    the equations give a threshold, and a percentage would claim more than they
+    support. Returns [] if the pipeline outputs are not beside the report.
+    """
+    try:
+        eq = pd.read_csv(eq_csv)
+        mem = pd.read_csv(wells_csv)
+    except Exception:
+        return []
+    try:
+        dfs = load_depth_from_surface(wells_path)
+    except Exception:
+        return []
+
+    # this year's summer minimum per well: the deepest (most negative) reading
+    # from April to the report month
+    dmin = {}
+    for name, series in dfs.items():
+        vals = [v for d, v in series
+                if d is not None and pd.notna(v)
+                and pd.Timestamp(d).year == year and 4 <= pd.Timestamp(d).month <= month]
+        if vals:
+            dmin[str(name).strip().lower()] = -min(vals)      # positive = below ground
+
+    cl = {}
+    for _, r in mem.iterrows():
+        try:
+            cl[str(r['well']).strip().lower()] = f"C{int(r['cluster'])}"
+        except (TypeError, ValueError):
+            continue
+
+    rain = {}
+    for _, r in valley_df.iterrows():
+        try:
+            if pd.notna(r.get('rain')):
+                rain[(int(r['year']), int(r['month']))] = float(r['rain'])
+        except (TypeError, ValueError):
+            continue
+
+    out = []
+    for _, e in eq.iterrows():
+        cname = str(e['Cluster']).strip()
+        ds = [d for w, d in dmin.items() if cl.get(w) == cname]
+        if not ds:
+            continue
+        d = float(np.mean(ds))
+        need = float(e['slope_A']) * d + float(e['intercept_B'])
+        months = [int(x) for x in str(e['months_in_horizon']).split(',')]
+        # rain already fallen inside the horizon, counting from this October
+        so_far = sum(rain.get((year if m >= 10 else year + 1, m), 0.0)
+                     for m in months if (m >= 10 and m <= month) or (m < 10 and month < 10))
+        out.append({
+            'cluster': cname, 'label': str(e['Label']), 'n_wells': len(ds),
+            'd_m': d, 'need_mm': need, 'clim_mm': float(e['P_clim_total_mm']),
+            'horizon': str(e['horizon_months']), 'months': months,
+            'so_far_mm': so_far,
+            'ratio': need / float(e['P_clim_total_mm']) if float(e['P_clim_total_mm']) else None,
+        })
+    return out
 
 
 def create_difference_map(results, title, filepath, extent=MAP_EXTENT,
@@ -1263,7 +1730,8 @@ def create_difference_map(results, title, filepath, extent=MAP_EXTENT,
 # ─── Met Report ──────────────────────────────────────────────────────────────
 
 def generate_met_summary(valley_df, year, month, wu_result=None, wu_warnings=None,
-                         wu_result_2=None, wu_warnings_2=None):
+                         wu_result_2=None, wu_warnings_2=None,
+                         wu_station=None, wu_station_2=None):
     """Generate a meteorological summary for a given month."""
     row = valley_df[(valley_df['year'] == year) & (valley_df['month'] == month)]
 
@@ -1346,39 +1814,43 @@ def generate_met_summary(valley_df, year, month, wu_result=None, wu_warnings=Non
                     f"from {prev_rain:.1f} mm to {rain:.1f} mm."
                 )
 
-        # Hydrological year cumulative
-        if month >= 10:
-            hydro_months = valley_df[(valley_df['year'] == year) & (valley_df['month'] >= 10)]
-        else:
-            hydro_months = pd.concat([
-                valley_df[(valley_df['year'] == year - 1) & (valley_df['month'] >= 10)],
-                valley_df[(valley_df['year'] == year) & (valley_df['month'] <= month)]
-            ])
-        cum_rain = hydro_months['rain'].sum()
-
-        cum_avgs = []
-        for y in range(1991, 2021):
-            if month >= 10:
-                h = valley_df[(valley_df['year'] == y) & (valley_df['month'] >= 10)]
-            else:
-                h = pd.concat([
-                    valley_df[(valley_df['year'] == y - 1) & (valley_df['month'] >= 10)],
-                    valley_df[(valley_df['year'] == y) & (valley_df['month'] <= month)]
-                ])
-            cum_avgs.append(h['rain'].sum())
-        avg_cum = np.mean(cum_avgs) if cum_avgs else 0
-
-        lines.append("")
-        lines.append(
-            f"**Hydrological year** (Oct–{MONTH_NAMES[month]}): Cumulative rainfall {cum_rain:.0f} mm "
-            f"({'above' if cum_rain > avg_cum else 'below'} the average of {avg_cum:.0f} mm, "
-            f"{cum_rain/avg_cum*100:.0f}%)."
-        )
+        # Rolling 12 months (2026-11-06). The old Oct->month cumulative compared
+        # unequal windows in October and November - see rolling_year_rain().
+        cum_rain, avg_cum, n_cur = rolling_year_rain(valley_df, year, month)
+        if avg_cum > 0:
+            lines.append("")
+            start_y, start_m = _month_back(year, month, 11)
+            lines.append(
+                f"**Rolling year** ({MONTH_NAMES[start_m]} {start_y}–{MONTH_NAMES[month]} {year}): "
+                f"rainfall {cum_rain:.0f} mm "
+                f"({'above' if cum_rain > avg_cum else 'below'} the 1991–2020 average of "
+                f"{avg_cum:.0f} mm, {cum_rain/avg_cum*100:.0f}%)."
+                + ("" if n_cur == 12 else
+                   f" _Only {n_cur} of the 12 months are published._")
+            )
 
     # ── Weather Underground local stations ──
     # One block per gauge. Since v1.3.0 a second local gauge may be reported
     # alongside the first; the loop skips a missing or duplicate secondary.
     seen_stations = set()
+    # A gauge that could not be read is SAID so, not silently omitted. Before
+    # 1.7.2 the block was skipped and the newsletter simply had no local gauge
+    # and no rainfall-pattern paragraph, which is what Martin noticed on the
+    # October issue - the absence looked like a quiet month rather than a
+    # broken feed (T-163).
+    _missing = []
+    for _st, _res, _warns in ((wu_station, wu_result, wu_warnings),
+                              (wu_station_2, wu_result_2, wu_warnings_2)):
+        if _st and _res is None:
+            _why = (_warns[0].split(": ", 1)[-1] if _warns else "no data returned")
+            _missing.append(f"{_st} ({_why})")
+    if _missing:
+        lines.append("")
+        lines.append(f"**Local gauges unavailable this month**: "
+                     f"{'; '.join(_missing)}. The rainfall figures above are RAF "
+                     f"Valley, the regional reference, which is unaffected; the "
+                     f"within-month rainfall pattern is normally read from the "
+                     f"local gauges and is therefore not reported this issue.")
     for res, warns in ((wu_result, wu_warnings), (wu_result_2, wu_warnings_2)):
         if res is None or res['station'] in seen_stations:
             continue
@@ -1407,7 +1879,7 @@ def generate_met_summary(valley_df, year, month, wu_result=None, wu_warnings=Non
 
 # ─── Difference Summary Table ────────────────────────────────────────────────
 
-def generate_difference_table(results, coords, label):
+def generate_difference_table(results, coords, label, dry=None):
     """Generate a markdown table of water level differences."""
     lines = []
     lines.append(f"\n## Water Level Changes: {label}")
@@ -1425,6 +1897,14 @@ def generate_difference_table(results, coords, label):
     valid_z = [z for _, _, z in results if not np.isnan(z)]
     if valid_z:
         lines.append("")
+        if dry:
+            # A dry well has no level to difference, so it cannot appear above;
+            # naming it is the difference between "not read" and "read, and dry".
+            bits = ", ".join(f"{w} ({d:.2f} m)" if d is not None else w
+                             for w, (_n, d) in sorted(dry.items()))
+            lines.append(f"**Dry this round** ({len(dry)}): {bits}. "
+                         f"Depth below ground at which the well was found dry.")
+            lines.append("")
         lines.append(
             f"**Summary**: {len(valid_z)} wells measured. "
             f"Mean change: {np.mean(valid_z):+.2f} m, "
@@ -1440,6 +1920,41 @@ def generate_difference_table(results, coords, label):
 
 # ─── PDF Report Generation ───────────────────────────────────────────────────
 
+def _flat_jpeg(path, quality=80):
+    """A JPEG copy of a chart/map PNG, flattened onto white, for embedding.
+
+    Measured 2026-11-06: reportlab 5.1.0 embeds these PNGs LOSSLESSLY and keeps
+    their alpha as a soft mask - about 2,632 K per map against 427 K for the
+    same map in the September issue, which is JPEG at the same 271 ppi. That
+    alone took the October issue to 7.79 MB against 0.90-2.53 MB for every
+    previous one, with no visual gain. Quality 80 is the project's own choice
+    for embedded images (CLAUDE.md on export_master_pdf.py: "exports JPEG at
+    quality 80 because that is what Martin does by hand"), and this is the same
+    class of fault as W126 - a size jump that is the image filter, not the
+    toolchain it would be easy to blame.
+
+    Falls back to the original path if anything goes wrong: a bigger PDF is a
+    far smaller problem than no PDF.
+    """
+    try:
+        from PIL import Image as _PILImage
+        im = _PILImage.open(path)
+        if im.mode in ('RGBA', 'LA', 'P'):
+            im = im.convert('RGBA')
+            bg = _PILImage.new('RGB', im.size, (255, 255, 255))
+            bg.paste(im, mask=im.split()[-1])
+            im = bg
+        else:
+            im = im.convert('RGB')
+        out = os.path.splitext(path)[0] + '_embed.jpg'
+        im.save(out, 'JPEG', quality=quality, optimize=True)
+        return out
+    except Exception as _e:
+        print(f"    ! could not JPEG {os.path.basename(path)} for embedding "
+              f"({type(_e).__name__}); using it as is")
+        return path
+
+
 def generate_pdf_report(output_dir, year, month, met_text,
                         mom_results, mom_d1, mom_d2,
                         yoy_results, yoy_d1, yoy_d2,
@@ -1447,7 +1962,9 @@ def generate_pdf_report(output_dir, year, month, met_text,
                         coords, wu_result=None, wu_warnings=None,
                         valley_df=None, wells=None, dates=None, latest_idx=None,
                         round_date=None, wu_station=None,
-                        wu_result_2=None, wu_station_2=None, annual_min=None):
+                        wu_result_2=None, wu_station_2=None, annual_min=None,
+                        month_series=None, month_series_path=None, flood=None,
+                        dry=None):
     """
     Generate a PDF report in the style of the Newborough Warren
     Weather & Water Watch newsletter.
@@ -1645,30 +2162,16 @@ def generate_pdf_report(output_dir, year, month, met_text,
 
     # Hydrological year context
     if valley_df is not None and valley_row is not None:
-        if month >= 10:
-            hydro = valley_df[(valley_df['year'] == year) & (valley_df['month'] >= 10)]
-        else:
-            hydro = pd.concat([
-                valley_df[(valley_df['year'] == year - 1) & (valley_df['month'] >= 10)],
-                valley_df[(valley_df['year'] == year) & (valley_df['month'] <= month)]
-            ])
-        cum = hydro['rain'].sum()
-        cum_avgs = []
-        for y in range(1991, 2021):
-            if month >= 10:
-                h = valley_df[(valley_df['year'] == y) & (valley_df['month'] >= 10)]
-            else:
-                h = pd.concat([
-                    valley_df[(valley_df['year'] == y - 1) & (valley_df['month'] >= 10)],
-                    valley_df[(valley_df['year'] == y) & (valley_df['month'] <= month)]
-                ])
-            cum_avgs.append(h['rain'].sum())
-        avg_cum = np.mean(cum_avgs) if cum_avgs else 0
+        cum, avg_cum, n_cur = rolling_year_rain(valley_df, year, month)
         if avg_cum > 0:
+            start_y, start_m = _month_back(year, month, 11)
             story.append(Paragraph(
-                f"The hydrological year cumulative rainfall (October to {MONTH_NAMES[month]}) "
-                f"stands at {cum:.0f} mm, which is {cum/avg_cum*100:.0f}% of the average "
-                f"({avg_cum:.0f} mm).",
+                f"Rainfall over the twelve months to {MONTH_NAMES[month]} {year} "
+                f"(from {MONTH_NAMES[start_m]} {start_y}) stands at {cum:.0f} mm, "
+                f"which is {cum/avg_cum*100:.0f}% of the 1991–2020 average for the same "
+                f"twelve-month window ({avg_cum:.0f} mm)."
+                + ("" if n_cur == 12 else
+                   f" Only {n_cur} of the twelve months are published so far."),
                 style_body
             ))
 
@@ -1722,6 +2225,16 @@ def generate_pdf_report(output_dir, year, month, met_text,
         summary_text += f"The mean change was {mean_change:+.2f} m."
     story.append(Paragraph(summary_text, style_body))
 
+    # Dry wells: read, but with no level to difference (Martin, 2026-11-06)
+    if dry:
+        _bits = ", ".join(f"{w} ({d:.2f} m)" if d is not None else w
+                          for w, (_n, d) in sorted(dry.items()))
+        story.append(Paragraph(
+            f"<b>Dry this round ({len(dry)}):</b> {_bits}. These wells were visited and "
+            f"found dry, the figure being the depth below ground at which the dipper "
+            f"reached the bottom; they have no water level to compare, which is why they "
+            f"do not appear in the tables above.", style_body))
+
     # ── Month-on-month map ──
     if mom_results and mom_d1 and mom_d2:
         mom_label = f"{mom_d1.strftime('%b%y')}-{mom_d2.strftime('%b%y')}"
@@ -1731,7 +2244,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
                 f"Month-on-Month Change: {mom_d1.strftime('%b %Y')} to {mom_d2.strftime('%b %Y')}",
                 style_h3
             ))
-            img = Image(map_path, width=160*mm, height=130*mm)
+            img = Image(_flat_jpeg(map_path), width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
                 f"Water level change (m) from {mom_d1.strftime('%b %Y')} to "
@@ -1739,6 +2252,9 @@ def generate_pdf_report(output_dir, year, month, met_text,
                 f"Blue = rising, red = falling.",
                 style_caption
             ))
+            _cc = cluster_changes(mom_results, coords)
+            if _cc:
+                story.append(Paragraph(cluster_pattern_prose(_cc), style_caption))
 
     # ── Annual minimum and recovery since it (1.6.0) ──
     if annual_min is not None and annual_min.get('at_minimum'):
@@ -1768,7 +2284,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
         _cp = annual_min.get('chart_path')
         if _cp and os.path.exists(_cp):
             story.append(Paragraph("Annual Minima of Previous Years", style_h3))
-            story.append(Image(_cp, width=150*mm, height=150*mm*4.2/8))
+            story.append(Image(_flat_jpeg(_cp), width=150*mm, height=150*mm*4.2/8))
             story.append(Paragraph(
                 f"Each summer's annual minimum relative to {MONTH_NAMES[month]} {year}, compared well "
                 f"by well. Below the line, that year's low was lower than this month; the darker bar is "
@@ -1778,7 +2294,7 @@ def generate_pdf_report(output_dir, year, month, met_text,
             _lt = annual_min['lowest_ts'].strftime('%b %Y')
             story.append(Paragraph(
                 f"Difference from the Lowest Minimum: {_lt} to {MONTH_NAMES[month][:3]} {year}", style_h3))
-            story.append(Image(_mp, width=160*mm, height=130*mm))
+            story.append(Image(_flat_jpeg(_mp), width=160*mm, height=130*mm))
             story.append(Paragraph(
                 f"Water level change (m) from {_lt}, the lowest annual minimum of the period, to "
                 f"{MONTH_NAMES[month]} {year}. Blue = higher now, red = lower now.", style_caption))
@@ -1806,12 +2322,52 @@ def generate_pdf_report(output_dir, year, month, met_text,
                     f"the largest rise was {max(low_valid):+.2f} m.",
                     style_body
                 ))
-            img = Image(map_path, width=160*mm, height=130*mm)
+            img = Image(_flat_jpeg(map_path), width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
                 f"Cumulative water level change since {low_d1.strftime('%b %Y')}.",
                 style_caption
             ))
+
+    # ── Each same month, against this one (beside the minima) ──
+    if month_series and month_series_path and os.path.exists(month_series_path):
+        story.append(Paragraph(f"Every {MONTH_NAMES[month]} So Far", style_h3))
+        story.append(Image(_flat_jpeg(month_series_path), width=150*mm, height=150*mm*4.2/8))
+        _above = sum(h['diff'] > 0 for h in month_series)
+        story.append(Paragraph(
+            f"Each earlier {MONTH_NAMES[month]} relative to {MONTH_NAMES[month]} {year}, "
+            f"compared well by well. Below the line, that year was lower than now. "
+            f"This {MONTH_NAMES[month]} is higher than {_above} of the {len(month_series)} "
+            f"compared and lower than {len(month_series) - _above}.", style_body))
+
+    # ── Flood outlook from the published cluster equations ──
+    if flood:
+        story.append(Paragraph("Flood Outlook for the Coming Winter", style_h3))
+        _near = min(flood, key=lambda f: f['ratio'])
+        story.append(Paragraph(
+            f"Each part of the warren has a measured rainfall threshold: the amount that "
+            f"would have to fall over the coming months to bring the water table up to the "
+            f"ground surface, given how deep it fell this summer. "
+            f"<b>{_near['label']} is closest</b>, needing {_near['need_mm']:.0f} mm against "
+            f"a typical {_near['clim_mm']:.0f} mm — about {_near['ratio']:.0%} of an average "
+            f"season — and {flood[0]['so_far_mm']:.0f} mm has fallen so far.", style_body))
+        _rows = [["Area", "Summer low (m)", "Rain needed", "Typical", "Needed / typical"]]
+        for f in flood:
+            _rows.append([f['label'], f"{f['d_m']:.2f}", f"{f['need_mm']:.0f} mm",
+                          f"{f['clim_mm']:.0f} mm", f"{f['ratio']:.2f}"])
+        _t = Table(_rows, hAlign='LEFT')
+        _t.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 5),
+            ('GRID', (0, 0), (-1, -1), 0.4, HexColor('#cccccc')),
+            ('ALIGN', (1, 1), (-1, -1), 'RIGHT'),
+        ]))
+        story.append(_t)
+        story.append(Paragraph(
+            "A ratio above 1 means a wetter-than-average season would be needed for the "
+            "water table to reach the surface there; below 1, an average season would do "
+            "it. These are rainfall thresholds, not probabilities.", style_caption))
 
     # ── Year-on-year comparison ──
     if yoy_results and yoy_d1 and yoy_d2:
@@ -1833,13 +2389,16 @@ def generate_pdf_report(output_dir, year, month, met_text,
         yoy_label = f"{yoy_d1.strftime('%b%y')}-{yoy_d2.strftime('%b%y')}"
         yoy_map_path = os.path.join(output_dir, f"map_yoy_{yoy_label}.png")
         if os.path.exists(yoy_map_path):
-            img = Image(yoy_map_path, width=160*mm, height=130*mm)
+            img = Image(_flat_jpeg(yoy_map_path), width=160*mm, height=130*mm)
             story.append(img)
             story.append(Paragraph(
                 f"Year-on-year water level change from {yoy_d1.strftime('%b %Y')} to "
                 f"{yoy_d2.strftime('%b %Y')}.",
                 style_caption
             ))
+            _cc = cluster_changes(yoy_results, coords)
+            if _cc:
+                story.append(Paragraph(cluster_pattern_prose(_cc), style_caption))
 
     # ── Well summary table (top & bottom 5) ──
     story.append(PageBreak())
@@ -2153,7 +2712,7 @@ def compute_msl_summary(wells, dates, coords, current_year,
 def generate_monthly_report(wells_path, valley_path, diff_creator_path,
                             target_month, output_dir, dem_path=None,
                             kml_dir=None, wu_station=None, coords_csv_path=None,
-                            update_valley=False, wu_station_2=None):
+                            update_valley=False, wu_station_2=None, wu_csv=None, wu_csv_2=None):
     """Generate the complete monthly report."""
 
     os.makedirs(output_dir, exist_ok=True)
@@ -2205,12 +2764,19 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     wu_warnings = []
 
     if wu_station:
-        print(f"\n3. Fetching Weather Underground data ({wu_station})...")
-        wu_result, wu_err = fetch_wu_monthly(wu_station, year, month)
+        if wu_csv:
+            print(f"\n3. Reading the {wu_station} Export CSV ({os.path.basename(wu_csv)})...")
+            wu_result, wu_err = read_wu_export_csv(wu_csv, wu_station, year, month)
+        else:
+            print(f"\n3. Fetching Weather Underground data ({wu_station})...")
+            wu_result, wu_err = fetch_wu_monthly(wu_station, year, month)
 
         if wu_err:
             print(f"   Error: {wu_err}")
             wu_result = None
+            # Keep the REASON: it is a data-quality fact the newsletter should
+            # carry, and without it the gauge note can only say "no data".
+            wu_warnings.append(f"{wu_station}: {wu_err}")
         else:
             print(f"   Total: {wu_result['total_mm']:.1f} mm "
                   f"({wu_result['days_with_data']}/{wu_result['days_expected']} days)")
@@ -2251,11 +2817,17 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
 
     if wu_station and wu_station_2 and wu_station_2 != wu_station:
         print(f"\n3b. Fetching second local gauge ({wu_station_2})...")
-        wu_result_2, wu_err_2 = fetch_wu_monthly(wu_station_2, year, month)
+        if wu_csv_2:
+            print(f"   reading the {wu_station_2} Export CSV "
+                  f"({os.path.basename(wu_csv_2)})...")
+            wu_result_2, wu_err_2 = read_wu_export_csv(wu_csv_2, wu_station_2, year, month)
+        else:
+            wu_result_2, wu_err_2 = fetch_wu_monthly(wu_station_2, year, month)
         if wu_err_2:
             print(f"   Error: {wu_err_2}")
             print("   → Continuing with the primary gauge only.")
             wu_result_2 = None
+            wu_warnings_2.append(f"{wu_station_2}: {wu_err_2}")
         else:
             print(f"   Total: {wu_result_2['total_mm']:.1f} mm "
                   f"({wu_result_2['days_with_data']}/{wu_result_2['days_expected']} days)")
@@ -2270,7 +2842,8 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     # ── 4. Met summary ──
     print("\n4. Generating Met summary...")
     met_text = generate_met_summary(valley_df, year, month, wu_result, wu_warnings,
-                                    wu_result_2, wu_warnings_2)
+                                    wu_result_2, wu_warnings_2,
+                                    wu_station=wu_station, wu_station_2=wu_station_2)
     print("   Done.")
 
     # ── 4b. Rainfall pattern summary for AI ──
@@ -2409,6 +2982,20 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
                               os.path.join(output_dir, f"map_cumulative_{low_label}.png"),
                               hillshade=hillshade, hs_extent=hs_extent,
                               kml_dir=kml_dir)
+
+    # Same-month history, BESIDE the annual minima (Martin, 2026-11-06)
+    month_series = month_history(wells, coords, dates, year, month, latest_idx)
+    month_series_path = None
+    if month_series:
+        month_series_path = os.path.join(
+            output_dir, f"month_history_chart_{year}_{month:02d}.png")
+        create_month_history_chart(month_series, year, month, month_series_path)
+        print(f"    Chart saved to {os.path.basename(month_series_path)}")
+
+    # Live flood outlook from the published cluster equations (Martin, 2026-11-06)
+    flood = flood_outlook(wells_path, valley_df, year, month)
+    if flood:
+        print(f"    Flood outlook: {len(flood)} cluster(s) from {FLOOD_EQ_CSV}")
 
     if annual_min is not None and annual_min.get('decade'):
         _d = annual_min['decade']
@@ -2552,15 +3139,34 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     report.append("")
     report.append(met_text)
 
+    # The dry annotations hang on the reading COLUMN, so this needs target_date
+    # (e.g. 2026-11-03), not mom_d2, which is the bucketed month (Oct 2026) and
+    # matches no column. A silent `except` hid that on first writing: it is now
+    # reported, because a check that quietly answers "none" is worse than one
+    # that fails.
+    dry_now = {}
+    if target_date is not None:
+        try:
+            dry_now = dry_wells_for_column(wells_path, target_date)
+        except Exception as _e:
+            print(f"    ! dry-well annotations unreadable ({type(_e).__name__}: {_e})")
     if mom_results:
         label = f"{mom_d1.strftime('%b %Y')} → {mom_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
-            mom_results, coords, f"Month-on-month ({label})"))
+            mom_results, coords, f"Month-on-month ({label})", dry=dry_now))
+        _cc = cluster_changes(mom_results, coords)
+        if _cc:
+            report.append("")
+            report.append(cluster_pattern_prose(_cc))
 
     if yoy_results:
         label = f"{yoy_d1.strftime('%b %Y')} → {yoy_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
             yoy_results, coords, f"Year-on-year ({label})"))
+        _cc = cluster_changes(yoy_results, coords)
+        if _cc:
+            report.append("")
+            report.append(cluster_pattern_prose(_cc))
 
     if annual_min is not None:
         _ym = f"{annual_min['ym'][0]}-{annual_min['ym'][1]:02d}"
@@ -2577,6 +3183,47 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
             report.append(f"- annual minimum {_d['ym'][0]}-{_d['ym'][1]:02d}: this month {_d['diff']:+.2f} m "
                           f"({_d['n']} wells)")
         report.append("")
+    if month_series:
+        report.append(f"\n## Each {MONTH_NAMES[month]}, against this one")
+        report.append("")
+        for _h in month_series:
+            report.append(f"- {MONTH_NAMES[month]} {_h['year']}: this month "
+                          f"{_h['diff']:+.2f} m ({_h['n']} wells)")
+        # compute_differences_by_index: diff = level_at_idx2 - level_at_idx1,
+        # idx2 being this month - so diff > 0 means THIS month is the higher one.
+        _above = sum(h['diff'] > 0 for h in month_series)
+        report.append("")
+        report.append(f"This {MONTH_NAMES[month]} is higher than {_above} of the "
+                      f"{len(month_series)} previous {MONTH_NAMES[month]}s compared, "
+                      f"and lower than {len(month_series) - _above}.")
+
+    if flood:
+        report.append("\n## Flood outlook for the coming winter")
+        report.append("")
+        report.append(
+            "How much rain would have to fall for the water table to reach the ground "
+            "surface, from each cluster's own published threshold equation "
+            "(`P_flood = A·d + B`), using THIS year's observed summer minimum depth `d`. "
+            "A required rainfall, not a probability.")
+        report.append("")
+        report.append("| Cluster | wells | summer min (m below ground) | rain needed | over | "
+                      "climatology | needed / climatology |")
+        report.append("|---|---|---|---|---|---|---|")
+        for f in flood:
+            report.append(
+                f"| {f['label']} | {f['n_wells']} | {f['d_m']:.2f} | {f['need_mm']:.0f} mm | "
+                f"{f['horizon']} months | {f['clim_mm']:.0f} mm | {f['ratio']:.2f} |")
+        report.append("")
+        _near = min(flood, key=lambda f: f['ratio'])
+        report.append(
+            f"**{_near['label']} is closest to flooding**: it needs {_near['need_mm']:.0f} mm "
+            f"against a climatological {_near['clim_mm']:.0f} mm, so about "
+            f"{_near['ratio']:.0%} of an average season. "
+            f"{flood[0]['so_far_mm']:.0f} mm has fallen so far this horizon.")
+        report.append("")
+        report.append("_Ratios above 1 mean the warren needs a wetter-than-average season to "
+                      "flood; below 1, an average season would do it._")
+
     if low_results and low_d1 != mom_d1:
         label = f"{low_d1.strftime('%b %Y')} → {low_d2.strftime('%b %Y')}"
         report.append(generate_difference_table(
@@ -2619,7 +3266,9 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
         coords, wu_result=wu_result, wu_warnings=wu_warnings,
         valley_df=valley_df, wells=wells, dates=dates, latest_idx=latest_idx,
         round_date=latest_date, wu_station=wu_station,
-        wu_result_2=wu_result_2, wu_station_2=wu_station_2, annual_min=annual_min
+        wu_result_2=wu_result_2, wu_station_2=wu_station_2, annual_min=annual_min,
+        month_series=month_series, month_series_path=month_series_path,
+        flood=flood, dry=dry_now
     )
 
     print(f"\n{'═'*60}")
@@ -2658,6 +3307,10 @@ Examples:
                         help=f'Path to DEM GeoTIFF (default: {DEFAULT_DEM})')
     parser.add_argument('--kml_dir', default=DEFAULT_KML_DIR,
                         help=f'Directory containing KML overlay files (default: {DEFAULT_KML_DIR})')
+    parser.add_argument('--wu_csv',
+                        help="Weather Underground 'Export CSV' for the month, used INSTEAD of "
+                             "scraping the dashboard (T-163). One click on the table view.")
+    parser.add_argument('--wu_csv_2', help="the same, for the second gauge")
     parser.add_argument('--wu_station', default=DEFAULT_WU_STATION,
                         help=f'Weather Underground station ID (default: {DEFAULT_WU_STATION})')
     parser.add_argument('--wu_station_2', default=DEFAULT_WU_STATION_2,
@@ -2687,6 +3340,8 @@ Examples:
         kml_dir=args.kml_dir,
         wu_station=wu,
         wu_station_2=wu_2,
+        wu_csv=args.wu_csv,
+        wu_csv_2=args.wu_csv_2,
         update_valley=not args.no_valley_update,
     )
 

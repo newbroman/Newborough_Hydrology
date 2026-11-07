@@ -105,3 +105,49 @@ Raised with him on 2026-11-07 and left open, because they depend on the group:
 the same name into `living/output/<year>/<Month>/`, it is gitignored, and on 2026-11-07 Martin
 read a stale one from there (`1d879ba1`) and reported the flood paragraph missing when the
 published copy in the same clone (`91c053b6`) had it. Two files, identical names. J-4 carries it.
+
+---
+
+## Correction appended 2026-11-07, after a fieldwork-handover chat tested the group
+
+That chat read the group **with no session at all** and corrected §3. The correction is
+accepted; §3 stands above as written and is superseded here.
+
+**§3 IS WRONG ABOUT WHY THE FETCH FAILED.** The group is **public — 22 members** — and the
+desktop app's **browser pane pulled a full post via permalink logged out**. So:
+
+- What was measured here is still true as far as it goes: a plain **HTTP fetch** of
+  `https://www.facebook.com/groups/1164026318685018` returns Facebook's login page, 3,820
+  characters, no `og:` tags. That is a fact about *fetching*, not about the group.
+- What §3 then **inferred is false**: it concluded the group "needs an authenticated browser"
+  and told the next session the content was unreachable without a login. A **browser is
+  enough; no sign-in is needed.** One observation was generalised into a claim about access it
+  did not support, and the warning not to "waste a fetch" would have stopped a capable session
+  from simply looking.
+- The durable route is therefore the **app's own browser pane**, not Claude in Chrome: it does
+  not depend on Martin staying signed in anywhere.
+
+**Still true, and the reason the distinction matters:** a tool that only speaks HTTP cannot read
+this group, so a cloud session with no browser still cannot. Read the group with a browser, and
+do not conclude anything about a site's accessibility from an HTTP fetch alone.
+
+### Two corrections that chat made which do NOT hold, both from a clone one commit behind
+
+It warned, correctly, that the board was stale and said to fetch before trusting any count. That
+warning is also the explanation for these two, so they are recorded rather than argued:
+
+1. **"T-183 doesn't exist; the highest row is T-182."** It is on `origin/main`: `T-183` is the
+   highest id in `tools/task_register.csv`, added in public `48e0f63`, which is the commit that
+   clone was missing. Verified by reading the CSV out of `origin/main`.
+2. **"The three open judgement calls are nowhere in the tree."** They are **§5 of this brief**,
+   line 84, in the same commit.
+
+A third correction — that `cloud_setup.sh` is wrong for a native L14 session, which it is — was
+aimed at **"step 2 of your brief"**. This brief has six sections, none of which mentions
+`cloud_setup.sh`; the instruction it is correcting is in the `Fieldwork Oct 2026` chat's own
+opening brief, not here.
+
+**On Tier 0:** that chat reported 754 lines against the 650 budget, 104 over. Measured on the
+tree as pushed, `session_handover --check` reports **625/650, ok**. The difference is presumably
+its own uncommitted 197-line handover file sitting in a Tier-0 path, which cannot be seen from
+outside its tree. Either way the advice is sound: do not grow the handover note.

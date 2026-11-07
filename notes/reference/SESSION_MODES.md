@@ -191,6 +191,9 @@ on Martin's side, and a container cannot reach them.
 **What this does and does not cost.** It costs nothing that matters for the pipeline: a cloud
 session runs the gates, the PDFs, the newsletter and both pushes. What it costs is the typing
 — a cloud session must hand Martin the `git pull` and the `rclone copy` instead of running
-them. That, and reading a page behind a login. For the real L14-only jobs (his eyes on a
+them. That, and reading any web page at all — note that this is about needing a BROWSER, not
+about a login: the Facebook group of J-8 is public and the app's browser pane read it with no
+session, while an HTTP fetch of the same URL returns Facebook's login page. Do not infer a
+site's accessibility from an HTTP fetch. For the real L14-only jobs (his eyes on a
 document in LibreOffice, anything that must land on that disk) nothing has changed: they were
 always his.

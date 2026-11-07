@@ -491,14 +491,14 @@ TABLES = [
         "sources": {"bm": "outputs/15_depth_dependent_pet/15_03_benchmark_table.csv",
                     "bp": "outputs/15_depth_dependent_pet/15_04_best_params.csv"},
         "rows": {"source": "bm"},
-        "header": ["Cluster", "SSM NSE", "Depth-coupled NSE", "Δ NSE", "Best κ (m⁻¹)",
+        "header": ["Cluster", "SSM NSE", "Depth-coupled NSE", "Δ NSE", "Best 1/L_E (m⁻¹)",
                    "Mean upstand (m)"],
         "columns": [
             {"col": "Label", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},
             {"col": "SSM_Iterative_NSE", "fmt": "fixed", "dp": 2},   # PRECISION: 2 dp as published
             {"col": "DDP_Iterative_NSE", "fmt": "fixed", "dp": 2},   # PRECISION
             {"col": "Delta_NSE",         "fmt": "fixed", "dp": 2, "sign": True},   # PRECISION
-            {"col": "Best_Kappa_m-1",    "fmt": "fixed", "dp": 2},   # PRECISION
+            {"col": "Best_inv_L_E_m-1", "fmt": "fixed", "dp": 2},   # PRECISION
             {"lookup": ("bp", "Cluster", "Mean_Upstand_m"), "fmt": "fixed", "dp": 2},   # PRECISION
         ],
     },

@@ -17,6 +17,10 @@
 - _transfer/**
 - .ship_hold/**
 - _audit_tmp/**
+# --- scratch/: gitignored and ephemeral, but `+ **/*.odt` below matches it BEFORE the
+# --- catch-all, so working copies were being uploaded. Measured 2026-11-07: the manifest
+# --- listed scratch/sweep/sm1..sm3 and scratch/t54 copies of Supplementary_Material (T-171).
+- scratch/**
 # --- archive/: superseded versions moved out of docs/ by prune_versions (D-151 note
 # --- 2026-10-02). Each was uploaded while it was still in docs/ - the ship archives BEFORE it
 # --- prunes - so uploading it again under archive/ would only duplicate it on Drive.

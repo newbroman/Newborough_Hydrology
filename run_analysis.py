@@ -139,6 +139,18 @@ Or accept the documented fallbacks for the first pass (recommended for
 the Newborough dataset where the fallbacks are tuned).
 """
 
+import os as _os
+
+# T-176 / D-227: the ENVIRONMENT is the pipeline's machine, not the host. A host image can set
+# MATPLOTLIBRC from outside the repository and silently change how every text-bearing figure is
+# rendered — measured 2026-11-07, where a cloud container's /etc/matplotlib/matplotlibrc carried
+# `text.hinting: no_hinting`, which utils/render_utils does not override, moving bbox_inches
+# extents and so the bytes of every figure. Same code, 19 of 19 inputs at their provenance hashes,
+# deterministic across runs, env_audit green — and a figure that did not match the committed one.
+# Dropped here, before anything imports matplotlib and before any child process inherits this
+# environment, so no host config can reach a committed artefact.
+_os.environ.pop("MATPLOTLIBRC", None)
+
 import subprocess
 import sys
 

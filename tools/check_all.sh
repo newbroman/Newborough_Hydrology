@@ -18,6 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
+# VERSION 1.38.0 - 2026-11-07   job_runner's selftest gated, with its detail shown (T-156's
+#                               shape): the pass over the job queue is what keeps a queued job
+#                               from waiting on a human noticing, so it is gated like the
+#                               registers it reads.
 # VERSION 1.37.0 - 2026-11-06
 # CHANGELOG
 #   1.37.0 (2026-11-06, T-156): the claims section SHOWS the doc_lock selftest's failing lines.
@@ -618,6 +622,13 @@ _dl_out="$(python3 tools/doc_lock.py --selftest 2>&1)" || {
 # own --check lands on the day it is written (§4d: a generated artefact with no --check rots).
 python3 tools/chat_register.py --selftest >/dev/null || { echo "  FAIL chat_register selftest"; rc=1; }
 python3 tools/job_queue.py --selftest >/dev/null || { echo "  FAIL job_queue selftest"; rc=1; }
+# 1.38.0 (2026-11-07, Martin: "build the job runner"): the pass over that queue. Gated with its
+# detail shown, per T-156 - a selftest that knows which property failed must say which.
+_jr_out="$(python3 tools/job_runner.py --selftest 2>&1)" || {
+  echo "  FAIL job_runner selftest"
+  printf '%s\n' "$_jr_out" | grep -E "FAIL|REFUSED" | sed 's/^/    /'
+  rc=1
+}
 python3 tools/chat_register.py --check || rc=1
 python3 tools/job_queue.py --check || rc=1
 python3 tools/hq_snapshot.py --selftest >/dev/null || { echo "  FAIL hq_snapshot selftest"; rc=1; }

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_90.odt — do not edit. source-sha256=5c71a33dfc33820d pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_91.odt — do not edit. source-sha256=0edbeb71436180e5 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -115,7 +115,7 @@ where h is the water-table position (negative below ground) and z₀ is the dept
 
 The recharge sensitivity of each unit is summarized by the lumped catchment storage coefficient, LCSC = 100/β₁. This is the depth of rainfall required to raise the water table by 100 mm. A lower LCSC denotes greater recharge sensitivity. The fitted coefficients fold together vegetation effects, specific yield and soil-moisture dynamics, and no intercept is fitted. For both reasons, the recharge term in an open-boundary system of this kind can absorb unmeasured boundary fluxes into β₁ (Young, 2011; Knotters and van Walsum, 1997). This is addressed through the residual analysis (Section 3.10) and the specific-yield estimation (Section 3.8).
 
-A depth-dependent extension was evaluated at cluster level as a diagnostic of depth coupling (Section 5.2). In it, β₂ is replaced by β₂·exp(−κd_w), so that atmospheric draw declines as the water-table depth d_w increases, and κ is found by grid search. The fixed-β₂ model is used throughout, as an effective depth-averaged parameterization.
+A depth-dependent extension was evaluated at cluster level as a diagnostic of depth coupling (Section 5.2). In it, β₂ is replaced by β₂·exp(−d_w/L_E), so that atmospheric draw declines as the water-table depth d_w increases, and L_E is found by grid search, as its reciprocal 1/L_E. The fixed-β₂ model is used throughout, as an effective depth-averaged parameterization.
 
 The model is fitted at two scales, each on a declared record. The mechanistic characterization (Table 1) is fitted to each cluster-mean hydrograph on its full record. Averaging suppresses single-well noise and returns one coefficient set per zone. A cluster coefficient is therefore a centroid rather than a property of every member, and it depends on the partition. The per-well coefficients are fitted on the most recent 100 months at every well, so that wells are compared under the same climate. These are the coefficients behind the coefficient ranges (Table 5), the coefficient surfaces (Figures 12--14) and the benchmark (Section 3.5). The per-well half-lives (Table 6) are instead fitted on each well's full record, because the slow forest recession is not resolved within 100 months. At the cluster centroids, fitting the 100-month window instead of the full record shifts β₃ by between −3% and +16% outside the Main Forest, and by −34% at C4 (Hollingham, 2026c).
 

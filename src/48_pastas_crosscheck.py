@@ -209,7 +209,15 @@ def fit_pastas(ps, head: pd.Series, P: pd.Series, E: pd.Series, name: str,
     the three models see the same months. Parameters converted to per-month units."""
     import warnings
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+        # D-155: named, not blanket. This wrapped the ENTIRE Pastas solve, which is exactly
+        # where non-convergence announces itself — and the outputs carry "response time
+        # longer than the window allows" (ceh13, Ceh32) and "response time SE too large"
+        # (ceh14), caught by explicit checks below rather than by anything Pastas said.
+        # Silenced now: only the solver chatter that is expected on short windows.
+        # Convergence and parameter-bound warnings are HEARD.
+        warnings.filterwarnings("ignore", message=".*Covariance of the parameters.*")
+        warnings.filterwarnings("ignore", message=".*divide by zero.*",
+                                category=RuntimeWarning)
         ml = ps.Model(head, name=name)
         ps.RechargeModel(ml, P, E, rfunc=_rfunc(ps), name="rch", recharge=ps.rch.Linear())
         if noise:

@@ -101,10 +101,41 @@ for line in open("scratch/drive_remote.md5"):
     if p:
         remote[p] = h
 local = dict(reversed(l.rstrip("\n").split("|", 1)) for l in open("scratch/drive_local.md5") if "|" in l)
+
+# T-171, 2026-11-07: a manifest entry may legitimately not be at its manifest path.
+# nrg_git.sh --ship ARCHIVES, writes this manifest (what DRIVE holds, superseded versions
+# included, deliberately), and THEN runs prune_versions, which moves superseded versions out
+# of docs/ into archive/. tools/rclone-odt-filter.txt says so itself: "the ship archives
+# BEFORE it prunes - so uploading it again under archive/ would only duplicate it on Drive",
+# and it excludes archive/** for that reason, which is also why the local scan above cannot
+# see them. So the manifest describes a state the same ship invalidated seconds later, and
+# before this fix EVERY cloud ship after a pruning ship failed here: measured 2026-11-07,
+# SHIP: FAIL drive-not-current, 5 "download missing" entries, all superseded, two hours after
+# a successful ship by the same chat.
+# A pruned file is the SAME file at archive/<rest>, so it is exempt only when its md5 still
+# matches. The REMOTE half is untouched: "Drive is the last archive" is what this check is for.
+import hashlib, os
+def _pruned(path, want):
+    if not path.startswith("docs/"):
+        return False
+    at = os.path.join("archive", path[len("docs/"):])
+    if not os.path.isfile(at):
+        return False
+    h = hashlib.md5()
+    with open(at, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest() == want
+
 bad = [(p, "remote " + ("missing" if p not in remote else "differs")) for p, h in man.items() if remote.get(p) != h]
-bad += [(p, "download " + ("missing" if p not in local else "differs")) for p, h in man.items() if local.get(p) != h]
+pruned = [p for p, h in man.items() if local.get(p) != h and _pruned(p, h)]
+bad += [(p, "download " + ("missing" if p not in local else "differs"))
+        for p, h in man.items() if local.get(p) != h and p not in set(pruned)]
 for p, why in bad[:20]:
     print(f"    {why:18s} {p}")
+if pruned:
+    print(f"    {len(pruned)} superseded version(s) now under archive/, md5 unchanged - "
+          "pruned, not missing (T-171)")
 print(f"  {len(man)} documents in the manifest; {len(bad)} mismatch(es)")
 raise SystemExit(1 if bad else 0)
 PY

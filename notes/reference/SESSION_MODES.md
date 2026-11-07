@@ -155,3 +155,42 @@ also has. A newer Mint will very likely ship a different one, and from then on
 the L14's published PDFs fail `artefact_lint` Check C while the cloud's pass.
 Check `soffice --version` against `tools/environment.json` after the upgrade;
 if they differ, build PDFs in the cloud rather than re-recording the version.
+
+## Browser access and the L14's folder: a cloud session has neither (2026-11-07)
+
+Martin wants future Water Watch chats to have **a browser** and **the L14's folder**, so
+that a session can read a Facebook group it is writing for and run the L14's own commands.
+Neither is available in a cloud session, and this section is what was measured on the day,
+so it is not rediscovered. **T-183 carries the open part.**
+
+What a session has is fixed **when it starts**. There is no tool to add either capability
+mid-session, and enabling the setting in the desktop app does not reach a session already
+running.
+
+| | measured 2026-11-07 |
+|---|---|
+| browser tools | **absent.** `ToolSearch` by exact name (`mcp__Claude_Browser__*`, `mcp__claude-in-chrome__*`, `mcp__remote-devices__Claude_Browser__*`) and by behaviour returns nothing — and no `enable__*` tool either, so there is nothing to turn on from inside |
+| after Martin enabled browser tools in the app | **unchanged** — a running session's tool surface does not grow |
+| the L14's folder, before linking | `list_computer_folders` → `{"folders":[],"cannot_be_used":[]}` |
+| after Martin linked `NRG` in Code settings | listed, but under **`cannot_be_used`**, `reason: not_available` — *"that computer does not offer it to cloud sessions and did not say why"* |
+| after the desktop app updated | **unchanged**, same refusal |
+
+The three causes the refusal names are a hidden directory under home, `~/Library`, or an app
+needing an update. **None fits**: `~/projects/NRG` is neither, and the update changed nothing.
+So the remaining explanation is the one the tool's own description gives — **serving a folder
+to a cloud session is not available on every account yet**. The folder being *listed* proves
+the L14's end is configured correctly; the computer simply declines the request. Do not tell
+Martin to re-link it, re-update, or hunt a setting: his end is done.
+
+**A desktop-app session can still be a CLOUD session.** This one was started from the app and
+runs in a managed remote container, which is why it has neither capability while other Code
+sessions in the same app have both. `list_computer_folders` returning nothing usable is the
+quickest tell, and it is the same boundary in both cases: the browser and the folder both live
+on Martin's side, and a container cannot reach them.
+
+**What this does and does not cost.** It costs nothing that matters for the pipeline: a cloud
+session runs the gates, the PDFs, the newsletter and both pushes. What it costs is the typing
+— a cloud session must hand Martin the `git pull` and the `rclone copy` instead of running
+them. That, and reading a page behind a login. For the real L14-only jobs (his eyes on a
+document in LibreOffice, anything that must land on that disk) nothing has changed: they were
+always his.

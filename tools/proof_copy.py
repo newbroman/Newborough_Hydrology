@@ -374,6 +374,10 @@ def _window(text: str, start: int, end: int, n: int = cc.ANCHOR_WINDOW) -> str:
 GLYPH_FORMS = {
     "delta0": ["δ₀", "δ0", "delta0", "shoreline amplitude", "decay amplitude"],
     "delta_0": ["δ₀", "δ0"], "lambda": ["λ", "reach"], "tau": ["τ"],
+    # D-316: the published symbol is the LENGTH L_E; the fitted quantity is its reciprocal.
+    # "kappa" is kept as a key so older documents still anchor while they are refreshed.
+    "L_E": ["L_E", "L꜒E", "attenuation length", "depth-coupling", "depth coupling"],
+    "inv_L_E": ["1/L_E", "inverse attenuation length", "depth-coupling", "depth coupling"],
     "kappa": ["κ", "depth-coupling", "depth coupling"], "gamma": ["γ"],
     "dnse": ["δnse", "δ nse", "nse"], "nse": ["nse", "nash"],
     "halflife": ["t½", "half-life", "half life"], "t_half": ["t½", "half-life"],

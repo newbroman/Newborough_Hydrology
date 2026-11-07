@@ -1,4 +1,4 @@
-Cluster,Label,SSM_Iterative_NSE,DDP_Iterative_NSE,Delta_NSE,Best_Kappa_m-1,DDP_b1,DDP_b2,DDP_b3,SSM_OneStep_R2,DDP_OneStep_R2
+Cluster,Label,SSM_Iterative_NSE,DDP_Iterative_NSE,Delta_NSE,Best_inv_L_E_m-1,DDP_b1,DDP_b2,DDP_b3,SSM_OneStep_R2,DDP_OneStep_R2
 C1,C1 (Lake Edge),0.744,0.891,0.147,2.3,4.309,5.2213,0.0621,0.784,0.828
 C2,C2 (Dune),0.791,0.863,0.071,0.95,3.736,3.7328,0.0478,0.805,0.813
 C3,C3 (Western Residual),0.835,0.861,0.026,0.45,3.6338,2.8402,0.0532,0.854,0.857

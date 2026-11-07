@@ -516,11 +516,13 @@ HEADLINE_TABLES = [
 #   (csv path, key column, value columns)  — same shape as HEADLINE_TABLES.
 EXTRA_VALUE_TABLES = [
     ("outputs/15_depth_dependent_pet/15_04_best_params.csv", "Cluster",
-     # Best_Kappa from Script 15 v1.3.0 (2026-08-27). The column was
-     # Best_Lambda; report8 §3.4.6 and the register have always called the
-     # decay parameter κ. THIS GATE FAILS UNTIL SCRIPT 15 IS RERUN — the
-     # committed CSV still carries the old header.
-     ["Best_Kappa", "NSE_Iterative", "SSM_NSE", "R2_OneStep"]),
+     # Best_inv_L_E: the fitted INVERSE attenuation length 1/L_E (D-316, 2026-11-07). The
+     # column has been renamed twice — Best_Lambda -> Best_Kappa on 2026-08-27, and
+     # Best_Kappa -> Best_inv_L_E now that the published symbol is the LENGTH L_E and not a
+     # rate (κ collided with K, saturated hydraulic conductivity, and with Cohen's κ in
+     # Script 31). Both renames fail this gate until Script 15 is rerun, because the
+     # committed CSV carries the old header until then; that is the gate working.
+     ["Best_inv_L_E", "NSE_Iterative", "SSM_NSE", "R2_OneStep"]),
     # Script 19's scenario table. Added 2026-08-28 after the D-046 interception
     # fix moved 69 cells in it and the corpus turned out to quote them in seven
     # documents — none of it visible to any check, because this file has no

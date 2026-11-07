@@ -1064,10 +1064,28 @@ DRAWDOWN_H0_MM  = 150.0
 DRAWDOWN_K_MDAY = 6.0
 # DRAWDOWN_B_M IS AN ASSUMPTION, NOT A MEASUREMENT (documented 2026-09-11).
 # Its neighbour cites Betson 2002; this one cites nothing, and it is the weakest
-# input to λ. NOTHING IN THE REPOSITORY CONSTRAINS IT: the DEM carries no
-# bathymetry, there are no borehole logs, and 01_dry_depths.csv gives depth to
-# water, not depth to base. Any value here stands until someone augers to the
-# till.
+# input to λ.
+#
+# CORRECTED 2026-11-07 (Martin). This comment used to say "NOTHING IN THE
+# REPOSITORY CONSTRAINS IT: the DEM carries no bathymetry, there are no borehole
+# logs ... Any value here stands until someone augers to the till." THAT WAS
+# WRONG, and it was wrong in a way that propagated: a session repeated it to
+# Laurence Jones as "coring is the only thing that would settle this". Coring was
+# done. Four boreholes were logged for Betson et al. (2002) and their constraints
+# are tabulated in our own Supplementary Material, Table S2.1:
+#
+#     Water borehole  E 241,721   >= 12.8 m  (minimum; drilling never reached substrate)
+#     NH1             E 241,734      6.5 m
+#     NH2             E 242,024      6.5 m
+#     Borehole 3      E 242,837      3.65 m
+#
+# They thin monotonically eastward, which S2.1's caption states and which S2.2
+# then models per cluster via the beta_1 proxy (C1 at the NH boreholes' 6.5 m,
+# C3 at the Water borehole's >= 12.8 m, C5 thinning toward the Menai Strait).
+# So b is CONSTRAINED, at four points, and it is NOT one number: 5.0 here sits
+# below three of the four. What is still true is that the substrate is unmapped
+# between those points, and that 01_dry_depths.csv gives depth to water, not
+# depth to base.
 #
 # λ = √(Kb/(Sy·β₃)) goes as √b, which makes the reach forgiving of it: b at 3 m
 # gives λ ≈ 176 m and b at 8 m gives ≈ 287 m against ≈ 226 m here — a factor of

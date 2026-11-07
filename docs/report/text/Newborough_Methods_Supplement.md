@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_126.odt — do not edit. source-sha256=f95575e6496ea8b7 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_127.odt — do not edit. source-sha256=7f6bfa08335c7484 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.126 (November 2026).
+Document version: 2.0.127 (November 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -2637,23 +2637,23 @@ The forest drawdown figure (*20_drawdown_propagation_nohead.png*) was joined in 
 
 **Parameter table.** All controlling parameters for the three coastal-process figures, with their sources and the figures in which each appears. Live-pipeline values are read on each pipeline run and revise if their upstream outputs change; the snapshot values stated here apply at time of writing under the live pipeline state.
 
-  ---------------------------------------------- --------------------- --------------------------------------------------------------------------------------- -------------------------------------------------------- ---------------------------
-  Parameter                                      Symbol                Value                                                                                   Source                                                   Used in
-  Forest interception deficit at edge            H₀                    150 mm                                                                                  Freeman (2008); estimate at site                         Forest drawdown
-  Hydraulic conductivity                         K                     6 m day⁻¹                                                                               Betson et al. (2002); literature                         Forest drawdown, SLR, Net
-  Saturated thickness                            b                     5 m                                                                                     Estimate (aquifer architecture; literature)              Forest drawdown, SLR, Net
-  Specific yield (C3 propagation medium)         Sy                    ≈ 0.298 (live; C3 WTF median from *18_wtf_01_well_sy_estimates.csv*)                    Live: Script 18, S.12                                    Forest drawdown, SLR, Net
-  SSM drainage coefficient (C3)                  β₃                    ≈ 0.062 month⁻¹ (live; C3 centroid from *03_03_cluster_mechanistic_coefficients.csv*)   Live: Script 03, S.3                                     Forest drawdown
-  Storm-magnitude shoreline retreat (exemplar)   COAST_RETREAT_M       6 m                                                                                     Storm Brendan early-2020 exemplar                        Erosion, Net
-  Measured shoreline retreat rate, 2006--2026    E_c                   2.32 m yr⁻¹ (live; Script 40 40_01_epoch_series.csv)                                    Live: Script 40 (this study)                             Erosion, Net
-  Dune-toe offset (inland of waterline)          COAST_DUNE_OFFSET_M   100 m                                                                                   Estimate (DEM-derived dune-toe position)                 Erosion, Net
-  DEM waterline contour                          COAST_SHORE_LEVEL_M   0.5 m AOD                                                                               DEM-derived                                              Erosion, Net
-  Coast-edge anomaly                             δ₀                    live (Script 25 fit)                                                                    Live: Script 25, S.15                                    Erosion, Net
-  Erosion-decay characteristic length            L_cg                  live (Script 25 fit)                                                                    Live: Script 25, S.15                                    Erosion, Net
-  Mean-sea-level rise (window total)             SLR_RISE_M            0.02 m                                                                                  UKCP18 north-Wales central, near-term                    SLR, Net
-  Response window                                SLR_WINDOW_YEARS      5 yr                                                                                    Near-term horizon                                        SLR, Net
-  SLR boundary datum                             SLR_SHORE_LEVEL_M     0 m AOD                                                                                 Physical convention (water-table head, not inundation)   SLR, Net
-  ---------------------------------------------- --------------------- --------------------------------------------------------------------------------------- -------------------------------------------------------- ---------------------------
+  ---------------------------------------------- --------------------- --------------------------------------------------------------------------------------- -------------------------------------------------------------- ---------------------------
+  Parameter                                      Symbol                Value                                                                                   Source                                                         Used in
+  Forest interception deficit at edge            H₀                    150 mm                                                                                  Freeman (2008); estimate at site                               Forest drawdown
+  Hydraulic conductivity                         K                     6 m day⁻¹                                                                               Betson et al. (2002) --- tracer test, range 3.0--9.0 m day⁻¹   Forest drawdown, SLR, Net
+  Saturated thickness                            b                     5 m                                                                                     Estimate (aquifer architecture; literature)                    Forest drawdown, SLR, Net
+  Specific yield (C3 propagation medium)         Sy                    ≈ 0.298 (live; C3 WTF median from *18_wtf_01_well_sy_estimates.csv*)                    Live: Script 18, S.12                                          Forest drawdown, SLR, Net
+  SSM drainage coefficient (C3)                  β₃                    ≈ 0.062 month⁻¹ (live; C3 centroid from *03_03_cluster_mechanistic_coefficients.csv*)   Live: Script 03, S.3                                           Forest drawdown
+  Storm-magnitude shoreline retreat (exemplar)   COAST_RETREAT_M       6 m                                                                                     Storm Brendan early-2020 exemplar                              Erosion, Net
+  Measured shoreline retreat rate, 2006--2026    E_c                   2.32 m yr⁻¹ (live; Script 40 40_01_epoch_series.csv)                                    Live: Script 40 (this study)                                   Erosion, Net
+  Dune-toe offset (inland of waterline)          COAST_DUNE_OFFSET_M   100 m                                                                                   Estimate (DEM-derived dune-toe position)                       Erosion, Net
+  DEM waterline contour                          COAST_SHORE_LEVEL_M   0.5 m AOD                                                                               DEM-derived                                                    Erosion, Net
+  Coast-edge anomaly                             δ₀                    live (Script 25 fit)                                                                    Live: Script 25, S.15                                          Erosion, Net
+  Erosion-decay characteristic length            L_cg                  live (Script 25 fit)                                                                    Live: Script 25, S.15                                          Erosion, Net
+  Mean-sea-level rise (window total)             SLR_RISE_M            0.02 m                                                                                  UKCP18 north-Wales central, near-term                          SLR, Net
+  Response window                                SLR_WINDOW_YEARS      5 yr                                                                                    Near-term horizon                                              SLR, Net
+  SLR boundary datum                             SLR_SHORE_LEVEL_M     0 m AOD                                                                                 Physical convention (water-table head, not inundation)         SLR, Net
+  ---------------------------------------------- --------------------- --------------------------------------------------------------------------------------- -------------------------------------------------------------- ---------------------------
 
 **Matching the periods.** δ₀ is a deepening per year, fitted over 2005-03 to 2026-02, so the divisor that converts it to head per metre of retreat must span *the same period*. The measured 2006--2026 rate E_c overlaps that window by 99 per cent; Script 40 computes the overlap on every run and warns below 90 per cent, so the match is checked rather than asserted. The magnitude of the single illustrated event --- the 6 m Storm Brendan exemplar --- enters separately, through COAST_RETREAT_M. Published retreat rates for this frontage differ in period, extent and method, and are not interchangeable with the rate used here: Pye & Blott (2024) report approximately 1.5--1.8 m yr⁻¹ at the southern frontage from profile surveys, and a contemporary account of the 2014--2020 window reports roughly 50 m of loss (Forgrave 2020). Those appear in §5 of the main report as context for cumulative shoreline change. Published rates appear in §5 of the main report (the Pye & Blott discussion weave-in); the measured rate E_c appears here and in §3.8.2.
 

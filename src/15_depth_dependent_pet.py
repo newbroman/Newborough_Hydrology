@@ -9,7 +9,7 @@ HEADLINE_LAG = 0) is:
     where h_disp = DRAINAGE_DATUM + h_depth     (displacement above the config datum)
 
 The modified model replaces the fixed β₂ with a depth-dependent term:
-    Δh_t = β₁·P(t)  −  β₂·exp(−κ·d_{t-1})·PET(t)  −  β₃·h_disp_prev(t)
+    Δh_t = β₁·P(t)  −  β₂·exp(−d_{t-1}/L_E)·PET(t)  −  β₃·h_disp_prev(t)
 
 where d_{t-1} = depth below ground surface at the previous timestep:
     d_{t-1} = max(−h_{t-1}, 0)                     (m, always ≥ 0)
@@ -25,24 +25,27 @@ The displacement h_disp = DRAINAGE_DATUM + h is for the β₃ design matrix
 only (hydraulic drainage above a reference base). These are two different
 uses of depth and must not be conflated.
 
-κ is a new free parameter (m⁻¹). When κ=0, exp(−κd) = 1 and the standard
-SSM is recovered exactly. As κ → ∞, PET influence vanishes at depth.
+L_E is a new free parameter (m): the attenuation length of evaporative draw.
+The grid is searched over its RECIPROCAL, inv_L_E = 1/L_E (m⁻¹), because the
+no-attenuation null is inv_L_E = 0 and is then exactly representable, where
+L_E = ∞ is not. At inv_L_E = 0, exp(−d/L_E) = 1 and the standard SSM is
+recovered exactly. As L_E → 0, PET influence vanishes at depth.
 
 The physical interpretation: capillary connectivity between root zone and
 saturated zone decays exponentially with depth, so evapotranspiration exerts
 diminishing influence as the water table falls.
 
 Fitting strategy:
-    - Grid search κ over [0, 6] in steps of 0.05
-    - At each κ, the modified predictor  −exp(−κ·d)·PET  is linear in β₂,
+    - Grid search inv_L_E = 1/L_E over [0, 6] m⁻¹ in steps of 0.05
+    - At each inv_L_E, the modified predictor  −exp(−d/L_E)·PET  is linear in β₂,
       so β₁, β₂, β₃ are recovered by no-intercept OLS
-    - Best κ selected by iterative NSE on held-out simulation
+    - Best L_E selected by iterative NSE on held-out simulation
 
 Outputs (in outputs/15_depth_dependent_pet/):
-    15_01_lambda_profile.png        — NSE vs κ for each cluster
+    15_01_lambda_profile.png        — NSE vs 1/L_E for each cluster
     15_02_fit_comparison.png        — Observed vs fitted (best model vs SSM)
     15_03_benchmark_table.csv       — Cluster-level comparison table
-    15_04_best_params.csv           — Optimal κ and β coefficients per cluster
+    15_04_best_params.csv           — Optimal L_E and β coefficients per cluster
 """
 
 __version__ = "1.10.0"  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 "c both", 02:14 "Agree with the 3 tiers").
@@ -53,13 +56,13 @@ __version__ = "1.10.0"  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 
 # 1.9.0  # Hollingham (2026) — 2026-10-27 (D-280; Martin 01:21 "Add the depth-dependent model as a
 #   third projection", 01:25 "I will follow your recommendations"). New 15_05_ddp_per_well.csv: each reference
 #   well's depth-dependent set on the comparison window, kappa fixed at its cluster's, beta refitted, with the
-#   identifiability flag; centroid sets on both bases beside it. fit_at_kappa also returns the beta_3 p-value
+#   identifiability flag; centroid sets on both bases beside it. fit_at_inv_LE also returns the beta_3 p-value
 #   and n. Report numbers: ddp_per_well_n_wells, _n_identified, _dnse_median and the identity check
 #   ddp_per_well_check_b3_k0_vs_03. No existing value changes.
 #
 # 1.8.0  # Hollingham (2026) — 2026-10-27 (D-279; Martin 01:19 "the fit window, use both"). The
 #   partition is also computed on each centroid's full record with its own kappa grid search:
-#   depth_dependent_pet_drainage_share_{ssm,ddp}_full_pct, _shift_full_pts, depth_dependent_pet_best_kappa_full,
+#   depth_dependent_pet_drainage_share_{ssm,ddp}_full_pct, _shift_full_pts, depth_dependent_pet_best_inv_L_E_full,
 #   and the identity check depth_dependent_pet_check_ssm_full_vs_03 against Script 03's 03_12 at the project
 #   datum. The 1.7.0 keys stay as the comparison-window set. No existing value changes.
 #
@@ -70,12 +73,12 @@ __version__ = "1.10.0"  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 
 #   DATA_LIMIT now reads config.LCSC_DATA_LIMIT (same value). No existing value changes.
 #
 # 1.6.0  # Hollingham (2026) — 2026-09-29. T-96: emits
-#   depth_dependent_pet_efold_depth per cluster, the 1/e decay depth 1/κ of the
+#   depth_dependent_pet_L_E_m per cluster, the 1/e decay depth 1/κ of the
 #   best-fit κ (report9 §4.4, "a 1/e decay depth of 0.43 m at C1"). Additive; no
 #   existing output changes.
 #
 # 1.5.0  # Hollingham (2026) — 2026-09-28. T-91: emit the per-cluster
-#   best-fit κ (Best_Kappa, unrounded, from the in-memory best_params dict)
+#   best-fit κ (Best_inv_L_E, unrounded, from the in-memory best_params dict)
 #   to a new 15_report_numbers.csv, so the Methods Supplement's exp(-2.30·0.5)
 #   worked example binds to a committed value. No output value changes.
 #
@@ -148,9 +151,9 @@ OUT_BEST_PARAMS     = OUT_15_BEST_PARAMS
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-KAPPA_MIN   = 0.0
-KAPPA_MAX   = 6.0
-KAPPA_STEP  = 0.05
+INV_LE_MIN   = 0.0
+INV_LE_MAX   = 6.0
+INV_LE_STEP  = 0.05
 DATA_LIMIT   = LCSC_DATA_LIMIT   # months — the comparison window, from config (1.7.0; was a local 100)
 
 # HEADLINE_LAG imported from config.py (= 0 after bucketing fix).
@@ -199,7 +202,7 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     P        : precipitation array (m) — contemporaneous (HEADLINE_LAG = 0)
     PET      : PET array (m) — contemporaneous
     b1,b2,b3 : OLS coefficients (β₃ fitted against displacement)
-    kap      : decay parameter κ (m⁻¹)
+    kap      : inverse attenuation length 1/L_E (m⁻¹)
     drainage_datum : reference depth for displacement (default DRAINAGE_DATUM)
     """
     n = len(P)
@@ -222,11 +225,11 @@ def iterative_simulate(h0: float, P: np.ndarray, PET: np.ndarray,
     return h
 
 
-def fit_at_kappa(df: pd.DataFrame, kap: float,
+def fit_at_inv_LE(df: pd.DataFrame, kap: float,
                   drainage_datum: float = DRAINAGE_DATUM) -> dict:
     """
     Given a cluster centroid DataFrame with columns [h, P_m, PET, h_prev,
-    h_disp_prev], fit the depth-dependent SSM by OLS at a fixed κ.
+    h_disp_prev], fit the depth-dependent SSM by OLS at a fixed 1/L_E.
 
     Uses contemporaneous rainfall (HEADLINE_LAG = 0) and displacement for β₃,
     matching Script 03.
@@ -358,7 +361,7 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
     """Merge centroid with climate and build Δh, h_prev, h_disp_prev, P.
 
     Builds the design-matrix columns used downstream by fit_standard_ssm
-    and fit_at_kappa.  Column naming matches model_utils.build_ssm_frame:
+    and fit_at_inv_LE.  Column naming matches model_utils.build_ssm_frame:
     rainfall is stored under "P" rather than "P_lag1" — the canonical
     SSM is contemporaneous (HEADLINE_LAG = 0) so the historical "lag1"
     label was misleading.  The `.shift(HEADLINE_LAG)` is retained for
@@ -386,11 +389,11 @@ def build_regression_df(centroid: pd.Series, climate: pd.DataFrame,
 
 
 # ---------------------------------------------------------------------------
-# Standard SSM baseline (κ=0)
+# Standard SSM baseline (1/L_E = 0)
 # ---------------------------------------------------------------------------
 
 def fit_standard_ssm(df: pd.DataFrame) -> dict | None:
-    """The κ=0 baseline, fitted by the SHARED SSM routine (T-14 E7).
+    """The 1/L_E = 0 baseline, fitted by the SHARED SSM routine (T-14 E7).
 
     This used to build its own three-column no-intercept design and call
     sm.OLS directly. That design was character-for-character the one in
@@ -408,8 +411,8 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict | None:
     change — and buys the p-values, standard errors and the insufficient-data
     guard that the inline version had none of.
 
-    NOT done at fit_at_kappa (the grid search): its β₂ column carries
-    −exp(−κ·d)·PET, which is a different design matrix and not an SSM. That one
+    NOT done at fit_at_inv_LE (the grid search): its β₂ column carries
+    −exp(−d/L_E)·PET, which is a different design matrix and not an SSM. That one
     stays inline, deliberately.
     """
     fit = fit_ssm(pre_built_frame=df)
@@ -420,7 +423,7 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict | None:
     b3 = fit["beta_3_drainage"]
     r2 = fit["R2"]
 
-    # Iterative NSE — for the standard SSM (κ=0) the PET decay is exp(0)=1,
+    # Iterative NSE — for the standard SSM (1/L_E = 0) the PET decay is exp(0)=1,
     # but displacement is still needed for β₃.
     h_sim = iterative_simulate(
         h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
@@ -439,16 +442,16 @@ def fit_standard_ssm(df: pd.DataFrame) -> dict | None:
 # Grid search
 # ---------------------------------------------------------------------------
 
-def grid_search_kappa(df: pd.DataFrame) -> pd.DataFrame:
+def grid_search_inv_LE(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Search κ over [KAPPA_MIN, KAPPA_MAX] and record OLS R² and
+    Search inv_L_E over [INV_LE_MIN, INV_LE_MAX] and record OLS R² and
     iterative NSE at each step.
     """
-    kappas = np.arange(KAPPA_MIN, KAPPA_MAX + KAPPA_STEP / 2, KAPPA_STEP)
+    inv_LEs = np.arange(INV_LE_MIN, INV_LE_MAX + INV_LE_STEP / 2, INV_LE_STEP)
     records = []
 
-    for kap in kappas:
-        fit = fit_at_kappa(df, kap)
+    for kap in inv_LEs:
+        fit = fit_at_inv_LE(df, kap)
         # Only evaluate iterative NSE if all coefficients are physically
         # plausible (positive β₁, positive β₂, positive β₃)
         if fit["b1"] > 0 and fit["b2"] > 0 and fit["b3"] > 0:
@@ -459,7 +462,7 @@ def grid_search_kappa(df: pd.DataFrame) -> pd.DataFrame:
             nse_val = np.nan
 
         records.append({
-            "kappa": round(kap, 4),
+            "inv_L_E": round(kap, 4),
             "b1": fit["b1"],
             "b2": fit["b2"],
             "b3": fit["b3"],
@@ -480,7 +483,7 @@ CLUSTER_ORDER = sorted(CLUSTER_LABELS.keys())   # all clusters under k=5
 def loss_partition(df: pd.DataFrame, b2: float, b3: float, kap: float) -> dict:
     """1.7.0: the drainage share of the modelled mean loss at a centroid, in head units, as Script 03's
     partition defines it (drainage = beta_3 * mean h_disp_prev; atmospheric draw = beta_2 * mean of the
-    PET term), with the PET term attenuated by exp(-kappa * depth to water) as in the fit (kappa = 0 is
+    PET term), with the PET term attenuated by exp(-depth to water / L_E) as in the fit (1/L_E = 0 is
     the standard SSM). Sy-free: a share, not a depth of water."""
     d_prev = np.maximum(-df["h_prev"].values, 0.0)
     drain = float(b3 * df["h_disp_prev"].mean())
@@ -489,42 +492,42 @@ def loss_partition(df: pd.DataFrame, b2: float, b3: float, kap: float) -> dict:
     return {"drain": drain, "draw": draw, "share_pct": 100.0 * drain / tot if tot > 0 else np.nan}
 
 
-def per_well_ddp(wells_clean, climate, cluster_stats, well_col_lookup, kappa_by_cluster) -> pd.DataFrame:
+def per_well_ddp(wells_clean, climate, cluster_stats, well_col_lookup, inv_LE_by_cluster) -> pd.DataFrame:
     """1.9.0 (D-280): each reference well's depth-dependent set on the comparison window, with
-    kappa fixed at its cluster's comparison-window value (a per-well kappa is weakly identified on
-    LCSC_DATA_LIMIT months) and beta_1..beta_3 refitted by no-intercept OLS at that kappa. A set is
+    L_E fixed at its cluster's comparison-window value (a per-well L_E is weakly identified on
+    LCSC_DATA_LIMIT months) and beta_1..beta_3 refitted by no-intercept OLS at that L_E. A set is
     identified when beta_1, beta_2 > 0 and beta_3 passes response_identified (Script 48's rule,
-    three parameters) -- the rule the Model A / Model B pair already uses. The kappa = 0 refit is
+    three parameters) -- the rule the Model A / Model B pair already uses. The 1/L_E = 0 refit is
     carried beside it (b3_k0) so it can be checked against Script 03's per-well fit."""
     from utils.model_utils import response_identified   # noqa: PLC0415
     rows = []
     for _, r in cluster_stats.iterrows():
         cid = int(pd.to_numeric(r["Cluster"], errors="coerce")) if pd.notna(r["Cluster"]) else None
         col = well_col_lookup.get(normalize_well_name(r["Match_ID"]))
-        if col is None or cid not in kappa_by_cluster:
+        if col is None or cid not in inv_LE_by_cluster:
             continue
         df = build_regression_df(wells_clean[col], climate)
         if len(df) <= 30:
             continue
-        kap = float(kappa_by_cluster[cid])
-        f = fit_at_kappa(df, kap)
-        f0 = fit_at_kappa(df, 0.0)
+        kap = float(inv_LE_by_cluster[cid])
+        f = fit_at_inv_LE(df, kap)
+        f0 = fit_at_inv_LE(df, 0.0)
         ok_signs = f["b1"] > 0 and f["b2"] > 0 and f["b3"] > 0
         ident = bool(ok_signs and response_identified(f["b3"], f["pvalue_b3"], f["n"], 3)[0])
         nse_d = evaluate_iterative_nse(df, kap, f["b1"], f["b2"], f["b3"]) if ok_signs else np.nan
         nse_0 = (evaluate_iterative_nse(df, 0.0, f0["b1"], f0["b2"], f0["b3"])
                  if (f0["b1"] > 0 and f0["b2"] > 0 and f0["b3"] > 0) else np.nan)
         rows.append({"level": "well", "basis": "comparison_window", "well": normalize_well_name(r["Match_ID"]),
-                     "Cluster": cid, "kappa": kap, "b1": f["b1"], "b2": f["b2"], "b3": f["b3"],
+                     "Cluster": cid, "inv_L_E": kap, "b1": f["b1"], "b2": f["b2"], "b3": f["b3"],
                      "pvalue_b3": f["pvalue_b3"], "n": f["n"], "r2_onestep": f["r2"],
                      "nse_iterative": nse_d, "nse_iterative_k0": nse_0, "b3_k0": f0["b3"],
                      "identified": ident})
     return pd.DataFrame(rows)
 
 
-def plot_kappa_profiles(profiles: dict, ssm_baselines: dict):
+def plot_inv_LE_profiles(profiles: dict, ssm_baselines: dict):
     """
-    One panel per cluster: NSE vs κ, with horizontal dashed line at SSM NSE.
+    One panel per cluster: NSE vs 1/L_E, with horizontal dashed line at SSM NSE.
     """
     # 2x3 grid accommodates up to 6 clusters; unused panels hidden after the loop.
     fig, axes = plt.subplots(2, 3, figsize=(15, 8), dpi=150)
@@ -542,32 +545,32 @@ def plot_kappa_profiles(profiles: dict, ssm_baselines: dict):
         col  = CLUSTER_COLOURS.get(cid, "steelblue")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
 
-        ax.plot(prof["kappa"], prof["nse_iterative"], color=col, lw=2,
+        ax.plot(prof["inv_L_E"], prof["nse_iterative"], color=col, lw=2,
                 label="Depth-dependent model")
         ax.axhline(ssm["nse_iterative"], color="black", lw=1.5, ls="--",
                    label=f"Standard SSM (NSE = {ssm['nse_iterative']:.3f})")
 
-        # Mark best κ
+        # Mark best 1/L_E
         best_idx = prof["nse_iterative"].idxmax()
         if pd.notna(prof.loc[best_idx, "nse_iterative"]):
-            best_kap = prof.loc[best_idx, "kappa"]
+            best_kap = prof.loc[best_idx, "inv_L_E"]
             best_nse = prof.loc[best_idx, "nse_iterative"]
             ax.axvline(best_kap, color=col, lw=1, ls=":", alpha=0.7)
             ax.scatter([best_kap], [best_nse], color=col, zorder=5, s=60,
-                       label=f"Best κ = {best_kap:.2f} m⁻¹")
+                       label=f"Best 1/L_E = {best_kap:.2f} m⁻¹")
 
         ax.set_title(label, fontsize=11, fontweight="bold")
-        ax.set_xlabel("κ (m⁻¹)", fontsize=10)
+        ax.set_xlabel("1/L_E (m⁻¹)", fontsize=10)
         ax.set_ylabel("Iterative NSE", fontsize=10)
         ax.legend(fontsize=8)
         ax.grid(True, alpha=0.3)
-        ax.set_xlim(KAPPA_MIN, KAPPA_MAX)
+        ax.set_xlim(INV_LE_MIN, INV_LE_MAX)
 
     # Hide any unused panels (e.g. the 6th in a 2x3 grid with 5 clusters).
     for ax in axes[len(CLUSTER_ORDER):]:
         ax.set_visible(False)
 
-    fig.suptitle("Depth-Dependent PET Model: NSE vs Decay Parameter κ\n"
+    fig.suptitle("Depth-Dependent PET Model: NSE vs inverse attenuation length 1/L_E\n"
                  "(dashed = Standard SSM baseline)",
                  fontsize=13, fontweight="bold")
     plt.tight_layout()
@@ -598,7 +601,7 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
             continue
         col = CLUSTER_COLOURS.get(cid, "steelblue")
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
-        # Standard SSM simulation (κ=0 → exp(0)=1, no PET depth decay)
+        # Standard SSM simulation (1/L_E = 0 → exp(0)=1, no PET depth decay)
         h_ssm = iterative_simulate(
             h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
             b1=ssm["b1"], b2=ssm["b2"], b3=ssm["b3"], kap=0.0,
@@ -608,7 +611,7 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
         h_ddp = iterative_simulate(
             h0=df["h"].iloc[0], P=df["P"].values, PET=df["PET"].values,
             b1=bp["b1"], b2=bp["b2"], b3=bp["b3"],
-            kap=bp["best_kappa"],
+            kap=bp["best_inv_LE"],
         )
 
         ax.plot(df.index, df["h"].values, color="black", lw=1.5,
@@ -616,7 +619,7 @@ def plot_fit_comparison(regression_dfs: dict, centroids: dict, climate: pd.DataF
         ax.plot(df.index, h_ssm, color="grey", lw=1, ls="--",
                 label=f"SSM (NSE={ssm['nse_iterative']:.2f})")
         ax.plot(df.index, h_ddp, color=col, lw=1.5,
-                label=f"Depth-dep. κ={bp['best_kappa']:.2f} (NSE={bp['nse_iterative']:.2f})")
+                label=f"Depth-dep. 1/L_E={bp['best_inv_LE']:.2f} (NSE={bp['nse_iterative']:.2f})")
 
         ax.set_title(label, fontsize=10, fontweight="bold")
         ax.set_ylabel("Depth to WT (m)", fontsize=9)
@@ -658,7 +661,7 @@ def main():
             regression_dfs[cid] = df
 
     # Standard SSM baseline
-    print("\nFitting standard SSM baselines (κ=0)...")
+    print("\nFitting standard SSM baselines (1/L_E = 0)...")
     ssm_baselines = {}
     for cid, df in regression_dfs.items():
         ssm = fit_standard_ssm(df)
@@ -673,19 +676,19 @@ def main():
               f"iterative NSE={ssm['nse_iterative']:.3f}  n={ssm['n_obs']}")
 
     # Grid search
-    print(f"\nGrid searching κ ∈ [{KAPPA_MIN}, {KAPPA_MAX}] "
-          f"step {KAPPA_STEP} ({int((KAPPA_MAX - KAPPA_MIN) / KAPPA_STEP) + 1} values)...")
+    print(f"\nGrid searching 1/L_E ∈ [{INV_LE_MIN}, {INV_LE_MAX}] m⁻¹ "
+          f"step {INV_LE_STEP} ({int((INV_LE_MAX - INV_LE_MIN) / INV_LE_STEP) + 1} values)...")
     profiles = {}
     for cid, df in regression_dfs.items():
         print(f"  C{cid} ...", end=" ", flush=True)
-        prof = grid_search_kappa(df)
+        prof = grid_search_inv_LE(df)
         profiles[cid] = prof
         valid = prof.dropna(subset=["nse_iterative"])
         if not valid.empty:
             best = valid.loc[valid["nse_iterative"].idxmax()]
-            print(f"best κ={best['kappa']:.2f}  NSE={best['nse_iterative']:.3f}")
+            print(f"best 1/L_E={best['inv_L_E']:.2f}  NSE={best['nse_iterative']:.3f}")
         else:
-            skipped("no valid κ found")
+            skipped("no valid 1/L_E found")
 
     # Extract best params per cluster
     print("\nExtracting best parameters...")
@@ -697,7 +700,7 @@ def main():
         best_row = valid.loc[valid["nse_iterative"].idxmax()]
         _, upstand = centroids[cid]
         best_params[cid] = {
-            "best_kappa":    best_row["kappa"],
+            "best_inv_LE":    best_row["inv_L_E"],
             "b1":             best_row["b1"],
             "b2":             best_row["b2"],
             "b3":             best_row["b3"],
@@ -713,7 +716,7 @@ def main():
     print("  BENCHMARK SUMMARY — Depth-Dependent vs Standard SSM")
     print("=" * 65)
     print(f"{'Cluster':<8} {'SSM NSE':>9} {'DDP NSE':>9} {'Δ NSE':>8}  "
-          f"{'Best κ':>8}  {'Note'}")
+          f"{'Best 1/L_E':>10}  {'Note'}")
     print("-" * 65)
 
     benchmark_rows = []
@@ -725,7 +728,7 @@ def main():
         ssm_nse = ssm["nse_iterative"]
         ddp_nse = bp["nse_iterative"] if bp else np.nan
         delta   = ddp_nse - ssm_nse if (bp and pd.notna(ddp_nse)) else np.nan
-        best_kap = bp["best_kappa"] if bp else np.nan
+        best_kap = bp["best_inv_LE"] if bp else np.nan
 
         # Flag if improvement is marginal (< 0.01) or model performs worse
         if pd.isna(delta):
@@ -748,7 +751,7 @@ def main():
             "SSM_Iterative_NSE": round(ssm_nse, 3),
             "DDP_Iterative_NSE": round(ddp_nse, 3) if pd.notna(ddp_nse) else np.nan,
             "Delta_NSE":         round(delta, 3)   if pd.notna(delta) else np.nan,
-            "Best_Kappa_m-1":   round(best_kap, 2) if pd.notna(best_kap) else np.nan,
+            "Best_inv_L_E_m-1":   round(best_kap, 2) if pd.notna(best_kap) else np.nan,
             "DDP_b1":            round(bp["b1"], 4) if bp else np.nan,
             "DDP_b2":            round(bp["b2"], 4) if bp else np.nan,
             "DDP_b3":            round(bp["b3"], 4) if bp else np.nan,
@@ -772,12 +775,12 @@ def main():
         ssm = ssm_baselines.get(cid) or {}
         df_c = regression_dfs[cid]
         p_ssm = loss_partition(df_c, ssm["b2"], ssm["b3"], 0.0) if ssm else {"share_pct": np.nan}
-        p_ddp = loss_partition(df_c, bp["b2"], bp["b3"], bp["best_kappa"])
+        p_ddp = loss_partition(df_c, bp["b2"], bp["b3"], bp["best_inv_LE"])
         partitions[cid] = (p_ssm, p_ddp)
         params_rows.append({
             "Cluster":        f"C{cid}",
             "Label":          CLUSTER_LABELS.get(cid, ""),
-            "Best_Kappa":    bp["best_kappa"],
+            "Best_inv_L_E":    bp["best_inv_LE"],
             "b1":             bp["b1"],
             "b2":             bp["b2"],
             "b3":             bp["b3"],
@@ -799,21 +802,23 @@ def main():
     # to a committed report number.
     rn = ReportNumbers()
     for cid, bp in best_params.items():
-        rn.add("depth_dependent_pet_best_kappa", bp["best_kappa"],
+        rn.add("depth_dependent_pet_best_inv_L_E", bp["best_inv_LE"],
                unit="m^-1", well=f"C{cid}",
-               note="Best-fit PET depth-attenuation coefficient κ "
+               note="Best-fit inverse PET attenuation length 1/L_E "
                     "(grid-search argmax NSE_iterative), unrounded; "
-                    "15_04_best_params.csv Best_Kappa")
-    # T-96: the 1/e decay depth 1/κ (report9 §4.4 quotes it for C1). Not
-    # defined for κ = 0 (no attenuation), so no row is written then.
+                    "15_04_best_params.csv Best_inv_L_E")
+    # T-96: the attenuation length L_E itself (report9 §4.4 quotes it for C1) — the
+    # 1/e decay depth, which is the reciprocal of the fitted inv_L_E. Not defined at
+    # inv_L_E = 0 (no attenuation detected), so no row is written then.
     for cid, bp in best_params.items():
-        if pd.notna(bp["best_kappa"]) and bp["best_kappa"] > 0:
-            rn.add("depth_dependent_pet_efold_depth", 1.0 / bp["best_kappa"],
+        if pd.notna(bp["best_inv_LE"]) and bp["best_inv_LE"] > 0:
+            rn.add("depth_dependent_pet_L_E_m", 1.0 / bp["best_inv_LE"],
                    unit="m", well=f"C{cid}",
-                   note="1/e decay depth of the PET depth attenuation, 1/κ from the "
-                        "best-fit κ (depth_dependent_pet_best_kappa), unrounded")
+                   note="attenuation length of evaporative draw L_E (the 1/e decay "
+                        "depth), the reciprocal of the best-fit inverse length "
+                        "(depth_dependent_pet_best_inv_L_E), unrounded")
     # 1.8.0 (D-279; Martin 2026-10-27 01:19 "the fit window, use both"): the same partition on each
-    # centroid's FULL record, with its own kappa grid search, so the report's water-balance estimators
+    # centroid's FULL record, with its own inv_L_E grid search, so the report's water-balance estimators
     # sit on one basis. The full-record standard share must reproduce Script 03's partition at the
     # project datum (03_12_partition_vs_datum.csv) -- an identity check, expected 0.
     full_parts = {}
@@ -823,13 +828,13 @@ def main():
         ssm_f = fit_standard_ssm(df_f)
         if ssm_f is None or len(df_f) <= 30:
             continue
-        prof_f = grid_search_kappa(df_f).dropna(subset=["nse_iterative"])
+        prof_f = grid_search_inv_LE(df_f).dropna(subset=["nse_iterative"])
         if prof_f.empty:
             continue
         bf = prof_f.loc[prof_f["nse_iterative"].idxmax()]
         full_parts[cid] = (loss_partition(df_f, ssm_f["b2"], ssm_f["b3"], 0.0),
-                           loss_partition(df_f, bf["b2"], bf["b3"], bf["kappa"]), float(bf["kappa"]), len(df_f))
-        full_sets[cid] = {"kappa": float(bf["kappa"]), "b1": float(bf["b1"]), "b2": float(bf["b2"]),
+                           loss_partition(df_f, bf["b2"], bf["b3"], bf["inv_L_E"]), float(bf["inv_L_E"]), len(df_f))
+        full_sets[cid] = {"inv_L_E": float(bf["inv_L_E"]), "b1": float(bf["b1"]), "b2": float(bf["b2"]),
                           "b3": float(bf["b3"]), "n": len(df_f), "nse_iterative": float(bf["nse_iterative"])}
     p03 = None
     if OUT_03_PARTITION_VS_DATUM.exists():
@@ -839,11 +844,11 @@ def main():
         rn.add("depth_dependent_pet_drainage_share_ssm_full_pct", p_ssm["share_pct"], unit="%", well=f"C{cid}",
                note=f"drainage share of the modelled mean loss, standard SSM, centroid on the full record (n = {n_f})")
         rn.add("depth_dependent_pet_drainage_share_ddp_full_pct", p_ddp["share_pct"], unit="%", well=f"C{cid}",
-               note="the same share with the PET term attenuated by exp(-kappa d), kappa from a full-record grid search")
+               note="the same share with the PET term attenuated by exp(-d / L_E), L_E from a full-record grid search")
         rn.add("depth_dependent_pet_drainage_share_shift_full_pts", p_ddp["share_pct"] - p_ssm["share_pct"],
                unit="percentage points", well=f"C{cid}", note="depth-dependent minus standard, full record")
-        rn.add("depth_dependent_pet_best_kappa_full", kap_f, unit="m^-1", well=f"C{cid}",
-               note="best-fit kappa on the full record (grid-search argmax NSE_iterative)")
+        rn.add("depth_dependent_pet_best_inv_L_E_full", kap_f, unit="m^-1", well=f"C{cid}",
+               note="best-fit inverse attenuation length 1/L_E on the full record (grid-search argmax NSE_iterative)")
         if p03 is not None and cid in p03.index:
             rn.add("depth_dependent_pet_check_ssm_full_vs_03", p_ssm["share_pct"] - float(p03.loc[cid]),
                    unit="percentage points", well=f"C{cid}",
@@ -853,11 +858,11 @@ def main():
     # with the centroid sets on both bases beside them (extended wells in the viewer take their
     # cluster's full-record centroid, as they do under Model A).
     pw = per_well_ddp(wells_clean, climate, cluster_stats, well_col_lookup,
-                      {cid: bp["best_kappa"] for cid, bp in best_params.items()})
+                      {cid: bp["best_inv_LE"] for cid, bp in best_params.items()})
     cent_rows = []
     for cid, bp in best_params.items():
         cent_rows.append({"level": "centroid", "basis": "comparison_window", "well": "", "Cluster": cid,
-                          "kappa": bp["best_kappa"], "b1": bp["b1"], "b2": bp["b2"], "b3": bp["b3"],
+                          "inv_L_E": bp["best_inv_LE"], "b1": bp["b1"], "b2": bp["b2"], "b3": bp["b3"],
                           "n": len(regression_dfs[cid]), "nse_iterative": bp["nse_iterative"], "identified": True})
     for cid, fs_ in full_sets.items():
         cent_rows.append({"level": "centroid", "basis": "full_record", "well": "", "Cluster": cid,
@@ -866,36 +871,36 @@ def main():
     ddp_all.to_csv(OUT_15_DDP_PER_WELL, index=False)
     saved(f"{OUT_15_DDP_PER_WELL.name} ({len(pw)} wells, {int(pw['identified'].sum()) if len(pw) else 0} identified)")
     if len(pw):
-        rn.add("ddp_per_well_n_wells", float(len(pw)), unit="count", note="reference wells fitted under the depth-dependent form (comparison window, cluster kappa)")
+        rn.add("ddp_per_well_n_wells", float(len(pw)), unit="count", note="reference wells fitted under the depth-dependent form (comparison window, cluster L_E)")
         rn.add("ddp_per_well_n_identified", float(pw["identified"].sum()), unit="count",
                note="of which identified (beta_1, beta_2 > 0; beta_3 by response_identified, 3 parameters)")
         d_nse = (pw["nse_iterative"] - pw["nse_iterative_k0"]).dropna()
         rn.add("ddp_per_well_dnse_median", float(d_nse.median()) if len(d_nse) else np.nan, unit="",
-               note="median iterative NSE gain of the depth-dependent set over the kappa = 0 refit, per well")
+               note="median iterative NSE gain of the depth-dependent set over the 1/L_E = 0 refit, per well")
         if INT_MASTER_DATA.exists():
             m = pd.read_csv(INT_MASTER_DATA)
             name_col = "Match_ID" if "Match_ID" in m.columns else "Name_Original"
             m["_n"] = m[name_col].astype(str).apply(normalize_well_name)
             j = pw.merge(m[["_n", "beta_3_drainage"]], left_on="well", right_on="_n", how="inner")
             rn.add("ddp_per_well_check_b3_k0_vs_03", float((j["b3_k0"] - j["beta_3_drainage"]).abs().max()) if len(j) else np.nan,
-                   unit="", note="identity check: max |beta_3 at kappa = 0 less 03_master_data beta_3| over the wells (expected 0)")
+                   unit="", note="identity check: max |beta_3 at 1/L_E = 0 less 03_master_data beta_3| over the wells (expected 0)")
 
     # 1.7.0 (D-279): how far letting the PET term weaken with depth to water moves the drainage share of
     # the modelled mean loss, on this script's own basis (centroids on the comparison window), so the
     # documents' caveat that the SSM's drainage share leans high binds to committed values.
     for cid, (p_ssm, p_ddp) in partitions.items():
         rn.add("depth_dependent_pet_drainage_share_ssm_pct", p_ssm["share_pct"], unit="%", well=f"C{cid}",
-               note="drainage share of the modelled mean loss, standard SSM (kappa = 0), this script's centroid "
+               note="drainage share of the modelled mean loss, standard SSM (1/L_E = 0), this script's centroid "
                     "on the comparison window; head units, Sy-free")
         rn.add("depth_dependent_pet_drainage_share_ddp_pct", p_ddp["share_pct"], unit="%", well=f"C{cid}",
-               note="the same share with the PET term attenuated by exp(-kappa d) at the best-fit kappa")
+               note="the same share with the PET term attenuated by exp(-d / L_E) at the best-fit L_E")
         rn.add("depth_dependent_pet_drainage_share_shift_pts", p_ddp["share_pct"] - p_ssm["share_pct"],
                unit="percentage points", well=f"C{cid}",
                note="depth-dependent minus standard drainage share; negative = loss moved from drainage to ET")
     rn.save(OUT_15_REPORT_NUMBERS)
     saved(f"{OUT_15_REPORT_NUMBERS.name}")
 
-    # Kappa profile for all clusters (C1-C5 under the k = 5 partition)
+    # Inverse-attenuation-length profile for all clusters (C1-C5 under the k = 5 partition)
     profile_all = pd.concat(
         {f"C{cid}": prof for cid, prof in profiles.items()},
         names=["Cluster"]
@@ -904,7 +909,7 @@ def main():
 
     # Figures
     print("\nGenerating figures...")
-    plot_kappa_profiles(profiles, ssm_baselines)
+    plot_inv_LE_profiles(profiles, ssm_baselines)
     plot_fit_comparison(regression_dfs, centroids, climate, best_params, ssm_baselines)
 
     print("\n15 Complete.")

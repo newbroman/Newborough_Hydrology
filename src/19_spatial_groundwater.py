@@ -1381,7 +1381,7 @@ def serialise_wells(wt, sets=None):
                      # 2.29.0 (D-224): the sustained-response sets, as compute_scenario_summary
                      # uses them (projection_coefficient_sets / paired_sets).
                      "pB": _set(pB), "pA": _set(pA), "oB": _set(oB), "oA": _set(oA),
-                     # 2.32.0 (D-280): the depth-dependent sets, (b1, b2, b3, kappa)
+                     # 2.32.0 (D-280): the depth-dependent sets, (b1, b2, b3, inv_L_E)
                      "pD": _set(pD), "oD": _set(oD)})
     return rows
 
@@ -2751,18 +2751,18 @@ def projection_coefficient_sets(wt):
                                         r["beta_3_drainage"], r["pvalue_beta_3"], r["n"])
               for _, r in _ca.iterrows()}
     # ── D-280 (2.32.0): the depth-dependent form, the third projection ──
-    # Reference wells: their own comparison-window set from Script 15 (kappa fixed at the cluster's,
+    # Reference wells: their own comparison-window set from Script 15 (inv_L_E fixed at the cluster's,
     # beta refitted), None where it is not identified; extended wells: their cluster's full-record
-    # centroid set, as under Model A. Each set is (b1, b2, b3, kappa).
+    # centroid set, as under Model A. Each set is (b1, b2, b3, inv_L_E).
     well_D, cent_D = {}, {}
     if OUT_15_DDP_PER_WELL.exists():
         _dd = pd.read_csv(OUT_15_DDP_PER_WELL)
         for _, r in _dd[_dd["level"] == "well"].iterrows():
             ok = bool(r["identified"])
-            well_D[_norm(r["well"])] = ((float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["kappa"]))
+            well_D[_norm(r["well"])] = ((float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["inv_L_E"]))
                                         if ok else None)
         for _, r in _dd[(_dd["level"] == "centroid") & (_dd["basis"] == "full_record")].iterrows():
-            cent_D[int(r["Cluster"])] = (float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["kappa"]))
+            cent_D[int(r["Cluster"])] = (float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["inv_L_E"]))
     return _mb, _mbw, well_B, cent_B, well_A, cent_A, well_D, cent_D
 
 

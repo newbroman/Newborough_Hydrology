@@ -96,6 +96,20 @@ def save(rs: list[dict]) -> None:
     register_io.write_rows(REGISTER, FIELDS, rs,
                            sort_key=lambda r: (r.get("touched") or r.get("opened") or ""),
                            key_cols=["chat"])
+    # D-314 (widened 2026-11-06, Martin: "s to all shared records locks should be automatic"):
+    # publish it at once, so a row exists for every chat the moment it is written. This chat's own
+    # `status done` was lost to exactly this on 2026-11-06, alongside two claim releases.
+    #
+    # NO rebase-on-origin here, unlike the lock, and the difference is the file format: the lock is
+    # ONE json document with no merge, so a write must land on origin's version or it reverts
+    # someone; these are CSVs that register_io merges ROW BY ROW and whose writer already keeps
+    # rows another writer added and honours removals. So they need publishing, not rebasing.
+    try:
+        import doc_lock
+        doc_lock.publish_records(("working/chat_register.csv",), "chat register")
+    except Exception:
+        pass
+
 
 
 def find(rs: list[dict], chat: str) -> dict | None:

@@ -87,6 +87,13 @@ __version__ = "1.4.0"
 MPL_DEFAULTS = {
     "font.family": "sans-serif",
     "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+    # T-176: matplotlib's own defaults, set EXPLICITLY so a host matplotlibrc cannot change
+    # glyph metrics under us. A cloud image was found on 2026-11-07 setting
+    # `text.hinting: no_hinting`, which this dict did not override: text extents moved, and
+    # with bbox_inches="tight" so did the figure size and every output byte. font.family
+    # above was already overriding that half of the same file; these are the rest of it.
+    "text.hinting": "force_autohint",
+    "text.hinting_factor": 8,
     "pdf.fonttype": 42,
     "ps.fonttype": 42,
     "axes.labelsize": 12,

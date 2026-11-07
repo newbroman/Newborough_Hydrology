@@ -102,7 +102,18 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.5"  # Hollingham (2026) - 2026-11-07. D-315: AUGUST is the baseline for the
+__version__ = "1.7.6"  # Hollingham (2026) - 2026-11-07. A figure keeps ALL its captions, not just
+#   the first, and the October 2026 issue is REISSUED on the August baseline (Martin: "lets do the
+#   august 2026 comparison in october 2026 news letter, what I meant by in the future was starting
+#   from now"). The grouping pass of 1.6.0 put heading..figure..ONE caption in a KeepTogether, but
+#   three figures carry a SECOND caption - the by-area cluster prose under the month-on-month and
+#   year-on-year maps, and 1.7.5\'s baseline note under the August map. Measured on the 1.7.5
+#   rebuild: the two lines D-315 added pushed the last two lines of the year-on-year area prose
+#   onto a SEVENTH page that held nothing else at all, in an issue that had been six. The reissue
+#   is seven pages because the section D-315 adds is a section, but every page now opens with a
+#   heading and carries a figure or a table, and the published text diff against the October issue
+#   is confined to D-315 with every number identical.
+# __version__ = "1.7.5"  # Hollingham (2026) - 2026-11-07. D-315: AUGUST is the baseline for the
 #   "Difference from the Lowest Minimum" map, by convention and every year, so that each year's
 #   comparison runs from the same month - Martin's ruling: "I want the map keyed to August as a
 #   state of convention... in the future we're going to run and compare August to the month that's
@@ -2489,8 +2500,18 @@ def generate_pdf_report(output_dir, year, month, met_text,
             while j < len(story) and not _is_heading(story[j]) and not isinstance(story[j], (Image, PageBreak)):
                 j += 1
             if j < len(story) and isinstance(story[j], Image):
-                end = j + 2 if j + 1 < len(story) and isinstance(story[j + 1], Paragraph) \
-                    and story[j + 1].style.name == "Caption" else j + 1
+                # ALL the captions that follow the figure, not just the first
+                # (1.7.5). A figure may carry a second caption - the by-area
+                # cluster prose under the month-on-month and year-on-year maps,
+                # and the baseline note under the August map - and keeping only
+                # the first in the group lets the rest break away on their own.
+                # Measured: the two extra lines D-315 added pushed the last two
+                # lines of the year-on-year area prose onto a SEVENTH page that
+                # held nothing else, in an issue that had been six.
+                end = j + 1
+                while end < len(story) and isinstance(story[end], Paragraph) \
+                        and story[end].style.name == "Caption":
+                    end += 1
                 grouped.append(KeepTogether(story[i:end]))
                 i = end
                 continue

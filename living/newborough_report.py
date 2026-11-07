@@ -102,7 +102,18 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.6"  # Hollingham (2026) - 2026-11-07. A figure keeps ALL its captions, not just
+__version__ = "1.7.7"  # Hollingham (2026) - 2026-11-07. The WU exports live in living/inbox/ and
+#   are found there by name - no --wu_csv needed (Martin: "the wu exports should go in living/inbox").
+#   Same place as valleydata.txt and the round's well files: the month's inputs, dropped in and read
+#   in place, and the directory is gitignored, so the exports stay local while the newsletter remains
+#   the public record of what the gauges said. THE STATION HAS TO BE IN THE FILENAME: WU's download
+#   is `weather-history-<YYYY>-<MM>-01.csv` and carries neither the station nor the year inside it -
+#   its Time column is a bare `10/1` - so two stations' exports for one month arrive under the SAME
+#   name with nothing in either file to tell them apart. The convention is WU's own stem with the
+#   station appended (`weather-history-2026-10-01_IBODOR4.csv`); `wu_<STATION>_<YYYY-MM>.csv` and a
+#   loose name carrying both are accepted too. TWO loose matches are REFUSED rather than guessed:
+#   choosing one would put an unannounced gauge-month into a published newsletter.
+# __version__ = "1.7.6"  # Hollingham (2026) - 2026-11-07. A figure keeps ALL its captions, not just
 #   the first, and the October 2026 issue is REISSUED on the August baseline (Martin: "lets do the
 #   august 2026 comparison in october 2026 news letter, what I meant by in the future was starting
 #   from now"). The grouping pass of 1.6.0 put heading..figure..ONE caption in a KeepTogether, but
@@ -869,6 +880,59 @@ def read_wu_export_csv(path, station_id=None, year=None, month=None):
         'spike_warning': warn, 'daily': daily,
         'source': f"Export CSV ({os.path.basename(path)})",
     }, None
+
+
+WU_INBOX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inbox")
+
+
+def find_wu_export(station_id, year, month, inbox=WU_INBOX):
+    """The month's Export CSV for `station_id` in living/inbox/, or None.
+
+    WHERE THE EXPORTS LIVE (Martin, 2026-11-07: "the wu exports should go in
+    living/inbox"). That is the same place as `valleydata.txt` and the round's
+    well files - the month's inputs, dropped in and read in place. The directory
+    is in `.gitignore`, so the exports stay local: the newsletter itself is the
+    public record of what the gauges said, and it quotes the station ids and the
+    monthly totals in its own text.
+
+    WU's download is named `weather-history-<YYYY>-<MM>-01.csv` and carries
+    NEITHER the station nor the year inside it - its Time column is bare `10/1`
+    - so two stations' exports for one month arrive with the SAME name and
+    nothing in the file tells them apart. The station therefore has to be in the
+    filename, and the convention is WU's own stem with the station appended:
+
+        weather-history-2026-10-01_IBODOR4.csv
+
+    `wu_<STATION>_<YYYY-MM>.csv` is accepted too, and failing both, any .csv in
+    the inbox whose name carries the station and the month in any order. The
+    match is case-insensitive on the station.
+    """
+    if not station_id or not os.path.isdir(inbox):
+        return None
+    sid = str(station_id).strip().lower()
+    ym = f"{year}-{month:02d}"
+    for name in (f"weather-history-{ym}-01_{station_id}.csv",
+                 f"wu_{station_id}_{ym}.csv"):
+        cand = os.path.join(inbox, name)
+        if os.path.isfile(cand):
+            return cand
+        # the preferred names again, case-insensitively
+        for f in os.listdir(inbox):
+            if f.lower() == name.lower() and os.path.isfile(os.path.join(inbox, f)):
+                return os.path.join(inbox, f)
+    loose = sorted(f for f in os.listdir(inbox)
+                   if f.lower().endswith(".csv")
+                   and sid in f.lower() and ym in f
+                   and os.path.isfile(os.path.join(inbox, f)))
+    # Deliberately refuse to choose between two loose matches: picking one would
+    # put an unannounced gauge-month into a published newsletter.
+    if len(loose) == 1:
+        return os.path.join(inbox, loose[0])
+    if len(loose) > 1:
+        print(f"   note: {len(loose)} possible {station_id} exports for {ym} in "
+              f"living/inbox/ ({', '.join(loose)}) - name one "
+              f"weather-history-{ym}-01_{station_id}.csv, or pass --wu_csv")
+    return None
 
 
 def assess_wu_reliability(wu_result, valley_rain_mm=None):
@@ -2816,8 +2880,15 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     wu_warnings = []
 
     if wu_station:
+        # Where it came from goes ON the Reading line, not in a note of its own:
+        # a note printed here lands ABOVE the "3." heading it belongs under.
+        _wu_found = False
+        if not wu_csv:
+            wu_csv = find_wu_export(wu_station, year, month)
+            _wu_found = bool(wu_csv)
         if wu_csv:
-            print(f"\n3. Reading the {wu_station} Export CSV ({os.path.basename(wu_csv)})...")
+            print(f"\n3. Reading the {wu_station} Export CSV ({os.path.basename(wu_csv)}"
+                  f"{' from living/inbox/' if _wu_found else ''})...")
             wu_result, wu_err = read_wu_export_csv(wu_csv, wu_station, year, month)
         else:
             print(f"\n3. Fetching Weather Underground data ({wu_station})...")
@@ -2869,9 +2940,14 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
 
     if wu_station and wu_station_2 and wu_station_2 != wu_station:
         print(f"\n3b. Fetching second local gauge ({wu_station_2})...")
+        _wu2_found = False
+        if not wu_csv_2:
+            wu_csv_2 = find_wu_export(wu_station_2, year, month)
+            _wu2_found = bool(wu_csv_2)
         if wu_csv_2:
             print(f"   reading the {wu_station_2} Export CSV "
-                  f"({os.path.basename(wu_csv_2)})...")
+                  f"({os.path.basename(wu_csv_2)}"
+                  f"{' from living/inbox/' if _wu2_found else ''})...")
             wu_result_2, wu_err_2 = read_wu_export_csv(wu_csv_2, wu_station_2, year, month)
         else:
             wu_result_2, wu_err_2 = fetch_wu_monthly(wu_station_2, year, month)
@@ -3392,6 +3468,8 @@ Examples:
                         help=f'Path to DEM GeoTIFF (default: {DEFAULT_DEM})')
     parser.add_argument('--kml_dir', default=DEFAULT_KML_DIR,
                         help=f'Directory containing KML overlay files (default: {DEFAULT_KML_DIR})')
+    # Normally unnecessary since 1.7.7: the month's exports are found in
+    # living/inbox/ by name (find_wu_export). These stay for a file kept elsewhere.
     parser.add_argument('--wu_csv',
                         help="Weather Underground 'Export CSV' for the month, used INSTEAD of "
                              "scraping the dashboard (T-163). One click on the table view.")

@@ -627,7 +627,14 @@ python3 tools/hq_page.py --check || true                 # advisory - only a ses
 # broken check - while --check only REPORTS, and returns 0 with serious findings outstanding,
 # because rule_audit reports and never intervenes (D-302) and an open finding is work outstanding,
 # not a red gate. It re-implements no lint: it reads this script's own per-section summary.
-python3 tools/rule_audit.py --selftest >/dev/null || { echo "  FAIL rule_audit selftest"; rc=1; }
+# 2026-11-06 (T-156, second instance): the detail is SHOWN, as for doc_lock above. The first
+# fix caught doc_lock's selftest line and missed its twin here, and this one then failed in a
+# run while passing standalone — with nothing but "FAIL rule_audit selftest" to go on.
+_ra_out="$(python3 tools/rule_audit.py --selftest 2>&1)" || {
+  echo "  FAIL rule_audit selftest"
+  printf '%s\n' "$_ra_out" | grep -E "FAIL|REFUSED" | sed 's/^/    /'
+  rc=1
+}
 python3 tools/rule_audit.py --check || true              # report-only by design (D-302)
 
 echo

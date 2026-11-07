@@ -330,6 +330,19 @@ lock above is per MACHINE. Chats sharing the L14's tree each CLAIM what they wor
 A claim held by another chat refuses `odt_edit` writes into its documents and `run_analysis.py`
 while `pipeline` is held. An unclaimed area refuses nothing.
 
+**A CLAIM IS NOT A CLAIM UNTIL GITHUB HAS IT, and since D-314 `doc_lock` sees to that itself.**
+`take` and `release` commit and push the lock record at once, and apply the change on top of
+ORIGIN's record rather than merging into it. **A lock push is exempt from "ask before every push"
+(§7): it publishes no code, no prose and no numbers, only "chat X holds Y".** Before D-314 the whole
+mechanism was a printed reminder to commit and push, and on 2026-11-06 it failed three times in one
+evening — one take and two releases that reached only the tree that made them, blocking other chats
+for hours. **Each looked like a lock failure and none was**: the lock reported what GitHub held. A
+claim that cannot be published is still taken locally and says `LOCAL ONLY`; believe that line.
+`NRG_NO_LOCK_PUSH=1` turns the push off. **Widened the same day to every shared record** (Martin:
+*"to all shared records locks should be automatic"*): `chat_register.csv` and `job_queue.csv` publish
+themselves too — but without the rebase-on-origin the lock gets, because they are CSVs that
+`register_io` merges row by row, while the lock is one json document with no merge.
+
 **EVERY CHAT REGISTERS ITSELF, AND THE QUEUE PASSES THE WORK ON (D-301, 2026-11-05).** NRG HQ is a
 private page that answers "who is working on this, what does the tree look like, and what is
 owed" — the landing page for every chat. Three things it adds that bind a session:
@@ -573,7 +586,8 @@ asked to be done and then reported, not asked about first.
 
 **Git: run it, but ASK BEFORE EVERY PUSH (2026-09-01, his instruction).**
 Check the branch first: the project ships from `main` and the ship refuses
-elsewhere (§4g).
+elsewhere (§4g). **One exemption, D-314: `doc_lock` pushes the lock record itself,
+because a claim nobody can see is not a claim (§4b).**
 Commits over the bridge are fine — sweep the lock residue after each one. Pushing
 is his call each time, so show the command and wait. He may or may not have a
 credential helper populated; if not, hand him the one line.

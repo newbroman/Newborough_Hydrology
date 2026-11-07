@@ -857,7 +857,7 @@ def water_balance_report(rr, cl) -> None:
 
 
 def ddp_identity_check() -> float:
-    """1.16.0: sustained_monthly_response_ddp at kappa = 0 against the closed form, over a small grid of
+    """1.16.0: sustained_monthly_response_ddp at 1/L_E = 0 against the closed form, over a small grid of
     coefficients spanning the fitted range and both scenarios, with and without interception."""
     P12 = np.linspace(0.04, 0.12, 12); PET12 = np.linspace(0.005, 0.09, 12)
     worst = 0.0
@@ -885,14 +885,14 @@ def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
     mb = mb[mb["level"] == "well"].copy()
     mb["_n"] = mb["well"].astype(str).apply(normalize_well_name)
     mb = mb.set_index("_n")
-    # 1.16.0 (D-280): the depth-dependent set per well (Script 15, comparison window, cluster kappa),
+    # 1.16.0 (D-280): the depth-dependent set per well (Script 15, comparison window, cluster inv_L_E),
     # projected at the project datum only -- the form is fitted on the network datum, not swept.
     dd = {}
     if OUT_15_DDP_PER_WELL.exists():
         _d = pd.read_csv(OUT_15_DDP_PER_WELL)
         _d = _d[(_d["level"] == "well") & _d["identified"].astype(bool)]
         dd = {str(w): (float(a), float(b_), float(c), float(k))
-              for w, a, b_, c, k in zip(_d["well"], _d["b1"], _d["b2"], _d["b3"], _d["kappa"])}
+              for w, a, b_, c, k in zip(_d["well"], _d["b1"], _d["b2"], _d["b3"], _d["inv_L_E"])}
     rows = []
     for _, r in master.iterrows():
         col = lev_cols.get(r["_n"])
@@ -2432,7 +2432,7 @@ def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
     for k, v in checks_d.items():
         rr.add(f"reclen_check_{k}", v, unit="", note="identity check at the project datum (expected 0)")
     rr.add("projection_check_ddp_k0_vs_closed_form", ddp_identity_check(), unit="m",
-           note="identity check: the depth-dependent sustained response at kappa = 0 less the closed form, "
+           note="identity check: the depth-dependent sustained response at 1/L_E = 0 less the closed form, "
                 "max over a coefficient grid (expected 0 to 1e-9)")
 
 

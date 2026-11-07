@@ -1348,21 +1348,21 @@ def sustained_monthly_response(b3, forcing_change_12):
     return np.array([np.sum(r ** k * f[(m - k) % 12]) for m in range(12)]) / (1.0 - r ** 12)
 
 
-def periodic_steady_state_ddp(b1, b2, b3, kappa, P12, PET12, drainage_datum, b2_mult12=None,
+def periodic_steady_state_ddp(b1, b2, b3, inv_L_E, P12, PET12, drainage_datum, b2_mult12=None,
                               rain_mult12=None, tol=1e-12, max_years=20000, h0=0.0):
     """1.11.0 (D-280): the periodic steady state (m, ground-referenced, index 0 = January) of the
     depth-dependent SSM run on a repeating 12-month climatology:
 
-        h(t) = h(t-1) + β₁·r(m)·P(m) − β₂·m₂(m)·exp(−κ·max(−h(t-1), 0))·PET(m) − β₃·(z₀ + h(t-1))
+        h(t) = h(t-1) + β₁·r(m)·P(m) − β₂·m₂(m)·exp(−max(−h(t-1), 0)/L_E)·PET(m) − β₃·(z₀ + h(t-1))
 
     with r(m) the rainfall multiplier and m₂(m) the PET multiplier. Iterated year by year until no
     month moves by more than `tol` between successive years. Returns (levels_12, years_used); raises
-    if it does not converge, so a well never returns a silent NaN. At κ = 0 the model is linear and
+    if it does not converge, so a well never returns a silent NaN. At 1/L_E = 0 the model is linear and
     the difference of two steady states equals sustained_monthly_response() exactly."""
     P12, PET12 = np.asarray(P12, dtype=float), np.asarray(PET12, dtype=float)
     m2 = np.ones(12) if b2_mult12 is None else np.asarray(b2_mult12, dtype=float)
     rm = np.ones(12) if rain_mult12 is None else np.asarray(rain_mult12, dtype=float)
-    b1, b2, b3, kap, z0 = float(b1), float(b2), float(b3), float(kappa), float(drainage_datum)
+    b1, b2, b3, kap, z0 = float(b1), float(b2), float(b3), float(inv_L_E), float(drainage_datum)
     h = float(h0)
     prev = None
     for year in range(1, max_years + 1):
@@ -1375,23 +1375,23 @@ def periodic_steady_state_ddp(b1, b2, b3, kappa, P12, PET12, drainage_datum, b2_
             return cur, year
         prev = cur
     raise RuntimeError(f"depth-dependent steady state did not converge in {max_years} years "
-                       f"(b3={b3:g}, kappa={kap:g})")
+                       f"(b3={b3:g}, inv_L_E={kap:g})")
 
 
-def sustained_monthly_response_ddp(b1, b2, b3, kappa, P12, PET12, sP12, sPET12, drainage_datum,
+def sustained_monthly_response_ddp(b1, b2, b3, inv_L_E, P12, PET12, sP12, sPET12, drainage_datum,
                                    interception=0.0, interception_scen=None, b2_mult12=None):
     """1.11.0 (D-280): the sustained level response (m, index 0 = January) of the depth-dependent
     SSM to a scaled climatology: the scenario's periodic steady state less the baseline's. The
     forcing follows climate_forcing_change_12() term for term — rainfall scaled by
-    sP·(1 + I − I_s), PET by m₂·sPET — so at κ = 0 the result equals
+    sP·(1 + I − I_s), PET by m₂·sPET — so at 1/L_E = 0 the result equals
     sustained_monthly_response(b3, climate_forcing_change_12(...)) to rounding. Returns
     (response_12, years_used) with years_used the larger of the two runs."""
     sP12, sPET12 = np.asarray(sP12, dtype=float), np.asarray(sPET12, dtype=float)
     i0 = float(interception)
     i_s = i0 if interception_scen is None else float(interception_scen)
     m2 = np.ones(12) if b2_mult12 is None else np.asarray(b2_mult12, dtype=float)
-    base, y0 = periodic_steady_state_ddp(b1, b2, b3, kappa, P12, PET12, drainage_datum)
-    scen, y1 = periodic_steady_state_ddp(b1, b2, b3, kappa, P12, PET12, drainage_datum,
+    base, y0 = periodic_steady_state_ddp(b1, b2, b3, inv_L_E, P12, PET12, drainage_datum)
+    scen, y1 = periodic_steady_state_ddp(b1, b2, b3, inv_L_E, P12, PET12, drainage_datum,
                                          b2_mult12=m2 * sPET12, rain_mult12=sP12 * (1.0 + i0 - i_s),
                                          h0=float(base[-1]))
     return scen - base, max(y0, y1)

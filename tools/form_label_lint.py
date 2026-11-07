@@ -48,8 +48,10 @@ EXEMPT = REPO / "tools/form_label_exempt.csv"
 
 FIELD_KEY = re.compile(r"drain(age)?_share|drain_frac|drain_pct|(^|_)ET_(pct|frac|share)|et_share|"
                        r"t_half|half_life|efold|e_fold|mean_reversion|recession_(time|months)", re.I)
-# not timescales or shares: a regression R² over recession times; the depth-dependent model's 1/e decay DEPTH
-FIELD_SKIP = re.compile(r"cluster_splithalf|_ari_|scrape_|_R2_|efold_depth", re.I)
+# not timescales or shares: a regression R² over recession times; the depth-dependent model's 1/e decay
+# DEPTH, which is L_E itself (D-316 renamed depth_dependent_pet_efold_depth -> _L_E_m; the old spelling
+# stays so a document not yet refreshed is still skipped rather than newly flagged).
+FIELD_SKIP = re.compile(r"cluster_splithalf|_ari_|scrape_|_R2_|efold_depth|_L_E_m", re.I)
 FORM = re.compile(r"Model\s*A|Model\s*B|no-intercept|free-intercept|without an intercept|with an intercept|"
                   r"free intercept|intercept form|depth-dependent|model-free|without (a|either) model|observed|"
                   r"Pastas|recession ratio|seasonal recession|lag-1|autocorrelation|both forms|either form|"

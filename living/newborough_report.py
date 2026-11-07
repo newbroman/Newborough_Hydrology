@@ -102,7 +102,14 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.2"  # Hollingham (2026) - 2026-11-06. Three things Martin asked for on the
+__version__ = "1.7.3"  # Hollingham (2026) - 2026-11-07. The local gauges were not merely unreadable,
+#   they are DEAD: ILLANF24's dashboard says OFFLINE outright and IBODOR6 renders no readings,
+#   measured on the rendered page. DEFAULT_WU_STATION moves to IBODOR4 "Rhianfa", the only live
+#   one and 6.6 km from the study-area centroid against IBODOR6's 7.2 km. This does NOT by itself
+#   restore the local-gauge block: T-163's parser fault is independent and still blocks every
+#   station. Note the routine's caution - Bodorgan was the published figure precisely because
+#   ILLANF24 over-reads, and Rhianfa now does both jobs unmeasured.
+# __version__ = "1.7.2"  # Hollingham (2026) - 2026-11-06. Three things Martin asked for on the
 #   October issue. (a) A gauge that cannot be read is now SAID so: before this the block was
 #   skipped and the newsletter simply had no local gauge and no rainfall-pattern paragraph, so a
 #   broken feed looked like a quiet month (T-163: WU no longer serves app-root-state, and that
@@ -205,8 +212,18 @@ DEFAULT_VALLEY = 'data/valleydata.txt'
 DEFAULT_DEM = 'data/newborough_dem.tif'
 DEFAULT_COORDS_CSV = 'data/Well_locations_height.csv'
 DEFAULT_KML_DIR = 'kml'
-DEFAULT_WU_STATION = 'ILLANF24'
-DEFAULT_WU_STATION_2 = 'IBODOR6'   # second local gauge, reported alongside the first
+# Local gauges, 2026-11-07. ILLANF24 and IBODOR6 are BOTH DEAD: ILLANF24's
+# dashboard says OFFLINE in as many words, and IBODOR6 renders no readings at all
+# (only its lat/long). IBODOR4 "Rhianfa" is live and is 6.6 km from the study-area
+# centroid against IBODOR6's 7.2 km, so the substitute is no further away.
+# IBODOR6 is kept as the second gauge so the two-gauge cross-check resumes by
+# itself if Trefdraeth comes back.
+# CAUTION, and it is the routine's own: MONTHLY_ROUTINE.md makes Bodorgan/IBODOR6
+# the PUBLISHED figure and ILLANF24 pattern-only because ILLANF24 over-reads on
+# intense-rain days. Rhianfa now does both jobs and its behaviour is unmeasured,
+# so sanity-check its monthly total against RAF Valley before publishing it.
+DEFAULT_WU_STATION = 'IBODOR4'     # Rhianfa - the only live local gauge (2026-11-07)
+DEFAULT_WU_STATION_2 = 'IBODOR6'   # Trefdraeth - offline; kept so it resumes if it returns
 DEFAULT_OUTPUT_DIR = 'output'
 
 # Map extent for interpolation (Newborough Warren area, OSGB)

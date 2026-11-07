@@ -556,6 +556,12 @@ def release(note: str = "", force: bool = False) -> int:
 # It never fails the operation. A claim that cannot be published is still taken locally and says
 # so loudly - the one thing it must not do is report success for a claim nobody else can see.
 RECORD_PATHS = ("working/DOCUMENT_LOCK.json", "working/claim_overrides.csv")
+# Every record that publishes itself under D-314 as widened on 2026-11-06 (Martin: "to all
+# shared records locks should be automatic"). T-175's rider test uses this UNION, not just the
+# paths of the call in hand: an unpushed `chat_register` or `job_queue` commit is itself a
+# self-publishing record, so it must not block a lock from publishing. Anything outside this
+# set is work someone has to choose to push (CLAUDE.md §7).
+SHARED_RECORD_PATHS = RECORD_PATHS + ("working/chat_register.csv", "working/job_queue.csv")
 _WGIT = ("git", "--no-optional-locks")
 
 
@@ -595,43 +601,42 @@ def _rebase_records_on_origin() -> None:
         pass
 
 
-def _unpublished_non_record_commits(paths) -> list[str]:
-    """T-175 / fix (b): the commits between origin/main and HEAD that touch anything BESIDE these
-    records. D-314 exempts a lock push from "ask before every push" because it publishes only
+def _unpublished_non_record_commits(paths=SHARED_RECORD_PATHS) -> list[str]:
+    """T-175 / fix (b): the commits between origin/main and HEAD that touch anything BESIDE the
+    SELF-PUBLISHING shared records (SHARED_RECORD_PATHS, not just this call's paths). D-314 exempts a lock push from "ask before every push" because it publishes only
     "chat X holds Y" — but the push is `HEAD:main`, which carries the WHOLE branch, so the
-    exemption is only true while nothing else is sitting unpushed. Measured 2026-11-07: a
+    exemption holds only while nothing else is sitting unpushed. Measured 2026-11-07: a
     `take doc:Paper2` carried five unapproved private commits to GitHub, and a queue publish
-    carried a sixth. Returns one "<sha> <subject>" per offending commit, newest first; an empty
-    list means the push really does publish nothing but the records.
+    carried a sixth.
+
+    Each commit is asked for its own file list rather than parsed out of one combined
+    `--name-only` stream: the combined form has to be split into commits by guessing which lines
+    are headers, and the first version of this function both double-counted a commit and flagged
+    the lock's own record commit. One call per commit, and these ranges are short.
+
+    Returns "<sha> <subject>" per offending commit, newest first; empty means the push really
+    does publish nothing but the records.
     """
     try:
-        rng = "origin/main..HEAD"
-        out = _wgit("log", "--format=%h %s", "--name-only", rng, timeout=60)
-        if out.returncode:
-            return []                                   # no origin/main to compare: _publishing() gates that
-        keep, cur, touched = [], None, False
-        for line in out.stdout.split("\n") + [""]:
-            if line.strip() == "":
-                if cur and touched:
-                    keep.append(cur)
+        log = _wgit("log", "--format=%h %s", "origin/main..HEAD", timeout=60)
+        if log.returncode:
+            return []                        # no origin/main to compare; _publishing() gates that
+        keep = []
+        for line in log.stdout.split("\n"):
+            line = line.strip()
+            if not line:
                 continue
-            if cur is None or _looks_like_header(line):
-                if cur and touched:
-                    keep.append(cur)
-                cur, touched = line.strip(), False
-            elif line.strip() not in paths:
-                touched = True
+            sha = line.split(" ", 1)[0]
+            shown = _wgit("show", "--name-only", "--format=", sha, timeout=60)
+            if shown.returncode:
+                keep.append(line)            # cannot tell: treat as a rider, the safe direction
+                continue
+            files = [f.strip() for f in shown.stdout.split("\n") if f.strip()]
+            if any(f not in SHARED_RECORD_PATHS for f in files):
+                keep.append(line)
         return keep
     except (OSError, Exception):
         return []
-
-
-def _looks_like_header(line: str) -> bool:
-    """A `--format=%h %s --name-only` header line: a short sha, a space, then the subject. A path
-    never starts with a 7-12 hex token followed by a space, so this separates the two safely."""
-    head = line.split(" ", 1)
-    return (len(head) == 2 and 4 <= len(head[0]) <= 12
-            and all(c in "0123456789abcdef" for c in head[0]))
 
 
 def publish_records(paths=RECORD_PATHS, what: str = "the claim") -> None:

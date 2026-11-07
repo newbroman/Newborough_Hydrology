@@ -102,7 +102,19 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.3"  # Hollingham (2026) - 2026-11-07. The local gauges were not merely unreadable,
+__version__ = "1.7.4"  # Hollingham (2026) - 2026-11-07. read_wu_export_csv() and --wu_csv /
+#   --wu_csv_2: the local-gauge data comes from WU's own "Export CSV" button on the table view
+#   instead of scraping a page that no longer carries the observations (T-163). One click a month,
+#   no credential, nothing to rotate, and it backfills months already gone - which the API route
+#   could not do legitimately and the daily-poll route could not do at all. THE COLUMN IS
+#   `Precip. Accum.`, NOT `Precip. Rate`: Rate is the day's PEAK rate, and on the October 2026
+#   IHOLYH29 export it sums to 166.8 mm against Accum's 115.1, so taking it would over-report the
+#   month by 64 %. The second gauge moves to IHOLYH29 "Capel Gwyn" (14.2 km), the other live
+#   station, restoring the two-gauge cross-check that died with IBODOR6. October 2026 measured:
+#   Rhianfa 87.4 mm over 29/31 days (0.86 of RAF Valley), Capel Gwyn 115.1 over 31/31 (1.13), with
+#   RAF Valley's 101.8 sitting between them and the two gauges agreeing day to day to a mean
+#   absolute difference of 1.05 mm.
+# __version__ = "1.7.3"  # Hollingham (2026) - 2026-11-07. The local gauges were not merely unreadable,
 #   they are DEAD: ILLANF24's dashboard says OFFLINE outright and IBODOR6 renders no readings,
 #   measured on the rendered page. DEFAULT_WU_STATION moves to IBODOR4 "Rhianfa", the only live
 #   one and 6.6 km from the study-area centroid against IBODOR6's 7.2 km. This does NOT by itself
@@ -222,8 +234,10 @@ DEFAULT_KML_DIR = 'kml'
 # the PUBLISHED figure and ILLANF24 pattern-only because ILLANF24 over-reads on
 # intense-rain days. Rhianfa now does both jobs and its behaviour is unmeasured,
 # so sanity-check its monthly total against RAF Valley before publishing it.
-DEFAULT_WU_STATION = 'IBODOR4'     # Rhianfa - the only live local gauge (2026-11-07)
-DEFAULT_WU_STATION_2 = 'IBODOR6'   # Trefdraeth - offline; kept so it resumes if it returns
+DEFAULT_WU_STATION = 'IBODOR4'     # Rhianfa, 6.6 km from the warren - live (2026-11-07)
+DEFAULT_WU_STATION_2 = 'IHOLYH29'  # Capel Gwyn, 14.2 km - live; the two-gauge cross-check
+# IBODOR6 Trefdraeth (7.2 km) and ILLANF24 were the pair until 2026-11-07 and are both DEAD:
+# ILLANF24's dashboard says OFFLINE outright, IBODOR6 renders no readings at all.
 DEFAULT_OUTPUT_DIR = 'output'
 
 # Map extent for interpolation (Newborough Warren area, OSGB)
@@ -756,6 +770,78 @@ def _fetch_wu_monthly_once(station_id, year, month):
         'missing_days': days_in_month - days_with_data,
         'spike_warning': spike_warning,
         'daily': daily,
+    }, None
+
+
+def read_wu_export_csv(path, station_id=None, year=None, month=None):
+    """Read a Weather Underground 'Export CSV' file into the same shape
+    fetch_wu_monthly returns, so everything downstream works unchanged.
+
+    WHY THIS EXISTS (T-163, 2026-11-07). WU stopped serving the embedded
+    observations the scraper read, and the only key on offer is WU's own, which
+    is their credential and not ours to use. The table view, however, carries an
+    `Export CSV` button that any visitor can click, and it yields exactly what
+    the newsletter needs: one row per day with the month's precipitation. One
+    click a month, no credential, nothing to rotate.
+
+    THE COLUMN IS `Precip. Accum.`, NOT `Precip. Rate`. Rate is the PEAK rate
+    observed that day, not a total: on the October 2026 export of IHOLYH29 the
+    Accum column sums to 115.1 mm against RAF Valley's 101.8 (ratio 1.13, sane
+    for a gauge 14 km away) while Rate sums to 166.8 mm, which would over-report
+    the month by 64 %. Taking the wrong one is the easy mistake here.
+
+    The file has no year in it - `Time` reads `10/1` - so the year is taken from
+    the argument or the filename (`weather-history-2026-10-01.csv`).
+    """
+    import csv as _csv, calendar as _cal
+    num = lambda v: (float(re.sub(r'[^0-9.\-]', '', v or '')) if re.search(r'\d', v or '') else None)
+    try:
+        with open(path, newline='', encoding='utf-8-sig') as f:
+            rows = list(_csv.DictReader(f))
+    except Exception as e:
+        return None, f"could not read {os.path.basename(path)}: {e}"
+    if not rows:
+        return None, f"{os.path.basename(path)} is empty"
+    col = next((c for c in rows[0] if c and c.strip().lower().startswith('precip. accum')), None)
+    if col is None:
+        return None, (f"{os.path.basename(path)} has no 'Precip. Accum.' column "
+                      f"(found {sorted(k for k in rows[0] if k)})")
+    if year is None:
+        m = re.search(r'(20\d{2})-(\d{2})', os.path.basename(path))
+        if m:
+            year, month = int(m.group(1)), month or int(m.group(2))
+    daily = []
+    for r in rows:
+        t = (r.get('Time') or '').strip()
+        mm = re.match(r'(\d{1,2})/(\d{1,2})', t)
+        if not mm:
+            continue
+        mo, da = int(mm.group(1)), int(mm.group(2))
+        if month and mo != month:
+            continue
+        daily.append({'date': f"{year:04d}-{mo:02d}-{da:02d}" if year else t,
+                      'precip_mm': num(r.get(col))})
+    if not daily:
+        return None, f"{os.path.basename(path)} has no rows for month {month}"
+    have = [d for d in daily if d['precip_mm'] is not None]
+    total = sum(d['precip_mm'] for d in have)
+    days_in_month = _cal.monthrange(year, month)[1] if (year and month) else len(daily)
+    spikes = [d for d in have if d['precip_mm'] > 150]
+    if spikes:
+        excl = sum(d['precip_mm'] for d in have if d['precip_mm'] <= 150)
+        warn = (f"Suspect spike on {', '.join(d['date'] for d in spikes)} "
+                f"({', '.join(str(round(d['precip_mm'])) + 'mm' for d in spikes)}). "
+                f"Total excluding spikes: {excl:.1f} mm.")
+    else:
+        excl, warn = total, None
+    return {
+        'station': station_id or 'CSV export',
+        'year': year, 'month': month,
+        'total_mm': total, 'total_excl_spikes_mm': excl,
+        'days_with_data': len(have), 'days_expected': days_in_month,
+        'missing_days': days_in_month - len(have),
+        'spike_warning': warn, 'daily': daily,
+        'source': f"Export CSV ({os.path.basename(path)})",
     }, None
 
 
@@ -2626,7 +2712,7 @@ def compute_msl_summary(wells, dates, coords, current_year,
 def generate_monthly_report(wells_path, valley_path, diff_creator_path,
                             target_month, output_dir, dem_path=None,
                             kml_dir=None, wu_station=None, coords_csv_path=None,
-                            update_valley=False, wu_station_2=None):
+                            update_valley=False, wu_station_2=None, wu_csv=None, wu_csv_2=None):
     """Generate the complete monthly report."""
 
     os.makedirs(output_dir, exist_ok=True)
@@ -2678,8 +2764,12 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     wu_warnings = []
 
     if wu_station:
-        print(f"\n3. Fetching Weather Underground data ({wu_station})...")
-        wu_result, wu_err = fetch_wu_monthly(wu_station, year, month)
+        if wu_csv:
+            print(f"\n3. Reading the {wu_station} Export CSV ({os.path.basename(wu_csv)})...")
+            wu_result, wu_err = read_wu_export_csv(wu_csv, wu_station, year, month)
+        else:
+            print(f"\n3. Fetching Weather Underground data ({wu_station})...")
+            wu_result, wu_err = fetch_wu_monthly(wu_station, year, month)
 
         if wu_err:
             print(f"   Error: {wu_err}")
@@ -2727,7 +2817,12 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
 
     if wu_station and wu_station_2 and wu_station_2 != wu_station:
         print(f"\n3b. Fetching second local gauge ({wu_station_2})...")
-        wu_result_2, wu_err_2 = fetch_wu_monthly(wu_station_2, year, month)
+        if wu_csv_2:
+            print(f"   reading the {wu_station_2} Export CSV "
+                  f"({os.path.basename(wu_csv_2)})...")
+            wu_result_2, wu_err_2 = read_wu_export_csv(wu_csv_2, wu_station_2, year, month)
+        else:
+            wu_result_2, wu_err_2 = fetch_wu_monthly(wu_station_2, year, month)
         if wu_err_2:
             print(f"   Error: {wu_err_2}")
             print("   → Continuing with the primary gauge only.")
@@ -3212,6 +3307,10 @@ Examples:
                         help=f'Path to DEM GeoTIFF (default: {DEFAULT_DEM})')
     parser.add_argument('--kml_dir', default=DEFAULT_KML_DIR,
                         help=f'Directory containing KML overlay files (default: {DEFAULT_KML_DIR})')
+    parser.add_argument('--wu_csv',
+                        help="Weather Underground 'Export CSV' for the month, used INSTEAD of "
+                             "scraping the dashboard (T-163). One click on the table view.")
+    parser.add_argument('--wu_csv_2', help="the same, for the second gauge")
     parser.add_argument('--wu_station', default=DEFAULT_WU_STATION,
                         help=f'Weather Underground station ID (default: {DEFAULT_WU_STATION})')
     parser.add_argument('--wu_station_2', default=DEFAULT_WU_STATION_2,
@@ -3241,6 +3340,8 @@ Examples:
         kml_dir=args.kml_dir,
         wu_station=wu,
         wu_station_2=wu_2,
+        wu_csv=args.wu_csv,
+        wu_csv_2=args.wu_csv_2,
         update_valley=not args.no_valley_update,
     )
 

@@ -290,7 +290,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_03_PER_WELL_WINDOW_SENS, OUT_48_MODEL_AB, OUT_39_PER_WELL,
     OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS, OUT_15_DDP_PER_WELL,
     OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_SPLIT_SERIES, OUT_50_SPLIT_FIG,
-    OUT_50_NEIGHBOUR, OUT_50_NEIGHBOUR_FIG,
+    OUT_50_NEIGHBOUR, OUT_50_NEIGHBOUR_FIG, OUT_50_TRANSFER_RULE, OUT_50_TRANSFER_FIG,
     OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
@@ -974,6 +974,169 @@ def plot_split_series(series: pd.DataFrame) -> None:
     render_figure(fig, OUT_50_SPLIT_FIG)
     plt.close(fig)
 
+
+
+
+def transfer_rule(nbt, lev, lev_cols, master) -> pd.DataFrame:
+    """T-173b, Martin 2026-11-08: "work out why this difference is occurring and how other
+    managers at other sites can see where it's worth borrowing against a neighbour or not".
+
+    T-173 showed that borrowing a neighbour's coefficients is nearly free in some clusters
+    and ruinous in others. This asks WHICH MEASURABLE PROPERTY of a pair of wells decides
+    that, and it tests the candidates against the measured outcome rather than asserting one:
+
+        d_mean_depth_m   how far apart the two wells sit in MEAN water-table depth
+        r_records        how well the two observed records correlate, pre-2018
+        distance_m       how far apart they are on the ground
+        d_beta_1/2/3     how different their fitted coefficients are
+        d_amplitude_m    how different their seasonal ranges are
+
+    Every predictor is computed on the PRE-2018 side only -- the side the fits were taken
+    from -- so a user of the rule needs nothing from the period they want to predict.
+
+    The banded rows (scope="band") are the usable form: the median change in NSE, and the
+    share of pairs losing more than 0.25, for each band of mean-depth difference. A site
+    with two dipwells and a tape measure can place itself in that table without fitting
+    anything, which is the point of the exercise.
+    """
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    piv = nbt.pivot_table(index="well", columns="source", values="nse")
+    if "own" not in piv.columns or "neighbour" not in piv.columns:
+        return pd.DataFrame()
+    nb = nbt[nbt["source"] == "neighbour"].set_index("well")
+    coef = {}
+    for _, r in master.iterrows():
+        try:
+            coef[r["_n"]] = (float(r["beta_1_recharge"]), float(r["beta_2_atmospheric_draw"]),
+                             float(r["beta_3_drainage"]))
+        except (KeyError, TypeError, ValueError):
+            pass
+
+    rows = []
+    for w in piv.index:
+        if w not in nb.index:
+            continue
+        n = nb.loc[w, "neighbour"]
+        ca, cb = lev_cols.get(w), lev_cols.get(n)
+        if not isinstance(n, str) or ca is None or cb is None:
+            continue
+        both = lev[[ca, cb]]
+        both = both[both.index < split].dropna()
+        if len(both) < 24:          # two seasons of overlap, or the comparison means nothing
+            continue
+        a, b = both[ca], both[cb]
+        rec = dict(scope="pair", well=w, neighbour=n,
+                   cluster=int(nb.loc[w, "cluster"]) if pd.notna(nb.loc[w, "cluster"]) else None,
+                   n_shared_months=int(len(both)),
+                   own_nse=float(piv.loc[w, "own"]),
+                   neighbour_nse=float(piv.loc[w, "neighbour"]),
+                   # neighbour MINUS own: an improvement is positive, as in 50_51
+                   gain_nse=float(piv.loc[w, "neighbour"] - piv.loc[w, "own"]),
+                   distance_m=float(nb.loc[w, "distance_m"]) if pd.notna(nb.loc[w, "distance_m"]) else np.nan,
+                   d_mean_depth_m=float(abs(a.mean() - b.mean())),
+                   r_records=float(a.corr(b)),
+                   d_amplitude_m=float(abs((a.max() - a.min()) - (b.max() - b.min()))))
+        if w in coef and n in coef:
+            for i, k in enumerate(("d_beta_1", "d_beta_2", "d_beta_3")):
+                rec[k] = float(abs(coef[w][i] - coef[n][i]))
+        rows.append(rec)
+    pairs = pd.DataFrame(rows)
+    if pairs.empty:
+        return pairs
+
+    # which predictor actually decides it
+    for c in ("d_mean_depth_m", "r_records", "distance_m", "d_amplitude_m",
+              "d_beta_1", "d_beta_2", "d_beta_3"):
+        if c not in pairs.columns:
+            continue
+        g = pairs[[c, "gain_nse"]].dropna()
+        if len(g) > 4:
+            rows.append(dict(scope="predictor", well=c, n_shared_months=len(g),
+                             gain_nse=float(g[c].corr(g["gain_nse"], method="spearman"))))
+
+    # the banded rule
+    edges = [0.0, 0.1, 0.2, 0.4, 0.8, np.inf]
+    names = ["<0.1 m", "0.1-0.2 m", "0.2-0.4 m", "0.4-0.8 m", ">0.8 m"]
+    pairs["_band"] = pd.cut(pairs["d_mean_depth_m"], bins=edges, labels=names,
+                            include_lowest=True)
+    for bname, g in pairs.groupby("_band", observed=True):
+        rows.append(dict(scope="band", well=str(bname), n_shared_months=int(len(g)),
+                         gain_nse=float(g["gain_nse"].median()),
+                         own_nse=float(g["gain_nse"].min()),
+                         neighbour_nse=float((g["gain_nse"] < -0.25).mean())))
+    out = pd.DataFrame(rows).drop(columns=["_band"], errors="ignore")
+    return out
+
+
+
+def plot_transfer_rule(tr) -> None:
+    """T-173b: the predictor that decides transfer, and the rule it gives.
+
+    Left, the relationship itself -- the change in NSE against how far apart the two wells
+    sit in mean water-table depth, coloured by cluster. Right, the same thing as the table a
+    manager would use: median change and the share of pairs that lose more than 0.25 NSE,
+    by band of depth difference.
+    """
+    import matplotlib
+    import matplotlib.pyplot as plt
+    if tr is None or tr.empty:
+        return
+    pairs = tr[tr["scope"] == "pair"]
+    bands = tr[tr["scope"] == "band"]
+    if pairs.empty:
+        return
+    fig, axes = plt.subplots(1, 2, figsize=(10.0, 4.6),
+                             gridspec_kw={"width_ratios": [1.15, 1.0]})
+
+    ax = axes[0]
+    for c in sorted(pairs["cluster"].dropna().unique()):
+        g = pairs[pairs["cluster"] == c]
+        ax.scatter(g["d_mean_depth_m"], g["gain_nse"], s=30, alpha=0.9,
+                   color=CLUSTER_COLOURS.get(int(c), "#777777"),
+                   edgecolors="white", linewidths=0.4,
+                   label=f"{CLUSTER_LABELS.get(int(c), f'C{int(c)}')}  n={len(g)}")
+    ax.axhline(0.0, color="#777777", lw=0.9, ls=":")
+    ax.set_yscale("symlog", linthresh=1.0, linscale=1.2)
+    _a = float(np.nanmax(np.abs(pairs["gain_nse"].values)))
+    ax.set_ylim(-max(3.0, _a * 1.2), max(3.0, _a * 1.2))
+    ax.set_yticks([-30, -10, -3, -1, 0, 1, 3, 10, 30])
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.set_xlabel("difference in MEAN water-table depth between the two wells (m)", fontsize=9)
+    ax.set_ylabel("change in NSE from borrowing (neighbour \u2212 own)", fontsize=9)
+    ax.tick_params(labelsize=9)
+    # upper right: the lower left sits over the C2/C3 points that make the trend
+    ax.legend(fontsize=7.5, loc="upper right", framealpha=0.92, labelspacing=0.3)
+    _rho = tr[(tr["scope"] == "predictor") & (tr["well"] == "d_mean_depth_m")]
+    _r = f"{_rho['gain_nse'].iloc[0]:+.2f}" if not _rho.empty else "n/a"
+    ax.set_title(f"Mean-depth difference decides it  (Spearman \u03c1 = {_r})\n"
+                 "above the line the neighbour's fit is BETTER; below it, POORER",
+                 fontsize=9, loc="left")
+
+    ax = axes[1]
+    if not bands.empty:
+        order = ["<0.1 m", "0.1-0.2 m", "0.2-0.4 m", "0.4-0.8 m", ">0.8 m"]
+        b = bands.set_index("well").reindex([o for o in order if o in set(bands["well"])])
+        y = np.arange(len(b))
+        ax.barh(y, b["neighbour_nse"] * 100.0, color="#b2182b", alpha=0.85, height=0.6)
+        for i, (_, r) in enumerate(b.iterrows()):
+            ax.text(2, i, f"n={int(r['n_shared_months'])}, median {r['gain_nse']:+.2f} NSE",
+                    va="center", ha="left", fontsize=8.5, color="white"
+                    if r["neighbour_nse"] * 100 > 35 else "#333333")
+        ax.set_yticks(y)
+        ax.set_yticklabels(b.index, fontsize=9)
+        ax.invert_yaxis()
+        ax.set_xlim(0, 105)
+        ax.set_xlabel("% of pairs that lose more than 0.25 NSE by borrowing", fontsize=9)
+        ax.set_ylabel("difference in mean depth", fontsize=9)
+        ax.tick_params(labelsize=9)
+        ax.set_title("The rule, as a site without a model could use it", fontsize=9, loc="left")
+    fig.suptitle("T-173b \u2014 what decides whether a neighbour's model transfers?\n"
+                 "not distance, not how well the two records correlate, not how alike the "
+                 "fitted coefficients are \u2014 how far apart the wells sit in MEAN DEPTH",
+                 fontsize=9)
+    fig.tight_layout(rect=[0, 0, 1, 0.90])
+    render_figure(fig, OUT_50_TRANSFER_FIG)
+    plt.close(fig)
 
 
 def plot_neighbour_transfer(nbt) -> None:
@@ -5405,6 +5568,15 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     nbt = neighbour_transfer(lev, lev_cols, cl, master)
     nbt.to_csv(OUT_50_NEIGHBOUR, index=False); saved(f"{OUT_50_NEIGHBOUR.name} ({len(nbt)} rows)")
     plot_neighbour_transfer(nbt); saved(OUT_50_NEIGHBOUR_FIG.name)
+    # T-173b: why transfer works where it does, and the rule that follows
+    trule = transfer_rule(nbt, lev, lev_cols, master)
+    if not trule.empty:
+        trule.to_csv(OUT_50_TRANSFER_RULE, index=False)
+        saved(f"{OUT_50_TRANSFER_RULE.name} ({int((trule['scope'] == 'pair').sum())} pairs)")
+        plot_transfer_rule(trule); saved(OUT_50_TRANSFER_FIG.name)
+        _p = trule[trule["scope"] == "predictor"].sort_values("gain_nse", key=abs, ascending=False)
+        for _, r in _p.iterrows():
+            step(f"  predictor {r['well']:16s} Spearman {r['gain_nse']:+.3f}  (n={int(r['n_shared_months'])})")
     proj_d.to_csv(OUT_50_PROJ_DATUM, index=False); saved(f"{OUT_50_PROJ_DATUM.name} ({len(proj_d)} rows)")
 
     phase(7, "Two drainage time scales per cluster (1.3.0, E8, D-231)")

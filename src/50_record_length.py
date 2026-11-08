@@ -975,6 +975,90 @@ def plot_split_series(series: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+
+def plot_neighbour_transfer(nbt) -> None:
+    """T-173, Laurence Jones's question: can a well be modelled from a NEIGHBOUR's fit?
+
+    Three sources, every one fitted pre-2018 and scored post-2018, so none has seen the
+    period it is judged on: the well's OWN fit, its nearest neighbour's, and its cluster
+    CENTROID's. The paired design is the point -- each well appears three times, so the
+    comparison is within a well and the panel can be read down a column.
+
+    Drawn as paired points rather than three box plots: a box plot would answer "how do the
+    three distributions compare", which is not the question. The question is whether the
+    SAME well does worse on a borrowed fit, and that is a line between two points.
+    """
+    import matplotlib
+    import matplotlib.pyplot as plt
+    if nbt is None or nbt.empty:
+        return
+    piv = nbt.pivot_table(index="well", columns="source", values="nse")
+    piv = piv.dropna(subset=["own"])
+    order = [c for c in ("own", "neighbour", "centroid") if c in piv.columns]
+    if len(order) < 2:
+        return
+    COL = {"own": "#1b1b1b", "neighbour": "#1b9e77", "centroid": "#7570b3"}
+    fig, axes = plt.subplots(1, 2, figsize=(9.0, 4.4),
+                             gridspec_kw={"width_ratios": [1.25, 1.0]})
+
+    ax = axes[0]
+    xs = list(range(len(order)))
+    for _, row in piv.iterrows():
+        ys = [row.get(k, np.nan) for k in order]
+        ax.plot(xs, ys, "-", color="#999999", lw=0.6, alpha=0.55, zorder=1)
+    for i, k in enumerate(order):
+        v = piv[k].dropna()
+        ax.scatter([i] * len(v), v, s=22, color=COL[k], zorder=3, label=None)
+        ax.plot([i - 0.22, i + 0.22], [v.median()] * 2, "-", color=COL[k], lw=2.6, zorder=4)
+        # get_xaxis_transform(): x in DATA coords (the category position), y in AXES coords.
+        # transAxes for both put the third label at x=2 of a 0-1 axis -- off the panel, and it
+        # dragged tight_layout into squashing the axes to fit the stray text.
+        ax.text(i, 0.97, f"median {v.median():+.2f}", ha="center", va="top",
+                fontsize=9, color=COL[k], transform=ax.get_xaxis_transform())
+    ax.set_xticks(xs)
+    ax.set_xticklabels(["own fit", "nearest\nneighbour", "cluster\ncentroid"], fontsize=9)
+    ax.set_ylabel("NSE post-2018 (fitted pre-2018)", fontsize=9)
+    ax.axhline(0.0, color="#777777", lw=0.9, ls=":")
+    ax.set_ylim(-1.0, 1.0)
+    ax.tick_params(labelsize=9)
+    _below = int((piv[order] < -1.0).sum().sum())
+    ax.set_title("Every well, three sources of coefficients"
+                 + (f"   ({_below} point(s) below the axis)" if _below else ""),
+                 fontsize=10, loc="left")
+
+    ax = axes[1]
+    if "neighbour" in piv.columns and "distance_m" in nbt.columns:
+        d = (nbt[nbt["source"] == "neighbour"].set_index("well")["distance_m"]
+             .reindex(piv.index))
+        loss = piv["own"] - piv["neighbour"]
+        m = pd.DataFrame({"d": d, "loss": loss}).dropna()
+        ax.scatter(m["d"], m["loss"], s=24, color="#1b9e77")
+        ax.axhline(0.0, color="#777777", lw=0.9, ls=":")
+        # A handful of wells where one of the two fits fails outright carry a loss of +-20
+        # NSE and flatten every other point into the zero line. Clip to the bulk and SAY how
+        # many are outside, rather than letting four points hide sixty.
+        _lim = 2.0
+        _out = int((m["loss"].abs() > _lim).sum())
+        ax.set_ylim(-_lim, _lim)
+        if _out:
+            ax.text(0.99, 0.02, f"{_out} well(s) beyond \u00b1{_lim:.0f}, off the axis",
+                    transform=ax.transAxes, ha="right", va="bottom", fontsize=8,
+                    color="#555555")
+        ax.set_xlabel("distance to the neighbour (m)", fontsize=9)
+        ax.set_ylabel("NSE lost by borrowing (own − neighbour)", fontsize=9)
+        ax.tick_params(labelsize=9)
+        if len(m) > 2:
+            rho = m["d"].corr(m["loss"], method="spearman")   # on ALL wells, not the clipped view
+            ax.set_title(f"Does distance explain the loss?  Spearman ρ = {rho:+.2f}",
+                         fontsize=10, loc="left")
+    fig.suptitle("T-173 — can a well be modelled from a neighbour's coefficients?\n"
+                 "all fits are pre-2018 and every score is post-2018, so no fit has seen "
+                 "what it is judged on", fontsize=9)
+    fig.tight_layout(rect=[0, 0, 1, 0.93])
+    render_figure(fig, OUT_50_NEIGHBOUR_FIG)
+    plt.close(fig)
+
+
 def neighbour_transfer(lev, lev_cols, cl, master) -> pd.DataFrame:
     """T-173: fit the model on a NEIGHBOURING well and run it here. Laurence Jones's test.
 
@@ -5280,6 +5364,7 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     # T-173: fit on a neighbour, run here (Laurence Jones's test)
     nbt = neighbour_transfer(lev, lev_cols, cl, master)
     nbt.to_csv(OUT_50_NEIGHBOUR, index=False); saved(f"{OUT_50_NEIGHBOUR.name} ({len(nbt)} rows)")
+    plot_neighbour_transfer(nbt); saved(OUT_50_NEIGHBOUR_FIG.name)
     proj_d.to_csv(OUT_50_PROJ_DATUM, index=False); saved(f"{OUT_50_PROJ_DATUM.name} ({len(proj_d)} rows)")
 
     phase(7, "Two drainage time scales per cluster (1.3.0, E8, D-231)")

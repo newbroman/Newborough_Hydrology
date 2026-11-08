@@ -19,6 +19,11 @@ Re-measure rather than trust it: the probe commands are at the end.
 | Reaches the ODTs on Drive | yes (rclone secret) | **no** | yes (they are on disk) |
 | Can ship (`tools/cloud_ship.sh`, D-233) | yes | no (needs Drive) | no (`--ship` needs the environment) |
 
+**There is a FOURTH kind this table does not cover: the desktop app running NATIVELY on
+the L14** — not the bridge, not a cloud session, and the only kind with a browser. It
+would make this table unreadable as a column, so it has its own section at the end
+(2026-11-07, T-183). The bridge column is the one people wrongly assume covers it.
+
 ## So, by task
 
 - **Script change, new analysis, pipeline rerun, gates, tooling** → any cloud
@@ -155,3 +160,135 @@ also has. A newer Mint will very likely ship a different one, and from then on
 the L14's published PDFs fail `artefact_lint` Check C while the cloud's pass.
 Check `soffice --version` against `tools/environment.json` after the upgrade;
 if they differ, build PDFs in the cloud rather than re-recording the version.
+
+## Browser access and the L14's folder: a cloud session has neither (2026-11-07)
+
+Martin wants future Water Watch chats to have **a browser** and **the L14's folder**, so
+that a session can read a Facebook group it is writing for and run the L14's own commands.
+Neither is available in a cloud session, and this section is what was measured on the day,
+so it is not rediscovered. **T-183 carries the open part.**
+
+What a session has is fixed **when it starts**. There is no tool to add either capability
+mid-session, and enabling the setting in the desktop app does not reach a session already
+running.
+
+| | measured 2026-11-07 |
+|---|---|
+| browser tools | **absent.** `ToolSearch` by exact name (`mcp__Claude_Browser__*`, `mcp__claude-in-chrome__*`, `mcp__remote-devices__Claude_Browser__*`) and by behaviour returns nothing — and no `enable__*` tool either, so there is nothing to turn on from inside |
+| after Martin enabled browser tools in the app | **unchanged** — a running session's tool surface does not grow |
+| the L14's folder, before linking | `list_computer_folders` → `{"folders":[],"cannot_be_used":[]}` |
+| after Martin linked `NRG` in Code settings | listed, but under **`cannot_be_used`**, `reason: not_available` — *"that computer does not offer it to cloud sessions and did not say why"* |
+| after the desktop app updated | **unchanged**, same refusal |
+
+The three causes the refusal names are a hidden directory under home, `~/Library`, or an app
+needing an update. **None fits**: `~/projects/NRG` is neither, and the update changed nothing.
+So the remaining explanation is the one the tool's own description gives — **serving a folder
+to a cloud session is not available on every account yet**. The folder being *listed* proves
+the L14's end is configured correctly; the computer simply declines the request. Do not tell
+Martin to re-link it, re-update, or hunt a setting: his end is done.
+
+**A desktop-app session can still be a CLOUD session.** This one was started from the app and
+runs in a managed remote container, which is why it has neither capability while other Code
+sessions in the same app have both. `list_computer_folders` returning nothing usable is the
+quickest tell, and it is the same boundary in both cases: the browser and the folder both live
+on Martin's side, and a container cannot reach them.
+
+**What this does and does not cost.** It costs nothing that matters for the pipeline: a cloud
+session runs the gates, the PDFs, the newsletter and both pushes. What it costs is the typing
+— a cloud session must hand Martin the `git pull` and the `rclone copy` instead of running
+them. That, and reading any web page at all — note that this is about needing a BROWSER, not
+about a login: the Facebook group of J-8 is public and the app's browser pane read it with no
+session, while an HTTP fetch of the same URL returns Facebook's login page. Do not infer a
+site's accessibility from an HTTP fetch. For the real L14-only jobs (his eyes on a
+document in LibreOffice, anything that must land on that disk) nothing has changed: they were
+always his.
+
+## A fourth kind: the desktop app running NATIVELY on the L14 (2026-11-07)
+
+**Route established: a Claude Code session in the desktop app, running natively on the
+L14 itself, has both a browser and the L14 — because it *is* the L14.** That is the
+session kind T-183 was looking for, and it was found by accident: Martin meant to open a
+cloud fieldwork chat and got this instead.
+
+It is not the bridge and it is not a cloud session, and the section above is about the
+latter. **The bridge column is the one people assume covers "the desktop app", and it does
+not**: the bridge is a separate Linux VM with `~/projects` mounted, tree under
+`$HOME/mnt/NRG`, `mcp__remote-devices__device_bash`, pandoc 2.9.2, no scipy. This mode has
+none of those tells. Measured in that session on 2026-11-07:
+
+| | measured 2026-11-07 |
+|---|---|
+| `hostname` | `john-ThinkPad-L14` |
+| `whoami` / `$HOME` | `john` / `/home/john` — the REAL home, not the VM's |
+| tree | `/home/john/projects/NRG`, with `.git` **and** `.git-working` both present |
+| branch | `main` |
+| `python3` | 3.12.3 at `/usr/bin/python3` |
+| `pandoc` | 3.1.3 |
+| `soffice` | `/usr/bin/soffice` |
+| `rclone` | v1.75.2, remotes configured: `gdrive:` `gdrivefile:` |
+| `gh`, `git`, `uv` | present |
+| ODTs | `report_edits/odt/` populated **on disk** |
+| `venv`, `venv/.bridge` | both present |
+| a browser | **yes** — the app's own cookie-isolated browser pane |
+
+In the terms of the table at the top this mode reads: pipeline **yes**, published PDFs
+**yes**, pushes both repos **yes**, ship **yes**, ODTs **yes — on disk, and no Drive secret
+is needed because rclone is configured locally** — plus a browser, which no existing column
+has. Being native on the laptop, it is not excluded by D-155/D-227 the way the bridge is:
+it is the recorded environment, on the recorded machine.
+
+**One thing was NOT verified, and the distinction matters.** `env_audit` was not run in
+that session. So every entry in the paragraph above except the browser is **inference from
+the environment being the recorded one**, not a measured verdict. The measured rows are the
+table; the capability claims are the inference. Before shipping from this mode, run
+`env_audit` and quote it.
+
+**The tell is where the session RUNS, not which app started it.** The section above is right
+that a desktop-app session can be a cloud session; what it could not know is that the app
+also starts sessions natively, and those are a different thing entirely. `hostname` and
+`$HOME` separate all four in one line — see the probe addition below.
+
+## The Facebook group reads logged out — correcting a standing assumption (2026-11-07)
+
+The Water Watch newsletter channel referred to at `living/MONTHLY_ROUTINE.md:54` is the
+group `https://www.facebook.com/groups/1164026318685018` ("Newborough Warren Water
+Levels"). The assumption in circulation — including in the section above, which counts
+"reading a page behind a login" among a cloud session's costs — was that fetching it
+logged out returns only Facebook's login page. **Measured false on 2026-11-07**, in the
+desktop app's own cookie-isolated browser pane with no Facebook session of any kind: it is
+a **public group** (22 members) and Facebook serves its content. The full text of the
+4 July 2026 featured post — the June 2026 water level report — was retrieved untruncated
+via its permalink:
+
+    https://www.facebook.com/groups/1164026318685018/posts/1570889587998687/
+
+- **Works logged out:** group metadata, member count, tab structure, the featured post in
+  full, and **any post whose permalink is already known** — the
+  `/groups/<gid>/posts/<id>/` form fetches directly.
+- **Does not:** enumerating the discussion feed. The landing page renders only the pinned
+  post and Facebook substitutes a login wall for the rest, so post IDs not already held
+  cannot be discovered without a session.
+
+Two obstacles worth recording for whoever does this next. A **cookie consent dialog**
+appears first and is **not in the accessibility tree** — `find` will not locate it; dismiss
+it from a screenshot, declining the optional cookies. Then a **login modal** overlays the
+page, whose Close button **is** in the a11y tree: use that ref rather than clicking the
+visual X by coordinate, which on the day missed and hit the cover-photo link behind it.
+
+**The significance: any session with a browser can read this group with no sign-in, no
+cookie import and no dependency on Martin's Chrome being signed in.** That is a more
+durable route than the alternative. Claude in Chrome also exists and was connected on that
+machine (extension `fcoeoabgfenejglbffodgkkbkcdhcgfn`, v1.0.105) and would read the whole
+feed as Martin — but Martin judged the public-readable content sufficient, and that route
+carries his real identity. Record it as the heavier fallback, not the default.
+
+## Probe addition: which of the FOUR kinds is this? (2026-11-07)
+
+The probe above does not distinguish the native-L14 mode — nothing in it reads the host, so
+a session on the L14 and a session in a container answer it identically. Two lines settle it:
+
+    hostname; whoami; echo "$HOME"   # john-ThinkPad-L14 / john / /home/john = native on the L14
+    ls -d "$HOME/mnt/NRG" 2>/dev/null && echo bridge   # $HOME=/sessions/rcw-… and a mount = bridge
+
+Anything else — a container hostname with `$HOME` of `/home/user` or `/root`, no mount — is
+a cloud session, and `${NRG_RCLONE_CONF_B64:+set}` then separates claude.ai/code from a chat.

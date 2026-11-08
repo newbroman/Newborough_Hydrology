@@ -765,6 +765,12 @@ def _censored_negll(theta, lay, trans, runs, z0, intercept):
     return -ll if np.isfinite(ll) else 1e300
 
 
+# Gradient at which a BFGS exit is accepted even though it reported success=False, rather
+# than paying for a Nelder-Mead refinement that cannot change any reported digit. See the
+# measurement in fit_ssm_censored (D-321).
+CENSORED_FALLBACK_GRAD_TOL = 1e-4
+
+
 def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
                      drainage_datum=DRAINAGE_DATUM, min_obs=MIN_OBS,
                      intercept=False, with_corr=False, force_ml=False):
@@ -817,7 +823,26 @@ def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
     z0 = float(drainage_datum)
     fn = lambda th: _censored_negll(th, lay, trans, runs, z0, intercept)
     res = _minimize(fn, th0, method="BFGS", options={"gtol": 1e-6, "maxiter": 2000})
-    if not res.success:
+    # The Nelder-Mead fallback is skipped when BFGS stopped at a gradient that is small
+    # ENOUGH, even though it set success=False (D-321, 2026-11-08).
+    #
+    # MEASURED over 152 censored fits of the per-well datum sweep. BFGS reported success at
+    # only 23 of them, so the fallback fired at 129 -- 85 % of fits -- and took 54 % of the
+    # total time. It was not earning it. At every one of those 129 it improved the objective,
+    # and at NONE of them by more than 1e-10 in the negative log-likelihood; the largest
+    # parameter movement was 3.7e-06, on coefficients reported to four decimals.
+    #
+    # The reason is precision, not divergence: BFGS stops after a median of ELEVEN iterations
+    # (max 19, against maxiter=2000) with a line-search precision failure, because the GHK
+    # objective is differentiated by finite differences. Its gradient at those exits has a
+    # median max|g| of 6.7e-06 against the 1e-06 it was asked for -- a hair outside, not lost.
+    #
+    # 1e-4 skips 86.8 % of those exits and keeps the fallback for the worst 13 %, whose
+    # gradients run to 2.1e-03. A tighter 1e-5 would skip only 57 %; a looser 1e-3 would skip
+    # 99 % and leave no net at all.
+    _g = getattr(res, "jac", None)
+    _gmax = float(np.max(np.abs(_g))) if _g is not None and np.all(np.isfinite(_g)) else np.inf
+    if not res.success and _gmax > CENSORED_FALLBACK_GRAD_TOL:
         res2 = _minimize(fn, res.x, method="Nelder-Mead",
                          options={"xatol": 1e-10, "fatol": 1e-12, "maxiter": 40000, "maxfev": 80000})
         if res2.fun <= res.fun:

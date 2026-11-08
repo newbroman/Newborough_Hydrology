@@ -386,11 +386,13 @@ for p in (""docs/report/text/report9.md"", ""docs/papers/paper_1/text/Paper1.md"
         hits += 1
 print(hits)
 EOF",2,2026-11-07,doc:report,"The measurement is done and is in the Methods Supplement (v2_0_126, T-172): over 81 wells with both a DEM elevation and a DGPS survey the DEM reads high by 0.077 m, RMSE 0.163 m, 84 % within 0.15 m, 95 % within 0.30 m, worst 0.710 m; forest RMSE 0.211 vs open 0.137, the direction canopy penetration predicts but NOT significant on 14 wells (p = 0.11). Martin's point: if the network is offered as a model for LOW-COST MONITORING -- dipwells, a free national DEM and a climate record, without geophysics or coring -- then how far that DEM can stand in for a survey is part of the METHOD, not a footnote in the supplement. Needs doc:report and, for Paper 1, doc:Paper1."
-T-182,D-318: rename Sy to the apparent storage coefficient across the corpus,"Martin 2026-11-07 (""yes rename it""); the findings note section 1","python3 - <<'EOF'
+T-182,"D-320 (approved 2026-11-07 as 'D-318', a number taken the same day): rename Sy to the apparent storage coefficient S_a across the corpus","Martin 2026-11-07 (""yes rename it""); the findings note section 1","python3 - <<'EOF'
 import pathlib
 d = pathlib.Path(""working/DECISION_LOG.md"")
-print(""DONE"" if d.is_file() and ""D-318"" in d.read_text(encoding=""utf8"") else ""TODO"")
-EOF",DONE,2026-11-07,pipeline,"SUBSTANCE APPROVED, LETTER NOT YET. Martin approved 'S_e'; S_e COLLIDES with S_E, already in the symbol table as the drainage-weighted sum of climatological PET over the P_flood horizon (Methods Supplement line 2028) -- the same shape of collision as kappa against K that D-316 just fixed, and it was this chat's own recommendation that caused it. RECOMMENDED INSTEAD: S_a, the apparent storage coefficient, free across the whole corpus (checked), glossed on first use as the WTF 'apparent specific yield' of Healy and Cook (2002). EVIDENCE it is not specific yield: C4's value moves 0.321 -> 0.256 and C5's 0.364 -> 0.316 purely by assuming 24 % canopy interception -- the specific yield of sand cannot depend on what grows above it; literature dune sand is 0.08-0.12 against our 0.21-0.42; C1 gives 0.346 by one estimator and 0.180 by another on identical records; Script 55 already says 'apparent Sy'. SCOPE, wider than D-316: lambda, Paper 1 Table 4, report Table 8, the WTF chapter, Scripts 17/18/55, the symbol table."
+s = pathlib.Path(""tools/symbol_register.csv"")
+ok = d.is_file() and ""### D-320"" in d.read_text(encoding=""utf8"") and s.is_file() and ""S_a,"" in s.read_text(encoding=""utf8"")
+print(""DONE"" if ok else ""TODO"")
+EOF",DONE,2026-11-07,pipeline,"2026-11-08: the decision is D-320, letter S_a; the check read DONE falsely until then because it only looked for the string D-318, which the log carries for a different decision. It now needs D-320 AND an S_a row in the symbol register. The documents are T-189 (register and labels), T-190 (Paper M), T-191 (Paper 1, SI, Paper 2), T-192 (report), T-193 (MS, SM). Earlier note: SUBSTANCE APPROVED, LETTER NOT YET. Martin approved 'S_e'; S_e COLLIDES with S_E, already in the symbol table as the drainage-weighted sum of climatological PET over the P_flood horizon (Methods Supplement line 2028) -- the same shape of collision as kappa against K that D-316 just fixed, and it was this chat's own recommendation that caused it. RECOMMENDED INSTEAD: S_a, the apparent storage coefficient, free across the whole corpus (checked), glossed on first use as the WTF 'apparent specific yield' of Healy and Cook (2002). EVIDENCE it is not specific yield: C4's value moves 0.321 -> 0.256 and C5's 0.364 -> 0.316 purely by assuming 24 % canopy interception -- the specific yield of sand cannot depend on what grows above it; literature dune sand is 0.08-0.12 against our 0.21-0.42; C1 gives 0.346 by one estimator and 0.180 by another on identical records; Script 55 already says 'apparent Sy'. SCOPE, wider than D-316: lambda, Paper 1 Table 4, report Table 8, the WTF chapter, Scripts 17/18/55, the symbol table."
 T-183,A Water Watch chat that can read a web page and reach the L14: find which session kind has both,"Martin 2026-11-07 (""I want future water watch chats to be able to have browser access and access to the L14 in fuure"")","python3 - <<'EOF'
 import pathlib
 p = pathlib.Path(""notes/reference/SESSION_MODES.md"")
@@ -435,3 +437,33 @@ import pathlib
 m = pathlib.Path(""docs/PDF_MANIFEST.txt"").read_text(encoding=""utf-8"")
 print(""DONE"" if any(l.startswith(""docs/report/report.pdf "") for l in m.splitlines()) else ""TODO"")
 EOF",DONE,,tools,"report.pdf is built from report.odm and the unversioned report6..16 chapters, so tools/export_lag.py (line 183) can only compare mtimes, and nrg_git.sh's ship (line 1390) asks export_lag --pdf whether to rebuild. A fresh clone stamps report.pdf with the checkout time, newer than every chapter, so a stale report.pdf reads as current: on 2026-11-08 the 13:14 build sat behind report9's 17:27 D-316 edits and the cloud ship would have shipped it. Rebuilt by hand in that session (export_master_pdf.py, 22:01Z). Wanted: export_master_pdf writes a docs/PDF_MANIFEST.txt line for report.pdf recording what it was built from (e.g. a content hash of report.odm and each chapter), and export_lag compares that record, not mtimes. The check reads DONE once such a line exists. Same fault fixed for the versioned PDFs in tools/build_pdfs.sh (2026-11-08)."
+T-189,Sy to S_a sweep (D-320): symbol register and the pipeline's labels,D-320 (Martin 2026-11-08: 'we need to do an Sy S_a sweep'),"python3 - <<EOF
+import pathlib
+ps = [pathlib.Path(p) for p in ['tools/symbol_register.csv']]
+t = ' '.join(p.read_text(encoding='utf-8') for p in ps if p.exists())
+print('DONE' if all(p.exists() for p in ps) and 'S_a,' in t else 'TODO')
+EOF",DONE,,tools,"An S_a row (apparent storage coefficient, WTF; Healy and Cook 2002) and any Sy row restricted to the material property. Then Scripts 17, 18 and 55: docstrings, figure labels and a header comment on each Sy column saying it holds S_a. Column names and report-number keys keep their spelling (D-320), so no citation moves; labels change outputs, so this rides a full run (J-9 phase 2 is one)."
+T-190,Sy to S_a sweep (D-320): Paper M,D-320 (Martin 2026-11-08: 'we need to do an Sy S_a sweep'),"python3 - <<EOF
+import pathlib
+ps = [pathlib.Path(p) for p in ['docs/papers/paper_M/text/PaperM.md']]
+t = ' '.join(p.read_text(encoding='utf-8') for p in ps if p.exists())
+print('DONE' if all(p.exists() for p in ps) and 'apparent storage coefficient' in t else 'TODO')
+EOF",DONE,,doc:PaperM,"15 'specific yield' mentions as of 2026-11-08, centred on 5.3 (the water-balance residual analysis) and its figures. Read each: the fluctuation estimate becomes S_a, glossed on first use; the sand's specific yield stays Sy. ODT_EDIT_REASON=D-320."
+T-191,"Sy to S_a sweep (D-320): Paper 1, its SI and Paper 2",D-320 (Martin 2026-11-08: 'we need to do an Sy S_a sweep'),"python3 - <<EOF
+import pathlib
+ps = [pathlib.Path(p) for p in ['docs/papers/paper_1/text/Paper1.md','docs/papers/paper_1/text/PAPER1_SI_methods.md']]
+t = ' '.join(p.read_text(encoding='utf-8') for p in ps if p.exists())
+print('DONE' if all(p.exists() for p in ps) and 'apparent storage coefficient' in t else 'TODO')
+EOF",DONE,,doc:Paper1,"As of 2026-11-08: Paper 1 10 Sy and 30 'specific yield' (Highlights 'interception-corrected specific yields converge', 3.8, 4.x, Table 3 caption); SI 20 and 7; Paper 2 3 and 3. Read each occurrence. ODT_EDIT_REASON=D-320."
+T-192,Sy to S_a sweep (D-320): the report chapters,D-320 (Martin 2026-11-08: 'we need to do an Sy S_a sweep'),"python3 - <<EOF
+import pathlib
+ps = [pathlib.Path(p) for p in ['report_edits/text/report8.md','report_edits/text/report9.md','report_edits/text/report10.md']]
+t = ' '.join(p.read_text(encoding='utf-8') for p in ps if p.exists())
+print('DONE' if all(p.exists() for p in ps) and 'apparent storage coefficient' in t else 'TODO')
+EOF",DONE,,doc:report,"As of 2026-11-08, Sy and 'specific yield' counts: report8 26 and 16, report9 37 and 17, report10 22 and 14, report16 5 and 2, report6 1 and 4, report11 1 and 0, report12 0 and 1. The check reads the three chapters that carry the method; the others are swept with them. ODT_EDIT_REASON=D-320."
+T-193,Sy to S_a sweep (D-320): Methods Supplement and Supplementary Material,D-320 (Martin 2026-11-08: 'we need to do an Sy S_a sweep'),"python3 - <<EOF
+import pathlib
+ps = [pathlib.Path(p) for p in ['docs/report/text/Newborough_Methods_Supplement.md','docs/report/text/Supplementary_Material.md']]
+t = ' '.join(p.read_text(encoding='utf-8') for p in ps if p.exists())
+print('DONE' if all(p.exists() for p in ps) and 'apparent storage coefficient' in t else 'TODO')
+EOF",DONE,,doc:MS,"The largest surface: the MS has 190 Sy and 32 'specific yield' as of 2026-11-08, mostly in symbol tables and formulas; the SM has 4 and 8. Formulas consuming it become lambda = sqrt(Kb/(S_a b3)), D = Kb/S_a. ODT_EDIT_REASON=D-320."

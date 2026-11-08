@@ -353,7 +353,8 @@ from utils.midas_rain import read_daily  # noqa: E402
 from utils.pet_alternatives import monthly_radiation_pet, midas_monthly_pm, midas_span, read_raf_monthly  # noqa: E402
 from utils.clearfell_common import EDGE_WELLS  # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
-from utils.console_utils import banner, done, info, phase, result, saved, step, warn   # noqa: E402
+from utils.console_utils import (banner, done, info, phase, result, saved, step, track,  # noqa: E402
+                                 warn)                                                   # noqa: E402
 
 FORMS = (("A", False), ("B", True))
 FULL = "full"
@@ -810,7 +811,7 @@ def ccw_by_datum(lev, lev_cols, cl, loc_forest) -> pd.DataFrame:
     p_mean, pet_mean = float(clh["P_m"].mean()), float(clh["PET"].mean())
     first_month, last_month = obs["month"].min(), obs["month"].max()
     rows = []
-    for r in adm.itertuples():
+    for r in track(list(adm.itertuples()), "CCW by datum", min_seconds=5.0):
         col = lev_cols.get(normalize_well_name(r.well))
         if col is None:
             continue
@@ -848,7 +849,7 @@ def split_by_datum(lev, lev_cols, cl, master) -> pd.DataFrame:
     """E6: Script 48's split-sample test for Model A at every datum."""
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
     rows = []
-    for _, r in master.iterrows():
+    for _, r in track(list(master.iterrows()), "split by datum", min_seconds=5.0):
         col = lev_cols.get(r["_n"])
         if col is None:
             continue
@@ -1462,7 +1463,7 @@ def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
         dd = {str(w): (float(a), float(b_), float(c), float(k))
               for w, a, b_, c, k in zip(_d["well"], _d["b1"], _d["b2"], _d["b3"], _d["inv_L_E"])}
     rows = []
-    for _, r in master.iterrows():
+    for _, r in track(list(master.iterrows()), "projection by datum", min_seconds=5.0):
         col = lev_cols.get(r["_n"])
         if col is None or r["_n"] not in mb.index:
             continue
@@ -1562,7 +1563,7 @@ def ranwell_by_datum(lev, lev_cols, cl) -> pd.DataFrame:
         return m, dry, spin
 
     rows = []
-    for pr in pairs.itertuples():
+    for pr in track(list(pairs.itertuples()), "Ranwell by datum", min_seconds=5.0):
         col = lev_cols.get(normalize_well_name(pr.well))
         if col is None or int(pr.site_no) not in obs_month.index.get_level_values(0):
             continue

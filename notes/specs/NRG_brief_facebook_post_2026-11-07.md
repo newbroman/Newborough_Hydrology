@@ -151,3 +151,68 @@ opening brief, not here.
 tree as pushed, `session_handover --check` reports **625/650, ok**. The difference is presumably
 its own uncommitted 197-line handover file sitting in a Tier-0 path, which cannot be seen from
 outside its tree. Either way the advice is sound: do not grow the handover note.
+
+---
+
+## Martin answered the three judgement calls, 2026-11-08
+
+*"plain english names, flood outlook first, keep the october line"*. §5 is therefore CLOSED.
+The post below is the draft of §2 restructured to those three answers, and it supersedes it.
+
+1. **Plain-English area names** — not C1–C5.
+2. **Flood outlook leads**, which inverts §2's order. §5's own recommendation was to invert it
+   *if* the group was flood-focused; Martin confirmed without being asked which it was.
+3. **The "lower than 9 of the last 10 Octobers" line stays.**
+
+**One simplification he may still want to overrule.** Four cluster labels render into plain
+English without inventing anything: Lake Edge → *the lake edge*, Dune → *the dunes*, Main
+Forest → *the main forest*, Coastal Forest → *the coastal forest*. **C3 "Western Residual" does
+not.** It is rendered *"the western dunes"* on the strength of the corpus's own text —
+`report_edits/text/report12.md` calls C1/C2 "the eastern open dune" and C3 a "deep buffer", so
+C3 is the open dune ground to the west. But **"Residual" is partly a catch-all**: `report8.md`
+records its cluster stability at 0.38 against 0.98+ for the other four, "reflecting the
+landscape heterogeneity of this group". *The western dunes* is therefore a simplification, not a
+translation. Do not extend it to anything load-bearing.
+
+### The post, as answered
+
+> **Newborough Warren water levels — October 2026**
+>
+> **Could the warren flood this winter?** On the current numbers it would take a notably wet one.
+>
+> Each part of the reserve has a measured rainfall threshold — the amount that would have to fall
+> to bring the water table up to ground level, given how deep it fell this summer. The lake edge
+> is closest: it would need **495 mm between October and the end of January**, against a typical
+> 400 mm for those four months. So far 102 mm has fallen, with one of the four months gone.
+>
+> Everywhere else needs more, and has until the end of February: the dunes 597 mm, the western
+> dunes 657 mm, the main forest 955 mm and the coastal forest 1,037 mm — against a typical
+> 461 mm. The forest would need better than twice an average season.
+>
+> These are rainfall thresholds, not forecasts. They say what it would take, not how likely it is.
+>
+> **Where the levels actually are.** The latest round was read on 3 November, covering 68
+> dipwells. The water table is on the way back up: 55 wells rose, 12 fell, one held steady, a mean
+> rise of **+0.07 m**. September turned out to be this year's low point. Four wells (D7, NW3, NW6
+> and CEH22) were still completely dry when we visited.
+>
+> The dunes recovered fastest (+0.13 m); the main forest was the only area still falling
+> (−0.08 m).
+>
+> **The rain was unremarkable.** 101.8 mm at RAF Valley against a long-run October average of
+> 101.6 mm. Our two local gauges bracketed it — 87.4 mm at Rhianfa, 115.1 mm at Capel Gwyn.
+> Across the twelve months to October we've had 864 mm, 101% of average.
+>
+> **But some perspective:** compared with the same month in previous years, this October is
+> **lower than 9 of the last 10**. An average year of rainfall has not undone the deficit.
+>
+> Full newsletter, with maps: https://newbroman.github.io/Newborough_Hydrology/water_watch/
+
+**The sentence that must not be edited away:** *"These are rainfall thresholds, not forecasts."*
+Leading with the flood outlook raises the risk §4 names — a flood-aware group reading a threshold
+as a probability — so the disclaimer moved up with it rather than staying in a caption. If the
+post is shortened, shorten something else.
+
+**Still to do:** nothing, unless the group's register asks for a different voice. The three calls
+are answered and every figure traces to `water_watch/Newborough_Water_Watch_2026_10.pdf`
+(sha `91c053b6…`). Martin posts it.

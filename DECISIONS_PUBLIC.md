@@ -2587,7 +2587,7 @@ A row in `working/rule_audit_suppress.csv` (private, through `register_io`, merg
 
 **Revisit if** another host-settable variable is found to change an artefact (the same shape: outside the repository, invisible to `env_audit`), in which case the removal list becomes a list rather than one name; or matplotlib changes how it resolves its configuration.
 
-### D-318 — A censored fit accepts a small-gradient BFGS exit instead of refining it
+### D-319 — A censored fit accepts a small-gradient BFGS exit instead of refining it
 
 *2026-11-08*
 

@@ -767,7 +767,7 @@ def _censored_negll(theta, lay, trans, runs, z0, intercept):
 
 # Gradient at which a BFGS exit is accepted even though it reported success=False, rather
 # than paying for a Nelder-Mead refinement that cannot change any reported digit. See the
-# measurement in fit_ssm_censored (D-321).
+# measurement in fit_ssm_censored (D-319).
 CENSORED_FALLBACK_GRAD_TOL = 1e-4
 
 
@@ -824,7 +824,7 @@ def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
     fn = lambda th: _censored_negll(th, lay, trans, runs, z0, intercept)
     res = _minimize(fn, th0, method="BFGS", options={"gtol": 1e-6, "maxiter": 2000})
     # The Nelder-Mead fallback is skipped when BFGS stopped at a gradient that is small
-    # ENOUGH, even though it set success=False (D-321, 2026-11-08).
+    # ENOUGH, even though it set success=False (D-319, 2026-11-08).
     #
     # MEASURED over 152 censored fits of the per-well datum sweep. BFGS reported success at
     # only 23 of them, so the fallback fired at 129 -- 85 % of fits -- and took 54 % of the

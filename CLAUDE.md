@@ -520,8 +520,8 @@ committed mirrors and does not edit ODTs.
 - **THE PROJECT'S BRANCH IS `main`, AND A SESSION CHECKS WHICH BRANCH IT IS ON BEFORE
   SHIPPING.** An agent harness may check the public tree out on a branch of its own
   (`claude/<name>`), level with origin's `main`. That is not a route to GitHub: every
-  gate, mirror, published PDF and index count in this corpus reads `main`, and until
-  `nrg_git.sh` 1.32.0 the ship counted its commits against origin's `main` while a bare
+  gate, mirror, published PDF and index count in this corpus reads `main`, and
+  until `nrg_git.sh` 1.32.0 the ship counted its commits against origin's `main` while a bare
   `git push` followed the current branch's upstream — so on a branch tracking itself
   the work went to the side branch and `Pushed.` printed with `main` unmoved
   (measured 2026-11-06: 1 commit ahead before the push, still 1 ahead after it).

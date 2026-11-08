@@ -1942,144 +1942,212 @@ def well_datum_sensitivity(wells_clean: pd.DataFrame,
       full_df    — all (well × depth) results
       optimal_df — one row per well with all three datum measures
     """
+
     datums = _datum_sweep()
+    full_rows, optimal_rows = [], []
 
-    full_rows = []
-    optimal_rows = []
-
-    for _, row in track(cluster_df.iterrows(), lambda item: item[1]["Match_ID"],
-                        total=len(cluster_df)):
-        well_name = str(row["Match_ID"])
-        well_norm = normalize_well_name(well_name)
-        target_col = well_col_lookup.get(well_norm)
+    # Build the work list first, then run it. The list follows cluster_df order and the
+    # results are consumed in that order, so an emitted row cannot depend on which worker
+    # finished first -- which is what keeps the output byte-identical.
+    jobs, labels = [], []
+    for _, row in cluster_df.iterrows():
+        wn = normalize_well_name(str(row['Match_ID']))
+        target_col = well_col_lookup.get(wn)
         if target_col is None:
             continue
+        r = dict(row)
+        r['_upstand'] = upstand_lookup.get(wn.lower().replace(' ', '').replace('_', ''), 0.0)
+        # The dry bound travels IN the job. _db() reads the module-level _DRY dict, which
+        # main() fills and a worker process inherits only by fork. Under spawn a worker
+        # would read an empty _DRY, get dry_bound=None, and silently take fit_ssm's OLS
+        # path instead of fit_ssm_censored -- no error, no gate, 22 wells quietly refitted
+        # by the wrong estimator. That mistake was made by hand in this session's test
+        # harness and produced plausible numbers that were wrong, so it is not theoretical.
+        jobs.append((r, wells_clean[target_col], climate, datums, _db(target_col)))
+        labels.append(str(row['Match_ID']))
 
-        cid = int(row["Cluster"])
-        label = CLUSTER_LABELS.get(cid, f"C{cid}")
+    for full, opt in _map_wells(jobs, labels):
+        full_rows.extend(full)
+        if opt is not None:
+            optimal_rows.append(opt)
 
-        # upstand is REPORTED (the `upstand_m` column of
-        # 03_09_well_optimal_datums.csv), not applied — the series is already
-        # ground-referenced. Reading the carrier is allowed; re-deriving is not.
-        col_norm = well_norm.lower().replace(" ", "").replace("_", "")
-        u = upstand_lookup.get(col_norm, 0.0)
-        h_series = wells_clean[target_col]
+    return pd.DataFrame(full_rows), pd.DataFrame(optimal_rows)
 
-        best_primary = None    # min datum with β₃ > 0 AND p < 0.05
-        best_secondary = None  # min datum with β₃ > 0 (any p)
-        best_r2 = -999.0       # R²-maximising datum (any β₃ sign)
-        best_r2_datum = np.nan
-        best_r2_fit = None
 
-        for d in datums:
-            fit = fit_ssm(h_series, climate,
-                          lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
-                          drainage_datum=d, min_obs=MIN_OBS_PER_WELL,
-                          dry_bound=_db(h_series.name))
-            if fit is None:
-                full_rows.append({
-                    "well": well_name, "Cluster": cid,
-                    "Cluster_Label": label, "ref_depth": round(d, 1),
-                    "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
-                    "pvalue_beta_3": np.nan, "R2": np.nan,
-                    "beta_3_positive": False, "beta_3_sig": False,
-                })
-                continue
+def _n_workers() -> int:
+    """How many wells to fit at once.
 
-            b3_pos = fit["beta_3_drainage"] > 0
-            b3_sig = fit["pvalue_beta_3"] < 0.05
+    NRG_WORKERS set -> that, exactly; 1 disables parallelism and takes the serial path,
+    which is what --check-parallel compares against. Unset -> leave one core free, capped,
+    because the pipeline often runs beside a gate or a figure build.
+
+    THIS DOES NOT TOUCH THE D-227 THREAD PIN. Each worker inherits OMP_NUM_THREADS=1 and
+    OPENBLAS_NUM_THREADS=1 from the environment, so every fit is the same single-threaded
+    arithmetic it was before -- the concurrency is between WELLS, never inside a solve.
+    """
+    import os                      # the module header does `del _sys, _os` after importing
+    env = os.environ.get("NRG_WORKERS", "").strip()
+    if env:
+        try:
+            return max(1, int(env))
+        except ValueError:
+            pass
+    return max(1, min((os.cpu_count() or 1) - 1, 8))
+
+
+def _map_wells(jobs, labels):
+    """Run _well_datum_one over `jobs`, yielding results in INPUT order.
+
+    Order is the whole of the correctness argument: ProcessPoolExecutor.map preserves it,
+    so the rows land exactly where the serial loop put them and the output file is
+    byte-identical. Never switch this to as_completed().
+    """
+    n = _n_workers()
+    if n <= 1 or len(jobs) < 2:
+        for job, lab in zip(track(jobs, lambda j: "", total=len(jobs)), labels):
+            yield _well_datum_one(job)
+        return
+    import concurrent.futures as _cf
+    info(f"      per-well datum sweep: {len(jobs)} wells across {n} worker process(es)")
+    with _cf.ProcessPoolExecutor(max_workers=n) as ex:
+        yield from track(ex.map(_well_datum_one, jobs), lambda _: "", total=len(jobs))
+
+
+def _well_datum_one(args):
+    """One well's datum sweep -- the body of well_datum_sensitivity's loop, extracted.
+
+    Extracted so wells can run in parallel PROCESSES. The arithmetic is untouched: each
+    well is fitted exactly as before, each worker inherits the D-227 BLAS pin of one
+    thread, and results are consumed in INPUT order, so every value and every row position
+    is what the serial loop produced. Parallelism buys wall-clock only; it must not buy a
+    different answer, and --check-parallel proves it.
+    """
+    row, h_series, climate, datums, dry_bound = args
+    full_rows = []
+    u = row['_upstand']
+    well_name = str(row["Match_ID"])
+    well_norm = normalize_well_name(well_name)
+
+    cid = int(row["Cluster"])
+    label = CLUSTER_LABELS.get(cid, f"C{cid}")
+
+    # upstand is REPORTED (the `upstand_m` column of
+    # 03_09_well_optimal_datums.csv), not applied — the series is already
+    # ground-referenced. Reading the carrier is allowed; re-deriving is not.
+
+    best_primary = None    # min datum with β₃ > 0 AND p < 0.05
+    best_secondary = None  # min datum with β₃ > 0 (any p)
+    best_r2 = -999.0       # R²-maximising datum (any β₃ sign)
+    best_r2_datum = np.nan
+    best_r2_fit = None
+
+    for d in datums:
+        fit = fit_ssm(h_series, climate,
+                      lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+                      drainage_datum=d, min_obs=MIN_OBS_PER_WELL,
+                      dry_bound=dry_bound)
+        if fit is None:
             full_rows.append({
                 "well": well_name, "Cluster": cid,
                 "Cluster_Label": label, "ref_depth": round(d, 1),
-                "beta_1_recharge": fit["beta_1_recharge"], "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
-                "beta_3_drainage": fit["beta_3_drainage"], "pvalue_beta_3": fit["pvalue_beta_3"],
-                "R2": fit["R2"],
-                "beta_3_positive": b3_pos, "beta_3_sig": b3_sig,
+                "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
+                "pvalue_beta_3": np.nan, "R2": np.nan,
+                "beta_3_positive": False, "beta_3_sig": False,
             })
+            continue
 
-            if b3_pos and best_secondary is None:
-                best_secondary = (round(d, 1), fit)
-            if b3_pos and b3_sig and best_primary is None:
-                best_primary = (round(d, 1), fit)
-            if fit["R2"] > best_r2:
-                best_r2 = fit["R2"]
-                best_r2_datum = round(d, 1)
-                best_r2_fit = fit
+        b3_pos = fit["beta_3_drainage"] > 0
+        b3_sig = fit["pvalue_beta_3"] < 0.05
+        full_rows.append({
+            "well": well_name, "Cluster": cid,
+            "Cluster_Label": label, "ref_depth": round(d, 1),
+            "beta_1_recharge": fit["beta_1_recharge"], "beta_2_atmospheric_draw": fit["beta_2_atmospheric_draw"],
+            "beta_3_drainage": fit["beta_3_drainage"], "pvalue_beta_3": fit["pvalue_beta_3"],
+            "R2": fit["R2"],
+            "beta_3_positive": b3_pos, "beta_3_sig": b3_sig,
+        })
 
-        # Record optimal for this well
-        opt = {}
-        opt["well"] = well_name
-        opt["Cluster"] = cid
-        opt["Cluster_Label"] = label
-        opt["upstand_m"] = u
+        if b3_pos and best_secondary is None:
+            best_secondary = (round(d, 1), fit)
+        if b3_pos and b3_sig and best_primary is None:
+            best_primary = (round(d, 1), fit)
+        if fit["R2"] > best_r2:
+            best_r2 = fit["R2"]
+            best_r2_datum = round(d, 1)
+            best_r2_fit = fit
 
-        if best_primary is not None:
-            d_p, f_p = best_primary
-            opt["optimal_datum_primary"] = d_p
-            opt["beta_1_at_primary"] = f_p["beta_1_recharge"]
-            opt["beta_2_at_primary"] = f_p["beta_2_atmospheric_draw"]
-            opt["beta_3_at_primary"] = f_p["beta_3_drainage"]
-            opt["pvalue_beta_3_primary"] = f_p["pvalue_beta_3"]
-            opt["R2_at_primary"] = f_p["R2"]
-        else:
-            opt["optimal_datum_primary"] = np.nan
-            opt["beta_1_at_primary"] = np.nan
-            opt["beta_2_at_primary"] = np.nan
-            opt["beta_3_at_primary"] = np.nan
-            opt["pvalue_beta_3_primary"] = np.nan
-            opt["R2_at_primary"] = np.nan
+    # Record optimal for this well
+    opt = {}
+    opt["well"] = well_name
+    opt["Cluster"] = cid
+    opt["Cluster_Label"] = label
+    opt["upstand_m"] = u
 
-        if best_secondary is not None:
-            d_s, f_s = best_secondary
-            opt["optimal_datum_secondary"] = d_s
-            opt["beta_3_at_secondary"] = f_s["beta_3_drainage"]
-            opt["pvalue_beta_3_secondary"] = f_s["pvalue_beta_3"]
-            opt["R2_at_secondary"] = f_s["R2"]
-        else:
-            opt["optimal_datum_secondary"] = np.nan
-            opt["beta_3_at_secondary"] = np.nan
-            opt["pvalue_beta_3_secondary"] = np.nan
-            opt["R2_at_secondary"] = np.nan
+    if best_primary is not None:
+        d_p, f_p = best_primary
+        opt["optimal_datum_primary"] = d_p
+        opt["beta_1_at_primary"] = f_p["beta_1_recharge"]
+        opt["beta_2_at_primary"] = f_p["beta_2_atmospheric_draw"]
+        opt["beta_3_at_primary"] = f_p["beta_3_drainage"]
+        opt["pvalue_beta_3_primary"] = f_p["pvalue_beta_3"]
+        opt["R2_at_primary"] = f_p["R2"]
+    else:
+        opt["optimal_datum_primary"] = np.nan
+        opt["beta_1_at_primary"] = np.nan
+        opt["beta_2_at_primary"] = np.nan
+        opt["beta_3_at_primary"] = np.nan
+        opt["pvalue_beta_3_primary"] = np.nan
+        opt["R2_at_primary"] = np.nan
 
-        # R²-maximising datum (regardless of β₃ sign)
-        if best_r2_fit is not None:
-            opt["max_R2_datum"] = best_r2_datum
-            opt["R2_at_max"] = best_r2_fit["R2"]
-            opt["beta_1_at_max"] = best_r2_fit["beta_1_recharge"]
-            opt["beta_2_at_max"] = best_r2_fit["beta_2_atmospheric_draw"]
-            opt["beta_3_at_max"] = best_r2_fit["beta_3_drainage"]
-            opt["pvalue_beta_3_at_max"] = best_r2_fit["pvalue_beta_3"]
-            opt["beta_3_positive_at_max"] = best_r2_fit["beta_3_drainage"] > 0
-        else:
-            opt["max_R2_datum"] = np.nan
-            opt["R2_at_max"] = np.nan
-            opt["beta_1_at_max"] = np.nan
-            opt["beta_2_at_max"] = np.nan
-            opt["beta_3_at_max"] = np.nan
-            opt["pvalue_beta_3_at_max"] = np.nan
-            opt["beta_3_positive_at_max"] = np.nan
+    if best_secondary is not None:
+        d_s, f_s = best_secondary
+        opt["optimal_datum_secondary"] = d_s
+        opt["beta_3_at_secondary"] = f_s["beta_3_drainage"]
+        opt["pvalue_beta_3_secondary"] = f_s["pvalue_beta_3"]
+        opt["R2_at_secondary"] = f_s["R2"]
+    else:
+        opt["optimal_datum_secondary"] = np.nan
+        opt["beta_3_at_secondary"] = np.nan
+        opt["pvalue_beta_3_secondary"] = np.nan
+        opt["R2_at_secondary"] = np.nan
 
-        # Also record fit at uniform datum for direct comparison
-        fit_uniform = fit_ssm(h_series, climate,
-                               lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
-                               drainage_datum=DRAINAGE_DATUM,
-                               min_obs=MIN_OBS_PER_WELL,
-                               dry_bound=_db(h_series.name))
-        if fit_uniform is not None:
-            opt["R2_at_uniform"] = fit_uniform["R2"]
-            opt["beta_3_at_uniform"] = fit_uniform["beta_3_drainage"]
-            opt["R2_gain_max_vs_uniform"] = (
-                opt["R2_at_max"] - fit_uniform["R2"]
-                if np.isfinite(opt.get("R2_at_max", np.nan)) else np.nan
-            )
-        else:
-            opt["R2_at_uniform"] = np.nan
-            opt["beta_3_at_uniform"] = np.nan
-            opt["R2_gain_max_vs_uniform"] = np.nan
+    # R²-maximising datum (regardless of β₃ sign)
+    if best_r2_fit is not None:
+        opt["max_R2_datum"] = best_r2_datum
+        opt["R2_at_max"] = best_r2_fit["R2"]
+        opt["beta_1_at_max"] = best_r2_fit["beta_1_recharge"]
+        opt["beta_2_at_max"] = best_r2_fit["beta_2_atmospheric_draw"]
+        opt["beta_3_at_max"] = best_r2_fit["beta_3_drainage"]
+        opt["pvalue_beta_3_at_max"] = best_r2_fit["pvalue_beta_3"]
+        opt["beta_3_positive_at_max"] = best_r2_fit["beta_3_drainage"] > 0
+    else:
+        opt["max_R2_datum"] = np.nan
+        opt["R2_at_max"] = np.nan
+        opt["beta_1_at_max"] = np.nan
+        opt["beta_2_at_max"] = np.nan
+        opt["beta_3_at_max"] = np.nan
+        opt["pvalue_beta_3_at_max"] = np.nan
+        opt["beta_3_positive_at_max"] = np.nan
 
-        optimal_rows.append(opt)
+    # Also record fit at uniform datum for direct comparison
+    fit_uniform = fit_ssm(h_series, climate,
+                           lag=HEADLINE_LAG, window=LCSC_DATA_LIMIT,
+                           drainage_datum=DRAINAGE_DATUM,
+                           min_obs=MIN_OBS_PER_WELL,
+                           dry_bound=dry_bound)
+    if fit_uniform is not None:
+        opt["R2_at_uniform"] = fit_uniform["R2"]
+        opt["beta_3_at_uniform"] = fit_uniform["beta_3_drainage"]
+        opt["R2_gain_max_vs_uniform"] = (
+            opt["R2_at_max"] - fit_uniform["R2"]
+            if np.isfinite(opt.get("R2_at_max", np.nan)) else np.nan
+        )
+    else:
+        opt["R2_at_uniform"] = np.nan
+        opt["beta_3_at_uniform"] = np.nan
+        opt["R2_gain_max_vs_uniform"] = np.nan
 
-    return pd.DataFrame(full_rows), pd.DataFrame(optimal_rows)
+    return full_rows, opt
 
 
 def make_well_datum_figure(optimal_df: pd.DataFrame,
@@ -3207,11 +3275,21 @@ _PHASE: list = [None, 0.0]
 
 
 def _tick(label):
-    """Close the running phase and start `label`; None just closes."""
+    """Close the running phase and start `label`; None just closes.
+
+    Each phase's time is printed AS IT CLOSES, not only in the summary at the end. The
+    summary alone is useless on a machine that kills long runs: this script was killed
+    three times on 2026-11-08 and the report never printed once, so nothing was learned
+    from forty minutes of work. A line per phase means a killed run still says where its
+    time went up to the moment it died.
+    """
     import time as _t
     now = _t.perf_counter()
     if _PHASE[0] is not None:
-        _PHASES.append((_PHASE[0], now - _PHASE[1]))
+        dt = now - _PHASE[1]
+        _PHASES.append((_PHASE[0], dt))
+        if dt >= 1.0:                      # a sub-second phase is noise, not information
+            print(f"      [{dt:7.1f}s] {_PHASE[0]}", flush=True)
     _PHASE[0] = label
     _PHASE[1] = now
 

@@ -1762,7 +1762,7 @@ def two_store(lev, lev_cols, cl, master):
         adm = adm[adm["admitted"]]
     rows, models, sims = [], {}, {}
     clusters = [int(c[1:]) for c in ra.columns if c.startswith("C") and c[1:].isdigit()]
-    for c in clusters:
+    for c in track(clusters, "E8 two-store, per cluster", min_seconds=5.0):
         h = ra[f"C{c}"].dropna()
         hm = h.copy(); hm.index = hm.index + pd.offsets.MonthEnd(0)
         for form, dbl in TS_FORMS:
@@ -2189,7 +2189,7 @@ def change_and_surface(lev, lev_cols, cl, master):
         rw = (lv.groupby(["site_no", "month"])["level_m_od"].mean(), pd.read_csv(OUT_44_METRICS))
     crow, srow, sims = [], [], {}
     clusters = [int(c[1:]) for c in ra.columns if c.startswith("C") and c[1:].isdigit()]
-    for c in clusters:
+    for c in track(clusters, "E8b/E8c change and surface flow, per cluster", min_seconds=5.0):
         h = ra[f"C{c}"].dropna()
         hm = h.copy(); hm.index = hm.index + pd.offsets.MonthEnd(0)
         ctx = (*ctx_base, h) if ctx_base else None

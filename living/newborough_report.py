@@ -102,7 +102,34 @@ Full options:
 #     (_cluster_region_colours), not restated here. The KML is generated from
 #     config.py CLUSTER_COLOURS and carries them with it, so this script
 #     mirrors no constant and the two cannot drift.
-__version__ = "1.7.6"  # Hollingham (2026) - 2026-11-07. A figure keeps ALL its captions, not just
+__version__ = "1.7.8"  # Hollingham (2026) - 2026-11-07. The flood outlook says BY WHAT DATE, and the
+#   rain-so-far window was anchored to the wrong year outside Oct-Dec. Martin: "Flood Outlook for the
+#   Coming Winter.. it doesnt say what the window is c1 495mm by what date?" - and it never did,
+#   though the window was computed all along and simply not printed. There is no single date to give:
+#   C1's water table peaks in JANUARY over a four-month window (10,11,12,1; typical 399.6 mm), C2-C5 in
+#   FEBRUARY over five (10,11,12,1,2; 460.6 mm), so the sentence carries the nearest area's window and
+#   the table gains a `By` column. The caption now also says the 'typical' total is the climatology for
+#   that SAME window, which is what makes the ratio like for like.
+#   THE BUG UNDER THE QUESTION: `so_far` anchored the window to the REPORT's year, which is only the
+#   same thing from October to December. Measured - for a January report (year=2027, month=1) the old
+#   expression placed October in 2027, eight months in the FUTURE, and summed January and February
+#   while omitting October, November and December; February had not fallen so it contributed 0, and the
+#   error showed only as a silent undercount of three autumn months. Every issue published so far is
+#   October-December and correct. Now anchored to the window's own October and compared on that clock.
+#   Also: the sentence's elapsed count took flood[0] while the window took _near, which disagree in any
+#   month where the nearest area is not the first row of the equations CSV.
+# __version__ = "1.7.7"  # Hollingham (2026) - 2026-11-07. The WU exports live in living/inbox/ and
+#   are found there by name - no --wu_csv needed (Martin: "the wu exports should go in living/inbox").
+#   Same place as valleydata.txt and the round's well files: the month's inputs, dropped in and read
+#   in place, and the directory is gitignored, so the exports stay local while the newsletter remains
+#   the public record of what the gauges said. THE STATION HAS TO BE IN THE FILENAME: WU's download
+#   is `weather-history-<YYYY>-<MM>-01.csv` and carries neither the station nor the year inside it -
+#   its Time column is a bare `10/1` - so two stations' exports for one month arrive under the SAME
+#   name with nothing in either file to tell them apart. The convention is WU's own stem with the
+#   station appended (`weather-history-2026-10-01_IBODOR4.csv`); `wu_<STATION>_<YYYY-MM>.csv` and a
+#   loose name carrying both are accepted too. TWO loose matches are REFUSED rather than guessed:
+#   choosing one would put an unannounced gauge-month into a published newsletter.
+# __version__ = "1.7.6"  # Hollingham (2026) - 2026-11-07. A figure keeps ALL its captions, not just
 #   the first, and the October 2026 issue is REISSUED on the August baseline (Martin: "lets do the
 #   august 2026 comparison in october 2026 news letter, what I meant by in the future was starting
 #   from now"). The grouping pass of 1.6.0 put heading..figure..ONE caption in a KeepTogether, but
@@ -871,6 +898,59 @@ def read_wu_export_csv(path, station_id=None, year=None, month=None):
     }, None
 
 
+WU_INBOX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inbox")
+
+
+def find_wu_export(station_id, year, month, inbox=WU_INBOX):
+    """The month's Export CSV for `station_id` in living/inbox/, or None.
+
+    WHERE THE EXPORTS LIVE (Martin, 2026-11-07: "the wu exports should go in
+    living/inbox"). That is the same place as `valleydata.txt` and the round's
+    well files - the month's inputs, dropped in and read in place. The directory
+    is in `.gitignore`, so the exports stay local: the newsletter itself is the
+    public record of what the gauges said, and it quotes the station ids and the
+    monthly totals in its own text.
+
+    WU's download is named `weather-history-<YYYY>-<MM>-01.csv` and carries
+    NEITHER the station nor the year inside it - its Time column is bare `10/1`
+    - so two stations' exports for one month arrive with the SAME name and
+    nothing in the file tells them apart. The station therefore has to be in the
+    filename, and the convention is WU's own stem with the station appended:
+
+        weather-history-2026-10-01_IBODOR4.csv
+
+    `wu_<STATION>_<YYYY-MM>.csv` is accepted too, and failing both, any .csv in
+    the inbox whose name carries the station and the month in any order. The
+    match is case-insensitive on the station.
+    """
+    if not station_id or not os.path.isdir(inbox):
+        return None
+    sid = str(station_id).strip().lower()
+    ym = f"{year}-{month:02d}"
+    for name in (f"weather-history-{ym}-01_{station_id}.csv",
+                 f"wu_{station_id}_{ym}.csv"):
+        cand = os.path.join(inbox, name)
+        if os.path.isfile(cand):
+            return cand
+        # the preferred names again, case-insensitively
+        for f in os.listdir(inbox):
+            if f.lower() == name.lower() and os.path.isfile(os.path.join(inbox, f)):
+                return os.path.join(inbox, f)
+    loose = sorted(f for f in os.listdir(inbox)
+                   if f.lower().endswith(".csv")
+                   and sid in f.lower() and ym in f
+                   and os.path.isfile(os.path.join(inbox, f)))
+    # Deliberately refuse to choose between two loose matches: picking one would
+    # put an unannounced gauge-month into a published newsletter.
+    if len(loose) == 1:
+        return os.path.join(inbox, loose[0])
+    if len(loose) > 1:
+        print(f"   note: {len(loose)} possible {station_id} exports for {ym} in "
+              f"living/inbox/ ({', '.join(loose)}) - name one "
+              f"weather-history-{ym}-01_{station_id}.csv, or pass --wu_csv")
+    return None
+
+
 def assess_wu_reliability(wu_result, valley_rain_mm=None):
     """
     Assess whether WU station data is reliable for this month.
@@ -1629,14 +1709,32 @@ def flood_outlook(wells_path, valley_df, year, month,
         d = float(np.mean(ds))
         need = float(e['slope_A']) * d + float(e['intercept_B'])
         months = [int(x) for x in str(e['months_in_horizon']).split(',')]
-        # rain already fallen inside the horizon, counting from this October
-        so_far = sum(rain.get((year if m >= 10 else year + 1, m), 0.0)
-                     for m in months if (m >= 10 and m <= month) or (m < 10 and month < 10))
+        # THE WINDOW IS ANCHORED TO OCTOBER, and before 1.7.8 it was anchored to the
+        # report's own year, which is only the same thing from October to December.
+        # Measured 2026-11-07: for a JANUARY report (year=2027, month=1) the old
+        # expression put October in 2027 - eight months in the FUTURE - and summed
+        # January and February while omitting October, November and December
+        # entirely; February's rain had not fallen, so it contributed 0 and the
+        # error showed as a silent undercount of three autumn months. October to
+        # December was correct, which is every issue published so far.
+        wsy = year if month >= 10 else year - 1          # the window's October
+        ym_of = lambda m: (wsy if m >= 10 else wsy + 1, m)
+        elapsed = [ym_of(m) for m in months if ym_of(m) <= (year, month)]
+        so_far = sum(rain.get(ym, 0.0) for ym in elapsed)
+        _end_y, _end_m = ym_of(months[-1])
         out.append({
             'cluster': cname, 'label': str(e['Label']), 'n_wells': len(ds),
             'd_m': d, 'need_mm': need, 'clim_mm': float(e['P_clim_total_mm']),
             'horizon': str(e['horizon_months']), 'months': months,
             'so_far_mm': so_far,
+            # The window, so the page can say BY WHAT DATE (Martin, 2026-11-07:
+            # "it doesnt say what the window is c1 495mm by what date?"). It was
+            # computed all along and never printed: C1 peaks in January over four
+            # months, C2-C5 in February over five, so there is no single date and
+            # the table has to carry it per cluster.
+            'window_from': pd.Timestamp(wsy, 10, 1),
+            'window_to': pd.Timestamp(_end_y, _end_m, 1),
+            'n_months': len(months), 'n_elapsed': len(elapsed),
             'ratio': need / float(e['P_clim_total_mm']) if float(e['P_clim_total_mm']) else None,
         })
     return out
@@ -2386,16 +2484,32 @@ def generate_pdf_report(output_dir, year, month, met_text,
     if flood:
         story.append(Paragraph("Flood Outlook for the Coming Winter", style_h3))
         _near = min(flood, key=lambda f: f['ratio'])
+        # Every threshold is "by" a date, and until 1.7.8 the page named none of them
+        # (Martin: "it doesnt say what the window is c1 495mm by what date?"). There is
+        # no single date to give: C1's water table peaks in JANUARY over a four-month
+        # window, C2-C5 in FEBRUARY over five, so the window goes in the sentence for
+        # the nearest area and in a column of its own for the rest.
+        _wf = _near['window_from'].strftime('%B %Y')
+        _wt = _near['window_to'].strftime('%B %Y')
+        # _near, not flood[0]: the sentence names the nearest area's window, so the
+        # elapsed count has to be that same area's or the two disagree in any month
+        # where the nearest area is not the first row of the equations CSV.
+        _el = _near
         story.append(Paragraph(
             f"Each part of the warren has a measured rainfall threshold: the amount that "
-            f"would have to fall over the coming months to bring the water table up to the "
-            f"ground surface, given how deep it fell this summer. "
-            f"<b>{_near['label']} is closest</b>, needing {_near['need_mm']:.0f} mm against "
-            f"a typical {_near['clim_mm']:.0f} mm — about {_near['ratio']:.0%} of an average "
-            f"season — and {flood[0]['so_far_mm']:.0f} mm has fallen so far.", style_body))
-        _rows = [["Area", "Summer low (m)", "Rain needed", "Typical", "Needed / typical"]]
+            f"would have to fall <b>between {_wf} and the end of {_wt}</b> to bring the "
+            f"water table up to the ground surface, given how deep it fell this summer. "
+            f"The window ends when that area's water table peaks, which is why it differs "
+            f"between areas. "
+            f"<b>{_near['label']} is closest</b>, needing {_near['need_mm']:.0f} mm by the end "
+            f"of {_wt} against a typical {_near['clim_mm']:.0f} mm — about "
+            f"{_near['ratio']:.0%} of an average season. "
+            f"So far {_el['so_far_mm']:.0f} mm has fallen, with "
+            f"{_el['n_elapsed']} of those {_el['n_months']} months elapsed.", style_body))
+        _rows = [["Area", "Summer low (m)", "Rain needed", "By", "Typical", "Needed / typical"]]
         for f in flood:
             _rows.append([f['label'], f"{f['d_m']:.2f}", f"{f['need_mm']:.0f} mm",
+                          f"end {f['window_to'].strftime('%b %Y')}",
                           f"{f['clim_mm']:.0f} mm", f"{f['ratio']:.2f}"])
         _t = Table(_rows, hAlign='LEFT')
         _t.setStyle(TableStyle([
@@ -2409,7 +2523,9 @@ def generate_pdf_report(output_dir, year, month, met_text,
         story.append(Paragraph(
             "A ratio above 1 means a wetter-than-average season would be needed for the "
             "water table to reach the surface there; below 1, an average season would do "
-            "it. These are rainfall thresholds, not probabilities.", style_caption))
+            "it. The \u2018typical\u2019 figure is the climatological total for that same "
+            "window, so the two are like for like. These are rainfall thresholds, not "
+            "probabilities.", style_caption))
 
     # ── Year-on-year comparison ──
     if yoy_results and yoy_d1 and yoy_d2:
@@ -2816,8 +2932,15 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
     wu_warnings = []
 
     if wu_station:
+        # Where it came from goes ON the Reading line, not in a note of its own:
+        # a note printed here lands ABOVE the "3." heading it belongs under.
+        _wu_found = False
+        if not wu_csv:
+            wu_csv = find_wu_export(wu_station, year, month)
+            _wu_found = bool(wu_csv)
         if wu_csv:
-            print(f"\n3. Reading the {wu_station} Export CSV ({os.path.basename(wu_csv)})...")
+            print(f"\n3. Reading the {wu_station} Export CSV ({os.path.basename(wu_csv)}"
+                  f"{' from living/inbox/' if _wu_found else ''})...")
             wu_result, wu_err = read_wu_export_csv(wu_csv, wu_station, year, month)
         else:
             print(f"\n3. Fetching Weather Underground data ({wu_station})...")
@@ -2869,9 +2992,14 @@ def generate_monthly_report(wells_path, valley_path, diff_creator_path,
 
     if wu_station and wu_station_2 and wu_station_2 != wu_station:
         print(f"\n3b. Fetching second local gauge ({wu_station_2})...")
+        _wu2_found = False
+        if not wu_csv_2:
+            wu_csv_2 = find_wu_export(wu_station_2, year, month)
+            _wu2_found = bool(wu_csv_2)
         if wu_csv_2:
             print(f"   reading the {wu_station_2} Export CSV "
-                  f"({os.path.basename(wu_csv_2)})...")
+                  f"({os.path.basename(wu_csv_2)}"
+                  f"{' from living/inbox/' if _wu2_found else ''})...")
             wu_result_2, wu_err_2 = read_wu_export_csv(wu_csv_2, wu_station_2, year, month)
         else:
             wu_result_2, wu_err_2 = fetch_wu_monthly(wu_station_2, year, month)
@@ -3392,6 +3520,8 @@ Examples:
                         help=f'Path to DEM GeoTIFF (default: {DEFAULT_DEM})')
     parser.add_argument('--kml_dir', default=DEFAULT_KML_DIR,
                         help=f'Directory containing KML overlay files (default: {DEFAULT_KML_DIR})')
+    # Normally unnecessary since 1.7.7: the month's exports are found in
+    # living/inbox/ by name (find_wu_export). These stay for a file kept elsewhere.
     parser.add_argument('--wu_csv',
                         help="Weather Underground 'Export CSV' for the month, used INSTEAD of "
                              "scraping the dashboard (T-163). One click on the table view.")

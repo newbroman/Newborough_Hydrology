@@ -157,8 +157,9 @@ forecaster script pushes for you, so you only need this for other changes.
 source ~/.newborough_venv/bin/activate
 python living/newborough_report.py 2026-06 --no_wu --no_valley_update
 ```
-Flags: `--no_wu`, `--wu_station IBODOR6`, `--no_valley_update`, `--dem`,
-`--kml_dir`, `--output_dir`.
+Flags: `--no_wu`, `--wu_station IBODOR4`, `--wu_station_2 IHOLYH29`,
+`--no_valley_update`, `--dem`, `--kml_dir`, `--output_dir`. `--wu_csv` /
+`--wu_csv_2` are for an export kept somewhere other than `living/inbox/`.
 
 ---
 
@@ -169,12 +170,26 @@ Flags: `--no_wu`, `--wu_station IBODOR6`, `--no_valley_update`, `--dem`,
 - **Valley climate lag.** The Met Office publishes RAF Valley data a few working
   days after month‑end. If the current month isn't out yet, the report says so;
   run `./living/run_report.sh update` once it's published, then re‑run.
-- **Local rain gauge — check it.** The report pulls the local Weather
-  Underground gauge **ILLANF24**, which **over‑reads on intense‑rain days**.
-  Sanity‑check its monthly total against **IBODOR6 (Bodorgan)** and use Bodorgan
-  for the published figure; treat ILLANF24 as *pattern* only. RAF Valley is the
-  regional reference. *(A future tidy‑up will switch the report's default gauge
-  to IBODOR6.)*
+- **Local rain gauges — download two CSVs into `living/inbox/`.** Corrected
+  2026-11-07; the note here until then named **ILLANF24** and **IBODOR6**, and
+  **both of those stations are dead** — ILLANF24's dashboard says OFFLINE and
+  IBODOR6 renders no readings. The gauges are now **IBODOR4 (Rhianfa**, 6.6 km)
+  and **IHOLYH29 (Capel Gwyn**, 14.2 km), and the report no longer scrapes: WU
+  stopped serving the observations the scraper read, and the only key on offer is
+  WU's own (T-163). Open each station's **table view** for the month, click
+  **Export CSV**, and **add the station to the filename** before dropping it in
+  `living/inbox/`:
+
+      weather-history-2026-10-01.csv  ->  weather-history-2026-10-01_IBODOR4.csv
+
+  The report then finds both by itself — no `--wu_csv` needed. The rename is not
+  tidiness: WU's download carries **neither the station nor the year inside it**
+  (its `Time` column is a bare `10/1`), so both stations' exports for one month
+  arrive under the same name with nothing to tell them apart. Two candidates for
+  one station-month are refused rather than guessed. RAF Valley remains the
+  regional reference, and the two gauges are each other's cross-check — October
+  2026: 87.4 and 115.1 mm with Valley's 101.8 between them. See
+  `living/inbox/readme.md`.
 - **"No reading buckets to <month>."** The Absolute Level column for that month
   isn't in the master yet, or it's dated outside the end‑of‑month / first‑15‑days
   window.

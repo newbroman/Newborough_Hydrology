@@ -1691,7 +1691,7 @@ def _ts_model(ps, head: pd.Series, P, E, double: bool, noise: bool, name: str):
                          pmin=TWO_STORE_SLOW_BOUNDS_DAYS[0], pmax=TWO_STORE_SLOW_BOUNDS_DAYS[1])
         ml.set_parameter("rch_alpha", initial=TWO_STORE_SLOW_SHARE_INIT, pmin=0.0, pmax=1.0)
     if noise:
-        ml.add_noisemodel(ps.ArNoiseModel(ml))
+        ps.ArNoiseModel(model=ml)        # registers itself; add_noisemodel goes in pastas 2.4
     return ml
 
 
@@ -2006,7 +2006,7 @@ def _surface_model(ps, hm, P, E, form: str, name: str, fixed: dict | None = None
         ml = ps.Model(hm, name=name, constant=False)
         ps.TarsoModel(ml, P, E, oseries=hm, name="tarso")
         if noise:
-            ml.add_noisemodel(ps.ArNoiseModel(ml))
+            ps.ArNoiseModel(model=ml)        # registers itself; add_noisemodel goes in pastas 2.4
         return ml
     ml = _single(ps, hm, P, E, name, noise)
     tr = ps.ThresholdTransform(ml, value=-SURFACE_BAND_M, vmin=-2 * SURFACE_THRESHOLD_MAX_DEPTH_M, vmax=0.5,

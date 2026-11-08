@@ -118,7 +118,8 @@ __version__ = "1.8.0"  # Hollingham (2026) - 2026-10-27 (Martin 02:47 "Add the 3
 # 1.0.0  # Hollingham (2026) - 2026-09-24. First issue (Martin: "lets
 #   implement the pastas check"; default tier, Model A and Model B both compared).
 #   Pastas 2.0: stress models take the Model as their first argument; the noise
-#   model is added with add_noisemodel(ArNoiseModel(model)). No output of any
+#   model is added with ArNoiseModel(model=ml), which registers itself (add_noisemodel
+#   is deprecated and goes in pastas 2.4). No output of any
 #   other script changes.
 
 import argparse
@@ -221,7 +222,7 @@ def fit_pastas(ps, head: pd.Series, P: pd.Series, E: pd.Series, name: str,
         ml = ps.Model(head, name=name)
         ps.RechargeModel(ml, P, E, rfunc=_rfunc(ps), name="rch", recharge=ps.rch.Linear())
         if noise:
-            ml.add_noisemodel(ps.ArNoiseModel(ml))
+            ps.ArNoiseModel(model=ml)        # registers itself; add_noisemodel goes in pastas 2.4
         ml.solve(tmin=tmin, tmax=tmax, report=False)
     p = ml.parameters
     opt, se = p["optimal"], p["stderr"]

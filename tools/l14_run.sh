@@ -169,6 +169,14 @@ mkdir -p working/updates
     /✓ done/ { t = $0; sub(/^.*\(/, "", t); sub(/\).*$/, "", t);
                if (step != "") { print t "\t" step; step = "" } }' \
     | sort -t'\t' -k1 -gr | head -15
+  printf '```\n\n## Inside the slowest steps\n\n'
+  # Step times alone say WHICH script is slow, not which part of it. Script 03 prints its
+  # own phase breakdown (its _tick/_tick_report), and any `[   12.3s] label` line from a
+  # script that gains the same. Without this the breakdown falls outside the log tail and
+  # the summary says a script took 33 minutes without saying where they went.
+  printf '```\n'
+  tr '\r' '\n' < "$LOG" | grep -E '^\s+\[ *[0-9]+\.[0-9]s\]|^ *[0-9]+\.[0-9]s +[0-9.]+%%' | head -40
+  tr '\r' '\n' < "$LOG" | grep -A25 'phase timings' | head -30
   printf '```\n\n## Warnings\n\n```\n'
   tr '\r' '\n' < "$LOG" | grep -E "WARNING|⚠" | sed 's/^ *//' | sort -u | head -25
   printf '```\n\n## Last 25 lines\n\n```\n'

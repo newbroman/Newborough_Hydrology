@@ -1,11 +1,11 @@
 {
- "bundle_at": "2026-11-07T17:02:45",
- "bundle_sha256": "665307ed71eb59f3",
+ "bundle_at": "2026-11-08T00:50:01",
+ "bundle_sha256": "88a2017e2352b672",
  "chapters": {
   "Hollingham_2026_Paper2_amended": "c52339559defa9bc",
   "NRG_Web_Tools_Technical_Note": "2dd6d625fe5db814",
   "NRG_Web_Tools_User_Manual": "53d441786b7b2868",
-  "Newborough_Methods_Supplement": "411b5265dbf200bd",
+  "Newborough_Methods_Supplement": "0adb0e26e667c84b",
   "PAPER1_SI_methods": "ee76d6896f5eebc7",
   "Paper1": "1353d69b3dd03acb",
   "PaperM": "a882957ed238e884",

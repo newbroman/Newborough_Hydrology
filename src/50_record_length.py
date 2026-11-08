@@ -290,6 +290,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_03_PER_WELL_WINDOW_SENS, OUT_48_MODEL_AB, OUT_39_PER_WELL,
     OUT_03_MODEL_B_PERSISTENCE, OUT_19_SCENARIO_PERWELL_MODEL_A, INT_LOCATIONS, OUT_15_DDP_PER_WELL,
     OUT_50_CCW_DATUM, OUT_50_SPLIT_DATUM, OUT_50_SPLIT_SERIES, OUT_50_SPLIT_FIG,
+    OUT_50_NEIGHBOUR, OUT_50_NEIGHBOUR_FIG,
     OUT_50_PROJ_DATUM, OUT_50_DATUM_FIG,
     OUT_50_RANWELL_DATUM, OUT_44_METRICS, RANWELL_LEVELS,
     OUT_50_TWO_STORE, OUT_50_TWO_STORE_WELL, OUT_50_TWO_STORE_FIG, INT_REGIONAL_AVG,
@@ -882,60 +883,189 @@ def split_series(lev, lev_cols, cl, master) -> pd.DataFrame:
 
 
 def plot_split_series(series: pd.DataFrame) -> None:
-    """J-6: scenario 1 drawn at last -- the Jan-2018 split, with BOTH forms on the same axes.
+    """J-6: the January 2018 split drawn, BOTH forms, BOTH directions.
 
-    This is the case INSIDE the recorded climate, fitted on one side of January 2018 and free-run
-    over the other, and it is the one Model B is supposed to win. Until now it existed only as NSE
-    in a 10,032-row datum sweep, so the corpus argued that the two forms answer different questions
-    and illustrated it with figures showing one form.
+    1a (backward) is the comparable case: fitted on 2018-26 and run back over 2005-18, the same
+    shape of test as the 1989-96 and 1951-53 hindcasts, which also run modern coefficients into an
+    earlier period. 1b (forward) is the forecasting case -- fitted on 2005-18 and run forward --
+    and is the only one of the four that tests the model the way it would actually be used.
+    1a leads because it is the one scenarios 2 and 3 can be read against.
 
-    One panel per cluster, the well with the most test months standing for its cluster. Observed in
-    black; Model A and Model B as free runs from the first test reading. No beta_1 envelope here --
-    this scenario applies the coefficients inside the record they were fitted in, so the stationarity
-    worry that the envelope exists for does not arise.
+    THE WELL SHOWN IS THE CLUSTER'S MEDIAN-NSE WELL, NOT ITS LONGEST. The first version of this
+    figure took the well with the most test months, and at C4 that well (ceh34, Model A 0.06 /
+    Model B 0.38) gave the OPPOSITE ranking to its own cluster (median A 0.21 / B 0.08). C4 is
+    wildly heterogeneous -- ceh14 scores -22.3 -- so a single well cannot stand for it honestly
+    unless it is chosen to sit in the middle, and the cluster medians are annotated beside it.
     """
     if series is None or series.empty:
-        return
-    fwd = series[series["direction"] == "fwd"]
-    if fwd.empty:
-        return
-    pick = (fwd[fwd["form"] == "A"].groupby(["cluster", "well"]).size().rename("n")
-            .reset_index().sort_values("n", ascending=False)
-            .groupby("cluster").head(1).sort_values("cluster"))
-    if pick.empty:
         return
     import matplotlib                                  # deferred, as every figure here does
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     apply_house_style()                                # T-178: the house style, not an inline dict
-    n = len(pick)
-    fig, axes = plt.subplots(n, 1, figsize=(10.0, 2.3 * n), sharex=False)
-    axes = np.atleast_1d(axes)
-    for ax, (_, row) in zip(axes, pick.iterrows()):
-        w = row["well"]
-        g = fwd[fwd["well"] == w]
-        obs = g[g["form"] == "A"][["month", "observed_m"]].drop_duplicates("month")
-        x = pd.to_datetime(obs["month"])
-        ax.plot(x, obs["observed_m"].values, color="black", lw=1.8, label="observed", zorder=3)
-        for form, col, lab in (("A", "#c2452d", "Model A (fixed datum)"),
-                               ("B", "#2b6cb0", "Model B (fitted intercept)")):
-            f = g[g["form"] == form].drop_duplicates("month")
-            if f.empty:
+
+    def _nse(g):
+        o, p = g["observed_m"].values, g["predicted_m"].values
+        return 1 - ((o - p) ** 2).sum() / ((o - o.mean()) ** 2).sum()
+
+    panels = [("rev", "1a \u2014 backward: fitted 2018\u201326, run back over 2005\u201318 "
+                      "(the case scenarios 2 and 3 compare with)"),
+              ("fwd", "1b \u2014 forward: fitted 2005\u201318, run forward over 2018\u201326 "
+                      "(the forecasting case)")]
+    clusters = sorted(series["cluster"].unique())
+    fig, axes = plt.subplots(len(clusters), 2, figsize=(14.0, 2.4 * len(clusters)), squeeze=False)
+
+    # ONE SHARED Y SCALE ON EVERY PANEL (Martin, 2026-11-07), so the clusters can be read against
+    # one another rather than each against its own stretch. He asked for 0 to -2; that would clip
+    # real data on 7 of the 10 panels -- C1's median well reaches +0.71 m, water ABOVE ground,
+    # which is the ecologically interesting part, and C4's forward well reaches -2.60 m. So the
+    # range is taken from the plotted series and rounded outward to the half metre: same scale
+    # everywhere, nothing hidden.
+    _plotted = []
+    for direction, _ in panels:
+        d_ = series[series["direction"] == direction]
+        for cid in clusters:
+            dc = d_[d_["cluster"] == cid]
+            if dc.empty:
                 continue
-            o, p_ = f["observed_m"].values, f["predicted_m"].values
-            nse = 1 - ((o - p_) ** 2).sum() / ((o - o.mean()) ** 2).sum()
-            ax.plot(pd.to_datetime(f["month"]), p_, color=col, lw=1.3, alpha=0.9,
-                    label=f"{lab}  NSE {nse:.2f}")
-        ax.set_title(f"C{int(row['cluster'])} \u2014 {w}", fontsize=10, loc="left")
-        ax.set_ylabel("head (m)")
-        ax.legend(fontsize=7, ncol=3, loc="lower left", framealpha=0.85)
-    axes[-1].set_xlabel("month")
-    fig.suptitle("Scenario 1 \u2014 the modern split at January 2018: fitted before, free-run after\n"
-                 "both forms on the same axes; one well per cluster (most test months)",
-                 fontsize=11)
-    fig.tight_layout(rect=(0, 0, 1, 0.97))
+            per_ = {w: _nse(g) for w, g in dc[dc["form"] == "A"].groupby("well")}
+            w_ = min(per_, key=lambda k: abs(per_[k] - np.median(list(per_.values()))))
+            g_ = dc[dc["well"] == w_]
+            _plotted += [g_["observed_m"].min(), g_["observed_m"].max(),
+                         g_["predicted_m"].min(), g_["predicted_m"].max()]
+    ylo = np.floor(min(_plotted) * 2) / 2 if _plotted else -3.0
+    yhi = np.ceil(max(_plotted) * 2) / 2 if _plotted else 1.0
+
+    for col, (direction, head) in enumerate(panels):
+        d = series[series["direction"] == direction]
+        axes[0][col].set_title(head, fontsize=9, loc="left")
+        for row, cid in enumerate(clusters):
+            ax = axes[row][col]
+            dc = d[d["cluster"] == cid]
+            if dc.empty:
+                ax.set_visible(False)
+                continue
+            per = {w: _nse(g) for w, g in dc[dc["form"] == "A"].groupby("well")}
+            med = {f: float(np.median([_nse(g) for _, g in dc[dc["form"] == f].groupby("well")]))
+                   for f in ("A", "B")}
+            # the median-NSE well stands for the cluster
+            w = min(per, key=lambda k: abs(per[k] - np.median(list(per.values()))))
+            g = dc[dc["well"] == w]
+            obs = g[g["form"] == "A"][["month", "observed_m"]].drop_duplicates("month")
+            ax.plot(pd.to_datetime(obs["month"]), obs["observed_m"].values, color="black",
+                    lw=1.7, label="observed", zorder=3)
+            for form, colr, lab in (("A", "#c2452d", "Model A"), ("B", "#2b6cb0", "Model B")):
+                f_ = g[g["form"] == form].drop_duplicates("month")
+                if f_.empty:
+                    continue
+                ax.plot(pd.to_datetime(f_["month"]), f_["predicted_m"].values, color=colr,
+                        lw=1.2, alpha=0.9, label=f"{lab}  {_nse(f_):.2f}")
+            ax.set_title(f"C{int(cid)} \u2014 {w} (median well)   "
+                         f"cluster median NSE: A {med['A']:.2f}  B {med['B']:.2f}",
+                         fontsize=8, loc="left")
+            ax.set_ylabel("head (m)", fontsize=8)
+            ax.set_ylim(ylo, yhi)                      # the shared scale
+            ax.axhline(0.0, color="#888888", lw=0.8, ls=":", zorder=1)   # ground surface
+            ax.legend(fontsize=6.5, ncol=3, loc="lower left", framealpha=0.85)
+    fig.suptitle("Scenario 1 \u2014 the modern split at January 2018, both forms, both directions\n"
+                 "the well shown is each cluster's MEDIAN-NSE well; the cluster median is given beside it",
+                 fontsize=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
     render_figure(fig, OUT_50_SPLIT_FIG)
     plt.close(fig)
+
+
+def neighbour_transfer(lev, lev_cols, cl, master) -> pd.DataFrame:
+    """T-173: fit the model on a NEIGHBOURING well and run it here. Laurence Jones's test.
+
+    Section 4.5 holds two results and neither is this one. Its paragraph 2 scores group numbers
+    against each well's own on forecast skill; paragraph 3 reconstructs a well's average spring
+    LEVEL from its nearest neighbour -- an MSL scalar, which Martin's correction of 2026-11-07
+    notes is not a like-for-like water-level record, so it demonstrates record-FILLING. Neither
+    reports r2 or mean error, and neither runs a neighbour's coefficients over this well's monthly
+    series. That is what is built here.
+
+    Three sources of coefficients, all fitted on the pre-2018 side and scored on the post-2018
+    side, so every one is out of sample:
+        own        the well's own fit             -- the ceiling
+        neighbour  the nearest other well's fit   -- the transfer test
+        centroid   the well's cluster centroid    -- the group number already in use
+
+    Scored per month on r2 (shape and timing), bias (level, m) and NSE, so the three can be
+    separated: a neighbour's coefficients may hold the shape while missing the level, and only
+    the split says so. Reported per cluster, and the open dune separately, the forest being the
+    known exception.
+    """
+    split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    loc = pd.read_csv(INT_LOCATIONS)
+    # NB the key column must NOT start with an underscore: itertuples() renames such columns to
+    # positional names, so r._k raises AttributeError (measured, 2026-11-07).
+    loc["wkey"] = loc["Name"].map(normalize_well_name)
+    xy = {r.wkey: (float(r.E), float(r.N)) for r in loc.itertuples()
+          if pd.notna(r.E) and pd.notna(r.N)}
+    forest = {r.wkey: bool(getattr(r, "in_forest", False)) for r in loc.itertuples()}
+
+    # one pre-2018 fit per well, and per cluster centroid, reused for every target
+    fits, post, clust = {}, {}, {}
+    for _, r in master.iterrows():
+        col = lev_cols.get(r["_n"])
+        if col is None:
+            continue
+        h = lev[col].dropna()
+        pre, pst = h[h.index < split], h[h.index >= split]
+        f = fit_frame(build_ssm_frame(pre, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), False)
+        if f is None or len(pst.dropna()) < MODEL_AB_MIN_TEST_MONTHS + 1:
+            continue
+        fits[r["_n"]], post[r["_n"]], clust[r["_n"]] = f, pst, int(r["Cluster"])
+
+    cent = {}
+    for cid in sorted(set(clust.values())):
+        members = [w for w, c in clust.items() if c == cid]
+        if not members:
+            continue
+        cent[cid] = {k: float(np.median([fits[w][k] for w in members]))
+                     for k in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")}
+        cent[cid]["alpha"] = 0.0
+
+    rows = []
+    for w, pst in post.items():
+        k = normalize_well_name(w)
+        here = xy.get(k)
+        nb = None
+        if here is not None:
+            cand = [(np.hypot(here[0] - p[0], here[1] - p[1]), ow)
+                    for ow, f in fits.items()
+                    for p in [xy.get(normalize_well_name(ow))] if p is not None and ow != w]
+            if cand:
+                nb = min(cand)
+        for source, fit, extra in (("own", fits[w], {}),
+                                   ("neighbour", fits[nb[1]] if nb else None,
+                                    # D-035: store what was computed; the 0.1 m rounding that
+                                    # used to be here was a display choice in a stored value
+                                    {"neighbour": nb[1], "distance_m": nb[0]} if nb else {}),
+                                   ("centroid", cent.get(clust[w]), {})):
+            if fit is None:
+                continue
+            res = free_run(pst, cl, fit, False, base=DRAINAGE_DATUM)
+            t = pst.dropna()
+            months = pd.date_range(t.index[0], t.index[-1], freq="MS")
+            clim = cl.reindex(months)
+            if clim[["P_m", "PET"]].iloc[1:].isna().any().any():
+                continue
+            sim = pd.Series(simulate_ssm(float(t.iloc[0]), clim["P_m"].values[1:], clim["PET"].values[1:],
+                                         fit["beta_1_recharge"], fit["beta_2_atmospheric_draw"],
+                                         fit["beta_3_drainage"], drainage_datum=DRAINAGE_DATUM),
+                            index=months[1:])
+            obs = t.iloc[1:].reindex(sim.index).dropna()
+            if len(obs) < MODEL_AB_MIN_TEST_MONTHS:
+                continue
+            pr = sim.reindex(obs.index)
+            rows.append({"well": w, "cluster": clust[w], "in_forest": forest.get(k, False),
+                         "source": source, "n": len(obs),
+                         "r2": float(np.corrcoef(obs.values, pr.values)[0, 1] ** 2),
+                         "bias_m": float((pr.values - obs.values).mean()),
+                         "nse": float(res["nse"]), **extra})
+    return pd.DataFrame(rows)
 
 
 def scenario_scales_12(s: dict) -> tuple[np.ndarray, np.ndarray]:
@@ -5147,6 +5277,9 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     split_s = split_series(lev, lev_cols, cl, master)
     split_s.to_csv(OUT_50_SPLIT_SERIES, index=False); saved(f"{OUT_50_SPLIT_SERIES.name} ({len(split_s)} rows)")
     plot_split_series(split_s); saved(OUT_50_SPLIT_FIG.name)
+    # T-173: fit on a neighbour, run here (Laurence Jones's test)
+    nbt = neighbour_transfer(lev, lev_cols, cl, master)
+    nbt.to_csv(OUT_50_NEIGHBOUR, index=False); saved(f"{OUT_50_NEIGHBOUR.name} ({len(nbt)} rows)")
     proj_d.to_csv(OUT_50_PROJ_DATUM, index=False); saved(f"{OUT_50_PROJ_DATUM.name} ({len(proj_d)} rows)")
 
     phase(7, "Two drainage time scales per cluster (1.3.0, E8, D-231)")

@@ -74,8 +74,12 @@ modelled mean over its OWN modern record span, so the curve carries no
 observed-to-modelled offset and no cross-well datum assumption.
 
 This is the modern aquifer driven by historic climate, NOT a reconstruction of
-the historic aquifer. The coefficients are fitted 2005-2026 and applied
-unchanged throughout; beta_3 in particular encodes a drainage geometry the
+the historic aquifer. The coefficients in 03_master_data.csv are fitted on
+the last 100 months of each well's record (2017-11 to 2026-02, n = 75-100 per well)
+-- NOT on 2005-2026, which this docstring claimed until 1.6.0 -- and are applied
+unchanged throughout. Two further windows (pre-2018 and the whole record) are
+refitted here and hindcast alongside, so the fitting window's effect is shown
+rather than assumed; beta_3 in particular encodes a drainage geometry the
 record cannot hold fixed across the span. Any caption must say so.
 
 Inputs (via utils.paths):
@@ -99,7 +103,12 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.5.1"  # Hollingham (2026) - 2026-10-01 (D-222). load_ccw, observed_series,
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-11-08 (J-6). Both model forms refitted over
+# three fitting windows (comparison / pre2018 / whole) and hindcast with each, after the figure
+# caption was found to claim coefficients "fitted 2005-2026" when the master store it reads is
+# the 100-month comparison window. Martin, 2026-11-08: "run both models against the ccw well
+# data with the pre 2018 data" and "we should have a whole record trained model".
+# 1.5.1  # Hollingham (2026) - 2026-10-01 (D-222). load_ccw, observed_series,
 #   hindcast_well, equilibrium_depth and usable_codes moved unchanged to utils/hindcast_utils.py, so
 #   Script 50 (record length) runs the same hindcast without a copy. Outputs identical.
 # 1.5.0  # Hollingham (2026) - 2026-09-29. T-96 batch 2: write_report_numbers() emits
@@ -184,7 +193,8 @@ import matplotlib.pyplot as plt
 from utils import config, paths
 from scipy import stats
 
-from utils.model_utils import simulate_ssm, get_metrics
+from utils.model_utils import (simulate_ssm, get_metrics,            # noqa: E402
+                               fit_ssm, fit_ssm_intercept)           # noqa: E402  (J-6 pre-2018)
 from utils.hindcast_utils import (load_ccw, observed_series, hindcast_well,
                                   equilibrium_depth, usable_codes, BETA_COLS)
 from utils.console_utils import banner, phase, step, info, warn, saved, note, result, done
@@ -198,6 +208,12 @@ PIPE_BASE_M = config.CCW_PIPE_BASE_M
 BETA1_SCALINGS = config.CCW_BETA1_SCALINGS
 H0_PROBE_OFFSETS_M = config.CCW_H0_PROBE_OFFSETS_M
 DATUM = config.DRAINAGE_DATUM
+# J-6: minimum aligned months for an alternative-window refit (below). Deliberately LOWER than
+# the pipeline's usual MIN_OBS, because the pre-2018 window is short at some wells by construction
+# and a well dropped for want of months is a well whose window comparison cannot be made at all.
+# Three years is enough to see a seasonal cycle twice; the emitted n per window says which wells
+# are thin, so a reader can discount them rather than having them silently excluded.
+MIN_FIT_OBS = 36
 MIN_MODERN_MONTHS = config.FULL_HINDCAST_MIN_MODERN_MONTHS
 SMOOTH_MONTHS = config.FULL_HINDCAST_SMOOTH_MONTHS
 
@@ -211,6 +227,8 @@ OUT_FULL_SITE = paths.OUT_39_FULL_SITE
 OUT_FULL_DECADAL = paths.OUT_39_FULL_DECADAL
 OUT_FULL_FIG = paths.OUT_39_FULL_FIG
 OUT_REPORT_NUMBERS = paths.OUT_39_REPORT_NUMBERS
+OUT_FIT_WINDOWS = paths.OUT_39_FIT_WINDOWS
+OUT_FIT_WINDOW_FIG = paths.OUT_39_FIT_WINDOW_FIG
 
 
 
@@ -365,7 +383,10 @@ def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
         ax.plot(g["month"], g["observed_m_bg"], "o-", ms=3, lw=1.0,
                 label="observed", color="#1b1b1b")
         ax.plot(g["month"], g["predicted_m_bg"], "-", lw=1.4,
-                label="hindcast", color="#D95F02")
+                label="Model A", color="#D95F02")
+        if "predicted_b_m_bg" in g and g["predicted_b_m_bg"].notna().any():
+            ax.plot(g["month"], g["predicted_b_m_bg"], "-", lw=1.2, alpha=0.9,
+                    label="Model B", color="#2b6cb0")
         ax.fill_between(g["month"], g["predicted_lo_m_bg"], g["predicted_hi_m_bg"],
                         color="#D95F02", alpha=0.20, lw=0,
                         label=r"$\beta_1$ range")
@@ -378,9 +399,95 @@ def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
     for ax in axes[len(wells):]:
         ax.set_visible(False)
     axes[0].legend(fontsize=9, loc="lower right", framealpha=0.9)
-    fig.suptitle("SSM hindcast against the 1989–96 CCW record "
-                 "(coefficients fitted 2005–2026)", fontsize=11)
+    fig.suptitle("SSM hindcast against the 1989\u201396 CCW record, coefficients fitted on "
+                 "the last 100 months of each well\u2019s record (2017\u201311 to 2026\u201302)\n"
+                 f"Model A (fixed {DATUM:.1f} m floor) with its \u03b2\u2081 range; Model B (fitted intercept) as a single line \u2014 "
+                 "its intercept is a MODERN-RECORD quantity applied to a drier decade",
+                 fontsize=9)
     fig.tight_layout()
+    render_figure(fig, fig_path)
+    plt.close(fig)
+
+
+def plot_fit_windows(series: pd.DataFrame, adm: pd.DataFrame, fw: pd.DataFrame,
+                     fig_path) -> None:
+    """Both model forms against the 1989-96 record, from each of three fitting windows.
+
+    J-6, Martin 2026-11-08. Two columns -- Model A (fixed datum) and Model B (fitted
+    intercept) -- so the window spread within a form can be read against the gap between
+    the forms. The question is which of the two matters more, and the figure answers it
+    by putting them on the same axes rather than in two separate figures.
+
+    None of the three windows contains 1989-96: the dipwells did not exist then. The
+    windows differ in how far from that decade they sit and in how wet they were.
+    """
+    wells = list(dict.fromkeys(series["well"]))
+    if not wells:
+        return
+    WINCOL = {"comparison": ("#D95F02", "-"),      # the window this script has always used
+              "pre2018":    ("#1b9e77", "--"),     # nearer 1989-96 in time, drier
+              "whole":      ("#7570b3", "-.")}     # largest n
+    COLS = {("comparison", "A"): "predicted_m_bg",
+            ("pre2018", "A"): "predicted_a_pre2018_m_bg",
+            ("whole", "A"): "predicted_a_whole_m_bg",
+            ("comparison", "B"): "predicted_b_m_bg",
+            ("pre2018", "B"): "predicted_b_pre2018_m_bg",
+            ("whole", "B"): "predicted_b_whole_m_bg"}
+    nrow = len(wells)
+    fig, axes = plt.subplots(nrow, 2, figsize=(10.0, 2.0 * nrow),
+                             sharex=True, sharey="row", squeeze=False)
+    for i, w in enumerate(wells):
+        g = series[series["well"] == w]
+        row = adm[adm["well"] == w]
+        code = row["code"].iloc[0] if len(row) else "?"
+        for j, form in enumerate(("A", "B")):
+            ax = axes[i][j]
+            ax.plot(g["month"], g["observed_m_bg"], "o-", ms=2.5, lw=1.0,
+                    label="observed", color="#1b1b1b", zorder=5)
+            for win, (c, ls) in WINCOL.items():
+                col = COLS.get((win, form))
+                if col not in g or not g[col].notna().any():
+                    continue
+                ax.plot(g["month"], g[col], ls, lw=1.3, alpha=0.92, color=c, label=win)
+            ax.axhline(PIPE_BASE_M, color="#777777", lw=0.8, ls=":")
+            ax.tick_params(labelsize=9)
+            # per-well NSE by window, in the legend's order: short enough to stay at 9 pt and
+            # it is the number a reader wants beside the lines. r, bias, RMSE and n are in the
+            # scorecard CSV -- putting them in the legend is what tripped the legibility
+            # warning on the first attempt, at 6.5 pt authored and ~4 pt placed.
+            nses = []
+            for win in WINCOL:
+                sc = fw[(fw["scope"] == "well") & (fw["well"] == w)
+                        & (fw["fit_window"] == win) & (fw["model"] == form)]
+                nses.append("n/a" if sc.empty else f"{sc['nse'].iloc[0]:+.2f}")
+            ax.set_title(f"{w} (CCW {code}) — Model {form}   NSE " + " / ".join(nses),
+                         fontsize=9, loc="left")
+            if j == 0:
+                ax.set_ylabel("m below ground", fontsize=9)
+            # no per-axes legend: one figure-level legend below the suptitle instead, so it
+            # cannot sit on top of the data (it did, over nw11, on the first attempt)
+    pooled = {}
+    for form in ("A", "B"):
+        bits = []
+        for win in WINCOL:
+            r = fw[(fw["scope"] == "pooled") & (fw["fit_window"] == win)
+                   & (fw["model"] == form)]
+            if not r.empty:
+                bits.append(f"{win} NSE {r['nse'].iloc[0]:+.2f} / bias {r['bias_m'].iloc[0]:+.2f} m")
+        pooled[form] = "; ".join(bits) if bits else "not scored"
+    fig.suptitle(
+        "Does the fitting window change the 1989–96 hindcast? Both forms, three windows\n"
+        "panel NSE is quoted comparison / pre2018 / whole, the legend’s order\n"
+        f"pooled over all paired months — Model A: {pooled['A']}\n"
+        f"Model B: {pooled['B']}",
+        fontsize=9)
+    # Reserve room at the top for the four-line suptitle AND the shared legend. The fraction
+    # has to scale with the figure height or the title lands on the first row of panel
+    # titles, which is what it did before this was computed rather than guessed.
+    _top = 1.0 - (1.05 / fig.get_size_inches()[1])
+    fig.tight_layout(rect=[0, 0, 1, _top])
+    fig.legend(*axes[0][0].get_legend_handles_labels(), loc="upper center",
+               bbox_to_anchor=(0.5, _top + 0.012), ncol=4, fontsize=9, framealpha=0.85)
     render_figure(fig, fig_path)
     plt.close(fig)
 
@@ -529,6 +636,86 @@ def main() -> int:
     result("codes admitted", f"{len(admitted)} of {len(adm)}")
 
     phase(3, "Hindcast")
+    # J-6 (Martin, 2026-11-07: "I wanted both Model A and B in scenario 2"). Model B is the same
+    # machinery at the datum its own fitted intercept implies, 3.7 - alpha_B/beta_3_B, so nothing
+    # new is needed beyond its coefficients. Drawn as a SINGLE LINE, not an envelope: the beta_1
+    # envelope is a beta_1 construct with its own documented rationale, and widening it to alpha
+    # would invent an uncertainty nobody has quantified. ITS INTERCEPT IS A MODERN-RECORD QUANTITY
+    # BEING APPLIED TO A DRIER DECADE, which the caption says and the reader must not forget.
+    # One well is excluded by construction: ceh14's implied datum is -9.39 m, a drainage base
+    # ABOVE ground, so Model B is not defined there (measured 2026-11-07).
+    # J-6, Martin 2026-11-08: "run both models against the ccw well data with the pre 2018 data",
+    # and "we should have a whole record trained model against the ccw data and Ranwells".
+    #
+    # WHY. The coefficients this script has always used come from 03_master_data.csv, which Script
+    # 03's own docstring calls "the comparison-window store: n = 100 at every well" -- the most
+    # recent 100 months, roughly 2017-11 to 2026-02. The figure caption said "fitted 2005-2026".
+    # That was WRONG, and it understated the problem: a hindcast of 1989-96 was being driven by
+    # coefficients fitted on the last eight years, about 22 years after the period predicted.
+    #
+    # So both forms are now fitted over THREE windows and all three are carried, because the
+    # question "does the fitting window matter?" is answered by the spread between them, not by
+    # an argument about which window is right:
+    #
+    #   comparison  the last ~100 months, from the master store -- what this script always used
+    #   pre2018     the record before MODEL_AB_SPLIT_DATE -- nearer in time to 1989-96, and
+    #               excluding the recent wet years that inflate beta_1
+    #   whole       every month available -- the largest n, and the fit a reader would assume
+    #
+    # None of the three sees 1989-96: the dipwells did not exist then. That is the point of the
+    # hindcast and the reason the beta_1 envelope exists. If the three windows agree, the envelope
+    # is carrying the uncertainty it claims to; if they disagree, the envelope is too narrow.
+    FIT_WINDOWS = ("pre2018", "whole")        # "comparison" comes from the master store, above
+    fits = {w: {} for w in FIT_WINDOWS}
+    try:
+        _split = pd.Timestamp(config.MODEL_AB_SPLIT_DATE)
+        _wc = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+        _norm = lambda x: str(x).strip().lower().replace(" ", "")
+        _cols = {_norm(c): c for c in _wc.columns}
+        for _w in list(md.index):
+            _col = _cols.get(_norm(_w))
+            if _col is None:
+                continue
+            _h_all = pd.to_numeric(_wc[_col], errors="coerce").dropna()
+            for _win in FIT_WINDOWS:
+                _h = _h_all[_h_all.index < _split] if _win == "pre2018" else _h_all
+                _c = cl[cl.index < _split] if _win == "pre2018" else cl
+                if len(_h) < MIN_FIT_OBS:
+                    continue
+                _fa = fit_ssm(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
+                _fb = fit_ssm_intercept(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
+                if _fa and np.isfinite(_fa.get("beta_3_drainage", np.nan)) and _fa["beta_3_drainage"] > 0:
+                    fits[_win].setdefault(_w, {})["A"] = (
+                        (_fa["beta_1_recharge"], _fa["beta_2_atmospheric_draw"], _fa["beta_3_drainage"]),
+                        DATUM, int(_fa.get("n", 0)))
+                if _fb and np.isfinite(_fb.get("beta_3_drainage", np.nan)) and _fb["beta_3_drainage"] > 0:
+                    _db2 = DATUM - _fb.get("alpha", 0.0) / _fb["beta_3_drainage"]
+                    if _db2 > 0:              # base above ground: Model B undefined here
+                        fits[_win].setdefault(_w, {})["B"] = (
+                            (_fb["beta_1_recharge"], _fb["beta_2_atmospheric_draw"], _fb["beta_3_drainage"]),
+                            _db2, int(_fb.get("n", 0)))
+        for _win in FIT_WINDOWS:
+            note(f"{_win} fits: {sum('A' in v for v in fits[_win].values())} Model A, "
+                 f"{sum('B' in v for v in fits[_win].values())} Model B, "
+                 f"over {len(fits[_win])} well(s)")
+    except Exception as _e:
+        note(f"window fits unavailable ({type(_e).__name__}: {_e}); "
+             f"the window-comparison columns stay empty")
+
+    mb = {}
+    try:
+        _mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
+        for _, _r in _mb[_mb["level"] == "well"].iterrows():
+            _b3 = float(_r["beta_3_B"])
+            if not np.isfinite(_b3) or _b3 <= 0:
+                continue
+            _d = float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
+            if _d <= 0:                       # base above ground: Model B undefined here
+                continue
+            mb[str(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+        note(f"Model B coefficients for {len(mb)} well(s)")
+    except Exception as _e:
+        note(f"Model B coefficients unavailable ({type(_e).__name__}); scenario 2 stays Model A only")
     per_well, series_rows, sens_rows = [], [], []
     for r in admitted.itertuples():
         betas = tuple(float(md.loc[r.well, c]) for c in BETA_COLS)
@@ -562,6 +749,30 @@ def main() -> int:
         pred, common, m = by_scale[base]
         lo = np.minimum.reduce([by_scale[s][0].loc[common].values for s in by_scale])
         hi = np.maximum.reduce([by_scale[s][0].loc[common].values for s in by_scale])
+
+        # J-6: the Model B run for this well, at its own implied datum
+        pred_b = None
+        if r.well in mb:
+            _bb, _db = mb[r.well]
+            _h0b = equilibrium_depth(_bb, p_mean, pet_mean, drainage_datum=_db)
+            if np.isfinite(_h0b):
+                pred_b, _ = hindcast_well(cl, _bb, _h0b, first_month, last_month, 1.0,
+                                          drainage_datum=_db)
+
+        # J-6: the same two forms over each alternative fitting window
+        wpred = {}                            # (window, form) -> predicted series
+        for _win in FIT_WINDOWS:
+            for _k in ("A", "B"):
+                _ent = fits[_win].get(r.well, {}).get(_k)
+                if _ent is None:
+                    continue
+                _bb, _dd, _ = _ent
+                _h0 = equilibrium_depth(_bb, p_mean, pet_mean, drainage_datum=_dd)
+                if not np.isfinite(_h0):
+                    continue
+                _pp, _ = hindcast_well(cl, _bb, _h0, first_month, last_month, 1.0,
+                                       drainage_datum=_dd)
+                wpred[(_win, _k)] = _pp
 
         # h0 probe: restart from the equilibrium depth displaced either way and
         # confirm the comparison window has forgotten it.
@@ -619,6 +830,12 @@ def main() -> int:
                 predicted_m_bg=float(pred.loc[t]),
                 predicted_lo_m_bg=float(lo[common.get_loc(t)]),
                 predicted_hi_m_bg=float(hi[common.get_loc(t)]),
+                predicted_b_m_bg=(float(pred_b.loc[t])
+                                  if pred_b is not None and t in pred_b.index else np.nan),
+                **{f"predicted_{_k.lower()}_{_win}_m_bg":
+                   (float(wpred[(_win, _k)].loc[t])
+                    if (_win, _k) in wpred and t in wpred[(_win, _k)].index else np.nan)
+                   for _win in FIT_WINDOWS for _k in ("A", "B")},
                 residual_m=float(o.loc[t] - pred.loc[t])))
         result(f"{r.well} ({r.code})",
                f"NSE {m['NSE']:+.3f}  r {r_shape:+.3f}  "
@@ -633,11 +850,69 @@ def main() -> int:
     pw.to_csv(OUT_PER_WELL, index=False); saved(OUT_PER_WELL.name)
     sr.to_csv(OUT_SERIES, index=False); saved(OUT_SERIES.name)
     sens.to_csv(OUT_SENSITIVITY, index=False); saved(OUT_SENSITIVITY.name)
+
+    # J-6: score every (window, form) run against the observed 1989-96 record, per well and
+    # pooled. The comparison-window runs are the columns this script always wrote; the other two
+    # are the refits above. Pooling is over all paired months at once -- NOT a mean of per-well
+    # NSEs, which would weight a well with eight observations like one with ninety.
+    RUNS = (("comparison", "A", "predicted_m_bg"), ("comparison", "B", "predicted_b_m_bg"),
+            ("pre2018", "A", "predicted_a_pre2018_m_bg"), ("pre2018", "B", "predicted_b_pre2018_m_bg"),
+            ("whole", "A", "predicted_a_whole_m_bg"), ("whole", "B", "predicted_b_whole_m_bg"))
+    fw_rows = []
+    if not sr.empty:
+        def _score(o_, p_):
+            if len(o_) < 3 or not np.isfinite(o_).all() or not np.isfinite(p_).all():
+                return {}
+            den = float(((o_ - o_.mean()) ** 2).sum())
+            return dict(n=int(len(o_)),
+                        r=(float(np.corrcoef(o_, p_)[0, 1]) if o_.std() > 0 and p_.std() > 0
+                           else np.nan),
+                        nse=(1.0 - float(((o_ - p_) ** 2).sum()) / den if den > 0 else np.nan),
+                        bias_m=float((p_ - o_).mean()),
+                        rmse_m=float(np.sqrt(((o_ - p_) ** 2).mean())))
+        for _win, _form, _col in RUNS:
+            if _col not in sr.columns:
+                continue
+            for _w, _g in sr.groupby("well"):
+                _m = _g[["observed_m_bg", _col]].dropna()
+                _sc = _score(_m["observed_m_bg"].values, _m[_col].values)
+                if _sc:
+                    fw_rows.append(dict(scope="well", well=_w, fit_window=_win,
+                                        model=_form, **_sc))
+            _m = sr[["observed_m_bg", _col]].dropna()
+            _sc = _score(_m["observed_m_bg"].values, _m[_col].values)
+            if _sc:
+                fw_rows.append(dict(scope="pooled", well="(all)", fit_window=_win,
+                                    model=_form, **_sc))
+            # POOLED NSE IS NOT THE SKILL A READER THINKS IT IS. Pooling across wells puts the
+            # ACROSS-well variance in the denominator, which here is far larger than the
+            # within-well variance, so the pooled NSE comes out around +0.55 while most
+            # individual wells score NEGATIVE -- worse than predicting their own mean. Both
+            # numbers are arithmetically correct and they answer different questions. The
+            # within-well-centred version below removes each well's own observed mean from
+            # both series first, so it scores the DYNAMICS the hindcast is for, and it is the
+            # pooled number to quote. Measured 2026-11-08; quoting the uncentred one alone
+            # would overstate the hindcast.
+            _c = sr[["well", "observed_m_bg", _col]].dropna()
+            if len(_c) >= 3:
+                _o = (_c["observed_m_bg"]
+                      - _c.groupby("well")["observed_m_bg"].transform("mean")).values
+                _p = (_c[_col] - _c.groupby("well")[_col].transform("mean")).values
+                _sc = _score(_o, _p)
+                if _sc:
+                    fw_rows.append(dict(scope="pooled_centred", well="(all)",
+                                        fit_window=_win, model=_form, **_sc))
+    fw = pd.DataFrame(fw_rows)
+    fw.to_csv(OUT_FIT_WINDOWS, index=False); saved(OUT_FIT_WINDOWS.name)
+
     write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens)
     if not sr.empty:
         sr_plot = sr.copy()
         sr_plot["month"] = pd.PeriodIndex(sr_plot["month"], freq="M").to_timestamp()
         plot_hindcast(sr_plot, admitted, OUT_FIG); saved(OUT_FIG.name)
+        if not fw.empty:
+            plot_fit_windows(sr_plot, admitted, fw, OUT_FIT_WINDOW_FIG)
+            saved(OUT_FIT_WINDOW_FIG.name)
 
 
     phase(5, "Full-record hindcast")
@@ -746,7 +1021,7 @@ def main() -> int:
                   f"{pw.h0_sensitivity_m.max():.2e} m — the spin-up has "
                   f"forgotten the starting value",
                   "",
-                  "beta_1 sensitivity (the coefficients are fitted 2005-2026 and "
+                  "beta_1 sensitivity (the coefficients are fitted on the last 100 months of each well's record (2017-11 to 2026-02, n = 75-100 per well) and "
                   "the site-wide beta_1 decline means 1989 values were plausibly "
                   "higher):"]
         for sc, g in sens.groupby("beta1_scale"):
@@ -791,8 +1066,8 @@ def main() -> int:
                              f"{r.observed_epoch_anomaly_m:+.3f} m   hindcast "
                              f"{r.hindcast_epoch_anomaly_m:+.3f} m")
         lines += ["",
-                  "  The coefficients are fitted 2005-2026 and are applied "
-                  "unchanged across the whole record.",
+                  "  The coefficients are fitted on the last 100 months of each well's record (2017-11 to 2026-02, n = 75-100 per well)"
+                  " and are applied unchanged across the whole record.",
                   "  This is the modern aquifer driven by historic climate, not a "
                   "reconstruction of the historic aquifer:",
                   "  the drainage coefficient encodes a drainage geometry that the "

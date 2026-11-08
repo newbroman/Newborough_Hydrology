@@ -1,4 +1,4 @@
-39_ccw_hindcast v1.5.1
+39_ccw_hindcast v1.6.0
 comparison window 1989-05 to 1996-04
 climate forcing from 1930-12
 
@@ -34,7 +34,7 @@ mean residual (observed minus hindcast) across wells: -0.035 m
   positive means the record sits SHALLOWER than the climate-only hindcast
 largest initial-condition sensitivity over the window: 5.77e-15 m — the spin-up has forgotten the starting value
 
-beta_1 sensitivity (the coefficients are fitted 2005-2026 and the site-wide beta_1 decline means 1989 values were plausibly higher):
+beta_1 sensitivity (the coefficients are fitted on the last 100 months of each well's record (2017-11 to 2026-02, n = 75-100 per well) and the site-wide beta_1 decline means 1989 values were plausibly higher):
   scale 1.00:  open ground (n=6) mean NSE +0.090, mean bias -0.109 m   |  under canopy (n=3) mean NSE -1.644, mean bias +0.322 m
   scale 1.03:  open ground (n=6) mean NSE +0.271, mean bias +0.016 m   |  under canopy (n=3) mean NSE -3.255, mean bias +0.439 m
   scale 1.06:  open ground (n=6) mean NSE +0.087, mean bias +0.142 m   |  under canopy (n=3) mean NSE -5.378, mean bias +0.557 m
@@ -73,6 +73,6 @@ Full-record hindcast (open-ground panel, modern coefficients applied to the whol
     nw5    (2F)  observed -0.251 m   hindcast -0.484 m
     wmc2   (2G)  observed -0.135 m   hindcast -0.495 m
 
-  The coefficients are fitted 2005-2026 and are applied unchanged across the whole record.
+  The coefficients are fitted on the last 100 months of each well's record (2017-11 to 2026-02, n = 75-100 per well) and are applied unchanged across the whole record.
   This is the modern aquifer driven by historic climate, not a reconstruction of the historic aquifer:
   the drainage coefficient encodes a drainage geometry that the record cannot hold fixed.

@@ -3196,6 +3196,36 @@ def per_well_recession_table(pw_df: pd.DataFrame, master_df: pd.DataFrame) -> pd
     return out[cols].sort_values(["Cluster", "Name_Original"]).reset_index(drop=True)
 
 
+
+# ── phase timing (2026-11-08) ────────────────────────────────────────────────
+# Script 03 is 2018 s of a 2600 s pipeline -- 78 % of the whole run and 16x the next
+# step -- but its ~20 sub-steps printed no times, so there was no way to tell which of
+# them held the 33 minutes. Measured, not guessed: _tick() closes the running phase and
+# opens the next, and _tick_report() prints them slowest-first at the end.
+_PHASES: list = []
+_PHASE: list = [None, 0.0]
+
+
+def _tick(label):
+    """Close the running phase and start `label`; None just closes."""
+    import time as _t
+    now = _t.perf_counter()
+    if _PHASE[0] is not None:
+        _PHASES.append((_PHASE[0], now - _PHASE[1]))
+    _PHASE[0] = label
+    _PHASE[1] = now
+
+
+def _tick_report():
+    _tick(None)
+    if not _PHASES:
+        return
+    total = sum(d for _, d in _PHASES)
+    print(f"\n   phase timings (total {total:.0f}s), slowest first:")
+    for name, d in sorted(_PHASES, key=lambda x: -x[1]):
+        print(f"     {d:8.1f}s  {100 * d / total:5.1f}%  {name}")
+
+
 def main() -> None:
     banner("03", "State-Space Regression & LCSC", version=__version__)
     make_all_dirs()
@@ -3238,6 +3268,7 @@ def main() -> None:
          f"censored in the per-well fits (D-281)")
 
     # ---- Per-well SSM fits ----
+    _tick("Fitting per-well SSM and computing LCSC")
     print("\n -> Fitting per-well SSM and computing LCSC...")
     master_df = per_well_fits(cluster_df, locs_clean, wells_clean,
                                climate, well_col_lookup)
@@ -3328,6 +3359,7 @@ def main() -> None:
     # ---- Build cluster centroids ----
     # Dry member-months are filled first (D-281): a centroid that let its dry members drop
     # out read wetter than its cluster in exactly the driest months.
+    _tick("Filling dry member-months for the centroids (D-281)")
     print("\n -> Filling dry member-months for the centroids (D-281)...")
     wells_filled, fill_audit = fill_dry_members(cluster_df, wells_clean, climate,
                                                 well_col_lookup, locs_clean)
@@ -3337,11 +3369,13 @@ def main() -> None:
         info(f"  {len(fill_audit)} dry member-months: " +
              ", ".join(f"{k} {v}" for k, v in src_counts.items()))
     saved(f"{OUT_03_DRY_FILL.name}")
+    _tick("Building cluster centroids")
     print("\n -> Building cluster centroids...")
     centroids = build_cluster_centroids(cluster_df, wells_filled,
                                           well_col_lookup)
 
     # ---- Centroid headline fits (the CSV the report cites) ----
+    _tick("Fitting cluster-centroid SSMs (headline, lag {HEADLINE_LAG})")
     print(f"\n -> Fitting cluster-centroid SSMs (headline, lag {HEADLINE_LAG})...")
     mech_df, violations, b3_warnings = centroid_headline_fits(centroids, climate)
     mech_df.to_csv(OUT_03_MECHANISTIC_TABLE, index=False)
@@ -3435,6 +3469,7 @@ def main() -> None:
         print("-" * 70)
 
     # ---- Lag diagnostic (lags 0..3) ----
+    _tick("Lag diagnostic (lags 0, 1, 2, 3 months)")
     print("\n -> Lag diagnostic (lags 0, 1, 2, 3 months)...")
     lag_df = lag_diagnostic(centroids, climate)
     lag_path = DIR_03 / "03_04_lag_diagnostic.csv"
@@ -3442,6 +3477,7 @@ def main() -> None:
     saved(f"{lag_path.name}")
 
     # ---- Datum sensitivity analysis ----
+    _tick("Datum sensitivity analysis ({DATUM_SWEEP_MIN_M}–{DATUM_SWEEP")
     print(f"\n -> Datum sensitivity analysis ({DATUM_SWEEP_MIN_M}–{DATUM_SWEEP_MAX_M} m, "
           f"{DATUM_SWEEP_STEP_M} m steps, selected = {DRAINAGE_DATUM} m)...")
     sens_df = datum_sensitivity_analysis(centroids, climate)
@@ -3475,6 +3511,7 @@ def main() -> None:
     make_datum_sensitivity_figure(sens_df, DRAINAGE_DATUM, sens_fig_path)
 
     # ---- Datum-regime diagnostic (v1.5.0): flux plateau + loss partition ----
+    _tick("Datum-regime diagnostic (flux and partition vs datum)")
     print("\n -> Datum-regime diagnostic (flux and partition vs datum)...")
     part_df = compute_partition_vs_datum(sens_df, centroids, climate)
     part_df.to_csv(OUT_03_PARTITION_VS_DATUM, index=False)
@@ -3482,6 +3519,7 @@ def main() -> None:
     make_datum_regime_figure(part_df, DRAINAGE_DATUM, OUT_03_DATUM_REGIME_FIG)
 
     # ---- Per-well datum sensitivity ----
+    _tick("Per-well datum sensitivity ({DATUM_SWEEP_MIN_M}–{DATUM_SWEEP")
     print(f"\n -> Per-well datum sensitivity ({DATUM_SWEEP_MIN_M}–{DATUM_SWEEP_MAX_M} m, "
           f"{DATUM_SWEEP_STEP_M} m steps)...")
     well_sens_df, well_opt_df = well_datum_sensitivity(
@@ -3555,6 +3593,7 @@ def main() -> None:
     # The three correlations report8 §3.1.1 and the Methods Supplement quote for
     # the no-intercept datum argument. Emitted so they are read from a committed
     # cell rather than carried as numbers measured once in v1.3.0.
+    _tick("Level-frame (upstand) sensitivity of the coefficients")
     print("\n -> Level-frame (upstand) sensitivity of the coefficients...")
     frame_df = upstand_frame_sensitivity(
         wells_clean, climate, well_col_lookup, upstand_lookup, cluster_df
@@ -3569,6 +3608,7 @@ def main() -> None:
              f"(n = {int(s['n_wells'])})")
 
     # ---- Datum / mean water-table depth confound diagnostics ----
+    _tick("Datum confound diagnostics (vs mean water-table depth)")
     print("\n -> Datum confound diagnostics (vs mean water-table depth)...")
     confound_df = datum_confound_diagnostics(
         well_opt_df, wells_clean, locs_clean, well_col_lookup
@@ -3578,6 +3618,7 @@ def main() -> None:
         saved(f"{OUT_03_DATUM_CONFOUND.name}")
 
     # ---- Datum invariance summary (T-74): the sweep, one row per cluster ----
+    _tick("Datum invariance summary (sweep per cluster, ranking onsets)")
     print("\n -> Datum invariance summary (sweep per cluster, ranking onsets)...")
     inv_df = datum_invariance_summary(sens_df, part_df, mb_df, well_opt_df)
     inv_df.to_csv(OUT_03_DATUM_INVARIANCE, index=False)
@@ -3606,10 +3647,12 @@ def main() -> None:
              f"DRAINAGE_DATUM = {DRAINAGE_DATUM} m is set by D-007, not by that rule")
 
     # ---- Spatial datum maps (DEM + KML overlay) ----
+    _tick("Generating spatial datum maps")
     print("\n -> Generating spatial datum maps...")
     make_well_datum_maps(well_opt_df, locs_clean, DRAINAGE_DATUM)
 
     # ---- Bootstrap CIs on centroid fits ----
+    _tick("Bootstrapping centroid fits (B = {N_BOOTSTRAP}, ")
     print(f"\n -> Bootstrapping centroid fits (B = {N_BOOTSTRAP}, "
           f"seed = {BOOTSTRAP_SEED})...")
     boot_df = bootstrap_centroid_fits(cluster_df, wells_filled, climate,
@@ -3619,6 +3662,7 @@ def main() -> None:
     saved(f"{boot_path.name}")
 
     # ---- Leave-one-out per cluster ----
+    _tick("Leave-one-well-out centroid fits")
     print("\n -> Leave-one-well-out centroid fits...")
     loo_df = leave_one_out_fits(cluster_df, wells_filled, climate,
                                   well_col_lookup)
@@ -3627,6 +3671,7 @@ def main() -> None:
     saved(f"{loo_path.name}")
 
     # ---- C1 Lake pre/post-2018 split ----
+    _tick("C1 Lake pre/post-2018 split-window diagnostic")
     print("\n -> C1 Lake pre/post-2018 split-window diagnostic...")
     split_df = c1_split_window_diagnostic(centroids, cluster_df, wells_filled,
                                             climate, well_col_lookup)
@@ -3676,6 +3721,7 @@ def main() -> None:
             "See stdout above."
         )
 
+    _tick_report()
     print("\n03 complete.")
 
 

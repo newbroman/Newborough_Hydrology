@@ -24,6 +24,12 @@
 #                               registers it reads.
 # VERSION 1.37.0 - 2026-11-06
 # CHANGELOG
+#   1.38.0 (2026-11-08): mention_lint runs its --selftest first, as csv_mention_lint already did.
+#     mention_lint 1.2.0 scopes the version check to the SENTENCE, not the line: "and until" ended
+#     one line of CLAUDE.md §4g while "`nrg_git.sh` 1.32.0" began the next, so true testimony read
+#     as a claim about the tree the moment another chat moved that file to 1.33.2. The selftest pins
+#     the scope at both edges -- a wrapped history word exempts, one in a previous paragraph or
+#     bullet does not -- because the bug was invisible until an unrelated version bump exposed it.
 #   1.37.0 (2026-11-06, T-156): the claims section SHOWS the doc_lock selftest's failing lines.
 #     The call was `--selftest >/dev/null || echo FAIL`, so a red printed one bare line and
 #     discarded every line naming the assertion - the same defect as the `tail -1` at line 378
@@ -506,6 +512,7 @@ python3 tools/csv_mention_lint.py --quiet || rc=1
 # 2026-09-24 audit found ./wgit and nrg_git.sh at the root a month after they
 # moved, a renamed script, two output files that never existed and a hand-typed
 # figure table on a numbering the report had left behind — none visible to a gate.
+python3 tools/mention_lint.py --selftest >/dev/null || { echo "  mention_lint --selftest: FAIL"; rc=1; }
 python3 tools/mention_lint.py || rc=1
 # Counts that root documents state — pipeline steps, packages pinned, ledgers,
 # report figures and tables, decisions, wells — are stamped from the tree into

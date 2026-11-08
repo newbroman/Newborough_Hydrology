@@ -4716,7 +4716,6 @@
 
 ### §5.2.2 Displacement Formulation and Depth-Dependent PET
 
-- **C1 (Lake Edge) · flux_frac_ge_90pct_from_m**  — quoted 2.30 vs committed 2.3  ·  `03_18_datum_invariance.csv`
 - **trend_summer_pet_full_record**  — quoted 0.148 vs committed 0.148178  ·  `00_report_numbers.csv`
 - _(untracked)_ 3.7 m — …ch references drainage to a datum 3.7 m below the ground surface ---…
 
@@ -5951,7 +5950,7 @@
 
 ### §3.7.1 Depth-Dependent Evapotranspiration Model
 
-- _(untracked)_ 0.05 m — …κ ∈ \[0, 6\] m⁻¹ at intervals of 0.05 m⁻¹ was conducted independently…
+- _(untracked)_ 0.05 m — …_E ∈ \[0, 6\] m⁻¹ at intervals of 0.05 m⁻¹ was conducted independently…
 
 ### §3.7.2 Mean Monthly Water Balance Decomposition
 
@@ -6330,7 +6329,6 @@
 - **2005_2025 / primary · s_coast** [δ(d)] — quoted 0.48 vs committed 0.4847  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
 - **2018_2025 / with_broadleaf_covariate · s_cf_ci_lo**  — quoted 0.82 vs committed 0.8204  ·  `37_scale_factors_by_window.csv`
 - **head_dem_r_raw**  — quoted 0.76 vs committed 0.757702  ·  `01b_report_numbers.csv`
-- **C1 (Lake Edge) · flux_frac_ge_90pct_from_m**  — quoted 2.30 vs committed 2.3  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · VIF**  — quoted 1.09 vs committed 1.09487  ·  `30_c4_identifiability_by_cluster.csv`
 - **C4 (Main Forest) · corr_PET_hd**  — quoted −0.04 vs committed -0.0404771  ·  `30_c4_identifiability_by_cluster.csv`
 - **C1 (Lake Edge) · VIF**  — quoted 1.82 vs committed 1.81686  ·  `30_c4_identifiability_by_cluster.csv`
@@ -6358,7 +6356,6 @@
 - **e13_excess_thornthwaite_full_C4**  — quoted 0.854 vs committed 0.854394  ·  `50_report_numbers.csv`
 - **1970 · P_PET_ratio** [p] — quoted 1.38 vs committed 1.38137  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
 - **1994 · P_PET_ratio** [p] — quoted 1.38 vs committed 1.37946  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
-- **C2 (Dune) · well_max_max_R2_datum_m**  — quoted 2.30 vs committed 2.3  ·  `03_18_datum_invariance.csv`
 - **well / C1 (Lake Edge) / ceh6 · alpha_B**  — quoted 1.31 vs committed 1.30625  ·  `03_16_model_b_persistence.csv`
 - **ceh11 · beta_1_recharge** [β₁] — quoted 4.46 vs committed 4.46377  ·  `07_coeff_maps_data.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh20 · beta_1_recharge** [β₁] — quoted 2.48 vs committed 2.48344  ·  `07_coeff_maps_data.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -6846,6 +6843,7 @@
 - **ceh6 · lambda**  — quoted 1.06 vs committed 1.05833  ·  `11b_03_pflood_per_well.csv`
 - _(untracked)_ 100 months — …under autonomous simulation. Over 100 months without observational correct…
 - _(untracked)_ 66 wells — …a positive iterative NSE at 63 of 66 wells compared with 56 of 66 for th…
+- _(untracked)_ 0.05 m — …tion detected: the fitted rate of 0.05 m⁻¹ is one grid step above the…
 
 ### §4.5.1 Background Environmental Drift
 

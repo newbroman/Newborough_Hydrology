@@ -256,7 +256,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C1 (Lake Edge) · corr_PET_hd |  |  | `30_c4_identifiability_by_cluster.csv` | -0.615035 |  | report9 | ok |
 | C1 (Lake Edge) · delta_AIC_datum_vs_optimum |  |  | `03_18_datum_invariance.csv` | 94.0182 |  | report8 | ok |
 | C1 (Lake Edge) · flux_frac_ge_80pct_from_m |  |  | `03_18_datum_invariance.csv` | 1.7 |  | report8 | ok |
-| C1 (Lake Edge) · flux_frac_ge_90pct_from_m |  |  | `03_18_datum_invariance.csv` | 2.3 |  | Newborough_Methods_Supplement, Supplementary_Material, report10, report8, report9 | ok |
+| C1 (Lake Edge) · flux_frac_ge_90pct_from_m |  |  | `03_18_datum_invariance.csv` | 2.3 |  | Newborough_Methods_Supplement, Supplementary_Material, report8 | ok |
 | C1 (Lake Edge) · flux_fraction_of_deepest |  |  | `03_18_datum_invariance.csv` | 0.96794 |  | report8 | ok |
 | C1 (Lake Edge) · hd_sd |  |  | `30_c4_identifiability_by_cluster.csv` | 0.338805 |  | Supplementary_Material | ok |
 | C1 (Lake Edge) · m_P |  |  | `11b_06_pflood_cluster_summary.csv` | 1.08403 |  | report9 | ok |
@@ -371,7 +371,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C2 (Dune) · rec_headdep |  |  | `30_c4_identifiability_by_cluster.csv` | 0.124332 |  | Supplementary_Material | ok |
 | C2 (Dune) · unexplained_mm_yr |  |  | `25_03_cluster_partition.csv` | -17.2101 |  | report9 | ok |
 | C2 (Dune) · well_max_R2_gain |  |  | `03_18_datum_invariance.csv` | 0.0740161 |  | report9 | ok |
-| C2 (Dune) · well_max_max_R2_datum_m |  |  | `03_18_datum_invariance.csv` | 2.3 |  | Newborough_Methods_Supplement, report9 | ok |
+| C2 (Dune) · well_max_max_R2_datum_m |  |  | `03_18_datum_invariance.csv` | 2.3 |  | Newborough_Methods_Supplement | ok |
 | C2 (Dune) · well_median_max_R2_datum_m |  |  | `03_18_datum_invariance.csv` | 0.9 |  | report9 | ok |
 | C2 / 2007 / Summer_Min · Value_m |  |  | `14_annual_extremes.csv` | -0.6796 |  | Supplementary_Material | ok |
 | C2 / 2012 / Winter_Max · Value_m |  |  | `14_annual_extremes.csv` | -0.7457 |  | Supplementary_Material | ok |

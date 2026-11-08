@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_127.odt — do not edit. source-sha256=7f6bfa08335c7484 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_128.odt — do not edit. source-sha256=44cef869fed2442d pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -7,7 +7,7 @@ Hollingham (2026) --- Hydrogeological Dynamics, Behavioural Clustering and Manag
 
 This document accompanies report.pdf and Supplementary_Material.pdf. It is the per-script methodological record of the analytical pipeline.
 
-Document version: 2.0.127 (November 2026).
+Document version: 2.0.128 (November 2026).
 
 ## []{#anchor-2}[]{#anchor-3}[]{#anchor-4}Pipeline at a glance
 
@@ -4693,7 +4693,7 @@ This appendix gives the complete set of mathematical symbols, abbreviations, ide
   Sy                      Specific yield (drainable porosity)                                                                                                                                                                                                                                                                                          dimensionless                  Report §3.7.3; `17_wtf_01_sy_estimates.csv`, `18_wtf_01_well_sy_estimates.csv`
   λ                       Drawdown e-folding reach, `√(Kb/(Sy·β₃))`; distance over which a forest/clearfell/scrape drawdown decays                                                                                                                                                                                                                     m                              Report §3.8.2; `20_report_numbers.csv` `drawdown_lambda`
   L_s                     Distance-decay length of the BACI scraping covariate, `exp(−d/L_s)`                                                                                                                                                                                                                                                          m                              Report §3.5.3 (scraping covariate)
-  L_E                     Attenuation length of evaporative draw in the depth-dependent PET term `β₂·exp(−d_w/L_E)`; larger = PET draw persists deeper. Fitted as its reciprocal 1/L_E (m⁻¹), whose zero is the no-attenuation null. Formerly κ, retired by D-316 --- it collided with K, saturated hydraulic conductivity, and with Cohen's κ below   m                              Report §3.7.1; `15_04_best_params.csv` col `Best_Kappa`
+  L_E                     Attenuation length of evaporative draw in the depth-dependent PET term `β₂·exp(−d_w/L_E)`; larger = PET draw persists deeper. Fitted as its reciprocal 1/L_E (m⁻¹), whose zero is the no-attenuation null. Formerly κ, retired by D-316 --- it collided with K, saturated hydraulic conductivity, and with Cohen's κ below   m                              Report §3.7.1; `15_04_best_params.csv` col `Best_inv_L_E`
   m_P                     Rainfall multiplier in the P_flood calculation: multiple of climatological winter rainfall to lift a well to target                                                                                                                                                                                                          dimensionless                  Report §3.6.3; `model_utils.pflood`
   δ₀                      Amplitude of the coastal-retreat drift gradient at the shoreline (*d* = 0); an extrapolation beyond the network                                                                                                                                                                                                              mm/yr                          Report §4.10; `25_01_panel_fit_parameters.csv`
   δ(d)                    Coastal-retreat drift rate at cross-shore distance *d*                                                                                                                                                                                                                                                                       mm/yr                          Report §3.8.2

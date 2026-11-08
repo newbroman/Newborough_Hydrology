@@ -29,7 +29,10 @@
 #   and what it holds (tools/doc_lock.py). Step 3 refuses commits that touch another chat's claim
 #   (tools/ship_scope.py check), and the ship is given a request file so nrg_git.sh 1.29.0 scopes it.
 #
-# Version 1.1.0 — Hollingham (2026) — 2026-10-10. Claims (spec NRG_spec_parallel_chats_2026-10-10).
+# Version 1.1.1 — Hollingham (2026) — 2026-11-08. lock_push commits only when the lock file has a
+#   staged change, and pushes either way. D-314 made doc_lock commit and push the record itself, so
+#   lock_push's commit had nothing to do and failed every cloud ship at step 3 since 2026-11-06.
+# 1.1.0 — 2026-10-10. Claims (spec NRG_spec_parallel_chats_2026-10-10).
 # 1.0.1 — 2026-10-03. Private pushes name origin HEAD:main rather than relying on
 #   an upstream (the dry3 dry run: a --bare clone sets none, so the lock push was refused).
 # 1.0.0 — 2026-10-02. First issue.
@@ -63,10 +66,12 @@ LOCKED=0
 
 step() { printf '\n  [%s] %s\n' "$1" "$2"; }
 
-lock_push() {   # commit and push the lock file privately
-  "${WG[@]}" add working/DOCUMENT_LOCK.json \
-    && "${WG[@]}" commit -q -m "$1" -- working/DOCUMENT_LOCK.json \
-    && "${WG[@]}" push -q origin HEAD:main
+lock_push() {   # commit (if anything is left to commit) and push the lock file privately
+  "${WG[@]}" add working/DOCUMENT_LOCK.json || return 1
+  if ! "${WG[@]}" diff --cached --quiet -- working/DOCUMENT_LOCK.json; then
+    "${WG[@]}" commit -q -m "$1" -- working/DOCUMENT_LOCK.json || return 1
+  fi
+  "${WG[@]}" push -q origin HEAD:main
 }
 
 fail() {

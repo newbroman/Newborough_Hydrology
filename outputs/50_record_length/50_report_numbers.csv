@@ -1,4 +1,32 @@
 Parameter,Well,Era,Value,Unit,Note
+transfer_rho_d_mean_depth_m,,,-0.5092647768438825,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_r_records,,,0.2135423739821285,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_distance_m,,,-0.19195557388908888,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_amplitude_m,,,-0.15569579702199074,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_beta_1,,,0.001043917630460566,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_beta_2,,,-0.20778136516687104,,Spearman of this predictor against the change in NSE from borrowing
+transfer_rho_d_beta_3,,,-0.06434708274158929,,Spearman of this predictor against the change in NSE from borrowing
+transfer_pairs_n,,,66.0,,well-neighbour pairs in the transfer test
+transfer_median_nse_own,,,0.6119815001294202,,"median post-2018 NSE, own coefficients"
+transfer_median_nse_neighbour,,,0.437396601549267,,"median post-2018 NSE, neighbour coefficients"
+transfer_median_nse_centroid,,,0.3657904184111312,,"median post-2018 NSE, centroid coefficients"
+transfer_fail_neighbour_n,,,14.0,,wells where a neighbour's coefficients score below -1 NSE
+transfer_fail_own_n,,,2.0,,wells where their OWN coefficients score below -1 NSE
+transfer_median_gain_C1,,,-0.01214216938035484,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C2,,,-0.07758263360339301,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C3,,,-0.2456805415570994,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C4,,,0.08091957302821617,,"median change in NSE from borrowing, this cluster"
+transfer_median_gain_C5,,,-2.36670526929804,,"median change in NSE from borrowing, this cluster"
+transfer_band_lt0p1_median,,,-0.019503916763149887,,"median change in NSE, this band of mean-depth difference"
+transfer_band_lt0p1_frac_lose,,,0.12903225806451613,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_0p1_0p2_median,,,-0.31042300110889914,,"median change in NSE, this band of mean-depth difference"
+transfer_band_0p1_0p2_frac_lose,,,0.5833333333333334,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_0p2_0p4_median,,,-0.5563687393427661,,"median change in NSE, this band of mean-depth difference"
+transfer_band_0p2_0p4_frac_lose,,,0.5,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_0p4_0p8_median,,,-0.9743463332599149,,"median change in NSE, this band of mean-depth difference"
+transfer_band_0p4_0p8_frac_lose,,,0.5555555555555556,fraction,share of pairs in this band losing more than 0.25 NSE
+transfer_band_gt0p8_median,,,-3.1105033648134675,,"median change in NSE, this band of mean-depth difference"
+transfer_band_gt0p8_frac_lose,,,1.0,fraction,share of pairs in this band losing more than 0.25 NSE
 reclen_nse_fwd_A_median_L24_all,,,-0.141263842974083,,"median free-run NSE, Model A, fitted on 24 months before 2018-01-01; n = 66 wells (all)"
 reclen_nse_fwd_A_median_L36_all,,,0.29293762814854374,,"median free-run NSE, Model A, fitted on 36 months before 2018-01-01; n = 66 wells (all)"
 reclen_nse_fwd_A_median_L48_all,,,0.044500586876924375,,"median free-run NSE, Model A, fitted on 48 months before 2018-01-01; n = 63 wells (all)"
@@ -527,26 +555,26 @@ reclen_rho_ar1_expected_full_A_median_C5,,,0.5459366862259102,,"median expected 
 reclen_efold_months_full_A_median_C5,,,19.82644363281093,months,"median mean-reversion time -1/ln(1 - beta_3), Model A, full record; n = 5 wells (C5)"
 reclen_rho_ar1_expected_full_B_median_C5,,,0.4060701027906097,,"median expected spring persistence (1 - beta_3)^12 (D-221), Model B, full record; n = 5 wells (C5)"
 reclen_efold_months_full_B_median_C5,,,13.315143850953595,months,"median mean-reversion time -1/ln(1 - beta_3), Model B, full record; n = 5 wells (C5)"
-window_full_beta3_ratio_median_all,,,1.0398630133100188,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 65 wells (all); T-103"
-window_full_beta3_ratio_p10_all,,,0.8343130032456365,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 65 wells (all); T-103"
+window_full_beta3_ratio_median_all,,,1.039863839286913,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 65 wells (all); T-103"
+window_full_beta3_ratio_p10_all,,,0.8343131528378313,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 65 wells (all); T-103"
 window_full_beta3_ratio_p90_all,,,1.126498802045421,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 65 wells (all); T-103"
 window_full_beta3_ratio_median_C1,,,1.1384863967809118,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 7 wells (C1); T-103"
 window_full_beta3_ratio_p10_C1,,,1.1063241391487273,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 7 wells (C1); T-103"
-window_full_beta3_ratio_p90_C1,,,1.184651095665113,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 7 wells (C1); T-103"
-window_full_beta3_ratio_median_C2,,,1.059517874269971,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 19 wells (C2); T-103"
+window_full_beta3_ratio_p90_C1,,,1.1846513880897651,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 7 wells (C1); T-103"
+window_full_beta3_ratio_median_C2,,,1.0595178754405468,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 19 wells (C2); T-103"
 window_full_beta3_ratio_p10_C2,,,1.0227607364902416,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 19 wells (C2); T-103"
-window_full_beta3_ratio_p90_C2,,,1.111390525579385,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 19 wells (C2); T-103"
-window_full_beta3_ratio_median_C3,,,1.0187402923196753,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 26 wells (C3); T-103"
-window_full_beta3_ratio_p10_C3,,,0.9563146679938808,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 26 wells (C3); T-103"
-window_full_beta3_ratio_p90_C3,,,1.1139622901356168,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 26 wells (C3); T-103"
-window_full_beta3_ratio_median_C4,,,0.7548480057706891,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 8 wells (C4); T-103"
-window_full_beta3_ratio_p10_C4,,,0.4708361752045165,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 8 wells (C4); T-103"
-window_full_beta3_ratio_p90_C4,,,0.8808117086759664,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 8 wells (C4); T-103"
+window_full_beta3_ratio_p90_C2,,,1.1113905152798016,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 19 wells (C2); T-103"
+window_full_beta3_ratio_median_C3,,,1.0187402820244815,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 26 wells (C3); T-103"
+window_full_beta3_ratio_p10_C3,,,0.9563153872351018,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 26 wells (C3); T-103"
+window_full_beta3_ratio_p90_C3,,,1.1139625896784033,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 26 wells (C3); T-103"
+window_full_beta3_ratio_median_C4,,,0.7548478645410713,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 8 wells (C4); T-103"
+window_full_beta3_ratio_p10_C4,,,0.4708361151392567,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 8 wells (C4); T-103"
+window_full_beta3_ratio_p90_C4,,,0.8808125555592231,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 8 wells (C4); T-103"
 window_full_beta3_ratio_median_C5,,,0.9445311814026528,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); median over n = 5 wells (C5); T-103"
-window_full_beta3_ratio_p10_C5,,,0.8485569923617086,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 5 wells (C5); T-103"
-window_full_beta3_ratio_p90_C5,,,1.012916632456511,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 5 wells (C5); T-103"
+window_full_beta3_ratio_p10_C5,,,0.8485566662486983,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p10 over n = 5 wells (C5); T-103"
+window_full_beta3_ratio_p90_C5,,,1.0129165746254019,,"per-well beta_3 on the comparison window (100 months) over beta_3 on the full record, Model A (03_15); p90 over n = 5 wells (C5); T-103"
 reclen_check_vs48_max_abs_nse_diff,,,2.220446049250313e-16,,identity check: full-length forecast / hindcast_within NSE against Script 48's split-sample NSE; largest absolute difference over 264 well-form-direction pairs (expected 0)
-reclen_check_vs39_max_abs_nse_diff,,,0.9364031911644028,,"identity check: CCW hindcast NSE, Model A on the last 100 months, against Script 39; largest absolute difference over 9 wells (expected 0)"
+reclen_check_vs39_max_abs_nse_diff,,,0.9364054848483021,,"identity check: CCW hindcast NSE, Model A on the last 100 months, against Script 39; largest absolute difference over 9 wells (expected 0)"
 datum_ccw_supported_m,,,2.9,m,"datum maximizing the median CCW 1989-96 hindcast NSE, Model A on the comparison window (rule fixed before the run, D-225); n wells per datum up to 9"
 datum_ccw_band_min_m,,,2.8,m,shallowest datum within 0.05 NSE of the best (D-225)
 datum_ccw_band_max_m,,,2.9,m,deepest datum within 0.05 NSE of the best (D-225)
@@ -573,23 +601,23 @@ projection_2080s_summer_fall_median_trio_model_a,,,-0.516510795026585,m,"median 
 projection_2080s_summer_fall_median_trio_model_b,,,-0.3740218414167115,m,"median 2080s summer sustained level response, model_b, on the trio wells"
 projection_2080s_summer_fall_median_trio_ddp,,,-0.3464193685479632,m,"median 2080s summer sustained level response, ddp, on the trio wells"
 projection_2050s_summer_fall_median_at_supported,,,-0.2419175129735464,m,"median 2050s summer sustained level response, Model A at datum 2.9 m; n = 57 wells (forest withheld, D-224 pairing)"
-projection_2050s_summer_room_left_min_at_supported,,,0.41923832988160636,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 2.9 m"
+projection_2050s_summer_room_left_min_at_supported,,,0.4192382882579264,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 2.9 m"
 projection_2050s_summer_fall_median_at_band_min,,,-0.23776723622199647,m,"median 2050s summer sustained level response, Model A at datum 2.8 m; n = 57 wells (forest withheld, D-224 pairing)"
-projection_2050s_summer_room_left_min_at_band_min,,,0.32409952124634345,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 2.8 m"
+projection_2050s_summer_room_left_min_at_band_min,,,0.3240994961721826,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 2.8 m"
 projection_2050s_summer_fall_median_at_band_max,,,-0.2419175129735464,m,"median 2050s summer sustained level response, Model A at datum 2.9 m; n = 57 wells (forest withheld, D-224 pairing)"
-projection_2050s_summer_room_left_min_at_band_max,,,0.41923832988160636,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 2.9 m"
+projection_2050s_summer_room_left_min_at_band_max,,,0.4192382882579264,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 2.9 m"
 projection_2050s_summer_fall_median_at_project,,,-0.28184110962212483,m,"median 2050s summer sustained level response, Model A at datum 3.7 m; n = 57 wells (forest withheld, D-224 pairing)"
-projection_2050s_summer_room_left_min_at_project,,,1.1628943058510952,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 3.7 m"
+projection_2050s_summer_room_left_min_at_project,,,1.162894095706871,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 3.7 m"
 projection_2050s_summer_fall_median_model_b,,,-0.20431833842567984,m,"median 2050s summer sustained level response, Model B, the same wells"
 projection_2050s_n_wells_pair,,,57.0,count,"wells projected under both forms at the project datum (2050s, forest withheld, D-224)"
 projection_2050s_n_wells_trio,,,57.0,count,"wells projected under Model A, Model B and the depth-dependent form (2050s, project datum)"
 projection_2050s_summer_fall_median_trio_model_a,,,-0.28184110962212483,m,"median 2050s summer sustained level response, model_a, on the trio wells"
 projection_2050s_summer_fall_median_trio_model_b,,,-0.20431833842567984,m,"median 2050s summer sustained level response, model_b, on the trio wells"
 projection_2050s_summer_fall_median_trio_ddp,,,-0.19369346890670372,m,"median 2050s summer sustained level response, ddp, on the trio wells"
-reclen_check_datum_vs39_max_abs_nse_diff,,,0.9364031911644028,,identity check at the project datum (expected 0)
+reclen_check_datum_vs39_max_abs_nse_diff,,,0.9364054848483021,,identity check at the project datum (expected 0)
 reclen_check_datum_vs48_max_abs_nse_diff,,,2.220446049250313e-16,,identity check at the project datum (expected 0)
 reclen_check_datum_vs19_max_abs_fall_diff_m,,,3.552713678800501e-15,,identity check at the project datum (expected 0)
-reclen_check_datum_vs44_max_abs_nse_diff,,,0.016659192248057675,,identity check at the project datum (expected 0)
+reclen_check_datum_vs44_max_abs_nse_diff,,,0.01665923458721863,,identity check at the project datum (expected 0)
 projection_check_ddp_k0_vs_closed_form,,,1.1812328892801816e-11,m,"identity check: the depth-dependent sustained response at 1/L_E = 0 less the closed form, max over a coefficient grid (expected 0 to 1e-9)"
 projection_2050s_annual_wb_shift_mm_yr,,,-117.15548925127737,mm/yr,UKCP18 2050s change in annual P - PET applied to the modern monthly climatology (2005-04 to 2026-02)
 projection_2080s_annual_wb_shift_mm_yr,,,-209.8142491795254,mm/yr,UKCP18 2080s change in annual P - PET applied to the modern monthly climatology (2005-04 to 2026-02)
@@ -622,35 +650,35 @@ two_store_C1_ccw_bias_single_m,,,,m,"C1: median CCW 1989-96 bias at the cluster'
 two_store_C1_ccw_bias_double_m,,,,m,"C1: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
 two_store_C1_test1,,,0.0,flag,"C1: test 1 passed (1) or not (0) (E8, D-231)"
 two_store_C1_test4,,,0.0,flag,"C1: test 4 passed (1) or not (0) (E8, D-231)"
-two_store_C2_slow_share,,,3.8420435437676065e-19,,"C2: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C2_slow_share,,,3.088850695542631e-19,,"C2: share of the recharge through the slow store, double exponential (E8, D-231)"
 two_store_C2_slow_efold_months,,,,months,"C2: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
-two_store_C2_bic_double_minus_single,,,11.210390994821068,,"C2: BIC, double minus single (negative favours two stores) (E8, D-231)"
-two_store_C2_split_nse_single,,,0.7717561213077978,,"C2: median split-test NSE, single exponential (E8, D-231)"
-two_store_C2_split_nse_double,,,0.7661388925210986,,"C2: median split-test NSE, double exponential (E8, D-231)"
-two_store_C2_early_resid_single_m,,,0.22292374173359178,m,"C2: mean residual 2006-2008, single (E8, D-231)"
-two_store_C2_early_resid_double_m,,,0.22302087220177017,m,"C2: mean residual 2006-2008, double (E8, D-231)"
-two_store_C2_ccw_bias_single_m,,,0.16045686659935032,m,"C2: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
-two_store_C2_ccw_bias_double_m,,,0.1608646842060542,m,"C2: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
+two_store_C2_bic_double_minus_single,,,11.210390993040619,,"C2: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C2_split_nse_single,,,0.7717561219117359,,"C2: median split-test NSE, single exponential (E8, D-231)"
+two_store_C2_split_nse_double,,,0.7661387649216911,,"C2: median split-test NSE, double exponential (E8, D-231)"
+two_store_C2_early_resid_single_m,,,0.2229237415016623,m,"C2: mean residual 2006-2008, single (E8, D-231)"
+two_store_C2_early_resid_double_m,,,0.22302087209687962,m,"C2: mean residual 2006-2008, double (E8, D-231)"
+two_store_C2_ccw_bias_single_m,,,0.16045687107455325,m,"C2: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
+two_store_C2_ccw_bias_double_m,,,0.16086468467269704,m,"C2: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
 two_store_C2_test1,,,0.0,flag,"C2: test 1 passed (1) or not (0) (E8, D-231)"
 two_store_C2_test4,,,0.0,flag,"C2: test 4 passed (1) or not (0) (E8, D-231)"
-two_store_C3_slow_share,,,7.146971968807445e-15,,"C3: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C3_slow_share,,,9.655073731418128e-19,,"C3: share of the recharge through the slow store, double exponential (E8, D-231)"
 two_store_C3_slow_efold_months,,,,months,"C3: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
-two_store_C3_bic_double_minus_single,,,11.034754534655917,,"C3: BIC, double minus single (negative favours two stores) (E8, D-231)"
-two_store_C3_split_nse_single,,,0.7602862545979316,,"C3: median split-test NSE, single exponential (E8, D-231)"
-two_store_C3_split_nse_double,,,0.7466054899147844,,"C3: median split-test NSE, double exponential (E8, D-231)"
-two_store_C3_early_resid_single_m,,,0.16528697790692728,m,"C3: mean residual 2006-2008, single (E8, D-231)"
-two_store_C3_early_resid_double_m,,,0.16551027269321789,m,"C3: mean residual 2006-2008, double (E8, D-231)"
-two_store_C3_ccw_bias_single_m,,,0.382392880013641,m,"C3: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
-two_store_C3_ccw_bias_double_m,,,0.3818349641370038,m,"C3: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
+two_store_C3_bic_double_minus_single,,,11.034753871442149,,"C3: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C3_split_nse_single,,,0.7602862562626935,,"C3: median split-test NSE, single exponential (E8, D-231)"
+two_store_C3_split_nse_double,,,0.7466196175617328,,"C3: median split-test NSE, double exponential (E8, D-231)"
+two_store_C3_early_resid_single_m,,,0.16528697098522602,m,"C3: mean residual 2006-2008, single (E8, D-231)"
+two_store_C3_early_resid_double_m,,,0.16551320458921703,m,"C3: mean residual 2006-2008, double (E8, D-231)"
+two_store_C3_ccw_bias_single_m,,,0.38239290770851053,m,"C3: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
+two_store_C3_ccw_bias_double_m,,,0.3818259057734106,m,"C3: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
 two_store_C3_test1,,,0.0,flag,"C3: test 1 passed (1) or not (0) (E8, D-231)"
 two_store_C3_test4,,,0.0,flag,"C3: test 4 passed (1) or not (0) (E8, D-231)"
-two_store_C4_slow_share,,,7.566285956387186e-19,,"C4: share of the recharge through the slow store, double exponential (E8, D-231)"
+two_store_C4_slow_share,,,1.2435194808496038e-21,,"C4: share of the recharge through the slow store, double exponential (E8, D-231)"
 two_store_C4_slow_efold_months,,,,months,"C4: slow store's e-folding time, double exponential; blank where the store carries under 0.01 of the response (not identified, D-266) (E8, D-231)"
-two_store_C4_bic_double_minus_single,,,10.786331664511522,,"C4: BIC, double minus single (negative favours two stores) (E8, D-231)"
-two_store_C4_split_nse_single,,,0.4749130566624189,,"C4: median split-test NSE, single exponential (E8, D-231)"
-two_store_C4_split_nse_double,,,-1.5156097171463634,,"C4: median split-test NSE, double exponential (E8, D-231)"
-two_store_C4_early_resid_single_m,,,0.5189671627313013,m,"C4: mean residual 2006-2008, single (E8, D-231)"
-two_store_C4_early_resid_double_m,,,0.5209859041484525,m,"C4: mean residual 2006-2008, double (E8, D-231)"
+two_store_C4_bic_double_minus_single,,,10.786306081934185,,"C4: BIC, double minus single (negative favours two stores) (E8, D-231)"
+two_store_C4_split_nse_single,,,0.4749131148958359,,"C4: median split-test NSE, single exponential (E8, D-231)"
+two_store_C4_split_nse_double,,,-1.5152459374547431,,"C4: median split-test NSE, double exponential (E8, D-231)"
+two_store_C4_early_resid_single_m,,,0.5189671455349875,m,"C4: mean residual 2006-2008, single (E8, D-231)"
+two_store_C4_early_resid_double_m,,,0.52100488474229,m,"C4: mean residual 2006-2008, double (E8, D-231)"
 two_store_C4_ccw_bias_single_m,,,,m,"C4: median CCW 1989-96 bias at the cluster's CCW wells, single (E8, D-231)"
 two_store_C4_ccw_bias_double_m,,,,m,"C4: median CCW 1989-96 bias at the cluster's CCW wells, double (E8, D-231)"
 two_store_C4_test1,,,0.0,flag,"C4: test 1 passed (1) or not (0) (E8, D-231)"
@@ -699,9 +727,9 @@ surface_verdict,,,0.0,code,"not supported (1 supported at a majority of clusters
 surface_C1_passes,,,0.0,flag,C1: surface flow passes tests 1-3 (E8c)
 surface_C1_threshold_m,,,0.05,m,"C1: fitted surface-flow threshold, best form threshold, level relative to ground (E8c)"
 surface_C2_passes,,,0.0,flag,C2: surface flow passes tests 1-3 (E8c)
-surface_C2_threshold_m,,,-0.17095636483727025,m,"C2: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+surface_C2_threshold_m,,,-0.1709574249068384,m,"C2: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
 surface_C3_passes,,,0.0,flag,C3: surface flow passes tests 1-3 (E8c)
-surface_C3_threshold_m,,,-0.8844326949479372,m,"C3: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
+surface_C3_threshold_m,,,-0.8844302591140294,m,"C3: fitted surface-flow threshold, best form tarso, level relative to ground (E8c)"
 surface_C4_passes,,,0.0,flag,C4: surface flow passes tests 1-3 (E8c)
 surface_C4_threshold_m,,,-0.6,m,"C4: fitted surface-flow threshold, best form threshold, level relative to ground (E8c)"
 surface_C5_passes,,,0.0,flag,C5: surface flow passes tests 1-3 (E8c)
@@ -757,12 +785,12 @@ e8f_has_step_ceh4,,,1.0,flag,ceh4: step by the rule (BIC and interval)
 e8f_step_wmc3_m,,,0.0039994198457909335,m,WMC3 (clearfell impact): fitted step in the clearance window (reported)
 precanopy_verdict_C4,,,0.0,code,"C4: not supported (2 supported, 1 not resolved, 0 not supported); a store drawn down by the plantation, pre-canopy test E8g, strict rule fixed before the run (T-121, D-255)"
 precanopy_n_cases_pass_C4,,,0.0,count,"C4: cases (of 6, planting year x closure age) in which the pre-canopy two-store fit passes all three tests (E8g)"
-precanopy_dbic_min_C4,,,-10.785077249643734,BIC,"C4: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
-precanopy_dbic_max_C4,,,23.65807936664129,BIC,C4: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)
+precanopy_dbic_min_C4,,,-10.785077659800834,BIC,"C4: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
+precanopy_dbic_max_C4,,,23.65818907373142,BIC,C4: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)
 precanopy_verdict_C5,,,0.0,code,"C5: not supported (2 supported, 1 not resolved, 0 not supported); a store drawn down by the plantation, pre-canopy test E8g, strict rule fixed before the run (T-121, D-255)"
 precanopy_n_cases_pass_C5,,,0.0,count,"C5: cases (of 6, planting year x closure age) in which the pre-canopy two-store fit passes all three tests (E8g)"
-precanopy_dbic_min_C5,,,-10.996128846620707,BIC,"C5: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
-precanopy_dbic_max_C5,,,7.151833485565362,BIC,C5: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)
+precanopy_dbic_min_C5,,,-10.996128598320297,BIC,"C5: smallest BIC gain of the pre-canopy two-store fit over the forest-throughout fit, across the cases (E8g; positive favours the pre-canopy fit)"
+precanopy_dbic_max_C5,,,7.417631105543933,BIC,C5: largest BIC gain of the pre-canopy two-store fit over the forest-throughout fit (E8g)
 forest_forcing_verdict_C4,,,1.0,code,"C4: not resolved (2 supported, 1 not resolved, 0 not supported); E10, the forest forcing test, rule fixed before the run (D-260)"
 forest_forcing_best_variant_C4,,,1.0,code,"C4: best of F1-F3 by summed Model A BIC (1 interception, 2 interception with the canopy, 3 and a post-felling evaporation coefficient)"
 forest_forcing_fwd_nse_F0_median_C4,,,0.2108412432964223,,"C4: median forward NSE, Model A, observed forcing"
@@ -810,7 +838,7 @@ forest_forcing_posthoc_fwd_nse_F2s_C5,,,0.691723733167388,,"C5: POST HOC, outsid
 forest_forcing_check_max_abs_beta3_diff,,,0.0,,"identity: F0 against the record-length experiment's full-record beta_3, both forms, forest wells"
 ranwell_need_n_pairs,,,11.0,pairs,"Script 44 site-well pairings scored (E11, exploration not a test (D-261))"
 ranwell_need_nse_base_median,,,0.5733322418069309,,"median NSE after offset, coefficients as fitted (E11, exploration not a test (D-261))"
-ranwell_need_identity_max_abs_dnse,,,2.428983281177466e-08,,"identity: k = 1 against Script 44's NSE, every pair"
+ranwell_need_identity_max_abs_dnse,,,2.428992984526701e-08,,"identity: k = 1 against Script 44's NSE, every pair"
 ranwell_need_single_k1,,,0.6,x,"best scale of recharge beta_1 alone (others unchanged), by median NSE (E11, exploration not a test (D-261))"
 ranwell_need_single_k1_nse,,,0.6952588977703844,,"median NSE at that scale (E11, exploration not a test (D-261))"
 ranwell_need_joint_k1,,,0.7,x,"recharge beta_1 at the jointly best cell (E11, exploration not a test (D-261))"
@@ -842,26 +870,26 @@ ranwell_epoch_antecedent_net_mm,,,1128.9369643940563,mm,P - PET over the RANWELL
 ranwell_epoch_antecedent_pct,,,47.77777777777778,%,its percentile among all such windows
 ranwell_epoch_memory_ceh25,,,0.031355875571207295,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair ceh25
 ranwell_epoch_memory_ceh27,,,0.0833370535587269,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair ceh27
-ranwell_epoch_memory_nw5,,,0.2971767076934045,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair nw5
+ranwell_epoch_memory_nw5,,,0.29717706042811715,,(1 - beta_3)^RANWELL_MEMORY_MONTHS at headline pair nw5
 ranwell_epoch_memory_min,,,0.031355875571207295,,lowest share of a departure left after RANWELL_MEMORY_MONTHS
-ranwell_epoch_memory_max,,,0.2971767076934045,,highest share of a departure left after RANWELL_MEMORY_MONTHS
+ranwell_epoch_memory_max,,,0.29717706042811715,,highest share of a departure left after RANWELL_MEMORY_MONTHS
 ranwell_epoch_local_rain_nse_median,,,-0.350066053784704,,median NSE with Parc Mawr rain in place of RAF Valley's
 ranwell_epoch_local_rain_n_better,,,0.0,pairs,pairs it improves (of 11)
 ranwell_epoch_swing_ratio_modern_ceh25,,,0.9164754170272711,,"SD observed / SD modelled, modern record"
 ranwell_epoch_swing_ratio_epoch_ceh25,,,0.8167534601209416,,"SD observed / SD modelled, 1951-53"
 ranwell_epoch_swing_ratio_modern_ceh27,,,0.9750376685027495,,"SD observed / SD modelled, modern record"
 ranwell_epoch_swing_ratio_epoch_ceh27,,,0.9498254792231653,,"SD observed / SD modelled, 1951-53"
-ranwell_epoch_swing_ratio_modern_nw5,,,1.077650093741268,,"SD observed / SD modelled, modern record"
-ranwell_epoch_swing_ratio_epoch_nw5,,,0.8580482201882591,,"SD observed / SD modelled, 1951-53"
+ranwell_epoch_swing_ratio_modern_nw5,,,1.0776501724492413,,"SD observed / SD modelled, modern record"
+ranwell_epoch_swing_ratio_epoch_nw5,,,0.8580482648543183,,"SD observed / SD modelled, 1951-53"
 ranwell_epoch_swing_smaller_pct_min,,,2.585765667730522,%,"1951-53 swing relative to the model, smaller than today's by at least"
-ranwell_epoch_swing_smaller_pct_max,,,20.377845724544883,%,and by at most
+ranwell_epoch_swing_smaller_pct_max,,,20.377847395117133,%,and by at most
 ranwell_epoch_forest_k_beta1,,,0.9720314068224766,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
-ranwell_epoch_forest_k_beta2,,,0.928377185226713,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
-ranwell_epoch_forest_k_beta3,,,0.9278313753348415,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
-ranwell_epoch_forest_shift_pct_max,,,7.21686246651585,%,largest of those differences
+ranwell_epoch_forest_k_beta2,,,0.9283775113558549,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
+ranwell_epoch_forest_k_beta3,,,0.9278311862691352,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
+ranwell_epoch_forest_shift_pct_max,,,7.216881373086482,%,largest of those differences
 ranwell_epoch_forest_n_pairs_within,,,6.0,pairs,pairs within the drawdown reach of today's forest
 ranwell_epoch_forest_n_sites_within,,,1.0,sites,Ranwell sites with a pair within it ([4])
-ranwell_epoch_forest_nse_median,,,0.5914721081402754,,median NSE with the forest's difference removed at the pairs within its reach
+ranwell_epoch_forest_nse_median,,,0.5914721610283729,,median NSE with the forest's difference removed at the pairs within its reach
 ranwell_epoch_cand_open_dune_cover_recharge_nse_at_k_low,,,0.5733322418069309,,open_dune_cover_recharge: median NSE at the low end of its range
 ranwell_epoch_cand_open_dune_cover_recharge_k_low,,,1.0,x,"open_dune_cover_recharge: beta_1 scale, low end"
 ranwell_epoch_cand_open_dune_cover_recharge_nse_at_k_high,,,-0.025627893553759717,,open_dune_cover_recharge: median NSE at the high end of its range
@@ -878,8 +906,8 @@ ranwell_epoch_cand_sea_level_nse_at_k_low,,,0.5745120989320274,,sea_level: media
 ranwell_epoch_cand_sea_level_k_low,,,0.9821191954401302,x,"sea_level: beta_3 scale, low end"
 ranwell_epoch_cand_sea_level_nse_at_k_high,,,0.575809897532187,,sea_level: median NSE at the high end of its range
 ranwell_epoch_cand_sea_level_k_high,,,0.9705497221749,x,"sea_level: beta_3 scale, high end"
-ranwell_epoch_cand_modern_forest_nse_at_k_low,,,0.5914721081402754,,modern_forest: median NSE at the low end of its range
-ranwell_epoch_cand_modern_forest_k_low,,,0.9278313753348415,x,"modern_forest: beta_1, beta_2, beta_3 scale, low end"
+ranwell_epoch_cand_modern_forest_nse_at_k_low,,,0.5914721610283729,,modern_forest: median NSE at the low end of its range
+ranwell_epoch_cand_modern_forest_k_low,,,0.9278311862691352,x,"modern_forest: beta_1, beta_2, beta_3 scale, low end"
 ranwell_epoch_cand_modern_forest_k_high,,,0.9720314068224766,x,"modern_forest: beta_1, beta_2, beta_3 scale, high end"
 ranwell_epoch_cand_on_site_rain_nse_at_k_low,,,-0.350066053784704,,on_site_rain: median NSE at the low end of its range
 ranwell_epoch_cand_pipe_foot_nse_at_k_low,,,0.5737766778385796,,pipe_foot: median NSE at the low end of its range
@@ -889,13 +917,13 @@ basis_ranwell_holds_A,,,1.0,flag,"Model A, ranwell: the cluster basis holds (1) 
 basis_split_holds_A,,,1.0,flag,"Model A, split: the cluster basis holds (1) or not (0), E12, D-268"
 basis_ccw_nse_median_well_A,,,-0.1406250798912576,m,"Model A, CCW 1989-96 hindcast: median NSE on the well basis, E12, D-268"
 basis_ccw_absbias_median_well_A,,,0.25548182634137645,m,"Model A, CCW 1989-96: median |bias| on the well basis, E12, D-268"
-basis_ccw_nse_median_cluster_A,,,-0.16889522008280844,m,"Model A, CCW 1989-96 hindcast: median NSE on the cluster basis, E12, D-268"
-basis_ccw_absbias_median_cluster_A,,,0.22923967260475148,m,"Model A, CCW 1989-96: median |bias| on the cluster basis, E12, D-268"
+basis_ccw_nse_median_cluster_A,,,-0.16889522040329186,m,"Model A, CCW 1989-96 hindcast: median NSE on the cluster basis, E12, D-268"
+basis_ccw_absbias_median_cluster_A,,,0.2292396726038318,m,"Model A, CCW 1989-96: median |bias| on the cluster basis, E12, D-268"
 basis_ranwell_nse_median_well_A,,,0.4605793570856248,m,"Model A, Ranwell 1951-53 hindcast, headline pairings, NSE after the offset: median NSE on the well basis, E12, D-268"
 basis_ranwell_nse_median_cluster_A,,,0.48945573722535096,m,"Model A, Ranwell 1951-53 hindcast, headline pairings, NSE after the offset: median NSE on the cluster basis, E12, D-268"
 basis_split_nse_median_well_A_fwd,,,0.6119815001294202,m,"Model A, split-sample test (fwd): median NSE on the well basis, E12, D-268"
 basis_split_nse_median_well_A_rev,,,0.6737312915987114,m,"Model A, split-sample test (rev): median NSE on the well basis, E12, D-268"
-basis_split_nse_median_cluster_A_fwd,,,0.7193401273056308,m,"Model A, split-sample test (fwd): median NSE on the cluster basis, E12, D-268"
+basis_split_nse_median_cluster_A_fwd,,,0.7193401272257512,m,"Model A, split-sample test (fwd): median NSE on the cluster basis, E12, D-268"
 basis_split_nse_median_cluster_A_rev,,,0.6546090985897709,m,"Model A, split-sample test (rev): median NSE on the cluster basis, E12, D-268"
 basis_verdict_B,,,2.0,code,"Model B: cluster better for transfer (2 cluster better for transfer, 1 basis-robust, 0 basis matters; the rule fixed before the run, D-268)"
 basis_ccw_holds_B,,,1.0,flag,"Model B, ccw: the cluster basis holds (1) or not (0), E12, D-268"
@@ -909,7 +937,7 @@ basis_ranwell_nse_median_well_B,,,0.8565624443565217,m,"Model B, Ranwell 1951-53
 basis_ranwell_nse_median_cluster_B,,,0.8608582498857009,m,"Model B, Ranwell 1951-53 hindcast, headline pairings, NSE after the offset: median NSE on the cluster basis, E12, D-268"
 basis_split_nse_median_well_B_fwd,,,0.7865467156802144,m,"Model B, split-sample test (fwd): median NSE on the well basis, E12, D-268"
 basis_split_nse_median_well_B_rev,,,0.7776478983988084,m,"Model B, split-sample test (rev): median NSE on the well basis, E12, D-268"
-basis_split_nse_median_cluster_B_fwd,,,0.7957138599899065,m,"Model B, split-sample test (fwd): median NSE on the cluster basis, E12, D-268"
+basis_split_nse_median_cluster_B_fwd,,,0.7957138597572988,m,"Model B, split-sample test (fwd): median NSE on the cluster basis, E12, D-268"
 basis_split_nse_median_cluster_B_rev,,,0.7650543555441431,m,"Model B, split-sample test (rev): median NSE on the cluster basis, E12, D-268"
 basis_ranwell_nse_median_all_well_A,,,0.5733322418069329,m,"Model A, Ranwell 1951-53, all 11 pairings: median NSE after the offset on the well basis, E12, D-268"
 basis_ranwell_range_ratio_median_well_A,,,1.0937106794522131,m,"Model A, Ranwell 1951-53, all pairings: median model/observed seasonal range on the well basis, E12, D-268"
@@ -920,7 +948,7 @@ basis_ranwell_range_ratio_median_well_B,,,1.044750593741521,m,"Model B, Ranwell 
 basis_ranwell_nse_median_all_cluster_B,,,0.7448207133653196,m,"Model B, Ranwell 1951-53, all 11 pairings: median NSE after the offset on the cluster basis, E12, D-268"
 basis_ranwell_range_ratio_median_cluster_B,,,0.9996438452957923,m,"Model B, Ranwell 1951-53, all pairings: median model/observed seasonal range on the cluster basis, E12, D-268"
 basis_vs48_max_abs_nse_diff,,,2.220446049250313e-16,m,E12 identity: the per-well arm against the published script (D-268)
-basis_vs44_max_abs_nse_diff,,,0.016659192248057675,m,E12 identity: the per-well arm against the published script (D-268)
+basis_vs44_max_abs_nse_diff,,,0.01665923458721863,m,E12 identity: the per-well arm against the published script (D-268)
 placement_L24_n_wells,,,66.0,wells,"E12b: reference wells with at least 24 months of record, placed from their first 24 months (D-282)"
 placement_L24_share_correct_pct,,,62.121212121212125,%,E12b: share of wells whose first 24 months place them in their own cluster (D-282)
 placement_L24_share_correct_pct_C1,,,71.42857142857143,%,E12b: share of C1 wells placed in C1 from their first 24 months (D-282)
@@ -933,18 +961,18 @@ placement_L24_ccw_holds_A,,,1.0,flag,"E12b, Model A, ccw, placed from 24 months:
 placement_L24_ranwell_holds_A,,,1.0,flag,"E12b, Model A, ranwell, placed from 24 months: holds (1) or not (0), D-282"
 placement_L24_split_holds_A,,,1.0,flag,"E12b, Model A, split, placed from 24 months: holds (1) or not (0), D-282"
 placement_L24_ccw_nse_median_A,,,0.03453855661431149,m,"E12b, Model A, ccw, placed from 24 months: median NSE (D-282)"
-placement_L24_ccw_absbias_median_A,,,0.23379844667996383,m,"E12b, Model A, CCW 1989-96, placed from 24 months: median |bias| (D-282)"
+placement_L24_ccw_absbias_median_A,,,0.2337984466790441,m,"E12b, Model A, CCW 1989-96, placed from 24 months: median |bias| (D-282)"
 placement_L24_ranwell_nse_median_A,,,0.6660479094007146,m,"E12b, Model A, ranwell, placed from 24 months: median NSE (D-282)"
-placement_L24_split_nse_median_A_fwd,,,0.6979726620808098,m,"E12b, Model A, split fwd, placed from 24 months: median NSE (D-282)"
+placement_L24_split_nse_median_A_fwd,,,0.6979726622972012,m,"E12b, Model A, split fwd, placed from 24 months: median NSE (D-282)"
 placement_L24_split_nse_median_A_rev,,,0.6365537800499518,m,"E12b, Model A, split rev, placed from 24 months: median NSE (D-282)"
 placement_L24_verdict_B,,,0.0,code,"E12b, Model B, placed from 24 months: basis matters against the per-well basis (E12's rule, D-282)"
 placement_L24_ccw_holds_B,,,0.0,flag,"E12b, Model B, ccw, placed from 24 months: holds (1) or not (0), D-282"
 placement_L24_ranwell_holds_B,,,0.0,flag,"E12b, Model B, ranwell, placed from 24 months: holds (1) or not (0), D-282"
 placement_L24_split_holds_B,,,1.0,flag,"E12b, Model B, split, placed from 24 months: holds (1) or not (0), D-282"
 placement_L24_ccw_nse_median_B,,,-0.9878545416898301,m,"E12b, Model B, ccw, placed from 24 months: median NSE (D-282)"
-placement_L24_ccw_absbias_median_B,,,0.36928045854402974,m,"E12b, Model B, CCW 1989-96, placed from 24 months: median |bias| (D-282)"
+placement_L24_ccw_absbias_median_B,,,0.36928045860960834,m,"E12b, Model B, CCW 1989-96, placed from 24 months: median |bias| (D-282)"
 placement_L24_ranwell_nse_median_B,,,0.7766081568680367,m,"E12b, Model B, ranwell, placed from 24 months: median NSE (D-282)"
-placement_L24_split_nse_median_B_fwd,,,0.7624921067103966,m,"E12b, Model B, split fwd, placed from 24 months: median NSE (D-282)"
+placement_L24_split_nse_median_B_fwd,,,0.7624921062793601,m,"E12b, Model B, split fwd, placed from 24 months: median NSE (D-282)"
 placement_L24_split_nse_median_B_rev,,,0.7699621795113736,m,"E12b, Model B, split rev, placed from 24 months: median NSE (D-282)"
 placement_L36_n_wells,,,66.0,wells,"E12b: reference wells with at least 36 months of record, placed from their first 36 months (D-282)"
 placement_L36_share_correct_pct,,,75.75757575757575,%,E12b: share of wells whose first 36 months place them in their own cluster (D-282)
@@ -957,10 +985,10 @@ placement_L36_verdict_A,,,2.0,code,"E12b, Model A, placed from 36 months: cluste
 placement_L36_ccw_holds_A,,,1.0,flag,"E12b, Model A, ccw, placed from 36 months: holds (1) or not (0), D-282"
 placement_L36_ranwell_holds_A,,,1.0,flag,"E12b, Model A, ranwell, placed from 36 months: holds (1) or not (0), D-282"
 placement_L36_split_holds_A,,,1.0,flag,"E12b, Model A, split, placed from 36 months: holds (1) or not (0), D-282"
-placement_L36_ccw_nse_median_A,,,0.022269160243052366,m,"E12b, Model A, ccw, placed from 36 months: median NSE (D-282)"
-placement_L36_ccw_absbias_median_A,,,0.23708300943194355,m,"E12b, Model A, CCW 1989-96, placed from 36 months: median |bias| (D-282)"
+placement_L36_ccw_nse_median_A,,,0.022269159955161988,m,"E12b, Model A, ccw, placed from 36 months: median NSE (D-282)"
+placement_L36_ccw_absbias_median_A,,,0.23708300943102384,m,"E12b, Model A, CCW 1989-96, placed from 36 months: median |bias| (D-282)"
 placement_L36_ranwell_nse_median_A,,,0.6660479094007146,m,"E12b, Model A, ranwell, placed from 36 months: median NSE (D-282)"
-placement_L36_split_nse_median_A_fwd,,,0.6957343866551395,m,"E12b, Model A, split fwd, placed from 36 months: median NSE (D-282)"
+placement_L36_split_nse_median_A_fwd,,,0.6957343866786552,m,"E12b, Model A, split fwd, placed from 36 months: median NSE (D-282)"
 placement_L36_split_nse_median_A_rev,,,0.6488837335901538,m,"E12b, Model A, split rev, placed from 36 months: median NSE (D-282)"
 placement_L36_verdict_B,,,0.0,code,"E12b, Model B, placed from 36 months: basis matters against the per-well basis (E12's rule, D-282)"
 placement_L36_ccw_holds_B,,,0.0,flag,"E12b, Model B, ccw, placed from 36 months: holds (1) or not (0), D-282"
@@ -969,7 +997,7 @@ placement_L36_split_holds_B,,,1.0,flag,"E12b, Model B, split, placed from 36 mon
 placement_L36_ccw_nse_median_B,,,-0.9213038077186082,m,"E12b, Model B, ccw, placed from 36 months: median NSE (D-282)"
 placement_L36_ccw_absbias_median_B,,,0.36189801116104026,m,"E12b, Model B, CCW 1989-96, placed from 36 months: median |bias| (D-282)"
 placement_L36_ranwell_nse_median_B,,,0.7766081568680367,m,"E12b, Model B, ranwell, placed from 36 months: median NSE (D-282)"
-placement_L36_split_nse_median_B_fwd,,,0.77488353028227,m,"E12b, Model B, split fwd, placed from 36 months: median NSE (D-282)"
+placement_L36_split_nse_median_B_fwd,,,0.7748835302754823,m,"E12b, Model B, split fwd, placed from 36 months: median NSE (D-282)"
 placement_L36_split_nse_median_B_rev,,,0.7698685710814037,m,"E12b, Model B, split rev, placed from 36 months: median NSE (D-282)"
 placement_L60_n_wells,,,66.0,wells,"E12b: reference wells with at least 60 months of record, placed from their first 60 months (D-282)"
 placement_L60_share_correct_pct,,,75.75757575757575,%,E12b: share of wells whose first 60 months place them in their own cluster (D-282)
@@ -982,19 +1010,19 @@ placement_L60_verdict_A,,,2.0,code,"E12b, Model A, placed from 60 months: cluste
 placement_L60_ccw_holds_A,,,1.0,flag,"E12b, Model A, ccw, placed from 60 months: holds (1) or not (0), D-282"
 placement_L60_ranwell_holds_A,,,1.0,flag,"E12b, Model A, ranwell, placed from 60 months: holds (1) or not (0), D-282"
 placement_L60_split_holds_A,,,1.0,flag,"E12b, Model A, split, placed from 60 months: holds (1) or not (0), D-282"
-placement_L60_ccw_nse_median_A,,,0.15668876170443435,m,"E12b, Model A, ccw, placed from 60 months: median NSE (D-282)"
+placement_L60_ccw_nse_median_A,,,0.15668876177586155,m,"E12b, Model A, ccw, placed from 60 months: median NSE (D-282)"
 placement_L60_ccw_absbias_median_A,,,0.18250052964918667,m,"E12b, Model A, CCW 1989-96, placed from 60 months: median |bias| (D-282)"
 placement_L60_ranwell_nse_median_A,,,0.6660479094007146,m,"E12b, Model A, ranwell, placed from 60 months: median NSE (D-282)"
-placement_L60_split_nse_median_A_fwd,,,0.7005691366608163,m,"E12b, Model A, split fwd, placed from 60 months: median NSE (D-282)"
+placement_L60_split_nse_median_A_fwd,,,0.7005691368462911,m,"E12b, Model A, split fwd, placed from 60 months: median NSE (D-282)"
 placement_L60_split_nse_median_A_rev,,,0.6474226549850944,m,"E12b, Model A, split rev, placed from 60 months: median NSE (D-282)"
 placement_L60_verdict_B,,,0.0,code,"E12b, Model B, placed from 60 months: basis matters against the per-well basis (E12's rule, D-282)"
 placement_L60_ccw_holds_B,,,0.0,flag,"E12b, Model B, ccw, placed from 60 months: holds (1) or not (0), D-282"
 placement_L60_ranwell_holds_B,,,0.0,flag,"E12b, Model B, ranwell, placed from 60 months: holds (1) or not (0), D-282"
 placement_L60_split_holds_B,,,1.0,flag,"E12b, Model B, split, placed from 60 months: holds (1) or not (0), D-282"
 placement_L60_ccw_nse_median_B,,,-0.928708522456769,m,"E12b, Model B, ccw, placed from 60 months: median NSE (D-282)"
-placement_L60_ccw_absbias_median_B,,,0.3551635318170527,m,"E12b, Model B, CCW 1989-96, placed from 60 months: median |bias| (D-282)"
+placement_L60_ccw_absbias_median_B,,,0.35516353185384486,m,"E12b, Model B, CCW 1989-96, placed from 60 months: median |bias| (D-282)"
 placement_L60_ranwell_nse_median_B,,,0.7766081568680367,m,"E12b, Model B, ranwell, placed from 60 months: median NSE (D-282)"
-placement_L60_split_nse_median_B_fwd,,,0.7892240864912999,m,"E12b, Model B, split fwd, placed from 60 months: median NSE (D-282)"
+placement_L60_split_nse_median_B_fwd,,,0.7892240861401014,m,"E12b, Model B, split fwd, placed from 60 months: median NSE (D-282)"
 placement_L60_split_nse_median_B_rev,,,0.7838152157536699,m,"E12b, Model B, split rev, placed from 60 months: median NSE (D-282)"
 e13_verdict_hargreaves,,,not supported,text,"E13 Hargreaves: the rule at C3, C4, C5, Model A (D-273)"
 e13_verdict_priestley_taylor,,,not supported,text,"E13 Priestley-Taylor: the rule at C3, C4, C5, Model A (D-273)"
@@ -1449,13 +1477,13 @@ e_qm_nse_mapped_well,,,-0.1099267835713662,,"median NSE, mapped, CCW 1989-96, Mo
 e_qm_transfers_well,,,0.0,,"E18 rule on the well basis: transfers (1) or not (0), D-290"
 e_qm_n_wells_cluster,,,9.0,wells,"wells scored, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
 e_qm_n_improved_cluster,,,6.0,wells,"wells where the map lowers RMSE, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
-e_qm_rmse_raw_cluster_m,,,0.30131761776552624,m,"median RMSE, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
-e_qm_rmse_mapped_cluster_m,,,0.2589377706358507,m,"median RMSE, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
-e_qm_rmse_cut_cluster_m,,,0.04237984712967552,m,"median raw RMSE less median mapped RMSE, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
-e_qm_abs_bias_raw_cluster_m,,,0.22923967260475148,m,"median |bias|, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
-e_qm_abs_bias_mapped_cluster_m,,,0.21318196382783616,m,"median |bias|, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
-e_qm_nse_raw_cluster,,,-0.16889522008280844,,"median NSE, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
-e_qm_nse_mapped_cluster,,,0.07544504879166036,,"median NSE, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_rmse_raw_cluster_m,,,0.3013176177529241,m,"median RMSE, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_rmse_mapped_cluster_m,,,0.2589377706240433,m,"median RMSE, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_rmse_cut_cluster_m,,,0.04237984712888082,m,"median raw RMSE less median mapped RMSE, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_abs_bias_raw_cluster_m,,,0.2292396726038318,m,"median |bias|, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_abs_bias_mapped_cluster_m,,,0.21318196381669513,m,"median |bias|, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_nse_raw_cluster,,,-0.16889522040329186,,"median NSE, raw run, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
+e_qm_nse_mapped_cluster,,,0.07544504887597903,,"median NSE, mapped, CCW 1989-96, Model A at the project datum, cluster basis, 9 wells (E18, D-290)"
 e_qm_transfers_cluster,,,0.0,,"E18 rule on the cluster basis: transfers (1) or not (0), D-290"
 e_qm_n_censored_months,,,15.0,months,"CCW months censored at the pipe base and dropped, summed over the E18 wells (as Script 39)"
 e19_outcome,,,0.0,,"E19 outcome (D-292): 2 = the film's quantile map transfers, 1 = only the offset does, 0 = neither (the film keeps its map, caveated)"
@@ -1463,30 +1491,30 @@ e19_rmse_cut_threshold_m,,,0.05,m,"E19 rule: RMSE must fall by at least this (co
 e19_n_months,,,67.0,months,"CCW months scored, every admitted well uncensored; film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
 e19_n_months_dropped,,,15.0,months,CCW months dropped because an admitted well was censored at its pipe base (E19)
 e19_n_wells_ccw,,,9.0,wells,"admitted CCW wells in the median (Script 39's admission, E19)"
-e19_rmse_raw_m,,,0.15173638329750272,m,"RMSE, raw run, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_bias_raw_m,,,-0.0450392428868551,m,"bias (modelled minus observed), raw run, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_nse_raw,,,0.6662344536326689,,"NSE, raw run, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_rmse_map_m,,,0.1157601738297161,m,"RMSE, mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_bias_map_m,,,0.02481047185447198,m,"bias (modelled minus observed), mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_nse_map,,,0.8057413404024679,,"NSE, mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_rmse_cut_map_m,,,0.035976209467786624,m,"raw RMSE less this arm's, mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_rmse_raw_m,,,0.15173638317803184,m,"RMSE, raw run, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_bias_raw_m,,,-0.04503924292726859,m,"bias (modelled minus observed), raw run, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_nse_raw,,,0.666234454158255,,"NSE, raw run, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_rmse_map_m,,,0.11576017380691171,m,"RMSE, mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_bias_map_m,,,0.024810471743611236,m,"bias (modelled minus observed), mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_nse_map,,,0.8057413404790046,,"NSE, mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_rmse_cut_map_m,,,0.03597620937112013,m,"raw RMSE less this arm's, mapped arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
 e19_n_years_improved_map,,,4.0,years,hydrology years where the mapped arm lowers RMSE (E19)
 e19_pass_map,,,0.0,,"E19 rule on the mapped arm: kept (1) or not (0), D-292"
-e19_rmse_offset_m,,,0.14614850225715462,m,"RMSE, offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_bias_offset_m,,,-0.019078472046366847,m,"bias (modelled minus observed), offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_nse_offset,,,0.6903644728134719,,"NSE, offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
-e19_rmse_cut_offset_m,,,0.005587881040348103,m,"raw RMSE less this arm's, offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_rmse_offset_m,,,0.14614850212436192,m,"RMSE, offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_bias_offset_m,,,-0.019078472074713654,m,"bias (modelled minus observed), offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_nse_offset,,,0.6903644733761507,,"NSE, offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
+e19_rmse_cut_offset_m,,,0.005587881053669919,m,"raw RMSE less this arm's, offset arm, film's warren run against the median of the admitted CCW wells, 67 months 1989-96 (E19, D-292)"
 e19_n_years_improved_offset,,,4.0,years,hydrology years where the offset arm lowers RMSE (E19)
 e19_pass_offset,,,0.0,,"E19 rule on the offset arm: kept (1) or not (0), D-292"
 e19_n_years,,,6.0,years,D-207 hydrology years with at least E19_MIN_MONTHS_PER_YEAR scored months (E19)
-e19_offset_m,,,0.025960770840488246,m,the offset arm: mean observed minus modelled over the film's calibration months (E19)
-e19_modern_bias_raw_m,,,-0.025960770840488246,m,"bias, raw: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
+e19_offset_m,,,0.025960770852554944,m,the offset arm: mean observed minus modelled over the film's calibration months (E19)
+e19_modern_bias_raw_m,,,-0.025960770852554944,m,"bias, raw: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
 e19_modern_bias_mapped_m,,,1.1053105333657532e-18,m,"bias, mapped: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
-e19_modern_rmse_raw_m,,,0.1693931474511705,m,"RMSE, raw: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
+e19_modern_rmse_raw_m,,,0.16939314745091222,m,"RMSE, raw: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
 e19_modern_rmse_mapped_m,,,0.161464994800066,m,"RMSE, mapped: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
-e19_modern_wet_end_bias_raw_m,,,-0.06471180368028359,m,"wet-end bias, raw: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
+e19_modern_wet_end_bias_raw_m,,,-0.06471180399052676,m,"wet-end bias, raw: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
 e19_modern_wet_end_bias_mapped_m,,,-0.0521431693989071,m,"wet-end bias, mapped: the film's calibration over its 226 modern months (Script 47's calibrate, read by E19)"
-e19_century_level_max_raw_m,,,0.6228119901152366,m,"highest monthly level of the film's century run, raw (Script 47's calibrate, read by E19)"
-e19_century_level_max_mapped_m,,,0.19427846553812575,m,"highest monthly level of the film's century run, mapped (Script 47's calibrate, read by E19)"
+e19_century_level_max_raw_m,,,0.6228119892490149,m,"highest monthly level of the film's century run, raw (Script 47's calibrate, read by E19)"
+e19_century_level_max_mapped_m,,,0.19427846539247798,m,"highest monthly level of the film's century run, mapped (Script 47's calibrate, read by E19)"
 e19_composition_mean_m,,,-0.019699805924191165,m,"modern record: the CCW wells' median less the network median, mean over 252 months (context, not scored)"
 e19_composition_sd_m,,,0.10719433883475706,m,"the same difference, standard deviation (E19 context)"

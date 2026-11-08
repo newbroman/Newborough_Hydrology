@@ -72,7 +72,6 @@
 - **canonical / C4 (Main Forest) · amplification_mean**  — quoted 1.66 vs committed 1.66281  ·  `33_cluster_summary.csv`
 - **ANCOVA_Forest_Impact_clearfell_step_winter_ci_hi_hac**  — quoted 0.254 vs committed 0.254062  ·  `10_consolidated_report_numbers.csv`
 - **ANCOVA_C_WMC3_only_Forest_net_clearfell**  — quoted 0.128 vs committed 0.127532  ·  `10_consolidated_report_numbers.csv`
-- **depth_dependent_pet_best_kappa · C5**  — quoted 0.400 vs committed 0.4  ·  `15_report_numbers.csv`
 - **scenario_dh_mean_broadleaf_interception_bound_annual_C5_model_a** [Δh] — quoted 0.308 vs committed 0.307961  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **scenario_sy_used · C5 (Coastal Forest)**  — quoted 0.308 vs committed 0.308275  ·  `21_report_numbers.csv`
 - **msl5_gap_c1_c3_m**  — quoted 0.251 vs committed 0.250527  ·  `26_report_numbers.csv`
@@ -81,9 +80,8 @@
 - **reclen_identified_share_B_median_L36_C5**  — quoted 0.400 vs committed 0.4  ·  `50_report_numbers.csv`
 - **reclen_rho_ar1_expected_full_B_median_C5**  — quoted 0.406 vs committed 0.40607  ·  `50_report_numbers.csv`
 - **e17_ccw_abs_bias_median_m_C5_depth**  — quoted 0.217 vs committed 0.217173  ·  `50_report_numbers.csv`
-- **C5 · Best_Kappa**  — quoted 0.400 vs committed 0.4  ·  `15_04_best_params.csv`
 - **ukcp18_2050s / winter / C5 · dh_mean_m** [Δh] — quoted -0.121 vs committed -0.1207  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **clearfell / annual / SITE · we_mean_mm** [Δh] — quoted 1.66 vs committed 1.66062  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **clearfell / annual / SITE · we_mean_mm** [Δh] — quoted 1.66 vs committed 1.66063  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **WMC3-Forest5 / fixed_s25 / 2021-01..2026-02 · p**  — quoted 0.108 vs committed 0.108171  ·  `10a_13_era_split.csv`
 - **Forest / Coastal Ctrl · Clearfell_SE_m**  — quoted 0.108 vs committed 0.1079  ·  `10d_08_spring_mixed_model_results.csv`
 - **ceh31 · p_ar_2005_2025** [p] — quoted 0.237 vs committed 0.237284  ·  `32_differential_movement_per_well.csv`  — _significance probability_
@@ -106,7 +104,7 @@
 - **C4 (Main Forest) (corrected) / True · Sy_event_median_unclipped** [S_y] — quoted 0.308 vs committed 0.307573  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C3 · p_value_robust** [p] — quoted 0.237 vs committed 0.440987  ·  `14_summer_trend_stats.csv`  — _significance probability_
 - **C2 (Dune) / 2024 · MSL5_m_bg_std**  — quoted 0.251 vs committed 0.251082  ·  `26_msl_5yr_per_cluster.csv`
-- **wmc3 / clearfell / summer / level_sustained_model_a · dh_m**  — quoted 0.103 vs committed 0.102772  ·  `19_scenario_perwell_model_a.csv`
+- **wmc3 / clearfell / summer / level_sustained_model_a · dh_m**  — quoted 0.103 vs committed 0.102773  ·  `19_scenario_perwell_model_a.csv`
 - **ceh20 / thinning / annual / level_sustained_model_a · dh_m**  — quoted 0.103 vs committed 0.103354  ·  `19_scenario_perwell_model_a.csv`
 - **clearfell / summer / level_sustained_model_a / C4 · dh_mean_m** [Δh] — quoted 0.213 vs committed 0.213323  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
 - **broadleaf_interception_bound / annual / level_sustained_model_a / C5 · dh_mean_m** [Δh] — quoted 0.308 vs committed 0.307961  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
@@ -741,7 +739,7 @@
 - **e13b_resid_thornthwaite_C3_rmse_median**  — quoted 0.100 vs committed 0.100362  ·  `50_report_numbers.csv`
 - **C2 (Dune) · R2** [R²] — quoted 0.764 vs committed 0.763543  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
 - **ukcp18_2080s / winter / C2 · dh_mean_m** [Δh] — quoted -0.134 vs committed -0.1339  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **clearfell_interception_bound / annual / C5 · dh_median_m** [Δh] — quoted 0.358 vs committed 0.357528  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **clearfell_interception_bound / annual / C5 · dh_median_m** [Δh] — quoted 0.358 vs committed 0.35753  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **C2 (Dune) · R2_at_datum**  — quoted 0.764 vs committed 0.763543  ·  `03_18_datum_invariance.csv`
 - **C3 (Western Residual) · R2_at_datum**  — quoted 0.827 vs committed 0.827287  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · R2_at_optimum**  — quoted 0.733 vs committed 0.733387  ·  `03_18_datum_invariance.csv`
@@ -1345,6 +1343,9 @@
 - _(untracked)_ 31% — …ils, where interception fell from 31% to 10% of rainfall (Roy et al…
 - _(untracked)_ 10% — …ere interception fell from 31% to 10% of rainfall (Roy et al., 2000…
 - _(untracked)_ 0.29 m — …oy et al., 2000). Another reports 0.29 m in pine flatwood uplands when…
+- _(untracked)_ −0.95 — …with a 95 per cent interval from −0.95 to +0.97, so the statistic is…
+- _(untracked)_ −0.89 — …early anti-correlated (r = −0.74, −0.89 to −0.47), but that population…
+- _(untracked)_ −0.47 — …i-correlated (r = −0.74, −0.89 to −0.47), but that population mixes t…
 - _(untracked)_ 0.25 m — …alized summer minimum sits about +0.25 m shallower than the pine inter…
 - _(untracked)_ −26 mm yr⁻¹ — …es over the post-felling summers (−26 mm yr⁻¹), in the direction the lower…
 - _(untracked)_ 72 mm — …dge wells nearest the forest at 8--72 mm, and the eastern dune and lak…
@@ -1611,9 +1612,9 @@
 - **C3 (Western Residual) / False · Sy_rapid_median** [S_y] — quoted 0.314 vs committed 0.314118  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C3 (Western Residual) / False · Sy_rapid_CI_lo** [S_y] — quoted 0.243 vs committed 0.243283  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C4 (Main Forest) / False · Sy_OLS_winter** [S_y] — quoted 0.306 vs committed 0.305985  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
-- **C4 (Main Forest) / False · Sy_OLS_R2** [S_y] — quoted 0.845 vs committed 0.859964 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
-- **C4 (Main Forest) / False · Sy_OLS_R2** [S_y] — quoted 0.853 vs committed 0.859964 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
-- **C4 (Main Forest) / False · Sy_OLS_R2** [S_y] — quoted 0.860 vs committed 0.859964  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
+- **C4 (Main Forest) / False · Sy_OLS_R2** [S_y] — quoted 0.845 vs committed 0.859963 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
+- **C4 (Main Forest) / False · Sy_OLS_R2** [S_y] — quoted 0.853 vs committed 0.859963 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
+- **C4 (Main Forest) / False · Sy_OLS_R2** [S_y] — quoted 0.860 vs committed 0.859963  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C4 (Main Forest) / False · Sy_rapid_median** [S_y] — quoted 0.306 vs committed 0.305884  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C5 (Coastal Forest) / False · Sy_OLS_winter** [S_y] — quoted 0.418 vs committed 0.418445  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C5 (Coastal Forest) / False · Sy_OLS_R2** [S_y] — quoted 0.869 vs committed 0.869299  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
@@ -1668,7 +1669,6 @@
 - **CCW_PIPE_BASE_M**  — quoted -2.000 vs committed -2  ·  `config.py`
 - **C1 (Lake Edge) · R2** [R²] — quoted 0.734 vs committed 0.72914 ⚠  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
 - **C1 (Lake Edge) · R2** [R²] — quoted 0.729 vs committed 0.72914  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
-- **C1 · Best_Kappa**  — quoted 2.30 vs committed 2.3  ·  `15_04_best_params.csv`
 - **C2 (Dune) / 1 · R2** [R²] — quoted 0.137 vs committed 0.149692 ⚠  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C2 (Dune) / 1 · R2** [R²] — quoted 0.150 vs committed 0.149692  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C2 (Dune) / 2 · R2** [R²] — quoted 0.127 vs committed 0.141101 ⚠  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
@@ -1736,7 +1736,7 @@
 - **Long-term mean · P_PET_ratio** [p] — quoted 1.35 vs committed 1.34779  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
 - **ceh14 · DEM_Ground_Elev**  — quoted 14.42 vs committed 14.42  ·  `01_locations.csv`
 - **well / C1 (Lake Edge) / ceh11 · t_half_B_months**  — quoted 2.57 vs committed 2.568  ·  `03_16_model_b_persistence.csv`
-- **summary / corr_upstand_vs_d_beta_1 · value**  — quoted 0.793 vs committed 0.821028 ⚠  ·  `03_17_upstand_frame_sensitivity.csv`
+- **summary / corr_upstand_vs_d_beta_1 · value**  — quoted 0.793 vs committed 0.821026 ⚠  ·  `03_17_upstand_frame_sensitivity.csv`
 - **nw2 · beta_1_recharge** [β₁] — quoted 4.58 vs committed 4.55665 ⚠  ·  `07_coeff_maps_data.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh16 · Model_R2** [R²] — quoted 0.747 vs committed 0.75654 ⚠  ·  `07_coeff_maps_data.csv`  — _coefficient of determination_
 - **ceh19 · Model_R2** [R²] — quoted 0.729 vs committed 0.732216 ⚠  ·  `07_coeff_maps_data.csv`  — _coefficient of determination_
@@ -1761,7 +1761,7 @@
 - **Impact · R2** [R²] — quoted 0.724 vs committed 0.7242  ·  `10l_01_four_zone_summer_results.csv`  — _coefficient of determination_
 - **C1 · Delta_NSE**  — quoted 0.184 vs committed 0.147 ⚠  ·  `15_03_benchmark_table.csv`
 - **C1 · Delta_NSE**  — quoted 0.147 vs committed 0.147  ·  `15_03_benchmark_table.csv`
-- **ceh14 · residual_wb**  — quoted −0.008 vs committed -0.00766043  ·  `20_residual_perwell.csv`
+- **ceh14 · residual_wb**  — quoted −0.008 vs committed -0.00766045  ·  `20_residual_perwell.csv`
 - **C5 Coastal forest / Post-felling 2018+ · SD_depth_m**  — quoted 0.129 vs committed 0.1222 ⚠  ·  `21_forestry_02_distributions_means.csv`
 - **C5 Coastal forest / Post-felling 2018+ · Min_depth_m**  — quoted 1.35 vs committed 1.3478  ·  `21_forestry_02_distributions_means.csv`
 - **C4 Main forest / Scraping era 2015–17 · SD_depth_m**  — quoted 0.256 vs committed 0.256  ·  `21_forestry_02_distributions_means.csv`
@@ -1875,7 +1875,7 @@
 - **msl5_deepening**  — quoted −105.1 vs committed -105.145  ·  `20_msl5_report_numbers.csv`
 - **pearson_r_max**  — quoted 0.943 vs committed 0.943456  ·  `39_report_numbers.csv`
 - **nse_bias_removed_persistent_forest**  — quoted −0.10 vs committed -0.0990856  ·  `39_report_numbers.csv`
-- **residual_mean_all**  — quoted −0.035 vs committed -0.0347629  ·  `39_report_numbers.csv`
+- **residual_mean_all**  — quoted −0.035 vs committed -0.034763  ·  `39_report_numbers.csv`
 - **open_pearson_r_median**  — quoted 0.903 vs committed 0.902619  ·  `39_report_numbers.csv`
 - **open_nse_bias_removed_median**  — quoted 0.742 vs committed 0.742342  ·  `39_report_numbers.csv`
 - **open_epoch_shift_median**  — quoted −0.347 vs committed -0.346629  ·  `39_report_numbers.csv`
@@ -1908,7 +1908,7 @@
 - **scrape_offsite · area_mm_ha**  — quoted −20,990.9 vs committed -20990.9  ·  `37b_driver_footing.csv`
 - **scrape_offsite · volume_m3**  — quoted −62,594.9 vs committed -62594.9  ·  `37b_driver_footing.csv`
 - **scrape_net · volume_m3**  — quoted −60,785.7 vs committed -60785.7  ·  `37b_driver_footing.csv`
-- **recession_time_months · full_R2** [R²] — quoted 0.641 vs committed 0.640811  ·  `29_headline_models.csv`  — _coefficient of determination_
+- **recession_time_months · full_R2** [R²] — quoted 0.641 vs committed 0.640812  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **ANCOVA_Forest_Edge_coeff_cwb2_x_fell**  — quoted −8.39 vs committed -8.38544  ·  `10_consolidated_report_numbers.csv`
 - **forest_free_mam / linear_capped · delta_0_mm_yr**  — quoted −34.06 vs committed -34.06  ·  `25_01_panel_fit_parameters.csv`
 - **forest_free / linear_capped · delta_ref_mm_yr**  — quoted −26.38 vs committed -26.3784  ·  `25_01_panel_fit_parameters.csv`
@@ -1923,7 +1923,6 @@
 - **forest_free / 2005-06 / 2026-02 · delta_0_mm_yr**  — quoted −31.35 vs committed -31.3507  ·  `25_12_window_sweep.csv`
 - **nw6 · pearson_r**  — quoted 0.85 vs committed 0.847944  ·  `39_01_hindcast_per_well.csv`
 - **1899 / 2006 / pair_extent · rate_m_yr**  — quoted 0.64 vs committed 0.639168  ·  `40_01_epoch_series.csv`
-- **depth_dependent_pet_best_kappa · C1**  — quoted 2.30 vs committed 2.3  ·  `15_report_numbers.csv`
 - **beta_3_c3** [β₃] — quoted 0.062 vs committed 0.0619513  ·  `20_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ssm_resid_dw_median**  — quoted 2.28 vs committed 2.27525  ·  `22_report_numbers.csv`
 - **ssm_resid_dw_q1**  — quoted 2.17 vs committed 2.16979  ·  `22_report_numbers.csv`
@@ -1961,9 +1960,9 @@
 - **c3_n_moves_to_c2_forest_free**  — quoted 2.00 vs committed 2  ·  `28_report_numbers.csv`
 - **neg_control_c2_mean_residual_mm_full_record**  — quoted 26.8 vs committed 26.8  ·  `37_report_numbers.csv`
 - **open_nse_mean_beta1_scale_1.03** [β₁] — quoted 0.271 vs committed 0.271392  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **open_nse_mean_beta1_scale_1.06** [β₁] — quoted 0.087 vs committed 0.0865898  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **open_nse_mean_beta1_scale_1.10** [β₁] — quoted −0.729 vs committed -0.728859  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **open_bias_mean_beta1_scale_1.03** [β₁] — quoted 0.016 vs committed 0.0163382  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **open_nse_mean_beta1_scale_1.06** [β₁] — quoted 0.087 vs committed 0.0865894  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **open_nse_mean_beta1_scale_1.10** [β₁] — quoted −0.729 vs committed -0.72886  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **open_bias_mean_beta1_scale_1.03** [β₁] — quoted 0.016 vs committed 0.0163384  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **canopy_nse_mean_beta1_scale_1.10** [β₁] — quoted −9.006 vs committed -9.00559  ·  `39_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **msl5_crosscheck_worst_diff_mm**  — quoted 0.049 vs committed 0.0487376  ·  `19_report_numbers.csv`
 - **B2_multiplier_clearfell** [β₂] — quoted 1.0475 vs committed 1.04747  ·  `10_consolidated_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -1982,7 +1981,7 @@
 - **datum_aod_r2_median_at_optimum**  — quoted 0.738 vs committed 0.738444  ·  `03_report_numbers.csv`
 - **warren_open_r2** [R²] — quoted 0.825 vs committed 0.824599  ·  `03_report_numbers.csv`  — _coefficient of determination_
 - **C4_beta1_mean** [β₁] — quoted 2.46 vs committed 2.4605  ·  `07_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **C5_beta1_mean** [β₁] — quoted 2.36 vs committed 2.36382  ·  `07_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C5_beta1_mean** [β₁] — quoted 2.36 vs committed 2.36381  ·  `07_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C1_median_SSM_NSE**  — quoted 0.745 vs committed 0.745076  ·  `08_report_numbers.csv`
 - **BACI_pre_window_trend · CEH36 · CEH36 vs CEH4, 2015 scrape (positive control)**  — quoted 0.0144 vs committed 0.0144497  ·  `09_scrape_report_numbers.csv`
 - **Summer_min_era_change_vs_first · CEH36 · 3_Felling_Pulse**  — quoted 0.129 vs committed 0.12875  ·  `09c_report_numbers.csv`
@@ -2014,7 +2013,6 @@
 - **flood_freq_n_ever · C5**  — quoted 1.000 vs committed 1  ·  `11b_report_numbers.csv`
 - **annual_extreme_summer_min · C3 · 2023**  — quoted -1.12 vs committed -1.12435  ·  `14_report_numbers.csv`
 - **annual_extreme_summer_min · C5 · 2017**  — quoted -1.68 vs committed -1.6758  ·  `14_report_numbers.csv`
-- **depth_dependent_pet_efold_depth · C5**  — quoted 2.50 vs committed 2.5  ·  `15_report_numbers.csv`
 - **sy_event_clip_shift · C3 (Western Residual)**  — quoted 0.141 vs committed 0.141428  ·  `17_report_numbers.csv`
 - **sy_ols_to_event_ratio · C3 (Western Residual)**  — quoted 1.12 vs committed 1.11726  ·  `17_report_numbers.csv`
 - **sy_event_clip_shift · C4 (Main Forest)**  — quoted 0.137 vs committed 0.137388  ·  `17_report_numbers.csv`
@@ -2184,7 +2182,7 @@
 - **C4 (Main Forest) · R2_at_datum**  — quoted 0.733 vs committed 0.732565  ·  `03_18_datum_invariance.csv`
 - **C5 (Coastal Forest) · R2_at_optimum**  — quoted 0.706 vs committed 0.705958  ·  `03_18_datum_invariance.csv`
 - **C5 (Coastal Forest) · R2_at_datum**  — quoted 0.706 vs committed 0.705958  ·  `03_18_datum_invariance.csv`
-- **well / C3 (Western Residual) / wmc3 · alpha_B**  — quoted 0.137 vs committed 0.137295  ·  `03_16_model_b_persistence.csv`
+- **well / C3 (Western Residual) / wmc3 · alpha_B**  — quoted 0.137 vs committed 0.137292  ·  `03_16_model_b_persistence.csv`
 - **well / C2 (Dune) / L7 · alpha_B**  — quoted 0.210 vs committed 0.210292  ·  `03_16_model_b_persistence.csv`
 - **well / C3 (Western Residual) / D38 · t_half_B_months**  — quoted 3.49 vs committed 3.48651  ·  `03_16_model_b_persistence.csv`
 - **per_well / ceh10 · beta_3_ground_frame** [β₃] — quoted 0.109 vs committed 0.10855  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -2264,7 +2262,7 @@
 - **C5 (Coastal Forest) / 2050s · msl5_shift_mean_m**  — quoted -0.249 vs committed -0.249224  ·  `26b_msl5_ukcp18_projection_summary.csv`
 - **C5 (Coastal Forest) / 2080s · msl5_shift_mean_m**  — quoted -0.444 vs committed -0.444121  ·  `26b_msl5_ukcp18_projection_summary.csv`
 - **C3 (Western Residual) / 2080s / perwell · msl5_shift_sustained_median_m**  — quoted -0.106 vs committed -0.106234  ·  `26b_msl5_ukcp18_projection_summary_perwell.csv`
-- **C5 (Coastal Forest) / 2080s / perwell · msl5_shift_sustained_median_m**  — quoted -0.106 vs committed -0.106394  ·  `26b_msl5_ukcp18_projection_summary_perwell.csv`
+- **C5 (Coastal Forest) / 2080s / perwell · msl5_shift_sustained_median_m**  — quoted -0.106 vs committed -0.106395  ·  `26b_msl5_ukcp18_projection_summary_perwell.csv`
 - **C1 (Lake Edge) / False · Sy_OLS_R2** [S_y] — quoted 0.595 vs committed 0.595003  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C1 (Lake Edge) / False · Sy_rapid_CI_lo** [S_y] — quoted 0.101 vs committed 0.101414  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C2 (Dune) / False · Sy_OLS_R2** [S_y] — quoted 0.621 vs committed 0.621178  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
@@ -2328,16 +2326,16 @@
 - **ceh8 · r_C4**  — quoted 0.822 vs committed 0.8217  ·  `06_pear_membership_audit_sitewide.csv`
 - **C3 / 2023 / Summer_Min · Value_m**  — quoted -1.12 vs committed -1.1243  ·  `14_annual_extremes.csv`
 - **C5 / 2017 / Summer_Min · Value_m**  — quoted -1.68 vs committed -1.6758  ·  `14_annual_extremes.csv`
-- **beta_1_recharge · full_R2** [R²] — quoted 0.766 vs committed 0.766328  ·  `29_headline_models.csv`  — _coefficient of determination_
+- **beta_1_recharge · full_R2** [R²] — quoted 0.766 vs committed 0.766329  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **beta_1_recharge · full_adj_R2** [R²] — quoted 0.688 vs committed 0.688438  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **beta_1_recharge · strongest_unique_delta_R2** [R²] — quoted 0.189 vs committed 0.189127  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **beta_2_atmospheric_draw · full_R2** [R²] — quoted 0.711 vs committed 0.710501  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **beta_2_atmospheric_draw · full_adj_R2** [R²] — quoted 0.614 vs committed 0.614001  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **beta_2_atmospheric_draw · strongest_unique_delta_R2** [R²] — quoted 0.361 vs committed 0.361046  ·  `29_headline_models.csv`  — _coefficient of determination_
-- **beta_3_drainage · full_R2** [R²] — quoted 0.689 vs committed 0.688703  ·  `29_headline_models.csv`  — _coefficient of determination_
+- **beta_3_drainage · full_R2** [R²] — quoted 0.689 vs committed 0.688704  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **beta_3_drainage · full_adj_R2** [R²] — quoted 0.585 vs committed 0.584938  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **beta_3_drainage · strongest_unique_delta_R2** [R²] — quoted 0.301 vs committed 0.300731  ·  `29_headline_models.csv`  — _coefficient of determination_
-- **recession_time_months · full_adj_R2** [R²] — quoted 0.521 vs committed 0.521081  ·  `29_headline_models.csv`  — _coefficient of determination_
+- **recession_time_months · full_adj_R2** [R²] — quoted 0.521 vs committed 0.521082  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **recession_time_months · strongest_unique_delta_R2** [R²] — quoted 0.426 vs committed 0.425725  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **summer_min_depth_m · full_R2** [R²] — quoted 0.994 vs committed 0.993595  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **seasonal_amplitude_m · full_R2** [R²] — quoted 0.806 vs committed 0.80559  ·  `29_headline_models.csv`  — _coefficient of determination_
@@ -2418,7 +2416,7 @@
 - **C5 (Coastal Forest) / 2024 · MSL5_m_bg_std**  — quoted 0.418 vs committed 0.418141  ·  `26_msl_5yr_per_cluster.csv`
 - **MSL5 · rmse_ebf**  — quoted 0.337 vs committed 0.336579  ·  `26_ebf_prediction_summary.csv`
 - **all / C3 (Western Residual) · rho_ar1_expected_mean**  — quoted 0.215 vs committed 0.214769  ·  `26_index_precision_by_cluster.csv`
-- **reference / C5 (Coastal Forest) · rho_ar1_expected_mean**  — quoted 0.273 vs committed 0.273296  ·  `26_index_precision_by_cluster.csv`
+- **reference / C5 (Coastal Forest) · rho_ar1_expected_mean**  — quoted 0.273 vs committed 0.273297  ·  `26_index_precision_by_cluster.csv`
 - **dry / nw1 · error_m**  — quoted 0.183 vs committed 0.182975  ·  `01b_02_loo_per_well.csv`
 - **dry / nw9 · error_m**  — quoted 0.120 vs committed 0.120262  ·  `01b_02_loo_per_well.csv`
 - **forest_free / exponential · c_se**  — quoted 1.11 vs committed 1.11  ·  `25_01_panel_fit_parameters.csv`
@@ -2646,6 +2644,14 @@
 - _(untracked)_ 521 mm — …tological mean winter rainfall of 521 mm (*MEAN_WINTER_RAINFALL_MM*):…
 - _(untracked)_ −0.50 m — …-   **DEM corrections for CEH18 (−0.50 m) and CEH21 (−0.70 m)**, both…
 - _(untracked)_ −0.70 m — …ns for CEH18 (−0.50 m) and CEH21 (−0.70 m)**, both scraped October 2023…
+- _(untracked)_ 81 wells — …s being sampled from it: over the 81 wells carrying both a DEM elevation…
+- _(untracked)_ 0.077 m — …, the DEM reads high by a mean of 0.077 m with an RMSE of 0.163 m (SD 0…
+- _(untracked)_ 84 % — …an RMSE of 0.163 m (SD 0.145 m); 84 % of wells agree within 0.15 m…
+- _(untracked)_ 0.15 m — …45 m); 84 % of wells agree within 0.15 m and 95 % within 0.30 m, the w…
+- _(untracked)_ 0.30 m — …ree within 0.15 m and 95 % within 0.30 m, the worst single discrepancy…
+- _(untracked)_ 0.710 m — …he worst single discrepancy being 0.710 m at CEH2. Forested wells carry…
+- _(untracked)_ 0.211 m — …larger error than open ones (RMSE 0.211 m against 0.137 m, bias +0.127…
+- _(untracked)_ 0.081 m — …t 0.137 m, bias +0.127 m against +0.081 m), the direction canopy penetr…
 - _(untracked)_ 65 wells — …pen-dune and forest zones. Of the 65 wells in C1 + C2 + C3 (the open-dun…
 - _(untracked)_ 23 wells — …and none are unreachable. Of the 23 wells in C4 + C5 (the forest cluste…
 - _(untracked)_ −6 — …a water-table depth of 1 m, *exp(−6) ≈ 0.0025*, so PET draw is ef…
@@ -2965,8 +2971,7 @@
 - **SD16_REC**  — quoted 1.20 vs committed 1.2  ·  `config.py`
 - **BROADLEAF_B2_SUMMER**  — quoted 1.075 vs committed 1.075  ·  `config.py`
 - **BROADLEAF_B2_WINTER**  — quoted 0.882 vs committed 0.8817  ·  `config.py`
-- **C1 · Best_Kappa**  — quoted 2.30 vs committed 2.3  ·  `15_04_best_params.csv`
-- **nw5 · nse**  — quoted 0.206 vs committed -0.0226051 ⚠  ·  `39_01_hindcast_per_well.csv`
+- **nw5 · nse**  — quoted 0.206 vs committed -0.0226039 ⚠  ·  `39_01_hindcast_per_well.csv`
 - **C1 · p_value** [p] — quoted 0.311 vs committed 0.3115  ·  `14_spring_trend_stats.csv`  — _significance probability_
 - **C2 (Dune) / False · Sy_OLS_winter** [S_y] — quoted 0.362 vs committed 0.331759 ⚠  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
 - **C3 (Western Residual) / False · Sy_rapid_CI_hi** [S_y] — quoted 0.389 vs committed 0.38917  ·  `17_wtf_01_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
@@ -2987,7 +2992,7 @@
 - **C1 (Lake Edge) · Total_loss_m_month**  — quoted 0.345 vs committed 0.344825  ·  `16_water_bal_table.csv`
 - **C2 (Dune) · Drainage_m_month**  — quoted 0.204 vs committed 0.198095 ⚠  ·  `16_water_bal_table.csv`
 - **C4 (Main Forest) / full_record · R2** [R²] — quoted 0.733 vs committed 0.732565  ·  `03_14_centroid_window_sensitivity.csv`  — _coefficient of determination_
-- **broadleaf / summer / C3 · we_mean_mm** [Δh] — quoted 0.206 vs committed -1.01729 ⚠  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **broadleaf / summer / C3 · we_mean_mm** [Δh] — quoted 0.206 vs committed -1.0173 ⚠  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **Scraping (nearby) / C3 · Delta_vol_mm_per_month**  — quoted 0.200 vs committed -0.1 ⚠  ·  `09b_04_scenario_comparison.csv`
 - **2026 · Months_complete**  — quoted 2.00 vs committed 2  ·  `00_01_annual_climate_summary.csv`
 - **nw4b · abs_diff_m**  — quoted 0.174 vs committed 0.173861  ·  `01_dist_coast_validation.csv`
@@ -3077,11 +3082,10 @@
 - **C5 (Coastal Forest) · well_median_max_R2_datum_m**  — quoted 2.00 vs committed 2  ·  `03_18_datum_invariance.csv`
 - **Eastern_Block · p_value_P_winter** [p] — quoted 0.0109 vs committed 0.0109207  ·  `11_forecast_winter_transfer_functions.csv`  — _significance probability_
 - **C3 (Western Residual) · VIF**  — quoted 1.31 vs committed 1.30638  ·  `30_c4_identifiability_by_cluster.csv`
-- **nw10 · beta_3_drainage** [β₃] — quoted 0.0394 vs committed 0.039362  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw10 · beta_3_drainage** [β₃] — quoted 0.0394 vs committed 0.0393619  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3_beta3_vs_inland_r** [β₃] — quoted 0.552 vs committed 0.551945  ·  `29_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **Summer_min_era_mean · CEH4 · 3_Felling_Pulse**  — quoted -1.15 vs committed -1.1475  ·  `09c_report_numbers.csv`
 - **C3 (Western Residual) · m_P**  — quoted 1.25 vs committed 1.25121  ·  `11b_06_pflood_cluster_summary.csv`
-- **depth_dependent_pet_best_kappa · C1**  — quoted 2.30 vs committed 2.3  ·  `15_report_numbers.csv`
 - **ridge_lag_mannwhitney_U_C4_vs_C2C3**  — quoted 232.5 vs committed 232.5  ·  `23_report_numbers.csv`
 - **c3_n_moves_to_c2_forest_free**  — quoted 2.00 vs committed 2  ·  `28_report_numbers.csv`
 - **B2_tier_ratio_after_over_before · Climate Ctrl**  — quoted 0.910 vs committed 0.910102  ·  `10_consolidated_report_numbers.csv`
@@ -3126,12 +3130,11 @@
 - **annual_extreme_summer_min · C3 · 2025**  — quoted -1.35 vs committed -1.34877  ·  `14_report_numbers.csv`
 - **annual_extreme_winter_max · C3 · 2008**  — quoted -0.120 vs committed -0.119571  ·  `14_report_numbers.csv`
 - **annual_extreme_winter_max · C3 · 2012**  — quoted -1.08 vs committed -1.07813  ·  `14_report_numbers.csv`
-- **depth_dependent_pet_best_kappa · C5**  — quoted 0.400 vs committed 0.4  ·  `15_report_numbers.csv`
 - **sy_ols_to_event_ratio · C3 (Western Residual)**  — quoted 1.12 vs committed 1.11726  ·  `17_report_numbers.csv`
 - **well_sy_cluster_mean_c3**  — quoted 0.305 vs committed 0.30462  ·  `18_report_numbers.csv`
 - **scenario_end_state_open_dune_C5_model_a**  — quoted 0.490 vs committed 0.489703  ·  `19_report_numbers.csv`
 - **scenario_dh_mean_broadleaf_interception_bound_annual_C5_model_a** [Δh] — quoted 0.308 vs committed 0.307961  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
-- **scenario_dh_mean_broadleaf_interception_bound_summer_C4_model_a** [Δh] — quoted 0.481 vs committed 0.481106  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
+- **scenario_dh_mean_broadleaf_interception_bound_summer_C4_model_a** [Δh] — quoted 0.481 vs committed 0.481107  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **residual_c4_median_beta3** [β₃] — quoted 0.0194 vs committed 0.0194112  ·  `20_residual_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **scenario_sy_used · C4 (Main Forest)**  — quoted 0.253 vs committed 0.252638  ·  `21_report_numbers.csv`
 - **scenario_head_shift_m · C4 (Main Forest) · clearfell · summer**  — quoted 0.351 vs committed 0.351495  ·  `21_report_numbers.csv`
@@ -3224,9 +3227,9 @@
 - **two_store_C2_ccw_bias_double_m**  — quoted 0.161 vs committed 0.160865  ·  `50_report_numbers.csv`
 - **two_store_C3_early_resid_single_m**  — quoted 0.165 vs committed 0.165287  ·  `50_report_numbers.csv`
 - **two_store_C3_ccw_bias_single_m**  — quoted 0.382 vs committed 0.382393  ·  `50_report_numbers.csv`
-- **two_store_C3_ccw_bias_double_m**  — quoted 0.382 vs committed 0.381835  ·  `50_report_numbers.csv`
+- **two_store_C3_ccw_bias_double_m**  — quoted 0.382 vs committed 0.381826  ·  `50_report_numbers.csv`
 - **two_store_C4_early_resid_single_m**  — quoted 0.519 vs committed 0.518967  ·  `50_report_numbers.csv`
-- **two_store_C4_early_resid_double_m**  — quoted 0.521 vs committed 0.520986  ·  `50_report_numbers.csv`
+- **two_store_C4_early_resid_double_m**  — quoted 0.521 vs committed 0.521005  ·  `50_report_numbers.csv`
 - **forest_forcing_fwd_nse_F0_median_C4**  — quoted 0.211 vs committed 0.210841  ·  `50_report_numbers.csv`
 - **forest_forcing_fwd_nse_best_median_C4**  — quoted 0.211 vs committed 0.210841  ·  `50_report_numbers.csv`
 - **forest_forcing_posthoc_fwd_nse_F0_edge_C5**  — quoted 0.646 vs committed 0.646197  ·  `50_report_numbers.csv`
@@ -3264,15 +3267,14 @@
 - **FILM_DECADE_MONTHS[2]**  — quoted 2.00 vs committed 2  ·  `config.py`
 - **FILM_BREATH_MONTHS[3]**  — quoted 2.00 vs committed 2  ·  `config.py`
 - **SLACK_FLOW_RIDGE_DEPTH_SENS_M[2]**  — quoted 2.00 vs committed 2  ·  `config.py`
-- **C5 · Best_Kappa**  — quoted 0.400 vs committed 0.4  ·  `15_04_best_params.csv`
 - **ukcp18_2050s / winter / C3 · dh_median_m** [Δh] — quoted -0.130 vs committed -0.1303  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **ukcp18_2050s / winter / C5 · dh_mean_m** [Δh] — quoted -0.121 vs committed -0.1207  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **ukcp18_2080s / annual / C1 · dh_mean_m** [Δh] — quoted -0.159 vs committed -0.159  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **ukcp18_2080s / msl5 / C3 · dh_median_m** [Δh] — quoted -0.106 vs committed -0.1062  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **clearfell / annual / C3 · we_mean_mm** [Δh] — quoted 1.43 vs committed 1.42863  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **clearfell / winter / C3 · we_mean_mm** [Δh] — quoted 1.36 vs committed 1.35734  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **broadleaf / annual / C3 · we_mean_mm** [Δh] — quoted -0.799 vs committed -0.798725  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **clearfell_interception_bound / summer / C5 · dh_median_m** [Δh] — quoted 0.340 vs committed 0.339692  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **clearfell / winter / C3 · we_mean_mm** [Δh] — quoted 1.36 vs committed 1.35735  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **broadleaf / annual / C3 · we_mean_mm** [Δh] — quoted -0.799 vs committed -0.798728  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **clearfell_interception_bound / summer / C5 · dh_median_m** [Δh] — quoted 0.340 vs committed 0.339694  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **Climate wet / C4 · Delta_vol_mm_per_month**  — quoted 7.00 vs committed 7  ·  `09b_04_scenario_comparison.csv`
 - **C2 (Dune) · median_summer_min_post2018**  — quoted -1.13 vs committed -1.13  ·  `02_09_cluster_amplitude_summary.csv`
 - **nw1 · beta_3_at_uniform** [β₃] — quoted 0.1002 vs committed 0.100194  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3280,11 +3282,11 @@
 - **nw3 · beta_3_at_uniform** [β₃] — quoted 0.0752 vs committed 0.0751775  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw4 · beta_3_at_uniform** [β₃] — quoted 0.0592 vs committed 0.0592138  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw4b · beta_3_at_uniform** [β₃] — quoted 0.0611 vs committed 0.0610575  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw5 · beta_3_at_uniform** [β₃] — quoted 0.0493 vs committed 0.0493027  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw6 · beta_3_at_uniform** [β₃] — quoted 0.0660 vs committed 0.0659849  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw7 · beta_3_at_uniform** [β₃] — quoted 0.0506 vs committed 0.0505916  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw5 · beta_3_at_uniform** [β₃] — quoted 0.0493 vs committed 0.0493026  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw6 · beta_3_at_uniform** [β₃] — quoted 0.0660 vs committed 0.0659848  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw7 · beta_3_at_uniform** [β₃] — quoted 0.0506 vs committed 0.0505915  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw9 · beta_3_at_uniform** [β₃] — quoted 0.0508 vs committed 0.0507652  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw10 · beta_3_at_uniform** [β₃] — quoted 0.0394 vs committed 0.039362  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw10 · beta_3_at_uniform** [β₃] — quoted 0.0394 vs committed 0.0393619  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw11 · beta_3_at_uniform** [β₃] — quoted 0.0756 vs committed 0.075631  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw13 · beta_3_at_uniform** [β₃] — quoted 0.0885 vs committed 0.0884883  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh1 · beta_3_at_uniform** [β₃] — quoted 0.0666 vs committed 0.0665714  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3296,7 +3298,7 @@
 - **ceh11 · beta_3_at_uniform** [β₃] — quoted 0.0925 vs committed 0.0925045  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh16 · beta_3_at_uniform** [β₃] — quoted 0.0390 vs committed 0.0389958  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh17 · beta_3_at_uniform** [β₃] — quoted 0.0605 vs committed 0.0605494  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **ceh18 · beta_3_at_uniform** [β₃] — quoted 0.0616 vs committed 0.0616366  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **ceh18 · beta_3_at_uniform** [β₃] — quoted 0.0616 vs committed 0.0616365  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh19 · beta_3_at_uniform** [β₃] — quoted 0.0445 vs committed 0.0444638  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh20 · beta_3_at_uniform** [β₃] — quoted 0.0266 vs committed 0.0265576  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh21 · beta_3_at_uniform** [β₃] — quoted 0.0437 vs committed 0.0436629  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3307,7 +3309,7 @@
 - **ceh27 · beta_3_at_uniform** [β₃] — quoted 0.0984 vs committed 0.0983564  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh28 · beta_3_at_uniform** [β₃] — quoted 0.0774 vs committed 0.077367  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh30 · beta_3_at_uniform** [β₃] — quoted 0.0259 vs committed 0.0259178  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **ceh31 · beta_3_at_uniform** [β₃] — quoted 0.0405 vs committed 0.0404796  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **ceh31 · beta_3_at_uniform** [β₃] — quoted 0.0405 vs committed 0.0404795  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh32 · beta_3_at_uniform** [β₃] — quoted 0.0163 vs committed 0.0162555  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh33 · optimal_datum_primary**  — quoted 2.30 vs committed 2.3  ·  `03_09_well_optimal_datums.csv`
 - **ceh33 · beta_3_at_uniform** [β₃] — quoted 0.0226 vs committed 0.0226157  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3317,7 +3319,7 @@
 - **ceh41 · beta_3_at_uniform** [β₃] — quoted 0.0373 vs committed 0.0373231  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh42 · beta_3_at_uniform** [β₃] — quoted 0.0518 vs committed 0.0517665  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **wmc1 · beta_3_at_uniform** [β₃] — quoted 0.0582 vs committed 0.0582416  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **wmc3 · beta_3_at_uniform** [β₃] — quoted 0.0457 vs committed 0.0457364  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **wmc3 · beta_3_at_uniform** [β₃] — quoted 0.0457 vs committed 0.0457363  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **wmc4 · beta_3_at_uniform** [β₃] — quoted 0.0889 vs committed 0.0889171  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **d5 · beta_3_at_uniform** [β₃] — quoted 0.0739 vs committed 0.07392  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **d6 · beta_3_at_uniform** [β₃] — quoted 0.0672 vs committed 0.0671953  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3330,7 +3332,7 @@
 - **d25 · beta_3_at_uniform** [β₃] — quoted 0.0658 vs committed 0.0658044  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **d25 · beta_3_at_secondary** [β₃] — quoted 0.180 vs committed 0.179561  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **d38 · beta_3_at_uniform** [β₃] — quoted 0.1089 vs committed 0.108922  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **d41 · beta_3_at_uniform** [β₃] — quoted 0.0713 vs committed 0.0713452  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **d41 · beta_3_at_uniform** [β₃] — quoted 0.0713 vs committed 0.0713451  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **t41a · beta_3_at_uniform** [β₃] — quoted 0.0963 vs committed 0.0962839  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **t41b · beta_3_at_uniform** [β₃] — quoted 0.0658 vs committed 0.065839  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **t41c · beta_3_at_uniform** [β₃] — quoted 0.0708 vs committed 0.0708245  ·  `03_09_well_optimal_datums.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3351,11 +3353,11 @@
 - **per_well / nw3 · beta_3_ground_frame** [β₃] — quoted 0.0752 vs committed 0.0751775  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / nw4 · beta_3_ground_frame** [β₃] — quoted 0.0592 vs committed 0.0592138  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / nw4b · beta_3_ground_frame** [β₃] — quoted 0.0611 vs committed 0.0610575  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / nw5 · beta_3_ground_frame** [β₃] — quoted 0.0493 vs committed 0.0493027  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / nw6 · beta_3_ground_frame** [β₃] — quoted 0.0660 vs committed 0.0659849  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / nw7 · beta_3_ground_frame** [β₃] — quoted 0.0506 vs committed 0.0505916  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / nw5 · beta_3_ground_frame** [β₃] — quoted 0.0493 vs committed 0.0493026  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / nw6 · beta_3_ground_frame** [β₃] — quoted 0.0660 vs committed 0.0659848  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / nw7 · beta_3_ground_frame** [β₃] — quoted 0.0506 vs committed 0.0505915  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / nw9 · beta_3_ground_frame** [β₃] — quoted 0.0508 vs committed 0.0507652  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / nw10 · beta_3_ground_frame** [β₃] — quoted 0.0394 vs committed 0.039362  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / nw10 · beta_3_ground_frame** [β₃] — quoted 0.0394 vs committed 0.0393619  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / nw11 · beta_3_ground_frame** [β₃] — quoted 0.0756 vs committed 0.075631  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / nw13 · beta_3_ground_frame** [β₃] — quoted 0.0885 vs committed 0.0884883  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh1 · beta_3_ground_frame** [β₃] — quoted 0.0666 vs committed 0.0665714  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3367,7 +3369,7 @@
 - **per_well / ceh11 · beta_3_ground_frame** [β₃] — quoted 0.0925 vs committed 0.0925045  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh16 · beta_3_ground_frame** [β₃] — quoted 0.0390 vs committed 0.0389958  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh17 · beta_3_ground_frame** [β₃] — quoted 0.0605 vs committed 0.0605494  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / ceh18 · beta_3_ground_frame** [β₃] — quoted 0.0616 vs committed 0.0616366  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / ceh18 · beta_3_ground_frame** [β₃] — quoted 0.0616 vs committed 0.0616365  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh19 · beta_3_ground_frame** [β₃] — quoted 0.0445 vs committed 0.0444638  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh20 · beta_3_ground_frame** [β₃] — quoted 0.0266 vs committed 0.0265576  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh21 · beta_3_ground_frame** [β₃] — quoted 0.0437 vs committed 0.0436629  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3378,7 +3380,7 @@
 - **per_well / ceh27 · beta_3_ground_frame** [β₃] — quoted 0.0984 vs committed 0.0983564  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh28 · beta_3_ground_frame** [β₃] — quoted 0.0774 vs committed 0.077367  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh30 · beta_3_ground_frame** [β₃] — quoted 0.0259 vs committed 0.0259178  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / ceh31 · beta_3_ground_frame** [β₃] — quoted 0.0405 vs committed 0.0404796  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / ceh31 · beta_3_ground_frame** [β₃] — quoted 0.0405 vs committed 0.0404795  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / Ceh32 · beta_3_ground_frame** [β₃] — quoted 0.0163 vs committed 0.0162555  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh33 · beta_3_ground_frame** [β₃] — quoted 0.0226 vs committed 0.0226157  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh36 · beta_3_ground_frame** [β₃] — quoted 0.0506 vs committed 0.0506105  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3387,7 +3389,7 @@
 - **per_well / ceh41 · beta_3_ground_frame** [β₃] — quoted 0.0373 vs committed 0.0373231  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / ceh42 · beta_3_ground_frame** [β₃] — quoted 0.0518 vs committed 0.0517665  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / WMC1 · beta_3_ground_frame** [β₃] — quoted 0.0582 vs committed 0.0582416  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / wmc3 · beta_3_ground_frame** [β₃] — quoted 0.0457 vs committed 0.0457364  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / wmc3 · beta_3_ground_frame** [β₃] — quoted 0.0457 vs committed 0.0457363  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / wmc4 · beta_3_ground_frame** [β₃] — quoted 0.0889 vs committed 0.0889171  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / D5 · beta_3_ground_frame** [β₃] — quoted 0.0739 vs committed 0.07392  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / D6 · beta_3_ground_frame** [β₃] — quoted 0.0672 vs committed 0.0671953  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3399,7 +3401,7 @@
 - **per_well / D17 · beta_3_ground_frame** [β₃] — quoted 0.0724 vs committed 0.0724207  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / D25 · beta_3_ground_frame** [β₃] — quoted 0.0658 vs committed 0.0658044  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / D38 · beta_3_ground_frame** [β₃] — quoted 0.1089 vs committed 0.108922  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **per_well / D41 · beta_3_ground_frame** [β₃] — quoted 0.0713 vs committed 0.0713452  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **per_well / D41 · beta_3_ground_frame** [β₃] — quoted 0.0713 vs committed 0.0713451  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / T41a · beta_3_ground_frame** [β₃] — quoted 0.0963 vs committed 0.0962839  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / T41b · beta_3_ground_frame** [β₃] — quoted 0.0658 vs committed 0.065839  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **per_well / T41c · beta_3_ground_frame** [β₃] — quoted 0.0708 vs committed 0.0708245  ·  `03_17_upstand_frame_sensitivity.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3411,9 +3413,9 @@
 - **nw3 · beta_3_drainage** [β₃] — quoted 0.0752 vs committed 0.0751775  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw4 · beta_3_drainage** [β₃] — quoted 0.0592 vs committed 0.0592138  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw4b · beta_3_drainage** [β₃] — quoted 0.0611 vs committed 0.0610575  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw5 · beta_3_drainage** [β₃] — quoted 0.0493 vs committed 0.0493027  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw6 · beta_3_drainage** [β₃] — quoted 0.0660 vs committed 0.0659849  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw7 · beta_3_drainage** [β₃] — quoted 0.0506 vs committed 0.0505916  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw5 · beta_3_drainage** [β₃] — quoted 0.0493 vs committed 0.0493026  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw6 · beta_3_drainage** [β₃] — quoted 0.0660 vs committed 0.0659848  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw7 · beta_3_drainage** [β₃] — quoted 0.0506 vs committed 0.0505915  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw9 · beta_3_drainage** [β₃] — quoted 0.0508 vs committed 0.0507652  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw11 · beta_3_drainage** [β₃] — quoted 0.0756 vs committed 0.075631  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw13 · beta_3_drainage** [β₃] — quoted 0.0885 vs committed 0.0884883  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3426,7 +3428,7 @@
 - **ceh11 · beta_3_drainage** [β₃] — quoted 0.0925 vs committed 0.0925045  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh16 · beta_3_drainage** [β₃] — quoted 0.0390 vs committed 0.0389958  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh17 · beta_3_drainage** [β₃] — quoted 0.0605 vs committed 0.0605494  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **ceh18 · beta_3_drainage** [β₃] — quoted 0.0616 vs committed 0.0616366  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **ceh18 · beta_3_drainage** [β₃] — quoted 0.0616 vs committed 0.0616365  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh19 · beta_3_drainage** [β₃] — quoted 0.0445 vs committed 0.0444638  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh20 · beta_3_drainage** [β₃] — quoted 0.0266 vs committed 0.0265576  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh21 · beta_3_drainage** [β₃] — quoted 0.0437 vs committed 0.0436629  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3438,7 +3440,7 @@
 - **ceh27 · beta_3_drainage** [β₃] — quoted 0.0984 vs committed 0.0983564  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh28 · beta_3_drainage** [β₃] — quoted 0.0774 vs committed 0.077367  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh30 · beta_3_drainage** [β₃] — quoted 0.0259 vs committed 0.0259178  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **ceh31 · beta_3_drainage** [β₃] — quoted 0.0405 vs committed 0.0404796  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **ceh31 · beta_3_drainage** [β₃] — quoted 0.0405 vs committed 0.0404795  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **Ceh32 · beta_3_drainage** [β₃] — quoted 0.0163 vs committed 0.0162555  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh33 · beta_3_drainage** [β₃] — quoted 0.0226 vs committed 0.0226157  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh36 · beta_3_drainage** [β₃] — quoted 0.0506 vs committed 0.0506105  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3448,7 +3450,7 @@
 - **ceh41 · beta_3_drainage** [β₃] — quoted 0.0373 vs committed 0.0373231  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh42 · beta_3_drainage** [β₃] — quoted 0.0518 vs committed 0.0517665  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **WMC1 · beta_3_drainage** [β₃] — quoted 0.0582 vs committed 0.0582416  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **wmc3 · beta_3_drainage** [β₃] — quoted 0.0457 vs committed 0.0457364  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **wmc3 · beta_3_drainage** [β₃] — quoted 0.0457 vs committed 0.0457363  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **wmc4 · beta_3_drainage** [β₃] — quoted 0.0889 vs committed 0.0889171  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **D5 · beta_3_drainage** [β₃] — quoted 0.0739 vs committed 0.07392  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **D6 · beta_3_drainage** [β₃] — quoted 0.0672 vs committed 0.0671953  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3460,7 +3462,7 @@
 - **D17 · beta_3_drainage** [β₃] — quoted 0.0724 vs committed 0.0724207  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **D25 · beta_3_drainage** [β₃] — quoted 0.0658 vs committed 0.0658044  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **D38 · beta_3_drainage** [β₃] — quoted 0.1089 vs committed 0.108922  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **D41 · beta_3_drainage** [β₃] — quoted 0.0713 vs committed 0.0713452  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **D41 · beta_3_drainage** [β₃] — quoted 0.0713 vs committed 0.0713451  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **T41a · beta_3_drainage** [β₃] — quoted 0.0963 vs committed 0.0962839  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **T41b · beta_3_drainage** [β₃] — quoted 0.0658 vs committed 0.065839  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **T41c · beta_3_drainage** [β₃] — quoted 0.0708 vs committed 0.0708245  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3676,7 +3678,7 @@
 - **CEH15 · MSL5_pred_m_bg**  — quoted -0.936 vs committed -0.935806  ·  `26_ewi_msl5_comparison.csv`
 - **CEH35 · EWI_m_bg**  — quoted -0.799 vs committed -0.79915  ·  `26_ewi_msl5_comparison.csv`
 - **CEH35 · MSL5_obs_m_bg**  — quoted -0.552 vs committed -0.551694  ·  `26_ewi_msl5_comparison.csv`
-- **CEH35 · MSL5_pred_m_bg**  — quoted -0.377 vs committed -0.376976  ·  `26_ewi_msl5_comparison.csv`
+- **CEH35 · MSL5_pred_m_bg**  — quoted -0.377 vs committed -0.376977  ·  `26_ewi_msl5_comparison.csv`
 - **CEH38 · EWI_m_bg**  — quoted -0.813 vs committed -0.812511  ·  `26_ewi_msl5_comparison.csv`
 - **CEH38 · MSL5_obs_m_bg**  — quoted -0.499 vs committed -0.498667  ·  `26_ewi_msl5_comparison.csv`
 - **CEH38 · MSL5_pred_m_bg**  — quoted -0.390 vs committed -0.389978  ·  `26_ewi_msl5_comparison.csv`
@@ -3691,7 +3693,7 @@
 - **LIS1 · MSL5_pred_m_bg**  — quoted -0.521 vs committed -0.521358  ·  `26_ewi_msl5_comparison.csv`
 - **CEH8 · EWI_m_bg**  — quoted -0.746 vs committed -0.745967  ·  `26_ewi_msl5_comparison.csv`
 - **CEH8 · MSL5_obs_m_bg**  — quoted -0.299 vs committed -0.299333  ·  `26_ewi_msl5_comparison.csv`
-- **CEH8 · MSL5_pred_m_bg**  — quoted -0.325 vs committed -0.325227  ·  `26_ewi_msl5_comparison.csv`
+- **CEH8 · MSL5_pred_m_bg**  — quoted -0.325 vs committed -0.325228  ·  `26_ewi_msl5_comparison.csv`
 - **CEH7 · EWI_m_bg**  — quoted -0.819 vs committed -0.818738  ·  `26_ewi_msl5_comparison.csv`
 - **CEH7 · MSL5_obs_m_bg**  — quoted -0.162 vs committed -0.162  ·  `26_ewi_msl5_comparison.csv`
 - **CEH7 · MSL5_pred_m_bg**  — quoted -0.396 vs committed -0.396037  ·  `26_ewi_msl5_comparison.csv`
@@ -3726,10 +3728,10 @@
 - **CEH10 · MSL5_pred_m_bg**  — quoted -0.908 vs committed -0.907887  ·  `26_ewi_msl5_comparison.csv`
 - **WMC3 · EWI_m_bg**  — quoted -1.249 vs committed -1.24938  ·  `26_ewi_msl5_comparison.csv`
 - **WMC3 · MSL5_obs_m_bg**  — quoted -0.877 vs committed -0.877333  ·  `26_ewi_msl5_comparison.csv`
-- **WMC3 · MSL5_pred_m_bg**  — quoted -0.815 vs committed -0.815068  ·  `26_ewi_msl5_comparison.csv`
+- **WMC3 · MSL5_pred_m_bg**  — quoted -0.815 vs committed -0.815067  ·  `26_ewi_msl5_comparison.csv`
 - **CEH20 · EWI_m_bg**  — quoted -1.215 vs committed -1.21494  ·  `26_ewi_msl5_comparison.csv`
 - **CEH20 · MSL5_obs_m_bg**  — quoted -0.857 vs committed -0.856667  ·  `26_ewi_msl5_comparison.csv`
-- **CEH20 · MSL5_pred_m_bg**  — quoted -0.782 vs committed -0.781553  ·  `26_ewi_msl5_comparison.csv`
+- **CEH20 · MSL5_pred_m_bg**  — quoted -0.782 vs committed -0.781554  ·  `26_ewi_msl5_comparison.csv`
 - **CEH21 · EWI_m_bg**  — quoted -1.157 vs committed -1.15658  ·  `26_ewi_msl5_comparison.csv`
 - **CEH21 · MSL5_obs_m_bg**  — quoted -0.848 vs committed -0.848  ·  `26_ewi_msl5_comparison.csv`
 - **CEH21 · MSL5_pred_m_bg**  — quoted -0.725 vs committed -0.724767  ·  `26_ewi_msl5_comparison.csv`
@@ -3738,7 +3740,7 @@
 - **CEH19 · MSL5_pred_m_bg**  — quoted -0.601 vs committed -0.600551  ·  `26_ewi_msl5_comparison.csv`
 - **CEH2 · EWI_m_bg**  — quoted -1.206 vs committed -1.20602  ·  `26_ewi_msl5_comparison.csv`
 - **CEH2 · MSL5_obs_m_bg**  — quoted -0.733 vs committed -0.732667  ·  `26_ewi_msl5_comparison.csv`
-- **CEH2 · MSL5_pred_m_bg**  — quoted -0.773 vs committed -0.772876  ·  `26_ewi_msl5_comparison.csv`
+- **CEH2 · MSL5_pred_m_bg**  — quoted -0.773 vs committed -0.772875  ·  `26_ewi_msl5_comparison.csv`
 - **CEH16 · EWI_m_bg**  — quoted -0.960 vs committed -0.960133  ·  `26_ewi_msl5_comparison.csv`
 - **CEH16 · MSL5_obs_m_bg**  — quoted -0.646 vs committed -0.646  ·  `26_ewi_msl5_comparison.csv`
 - **CEH16 · MSL5_pred_m_bg**  — quoted -0.534 vs committed -0.53362  ·  `26_ewi_msl5_comparison.csv`
@@ -3750,7 +3752,7 @@
 - **CEH18 · MSL5_pred_m_bg**  — quoted -0.540 vs committed -0.539554  ·  `26_ewi_msl5_comparison.csv`
 - **NW10 · EWI_m_bg**  — quoted -1.049 vs committed -1.04875  ·  `26_ewi_msl5_comparison.csv`
 - **NW10 · MSL5_obs_m_bg**  — quoted -0.560 vs committed -0.56  ·  `26_ewi_msl5_comparison.csv`
-- **NW10 · MSL5_pred_m_bg**  — quoted -0.620 vs committed -0.619847  ·  `26_ewi_msl5_comparison.csv`
+- **NW10 · MSL5_pred_m_bg**  — quoted -0.620 vs committed -0.619846  ·  `26_ewi_msl5_comparison.csv`
 - **CEH4 · EWI_m_bg**  — quoted -0.848 vs committed -0.848285  ·  `26_ewi_msl5_comparison.csv`
 - **CEH4 · MSL5_obs_m_bg**  — quoted -0.493 vs committed -0.492667  ·  `26_ewi_msl5_comparison.csv`
 - **CEH4 · MSL5_pred_m_bg**  — quoted -0.425 vs committed -0.424787  ·  `26_ewi_msl5_comparison.csv`
@@ -3765,7 +3767,7 @@
 - **NW11 · MSL5_pred_m_bg**  — quoted -0.438 vs committed -0.438168  ·  `26_ewi_msl5_comparison.csv`
 - **CEH9 · EWI_m_bg**  — quoted -0.725 vs committed -0.724801  ·  `26_ewi_msl5_comparison.csv`
 - **CEH9 · MSL5_obs_m_bg**  — quoted -0.371 vs committed -0.371333  ·  `26_ewi_msl5_comparison.csv`
-- **CEH9 · MSL5_pred_m_bg**  — quoted -0.305 vs committed -0.304631  ·  `26_ewi_msl5_comparison.csv`
+- **CEH9 · MSL5_pred_m_bg**  — quoted -0.305 vs committed -0.304632  ·  `26_ewi_msl5_comparison.csv`
 - **WMC4 · EWI_m_bg**  — quoted -0.831 vs committed -0.830513  ·  `26_ewi_msl5_comparison.csv`
 - **WMC4 · MSL5_obs_m_bg**  — quoted -0.369 vs committed -0.368667  ·  `26_ewi_msl5_comparison.csv`
 - **WMC4 · MSL5_pred_m_bg**  — quoted -0.407 vs committed -0.407494  ·  `26_ewi_msl5_comparison.csv`
@@ -3774,17 +3776,17 @@
 - **NW2 · MSL5_pred_m_bg**  — quoted -0.426 vs committed -0.425522  ·  `26_ewi_msl5_comparison.csv`
 - **NW13 · EWI_m_bg**  — quoted -0.799 vs committed -0.798816  ·  `26_ewi_msl5_comparison.csv`
 - **NW13 · MSL5_obs_m_bg**  — quoted -0.334 vs committed -0.334  ·  `26_ewi_msl5_comparison.csv`
-- **NW13 · MSL5_pred_m_bg**  — quoted -0.377 vs committed -0.376651  ·  `26_ewi_msl5_comparison.csv`
+- **NW13 · MSL5_pred_m_bg**  — quoted -0.377 vs committed -0.376652  ·  `26_ewi_msl5_comparison.csv`
 - **CEH40 · EWI_m_bg**  — quoted -0.646 vs committed -0.645933  ·  `26_ewi_msl5_comparison.csv`
 - **CEH40 · MSL5_obs_m_bg**  — quoted -0.309 vs committed -0.309333  ·  `26_ewi_msl5_comparison.csv`
 - **CEH40 · MSL5_pred_m_bg**  — quoted -0.228 vs committed -0.22789  ·  `26_ewi_msl5_comparison.csv`
 - **D44 · EWI_m_bg**  — quoted -0.758 vs committed -0.757892  ·  `26_ewi_msl5_comparison.csv`
 - **D44 · MSL5_obs_m_bg**  — quoted -0.305 vs committed -0.305333  ·  `26_ewi_msl5_comparison.csv`
-- **D44 · MSL5_pred_m_bg**  — quoted -0.337 vs committed -0.336831  ·  `26_ewi_msl5_comparison.csv`
-- **NW5 · EWI_m_bg**  — quoted -0.741 vs committed -0.741061  ·  `26_ewi_msl5_comparison.csv`
+- **D44 · MSL5_pred_m_bg**  — quoted -0.337 vs committed -0.33683  ·  `26_ewi_msl5_comparison.csv`
+- **NW5 · EWI_m_bg**  — quoted -0.741 vs committed -0.74106  ·  `26_ewi_msl5_comparison.csv`
 - **NW5 · MSL5_obs_m_bg**  — quoted -0.290 vs committed -0.29  ·  `26_ewi_msl5_comparison.csv`
 - **NW5 · MSL5_pred_m_bg**  — quoted -0.320 vs committed -0.320453  ·  `26_ewi_msl5_comparison.csv`
-- **T41D · EWI_m_bg**  — quoted -0.680 vs committed -0.679862  ·  `26_ewi_msl5_comparison.csv`
+- **T41D · EWI_m_bg**  — quoted -0.680 vs committed -0.679861  ·  `26_ewi_msl5_comparison.csv`
 - **T41D · MSL5_obs_m_bg**  — quoted -0.269 vs committed -0.268667  ·  `26_ewi_msl5_comparison.csv`
 - **T41D · MSL5_pred_m_bg**  — quoted -0.261 vs committed -0.260904  ·  `26_ewi_msl5_comparison.csv`
 - **D38 · EWI_m_bg**  — quoted -0.726 vs committed -0.725564  ·  `26_ewi_msl5_comparison.csv`
@@ -3801,11 +3803,11 @@
 - **WMC2 · MSL5_pred_m_bg**  — quoted -0.239 vs committed -0.238857  ·  `26_ewi_msl5_comparison.csv`
 - **D43 · EWI_m_bg**  — quoted -0.667 vs committed -0.667265  ·  `26_ewi_msl5_comparison.csv`
 - **D43 · MSL5_obs_m_bg**  — quoted -0.207 vs committed -0.207333  ·  `26_ewi_msl5_comparison.csv`
-- **D43 · MSL5_pred_m_bg**  — quoted -0.249 vs committed -0.248646  ·  `26_ewi_msl5_comparison.csv`
+- **D43 · MSL5_pred_m_bg**  — quoted -0.249 vs committed -0.248647  ·  `26_ewi_msl5_comparison.csv`
 - **NW6 · EWI_m_bg**  — quoted -0.629 vs committed -0.629124  ·  `26_ewi_msl5_comparison.csv`
 - **NW6 · MSL5_obs_m_bg**  — quoted -0.199 vs committed -0.198667  ·  `26_ewi_msl5_comparison.csv`
 - **NW6 · MSL5_pred_m_bg**  — quoted -0.212 vs committed -0.211534  ·  `26_ewi_msl5_comparison.csv`
-- **NW3 · EWI_m_bg**  — quoted -0.684 vs committed -0.683942  ·  `26_ewi_msl5_comparison.csv`
+- **NW3 · EWI_m_bg**  — quoted -0.684 vs committed -0.683941  ·  `26_ewi_msl5_comparison.csv`
 - **NW3 · MSL5_obs_m_bg**  — quoted -0.178 vs committed -0.178  ·  `26_ewi_msl5_comparison.csv`
 - **NW3 · MSL5_pred_m_bg**  — quoted -0.265 vs committed -0.264874  ·  `26_ewi_msl5_comparison.csv`
 - **CEH39 · EWI_m_bg**  — quoted -0.521 vs committed -0.520842  ·  `26_ewi_msl5_comparison.csv`
@@ -4094,7 +4096,7 @@
 - **C4 (Main Forest) / 2019 · n_wells**  — quoted 7.00 vs committed 7  ·  `26_msl_5yr_per_cluster.csv`
 - **C4 (Main Forest) / 2021 · MSL5_m_bg_std**  — quoted 0.402 vs committed 0.402303  ·  `26_msl_5yr_per_cluster.csv`
 - **C5 (Coastal Forest) / 2010 · n_wells**  — quoted 2.00 vs committed 2  ·  `26_msl_5yr_per_cluster.csv`
-- **reference / C4 (Main Forest) · rho_ar1_expected_mean**  — quoted 0.698 vs committed 0.698074  ·  `26_index_precision_by_cluster.csv`
+- **reference / C4 (Main Forest) · rho_ar1_expected_mean**  — quoted 0.698 vs committed 0.698076  ·  `26_index_precision_by_cluster.csv`
 - **wet / d10 · error_m**  — quoted 0.0774 vs committed 0.0774365  ·  `01b_02_loo_per_well.csv`
 - **mean / ceh39 · error_m**  — quoted -0.174 vs committed -0.174046  ·  `01b_02_loo_per_well.csv`
 - **wmc1 / ukcp18_2050s / winter / level_sustained_model_a · dh_m**  — quoted -0.261 vs committed -0.260595  ·  `19_scenario_perwell_model_a.csv`
@@ -4106,7 +4108,7 @@
 - **thinning / winter / level_sustained_model_a / C4 · dh_mean_m** [Δh] — quoted 0.104 vs committed 0.104342  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
 - **end_state_open_dune / annual / end_state_open_dune_model_a / C5 · dh_mean_m** [Δh] — quoted 0.490 vs committed 0.489703  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
 - **broadleaf_interception_bound / annual / level_sustained_model_a / C5 · dh_mean_m** [Δh] — quoted 0.308 vs committed 0.307961  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
-- **broadleaf_interception_bound / summer / level_sustained_model_a / C4 · dh_mean_m** [Δh] — quoted 0.481 vs committed 0.481106  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
+- **broadleaf_interception_bound / summer / level_sustained_model_a / C4 · dh_mean_m** [Δh] — quoted 0.481 vs committed 0.481107  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
 
 ### § (unsectioned)
 
@@ -4519,7 +4521,7 @@
 - **C4 / 0.38 · open_dune_min**  — quoted 0.210 vs committed 0.210147  ·  `17_wtf_06_interception_sweep.csv`
 - **C4 / 0.4 · open_dune_min**  — quoted 0.210 vs committed 0.210147  ·  `17_wtf_06_interception_sweep.csv`
 - **ceh33 · Sy_median** [S_y] — quoted 0.259 vs committed 0.259035  ·  `18_wtf_01_well_sy_estimates.csv`  — _specific yield — WTF storage coefficient_
-- **ceh30 / clearfell / annual / level_sustained_model_a · dh_m**  — quoted 0.210 vs committed 0.209967  ·  `19_scenario_perwell_model_a.csv`
+- **ceh30 / clearfell / annual / level_sustained_model_a · dh_m**  — quoted 0.210 vs committed 0.209968  ·  `19_scenario_perwell_model_a.csv`
 
 ### § (unsectioned)
 
@@ -4573,7 +4575,7 @@
 - **reclen_nse_fwd_A_median_L100_C4**  — quoted 0.135 vs committed 0.13511  ·  `50_report_numbers.csv`
 - **e17_ccw_abs_bias_median_m_C5_depth**  — quoted 0.217 vs committed 0.217173  ·  `50_report_numbers.csv`
 - **ukcp18_2050s / winter / C5 · dh_mean_m** [Δh] — quoted -0.121 vs committed -0.1207  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **clearfell / annual / SITE · we_mean_mm** [Δh] — quoted 1.66 vs committed 1.66062  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **clearfell / annual / SITE · we_mean_mm** [Δh] — quoted 1.66 vs committed 1.66063  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **ceh5 · beta_2_atmospheric_draw** [β₂] — quoted 1.25 vs committed 1.25101  ·  `07_coeff_maps_data.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **Forest / Coastal Ctrl · Clearfell_SE_m**  — quoted 0.108 vs committed 0.1079  ·  `10d_08_spring_mixed_model_results.csv`
 - **d25 · amp_coefficient**  — quoted 1.25 vs committed 1.24962  ·  `35_per_well_amplification.csv`
@@ -4714,9 +4716,7 @@
 
 ### §5.2.2 Displacement Formulation and Depth-Dependent PET
 
-- **C1 · Best_Kappa**  — quoted 2.30 vs committed 2.3  ·  `15_04_best_params.csv`
 - **C1 (Lake Edge) · flux_frac_ge_90pct_from_m**  — quoted 2.30 vs committed 2.3  ·  `03_18_datum_invariance.csv`
-- **depth_dependent_pet_best_kappa · C1**  — quoted 2.30 vs committed 2.3  ·  `15_report_numbers.csv`
 - **trend_summer_pet_full_record**  — quoted 0.148 vs committed 0.148178  ·  `00_report_numbers.csv`
 - _(untracked)_ 3.7 m — …ch references drainage to a datum 3.7 m below the ground surface ---…
 
@@ -4795,9 +4795,9 @@
 - **ceh14 · amplification**  — quoted 2.32 vs committed 2.31873  ·  `33_envelope_per_well.csv`
 - **canonical / C4 (Main Forest) · amplification_mean**  — quoted 1.66 vs committed 1.66281  ·  `33_cluster_summary.csv`
 - **amp_vs_beta3_r** [β₃] — quoted −0.41 vs committed -0.414168  ·  `35_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **recession_time_months · full_R2** [R²] — quoted 0.64 vs committed 0.640811  ·  `29_headline_models.csv`  — _coefficient of determination_
+- **recession_time_months · full_R2** [R²] — quoted 0.64 vs committed 0.640812  ·  `29_headline_models.csv`  — _coefficient of determination_
 - **c4_mean_amplification_excl_msl5_excluded**  — quoted 1.56 vs committed 1.55907  ·  `33_report_numbers.csv`
-- **clearfell / annual / SITE · we_mean_mm** [Δh] — quoted 1.66 vs committed 1.66062  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **clearfell / annual / SITE · we_mean_mm** [Δh] — quoted 1.66 vs committed 1.66063  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **full_mam / exponential · c_se**  — quoted 2.32 vs committed 2.32  ·  `25_01_panel_fit_parameters.csv`
 - _(untracked)_ 3.7 m — …cant; referencing drainage to the 3.7 m datum resolves it to a clearl…
 - _(untracked)_ 890 mm/yr — …ll clusters receive approximately 890 mm/yr of rainfall (889--893 mm/yr b…
@@ -5003,7 +5003,7 @@
 ### §5.6.2 Summer Minimum Depths at the Forest Margin
 
 - **nw2 · residual_wb**  — quoted −0.0008 vs committed -0.00075407  ·  `20_residual_perwell.csv`
-- **ceh2 · residual_wb**  — quoted −0.0043 vs committed -0.00430125  ·  `20_residual_perwell.csv`
+- **ceh2 · residual_wb**  — quoted −0.0043 vs committed -0.00430126  ·  `20_residual_perwell.csv`
 - **wet / nw1 · error_m**  — quoted 0.157 vs committed 0.157299  ·  `01b_02_loo_per_well.csv`
 - _(untracked)_ 0.02 m/month — …d no well in the network exceeds +0.02 m/month (Section 4.9.6, Figure 59). N…
 
@@ -5013,7 +5013,7 @@
 - **ceh2 · beta_1_recharge** [β₁] — quoted 2.760 vs committed 2.75983  ·  `07_coeff_maps_data.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **nw10 · beta_2_atmospheric_draw** [β₂] — quoted 2.740 vs committed 2.74018  ·  `07_coeff_maps_data.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh2 · beta_2_atmospheric_draw** [β₂] — quoted 2.807 vs committed 2.80682  ·  `07_coeff_maps_data.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **nw10 · beta_3_drainage** [β₃] — quoted 0.039 vs committed 0.039362  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **nw10 · beta_3_drainage** [β₃] — quoted 0.039 vs committed 0.0393619  ·  `07_coeff_maps_data.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ceh34 · beta_2_atmospheric_draw** [β₂] — quoted 2.581 vs committed 2.58117  ·  `07_coeff_maps_data.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **sens_ridge_line_0_m_below_ground_angle_deg**  — quoted 2.740 vs committed 2.73995  ·  `01b_report_numbers.csv`
 - **cluster_well_median_beta_1_recharge · C4 (Main Forest)**  — quoted 2.333 vs committed 2.33289  ·  `03_report_numbers.csv`
@@ -5588,7 +5588,7 @@
 
 ### §3.1.1 Groundwater Records
 
-- **summary / corr_upstand_vs_d_beta_3 · value**  — quoted -0.852 vs committed -0.852418  ·  `03_17_upstand_frame_sensitivity.csv`
+- **summary / corr_upstand_vs_d_beta_3 · value**  — quoted -0.852 vs committed -0.852419  ·  `03_17_upstand_frame_sensitivity.csv`
 - **C1 (Lake Edge) · aic_optimal_datum_m**  — quoted 0.7 vs committed 0.7  ·  `03_18_datum_invariance.csv`
 - **C2 (Dune) · aic_optimal_datum_m**  — quoted 1.2 vs committed 1.2  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · delta_AIC_datum_vs_optimum**  — quoted 0.7 vs committed 0.733317  ·  `03_18_datum_invariance.csv`
@@ -5633,18 +5633,18 @@
 - **C5 (Coastal Forest) · delta_AIC_datum_vs_optimum**  — quoted 0.00 vs committed 0  ·  `03_18_datum_invariance.csv`
 - **all / beta_1_recharge · R2_adj_with_clusters**  — quoted 0.72 vs committed 0.719475  ·  `07_05_clusters_vs_covariates.csv`
 - **all / beta_1_recharge · R2_adj_covariates**  — quoted 0.69 vs committed 0.686402  ·  `07_05_clusters_vs_covariates.csv`
-- **all / beta_1_recharge · F_pvalue**  — quoted 0.04 vs committed 0.0376883  ·  `07_05_clusters_vs_covariates.csv`
-- **all / beta_1_recharge · delta_AIC**  — quoted −4.0 vs committed -3.98906  ·  `07_05_clusters_vs_covariates.csv`
+- **all / beta_1_recharge · F_pvalue**  — quoted 0.04 vs committed 0.0376881  ·  `07_05_clusters_vs_covariates.csv`
+- **all / beta_1_recharge · delta_AIC**  — quoted −4.0 vs committed -3.98907  ·  `07_05_clusters_vs_covariates.csv`
 - **all / beta_2_atmospheric_draw · R2_adj_covariates**  — quoted 0.66 vs committed 0.659591  ·  `07_05_clusters_vs_covariates.csv`
 - **all / beta_2_atmospheric_draw · R2_adj_with_clusters**  — quoted 0.77 vs committed 0.770265  ·  `07_05_clusters_vs_covariates.csv`
 - **all / beta_2_atmospheric_draw · delta_AIC**  — quoted −23 vs committed -22.5861  ·  `07_05_clusters_vs_covariates.csv`
-- **all / beta_3_drainage · R2_adj_covariates**  — quoted 0.62 vs committed 0.621513  ·  `07_05_clusters_vs_covariates.csv`
-- **all / beta_3_drainage · R2_adj_with_clusters**  — quoted 0.69 vs committed 0.693547  ·  `07_05_clusters_vs_covariates.csv`
-- **all / beta_3_drainage · F_pvalue**  — quoted 0.003 vs committed 0.00338128  ·  `07_05_clusters_vs_covariates.csv`
+- **all / beta_3_drainage · R2_adj_covariates**  — quoted 0.62 vs committed 0.621514  ·  `07_05_clusters_vs_covariates.csv`
+- **all / beta_3_drainage · R2_adj_with_clusters**  — quoted 0.69 vs committed 0.693548  ·  `07_05_clusters_vs_covariates.csv`
+- **all / beta_3_drainage · F_pvalue**  — quoted 0.003 vs committed 0.00338126  ·  `07_05_clusters_vs_covariates.csv`
 - **all / beta_3_drainage · delta_AIC**  — quoted −11 vs committed -10.5672  ·  `07_05_clusters_vs_covariates.csv`
 - **forest_free / beta_1_recharge · n**  — quoted 50 vs committed 50  ·  `07_05_clusters_vs_covariates.csv`
-- **forest_free / beta_1_recharge · F_pvalue**  — quoted 0.045 vs committed 0.0446097  ·  `07_05_clusters_vs_covariates.csv`
-- **forest_free / beta_3_drainage · F_pvalue**  — quoted 0.0045 vs committed 0.00448383  ·  `07_05_clusters_vs_covariates.csv`
+- **forest_free / beta_1_recharge · F_pvalue**  — quoted 0.045 vs committed 0.0446095  ·  `07_05_clusters_vs_covariates.csv`
+- **forest_free / beta_3_drainage · F_pvalue**  — quoted 0.0045 vs committed 0.00448378  ·  `07_05_clusters_vs_covariates.csv`
 - **Pre_felling_baseline_years_min · CEH34 · Forest control**  — quoted 7.3 vs committed 7.25257  ·  `10_consolidated_report_numbers.csv`
 
 ### §3.2.2 Agglomeration Strategy
@@ -6064,12 +6064,12 @@
 - **ewi_msl5_rmse_mm_open_dune**  — quoted 73 vs committed 73.3822  ·  `26_report_numbers.csv`
 - **C3_halflife_min** [τ] — quoted 6.0 vs committed 5.98372  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C3_halflife_min** [τ] — quoted 6 vs committed 5.98372  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
-- **C3_halflife_max** [τ] — quoted 20 vs committed 19.9084  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C3_halflife_max** [τ] — quoted 20 vs committed 19.9085  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C5_halflife_min** [τ] — quoted 11 vs committed 11.2663  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C5_halflife_max** [τ] — quoted 16 vs committed 15.7266  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_min** [τ] — quoted 17 vs committed 16.8116  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
-- **C4_halflife_max** [τ] — quoted 45 vs committed 45.3817  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
-- **C4_halflife_mean** [τ] — quoted 27 vs committed 26.6929  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C4_halflife_max** [τ] — quoted 45 vs committed 45.3818  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C4_halflife_mean** [τ] — quoted 27 vs committed 26.693  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C3 (Western Residual) · VIF**  — quoted 1.31 vs committed 1.30638  ·  `30_c4_identifiability_by_cluster.csv`
 - **ANCOVA_Forest_Impact_summer_R2** [R²] — quoted 0.34 vs committed 0.343602  ·  `10_consolidated_report_numbers.csv`  — _coefficient of determination_
 - **ewi_msl5_r**  — quoted 0.96 vs committed 0.963457  ·  `26_report_numbers.csv`
@@ -6079,7 +6079,7 @@
 - **drawdown_d15**  — quoted 34 vs committed 33.7999  ·  `20_report_numbers.csv`
 - **Climate wet · Delta_vol_mm_per_month**  — quoted 8.1 vs committed 8.1  ·  `09d_01_scenario_comparison.csv`
 - **C4_halflife_mean_window** [τ] — quoted 36 vs committed 36.1842  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
-- **halflife_ceh13_full_record** [τ] — quoted 73 vs committed 73.2949  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **halflife_ceh13_full_record** [τ] — quoted 73 vs committed 73.2953  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **Transect_gradient_p**  — quoted 0.14 vs committed 0.140945  ·  `10_consolidated_report_numbers.csv`
 - **ewi_msl5_n_calibration**  — quoted 61 vs committed 61  ·  `26_report_numbers.csv`
 - **cluster_month_clusters_surviving_mean**  — quoted 1.7 vs committed 1.744  ·  `02_report_numbers.csv`
@@ -6149,7 +6149,7 @@
 ### §4.2 Network Clustering and Spatial Architecture
 
 - **CoeffShift_CEH9_b1_before**  — quoted 3.357 vs committed 3.3575  ·  `10_consolidated_report_numbers.csv`
-- **broadleaf / summer / C5 · we_median_mm** [Δh] — quoted 1.55 vs committed -8.23715 ⚠  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **broadleaf / summer / C5 · we_median_mm** [Δh] — quoted 1.55 vs committed -8.23717 ⚠  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **2005_2025 / primary · s_coast_ci_hi** [δ(d)] — quoted 0.99 vs committed 0.9923  ·  `37_scale_factors_by_window.csv`  — _coastal-gradient decline rate at distance d (def. report8 §3.6)_
 - **wells_wt_ground_r**  — quoted 0.99 vs committed 0.985813  ·  `01b_report_numbers.csv`
 - _(untracked)_ 57 wells — …other wells. Within the remaining 57 wells the east--west division follo…
@@ -6300,7 +6300,6 @@
 - **C4 (Main Forest) · LCSC_percent**  — quoted 39.975 vs committed 39.9747  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **C5 (Coastal Forest) · LCSC_percent**  — quoted 40.621 vs committed 40.6215  ·  `03_03_cluster_mechanistic_coefficients.csv`
 - **Rolling_b1_impact_post**  — quoted 2.56 vs committed 2.66948 ⚠  ·  `10_consolidated_report_numbers.csv`
-- **C1 · Best_Kappa**  — quoted 2.30 vs committed 2.3  ·  `15_04_best_params.csv`
 - **C4 · NSE_Iterative**  — quoted 0.733 vs committed 0.67297 ⚠  ·  `15_04_best_params.csv`
 - **C1 · broadleaf_b2_summer**  — quoted 1.07 vs committed 1.075  ·  `pipeline_scenario_params.csv`
 - **C2 · broadleaf_b2_summer**  — quoted 1.07 vs committed 1.075  ·  `pipeline_scenario_params.csv`
@@ -6348,12 +6347,10 @@
 - **residual_spearman_abs_easting_p**  — quoted 0.10 vs committed 0.101878  ·  `20_residual_report_numbers.csv`
 - **EWI_annual · pearson_r**  — quoted 0.80 vs committed 0.800457  ·  `26_ebf_prediction_summary.csv`
 - **C4_beta2_beta3_corr_all** [β₂] — quoted −0.77 vs committed -0.769564  ·  `07_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **C4_beta2_beta3_corr_excl_ceh14** [β₂] — quoted −0.26 vs committed -0.263331  ·  `07_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **depth_dependent_pet_best_kappa · C1**  — quoted 2.30 vs committed 2.3  ·  `15_report_numbers.csv`
+- **C4_beta2_beta3_corr_excl_ceh14** [β₂] — quoted −0.26 vs committed -0.263332  ·  `07_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **post2018_p90_p10_max_min_ratio · C5 (Coastal Forest)**  — quoted 1.38 vs committed 1.37759  ·  `02_report_numbers.csv`
 - **C4_beta1_mean** [β₁] — quoted 2.46 vs committed 2.4605  ·  `07_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **Rolling_b1_impact_pre**  — quoted 2.50 vs committed 2.49583  ·  `10_consolidated_report_numbers.csv`
-- **depth_dependent_pet_efold_depth · C5**  — quoted 2.50 vs committed 2.5  ·  `15_report_numbers.csv`
 - **scenario_dh_mean_clearfell_interception_bound_summer_C4_model_a** [Δh] — quoted 1.83 vs committed 1.82942  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **scenario_head_shift_m · C4 (Main Forest) · thinning_50pct · summer**  — quoted 0.176 vs committed 0.175747  ·  `21_report_numbers.csv`
 - **perwell_vif_median_window · C4 (Main Forest) · 100-month window**  — quoted 1.20 vs committed 1.20279  ·  `30_c4_report_numbers.csv`
@@ -6472,7 +6469,7 @@
 - **water_balance_P_mean_mm_min**  — quoted 74.1 vs committed 74.1115  ·  `16_report_numbers.csv`
 - **water_balance_P_mean_mm_max**  — quoted 74.4 vs committed 74.4226  ·  `16_report_numbers.csv`
 - **water_balance_PET_mean_mm_max**  — quoted 54.5 vs committed 54.5468  ·  `16_report_numbers.csv`
-- **EWI_spring · pearson_r**  — quoted 0.56 vs committed 0.557605  ·  `26_ebf_prediction_summary.csv`
+- **EWI_spring · pearson_r**  — quoted 0.56 vs committed 0.557604  ·  `26_ebf_prediction_summary.csv`
 - **fe4 · Delta**  — quoted 0.003 vs committed 0.0028  ·  `06_pear_membership_audit_sitewide.csv`
 - **C3 (Western Residual) · m_P**  — quoted 1.25 vs committed 1.25121  ·  `11b_06_pflood_cluster_summary.csv`
 - **water_balance_PET_mean_mm · C2 (Dune)**  — quoted 54.4 vs committed 54.3882  ·  `16_report_numbers.csv`
@@ -6724,7 +6721,7 @@
 
 - **CoeffShift_CEH2_db1**  — quoted 0.059 vs committed 0.0587  ·  `10_consolidated_report_numbers.csv`
 - **β₂_atm_draw · R2_elevation_only_LOO**  — quoted 0.971 vs committed 0.970004 ⚠  ·  `10c_forest_zone_correlations.csv`
-- **thinning / winter / C3 · we_mean_mm** [Δh] — quoted 0.961 vs committed 0.678671 ⚠  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **thinning / winter / C3 · we_mean_mm** [Δh] — quoted 0.961 vs committed 0.678673 ⚠  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **CEH36 / 2_Pure_Scraping · beta_3_drainage** [β₃] — quoted 0.139 vs committed 0.138809  ·  `09_scrape_02_beta3_significance.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C3 · p_value** [p] — quoted 0.968 vs committed 0.6218 ⚠  ·  `14_spring_trend_stats.csv`  — _significance probability_
 - **beta3_era · CEH36 · 2_Pure_Scraping**  — quoted 0.139 vs committed 0.138809  ·  `09_scrape_report_numbers.csv`
@@ -6929,7 +6926,7 @@
 
 - **β₃_drainage · r_vs_Elevation**  — quoted −0.836 vs committed -0.836  ·  `10c_forest_zone_correlations.csv`
 - **c3_only / linear_capped_cfix · delta_0_se**  — quoted 2.47 vs committed 2.47  ·  `25_01_panel_fit_parameters.csv`
-- **C3_beta3_vs_inland_p** [β₃] — quoted 0.009 vs committed 0.00948294  ·  `29_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C3_beta3_vs_inland_p** [β₃] — quoted 0.009 vs committed 0.00948289  ·  `29_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **scrape_inferred_cut_depth_m**  — quoted 0.43 vs committed 0.429534  ·  `20_scrape_report_numbers.csv`
 - **scrape_propagation_near_db3_t**  — quoted 2.47 vs committed 2.47403  ·  `09b_report_numbers.csv`
 - **scrape_propagation_near_db3_p**  — quoted 0.043 vs committed 0.0425808  ·  `09b_report_numbers.csv`
@@ -7029,12 +7026,12 @@
 - **head_dem_headline_smoothing_m**  — quoted 300 vs committed 300  ·  `01b_report_numbers.csv`
 - **head_dem_slope_smoothed**  — quoted 1.01 vs committed 1.01418  ·  `01b_report_numbers.csv`
 - **well_spacing_median_m**  — quoted 123 vs committed 122.557  ·  `01b_report_numbers.csv`
-- **C1_halflife_max** [τ] — quoted 8.9 vs committed 8.87796  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C1_halflife_max** [τ] — quoted 8.9 vs committed 8.87797  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **CoeffShift_Forest Ctrl_mean_db1**  — quoted −0.09 vs committed -0.08994  ·  `10_consolidated_report_numbers.csv`
 - **residual_spearman_signed_northing_rho**  — quoted −0.09 vs committed -0.0854817  ·  `20_residual_report_numbers.csv`
 - **nse_bias_removed_persistent_forest**  — quoted −0.10 vs committed -0.0990856  ·  `39_report_numbers.csv`
 - **open_nse_bias_removed_median**  — quoted 0.742 vs committed 0.742342  ·  `39_report_numbers.csv`
-- **beta3_pvalue_ceh13_full_record** [β₃] — quoted 0.39 vs committed 0.187975 ⚠  ·  `18_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **beta3_pvalue_ceh13_full_record** [β₃] — quoted 0.39 vs committed 0.187977 ⚠  ·  `18_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **ANCOVA_Climate_Impact_clearfell_step_p_hac**  — quoted 0.624 vs committed 0.624294  ·  `10_consolidated_report_numbers.csv`
 - **ANCOVA_Climate_Impact_scraping_step_p**  — quoted 0.914 vs committed 0.914114  ·  `10_consolidated_report_numbers.csv`
 - **ANCOVA_Climate_Edge_scraping_step**  — quoted 0.273 vs committed 0.273005  ·  `10_consolidated_report_numbers.csv`
@@ -7428,7 +7425,7 @@
 - **Western_Block · R2** [R²] — quoted 0.689 vs committed 0.946473  ·  `11_forecast_spring_transfer_functions.csv`  — _coefficient of determination_
 - **Coastal_Forest · R2** [R²] — quoted 0.900 vs committed 0.976539  ·  `11_forecast_spring_transfer_functions.csv`  — _coefficient of determination_
 - **ceh33 · r_C5**  — quoted 0.930 vs committed 0.9298  ·  `06_pear_membership_audit_sitewide.csv`
-- **beta_3_drainage · full_R2** [R²] — quoted 0.689 vs committed 0.688703  ·  `29_headline_models.csv`  — _coefficient of determination_
+- **beta_3_drainage · full_R2** [R²] — quoted 0.689 vs committed 0.688704  ·  `29_headline_models.csv`  — _coefficient of determination_
 
 ### §4.7.4 Spatial Distribution of P_flood and Flooding Status Across the Well Network
 
@@ -7440,7 +7437,7 @@
 - **canonical / C3 (Western Residual) · dry_m_mean**  — quoted -0.98 vs committed -0.984782  ·  `33_cluster_summary.csv`
 - **all clusters · flux_order_invariant_from_m**  — quoted 1.20 vs committed 1.2  ·  `03_18_datum_invariance.csv`
 - **summer_min_zone_count · deeper than SD16 (>= SD16) · All (n=88)**  — quoted 48 vs committed 48  ·  `11b_report_numbers.csv`
-- **C5_beta1_mean** [β₁] — quoted 2.36 vs committed 2.36382  ·  `07_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C5_beta1_mean** [β₁] — quoted 2.36 vs committed 2.36381  ·  `07_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **wettest_oct_feb_over_climatology**  — quoted 1.52 vs committed 1.52134  ·  `11b_report_numbers.csv`
 - **1995 · P_PET_ratio** [p] — quoted 1.06 vs committed 1.06331  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
 - **1997 · P_PET_ratio** [p] — quoted 1.06 vs committed 1.06332  ·  `00_01_annual_climate_summary.csv`  — _significance probability_
@@ -7559,7 +7556,7 @@
 - **C2 (Dune) / 2024 · MSL5_m_bg_std**  — quoted 0.251 vs committed 0.251082  ·  `26_msl_5yr_per_cluster.csv`
 - **C3 (Western Residual) / 2010 · MSL5_m_bg_std**  — quoted 0.449 vs committed 0.449128  ·  `26_msl_5yr_per_cluster.csv`
 - **C4 (Main Forest) / 2017 · MSL5_m_bg_std**  — quoted 0.362 vs committed 0.362465  ·  `26_msl_5yr_per_cluster.csv`
-- **broadleaf / winter / level_sustained_model_a / SITE · dh_mean_m** [Δh] — quoted -0.0115 vs committed -0.0114638  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
+- **broadleaf / winter / level_sustained_model_a / SITE · dh_mean_m** [Δh] — quoted -0.0115 vs committed -0.0114639  ·  `19_scenario_summary_model_a.csv`  — _water-level change / amplitude_
 - _(untracked)_ 5% — …g statistical significance at the 5% level; C4 Main Forest (−0.011…
 - _(untracked)_ −0.0046 m yr⁻¹ — …ter shows a significant trend (C1 −0.0046 m yr⁻¹, p = 0.56; C2 +0.0070, p = 0.…
 - _(untracked)_ −0.64 m — …C1\'s summer minimum ranges from −0.64 m (2007) to −1.06 m (2018) over…
@@ -7738,7 +7735,7 @@
 - **C3_gradient_n**  — quoted 21 vs committed 21  ·  `29_report_numbers.csv`
 - **C1_beta2_mean** [β₂] — quoted 0.50 vs committed 0.498617  ·  `07_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **CEH14_beta3_pct** [β₃] — quoted −2.4 vs committed -2.40931  ·  `07_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **C4_beta3_pct_max_excl_ceh14** [β₃] — quoted 3.9 vs committed 3.9362  ·  `07_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **C4_beta3_pct_max_excl_ceh14** [β₃] — quoted 3.9 vs committed 3.93619  ·  `07_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - _(untracked)_ 81% — …the wells. The model explains 70--81% of monthly water-table varian…
 - _(untracked)_ 52 wells — …--90th percentile of per-well R², 52 wells), declining toward the forest…
 - _(untracked)_ 5 mm — …wells closest to Llyn Rhos-Ddu (\>5 mm/mm), declines across the open…
@@ -7752,19 +7749,19 @@
 ### §4.9.3 Drainage Decay Half-Life
 
 - **C1_median_dNSE**  — quoted 0.45 vs committed 0.454985  ·  `08_report_numbers.csv`
-- **dNSE_vs_beta3_r** [β₃] — quoted 0.46 vs committed 0.457715  ·  `08_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **dNSE_vs_beta3_r** [β₃] — quoted 0.46 vs committed 0.457714  ·  `08_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **C1 · median_dNSE**  — quoted 0.45 vs committed 0.454985  ·  `08_cluster_nse_medians.csv`
 - **C1_halflife_min** [τ] — quoted 5.9 vs committed 5.89878  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C1_halflife_mean** [τ] — quoted 7.8 vs committed 7.75748  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C2_halflife_min** [τ] — quoted 8.3 vs committed 8.27608  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C2_halflife_max** [τ] — quoted 13.0 vs committed 12.9898  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
-- **C3_halflife_max** [τ] — quoted 19.9 vs committed 19.9084  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C3_halflife_max** [τ] — quoted 19.9 vs committed 19.9085  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C3_halflife_mean** [τ] — quoted 12.2 vs committed 12.2318  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C5_halflife_min** [τ] — quoted 11.3 vs committed 11.2663  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C5_halflife_mean** [τ] — quoted 14.0 vs committed 13.9852  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_min** [τ] — quoted 16.8 vs committed 16.8116  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
-- **C4_halflife_max** [τ] — quoted 45.4 vs committed 45.3817  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
-- **C4_halflife_mean** [τ] — quoted 26.7 vs committed 26.6929  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C4_halflife_max** [τ] — quoted 45.4 vs committed 45.3818  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
+- **C4_halflife_mean** [τ] — quoted 26.7 vs committed 26.693  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_min_window** [τ] — quoted 18 vs committed 17.6096  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **C4_halflife_max_window** [τ] — quoted 74 vs committed 73.8377  ·  `18_report_numbers.csv`  — _storage–drainage index S_y/β₃ (residence time) (def. MS §S.12)_
 - **RollingWindow_c_mean · forest_free · 18-year windows**  — quoted −0.39 vs committed -0.394597  ·  `25_report_numbers.csv`
@@ -7836,7 +7833,7 @@
 ### §4.9.6 Water Balance Residual Field
 
 - **residual_min**  — quoted −0.0079 vs committed -0.00786805  ·  `20_residual_report_numbers.csv`
-- **residual_max**  — quoted +0.0089 vs committed 0.00886573  ·  `20_residual_report_numbers.csv`
+- **residual_max**  — quoted +0.0089 vs committed 0.0088657  ·  `20_residual_report_numbers.csv`
 - **residual_median**  — quoted −0.0040 vs committed -0.00397624  ·  `20_residual_report_numbers.csv`
 - **residual_mean**  — quoted −0.0026 vs committed -0.00262567  ·  `20_residual_report_numbers.csv`
 - **residual_spearman_abs_easting_rho**  — quoted −0.20 vs committed -0.203131  ·  `20_residual_report_numbers.csv`
@@ -8170,13 +8167,13 @@
 - **scenario_end_state_open_dune_C4_model_a**  — quoted 0.785 vs committed 0.784592  ·  `19_report_numbers.csv`
 - **scenario_end_state_open_dune_C5**  — quoted 0.498 vs committed 0.497599  ·  `19_report_numbers.csv`
 - **scenario_end_state_open_dune_C5_model_a**  — quoted 0.490 vs committed 0.489703  ·  `19_report_numbers.csv`
-- **scenario_dh_mean_clearfell_interception_bound_annual_C5** [Δh] — quoted 0.427 vs committed 0.427018  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
+- **scenario_dh_mean_clearfell_interception_bound_annual_C5** [Δh] — quoted 0.427 vs committed 0.427019  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **scenario_dh_mean_clearfell_interception_bound_annual_C4_model_a** [Δh] — quoted 1.853 vs committed 1.85323  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **scenario_dh_mean_clearfell_interception_bound_annual_C5_model_a** [Δh] — quoted 0.984 vs committed 0.983925  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **scenario_dh_mean_broadleaf_interception_bound_annual_C5** [Δh] — quoted 0.125 vs committed 0.124877  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **scenario_dh_mean_broadleaf_interception_bound_annual_C4_model_a** [Δh] — quoted 0.498 vs committed 0.497934  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
 - **scenario_dh_mean_broadleaf_interception_bound_annual_C5_model_a** [Δh] — quoted 0.308 vs committed 0.307961  ·  `19_report_numbers.csv`  — _water-level change / amplitude_
-- **scenario_clearfell_interception_form_wmc3**  — quoted 0.475 vs committed 0.475222  ·  `19_report_numbers.csv`
+- **scenario_clearfell_interception_form_wmc3**  — quoted 0.475 vs committed 0.475227  ·  `19_report_numbers.csv`
 - **scenario_clearfell_interception_form_wmc3_model_a**  — quoted 1.021 vs committed 1.02053  ·  `19_report_numbers.csv`
 - **clearfell_local_gain_b1_ratio**  — quoted 1.32 vs committed 1.31579  ·  `20_report_numbers.csv`
 - **scenario_head_shift_m · C4 (Main Forest) · clearfell · annual**  — quoted 0.346 vs committed 0.346342  ·  `21_report_numbers.csv`
@@ -8189,7 +8186,7 @@
 - **forest_forcing_fwd_nse_best_median_C4**  — quoted 0.211 vs committed 0.210841  ·  `50_report_numbers.csv`
 - **end_state_open_dune / annual / C4 · dh_mean_m** [Δh] — quoted 0.898 vs committed 0.897634  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **end_state_open_dune / annual / C5 · dh_mean_m** [Δh] — quoted 0.498 vs committed 0.497599  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
-- **clearfell_interception_bound / annual / C5 · dh_mean_m** [Δh] — quoted 0.427 vs committed 0.427018  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
+- **clearfell_interception_bound / annual / C5 · dh_mean_m** [Δh] — quoted 0.427 vs committed 0.427019  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **broadleaf_interception_bound / annual / C5 · dh_mean_m** [Δh] — quoted 0.125 vs committed 0.124877  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **WMC3-Forest5 / fixed_s25 / 2021-01..2026-02 · p**  — quoted 0.108 vs committed 0.108171  ·  `10a_13_era_split.csv`
 - **Forest / Coastal Ctrl · Clearfell_SE_m**  — quoted 0.108 vs committed 0.1079  ·  `10d_08_spring_mixed_model_results.csv`
@@ -8245,7 +8242,7 @@
 - **pearson_r_min**  — quoted 0.652 vs committed 0.651782  ·  `39_report_numbers.csv`
 - **pearson_r_max**  — quoted 0.943 vs committed 0.943456  ·  `39_report_numbers.csv`
 - **nse_bias_removed_min_excl_persistent_forest**  — quoted 0.19 vs committed 0.186594  ·  `39_report_numbers.csv`
-- **residual_mean_all**  — quoted −0.035 vs committed -0.0347629  ·  `39_report_numbers.csv`
+- **residual_mean_all**  — quoted −0.035 vs committed -0.034763  ·  `39_report_numbers.csv`
 - **epoch_shift_min**  — quoted −0.135 vs committed -0.134639  ·  `39_report_numbers.csv`
 - **epoch_shift_max**  — quoted −0.835 vs committed -0.834755  ·  `39_report_numbers.csv`
 - **epoch_shift_median**  — quoted −0.589 vs committed -0.588826  ·  `39_report_numbers.csv`
@@ -8311,8 +8308,8 @@
 - **CEH19 · db1**  — quoted -0.173 vs committed -0.1732  ·  `10e_01_coefficient_shifts.csv`
 - **CEH19 · db2**  — quoted -0.210 vs committed -0.2098  ·  `10e_01_coefficient_shifts.csv`
 - **CEH17 · db1**  — quoted -0.341 vs committed -0.3409  ·  `10e_01_coefficient_shifts.csv`
-- **residual_ceh14**  — quoted -0.0110 vs committed -0.00766043 ⚠  ·  `20_residual_report_numbers.csv`
-- **per_well / D7 · d_beta_2** [β₂] — quoted -0.0110 vs committed -0.015369 ⚠  ·  `03_17_upstand_frame_sensitivity.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **residual_ceh14**  — quoted -0.0110 vs committed -0.00766045 ⚠  ·  `20_residual_report_numbers.csv`
+- **per_well / D7 · d_beta_2** [β₂] — quoted -0.0110 vs committed -0.0153691 ⚠  ·  `03_17_upstand_frame_sensitivity.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **CEH6 iterative NSE · Traditional_Model_A**  — quoted -0.348 vs committed -0.348295  ·  `08_lcsc_04_table3_benchmark_summary.csv`
 - **CEH6 · TLM_NSE**  — quoted -0.348 vs committed -0.348295  ·  `08_perwell_nse.csv`
 - **CEH21 / 2021 · Gap_climate_m**  — quoted -0.400 vs committed -0.4  ·  `09c_01_summer_minima.csv`
@@ -8320,7 +8317,7 @@
 - **CEH30 / Edge / Forest · Pre_mean_gap_m**  — quoted -0.311 vs committed -0.3111  ·  `10d_02_summer_minima_shifts.csv`
 - **CEH30 / Edge / Forest · Post_mean_gap_m**  — quoted -0.320 vs committed -0.3203  ·  `10d_02_summer_minima_shifts.csv`
 - **CEH30 / Edge / Forest · t_stat**  — quoted -0.182 vs committed -0.182  ·  `10d_02_summer_minima_shifts.csv`
-- **ceh14 · residual_wb**  — quoted -0.0110 vs committed -0.00766043 ⚠  ·  `20_residual_perwell.csv`
+- **ceh14 · residual_wb**  — quoted -0.0110 vs committed -0.00766045 ⚠  ·  `20_residual_perwell.csv`
 - **C2 (Dune) · unexplained_mm_yr**  — quoted -17.21 vs committed -17.2101  ·  `25_03_cluster_partition.csv`
 - **C1 (Lake Edge) / 2025 · MSL5_m_bg_mean**  — quoted -0.133 vs committed -0.132833  ·  `26_msl_5yr_per_cluster.csv`
 - **C2 (Dune) / 2025 · MSL5_m_bg_mean**  — quoted -0.341 vs committed -0.189109 ⚠  ·  `26_msl_5yr_per_cluster.csv`
@@ -8400,7 +8397,7 @@
 - **NW6 · db2**  — quoted -0.371 vs committed -0.3707  ·  `10e_01_coefficient_shifts.csv`
 - **NW5 · db2**  — quoted -0.173 vs committed -0.1726  ·  `10e_01_coefficient_shifts.csv`
 - **WMC2 · db2**  — quoted -0.327 vs committed -0.3271  ·  `10e_01_coefficient_shifts.csv`
-- **ukcp18_2050s / annual / ceh31 · dh_m**  — quoted -0.132 vs committed -0.131956  ·  `19_scenario_perwell.csv`
+- **ukcp18_2050s / annual / ceh31 · dh_m**  — quoted -0.132 vs committed -0.131957  ·  `19_scenario_perwell.csv`
 - **C4 / 2025 / Winter_Max · Value_m**  — quoted -0.964 vs committed -0.9644  ·  `14_annual_extremes.csv`
 - **C5 / 2011 / Summer_Min · Value_m**  — quoted -1.692 vs committed -1.6918  ·  `14_annual_extremes.csv`
 - **wet / ceh1 · error_m**  — quoted -0.273 vs committed -0.273291  ·  `01b_02_loo_per_well.csv`

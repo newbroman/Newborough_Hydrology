@@ -1019,12 +1019,22 @@ def plot_neighbour_transfer(nbt) -> None:
     ax.set_xticklabels(["own fit", "nearest\nneighbour", "cluster\ncentroid"], fontsize=9)
     ax.set_ylabel("NSE post-2018 (fitted pre-2018)", fontsize=9)
     ax.axhline(0.0, color="#777777", lw=0.9, ls=":")
-    ax.set_ylim(-1.0, 1.0)
+    # SYMLOG, not a clip. A linear axis cropped at -1 hid the finding: borrowing does not
+    # merely cost a little at the median, it FAILS OUTRIGHT at a fifth of wells (14 of 66
+    # below -1 NSE on a neighbour's fit, four below -13, against 2 on a well's own). Those
+    # are the wells a reader most needs to see, and they were the ones off the axis.
+    # Linear from +1 down to -1, logarithmic below, so the bulk keeps its resolution and
+    # the failures stay on the page.
+    ax.set_yscale("symlog", linthresh=1.0, linscale=1.2)
+    _lo = float(np.nanmin(piv[order].values))
+    ax.set_ylim(min(-30.0, _lo * 1.2), 1.0)
+    ax.set_yticks([1, 0.5, 0, -0.5, -1, -3, -10, -30])
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(
+        lambda v, _: f"{v:g}"))
     ax.tick_params(labelsize=9)
-    _below = int((piv[order] < -1.0).sum().sum())
-    ax.set_title("Every well, three sources of coefficients"
-                 + (f"   ({_below} point(s) below the axis)" if _below else ""),
-                 fontsize=10, loc="left")
+    _bad = {k: int((piv[k] < -1).sum()) for k in order}
+    # the counts ride the suptitle: appended here the title overran the right panel's
+    ax.set_title("Every well, three sources of coefficients", fontsize=10, loc="left")
 
     ax = axes[1]
     if "neighbour" in piv.columns and "distance_m" in nbt.columns:
@@ -1037,13 +1047,12 @@ def plot_neighbour_transfer(nbt) -> None:
         # A handful of wells where one of the two fits fails outright carry a loss of +-20
         # NSE and flatten every other point into the zero line. Clip to the bulk and SAY how
         # many are outside, rather than letting four points hide sixty.
-        _lim = 2.0
-        _out = int((m["loss"].abs() > _lim).sum())
-        ax.set_ylim(-_lim, _lim)
-        if _out:
-            ax.text(0.99, 0.02, f"{_out} well(s) beyond \u00b1{_lim:.0f}, off the axis",
-                    transform=ax.transAxes, ha="right", va="bottom", fontsize=8,
-                    color="#555555")
+        ax.set_yscale("symlog", linthresh=1.0, linscale=1.2)
+        _a = float(np.nanmax(np.abs(m["loss"].values))) if len(m) else 1.0
+        ax.set_ylim(-max(3.0, _a * 1.2), max(3.0, _a * 1.2))
+        ax.set_yticks([-10, -3, -1, 0, 1, 3, 10, 30])
+        ax.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(
+            lambda v, _: f"{v:g}"))
         ax.set_xlabel("distance to the neighbour (m)", fontsize=9)
         ax.set_ylabel("NSE lost by borrowing (own − neighbour)", fontsize=9)
         ax.tick_params(labelsize=9)
@@ -1053,7 +1062,10 @@ def plot_neighbour_transfer(nbt) -> None:
                          fontsize=10, loc="left")
     fig.suptitle("T-173 — can a well be modelled from a neighbour's coefficients?\n"
                  "all fits are pre-2018 and every score is post-2018, so no fit has seen "
-                 "what it is judged on", fontsize=9)
+                 "what it is judged on\n"
+                 + "wells scoring below −1 NSE (an outright failure): "
+                 + ", ".join(f"{k} {v}" for k, v in _bad.items())
+                 + f" of {len(piv)}", fontsize=9)
     fig.tight_layout(rect=[0, 0, 1, 0.93])
     render_figure(fig, OUT_50_NEIGHBOUR_FIG)
     plt.close(fig)

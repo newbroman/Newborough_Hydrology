@@ -1039,8 +1039,11 @@ def plot_neighbour_transfer(nbt) -> None:
     ax = axes[1]
     if "neighbour" in piv.columns and "distance_m" in nbt.columns:
         nb = nbt[nbt["source"] == "neighbour"].set_index("well")
+        # neighbour MINUS own, so an improvement reads as a POSITIVE change in NSE
+        # (Martin, 2026-11-08). The other way round a gain plotted below the line, which
+        # is the opposite of how anyone reads a skill axis.
         m = pd.DataFrame({"d": nb["distance_m"].reindex(piv.index),
-                          "loss": piv["own"] - piv["neighbour"],
+                          "gain": piv["neighbour"] - piv["own"],
                           "cluster": nb["cluster"].reindex(piv.index)}).dropna()
         # Coloured by CLUSTER (Martin, 2026-11-08: "indicate which side is a better fit and
         # which side is a poorer fit, so that we can see where the clusters actually end
@@ -1051,14 +1054,14 @@ def plot_neighbour_transfer(nbt) -> None:
             # the cluster's MEDIAN loss rides its legend entry: the question this panel is
             # asked is where the clusters end up, and a median answers it in one number
             # where a scatter of five points does not
-            ax.scatter(g["d"], g["loss"], s=30, alpha=0.9,
+            ax.scatter(g["d"], g["gain"], s=30, alpha=0.9,
                        color=CLUSTER_COLOURS.get(int(c), "#777777"),
                        edgecolors="white", linewidths=0.4,
                        label=f"{CLUSTER_LABELS.get(int(c), f'C{int(c)}')}  "
-                             f"n={len(g)}, median {g['loss'].median():+.2f}")
+                             f"n={len(g)}, median {g['gain'].median():+.2f}")
         ax.axhline(0.0, color="#777777", lw=0.9, ls=":")
         ax.set_yscale("symlog", linthresh=1.0, linscale=1.2)
-        _a = float(np.nanmax(np.abs(m["loss"].values))) if len(m) else 1.0
+        _a = float(np.nanmax(np.abs(m["gain"].values))) if len(m) else 1.0
         _lim = max(3.0, _a * 1.2)
         ax.set_ylim(-_lim, _lim)
         ax.set_yticks([-10, -3, -1, 0, 1, 3, 10, 30])
@@ -1071,18 +1074,18 @@ def plot_neighbour_transfer(nbt) -> None:
         # NOT in the ylabel: it is rotated 90 degrees, so arrow glyphs turn with it and the
         # two halves read bottom-to-top, which put "worse" at the bottom of a plot where
         # worse is at the top. The title cannot rotate and cannot collide with the legend.
-        ax.set_ylabel("NSE lost by borrowing (own \u2212 neighbour)", fontsize=9)
+        ax.set_ylabel("change in NSE from borrowing (neighbour \u2212 own)", fontsize=9)
         ax.tick_params(labelsize=9)
         # upper right: lower right sat on the "BELOW the line" label, and the upper-left
         # corner carries the "ABOVE" one
         ax.legend(fontsize=7.5, loc="upper right", framealpha=0.92, labelspacing=0.3,
-                  title="cluster \u2014 NSE lost by borrowing", title_fontsize=7.5)
+                  title="cluster \u2014 median change in NSE", title_fontsize=7.5)
         if len(m) > 2:
-            rho = m["d"].corr(m["loss"], method="spearman")   # ALL wells, not a clipped view
-            ax.set_title("Where does borrowing cost most?  distance explains little "
-                         f"(Spearman \u03c1 = {rho:+.2f})\n"
-                         "above the dotted line the neighbour's fit is POORER; "
-                         "below it, BETTER than the well's own",
+            rho = m["d"].corr(m["gain"], method="spearman")   # ALL wells, not a clipped view
+            ax.set_title("Does borrowing help or hurt, and where?  distance explains "
+                         f"little (Spearman \u03c1 = {rho:+.2f})\n"
+                         "above the dotted line the neighbour's fit is BETTER than the "
+                         "well's own; below it, POORER",
                          fontsize=9, loc="left")
 
     fig.suptitle("T-173 — can a well be modelled from a neighbour's coefficients?\n"

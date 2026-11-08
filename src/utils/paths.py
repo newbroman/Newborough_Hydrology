@@ -1465,6 +1465,11 @@ OUT_50_SPLIT_SERIES   = DIR_50 / "50_48_split_series.csv"            # J-6: the 
 OUT_50_SPLIT_FIG      = DIR_50 / "50_49_split_both_models.png"      # J-6: scenario 1 drawn, Model A against Model B
 OUT_50_NEIGHBOUR      = DIR_50 / "50_50_neighbour_transfer.csv"     # T-173: fit on a neighbour, run here, scored r2 and bias
 OUT_50_NEIGHBOUR_FIG  = DIR_50 / "50_51_neighbour_transfer.png"     # T-173: the same, drawn
+OUT_50_TRANSFER_RULE = DIR_50 / "50_52_transfer_rule.csv"          # T-173b, 2026-11-08: WHY
+# transfer succeeds or fails, and a screening rule another site could apply. Per well-neighbour
+# pair: the candidate predictors (mean-depth difference, record correlation, distance, the
+# coefficient differences) against the measured change in NSE; plus banded summary rows.
+OUT_50_TRANSFER_FIG  = DIR_50 / "50_53_transfer_rule.png"          # T-173b: the same, drawn
 OUT_50_DATUM_FIG      = DIR_50 / "50_09_datum_against_the_drier_past.png"
 OUT_50_RANWELL_DATUM  = DIR_50 / "50_10_ranwell_hindcast_by_datum.csv"   # E9, D-229
 OUT_50_TWO_STORE      = DIR_50 / "50_12_two_store_by_cluster.csv"     # E8, D-231

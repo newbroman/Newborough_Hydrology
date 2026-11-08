@@ -664,8 +664,40 @@ def identity_checks(df: pd.DataFrame, ccw: pd.DataFrame) -> dict:
 # ──────────────────────────────────────────────────────────────────────────────
 # Report numbers
 # ──────────────────────────────────────────────────────────────────────────────
-def report_numbers(df, dev, stab, ccw, summ, checks) -> ReportNumbers:
+def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumbers:
     rr = ReportNumbers()
+    # T-173b (2026-11-08): the transfer rule's quotable values, so Paper 1 can carry them as
+    # number fields rather than typed literals (D-220). Keys mirror 50_52's own columns.
+    if trule is not None and not trule.empty:
+        _pred = trule[trule["scope"] == "predictor"]
+        for _, _r in _pred.iterrows():
+            rr.add(f"transfer_rho_{_r['well']}", float(_r["gain_nse"]), unit="",
+                   note="Spearman of this predictor against the change in NSE from borrowing")
+        _pairs = trule[trule["scope"] == "pair"]
+        if not _pairs.empty:
+            rr.add("transfer_pairs_n", float(len(_pairs)), unit="",
+                   note="well-neighbour pairs in the transfer test")
+            for _src, _tag in (("own_nse", "own"), ("neighbour_nse", "neighbour"),
+                               ("centroid_nse", "centroid")):
+                if _src in _pairs.columns and _pairs[_src].notna().any():
+                    rr.add(f"transfer_median_nse_{_tag}", float(_pairs[_src].median()), unit="",
+                           note=f"median post-2018 NSE, {_tag} coefficients")
+            rr.add("transfer_fail_neighbour_n",
+                   float((_pairs["neighbour_nse"] < -1).sum()), unit="",
+                   note="wells where a neighbour's coefficients score below -1 NSE")
+            rr.add("transfer_fail_own_n", float((_pairs["own_nse"] < -1).sum()), unit="",
+                   note="wells where their OWN coefficients score below -1 NSE")
+            for _c, _g in _pairs.groupby("cluster"):
+                if pd.notna(_c):
+                    rr.add(f"transfer_median_gain_C{int(_c)}", float(_g["gain_nse"].median()),
+                           unit="", note="median change in NSE from borrowing, this cluster")
+        for _, _r in trule[trule["scope"] == "band"].iterrows():
+            _k = (str(_r["well"]).replace("<", "lt").replace(">", "gt")
+                  .replace(".", "p").replace(" m", "").replace("-", "_"))
+            rr.add(f"transfer_band_{_k}_median", float(_r["gain_nse"]), unit="",
+                   note="median change in NSE, this band of mean-depth difference")
+            rr.add(f"transfer_band_{_k}_frac_lose", float(_r["neighbour_nse"]), unit="fraction",
+                   note="share of pairs in this band losing more than 0.25 NSE")
     def get(exp, group, form, L, metric, end=""):
         s = summ[(summ.experiment == exp) & (summ.group == group) & (summ.form == form)
                  & (summ.length == L) & (summ.metric == metric) & (summ.end == end)]
@@ -1030,6 +1062,8 @@ def transfer_rule(nbt, lev, lev_cols, master) -> pd.DataFrame:
                    n_shared_months=int(len(both)),
                    own_nse=float(piv.loc[w, "own"]),
                    neighbour_nse=float(piv.loc[w, "neighbour"]),
+                   centroid_nse=(float(piv.loc[w, "centroid"])
+                                 if "centroid" in piv.columns else np.nan),
                    # neighbour MINUS own: an improvement is positive, as in 50_51
                    gain_nse=float(piv.loc[w, "neighbour"] - piv.loc[w, "own"]),
                    distance_m=float(nb.loc[w, "distance_m"]) if pd.notna(nb.loc[w, "distance_m"]) else np.nan,
@@ -5791,7 +5825,7 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
     stab.to_csv(OUT_50_STABLE, index=False); saved(f"{OUT_50_STABLE.name} ({len(stab)} rows)")
-    rr = report_numbers(df, dev, stab, ccw, summ, checks)
+    rr = report_numbers(df, dev, stab, ccw, summ, checks, trule=trule)
     if len(ccw_d):
         datum_report(rr, ccw_d, split_d, proj_d, checks_d)
     water_balance_report(rr, cl)

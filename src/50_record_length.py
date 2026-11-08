@@ -1038,28 +1038,53 @@ def plot_neighbour_transfer(nbt) -> None:
 
     ax = axes[1]
     if "neighbour" in piv.columns and "distance_m" in nbt.columns:
-        d = (nbt[nbt["source"] == "neighbour"].set_index("well")["distance_m"]
-             .reindex(piv.index))
-        loss = piv["own"] - piv["neighbour"]
-        m = pd.DataFrame({"d": d, "loss": loss}).dropna()
-        ax.scatter(m["d"], m["loss"], s=24, color="#1b9e77")
+        nb = nbt[nbt["source"] == "neighbour"].set_index("well")
+        m = pd.DataFrame({"d": nb["distance_m"].reindex(piv.index),
+                          "loss": piv["own"] - piv["neighbour"],
+                          "cluster": nb["cluster"].reindex(piv.index)}).dropna()
+        # Coloured by CLUSTER (Martin, 2026-11-08: "indicate which side is a better fit and
+        # which side is a poorer fit, so that we can see where the clusters actually end
+        # up"). A single colour answered "how big is the loss"; it could not answer whether
+        # the wells that transfer badly belong to one part of the site.
+        for c in sorted(m["cluster"].unique()):
+            g = m[m["cluster"] == c]
+            # the cluster's MEDIAN loss rides its legend entry: the question this panel is
+            # asked is where the clusters end up, and a median answers it in one number
+            # where a scatter of five points does not
+            ax.scatter(g["d"], g["loss"], s=30, alpha=0.9,
+                       color=CLUSTER_COLOURS.get(int(c), "#777777"),
+                       edgecolors="white", linewidths=0.4,
+                       label=f"{CLUSTER_LABELS.get(int(c), f'C{int(c)}')}  "
+                             f"n={len(g)}, median {g['loss'].median():+.2f}")
         ax.axhline(0.0, color="#777777", lw=0.9, ls=":")
-        # A handful of wells where one of the two fits fails outright carry a loss of +-20
-        # NSE and flatten every other point into the zero line. Clip to the bulk and SAY how
-        # many are outside, rather than letting four points hide sixty.
         ax.set_yscale("symlog", linthresh=1.0, linscale=1.2)
         _a = float(np.nanmax(np.abs(m["loss"].values))) if len(m) else 1.0
-        ax.set_ylim(-max(3.0, _a * 1.2), max(3.0, _a * 1.2))
+        _lim = max(3.0, _a * 1.2)
+        ax.set_ylim(-_lim, _lim)
         ax.set_yticks([-10, -3, -1, 0, 1, 3, 10, 30])
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(
             lambda v, _: f"{v:g}"))
-        ax.set_xlabel("distance to the neighbour (m)", fontsize=9)
-        ax.set_ylabel("NSE lost by borrowing (own − neighbour)", fontsize=9)
+        # Which way is which, carried by the AXIS rather than by text in the panel: two
+        # corner labels and a five-entry legend cannot share the same corners, and a reader
+        # should not have to work out the sign of "own - neighbour" before reading the plot.
+        ax.set_xlabel("distance to the nearest neighbour (m)", fontsize=9)
+        # NOT in the ylabel: it is rotated 90 degrees, so arrow glyphs turn with it and the
+        # two halves read bottom-to-top, which put "worse" at the bottom of a plot where
+        # worse is at the top. The title cannot rotate and cannot collide with the legend.
+        ax.set_ylabel("NSE lost by borrowing (own \u2212 neighbour)", fontsize=9)
         ax.tick_params(labelsize=9)
+        # upper right: lower right sat on the "BELOW the line" label, and the upper-left
+        # corner carries the "ABOVE" one
+        ax.legend(fontsize=7.5, loc="upper right", framealpha=0.92, labelspacing=0.3,
+                  title="cluster \u2014 NSE lost by borrowing", title_fontsize=7.5)
         if len(m) > 2:
-            rho = m["d"].corr(m["loss"], method="spearman")   # on ALL wells, not the clipped view
-            ax.set_title(f"Does distance explain the loss?  Spearman ρ = {rho:+.2f}",
-                         fontsize=10, loc="left")
+            rho = m["d"].corr(m["loss"], method="spearman")   # ALL wells, not a clipped view
+            ax.set_title("Where does borrowing cost most?  distance explains little "
+                         f"(Spearman \u03c1 = {rho:+.2f})\n"
+                         "above the dotted line the neighbour's fit is POORER; "
+                         "below it, BETTER than the well's own",
+                         fontsize=9, loc="left")
+
     fig.suptitle("T-173 — can a well be modelled from a neighbour's coefficients?\n"
                  "all fits are pre-2018 and every score is post-2018, so no fit has seen "
                  "what it is judged on\n"

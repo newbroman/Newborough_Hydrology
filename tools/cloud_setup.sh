@@ -51,7 +51,14 @@ step "1/6" "public repository → $DIR"
 if [ -d "$DIR/.git" ]; then
   git -C "$DIR" fetch --quiet origin main && git -C "$DIR" status -sb | head -1
 else
-  git clone --quiet --depth 50 "$PUB" "$DIR"
+  # --filter=blob:none, NOT --depth: a partial clone has the FULL commit history and fetches
+  # file contents on demand. A shallow clone does not, and on 2026-11-08 that cost a day:
+  # a chat minting a task id takes max+1 over the ids it can SEE, two chats each saw only a
+  # 50-commit window, both read T-182 as the maximum, and both minted T-183 and T-184 --
+  # four tasks under two ids, found only at merge time. The same truncation made every
+  # ahead/behind count meaningless (the private clone read 961 behind, which is the full
+  # history it could not see) and produced a false "the histories have diverged" reading.
+  git clone --quiet --filter=blob:none "$PUB" "$DIR"
 fi
 cd "$DIR"
 grep -qx '/working/' .git/info/exclude 2>/dev/null || {
@@ -64,7 +71,7 @@ if [ -d .git-working ]; then
   git --git-dir=.git-working --work-tree=. fetch --quiet origin
   echo "      present; fetched (merge with: ./working/wgit pull)"
 else
-  git clone --quiet --bare --depth 50 "$PRIV" .git-working
+  git clone --quiet --bare --filter=blob:none "$PRIV" .git-working
   git --git-dir=.git-working config core.bare false
   git --git-dir=.git-working config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
   git --git-dir=.git-working config status.showUntrackedFiles no

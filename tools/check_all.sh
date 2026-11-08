@@ -746,6 +746,13 @@ printf '%s\n' "$task_out" | grep -E "^  [0-9]+ open|OPEN |task\(s\): " || true
 # task_lint, a claimed check_all gate that is not invoked, a file said not to
 # exist that does. Typed counts are advisory.
 python3 tools/register_lint.py || rc=1
+# An id means ONE task. On 2026-11-08 two chats each minted a T-183 and a T-184 -- four
+# tasks under two ids -- because each took max+1 over a --depth 50 clone it could see only
+# part of. cloud_setup.sh now clones with --filter=blob:none so the view is whole; this asks
+# the question the merge used to answer far too late, and says nothing when origin is
+# unreachable rather than guessing agreement.
+python3 tools/task_register.py --selftest >/dev/null || { echo "  task_register --selftest: FAIL"; rc=1; }
+python3 tools/task_register.py --check || rc=1
 
 section "── proof copies (is the proof page current?) ─────────────────────────"
 # ADVISORY. proof_copy --refresh regenerates only the chapters whose inputs changed

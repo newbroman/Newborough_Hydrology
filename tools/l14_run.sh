@@ -60,7 +60,25 @@ for R in "public:git" "private:git --git-dir=.git-working --work-tree=."; do
   if [ "$BEHIND" = "0" ]; then ok "$NAME: up to date (${AHEAD} ahead)"
   elif [ "$DRY" = "1" ]; then note "$NAME: ${BEHIND} behind — would fast-forward"
   elif $GIT merge --ff-only origin/main >/dev/null 2>&1; then ok "$NAME: fast-forwarded ${BEHIND} commit(s)"
-  else bad "$NAME: ${BEHIND} behind and will not fast-forward — merge by hand first"; FAIL=1; fi
+  else
+    # Distinguish the two reasons a fast-forward fails, because they need different fixes
+    # and the wrong message sends you hunting for a divergence that is not there (L14,
+    # 2026-11-08: reported "will not fast-forward" when the only problem was one dirty
+    # generated file, and `log origin/main..HEAD` was empty).
+    DIRTY="$($GIT status --porcelain 2>/dev/null | head -5)"
+    LOCAL="$($GIT rev-list --count origin/main..HEAD 2>/dev/null || echo 0)"
+    if [ "$LOCAL" != "0" ]; then
+      bad "$NAME: ${BEHIND} behind AND ${LOCAL} local commit(s) — histories diverged, merge by hand:"
+      note "  $GIT merge --no-edit origin/main"
+    elif [ -n "$DIRTY" ]; then
+      bad "$NAME: ${BEHIND} behind, blocked by uncommitted file(s) — it IS a fast-forward:"
+      printf '           %s\n' "$DIRTY"
+      note "  discard them if generated, or commit them, then re-run"
+    else
+      bad "$NAME: ${BEHIND} behind and the fast-forward failed for an unknown reason"
+    fi
+    FAIL=1
+  fi
 done
 
 # The claim is checked AFTER the fetch, deliberately. The lock record lives in the

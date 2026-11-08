@@ -130,7 +130,37 @@ PY
 )"
 printf '   check_all: %s\n' "$VERDICT"
 
-say "5/6  What changed"
+say "5/6  Run summary, on a path the cloud chat can read"
+# CLAUDE.md §4: "RUN IT HERE, tee IT, READ IT" -- do not make Martin paste output back.
+# The tee'd log goes to scratch/, which is gitignored, and a cloud session has no access
+# to this machine's filesystem, so the log alone cannot reach the chat that asked for the
+# run. This writes a short summary to a TRACKED path in the private repository instead,
+# which the ship then pushes: the chat reads the outcome from git rather than from a paste.
+SUMMARY="working/updates/l14_run_${STAMP}.md"
+mkdir -p working/updates
+{
+  printf '# L14 pipeline run %s\n\n' "$STAMP"
+  printf -- '- host: `%s`\n' "$(hostname)"
+  printf -- '- command: `run_analysis.py %s`\n' "${ARGS[*]}"
+  printf -- '- pipeline exit: **%s** after %dm %ds\n' "$RC" $((ELAPSED/60)) $((ELAPSED%60))
+  printf -- '- check_all: **%s**\n' "$VERDICT"
+  printf -- '- public files changed: %s\n\n' "$(git status --porcelain | wc -l)"
+  printf '## Steps, slowest first\n\n```\n'
+  tr '\r' '\n' < "$LOG" | awk '
+    /▶ STEP/ { step = $0; sub(/^ *▶ */, "", step) }
+    /✓ done/ { t = $0; sub(/^.*\(/, "", t); sub(/\).*$/, "", t);
+               if (step != "") { print t "\t" step; step = "" } }' \
+    | sort -t'\t' -k1 -gr | head -15
+  printf '```\n\n## Warnings\n\n```\n'
+  tr '\r' '\n' < "$LOG" | grep -E "WARNING|⚠" | sed 's/^ *//' | sort -u | head -25
+  printf '```\n\n## Last 25 lines\n\n```\n'
+  tr '\r' '\n' < "$LOG" | grep -v '^\s*$' | tail -25
+  printf '```\n'
+} > "$SUMMARY"
+ok "wrote $SUMMARY"
+note "the ship pushes it; the cloud chat reads it from the private repo"
+
+say "5b/6  What changed"
 git status --short | head -30
 printf '   %s file(s) changed in the public tree\n' "$(git status --porcelain | wc -l)"
 

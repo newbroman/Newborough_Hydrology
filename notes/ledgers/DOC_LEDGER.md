@@ -5,22 +5,22 @@
 
 *Generated from `docs/PDF_MANIFEST.txt` with the live lag state from `tools/export_lag.py`. Living current-state; regenerate, do not hand-edit. `tools/export_lag.py` is the live authority.*
 
-**12 published PDFs** — 3 version-current, 4 lagging, 5 unversioned (mtime-only, not version-tracked).
+**12 published PDFs** — 7 version-current, 0 lagging, 5 unversioned (mtime-only, not version-tracked).
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_39.odt` | 2026-11-05T23:33:41Z | current |
-| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_31.odt` | 2026-11-05T23:33:41Z | current |
-| `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_33.odt` | 2026-11-05T23:33:41Z | current |
-| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_90.odt` | 2026-11-05T23:33:41Z | **STALE** |
-| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v44.odt` | 2026-11-05T23:33:41Z | **STALE** |
-| `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-11-05T23:33:41Z | unversioned |
-| `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-11-05T23:33:41Z | unversioned |
-| `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-11-05T23:33:41Z | unversioned |
-| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_122.odt` | 2026-11-05T23:33:41Z | **STALE** |
-| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_59.odt` | 2026-11-05T23:33:41Z | **STALE** |
-| `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-11-05T23:33:42Z | unversioned |
-| `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-11-05T23:33:42Z | unversioned |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_39.odt` | 2026-11-05T13:51:30Z | current |
+| `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_31.odt` | 2026-11-05T13:51:32Z | current |
+| `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_33.odt` | 2026-10-29T08:03:25Z | current |
+| `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_91.odt` | 2026-11-08T13:13:54Z | current |
+| `docs/papers/paper_2/Hollingham_2026_Paper2_amended.pdf` | `Hollingham_2026_Paper2_amended_v46.odt` | 2026-11-08T13:13:55Z | current |
+| `docs/public_summaries/Newborough_Warren_Podsumowanie.pdf` | `public_summary_PL.odt` | 2026-10-10T16:14:45Z | unversioned |
+| `docs/public_summaries/Newborough_Warren_Public_Summary.pdf` | `public_summary_EN.odt` | 2026-10-10T16:14:44Z | unversioned |
+| `docs/public_summaries/Niwbwrch_Crynodeb_Cyhoeddus.pdf` | `public_summary_CY.odt` | 2026-10-10T16:14:45Z | unversioned |
+| `docs/report/Newborough_Methods_Supplement.pdf` | `Newborough_Methods_Supplement_v2_0_127.odt` | 2026-11-08T13:13:47Z | current |
+| `docs/report/Supplementary_Material.pdf` | `Supplementary_Material_v1_60.odt` | 2026-11-08T13:13:49Z | current |
+| `docs/web_tools/NRG_Web_Tools_Technical_Note.pdf` | `NRG_Web_Tools_Technical_Note.odt` | 2026-10-04T11:43:41Z | unversioned |
+| `docs/web_tools/NRG_Web_Tools_User_Manual.pdf` | `NRG_Web_Tools_User_Manual.odt` | 2026-10-04T11:43:42Z | unversioned |
 
 ## Authored directly (no source ODT)
 
@@ -32,4 +32,4 @@
 
 > `report.pdf` is deliberately **absent** from `PDF_MANIFEST.txt` and from this ledger: it is built from the `report.odm` master via `tools/export_master_pdf.py`, not `build_pdfs.sh`. See the project working rules.
 
-*Generated 2026-11-07 by `tools/build_doc_ledger.py` v1.1.0.*
+*Generated 2026-11-08 by `tools/build_doc_ledger.py` v1.1.0.*

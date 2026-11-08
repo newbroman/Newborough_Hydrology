@@ -14,4 +14,4 @@ datum_vs_elevation,r2,0.796096,66,-
 datum_vs_elevation,ground_elev_range_m,10.886,66,m
 below_mean_wt,n_below,65.0,66,wells
 below_mean_wt,n_total,66.0,66,wells
-below_mean_wt,exception_ceh13_pvalue_beta_3_at_max,0.707772,66,p
+below_mean_wt,exception_ceh13_pvalue_beta_3_at_max,0.707773,66,p

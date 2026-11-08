@@ -1311,6 +1311,11 @@ OUT_39_FULL_SITE          = DIR_39 / "39_05_full_hindcast_site.csv"
 OUT_39_FULL_DECADAL       = DIR_39 / "39_06_full_hindcast_decadal.csv"
 OUT_39_FULL_FIG           = DIR_39 / "39_07_full_hindcast.png"
 OUT_39_REPORT_NUMBERS     = DIR_39 / "39_report_numbers.csv"   # quoted statistics (1.4.0, T-84)
+OUT_39_FIT_WINDOW_FIG    = DIR_39 / "39_09_fit_windows.png"
+OUT_39_FIT_WINDOWS        = DIR_39 / "39_08_fit_window_scorecard.csv"  # J-6, 2026-11-08:
+# both model forms scored against the 1989-96 record from each of three fitting windows
+# (comparison / pre2018 / whole), per well and pooled. Answers "does the fitting window
+# change the hindcast?" with a number instead of a caveat.
 
 # --- Script 40 — shoreline-retreat measurement ---------------------------------
 DIR_40 = OUT_DIR / "40_shoreline_retreat"
@@ -1458,6 +1463,8 @@ OUT_50_SPLIT_DATUM    = DIR_50 / "50_07_split_by_datum.csv"          # D-225: sp
 OUT_50_PROJ_DATUM     = DIR_50 / "50_08_projection_by_datum.csv"     # D-225: UKCP18 response and room left at every datum
 OUT_50_SPLIT_SERIES   = DIR_50 / "50_48_split_series.csv"            # J-6: the Jan-2018 split-sample free run, MONTHLY, Model A and Model B
 OUT_50_SPLIT_FIG      = DIR_50 / "50_49_split_both_models.png"      # J-6: scenario 1 drawn, Model A against Model B
+OUT_50_NEIGHBOUR      = DIR_50 / "50_50_neighbour_transfer.csv"     # T-173: fit on a neighbour, run here, scored r2 and bias
+OUT_50_NEIGHBOUR_FIG  = DIR_50 / "50_51_neighbour_transfer.png"     # T-173: the same, drawn
 OUT_50_DATUM_FIG      = DIR_50 / "50_09_datum_against_the_drier_past.png"
 OUT_50_RANWELL_DATUM  = DIR_50 / "50_10_ranwell_hindcast_by_datum.csv"   # E9, D-229
 OUT_50_TWO_STORE      = DIR_50 / "50_12_two_store_by_cluster.csv"     # E8, D-231

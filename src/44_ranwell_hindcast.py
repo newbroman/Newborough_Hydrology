@@ -18,8 +18,11 @@ Q1 — Does the SSM hindcast 1951–53?  Each Ranwell site with a printed series
   (utils.model_utils.simulate_ssm, exactly as Script 39), and the modelled
   mid-month level is set against Ranwell's monthly-mean reading AFTER REMOVING
   THE MEAN OFFSET — the two are not at the same point. r, NSE-after-offset and
-  the seasonal range say whether coefficients fitted 2005–26 reproduce the
-  dynamics of fifty-four years earlier. The nearest paired well is the headline;
+  the seasonal range say whether the coefficients reproduce the dynamics of
+  fifty-four years earlier. Those coefficients are fitted on the last 100 months
+  of each well's record (2017-11 to 2026-02), NOT on 2005–26 as this docstring
+  claimed before 2026-11-08; two further windows (pre-2018, whole record) are
+  refitted and run alongside. The nearest paired well is the headline;
   every paired well is written (the spread is the sensitivity).
 
 Q2 — Has the slack water table moved since 1951–53?  Ranwell's mean level (m OD)
@@ -211,7 +214,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 from utils import config, paths  # noqa: E402
-from utils.model_utils import simulate_ssm  # noqa: E402
+from utils.model_utils import (simulate_ssm,                           # noqa: E402
+                               fit_ssm, fit_ssm_intercept)             # noqa: E402  (J-6)
 from utils.hindcast_utils import compare_offset_censored  # noqa: E402
 from utils.console_utils import banner, phase, step, info, warn, saved, note  # noqa: E402
 from utils.render_utils import apply_house_style, render_figure  # noqa: E402
@@ -219,6 +223,8 @@ from utils.render_utils import apply_house_style, render_figure  # noqa: E402
 SCRIPT_ID = "44"
 VERSION = __version__
 DATUM = config.DRAINAGE_DATUM
+# J-6: minimum aligned months for an alternative-window refit. Matches Script 39.
+MIN_FIT_OBS = 36
 BETA_COLS = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")
 SPAN = pd.Period(config.RANWELL_HINDCAST_SPAN[0], "M"), pd.Period(config.RANWELL_HINDCAST_SPAN[1], "M")
 
@@ -318,10 +324,12 @@ def surface_gradient(e: float, n: float) -> float:
 
 
 # ── hindcast ──────────────────────────────────────────────────────────────────
-def hindcast_series(cl, betas, h0, beta1_scale=1.0) -> pd.Series:
+def hindcast_series(cl, betas, h0, beta1_scale=1.0, drainage_datum=None) -> pd.Series:
+    """Default datum is DATUM, the project's fixed 3.7 m floor -- that IS Model A. Model B passes
+    the datum its own fitted intercept implies (J-6, Martin 2026-11-07)."""
     b1, b2, b3 = betas
     h = simulate_ssm(h0, cl["P_m"].values, cl["PET"].values, b1 * beta1_scale, b2, b3,
-                     drainage_datum=DATUM)
+                     drainage_datum=DATUM if drainage_datum is None else drainage_datum)
     return pd.Series(h, index=cl.index)
 
 
@@ -393,18 +401,29 @@ def plot_hindcast(series: pd.DataFrame, metrics: pd.DataFrame, fig_path, report:
         m = metrics[(metrics["site_no"] == s) & metrics["headline"]].iloc[0]
         t = sub["month"].dt.to_timestamp()
         capped = np.minimum(sub["model_level_m_od"] + m["offset_m"], m["ground_m_od"])
+        capped_b = None
+        if "model_b_level_m_od" in sub and sub["model_b_level_m_od"].notna().any() \
+                and np.isfinite(m.get("offset_m_modelB", np.nan)):
+            capped_b = np.minimum(sub["model_b_level_m_od"] + m["offset_m_modelB"], m["ground_m_od"])
         if report:
             ax.plot(t, sub["obs_level_m_od"], "o-", ms=4, color="#1B9E77",
                     label="Ranwell 1951–53, monthly mean of readings")
             ax.plot(t, capped, "-", color="#D95F02",
-                    label="SSM hindcast, offset removed, capped at the ground surface")
+                    label=f"Model A (fixed {DATUM:.1f} m floor), offset {m['offset_m']:+.2f} m removed, "
+                          "capped at the surface")
+            if capped_b is not None:
+                ax.plot(t, capped_b, "-", lw=1.2, alpha=0.9, color="#2b6cb0",
+                        label=f"Model B (fitted intercept), offset {m['offset_m_modelB']:+.2f} m removed")
             ax.set_title(f"Ranwell Site {s} ({SLACK_NAMES.get(m['sketch_slack'], m['sketch_slack'])}), "
                          f"paired with {m['well']}", fontsize=9, loc="left")
             ax.set_ylabel("Water-table level (m OD)", fontsize=9)
         else:
             ax.plot(t, sub["obs_level_m_od"], "o-", ms=4, color="#1B9E77", label="Ranwell (monthly mean of readings)")
             ax.plot(t, capped, "-", color="#D95F02",
-                    label=f"SSM hindcast at {m['well']} ({m['offset_m']:+.2f} m offset, capped at the surface)")
+                    label=f"Model A at {m['well']}, {DATUM:.1f} m floor ({m['offset_m']:+.2f} m offset, capped)")
+            if capped_b is not None:
+                ax.plot(t, capped_b, "-", lw=1.2, alpha=0.9, color="#2b6cb0",
+                        label=f"Model B ({m['offset_m_modelB']:+.2f} m offset)")
             ax.set_title(f"Site {s} ({m['sketch_slack']}): r {m['r']:.2f}, NSE after offset "
                          f"{m['nse_after_offset']:.2f}, range obs {m['range_obs_m']:.2f} vs model "
                          f"{m['range_model_m']:.2f} m", fontsize=9, loc="left")
@@ -414,9 +433,19 @@ def plot_hindcast(series: pd.DataFrame, metrics: pd.DataFrame, fig_path, report:
         if not report or ax is axes[0]:
             # one legend in the report render: on the lower panels it covers the 1951 minimum
             ax.legend(fontsize=8, loc="lower left", framealpha=0.9)
+    # J-6 (Martin, 2026-11-07): the report render carried NO suptitle, so nothing on the figure
+    # said which form it showed. Both renders now name it.
     if not report:
-        fig.suptitle("Ranwell's 1951–53 series against the SSM driven by RAF Valley climate "
-                     "(coefficients fitted 2005–26)", fontsize=10)
+        fig.suptitle("Ranwell's 1951\u201353 series driven by RAF Valley climate, coefficients fitted "
+                     f"2005\u201326\nModel A at the fixed {DATUM:.1f} m floor; Model B at its own fitted "
+                     "intercept \u2014 each with ITS OWN offset removed, so only SHAPE is scored",
+                     fontsize=9)
+    else:
+        fig.suptitle(f"Ranwell's 1951\u201353 series: Model A (fixed {DATUM:.1f} m floor) and Model B "
+                     "(fitted intercept), coefficients fitted on the last 100 months "
+                     "(2017\u201311 to 2026\u201302)\neach with its own offset "
+                     "removed \u2014 only SHAPE is scored here",
+                     fontsize=9)
     fig.tight_layout()
     render_figure(fig, fig_path)
     plt.close(fig)
@@ -865,6 +894,71 @@ def main() -> int:
     phase(2, "Q1 — hindcast at the same-basin wells")
     lv["month"] = lv["date"].dt.to_period("M")
     obs_month = lv.groupby(["site_no", "month"])["level_m_od"].mean()
+    # J-6 (Martin, 2026-11-07: "Scenario 3 lets keep model B"). Model B is the same machinery at
+    # the datum its own fitted intercept implies. Scenario 3 scores SHAPE -- the offset is removed
+    # and the run capped at the surface -- so B's level cannot win here by construction. What it
+    # CAN show is whether B needs a SMALLER OFFSET than A, which is evidence about level that this
+    # scenario would otherwise discard. ceh14 is excluded: implied datum -9.39 m, a base above ground.
+    mb = {}
+    try:
+        _mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
+        for _, _r in _mb[_mb["level"] == "well"].iterrows():
+            _b3 = float(_r["beta_3_B"])
+            if not np.isfinite(_b3) or _b3 <= 0:
+                continue
+            _d = float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
+            if _d <= 0:
+                continue
+            mb[str(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+    except Exception as _e:
+        warn(f"Model B coefficients unavailable ({type(_e).__name__}); scenario 3 stays Model A only")
+    # J-6, Martin 2026-11-08: "we should have a whole record trained model against the ccw data
+    # and Ranwells". Same three fitting windows as Script 39 -- comparison (the master store,
+    # the last 100 months), pre2018, and the whole record -- for both model forms.
+    #
+    # For Ranwell the question is narrower than at the CCW wells: this scenario removes the
+    # offset and scores SHAPE, so a window that shifts the level cannot be penalised here. What
+    # the windows can show is whether the SEASONAL DYNAMICS the coefficients encode depend on
+    # which eight years they were fitted on -- fifty-four years before the period predicted.
+    FIT_WINDOWS = ("pre2018", "whole")
+    fits = {w: {} for w in FIT_WINDOWS}
+    try:
+        _split = pd.Timestamp(config.MODEL_AB_SPLIT_DATE)
+        _wc = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
+        # NOT _norm: that is a module-level function in this script, and assigning to the name
+        # here made it local to main() and broke an unrelated call forty lines earlier.
+        _wkey = lambda x: str(x).strip().lower().replace(" ", "")
+        _cols = {_wkey(c): c for c in _wc.columns}
+        for _w in list(md.index):
+            _col = _cols.get(_wkey(_w))
+            if _col is None:
+                continue
+            _h_all = pd.to_numeric(_wc[_col], errors="coerce").dropna()
+            for _win in FIT_WINDOWS:
+                _h = _h_all[_h_all.index < _split] if _win == "pre2018" else _h_all
+                _c = cl[cl.index < _split] if _win == "pre2018" else cl
+                if len(_h) < MIN_FIT_OBS:
+                    continue
+                _fa = fit_ssm(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
+                _fb = fit_ssm_intercept(_h, _c, lag=0, min_obs=MIN_FIT_OBS)
+                if _fa and np.isfinite(_fa.get("beta_3_drainage", np.nan)) and _fa["beta_3_drainage"] > 0:
+                    fits[_win].setdefault(_w, {})["A"] = (
+                        (_fa["beta_1_recharge"], _fa["beta_2_atmospheric_draw"], _fa["beta_3_drainage"]),
+                        DATUM)
+                if _fb and np.isfinite(_fb.get("beta_3_drainage", np.nan)) and _fb["beta_3_drainage"] > 0:
+                    _db2 = DATUM - _fb.get("alpha", 0.0) / _fb["beta_3_drainage"]
+                    if _db2 > 0:
+                        fits[_win].setdefault(_w, {})["B"] = (
+                            (_fb["beta_1_recharge"], _fb["beta_2_atmospheric_draw"], _fb["beta_3_drainage"]),
+                            _db2)
+        for _win in FIT_WINDOWS:
+            note(f"{_win} fits: {sum('A' in v for v in fits[_win].values())} Model A, "
+                 f"{sum('B' in v for v in fits[_win].values())} Model B, "
+                 f"over {len(fits[_win])} well(s)")
+    except Exception as _e:
+        warn(f"window fits unavailable ({type(_e).__name__}: {_e}); "
+             f"the window-comparison metrics stay empty")
+
     series_rows, metric_rows, climate_exp = [], [], {}
     for s in sorted(lv["site_no"].unique()):
         srow = sites.loc[s]
@@ -886,6 +980,31 @@ def main() -> int:
             mid = ((h + h.shift(1)) / 2 + c["ground_m"])
             mid.index = mid.index.to_period("M")
             met = compare(om, mid, float(srow["height_m_od"]))
+            mid_b, met_b = None, {}
+            if w in mb:
+                _bb, _db = mb[w]
+                h_b = hindcast_series(cl, _bb, h0, drainage_datum=_db)
+                mid_b = ((h_b + h_b.shift(1)) / 2 + c["ground_m"])
+                mid_b.index = mid_b.index.to_period("M")
+                met_b = {f"{k}_modelB": v
+                         for k, v in compare(om, mid_b, float(srow["height_m_od"])).items()}
+            # J-6: the same two forms from the two alternative fitting windows, scored the same
+            # way (offset removed). Keys are nse_after_offset_<window>_<form> so a reader can
+            # compare them directly with the comparison-window nse_after_offset above.
+            met_win = {}
+            for _win in FIT_WINDOWS:
+                for _form in ("A", "B"):
+                    _ent = fits[_win].get(w, {}).get(_form)
+                    if _ent is None:
+                        continue
+                    _bb, _dd = _ent
+                    _hw = hindcast_series(cl, _bb, h0, drainage_datum=_dd)
+                    _mw = ((_hw + _hw.shift(1)) / 2 + c["ground_m"])
+                    _mw.index = _mw.index.to_period("M")
+                    _cw = compare(om, _mw, float(srow["height_m_od"]))
+                    met_win[f"nse_after_offset_{_win}_{_form}"] = _cw.get("nse_after_offset")
+                    met_win[f"r_{_win}_{_form}"] = _cw.get("r")
+
             env = {}
             for sc in config.CCW_BETA1_SCALINGS:
                 hs = hindcast_series(cl, betas, h0, sc)
@@ -903,12 +1022,16 @@ def main() -> int:
                                     ground_m_od=float(srow["height_m_od"]),
                                     dist_m=float(c["d"]), headline=headline,
                                     beta_1=betas[0], beta_2=betas[1], beta_3=betas[2],
-                                    **met, climate_expectation_m=exp, **env))
+                                    **met, **met_b, **met_win,
+                                    climate_expectation_m=exp, **env))
             common = om.index.intersection(mid.index)
             for mth in common:
                 series_rows.append(dict(site_no=s, well=w, headline=headline, month=mth,
                                         obs_level_m_od=float(om.loc[mth]),
                                         model_level_m_od=float(mid.loc[mth]),
+                                        model_b_level_m_od=(float(mid_b.loc[mth])
+                                                            if mid_b is not None and mth in mid_b.index
+                                                            else np.nan),
                                         n_readings=int(lv[(lv["site_no"] == s) & (lv["month"] == mth)].shape[0])))
         hl = [m for m in metric_rows if m["site_no"] == s and m["headline"]][0]
         step(f"site {s} ({srow['sketch_slack']}): {len(cand)} paired well(s); headline {hl['well']} "
@@ -917,6 +1040,22 @@ def main() -> int:
              f"n {hl['n']} ({hl['n_at_surface']} at the surface); climate-only expectation {hl['climate_expectation_m']:+.3f} m")
     metrics = pd.DataFrame(metric_rows)
     series = pd.DataFrame(series_rows)
+
+    # J-6: the window-and-form comparison, over EVERY paired well rather than the three headline
+    # sites, because three sites is too few to read a median from. Shape only -- the offset is
+    # removed before scoring, so none of this is about level.
+    _pairs = [("comparison", "A", "nse_after_offset"), ("comparison", "B", "nse_after_offset_modelB"),
+              ("pre2018", "A", "nse_after_offset_pre2018_A"), ("pre2018", "B", "nse_after_offset_pre2018_B"),
+              ("whole", "A", "nse_after_offset_whole_A"), ("whole", "B", "nse_after_offset_whole_B")]
+    step("NSE after offset over all paired wells, by fitting window and model form:")
+    for _win, _form, _c in _pairs:
+        if _c not in metrics.columns:
+            continue
+        _x = metrics[_c].dropna()
+        if _x.empty:
+            continue
+        step(f"  {_win:10s} Model {_form}: n {len(_x):2d}  median {_x.median():+.3f}  "
+             f"IQR {_x.quantile(.25):+.3f} to {_x.quantile(.75):+.3f}  min {_x.min():+.3f}")
 
     phase(3, "Q2 — 1951–53 level against the modern surface, with the four error terms")
     rg["level_mid_m_od"] = (rg["level_max_m_od"] + rg["level_min_m_od"]) / 2

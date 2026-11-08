@@ -67,9 +67,22 @@ done
 # private repository, so before the fetch this reads whatever this clone last saw --
 # which on 2026-11-08 was a release that had been taken locally but not published,
 # and would have reported "free" for a claim GitHub still showed as held.
-CLAIM="$(python3 tools/doc_lock.py status 2>/dev/null | awk '/^ *pipeline /{print; exit}')"
+# Read the lock as ORIGIN publishes it, not as this clone happens to hold it. doc_lock
+# status reads the working tree, which in --dry-run has not been fast-forwarded and after a
+# plain fetch may be many commits behind -- on 2026-11-08 that reported a held pipeline
+# claim on the L14 that had already been released and published. "Published" is the whole
+# meaning of the gate, so ask the published record.
+CLAIM="$(git --git-dir=.git-working show origin/main:working/DOCUMENT_LOCK.json 2>/dev/null \
+  | python3 -c 'import json,sys
+try:
+    c = json.load(sys.stdin).get("claims", {})
+except Exception:
+    sys.exit(0)
+v = c.get("pipeline")
+if v:
+    print(f"   pipeline  chat {v.get(\"chat\")!r}  since {v.get(\"since\",\"?\")}  {v.get(\"note\",\"\")}")' 2>/dev/null)"
 if [ -n "$CLAIM" ]; then
-  bad "the 'pipeline' claim is held (as published, after the fetch):"
+  bad "the 'pipeline' claim is held, as published on GitHub:"
   printf '           %s\n' "$CLAIM"
   note "release it in that chat and let the release PUBLISH, or export NRG_CHAT to"
   note "that chat's name if it is you. A release that says LOCAL ONLY has not landed."

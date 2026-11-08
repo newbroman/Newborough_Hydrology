@@ -19,6 +19,15 @@
 # sequence fields first, through UNO (tools/export_odt_pdf.py, sharing
 # tools/uno_pdf.py with the master export). If python3-uno is not importable it
 # WARNS and falls back to a plain --convert-to (page/figure numbers unrefreshed).
+#
+# Version 2026-11-08 — a PDF is also STALE when its line in the COMMITTED
+# docs/PDF_MANIFEST.txt names a different source ODT (basename) than the newest
+# ODT the glob resolves to; the -nt test is kept beside it. A fresh clone gives
+# every PDF the checkout time, so -nt read stale PDFs as current and the manifest
+# certified them (cloud ship 2026-11-08: a v2_0_127 build of the Methods
+# Supplement was written into the manifest as built from v2_0_128). And a PDF
+# that is still current keeps its committed manifest line verbatim instead of
+# being re-stamped from its mtime, which wrote the checkout time into every row.
 
 set -euo pipefail
 # Work from the repo root no matter where this script lives (root, tools/, …).
@@ -57,6 +66,18 @@ latest() { ls -v $1 2>/dev/null | tail -1; }        # highest version matching t
 manifest_line() {  # $1 pdf  $2 src ; use the PDF's own mtime (accurate whether built now or earlier)
   local when; when="$(date -u -r "$1" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u +"%Y-%m-%dT%H:%M:%SZ")"
   echo "$1  <-  $(basename "$2")  |  $when"
+}
+
+# The source each PDF was built from, as the COMMITTED manifest records it - not
+# the working copy, which this script rewrites. Falls back to the file on disk
+# outside git.
+COMMITTED_MANIFEST="$(git show "HEAD:$MANIFEST" 2>/dev/null || cat "$MANIFEST" 2>/dev/null || true)"
+recorded_src() {   # $1 pdf -> basename of the ODT the committed manifest says it came from
+  printf '%s\n' "$COMMITTED_MANIFEST" | awk -v p="$1" '$1 == p && $2 == "<-" {print $3; exit}'
+}
+source_moved() {   # $1 src  $2 pdf : true when the manifest names a different ODT
+  local rec; rec="$(recorded_src "$2")"
+  [[ "$rec" != "$(basename "$1")" ]]
 }
 
 built=0; current=0; stale=0; missing=0; noodt=0; fellback=0
@@ -101,13 +122,20 @@ for row in "${MAP[@]}"; do
   if [[ $CHECK -eq 1 ]]; then
     if [[ ! -f "$out" ]]; then echo "  MISSING   $out  <- $(basename "$src")"; stale=$((stale+1))
     elif [[ "$src" -nt "$out" ]]; then echo "  STALE     $out  <- $(basename "$src")"; stale=$((stale+1))
+    elif source_moved "$src" "$out"; then
+      echo "  STALE     $out  <- $(basename "$src")  (manifest records $(recorded_src "$out" || true))"; stale=$((stale+1))
     else echo "  ok        $out  <- $(basename "$src")"; current=$((current+1)); fi
     continue
   fi
 
-  if [[ $FORCE -eq 0 && -f "$out" && ! "$src" -nt "$out" ]]; then
+  if [[ $FORCE -eq 0 && -f "$out" && ! "$src" -nt "$out" ]] && ! source_moved "$src" "$out"; then
     echo "  current   $out  <- $(basename "$src")"; current=$((current+1))
-    manifest_line "$out" "$src" >> "$NEW_MANIFEST"; continue
+    # 2026-11-08: a current PDF keeps its COMMITTED line verbatim. Re-stamping it from
+    # the PDF's mtime wrote the checkout time into every row of a fresh clone.
+    keep="$(printf '%s\n' "$COMMITTED_MANIFEST" | awk -v p="$out" '$1 == p && $2 == "<-" {print; exit}')"
+    if [[ -n "$keep" ]]; then echo "$keep" >> "$NEW_MANIFEST"
+    else manifest_line "$out" "$src" >> "$NEW_MANIFEST"; fi
+    continue
   fi
 
   mkdir -p "$(dirname "$out")"
@@ -146,7 +174,7 @@ if [[ $CHECK -eq 1 ]]; then
   echo "Check: $current current, $stale stale/missing, $noodt with no ODT source."
   [[ $stale -gt 0 ]] && echo "Run 'build_pdfs.sh' to rebuild." || true
 else
-  { echo "# published PDF  <-  source ODT  |  built (UTC)"; sort "$NEW_MANIFEST"; } > "$MANIFEST"
+  { echo "# published PDF  <-  source ODT  |  built (UTC)"; LC_ALL=C sort -f "$NEW_MANIFEST"; } > "$MANIFEST"
   echo "Rebuilt $built PDF(s); $current already current. Manifest: $MANIFEST"
   if [[ $noodt -gt 0 ]]; then
     echo "  ERROR: $noodt MAP row(s) matched no ODT — a published PDF has no source."

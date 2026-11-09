@@ -121,6 +121,6 @@ nw8,,yes,2015-11,-4.37463629,53.14475413,data/geo/well_locations.kml,520.9,dgps,
 nw8b,,no,2026-10,-4.37470109,53.14481462,data/geo/well_locations.kml,,,unknown,,,
 p1,,yes,,-4.37503314,53.14297380,data/geo/well_locations.kml,347.6,lidar,unknown,,,
 p2,,yes,2026-10,-4.35982791,53.15473989,data/geo/well_locations.kml,2005.6,lidar,unknown,,,
-pdfs,,yes,,,,"data/well_metadata.csv E/N 240651.0,363372.0",118.9,lidar,unknown,,,
+pdfs,,yes,,,,"data/well_metadata.csv E/N 240651.0,363372.0",118.9,lidar,unknown,,,"a well with under a year's record (Martin 2026-11-09), so no series in the hub and no cluster"
 pe,,yes,2026-10,-4.35246127,53.13928622,data/geo/well_locations.kml,956.8,lidar,unknown,,,
 pw,,yes,2026-10,-4.36289078,53.14324247,data/geo/well_locations.kml,888.0,lidar,unknown,,,

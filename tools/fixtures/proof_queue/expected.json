@@ -1,0 +1,92 @@
+[
+ {
+  "id": "queue_fixture:7d746497a5",
+  "doc": "queue_fixture",
+  "section": "",
+  "number": "4.8",
+  "script": "03",
+  "what": "Script 03 should emit the C3 per-well beta1 range (max 5.514 in 03_master_data.csv)",
+  "reason": "sentence gives the upper end of C3 per-well beta1 as 4.8; the committed maximum is 5.514",
+  "sentence": "the c3 per-well recharge coefficient reaches 4.8 at the top of its range, and the",
+  "computed": "5.514",
+  "computed_values": [
+   "5.514"
+  ],
+  "computation": "",
+  "ingredients": [
+   "03_master_data.csv"
+  ],
+  "owner_from_file": "",
+  "proposed_key": "c3_per_well_beta1_range",
+  "proposed_well": "C3",
+  "proposed_era": "",
+  "kind": "new quantity",
+  "verdict": "deny",
+  "batch": "fixture",
+  "better": "needs emit: Script 03 should emit the C3 per-well beta1 range (max 5.514 in 03_master_data.csv)",
+  "retired": false,
+  "heading": "A section with four numbers",
+  "section_sources": [],
+  "found_in_mirror": true
+ },
+ {
+  "id": "queue_fixture:a97f1b0f81",
+  "doc": "queue_fixture",
+  "section": "",
+  "number": "0.7",
+  "script": "26",
+  "what": "Script 26 should emit the interpolated share of annual spring means (9 / 1272 = 0.7075 %)",
+  "reason": "the percentage itself is not emitted",
+  "sentence": "interpolated share of the annual spring means is 0.7 %",
+  "computed": "0.7075",
+  "computed_values": [
+   "0.7075",
+   "9",
+   "1272"
+  ],
+  "computation": "9 / 1272 = 0.7075 %",
+  "ingredients": [],
+  "owner_from_file": "",
+  "proposed_key": "interpolated_share_of_annual_spring_means",
+  "proposed_well": "",
+  "proposed_era": "",
+  "kind": "derivation",
+  "verdict": "deny",
+  "batch": "fixture",
+  "better": "needs emit: Script 26 should emit the interpolated share of annual spring means (9 / 1272 = 0.7075 %)",
+  "retired": false,
+  "heading": "A section with four numbers",
+  "section_sources": [],
+  "found_in_mirror": true
+ },
+ {
+  "id": "queue_fixture:23600aac18",
+  "doc": "queue_fixture",
+  "section": "",
+  "number": "250",
+  "script": "09a",
+  "what": "pair_dist_coast_m · CEH36 = 1250 [09a_coast_pairs.csv]",
+  "reason": "the distance difference of two committed rows",
+  "sentence": "the difference between the two reference wells is 250 m, and 1) the first list item",
+  "computed": "1250",
+  "computed_values": [
+   "1250"
+  ],
+  "computation": "pair_dist_coast_m · CEH36 = 1250 [09a_coast_pairs.csv]",
+  "ingredients": [
+   "09a_coast_pairs.csv"
+  ],
+  "owner_from_file": "09a",
+  "proposed_key": "pair_dist_coast_m",
+  "proposed_well": "CEH36",
+  "proposed_era": "",
+  "kind": "derivation",
+  "verdict": "deny",
+  "batch": "fixture",
+  "better": "pair_dist_coast_m · CEH36 = 1250 [09a_coast_pairs.csv]",
+  "retired": false,
+  "heading": "A section with four numbers",
+  "section_sources": [],
+  "found_in_mirror": true
+ }
+]

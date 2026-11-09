@@ -78,7 +78,16 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.36.0"  # Hollingham (2026) — 2026-11-07 (T-136). refresh() stamps bundle_at
+__version__ = "1.37.0"  # Hollingham (2026) — 2026-11-09 (J-11, D-322): the proof tool owns the
+#   emit queue and the binding. --queue exports every denied/stale/unsure verdict whose detail carries a
+#   computed value as the emit work list (the schema of the hand-built September scratch/t96 lists, which
+#   was gitignored and is gone; the field list is the one recorded in NRG_spec_T96_emits_2026-09-29.md),
+#   with a kind guess of derivation / new quantity / description. --bind writes the verdict row once the
+#   emitted row is committed and REFUSES the no-match and two-match cases rather than picking. The
+#   derivation class in _better_cand evaluates a `derive: A [f] - B [f]` better over registered rows, so
+#   an arithmetic difference of two committed rows needs no script emit. --selftest proves the derivation
+#   and both refusals come out true AND false. No change to how a number is painted otherwise.
+# 1.36.0  # Hollingham (2026) — 2026-11-07 (T-136). refresh() stamps bundle_at
 #   only when the bundle sha changes, and writes tools/proof_bundle_state.json only when the
 #   state actually moves, so check_all:623 stops dirtying a tracked file on every run.
 #   _state_text() and _iso_now() added beside the state helpers; stamp_published uses
@@ -310,10 +319,13 @@ __version__ = "1.36.0"  # Hollingham (2026) — 2026-11-07 (T-136). refresh() st
 
 import argparse
 import bisect
+import collections
 import csv
+import datetime as dt
 import hashlib
 import html
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -2788,13 +2800,35 @@ def main() -> int:
     ap.add_argument("--no-deep", action="store_true", help="registered values only; ~5 s faster")
     ap.add_argument("--bundle", action="store_true",
                     help="also write NRG_proof.html: every chapter generated so far in one page, for publishing")
+    ap.add_argument("--queue", metavar="OUT.json",
+                    help="export the emit work list: every denied/stale/unsure verdict whose detail carries a "
+                         "computed value, parsed into fields with a kind guess (J-11)")
+    ap.add_argument("--schema", choices=("september", "full"), default="full",
+                    help="--queue: 'september' emits exactly the eight fields of the hand-built scratch/t96 "
+                         "lists (the schema recorded in NRG_spec_T96_emits_2026-09-29.md); 'full' adds the "
+                         "queue fields")
+    ap.add_argument("--include-retired", action="store_true",
+                    help="--queue: include the betters retired on 2026-10-06 (T-96), reading the original after 'Was:'")
+    ap.add_argument("--include-missing", action="store_true",
+                    help="--queue: keep items whose sentence is no longer in the mirror (no section, number or sentence)")
+    ap.add_argument("--bind", metavar="IN.json",
+                    help="write the verdict row for every queued item whose row is now committed; refuse and list the rest (J-11)")
+    ap.add_argument("--dry-run", action="store_true", help="--bind: report, write nothing")
+    ap.add_argument("--selftest", action="store_true",
+                    help="prove the derivation class and --bind's refusals come out both ways")
     a = ap.parse_args()
+    if a.selftest:
+        return selftest_queue()
     if a.published:
         return stamp_published(a.published)
+    if a.queue:
+        return queue(a)
+    if a.bind:
+        return bind(a)
     if a.refresh:
         return refresh(a)
     if not a.doc:
-        ap.error("doc is required unless --refresh or --published")
+        ap.error("doc is required unless --refresh, --published, --queue, --bind or --selftest")
     values = cc.collect_values()
     look = build_index(values, deep=not a.no_deep)
     out_dir = pathlib.Path(a.out).resolve() if a.out else OUT_DIR   # relative --out crashed write_index's relative_to
@@ -3277,7 +3311,15 @@ def _better_cand(better: str, tok: str, look: dict):
     m→mm and fraction→% forms apply), in that file, under that label. None when the
     better source is a ratio, a sum or a file the value map does not hold — the
     denial then stands with its suggestion. Martin, 2026-09-21: "there are several
-    altogether, and it should be obvious which is the right source"."""
+    altogether, and it should be obvious which is the right source".
+
+    1.37.0 (J-11): a better of the form `derive: <expr>` names an ARITHMETIC relation
+    over registered rows rather than a single row, and is evaluated here — see
+    _derivation_cand. That is what lets a difference of two committed rows be traced
+    with no script emit at all."""
+    d = _derivation_cand(better, tok)
+    if d is not None:
+        return d
     m = _BETTER.match(better or "")
     if not m:
         return None
@@ -3708,6 +3750,663 @@ def write_index(out_dir: pathlib.Path):
             "<table><tr><th>document</th><th>red</th><th>amber</th><th>summary</th><th>generated</th></tr>"
             + "".join(rows) + "</table></body>")
     (out_dir / "index.html").write_text(page, encoding="utf8")
+
+
+# ---------------------------------------------------------------------------
+# the emit queue, the derivation class and the binding (J-11, 2026-11-09)
+# ---------------------------------------------------------------------------
+# Why these three live here and not in a session's typing: the loop they replace
+# was "reader denies a number with a computed value in its detail -> a session
+# hand-builds a work list -> a builder patches a script -> a session hand-types
+# the verdict row that re-points the number". Every hop was a session typing, and
+# the hand-built list (scratch/t96/emits.json, 189 rows, September) was gitignored
+# in a cloud clone and is gone. --queue builds that list from the verdict rows,
+# --bind writes the verdict row once the emitted row is committed, and the
+# derivation class removes the script emit altogether where the quantity is just
+# arithmetic over two rows that are already committed.
+#
+# THE FIELD SET IS THE SEPTEMBER ONE. The hand-built emits.json itself is not
+# recoverable (gitignored `scratch/` in a clone that no longer exists), so the
+# witness for "field for field" is the schema recorded in the committed brief
+# working/updates/NRG_spec_T96_emits_2026-09-29.md (appendix, "Your work list"):
+# script, what, reason, doc, section, number, sentence, plus the id each row is
+# keyed by ("`id` from the JSON"). QUEUE_SCHEMA_SEPTEMBER holds those eight and
+# --queue --schema september emits exactly them, so the claim is checkable
+# against a committed document rather than against a file nobody can produce.
+QUEUE_SCHEMA_SEPTEMBER = ["id", "doc", "section", "number", "script", "what", "reason", "sentence"]
+# the verdicts whose marks paint DENIED / STALE / unresolved — a confirm is already
+# adjudicated and an emit for it would be work nobody owes
+QUEUE_VERDICTS = ("deny", "stale", "unsure")
+_NEEDS_EMIT = re.compile(r"(?i)needs[ _]emit")
+_SCRIPT_SAYS = re.compile(r"(?i)\bScript\s+(\d{1,2}[a-z]?)\b")
+_QUEUE_NUM = re.compile(r"(?<![\w.\-−])[-+−]?\d[\d,]*(?:\.\d+)?(?:e-?\d+)?")
+_INGREDIENT = re.compile(r"\b([0-9A-Za-z_][0-9A-Za-z_.\-]*\.(?:csv|xlsx|kml|geojson|json|tif|tiff))\b")
+_RETIRED = re.compile(r"(?i)^\s*retired\b.*?\bWas:\s*(.+)$", re.S)
+# a derivation guess: the detail says the quantity IS arithmetic over things already
+# committed ("CEH36 minus CEH4", "9 / 1272 = 0.7075 %", "the ratio of", "the difference")
+# STRONG relation words only. "range", "times", "less" and a loose "=" matched a third of the
+# denials in the 6,880 rows and called them derivations; a derivation is a claim that the number
+# IS arithmetic over committed rows, and only these phrases make that claim.
+_DERIV_WORDS = re.compile(r"(?i)\b(minus|difference (?:of|between)|ratio of|share of|"
+                          r"per cent of|percent of|divided by|sum of|product of|"
+                          r"max(?:imum)? of|min(?:imum)? of)\b|\d\s*/\s*\d\s*=|%\s*of\b")
+# a description, not a quantity: the sentence is a reading, a band, an order of
+# magnitude or an analyst's choice. The September batch left these as prose (spec
+# NRG_spec_T96_emits_2026-09-29 §4, "Descriptions, not quantities").
+_DESC_WORDS = re.compile(r"(?i)\b(of order|colour band|colour-band|descriptive|description|not a quantity|a reading|roughly|loosely|approximate(?:ly)? only|rhetoric|wording)\b")
+_WELL_TOK = re.compile(r"(?i)\b((?:ceh|nw|fe)\s?\d{1,2}[a-z]?)\b")
+_CLUSTER_TOK = re.compile(r"(?i)(?<![A-Za-z])(C[1-5])(?![0-9])")
+_ERA_TOK = re.compile(r"\b((?:19|20)\d{2}\s?(?:[-–/]\s?(?:19|20)?\d{2,4})?)\b")
+
+
+def _unwrap_retired(better: str) -> tuple[str, bool]:
+    """A verdict whose better was retired carries the original after "Was:" — the
+    sweep of 2026-10-06 (T-96) retired 38 needs-emit betters that way rather than
+    overwriting them, because a dated record is appended to, never rewritten. The
+    queue reads the original and marks the item retired; by default it is excluded."""
+    m = _RETIRED.match(better or "")
+    return (m.group(1).strip(), True) if m else ((better or ""), False)
+
+
+_REG_INDEX: dict | None = None
+
+
+def _reg_index() -> dict:
+    """file basename -> {normalised label: (label, value)} over the REGISTERED tier
+    (report-numbers files, the value tables cite_check knows, the constants). This
+    is what a derivation term and a bind target resolve against: the committed
+    rows, not the deep CSV cells, because a document may only quote a registered
+    value and an emit lands in a registered file."""
+    global _REG_INDEX
+    if _REG_INDEX is None:
+        _REG_INDEX = {}
+        for src, lab, v in cc.collect_values():
+            try:
+                val = float(v)
+            except (TypeError, ValueError):
+                continue
+            _REG_INDEX.setdefault(pathlib.Path(src).name, {})[_norm_label(lab)] = (lab, val)
+    return _REG_INDEX
+
+
+def _norm_label(lab: str) -> str:
+    return re.sub(r"[\s·/]+", " ", str(lab)).strip().lower()
+
+
+def _reg_lookup(fname: str, label: str) -> list:
+    """Every registered row in `fname` whose label matches `label`: exact first,
+    then containment, then the key's first token with the column name. A list, so
+    a caller can REFUSE on two matches rather than pick one — which is the whole
+    of --bind's two-match refusal."""
+    rows = _reg_index().get(pathlib.Path(fname.strip()).name, {})
+    if not rows:
+        return []
+    want = _norm_label(label)
+    if want in rows:
+        return [rows[want]]
+    hits = [v for k, v in rows.items() if want and (want in k or k in want)]
+    if hits:
+        return hits
+    key = want.split(" ")[0]
+    rest = {t for t in want.split(" ")[1:] if len(t) >= 2}
+    return [v for k, v in rows.items()
+            if k.split(" ")[0] == key and (not rest or rest & set(k.split(" ")))]
+
+
+_DERIVE_RX = re.compile(r"(?i)^\s*deriv(?:e|ation)\s*:\s*(.+?)"
+                        r"(?:\s*=\s*([-+−]?\d[\d.,]*(?:e-?\d+)?)\s*[a-zA-Z%°/⁻¹²]*)?\s*$", re.S)
+_DTERM = re.compile(r"([^\[\]]+?)\s*\[([^\]]+)\]")
+# the arithmetic that may sit in front of a term's label — "100 * ", "max(", ", ", " - ".
+# A label may itself contain brackets ("span · C1 (Lake Edge)"), so the head is consumed
+# token by token from the left and stops at the first thing that is not syntax.
+_DHEAD = re.compile(r"^((?:\s*(?:max|min|abs|[-+*/,()·×÷]|\d+(?:\.\d+)?))*\s*)(.*)$", re.S)
+
+
+def _norm_ops(s: str) -> str:
+    """The multiplication and division signs a reader actually types, in the arithmetic
+    BETWEEN terms only (100·A/B)."""
+    return s.replace("·", "*").replace("×", "*").replace("÷", "/")
+
+
+def _derive_eval(expr: str):
+    """Evaluate a derivation over registered rows: (value, [(label, file, value)], "")
+    or (None, terms, fault). The expression is `label [file]` terms, numbers, + - * /
+    and max()/min(), e.g.
+
+        derive: CEH36 · dist_coast_m [09a_report_numbers.csv] - CEH4 · dist_coast_m [09a_report_numbers.csv]
+        derive: 100 * msl5_n_annual_valid_with_interp [26_report_numbers.csv] / msl5_n_annual_valid [26_report_numbers.csv]
+        derive: max(C3_beta1 [03_report_numbers.csv], C4_beta1 [03_report_numbers.csv])
+
+    A term that does not resolve, or resolves twice, is a FAULT — the derivation does
+    not hold on the reader's word, exactly as a `better` paints green only when its
+    row exists (1.27.0)."""
+    import ast
+    terms, out, pos = [], [], 0
+    # ONLY the arithmetic between terms is normalised, never a term's label: a registered
+    # label uses " · " as its own separator ("datum_R2_span_admissible · C1 (Lake Edge) ·
+    # datum 1.6 to 8 m"), and replacing that with "*" made every live derivation unresolvable.
+    expr = (expr or "").replace("−", "-")
+    for m in _DTERM.finditer(expr):
+        lab, fname = m.group(1), m.group(2)
+        head, lab = _DHEAD.match(lab).groups()
+        if not lab.strip():
+            return None, terms, f"term with no label before [{fname}]"
+        hits = _reg_lookup(fname, lab)
+        if not hits:
+            return None, terms, f"no registered row for {lab.strip()!r} in {fname.strip()}"
+        if len(hits) > 1:
+            return None, terms, f"{len(hits)} registered rows match {lab.strip()!r} in {fname.strip()}"
+        terms.append((hits[0][0], pathlib.Path(fname.strip()).name, hits[0][1]))
+        out.append(_norm_ops(expr[pos:m.start()] + head) + repr(hits[0][1]))
+        pos = m.end()
+    out.append(_norm_ops(expr[pos:]))
+    if not terms:
+        return None, terms, "no `label [file]` term in the expression"
+    src = "".join(out)
+    try:
+        tree = ast.parse(src, mode="eval")
+    except SyntaxError as e:
+        return None, terms, f"not an arithmetic expression: {e.msg}"
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            if not (isinstance(node.func, ast.Name) and node.func.id in ("max", "min", "abs")):
+                return None, terms, "only max(), min() and abs() may be called"
+        elif not isinstance(node, (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant, ast.Name,
+                                   ast.Load, ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Pow,
+                                   ast.USub, ast.UAdd, ast.Tuple)):
+            return None, terms, f"{type(node).__name__} is not allowed in a derivation"
+        elif isinstance(node, ast.Name) and node.id not in ("max", "min", "abs"):
+            return None, terms, f"unknown name {node.id!r}"
+    try:
+        val = float(eval(compile(tree, "<derivation>", "eval"), {"__builtins__": {}},
+                         {"max": max, "min": min, "abs": abs}))
+    except Exception as e:                                   # ZeroDivisionError, overflow
+        return None, terms, f"{type(e).__name__}: {e}"
+    return val, terms, ""
+
+
+def _derivation_cand(better: str, tok: str):
+    """The derivation class. A verdict's `better` may name an ARITHMETIC relation over
+    registered rows instead of a single row — "A - B", "100 * A / B", "max(A, B)" — and
+    the number is traced when that arithmetic reproduces it at the quoted precision.
+    Returns a synthetic Cand (rel "derivation", label the expression with its terms'
+    values) or None.
+
+    Why this is not a widening of the reader's authority: every term must resolve to a
+    row that EXISTS in a committed registered file, so the 1.27.0 rule holds by
+    construction — a derivation over a key no script has emitted cannot paint anything.
+    The tool already evaluated SDx - SDy for the config constants (build_index's stat
+    tier); this makes the same move available to a verdict, which is what removes a
+    tranche of script emits: "CEH36 minus CEH4 dist_coast_m" needs no emit at all.
+
+    It can come out FALSE, and must: --selftest proves it."""
+    m = _DERIVE_RX.match(better or "")
+    if not m:
+        return None
+    val, terms, fault = _derive_eval(m.group(1))
+    if fault or val is None:
+        return None
+    core = _norm_num(tok).replace(",", "")
+    neg = core.startswith("-")
+    core = core.lstrip("-+")
+    if not any(r == core for r, _f in _renderings(val)):
+        return None                       # the arithmetic does not give the quoted number
+    if neg and val > 0 or (not neg and val < 0 and not tok.lstrip("+-−") == tok):
+        return None
+    shown = " ".join(m.group(1).split())
+    anc = {"col": [], "file": [], "stat": []}
+    return Cand("derivation", f"{shown} = {val:g}", "", val, anc, "", "derived")
+
+
+_MIRROR_OVERRIDE: pathlib.Path | None = None    # --selftest's fixture chapter
+
+
+def _mirror_marks(stem: str, wanted: set) -> dict:
+    """id -> (number, sentence, section, heading) for the ids wanted in one mirror.
+
+    The id is sha1(number | sentence | offset-in-line) (see _reading_id), so a verdict
+    row can be put back on the page it came from WITHOUT the value map: walk every
+    number token, re-make the id, keep the ones asked for. That is what makes --queue
+    cheap and exact — and it is also the honest limit of it: an id whose SENTENCE has
+    been rewritten since the reading pass cannot be found, and is reported missing
+    rather than guessed at."""
+    if _MIRROR_OVERRIDE is not None:
+        mirror = _MIRROR_OVERRIDE
+    else:
+        try:
+            mirror = resolve_doc(stem)
+        except SystemExit:
+            return {}
+    global TEXT_CACHE
+    text = mirror.read_text(encoding="utf8")
+    TEXT_CACHE = text
+    _SENT_CACHE.clear()
+    masked = mask_markup(text)
+    secs = section_numbers(mirror)
+    line_starts = [0] + [m.end() for m in re.finditer("\n", text)]
+    scope_map = section_scope(text, secs, mirror.stem)
+
+    def sec_of(pos):
+        ln = bisect.bisect_right(line_starts, pos) - 1
+        cur = ("", "")
+        for hl, num, h in secs:
+            if hl <= ln:
+                cur = (num, h)
+        return cur
+
+    out = {}
+    for m in _NUM.finditer(masked):
+        s, e = m.start(), m.end()
+        sent = " ".join(_sentence(masked, s, e, full=True).split())
+        rid = f"{mirror.stem}:{_reading_id(text[s:e], sent, s - masked.rfind(chr(10), 0, s))}"
+        if rid in wanted and rid not in out:
+            num, head = sec_of(s)
+            out[rid] = (text[s:e], sent, num, head,
+                        sorted(pathlib.Path(r).name for r in scope_map.get(num, ())))
+    return out
+
+
+def _queue_what(reason: str, better: str) -> str:
+    """The quantity as the reader stated it: the needs-emit clause if there is one,
+    else the better source, else the reason. September's `what` field."""
+    for src in (better, reason):
+        m = _NEEDS_EMIT.search(src or "")
+        if m:
+            txt = (src[m.end():].lstrip(" :;-—") or src).strip()
+            while txt.endswith(")") and txt.count(")") > txt.count("("):
+                txt = txt[:-1]                  # the clause was cut out of a bracket, not into one
+            return " ".join(txt.split())
+    return " ".join((better or reason or "").split())
+
+
+_COMPUTATION = re.compile(r"[^;()]*?(?:[\d.]+\s*[-+*/−×÷]\s*[\d.]+|=\s*[-+−]?[\d.]+)[^;()]*")
+
+
+def _queue_fields(what: str, reason: str, better: str) -> dict:
+    """The computed value, the computation text, the ingredient files, the owning script
+    and the proposed key/Well/Era, read out of the reader's prose and out of the
+    `label = value [file]` form the reader writes a located value in. Guesses, all of
+    them — which is why each is a separate field a session can correct, rather than
+    something baked into a key."""
+    blob = f"{what} {reason}"
+    # "Script 26 should emit … (9 / 1272 = 0.7075 %)": the 26 is the owner, not a value, and
+    # 09a_coast_pairs.csv is a file, not a number. Both were read as the computed value until
+    # the fixture caught it.
+    bare = _INGREDIENT.sub(" ", _SCRIPT_SAYS.sub(" ", what))
+    nums = [n.replace("−", "-").replace(",", "") for n in _QUEUE_NUM.findall(bare)]
+    eq = re.search(r"=\s*([-+−]?\d[\d,]*(?:\.\d+)?(?:e-?\d+)?)", bare)
+    if eq:
+        nums = [eq.group(1).replace("−", "-").replace(",", "")] + [n for n in nums if n != eq.group(1)]
+    comp = _COMPUTATION.search(what) or _COMPUTATION.search(reason)
+    ing = []
+    for f in _INGREDIENT.findall(blob):
+        if f not in ing:
+            ing.append(f)
+    key = well = era = owner = ""
+    km = re.search(r"(?i)should emit (?:the |a )?(.{3,90}?)(?:\s*[(;]|$)", what)
+    if km:
+        key = re.sub(r"[^a-z0-9]+", "_", km.group(1).lower()).strip("_")
+    bm = _BETTER.match(better or "")
+    if bm:
+        # "C3 (Western Residual) · beta_1_recharge_max = 5.5142 [07_coeff_05_cluster_ranges.csv]":
+        # the quantity is the key-shaped component, the cluster or well is the Well cell, and the
+        # file's own numeric prefix names the script that must emit it. That is the September
+        # convention ("one row per well/cluster with the Well cell set") read backwards.
+        parts = [x.strip() for x in bm.group(1).split("·") if x.strip()]
+        owner = re.match(r"(\d{1,2}[a-z]?)_", pathlib.Path(bm.group(3).strip()).name)
+        owner = owner.group(1) if owner else ""
+        for x in parts:
+            if _CLUSTER_TOK.fullmatch(x) or _WELL_TOK.fullmatch(x) or re.fullmatch(r"(?i)(C[1-5])\s*\(.+\)", x):
+                well = well or re.sub(r"\s*\(.*\)", "", x)
+            elif _ERA_TOK.search(x) or re.fullmatch(r"(?i)(full[_ ]record|annual|monthly|[a-z]{3}-[a-z]{3}.*)", x):
+                era = era or x
+        cand = [x for x in parts if "_" in x] or [x for x in parts if x not in (well, era)]
+        if cand and not key:
+            key = re.sub(r"[^a-z0-9]+", "_", cand[-1].lower()).strip("_")
+    if not well:
+        w = _WELL_TOK.search(what) or _CLUSTER_TOK.search(what)
+        well = re.sub(r"\s+", "", w.group(1)) if w else ""
+    if not era:
+        e = _ERA_TOK.search(what)
+        era = e.group(1) if e else ""
+    return {"computed": nums[0] if nums else "",
+            "computed_values": nums[:6],
+            "computation": " ".join(comp.group(0).split()) if comp else "",
+            "ingredients": ing,
+            "owner_from_file": owner,
+            "proposed_key": key,
+            "proposed_well": well,
+            "proposed_era": era}
+
+
+def _queue_kind(what: str, reason: str, fields: dict) -> str:
+    """derivation / new quantity / description — a GUESS, on the reader's statement of the
+    quantity and the reason behind it, with the relation words kept strong because weak ones
+    called a third of the 6,880 rows derivations. Martin rules the ones that are not obvious;
+    the brief says so.
+
+    derivation: the quantity IS arithmetic over things already committed, so no script
+    need emit it — the class that pays for itself.
+    description: the sentence is a reading, a band or an order of magnitude, not a number.
+    new quantity: something has to emit it."""
+    if _DESC_WORDS.search(what):
+        return "description"
+    blob = f"{what} {reason}"
+    if _DERIV_WORDS.search(blob):
+        return "derivation"
+    if re.search(r"[\d.]+\s*[-+*/−×÷]\s*[\d.]+\s*=", what):
+        return "derivation"
+    return "new quantity"
+
+
+def queue(a) -> int:
+    """--queue: the emit work list, built from the verdict rows."""
+    rv_rows = []
+    with READING_VERDICTS.open(encoding="utf8") as fh:
+        rv_rows = list(csv.DictReader(fh))
+    picked, skipped_bound = [], 0
+    for r in rv_rows:
+        if r["verdict"] not in QUEUE_VERDICTS and not _NEEDS_EMIT.search(r.get("better") or ""):
+            continue
+        better, retired = _unwrap_retired(r.get("better", ""))
+        if retired and not a.include_retired:
+            continue
+        reason = r.get("reason", "")
+        # "a computed value" means the reader NAMED one: `label = value [file]`, or said
+        # "needs emit". A denial whose detail is prose ("'1)' is a list-item marker, not the
+        # ARI value") is the reader correcting the MATCHER, and owes no emit — queueing those
+        # was the first thing this export got wrong (measured on the 6,880 rows, 2026-11-09).
+        if not (_NEEDS_EMIT.search(better) or _NEEDS_EMIT.search(reason) or _BETTER.match(better)):
+            continue
+        if not _NEEDS_EMIT.search(better) and _better_row_exists_reg(better):
+            skipped_bound += 1
+            continue                      # the reader already named a committed row: nothing to emit
+        picked.append((r, better, retired, reason))
+    by_doc: dict[str, set] = defaultdict(set)
+    for r, *_ in picked:
+        by_doc[r["id"].split(":")[0]].add(r["id"])
+    found: dict[str, tuple] = {}
+    for stem, ids in sorted(by_doc.items()):
+        found.update(_mirror_marks(stem, ids))
+    items, missing = [], 0
+    for r, better, retired, reason in picked:
+        rid = r["id"]
+        hit = found.get(rid)
+        if hit is None:
+            missing += 1
+            if not a.include_missing:
+                continue
+        number, sentence, sec, head, sources = hit or ("", "", "", "", [])
+        what = _queue_what(reason, better)
+        fields = _queue_fields(what, reason, better)
+        script = ""
+        m = _SCRIPT_SAYS.search(what) or _SCRIPT_SAYS.search(reason)
+        if m:
+            script = m.group(1).zfill(2) if m.group(1)[0].isdigit() and len(m.group(1)) == 1 else m.group(1)
+        elif fields["owner_from_file"]:
+            script = fields["owner_from_file"]          # the located value's own file names its script
+        else:
+            # the brief: "else the section's declared sources". The section's scope is
+            # the set of files it draws on; their scripts are the owners to ask.
+            owners = sorted({_script_of("outputs/" + f) or _script_of(f) for f in sources}) if sources else []
+            script = "|".join(x for x in owners if x) or "?"
+        item = {"id": rid, "doc": rid.split(":")[0], "section": sec, "number": number,
+                "script": script, "what": what, "reason": " ".join((reason or "").split()),
+                "sentence": sentence}
+        if a.schema != "september":
+            item.update(fields)
+            item.update({"kind": _queue_kind(what, reason, fields), "verdict": r["verdict"],
+                         "batch": r.get("batch", ""), "better": better, "retired": retired,
+                         "heading": head, "section_sources": sources,
+                         "found_in_mirror": hit is not None})
+        items.append(item)
+    out = pathlib.Path(a.queue)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(items, indent=1, ensure_ascii=False) + "\n", encoding="utf8")
+    kinds = collections.Counter(i.get("kind", "?") for i in items)
+    print(f"  queue {out} — {len(items)} item(s) from {len(rv_rows)} verdict rows"
+          f" (schema {a.schema}; fields {', '.join(QUEUE_SCHEMA_SEPTEMBER)}"
+          + ("" if a.schema == "september" else " + the queue fields") + ")")
+    for k, n in sorted(kinds.items()):
+        print(f"    {k:<14} {n}")
+    print(f"    skipped: {skipped_bound} already name a committed row,"
+          f" {missing} whose sentence is no longer in the mirror"
+          + (" (kept: --include-missing)" if a.include_missing else ""))
+    return 0
+
+
+def _better_row_exists_reg(better: str) -> bool:
+    """_better_row_exists on the REGISTERED index rather than the deep one, so the
+    queue needs no 30-second CSV walk. Same question: does the better's file hold a
+    row under that label?"""
+    m = _BETTER.match(better or "")
+    return bool(m) and bool(_reg_lookup(m.group(3), m.group(1).rpartition(" · ")[0] or m.group(1)))
+
+
+def _bind_one(item: dict) -> tuple:
+    """(verdict row, note) for one queued item, or (None, why it is refused).
+
+    The match: the proposed key in the owner's report-numbers file, else a row in that
+    file whose value renders as the number the document quotes. Two matches is a
+    REFUSAL, not a pick — the whole reason the hand-typed re-point CSVs went wrong is
+    that a session picked."""
+    script = (item.get("script") or item.get("owner_from_file") or "").split("|")[0]
+    owner = item.get("owner_file") or (f"{script}_report_numbers.csv" if script and script != "?" else "")
+    if not owner:
+        return None, "no owner file: the item names no script"
+    want = _norm_num(item.get("number") or item.get("computed") or "").replace(",", "").lstrip("-+")
+    rows = _reg_lookup(owner, item["proposed_key"]) if item.get("proposed_key") else []
+    how = "proposed key, value equal at the quoted precision"
+    if rows and want:
+        # THE KEY IS NOT ENOUGH. `corr_datum_meandepth` matched
+        # datum_frame_corr_datum_meandepth_r = 0.5986 for a sentence quoting n = 66: the key
+        # contained the wanted text and the value was never looked at. That is the mispointing
+        # trap of CLAUDE.md §5 arriving by another road, and it is why a bind asserts BOTH.
+        agree = [(l, v) for l, v in rows if any(r == want for r, _f in _renderings(v))]
+        if not agree:
+            vals = ", ".join(f"{l} = {v:.6g}" for l, v in rows[:3])
+            return None, (f"the key matches in {owner} but the value does not: {vals}"
+                          f"{', …' if len(rows) > 3 else ''} against the quoted {item.get('number') or want}")
+        rows = agree
+    if not rows:
+        if not want:
+            return None, f"no row for {item.get('proposed_key') or '(no key)'!r} in {owner}, and no quoted number to match on"
+        pool = _reg_index().get(pathlib.Path(owner).name, {})
+        rows = [(lab, val) for lab, val in pool.values()
+                if any(r == want for r, _f in _renderings(val))]
+        how = "value equal at the quoted precision"
+    if not rows:
+        return None, f"no match in {owner} for key {item.get('proposed_key') or '-'!r} or value {item.get('number')}"
+    if len(rows) > 1:
+        names = ", ".join(sorted(l for l, _ in rows)[:4])
+        return None, f"{len(rows)} matches in {owner} ({names}{', …' if len(rows) > 4 else ''}) — refused: a session must say which"
+    lab, val = rows[0]
+    better = f"{lab} = {val:.6g} [{pathlib.Path(owner).name}]"
+    return {"id": item["id"], "verdict": "confirm",
+            "reason": f"bound by proof_copy --bind: the quantity the reading pass asked for is emitted"
+                      f" ({how}); {item.get('what', '')[:160]}",
+            "better": better, "batch": f"bind {dt.date.today().isoformat()}",
+            "attribution_read": item.get("better", "")}, how
+
+
+def bind(a) -> int:
+    """--bind: write the verdict row for every queued item whose row is now committed;
+    refuse and list the rest."""
+    items = json.loads(pathlib.Path(a.bind).read_text(encoding="utf8"))
+    if isinstance(items, dict):
+        items = items.get("items", [])
+    _reg_index()
+    bound, refused = [], []
+    for it in items:
+        row, why = _bind_one(it)
+        (bound if row else refused).append((it, row, why))
+    existing = reading_verdicts()
+    over = sum(1 for it, _r, _w in bound if it["id"] in existing)
+    print(f"  bind {a.bind} — {len(items)} item(s): {len(bound)} bound, {len(refused)} refused")
+    for it, row, how in bound:
+        print(f"    bind  {it['id']}  {row['better']}   ({how})")
+    for it, _row, why in refused:
+        print(f"    REFUSE {it['id']}  {why}")
+    if not bound:
+        print("  nothing to write.")
+        return 1 if refused else 0
+    if a.dry_run:
+        print(f"  --dry-run: {len(bound)} row(s) NOT written to {READING_VERDICTS.name}")
+        return 0
+    with READING_VERDICTS.open("a", encoding="utf8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["id", "verdict", "reason", "better", "batch", "attribution_read"])
+        for _it, row, _h in bound:
+            w.writerow(row)
+    print(f"  wrote {len(bound)} row(s) to {READING_VERDICTS.relative_to(REPO)}"
+          f" ({over} id(s) already had a verdict, now overridden by the later row)")
+    return 0
+
+
+def selftest_queue() -> int:
+    """The derivation class and --bind's refusals, each proved to come out BOTH ways —
+    the shape cite_check --selftest-claims uses: "each new rule must come out true AND
+    false on a known table, or the gate is decoration" (J-10's rule: a check names its
+    witness). The witness here is a stub registered index, so the cases are
+    deterministic and do not move when the pipeline runs."""
+    global _REG_INDEX
+    keep = _REG_INDEX
+    _REG_INDEX = {"09a_report_numbers.csv": {
+                      "pair_dist_coast_m ceh36": ("pair_dist_coast_m · CEH36", 1250.0),
+                      "pair_dist_coast_m ceh4": ("pair_dist_coast_m · CEH4", 1000.0)},
+                  "26_report_numbers.csv": {
+                      "msl5_n_annual_valid_with_interp": ("msl5_n_annual_valid_with_interp", 9.0),
+                      "msl5_n_annual_valid": ("msl5_n_annual_valid", 1272.0)},
+                  "03_report_numbers.csv": {
+                      "span c1": ("span · C1 (Lake Edge)", 0.0860589806109756),
+                      "span c2": ("span · C2 (Dune)", 0.0399734506709089),
+                      "span c3": ("span · C3 (Western Residual)", 0.0860589806109756),
+                      "corr_datum_meandepth_r": ("corr_datum_meandepth_r", 0.598649)}}
+    D = "09a_report_numbers.csv"
+    cases = [
+        # (better, token, should it trace?, why)
+        (f"derive: pair_dist_coast_m · CEH36 [{D}] - pair_dist_coast_m · CEH4 [{D}]", "250", True,
+         "1250 - 1000 = 250, the difference of two committed rows"),
+        (f"derive: pair_dist_coast_m · CEH36 [{D}] - pair_dist_coast_m · CEH4 [{D}]", "240", False,
+         "the arithmetic gives 250: the denial stands"),
+        ("derive: 100 * msl5_n_annual_valid_with_interp [26_report_numbers.csv]"
+         " / msl5_n_annual_valid [26_report_numbers.csv]", "0.7", True, "100*9/1272 = 0.7075 -> 0.7"),
+        ("derive: 100 * msl5_n_annual_valid_with_interp [26_report_numbers.csv]"
+         " / msl5_n_annual_valid [26_report_numbers.csv]", "0.8", False, "0.7075 does not render 0.8"),
+        ("derive: max(span · C1 (Lake Edge) [03_report_numbers.csv],"
+         " span · C2 (Dune) [03_report_numbers.csv])", "0.0861", True, "a range max over two rows"),
+        (f"derive: pair_dist_coast_m · CEH99 [{D}] - pair_dist_coast_m · CEH4 [{D}]", "250", False,
+         "a term that no committed row carries cannot paint anything (the 1.27.0 rule)"),
+        (f"derive: span [03_report_numbers.csv] - pair_dist_coast_m · CEH4 [{D}]", "250", False,
+         "an ambiguous term (two rows match 'span') is refused, not picked"),
+        (f"derive: __import__('os') [{D}]", "250", False, "not arithmetic"),
+        (f"pair_dist_coast_m · CEH36 = 1250 [{D}]", "1250", False,
+         "a plain better is NOT a derivation: _better_cand's own path handles it"),
+    ]
+    bad = 0
+    for better, tok, want, why in cases:
+        got = _derivation_cand(better, tok) is not None
+        ok = got is want
+        bad += not ok
+        print(f"  {'ok ' if ok else 'BAD'} derivation {'traces' if want else 'refuses'} @ {tok}: {why}")
+    binds = [({"id": "x:1", "script": "09a", "proposed_key": "pair_dist_coast_m · CEH36", "number": "1250"},
+              True, "one registered row, key and value both agreeing"),
+             ({"id": "x:2", "script": "09a", "proposed_key": "pair_dist_coast_m · CEH99", "number": "9999"},
+              False, "no match: refused"),
+             ({"id": "x:3", "script": "03", "proposed_key": "span", "number": "0.09"},
+              False, "two rows agree on BOTH key and value (span · C1, span · C3): refused"),
+             ({"id": "x:4", "script": "?", "proposed_key": "", "number": "1"},
+              False, "no owner file: refused"),
+             ({"id": "x:5", "script": "03", "proposed_key": "corr_datum_meandepth", "number": "66"},
+              False, "the key matches and the VALUE does not (0.5986 against a quoted 66): refused"),
+             ({"id": "x:6", "script": "03", "proposed_key": "span", "number": "0.04"},
+              True, "the key is ambiguous and the quoted value settles it (span · C2)")]
+    for it, want, why in binds:
+        row, msg = _bind_one(it)
+        ok = (row is not None) is want
+        bad += not ok
+        print(f"  {'ok ' if ok else 'BAD'} bind {'writes' if want else 'refuses'} {it['id']}: {why}"
+              f"{'' if want else ' — ' + str(msg)}")
+    _REG_INDEX = keep
+    bad += _selftest_live_wiring()
+    bad += _selftest_fixture()
+    n = len(cases) + len(binds) + 2
+    print(f"selftest_queue: {'OK' if not bad else 'FAIL'} — {n} case(s), {bad} bad")
+    return 1 if bad else 0
+
+
+# the live wiring case: the two rows the September batch's finding #6 turned on
+# (report8 §3.6.x, "9 of 1272 is 0.7075 %"), which are committed today
+LIVE_DERIVATION = ("26_report_numbers.csv", "msl5_n_annual_valid_with_interp", "msl5_n_annual_valid")
+
+
+def _selftest_live_wiring() -> int:
+    """The stub cases above prove the RULE; this one proves the WIRING — that the same
+    derivation resolves against the real registered index, over two rows committed in
+    outputs/. It fails loudly if those rows are gone, because then the witness has moved
+    and someone should look, not because the rule changed."""
+    fname, a, b = LIVE_DERIVATION
+    ra, rb = _reg_lookup(fname, a), _reg_lookup(fname, b)
+    if len(ra) != 1 or len(rb) != 1:
+        print(f"  BAD live wiring: {a} / {b} are no longer one registered row each in {fname}"
+              f" ({len(ra)} / {len(rb)}) — the witness has moved")
+        return 1
+    better = f"derive: 100 · {ra[0][0]} [{fname}] / {rb[0][0]} [{fname}]"
+    pct = 100 * ra[0][1] / rb[0][1]
+    good = _derivation_cand(better, cc.render(pct, 1)) is not None
+    wrong = _derivation_cand(better, cc.render(pct + 0.3, 1)) is None
+    print(f"  {'ok ' if good and wrong else 'BAD'} live wiring: 100·{a}/{b} = {pct:.4f} %"
+          f" traces at {cc.render(pct, 1)} and refuses {cc.render(pct + 0.3, 1)} [{fname}]")
+    return 0 if good and wrong else 1
+
+
+FIXTURE = REPO / "tools" / "fixtures" / "proof_queue"
+
+
+def _selftest_fixture() -> int:
+    """--queue EXECUTED, against a committed fixture: five verdict rows over a four-number
+    chapter, and the export compared with tools/fixtures/proof_queue/expected.json.
+
+    This is the acceptance test the J-11 brief asks for, and it is here rather than in the
+    task register because T-194's check can only see that the two flags exist (the brief
+    says so, §"What T-194's check can and cannot see"). What it witnesses: the three rows
+    that owe an emit are exported; the row where the reader was correcting the MATCHER
+    ("'1)' is a list-item marker") is not; the row retired on 2026-10-06 is not, unless
+    asked for; and each item's id, number, sentence, script, key, Well and kind are the
+    committed expected values. `section` is empty here because a section number comes from
+    tools/section_map.csv, which has no row for a fixture chapter — the live run resolves
+    §3.4, §4.2.3 and the rest.
+
+    NOTE the fixture is NOT the September emits.json. That file was gitignored in a cloud
+    clone and is gone; the September FIELD SET is witnessed instead by
+    --schema september, against the eight fields recorded in the committed brief
+    working/updates/NRG_spec_T96_emits_2026-09-29.md."""
+    global READING_VERDICTS, _READ, _REG_INDEX, _MIRROR_OVERRIDE
+    keep = (READING_VERDICTS, _READ, _REG_INDEX, _MIRROR_OVERRIDE)
+    READING_VERDICTS, _READ, _REG_INDEX = FIXTURE / "verdicts.csv", None, {}
+    _MIRROR_OVERRIDE = FIXTURE / "queue_fixture.md"
+    out = pathlib.Path(os.environ.get("TMPDIR", "/tmp")) / "proof_queue_fixture.json"
+    try:
+        queue(argparse.Namespace(queue=str(out), schema="full", include_retired=False,
+                                 include_missing=False))
+        got = json.loads(out.read_text(encoding="utf8"))
+    finally:
+        READING_VERDICTS, _READ, _REG_INDEX, _MIRROR_OVERRIDE = keep
+    exp_path = FIXTURE / "expected.json"
+    if not exp_path.exists():
+        print(f"  BAD fixture: {exp_path.relative_to(REPO)} is missing")
+        return 1
+    want = json.loads(exp_path.read_text(encoding="utf8"))
+    if got == want:
+        print(f"  ok  --queue reproduces {exp_path.relative_to(REPO)} field for field"
+              f" ({len(want)} item(s), {len(want[0]) if want else 0} fields each)")
+        return 0
+    print(f"  BAD --queue does not reproduce {exp_path.relative_to(REPO)}: "
+          f"{len(got)} item(s) against {len(want)}")
+    for i, (g, w) in enumerate(zip(got, want)):
+        for k in sorted(set(g) | set(w)):
+            if g.get(k) != w.get(k):
+                print(f"      item {i} field {k}: got {g.get(k)!r}, expected {w.get(k)!r}")
+    return 1
 
 
 if __name__ == "__main__":

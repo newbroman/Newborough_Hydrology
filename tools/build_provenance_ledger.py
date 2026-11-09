@@ -37,12 +37,25 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-09-19.
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-09. The output census is TRACKED files, not
+#   whatever is on disk. `produced` was (REPO/"outputs").rglob("*"), gitignored files included, and
+#   the resulting "Outputs no exhibit renders (N)" count is written into a COMMITTED ledger that
+#   --check compares byte for byte. So the gate's verdict was a function of which untracked files
+#   happened to exist on the machine that last ran it: on 2026-11-08 the same commit gave 566, 570
+#   (the L14, ship d8f04d95) and 569 (a cloud container, ship 73bc9765), and the `references`
+#   section was red on the L14 from 22:15 that evening with nothing wrong. `git ls-files outputs`
+#   is the same answer on every machine. One-off effect: the count goes 569 -> 568, the two names
+#   dropped being the gitignored outputs/number_ledger.csv and outputs/number_index.csv.
+#   This also retires the ordering constraint that ship_regenerate() was going to need: the number
+#   ledger is gitignored, so building it before or after this tool no longer changes the count.
+#   Found by the J-10 review (working/updates/NRG_structure_gates_review_2026-11-08.md, §3B / C2);
+#   git is the witness the gate was missing. 1.0.0 (2026-09-19) is unchanged otherwise.
 
 import argparse
 import csv as _csv
 import pathlib
 import re
+import subprocess
 import sys
 import zipfile
 from collections import defaultdict
@@ -54,6 +67,30 @@ TAG = re.compile(r"<[^>]+>")
 CAPTION = re.compile(r"\s*Tables?\s+(\d+(?:\.\d+)?)\s*([a-d])?\s*[:.]\s*(.*)", re.S)
 CHAPTERS = ["report6", "report7", "report8", "report9", "report10",
             "report11", "report12"]
+
+
+def _tracked_outputs() -> set[str]:
+    """Basenames of the COMMITTED outputs (1.1.0).
+
+    The census has to be the same on every machine, because the count it feeds goes into a
+    committed ledger that `--check` compares byte for byte. A disk walk is not: it picks up
+    gitignored outputs (number_ledger.csv, number_index.csv) and whatever a half-finished run
+    left behind. `git ls-files` is the commit, which is what the ledger is about.
+
+    If git cannot answer — no repository, git missing — this refuses rather than silently
+    falling back to the disk walk, because a quiet fallback is the fault this replaced.
+    """
+    try:
+        r = subprocess.run(["git", "ls-files", "outputs"], cwd=REPO,
+                           capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as exc:      # pragma: no cover - environment
+        raise SystemExit(f"build_provenance_ledger: cannot list tracked outputs ({exc}). "
+                         f"The census must be the commit, not the disk (1.1.0).")
+    if r.returncode:
+        raise SystemExit("build_provenance_ledger: `git ls-files outputs` failed:\n"
+                         + (r.stderr or "").rstrip())
+    return {pathlib.PurePosixPath(f).name for f in r.stdout.split()
+            if f.endswith((".csv", ".png", ".jpg"))}
 
 
 def _first_text_after(xml: str, pos: int, reach: int = 3000) -> str:
@@ -156,8 +193,7 @@ def main() -> int:
         for s in srcs or {"(no source recorded)"}:
             by_src[s].append((doc, num, cap))
 
-    produced = {p.name for p in (REPO / "outputs").rglob("*")
-                if p.suffix in (".csv", ".png", ".jpg")}
+    produced = _tracked_outputs()
     cited = {k for k in by_src if k != "(no source recorded)"}
 
     L = ["<!-- GENERATED LEDGER — do not edit.",

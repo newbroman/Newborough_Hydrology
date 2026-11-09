@@ -18,6 +18,15 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
+# VERSION 1.39.0 - 2026-11-09   the PULL path's safety property, in the records section (J-4).
+#                               tools/nrg_git_selftest.sh runs nrg_git.sh's history_guard and
+#                               pull_working against throwaway repository pairs in the four states
+#                               a private pull can be in. Until nrg_git.sh 1.34.0 option 4 guarded
+#                               and pulled the PUBLIC repo only, so a machine could be brought "up
+#                               to date" with its records half behind, and nothing asserted the
+#                               guard that J-4's brief calls "the whole safety property". A grep
+#                               for the call would test the text; this tests the behaviour.
+#                               SKIPS in a public clone. Negative-tested three ways.
 # VERSION 1.38.0 - 2026-11-07   job_runner's selftest gated, with its detail shown (T-156's
 #                               shape): the pass over the job queue is what keeps a queued job
 #                               from waiting on a human noticing, so it is gated like the
@@ -690,6 +699,17 @@ python3 tools/rule_gate_lint.py --quiet || rc=1
 # the gate. This keeps that list paired with the gates above and below.
 python3 tools/ship_regen_lint.py --selftest >/dev/null || rc=1
 python3 tools/ship_regen_lint.py --quiet || rc=1
+# 1.39.0 (J-4): the PULL path, which is the other half of "a public commit without its working
+# commit is a change nobody can account for later" (CLAUDE.md §4f). Until nrg_git.sh 1.34.0,
+# option 4 guarded and pulled the public repository only and never touched .git-working, so a
+# machine could be brought "up to date" with its records half behind - and nothing asserted the
+# guard, which J-4's brief calls "the whole safety property". This RUNS history_guard and
+# pull_working against throwaway repository pairs in the four states a private pull can be in,
+# rather than grepping for the call: a grep would test the text, which is the defect class §3C of
+# the J-10 review names. SKIPS in a public clone, where working/nrg_git.sh is absent by design.
+# Negative-tested three ways (the private guard removed, the private pull removed, option 4 rewired)
+# via NRG_GIT_SRC against broken copies; each reads FAIL.
+bash tools/nrg_git_selftest.sh || rc=1
 
 echo
 section "── phases (which document is live; is every frozen write reasoned?) ──"

@@ -48,9 +48,11 @@ to a person since 2026-09-11 and whose rationale removes the definitional questi
 
 | column | meaning |
 |---|---|
-| `well` | the `Name` in `data/well_metadata.csv` |
+| `well` | the well's name as the reading hub and `well_metadata.csv` spell it |
 | `cluster` | `Cluster_Label` from `outputs/02_cluster_stats.csv`, blank where the well is not in the 66-well reference network |
-| `dist_coast_m`, `ground_source` | copied from `well_metadata.csv` as an aid to placing the well; not authoritative here |
+| `in_well_metadata` | `yes` where `data/well_metadata.csv` has a row (so there are coordinates and a ground elevation), `no` for the 27 wells that exist only in the reading hub |
+| `last_reading` | the newest month in `living/readings_living.csv`, blank where the hub has no readings at all |
+| `dist_coast_m`, `ground_source` | copied from `well_metadata.csv` as an aid to placing the well; not authoritative here, and blank for the hub-only wells |
 | `slack_floor` | `yes`, `marginal`, `no` or `unknown` |
 | `source` | who says so — `martin` for field knowledge, or the file or survey it came from |
 | `dated` | when that was recorded, `YYYY-MM-DD` |
@@ -64,17 +66,37 @@ would be inventing precision. `marginal` says: in a slack, not on its floor.
 
 ## How it was made, and its scope
 
-Seeded 2026-11-09 by chat 'Gates review' from `data/well_metadata.csv` (99 wells, the modern network
-— those with coordinates and a ground elevation, i.e. the wells a DGPS survey would visit) joined to
-`outputs/02_cluster_stats.csv` for the cluster label. **Hand-maintained from then on: it is not
-regenerated**, because regenerating it would wipe the answers.
+Seeded 2026-11-09 by chat 'Gates review', and **re-seeded the same day over the full set of dipwells
+after Martin ruled the CCW wells in scope** (below). **Hand-maintained from then on: it is not
+regenerated**, because regenerating it would wipe the answers. The re-seed was safe only because
+every value was still `unknown`; the generator preserves any non-`unknown` answer it finds, but do
+not rely on that — fill it in place.
 
-**Scope limit, and it needs Martin's word.** Twenty-one wells in the clustered reference network are
-not in `well_metadata.csv` at all and are not resolvable by alias — `ceh32`, `d5`–`d10`, `d15`,
-`d17`, `d25`, `d38`, `d41`, `d43`, `d44`, `l7`, `t41a`–`t41d`, `wmc1`, `wmc2` — the historic CCW and
-Forestry series that live in `data/fc_wells_1989_95_locations.csv` and the `ccw_*` tables. They are
-**not** in this file. Whether the question is worth asking of them is Martin's call: most are
-defunct and several have no coordinates, so a DGPS survey could not visit them.
+## Scope: every dipwell, 125 of them
+
+The union of two sources, because neither is the whole network:
+
+- **`data/well_metadata.csv`** — 99 rows, the wells with coordinates and a ground elevation, i.e.
+  the ones a DGPS survey could visit;
+- **`living/readings_living.csv`** — 83 distinct wells, the ones actually being read. **27 of them
+  are in no other table**: `ceh32`, `d5`–`d10`, `d15`, `d17`, `d25`, `d38`, `d41`, `d43`, `d44`,
+  `fe1`–`fe4`, `l7`, `lis1`, `nw8b`, `t41a`–`t41d`, `wmc1`, `wmc2`.
+
+125 rows: 98 from the well table, 27 hub-only. **71 were read in October 2026**; 43 of the well-table
+wells have no readings in the hub at all (historic or lost). 66 carry a cluster label; the rest are
+outside the reference network.
+
+`llyn rhos` is excluded: it is a **pool, not a dipwell** (`NON_DIPWELLS` in `src/25_coastal_gradient.py`),
+and the reading hub's `llynrhos` is the same entity under a different spelling.
+
+**A correction, 2026-11-09.** The first version of this note said of the 21 clustered wells outside
+`well_metadata.csv` that *"most are defunct and several have no coordinates, so a DGPS survey could
+not visit them"*. **The "defunct" half was wrong**: 26 of the 28 hub-only names were read in
+**October 2026**, so they are live, currently-monitored wells. What is true is that they have no
+coordinates and no ground elevation in any committed table — which is a gap in the well table, not
+evidence that the wells are gone. Martin ruled them in scope on 2026-11-09 and they are in this file.
+Their missing coordinates are worth a row of their own somewhere: a monitored well with no surveyed
+position cannot be placed on any map or visited by a survey.
 
 **A trap for the next reader.** `outputs/02_clustering/02_07_cluster_membership_k5.csv` carries RAW
 WARD IDS at k=5 and its numbers do not correspond to C1–C5; comparing the two files well by well

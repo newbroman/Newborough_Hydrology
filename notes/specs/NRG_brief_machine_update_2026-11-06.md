@@ -159,3 +159,71 @@ This chat's own evidence for it: resolving `DOCUMENT_LOCK.json` by taking `origi
 silently **erased this chat's own `pipeline` claim**, with nothing to say so. The control board
 will write this rule and the no-bare-`git pull` rule into §4b when `tools` frees up; recorded here
 so the evidence sits with the job.
+
+---
+
+## Done 2026-11-09 — what was built, and what left the job
+
+By chat 'Gates review' (J-10), claim `tools`, at Martin's instruction: *"so can we complete j4 or is
+that problematic"*. `nrg_git.sh` **1.34.0**, `tools/nrg_git_selftest.sh` **1.0.0**, `check_all`
+**1.39.0**, matrix row **R68**. The text above and the 2026-11-06 correction both stand as written.
+
+### The premise was stale in a way the queue note got half right
+
+The queue's scope correction said *"there is no `slim_guard` in nrg_git.sh any more … it guards the
+PUBLIC repo only"*. Measured: the rename is real (`slim_guard` → `history_guard`, 1.30.0, D-257),
+but the guard **does** cover the private repository — in `push_working()` and `sync_working()`. It
+was the **pull path** that was one-sided: `integrate()` called `history_guard public git` and
+`git pull origin main`, and **never touched `.git-working` at all**. So "Pull latest" brought the
+code half and left the records half, and `tools/drive_pull.sh` was a third command nobody was told
+to run. Evidence from the same morning: this tree sat 4 commits behind publicly and 51 privately,
+with the work board printing *">>> ORIGIN HAS MOVED since your last fetch"*.
+
+### Built
+
+- **`pull_working()`** — the private repo on the same pull, through the same `history_guard`: level,
+  fast-forward, or merge when both sides have commits, with the counts reported either way.
+  **No `k`/`m`/`a` prompt**, deliberately: `handle_conflicts` asks "keep GitHub's or keep mine",
+  which is right for code and wrong for records, where the answer is always KEEP BOTH — taking
+  origin's side once erased a chat's own `pipeline` claim (§4 above). On a conflict it stops, names
+  the files, states the rule, and leaves the merge in progress so resolve and abort are both open.
+- **`pull_documents()`** — runs `tools/drive_pull.sh` when rclone is configured, and says plainly
+  when it is not, naming the mirrors as a valid state. Safe to call every time: `drive_pull` uses
+  `rclone copy --update`, so a file newer here than on Drive is kept.
+- **`update_residue()`** — names what no pull can bring, every time: the workbook, and anything
+  gitignored a cloud session produced. The newsletter is named as the exception that belongs *in*
+  the corpus, which retires the row rather than inventing a route for it.
+- **`update_machine()`** is what option 4 now runs, and the menu reads *"Update this machine (BOTH
+  repositories, then the ODTs; says what it cannot bring)"*. `integrate()` gained the private pull
+  **only**: `do_push`, `do_sync` and `do_push_no_report` all call it, and an rclone round trip
+  inside a push is nobody's intent.
+- **The check this brief asked for, as behaviour rather than text.**
+  `tools/nrg_git_selftest.sh` extracts `history_guard` and `pull_working` and runs them against
+  throwaway repository pairs in all four states, asserts the six wiring facts that are necessarily
+  textual, and SKIPS in a public clone. 12 of 12. **Negative-tested three ways** against broken
+  copies through `NRG_GIT_SRC` — the private guard removed (5 of 12 fail), the private pull removed
+  (1 of 12), option 4 rewired to `integrate` (1 of 12). Gated in `check_all`'s records section.
+  Verified end to end on the L14: both repositories reported, 84 of 84 documents md5-matched, the
+  residue printed.
+
+### What left the job, and why
+
+- **The newsletter into the published corpus** — which is what actually retires the fourth
+  mechanism — needs Martin's ruling and sits behind **J-5**'s reportlab-vs-LibreOffice decision
+  (D-313). The §2 correction above measured both routes and recommends LibreOffice. Ordering:
+  J-5 rules, the newsletter is committed under `PDF_MANIFEST.txt`, and the row stops existing.
+- **The two CLAUDE.md §4b rules** the control board promised in §4 and never wrote (never hand over
+  a bare `git pull`; shared records are owned by their tools) fold into the §4/§4c pass Martin
+  approved as Q6 of the J-10 review, so that file is edited once.
+
+### One thing observed and not fixed
+
+`history_guard` reports *"its history was slimmed (D-257)"* whenever `merge-base HEAD origin/main`
+fails — including for an **unborn HEAD**, which is not a slim. Found while building the harness
+(a clone of a bare repo whose HEAD was unset). Pre-existing, 1.30.0, and unreachable in a real
+clone; recorded rather than changed.
+
+Also noted for Martin's Q4 ruling: `drive_pull.sh`'s `rclone copy --update` is an **mtime**
+comparison, so the ODTs — the one artefact class with no git copy — are protected by a timestamp,
+exactly as `prune_versions` was. Q4's answer (decide from `DRIVE_MANIFEST.json`'s md5) should extend
+here. The md5 verify that follows the copy reports differences but is *"never fatal"*.

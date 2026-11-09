@@ -1,0 +1,6 @@
+id,verdict,reason,better,batch,attribution_read
+queue_fixture:7d746497a5,deny,"sentence gives the upper end of C3 per-well beta1 as 4.8; the committed maximum is 5.514","needs emit: Script 03 should emit the C3 per-well beta1 range (max 5.514 in 03_master_data.csv)",fixture,DENIED by the reading pass
+queue_fixture:a97f1b0f81,deny,"the percentage itself is not emitted","needs emit: Script 26 should emit the interpolated share of annual spring means (9 / 1272 = 0.7075 %)",fixture,reading pass unsure
+queue_fixture:23600aac18,deny,"the distance difference of two committed rows","pair_dist_coast_m · CEH36 = 1250 [09a_coast_pairs.csv]",fixture,DENIED by the reading pass
+queue_fixture:d7d869534a,deny,"'1)' is a list-item marker, not a quantity","no committed value carries it, and none should",fixture,whole number; no committed value to check against
+queue_fixture:deadbeef01,deny,"retired row: its sentence is no longer in the mirror","retired 2026-10-06 (T-96): sentence rewritten since the sweep. Was: needs emit: Script 44 should emit the hindcast r",fixture,DENIED by the reading pass

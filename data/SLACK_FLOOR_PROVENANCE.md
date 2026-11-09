@@ -50,8 +50,9 @@ to a person since 2026-09-11 and whose rationale removes the definitional questi
 |---|---|
 | `well` | the well's name as the reading hub and `well_metadata.csv` spell it |
 | `cluster` | `Cluster_Label` from `outputs/02_cluster_stats.csv`, blank where the well is not in the 66-well reference network |
-| `in_well_metadata` | `yes` where `data/well_metadata.csv` has a row (so there are coordinates and a ground elevation), `no` for the 27 wells that exist only in the reading hub |
+| `in_well_metadata` | `yes` where `data/well_metadata.csv` has a row, `no` for the 27 wells that exist only in the reading hub. **This says which wells the PIPELINE's CSV covers — nothing more. Every well here has a surveyed position regardless; see the corrections below.** |
 | `last_reading` | the newest month in `living/readings_living.csv`, blank where the hub has no readings at all |
+| `lon`, `lat`, `position_source` | the committed surveyed position and the file it came from: `data/geo/well_locations.kml` (115), `data/geo/DIPwells.kml` (9), or `well_metadata.csv`'s E/N (1, `pdfs`). WGS84 as the KML gives it, not OSGB — these are for placing the well, and nothing computes with them |
 | `dist_coast_m`, `ground_source` | copied from `well_metadata.csv` as an aid to placing the well; not authoritative here, and blank for the hub-only wells |
 | `slack_floor` | `yes`, `marginal`, `no` or `unknown` |
 | `source` | who says so — `martin` for field knowledge, or the file or survey it came from |
@@ -89,14 +90,41 @@ outside the reference network.
 `llyn rhos` is excluded: it is a **pool, not a dipwell** (`NON_DIPWELLS` in `src/25_coastal_gradient.py`),
 and the reading hub's `llynrhos` is the same entity under a different spelling.
 
-**A correction, 2026-11-09.** The first version of this note said of the 21 clustered wells outside
-`well_metadata.csv` that *"most are defunct and several have no coordinates, so a DGPS survey could
-not visit them"*. **The "defunct" half was wrong**: 26 of the 28 hub-only names were read in
-**October 2026**, so they are live, currently-monitored wells. What is true is that they have no
-coordinates and no ground elevation in any committed table — which is a gap in the well table, not
-evidence that the wells are gone. Martin ruled them in scope on 2026-11-09 and they are in this file.
-Their missing coordinates are worth a row of their own somewhere: a monitored well with no surveyed
-position cannot be placed on any map or visited by a survey.
+## Two corrections, both mine, 2026-11-09
+
+The first version of this note said of the wells outside `well_metadata.csv` that *"most are defunct
+and several have no coordinates, so a DGPS survey could not visit them"*. **Both halves were wrong.**
+
+1. **Not defunct.** 26 of the 28 hub-only names were read in **October 2026**. They are live,
+   currently-monitored wells.
+2. **Not without a position.** Martin, 2026-11-09: *"this is wrong all wells monitored have a
+   position!"* He is right. **Every one of the 125 wells in this file has a surveyed position**, and
+   it is committed: **115 in `data/geo/well_locations.kml`**, **9 more in
+   `data/geo/DIPwells.kml`**, and `pdfs` by its E/N in `well_metadata.csv`. The `lon`, `lat` and
+   `position_source` columns now carry it, so the claim is checkable from the file rather than
+   taken on trust.
+
+   **How I got it wrong:** I looked in the CSV tables (`well_metadata.csv`,
+   `outputs/01_well_elevations.csv`), found 99 wells in both, and concluded the positions did not
+   exist. `data/geo/well_locations.kml` was in my first search result and I did not open it. It is
+   the authoritative position file — 89 placemarks, organised as *"Reference network dipwells
+   (66)"*, *"Extended network dipwells (22)"* and *"Lake gauge (not a dipwell) (1)"*, and it
+   includes PE and PW. A second attempt with a too-strict name matcher then missed `WMC2/2G` and
+   `LLyn Rhos Ddu`, which are the same wells under KML spellings.
+
+   **What is true, and all that was ever true:** `data/well_metadata.csv` — the CSV the pipeline
+   reads — carries 99 wells and not the 27 hub-only ones. That is the coverage of one table, not a
+   missing survey.
+
+### Two things found while checking, neither resolved here
+
+- **`data/geo/DIPwells.kml` has two `T41d` placemarks and no `T41a`**, while
+  `well_locations.kml` has `T41A`–`T41D` correctly. A duplicated name in a KML is the kind of thing
+  that silently breaks a join or a map label.
+- **`well_metadata.csv` row 97 is named `pdfs`** — E 240651, N 363372, LiDAR ground, 118.9 m from
+  the coast, upstand estimated, and **no readings in the hub at all**. It looks like a name that
+  went wrong rather than a well. It is in this file with its E/N, flagged, so that whoever knows can
+  say what it is.
 
 **A trap for the next reader.** `outputs/02_clustering/02_07_cluster_membership_k5.csv` carries RAW
 WARD IDS at k=5 and its numbers do not correspond to C1–C5; comparing the two files well by well

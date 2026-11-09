@@ -116,15 +116,23 @@ and several have no coordinates, so a DGPS survey could not visit them"*. **Both
    reads — carries 99 wells and not the 27 hub-only ones. That is the coverage of one table, not a
    missing survey.
 
-### Two things found while checking, neither resolved here
+### Two things found while checking, both now settled
 
-- **`data/geo/DIPwells.kml` has two `T41d` placemarks and no `T41a`**, while
-  `well_locations.kml` has `T41A`–`T41D` correctly. A duplicated name in a KML is the kind of thing
-  that silently breaks a join or a map label.
-- **`well_metadata.csv` row 97 is named `pdfs`** — E 240651, N 363372, LiDAR ground, 118.9 m from
-  the coast, upstand estimated, and **no readings in the hub at all**. It looks like a name that
-  went wrong rather than a well. It is in this file with its E/N, flagged, so that whoever knows can
-  say what it is.
+- **`data/geo/DIPwells.kml` had two `T41d` placemarks and no `T41a`.** Corrected 2026-11-09 on
+  Martin's instruction. Which duplicate was which was decided by measurement, not by guessing: the
+  first is **9.6 m** from `well_locations.kml`'s `T41A` and 85.7 m from its `T41D`, the second
+  **8.1 m** from `T41D` and 80.6 m from `T41A`, so the first was renamed `T41a`. Nearest
+  alternatives are four to five times further in both cases. One line changed, the file's byte
+  count unaltered, and **nothing in `src/` or `tools/` reads this file**, so no output could move.
+  `well_locations.kml` was already correct and was not touched.
+- **`pdfs` is a real well** (Martin, 2026-11-09: *"pdfs is a well which has only less than a years
+  record"*). My guess that it was "a name that went wrong" is withdrawn. It is in
+  `well_metadata.csv` with E 240651, N 363372, LiDAR ground, 118.9 m from the coast, and it appears
+  in `01_locations.csv`, `01_well_elevations.csv`, `01_dist_coast_validation.csv` and
+  `43_07_modern_well_basins.csv`. It has **no series in `living/readings_living.csv` and no cluster**,
+  which is what a record under a year looks like: too short for the clustering, which needs years.
+  Worth knowing, and not established here: where that short record is held, since it is not in the
+  live hub.
 
 **A trap for the next reader.** `outputs/02_clustering/02_07_cluster_membership_k5.csv` carries RAW
 WARD IDS at k=5 and its numbers do not correspond to C1–C5; comparing the two files well by well

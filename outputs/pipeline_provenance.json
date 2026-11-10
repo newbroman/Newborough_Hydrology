@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-10T02:09:38",
+ "generated": "2026-11-10T12:08:39",
  "orchestrator": "2.30.0",
  "steps": {
   "00_climate_summary.py": {
@@ -1519,16 +1519,16 @@
   },
   "50_record_length.py": {
    "emitted": {
-    "outputs/50_record_length/50_01_record_length_per_well.csv": "e64648bc4ff6abf2124dc17e748a6779b3c3bd9421b7d7bb3916e2e8187c7595",
-    "outputs/50_record_length/50_02_record_length_by_cluster.csv": "4629d0d73a0f5885bfc8a83fb268795d5c1d4f216255d98c0fd1c70fff86f5c0",
-    "outputs/50_record_length/50_03_ccw_hindcast_by_length.csv": "e7f86dc9a99b6a62335f8b20138e5849c0184fb3e84ba09f2b28d5f58fc01463",
-    "outputs/50_record_length/50_04_record_length.png": "145fad2d88a7e3d1d28c0f44000368899c2d9c672cb3c0a38ee5b11e1f68deab",
-    "outputs/50_record_length/50_05_stable_length_per_well.csv": "42f17340be8b5fef7bb37c87523dd46a3b05afbee2f771bcf2521be893877737",
-    "outputs/50_record_length/50_06_ccw_hindcast_by_datum.csv": "850d75146bbfcbc96af55687af9df95ddfb2895422f49e58f44f89d4ae43ee01",
+    "outputs/50_record_length/50_01_record_length_per_well.csv": "1ac121a7472f9a5eebba2f42645682fb3ad02b174e5b98d2d9db9c50154652d2",
+    "outputs/50_record_length/50_02_record_length_by_cluster.csv": "b8547b05133e7a12396396d7a9a58a72fff5da7d49f265d98707233279835e07",
+    "outputs/50_record_length/50_03_ccw_hindcast_by_length.csv": "7e322ec7dcdeae66142cc7604c245e90d8e0faefd5f0fd0bec03aa137fcc336b",
+    "outputs/50_record_length/50_04_record_length.png": "6d2795397a0e08e0a67efbe830db0633f194a64dbb0f70c7403d2dbb609beb57",
+    "outputs/50_record_length/50_05_stable_length_per_well.csv": "8a1cea7baca97c971a2b996bdb8e85c136e4926b3a456a42749f09a3578cbdaf",
+    "outputs/50_record_length/50_06_ccw_hindcast_by_datum.csv": "d7c3757600449c120d3bcfa2dacc03f4258456fca916a6e6dad478a3000fc5a2",
     "outputs/50_record_length/50_07_split_by_datum.csv": "b9b4ccf70120a05be76636a577ba3de43c442d4efa03ba2ac7e06fcc64abaa4a",
     "outputs/50_record_length/50_08_projection_by_datum.csv": "c3326ff0fab0654384cc6426bf20111c8b06f6deb95afda9cf6ab579e82c8dda",
-    "outputs/50_record_length/50_09_datum_against_the_drier_past.png": "d1aaf736fe1c51646d523095bcf9a8a3a23a4d8d78486df6bc39825e44bca9a4",
-    "outputs/50_record_length/50_10_ranwell_hindcast_by_datum.csv": "153a2f04681d479b4f3247b50563141be43690518980329a6cbb567e133c9425",
+    "outputs/50_record_length/50_09_datum_against_the_drier_past.png": "f6a0bce7c9dab03b366310bbc6e13f164d70cd307436bff24c7655ba8a27ca73",
+    "outputs/50_record_length/50_10_ranwell_hindcast_by_datum.csv": "30107cb9b87933027dcad27e8ebc544e4dc441fc8ce97dc8b304874f6a6acdd2",
     "outputs/50_record_length/50_12_two_store_by_cluster.csv": "841564354891c23ddd80bd752838320e0c0b6cec052a8653e84302a092e2960b",
     "outputs/50_record_length/50_13_two_store_check_well.csv": "31412589e78282ec47ddb51a0363b2a0621f1c9da35906968d6f3b56ec86cac5",
     "outputs/50_record_length/50_14_two_store.png": "d6d8199c29f22ccaff47e8f86a6d21dd0ceed2dad36ff491c88e69e6dfed279a",
@@ -1547,7 +1547,7 @@
     "outputs/50_record_length/50_27_forest_forcing_by_well.csv": "6d24cab2d97bda57a1dd2061ee0e54deef406b47392366cc6400f661113f2b2d",
     "outputs/50_record_length/50_28_ranwell_need_grid.csv": "a0cb80f66db8489fa42cd846de46ee3972dd799e864a68a63a6c67b3a5f77a9d",
     "outputs/50_record_length/50_29_ranwell_epoch_candidates.csv": "9d8fb3f1bb837ede915a7b837b42d3af37911bc54869ea966c8f4fb34e66962d",
-    "outputs/50_record_length/50_30_basis_by_test.csv": "887814b29ddbcfc7b3b6738915427cc76e489066d41c1998c480cad19bc7dda4",
+    "outputs/50_record_length/50_30_basis_by_test.csv": "bff9bc30e636e561014b52649857d09b01e6ca917d23576fc2230ba766582885",
     "outputs/50_record_length/50_31_pet_alternatives_monthly.csv": "9bd179f11410de80c662b78db62721d6da947bcd7cb97812e3382f84399096e2",
     "outputs/50_record_length/50_32_e13_pet_by_cluster.csv": "abbf4745681b88c1f5960605cfa464fb64060493bd9e78ade3f32467fe0c1ca1",
     "outputs/50_record_length/50_33_e13_beta1_break_by_well.csv": "bd27a1e11237f2cd504e6011e199c8388588640b1d847be1013503a6d3471ba8",
@@ -1558,11 +1558,11 @@
     "outputs/50_record_length/50_38_residual_seasonality_pm.csv": "0ab627ec5a36969b401923448744d1a5dea365676c238baf20dac78028ff0aa8",
     "outputs/50_record_length/50_39_midas_annual_inputs.csv": "3b3b702337ea0b811bec73928bd25dcef483e6e77ffe1e19196d10daad9f4217",
     "outputs/50_record_length/50_40_placement_by_test.csv": "b6c7818707ab5c3f0e77164114e72f2dae8f47ec4d50a466bcf750e19ceae3c3",
-    "outputs/50_record_length/50_41_elevation_datum_by_test.csv": "694c96da7101fa6d36304bc6b7ad75800895a7942d90aacd05b0cbd80e1c480f",
-    "outputs/50_record_length/50_42_elevation_datum_summary.csv": "143fee2b47a8a9fdef6c32ab22e15595f2dc25c69867e8ef09bb8564874b3b57",
-    "outputs/50_record_length/50_43_cluster_base_by_test.csv": "8b3deb91b02651ccc02832854f7217b742c51ab6a1263856df73d16c9362b0b7",
-    "outputs/50_record_length/50_44_cluster_base_summary.csv": "b1e6b4028fa388b5cea4a17e7ccc7767829c7b1465f74971c54f5566602fb800",
-    "outputs/50_record_length/50_45_ccw_quantile_map.csv": "ef42e9cb24fed4255c8e56be993ae319818486e4aa29773bb047941623d6e2ed",
+    "outputs/50_record_length/50_41_elevation_datum_by_test.csv": "a8294e5efe1af0c93518efe50178d882a12da4b4b4b792a52f22b5346b4d1054",
+    "outputs/50_record_length/50_42_elevation_datum_summary.csv": "02d8f6ab3a9f023247a3042fd2a11c8f31385177c4c6edde13c639e0b7f31b57",
+    "outputs/50_record_length/50_43_cluster_base_by_test.csv": "c8ab7a1d2fe95f8259300cbbfceb209a5fe85dabe7cf2336743e7c4cbb4b6b36",
+    "outputs/50_record_length/50_44_cluster_base_summary.csv": "0544c7e1a8b800f4f56e10c37a7be1aaf225964b98a8b810433090b92bb47fb0",
+    "outputs/50_record_length/50_45_ccw_quantile_map.csv": "a7ac45cc39d8a4cf689ea92115e75c587c97945d991e1fb251908c7f09cb22d6",
     "outputs/50_record_length/50_46_ccw_film_map_months.csv": "ee31046b1d8e71e26a17d3f00c81130d64a429b9c7e85e529bcb12279b19ece8",
     "outputs/50_record_length/50_47_ccw_film_map_years.csv": "b099318e33aab2b05f1ebe603e50af5c755762a667f49c1b0a3eefb1bfa69822",
     "outputs/50_record_length/50_48_split_series.csv": "2f805ccaf226ed15e082a46c6bd39d3ab64749224e6f1545176129b1980c8927",
@@ -1571,7 +1571,7 @@
     "outputs/50_record_length/50_51_neighbour_transfer.png": "31ea9e4f226de57b0b3744f90c7aebe2c13f9fb845e7a46d8acd395ab8ce128e",
     "outputs/50_record_length/50_52_transfer_rule.csv": "542c3178558cf0fe220d5bb78d6b32732e1cb5dfd6ddf8812dc667d07c599aa4",
     "outputs/50_record_length/50_53_transfer_rule.png": "eaa7e3d5fe1a11a4f17ed9071fed9e00f428160a126dbd7461e786b984c4afa7",
-    "outputs/50_record_length/50_report_numbers.csv": "3d81940e4bbc5e70472dbf0877e75ea7eddb63c4f474a9f832401823dde96c57"
+    "outputs/50_record_length/50_report_numbers.csv": "10110ab40cec0fd11bd3c586d4e838a2d30197dd929c575e73c39c5a3959cf34"
    },
    "fallbacks": [],
    "inputs": {
@@ -1606,9 +1606,9 @@
    "inputs_unresolved": [
     "2015.kml"
    ],
-   "seconds": 2392.6,
-   "started": "2026-11-10T01:28:57",
-   "version": "1.23.0"
+   "seconds": 3978.1,
+   "started": "2026-11-10T11:01:12",
+   "version": "1.24.0"
   },
   "51_cluster_gap_fill.py": {
    "emitted": {
@@ -1635,8 +1635,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 35.0,
-   "started": "2026-11-10T02:08:50",
+   "seconds": 51.6,
+   "started": "2026-11-10T12:07:31",
    "version": "1.1.0"
   },
   "53_ccw_forest_drift.py": {
@@ -1660,8 +1660,8 @@
     "outputs/39_ccw_hindcast/39_02_hindcast_series.csv": "9489f90cbe2c41b334487c48b9977125271dc05af9fe94b737c2fcc7d6242473"
    },
    "inputs_unresolved": [],
-   "seconds": 2.5,
-   "started": "2026-11-10T02:09:25",
+   "seconds": 3.1,
+   "started": "2026-11-10T12:08:23",
    "version": "1.0.0"
   },
   "54_dry_year_hysteresis.py": {
@@ -1680,11 +1680,11 @@
     "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3",
-    "outputs/50_record_length/50_report_numbers.csv": "3d81940e4bbc5e70472dbf0877e75ea7eddb63c4f474a9f832401823dde96c57"
+    "outputs/50_record_length/50_report_numbers.csv": "10110ab40cec0fd11bd3c586d4e838a2d30197dd929c575e73c39c5a3959cf34"
    },
    "inputs_unresolved": [],
-   "seconds": 2.3,
-   "started": "2026-11-10T02:09:28",
+   "seconds": 2.7,
+   "started": "2026-11-10T12:08:26",
    "version": "1.0.0"
   },
   "55_water_balance_drainage.py": {
@@ -1723,8 +1723,8 @@
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "540d93373f369f480e3b74d740d64d6c6b4dcf6b195e46704b5d06287f10cd6c"
    },
    "inputs_unresolved": [],
-   "seconds": 7.3,
-   "started": "2026-11-10T02:09:30",
+   "seconds": 10.4,
+   "started": "2026-11-10T12:08:29",
    "version": "1.2.0"
   },
   "run_09_scraping.py": {

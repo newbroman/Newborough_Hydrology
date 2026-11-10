@@ -5,21 +5,21 @@ Water Table Fluctuation (WTF) Method — Individual Well Analysis and Spatial Ma
 Newborough Warren Coastal Sand Dune Aquifer, 2005–2026
 
 Outputs:
-    18_wtf_01_well_sy_estimates.csv      — reference well Sy table (Table S1)
+    18_wtf_01_well_sy_estimates.csv      — reference well S_a table (Table S1)
     18_wtf_02_spatial_sy_map.png         — point map (plot_metric_map, as script 04)
     18_wtf_03_sy_contour.png             — IDW contour surface, reference wells only
     18_wtf_04_sy_contour_extended.png    — IDW contour surface, reference + extended wells
     18_wtf_05_halflife_map.png           — IDW contour of t½ = ln(2)/β₃ (months)
     18_wtf_05a_recip_beta3_map.png       — IDW contour of t_R = 1/β₃ (months)
     18_wtf_05_storage_drainage_index.csv — per-well storage–drainage index
-                                           τ = Sy/β₃ with Sy, β₃, t½, cluster
+                                           τ = S_a/β₃ with S_a, β₃, t½, cluster
                                            (diagnostic only — see note below)
-    18_wtf_06_aquifer_diagnostic_synthesis.png — t½ vs ΔNSE scatter sized by Sy
-    18_wtf_07_sy_spatial_trends.csv      — open-dune planar Sy trend and
-                                           within-forest Sy spatial correlations
+    18_wtf_06_aquifer_diagnostic_synthesis.png — t½ vs ΔNSE scatter sized by S_a
+    18_wtf_07_sy_spatial_trends.csv      — open-dune planar S_a trend and
+                                           within-forest S_a spatial correlations
 
 Notes:
-    - τ = Sy/β₃ (`storage_drainage_index_months`) is the STORAGE–DRAINAGE INDEX.
+    - τ = S_a/β₃ (`storage_drainage_index_months`) is the STORAGE–DRAINAGE INDEX.
       It has units of months but is NOT a decay timescale and must never be
       cited as a duration or used to compute a decay fraction. The decay
       quantities are t_R = 1/β₃ (e-folding) and t½ = ln(2)/β₃ (half-life), both
@@ -41,7 +41,7 @@ Notes:
       neither evaluated nor reported at their positions and must never be
       extrapolated beneath the plantation. (b) The WITHIN-FOREST CORRELATIONS
       use forested wells only and involve no open-dune comparison. The two
-      blocks are deliberately not combined: differencing forest Sy against the
+      blocks are deliberately not combined: differencing forest S_a against the
       extrapolated open-dune plane was tested and rejected as unsound (see
       CHANGELOG_delta_2026-08-10_18_sy_spatial_trends.md).
     - Extended wells use Best_Match_Cluster from 06_pear_membership_audit_sitewide.csv
@@ -231,14 +231,14 @@ def load_well_data(out_root):
 def wtf_individual_wells(wells_df, climate, cluster_df, locations,
                          apply_forest_correction=True):
     """
-    Event-based WTF Sy for every individual reference well.
+    Event-based WTF S_a for every individual reference well.
     Returns DataFrame sorted by cluster then well name.
 
     apply_forest_correction — when False, the canopy interception correction is
         skipped for the forested clusters and gross rainfall is used throughout.
         This is a DIAGNOSTIC path only, used by compute_sy_spatial_trends() to
-        show that the within-forest Sy gradient is not manufactured by the
-        correction. The default True path produces every published Sy value.
+        show that the within-forest S_a gradient is not manufactured by the
+        correction. The default True path produces every published S_a value.
     """
     rows = []
 
@@ -309,23 +309,23 @@ def wtf_individual_wells(wells_df, climate, cluster_df, locations,
 def wtf_windowed_wells(wells_df, climate, cluster_df,
                        split_date=None) -> pd.DataFrame:
     """
-    Per-well WTF Sy on each side of ``split_date`` — the windowed mode of D8.
+    Per-well WTF S_a on each side of ``split_date`` — the windowed mode of D8.
 
     Same event rule, same interception correction and the same D-195 calendar
     differencing as wtf_individual_wells(); the only difference is that the aligned
     frame is cut at ``split_date`` before events are selected. One row per well,
-    carrying both windows, so a caller can see at a glance whether a well has a Sy
+    carrying both windows, so a caller can see at a glance whether a well has a S_a
     in the direction it needs.
 
     Why it exists. Script 55's split-sample test (Stage G) is a FORECASTING test, and
     a forecasting model may not be handed a specific yield estimated partly on the
     months it is about to predict. The full-record ``Sy_median`` of 18_wtf_01 has seen
-    every month, so the forward test reads the pre-split Sy here and the reverse test
+    every month, so the forward test reads the pre-split S_a here and the reverse test
     the post-split one.
 
-    A window with fewer than MIN_WINDOW_EVENTS qualifying events yields no Sy for that
+    A window with fewer than MIN_WINDOW_EVENTS qualifying events yields no S_a for that
     side: the column is NaN and ``skipped_windows`` names the direction. Nothing is
-    substituted — there is no defensible default Sy for a well.
+    substituted — there is no defensible default S_a for a well.
 
     Locations are not looked up: this table is not mapped.
     """
@@ -385,12 +385,12 @@ def wtf_windowed_wells(wells_df, climate, cluster_df,
     df = pd.DataFrame(rows).sort_values(["Cluster", "Well"]).reset_index(drop=True)
     n_pre = int(df["Sy_median_pre"].notna().sum())
     n_post = int(df["Sy_median_post"].notna().sum())
-    print(f"  {len(df)} wells: {n_pre} with a pre-{split:%Y-%m} Sy, {n_post} with a post-{split:%Y-%m} Sy")
+    print(f"  {len(df)} wells: {n_pre} with a pre-{split:%Y-%m} S_a, {n_post} with a post-{split:%Y-%m} S_a")
     return df
 
 
 def _fit_open_dune_plane(open_df):
-    """OLS plane Sy ~ Easting + Northing over the open-dune wells (km-centred)."""
+    """OLS plane S_a ~ Easting + Northing over the open-dune wells (km-centred)."""
     e0, n0 = float(open_df["Easting"].mean()), float(open_df["Northing"].mean())
     X = sm.add_constant(pd.DataFrame({
         "E_km": (open_df["Easting"]  - e0) / 1000.0,
@@ -405,7 +405,7 @@ def _fit_open_dune_plane(open_df):
 
 
 def _forest_correlations(forest_df, label, rows):
-    """Append Pearson r/p of Sy against each spatial predictor for one subset."""
+    """Append Pearson r/p of S_a against each spatial predictor for one subset."""
     for col, pred in (("ground_elev_m", "Elevation"),
                       ("dist_ridge",    "Dist_from_ridge"),
                       ("Easting",       "Easting")):
@@ -422,26 +422,26 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
     """
     Two spatial diagnostics on the per-well WTF specific yields.
 
-    (a) OPEN-DUNE PLANAR TREND — an OLS plane fitted to the per-well Sy of the
+    (a) OPEN-DUNE PLANAR TREND — an OLS plane fitted to the per-well S_a of the
         three open-dune clusters (C1 Lake Edge, C2 Dune, C3 Western Residual).
         Reported as the gradient magnitude, the compass azimuth of increasing
-        Sy, the residual standard deviation and the per-component coefficients.
+        S_a, the residual standard deviation and the per-component coefficients.
         The forested clusters are excluded by construction: every forested well
         lies outside the convex hull of the open-dune network, so the plane is
         not evaluated at their positions and must not be extrapolated beneath
         the plantation.
 
-    (b) WITHIN-FOREST SPATIAL CORRELATIONS — Pearson r between per-well Sy and
+    (b) WITHIN-FOREST SPATIAL CORRELATIONS — Pearson r between per-well S_a and
         elevation, distance from the ridge reference point and easting, over
         the forested clusters only. This mirrors the within-forest coefficient
-        regression of Script 10c, but is computed here because the per-well Sy
+        regression of Script 10c, but is computed here because the per-well S_a
         table does not exist at Script 10c's position in the run order.
         Robustness variants drop the two anomalous ridge-flank wells, and the
-        uncorrected series repeats the correlations on Sy computed without the
+        uncorrected series repeats the correlations on S_a computed without the
         canopy interception correction, establishing that the gradient is not
         an artefact of that correction.
 
-    The two blocks are independent. Differencing forest Sy against the
+    The two blocks are independent. Differencing forest S_a against the
     extrapolated open-dune plane is NOT performed and must not be reinstated.
     """
     loc = locations[["norm", "ground_elev_m"]].copy()
@@ -463,20 +463,20 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
     open_df = corr_df[~corr_df["Cluster"].isin(FOREST_CIDS)].dropna(
         subset=["Sy_median", "Easting", "Northing"])
     if len(open_df) < 6:
-        warn("Too few open-dune wells for a planar Sy fit — block skipped")
+        warn("Too few open-dune wells for a planar S_a fit — block skipped")
     else:
         fit, e0, n0, b_e, b_n, grad, azimuth = _fit_open_dune_plane(open_df)
         for metric, value, unit in (
             ("n",              float(fit.nobs),                    "wells"),
             ("r2",             float(fit.rsquared),                "-"),
-            ("const",          float(fit.params["const"]),         "Sy"),
-            ("coef_E_per_km",  b_e,                                "Sy/km"),
+            ("const",          float(fit.params["const"]),         "S_a"),
+            ("coef_E_per_km",  b_e,                                "S_a/km"),
             ("p_E",            float(fit.pvalues["E_km"]),         "p"),
-            ("coef_N_per_km",  b_n,                                "Sy/km"),
+            ("coef_N_per_km",  b_n,                                "S_a/km"),
             ("p_N",            float(fit.pvalues["N_km"]),         "p"),
-            ("grad_per_km",    grad,                               "Sy/km"),
+            ("grad_per_km",    grad,                               "S_a/km"),
             ("azimuth_deg",    azimuth,                            "degrees"),
-            ("resid_sd",       float(np.sqrt(fit.mse_resid)),      "Sy"),
+            ("resid_sd",       float(np.sqrt(fit.mse_resid)),      "S_a"),
             ("centroid_E",     e0,                                 "m"),
             ("centroid_N",     n0,                                 "m"),
         ):
@@ -484,9 +484,9 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
                          "metric": metric,
                          "value": float(value),
                          "n": int(fit.nobs), "unit": unit})
-        result("Open-dune Sy plane",
+        result("Open-dune S_a plane",
                f"n={int(fit.nobs)}, R2={fit.rsquared:.3f}, "
-               f"{grad:.4f} Sy/km at {azimuth:.0f}\u00b0")
+               f"{grad:.4f} S_a/km at {azimuth:.0f}\u00b0")
 
     # ── (b) within-forest correlations ───────────────────────────────────────
     forest = corr_df[corr_df["Cluster"].isin(FOREST_CIDS)].dropna(
@@ -495,7 +495,7 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
         subset=["Sy_median", "ground_elev_m"])
 
     if len(forest) < 5:
-        warn("Too few forested wells for within-forest Sy correlations — skipped")
+        warn("Too few forested wells for within-forest S_a correlations — skipped")
     else:
         _forest_correlations(forest, "corrected", rows)
         _forest_correlations(forest_unc, "uncorrected", rows)
@@ -507,7 +507,7 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
                and r["metric"] == "r_vs_Elevation"][0]["value"]
         r_d = [r for r in rows if r["series"] == "corrected"
                and r["metric"] == "r_vs_Dist_from_ridge"][0]["value"]
-        result(f"Within-forest Sy (n={len(forest)})",
+        result(f"Within-forest S_a (n={len(forest)})",
                f"r vs elevation {r_e:+.3f}, r vs ridge distance {r_d:+.3f}")
 
     return pd.DataFrame(rows)
@@ -515,7 +515,7 @@ def compute_sy_spatial_trends(well_results, well_results_uncorrected, locations)
 
 def plot_spatial_map(well_results, out_path):
     """
-    Point map of well-level WTF Sy using plot_metric_map from map_utils.
+    Point map of well-level WTF S_a using plot_metric_map from map_utils.
     Identical infrastructure to script 04 — DEM/OSM base, KML overlays,
     cluster markers.
     """
@@ -538,7 +538,7 @@ def plot_spatial_map(well_results, out_path):
     plot_metric_map(
         map_df      = map_df,
         value_col   = "WTF_Sy_median",
-        title       = (f"WTF Specific Yield (event median) — Newborough Warren 2005–{_END_YEAR}\n"
+        title       = (f"WTF apparent storage coefficient $S_a$ (event median) — Newborough Warren 2005–{_END_YEAR}\n"
                        f"Forest cluster values (C4, C5) corrected for {FOREST_INTERCEPTION:.0%} canopy interception "
                        "(Freeman, 2008); spatial canopy variability means "
                        "Forest estimates are approximate"),
@@ -553,9 +553,9 @@ def plot_spatial_map(well_results, out_path):
 
 def plot_contour_map(well_results, out_path):
     """
-    IDW-interpolated contour surface of WTF Sy across the site.
+    IDW-interpolated contour surface of WTF S_a across the site.
     Greyscale hillshade DEM background (load_dem_hillshade) with semi-transparent
-    Sy pcolormesh surface overlaid. Interpolation (linear griddata via
+    S_a pcolormesh surface overlaid. Interpolation (linear griddata via
     add_idw_surface) clipped to the NNR site boundary via make_site_mask.
     Forest cluster wells hatched to signal interception uncertainty.
     """
@@ -598,7 +598,7 @@ def plot_contour_map(well_results, out_path):
 
     # Colourbar
     cbar = fig.colorbar(mesh, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
-    cbar.set_label("Specific yield Sy  (WTF event median, linear interpolation)",
+    cbar.set_label("Apparent storage coefficient $S_a$  (WTF event median, linear interpolation)",
                    fontsize=10, labelpad=10)
 
     cluster_handles = []
@@ -638,8 +638,8 @@ def plot_contour_map(well_results, out_path):
                   framealpha=0.95, edgecolor="#CCCCCC")
 
     ax.set_title(
-        f"Interpolated WTF Specific Yield Surface — Newborough Warren 2005–{_END_YEAR}\n"
-        "Linear griddata interpolation of event-based median Sy per well  |  "
+        f"Interpolated WTF Apparent Storage Coefficient ($S_a$) Surface — Newborough Warren 2005–{_END_YEAR}\n"
+        "Linear griddata interpolation of event-based median S_a per well  |  "
         "Greyscale hillshade DEM + KML overlays\n"
         "Forest cluster values (C4, C5) interception-corrected (Freeman, 2008) — "
         "interpolation in Forest zone is approximate",
@@ -654,7 +654,7 @@ def plot_contour_map(well_results, out_path):
 
 def wtf_extended_wells(climate, locations, out_root):
     """
-    Apply event-based WTF Sy to the 20 extended network wells.
+    Apply event-based WTF S_a to the 20 extended network wells.
     Cluster assignments from 06_pear_membership_audit_sitewide.csv
     (Best_Match_Cluster column). Interception correction applied to C4 wells.
     Returns DataFrame in same format as wtf_individual_wells(), with
@@ -804,7 +804,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
         warn(f"KML features failed: {e}")
 
     cbar = fig.colorbar(mesh, ax=ax, fraction=0.025, pad=0.01, shrink=0.75)
-    cbar.set_label('Specific yield Sy  (WTF event median, linear interpolation)',
+    cbar.set_label('Apparent storage coefficient $S_a$  (WTF event median, linear interpolation)',
                    fontsize=10, labelpad=10)
 
     cluster_handles = []
@@ -890,7 +890,7 @@ def plot_contour_map_extended(ref_results, ext_results, out_path):
                   framealpha=0.95, edgecolor='#CCCCCC')
 
     ax.set_title(
-        f'Interpolated WTF Specific Yield Surface — Reference + Extended Network\n'
+        f'Interpolated WTF Apparent Storage Coefficient ($S_a$) Surface — Reference + Extended Network\n'
         f'Newborough Warren 2005–{_END_YEAR}  |  Linear griddata interpolation  |  '
         'Greyscale hillshade DEM + KML overlays\n'
         'Filled markers = reference wells; open markers = extended wells  |  '
@@ -936,19 +936,19 @@ def _per_well_beta3() -> pd.DataFrame:
 
 def compute_storage_drainage_index(well_results):
     """
-    Compute the per-well storage–drainage index τ = Sy / β₃ (months).
+    Compute the per-well storage–drainage index τ = S_a / β₃ (months).
 
     NOT a drainage timescale. τ weights the reciprocal drainage coefficient by
     storage capacity, expressing the ratio of stored water volume to drainage
     flux. It has units of months but is not a decay time: the decay quantities
-    are t_R = 1/β₃ and t½ = ln(2)/β₃, both Sy-independent. Both τ and t½ are
+    are t_R = 1/β₃ and t½ = ln(2)/β₃, both S_a-independent. Both τ and t½ are
     emitted here; only t½ is mapped, and only t½ / t_R may be cited as durations.
 
-    Joins WTF-derived Sy (from well_results) with the per-well SSM β₃ on the
+    Joins WTF-derived S_a (from well_results) with the per-well SSM β₃ on the
     D-192 basis (_per_well_beta3: the full record by default).
     Excludes:
-      - CEH12 (bedrock ridge — Sy not representative of sand aquifer)
-      - CEH15 (forest slack floor — anomalous Sy)
+      - CEH12 (bedrock ridge — S_a not representative of sand aquifer)
+      - CEH15 (forest slack floor — anomalous S_a)
       - CEH14 (negative β₃ — index undefined)
       - CEH13 (near-zero β₃ — an outlier on either basis)
       - Any well where β₃ ≤ 0
@@ -1253,11 +1253,11 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
     """
     Scatter plot of drainage decay half-life (t½ = ln(2)/β₃) vs iterative NSE
     improvement (ΔNSE = NSE_SSM − NSE_TLM), with points coloured by cluster
-    and sized by WTF-derived Sy.
+    and sized by WTF-derived S_a.
 
     Synthesises three independently derived per-well diagnostics into a
     single aquifer architecture characterisation. Cluster-mean markers
-    (larger stars) anchor the pattern. t½ is plotted on the y-axis, not τ = Sy/β₃,
+    (larger stars) anchor the pattern. t½ is plotted on the y-axis, not τ = S_a/β₃,
     as the directly interpretable drainage decay timescale (v1.4.0).
 
     Excludes wells flagged in rb3_df (CEH13, CEH14).
@@ -1290,7 +1290,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
         missed = set(valid["norm"]) - set(merged["norm"])
         print(f"  [WARNING] {n_missed} wells missing ΔNSE data: "
               f"{', '.join(sorted(missed))}")
-    print(f"  {n_matched} wells with t½ + ΔNSE + Sy for synthesis scatter")
+    print(f"  {n_matched} wells with t½ + ΔNSE + S_a for synthesis scatter")
 
     # ── Compute cluster means ─────────────────────────────────────────────────
     cmeans = merged.groupby("Cluster").agg(
@@ -1354,7 +1354,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
             markerfacecolor="#CCCCCC",
             markeredgecolor="black",
             markersize=np.sqrt(sy_to_size(sv)) * 0.65,
-            label=f"Sy = {sv:.2f}"))
+            label=f"$S_a$ = {sv:.2f}"))
 
     # ── Annotation regions ────────────────────────────────────────────────────
     annotations = {
@@ -1387,7 +1387,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
         f"Aquifer Diagnostic Synthesis — Newborough Warren 2005–{_END_YEAR}\n"
         "Three independently derived parameters triangulate aquifer architecture\n"
         "t½ (drainage decay half-life) vs ΔNSE (drainage sensitivity), "
-        "point size ∝ Sy (storage capacity)",
+        "point size ∝ S_a (storage capacity)",
         fontsize=10, fontweight="bold", pad=12)
 
     x_pad = (merged["dNSE"].max() - merged["dNSE"].min()) * 0.12
@@ -1408,7 +1408,7 @@ def plot_aquifer_diagnostic_synthesis(rb3_df, out_path):
 
     if sy_legend_handles:
         ax.legend(handles=sy_legend_handles, loc="center right",
-                  title="Point size = Sy", fontsize=8, title_fontsize=9,
+                  title="Point size = $S_a$", fontsize=8, title_fontsize=9,
                   framealpha=0.95, edgecolor="#CCCCCC")
 
     plt.tight_layout()
@@ -1428,7 +1428,7 @@ def main(supplementary=True):
     path_contour_ext = OUT_18_SY_CONTOUR_EXT
 
     hr()
-    print("  18: WTF Spatial Analysis — Individual Well Sy and Mapping")
+    print("  18: WTF Spatial Analysis — Individual Well S_a and Mapping")
     print(f"  Supplementary figures: {'yes' if supplementary else 'no'}")
     hr()
 
@@ -1442,7 +1442,7 @@ def main(supplementary=True):
     print("\nRunning reference well WTF analysis...")
     well_results = wtf_individual_wells(wells_df, climate, cluster_df, locations)
 
-    print("\nExporting reference well Sy table...")
+    print("\nExporting reference well S_a table...")
     well_results.to_csv(path_well_sy, index=False)
     print(f"  Saved → {path_well_sy.name}")
 
@@ -1461,7 +1461,7 @@ def main(supplementary=True):
                                             locations,
                                             apply_forest_correction=False)
 
-    print("\nComputing open-dune Sy plane and within-forest Sy correlations...")
+    print("\nComputing open-dune S_a plane and within-forest S_a correlations...")
     trends_df = compute_sy_spatial_trends(well_results, well_results_unc,
                                           locations)
     trends_df.to_csv(OUT_18_SY_SPATIAL_TRENDS, index=False)
@@ -1473,13 +1473,13 @@ def main(supplementary=True):
 
     # ── Supplementary figures — only with --supplementary flag ────────────
     if supplementary:
-        print("\nGenerating Sy contour map (reference wells only)...")
+        print("\nGenerating S_a contour map (reference wells only)...")
         plot_contour_map(well_results, path_contour)
 
         print("\nRunning extended well WTF analysis...")
         ext_results = wtf_extended_wells(climate, locations, out_root)
         if ext_results is not None:
-            print("\nGenerating Sy contour map (reference + extended wells)...")
+            print("\nGenerating S_a contour map (reference + extended wells)...")
             plot_contour_map_extended(well_results, ext_results, path_contour_ext)
         else:
             print("  Skipping extended contour map — no extended well results")
@@ -1494,7 +1494,7 @@ def main(supplementary=True):
         # Storage–drainage index τ = Sy/β₃ retained as a CSV diagnostic only.
         # No figure is emitted (map removed v1.5.0) and no report-citable
         # scalars are exported (τ keys dropped v1.8.0): it is not a duration.
-        print("\nComputing storage–drainage index (τ = Sy/β₃) — diagnostic CSV only...")
+        print("\nComputing storage–drainage index (τ = S_a/β₃) — diagnostic CSV only...")
         sdi_df = compute_storage_drainage_index(well_results)
         sdi_df.to_csv(OUT_18_STORAGE_DRAINAGE_INDEX_CSV, index=False)
         print(f"  Saved → {OUT_18_STORAGE_DRAINAGE_INDEX_CSV.name}")
@@ -1618,7 +1618,7 @@ def main(supplementary=True):
         _r_tau, _ = scipy_stats.pearsonr(valid_sdi["half_life_months"],
                                          valid_sdi["storage_drainage_index_months"])
         rpt.add("sdi_vs_halflife_correlation_r", float(_r_tau), unit="",
-                note=f"Pearson r between the per-well storage-drainage index τ = Sy/β₃ and "
+                note=f"Pearson r between the per-well storage-drainage index τ = S_a/β₃ and "
                      f"t½ = ln(2)/β₃, same wells (n={len(valid_sdi)}), basis {PER_WELL_RECESSION_BASIS}")
 
         # 1.16.0 (T-96 batch 3): rising-limb events per reference well (report9 §4.2.4)
@@ -1653,7 +1653,7 @@ if __name__ == "__main__":
         description="Script 18 — WTF Spatial Analysis")
     parser.add_argument("--no-supplementary", action="store_false",
                         dest="supplementary",
-                        help="Skip Sy IDW contour maps for supplementary materials.")
+                        help="Skip S_a IDW contour maps for supplementary materials.")
     parser.set_defaults(supplementary=True)
     args = parser.parse_args()
     main(supplementary=args.supplementary)

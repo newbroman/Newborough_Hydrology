@@ -103,7 +103,12 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.6.0"  # Hollingham (2026) - 2026-11-08 (J-6). Both model forms refitted over
+__version__ = "1.6.1"  # Hollingham (2026) - 2026-11-10. Model B is looked up by the NORMALISED well name
+# (utils.data_utils.normalize_well_name), as Script 50 already does. Script 03's 03_16 spells 21 wells in
+# capitals (WMC2, L7, T41a...), the admitted-well names are lower case, so the case-sensitive lookup missed
+# and wmc2 silently lost its Model B hindcast: the 1989-96 Model B median was over 8 wells, Model A's over 9.
+# Martin 2026-11-10: "run the j9 fix here".
+# 1.6.0 - 2026-11-08 (J-6). Both model forms refitted over
 # three fitting windows (comparison / pre2018 / whole) and hindcast with each, after the figure
 # caption was found to claim coefficients "fitted 2005-2026" when the master store it reads is
 # the 100-month comparison window. Martin, 2026-11-08: "run both models against the ccw well
@@ -199,6 +204,7 @@ from utils.hindcast_utils import (load_ccw, observed_series, hindcast_well,
                                   equilibrium_depth, usable_codes, BETA_COLS)
 from utils.console_utils import banner, phase, step, info, warn, saved, note, result, done
 from utils.render_utils import render_figure
+from utils.data_utils import normalize_well_name                # noqa: E402  (1.6.1)
 from utils.report_numbers_utils import ReportNumbers
 
 SCRIPT_ID = "39"
@@ -712,7 +718,7 @@ def main() -> int:
             _d = float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
             if _d <= 0:                       # base above ground: Model B undefined here
                 continue
-            mb[str(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+            mb[normalize_well_name(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
         note(f"Model B coefficients for {len(mb)} well(s)")
     except Exception as _e:
         note(f"Model B coefficients unavailable ({type(_e).__name__}); scenario 2 stays Model A only")
@@ -752,8 +758,8 @@ def main() -> int:
 
         # J-6: the Model B run for this well, at its own implied datum
         pred_b = None
-        if r.well in mb:
-            _bb, _db = mb[r.well]
+        if normalize_well_name(r.well) in mb:
+            _bb, _db = mb[normalize_well_name(r.well)]
             _h0b = equilibrium_depth(_bb, p_mean, pet_mean, drainage_datum=_db)
             if np.isfinite(_h0b):
                 pred_b, _ = hindcast_well(cl, _bb, _h0b, first_month, last_month, 1.0,

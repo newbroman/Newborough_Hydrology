@@ -105,7 +105,10 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.12.0"  # Hollingham (2026) — 2026-10-10 (T-122, D-254). The pre-planting sensitivity runs each
+__version__ = "1.12.1"  # Hollingham (2026) — 2026-11-10. Model B is looked up by the NORMALISED well name
+#   (utils.data_utils.normalize_well_name), as Script 50 does. 03_16 spells l7 as L7, so the case-sensitive lookup
+#   missed and the headline Model B Ranwell score rested on 10 pairings, not 11. Martin 2026-11-10.
+# 1.12.0 — 2026-10-10 (T-122, D-254). The pre-planting sensitivity runs each
 #   forest well on the open-dune analogue of its cluster (config.PRECANOPY_ANALOGUE: C3 for C4, C2 for C5), not
 #   C2 for every forest well (Martin 2026-10-10 12:42, 17:11 "replace"). Columns *_c2_m become *_analogue_m with
 #   preplant_analogue_cluster; the uncited key ..._min_median_C4_c2_m becomes ..._C4_analogue_m, and C5's
@@ -219,6 +222,7 @@ from utils.model_utils import (simulate_ssm,                           # noqa: E
 from utils.hindcast_utils import compare_offset_censored  # noqa: E402
 from utils.console_utils import banner, phase, step, info, warn, saved, note  # noqa: E402
 from utils.render_utils import apply_house_style, render_figure  # noqa: E402
+from utils.data_utils import normalize_well_name  # noqa: E402  (1.12.1)
 
 SCRIPT_ID = "44"
 VERSION = __version__
@@ -909,7 +913,7 @@ def main() -> int:
             _d = float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
             if _d <= 0:
                 continue
-            mb[str(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+            mb[normalize_well_name(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
     except Exception as _e:
         warn(f"Model B coefficients unavailable ({type(_e).__name__}); scenario 3 stays Model A only")
     # J-6, Martin 2026-11-08: "we should have a whole record trained model against the ccw data
@@ -981,8 +985,8 @@ def main() -> int:
             mid.index = mid.index.to_period("M")
             met = compare(om, mid, float(srow["height_m_od"]))
             mid_b, met_b = None, {}
-            if w in mb:
-                _bb, _db = mb[w]
+            if normalize_well_name(w) in mb:
+                _bb, _db = mb[normalize_well_name(w)]
                 h_b = hindcast_series(cl, _bb, h0, drainage_datum=_db)
                 mid_b = ((h_b + h_b.shift(1)) / 2 + c["ground_m"])
                 mid_b.index = mid_b.index.to_period("M")

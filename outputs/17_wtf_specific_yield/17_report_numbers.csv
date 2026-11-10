@@ -22,5 +22,5 @@ sy_event_n_pass_r_min,,,141.0,months,"fewest months meeting the net-recharge cri
 sy_event_n_pass_r_max,,,148.0,months,"most months meeting the net-recharge criterion (Sy_event_n_pass_R), n=5 uncorrected clusters"
 sy_event_n_pass_dh_min,,,92.0,months,"fewest months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n=7 runs"
 sy_event_n_pass_dh_max,,,113.0,months,"most months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n=7 runs"
-sy_event_pct_censored_min,,,38.541666666666664,%,"lowest percent of months clearing both criteria censored by the Sy ceiling 0.5 (Sy_event_pct_censored), n=5 uncorrected clusters"
-sy_event_median_unclipped_min,,,0.29050546766550733,,"lowest event-median Sy with the ceiling lifted (Sy_event_median_unclipped), n=5 uncorrected clusters"
+sy_event_pct_censored_min,,,38.541666666666664,%,"lowest percent of months clearing both criteria censored by the S_a ceiling 0.5 (Sy_event_pct_censored), n=5 uncorrected clusters"
+sy_event_median_unclipped_min,,,0.29050546766550733,,"lowest event-median S_a with the ceiling lifted (Sy_event_median_unclipped), n=5 uncorrected clusters"

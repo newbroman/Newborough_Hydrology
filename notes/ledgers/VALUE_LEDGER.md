@@ -1731,8 +1731,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | ar1_phi_network_mean | φ | AR(1) residual autocorrelation (def. report8 §3.4) | `22_report_numbers.csv` | -0.141679 |  | Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
 | ar1_phi_network_median | φ | AR(1) residual autocorrelation (def. report8 §3.4) | `22_report_numbers.csv` | -0.15256 |  | Newborough_Methods_Supplement | ok |
 | basis_ccw_nse_median_cluster_A |  |  | `50_report_numbers.csv` | -0.168895 |  | Newborough_Methods_Supplement | ok |
-| basis_ccw_nse_median_well_A |  |  | `50_report_numbers.csv` | -0.140625 |  | Newborough_Methods_Supplement | ok |
-| basis_ccw_nse_median_well_B |  |  | `50_report_numbers.csv` | -1.45892 |  | PaperM | ok |
+| basis_ccw_nse_median_well_A |  |  | `50_report_numbers.csv` | -0.256112 |  | Newborough_Methods_Supplement | ok |
 | basis_ranwell_range_ratio_median_cluster_A |  |  | `50_report_numbers.csv` | 1.01131 |  | Paper1 | ok |
 | benchmark_median_NSE_SSM |  |  | `08_report_numbers.csv` | 0.769592 |  | report9 | ok |
 | benchmark_median_NSE_TLM |  |  | `08_report_numbers.csv` | 0.433457 |  | report9 | ok |
@@ -1815,7 +1814,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | c4_perwell_sig_fullrecord |  |  | `30_c4_report_numbers.csv` | 7 |  | Supplementary_Material | ok |
 | c4_perwell_sig_window100_beta3_min | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `30_c4_report_numbers.csv` | 0.0226157 |  | Supplementary_Material | ok |
 | c_far_well_basis_ci_lo_mm_yr |  |  | `25_report_numbers.csv` | -3.15479 |  | Newborough_Methods_Supplement | ok |
-| c_far_well_basis_se_mm_yr |  |  | `25_report_numbers.csv` | 1.45707 |  | PaperM, report9 | ok |
+| c_far_well_basis_se_mm_yr |  |  | `25_report_numbers.csv` | 1.45707 |  | report9 | ok |
 | canonical / C3 (Western Residual) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.19939 |  | Newborough_Methods_Supplement | ok |
 | canonical / C3 (Western Residual) · dry_m_mean |  |  | `33_cluster_summary.csv` | -0.984782 |  | report9 | ok |
 | canonical / C4 (Main Forest) · amplification_mean |  |  | `33_cluster_summary.csv` | 1.66281 |  | Newborough_Methods_Supplement, academic_Summary, crynodeb_academaidd, report, report10, report12, report9 | ok |
@@ -2345,33 +2344,32 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | e15_response_control_2021_C3 |  |  | `54_report_numbers.csv` | 0.217424 |  | report10, report9, wtf_interception_methodology | ok |
 | e16_ccw_n_C2 |  |  | `50_report_numbers.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
 | e16_ccw_n_C5 |  |  | `50_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
-| e16_ccw_nse_median_C2_at_best |  |  | `50_report_numbers.csv` | -3.37344 |  | PaperM | ok |
-| e16_ccw_nse_median_C2_at_depth |  |  | `50_report_numbers.csv` | 0.281868 |  | report9 | ok |
+| e16_ccw_nse_median_C2_at_depth |  |  | `50_report_numbers.csv` | 0.237577 |  | report9 | ok |
 | e16_ccw_nse_median_C3_at_depth |  |  | `50_report_numbers.csv` | -0.239256 |  | Supplementary_Material | ok |
 | e16_test_ccw_nse_pass |  |  | `50_report_numbers.csv` | 1 |  | PaperM, VALUE_REGISTER, report8 | ok |
 | e17_base_B_C5_m_aod |  |  | `50_report_numbers.csv` | 2.65482 |  | report9 | ok |
-| e17_ccw_abs_bias_median_m_C2_S |  |  | `50_report_numbers.csv` | 0.319391 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
-| e17_ccw_abs_bias_median_m_C3_B |  |  | `50_report_numbers.csv` | 0.231348 |  | report9 | ok |
-| e17_ccw_abs_bias_median_m_C3_depth |  |  | `50_report_numbers.csv` | 0.262173 |  | Supplementary_Material | ok |
+| e17_ccw_abs_bias_median_m_C2_S |  |  | `50_report_numbers.csv` | 0.297562 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
+| e17_ccw_abs_bias_median_m_C3_B |  |  | `50_report_numbers.csv` | 0.205104 |  | report9 | ok |
+| e17_ccw_abs_bias_median_m_C3_depth |  |  | `50_report_numbers.csv` | 0.287616 |  | Supplementary_Material | ok |
 | e17_ccw_abs_bias_median_m_C5_B |  |  | `50_report_numbers.csv` | 0.336503 |  | Newborough_Methods_Supplement, report9 | ok |
 | e17_ccw_abs_bias_median_m_C5_depth |  |  | `50_report_numbers.csv` | 0.217173 |  | Supplementary_Material, academic_Summary, crynodeb_academaidd, report, report10, report12 | ok |
 | e17_ccw_n_C2 |  |  | `50_report_numbers.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
 | e17_ccw_n_C5 |  |  | `50_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
-| e17_ccw_nse_median_C2_S |  |  | `50_report_numbers.csv` | -0.318507 |  | Newborough_Methods_Supplement | ok |
-| e17_ccw_nse_median_C2_depth |  |  | `50_report_numbers.csv` | 0.281868 |  | report9 | ok |
+| e17_ccw_nse_median_C2_S |  |  | `50_report_numbers.csv` | -0.199494 |  | Newborough_Methods_Supplement | ok |
+| e17_ccw_nse_median_C2_depth |  |  | `50_report_numbers.csv` | 0.237577 |  | report9 | ok |
 | e17_ccw_nse_median_C3_depth |  |  | `50_report_numbers.csv` | -0.239256 |  | Supplementary_Material | ok |
 | e17_cluster_pass_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
 | e17_ranwell_n_C1 |  |  | `50_report_numbers.csv` | 2 |  | Newborough_Methods_Supplement, Supplementary_Material | ok |
 | e17_ranwell_n_C3 |  |  | `50_report_numbers.csv` | 1 |  | Supplementary_Material, report9 | ok |
-| e17_ranwell_nse_median_C3_B |  |  | `50_report_numbers.csv` | 0.383261 |  | report9 | ok |
-| e17_ranwell_nse_median_C3_R |  |  | `50_report_numbers.csv` | 0.393309 |  | Supplementary_Material | ok |
+| e17_ranwell_nse_median_C3_B |  |  | `50_report_numbers.csv` | 0.295696 |  | report9 | ok |
+| e17_ranwell_nse_median_C3_R |  |  | `50_report_numbers.csv` | 0.283934 |  | Supplementary_Material | ok |
 | e17_split_nse_median_C2_R |  |  | `50_report_numbers.csv` | 0.652325 |  | report9 | ok |
 | e17_split_nse_median_C3_depth |  |  | `50_report_numbers.csv` | 0.694535 |  | report9 | ok |
 | e17_split_nse_median_C4_S |  |  | `50_report_numbers.csv` | 0.20234 |  | wtf_interception_methodology | ok |
 | e17_split_nse_median_C5_depth |  |  | `50_report_numbers.csv` | 0.763071 |  | report9 | ok |
 | e8d_check_gauge_agrees |  |  | `50_report_numbers.csv` | 1 |  | PaperM | ok |
 | e_qm_nse_raw_cluster |  |  | `50_report_numbers.csv` | -0.168895 |  | Newborough_Methods_Supplement | ok |
-| e_qm_nse_raw_well |  |  | `50_report_numbers.csv` | -0.140625 |  | Newborough_Methods_Supplement | ok |
+| e_qm_nse_raw_well |  |  | `50_report_numbers.csv` | -0.256112 |  | Newborough_Methods_Supplement | ok |
 | end_state_open_dune / annual / C4 · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.897634 |  | report9 | ok |
 | end_state_open_dune / annual / C5 · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.497599 |  | report9 | ok |
 | end_state_open_dune / annual / end_state_open_dune_model_a / C4 · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary_model_a.csv` | 0.784592 |  | report9 | ok |
@@ -2416,7 +2414,6 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | fe4 / 2025 · MSL5_m_bg |  |  | `26_msl_5yr_per_well.csv` | -1.15267 |  | Supplementary_Material | ok |
 | fe4 · Best_r |  |  | `06_pear_membership_audit_sitewide.csv` | 0.9706 |  | report9 | ok |
 | fe4 · Delta |  |  | `06_pear_membership_audit_sitewide.csv` | 0.0028 |  | report9 | ok |
-| fe4 · amp_coefficient |  |  | `35_per_well_amplification.csv` | 1.46415 |  | PaperM | ok |
 | fe4 · r_C4 |  |  | `06_pear_membership_audit_sitewide.csv` | 0.9678 |  | report9 | ok |
 | fe4 · r_C5 |  |  | `06_pear_membership_audit_sitewide.csv` | 0.9706 |  | report9 | ok |
 | felling_1998_1 / 2006-01-01 / aerial 1-1-2006.png · index |  |  | `41_01_canopy_index.csv` | 0.14619 |  | report9 | ok |
@@ -2867,21 +2864,20 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | recession_time_months · full_R2 | R² | coefficient of determination | `29_headline_models.csv` | 0.640812 |  | Newborough_Methods_Supplement, report10 | ok |
 | recession_time_months · full_adj_R2 | R² | coefficient of determination | `29_headline_models.csv` | 0.521082 |  | Newborough_Methods_Supplement | ok |
 | recession_time_months · strongest_unique_delta_R2 | R² | coefficient of determination | `29_headline_models.csv` | 0.425725 |  | Newborough_Methods_Supplement | ok |
-| reclen_beta3_reldev_A_median_L48_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.265319 |  | Supplementary_Material | ok |
-| reclen_beta3_reldev_A_median_L60_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.183026 |  | Newborough_Methods_Supplement, report9 | ok |
-| reclen_beta3_reldev_A_median_L80_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.0492994 |  | Supplementary_Material | ok |
-| reclen_beta3_reldev_B_median_L100_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.304832 |  | report9 | ok |
+| reclen_beta3_reldev_A_median_L48_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.280153 |  | Supplementary_Material | ok |
+| reclen_beta3_reldev_A_median_L60_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.168337 |  | Newborough_Methods_Supplement, report9 | ok |
+| reclen_beta3_reldev_A_median_L80_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.0559294 |  | Supplementary_Material | ok |
+| reclen_beta3_reldev_B_median_L100_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.356014 |  | report9 | ok |
 | reclen_beta3_reldev_B_median_L100_C5 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.146785 |  | report9 | ok |
-| reclen_beta3_reldev_B_median_L120_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.305204 |  | report9 | ok |
-| reclen_beta3_reldev_B_median_L36_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.199477 |  | Supplementary_Material | ok |
-| reclen_beta3_reldev_B_median_L48_C1 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.22016 |  | Newborough_Methods_Supplement, report9 | ok |
-| reclen_beta3_reldev_B_median_L48_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.207258 |  | Supplementary_Material | ok |
+| reclen_beta3_reldev_B_median_L120_C4 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.277512 |  | report9 | ok |
+| reclen_beta3_reldev_B_median_L36_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.262155 |  | Supplementary_Material | ok |
+| reclen_beta3_reldev_B_median_L48_C1 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.224969 |  | Newborough_Methods_Supplement, report9 | ok |
+| reclen_beta3_reldev_B_median_L48_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.212471 |  | Supplementary_Material | ok |
 | reclen_beta3_reldev_B_median_L60_C1 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.11091 |  | Supplementary_Material | ok |
-| reclen_beta3_reldev_B_median_L60_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.136603 |  | Newborough_Methods_Supplement | ok |
-| reclen_ccw_nse_A_median_Lfull_all |  |  | `50_report_numbers.csv` | -0.140625 |  | Newborough_Methods_Supplement | ok |
-| reclen_ccw_nse_B_median_Lfull_all |  |  | `50_report_numbers.csv` | -1.45892 |  | PaperM | ok |
-| reclen_ccw_pearson_r_A_median_L120_start |  |  | `50_report_numbers.csv` | 0.855095 |  | Newborough_Methods_Supplement | ok |
-| reclen_ccw_pearson_r_A_median_L144_end |  |  | `50_report_numbers.csv` | 0.855231 |  | Newborough_Methods_Supplement | ok |
+| reclen_beta3_reldev_B_median_L60_C3 | β₃ | head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm) | `50_report_numbers.csv` | 0.137841 |  | Newborough_Methods_Supplement | ok |
+| reclen_ccw_nse_A_median_Lfull_all |  |  | `50_report_numbers.csv` | -0.256112 |  | Newborough_Methods_Supplement | ok |
+| reclen_ccw_pearson_r_A_median_L120_start |  |  | `50_report_numbers.csv` | 0.85717 |  | Newborough_Methods_Supplement | ok |
+| reclen_ccw_pearson_r_A_median_L144_end |  |  | `50_report_numbers.csv` | 0.852822 |  | Newborough_Methods_Supplement | ok |
 | reclen_identified_share_A_median_L100_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
 | reclen_identified_share_A_median_L100_C2 |  |  | `50_report_numbers.csv` | 1 |  | PAPER1_SI_methods, Supplementary_Material, report9 | ok |
 | reclen_identified_share_A_median_L100_C3 |  |  | `50_report_numbers.csv` | 1 |  | Supplementary_Material, report9 | ok |
@@ -2898,8 +2894,8 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | reclen_identified_share_A_median_L144_C4 |  |  | `50_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, PAPER1_SI_methods, report9 | ok |
 | reclen_identified_share_A_median_L144_C5 |  |  | `50_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
 | reclen_identified_share_A_median_L24_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
-| reclen_identified_share_A_median_L24_C2 |  |  | `50_report_numbers.csv` | 1 |  | PAPER1_SI_methods, Supplementary_Material, report9 | ok |
-| reclen_identified_share_A_median_L24_C4 |  |  | `50_report_numbers.csv` | 0.222222 |  | Supplementary_Material | ok |
+| reclen_identified_share_A_median_L24_C2 |  |  | `50_report_numbers.csv` | 0.857143 |  | PAPER1_SI_methods, Supplementary_Material, report9 | ok |
+| reclen_identified_share_A_median_L24_C4 |  |  | `50_report_numbers.csv` | 0.142857 |  | Supplementary_Material | ok |
 | reclen_identified_share_A_median_L36_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
 | reclen_identified_share_A_median_L36_C2 |  |  | `50_report_numbers.csv` | 1 |  | PAPER1_SI_methods, Supplementary_Material, report9 | ok |
 | reclen_identified_share_A_median_L36_C3 |  |  | `50_report_numbers.csv` | 1 |  | Supplementary_Material, report9 | ok |
@@ -2933,7 +2929,7 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | reclen_identified_share_B_median_L24_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
 | reclen_identified_share_B_median_L36_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
 | reclen_identified_share_B_median_L36_C2 |  |  | `50_report_numbers.csv` | 1 |  | PAPER1_SI_methods, Supplementary_Material, report9 | ok |
-| reclen_identified_share_B_median_L36_C5 |  |  | `50_report_numbers.csv` | 0.4 |  | Supplementary_Material, academic_Summary | ok |
+| reclen_identified_share_B_median_L36_C5 |  |  | `50_report_numbers.csv` | 0.333333 |  | Supplementary_Material, academic_Summary | ok |
 | reclen_identified_share_B_median_L48_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
 | reclen_identified_share_B_median_L48_C2 |  |  | `50_report_numbers.csv` | 1 |  | PAPER1_SI_methods, Supplementary_Material, report9 | ok |
 | reclen_identified_share_B_median_L60_C1 |  |  | `50_report_numbers.csv` | 1 |  | Newborough_Methods_Supplement, PAPER1_SI_methods, report9 | ok |
@@ -2945,28 +2941,27 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | reclen_identified_share_B_median_L80_C5 |  |  | `50_report_numbers.csv` | 1 |  | NRG_Web_Tools_Technical_Note, Newborough_Methods_Supplement, PAPER1_SI_methods | ok |
 | reclen_nse_fwd_A_median_L100_C4 |  |  | `50_report_numbers.csv` | 0.13511 |  | Supplementary_Material, academic_Summary, crynodeb_academaidd, report | ok |
 | reclen_nse_fwd_A_median_L24_C5 |  |  | `50_report_numbers.csv` | -1.29071 |  | report9 | ok |
-| reclen_nse_fwd_A_median_L24_all |  |  | `50_report_numbers.csv` | -0.141264 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_fwd_A_median_L24_all |  |  | `50_report_numbers.csv` | -0.120953 |  | Newborough_Methods_Supplement | ok |
 | reclen_nse_fwd_A_median_L48_C4 |  |  | `50_report_numbers.csv` | -0.368997 |  | Supplementary_Material | ok |
-| reclen_nse_fwd_A_median_L60_C1 |  |  | `50_report_numbers.csv` | 0.40053 |  | report9 | ok |
-| reclen_nse_fwd_A_median_L80_C4 |  |  | `50_report_numbers.csv` | 0.231038 |  | Supplementary_Material | ok |
+| reclen_nse_fwd_A_median_L60_C1 |  |  | `50_report_numbers.csv` | 0.419409 |  | report9 | ok |
+| reclen_nse_fwd_A_median_L80_C4 |  |  | `50_report_numbers.csv` | 0.235493 |  | Supplementary_Material | ok |
 | reclen_nse_fwd_A_median_Lfull_C4 |  |  | `50_report_numbers.csv` | 0.210841 |  | Supplementary_Material, report9 | ok |
-| reclen_nse_fwd_B_median_L100_C2 |  |  | `50_report_numbers.csv` | 0.765665 |  | PaperM | ok |
-| reclen_nse_fwd_B_median_L144_C2 |  |  | `50_report_numbers.csv` | 0.792999 |  | Newborough_Methods_Supplement | ok |
-| reclen_nse_fwd_B_median_L144_C3 |  |  | `50_report_numbers.csv` | 0.792956 |  | Newborough_Methods_Supplement | ok |
-| reclen_nse_fwd_B_median_L144_all |  |  | `50_report_numbers.csv` | 0.792977 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_fwd_B_median_L100_C2 |  |  | `50_report_numbers.csv` | 0.756998 |  | PaperM | ok |
+| reclen_nse_fwd_B_median_L144_C2 |  |  | `50_report_numbers.csv` | 0.791065 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_fwd_B_median_L144_C3 |  |  | `50_report_numbers.csv` | 0.782945 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_fwd_B_median_L144_all |  |  | `50_report_numbers.csv` | 0.789132 |  | Newborough_Methods_Supplement | ok |
 | reclen_nse_fwd_B_median_L24_C4 |  |  | `50_report_numbers.csv` | -0.481026 |  | Supplementary_Material | ok |
-| reclen_nse_fwd_B_median_L48_C3 |  |  | `50_report_numbers.csv` | 0.732832 |  | Newborough_Methods_Supplement | ok |
-| reclen_nse_fwd_B_median_L80_C3 |  |  | `50_report_numbers.csv` | 0.733423 |  | Newborough_Methods_Supplement | ok |
-| reclen_nse_fwd_B_median_L80_C4 |  |  | `50_report_numbers.csv` | 0.234084 |  | wtf_interception_methodology | ok |
-| reclen_nse_rev_A_median_L48_C1 |  |  | `50_report_numbers.csv` | 0.358847 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_fwd_B_median_L48_C3 |  |  | `50_report_numbers.csv` | 0.740327 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_fwd_B_median_L80_C3 |  |  | `50_report_numbers.csv` | 0.742959 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_fwd_B_median_L80_C4 |  |  | `50_report_numbers.csv` | 0.295004 |  | wtf_interception_methodology | ok |
+| reclen_nse_rev_A_median_L48_C1 |  |  | `50_report_numbers.csv` | 0.385092 |  | Newborough_Methods_Supplement | ok |
 | reclen_nse_rev_A_median_Lfull_C4 |  |  | `50_report_numbers.csv` | 0.183657 |  | Newborough_Methods_Supplement | ok |
 | reclen_nse_rev_A_median_Lfull_C5 |  |  | `50_report_numbers.csv` | 0.776654 |  | Supplementary_Material | ok |
-| reclen_nse_rev_B_median_L24_C3 |  |  | `50_report_numbers.csv` | 0.629496 |  | Supplementary_Material | ok |
-| reclen_nse_rev_B_median_L36_C1 |  |  | `50_report_numbers.csv` | 0.792763 |  | Newborough_Methods_Supplement | ok |
-| reclen_nse_rev_B_median_L36_C5 |  |  | `50_report_numbers.csv` | 0.706356 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
-| reclen_nse_rev_B_median_L48_C4 |  |  | `50_report_numbers.csv` | -7.03157 |  | report9 | ok |
-| reclen_nse_rev_B_median_L60_C1 |  |  | `50_report_numbers.csv` | 0.744631 |  | Newborough_Methods_Supplement, PaperM | ok |
-| reclen_nse_rev_B_median_L80_C3 |  |  | `50_report_numbers.csv` | 0.721961 |  | Supplementary_Material | ok |
+| reclen_nse_rev_B_median_L36_C1 |  |  | `50_report_numbers.csv` | 0.794468 |  | Newborough_Methods_Supplement | ok |
+| reclen_nse_rev_B_median_L36_C5 |  |  | `50_report_numbers.csv` | 0.442238 |  | Newborough_Methods_Supplement, Paper1, report10, report9 | ok |
+| reclen_nse_rev_B_median_L48_C4 |  |  | `50_report_numbers.csv` | -12.036 |  | report9 | ok |
+| reclen_nse_rev_B_median_L60_C1 |  |  | `50_report_numbers.csv` | 0.764996 |  | Newborough_Methods_Supplement, PaperM | ok |
+| reclen_nse_rev_B_median_L80_C3 |  |  | `50_report_numbers.csv` | 0.730447 |  | Supplementary_Material | ok |
 | reclen_nse_rev_B_median_Lfull_C4 |  |  | `50_report_numbers.csv` | 0.202393 |  | wtf_interception_methodology | ok |
 | reclen_rho_ar1_expected_full_B_median_C3 |  |  | `50_report_numbers.csv` | 0.1979 |  | Paper1, report9 | ok |
 | reclen_rho_ar1_expected_full_B_median_C4 |  |  | `50_report_numbers.csv` | 0.733714 |  | Newborough_Methods_Supplement | ok |

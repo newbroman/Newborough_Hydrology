@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_7.odt — do not edit. source-sha256=f6e040bfebc77505 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_8.odt — do not edit. source-sha256=5661f4a3fab00eb1 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -86,9 +86,9 @@ Under the main forest both forecast poorly: Model B scores 0.08 and Model A 0.21
 
 A forecast inside the modern record is dominated by the yearly swing. A changing climate asks something else of the model: a lasting shift in the level. The one test of that which no fit has seen is the Countryside Council for Wales record of 1989--96, read before the present network was installed, at 9 wells that are still read today. That decade was drier than anything in the modern record.
 
-Run back over that decade from the fit to each well's whole modern record, Model A is close to unbiased: its water level is off by 0.03 metres at the median well. Model B puts the water table too high by 0.30 metres. Both forecast skills are below zero (−0.14 for Model A and −1.46 for Model B), because that decade's average is exactly the shift the test asks the model to find, so it is the bias, not the skill score, that separates the two. The ordering holds at every record length tried. The two tests split by what they score: a fast return follows the yearly swing well, and the lasting shift is what Model A carries and Model B does not.
+Run back over that decade from the fit to each well's whole modern record, Model A is close to unbiased: its water level is off by 0.00 metres at the median well. Model B puts the water table too high by 0.23 metres. Both forecast skills are below zero (−0.26 for Model A and −0.18 for Model B), because that decade's average is exactly the shift the test asks the model to find, so it is the bias, not the skill score, that separates the two. The ordering holds at every record length tried. The two tests split by what they score: a fast return follows the yearly swing well, and the lasting shift is what Model A carries and Model B does not.
 
-The same decade can be asked which floor Model A should use. The floor that fits it best is 2.9 metres (band 2.8 to 2.9), where the median skill is 0.44, against −0.06 at the study's 3.7 metres. Deeper floors do worse on every measure, so the dry decade does not ask for a deeper floor, and the study's floor is close to unbiased on the same fits (off by −0.01 metres).
+The same decade can be asked which floor Model A should use. The floor that fits it best is 3.0 metres (band 2.9 to 3.0), where the median skill is 0.38, against −0.06 at the study's 3.7 metres. Deeper floors do worse on every measure, so the dry decade does not ask for a deeper floor, and the study's floor is close to unbiased on the same fits (off by 0.03 metres).
 
 A second old record is Derek Ranwell's readings of 1951--53 at three places on the Warren. Their positions are uncertain, so the test uses only the *seasonal rise and fall*. Here the answer is the other way round. A floor of 0.7 metres (band 0.5 to 1.1) makes Model A behave as Model B does, both scoring 0.86, against 0.46 at the study's floor. That 0.7 metres is not a water level or an error: it is the floor depth that makes Model A fast enough to follow the seasons, which is how Model B behaves anyway.
 
@@ -98,17 +98,17 @@ The two records seem to ask for two speeds: a quick return, and a slow hold that
 
 ## []{#anchor}4.4 How much record a forecast needs
 
-Within the modern record, Model B forecasts better at every length of fit. Fitted on only 24 months before 2018, its median skill is already 0.72, and it reaches 0.79 with all of them. Model A starts at −0.14 and reaches 0.61 with all of them. A site with a few years of record can forecast its own water table with Model B.
+Within the modern record, Model B forecasts better at every length of fit. Fitted on only 24 months before 2018, its median skill is already 0.71, and it reaches 0.79 with all of them. Model A starts at −0.12 and reaches 0.61 with all of them. A site with a few years of record can forecast its own water table with Model B.
 
-The drainage numbers need more. Each well's drainage coefficient was refitted on shorter and shorter stretches, and the length at which it settles taken as the shortest record on which it lies within 20 % of the full-record value. For Model A that is about 24 months at a typical well, the shortest length tried, so it may need less. For Model B it is 60 months. Counted in each well's own return times, the stable length is 4.7 for Model A and 9.0 for Model B. A rule of thumb follows: a record should span several return times before the return time read from it is trusted, and the rule binds Model B harder.
+The drainage numbers need more. Each well's drainage coefficient was refitted on shorter and shorter stretches, and the length at which it settles taken as the shortest record on which it lies within 20 % of the full-record value. For Model A that is about 24 months at a typical well, the shortest length tried, so it may need less. For Model B it is 60 months. Counted in each well's own return times, the stable length is 5.0 for Model A and 8.7 for Model B. A rule of thumb follows: a record should span several return times before the return time read from it is trusted, and the rule binds Model B harder.
 
-The forest is the exception for both. Under the main forest Model A needs 120 months and Model B 144, and Model B settles within the lengths tried at only 5 of its wells.
+The forest is the exception for both. Under the main forest Model A needs 120 months and Model B 144, and Model B settles within the lengths tried at only 6 of its wells.
 
 ## []{#anchor}4.5 Per well, or per group?
 
 The groups come from the shape of the hydrographs alone, so a new well can be placed in one by comparing its record with the group averages, without fitting it. Can it then borrow the group's numbers? The paper tests this by running each skill test twice, on each well's own numbers and on its group's, with the tolerances fixed before the run: 0.05 in skill, and for the dry decade 0.05 metres in the typical error of the level.
 
-Both models pass all three tests with the group's numbers. For Model A, the dry decade scores −0.17 with the group's numbers against −0.14 with each well's own, Ranwell's seasons 0.49 against 0.46, and the forecast forward from January 2018 0.72 against 0.61. Model B scores the same on Ranwell's seasons either way (0.86), and does much better on the dry decade with the group's numbers (−0.27 against −1.46). So within the tolerances set before the run, group numbers forecast and look back at least as well as each well's own.
+For Model A the group's numbers do as well or better on every test: the dry decade scores −0.17 with the group's numbers against −0.26 with each well's own, Ranwell's seasons 0.49 against 0.46, and the forecast forward from January 2018 0.72 against 0.61. Model B scores the same on Ranwell's seasons either way (0.86), but on the dry decade each well's own numbers score better (−0.18 against −0.27), even though the group's numbers miss the level by less. So for Model A the group's numbers are as good as each well's own; for Model B they are, except on the dry decade's skill.
 
 Where a well's own record has a gap, it is better filled from a measured neighbour than from the model. With stretches of 54 months hidden in turn, each well's average spring level was put back from its nearest neighbour in the same group with a typical miss of 0.041 metres, against 0.139 metres from Model A run on the weather.
 
@@ -120,9 +120,9 @@ Within the climate the record spans, use Model B: it forecasts better, needs onl
 
 The paper takes the Met Office's high-emissions climate scenario (UKCP18), applied as seasonal changes to the observed rain and evaporating power, with fits on the common window at the 57 wells for which both versions work.
 
-In the 2050s, the typical lasting fall of the summer water level is 0.28 metres under Model A at the study's floor, 0.24 metres under Model A at 2.9 metres, and 0.20 metres under Model B. That scenario lowers the yearly balance of rain less evaporation by 117 millimetres, about as much as the dry decade of 1989--96 fell below the modern record (110 millimetres). So this projection sits inside the range that the look back has tested.
+In the 2050s, the typical lasting fall of the summer water level is 0.28 metres under Model A at the study's floor, 0.25 metres under Model A at 3.0 metres, and 0.20 metres under Model B. That scenario lowers the yearly balance of rain less evaporation by 117 millimetres, about as much as the dry decade of 1989--96 fell below the modern record (110 millimetres). So this projection sits inside the range that the look back has tested.
 
-In the 2080s the fall is 0.52 metres under Model A at the study's floor, 0.44 at 2.9 metres and 0.37 under Model B. That scenario lowers the balance by 210 millimetres a year, more than anything in the record, so this is an extrapolation. It is reported as the range between the two versions, not as one figure. That range is the honest statement of what a model fitted to water levels alone can say about a climate it has not seen.
+In the 2080s the fall is 0.52 metres under Model A at the study's floor, 0.45 at 3.0 metres and 0.37 under Model B. That scenario lowers the balance by 210 millimetres a year, more than anything in the record, so this is an extrapolation. It is reported as the range between the two versions, not as one figure. That range is the honest statement of what a model fitted to water levels alone can say about a climate it has not seen.
 
 In both periods the fall is larger in summer than over the year, and larger under Model A, whose slower recession carries the summer deficit forward. The main forest is not projected, because its drainage number cannot be worked out from the record.
 

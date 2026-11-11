@@ -77,7 +77,7 @@
 - **msl5_gap_c1_c3_m**  — quoted 0.251 vs committed 0.250527  ·  `26_report_numbers.csv`
 - **modelab_nse_rev_share_M_better_C5**  — quoted 0.400 vs committed 0.4  ·  `48_report_numbers.csv`
 - **reclen_nse_fwd_A_median_L100_C4**  — quoted 0.135 vs committed 0.13511  ·  `50_report_numbers.csv`
-- **reclen_identified_share_B_median_L36_C5**  — quoted 0.400 vs committed 0.4  ·  `50_report_numbers.csv`
+- **reclen_identified_share_B_median_L36_C5**  — quoted 0.400 vs committed 0.333333 ⚠  ·  `50_report_numbers.csv`
 - **reclen_rho_ar1_expected_full_B_median_C5**  — quoted 0.406 vs committed 0.40607  ·  `50_report_numbers.csv`
 - **e17_ccw_abs_bias_median_m_C5_depth**  — quoted 0.217 vs committed 0.217173  ·  `50_report_numbers.csv`
 - **ukcp18_2050s / winter / C5 · dh_mean_m** [Δh] — quoted -0.121 vs committed -0.1207  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
@@ -330,7 +330,7 @@
 - **reclen_identified_share_B_median_L100_C1**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L120_C1**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L144_C1**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_identified_share_A_median_L24_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
+- **reclen_identified_share_A_median_L24_C2**  — quoted 1.00 vs committed 0.857143 ⚠  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L36_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L48_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L60_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
@@ -731,7 +731,7 @@
 - **well_canopy_partial_r_beta2_elev_given_canopy** [β₂] — quoted 0.989 vs committed 0.988516  ·  `41_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **modelab_drainage_share_M_p90_C1**  — quoted 0.989 vs committed 0.989488  ·  `48_report_numbers.csv`
 - **pastas_synthetic_beta_3_drainage_ratio_median** [β₃] — quoted 1.01 vs committed 1.00512  ·  `48_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.706356  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.442238 ⚠  ·  `50_report_numbers.csv`
 - **reclen_rho_ar1_expected_full_B_median_C3**  — quoted 0.198 vs committed 0.1979  ·  `50_report_numbers.csv`
 - **window_full_beta3_ratio_p90_C5** [β₃] — quoted 1.01 vs committed 1.01292  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **basis_ranwell_range_ratio_median_cluster_A**  — quoted 1.01 vs committed 1.01131  ·  `50_report_numbers.csv`
@@ -1419,7 +1419,6 @@
 - **C4_median_ModelB_NSE**  — quoted 0.697 vs committed 0.697074  ·  `08_report_numbers.csv`
 - **C5_median_SSM_NSE**  — quoted 0.830 vs committed 0.829983  ·  `08_report_numbers.csv`
 - **C5_median_ModelB_NSE**  — quoted 0.809 vs committed 0.809224  ·  `08_report_numbers.csv`
-- **c_far_well_basis_se_mm_yr**  — quoted 1.46 vs committed 1.45707  ·  `25_report_numbers.csv`
 - **msl5_gap_c3_c5_m**  — quoted 0.766 vs committed 0.765762  ·  `26_report_numbers.csv`
 - **oos_R_open_water_ratio_p84**  — quoted 1.88 vs committed 1.87724  ·  `45_report_numbers.csv`
 - **modelab_nse_fwd_share_B_better_C1**  — quoted 1.00 vs committed 1  ·  `48_report_numbers.csv`
@@ -1432,14 +1431,11 @@
 - **pastas_vs_ssmB_beta_1_recharge_r_identified_full** [β₁] — quoted 1.00 vs committed 0.995676  ·  `48_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **pastas_synthetic_beta_1_recharge_ratio_median** [β₁] — quoted 1.00 vs committed 1.00391  ·  `48_report_numbers.csv`  — _recharge sensitivity coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **pastas_synthetic_gain_ratio_median**  — quoted 1.00 vs committed 0.998943  ·  `48_report_numbers.csv`
-- **reclen_nse_fwd_B_median_L100_C2**  — quoted 0.766 vs committed 0.765665  ·  `50_report_numbers.csv`
-- **reclen_nse_rev_B_median_L60_C1**  — quoted 0.745 vs committed 0.744631  ·  `50_report_numbers.csv`
-- **reclen_ccw_nse_B_median_Lfull_all**  — quoted -1.46 vs committed -1.45892  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_B_median_L100_C2**  — quoted 0.766 vs committed 0.756998 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L60_C1**  — quoted 0.745 vs committed 0.764996 ⚠  ·  `50_report_numbers.csv`
 - **two_store_C2_split_nse_double**  — quoted 0.766 vs committed 0.766139  ·  `50_report_numbers.csv`
 - **e8d_check_gauge_agrees**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **basis_ccw_nse_median_well_B**  — quoted -1.46 vs committed -1.45892  ·  `50_report_numbers.csv`
 - **e16_test_ccw_nse_pass**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **e16_ccw_nse_median_C2_at_best**  — quoted -3.37 vs committed -3.37344  ·  `50_report_numbers.csv`
 - **C2 (Dune) · R2** [R²] — quoted 0.745 vs committed 0.763543  ·  `03_03_cluster_mechanistic_coefficients.csv`  — _coefficient of determination_
 - **C1 · median_TLM_NSE**  — quoted 0.308 vs committed 0.307932  ·  `08_cluster_nse_medians.csv`
 - **C1 · median_SSM_NSE**  — quoted 0.745 vs committed 0.745076  ·  `08_cluster_nse_medians.csv`
@@ -1456,7 +1452,6 @@
 - **C5 · median_SSM_NSE**  — quoted 0.830 vs committed 0.829983  ·  `08_cluster_nse_medians.csv`
 - **C5 · median_ModelB_NSE**  — quoted 0.809 vs committed 0.809224  ·  `08_cluster_nse_medians.csv`
 - **CEH14 iterative NSE · StateSpace_Model_B**  — quoted -12.87 vs committed -12.8739  ·  `08_lcsc_04_table3_benchmark_summary.csv`
-- **fe4 · amp_coefficient**  — quoted 1.46 vs committed 1.46415  ·  `35_per_well_amplification.csv`
 - **ceh5 · r_C3**  — quoted 0.878 vs committed 0.878  ·  `06_pear_membership_audit_sitewide.csv`
 - **ceh21 · r_C4**  — quoted 0.823 vs committed 0.8227  ·  `06_pear_membership_audit_sitewide.csv`
 - **ceh42 · r_C4**  — quoted 0.804 vs committed 0.8038  ·  `06_pear_membership_audit_sitewide.csv`
@@ -1476,8 +1471,8 @@
 ### § (unsectioned)
 
 - _(untracked)_ 66 wells — …intercept and with a free one, on 66 wells of a coastal dune aquifer at…
-- _(untracked)_ 0.03 m — …ercept form is close to unbiased (0.03 m) and the free-intercept form…
-- _(untracked)_ 0.30 m — …he free-intercept form too wet by 0.30 m. The forms differ because the…
+- _(untracked)_ 0.00 m — …ercept form is close to unbiased (0.00 m) and the free-intercept form…
+- _(untracked)_ 0.23 m — …he free-intercept form too wet by 0.23 m. The forms differ because the…
 - _(untracked)_ 6.5 months — …urn to its own mean (15.8 against 6.5 months at the median well; 5.1 month…
 - _(untracked)_ 5.1 months — …st 6.5 months at the median well; 5.1 months without a model). Under a 208…
 - _(untracked)_ 0.52 m — …fall of the summer level of 0.37--0.52 m. We give a procedure that tel…
@@ -1494,45 +1489,46 @@
 - _(untracked)_ 88 % — …Model A, and Model B is better at 88 % of wells. In reverse, Model B…
 - _(untracked)_ 77 % — …n is 0.78 against 0.67, better at 77 % of wells. The advantage is cl…
 - _(untracked)_ 9 wells — …modern network was installed, at 9 wells that the network still reads,…
-- _(untracked)_ −0.14 — …30 m. Their median NSE values are −0.14 and −1.46. Both are below zero…
-- _(untracked)_ 0.51 m — …median bias lies between 0.27 and 0.51 m, and Model A's is within 0.09…
-- _(untracked)_ 0.09 m — …d 0.51 m, and Model A's is within 0.09 m of zero once the fit spans fo…
-- _(untracked)_ 2.9 m — …that maximizes the median NSE is 2.9 m, with a band of 2.8--2.9 m wi…
-- _(untracked)_ −0.06 — …he best (median NSE 0.44, against −0.06 at the network datum). Deeper…
-- _(untracked)_ −0.01 m — …sed on the same fits (median bias −0.01 m). A base fixed in elevation r…
+- _(untracked)_ −0.26 — …23 m. Their median NSE values are −0.26 and −0.18. Both are below zero…
+- _(untracked)_ −0.18 — …r median NSE values are −0.26 and −0.18. Both are below zero: the hin…
+- _(untracked)_ 0.39 m — …median bias lies between 0.20 and 0.39 m, and Model A's is within 0.11…
+- _(untracked)_ 0.11 m — …d 0.39 m, and Model A's is within 0.11 m of zero once the fit spans fo…
+- _(untracked)_ 3.0 m — …that maximizes the median NSE is 3.0 m, with a band of 2.9--3.0 m wi…
+- _(untracked)_ −0.06 — …he best (median NSE 0.38, against −0.06 at the network datum). Deeper…
+- _(untracked)_ 0.03 m — …sed on the same fits (median bias 0.03 m). A base fixed in elevation r…
 - _(untracked)_ 0.7 m — …ved. By the same rule it supports 0.7 m (band 0.5--1.1 m), and there…
 - _(untracked)_ 1.1 m — …rule it supports 0.7 m (band 0.5--1.1 m), and there Model A behaves a…
 - _(untracked)_ 20 % — …ing at the three main pairs was 3--20 % smaller then than it is now.…
 - _(untracked)_ 24 months — …at every length of fit. Fitted on 24 months before 2018 its median forwar…
-- _(untracked)_ 60 months — …reached at 64 wells. Model B's is 60 months (62 wells), and its β₃ is ide…
-- _(untracked)_ 62 wells — …64 wells. Model B's is 60 months (62 wells), and its β₃ is identified on…
-- _(untracked)_ 60 % — …and its β₃ is identified on only 60 % of 24-month placements at the…
+- _(untracked)_ −0.12 — …m all of it. Model A's rises from −0.12 to 0.61 at 100 months and 0.61…
+- _(untracked)_ 60 months — …reached at 64 wells. Model B's is 60 months (63 wells), and its β₃ is ide…
+- _(untracked)_ 59 % — …and its β₃ is identified on only 59 % of 24-month placements at the…
 - _(untracked)_ 120 months — …r both forms. At C4 Model A needs 120 months and Model B 144, and Model B…
 - _(untracked)_ −35 % — …rd shifts the C4 centroid's β₃ by −35 %, against +17 % or less elsewh…
 - _(untracked)_ 17 % — …centroid's β₃ by −35 %, against +17 % or less elsewhere. Pastas tel…
 - _(untracked)_ 0.05 m — …, its median absolute bias within 0.05 m or smaller.…
-- _(untracked)_ −0.17 — …drier decade their median NSE is −0.17 against −0.14 for the wells' o…
-- _(untracked)_ 0.23 m — …s, and their median absolute bias 0.23 m against 0.26 m. Both NSE valu…
-- _(untracked)_ 0.26 m — …dian absolute bias 0.23 m against 0.26 m. Both NSE values are below ze…
-- _(untracked)_ −0.27 — …r than the wells' own (median NSE −0.27 against −1.46). Within the tol…
+- _(untracked)_ −0.17 — …drier decade their median NSE is −0.17 against −0.26 for the wells' o…
+- _(untracked)_ −0.27 — …decade: there their median NSE is −0.27 against −0.18 for the wells' o…
+- _(untracked)_ 0.19 m — …median absolute bias is smaller (0.19 m against 0.23 m). Within the t…
 - _(untracked)_ 54 months — …from the model. With stretches of 54 months hidden in turn, each well's m…
 - _(untracked)_ 0.041 m — …luster-mate with a median miss of 0.041 m, against 0.139 m from Model A…
 - _(untracked)_ 0.139 m — …a median miss of 0.041 m, against 0.139 m from Model A run on the clima…
 - _(untracked)_ 57 wells — …ith comparison-window fits at the 57 wells both forms identify. In the 2…
 - _(untracked)_ 0.28 m — …ained fall of the summer level is 0.28 m under Model A at the network…
-- _(untracked)_ 0.24 m — …der Model A at the network datum, 0.24 m under Model A at 2.9 m and 0.…
-- _(untracked)_ 0.20 m — …0.24 m under Model A at 2.9 m and 0.20 m under Model B. The 2050s scen…
+- _(untracked)_ 0.25 m — …der Model A at the network datum, 0.25 m under Model A at 3.0 m and 0.…
+- _(untracked)_ 0.20 m — …0.25 m under Model A at 3.0 m and 0.20 m under Model B. The 2050s scen…
 - _(untracked)_ 117 mm — …er balance (rainfall less PET) by 117 mm a year, about as much as the…
 - _(untracked)_ 110 mm — …-96 fell below the modern record (110 mm a year), so this projection s…
-- _(untracked)_ 0.44 m — …der Model A at the network datum, 0.44 m at 2.9 m and 0.37 m under Mod…
-- _(untracked)_ 0.37 m — …etwork datum, 0.44 m at 2.9 m and 0.37 m under Model B. The 2080s scen…
+- _(untracked)_ 0.45 m — …der Model A at the network datum, 0.45 m at 3.0 m and 0.37 m under Mod…
+- _(untracked)_ 0.37 m — …etwork datum, 0.45 m at 3.0 m and 0.37 m under Model B. The 2080s scen…
 - _(untracked)_ 210 mm — …owers the annual water balance by 210 mm a year, beyond anything in th…
 - _(untracked)_ 15.8 months — …ell's recession time (Model A) is 15.8 months and its mean-reversion time (…
 - _(untracked)_ 2.0 months — …Model B sits with it: 2.1 against 2.0 months at C1, 4.4 against 4.1 at C2,…
 - _(untracked)_ 15.6 months — …At C4, where the observed time is 15.6 months, Model B's β₃ is not identifi…
 - _(untracked)_ 5.0 months — …a linear trend gives a median of 5.0 months, and correcting ρ₁ for readin…
-- _(untracked)_ 35 % — …nor a specific yield: 60 % at C1, 35 % at C2, 66 % at C3, 51 % at C4…
-- _(untracked)_ 66 % — …ic yield: 60 % at C1, 35 % at C2, 66 % at C3, 51 % at C4 and 73 % at…
+- _(untracked)_ 60 % — …datum nor a storage coefficient: 60 % at C1, 35 % at C2, 66 % at C3…
+- _(untracked)_ 35 % — …storage coefficient: 60 % at C1, 35 % at C2, 66 % at C3, 51 % at C4…
+- _(untracked)_ 66 % — …fficient: 60 % at C1, 35 % at C2, 66 % at C3, 51 % at C4 and 73 % at…
 - _(untracked)_ 51 % — …% at C1, 35 % at C2, 66 % at C3, 51 % at C4 and 73 % at C5. It is n…
 - _(untracked)_ 73 % — …at C2, 66 % at C3, 51 % at C4 and 73 % at C5. It is not, however, a…
 - _(untracked)_ 31 % — …well. Over 66 wells that share is 31 %, below Model A's 68 % and Mod…
@@ -1550,8 +1546,9 @@
 - _(untracked)_ −2 — …ht above one common base, between −2 and 8 m above Ordnance Datum,…
 - _(untracked)_ 8 m — …e one common base, between −2 and 8 m above Ordnance Datum, and run…
 - _(untracked)_ 2.75 m — …before the run, the best base is 2.75 m, just above mean high water.…
-- _(untracked)_ −0.24 — …mon base (median NSE 0.42 against −0.24), while the 2 open-dune wells…
-- _(untracked)_ −0.74 — …ell's height above it (Spearman ρ −0.74), so the e-folding time is sh…
+- _(untracked)_ −0.24 — …mon base (median NSE 0.36 against −0.24), while the 2 open-dune wells…
+- _(untracked)_ −2.63 — …open-dune wells fail (median NSE −2.63 against 0.24 at the network da…
+- _(untracked)_ −0.75 — …ell's height above it (Spearman ρ −0.75), so the e-folding time is sh…
 - _(untracked)_ 1.6 m below ground — …s near each well's mean, a median 1.6 m below ground, at the identification floor.…
 - _(untracked)_ 45 % — …spheric draw: a drainage share of 45 % against Model A's 68 %. That…
 - _(untracked)_ 12 km — …UKCP18 Regional Projections on a 12 km grid over the UK for 1980--20…
@@ -2059,17 +2056,17 @@
 - **pastas_n_not_identified_C5_comparison_window**  — quoted 2.00 vs committed 2  ·  `48_report_numbers.csv`
 - **pastas_vs_ssmB_beta_2_atmospheric_draw_median_ratio_identified_full** [β₂] — quoted 0.952 vs committed 0.951582  ·  `48_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **pastas_vs_ssmB_gain_median_ratio_identified_full**  — quoted 1.20 vs committed 1.19986  ·  `48_report_numbers.csv`
-- **reclen_nse_fwd_A_median_L24_all**  — quoted -0.141 vs committed -0.141264  ·  `50_report_numbers.csv`
-- **reclen_nse_fwd_B_median_L144_all**  — quoted 0.793 vs committed 0.792977  ·  `50_report_numbers.csv`
-- **reclen_nse_fwd_B_median_L144_C2**  — quoted 0.793 vs committed 0.792999  ·  `50_report_numbers.csv`
-- **reclen_nse_fwd_B_median_L48_C3**  — quoted 0.733 vs committed 0.732832  ·  `50_report_numbers.csv`
-- **reclen_nse_fwd_B_median_L80_C3**  — quoted 0.733 vs committed 0.733423  ·  `50_report_numbers.csv`
-- **reclen_nse_fwd_B_median_L144_C3**  — quoted 0.793 vs committed 0.792956  ·  `50_report_numbers.csv`
-- **reclen_nse_rev_A_median_L48_C1**  — quoted 0.359 vs committed 0.358847  ·  `50_report_numbers.csv`
-- **reclen_nse_rev_B_median_L36_C1**  — quoted 0.793 vs committed 0.792763  ·  `50_report_numbers.csv`
-- **reclen_nse_rev_B_median_L60_C1**  — quoted 0.745 vs committed 0.744631  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_A_median_L24_all**  — quoted -0.141 vs committed -0.120953 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_B_median_L144_all**  — quoted 0.793 vs committed 0.789132 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_B_median_L144_C2**  — quoted 0.793 vs committed 0.791065 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_B_median_L48_C3**  — quoted 0.733 vs committed 0.740327 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_B_median_L80_C3**  — quoted 0.733 vs committed 0.742959 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_B_median_L144_C3**  — quoted 0.793 vs committed 0.782945 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_A_median_L48_C1**  — quoted 0.359 vs committed 0.385092 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L36_C1**  — quoted 0.793 vs committed 0.794468 ⚠  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L60_C1**  — quoted 0.745 vs committed 0.764996 ⚠  ·  `50_report_numbers.csv`
 - **reclen_nse_rev_A_median_Lfull_C4**  — quoted 0.184 vs committed 0.183657  ·  `50_report_numbers.csv`
-- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.706356  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.442238 ⚠  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L24_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L36_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L48_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
@@ -2080,15 +2077,15 @@
 - **reclen_identified_share_A_median_L144_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L24_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L36_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_beta3_reldev_B_median_L48_C1** [β₃] — quoted 0.220 vs committed 0.22016  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_B_median_L48_C1** [β₃] — quoted 0.220 vs committed 0.224969 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **reclen_identified_share_B_median_L48_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L60_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L80_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L100_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L120_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L144_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_beta3_reldev_B_median_L60_C3** [β₃] — quoted 0.137 vs committed 0.136603  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **reclen_beta3_reldev_A_median_L60_C4** [β₃] — quoted 0.183 vs committed 0.183026  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_B_median_L60_C3** [β₃] — quoted 0.137 vs committed 0.137841 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_A_median_L60_C4** [β₃] — quoted 0.183 vs committed 0.168337 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **reclen_identified_share_A_median_L36_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L48_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L60_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
@@ -2100,9 +2097,9 @@
 - **reclen_identified_share_B_median_L100_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L120_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L144_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_ccw_pearson_r_A_median_L120_start**  — quoted 0.855 vs committed 0.855095  ·  `50_report_numbers.csv`
-- **reclen_ccw_pearson_r_A_median_L144_end**  — quoted 0.855 vs committed 0.855231  ·  `50_report_numbers.csv`
-- **reclen_ccw_nse_A_median_Lfull_all**  — quoted -0.141 vs committed -0.140625  ·  `50_report_numbers.csv`
+- **reclen_ccw_pearson_r_A_median_L120_start**  — quoted 0.855 vs committed 0.85717 ⚠  ·  `50_report_numbers.csv`
+- **reclen_ccw_pearson_r_A_median_L144_end**  — quoted 0.855 vs committed 0.852822 ⚠  ·  `50_report_numbers.csv`
+- **reclen_ccw_nse_A_median_Lfull_all**  — quoted -0.141 vs committed -0.256112 ⚠  ·  `50_report_numbers.csv`
 - **reclen_rho_ar1_expected_full_B_median_C4**  — quoted 0.734 vs committed 0.733714  ·  `50_report_numbers.csv`
 - **reclen_rho_ar1_expected_full_B_median_C5**  — quoted 0.406 vs committed 0.40607  ·  `50_report_numbers.csv`
 - **window_full_beta3_ratio_p10_C1** [β₃] — quoted 1.11 vs committed 1.10632  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -2115,7 +2112,7 @@
 - **forest_forcing_best_variant_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **ranwell_need_single_k2**  — quoted 1.20 vs committed 1.2  ·  `50_report_numbers.csv`
 - **ranwell_need_single_k3_nse**  — quoted 0.742 vs committed 0.741728  ·  `50_report_numbers.csv`
-- **basis_ccw_nse_median_well_A**  — quoted -0.141 vs committed -0.140625  ·  `50_report_numbers.csv`
+- **basis_ccw_nse_median_well_A**  — quoted -0.141 vs committed -0.256112 ⚠  ·  `50_report_numbers.csv`
 - **basis_ccw_nse_median_cluster_A**  — quoted -0.169 vs committed -0.168895  ·  `50_report_numbers.csv`
 - **e13_share_removed_priestley_taylor_C4**  — quoted 0.137 vs committed 0.136551  ·  `50_report_numbers.csv`
 - **e13_share_removed_penman_monteith_C3**  — quoted 0.210 vs committed 0.209988  ·  `50_report_numbers.csv`
@@ -2128,12 +2125,12 @@
 - **e16_ccw_n_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **e17_ranwell_n_C1**  — quoted 2.00 vs committed 2  ·  `50_report_numbers.csv`
 - **e17_ccw_n_C2**  — quoted 2.00 vs committed 2  ·  `50_report_numbers.csv`
-- **e17_ccw_nse_median_C2_S**  — quoted -0.319 vs committed -0.318507  ·  `50_report_numbers.csv`
-- **e17_ccw_abs_bias_median_m_C2_S**  — quoted 0.319 vs committed 0.319391  ·  `50_report_numbers.csv`
+- **e17_ccw_nse_median_C2_S**  — quoted -0.319 vs committed -0.199494 ⚠  ·  `50_report_numbers.csv`
+- **e17_ccw_abs_bias_median_m_C2_S**  — quoted 0.319 vs committed 0.297562 ⚠  ·  `50_report_numbers.csv`
 - **e17_ccw_n_C5**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
 - **e17_ccw_abs_bias_median_m_C5_B**  — quoted 0.337 vs committed 0.336503  ·  `50_report_numbers.csv`
 - **e17_cluster_pass_C1**  — quoted 1.000 vs committed 1  ·  `50_report_numbers.csv`
-- **e_qm_nse_raw_well**  — quoted -0.141 vs committed -0.140625  ·  `50_report_numbers.csv`
+- **e_qm_nse_raw_well**  — quoted -0.141 vs committed -0.256112 ⚠  ·  `50_report_numbers.csv`
 - **e_qm_nse_raw_cluster**  — quoted -0.169 vs committed -0.168895  ·  `50_report_numbers.csv`
 - **e15_response_2005_to_2006_2007_C4**  — quoted 1.12 vs committed 1.12378  ·  `54_report_numbers.csv`
 - **TWO_STORE_CCW_BIAS_TOL_M**  — quoted 0.100 vs committed 0.1  ·  `config.py`
@@ -3178,15 +3175,14 @@
 - **pastas_vs_ssmA_efold_months_median_ratio** [λ] — quoted 0.521 vs committed 0.521492  ·  `48_report_numbers.csv`  — _drawdown e-folding reach √(Kb/(S_y·β₃)) (def. report9 §4.9.3)_
 - **pastas_vs_ssmB_beta_2_atmospheric_draw_median_ratio_identified_full** [β₂] — quoted 0.952 vs committed 0.951582  ·  `48_report_numbers.csv`  — _atmospheric-draw coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **reclen_nse_fwd_A_median_L48_C4**  — quoted -0.369 vs committed -0.368997  ·  `50_report_numbers.csv`
-- **reclen_nse_fwd_A_median_L80_C4**  — quoted 0.231 vs committed 0.231038  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_A_median_L80_C4**  — quoted 0.231 vs committed 0.235493 ⚠  ·  `50_report_numbers.csv`
 - **reclen_nse_fwd_A_median_L100_C4**  — quoted 0.135 vs committed 0.13511  ·  `50_report_numbers.csv`
 - **reclen_nse_fwd_A_median_Lfull_C4**  — quoted 0.211 vs committed 0.210841  ·  `50_report_numbers.csv`
 - **reclen_nse_fwd_B_median_L24_C4**  — quoted -0.481 vs committed -0.481026  ·  `50_report_numbers.csv`
-- **reclen_nse_rev_B_median_L24_C3**  — quoted 0.629 vs committed 0.629496  ·  `50_report_numbers.csv`
-- **reclen_nse_rev_B_median_L80_C3**  — quoted 0.722 vs committed 0.721961  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L80_C3**  — quoted 0.722 vs committed 0.730447 ⚠  ·  `50_report_numbers.csv`
 - **reclen_nse_rev_A_median_Lfull_C5**  — quoted 0.777 vs committed 0.776654  ·  `50_report_numbers.csv`
 - **reclen_beta3_reldev_B_median_L60_C1** [β₃] — quoted 0.111 vs committed 0.11091  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **reclen_identified_share_A_median_L24_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
+- **reclen_identified_share_A_median_L24_C2**  — quoted 1.00 vs committed 0.857143 ⚠  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L36_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L48_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L60_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
@@ -3204,23 +3200,23 @@
 - **reclen_identified_share_A_median_L36_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L48_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L60_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_beta3_reldev_A_median_L80_C3** [β₃] — quoted 0.0493 vs committed 0.0492994  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_A_median_L80_C3** [β₃] — quoted 0.0493 vs committed 0.0559294 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **reclen_identified_share_A_median_L80_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L100_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L120_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L144_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_beta3_reldev_B_median_L36_C3** [β₃] — quoted 0.199 vs committed 0.199477  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **reclen_beta3_reldev_B_median_L48_C3** [β₃] — quoted 0.207 vs committed 0.207258  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_B_median_L36_C3** [β₃] — quoted 0.199 vs committed 0.262155 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_B_median_L48_C3** [β₃] — quoted 0.207 vs committed 0.212471 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **reclen_identified_share_B_median_L60_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L80_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L100_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L120_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L144_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_identified_share_A_median_L24_C4**  — quoted 0.222 vs committed 0.222222  ·  `50_report_numbers.csv`
-- **reclen_beta3_reldev_A_median_L48_C4** [β₃] — quoted 0.265 vs committed 0.265319  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_identified_share_A_median_L24_C4**  — quoted 0.222 vs committed 0.142857 ⚠  ·  `50_report_numbers.csv`
+- **reclen_beta3_reldev_A_median_L48_C4** [β₃] — quoted 0.265 vs committed 0.280153 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **reclen_identified_share_A_median_L48_C4**  — quoted 0.333 vs committed 0.333333  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L60_C4**  — quoted 0.333 vs committed 0.333333  ·  `50_report_numbers.csv`
-- **reclen_identified_share_B_median_L36_C5**  — quoted 0.400 vs committed 0.4  ·  `50_report_numbers.csv`
+- **reclen_identified_share_B_median_L36_C5**  — quoted 0.400 vs committed 0.333333 ⚠  ·  `50_report_numbers.csv`
 - **reclen_stable_n_wells_reached_A_C4**  — quoted 7.00 vs committed 7  ·  `50_report_numbers.csv`
 - **window_full_beta3_ratio_median_C2** [β₃] — quoted 1.06 vs committed 1.05952  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **window_full_beta3_ratio_p10_C5** [β₃] — quoted 0.849 vs committed 0.848557  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
@@ -3247,11 +3243,11 @@
 - **e16_ccw_nse_median_C3_at_depth**  — quoted -0.239 vs committed -0.239256  ·  `50_report_numbers.csv`
 - **e17_ranwell_n_C1**  — quoted 2.00 vs committed 2  ·  `50_report_numbers.csv`
 - **e17_ccw_n_C2**  — quoted 2.00 vs committed 2  ·  `50_report_numbers.csv`
-- **e17_ccw_abs_bias_median_m_C2_S**  — quoted 0.319 vs committed 0.319391  ·  `50_report_numbers.csv`
+- **e17_ccw_abs_bias_median_m_C2_S**  — quoted 0.319 vs committed 0.297562 ⚠  ·  `50_report_numbers.csv`
 - **e17_ccw_nse_median_C3_depth**  — quoted -0.239 vs committed -0.239256  ·  `50_report_numbers.csv`
-- **e17_ccw_abs_bias_median_m_C3_depth**  — quoted 0.262 vs committed 0.262173  ·  `50_report_numbers.csv`
+- **e17_ccw_abs_bias_median_m_C3_depth**  — quoted 0.262 vs committed 0.287616 ⚠  ·  `50_report_numbers.csv`
 - **e17_ranwell_n_C3**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **e17_ranwell_nse_median_C3_R**  — quoted 0.393 vs committed 0.393309  ·  `50_report_numbers.csv`
+- **e17_ranwell_nse_median_C3_R**  — quoted 0.393 vs committed 0.283934 ⚠  ·  `50_report_numbers.csv`
 - **e17_ccw_abs_bias_median_m_C5_depth**  — quoted 0.217 vs committed 0.217173  ·  `50_report_numbers.csv`
 - **RADIATION_PET_FILL_MONTHS**  — quoted 2.00 vs committed 2  ·  `config.py`
 - **E15_LAG_YEARS**  — quoted 2.00 vs committed 2  ·  `config.py`
@@ -4491,7 +4487,7 @@
 - **ceh34 · se**  — quoted 0.132 vs committed 0.131713  ·  `35_per_well_amplification.csv`
 - **curreli_min_gap_c4_c5_m**  — quoted 0.210 vs committed 0.210019  ·  `26_report_numbers.csv`
 - **modelab_nse_rev_B_median_C4**  — quoted 0.202 vs committed 0.202393  ·  `48_report_numbers.csv`
-- **reclen_nse_fwd_B_median_L80_C4**  — quoted 0.234 vs committed 0.234084  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_B_median_L80_C4**  — quoted 0.234 vs committed 0.295004 ⚠  ·  `50_report_numbers.csv`
 - **reclen_nse_rev_B_median_Lfull_C4**  — quoted 0.202 vs committed 0.202393  ·  `50_report_numbers.csv`
 - **two_store_C2_early_resid_single_m**  — quoted 0.223 vs committed 0.222924  ·  `50_report_numbers.csv`
 - **two_store_C2_early_resid_double_m**  — quoted 0.223 vs committed 0.223021  ·  `50_report_numbers.csv`
@@ -4971,7 +4967,7 @@
 - **C5 (Coastal Forest) / 0 · R2** [R²] — quoted 0.706 vs committed 0.705958  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C4 (Main Forest) · delta_AIC_datum_vs_optimum**  — quoted 0.733 vs committed 0.733317  ·  `03_18_datum_invariance.csv`
 - **water_balance_et_total_over_pet · C5 (Coastal Forest)**  — quoted 0.734 vs committed 0.733929  ·  `16_report_numbers.csv`
-- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.706356  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.442238 ⚠  ·  `50_report_numbers.csv`
 - **C3 (Western Residual) · R2_at_datum**  — quoted 0.827 vs committed 0.827287  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · R2_at_optimum**  — quoted 0.733 vs committed 0.733387  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · R2_at_datum**  — quoted 0.733 vs committed 0.732565  ·  `03_18_datum_invariance.csv`
@@ -6213,7 +6209,7 @@
 - **reclen_identified_share_B_median_L100_C1**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L120_C1**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_B_median_L144_C1**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
-- **reclen_identified_share_A_median_L24_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
+- **reclen_identified_share_A_median_L24_C2**  — quoted 1.00 vs committed 0.857143 ⚠  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L36_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L48_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
 - **reclen_identified_share_A_median_L60_C2**  — quoted 1.00 vs committed 1  ·  `50_report_numbers.csv`
@@ -6481,12 +6477,12 @@
 - **CoeffShift_CEH20_db1**  — quoted -0.134 vs committed -0.1336  ·  `10_consolidated_report_numbers.csv`
 - **CoeffShift_Climate Ctrl_mean_db2_p**  — quoted 0.341 vs committed 0.341272  ·  `10_consolidated_report_numbers.csv`
 - **scrape_sy_c3_median**  — quoted 0.298 vs committed 0.298201  ·  `20_scrape_report_numbers.csv`
-- **reclen_beta3_reldev_A_median_L60_C4** [β₃] — quoted 0.183 vs committed 0.183026  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_A_median_L60_C4** [β₃] — quoted 0.183 vs committed 0.168337 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **reclen_rho_ar1_expected_full_B_median_C3**  — quoted 0.198 vs committed 0.1979  ·  `50_report_numbers.csv`
 - **e13_share_removed_pm_wind_at_its_mean_C3**  — quoted 0.183 vs committed 0.183122  ·  `50_report_numbers.csv`
 - **e13b_resid_thornthwaite_C3_rmse_median**  — quoted 0.100 vs committed 0.100362  ·  `50_report_numbers.csv`
-- **e16_ccw_nse_median_C2_at_depth**  — quoted 0.282 vs committed 0.281868  ·  `50_report_numbers.csv`
-- **e17_ccw_nse_median_C2_depth**  — quoted 0.282 vs committed 0.281868  ·  `50_report_numbers.csv`
+- **e16_ccw_nse_median_C2_at_depth**  — quoted 0.282 vs committed 0.237577 ⚠  ·  `50_report_numbers.csv`
+- **e17_ccw_nse_median_C2_depth**  — quoted 0.282 vs committed 0.237577 ⚠  ·  `50_report_numbers.csv`
 - **ukcp18_2080s / winter / C2 · dh_mean_m** [Δh] — quoted -0.134 vs committed -0.1339  ·  `19_scenario_summary.csv`  — _water-level change / amplitude_
 - **well / C3 (Western Residual) / ceh39 · alpha_B**  — quoted 0.182 vs committed 0.181833  ·  `03_16_model_b_persistence.csv`
 - **CEH21 / 2_Coastal_Drawdown · Conf_High**  — quoted 0.109 vs committed 0.109444  ·  `09_scrape_02_beta3_significance.csv`
@@ -6591,9 +6587,9 @@
 - **curreli_min_max_below_sd16_m_c3**  — quoted 0.281 vs committed 0.280688  ·  `26_report_numbers.csv`
 - **modelab_drainage_share_A_median_C4**  — quoted 0.311 vs committed 0.311398  ·  `48_report_numbers.csv`
 - **modelab_drainage_share_B_p90_C4**  — quoted 0.418 vs committed 0.41792  ·  `48_report_numbers.csv`
-- **reclen_beta3_reldev_B_median_L48_C1** [β₃] — quoted 0.220 vs committed 0.22016  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **reclen_beta3_reldev_B_median_L100_C4** [β₃] — quoted 0.305 vs committed 0.304832  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **reclen_beta3_reldev_B_median_L120_C4** [β₃] — quoted 0.305 vs committed 0.305204  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_B_median_L48_C1** [β₃] — quoted 0.220 vs committed 0.224969 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_B_median_L100_C4** [β₃] — quoted 0.305 vs committed 0.356014 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
+- **reclen_beta3_reldev_B_median_L120_C4** [β₃] — quoted 0.305 vs committed 0.277512 ⚠  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
 - **e13_share_removed_penman_monteith_C3**  — quoted 0.210 vs committed 0.209988  ·  `50_report_numbers.csv`
 - **e13_fwd_rmse_change_pm_wind_at_its_mean_C3**  — quoted 0.389 vs committed 0.389216  ·  `50_report_numbers.csv`
 - **e13_excess_thornthwaite_full_C3**  — quoted 0.305 vs committed 0.30471  ·  `50_report_numbers.csv`
@@ -7381,7 +7377,7 @@
 - **C5 (Coastal Forest) / 0 · R2** [R²] — quoted 0.706 vs committed 0.705958  ·  `03_04_lag_diagnostic.csv`  — _coefficient of determination_
 - **C4 (Main Forest) · delta_AIC_datum_vs_optimum**  — quoted 0.733 vs committed 0.733317  ·  `03_18_datum_invariance.csv`
 - **extended_relSE_beta3_vs_nobs_spearman_p** [β₃] — quoted 0.706 vs committed 0.705866  ·  `26_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.706356  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L36_C5**  — quoted 0.706 vs committed 0.442238 ⚠  ·  `50_report_numbers.csv`
 - **C3 (Western Residual) · R2_at_datum**  — quoted 0.827 vs committed 0.827287  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · R2_at_optimum**  — quoted 0.733 vs committed 0.733387  ·  `03_18_datum_invariance.csv`
 - **C4 (Main Forest) · R2_at_datum**  — quoted 0.733 vs committed 0.732565  ·  `03_18_datum_invariance.csv`
@@ -7516,7 +7512,7 @@
 - **msl5_gap_c1_c3_m**  — quoted 0.251 vs committed 0.250527  ·  `26_report_numbers.csv`
 - **e13_fwd_rmse_change_makkink_C5**  — quoted 0.0271 vs committed 0.0271282  ·  `50_report_numbers.csv`
 - **e13b_measured_th_trend_p**  — quoted 0.385 vs committed 0.384947  ·  `50_report_numbers.csv`
-- **e17_ccw_abs_bias_median_m_C3_B**  — quoted 0.231 vs committed 0.231348  ·  `50_report_numbers.csv`
+- **e17_ccw_abs_bias_median_m_C3_B**  — quoted 0.231 vs committed 0.205104 ⚠  ·  `50_report_numbers.csv`
 - **e15_response_2005_to_2006_2007_C2**  — quoted 0.449 vs committed 0.448857  ·  `54_report_numbers.csv`
 - **e15_response_2005_to_2006_2007_C3**  — quoted 0.449 vs committed 0.448524  ·  `54_report_numbers.csv`
 - **e15_response_control_2021_C3**  — quoted 0.217 vs committed 0.217424  ·  `54_report_numbers.csv`
@@ -7593,7 +7589,7 @@
 - **curreli_min_gap_c2_c3_m**  — quoted 0.133 vs committed 0.132831  ·  `26_report_numbers.csv`
 - **msl5_gap_c1_c5_m**  — quoted 1.02 vs committed 1.01629  ·  `26_report_numbers.csv`
 - **window_full_beta3_ratio_median_C2** [β₃] — quoted 1.06 vs committed 1.05952  ·  `50_report_numbers.csv`  — _head-dependent drainage coefficient (SSM) (def. config.py / model_utils.fit_ssm)_
-- **e17_ranwell_nse_median_C3_B**  — quoted 0.383 vs committed 0.383261  ·  `50_report_numbers.csv`
+- **e17_ranwell_nse_median_C3_B**  — quoted 0.383 vs committed 0.295696 ⚠  ·  `50_report_numbers.csv`
 - **ENVELOPE_METRIC_CI_Z**  — quoted 1.65 vs committed 1.645  ·  `config.py`
 - **5 / C3 (Western Residual) · median_stability**  — quoted 0.383 vs committed 0.38273  ·  `02_04_bootstrap_stability_summary.csv`
 - **ceh11 · MSL5_bg_2017_m**  — quoted -0.189 vs committed -0.188667  ·  `20_msl5_change_perwell.csv`
@@ -7660,7 +7656,7 @@
 - **spring_sd_mm_median_c2**  — quoted 252 vs committed 251.968  ·  `26_report_numbers.csv`
 - **ewi_msl5_forest_holdout_n**  — quoted 21 vs committed 21  ·  `26_report_numbers.csv`
 - **ewi_msl5_forest_holdout_rmse_mm**  — quoted 167 vs committed 166.834  ·  `26_report_numbers.csv`
-- **reclen_nse_fwd_A_median_L60_C1**  — quoted 0.401 vs committed 0.40053  ·  `50_report_numbers.csv`
+- **reclen_nse_fwd_A_median_L60_C1**  — quoted 0.401 vs committed 0.419409 ⚠  ·  `50_report_numbers.csv`
 - **C1 Eastern lake-buffer / Scraping era 2015–17 · Max_depth_m**  — quoted 0.973 vs committed 0.9729  ·  `21_forestry_02_distributions_means.csv`
 - _(untracked)_ 20 wells — …d state-space fit (n = 18: of the 20 wells at their seventeen stations,…
 - _(untracked)_ 95% — …Ellenberg-F units) are given with 95% confidence intervals. The two…
@@ -8358,7 +8354,7 @@
 - **curreli_min4_c2_max_m**  — quoted -0.964 vs committed -0.963912  ·  `26_report_numbers.csv`
 - **curreli_min4_c3_max_m**  — quoted -1.097 vs committed -1.09674  ·  `26_report_numbers.csv`
 - **curreli_min4_c4_max_m**  — quoted -1.482 vs committed -1.48176  ·  `26_report_numbers.csv`
-- **reclen_nse_rev_B_median_L48_C4**  — quoted -7.03 vs committed -7.03157  ·  `50_report_numbers.csv`
+- **reclen_nse_rev_B_median_L48_C4**  — quoted -7.03 vs committed -12.036 ⚠  ·  `50_report_numbers.csv`
 - **Max NSE improvement (D7) · Traditional_Model_A**  — quoted -5.499 vs committed -5.49863  ·  `08_lcsc_04_table3_benchmark_summary.csv`
 - **CEH14 iterative NSE · StateSpace_Model_B**  — quoted -12.874 vs committed -12.8739  ·  `08_lcsc_04_table3_benchmark_summary.csv`
 - **CEH14 iterative NSE · Delta_B_minus_A**  — quoted -12.8340 vs committed -12.834  ·  `08_lcsc_04_table3_benchmark_summary.csv`
@@ -8406,7 +8402,7 @@
 - _(untracked)_ 0.025 m — …y-one well-years, an agreement to 0.025 m on a quantity neither study d…
 - _(untracked)_ −0.10 — …s 0.19 to 0.86 at eight wells and −0.10 at the well under forest in bo…
 - _(untracked)_ 0.05 m — …the median RMSE falls by at least 0.05 m, the map improves a majority…
-- _(untracked)_ 0.24 m — …he median RMSE falls from 0.31 to 0.24 m, but the map improves only 4…
+- _(untracked)_ 0.26 m — …he median RMSE falls from 0.28 to 0.26 m, but the map improves only 4…
 - _(untracked)_ 9 wells — …ut the map improves only 4 of the 9 wells: it helps where the hindcast…
 - _(untracked)_ 6 wells — …cluster coefficients it improves 6 wells, but the median RMSE falls by…
 - _(untracked)_ 53 record — …### The 1951--53 record…

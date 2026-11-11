@@ -13,16 +13,16 @@ QUESTION
 METHOD (spec NRG_spec_water_balance_diagnostic_2026-11-04, D1-D11 signed off Martin 23:20-23:23)
   A basic water balance whose storage change is the water table through a specific yield fixed from
   outside the fit, so that what is left over is drainage:
-      D(t) = P_eff(t) - PET(t) - Sy * dh(t)                     (m water / month)
+      D(t) = P_eff(t) - PET(t) - S_a * dh(t)                     (m water / month)
   P_eff reduces rainfall by FOREST_INTERCEPTION under the canopy and leaves PET gross
-  (INTERCEPTION_TREATMENT.md case (c)); Sy is Script 18's per-well Sy_median (D3), never fitted here.
+  (INTERCEPTION_TREATMENT.md case (c)); S_a is Script 18's per-well Sy_median (D3), never fitted here.
   The residual is regressed on the previous month's head, as a line D = a + c*h_prev and as a
-  threshold D = a + c*max(h_prev - h0, 0); k = c/Sy is the fraction of the head above h0 drained per
+  threshold D = a + c*max(h_prev - h0, 0); k = c/S_a is the fraction of the head above h0 drained per
   month. The threshold is adopted only where it beats the line by more than WB_BIC_MARGIN in BIC,
   counting h0 as a fitted parameter (D6); otherwise the line stands.
 
   This is NOT Script 08's traditional linear model, which fits free rainfall and PET coefficients and
-  carries no drainage term. Here those coefficients are 1/Sy by construction and only the drainage law
+  carries no drainage term. Here those coefficients are 1/S_a by construction and only the drainage law
   is fitted. In documents it is "water-balance residual analysis", never "TLM" (D1).
 
   It is a DIAGNOSTIC, not a forecaster (D-303): inside the record it forecasts like Model A and below
@@ -30,24 +30,24 @@ METHOD (spec NRG_spec_water_balance_diagnostic_2026-11-04, D1-D11 signed off Mar
   modern mean. Stage G measures that rather than hiding it.
 
 STAGES
-  A  cluster-mean month: the surplus P_eff - PET on the mean dh; slope = apparent Sy
+  A  cluster-mean month: the surplus P_eff - PET on the mean dh; slope = apparent S_a
   B  per well: the residual drainage law, line and threshold, and the cluster summaries
   C  annual water balance from the fitted law
   D  winter law (ET is small enough there to trust PET), ET backed out in every month, the drainage
-     share of the annual loss and its network median - the §7.1 basis - at the Stage I Sy bracket too
-  E  sensitivities: C1 without CEH11, the below-ground-only winter fit, Script 17's cluster Sy
+     share of the annual loss and its network median - the §7.1 basis - at the Stage I S_a bracket too
+  E  sensitivities: C1 without CEH11, the below-ground-only winter fit, Script 17's cluster S_a
   F  the forest interception closure scan
-  G  split-sample free run on Script 48's rule with Script 18's WINDOWED Sy (D8), and the CCW
+  G  split-sample free run on Script 48's rule with Script 18's WINDOWED S_a (D8), and the CCW
      1989-96 hindcast on Script 39's series and censoring
   H  the dry-month drainage law: drainage is best measured when little rain falls (D9). Selection is
      on RAINFALL ONLY - dh sits inside the residual, so choosing months because the level fell would
      select on the outcome
-  I  the winter joint fit: with ET = 0, Sy*dh = P_eff - D(h) has two unknowns, so winter months
-     estimate Sy and the drainage law together without borrowing Script 18's. Both P and dh carry
+  I  the winter joint fit: with ET = 0, S_a*dh = P_eff - D(h) has two unknowns, so winter months
+     estimate S_a and the drainage law together without borrowing Script 18's. Both P and dh carry
      error, so both regression directions are fitted as a bracket (D11)
 
 OUTPUTS (outputs/55_water_balance_drainage/)
-  55_01_surplus_vs_dh.csv/.png        A  apparent Sy per cluster
+  55_01_surplus_vs_dh.csv/.png        A  apparent S_a per cluster
   55_02_drainage_law_per_well.csv     B  line and threshold per well
   55_03_drainage_law_by_cluster.csv   B  cluster summaries
   55_02_drainage_law.png              B
@@ -198,7 +198,7 @@ def steady_head(law: dict, surplus: float) -> float:
 
 # ── inputs ────────────────────────────────────────────────────────────────────────────────────────
 def load_inputs():
-    """Climate, the reference wells, Script 18's per-well Sy (full record and by window) and the
+    """Climate, the reference wells, Script 18's per-well S_a (full record and by window) and the
     cluster membership. The single missing climate month (1941-06) is dropped exactly as Script 39
     drops it, so the two hindcasts run on the same forcing (spec §7.3)."""
     cl = (pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)[["P_m", "PET"]]
@@ -261,7 +261,7 @@ def _cluster_stats(df: pd.DataFrame, cols, by="Cluster") -> pd.DataFrame:
 
 # ── Stage A: the cluster-mean month ───────────────────────────────────────────────────────────────
 def stage_a(wells, cl, sy) -> pd.DataFrame:
-    """The surplus against the cluster-mean head change. Its slope is an APPARENT Sy — what a single
+    """The surplus against the cluster-mean head change. Its slope is an APPARENT S_a — what a single
     regression would call the storage coefficient if drainage were ignored — and its intercept is the
     drainage at a steady level. Both are read, neither is used downstream."""
     rows = []
@@ -450,8 +450,8 @@ def stage_d(frames: dict, sy: pd.DataFrame, sy_bracket: pd.DataFrame | None = No
 
 
 def well_frame_resy(df: pd.DataFrame, sy_value: float) -> pd.DataFrame:
-    """The same frame with the storage term and residual recomputed at another Sy. Sy enters both the
-    residual and k = c/Sy, and the two largely cancel — which is why the k's barely move across the
+    """The same frame with the storage term and residual recomputed at another S_a. S_a enters both the
+    residual and k = c/S_a, and the two largely cancel — which is why the k's barely move across the
     bracket while the share does."""
     d = df.copy()
     d["storage_m"] = sy_value * d["Delta_h"]
@@ -509,7 +509,7 @@ def stage_e(wells, cl, sy, dper: pd.DataFrame) -> pd.DataFrame:
     if not bgf.empty:
         _summary("C1 winter law on below-ground months only", bgf,
                  f"{bgf['below_ground_winter_share'].median():.3f} of C1's winter months are "
-                 "below ground; ponded months carry a storage coefficient near 1, not Sy")
+                 "below ground; ponded months carry a storage coefficient near 1, not S_a")
 
     # Script 17's cluster Sy instead of Script 18's per-well Sy (D3: a sensitivity, never the headline)
     if OUT_17_SY_TABLE.is_file():
@@ -530,12 +530,12 @@ def stage_e(wells, cl, sy, dper: pd.DataFrame) -> pd.DataFrame:
                 _, _, sel, _ = select_law(df["h_prev"].values, df["D_residual"].values)
                 ks.append(sel["c"] / s_cluster)
             if ks:
-                rows.append(dict(test="Sy = Script 17 cluster median", Cluster=k,
+                rows.append(dict(test="S_a = Script 17 cluster median", Cluster=k,
                                  Cluster_Label=CLUSTER_LABELS.get(k, ""),
                                  et_pet_summer_median=np.nan, et_pet_year_median=np.nan,
                                  drainage_share_median=np.nan, n_wells=len(ks),
-                                 note=f"k median {np.median(ks):.4f} at Sy = {s_cluster:.4f} "
-                                      f"(Script 17 event median); Script 18 per-well Sy is the headline"))
+                                 note=f"k median {np.median(ks):.4f} at S_a = {s_cluster:.4f} "
+                                      f"(Script 17 event median); Script 18 per-well S_a is the headline"))
     return pd.DataFrame(rows)
 
 
@@ -547,7 +547,7 @@ def stage_f(wells, cl, sy) -> pd.DataFrame:
 
     The quantity is ET + interception, the two terms the atmosphere takes — not every loss. Total
     loss including drainage cannot be the test, because it is algebraically free of the fraction:
-        ET + D + I = (P_eff - D - Sy·dh) + D + P·f = P - Sy·dh
+        ET + D + I = (P_eff - D - S_a·dh) + D + P·f = P - S_a·dh
     and the f's cancel. Measured 2026-11-05: that ratio is constant to every decimal across the
     whole scan. What does depend on f is the fitted drainage, because the winter law is refitted on a
     residual built from P_eff; a larger f leaves less water to book as drainage, so ET + I rises."""
@@ -621,9 +621,9 @@ def _free_run(cl: pd.DataFrame, cluster: int, sy_value: float, law: dict,
 
 
 def stage_g_split(wells, cl, sy, win) -> pd.DataFrame:
-    """Script 48's split-sample rule, run as a forecasting test should be: the Sy comes from the
+    """Script 48's split-sample rule, run as a forecasting test should be: the S_a comes from the
     WINDOW the law is fitted on (D8), never from the full record, which has seen the test months.
-    A well with no windowed Sy in a direction is skipped IN THAT DIRECTION and counted."""
+    A well with no windowed S_a in a direction is skipped IN THAT DIRECTION and counted."""
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
     wmap = {}
     if win is not None:
@@ -646,7 +646,7 @@ def stage_g_split(wells, cl, sy, win) -> pd.DataFrame:
             row[f"nse_{direction}"] = np.nan
             row[f"n_test_{direction}"] = 0
             if not (np.isfinite(sy_w) and sy_w > 0):
-                skipped.append(f"{direction}: no windowed Sy")
+                skipped.append(f"{direction}: no windowed S_a")
                 continue
             df = well_frame(wells, r.col, cl, int(r.Cluster), float(sy_w))
             if df is None:
@@ -807,15 +807,15 @@ def stage_h(frames: dict, sy: pd.DataFrame, dry: set, thr: float):
 
 # ── Stage I: the winter joint fit of Sy and the drainage law ──────────────────────────────────────
 def stage_i(wells, cl, sy):
-    """With ET taken as zero, Sy*Delta_h = P_eff - D(h) has two unknowns, so the winter months
-    estimate Sy and the drainage law TOGETHER and borrow nothing from Script 18.
+    """With ET taken as zero, S_a*Delta_h = P_eff - D(h) has two unknowns, so the winter months
+    estimate S_a and the drainage law TOGETHER and borrow nothing from Script 18.
 
     Both the rainfall (an off-site gauge) and the head change carry error, and errors-in-variables
     pulls the two regression directions opposite ways, so both are fitted and reported as a BRACKET
     (D11) rather than one of them as an answer:
-        Delta_h on (P_eff, h_prev)   slope 1/Sy  ->  rain error biases Sy HIGH
-        P_eff on (Delta_h, h_prev)   slope Sy    ->  level error biases Sy LOW
-    Months at or above ground at either end are excluded: ponded storage is near 1, not Sy (D10).
+        Delta_h on (P_eff, h_prev)   slope 1/S_a  ->  rain error biases S_a HIGH
+        P_eff on (Delta_h, h_prev)   slope S_a    ->  level error biases S_a LOW
+    Months at or above ground at either end are excluded: ponded storage is near 1, not S_a (D10).
     WINTER_RECESSION_MONTHS is reused so Script 16 and this step share one winter definition."""
     rows = []
     for r in sy.itertuples():
@@ -890,7 +890,7 @@ def plot_surplus(wells, cl, sy, a: pd.DataFrame) -> None:
         ax.plot(xs, r.drainage_at_steady_level_m + r.apparent_Sy * xs, color="#b2182b", lw=1.2)
         ax.axhline(0, color="0.7", lw=0.5)
         ax.axvline(0, color="0.7", lw=0.5)
-        ax.set_title(f"C{r.Cluster}  Sy$_{{app}}$ = {r.apparent_Sy:.3f}", fontsize=9)
+        ax.set_title(f"C{r.Cluster}  $S_a$ = {r.apparent_Sy:.3f}", fontsize=9)
         ax.set_xlabel("mean Δh (m)")
     axes[0].set_ylabel("P$_{eff}$ − PET (m/month)")
     fig.tight_layout()
@@ -956,8 +956,8 @@ def plot_share(dper: pd.DataFrame, dby: pd.DataFrame, share_med: float) -> None:
     Stage I specific-yield bracket, against the network median.
 
     The bracket is NOT a confidence interval and is not centred on the bar, so it is drawn as a
-    span rather than an error bar. The Stage I bounds mostly lie below the fluctuation-method Sy
-    (D-306), and a smaller Sy books less storage and so a larger drainage share: at C2, C3, C4 and
+    span rather than an error bar. The Stage I bounds mostly lie below the fluctuation-method S_a
+    (D-306), and a smaller S_a books less storage and so a larger drainage share: at C2, C3, C4 and
     C5 the bracket therefore sits wholly ABOVE the published value (C3, for instance, 0.398-0.557
     against 0.301). C1 is the exception and STRADDLES it, 0.209-0.608 against 0.472 - the same
     cluster D-305 records as the one most sensitive to choices this balance cannot settle, so the
@@ -968,7 +968,7 @@ def plot_share(dper: pd.DataFrame, dby: pd.DataFrame, share_med: float) -> None:
     ks = [int(k) for k in dby["Cluster"]]
     x = np.arange(len(ks))
     bars = [float(v) for v in dby["drainage_share_median"]]
-    ax.bar(x, bars, width=0.56, color="#2166ac", zorder=2, label="published (Script 18 Sy)")
+    ax.bar(x, bars, width=0.56, color="#2166ac", zorder=2, label="published (Script 18 $S_a$)")
     for i, k in enumerate(ks):
         g = dper[dper["Cluster"] == k]
         lo, hi = g["drainage_share_sy_lo"].median(), g["drainage_share_sy_hi"].median()
@@ -976,7 +976,7 @@ def plot_share(dper: pd.DataFrame, dby: pd.DataFrame, share_med: float) -> None:
             continue
         a, b = sorted((float(lo), float(hi)))
         ax.plot([x[i], x[i]], [a, b], color="#b2182b", lw=5, solid_capstyle="butt",
-                alpha=0.55, zorder=3, label="Stage I Sy bracket" if i == 0 else None)
+                alpha=0.55, zorder=3, label="Stage I $S_a$ bracket" if i == 0 else None)
     ax.axhline(share_med, color="0.25", lw=1.0, ls="--", zorder=4,
                label=f"network median {share_med:.3f}")
     ax.set_xticks(x)
@@ -996,10 +996,10 @@ def plot_winter_sy(iper: pd.DataFrame) -> None:
     x = np.arange(len(d))
     ax.vlines(x, d["Sy_winter_lo"], d["Sy_winter_hi"], color="0.6", lw=1.2)
     ax.scatter(x, d["Sy_winter_mid"], s=12, color="#2166ac", lw=0, label="bracket midpoint")
-    ax.scatter(x, d["Sy_wtf"], s=14, color="#b2182b", marker="x", label="WTF Sy (Script 18)")
+    ax.scatter(x, d["Sy_wtf"], s=14, color="#b2182b", marker="x", label="WTF $S_a$ (Script 18)")
     ax.set_xticks([])
-    ax.set_xlabel("reference wells, by cluster then WTF Sy")
-    ax.set_ylabel("specific yield")
+    ax.set_xlabel("reference wells, by cluster then WTF $S_a$")
+    ax.set_ylabel("apparent storage coefficient $S_a$")
     ax.legend(fontsize=7, frameon=False)
     fig.tight_layout()
     fig.savefig(OUT_55_WINTER_SY_FIG)
@@ -1016,23 +1016,23 @@ def main() -> int:
 
     phase(1, "Inputs")
     if not OUT_18_WELL_SY_TABLE.is_file():
-        warn(f"{OUT_18_WELL_SY_TABLE.name} is absent — there is no defensible default Sy per well")
+        warn(f"{OUT_18_WELL_SY_TABLE.name} is absent — there is no defensible default S_a per well")
         note("run Script 18 first; skipping")
         return 0
     cl, wells, sy, win = load_inputs()
-    info(f"{len(sy)} reference wells with a Script 18 Sy; climate {cl.index.min():%Y-%m} to "
+    info(f"{len(sy)} reference wells with a Script 18 S_a; climate {cl.index.min():%Y-%m} to "
          f"{cl.index.max():%Y-%m}")
     if win is None:
         warn(f"{OUT_18_WELL_SY_BY_WINDOW.name} is absent — Stage G's split sample will be skipped")
     frames = all_frames(wells, cl, sy)
     info(f"{len(frames)} wells with at least {WB_MIN_MONTHS} aligned months")
 
-    phase(2, "Stage A — the cluster-mean month, and its apparent Sy")
+    phase(2, "Stage A — the cluster-mean month, and its apparent S_a")
     a = stage_a(wells, cl, sy)
     a.to_csv(OUT_55_SURPLUS_VS_DH, index=False)
     saved(OUT_55_SURPLUS_VS_DH.name)
     for r in a.itertuples():
-        step(f"C{r.Cluster}  apparent Sy {r.apparent_Sy:.3f}  (WTF median {r.Sy_wtf_cluster_median:.3f}), "
+        step(f"C{r.Cluster}  apparent S_a {r.apparent_Sy:.3f}  (WTF median {r.Sy_wtf_cluster_median:.3f}), "
              f"drainage at a steady level {r.drainage_at_steady_level_m:+.4f} m/month")
 
     phase(3, "Stage B — the residual drainage law, line and threshold")
@@ -1052,18 +1052,18 @@ def main() -> int:
     saved(f"{OUT_55_WATER_BALANCE.name} ({len(c)} well-years, "
           f"{int(c['complete_year'].sum())} complete)")
 
-    phase(5, "Stage I — the winter joint fit of Sy and drainage (before Stage D, which uses its bracket)")
+    phase(5, "Stage I — the winter joint fit of S_a and drainage (before Stage D, which uses its bracket)")
     iper, iby, rho = stage_i(wells, cl, sy)
     iper.to_csv(OUT_55_WINTER_SY_PER_WELL, index=False)
     saved(f"{OUT_55_WINTER_SY_PER_WELL.name} ({len(iper)} wells)")
     iby.to_csv(OUT_55_WINTER_SY_CLUSTER, index=False)
     saved(OUT_55_WINTER_SY_CLUSTER.name)
     for r in iby.itertuples():
-        step(f"C{r.Cluster}  winter Sy {r.Sy_winter_lo_median:.3f} – {r.Sy_winter_hi_median:.3f} "
+        step(f"C{r.Cluster}  winter S_a {r.Sy_winter_lo_median:.3f} – {r.Sy_winter_hi_median:.3f} "
              f"(mid {r.Sy_winter_mid_median:.3f}), WTF {r.Sy_wtf_median:.3f}, "
              f"k {r.k_winter_joint_median:+.3f}")
-    result("Spearman of the low-bound Sy against the WTF Sy", f"{rho['lo'][0]:.3f} (n = {rho['lo'][1]})")
-    result("Spearman of the high-bound Sy against the WTF Sy", f"{rho['hi'][0]:.3f} (n = {rho['hi'][1]})")
+    result("Spearman of the low-bound S_a against the WTF S_a", f"{rho['lo'][0]:.3f} (n = {rho['lo'][1]})")
+    result("Spearman of the high-bound S_a against the WTF S_a", f"{rho['hi'][0]:.3f} (n = {rho['hi'][1]})")
 
     phase(6, "Stage D — the winter law, ET, and the drainage share of the annual loss")
     dper, dby, et = stage_d(frames, sy, iper)
@@ -1080,8 +1080,8 @@ def main() -> int:
            f"{share_med:.3f}  (n = {len(dper)} wells)")
     _blo = float(dper["drainage_share_sy_lo"].median())
     _bhi = float(dper["drainage_share_sy_hi"].median())
-    result("the same share across the Stage I Sy bracket",
-           f"{min(_blo, _bhi):.3f} – {max(_blo, _bhi):.3f}  (a LOWER Sy books a smaller storage "
+    result("the same share across the Stage I S_a bracket",
+           f"{min(_blo, _bhi):.3f} – {max(_blo, _bhi):.3f}  (a LOWER S_a books a smaller storage "
            f"change, so it leaves MORE of the loss as drainage)")
     note(f"months outside the winter head range, excluded and counted: "
          f"{int(dper['n_months_excluded'].sum())} of {int(dper['n_months'].sum())}")
@@ -1120,7 +1120,7 @@ def main() -> int:
                        f"{both[f'nse_{d_}_model_B'].median():.3f}   (n = {len(both)})")
         nsk = int((gs["skipped"] != "").sum())
         if nsk:
-            note(f"{nsk} wells skipped in at least one direction for want of a windowed Sy")
+            note(f"{nsk} wells skipped in at least one direction for want of a windowed S_a")
     else:
         gs = pd.DataFrame()
     gc = stage_g_ccw(wells, cl, sy, laws)
@@ -1162,7 +1162,7 @@ def main() -> int:
     for r in bby.itertuples():
         k = int(r.Cluster)
         rr.add(f"wb_k_hinge_C{k}", r.k_hinge_median, unit="1/month",
-               note=f"threshold-law k = c/Sy above h0; {MED}; {SPEC}")
+               note=f"threshold-law k = c/S_a above h0; {MED}; {SPEC}")
         rr.add(f"wb_h0_m_C{k}", r.h0_depth_below_ground_m_median, unit="m",
                note=f"h0, metres BELOW ground; {MED}; {SPEC}")
         rr.add(f"wb_hinge_wells_C{k}", int(r.n_threshold_beats_line), unit="count",
@@ -1208,9 +1208,9 @@ def main() -> int:
            note=f"per-well median of the annual drainage share over the reference network - the "
                 f"Paper M §7.1 basis, the same quantity as modelab_drainage_share_A/B_median_all; {SPEC}")
     rr.add("wb_drain_share_median_sy_lo", float(dper["drainage_share_sy_lo"].median()), unit="",
-           note=f"the §7.1 share recomputed at the Stage I LOW-bound winter Sy; {SPEC}")
+           note=f"the §7.1 share recomputed at the Stage I LOW-bound winter S_a; {SPEC}")
     rr.add("wb_drain_share_median_sy_hi", float(dper["drainage_share_sy_hi"].median()), unit="",
-           note=f"the §7.1 share recomputed at the Stage I HIGH-bound winter Sy; {SPEC}")
+           note=f"the §7.1 share recomputed at the Stage I HIGH-bound winter S_a; {SPEC}")
     for r in f.groupby("Cluster").first().reset_index().itertuples():
         rr.add(f"wb_interception_close_C{int(r.Cluster)}", r.interception_closing, unit="",
                note=f"the interception fraction at which the booked ET + interception equals PET, by linear "
@@ -1221,7 +1221,7 @@ def main() -> int:
             s = gs[f"nse_{d_}"].dropna()
             rr.add(f"wb_nse_{d_}_median", float(s.median()) if len(s) else np.nan, unit="",
                    note=f"split-sample free-run NSE, {'forward' if d_ == 'fwd' else 'reverse'} of "
-                        f"MODEL_AB_SPLIT_DATE, Sy from the FITTED window only (D8); median over "
+                        f"MODEL_AB_SPLIT_DATE, S_a from the FITTED window only (D8); median over "
                         f"{len(s)} wells; {SPEC}")
         rr.add("wb_n_split_wells", int(gs[["nse_fwd", "nse_rev"]].notna().any(axis=1).sum()),
                unit="count", note=f"wells scored in at least one direction; {SPEC}")
@@ -1263,22 +1263,22 @@ def main() -> int:
     for r in iby.itertuples():
         k = int(r.Cluster)
         rr.add(f"wb_sy_winter_lo_C{k}", r.Sy_winter_lo_median, unit="",
-               note=f"winter joint-fit Sy, LOW bound (P on Delta_h; level error biases it low); "
+               note=f"winter joint-fit S_a, LOW bound (P on Delta_h; level error biases it low); "
                     f"{MED}; {SPEC}")
         rr.add(f"wb_sy_winter_hi_C{k}", r.Sy_winter_hi_median, unit="",
-               note=f"winter joint-fit Sy, HIGH bound (Delta_h on P; rain error biases it high); "
+               note=f"winter joint-fit S_a, HIGH bound (Delta_h on P; rain error biases it high); "
                     f"{MED}; {SPEC}")
         rr.add(f"wb_sy_winter_mid_C{k}", r.Sy_winter_mid_median, unit="",
                note=f"geometric mean of the two bounds; {MED}; {SPEC}")
         rr.add(f"wb_k_winter_joint_C{k}", r.k_winter_joint_median, unit="1/month",
-               note=f"drainage k from the winter joint fit, at the high-bound Sy; {MED}; {SPEC}")
+               note=f"drainage k from the winter joint fit, at the high-bound S_a; {MED}; {SPEC}")
     rr.add("wb_sy_winter_spearman_lo", rho["lo"][0], unit="",
-           note=f"Spearman of the low-bound winter Sy against Script 18's WTF Sy over "
+           note=f"Spearman of the low-bound winter S_a against Script 18's WTF S_a over "
                 f"{rho['lo'][1]} wells; {SPEC}")
     rr.add("wb_sy_winter_spearman_hi", rho["hi"][0], unit="",
            note=f"as wb_sy_winter_spearman_lo for the high bound over {rho['hi'][1]} wells; {SPEC}")
     rr.add("wb_n_wells", int(len(bper)), unit="count",
-           note=f"reference wells with a Script 18 Sy and at least {WB_MIN_MONTHS} aligned months; {SPEC}")
+           note=f"reference wells with a Script 18 S_a and at least {WB_MIN_MONTHS} aligned months; {SPEC}")
     rr.save(OUT_55_REPORT_NUMBERS)
     saved(f"{OUT_55_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     done("55")

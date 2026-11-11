@@ -19,7 +19,11 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.2.0 — Hollingham (2026) — 2026-10-21. T-118: step 4 fetches only the files working/DRIVE_MANIFEST.json
+# Version 1.3.0 — Hollingham (2026) — 2026-11-11. T-198 (J-14): step 2 finishes a half-done private checkout.
+#   A present .git-working no longer means a complete one: each of its steps is tested and completed on every run
+#   (index, config, missing tracked files restored by name without -f, upstream, exclude). Do not wrap this
+#   script in a timeout; run it in the background and read its log (CLAUDE.md section 4g).
+# 1.2.0 — Hollingham (2026) — 2026-10-21. T-118: step 4 fetches only the files working/DRIVE_MANIFEST.json
 #   names (tools/drive_manifest_list.py), not the superseded versions Drive keeps; the filter is the fallback
 #   when the private store or its manifest is absent; an MD5 report follows.
 # 1.1.4 — Hollingham (2026) — 2026-10-20. T-117: RCLONE_VERSION v1.68.2 -> v1.75.2, the version the L14 runs.
@@ -67,22 +71,66 @@ grep -qx '/working/' .git/info/exclude 2>/dev/null || {
 
 # ── 2/6 private repository: a second git directory over the same tree ─────────
 step "2/6" "private repository → $DIR/.git-working"
+# 1.3.0 (T-198): "present" is not "complete". A first run killed part-way (the HQ pass of 2026-11-11 ran
+# this under `timeout 170`, which cut checkout-index short) left .git-working present and ~2,159 private
+# files missing, and every later run took the "present" branch and never checked them out. So each step
+# below tests its own result and is finished on EVERY run, fresh clone or not. Nothing here overwrites a
+# file that exists: missing files are restored by name, never by `checkout-index -f` or `reset --hard`.
+WG=(git --git-dir=.git-working)
+WT=(git --git-dir=.git-working --work-tree=.)
 if [ -d .git-working ]; then
-  git --git-dir=.git-working --work-tree=. fetch --quiet origin
-  echo "      present; fetched (merge with: ./working/wgit pull)"
+  echo "      present"
 else
   git clone --quiet --bare --filter=blob:none "$PRIV" .git-working
-  git --git-dir=.git-working config core.bare false
-  git --git-dir=.git-working config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-  git --git-dir=.git-working config status.showUntrackedFiles no
-  git --git-dir=.git-working --work-tree=. read-tree HEAD
-  git --git-dir=.git-working --work-tree=. checkout-index -a -f
-  git --git-dir=.git-working --work-tree=. fetch --quiet origin
-  # 1.1.3: a --bare clone sets no upstream, so a plain `push` was refused (the dry3 dry run).
-  git --git-dir=.git-working branch --quiet --set-upstream-to=origin/main main
-  # The private repo's own exclude is tracked inside it; install it.
-  cp working/.git-working/info/exclude .git-working/info/exclude
+  echo "      cloned"
 fi
+if ! "${WG[@]}" rev-parse -q --verify HEAD >/dev/null; then
+  echo "      >>> .git-working has no HEAD - its clone did not finish. Nothing has been checked out from it,"
+  echo "      >>> so nothing is lost: move it aside (mv .git-working .git-working.broken) and re-run."
+  exit 1
+fi
+[ "$("${WG[@]}" config --get core.bare || true)" = false ] || "${WG[@]}" config core.bare false
+"${WG[@]}" config --get remote.origin.fetch >/dev/null || \
+  "${WG[@]}" config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+"${WG[@]}" config --get status.showUntrackedFiles >/dev/null || "${WG[@]}" config status.showUntrackedFiles no
+"${WG[@]}" fetch --quiet origin
+# No index means the first run stopped before read-tree; ls-files would then list nothing and read as complete.
+if [ ! -f .git-working/index ]; then "${WT[@]}" read-tree HEAD; echo "      index built (read-tree HEAD)"; fi
+_missing="$("${WT[@]}" ls-files --deleted | wc -l)"
+if [ "$_missing" -gt 0 ]; then
+  _total="$("${WT[@]}" ls-files | wc -l)"
+  echo "      checkout incomplete: $_missing of $_total tracked files missing - checking them out (slow on a"
+  echo "      blobless clone: each file is fetched; do not time-limit this script). Present files are not touched."
+  if [ "$_missing" -lt "$_total" ]; then
+    "${WT[@]}" ls-files --deleted | sed -n '1,5s/^/        missing: /p' || true
+  fi
+  "${WT[@]}" ls-files --deleted -z | "${WT[@]}" checkout-index -z --stdin
+  # The file being written when the first run was killed is left EMPTY, not missing (measured: 0 bytes
+  # against 20,621 in HEAD), so --deleted cannot see it. An empty file that differs from HEAD holds nothing
+  # to lose; only those are rewritten with -f. A file with any content is left as it is.
+  _empty="$("${WT[@]}" ls-files --modified | while IFS= read -r f; do [ -e "$f" ] && [ ! -s "$f" ] && printf '%s\n' "$f"; done || true)"
+  if [ -n "$_empty" ]; then
+    printf '%s\n' "$_empty" | sed 's/^/        empty (cut short): /'
+    printf '%s\n' "$_empty" | "${WT[@]}" checkout-index -f --stdin
+  fi
+  _missing="$("${WT[@]}" ls-files --deleted | wc -l)"
+  if [ "$_missing" -gt 0 ]; then
+    echo "      >>> $_missing tracked files are still missing after checkout-index. Not continuing."
+    exit 1
+  fi
+  echo "      checkout complete: $_total tracked files present"
+fi
+# 1.1.3: a --bare clone sets no upstream, so a plain `push` was refused (the dry3 dry run).
+"${WG[@]}" rev-parse -q --verify 'main@{upstream}' >/dev/null 2>&1 || \
+  "${WG[@]}" branch --quiet --set-upstream-to=origin/main main
+# The private repo's own exclude is tracked inside it; install it over git's template (comments only),
+# never over an installed copy, which a session may have changed.
+if ! grep -qv '^[[:space:]]*\(#\|$\)' .git-working/info/exclude 2>/dev/null; then
+  mkdir -p .git-working/info
+  cp working/.git-working/info/exclude .git-working/info/exclude
+  echo "      private exclude installed"
+fi
+echo "      merge GitHub's newer commits with: ./working/wgit pull"
 # 1.1.2: the private repo must be able to stage under working/ (its exclude ignores /* and re-includes
 # /working/). The tracked copy of that exclude was a pre-2026-08-27 version without the re-include, so the
 # first cloud-ship dry run could not stage the document lock. Fail here, naming the cause.

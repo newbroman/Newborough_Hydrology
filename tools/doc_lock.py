@@ -91,7 +91,10 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) — 2026-11-07 (T-175, Martin: "2b"). publish_records
+__version__ = "1.7.1"  # Hollingham (2026) — 2026-11-11 (T-198, J-14). store_state() reads a lock
+#   file that is tracked in the private index but missing or empty in the tree as ABSENT (every claim
+#   UNKNOWN), not PRESENT: a half-done private checkout read held claims as free (D-300's case).
+# "1.7.0"  # Hollingham (2026) — 2026-11-07 (T-175, Martin: "2b"). publish_records
 #   refuses the push when commits between origin/main and HEAD touch anything beside the records,
 #   printing LOCAL ONLY and naming them. D-314 exempts publishing "chat X holds Y" from "ask
 #   before every push"; it never covered the rest of the branch, which `push HEAD:main` carried
@@ -222,6 +225,14 @@ def store_state() -> tuple[str, str]:
                             "ls-files", "--error-unmatch", "working/DOCUMENT_LOCK.json"],
                            capture_output=True, text=True, timeout=10)
         if r.returncode == 0:
+            # 1.7.1 (T-198): tracked is not checked out. A setup killed during its private checkout left
+            # the lock file in the index and missing from the tree, and every claim then read as free
+            # while doc:PaperM was held (HQ pass, 2026-11-11). The file being written when the kill came
+            # is left empty, so an empty lock file is the same case.
+            if not LOCK.exists() or LOCK.stat().st_size == 0:
+                return "ABSENT", ("the private checkout is incomplete - working/DOCUMENT_LOCK.json is tracked "
+                                  "but missing or empty in the tree; re-run tools/cloud_setup.sh (1.3.0+ "
+                                  "finishes a half-done checkout)")
             return "PRESENT", "the private store is attached and the lock file is tracked in it"
     except (OSError, subprocess.SubprocessError):
         pass

@@ -133,6 +133,7 @@ pytesseract==0.3.13
 python-dateutil==2.9.0.post0
 rasterio==1.5.0
 referencing==0.37.0
+reportlab==5.1.0
 requests==2.34.2
 rpds-py==2026.6.3
 scikit-image==0.26.0

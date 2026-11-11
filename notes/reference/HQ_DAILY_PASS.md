@@ -13,12 +13,13 @@ snapshot. A wrong report costs a conversation; a wrong release costs another cha
 1. `curl -sSL https://raw.githubusercontent.com/newbroman/Newborough_Hydrology/main/tools/cloud_setup.sh | bash`
    It clones the public repository as the working tree, puts the private one at `.git-working` over
    the same tree (CLAUDE.md §4f), builds the environment, and runs the session handover.
-   **Do not wrap it in a timeout** (`timeout 170` or any other): it can take half an hour, because the
-   private checkout fetches each of ~2,500 files on demand. Run it in the background with its log
-   tee'd to a file and read the log; a cloud process survives between tool calls (CLAUDE.md §4g). On
-   2026-11-11 this pass cut the setup short with its own timeout and saw ~2,159 private files as
-   deleted (T-198). Since `cloud_setup.sh` 1.3.0 a re-run finishes a half-done checkout, but a
-   killed run is still a wasted run. Before step 3, `git --git-dir=.git-working --work-tree=. ls-files
+   **Do not wrap it in a timeout** (`timeout 170` or any other): the environment build and the Drive
+   copy take minutes, and before `cloud_setup.sh` 1.4.0 the private checkout alone could take a quarter
+   of an hour (each file fetched on its own; 1.4.0 fetches them in one request, ~20 s). Run it in the
+   background with its log tee'd to a file and read the log; a cloud process survives between tool
+   calls (CLAUDE.md §4g). On 2026-11-11 this pass cut the setup short with its own timeout and saw
+   ~2,159 private files as deleted (T-198). Since 1.3.0 (private) and 1.4.0 (public) a re-run
+   finishes a half-done checkout, but a killed run is still a wasted run. Before step 3, `git --git-dir=.git-working --work-tree=. ls-files
    --deleted | wc -l` must print 0; if it does not, the private store is incomplete: re-run the setup,
    and do not read claims from a half-built tree.
 2. Read `working/HANDOVER_BOOTSTRAP.md` and `CLAUDE.md`. CLAUDE.md is the traps file and §4b is this

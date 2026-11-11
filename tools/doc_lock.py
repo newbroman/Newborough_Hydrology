@@ -91,7 +91,10 @@ STALENESS IS MEASURED FROM ACTIVITY, NOT FROM WHEN THE CLAIM WAS TAKEN (1.4.0)
 """
 from __future__ import annotations
 
-__version__ = "1.7.1"  # Hollingham (2026) — 2026-11-11 (T-198, J-14). store_state() reads a lock
+__version__ = "1.7.2"  # Hollingham (2026) — 2026-11-11 (J-14 follow-up). session_mode() returns
+#   "cloud" in a Claude cloud session (CLAUDE_CODE_REMOTE=true) instead of "laptop": .git/nrg_machine
+#   holds whichever machine last ran doc_lock, so the "laptop" test matched every container.
+# "1.7.1"  # Hollingham (2026) — 2026-11-11 (T-198, J-14). store_state() reads a lock
 #   file that is tracked in the private index but missing or empty in the tree as ABSENT (every claim
 #   UNKNOWN), not PRESENT: a half-done private checkout read held claims as free (D-300's case).
 # "1.7.0"  # Hollingham (2026) — 2026-11-07 (T-175, Martin: "2b"). publish_records
@@ -265,6 +268,11 @@ def session_mode() -> str:
         return os.environ["NRG_SESSION_MODE"]
     if on_bridge():
         return "bridge"
+    # 1.7.2: a Claude cloud session (claude.ai/code) says so in its environment. Before this it read as
+    # "laptop", because _who() writes this machine's own name into .git/nrg_machine on every call, so the
+    # test below matches on ANY machine that is not the bridge (J-12 and J-14 were both recorded "laptop").
+    if os.environ.get("CLAUDE_CODE_REMOTE") == "true":
+        return "cloud"
     try:
         if MACHINE_FILE.exists() and MACHINE_FILE.read_text(encoding="utf-8").strip() == _native():
             return "laptop"

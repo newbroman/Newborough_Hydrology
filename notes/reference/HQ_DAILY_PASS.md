@@ -36,6 +36,10 @@ snapshot. A wrong report costs a conversation; a wrong release costs another cha
    into `scratch/hq/payload.json`, with the page's documents written one per file under
    `scratch/hq/db/` and indexed in `scratch/hq/db/ops.json`. It also appends one run to
    `working/hq_history.json`, which is where the task trend and "newly red" come from.
+   **Since hq_snapshot 1.2.0 (J-12, 2026-11-11) it also refreshes the proof page's bundle** —
+   `proof_copy.py --refresh`, moved here from `check_all`, with its tasks tab fed from the sweep
+   above. It prints one `proof page:` line saying whether the published proof artifact is current.
+   A cold container regenerates all 25 chapters (about 4½ minutes); later runs only what changed.
 7. **Write those documents to the HQ page's store** with the `ArtifactData` tool, `action: "batch"`,
    `url: <the HQ page's URL>` (it is in `working/.hq_artifact.json`), passing each op from
    `ops.json` as `{op, collection, doc_id, file_path}`. Two things to know:
@@ -49,6 +53,19 @@ snapshot. A wrong report costs a conversation; a wrong release costs another cha
    working around it: the payload is committed, so any session can write it, and the page will show
    the previous day's snapshot until one does. Do not try to publish the page itself — the shell
    changes rarely, and `python3 tools/hq_page.py --check` says when it is owed.
+7b. **If the `proof page:` line says BEHIND, republish it and stamp it** (J-12; Martin 2026-11-09:
+   *"q9 move to the hq daily pass"*). With the Artifact tool, publish
+   `scratch/proof_bundle/NRG_proof_shell.html` as the page and
+   `scratch/proof_bundle/proof_chapters.json` as a file beside it (`files`), to the URL in
+   `working/.proof_artifact.json` — read the artifact first if this session has not, as the tool
+   requires. Then `python3 tools/proof_copy.py --published <the version the publish returned>`,
+   which writes `tools/proof_bundle_state.json` (it refuses if the bundle on disk is not the one the
+   state describes). **This is the pass's own page, not intervention** (D-302 binds it to report-only
+   for OTHER chats' work): the stamp file is under no claim. If the Artifact tool is not available,
+   say so in the report and leave the stamp alone — a stamp without a publish is a false record.
+   The `bundle_sha256` it compares is a function of the chapters and the Bindings tabs (proof_copy
+   1.38.0), so an unchanged bundle stays current; a change to the tasks tab alone does not make the
+   page stale.
 8. `python3 tools/job_queue.py ready` — any job whose conditions now all hold. Fire a `new_session`
    job only if you can actually start that session; otherwise leave it `ready` and name it in your
    report, which is what the queue expects of you (a job fires when something is already running).
@@ -73,8 +90,11 @@ branches unmerged for more than a week.
 9. One dated entry of your own at the top of `working/updates/HANDOVER_NOTE.md` (≤40 lines), saying
    what you found and what you could not see. Then `python3 tools/session_handover.py --write --check`.
 10. Commit **only** `working/` records and the snapshot — your handover entry,
-    `working/hq_history.json`, `working/chat_register.csv`. Nothing under `tools/`, `src/`, `docs/`
-    or `outputs/`. A public commit without its private commit is a change nobody can account for
+    `working/hq_history.json`, `working/chat_register.csv` — and, when step 7b stamped a publish,
+    `tools/proof_bundle_state.json` (public; the one exception, J-12). Nothing else under `tools/`,
+    and nothing under `src/`, `docs/` or `outputs/`. If the refresh left
+    `tools/proof_bundle_state.json` changed WITHOUT a publish (the chapters moved), commit it too:
+    it records what the bundle was built from, and leaving it modified hands it to the next commit. A public commit without its private commit is a change nobody can account for
     (CLAUDE.md §4f), so if you touch anything public, commit both halves.
 11. `python3 tools/chat_register.py status --chat "HQ daily pass" --set done --outcome "<one line>"`.
 

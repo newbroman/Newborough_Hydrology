@@ -19,7 +19,10 @@
 #
 # Pushing is Martin's call every time (CLAUDE.md section 7): this script never pushes.
 #
-# Version 1.3.0 — Hollingham (2026) — 2026-11-11. T-198 (J-14): step 2 finishes a half-done private checkout.
+# Version 1.4.0 — Hollingham (2026) — 2026-11-11. J-14 follow-ups: step 1 finishes a half-done PUBLIC checkout too
+#   (a clone killed in its checkout leaves HEAD, no index, no files); both halves share finish_checkout(), which
+#   fetches the missing blobs in one request (1,724 files in 19 s, against ~200 a minute one by one).
+# 1.3.0 — Hollingham (2026) — 2026-11-11. T-198 (J-14): step 2 finishes a half-done private checkout.
 #   A present .git-working no longer means a complete one: each of its steps is tested and completed on every run
 #   (index, config, missing tracked files restored by name without -f, upstream, exclude). Do not wrap this
 #   script in a timeout; run it in the background and read its log (CLAUDE.md section 4g).
@@ -50,10 +53,59 @@ PRIV="${NRG_PRIVATE_URL:-https://github.com/newbroman/Newborough_Hydrology_worki
 DRIVE_REMOTE="gdrivefile:NRG_documents_v2"
 step() { printf '\n  [%s] %s\n' "$1" "$2"; }
 
+# finish_checkout GIT... — complete a checkout that a killed run left half done (1.3.0, T-198; 1.4.0 both halves).
+# "Present" is not "complete": the HQ pass of 2026-11-11 ran this script under `timeout 170`, which cut the private
+# checkout short, and every later run took the "present" branch and never checked the rest out (~2,159 files
+# missing). A public clone killed in its checkout is worse: HEAD, no index, no files (measured 2026-11-11). So both
+# halves come through here on EVERY run. Nothing that exists is overwritten: missing files are restored by name
+# (no -f, never `reset --hard`), and only a file left EMPTY by the kill is rewritten.
+# GIT is the repository's git command with its work tree, e.g. `git` or `git --git-dir=.git-working --work-tree=.`.
+finish_checkout() {
+  local gd missing total empty
+  gd="$("$@" rev-parse --git-dir)"
+  # No index means the run stopped before one was written; ls-files would then list nothing and read as complete.
+  if [ ! -f "$gd/index" ]; then "$@" read-tree HEAD; echo "      index built (read-tree HEAD)"; fi
+  missing="$("$@" ls-files --deleted | wc -l)"
+  [ "$missing" -gt 0 ] || return 0
+  total="$("$@" ls-files | wc -l)"
+  echo "      checkout incomplete: $missing of $total tracked files missing - checking them out. Present files"
+  echo "      are not touched. Do not time-limit this script; run it in the background and read its log."
+  if [ "$missing" -lt "$total" ]; then
+    "$@" ls-files --deleted | sed -n '1,5s/^/        missing: /p' || true
+  fi
+  # 1.4.0: fetch the missing blobs in ONE request, as `git clone` does for its own checkout. Left to itself,
+  # checkout-index on a blobless clone fetches each blob separately: ~200 files a minute, measured 2026-11-11
+  # (2,075 private files took 750 s), against 1,724 public files in 19 s batched. The command is the one git's
+  # own lazy fetch runs; if it fails, checkout-index still fetches what it needs, only slowly.
+  local t0=$SECONDS
+  if "$@" ls-files -s --deleted | awk '{print $2}' | sort -u | \
+     "$@" -c fetch.negotiationAlgorithm=noop fetch --quiet origin --no-tags --no-write-fetch-head \
+        --recurse-submodules=no --filter=blob:none --stdin; then
+    echo "      contents fetched in one request ($(( SECONDS - t0 )) s)"
+  else
+    echo "      batched fetch failed - checkout-index will fetch each file itself (slow)"
+  fi
+  "$@" ls-files --deleted -z | "$@" checkout-index -z --stdin
+  # The file being written when the first run was killed is left EMPTY, not missing (measured: 0 bytes
+  # against 20,621 in HEAD), so --deleted cannot see it. An empty file that differs from HEAD holds nothing
+  # to lose; only those are rewritten with -f. A file with any content is left as it is.
+  empty="$("$@" ls-files --modified | while IFS= read -r f; do [ -e "$f" ] && [ ! -s "$f" ] && printf '%s\n' "$f"; done || true)"
+  if [ -n "$empty" ]; then
+    printf '%s\n' "$empty" | sed 's/^/        empty (cut short): /'
+    printf '%s\n' "$empty" | "$@" checkout-index -f --stdin
+  fi
+  missing="$("$@" ls-files --deleted | wc -l)"
+  if [ "$missing" -gt 0 ]; then
+    echo "      >>> $missing tracked files are still missing after checkout-index. Not continuing."
+    exit 1
+  fi
+  echo "      checkout complete: $total tracked files present"
+}
+
 # ── 1/6 public repository: the working tree ────────────────────────────────────
 step "1/6" "public repository → $DIR"
 if [ -d "$DIR/.git" ]; then
-  git -C "$DIR" fetch --quiet origin main && git -C "$DIR" status -sb | head -1
+  git -C "$DIR" fetch --quiet origin main && git -C "$DIR" status -sb --untracked-files=no | sed -n 1p   # sed, not head: head closes the pipe on a long status and pipefail ends the script (1.4.0)
 else
   # --filter=blob:none, NOT --depth: a partial clone has the FULL commit history and fetches
   # file contents on demand. A shallow clone does not, and on 2026-11-08 that cost a day:
@@ -65,17 +117,18 @@ else
   git clone --quiet --filter=blob:none "$PUB" "$DIR"
 fi
 cd "$DIR"
+if ! git rev-parse -q --verify HEAD >/dev/null; then
+  echo "      >>> $DIR/.git has no HEAD - its clone did not finish. Move it aside (mv $DIR $DIR.broken) and re-run."
+  exit 1
+fi
+finish_checkout git
 grep -qx '/working/' .git/info/exclude 2>/dev/null || {
   printf '%s\n' "# The private half lives under /working (and a few forced paths), tracked by" \
     "# .git-working - never by this repository (CLAUDE.md section 4f)." "/working/" >> .git/info/exclude; }
 
 # ── 2/6 private repository: a second git directory over the same tree ─────────
 step "2/6" "private repository → $DIR/.git-working"
-# 1.3.0 (T-198): "present" is not "complete". A first run killed part-way (the HQ pass of 2026-11-11 ran
-# this under `timeout 170`, which cut checkout-index short) left .git-working present and ~2,159 private
-# files missing, and every later run took the "present" branch and never checked them out. So each step
-# below tests its own result and is finished on EVERY run, fresh clone or not. Nothing here overwrites a
-# file that exists: missing files are restored by name, never by `checkout-index -f` or `reset --hard`.
+# 1.3.0 (T-198): each step tests its own result and is finished on every run, fresh clone or not.
 WG=(git --git-dir=.git-working)
 WT=(git --git-dir=.git-working --work-tree=.)
 if [ -d .git-working ]; then
@@ -94,32 +147,7 @@ fi
   "${WG[@]}" config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
 "${WG[@]}" config --get status.showUntrackedFiles >/dev/null || "${WG[@]}" config status.showUntrackedFiles no
 "${WG[@]}" fetch --quiet origin
-# No index means the first run stopped before read-tree; ls-files would then list nothing and read as complete.
-if [ ! -f .git-working/index ]; then "${WT[@]}" read-tree HEAD; echo "      index built (read-tree HEAD)"; fi
-_missing="$("${WT[@]}" ls-files --deleted | wc -l)"
-if [ "$_missing" -gt 0 ]; then
-  _total="$("${WT[@]}" ls-files | wc -l)"
-  echo "      checkout incomplete: $_missing of $_total tracked files missing - checking them out (slow on a"
-  echo "      blobless clone: each file is fetched; do not time-limit this script). Present files are not touched."
-  if [ "$_missing" -lt "$_total" ]; then
-    "${WT[@]}" ls-files --deleted | sed -n '1,5s/^/        missing: /p' || true
-  fi
-  "${WT[@]}" ls-files --deleted -z | "${WT[@]}" checkout-index -z --stdin
-  # The file being written when the first run was killed is left EMPTY, not missing (measured: 0 bytes
-  # against 20,621 in HEAD), so --deleted cannot see it. An empty file that differs from HEAD holds nothing
-  # to lose; only those are rewritten with -f. A file with any content is left as it is.
-  _empty="$("${WT[@]}" ls-files --modified | while IFS= read -r f; do [ -e "$f" ] && [ ! -s "$f" ] && printf '%s\n' "$f"; done || true)"
-  if [ -n "$_empty" ]; then
-    printf '%s\n' "$_empty" | sed 's/^/        empty (cut short): /'
-    printf '%s\n' "$_empty" | "${WT[@]}" checkout-index -f --stdin
-  fi
-  _missing="$("${WT[@]}" ls-files --deleted | wc -l)"
-  if [ "$_missing" -gt 0 ]; then
-    echo "      >>> $_missing tracked files are still missing after checkout-index. Not continuing."
-    exit 1
-  fi
-  echo "      checkout complete: $_total tracked files present"
-fi
+finish_checkout "${WT[@]}"
 # 1.1.3: a --bare clone sets no upstream, so a plain `push` was refused (the dry3 dry run).
 "${WG[@]}" rev-parse -q --verify 'main@{upstream}' >/dev/null 2>&1 || \
   "${WG[@]}" branch --quiet --set-upstream-to=origin/main main

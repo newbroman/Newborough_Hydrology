@@ -70,7 +70,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-11 (J-12, T-196). render() is the printed report,
+#   shared by main() and by as_json(with_text=True), so the HQ daily pass can hand proof_copy's tasks tab the
+#   same text `--open` prints from the ONE evaluation it already runs for the HQ page (the checks are not run
+#   twice, which is what check_all's --tasks-from did until check_all 1.41.0). Output unchanged.
+# 1.2.0  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
 #   signed off). --json for the HQ page's tasks band and its 7-run trend, carrying the store state because a task's
 #   status is store-dependent; evaluate() shared with the printed report so the two cannot disagree; D8's optional
 #   `claim` column read and reported, never used to decide a status.
@@ -158,7 +162,47 @@ def read_register() -> list[dict]:
         return [r for r in csv.DictReader(fh) if r.get("id", "").strip()]
 
 
-def as_json() -> dict:
+def render(rows, done, open_, errors, skipped, only_open: bool = False, quiet: bool = False) -> str:
+    """1.3.0: the printed report as text, byte-for-byte what main() printed before, so main() and
+    as_json(with_text=True) cannot disagree."""
+    out: list[str] = []
+    say = out.append
+    if errors:
+        say(f"  FAIL  {len(errors)} check(s) could not answer — "
+            f"a broken check is not a pass:")
+        for r, note in errors:
+            say(f"          {r['id']}  {r['title'][:52]}")
+            say(f"                {note}")
+
+    if not only_open and not quiet and done:
+        say(f"\n  {len(done)} task(s) now satisfy their check "
+            f"(remove the row, or leave it as a regression guard):")
+        for r in done:
+            say(f"      DONE  {r['id']}  {r['title'][:64]}")
+
+    if open_ and not quiet:
+        say(f"\n  {len(open_)} open:")
+        for r, o in sorted(open_, key=lambda x: x[0]["id"]):
+            impl = f"  [{r['implements']}]" if r.get("implements") else ""
+            say(f"      OPEN  {r['id']}  {r['title'][:60]}{impl}")
+            say(f"                {o}  (want {r['expect'].strip()})"
+                f"   opened {r.get('opened','')}")
+
+    if skipped and not quiet:
+        say(f"\n  {len(skipped)} skipped (inputs absent in this checkout by design):")
+        for r, o in skipped:
+            say(f"      SKIP  {r['id']}  {r['title'][:60]}")
+            say(f"                {o[:110]}")
+
+    if quiet:
+        say("task_lint: " + ("FAIL" if errors else "OK"))
+    else:
+        say(f"\n  {len(rows)} task(s): {len(done)} done, {len(open_)} open, "
+            f"{len(errors)} broken" + (f", {len(skipped)} skipped" if skipped else ""))
+    return "\n".join(out)
+
+
+def as_json(with_text: bool = False) -> dict:
     """1.2.0 (D-301): the register, machine-readable, for the HQ page's tasks band and its trend.
 
     It carries the STORE STATE, because a task's status is store-dependent: a session holding only
@@ -177,7 +221,7 @@ def as_json() -> dict:
                 "want": (r.get("expect") or "").strip(), "got": got, "status": status,
                 "opened": r.get("opened", ""), "claim": (r.get("claim") or "").strip(),
                 "note": note or (r.get("note") or "")[:400]}
-    return {
+    res = {
         "store": state, "store_why": why,
         "generated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "counts": {"total": len(rows), "done": len(done), "open": len(open_),
@@ -188,6 +232,10 @@ def as_json() -> dict:
                   + [row(r, "BROKEN", "", n) for r, n in errors]
                   + [row(r, "SKIP", o) for r, o in skipped]),
     }
+    if with_text:
+        # 1.3.0 (J-12): what `--open` prints, from this same evaluation - for proof_copy's tasks tab.
+        res["open_text"] = render(rows, done, open_, errors, skipped, only_open=True)
+    return res
 
 
 def main() -> int:
@@ -207,39 +255,7 @@ def main() -> int:
 
     rows = read_register()
     done, open_, errors, skipped = evaluate(rows)
-
-    if errors:
-        print(f"  FAIL  {len(errors)} check(s) could not answer — "
-              f"a broken check is not a pass:")
-        for r, note in errors:
-            print(f"          {r['id']}  {r['title'][:52]}")
-            print(f"                {note}")
-
-    if not args.only_open and not args.quiet and done:
-        print(f"\n  {len(done)} task(s) now satisfy their check "
-              f"(remove the row, or leave it as a regression guard):")
-        for r in done:
-            print(f"      DONE  {r['id']}  {r['title'][:64]}")
-
-    if open_ and not args.quiet:
-        print(f"\n  {len(open_)} open:")
-        for r, out in sorted(open_, key=lambda x: x[0]["id"]):
-            impl = f"  [{r['implements']}]" if r.get("implements") else ""
-            print(f"      OPEN  {r['id']}  {r['title'][:60]}{impl}")
-            print(f"                {out}  (want {r['expect'].strip()})"
-                  f"   opened {r.get('opened','')}")
-
-    if skipped and not args.quiet:
-        print(f"\n  {len(skipped)} skipped (inputs absent in this checkout by design):")
-        for r, out in skipped:
-            print(f"      SKIP  {r['id']}  {r['title'][:60]}")
-            print(f"                {out[:110]}")
-
-    if args.quiet:
-        print("task_lint: " + ("FAIL" if errors else "OK"))
-    else:
-        print(f"\n  {len(rows)} task(s): {len(done)} done, {len(open_)} open, "
-              f"{len(errors)} broken" + (f", {len(skipped)} skipped" if skipped else ""))
+    print(render(rows, done, open_, errors, skipped, only_open=args.only_open, quiet=args.quiet))
     return 1 if errors else 0
 
 

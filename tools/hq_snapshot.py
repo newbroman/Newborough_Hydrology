@@ -14,6 +14,10 @@ WHAT IT GATHERS
   gate           scratch/check_all_summary.json + the tee'd log, for the advisory lines
   queue          tools/job_queue.py   - jobs and which of their conditions hold
   chats          tools/chat_register.py
+  proof          tools/proof_copy.py --refresh (1.2.0, J-12): the proof page's bundle rebuilt from the
+                 committed mirrors, its tasks tab fed from the task sweep above (so the checks are not
+                 run twice), and whether the published proof artifact is behind it. The SESSION
+                 republishes and stamps (notes/reference/HQ_DAILY_PASS.md step 7b) - a script cannot.
   owed           republishes owed, the proof page behind its bundle, stale unmerged branches
   audit          tools/rule_audit.py  - the conduct checks (step 5, phase 3): commits against the
                  claims held at the time, handover entries, decision fields, version bumps, the
@@ -44,7 +48,17 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-05 (D-301 phase 3, T-137). Step 5 wired in:
+__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-11 (J-12, T-196; Martin 2026-11-09 on Q9 of the J-10
+#   review: "move to the hq daily pass"). The proof page's refresh moves here from check_all (1.41.0), where it
+#   took 249-269 s of every run, gated nothing and could not republish. collect() runs proof_copy --refresh
+#   after the task sweep, feeding it task_lint's --open text from the SAME evaluation (task_lint 1.3.0
+#   as_json(with_text=True)), and carries the result as payload["proof"]: chapters regenerated, whether the
+#   published artifact is current, and what to publish where (working/.proof_artifact.json). Refreshing and
+#   republishing the pass's OWN proof page is not intervention in another chat's work (D-302 binds the pass
+#   to report-only for OTHER chats' work): it releases no claim and edits nothing a chat holds -
+#   tools/proof_bundle_state.json is under no claim (doc_lock.claim_for_path). --no-proof skips it;
+#   --no-tasks skips it too, because the tasks tab needs the sweep.
+# 1.1.0  # Hollingham (2026) — 2026-11-05 (D-301 phase 3, T-137). Step 5 wired in:
 #   collect() calls rule_audit.audit() with the board and newly-red list it has already computed, db_ops
 #   writes the `findings` collection with `serious` set EXPLICITLY on every row (the page's band renders
 #   serious !== false, so a missing field would read as serious), and run_record keeps the finding KEYS
@@ -78,6 +92,8 @@ HISTORY_RUNS = 30                 # enough for D6's 7-run trend with room to loo
 TREND_RUNS = 7                    # spec D6, signed off
 PAYLOAD = REPO / "scratch/hq/payload.json"
 GATE_SUMMARY = REPO / (os.environ.get("NRG_GATE_SUMMARY") or "scratch/check_all_summary.json")
+PROOF_ARTIFACT = REPO / "working/.proof_artifact.json"   # private: the proof page's URL (J-12)
+PROOF_TIMEOUT = 1800              # a cold refresh regenerates all 25 chapters: 269 s measured 2026-11-11
 STALE_BRANCH_DAYS = 7             # spec §4.8: unmerged branches older than a week are "owed"
 
 # An advisory count line is one a section prints that does NOT set rc: a backlog, a known-dangling
@@ -148,7 +164,7 @@ def owed() -> list[dict]:
         if d.get("bundle_sha256") and d.get("published_sha256") != d.get("bundle_sha256"):
             out.append({"what": "the proof page is behind its bundle",
                         "since": d.get("published_at") or "unknown",
-                        "do": "python3 tools/proof_copy.py --refresh, then republish the proof artifact"})
+                        "do": "the HQ daily pass republishes it (notes/reference/HQ_DAILY_PASS.md step 7b)"})
     for marker, what, do in (
             (doc_lock.PUBLISH_OWED, "the work board page is behind the lock",
              "python3 tools/board_artifact.py  (D7: folded into HQ - republish HQ instead)"),
@@ -255,7 +271,58 @@ def newly_red(sections: list[dict], runs: list[dict]) -> list[str]:
             if s["verdict"] != "OK" and was.get(s["key"], "OK") == "OK"]
 
 
-def collect(do_tasks: bool = True, do_probe: bool = False) -> dict:
+def proof_refresh(tasks_text: str | None) -> dict:
+    """1.2.0 (J-12): rebuild the proof page's bundle and say whether the published artifact is behind it.
+    Runs proof_copy as a subprocess (it loads cite_check's value map, ~1 GB of state this process does
+    not need afterwards). The tasks tab is fed tasks_text, task_lint's --open output from the sweep this
+    pass has already run. Never raises: a failed refresh is reported, it does not stop the snapshot."""
+    import tempfile
+    res: dict = {"ran": False}
+    tf = None
+    try:
+        cmd = [sys.executable, str(HERE / "tools/proof_copy.py"), "--refresh", "--quiet"]
+        if tasks_text is not None:
+            fd, tf = tempfile.mkstemp(prefix="hq_proof_tasks_", suffix=".txt")
+            with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                fh.write(tasks_text + "\n")
+            cmd += ["--tasks-from", tf]
+        t0 = datetime.datetime.now()
+        p = subprocess.run(cmd, cwd=str(HERE), capture_output=True, text=True, timeout=PROOF_TIMEOUT)
+        res.update(ran=True, rc=p.returncode, seconds=round((datetime.datetime.now() - t0).total_seconds()),
+                   log=(p.stdout + p.stderr).strip().splitlines()[-30:])
+        res["regenerated"] = [ln.split("regenerated", 1)[1].strip() for ln in p.stdout.splitlines()
+                              if ln.strip().startswith("regenerated ")]
+    except (OSError, subprocess.SubprocessError) as e:
+        res.update(ran=False, rc=None, error=str(e)[:300])
+    finally:
+        if tf:
+            try:
+                os.unlink(tf)
+            except OSError:
+                pass
+    st_path = HERE / "tools/proof_bundle_state.json"
+    try:
+        st = json.loads(st_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        st = {}
+    res["bundle_sha256"] = st.get("bundle_sha256")
+    res["published_sha256"] = st.get("published_sha256")
+    res["published_version"] = st.get("published_version")
+    res["published_at"] = st.get("published_at")
+    res["current"] = bool(st.get("bundle_sha256")) and st.get("published_sha256") == st.get("bundle_sha256")
+    url = ""
+    try:
+        url = json.loads(PROOF_ARTIFACT.read_text(encoding="utf-8")).get("url", "")
+    except (OSError, ValueError):
+        pass
+    res["artifact_url"] = url
+    res["publish"] = {"page": "scratch/proof_bundle/NRG_proof_shell.html",
+                      "files": {"proof_chapters.json": "scratch/proof_bundle/proof_chapters.json"},
+                      "then": "python3 tools/proof_copy.py --published <version>"}
+    return res
+
+
+def collect(do_tasks: bool = True, do_probe: bool = False, do_proof: bool = True) -> dict:
     state, why = doc_lock.store_state()
     board = work_board.collect(do_probe=do_probe)
     q = job_queue.collect()
@@ -264,7 +331,11 @@ def collect(do_tasks: bool = True, do_probe: bool = False) -> dict:
     tasks = None
     if do_tasks:
         import task_lint
-        tasks = task_lint.as_json()
+        tasks = task_lint.as_json(with_text=do_proof)
+    open_text = tasks.pop("open_text", None) if tasks else None
+    # 1.2.0 (J-12): after the sweep, so the tasks tab reuses it; before owed(), so owed() reads the
+    # state this refresh has just written.
+    proof = proof_refresh(open_text) if (do_tasks and do_proof) else None
     runs = history()
     secs = g.get("sections") or []
     payload = {
@@ -281,6 +352,7 @@ def collect(do_tasks: bool = True, do_probe: bool = False) -> dict:
         "gate": g,
         "gate_newly_red": newly_red(secs, runs) if secs else [],
         "tasks": tasks,
+        "proof": proof,
         "owed": owed(),
         "history_runs": len(runs),
     }
@@ -568,6 +640,8 @@ def main() -> int:
     ap.add_argument("--probe", action="store_true", help="ask each origin whether it has moved")
     ap.add_argument("--db-ops", dest="db_ops", action="store_true",
                     help="also write the ArtifactData batch (scratch/hq/db/, index ops.json)")
+    ap.add_argument("--no-proof", action="store_true",
+                    help="skip the proof page's refresh (1.2.0, J-12; --no-tasks skips it too)")
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--selftest", action="store_true")
@@ -582,7 +656,7 @@ def main() -> int:
               "  and free claims, and this tool does not report 'all clear' for what it cannot see.")
         return 1
 
-    payload = collect(do_tasks=not a.no_tasks, do_probe=a.probe)
+    payload = collect(do_tasks=not a.no_tasks, do_probe=a.probe, do_proof=not a.no_proof)
     out = pathlib.Path(a.out)
     if not out.is_absolute():
         out = REPO / out
@@ -609,6 +683,18 @@ def main() -> int:
         if t:
             c = t["counts"]
             print(f"    tasks {c['total']}: {c['done']} done, {c['open']} open, {c['broken']} broken")
+        pr = payload.get("proof")
+        if pr:
+            if not pr.get("ran") or pr.get("rc"):
+                print(f"    >>> proof page: refresh FAILED ({pr.get('error') or 'exit ' + str(pr.get('rc'))})")
+            elif pr["current"]:
+                print(f"    proof page: {len(pr['regenerated'])} chapter(s) regenerated in {pr['seconds']} s;"
+                      f" the published artifact is current ({pr['published_version']})")
+            else:
+                print(f"    proof page: {len(pr['regenerated'])} chapter(s) regenerated in {pr['seconds']} s;"
+                      f" BEHIND - republish {pr['publish']['page']} + proof_chapters.json to"
+                      f" {pr['artifact_url'] or 'the proof artifact (no working/.proof_artifact.json)'},"
+                      f" then {pr['publish']['then']}  (HQ_DAILY_PASS.md step 7b)")
         if ops:
             print(f"    {len(ops)} document(s) for the page's store: scratch/hq/db/ops.json")
             if any(o.get("create_if_missing") for o in ops):

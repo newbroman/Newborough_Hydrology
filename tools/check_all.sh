@@ -18,7 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.40.0 - 2026-11-11   pipeline index section (T-197, J-13): tools/build_pipeline_index.py
+# VERSION 1.41.0 - 2026-11-11   proof_copy --refresh moved to the HQ daily pass (J-12, T-196;
+#                               Martin 2026-11-09, Q9 of the J-10 review). Its section is renamed
+#                               "inequality claims" for the gate left in it, inequality_lint, which
+#                               keeps its position (40) and its rc. Measured runtime before/after in
+#                               changelog 2026-11-11 J-12.
+#   1.40.0 (2026-11-11): pipeline index section (T-197, J-13): tools/build_pipeline_index.py
 #                               --selftest and --check gate pipeline_index.html, the generated
 #                               script index index.html's Pipeline section links to.
 #   1.39.0 (2026-11-09): the PULL path's safety property, in the records section (J-4).
@@ -793,18 +798,11 @@ python3 tools/register_lint.py || rc=1
 python3 tools/task_register.py --selftest >/dev/null || { echo "  task_register --selftest: FAIL"; rc=1; }
 python3 tools/task_register.py --check || rc=1
 
-section "── proof copies (is the proof page current?) ─────────────────────────"
-# ADVISORY. proof_copy --refresh regenerates only the chapters whose inputs changed
-# (mirror, citation index, reading verdicts, pipeline run log) into
-# scratch/proof_bundle/, rebuilds the bundle with a tasks tab from the task_lint
-# output captured above, and says whether the published claude.ai artifact is
-# behind it. This machine cannot publish an artifact, so STALE here is a note to
-# the next session: republish the bundle and stamp it (proof_copy.py --published).
-# Martin, 2026-09-29: "can we make the proof read artifact update when a check all
-# is called as well as the task ledger being updated".
-proof_tasks="$(mktemp)"; printf '%s\n' "$task_out" > "$proof_tasks"
-python3 tools/proof_copy.py --refresh --quiet --tasks-from "$proof_tasks" || echo "  note  proof_copy --refresh failed (advisory)"
-rm -f "$proof_tasks"
+section "── inequality claims (is every \"p < x\" still true of its value?) ──"
+# The proof-copy refresh that headed this section until 1.41.0 (J-12, T-196) now runs in the HQ
+# daily pass (tools/hq_snapshot.py 1.2.0), which can republish the page as well as report it; it
+# took 249 to 269 of this script's seconds and gated nothing. inequality_lint, which DOES gate,
+# stays here under its own name (Martin, 2026-11-09: "q9 move to the hq daily pass").
 
 # "p < 0.001" carries no number, so every numeric check in this project is blind
 # to it: the academic summaries stated it for a committed p = 0.0021 and nothing

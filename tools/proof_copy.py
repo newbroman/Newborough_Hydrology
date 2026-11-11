@@ -78,7 +78,20 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.37.0"  # Hollingham (2026) — 2026-11-09 (J-11, D-322): the proof tool owns the
+__version__ = "1.38.0"  # Hollingham (2026) — 2026-11-11 (J-12, T-196; Martin 2026-11-09 on the J-10
+#   review's Q9: "move to the hq daily pass"). bundle_sha256 is now a function of WHAT THE BUNDLE IS
+#   BUILT FROM - the chapter input hashes of the chapters in it and the Bindings tabs' content - via
+#   _bundle_hash(), not of NRG_proof.html's bytes. Measured 2026-11-11: two refreshes with all 25
+#   chapter hashes unchanged gave d9e8d7ad... and 32c9a6f7..., because the tasks tab embeds
+#   task_lint's output verbatim (54 open in one run, 53 in the next) - so "the proof artifact is
+#   BEHIND the bundle" compared the published hash against a number that moved whenever ANY task's
+#   check did, and could never clear. The tasks tab still ships with every republish; it no longer
+#   makes the page stale on its own (the HQ page is the live view of the register). stamp_published
+#   stamps the same content hash, and refuses when the bundle on disk is not the one the state
+#   describes. The refresh is no longer called by check_all (1.41.0) but by tools/hq_snapshot.py
+#   1.2.0 in the HQ daily pass, which can republish. A refresh that changes nothing leaves
+#   tools/proof_bundle_state.json byte-identical (proved twice, changelog 2026-11-11 J-12).
+# 1.37.0  # Hollingham (2026) — 2026-11-09 (J-11, D-322): the proof tool owns the
 #   emit queue and the binding. --queue exports every denied/stale/unsure verdict whose detail carries a
 #   computed value as the emit work list (the schema of the hand-built September scratch/t96 lists, which
 #   was gitignored and is gone; the field list is the one recorded in NRG_spec_T96_emits_2026-09-29.md),
@@ -2625,7 +2638,8 @@ def paint_line(line: str, ms, sec: str = "", pdf: str = "") -> str:
 
 
 # ---------------------------------------------------------------------------
-# --refresh: the bundle kept current by check_all; --published: the artifact stamp
+# --refresh: the bundle kept current by the HQ daily pass (hq_snapshot 1.2.0, J-12; it was check_all
+# until 1.41.0); --published: the artifact stamp
 
 
 def _chapter_inputs_hash(stem: str) -> str:
@@ -2671,9 +2685,10 @@ def _iso_now() -> str:
 
 
 def _tasks_section(tasks_from: str | None = None) -> str:
-    """The register as a tab: task_lint --open verbatim (or the output check_all has
+    """The register as a tab: task_lint --open verbatim (or the output the HQ pass has
     just captured, via --tasks-from, so the checks are not run twice), then the
-    open rows' notes."""
+    open rows' notes. NOT part of _bundle_hash (1.38.0): it is a snapshot that ships
+    with each republish, never a reason for one."""
     if tasks_from and pathlib.Path(tasks_from).exists():
         out = pathlib.Path(tasks_from).read_text(encoding="utf8", errors="replace")
     else:
@@ -2691,8 +2706,8 @@ def _tasks_section(tasks_from: str | None = None) -> str:
                     rows.append(f"<p><b>{html.escape(r['id'])}</b> {html.escape(r['title'])}<br><small>opened {html.escape(r['opened'])} · "
                                 f"{html.escape(r['note'][-600:])}</small></p>")
     return ("<section class=chapter data-doc='tasks'><h2>Task register — what is outstanding</h2>"
-            "<p class=secbar>tools/task_lint.py --open at the time this bundle was refreshed; a task has no stored status, "
-            "its check command decides.</p><pre>" + html.escape(out) + "</pre>" + "".join(rows) + "</section>")
+            "<p class=secbar>tools/task_lint.py --open at the time this page was last republished; a task has no stored status, "
+            "its check command decides. A change here alone does not republish the page: the HQ page is the live view.</p><pre>" + html.escape(out) + "</pre>" + "".join(rows) + "</section>")
 
 
 QUEUE_LABEL = {"unresolved": "no trusted binding", "doubt": "reader doubts it", "literature": "literature / config value",
@@ -2744,6 +2759,19 @@ def _bindings_sections() -> list[str]:
     return out
 
 
+def _bundle_hash(st: dict, stems: list[str], bindings: list[str]) -> str:
+    """1.38.0 (J-12): the bundle's identity is what it is BUILT FROM - each included chapter's input
+    hash (which already covers its mirror, the citation index rows, the reading verdicts, the
+    pipeline run log and this file) and the Bindings tabs' HTML (deterministic from
+    tools/field_bindings/*.csv). Never the page's bytes: those embed the tasks tab, which moves
+    whenever any task's check does, so a byte hash could never stay put for an unchanged bundle."""
+    h = hashlib.sha256()
+    h.update(json.dumps({"chapters": [[s, st["chapters"].get(s)] for s in stems]}, sort_keys=True).encode())
+    for b in bindings:
+        h.update(b"\x00" + b.encode("utf8"))
+    return h.hexdigest()[:16]
+
+
 def refresh(a) -> int:
     st = _load_state()
     _as_loaded = _state_text(st)            # T-136: write only if this moves
@@ -2758,8 +2786,9 @@ def refresh(a) -> int:
             if a.quiet:
                 print(f"  regenerated {s}")
     stems = [s for s in BUNDLE_ORDER if (BUNDLE_DIR / f"{s}.html").exists()]
-    b = write_bundle(BUNDLE_DIR, stems, extra_sections=[_tasks_section(a.tasks_from)] + _bindings_sections())
-    _sha = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
+    bindings = _bindings_sections()
+    b = write_bundle(BUNDLE_DIR, stems, extra_sections=[_tasks_section(a.tasks_from)] + bindings)
+    _sha = _bundle_hash(st, stems, bindings)   # 1.38.0: content, not bytes (J-12)
     if st.get("bundle_sha256") != _sha:
         st["bundle_sha256"] = _sha
         st["bundle_at"] = _iso_now()        # the build time of THIS bundle, not of this run
@@ -2777,8 +2806,17 @@ def stamp_published(version: str) -> int:
     b = BUNDLE_DIR / "NRG_proof.html"
     if not b.exists():
         print("no bundle to stamp — run --refresh first"); return 1
-    st["published_sha256"] = hashlib.sha256(b.read_bytes()).hexdigest()[:16]
-    st["bundle_sha256"] = st["published_sha256"]
+    # 1.38.0 (J-12): stamp the CONTENT hash, the one refresh() compares against. Refuse when the
+    # chapters on disk are not the ones the state describes (a refresh interrupted, or a bundle
+    # built by hand): stamping then would certify a page nobody can reproduce.
+    stems = [s for s in BUNDLE_ORDER if (BUNDLE_DIR / f"{s}.html").exists()]
+    stale = [s for s in stems if st["chapters"].get(s) != _chapter_inputs_hash(s)]
+    sha = _bundle_hash(st, stems, _bindings_sections())
+    if stale or sha != st.get("bundle_sha256"):
+        print(f"  REFUSED: the bundle on disk is not the one tools/proof_bundle_state.json describes"
+              f" ({len(stale)} chapter(s) behind their inputs) — run --refresh, republish, then stamp")
+        return 1
+    st["published_sha256"] = sha
     st["published_version"] = version
     st["published_at"] = _iso_now()
     _save_state(st)
@@ -2793,7 +2831,7 @@ def main() -> int:
                     help="regenerate only the stale report chapters into scratch/proof_bundle/, rebuild the bundle, report the artifact state")
     ap.add_argument("--published", metavar="VERSION", help="stamp tools/proof_bundle_state.json: the current bundle was published as this artifact version")
     ap.add_argument("--quiet", action="store_true", help="--refresh: one line per chapter regenerated and the verdict only")
-    ap.add_argument("--tasks-from", metavar="FILE", help="--refresh: task_lint --open output already captured (check_all passes its own)")
+    ap.add_argument("--tasks-from", metavar="FILE", help="--refresh: task_lint --open output already captured (the HQ pass passes its own)")
     ap.add_argument("--section", help="paint one section only, e.g. 4.2")
     ap.add_argument("--list", action="store_true", help="print the red/amber/orange list")
     ap.add_argument("--out", help="output directory (default scratch/proof)")

@@ -53,7 +53,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-07 (T-176, Martin: "3 both"). probe()
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-11 (D-313, J-5). reportlab joins LIBRARIES;
+#   record_vs_requirements() faults any probed library missing from the record OR from requirements.txt
+#   (it skipped unpinned ones, so a library in one file and not the other read green).
+# "1.3.0"  # Hollingham (2026) — 2026-11-07 (T-176, Martin: "3 both"). probe()
 #   records the effective matplotlib configuration — MATPLOTLIBRC, whether the active rc file is
 #   matplotlib's own, and text.hinting / text.hinting_factor — and compare() flags a difference.
 #   D-227 pinned Python, the libraries and the BLAS kernel but not matplotlib's own config, which a
@@ -111,7 +114,10 @@ EXTERNALS = {
 # recorded a false "absent" in the first reference written on 2026-08-26.
 LIBRARIES = ["numpy", "pandas", "scipy", "statsmodels", "matplotlib",
              "sklearn", "geopandas", "shapely", "pyproj", "odf", "cairosvg",
-             "rasterio", "contextily", "adjustText", "pastas"]
+             "rasterio", "contextily", "adjustText", "pastas", "reportlab"]
+# reportlab added 2026-11-11 (D-313, J-5): living/newborough_report.py builds the Water Watch PDF with
+# it, which was outside the pin; a venv without it SKIPPED the PDF with only a warning (measured
+# 2026-11-07). Every venv built before this needs `bash tools/nrg_env.sh` to install it.
 # pastas added 2026-09-24: Script 48 fits it at every reference well, so its
 # version moves the cross-check numbers. Re-record after installing it.
 # adjustText added 2026-08-29: the figure scripts import it, so a version change
@@ -368,6 +374,15 @@ def record_vs_requirements(rec: dict) -> list[str]:
         if pinned != recorded:
             out.append(f"{name}: record says {recorded}, requirements.txt "
                        f"pins {pinned}")
+    # 1.4.0 (D-313, J-5): a library this audit probes must be in BOTH places. One without the other
+    # is the state D-313 closed for reportlab - the newsletter's PDF library was in neither - and the
+    # loop above passes it, because it skips whatever is unpinned.
+    recorded_libs = rec.get("libraries", {})
+    for name in LIBRARIES:
+        if name not in recorded_libs:
+            out.append(f"{name}: probed, but not in the record (tools/environment.json)")
+        if DIST_NAME.get(name, name).lower() not in pins:
+            out.append(f"{name}: probed, but not pinned in requirements.txt")
     return out
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-14_climate_projections.py
+14_climate_projections.py — Climate trajectory projection figures for Newborough Warren.
 --------------------------------------------------------------------------
 Produces climate trajectory projection figures for Newborough Warren.
 
@@ -34,7 +34,8 @@ Reviewer-facing method summary:
 
 from __future__ import annotations
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). Retired, as
+__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.14.0  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). Retired, as
 #   nothing cites them since the D-296/D-297 documents: the D-294 per-well banding (14_per_well_extremes.csv,
 #   14_per_well_band_counts.csv, 14_per_well_summer_bands.png, wellband_* report numbers), the cluster winter
 #   exceedance against the Curreli winter levels (14_winter_exceedance.csv), and the cluster-versus-community report

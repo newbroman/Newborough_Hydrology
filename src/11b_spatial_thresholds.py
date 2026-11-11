@@ -1,5 +1,5 @@
 """
-11b_spatial_thresholds.py
+11b_spatial_thresholds.py — Maps each well's status against the eco-hydrological thresholds for dune-slack vegetation.
 =========================
 Spatial maps of per-well eco-hydrological threshold status.
 
@@ -76,7 +76,8 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.24.0"  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 18:11 "amendment as above  keep the
+__version__ = "1.24.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.24.0  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 18:11 "amendment as above  keep the
 #   recoverable bands"). The summer- and winter-maxima maps label their class edges as the DEPTH of each Curreli et al.
 #   (2013) community mean ("0.61 m: SD15b community mean") and the scrape-recoverable edges as a planning assumption;
 #   the titles name the source. A class is a depth below the well's own ground; the report caption says it marks a

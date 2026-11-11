@@ -1,5 +1,5 @@
 """
-16_water_bal.py
+16_water_bal.py — Mean monthly water balance decomposition by cluster, 2005-2026.
 ===============
 Mean Monthly Water Balance Decomposition by Cluster — Newborough Warren 2005–2026
 
@@ -79,7 +79,8 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-10-27 (D-283; Martin 02:37 "lets adopt it, but we also need the c4 and
+__version__ = "1.12.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.12.0  # Hollingham (2026) - 2026-10-27 (D-283; Martin 02:37 "lets adopt it, but we also need the c4 and
 #   c5 ET/ drainage partition estimates", 02:41 "proceed"). The headline ET/drainage partition is Model B's (03_16 centroid:
 #   drainage = beta_3_B * h_disp - alpha_B, the same at every datum); the range spans Model A, Model B, the depth-dependent
 #   model and the recession ratio (Lo/Hi_drain_frac). Until 1.11.0 the headline was the midpoint of Model A and the

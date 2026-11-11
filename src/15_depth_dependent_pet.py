@@ -1,5 +1,5 @@
 """
-15_depth_dependent_pet.py
+15_depth_dependent_pet.py — Explores a depth-dependent PET coefficient using exponential decay.
 Purpose: Explore a depth-dependent PET coefficient using exponential decay.
 
 The standard SSM (contemporaneous rainfall, displacement formulation,
@@ -48,7 +48,8 @@ Outputs (in outputs/15_depth_dependent_pet/):
     15_04_best_params.csv           — Optimal L_E and β coefficients per cluster
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 "c both", 02:14 "Agree with the 3 tiers").
+__version__ = "1.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.10.0  # Hollingham (2026) — 2026-10-27 (D-281; Martin 01:53 "c both", 02:14 "Agree with the 3 tiers").
 #   The centroids and the per-well sets are fitted to the level frame in which each dry month carries Script 03's fill
 #   (model_utils.apply_dry_fill: its expected level below the bound, centred on its nearest cluster-mate); the centroids
 #   are then exactly Script 03's. The depth-dependent model is nonlinear, so the fill is the approximation to censoring.

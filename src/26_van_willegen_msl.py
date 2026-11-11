@@ -1,5 +1,5 @@
 """
-26_van_willegen_msl.py
+26_van_willegen_msl.py — Five-year mean spring water level (MSL5), the dune-slack vegetation metric of van Willegen et al. (2025).
 ======================
 
 Five-year mean spring water level (MSL) — the dune-slack vegetation metric
@@ -105,7 +105,8 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.33.0"  # Hollingham (2026) - 2026-11-03 (Martin 2026-11-03 "Let's add it"). Pass 7d, a
+__version__ = "1.33.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.33.0  # Hollingham (2026) - 2026-11-03 (Martin 2026-11-03 "Let's add it"). Pass 7d, a
 #   sensitivity: the EWI open-dune calibration refitted on each well's latest MSL9, both calibrations on the wells
 #   carrying both metrics, and Ellenberg-F against MSL9 (ewi_msl9_*, ebf_msl9_*). No existing output moves.
 # 1.32.0  # Hollingham (2026) - 2026-11-03 (D-296 retirement pass; Martin 2026-11-03 "b"). Retired, as

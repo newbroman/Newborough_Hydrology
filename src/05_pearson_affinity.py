@@ -1,5 +1,5 @@
 """
-05_pearson_affinity.py
+05_pearson_affinity.py — Pearson membership audit: each well's correlation with every cluster centroid, classed Core, Fuzzy or Spy.
 Inputs:  01_wells_clean.csv, 02_cluster_stats.csv, 01_locations.csv
 Outputs (intermediate): 05_pear_membership_audit.csv
 Outputs (final): outputs/05_pearson_affinity/
@@ -8,7 +8,8 @@ Full per-script methodology: see chapter S.4 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.7.1"  # Hollingham (2026) - 2026-10-25. Label correction (Martin 22:01 "fix the k-means
+__version__ = "1.7.2"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.7.1  # Hollingham (2026) - 2026-10-25. Label correction (Martin 22:01 "fix the k-means
 #   reference"): the confidence map's title and cluster-legend heading said "k-means"; the clusters come from
 #   Script 02's Ward linkage, and no k-means is run anywhere in the pipeline. Figure text only; no data moves.
 # 1.7.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):

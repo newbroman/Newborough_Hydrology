@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-27_greyscale_figures.py
+27_greyscale_figures.py — Converts all pipeline colour figures into journal-ready greyscale versions.
 =======================
 Renamed in the 2026-05-20 commit from 26_greyscale_figures.py to free script
 number 26 for the van Willegen MSL aggregation step.
@@ -64,7 +64,8 @@ Display/utility step (tier D), run last as a post-processing pass. The canonical
 phase and step index are in outputs/pipeline_manifest.json — not restated here.
 """
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-08-12
+__version__ = "1.0.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.0.0  # Hollingham (2026) — 2026-08-12
 #
 # This module previously carried no __version__ constant; 1.0.0 marks its
 # introduction, not the start of the module's history. Prior revisions are the

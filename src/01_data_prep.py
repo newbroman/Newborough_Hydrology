@@ -1,5 +1,5 @@
 """
-01_data_prep.py
+01_data_prep.py — Prepares the raw groundwater, location and climate data: cleaned outputs and the reference/extended network splits the later scripts read.
 Purpose: Prepares raw groundwater, location, and climate data, producing cleaned
 outputs and reference/extended network splits for downstream scripts.
 
@@ -16,7 +16,8 @@ Requirements:
     pandas, numpy
 """
 
-__version__ = "1.28.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.28.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.28.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the length of the RAF Valley record in years; new row raf_valley_record_years in
 #   01_report_numbers.csv, from the climate frame written to 01_climate.csv. Emit-only; no other output moves.
 # 1.27.0  # Hollingham (2026) - 2026-09-30. 01_locations.csv gains in_clearfell and

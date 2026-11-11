@@ -1,5 +1,5 @@
 """
-18_wtf_spatial.py
+18_wtf_spatial.py — Water Table Fluctuation (WTF) method: specific yield well by well, and its spatial mapping.
 =================
 Water Table Fluctuation (WTF) Method — Individual Well Analysis and Spatial Mapping
 Newborough Warren Coastal Sand Dune Aquifer, 2005–2026
@@ -53,7 +53,8 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.19.0"  # Hollingham (2026) — 2026-11-05. D8 (spec NRG_spec_water_balance_diagnostic_2026-11-04,
+__version__ = "1.19.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.19.0  # Hollingham (2026) — 2026-11-05. D8 (spec NRG_spec_water_balance_diagnostic_2026-11-04,
 #   signed off Martin 23:20): a WINDOWED mode. wtf_windowed_wells() runs the same event rule over the months
 #   before and after config.MODEL_AB_SPLIT_DATE and writes per-well Sy for each side to
 #   18_wtf_06_well_sy_by_window.csv, so Script 55's split-sample test can fit its Sy on the side it trains on

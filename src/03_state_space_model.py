@@ -1,5 +1,5 @@
 """
-03_state_space_model.py
+03_state_space_model.py — Fits the state-space model (SSM) of the water table, per cluster centroid and per well.
 =======================
 State-space model (SSM) fits for the Newborough Warren pipeline.
 
@@ -88,7 +88,8 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.29.0"  # Hollingham (2026) - 2026-10-29 (T-129, D-289; Martin 2026-10-29 "Script 03", "One run").
+__version__ = "1.29.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.29.0  # Hollingham (2026) - 2026-10-29 (T-129, D-289; Martin 2026-10-29 "Script 03", "One run").
 #   warren_open_dune_fit(): one Model A fit, at the project datum and HEADLINE_LAG on the full record, to the centroid
 #   of every member well of config.FILM_WARREN_CLUSTERS, built from the same dry-filled frame as the cluster centroids
 #   (D-281). Written to OUT_03_WARREN (03_22) with its fit span, the member-well count and the seed Script 47 starts

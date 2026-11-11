@@ -1,5 +1,5 @@
 """
-17_wtf_specific_yield.py
+17_wtf_specific_yield.py — Water Table Fluctuation (WTF) method: specific yield estimated cluster by cluster.
 ========================
 Water Table Fluctuation (WTF) Method — Cluster-Level Specific Yield Estimation
 Newborough Warren Coastal Sand Dune Aquifer, 2005–2026
@@ -30,7 +30,8 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.9.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.9.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 SS4.2.4 quotes the event-selection funnel ranges across clusters; new rows in 17_report_numbers.csv,
 #   summarised from the Sy table export_csv() builds: sy_event_n_min/_max and sy_event_n_pass_dh_min/_max (all
 #   runs, corrected forest rows included), sy_event_n_pass_r_min/_max, sy_event_pct_censored_min and

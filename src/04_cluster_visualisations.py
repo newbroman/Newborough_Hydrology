@@ -1,10 +1,11 @@
 """
-04_cluster_visualisations.py
+04_cluster_visualisations.py — Maps the groundwater clusters at Newborough Warren: the core cluster architecture map.
 Inputs:  02_cluster_stats.csv, 01_locations.csv
 Outputs: outputs/04_cluster_visualisations/04_01_core_architecture_map.png
 """
 
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-09-09. Map
+__version__ = "1.1.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.1.0  # Hollingham (2026) — 2026-09-09. Map
 #   label placement is bounded by ITERATIONS, not the clock (W145): adjust_text()
 #   takes iter_lim=config.LABEL_ADJUST_ITER_LIM. It previously passed neither
 #   limit, so adjustText defaulted to time_lim = 1 SECOND of wall clock and the

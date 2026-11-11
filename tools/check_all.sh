@@ -18,7 +18,10 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
-# VERSION 1.39.0 - 2026-11-09   the PULL path's safety property, in the records section (J-4).
+# VERSION 1.40.0 - 2026-11-11   pipeline index section (T-197, J-13): tools/build_pipeline_index.py
+#                               --selftest and --check gate pipeline_index.html, the generated
+#                               script index index.html's Pipeline section links to.
+#   1.39.0 (2026-11-09): the PULL path's safety property, in the records section (J-4).
 #                               tools/nrg_git_selftest.sh runs nrg_git.sh's history_guard and
 #                               pull_working against throwaway repository pairs in the four states
 #                               a private pull can be in. Until nrg_git.sh 1.34.0 option 4 guarded
@@ -732,6 +735,15 @@ python3 tools/ms_chapters.py || rc=1
 # commented out. Same treatment as pipeline_lint's literal check and export_lag.
 ledger_out="$(python3 tools/ledger_lint.py 2>&1)" || rc=1
 printf '%s\n' "$ledger_out" | grep -E "row\(s\) with a stale version|^  ledger_lint:" || true
+
+echo
+section "── pipeline index (does pipeline_index.html match a fresh build?) ──────"
+# T-197 / J-13: the public page linked from index.html's Pipeline section - each script, what it
+# reads, what it feeds and which documents use it - built from pipeline_provenance.json, the
+# manifest, PROVENANCE_LEDGER and citation_index. Content against a fresh build, never mtimes;
+# the ship rebuilds it (ship_regenerate), so red here after a ship is a defect in the builder.
+python3 tools/build_pipeline_index.py --selftest >/dev/null || { echo "  build_pipeline_index --selftest: FAIL"; rc=1; }
+python3 tools/build_pipeline_index.py --check || rc=1
 
 echo
 section "── film text (do the film's three language tables say the same things?) ──"

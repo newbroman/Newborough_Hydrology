@@ -4,19 +4,19 @@
 Water Table Fluctuation (WTF) Method — Cluster-Level Specific Yield Estimation
 Newborough Warren Coastal Sand Dune Aquifer, 2005–2026
 
-Produces cluster-level WTF Sy estimates (Approaches A and B) for all clusters
+Produces cluster-level WTF S_a estimates (Approaches A and B) for all clusters
 in the live partition. Forest clusters (FOREST_CIDS from config — C4 and C5)
 additionally receive an interception-corrected variant following Freeman (2008),
 applied to Approach B only. The corrected forest values populate Table 3c of
-the manuscript and feed the WTF-Sy volumetric water balance (Table 3d,
+the manuscript and feed the WTF-S_a volumetric water balance (Table 3d,
 Figure 11b).
 
 Individual well-level WTF analysis and spatial mapping are in script 18.
 
 Outputs:
-    17_wtf_01_sy_estimates.csv   — cluster Sy estimates, inc. forest corrected rows
+    17_wtf_01_sy_estimates.csv   — cluster S_a estimates, inc. forest corrected rows
     17_wtf_02_regression.png     — OLS regression plots for Approach A
-    17_wtf_03_event_boxplot.png  — Sy distribution plots for Approach B
+    17_wtf_03_event_boxplot.png  — S_a distribution plots for Approach B
     17_wtf_04_summary.txt        — plain-text summary for manuscript
 
 References:
@@ -214,12 +214,12 @@ def approach_a_ols(df):
     Approach A: Corrected WTF regression accounting for storage decay.
 
     The observed Δh reflects both recharge and drainage:
-        Δh = (R / Sy) − β₃·|h_prev|
+        Δh = (R / S_a) − β₃·|h_prev|
 
     Rearranging:
-        R = Sy · (Δh + β₃·|h_prev|)
+        R = S_a · (Δh + β₃·|h_prev|)
     so OLS regression of R against (Δh + β₃·|h_prev|) through the origin
-    recovers Sy as the slope itself (R is the dependent variable,
+    recovers S_a as the slope itself (R is the dependent variable,
     Δh + β₃·|h_prev| is the independent variable). β₃ is the cluster-median
     drainage coefficient from the SSM master table (Script 03).
 
@@ -227,7 +227,7 @@ def approach_a_ols(df):
     appropriate for regression through the origin. The standard centred R²
     can return spurious negative values for through-origin fits because it
     compares against the mean of y rather than zero; that artefact (and the
-    inverted Sy storage that compounded it) was the v1.1.0 → v1.2.0 fix.
+    inverted S_a storage that compounded it) was the v1.1.0 → v1.2.0 fix.
 
     Approach A is fitted on uncorrected clusters only. Corrected-forest
     variants (Approach B only) are populated separately in approach_b_events.
@@ -306,7 +306,7 @@ def approach_a_ols(df):
         # (0, 1) signals a misspecified regression on future data; print
         # a warning rather than raising so the script can still complete.
         if not np.isnan(Sy) and not (0.0 < Sy < 1.0):
-            print(f"  [WARNING] {CLUSTER_LABELS[cid]} Approach A Sy = {Sy:.3f} "
+            print(f"  [WARNING] {CLUSTER_LABELS[cid]} Approach A S_a = {Sy:.3f} "
                   "is outside the physical range (0, 1). "
                   "Regression may be misspecified.")
 
@@ -317,7 +317,7 @@ def approach_a_ols(df):
             b3=b3_val,
         )
         b3_str = f"{b3_val:.3f}" if b3_val is not None else "n/a"
-        print(f"  {CLUSTER_LABELS[cid]:<32}  Sy = {Sy:.3f}  R² = {r2:.3f}  "
+        print(f"  {CLUSTER_LABELS[cid]:<32}  S_a = {Sy:.3f}  R² = {r2:.3f}  "
               f"n = {n}  SE = {se_sy:.4f}  β₃ = {b3_str}")
 
     # Forest corrected entries: NaN placeholders. The corrected fits were
@@ -333,7 +333,7 @@ def approach_a_ols(df):
 
 def approach_b_events(df):
     """
-    Approach B: Event-based median Sy from rising limb months.
+    Approach B: Event-based median S_a from rising limb months.
     Sy_i = net_R / Δh for months where Δh > WTF_EVENT_MIN_RISE_M and net_R > WTF_EVENT_MIN_NET_RECH_M.
 
     Run for every cluster (uncorrected) and additionally for FOREST_CIDS
@@ -388,14 +388,14 @@ def approach_b_events(df):
             pct_censored=(100.0 * n_cens / n_both) if n_both else float("nan"),
             sy_median_unclipped=med_unclipped,
         )
-        print(f"  {_entry_label(cid, corrected):<32}  Sy median = {med:.3f}  "
+        print(f"  {_entry_label(cid, corrected):<32}  S_a median = {med:.3f}  "
               f"IQR [{q25:.3f}, {q75:.3f}]  n = {n}")
 
     return results
 
 
 def _event_median_sy(df, cid, r_col):
-    """Approach-B event-median Sy for one cluster and one recharge column —
+    """Approach-B event-median S_a for one cluster and one recharge column —
     the same selection as approach_b_events(), factored so the sweep cannot
     drift from the headline computation."""
     sub = df[[r_col, f"dh_{cid}"]].dropna().copy()
@@ -408,9 +408,9 @@ def _event_median_sy(df, cid, r_col):
 
 def approach_b_interception_sweep(df, b_results):
     """
-    Sensitivity of the Approach-B forest-cluster Sy to the interception fraction.
+    Sensitivity of the Approach-B forest-cluster S_a to the interception fraction.
 
-    For every F on the config grid, recompute the forest clusters' event-median Sy
+    For every F on the config grid, recompute the forest clusters' event-median S_a
     with R_eff = (1 - F)·P - PET and compare it with the open-dune range - the
     min and max of the UNCORRECTED event medians of the non-forest clusters in
     this same run (so the range is never typed). One row per (F, cluster), plus
@@ -457,13 +457,13 @@ def approach_b_interception_sweep(df, b_results):
 
 def approach_c_rapid_events(df):
     """
-    Approach C: rapid-recharge-event Sy after Crosbie et al. (2005).
+    Approach C: rapid-recharge-event S_a after Crosbie et al. (2005).
 
     Independent of Approaches A and B by construction. Where A corrects for
     drainage mechanistically (β₃) and B applies no correction (bias-low), C
     *selects* episodes in which the drainage contribution to the observed rise
     is negligible: short, sharply-rising events that follow a multi-month
-    drainage baseline, so the naïve Sy = ΣR / Δh is approximately unbiased
+    drainage baseline, so the naïve S_a = ΣR / Δh is approximately unbiased
     without a β₃ term.
 
     Per cluster, on the time-ordered cluster-mean head series:
@@ -480,7 +480,7 @@ def approach_c_rapid_events(df):
          95 % CI on the median (seed WTF_RAPID_BOOT_SEED).
 
     Approach C is a reported triangulation only and does NOT propagate to any
-    other pipeline script (the Approach B per-well Sy in Script 18 remains the
+    other pipeline script (the Approach B per-well S_a in Script 18 remains the
     pipeline-consumed canonical). Forest clusters are typically data-limited
     (small n); they are reported with n and CI shown and a small-sample caveat.
     """
@@ -579,14 +579,14 @@ def approach_c_rapid_events(df):
         ci_s = (f"[{ci_lo:.3f}, {ci_hi:.3f}]" if np.isfinite(ci_lo)
                 else "[n/a — single episode]")
         corr_s = "  (interception-corrected)" if corrected else ""
-        print(f"  {CLUSTER_LABELS[cid]:<32}  Sy = {med:.3f}  95% CI {ci_s}  "
+        print(f"  {CLUSTER_LABELS[cid]:<32}  S_a = {med:.3f}  95% CI {ci_s}  "
               f"n = {n}{corr_s}")
 
     return results
 
 
 def plot_rapid_events(c_results, out_path):
-    """Figure: Approach C rapid-recharge-event Sy per cluster (median + CI + n)."""
+    """Figure: Approach C rapid-recharge-event S_a per cluster (median + CI + n)."""
     fig, ax = plt.subplots(figsize=(11, 5.5), facecolor="white")
     ax.set_facecolor("#FAFAFA")
 
@@ -623,7 +623,7 @@ def plot_rapid_events(c_results, out_path):
     ax.set_xticks(positions)
     ax.set_xticklabels([CLUSTER_LABELS[c] for c in cids],
                        fontsize=8, rotation=20, ha="right")
-    ax.set_ylabel("Specific yield Sy  (dimensionless)")
+    ax.set_ylabel("Apparent storage coefficient $S_a$ (WTF); dashed: assumed specific yield Sy")
     ax.set_ylim(0, 0.55)
     ax.axhline(0.12, color="gray", lw=1.0, ls=":", alpha=0.7,
                label="Assumed Sy non-C1 = 0.12")
@@ -632,8 +632,8 @@ def plot_rapid_events(c_results, out_path):
     ax.legend(fontsize=8.5, framealpha=0.9, loc="upper left")
     ax.grid(axis="y", lw=0.4, alpha=0.5)
     ax.set_title(
-        "Approach C — WTF Specific Yield: Rapid-Recharge-Event Method\n"
-        "Cluster median with 95% bootstrap CI; faint points = per-episode Sy\n"
+        "Approach C — WTF apparent storage coefficient $S_a$: Rapid-Recharge-Event Method\n"
+        "Cluster median with 95% bootstrap CI; faint points = per-episode S_a\n"
         f"Episode: ≥{WTF_C_DRY_BASELINE} mo Δh≤0 baseline, rise ≥"
         f"{WTF_C_MIN_RISE_M*1000:.0f} mm over ≤{WTF_C_MAX_DURATION} mo "
         "(Crosbie et al., 2005). † = interception-corrected forest cluster",
@@ -674,7 +674,7 @@ def plot_regression(df, a_results, out_path):
         if not np.isnan(r["sy"]):
             xline = np.linspace(0, dh_c.max(), 100)
             ax.plot(xline, xline * r["sy"], color="black", lw=1.8, zorder=4,
-                    label=f"WTF: Sy = {r['sy']:.3f} ± {r['se']:.3f}")
+                    label=f"WTF: $S_a$ = {r['sy']:.3f} ± {r['se']:.3f}")
             ax.fill_between(
                 xline,
                 xline * max(r["sy"] - 2 * r["se"], 0.0),
@@ -704,7 +704,7 @@ def plot_regression(df, a_results, out_path):
         ax.set_visible(False)
 
     fig.suptitle(
-        "Approach A — WTF Specific Yield: Drainage-Corrected OLS Regression\n"
+        "Approach A — WTF apparent storage coefficient $S_a$: Drainage-Corrected OLS Regression\n"
         "Newborough Warren 2005–2026  |  Winter months (Nov–Mar, PET < 25 mm/month)\n"
         "Δh corrected for storage decay: Δh_corr = Δh + β₃·|h_prev|",
         fontsize=10, fontweight="bold", y=1.02,
@@ -716,7 +716,7 @@ def plot_regression(df, a_results, out_path):
 
 
 def plot_event_boxplot(b_results, out_path):
-    """Figure: Sy distribution from Approach B event method (k=5 + forest-corrected)."""
+    """Figure: S_a distribution from Approach B event method (k=5 + forest-corrected)."""
     fig, ax = plt.subplots(figsize=(11, 5.9), facecolor="white")
     ax.set_facecolor("#FAFAFA")
 
@@ -777,7 +777,7 @@ def plot_event_boxplot(b_results, out_path):
 
     ax.set_xticks(positions)
     ax.set_xticklabels(tick_labels, fontsize=9, rotation=0, ha="center")
-    ax.set_ylabel("Specific yield Sy  (dimensionless)")
+    ax.set_ylabel("Apparent storage coefficient $S_a$ (WTF); dashed: assumed specific yield Sy")
     # Raised from 0.45 so the plausibility ceiling is ON the axis (the clipped
     # boxes alone cannot show that 39-60% of qualifying events were censored),
     # and on to 0.70 so the legend sits in clear headroom ABOVE the ceiling
@@ -792,10 +792,10 @@ def plot_event_boxplot(b_results, out_path):
     ax.legend(fontsize=9, framealpha=0.92, loc="upper left", ncol=2)
     ax.grid(axis="y", lw=0.4, alpha=0.5)
     ax.set_title(
-        "Approach B — WTF Specific Yield: Event-Based Estimates\n"
-        "Monthly Sy from rising-limb events "
+        "Approach B — WTF apparent storage coefficient $S_a$: Event-Based Estimates\n"
+        "Monthly S_a from rising-limb events "
         f"(Δh > {WTF_EVENT_MIN_RISE_M * 1000:g} mm, net R > {WTF_EVENT_MIN_NET_RECH_M * 1000:g} mm, "
-        f"{WTF_EVENT_SY_MIN:g} < Sy < {WTF_EVENT_SY_MAX:g})\n"
+        f"{WTF_EVENT_SY_MIN:g} < S_a < {WTF_EVENT_SY_MAX:g})\n"
         f"Forest corrected: R = (1−{FOREST_INTERCEPTION:g})P − PET (Freeman, 2008); "
         "hatched boxes = interception-corrected",
         fontsize=10, fontweight="bold",
@@ -861,7 +861,7 @@ def export_csv(a_results, b_results, c_results, out_path):
 
 def write_report_numbers(table, out_path):
     """T-96: the estimator comparisons report9 SS4.2.4 quotes, one row per
-    cluster from the uncorrected rows of the Sy table (the rapid-event
+    cluster from the uncorrected rows of the S_a table (the rapid-event
     estimator is interception-corrected internally at C4/C5, as in Table 8).
     Stored unrounded (D-035)."""
     rpt = ReportNumbers()
@@ -905,10 +905,10 @@ def write_report_numbers(table, out_path):
         ("sy_event_n_pass_dh_max", table, "Sy_event_n_pass_dh", "max", "months",
          f"most months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n={n_all} runs"),
         ("sy_event_pct_censored_min", base, "Sy_event_pct_censored", "min", "%",
-         f"lowest percent of months clearing both criteria censored by the Sy ceiling {sy_max} "
+         f"lowest percent of months clearing both criteria censored by the S_a ceiling {sy_max} "
          f"(Sy_event_pct_censored), n={n_base} uncorrected clusters"),
         ("sy_event_median_unclipped_min", base, "Sy_event_median_unclipped", "min", "",
-         f"lowest event-median Sy with the ceiling lifted (Sy_event_median_unclipped), "
+         f"lowest event-median S_a with the ceiling lifted (Sy_event_median_unclipped), "
          f"n={n_base} uncorrected clusters"),
     ):
         rpt.add(key, float(getattr(frame[col].astype(float), how)()), unit=unit, note=note)
@@ -925,7 +925,7 @@ def write_summary(a_results, b_results, c_results, out_path):
         "=" * 70,
         "",
         "Method: Healy and Cook (2002)",
-        "  Sy = R / dh",
+        "  S_a = R / dh",
         "  R = net recharge (P - PET, winter months Nov-Mar, PET < 25 mm/month)",
         "  dh = corresponding water table rise",
         "",
@@ -940,7 +940,7 @@ def write_summary(a_results, b_results, c_results, out_path):
         r2_s = f"{a['r2']:.3f}"   if not np.isnan(a['r2'])   else "  n/a"
         n_s  = f"{int(a['n'])}"   if not np.isnan(a['n'])    else " n/a"
         lines.append(
-            f"  {CLUSTER_LABELS[cid]:<32}  Sy = {sy_s}  "
+            f"  {CLUSTER_LABELS[cid]:<32}  S_a = {sy_s}  "
             f"{se_s} (SE)  R² = {r2_s}  n = {n_s}"
         )
 
@@ -956,7 +956,7 @@ def write_summary(a_results, b_results, c_results, out_path):
         suffix = (f"   [Freeman 2008; R_eff = (1 − {FOREST_INTERCEPTION:g})·P − PET]"
                   if corrected else "")
         lines.append(
-            f"  {label:<32}  Sy = {b['sy_median']:.3f}  "
+            f"  {label:<32}  S_a = {b['sy_median']:.3f}  "
             f"IQR [{b['q25']:.3f}, {b['q75']:.3f}]  n = {b['n']}{suffix}"
         )
 
@@ -966,8 +966,8 @@ def write_summary(a_results, b_results, c_results, out_path):
         "-" * 70,
         f"  Episode: >= {WTF_C_DRY_BASELINE} mo of dh <= 0 baseline, then rise",
         f"  >= {WTF_C_MIN_RISE_M*1000:.0f} mm over <= {WTF_C_MAX_DURATION} mo; "
-        f"per-episode Sy in [{WTF_C_SY_MIN:.2f}, {WTF_C_SY_MAX:.2f}].",
-        f"  Cluster Sy = median of episode Sy_i, 95% CI from "
+        f"per-episode S_a in [{WTF_C_SY_MIN:.2f}, {WTF_C_SY_MAX:.2f}].",
+        f"  Cluster S_a = median of episode Sy_i, 95% CI from "
         f"{WTF_C_BOOTSTRAP_N} bootstraps.",
         "",
     ]
@@ -981,7 +981,7 @@ def write_summary(a_results, b_results, c_results, out_path):
                 if np.isfinite(c["ci_lo"]) else "[n/a — single episode]")
         caveat = "   <-- data-limited (small n)" if c["n"] < 5 else ""
         lines.append(
-            f"  {CLUSTER_LABELS[cid]:<32}  Sy = {c['sy_median']:.3f}  "
+            f"  {CLUSTER_LABELS[cid]:<32}  S_a = {c['sy_median']:.3f}  "
             f"95% CI {ci_s}  n = {c['n']}{corr_s}{caveat}"
         )
 
@@ -1023,7 +1023,7 @@ def write_summary(a_results, b_results, c_results, out_path):
         "  rise is negligible by construction and no beta_3 correction is needed.",
         "  A<->C convergence validates the Approach A drainage correction;",
         "  divergence is diagnostic. Approach C is a reported triangulation only",
-        "  and does NOT propagate downstream (Approach B per-well Sy remains the",
+        "  and does NOT propagate downstream (Approach B per-well S_a remains the",
         "  pipeline-consumed canonical). It is data-limited at the forest",
         "  clusters (small n) and reported there with n and CI shown.",
         "- Forested clusters (C4 Main Forest, C5 Coastal Forest) are reported as",
@@ -1037,8 +1037,8 @@ def write_summary(a_results, b_results, c_results, out_path):
         "  corrected forest values populating Table 3c).",
         "- The corrected forest event pool is typically larger than the",
         "  uncorrected pool because reducing P brings previously-excluded high",
-        "  events (Sy > 0.50) into the admissible range.",
-        "- Both approaches give indicative Sy only; slug tests or pumping tests",
+        "  events (S_a > 0.50) into the admissible range.",
+        "- Both approaches give indicative S_a only; slug tests or pumping tests",
         "  at representative wells per cluster remain the gold standard.",
         "- Reference: Healy, R.W. and Cook, P.G. (2002) Hydrogeology Journal",
         "  10, 91-109. doi:10.1007/s10040-001-0178-0",
@@ -1053,7 +1053,7 @@ def write_summary(a_results, b_results, c_results, out_path):
 
 def main():
     # ── Paths ──────────────────────────────────────────────────────────────
-    banner("17", "WTF Specific Yield", version=__version__)
+    banner("17", "WTF apparent storage coefficient (S_a)", version=__version__)
     out_root     = OUT_DIR
     out_dir      = DIR_17
     path_table   = OUT_17_SY_TABLE

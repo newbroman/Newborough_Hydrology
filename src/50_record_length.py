@@ -77,7 +77,23 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.23.0"  # Hollingham (2026) - 2026-11-07 (J-6, Martin: "I want j6 run and sorted").
+__version__ = "1.24.0"  # Hollingham (2026) - 2026-11-10 (D-322, Martin: "option 1"). The CCW record-length
+#   hindcast (RB-50b) moves from D-281's tier 3 to tier 1: each fit is Script 03's, censored on the well's
+#   dry months (fit_ssm(..., dry_bound=dry_bounds(col))) over CALENDAR months, the last L (window=L) or the
+#   first L from the record's first month. It dropped dry months and took the trailing L VALID rows, so at the
+#   five CCW wells that go dry its window reached back to 2016 and never saw the driest months; its own check
+#   against Script 39 (reclen_check_vs39_max_abs_nse_diff) has read 0.94 instead of 0 since D-281.
+#   Extended the same day (D-322, Martin: "extend D-322 to both"): the CCW hindcast at every datum (E5, RB-50d)
+#   and E12's own-well fits (RB-50p: CCW, Ranwell and the split forecast) fit the same way, through
+#   _censored_well_fit(); E12's cluster side reads Script 03's centroids, which D-281 already treats.
+#   The split forecast in E12 was then RESTORED to Script 48's fit (D-281 tier 2): censoring it broke the
+#   check against Script 48 at 82 of 264 pairs (basis_vs48_max_abs_nse_diff 70.4).
+#   Widened to ALL of Script 50 (Martin, 2026-11-10: "put all of Script 50 on it"): no window counts rows.
+#   Every "last 100" is the last LCSC_DATA_LIMIT CALENDAR months, censored -- E9 Ranwell by datum (RB-50e),
+#   E16/E17 (RB-50t/u), the centroid window -- and E18's own-well CCW fit is censored. RB-50a's lengths
+#   are L calendar months either side of the split and RB-50c's blocks are L calendar months from the
+#   record's first month; both stay tier 2/3 (dry months dropped), as the split forecast and Script 48 do.
+# 1.23.0 - 2026-11-07 (J-6, Martin: "I want j6 run and sorted").
 #   split_series() keeps the Jan-2018 split-sample free run MONTH BY MONTH for BOTH forms
 #   (50_48_split_series.csv), and plot_split_series() draws it (50_49_split_both_models.png).
 #   Scenario 1 -- the case inside the recorded climate, the one Model B is supposed to win --
@@ -376,6 +392,18 @@ def fit_frame(frame: pd.DataFrame, intercept: bool):
         return None
 
 
+def _censored_well_fit(h: pd.Series, cl: pd.DataFrame, db, window, intercept: bool,
+                       datum: float = DRAINAGE_DATUM):
+    """1.24.0 (D-322): one well fitted as Script 03 fits it: dry months censored (dry_bound), over calendar
+    months (window = the last N, None = all of h). None where the fit fails, as fit_frame returns."""
+    db = db if (db is not None and len(db)) else None
+    try:
+        return fit_ssm(h, cl, lag=HEADLINE_LAG, window=window, drainage_datum=float(datum),
+                       min_obs=RECLEN_MIN_FIT_MONTHS, intercept=intercept, with_corr=True, dry_bound=db)
+    except Exception:
+        return None
+
+
 def run_datum(fit: dict, intercept: bool, base: float = DRAINAGE_DATUM) -> float:
     """The datum a fit is run at: Model B is Model A at base - alpha/beta_3 (base is the datum the
     frame was built at)."""
@@ -467,10 +495,13 @@ def well_experiments(well: str, cluster: int, h: pd.Series, cl: pd.DataFrame) ->
             for L in LENGTHS:
                 if L == FULL:
                     fr = fr_all
-                elif len(fr_all) >= int(L):
-                    fr = fr_all.tail(int(L)) if end == "tail" else fr_all.head(int(L))
-                else:
-                    continue
+                else:   # 1.24.0 (D-322): L calendar months adjacent to the split, not L rows
+                    if end == "tail":
+                        fr = fr_all[fr_all.index >= split - pd.DateOffset(months=int(L))]
+                    else:
+                        fr = fr_all[fr_all.index < split + pd.DateOffset(months=int(L))]
+                    if not len(fr) or (fr.index[-1].to_period("M") - fr.index[0].to_period("M")).n + 1 < int(L) - 1:
+                        continue   # the side does not span L calendar months
                 f = fit_frame(fr, icpt)
                 row = dict(base, form=form, experiment=exp, length=L, placement="adjacent")
                 row.update(describe(f, icpt, fr))
@@ -480,8 +511,11 @@ def well_experiments(well: str, cluster: int, h: pd.Series, cl: pd.DataFrame) ->
             if L == FULL:
                 frames = [("all", full)]
             else:
-                k = len(full) // int(L)
-                frames = [(str(i), full.iloc[i * int(L):(i + 1) * int(L)]) for i in range(k)]
+                # 1.24.0 (D-322): blocks of L calendar months from the record's first month, not L rows
+                t0 = full.index[0] if len(full) else None
+                k = ((full.index[-1].to_period("M") - t0.to_period("M")).n + 1) // int(L) if len(full) else 0
+                frames = [(str(i), full[(full.index >= t0 + pd.DateOffset(months=i * int(L))) &
+                                        (full.index < t0 + pd.DateOffset(months=(i + 1) * int(L)))]) for i in range(k)]
             for plc, fr in frames:
                 f = fit_frame(fr, icpt)
                 row = dict(base, form=form, experiment="stability", length=L, placement=plc)
@@ -513,7 +547,13 @@ def ccw_experiment(lev, lev_cols, cl, master):
         o, _n_cens = observed_series(obs, r.code, r.datum_offset_m)
         if o.empty:
             continue
-        full = build_ssm_frame(lev[col].dropna(), cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
+        # 1.24.0 (D-322): Script 03's fit, censored on the dry months, over calendar months.
+        h = lev[col].dropna()
+        db = dry_bounds(col)
+        db = db if len(db) else None
+        t0 = min([h.index.min()] + ([db.index.min()] if db is not None else []))
+        t1 = max([h.index.max()] + ([db.index.max()] if db is not None else []))
+        span = (t1.year - t0.year) * 12 + (t1.month - t0.month) + 1      # calendar months on record
         cluster = int(md.loc[r.well, "Cluster"]) if "Cluster" in md.columns else -1
         for form, icpt in FORMS:
             for L in LENGTHS:
@@ -521,15 +561,27 @@ def ccw_experiment(lev, lev_cols, cl, master):
                     if L == FULL:
                         if end == "start":
                             continue                       # the full record has one placement
-                        fr = full
-                    elif len(full) >= int(L):
-                        fr = full.head(int(L)) if end == "start" else full.tail(int(L))
+                        hs, dbs, win = h, db, None
+                    elif span >= int(L):
+                        if end == "end":
+                            hs, dbs, win = h, db, int(L)
+                        else:
+                            cut = t0 + pd.DateOffset(months=int(L))
+                            hs = h[h.index < cut]
+                            dbs = db[db.index < cut] if db is not None else None
+                            dbs = dbs if (dbs is not None and len(dbs)) else None
+                            win = int(L)
                     else:
                         continue
-                    f = fit_frame(fr, icpt)
+                    try:
+                        f = fit_ssm(hs, cl, lag=HEADLINE_LAG, window=win, drainage_datum=DRAINAGE_DATUM,
+                                    min_obs=RECLEN_MIN_FIT_MONTHS, intercept=icpt, with_corr=True,
+                                    dry_bound=dbs)
+                    except Exception:
+                        f = None
                     row = {"well": r.well, "code": r.code, "cluster": cluster, "form": form,
                            "length": L, "end": end if L != FULL else "all"}
-                    row.update(describe(f, icpt, fr))
+                    row.update(describe(f, icpt, f["resid"] if f is not None else None))
                     if f is None or not (f["beta_3_drainage"] > 0):
                         rows.append(row)
                         continue
@@ -819,10 +871,10 @@ def ccw_by_datum(lev, lev_cols, cl, loc_forest) -> pd.DataFrame:
         if o.empty:
             continue
         h = lev[col].dropna()
+        db = dry_bounds(col)                             # 1.24.0 (D-322): censored, calendar windows
         for D in datum_grid():
-            frame = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D))
-            for basis, fr in (("comparison_window", frame.tail(LCSC_DATA_LIMIT)), ("full_record", frame)):
-                f = fit_frame(fr, False)
+            for basis, win in (("comparison_window", LCSC_DATA_LIMIT), ("full_record", None)):
+                f = _censored_well_fit(h, cl, db, win, False, datum=float(D))
                 row = {"well": r.well, "code": r.code, "cluster": int(md.loc[r.well, "Cluster"]),
                        "in_forest": bool(loc_forest.get(normalize_well_name(r.well), False)),
                        "basis": basis, "datum_m": float(D)}
@@ -1572,14 +1624,13 @@ def ranwell_by_datum(lev, lev_cols, cl) -> pd.DataFrame:
         base = {"site_no": int(pr.site_no), "sketch_slack": pr.sketch_slack, "well": normalize_well_name(pr.well),
                 "headline": bool(pr.headline), "dist_m": float(pr.dist_m), "ground_m_od": float(pr.ground_m_od)}
         for D in datum_grid():
-            frame = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D))
-            for basis, fr in (("comparison_window", frame.tail(LCSC_DATA_LIMIT)), ("full_record", frame)):
+            for basis, win in (("comparison_window", LCSC_DATA_LIMIT), ("full_record", None)):   # 1.24.0 (D-322)
                 for form, intercept in FORMS:
                     # Model B does not depend on the datum it is built at (the intercept absorbs it):
                     # it is fitted once, at the project datum, and run at its own zero-drainage datum.
                     if intercept and not np.isclose(D, DRAINAGE_DATUM):
                         continue
-                    f = fit_frame(fr, intercept)
+                    f = _censored_well_fit(h, cl, dry_bounds(col), win, intercept, datum=D)
                     row = dict(base, form=form, basis=basis, datum_m=float(D) if not intercept else np.nan)
                     if f is None or not (f["beta_3_drainage"] > 0):
                         rows.append(row)
@@ -3815,10 +3866,10 @@ def _centroid_fit(ra: pd.DataFrame, c: int, cl, intercept: bool, span: str, spli
         h = h[h.index < split]
     elif span == "post":
         h = h[h.index >= split]
-    fr = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
-    if span == "window":
-        fr = fr.tail(LCSC_DATA_LIMIT)
-    f = fit_frame(fr, intercept)
+    if span == "window":   # 1.24.0 (D-322): the last LCSC_DATA_LIMIT calendar months, not rows
+        f = _censored_well_fit(h, cl, None, LCSC_DATA_LIMIT, intercept)
+    else:
+        f = fit_frame(build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), intercept)
     return (f if f is not None and f["beta_3_drainage"] > 0 else None), h
 
 
@@ -3886,7 +3937,7 @@ def basis_experiment(lev, lev_cols, cl, master, placement=None):
             for form, icpt in FORMS:
                 for basis in bases:
                     if basis == "well":
-                        f = fit_frame(build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), icpt)
+                        f = _censored_well_fit(hw, cl, dry_bounds(col), None, icpt)      # 1.24.0 (D-322)
                         f = f if f is not None and f["beta_3_drainage"] > 0 else None
                         sh = 0.0
                     else:
@@ -3926,8 +3977,7 @@ def basis_experiment(lev, lev_cols, cl, master, placement=None):
             for form, icpt in FORMS:
                 for basis in bases:
                     if basis == "well":
-                        fr = build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM).tail(LCSC_DATA_LIMIT)
-                        f = fit_frame(fr, icpt)
+                        f = _censored_well_fit(hw, cl, dry_bounds(col), LCSC_DATA_LIMIT, icpt)   # 1.24.0 (D-322)
                         f = f if f is not None and f["beta_3_drainage"] > 0 else None
                     else:
                         f, _hc = cfit(c, icpt, "window")
@@ -3960,6 +4010,8 @@ def basis_experiment(lev, lev_cols, cl, master, placement=None):
                     continue
                 for basis in bases:
                     if basis == "well":
+                        # The split is a forecast test, D-281 tier 2, fitted as Script 48 fits it
+                        # (dry months dropped): D-322 does not reach it (1.24.0 reverted this arm).
                         f = fit_frame(build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), icpt)
                         sh = 0.0
                     elif basis == "cluster":
@@ -4768,8 +4820,7 @@ def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) 
         pre_h, post_h = h[h.index < split], h[h.index >= split]
         for kind, z0, _lab in specs:
             D = datum_of(kind, z0, g, int(r["Cluster"]))
-            fr = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D)).tail(LCSC_DATA_LIMIT)
-            f = fit_frame(fr, False)
+            f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D)   # 1.24.0 (D-322)
             row = _base("fit", r["_n"], int(r["Cluster"]), kind, z0, D)
             if f is not None:
                 b3 = f["beta_3_drainage"]
@@ -4804,7 +4855,7 @@ def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) 
             h = lev[col].dropna()
             for kind, z0, _lab in specs:
                 D = datum_of(kind, z0, grounds[k], int(md.loc[r.well, "Cluster"]))
-                f = fit_frame(build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D)).tail(LCSC_DATA_LIMIT), False)
+                f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D)   # 1.24.0 (D-322)
                 row = _base("ccw", k, int(md.loc[r.well, "Cluster"]), kind, z0, D)
                 row["code"] = r.code
                 if f is not None and f["beta_3_drainage"] > 0:
@@ -4836,7 +4887,7 @@ def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) 
             cl_k = master.loc[master["_n"] == k, "Cluster"]
             for kind, z0, _lab in specs:
                 D = datum_of(kind, z0, grounds[k], int(cl_k.iloc[0]) if len(cl_k) else -1)
-                f = fit_frame(build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=float(D)).tail(LCSC_DATA_LIMIT), False)
+                f = _censored_well_fit(h, cl, dry_bounds(col), LCSC_DATA_LIMIT, False, datum=D)   # 1.24.0 (D-322)
                 row = _base("ranwell", k, int(cl_k.iloc[0]) if len(cl_k) else -1, kind, z0, D)
                 row.update(site_no=int(pr.site_no), headline=bool(pr.headline))
                 if f is not None and f["beta_3_drainage"] > 0:
@@ -5226,7 +5277,7 @@ def e18_tests(lev, lev_cols, cl, master) -> pd.DataFrame:
         for basis in E18_BASES:
             row = {"well": k, "code": r.code, "cluster": c, "basis": basis, "n_censored_ccw": int(n_cens)}
             if basis == "well":
-                f = fit_frame(build_ssm_frame(hw, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), False)
+                f = _censored_well_fit(hw, cl, dry_bounds(col), None, False)   # 1.24.0 (D-322)
                 f = f if f is not None and f["beta_3_drainage"] > 0 else None
                 sh = 0.0
             else:

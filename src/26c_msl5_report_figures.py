@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-26c_msl5_report_figures.py
+26c_msl5_report_figures.py — Report-format figures derived from Scripts 26 and 26b.
 ==========================
 
 Report-format figures derived from Scripts 26 and 26b — companions to
@@ -51,7 +51,8 @@ Curreli, A. et al. (2013). SD15b/SD16 dune-slack hydrological
 thresholds.
 """
 
-__version__ = "1.8.0"   # Hollingham (2026) — 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). Without
+__version__ = "1.8.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.8.0  # Hollingham (2026) — 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). Without
 #   surveyed slack floors the community levels are not set against the record. Panel (b) returns to the cluster
 #   trajectories of the four-year mean annual minimum (26_curreli_min_per_cluster.csv, fixed effects), drawn as
 #   a trajectory like panel (a), with no SD15b/SD16 lines, no SD16 shading and no per-well strip. Panel (a) and

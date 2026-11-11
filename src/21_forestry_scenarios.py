@@ -1,5 +1,5 @@
 """
-21_forestry_scenarios.py
+21_forestry_scenarios.py — Forest management scenario analysis for the Newborough Warren dune aquifer.
 ========================
 Forest management scenario analysis for Newborough Warren coastal dune aquifer.
 
@@ -87,7 +87,8 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved"). The forestry scenarios
+__version__ = "1.13.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.13.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved"). The forestry scenarios
 #   are anchored to the December 2017 felling: the canopy's draw takes the felled well's measured beta_2 change
 #   (Impact tier net of the Climate controls, clearfell_common.load_clearfell_impact_b2_multiplier; thinning half;
 #   broadleaf its monthly profile) and there is NO interception recharge term (P unchanged in every scenario) -

@@ -1,5 +1,5 @@
 """
-37b_driver_footing.py
+37b_driver_footing.py — Comparative driver footing (forest, scrape, coast) on common currencies, over a shared 2005-2025 horizon.
 ======================
 Part B — comparative driver footing (forest · scrape · coast) on common
 currencies, over a shared 2005->2025 (20-yr) horizon.
@@ -89,7 +89,8 @@ Runs after Script 37 (Part A) in the driver-validation phase; the canonical
 step index is in outputs/pipeline_manifest.json.
 """
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-07. The residual row is named for what the
+__version__ = "1.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.10.0  # Hollingham (2026) - 2026-10-07. The residual row is named for what the
 #   decomposition now shows. Script 25 1.33.0 averages the capped coastal profile over each
 #   cluster's wells, so the open-dune residuals are C1 -10.4, C2 -14.6, C3 -0.5 mm/yr: the
 #   spread (14.1) exceeds the mean (-8.5), and the residual is NOT spatially uniform. The row

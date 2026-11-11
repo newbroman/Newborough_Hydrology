@@ -1,5 +1,5 @@
 """
-19_spatial_groundwater.py
+19_spatial_groundwater.py — Spatial groundwater analysis: writes the self-contained interactive scenario viewer (scenario_viewer.html).
 =========================
 Spatial Groundwater Analysis — Newborough Warren 2005-2026
 Hollingham (2026)
@@ -26,7 +26,8 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.32.0"  # Hollingham (2026) - 2026-10-27 (D-280; Martin 01:21 "Add the depth-dependent model as a
+__version__ = "2.32.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 2.32.0  # Hollingham (2026) - 2026-10-27 (D-280; Martin 01:21 "Add the depth-dependent model as a
 #   third projection beside Model A and Model B, in Script 50 and the viewer"). projection_coefficient_sets() and
 #   paired_sets() carry the depth-dependent sets from Script 15's 15_05_ddp_per_well.csv (reference wells their own,
 #   extended wells their cluster's full-record centroid; paired with Model B as Model A is). compute_scenario_summary()

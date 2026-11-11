@@ -1,5 +1,5 @@
 """
-20_spatial_figures.py
+20_spatial_figures.py — Publication-quality spatial figures (maps) for the report's spatial groundwater analysis.
 =====================
 Publication-quality spatial figures for Section 4.9 of:
 
@@ -108,7 +108,8 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.62.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.62.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.62.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the open-dune Sy behind the inferred CEH36 cut depth, the coastal toe drawdown at the 20-yr and
 #   5-yr horizons (horizon x delta0) and WMC3's beta_1 rise from partial retention of the local gain; new rows
 #   scrape_sy_c3_median (20_scrape_report_numbers.csv), coastal_drawdown_20yr_mm, coastal_drawdown_5yr_mm and

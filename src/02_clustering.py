@@ -1,5 +1,5 @@
 """
-02_clustering.py
+02_clustering.py — Groups the reference network's wells into the core hydrogeological clusters by Ward's variance minimisation.
 Purpose: Performs Ward's Variance Minimisation on the 2026 Reference Network
 to establish the core hydrogeological clusters.
 
@@ -14,7 +14,8 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.13.1"  # Hollingham (2026) — 2026-10-25. The console banner said "k-Means Clustering"; the
+__version__ = "1.13.2"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 1.13.1  # Hollingham (2026) — 2026-10-25. The console banner said "k-Means Clustering"; the
 #   method is Ward's hierarchical clustering (linkage method="ward" throughout). Banner text only.
 # 1.13.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the bootstrap stability bound ("four of the five clusters ... >= X") and C5's raw and

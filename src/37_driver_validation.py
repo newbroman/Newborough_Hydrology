@@ -1,5 +1,5 @@
 """
-37_driver_validation.py
+37_driver_validation.py — Per-driver scale-factor regression: validates Script 20's modelled driver-change field against Script 36's climate-corrected per-well trends.
 =======================
 Per-driver scale-factor regression validating Script 20's modelled
 driver-change field against Script 36's climate-corrected per-well
@@ -117,7 +117,8 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.10.0"  # Hollingham (2026) - 2026-10-05. T-108: emits coast_vs_easting_r per window, the
+__version__ = "3.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 3.10.0  # Hollingham (2026) - 2026-10-05. T-108: emits coast_vs_easting_r per window, the
 #   Pearson r between the coastal signature (coast_i) and easting over the in-fit wells, which report9
 #   4.12.1 quotes as the collinearity that limits the scale-factor test. Emit-only.
 # 3.9.0  # Hollingham (2026) - 2026-09-30. T-96 batch 3: emit residual_sd_mm and

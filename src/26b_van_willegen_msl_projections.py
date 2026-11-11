@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-26b_van_willegen_msl_projections.py
+26b_van_willegen_msl_projections.py — Long-horizon MSL5 climate projections under UKCP18 RCP8.5 scenarios.
 ====================================
 Long-horizon MSL5 climate projections under UKCP18 RCP8.5 scenarios.
 
@@ -113,7 +113,8 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "2.2.0"  # Hollingham (2026) - 2026-11-01 (D-294; D-190's T-61 pairing). The per-cluster projection figure
+__version__ = "2.2.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+# 2.2.0  # Hollingham (2026) - 2026-11-01 (D-294; D-190's T-61 pairing). The per-cluster projection figure
 #   no longer draws SD15b/SD16: they are community means of the annual minimum, set against single wells only, and
 #   these panels are cluster MSL5 series. Projected change only; every CSV unchanged.
 # 2.1.0  # Hollingham (2026) - 2026-10-01 (D-224; Martin: "report both"). The projection

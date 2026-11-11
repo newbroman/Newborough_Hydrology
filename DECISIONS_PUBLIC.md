@@ -2643,6 +2643,62 @@ A row in `working/rule_audit_suppress.csv` (private, through `register_io`, merg
 
 **Revisit if** draining a request routinely takes more than a few minutes, in which case the shipper is a real bottleneck rather than a visible one and the rule will be routed around — as every gate in this project that cried wolf has been; or chats are given separate worktrees and stop sharing a checkout, which removes the *writing* collisions this rule does not address and may make a weaker form sufficient.
 
+### D-325 — A gate must name its witness, and a check that names none reports rather than gates (Q1)
+
+*2026-11-11*
+
+**Yes.** A gate must compare two things one actor cannot both produce, and must name its witness. There are six admissible witnesses: the **committed content** (`git show HEAD:`), **origin**, a **pinned snapshot**, a **recorded content hash**, an **exhaustive proof** over the input domain, and a **measured quantity with a target**. A check that names none of these is a report: it prints and does not gate.
+
+**Revisit if** a seventh witness is needed that none of the six covers, in which case it is named here rather than used silently; or a gate with a proper witness proves so expensive that the project would rather have the empty one, which is an argument to delete the gate, not to weaken the rule.
+
+### D-326 — The ship shows what its regenerate changed, and refuses on an unexplained change (Q2)
+
+*2026-11-11*
+
+**the regenerate writes to a staging copy, the ship prints the diff of every artefact it rebuilt, and it refuses when a rebuilt artefact changed outside the paths the ship request declares.** A green ship then means what it does not mean today: the committed derived state already was what the tree produces.
+
+**Revisit if** the staging copy makes a ship materially slower, or a legitimate ship routinely carries derived changes it cannot declare in advance — in which case the declaration, not the refusal, is what needs rethinking.
+
+### D-327 — A gate declares the inputs it needs, and may not pass having examined nothing (Q3)
+
+*2026-11-11*
+
+**a gate declares the inputs it requires and reports one of three things** — OK on a stated number of subjects, `SKIP (inputs absent by design)` naming what is missing, as `paper_refs` already does, or FAIL. **Examining zero subjects is a failure, not an OK**, and so is a subject count that falls below the committed floor. No gate may raise an uncaught exception because an input it never declared is absent.
+
+**Revisit if** declaring inputs proves impossible for a gate whose subject set is genuinely dynamic, in which case that gate declares a floor instead and says so.
+
+### D-328 — Deleting a document is decided by the Drive manifest's md5, never by a timestamp (Q4)
+
+*2026-11-11*
+
+**the test is the md5 in `working/DRIVE_MANIFEST.json`**, which every archive has written since `nrg_git.sh` 1.26.0: a version may be moved or removed only when the manifest shows Drive holds that exact content. The same ruling extends to **`drive_pull.sh`**, whose `rclone copy --update` is also an mtime comparison, so a locally-newer document is protected by a timestamp; and its md5 verification, which today *"reports differences but is never fatal"*, gates.
+
+**Revisit if** the Drive manifest is found to be stale against Drive itself, which would make it no better a witness than the clock — in which case the manifest's own freshness is what needs gating first, and `cloud_ship.sh` step 2 already does that for a ship.
+
+### D-329 — One minting service for every identifier, reading origin (Q5)
+
+*2026-11-11*
+
+**`tools/mint.py <kind>` for D, T, J, W and RB.** It reads **origin**, takes the next free number over the union of origin and this tree, writes the stub that takes it — a decision heading, a queue row, a register row — publishes it, and says `LOCAL ONLY` when it could not, in which case the number is not reserved. `decision_lint` gains the three checks it lacks: ids **unique** (it cannot see a duplicate today, because `parse_log` returns a dict), the sequence **contiguous or the gap recorded**, and **every D-number cited anywhere in either repository has an entry**. Burned numbers are recorded in the gap register `working/decision_gaps.csv`, which J-11 built for D-214 and D-295, and `mint.py` never re-issues one.
+
+**Revisit if** origin is routinely unreachable where minting is needed, in which case `LOCAL ONLY` becomes the normal path and the id spaces need a different allocation scheme (per-machine ranges).
+
+### D-330 — CLAUDE.md holds what no gate can; the bridge's environment history moves out (Q6)
+
+*2026-11-11*
+
+**§4 and §4c move to `notes/reference/` behind a one-line pointer**; §4b's mirror paragraph is corrected; every rule the matrix calls `gated` is reduced to **one line naming its gate**, with the history moved to a dated note where it is still evidence. CLAUDE.md keeps what no gate can hold: the judgement calls, the prohibitions with no mechanical form (*no Pye & Blott figure*), and the traps that are properties of a machine rather than of the work.
+
+**Revisit if** a session is found to have broken a rule *because* its history had been moved out, which would mean the history was load-bearing and belongs back in the file.
+
+### D-331 — `Traces to:` is mandatory and gated, and the 33 entries without one are backfilled (Q7)
+
+*2026-11-11*
+
+**`Traces to:` is required and gated** by `decision_lint` for every entry from now on, and the 33 without one are **backfilled in one pass**, each by an appended field naming the files it governs — appended, never rewritten, because they are dated records. An entry whose scope is genuinely the whole project says so explicitly rather than leaving the field out.
+
+**Revisit if** the backfill cannot honestly name what an old entry governs, in which case that entry is marked `Traces to: (not determinable, <date>)` rather than guessed at — a known gap being worth more than a wrong pointer.
+
 ---
 
-322 decisions. Generated by `tools/build_public_decisions.py`.
+329 decisions. Generated by `tools/build_public_decisions.py`.

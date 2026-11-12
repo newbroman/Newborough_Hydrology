@@ -478,9 +478,13 @@ repositories exist to prevent.
 cannot run it, so:
 
     git push
-    git --git-dir=.git-working --work-tree=. add -A working/
-    git --git-dir=.git-working --work-tree=. commit -F - <<'MSG' … MSG
-    git --git-dir=.git-working --work-tree=. push
+    ./working/wgit add -A working/
+    ./working/wgit commit -F - <<'MSG' … MSG
+    ./working/wgit push
+
+**Commit the private half through `./working/wgit`, not a bare `git --git-dir=.git-working`** (J-7,
+2026-11-12): `wgit commit` regenerates the HANDOFF and stages it into the same commit, so `records`
+stays green afterwards. A bare commit leaves the HANDOFF behind and the next `check_all` is red.
 
 ## 4g. Claude cloud sessions (D-227, 2026-10-02)
 

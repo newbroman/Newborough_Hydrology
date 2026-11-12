@@ -62,7 +62,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "2.6.0"  # Hollingham (2026) — 2026-11-06 (T-140/T-162, Martin: "exclude the fences,
+__version__ = "2.7.0"  # Hollingham (2026) — 2026-11-12 (J-7, Martin: "yes, do it in this chat"). The
+#   staleness detector exempts commits that touch only the records doc_lock publishes itself (D-314: lock,
+#   overrides, chat register, job queue, board marker; read from doc_lock), --write's archive files and the post-ship
+#   Drive manifest commit, so a claim or queue publish no longer turns `records` red. --selftest guards the exemption against drift.
+# "2.6.0"  # Hollingham (2026) — 2026-11-06 (T-140/T-162, Martin: "exclude the fences,
 #   leave the budget at 650 for now"). tier0_measure() counts PROSE: lines inside ``` fences no longer
 #   count, so the budget stops being a function of how many paths happen to be uncommitted — which is
 #   what made the archiver unable to converge (each pass writes an archive file, which is one more line
@@ -151,6 +155,35 @@ CHANGELOG_LEAD_DAYS = 2      # a changelog may precede its commit by this much
 # make the HANDOFF stale, or the gate would fail the moment its output was committed.
 RECORD_PATHS = ("working/updates/HANDOFF_", "working/updates/HANDOVER_NOTE.md",
                 "working/DECISION_INDEX.md")
+# 2.7.0 (J-7): what --write itself produces besides the HANDOFF (the archiver's files), and the records that
+# commit and push THEMSELVES under D-314 - the lock, the overrides log, the chat register, the job queue and the
+# board-publish marker. None of them changes what the HANDOFF reports beyond the private head line, and each is
+# committed by a tool, not by a session that could have run --write first: a claim taken or a queue publish
+# landing mid-check_all turned `records` red on 2026-11-07 (twice) and 2026-11-11 with nothing wrong. The
+# self-publishing set is READ from doc_lock, never copied, so a record added there is exempt here at once;
+# the literal below is only the fallback for a tree where doc_lock cannot be imported.
+WRITE_OUTPUTS = ("working/updates/HANDOVER_NOTE_archive_",
+                 # nrg_git.sh commits the Drive manifest AFTER a ship's archive (1.26.0): a tool commit the
+                 # HANDOFF does not report, which otherwise made every archive leave `records` red.
+                 "working/DRIVE_MANIFEST.json")
+_SELF_PUBLISHED_FALLBACK = ("working/DOCUMENT_LOCK.json", "working/claim_overrides.csv",
+                            "working/chat_register.csv", "working/job_queue.csv",
+                            "working/.board_publish_owed")
+
+
+def self_published_records() -> tuple[str, ...]:
+    """The records doc_lock commits and pushes on its own (D-314), from doc_lock itself."""
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        import doc_lock                                 # noqa: E402
+        return tuple(doc_lock.SHARED_RECORD_PATHS) + (doc_lock.PUBLISH_OWED,)
+    except Exception:
+        return _SELF_PUBLISHED_FALLBACK
+
+
+def exempt_paths() -> tuple[str, ...]:
+    """Paths whose commits cannot make the HANDOFF stale."""
+    return RECORD_PATHS + WRITE_OUTPUTS + self_published_records()
 CODE_SUFFIXES = (".py", ".sh")
 CODE_ROOTS = ("src/", "tools/", "run_analysis.py", "run_09_scraping.py", "run_10_clearfell.py")
 
@@ -581,7 +614,7 @@ def newest_substantive_commit() -> tuple[datetime | None, str]:
     """Newest commit on either repo that touched something other than the
     records this gate produces. Returns (timestamp, 'repo hash subject')."""
     best, label = None, ""
-    excl = [f":(exclude,glob){p}*" for p in RECORD_PATHS]
+    excl = [f":(exclude,glob){p}*" for p in exempt_paths()]
     for name, private in (("public", False), ("private", True)):
         if private and not PRIVATE_GIT.exists():
             continue
@@ -775,6 +808,18 @@ def selftest() -> int:
     ancient = UPDATES / ("HANDOFF_2000-01-01" + ".md")   # built, not a literal: docref_lint reads literals as citations
     if not handoff_timestamp(ancient) < datetime.now().astimezone():
         bad.append("handoff_timestamp fallback did not read a filename date")
+    # 2.7.0 (J-7): every record that publishes itself is exempt from the staleness detector, and the
+    # fallback list has not fallen behind doc_lock's own (a drifted copy is how this went red three times).
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        import doc_lock                                 # noqa: E402
+        live = set(doc_lock.SHARED_RECORD_PATHS) | {doc_lock.PUBLISH_OWED}
+        if not live <= set(exempt_paths()):
+            bad.append(f"self-published records not exempt: {sorted(live - set(exempt_paths()))}")
+        if not live <= set(_SELF_PUBLISHED_FALLBACK):
+            bad.append(f"_SELF_PUBLISHED_FALLBACK behind doc_lock: {sorted(live - set(_SELF_PUBLISHED_FALLBACK))}")
+    except ImportError as e:
+        bad.append(f"doc_lock not importable: {e}")
     if bad:
         print("session_handover --selftest: FAIL")
         for b in bad:

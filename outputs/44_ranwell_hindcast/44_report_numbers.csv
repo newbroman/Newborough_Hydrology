@@ -1,32 +1,64 @@
 key,value,unit,note
 ranwell_hindcast_sites,3,count,Ranwell sites with a printed series and a same-basin paired well
-ranwell_hindcast_r_median,0.7451854983016243,-,"median r, headline pairing, offset removed"
-ranwell_hindcast_r_min,0.7430597716344836,-,lowest r among the headline pairings
-ranwell_hindcast_r_min_all_pairings,0.6962438183149892,-,"lowest r over all 11 same-basin site-well pairings in 44_04 (headline and alternates), offset removed"
-ranwell_hindcast_r_max_all_pairings,0.9145949659653178,-,"highest r over all 11 same-basin site-well pairings in 44_04 (headline and alternates), offset removed"
-ranwell_hindcast_nse_median,0.4605793570846559,-,"median NSE after offset, headline pairing"
+ranwell_hindcast_r_median,0.9312569037596095,-,"Model B: median r, headline pairing, offset removed"
+ranwell_hindcast_r_min,0.9266222312785338,-,Model B: lowest r among the headline pairings
+ranwell_hindcast_r_min_all_pairings,0.8347391395926937,-,"Model B: lowest r over the 11 same-basin site-well pairings in 44_04 it was run at (headline and alternates), offset removed"
+ranwell_hindcast_r_max_all_pairings,0.9352512396520127,-,Model B: highest r over the 11 same-basin site-well pairings in 44_04 it was run at
+ranwell_hindcast_nse_median,0.856562444356522,-,"Model B: median NSE after offset, headline pairing (3 sites)"
+ranwell_hindcast_nse_median_all_pairings,0.6875752118542038,-,Model B: median NSE after offset over the 11 same-basin pairings it was run at
+ranwell_hindcast_n_pairings,11,count,Model B: same-basin pairings scored (of 11)
+ranwell_hindcast_r_median_model_a,0.7451854983016243,-,"Model A at 3.7 m: median r, headline pairing, offset removed"
+ranwell_hindcast_r_min_model_a,0.7430597716344836,-,Model A at 3.7 m: lowest r among the headline pairings
+ranwell_hindcast_r_min_all_pairings_model_a,0.6962438183149892,-,"Model A at 3.7 m: lowest r over the 11 same-basin site-well pairings in 44_04 it was run at (headline and alternates), offset removed"
+ranwell_hindcast_r_max_all_pairings_model_a,0.9145949659653178,-,Model A at 3.7 m: highest r over the 11 same-basin site-well pairings in 44_04 it was run at
+ranwell_hindcast_nse_median_model_a,0.4605793570846559,-,"Model A at 3.7 m: median NSE after offset, headline pairing (3 sites)"
+ranwell_hindcast_nse_median_all_pairings_model_a,0.5733322417996964,-,Model A at 3.7 m: median NSE after offset over the 11 same-basin pairings it was run at
+ranwell_hindcast_n_pairings_model_a,11,count,Model A at 3.7 m: same-basin pairings scored (of 11)
+ranwell_hindcast_r_median_mhw,0.7947509549711335,-,"Model A at mean high water: median r, headline pairing, offset removed"
+ranwell_hindcast_r_min_mhw,0.6930953343074311,-,Model A at mean high water: lowest r among the headline pairings
+ranwell_hindcast_r_min_all_pairings_mhw,0.6569979149626297,-,"Model A at mean high water: lowest r over the 11 same-basin site-well pairings in 44_04 it was run at (headline and alternates), offset removed"
+ranwell_hindcast_r_max_all_pairings_mhw,0.9129040753269436,-,Model A at mean high water: highest r over the 11 same-basin site-well pairings in 44_04 it was run at
+ranwell_hindcast_nse_median_mhw,0.599187830903426,-,"Model A at mean high water: median NSE after offset, headline pairing (3 sites)"
+ranwell_hindcast_nse_median_all_pairings_mhw,0.7357648197977256,-,Model A at mean high water: median NSE after offset over the 11 same-basin pairings it was run at
+ranwell_hindcast_n_pairings_mhw,11,count,Model A at mean high water: same-basin pairings scored (of 11)
+ranwell_model_b_bound_binds_n,0,count,paired wells whose Model B beta_3 sits at the lower bound MODEL_B_BETA3_MIN (0.0001/month); fit kept
+ranwell_model_b_excluded_datum_n,0,count,paired wells with no Model B: implied datum DRAINAGE_DATUM - alpha/beta_3 not below ground
+ranwell_model_b_bound_binds_n_pre2018,0,count,paired wells whose pre2018-window Model B refit binds at the beta_3 bound (fit kept)
+ranwell_model_b_excluded_datum_n_pre2018,0,count,paired wells whose pre2018-window Model B refit has no datum below ground (left out)
+ranwell_model_b_bound_binds_n_whole,0,count,paired wells whose whole-window Model B refit binds at the beta_3 bound (fit kept)
+ranwell_model_b_excluded_datum_n_whole,0,count,paired wells whose whole-window Model B refit has no datum below ground (left out)
+ranwell_tide_mhw_m_used,1.88,m OD,mean high water the MHW form is run at (Script 01b tide_mhw_m)
 ranwell_sites_compared,8,count,sites with a Ranwell mean and a modern surface
 ranwell_interval_years,66.20833333333326,y,modern record midpoint minus 1952
 ranwell_shoreline_retreat_1899_2026_m,126.922893015752,m,"Script 40 median shoreline retreat 1899-2026, context for the seaward sites"
 ranwell_sites_surface_constrained,7,count,sites whose modern-surface leave-one-out error is <= 0.5 m
 ranwell_forcing_ratio_1951_53,0.9663588390501319,-,Parc Mawr / RAF Valley rainfall over Ranwell's span
 ranwell_forcing_r_1951_53,0.9205856402242211,-,monthly correlation of the two gauges over Ranwell's span
-ranwell_climate_expectation_abs_max_m,0.07903301966711129,m,largest magnitude of the climate-only expectation (1951-53 against the modern hindcast) over the 8 compared sites in 44_05
-ranwell_delta_m_site1,0.2296855307067246,m,"site 1 (PL): modern minus 1951-53, climate-corrected"
+ranwell_climate_expectation_abs_max_m,0.05658140795252231,m,Model B: largest magnitude of the climate-only expectation (1951-53 against the modern hindcast) over the 8 compared sites in 44_05
+ranwell_climate_expectation_abs_max_m_model_a,0.07903301966711129,m,Model A at 3.7 m: largest magnitude of the climate-only expectation (1951-53 against the modern hindcast) over the 8 compared sites in 44_05
+ranwell_delta_m_site1,0.21084747540769466,m,"site 1 (PL): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site1_model_a,0.2296855307067246,m,"site 1: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site1,0.7803971294501382,m,site 1: four-term error
-ranwell_delta_m_site4,-0.2598947261361562,m,"site 4 (CG): modern minus 1951-53, climate-corrected"
+ranwell_delta_m_site4,-0.27056220035458023,m,"site 4 (CG): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site4_model_a,-0.2598947261361562,m,"site 4: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site4,0.20754437742917187,m,site 4: four-term error
-ranwell_delta_m_site8,-1.0531218684486947,m,"site 8 (AS): modern minus 1951-53, climate-corrected"
+ranwell_delta_m_site8,-1.0910881960700896,m,"site 8 (AS): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site8_model_a,-1.0531218684486947,m,"site 8: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site8,0.3733371992364153,m,site 8: four-term error
-ranwell_delta_m_site11,-0.25247164088567253,m,"site 11 (CG): modern minus 1951-53, climate-corrected"
+ranwell_delta_m_site11,-0.2722070555666692,m,"site 11 (CG): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site11_model_a,-0.25247164088567253,m,"site 11: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site11,0.22120469761860445,m,site 11: four-term error
-ranwell_delta_m_site12,0.01696977030995228,m,"site 12 (CG): modern minus 1951-53, climate-corrected"
+ranwell_delta_m_site12,0.015609904534957697,m,"site 12 (CG): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site12_model_a,0.01696977030995228,m,"site 12: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site12,0.24946168073219271,m,site 12: four-term error
-ranwell_delta_m_site13,-0.028269078336634834,m,"site 13 (CG): modern minus 1951-53, climate-corrected"
+ranwell_delta_m_site13,-0.02962894411162942,m,"site 13 (CG): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site13_model_a,-0.028269078336634834,m,"site 13: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site13,0.1756409213915223,m,site 13: four-term error
-ranwell_delta_m_site16,0.22150654187996727,m,"site 16 (PL): modern minus 1951-53, climate-corrected"
+ranwell_delta_m_site16,0.2029141022689378,m,"site 16 (PL): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site16_model_a,0.22150654187996727,m,"site 16: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site16,0.30500560125893034,m,site 16: four-term error
-ranwell_delta_m_site18,-0.26070666318995184,m,"site 18 (AS): modern minus 1951-53, climate-corrected"
+ranwell_delta_m_site18,-0.38334138806338397,m,"site 18 (AS): modern minus 1951-53, climate-corrected (Model B)"
+ranwell_delta_m_site18_model_a,-0.26070666318995184,m,"site 18: the same, climate-corrected with Model A at 3.7 m"
 ranwell_sigma_m_site18,0.45039892164037526,m,site 18: four-term error
 ranwell_dist_nearest_forest_well_m_site1,962.2366029205017,m,"site 1 (PL): distance from the placed position to the nearest in_forest well (01_locations), nw11; 23 forest wells"
 ranwell_dist_nearest_forest_well_m_site4,199.34394899269492,m,"site 4 (CG): distance from the placed position to the nearest in_forest well (01_locations), nw11; 23 forest wells"
@@ -53,27 +85,45 @@ ranwell_coastal_expectation_m_site12,0.0,m,"site 12: Script 25 rate at 1297 m fr
 ranwell_coastal_expectation_m_site13,0.0,m,"site 13: Script 25 rate at 1276 m from the eroding shoreline, carried across the interval (extrapolated)"
 ranwell_coastal_expectation_m_site16,0.0,m,"site 16: Script 25 rate at 1923 m from the eroding shoreline, carried across the interval (extrapolated)"
 ranwell_coastal_expectation_m_site18,-0.5121549840156567,m,"site 18: Script 25 rate at 679 m from the eroding shoreline, carried across the interval (extrapolated)"
-ranwell_delta_m_combined_all,-0.15364232265324565,m,COMBINED_ALL: inverse-variance mean over 8 sites
 ranwell_sigma_m_combined_all,0.09259574584945975,m,COMBINED_ALL: standard error
-ranwell_chi2_dof_combined_all,1.2934694764608134,-,COMBINED_ALL: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_all,-2.3205888884064816,mm/yr,COMBINED_ALL: delta over the interval
-ranwell_resolved_combined_all,0,flag,COMBINED_ALL: |delta| > 2 sigma
-ranwell_delta_lower_2sigma_m_combined_all,-0.33883381435216514,m,COMBINED_ALL: delta - 2 x standard error; a fall larger than this is excluded
-ranwell_delta_upper_2sigma_m_combined_all,0.03154916904567384,m,COMBINED_ALL: delta + 2 x standard error; a rise larger than this is excluded
-ranwell_delta_m_combined_constrained,-0.15911599379074698,m,COMBINED_CONSTRAINED: inverse-variance mean over 7 sites
+ranwell_delta_m_combined_all,-0.16928659741627405,m,COMBINED_ALL: inverse-variance mean over 8 sites (Model B)
+ranwell_chi2_dof_combined_all,1.383550428835952,-,COMBINED_ALL: chi-square per degree of freedom (Model B)
+ranwell_rate_mm_yr_combined_all,-2.55687749401547,mm/yr,COMBINED_ALL: delta over the interval (Model B)
+ranwell_resolved_combined_all,0,flag,COMBINED_ALL: |delta| > 2 sigma (Model B)
+ranwell_delta_lower_2sigma_m_combined_all,-0.3544780891151935,m,COMBINED_ALL: delta - 2 x standard error; a fall larger than this is excluded (Model B)
+ranwell_delta_upper_2sigma_m_combined_all,0.015904894282645438,m,COMBINED_ALL: delta + 2 x standard error; a rise larger than this is excluded (Model B)
+ranwell_delta_m_combined_all_model_a,-0.15364232265324565,m,COMBINED_ALL: inverse-variance mean over 8 sites (Model A at 3.7 m)
+ranwell_chi2_dof_combined_all_model_a,1.2934694764608134,-,COMBINED_ALL: chi-square per degree of freedom (Model A at 3.7 m)
+ranwell_rate_mm_yr_combined_all_model_a,-2.3205888884064816,mm/yr,COMBINED_ALL: delta over the interval (Model A at 3.7 m)
+ranwell_resolved_combined_all_model_a,0,flag,COMBINED_ALL: |delta| > 2 sigma (Model A at 3.7 m)
+ranwell_delta_lower_2sigma_m_combined_all_model_a,-0.33883381435216514,m,COMBINED_ALL: delta - 2 x standard error; a fall larger than this is excluded (Model A at 3.7 m)
+ranwell_delta_upper_2sigma_m_combined_all_model_a,0.03154916904567384,m,COMBINED_ALL: delta + 2 x standard error; a rise larger than this is excluded (Model A at 3.7 m)
 ranwell_sigma_m_combined_constrained,0.09325450587666285,m,COMBINED_CONSTRAINED: standard error
-ranwell_chi2_dof_combined_constrained,1.4682612863605533,-,COMBINED_CONSTRAINED: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_constrained,-2.403262335417201,mm/yr,COMBINED_CONSTRAINED: delta over the interval
-ranwell_resolved_combined_constrained,0,flag,COMBINED_CONSTRAINED: |delta| > 2 sigma
-ranwell_delta_lower_2sigma_m_combined_constrained,-0.3456250055440727,m,COMBINED_CONSTRAINED: delta - 2 x standard error; a fall larger than this is excluded
-ranwell_delta_upper_2sigma_m_combined_constrained,0.02739301796257873,m,COMBINED_CONSTRAINED: delta + 2 x standard error; a rise larger than this is excluded
-ranwell_delta_m_combined_beyond_reach,-0.08685463119536282,m,COMBINED_BEYOND_REACH: inverse-variance mean over 6 sites
+ranwell_delta_m_combined_constrained,-0.17471466345572106,m,COMBINED_CONSTRAINED: inverse-variance mean over 7 sites (Model B)
+ranwell_chi2_dof_combined_constrained,1.5740325418763164,-,COMBINED_CONSTRAINED: chi-square per degree of freedom (Model B)
+ranwell_rate_mm_yr_combined_constrained,-2.638862128972505,mm/yr,COMBINED_CONSTRAINED: delta over the interval (Model B)
+ranwell_resolved_combined_constrained,0,flag,COMBINED_CONSTRAINED: |delta| > 2 sigma (Model B)
+ranwell_delta_lower_2sigma_m_combined_constrained,-0.36122367520904675,m,COMBINED_CONSTRAINED: delta - 2 x standard error; a fall larger than this is excluded (Model B)
+ranwell_delta_upper_2sigma_m_combined_constrained,0.011794348297604645,m,COMBINED_CONSTRAINED: delta + 2 x standard error; a rise larger than this is excluded (Model B)
+ranwell_delta_m_combined_constrained_model_a,-0.15911599379074698,m,COMBINED_CONSTRAINED: inverse-variance mean over 7 sites (Model A at 3.7 m)
+ranwell_chi2_dof_combined_constrained_model_a,1.4682612863605533,-,COMBINED_CONSTRAINED: chi-square per degree of freedom (Model A at 3.7 m)
+ranwell_rate_mm_yr_combined_constrained_model_a,-2.403262335417201,mm/yr,COMBINED_CONSTRAINED: delta over the interval (Model A at 3.7 m)
+ranwell_resolved_combined_constrained_model_a,0,flag,COMBINED_CONSTRAINED: |delta| > 2 sigma (Model A at 3.7 m)
+ranwell_delta_lower_2sigma_m_combined_constrained_model_a,-0.3456250055440727,m,COMBINED_CONSTRAINED: delta - 2 x standard error; a fall larger than this is excluded (Model A at 3.7 m)
+ranwell_delta_upper_2sigma_m_combined_constrained_model_a,0.02739301796257873,m,COMBINED_CONSTRAINED: delta + 2 x standard error; a rise larger than this is excluded (Model A at 3.7 m)
 ranwell_sigma_m_combined_beyond_reach,0.0978101265786615,m,COMBINED_BEYOND_REACH: standard error
-ranwell_chi2_dof_combined_beyond_reach,0.5453639528039954,-,COMBINED_BEYOND_REACH: chi-square per degree of freedom
-ranwell_rate_mm_yr_combined_beyond_reach,-1.3118383566322909,mm/yr,COMBINED_BEYOND_REACH: delta over the interval
-ranwell_resolved_combined_beyond_reach,0,flag,COMBINED_BEYOND_REACH: |delta| > 2 sigma
-ranwell_delta_lower_2sigma_m_combined_beyond_reach,-0.28247488435268586,m,COMBINED_BEYOND_REACH: delta - 2 x standard error; a fall larger than this is excluded
-ranwell_delta_upper_2sigma_m_combined_beyond_reach,0.10876562196196018,m,COMBINED_BEYOND_REACH: delta + 2 x standard error; a rise larger than this is excluded
+ranwell_delta_m_combined_beyond_reach,-0.09592110327708221,m,COMBINED_BEYOND_REACH: inverse-variance mean over 6 sites (Model B)
+ranwell_chi2_dof_combined_beyond_reach,0.5599957232785899,-,COMBINED_BEYOND_REACH: chi-square per degree of freedom (Model B)
+ranwell_rate_mm_yr_combined_beyond_reach,-1.4487768902768883,mm/yr,COMBINED_BEYOND_REACH: delta over the interval (Model B)
+ranwell_resolved_combined_beyond_reach,0,flag,COMBINED_BEYOND_REACH: |delta| > 2 sigma (Model B)
+ranwell_delta_lower_2sigma_m_combined_beyond_reach,-0.2915413564344052,m,COMBINED_BEYOND_REACH: delta - 2 x standard error; a fall larger than this is excluded (Model B)
+ranwell_delta_upper_2sigma_m_combined_beyond_reach,0.0996991498802408,m,COMBINED_BEYOND_REACH: delta + 2 x standard error; a rise larger than this is excluded (Model B)
+ranwell_delta_m_combined_beyond_reach_model_a,-0.08685463119536282,m,COMBINED_BEYOND_REACH: inverse-variance mean over 6 sites (Model A at 3.7 m)
+ranwell_chi2_dof_combined_beyond_reach_model_a,0.5453639528039954,-,COMBINED_BEYOND_REACH: chi-square per degree of freedom (Model A at 3.7 m)
+ranwell_rate_mm_yr_combined_beyond_reach_model_a,-1.3118383566322909,mm/yr,COMBINED_BEYOND_REACH: delta over the interval (Model A at 3.7 m)
+ranwell_resolved_combined_beyond_reach_model_a,0,flag,COMBINED_BEYOND_REACH: |delta| > 2 sigma (Model A at 3.7 m)
+ranwell_delta_lower_2sigma_m_combined_beyond_reach_model_a,-0.28247488435268586,m,COMBINED_BEYOND_REACH: delta - 2 x standard error; a fall larger than this is excluded (Model A at 3.7 m)
+ranwell_delta_upper_2sigma_m_combined_beyond_reach_model_a,0.10876562196196018,m,COMBINED_BEYOND_REACH: delta + 2 x standard error; a rise larger than this is excluded (Model A at 3.7 m)
 slack_floor_baseline_depth_mean_m,0.4554595560533551,m,"inland baseline: median depth of the full-record mean below the slack floor, C1/2/3 wells at or beyond L"
 slack_floor_baseline_depth_mean_mad_m,0.09173354589085414,m,inland baseline (full-record mean): median absolute deviation
 slack_floor_baseline_depth_spring_m,0.21333333333333332,m,"inland baseline: median depth of the spring level (D-189/D-207) below the slack floor, C1/2/3 wells at or beyond L"
@@ -123,7 +173,8 @@ ranwell_depth_mean_1951_53_site1_m,0.5011272727272729,m,site 1: 1951-53 mean dep
 ranwell_depth_max_1951_53_site1_m,1.082,m,site 1: deepest 1951-53 reading below his floor
 ranwell_local_floor_site1_m_od,9.077499389648438,m OD,site 1: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site1_m,0.03250061035156193,m,site 1: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site1_m,-0.2621861410582873,m,"site 1: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site1_m,-0.24334808575925737,m,"site 1: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site1_m_model_a,-0.2621861410582873,m,"site 1: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_pairedwell_floor_lowering_site1_m,0.058999999999999275,m,site 1 vs ceh25 (diagnostic): Ranwell's floor minus the headline well's floor
 ranwell_pairedwell_depth_change_mean_site1_m,-0.09668097832836575,m,"site 1 vs ceh25 (diagnostic): modern mean depth minus 1951-53 mean depth, floor to floor"
 ranwell_pairedwell_depth_change_spring_site1_m,-0.234287356321839,m,"site 1 vs ceh25 (diagnostic): spring depth change, floor to floor"
@@ -133,7 +184,8 @@ ranwell_depth_mean_1951_53_site4_m,0.3429841269841269,m,site 4: 1951-53 mean dep
 ranwell_depth_max_1951_53_site4_m,0.9590000000000001,m,site 4: deepest 1951-53 reading below his floor
 ranwell_local_floor_site4_m_od,11.395000457763672,m OD,site 4: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site4_m,0.22499954223632912,m,site 4: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site4_m,0.03489518389982821,m,"site 4: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site4_m,0.0455626581182525,m,"site 4: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site4_m_model_a,0.03489518389982821,m,"site 4: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_pairedwell_floor_lowering_site4_m,0.7200000000000006,m,site 4 vs ceh27 (diagnostic): Ranwell's floor minus the headline well's floor
 ranwell_pairedwell_depth_change_mean_site4_m,0.01967681905412455,m,"site 4 vs ceh27 (diagnostic): modern mean depth minus 1951-53 mean depth, floor to floor"
 ranwell_pairedwell_depth_change_spring_site4_m,-0.024814814814814817,m,"site 4 vs ceh27 (diagnostic): spring depth change, floor to floor"
@@ -143,7 +195,8 @@ ranwell_depth_mean_1951_53_site8_m,0.45953571428571427,m,site 8: 1951-53 mean de
 ranwell_depth_max_1951_53_site8_m,0.779,m,site 8: deepest 1951-53 reading below his floor
 ranwell_local_floor_site8_m_od,6.317500114440918,m OD,site 8: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site8_m,0.5324998855590817,m,site 8: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site8_m,0.5206219828896131,m,"site 8: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site8_m,0.5585883105110071,m,"site 8: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site8_m_model_a,0.5206219828896131,m,"site 8: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_pairedwell_floor_lowering_site8_m,1.125,m,site 8 vs nw5 (diagnostic): Ranwell's floor minus the headline well's floor
 ranwell_pairedwell_depth_change_mean_site8_m,0.1544004824220433,m,"site 8 vs nw5 (diagnostic): modern mean depth minus 1951-53 mean depth, floor to floor"
 ranwell_pairedwell_depth_change_spring_site8_m,0.25755555555555554,m,"site 8 vs nw5 (diagnostic): spring depth change, floor to floor"
@@ -153,37 +206,45 @@ ranwell_depth_mean_1951_53_site11_m,0.4267083333333333,m,site 11: 1951-53 mean d
 ranwell_depth_max_1951_53_site11_m,1.03,m,site 11: deepest 1951-53 reading below his floor
 ranwell_local_floor_site11_m_od,10.979999542236328,m OD,site 11: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site11_m,0.10000045776367195,m,site 11: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site11_m,0.15247118312200197,m,"site 11: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site11_m,0.17220659780299802,m,"site 11: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site11_m_model_a,0.15247118312200197,m,"site 11: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_floor_m_od_site12,10.83,m OD,"site 12: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
 ranwell_depth_mean_1951_53_site12_m,0.12699999999999997,m,site 12: 1951-53 mean depth below his floor
 ranwell_depth_max_1951_53_site12_m,0.648,m,site 12: deepest 1951-53 reading below his floor
 ranwell_local_floor_site12_m_od,11.225500297546386,m OD,site 12: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site12_m,-0.39550029754638594,m,site 12: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site12_m,0.37853052723643255,m,"site 12: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site12_m,0.37989039301142635,m,"site 12: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site12_m_model_a,0.37853052723643255,m,"site 12: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_floor_m_od_site13,11.41,m OD,"site 13: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
 ranwell_depth_mean_1951_53_site13_m,0.6891666666666666,m,site 13: 1951-53 mean depth below his floor
 ranwell_depth_max_1951_53_site13_m,1.355,m,site 13: deepest 1951-53 reading below his floor
 ranwell_local_floor_site13_m_od,11.4350004196167,m OD,site 13: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site13_m,-0.025000419616699077,m,site 13: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site13_m,0.053269497953334244,m,"site 13: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site13_m,0.05462936372832805,m,"site 13: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site13_m_model_a,0.053269497953334244,m,"site 13: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_floor_m_od_site16,10.28,m OD,"site 16: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
 ranwell_depth_mean_1951_53_site16_m,0.8983749999999998,m,site 16: 1951-53 mean depth below his floor
 ranwell_depth_max_1951_53_site16_m,1.635,m,site 16: deepest 1951-53 reading below his floor
 ranwell_local_floor_site16_m_od,9.880000114440918,m OD,site 16: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site16_m,0.3999998855590814,m,site 16: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site16_m,-0.6215064274390479,m,"site 16: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site16_m,-0.6029139878280195,m,"site 16: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site16_m_model_a,-0.6215064274390479,m,"site 16: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_floor_m_od_site18,7.07,m OD,"site 18: Ranwell's floor, level + depth from the digitised readings (fig7_midrange)"
 ranwell_depth_mean_1951_53_site18_m,0.2437083333333333,m,site 18: 1951-53 mean depth below his floor
 ranwell_depth_max_1951_53_site18_m,0.6779999999999999,m,site 18: deepest 1951-53 reading below his floor
 ranwell_local_floor_site18_m_od,6.867499828338623,m OD,site 18: the modern local floor at the placed position (Script 43 Route F)
 ranwell_floor_lowering_site18_m,0.20250017166137724,m,site 18: Ranwell's floor minus the modern local floor (positive = the floor is lower now)
-ranwell_depth_change_site18_m,0.058206491528575266,m,"site 18: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site18_m,0.18084121640200734,m,"site 18: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"
+ranwell_depth_change_site18_m_model_a,0.058206491528575266,m,"site 18: the same, climate-adjusted with Model A at 3.7 m"
 ranwell_floor_lowering_inland_median_m,0.06625053405761694,m,"median over the 6 sites beyond L: floor lowering, his floor minus the local floor"
 ranwell_floor_lowering_inland_mad_m,0.1249999809265141,m,"median absolute deviation over the sites beyond L: floor lowering, his floor minus the local floor"
 ranwell_floor_lowering_inland_n,6,count,sites beyond L in the median
-ranwell_depth_change_inland_median_m,0.044082340926581226,m,"median over the 6 sites beyond L: depth change below the floor, climate-adjusted"
-ranwell_depth_change_inland_mad_m,0.20732866209014467,m,"median absolute deviation over the sites beyond L: depth change below the floor, climate-adjusted"
+ranwell_depth_change_inland_median_m,0.050096010923290274,m,"median over the 6 sites beyond L: depth change below the floor, climate-adjusted (Model B)"
+ranwell_depth_change_inland_mad_m,0.20777734178112772,m,"median absolute deviation over the sites beyond L: depth change below the floor, climate-adjusted (Model B)"
 ranwell_depth_change_inland_n,6,count,sites beyond L in the median
+ranwell_depth_change_inland_median_m_model_a,0.044082340926581226,m,"median over the 6 sites beyond L: depth change below the floor, climate-adjusted with Model A at 3.7 m"
+ranwell_depth_change_inland_mad_m_model_a,0.20732866209014467,m,"median absolute deviation over the sites beyond L: depth change below the floor, climate-adjusted with Model A at 3.7 m"
+ranwell_depth_change_inland_n_model_a,6,count,sites beyond L in the median
 ranwell_floor_fit_bias_inland_local_floor_m,-0.056166629791259894,m,"local_floor minus Ranwell's floor, mean over the 6 reading sites beyond L"
 ranwell_floor_fit_rmse_inland_local_floor_m,0.251239125807896,m,"local_floor against Ranwell's floor, RMSE over the 6 reading sites beyond L"
 ranwell_floor_fit_bias_inland_floor_mask_mean_m,0.18667027048863746,m,"floor_mask_mean minus Ranwell's floor, mean over the 6 reading sites beyond L"
@@ -221,17 +282,26 @@ forest_floor_n_replant_1998,2,count,forest wells in the replant_1998 group
 forest_floor_felled_vs_canopy_mw_p,0.3676767676767677,p,"two-sided Mann-Whitney, felled wells (n 4) against unfelled canopy (n 8), residual after retreat"
 forest_floor_felled_vs_canopy_differs,0.0,flag,1 if the felled and canopy residuals differ at p < 0.05 (0: they do not)
 forest_floor_preplant_window,1953-01 to 1960-12,-,the pre-planting window the climate-only hindcast is compared over (config)
-forest_floor_climate_change_since_preplant_mean_median_C4_m,0.07776219334624046,m,"C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher)"
-forest_floor_climate_change_since_preplant_min_median_C4_m,-0.012844806569777711,m,C4: the same for the annual minimum
-forest_floor_climate_change_since_preplant_min_median_C4_analogue_m,-0.01962148932550889,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254)"
-forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m,0.061477125971293844,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254)"
-forest_floor_climate_change_since_preplant_min_median_C5_analogue_m,-0.025735953015792234,m,"C5: annual-minimum change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells"
-forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m,0.05788022307455015,m,"C5: mean-level change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells"
+forest_floor_climate_change_since_preplant_mean_median_C4_m,0.09763994278228116,m,"C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher); Model B"
+forest_floor_climate_change_since_preplant_min_median_C4_m,-0.02727792910006155,m,C4: the same for the annual minimum; Model B
+forest_floor_climate_change_since_preplant_min_median_C4_analogue_m,0.0012835632368257688,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254); Model B"
+forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m,0.04863494486959008,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254); Model B"
+forest_floor_climate_change_since_preplant_min_median_C5_analogue_m,-0.007183929589357763,m,"C5: annual-minimum change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model B"
+forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m,0.036489792531653686,m,"C5: mean-level change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model B"
+forest_floor_residual_after_climate_and_retreat_steady_median_C4_m,0.5985855547817271,m,C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term; Model B
+forest_floor_residual_after_climate_and_retreat_modern_median_C4_m,0.5985855547817271,m,C4: the same with the modern-rate retreat sensitivity; Model B
+forest_floor_wells_cluster_coefficients,9,count,forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= 0.05); Model B
+forest_floor_climate_change_since_preplant_mean_median_C4_m_model_a,0.07776219334624046,m,"C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher); Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_min_median_C4_m_model_a,-0.012844806569777711,m,C4: the same for the annual minimum; Model A at 3.7 m
+forest_floor_climate_change_since_preplant_min_median_C4_analogue_m_model_a,-0.01962148932550889,m,"C4: the same with its open-dune analogue's centroid coefficients (C3; pre-planting behaviour sensitivity, D-254); Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m_model_a,0.061477125971293844,m,"C4: the mean-level change with its open-dune analogue's coefficients (C3, D-254); Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_min_median_C5_analogue_m_model_a,-0.025735953015792234,m,"C5: annual-minimum change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model A at 3.7 m"
+forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m_model_a,0.05788022307455015,m,"C5: mean-level change with its open-dune analogue's coefficients (C2, D-254); n = 5 wells; Model A at 3.7 m"
+forest_floor_residual_after_climate_and_retreat_steady_median_C4_m_model_a,0.6554735241054745,m,C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term; Model A at 3.7 m
+forest_floor_residual_after_climate_and_retreat_modern_median_C4_m_model_a,0.6050631181629642,m,C4: the same with the modern-rate retreat sensitivity; Model A at 3.7 m
+forest_floor_wells_cluster_coefficients_model_a,5,count,forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= 0.05); Model A at 3.7 m
 forest_floor_retreat_since_preplant_steady_m,78.61795838876313,m,"shoreline retreat since the window, the 1899-2006 epoch spread evenly (assumption) plus 2006-2026"
 forest_floor_retreat_since_preplant_modern_m,126.922893015752,m,"sensitivity: the 2006-2026 rate carried back over the interval, capped at the measured total since 1899"
-forest_floor_residual_after_climate_and_retreat_steady_median_C4_m,0.6554735241054745,m,C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term
-forest_floor_residual_after_climate_and_retreat_modern_median_C4_m,0.6050631181629642,m,C4: the same with the modern-rate retreat sensitivity
-forest_floor_wells_cluster_coefficients,5,count,forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= 0.05)
 forest_floor_modelled_drawdown_at_wells_m,0.15,m,median MODELLED canopy drawdown at the forest wells (Script 20 dd_mm; config.DRAWDOWN_H0_MM inside the forest)
 forest_floor_litter_allowance_m,0.2,m,"upper bound on the litter above the mineral floor under the canopy (config, Martin 2026-09-29)"
 forest_floor_residual_less_litter_median_C4_m,0.41250000000000003,m,C4: median residual after retreat less the litter allowance (lower bound on the mineral-floor excess)

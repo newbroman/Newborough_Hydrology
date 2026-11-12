@@ -32,7 +32,16 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.8.0"  # Hollingham (2026) — 2026-10-28 (D-288; Martin 04:47). A well is kept with at least
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). The benchmark gains the MHW form:
+#   Model A at each well's depth to mean high water (ground_elev_m, Script 01, less tide_mhw_m, Script 01b; Script
+#   48's form M), fitted on the same window rows as the other three and free-run at that datum. Per well:
+#   Iterative_NSE_MHW, Iterative_NSE_Improvement_MHW, Datum_MHW_m, Beta_3_MHW, pvalue_beta_3_MHW (08_perwell_nse
+#   gains MHW_NSE, dNSE_MHW, Datum_MHW_m); cluster medians gain median_MHW_NSE / positive_MHW_NSE; report numbers
+#   benchmark_{median,positive}_NSE_MHW, benchmark_median_dNSE_MHW, benchmark_n_wells_MHW, C*_{median,positive}_MHW_NSE.
+#   Model B's beta_3 is now bounded below (model_utils 1.14.0): Beta_3_bound_binds_ModelB per well and
+#   benchmark_n_beta3_bound_ModelB. The "CSV 2" comment that called Model A "Model B" is corrected. Additive:
+#   no existing column or key is renamed; Model B values move only where the bound binds.
+# 1.8.0  # Hollingham (2026) — 2026-10-28 (D-288; Martin 04:47). A well is kept with at least
 #   BENCHMARK_MIN_WINDOW_MONTHS fitted months in the comparison window, not exactly LCSC_DATA_LIMIT: since D-281 the
 #   window is a fixed calendar span and the exact-count test dropped every well with a gap or dry month (66 -> 48).
 #   The TLM, Model A and Model B are still fitted on the same rows; Months_Used records the count.
@@ -120,6 +129,8 @@ from utils.paths import (
     OUT_08_PERWELL_NSE,
     OUT_08_CLUSTER_NSE_MEDIANS,
     OUT_08_REPORT_NUMBERS,
+    INT_WELL_ELEVATIONS,
+    OUT_01B_REPORT_NUMBERS,
 )
 from utils.data_utils import normalize_well_name
 from utils.report_numbers_utils import ReportNumbers
@@ -178,12 +189,32 @@ plt.rcParams.update({
 })
 
 
-def compute_showdown_metrics(target_well_name, df_clean, df_climate):
+def mhw_datums() -> dict:
+    """1.9.0 (D-332): each well's depth from ground to mean high water (m), the datum of the MHW form:
+    ground_elev_m (Script 01) less tide_mhw_m (Script 01b), as Script 48's form M takes it."""
+    if not (OUT_01B_REPORT_NUMBERS.exists() and INT_WELL_ELEVATIONS.exists()):
+        warn("01b report numbers or 01 well elevations absent - the MHW form is skipped")
+        return {}
+    rn = pd.read_csv(OUT_01B_REPORT_NUMBERS)
+    v = rn.loc[rn["Parameter"] == "tide_mhw_m", "Value"]
+    if not len(v):
+        warn("tide_mhw_m not in 01b's report numbers - the MHW form is skipped")
+        return {}
+    mhw = float(v.iloc[0])
+    el = pd.read_csv(INT_WELL_ELEVATIONS)
+    g = pd.to_numeric(el["ground_elev_m"], errors="coerce")
+    return {normalize_well_name(str(n)): float(x) - mhw for n, x in zip(el["Name"], g) if np.isfinite(x)}
+
+
+def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=None):
     """Compute one-step and iterative showdown metrics for a single well.
 
     Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
     for the SSM drainage predictor and HEADLINE_LAG rainfall (= 0 currently),
     matching Script 03.
+
+    1.9.0 (D-332): with `mhw_datum` (the well's depth to mean high water, m), Model A is also fitted
+    and free-run at that datum on the same window rows (the MHW form).
     """
     target_norm = normalize_well_name(target_well_name)
 
@@ -221,6 +252,12 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'Alpha_ModelB': np.nan,
         'Beta_3_ModelB': np.nan,
         'pvalue_beta_3_ModelB': np.nan,
+        'Beta_3_bound_binds_ModelB': np.nan,
+        'Iterative_NSE_MHW': np.nan,
+        'Iterative_NSE_Improvement_MHW': np.nan,
+        'Datum_MHW_m': np.nan,
+        'Beta_3_MHW': np.nan,
+        'pvalue_beta_3_MHW': np.nan,
     }
 
     if target_col is None:
@@ -325,6 +362,21 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
     else:
         nse_b = np.nan
 
+    # 1.9.0 (D-332): the MHW form - Model A with each well's depth to mean high water as its datum,
+    # on the same window rows (the datum moves h_disp only, never which months are in the frame).
+    nse_m, ssm_m = np.nan, None
+    if mhw_datum is not None and np.isfinite(mhw_datum):
+        df_m = build_ssm_frame(well_series, climate, window=LCSC_DATA_LIMIT, drainage_datum=float(mhw_datum))
+        if not df_m.index.equals(df.index):
+            raise ValueError(f"{target_norm}: the MHW frame's rows differ from the benchmark window's")
+        ssm_m = fit_ssm(pre_built_frame=df_m)
+        if ssm_m is not None:
+            h_m_iter_raw = simulate_ssm(
+                h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
+                b1=float(ssm_m['beta_1_recharge']), b2=float(ssm_m['beta_2_atmospheric_draw']),
+                b3=float(ssm_m['beta_3_drainage']), drainage_datum=float(mhw_datum))
+            nse_m, _, _ = get_metrics(h_obs, np.concatenate([[h_obs[0]], h_m_iter_raw]))
+
     r2_trad_one = get_r2(h_obs, h_trad_one)
     r2_lcsc_one = get_r2(h_obs, h_lcsc_one)
 
@@ -364,6 +416,14 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate):
         'Alpha_ModelB': float(ssm_b['alpha']) if ssm_b is not None else np.nan,
         'Beta_3_ModelB': float(ssm_b['beta_3_drainage']) if ssm_b is not None else np.nan,
         'pvalue_beta_3_ModelB': float(ssm_b['pvalue_beta_3']) if ssm_b is not None else np.nan,
+        # 1.9.0 (D-332): model_utils 1.14.0 holds Model B's beta_3 at MODEL_B_BETA3_MIN where it would fall below
+        'Beta_3_bound_binds_ModelB': (bool(ssm_b.get('beta_3_bound_binds', False))
+                                      if ssm_b is not None else np.nan),
+        'Iterative_NSE_MHW': nse_m,
+        'Iterative_NSE_Improvement_MHW': nse_m - nse_trad,
+        'Datum_MHW_m': float(mhw_datum) if (mhw_datum is not None and np.isfinite(mhw_datum)) else np.nan,
+        'Beta_3_MHW': float(ssm_m['beta_3_drainage']) if ssm_m is not None else np.nan,
+        'pvalue_beta_3_MHW': float(ssm_m['pvalue_beta_3']) if ssm_m is not None else np.nan,
     })
 
     payload = {
@@ -668,7 +728,10 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
                 "Iterative_NSE_StateSpace",
                 "Iterative_NSE_Improvement",
                 "Iterative_NSE_ModelB",
-                "Iterative_NSE_Improvement_ModelB"]].merge(
+                "Iterative_NSE_Improvement_ModelB",
+                "Iterative_NSE_MHW",
+                "Iterative_NSE_Improvement_MHW",
+                "Datum_MHW_m"]].merge(
         master[keep], on="Well_Normalized", how="left")
     pw = pw.rename(columns={
         "Iterative_NSE_Traditional": "TLM_NSE",
@@ -676,7 +739,12 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
         "Iterative_NSE_Improvement": "dNSE",
         "Iterative_NSE_ModelB": "ModelB_NSE",
         "Iterative_NSE_Improvement_ModelB": "dNSE_ModelB",
+        "Iterative_NSE_MHW": "MHW_NSE",                    # 1.9.0 (D-332)
+        "Iterative_NSE_Improvement_MHW": "dNSE_MHW",
     })
+    # 1.9.0: the MHW columns go after every existing column, so positional readers are undisturbed
+    _new = ["MHW_NSE", "dNSE_MHW", "Datum_MHW_m"]
+    pw = pw[[c for c in pw.columns if c not in _new] + _new]
     pw.to_csv(perwell_path, index=False)
     saved(f"{perwell_path.name} ({len(pw)} wells)")
 
@@ -695,6 +763,10 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
             "positive_TLM_NSE": int((pd.to_numeric(grp["TLM_NSE"], errors="coerce") > 0).sum()),
             "positive_SSM_NSE": int((pd.to_numeric(grp["SSM_NSE"], errors="coerce") > 0).sum()),
             "positive_ModelB_NSE": int((pd.to_numeric(grp["ModelB_NSE"], errors="coerce") > 0).sum()),
+            # 1.9.0 (D-332): the MHW form (Model A at each well's depth to mean high water)
+            "median_MHW_NSE": float(pd.to_numeric(grp["MHW_NSE"], errors="coerce").median()),
+            "positive_MHW_NSE": int((pd.to_numeric(grp["MHW_NSE"], errors="coerce") > 0).sum()),
+            "n_MHW": int(pd.to_numeric(grp["MHW_NSE"], errors="coerce").notna().sum()),
         })
     med_df = pd.DataFrame(med_rows).sort_values("Cluster")
     med_df.to_csv(medians_path, index=False)
@@ -727,6 +799,21 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
             note=f"wells with positive iterative NSE under Model B, of {len(pw)}")
     rpt.add("benchmark_n_wells", int(len(pw)), unit="wells",
             note="reference wells entering the benchmark")
+    # 1.9.0 (D-332): the MHW form, Model A at each well's depth to mean high water (a tested alternative)
+    _m = pd.to_numeric(pw["MHW_NSE"], errors="coerce")
+    rpt.add("benchmark_median_NSE_MHW", _m.median(), unit="",
+            note=f"median iterative NSE, Model A at each well's depth to mean high water, n={int(_m.notna().sum())}")
+    rpt.add("benchmark_median_dNSE_MHW", pd.to_numeric(pw["dNSE_MHW"], errors="coerce").median(), unit="",
+            note=f"median gain in iterative NSE, Model A at mean high water over TLM, n={int(_m.notna().sum())}")
+    rpt.add("benchmark_positive_NSE_MHW", int((_m > 0).sum()), unit="wells",
+            note=f"wells with positive iterative NSE, Model A at mean high water, of {int(_m.notna().sum())}")
+    rpt.add("benchmark_n_wells_MHW", int(_m.notna().sum()), unit="wells",
+            note="benchmark wells with a ground level, so a depth to mean high water (the MHW form)")
+    # 1.9.0 (D-332): wells where Model B's beta_3 is held at the bound MODEL_B_BETA3_MIN (model_utils 1.14.0)
+    _bd = ok_df["Beta_3_bound_binds_ModelB"].fillna(False).astype(bool) if "Beta_3_bound_binds_ModelB" in ok_df else pd.Series(dtype=bool)
+    rpt.add("benchmark_n_beta3_bound_ModelB", int(_bd.sum()), unit="wells",
+            note=("wells where Model B's beta_3 is held at its lower bound (not identified): "
+                  + (", ".join(str(w) for w in ok_df.loc[_bd, "Well"]) if _bd.any() else "none")))
     # T-96: the negative-NSE counts report12 §7 quotes directly ("1 of 66 SSM
     # wells ... compared with 11 of 66 for the TLM"), counted rather than left
     # to the reader as n minus the positive counts above.
@@ -756,6 +843,12 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
         for _m in ("TLM", "SSM", "ModelB"):
             rpt.add(f"{r['Cluster']}_positive_{_m}_NSE", int(r[f"positive_{_m}_NSE"]), unit="wells",
                     note=f"wells with positive iterative NSE under {_m}, {r['Cluster']}, of {int(r['n'])}")
+        # 1.9.0 (D-332): the MHW form
+        rpt.add(f"{r['Cluster']}_median_MHW_NSE", r["median_MHW_NSE"], unit="",
+                note=f"median iterative NSE, Model A at each well's depth to mean high water, {r['Cluster']}, "
+                     f"n={int(r['n_MHW'])}")
+        rpt.add(f"{r['Cluster']}_positive_MHW_NSE", int(r["positive_MHW_NSE"]), unit="wells",
+                note=f"wells with positive iterative NSE, Model A at mean high water, {r['Cluster']}, of {int(r['n_MHW'])}")
     for coef, key in [("beta_3_drainage", "beta3"),
                       ("beta_2_atmospheric_draw", "beta2")]:
         if coef in pw.columns:
@@ -869,15 +962,19 @@ if __name__ == '__main__':
         f"(excluded {excluded_non_reference} non-reference + {excluded_by_rule} by rule: CEH7/CEH8/CEH37)"
     )
 
+    mhw_d = mhw_datums()        # 1.9.0 (D-332): the MHW form's per-well datum
     all_rows = []
     for well_col in wells_to_run:
-        row, _ = compute_showdown_metrics(well_col, wells_clean, climate)
+        row, _ = compute_showdown_metrics(well_col, wells_clean, climate,
+                                          mhw_datum=mhw_d.get(normalize_well_name(well_col)))
         all_rows.append(row)
 
     perf_df = pd.DataFrame(all_rows).sort_values('Well_Normalized').reset_index(drop=True)
     ok_df = perf_df[perf_df['Status'] == 'ok'].copy().reset_index(drop=True)
 
-    # CSV 2: Model B (State-Space) performance and improvement over Model A
+    # CSV 2: Model A (the state-space model at DRAINAGE_DATUM, no intercept) performance and its
+    # improvement over the TLM. (Until 1.9.0 this comment called it "Model B (State-Space)" and the TLM
+    # "Model A", an older naming; Model A and Model B are the no-intercept and free-intercept forms.)
     model_stats_df = ok_df[
         [
             'Well',

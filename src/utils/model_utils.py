@@ -43,6 +43,7 @@ import statsmodels.api as sm
 from utils.config import (
     DRAINAGE_DATUM, HEADLINE_LAG, SSM_MIN_OBS,
     LCSC_DATA_LIMIT as _LCSC_DATA_LIMIT,
+    MODEL_B_BETA3_MIN,
 )
 
 # Script 01's month bucketing. THE implementation is utils.buckets, which imports
@@ -52,7 +53,12 @@ from utils.config import (
 from utils.buckets import month_bucket                            # noqa: F401,E402
 
 
-__version__ = "1.13.0"  # Hollingham (2026) — 2026-11-05. simulate_water_balance(): the free-running
+__version__ = "1.14.0"  # Hollingham (2026) — 2026-11-12 (D-332, J-9 phase 2; Martin: "the bound as you
+#   propose"). Model B's β₃ is bounded below at config.MODEL_B_BETA3_MIN (1e-4/month) in fit_ssm(intercept=True)
+#   and in fit_ssm_censored(intercept=True): a free estimate below it is replaced by the fit with β₃ held AT
+#   the bound (the constrained optimum of a convex objective), flagged beta_3_bound_binds=True with
+#   beta_3_unbounded kept, and β₃'s SE/p-value NaN. A fit that does not bind is returned exactly as before.
+# 1.13.0  # Hollingham (2026) — 2026-11-05. simulate_water_balance(): the free-running
 #   fixed-Sy water balance of the water-balance residual analysis (Script 55 1.0.0, D7 — here rather than in
 #   Script 55 so a later script cannot reimplement it). simulate_ssm has no fixed-Sy, threshold form.
 #   Additive; no existing function changes.
@@ -509,6 +515,27 @@ def fit_ssm(h_series=None, climate=None, lag=None, window=None,
         result["mean_PET"] = float(-X["beta_2_atmospheric_draw"].mean())
         result["mean_h_disp_prev"] = float(-X["beta_3_drainage"].mean()) if "beta_3_drainage" in X else float("nan")
 
+    # 1.14.0 (D-332): Model B's β₃ is bounded below at MODEL_B_BETA3_MIN. The objective is a convex
+    # quadratic, so when the free estimate falls below the bound the constrained optimum lies ON it:
+    # refit with β₃ held there (the fixed_beta_3 path) and flag it. A fit that does not bind is
+    # returned exactly as before, so no unbound number moves.
+    if intercept and fixed_beta_3 is None and _b3 < MODEL_B_BETA3_MIN:
+        bound = fit_ssm(pre_built_frame=df, min_obs=min_obs, intercept=True,
+                        extra_regressors=extra_regressors, fixed_beta_3=MODEL_B_BETA3_MIN,
+                        with_corr=with_corr)
+        if bound is None:
+            return None
+        # R² against Δh itself, not the offset left-hand side the fixed path regresses
+        yy = df["Delta_h"].values[np.asarray(mask)]          # mask: always built when intercept=True
+        ssr = float(np.sum(np.asarray(bound["resid"]) ** 2))
+        sst = float(np.sum((yy - yy.mean()) ** 2))
+        bound["R2"] = 1.0 - ssr / sst if sst > 0 else float("nan")
+        if with_corr:                     # a property of the fitted months, not of β₃
+            bound["mean_h_disp_prev"] = result["mean_h_disp_prev"]
+        bound["beta_3_bound_binds"] = True
+        bound["beta_3_unbounded"] = _b3
+        return bound
+
     return result
 
 
@@ -848,23 +875,46 @@ def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
         if res2.fun <= res.fun:
             res = res2
     th = res.x
+    # 1.14.0 (D-332): Model B's β₃ is bounded below. If the optimum falls under MODEL_B_BETA3_MIN, the
+    # other parameters are re-optimised with β₃ held AT the bound, and the Hessian (so every standard
+    # error) is taken over the free parameters only: β₃'s own SE and p-value are NaN.
+    b3_unbounded = float(th[2])
+    binds = bool(intercept and b3_unbounded < MODEL_B_BETA3_MIN)
+    if binds:
+        fn_r = lambda tr: fn(np.insert(tr, 2, MODEL_B_BETA3_MIN))
+        rr = _minimize(fn_r, np.delete(th, 2), method="BFGS", options={"gtol": 1e-6, "maxiter": 2000})
+        _gr = getattr(rr, "jac", None)
+        _gmr = float(np.max(np.abs(_gr))) if _gr is not None and np.all(np.isfinite(_gr)) else np.inf
+        if not rr.success and _gmr > CENSORED_FALLBACK_GRAD_TOL:
+            rr2 = _minimize(fn_r, rr.x, method="Nelder-Mead",
+                            options={"xatol": 1e-10, "fatol": 1e-12, "maxiter": 40000, "maxfev": 80000})
+            if rr2.fun <= rr.fun:
+                rr = rr2
+        res = rr
+        th = np.insert(rr.x, 2, MODEL_B_BETA3_MIN)
+    free = [i for i in range(len(th)) if not (binds and i == 2)]
+    fh = (lambda t: fn(np.insert(t, 2, MODEL_B_BETA3_MIN))) if binds else fn
+    thf = th[free]
     # Hessian by central differences (the GHK draws are fixed, so this is smooth)
-    k = len(th); H = np.empty((k, k)); step = 1e-4 * np.maximum(np.abs(th), 1e-2)
+    k = len(thf); H = np.empty((k, k)); step = 1e-4 * np.maximum(np.abs(thf), 1e-2)
     for i in range(k):
         for j in range(i, k):
             ei = np.zeros(k); ej = np.zeros(k); ei[i] = step[i]; ej[j] = step[j]
-            H[i, j] = H[j, i] = (fn(th + ei + ej) - fn(th + ei - ej) - fn(th - ei + ej)
-                                 + fn(th - ei - ej)) / (4 * step[i] * step[j])
+            H[i, j] = H[j, i] = (fh(thf + ei + ej) - fh(thf + ei - ej) - fh(thf - ei + ej)
+                                 + fh(thf - ei - ej)) / (4 * step[i] * step[j])
     n_used = int(len(trans) + n_cens + sum(1 for r in runs if r[2] is not None))
+    K = len(th)
     try:
         # ML variance carries 1/n; scale to OLS's 1/(n - p) so the standard errors of
         # the two paths are comparable (with no dry month they then agree)
-        p_beta = 4 if intercept else 3
-        cov = np.linalg.inv(H) * (n_used / max(n_used - p_beta, 1))
+        p_beta = (4 if intercept else 3) - (1 if binds else 0)
+        covf = np.linalg.inv(H) * (n_used / max(n_used - p_beta, 1))
+        cov = np.full((K, K), np.nan)
+        cov[np.ix_(free, free)] = covf
         se = np.sqrt(np.clip(np.diag(cov), 0, None))
     except np.linalg.LinAlgError:
-        cov = np.full((k, k), np.nan); se = np.full(k, np.nan)
-    pv = lambda i: _psf(th[i] / se[i]) if se[i] > 0 else float("nan")
+        cov = np.full((K, K), np.nan); se = np.full(K, np.nan)
+    pv = lambda i: _psf(th[i] / se[i]) if se[i] > 0 else float("nan")   # NaN se -> NaN p
     b1, b2, b3 = th[:3]; alpha = th[3] if intercept else 0.0
     fr = lay["df"]
     P, E, h = fr["P"].values, fr["PET"].values, lay["h"]
@@ -885,6 +935,8 @@ def fit_ssm_censored(h_series, climate, dry_bound, lag=None, window=None,
     }
     if intercept:
         out.update(alpha=float(alpha), pvalue_alpha=pv(3), se_alpha=float(se[3]))
+    if binds:
+        out.update(beta_3_bound_binds=True, beta_3_unbounded=b3_unbounded)
     if with_corr:
         d = np.sqrt(np.diag(cov))
         out["corr_beta_2_beta_3"] = float(cov[1, 2] / (d[1] * d[2])) if d[1] * d[2] > 0 else float("nan")

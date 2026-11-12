@@ -60,7 +60,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) - 2026-10-29 (T-129, D-289; spec NRG_spec_film_one_warren_model_2026-10-29;
+__version__ = "1.11.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). The one rule is now Model B on the
+#   warren's MEDIAN hydrograph (Script 03 1.30.0, 03_22; Martin 2026-11-12): load_warren() reads alpha and the run passes it
+#   to simulate_ssm (Model B is Model A at the datum DRAINAGE_DATUM - alpha/beta_3). Every film number moves with it.
+#   Slide 1 (47_06): the legend below the axes, off the data.
+# 1.10.0  # Hollingham (2026) - 2026-10-29 (T-129, D-289; spec NRG_spec_film_one_warren_model_2026-10-29;
 #   Martin 2026-10-29 "Script 03", "One run", "Field, not fixed text"). The film runs ONE rule, the open-dune warren:
 #   Model A fitted by Script 03 to the centroid of every member well of config.FILM_WARREN_CLUSTERS (03_22), seeded once
 #   from that centroid's mean Aug-Sep minimum, instead of a run per well on its cluster's coefficients and the median
@@ -349,7 +353,9 @@ def load_warren() -> dict:
     if b3 < 0:
         warn(f"warren beta_3 = {b3:.4f} is negative (expected positive under the "
              f"displacement formulation); magnitude used")
+    # 1.11.0 (D-332): the rule is Model B on the warren's median hydrograph; its intercept enters the run
     out = {"betas": (float(r["beta_1_recharge"]), float(r["beta_2_atmospheric_draw"]), abs(b3)),
+           "alpha": float(r["alpha"]),
            "seed_m": float(r["seed_level_m"]), "n_wells": int(r["n_wells"]),
            "clusters": str(r["clusters"])}
     step(f"one rule from {OUT_03_WARREN.name}: {out['clusters']}, {out['n_wells']} wells, "
@@ -451,7 +457,7 @@ def decode_cells(feed: dict):
 # ─────────────────────────────────────────────────────────────────────────────
 # THE RECURRENCE
 # ─────────────────────────────────────────────────────────────────────────────
-def _simulate_across_holes(h0, P, E, ok, b1, b2, b3):
+def _simulate_across_holes(h0, P, E, ok, b1, b2, b3, alpha=0.0):
     """The recurrence over a climate record with holes in it.
 
     A hole takes NO STEP AT ALL: h(t) = h(t-1), and month t+1 continues from that
@@ -479,7 +485,7 @@ def _simulate_across_holes(h0, P, E, ok, b1, b2, b3):
         j = i
         while j < n and ok[j]:
             j += 1
-        seg = simulate_ssm(cur, P[i:j], E[i:j], b1, b2, b3, drainage_datum=DRAINAGE_DATUM)
+        seg = simulate_ssm(cur, P[i:j], E[i:j], b1, b2, b3, drainage_datum=DRAINAGE_DATUM, alpha=alpha)
         h[i:j] = seg
         cur = float(seg[-1])
         i = j
@@ -499,7 +505,7 @@ def run_recurrence(clim: pd.DataFrame, warren: dict) -> pd.DataFrame:
     E = clim["PET"].to_numpy(float)
     ok = np.isfinite(P) & np.isfinite(E)
     b1, b2, b3 = warren["betas"]
-    h = _simulate_across_holes(-abs(warren["seed_m"]), P, E, ok, b1, b2, b3)
+    h = _simulate_across_holes(-abs(warren["seed_m"]), P, E, ok, b1, b2, b3, alpha=warren["alpha"])
     out = pd.DataFrame({
         "month": clim["month"],
         "median_level_modelled_m": h,
@@ -510,7 +516,7 @@ def run_recurrence(clim: pd.DataFrame, warren: dict) -> pd.DataFrame:
     # December, so the calendar reading gave 13 months where the guide slide says
     # "the first two years are the model settling from its starting guess".
     out["spin_up"] = np.arange(len(out)) < 12 * HINDCAST_SPIN_UP_YEARS
-    step(f"one recurrence over {len(out)} months ({warren['clusters']} centroid rule); "
+    step(f"one recurrence over {len(out)} months ({warren['clusters']} median-hydrograph rule, Model B); "
          f"first {int(out['spin_up'].sum())} months flagged spin_up")
     return out
 
@@ -716,7 +722,7 @@ def plot_free_run(level: pd.DataFrame, stats: dict | None) -> None:
         return
     t = pd.PeriodIndex(level["month"], freq="M").to_timestamp()
     span = (t >= t[ok].min()) & (t <= t[ok].max())
-    fig, ax = plt.subplots(figsize=(10, 4.4))
+    fig, ax = plt.subplots(figsize=(10, 4.9))   # 1.11.0: taller, the legend sits below the axes
     ax.plot(t[span], level.loc[span, "median_level_modelled_m"], color=COL_WATER, lw=1.6,
             label=T["fr_label_model"]
             + (T.f("fr_label_model_stats", r2=stats["r2_raw"],
@@ -730,7 +736,8 @@ def plot_free_run(level: pd.DataFrame, stats: dict | None) -> None:
     ax.set_title(T["fr_title"], fontsize=12,
                  weight="bold", loc="left")
     ax.grid(alpha=0.3)
-    ax.legend(fontsize=9, loc="lower left", framealpha=0.9)
+    # 1.11.0 (J-9): the legend below the axes, off the data (it hid the 2011-12 trough)
+    ax.legend(fontsize=9, loc="upper left", bbox_to_anchor=(0.0, -0.07), frameon=False, ncol=1)
     fig.tight_layout()
     DIR_47.mkdir(parents=True, exist_ok=True)
     target = out_47_lang(OUT_47_FREE_RUN_FIG, T.lang)

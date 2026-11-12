@@ -80,7 +80,11 @@ percentile ranges span much wider intervals (Met Office, 2018).
 
 Inputs
 ------
-  03_03_cluster_mechanistic_coefficients.csv  — cluster SSM β coefficients
+  03_16_model_b_persistence.csv               — Model B β coefficients (centroid and
+                                                per-well rows): the projection
+  03_03_cluster_mechanistic_coefficients.csv  — Model A cluster coefficients: the
+                                                _model_a sensitivity and the
+                                                one-month-rate diagnostic column only
   01_climate.csv                              — RAF Valley monthly P, PET
   26_msl_5yr_per_cluster_centroid.csv         — observed MSL5 baseline (Method B,
                                                 cluster centroid from Script 03;
@@ -113,7 +117,13 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "2.2.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "2.3.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the forecaster and the
+#   figure's headline: its scenario lines take filled markers, and Model A's lines and bar-panel diamonds leave the
+#   figure (its values stay in 26b_msl5_ukcp18_projection_summary[_perwell]_model_a.csv and the _model_a keys, the
+#   sensitivity D-332 states as B's limitation). New count keys msl5_projection_n_clusters_beta3_bound and
+#   msl5_projection_n_wells_beta3_bound: model_utils 1.14.0 bounds Model B's beta_3 below at MODEL_B_BETA3_MIN, and a
+#   bound fit (NaN p-value) fails response_identified and is withheld, as a negative beta_3 was. Every CSV unchanged.
+# 2.2.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 2.2.0  # Hollingham (2026) - 2026-11-01 (D-294; D-190's T-61 pairing). The per-cluster projection figure
 #   no longer draws SD15b/SD16: they are community means of the annual minimum, set against single wells only, and
 #   these panels are cluster MSL5 series. Projected change only; every CSV unchanged.
@@ -319,7 +329,7 @@ def _compute_projected_msl5_trajectory(
     out["MSL5_perturbed"] = out["MSL5_observed"] + out["msl5_shift"]
     return out[["window_end_year", "MSL5_perturbed", "msl5_shift"]]
 
-def _render_bar_panel(ax, projected_trajectories, cluster_ids_present, projected_a=None):
+def _render_bar_panel(ax, projected_trajectories, cluster_ids_present):
     """
     Render the ΔMSL5 summary bar chart in the figure's 6th panel.
     One group per cluster, two bars per group (2050s, 2080s). Bars are
@@ -362,18 +372,6 @@ def _render_bar_panel(ax, projected_trajectories, cluster_ids_present, projected
             ax.text(xi, v, f"{v:+.1f}", ha="center", va="top" if v < 0 else "bottom",
                     fontsize=7.5, color="#222")
 
-    # D-224: Model A's mean shift as a diamond on each bar's centre line
-    a_vals = []
-    if projected_a:
-        for xs, scen in ((x - width / 2, "2050s"), (x + width / 2, "2080s")):
-            for xi, cid in zip(xs, cluster_ids_present):
-                pa = projected_a.get((cid, scen))
-                v = float(pa["msl5_shift"].mean()) * 100.0 if pa is not None and len(pa) else np.nan
-                if np.isfinite(v):
-                    a_vals.append(v)
-                    ax.plot(xi, v, marker="D", ms=5, mfc="white", mec="black", mew=0.9, zorder=6)
-        ax.plot([], [], marker="D", ls="", ms=5, mfc="white", mec="black", label="Model A (D-224)")
-        ax.legend(fontsize=7, loc="lower left", frameon=False)
     ax.set_xticks(x)
     ax.set_xticklabels(cluster_labels, fontsize=9)
     ax.set_ylabel("Projected ΔMSL5 (cm)", fontsize=9)
@@ -382,7 +380,7 @@ def _render_bar_panel(ax, projected_trajectories, cluster_ids_present, projected
     ax.grid(axis="y", alpha=0.25)
     ax.tick_params(labelsize=8)
     # Room for labels on both sides of zero (shifts can be positive, 2.0.0)
-    finite = [v for v in bars_2050 + bars_2080 + a_vals if np.isfinite(v)] or [0.0]
+    finite = [v for v in bars_2050 + bars_2080 if np.isfinite(v)] or [0.0]
     span = max(max(finite) - min(min(finite), 0.0), 1.0)
     ax.set_ylim(min(min(finite), 0.0) - 0.15 * span, max(max(finite), 0.0) + 0.15 * span)
 
@@ -390,7 +388,6 @@ def render_projection_figure(
         observed_trajectories: dict[int, pd.DataFrame],
         projected_trajectories: dict[tuple[int, str], pd.DataFrame],
         out_path: Path,
-        projected_a: dict | None = None,
 ) -> None:
     """
     Render the projection figure as a 2x3 small-multiple layout:
@@ -404,6 +401,8 @@ def render_projection_figure(
     The scenario lines are the observed trajectory shifted by each window's
     sustained level response (2.0.0, D-216); a cluster whose Model B β₃ is not
     identified carries no scenario line. The bar chart gives the mean shift.
+    Model B only (2.3.0, D-332): Model A's projection is the sensitivity, in the
+    _model_a CSVs and report keys, not on this figure.
     """
     cluster_ids_present = sorted(observed_trajectories.keys())
 
@@ -430,7 +429,7 @@ def render_projection_figure(
             sty = SCENARIO_STYLES[scen]
             ax.plot(proj["window_end_year"], proj["MSL5_perturbed"],
                     color=col, marker=sty["marker"], markersize=4,
-                    markerfacecolor="white", markeredgecolor=col,
+                    markerfacecolor=col, markeredgecolor=col,
                     linestyle=sty["linestyle"], linewidth=sty["linewidth"],
                     alpha=sty["alpha"], label=sty["label"], zorder=4)
             # name the line at its right-hand end (2.0.0; Martin: "you cant tell which line is which")
@@ -441,17 +440,6 @@ def render_projection_figure(
                             xytext=(5, 0), textcoords="offset points", va="center",
                             fontsize=7, color=col)
 
-        # D-224: the same scenarios on Model A — filled markers on a lighter line
-        for scen in ["2050s", "2080s"]:
-            proj = (projected_a or {}).get((cid, scen))
-            if proj is None or proj.empty or not proj["MSL5_perturbed"].notna().any():
-                continue
-            sty = SCENARIO_STYLES[scen]
-            ax.plot(proj["window_end_year"], proj["MSL5_perturbed"],
-                    color=col, marker=sty["marker"], markersize=3.5,
-                    markerfacecolor=col, markeredgecolor=col,
-                    linestyle=sty["linestyle"], linewidth=0.9, alpha=0.55, zorder=3)
-
         # Curreli reference lines — drawn but only included in the y-range
         # if they're inside the observed envelope; otherwise the per-panel
         # auto-scale would zoom out to include them and lose the shift detail
@@ -460,9 +448,6 @@ def render_projection_figure(
             p = projected_trajectories.get((cid, scen))
             if p is not None and len(p):
                 all_y.extend(p["MSL5_perturbed"].dropna().tolist())
-            pa = (projected_a or {}).get((cid, scen))
-            if pa is not None and len(pa):
-                all_y.extend(pa["MSL5_perturbed"].dropna().tolist())
         y_min = float(min(all_y))
         y_max = float(max(all_y))
         y_range = y_max - y_min
@@ -486,32 +471,27 @@ def render_projection_figure(
 
     # 6th panel: ΔMSL5 bar chart (replaces the legend cell)
     bar_ax = axes_flat[len(cluster_ids_present)]
-    _render_bar_panel(bar_ax, projected_trajectories, cluster_ids_present, projected_a)
+    _render_bar_panel(bar_ax, projected_trajectories, cluster_ids_present)
 
     # Figure-level legend strip
     legend_handles = [
         plt.Line2D([0], [0], color="#444", marker="o", lw=1.8, markersize=4.5,
                    label="Observed (Script 26 cluster centroid)"),
         plt.Line2D([0], [0], color="#444", marker="s", lw=1.4, markersize=4,
-                   markerfacecolor="white",
                    linestyle=SCENARIO_STYLES["2050s"]["linestyle"],
                    label="UKCP18 RCP8.5 2050s (central estimate)"),
         plt.Line2D([0], [0], color="#444", marker="^", lw=1.4, markersize=4,
-                   markerfacecolor="white",
                    linestyle=SCENARIO_STYLES["2080s"]["linestyle"],
                    label="UKCP18 RCP8.5 2080s (central estimate)"),
-        plt.Line2D([0], [0], color="#444", marker="^", lw=0.9, markersize=3.5, alpha=0.55,
-                   markerfacecolor="#444", linestyle=SCENARIO_STYLES["2080s"]["linestyle"],
-                   label="Model A (filled; D-224)"),
     ]
     fig.legend(handles=legend_handles, loc="upper center",
-               bbox_to_anchor=(0.5, 0.945), ncol=4, fontsize=8,
+               bbox_to_anchor=(0.5, 0.945), ncol=3, fontsize=8,
                frameon=False, handlelength=4.5)
 
     fig.suptitle("Per-cluster MSL5 trajectory under UKCP18 RCP8.5 climate "
                  "scenarios\n"
                  "Cluster-centroid baseline (Script 26) shifted by the sustained level "
-                 "response to each scenario: Model B (hollow markers, D-216) and Model A (filled, D-224)",
+                 "response to each scenario (Model B, D-216, D-332)",
                  fontsize=11, y=0.995)
     fig.tight_layout(rect=[0, 0, 1, 0.92])
     render_figure(fig, out_path)
@@ -663,8 +643,8 @@ def main() -> int:
     print()
 
     # ── Load inputs ──────────────────────────────────────────────────────────
-    # Model B centroids drive the projection (2.0.0, D-216); Model A's published
-    # coefficients feed only the one-month-rate diagnostic column.
+    # Model B centroids drive the projection (2.0.0, D-216; D-332). Model A's centroid
+    # coefficients feed only the _model_a sensitivity and the one-month-rate diagnostic column.
     mb_all = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
     coeffs = mb_all[mb_all["level"] == "centroid"].copy()
     print(f"  {paths.OUT_03_MODEL_B_PERSISTENCE.name:<48s} : {len(coeffs)} Model B centroids")
@@ -702,7 +682,6 @@ def main() -> int:
     delta_h_records = []
     summary_records = []
     projected_trajectories: dict[tuple[int, str], pd.DataFrame] = {}
-    projected_a: dict[tuple[int, str], pd.DataFrame] = {}           # D-224
     summary_records_a = []                                          # D-224
     observed_trajectories: dict[int, pd.DataFrame] = {}
 
@@ -801,7 +780,6 @@ def main() -> int:
                 sustained_a = np.nan
                 traj_a = obs_traj.assign(MSL5_perturbed=np.nan, msl5_shift=np.nan)[
                     ["window_end_year", "MSL5_perturbed", "msl5_shift"]]
-            projected_a[(cid, scen_key)] = traj_a
             print(f"    {scen_key}: Model A ΔMSL5 mean over windows = "
                   f"{(float(traj_a['msl5_shift'].mean()) if ident_a_pair else np.nan):+.3f} m "
                   f"(sustained {sustained_a:+.3f} m)" + ("" if ident_a_pair else "  -> withheld (D-224 pairing or not identified)"))
@@ -847,6 +825,19 @@ def main() -> int:
         rpt.add(f"msl5_shift_sustained_m_{_lab}_{rec['scenario']}", rec["msl5_shift_sustained_m"],
                 unit="m", well=str(rec["cluster_label"]), era=str(rec["scenario"]),
                 note="Sustained spring level response to the scenario climatology, Model B (D-216).")
+    # 2.3.0 (D-332): model_utils 1.14.0 bounds Model B's beta_3 below; a bound fit carries a NaN p-value and
+    # fails response_identified, so it is withheld as a negative beta_3 was. Count the fits at the bound.
+    def _n_bound(frame):
+        if "beta_3_bound_binds" in frame.columns:
+            return int(frame["beta_3_bound_binds"].fillna(False).astype(bool).sum())
+        return int((frame["beta_3_B"] <= config.MODEL_B_BETA3_MIN).sum())
+    rpt.add("msl5_projection_n_clusters_beta3_bound", float(_n_bound(coeffs)), unit="count",
+            note=f"03_16 cluster centroids whose Model B beta_3 sits at the lower bound "
+                 f"{config.MODEL_B_BETA3_MIN:g} (model_utils 1.14.0, D-332); withheld if so")
+    _wells_b = mb_all[mb_all["level"] == "well"]
+    rpt.add("msl5_projection_n_wells_beta3_bound", float(_n_bound(_wells_b)), unit="count",
+            note=f"03_16 reference wells whose Model B beta_3 sits at the lower bound "
+                 f"{config.MODEL_B_BETA3_MIN:g}, of {len(_wells_b)}; withheld from the per-well pathway if so")
     _wh = _sdf.loc[~_sdf["identified"], "cluster_label"].drop_duplicates()
     rpt.add("msl5_projection_n_clusters_withheld", float(len(_wh)), unit="count",
             note="clusters whose Model B beta_3 fails Script 48's identifiability rule and are "
@@ -890,8 +881,7 @@ def main() -> int:
     compute_perwell_msl5_summary_model_a(monthly_P_m, monthly_PET_m, OUT_TABLE_PERWELL_A)   # D-224
 
     # ── Figure ───────────────────────────────────────────────────────────────
-    render_projection_figure(observed_trajectories, projected_trajectories,
-                              OUT_FIG, projected_a)
+    render_projection_figure(observed_trajectories, projected_trajectories, OUT_FIG)
 
     # ── Transcript ───────────────────────────────────────────────────────────
     with OUT_TXT.open("w") as fh:

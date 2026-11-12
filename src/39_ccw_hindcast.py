@@ -68,7 +68,7 @@ The full-record pass
 --------------------
 The recurrence already ran the whole committed climate record as spin-up before
 the comparison window opened. The full-record pass keeps that series instead of
-discarding it, over an open-ground panel whose inclusion policy is declared in
+discarding it (Model B since 1.7.0, Model A beside it as *_model_a columns), over an open-ground panel whose inclusion policy is declared in
 open_ground_panel(). Each well is expressed as an anomaly against its OWN
 modelled mean over its OWN modern record span, so the curve carries no
 observed-to-modelled offset and no cross-well datum assumption.
@@ -82,11 +82,26 @@ refitted here and hindcast alongside, so the fitting window's effect is shown
 rather than assumed; beta_3 in particular encodes a drainage geometry the
 record cannot hold fixed across the span. Any caption must say so.
 
+Model B is the forecaster (D-332, 1.7.0)
+---------------------------------------
+Since 2026-11-12 the headline hindcast, figure 39_04 and every report number are Model B: the
+free-intercept form, Script 03's coefficients (03_16) run at the datum its intercept implies,
+DRAINAGE_DATUM - alpha/beta_3. Its beta_3 is bounded below (config.MODEL_B_BETA3_MIN); a bound fit is
+kept and counted; a well whose implied datum is not below ground has no Model B and is counted out.
+Two fixed-floor forms are reported as tested alternatives: Model A at DRAINAGE_DATUM (the master
+store; 39_01's unsuffixed columns, report keys *_model_a), and Model A at each well's depth to mean
+high water (ground less Script 01b's tide_mhw_m; 39_02 predicted_mhw_m_bg, keys *_mhw). 39_10 sets
+the three side by side per well, scoring dry months as Addendum 2 does. The full-record pass
+(39_05-39_07) is Model B too, with Model A in *_model_a columns. Admission and the full-record
+panel rest on Model B's coefficients, not Model A's.
+
 Inputs (via utils.paths):
     CCW_DEPTHS        (data/ccw_1989_1996_depths.csv)     historic depths, tidy
     CCW_CODE_MAP      (data/ccw_1989_1996_code_map.csv)   code -> well + status
     INT_CLIMATE       (01_climate.csv)                    P_m, PET in m/month
-    INT_MASTER_DATA   (03_master_data.csv)                per-well beta_1/2/3
+    INT_MASTER_DATA   (03_master_data.csv)                per-well beta_1/2/3 (Model A)
+    OUT_03_MODEL_B_PERSISTENCE (03_16)                    per-well Model B (alpha, beta_*)
+    OUT_01B_REPORT_NUMBERS (tide_mhw_m)                   mean high water, the MHW form
     INT_LOCATIONS     (01_locations.csv)                  ground elevation
     INT_WELLS_CLEAN   (01_wells_clean.csv)                modern levels, context
 
@@ -98,12 +113,26 @@ Outputs (outputs/39_ccw_hindcast/):
     39_05_full_hindcast_site.csv   full-record site anomaly, monthly, with n_wells
     39_06_full_hindcast_decadal.csv  per-decade mean anomaly, per well and site
     39_07_full_hindcast.png        full-record panel + the CCW epoch check
+    39_08_fit_window_scorecard.csv both forms (and A at MHW) by fitting window
+    39_09_fit_windows.png          both forms, three fitting windows
+    39_10_three_forms_per_well.csv A 3.7 m, A MHW and B per well, dry months scored
     39_results.txt                 console summary
 """
 
 from __future__ import annotations
 
-__version__ = "1.6.1"  # Hollingham (2026) - 2026-11-10. Model B is looked up by the NORMALISED well name
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the headline: every
+#   report key keeps its name and now carries Model B (03_16, run at DRAINAGE_DATUM - alpha/beta_3), with Model A at
+#   3.7 m beside it as <key>_model_a; B gets its own beta_1 envelope (same scalings; 39_02 predicted_b_lo/hi_m_bg,
+#   39_03 *_model_b columns). Bounded beta_3 fits (model_utils 1.14.0) are kept, not dropped, and counted
+#   (n_wells_model_b_bound_binds*); a well whose implied datum is not below ground is left out of B's headline and
+#   counted (n_wells_model_b_excluded_datum*). Model A at each well's depth to mean high water (Addendum 2): 39_02
+#   predicted_mhw_m_bg, the per-well three-form table 39_10 with dry months scored, keys *_mhw. 39_04 shows B only,
+#   legend below the panels. 39_01 keeps its Model A columns (Script 50 reads them) and gains *_model_b.
+#   Then, on the coordinator's ruling (D-332, Martin 2026-11-12): codes are admitted on Model B (usable_codes_b: 03_16
+#   defined), not on Model A's beta_3 (set unchanged); the full-record pass 39_05-39_07 is Model B with Model A in
+#   *_model_a columns (nothing outside this script reads them); A's columns are NaN where A cannot be run.
+# 1.6.1  # Hollingham (2026) - 2026-11-10. Model B is looked up by the NORMALISED well name
 # (utils.data_utils.normalize_well_name), as Script 50 already does. Script 03's 03_16 spells 21 wells in
 # capitals (WMC2, L7, T41a...), the admitted-well names are lower case, so the case-sensitive lookup missed
 # and wmc2 silently lost its Model B hindcast: the 1989-96 Model B median was over 8 wells, Model A's over 9.
@@ -199,7 +228,8 @@ from utils import config, paths
 from scipy import stats
 
 from utils.model_utils import (simulate_ssm, get_metrics,            # noqa: E402
-                               fit_ssm, fit_ssm_intercept)           # noqa: E402  (J-6 pre-2018)
+                               fit_ssm, fit_ssm_intercept,           # noqa: E402  (J-6 pre-2018)
+                               dry_bounds)                           # noqa: E402  (1.7.0, MHW form)
 from utils.hindcast_utils import (load_ccw, observed_series, hindcast_well,
                                   equilibrium_depth, usable_codes, BETA_COLS)
 from utils.console_utils import banner, phase, step, info, warn, saved, note, result, done
@@ -235,44 +265,108 @@ OUT_FULL_FIG = paths.OUT_39_FULL_FIG
 OUT_REPORT_NUMBERS = paths.OUT_39_REPORT_NUMBERS
 OUT_FIT_WINDOWS = paths.OUT_39_FIT_WINDOWS
 OUT_FIT_WINDOW_FIG = paths.OUT_39_FIT_WINDOW_FIG
+OUT_THREE_FORMS = paths.OUT_39_THREE_FORMS
+B3_MIN = config.MODEL_B_BETA3_MIN
+# 1.7.0 (D-332): the three forms of the 1989-96 hindcast, as the three-form table names them. B is the
+# forecaster; the two fixed-floor forms are tested alternatives, reported under the key suffixes beside.
+FORM_SUFFIX = {"B": "", "A_3.7": "_model_a", "A_MHW": "_mhw"}
 
 
 
 # ── report numbers (1.4.0, T-84) ─────────────────────────────────────────────
-def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens):
-    """The statistics §4.14.1 and §5.7.8 quote, as committed cells.
+# 1.7.0 (D-332): the per-well columns each model-dependent key is computed from. 39_01 keeps Model A
+# in these names (Script 50's identity checks read them) and carries Model B beside them with the
+# suffix _model_b; the report keys keep their names and now carry Model B, with Model A's value as
+# the sensitivity key <name>_model_a.
+MODEL_COLS = ("nse", "rmse_m", "bias_m", "pearson_r", "nse_bias_removed", "residual_mean_m",
+              "mean_predicted_m")
 
-    Open ground is in_forest False, the split the β₁-sensitivity block uses; the
-    persistent-forest well is under canopy in 1989 and now, with no change since.
-    """
-    rn = ReportNumbers()
-    if pw.empty:
-        rn.save(OUT_REPORT_NUMBERS); saved(OUT_REPORT_NUMBERS.name); return
+
+def model_view(pw: pd.DataFrame, form: str) -> pd.DataFrame:
+    """The per-well table with one form's metrics under the shared column names, restricted to the
+    wells that form was run at. form "A" is the 39_01 columns as they stand; "B" the _model_b ones."""
+    if pw.empty or form == "A":
+        return pw.copy()
+    v = pw.copy()
+    for c in MODEL_COLS:
+        v[c] = pw[f"{c}_model_b"]
+    return v[v["nse"].notna()]
+
+
+def _model_keys(rn, pw, sfx: str, label: str) -> None:
+    """The model-dependent statistics §4.14.1 and §5.7.8 quote, for one form (sfx "" = Model B)."""
     op = pw[pw["in_forest"] == False]                       # noqa: E712
     pf = pw[(pw["in_forest"] == True) & (pw["canopy_1989"] == "forest")   # noqa: E712
             & (pw["canopy_changed_since_1989"] == False)]                   # noqa: E712
     rest = pw.drop(pf.index)
-    rn.add("n_wells_admitted", len(pw), unit="wells", note="wells hindcast against the CCW record")
-    rn.add("n_open", len(op), unit="wells", note="open ground (in_forest False)")
-    rn.add("pearson_r_median", pw["pearson_r"].median(), unit="", note="observed vs predicted, all wells")
-    rn.add("pearson_r_min", pw["pearson_r"].min(), unit="", note="all wells")
-    rn.add("pearson_r_max", pw["pearson_r"].max(), unit="", note="all wells")
-    rn.add("n_nse_negative", int((pw["nse"] < 0).sum()), unit="wells", note="Nash-Sutcliffe below zero")
-    rn.add("nse_bias_removed_min_excl_persistent_forest", rest["nse_bias_removed"].min(), unit="",
-           note="bias-removed NSE, wells other than the one under forest in both epochs")
-    rn.add("nse_bias_removed_max_excl_persistent_forest", rest["nse_bias_removed"].max(), unit="",
-           note="as above")
+    rn.add(f"n_wells_admitted{sfx}", len(pw), unit="wells", note=f"wells hindcast against the CCW record, {label}")
+    rn.add(f"n_open{sfx}", len(op), unit="wells", note=f"open ground (in_forest False), {label}")
+    rn.add(f"pearson_r_median{sfx}", pw["pearson_r"].median(), unit="", note=f"observed vs predicted, all wells, {label}")
+    rn.add(f"pearson_r_min{sfx}", pw["pearson_r"].min(), unit="", note=f"all wells, {label}")
+    rn.add(f"pearson_r_max{sfx}", pw["pearson_r"].max(), unit="", note=f"all wells, {label}")
+    rn.add(f"n_nse_negative{sfx}", int((pw["nse"] < 0).sum()), unit="wells", note=f"Nash-Sutcliffe below zero, {label}")
+    rn.add(f"nse_median{sfx}", pw["nse"].median(), unit="",
+           note=f"median per-well NSE over 1989-96 (the 'skill' of Scenario 2), {label}")
+    rn.add(f"bias_median_m{sfx}", pw["bias_m"].median(), unit="m",
+           note=f"median per-well level bias, predicted less observed (+ = modelled too wet), {label}")
+    rn.add(f"nse_bias_removed_min_excl_persistent_forest{sfx}", rest["nse_bias_removed"].min(), unit="",
+           note=f"bias-removed NSE, wells other than the one under forest in both epochs, {label}")
+    rn.add(f"nse_bias_removed_max_excl_persistent_forest{sfx}", rest["nse_bias_removed"].max(), unit="",
+           note=f"as above, {label}")
     for r in pf.itertuples():
-        rn.add("nse_bias_removed_persistent_forest", r.nse_bias_removed, unit="",
-               well=str(r.well).upper(), note="the well under forest in both epochs")
-    rn.add("residual_mean_all", pw["residual_mean_m"].mean(), note="observed less predicted, mean over wells")
-    rn.add("residual_mean_open", op["residual_mean_m"].mean(), note="as above, open ground")
+        rn.add(f"nse_bias_removed_persistent_forest{sfx}", r.nse_bias_removed, unit="",
+               well=str(r.well).upper(), note=f"the well under forest in both epochs, {label}")
+    rn.add(f"residual_mean_all{sfx}", pw["residual_mean_m"].mean(), note=f"observed less predicted, mean over wells, {label}")
+    rn.add(f"residual_mean_open{sfx}", op["residual_mean_m"].mean(), note=f"as above, open ground, {label}")
+    rn.add(f"open_pearson_r_median{sfx}", op["pearson_r"].median(), unit="", note=f"open ground, {label}")
+    rn.add(f"open_nse_bias_removed_median{sfx}", op["nse_bias_removed"].median(), unit="", note=f"open ground, {label}")
+
+
+def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens, tf=None, extra=None):
+    """The statistics §4.14.1 and §5.7.8 quote, as committed cells.
+
+    Open ground is in_forest False, the split the β₁-sensitivity block uses; the
+    persistent-forest well is under canopy in 1989 and now, with no change since.
+
+    1.7.0 (D-332): the model-dependent keys carry Model B (the forecaster) under their existing
+    names; Model A at the 3.7 m floor follows as <key>_model_a, and the mean-high-water form's
+    Scenario 2 numbers as <key>_mhw. tf is the three-form table (dry months scored); extra the
+    counts main() gathered (bound binds, wells without a defined Model B, the MHW level used).
+    """
+    rn = ReportNumbers()
+    if pw.empty:
+        rn.save(OUT_REPORT_NUMBERS); saved(OUT_REPORT_NUMBERS.name); return
+    _model_keys(rn, model_view(pw, "B"), "", "Model B (the forecaster, D-332)")
+    _model_keys(rn, model_view(pw, "A"), "_model_a",
+                f"Model A at the fixed {DATUM:g} m floor (tested alternative, D-332)")
     rn.add("epoch_shift_min", pw["epoch_shift_m"].max(), note="smallest shift (1989-96 mean less modern mean)")
     rn.add("epoch_shift_max", pw["epoch_shift_m"].min(), note="largest shift")
     rn.add("epoch_shift_median", pw["epoch_shift_m"].median(), note="all wells")
-    rn.add("open_pearson_r_median", op["pearson_r"].median(), unit="", note="open ground")
-    rn.add("open_nse_bias_removed_median", op["nse_bias_removed"].median(), unit="", note="open ground")
+    op = pw[pw["in_forest"] == False]                       # noqa: E712  (observation-only keys below)
     rn.add("open_epoch_shift_median", op["epoch_shift_m"].median(), note="open ground")
+
+    # 1.7.0 (D-332): Model B's definition at these wells, and the three-form table (Addendum 2)
+    for k, (v, unit, note_) in (extra or {}).items():
+        rn.add(k, v, unit=unit, note=note_)
+    if tf is not None and not tf.empty:
+        lab = {"B": "Model B", "A_3.7": f"Model A at {DATUM:g} m", "A_MHW": "Model A at mean high water"}
+        for form, sfx in FORM_SUFFIX.items():
+            g = tf[(tf["form"] == form) & tf["nse"].notna()]
+            if form == "A_MHW":       # B's and A 3.7's medians are emitted from 39_01 above
+                rn.add("n_wells_admitted_mhw", len(g), unit="wells",
+                       note="wells hindcast with Model A at each well's depth to mean high water")
+                rn.add("nse_median_mhw", g["nse"].median(), unit="",
+                       note="median per-well NSE over 1989-96, Model A at mean high water (Scenario 2)")
+                rn.add("bias_median_m_mhw", g["bias_m"].median(), unit="m",
+                       note="median per-well level bias, predicted less observed, Model A at mean high water")
+                rn.add("datum_mhw_min_m", g["datum_m"].min(), unit="m",
+                       note="shallowest floor of the mean-high-water form at these wells (ground less tide_mhw_m)")
+                rn.add("datum_mhw_max_m", g["datum_m"].max(), unit="m", note="deepest such floor")
+            rn.add(f"rmse_with_dry_median_m{sfx}", g["rmse_with_dry_m"].median(), unit="m",
+                   note=f"median typical monthly error, dry months counted only where the run sits above "
+                        f"the pipe base (Addendum 2), {lab[form]}")
+            rn.add(f"n_wells_best_with_dry{sfx}", int((tf.drop_duplicates("well")["best_form_with_dry"] == form).sum()),
+                   unit="wells", note=f"wells at which {lab[form]} has the lowest error counting dry months")
 
     # the climate contrast between the CCW window and the modern well record
     def _means(a, b):
@@ -314,24 +408,27 @@ def write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens)
     # the beta_1 sensitivity table (T-91): open-ground and under-canopy mean NSE,
     # and open-ground mean bias, at each committed scaling in CCW_BETA1_SCALINGS.
     # `sens` is the per-well/per-scale table main() already built; grouped here,
-    # not re-derived from a written CSV.
+    # not re-derived from a written CSV. 1.7.0 (D-332): Model B under the existing keys, Model A
+    # as _model_a.
     for sc in sorted(sens["beta1_scale"].unique()):
         ssub = sens[sens["beta1_scale"] == sc]
-        op_s = ssub[ssub["in_forest"] == False]                        # noqa: E712
-        cf_s = ssub[ssub["in_forest"] == True]                         # noqa: E712
         tag = f"{sc:.2f}"
-        rn.add(f"open_nse_mean_beta1_scale_{tag}", op_s["nse"].mean(), unit="",
-               era=f"beta1 scale {tag}",
-               note=f"open-ground (in_forest False, n={len(op_s)}) mean NSE "
-                    f"with beta_1 scaled by {tag} (fitted value at scale 1.00)")
-        rn.add(f"open_bias_mean_beta1_scale_{tag}", op_s["bias_m"].mean(), unit="m",
-               era=f"beta1 scale {tag}",
-               note=f"open-ground mean bias (predicted less observed, per "
-                    f"get_metrics) with beta_1 scaled by {tag}")
-        rn.add(f"canopy_nse_mean_beta1_scale_{tag}", cf_s["nse"].mean(), unit="",
-               era=f"beta1 scale {tag}",
-               note=f"under-canopy (in_forest True, n={len(cf_s)}) mean NSE "
-                    f"with beta_1 scaled by {tag}")
+        for sfx, csfx, lab in (("", "_model_b", "Model B"), ("_model_a", "", f"Model A at {DATUM:g} m")):
+            s_f = ssub[ssub[f"nse{csfx}"].notna()]
+            op_s = s_f[s_f["in_forest"] == False]                        # noqa: E712
+            cf_s = s_f[s_f["in_forest"] == True]                         # noqa: E712
+            rn.add(f"open_nse_mean_beta1_scale_{tag}{sfx}", op_s[f"nse{csfx}"].mean(), unit="",
+                   era=f"beta1 scale {tag}",
+                   note=f"{lab}: open-ground (in_forest False, n={len(op_s)}) mean NSE "
+                        f"with beta_1 scaled by {tag} (fitted value at scale 1.00)")
+            rn.add(f"open_bias_mean_beta1_scale_{tag}{sfx}", op_s[f"bias_m{csfx}"].mean(), unit="m",
+                   era=f"beta1 scale {tag}",
+                   note=f"{lab}: open-ground mean bias (predicted less observed, per "
+                        f"get_metrics) with beta_1 scaled by {tag}")
+            rn.add(f"canopy_nse_mean_beta1_scale_{tag}{sfx}", cf_s[f"nse{csfx}"].mean(), unit="",
+                   era=f"beta1 scale {tag}",
+                   note=f"{lab}: under-canopy (in_forest True, n={len(cf_s)}) mean NSE "
+                        f"with beta_1 scaled by {tag}")
 
     n = rn.save(OUT_REPORT_NUMBERS)
     saved(f"{OUT_REPORT_NUMBERS.name} ({n} report numbers)")
@@ -375,42 +472,193 @@ def modern_mean(wells_clean: pd.DataFrame, well: str) -> float:
     return float(s.mean()) if len(s) else np.nan
 
 
+def load_model_b():
+    """Model B per well from Script 03's 03_16 (the comparison window): {well: (betas, datum)} run at
+    DRAINAGE_DATUM - alpha/beta_3, the wells with no datum below ground {well: datum}, and the wells
+    whose beta_3 sits at config.MODEL_B_BETA3_MIN. Keys are normalised well names.
+
+    1.7.0 (D-332): Model B is the forecaster and the headline. A bounded fit is kept; a well whose
+    implied datum is not below ground has no Model B (ceh14, -9.39 m, measured 2026-11-07)."""
+    mb, mb_undef, mb_binds = {}, {}, set()
+    try:
+        _mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
+    except OSError as e:
+        warn(f"Model B coefficients unavailable ({type(e).__name__}); nothing is admitted")
+        return mb, mb_undef, mb_binds
+    for _, _r in _mb[_mb["level"] == "well"].iterrows():
+        _k = normalize_well_name(_r["well"])
+        _b3 = float(_r["beta_3_B"])
+        if (str(_r.get("beta_3_bound_binds", "")).strip().lower() in ("true", "1", "1.0")
+                or (np.isfinite(_b3) and _b3 <= B3_MIN * (1 + 1e-9))):
+            mb_binds.add(_k)
+        _d = (float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
+              if np.isfinite(_b3) and _b3 > 0 else np.nan)
+        if not (np.isfinite(_d) and _d > 0):
+            mb_undef[_k] = _d
+            continue
+        mb[_k] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+    note(f"Model B coefficients for {len(mb)} well(s); {len(mb_binds)} with beta_3 at the bound; "
+         f"undefined (datum not below ground) at {len(mb_undef)}: "
+         + (", ".join(f"{k} ({v:+.2f} m)" for k, v in mb_undef.items()) or "none"))
+    return mb, mb_undef, mb_binds
+
+
+def usable_codes_b(cmap: pd.DataFrame, mb: dict, mb_undef: dict, obs: pd.DataFrame) -> pd.DataFrame:
+    """Codes admissible to the headline, on MODEL B (1.7.0, D-332): confirmed mapping and a well with
+    a defined Model B (03_16, implied datum below ground). The same rules, order and censoring test
+    as hindcast_utils.usable_codes, which judges Model A's triple and stays as it is for Script 50.
+    Everything else is reported, never pooled."""
+    rows = []
+    for r in cmap.itertuples():
+        why = ""
+        k = normalize_well_name(r.well) if isinstance(r.well, str) and r.well else ""
+        if r.status != "confirmed":
+            why = f"mapping {r.status}"
+        elif not r.well:
+            why = "no well"
+        elif k in mb_undef:
+            why = f"Model B not defined (implied datum {mb_undef[k]:+.2f} m, not below ground)"
+        elif k not in mb:
+            why = "no committed coefficients"
+        n_c = int(obs.loc[obs["code"] == r.code, "censored_at_pipe_base"].sum())
+        n_t = int((obs["code"] == r.code).sum())
+        if not why and n_t and n_c / n_t > config.CCW_MAX_CENSORED_FRACTION:
+            why = f"censored in {n_c} of {n_t} months"
+        rows.append(dict(code=r.code, well=r.well, status=r.status,
+                         datum_offset_m=r.datum_offset_m,
+                         n_months=n_t, n_censored=n_c,
+                         admitted=(why == ""), excluded_because=why))
+    return pd.DataFrame(rows)
+
+
+def model_a_ok(md: pd.DataFrame, well: str) -> bool:
+    """Model A (the 3.7 m alternative) can be run at this well: a complete master-store triple with
+    beta_3 > 0. Admission no longer depends on it (1.7.0); where it fails, A's columns are NaN."""
+    return bool(well in md.index and all(np.isfinite(float(md.loc[well, c])) for c in BETA_COLS)
+                and float(md.loc[well, BETA_COLS[2]]) > 0)
+
+
+def shape_scores(oc: np.ndarray, pc: np.ndarray) -> tuple:
+    """Pearson r between observed and predicted, and the NSE with the mean offset removed: the two
+    diagnostics that separate a wrong LEVEL from wrong DYNAMICS (0.2.0; a helper since 1.7.0, so
+    both forms are scored by the same lines)."""
+    if len(oc) <= 2 or not (np.isfinite(oc).all() and np.isfinite(pc).all()):
+        return np.nan, np.nan
+    r_shape = float(stats.pearsonr(oc, pc).statistic)
+    off = float(np.mean(pc - oc))
+    denom = float(np.sum((oc - oc.mean()) ** 2))
+    nse_db = (1.0 - float(np.sum((oc - (pc - off)) ** 2)) / denom
+              if denom > 0 else np.nan)
+    return r_shape, nse_db
+
+
+def mhw_level() -> float:
+    """Mean high water (m OD), Script 01b's tide_mhw_m, read as Scripts 48 (mhw_datums) and 50
+    (_e16_mhw) read it. NaN when absent: the mean-high-water form is then skipped, not invented."""
+    try:
+        rn = pd.read_csv(paths.OUT_01B_REPORT_NUMBERS)
+        v = rn.loc[rn["Parameter"] == "tide_mhw_m", "Value"]
+        return float(v.iloc[0]) if len(v) else np.nan
+    except (OSError, KeyError, ValueError):
+        return np.nan
+
+
+def fixed_floor_fit(h: pd.Series, cl: pd.DataFrame, col: str, datum: float):
+    """Model A at a given fixed floor, fitted as Script 03 fits the master store and as Script 50's
+    E16 fits the mean-high-water form (D-322): dry months censored at the well's dry bounds, the
+    last LCSC_DATA_LIMIT calendar months. None where the fit fails."""
+    db = dry_bounds(col)
+    db = db if (db is not None and len(db)) else None
+    try:
+        return fit_ssm(h, cl, lag=config.HEADLINE_LAG, window=config.LCSC_DATA_LIMIT,
+                       drainage_datum=float(datum), min_obs=config.RECLEN_MIN_FIT_MONTHS,
+                       intercept=False, dry_bound=db)
+    except Exception as e:                                       # noqa: BLE001
+        warn(f"{col}: fixed-floor fit at {datum:.2f} m failed ({type(e).__name__}: {e})")
+        return None
+
+
+def three_form_scores(obs: pd.DataFrame, code: str, offset_m: float, preds: dict) -> list:
+    """Each form against every month the code was read, dry months included (Addendum 2).
+
+    A reading held at the pipe base is a lower bound, not a level: a run that sits BELOW the pipe
+    base that month agrees with it, and one that sits ABOVE it is wrong by the difference. So read
+    months score the full error, and dry months only the part of the run above the pipe base.
+    NSE and bias are over the read months alone, as 39_01 scores them.
+    """
+    g = obs[obs["code"] == code].sort_values("month")
+    off = offset_m if np.isfinite(offset_m) else 0.0
+    lvl = pd.Series(g["depth_m_bg"].values + off, index=g["month"].values)
+    cen = pd.Series(g["censored_at_pipe_base"].astype(bool).values, index=g["month"].values)
+    rows = []
+    for form, p in preds.items():
+        if p is None:
+            rows.append(dict(form=form, n_read=int((~cen).sum()), n_dry=int(cen.sum())))
+            continue
+        c = lvl.index.intersection(p.index)
+        e = p.loc[c] - lvl.loc[c]
+        cc = cen.loc[c].values
+        e_read, e_dry = e[~cc], e[cc].clip(lower=0)
+        nse, _rm, bias = get_metrics(lvl.loc[c][~cc], p.loc[c][~cc])
+        allerr = pd.concat([e_read, e_dry])
+        rows.append(dict(form=form, n_read=int(len(e_read)), n_dry=int(len(e_dry)),
+                         nse=float(nse), bias_m=float(bias),
+                         rmse_read_m=float(np.sqrt((e_read ** 2).mean())),
+                         n_dry_run_above_pipe_base=int((e_dry > 0).sum()),
+                         dry_miss_mean_m=float(e_dry.mean()) if len(e_dry) else np.nan,
+                         rmse_with_dry_m=float(np.sqrt((allerr ** 2).mean()))))
+    return rows
+
+
 # ── figure ────────────────────────────────────────────────────────────────────
 def plot_hindcast(series: pd.DataFrame, adm: pd.DataFrame, fig_path) -> None:
+    """The headline 1989-96 hindcast: Model B (the forecaster, D-332) with its beta_1 range.
+
+    1.7.0 (D-332, brief Phase 2 "Legends off the data"): Model A's line leaves this figure -- it
+    is a tested alternative, drawn with B in 39_09 and tabled in 39_10 -- and the legend moves
+    below the panels (Martin 2026-11-08: "the legend obscures the plots"; in the first panel it
+    covered nw11's 1994-95 rise).
+    """
     wells = list(dict.fromkeys(series["well"]))
     if not wells:
         return
     ncol = 2
     nrow = int(np.ceil(len(wells) / ncol))
-    fig, axes = plt.subplots(nrow, ncol, figsize=(9.0, 2.2 * nrow), sharex=True)
+    fig, axes = plt.subplots(nrow, ncol, figsize=(9.0, 2.2 * nrow + 0.5), sharex=True)
     axes = np.atleast_1d(axes).ravel()
     for ax, w in zip(axes, wells):
         g = series[series["well"] == w]
         ax.plot(g["month"], g["observed_m_bg"], "o-", ms=3, lw=1.0,
-                label="observed", color="#1b1b1b")
-        ax.plot(g["month"], g["predicted_m_bg"], "-", lw=1.4,
-                label="Model A", color="#D95F02")
-        if "predicted_b_m_bg" in g and g["predicted_b_m_bg"].notna().any():
-            ax.plot(g["month"], g["predicted_b_m_bg"], "-", lw=1.2, alpha=0.9,
+                label="observed (CCW)", color="#1b1b1b")
+        has_b = "predicted_b_m_bg" in g and g["predicted_b_m_bg"].notna().any()
+        if has_b:
+            ax.fill_between(g["month"], g["predicted_b_lo_m_bg"], g["predicted_b_hi_m_bg"],
+                            color="#2b6cb0", alpha=0.20, lw=0,
+                            label=r"Model B, $\beta_1$ range")
+            ax.plot(g["month"], g["predicted_b_m_bg"], "-", lw=1.4,
                     label="Model B", color="#2b6cb0")
-        ax.fill_between(g["month"], g["predicted_lo_m_bg"], g["predicted_hi_m_bg"],
-                        color="#D95F02", alpha=0.20, lw=0,
-                        label=r"$\beta_1$ range")
         row = adm[adm["well"] == w]
         code = row["code"].iloc[0] if len(row) else "?"
-        ax.set_title(f"{w} (CCW {code})", fontsize=10, loc="left")
+        ax.set_title(f"{w} (CCW {code})" + ("" if has_b else " \u2014 Model B not defined here"),
+                     fontsize=10, loc="left")
         ax.axhline(PIPE_BASE_M, color="#777777", lw=0.8, ls=":")
         ax.set_ylabel("m below ground", fontsize=9)
         ax.tick_params(labelsize=9)
     for ax in axes[len(wells):]:
         ax.set_visible(False)
-    axes[0].legend(fontsize=9, loc="lower right", framealpha=0.9)
-    fig.suptitle("SSM hindcast against the 1989\u201396 CCW record, coefficients fitted on "
-                 "the last 100 months of each well\u2019s record (2017\u201311 to 2026\u201302)\n"
-                 f"Model A (fixed {DATUM:.1f} m floor) with its \u03b2\u2081 range; Model B (fitted intercept) as a single line \u2014 "
-                 "its intercept is a MODERN-RECORD quantity applied to a drier decade",
+    _h, _l = [], []
+    for ax in axes[:len(wells)]:                 # the first panel with every series supplies the legend
+        hh, ll = ax.get_legend_handles_labels()
+        if len(ll) > len(_l):
+            _h, _l = hh, ll
+    fig.legend(_h, _l, loc="lower center", ncol=3, fontsize=9, frameon=False,
+               bbox_to_anchor=(0.5, 0.0))
+    fig.suptitle("SSM hindcast against the 1989\u201396 CCW record: Model B (fitted intercept), "
+                 "coefficients fitted on the\nlast 100 months of each well\u2019s record "
+                 "(2017\u201311 to 2026\u201302) \u2014 its intercept is a MODERN-RECORD quantity "
+                 "applied to a drier decade",
                  fontsize=9)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.4 / fig.get_size_inches()[1], 1, 1))
     render_figure(fig, fig_path)
     plt.close(fig)
 
@@ -517,40 +765,50 @@ def modern_span(wells_clean: pd.DataFrame, well: str):
 
 
 def open_ground_panel(md: pd.DataFrame, loc: pd.DataFrame,
-                      wells_clean: pd.DataFrame) -> pd.DataFrame:
+                      wells_clean: pd.DataFrame, mb: dict | None = None,
+                      mb_undef: dict | None = None) -> pd.DataFrame:
     """Wells admitted to the full-record panel, with the reason for each refusal.
 
     The inclusion policy is declared in one place rather than left implicit in a
     filter chain. A well enters when three conditions hold: it is not under
-    canopy on the committed land-cover flag; it carries a committed coefficient
-    triple with a positive drainage coefficient; and its modern record reaches
+    canopy on the committed land-cover flag; it carries a defined Model B (1.7.0,
+    D-332: 03_16, implied datum below ground; until 1.7.0 a Model A triple with a
+    positive drainage coefficient); and its modern record reaches
     config.FULL_HINDCAST_MIN_MODERN_MONTHS, which is the baseline the anomaly is
     measured against. Wells failing any condition are returned with the reason
-    recorded, never silently dropped.
+    recorded, never silently dropped. admitted_model_a says whether the Model A
+    alternative can also be run there (its master-store triple, beta_3 > 0).
     """
+    mb = mb or {}
+    mb_undef = mb_undef or {}
     rows = []
-    for well in sorted(set(md.index) & set(loc.index)):
+    for well in sorted(set(loc.index) & ({normalize_well_name(w) for w in mb} | set(md.index))):
         in_forest = bool(loc.loc[well, "in_forest"]) if "in_forest" in loc.columns else False
-        betas = tuple(pd.to_numeric(pd.Series([md.loc[well, c] for c in BETA_COLS]),
-                                    errors="coerce"))
+        betas = (tuple(pd.to_numeric(pd.Series([md.loc[well, c] for c in BETA_COLS]), errors="coerce"))
+                 if well in md.index else (np.nan,) * 3)
+        k = normalize_well_name(well)
+        bb, db = mb.get(k, ((np.nan,) * 3, mb_undef.get(k, np.nan)))
         first, last, n_mod = modern_span(wells_clean, well)
         reason = ""
         if in_forest:
             reason = "under canopy"
-        elif not all(np.isfinite(b) for b in betas):
-            reason = "no committed coefficient triple"
-        elif not betas[2] > 0:
-            reason = "non-positive drainage coefficient"
+        elif k in mb_undef:
+            reason = f"Model B not defined (implied datum {mb_undef[k]:+.2f} m)"
+        elif k not in mb:
+            reason = "no Model B coefficients"
         elif n_mod < MIN_MODERN_MONTHS:
             reason = f"modern record {n_mod} months, below {MIN_MODERN_MONTHS}"
+        a_ok = bool(all(np.isfinite(b) for b in betas) and betas[2] > 0)
         rows.append(dict(well=well, admitted=(reason == ""), excluded_because=reason,
                          beta_1_recharge=betas[0], beta_2_atmospheric_draw=betas[1],
                          beta_3_drainage=betas[2],
-                         modern_first=first, modern_last=last, n_modern_months=n_mod))
+                         modern_first=first, modern_last=last, n_modern_months=n_mod,
+                         beta_1_model_b=bb[0], beta_2_model_b=bb[1], beta_3_model_b=bb[2],
+                         datum_model_b_m=db, admitted_model_a=bool(reason == "" and a_ok)))
     return pd.DataFrame(rows)
 
 
-def full_hindcast_well(cl: pd.DataFrame, betas: tuple, h0: float) -> pd.Series:
+def full_hindcast_well(cl: pd.DataFrame, betas: tuple, h0: float, datum: float = DATUM) -> pd.Series:
     """Simulate the whole committed climate record and return every month.
 
     The same recurrence and the same shared implementation as the windowed
@@ -559,7 +817,7 @@ def full_hindcast_well(cl: pd.DataFrame, betas: tuple, h0: float) -> pd.Series:
     """
     b1, b2, b3 = betas
     h = simulate_ssm(h0, cl["P_m"].values, cl["PET"].values, b1, b2, b3,
-                     drainage_datum=DATUM)
+                     drainage_datum=datum)
     return pd.Series(h, index=cl.index, name="predicted_m_bg")
 
 
@@ -583,7 +841,7 @@ def plot_full_hindcast(site: pd.DataFrame, epoch: pd.DataFrame,
                 fontsize=9, color="#8c3b02", va="top")
     ax.set_ylabel("anomaly vs modelled modern mean (m)", fontsize=9)
     ax.tick_params(labelsize=9)
-    ax.set_title("Open-ground water table under the observed climate record, "
+    ax.set_title("Open-ground water table under the observed climate record, Model B, "
                  "modern coefficients throughout", fontsize=11, loc="left")
 
     if not epoch.empty:
@@ -591,7 +849,7 @@ def plot_full_hindcast(site: pd.DataFrame, epoch: pd.DataFrame,
         bx.bar(idx - 0.19, epoch["observed_epoch_anomaly_m"], width=0.38,
                color="#1b1b1b", label="observed")
         bx.bar(idx + 0.19, epoch["hindcast_epoch_anomaly_m"], width=0.38,
-               color="#D95F02", label="hindcast")
+               color="#2b6cb0", label="hindcast, Model B")
         bx.set_xticks(idx)
         bx.set_xticklabels(epoch["well"], fontsize=9)
         bx.axhline(0.0, color="#777777", lw=0.8)
@@ -629,7 +887,16 @@ def main() -> int:
     p_mean, pet_mean = float(cl["P_m"].mean()), float(cl["PET"].mean())
 
     phase(2, "Admit codes")
-    adm = usable_codes(cmap, md, obs)
+    # 1.7.0 (D-332): admission rests on Model B (the forecaster), not on Model A's triple.
+    mb, mb_undef, mb_binds = load_model_b()
+    adm = usable_codes_b(cmap, mb, mb_undef, obs)
+    _adm_a = usable_codes(cmap, md, obs)
+    if set(_adm_a.loc[_adm_a["admitted"], "code"]) != set(adm.loc[adm["admitted"], "code"]):
+        warn("the Model B admitted set differs from Model A's: A "
+             + ", ".join(sorted(_adm_a.loc[_adm_a["admitted"], "code"])) + "; B "
+             + ", ".join(sorted(adm.loc[adm["admitted"], "code"])))
+    else:
+        note("admitted set unchanged from the Model A rule")
     for r in adm.itertuples():
         if r.admitted:
             step(f"{r.code} -> {r.well}")
@@ -673,6 +940,11 @@ def main() -> int:
     # is carrying the uncertainty it claims to; if they disagree, the envelope is too narrow.
     FIT_WINDOWS = ("pre2018", "whole")        # "comparison" comes from the master store, above
     fits = {w: {} for w in FIT_WINDOWS}
+    # 1.7.0 (D-332): Model B's beta_3 is bounded below (model_utils 1.14.0), so a window refit is no
+    # longer dropped for beta_3 <= 0: the bounded fit is kept and counted. A well is still left out
+    # where the implied datum is not below ground (alpha/beta_3 large at the bound), and counted.
+    win_b_binds = {w: set() for w in FIT_WINDOWS}
+    win_b_undef = {w: {} for w in FIT_WINDOWS}
     try:
         _split = pd.Timestamp(config.MODEL_AB_SPLIT_DATE)
         _wc = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
@@ -694,50 +966,78 @@ def main() -> int:
                     fits[_win].setdefault(_w, {})["A"] = (
                         (_fa["beta_1_recharge"], _fa["beta_2_atmospheric_draw"], _fa["beta_3_drainage"]),
                         DATUM, int(_fa.get("n", 0)))
-                if _fb and np.isfinite(_fb.get("beta_3_drainage", np.nan)) and _fb["beta_3_drainage"] > 0:
-                    _db2 = DATUM - _fb.get("alpha", 0.0) / _fb["beta_3_drainage"]
-                    if _db2 > 0:              # base above ground: Model B undefined here
+                if _fb and np.isfinite(_fb.get("beta_3_drainage", np.nan)):
+                    if _fb.get("beta_3_bound_binds", False):
+                        win_b_binds[_win].add(_w)
+                    _db2 = (DATUM - _fb.get("alpha", 0.0) / _fb["beta_3_drainage"]
+                            if _fb["beta_3_drainage"] > 0 else np.nan)
+                    if np.isfinite(_db2) and _db2 > 0:
                         fits[_win].setdefault(_w, {})["B"] = (
                             (_fb["beta_1_recharge"], _fb["beta_2_atmospheric_draw"], _fb["beta_3_drainage"]),
                             _db2, int(_fb.get("n", 0)))
+                    else:                     # base at or above ground: Model B undefined here
+                        win_b_undef[_win][_w] = _db2
         for _win in FIT_WINDOWS:
             note(f"{_win} fits: {sum('A' in v for v in fits[_win].values())} Model A, "
-                 f"{sum('B' in v for v in fits[_win].values())} Model B, "
-                 f"over {len(fits[_win])} well(s)")
+                 f"{sum('B' in v for v in fits[_win].values())} Model B "
+                 f"({len(win_b_binds[_win])} with beta_3 at the bound, {len(win_b_undef[_win])} with no "
+                 f"datum below ground), over {len(fits[_win])} well(s)")
     except Exception as _e:
         note(f"window fits unavailable ({type(_e).__name__}: {_e}); "
              f"the window-comparison columns stay empty")
 
-    mb = {}
-    try:
-        _mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
-        for _, _r in _mb[_mb["level"] == "well"].iterrows():
-            _b3 = float(_r["beta_3_B"])
-            if not np.isfinite(_b3) or _b3 <= 0:
-                continue
-            _d = float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
-            if _d <= 0:                       # base above ground: Model B undefined here
-                continue
-            mb[normalize_well_name(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
-        note(f"Model B coefficients for {len(mb)} well(s)")
-    except Exception as _e:
-        note(f"Model B coefficients unavailable ({type(_e).__name__}); scenario 2 stays Model A only")
-    per_well, series_rows, sens_rows = [], [], []
+    # 1.7.0 (D-332): Model B (mb, mb_undef, mb_binds) was loaded before admission, load_model_b().
+
+    # 1.7.0 (D-332, Addendum 2 tasks 1-2): Model A at each well's depth to mean high water, the one
+    # nameable physical base. MHW is Script 01b's tide_mhw_m, the ground Script 01's (01_locations,
+    # as Scripts 48 and 50 read them); fitted as Script 03 fits the master store and Script 50's E16
+    # fits this form (dry months censored, the last LCSC_DATA_LIMIT calendar months).
+    mhw = mhw_level()
+    if np.isfinite(mhw):
+        info(f"mean high water {mhw:.3f} m OD (Script 01b tide_mhw_m)")
+    else:
+        warn("tide_mhw_m not in Script 01b's report numbers: the mean-high-water form is skipped")
+    _wc_cols = {c.lower().strip(): c for c in wells_clean.columns}
+    mhw_identity = []
+
+    per_well, series_rows, sens_rows, tf_rows = [], [], [], []
     for r in admitted.itertuples():
-        betas = tuple(float(md.loc[r.well, c]) for c in BETA_COLS)
-        h0 = equilibrium_depth(betas, p_mean, pet_mean)
+        a_ok = model_a_ok(md, r.well)
+        betas = (tuple(float(md.loc[r.well, c]) for c in BETA_COLS) if a_ok else (np.nan,) * 3)
+        h0 = equilibrium_depth(betas, p_mean, pet_mean) if a_ok else np.nan
+        if not a_ok:
+            note(f"{r.well}: no Model A triple with beta_3 > 0; its Model A columns are left empty")
         o, n_cens = observed_series(obs, r.code, r.datum_offset_m)
         if o.empty:
             note(f"{r.code}: no uncensored observations")
             continue
 
+        # Model B, at each beta_1 scaling (1.7.0: B carries its own envelope, the same scalings)
+        kb = normalize_well_name(r.well)
+        by_scale_b, b_entry = {}, mb.get(kb)
+        if b_entry is not None:
+            _bb, _db = b_entry
+            _h0b = equilibrium_depth(_bb, p_mean, pet_mean, drainage_datum=_db)
+            if np.isfinite(_h0b):
+                for sc in BETA1_SCALINGS:
+                    by_scale_b[sc], _ = hindcast_well(cl, _bb, _h0b, first_month, last_month, sc,
+                                                      drainage_datum=_db)
+
         by_scale = {}
         for sc in BETA1_SCALINGS:
-            pred, spinup = hindcast_well(cl, betas, h0, first_month, last_month, sc)
+            if a_ok:
+                pred, spinup = hindcast_well(cl, betas, h0, first_month, last_month, sc)
+            else:                     # B carries the months; A is NaN on them
+                pred, spinup = by_scale_b[sc] * np.nan, int((cl.index < first_month).sum())
             common = o.index.intersection(pred.index)
             nse, rmse, bias = get_metrics(o.loc[common], pred.loc[common])
             m = {"NSE": nse, "RMSE": rmse, "Bias": bias}
             by_scale[sc] = (pred, common, m)
+            mb_sc = {}
+            if sc in by_scale_b:
+                _nb, _rb, _bsb = get_metrics(o.loc[common], by_scale_b[sc].loc[common])
+                mb_sc = dict(nse_model_b=float(_nb), rmse_m_model_b=float(_rb), bias_m_model_b=float(_bsb),
+                             mean_predicted_m_model_b=float(by_scale_b[sc].loc[common].mean()))
             sens_rows.append(dict(well=r.well, code=r.code, beta1_scale=sc,
                                   in_forest=(bool(loc.loc[r.well, "in_forest"])
                                              if r.well in loc.index else None),
@@ -749,21 +1049,41 @@ def main() -> int:
                                   rmse_m=float(m["RMSE"]),
                                   bias_m=float(m["Bias"]),
                                   mean_observed_m=float(o.loc[common].mean()),
-                                  mean_predicted_m=float(pred.loc[common].mean())))
+                                  mean_predicted_m=float(pred.loc[common].mean()),
+                                  **{k_: mb_sc.get(k_, np.nan) for k_ in
+                                     ("nse_model_b", "rmse_m_model_b", "bias_m_model_b",
+                                      "mean_predicted_m_model_b")}))
 
         base = 1.0 if 1.0 in by_scale else sorted(by_scale)[0]
         pred, common, m = by_scale[base]
         lo = np.minimum.reduce([by_scale[s][0].loc[common].values for s in by_scale])
         hi = np.maximum.reduce([by_scale[s][0].loc[common].values for s in by_scale])
+        pred_b = by_scale_b.get(base)
+        if pred_b is not None:
+            lo_b = np.minimum.reduce([by_scale_b[s].loc[common].values for s in by_scale_b])
+            hi_b = np.maximum.reduce([by_scale_b[s].loc[common].values for s in by_scale_b])
+        else:
+            lo_b = hi_b = np.full(len(common), np.nan)
 
-        # J-6: the Model B run for this well, at its own implied datum
-        pred_b = None
-        if normalize_well_name(r.well) in mb:
-            _bb, _db = mb[normalize_well_name(r.well)]
-            _h0b = equilibrium_depth(_bb, p_mean, pet_mean, drainage_datum=_db)
-            if np.isfinite(_h0b):
-                pred_b, _ = hindcast_well(cl, _bb, _h0b, first_month, last_month, 1.0,
-                                          drainage_datum=_db)
+        # Model A at this well's depth to mean high water (and the same route at DATUM, which must
+        # reproduce the master-store run: the identity check that the route is Script 03's)
+        pred_m, d_mhw, fit_m = None, np.nan, None
+        _col = _wc_cols.get(r.well)
+        _g = float(loc.loc[r.well, "ground_elev_m"]) if r.well in loc.index else np.nan
+        if np.isfinite(mhw) and np.isfinite(_g) and _col is not None:
+            d_mhw = _g - mhw
+            _hh = pd.to_numeric(wells_clean[_col], errors="coerce").dropna()
+            fit_m = fixed_floor_fit(_hh, cl, _col, d_mhw)
+            if fit_m is not None and fit_m["beta_3_drainage"] > 0:
+                _bm = (fit_m["beta_1_recharge"], fit_m["beta_2_atmospheric_draw"], fit_m["beta_3_drainage"])
+                _h0m = equilibrium_depth(_bm, p_mean, pet_mean, drainage_datum=d_mhw)
+                pred_m, _ = hindcast_well(cl, _bm, _h0m, first_month, last_month, 1.0, drainage_datum=d_mhw)
+            _fi = fixed_floor_fit(_hh, cl, _col, DATUM) if a_ok else None
+            if _fi is not None and _fi["beta_3_drainage"] > 0:
+                _bi = (_fi["beta_1_recharge"], _fi["beta_2_atmospheric_draw"], _fi["beta_3_drainage"])
+                _pi, _ = hindcast_well(cl, _bi, equilibrium_depth(_bi, p_mean, pet_mean),
+                                       first_month, last_month, base)
+                mhw_identity.append(float(np.nanmax(np.abs(_pi.loc[common].values - pred.loc[common].values))))
 
         # J-6: the same two forms over each alternative fitting window
         wpred = {}                            # (window, form) -> predicted series
@@ -782,11 +1102,19 @@ def main() -> int:
 
         # h0 probe: restart from the equilibrium depth displaced either way and
         # confirm the comparison window has forgotten it.
-        h0_spread = 0.0
+        h0_spread = 0.0 if a_ok else np.nan
+        h0_spread_b = 0.0 if pred_b is not None else np.nan
         for off in H0_PROBE_OFFSETS_M:
-            alt, _ = hindcast_well(cl, betas, h0 + off, first_month, last_month, base)
-            h0_spread = max(h0_spread, float(np.nanmax(np.abs(
-                alt.loc[common].values - pred.loc[common].values))))
+            if a_ok:
+                alt, _ = hindcast_well(cl, betas, h0 + off, first_month, last_month, base)
+                h0_spread = max(h0_spread, float(np.nanmax(np.abs(
+                    alt.loc[common].values - pred.loc[common].values))))
+            if pred_b is not None:
+                _bb, _db = b_entry
+                altb, _ = hindcast_well(cl, _bb, equilibrium_depth(_bb, p_mean, pet_mean, drainage_datum=_db) + off,
+                                        first_month, last_month, base, drainage_datum=_db)
+                h0_spread_b = max(h0_spread_b, float(np.nanmax(np.abs(
+                    altb.loc[common].values - pred_b.loc[common].values))))
 
         # Level and dynamics are separate failures and NSE conflates them: a
         # hindcast that tracks the swing against the wrong datum scores worse
@@ -797,13 +1125,24 @@ def main() -> int:
         # its modern mean from the rest of the network is telling us something
         # about its datum or its identity, not about the model.
         oc, pc = o.loc[common].values, pred.loc[common].values
-        r_shape = float(stats.pearsonr(oc, pc).statistic) if len(oc) > 2 else np.nan
-        off = float(np.mean(pc - oc))
-        denom = float(np.sum((oc - oc.mean()) ** 2))
-        nse_db = (1.0 - float(np.sum((oc - (pc - off)) ** 2)) / denom
-                  if denom > 0 else np.nan)
+        r_shape, nse_db = shape_scores(oc, pc)
         m_mod = modern_mean(wells_clean, r.well)
         epoch_shift = float(oc.mean() - m_mod) if np.isfinite(m_mod) else np.nan
+        bcols = {f"{c}_model_b": np.nan for c in MODEL_COLS}
+        bcols.update(beta_1_model_b=np.nan, beta_2_model_b=np.nan, beta_3_model_b=np.nan,
+                     datum_model_b_m=(mb_undef.get(kb, np.nan) if b_entry is None else b_entry[1]),
+                     beta_3_bound_binds_model_b=bool(kb in mb_binds),
+                     model_b_defined=bool(pred_b is not None), h0_sensitivity_m_model_b=h0_spread_b)
+        if pred_b is not None:
+            pcb = pred_b.loc[common].values
+            _nb, _rb, _bsb = get_metrics(o.loc[common], pred_b.loc[common])
+            _rsb, _ndb = shape_scores(oc, pcb)
+            bcols.update(nse_model_b=float(_nb), rmse_m_model_b=float(_rb), bias_m_model_b=float(_bsb),
+                         pearson_r_model_b=_rsb, nse_bias_removed_model_b=_ndb,
+                         residual_mean_m_model_b=float(np.mean(oc - pcb)),
+                         mean_predicted_m_model_b=float(np.mean(pcb)),
+                         beta_1_model_b=b_entry[0][0], beta_2_model_b=b_entry[0][1],
+                         beta_3_model_b=b_entry[0][2])
 
         per_well.append(dict(
             well=r.well, code=r.code, n_months=len(common), n_censored=n_cens,
@@ -827,7 +1166,21 @@ def main() -> int:
             pearson_r=r_shape if np.isfinite(r_shape) else np.nan,
             nse_bias_removed=nse_db if np.isfinite(nse_db) else np.nan,
             mean_modern_m=m_mod if np.isfinite(m_mod) else np.nan,
-            epoch_shift_m=epoch_shift if np.isfinite(epoch_shift) else np.nan))
+            epoch_shift_m=epoch_shift if np.isfinite(epoch_shift) else np.nan,
+            **bcols))
+
+        # the three-form table (Addendum 2): every observed month, dry ones scored
+        _tf = three_form_scores(obs, r.code, r.datum_offset_m,
+                                {"B": pred_b, "A_3.7": pred if a_ok else None, "A_MHW": pred_m})
+        _dat = {"B": bcols["datum_model_b_m"], "A_3.7": DATUM, "A_MHW": d_mhw}
+        _bet = {"B": (b_entry[0] if b_entry is not None else (np.nan,) * 3), "A_3.7": betas,
+                "A_MHW": ((fit_m["beta_1_recharge"], fit_m["beta_2_atmospheric_draw"], fit_m["beta_3_drainage"])
+                          if fit_m is not None else (np.nan,) * 3)}
+        for t_ in _tf:
+            f_ = t_["form"]
+            tf_rows.append(dict(well=r.well, code=r.code, **t_, datum_m=_dat[f_],
+                                beta_1=_bet[f_][0], beta_2=_bet[f_][1], beta_3=_bet[f_][2],
+                                beta_3_bound_binds=(bool(kb in mb_binds) if f_ == "B" else False)))
 
         for t in common:
             series_rows.append(dict(
@@ -842,26 +1195,72 @@ def main() -> int:
                    (float(wpred[(_win, _k)].loc[t])
                     if (_win, _k) in wpred and t in wpred[(_win, _k)].index else np.nan)
                    for _win in FIT_WINDOWS for _k in ("A", "B")},
-                residual_m=float(o.loc[t] - pred.loc[t])))
+                residual_m=float(o.loc[t] - pred.loc[t]),
+                # 1.7.0 (D-332): appended, so no existing column moves (Script 53 reads 39_02)
+                predicted_b_lo_m_bg=float(lo_b[common.get_loc(t)]),
+                predicted_b_hi_m_bg=float(hi_b[common.get_loc(t)]),
+                predicted_mhw_m_bg=(float(pred_m.loc[t])
+                                    if pred_m is not None and t in pred_m.index else np.nan)))
         result(f"{r.well} ({r.code})",
-               f"NSE {m['NSE']:+.3f}  r {r_shape:+.3f}  "
+               (f"Model B NSE {bcols['nse_model_b']:+.3f}  r {bcols['pearson_r_model_b']:+.3f}  "
+                f"bias {bcols['bias_m_model_b']:+.3f} m  |  " if pred_b is not None else "Model B undefined  |  ")
+               + f"Model A NSE {m['NSE']:+.3f}  r {r_shape:+.3f}  "
                f"NSE(level removed) {nse_db:+.3f}  bias {m['Bias']:+.3f} m  "
                f"epoch shift {epoch_shift:+.3f} m  n {len(common)}")
 
     pw = pd.DataFrame(per_well)
     sr = pd.DataFrame(series_rows)
     sens = pd.DataFrame(sens_rows)
+    tf = pd.DataFrame(tf_rows)
+    if not tf.empty:
+        _best = (tf.dropna(subset=["rmse_with_dry_m"]).sort_values("rmse_with_dry_m")
+                 .drop_duplicates("well").set_index("well")["form"])
+        tf["best_form_with_dry"] = tf["well"].map(_best)
+        for _w, _f in _best.items():
+            note(f"{_w}: lowest error counting dry months under {_f}")
+
+    # 1.7.0 (D-332): how Model B is defined at the admitted wells, and the mean-high-water level
+    _adm_k = {normalize_well_name(w) for w in pw["well"]} if not pw.empty else set()
+    extra = {
+        "n_wells_model_b_bound_binds": (len(_adm_k & mb_binds), "wells",
+            f"admitted wells whose Model B beta_3 sits at the lower bound MODEL_B_BETA3_MIN ({B3_MIN:g}/month), "
+            "fit kept (D-332)"),
+        "n_wells_model_b_excluded_datum": (len(_adm_k & set(mb_undef)), "wells",
+            "admitted wells left out of the Model B headline: implied datum DRAINAGE_DATUM - alpha/beta_3 "
+            "not below ground" + (" (" + ", ".join(sorted(_adm_k & set(mb_undef))) + ")"
+                                  if _adm_k & set(mb_undef) else "")),
+        "n_wells_model_b_bound_binds_network": (len(mb_binds), "wells",
+            "every well in Script 03's 03_16 whose Model B beta_3 sits at the lower bound"),
+        "n_wells_model_b_excluded_datum_network": (len(mb_undef), "wells",
+            "every well in 03_16 whose implied datum is not below ground: "
+            + (", ".join(f"{k} {v:+.2f} m" for k, v in sorted(mb_undef.items())) or "none")),
+    }
+    for _win in FIT_WINDOWS:
+        _bk = {normalize_well_name(w) for w in win_b_binds[_win]}
+        _uk = {normalize_well_name(w) for w in win_b_undef[_win]}
+        extra[f"n_wells_model_b_bound_binds_{_win}"] = (len(_adm_k & _bk), "wells",
+            f"admitted wells whose {_win}-window Model B refit binds at the beta_3 bound (fit kept)")
+        extra[f"n_wells_model_b_excluded_datum_{_win}"] = (len(_adm_k & _uk), "wells",
+            f"admitted wells whose {_win}-window Model B refit has no datum below ground (left out)")
+    if np.isfinite(mhw):
+        extra["tide_mhw_m_used"] = (mhw, "m OD", "mean high water the MHW form is run at (Script 01b tide_mhw_m)")
+    if mhw_identity:
+        extra["mhw_route_identity_max_abs_diff_m"] = (max(mhw_identity), "m",
+            f"identity check: the MHW form's fitting route run at {DATUM:g} m less the master-store "
+            f"Model A run, max over {len(mhw_identity)} wells and the comparison months (expected ~0)")
 
     phase(4, "Write outputs")
     pw.to_csv(OUT_PER_WELL, index=False); saved(OUT_PER_WELL.name)
     sr.to_csv(OUT_SERIES, index=False); saved(OUT_SERIES.name)
     sens.to_csv(OUT_SENSITIVITY, index=False); saved(OUT_SENSITIVITY.name)
+    tf.to_csv(OUT_THREE_FORMS, index=False); saved(OUT_THREE_FORMS.name)
 
     # J-6: score every (window, form) run against the observed 1989-96 record, per well and
     # pooled. The comparison-window runs are the columns this script always wrote; the other two
     # are the refits above. Pooling is over all paired months at once -- NOT a mean of per-well
     # NSEs, which would weight a well with eight observations like one with ninety.
     RUNS = (("comparison", "A", "predicted_m_bg"), ("comparison", "B", "predicted_b_m_bg"),
+            ("comparison", "A_MHW", "predicted_mhw_m_bg"),                 # 1.7.0 (D-332)
             ("pre2018", "A", "predicted_a_pre2018_m_bg"), ("pre2018", "B", "predicted_b_pre2018_m_bg"),
             ("whole", "A", "predicted_a_whole_m_bg"), ("whole", "B", "predicted_b_whole_m_bg"))
     fw_rows = []
@@ -911,7 +1310,7 @@ def main() -> int:
     fw = pd.DataFrame(fw_rows)
     fw.to_csv(OUT_FIT_WINDOWS, index=False); saved(OUT_FIT_WINDOWS.name)
 
-    write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens)
+    write_report_numbers(pw, sr, cl, wells_clean, first_month, last_month, sens, tf=tf, extra=extra)
     if not sr.empty:
         sr_plot = sr.copy()
         sr_plot["month"] = pd.PeriodIndex(sr_plot["month"], freq="M").to_timestamp()
@@ -922,30 +1321,41 @@ def main() -> int:
 
 
     phase(5, "Full-record hindcast")
-    panel = open_ground_panel(md, loc, wells_clean)
+    # 1.7.0 (D-332): the full-record pass is Model B, each well at its own implied datum. Model A is
+    # run beside it on the wells where it can be, as the *_model_a columns. Nothing outside this
+    # script reads 39_05-39_07 (checked 2026-11-12), so the unsuffixed columns change meaning.
+    panel = open_ground_panel(md, loc, wells_clean, mb, mb_undef)
     adm_panel = panel[panel["admitted"]]
     for r in panel[~panel["admitted"]].itertuples():
         note(f"{r.well} not in panel: {r.excluded_because}")
-    result("panel wells", f"{len(adm_panel)} of {len(panel)} candidates")
+    result("panel wells", f"{len(adm_panel)} of {len(panel)} candidates "
+                          f"(Model A alternative at {int(adm_panel['admitted_model_a'].sum())})")
 
-    anomalies, modelled_modern = {}, {}
-    for r in adm_panel.itertuples():
-        betas = (r.beta_1_recharge, r.beta_2_atmospheric_draw, r.beta_3_drainage)
-        h0 = equilibrium_depth(betas, p_mean, pet_mean)
-        sim = full_hindcast_well(cl, betas, h0)
-        ref = sim.loc[r.modern_first:r.modern_last]
-        if ref.empty:
-            note(f"{r.well}: modern span falls outside the climate record")
-            continue
-        modelled_modern[r.well] = float(ref.mean())
-        anomalies[r.well] = sim - float(ref.mean())
+    def _anoms(form):
+        an, mm = {}, {}
+        for r in adm_panel.itertuples():
+            if form == "B":
+                betas, dd = (r.beta_1_model_b, r.beta_2_model_b, r.beta_3_model_b), r.datum_model_b_m
+            else:
+                if not r.admitted_model_a:
+                    continue
+                betas, dd = (r.beta_1_recharge, r.beta_2_atmospheric_draw, r.beta_3_drainage), DATUM
+            h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=dd)
+            sim = full_hindcast_well(cl, betas, h0, dd)
+            ref = sim.loc[r.modern_first:r.modern_last]
+            if ref.empty:
+                note(f"{r.well}: modern span falls outside the climate record")
+                continue
+            mm[r.well] = float(ref.mean())
+            an[r.well] = sim - float(ref.mean())
+        return an, mm
 
-    site = pd.DataFrame(columns=["month"])
-    decadal = pd.DataFrame()
-    epoch = pd.DataFrame()
-    if anomalies:
-        anom = pd.DataFrame(anomalies)
-        site = pd.DataFrame({
+    anomalies, modelled_modern = _anoms("B")
+    anomalies_a, modelled_modern_a = _anoms("A")
+
+    def _site(an):
+        anom = pd.DataFrame(an)
+        st = pd.DataFrame({
             "month": anom.index,
             "site_anomaly_m": anom.mean(axis=1).values,
             "site_sd_m": anom.std(axis=1, ddof=1).values,
@@ -953,10 +1363,9 @@ def main() -> int:
             "P_m": cl.loc[anom.index, "P_m"].values,
             "PET": cl.loc[anom.index, "PET"].values,
         })
-        site["site_anomaly_smoothed_m"] = (
-            site["site_anomaly_m"].rolling(SMOOTH_MONTHS, center=True,
-                                           min_periods=SMOOTH_MONTHS).mean())
-
+        st["site_anomaly_smoothed_m"] = (
+            st["site_anomaly_m"].rolling(SMOOTH_MONTHS, center=True,
+                                         min_periods=SMOOTH_MONTHS).mean())
         dec = (anom.index.year // 10) * 10
         dw = anom.groupby(dec).mean().stack().reset_index()
         dw.columns = ["decade", "well", "mean_anomaly_m"]
@@ -965,9 +1374,24 @@ def main() -> int:
         ds.columns = ["decade", "mean_anomaly_m"]
         ds["well"] = "SITE"
         ds["scope"] = "site"
-        decadal = pd.concat([ds[["decade", "well", "scope", "mean_anomaly_m"]],
-                             dw[["decade", "well", "scope", "mean_anomaly_m"]]],
-                            ignore_index=True)
+        de = pd.concat([ds[["decade", "well", "scope", "mean_anomaly_m"]],
+                        dw[["decade", "well", "scope", "mean_anomaly_m"]]], ignore_index=True)
+        return anom, st, de
+
+    site = pd.DataFrame(columns=["month"])
+    decadal = pd.DataFrame()
+    epoch = pd.DataFrame()
+    if anomalies:
+        anom, site, decadal = _site(anomalies)
+        if anomalies_a:
+            anom_a, site_a, dec_a = _site(anomalies_a)
+            site = site.merge(site_a[["month", "site_anomaly_m", "site_sd_m", "n_wells",
+                                      "site_anomaly_smoothed_m"]],
+                              on="month", how="left", suffixes=("", "_model_a"))
+            decadal = decadal.merge(dec_a, on=["decade", "well", "scope"], how="left",
+                                    suffixes=("", "_model_a"))
+        else:
+            anom_a = pd.DataFrame()
 
         rows = []
         for r in pw.itertuples():
@@ -976,11 +1400,14 @@ def main() -> int:
             hind = anom[r.well].loc[first_month:last_month]
             if hind.empty:
                 continue
+            hind_a = (anom_a[r.well].loc[first_month:last_month]
+                      if r.well in anom_a.columns else pd.Series(dtype=float))
             rows.append(dict(well=r.well, code=r.code,
                              observed_epoch_anomaly_m=r.epoch_shift_m,
                              hindcast_epoch_anomaly_m=float(hind.mean()),
                              modelled_modern_mean_m=modelled_modern[r.well],
-                             observed_modern_mean_m=r.mean_modern_m))
+                             observed_modern_mean_m=r.mean_modern_m,
+                             hindcast_epoch_anomaly_m_model_a=(float(hind_a.mean()) if len(hind_a) else np.nan)))
         epoch = pd.DataFrame(rows)
 
     if not site.empty:
@@ -993,12 +1420,33 @@ def main() -> int:
              f"comparison window {first_month:%Y-%m} to {last_month:%Y-%m}",
              f"climate forcing from {cl.index.min():%Y-%m}",
              "",
-             "Per well (beta_1 at its fitted value):"]
+             "Per well, Model B (the forecaster, D-332; beta_1 at its fitted value):"]
+    for r in pw.itertuples():
+        if not r.model_b_defined:
+            lines.append(f"  {r.well:<6} ({r.code})  Model B not defined (implied datum "
+                         f"{r.datum_model_b_m:+.2f} m, not below ground)")
+            continue
+        lines.append(f"  {r.well:<6} ({r.code})  NSE {r.nse_model_b:+.3f}  r {r.pearson_r_model_b:+.3f}  "
+                     f"NSE with the level offset removed {r.nse_bias_removed_model_b:+.3f}  "
+                     f"bias {r.bias_m_model_b:+.3f} m  RMSE {r.rmse_m_model_b:.3f} m  "
+                     f"n {r.n_months}  censored dropped {r.n_censored}")
+    lines += ["", f"Per well, Model A at the fixed {DATUM:g} m floor (tested alternative):"]
     for r in pw.itertuples():
         lines.append(f"  {r.well:<6} ({r.code})  NSE {r.nse:+.3f}  r {r.pearson_r:+.3f}  "
                      f"NSE with the level offset removed {r.nse_bias_removed:+.3f}  "
                      f"bias {r.bias_m:+.3f} m  RMSE {r.rmse_m:.3f} m  "
                      f"n {r.n_months}  censored dropped {r.n_censored}")
+    if not tf.empty:
+        lines += ["", "Three forms, typical monthly error counting dry months (a run above the pipe base "
+                      "in a dry month is wrong by the difference), m:",
+                  "  well    B       A 3.7 m  A MHW   (MHW floor)  best"]
+        for _w, _g in tf.groupby("well", sort=False):
+            _v = _g.set_index("form")
+            _f = lambda k: (f"{_v.loc[k, 'rmse_with_dry_m']:.3f}" if k in _v.index
+                            and np.isfinite(_v.loc[k, "rmse_with_dry_m"]) else "  n/a")
+            _dm = _v.loc["A_MHW", "datum_m"] if "A_MHW" in _v.index else np.nan
+            lines.append(f"  {_w:<6}  {_f('B')}   {_f('A_3.7')}    {_f('A_MHW')}   ({_dm:5.2f} m)    "
+                         f"{_g['best_form_with_dry'].iloc[0]}")
     lines += ["",
               "Read r against NSE. r is whether the hindcast reproduces the SHAPE",
               "of the record — the timing and size of the seasonal and interannual",
@@ -1019,8 +1467,8 @@ def main() -> int:
             lines.append(f"  {r.well:<6} ({r.code})  {r.epoch_shift_m:+.3f} m{flag}")
     if not pw.empty:
         lines += ["",
-                  f"mean residual (observed minus hindcast) across wells: "
-                  f"{pw.residual_mean_m.mean():+.3f} m",
+                  f"mean residual (observed minus hindcast) across wells: Model B "
+                  f"{pw.residual_mean_m_model_b.mean():+.3f} m, Model A {pw.residual_mean_m.mean():+.3f} m",
                   "  positive means the record sits SHALLOWER than the "
                   "climate-only hindcast",
                   f"largest initial-condition sensitivity over the window: "
@@ -1033,8 +1481,14 @@ def main() -> int:
         for sc, g in sens.groupby("beta1_scale"):
             og = g[g["in_forest"] == False]          # noqa: E712 — None must not match
             cg = g[g["in_forest"] == True]           # noqa: E712
+            ogb, cgb = og[og.nse_model_b.notna()], cg[cg.nse_model_b.notna()]
             lines.append(
-                f"  scale {sc:.2f}:  open ground (n={len(og)}) mean NSE "
+                f"  scale {sc:.2f}:  Model B open ground (n={len(ogb)}) mean NSE "
+                f"{ogb.nse_model_b.mean():+.3f}, mean bias {ogb.bias_m_model_b.mean():+.3f} m"
+                f"   |  under canopy (n={len(cgb)}) mean NSE {cgb.nse_model_b.mean():+.3f}, "
+                f"mean bias {cgb.bias_m_model_b.mean():+.3f} m")
+            lines.append(
+                f"              Model A open ground (n={len(og)}) mean NSE "
                 f"{og.nse.mean():+.3f}, mean bias {og.bias_m.mean():+.3f} m"
                 f"   |  under canopy (n={len(cg)}) mean NSE {cg.nse.mean():+.3f}, "
                 f"mean bias {cg.bias_m.mean():+.3f} m")
@@ -1050,8 +1504,8 @@ def main() -> int:
         lines.append(f"  {r.code:<3} {r.well or '(none)':<6} {r.excluded_because}")
     if not site.empty:
         lines += ["",
-                  "Full-record hindcast (open-ground panel, modern coefficients "
-                  "applied to the whole committed climate record):",
+                  "Full-record hindcast, Model B (open-ground panel, modern coefficients "
+                  "applied to the whole committed climate record; Model A in brackets):",
                   f"  panel {len(adm_panel)} wells of {len(panel)} candidates; "
                   f"forcing {cl.index.min():%Y-%m} to {cl.index.max():%Y-%m}",
                   "  each well is expressed as an anomaly against its own modelled "
@@ -1062,7 +1516,8 @@ def main() -> int:
                   "  Decadal site anomaly (m):"]
         ds = decadal[decadal["scope"] == "site"]
         for r in ds.itertuples():
-            lines.append(f"    {int(r.decade)}s  {r.mean_anomaly_m:+.3f}")
+            lines.append(f"    {int(r.decade)}s  {r.mean_anomaly_m:+.3f}   "
+                         f"({getattr(r, 'mean_anomaly_m_model_a', np.nan):+.3f})")
         if not epoch.empty:
             lines += ["",
                       "  Epoch check over the CCW window, each series against its "
@@ -1070,7 +1525,8 @@ def main() -> int:
             for r in epoch.itertuples():
                 lines.append(f"    {r.well:<6} ({r.code})  observed "
                              f"{r.observed_epoch_anomaly_m:+.3f} m   hindcast "
-                             f"{r.hindcast_epoch_anomaly_m:+.3f} m")
+                             f"{r.hindcast_epoch_anomaly_m:+.3f} m   "
+                             f"(Model A {r.hindcast_epoch_anomaly_m_model_a:+.3f} m)")
         lines += ["",
                   "  The coefficients are fitted on the last 100 months of each well's record (2017-11 to 2026-02, n = 75-100 per well)"
                   " and are applied unchanged across the whole record.",

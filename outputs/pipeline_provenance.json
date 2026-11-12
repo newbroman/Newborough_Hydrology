@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-10T23:31:39",
+ "generated": "2026-11-12T11:38:02",
  "orchestrator": "2.30.0",
  "steps": {
   "00_climate_summary.py": {
@@ -26,8 +26,8 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
    },
    "inputs_unresolved": [],
-   "seconds": 6.9,
-   "started": "2026-11-10T22:33:01",
+   "seconds": 9.6,
+   "started": "2026-11-12T09:46:10",
    "version": "1.18.0"
   },
   "01_data_prep.py": {
@@ -37,7 +37,7 @@
     "outputs/01_data_prep/01_coverage_states_reference.png": "743196d5deaf6e0fecc4b2e66db67a16bcfe6a2af835c22ac8a1977f6330f52b",
     "outputs/01_data_prep/01_report_numbers.csv": "1570bbb5fe9351233c8dffebcfedf037c6419bd9eebe0807b72f6920375b98fe",
     "outputs/01_data_prep/pipeline_scenario_params.csv": "f053dbf36c5e2eae6b51adc960e5aad26365aa73a785eea7c9ae83197382157f",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "d734af4695036468d976f9525e0aebda5576254f7ac82bcb2944d61ee617eba7",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "66382253ee656309ab0905e911719845c90125df64641e4e8309674546fd4526",
     "outputs/01_dist_coast_validation.csv": "50006352dec16f45608e4eefcb40fae9e4a662bff52d0ee76b7e35a4a4a86c84",
     "outputs/01_dry_depths.csv": "719e00f8f8afd8478c1247cf3d3a1681b275809141de3151ff9cb9f44de95d87",
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff",
@@ -70,9 +70,9 @@
    "inputs_unresolved": [
     "3.geojson"
    ],
-   "seconds": 11.0,
-   "started": "2026-11-10T22:17:12",
-   "version": "1.28.0"
+   "seconds": 15.5,
+   "started": "2026-11-12T09:22:10",
+   "version": "1.28.1"
   },
   "01b_water_table.py": {
    "emitted": {
@@ -122,8 +122,8 @@
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371"
    },
    "inputs_unresolved": [],
-   "seconds": 58.6,
-   "started": "2026-11-10T22:17:23",
+   "seconds": 75.2,
+   "started": "2026-11-12T09:22:26",
    "version": "1.7.1"
   },
   "02_clustering.py": {
@@ -160,9 +160,9 @@
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77"
    },
    "inputs_unresolved": [],
-   "seconds": 24.1,
-   "started": "2026-11-10T22:18:22",
-   "version": "1.13.1"
+   "seconds": 35.0,
+   "started": "2026-11-12T09:23:41",
+   "version": "1.13.2"
   },
   "03_state_space_model.py": {
    "emitted": {
@@ -198,8 +198,8 @@
     "outputs/03_state_space_model/03_19_per_well_recession_full_record.csv": "567df23b469dc2b9c389c41853ee0d958a3e082eb1511b68b8be13b2e183ec8d",
     "outputs/03_state_space_model/03_20_datum_aod_sweep.csv": "5da3f16891e7a772d59f91709d22650100b07397031221220fef3a8305147629",
     "outputs/03_state_space_model/03_21_dry_member_fill.csv": "8ac03883631efb8b685715cc49e1ebb25e85e82c174e0b995a511cbd68ccfaba",
-    "outputs/03_state_space_model/03_22_warren_open_dune_coefficients.csv": "d45b37944bd70495c08f38c20e20587107009b7e06658f02ae27d7a91b09eddd",
-    "outputs/03_state_space_model/03_report_numbers.csv": "f5175426896c552111507ab1d514730b544f0e70771611554ed614e93fe76a92"
+    "outputs/03_state_space_model/03_22_warren_open_dune_coefficients.csv": "3cca30dc34366d80519050804e9314d544519150fca1b07b70e43c80d1ccdd8a",
+    "outputs/03_state_space_model/03_report_numbers.csv": "e7151ace5de28227f17726c74828dfd5072dad481e0b9e72cc734af9ffc6b865"
    },
    "fallbacks": [],
    "inputs": {
@@ -215,9 +215,9 @@
     "outputs/02_clustering/02_08_cluster_amplitude_per_well.csv": "40ddcd63292275b0b91e3f01a33764ee4794e37890be456373d76b6fdec3a09c"
    },
    "inputs_unresolved": [],
-   "seconds": 571.4,
-   "started": "2026-11-10T22:18:46",
-   "version": "1.29.0"
+   "seconds": 902.1,
+   "started": "2026-11-12T09:24:16",
+   "version": "1.30.0"
   },
   "04_cluster_visualisations.py": {
    "emitted": {
@@ -229,9 +229,9 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 14.8,
-   "started": "2026-11-10T22:28:18",
-   "version": "1.1.0"
+   "seconds": 21.9,
+   "started": "2026-11-12T09:39:19",
+   "version": "1.1.1"
   },
   "05_pearson_affinity.py": {
    "emitted": {
@@ -246,9 +246,9 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 15.9,
-   "started": "2026-11-10T22:28:33",
-   "version": "1.7.1"
+   "seconds": 24.1,
+   "started": "2026-11-12T09:39:41",
+   "version": "1.7.2"
   },
   "06_pearson_extended.py": {
    "emitted": {
@@ -264,8 +264,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 27.4,
-   "started": "2026-11-10T22:28:49",
+   "seconds": 41.2,
+   "started": "2026-11-12T09:40:05",
    "version": "1.5.0"
   },
   "07_spatial_coefficients.py": {
@@ -288,20 +288,20 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 37.1,
-   "started": "2026-11-10T22:29:16",
+   "seconds": 55.8,
+   "started": "2026-11-12T09:40:46",
    "version": "1.6.1"
   },
   "08_model_benchmarking.py": {
    "emitted": {
     "outputs/08_lcsc_model_stats.csv": "a3225ba351fbc418e21c35f39715c965b3cc1a6e6715ebfb913df279aff5a7a0",
-    "outputs/08_model_benchmarking/08_cluster_nse_medians.csv": "87df4237be1a803ba1c15dde131fda46eb3f175981abb316ece934a1a82b8df9",
+    "outputs/08_model_benchmarking/08_cluster_nse_medians.csv": "118e656635055a7d9d644868cbb6894ddf559a8d88ccf7367ffb365167dfd656",
     "outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png": "06210caa0cfb60432a5de6df5ed482542fd5327c50ea9725044f23810ad677e2",
     "outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png": "4d626abc40d49c702952b4f191710a0a1507adef61f4447a3944d6731c3b7a2a",
     "outputs/08_model_benchmarking/08_lcsc_03_nse_improvement_map.png": "8271e9cc321c6a9a536c7eb113eabe1152c2dc9643963896ac99e8bfa35f1573",
     "outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv": "8bc3c68bbd2df80433b667fcdf4a03cf65d330ddeffadea5e34c9e479db0ad18",
-    "outputs/08_model_benchmarking/08_perwell_nse.csv": "dd8bcbe1e82e16ec841d478f7e5a68d05f8e178e14c4c6accfe2f96ee974edca",
-    "outputs/08_model_benchmarking/08_report_numbers.csv": "0168d2eb5e3fd933babeaec0f7ab44c90445b544bf3eb2cf0e5f5d2861cbf6cf"
+    "outputs/08_model_benchmarking/08_perwell_nse.csv": "8673c14ca2f55de20bf6e6960640b9bc399ccbe6a85f216da18bcb323d3aa9b4",
+    "outputs/08_model_benchmarking/08_report_numbers.csv": "b4a525b37f3a19dc2638fddb9b2582d7014e96941f3a61e5c300834bbaaf5d58"
    },
    "fallbacks": [],
    "inputs": {
@@ -311,9 +311,9 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 20.3,
-   "started": "2026-11-10T22:29:53",
-   "version": "1.8.0"
+   "seconds": 31.5,
+   "started": "2026-11-12T09:41:42",
+   "version": "1.9.0"
   },
   "09f_management_effects.py": {
    "emitted": {
@@ -332,8 +332,8 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 1.8,
-   "started": "2026-11-10T22:41:02",
+   "seconds": 2.7,
+   "started": "2026-11-12T09:57:38",
    "version": "1.11.0"
   },
   "09g_mechanism_diagrams.py": {
@@ -354,8 +354,8 @@
     "outputs/10_clearfell_baci/10a_report_numbers.csv": "e46e5cecd0a49545b408f8ab33260add57cd7b7639b3cc83458bda8c4db9bd95"
    },
    "inputs_unresolved": [],
-   "seconds": 0.9,
-   "started": "2026-11-10T22:41:04",
+   "seconds": 1.5,
+   "started": "2026-11-12T09:57:41",
    "version": "1.8.0"
   },
   "11_forecasting_thresholds.py": {
@@ -374,8 +374,8 @@
     "outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv": "f4ec46acb32660bf493adcc65d18ce7983282302c1c61de161a68f365a0ea165"
    },
    "inputs_unresolved": [],
-   "seconds": 2.9,
-   "started": "2026-11-10T22:31:56",
+   "seconds": 3.5,
+   "started": "2026-11-12T09:44:36",
    "version": "1.4.0"
   },
   "11b_spatial_thresholds.py": {
@@ -415,9 +415,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 47.9,
-   "started": "2026-11-10T22:31:59",
-   "version": "1.24.0"
+   "seconds": 70.3,
+   "started": "2026-11-12T09:44:40",
+   "version": "1.24.1"
   },
   "11c_pflood_achievability.py": {
    "emitted": {
@@ -429,8 +429,8 @@
    "fallbacks": [],
    "inputs": {},
    "inputs_unresolved": [],
-   "seconds": 13.2,
-   "started": "2026-11-10T22:32:47",
+   "seconds": 19.4,
+   "started": "2026-11-12T09:45:50",
    "version": "1.8.0"
   },
   "12_figure_site_overview.py": {
@@ -446,8 +446,8 @@
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff"
    },
    "inputs_unresolved": [],
-   "seconds": 22.9,
-   "started": "2026-11-10T22:33:10",
+   "seconds": 35.1,
+   "started": "2026-11-12T09:46:23",
    "version": "1.10.0"
   },
   "13_figure_experimental_design.py": {
@@ -457,8 +457,8 @@
    "fallbacks": [],
    "inputs": {},
    "inputs_unresolved": [],
-   "seconds": 22.1,
-   "started": "2026-11-10T22:33:33",
+   "seconds": 33.2,
+   "started": "2026-11-12T09:46:59",
    "version": "1.5.0"
   },
   "14_climate_projections.py": {
@@ -482,9 +482,9 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 2.7,
-   "started": "2026-11-10T22:33:08",
-   "version": "1.14.0"
+   "seconds": 3.7,
+   "started": "2026-11-12T09:46:20",
+   "version": "1.14.1"
   },
   "15_depth_dependent_pet.py": {
    "emitted": {
@@ -505,13 +505,13 @@
     "outputs/03_state_space_model/03_21_dry_member_fill.csv": "8ac03883631efb8b685715cc49e1ebb25e85e82c174e0b995a511cbd68ccfaba"
    },
    "inputs_unresolved": [],
-   "seconds": 4.6,
-   "started": "2026-11-10T22:33:56",
-   "version": "1.10.0"
+   "seconds": 6.2,
+   "started": "2026-11-12T09:47:32",
+   "version": "1.10.1"
   },
   "16_water_bal.py": {
    "emitted": {
-    "outputs/01_data_prep/pipeline_site_observations.csv": "66382253ee656309ab0905e911719845c90125df64641e4e8309674546fd4526",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "f23f0c3b63aae1d4cf78ef2d261d6bd7b9dacc362a40045c35e7c5f7165668bb",
     "outputs/16_water_balance/16_report_numbers.csv": "5a1641c26fd6202c8ecf3438044836a9e63f5f8748bc5c2e1360d4a1535ca76d",
     "outputs/16_water_balance/16_water_bal_bar_lay.png": "7ed7f81186b4c3a80ca8d768bc040461fcc79f2dcb15da38e8cb27f4062de48a",
     "outputs/16_water_balance/16_water_bal_bar_ms.png": "5d8f7d7236200ae541a0c2287ac11a7a4baeaa270454b79668fa50f1fe1b7751",
@@ -526,9 +526,9 @@
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "0a1e24b6736320deaa6bfbbeaa6155261cc5e5e9f7b3f4ec3546be6fccc0f35a"
    },
    "inputs_unresolved": [],
-   "seconds": 1.8,
-   "started": "2026-11-10T22:34:03",
-   "version": "1.12.0"
+   "seconds": 2.2,
+   "started": "2026-11-12T09:47:42",
+   "version": "1.12.1"
   },
   "17_wtf_specific_yield.py": {
    "emitted": {
@@ -547,9 +547,9 @@
     "outputs/03_regional_averages.csv": "004177a1b2033aeff7deb972cd99d37e1fab26af310b8c7844147eaaf08b19a5"
    },
    "inputs_unresolved": [],
-   "seconds": 2.4,
-   "started": "2026-11-10T22:34:00",
-   "version": "1.9.0"
+   "seconds": 3.2,
+   "started": "2026-11-12T09:47:38",
+   "version": "1.9.1"
   },
   "18_wtf_spatial.py": {
    "emitted": {
@@ -572,20 +572,20 @@
     "outputs/08_lcsc_model_stats.csv": "a3225ba351fbc418e21c35f39715c965b3cc1a6e6715ebfb913df279aff5a7a0"
    },
    "inputs_unresolved": [],
-   "seconds": 53.4,
-   "started": "2026-11-10T22:34:05",
-   "version": "1.19.0"
+   "seconds": 78.9,
+   "started": "2026-11-12T09:47:44",
+   "version": "1.19.1"
   },
   "19_spatial_groundwater.py": {
    "emitted": {
-    "outputs/19_spatial_groundwater/19_report_numbers.csv": "7b07148f7093c2b16353a18ecfe23d5340a6be5839b01fc129a1e99ef5bda208",
-    "outputs/19_spatial_groundwater/19_scenario_perwell.csv": "930c8e9e6e4ba75c71582615ede4168ec5d9d5d850ec670ba3667da523d2a26b",
+    "outputs/19_spatial_groundwater/19_report_numbers.csv": "28bb8b6ba8caf95c32a9a5de8adc473d62fd2a41064e7bdbb9f0aafd6610f2f2",
+    "outputs/19_spatial_groundwater/19_scenario_perwell.csv": "d11c64a0cf036cfd853674f66b8e8c94e652da414683b29e6a0da0fa6991f5ef",
     "outputs/19_spatial_groundwater/19_scenario_perwell_ddp.csv": "cb49c64f3245f0de9c93164ae8ec470998c2cb78bb28775346a9b8c661129b37",
     "outputs/19_spatial_groundwater/19_scenario_perwell_model_a.csv": "6964fd45ef58114b06bbb2fc72c87c045d50c9bbd8ba802da2ed38efef034933",
-    "outputs/19_spatial_groundwater/19_scenario_summary.csv": "06a0da9f30ff3e114a8313527419c04db5808cbcc8a2b457dc58472914b59d25",
+    "outputs/19_spatial_groundwater/19_scenario_summary.csv": "74d5dcc667f778f61828d1f5ab195864a46ab9c13f7e3f48275dce73e5340596",
     "outputs/19_spatial_groundwater/19_scenario_summary_ddp.csv": "5e79021da808447353f2f28542200c7f8fc05e42e2da9a636c21ad7a72616c16",
     "outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv": "095156f39df6d853972508bf351ff752488ba6b0abe1a10404c3cdaa01e57cf7",
-    "outputs/19_spatial_groundwater/scenario_viewer.html": "08aa4d8b9521f1458c37ab8a1bfbeb4cffe88f41c714b2129901cfa00abedc5d"
+    "outputs/19_spatial_groundwater/scenario_viewer.html": "9e28af0853de2e8b397cb6c15f2bcf678681d36a8a45b853656e616378eb6efe"
    },
    "fallbacks": [],
    "inputs": {
@@ -611,9 +611,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 4.7,
-   "started": "2026-11-10T22:34:58",
-   "version": "2.32.0"
+   "seconds": 6.1,
+   "started": "2026-11-12T09:49:03",
+   "version": "2.33.0"
   },
   "20_spatial_figures.py": {
    "emitted": {
@@ -669,9 +669,9 @@
    "inputs_unresolved": [
     "17_wtf_well_sy.csv"
    ],
-   "seconds": 74.0,
-   "started": "2026-11-10T22:35:03",
-   "version": "1.62.0"
+   "seconds": 109.2,
+   "started": "2026-11-12T09:49:09",
+   "version": "1.62.1"
   },
   "21_forestry_scenarios.py": {
    "emitted": {
@@ -705,9 +705,9 @@
     "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv": "7a78872ced028d97af0f5b7827d30b820fcab86a2b3c558940fa07a28c39ea15"
    },
    "inputs_unresolved": [],
-   "seconds": 4.8,
-   "started": "2026-11-10T22:36:17",
-   "version": "1.13.0"
+   "seconds": 6.7,
+   "started": "2026-11-12T09:50:59",
+   "version": "1.13.1"
   },
   "22_residual_lag_analysis.py": {
    "emitted": {
@@ -729,8 +729,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 5.2,
-   "started": "2026-11-10T22:37:05",
+   "seconds": 6.8,
+   "started": "2026-11-12T09:52:05",
    "version": "1.5.0"
   },
   "23_ridge_recharge_lag_test.py": {
@@ -752,8 +752,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 5.9,
-   "started": "2026-11-10T22:37:11",
+   "seconds": 7.0,
+   "started": "2026-11-12T09:52:12",
    "version": "1.5.0"
   },
   "24_residual_seasonality.py": {
@@ -774,8 +774,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 10.7,
-   "started": "2026-11-10T22:37:17",
+   "seconds": 15.2,
+   "started": "2026-11-12T09:52:19",
    "version": "1.4.1"
   },
   "24b_residual_climatology.py": {
@@ -792,8 +792,8 @@
     "outputs/22_residuals_wide.csv": "3d421b94a85c5f10bce60f244b85332ad41b61df2e1f5c668f48e81eb5940778"
    },
    "inputs_unresolved": [],
-   "seconds": 2.1,
-   "started": "2026-11-10T22:40:24",
+   "seconds": 3.0,
+   "started": "2026-11-12T09:56:42",
    "version": "1.5.0"
   },
   "25_coastal_gradient.py": {
@@ -843,8 +843,8 @@
     "outputs/20_spatial_figures/20_msl5_change_perwell.csv": "74a27e42eb1fc9edd4ef896575b0660dc623ad8ce89ed69c15e63dfcf05e7dd2"
    },
    "inputs_unresolved": [],
-   "seconds": 43.3,
-   "started": "2026-11-10T22:36:22",
+   "seconds": 59.6,
+   "started": "2026-11-12T09:51:06",
    "version": "1.37.0"
   },
   "26_van_willegen_msl.py": {
@@ -898,20 +898,20 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 16.9,
-   "started": "2026-11-10T22:37:28",
-   "version": "1.33.0"
+   "seconds": 22.7,
+   "started": "2026-11-12T09:52:35",
+   "version": "1.33.1"
   },
   "26b_van_willegen_msl_projections.py": {
    "emitted": {
     "outputs/26b_van_willegen_msl_projections/26b_monthly_delta_h_per_cluster.csv": "95a2326084f201b14a6bd8dff8317ae2643d72c13f336b755523c1e21fb6e2b2",
-    "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection.png": "f4751d72a2ce65506e3e9d90653aa20d1b956092cd61f9ee87958bf472f5495a",
+    "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection.png": "a55240d145e4668abf9b9e37a5fab21bdca0039975825243132ebc07306ab113",
     "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv": "e1bc9efd15de70398600c24a52f81b8f04a8f8217ebf03993515eec2045a03a0",
     "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_model_a.csv": "1e6d1d67766b79ab94e84ad6a882c65dc5e8747e9c28cb6005e66202de3a6226",
     "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv": "4254c2b22130420b7d621d249b1a107e9b54e45b0120d1efae9ef0ce8f08c096",
     "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell_model_a.csv": "6cdda37c268e6a44d497336a7eee39a01d406274f70b276ebef3bf36ce04532f",
     "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_results.txt": "5cf0ba825a3f759c1b3533f8e63e32534f01eda1dc9ac5131f0f7cbb53c11fc5",
-    "outputs/26b_van_willegen_msl_projections/26b_report_numbers.csv": "c4ed2453e512017220b054ed1c31492432c9803d7f27258ffd89f0af29c5fc82"
+    "outputs/26b_van_willegen_msl_projections/26b_report_numbers.csv": "44c41c05d96e5773305ae9a292b4adf22bc0301328b1321bda4347dbec56eee9"
    },
    "fallbacks": [],
    "inputs": {
@@ -922,9 +922,9 @@
     "outputs/26_van_willegen_msl/26_msl_5yr_per_cluster_centroid.csv": "0d05e2c3f6f173d0e1a7c2032654fe8748aa686778db6ae8cb7a7a79c9cd8017"
    },
    "inputs_unresolved": [],
-   "seconds": 2.8,
-   "started": "2026-11-10T22:37:45",
-   "version": "2.2.0"
+   "seconds": 3.1,
+   "started": "2026-11-12T09:52:58",
+   "version": "2.3.0"
   },
   "26c_msl5_report_figures.py": {
    "emitted": {
@@ -934,16 +934,16 @@
    },
    "fallbacks": [],
    "inputs": {
-    "outputs/19_spatial_groundwater/19_scenario_summary.csv": "06a0da9f30ff3e114a8313527419c04db5808cbcc8a2b457dc58472914b59d25",
+    "outputs/19_spatial_groundwater/19_scenario_summary.csv": "74d5dcc667f778f61828d1f5ab195864a46ab9c13f7e3f48275dce73e5340596",
     "outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv": "095156f39df6d853972508bf351ff752488ba6b0abe1a10404c3cdaa01e57cf7",
     "outputs/26_van_willegen_msl/26_curreli_min_per_cluster.csv": "f19ef912e538829ba9cd32bd781a85d8bb4c7cd7dc11a4d65c3dd0ecc94cebae",
     "outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv": "cb037704ee08bcc2e074d15efb10f3d5e3d9aba1337abb5521082c740052c18d",
     "outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary.csv": "e1bc9efd15de70398600c24a52f81b8f04a8f8217ebf03993515eec2045a03a0"
    },
    "inputs_unresolved": [],
-   "seconds": 1.8,
-   "started": "2026-11-10T22:37:47",
-   "version": "1.8.0"
+   "seconds": 2.1,
+   "started": "2026-11-12T09:53:01",
+   "version": "1.8.1"
   },
   "28_c3_detrend_check.py": {
    "emitted": {
@@ -957,8 +957,8 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 4.6,
-   "started": "2026-11-10T22:37:49",
+   "seconds": 6.9,
+   "started": "2026-11-12T09:53:03",
    "version": "1.3.0"
   },
   "29_c3_within_variance_check.py": {
@@ -983,8 +983,8 @@
     "outputs/25_coastal_gradient/25_02_per_well_summer_min_slopes.csv": "d693845933c5056804b726fac6a9a034e3de6c70705e3a47824b964d1d1d290d"
    },
    "inputs_unresolved": [],
-   "seconds": 1.8,
-   "started": "2026-11-10T22:37:54",
+   "seconds": 2.5,
+   "started": "2026-11-12T09:53:10",
    "version": "1.11.0"
   },
   "30_c4_drainage_identifiability.py": {
@@ -1002,8 +1002,8 @@
     "outputs/02_cluster_stats.csv": "d64ef4bba492826908ab9bef9864249b8c63a39d64b8d8c4dfe40688a31857f3"
    },
    "inputs_unresolved": [],
-   "seconds": 3.5,
-   "started": "2026-11-10T22:37:56",
+   "seconds": 3.9,
+   "started": "2026-11-12T09:53:13",
    "version": "2.7.0"
   },
   "31_cluster_validation.py": {
@@ -1023,8 +1023,8 @@
     "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv": "7a78872ced028d97af0f5b7827d30b820fcab86a2b3c558940fa07a28c39ea15"
    },
    "inputs_unresolved": [],
-   "seconds": 8.9,
-   "started": "2026-11-10T22:40:26",
+   "seconds": 13.2,
+   "started": "2026-11-12T09:56:45",
    "version": "1.4.2"
   },
   "31b_separation_vs_recoverability.py": {
@@ -1040,8 +1040,8 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 3.1,
-   "started": "2026-11-10T22:40:35",
+   "seconds": 3.3,
+   "started": "2026-11-12T09:56:59",
    "version": "1.3.1"
   },
   "32_differential_movement.py": {
@@ -1060,8 +1060,8 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 32.0,
-   "started": "2026-11-10T22:37:59",
+   "seconds": 44.2,
+   "started": "2026-11-12T09:53:17",
    "version": "1.9.0"
   },
   "33_envelope_amplification.py": {
@@ -1084,8 +1084,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 36.8,
-   "started": "2026-11-10T22:38:32",
+   "seconds": 52.2,
+   "started": "2026-11-12T09:54:01",
    "version": "1.9.0"
   },
   "34_window_sensitivity.py": {
@@ -1104,8 +1104,8 @@
     "outputs/32_differential_movement/32_site_mean_trend.csv": "e581c37980c7a0a6f793c4c6a097577a112dc54520675d08a0d0e835fc6d48f7"
    },
    "inputs_unresolved": [],
-   "seconds": 1.7,
-   "started": "2026-11-10T22:40:38",
+   "seconds": 2.4,
+   "started": "2026-11-12T09:57:02",
    "version": "0.8.0"
   },
   "35_per_well_amplification.py": {
@@ -1124,8 +1124,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 13.4,
-   "started": "2026-11-10T22:39:08",
+   "seconds": 18.1,
+   "started": "2026-11-12T09:54:53",
    "version": "1.4.0"
   },
   "36_absolute_climate_trend.py": {
@@ -1144,18 +1144,18 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 42.0,
-   "started": "2026-11-10T22:39:22",
+   "seconds": 62.1,
+   "started": "2026-11-12T09:55:12",
    "version": "1.7.0"
   },
   "37_driver_validation.py": {
    "emitted": {
     "outputs/37_driver_validation/37_driver_validation_per_well.csv": "41ed65bcc067f082acfc7366498e3ec8ef1002b57043c58c63acafa43e52fc30",
     "outputs/37_driver_validation/37_implied_delta0_trajectory.png": "cc8273546a50db4ce8e98447fb7a22ba535b7e2c4926f59d941f9441a27c9ea0",
-    "outputs/37_driver_validation/37_predicted_vs_observed.png": "db64e085c9db26441fed594b68c3a1a5a2d0cf0bc3e4f7d4a71cd700c807c399",
+    "outputs/37_driver_validation/37_predicted_vs_observed.png": "256a77f80a8323e0da8f85be480e57047266bc85b89079087e4bfe26fb29eb00",
     "outputs/37_driver_validation/37_report_numbers.csv": "762c6dd35a652737c37e6becf045a9a9d499169a38de629cda034018ab92327d",
     "outputs/37_driver_validation/37_residual_map.png": "0965d47ee57301f7d40f540de031dce65f98bc5ef971ea71700019870172a445",
-    "outputs/37_driver_validation/37_results.txt": "950d8d10d3357313e1f4402d95d8cb9df4f76ca7659e13aa5174942065b7b30c",
+    "outputs/37_driver_validation/37_results.txt": "3f035852992d413dbacc73b4addfb4d97ac8dbc9e4ee26e2b09c0942687438f2",
     "outputs/37_driver_validation/37_scale_factors_by_window.csv": "5c110a57644c2f3a866c8b08234214fc5ad56b8c9af9b48ba74561d2fec1b57b"
    },
    "fallbacks": [],
@@ -1168,16 +1168,16 @@
     "outputs/36_absolute_climate_trend/36_absolute_climate_trend_per_well.csv": "a30622ceda22e0edb1d3a2109dba9a6eca27696f94df46091bec9f29d5c73560"
    },
    "inputs_unresolved": [],
-   "seconds": 12.6,
-   "started": "2026-11-10T22:40:04",
-   "version": "3.10.0"
+   "seconds": 19.1,
+   "started": "2026-11-12T09:56:14",
+   "version": "3.10.1"
   },
   "37b_driver_footing.py": {
    "emitted": {
     "outputs/37b_driver_footing/37b_driver_footing.csv": "adf54576f399d25aabea7dcab73dac69dd234ca75c60effbc46b9d0c3042bac9",
     "outputs/37b_driver_footing/37b_driver_footing.png": "3e1921ee8da61b3f0d69fb2befc390207662b755d23fe6f66128c9d33e1abd16",
     "outputs/37b_driver_footing/37b_report_numbers.csv": "9d31aebc4310632ba5cf73506b939c4c80a77687fd6fa9d2d3b07f9f1755fd0a",
-    "outputs/37b_driver_footing/37b_results.txt": "5817915cf71a9b316360c37e7e1de350af9bfc46e9f2ffcb88f4ae371fdedea8"
+    "outputs/37b_driver_footing/37b_results.txt": "f15ed1f8d67c99db99e18addf3f33e388d58b24bd4db96c90989fdbe04f9ce7f"
    },
    "fallbacks": [],
    "inputs": {
@@ -1191,9 +1191,9 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 7.1,
-   "started": "2026-11-10T22:40:17",
-   "version": "1.10.0"
+   "seconds": 9.1,
+   "started": "2026-11-12T09:56:33",
+   "version": "1.10.1"
   },
   "38_coastal_transect.py": {
    "emitted": {
@@ -1210,23 +1210,24 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 2.3,
-   "started": "2026-11-10T22:40:40",
+   "seconds": 3.1,
+   "started": "2026-11-12T09:57:05",
    "version": "1.7.0"
   },
   "39_ccw_hindcast.py": {
    "emitted": {
-    "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "acfeef1b39478f81b66dbb341ffdf29ba3b164166217b444681e0b9900ee69ff",
-    "outputs/39_ccw_hindcast/39_02_hindcast_series.csv": "9489f90cbe2c41b334487c48b9977125271dc05af9fe94b737c2fcc7d6242473",
-    "outputs/39_ccw_hindcast/39_03_beta1_sensitivity.csv": "c4daf2557375843e8e8890493a55b26db13156c23e49f62b8402cd7213a03f60",
-    "outputs/39_ccw_hindcast/39_04_hindcast.png": "9102d632c9f06e8fb4a69fb9c53cf71169ac2ff67d67d3cd116d0c2bd4dff9f4",
-    "outputs/39_ccw_hindcast/39_05_full_hindcast_site.csv": "cbd04fe7da9bf835707725805e87b4c566d581f3182eb01d8699809e6d658e4c",
-    "outputs/39_ccw_hindcast/39_06_full_hindcast_decadal.csv": "b755f3cb120cdb73eb883434789417af6a40bf8f15bfd07a34e0ad4dc28c3c5e",
-    "outputs/39_ccw_hindcast/39_07_full_hindcast.png": "3a1498ea8ebc7908a87a80dc00493d7c669c439f004cc6e48a1352d22565c816",
-    "outputs/39_ccw_hindcast/39_08_fit_window_scorecard.csv": "7d62072bb21462c72b857f8fdd3d1e5162540eea4c4f19b67945e47cb657346d",
+    "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "b6c6d973b1bbfdcfcca68aa85f747949412d23275b36d983ad1ac3bec35239ec",
+    "outputs/39_ccw_hindcast/39_02_hindcast_series.csv": "742b5c06fa384138278c368b2ee27103d97d29f053e40420cfb124fc65bd86f6",
+    "outputs/39_ccw_hindcast/39_03_beta1_sensitivity.csv": "51372a2588ee8426604f155f141cc0c1c47d1795b9d0472c513cceaf96b67343",
+    "outputs/39_ccw_hindcast/39_04_hindcast.png": "b31cfc43121f8d49384ddd48c4ec7c8789dd0e1faf2bb47a3364d9afeefc84a8",
+    "outputs/39_ccw_hindcast/39_05_full_hindcast_site.csv": "6d8c496dde6802dfe28c31500bcd5d8ce9b25f117fb337daec2fc475c912aa3c",
+    "outputs/39_ccw_hindcast/39_06_full_hindcast_decadal.csv": "6641731eff59a9fb480b8c9926d5a80e5262f854ffc86b9ea079529021218f9f",
+    "outputs/39_ccw_hindcast/39_07_full_hindcast.png": "4b991469887cb7a8a7bde204cd615c812a2fcc10f3c07e3806468216fb8a5570",
+    "outputs/39_ccw_hindcast/39_08_fit_window_scorecard.csv": "5f30553af4723baace79075f5492cd5add14f8910706a9f571b89ddcdd92be96",
     "outputs/39_ccw_hindcast/39_09_fit_windows.png": "ba70e68c58df491a8240e3df3a116eae6cbf59868158c78b2b64698761f8319d",
-    "outputs/39_ccw_hindcast/39_report_numbers.csv": "33dad24ed8cd3450a5be4f3f6f54785ea1f2a91fef19283d46685899753f588d",
-    "outputs/39_ccw_hindcast/39_results.txt": "37eba38681da5f71bd6339d5f09f4df6133726c56b5e87b2155fd832ed3067b0"
+    "outputs/39_ccw_hindcast/39_10_three_forms_per_well.csv": "2bd7dc9d03f88e89c1d0fff0b50eeb22a3573343359c1c59ccf007eb3a608048",
+    "outputs/39_ccw_hindcast/39_report_numbers.csv": "c718003a68a78877d309bc99c25600c5176075020cd5591468928c13f67b45a3",
+    "outputs/39_ccw_hindcast/39_results.txt": "c3386d8db3f69f4dc894e72d5b5ee12ef31f3f59a736bd4e506f297bd42a52e6"
    },
    "fallbacks": [],
    "inputs": {
@@ -1236,9 +1237,9 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 15.9,
-   "started": "2026-11-10T22:40:43",
-   "version": "1.6.1"
+   "seconds": 26.1,
+   "started": "2026-11-12T09:57:08",
+   "version": "1.7.0"
   },
   "40_shoreline_retreat.py": {
    "emitted": {
@@ -1268,8 +1269,8 @@
     "outputs/25_coastal_gradient/25_12_window_sweep.csv": "209715ab47307db3550b286e360b192ddbecc135367aff2c87c5bec59b9bf19b"
    },
    "inputs_unresolved": [],
-   "seconds": 1.6,
-   "started": "2026-11-10T22:40:59",
+   "seconds": 2.4,
+   "started": "2026-11-12T09:57:34",
    "version": "1.8.0"
   },
   "41_canopy_cover.py": {
@@ -1290,8 +1291,8 @@
     "outputs/07_spatial_coefficients/07_coeff_maps_data.csv": "62b1036db347b422b7f824ac0e3044976c7f96479893f88ced9d8ea6ab5ea862"
    },
    "inputs_unresolved": [],
-   "seconds": 1.3,
-   "started": "2026-11-10T22:41:00",
+   "seconds": 1.5,
+   "started": "2026-11-12T09:57:37",
    "version": "2.16.0"
   },
   "43_ranwell_sites.py": {
@@ -1321,26 +1322,26 @@
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77"
    },
    "inputs_unresolved": [],
-   "seconds": 7.4,
-   "started": "2026-11-10T22:41:05",
+   "seconds": 10.7,
+   "started": "2026-11-12T09:57:43",
    "version": "2.1.0"
   },
   "44_ranwell_hindcast.py": {
    "emitted": {
     "outputs/44_ranwell_hindcast/44_01_ranwell_readings.csv": "c5f1a36f0a7d30684e5d9dfd3bf419308642354372c36a3a647566056f69542a",
     "outputs/44_ranwell_hindcast/44_02_ranwell_monthly_ranges.csv": "14f6f5ac3a5806d91811366bf67b4e21fe2ace4105fb428fda975264f59bf563",
-    "outputs/44_ranwell_hindcast/44_03_hindcast_series.csv": "c759dad9d45e1df8455ca9c5b4eb546c6627472c88b964d93e30ebbddbb2306f",
-    "outputs/44_ranwell_hindcast/44_04_hindcast_metrics.csv": "3b2f94f33eeb31f617487d7f50ab49ff54b8d82c0df7bc14fbe8154c4f2e099a",
-    "outputs/44_ranwell_hindcast/44_05_level_change.csv": "0e342a3944303572d291b8f2d1ec19df432113db03b4eaab00c727c0114f7201",
+    "outputs/44_ranwell_hindcast/44_03_hindcast_series.csv": "453006a8638dfe7fc622d9f4184a196c73ad33cbae8ddb0d09f830a4a9fa1ae8",
+    "outputs/44_ranwell_hindcast/44_04_hindcast_metrics.csv": "314ec7b5e971b08596c8d9a8e24e24c3d1a8156467aad4247d76cc79146c5cdb",
+    "outputs/44_ranwell_hindcast/44_05_level_change.csv": "b7be4f8ffed10819fdf16bd92d223b781e0e48cc0a2f90ddf39d6529a86647c0",
     "outputs/44_ranwell_hindcast/44_06_climate_check.csv": "682a1022f4dc9d1d3196c4d9c219d71dd980426415fa8f1118994540c7d7c683",
-    "outputs/44_ranwell_hindcast/44_07_hindcast.png": "37c0c2ed387e159207dab3b859c4e0d6ecc39d3e326e9f7211b33fbf81f75a67",
-    "outputs/44_ranwell_hindcast/44_07b_hindcast_report.png": "d2b6d1ae673932e14f85dc1cfdf31b7c2bd0b6be392b865ee4b1d8d17b56228c",
-    "outputs/44_ranwell_hindcast/44_08_level_change.png": "f143af578907a3ac6dd1ab054bdd07e5b0b2ae144aa989931e9e4775c4acda8f",
-    "outputs/44_ranwell_hindcast/44_09_slack_floor_datum.csv": "17b0483262778df531fe71328acc2002a1d8ca0641478e2e06f85fa1a77cf975",
+    "outputs/44_ranwell_hindcast/44_07_hindcast.png": "8683941b64ca30835ec260fee48689176c678d4b6481713c865f2d179ce72f66",
+    "outputs/44_ranwell_hindcast/44_07b_hindcast_report.png": "722d97e106e8d0f067db3a235dd4e7db2b4f2f4b150218ce86912059c8e31f47",
+    "outputs/44_ranwell_hindcast/44_08_level_change.png": "49f31acb2f55fbae4f01ceb185df88d8ded7f0fcd5a9cf21334752455916d667",
+    "outputs/44_ranwell_hindcast/44_09_slack_floor_datum.csv": "a374ee210276c6805c628e8316b67b858f3886409b8b53a1ef868b3c0f1b648b",
     "outputs/44_ranwell_hindcast/44_09_slack_floor_datum.png": "d16a76ae8f247e7da983ece8d3867e0c127d8ea0d335eb56a4946c45e5884820",
-    "outputs/44_ranwell_hindcast/44_10_forest_floor_excess.csv": "69dd480b7b8bd67a0b44c1b7d79f486ed9472548f0f6896adc0bde9235daab8f",
+    "outputs/44_ranwell_hindcast/44_10_forest_floor_excess.csv": "6912c6685520c925437230805ae057c9e41eedf656e9a60bbc00d861440ba5bd",
     "outputs/44_ranwell_hindcast/44_10_forest_floor_excess.png": "9a486bb6839f6d614ba32e460a8f66e18edf5b131f5f8f67936ad88bb31cc63a",
-    "outputs/44_ranwell_hindcast/44_report_numbers.csv": "8958576747ee7fdc1714740f9b2d872b3f1ceec673c8221e90130416bd9e1b47"
+    "outputs/44_ranwell_hindcast/44_report_numbers.csv": "e34505951807f4060cc0c70b6932642e0fd934806c3c81a2d3e545fcea1c9101"
    },
    "fallbacks": [],
    "inputs": {
@@ -1372,9 +1373,9 @@
     "outputs/43_ranwell/43_07_modern_well_basins.csv": "d4938d352e042a18d2a05ca3f3fe519f06fde5fe8b13b262e953493a489dfa92"
    },
    "inputs_unresolved": [],
-   "seconds": 12.7,
-   "started": "2026-11-10T22:41:12",
-   "version": "1.12.1"
+   "seconds": 21.5,
+   "started": "2026-11-12T09:57:54",
+   "version": "1.13.0"
   },
   "45_wet_area_model.py": {
    "emitted": {
@@ -1400,8 +1401,8 @@
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3"
    },
    "inputs_unresolved": [],
-   "seconds": 3.9,
-   "started": "2026-11-10T22:41:25",
+   "seconds": 5.0,
+   "started": "2026-11-12T09:58:15",
    "version": "1.6.0"
   },
   "46_wet_area_feed.py": {
@@ -1413,35 +1414,36 @@
     "outputs/45_wet_area/45_02_ssm_through_nir_curves.csv": "78951b7e181f8be19d70f05eefe4cf2a6e7ad3d9108eced7e0bda521945634f7"
    },
    "inputs_unresolved": [],
-   "seconds": 0.3,
-   "started": "2026-11-10T22:41:29",
+   "seconds": 0.5,
+   "started": "2026-11-12T09:58:20",
    "version": "1.0.0"
   },
   "47_hindcast_film.py": {
    "emitted": {
-    "outputs/47_hindcast_film/47_01_hindcast_level_monthly.csv": "131d09ba9ed8698422f38fb7bffe4c93f93c15246e3e830d88100d5e89161d38",
-    "outputs/47_hindcast_film/47_02_calibration.csv": "0fb3daa9d375018e1152f9802d2f63687e08d3cf81dddda2f8381f1183d204da",
-    "outputs/47_hindcast_film/47_02_quantile_map.csv": "9728205958073825eb62f53fc02b39f452e236db50248ce32bbec89e210cf6ba",
-    "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "7a82d7c383112cf65a10841ce897b8574a8be6940d72bdf16efd7a45f58c5a9d",
-    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "86e97ffca11b8f17c52795e4a2419ebc31c02fc673219e03b049c1ad3364499f",
-    "outputs/47_hindcast_film/47_03_hindcast_presentation_cy.mp4": "1654c923c6aaaa2cae8e3216fbc306c2d3c844ba8eed0e97446cf4d84851bf39",
-    "outputs/47_hindcast_film/47_03_hindcast_presentation_pl.mp4": "d3d6716aae10117fbe2674d8d3a1b18311f52187a35d8070f8d73ed0fa128d61",
-    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12.png": "09c41106d2af85ea2edf60dc98b05f125510252cb793c454e8bec198c976c328",
-    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_cy.png": "d0d68687371538a4d25f25edf5fcab6108333bc45a4b1061de6d16f9f7d7c74c",
-    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_pl.png": "f57b3e7c41d5e58f6d718c738ed4d7893053ff44198b738e675629b501e66aad",
-    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "8f5709f87900a7f4536c4ae24671b4edae91667349f7639e8fe44d12124813ce",
-    "outputs/47_hindcast_film/47_05_frame_caveats_cy.txt": "afc7dc8350b9142e110f3c1695e487b7e65054f48d529fef52e4de0020f9353f",
-    "outputs/47_hindcast_film/47_05_frame_caveats_pl.txt": "02d4855b21e28fe73c0db7ae09d19d260e75a431091e809035400c89af4a5a86",
-    "outputs/47_hindcast_film/47_06_free_run_vs_wells.png": "795db47d2a637a9550f9170d477983c97ed046067ed77a527fb9190f6c1e917a",
-    "outputs/47_hindcast_film/47_06_free_run_vs_wells_cy.png": "364e85f50151664d6231e6b69b15a9b4da9a9ca858bbe781b088f0a7e3f84c80",
-    "outputs/47_hindcast_film/47_06_free_run_vs_wells_pl.png": "dc4f7ec70b74a168c2a2626eb2d2bda96f4d555b4ca71569426c0d07f7795818"
+    "outputs/47_hindcast_film/47_01_hindcast_level_monthly.csv": "0c044cfaa36582b1eed4bc126fd5ee9fd6e1449fb78c105adf17b22facd33259",
+    "outputs/47_hindcast_film/47_02_calibration.csv": "368dafbe1ef1a94794a6ecd02d8696959345ccd5001dfdda96c22ca57467a1b2",
+    "outputs/47_hindcast_film/47_02_quantile_map.csv": "3d7d5e8c2b58cd8c8ed684fd142c73b7324447fcb07a49c24123252f61a422d8",
+    "outputs/47_hindcast_film/47_03_hindcast_film.mp4": "24bf04899575e795bccb50aded72546bd16f7fd46749446f00603413976ffdb7",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation.mp4": "c9e70ca354b241d16e3e6ca8f5a72f6d90f59440ff4381ac237338bcef63b8fc",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation_cy.mp4": "53d57cd6fff8b2ab7104a4a4b5674e8fc56f669cb19d28ce2218ff5c82493a95",
+    "outputs/47_hindcast_film/47_03_hindcast_presentation_pl.mp4": "1cff89f3972598c89c642ab534b7edc008bc1d7ae8a1a1eb21e637b775b09841",
+    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12.png": "d4dbf5816333b0bf5f944f57009f990ec4078fb7939c91e094099cf439a4d142",
+    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_cy.png": "8cca64132b90101cc4ad06e6c84c66e26a70cda9fdb60757ed0c9547c29d9f9b",
+    "outputs/47_hindcast_film/47_04_hindcast_still_2000-12_pl.png": "ea0edf41aeed4351710a3312bb689f6fdfaa8d88f2eb06a97c250cff4a164bf5",
+    "outputs/47_hindcast_film/47_05_frame_caveats.txt": "3ab66952d28daf80496004746ee4b134a4d533db199b76c09bf94bb31708047e",
+    "outputs/47_hindcast_film/47_05_frame_caveats_cy.txt": "02742e4e3bcb207f98623343f347912df12d08b0f6ab170cc5a90abb18b4335c",
+    "outputs/47_hindcast_film/47_05_frame_caveats_pl.txt": "4e950ede5d02dc1d6e52bbf58b4f242595ef771363ae10fd98b88236785fd46c",
+    "outputs/47_hindcast_film/47_06_free_run_vs_wells.png": "ea37e2ae9281ab6aac04e5d2724f3bc59a5facfa5cdc51fb883eed5b51ea803f",
+    "outputs/47_hindcast_film/47_06_free_run_vs_wells_cy.png": "2512ee6dd491a9d06cd7340a2da6d14a481787d769ca13cebee9fadce2db6aa1",
+    "outputs/47_hindcast_film/47_06_free_run_vs_wells_pl.png": "13b7765e69eaad2e97483b612eab2251649f8a97780b737eac6197cd6411774c",
+    "outputs/47_hindcast_film/47_report_numbers.csv": "1385c00bab800a3716f8784e7f41af85c8e425666212e33943a2a4e854fcdae0"
    },
    "fallbacks": [],
    "inputs": {},
    "inputs_unresolved": [],
-   "seconds": 1372.1,
-   "started": "2026-10-16T08:55:16",
-   "version": "1.9.1"
+   "seconds": 1738.2,
+   "started": "2026-11-12T11:09:03",
+   "version": "1.11.0"
   },
   "48_pastas_crosscheck.py": {
    "emitted": {
@@ -1463,8 +1465,8 @@
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "0a1e24b6736320deaa6bfbbeaa6155261cc5e5e9f7b3f4ec3546be6fccc0f35a"
    },
    "inputs_unresolved": [],
-   "seconds": 46.4,
-   "started": "2026-11-10T22:41:30",
+   "seconds": 56.2,
+   "started": "2026-11-12T09:58:21",
    "version": "1.8.0"
   },
   "49_slack_flow.py": {
@@ -1519,11 +1521,11 @@
   },
   "50_record_length.py": {
    "emitted": {
-    "outputs/50_record_length/50_01_record_length_per_well.csv": "1ac121a7472f9a5eebba2f42645682fb3ad02b174e5b98d2d9db9c50154652d2",
-    "outputs/50_record_length/50_02_record_length_by_cluster.csv": "b8547b05133e7a12396396d7a9a58a72fff5da7d49f265d98707233279835e07",
-    "outputs/50_record_length/50_03_ccw_hindcast_by_length.csv": "7e322ec7dcdeae66142cc7604c245e90d8e0faefd5f0fd0bec03aa137fcc336b",
-    "outputs/50_record_length/50_04_record_length.png": "6d2795397a0e08e0a67efbe830db0633f194a64dbb0f70c7403d2dbb609beb57",
-    "outputs/50_record_length/50_05_stable_length_per_well.csv": "8a1cea7baca97c971a2b996bdb8e85c136e4926b3a456a42749f09a3578cbdaf",
+    "outputs/50_record_length/50_01_record_length_per_well.csv": "23fe3fbe5ad4ae21e3bba160d1237db1ff69b50223531fdc56fe05e965498760",
+    "outputs/50_record_length/50_02_record_length_by_cluster.csv": "d7f34a2304d5715a7de60f8c2187249c9ef883498c78c0b93264fabd7f972c1f",
+    "outputs/50_record_length/50_03_ccw_hindcast_by_length.csv": "8bae6ed052a40ec041cc4602bf7d3d4a68d3e456e7ceff022a58d7f97ecd4690",
+    "outputs/50_record_length/50_04_record_length.png": "fa1d1f7094916cf1f00253ce090a443a9bd3ba7f12ebe8e39b1e38d83dc0b91c",
+    "outputs/50_record_length/50_05_stable_length_per_well.csv": "a4127997202579d716a2ec84598cf53eb2e5ff93c601f87ccdb33d0d350d3389",
     "outputs/50_record_length/50_06_ccw_hindcast_by_datum.csv": "d7c3757600449c120d3bcfa2dacc03f4258456fca916a6e6dad478a3000fc5a2",
     "outputs/50_record_length/50_07_split_by_datum.csv": "b9b4ccf70120a05be76636a577ba3de43c442d4efa03ba2ac7e06fcc64abaa4a",
     "outputs/50_record_length/50_08_projection_by_datum.csv": "c3326ff0fab0654384cc6426bf20111c8b06f6deb95afda9cf6ab579e82c8dda",
@@ -1544,18 +1546,18 @@
     "outputs/50_record_length/50_24_clearance_step_by_well.csv": "3a0ab058afdf1798a62de41a67016efface953c975b339898971017f602be78b",
     "outputs/50_record_length/50_25_clearance_step.png": "0eeb36f6350cacd037add80be1d6b31d1935a659121a8c0d87c368370a4e8482",
     "outputs/50_record_length/50_26_precanopy_by_case.csv": "a8e181c11c8fe35af0ce4b2fa6ace9b045a7180c08da5c9ac41df1715a129e34",
-    "outputs/50_record_length/50_27_forest_forcing_by_well.csv": "6d24cab2d97bda57a1dd2061ee0e54deef406b47392366cc6400f661113f2b2d",
+    "outputs/50_record_length/50_27_forest_forcing_by_well.csv": "3b132ef08ac9d3d00a22393b7caf8ce8412aa6ecc6ca9b1d5ac033a5d89e1ad9",
     "outputs/50_record_length/50_28_ranwell_need_grid.csv": "a0cb80f66db8489fa42cd846de46ee3972dd799e864a68a63a6c67b3a5f77a9d",
     "outputs/50_record_length/50_29_ranwell_epoch_candidates.csv": "9d8fb3f1bb837ede915a7b837b42d3af37911bc54869ea966c8f4fb34e66962d",
     "outputs/50_record_length/50_30_basis_by_test.csv": "bff9bc30e636e561014b52649857d09b01e6ca917d23576fc2230ba766582885",
     "outputs/50_record_length/50_31_pet_alternatives_monthly.csv": "9bd179f11410de80c662b78db62721d6da947bcd7cb97812e3382f84399096e2",
-    "outputs/50_record_length/50_32_e13_pet_by_cluster.csv": "abbf4745681b88c1f5960605cfa464fb64060493bd9e78ade3f32467fe0c1ca1",
+    "outputs/50_record_length/50_32_e13_pet_by_cluster.csv": "f903d4bf6cf564a499d97de640388c561ec5ffeb7f9b980b11aa6858ef1957d6",
     "outputs/50_record_length/50_33_e13_beta1_break_by_well.csv": "bd27a1e11237f2cd504e6011e199c8388588640b1d847be1013503a6d3471ba8",
-    "outputs/50_record_length/50_34_e13_weather_summary.csv": "4ae572593c320f2b5b0615923d2034d46702a44f906788914997fd46f8ca9a0a",
+    "outputs/50_record_length/50_34_e13_weather_summary.csv": "0a9ad909a766ac7bb75b24a09df4cc5ae080b5f0aa1130dfc2123f9916125c56",
     "outputs/50_record_length/50_35_e13.png": "429ee24da9d6c0bff194dfcb48a166b349ad5c319c1e7beebccadecc28ba9693",
     "outputs/50_record_length/50_36_pet_comparison.csv": "1e9ae40b8e5820da363ad7b30da205741f45fde259e3983ecaa612fae48d0e09",
-    "outputs/50_record_length/50_37_pet_comparison.png": "8efbf81bac66ece78d553ffc40e8d6080d81e8e953b745f3bcf4d7ec3efce425",
-    "outputs/50_record_length/50_38_residual_seasonality_pm.csv": "0ab627ec5a36969b401923448744d1a5dea365676c238baf20dac78028ff0aa8",
+    "outputs/50_record_length/50_37_pet_comparison.png": "99e803971b59b809ebd34c0312b16f36a45085de15aa8430060d0b7e2679041f",
+    "outputs/50_record_length/50_38_residual_seasonality_pm.csv": "333c443277807e9b6b9c36a5a446ff1ca12516bb85d2d9c5ba95573e36e71807",
     "outputs/50_record_length/50_39_midas_annual_inputs.csv": "3b3b702337ea0b811bec73928bd25dcef483e6e77ffe1e19196d10daad9f4217",
     "outputs/50_record_length/50_40_placement_by_test.csv": "b6c7818707ab5c3f0e77164114e72f2dae8f47ec4d50a466bcf750e19ceae3c3",
     "outputs/50_record_length/50_41_elevation_datum_by_test.csv": "a8294e5efe1af0c93518efe50178d882a12da4b4b4b792a52f22b5346b4d1054",
@@ -1563,15 +1565,15 @@
     "outputs/50_record_length/50_43_cluster_base_by_test.csv": "c8ab7a1d2fe95f8259300cbbfceb209a5fe85dabe7cf2336743e7c4cbb4b6b36",
     "outputs/50_record_length/50_44_cluster_base_summary.csv": "0544c7e1a8b800f4f56e10c37a7be1aaf225964b98a8b810433090b92bb47fb0",
     "outputs/50_record_length/50_45_ccw_quantile_map.csv": "a7ac45cc39d8a4cf689ea92115e75c587c97945d991e1fb251908c7f09cb22d6",
-    "outputs/50_record_length/50_46_ccw_film_map_months.csv": "ee31046b1d8e71e26a17d3f00c81130d64a429b9c7e85e529bcb12279b19ece8",
-    "outputs/50_record_length/50_47_ccw_film_map_years.csv": "b099318e33aab2b05f1ebe603e50af5c755762a667f49c1b0a3eefb1bfa69822",
-    "outputs/50_record_length/50_48_split_series.csv": "2f805ccaf226ed15e082a46c6bd39d3ab64749224e6f1545176129b1980c8927",
-    "outputs/50_record_length/50_49_split_both_models.png": "044b7457c3bc7946d962faa36123b7a39ed7b08631ba65426084956f85a7269f",
-    "outputs/50_record_length/50_50_neighbour_transfer.csv": "86d92a0ad7cb616855aba8718ac6d18df40e4d0010367cfd49dd976c1998b588",
+    "outputs/50_record_length/50_46_ccw_film_map_months.csv": "4cde692ddb494b8ef3096dd467a46d2a3266be080e7e8d838e59bb8eb6ad8045",
+    "outputs/50_record_length/50_47_ccw_film_map_years.csv": "cf9ee3fc6e0c34e7573d5db849455d55ce6f4e4d34b9b8f64847f631bb20f085",
+    "outputs/50_record_length/50_48_split_series.csv": "054a30d37d8e4f27a9d28cba2182d38b583eabdae1efdea0895f10c94d89d614",
+    "outputs/50_record_length/50_49_split_both_models.png": "d22b5a8c6d4601e85eaf39061516e2316141689a4d6f6ac9c33b5426ecae6ee8",
+    "outputs/50_record_length/50_50_neighbour_transfer.csv": "62ca9501ac9e291cfdb01211a4d4e747ffa736c64f701067bc2ae89619c64523",
     "outputs/50_record_length/50_51_neighbour_transfer.png": "31ea9e4f226de57b0b3744f90c7aebe2c13f9fb845e7a46d8acd395ab8ce128e",
     "outputs/50_record_length/50_52_transfer_rule.csv": "542c3178558cf0fe220d5bb78d6b32732e1cb5dfd6ddf8812dc667d07c599aa4",
     "outputs/50_record_length/50_53_transfer_rule.png": "eaa7e3d5fe1a11a4f17ed9071fed9e00f428160a126dbd7461e786b984c4afa7",
-    "outputs/50_record_length/50_report_numbers.csv": "10110ab40cec0fd11bd3c586d4e838a2d30197dd929c575e73c39c5a3959cf34"
+    "outputs/50_record_length/50_report_numbers.csv": "eebf783c22e2994c2a95f6a90cf62dbb159557435ba6bc00334c46777c696dad"
    },
    "fallbacks": [],
    "inputs": {
@@ -1595,20 +1597,20 @@
     "outputs/03_state_space_model/03_09_well_optimal_datums.csv": "8e4baa4f68243c466dfc6e3fb8cc3fffb8c239916df1a7d472cf722d5af19e97",
     "outputs/03_state_space_model/03_15_per_well_window_sensitivity.csv": "8e7d9e97ad386a9ff42d69d0a7bb633e31782a07c43652a073e60bbb2e8381ad",
     "outputs/03_state_space_model/03_16_model_b_persistence.csv": "0a1e24b6736320deaa6bfbbeaa6155261cc5e5e9f7b3f4ec3546be6fccc0f35a",
-    "outputs/03_state_space_model/03_22_warren_open_dune_coefficients.csv": "d45b37944bd70495c08f38c20e20587107009b7e06658f02ae27d7a91b09eddd",
+    "outputs/03_state_space_model/03_22_warren_open_dune_coefficients.csv": "3cca30dc34366d80519050804e9314d544519150fca1b07b70e43c80d1ccdd8a",
     "outputs/19_spatial_groundwater/19_scenario_perwell_model_a.csv": "6964fd45ef58114b06bbb2fc72c87c045d50c9bbd8ba802da2ed38efef034933",
     "outputs/24_residual_climatology.csv": "1c190f6c8b3379d4f0d1d6a9aa4217287a06f620b2350422742ee7ab10168186",
-    "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "acfeef1b39478f81b66dbb341ffdf29ba3b164166217b444681e0b9900ee69ff",
+    "outputs/39_ccw_hindcast/39_01_hindcast_per_well.csv": "b6c6d973b1bbfdcfcca68aa85f747949412d23275b36d983ad1ac3bec35239ec",
     "outputs/41_canopy_cover/41_01_canopy_index.csv": "9bd14dac7078809487856c1ec7b2a458ae348d2232d3e1553b046bf82da92e49",
-    "outputs/44_ranwell_hindcast/44_04_hindcast_metrics.csv": "3b2f94f33eeb31f617487d7f50ab49ff54b8d82c0df7bc14fbe8154c4f2e099a",
+    "outputs/44_ranwell_hindcast/44_04_hindcast_metrics.csv": "314ec7b5e971b08596c8d9a8e24e24c3d1a8156467aad4247d76cc79146c5cdb",
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "540d93373f369f480e3b74d740d64d6c6b4dcf6b195e46704b5d06287f10cd6c"
    },
    "inputs_unresolved": [
     "2015.kml"
    ],
-   "seconds": 2915.6,
-   "started": "2026-11-10T22:42:16",
-   "version": "1.24.0"
+   "seconds": 3981.3,
+   "started": "2026-11-12T09:59:17",
+   "version": "1.25.0"
   },
   "51_cluster_gap_fill.py": {
    "emitted": {
@@ -1635,8 +1637,8 @@
     "outputs/06_pear_membership_audit_sitewide.csv": "d6a350efe66e9929b48e854fdbbe441ad2d54fb09e624c11efcb23285c907a0a"
    },
    "inputs_unresolved": [],
-   "seconds": 35.1,
-   "started": "2026-11-10T23:30:52",
+   "seconds": 51.6,
+   "started": "2026-11-12T11:05:39",
    "version": "1.1.0"
   },
   "53_ccw_forest_drift.py": {
@@ -1657,11 +1659,11 @@
     "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3",
     "outputs/03_state_space_model/03_15_per_well_window_sensitivity.csv": "8e7d9e97ad386a9ff42d69d0a7bb633e31782a07c43652a073e60bbb2e8381ad",
-    "outputs/39_ccw_hindcast/39_02_hindcast_series.csv": "9489f90cbe2c41b334487c48b9977125271dc05af9fe94b737c2fcc7d6242473"
+    "outputs/39_ccw_hindcast/39_02_hindcast_series.csv": "742b5c06fa384138278c368b2ee27103d97d29f053e40420cfb124fc65bd86f6"
    },
    "inputs_unresolved": [],
-   "seconds": 2.6,
-   "started": "2026-11-10T23:31:27",
+   "seconds": 3.3,
+   "started": "2026-11-12T11:06:31",
    "version": "1.0.0"
   },
   "54_dry_year_hysteresis.py": {
@@ -1680,11 +1682,11 @@
     "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
     "outputs/01_wells_reference.csv": "0c5afacf84a89ed0bf468739ac10e358b19972c2626501c639c5c2edc994cd77",
     "outputs/03_master_data.csv": "96634a57faf7410e6b010aec7afecc2a05c92dd6612f19f4a5f65af7516860e3",
-    "outputs/50_record_length/50_report_numbers.csv": "10110ab40cec0fd11bd3c586d4e838a2d30197dd929c575e73c39c5a3959cf34"
+    "outputs/50_record_length/50_report_numbers.csv": "eebf783c22e2994c2a95f6a90cf62dbb159557435ba6bc00334c46777c696dad"
    },
    "inputs_unresolved": [],
-   "seconds": 2.0,
-   "started": "2026-11-10T23:31:30",
+   "seconds": 2.8,
+   "started": "2026-11-12T11:06:34",
    "version": "1.0.0"
   },
   "55_water_balance_drainage.py": {
@@ -1723,13 +1725,13 @@
     "outputs/48_pastas_crosscheck/48_04_model_a_b_diagnostics.csv": "540d93373f369f480e3b74d740d64d6c6b4dcf6b195e46704b5d06287f10cd6c"
    },
    "inputs_unresolved": [],
-   "seconds": 6.8,
-   "started": "2026-11-10T23:31:32",
+   "seconds": 10.6,
+   "started": "2026-11-12T11:06:37",
    "version": "1.2.0"
   },
   "run_09_scraping.py": {
    "emitted": {
-    "outputs/01_data_prep/pipeline_site_observations.csv": "9cd247074f4355c9c08f130c29565e498d6fa37f6e459610c8bfe5319cde0b59",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "3fabc9f09d70165561bfa5a6f0e43f71a0908fecfd07fd84b91fe16fb3b6fd80",
     "outputs/09_scraping_intervention/09_scrape_01_full_parameters.csv": "022493cf3c96eaf4393de0cc48f97ab50a198d564b73ff210cc0a2d191f02d1c",
     "outputs/09_scraping_intervention/09_scrape_02_beta3_significance.csv": "3dbe89eb36824569c9a113989ccc9d6bd91bd09d051b5a3c04f845c66e189a48",
     "outputs/09_scraping_intervention/09_scrape_03_baci_shifts.csv": "564a3ec7c5605468b05c045c7dad88e788b81893f6c0ba00f0092d076e738552",
@@ -1770,7 +1772,7 @@
    "inputs": {
     "outputs/01_climate.csv": "af3384628d1c66eb29c5b7b118408a3ad385d5b33610d35e614f7af00125bab3",
     "outputs/01_data_prep/pipeline_scenario_params.csv": "f053dbf36c5e2eae6b51adc960e5aad26365aa73a785eea7c9ae83197382157f",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "d734af4695036468d976f9525e0aebda5576254f7ac82bcb2944d61ee617eba7",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "66382253ee656309ab0905e911719845c90125df64641e4e8309674546fd4526",
     "outputs/01_locations.csv": "a6821d5d3257087db2a5c4dffc57daccb687c9982ea2fd9670c2541d9f33bbff",
     "outputs/01_wells_clean.csv": "b1872d552ef17b68d8c8958c9f4566d5ece75523802bd21c141d3667f8605371",
     "outputs/01_wells_extended.csv": "a9da4d6aa241e516f273928dc0316c86dac39c60de0cb46ad204ee0c110e1e5c",
@@ -1789,14 +1791,14 @@
     "outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv": "9a3b93a96a3b44a064107a891fba07a42a12879f163a81768a00ad072da1fe31"
    },
    "inputs_unresolved": [],
-   "seconds": 9.8,
-   "started": "2026-11-10T22:30:14",
+   "seconds": 11.4,
+   "started": "2026-11-12T09:42:14",
    "version": "1.0.0"
   },
   "run_10_clearfell.py": {
    "emitted": {
     "outputs/01_data_prep/pipeline_scenario_params.csv": "f053dbf36c5e2eae6b51adc960e5aad26365aa73a785eea7c9ae83197382157f",
-    "outputs/01_data_prep/pipeline_site_observations.csv": "4e5c7af3036c8606928bebe831c2820ff96f579a6a34a834693b4edc34743345",
+    "outputs/01_data_prep/pipeline_site_observations.csv": "3452632ba104763c4b611447b53bf43bc0b30ff77af55e2d1a2c8f0e7bdeb17e",
     "outputs/10_clearfell_baci/10_consolidated_report_numbers.csv": "a3dfb71129abc5f279834526350cc5f08d86f385e934848b402c3e8573e95102",
     "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv": "3b15902bab37ff70886098168bd560f038661aa71fe42b2b79e54440015ffdb2",
     "outputs/10_clearfell_baci/10a_02_ancova_full_coefficients.csv": "03f103415ee8158dde0223721c284d9e14240616b2773fe80aca3aaed69eee99",
@@ -1926,8 +1928,8 @@
    "inputs_unresolved": [
     "3.geojson"
    ],
-   "seconds": 92.6,
-   "started": "2026-11-10T22:30:24",
+   "seconds": 130.6,
+   "started": "2026-11-12T09:42:26",
    "version": "1.2.0"
   }
  }

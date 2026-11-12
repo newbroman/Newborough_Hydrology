@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.126.0"  # Hollingham (2026) - 2026-11-05. WB_* (Script 55 1.0.0, the water-balance residual
+__version__ = "1.127.0"  # Hollingham (2026) - 2026-11-12. MODEL_B_BETA3_MIN (D-332, J-9 phase 2): the lower bound
+#   on Model B's β₃. Additive; no existing value moves.
+# 1.126.0  # Hollingham (2026) - 2026-11-05. WB_* (Script 55 1.0.0, the water-balance residual
 #   analysis; spec NRG_spec_water_balance_diagnostic_2026-11-04, D1-D11 signed off). Additive; no existing value moves.
 # 1.125.0  # Hollingham (2026) - 2026-11-03. MSL9_BAND_COMMUNITIES retired (Script 26 1.32.0, D-296 retirement
 #   pass): MSL9 is no longer banded against the handbook communities. HB_COMMUNITY_TABLE stays (Script 26 asserts it).
@@ -732,6 +734,13 @@ PASTAS_IDENT_MAX_REL_SE        = 0.5
 # MODEL_AB_MIN_TEST_MONTHS observed months to score.
 MODEL_AB_SPLIT_DATE            = "2018-01-01"
 MODEL_AB_MIN_TEST_MONTHS       = 24
+# D-332 (J-9 phase 2, Martin 2026-11-12: "the bound as you propose"): Model B's drainage coefficient is
+# bounded below. Wherever the free-intercept form is fitted (fit_ssm(intercept=True), the censored fit
+# with an intercept, fit_ssm_intercept), a β₃ that would fall below this is held AT it and the others are
+# refitted; the fit carries beta_3_bound_binds=True, and β₃'s standard error and p-value are NaN, so the
+# well reads "not identified" rather than inventing an uncertainty. 1e-4 per month is no drainage to
+# any practical purpose: an e-fold time of about 830 years.
+MODEL_B_BETA3_MIN              = 1e-4
 # Reversion-time diagnostics beside the published model-free estimate (Script 48 1.6.0, T-119,
 # D-255): the wet/dry split is fitted only with ASYM_MIN_PAIRS consecutive-month pairs of each
 # sign (two years of each), and a well counts as asymmetric below ASYM_ALPHA (Martin 2026-10-10).

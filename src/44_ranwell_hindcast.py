@@ -24,6 +24,13 @@ Q1 — Does the SSM hindcast 1951–53?  Each Ranwell site with a printed series
   claimed before 2026-11-08; two further windows (pre-2018, whole record) are
   refitted and run alongside. The nearest paired well is the headline;
   every paired well is written (the spread is the sensitivity).
+  Since 1.13.0 (D-332) the headline keys and figures are MODEL B, Script 03's
+  free-intercept coefficients (03_16) run at DRAINAGE_DATUM - alpha/beta_3; Model A
+  at the fixed floor and Model A at each well's depth to mean high water (ground less
+  Script 01b's tide_mhw_m) are tested alternatives (keys *_model_a, *_mhw). The
+  pairing, Q2's climate-only expectation, Q4's depth changes and Q5's pre-planting
+  hindcast are Model B too, with Model A in *_model_a columns and keys (44_04 alone keeps
+  its unsuffixed columns as Model A, because Script 50 reads them).
 
 Q2 — Has the slack water table moved since 1951–53?  Ranwell's mean level (m OD)
   at each of the eight printed sites against the modern mean water-table
@@ -105,7 +112,20 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.12.1"  # Hollingham (2026) — 2026-11-10. Model B is looked up by the NORMALISED well name
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the headline: the
+#   ranwell_hindcast_* keys keep their names and now carry Model B (03_16 at DRAINAGE_DATUM - alpha/beta_3), with
+#   Model A at 3.7 m as <key>_model_a and Model A at each well's depth to mean high water as <key>_mhw (Addendum 3,
+#   Scenario 3); new ranwell_hindcast_nse_median_all_pairings* and n_pairings*. Bounded beta_3 fits (model_utils
+#   1.14.0) are kept and counted (ranwell_model_b_bound_binds_n*); a well with no datum below ground is counted out
+#   (ranwell_model_b_excluded_datum_n*). 44_04 gains B's beta_1 envelope, the MHW form's scores and B's climate-only
+#   expectation (columns only: Q2 still uses A's); 44_03 gains model_mhw_level_m_od. 44_07/44_07b show B only, one
+#   legend below the panels, each site's offset in its title. Existing 44_04 columns keep Model A (Script 50 reads them).
+#   Then, on the coordinator's ruling (D-332, Martin 2026-11-12 "essentially everything moves to model B"): pairing rests
+#   on Model B (03_16 defined), not on Model A's beta_3 (set unchanged); Q2's climate-only expectation, every delta,
+#   the combined rows and Q4's depth changes (44_05, 44_09) are Model B with *_model_a columns and keys; Q5's
+#   pre-planting hindcast uses 03_16's own coefficients/p-values and centroids at their implied datums (44_10 *_model_a
+#   for the master store and 03_03 centroids). 03_03 is now read only for Q5's Model A sensitivity.
+# 1.12.1  # Hollingham (2026) — 2026-11-10. Model B is looked up by the NORMALISED well name
 #   (utils.data_utils.normalize_well_name), as Script 50 does. 03_16 spells l7 as L7, so the case-sensitive lookup
 #   missed and the headline Model B Ranwell score rested on 10 pairings, not 11. Martin 2026-11-10.
 # 1.12.0 — 2026-10-10 (T-122, D-254). The pre-planting sensitivity runs each
@@ -218,7 +238,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 from utils import config, paths  # noqa: E402
 from utils.model_utils import (simulate_ssm,                           # noqa: E402
-                               fit_ssm, fit_ssm_intercept)             # noqa: E402  (J-6)
+                               fit_ssm, fit_ssm_intercept,             # noqa: E402  (J-6)
+                               dry_bounds)                             # noqa: E402  (1.13.0, MHW form)
 from utils.hindcast_utils import compare_offset_censored  # noqa: E402
 from utils.console_utils import banner, phase, step, info, warn, saved, note  # noqa: E402
 from utils.render_utils import apply_house_style, render_figure  # noqa: E402
@@ -231,6 +252,31 @@ DATUM = config.DRAINAGE_DATUM
 MIN_FIT_OBS = 36
 BETA_COLS = ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")
 SPAN = pd.Period(config.RANWELL_HINDCAST_SPAN[0], "M"), pd.Period(config.RANWELL_HINDCAST_SPAN[1], "M")
+B3_MIN = config.MODEL_B_BETA3_MIN       # 1.13.0 (D-332): Model B's beta_3 lower bound (model_utils 1.14.0)
+
+
+def mhw_level() -> float:
+    """Mean high water (m OD), Script 01b's tide_mhw_m, as Scripts 39, 48 and 50 read it; NaN if absent."""
+    try:
+        rn = pd.read_csv(paths.OUT_01B_REPORT_NUMBERS)
+        v = rn.loc[rn["Parameter"] == "tide_mhw_m", "Value"]
+        return float(v.iloc[0]) if len(v) else np.nan
+    except (OSError, KeyError, ValueError):
+        return np.nan
+
+
+def fixed_floor_fit(h: pd.Series, cl: pd.DataFrame, well: str, datum: float):
+    """Model A at a given fixed floor, fitted as Script 03 fits the master store and Script 50's E16
+    the mean-high-water form (D-322): dry months censored, the last LCSC_DATA_LIMIT calendar months."""
+    db = dry_bounds(well)
+    db = db if (db is not None and len(db)) else None
+    try:
+        return fit_ssm(h, cl, lag=config.HEADLINE_LAG, window=config.LCSC_DATA_LIMIT,
+                       drainage_datum=float(datum), min_obs=config.RECLEN_MIN_FIT_MONTHS,
+                       intercept=False, dry_bound=db)
+    except Exception as e:                                       # noqa: BLE001
+        warn(f"{well}: fixed-floor fit at {datum:.2f} m failed ({type(e).__name__}: {e})")
+        return None
 
 
 def _norm(w) -> str:
@@ -387,70 +433,70 @@ SLACK_NAMES = {"PL": "Penlon slack", "CG": "Clwt Gwlyb", "AS": "the coastal slac
 
 
 def plot_hindcast(series: pd.DataFrame, metrics: pd.DataFrame, fig_path, report: bool = False):
-    """Ranwell's monthly means against the offset-removed, surface-capped hindcast.
+    """Ranwell's monthly means against Model B's offset-removed, surface-capped hindcast.
 
     report=False — the Methods Supplement / diagnostic render: panel titles carry
-      r, NSE-after-offset and the ranges, the legend carries the offset, a suptitle
-      names the model.
+      r, NSE-after-offset, the ranges and the offset, a suptitle names the model.
     report=True — the report render: captions live in the document text (house
-      rule), so no suptitle, panel titles name only the site, its slack and the
-      paired well, and the legend names the series without values. Same data,
+      rule), panel titles name the site, its slack, the paired well and the offset
+      removed, and the legend names the series without values. Same data,
       same axes, same drawing code.
+
+    1.13.0 (D-332, brief Phase 2 "Legends off the data"): Model B only -- Model A is a tested
+    alternative, its scores in 44_04 -- and one figure legend below the panels in both renders
+    (the report render's legend covered Site 1's 1951 minimum, and its labels carried Site 1's
+    offsets as if they applied to all three sites); each site's own offset is in its panel title.
     """
     sites = sorted(series["site_no"].unique())
-    fig, axes = plt.subplots(len(sites), 1, figsize=(10, 2.8 * len(sites)), sharex=True)
+    fig, axes = plt.subplots(len(sites), 1, figsize=(10, 2.8 * len(sites) + 0.4), sharex=True)
     axes = np.atleast_1d(axes)
     for ax, s in zip(axes, sites):
         sub = series[(series["site_no"] == s) & series["headline"]]
         m = metrics[(metrics["site_no"] == s) & metrics["headline"]].iloc[0]
         t = sub["month"].dt.to_timestamp()
-        capped = np.minimum(sub["model_level_m_od"] + m["offset_m"], m["ground_m_od"])
         capped_b = None
         if "model_b_level_m_od" in sub and sub["model_b_level_m_od"].notna().any() \
                 and np.isfinite(m.get("offset_m_modelB", np.nan)):
             capped_b = np.minimum(sub["model_b_level_m_od"] + m["offset_m_modelB"], m["ground_m_od"])
+        _off = (f"offset {m['offset_m_modelB']:+.2f} m removed" if capped_b is not None
+                else "Model B not defined at this well")
         if report:
             ax.plot(t, sub["obs_level_m_od"], "o-", ms=4, color="#1B9E77",
                     label="Ranwell 1951–53, monthly mean of readings")
-            ax.plot(t, capped, "-", color="#D95F02",
-                    label=f"Model A (fixed {DATUM:.1f} m floor), offset {m['offset_m']:+.2f} m removed, "
-                          "capped at the surface")
             if capped_b is not None:
-                ax.plot(t, capped_b, "-", lw=1.2, alpha=0.9, color="#2b6cb0",
-                        label=f"Model B (fitted intercept), offset {m['offset_m_modelB']:+.2f} m removed")
+                ax.plot(t, capped_b, "-", lw=1.4, color="#2b6cb0",
+                        label="Model B (fitted intercept), own offset removed, capped at the surface")
             ax.set_title(f"Ranwell Site {s} ({SLACK_NAMES.get(m['sketch_slack'], m['sketch_slack'])}), "
-                         f"paired with {m['well']}", fontsize=9, loc="left")
+                         f"paired with {m['well']} \u2014 {_off}", fontsize=9, loc="left")
             ax.set_ylabel("Water-table level (m OD)", fontsize=9)
         else:
             ax.plot(t, sub["obs_level_m_od"], "o-", ms=4, color="#1B9E77", label="Ranwell (monthly mean of readings)")
-            ax.plot(t, capped, "-", color="#D95F02",
-                    label=f"Model A at {m['well']}, {DATUM:.1f} m floor ({m['offset_m']:+.2f} m offset, capped)")
             if capped_b is not None:
-                ax.plot(t, capped_b, "-", lw=1.2, alpha=0.9, color="#2b6cb0",
-                        label=f"Model B ({m['offset_m_modelB']:+.2f} m offset)")
-            ax.set_title(f"Site {s} ({m['sketch_slack']}): r {m['r']:.2f}, NSE after offset "
-                         f"{m['nse_after_offset']:.2f}, range obs {m['range_obs_m']:.2f} vs model "
-                         f"{m['range_model_m']:.2f} m", fontsize=9, loc="left")
+                ax.plot(t, capped_b, "-", lw=1.4, color="#2b6cb0",
+                        label="Model B at the paired well (own offset removed, capped)")
+                ax.set_title(f"Site {s} ({m['sketch_slack']}), {m['well']}: r {m['r_modelB']:.2f}, NSE after "
+                             f"offset {m['nse_after_offset_modelB']:.2f}, range obs {m['range_obs_m_modelB']:.2f} "
+                             f"vs model {m['range_model_m_modelB']:.2f} m; {_off}", fontsize=9, loc="left")
+            else:
+                ax.set_title(f"Site {s} ({m['sketch_slack']}), {m['well']}: {_off}", fontsize=9, loc="left")
             ax.set_ylabel("level (m OD)", fontsize=9)
         ax.axhline(m["ground_m_od"], color="grey", lw=0.7, ls=":")
         ax.grid(alpha=0.3)
-        if not report or ax is axes[0]:
-            # one legend in the report render: on the lower panels it covers the 1951 minimum
-            ax.legend(fontsize=8, loc="lower left", framealpha=0.9)
-    # J-6 (Martin, 2026-11-07): the report render carried NO suptitle, so nothing on the figure
-    # said which form it showed. Both renders now name it.
+    _h, _l = [], []
+    for ax in axes:
+        hh, ll = ax.get_legend_handles_labels()
+        if len(ll) > len(_l):
+            _h, _l = hh, ll
+    fig.legend(_h, _l, loc="lower center", ncol=2, fontsize=8.5, frameon=False, bbox_to_anchor=(0.5, 0.0))
     if not report:
-        fig.suptitle("Ranwell's 1951\u201353 series driven by RAF Valley climate, coefficients fitted "
-                     f"2005\u201326\nModel A at the fixed {DATUM:.1f} m floor; Model B at its own fitted "
-                     "intercept \u2014 each with ITS OWN offset removed, so only SHAPE is scored",
-                     fontsize=9)
+        fig.suptitle("Ranwell's 1951\u201353 series driven by RAF Valley climate: Model B (fitted intercept), "
+                     "coefficients fitted on the last 100 months\n(2017\u201311 to 2026\u201302); its own "
+                     "offset removed, so only SHAPE is scored", fontsize=9)
     else:
-        fig.suptitle(f"Ranwell's 1951\u201353 series: Model A (fixed {DATUM:.1f} m floor) and Model B "
-                     "(fitted intercept), coefficients fitted on the last 100 months "
-                     "(2017\u201311 to 2026\u201302)\neach with its own offset "
-                     "removed \u2014 only SHAPE is scored here",
-                     fontsize=9)
-    fig.tight_layout()
+        fig.suptitle("Ranwell's 1951\u201353 series: Model B (fitted intercept), coefficients fitted on the "
+                     "last 100 months (2017\u201311 to 2026\u201302)\nits own offset removed \u2014 only "
+                     "SHAPE is scored here", fontsize=9)
+    fig.tight_layout(rect=(0, 0.45 / fig.get_size_inches()[1], 1, 1))
     render_figure(fig, fig_path)
     plt.close(fig)
 
@@ -475,7 +521,7 @@ def plot_level_change(lc: pd.DataFrame, fig_path):
     ax.set_xticklabels([f"{int(s)}" for s in d["site_no"]])
     ax.set_xlabel("Ranwell site")
     ax.set_ylabel("Δ (m)")
-    ax.set_title("Slack water table, 2005–26 against 1951–53, climate-corrected", fontsize=10, loc="left")
+    ax.set_title("Slack water table, 2005–26 against 1951–53, climate-corrected (Model B)", fontsize=10, loc="left")
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8, framealpha=0.9)
     fig.tight_layout()
@@ -620,14 +666,17 @@ def _ranwell_site_rows(ranwell, sites, metrics, wells_df, eroding, cg_L, base, k
         row["slack_floor_lowering_maskmean_m"] = float(r["ranwell_floor_m_od"] - fmm)
         if s in lcs.index:
             v_m = float(lcs.loc[s, "modern_kriged_m_od"])
-            ce = float(lcs.loc[s, "climate_expectation_m"])
-            ce = ce if np.isfinite(ce) else 0.0
             row["modern_level_kriged_m_od"] = v_m
-            row["climate_expectation_m"] = ce
             row["modern_depth_local_m"] = lf - v_m
-            row["modern_depth_local_cc_m"] = lf - (v_m - ce)
-            row["depth_change_m"] = (lf - (v_m - ce)) - float(r["ranwell_depth_mean_m"])
-            row["depth_change_maskmean_m"] = (fmm - (v_m - ce)) - float(r["ranwell_depth_mean_m"])
+            # 1.13.0 (D-332): Model B's climate-only expectation (44_05) under the existing columns,
+            # Model A's beside them as *_model_a
+            for sfx in ("", "_model_a"):
+                ce = float(lcs.loc[s, f"climate_expectation_m{sfx}"]) if f"climate_expectation_m{sfx}" in lcs else np.nan
+                ce = ce if np.isfinite(ce) else 0.0
+                row[f"climate_expectation_m{sfx}"] = ce
+                row[f"modern_depth_local_cc_m{sfx}"] = lf - (v_m - ce)
+                row[f"depth_change_m{sfx}"] = (lf - (v_m - ce)) - float(r["ranwell_depth_mean_m"])
+                row[f"depth_change_maskmean_m{sfx}"] = (fmm - (v_m - ce)) - float(r["ranwell_depth_mean_m"])
         if w in wd.index:
             row["pairedwell_floor_lowering_m"] = float(r["ranwell_floor_m_od"] - wd.loc[w, "floor_m_od"])
             row["pairedwell_depth_change_mean_m"] = float(wd.loc[w, "depth_mean_m"] - r["ranwell_depth_mean_m"])
@@ -694,29 +743,27 @@ def _channel_geoms(names):
     return {str(n): g for n, g in zip(sel[col], sel.geometry)}
 
 
-def _preplant_hindcast(w, cluster, cl, md, cc, wc):
+def _preplant_hindcast(w, cluster, cl, md, cc, wc, mbq=None):
     """Climate-only change at a well since the pre-planting window (config
     PREPLANT_WINDOW): the well's SSM coefficients driven by RAF Valley climate from
     the start of the record (simulate_ssm, exactly as Q1 and Script 39), the
     window's mean / spring / annual-minimum level minus the same statistics over the
     well's own record. Own coefficients when beta_3 is identified (p below
-    PREPLANT_BETA3_P_MAX); otherwise the cluster centroid's (OUT_03_MECHANISTIC_TABLE),
+    PREPLANT_BETA3_P_MAX); otherwise the cluster centroid's,
     because a near-zero beta_3 makes the steady state and the hindcast meaningless.
     The open-dune analogue of the well's cluster (config.PRECANOPY_ANALOGUE, D-254: C3 for
     C4, C2 for C5) is run beside it as the "pre-planting behaviour" sensitivity.
-    Datum-free: both windows come from one simulation."""
+    Both windows come from one simulation.
+
+    1.13.0 (D-332): Model B is the forecaster. Its own coefficients and p-value, and the
+    cluster centroids, are Script 03's 03_16 (mbq: "own" {well: (betas, datum, p)}, "cent"
+    {cluster: (betas, datum)}), each run at the datum its intercept implies; a beta_3 held at
+    the bound has no p-value and so takes the centroid. Those go in the existing columns. Model A
+    (master store, 03_03 centroids, the 3.7 m floor) follows as *_model_a columns."""
     rec = pd.to_numeric(wc[w], errors="coerce").dropna()
     h0 = float(rec.mean())
     a, b = config.PREPLANT_WINDOW
-    own_ok = (w in md.index and float(md.loc[w, "beta_3_drainage"]) > 0
-              and float(md.loc[w, "pvalue_beta_3"]) < config.PREPLANT_BETA3_P_MAX)
-    if own_ok:
-        betas = tuple(float(md.loc[w, k]) for k in BETA_COLS); basis = "own"
-    else:
-        row = cc.loc[int(cluster)]
-        betas = tuple(float(row[k]) for k in BETA_COLS); basis = f"cluster_C{int(cluster)}"
     analogue = config.PRECANOPY_ANALOGUE.get(int(cluster))
-    alt = tuple(float(cc.loc[analogue, k]) for k in BETA_COLS) if analogue is not None else None
 
     def stats(h, lo, hi):
         s = h.loc[lo:hi]
@@ -724,23 +771,43 @@ def _preplant_hindcast(w, cluster, cl, md, cc, wc):
         amin = s.groupby(s.index.year).min()
         return float(s.mean()), float(spring), float(amin.median())
 
-    out = {"preplant_coef_basis": basis,
-           "preplant_analogue_cluster": analogue if analogue is not None else pd.NA}
-    for lab, bt in (("", betas), ("_analogue", alt)):
-        if bt is None:
-            for k in ("mean", "spring", "min"):
-                out[f"climate_change_since_preplant_{k}{lab}_m"] = np.nan
-            continue
-        h = hindcast_series(cl, bt, h0)
-        pre = stats(h, pd.Timestamp(a), pd.Timestamp(b) + pd.offsets.MonthEnd(0))
-        mod = stats(h, rec.index.min(), rec.index.max())
-        for k, (x, y) in zip(("mean", "spring", "min"), zip(pre, mod)):
-            out[f"climate_change_since_preplant_{k}{lab}_m"] = x - y     # + = the window stood higher
+    # (betas, datum, basis) for the own-or-centroid run and the analogue, per form
+    own_a = (w in md.index and float(md.loc[w, "beta_3_drainage"]) > 0
+             and float(md.loc[w, "pvalue_beta_3"]) < config.PREPLANT_BETA3_P_MAX)
+    if own_a:
+        run_a = (tuple(float(md.loc[w, k]) for k in BETA_COLS), DATUM, "own")
+    else:
+        row = cc.loc[int(cluster)]
+        run_a = (tuple(float(row[k]) for k in BETA_COLS), DATUM, f"cluster_C{int(cluster)}")
+    alt_a = ((tuple(float(cc.loc[analogue, k]) for k in BETA_COLS), DATUM)
+             if analogue is not None else None)
+    run_b = alt_b = None
+    if mbq is not None:
+        ob = mbq["own"].get(normalize_well_name(w))
+        if ob is not None and np.isfinite(ob[2]) and ob[2] < config.PREPLANT_BETA3_P_MAX:
+            run_b = (ob[0], ob[1], "own")
+        elif int(cluster) in mbq["cent"]:
+            run_b = (*mbq["cent"][int(cluster)], f"cluster_C{int(cluster)}")
+        alt_b = mbq["cent"].get(analogue) if analogue is not None else None
+
+    out = {"preplant_analogue_cluster": analogue if analogue is not None else pd.NA}
+    for sfx, run, alt in (("", run_b, alt_b), ("_model_a", run_a, alt_a)):
+        out[f"preplant_coef_basis{sfx}"] = run[2] if run is not None else ""
+        for lab, bt in (("", run[:2] if run is not None else None), ("_analogue", alt)):
+            if bt is None:
+                for k in ("mean", "spring", "min"):
+                    out[f"climate_change_since_preplant_{k}{lab}_m{sfx}"] = np.nan
+                continue
+            h = hindcast_series(cl, bt[0], h0, drainage_datum=bt[1])
+            pre = stats(h, pd.Timestamp(a), pd.Timestamp(b) + pd.offsets.MonthEnd(0))
+            mod = stats(h, rec.index.min(), rec.index.max())
+            for k, (x, y) in zip(("mean", "spring", "min"), zip(pre, mod)):
+                out[f"climate_change_since_preplant_{k}{lab}_m{sfx}"] = x - y     # + = the window stood higher
     return out
 
 
 def forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_src, dem, smooth,
-                        cl=None, md=None, cc=None, wc=None, retreat_terms=None):
+                        cl=None, md=None, cc=None, wc=None, retreat_terms=None, mbq=None):
     """One row per reference well flagged in_forest (01_locations), carrying the
     44_09 excess and residual, the modelled canopy drawdown at the well (Script 20
     dd_mm, config.DRAWDOWN_H0_MM inside the forest), the felling era, the ground
@@ -810,7 +877,7 @@ def forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_s
             floor_relief_radius_m=R, smoothed_ground_m_od=sm, head_mean_m_od=head,
             head_minus_smoothed_ground_m=head - sm, floor_minus_smoothed_ground_m=floor - sm))
         if cl is not None and w in wc.columns and pd.notna(r["cluster"]):
-            rows[-1].update(_preplant_hindcast(w, r["cluster"], cl, md, cc, wc))
+            rows[-1].update(_preplant_hindcast(w, r["cluster"], cl, md, cc, wc, mbq))
         if retreat_terms is not None:
             k_per_m, cg_L = retreat_terms["k_per_m"], retreat_terms["L"]
             shape = max(1.0 - float(r["dist_eroding_hwm_m"]) / cg_L, 0.0)
@@ -823,10 +890,11 @@ def forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_s
         # the excess that neither climate nor retreat since the window accounts for:
         # excess is depth (positive down); a window that stood HIGHER (+) would explain part of it
         for lab in ("steady", "modern"):
-            if f"retreat_expectation_since_preplant_{lab}_m" in df.columns:
-                df[f"residual_after_climate_and_retreat_{lab}_min_m"] = (
-                    df["excess_min_m"] - df["climate_change_since_preplant_min_m"]
-                    - df[f"retreat_expectation_since_preplant_{lab}_m"])
+            for sfx in ("", "_model_a"):              # 1.13.0 (D-332): B, then A
+                if f"retreat_expectation_since_preplant_{lab}_m" in df.columns:
+                    df[f"residual_after_climate_and_retreat_{lab}_min_m{sfx}"] = (
+                        df["excess_min_m"] - df[f"climate_change_since_preplant_min_m{sfx}"]
+                        - df[f"retreat_expectation_since_preplant_{lab}_m"])
     return df
 
 
@@ -903,19 +971,41 @@ def main() -> int:
     # and the run capped at the surface -- so B's level cannot win here by construction. What it
     # CAN show is whether B needs a SMALLER OFFSET than A, which is evidence about level that this
     # scenario would otherwise discard. ceh14 is excluded: implied datum -9.39 m, a base above ground.
-    mb = {}
+    # 1.13.0 (D-332): Model B is the forecaster and the headline. A bounded beta_3 fit is kept and
+    # counted; a well whose implied datum is not below ground has no Model B and is counted out.
+    mb, mb_undef, mb_binds = {}, {}, set()
+    mbq = {"own": {}, "cent": {}}       # Q5's Model B: own (betas, datum, p) and cluster centroids
     try:
         _mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
-        for _, _r in _mb[_mb["level"] == "well"].iterrows():
+        for _, _r in _mb[_mb["level"] == "centroid"].iterrows():
             _b3 = float(_r["beta_3_B"])
-            if not np.isfinite(_b3) or _b3 <= 0:
+            _d = (float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
+                  if np.isfinite(_b3) and _b3 > 0 else np.nan)
+            if np.isfinite(_d) and _d > 0:
+                mbq["cent"][int(_r["Cluster"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+            else:
+                warn(f"C{int(_r['Cluster'])} Model B centroid has no datum below ground ({_d:+.2f} m)")
+        for _, _r in _mb[_mb["level"] == "well"].iterrows():
+            _k = normalize_well_name(_r["well"])
+            _b3 = float(_r["beta_3_B"])
+            if (str(_r.get("beta_3_bound_binds", "")).strip().lower() in ("true", "1", "1.0")
+                    or (np.isfinite(_b3) and _b3 <= B3_MIN * (1 + 1e-9))):
+                mb_binds.add(_k)
+            _d = (float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
+                  if np.isfinite(_b3) and _b3 > 0 else np.nan)
+            if not (np.isfinite(_d) and _d > 0):
+                mb_undef[_k] = _d
                 continue
-            _d = float(_r["drainage_datum_m"]) - float(_r["alpha_B"]) / _b3
-            if _d <= 0:
-                continue
-            mb[normalize_well_name(_r["well"])] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+            mb[_k] = ((float(_r["beta_1_B"]), float(_r["beta_2_B"]), _b3), _d)
+            _pb = pd.to_numeric(_r.get("pvalue_beta_3_B", np.nan), errors="coerce")
+            mbq["own"][_k] = (mb[_k][0], _d, float(_pb) if pd.notna(_pb) else np.nan)
+        note(f"Model B for {len(mb)} well(s); {len(mb_binds)} with beta_3 at the bound; undefined at "
+             + (", ".join(f"{k} ({v:+.2f} m)" for k, v in mb_undef.items()) or "none"))
     except Exception as _e:
-        warn(f"Model B coefficients unavailable ({type(_e).__name__}); scenario 3 stays Model A only")
+        warn(f"Model B coefficients unavailable ({type(_e).__name__}); the headline has no Model B")
+    mhw = mhw_level()
+    if not np.isfinite(mhw):
+        warn("tide_mhw_m not in Script 01b's report numbers: the mean-high-water form is skipped")
     # J-6, Martin 2026-11-08: "we should have a whole record trained model against the ccw data
     # and Ranwells". Same three fitting windows as Script 39 -- comparison (the master store,
     # the last 100 months), pre2018, and the whole record -- for both model forms.
@@ -926,6 +1016,8 @@ def main() -> int:
     # which eight years they were fitted on -- fifty-four years before the period predicted.
     FIT_WINDOWS = ("pre2018", "whole")
     fits = {w: {} for w in FIT_WINDOWS}
+    win_b_binds = {w: set() for w in FIT_WINDOWS}      # 1.13.0 (D-332): bounded fits kept, counted
+    win_b_undef = {w: {} for w in FIT_WINDOWS}
     try:
         _split = pd.Timestamp(config.MODEL_AB_SPLIT_DATE)
         _wc = pd.read_csv(paths.INT_WELLS_CLEAN, index_col=0, parse_dates=True)
@@ -949,28 +1041,50 @@ def main() -> int:
                     fits[_win].setdefault(_w, {})["A"] = (
                         (_fa["beta_1_recharge"], _fa["beta_2_atmospheric_draw"], _fa["beta_3_drainage"]),
                         DATUM)
-                if _fb and np.isfinite(_fb.get("beta_3_drainage", np.nan)) and _fb["beta_3_drainage"] > 0:
-                    _db2 = DATUM - _fb.get("alpha", 0.0) / _fb["beta_3_drainage"]
-                    if _db2 > 0:
+                if _fb and np.isfinite(_fb.get("beta_3_drainage", np.nan)):
+                    if _fb.get("beta_3_bound_binds", False):
+                        win_b_binds[_win].add(_w)
+                    _db2 = (DATUM - _fb.get("alpha", 0.0) / _fb["beta_3_drainage"]
+                            if _fb["beta_3_drainage"] > 0 else np.nan)
+                    if np.isfinite(_db2) and _db2 > 0:
                         fits[_win].setdefault(_w, {})["B"] = (
                             (_fb["beta_1_recharge"], _fb["beta_2_atmospheric_draw"], _fb["beta_3_drainage"]),
                             _db2)
+                    else:                     # base at or above ground: Model B undefined here
+                        win_b_undef[_win][_w] = _db2
         for _win in FIT_WINDOWS:
             note(f"{_win} fits: {sum('A' in v for v in fits[_win].values())} Model A, "
-                 f"{sum('B' in v for v in fits[_win].values())} Model B, "
+                 f"{sum('B' in v for v in fits[_win].values())} Model B ({len(win_b_binds[_win])} at the "
+                 f"beta_3 bound, {len(win_b_undef[_win])} with no datum below ground), "
                  f"over {len(fits[_win])} well(s)")
     except Exception as _e:
         warn(f"window fits unavailable ({type(_e).__name__}: {_e}); "
              f"the window-comparison metrics stay empty")
 
-    series_rows, metric_rows, climate_exp = [], [], {}
+    series_rows, metric_rows, climate_exp, climate_exp_a = [], [], {}, {}
+
+    def _a_ok(w_):
+        """Model A (the 3.7 m alternative) can be run: a complete master-store triple, beta_3 > 0."""
+        return bool(w_ in md.index and all(np.isfinite(md.loc[w_, c_]) for c_ in BETA_COLS)
+                    and md.loc[w_, BETA_COLS[2]] > 0)
+
+    def _expectation(h_, first_, last_):
+        """Climate-only expectation: modelled 1951-53 mean minus the modelled modern-span mean."""
+        hp_ = h_.copy()
+        hp_.index = hp_.index.to_period("M")
+        return float(hp_.loc[SPAN[0]:SPAN[1]].mean() - hp_.loc[first_.to_period("M"):last_.to_period("M")].mean())
     for s in sorted(lv["site_no"].unique()):
         srow = sites.loc[s]
         d = np.hypot(ms["E"] - srow["easting"], ms["N"] - srow["northing"])
         cand = ms[(ms["basin_id"] == srow["basin_id"]) & (d <= config.RANWELL_PAIR_MAX_M)].copy()
         cand["d"] = d[cand.index]
-        cand = cand[[w in md.index and all(np.isfinite(md.loc[w, c]) for c in BETA_COLS)
-                     and md.loc[w, BETA_COLS[2]] > 0 for w in cand.index]]
+        # 1.13.0 (D-332): a well pairs when Model B is defined there (03_16, implied datum below
+        # ground; beta_3 bounded > 0), not on Model A's triple. Model A is run where it can be.
+        _cand_a = cand[[_a_ok(w) for w in cand.index]]
+        cand = cand[[normalize_well_name(w) in mb for w in cand.index]]
+        if set(_cand_a.index) != set(cand.index):
+            warn(f"site {s}: Model B pairing differs from Model A's: A {sorted(_cand_a.index)}, "
+                 f"B {sorted(cand.index)}")
         if cand.empty:
             warn(f"site {s}: no same-basin well with committed coefficients within "
                  f"{config.RANWELL_PAIR_MAX_M:.0f} m")
@@ -978,20 +1092,53 @@ def main() -> int:
         cand = cand.sort_values("d")
         om = obs_month.loc[s]
         for rank, (w, c) in enumerate(cand.iterrows()):
-            betas = tuple(float(md.loc[w, k]) for k in BETA_COLS)
+            a_ok = _a_ok(w)
+            betas = tuple(float(md.loc[w, k]) for k in BETA_COLS) if a_ok else (np.nan,) * 3
             h0 = float(c["level_m_od"] - c["ground_m"])
-            h = hindcast_series(cl, betas, h0)
-            mid = ((h + h.shift(1)) / 2 + c["ground_m"])
-            mid.index = mid.index.to_period("M")
-            met = compare(om, mid, float(srow["height_m_od"]))
-            mid_b, met_b = None, {}
-            if normalize_well_name(w) in mb:
-                _bb, _db = mb[normalize_well_name(w)]
+            h, mid, met = None, None, {}
+            if a_ok:
+                h = hindcast_series(cl, betas, h0)
+                mid = ((h + h.shift(1)) / 2 + c["ground_m"])
+                mid.index = mid.index.to_period("M")
+                met = compare(om, mid, float(srow["height_m_od"]))
+            mid_b, met_b, kb = None, {}, normalize_well_name(w)
+            met_b["datum_modelB_m"] = mb[kb][1] if kb in mb else mb_undef.get(kb, np.nan)
+            met_b["beta_3_bound_binds_modelB"] = bool(kb in mb_binds)
+            if kb in mb:
+                _bb, _db = mb[kb]
                 h_b = hindcast_series(cl, _bb, h0, drainage_datum=_db)
                 mid_b = ((h_b + h_b.shift(1)) / 2 + c["ground_m"])
                 mid_b.index = mid_b.index.to_period("M")
-                met_b = {f"{k}_modelB": v
-                         for k, v in compare(om, mid_b, float(srow["height_m_od"])).items()}
+                met_b.update({f"{k}_modelB": v
+                              for k, v in compare(om, mid_b, float(srow["height_m_od"])).items()})
+                met_b.update(beta_1_modelB=_bb[0], beta_2_modelB=_bb[1], beta_3_modelB=_bb[2])
+                # 1.13.0 (D-332): B's own beta_1 envelope, the same scalings as A's
+                for sc in config.CCW_BETA1_SCALINGS:
+                    _hs = hindcast_series(cl, _bb, h0, sc, drainage_datum=_db)
+                    _ms = ((_hs + _hs.shift(1)) / 2 + c["ground_m"])
+                    _ms.index = _ms.index.to_period("M")
+                    met_b[f"nse_after_offset_modelB_b1x{sc:.2f}"] = compare(
+                        om, _ms, float(srow["height_m_od"]))["nse_after_offset"]
+                # the climate-only expectation under B, beside A's (Q2 still uses A's: see report)
+                _hpb = h_b.copy()
+                _hpb.index = _hpb.index.to_period("M")
+                met_b["climate_expectation_modelB_m"] = float(
+                    _hpb.loc[SPAN[0]:SPAN[1]].mean()
+                    - _hpb.loc[c["first"].to_period("M"):c["last"].to_period("M")].mean())
+            # 1.13.0 (D-332, Addendum 3 "Scenario 3"): Model A at the well's depth to mean high water
+            mid_m, met_m = None, {}
+            if np.isfinite(mhw) and w in wc.columns:
+                _dm = float(c["ground_m"]) - mhw
+                met_m["datum_mhw_m"] = _dm
+                _fm = fixed_floor_fit(pd.to_numeric(wc[w], errors="coerce").dropna(), cl, w, _dm)
+                if _fm is not None and _fm["beta_3_drainage"] > 0:
+                    _bm = (_fm["beta_1_recharge"], _fm["beta_2_atmospheric_draw"], _fm["beta_3_drainage"])
+                    h_m = hindcast_series(cl, _bm, h0, drainage_datum=_dm)
+                    mid_m = ((h_m + h_m.shift(1)) / 2 + c["ground_m"])
+                    mid_m.index = mid_m.index.to_period("M")
+                    met_m.update({f"{k}_mhw": v
+                                  for k, v in compare(om, mid_m, float(srow["height_m_od"])).items()})
+                    met_m.update(beta_1_mhw=_bm[0], beta_2_mhw=_bm[1], beta_3_mhw=_bm[2])
             # J-6: the same two forms from the two alternative fitting windows, scored the same
             # way (offset removed). Keys are nse_after_offset_<window>_<form> so a reader can
             # compare them directly with the comparison-window nse_after_offset above.
@@ -1010,38 +1157,46 @@ def main() -> int:
                     met_win[f"r_{_win}_{_form}"] = _cw.get("r")
 
             env = {}
-            for sc in config.CCW_BETA1_SCALINGS:
+            for sc in (config.CCW_BETA1_SCALINGS if a_ok else ()):
                 hs = hindcast_series(cl, betas, h0, sc)
                 ms_ = ((hs + hs.shift(1)) / 2 + c["ground_m"])
                 ms_.index = ms_.index.to_period("M")
                 env[f"nse_after_offset_b1x{sc:.2f}"] = compare(om, ms_, float(srow["height_m_od"]))["nse_after_offset"]
-            # climate-only expectation: modelled 1951-53 mean minus modelled modern-span mean
-            hp = h.copy()
-            hp.index = hp.index.to_period("M")
-            exp = float(hp.loc[SPAN[0]:SPAN[1]].mean() - hp.loc[c["first"].to_period("M"):c["last"].to_period("M")].mean())
+            # climate-only expectation: modelled 1951-53 mean minus modelled modern-span mean.
+            # 44_04's climate_expectation_m stays Model A (its unsuffixed columns are A's, read by
+            # Script 50); Q2 takes Model B's (climate_expectation_modelB_m) from 1.13.0 (D-332).
+            exp = _expectation(h, c["first"], c["last"]) if a_ok else np.nan
             headline = rank == 0
             if headline:
-                climate_exp[s] = exp
+                climate_exp[s] = (met_b.get("climate_expectation_modelB_m", np.nan), w)
+                climate_exp_a[s] = (exp, w)
             metric_rows.append(dict(site_no=int(s), sketch_slack=srow["sketch_slack"], well=w,
                                     ground_m_od=float(srow["height_m_od"]),
                                     dist_m=float(c["d"]), headline=headline,
                                     beta_1=betas[0], beta_2=betas[1], beta_3=betas[2],
                                     **met, **met_b, **met_win,
-                                    climate_expectation_m=exp, **env))
-            common = om.index.intersection(mid.index)
+                                    climate_expectation_m=exp, **env, **met_m))
+            common = om.index.intersection((mid if mid is not None else mid_b).index)
             for mth in common:
                 series_rows.append(dict(site_no=s, well=w, headline=headline, month=mth,
                                         obs_level_m_od=float(om.loc[mth]),
-                                        model_level_m_od=float(mid.loc[mth]),
+                                        model_level_m_od=(float(mid.loc[mth]) if mid is not None else np.nan),
                                         model_b_level_m_od=(float(mid_b.loc[mth])
                                                             if mid_b is not None and mth in mid_b.index
                                                             else np.nan),
-                                        n_readings=int(lv[(lv["site_no"] == s) & (lv["month"] == mth)].shape[0])))
+                                        n_readings=int(lv[(lv["site_no"] == s) & (lv["month"] == mth)].shape[0]),
+                                        # 1.13.0 (D-332): appended, so no existing column moves
+                                        model_mhw_level_m_od=(float(mid_m.loc[mth])
+                                                              if mid_m is not None and mth in mid_m.index
+                                                              else np.nan)))
         hl = [m for m in metric_rows if m["site_no"] == s and m["headline"]][0]
         step(f"site {s} ({srow['sketch_slack']}): {len(cand)} paired well(s); headline {hl['well']} "
-             f"({hl['dist_m']:.0f} m): r {hl['r']:.2f}, NSE after offset {hl['nse_after_offset']:.2f}, "
-             f"range obs {hl['range_obs_m']:.2f} vs model {hl['range_model_m']:.2f} m, "
-             f"n {hl['n']} ({hl['n_at_surface']} at the surface); climate-only expectation {hl['climate_expectation_m']:+.3f} m")
+             f"({hl['dist_m']:.0f} m): Model B r {hl.get('r_modelB', np.nan):.2f}, NSE after offset "
+             f"{hl.get('nse_after_offset_modelB', np.nan):.2f}; A at MHW NSE "
+             f"{hl.get('nse_after_offset_mhw', np.nan):.2f}; Model A r {hl.get('r', np.nan):.2f}, NSE after offset "
+             f"{hl.get('nse_after_offset', np.nan):.2f}; n {hl.get('n_modelB', np.nan)} "
+             f"({hl.get('n_at_surface_modelB', np.nan)} at the surface); climate-only expectation "
+             f"B {hl.get('climate_expectation_modelB_m', np.nan):+.3f} m, A {hl['climate_expectation_m']:+.3f} m")
     metrics = pd.DataFrame(metric_rows)
     series = pd.DataFrame(series_rows)
 
@@ -1049,6 +1204,7 @@ def main() -> int:
     # sites, because three sites is too few to read a median from. Shape only -- the offset is
     # removed before scoring, so none of this is about level.
     _pairs = [("comparison", "A", "nse_after_offset"), ("comparison", "B", "nse_after_offset_modelB"),
+              ("comparison", "A_MHW", "nse_after_offset_mhw"),                 # 1.13.0 (D-332)
               ("pre2018", "A", "nse_after_offset_pre2018_A"), ("pre2018", "B", "nse_after_offset_pre2018_B"),
               ("whole", "A", "nse_after_offset_whole_A"), ("whole", "B", "nse_after_offset_whole_B")]
     step("NSE after offset over all paired wells, by fitting window and model form:")
@@ -1104,22 +1260,27 @@ def main() -> int:
         sig_dat = datum_mad
         sig = float(np.sqrt(loo ** 2 + sig_pos ** 2 + sig_samp ** 2 + sig_dat ** 2))
         # climate-only expectation: from the headline hindcast where the site has one,
-        # else from the nearest contributing well that has coefficients
-        if s in climate_exp:
-            exp, exp_src = climate_exp[s], "headline_hindcast"
-        else:
-            exp, exp_src = np.nan, ""
+        # else from the nearest contributing well that has coefficients. 1.13.0 (D-332): Model B
+        # (the forecaster) under the existing columns, Model A beside it as *_model_a.
+        def _q2_exp(form):
+            src_ = climate_exp if form == "B" else climate_exp_a
+            if s in src_ and np.isfinite(src_[s][0]):
+                return src_[s][0], "headline_hindcast"
             for w in sel.index:
-                if w in md.index and md.loc[w, BETA_COLS[2]] > 0:
-                    betas = tuple(float(md.loc[w, k]) for k in BETA_COLS)
-                    h = hindcast_series(cl, betas, float(ms.loc[w, "level_m_od"] - ms.loc[w, "ground_m"]))
-                    hp = h.copy()
-                    hp.index = hp.index.to_period("M")
-                    exp = float(hp.loc[SPAN[0]:SPAN[1]].mean()
-                                - hp.loc[ms.loc[w, "first"].to_period("M"):ms.loc[w, "last"].to_period("M")].mean())
-                    exp_src = f"hindcast_at_{w}"
-                    break
+                h0_ = float(ms.loc[w, "level_m_od"] - ms.loc[w, "ground_m"])
+                if form == "B" and normalize_well_name(w) in mb:
+                    _bb, _db = mb[normalize_well_name(w)]
+                    h_ = hindcast_series(cl, _bb, h0_, drainage_datum=_db)
+                elif form == "A" and _a_ok(w):
+                    h_ = hindcast_series(cl, tuple(float(md.loc[w, k]) for k in BETA_COLS), h0_)
+                else:
+                    continue
+                return _expectation(h_, ms.loc[w, "first"], ms.loc[w, "last"]), f"hindcast_at_{w}"
+            return np.nan, ""
+        exp, exp_src = _q2_exp("B")
+        exp_a, exp_src_a = _q2_exp("A")
         delta = (v_m - rmean) - (exp if np.isfinite(exp) else 0.0)
+        delta_a = (v_m - rmean) - (exp_a if np.isfinite(exp_a) else 0.0)
         dcoast = coast_distance(srow["easting"], srow["northing"])
         d_er = float(eroding.distance(_Pt(srow["easting"], srow["northing"])))
         inner = cg_d0 * (1.0 - d_er / cg_L)
@@ -1142,9 +1303,13 @@ def main() -> int:
             dist_coast_2006_m=dcoast, shoreline_retreat_1899_2026_m=retreat_1899_2026,
             dist_eroding_hwm_m=d_er, within_coastal_reach=bool(d_er < cg_L),
             coastal_expectation_extrapolated_m=coast_exp,
-            surface_constrained=constrained))
+            surface_constrained=constrained,
+            climate_expectation_m_model_a=exp_a, climate_expectation_source_model_a=exp_src_a,
+            delta_m_model_a=delta_a, z_model_a=delta_a / sig if sig > 0 else np.nan,
+            resolved_model_a=bool(abs(delta_a) > 2 * sig), rate_mm_per_year_model_a=delta_a / dt_years * 1000))
         step(f"site {s} ({srow['sketch_slack']}, {basis}): Ranwell {rmean:.2f} m OD, modern {v_m:.2f} "
-             f"(LOO {loo:.2f}, pos {sig_pos:.2f}, datum {sig_dat:.2f}) -> Δ {delta:+.2f} ± {sig:.2f} m"
+             f"(LOO {loo:.2f}, pos {sig_pos:.2f}, datum {sig_dat:.2f}) -> Δ {delta:+.2f} ± {sig:.2f} m "
+             f"(Model A {delta_a:+.2f})"
              + ("" if constrained else f" [modern surface unconstrained: LOO > {config.RANWELL_LOO_MAX_M} m]"))
     lc = pd.DataFrame(lc_rows)
 
@@ -1152,15 +1317,18 @@ def main() -> int:
         if df.empty:
             return None
         w = 1.0 / df["sigma_total_m"] ** 2
-        mean = float((df["delta_m"] * w).sum() / w.sum())
         se = float(np.sqrt(1.0 / w.sum()))
         dof = max(len(df) - 1, 1)
-        chi2 = float((((df["delta_m"] - mean) / df["sigma_total_m"]) ** 2).sum() / dof)
-        return dict(row=label, site_no=np.nan, sketch_slack="", ranwell_basis="", ranwell_n=int(df["ranwell_n"].sum()),
-                    n_contributing=len(df), delta_m=mean, sigma_total_m=se, z=mean / se,
-                    resolved=bool(abs(mean) > 2 * se), chi2_per_dof=chi2,
-                    interval_years=dt_years, rate_mm_per_year=mean / dt_years * 1000,
-                    sites="; ".join(str(int(s)) for s in df["site_no"]))
+        out = dict(row=label, site_no=np.nan, sketch_slack="", ranwell_basis="", ranwell_n=int(df["ranwell_n"].sum()),
+                   n_contributing=len(df), sigma_total_m=se, interval_years=dt_years,
+                   sites="; ".join(str(int(s)) for s in df["site_no"]))
+        # 1.13.0 (D-332): Model B under the existing columns, Model A as *_model_a
+        for sfx in ("", "_model_a"):
+            mean = float((df[f"delta_m{sfx}"] * w).sum() / w.sum())
+            chi2 = float((((df[f"delta_m{sfx}"] - mean) / df["sigma_total_m"]) ** 2).sum() / dof)
+            out.update({f"delta_m{sfx}": mean, f"z{sfx}": mean / se, f"resolved{sfx}": bool(abs(mean) > 2 * se),
+                        f"chi2_per_dof{sfx}": chi2, f"rate_mm_per_year{sfx}": mean / dt_years * 1000})
+        return out
 
     comb_all = _combine(lc, "COMBINED_ALL")
     comb_in = _combine(lc[lc["surface_constrained"]], "COMBINED_CONSTRAINED")
@@ -1168,7 +1336,8 @@ def main() -> int:
     for c in (comb_all, comb_in, comb_br):
         if c:
             lc = pd.concat([lc, pd.DataFrame([c])], ignore_index=True)
-            step(f"{c['row']}: Δ {c['delta_m']:+.3f} ± {c['sigma_total_m']:.3f} m over {c['n_contributing']} sites "
+            step(f"{c['row']}: Δ {c['delta_m']:+.3f} ± {c['sigma_total_m']:.3f} m (Model A {c['delta_m_model_a']:+.3f}) "
+                 f"over {c['n_contributing']} sites "
                  f"(χ²/dof {c['chi2_per_dof']:.2f}); {c['rate_mm_per_year']:+.1f} mm/yr over {dt_years:.0f} y; "
                  f"{'resolved' if c['resolved'] else 'not resolved'} at 2σ")
 
@@ -1255,7 +1424,7 @@ def main() -> int:
     info(f"pre-planting window {config.PREPLANT_WINDOW[0]}..{config.PREPLANT_WINDOW[1]} (mid {mid_year:.0f}); retreat since it: "
          f"steady-epoch {r_steady:.0f} m, modern-rate {r_modern:.0f} m (capped at {total_1899_2026:.0f} m since 1899)")
     ffe = forest_floor_excess(sfd, loc, drawdown, canopy, ground_prep, channels, dem_src, dem, smooth,
-                              cl=cl, md=md, cc=cc_tab, wc=wc, retreat_terms=retreat_terms)
+                              cl=cl, md=md, cc=cc_tab, wc=wc, retreat_terms=retreat_terms, mbq=mbq)
     dem_src.close()
     info(f"{len(ffe)} reference wells under or at the forest; channel(s) {list(channels)}; "
          f"{int((ffe['ground_prep'] != '').sum())} recorded as prepared ground")
@@ -1306,14 +1475,52 @@ def main() -> int:
     hlm = metrics[metrics["headline"]]
     rn = [
         ("ranwell_hindcast_sites", len(hlm), "count", "Ranwell sites with a printed series and a same-basin paired well"),
-        ("ranwell_hindcast_r_median", float(hlm["r"].median()) if len(hlm) else np.nan, "-", "median r, headline pairing, offset removed"),
-        ("ranwell_hindcast_r_min", float(hlm["r"].min()) if len(hlm) else np.nan, "-", "lowest r among the headline pairings"),
-        # 1.10.0 (emit-first, report9): r over EVERY same-basin pairing, headline or not.
-        ("ranwell_hindcast_r_min_all_pairings", float(metrics["r"].min()) if len(metrics) else np.nan, "-",
-         f"lowest r over all {len(metrics)} same-basin site-well pairings in 44_04 (headline and alternates), offset removed"),
-        ("ranwell_hindcast_r_max_all_pairings", float(metrics["r"].max()) if len(metrics) else np.nan, "-",
-         f"highest r over all {len(metrics)} same-basin site-well pairings in 44_04 (headline and alternates), offset removed"),
-        ("ranwell_hindcast_nse_median", float(hlm["nse_after_offset"].median()) if len(hlm) else np.nan, "-", "median NSE after offset, headline pairing"),
+    ]
+    # 1.13.0 (D-332): the hindcast keys keep their names and carry Model B (the forecaster); Model A at
+    # the fixed floor follows as <key>_model_a and Model A at mean high water as <key>_mhw (Scenario 3).
+    for sfx, csfx, lab in (("", "_modelB", "Model B"), ("_model_a", "", f"Model A at {DATUM:g} m"),
+                           ("_mhw", "_mhw", "Model A at mean high water")):
+        _r, _n = f"r{csfx}", f"nse_after_offset{csfx}"
+        if _n not in metrics.columns:
+            continue
+        hl_ = hlm[hlm[_n].notna()]
+        al_ = metrics[metrics[_n].notna()]
+        rn += [
+            (f"ranwell_hindcast_r_median{sfx}", float(hl_[_r].median()) if len(hl_) else np.nan, "-",
+             f"{lab}: median r, headline pairing, offset removed"),
+            (f"ranwell_hindcast_r_min{sfx}", float(hl_[_r].min()) if len(hl_) else np.nan, "-",
+             f"{lab}: lowest r among the headline pairings"),
+            # 1.10.0 (emit-first, report9): r over EVERY same-basin pairing, headline or not.
+            (f"ranwell_hindcast_r_min_all_pairings{sfx}", float(al_[_r].min()) if len(al_) else np.nan, "-",
+             f"{lab}: lowest r over the {len(al_)} same-basin site-well pairings in 44_04 it was run at "
+             "(headline and alternates), offset removed"),
+            (f"ranwell_hindcast_r_max_all_pairings{sfx}", float(al_[_r].max()) if len(al_) else np.nan, "-",
+             f"{lab}: highest r over the {len(al_)} same-basin site-well pairings in 44_04 it was run at"),
+            (f"ranwell_hindcast_nse_median{sfx}", float(hl_[_n].median()) if len(hl_) else np.nan, "-",
+             f"{lab}: median NSE after offset, headline pairing ({len(hl_)} sites)"),
+            (f"ranwell_hindcast_nse_median_all_pairings{sfx}", float(al_[_n].median()) if len(al_) else np.nan, "-",
+             f"{lab}: median NSE after offset over the {len(al_)} same-basin pairings it was run at"),
+            (f"ranwell_hindcast_n_pairings{sfx}", int(len(al_)), "count",
+             f"{lab}: same-basin pairings scored (of {len(metrics)})"),
+        ]
+    if len(metrics):
+        _kp = {normalize_well_name(w_) for w_ in metrics["well"]}
+        rn += [
+            ("ranwell_model_b_bound_binds_n", int(len(_kp & mb_binds)), "count",
+             f"paired wells whose Model B beta_3 sits at the lower bound MODEL_B_BETA3_MIN ({B3_MIN:g}/month); fit kept"),
+            ("ranwell_model_b_excluded_datum_n", int(len(_kp & set(mb_undef))), "count",
+             "paired wells with no Model B: implied datum DRAINAGE_DATUM - alpha/beta_3 not below ground"),
+        ]
+        for _win in FIT_WINDOWS:
+            _bk = {normalize_well_name(w_) for w_ in win_b_binds[_win]}
+            _uk = {normalize_well_name(w_) for w_ in win_b_undef[_win]}
+            rn += [(f"ranwell_model_b_bound_binds_n_{_win}", int(len(_kp & _bk)), "count",
+                    f"paired wells whose {_win}-window Model B refit binds at the beta_3 bound (fit kept)"),
+                   (f"ranwell_model_b_excluded_datum_n_{_win}", int(len(_kp & _uk)), "count",
+                    f"paired wells whose {_win}-window Model B refit has no datum below ground (left out)")]
+        if np.isfinite(mhw):
+            rn.append(("ranwell_tide_mhw_m_used", mhw, "m OD", "mean high water the MHW form is run at (Script 01b tide_mhw_m)"))
+    rn += [
         ("ranwell_sites_compared", int((lc["row"] == "site").sum()), "count", "sites with a Ranwell mean and a modern surface"),
         ("ranwell_interval_years", dt_years, "y", "modern record midpoint minus 1952"),
         ("ranwell_shoreline_retreat_1899_2026_m", retreat_1899_2026, "m", "Script 40 median shoreline retreat 1899-2026, context for the seaward sites"),
@@ -1322,12 +1529,17 @@ def main() -> int:
         ("ranwell_forcing_ratio_1951_53", ratio_span, "-", "Parc Mawr / RAF Valley rainfall over Ranwell's span"),
         ("ranwell_forcing_r_1951_53", r_span, "-", "monthly correlation of the two gauges over Ranwell's span"),
     ]
-    _ce = lc.loc[lc["row"] == "site", "climate_expectation_m"].abs()
-    rn.append(("ranwell_climate_expectation_abs_max_m", float(_ce.max()) if _ce.notna().any() else np.nan, "m",
-               f"largest magnitude of the climate-only expectation (1951-53 against the modern hindcast) over the "
-               f"{int(_ce.notna().sum())} compared sites in 44_05"))
+    # 1.13.0 (D-332): the climate-only expectation and everything built on it carry Model B; Model A's
+    # values follow as <key>_model_a. The error terms do not depend on the model and have no twin.
+    for sfx, lab in (("", "Model B"), ("_model_a", f"Model A at {DATUM:g} m")):
+        _ce = lc.loc[lc["row"] == "site", f"climate_expectation_m{sfx}"].abs()
+        rn.append((f"ranwell_climate_expectation_abs_max_m{sfx}", float(_ce.max()) if _ce.notna().any() else np.nan, "m",
+                   f"{lab}: largest magnitude of the climate-only expectation (1951-53 against the modern hindcast) "
+                   f"over the {int(_ce.notna().sum())} compared sites in 44_05"))
     for r in lc[lc["row"] == "site"].itertuples():
-        rn.append((f"ranwell_delta_m_site{int(r.site_no)}", r.delta_m, "m", f"site {int(r.site_no)} ({r.sketch_slack}): modern minus 1951-53, climate-corrected"))
+        rn.append((f"ranwell_delta_m_site{int(r.site_no)}", r.delta_m, "m", f"site {int(r.site_no)} ({r.sketch_slack}): modern minus 1951-53, climate-corrected (Model B)"))
+        rn.append((f"ranwell_delta_m_site{int(r.site_no)}_model_a", r.delta_m_model_a, "m",
+                   f"site {int(r.site_no)}: the same, climate-corrected with Model A at {DATUM:g} m"))
         rn.append((f"ranwell_sigma_m_site{int(r.site_no)}", r.sigma_total_m, "m", f"site {int(r.site_no)}: four-term error"))
     # T-96: each compared site's distance to the nearest in_forest well (placed position,
     # the easting/northing every other site distance here uses).
@@ -1361,15 +1573,16 @@ def main() -> int:
     for c in (comb_all, comb_in, comb_br):
         if c:
             k = c["row"].lower()
-            rn += [(f"ranwell_delta_m_{k}", c["delta_m"], "m", f"{c['row']}: inverse-variance mean over {c['n_contributing']} sites"),
-                   (f"ranwell_sigma_m_{k}", c["sigma_total_m"], "m", f"{c['row']}: standard error"),
-                   (f"ranwell_chi2_dof_{k}", c["chi2_per_dof"], "-", f"{c['row']}: chi-square per degree of freedom"),
-                   (f"ranwell_rate_mm_yr_{k}", c["rate_mm_per_year"], "mm/yr", f"{c['row']}: delta over the interval"),
-                   (f"ranwell_resolved_{k}", int(c["resolved"]), "flag", f"{c['row']}: |delta| > 2 sigma"),
-                   (f"ranwell_delta_lower_2sigma_m_{k}", c["delta_m"] - 2 * c["sigma_total_m"], "m",
-                    f"{c['row']}: delta - 2 x standard error; a fall larger than this is excluded"),
-                   (f"ranwell_delta_upper_2sigma_m_{k}", c["delta_m"] + 2 * c["sigma_total_m"], "m",
-                    f"{c['row']}: delta + 2 x standard error; a rise larger than this is excluded")]
+            rn.append((f"ranwell_sigma_m_{k}", c["sigma_total_m"], "m", f"{c['row']}: standard error"))
+            for sfx, lab in (("", "Model B"), ("_model_a", f"Model A at {DATUM:g} m")):
+                rn += [(f"ranwell_delta_m_{k}{sfx}", c[f"delta_m{sfx}"], "m", f"{c['row']}: inverse-variance mean over {c['n_contributing']} sites ({lab})"),
+                       (f"ranwell_chi2_dof_{k}{sfx}", c[f"chi2_per_dof{sfx}"], "-", f"{c['row']}: chi-square per degree of freedom ({lab})"),
+                       (f"ranwell_rate_mm_yr_{k}{sfx}", c[f"rate_mm_per_year{sfx}"], "mm/yr", f"{c['row']}: delta over the interval ({lab})"),
+                       (f"ranwell_resolved_{k}{sfx}", int(c[f"resolved{sfx}"]), "flag", f"{c['row']}: |delta| > 2 sigma ({lab})"),
+                       (f"ranwell_delta_lower_2sigma_m_{k}{sfx}", c[f"delta_m{sfx}"] - 2 * c["sigma_total_m"], "m",
+                        f"{c['row']}: delta - 2 x standard error; a fall larger than this is excluded ({lab})"),
+                       (f"ranwell_delta_upper_2sigma_m_{k}{sfx}", c[f"delta_m{sfx}"] + 2 * c["sigma_total_m"], "m",
+                        f"{c['row']}: delta + 2 x standard error; a rise larger than this is excluded ({lab})")]
     for stat, lab in (("mean", "full-record mean"), ("spring", "spring level (D-189/D-207)"), ("min", "annual minimum")):
         rn += [(f"slack_floor_baseline_depth_{stat}_m", base[stat][0], "m",
                 f"inland baseline: median depth of the {lab} below the slack floor, C"
@@ -1416,18 +1629,22 @@ def main() -> int:
                (f"ranwell_local_floor_site{s_}_m_od", r.modern_local_floor_m_od, "m OD", f"site {s_}: the modern local floor at the placed position (Script 43 Route F)"),
                (f"ranwell_floor_lowering_site{s_}_m", r.slack_floor_lowering_m, "m", f"site {s_}: Ranwell's floor minus the modern local floor (positive = the floor is lower now)"),
                (f"ranwell_depth_change_site{s_}_m", getattr(r, "depth_change_m", np.nan), "m",
-                f"site {s_}: modern depth below the local floor (kriged mean level, climate-adjusted) minus his 1951-53 mean depth below his floor (positive = deeper now)")]
+                f"site {s_}: modern depth below the local floor (kriged mean level, climate-adjusted with Model B) minus his 1951-53 mean depth below his floor (positive = deeper now)"),
+               (f"ranwell_depth_change_site{s_}_m_model_a", getattr(r, "depth_change_m_model_a", np.nan), "m",
+                f"site {s_}: the same, climate-adjusted with Model A at {DATUM:g} m")]
         if r.well:
             rn += [(f"ranwell_pairedwell_floor_lowering_site{s_}_m", r.pairedwell_floor_lowering_m, "m", f"site {s_} vs {r.well} (diagnostic): Ranwell's floor minus the headline well's floor"),
                    (f"ranwell_pairedwell_depth_change_mean_site{s_}_m", r.pairedwell_depth_change_mean_m, "m", f"site {s_} vs {r.well} (diagnostic): modern mean depth minus 1951-53 mean depth, floor to floor"),
                    (f"ranwell_pairedwell_depth_change_spring_site{s_}_m", r.pairedwell_depth_change_spring_m, "m", f"site {s_} vs {r.well} (diagnostic): spring depth change, floor to floor"),
                    (f"ranwell_pairedwell_depth_change_max_site{s_}_m", r.pairedwell_depth_change_max_m, "m", f"site {s_} vs {r.well} (diagnostic): modern annual minimum minus his deepest reading, floor to floor")]
-    for col, key, lab in (("slack_floor_lowering_m", "ranwell_floor_lowering_inland", "floor lowering, his floor minus the local floor"),
-                          ("depth_change_m", "ranwell_depth_change_inland", "depth change below the floor, climate-adjusted")):
+    for col, key, lab, sfx in (("slack_floor_lowering_m", "ranwell_floor_lowering_inland", "floor lowering, his floor minus the local floor", ""),
+                               ("depth_change_m", "ranwell_depth_change_inland", "depth change below the floor, climate-adjusted (Model B)", ""),
+                               ("depth_change_m_model_a", "ranwell_depth_change_inland",
+                                f"depth change below the floor, climate-adjusted with Model A at {DATUM:g} m", "_model_a")):
         v = inland[col].dropna()
-        rn += [(f"{key}_median_m", float(v.median()) if len(v) else np.nan, "m", f"median over the {len(v)} sites beyond L: {lab}"),
-               (f"{key}_mad_m", float((v - v.median()).abs().median()) if len(v) else np.nan, "m", f"median absolute deviation over the sites beyond L: {lab}"),
-               (f"{key}_n", len(v), "count", "sites beyond L in the median")]
+        rn += [(f"{key}_median_m{sfx}", float(v.median()) if len(v) else np.nan, "m", f"median over the {len(v)} sites beyond L: {lab}"),
+               (f"{key}_mad_m{sfx}", float((v - v.median()).abs().median()) if len(v) else np.nan, "m", f"median absolute deviation over the sites beyond L: {lab}"),
+               (f"{key}_n{sfx}", len(v), "count", "sites beyond L in the median")]
     for name, col in (("local_floor", "modern_local_floor_m_od"), ("floor_mask_mean", "modern_floor_mask_mean_m_od")):
         rr = (inland[col] - inland["ranwell_floor_m_od"]).dropna()
         rn += [(f"ranwell_floor_fit_bias_inland_{name}_m", float(rr.mean()) if len(rr) else np.nan, "m", f"{name} minus Ranwell's floor, mean over the {len(rr)} reading sites beyond L"),
@@ -1461,23 +1678,26 @@ def main() -> int:
     if "climate_change_since_preplant_min_m" in ffe.columns:
         c4 = ffe[ffe["cluster"] == 4]
         c5 = ffe[ffe["cluster"] == 5]
-        rn += [("forest_floor_preplant_window", f"{config.PREPLANT_WINDOW[0]} to {config.PREPLANT_WINDOW[1]}", "-", "the pre-planting window the climate-only hindcast is compared over (config)"),
-               ("forest_floor_climate_change_since_preplant_mean_median_C4_m", float(c4["climate_change_since_preplant_mean_m"].median()), "m",
-                "C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher)"),
-               ("forest_floor_climate_change_since_preplant_min_median_C4_m", float(c4["climate_change_since_preplant_min_m"].median()), "m", "C4: the same for the annual minimum"),
-               ("forest_floor_climate_change_since_preplant_min_median_C4_analogue_m", float(c4["climate_change_since_preplant_min_analogue_m"].median()), "m",
-                f"C4: the same with its open-dune analogue's centroid coefficients (C{config.PRECANOPY_ANALOGUE[4]}; pre-planting behaviour sensitivity, D-254)"),
-               ("forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m", float(c4["climate_change_since_preplant_mean_analogue_m"].median()), "m",
-                f"C4: the mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[4]}, D-254)"),
-               ("forest_floor_climate_change_since_preplant_min_median_C5_analogue_m", float(c5["climate_change_since_preplant_min_analogue_m"].median()) if len(c5) else np.nan, "m",
-                f"C5: annual-minimum change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells"),
-               ("forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m", float(c5["climate_change_since_preplant_mean_analogue_m"].median()) if len(c5) else np.nan, "m",
-                f"C5: mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells"),
-               ("forest_floor_retreat_since_preplant_steady_m", float(ffe["retreat_since_preplant_steady_m"].iloc[0]), "m", "shoreline retreat since the window, the 1899-2006 epoch spread evenly (assumption) plus 2006-2026"),
-               ("forest_floor_retreat_since_preplant_modern_m", float(ffe["retreat_since_preplant_modern_m"].iloc[0]), "m", "sensitivity: the 2006-2026 rate carried back over the interval, capped at the measured total since 1899"),
-               ("forest_floor_residual_after_climate_and_retreat_steady_median_C4_m", float(c4["residual_after_climate_and_retreat_steady_min_m"].median()), "m", "C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term"),
-               ("forest_floor_residual_after_climate_and_retreat_modern_median_C4_m", float(c4["residual_after_climate_and_retreat_modern_min_m"].median()), "m", "C4: the same with the modern-rate retreat sensitivity"),
-               ("forest_floor_wells_cluster_coefficients", int((ffe["preplant_coef_basis"] != "own").sum()), "count", f"forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= {config.PREPLANT_BETA3_P_MAX})")]
+        rn.append(("forest_floor_preplant_window", f"{config.PREPLANT_WINDOW[0]} to {config.PREPLANT_WINDOW[1]}", "-", "the pre-planting window the climate-only hindcast is compared over (config)"))
+        # 1.13.0 (D-332): Model B (03_16 own coefficients or centroids, each at its implied datum) under
+        # the existing keys; Model A (master store, 03_03 centroids, the 3.7 m floor) as <key>_model_a
+        for sfx, lab in (("", "Model B"), ("_model_a", f"Model A at {DATUM:g} m")):
+            rn += [(f"forest_floor_climate_change_since_preplant_mean_median_C4_m{sfx}", float(c4[f"climate_change_since_preplant_mean_m{sfx}"].median()), "m",
+                    f"C4: median climate-only change in the mean level, pre-planting window minus the well's record (own or cluster coefficients driven by RAF Valley from 1930; + = the window stood higher); {lab}"),
+                   (f"forest_floor_climate_change_since_preplant_min_median_C4_m{sfx}", float(c4[f"climate_change_since_preplant_min_m{sfx}"].median()), "m", f"C4: the same for the annual minimum; {lab}"),
+                   (f"forest_floor_climate_change_since_preplant_min_median_C4_analogue_m{sfx}", float(c4[f"climate_change_since_preplant_min_analogue_m{sfx}"].median()), "m",
+                    f"C4: the same with its open-dune analogue's centroid coefficients (C{config.PRECANOPY_ANALOGUE[4]}; pre-planting behaviour sensitivity, D-254); {lab}"),
+                   (f"forest_floor_climate_change_since_preplant_mean_median_C4_analogue_m{sfx}", float(c4[f"climate_change_since_preplant_mean_analogue_m{sfx}"].median()), "m",
+                    f"C4: the mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[4]}, D-254); {lab}"),
+                   (f"forest_floor_climate_change_since_preplant_min_median_C5_analogue_m{sfx}", float(c5[f"climate_change_since_preplant_min_analogue_m{sfx}"].median()) if len(c5) else np.nan, "m",
+                    f"C5: annual-minimum change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells; {lab}"),
+                   (f"forest_floor_climate_change_since_preplant_mean_median_C5_analogue_m{sfx}", float(c5[f"climate_change_since_preplant_mean_analogue_m{sfx}"].median()) if len(c5) else np.nan, "m",
+                    f"C5: mean-level change with its open-dune analogue's coefficients (C{config.PRECANOPY_ANALOGUE[5]}, D-254); n = {len(c5)} wells; {lab}"),
+                   (f"forest_floor_residual_after_climate_and_retreat_steady_median_C4_m{sfx}", float(c4[f"residual_after_climate_and_retreat_steady_min_m{sfx}"].median()), "m", f"C4: median excess of the annual minimum after the climate-only change and the steady-epoch retreat term; {lab}"),
+                   (f"forest_floor_residual_after_climate_and_retreat_modern_median_C4_m{sfx}", float(c4[f"residual_after_climate_and_retreat_modern_min_m{sfx}"].median()), "m", f"C4: the same with the modern-rate retreat sensitivity; {lab}"),
+                   (f"forest_floor_wells_cluster_coefficients{sfx}", int((ffe[f"preplant_coef_basis{sfx}"] != "own").sum()), "count", f"forest wells hindcast with cluster coefficients because beta_3 is not identified (p >= {config.PREPLANT_BETA3_P_MAX}); {lab}")]
+        rn += [("forest_floor_retreat_since_preplant_steady_m", float(ffe["retreat_since_preplant_steady_m"].iloc[0]), "m", "shoreline retreat since the window, the 1899-2006 epoch spread evenly (assumption) plus 2006-2026"),
+               ("forest_floor_retreat_since_preplant_modern_m", float(ffe["retreat_since_preplant_modern_m"].iloc[0]), "m", "sensitivity: the 2006-2026 rate carried back over the interval, capped at the measured total since 1899")]
     rn += [("forest_floor_modelled_drawdown_at_wells_m", float(ffe["modelled_canopy_drawdown_m"].median()), "m", "median MODELLED canopy drawdown at the forest wells (Script 20 dd_mm; config.DRAWDOWN_H0_MM inside the forest)"),
            ("forest_floor_litter_allowance_m", config.FOREST_LITTER_MAX_M, "m", "upper bound on the litter above the mineral floor under the canopy (config, Martin 2026-09-29)"),
            ("forest_floor_residual_less_litter_median_C4_m", float((ffe.loc[ffe["cluster"] == 4, "residual_after_retreat_min_m"] - config.FOREST_LITTER_MAX_M).median()), "m", "C4: median residual after retreat less the litter allowance (lower bound on the mineral-floor excess)"),

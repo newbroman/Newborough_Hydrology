@@ -1789,7 +1789,7 @@ The orchestrator closes the loop itself. After Phase 17, `_settle()` reads `outp
 
 ### D-217 — Which form is used where: Model A for the water balance, coefficients, thresholds and hindcasts; Model B for memory-governed quantities — each chosen for what it identifies, and the absolute loss partition is identified by neither
 
-*2026-10-01*
+*2026-10-01 · **superseded***
 
 (Martin: "I approve") Model A stays the published form for the cluster coefficients, the water balance, the flooding thresholds and the hindcasts (D-007, D-109; Martin 2026-09-30). Model B is used for the two quantities set by the aquifer's memory — year-to-year persistence and the sustained response to a climate shift (D-216) — and not where its β₃ is unidentified (C4). The case is made on four committed counts, emitted by Script 48 1.4.0 (`48_04_model_a_b_diagnostics.csv`, `modelab_*` report numbers): (1) Model A's β₃ carries the datum (D-109); (2) model-free memory — the e-fold of the observed deseasonalised level's lag-1 autocorrelation sits with Model B's, cluster by cluster, and Model A's is several times longer; (3) the observed spring persistence (Script 26); (4) split-sample skill — fitted on one side of config.MODEL_AB_SPLIT_DATE and free-run over the other, Model B beats Model A at most wells in both directions, C4 excepted. Pastas is NOT cited as independent support: it fits a free base level and shares Model B's structure, so their agreement checks implementation, not truth. Model B's weakness is stated: its intercept and β₃ are near-collinear, so the level its drainage refers to (its fitted base, near each well's mean level and at about the shallowest admissible datum) is not physically identified, and it books more of the mean loss to atmospheric draw. That is why Model B is not used to set the datum: its base is the fitted mean-reversion level, not a drainage base, and adopting it as the datum would make Model A identical to Model B. The water-balance partition depends on the datum (Script 03 1.24.0 `partition_*` report numbers over the admissible datum range): the drainage flux at 3.7 m is close to its deep-datum value, but the drainage share across the admissible range is wide at C4 and C5. The absolute ET/drainage split is identified by neither form from heads alone; the documents state it as conditional on the datum, with the admissible range.
 
@@ -1845,7 +1845,7 @@ The report's published specification stays Model A, with the 100-month record (`
 
 ### D-224 — Climate projections are reported under both forms, as a pair on like-for-like wells; the forest is withheld under both
 
-*2026-10-01*
+*2026-10-01 · **superseded***
 
 Scripts 19 and 26b compute the sustained level response and the MSL5 shift under both forms with the same functions (`climate_forcing_change_12`, `sustained_monthly_response`). Model B's rows keep their files and keys; Model A's go to separate `_model_a` files and `_model_a` report keys, so no citation moves and no key collides. Model A is projected only where Model B is identified (`response_identified`, three parameters for A, four for B), so the pair is always on the same wells; this withholds C4 under both forms. The documents present the two as a pair, never averaged, and say which form held up against the drier past and which forecasts better inside the modern record. The scenario viewer gains a form toggle carrying the same pairing.
 
@@ -1893,7 +1893,7 @@ Script 50 1.2.0 adds E9: Model A refitted at every datum of the Script 03 sweep,
 
 ### D-230 — Every forward run - hindcast, projection, film - is Model A at the project datum, Model B beside it; the per-cluster datum is reported as a property, not a second scheme
 
-*2026-10-02*
+*2026-10-02 · **superseded***
 
 One form for every forward run: **Model A at `DRAINAGE_DATUM`** for the hindcasts (Script 39, the CCW and Ranwell hindcasts), the UKCP18 projections (Scripts 19/26b, the viewer) and the hindcast film, with **Model B reported beside it** as the fast-reversion bound. The coefficients and water balance stay Model A at the same datum (D-007, D-109), so Paper M's Table 1 (Model A coefficients per cluster at the project datum) and every forward run share one model and one datum. The CCW-supported datum (D-225) becomes the stated sensitivity for projections, not their basis. Each cluster's Model B zero-drainage datum is reported in Paper M and the report as a property of the cluster (with the within-record split-test datum beside it), never as a datum anything is run at. Martin, 2026-10-02 10:04, accepting this and asking to move to the two-store model (E8).
 
@@ -2699,6 +2699,14 @@ A row in `working/rule_audit_suppress.csv` (private, through `register_io`, merg
 
 **Revisit if** the backfill cannot honestly name what an old entry governs, in which case that entry is marked `Traces to: (not determinable, <date>)` rather than guessed at — a known gap being worth more than a wrong pointer.
 
+### D-332 — Model B is the forecaster; two fixed-floor forms are reported as tested alternatives
+
+*2026-11-12*
+
+(Martin, 2026-11-08). Model A was adopted because it makes more physical sense: a fixed drainage base keeps the drainage coefficient positive. In practice it forecast no better than B on any test, and every route to a physical datum tried (per cluster, best-fit depth, mean high water) gave no advantage, while the best-fit depth reproduces B. Its two distinctive outputs, the drainage share and the size of a lasting level shift, both follow from the datum, which nothing measurable constrains (D-163). Positive drainage is imposed as a bound on β₃ in B. B is used for every coefficient, threshold, hindcast, projection and the film. The water balance is B's partition, stated as not identified, beside the model-free lower bound on drainage. **Two fixed-floor forms are reported as tested alternatives, each with its purpose and its result** (Martin, 2026-11-10): **Model A at 3.7 m**, with its strengths: the drier-past level, coefficients that settle on a shorter record, and drainage identified in the Main Forest (C4); and **Model A at each well's depth to mean high water**, the one nameable physical base, whose results are explained by the depth of that floor. Their 1989–96 level results and A's projection sensitivity are stated as B's limitations, beside B's own: the wet bias in the drier past, coefficients that take longer to settle, and drainage not identified in C4 at any record length tested. The independent reading of the split supports this: the water-balance residual analysis (Script 55, Paper M §5.3) gives 31 % drainage at the median well, 36–55 % across its Sy bracket, which B's 45 % lies inside and A's 68 % outside.
+
+**Revisit if** a measured drainage base (a mapped till surface, an estuary outlet level) fixes z₀ independently; or a second drier epoch that tests the level confirms B's wet bias at more than the 9 CCW wells.
+
 ---
 
-329 decisions. Generated by `tools/build_public_decisions.py`.
+330 decisions. Generated by `tools/build_public_decisions.py`.

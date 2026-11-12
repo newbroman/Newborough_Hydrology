@@ -98,9 +98,11 @@ datum_frame_r2,,,0.796096,-,R2 of that regression (03_11)
 datum_frame_n_wells,,,66.0,count,reference wells with an R2-max datum and a ground elevation (03_11)
 datum_frame_ground_range_m,,,10.886,m,spread of ground elevation across those wells (03_11)
 datum_frame_corr_datum_meandepth_r,,,0.598649,Pearson r,"R2-max datum against the well's mean depth to water, n = 66 (03_11): the confound"
-warren_open_beta_1,,,3.9679960489249138,,"beta_1, Model A at the project datum, full record, on the centroid of every member well of C1+C2+C3 (03_22, T-129)"
-warren_open_beta_2,,,1.7203347711463604,,"beta_2, Model A at the project datum, full record, on the centroid of every member well of C1+C2+C3 (03_22, T-129)"
-warren_open_beta_3,,,0.06528134422692085,/month,"beta_3, Model A at the project datum, full record, on the centroid of every member well of C1+C2+C3 (03_22, T-129)"
-warren_open_r2,,,0.8245985484912108,,"R2, Model A at the project datum, full record, on the centroid of every member well of C1+C2+C3 (03_22, T-129)"
-warren_open_n_wells,,,52.0,wells,"member wells, Model A at the project datum, full record, on the centroid of every member well of C1+C2+C3 (03_22, T-129)"
-warren_open_n_months,,,251.0,months,"months fitted, Model A at the project datum, full record, on the centroid of every member well of C1+C2+C3 (03_22, T-129)"
+warren_open_beta_1,,,3.465303211303995,,"beta_1, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"
+warren_open_beta_2,,,2.491271132063795,,"beta_2, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"
+warren_open_beta_3,,,0.15354113418686882,/month,"beta_3, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"
+warren_open_r2,,,0.8051543183463487,,"R2, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"
+warren_open_n_wells,,,52.0,wells,"member wells, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"
+warren_open_n_months,,,251.0,months,"months fitted, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"
+warren_open_alpha,,,0.3656295454402216,m/month,"intercept alpha, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"
+warren_open_implied_datum,,,1.3186866967178426,m,"implied drainage base DRAINAGE_DATUM - alpha/beta_3 below ground, Model B (free intercept), full record, on the median hydrograph of every member well of C1+C2+C3 (03_22, T-129; D-332)"

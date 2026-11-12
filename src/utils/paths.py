@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.86.0"  # Hollingham (2026) - 2026-11-05. OUT_55_SHARE_FIG for Script 55 1.1.0:
+__version__ = "1.87.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). OUT_39_THREE_FORMS (Script 39 1.7.0):
+#   the three forms per CCW well against 1989-96, dry months scored. Additive.
+# 1.86.0  # Hollingham (2026) - 2026-11-05. OUT_55_SHARE_FIG for Script 55 1.1.0:
 #   the §7.1 drainage share per cluster with the Stage I Sy bracket, asked for by Martin after reading 55_02. Additive.
 # 1.85.0  # Hollingham (2026) - 2026-11-05. Script 55 1.0.0 (the water-balance residual analysis):
 #   DIR_55 and its outputs; and OUT_18_WELL_SY_BY_WINDOW for Script 18 1.19.0's windowed mode (D8). Additive.
@@ -1316,6 +1318,9 @@ OUT_39_FIT_WINDOWS        = DIR_39 / "39_08_fit_window_scorecard.csv"  # J-6, 20
 # both model forms scored against the 1989-96 record from each of three fitting windows
 # (comparison / pre2018 / whole), per well and pooled. Answers "does the fitting window
 # change the hindcast?" with a number instead of a caveat.
+OUT_39_THREE_FORMS        = DIR_39 / "39_10_three_forms_per_well.csv"  # D-332 (J-9 phase 2a):
+# per CCW well, Model A at 3.7 m, Model A at mean high water and Model B against 1989-96,
+# with dry months scored (a prediction above the pipe base in a dry month is an error).
 
 # --- Script 40 — shoreline-retreat measurement ---------------------------------
 DIR_40 = OUT_DIR / "40_shoreline_retreat"

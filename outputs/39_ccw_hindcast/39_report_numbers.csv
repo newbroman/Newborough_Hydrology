@@ -1,21 +1,59 @@
 Parameter,Well,Era,Value,Unit,Note
-n_wells_admitted,,,9.0,wells,wells hindcast against the CCW record
-n_open,,,6.0,wells,open ground (in_forest False)
-pearson_r_median,,,0.8479442187080904,,"observed vs predicted, all wells"
-pearson_r_min,,,0.6517823131170238,,all wells
-pearson_r_max,,,0.9434557571370948,,all wells
-n_nse_negative,,,6.0,wells,Nash-Sutcliffe below zero
-nse_bias_removed_min_excl_persistent_forest,,,0.18659408527780652,,"bias-removed NSE, wells other than the one under forest in both epochs"
-nse_bias_removed_max_excl_persistent_forest,,,0.8584573544922086,,as above
-nse_bias_removed_persistent_forest,NW11,,-0.09908556907319732,,the well under forest in both epochs
-residual_mean_all,,,-0.03476298906658439,m,"observed less predicted, mean over wells"
-residual_mean_open,,,0.10901864984381093,m,"as above, open ground"
+n_wells_admitted,,,9.0,wells,"wells hindcast against the CCW record, Model B (the forecaster, D-332)"
+n_open,,,6.0,wells,"open ground (in_forest False), Model B (the forecaster, D-332)"
+pearson_r_median,,,0.77922229865474,,"observed vs predicted, all wells, Model B (the forecaster, D-332)"
+pearson_r_min,,,0.5058234622394764,,"all wells, Model B (the forecaster, D-332)"
+pearson_r_max,,,0.9143135000230981,,"all wells, Model B (the forecaster, D-332)"
+n_nse_negative,,,5.0,wells,"Nash-Sutcliffe below zero, Model B (the forecaster, D-332)"
+nse_median,,,-0.06013750392975625,,"median per-well NSE over 1989-96 (the 'skill' of Scenario 2), Model B (the forecaster, D-332)"
+bias_median_m,,,0.20659769488336993,m,"median per-well level bias, predicted less observed (+ = modelled too wet), Model B (the forecaster, D-332)"
+nse_bias_removed_min_excl_persistent_forest,,,-0.09681387666231944,,"bias-removed NSE, wells other than the one under forest in both epochs, Model B (the forecaster, D-332)"
+nse_bias_removed_max_excl_persistent_forest,,,0.8316391653368508,,"as above, Model B (the forecaster, D-332)"
+nse_bias_removed_persistent_forest,NW11,,-0.1752407271761296,,"the well under forest in both epochs, Model B (the forecaster, D-332)"
+residual_mean_all,,,-0.26534048365468177,m,"observed less predicted, mean over wells, Model B (the forecaster, D-332)"
+residual_mean_open,,,-0.15757483145896053,m,"as above, open ground, Model B (the forecaster, D-332)"
+open_pearson_r_median,,,0.7942033931300838,,"open ground, Model B (the forecaster, D-332)"
+open_nse_bias_removed_median,,,0.5742908672959386,,"open ground, Model B (the forecaster, D-332)"
+n_wells_admitted_model_a,,,9.0,wells,"wells hindcast against the CCW record, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+n_open_model_a,,,6.0,wells,"open ground (in_forest False), Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+pearson_r_median_model_a,,,0.8479442187080904,,"observed vs predicted, all wells, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+pearson_r_min_model_a,,,0.6517823131170238,,"all wells, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+pearson_r_max_model_a,,,0.9434557571370948,,"all wells, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+n_nse_negative_model_a,,,6.0,wells,"Nash-Sutcliffe below zero, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+nse_median_model_a,,,-0.06469570158125171,,"median per-well NSE over 1989-96 (the 'skill' of Scenario 2), Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+bias_median_m_model_a,,,0.03267964857553183,m,"median per-well level bias, predicted less observed (+ = modelled too wet), Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+nse_bias_removed_min_excl_persistent_forest_model_a,,,0.18659408527780652,,"bias-removed NSE, wells other than the one under forest in both epochs, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+nse_bias_removed_max_excl_persistent_forest_model_a,,,0.8584573544922086,,"as above, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+nse_bias_removed_persistent_forest_model_a,NW11,,-0.09908556907319732,,"the well under forest in both epochs, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+residual_mean_all_model_a,,,-0.03476298906658439,m,"observed less predicted, mean over wells, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+residual_mean_open_model_a,,,0.10901864984381093,m,"as above, open ground, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+open_pearson_r_median_model_a,,,0.9026190474896406,,"open ground, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
+open_nse_bias_removed_median_model_a,,,0.7423419816103944,,"open ground, Model A at the fixed 3.7 m floor (tested alternative, D-332)"
 epoch_shift_min,,,-0.13463930248796008,m,smallest shift (1989-96 mean less modern mean)
 epoch_shift_max,,,-0.8347554606475993,m,largest shift
 epoch_shift_median,,,-0.5888264072218719,m,all wells
-open_pearson_r_median,,,0.9026190474896406,,open ground
-open_nse_bias_removed_median,,,0.7423419816103944,,open ground
 open_epoch_shift_median,,,-0.3466287544870408,m,open ground
+n_wells_model_b_bound_binds,,,0.0,wells,"admitted wells whose Model B beta_3 sits at the lower bound MODEL_B_BETA3_MIN (0.0001/month), fit kept (D-332)"
+n_wells_model_b_excluded_datum,,,0.0,wells,admitted wells left out of the Model B headline: implied datum DRAINAGE_DATUM - alpha/beta_3 not below ground
+n_wells_model_b_bound_binds_network,,,0.0,wells,every well in Script 03's 03_16 whose Model B beta_3 sits at the lower bound
+n_wells_model_b_excluded_datum_network,,,1.0,wells,every well in 03_16 whose implied datum is not below ground: ceh14 -9.39 m
+n_wells_model_b_bound_binds_pre2018,,,0.0,wells,admitted wells whose pre2018-window Model B refit binds at the beta_3 bound (fit kept)
+n_wells_model_b_excluded_datum_pre2018,,,0.0,wells,admitted wells whose pre2018-window Model B refit has no datum below ground (left out)
+n_wells_model_b_bound_binds_whole,,,0.0,wells,admitted wells whose whole-window Model B refit binds at the beta_3 bound (fit kept)
+n_wells_model_b_excluded_datum_whole,,,0.0,wells,admitted wells whose whole-window Model B refit has no datum below ground (left out)
+tide_mhw_m_used,,,1.88,m OD,mean high water the MHW form is run at (Script 01b tide_mhw_m)
+mhw_route_identity_max_abs_diff_m,,,2.7755575615628914e-15,m,"identity check: the MHW form's fitting route run at 3.7 m less the master-store Model A run, max over 9 wells and the comparison months (expected ~0)"
+rmse_with_dry_median_m,,,0.27727463323876717,m,"median typical monthly error, dry months counted only where the run sits above the pipe base (Addendum 2), Model B"
+n_wells_best_with_dry,,,3.0,wells,wells at which Model B has the lowest error counting dry months
+rmse_with_dry_median_m_model_a,,,0.2916983890176375,m,"median typical monthly error, dry months counted only where the run sits above the pipe base (Addendum 2), Model A at 3.7 m"
+n_wells_best_with_dry_model_a,,,3.0,wells,wells at which Model A at 3.7 m has the lowest error counting dry months
+n_wells_admitted_mhw,,,9.0,wells,wells hindcast with Model A at each well's depth to mean high water
+nse_median_mhw,,,-0.08665259915649548,,"median per-well NSE over 1989-96, Model A at mean high water (Scenario 2)"
+bias_median_m_mhw,,,-0.15865404154422252,m,"median per-well level bias, predicted less observed, Model A at mean high water"
+datum_mhw_min_m,,,2.622,m,shallowest floor of the mean-high-water form at these wells (ground less tide_mhw_m)
+datum_mhw_max_m,,,10.21,m,deepest such floor
+rmse_with_dry_median_m_mhw,,,0.29231265371330156,m,"median typical monthly error, dry months counted only where the run sits above the pipe base (Addendum 2), Model A at mean high water"
+n_wells_best_with_dry_mhw,,,3.0,wells,wells at which Model A at mean high water has the lowest error counting dry months
 rain_mean_window_m_yr,,,0.7700714285714284,m/yr,mean annual rainfall 1989-05 to 1996-04
 surplus_mean_window_m_yr,,,0.1272508214047226,m/yr,mean annual P - PET 1989-05 to 1996-04
 rain_mean_modern_m_yr,,,0.889338095238095,m/yr,mean annual rainfall 2005-03 to 2026-02
@@ -26,15 +64,27 @@ ccw_annual_range_n,,,51.0,well-years,as above
 ccw_annual_range_vs_davy_2010_diff_m,,,0.025490196078431282,m,"CCW_ANNUAL_RANGE_DAVY_2010_M (0.75 m, Davy et al. 2010; SD 0.27 m) minus ccw_annual_range_mean_m"
 epoch_midpoint_gap_yr,,,22.833675564681723,yr,years between the two records' midpoints
 epoch_rate_if_linear_mm_yr,,,15.180593834099719,mm/yr,"NOT a rate: the open-ground median shift divided by the midpoint gap, quoted in the text only to be disclaimed"
-open_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,0.0903781890102851,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.00 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.00,,beta1 scale 1.00,-0.10901864984381093,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.00"
-canopy_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,-1.643671530584901,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.00"
-open_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,0.2713916739976039,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.03 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.03,,beta1 scale 1.03,0.016338362133079112,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.03"
-canopy_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,-3.2550181909084834,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.03"
-open_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,0.0865894420506967,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.06 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.06,,beta1 scale 1.06,0.14169537410996946,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.06"
-canopy_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,-5.378275858956974,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.06"
-open_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-0.728860204665087,,"open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.10 (fitted value at scale 1.00)"
-open_bias_mean_beta1_scale_1.10,,beta1 scale 1.10,0.30883805674582276,m,"open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.10"
-canopy_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-9.005592095038137,,"under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.10"
+open_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,0.023176616696774215,,"Model B: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.00 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.00,,beta1 scale 1.00,0.15757483145896053,m,"Model B: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.00"
+canopy_nse_mean_beta1_scale_1.00,,beta1 scale 1.00,-4.125202354148949,,"Model B: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.00"
+open_nse_mean_beta1_scale_1.00_model_a,,beta1 scale 1.00,0.0903781890102851,,"Model A at 3.7 m: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.00 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.00_model_a,,beta1 scale 1.00,-0.10901864984381093,m,"Model A at 3.7 m: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.00"
+canopy_nse_mean_beta1_scale_1.00_model_a,,beta1 scale 1.00,-1.643671530584901,,"Model A at 3.7 m: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.00"
+open_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,-0.19548599426353053,,"Model B: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.03 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.03,,beta1 scale 1.03,0.21098946538298294,m,"Model B: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.03"
+canopy_nse_mean_beta1_scale_1.03,,beta1 scale 1.03,-5.312554032540489,,"Model B: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.03"
+open_nse_mean_beta1_scale_1.03_model_a,,beta1 scale 1.03,0.2713916739976039,,"Model A at 3.7 m: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.03 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.03_model_a,,beta1 scale 1.03,0.016338362133079112,m,"Model A at 3.7 m: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.03"
+canopy_nse_mean_beta1_scale_1.03_model_a,,beta1 scale 1.03,-3.2550181909084834,,"Model A at 3.7 m: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.03"
+open_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,-0.48868242724216193,,"Model B: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.06 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.06,,beta1 scale 1.06,0.26440409930700526,m,"Model B: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.06"
+canopy_nse_mean_beta1_scale_1.06,,beta1 scale 1.06,-6.644672254675001,,"Model B: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.06"
+open_nse_mean_beta1_scale_1.06_model_a,,beta1 scale 1.06,0.0865894420506967,,"Model A at 3.7 m: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.06 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.06_model_a,,beta1 scale 1.06,0.14169537410996946,m,"Model A at 3.7 m: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.06"
+canopy_nse_mean_beta1_scale_1.06_model_a,,beta1 scale 1.06,-5.378275858956974,,"Model A at 3.7 m: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.06"
+open_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-0.9955525054644051,,"Model B: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.10 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.10,,beta1 scale 1.10,0.3356236112057018,m,"Model B: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.10"
+canopy_nse_mean_beta1_scale_1.10,,beta1 scale 1.10,-8.646022285565637,,"Model B: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.10"
+open_nse_mean_beta1_scale_1.10_model_a,,beta1 scale 1.10,-0.728860204665087,,"Model A at 3.7 m: open-ground (in_forest False, n=6) mean NSE with beta_1 scaled by 1.10 (fitted value at scale 1.00)"
+open_bias_mean_beta1_scale_1.10_model_a,,beta1 scale 1.10,0.30883805674582276,m,"Model A at 3.7 m: open-ground mean bias (predicted less observed, per get_metrics) with beta_1 scaled by 1.10"
+canopy_nse_mean_beta1_scale_1.10_model_a,,beta1 scale 1.10,-9.005592095038137,,"Model A at 3.7 m: under-canopy (in_forest True, n=3) mean NSE with beta_1 scaled by 1.10"

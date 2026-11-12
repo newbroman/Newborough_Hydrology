@@ -1,4 +1,4 @@
-# Frame text — 47_hindcast_film.py 1.10.0
+# Frame text — 47_hindcast_film.py 1.11.0
 # wet-area model 42ace095fa40a709 (46_wet_area_feed.py 1.0.0)
 # the trace's arrival lines — the level at which each class first covers 1 ha of the study area: open_water -0.500 m, wet_floor -0.800 m
 
@@ -49,7 +49,7 @@ The slides that follow show how it was made: a groundwater model, satellite pict
 [figure] 47_06_free_run_vs_wells.png
 Figure 4 (left) is the weather and the water table together, 2005–2026. (a) Rain, month by month, with its long-term average as the dashed line. (b) Evaporation, which peaks every summer. (c) The running balance of rain minus evaporation: it climbs through wet runs of months and falls through dry ones. (d) The water table, averaged over the reserve's dipwells, with the spread between wells shaded. Panels (c) and (d) rise and fall together: that is the link the model is built on.
 From it the study learned a simple monthly rule: the water table rises with the month's rain, falls with its evaporation, and drains back in proportion to how high it stands. The film runs one such rule, fitted to the wells of the open dune; the forest wells are left out, as the forest is left out of the maps.
-The chart above right is the test this film depends on. The blue line is the model, run on nothing but RAF Valley's weather since 1930 with no well reading to correct it; the black line is what the dipwells measured. The model follows the warren's wet and dry years, on average 3 cm low: the bias the next slide removes.
+The chart above right is the test this film depends on. The blue line is the model, run on nothing but RAF Valley's weather since 1930 with no well reading to correct it; the black line is what the dipwells measured. The model follows the warren's wet and dry years, on average 9 cm high: the bias the next slide removes.
 [footer] Report Figure 4, section 4.1.1 · the model against the wells: this film's own run
 
 ### Correcting the model to the wells
@@ -63,7 +63,7 @@ Sentinel-2 has photographed the warren every few days since 2016, in 10 m square
 In each one the dark squares on the slack floor are counted, split into open water (the darkest) and wet floor, and set against the water table the dipwells measured in the same month. Each pair of points on the figure is one picture. Four of them are shown below in that near-infrared band, driest to wettest, each scaled to its own slack-floor brightness as the method reads it; each line leads to its points.
 The points fall on two smooth curves. Wet floor grows gently as the water table rises; open water stays near nothing until the water is close to the surface, then climbs steeply. These curves turn the film's water table into the hectares in its title.
 They are fitted between −0.80 m and +0.03 m, the range the pictures saw. Above that, the film says BEYOND THE RECORD.
-[footer] Report Figure 50, section 4.8.5 · Contains modified Copernicus Sentinel data
+[footer] Report Figure 49, section 4.8.5 · Contains modified Copernicus Sentinel data
 
 ### The check: the model against the satellite
 [figure] 45_02_ssm_through_nir_curves.png
@@ -71,14 +71,14 @@ They are fitted between −0.80 m and +0.03 m, the range the pictures saw. Above
 Before the curves are trusted with the model, they are tested with it. Here the curves are driven by the model's water table instead of the wells, and the area they predict is compared, month by month, with the area the satellite actually measured.
 The satellite takes no part in the model, so this is an independent test of the water table itself, not of the curves alone. The same four near-infrared pictures are below; each line leads to its month on the upper panel and names the peak or trough it belongs to.
 Wet floor is reproduced closely. Open water, which appears suddenly as the water reaches the surface, is reproduced less well: a small error in the water table makes a large one in the area of pools. That is why the film's blue is the less certain colour.
-[footer] Report Figure 51, section 4.8.5 · Contains modified Copernicus Sentinel data
+[footer] Report Figure 50, section 4.8.5 · Contains modified Copernicus Sentinel data
 
 ### 3.  Where the water goes: the second calibration
 [figure] 45_03_switching_levels_map.png
 The curves say how much of the floor is wet; they do not say where. For that, each 10 m square's own history in the pictures is used: the water-table level at which it first read wet floor (a, upper map) and first read open water (b, lower map).
 The lowest hollows switch first, the higher margins last. Grey squares never switched within the range the pictures saw, and the forest is left out because under trees the satellite sees the canopy, not the ground.
 The film lights each square when the model's water table reaches its level. WHERE the colours appear was learned from the satellite; WHEN is the model.
-[footer] Report Figure 52, section 4.8.5 · Contains modified Copernicus Sentinel data
+[footer] Report Figure 51, section 4.8.5 · Contains modified Copernicus Sentinel data
 
 ### What the warren looks like from space
 [satellite] 2019-04, 2021-02
@@ -107,7 +107,7 @@ The honest claim for those winters is that they were bigger than 2021, nothing f
 ## SLIDES AFTER THE FILM
 
 ### What the film says, cautions attached
-The 1960s were the wet decade, with about 1.7 times the open water of an average winter in the other decades.
+The 1960s were the wet decade, with about 1.3 times the open water of an average winter in the other decades.
 The winters of 1961–62 and 2000–01 stand out as the two great floods of the century, with 1938–39 and 1958–59 behind them; 2015–16 was the wettest of the satellite era after 2021.
 The 1970s and 1990s were the dry decades, with almost no open water in an average winter.
 All of it is the model's account of what the weather would do to the reserve as it stands today.

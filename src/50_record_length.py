@@ -77,7 +77,22 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.24.0"  # Hollingham (2026) - 2026-11-10 (D-322, Martin: "option 1"). The CCW record-length
+__version__ = "1.25.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a; brief NRG_brief_model_B_single_form
+#   Addendum 3, "Phase 2, task 1, widened"). The MHW form -- Model A at each well's depth to mean high water
+#   (ground_elev_m less 01b's tide_mhw_m; Script 48's form M, E16's mhw spec) -- runs beside Model A at
+#   DRAINAGE_DATUM and Model B, as form "M", in: the record-length forecast / within-record hindcast / stability
+#   experiment (50_01, 50_02, 50_05; reclen_*_M_* keys: stable length and return times, stable length by cluster,
+#   forecast at every length); the January 2018 split kept month by month (50_48 form M; 50_49 draws it, and its
+#   legend moves below the panels, off the data); and T-173's neighbour transfer (50_50 gains a form column; M
+#   rows fit each well at its own MHW floor and run every borrowed set at the TARGET well's floor; the centroid
+#   row is the median of the members' MHW-floor coefficients run at the target's floor -- a design choice, since
+#   a centroid has no ground level; transfer_median_nse_{own,neighbour,centroid}_mhw). Every free run passes
+#   base= explicitly (free_run's default binds DRAINAGE_DATUM at definition). Identity: the M rows' full-length
+#   split NSE against Script 48's nse_fwd_M / nse_rev_M (reclen_check_vs48_M_max_abs_nse_diff); the A/B check
+#   keeps its A/B scope. Model B's beta_3 is bounded below (model_utils 1.14.0): fits that were dropped for
+#   beta_3 <= 0 are kept at the bound, describe() carries beta_3_bound, and beta3_bound_B_n_* count them per
+#   test. E5/E6/E12/E13/E10 are unchanged in scope (E12 cannot carry the form: a centroid has no MHW floor).
+# 1.24.0  # Hollingham (2026) - 2026-11-10 (D-322, Martin: "option 1"). The CCW record-length
 #   hindcast (RB-50b) moves from D-281's tier 3 to tier 1: each fit is Script 03's, censored on the well's
 #   dry months (fit_ssm(..., dry_bound=dry_bounds(col))) over CALENDAR months, the last L (window=L) or the
 #   first L from the record's first month. It dropped dry months and took the trailing L VALID rows, so at the
@@ -352,7 +367,7 @@ from utils.config import (                                    # noqa: E402
     CLEARFELL_DATE_ISO, RAF_VALLEY_LAT_DEG,
     E13_EXCESS_SHARE, E13_RMSE_TOL, E13_CLUSTERS, E13_BREAK_WINDOW, E13_MIN_LATER_MONTHS,
     E13B_WINDOW_YEARS, E13B_SEASON_A_MONTHS, E13B_SEASON_B_MONTHS, E13B_RESID_SUMMER_MONTHS, E13B_RESID_WINTER_MONTHS, E13B_RESID_WINTER_PHASE,
-    RESIDUAL_DIAG_MIN_MONTHS, MIDAS_MONTH_MIN_DAYS,
+    RESIDUAL_DIAG_MIN_MONTHS, MIDAS_MONTH_MIN_DAYS, MODEL_B_BETA3_MIN,
 )
 from utils.data_utils import normalize_well_name              # noqa: E402
 from utils.model_utils import (build_ssm_frame, fit_ssm, fit_ssm_intercept, simulate_ssm, get_metrics,   # noqa: E402
@@ -373,6 +388,11 @@ from utils.console_utils import (banner, done, info, phase, result, saved, step,
                                  warn)                                                   # noqa: E402
 
 FORMS = (("A", False), ("B", True))
+# 1.25.0 (D-332): the MHW form -- Model A at each well's depth to mean high water (Script 48's form M). It runs
+# where a well has a ground level, at that well's own datum, so it is not a member of FORMS (whose fits are all
+# built at DRAINAGE_DATUM); REPORT_FORMS is FORMS plus it, for the summaries and report numbers.
+FORM_MHW = "M"
+REPORT_FORMS = FORMS + ((FORM_MHW, False),)
 FULL = "full"
 LENGTHS = tuple(str(L) for L in RECLEN_LENGTHS_MONTHS) + (FULL,)
 SIG_P = 0.05
@@ -432,6 +452,8 @@ def describe(fit: dict, intercept: bool, frame: pd.DataFrame) -> dict:
         "rho_ar1_expected": ((1.0 - b3) ** 12) if b3 < 1 else np.nan,
         "drainage_share": drain / (drain + et) if (drain + et) > 0 else np.nan,
         "identified": ident,
+        # 1.25.0 (D-332): Model B's beta_3 held at MODEL_B_BETA3_MIN (model_utils 1.14.0); never True for Model A
+        "beta_3_bound": bool(fit.get("beta_3_bound_binds", False)),
     }
 
 
@@ -479,17 +501,28 @@ def load_inputs():
     return lev, lev_cols, cl, master
 
 
-def well_experiments(well: str, cluster: int, h: pd.Series, cl: pd.DataFrame) -> list:
-    """forecast, hindcast_within and stability rows for one well, both forms."""
+def well_experiments(well: str, cluster: int, h: pd.Series, cl: pd.DataFrame, mhw_datum: float = None) -> list:
+    """forecast, hindcast_within and stability rows for one well, both forms; and (1.25.0, D-332) the MHW form
+    "M", Model A at `mhw_datum` (the well's depth to mean high water), where one is given."""
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
-    full = build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
-    pre = build_ssm_frame(h[h.index < split], cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
-    post = build_ssm_frame(h[h.index >= split], cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
     te = {"forecast": h[h.index >= split], "hindcast_within": h[h.index < split]}
-    side = {"forecast": (pre, "tail"), "hindcast_within": (post, "head")}
+    by_datum = {}   # NB not `frames`: the stability loop below binds that name
+
+    def frames_at(D):
+        """full, pre and post frames built at datum D (the datum moves h_disp only, never the rows)."""
+        if D not in by_datum:
+            by_datum[D] = (build_ssm_frame(h, cl, lag=HEADLINE_LAG, drainage_datum=D),
+                           build_ssm_frame(h[h.index < split], cl, lag=HEADLINE_LAG, drainage_datum=D),
+                           build_ssm_frame(h[h.index >= split], cl, lag=HEADLINE_LAG, drainage_datum=D))
+        return by_datum[D]
+    forms = [(form, icpt, DRAINAGE_DATUM) for form, icpt in FORMS]
+    if mhw_datum is not None and np.isfinite(mhw_datum):
+        forms.append((FORM_MHW, False, float(mhw_datum)))
     rows = []
     base = {"well": well, "cluster": cluster}
-    for form, icpt in FORMS:
+    for form, icpt, D in forms:
+        full, pre, post = frames_at(D)
+        side = {"forecast": (pre, "tail"), "hindcast_within": (post, "head")}
         for exp in ("forecast", "hindcast_within"):
             fr_all, end = side[exp]
             for L in LENGTHS:
@@ -505,7 +538,7 @@ def well_experiments(well: str, cluster: int, h: pd.Series, cl: pd.DataFrame) ->
                 f = fit_frame(fr, icpt)
                 row = dict(base, form=form, experiment=exp, length=L, placement="adjacent")
                 row.update(describe(f, icpt, fr))
-                row.update(free_run(te[exp], cl, f, icpt))
+                row.update(free_run(te[exp], cl, f, icpt, base=D))     # base explicit: the default binds 3.7 m
                 rows.append(row)
         for L in LENGTHS:
             if L == FULL:
@@ -689,21 +722,24 @@ def by_cluster(df: pd.DataFrame, dev: pd.DataFrame, ccw: pd.DataFrame) -> pd.Dat
 # Identity checks: the full-length rows must reproduce Scripts 48 and 39
 # ──────────────────────────────────────────────────────────────────────────────
 def identity_checks(df: pd.DataFrame, ccw: pd.DataFrame) -> dict:
-    out = {"vs48_max_abs_diff": np.nan, "vs48_n": 0, "vs39_max_abs_diff": np.nan, "vs39_n": 0}
+    out = {"vs48_max_abs_diff": np.nan, "vs48_n": 0, "vs39_max_abs_diff": np.nan, "vs39_n": 0,
+           "vs48_M_max_abs_diff": np.nan, "vs48_M_n": 0}
     if OUT_48_MODEL_AB.exists():
         ab = pd.read_csv(OUT_48_MODEL_AB)
         ab["well"] = ab["well"].astype(str).apply(normalize_well_name)
         ab = ab.set_index("well")
-        diffs = []
-        for exp, d_ in (("forecast", "fwd"), ("hindcast_within", "rev")):
-            f = df[(df["experiment"] == exp) & (df["length"] == FULL)]
-            for _, r in f.iterrows():
-                col = f"nse_{d_}_{r['form']}"
-                w = normalize_well_name(r["well"])
-                if w in ab.index and col in ab.columns and np.isfinite(r["nse"]) and np.isfinite(ab.loc[w, col]):
-                    diffs.append(abs(r["nse"] - ab.loc[w, col]))
-        if diffs:
-            out.update(vs48_max_abs_diff=float(max(diffs)), vs48_n=len(diffs))
+        # 1.25.0: the A/B check keeps its scope; the MHW form is checked separately against Script 48's form M
+        for forms_, key in (({"A", "B"}, "vs48"), ({FORM_MHW}, "vs48_M")):
+            diffs = []
+            for exp, d_ in (("forecast", "fwd"), ("hindcast_within", "rev")):
+                f = df[(df["experiment"] == exp) & (df["length"] == FULL) & df["form"].isin(forms_)]
+                for _, r in f.iterrows():
+                    col = f"nse_{d_}_{r['form']}"
+                    w = normalize_well_name(r["well"])
+                    if w in ab.index and col in ab.columns and np.isfinite(r["nse"]) and np.isfinite(ab.loc[w, col]):
+                        diffs.append(abs(r["nse"] - ab.loc[w, col]))
+            if diffs:
+                out.update({f"{key}_max_abs_diff": float(max(diffs)), f"{key}_n": len(diffs)})
     if len(ccw) and OUT_39_PER_WELL.exists():
         p39 = pd.read_csv(OUT_39_PER_WELL).set_index("well")
         c = ccw[(ccw["form"] == "A") & (ccw["length"] == str(LCSC_DATA_LIMIT)) & (ccw["end"] == "end")]
@@ -717,7 +753,7 @@ def identity_checks(df: pd.DataFrame, ccw: pd.DataFrame) -> dict:
 # ──────────────────────────────────────────────────────────────────────────────
 # Report numbers
 # ──────────────────────────────────────────────────────────────────────────────
-def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumbers:
+def report_numbers(df, dev, stab, ccw, summ, checks, trule=None, nbt_mhw=None) -> ReportNumbers:
     rr = ReportNumbers()
     # T-173b (2026-11-08): the transfer rule's quotable values, so Paper 1 can carry them as
     # number fields rather than typed literals (D-220). Keys mirror 50_52's own columns.
@@ -744,6 +780,20 @@ def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumber
                 if pd.notna(_c):
                     rr.add(f"transfer_median_gain_C{int(_c)}", float(_g["gain_nse"].median()),
                            unit="", note="median change in NSE from borrowing, this cluster")
+        # 1.25.0 (D-332): the same three medians with Model A at mean high water. Every fit at the fitted well's
+        # MHW floor, every run at the TARGET well's; the centroid is the median of its members' MHW-floor
+        # coefficients run at the target's floor (a centroid has no ground level, so no floor of its own).
+        if nbt_mhw is not None and not nbt_mhw.empty:
+            _pm = nbt_mhw.pivot_table(index=["well", "cluster"], columns="source", values="nse")
+            for _tag in ("own", "neighbour", "centroid"):
+                if _tag in _pm.columns and _pm[_tag].notna().any():
+                    rr.add(f"transfer_median_nse_{_tag}_mhw", float(_pm[_tag].median()), unit="",
+                           note=f"median post-2018 NSE, {_tag} coefficients, Model A at each well's depth to mean "
+                                f"high water (run at the target well's floor); n = {int(_pm[_tag].notna().sum())} wells")
+                    rr.add(f"transfer_fail_{_tag}_n_mhw", float((_pm[_tag] < -1).sum()), unit="",
+                           note=f"wells scoring below -1 NSE on {_tag} coefficients, Model A at mean high water")
+            rr.add("transfer_wells_n_mhw", float(len(_pm)), unit="",
+                   note="wells in the neighbour transfer test at mean high water (a ground level and a pre-2018 fit)")
         for _, _r in trule[trule["scope"] == "band"].iterrows():
             _k = (str(_r["well"]).replace("<", "lt").replace(">", "gt")
                   .replace(".", "p").replace(" m", "").replace("-", "_"))
@@ -758,7 +808,7 @@ def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumber
     gnames = ["all"] + [f"C{c}" for c in sorted(int(x) for x in df["cluster"].unique() if int(x) > 0)]
     for exp, tag in (("forecast", "fwd"), ("hindcast_within", "rev")):
         for g in gnames:
-            for form, _ in FORMS:
+            for form, _ in REPORT_FORMS:          # 1.25.0: and the MHW form, M
                 for L in LENGTHS:
                     v, n = get(exp, g, form, L, "nse")
                     if n:
@@ -767,7 +817,7 @@ def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumber
                                     + ("before" if tag == "fwd" else "from")
                                     + f" {MODEL_AB_SPLIT_DATE}; n = {n} wells ({g})")
     for g in gnames:
-        for form, _ in FORMS:
+        for form, _ in REPORT_FORMS:
             for L in LENGTHS[:-1]:
                 v, n = get("stability", g, form, L, "rel_dev_median")
                 if n:
@@ -780,7 +830,7 @@ def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumber
                            note=f"median over wells of the share of placements of {L} months on which Model {form}'s "
                                 f"beta_3 is identified; n = {n} wells ({g})")
     for g, gg in groups(stab):
-        for form, _ in FORMS:
+        for form, _ in REPORT_FORMS:
             s = gg[gg["form"] == form]
             for col, unit, lab in (("stable_length_months", "months", "stable length"),
                                    ("stable_length_in_efolds", "", "stable length in full-record Model B mean-reversion times")):
@@ -804,7 +854,7 @@ def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumber
                                         f"{end} of the modern record; median over n = {n} wells")
     full = df[(df["experiment"] == "stability") & (df["length"] == FULL)]
     for g, gg in groups(full):
-        for form, _ in FORMS:
+        for form, _ in REPORT_FORMS:
             s = gg[gg["form"] == form]
             for col, unit, lab in (("rho_ar1_expected", "", "expected spring persistence (1 - beta_3)^12 (D-221)"),
                                    ("efold_months", "months", "mean-reversion time -1/ln(1 - beta_3)")):
@@ -828,6 +878,10 @@ def report_numbers(df, dev, stab, ccw, summ, checks, trule=None) -> ReportNumber
     rr.add("reclen_check_vs48_max_abs_nse_diff", checks["vs48_max_abs_diff"], unit="",
            note=f"identity check: full-length forecast / hindcast_within NSE against Script 48's split-sample NSE; "
                 f"largest absolute difference over {checks['vs48_n']} well-form-direction pairs (expected 0)")
+    rr.add("reclen_check_vs48_M_max_abs_nse_diff", checks["vs48_M_max_abs_diff"], unit="",
+           note=f"identity check: full-length forecast / hindcast_within NSE of the MHW form against Script 48's form M "
+                f"(nse_fwd_M / nse_rev_M); largest absolute difference over {checks['vs48_M_n']} well-direction pairs "
+                f"(expected 0)")
     rr.add("reclen_check_vs39_max_abs_nse_diff", checks["vs39_max_abs_diff"], unit="",
            note=f"identity check: CCW hindcast NSE, Model A on the last {LCSC_DATA_LIMIT} months, against Script 39; "
                 f"largest absolute difference over {checks['vs39_n']} wells (expected 0)")
@@ -917,7 +971,7 @@ def split_by_datum(lev, lev_cols, cl, master) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def split_series(lev, lev_cols, cl, master) -> pd.DataFrame:
+def split_series(lev, lev_cols, cl, master, mhw: dict | None = None) -> pd.DataFrame:
     """J-6: the Jan-2018 split-sample free run kept MONTH BY MONTH, for BOTH forms.
 
     `split_by_datum` (E6) sweeps the datum and keeps only the NSE, so scenario 1 -- the case INSIDE
@@ -930,8 +984,12 @@ def split_series(lev, lev_cols, cl, master) -> pd.DataFrame:
     well, form, direction and month rather than a grid. Emit-only: the fit, the free run and the
     datum convention are exactly `split_by_datum`'s, so the NSE recomputed from these series
     reproduces 50_07 at DRAINAGE_DATUM for Model A.
+
+    1.25.0 (D-332): with `mhw` ({well: depth to mean high water}), the MHW form "M" is kept too: Model A
+    fitted on a frame built at the well's own MHW datum and run there.
     """
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    mhw = mhw or {}
     rows = []
     for _, r in master.iterrows():
         col = lev_cols.get(r["_n"])
@@ -939,10 +997,15 @@ def split_series(lev, lev_cols, cl, master) -> pd.DataFrame:
             continue
         h = lev[col].dropna()
         pre_h, post_h = h[h.index < split], h[h.index >= split]
+        D_m = mhw.get(r["_n"])
         for direction, tr, te in (("fwd", pre_h, post_h), ("rev", post_h, pre_h)):
             fr = build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM)
-            for form, intercept in (("A", False), ("B", True)):
-                f = fit_frame(fr, intercept)
+            forms = [("A", False, DRAINAGE_DATUM, fr), ("B", True, DRAINAGE_DATUM, fr)]
+            if D_m is not None and np.isfinite(D_m):
+                forms.append((FORM_MHW, False, float(D_m),
+                              build_ssm_frame(tr, cl, lag=HEADLINE_LAG, drainage_datum=float(D_m))))
+            for form, intercept, D, fr_ in forms:
+                f = fit_frame(fr_, intercept)
                 if f is None:
                     continue
                 t = te.dropna()
@@ -955,7 +1018,7 @@ def split_series(lev, lev_cols, cl, master) -> pd.DataFrame:
                 sim = pd.Series(simulate_ssm(float(t.iloc[0]), clim["P_m"].values[1:],
                                              clim["PET"].values[1:], f["beta_1_recharge"],
                                              f["beta_2_atmospheric_draw"], f["beta_3_drainage"],
-                                             drainage_datum=run_datum(f, intercept, DRAINAGE_DATUM)),
+                                             drainage_datum=run_datum(f, intercept, D)),
                                 index=months[1:])
                 obs = t.iloc[1:]
                 for m in sim.index:
@@ -998,7 +1061,7 @@ def plot_split_series(series: pd.DataFrame) -> None:
               ("fwd", "1b \u2014 forward: fitted 2005\u201318, run forward over 2018\u201326 "
                       "(the forecasting case)")]
     clusters = sorted(series["cluster"].unique())
-    fig, axes = plt.subplots(len(clusters), 2, figsize=(14.0, 2.4 * len(clusters)), squeeze=False)
+    fig, axes = plt.subplots(len(clusters), 2, figsize=(14.0, 2.7 * len(clusters)), squeeze=False)
 
     # ONE SHARED Y SCALE ON EVERY PANEL (Martin, 2026-11-07), so the clusters can be read against
     # one another rather than each against its own stretch. He asked for 0 to -2; that would clip
@@ -1031,31 +1094,43 @@ def plot_split_series(series: pd.DataFrame) -> None:
                 ax.set_visible(False)
                 continue
             per = {w: _nse(g) for w, g in dc[dc["form"] == "A"].groupby("well")}
-            med = {f: float(np.median([_nse(g) for _, g in dc[dc["form"] == f].groupby("well")]))
-                   for f in ("A", "B")}
+            med = {f: (float(np.median([_nse(g) for _, g in dc[dc["form"] == f].groupby("well")]))
+                       if (dc["form"] == f).any() else np.nan)
+                   for f in ("A", "B", FORM_MHW)}
             # the median-NSE well stands for the cluster
             w = min(per, key=lambda k: abs(per[k] - np.median(list(per.values()))))
             g = dc[dc["well"] == w]
             obs = g[g["form"] == "A"][["month", "observed_m"]].drop_duplicates("month")
             ax.plot(pd.to_datetime(obs["month"]), obs["observed_m"].values, color="black",
                     lw=1.7, label="observed", zorder=3)
-            for form, colr, lab in (("A", "#c2452d", "Model A"), ("B", "#2b6cb0", "Model B")):
+            # 1.25.0 (D-332): the MHW form beside the other two; each line's own NSE moves into the title,
+            # and the one legend goes below the panels (no legend over the data)
+            _own = []
+            for form, colr, lab in (("A", "#c2452d", "Model A, floor 3.7 m"),
+                                    (FORM_MHW, "#d9822b", "Model A, floor at mean high water"),
+                                    ("B", "#2b6cb0", "Model B")):
                 f_ = g[g["form"] == form].drop_duplicates("month")
                 if f_.empty:
                     continue
                 ax.plot(pd.to_datetime(f_["month"]), f_["predicted_m"].values, color=colr,
-                        lw=1.2, alpha=0.9, label=f"{lab}  {_nse(f_):.2f}")
-            ax.set_title(f"C{int(cid)} \u2014 {w} (median well)   "
-                         f"cluster median NSE: A {med['A']:.2f}  B {med['B']:.2f}",
+                        lw=1.2, alpha=0.9, label=lab)
+                _own.append(f"{'A MHW' if form == FORM_MHW else form} {_nse(f_):.2f}")
+            ax.set_title((head + "\n" if row == 0 else "")      # row 0 carries the column's heading too
+                         + f"C{int(cid)} \u2014 {w} (median well): {'  '.join(_own)}\n"
+                         f"cluster median NSE: A 3.7 m {med['A']:.2f}  A MHW {med[FORM_MHW]:.2f}  B {med['B']:.2f}",
                          fontsize=8, loc="left")
             ax.set_ylabel("head (m)", fontsize=8)
             ax.set_ylim(ylo, yhi)                      # the shared scale
             ax.axhline(0.0, color="#888888", lw=0.8, ls=":", zorder=1)   # ground surface
-            ax.legend(fontsize=6.5, ncol=3, loc="lower left", framealpha=0.85)
-    fig.suptitle("Scenario 1 \u2014 the modern split at January 2018, both forms, both directions\n"
-                 "the well shown is each cluster's MEDIAN-NSE well; the cluster median is given beside it",
+    _h = {}
+    for a in axes.ravel():
+        for hh, ll in zip(*a.get_legend_handles_labels()):
+            _h.setdefault(ll, hh)
+    fig.legend(list(_h.values()), list(_h.keys()), loc="lower center", ncol=4, frameon=False, fontsize=9)
+    fig.suptitle("Scenario 1 \u2014 the modern split at January 2018, three forms, both directions\n"
+                 "the well shown is each cluster's MEDIAN-NSE well (Model A at 3.7 m); the cluster medians are given above it",
                  fontsize=10)
-    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    fig.tight_layout(rect=(0, 0.04, 1, 0.96))
     render_figure(fig, OUT_50_SPLIT_FIG)
     plt.close(fig)
 
@@ -1349,7 +1424,7 @@ def plot_neighbour_transfer(nbt) -> None:
     plt.close(fig)
 
 
-def neighbour_transfer(lev, lev_cols, cl, master) -> pd.DataFrame:
+def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None) -> pd.DataFrame:
     """T-173: fit the model on a NEIGHBOURING well and run it here. Laurence Jones's test.
 
     Section 4.5 holds two results and neither is this one. Its paragraph 2 scores group numbers
@@ -1369,8 +1444,20 @@ def neighbour_transfer(lev, lev_cols, cl, master) -> pd.DataFrame:
     separated: a neighbour's coefficients may hold the shape while missing the level, and only
     the split says so. Reported per cluster, and the open dune separately, the forest being the
     known exception.
+
+    1.25.0 (D-332): with `datum_of` ({well: datum, m}) every well is fitted at its own datum and every set of
+    coefficients -- own, neighbour's or centroid -- is run at the TARGET well's datum; wells without one are left
+    out. Passed each well's depth to mean high water, this is the MHW form's transfer test. The centroid is then
+    the median of its members' coefficients at their own floors, run at the target's floor: a centroid has no
+    ground level, so no MHW floor of its own, and this is a design choice (brief, Addendum 3). Without
+    `datum_of` every datum is DRAINAGE_DATUM and the test is unchanged.
     """
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
+    if datum_of is not None:
+        master = master[master["_n"].isin(datum_of)]
+
+    def dat(w):
+        return DRAINAGE_DATUM if datum_of is None else float(datum_of[w])
     loc = pd.read_csv(INT_LOCATIONS)
     # NB the key column must NOT start with an underscore: itertuples() renames such columns to
     # positional names, so r._k raises AttributeError (measured, 2026-11-07).
@@ -1387,7 +1474,7 @@ def neighbour_transfer(lev, lev_cols, cl, master) -> pd.DataFrame:
             continue
         h = lev[col].dropna()
         pre, pst = h[h.index < split], h[h.index >= split]
-        f = fit_frame(build_ssm_frame(pre, cl, lag=HEADLINE_LAG, drainage_datum=DRAINAGE_DATUM), False)
+        f = fit_frame(build_ssm_frame(pre, cl, lag=HEADLINE_LAG, drainage_datum=dat(r["_n"])), False)
         if f is None or len(pst.dropna()) < MODEL_AB_MIN_TEST_MONTHS + 1:
             continue
         fits[r["_n"]], post[r["_n"]], clust[r["_n"]] = f, pst, int(r["Cluster"])
@@ -1420,7 +1507,7 @@ def neighbour_transfer(lev, lev_cols, cl, master) -> pd.DataFrame:
                                    ("centroid", cent.get(clust[w]), {})):
             if fit is None:
                 continue
-            res = free_run(pst, cl, fit, False, base=DRAINAGE_DATUM)
+            res = free_run(pst, cl, fit, False, base=dat(w))
             t = pst.dropna()
             months = pd.date_range(t.index[0], t.index[-1], freq="MS")
             clim = cl.reindex(months)
@@ -1428,7 +1515,7 @@ def neighbour_transfer(lev, lev_cols, cl, master) -> pd.DataFrame:
                 continue
             sim = pd.Series(simulate_ssm(float(t.iloc[0]), clim["P_m"].values[1:], clim["PET"].values[1:],
                                          fit["beta_1_recharge"], fit["beta_2_atmospheric_draw"],
-                                         fit["beta_3_drainage"], drainage_datum=DRAINAGE_DATUM),
+                                         fit["beta_3_drainage"], drainage_datum=dat(w)),
                             index=months[1:])
             obs = t.iloc[1:].reindex(sim.index).dropna()
             if len(obs) < MODEL_AB_MIN_TEST_MONTHS:
@@ -4778,6 +4865,29 @@ def _e16_mhw() -> float:
     return float(v.iloc[0]) if len(v) else np.nan
 
 
+def mhw_depths() -> dict:
+    """1.25.0 (D-332): each well's depth from ground to mean high water (m), the MHW form's datum: E16's grounds
+    (01_locations ground_elev_m) less 01b's tide_mhw_m, as Script 48's form M takes it. Empty if MHW is absent."""
+    mhw = _e16_mhw()
+    if not np.isfinite(mhw):
+        warn("tide_mhw_m not in 01b's report numbers - the MHW form is skipped")
+        return {}
+    return {k: float(g - mhw) for k, g in _e16_grounds().items()}
+
+
+def beta3_bound_report(rr, tables: dict) -> None:
+    """1.25.0 (D-332): how many Model B fits hold beta_3 at MODEL_B_BETA3_MIN (model_utils 1.14.0), per test.
+    Before the bound these fits were dropped (beta_3 <= 0) or ran with a negative beta_3; now they are kept,
+    flagged and counted. A bound fit's beta_3 is exactly the bound, so the count reads it from the value."""
+    for name, (t, col, what) in tables.items():
+        if t is None or not len(t) or col not in t.columns or "form" not in t.columns:
+            continue
+        b = pd.to_numeric(t.loc[t["form"] == "B", col], errors="coerce")
+        n_b = int(b.notna().sum())
+        rr.add(f"beta3_bound_B_n_{name}", float((b == MODEL_B_BETA3_MIN).sum()), unit="count",
+               note=f"Model B fits with beta_3 held at its lower bound {MODEL_B_BETA3_MIN:g}, of {n_b} fitted: {what}")
+
+
 def e16_specs() -> list:
     """(kind, z0, label): the depth datum, every z0 of Script 03's DATUM_AOD_SWEEP_* grid, and mean high water."""
     specs = [("depth", np.nan, f"depth {DRAINAGE_DATUM:g} m")]
@@ -5587,14 +5697,16 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
         done("50")
         return 0
 
-    phase(2, "Forecast, within-record hindcast and stability, both forms, every well")
+    phase(2, "Forecast, within-record hindcast and stability, both forms and the MHW form, every well")
+    mhw = mhw_depths()          # 1.25.0 (D-332): the MHW form's per-well datum
+    info(f"MHW form: {sum(1 for k in master['_n'] if k in mhw)} of {len(master)} reference wells have a ground level")
     rows = []
     for _, r in master.iterrows():
         col = lev_cols.get(r["_n"])
         if col is None:
             warn(f"{r['Name_Original']}: no level column")
             continue
-        rows += well_experiments(r["_n"], int(r["Cluster"]), lev[col].dropna(), cl)
+        rows += well_experiments(r["_n"], int(r["Cluster"]), lev[col].dropna(), cl, mhw_datum=mhw.get(r["_n"]))
     df = pd.DataFrame(rows)
     df["fitted"] = df["fitted"].fillna(False).astype(bool)
     info(f"{len(df)} fits ({int(df['fitted'].sum())} succeeded)")
@@ -5608,7 +5720,7 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     dev = relative_deviation(df)
     stab = stable_lengths(dev, df)
     summ = by_cluster(df, dev, ccw)
-    for form, _ in FORMS:
+    for form, _ in REPORT_FORMS:
         s = stab[stab["form"] == form]
         v = s["stable_length_months"].dropna()
         e = s["stable_length_in_efolds"].dropna()
@@ -5617,7 +5729,7 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
 
     phase(5, "Identity checks against Scripts 48 and 39")
     checks = identity_checks(df, ccw)
-    for k in ("vs48", "vs39"):
+    for k in ("vs48", "vs48_M", "vs39"):
         d, n = checks[f"{k}_max_abs_diff"], checks[f"{k}_n"]
         (step if (n and d < 1e-9) else warn)(f"{k}: largest |ΔNSE| {d:.3g} over {n} comparisons")
 
@@ -5647,12 +5759,20 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     ccw_d.to_csv(OUT_50_CCW_DATUM, index=False); saved(f"{OUT_50_CCW_DATUM.name} ({len(ccw_d)} rows)")
     split_d.to_csv(OUT_50_SPLIT_DATUM, index=False); saved(f"{OUT_50_SPLIT_DATUM.name} ({len(split_d)} rows)")
     # J-6: the same split, kept month by month for both forms, so scenario 1 can be drawn
-    split_s = split_series(lev, lev_cols, cl, master)
+    split_s = split_series(lev, lev_cols, cl, master, mhw=mhw)
     split_s.to_csv(OUT_50_SPLIT_SERIES, index=False); saved(f"{OUT_50_SPLIT_SERIES.name} ({len(split_s)} rows)")
     plot_split_series(split_s); saved(OUT_50_SPLIT_FIG.name)
     # T-173: fit on a neighbour, run here (Laurence Jones's test)
     nbt = neighbour_transfer(lev, lev_cols, cl, master)
-    nbt.to_csv(OUT_50_NEIGHBOUR, index=False); saved(f"{OUT_50_NEIGHBOUR.name} ({len(nbt)} rows)")
+    # 1.25.0 (D-332): the same test with Model A at each well's depth to mean high water; 50_50 gains a form
+    # column (A rows first, unchanged). The transfer rule and the figure stay on Model A at 3.7 m.
+    nbt_m = neighbour_transfer(lev, lev_cols, cl, master, datum_of=mhw) if mhw else pd.DataFrame()
+    pd.concat([nbt.assign(form="A"), nbt_m.assign(form=FORM_MHW)], ignore_index=True).to_csv(OUT_50_NEIGHBOUR, index=False)
+    saved(f"{OUT_50_NEIGHBOUR.name} ({len(nbt)} rows at 3.7 m, {len(nbt_m)} at mean high water)")
+    if len(nbt_m):
+        _pm = nbt_m.pivot_table(index="well", columns="source", values="nse").median()
+        step("T-173 at mean high water: median own " + ", ".join(f"{k} {_pm.get(k, np.nan):.2f}"
+                                                                  for k in ("own", "neighbour", "centroid")))
     plot_neighbour_transfer(nbt); saved(OUT_50_NEIGHBOUR_FIG.name)
     # T-173b: why transfer works where it does, and the rule that follows
     trule = transfer_rule(nbt, lev, lev_cols, master)
@@ -5877,7 +5997,17 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
     stab.to_csv(OUT_50_STABLE, index=False); saved(f"{OUT_50_STABLE.name} ({len(stab)} rows)")
-    rr = report_numbers(df, dev, stab, ccw, summ, checks, trule=trule)
+    rr = report_numbers(df, dev, stab, ccw, summ, checks, trule=trule, nbt_mhw=nbt_m)
+    beta3_bound_report(rr, {   # 1.25.0 (D-332)
+        "reclen_fits": (df, "beta_3", "every record-length fit (50_01: forecast, within-record hindcast, stability)"),
+        "reclen_full_record": (df[(df["experiment"] == "stability") & (df["length"] == FULL)], "beta_3",
+                               "full-record fit per well (50_01 stability, full)"),
+        "ccw_by_length": (ccw, "beta_3", "the CCW hindcast at every length (50_03)"),
+        "ranwell": (rw, "beta_3", "E9's Ranwell hindcast (50_10)"),
+        "forest_forcing": (ff_tab, "full_beta_3", "E10's full-record fits (50_27)"),
+        "basis": (bs_tab, "beta_3", "E12's CCW and Ranwell fits, well and cluster basis (50_30)"),
+        "e13": (pd.concat([e13_rad, e13_pm]), "beta_3", "E13's centroid fits under each evaporation estimate (50_32)"),
+    })
     if len(ccw_d):
         datum_report(rr, ccw_d, split_d, proj_d, checks_d)
     water_balance_report(rr, cl)

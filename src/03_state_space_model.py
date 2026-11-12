@@ -88,7 +88,12 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.29.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.30.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a; Martin: "the hindcast film should be a
+#   special version of model b that is based on the median of the warren"). warren_open_dune_fit(): the film's one rule is
+#   Model B (fit_ssm_intercept) on the MEDIAN hydrograph of the warren's member wells (was Model A on their mean); the
+#   seed comes from the same median. 03_22 gains form, alpha, pvalue_alpha, implied_datum_m, beta_3_bound_binds;
+#   warren_open_alpha / _implied_datum report numbers; every warren_open_* value moves. No other output changes.
+# 1.29.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.29.0  # Hollingham (2026) - 2026-10-29 (T-129, D-289; Martin 2026-10-29 "Script 03", "One run").
 #   warren_open_dune_fit(): one Model A fit, at the project datum and HEADLINE_LAG on the full record, to the centroid
 #   of every member well of config.FILM_WARREN_CLUSTERS, built from the same dry-filled frame as the cluster centroids
@@ -2853,52 +2858,59 @@ def warren_open_dune_fit(cluster_df: pd.DataFrame, wells_filled: pd.DataFrame,
                          well_col_lookup: dict[str, str],
                          climate: pd.DataFrame) -> pd.DataFrame:
     """
-    The film's one rule (T-129, D-289): Model A at the project datum, full record,
-    HEADLINE_LAG, fitted to the mean hydrograph of EVERY member well of
-    config.FILM_WARREN_CLUSTERS - a pooled centroid, not a mean of the cluster
-    centroids, so each well counts once. Built from the dry-filled frame the
-    cluster centroids use (D-281).
+    The film's one rule (T-129, D-289; 1.30.0 D-332): Model B - the free-intercept form,
+    Model A at the datum DRAINAGE_DATUM - alpha/beta_3 - full record, HEADLINE_LAG, fitted
+    to the MEDIAN hydrograph of EVERY member well of config.FILM_WARREN_CLUSTERS (Martin,
+    2026-11-12: "the hindcast film should be a special version of model b that is based on
+    the median of the warren"). Pooled over wells, not over the cluster centroids, so each
+    well counts once. Built from the dry-filled frame the cluster centroids use (D-281).
+    Until 1.30.0 it was Model A on the MEAN of the same wells.
 
     Also carries the seed Script 47 starts its run from: the mean over years of the
-    centroid's minimum across HINDCAST_SEED_MONTHS. One row.
+    median hydrograph's minimum across HINDCAST_SEED_MONTHS. One row.
     """
     cl = pd.to_numeric(cluster_df["Cluster"], errors="coerce")
     members = cluster_df.loc[cl.isin(FILM_WARREN_CLUSTERS), "Match_ID"].astype(str)
     cols = [well_col_lookup.get(normalize_well_name(w)) for w in members]
     cols = [c for c in cols if c is not None]
-    centroid = wells_filled[cols].mean(axis=1)
-    fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
-    c = centroid.dropna()
+    median_h = wells_filled[cols].median(axis=1)          # 1.30.0: the median hydrograph (was the mean)
+    fit = fit_ssm_intercept(median_h, climate, lag=HEADLINE_LAG, window=None)   # 1.30.0: Model B (was A)
+    c = median_h.dropna()
     seed_months = c[c.index.month.isin(HINDCAST_SEED_MONTHS)]
     seed = float(seed_months.groupby(seed_months.index.year).min().mean())
     row = {"clusters": "+".join(f"C{k}" for k in FILM_WARREN_CLUSTERS),
-           "n_wells": len(cols), "drainage_datum_m": DRAINAGE_DATUM,
+           "n_wells": len(cols), "form": "model_b_median", "drainage_datum_m": DRAINAGE_DATUM,
            "seed_level_m": seed}
+    keys = ("alpha", "pvalue_alpha", "beta_1_recharge", "pvalue_beta_1", "beta_2_atmospheric_draw",
+            "pvalue_beta_2", "beta_3_drainage", "pvalue_beta_3", "R2")
     if fit is None:
-        row.update({k: np.nan for k in ("beta_1_recharge", "pvalue_beta_1",
-                    "beta_2_atmospheric_draw", "pvalue_beta_2", "beta_3_drainage",
-                    "pvalue_beta_3", "R2")})
-        row.update({"n": 0, "fit_start": "", "fit_end": ""})
+        row.update({k: np.nan for k in keys})
+        row.update({"implied_datum_m": np.nan, "beta_3_bound_binds": False,
+                    "n": 0, "fit_start": "", "fit_end": ""})
     else:
         fs, fe = _fit_span(fit)
-        row.update({k: fit[k] for k in ("beta_1_recharge", "pvalue_beta_1",
-                    "beta_2_atmospheric_draw", "pvalue_beta_2", "beta_3_drainage",
-                    "pvalue_beta_3", "R2", "n")})
-        row.update({"fit_start": fs, "fit_end": fe})
+        row.update({k: fit[k] for k in keys})
+        # Model B is Model A at the datum DRAINAGE_DATUM - alpha/beta_3 (utils/hindcast_utils.py)
+        row["implied_datum_m"] = DRAINAGE_DATUM - fit["alpha"] / fit["beta_3_drainage"]
+        row["beta_3_bound_binds"] = bool(fit.get("beta_3_bound_binds", False))
+        row.update({"n": fit["n"], "fit_start": fs, "fit_end": fe})
     return pd.DataFrame([row])
 
 
 def _warren_report_numbers(rpt, warren_df: pd.DataFrame) -> None:
     """1.29.0: the film's one rule (03_22), for Paper M and the film's method slide."""
     r = warren_df.iloc[0]
-    _n = (f"Model A at the project datum, full record, on the centroid of every member well of "
-          f"{r['clusters']} (03_22, T-129)")
+    _n = (f"Model B (free intercept), full record, on the median hydrograph of every member well of "
+          f"{r['clusters']} (03_22, T-129; D-332)")
     rpt.add("warren_open_beta_1", float(r["beta_1_recharge"]), unit="", note=f"beta_1, {_n}")
     rpt.add("warren_open_beta_2", float(r["beta_2_atmospheric_draw"]), unit="", note=f"beta_2, {_n}")
     rpt.add("warren_open_beta_3", float(r["beta_3_drainage"]), unit="/month", note=f"beta_3, {_n}")
     rpt.add("warren_open_r2", float(r["R2"]), unit="", note=f"R2, {_n}")
     rpt.add("warren_open_n_wells", int(r["n_wells"]), unit="wells", note=f"member wells, {_n}")
     rpt.add("warren_open_n_months", int(r["n"]), unit="months", note=f"months fitted, {_n}")
+    rpt.add("warren_open_alpha", float(r["alpha"]), unit="m/month", note=f"intercept alpha, {_n}")
+    rpt.add("warren_open_implied_datum", float(r["implied_datum_m"]), unit="m",
+            note=f"implied drainage base DRAINAGE_DATUM - alpha/beta_3 below ground, {_n}")
 
 
 def _t96_report_numbers(rpt, master_df: pd.DataFrame, sens_df: pd.DataFrame,

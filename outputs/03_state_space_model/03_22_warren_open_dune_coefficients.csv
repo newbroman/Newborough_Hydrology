@@ -1,2 +1,2 @@
-clusters,n_wells,drainage_datum_m,seed_level_m,beta_1_recharge,pvalue_beta_1,beta_2_atmospheric_draw,pvalue_beta_2,beta_3_drainage,pvalue_beta_3,R2,n,fit_start,fit_end
-C1+C2+C3,52,3.7,-1.0313303084892909,3.9679960489249138,3.126797182919924e-89,1.7203347711463604,2.0751255306226018e-23,0.06528134422692085,4.393810755258516e-36,0.8245985484912108,251,2005-04,2026-02
+clusters,n_wells,form,drainage_datum_m,seed_level_m,alpha,pvalue_alpha,beta_1_recharge,pvalue_beta_1,beta_2_atmospheric_draw,pvalue_beta_2,beta_3_drainage,pvalue_beta_3,R2,implied_datum_m,beta_3_bound_binds,n,fit_start,fit_end
+C1+C2+C3,52,model_b_median,3.7,-0.9530276198438786,0.3656295454402216,9.516959448935482e-07,3.465303211303995,2.590356509590145e-59,2.491271132063795,2.0251240226580476e-25,0.15354113418686882,4.0507375806790674e-14,0.8051543183463487,1.3186866967178426,False,251,2005-04,2026-02

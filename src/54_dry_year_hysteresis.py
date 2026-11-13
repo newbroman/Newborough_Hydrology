@@ -17,9 +17,10 @@ METHOD (spec NRG_spec_E15_dry_year_hysteresis_2026-10-25, approved Martin 07:41)
   at or above E15_WET_PCTL; a control is a wet year whose two preceding years are both above
   E15_DRY_PCTL. Both lists come from the climate alone.
   The response model is E13's (Script 50): per cluster, the member-mean centroid of the reference and
-  extended wells; Model A fitted on its full record; free run from the first month after the climate
-  record's last gap, from the record's mean level. Residual = observed - model. Checked to reproduce
-  50_report_numbers e13_excess_thornthwaite_full_C* before anything is judged.
+  extended wells; Model B (free intercept, D-332; Model A beside it, *_model_a) fitted on its full record;
+  free run from the first month after the climate record's last gap, from the record's mean level.
+  Residual = observed - model. Checked to reproduce E13's 2006-08 excess at the same form (Script 50's
+  50_32, Thornthwaite, full span) before anything is judged.
   Each window is the E15_WINDOW_MONTHS from the October that opens its first wet year; its response is
   its mean residual minus the mean over every month in no window; it is scored where the centroid has at
   least E15_MIN_WINDOW_COVER of the window.
@@ -43,7 +44,13 @@ Run directly:  python3 src/54_dry_year_hysteresis.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-25. First issue (E15; Martin 07:38 "what you're talking
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The response model is Model B (fit_ssm
+#   intercept=True, beta_3 bounded below, free run with its alpha): every e15_* key and 54_03/54_04/54_05 column keeps its
+#   name and now carries Model B. Model A (no intercept) runs beside it through the same rule: e15_*_model_a keys, rows
+#   with form="model_a" in 54_03/54_04, columns C*_model_a in 54_05. The E13 check reads Script 50's own per-form
+#   table 50_32 (set radiation = the full span, Thornthwaite) at the matching form, since 50's e13_excess_thornthwaite
+#   keys carry Model A only.
+# 1.0.0  # Hollingham (2026) - 2026-10-25. First issue (E15; Martin 07:38 "what you're talking
 #   about is hysteresis here, the 2005 exceptional dry year. Is there a way of testing this?", 07:41 "let's
 #   have it as its own script"). Moves into Script 52 when the Script 50 split lands.
 
@@ -61,7 +68,7 @@ import pandas as pd                                           # noqa: E402
 from utils.paths import (                                     # noqa: E402
     DIR_54, OUT_54_YEARS, OUT_54_WINDOWS, OUT_54_RESPONSES, OUT_54_TESTS, OUT_54_RESIDUALS, OUT_54_FIG,
     OUT_54_REPORT_NUMBERS, INT_CLIMATE, INT_MASTER_DATA, INT_WELLS_REFERENCE, INT_WELLS_EXTENDED,
-    OUT_50_REPORT_NUMBERS,
+    OUT_50_E13_PET,
 )
 from utils.config import (                                    # noqa: E402
     E15_DRY_PCTL, E15_WET_PCTL, E15_LAG_YEARS, E15_WINDOW_MONTHS, E15_SHARE, E15_MIN_WINDOW_COVER,
@@ -109,7 +116,9 @@ def windows(years: pd.DataFrame) -> pd.DataFrame:
 
 
 # ── the response side: E13's free-running single store per cluster ────────────────────────────────────
-def residuals(cl: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+def residuals(cl: pd.DataFrame, intercept: bool = True) -> tuple[pd.DataFrame, dict]:
+    """Observed minus the free-running single store, per cluster centroid. intercept=True is Model B
+    (1.1.0, D-332; the run carries alpha), False is Model A."""
     c0 = continuous_start(cl)
     clim = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").loc[c0:].dropna()
     W = pd.concat([pd.read_csv(INT_WELLS_REFERENCE, index_col=0, parse_dates=True),
@@ -121,25 +130,31 @@ def residuals(cl: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     out, fits = {}, {}
     for k in sorted(md["Cluster"].unique()):
         h = W[[w for w in md.index[md["Cluster"] == k] if w in W]].mean(axis=1).loc[:clim.index[-1]]
-        f = fit_ssm(h, clim, intercept=False)
+        f = fit_ssm(h, clim, intercept=intercept)
         s = pd.Series(simulate_ssm(h.dropna().mean(), clim["P_m"].values, clim["PET"].values,
                                    f["beta_1_recharge"], f["beta_2_atmospheric_draw"], f["beta_3_drainage"],
-                                   alpha=0.0), index=clim.index)
+                                   alpha=(f.get("alpha", 0.0) if intercept else 0.0)), index=clim.index)
         out[f"C{int(k)}"] = (h - s)
         fits[f"C{int(k)}"] = f
     return pd.DataFrame(out), fits
 
 
-def e13_check(res: pd.DataFrame) -> float:
-    """Largest |difference| from the committed E13 excess (Thornthwaite, full span, Model A)."""
-    rn = pd.read_csv(OUT_50_REPORT_NUMBERS).set_index("Parameter")["Value"]
+def e13_check(res: pd.DataFrame, form: str = "B") -> float:
+    """Largest |difference| from the committed E13 excess (Thornthwaite, full span) at the same form.
+
+    1.1.0 (D-332): read from Script 50's per-form table 50_32 (set "radiation" is E13's full span, the
+    basis of 50's e13_excess_thornthwaite_full_C* keys), so Model B and Model A are each checked against
+    their own arm."""
+    t = pd.read_csv(OUT_50_E13_PET)
+    t = t[(t["set"] == "radiation") & (t["pet"] == "Thornthwaite") & (t["form"] == form)]
+    ref = t.set_index("cluster")["excess_m"]
     e = (f"{TWO_STORE_EARLY_YEARS[0]}-01-01", f"{TWO_STORE_EARLY_YEARS[1]}-12-01")
     l_ = (f"{E8E_LATER_YEARS[0]}-01-01", f"{E8E_LATER_YEARS[1]}-12-01")
     diffs = []
     for k in E13_CLUSTERS:
         r = res[f"C{k}"].dropna()
         mine = float(r.loc[e[0]:e[1]].mean() - r.loc[l_[0]:l_[1]].mean())
-        diffs.append(abs(mine - float(rn[f"e13_excess_thornthwaite_full_C{k}"])))
+        diffs.append(abs(mine - float(ref[f"C{k}"])))
     return max(diffs)
 
 
@@ -217,7 +232,7 @@ def plot(res: pd.DataFrame, win: pd.DataFrame) -> None:
         a.plot(r.index, r[c], color="0.2", lw=0.8)
         a.axhline(0, color="0.5", lw=0.5)
         a.set_ylabel(c, rotation=0, ha="right", va="center")
-    axes[0].set_title("Residual (observed − model, m): red = after a dry year, blue = control wet years", fontsize=9)
+    axes[0].set_title("Residual (observed − Model B, m): red = after a dry year, blue = control wet years", fontsize=9)
     fig.tight_layout()
     fig.savefig(OUT_54_FIG)
     plt.close(fig)
@@ -244,13 +259,16 @@ def main() -> int:
     info(f"{len(years)} complete hydrological years, {years.index.min()}-{years.index.max()}")
 
     phase(2, "Residuals of the E13 single store")
-    res, fits = residuals(cl)
-    chk = e13_check(res)
-    result("max |excess - committed e13_excess_thornthwaite_full| (m)", f"{chk:.2e}")
-    if chk > 1e-6:
+    res, fits = residuals(cl, intercept=True)
+    res_a, _ = residuals(cl, intercept=False)        # 1.1.0 (D-332): Model A beside it
+    chk = e13_check(res, "B")
+    chk_a = e13_check(res_a, "A")
+    result("max |excess - committed E13 excess (50_32)| (m)", f"Model B {chk:.2e}, Model A {chk_a:.2e}")
+    if chk > 1e-6 or chk_a > 1e-6:
         warn("does not reproduce E13 — nothing judged")
         return 1
-    res.to_csv(OUT_54_RESIDUALS, index_label="month"); saved(OUT_54_RESIDUALS.name)
+    res.join(res_a.add_suffix("_model_a")).to_csv(OUT_54_RESIDUALS, index_label="month")
+    saved(OUT_54_RESIDUALS.name)
     first = res.dropna(how="all").index.min()
     win["in_record"] = win["start"] >= first - pd.DateOffset(months=6)
     for w in win.itertuples():
@@ -263,9 +281,15 @@ def main() -> int:
 
     phase(3, "Responses and the rule")
     resp = responses(res, win)
-    resp.to_csv(OUT_54_RESPONSES, index=False); saved(OUT_54_RESPONSES.name)
+    resp_a = responses(res_a, win)
+    pd.concat([resp.assign(form="model_b"), resp_a.assign(form="model_a")], ignore_index=True) \
+        .to_csv(OUT_54_RESPONSES, index=False)
+    saved(OUT_54_RESPONSES.name)
     t, ref, later, rep, test2, verdict = judge(resp, win)
-    t.to_csv(OUT_54_TESTS, index=False); saved(OUT_54_TESTS.name)
+    t_a, ref_a, later_a, rep_a, test2_a, verdict_a = judge(resp_a, win)
+    pd.concat([t.assign(form="model_b"), t_a.assign(form="model_a")], ignore_index=True) \
+        .to_csv(OUT_54_TESTS, index=False)
+    saved(OUT_54_TESTS.name)
     for r in resp[resp["scored"]].sort_values(["cluster", "start"]).itertuples():
         step(f"{r.cluster}  {r.label:18s} response {r.response_m:+.3f} m  (cover {r.cover:.2f})")
     for l_ in later:
@@ -273,6 +297,7 @@ def main() -> int:
                                 f"({int(t[f'{l_} replicates'].sum())} of {len(t)} clusters)")
     result("test 2 (sequences above controls)", f"{'pass' if test2 else 'FAIL'} ({int(t['test2_pass'].sum())} of {len(t)})")
     result("E15 verdict", verdict)
+    result("E15 verdict, Model A (sensitivity)", verdict_a)
     unscored = resp[~resp["scored"] & resp["kind"].eq("sequence") & resp["start"].ge("2000-01")]["label"].unique()
     if len(unscored):
         note(f"not scored for want of cover at some clusters: {', '.join(unscored)}")
@@ -282,7 +307,10 @@ def main() -> int:
 
     rr = ReportNumbers()
     N = "E15, spec NRG_spec_E15_dry_year_hysteresis_2026-10-25"
-    rr.add("e15_check_vs_e13_max_abs_diff", chk, unit="m", note="the 2006-08 excess reproduced against 50_report_numbers")
+    rr.add("e15_check_vs_e13_max_abs_diff", chk, unit="m",
+           note="the 2006-08 excess reproduced against Script 50's 50_32, Model B (D-332)")
+    rr.add("e15_check_vs_e13_max_abs_diff_model_a", chk_a, unit="m",
+           note="the 2006-08 excess reproduced against Script 50's 50_32, Model A (sensitivity, D-332)")
     rr.add("e15_n_sequences_scored", int(len([l_ for l_ in [ref] + later])), unit="count", note=N)
     rr.add("e15_n_controls", int((win["kind"] == "control").sum()), unit="count",
            note="control wet years in the whole climate record (scored only where the record covers them)")
@@ -297,7 +325,19 @@ def main() -> int:
         rr.add(f"e15_replicates_{key}", "yes" if rep[l_] else "no", unit="text",
                note=f"{int(t[f'{l_} replicates'].sum())} of {len(t)} clusters; needs {E15_MIN_CLUSTERS}")
     rr.add("e15_test2", "pass" if test2 else "fail", unit="text", note=f"{int(t['test2_pass'].sum())} of {len(t)} clusters")
-    rr.add("e15_verdict", verdict, unit="text", note=f"the rule fixed before the run; {N}")
+    rr.add("e15_verdict", verdict, unit="text", note=f"the rule fixed before the run; Model B (D-332); {N}")
+    # 1.1.0 (D-332): Model A beside it, the same rule
+    _MA = "Model A, sensitivity (D-332)"
+    for r in resp_a[resp_a["scored"]].itertuples():
+        key = r.label.replace("→", "_to_").replace(",", "_").replace("control ", "control_")
+        rr.add(f"e15_response_{key}_{r.cluster}_model_a", r.response_m, unit="m", note=f"{r.start} to {r.end}; {_MA}")
+    for l_ in later_a:
+        key = l_.replace("→", "_to_").replace(",", "_")
+        rr.add(f"e15_replicates_{key}_model_a", "yes" if rep_a[l_] else "no", unit="text",
+               note=f"{int(t_a[f'{l_} replicates'].sum())} of {len(t_a)} clusters; needs {E15_MIN_CLUSTERS}; {_MA}")
+    rr.add("e15_test2_model_a", "pass" if test2_a else "fail", unit="text",
+           note=f"{int(t_a['test2_pass'].sum())} of {len(t_a)} clusters; {_MA}")
+    rr.add("e15_verdict_model_a", verdict_a, unit="text", note=f"the rule fixed before the run; {_MA}; {N}")
     rr.save(OUT_54_REPORT_NUMBERS); saved(f"{OUT_54_REPORT_NUMBERS.name} ({len(rr.rows)} rows)")
     done("54")
     return 0

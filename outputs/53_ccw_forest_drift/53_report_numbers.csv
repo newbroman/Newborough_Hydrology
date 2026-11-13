@@ -2,22 +2,46 @@ Parameter,Well,Era,Value,Unit,Note
 e14_n_wells,,,9.0,wells,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
 e14_n_near,,,4.0,wells,"within E14_NEAR_M of today's forest edge; E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
 e14_n_far,,,5.0,wells,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
-e14_rho,,,-0.6950150912113306,rho,"Spearman, distance to the forest edge against residual slope; comparison_window"
-e14_p,,,0.023544973544973546,p,one-sided exact permutation; comparison_window
-e14_near_median_slope,,,0.0470944102345148,m/yr,model - observed; comparison_window
-e14_far_median_slope,,,-9.63126644162031e-05,m/yr,model - observed; comparison_window
-e14_diff,,,0.047190722898931003,m/yr,near minus far median slope; comparison_window
-e14_ci_lo,,,-0.006397692569474749,m/yr,bootstrap 95% lower; comparison_window
-e14_ci_hi,,,0.08209288922829847,m/yr,bootstrap 95% upper; comparison_window
-e14_full_rho,,,-0.6611119160302902,rho,"Spearman, distance to the forest edge against residual slope; full_record"
-e14_full_p,,,0.03159722222222222,p,one-sided exact permutation; full_record
-e14_full_near_median_slope,,,0.04523622332638588,m/yr,model - observed; full_record
-e14_full_far_median_slope,,,-0.004213579027233341,m/yr,model - observed; full_record
-e14_full_diff,,,0.049449802353619225,m/yr,near minus far median slope; full_record
-e14_full_ci_lo,,,-0.0019110311931158294,m/yr,bootstrap 95% lower; full_record
-e14_full_ci_hi,,,0.08223166377491344,m/yr,bootstrap 95% upper; full_record
-e14_loo_ci_clear_n,,,3.0,count,of 9 single-well drops
-e14_test3,,,fail,text,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
-e14_test4,,,fail,text,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
-e14_verdict,,,not supported,text,"the rule fixed before the run; E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
-e14_check_vs39_max_abs_diff,,,4.440892098500626e-16,m,headline basis against 39_02
+e14_rho,,,-0.7119666788018509,rho,"Spearman, distance to the forest edge against residual slope; comparison_window; Model B at the implied datum (D-332)"
+e14_p,,,0.020122354497354496,p,one-sided exact permutation; comparison_window; Model B at the implied datum (D-332)
+e14_near_median_slope,,,0.04740368538625893,m/yr,model - observed; comparison_window; Model B at the implied datum (D-332)
+e14_far_median_slope,,,0.00031913087994469647,m/yr,model - observed; comparison_window; Model B at the implied datum (D-332)
+e14_diff,,,0.047084554506314234,m/yr,near minus far median slope; comparison_window; Model B at the implied datum (D-332)
+e14_ci_lo,,,0.01569391555828952,m/yr,bootstrap 95% lower; comparison_window; Model B at the implied datum (D-332)
+e14_ci_hi,,,0.07559780514847804,m/yr,bootstrap 95% upper; comparison_window; Model B at the implied datum (D-332)
+e14_n_wells_model_a,,,9.0,wells,"comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_rho_model_a,,,-0.6950150912113306,rho,"Spearman, distance to the forest edge against residual slope; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_p_model_a,,,0.023544973544973546,p,"one-sided exact permutation; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_near_median_slope_model_a,,,0.0470944102345148,m/yr,"model - observed; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_far_median_slope_model_a,,,-9.63126644162031e-05,m/yr,"model - observed; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_diff_model_a,,,0.047190722898931003,m/yr,"near minus far median slope; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_ci_lo_model_a,,,-0.006397692569474749,m/yr,"bootstrap 95% lower; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_ci_hi_model_a,,,0.08209288922829847,m/yr,"bootstrap 95% upper; comparison_window; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_rho,,,-0.6611119160302902,rho,"Spearman, distance to the forest edge against residual slope; full_record; Model B at the implied datum (D-332)"
+e14_full_p,,,0.03159722222222222,p,one-sided exact permutation; full_record; Model B at the implied datum (D-332)
+e14_full_near_median_slope,,,0.04664572422940742,m/yr,model - observed; full_record; Model B at the implied datum (D-332)
+e14_full_far_median_slope,,,0.0024447017868115973,m/yr,model - observed; full_record; Model B at the implied datum (D-332)
+e14_full_diff,,,0.04420102244259583,m/yr,near minus far median slope; full_record; Model B at the implied datum (D-332)
+e14_full_ci_lo,,,0.014685672434826318,m/yr,bootstrap 95% lower; full_record; Model B at the implied datum (D-332)
+e14_full_ci_hi,,,0.07176023180130509,m/yr,bootstrap 95% upper; full_record; Model B at the implied datum (D-332)
+e14_full_n_wells_model_a,,,9.0,wells,"full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_rho_model_a,,,-0.6611119160302902,rho,"Spearman, distance to the forest edge against residual slope; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_p_model_a,,,0.03159722222222222,p,"one-sided exact permutation; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_near_median_slope_model_a,,,0.04523622332638588,m/yr,"model - observed; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_far_median_slope_model_a,,,-0.004213579027233341,m/yr,"model - observed; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_diff_model_a,,,0.049449802353619225,m/yr,"near minus far median slope; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_ci_lo_model_a,,,-0.0019110311931158294,m/yr,"bootstrap 95% lower; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_full_ci_hi_model_a,,,0.08223166377491344,m/yr,"bootstrap 95% upper; full_record; Model A at 3.7 m, sensitivity (D-332)"
+e14_n_wells_model_b_excluded_datum,,,0.0,wells,comparison_window: CCW wells left out because Model B's implied datum is not below ground (D-332)
+e14_full_n_wells_model_b_excluded_datum,,,0.0,wells,full_record: CCW wells left out because Model B's implied datum is not below ground (D-332)
+e14_loo_ci_clear_n,,,9.0,count,of 9 single-well drops
+e14_test3,,,pass,text,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
+e14_test4,,,pass,text,"E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
+e14_test4_model_a,,,fail,text,"tests 1 and 2 on the full record, Model A at 3.7 m, sensitivity (D-332); E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
+e14_verdict,,,supported,text,"the rule fixed before the run; E14, spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25"
+e14_check_vs39_max_abs_diff,,,1.9984014443252818e-15,m,headline basis (Model B) against 39_02 predicted_b_m_bg
+e14_step_start,,,1992-08,text,"relaxing step on near minus far; reported, never judged"
+e14_step_lo,,,1989-08,text,"95% profile interval, lower"
+e14_step_hi,,,1993-09,text,"95% profile interval, upper"
+e14_step_size,,,0.21855015170374598,m,full size of the relaxing step
+e14_step_tau,,,1.0,months,e-fold time

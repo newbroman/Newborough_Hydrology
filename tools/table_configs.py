@@ -115,7 +115,10 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.20.0"  # Hollingham (2026) — 2026-10-28 (D-283, D-284). report9/Table5 ET, I + ET and drainage columns are Model B; report9/Table3 leads with Model B's drainage fraction; paperM/Table2 drainage share is Model B (Drainage_B_pct); paperM/Table3 retired (D-279 moved it out of Paper M).
+__version__ = "1.21.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 2b). Script 08 2.0.0 renamed 08_lcsc_04's columns:
+#   Traditional_Model_A -> TLM, StateSpace_Model_B -> SSM_Model_B (now Model B; it held Model A), Delta_B_minus_A ->
+#   Delta_SSM_minus_TLM. Rebound to the successors so the documents' numbers surface as drift for phase 3.
+# 1.20.0  # Hollingham (2026) — 2026-10-28 (D-283, D-284). report9/Table5 ET, I + ET and drainage columns are Model B; report9/Table3 leads with Model B's drainage fraction; paperM/Table2 drainage share is Model B (Drainage_B_pct); paperM/Table3 retired (D-279 moved it out of Paper M).
 # 1.19.0  # Hollingham (2026) — 2026-10-14 (D-262). paper1/Table3 gains "I + ET (mid)" and report9/Table5 "I + ET mid (mm/yr)", the
 # canopy interception plus the evaporation after it (Script 16 1.10.0 ET_total_mid_mm_yr), so the forest's whole
 # evaporative loss is on the table beside the dune's.
@@ -299,9 +302,9 @@ TABLES = [
         "header": ["Metric", "TLM", "SSM", "Improvement Δ"],
         "columns": [
             {"col": "Metric",              "fmt": "text", "re": [r"R2$", "R²"]},
-            {"col": "Traditional_Model_A", "fmt": "fixed", "dp": 3},
-            {"col": "StateSpace_Model_B",  "fmt": "fixed", "dp": 3},
-            {"col": "Delta_B_minus_A",     "fmt": "fixed", "dp": 4},
+            {"col": "TLM", "fmt": "fixed", "dp": 3},
+            {"col": "SSM_Model_B",  "fmt": "fixed", "dp": 3},
+            {"col": "Delta_SSM_minus_TLM",     "fmt": "fixed", "dp": 4},
         ],
     },
     {

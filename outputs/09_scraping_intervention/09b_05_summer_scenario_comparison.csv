@@ -1,31 +1,31 @@
-Scenario,Cluster,Delta_vol_summer_mm_per_month
-Clearfell,C1,0.0
-Clearfell,C2,0.0
-Clearfell,C3,0.0
-Clearfell,C4,2.8
-Clearfell,C5,1.8
-Thinning 50%,C1,0.0
-Thinning 50%,C2,0.0
-Thinning 50%,C3,0.0
-Thinning 50%,C4,1.4
-Thinning 50%,C5,0.9
-Broadleaf,C1,0.0
-Broadleaf,C2,0.0
-Broadleaf,C3,0.0
-Broadleaf,C4,-4.4
-Broadleaf,C5,-2.8
-Scraping (CEH36-type),C1,0.0
-Scraping (CEH36-type),C2,0.0
-Scraping (CEH36-type),C3,0.0
-Scraping (CEH36-type),C4,0.0
-Scraping (CEH36-type),C5,45.1
-Climate dry,C1,-12.8
-Climate dry,C2,-17.1
-Climate dry,C3,-18.4
-Climate dry,C4,-14.0
-Climate dry,C5,-12.8
-Climate wet,C1,7.1
-Climate wet,C2,9.2
-Climate wet,C3,9.8
-Climate wet,C4,7.0
-Climate wet,C5,6.8
+Scenario,Cluster,Delta_vol_summer_mm_per_month,status
+Clearfell,C1,0.0,withdrawn (D-333)
+Clearfell,C2,0.0,withdrawn (D-333)
+Clearfell,C3,0.0,withdrawn (D-333)
+Clearfell,C4,-3.7,withdrawn (D-333)
+Clearfell,C5,-2.4,withdrawn (D-333)
+Thinning 50%,C1,0.0,withdrawn (D-333)
+Thinning 50%,C2,0.0,withdrawn (D-333)
+Thinning 50%,C3,0.0,withdrawn (D-333)
+Thinning 50%,C4,-1.9,withdrawn (D-333)
+Thinning 50%,C5,-1.2,withdrawn (D-333)
+Broadleaf,C1,0.0,
+Broadleaf,C2,0.0,
+Broadleaf,C3,0.0,
+Broadleaf,C4,-4.3,
+Broadleaf,C5,-2.8,
+Scraping (CEH36-type),C1,0.0,
+Scraping (CEH36-type),C2,0.0,
+Scraping (CEH36-type),C3,0.0,
+Scraping (CEH36-type),C4,0.0,
+Scraping (CEH36-type),C5,45.1,
+Climate dry,C1,-15.8,
+Climate dry,C2,-17.9,
+Climate dry,C3,-18.7,
+Climate dry,C4,-14.0,
+Climate dry,C5,-12.8,
+Climate wet,C1,8.1,
+Climate wet,C2,9.2,
+Climate wet,C3,9.8,
+Climate wet,C4,7.1,
+Climate wet,C5,6.8,

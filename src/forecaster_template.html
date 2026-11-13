@@ -535,7 +535,12 @@
 </div>
 
 <script>
-/* forecaster_template.html — live-feed wiring v1.4.0 (2026-10-04)
+/* forecaster_template.html — live-feed wiring v1.5.0 (2026-11-12)
+   v1.5.0 (D-332, J-9 phase 2b): the wet-area recurrence is Model B. Each well
+     drains to its cluster's implied datum z = cluster_coeffs[c].implied_datum_m
+     (DRAINAGE_DATUM - alpha/b3, Script 11b 1.25.0) instead of the single bundle
+     drainage_datum; b3*(z + h) = b3*(D + h) - alpha. drainage_datum is only the
+     fallback for a feed written before 11b 1.25.0.
    v1.4.0: the map, legend and P_flood badge use the report's three m_P classes
            (achievable, marginal, unreachable; Conclusion 6),
            read from DATA.mp_bands (Script 11b 1.19.0) rather than four bands of its own.
@@ -610,10 +615,13 @@ function clusterToBlock(clusterKey){
 
    The recurrence is Section 3.6.3's, forward instead of solved for lambda:
 
-       h(t) = (1 - b3)*h(t-1) + b1*lambda*P_clim(t) - b2*PET_clim(t) - b3*D
+       h(t) = rho*h(t-1) + b1*lambda*P_clim(t) - b2*PET_clim(t) - b3*z
 
-   which is exactly the relation utils/model_utils.pflood_lambda inverts
-   (alpha = 1 - b3; the b3*D terms sum to D*(1 - alpha^n)). The verifier
+   Model B (D-332): rho = 1 - b3 is the persistence and z = D - alpha/b3 the
+   cluster's implied datum (cluster_coeffs[c].implied_datum_m), so the b3*z
+   term is Model B's drainage b3*(D + h) - alpha. This is exactly the relation
+   utils/model_utils.pflood_lambda inverts at drainage_datum = z (the b3*z
+   terms sum to z*(1 - rho^n), as in Script 11's Section 3). The verifier
    closes that loop: it iterates forward to h_n here, hands h_n back to
    pflood_lambda as h_target, and requires the lambda that comes out to be
    the lambda that went in.                                                  */
@@ -624,7 +632,9 @@ var WA_MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 function waStep(h, c, lam, month, P_clim, PET_clim, D){
   var P = P_clim[month], E = PET_clim[month];
   if(P === undefined || E === undefined) return NaN;
-  return (1 - c.b3) * h + c.b1 * lam * P - c.b2 * E - c.b3 * D;
+  /* Model B: the cluster's implied datum; D only for a pre-D-332 feed. */
+  var z = (c.implied_datum_m !== undefined && c.implied_datum_m !== null) ? c.implied_datum_m : D;
+  return (1 - c.b3) * h + c.b1 * lam * P - c.b2 * E - c.b3 * z;
 }
 
 /* Project every well forward `nMonths` from its own starting level.

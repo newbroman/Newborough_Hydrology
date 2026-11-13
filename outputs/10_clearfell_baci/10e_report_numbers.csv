@@ -1,287 +1,318 @@
 Parameter,Well,Era,Value,Unit,Note
-CoeffShift_WMC3_b1_before,WMC3,Before,2.5618,m,SE=0.2313
-CoeffShift_WMC3_b1_after,WMC3,After,2.515,m,SE=0.2274
-CoeffShift_WMC3_db1,WMC3,Delta,-0.0467,m,
-CoeffShift_WMC3_b2_before,WMC3,Before,1.9548,m,SE=0.3178
-CoeffShift_WMC3_b2_after,WMC3,After,1.6852,m,SE=0.2934
-CoeffShift_WMC3_db2,WMC3,Delta,-0.2696,m,
-CoeffShift_WMC3_b3_before,WMC3,Before,0.0352,m,SE=0.0107
-CoeffShift_WMC3_b3_after,WMC3,After,0.0372,m,SE=0.0104
-CoeffShift_WMC3_db3,WMC3,Delta,0.002,m,
-CoeffShift_CEH31_b1_before,CEH31,Before,2.6863,m,SE=0.1991
-CoeffShift_CEH31_b1_after,CEH31,After,2.1282,m,SE=0.2329
-CoeffShift_CEH31_db1,CEH31,Delta,-0.558,m,
-CoeffShift_CEH31_b2_before,CEH31,Before,1.4732,m,SE=0.2581
-CoeffShift_CEH31_b2_after,CEH31,After,1.2746,m,SE=0.2913
-CoeffShift_CEH31_db2,CEH31,Delta,-0.1986,m,
-CoeffShift_CEH31_b3_before,CEH31,Before,0.057,m,SE=0.0103
-CoeffShift_CEH31_b3_after,CEH31,After,0.0408,m,SE=0.0123
-CoeffShift_CEH31_db3,CEH31,Delta,-0.0163,m,
-CoeffShift_CEH20_b1_before,CEH20,Before,2.57,m,SE=0.2122
-CoeffShift_CEH20_b1_after,CEH20,After,2.4363,m,SE=0.1984
-CoeffShift_CEH20_db1,CEH20,Delta,-0.1336,m,
-CoeffShift_CEH20_b2_before,CEH20,Before,2.1594,m,SE=0.2875
-CoeffShift_CEH20_b2_after,CEH20,After,2.0664,m,SE=0.2667
-CoeffShift_CEH20_db2,CEH20,Delta,-0.093,m,
-CoeffShift_CEH20_b3_before,CEH20,Before,0.0309,m,SE=0.0102
-CoeffShift_CEH20_b3_after,CEH20,After,0.0251,m,SE=0.0095
-CoeffShift_CEH20_db3,CEH20,Delta,-0.0058,m,
-CoeffShift_CEH30_b1_before,CEH30,Before,2.5212,m,SE=0.2148
-CoeffShift_CEH30_b1_after,CEH30,After,2.2486,m,SE=0.1832
-CoeffShift_CEH30_db1,CEH30,Delta,-0.2726,m,
-CoeffShift_CEH30_b2_before,CEH30,Before,2.0865,m,SE=0.2898
-CoeffShift_CEH30_b2_after,CEH30,After,2.0524,m,SE=0.2448
-CoeffShift_CEH30_db2,CEH30,Delta,-0.0341,m,
-CoeffShift_CEH30_b3_before,CEH30,Before,0.0389,m,SE=0.0122
-CoeffShift_CEH30_b3_after,CEH30,After,0.026,m,SE=0.0106
-CoeffShift_CEH30_db3,CEH30,Delta,-0.0129,m,
-CoeffShift_CEH16_b1_before,CEH16,Before,2.6595,m,SE=0.2134
-CoeffShift_CEH16_b1_after,CEH16,After,2.4774,m,SE=0.1697
-CoeffShift_CEH16_db1,CEH16,Delta,-0.1822,m,
-CoeffShift_CEH16_b2_before,CEH16,Before,1.3165,m,SE=0.2768
-CoeffShift_CEH16_b2_after,CEH16,After,1.3437,m,SE=0.2156
-CoeffShift_CEH16_db2,CEH16,Delta,0.0272,m,
-CoeffShift_CEH16_b3_before,CEH16,Before,0.0463,m,SE=0.0087
-CoeffShift_CEH16_b3_after,CEH16,After,0.039,m,SE=0.0072
-CoeffShift_CEH16_db3,CEH16,Delta,-0.0074,m,
-CoeffShift_CEH32_b1_before,CEH32,Before,2.5104,m,SE=0.2077
-CoeffShift_CEH32_b1_after,CEH32,After,2.3048,m,SE=0.2111
-CoeffShift_CEH32_db1,CEH32,Delta,-0.2056,m,
-CoeffShift_CEH32_b2_before,CEH32,Before,2.3288,m,SE=0.2892
-CoeffShift_CEH32_b2_after,CEH32,After,2.4725,m,SE=0.2943
-CoeffShift_CEH32_db2,CEH32,Delta,0.1437,m,
-CoeffShift_CEH32_b3_before,CEH32,Before,0.0274,m,SE=0.0119
-CoeffShift_CEH32_b3_after,CEH32,After,0.0157,m,SE=0.0122
-CoeffShift_CEH32_db3,CEH32,Delta,-0.0116,m,
-CoeffShift_CEH34_b1_before,CEH34,Before,2.6037,m,SE=0.2464
-CoeffShift_CEH34_b1_after,CEH34,After,2.31,m,SE=0.1805
-CoeffShift_CEH34_db1,CEH34,Delta,-0.2937,m,
-CoeffShift_CEH34_b2_before,CEH34,Before,2.3186,m,SE=0.3342
-CoeffShift_CEH34_b2_after,CEH34,After,2.5714,m,SE=0.2433
-CoeffShift_CEH34_db2,CEH34,Delta,0.2528,m,
-CoeffShift_CEH34_b3_before,CEH34,Before,0.023,m,SE=0.0102
-CoeffShift_CEH34_b3_after,CEH34,After,0.0093,m,SE=0.0076
-CoeffShift_CEH34_db3,CEH34,Delta,-0.0137,m,
-CoeffShift_CEH33_b1_before,CEH33,Before,2.4466,m,SE=0.2044
-CoeffShift_CEH33_b1_after,CEH33,After,2.1899,m,SE=0.1878
-CoeffShift_CEH33_db1,CEH33,Delta,-0.2567,m,
-CoeffShift_CEH33_b2_before,CEH33,Before,2.0763,m,SE=0.2778
-CoeffShift_CEH33_b2_after,CEH33,After,2.1138,m,SE=0.2544
-CoeffShift_CEH33_db2,CEH33,Delta,0.0376,m,
-CoeffShift_CEH33_b3_before,CEH33,Before,0.0355,m,SE=0.0117
-CoeffShift_CEH33_b3_after,CEH33,After,0.0221,m,SE=0.0110
-CoeffShift_CEH33_db3,CEH33,Delta,-0.0134,m,
-CoeffShift_NW10_b1_before,NW10,Before,3.2524,m,SE=0.2588
-CoeffShift_NW10_b1_after,NW10,After,3.5001,m,SE=0.2244
-CoeffShift_NW10_db1,NW10,Delta,0.2476,m,
-CoeffShift_NW10_b2_before,NW10,Before,2.6666,m,SE=0.3622
-CoeffShift_NW10_b2_after,NW10,After,2.5967,m,SE=0.3002
-CoeffShift_NW10_db2,NW10,Delta,-0.0699,m,
-CoeffShift_NW10_b3_before,NW10,Before,0.036,m,SE=0.0113
-CoeffShift_NW10_b3_after,NW10,After,0.0425,m,SE=0.0096
-CoeffShift_NW10_db3,NW10,Delta,0.0065,m,
-CoeffShift_CEH2_b1_before,CEH2,Before,2.6436,m,SE=0.2491
-CoeffShift_CEH2_b1_after,CEH2,After,2.7023,m,SE=0.2373
-CoeffShift_CEH2_db1,CEH2,Delta,0.0587,m,
-CoeffShift_CEH2_b2_before,CEH2,Before,2.5767,m,SE=0.3451
-CoeffShift_CEH2_b2_after,CEH2,After,2.7706,m,SE=0.3205
-CoeffShift_CEH2_db2,CEH2,Delta,0.1939,m,
-CoeffShift_CEH2_b3_before,CEH2,Before,0.023,m,SE=0.0118
-CoeffShift_CEH2_b3_after,CEH2,After,0.0189,m,SE=0.0112
-CoeffShift_CEH2_db3,CEH2,Delta,-0.0042,m,
-CoeffShift_CEH19_b1_before,CEH19,Before,2.3815,m,SE=0.1717
-CoeffShift_CEH19_b1_after,CEH19,After,2.2083,m,SE=0.1513
-CoeffShift_CEH19_db1,CEH19,Delta,-0.1732,m,
-CoeffShift_CEH19_b2_before,CEH19,Before,0.9657,m,SE=0.2189
-CoeffShift_CEH19_b2_after,CEH19,After,0.756,m,SE=0.1870
-CoeffShift_CEH19_db2,CEH19,Delta,-0.2098,m,
-CoeffShift_CEH19_b3_before,CEH19,Before,0.0462,m,SE=0.0070
-CoeffShift_CEH19_b3_after,CEH19,After,0.0446,m,SE=0.0065
-CoeffShift_CEH19_db3,CEH19,Delta,-0.0016,m,
-CoeffShift_CEH17_b1_before,CEH17,Before,2.4396,m,SE=0.1737
-CoeffShift_CEH17_b1_after,CEH17,After,2.0988,m,SE=0.1701
-CoeffShift_CEH17_db1,CEH17,Delta,-0.3409,m,
-CoeffShift_CEH17_b2_before,CEH17,Before,1.2067,m,SE=0.2237
-CoeffShift_CEH17_b2_after,CEH17,After,1.1452,m,SE=0.2154
-CoeffShift_CEH17_db2,CEH17,Delta,-0.0615,m,
-CoeffShift_CEH17_b3_before,CEH17,Before,0.0771,m,SE=0.0117
-CoeffShift_CEH17_b3_after,CEH17,After,0.0594,m,SE=0.0120
-CoeffShift_CEH17_db3,CEH17,Delta,-0.0176,m,
-CoeffShift_CEH9_b1_before,CEH9,Before,3.3575,m,SE=0.2469
-CoeffShift_CEH9_b1_after,CEH9,After,3.0162,m,SE=0.1938
-CoeffShift_CEH9_db1,CEH9,Delta,-0.3413,m,
-CoeffShift_CEH9_b2_before,CEH9,Before,2.1085,m,SE=0.3014
-CoeffShift_CEH9_b2_after,CEH9,After,2.1315,m,SE=0.2488
-CoeffShift_CEH9_db2,CEH9,Delta,0.023,m,
-CoeffShift_CEH9_b3_before,CEH9,Before,0.0458,m,SE=0.0091
-CoeffShift_CEH9_b3_after,CEH9,After,0.0348,m,SE=0.0075
-CoeffShift_CEH9_db3,CEH9,Delta,-0.011,m,
-CoeffShift_NW7_b1_before,NW7,Before,3.2114,m,SE=0.2473
-CoeffShift_NW7_b1_after,NW7,After,3.231,m,SE=0.2090
-CoeffShift_NW7_db1,NW7,Delta,0.0196,m,
-CoeffShift_NW7_b2_before,NW7,Before,2.1955,m,SE=0.3393
-CoeffShift_NW7_b2_after,NW7,After,2.1253,m,SE=0.2791
-CoeffShift_NW7_db2,NW7,Delta,-0.0702,m,
-CoeffShift_NW7_b3_before,NW7,Before,0.054,m,SE=0.0115
-CoeffShift_NW7_b3_after,NW7,After,0.0504,m,SE=0.0095
-CoeffShift_NW7_db3,NW7,Delta,-0.0036,m,
-CoeffShift_NW6_b1_before,NW6,Before,3.3877,m,SE=0.2528
-CoeffShift_NW6_b1_after,NW6,After,3.7814,m,SE=0.2618
-CoeffShift_NW6_db1,NW6,Delta,0.3937,m,
-CoeffShift_NW6_b2_before,NW6,Before,1.6842,m,SE=0.3417
-CoeffShift_NW6_b2_after,NW6,After,1.3135,m,SE=0.3260
-CoeffShift_NW6_db2,NW6,Delta,-0.3707,m,
-CoeffShift_NW6_b3_before,NW6,Before,0.053,m,SE=0.0092
-CoeffShift_NW6_b3_after,NW6,After,0.064,m,SE=0.0088
-CoeffShift_NW6_db3,NW6,Delta,0.0109,m,
-CoeffShift_NW5_b1_before,NW5,Before,3.5891,m,SE=0.2499
-CoeffShift_NW5_b1_after,NW5,After,3.5425,m,SE=0.2473
-CoeffShift_NW5_db1,NW5,Delta,-0.0467,m,
-CoeffShift_NW5_b2_before,NW5,Before,2.1509,m,SE=0.3206
-CoeffShift_NW5_b2_after,NW5,After,1.9784,m,SE=0.3218
-CoeffShift_NW5_db2,NW5,Delta,-0.1726,m,
-CoeffShift_NW5_b3_before,NW5,Before,0.0518,m,SE=0.0091
-CoeffShift_NW5_b3_after,NW5,After,0.0499,m,SE=0.0093
-CoeffShift_NW5_db3,NW5,Delta,-0.0019,m,
-CoeffShift_WMC2_b1_before,WMC2,Before,3.3639,m,SE=0.2285
-CoeffShift_WMC2_b1_after,WMC2,After,3.2907,m,SE=0.2091
-CoeffShift_WMC2_db1,WMC2,Delta,-0.0732,m,
-CoeffShift_WMC2_b2_before,WMC2,Before,2.0669,m,SE=0.2942
-CoeffShift_WMC2_b2_after,WMC2,After,1.7398,m,SE=0.2608
-CoeffShift_WMC2_db2,WMC2,Delta,-0.3271,m,
-CoeffShift_WMC2_b3_before,WMC2,Before,0.048,m,SE=0.0083
-CoeffShift_WMC2_b3_after,WMC2,After,0.0474,m,SE=0.0077
-CoeffShift_WMC2_db3,WMC2,Delta,-0.0006,m,
-CoeffShift_NW4B_b1_before,NW4B,Before,3.534,m,SE=0.3618
-CoeffShift_NW4B_b1_after,NW4B,After,3.5202,m,SE=0.2932
-CoeffShift_NW4B_db1,NW4B,Delta,-0.0138,m,
-CoeffShift_NW4B_b2_before,NW4B,Before,1.3723,m,SE=0.4550
-CoeffShift_NW4B_b2_after,NW4B,After,1.0795,m,SE=0.3556
-CoeffShift_NW4B_db2,NW4B,Delta,-0.2928,m,
-CoeffShift_NW4B_b3_before,NW4B,Before,0.0591,m,SE=0.0122
-CoeffShift_NW4B_b3_after,NW4B,After,0.0611,m,SE=0.0100
-CoeffShift_NW4B_db3,NW4B,Delta,0.002,m,
-CoeffShift_WMC1_b1_before,WMC1,Before,3.4685,m,SE=0.2673
-CoeffShift_WMC1_b1_after,WMC1,After,3.6149,m,SE=0.2554
-CoeffShift_WMC1_db1,WMC1,Delta,0.1464,m,
-CoeffShift_WMC1_b2_before,WMC1,Before,1.7057,m,SE=0.3415
-CoeffShift_WMC1_b2_after,WMC1,After,1.5263,m,SE=0.3163
-CoeffShift_WMC1_db2,WMC1,Delta,-0.1793,m,
-CoeffShift_WMC1_b3_before,WMC1,Before,0.055,m,SE=0.0095
-CoeffShift_WMC1_b3_after,WMC1,After,0.0582,m,SE=0.0091
-CoeffShift_WMC1_db3,WMC1,Delta,0.0031,m,
-CoeffShift_CEH5_b1_before,CEH5,Before,4.301,m,SE=0.3481
-CoeffShift_CEH5_b1_after,CEH5,After,5.236,m,SE=0.2788
-CoeffShift_CEH5_db1,CEH5,Delta,0.935,m,
-CoeffShift_CEH5_b2_before,CEH5,Before,1.6087,m,SE=0.4214
-CoeffShift_CEH5_b2_after,CEH5,After,1.2144,m,SE=0.3277
-CoeffShift_CEH5_db2,CEH5,Delta,-0.3944,m,
-CoeffShift_CEH5_b3_before,CEH5,Before,0.075,m,SE=0.0114
-CoeffShift_CEH5_b3_after,CEH5,After,0.0985,m,SE=0.0091
-CoeffShift_CEH5_db3,CEH5,Delta,0.0235,m,
-CoeffShift_L7_b1_before,L7,Before,4.4088,m,SE=0.2556
-CoeffShift_L7_b1_after,L7,After,4.3171,m,SE=0.1873
-CoeffShift_L7_db1,L7,Delta,-0.0917,m,
-CoeffShift_L7_b2_before,L7,Before,2.5066,m,SE=0.3152
-CoeffShift_L7_b2_after,L7,After,2.5133,m,SE=0.2311
-CoeffShift_L7_db2,L7,Delta,0.0066,m,
-CoeffShift_L7_b3_before,L7,Before,0.0962,m,SE=0.0121
-CoeffShift_L7_b3_after,L7,After,0.0851,m,SE=0.0090
-CoeffShift_L7_db3,L7,Delta,-0.0112,m,
-CoeffShift_CEH6_b1_before,CEH6,Before,4.0191,m,SE=0.4319
-CoeffShift_CEH6_b1_after,CEH6,After,5.2858,m,SE=0.3040
-CoeffShift_CEH6_db1,CEH6,Delta,1.2667,m,
-CoeffShift_CEH6_b2_before,CEH6,Before,0.5245,m,SE=0.5130
-CoeffShift_CEH6_b2_after,CEH6,After,-0.4425,m,SE=0.3438
-CoeffShift_CEH6_db2,CEH6,Delta,-0.967,m,
-CoeffShift_CEH6_b3_before,CEH6,Before,0.0813,m,SE=0.0135
-CoeffShift_CEH6_b3_after,CEH6,After,0.1226,m,SE=0.0095
-CoeffShift_CEH6_db3,CEH6,Delta,0.0413,m,
-CoeffShift_Impact_mean_db1,Impact,,-0.0467,m,n_wells=1
-CoeffShift_Impact_mean_db1_p,Impact,,0.8855201182950264,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1"
-CoeffShift_Impact_mean_db2,Impact,,-0.2696,m,n_wells=1
-CoeffShift_Impact_mean_db2_p,Impact,,0.5330792731993544,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1"
-CoeffShift_Impact_mean_db3,Impact,,0.002,m,n_wells=1
-CoeffShift_Impact_mean_db3_p,Impact,,0.8933747938682013,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1"
-CoeffShift_Impact_mean_db1_pct_of_before,Impact,,-1.8229369974236866,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=1, n_decline=1"
-CoeffShift_Edge_mean_db1,Edge,,-0.28659999999999997,m,n_wells=4
-CoeffShift_Edge_mean_db1_p,Edge,,0.04673792757834829,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4"
-CoeffShift_Edge_mean_db2,Edge,,-0.074625,m,n_wells=4
-CoeffShift_Edge_mean_db2_p,Edge,,0.6931467657940948,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4"
-CoeffShift_Edge_mean_db3,Edge,,-0.010599999999999998,m,n_wells=4
-CoeffShift_Edge_mean_db3_p,Edge,,0.14357938452336413,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4"
-CoeffShift_Edge_mean_db1_pct_of_before,Edge,,-10.908433167369934,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=4, n_decline=4"
-CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,-0.08993999999999999,m,n_wells=5
-CoeffShift_Forest Ctrl_mean_db1_p,Forest Ctrl,,0.5221780788925826,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
-CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.11162000000000001,m,n_wells=5
-CoeffShift_Forest Ctrl_mean_db2_p,Forest Ctrl,,0.5619654117589782,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
-CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,-0.00728,m,n_wells=5
-CoeffShift_Forest Ctrl_mean_db3_p,Forest Ctrl,,0.2922865043024202,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
-CoeffShift_Forest Ctrl_mean_db1_pct_of_before,Forest Ctrl,,-4.025769217149534,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3"
-CoeffShift_Coastal Ctrl_mean_db1,Coastal Ctrl,,-0.25705,m,n_wells=2
-CoeffShift_Coastal Ctrl_mean_db1_p,Coastal Ctrl,,0.12361934882980653,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2"
-CoeffShift_Coastal Ctrl_mean_db2,Coastal Ctrl,,-0.13565,m,n_wells=2
-CoeffShift_Coastal Ctrl_mean_db2_p,Coastal Ctrl,,0.5217419858552936,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2"
-CoeffShift_Coastal Ctrl_mean_db3,Coastal Ctrl,,-0.009600000000000001,m,n_wells=2
-CoeffShift_Coastal Ctrl_mean_db3_p,Coastal Ctrl,,0.3195970100650857,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2"
-CoeffShift_Coastal Ctrl_mean_db1_pct_of_before,Coastal Ctrl,,-10.62316475130051,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=2, n_decline=2"
-CoeffShift_Climate Ctrl_mean_db1,Climate Ctrl,,-0.009579999999999998,m,n_wells=5
-CoeffShift_Climate Ctrl_mean_db1_p,Climate Ctrl,,0.9487498817924614,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
-CoeffShift_Climate Ctrl_mean_db2,Climate Ctrl,,-0.18352,m,n_wells=5
-CoeffShift_Climate Ctrl_mean_db2_p,Climate Ctrl,,0.3412717072137935,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
-CoeffShift_Climate Ctrl_mean_db3,Climate Ctrl,,-0.0012399999999999996,m,n_wells=5
-CoeffShift_Climate Ctrl_mean_db3_p,Climate Ctrl,,0.8287027159047674,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
-CoeffShift_Climate Ctrl_mean_db1_pct_of_before,Climate Ctrl,,-0.2821458555153181,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3"
-CoeffShift_Network_mean_b1_before,Network,Before,2.8344823529411762,m,mean b1_before across n=17 BACI-network wells (excl. Far-field Ctrl)
-CoeffShift_Network_mean_b1_after,Network,After,2.704794117647059,m,mean b1_after across n=17 BACI-network wells (excl. Far-field Ctrl)
-CoeffShift_Network_mean_db1,Network,Delta,-0.12969411764705882,m,"mean db1 across n=17 BACI-network wells (excl. Far-field Ctrl), n_decline=13"
+CoeffShift_WMC3_b1_before,WMC3,Before,2.408,m,SE=0.2527
+CoeffShift_WMC3_b1_after,WMC3,After,2.2123,m,SE=0.2780
+CoeffShift_WMC3_db1,WMC3,Delta,-0.1957,m,
+CoeffShift_WMC3_b2_before,WMC3,Before,2.1097,m,SE=0.3329
+CoeffShift_WMC3_b2_after,WMC3,After,2.0475,m,SE=0.3498
+CoeffShift_WMC3_db2,WMC3,Delta,-0.0621,m,
+CoeffShift_WMC3_b3_before,WMC3,Before,0.0788,m,SE=0.0319
+CoeffShift_WMC3_b3_after,WMC3,After,0.0986,m,SE=0.0347
+CoeffShift_WMC3_db3,WMC3,Delta,0.0198,m,
+CoeffShift_CEH31_b1_before,CEH31,Before,2.5216,m,SE=0.2184
+CoeffShift_CEH31_b1_after,CEH31,After,1.756,m,SE=0.2822
+CoeffShift_CEH31_db1,CEH31,Delta,-0.7656,m,
+CoeffShift_CEH31_b2_before,CEH31,Before,1.7108,m,SE=0.2896
+CoeffShift_CEH31_b2_after,CEH31,After,1.762,m,SE=0.3588
+CoeffShift_CEH31_db2,CEH31,Delta,0.0513,m,
+CoeffShift_CEH31_b3_before,CEH31,Before,0.105,m,SE=0.0295
+CoeffShift_CEH31_b3_after,CEH31,After,0.1292,m,SE=0.0413
+CoeffShift_CEH31_db3,CEH31,Delta,0.0242,m,
+CoeffShift_CEH20_b1_before,CEH20,Before,2.5562,m,SE=0.2464
+CoeffShift_CEH20_b1_after,CEH20,After,2.4679,m,SE=0.2633
+CoeffShift_CEH20_db1,CEH20,Delta,-0.0882,m,
+CoeffShift_CEH20_b2_before,CEH20,Before,2.1735,m,SE=0.3153
+CoeffShift_CEH20_b2_after,CEH20,After,2.0343,m,SE=0.3201
+CoeffShift_CEH20_db2,CEH20,Delta,-0.1392,m,
+CoeffShift_CEH20_b3_before,CEH20,Before,0.0333,m,SE=0.0234
+CoeffShift_CEH20_b3_after,CEH20,After,0.0204,m,SE=0.0272
+CoeffShift_CEH20_db3,CEH20,Delta,-0.0128,m,
+CoeffShift_CEH30_b1_before,CEH30,Before,2.4769,m,SE=0.2533
+CoeffShift_CEH30_b1_after,CEH30,After,2.1823,m,SE=0.2459
+CoeffShift_CEH30_db1,CEH30,Delta,-0.2946,m,
+CoeffShift_CEH30_b2_before,CEH30,Before,2.1349,m,SE=0.3253
+CoeffShift_CEH30_b2_after,CEH30,After,2.1172,m,SE=0.2931
+CoeffShift_CEH30_db2,CEH30,Delta,-0.0177,m,
+CoeffShift_CEH30_b3_before,CEH30,Before,0.0464,m,SE=0.0256
+CoeffShift_CEH30_b3_after,CEH30,After,0.0362,m,SE=0.0273
+CoeffShift_CEH30_db3,CEH30,Delta,-0.0102,m,
+CoeffShift_CEH16_b1_before,CEH16,Before,2.553,m,SE=0.2329
+CoeffShift_CEH16_b1_after,CEH16,After,2.3961,m,SE=0.2111
+CoeffShift_CEH16_db1,CEH16,Delta,-0.157,m,
+CoeffShift_CEH16_b2_before,CEH16,Before,1.4664,m,SE=0.3064
+CoeffShift_CEH16_b2_after,CEH16,After,1.441,m,SE=0.2629
+CoeffShift_CEH16_db2,CEH16,Delta,-0.0254,m,
+CoeffShift_CEH16_b3_before,CEH16,Before,0.0775,m,SE=0.0289
+CoeffShift_CEH16_b3_after,CEH16,After,0.0572,m,SE=0.0289
+CoeffShift_CEH16_db3,CEH16,Delta,-0.0203,m,
+CoeffShift_CEH32_b1_before,CEH32,Before,2.5193,m,SE=0.2532
+CoeffShift_CEH32_b1_after,CEH32,After,2.3514,m,SE=0.2949
+CoeffShift_CEH32_db1,CEH32,Delta,-0.168,m,
+CoeffShift_CEH32_b2_before,CEH32,Before,2.3198,m,SE=0.3245
+CoeffShift_CEH32_b2_after,CEH32,After,2.4319,m,SE=0.3454
+CoeffShift_CEH32_db2,CEH32,Delta,0.112,m,
+CoeffShift_CEH32_b3_before,CEH32,Before,0.0263,m,SE=0.0212
+CoeffShift_CEH32_b3_after,CEH32,After,0.0103,m,SE=0.0267
+CoeffShift_CEH32_db3,CEH32,Delta,-0.016,m,
+CoeffShift_CEH34_b1_before,CEH34,Before,2.4835,m,SE=0.2807
+CoeffShift_CEH34_b1_after,CEH34,After,2.2826,m,SE=0.2337
+CoeffShift_CEH34_db1,CEH34,Delta,-0.2009,m,
+CoeffShift_CEH34_b2_before,CEH34,Before,2.4384,m,SE=0.3602
+CoeffShift_CEH34_b2_after,CEH34,After,2.5949,m,SE=0.2752
+CoeffShift_CEH34_db2,CEH34,Delta,0.1566,m,
+CoeffShift_CEH34_b3_before,CEH34,Before,0.0439,m,SE=0.0254
+CoeffShift_CEH34_b3_after,CEH34,After,0.0131,m,SE=0.0218
+CoeffShift_CEH34_db3,CEH34,Delta,-0.0308,m,
+CoeffShift_CEH33_b1_before,CEH33,Before,2.4639,m,SE=0.2433
+CoeffShift_CEH33_b1_after,CEH33,After,2.186,m,SE=0.2554
+CoeffShift_CEH33_db1,CEH33,Delta,-0.278,m,
+CoeffShift_CEH33_b2_before,CEH33,Before,2.0577,m,SE=0.3122
+CoeffShift_CEH33_b2_after,CEH33,After,2.1176,m,SE=0.3022
+CoeffShift_CEH33_db2,CEH33,Delta,0.0598,m,
+CoeffShift_CEH33_b3_before,CEH33,Before,0.0329,m,SE=0.0229
+CoeffShift_CEH33_b3_after,CEH33,After,0.0226,m,SE=0.0269
+CoeffShift_CEH33_db3,CEH33,Delta,-0.0102,m,
+CoeffShift_NW10_b1_before,NW10,Before,3.0825,m,SE=0.2969
+CoeffShift_NW10_b1_after,NW10,After,3.6353,m,SE=0.2979
+CoeffShift_NW10_db1,NW10,Delta,0.5529,m,
+CoeffShift_NW10_b2_before,NW10,Before,2.8363,m,SE=0.3899
+CoeffShift_NW10_b2_after,NW10,After,2.4573,m,SE=0.3622
+CoeffShift_NW10_db2,NW10,Delta,-0.3791,m,
+CoeffShift_NW10_b3_before,NW10,Before,0.0694,m,SE=0.0309
+CoeffShift_NW10_b3_after,NW10,After,0.0258,m,SE=0.0259
+CoeffShift_NW10_db3,NW10,Delta,-0.0436,m,
+CoeffShift_CEH2_b1_before,CEH2,Before,2.4409,m,SE=0.2877
+CoeffShift_CEH2_b1_after,CEH2,After,2.5423,m,SE=0.3197
+CoeffShift_CEH2_db1,CEH2,Delta,0.1014,m,
+CoeffShift_CEH2_b2_before,CEH2,Before,2.777,m,SE=0.3722
+CoeffShift_CEH2_b2_after,CEH2,After,2.9225,m,SE=0.3799
+CoeffShift_CEH2_db2,CEH2,Delta,0.1455,m,
+CoeffShift_CEH2_b3_before,CEH2,Before,0.0646,m,SE=0.0323
+CoeffShift_CEH2_b3_after,CEH2,After,0.0373,m,SE=0.0271
+CoeffShift_CEH2_db3,CEH2,Delta,-0.0273,m,
+CoeffShift_CEH19_b1_before,CEH19,Before,2.2225,m,SE=0.1745
+CoeffShift_CEH19_b1_after,CEH19,After,2.0302,m,SE=0.1792
+CoeffShift_CEH19_db1,CEH19,Delta,-0.1923,m,
+CoeffShift_CEH19_b2_before,CEH19,Before,1.2621,m,SE=0.2358
+CoeffShift_CEH19_b2_after,CEH19,After,1.0277,m,SE=0.2384
+CoeffShift_CEH19_db2,CEH19,Delta,-0.2344,m,
+CoeffShift_CEH19_b3_before,CEH19,Before,0.1233,m,SE=0.0286
+CoeffShift_CEH19_b3_after,CEH19,After,0.1039,m,SE=0.0335
+CoeffShift_CEH19_db3,CEH19,Delta,-0.0194,m,
+CoeffShift_CEH17_b1_before,CEH17,Before,2.366,m,SE=0.1967
+CoeffShift_CEH17_b1_after,CEH17,After,1.9499,m,SE=0.2157
+CoeffShift_CEH17_db1,CEH17,Delta,-0.4162,m,
+CoeffShift_CEH17_b2_before,CEH17,Before,1.3137,m,SE=0.2607
+CoeffShift_CEH17_b2_after,CEH17,After,1.3378,m,SE=0.2754
+CoeffShift_CEH17_db2,CEH17,Delta,0.0241,m,
+CoeffShift_CEH17_b3_before,CEH17,Before,0.0983,m,SE=0.0289
+CoeffShift_CEH17_b3_after,CEH17,After,0.0987,m,SE=0.0371
+CoeffShift_CEH17_db3,CEH17,Delta,0.0004,m,
+CoeffShift_CEH9_b1_before,CEH9,Before,3.2137,m,SE=0.2757
+CoeffShift_CEH9_b1_after,CEH9,After,2.8407,m,SE=0.2484
+CoeffShift_CEH9_db1,CEH9,Delta,-0.373,m,
+CoeffShift_CEH9_b2_before,CEH9,Before,2.2735,m,SE=0.3325
+CoeffShift_CEH9_b2_after,CEH9,After,2.3308,m,SE=0.3049
+CoeffShift_CEH9_db2,CEH9,Delta,0.0573,m,
+CoeffShift_CEH9_b3_before,CEH9,Before,0.0763,m,SE=0.0278
+CoeffShift_CEH9_b3_after,CEH9,After,0.0637,m,SE=0.0267
+CoeffShift_CEH9_db3,CEH9,Delta,-0.0126,m,
+CoeffShift_NW7_b1_before,NW7,Before,3.0381,m,SE=0.2815
+CoeffShift_NW7_b1_after,NW7,After,3.1855,m,SE=0.2615
+CoeffShift_NW7_db1,NW7,Delta,0.1474,m,
+CoeffShift_NW7_b2_before,NW7,Before,2.4079,m,SE=0.3770
+CoeffShift_NW7_b2_after,NW7,After,2.1708,m,SE=0.3210
+CoeffShift_NW7_db2,NW7,Delta,-0.2372,m,
+CoeffShift_NW7_b3_before,NW7,Before,0.0973,m,SE=0.0360
+CoeffShift_NW7_b3_after,NW7,After,0.0587,m,SE=0.0299
+CoeffShift_NW7_db3,NW7,Delta,-0.0386,m,
+CoeffShift_NW6_b1_before,NW6,Before,3.1171,m,SE=0.2647
+CoeffShift_NW6_b1_after,NW6,After,3.4089,m,SE=0.2882
+CoeffShift_NW6_db1,NW6,Delta,0.2918,m,
+CoeffShift_NW6_b2_before,NW6,Before,2.1826,m,SE=0.3822
+CoeffShift_NW6_b2_after,NW6,After,1.8819,m,SE=0.3793
+CoeffShift_NW6_db2,NW6,Delta,-0.3007,m,
+CoeffShift_NW6_b3_before,NW6,Before,0.144,m,SE=0.0372
+CoeffShift_NW6_b3_after,NW6,After,0.1668,m,SE=0.0394
+CoeffShift_NW6_db3,NW6,Delta,0.0228,m,
+CoeffShift_NW5_b1_before,NW5,Before,3.3624,m,SE=0.2688
+CoeffShift_NW5_b1_after,NW5,After,3.3353,m,SE=0.3161
+CoeffShift_NW5_db1,NW5,Delta,-0.027,m,
+CoeffShift_NW5_b2_before,NW5,Before,2.4829,m,SE=0.3536
+CoeffShift_NW5_b2_after,NW5,After,2.2291,m,SE=0.4005
+CoeffShift_NW5_db2,NW5,Delta,-0.2538,m,
+CoeffShift_NW5_b3_before,NW5,Before,0.1034,m,SE=0.0268
+CoeffShift_NW5_b3_after,NW5,After,0.083,m,SE=0.0329
+CoeffShift_NW5_db3,NW5,Delta,-0.0204,m,
+CoeffShift_WMC2_b1_before,WMC2,Before,3.1215,m,SE=0.2399
+CoeffShift_WMC2_b1_after,WMC2,After,3.0215,m,SE=0.2573
+CoeffShift_WMC2_db1,WMC2,Delta,-0.1,m,
+CoeffShift_WMC2_b2_before,WMC2,Before,2.4942,m,SE=0.3294
+CoeffShift_WMC2_b2_after,WMC2,After,2.1077,m,SE=0.3322
+CoeffShift_WMC2_db2,WMC2,Delta,-0.3865,m,
+CoeffShift_WMC2_b3_before,WMC2,Before,0.1115,m,SE=0.0261
+CoeffShift_WMC2_b3_after,WMC2,After,0.0951,m,SE=0.0282
+CoeffShift_WMC2_db3,WMC2,Delta,-0.0163,m,
+CoeffShift_NW4B_b1_before,NW4B,Before,3.0146,m,SE=0.3526
+CoeffShift_NW4B_b1_after,NW4B,After,2.6944,m,SE=0.3346
+CoeffShift_NW4B_db1,NW4B,Delta,-0.3202,m,
+CoeffShift_NW4B_b2_before,NW4B,Before,2.4694,m,SE=0.4919
+CoeffShift_NW4B_b2_after,NW4B,After,2.5106,m,SE=0.4732
+CoeffShift_NW4B_db2,NW4B,Delta,0.0411,m,
+CoeffShift_NW4B_b3_before,NW4B,Before,0.2452,m,SE=0.0463
+CoeffShift_NW4B_b3_after,NW4B,After,0.2513,m,SE=0.0462
+CoeffShift_NW4B_db3,NW4B,Delta,0.0061,m,
+CoeffShift_WMC1_b1_before,WMC1,Before,3.1223,m,SE=0.2673
+CoeffShift_WMC1_b1_after,WMC1,After,3.038,m,SE=0.3140
+CoeffShift_WMC1_db1,WMC1,Delta,-0.0843,m,
+CoeffShift_WMC1_b2_before,WMC1,Before,2.4197,m,SE=0.3764
+CoeffShift_WMC1_b2_after,WMC1,After,2.3631,m,SE=0.4159
+CoeffShift_WMC1_db2,WMC1,Delta,-0.0566,m,
+CoeffShift_WMC1_b3_before,WMC1,Before,0.1746,m,SE=0.0350
+CoeffShift_WMC1_b3_after,WMC1,After,0.1696,m,SE=0.0388
+CoeffShift_WMC1_db3,WMC1,Delta,-0.005,m,
+CoeffShift_CEH5_b1_before,CEH5,Before,3.69,m,SE=0.2906
+CoeffShift_CEH5_b1_after,CEH5,After,4.2389,m,SE=0.3316
+CoeffShift_CEH5_db1,CEH5,Delta,0.549,m,
+CoeffShift_CEH5_b2_before,CEH5,Before,3.4971,m,SE=0.4334
+CoeffShift_CEH5_b2_after,CEH5,After,3.177,m,SE=0.5162
+CoeffShift_CEH5_db2,CEH5,Delta,-0.3201,m,
+CoeffShift_CEH5_b3_before,CEH5,Before,0.3046,m,SE=0.0347
+CoeffShift_CEH5_b3_after,CEH5,After,0.2717,m,SE=0.0381
+CoeffShift_CEH5_db3,CEH5,Delta,-0.0329,m,
+CoeffShift_L7_b1_before,L7,Before,3.9367,m,SE=0.2619
+CoeffShift_L7_b1_after,L7,After,3.878,m,SE=0.2610
+CoeffShift_L7_db1,L7,Delta,-0.0587,m,
+CoeffShift_L7_b2_before,L7,Before,3.4212,m,SE=0.3682
+CoeffShift_L7_b2_after,L7,After,3.1369,m,SE=0.3475
+CoeffShift_L7_db2,L7,Delta,-0.2843,m,
+CoeffShift_L7_b3_before,L7,Before,0.1944,m,SE=0.0270
+CoeffShift_L7_b3_after,L7,After,0.1417,m,SE=0.0256
+CoeffShift_L7_db3,L7,Delta,-0.0526,m,
+CoeffShift_CEH6_b1_before,CEH6,Before,3.4675,m,SE=0.3214
+CoeffShift_CEH6_b1_after,CEH6,After,4.2936,m,SE=0.3037
+CoeffShift_CEH6_db1,CEH6,Delta,0.8262,m,
+CoeffShift_CEH6_b2_before,CEH6,Before,3.8853,m,SE=0.5469
+CoeffShift_CEH6_b2_after,CEH6,After,2.5603,m,SE=0.5662
+CoeffShift_CEH6_db2,CEH6,Delta,-1.325,m,
+CoeffShift_CEH6_b3_before,CEH6,Before,0.5223,m,SE=0.0533
+CoeffShift_CEH6_b3_after,CEH6,After,0.4152,m,SE=0.0480
+CoeffShift_CEH6_db3,CEH6,Delta,-0.1071,m,
+CoeffShift_Impact_mean_db1,Impact,,-0.1957,m,n_wells=1
+CoeffShift_Impact_mean_db1_p,Impact,,0.6024285583145843,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1"
+CoeffShift_Impact_mean_db2,Impact,,-0.0621,m,n_wells=1
+CoeffShift_Impact_mean_db2_p,Impact,,0.89767353339689,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1"
+CoeffShift_Impact_mean_db3,Impact,,0.0198,m,n_wells=1
+CoeffShift_Impact_mean_db3_p,Impact,,0.674433741129338,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=1"
+CoeffShift_Impact_mean_db1_pct_of_before,Impact,,-8.127076411960132,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=1, n_decline=1"
+CoeffShift_Edge_mean_db1,Edge,,-0.32635,m,n_wells=4
+CoeffShift_Edge_mean_db1_p,Edge,,0.059754917376992456,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4"
+CoeffShift_Edge_mean_db2,Edge,,-0.03275,m,n_wells=4
+CoeffShift_Edge_mean_db2_p,Edge,,0.8812655358747756,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4"
+CoeffShift_Edge_mean_db3,Edge,,-0.004775,m,n_wells=4
+CoeffShift_Edge_mean_db3_p,Edge,,0.8185846369766414,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=4"
+CoeffShift_Edge_mean_db1_pct_of_before,Edge,,-12.963909221647413,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=4, n_decline=4"
+CoeffShift_Forest Ctrl_mean_db1,Forest Ctrl,,0.0014799999999999841,m,n_wells=5
+CoeffShift_Forest Ctrl_mean_db1_p,Forest Ctrl,,0.9932748667984612,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
+CoeffShift_Forest Ctrl_mean_db2,Forest Ctrl,,0.018960000000000005,m,n_wells=5
+CoeffShift_Forest Ctrl_mean_db2_p,Forest Ctrl,,0.9306013250542851,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
+CoeffShift_Forest Ctrl_mean_db3,Forest Ctrl,,-0.02558,m,n_wells=5
+CoeffShift_Forest Ctrl_mean_db3_p,Forest Ctrl,,0.12455120293747736,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
+CoeffShift_Forest Ctrl_mean_db1_pct_of_before,Forest Ctrl,,-0.7899778749784552,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3"
+CoeffShift_Coastal Ctrl_mean_db1,Coastal Ctrl,,-0.30425,m,n_wells=2
+CoeffShift_Coastal Ctrl_mean_db1_p,Coastal Ctrl,,0.11344519296562645,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2"
+CoeffShift_Coastal Ctrl_mean_db2,Coastal Ctrl,,-0.10515,m,n_wells=2
+CoeffShift_Coastal Ctrl_mean_db2_p,Coastal Ctrl,,0.6778180493575888,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2"
+CoeffShift_Coastal Ctrl_mean_db3,Coastal Ctrl,,-0.0095,m,n_wells=2
+CoeffShift_Coastal Ctrl_mean_db3_p,Coastal Ctrl,,0.7680915147762233,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=2"
+CoeffShift_Coastal Ctrl_mean_db1_pct_of_before,Coastal Ctrl,,-13.121644557743892,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=2, n_decline=2"
+CoeffShift_Climate Ctrl_mean_db1,Climate Ctrl,,-0.012159999999999999,m,n_wells=5
+CoeffShift_Climate Ctrl_mean_db1_p,Climate Ctrl,,0.9434391672263208,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
+CoeffShift_Climate Ctrl_mean_db2,Climate Ctrl,,-0.22418,m,n_wells=5
+CoeffShift_Climate Ctrl_mean_db2_p,Climate Ctrl,,0.31469909508229865,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
+CoeffShift_Climate Ctrl_mean_db3,Climate Ctrl,,-0.01302,m,n_wells=5
+CoeffShift_Climate Ctrl_mean_db3_p,Climate Ctrl,,0.5126982209343219,,"two-sided z-test of the tier-mean shift against zero, SE = sqrt(sum(SE_before^2 + SE_after^2))/n from the per-well fits (independent windows), n_wells=5"
+CoeffShift_Climate Ctrl_mean_db1_pct_of_before,Climate Ctrl,,-0.28003269655260266,m,"mean of per-well pct change in b1 (After-Before)/Before*100, n_wells=5, n_decline=3"
+CoeffShift_Network_mean_b1_before,Network,Before,2.7027705882352935,m,mean b1_before across n=17 BACI-network wells (excl. Far-field Ctrl)
+CoeffShift_Network_mean_b1_after,Network,After,2.5755411764705887,m,mean b1_after across n=17 BACI-network wells (excl. Far-field Ctrl)
+CoeffShift_Network_mean_db1,Network,Delta,-0.12723529411764706,m,"mean db1 across n=17 BACI-network wells (excl. Far-field Ctrl), n_decline=13"
 CoeffShift_Network_n_wells,Network,,17.0,wells,"BACI-network wells in 10e_01_coefficient_shifts.csv, excl. Far-field Ctrl: Impact 1, Edge 4, Forest Ctrl 5, Coastal Ctrl 2, Climate Ctrl 5"
-CoeffShift_Network_mean_db1_pct_of_before,Network,,-4.575583880862156,m,"ratio of network mean db1 to network mean b1_before, x100"
-wmc3_b2_fall_beyond_climate_control_pct,WMC3,Delta,4.800902513200446,percentage points,"WMC3 proportional fall in b2 (-db2/b2_before) minus the Climate Ctrl tier's (-mean db2/mean b2_before, n_wells=5), x100; positive = fell further than the climate controls"
-CoeffShift_corr_db1_db2,Forest,,-0.5750297718954485,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)"
-CoeffShift_corr_db1_db2_pct,Forest,,-0.5621587971145493,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)"
-CoeffShift_corr_db1_db2_ci_lo,Forest,,-0.9668083460319502,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Forest); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2_ci_hi,Forest,,0.6236303920633619,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Forest); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2,Climate Ctrl,,-0.749021222533295,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=5 wells (Climate Ctrl: CEH9, NW5, NW6, NW7, WMC2)"
-CoeffShift_corr_db1_db2_pct,Climate Ctrl,,-0.8107181214085457,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=5 wells (Climate Ctrl: CEH9, NW5, NW6, NW7, WMC2)"
-CoeffShift_corr_db1_db2_ci_lo,Climate Ctrl,,-0.9822094824383542,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Climate Ctrl); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2_ci_hi,Climate Ctrl,,0.39288549536105244,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Climate Ctrl); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2,Controls,,-0.4735798791844694,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=12 wells (Controls: CEH17, CEH19, CEH2, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2)"
-CoeffShift_corr_db1_db2_pct,Controls,,-0.38578028459221575,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=12 wells (Controls: CEH17, CEH19, CEH2, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2)"
-CoeffShift_corr_db1_db2_ci_lo,Controls,,-0.8236327076653888,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=12 wells (Controls); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2_ci_hi,Controls,,0.1377762928840813,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=12 wells (Controls); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2,Network,,-0.31173323579440154,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=17 wells (Network: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2, WMC3)"
-CoeffShift_corr_db1_db2_pct,Network,,-0.2276816926705645,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=17 wells (Network: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2, WMC3)"
-CoeffShift_corr_db1_db2_ci_lo,Network,,-0.6891295077686794,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=17 wells (Network); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2_ci_hi,Network,,0.19868964600659886,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=17 wells (Network); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2,All,,-0.7422194732087247,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=22 wells (All: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH5, CEH6, CEH9, L7, NW10, NW4B, NW5, NW6, NW7, WMC1, WMC2, WMC3)"
-CoeffShift_corr_db1_db2_pct,All,,-0.6915638041540211,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=22 wells (All: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH5, CEH6, CEH9, L7, NW10, NW4B, NW5, NW6, NW7, WMC1, WMC2, WMC3)"
-CoeffShift_corr_db1_db2_ci_lo,All,,-0.8864400922827994,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=22 wells (All); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2_ci_hi,All,,-0.46662598961341806,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=22 wells (All); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
-CoeffShift_corr_db1_db2,Forest Ctrl pine,,0.1698317644087718,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=4 Forest Ctrl wells outside the broadleaf restock block (CEH2, CEH32, CEH33, CEH34); excluded: NW10"
-CoeffShift_corr_db1_db2_pct,Forest Ctrl pine,,0.10422478839084579,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=4 Forest Ctrl wells outside the broadleaf restock block (CEH2, CEH32, CEH33, CEH34); excluded: NW10"
-CoeffShift_corr_db1_db2_ci_lo,Forest Ctrl pine,,-0.9456027311233051,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=4 Forest Ctrl wells outside the broadleaf restock block; an interval spanning 0 cannot resolve the sign"
-CoeffShift_corr_db1_db2_ci_hi,Forest Ctrl pine,,0.9722306296348945,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=4 Forest Ctrl wells outside the broadleaf restock block; an interval spanning 0 cannot resolve the sign"
-CoeffShift_Forest Ctrl_pine_mean_db2,Forest Ctrl,Delta,0.157,m,"mean db2 over Forest Ctrl wells outside the broadleaf restock block (CEH32, CEH34, CEH33, CEH2), n_wells=4; excluded: NW10"
+CoeffShift_Network_mean_db1_pct_of_before,Network,,-4.707587638828131,m,"ratio of network mean db1 to network mean b1_before, x100"
+wmc3_b2_fall_beyond_climate_control_pct,WMC3,Delta,-6.52263487559247,percentage points,"WMC3 proportional fall in b2 (-db2/b2_before) minus the Climate Ctrl tier's (-mean db2/mean b2_before, n_wells=5), x100; positive = fell further than the climate controls"
+CoeffShift_corr_db1_db2,Forest,,-0.8537817912745229,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)"
+CoeffShift_corr_db1_db2_pct,Forest,,-0.8364831445934355,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=5 wells (Forest: CEH2, CEH32, CEH33, CEH34, NW10)"
+CoeffShift_corr_db1_db2_ci_lo,Forest,,-0.9901817811914218,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Forest); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2_ci_hi,Forest,,0.11547046187516437,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Forest); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2,Climate Ctrl,,-0.6612573447964715,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=5 wells (Climate Ctrl: CEH9, NW5, NW6, NW7, WMC2)"
+CoeffShift_corr_db1_db2_pct,Climate Ctrl,,-0.7134779284571879,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=5 wells (Climate Ctrl: CEH9, NW5, NW6, NW7, WMC2)"
+CoeffShift_corr_db1_db2_ci_lo,Climate Ctrl,,-0.9748141669317821,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Climate Ctrl); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2_ci_hi,Climate Ctrl,,0.5305315377060056,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=5 wells (Climate Ctrl); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2,Controls,,-0.5906244822473343,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=12 wells (Controls: CEH17, CEH19, CEH2, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2)"
+CoeffShift_corr_db1_db2_pct,Controls,,-0.47780972580248354,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=12 wells (Controls: CEH17, CEH19, CEH2, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2)"
+CoeffShift_corr_db1_db2_ci_lo,Controls,,-0.8697270375624394,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=12 wells (Controls); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2_ci_hi,Controls,,-0.025285827126925238,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=12 wells (Controls); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2,Network,,-0.595108805595273,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=17 wells (Network: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2, WMC3)"
+CoeffShift_corr_db1_db2_pct,Network,,-0.5170513353250827,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=17 wells (Network: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH9, NW10, NW5, NW6, NW7, WMC2, WMC3)"
+CoeffShift_corr_db1_db2_ci_lo,Network,,-0.836490848764635,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=17 wells (Network); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2_ci_hi,Network,,-0.16031247100816862,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=17 wells (Network); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2,All,,-0.7538161494071606,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=22 wells (All: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH5, CEH6, CEH9, L7, NW10, NW4B, NW5, NW6, NW7, WMC1, WMC2, WMC3)"
+CoeffShift_corr_db1_db2_pct,All,,-0.6776598367850291,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=22 wells (All: CEH16, CEH17, CEH19, CEH2, CEH20, CEH30, CEH31, CEH32, CEH33, CEH34, CEH5, CEH6, CEH9, L7, NW10, NW4B, NW5, NW6, NW7, WMC1, WMC2, WMC3)"
+CoeffShift_corr_db1_db2_ci_lo,All,,-0.8919511417226693,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=22 wells (All); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2_ci_hi,All,,-0.48696985025879097,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=22 wells (All); an interval spanning 0 cannot resolve the sign of the beta1/beta2 relationship at this set size"
+CoeffShift_corr_db1_db2,Forest Ctrl pine,,0.579734908411794,,"Pearson r of the beta1 shift against the beta2 shift, absolute shifts, n=4 Forest Ctrl wells outside the broadleaf restock block (CEH2, CEH32, CEH33, CEH34); excluded: NW10"
+CoeffShift_corr_db1_db2_pct,Forest Ctrl pine,,0.37304233398442443,,"Pearson r of the beta1 shift against the beta2 shift, percentage shifts (d/before x 100), n=4 Forest Ctrl wells outside the broadleaf restock block (CEH2, CEH32, CEH33, CEH34); excluded: NW10"
+CoeffShift_corr_db1_db2_ci_lo,Forest Ctrl pine,,-0.8611910456327857,,"lower end of the Fisher-z 95% CI on the absolute-shift r, n=4 Forest Ctrl wells outside the broadleaf restock block; an interval spanning 0 cannot resolve the sign"
+CoeffShift_corr_db1_db2_ci_hi,Forest Ctrl pine,,0.9894985718501469,,"upper end of the Fisher-z 95% CI on the absolute-shift r, n=4 Forest Ctrl wells outside the broadleaf restock block; an interval spanning 0 cannot resolve the sign"
+CoeffShift_Forest Ctrl_pine_mean_db2,Forest Ctrl,Delta,0.118475,m,"mean db2 over Forest Ctrl wells outside the broadleaf restock block (CEH32, CEH34, CEH33, CEH2), n_wells=4; excluded: NW10"
 NW10_CEH2_separation_m,NW10,,346.30810072104305,m,"straight-line distance NW10 to CEH2 (its nearest pine neighbour), 01_locations.csv E/N"
 NW10_minus_CEH2_ground_m,NW10,,0.33999999999999986,m,"ground elevation NW10 minus CEH2, 01_locations.csv ground_elev_m"
-B2_tier_ratio_after_over_before,Impact,,0.8620830775526908,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
-B2_tier_ratio_after_over_before,Edge,,0.957572914889988,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
-B2_tier_ratio_after_over_before,Forest Ctrl,,1.0466282276259713,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
-B2_tier_ratio_after_over_before,Coastal Ctrl,,0.8751611121340452,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
-B2_tier_ratio_after_over_before,Climate Ctrl,,0.9101019008426415,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
-B2_multiplier_clearfell,,,1.0474710140473464,,Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Script 09d (the scraping suite); the forestry scenarios use B2_multiplier_clearfell_impact (D-239)
-B2_multiplier_thinning,,,1.023735507023673,,1 + (clearfell multiplier − 1)/2
-B2_multiplier_clearfell_impact,,,0.9519811767100492,,"Impact ratio (WMC3) − Climate Ctrl ratio + 1.0; used by the forestry scenarios of Scripts 19 and 21 and the shared forestry bars, with no interception recharge term (D-239)"
-B2_multiplier_thinning_impact,,,0.9759905883550246,,1 + (B2_multiplier_clearfell_impact − 1)/2
-shield_ratio_canopy_on,Climate Ctrl,,0.9080334808924225,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off,Climate Ctrl,,1.0936592264763443,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on,Edge,,0.8577231815720885,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off,Edge,,0.7480944783444283,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on,Impact,,0.890958439203281,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_off,Impact,,1.2018358439540853,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
-shield_ratio_canopy_on_net,Impact,,0.9829249583108585,,ratio − Climate Ctrl ratio + 1 (10e_04)
-wmc3_b2_fall_canopy_on_pct,WMC3,,1.7075041689141535,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
-shield_ratio_canopy_off_net,Impact,,1.108176617477741,,ratio − Climate Ctrl ratio + 1 (10e_04)
-shield_ratio_canopy_on_net,Edge,,0.949689700679666,,ratio − Climate Ctrl ratio + 1 (10e_04)
-shield_ratio_canopy_off_net,Edge,,0.654435251868084,,ratio − Climate Ctrl ratio + 1 (10e_04)
+B2_tier_ratio_after_over_before,Impact,,0.9705171351376972,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Edge,,0.9824863738377684,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Forest Ctrl,,1.0076432916036426,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Coastal Ctrl,,0.9183554623806196,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_tier_ratio_after_over_before,Climate Ctrl,,0.9053466316473977,,tier-mean b2_after / tier-mean b2_before from 10e_01_coefficient_shifts.csv
+B2_multiplier_clearfell,,,1.0771397421903708,,Edge ratio − Climate Ctrl ratio + 1.0 (BACI-corrected); used by Script 09d (the scraping suite); the forestry scenarios use B2_multiplier_clearfell_impact (D-239)
+B2_multiplier_thinning,,,1.0385698710951854,,1 + (clearfell multiplier − 1)/2
+B2_multiplier_clearfell_impact,,,1.0651705034902994,,"Impact ratio (WMC3) − Climate Ctrl ratio + 1.0; used by the forestry scenarios of Scripts 19 and 21 and the shared forestry bars, with no interception recharge term (D-239)"
+B2_multiplier_thinning_impact,,,1.0325852517451497,,1 + (B2_multiplier_clearfell_impact − 1)/2
+shield_ratio_canopy_on,Climate Ctrl,,0.9096527001549675,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Climate Ctrl,,1.021980983009756,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on,Edge,,0.8626104427607216,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Edge,,0.7439936623519551,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on,Impact,,0.9093581533355521,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off,Impact,,1.0698774136470994,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_net,Impact,,0.9997054531805847,,ratio − Climate Ctrl ratio + 1 (10e_04)
+wmc3_b2_fall_canopy_on_pct,WMC3,,0.029454681941532,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
+shield_ratio_canopy_off_net,Impact,,1.0478964306373435,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on_net,Edge,,0.9529577426057542,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_off_net,Edge,,0.7220126793421991,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on_model_a,Climate Ctrl,,0.9080334808924225,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off_model_a,Climate Ctrl,,1.0936592264763443,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_model_a,Edge,,0.8577231815720885,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off_model_a,Edge,,0.7480944783444283,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_model_a,Impact,,0.890958439203281,,"tier-mean beta_2_canopy_on after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_off_model_a,Impact,,1.2018358439540853,,"tier-mean beta_2_canopy_off after / before the felling, beta_3 fixed (10e_04)"
+shield_ratio_canopy_on_net_model_a,Impact,,0.9829249583108585,,ratio − Climate Ctrl ratio + 1 (10e_04)
+wmc3_b2_fall_canopy_on_pct_model_a,WMC3,,1.7075041689141535,percentage points,(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall net of the Climate controls; positive = fell
+shield_ratio_canopy_off_net_model_a,Impact,,1.108176617477741,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_on_net_model_a,Edge,,0.949689700679666,,ratio − Climate Ctrl ratio + 1 (10e_04)
+shield_ratio_canopy_off_net_model_a,Edge,,0.654435251868084,,ratio − Climate Ctrl ratio + 1 (10e_04)
+CoeffShift_Impact_mean_db1_model_a,Impact,,-0.0467,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Impact_mean_db2_model_a,Impact,,-0.2696,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Impact_mean_db3_model_a,Impact,,0.002,m,"n_wells=1; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Edge_mean_db1_model_a,Edge,,-0.28659999999999997,m,"n_wells=4; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Edge_mean_db2_model_a,Edge,,-0.074625,m,"n_wells=4; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Edge_mean_db3_model_a,Edge,,-0.010599999999999998,m,"n_wells=4; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Forest Ctrl_mean_db1_model_a,Forest Ctrl,,-0.08993999999999999,m,"n_wells=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Forest Ctrl_mean_db2_model_a,Forest Ctrl,,0.11162000000000001,m,"n_wells=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Forest Ctrl_mean_db3_model_a,Forest Ctrl,,-0.00728,m,"n_wells=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Coastal Ctrl_mean_db1_model_a,Coastal Ctrl,,-0.25705,m,"n_wells=2; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Coastal Ctrl_mean_db2_model_a,Coastal Ctrl,,-0.13565,m,"n_wells=2; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Coastal Ctrl_mean_db3_model_a,Coastal Ctrl,,-0.009600000000000001,m,"n_wells=2; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Climate Ctrl_mean_db1_model_a,Climate Ctrl,,-0.009579999999999998,m,"n_wells=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Climate Ctrl_mean_db2_model_a,Climate Ctrl,,-0.18352,m,"n_wells=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Climate Ctrl_mean_db3_model_a,Climate Ctrl,,-0.0012399999999999996,m,"n_wells=5; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+CoeffShift_Network_mean_db1_model_a,Network,,-0.12969411764705882,m,"n_wells=17; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+B2_multiplier_clearfell_model_a,,,1.0474710140473464,,"Edge ratio − Climate Ctrl ratio + 1.0; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+B2_multiplier_thinning_model_a,,,1.023735507023673,,"1 + (B2_multiplier_clearfell_model_a − 1)/2; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+B2_multiplier_clearfell_impact_model_a,,,0.9519811767100492,,"Impact ratio − Climate Ctrl ratio + 1.0; Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+B2_multiplier_thinning_impact_model_a,,,0.9759905883550246,,"1 + (B2_multiplier_clearfell_impact_model_a − 1)/2; Model A at DRAINAGE_DATUM, sensitivity (D-332)"

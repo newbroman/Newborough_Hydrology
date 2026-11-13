@@ -1,129 +1,129 @@
-scenario,season,response,cluster,n_wells,dh_mean_m,dh_median_m,we_mean_mm,we_median_mm,sy_mean
-baseline,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-baseline,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-baseline,annual,level_sustained_model_b,C3,26,0.0,0.0,0.0,0.0,0.30462007979112854
-baseline,annual,level_sustained_model_b,C4,0,,,,,
-baseline,annual,level_sustained_model_b,C5,5,0.0,0.0,0.0,0.0,0.3098746019448432
-baseline,annual,level_sustained_model_b,SITE,57,0.0,0.0,0.0,0.0,0.2797536497390773
-baseline,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-baseline,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-baseline,winter,level_sustained_model_b,C3,26,0.0,0.0,0.0,0.0,0.30462007979112854
-baseline,winter,level_sustained_model_b,C4,0,,,,,
-baseline,winter,level_sustained_model_b,C5,5,0.0,0.0,0.0,0.0,0.3098746019448432
-baseline,winter,level_sustained_model_b,SITE,57,0.0,0.0,0.0,0.0,0.2797536497390773
-baseline,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-baseline,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-baseline,summer,level_sustained_model_b,C3,26,0.0,0.0,0.0,0.0,0.30462007979112854
-baseline,summer,level_sustained_model_b,C4,0,,,,,
-baseline,summer,level_sustained_model_b,C5,5,0.0,0.0,0.0,0.0,0.3098746019448432
-baseline,summer,level_sustained_model_b,SITE,57,0.0,0.0,0.0,0.0,0.2797536497390773
-ukcp18_2050s,annual,level_sustained_model_b,C1,7,-0.0885,-0.0896,-18.531819728663493,-16.79040622506798,0.2098951779920077
-ukcp18_2050s,annual,level_sustained_model_b,C2,19,-0.1415,-0.1359,-37.72978698633678,-34.865394646244674,0.26353666867841014
-ukcp18_2050s,annual,level_sustained_model_b,C3,26,-0.2009,-0.1843,-61.398143270368564,-54.747221043156344,0.30462007979112854
-ukcp18_2050s,annual,level_sustained_model_b,C4,0,,,,,
-ukcp18_2050s,annual,level_sustained_model_b,C5,5,-0.1479,-0.1336,-45.11349622612915,-42.27279866864455,0.3098746019448432
-ukcp18_2050s,annual,level_sustained_model_b,SITE,57,-0.1627,-0.144,-46.81592801756617,-42.429650368047,0.2797536497390773
-ukcp18_2050s,winter,level_sustained_model_b,C1,7,-0.0045,-0.0037,-1.0795868823459727,-0.7902422531088001,0.2098951779920077
-ukcp18_2050s,winter,level_sustained_model_b,C2,19,-0.0779,-0.0709,-20.992064739817334,-17.87672570124309,0.26353666867841014
-ukcp18_2050s,winter,level_sustained_model_b,C3,26,-0.1541,-0.1303,-47.60057513682946,-39.53526887057944,0.30462007979112854
-ukcp18_2050s,winter,level_sustained_model_b,C4,0,,,,,
-ukcp18_2050s,winter,level_sustained_model_b,C5,5,-0.1207,-0.1077,-36.6934232015188,-33.19111346487654,0.3098746019448432
-ukcp18_2050s,winter,level_sustained_model_b,SITE,57,-0.1074,-0.1012,-32.061200136808964,-29.007818745034918,0.2797536497390773
-ukcp18_2050s,summer,level_sustained_model_b,C1,7,-0.1712,-0.157,-35.72559911691108,-35.83123200940674,0.2098951779920077
-ukcp18_2050s,summer,level_sustained_model_b,C2,19,-0.2038,-0.1936,-54.08508408151343,-50.790143328131386,0.26353666867841014
-ukcp18_2050s,summer,level_sustained_model_b,C3,26,-0.2456,-0.2346,-74.56628082382393,-66.7674008264618,0.30462007979112854
-ukcp18_2050s,summer,level_sustained_model_b,C4,0,,,,,
-ukcp18_2050s,summer,level_sustained_model_b,C5,5,-0.1739,-0.1623,-53.152185112051214,-50.81146646563908,0.3098746019448432
-ukcp18_2050s,summer,level_sustained_model_b,SITE,57,-0.2162,-0.2043,-61.090877514856324,-54.805452140151154,0.2797536497390773
-ukcp18_2050s,msl5,level_sustained_model_b,C1,7,0.0239,0.0212,,,
-ukcp18_2050s,msl5,level_sustained_model_b,C2,19,-0.0233,-0.0146,,,
-ukcp18_2050s,msl5,level_sustained_model_b,C3,26,-0.0916,-0.0651,,,
-ukcp18_2050s,msl5,level_sustained_model_b,C4,0,,,,,
-ukcp18_2050s,msl5,level_sustained_model_b,C5,5,-0.0796,-0.063,,,
-ukcp18_2050s,msl5,level_sustained_model_b,SITE,57,-0.0536,,,,
-ukcp18_2080s,annual,level_sustained_model_b,C1,7,-0.159,-0.1613,-33.31155995916259,-30.100883947989114,0.2098951779920077
-ukcp18_2080s,annual,level_sustained_model_b,C2,19,-0.2542,-0.244,-67.76278739930365,-62.65145225947549,0.26353666867841014
-ukcp18_2080s,annual,level_sustained_model_b,C3,26,-0.362,-0.3331,-110.59618916661155,-98.64960201719417,0.30462007979112854
-ukcp18_2080s,annual,level_sustained_model_b,C4,0,,,,,
-ukcp18_2080s,annual,level_sustained_model_b,C5,5,-0.2664,-0.2402,-81.23372712289185,-76.40235259815734,0.3098746019448432
-ukcp18_2080s,annual,level_sustained_model_b,SITE,57,-0.2928,-0.2576,-84.25163919732049,-76.40235259815734,0.2797536497390773
-ukcp18_2080s,winter,level_sustained_model_b,C1,7,-0.0001,-0.0001,-0.26179764603645694,-0.011464261394032477,0.2098951779920077
-ukcp18_2080s,winter,level_sustained_model_b,C2,19,-0.1339,-0.121,-36.14817639642382,-30.503301936869168,0.26353666867841014
-ukcp18_2080s,winter,level_sustained_model_b,C3,26,-0.2728,-0.2294,-84.31595318008179,-69.68123118219293,0.30462007979112854
-ukcp18_2080s,winter,level_sustained_model_b,C4,0,,,,,
-ukcp18_2080s,winter,level_sustained_model_b,C5,5,-0.2147,-0.191,-65.23978312191329,-59.00503511582748,0.3098746019448432
-ukcp18_2080s,winter,level_sustained_model_b,SITE,57,-0.1879,-0.178,-56.264239181508785,-50.873482494230515,0.2797536497390773
-ukcp18_2080s,summer,level_sustained_model_b,C1,7,-0.3147,-0.2888,-65.66846867324956,-65.99016966404321,0.2098951779920077
-ukcp18_2080s,summer,level_sustained_model_b,C2,19,-0.3709,-0.3527,-98.43242785280115,-92.29944008048042,0.26353666867841014
-ukcp18_2080s,summer,level_sustained_model_b,C3,26,-0.4465,-0.4292,-135.47328508178055,-121.77153606067726,0.30462007979112854
-ukcp18_2080s,summer,level_sustained_model_b,C4,0,,,,,
-ukcp18_2080s,summer,level_sustained_model_b,C5,5,-0.3153,-0.2924,-96.36927955243634,-92.33448109371332,0.3098746019448432
-ukcp18_2080s,summer,level_sustained_model_b,SITE,57,-0.3936,-0.374,-111.1236354351657,-100.52880280120716,0.2797536497390773
-ukcp18_2080s,msl5,level_sustained_model_b,C1,7,0.0526,0.0462,,,
-ukcp18_2080s,msl5,level_sustained_model_b,C2,19,-0.0317,-0.0155,,,
-ukcp18_2080s,msl5,level_sustained_model_b,C3,26,-0.1544,-0.1062,,,
-ukcp18_2080s,msl5,level_sustained_model_b,C4,0,,,,,
-ukcp18_2080s,msl5,level_sustained_model_b,C5,5,-0.1371,-0.1064,,,
-ukcp18_2080s,msl5,level_sustained_model_b,SITE,57,-0.0866,,,,
-clearfell,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-clearfell,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-clearfell,annual,level_sustained_model_b,C3,26,0.0046,0.0,1.4286329908568012,0.0,0.30462007979112854
-clearfell,annual,level_sustained_model_b,C4,0,,,,,
-clearfell,annual,level_sustained_model_b,C5,5,0.0377,0.0345,11.502276161800193,10.463613122715401,0.3098746019448432
-clearfell,annual,level_sustained_model_b,SITE,57,0.0054,0.0,1.6606287468645227,0.0,0.2797536497390773
-clearfell,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-clearfell,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-clearfell,winter,level_sustained_model_b,C3,26,0.0043,0.0,1.3573468094599392,0.0,0.30462007979112854
-clearfell,winter,level_sustained_model_b,C4,0,,,,,
-clearfell,winter,level_sustained_model_b,C5,5,0.0357,0.0325,10.858205266923013,9.831622005770814,0.3098746019448432
-clearfell,winter,level_sustained_model_b,SITE,57,0.0051,0.0,1.571614796150412,0.0,0.2797536497390773
-clearfell,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-clearfell,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-clearfell,summer,level_sustained_model_b,C3,26,0.0048,0.0,1.5037307142028884,0.0,0.30462007979112854
-clearfell,summer,level_sustained_model_b,C4,0,,,,,
-clearfell,summer,level_sustained_model_b,C5,5,0.0399,0.0367,12.179913703938952,11.40586603415715,0.3098746019448432
-clearfell,summer,level_sustained_model_b,SITE,57,0.0057,0.0,1.75432573840298,0.0,0.2797536497390773
-broadleaf,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-broadleaf,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-broadleaf,annual,level_sustained_model_b,C3,26,-0.0026,0.0,-0.7987282767722395,0.0,0.30462007979112854
-broadleaf,annual,level_sustained_model_b,C4,0,,,,,
-broadleaf,annual,level_sustained_model_b,C5,5,-0.0211,-0.0193,-6.430758127854236,-5.8500564748302,0.3098746019448432
-broadleaf,annual,level_sustained_model_b,SITE,57,-0.003,0.0,-0.9284337865850772,0.0,0.2797536497390773
-broadleaf,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-broadleaf,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-broadleaf,winter,level_sustained_model_b,C3,26,-0.002,0.0,-0.6129457019825334,0.0,0.30462007979112854
-broadleaf,winter,level_sustained_model_b,C4,0,,,,,
-broadleaf,winter,level_sustained_model_b,C5,5,-0.0156,-0.0139,-4.746085157658069,-4.298870266662034,0.3098746019448432
-broadleaf,winter,level_sustained_model_b,SITE,57,-0.0023,0.0,-0.6959125270146704,0.0,0.2797536497390773
-broadleaf,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-broadleaf,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-broadleaf,summer,level_sustained_model_b,C3,26,-0.0033,0.0,-1.0172959674409654,0.0,0.30462007979112854
-broadleaf,summer,level_sustained_model_b,C4,0,,,,,
-broadleaf,summer,level_sustained_model_b,C5,5,-0.0275,-0.0256,-8.402415382624099,-8.237166283201764,0.3098746019448432
-broadleaf,summer,level_sustained_model_b,SITE,57,-0.0039,0.0,-1.201083720466414,0.0,0.2797536497390773
-thinning,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-thinning,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-thinning,annual,level_sustained_model_b,C3,26,0.0023,0.0,0.7143164954284006,0.0,0.30462007979112854
-thinning,annual,level_sustained_model_b,C4,0,,,,,
-thinning,annual,level_sustained_model_b,C5,5,0.0189,0.0173,5.7511380809000965,5.2318065613577005,0.3098746019448432
-thinning,annual,level_sustained_model_b,SITE,57,0.0027,0.0,0.8303143734322613,0.0,0.2797536497390773
-thinning,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-thinning,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-thinning,winter,level_sustained_model_b,C3,26,0.0022,0.0,0.6786734047299696,0.0,0.30462007979112854
-thinning,winter,level_sustained_model_b,C4,0,,,,,
-thinning,winter,level_sustained_model_b,C5,5,0.0178,0.0162,5.429102633461507,4.915811002885407,0.3098746019448432
-thinning,winter,level_sustained_model_b,SITE,57,0.0026,0.0,0.785807398075206,0.0,0.2797536497390773
-thinning,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077
-thinning,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014
-thinning,summer,level_sustained_model_b,C3,26,0.0024,0.0,0.7518653571014442,0.0,0.30462007979112854
-thinning,summer,level_sustained_model_b,C4,0,,,,,
-thinning,summer,level_sustained_model_b,C5,5,0.02,0.0183,6.089956851969476,5.702933017078575,0.3098746019448432
-thinning,summer,level_sustained_model_b,SITE,57,0.0028,0.0,0.87716286920149,0.0,0.2797536497390773
-end_state_open_dune,annual,end_state_open_dune_model_b,C4,0,0.8976344271994736,,,,
-end_state_open_dune,annual,end_state_open_dune_model_b,C5,0,0.4975987332731533,,,,
-clearfell_interception_bound,annual,level_sustained_model_b,C5,5,0.42701916616557345,0.3575300264338237,130.63061341062513,115.04206612512777,0.3098746019448432
-clearfell_interception_bound,winter,level_sustained_model_b,C5,5,0.4467896105570781,0.37559377409809164,136.74873362505218,120.8544194930063,0.3098746019448432
-clearfell_interception_bound,summer,level_sustained_model_b,C5,5,0.4074929504546386,0.3396944796554379,124.58762157651636,109.30314071983277,0.3098746019448432
-broadleaf_interception_bound,annual,level_sustained_model_b,C5,5,0.12487718572979409,0.10183204213932785,38.24236834045511,34.49768535145207,0.3098746019448432
-broadleaf_interception_bound,winter,level_sustained_model_b,C5,5,0.13854698777407085,0.1147635109064028,42.46286297664037,38.63201043272704,0.3098746019448432
-broadleaf_interception_bound,summer,level_sustained_model_b,C5,5,0.11032467887051359,0.08848612830561817,33.750475069592426,30.13252838483195,0.3098746019448432
+scenario,season,response,cluster,n_wells,dh_mean_m,dh_median_m,we_mean_mm,we_median_mm,sy_mean,status
+baseline,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,
+baseline,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,
+baseline,annual,level_sustained_model_b,C3,26,0.0,0.0,0.0,0.0,0.30462007979112854,
+baseline,annual,level_sustained_model_b,C4,0,,,,,,
+baseline,annual,level_sustained_model_b,C5,5,0.0,0.0,0.0,0.0,0.3098746019448432,
+baseline,annual,level_sustained_model_b,SITE,57,0.0,0.0,0.0,0.0,0.2797536497390773,
+baseline,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,
+baseline,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,
+baseline,winter,level_sustained_model_b,C3,26,0.0,0.0,0.0,0.0,0.30462007979112854,
+baseline,winter,level_sustained_model_b,C4,0,,,,,,
+baseline,winter,level_sustained_model_b,C5,5,0.0,0.0,0.0,0.0,0.3098746019448432,
+baseline,winter,level_sustained_model_b,SITE,57,0.0,0.0,0.0,0.0,0.2797536497390773,
+baseline,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,
+baseline,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,
+baseline,summer,level_sustained_model_b,C3,26,0.0,0.0,0.0,0.0,0.30462007979112854,
+baseline,summer,level_sustained_model_b,C4,0,,,,,,
+baseline,summer,level_sustained_model_b,C5,5,0.0,0.0,0.0,0.0,0.3098746019448432,
+baseline,summer,level_sustained_model_b,SITE,57,0.0,0.0,0.0,0.0,0.2797536497390773,
+ukcp18_2050s,annual,level_sustained_model_b,C1,7,-0.0885,-0.0896,-18.531819728663493,-16.79040622506798,0.2098951779920077,
+ukcp18_2050s,annual,level_sustained_model_b,C2,19,-0.1415,-0.1359,-37.72978698633678,-34.865394646244674,0.26353666867841014,
+ukcp18_2050s,annual,level_sustained_model_b,C3,26,-0.2009,-0.1843,-61.398143270368564,-54.747221043156344,0.30462007979112854,
+ukcp18_2050s,annual,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2050s,annual,level_sustained_model_b,C5,5,-0.1479,-0.1336,-45.11349622612915,-42.27279866864455,0.3098746019448432,
+ukcp18_2050s,annual,level_sustained_model_b,SITE,57,-0.1627,-0.144,-46.81592801756617,-42.429650368047,0.2797536497390773,
+ukcp18_2050s,winter,level_sustained_model_b,C1,7,-0.0045,-0.0037,-1.0795868823459727,-0.7902422531088001,0.2098951779920077,
+ukcp18_2050s,winter,level_sustained_model_b,C2,19,-0.0779,-0.0709,-20.992064739817334,-17.87672570124309,0.26353666867841014,
+ukcp18_2050s,winter,level_sustained_model_b,C3,26,-0.1541,-0.1303,-47.60057513682946,-39.53526887057944,0.30462007979112854,
+ukcp18_2050s,winter,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2050s,winter,level_sustained_model_b,C5,5,-0.1207,-0.1077,-36.6934232015188,-33.19111346487654,0.3098746019448432,
+ukcp18_2050s,winter,level_sustained_model_b,SITE,57,-0.1074,-0.1012,-32.061200136808964,-29.007818745034918,0.2797536497390773,
+ukcp18_2050s,summer,level_sustained_model_b,C1,7,-0.1712,-0.157,-35.72559911691108,-35.83123200940674,0.2098951779920077,
+ukcp18_2050s,summer,level_sustained_model_b,C2,19,-0.2038,-0.1936,-54.08508408151343,-50.790143328131386,0.26353666867841014,
+ukcp18_2050s,summer,level_sustained_model_b,C3,26,-0.2456,-0.2346,-74.56628082382393,-66.7674008264618,0.30462007979112854,
+ukcp18_2050s,summer,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2050s,summer,level_sustained_model_b,C5,5,-0.1739,-0.1623,-53.152185112051214,-50.81146646563908,0.3098746019448432,
+ukcp18_2050s,summer,level_sustained_model_b,SITE,57,-0.2162,-0.2043,-61.090877514856324,-54.805452140151154,0.2797536497390773,
+ukcp18_2050s,msl5,level_sustained_model_b,C1,7,0.0239,0.0212,,,,
+ukcp18_2050s,msl5,level_sustained_model_b,C2,19,-0.0233,-0.0146,,,,
+ukcp18_2050s,msl5,level_sustained_model_b,C3,26,-0.0916,-0.0651,,,,
+ukcp18_2050s,msl5,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2050s,msl5,level_sustained_model_b,C5,5,-0.0796,-0.063,,,,
+ukcp18_2050s,msl5,level_sustained_model_b,SITE,57,-0.0536,,,,,
+ukcp18_2080s,annual,level_sustained_model_b,C1,7,-0.159,-0.1613,-33.31155995916259,-30.100883947989114,0.2098951779920077,
+ukcp18_2080s,annual,level_sustained_model_b,C2,19,-0.2542,-0.244,-67.76278739930365,-62.65145225947549,0.26353666867841014,
+ukcp18_2080s,annual,level_sustained_model_b,C3,26,-0.362,-0.3331,-110.59618916661155,-98.64960201719417,0.30462007979112854,
+ukcp18_2080s,annual,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2080s,annual,level_sustained_model_b,C5,5,-0.2664,-0.2402,-81.23372712289185,-76.40235259815734,0.3098746019448432,
+ukcp18_2080s,annual,level_sustained_model_b,SITE,57,-0.2928,-0.2576,-84.25163919732049,-76.40235259815734,0.2797536497390773,
+ukcp18_2080s,winter,level_sustained_model_b,C1,7,-0.0001,-0.0001,-0.26179764603645694,-0.011464261394032477,0.2098951779920077,
+ukcp18_2080s,winter,level_sustained_model_b,C2,19,-0.1339,-0.121,-36.14817639642382,-30.503301936869168,0.26353666867841014,
+ukcp18_2080s,winter,level_sustained_model_b,C3,26,-0.2728,-0.2294,-84.31595318008179,-69.68123118219293,0.30462007979112854,
+ukcp18_2080s,winter,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2080s,winter,level_sustained_model_b,C5,5,-0.2147,-0.191,-65.23978312191329,-59.00503511582748,0.3098746019448432,
+ukcp18_2080s,winter,level_sustained_model_b,SITE,57,-0.1879,-0.178,-56.264239181508785,-50.873482494230515,0.2797536497390773,
+ukcp18_2080s,summer,level_sustained_model_b,C1,7,-0.3147,-0.2888,-65.66846867324956,-65.99016966404321,0.2098951779920077,
+ukcp18_2080s,summer,level_sustained_model_b,C2,19,-0.3709,-0.3527,-98.43242785280115,-92.29944008048042,0.26353666867841014,
+ukcp18_2080s,summer,level_sustained_model_b,C3,26,-0.4465,-0.4292,-135.47328508178055,-121.77153606067726,0.30462007979112854,
+ukcp18_2080s,summer,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2080s,summer,level_sustained_model_b,C5,5,-0.3153,-0.2924,-96.36927955243634,-92.33448109371332,0.3098746019448432,
+ukcp18_2080s,summer,level_sustained_model_b,SITE,57,-0.3936,-0.374,-111.1236354351657,-100.52880280120716,0.2797536497390773,
+ukcp18_2080s,msl5,level_sustained_model_b,C1,7,0.0526,0.0462,,,,
+ukcp18_2080s,msl5,level_sustained_model_b,C2,19,-0.0317,-0.0155,,,,
+ukcp18_2080s,msl5,level_sustained_model_b,C3,26,-0.1544,-0.1062,,,,
+ukcp18_2080s,msl5,level_sustained_model_b,C4,0,,,,,,
+ukcp18_2080s,msl5,level_sustained_model_b,C5,5,-0.1371,-0.1064,,,,
+ukcp18_2080s,msl5,level_sustained_model_b,SITE,57,-0.0866,,,,,
+clearfell,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,withdrawn (D-333)
+clearfell,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,withdrawn (D-333)
+clearfell,annual,level_sustained_model_b,C3,26,-0.0062,0.0,-1.9389215507176887,0.0,0.30462007979112854,withdrawn (D-333)
+clearfell,annual,level_sustained_model_b,C4,0,,,,,,withdrawn (D-333)
+clearfell,annual,level_sustained_model_b,C5,5,-0.0512,-0.0468,-15.610735069925443,-14.201075511939429,0.3098746019448432,withdrawn (D-333)
+clearfell,annual,level_sustained_model_b,SITE,57,-0.0073,0.0,-2.253783081899774,0.0,0.2797536497390773,withdrawn (D-333)
+clearfell,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,withdrawn (D-333)
+clearfell,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,withdrawn (D-333)
+clearfell,winter,level_sustained_model_b,C3,26,-0.0059,0.0,-1.8421729006001721,0.0,0.30462007979112854,withdrawn (D-333)
+clearfell,winter,level_sustained_model_b,C4,0,,,,,,withdrawn (D-333)
+clearfell,winter,level_sustained_model_b,C5,5,-0.0484,-0.0441,-14.736610682304772,-13.343345637053165,0.3098746019448432,withdrawn (D-333)
+clearfell,winter,level_sustained_model_b,SITE,57,-0.0069,0.0,-2.132974540826813,0.0,0.2797536497390773,withdrawn (D-333)
+clearfell,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,withdrawn (D-333)
+clearfell,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,withdrawn (D-333)
+clearfell,summer,level_sustained_model_b,C3,26,-0.0065,0.0,-2.0408431744919215,0.0,0.30462007979112854,withdrawn (D-333)
+clearfell,summer,level_sustained_model_b,C4,0,,,,,,withdrawn (D-333)
+clearfell,summer,level_sustained_model_b,C5,5,-0.0542,-0.0498,-16.530415661397868,-15.479888536637395,0.3098746019448432,withdrawn (D-333)
+clearfell,summer,level_sustained_model_b,SITE,57,-0.0077,0.0,-2.380947383224198,0.0,0.2797536497390773,withdrawn (D-333)
+broadleaf,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,
+broadleaf,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,
+broadleaf,annual,level_sustained_model_b,C3,26,-0.0026,0.0,-0.7987282767722395,0.0,0.30462007979112854,
+broadleaf,annual,level_sustained_model_b,C4,0,,,,,,
+broadleaf,annual,level_sustained_model_b,C5,5,-0.0211,-0.0193,-6.430758127854236,-5.8500564748302,0.3098746019448432,
+broadleaf,annual,level_sustained_model_b,SITE,57,-0.003,0.0,-0.9284337865850772,0.0,0.2797536497390773,
+broadleaf,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,
+broadleaf,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,
+broadleaf,winter,level_sustained_model_b,C3,26,-0.002,0.0,-0.6129457019825334,0.0,0.30462007979112854,
+broadleaf,winter,level_sustained_model_b,C4,0,,,,,,
+broadleaf,winter,level_sustained_model_b,C5,5,-0.0156,-0.0139,-4.746085157658069,-4.298870266662034,0.3098746019448432,
+broadleaf,winter,level_sustained_model_b,SITE,57,-0.0023,0.0,-0.6959125270146704,0.0,0.2797536497390773,
+broadleaf,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,
+broadleaf,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,
+broadleaf,summer,level_sustained_model_b,C3,26,-0.0033,0.0,-1.0172959674409654,0.0,0.30462007979112854,
+broadleaf,summer,level_sustained_model_b,C4,0,,,,,,
+broadleaf,summer,level_sustained_model_b,C5,5,-0.0275,-0.0256,-8.402415382624099,-8.237166283201764,0.3098746019448432,
+broadleaf,summer,level_sustained_model_b,SITE,57,-0.0039,0.0,-1.201083720466414,0.0,0.2797536497390773,
+thinning,annual,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,withdrawn (D-333)
+thinning,annual,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,withdrawn (D-333)
+thinning,annual,level_sustained_model_b,C3,26,-0.0031,0.0,-0.9694607753588443,0.0,0.30462007979112854,withdrawn (D-333)
+thinning,annual,level_sustained_model_b,C4,0,,,,,,withdrawn (D-333)
+thinning,annual,level_sustained_model_b,C5,5,-0.0256,-0.0234,-7.805367534962722,-7.1005377559697145,0.3098746019448432,withdrawn (D-333)
+thinning,annual,level_sustained_model_b,SITE,57,-0.0037,0.0,-1.126891540949887,0.0,0.2797536497390773,withdrawn (D-333)
+thinning,winter,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,withdrawn (D-333)
+thinning,winter,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,withdrawn (D-333)
+thinning,winter,level_sustained_model_b,C3,26,-0.0029,0.0,-0.9210864503000861,0.0,0.30462007979112854,withdrawn (D-333)
+thinning,winter,level_sustained_model_b,C4,0,,,,,,withdrawn (D-333)
+thinning,winter,level_sustained_model_b,C5,5,-0.0242,-0.022,-7.368305341152386,-6.671672818526583,0.3098746019448432,withdrawn (D-333)
+thinning,winter,level_sustained_model_b,SITE,57,-0.0035,0.0,-1.0664872704134065,0.0,0.2797536497390773,withdrawn (D-333)
+thinning,summer,level_sustained_model_b,C1,7,0.0,0.0,0.0,0.0,0.2098951779920077,withdrawn (D-333)
+thinning,summer,level_sustained_model_b,C2,19,0.0,0.0,0.0,0.0,0.26353666867841014,withdrawn (D-333)
+thinning,summer,level_sustained_model_b,C3,26,-0.0033,0.0,-1.0204215872459608,0.0,0.30462007979112854,withdrawn (D-333)
+thinning,summer,level_sustained_model_b,C4,0,,,,,,withdrawn (D-333)
+thinning,summer,level_sustained_model_b,C5,5,-0.0271,-0.0249,-8.265207830698934,-7.739944268318697,0.3098746019448432,withdrawn (D-333)
+thinning,summer,level_sustained_model_b,SITE,57,-0.0039,0.0,-1.190473691612099,0.0,0.2797536497390773,withdrawn (D-333)
+end_state_open_dune,annual,end_state_open_dune_model_b,C4,0,0.8976344271994736,,,,,
+end_state_open_dune,annual,end_state_open_dune_model_b,C5,0,0.4975987332731533,,,,,
+clearfell_interception_bound,annual,level_sustained_model_b,C5,5,0.33805236448053455,0.2761673152613015,103.51760217889948,93.11694872305507,0.3098746019448432,withdrawn (D-333)
+clearfell_interception_bound,winter,level_sustained_model_b,C5,5,0.3627541208608694,0.2990847596759109,111.15391767582442,100.96049351167305,0.3098746019448432,withdrawn (D-333)
+clearfell_interception_bound,summer,level_sustained_model_b,C5,5,0.31333755874523544,0.25322548920789356,95.87729221117951,85.27358402486898,0.3098746019448432,withdrawn (D-333)
+broadleaf_interception_bound,annual,level_sustained_model_b,C5,5,0.12487718572979409,0.10183204213932785,38.24236834045511,34.49768535145207,0.3098746019448432,
+broadleaf_interception_bound,winter,level_sustained_model_b,C5,5,0.13854698777407085,0.1147635109064028,42.46286297664037,38.63201043272704,0.3098746019448432,
+broadleaf_interception_bound,summer,level_sustained_model_b,C5,5,0.11032467887051359,0.08848612830561817,33.750475069592426,30.13252838483195,0.3098746019448432,

@@ -31,7 +31,11 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.12.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239). The forestry bars are anchored to the
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). load_cluster_params() measures
+#   h_disp from each cluster's Model B implied datum (03_03 implied_datum_m = DRAINAGE_DATUM - alpha/beta_3) instead of
+#   DRAINAGE_DATUM, so b3*h_disp is Model B's drainage term with 03_03's (now Model B) betas, and returns alpha and
+#   implied_datum_m. compute_scenario_bars() differences two fluxes at one h_disp, so its bars do not depend on the datum.
+# 1.12.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239). The forestry bars are anchored to the
 #   December 2017 felling: the canopy's draw scaled by the felled well's measured beta_2 change (Impact tier net of
 #   the Climate controls, clearfell_common.load_clearfell_impact_b2_multiplier) and no interception recharge term;
 #   compute_scenario_bars_from_params() passes those multipliers. The climate bars are unchanged.
@@ -376,12 +380,16 @@ def load_cluster_params():
       - beta from Script 03 cluster mechanistic table
       - Sy from the WTF per-well estimates, cluster median (Script 17's
         method, written by Script 18 — D-038)
-      - h_disp from Script 01 wells + DRAINAGE_DATUM
+      - h_disp = the cluster's Model B implied datum (03_03 implied_datum_m,
+        DRAINAGE_DATUM − α/β₃; D-332) + its wells' mean depth (Script 01)
       - forest flag (clusters 4 and 5)
+
+    Model B is exactly Model A at the implied datum, so β₃·h_disp here is
+    Model B's drainage term (β₃·(D + h) − α).
 
     Returns
     -------
-    dict : {cname: {b1, b2, b3, Sy, h_disp, forest}}
+    dict : {cname: {b1, b2, b3, alpha, implied_datum_m, Sy, h_disp, forest}}
     """
     from utils.paths import (
         OUT_03_MECHANISTIC_TABLE, INT_MASTER_DATA,
@@ -406,12 +414,17 @@ def load_cluster_params():
         cl_wells = master[master["Cluster"] == cl]["match"].tolist()
         available = [w for w in cl_wells if w in wells.columns]
         mean_depth = wells[available].mean().mean() if available else -0.5
-        h_disp = DRAINAGE_DATUM + mean_depth
+        # 1.13.0 (D-332): displacement above Model B's implied datum, not DRAINAGE_DATUM
+        z_b = (float(row["implied_datum_m"]) if "implied_datum_m" in row and pd.notna(row["implied_datum_m"])
+               else float(DRAINAGE_DATUM))
+        h_disp = z_b + mean_depth
 
         params[cname] = {
             "b1": float(row["beta_1_recharge"]),
             "b2": float(row["beta_2_atmospheric_draw"]),
             "b3": float(row["beta_3_drainage"]),
+            "alpha": float(row["alpha"]) if "alpha" in row and pd.notna(row["alpha"]) else 0.0,
+            "implied_datum_m": z_b,
             "Sy": float(sy_by_cluster.get(cl, 0.25)),
             "h_disp": h_disp,
             "forest": cl in (4, 5),

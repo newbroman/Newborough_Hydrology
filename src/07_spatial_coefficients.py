@@ -22,10 +22,11 @@ Purpose:
 
 Data source:
     All coefficients come from Script 03's per-well SSM fits stored in
-    03_master_data.csv. These are displacement-formulation fits (β₃ fitted
-    on h_disp = DRAINAGE_DATUM + h_depth), but β₁, β₂, β₃ values are
-    numerically identical regardless of whether the fit uses raw depth or
-    displacement — only the intercept differs.
+    03_master_data.csv. Since Script 03 1.31.0 (D-332) these are Model B, the
+    free-intercept form: with a fitted intercept α, β₁, β₂, β₃ are numerically
+    identical whether the fit uses raw depth or h_disp = DRAINAGE_DATUM + h_depth
+    — only α differs — so the atlas does not depend on the datum. (Model A, the
+    no-intercept form at DRAINAGE_DATUM, is in the *_model_a columns, unmapped.)
 
 Outputs:
     - 07_coefficient_summary.csv
@@ -43,7 +44,14 @@ Outputs:
 ====================================================================================
 """
 
-__version__ = "1.6.1"  # Hollingham (2026) — 2026-10-08. Comments only: Paper 1's tables were renumbered when
+__version__ = "1.7.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's coefficients are Model B
+#   since Script 03 1.31.0: the map titles, the docstring and the report-number notes say so (the cluster-mean notes
+#   named the 3.7 m datum, which Model B's betas do not depend on). CEH14_beta3 / CEH14_beta3_pct now carry Model B's
+#   (positive) value, so their notes no longer say "negative"; Model A's negative value, which the documents cite,
+#   is emitted as CEH14_beta3_model_a / CEH14_beta3_pct_model_a. The beta_3 map's contour levels follow the data
+#   (log_125_levels: the 1-2-5 sequence across the wells' range) instead of a fixed 0.5-10 % list that left
+#   Model B's upper range (to ~43 %/month) uncontoured.
+# 1.6.1  # Hollingham (2026) — 2026-10-08. Comments only: Paper 1's tables were renumbered when
 #   its benchmark table moved to Paper M (D-244), so "Paper 1 Table 6" now reads Table 5. No code or output changes.
 # 1.6.0  # Hollingham (2026) — 2026-09-29. T-96: emits
 #   C4_beta2_beta3_corr_excl_ceh13_ceh14, the C4 per-well β₂-β₃ correlation with
@@ -210,6 +218,21 @@ def load_coefficient_data():
 # ------------------------------------------------------------------
 # SINGLE MAP GENERATOR
 # ------------------------------------------------------------------
+
+def log_125_levels(values):
+    """1.7.0 (D-332): contour levels on the 1-2-5 sequence spanning the data's positive range, for a
+    log-scaled map. They follow the data rather than a fixed list, so Model B's larger beta_3 (up to about
+    40 %/month at C1) is contoured and not cut off at 10 %."""
+    v = pd.to_numeric(pd.Series(values), errors="coerce")
+    v = v[v > 0].dropna()
+    if v.empty:
+        return None
+    lo, hi = float(v.min()), float(v.max())
+    levels = [m * 10.0 ** e for e in range(int(np.floor(np.log10(lo))), int(np.ceil(np.log10(hi))) + 1)
+              for m in (1.0, 2.0, 5.0)]
+    levels = [x for x in levels if lo <= x <= hi]
+    return levels or None
+
 
 def make_coefficient_map(
     df,
@@ -589,7 +612,7 @@ if __name__ == "__main__":
             df, "beta_1_recharge",
             title=(
                 "β₁ Recharge Sensitivity (mm water-table rise per mm rainfall)\n"
-                "Per-well SSM coefficient — Newborough Warren"
+                "Per-well SSM coefficient (Model B) — Newborough Warren"
             ),
             output_path=OUT_BETA1_MAP,
             cmap=get_cmap("YlGnBu"),
@@ -604,7 +627,7 @@ if __name__ == "__main__":
             df, "beta_2_atmospheric_draw",
             title=(
                 "β₂ Atmospheric Draw (mm water-table decline per mm PET)\n"
-                "Per-well SSM coefficient — Newborough Warren"
+                "Per-well SSM coefficient (Model B) — Newborough Warren"
             ),
             output_path=OUT_BETA2_MAP,
             cmap=get_cmap("YlOrRd"),
@@ -619,14 +642,14 @@ if __name__ == "__main__":
             df, "beta_3_pct",
             title=(
                 "β₃ Drainage Rate (% head drained / month, log scale)\n"
-                "Per-well SSM coefficient — Newborough Warren"
+                "Per-well SSM coefficient (Model B) — Newborough Warren"
             ),
             output_path=OUT_BETA3_MAP,
             cmap=get_cmap("plasma"),
             cbar_label="β₃ (% head drained / month)",
             log_scale=True,
-            contour_levels=[0.5, 1.0, 2.0, 5.0, 10.0],
-            contour_fmt="%.1f",
+            contour_levels=log_125_levels(df["beta_3_pct"]),   # 1.7.0: from the data, 1-2-5
+            contour_fmt="%g",
         )),
         # ------------------------------------------------------------------
         # Map 4: R² Model Quality
@@ -634,7 +657,7 @@ if __name__ == "__main__":
         ("R² model quality", lambda: make_coefficient_map(
             df, "Model_R2",
             title=(
-                "Per-Well SSM Fit Quality (R²)\n"
+                "Per-Well SSM Fit Quality (R², Model B)\n"
                 "Newborough Warren"
             ),
             output_path=OUT_R2_MAP,
@@ -688,7 +711,7 @@ if __name__ == "__main__":
 
     # ------------------------------------------------------------------
     # §4.9 traceability: per-cluster MEAN coefficients + report numbers
-    # Means of the per-well SSM coefficients (uniform DRAINAGE_DATUM, read
+    # Means of the per-well SSM coefficients (Model B since Script 03 1.31.0, D-332; read
     # from 03_master_data.csv), so the cited §4.9 cluster means have a
     # findable source. β₃ also reported as % head drained / month.
     # ------------------------------------------------------------------
@@ -724,20 +747,27 @@ if __name__ == "__main__":
     for _, _r in _means_df.iterrows():
         _cl = f"C{int(_r['Cluster_ID'])}"
         rpt.add(f"{_cl}_beta1_mean", _r["beta_1_recharge_mean"], unit="mm/mm",
-                note=f"mean β₁ recharge, {_cl}, {DRAINAGE_DATUM:g} m datum, n={int(_r['n'])}")
+                note=f"mean β₁ recharge, {_cl}, Model B (free intercept), n={int(_r['n'])}")
         rpt.add(f"{_cl}_beta2_mean", _r["beta_2_atmospheric_draw_mean"], unit="mm/mm",
-                note=f"mean β₂ atmospheric draw, {_cl}, {DRAINAGE_DATUM:g} m datum, n={int(_r['n'])}")
+                note=f"mean β₂ atmospheric draw, {_cl}, Model B (free intercept), n={int(_r['n'])}")
         rpt.add(f"{_cl}_beta3_mean", _r["beta_3_drainage_mean"], unit="/month",
-                note=f"mean β₃ drainage, {_cl}, {DRAINAGE_DATUM:g} m datum, n={int(_r['n'])}")
+                note=f"mean β₃ drainage, {_cl}, Model B (free intercept), n={int(_r['n'])}")
         rpt.add(f"{_cl}_beta3_pct_mean", _r["beta_3_pct_mean"], unit="%/month",
                 note=f"mean β₃ as % head drained/month, {_cl}")
-    # CEH14: cited negative β₃ (lateral recharge from the rock ridge)
+    # CEH14: cited for its negative β₃ (lateral recharge from the rock ridge). That was Model A's estimate;
+    # since 1.7.0 (D-332) the unsuffixed keys carry Model B's (positive, with an implied drainage base above
+    # ground), and Model A's negative value is kept in the *_model_a keys.
     _ceh14 = df[df["Name_Original"].astype(str).str.lower().str.replace(" ", "") == "ceh14"]
     if len(_ceh14):
         rpt.add("CEH14_beta3", float(_ceh14["beta_3_drainage"].iloc[0]), unit="/month",
-                well="CEH14", note="negative β₃ — lateral recharge from rock ridge (C4)")
+                well="CEH14", note="β₃, Model B (C4; implied drainage base above ground)")
         rpt.add("CEH14_beta3_pct", float(_ceh14["beta_3_drainage"].iloc[0]) * 100.0,
-                unit="%/month", well="CEH14", note="negative β₃ as %")
+                unit="%/month", well="CEH14", note="β₃ as %, Model B")
+        if "beta_3_drainage_model_a" in _ceh14.columns:
+            rpt.add("CEH14_beta3_model_a", float(_ceh14["beta_3_drainage_model_a"].iloc[0]), unit="/month",
+                    well="CEH14", note=f"β₃, Model A ({DRAINAGE_DATUM:g} m datum): negative — lateral recharge from rock ridge (C4)")
+            rpt.add("CEH14_beta3_pct_model_a", float(_ceh14["beta_3_drainage_model_a"].iloc[0]) * 100.0,
+                    unit="%/month", well="CEH14", note="β₃ as %, Model A")
     # T-91: C4 β₂-β₃ per-well correlation (report9 §4.2.2), all C4 wells and
     # with CEH14 removed — CEH14's atypical β₂/β₃ combination is discussed
     # separately (rock-ridge lateral recharge), so both the full-C4 and the
@@ -769,7 +799,7 @@ if __name__ == "__main__":
         _c4_pos_max_row = _c4_pos.loc[_c4_pos["beta_3_drainage"].idxmax()]
         rpt.add("C4_beta3_pct_max_excl_ceh14", float(_c4_pos_max_row["beta_3_drainage"]) * 100.0,
                 unit="%/month", well=str(_c4_pos_max_row["Name_Original"]),
-                note="highest positive β₃ among C4 wells, CEH14's negative estimate excluded")
+                note="highest positive β₃ among C4 wells (Model B), CEH14 excluded (its Model A β₃ is negative)")
     # T-73: clusters vs covariates, full panel only — the nested F-test p-value
     # and ΔAIC for C(Cluster) over the six covariates, per coefficient. The
     # primary artefact is 07_05_clusters_vs_covariates.csv.

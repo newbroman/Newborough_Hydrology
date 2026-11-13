@@ -45,7 +45,10 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.38.0"  # Hollingham (2026) — 2026-11-03 (D-296 retirement pass). 14_winter_exceedance.csv and
+__version__ = "1.39.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 2b). Script 08 2.0.0 renamed 08_lcsc_04's columns:
+#   Traditional_Model_A -> TLM, StateSpace_Model_B -> SSM_Model_B (now Model B; it held Model A), Delta_B_minus_A ->
+#   Delta_SSM_minus_TLM. Rebound to the successors so the documents' numbers surface as drift for phase 3.
+# 1.38.0  # Hollingham (2026) — 2026-11-03 (D-296 retirement pass). 14_winter_exceedance.csv and
 #   14b_year_of_crossing.csv are no longer published, and the cluster threshold summary has lost its two count
 #   columns; their registrations are removed.
 # 1.37.0  # Hollingham (2026) — 2026-10-28. 16_water_bal_rec_table and _vol_table register B_drain_frac,
@@ -575,7 +578,7 @@ EXTRA_VALUE_TABLES = [
      ["median_dNSE", "median_TLM_NSE", "median_SSM_NSE", "median_ModelB_NSE", "median_dNSE_ModelB",
       "positive_TLM_NSE", "positive_SSM_NSE", "positive_ModelB_NSE"]),
     ("outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv", "Metric",    # report9 4.4, report10 5.2.4, report10 5.7.8
-     ["Traditional_Model_A", "StateSpace_Model_B", "Delta_B_minus_A"]),
+     ["TLM", "SSM_Model_B", "Delta_SSM_minus_TLM"]),
     ("outputs/08_model_benchmarking/08_perwell_nse.csv", "Well",    # report6 1, report9 4.4
      ["TLM_NSE", "SSM_NSE", "dNSE", "ModelB_NSE", "dNSE_ModelB"]),
     ("outputs/09_scraping_intervention/09_scrape_02_beta3_significance.csv", ("Well", "Era"),    # report9 4.5.3, report10 5.8.2

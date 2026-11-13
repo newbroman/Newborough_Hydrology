@@ -99,7 +99,7 @@ Inputs (via utils.paths):
     CCW_DEPTHS        (data/ccw_1989_1996_depths.csv)     historic depths, tidy
     CCW_CODE_MAP      (data/ccw_1989_1996_code_map.csv)   code -> well + status
     INT_CLIMATE       (01_climate.csv)                    P_m, PET in m/month
-    INT_MASTER_DATA   (03_master_data.csv)                per-well beta_1/2/3 (Model A)
+    INT_MASTER_DATA   (03_master_data.csv)                per-well beta_1/2/3 (Model A: the *_model_a columns)
     OUT_03_MODEL_B_PERSISTENCE (03_16)                    per-well Model B (alpha, beta_*)
     OUT_01B_REPORT_NUMBERS (tide_mhw_m)                   mean high water, the MHW form
     INT_LOCATIONS     (01_locations.csv)                  ground elevation
@@ -121,7 +121,11 @@ Outputs (outputs/39_ccw_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.7.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the headline: every
+__version__ = "1.8.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+#   03_master_data's unsuffixed beta columns and Model A in *_model_a; load_inputs() now gives md (the Model A
+#   comparison-window store: model_a_ok, the Model A admission check, the A hindcast) the *_model_a triple, so
+#   Model A stays Model A. Model B still comes from 03_16; no Model B result changes.
+# 1.7.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the headline: every
 #   report key keeps its name and now carries Model B (03_16, run at DRAINAGE_DATUM - alpha/beta_3), with Model A at
 #   3.7 m beside it as <key>_model_a; B gets its own beta_1 envelope (same scalings; 39_02 predicted_b_lo/hi_m_bg,
 #   39_03 *_model_b columns). Bounded beta_3 fits (model_utils 1.14.0) are kept, not dropped, and counted
@@ -445,6 +449,10 @@ def load_inputs():
     md = pd.read_csv(paths.INT_MASTER_DATA)
     md["k"] = md["Name_Original"].astype(str).str.lower().str.strip()
     md = md.set_index("k")
+    # 1.8.0 (D-332, phase 2b): md is the MODEL A store here (Model B comes from 03_16, load_model_b);
+    # Script 03 1.31.0 holds Model A in *_model_a, so those columns take the BETA_COLS names that
+    # model_a_ok, usable_codes and the hindcast read.
+    md = md.drop(columns=list(BETA_COLS)).rename(columns={f"{c}_model_a": c for c in BETA_COLS})
 
     loc = pd.read_csv(paths.INT_LOCATIONS)
     loc["k"] = loc["Name"].astype(str).str.lower().str.strip()

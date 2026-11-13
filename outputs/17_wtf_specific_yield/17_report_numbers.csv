@@ -1,21 +1,21 @@
 Parameter,Well,Era,Value,Unit,Note
 sy_event_clip_shift,C1 (Lake Edge),,0.08035814814682099,,Sy_event_median_unclipped minus Sy_event_median: the shift of the event median when the plausibility ceiling is lifted (uncorrected run)
-sy_ols_to_event_ratio,C1 (Lake Edge),,1.64745832154453,,Sy_OLS_winter / Sy_event_median (uncorrected run)
-sy_estimator_range,C1 (Lake Edge),,0.16579798633678391,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
+sy_ols_to_event_ratio,C1 (Lake Edge),,1.12298338354556,,Sy_OLS_winter / Sy_event_median (uncorrected run)
+sy_estimator_range,C1 (Lake Edge),,0.05558098396157121,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
 sy_event_clip_shift,C2 (Dune),,0.09514844782275717,,Sy_event_median_unclipped minus Sy_event_median: the shift of the event median when the plausibility ceiling is lifted (uncorrected run)
-sy_ols_to_event_ratio,C2 (Dune),,1.228585622589743,,Sy_OLS_winter / Sy_event_median (uncorrected run)
-sy_estimator_range,C2 (Dune),,0.06172576717261791,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
+sy_ols_to_event_ratio,C2 (Dune),,0.93929946301713,,Sy_OLS_winter / Sy_event_median (uncorrected run)
+sy_estimator_range,C2 (Dune),,0.020503536914639187,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
 sy_event_clip_shift,C3 (Western Residual),,0.14142818781107086,,Sy_event_median_unclipped minus Sy_event_median: the shift of the event median when the plausibility ceiling is lifted (uncorrected run)
-sy_ols_to_event_ratio,C3 (Western Residual),,1.1172581000393604,,Sy_OLS_winter / Sy_event_median (uncorrected run)
-sy_estimator_range,C3 (Western Residual),,0.0366305381724818,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
+sy_ols_to_event_ratio,C3 (Western Residual),,0.7361289682491301,,Sy_OLS_winter / Sy_event_median (uncorrected run)
+sy_estimator_range,C3 (Western Residual),,0.08415734073879091,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
 sy_event_clip_shift,C4 (Main Forest),,0.1373876685324263,,Sy_event_median_unclipped minus Sy_event_median: the shift of the event median when the plausibility ceiling is lifted (uncorrected run)
-sy_ols_to_event_ratio,C4 (Main Forest),,0.9541146295276007,,Sy_OLS_winter / Sy_event_median (uncorrected run)
-sy_estimator_range,C4 (Main Forest),,0.014816072497222332,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
+sy_ols_to_event_ratio,C4 (Main Forest),,0.8516050194272873,,Sy_OLS_winter / Sy_event_median (uncorrected run)
+sy_estimator_range,C4 (Main Forest),,0.047590338094751716,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
 sy_event_clip_shift,C5 (Coastal Forest),,0.247157245705877,,Sy_event_median_unclipped minus Sy_event_median: the shift of the event median when the plausibility ceiling is lifted (uncorrected run)
-sy_ols_to_event_ratio,C5 (Coastal Forest),,1.1498006208078848,,Sy_OLS_winter / Sy_event_median (uncorrected run)
-sy_estimator_range,C5 (Coastal Forest),,0.10704928833730876,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
-sy_ols_to_event_ratio_mean,,,1.2194434589018237,,mean of sy_ols_to_event_ratio over the n=5 clusters (uncorrected run)
-sy_ols_to_event_ratio_n_above_1,,,4.0,clusters,"clusters whose Sy_OLS_winter exceeds Sy_event_median, of n=5"
+sy_ols_to_event_ratio,C5 (Coastal Forest),,0.8454489951518536,,Sy_OLS_winter / Sy_event_median (uncorrected run)
+sy_estimator_range,C5 (Coastal Forest),,0.05624549552054714,,"max minus min of Sy_event_median, Sy_OLS_winter and Sy_rapid_median (uncorrected run; the rapid-event estimate is interception-corrected at C4/C5)"
+sy_ols_to_event_ratio_mean,,,0.8990931658781921,,mean of sy_ols_to_event_ratio over the n=5 clusters (uncorrected run)
+sy_ols_to_event_ratio_n_above_1,,,1.0,clusters,"clusters whose Sy_OLS_winter exceeds Sy_event_median, of n=5"
 sy_event_n_min,,,36.0,events,"fewest qualifying rising-limb events (Sy_event_n) in any cluster run, all n=7 runs including interception-corrected forest rows"
 sy_event_n_max,,,64.0,events,"most qualifying rising-limb events (Sy_event_n) in any cluster run, all n=7 runs including interception-corrected forest rows"
 sy_event_n_pass_r_min,,,141.0,months,"fewest months meeting the net-recharge criterion (Sy_event_n_pass_R), n=5 uncorrected clusters"
@@ -24,3 +24,4 @@ sy_event_n_pass_dh_min,,,92.0,months,"fewest months meeting the water-table rise
 sy_event_n_pass_dh_max,,,113.0,months,"most months meeting the water-table rise criterion (Sy_event_n_pass_dh), all n=7 runs"
 sy_event_pct_censored_min,,,38.541666666666664,%,"lowest percent of months clearing both criteria censored by the S_a ceiling 0.5 (Sy_event_pct_censored), n=5 uncorrected clusters"
 sy_event_median_unclipped_min,,,0.29050546766550733,,"lowest event-median S_a with the ceiling lifted (Sy_event_median_unclipped), n=5 uncorrected clusters"
+wtf_a_n_clusters_model_b_excluded_datum,,,0.0,clusters,clusters with no Approach A S_a: Model B centroid implied base DRAINAGE_DATUM - alpha/beta_3 not below ground (D-332)

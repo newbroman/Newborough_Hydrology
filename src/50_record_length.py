@@ -77,7 +77,22 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.25.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a; brief NRG_brief_model_B_single_form
+__version__ = "1.28.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+#   03_master_data / 03_03 / 03_15's unsuffixed coefficient columns and Model A in *_model_a. Every read of them here
+#   means Model A, so all now go through _model_a_store(): the usable_codes admission (Script 39's Model A rule, in
+#   the record-length CCW hindcast, E5, E8, E8b/c, E12, E16/E17, E18 and E19), transfer_rule's coefficient
+#   differences (T-173b), E11's open-ground ratios, E8g's 03_03 centroids, and the window_full_beta3_ratio_* keys
+#   (03_15). Model B is this script's own fit throughout; no Model B result changes.
+# 1.27.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 15 1.11.0 fits the 15_05
+#   depth-dependent sets as Model B (free α): E7's fall_ddp_m now runs each set at its own implied base, 15_05
+#   implied_datum_m (β₃·(h + z) = β₃·(h + DRAINAGE_DATUM) − α; the PET attenuation reads depth below ground), not at
+#   DRAINAGE_DATUM. A set whose implied base is not below ground is left out and counted
+#   (projection_ddp_n_sets_excluded_datum). ddp_identity_check stays at DRAINAGE_DATUM: it is a function identity on
+#   synthetic coefficients at 1/L_E = 0, where the response does not depend on the datum.
+# 1.26.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Figure 50_49 (plot_split_series) picks
+#   each cluster's example well as the MEDIAN-NSE well under Model B (was Model A at 3.7 m), and its observed line and
+#   suptitle follow. Figure only: no CSV or report number changes.
+# 1.25.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a; brief NRG_brief_model_B_single_form
 #   Addendum 3, "Phase 2, task 1, widened"). The MHW form -- Model A at each well's depth to mean high water
 #   (ground_elev_m less 01b's tide_mhw_m; Script 48's form M, E16's mhw spec) -- runs beside Model A at
 #   DRAINAGE_DATUM and Model B, as form "M", in: the record-length forecast / within-record hindcast / stability
@@ -490,12 +505,22 @@ def free_run(h_test: pd.Series, cl: pd.DataFrame, fit: dict, intercept: bool,
 # ──────────────────────────────────────────────────────────────────────────────
 # The experiments
 # ──────────────────────────────────────────────────────────────────────────────
+def _model_a_store(df: pd.DataFrame) -> pd.DataFrame:
+    """1.28.0 (D-332, phase 2b): a Script 03 coefficient table as its MODEL A store. Script 03 1.31.0 writes
+    Model B in the unsuffixed columns and Model A in <column>_model_a. Every committed-coefficient read in this
+    script means Model A (Script 39's admission rule via usable_codes, T-173b's coefficient differences, E11's
+    open-ground ratios, E8g's centroids); Model B is always this script's own fit. So each *_model_a column takes
+    its unsuffixed name here, and Cluster, names and n pass through."""
+    ren = {c: c[:-len("_model_a")] for c in df.columns if c.endswith("_model_a")}
+    return df.drop(columns=[v for v in ren.values() if v in df.columns]).rename(columns=ren)
+
+
 def load_inputs():
     lev = pd.read_csv(INT_WELLS_CLEAN, index_col=0)
     lev.index = pd.to_datetime(lev.index)
     cl = pd.read_csv(INT_CLIMATE, index_col=0)
     cl.index = pd.to_datetime(cl.index)
-    master = pd.read_csv(INT_MASTER_DATA)
+    master = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     master["_n"] = master["Name_Original"].astype(str).apply(normalize_well_name)
     lev_cols = {normalize_well_name(c): c for c in lev.columns}
     return lev, lev_cols, cl, master
@@ -564,7 +589,7 @@ def ccw_experiment(lev, lev_cols, cl, master):
         warn("CCW historic inputs not present — the ccw_hindcast experiment is skipped")
         return pd.DataFrame()
     obs, cmap = load_ccw()
-    md = pd.read_csv(INT_MASTER_DATA)
+    md = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     md["k"] = md["Name_Original"].astype(str).str.lower().str.strip()
     md = md.set_index("k")
     adm = usable_codes(cmap, md, obs)
@@ -863,7 +888,8 @@ def report_numbers(df, dev, stab, ccw, summ, checks, trule=None, nbt_mhw=None) -
                        note=f"median {lab}, Model {form}, full record; n = {len(v)} wells ({g})")
     # T-103: the comparison window against the full record, per well (Script 03's 03_15)
     ws = pd.read_csv(OUT_03_PER_WELL_WINDOW_SENS)
-    pv = ws.pivot_table(index=["Name_Original", "Cluster"], columns="basis", values="beta_3_drainage").reset_index()
+    pv = _model_a_store(ws).pivot_table(index=["Name_Original", "Cluster"], columns="basis",
+                                        values="beta_3_drainage").reset_index()   # 1.28.0: Model A (*_model_a)
     if {"comparison_window", "full_record"} <= set(pv.columns):
         pv["ratio"] = pv["comparison_window"] / pv["full_record"]
         pv.loc[~(pv["full_record"] > 0), "ratio"] = np.nan
@@ -908,7 +934,7 @@ def ccw_by_datum(lev, lev_cols, cl, loc_forest) -> pd.DataFrame:
         warn("CCW historic inputs not present — the datum hindcast is skipped")
         return pd.DataFrame()
     obs, cmap = load_ccw()
-    md = pd.read_csv(INT_MASTER_DATA)
+    md = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     md["k"] = md["Name_Original"].astype(str).str.lower().str.strip()
     md = md.set_index("k")
     adm = usable_codes(cmap, md, obs)
@@ -1044,6 +1070,7 @@ def plot_split_series(series: pd.DataFrame) -> None:
     Model B 0.38) gave the OPPOSITE ranking to its own cluster (median A 0.21 / B 0.08). C4 is
     wildly heterogeneous -- ceh14 scores -22.3 -- so a single well cannot stand for it honestly
     unless it is chosen to sit in the middle, and the cluster medians are annotated beside it.
+    1.26.0 (D-332): the median is taken over Model B's NSE (it was Model A's), Model B being the model.
     """
     if series is None or series.empty:
         return
@@ -1076,7 +1103,7 @@ def plot_split_series(series: pd.DataFrame) -> None:
             dc = d_[d_["cluster"] == cid]
             if dc.empty:
                 continue
-            per_ = {w: _nse(g) for w, g in dc[dc["form"] == "A"].groupby("well")}
+            per_ = {w: _nse(g) for w, g in dc[dc["form"] == "B"].groupby("well")}   # 1.26.0: by Model B
             w_ = min(per_, key=lambda k: abs(per_[k] - np.median(list(per_.values()))))
             g_ = dc[dc["well"] == w_]
             _plotted += [g_["observed_m"].min(), g_["observed_m"].max(),
@@ -1093,14 +1120,14 @@ def plot_split_series(series: pd.DataFrame) -> None:
             if dc.empty:
                 ax.set_visible(False)
                 continue
-            per = {w: _nse(g) for w, g in dc[dc["form"] == "A"].groupby("well")}
+            per = {w: _nse(g) for w, g in dc[dc["form"] == "B"].groupby("well")}    # 1.26.0 (D-332): by Model B
             med = {f: (float(np.median([_nse(g) for _, g in dc[dc["form"] == f].groupby("well")]))
                        if (dc["form"] == f).any() else np.nan)
                    for f in ("A", "B", FORM_MHW)}
             # the median-NSE well stands for the cluster
             w = min(per, key=lambda k: abs(per[k] - np.median(list(per.values()))))
             g = dc[dc["well"] == w]
-            obs = g[g["form"] == "A"][["month", "observed_m"]].drop_duplicates("month")
+            obs = g[g["form"] == "B"][["month", "observed_m"]].drop_duplicates("month")
             ax.plot(pd.to_datetime(obs["month"]), obs["observed_m"].values, color="black",
                     lw=1.7, label="observed", zorder=3)
             # 1.25.0 (D-332): the MHW form beside the other two; each line's own NSE moves into the title,
@@ -1128,7 +1155,7 @@ def plot_split_series(series: pd.DataFrame) -> None:
             _h.setdefault(ll, hh)
     fig.legend(list(_h.values()), list(_h.keys()), loc="lower center", ncol=4, frameon=False, fontsize=9)
     fig.suptitle("Scenario 1 \u2014 the modern split at January 2018, three forms, both directions\n"
-                 "the well shown is each cluster's MEDIAN-NSE well (Model A at 3.7 m); the cluster medians are given above it",
+                 "the well shown is each cluster's MEDIAN-NSE well (Model B); the cluster medians are given above it",
                  fontsize=10)
     fig.tight_layout(rect=(0, 0.04, 1, 0.96))
     render_figure(fig, OUT_50_SPLIT_FIG)
@@ -1566,7 +1593,10 @@ def water_balance_report(rr, cl) -> None:
 
 def ddp_identity_check() -> float:
     """1.16.0: sustained_monthly_response_ddp at 1/L_E = 0 against the closed form, over a small grid of
-    coefficients spanning the fitted range and both scenarios, with and without interception."""
+    coefficients spanning the fitted range and both scenarios, with and without interception.
+    1.27.0 (D-332): kept at DRAINAGE_DATUM on purpose. It checks the function, not a fitted set: at
+    1/L_E = 0 the model is linear and the sustained response does not depend on the datum (or on α),
+    so any datum tests the same identity."""
     P12 = np.linspace(0.04, 0.12, 12); PET12 = np.linspace(0.005, 0.09, 12)
     worst = 0.0
     for scen in UKCP18_SCENARIOS:
@@ -1577,6 +1607,26 @@ def ddp_identity_check() -> float:
                 dd = sustained_monthly_response_ddp(b1, b2, b3, 0.0, P12, PET12, sP, sPET, DRAINAGE_DATUM, interception=I_)[0]
                 worst = max(worst, float(np.max(np.abs(cf - dd))))
     return worst
+
+
+def ddp_sets():
+    """1.27.0 (D-332): Script 15's identified per-well depth-dependent sets (15_05, comparison window,
+    cluster inv_L_E) as {well: (b1, b2, b3, inv_L_E, z)}, z the set's Model B implied base
+    (implied_datum_m; DRAINAGE_DATUM for a 15_05 written before Script 15 1.11.0, which was Model A).
+    Returns (sets, excluded) with excluded {well: z} for the sets whose base is not below ground."""
+    if not OUT_15_DDP_PER_WELL.exists():
+        return {}, {}
+    _d = pd.read_csv(OUT_15_DDP_PER_WELL)
+    _d = _d[_d["level"] == "well"]
+    z = (pd.to_numeric(_d["implied_datum_m"], errors="coerce") if "implied_datum_m" in _d.columns
+         else pd.Series(float(DRAINAGE_DATUM), index=_d.index))
+    below = z > 0
+    excluded = {str(w): float(v) for w, v in zip(_d.loc[~below, "well"], z[~below])}
+    keep = _d["identified"].astype(bool) & below
+    sets = {str(w): (float(a), float(b_), float(c), float(k), float(zz))
+            for w, a, b_, c, k, zz in zip(_d.loc[keep, "well"], _d.loc[keep, "b1"], _d.loc[keep, "b2"],
+                                          _d.loc[keep, "b3"], _d.loc[keep, "inv_L_E"], z[keep])}
+    return sets, excluded
 
 
 def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
@@ -1595,12 +1645,7 @@ def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
     mb = mb.set_index("_n")
     # 1.16.0 (D-280): the depth-dependent set per well (Script 15, comparison window, cluster inv_L_E),
     # projected at the project datum only -- the form is fitted on the network datum, not swept.
-    dd = {}
-    if OUT_15_DDP_PER_WELL.exists():
-        _d = pd.read_csv(OUT_15_DDP_PER_WELL)
-        _d = _d[(_d["level"] == "well") & _d["identified"].astype(bool)]
-        dd = {str(w): (float(a), float(b_), float(c), float(k))
-              for w, a, b_, c, k in zip(_d["well"], _d["b1"], _d["b2"], _d["b3"], _d["inv_L_E"])}
+    dd, _ = ddp_sets()                                  # 1.27.0 (D-332): each set at its implied base
     rows = []
     for _, r in track(list(master.iterrows()), "projection by datum", min_seconds=5.0):
         col = lev_cols.get(r["_n"])
@@ -1631,9 +1676,9 @@ def projection_by_datum(lev, lev_cols, cl, master, loc_forest) -> pd.DataFrame:
                     b["beta_1_B"], b["beta_2_B"], P12, PET12, sP, sPET, interception=I_))
                 ssD = None
                 if np.isclose(D, DRAINAGE_DATUM) and r["_n"] in dd:
-                    d1, d2, d3, dk = dd[r["_n"]]
+                    d1, d2, d3, dk, dz = dd[r["_n"]]
                     ssD = sustained_monthly_response_ddp(d1, d2, d3, dk, P12, PET12, sP, sPET,
-                                                         DRAINAGE_DATUM, interception=I_)[0]
+                                                         dz, interception=I_)[0]
                 for sea, months in seasons.items():
                     idx = [m - 1 for m in months]
                     row = {"well": r["_n"], "cluster": int(r["Cluster"]), "datum_m": float(D),
@@ -1894,7 +1939,7 @@ def two_store(lev, lev_cols, cl, master):
     ccw_ok = paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists()
     if ccw_ok:
         obs, cmap = load_ccw()
-        mdk = pd.read_csv(INT_MASTER_DATA)
+        mdk = _model_a_store(pd.read_csv(INT_MASTER_DATA))
         mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
         adm = usable_codes(cmap, mdk.set_index("k"), obs)
         adm = adm[adm["admitted"]]
@@ -2314,7 +2359,7 @@ def change_and_surface(lev, lev_cols, cl, master):
     ctx_base = None
     if paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists():
         obs, cmap = load_ccw()
-        mdk = pd.read_csv(INT_MASTER_DATA)
+        mdk = _model_a_store(pd.read_csv(INT_MASTER_DATA))
         mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
         adm = usable_codes(cmap, mdk.set_index("k"), obs)
         ctx_base = (adm[adm["admitted"]], obs, md, lev, lev_cols)
@@ -3138,6 +3183,11 @@ def datum_report(rr, ccw_d, split_d, proj_d, checks_d):
                            unit="m", note=f"median {scen} summer sustained level response, {tag}, on the trio wells")
     for k, v in checks_d.items():
         rr.add(f"reclen_check_{k}", v, unit="", note="identity check at the project datum (expected 0)")
+    _dx = ddp_sets()[1]                                  # 1.27.0 (D-332)
+    rr.add("projection_ddp_n_sets_excluded_datum", float(len(_dx)), unit="count",
+           note="15_05 per-well depth-dependent sets left out of E7: Model B implied base DRAINAGE_DATUM - "
+                "alpha/beta_3 not below ground (D-332)"
+                + (" (" + ", ".join(f"{w} {v:+.1f} m" for w, v in sorted(_dx.items())) + ")" if _dx else ""))
     rr.add("projection_check_ddp_k0_vs_closed_form", ddp_identity_check(), unit="m",
            note="identity check: the depth-dependent sustained response at 1/L_E = 0 less the closed form, "
                 "max over a coefficient grid (expected 0 to 1e-9)")
@@ -3356,7 +3406,7 @@ def precanopy(cl):
     import pastas as ps
     ps.set_log_level("ERROR")
     ra = pd.read_csv(INT_REGIONAL_AVG, index_col=0, parse_dates=True)
-    co = pd.read_csv(OUT_03_MECHANISTIC_TABLE).set_index("Cluster")
+    co = _model_a_store(pd.read_csv(OUT_03_MECHANISTIC_TABLE)).set_index("Cluster")   # 1.28.0: Model A
     if not np.allclose(co["drainage_datum_m"], DRAINAGE_DATUM):
         raise ValueError(f"{OUT_03_MECHANISTIC_TABLE.name} is not at DRAINAGE_DATUM")
     start = continuous_start(cl)
@@ -3844,7 +3894,7 @@ def ranwell_epoch_context(cl, lev, lev_cols, need: dict) -> tuple[pd.DataFrame, 
     loc = pd.read_csv(INT_LOCATIONS)
     loc["_n"] = loc["Name"].astype(str).apply(normalize_well_name)
     dist = loc.drop_duplicates("_n").set_index("_n").apply(lambda r: forest.distance(Point(r["E"], r["N"])), axis=1)
-    md = pd.read_csv(INT_MASTER_DATA)
+    md = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     md["_n"] = md["Name_Original"].astype(str).apply(normalize_well_name)
     md["d"] = md["_n"].map(dist)
     op = md[~md["Cluster"].isin(FOREST_FORCING_CLUSTERS) & (md["d"] > 0)]
@@ -4004,7 +4054,7 @@ def basis_experiment(lev, lev_cols, cl, master, placement=None):
     # 1. CCW 1989-96, fitted on the full modern record (Paper M 6.4)
     if paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists():
         obs, cmap = load_ccw()
-        mdk = pd.read_csv(INT_MASTER_DATA)
+        mdk = _model_a_store(pd.read_csv(INT_MASTER_DATA))
         mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
         adm = usable_codes(cmap, mdk.set_index("k"), obs)
         adm = adm[adm["admitted"]]
@@ -4948,7 +4998,7 @@ def elevation_datum_tests(lev, lev_cols, cl, master, specs=None, datum_of=None) 
     # the CCW 1989-96 hindcast: E5's wells, scoring and comparison-window fit
     if paths.CCW_DEPTHS.exists() and paths.CCW_CODE_MAP.exists():
         obs, cmap = load_ccw()
-        md = pd.read_csv(INT_MASTER_DATA)
+        md = _model_a_store(pd.read_csv(INT_MASTER_DATA))
         md["k"] = md["Name_Original"].astype(str).str.lower().str.strip()
         md = md.set_index("k")
         adm = usable_codes(cmap, md, obs)
@@ -5364,7 +5414,7 @@ def e18_tests(lev, lev_cols, cl, master) -> pd.DataFrame:
         warn("CCW historic inputs not present — E18 is skipped")
         return pd.DataFrame()
     obs, cmap = load_ccw()
-    mdk = pd.read_csv(INT_MASTER_DATA)
+    mdk = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
     adm = usable_codes(cmap, mdk.set_index("k"), obs)
     adm = adm[adm["admitted"]]
@@ -5533,7 +5583,7 @@ def e19_tests():
     stats = dict(stats, offset_m=offset)
 
     obs, cmap = load_ccw()
-    mdk = pd.read_csv(INT_MASTER_DATA)
+    mdk = _model_a_store(pd.read_csv(INT_MASTER_DATA))
     mdk["k"] = mdk["Name_Original"].astype(str).str.lower().str.strip()
     adm = usable_codes(cmap, mdk.set_index("k"), obs)
     adm = adm[adm["admitted"]]

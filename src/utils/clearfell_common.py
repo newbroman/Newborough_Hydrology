@@ -70,7 +70,13 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved").
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). Docstrings only, no code change:
+#   load_clearfell_b2_multiplier() and load_clearfell_impact_b2_multiplier() are RETIRED FROM SCENARIO USE by
+#   D-333 (a beta_2 multiplier of single-well era refits, inside its noise; the forestry scenarios are rebuilt
+#   on the observed BACI step under T-209). Both are still computed, for 10e's sensitivity reporting. The
+#   "no-intercept era fits" passage is corrected: since 10e 1.21.0 the era fits are Model B (intercept=True)
+#   with Model A beside them in the *_model_a columns.
+# 1.14.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved").
 #   load_clearfell_impact_b2_multiplier(): the felled well's own measured beta_2 change (Impact tier, WMC3),
 #   net of the Climate-control tier, for the forestry scenarios of Scripts 19 and 21 and the shared
 #   forestry bars - the scenarios are anchored to what the felling measured (spec
@@ -1744,6 +1750,14 @@ _FALLBACK_THINNING_B2  = 1.05
 def load_clearfell_b2_multiplier(verbose=True):
     """Compute BACI-corrected clearfell β₂ multiplier from Script 10e output.
 
+    RETIRED FROM SCENARIO USE (D-333, 2026-11-12). A β₂ multiplier of single-well/
+    few-well era refits sits inside its own noise (B's era refit: all four shifts
+    together F-test p = 0.79), so no scenario may be built from it; the forestry
+    and scraping scenarios are rebuilt on the observed control-differenced BACI
+    step under task T-209. It is still computed, for Script 10e's sensitivity
+    reporting (and pipeline_params' provenance). Scenario values that still read
+    it are flagged "WITHDRAWN (D-333)" by their scripts until T-209 lands.
+
     Methodology
     -----------
     For each BACI tier, compute the tier ratio as the ratio of the
@@ -1771,34 +1785,21 @@ def load_clearfell_b2_multiplier(verbose=True):
 
     Interpreting the per-tier ratios — read this before using them
     --------------------------------------------------------------
-    The Before/After era fits in Script 10e use the canonical
-    no-intercept SSM (`fit_ssm()` with `intercept=False`, Model A,
-    consistent with Script 03 and Methods Supplement S.3).  A
-    consequence is that the individual per-tier ratios are *not*
-    interpretable on their own as absolute "fraction of β₂ retained"
-    figures.  With no intercept, the fit has no free constant to absorb
-    era-level offsets, so the whole β₂ scale is pulled towards the
-    slope; the per-tier ratios come out compressed, and most of them
-    sit below 1.0 (on the current data four of the five tiers — Impact,
-    Edge, Coastal Ctrl, Climate Ctrl — are below 1.0; only Forest Ctrl
-    exceeds it).  That sub-1.0 tendency is largely an artefact of the
-    no-intercept rescaling, NOT a uniform physical decline in β₂ across
-    every tier — so a single tier ratio should never be quoted as if it
-    were a stand-alone effect size.
-
-    What *is* interpretable is the difference between two ratios.  The
-    clearfell multiplier is a difference-in-differences:
+    Since Script 10e 1.21.0 (D-332) the Before/After era fits are Model B
+    (`fit_ssm(intercept=True)`, β₃ bounded below), as Script 03's coefficient
+    tables, and Model A (no intercept, DRAINAGE_DATUM) is fitted beside them on
+    the same rows, in the `*_model_a` columns of 10e_01. This loader reads the
+    Model B columns (`b2_before`, `b2_after`). The two forms book an era-level
+    mean gain differently (B in α, A in the slopes), so a single tier ratio is
+    not a stand-alone effect size under either form, and the two forms' ratios
+    differ (D-333 records the clearfell multiplier moving 0.952 → 1.065 between
+    them). Only a difference of two ratios from the same form is used, as a
+    difference-in-differences:
 
         clearfell = Edge_ratio − Climate_Ctrl_ratio + 1.0
 
-    Because both ratios are produced by the same no-intercept fitting
-    procedure on the same post-2017 period, the no-intercept rescaling
-    enters each ratio in the same way and cancels in the subtraction.
-    The differenced quantity is therefore invariant to that rescaling:
-    it is the same difference-in-differences whether the eras are fitted
-    with or without an intercept.  The differenced multiplier — not the
-    individual ratios — is the quantity to interpret and to carry into
-    the forestry scenarios.
+    and even that difference is inside its noise on the current record (D-333),
+    which is why it no longer drives any scenario.
 
     Worked example (live data, 2026-06, limit=1 pipeline)
     ------------------------------------------------------
@@ -1812,9 +1813,8 @@ def load_clearfell_b2_multiplier(verbose=True):
         Coastal Ctrl ratio = 0.9198
         Climate Ctrl ratio = 0.9515   (background drift)
 
-    As above, do not read these as absolute β₂-retention fractions —
-    the no-intercept fit has compressed the scale and pushed most tiers
-    below 1.0.  Only their difference is rescaling-invariant.  The
+    (Those 2026-06 figures are Model A era fits, from before 10e 1.21.0.)
+    As above, do not read them as absolute β₂-retention fractions.  The
     BACI-corrected clearfell multiplier is then::
 
         clearfell = Edge − Climate + 1.0
@@ -1826,8 +1826,9 @@ def load_clearfell_b2_multiplier(verbose=True):
         thinning = 1.0 + (1.0315 − 1.0) / 2.0
                  = 1.0157    (≈ +1.6% β₂)
 
-    These are the values used by Scripts 19 and 21 in their forestry
-    scenarios.  Recomputing on each call (rather than caching a constant)
+    Scripts 19 and 21 used the Edge-tier values until D-239 moved them to
+    load_clearfell_impact_b2_multiplier(); D-333 then retired both from
+    scenario use.  Recomputing on each call (rather than caching a constant)
     means the multipliers are always consistent with the latest 10e run.
 
     Returns
@@ -1894,7 +1895,15 @@ def load_clearfell_b2_multiplier(verbose=True):
 
 
 def load_clearfell_impact_b2_multiplier(verbose=True):
-    """The felled well's measured beta_2 change, for the forestry scenarios (T-97, D-239).
+    """The felled well's beta_2 change in the era refits (T-97, D-239) - RETIRED FROM SCENARIO USE (D-333).
+
+    D-333 (2026-11-12): a beta_2 multiplier from single-well era refits is inside its noise
+    (WMC3's shift is not significant under either form), so it no longer anchors the forestry
+    scenarios; they are rebuilt on the observed control-differenced BACI step under T-209.
+    Scripts 19, 21 and 09d still call it so their (unchanged) values can be flagged
+    "WITHDRAWN (D-333)" until then, and Script 10e computes it for its sensitivity reporting.
+    The ratios are read from 10e_01's Model B columns (10e 1.21.0: era fits are Model B with
+    Model A beside them in the *_model_a columns).
 
         clearfell = Impact_ratio − Climate_Ctrl_ratio + 1.0
         thinning  = 1.0 + (clearfell − 1.0) / 2.0

@@ -23,6 +23,10 @@ from that script is retained here as test D.)
 
 TESTS (cluster centroids; the canonical fit reproduces the mechanistic table)
 -----------------------------------------------------------------------------
+Since 2.8.0 (D-332) every fit below is Model B, the published form (free
+intercept α, β₃ bounded below at MODEL_B_BETA3_MIN), with Model A (no
+intercept, datum DRAINAGE_DATUM) fitted beside it and reported as *_model_a.
+
   A. COLLINEARITY  — VIF of h_disp_prev on {P, PET}, corr(PET, h_disp_prev),
      design condition number, per cluster. A high value at C4 relative to the
      rest of the network would support the "β₂/β₃ degeneracy" reading. The
@@ -35,8 +39,10 @@ TESTS (cluster centroids; the canonical fit reproduces the mechanistic table)
      controlling for PET: an SSM-restricted cross-check on whether C4's
      head-dependent drainage response is resolvable independently of the SSM.
   D. CLOSURE       — steady-state water-balance closure residual as a function
-     of β₃ (β₁, β₂ refit at each): locates the residual-minimising β₃ and
-     reports it against the fitted value.
+     of β₃ (β₁, β₂ — and under Model B α — refit at each): locates the
+     residual-minimising β₃ and reports it against the fitted value. With α in
+     the fit the residual can be the same at every β₃; the minimiser is then
+     not defined and is written NaN, with c4_closure_flat set.
 
 PER-WELL PANEL — FITTED ON TWO BASES
 ------------------------------------
@@ -72,7 +78,14 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.7.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "2.8.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The tests run on Model B, the published
+#   form (fit_ssm intercept=True, beta_3 bounded below): every key and unsuffixed column keeps its name and now carries
+#   Model B; Model A (no intercept, DRAINAGE_DATUM) runs beside it as <key>_model_a and *_model_a columns. Tests A and
+#   C were already form-free (both regress with a constant). Test D under Model B: the intercept is refitted at each
+#   trial beta_3 (fixed_beta_3 path), and where the closure residual does not vary with beta_3 the minimiser is not
+#   defined and is written NaN (c4_closure_flat). Bound-held fits (beta_3_bound_binds, p NaN) count as not significant
+#   and are counted (c4_perwell_n_bound_binds*).
+# 2.7.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the range of window β₃ over the C4 wells with significant positive β₃; new rows
 #   c4_perwell_sig_window100_beta3_min / _max, over the same wells c4_perwell_sig_window100 counts.
 #   Emit-only; no fit or output changes.
@@ -197,28 +210,38 @@ def _recession_headdep(frame):
     return -float(m.params["h_disp_prev"]), float(m.pvalues["h_disp_prev"]), len(rec)
 
 
-def _closure_curve(frame):
+def _closure_curve(frame, intercept=True):
     """Steady-state water-balance closure |residual| as a function of β₃.
 
-    At each trial β₃, refit β₁, β₂ (fixed_beta_3 path) and evaluate the mean-flux
-    closure residual β₂·PET̄ + β₃·h_disp̄ − β₁·P̄. Returns the residual-minimising β₃.
+    At each trial β₃, refit β₁, β₂ (and α under Model B; fixed_beta_3 path) and
+    evaluate the mean-flux closure residual β₂·PET̄ + β₃·h_disp̄ − α − β₁·P̄.
+    Returns (residual-minimising β₃, its |residual|, flat), where flat says the
+    residual is numerically the same at every trial β₃ (np.isclose to the first),
+    in which case the minimiser is not defined and is returned NaN (2.8.0).
     """
     P_bar = frame["P"].mean()
     PET_bar = frame["PET"].mean()
     hd_bar = frame["h_disp_prev"].mean()
     grid = np.arange(0.005, 0.121, 0.001)
-    best_b3, best_abs = np.nan, np.inf
+    res = []
     for b3 in grid:
-        f = fit_ssm(pre_built_frame=frame, fixed_beta_3=float(b3))
-        resid = (f["beta_2_atmospheric_draw"] * PET_bar
-                 + b3 * hd_bar
-                 - f["beta_1_recharge"] * P_bar)
-        if abs(resid) < best_abs:
-            best_abs, best_b3 = abs(resid), float(b3)
-    return best_b3, best_abs
+        f = fit_ssm(pre_built_frame=frame, fixed_beta_3=float(b3), intercept=intercept)
+        res.append(f["beta_2_atmospheric_draw"] * PET_bar
+                   + b3 * hd_bar
+                   - (f.get("alpha", 0.0) or 0.0)
+                   - f["beta_1_recharge"] * P_bar)
+    res = np.abs(np.asarray(res, float))
+    flat = bool(np.all(np.isclose(res, res[0])))
+    i = int(np.argmin(res))
+    return (np.nan if flat else float(grid[i])), float(res[i]), flat
 
 
-def _panel_fit(series, climate, window):
+def _sig_pos(beta, p):
+    """Significant positive β₃ (p < 0.05). A bound-held fit has p NaN and is not significant."""
+    return (p < 0.05) & (beta > 0)
+
+
+def _panel_fit(series, climate, window, intercept=True):
     """Fit one well on one basis for the per-well panel.
 
     Returns a dict of β₃, its SE, p, the VIF, the displacement leverage and n,
@@ -229,14 +252,15 @@ def _panel_fit(series, climate, window):
     fr = build_ssm_frame(series, climate, lag=HEADLINE_LAG, window=window)
     if len(fr) < 30:
         return None
-    f = fit_ssm(pre_built_frame=fr)
+    f = fit_ssm(pre_built_frame=fr, intercept=intercept)
     vif, _, _ = _collinearity(fr)
     return dict(beta3=f["beta_3_drainage"], se3=f["se_beta_3"],
                 p3=f["pvalue_beta_3"], VIF=vif,
-                hd_sd=fr["h_disp_prev"].std(), n=f["n"])
+                hd_sd=fr["h_disp_prev"].std(), n=f["n"],
+                binds=bool(f.get("beta_3_bound_binds", False)))
 
 
-def _c4_centroid_fit(members, wells_clean, well_col_lookup, climate):
+def _c4_centroid_fit(members, wells_clean, well_col_lookup, climate, intercept=True):
     """Fit the C4 centroid on a given member list. Returns a summary dict.
 
     The centroid is the simple mean of the member series, matching
@@ -246,9 +270,11 @@ def _c4_centroid_fit(members, wells_clean, well_col_lookup, climate):
     cols = [well_col_lookup.get(_norm(w)) for w in members]
     cols = [c for c in cols if c is not None]
     centroid = wells_clean[cols].mean(axis=1)
-    f = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
+    f = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None, intercept=intercept)
     b3 = f["beta_3_drainage"]
     return dict(
+        alpha=f.get("alpha", 0.0) if intercept else 0.0,
+        beta_3_bound_binds=bool(f.get("beta_3_bound_binds", False)),
         n_members=len(cols), n=f["n"],
         beta_1_recharge=f["beta_1_recharge"],
         beta_2_atmospheric_draw=f["beta_2_atmospheric_draw"],
@@ -283,15 +309,20 @@ def main():
         if cid not in centroids:
             continue
         fr = build_ssm_frame(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
-        fit = fit_ssm(pre_built_frame=fr)
+        fit = fit_ssm(pre_built_frame=fr, intercept=True)            # Model B (2.8.0)
+        fit_a = fit_ssm(pre_built_frame=fr)                           # Model A beside it
         vif, r_pet, cond = _collinearity(fr)
         hd = fr["h_disp_prev"]
         rc_coef, rc_p, n_rec = _recession_headdep(fr)
         b3, se3 = fit["beta_3_drainage"], fit["se_beta_3"]
+        b3a, se3a = fit_a["beta_3_drainage"], fit_a["se_beta_3"]
         rows.append(dict(
             cluster=CLUSTER_LABELS[cid], cid=cid, n=fit["n"],
             beta3=b3, se3=se3, t3=(b3 / se3 if se3 else np.nan),
-            p3=fit["pvalue_beta_3"],
+            p3=fit["pvalue_beta_3"], alpha=fit["alpha"],
+            beta3_bound_binds=bool(fit.get("beta_3_bound_binds", False)),
+            beta3_model_a=b3a, se3_model_a=se3a,
+            t3_model_a=(b3a / se3a if se3a else np.nan), p3_model_a=fit_a["pvalue_beta_3"],
             VIF=vif, corr_PET_hd=r_pet, cond=cond,
             hd_mean=hd.mean(), hd_sd=hd.std(), hd_range=hd.max() - hd.min(),
             rec_headdep=rc_coef, rec_p=rc_p, n_rec=n_rec))
@@ -322,14 +353,19 @@ def main():
     # ---- test D — water-balance closure sensitivity (retained from old S30) ----
     phase(3, "Test D — water-balance closure over β₃")
     fr4 = build_ssm_frame(centroids[C4_ID], climate, lag=HEADLINE_LAG, window=None)
-    best_b3, best_abs = _closure_curve(fr4)
-    info(f"C4 closure-minimising β₃ = {best_b3:.4f}  (|residual| = {best_abs:.5f} m/mo)")
+    best_b3, best_abs, flat = _closure_curve(fr4, intercept=True)
+    best_b3_a, best_abs_a, flat_a = _closure_curve(fr4, intercept=False)
     # Direction is derived, not asserted: state where the closure-minimising
     # value sits relative to the fitted one rather than typing the conclusion.
-    _dir = ("below" if best_b3 < c4["beta3"]
-            else "above" if best_b3 > c4["beta3"] else "at")
-    info(f"  vs fitted β₃ = {c4['beta3']:.4f} — the closure minimum lies "
-         f"{_dir} the fitted value.")
+    def _where(b, fitted, is_flat):
+        if is_flat:
+            return "is not defined (the residual does not vary with β₃)"
+        return "lies " + ("below" if b < fitted else "above" if b > fitted else "at") + " the fitted value"
+    _dir = _where(best_b3, c4["beta3"], flat)
+    _dir_a = _where(best_b3_a, c4["beta3_model_a"], flat_a)
+    info(f"C4 closure-minimising β₃ = {best_b3:.4f}  (|residual| = {best_abs:.5f} m/mo)")
+    info(f"  vs fitted β₃ = {c4['beta3']:.4f} — the closure minimum {_dir}.")
+    info(f"  Model A: closure-minimising β₃ = {best_b3_a:.4f} vs fitted {c4['beta3_model_a']:.4f} — {_dir_a}.")
 
     # ---- per-well panel, both bases ----
     # The unsuffixed columns are the comparison window (LCSC_DATA_LIMIT) and keep
@@ -358,6 +394,12 @@ def main():
                        VIF=win["VIF"], hd_sd=win["hd_sd"], n=win["n"])
             row.update({f"{k}_full": (full[k] if full else np.nan)
                         for k in ("beta3", "se3", "p3", "VIF", "hd_sd", "n")})
+            # 2.8.0 (D-332): bound-held Model B fits, and Model A beside it
+            row.update(binds=win["binds"], binds_full=(full["binds"] if full else False))
+            win_a = _panel_fit(series, climate, LCSC_DATA_LIMIT, intercept=False)
+            full_a = _panel_fit(series, climate, None, intercept=False)
+            row.update({f"{k}_model_a": (win_a[k] if win_a else np.nan) for k in ("beta3", "se3", "p3")})
+            row.update({f"{k}_full_model_a": (full_a[k] if full_a else np.nan) for k in ("beta3", "se3", "p3")})
             pw.append(row)
         except Exception:
             continue
@@ -367,20 +409,31 @@ def main():
 
     c4pw = PW[PW["cid"] == C4_ID]
     n_neg = int((c4pw["beta3"] < 0).sum())
-    n_nonsig = int((c4pw["p3"] > 0.05).sum())
+    # 2.8.0: a bound-held fit (p NaN) is not significant, so count "not p <= 0.05"
+    n_nonsig = int((~(c4pw["p3"] <= 0.05)).sum())
+    n_nonsig_a = int((~(c4pw["p3_model_a"] <= 0.05)).sum())
+    n_binds, n_binds_full = int(c4pw["binds"].sum()), int(c4pw["binds_full"].sum())
     info(f"  C4 per-well, {LCSC_DATA_LIMIT}-month window: {len(c4pw)} wells, "
          f"{n_neg} negative, {n_nonsig} non-significant (p>.05), "
          f"median VIF {c4pw['VIF'].median():.2f}")
 
-    _sig_win_mask = (c4pw["p3"] < 0.05) & (c4pw["beta3"] > 0)
+    _sig_win_mask = _sig_pos(c4pw["beta3"], c4pw["p3"])
     sig_win = int(_sig_win_mask.sum())
-    sig_full = int(((c4pw["p3_full"] < 0.05) & (c4pw["beta3_full"] > 0)).sum())
+    sig_full = int(_sig_pos(c4pw["beta3_full"], c4pw["p3_full"]).sum())
+    _sig_win_mask_a = _sig_pos(c4pw["beta3_model_a"], c4pw["p3_model_a"])
+    sig_win_a = int(_sig_win_mask_a.sum())
+    sig_full_a = int(_sig_pos(c4pw["beta3_full_model_a"], c4pw["p3_full_model_a"]).sum())
     n_neg_full = int((c4pw["beta3_full"] < 0).sum())
     info(f"  C4 per-well, full record: {len(c4pw)} wells, {n_neg_full} negative, "
-         f"{int((c4pw['p3_full'] > 0.05).sum())} non-significant (p>.05)")
+         f"{int((~(c4pw['p3_full'] <= 0.05)).sum())} non-significant (p>.05 or bound-held)")
+    info(f"  C4 per-well β₃ held at the lower bound: {n_binds} (window), {n_binds_full} (full record)")
+    # The reading is derived from the counts, not typed.
+    _reading = ("resolves on full records" if sig_full > sig_win
+                else "does not resolve on full records")
     step(f"C4 significant positive β₃: {sig_win} of {len(c4pw)} on the "
          f"{LCSC_DATA_LIMIT}-month window, {sig_full} of {len(c4pw)} on full "
-         "records — the per-well weakness is a windowing effect.")
+         f"records — the per-well weakness {_reading}. "
+         f"Model A: {sig_win_a} and {sig_full_a}.")
 
     # ---- C4 centroid exclusion sensitivity (REPORTED, NOT ADOPTED) ----
     # The canonical C4 centroid uses all nine members and is unchanged. This
@@ -407,6 +460,9 @@ def main():
     sens_rows = []
     for basis, removed, members in bases:
         d = _c4_centroid_fit(members, wells_clean, well_col_lookup, climate)
+        da = _c4_centroid_fit(members, wells_clean, well_col_lookup, climate, intercept=False)
+        d.update({f"{k}_model_a": da[k] for k in ("beta_3_drainage", "se_beta_3", "pvalue_beta_3",
+                                                  "recession_1_over_b3_months", "half_life_months")})
         d.update(basis=basis, members_excluded=("; ".join(removed) or "none"))
         sens_rows.append(d)
         info(f"  {basis:20s} β₃={d['beta_3_drainage']:.4f} "
@@ -415,7 +471,10 @@ def main():
     cols = ["basis", "members_excluded", "n_members", "n",
             "beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage",
             "se_beta_3", "pvalue_beta_3", "recession_1_over_b3_months",
-            "half_life_months", "R2"]
+            "half_life_months", "R2",
+            # 2.8.0 (D-332): appended, so no existing column moves
+            "alpha", "beta_3_bound_binds", "beta_3_drainage_model_a", "se_beta_3_model_a",
+            "pvalue_beta_3_model_a", "recession_1_over_b3_months_model_a", "half_life_months_model_a"]
     SENS = pd.DataFrame(sens_rows)[cols]
     SENS.to_csv(OUT_30_C4_CENTROID_SENS, index=False)
     saved(OUT_30_C4_CENTROID_SENS.name)
@@ -423,13 +482,19 @@ def main():
                              "beta_3_drainage"].iloc[0])
     t_excl = float(SENS.loc[SENS["basis"] == "drop_msl5_excluded",
                             "half_life_months"].iloc[0])
+    _ex = SENS.loc[SENS["basis"] == "drop_msl5_excluded"].iloc[0]
 
     # ---- report numbers ----
     rpt = ReportNumbers()
+    _MA = f"Model A at {DRAINAGE_DATUM:g} m, sensitivity (D-332)"
     rpt.add("c4_centroid_beta3", float(c4["beta3"]), unit="per month",
-            note="C4 centroid β₃ (canonical; matches Table 1)")
+            note="C4 centroid β₃, Model B (Script 03's centroid construction, full record)")
     rpt.add("c4_centroid_beta3_p", float(c4["p3"]), unit="",
-            note="C4 centroid β₃ p-value (significant)")
+            note="C4 centroid β₃ p-value, Model B")
+    rpt.add("c4_centroid_beta3_model_a", float(c4["beta3_model_a"]), unit="per month",
+            note=f"C4 centroid β₃; {_MA}")
+    rpt.add("c4_centroid_beta3_p_model_a", float(c4["p3_model_a"]), unit="",
+            note=f"C4 centroid β₃ p-value; {_MA}")
     # The ranks in these notes are DERIVED, for the same reason the console
     # line above derives them (D-011). v2.2.1 cleared the hard-coded values
     # from the docstring, comments and console strings and missed the `note=`
@@ -455,11 +520,25 @@ def main():
             note=f"C4 SD of displacement — {_ord(sd_rank, n_cl, 'largest')} "
                  f"of {n_cl} clusters (adequate leverage)")
     rpt.add("c4_closure_min_beta3", float(best_b3), unit="per month",
-            note="β₃ minimising the C4 water-balance closure residual (near canonical)")
+            note="β₃ minimising the C4 water-balance closure residual, Model B (α refitted at each β₃); "
+                 "NaN where the residual does not vary with β₃ (c4_closure_flat)")
+    rpt.add("c4_closure_flat", int(flat), unit="flag",
+            note="1 = the C4 closure residual is the same at every trial β₃ under Model B, "
+                 "so the closure does not locate β₃")
+    rpt.add("c4_closure_min_beta3_model_a", float(best_b3_a), unit="per month",
+            note=f"β₃ minimising the C4 water-balance closure residual; {_MA}")
     rpt.add("c4_perwell_n_nonsig", float(n_nonsig), unit="wells",
-            note="C4 per-well fits with non-significant β₃ (sampling noise, not collinearity)")
+            note="C4 per-well fits with β₃ not significant (p > 0.05, or held at the lower bound), Model B")
+    rpt.add("c4_perwell_n_nonsig_model_a", float(n_nonsig_a), unit="wells",
+            note=f"C4 per-well fits with β₃ not significant (p > 0.05); {_MA}")
+    rpt.add("c4_perwell_n_bound_binds", float(n_binds), unit="wells",
+            note=f"C4 per-well Model B fits with β₃ held at MODEL_B_BETA3_MIN, {LCSC_DATA_LIMIT}-month window")
+    rpt.add("c4_perwell_n_bound_binds_full", float(n_binds_full), unit="wells",
+            note="C4 per-well Model B fits with β₃ held at MODEL_B_BETA3_MIN, full record")
     rpt.add("c4_perwell_sig_window100", float(sig_win), unit="wells",
-            note=f"C4 wells with significant positive β₃, {LCSC_DATA_LIMIT}-month window")
+            note=f"C4 wells with significant positive β₃, {LCSC_DATA_LIMIT}-month window, Model B")
+    rpt.add("c4_perwell_sig_window100_model_a", float(sig_win_a), unit="wells",
+            note=f"C4 wells with significant positive β₃, {LCSC_DATA_LIMIT}-month window; {_MA}")
     # v2.7.0 (emit-first, report9): the range of β₃ over those same wells.
     if sig_win:
         _b3_sig = c4pw.loc[_sig_win_mask, "beta3"]
@@ -468,20 +547,35 @@ def main():
                     era=f"{LCSC_DATA_LIMIT}-month window",
                     note=f"{'smallest' if _tag == 'min' else 'largest'} per-well window β₃ among the "
                          f"{sig_win} C4 wells with significant positive β₃ (those c4_perwell_sig_window100 counts)")
+    if sig_win_a:
+        _b3_sig_a = c4pw.loc[_sig_win_mask_a, "beta3_model_a"]
+        for _tag, _v in (("min", _b3_sig_a.min()), ("max", _b3_sig_a.max())):
+            rpt.add(f"c4_perwell_sig_window100_beta3_{_tag}_model_a", float(_v), unit="per month",
+                    era=f"{LCSC_DATA_LIMIT}-month window",
+                    note=f"as c4_perwell_sig_window100_beta3_{_tag}; {_MA}")
     rpt.add("c4_perwell_sig_fullrecord", float(sig_full), unit="wells",
-            note="C4 wells with significant positive β₃, full record")
+            note="C4 wells with significant positive β₃, full record, Model B")
+    rpt.add("c4_perwell_sig_fullrecord_model_a", float(sig_full_a), unit="wells",
+            note=f"C4 wells with significant positive β₃, full record; {_MA}")
     rpt.add("c4_centroid_beta3_excl", b3_excl, unit="per month",
             note="C4 centroid β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, "
                  "not the headline")
     rpt.add("c4_centroid_halflife_excl", t_excl, unit="months",
             note="C4 t½ = ln(2)/β₃ under the same exclusion — sensitivity, "
                  "not the headline")
+    rpt.add("c4_centroid_beta3_excl_model_a", float(_ex["beta_3_drainage_model_a"]), unit="per month",
+            note=f"as c4_centroid_beta3_excl; {_MA}")
+    rpt.add("c4_centroid_halflife_excl_model_a", float(_ex["half_life_months_model_a"]), unit="months",
+            note=f"as c4_centroid_halflife_excl; {_MA}")
     # T-91: centroid recession times t_R = 1/β₃, every cluster (report10 §5.2.3).
     for _, _r in ident.iterrows():
         rpt.add("centroid_recession_time_months", 1.0 / float(_r["beta3"]),
                 unit="months", well=_r["cluster"],
-                note="t_R = 1/β₃ at the cluster centroid (canonical Model A fit, "
+                note="t_R = 1/β₃ at the cluster centroid (canonical Model B fit, "
                      "30_c4_identifiability_by_cluster.csv beta3)")
+        rpt.add("centroid_recession_time_months_model_a", 1.0 / float(_r["beta3_model_a"]),
+                unit="months", well=_r["cluster"],
+                note=f"t_R = 1/β₃ at the cluster centroid (beta3_model_a); {_MA}")
     # T-96: median per-well VIF on the comparison window, every cluster
     # (report9 §4.2.2). A per-well quantity summarised per cluster, NOT the
     # centroid c4_vif above.
@@ -497,6 +591,8 @@ def main():
             unit="months",
             note="C4 t_R = 1/β₃ excluding MSL5_EXCLUDED_WELLS — sensitivity, "
                  "not the headline")
+    rpt.add("c4_centroid_recession_time_excl_model_a", float(_ex["recession_1_over_b3_months_model_a"]),
+            unit="months", note=f"as c4_centroid_recession_time_excl; {_MA}")
     n_saved = rpt.save(OUT_30_C4_REPORT_NUMBERS)
     saved(f"{OUT_30_C4_REPORT_NUMBERS.name} ({n_saved} numbers)")
 
@@ -530,9 +626,9 @@ def main():
     ax.set_ylabel(r"Drainage coefficient $\beta_3$ (per month)")
     ax.set_title("Per-well $\\beta_3$ (±95% CI) on two fitting bases, with "
                  "cluster-centroid fit\n"
-                 f"C4 per-well fits are noisy on the {LCSC_DATA_LIMIT}-month "
-                 f"window ({sig_win} of {len(c4pw)} significant) and resolve on "
-                 f"full records ({sig_full} of {len(c4pw)})")
+                 f"C4 significant on the {LCSC_DATA_LIMIT}-month "
+                 f"window: {sig_win} of {len(c4pw)}; on "
+                 f"full records: {sig_full} of {len(c4pw)}")
 
     basis_handles = [
         Line2D([], [], marker="o", ms=4, ls="none", color="0.35",
@@ -558,7 +654,7 @@ def main():
         f"{n_cl} clusters (test A); displacement SD {c4['hd_sd']:.3f} m, "
         f"{_ord(sd_rank, n_cl, 'largest')} "
         f"(test B); recession-only response p = {c4['rec_p']:.2e} (test C); "
-        f"closure minimum {_dir} the fitted value (test D). Per-well: "
+        f"closure minimum {_dir} (test D). Per-well: "
         f"{sig_full} of {len(c4pw)} resolve on full records against {sig_win} "
         f"on the {LCSC_DATA_LIMIT}-month window."
     )

@@ -1,0 +1,2 @@
+Parameter,Well,Era,Value,Unit,Note
+scenario_n_rows_withdrawn_d333,,,4.0,rows,"rows of 09d_01 + 09d_02 with status 'withdrawn (D-333)': the hypothetical Clearfell and Thinning 50% bars at CEH36, built from a beta multiplier of single-well era refits, inside its noise; pending T-209 (values unchanged)"

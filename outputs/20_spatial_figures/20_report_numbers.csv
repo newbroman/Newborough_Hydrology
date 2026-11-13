@@ -1,40 +1,40 @@
 Parameter,Well,Era,Value,Unit,Note
-drawdown_lambda,,,222.32356158183887,m,"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy=0.2982, β₃=0.0620/month [C3]"
-drawdown_lambda_at_K_min,,,128.358568126471,m,"λ at K = 2 m/day (DRAWDOWN_K_RANGE_MDAY min), b = 5 m, C3 Sy and β₃ as drawdown_lambda"
-drawdown_lambda_at_K_max,,,405.9054324775403,m,"λ at K = 20 m/day (DRAWDOWN_K_RANGE_MDAY max), b = 5 m, C3 Sy and β₃ as drawdown_lambda"
-drawdown_lambda_at_b_min,,,172.2110902951962,m,"λ at b = 3 m (DRAWDOWN_B_RANGE_M min), K = 6 m/day, C3 Sy and β₃ as drawdown_lambda"
-drawdown_lambda_at_b_max,,,281.2195328477272,m,"λ at b = 8 m (DRAWDOWN_B_RANGE_M max), K = 6 m/day, C3 Sy and β₃ as drawdown_lambda"
-beta_3_c3,C3,,0.0619513269554832,1/month,"SSM drainage coefficient (β₃), C3 centroid, live from 03_03_cluster_mechanistic_coefficients.csv — the value λ is built from"
+drawdown_lambda,,,172.1281885586266,m,"e-folding length √(Kb/(Sy·β₃/DAYS_PER_MONTH)); Sy=0.2982, β₃=0.1034/month [C3]"
+drawdown_lambda_at_K_min,,,99.37825599944573,m,"λ at K = 2 m/day (DRAWDOWN_K_RANGE_MDAY min), b = 5 m, C3 Sy and β₃ as drawdown_lambda"
+drawdown_lambda_at_K_max,,,314.26163885354146,m,"λ at K = 20 m/day (DRAWDOWN_K_RANGE_MDAY max), b = 5 m, C3 Sy and β₃ as drawdown_lambda"
+drawdown_lambda_at_b_min,,,133.32992154008218,m,"λ at b = 3 m (DRAWDOWN_B_RANGE_M min), K = 6 m/day, C3 Sy and β₃ as drawdown_lambda"
+drawdown_lambda_at_b_max,,,217.72685014567813,m,"λ at b = 8 m (DRAWDOWN_B_RANGE_M max), K = 6 m/day, C3 Sy and β₃ as drawdown_lambda"
+beta_3_c3,C3,,0.1033516938333949,1/month,"SSM drainage coefficient (β₃), C3 centroid, live from 03_03_cluster_mechanistic_coefficients.csv — the value λ is built from"
 sy_c3,C3,,0.29820068578930775,-,"C3 WTF median specific yield, live from 18_wtf_01_well_sy_estimates.csv — the value λ is built from"
 clearfell_compartment_area_ha,WMC3,,4.168694021371034,ha,area of the December 2017 clearfell compartment (clearfell.geojson)
 clearfell_equiv_radius_m,WMC3,,115.19273065075167,m,radius of the disc of equal area
 clearfell_wmc3_from_centroid_m,WMC3,,87.57210150849775,m,WMC3's distance from the compartment centroid
-clearfell_gain_retained_centre,WMC3,,0.1801744086582795,-,"share of a full local recharge gain retained at the compartment centre, at drawdown_lambda"
-clearfell_gain_retained_wmc3,WMC3,,0.14806508508747385,-,"share of a full local recharge gain retained at WMC3, at drawdown_lambda"
-clearfell_gain_retained_wmc3_at_K_min,WMC3,,0.2766052746818539,-,"as clearfell_gain_retained_wmc3, λ at K = 2 m/day"
-clearfell_gain_retained_wmc3_at_K_max,WMC3,,0.06581418094228408,-,"as clearfell_gain_retained_wmc3, λ at K = 20 m/day"
-clearfell_gain_retained_edge_median,WMC3,,0.07735031436381629,-,"median share of a full local recharge gain reaching the Edge-tier wells (n=4), at drawdown_lambda, treating the compartment as its equal-area disc"
-clearfell_wmc3_b1_ratio_net_climate,WMC3,,0.9845583915848605,-,"WMC3 beta_1 after/before felling, net of the Climate-control tier mean ratio (10e_01)"
-clearfell_wmc3_b1_ratio_se,WMC3,,0.1266147254936451,-,approximate standard error of WMC3's beta_1 ratio (before and after SEs in quadrature)
+clearfell_gain_retained_centre,WMC3,,0.250540505083912,-,"share of a full local recharge gain retained at the compartment centre, at drawdown_lambda"
+clearfell_gain_retained_wmc3,WMC3,,0.20125319187699553,-,"share of a full local recharge gain retained at WMC3, at drawdown_lambda"
+clearfell_gain_retained_wmc3_at_K_min,WMC3,,0.3532233432362797,-,"as clearfell_gain_retained_wmc3, λ at K = 2 m/day"
+clearfell_gain_retained_wmc3_at_K_max,WMC3,,0.09415958261232438,-,"as clearfell_gain_retained_wmc3, λ at K = 20 m/day"
+clearfell_gain_retained_edge_median,WMC3,,0.09345380619706686,-,"median share of a full local recharge gain reaching the Edge-tier wells (n=4), at drawdown_lambda, treating the compartment as its equal-area disc"
+clearfell_wmc3_b1_ratio_net_climate,WMC3,,0.9225708285328009,-,"WMC3 beta_1 after/before felling, net of the Climate-control tier mean ratio (10e_01)"
+clearfell_wmc3_b1_ratio_se,WMC3,,0.15601650996218144,-,approximate standard error of WMC3's beta_1 ratio (before and after SEs in quadrature)
 clearfell_local_gain_b1_ratio,WMC3,,1.3157894736842106,-,beta_1 ratio a full local return of FOREST_INTERCEPTION would give (fitted on gross rainfall)
-clearfell_wmc3_b1_rise_pct,WMC3,,4.675739529078123,%,"expected rise in WMC3's beta_1, percent: (clearfell_local_gain_b1_ratio - 1) x clearfell_gain_retained_wmc3 x 100, the full local gain scaled by the share retained"
+clearfell_wmc3_b1_rise_pct,WMC3,,6.355363954010388,%,"expected rise in WMC3's beta_1, percent: (clearfell_local_gain_b1_ratio - 1) x clearfell_gain_retained_wmc3 x 100, the full local gain scaled by the share retained"
 drawdown_H0,,,150.0,mm,forest interception deficit at felling edge (config)
-drawdown_contour_50mm_m,,,244.24739681426945,m,"cost-distance at which the forest drawdown falls to 50 mm, λ·ln(H0/50)"
-drawdown_contour_10mm_m,,,602.0633656514583,m,"cost-distance at which the forest drawdown falls to 10 mm, λ·ln(H0/10)"
+drawdown_contour_50mm_m,,,189.1021431766887,m,"cost-distance at which the forest drawdown falls to 50 mm, λ·ln(H0/50)"
+drawdown_contour_10mm_m,,,466.13177564154785,m,"cost-distance at which the forest drawdown falls to 10 mm, λ·ln(H0/10)"
 drawdown_diffusivity_m2_per_day,C3,,100.60339036643381,m2/day,"hydraulic diffusivity D = K·b/Sy, C3 Sy (the D inside λ and the SLR field)"
 slr_diffusive_length_2sqrtDt_m,,5 yr,856.9741826186871,m,"SLR diffusive length-scale 2√(D·t), t = SLR_WINDOW_YEARS"
 broadleaf_restock_H0_incr_mm,,,56.25,mm,broadleaf-restock source magnitude on the 2005→2025 driver-change map: (BL_CANOPY_FRACTION_2025 − _2005) × DRAWDOWN_H0_MM × BROADLEAF_INTERCEPTION / FOREST_INTERCEPTION
 ceh11_to_lake_edge_group_dist_min_m,CEH11,,1732.4409528711114,m,"shortest distance from CEH11 to the other C1 reference wells (CEH5;CEH6;CEH25;CEH26;CEH23;CEH27), n=6"
 ceh11_to_lake_edge_group_dist_max_m,CEH11,,2036.6272972996312,m,"longest distance from CEH11 to the other C1 reference wells (CEH5;CEH6;CEH25;CEH26;CEH23;CEH27), n=6"
-net_state_forest_interior_min_mm,,,-284.4804324997509,mm,"minimum (largest net loss) of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
-net_state_forest_interior_max_mm,,,-53.332152812319535,mm,"maximum (smallest net loss) of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
-net_state_forest_interior_median_mm,,,-148.19468127379082,mm,"median of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
-drawdown_ceh23,CEH23,,24.046471370549142,mm,modelled steady-state forest drawdown
-drawdown_ceh6,CEH6,,7.840353276806903,mm,modelled steady-state forest drawdown
-drawdown_d15,D15,,33.799875675639875,mm,modelled steady-state forest drawdown
-drawdown_ceh24,CEH24,,0.5706906380302522,mm,modelled steady-state forest drawdown
-drawdown_ceh10,CEH10,,1.290382606402249,mm,modelled steady-state forest drawdown
-drawdown_ceh11,CEH11,,0.3244240504617981,mm,modelled steady-state forest drawdown
+net_state_forest_interior_min_mm,,,-291.5032375919444,mm,"minimum (largest net loss) of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
+net_state_forest_interior_max_mm,,,-43.2547592193597,mm,"maximum (smallest net loss) of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
+net_state_forest_interior_median_mm,,,-149.16723077359245,mm,"median of the net water-table state (20_net_state_map.png: SLR gain + clearfell gain + scrape rise - remaining forest - erosion - scrape drawdown; positive = gain) over the forest interior = grid cells inside the KML forest polygon and the site outline, outside the felling polygon; n=814 cells"
+drawdown_ceh23,CEH23,,14.099535935594382,mm,modelled steady-state forest drawdown
+drawdown_ceh6,CEH6,,3.3155447282517785,mm,modelled steady-state forest drawdown
+drawdown_d15,D15,,21.887090492785084,mm,modelled steady-state forest drawdown
+drawdown_ceh24,CEH24,,0.11240347277841287,mm,modelled steady-state forest drawdown
+drawdown_ceh10,CEH10,,0.3224202332082429,mm,modelled steady-state forest drawdown
+drawdown_ceh11,CEH11,,0.0541953652759956,mm,modelled steady-state forest drawdown
 coastal_h0,,,80.87170121870071,mm,"single-event edge drawdown, 6 m retreat × (δ₀/measured retreat rate); δ₀=31.28 mm/yr [Script 25 forest-free linear_capped, 2005-03 to 2026-02], rate=2.3207 m/yr [Script 40 measured 2006-2026 (20.2 yr)] — windows matched to 99 %, D-090"
 coastal_h0_per_metre,,,13.478616869783451,mm/m,δ₀/measured retreat rate — head per metre of shoreline retreat; the quantity Scripts 20 and 09f divide by
 coastal_delta0,,,31.28,mm/yr,live Script 25 forest-free linear_capped δ₀ (absolute); fitted 2005-03 to 2026-02

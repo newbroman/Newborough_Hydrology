@@ -85,7 +85,10 @@ from utils.render_utils import render_figure
 from utils.report_numbers_utils import ReportNumbers
 from scipy import stats as scipy_stats
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 "amendment as above"). The two contours
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's beta_2 is Model B since
+#   Script 03 1.31.0, so envelope_amp_vs_beta2_{r,p,n} now carry Model B (note says so); Model A's correlation is kept
+#   as the sensitivity, envelope_amp_vs_beta2_{r,p,n}_model_a, against beta_2_atmospheric_draw_model_a.
+# 1.9.0  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 "amendment as above"). The two contours
 #   are labelled as the depth of each Curreli community mean ("0.61 m: SD15b community mean"). Labels only.
 # 1.8.0  # Hollingham (2026) - 2026-11-02 (D-296; Martin 2026-11-02 "I approve proceed"). The dry-year
 #   spring-depth maps keep their two contours (config.ENVELOPE_ECO_THRESHOLDS_MM) but label them as depths, not as
@@ -467,10 +470,23 @@ def write_report_numbers(df, master):
     j = df[["key", "amplification"]].merge(master[["key", "beta_2_atmospheric_draw"]], on="key", how="inner")
     j = j.dropna(subset=["amplification", "beta_2_atmospheric_draw"])
     r, p = scipy_stats.pearsonr(j["amplification"], j["beta_2_atmospheric_draw"])
-    _src = "canonical amplification (all wells, flagged included) against beta_2_atmospheric_draw of 03_master_data.csv, joined on well"
+    _src = ("canonical amplification (all wells, flagged included) against beta_2_atmospheric_draw of 03_master_data.csv "
+            "(Model B), joined on well")
     rpt.add("envelope_amp_vs_beta2_r", float(r), unit="", note=f"Pearson r of {_src}, n={len(j)}")
     rpt.add("envelope_amp_vs_beta2_p", float(p), unit="", note=f"two-sided p of envelope_amp_vs_beta2_r, n={len(j)}")
     rpt.add("envelope_amp_vs_beta2_n", int(len(j)), unit="wells", note="wells behind envelope_amp_vs_beta2_r")
+    # 1.10.0 (D-332): master's beta_2 is Model B since Script 03 1.31.0; Model A's (beta_2_atmospheric_draw_model_a)
+    # is kept as the sensitivity, same wells and join
+    if "beta_2_atmospheric_draw_model_a" in master.columns:
+        ja = df[["key", "amplification"]].merge(master[["key", "beta_2_atmospheric_draw_model_a"]], on="key", how="inner")
+        ja = ja.dropna(subset=["amplification", "beta_2_atmospheric_draw_model_a"])
+        ra, pa = scipy_stats.pearsonr(ja["amplification"], ja["beta_2_atmospheric_draw_model_a"])
+        _srca = _src.replace("beta_2_atmospheric_draw", "beta_2_atmospheric_draw_model_a (Model A)")
+        rpt.add("envelope_amp_vs_beta2_r_model_a", float(ra), unit="", note=f"Pearson r of {_srca}, n={len(ja)}")
+        rpt.add("envelope_amp_vs_beta2_p_model_a", float(pa), unit="",
+                note=f"two-sided p of envelope_amp_vs_beta2_r_model_a, n={len(ja)}")
+        rpt.add("envelope_amp_vs_beta2_n_model_a", int(len(ja)), unit="wells",
+                note="wells behind envelope_amp_vs_beta2_r_model_a")
     n_saved = rpt.save(paths.OUT_33_REPORT_NUMBERS)
     saved(f"{paths.OUT_33_REPORT_NUMBERS.name} ({n_saved} rows)")
 

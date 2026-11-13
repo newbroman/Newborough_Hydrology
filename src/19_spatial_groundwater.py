@@ -26,7 +26,25 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.33.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the forecaster: the
+__version__ = "2.36.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and thinning scenarios
+#   (and the clearfell interception bound, which carries the same beta_2 multiplier) are built from a beta_2 multiplier
+#   of single-well era refits (clearfell_common.load_clearfell_impact_b2_multiplier; the interception-form diagnostic
+#   from load_clearfell_b2_multiplier) and are WITHDRAWN under D-333 pending T-209. No value changes: every report key
+#   built from them gets config.D333_WITHDRAWN_NOTE appended to its note (Model B and _model_a alike), a count key
+#   scenario_n_keys_withdrawn_d333 is written, one warn() names the withdrawn outputs, 19_scenario_summary[_model_a]
+#   and 19_scenario_perwell[_model_a] gain a `status` column ("withdrawn (D-333)" on those rows), and the viewer marks
+#   the Clearfell and Thinning buttons and their notes as withdrawn. Broadleaf (config profile, not the multiplier),
+#   the broadleaf interception bound, the open-dune end state and the UKCP18 rows are not touched.
+# 2.35.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+#   03_master_data / 03_03 / 03_15's unsuffixed coefficient columns and Model A in *_model_a. Every read here that
+#   meant Model A now reads *_model_a: the per-well b1-b3 (well_A), p3w / b1f-b3f / p3f (03_15), cent_A (03_03) and
+#   open_dune_end_state's Model A (03_03). Model B is still built from 03_16 *_B; no Model B result changes.
+# 2.34.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 15 1.11.0 fits the depth-dependent
+#   sets of 15_05 as Model B (free α). _well_level_ddp now runs each set at its own implied base, 15_05 implied_datum_m
+#   (β₃·(h + z) = β₃·(h + DRAINAGE_DATUM) − α; the PET attenuation reads depth below ground, not the datum), never B's
+#   β's at DRAINAGE_DATUM. A set whose implied base is not below ground is not used (a reference well falls out, a
+#   centroid set is withheld) and counted: scenario_ddp_n_sets_excluded_datum.
+# 2.33.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the forecaster: the
 #   baseline rows of 19_scenario_summary.csv / _perwell.csv were the last summary rows on Model A (a one-month rate
 #   on the 03_master_data cluster means, rate_one_month_model_a); they are now the sustained level response on Model
 #   B like every other row (level_sustained_model_b; zero by construction, on Model B's population, so C4 is
@@ -421,6 +439,7 @@ from utils.config import (
     VIEWER_KRIG_CHECK_TOL_M, VIEWER_KRIG_CHECK_POINTS, VIEWER_MAX_KB,
     END_STATE_OPEN_DUNE_COUNTERPART,
     MODEL_B_BETA3_MIN,                   # 2.33.0 (D-332): the beta_3 bound, for the count key
+    D333_WITHDRAWN_NOTE, D333_WITHDRAWN_STATUS,   # 2.36.0 (D-333)
 )
 from utils.clearfell_common import load_clearfell_impact_b2_multiplier
 from utils.map_utils import load_site_outline
@@ -1020,12 +1039,14 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
                        "without it (D-046)")
     wt = loc[["id", "E", "N", "in_forest"]].copy()
     wt = wt.merge(cl[["id", "Cluster"]], on="id", how="left")
+    # 2.35.0 (D-332, phase 2b): b1-b3 are MODEL A (they feed only well_A, the _model_a sets, and the
+    # fitted-well flags); Script 03 1.31.0 moved Model A to the *_model_a columns.
     wt = wt.merge(
-        md[["id", "beta_1_recharge", "beta_2_atmospheric_draw",
-            "beta_3_drainage"]].rename(columns={
-            "beta_1_recharge": "b1",
-            "beta_2_atmospheric_draw": "b2",
-            "beta_3_drainage": "b3",
+        md[["id", "beta_1_recharge_model_a", "beta_2_atmospheric_draw_model_a",
+            "beta_3_drainage_model_a"]].rename(columns={
+            "beta_1_recharge_model_a": "b1",
+            "beta_2_atmospheric_draw_model_a": "b2",
+            "beta_3_drainage_model_a": "b3",
         }), on="id", how="left")
     # 2.33.0 (D-332): the viewer's basis toggle is gone with the one-month rate; p3w (Model A's
     # comparison-window beta_3 p-value) still feeds the _model_a sensitivity sets, and b1f-b3f are no
@@ -1039,13 +1060,13 @@ def build_well_table(loc, cl, md, elev, maod, clim, sy_df):
         _pw = pd.read_csv(OUT_03_PER_WELL_WINDOW_SENS)
         _pw["id"] = _pw["Name_Original"].apply(_norm)
         _full = _pw[_pw["basis"] == "full_record"]
-        wt = wt.merge(_full[["id", "beta_1_recharge", "beta_2_atmospheric_draw",
-                             "beta_3_drainage", "pvalue_beta_3"]].rename(columns={
-            "beta_1_recharge": "b1f", "beta_2_atmospheric_draw": "b2f",
-            "beta_3_drainage": "b3f", "pvalue_beta_3": "p3f"}), on="id", how="left")
+        wt = wt.merge(_full[["id", "beta_1_recharge_model_a", "beta_2_atmospheric_draw_model_a",
+                             "beta_3_drainage_model_a", "pvalue_beta_3_model_a"]].rename(columns={
+            "beta_1_recharge_model_a": "b1f", "beta_2_atmospheric_draw_model_a": "b2f",
+            "beta_3_drainage_model_a": "b3f", "pvalue_beta_3_model_a": "p3f"}), on="id", how="left")
         _win = _pw[_pw["basis"] == "comparison_window"]
-        wt = wt.merge(_win[["id", "pvalue_beta_3"]].rename(
-            columns={"pvalue_beta_3": "p3w"}), on="id", how="left")
+        wt = wt.merge(_win[["id", "pvalue_beta_3_model_a"]].rename(
+            columns={"pvalue_beta_3_model_a": "p3w"}), on="id", how="left")
     else:
         warn(f"{OUT_03_PER_WELL_WINDOW_SENS.name} not found - the viewer will "
              "offer only the recent-record basis (run Script 03)")
@@ -1425,6 +1446,8 @@ header p{{font-size:0.78rem;color:rgba(255,255,255,0.58);font-weight:300;}}
 .sc-note{{font-size:10px;color:var(--text-light);line-height:1.45;margin-top:6px;
           padding:5px 8px;background:var(--sand);
           border-left:2px solid var(--dune);border-radius:0 3px 3px 0;}}
+.sc-wd{{font-size:9px;font-weight:600;color:#a32020;white-space:nowrap;}}
+.sc-wd-note{{border-left-color:#a32020;margin:4px 0 6px;}}
 .srow{{display:flex;align-items:center;gap:5px;margin-bottom:5px;}}
 .srow label{{font-size:11px;color:var(--text-light);flex:1;}}
 .sv{{font-size:10px;font-weight:600;min-width:34px;text-align:right;color:var(--slate);}}
@@ -1566,9 +1589,10 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc on" id="btn_baseline"    onclick="loadSc('baseline')">Baseline (2005&#8211;2026)</button>
   <button class="sc"    id="btn_ukcp18_2050s" onclick="loadSc('ukcp18_2050s')">UKCP18 2050s (RCP8.5)</button>
   <button class="sc"    id="btn_ukcp18_2080s" onclick="loadSc('ukcp18_2080s')">UKCP18 2080s (RCP8.5)</button>
-  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (felled-well draw &#8595;)</button>
+  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (felled-well draw &#8595;) <span class="sc-wd">withdrawn (D-333)</span></button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
-  <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%)</button>
+  <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%) <span class="sc-wd">withdrawn (D-333)</span></button>
+  <div class="sc-note sc-wd-note">Clearfell and thinning are withdrawn (D-333): their &#946;&#8322; multiplier comes from single-well era refits and sits inside its noise. Shown for reference only, not as results, until they are rebuilt on the observed felling step (T-209).</div>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -1791,7 +1815,8 @@ var SCEN={{
   thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:{thinning_b2_mult}, sB2_s:{thinning_b2_mult}}},
 }};
 var WARN={{
-  clearfell:    'Clearfell, anchored to the December 2017 felling (D-239): the canopy\u2019s draw \u03b2\u2082 scaled by the felled well\u2019s measured change net of the climate controls ({clearfell_b2_mult}\u00d7), with no interception recharge gain \u2014 the felled well\u2019s recharge did not rise. One felled well (WMC3). Open-dune end state, a bound (each forest cluster on its open-dune counterpart\u2019s coefficients, cluster basis): {end_state_text}.',
+  clearfell:    'WITHDRAWN (D-333): built from a beta multiplier of single-well era refits, inside its noise; pending T-209 \u2014 not a result. Clearfell, anchored to the December 2017 felling (D-239): the canopy\u2019s draw \u03b2\u2082 scaled by the felled well\u2019s measured change net of the climate controls ({clearfell_b2_mult}\u00d7), with no interception recharge gain \u2014 the felled well\u2019s recharge did not rise. One felled well (WMC3). Open-dune end state, a bound (each forest cluster on its open-dune counterpart\u2019s coefficients, cluster basis): {end_state_text}.',
+  thinning:     'WITHDRAWN (D-333): built from a beta multiplier of single-well era refits, inside its noise; pending T-209 \u2014 not a result. Thinning: half the clearfell\u2019s \u03b2\u2082 change ({thinning_b2_mult}\u00d7).',
   broadleaf:    'Broadleaf conversion (seasonally-varying \u03b2\u2082: winter {broadleaf_b2_winter}\u00d7, summer {broadleaf_b2_summer}\u00d7; no interception recharge gain, as for the clearfell, D-239). The seasonal \u03b2\u2082 profile captures the first-order deciduous phenology effect (reduced winter ET, elevated summer ET). Second-order dynamical propagation of winter recharge surplus into summer minima is not resolved in this steady-state framework (see Section 5.4.4).',
   ukcp18_2050s: 'UKCP18 2050s central estimate, RCP8.5, Wales. Winter +10% P / +5% PET, summer \u221215% P / +20% PET. Steady-state equilibrium response to seasonally-perturbed forcing only; within-year dynamical propagation is not resolved.',
   ukcp18_2080s: 'UKCP18 2080s central estimate, RCP8.5, Wales. Winter +20% P / +10% PET, summer \u221230% P / +35% PET. Steady-state equilibrium response only. See Section 5.6 for interpretive caveats.',
@@ -2431,6 +2456,11 @@ def _water_equivalent(sub) -> dict:
     }
 
 
+# 2.34.0 (D-332): depth-dependent sets (15_05) left out because their Model B implied base is not below
+# ground, {name: implied_datum_m}; filled by projection_coefficient_sets(), counted in the report numbers.
+_DDP_EXCLUDED_DATUM = {}
+
+
 def projection_coefficient_sets(wt):
     """The coefficient sets the sustained projections run on (D-216, D-224), shared by
     compute_scenario_summary() and the scenario viewer so the page and the CSVs cannot
@@ -2464,22 +2494,39 @@ def projection_coefficient_sets(wt):
     well_A = {r["id"]: _a_set(r["b1"], r["b2"], r["b3"], r.get("p3w"), LCSC_DATA_LIMIT)
               for _, r in wt.iterrows() if pd.notna(r.get("b1"))}
     _ca = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
-    cent_A = {int(r["Cluster"]): _a_set(r["beta_1_recharge"], r["beta_2_atmospheric_draw"],
-                                        r["beta_3_drainage"], r["pvalue_beta_3"], r["n"])
+    cent_A = {int(r["Cluster"]): _a_set(r["beta_1_recharge_model_a"], r["beta_2_atmospheric_draw_model_a"],
+                                        r["beta_3_drainage_model_a"], r["pvalue_beta_3_model_a"], r["n"])
               for _, r in _ca.iterrows()}
     # ── D-280 (2.32.0): the depth-dependent form, the third projection ──
     # Reference wells: their own comparison-window set from Script 15 (inv_L_E fixed at the cluster's,
     # beta refitted), None where it is not identified; extended wells: their cluster's full-record
     # centroid set, as under Model A. Each set is (b1, b2, b3, inv_L_E).
+    # 2.34.0 (D-332): each set carries its implied base z = 15_05 implied_datum_m as a fifth element
+    # (Script 15 1.11.0 fits Model B); a set whose base is not below ground is not used, and is counted in
+    # the module dict _DDP_EXCLUDED_DATUM. A 15_05 without the column (Script 15 < 1.11.0)
+    # is Model A and runs at DRAINAGE_DATUM, as before.
     well_D, cent_D = {}, {}
+    _DDP_EXCLUDED_DATUM.clear()
     if OUT_15_DDP_PER_WELL.exists():
         _dd = pd.read_csv(OUT_15_DDP_PER_WELL)
+        _hasz = "implied_datum_m" in _dd.columns
+
+        def _z(r):
+            return float(r["implied_datum_m"]) if _hasz else float(DRAINAGE_DATUM)
+
         for _, r in _dd[_dd["level"] == "well"].iterrows():
             ok = bool(r["identified"])
-            well_D[_norm(r["well"])] = ((float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["inv_L_E"]))
+            if _hasz and not (_z(r) > 0):
+                _DDP_EXCLUDED_DATUM[f"{_norm(r['well'])}"] = _z(r)
+                ok = False
+            well_D[_norm(r["well"])] = ((float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["inv_L_E"]), _z(r))
                                         if ok else None)
         for _, r in _dd[(_dd["level"] == "centroid") & (_dd["basis"] == "full_record")].iterrows():
-            cent_D[int(r["Cluster"])] = (float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["inv_L_E"]))
+            if _hasz and not (_z(r) > 0):
+                _DDP_EXCLUDED_DATUM[f"C{int(r['Cluster'])} centroid"] = _z(r)
+                continue
+            cent_D[int(r["Cluster"])] = (float(r["b1"]), float(r["b2"]), float(r["b3"]), float(r["inv_L_E"]),
+                                         _z(r))
     return _mb, _mbw, well_B, cent_B, well_A, cent_A, well_D, cent_D
 
 
@@ -2512,7 +2559,7 @@ def open_dune_end_state(P12, PET12):
     (config.END_STATE_OPEN_DUNE_COUNTERPART: C4 -> C2, C5 -> C3), and the change in the
     equilibrium level under the mean climatology is returned per (cluster, form):
 
-        Model A:  h_eq = (b1·P - b2·PET) / b3            (03_03, full-record centroids)
+        Model A:  h_eq = (b1·P - b2·PET) / b3            (03_03 *_model_a, full-record centroids)
         Model B:  h_eq = (b1·P - b2·PET + alpha) / b3    (03_16 centroid rows)
 
     A bound, not a scenario: a cluster's equilibrium sits near its own mean depth, so the swap
@@ -2525,11 +2572,24 @@ def open_dune_end_state(P12, PET12):
     def _eq(form, c):
         if form == "A":
             r = ca.loc[c]
-            return (r["beta_1_recharge"] * P - r["beta_2_atmospheric_draw"] * PET) / r["beta_3_drainage"]
+            return ((r["beta_1_recharge_model_a"] * P - r["beta_2_atmospheric_draw_model_a"] * PET)
+                    / r["beta_3_drainage_model_a"])
         r = cb.loc[c]
         return (r["beta_1_B"] * P - r["beta_2_B"] * PET + r["alpha_B"]) / r["beta_3_B"]
     return {(c, f): float(_eq(f, ref) - _eq(f, c))
             for c, ref in END_STATE_OPEN_DUNE_COUNTERPART.items() for f in ("B", "A")}
+
+
+# 2.36.0 (D-333): the scenario rows built from the era-refit beta_2 multiplier (CLEARFELL_B2_MULT / THINNING_B2_MULT).
+# Broadleaf takes config.BROADLEAF_B2_* (a phenology profile), so it is not among them.
+D333_WITHDRAWN_SCENARIOS = ("clearfell", "thinning", "clearfell_interception_bound")
+
+
+def _d333_status(frame):
+    """2.36.0 (D-333): the frame with a `status` column, D333_WITHDRAWN_STATUS on the withdrawn scenarios' rows."""
+    if frame.empty or "scenario" not in frame.columns:
+        return frame
+    return frame.assign(status=np.where(frame["scenario"].isin(D333_WITHDRAWN_SCENARIOS), D333_WITHDRAWN_STATUS, ""))
 
 
 def compute_scenario_summary(wt, climate_stats, out_dir):
@@ -2646,6 +2706,12 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                  f"(response_identified, 0 < beta_3 < 1 and a finite p-value) and are not projected on their "
                  f"own fit; of {len(well_B)} wells. Not identified at centroid level: "
                  + (", ".join(f"C{c}" for c, v in sorted(cent_B.items()) if v is None) or "none"))
+    # 2.34.0 (D-332): depth-dependent sets not used because their Model B implied base is not below ground
+    rpt.add("scenario_ddp_n_sets_excluded_datum", len(_DDP_EXCLUDED_DATUM), unit="sets",
+            note="15_05 depth-dependent sets (reference wells and full-record centroids) left out: Model B implied "
+                 "base DRAINAGE_DATUM - alpha/beta_3 not below ground (D-332)"
+                 + (" (" + ", ".join(f"{k} {v:+.1f} m" for k, v in sorted(_DDP_EXCLUDED_DATUM.items())) + ")"
+                    if _DDP_EXCLUDED_DATUM else ""))
     rows_A, perwell_A = [], []                         # D-224: Model A, separate files (D-332: the sensitivity)
 
     def _aggregate_level_a(frame, sc_name, sea):
@@ -2697,7 +2763,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
             return None
         sP12, sPET12 = _expand_seasonal_to_monthly(sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
         ss = sustained_monthly_response_ddp(D_[0], D_[1], D_[2], D_[3], P12, PET12, sP12, sPET12,
-                                            DRAINAGE_DATUM)[0]
+                                            D_[4])[0]          # 2.34.0 (D-332): the set's implied base
         return float(np.mean(ss[[m - 1 for m in season_months[season]]]))
 
     def _aggregate_level_d(frame, sc_name, sea):
@@ -2889,7 +2955,10 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                             era=f"{_scn}_interception_bound {_sea}",
                             note=f"cluster-mean sustained level response, Model {form}, {_scn} with its interception "
                                  f"difference returned as recharge ({FOREST_INTERCEPTION:g} -> {_Ib:g}): the "
-                                 f"upper end of the {_scn} range; n={len(_sub)} wells")
+                                 f"upper end of the {_scn} range; n={len(_sub)} wells"
+                                 # 2.36.0 (D-333): the clearfell bound keeps the clearfell beta_2 multiplier
+                                 + (D333_WITHDRAWN_NOTE if f"{_scn}_interception_bound" in D333_WITHDRAWN_SCENARIOS
+                                    else ""))
 
     # ── 2.31.0 (T-97, D-239): the retired interception form at the felled well, a diagnostic ──
     # The form the documents used before D-239 (canopy interception returned as recharge, beta_2 on the
@@ -2910,18 +2979,18 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                         float(v), unit="m", well=_w.upper(), era="clearfell (interception form) annual",
                         note=f"sustained annual level response, Model {form}, under the retired interception form "
                              f"(interception to 0, beta_2 x Edge-tier {_cf_edge:.4f}) - a diagnostic of the overshoot "
-                             f"D-239 retired; not a scenario")
+                             f"D-239 retired; not a scenario" + D333_WITHDRAWN_NOTE)   # 2.36.0 (D-333)
 
-    pw = pd.DataFrame(perwell)
+    pw = _d333_status(pd.DataFrame(perwell))              # 2.36.0 (D-333): status column
     pw.to_csv(OUT_19_SCENARIO_PERWELL, index=False)
     print(f"  Per-well scenario CSV: {OUT_19_SCENARIO_PERWELL.name} ({len(pw)} rows)")
 
-    out = pd.DataFrame(rows)
+    out = _d333_status(pd.DataFrame(rows))
     out_csv = out_dir / "19_scenario_summary.csv"
     out.to_csv(out_csv, index=False)
-    out_A = pd.DataFrame(rows_A)
+    out_A = _d333_status(pd.DataFrame(rows_A))
     out_A.to_csv(OUT_19_SCENARIO_SUMMARY_MODEL_A, index=False)
-    pd.DataFrame(perwell_A).to_csv(OUT_19_SCENARIO_PERWELL_MODEL_A, index=False)
+    _d333_status(pd.DataFrame(perwell_A)).to_csv(OUT_19_SCENARIO_PERWELL_MODEL_A, index=False)
     pd.DataFrame(rows_D).to_csv(OUT_19_SCENARIO_SUMMARY_DDP, index=False)          # D-280
     pd.DataFrame(perwell_D).to_csv(OUT_19_SCENARIO_PERWELL_DDP, index=False)
     print(f"  Depth-dependent scenario CSVs (D-280): {OUT_19_SCENARIO_SUMMARY_DDP.name} ({len(rows_D)} rows), "
@@ -3014,6 +3083,16 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     else:
         print("  ΔMSL5 cross-check, Model A, skipped: 26b Model A per-well CSV not yet generated")
 
+    # 2.36.0 (D-333): how many report keys are withdrawn, for the check tools; and the console warning
+    _n_wd = sum(1 for r in rpt.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
+    rpt.add("scenario_n_keys_withdrawn_d333", _n_wd, unit="keys",
+            note="report keys in this file whose note carries the D-333 withdrawal (clearfell interception bound "
+                 "and the interception-form diagnostic, both forms); the clearfell and thinning rows of "
+                 "19_scenario_summary[_model_a] / _perwell[_model_a] carry status 'withdrawn (D-333)'")
+    warn(f"D-333: the clearfell and thinning scenarios (Model B and Model A rows of 19_scenario_summary / _perwell, "
+         f"the clearfell interception bound and the interception-form diagnostic; {_n_wd} report keys) are built "
+         f"from a beta_2 multiplier of single-well era refits and are WITHDRAWN pending T-209 - values unchanged, "
+         f"flagged, not results")
     n_rpt = rpt.save(OUT_19_REPORT_NUMBERS)  # T-91
     print(f"  Saved → {OUT_19_REPORT_NUMBERS.name} ({n_rpt} report numbers)")
     return out

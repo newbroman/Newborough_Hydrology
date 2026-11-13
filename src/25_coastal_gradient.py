@@ -126,7 +126,11 @@ EPSG:27700. See data/COASTLINE_PROVENANCE.md.
 
 from __future__ import annotations
 
-__version__ = "1.37.0"  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.38.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The beta3_recursion covariate of
+#   25_15 runs Model B: Script 03's coefficients (Model B since 03 1.31.0) at the panel-median implied datum
+#   (implied_datum_m = DRAINAGE_DATUM - alpha/beta_3) in place of DRAINAGE_DATUM; panel wells whose implied datum is
+#   not below ground are left out of the medians and counted (basis implied_datum_m, n_wells_excluded_datum).
+# 1.37.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 §4.10.3 quotes the window sweep's well count at the first window and its fewest, and the typical
 #   reach once the window starts after the reach's step down; new rows window_sweep_n_wells_first,
 #   window_sweep_n_wells_min (forest-free 25_12 windows) and window_sweep_L_median_after_2007_08 (median L_m over
@@ -658,7 +662,7 @@ from utils.config import (  # noqa: E402
     MSL_SPRING_MONTHS, MSL_MIN_MONTHS_PER_SPRING,
     COASTAL_REFERENCE_DISTANCE_M, COASTAL_GRADIENT_EXCLUDED_WELLS,
     ROLLING_WINDOW_YEARS, ROLLING_WINDOW_STEP_MONTHS,
-    COVARIATE_SWEEP_HALF_LIVES_MO, DRAINAGE_DATUM,
+    COVARIATE_SWEEP_HALF_LIVES_MO,
 )
 from utils.clearfell_common import (  # noqa: E402
     IMPACT_WELLS, EDGE_WELLS, FOREST_CONTROL_WELLS,
@@ -981,9 +985,13 @@ def accumulator_covariate(half_life_months: float) -> pd.Series:
 def beta3_recursion_covariate(panel_wells) -> tuple[pd.Series, dict]:
     """The project's own SSM stepped forward on climate alone, mm.
 
-        h(t) = h(t−1) + β₁·P(t) − β₂·PET(t) − β₃·(DRAINAGE_DATUM + h(t−1))
+        h(t) = h(t−1) + β₁·P(t) − β₂·PET(t) − β₃·(D_B + h(t−1))
 
-    with the MEDIAN coefficients of the panel's own wells. It has no free
+    with the MEDIAN coefficients of the panel's own wells. Since 1.38.0 (D-332)
+    these are Model B's, and D_B is the panel-median implied datum
+    (03 implied_datum_m = DRAINAGE_DATUM − α/β₃), so the recursion is Model B;
+    a panel well whose implied datum is not below ground is left out of the
+    medians and counted. It has no free
     parameter: every constant in it was fitted elsewhere, for another purpose,
     by Script 03. That is what makes it worth carrying alongside the tuned
     accumulators — it is the one alternative covariate whose memory is asserted
@@ -1002,18 +1010,22 @@ def beta3_recursion_covariate(panel_wells) -> tuple[pd.Series, dict]:
     master = pd.read_csv(paths.INT_MASTER_DATA)
     key = master["Name_Original"].astype(str).str.strip().str.lower()
     sub = master[key.isin(set(panel_wells))]
+    _dd = pd.to_numeric(sub["implied_datum_m"], errors="coerce")
+    n_excl = int((~(_dd > 0)).sum())                 # 1.38.0 (D-332): no Model B below ground
+    sub = sub[_dd > 0]
     if sub.empty:
         raise ValueError("no panel well appears in 03_master_data.csv — the "
                          "beta3-recursion covariate has no basis")
     b1 = float(sub["beta_1_recharge"].median())
     b2 = float(sub["beta_2_atmospheric_draw"].median())
     b3 = float(sub["beta_3_drainage"].median())
+    d_b = float(pd.to_numeric(sub["implied_datum_m"], errors="coerce").median())
 
     h = 0.0
     vals = np.empty(len(idx), dtype=float)
     for i, d in enumerate(idx):
         h = h + b1 * float(P_m[d]) - b2 * float(PET_m[d]) \
-            - b3 * (DRAINAGE_DATUM + h)
+            - b3 * (d_b + h)
         vals[i] = h * 1000.0            # m → mm, the units of the other covariates
     out = pd.Series(vals, index=idx)
     out = out - out.mean()
@@ -1021,7 +1033,9 @@ def beta3_recursion_covariate(panel_wells) -> tuple[pd.Series, dict]:
     basis = {"n_wells": int(len(sub)),
              "beta_1_recharge": b1,
              "beta_2_atmospheric_draw": b2,
-             "beta_3_drainage": b3}
+             "beta_3_drainage": b3,
+             "implied_datum_m": d_b,
+             "n_wells_excluded_datum": n_excl}
     return out, basis
 
 

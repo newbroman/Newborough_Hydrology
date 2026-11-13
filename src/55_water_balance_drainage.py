@@ -70,7 +70,11 @@ Run directly:  python3 src/55_water_balance_drainage.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-11-05 (D-311, Martin's points 1 and 2).
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Stage G admits CCW codes with
+#   usable_codes(..., datum_col="implied_datum_m"), the rule Scripts 39 and 53 apply: 03_master_data's triple is now Model
+#   B, whose beta_3 is bounded positive, so the "non-positive drainage coefficient" screen no longer bites and a well
+#   whose implied base is not below ground is left out instead. The admitted set is unchanged (the same 9 codes).
+# 1.2.0  # Hollingham (2026) - 2026-11-05 (D-311, Martin's points 1 and 2).
 #   Panel A of 55_02 draws the 37 wells whose hinge LOST to the straight line hollow, so the eye is not
 #   invited to read a trend partly carried by parameters the model rejected. Drainage at the ground
 #   surface is reported, computed on the SELECTED form (D_surface_selected), per well and per cluster,
@@ -689,7 +693,7 @@ def stage_g_ccw(wells, cl, sy, both_laws) -> pd.DataFrame:
     md = pd.read_csv(INT_MASTER_DATA)
     md["k"] = md["Name_Original"].astype(str).str.lower().str.strip()
     md = md.set_index("k")
-    adm = usable_codes(cmap, md, obs)
+    adm = usable_codes(cmap, md, obs, datum_col="implied_datum_m")   # 1.3.0 (D-332)
     admitted = adm[adm["admitted"]]
     first, last = obs["month"].min(), obs["month"].max()
     sykey = {normalize_well_name(str(r.Well)): (int(r.Cluster), float(r.Sy_median), r.col)

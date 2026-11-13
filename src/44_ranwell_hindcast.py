@@ -112,7 +112,11 @@ Outputs (outputs/44_ranwell_hindcast/):
 
 from __future__ import annotations
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the headline: the
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+#   03_master_data / 03_03's unsuffixed coefficient columns and Model A in *_model_a. md (the master store) and the
+#   03_03 centroids (Q5's pre-planting run) are read only as Model A here, so both now go through _model_a_store(),
+#   which gives the *_model_a columns the unsuffixed names. Model B still comes from 03_16; no Model B result changes.
+# 1.13.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the headline: the
 #   ranwell_hindcast_* keys keep their names and now carry Model B (03_16 at DRAINAGE_DATUM - alpha/beta_3), with
 #   Model A at 3.7 m as <key>_model_a and Model A at each well's depth to mean high water as <key>_mhw (Addendum 3,
 #   Scenario 3); new ranwell_hindcast_nse_median_all_pairings* and n_pairings*. Bounded beta_3 fits (model_utils
@@ -284,6 +288,14 @@ def _norm(w) -> str:
 
 
 # ── inputs ────────────────────────────────────────────────────────────────────
+def _model_a_store(df: pd.DataFrame) -> pd.DataFrame:
+    """1.14.0 (D-332, phase 2b): a Script 03 coefficient table as its MODEL A store. Script 03 1.31.0 writes
+    Model B in the unsuffixed columns and Model A in <column>_model_a; this script's md and 03_03 centroid
+    reads are all Model A (Model B comes from 03_16), so each *_model_a column takes its unsuffixed name."""
+    ren = {c: c[:-len("_model_a")] for c in df.columns if c.endswith("_model_a")}
+    return df.drop(columns=[v for v in ren.values() if v in df.columns]).rename(columns=ren)
+
+
 def load_inputs():
     lv = pd.read_csv(paths.RANWELL_LEVELS, parse_dates=["date"])
     rg = pd.read_csv(paths.RANWELL_RANGES)
@@ -294,7 +306,7 @@ def load_inputs():
     diag = pd.read_csv(paths.OUT_43_DIAGNOSTIC).iloc[0]
     cl = pd.read_csv(paths.INT_CLIMATE, index_col=0, parse_dates=True)
     cl = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
-    md = pd.read_csv(paths.INT_MASTER_DATA)
+    md = _model_a_store(pd.read_csv(paths.INT_MASTER_DATA))       # 1.14.0: Model A, the *_model_a columns
     md["k"] = md["Name_Original"].map(_norm)
     md = md.set_index("k")
     loc = pd.read_csv(paths.INT_LOCATIONS)
@@ -1410,7 +1422,7 @@ def main() -> int:
     canopy = pd.read_csv(paths.CANOPY_HISTORY)
     ground_prep = pd.read_csv(paths.DATA_FOREST_GROUND_PREP) if paths.DATA_FOREST_GROUND_PREP.exists() else pd.DataFrame(columns=["well", "ground_prep", "source"])
     channels = _channel_geoms(config.FOREST_CHANNEL_LINES) if config.FOREST_CHANNEL_LINES else {}
-    cc_tab = pd.read_csv(paths.OUT_03_MECHANISTIC_TABLE).set_index("Cluster")
+    cc_tab = _model_a_store(pd.read_csv(paths.OUT_03_MECHANISTIC_TABLE)).set_index("Cluster")   # 1.14.0: Model A
     ep = pd.read_csv(paths.OUT_40_EPOCH_SERIES)
     ep = ep[ep["basis"] == "pair_extent"].set_index(["from_epoch", "to_epoch"])
     mid_year = (pd.Timestamp(config.PREPLANT_WINDOW[0]).year + pd.Timestamp(config.PREPLANT_WINDOW[1]).year) / 2.0

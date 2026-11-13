@@ -800,10 +800,10 @@ projection_2080s_summer_fall_median_at_project,,,-0.516510795026585,m,"median 20
 projection_2080s_summer_room_left_min_at_project,,,0.933299371225778,m,"smallest room left above the datum at the projected 2080s summer minimum, datum 3.7 m"
 projection_2080s_summer_fall_median_model_b,,,-0.3740218414167115,m,"median 2080s summer sustained level response, Model B, the same wells"
 projection_2080s_n_wells_pair,,,57.0,count,"wells projected under both forms at the project datum (2080s, forest withheld, D-224)"
-projection_2080s_n_wells_trio,,,57.0,count,"wells projected under Model A, Model B and the depth-dependent form (2080s, project datum)"
-projection_2080s_summer_fall_median_trio_model_a,,,-0.516510795026585,m,"median 2080s summer sustained level response, model_a, on the trio wells"
-projection_2080s_summer_fall_median_trio_model_b,,,-0.3740218414167115,m,"median 2080s summer sustained level response, model_b, on the trio wells"
-projection_2080s_summer_fall_median_trio_ddp,,,-0.3464193685479632,m,"median 2080s summer sustained level response, ddp, on the trio wells"
+projection_2080s_n_wells_trio,,,31.0,count,"wells projected under Model A, Model B and the depth-dependent form (2080s, project datum)"
+projection_2080s_summer_fall_median_trio_model_a,,,-0.4699433940156946,m,"median 2080s summer sustained level response, model_a, on the trio wells"
+projection_2080s_summer_fall_median_trio_model_b,,,-0.3430465515361366,m,"median 2080s summer sustained level response, model_b, on the trio wells"
+projection_2080s_summer_fall_median_trio_ddp,,,-0.30070683450137065,m,"median 2080s summer sustained level response, ddp, on the trio wells"
 projection_2050s_summer_fall_median_at_supported,,,-0.24604744972968468,m,"median 2050s summer sustained level response, Model A at datum 3 m; n = 57 wells (forest withheld, D-224 pairing)"
 projection_2050s_summer_room_left_min_at_supported,,,0.513710655270354,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 3 m"
 projection_2050s_summer_fall_median_at_band_min,,,-0.2419175129735464,m,"median 2050s summer sustained level response, Model A at datum 2.9 m; n = 57 wells (forest withheld, D-224 pairing)"
@@ -814,14 +814,15 @@ projection_2050s_summer_fall_median_at_project,,,-0.28184110962212483,m,"median 
 projection_2050s_summer_room_left_min_at_project,,,1.162894095706871,m,"smallest room left above the datum at the projected 2050s summer minimum, datum 3.7 m"
 projection_2050s_summer_fall_median_model_b,,,-0.20431833842567984,m,"median 2050s summer sustained level response, Model B, the same wells"
 projection_2050s_n_wells_pair,,,57.0,count,"wells projected under both forms at the project datum (2050s, forest withheld, D-224)"
-projection_2050s_n_wells_trio,,,57.0,count,"wells projected under Model A, Model B and the depth-dependent form (2050s, project datum)"
-projection_2050s_summer_fall_median_trio_model_a,,,-0.28184110962212483,m,"median 2050s summer sustained level response, model_a, on the trio wells"
-projection_2050s_summer_fall_median_trio_model_b,,,-0.20431833842567984,m,"median 2050s summer sustained level response, model_b, on the trio wells"
-projection_2050s_summer_fall_median_trio_ddp,,,-0.19369346890670372,m,"median 2050s summer sustained level response, ddp, on the trio wells"
+projection_2050s_n_wells_trio,,,31.0,count,"wells projected under Model A, Model B and the depth-dependent form (2050s, project datum)"
+projection_2050s_summer_fall_median_trio_model_a,,,-0.2556457494226071,m,"median 2050s summer sustained level response, model_a, on the trio wells"
+projection_2050s_summer_fall_median_trio_model_b,,,-0.1879833364444316,m,"median 2050s summer sustained level response, model_b, on the trio wells"
+projection_2050s_summer_fall_median_trio_ddp,,,-0.1663915888048107,m,"median 2050s summer sustained level response, ddp, on the trio wells"
 reclen_check_datum_vs39_max_abs_nse_diff,,,1.558128626122368e-14,,identity check at the project datum (expected 0)
 reclen_check_datum_vs48_max_abs_nse_diff,,,2.220446049250313e-16,,identity check at the project datum (expected 0)
 reclen_check_datum_vs19_max_abs_fall_diff_m,,,3.552713678800501e-15,,identity check at the project datum (expected 0)
 reclen_check_datum_vs44_max_abs_nse_diff,,,2.4289928735043986e-08,,identity check at the project datum (expected 0)
+projection_ddp_n_sets_excluded_datum,,,2.0,count,"15_05 per-well depth-dependent sets left out of E7: Model B implied base DRAINAGE_DATUM - alpha/beta_3 not below ground (D-332) (ceh13 -124.3 m, ceh14 -1218.1 m)"
 projection_check_ddp_k0_vs_closed_form,,,1.1812328892801816e-11,m,"identity check: the depth-dependent sustained response at 1/L_E = 0 less the closed form, max over a coefficient grid (expected 0 to 1e-9)"
 projection_2050s_annual_wb_shift_mm_yr,,,-117.15548925127737,mm/yr,UKCP18 2050s change in annual P - PET applied to the modern monthly climatology (2005-04 to 2026-02)
 projection_2080s_annual_wb_shift_mm_yr,,,-209.8142491795254,mm/yr,UKCP18 2080s change in annual P - PET applied to the modern monthly climatology (2005-04 to 2026-02)
@@ -1088,12 +1089,12 @@ ranwell_epoch_swing_ratio_epoch_nw5,,,0.8580482648543183,,"SD observed / SD mode
 ranwell_epoch_swing_smaller_pct_min,,,2.585765667730522,%,"1951-53 swing relative to the model, smaller than today's by at least"
 ranwell_epoch_swing_smaller_pct_max,,,20.377847395117133,%,and by at most
 ranwell_epoch_forest_k_beta1,,,0.9720314068224766,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
-ranwell_epoch_forest_k_beta2,,,0.9283775113558549,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
+ranwell_epoch_forest_k_beta2,,,0.8870644771108603,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
 ranwell_epoch_forest_k_beta3,,,0.9278311862691352,x,"open-ground wells beyond the forest's drawdown reach over those within it, median coefficient"
-ranwell_epoch_forest_shift_pct_max,,,7.216881373086482,%,largest of those differences
-ranwell_epoch_forest_n_pairs_within,,,6.0,pairs,pairs within the drawdown reach of today's forest
+ranwell_epoch_forest_shift_pct_max,,,11.293552288913967,%,largest of those differences
+ranwell_epoch_forest_n_pairs_within,,,5.0,pairs,pairs within the drawdown reach of today's forest
 ranwell_epoch_forest_n_sites_within,,,1.0,sites,Ranwell sites with a pair within it ([4])
-ranwell_epoch_forest_nse_median,,,0.5914721610283729,,median NSE with the forest's difference removed at the pairs within its reach
+ranwell_epoch_forest_nse_median,,,0.5880428119400938,,median NSE with the forest's difference removed at the pairs within its reach
 ranwell_epoch_cand_open_dune_cover_recharge_nse_at_k_low,,,0.5733322418069309,,open_dune_cover_recharge: median NSE at the low end of its range
 ranwell_epoch_cand_open_dune_cover_recharge_k_low,,,1.0,x,"open_dune_cover_recharge: beta_1 scale, low end"
 ranwell_epoch_cand_open_dune_cover_recharge_nse_at_k_high,,,-0.025627893553759717,,open_dune_cover_recharge: median NSE at the high end of its range
@@ -1110,8 +1111,8 @@ ranwell_epoch_cand_sea_level_nse_at_k_low,,,0.5745120989320274,,sea_level: media
 ranwell_epoch_cand_sea_level_k_low,,,0.9821191954401302,x,"sea_level: beta_3 scale, low end"
 ranwell_epoch_cand_sea_level_nse_at_k_high,,,0.575809897532187,,sea_level: median NSE at the high end of its range
 ranwell_epoch_cand_sea_level_k_high,,,0.9705497221749,x,"sea_level: beta_3 scale, high end"
-ranwell_epoch_cand_modern_forest_nse_at_k_low,,,0.5914721610283729,,modern_forest: median NSE at the low end of its range
-ranwell_epoch_cand_modern_forest_k_low,,,0.9278311862691352,x,"modern_forest: beta_1, beta_2, beta_3 scale, low end"
+ranwell_epoch_cand_modern_forest_nse_at_k_low,,,0.5880428119400938,,modern_forest: median NSE at the low end of its range
+ranwell_epoch_cand_modern_forest_k_low,,,0.8870644771108603,x,"modern_forest: beta_1, beta_2, beta_3 scale, low end"
 ranwell_epoch_cand_modern_forest_k_high,,,0.9720314068224766,x,"modern_forest: beta_1, beta_2, beta_3 scale, high end"
 ranwell_epoch_cand_on_site_rain_nse_at_k_low,,,-0.350066053784704,,on_site_rain: median NSE at the low end of its range
 ranwell_epoch_cand_pipe_foot_nse_at_k_low,,,0.5737766778385796,,pipe_foot: median NSE at the low end of its range

@@ -22,12 +22,14 @@ WHAT THIS IS
   pipe-base value, and leave out the most-censored wells.
 
   Part 2, the hold-out test. At every well read through a window, the window is hidden and filled
-  from a donor, under five rules:
+  from a donor, under six rules (four donor rules and two SSM references):
       nearest          nearest well with r >= DONOR_MIN_R over the overlap
       best_r           best-correlated well, any distance
       nearest_cluster  nearest well of the same cluster with r >= DONOR_MIN_R
       cluster_median   the median of the target's cluster-mates (target excluded)
-      ssm_model_a      Model A fitted outside the window and run freely through it (reference only)
+      ssm_model_b      Model B (free intercept; D-332) fitted outside the window and run freely through it
+                       with its intercept (reference only)
+      ssm_model_a      the same with Model A, no intercept, DRAINAGE_DATUM (reference only, kept beside it)
   Two windows of GAPFILL_HOLDOUT_MONTHS: one from GAPFILL_EARLY_START (it holds the 2006-08 excess,
   D-231, and is the late-starting wells' own gap) and the last before REFERENCE_CUTOFF_DATE.
   Cluster membership never sees the hidden months: reference wells keep the committed partition
@@ -76,7 +78,12 @@ Run directly:  python3 src/51_cluster_gap_fill.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.1.0"  # Hollingham (2026) - 2026-10-25. Two claims made in prose had no key to
+__version__ = "1.2.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The SSM reference is Model B: a sixth
+#   rule ssm_model_b (fit_ssm intercept=True, beta_3 bounded below, run freely with its alpha) beside ssm_model_a,
+#   which is kept unchanged because report10 / Paper M compare the adopted rule against it. New keys
+#   gapfill_*_ssm_model_b_* and gapfill_<pooled|early|late>_adopted_to_model_b_msl_err_ratio; no existing key moves
+#   (neither SSM rule can be adopted). Figure panel (a) gains the ssm model b column.
+# 1.1.0  # Hollingham (2026) - 2026-10-25. Two claims made in prose had no key to
 #   bind (owed by 2026-10-25a): "less than half as much as Model A" (report10, Paper M) and the
 #   "two-thirds" pair-share threshold (report8). Emitted now, from values already computed:
 #   gapfill_<pooled|early|late>_adopted_to_model_a_msl_err_ratio (adopted rule's median |MSL
@@ -118,7 +125,7 @@ from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 from utils.console_utils import banner, done, info, phase, result, saved, step, warn   # noqa: E402
 
-RULES = ("nearest", "best_r", "nearest_cluster", "cluster_median", "ssm_model_a")
+RULES = ("nearest", "best_r", "nearest_cluster", "cluster_median", "ssm_model_b", "ssm_model_a")
 DONOR_RULES = ("nearest", "best_r", "nearest_cluster")
 TWINS = ("excluded", "allowed")
 
@@ -394,19 +401,21 @@ def holdout(W, ref_cols, ext_cols, aud, xy, cl):
                         row.update(donor=f"C{mem[t]} median", donor_cluster=mem[t], r=tr["r"], n_overlap=tr["n"],
                                    slope=tr["b"], intercept=tr["a"],
                                    extrap_share=float(((mwin < tr["lo"]) | (mwin > tr["hi"]))[mwin.notna()].mean()))
-                    else:   # ssm_model_a: fitted outside the window, run freely through it from the month before
+                    else:   # ssm_model_b / ssm_model_a: fitted outside the window, run freely through it from
+                        #         the month before; Model B carries its intercept alpha (1.2.0, D-332)
                         h = W[t].where(fit_mask)
-                        f = fit_ssm(h, cl)
+                        f = fit_ssm(h, cl, intercept=(rule == "ssm_model_b"))
                         before = W[t].loc[:win[0]].iloc[:-1].dropna()
                         if f is None or before.empty or before.index[-1] != win[0] - pd.DateOffset(months=1):
                             rows.append(row); continue
                         c = cl.reindex(win)
                         if c.isna().any().any():
                             rows.append(row); continue
+                        _al = float(f.get("alpha", 0.0) or 0.0) if rule == "ssm_model_b" else 0.0
                         rec = pd.Series(simulate_ssm(float(before.iloc[-1]), c["P_m"].values, c["PET"].values,
                                                      f["beta_1_recharge"], f["beta_2_atmospheric_draw"],
-                                                     f["beta_3_drainage"]), index=win)
-                        row.update(donor="SSM Model A")
+                                                     f["beta_3_drainage"], alpha=_al), index=win)
+                        row.update(donor="SSM Model B" if rule == "ssm_model_b" else "SSM Model A")
                     row.update(_season_errors(obs, rec))
                     rows.append(row)
     return pd.DataFrame(rows)
@@ -421,11 +430,17 @@ def _boot_ci(x: np.ndarray, rng) -> tuple[float, float]:
 
 def scores(ho: pd.DataFrame):
     rng = np.random.default_rng(GAPFILL_SEED)
+    # 1.2.0: ssm_model_b draws from its own generator, after the rest, so the rules scored before it
+    # keep their bootstrap draws (and intervals) exactly
+    rng_b = np.random.default_rng(GAPFILL_SEED)
     rows = []
-    for (wname, rule, twins), g in list(ho.groupby(["window", "rule", "twins"])) + \
-            [(("pooled", r, tw), g) for (r, tw), g in ho.groupby(["rule", "twins"])]:
+    _groups = list(ho.groupby(["window", "rule", "twins"])) + \
+        [(("pooled", r, tw), g) for (r, tw), g in ho.groupby(["rule", "twins"])]
+    _groups = ([k for k in _groups if k[0][1] != "ssm_model_b"]
+               + [k for k in _groups if k[0][1] == "ssm_model_b"])
+    for (wname, rule, twins), g in _groups:
         x = g["msl_abs_err"].dropna().values
-        lo, hi = _boot_ci(x, rng)
+        lo, hi = _boot_ci(x, rng_b if rule == "ssm_model_b" else rng)
         rows.append(dict(window=wname, rule=rule, twins=twins, n_targets=int(g["target"].nunique()),
                          n_scored=int(len(x)), msl_abs_err_median=float(np.median(x)) if len(x) else np.nan,
                          msl_ci_lo=lo, msl_ci_hi=hi,
@@ -548,11 +563,13 @@ def report_numbers(cd, sc, adopted, best_rule, dr, pairs, recon, pairs_p, recon_
     # 1.1.0: the adopted rule's error as a share of Model A's, per window (twins excluded), so
     # "less than half as much" and its early/late comparison bind to a committed value.
     ex = sc[sc["twins"] == "excluded"].set_index(["window", "rule"])["msl_abs_err_median"]
+    # 1.2.0 (D-332): the same against Model B, the SSM the project now uses.
     for w in ("pooled", "early", "late"):
-        a, m = ex.get((w, adopted), np.nan), ex.get((w, "ssm_model_a"), np.nan)
-        if pd.notna(a) and pd.notna(m) and m > 0:
-            rr.add(f"gapfill_{w}_adopted_to_model_a_msl_err_ratio", float(a / m), unit="ratio",
-                   note=f"median |MSL error|, {adopted} over ssm_model_a, twins excluded (D-275)")
+        for form in ("model_b", "model_a"):
+            a, m = ex.get((w, adopted), np.nan), ex.get((w, f"ssm_{form}"), np.nan)
+            if pd.notna(a) and pd.notna(m) and m > 0:
+                rr.add(f"gapfill_{w}_adopted_to_{form}_msl_err_ratio", float(a / m), unit="ratio",
+                       note=f"median |MSL error|, {adopted} over ssm_{form}, twins excluded (D-275)")
     rr.add("gapfill_best_rule", best_rule, unit="text", note="lowest pooled median |MSL error| (D-275)")
     rr.add("gapfill_distance_rho", dr["rho"], unit="rho", note=f"Spearman, |MSL error| against donor distance, n {dr['n']} (D-275)")
     rr.add("gapfill_distance_p", dr["p"], unit="p", note="(D-275)")

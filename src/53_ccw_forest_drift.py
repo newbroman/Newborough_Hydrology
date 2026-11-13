@@ -16,7 +16,10 @@ QUESTION
 METHOD (spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25, approved Martin 07:36)
   Per admitted CCW well (Script 39's admission, uncensored months only), the CCW hindcast is rebuilt
   with Script 39's own functions on two coefficient bases: the comparison window (03_master_data,
-  Script 39's headline, checked to reproduce 39_02) and the full record (03_15). The residual is
+  Script 39's headline, checked to reproduce 39_02) and the full record (03_15). Since 1.1.0 (D-332)
+  the coefficients are Model B, run at each well's implied datum (03 implied_datum_m); a well whose
+  implied datum is not below ground is left out and counted. Model A at DRAINAGE_DATUM is run beside
+  it through tests 1, 2 and 4 as a named sensitivity (*_model_a). The residual is
   model minus observed, so a rising residual is a water table falling below the model.
     slope       OLS of the monthly residual on time over E14_SPAN (m/yr); AR(1)-adjusted SE reported
     distance    to today's forest edge (data/geo/forest_boundary.geojson); inside counts as 0
@@ -32,8 +35,8 @@ METHOD (spec NRG_spec_E14_ccw_forest_side_drift_2026-10-25, approved Martin 07:3
   profiled on grids, with a 95% profile interval for the start month (AR(1)-adjusted n).
 
 OUTPUTS (outputs/53_ccw_forest_drift/)
-  53_01_per_well_slopes.csv   per well and basis: distance, group, slope, SE, n, mean residual
-  53_02_tests.csv             per basis: the four tests' statistics and pass flags
+  53_01_per_well_slopes.csv   per well, basis and form: distance, group, slope, SE, n, mean residual
+  53_02_tests.csv             per basis and form: the tests' statistics and pass flags
   53_03_leave_one_out.csv     per dropped well: rho, p, median difference and interval
   53_04_dating_profile.csv    SSR by start month (best tau), with the profile interval flag
   53_05_forest_side_drift.png residual by month, near against far; slope against distance
@@ -43,7 +46,13 @@ Run directly:  python3 src/53_ccw_forest_drift.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) - 2026-10-25. First issue (E14; Martin 07:32 "we need to have it
+__version__ = "1.1.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B is the headline, as Script 39
+#   1.7.0: both bases run each well's Model B (Script 03's base columns) at its implied datum implied_datum_m, and a
+#   well whose implied datum is not below ground is left out and counted (e14[_full]_n_wells_model_b_excluded_datum).
+#   The headline check is against 39_02's Model B column (predicted_b_m_bg). Model A at DRAINAGE_DATUM runs beside it
+#   (the *_model_a columns) through tests 1, 2 and 4: e14[_full]_*_model_a keys and form="model_a" rows in 53_01/02.
+#   The test design is unchanged.
+# 1.0.0  # Hollingham (2026) - 2026-10-25. First issue (E14; Martin 07:32 "we need to have it
 #   as a proper test", 07:36 spec approved, 07:38 "if it needs to be a separate script, then let it be").
 
 import argparse
@@ -67,6 +76,7 @@ from utils.paths import (                                     # noqa: E402
     OUT_39_SERIES, DATA_FOREST_BOUNDARY, DATA_WELL_METADATA,
 )
 from utils.config import (                                    # noqa: E402
+    DRAINAGE_DATUM,
     E14_NEAR_M, E14_SPAN, E14_N_BOOT, E14_SEED, E14_LOO_MIN_PASS, E14_STEP_TAU_MONTHS, E8E_P,
 )
 from utils.hindcast_utils import (                            # noqa: E402
@@ -77,17 +87,28 @@ from utils.render_utils import MPL_DEFAULTS                   # noqa: E402
 from utils.report_numbers_utils import ReportNumbers          # noqa: E402
 
 BASES = ("comparison_window", "full_record")
+# 1.1.0 (D-332): Model B is the headline (no suffix); Model A at DRAINAGE_DATUM is the named sensitivity.
+FORMS = {"model_b": "", "model_a": "_model_a"}
+DATUM_COL = "datum_run_m"
 
 
 # ── inputs ────────────────────────────────────────────────────────────────────────────────────────
-def coefficients(basis: str) -> pd.DataFrame:
-    """Per-well coefficient triples, indexed by lower-case well name."""
+def coefficients(basis: str, form: str = "model_b") -> pd.DataFrame:
+    """Per-well coefficient triples, indexed by lower-case well name, with the datum each runs at
+    (DATUM_COL). Model B (1.1.0, D-332): Script 03's base columns at implied_datum_m. Model A: the
+    *_model_a columns, placed under the base names, at DRAINAGE_DATUM."""
     if basis == "comparison_window":
         md = pd.read_csv(INT_MASTER_DATA)
     else:
         md = pd.read_csv(OUT_03_PER_WELL_WINDOW_SENS)
-        md = md[md["basis"] == "full_record"]
+        md = md[md["basis"] == "full_record"].copy()
     md["k"] = md["Name_Original"].astype(str).str.lower().str.strip()
+    if form == "model_a":
+        for c in BETA_COLS:
+            md[c] = md[f"{c}_model_a"]
+        md[DATUM_COL] = DRAINAGE_DATUM
+    else:
+        md[DATUM_COL] = pd.to_numeric(md["implied_datum_m"], errors="coerce")
     return md.set_index("k")
 
 
@@ -113,23 +134,26 @@ def forest_distance(names) -> dict:
     return out
 
 
-def residual_series(basis: str, obs, cmap, cl) -> dict:
-    """{well: monthly residual (model - observed)} over E14_SPAN, Script 39's way."""
-    md = coefficients(basis)
-    adm = usable_codes(cmap, md, obs)
+def residual_series(basis: str, obs, cmap, cl, form: str = "model_b") -> tuple[dict, list]:
+    """{well: monthly residual (model - observed)} over E14_SPAN, Script 39's way, and the wells
+    left out because Model B's implied datum is not below ground (1.1.0, D-332)."""
+    md = coefficients(basis, form)
+    adm = usable_codes(cmap, md, obs, datum_col=(DATUM_COL if form == "model_b" else None))
+    undef = sorted(adm.loc[adm["excluded_because"].str.startswith("Model B not defined"), "well"])
     adm = adm[adm["admitted"]]
     first, last = pd.Timestamp(E14_SPAN[0]), pd.Timestamp(E14_SPAN[1])
     p_mean, pet_mean = float(cl["P_m"].mean()), float(cl["PET"].mean())
     out = {}
     for r in adm.itertuples():
         betas = tuple(float(md.loc[r.well, c]) for c in BETA_COLS)
-        h0 = equilibrium_depth(betas, p_mean, pet_mean)
+        dd = float(md.loc[r.well, DATUM_COL])
+        h0 = equilibrium_depth(betas, p_mean, pet_mean, drainage_datum=dd)
         o, _ = observed_series(obs, r.code, r.datum_offset_m)
-        pred, _ = hindcast_well(cl, betas, h0, obs["month"].min(), obs["month"].max())
+        pred, _ = hindcast_well(cl, betas, h0, obs["month"].min(), obs["month"].max(), drainage_datum=dd)
         common = o.index.intersection(pred.index)
         res = (pred.loc[common] - o.loc[common]).loc[first:last]
         out[r.well] = res.sort_index()
-    return out
+    return out, undef
 
 
 # ── statistics ────────────────────────────────────────────────────────────────────────────────────
@@ -242,7 +266,7 @@ def plot(res: dict, tab: pd.DataFrame) -> None:
                f"beyond {E14_NEAR_M:.0f} m")
     a.axhline(0, color="0.4", lw=0.6)
     a.set_ylabel("model − observed (m)")
-    a.set_title("(a) CCW hindcast residual, comparison-window coefficients", fontsize=9)
+    a.set_title("(a) CCW hindcast residual, Model B, comparison-window coefficients", fontsize=9)
     a.legend(fontsize=7, frameon=False)
     b = ax[1]
     for r in tab.itertuples():
@@ -271,16 +295,23 @@ def main() -> int:
         return 0
     DIR_53.mkdir(parents=True, exist_ok=True)
 
-    phase(1, "Rebuild the CCW hindcast on both coefficient bases")
+    phase(1, "Rebuild the CCW hindcast on both coefficient bases (Model B; Model A beside it)")
     obs, cmap = load_ccw()
     cl = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True)
     cl = cl[["P_m", "PET"]].apply(pd.to_numeric, errors="coerce").dropna()
-    res = {b: residual_series(b, obs, cmap, cl) for b in BASES}
+    res, undef = {}, {}
+    for b in BASES:
+        res[b], undef[b] = residual_series(b, obs, cmap, cl, "model_b")
+        res_a_b, _ = residual_series(b, obs, cmap, cl, "model_a")
+        res[(b, "model_a")] = res_a_b
+        if undef[b]:
+            note(f"{b}: Model B not defined (implied datum not below ground), left out: {', '.join(undef[b])}")
     s39 = pd.read_csv(OUT_39_SERIES, parse_dates=["month"])
     chk = []
+    # 1.1.0 (D-332): the headline is Model B, so it must reproduce 39_02's Model B column
     for w, r in res["comparison_window"].items():
         g = s39[s39["well"] == w].set_index("month")
-        ref = (g["predicted_m_bg"] - g["observed_m_bg"]).reindex(r.index)
+        ref = (g["predicted_b_m_bg"] - g["observed_m_bg"]).reindex(r.index)
         chk.append(float((ref - r).abs().max()))
     check_vs39 = max(chk) if chk else np.nan
     info(f"wells: {len(res['comparison_window'])} (comparison window), "
@@ -291,15 +322,19 @@ def main() -> int:
         return 1
 
     phase(2, "Per-well slopes and distances")
-    wells = sorted(set(res["comparison_window"]) | set(res["full_record"]))
+    wells = sorted({w for b in BASES for w in res[b]} | {w for b in BASES for w in res[(b, "model_a")]})
     dist = forest_distance(wells)
     rows = []
-    for b in BASES:
-        for w, r in res[b].items():
-            rows.append(dict(well=w, basis=b, distance_m=dist[w],
-                             group="near" if dist[w] <= E14_NEAR_M else "far", **slope(r)))
+    for form in FORMS:
+        for b in BASES:
+            for w, r in res[b if form == "model_b" else (b, form)].items():
+                rows.append(dict(well=w, basis=b, form=form, distance_m=dist[w],
+                                 group="near" if dist[w] <= E14_NEAR_M else "far", **slope(r)))
     per = pd.DataFrame(rows)
-    per.to_csv(OUT_53_PER_WELL, index=False); saved(OUT_53_PER_WELL.name)
+    per_a = per[per["form"] == "model_a"].reset_index(drop=True)
+    per = per[per["form"] == "model_b"].reset_index(drop=True)
+    pd.concat([per, per_a], ignore_index=True).to_csv(OUT_53_PER_WELL, index=False)
+    saved(OUT_53_PER_WELL.name)
     for r in per[per["basis"] == "comparison_window"].sort_values("distance_m").itertuples():
         step(f"{r.well:6s} {r.distance_m:6.0f} m  {r.group:4s}  slope {r.slope_m_per_yr:+.3f} m/yr "
              f"(AR1 SE {r.se_ar1_m_per_yr:.3f})")
@@ -307,8 +342,16 @@ def main() -> int:
     phase(3, "Tests 1, 2 and 4")
     rng = np.random.default_rng(E14_SEED)
     tt = {b: tests(per[per["basis"] == b].reset_index(drop=True), rng) for b in BASES}
-    pd.DataFrame([dict(basis=b, **v) for b, v in tt.items()]).to_csv(OUT_53_TESTS, index=False)
+    # Model A beside it (1.1.0, D-332), from its own generator so the headline draws are unchanged in order
+    rng_a = np.random.default_rng(E14_SEED)
+    tt_a = {b: tests(per_a[per_a["basis"] == b].reset_index(drop=True), rng_a) for b in BASES}
+    pd.DataFrame([dict(basis=b, form="model_b", **v) for b, v in tt.items()]
+                 + [dict(basis=b, form="model_a", **v) for b, v in tt_a.items()]).to_csv(OUT_53_TESTS, index=False)
     saved(OUT_53_TESTS.name)
+    for b, v in tt_a.items():
+        step(f"Model A {b:17s} rho {v['rho']:+.2f} (p {v['p']:.4f}) test 1 {'pass' if v['test1_pass'] else 'FAIL'}; "
+             f"near-far {v['diff']:+.3f} m/yr [{v['ci_lo']:+.3f}, {v['ci_hi']:+.3f}] "
+             f"test 2 {'pass' if v['test2_pass'] else 'FAIL'}")
     for b, v in tt.items():
         step(f"{b:17s} rho {v['rho']:+.2f} (p {v['p']:.4f}) test 1 {'pass' if v['test1_pass'] else 'FAIL'}; "
              f"near-far {v['diff']:+.3f} m/yr [{v['ci_lo']:+.3f}, {v['ci_hi']:+.3f}] "
@@ -341,6 +384,11 @@ def main() -> int:
     else:
         verdict = "not supported"
     result("E14 verdict", verdict)
+    # Model A beside it: tests 1, 2 and 4 only (no leave-one-out), so its reading is the pair, not a verdict
+    ha, fa = tt_a["comparison_window"], tt_a["full_record"]
+    test4_a = bool(fa["test1_pass"] and fa["test2_pass"])
+    result("Model A (sensitivity)", f"tests 1 and 2 on the headline basis "
+           f"{'pass' if ha['test1_pass'] and ha['test2_pass'] else 'fail'}; test 4 {'pass' if test4_a else 'fail'}")
 
     phase(5, "Dating (reported, never judged)")
     groups = head.set_index("well")["group"].to_dict()
@@ -361,20 +409,31 @@ def main() -> int:
     rr.add("e14_n_wells", h["n_wells"], unit="wells", note=N)
     rr.add("e14_n_near", h["n_near"], unit="wells", note=f"within E14_NEAR_M of today's forest edge; {N}")
     rr.add("e14_n_far", h["n_far"], unit="wells", note=N)
+    for (b, tag), (form, fsx) in itertools.product((("comparison_window", ""), ("full_record", "_full")),
+                                                   FORMS.items()):
+        v = (tt if form == "model_b" else tt_a)[b]
+        lab = f"{b}; " + ("Model B at the implied datum (D-332)" if form == "model_b"
+                          else f"Model A at {DRAINAGE_DATUM:g} m, sensitivity (D-332)")
+        if form == "model_a":
+            rr.add(f"e14{tag}_n_wells_model_a", v["n_wells"], unit="wells", note=lab)
+        rr.add(f"e14{tag}_rho{fsx}", v["rho"], unit="rho", note=f"Spearman, distance to the forest edge against residual slope; {lab}")
+        rr.add(f"e14{tag}_p{fsx}", v["p"], unit="p", note=f"one-sided exact permutation; {lab}")
+        rr.add(f"e14{tag}_near_median_slope{fsx}", v["near_median_slope"], unit="m/yr", note=f"model - observed; {lab}")
+        rr.add(f"e14{tag}_far_median_slope{fsx}", v["far_median_slope"], unit="m/yr", note=f"model - observed; {lab}")
+        rr.add(f"e14{tag}_diff{fsx}", v["diff"], unit="m/yr", note=f"near minus far median slope; {lab}")
+        rr.add(f"e14{tag}_ci_lo{fsx}", v["ci_lo"], unit="m/yr", note=f"bootstrap 95% lower; {lab}")
+        rr.add(f"e14{tag}_ci_hi{fsx}", v["ci_hi"], unit="m/yr", note=f"bootstrap 95% upper; {lab}")
     for b, tag in (("comparison_window", ""), ("full_record", "_full")):
-        v = tt[b]
-        rr.add(f"e14{tag}_rho", v["rho"], unit="rho", note=f"Spearman, distance to the forest edge against residual slope; {b}")
-        rr.add(f"e14{tag}_p", v["p"], unit="p", note=f"one-sided exact permutation; {b}")
-        rr.add(f"e14{tag}_near_median_slope", v["near_median_slope"], unit="m/yr", note=f"model - observed; {b}")
-        rr.add(f"e14{tag}_far_median_slope", v["far_median_slope"], unit="m/yr", note=f"model - observed; {b}")
-        rr.add(f"e14{tag}_diff", v["diff"], unit="m/yr", note=f"near minus far median slope; {b}")
-        rr.add(f"e14{tag}_ci_lo", v["ci_lo"], unit="m/yr", note=f"bootstrap 95% lower; {b}")
-        rr.add(f"e14{tag}_ci_hi", v["ci_hi"], unit="m/yr", note=f"bootstrap 95% upper; {b}")
+        rr.add(f"e14{tag}_n_wells_model_b_excluded_datum", len(undef[b]), unit="wells",
+               note=f"{b}: CCW wells left out because Model B's implied datum is not below ground (D-332)"
+                    + (f": {', '.join(undef[b])}" if undef[b] else ""))
     rr.add("e14_loo_ci_clear_n", n_clear, unit="count", note=f"of {len(loo)} single-well drops")
     rr.add("e14_test3", "pass" if test3 else "fail", unit="text", note=N)
     rr.add("e14_test4", "pass" if test4 else "fail", unit="text", note=N)
+    rr.add("e14_test4_model_a", "pass" if test4_a else "fail", unit="text",
+           note=f"tests 1 and 2 on the full record, Model A at {DRAINAGE_DATUM:g} m, sensitivity (D-332); {N}")
     rr.add("e14_verdict", verdict, unit="text", note=f"the rule fixed before the run; {N}")
-    rr.add("e14_check_vs39_max_abs_diff", check_vs39, unit="m", note="headline basis against 39_02")
+    rr.add("e14_check_vs39_max_abs_diff", check_vs39, unit="m", note="headline basis (Model B) against 39_02 predicted_b_m_bg")
     if verdict != "not supported":
         rr.add("e14_step_start", dt["start"], unit="text", note="relaxing step on near minus far; reported, never judged")
         rr.add("e14_step_lo", dt["lo"], unit="text", note="95% profile interval, lower")

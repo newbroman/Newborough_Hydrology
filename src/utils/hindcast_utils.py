@@ -21,7 +21,11 @@ the ground, so readings there are censored and the model is capped at the ground
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-10-29 (T-130, D-290). quantile_map() moved here from Script 47 1.9.1
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B can be run directly: alpha
+#   (default 0.0) on hindcast_well() and equilibrium_depth(), and an optional datum_col on usable_codes() that leaves
+#   out a well whose Model B implied datum (03 implied_datum_m = DRAINAGE_DATUM - alpha/beta_3) is not below ground.
+#   Every default is unchanged, so no existing caller changes behaviour.
+# 1.2.0  # Hollingham (2026) - 2026-10-29 (T-130, D-290). quantile_map() moved here from Script 47 1.9.1
 #   unchanged (its tail fraction now an argument, default config.QMAP_TAIL_FRACTION), so Script 47's film calibration
 #   and Script 50's E18 transfer test use one map.
 # 1.1.0  # Hollingham (2026) - 2026-10-02 (D-229). Adds compare_offset_censored(), Script 44
@@ -67,8 +71,11 @@ def observed_series(obs: pd.DataFrame, code: str, offset_m: float):
 
 def hindcast_well(cl: pd.DataFrame, betas: tuple, h0: float,
                   first_month, last_month, beta1_scale: float = 1.0,
-                  drainage_datum: float = config.DRAINAGE_DATUM):
+                  drainage_datum: float = config.DRAINAGE_DATUM, alpha: float = 0.0):
     """Simulate from the start of the climate record and return the window.
+
+    Model B (D-332) is run either at its implied datum (Script 03's implied_datum_m) with alpha=0,
+    or at DRAINAGE_DATUM with its fitted alpha; the two are the same recurrence. Never both.
 
     The simulation runs from the first month of the committed climate record so
     that the initial condition is forgotten long before the comparison window
@@ -78,29 +85,36 @@ def hindcast_well(cl: pd.DataFrame, betas: tuple, h0: float,
     b1, b2, b3 = betas
     sub = cl.loc[:last_month]
     h = simulate_ssm(h0, sub["P_m"].values, sub["PET"].values,
-                     b1 * beta1_scale, b2, b3, drainage_datum=drainage_datum)
+                     b1 * beta1_scale, b2, b3, drainage_datum=drainage_datum, alpha=alpha)
     sim = pd.Series(h, index=sub.index, name="predicted_m_bg")
     spinup = int((sim.index < first_month).sum())
     return sim.loc[first_month:last_month], spinup
 
 
 def equilibrium_depth(betas: tuple, p_mean: float, pet_mean: float,
-                      drainage_datum: float = config.DRAINAGE_DATUM) -> float:
+                      drainage_datum: float = config.DRAINAGE_DATUM, alpha: float = 0.0) -> float:
     """Steady-state depth implied by the coefficients under mean forcing.
 
     Setting the monthly change to zero in the SSM recurrence gives
-    h* = (b1*P - b2*PET)/b3 - D. Used as the starting value, so the run begins
-    near its own attractor rather than at an arbitrary level.
+    h* = (b1*P - b2*PET + alpha)/b3 - D. Used as the starting value, so the run begins
+    near its own attractor rather than at an arbitrary level. alpha=0 is Model A, or
+    Model B at its implied datum (1.3.0).
     """
     b1, b2, b3 = betas
     if not np.isfinite(b3) or b3 <= 0:
         return np.nan
-    return (b1 * p_mean - b2 * pet_mean) / b3 - drainage_datum
+    return (b1 * p_mean - b2 * pet_mean + alpha) / b3 - drainage_datum
 
 
-def usable_codes(cmap: pd.DataFrame, md: pd.DataFrame, obs: pd.DataFrame):
+def usable_codes(cmap: pd.DataFrame, md: pd.DataFrame, obs: pd.DataFrame,
+                 datum_col: str | None = None):
     """Codes admissible to the headline: confirmed mapping, and a well with a
-    committed coefficient triple. Everything else is reported, never pooled."""
+    committed coefficient triple. Everything else is reported, never pooled.
+
+    datum_col (1.3.0, D-332): the column of md holding the datum the triple runs at
+    (Script 03's implied_datum_m for Model B). Given, a well whose datum is not below
+    ground (not finite or <= 0) has no Model B and is left out, with the reason. None
+    (the default) is the behaviour before 1.3.0."""
     rows = []
     for r in cmap.itertuples():
         why = ""
@@ -114,6 +128,9 @@ def usable_codes(cmap: pd.DataFrame, md: pd.DataFrame, obs: pd.DataFrame):
             why = "coefficient triple incomplete"
         elif md.loc[r.well, BETA_COLS[2]] <= 0:
             why = "non-positive drainage coefficient"
+        elif datum_col is not None and not (np.isfinite(float(md.loc[r.well, datum_col]))
+                                            and float(md.loc[r.well, datum_col]) > 0):
+            why = f"Model B not defined (implied datum {float(md.loc[r.well, datum_col]):+.2f} m, not below ground)"
         n_c = int(obs.loc[obs["code"] == r.code, "censored_at_pipe_base"].sum())
         n_t = int((obs["code"] == r.code).sum())
         if not why and n_t and n_c / n_t > config.CCW_MAX_CENSORED_FRACTION:

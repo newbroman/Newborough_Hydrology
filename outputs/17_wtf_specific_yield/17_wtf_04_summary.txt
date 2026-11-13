@@ -10,11 +10,11 @@ Method: Healy and Cook (2002)
 
 APPROACH A — OLS Regression (winter months, origin-forced)
 ----------------------------------------------------------------------
-  C1 (Lake Edge)                    S_a = 0.346  ±0.0452 (SE)  R² = 0.595  n = 41
-  C2 (Dune)                         S_a = 0.332  ±0.0370 (SE)  R² = 0.621  n = 50
-  C3 (Western Residual)             S_a = 0.349  ±0.0198 (SE)  R² = 0.851  n = 55
-  C4 (Main Forest)                  S_a = 0.306  ±0.0178 (SE)  R² = 0.860  n = 49
-  C5 (Coastal Forest)               S_a = 0.418  ±0.0229 (SE)  R² = 0.869  n = 51
+  C1 (Lake Edge)                    S_a = 0.236  ±0.0116 (SE)  R² = 0.878  n = 58
+  C2 (Dune)                         S_a = 0.254  ±0.0114 (SE)  R² = 0.888  n = 64
+  C3 (Western Residual)             S_a = 0.230  ±0.0071 (SE)  R² = 0.944  n = 64
+  C4 (Main Forest)                  S_a = 0.273  ±0.0150 (SE)  R² = 0.864  n = 53
+  C5 (Coastal Forest)               S_a = 0.308  ±0.0144 (SE)  R² = 0.887  n = 59
 
 APPROACH B — Event Median (rising limb months)
 ----------------------------------------------------------------------
@@ -41,11 +41,11 @@ APPROACH C — Rapid Recharge Events (Crosbie et al., 2005)
 COMPARISON WITH ASSUMED VALUES
 ----------------------------------------------------------------------
   Cluster                            Assumed       OLS     Event     Rapid
-  C1 (Lake Edge)                       0.080     0.346     0.210     0.180
-  C2 (Dune)                            0.120     0.332     0.270     0.274
-  C3 (Western Residual)                0.120     0.349     0.312     0.314
-  C4 (Main Forest)                     0.120     0.306     0.321     0.306
-  C5 (Coastal Forest)                  0.120     0.418     0.364     0.311
+  C1 (Lake Edge)                       0.080     0.236     0.210     0.180
+  C2 (Dune)                            0.120     0.254     0.270     0.274
+  C3 (Western Residual)                0.120     0.230     0.312     0.314
+  C4 (Main Forest)                     0.120     0.273     0.321     0.306
+  C5 (Coastal Forest)                  0.120     0.308     0.364     0.311
   C4 (Main Forest) (corrected)         0.120       n/a     0.256         -
   C5 (Coastal Forest) (corrected)      0.120       n/a     0.316         -
 

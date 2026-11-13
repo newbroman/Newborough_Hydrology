@@ -87,7 +87,14 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.13.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and 50 % thinning
+#   scenarios take a beta_2 multiplier of single-well era refits (clearfell_common.load_clearfell_impact_b2_multiplier)
+#   and are WITHDRAWN under D-333 pending T-209. No value changes: their 21_report_numbers rows (head shift, storage
+#   change, C5:C4 ratio, hydrograph separations) get config.D333_WITHDRAWN_NOTE appended to the note, a count key
+#   scenario_n_keys_withdrawn_d333 is written, one warn() names them, 21_forestry_01_hydrograph.csv (both blocks),
+#   21_forestry_05 and 21_forestry_06 gain a `status` column ("withdrawn (D-333)" on those rows), and the figures'
+#   legend entries say "withdrawn (D-333)" (21_forestry_05 legend moved outside the axes). Broadleaf (config.BROADLEAF_B2_MONTHLY_MULT) and the climate bars stay.
+# 1.13.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.13.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved"). The forestry scenarios
 #   are anchored to the December 2017 felling: the canopy's draw takes the felled well's measured beta_2 change
 #   (Impact tier net of the Climate controls, clearfell_common.load_clearfell_impact_b2_multiplier; thinning half;
@@ -172,6 +179,7 @@ from utils.config import (
     SD16, SD16_REC,
     SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
     SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
+    D333_WITHDRAWN_NOTE, D333_WITHDRAWN_STATUS,   # 1.14.0 (D-333)
 )
 from utils.model_utils import monthly_perturbation, sustained_monthly_response
 from utils.report_numbers_utils import ReportNumbers
@@ -331,6 +339,22 @@ def _init_baci_params():
     # 1.13.0 (T-97, D-239): the felled well's measured beta_2 change, not the Edge-tier multiplier.
     from utils.clearfell_common import load_clearfell_impact_b2_multiplier
     CLEARFELL_B2_MULT, THINNING_B2_MULT, _ = load_clearfell_impact_b2_multiplier()
+
+# 1.14.0 (D-333): the scenarios built from CLEARFELL_B2_MULT / THINNING_B2_MULT, under each of the names this
+# script gives them (hydrograph series, report-key era prefix, comparison-bar name). Withdrawn pending T-209.
+D333_WITHDRAWN_SCENARIOS = ("Full clearfell", "50% thinning", "clearfell", "thinning_50pct",
+                            "Clearfell", "Thinning 50%")
+
+
+def _d333_status(name):
+    """1.14.0 (D-333): the `status` value for a scenario row."""
+    return D333_WITHDRAWN_STATUS if name in D333_WITHDRAWN_SCENARIOS else ""
+
+
+def _d333_label(name):
+    """1.14.0 (D-333): a figure label, marked when the scenario is withdrawn."""
+    return f"{name} (withdrawn, D-333)" if name in D333_WITHDRAWN_SCENARIOS else name
+
 
 # Summer months (Jun-Sep inclusive, 1-based)
 SUMMER_MONTHS = list(SUMMER_MINIMUM_MONTHS)
@@ -579,15 +603,16 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
             for season, months in seasons.items():
                 idx = [m - 1 for m in months]
                 head = float(np.mean(arr[idx]))
+                _wd = D333_WITHDRAWN_NOTE if key in D333_WITHDRAWN_SCENARIOS else ""   # 1.14.0 (D-333)
                 rpt.add("scenario_head_shift_m", head, unit="m", well=label,
                         era=f"{key} · {season}",
                         note="mean sustained level response (1.13.0, D-239), positive = shallower; "
-                             f"months {','.join(str(m) for m in months)}")
+                             f"months {','.join(str(m) for m in months)}" + _wd)
                 # 1.13.0 (D-239): the head shift is a sustained level, so level × Sy is a change in
                 # stored water (mm), not a monthly rate; the key is renamed so no citation keeps the old meaning.
                 rpt.add("scenario_storage_change_mm", head * sy * 1000.0,
                         unit="mm", well=label, era=f"{key} · {season}",
-                        note=f"sustained level × Sy ({sy:.3f}) × 1000: the change in stored water")
+                        note=f"sustained level × Sy ({sy:.3f}) × 1000: the change in stored water" + _wd)
                 we[(cluster, key, season)] = head * sy * 1000.0
                 if season == "annual" or key == "broadleaf":
                     print(f"    {label:22s} {key:15s} {season:6s}  "
@@ -599,24 +624,35 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
         if c4 is not None and c5 is not None and c4 != 0:
             rpt.add("scenario_storage_change_ratio_C5_to_C4", c5 / c4, unit="",
                     well="C5/C4", era=f"{key} · annual",
-                    note="C5 annual storage change ÷ C4's (scenario_storage_change_mm rows above)")
+                    note="C5 annual storage change ÷ C4's (scenario_storage_change_mm rows above)"
+                         + (D333_WITHDRAWN_NOTE if key in D333_WITHDRAWN_SCENARIOS else ""))   # 1.14.0 (D-333)
     # T-91: C4 synthetic-hydrograph separations (report10 §5.7.4), as returned
     # by plot_hydrograph() — scenario series only, unrounded.
     for sep in (hydro_separations or []):
         key = names.get(sep["series"], sep["series"])
+        _wd = D333_WITHDRAWN_NOTE if key in D333_WITHDRAWN_SCENARIOS else ""   # 1.14.0 (D-333)
         rpt.add("hydrograph_sep_at_baseline_trough_m", sep["sep_at_base_trough_m"],
                 unit="m", well="C4", era=key,
                 note=f"separation from the observed C4 baseline at the baseline trough "
                      f"month ({sep['base_trough_month']}), positive = shallower "
-                     "(21_forestry_01_hydrograph.csv BLOCK 2)")
+                     "(21_forestry_01_hydrograph.csv BLOCK 2)" + _wd)
         rpt.add("hydrograph_max_summer_separation_m", sep["max_summer_sep_m"],
                 unit="m", well="C4", era=key,
                 note=f"largest-magnitude Jun-Sep separation from the observed C4 "
                      f"baseline, in {sep['max_summer_month']}; positive = shallower, "
-                     "negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)")
+                     "negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)" + _wd)
         rpt.add("hydrograph_max_summer_separation_month", sep["max_summer_month"],
                 unit="", well="C4", era=key,
-                note="month of hydrograph_max_summer_separation_m")
+                note="month of hydrograph_max_summer_separation_m" + _wd)
+    # 1.14.0 (D-333): the count of withdrawn rows, for the check tools, and the console warning
+    _n_wd = sum(1 for r in rpt.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
+    rpt.add("scenario_n_keys_withdrawn_d333", _n_wd, unit="keys",
+            note="rows in this file whose note carries the D-333 withdrawal (the clearfell and thinning_50pct rows "
+                 "of scenario_head_shift_m, scenario_storage_change_mm, scenario_storage_change_ratio_C5_to_C4 and "
+                 "the hydrograph_* separations)")
+    warn(f"D-333: the clearfell and 50% thinning scenarios (21_report_numbers: {_n_wd} rows; the hydrograph series, "
+         f"21_forestry_05 / 06 bars) are built from a beta_2 multiplier of single-well era refits and are WITHDRAWN "
+         f"pending T-209 - values unchanged, flagged, not results")
     n = rpt.save(OUT_21_REPORT_NUMBERS)
     print(f"  Saved → {OUT_21_REPORT_NUMBERS.name} ({n} rows)")
 
@@ -736,7 +772,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     for name, d in depths.items():
         ax1.plot(x, d, color=SCENARIO_COLOURS[name],
                  lw=SCENARIO_LW[name], ls=SCENARIO_STYLES[name],
-                 zorder=4, label=name)
+                 zorder=4, label=_d333_label(name))   # 1.14.0 (D-333)
 
     # Summer shading
     ax1.axvspan(5.5, 9.5, alpha=0.07, color="orange", zorder=0)
@@ -832,6 +868,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
                 "Month_num":   m + 1,
                 "Month":       MONTHS[m],
                 "Depth_m":     round(float(arr[m]), 4),
+                "status":      _d333_status(name),   # 1.14.0 (D-333)
             })
     hydro_df = pd.DataFrame(rows)
 
@@ -873,6 +910,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
             "Max_summer_separation_m":
                 round(float(summer_seps[k]), 4),
             "Max_summer_separation_month": MONTHS[max_summer_idx],
+            "status":            _d333_status(name),   # 1.14.0 (D-333)
         })
         if stype == "scenario":
             separations.append({
@@ -2060,7 +2098,7 @@ def plot_scenario_comparison(master, climate, dpi=300):
         vals = [scenario_values[s_name].get(c, 0) for c in clusters]
         _col = bw_colour_map.get(s_name, "#999") if BW_MODE else colour_map.get(s_name, "#999")
         _hatch = bw_hatch_map.get(s_name, "") if BW_MODE else ""
-        ax.bar(x + offsets[i], vals, width, label=s_name,
+        ax.bar(x + offsets[i], vals, width, label=_d333_label(s_name),   # 1.14.0 (D-333)
                color=_col, alpha=0.85, hatch=_hatch,
                edgecolor="black", linewidth=0.5)
 
@@ -2074,7 +2112,7 @@ def plot_scenario_comparison(master, climate, dpi=300):
         "Scenario comparison: forest management and climate (k = 5)\n"
         "Volumetric using WTF-derived, interception-corrected Sy",
         fontsize=15, fontweight="bold")
-    ax.legend(fontsize=12, loc="upper right", ncol=2)
+    ax.legend(fontsize=12, loc="upper left", bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
 
@@ -2088,7 +2126,8 @@ def plot_scenario_comparison(master, climate, dpi=300):
     for s_name in scenarios_order:
         for c in clusters:
             rows.append({"Scenario": s_name, "Cluster": c,
-                         "Delta_vol_mm_per_month": scenario_values[s_name].get(c, 0)})
+                         "Delta_vol_mm_per_month": scenario_values[s_name].get(c, 0),
+                         "status": _d333_status(s_name)})   # 1.14.0 (D-333)
     pd.DataFrame(rows).to_csv(OUT_21_SCENARIO_CSV, index=False,
                               float_format="%.1f")
     saved(f"{OUT_21_SCENARIO_CSV.name}")
@@ -2110,7 +2149,8 @@ def plot_scenario_comparison(master, climate, dpi=300):
         for c in clusters:
             vol = scenario_values.get(s_name, {}).get(c, 0.0)
             summer_rows.append({"Scenario": s_name, "Cluster": c,
-                                "Delta_vol_summer_mm_per_month": round(vol, 1)})
+                                "Delta_vol_summer_mm_per_month": round(vol, 1),
+                                "status": _d333_status(s_name)})   # 1.14.0 (D-333)
     pd.DataFrame(summer_rows).to_csv(OUT_21_SUMMER_SCENARIO_CSV, index=False)
     saved(f"{OUT_21_SUMMER_SCENARIO_CSV.name}")
 

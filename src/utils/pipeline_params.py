@@ -40,7 +40,15 @@ File location: outputs/01_data_prep/pipeline_scenario_params.csv
 """
 from __future__ import annotations
 
-__version__ = "1.17.0"  # Hollingham (2026) - 2026-10-28. _DEFAULTS["drawdown_lambda_m"] refreshed 222.9 -> 222.3 after the D-281 full rerun (defaults_lint).
+__version__ = "1.19.0"  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 2b). defaults_lint after the phase 2b
+#   full rerun: _DEFAULTS["drawdown_lambda_m"] 222.3 -> 172.1 (Script 20 now takes C3's Model B beta_3, 0.103/month) and
+#   _DEFAULTS["scrape_offsite_100m_vol"] -31.3 -> -27.8 (09d with that lambda; settled by the run's settle pass).
+# 1.18.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The params file carries Model B:
+#   new columns alpha and implied_datum_m (DRAINAGE_DATUM - alpha/beta_3, from 03_03) beside the 03_03 betas, and h_disp
+#   is measured from the implied datum (implied_datum_m + cluster mean depth), not from DRAINAGE_DATUM, so b3*h_disp is
+#   Model B's drainage term. update_beta_coefficients moves h_disp with the datum it writes; load_params returns alpha
+#   and implied_datum_m per cluster (0 and DRAINAGE_DATUM for a file written before 1.18.0).
+# 1.17.0  # Hollingham (2026) - 2026-10-28. _DEFAULTS["drawdown_lambda_m"] refreshed 222.9 -> 222.3 after the D-281 full rerun (defaults_lint).
 # 1.16.0  # Hollingham (2026) - 2026-10-07. _DEFAULTS["uniform_residual_mm_yr"]
 #   -11.0 -> -8.5: Script 25 1.33.0 averages the coastal profile over each cluster's wells,
 #   which moves the open-dune residual mean Script 37b carries. Comment corrected: the
@@ -182,6 +190,7 @@ __version__ = "1.17.0"  # Hollingham (2026) - 2026-10-28. _DEFAULTS["drawdown_la
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from utils.store_io import read_store, write_store
@@ -344,14 +353,14 @@ _DEFAULTS = {
     # -29.0 / 894, which is the PRE-D-046 parameter block T-18c spent a morning
     # clearing out of the Methods Supplement. Leaving the same pair here as the
     # pipeline's own fallback is how it would have come back.
-    "drawdown_lambda_m":        222.3,   # 20_report_numbers.csv (drawdown_lambda);
+    "drawdown_lambda_m":        172.1,   # 20_report_numbers.csv (drawdown_lambda);
                                          # 221.3 until Script 20 1.45.0 took β₃ per
                                          # day from config.DAYS_PER_MONTH (2026-09-26)
     "coast_delta0_mm_yr":       -31.28,  # 25_01 forest_free/linear_capped δ₀;
                                          # was -29.0, the pre-D-046 value
     "coast_reach_L_m":          902.0,   # 25_01 forest_free/linear_capped L;
                                          # was 894.0, the pre-D-046 value
-    "scrape_offsite_100m_vol":  -31.3,   # 09d_01 Scraping (off-site 100 m)
+    "scrape_offsite_100m_vol":  -27.8,   # 09d_01 Scraping (off-site 100 m)
                                          # mm w.e./month; was -30.3
     "clearfell_recovery_mm":    108.2,   # 10a ANCOVA_Forest_Impact_clearfell_step
                                          # ×1000 = 113.09; was 119.6 — see M31
@@ -466,6 +475,9 @@ def write_initial_params(wells_clean, climate):
                     "b1": float(row["beta_1_recharge"]),
                     "b2": float(row["beta_2_atmospheric_draw"]),
                     "b3": float(row["beta_3_drainage"]),
+                    # 1.18.0 (D-332): Model B's intercept and the datum it implies
+                    "alpha": _row_alpha(row),
+                    "implied_datum_m": _row_implied_datum(row),
                 }
             print(f"  Pipeline params: β coefficients loaded from {OUT_03_MECHANISTIC_TABLE.name}")
         except Exception as e:
@@ -507,7 +519,9 @@ def write_initial_params(wells_clean, climate):
                 available = [w for w in cl_wells if w in wells_lower.columns]
                 if available:
                     mean_depth = wells_lower[available].mean().mean()
-                    h_disp_by_cluster[cl] = DRAINAGE_DATUM + mean_depth
+                    # 1.18.0 (D-332): displacement above Model B's implied datum
+                    _z = beta_by_cluster.get(cl, {}).get("implied_datum_m", DRAINAGE_DATUM)
+                    h_disp_by_cluster[cl] = _z + mean_depth
             print(f"  Pipeline params: h_disp loaded from {INT_MASTER_DATA.name}")
         except Exception as e:
             print(f"  Pipeline params: could not read h_disp: {e}")
@@ -555,8 +569,11 @@ def write_initial_params(wells_clean, climate):
             "beta_1": float(beta["b1"]) if beta else _DEFAULTS["beta_1"],
             "beta_2": float(beta["b2"]) if beta else _DEFAULTS["beta_2"],
             "beta_3": float(beta["b3"]) if beta else _DEFAULTS["beta_3"],
+            "alpha": float(beta["alpha"]) if beta else 0.0,
+            "implied_datum_m": float(beta["implied_datum_m"]) if beta else float(DRAINAGE_DATUM),
             "Sy": float(sy) if sy else _DEFAULTS["Sy"],
-            "h_disp": float(h_disp) if h_disp else float(DRAINAGE_DATUM - 0.5),
+            "h_disp": (float(h_disp) if h_disp else
+                       float((beta["implied_datum_m"] if beta else DRAINAGE_DATUM) - 0.5)),
             "forest": cl in FOREST_CIDS,
             "peak_month": peak if peak else _DEFAULTS["peak_month"],
             "clearfell_b2_mult": float(clearfell_b2),
@@ -601,7 +618,7 @@ def write_initial_params(wells_clean, climate):
 
 # Canonical column order — also used to seed upserted rows with a stable schema.
 _PARAM_COLUMNS = [
-    "Cluster", "beta_1", "beta_2", "beta_3", "Sy", "h_disp", "forest",
+    "Cluster", "beta_1", "beta_2", "beta_3", "alpha", "implied_datum_m", "Sy", "h_disp", "forest",
     "peak_month", "clearfell_b2_mult", "thinning_b2_mult",
     "broadleaf_b2_summer", "broadleaf_b2_winter", "summer_P", "summer_PET",
     "source_beta", "source_Sy", "source_peak_month", "source_b2_mult",
@@ -624,6 +641,7 @@ def _seed_row(cluster_label: str) -> dict:
         "Cluster": cluster_label,
         "beta_1": _DEFAULTS["beta_1"], "beta_2": _DEFAULTS["beta_2"],
         "beta_3": _DEFAULTS["beta_3"], "Sy": _DEFAULTS["Sy"],
+        "alpha": 0.0, "implied_datum_m": float(DRAINAGE_DATUM),   # 1.18.0: no intercept until Script 03 writes one
         "h_disp": float(DRAINAGE_DATUM - 0.5),
         "forest": cl_int in FOREST_CIDS,
         "peak_month": _DEFAULTS["peak_month"],
@@ -642,8 +660,37 @@ def _seed_row(cluster_label: str) -> dict:
 # UPDATERS — called by Scripts 03, 10e, 17
 # ============================================================================
 
+def _row_alpha(row):
+    """Model B's intercept α (m/month) from a Script 03 coefficient row; 0 for a pre-D-332 table."""
+    try:
+        a = float(row["alpha"])
+    except (KeyError, TypeError, ValueError):
+        return 0.0
+    return a if np.isfinite(a) else 0.0
+
+
+def _row_implied_datum(row):
+    """1.18.0 (D-332): the datum Model B drains to, m below ground: Script 03's implied_datum_m
+    (= DRAINAGE_DATUM − α/β₃). Model B is exactly Model A at this datum. Falls back to
+    DRAINAGE_DATUM − α/β₃ when the column is absent, and to DRAINAGE_DATUM for a table with no α."""
+    from utils.config import DRAINAGE_DATUM
+    try:
+        z = float(row["implied_datum_m"])
+        if np.isfinite(z):
+            return z
+    except (KeyError, TypeError, ValueError):
+        pass
+    b3 = float(row["beta_3_drainage"])
+    a = _row_alpha(row)
+    return float(DRAINAGE_DATUM - a / b3) if (a != 0.0 and b3 > 0) else float(DRAINAGE_DATUM)
+
+
 def update_beta_coefficients(coeff_df):
     """Update β₁, β₂, β₃ from Script 03's cluster mechanistic table.
+
+    1.18.0 (D-332): also α and implied_datum_m (Model B), and h_disp moves with the datum:
+    h_disp is the cluster's mean displacement above the datum, so it shifts by the change in
+    implied_datum_m (from DRAINAGE_DATUM on a file written before 1.18.0).
 
     Upserts: a cluster present in the realised partition (coeff_df) but absent
     from the params file is appended (default-seeded for non-β fields), so the
@@ -673,9 +720,20 @@ def update_beta_coefficients(coeff_df):
         df.loc[mask, "beta_1"] = float(row["beta_1_recharge"])
         df.loc[mask, "beta_2"] = float(row["beta_2_atmospheric_draw"])
         df.loc[mask, "beta_3"] = float(row["beta_3_drainage"])
+        # 1.18.0 (D-332): Model B's α and implied datum; h_disp follows the datum.
+        from utils.config import DRAINAGE_DATUM
+        z_new = _row_implied_datum(row)
+        z_old = (pd.to_numeric(df.loc[mask, "implied_datum_m"], errors="coerce")
+                 if "implied_datum_m" in df.columns else pd.Series(np.nan, index=df.index[mask]))
+        z_old = z_old.fillna(float(DRAINAGE_DATUM))
+        df.loc[mask, "h_disp"] = pd.to_numeric(df.loc[mask, "h_disp"], errors="coerce") + (z_new - z_old)
+        df.loc[mask, "alpha"] = _row_alpha(row)
+        df.loc[mask, "implied_datum_m"] = z_new
         df.loc[mask, "source_beta"] = "pipeline"
 
     df = df.sort_values("Cluster").reset_index(drop=True)
+    df = df[[c for c in _PARAM_COLUMNS if c in df.columns]
+            + [c for c in df.columns if c not in _PARAM_COLUMNS]]
     write_store(df, path)
     extra = f" (+{appended} cluster row(s) seeded from partition)" if appended else ""
     print(f"  Pipeline params updated: β coefficients from Script 03{extra}")
@@ -824,13 +882,19 @@ def default_value(key, record=True):
     return _DEFAULTS[key]
 
 
+def _drainage_datum():
+    from utils.config import DRAINAGE_DATUM
+    return DRAINAGE_DATUM
+
+
 def load_params(warn_defaults=True):
     """Load the consolidated pipeline scenario parameters.
 
     Returns
     -------
     dict with keys:
-        "clusters" : dict {cname: {b1, b2, b3, Sy, h_disp, forest}}
+        "clusters" : dict {cname: {b1, b2, b3, alpha, implied_datum_m, Sy, h_disp, forest}}
+            (1.18.0, D-332: Model B; h_disp = implied_datum_m + cluster mean depth)
         "clearfell_b2_mult" : float
         "thinning_b2_mult" : float
         "broadleaf_b2_summer" : float
@@ -871,6 +935,11 @@ def load_params(warn_defaults=True):
             "b1": float(row["beta_1"]),
             "b2": float(row["beta_2"]),
             "b3": float(row["beta_3"]),
+            # 1.18.0 (D-332): Model B's intercept and implied datum; h_disp is measured from it
+            "alpha": (float(row["alpha"]) if "alpha" in row and pd.notna(row["alpha"]) else 0.0),
+            "implied_datum_m": (float(row["implied_datum_m"])
+                                if "implied_datum_m" in row and pd.notna(row["implied_datum_m"])
+                                else float(_drainage_datum())),
             "Sy": float(row["Sy"]),
             "h_disp": float(row["h_disp"]),
             "forest": bool(row["forest"]),

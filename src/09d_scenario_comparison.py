@@ -36,7 +36,19 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.11.0"  # Hollingham (2026) — 2026-10-04 (D-239; Martin: "All five, then ship"). The hypothetical
+__version__ = "3.13.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The hypothetical Clearfell and
+#   Thinning 50% bars at CEH36 take a beta_2 multiplier of single-well era refits
+#   (clearfell_common.load_clearfell_impact_b2_multiplier) and are WITHDRAWN under D-333 pending T-209. No value
+#   changes: 09d_01 / 09d_02 gain a `status` column ("withdrawn (D-333)" on those rows), their tick labels say so,
+#   one warn() names them, and a new 09d_report_numbers.csv (paths.OUT_09D_REPORT_NUMBERS; 09d had none) carries
+#   the count scenario_n_rows_withdrawn_d333. The scraping bars here are the observed BACI step and the drain-cone
+#   drawdown (no delta-beta_3), and Broadleaf and the climate bars use no era-refit multiplier: none is withdrawn.
+# 3.12.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). CEH36's betas from 03_master_data are
+#   now Model B, so h_disp is measured from CEH36's implied datum (implied_datum_m = DRAINAGE_DATUM - alpha/beta_3)
+#   rather than DRAINAGE_DATUM. Every bar is a difference of two fluxes at the same b3 and h_disp, so the datum (and
+#   alpha) cancels exactly and no bar depends on it: the change is to the h_disp the console prints. Bars move only
+#   with the Model B betas themselves.
+# 3.11.0  # Hollingham (2026) — 2026-10-04 (D-239; Martin: "All five, then ship"). The hypothetical
 #   forestry bars at CEH36 are on the D-239 basis: the felled well's measured beta_2 change
 #   (clearfell_common.load_clearfell_impact_b2_multiplier; thinning half), and no interception recharge term -
 #   the pine baseline's P is kept in every forestry scenario. Broadleaf keeps its summer beta_2 multiplier.
@@ -88,13 +100,15 @@ from utils.scraping_common import (
 )
 from utils.config import (
     BW_MODE,
-    DRAINAGE_DATUM,
     FOREST_INTERCEPTION, BROADLEAF_B2_SUMMER,
     UKCP18_DRY_P_SUMMER, UKCP18_DRY_PET_SUMMER,
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
     SCRAPE_RISE_BUFFER_M,
 )
 from utils.clearfell_common import load_clearfell_impact_b2_multiplier
+from utils.config import D333_WITHDRAWN_STATUS                # 3.13.0 (D-333)
+from utils.paths import OUT_09D_REPORT_NUMBERS                # 3.13.0 (D-333)
+from utils.report_numbers_utils import ReportNumbers          # 3.13.0 (D-333)
 
 import pandas as pd
 import numpy as np
@@ -266,7 +280,8 @@ def _load_ceh36_params():
         "b2": float(row["beta_2_atmospheric_draw"]),
         "b3": float(row["beta_3_drainage"]),
         "Sy": well_sy,
-        "h_disp": DRAINAGE_DATUM + mean_depth,
+        # 3.12.0 (D-332): from Model B's implied datum; it cancels in every bar
+        "h_disp": float(row["implied_datum_m"]) + mean_depth,
         "cluster": cluster,
     }
     print(f"   CEH36: b1={params['b1']:.3f}  b2={params['b2']:.3f}  "
@@ -307,6 +322,19 @@ def main():
     # ── 4. Summer-forcing figure ──────────────────────────────────────────
     phase(4, "Plotting summer forcing scenario comparison")
     _plot_scenarios(scen_summer, params, forcing="summer")
+
+    # ── 5. D-333 (3.13.0): the withdrawn bars, counted and warned ──────────
+    n_wd = sum(1 for sc in (scen_annual, scen_summer) for k in sc if k in D333_WITHDRAWN_BARS)
+    rr = ReportNumbers()
+    rr.add("scenario_n_rows_withdrawn_d333", n_wd, unit="rows",
+           note="rows of 09d_01 + 09d_02 with status 'withdrawn (D-333)': the hypothetical Clearfell and Thinning "
+                "50% bars at CEH36, built from a beta multiplier of single-well era refits, inside its noise; "
+                "pending T-209 (values unchanged)")
+    rr.save(OUT_09D_REPORT_NUMBERS)
+    step(f"{OUT_09D_REPORT_NUMBERS.name}")
+    warn(f"D-333: the hypothetical Clearfell and Thinning 50% bars at CEH36 (09d_01 / 09d_02, {n_wd} rows) are built "
+         f"from a beta_2 multiplier of single-well era refits and are WITHDRAWN pending T-209 - values unchanged, "
+         f"flagged, not results")
 
     print("\nDone.")
 
@@ -415,6 +443,8 @@ _COLOURS = {
     "Climate wet": "#4169E1",
 }
 _HATCHES = {"Scraping\n(observed)": "///"}
+# 3.13.0 (D-333): bars built from the era-refit beta_2 multiplier, withdrawn pending T-209
+D333_WITHDRAWN_BARS = ("Clearfell\n(hypothetical)", "Thinning 50%\n(hypothetical)")
 
 
 def _plot_scenarios(scenarios, params, forcing):
@@ -439,7 +469,8 @@ def _plot_scenarios(scenarios, params, forcing):
     plot_items = [(k, v) for k, v in scenarios.items() if not k.startswith("_")]
     names = [k for k, _ in plot_items]
     vals = [v for _, v in plot_items]
-    display_names = [n for n in names]
+    display_names = [n + "\nWITHDRAWN" if n in D333_WITHDRAWN_BARS else n
+                     for n in names]                       # 3.13.0 (D-333)
     offsite_idx = (names.index("Scraping\n(off-site 100 m)")
                    if "Scraping\n(off-site 100 m)" in names else None)
 
@@ -514,11 +545,13 @@ def _plot_scenarios(scenarios, params, forcing):
             "magnitude \u2014 i.e. the recharge the standing forest itself "
             "suppresses."
         )
+    caveat += ("\nWITHDRAWN (D-333): the clearfell and thinning bars are built from a \u03b2\u2082 multiplier of "
+               "single-well era refits, inside its noise; pending T-209 \u2014 not results.")   # 3.13.0
     ax.text(0.0, -0.16, caveat, transform=ax.transAxes, fontsize=8,
             ha="left", va="top", color="#555", style="italic")
 
     plt.tight_layout()
-    fig.subplots_adjust(bottom=0.24)
+    fig.subplots_adjust(bottom=0.27)   # 3.13.0: room for the D-333 caveat line
     if is_summer:
         render_figure(fig, out_fig)
     else:
@@ -527,10 +560,11 @@ def _plot_scenarios(scenarios, params, forcing):
     plt.close(fig)
     step(f"{out_fig.name}")
 
-    rows = [{"Scenario": n.replace("\n", " "), col_name: v}
+    rows = [{"Scenario": n.replace("\n", " "), col_name: v,
+             "status": D333_WITHDRAWN_STATUS if n in D333_WITHDRAWN_BARS else ""}   # 3.13.0 (D-333)
             for n, v in scenarios.items() if not n.startswith("_")]
     if far_vol is not None:
-        rows.append({"Scenario": "Scraping (off-site 250 m)", col_name: far_vol})
+        rows.append({"Scenario": "Scraping (off-site 250 m)", col_name: far_vol, "status": ""})
     pd.DataFrame(rows).to_csv(out_csv, index=False, float_format="%.1f")
     step(f"{out_csv.name}")
 

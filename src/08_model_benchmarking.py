@@ -13,9 +13,11 @@ Purpose:
     Model formulations:
         Traditional (TLM):
             Δh(t) = α + β₁·P(t) − β₂·PET(t)
-        State-Space (SSM, displacement formulation):
-            Δh(t) = β₁·P(t) − β₂·PET(t) − β₃·h_disp_prev(t)
+        State-Space (SSM, Model B since 2.0.0 / D-332, displacement formulation):
+            Δh(t) = α + β₁·P(t) − β₂·PET(t) − β₃·h_disp_prev(t)
             where h_disp = DRAINAGE_DATUM + h_depth
+        Tested alternatives on the same rows: Model A (α = 0, DRAINAGE_DATUM) and
+        the MHW form (α = 0, datum = the well's depth to mean high water).
 
     Both models use HEADLINE_LAG from config (= 0 after bucketing fix).
 
@@ -32,7 +34,19 @@ Purpose:
 #     here they clutter the well markers, so they are suppressed. Figures only;
 #     model formulations and metrics unchanged.
 
-__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). The benchmark gains the MHW form:
+__version__ = "2.0.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The headline SSM is Model B: every
+#   *_StateSpace column (one-step and iterative R2/NSE/RMSE, betas, p-values, R2_StateSpace_fit; new Alpha_StateSpace)
+#   and every *_SSM / dNSE report number (benchmark_{median,positive,negative}_NSE_SSM, benchmark_median_dNSE,
+#   benchmark_wells_SSM_worse, C*_median_SSM_NSE, C*_positive_SSM_NSE, C*_median_dNSE, dNSE_vs_beta*) now carries
+#   Model B, free-run and one-step with its alpha. Model A moves to *_model_a: per-well *_StateSpace_model_a /
+#   *_Improvement_model_a, 08_perwell_nse SSM_NSE_model_a / dNSE_model_a, cluster medians median_SSM_NSE_model_a /
+#   median_dNSE_model_a / positive_SSM_NSE_model_a, keys benchmark_{median,positive,negative}_NSE_SSM_model_a,
+#   benchmark_median_dNSE_model_a, benchmark_wells_SSM_worse_model_a, C*_{median,positive}_SSM_NSE_model_a,
+#   C*_median_dNSE_model_a, dNSE_vs_beta{2,3}_{r,p}_model_a. The 1.7.0 *_ModelB columns and keys are kept and equal the SSM ones. Table 5 (08_lcsc_04)
+#   columns are now TLM, SSM_Model_B, Model_A, MHW, Delta_SSM_minus_TLM (was Traditional_Model_A,
+#   StateSpace_Model_B, Delta_B_minus_A, an older naming in which "Model B" was today's Model A). Figures 08_lcsc_01-03
+#   show Model B; the showdown legends sit outside the axes.
+# 1.9.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). The benchmark gains the MHW form:
 #   Model A at each well's depth to mean high water (ground_elev_m, Script 01, less tide_mhw_m, Script 01b; Script
 #   48's form M), fitted on the same window rows as the other three and free-run at that datum. Per well:
 #   Iterative_NSE_MHW, Iterative_NSE_Improvement_MHW, Datum_MHW_m, Beta_3_MHW, pvalue_beta_3_MHW (08_perwell_nse
@@ -211,7 +225,8 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
 
     Uses the displacement formulation (h_disp = DRAINAGE_DATUM + h_depth)
     for the SSM drainage predictor and HEADLINE_LAG rainfall (= 0 currently),
-    matching Script 03.
+    matching Script 03. 2.0.0 (D-332): the SSM is Model B (free intercept alpha,
+    carried into the one-step and free-run series); Model A is fitted beside it.
 
     1.9.0 (D-332): with `mhw_datum` (the well's depth to mean high water, m), Model A is also fitted
     and free-run at that datum on the same window rows (the MHW form).
@@ -258,6 +273,21 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
         'Datum_MHW_m': np.nan,
         'Beta_3_MHW': np.nan,
         'pvalue_beta_3_MHW': np.nan,
+        'OneStep_R2_MHW': np.nan,                 # 2.0.0 (D-332): for Table 5's MHW column
+        'Iterative_R2_MHW': np.nan,
+        'Alpha_StateSpace': np.nan,               # 2.0.0: the headline SSM is Model B
+        'OneStep_R2_StateSpace_model_a': np.nan,  # 2.0.0: Model A, the tested alternative
+        'OneStep_R2_Improvement_model_a': np.nan,
+        'Iterative_NSE_StateSpace_model_a': np.nan,
+        'Iterative_NSE_Improvement_model_a': np.nan,
+        'Iterative_RMSE_StateSpace_model_a': np.nan,
+        'Iterative_R2_StateSpace_model_a': np.nan,
+        'Iterative_R2_Improvement_model_a': np.nan,
+        'Beta_P_StateSpace_model_a': np.nan,
+        'Beta_PET_StateSpace_model_a': np.nan,
+        'Beta_hdisp_StateSpace_model_a': np.nan,
+        'pvalue_beta_3_StateSpace_model_a': np.nan,
+        'R2_StateSpace_fit_model_a': np.nan,
     }
 
     if target_col is None:
@@ -287,144 +317,129 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
     y_fit = df['Delta_h']
     model_trad = sm.OLS(y_fit, x_trad).fit()
 
-    # State-space model: the CANONICAL fitter, not a local copy. Until v1.4.0
-    # this script assembled its own design matrix and called sm.OLS directly.
-    # It was arithmetically the same fit, but it bypassed fit_ssm()'s min_obs
-    # floor and sign handling, its coefficients were never comparable to
-    # 03_master_data.csv by construction, and any future change to the canonical
-    # specification would silently have left the benchmark behind. The frame is
-    # already built (and windowed) above, so pre_built_frame is passed through
-    # and fit_ssm does no realignment of its own.
-    ssm = fit_ssm(pre_built_frame=df)
-    if ssm is None:
-        base_row['Status'] = 'ssm_fit_failed'
-        base_row['Months_Used'] = len(df)
-        return base_row, None
-    b1_ssm = float(ssm['beta_1_recharge'])
-    b2_ssm = float(ssm['beta_2_atmospheric_draw'])
-    b3_ssm = float(ssm['beta_3_drainage'])
-
+    # State-space model: the CANONICAL fitter, not a local copy (v1.4.0). The frame is already built (and
+    # windowed) above, so pre_built_frame is passed through and fit_ssm does no realignment of its own.
+    # 2.0.0 (D-332, J-9 phase 2b): the headline SSM is Model B, the free-intercept form
+    # (fit_ssm(intercept=True)), free-run with its alpha; every *_StateSpace column and *_SSM key carries it.
+    # Model A (no intercept, DRAINAGE_DATUM) is kept beside it as the tested alternative, in *_model_a
+    # columns; the MHW form (1.9.0) is Model A at each well's depth to mean high water.
     p_arr = df['P'].values
     pet_arr = df['PET'].values
     h_obs = df['h'].values
 
-    # ---- One-step simulation (uses observed h_prev at each step) ----
-    h_trad_one = np.full(len(h_obs), np.nan)
-    h_lcsc_one = np.full(len(h_obs), np.nan)
-    h_trad_one[0] = h_obs[0]
-    h_lcsc_one[0] = h_obs[0]
+    def _run(fit, datum, alpha):
+        """One-step (observed h_prev) and iterative (free-run) series for one SSM form, and their scores."""
+        b1, b2, b3 = (float(fit['beta_1_recharge']), float(fit['beta_2_atmospheric_draw']),
+                      float(fit['beta_3_drainage']))
+        one = np.full(len(h_obs), np.nan)
+        one[0] = h_obs[0]
+        for t in range(1, len(h_obs)):
+            one[t] = h_obs[t - 1] + alpha + b1 * p_arr[t] - b2 * pet_arr[t] - b3 * (datum + h_obs[t - 1])
+        it = np.concatenate([[h_obs[0]], simulate_ssm(
+            h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:], b1=b1, b2=b2, b3=b3,
+            drainage_datum=datum, alpha=alpha)])
+        nse, rmse, _ = get_metrics(h_obs, it)
+        return {'one': one, 'iter': it, 'r2_one': get_r2(h_obs, one), 'nse': nse, 'rmse': rmse,
+                'r2_iter': get_r2(h_obs, it), 'b1': b1, 'b2': b2, 'b3': b3}
 
-    for t in range(1, len(h_obs)):
-        h_prev_obs = h_obs[t - 1]
-        h_disp_prev_obs = DRAINAGE_DATUM + h_prev_obs
+    ssm = fit_ssm(pre_built_frame=df, intercept=True)          # Model B: the headline SSM
+    if ssm is None:
+        base_row['Status'] = 'ssm_fit_failed'
+        base_row['Months_Used'] = len(df)
+        return base_row, None
+    alpha_b = float(ssm['alpha'])
+    rb = _run(ssm, DRAINAGE_DATUM, alpha_b)
 
-        dh_trad = (model_trad.params['const']
-                   + model_trad.params['P'] * p_arr[t]
-                   - model_trad.params['PET'] * pet_arr[t])
-        dh_lcsc = (b1_ssm * p_arr[t]
-                   - b2_ssm * pet_arr[t]
-                   - b3_ssm * h_disp_prev_obs)
-        h_trad_one[t] = h_prev_obs + dh_trad
-        h_lcsc_one[t] = h_prev_obs + dh_lcsc
+    ssm_a = fit_ssm(pre_built_frame=df)                          # Model A at DRAINAGE_DATUM (alternative)
+    ra = _run(ssm_a, DRAINAGE_DATUM, 0.0) if ssm_a is not None else None
 
-    # ---- Iterative (autonomous) simulation ----
-    # TLM iterative: no h_prev feedback, just accumulates Δh from climate
-    h_trad_iter = np.full(len(h_obs), np.nan)
-    h_trad_iter[0] = h_obs[0]
-    for t in range(1, len(h_obs)):
-        dh_trad = (model_trad.params['const']
-                   + model_trad.params['P'] * p_arr[t]
-                   - model_trad.params['PET'] * pet_arr[t])
-        h_trad_iter[t] = h_trad_iter[t - 1] + dh_trad
-
-    # SSM iterative: use shared simulate_ssm (displacement recurrence)
-    # Design matrix columns are already negated (-PET, -h_disp_prev), so the
-    # fitted OLS params ARE the β values directly (positive = physically correct).
-    # simulate_ssm expects: dh = b1*P - b2*PET - b3*(D+h), with b1,b2,b3 positive.
-    h_lcsc_iter_raw = simulate_ssm(
-        h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
-        b1=b1_ssm,
-        b2=b2_ssm,           # already β₂ (coeff on -PET)
-        b3=b3_ssm,    # already β₃ (coeff on -h_disp)
-    )
-    h_lcsc_iter = np.concatenate([[h_obs[0]], h_lcsc_iter_raw])
-
-    # 1.7.0 (D-244): Model B, the free-intercept form, on the same frame and window. The TLM is
-    # Model B with beta_3 = 0, so TLM -> Model B isolates the drainage term.
-    ssm_b = fit_ssm(pre_built_frame=df, intercept=True)
-    if ssm_b is not None:
-        h_b_iter_raw = simulate_ssm(
-            h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
-            b1=float(ssm_b['beta_1_recharge']), b2=float(ssm_b['beta_2_atmospheric_draw']),
-            b3=float(ssm_b['beta_3_drainage']), alpha=float(ssm_b['alpha']))
-        h_b_iter = np.concatenate([[h_obs[0]], h_b_iter_raw])
-        nse_b, _, _ = get_metrics(h_obs, h_b_iter)
-    else:
-        nse_b = np.nan
-
-    # 1.9.0 (D-332): the MHW form - Model A with each well's depth to mean high water as its datum,
-    # on the same window rows (the datum moves h_disp only, never which months are in the frame).
-    nse_m, ssm_m = np.nan, None
+    # The MHW form - Model A with each well's depth to mean high water as its datum, on the same window
+    # rows (the datum moves h_disp only, never which months are in the frame).
+    rm, ssm_m = None, None
     if mhw_datum is not None and np.isfinite(mhw_datum):
         df_m = build_ssm_frame(well_series, climate, window=LCSC_DATA_LIMIT, drainage_datum=float(mhw_datum))
         if not df_m.index.equals(df.index):
             raise ValueError(f"{target_norm}: the MHW frame's rows differ from the benchmark window's")
         ssm_m = fit_ssm(pre_built_frame=df_m)
         if ssm_m is not None:
-            h_m_iter_raw = simulate_ssm(
-                h0=h_obs[0], P=p_arr[1:], PET=pet_arr[1:],
-                b1=float(ssm_m['beta_1_recharge']), b2=float(ssm_m['beta_2_atmospheric_draw']),
-                b3=float(ssm_m['beta_3_drainage']), drainage_datum=float(mhw_datum))
-            nse_m, _, _ = get_metrics(h_obs, np.concatenate([[h_obs[0]], h_m_iter_raw]))
+            rm = _run(ssm_m, float(mhw_datum), 0.0)
 
+    # ---- TLM: one-step and iterative (no h_prev feedback, just accumulates dh from climate) ----
+    def _dh_trad(t):
+        return (model_trad.params['const'] + model_trad.params['P'] * p_arr[t]
+                - model_trad.params['PET'] * pet_arr[t])
+    h_trad_one = np.full(len(h_obs), np.nan)
+    h_trad_iter = np.full(len(h_obs), np.nan)
+    h_trad_one[0] = h_trad_iter[0] = h_obs[0]
+    for t in range(1, len(h_obs)):
+        h_trad_one[t] = h_obs[t - 1] + _dh_trad(t)
+        h_trad_iter[t] = h_trad_iter[t - 1] + _dh_trad(t)
     r2_trad_one = get_r2(h_obs, h_trad_one)
-    r2_lcsc_one = get_r2(h_obs, h_lcsc_one)
-
     nse_trad, rmse_trad, _ = get_metrics(h_obs, h_trad_iter)
-    nse_lcsc, rmse_lcsc, _ = get_metrics(h_obs, h_lcsc_iter)
     r2_trad_iter = get_r2(h_obs, h_trad_iter)
-    r2_lcsc_iter = get_r2(h_obs, h_lcsc_iter)
+
+    def _g(r, k):
+        return r[k] if r is not None else np.nan
 
     base_row.update({
         'Months_Used': len(df),
         'OneStep_R2_Traditional': r2_trad_one,
-        'OneStep_R2_StateSpace': r2_lcsc_one,
-        'OneStep_R2_Improvement': r2_lcsc_one - r2_trad_one,
+        'OneStep_R2_StateSpace': rb['r2_one'],
+        'OneStep_R2_Improvement': rb['r2_one'] - r2_trad_one,
         'Iterative_NSE_Traditional': nse_trad,
-        'Iterative_NSE_StateSpace': nse_lcsc,
-        'Iterative_NSE_Improvement': nse_lcsc - nse_trad,
+        'Iterative_NSE_StateSpace': rb['nse'],
+        'Iterative_NSE_Improvement': rb['nse'] - nse_trad,
         'Iterative_RMSE_Traditional': rmse_trad,
-        'Iterative_RMSE_StateSpace': rmse_lcsc,
-        'Iterative_RMSE_Improvement': rmse_trad - rmse_lcsc,
+        'Iterative_RMSE_StateSpace': rb['rmse'],
+        'Iterative_RMSE_Improvement': rmse_trad - rb['rmse'],
         'Iterative_R2_Traditional': r2_trad_iter,
-        'Iterative_R2_StateSpace': r2_lcsc_iter,
-        'Iterative_R2_Improvement': r2_lcsc_iter - r2_trad_iter,
+        'Iterative_R2_StateSpace': rb['r2_iter'],
+        'Iterative_R2_Improvement': rb['r2_iter'] - r2_trad_iter,
         'Beta_P_Traditional': model_trad.params['P'],
         'Beta_PET_Traditional': model_trad.params['PET'],
         'Intercept_Traditional': model_trad.params['const'],
-        'Beta_P_StateSpace': b1_ssm,
-        'Beta_PET_StateSpace': b2_ssm,
-        'Beta_hdisp_StateSpace': b3_ssm,
+        'Beta_P_StateSpace': rb['b1'],
+        'Beta_PET_StateSpace': rb['b2'],
+        'Beta_hdisp_StateSpace': rb['b3'],
         # Emitted so the benchmark's SSM is checkable against 03_master_data.csv
         # rather than merely assumed to agree with it (D-033 step zero).
         'pvalue_beta_1_StateSpace': float(ssm['pvalue_beta_1']),
         'pvalue_beta_2_StateSpace': float(ssm['pvalue_beta_2']),
         'pvalue_beta_3_StateSpace': float(ssm['pvalue_beta_3']),
         'R2_StateSpace_fit': float(ssm['R2']),
-        'Iterative_NSE_ModelB': nse_b,
-        'Iterative_NSE_Improvement_ModelB': nse_b - nse_trad,
-        'Alpha_ModelB': float(ssm_b['alpha']) if ssm_b is not None else np.nan,
-        'Beta_3_ModelB': float(ssm_b['beta_3_drainage']) if ssm_b is not None else np.nan,
-        'pvalue_beta_3_ModelB': float(ssm_b['pvalue_beta_3']) if ssm_b is not None else np.nan,
+        'Alpha_StateSpace': alpha_b,
+        # 1.7.0 (D-244) Model B columns: since 2.0.0 the same fit as *_StateSpace, kept under their own names
+        'Iterative_NSE_ModelB': rb['nse'],
+        'Iterative_NSE_Improvement_ModelB': rb['nse'] - nse_trad,
+        'Alpha_ModelB': alpha_b,
+        'Beta_3_ModelB': rb['b3'],
+        'pvalue_beta_3_ModelB': float(ssm['pvalue_beta_3']),
         # 1.9.0 (D-332): model_utils 1.14.0 holds Model B's beta_3 at MODEL_B_BETA3_MIN where it would fall below
-        'Beta_3_bound_binds_ModelB': (bool(ssm_b.get('beta_3_bound_binds', False))
-                                      if ssm_b is not None else np.nan),
-        'Iterative_NSE_MHW': nse_m,
-        'Iterative_NSE_Improvement_MHW': nse_m - nse_trad,
+        'Beta_3_bound_binds_ModelB': bool(ssm.get('beta_3_bound_binds', False)),
+        # 2.0.0 (D-332): Model A, the tested alternative (until 2.0.0 these were the *_StateSpace columns)
+        'OneStep_R2_StateSpace_model_a': _g(ra, 'r2_one'),
+        'OneStep_R2_Improvement_model_a': _g(ra, 'r2_one') - r2_trad_one,
+        'Iterative_NSE_StateSpace_model_a': _g(ra, 'nse'),
+        'Iterative_NSE_Improvement_model_a': _g(ra, 'nse') - nse_trad,
+        'Iterative_RMSE_StateSpace_model_a': _g(ra, 'rmse'),
+        'Iterative_R2_StateSpace_model_a': _g(ra, 'r2_iter'),
+        'Iterative_R2_Improvement_model_a': _g(ra, 'r2_iter') - r2_trad_iter,
+        'Beta_P_StateSpace_model_a': _g(ra, 'b1'),
+        'Beta_PET_StateSpace_model_a': _g(ra, 'b2'),
+        'Beta_hdisp_StateSpace_model_a': _g(ra, 'b3'),
+        'pvalue_beta_3_StateSpace_model_a': float(ssm_a['pvalue_beta_3']) if ssm_a is not None else np.nan,
+        'R2_StateSpace_fit_model_a': float(ssm_a['R2']) if ssm_a is not None else np.nan,
+        'Iterative_NSE_MHW': _g(rm, 'nse'),
+        'Iterative_NSE_Improvement_MHW': _g(rm, 'nse') - nse_trad,
+        'OneStep_R2_MHW': _g(rm, 'r2_one'),
+        'Iterative_R2_MHW': _g(rm, 'r2_iter'),
         'Datum_MHW_m': float(mhw_datum) if (mhw_datum is not None and np.isfinite(mhw_datum)) else np.nan,
         'Beta_3_MHW': float(ssm_m['beta_3_drainage']) if ssm_m is not None else np.nan,
         'pvalue_beta_3_MHW': float(ssm_m['pvalue_beta_3']) if ssm_m is not None else np.nan,
     })
+
+    h_lcsc_one, h_lcsc_iter = rb['one'], rb['iter']
+    r2_lcsc_one, nse_lcsc, rmse_lcsc, r2_lcsc_iter = rb['r2_one'], rb['nse'], rb['rmse'], rb['r2_iter']
 
     payload = {
         'index': df.index.to_timestamp(),
@@ -447,18 +462,18 @@ def compute_showdown_metrics(target_well_name, df_clean, df_climate, mhw_datum=N
 
 
 def plot_showdown(output_path, payload):
-    """Dual-panel TLM vs SSM showdown for a target well."""
+    """Dual-panel TLM vs SSM (Model B since 2.0.0) showdown for a target well."""
     fig, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(14, 10), dpi=300, sharex=True)
     well_label = payload.get('well_label', 'TARGET')
 
     # Top Panel: Diagnostic Fit (One-Step)
     ax_top.plot(payload['index'], payload['h_obs'], color='black', lw=2.8, label='Observed')
     ax_top.plot(payload['index'], payload['h_trad_one'], color='#D55E00', lw=2.2, ls=':', label=f"TLM (R\u00b2={payload['r2_trad_one']:.3f})")
-    ax_top.plot(payload['index'], payload['h_lcsc_one'], color='#0072B2', lw=2.2, ls='--', label=f"SSM (R\u00b2={payload['r2_lcsc_one']:.3f})")
+    ax_top.plot(payload['index'], payload['h_lcsc_one'], color='#0072B2', lw=2.2, ls='--', label=f"SSM, Model B (R\u00b2={payload['r2_lcsc_one']:.3f})")
     ax_top.set_title(f'{well_label}: Diagnostic Fit (One-Step)', fontweight='bold')
     ax_top.set_ylabel('Water Depth (m below surface)')
     ax_top.grid(True, ls='--', alpha=0.5)
-    ax_top.legend(loc='upper left', frameon=True, edgecolor='black')
+    ax_top.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0), frameon=True, edgecolor='black')  # off the data (2.0.0)
 
     # Bottom Panel: Forecasting Stability (Iterative)
     ax_bottom.plot(payload['index'], payload['h_obs'], color='black', lw=2.8, label='Observed')
@@ -480,7 +495,7 @@ def plot_showdown(output_path, payload):
         lw=2.2,
         ls='--',
         label=(
-            f"SSM (NSE={payload['nse_lcsc']:.3f}, "
+            f"SSM, Model B (NSE={payload['nse_lcsc']:.3f}, "
             f"RMSE={payload['rmse_lcsc']:.3f}, R²={payload['r2_lcsc_iter']:.3f})"
         ),
     )
@@ -488,7 +503,7 @@ def plot_showdown(output_path, payload):
     ax_bottom.set_xlabel('Date')
     ax_bottom.set_ylabel('Water Depth (m below surface)')
     ax_bottom.grid(True, ls='--', alpha=0.5)
-    ax_bottom.legend(loc='upper left', frameon=True, edgecolor='black')
+    ax_bottom.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0), frameon=True, edgecolor='black')  # off the data (2.0.0)
     ax_bottom.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 
     plt.tight_layout()
@@ -705,9 +720,10 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
     """§4.9.1 traceability: per-well ΔNSE/TLM-NSE, per-cluster medians, and the
     ΔNSE↔coefficient correlations, all written to committed CSVs.
 
-    ΔNSE       = Iterative_NSE_Improvement (SSM minus TLM)
+    ΔNSE       = Iterative_NSE_Improvement (SSM minus TLM; the SSM is Model B since 2.0.0, D-332)
     TLM NSE    = Iterative_NSE_Traditional
-    Cluster, β₂, β₃ are joined from 03_master_data.csv (uniform DRAINAGE_DATUM).
+    Cluster, β₂, β₃ are joined from 03_master_data.csv (Model B since Script 03 1.31.0).
+    Model A, the tested alternative, is in the *_model_a columns and keys.
     """
     if ok_df.empty:
         warn("No valid SSM08 rows. Skipping NSE diagnostics export.")
@@ -731,7 +747,9 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
                 "Iterative_NSE_Improvement_ModelB",
                 "Iterative_NSE_MHW",
                 "Iterative_NSE_Improvement_MHW",
-                "Datum_MHW_m"]].merge(
+                "Datum_MHW_m",
+                "Iterative_NSE_StateSpace_model_a",
+                "Iterative_NSE_Improvement_model_a"]].merge(
         master[keep], on="Well_Normalized", how="left")
     pw = pw.rename(columns={
         "Iterative_NSE_Traditional": "TLM_NSE",
@@ -741,9 +759,12 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
         "Iterative_NSE_Improvement_ModelB": "dNSE_ModelB",
         "Iterative_NSE_MHW": "MHW_NSE",                    # 1.9.0 (D-332)
         "Iterative_NSE_Improvement_MHW": "dNSE_MHW",
+        "Iterative_NSE_StateSpace_model_a": "SSM_NSE_model_a",   # 2.0.0 (D-332): Model A
+        "Iterative_NSE_Improvement_model_a": "dNSE_model_a",
     })
-    # 1.9.0: the MHW columns go after every existing column, so positional readers are undisturbed
-    _new = ["MHW_NSE", "dNSE_MHW", "Datum_MHW_m"]
+    # 1.9.0: the MHW columns go after every existing column, so positional readers are undisturbed;
+    # 2.0.0 (D-332): SSM_NSE / dNSE now carry Model B (= ModelB_NSE / dNSE_ModelB); Model A appended last
+    _new = ["MHW_NSE", "dNSE_MHW", "Datum_MHW_m", "SSM_NSE_model_a", "dNSE_model_a"]
     pw = pw[[c for c in pw.columns if c not in _new] + _new]
     pw.to_csv(perwell_path, index=False)
     saved(f"{perwell_path.name} ({len(pw)} wells)")
@@ -767,6 +788,10 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
             "median_MHW_NSE": float(pd.to_numeric(grp["MHW_NSE"], errors="coerce").median()),
             "positive_MHW_NSE": int((pd.to_numeric(grp["MHW_NSE"], errors="coerce") > 0).sum()),
             "n_MHW": int(pd.to_numeric(grp["MHW_NSE"], errors="coerce").notna().sum()),
+            # 2.0.0 (D-332): the *_SSM_* columns above carry Model B; Model A, the tested alternative, here
+            "median_SSM_NSE_model_a": float(pd.to_numeric(grp["SSM_NSE_model_a"], errors="coerce").median()),
+            "median_dNSE_model_a": float(pd.to_numeric(grp["dNSE_model_a"], errors="coerce").median()),
+            "positive_SSM_NSE_model_a": int((pd.to_numeric(grp["SSM_NSE_model_a"], errors="coerce") > 0).sum()),
         })
     med_df = pd.DataFrame(med_rows).sort_values("Cluster")
     med_df.to_csv(medians_path, index=False)
@@ -780,14 +805,16 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
     # positive-NSE counts - and until 2026-08-18 none of them was emitted, so
     # none was in the citation index and all five drifted silently across the
     # August reruns. Emitted here so cite_check can watch them.
+    # 2.0.0 (D-332): the SSM in every *_SSM / dNSE key is Model B (free intercept); Model A's values are in
+    # the *_model_a keys below. The *_ModelB keys (1.7.0) are kept and carry the same Model B values.
     rpt.add("benchmark_median_NSE_SSM", pw["SSM_NSE"].median(), unit="",
-            note=f"median iterative NSE, state-space model, n={len(pw)}")
+            note=f"median iterative NSE, state-space model (Model B, free intercept), n={len(pw)}")
     rpt.add("benchmark_median_NSE_TLM", pw["TLM_NSE"].median(), unit="",
             note=f"median iterative NSE, traditional linear model, n={len(pw)}")
     rpt.add("benchmark_median_dNSE", pw["dNSE"].median(), unit="",
-            note=f"median gain in iterative NSE, SSM over TLM, n={len(pw)}")
+            note=f"median gain in iterative NSE, SSM (Model B) over TLM, n={len(pw)}")
     rpt.add("benchmark_positive_NSE_SSM", int((pw["SSM_NSE"] > 0).sum()), unit="wells",
-            note=f"wells with positive iterative NSE under the SSM, of {len(pw)}")
+            note=f"wells with positive iterative NSE under the SSM (Model B), of {len(pw)}")
     rpt.add("benchmark_positive_NSE_TLM", int((pw["TLM_NSE"] > 0).sum()), unit="wells",
             note=f"wells with positive iterative NSE under the TLM, of {len(pw)}")
     # 1.7.0 (D-244): Model B against the TLM - the comparison that isolates the drainage term
@@ -799,6 +826,24 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
             note=f"wells with positive iterative NSE under Model B, of {len(pw)}")
     rpt.add("benchmark_n_wells", int(len(pw)), unit="wells",
             note="reference wells entering the benchmark")
+    # 2.0.0 (D-332): Model A at DRAINAGE_DATUM, the tested alternative (until 2.0.0 the *_SSM keys carried it)
+    _a = pd.to_numeric(pw["SSM_NSE_model_a"], errors="coerce")
+    _da = pd.to_numeric(pw["dNSE_model_a"], errors="coerce")
+    _na = int(_a.notna().sum())
+    rpt.add("benchmark_median_NSE_SSM_model_a", _a.median(), unit="",
+            note=f"median iterative NSE, Model A (no intercept, datum {DRAINAGE_DATUM} m), n={_na}")
+    rpt.add("benchmark_median_dNSE_model_a", _da.median(), unit="",
+            note=f"median gain in iterative NSE, Model A over TLM, n={_na}")
+    rpt.add("benchmark_positive_NSE_SSM_model_a", int((_a > 0).sum()), unit="wells",
+            note=f"wells with positive iterative NSE under Model A, of {_na}")
+    _neg_a = pw[_a < 0]
+    rpt.add("benchmark_negative_NSE_SSM_model_a", int(len(_neg_a)), unit="wells",
+            note=(f"wells with negative iterative NSE under Model A, of {_na}: "
+                  + (", ".join(str(w) for w in _neg_a["Well"]) if len(_neg_a) else "none")))
+    _worse_a = pw[_da < 0]
+    rpt.add("benchmark_wells_SSM_worse_model_a", int(len(_worse_a)), unit="wells",
+            note=("wells where Model A scores below the TLM: "
+                  + (", ".join(str(w) for w in _worse_a["Well"]) if len(_worse_a) else "none")))
     # 1.9.0 (D-332): the MHW form, Model A at each well's depth to mean high water (a tested alternative)
     _m = pd.to_numeric(pw["MHW_NSE"], errors="coerce")
     rpt.add("benchmark_median_NSE_MHW", _m.median(), unit="",
@@ -823,26 +868,33 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
                 note=(f"wells with negative iterative NSE under the {_m}, of {len(pw)}: "
                       + (", ".join(str(w) for w in _neg["Well"]) if len(_neg) else "none")))
 
-    # Wells where the SSM loses to the linear model. Worth a named number: the
-    # cause is a non-positive beta_3, which makes the iterative recursion
-    # divergent rather than decaying, so the deficit is arithmetic and should
-    # not be read as the physical model failing.
+    # Wells where the SSM (Model B since 2.0.0) loses to the linear model. Under Model A the cause was a
+    # non-positive beta_3, which makes the free run diverge; Model B's beta_3 is bounded below
+    # (model_utils 1.14.0), so a loss here is a fit that free-runs worse, not a divergent recursion.
     _worse = pw[pw["dNSE"] < 0]
     rpt.add("benchmark_wells_SSM_worse", int(len(_worse)), unit="wells",
-            note=("wells where the SSM scores below the TLM: "
+            note=("wells where the SSM (Model B) scores below the TLM: "
                   + (", ".join(str(w) for w in _worse["Well"]) if len(_worse) else "none")))
 
     for _, r in med_df.iterrows():
         rpt.add(f"{r['Cluster']}_median_dNSE", r["median_dNSE"], unit="",
-                note=f"median ΔNSE (SSM−TLM), {r['Cluster']}, n={int(r['n'])}")
+                note=f"median ΔNSE (SSM−TLM; the SSM is Model B), {r['Cluster']}, n={int(r['n'])}")
         rpt.add(f"{r['Cluster']}_median_TLM_NSE", r["median_TLM_NSE"], unit="",
                 note=f"median TLM iterative NSE, {r['Cluster']}, n={int(r['n'])}")
-        for _m, _lbl in (("SSM", "Model A (state-space, no intercept)"), ("ModelB", "Model B (free intercept)")):
+        for _m, _lbl in (("SSM", "the SSM (Model B, free intercept)"), ("ModelB", "Model B (free intercept)")):
             rpt.add(f"{r['Cluster']}_median_{_m}_NSE", r[f"median_{_m}_NSE"], unit="",
                     note=f"median iterative NSE, {_lbl}, {r['Cluster']}, n={int(r['n'])}")
         for _m in ("TLM", "SSM", "ModelB"):
             rpt.add(f"{r['Cluster']}_positive_{_m}_NSE", int(r[f"positive_{_m}_NSE"]), unit="wells",
                     note=f"wells with positive iterative NSE under {_m}, {r['Cluster']}, of {int(r['n'])}")
+        # 2.0.0 (D-332): Model A at DRAINAGE_DATUM, the tested alternative
+        rpt.add(f"{r['Cluster']}_median_SSM_NSE_model_a", r["median_SSM_NSE_model_a"], unit="",
+                note=f"median iterative NSE, Model A (no intercept, datum {DRAINAGE_DATUM} m), {r['Cluster']}, "
+                     f"n={int(r['n'])}")
+        rpt.add(f"{r['Cluster']}_median_dNSE_model_a", r["median_dNSE_model_a"], unit="",
+                note=f"median ΔNSE (Model A − TLM), {r['Cluster']}, n={int(r['n'])}")
+        rpt.add(f"{r['Cluster']}_positive_SSM_NSE_model_a", int(r["positive_SSM_NSE_model_a"]), unit="wells",
+                note=f"wells with positive iterative NSE under Model A, {r['Cluster']}, of {int(r['n'])}")
         # 1.9.0 (D-332): the MHW form
         rpt.add(f"{r['Cluster']}_median_MHW_NSE", r["median_MHW_NSE"], unit="",
                 note=f"median iterative NSE, Model A at each well's depth to mean high water, {r['Cluster']}, "
@@ -859,12 +911,32 @@ def export_nse_diagnostics(ok_df: pd.DataFrame, master_path: Path,
                         note=f"Pearson r, ΔNSE vs {coef}, n={len(sub)}")
                 rpt.add(f"dNSE_vs_{key}_p", p, unit="",
                         note=f"p-value, ΔNSE vs {coef}, n={len(sub)}")
+    # 2.0.0 (D-332): the same correlations for Model A - its ΔNSE against its own master coefficients
+    # (03_master_data *_model_a); the keys above now pair Model B's ΔNSE with Model B's coefficients.
+    _ma = [c for c in ("beta_3_drainage_model_a", "beta_2_atmospheric_draw_model_a") if c in master.columns]
+    _pa = pw[["Well_Normalized", "dNSE_model_a"]].merge(master[["Well_Normalized"] + _ma],
+                                                       on="Well_Normalized", how="left")
+    for coef, key in [("beta_3_drainage_model_a", "beta3"), ("beta_2_atmospheric_draw_model_a", "beta2")]:
+        if coef in _pa.columns:
+            sub = _pa.dropna(subset=["dNSE_model_a", coef])
+            if len(sub) >= 3:
+                r, p = _spstats.pearsonr(sub["dNSE_model_a"], sub[coef])
+                rpt.add(f"dNSE_vs_{key}_r_model_a", r, unit="",
+                        note=f"Pearson r, Model A's ΔNSE vs {coef}, n={len(sub)}")
+                rpt.add(f"dNSE_vs_{key}_p_model_a", p, unit="",
+                        note=f"p-value, Model A's ΔNSE vs {coef}, n={len(sub)}")
     n_saved = rpt.save(report_path)
     saved(f"{report_path.name} ({n_saved} report numbers)")
 
 
 def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
-    """Export manuscript Table 3 benchmark summary from per-well model metrics."""
+    """Export manuscript Table 3 (report Table 5) benchmark summary from per-well model metrics.
+
+    2.0.0 (D-332): columns TLM, SSM_Model_B (the SSM), Model_A (DRAINAGE_DATUM), MHW (Model A at each
+    well's depth to mean high water) and Delta_SSM_minus_TLM. Until 2.0.0 the columns used an older
+    naming in which "Model A" was the TLM and "Model B" the no-intercept SSM (today's Model A).
+    The MHW column is over the wells with a ground level (n in the positive-count cell).
+    """
     if ok_df.empty:
         warn("No valid SSM08 rows. Skipping Table 3 summary export.")
         return
@@ -872,9 +944,9 @@ def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
     def _median(col: str) -> float:
         return float(pd.to_numeric(ok_df[col], errors='coerce').median())
 
-    n_wells = len(ok_df)
-    trad_pos = int((pd.to_numeric(ok_df['Iterative_NSE_Traditional'], errors='coerce') > 0).sum())
-    ss_pos = int((pd.to_numeric(ok_df['Iterative_NSE_StateSpace'], errors='coerce') > 0).sum())
+    def _pos(col: str) -> str:
+        v = pd.to_numeric(ok_df[col], errors='coerce')
+        return f'{int((v > 0).sum())} / {int(v.notna().sum())}'
 
     # Manuscript convention: exclude lake sentinel well from the max-improvement row.
     best_pool = ok_df[ok_df['Well_Normalized'].astype(str).str.lower() != 'llynrhos']
@@ -888,52 +960,39 @@ def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
         rows = ok_df[ok_df['Well_Normalized'].astype(str).str.lower() == well_norm]
         return rows.iloc[0] if len(rows) else None
 
-    ceh6 = _well_row('ceh6')
-    ceh14 = _well_row('ceh14')
+    def _nse_row(label, r):
+        if r is None:
+            return {'Metric': label, 'TLM': np.nan, 'SSM_Model_B': np.nan, 'Model_A': np.nan,
+                    'MHW': np.nan, 'Delta_SSM_minus_TLM': np.nan}
+        return {'Metric': label,
+                'TLM': float(r['Iterative_NSE_Traditional']),
+                'SSM_Model_B': float(r['Iterative_NSE_StateSpace']),
+                'Model_A': float(r['Iterative_NSE_StateSpace_model_a']),
+                'MHW': float(r['Iterative_NSE_MHW']),
+                'Delta_SSM_minus_TLM': float(r['Iterative_NSE_Improvement'])}
+
+    def _med_row(label, trad, ssm, mod_a, mhw, delta):
+        return {'Metric': label, 'TLM': _median(trad), 'SSM_Model_B': _median(ssm),
+                'Model_A': _median(mod_a), 'MHW': _median(mhw), 'Delta_SSM_minus_TLM': _median(delta)}
 
     rows = [
-        {
-            'Metric': 'Median one-step R2',
-            'Traditional_Model_A': _median('OneStep_R2_Traditional'),
-            'StateSpace_Model_B': _median('OneStep_R2_StateSpace'),
-            'Delta_B_minus_A': _median('OneStep_R2_Improvement'),
-        },
-        {
-            'Metric': 'Median iterative R2',
-            'Traditional_Model_A': _median('Iterative_R2_Traditional'),
-            'StateSpace_Model_B': _median('Iterative_R2_StateSpace'),
-            'Delta_B_minus_A': _median('Iterative_R2_Improvement'),
-        },
-        {
-            'Metric': 'Median iterative NSE',
-            'Traditional_Model_A': _median('Iterative_NSE_Traditional'),
-            'StateSpace_Model_B': _median('Iterative_NSE_StateSpace'),
-            'Delta_B_minus_A': _median('Iterative_NSE_Improvement'),
-        },
+        _med_row('Median one-step R2', 'OneStep_R2_Traditional', 'OneStep_R2_StateSpace',
+                 'OneStep_R2_StateSpace_model_a', 'OneStep_R2_MHW', 'OneStep_R2_Improvement'),
+        _med_row('Median iterative R2', 'Iterative_R2_Traditional', 'Iterative_R2_StateSpace',
+                 'Iterative_R2_StateSpace_model_a', 'Iterative_R2_MHW', 'Iterative_R2_Improvement'),
+        _med_row('Median iterative NSE', 'Iterative_NSE_Traditional', 'Iterative_NSE_StateSpace',
+                 'Iterative_NSE_StateSpace_model_a', 'Iterative_NSE_MHW', 'Iterative_NSE_Improvement'),
         {
             'Metric': 'Wells with iterative NSE > 0',
-            'Traditional_Model_A': f'{trad_pos} / {n_wells}',
-            'StateSpace_Model_B': f'{ss_pos} / {n_wells}',
-            'Delta_B_minus_A': '\u2014',
+            'TLM': _pos('Iterative_NSE_Traditional'),
+            'SSM_Model_B': _pos('Iterative_NSE_StateSpace'),
+            'Model_A': _pos('Iterative_NSE_StateSpace_model_a'),
+            'MHW': _pos('Iterative_NSE_MHW'),
+            'Delta_SSM_minus_TLM': '\u2014',
         },
-        {
-            'Metric': f'Max NSE improvement ({best_well})',
-            'Traditional_Model_A': float(best_row['Iterative_NSE_Traditional']),
-            'StateSpace_Model_B': float(best_row['Iterative_NSE_StateSpace']),
-            'Delta_B_minus_A': float(best_row['Iterative_NSE_Improvement']),
-        },
-        {
-            'Metric': 'CEH6 iterative NSE',
-            'Traditional_Model_A': float(ceh6['Iterative_NSE_Traditional']) if ceh6 is not None else np.nan,
-            'StateSpace_Model_B': float(ceh6['Iterative_NSE_StateSpace']) if ceh6 is not None else np.nan,
-            'Delta_B_minus_A': float(ceh6['Iterative_NSE_Improvement']) if ceh6 is not None else np.nan,
-        },
-        {
-            'Metric': 'CEH14 iterative NSE',
-            'Traditional_Model_A': float(ceh14['Iterative_NSE_Traditional']) if ceh14 is not None else np.nan,
-            'StateSpace_Model_B': float(ceh14['Iterative_NSE_StateSpace']) if ceh14 is not None else np.nan,
-            'Delta_B_minus_A': float(ceh14['Iterative_NSE_Improvement']) if ceh14 is not None else np.nan,
-        },
+        _nse_row(f'Max NSE improvement ({best_well})', best_row),
+        _nse_row('CEH6 iterative NSE', _well_row('ceh6')),
+        _nse_row('CEH14 iterative NSE', _well_row('ceh14')),
     ]
 
     pd.DataFrame(rows).to_csv(output_path, index=False)
@@ -943,7 +1002,7 @@ def export_table3_summary(ok_df: pd.DataFrame, output_path: Path) -> None:
 if __name__ == '__main__':
     make_all_dirs()
     print('Starting SSM08 Model Showdown Pipeline...')
-    print(f'  Displacement formulation: DRAINAGE_DATUM = {DRAINAGE_DATUM} m')
+    print(f'  Displacement formulation: DRAINAGE_DATUM = {DRAINAGE_DATUM} m; SSM = Model B (free intercept)')
     print(f'  Rainfall lag: {HEADLINE_LAG} month(s)')
 
     wells_clean = pd.read_csv(WELLS_PATH, index_col=0, parse_dates=True)
@@ -972,9 +1031,10 @@ if __name__ == '__main__':
     perf_df = pd.DataFrame(all_rows).sort_values('Well_Normalized').reset_index(drop=True)
     ok_df = perf_df[perf_df['Status'] == 'ok'].copy().reset_index(drop=True)
 
-    # CSV 2: Model A (the state-space model at DRAINAGE_DATUM, no intercept) performance and its
-    # improvement over the TLM. (Until 1.9.0 this comment called it "Model B (State-Space)" and the TLM
-    # "Model A", an older naming; Model A and Model B are the no-intercept and free-intercept forms.)
+    # CSV 2: the SSM's performance and its improvement over the TLM. Since 2.0.0 (D-332) the SSM is
+    # Model B (free intercept); Model A (no intercept, DRAINAGE_DATUM) is appended in *_model_a columns.
+    # (Until 1.9.0 this comment called the SSM "Model B (State-Space)" and the TLM "Model A", an older
+    # naming; Model A and Model B are the no-intercept and free-intercept forms.)
     model_stats_df = ok_df[
         [
             'Well',
@@ -1002,6 +1062,18 @@ if __name__ == '__main__':
             'pvalue_beta_2_StateSpace',
             'pvalue_beta_3_StateSpace',
             'R2_StateSpace_fit',
+            # 2.0.0 (D-332): Model B's intercept, then Model A, appended
+            'Alpha_StateSpace',
+            'Beta_3_bound_binds_ModelB',
+            'OneStep_R2_StateSpace_model_a',
+            'Iterative_R2_StateSpace_model_a',
+            'Iterative_NSE_StateSpace_model_a',
+            'Iterative_NSE_Improvement_model_a',
+            'Beta_P_StateSpace_model_a',
+            'Beta_PET_StateSpace_model_a',
+            'Beta_hdisp_StateSpace_model_a',
+            'pvalue_beta_3_StateSpace_model_a',
+            'R2_StateSpace_fit_model_a',
         ]
     ].copy()
     stats_csv = INT_LCSC_MODEL_STATS
@@ -1014,9 +1086,9 @@ if __name__ == '__main__':
 
     # Generate detailed dual-panel plots for selected manuscript wells
 
-    # CEH6 dual-panel showdown: TLM vs SSM
-    # CEH6 chosen as showcase: TLM drifts to NSE = -1.885 while SSM holds at +0.674,
-    # the second-largest iterative NSE improvement on site (Δ = +2.559; CEH27 largest at +2.865).
+    # CEH6 dual-panel showdown: TLM vs SSM (Model B since 2.0.0, D-332)
+    # CEH6 chosen as showcase (under Model A, 2026-09-03: TLM drifted to NSE = -1.885 while the SSM held
+    # at +0.674); its current values are the "CEH6 iterative NSE" row of 08_lcsc_04.
     _, ceh6_payload = compute_showdown_metrics('ceh6', wells_clean, climate)
     if ceh6_payload is not None:
         showdown_path = OUT_08_SHOWDOWN
@@ -1069,7 +1141,7 @@ if __name__ == '__main__':
         plot_metric_map(
             map_df,
             value_col='Iterative_R2_Improvement',
-            title='Structural Memory: Iterative R² Improvement (State-Space Gain)',
+            title='Structural Memory: Iterative R² Improvement (State-Space Gain, Model B)',
             output_path=improvement_map_path,
             cmap='RdYlBu',
             vmin=r2_vmin,
@@ -1081,7 +1153,7 @@ if __name__ == '__main__':
         plot_metric_map(
             map_df,
             value_col='Iterative_NSE_Improvement',
-            title='Water Balance Residuals: Iterative NSE Improvement (Anomaly Detection)',
+            title='Water Balance Residuals: Iterative NSE Improvement, Model B (Anomaly Detection)',
             output_path=nse_anomaly_map_path,
             cmap='plasma',
             vmin=0.0,

@@ -44,7 +44,10 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.127.0"  # Hollingham (2026) - 2026-11-12. MODEL_B_BETA3_MIN (D-332, J-9 phase 2): the lower bound
+__version__ = "1.128.0"  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). D333_WITHDRAWN_NOTE and
+#   D333_WITHDRAWN_STATUS: the note and status Scripts 09b, 09d, 19 and 21 attach to the withdrawn beta-multiplier
+#   scenarios (pending T-209). Additive.
+# 1.127.0  # Hollingham (2026) - 2026-11-12. MODEL_B_BETA3_MIN (D-332, J-9 phase 2): the lower bound
 #   on Model B's β₃. Additive; no existing value moves.
 # 1.126.0  # Hollingham (2026) - 2026-11-05. WB_* (Script 55 1.0.0, the water-balance residual
 #   analysis; spec NRG_spec_water_balance_diagnostic_2026-11-04, D1-D11 signed off). Additive; no existing value moves.
@@ -956,6 +959,15 @@ THINNING_FRACTION = 0.5
 # cluster's equilibrium sits near its own mean depth, so the swap carries position and topography as well as
 # canopy. The scenarios themselves stay anchored to the felled well (D-239).
 END_STATE_OPEN_DUNE_COUNTERPART = {4: 2, 5: 3}   # forest cluster -> open-dune cluster
+
+# D-333 (Martin 2026-11-12): the clearfell/thinning scenarios built from a beta_2 multiplier of single-well era
+# refits (clearfell_common.load_clearfell_impact_b2_multiplier / load_clearfell_b2_multiplier) and the 09b
+# delta-beta_3 scrape bars are WITHDRAWN pending their rebuild on the observed BACI step (task T-209). Their values
+# are unchanged; Scripts 09b, 09d, 19 and 21 append D333_WITHDRAWN_NOTE to the note of every report-number key
+# built from them and write D333_WITHDRAWN_STATUS in the `status` column of their scenario CSV rows.
+D333_WITHDRAWN_NOTE   = (" — WITHDRAWN (D-333): built from a beta multiplier of single-well era refits, "
+                         "inside its noise; pending T-209")
+D333_WITHDRAWN_STATUS = "withdrawn (D-333)"
 
 # Shielding test (T-97, D-239; Martin 2026-10-04: "the shielding effect of the forest in preventing the drying of
 # the surface"): Script 10e splits the draw coefficient into canopy-on and canopy-off months before and after the

@@ -62,7 +62,10 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's betas are Model B since
+#   Script 03 1.31.0, so amp_vs_beta{2,3}_{r,p,n} now calibrate against Model B (notes say so). Model A's calibration
+#   is kept as the sensitivity: amp_vs_beta{2,3}_{r,p,n}_model_a, against master's *_model_a columns, same exclusions.
+# 1.4.0
 # 1.4.0  # Hollingham (2026) - 2026-09-28. T-91: added report-number emits (no
 #   analysis change) - validation_cotemporal_vs_matched_{r,n,bias,max_dev},
 #   written to 35_report_numbers.csv so the Methods Supplement S.20.3 sentence
@@ -124,7 +127,9 @@ def spring_year_table(levels):
 # Co-temporal amplification + CI  (compute lives in utils.envelope_metric — single source)
 # =================================================================================
 def attach_cluster_loc_beta(df, loc, master, membership):
-    df = df.merge(master[["key", "Cluster", "beta_2_atmospheric_draw", "beta_3_drainage"]],
+    # 1.5.0 (D-332): master's unsuffixed betas are Model B; Model A's ride along for the _model_a calibration keys
+    _a = [c for c in ("beta_2_atmospheric_draw_model_a", "beta_3_drainage_model_a") if c in master.columns]
+    df = df.merge(master[["key", "Cluster", "beta_2_atmospheric_draw", "beta_3_drainage"] + _a],
                   on="key", how="left")
     if membership is not None:
         bm = membership.set_index("key")["Best_Match_Cluster"].to_dict()
@@ -281,6 +286,16 @@ def main() -> int:
             r, p = pearsonr(s.amp_coefficient, s[b])
             calib[lab] = (r, p, len(s))
             step(f"amp vs {lab}: r={r:+.2f} (p={p:.3f}, n={len(s)}; SSM-unreliable dropped)")
+    # 1.5.0 (D-332): the same calibration against Model A's betas (03_master_data *_model_a), the sensitivity
+    calib_a = {}
+    for b, lab in [("beta_2_atmospheric_draw_model_a", "β₂"), ("beta_3_drainage_model_a", "β₃")]:
+        if b not in df.columns:
+            continue
+        s = df[~df.key.isin(calib_exclude)].dropna(subset=[b, "amp_coefficient"])
+        if len(s) > 3:
+            r, p = pearsonr(s.amp_coefficient, s[b])
+            calib_a[lab] = (r, p, len(s))
+            step(f"amp vs Model A {lab}: r={r:+.2f} (p={p:.3f}, n={len(s)}; sensitivity)")
     if calib_exclude:
         step(f"calibration drops SSM-unreliable wells (β untrustworthy): {sorted(calib_exclude)}")
 
@@ -338,10 +353,17 @@ def main() -> int:
         if lab not in calib:
             continue
         r, p, n = calib[lab]
-        _n = f"Pearson, amp_coefficient vs SSM {lab} (03_master_data), n={n}; SSM-unreliable dropped: {_excl}"
+        _n = f"Pearson, amp_coefficient vs SSM {lab} (Model B, 03_master_data), n={n}; SSM-unreliable dropped: {_excl}"
         rpt.add(f"amp_vs_{key}_r", r, unit="", note=_n)
         rpt.add(f"amp_vs_{key}_p", p, unit="", note=_n)
         rpt.add(f"amp_vs_{key}_n", n, unit="wells", note=_n)
+        if lab in calib_a:                                   # 1.5.0 (D-332): Model A sensitivity
+            ra, pa, na = calib_a[lab]
+            _na = (f"Pearson, amp_coefficient vs Model A {lab} (03_master_data *_model_a), n={na}; "
+                   f"SSM-unreliable dropped: {_excl}")
+            rpt.add(f"amp_vs_{key}_r_model_a", ra, unit="", note=_na)
+            rpt.add(f"amp_vs_{key}_p_model_a", pa, unit="", note=_na)
+            rpt.add(f"amp_vs_{key}_n_model_a", na, unit="wells", note=_na)
     rpt.save(OUT_REPORT); saved(OUT_REPORT)
     hr()
     done(SCRIPT_ID)

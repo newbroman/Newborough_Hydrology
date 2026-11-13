@@ -79,7 +79,14 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.12.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.13.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 writes Model B in
+#   03_03's headline columns, so the Model A bracket now reads the *_model_a columns (beta_*_model_a, LCSC_percent_model_a;
+#   values unchanged) and Model B, the headline, is read from 03_03 itself (alpha, beta_*, implied_datum_m) in place of
+#   03_16 (the same centroid fit): its drainage is beta_3 * (h + implied_datum_m) = beta_3 * (DRAINAGE_DATUM + h) - alpha,
+#   never B's beta_3 at the fixed datum. A centroid whose implied base is not below ground is left out of the B
+#   partition and counted (water_balance_n_clusters_model_b_excluded_datum). The closure keys water_balance_residual_pct and
+#   water_balance_closure_max_pct now carry Model B's closure; Model A's moves to *_model_a.
+# 1.12.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.12.0  # Hollingham (2026) - 2026-10-27 (D-283; Martin 02:37 "lets adopt it, but we also need the c4 and
 #   c5 ET/ drainage partition estimates", 02:41 "proceed"). The headline ET/drainage partition is Model B's (03_16 centroid:
 #   drainage = beta_3_B * h_disp - alpha_B, the same at every datum); the range spans Model A, Model B, the depth-dependent
@@ -250,8 +257,15 @@ def load_data():
     df["PET"]  = df["PET_mm"] / 1000.0
 
     mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
-    betas = mech.set_index("Cluster")[["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage",
-                                        "LCSC_percent", "drainage_datum_m"]]
+    # 1.13.0 (D-332): Script 03 1.31.0 writes Model B in the headline columns; the Model A bracket reads
+    # Model A's own columns, renamed to the names this script uses internally for the A partition.
+    _a = {"beta_1_recharge_model_a": "beta_1_recharge", "beta_2_atmospheric_draw_model_a": "beta_2_atmospheric_draw",
+          "beta_3_drainage_model_a": "beta_3_drainage", "LCSC_percent_model_a": "LCSC_percent"}
+    missing = [c for c in _a if c not in mech.columns]
+    if missing:
+        error(f"{OUT_03_MECHANISTIC_TABLE.name} lacks the Model A columns {missing}: re-run Script 03 (>= 1.31.0)")
+        sys.exit(1)
+    betas = mech.set_index("Cluster")[list(_a) + ["drainage_datum_m"]].rename(columns=_a)
 
     # Verify datum consistency
     file_datum = mech["drainage_datum_m"].iloc[0]
@@ -262,16 +276,29 @@ def load_data():
 
 
 def load_model_b() -> pd.DataFrame:
-    """1.12.0 (D-283): Model B, the free-intercept form, fitted to each cluster centroid on the full
-    record by Script 03 (03_16_model_b_persistence.csv, level = centroid): alpha_B, beta_1_B..beta_3_B.
-    Its loss partition is the headline (D-283); empty frame if the file is absent."""
-    if not OUT_03_MODEL_B_PERSISTENCE.exists():
-        warn(f"{OUT_03_MODEL_B_PERSISTENCE.name} not found: no Model B partition, the headline falls back to Model A")
-        return pd.DataFrame()
-    mb = pd.read_csv(OUT_03_MODEL_B_PERSISTENCE)
-    mb = mb[mb["level"] == "centroid"].copy()
-    mb["Cluster"] = pd.to_numeric(mb["Cluster"], errors="coerce").astype(int)
-    return mb.set_index("Cluster")[["alpha_B", "beta_1_B", "beta_2_B", "beta_3_B", "pvalue_beta_3_B"]]
+    """Model B, the free-intercept form, fitted to each cluster centroid on the full record (D-283, D-332).
+
+    1.13.0 (D-332): read from Script 03's coefficient table (03_03, headline columns: alpha, beta_1..beta_3,
+    implied_datum_m), which since Script 03 1.31.0 is Model B; until 1.12.1 from 03_16 (the same fit).
+    Kept under this script's *_B names. A centroid whose implied base is not below ground
+    (implied_datum_m <= 0) is dropped here and counted by the caller, as Scripts 39 and 44 do."""
+    mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
+    need = ["alpha", "beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "pvalue_beta_3",
+            "implied_datum_m"]
+    missing = [c for c in need if c not in mech.columns]
+    if missing:
+        error(f"{OUT_03_MECHANISTIC_TABLE.name} lacks the Model B columns {missing}: re-run Script 03 (>= 1.31.0)")
+        sys.exit(1)
+    mb = mech.set_index("Cluster")[need].rename(columns={
+        "alpha": "alpha_B", "beta_1_recharge": "beta_1_B", "beta_2_atmospheric_draw": "beta_2_B",
+        "beta_3_drainage": "beta_3_B", "pvalue_beta_3": "pvalue_beta_3_B", "implied_datum_m": "implied_datum_B"})
+    mb.index = mb.index.astype(int)
+    out = mb[~(mb["implied_datum_B"] > 0)]
+    for cid, r in out.iterrows():
+        warn(f"C{cid}: Model B implied drainage base {r['implied_datum_B']:+.2f} m is not below ground; "
+             f"left out of the Model B partition (D-332)")
+    mb.attrs["excluded_datum"] = {int(c): float(v) for c, v in out["implied_datum_B"].items()}
+    return mb[mb["implied_datum_B"] > 0]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -327,17 +354,22 @@ def compute_headspace(df, betas, mb=None):
         if mb is not None and len(mb) and cid in mb.index:
             m = mb.loc[cid]
             rB, eB = m["beta_1_B"] * P_m, m["beta_2_B"] * PET_m
-            dB = m["beta_3_B"] * h_disp_mean - m["alpha_B"]
+            # 1.13.0 (D-332): at Model B's own implied base, beta_3_B * (h + implied_datum_B), which is
+            # beta_3_B * (DRAINAGE_DATUM + h) - alpha_B exactly; never B's beta_3 at the fixed datum alone.
+            h_disp_B = h_depth_mean + m["implied_datum_B"]
+            dB = m["beta_3_B"] * h_disp_B
             lB = eB + dB
             bpart = dict(recharge_B=rB, et_draw_B=eB, drainage_B=dB, total_loss_B=lB, residual_B=rB - lB,
                          drain_pct_B=100.0 * dB / lB if lB > 0 else np.nan,
                          et_pct_B=100.0 * eB / lB if lB > 0 else np.nan,
                          b1_B=m["beta_1_B"], b2_B=m["beta_2_B"], b3_B=m["beta_3_B"], alpha_B=m["alpha_B"],
-                         p_b3_B=m["pvalue_beta_3_B"])
+                         p_b3_B=m["pvalue_beta_3_B"], implied_datum_B=m["implied_datum_B"],
+                         h_disp_mean_B=h_disp_B)
         else:
             bpart = dict(recharge_B=np.nan, et_draw_B=np.nan, drainage_B=np.nan, total_loss_B=np.nan,
                          residual_B=np.nan, drain_pct_B=np.nan, et_pct_B=np.nan, b1_B=np.nan, b2_B=np.nan,
-                         b3_B=np.nan, alpha_B=np.nan, p_b3_B=np.nan)
+                         b3_B=np.nan, alpha_B=np.nan, p_b3_B=np.nan, implied_datum_B=np.nan,
+                         h_disp_mean_B=np.nan)
 
         summary[cid] = dict(**bpart,
             lcsc=lcsc, b1=b1, b2=b2, b3=b3,
@@ -426,6 +458,8 @@ def save_headspace_table(summary, path):
             "beta_2_B": s["b2_B"],
             "beta_3_B": s["b3_B"],
             "pvalue_beta_3_B": s["p_b3_B"],
+            "implied_datum_B_m": s["implied_datum_B"],     # 1.13.0 (D-332)
+            "h_disp_mean_B_m": s["h_disp_mean_B"],
             "Recharge_B_m_month": s["recharge_B"],
             "ET_draw_B_m_month": s["et_draw_B"],
             "Drainage_B_m_month": s["drainage_B"],
@@ -740,7 +774,9 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     ax1.text(0.5, -0.17,
              f"All clusters receive near-identical forcing: P̄ = {min(P_all):.1f}–{max(P_all):.1f} mm/month, "
              f"PET̄ = {min(PET_all):.1f}–{max(PET_all):.1f} mm/month. "
-             f"Residuals < {max_resid_pct:.1f}% of losses. Datum = {datum:.1f} m b.g.s.",
+             f"Residuals < {max_resid_pct:.1f}% of losses. "
+             + ("Drainage to each cluster's implied base, DRAINAGE_DATUM − α/β₃."
+                .replace("DRAINAGE_DATUM", f"{datum:.1f} m") if _B else f"Datum = {datum:.1f} m b.g.s."),
              transform=ax1.transAxes, ha='center', va='top', fontsize=9,
              color='#666', style='italic')
 
@@ -900,19 +936,32 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def save_report_numbers(summary, path, recession=None, ddp=None):
+def save_report_numbers(summary, path, recession=None, ddp=None, excluded_datum=None):
     """The closure of the head-space balance: |residual| as a percentage of total
     losses, per cluster, and the largest of them — the "closes to within N%" the
     documents quote."""
     rr = ReportNumbers()
-    worst = None
+    # 1.13.0 (D-332): the closure quoted is Model B's (the headline partition); Model A's is the *_model_a
+    # sensitivity. Until 1.12.1 both keys carried Model A's closure.
+    worst, worst_a = None, None
     for cid in sorted(summary.keys()):
         s = summary[cid]
-        pct = abs(s["residual"]) / s["total_loss"] * 100.0
+        pct_a = abs(s["residual"]) / s["total_loss"] * 100.0
+        pct = (abs(s["residual_B"]) / s["total_loss_B"] * 100.0
+               if pd.notna(s["total_loss_B"]) and s["total_loss_B"] > 0 else np.nan)
         rr.add("water_balance_residual_pct", pct, unit="%", well=_CFG_LABELS[cid],
-               note="|Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv")
-        if worst is None or pct > worst[1]:
+               note="Model B (D-332): |Residual_B_m_month| / (ET_draw_B + Drainage_B) of 16_water_bal_table.csv")
+        rr.add("water_balance_residual_pct_model_a", pct_a, unit="%", well=_CFG_LABELS[cid],
+               note="Model A at DRAINAGE_DATUM: |Residual_m_month| / Total_loss_m_month of 16_water_bal_table.csv")
+        if pd.notna(pct) and (worst is None or pct > worst[1]):
             worst = (_CFG_LABELS[cid], pct)
+        if worst_a is None or pct_a > worst_a[1]:
+            worst_a = (_CFG_LABELS[cid], pct_a)
+    excl = excluded_datum or {}
+    rr.add("water_balance_n_clusters_model_b_excluded_datum", len(excl), unit="clusters",
+           note="centroids left out of the Model B partition: implied base DRAINAGE_DATUM - alpha/beta_3 not below "
+                "ground (D-332)" + (" (" + ", ".join(f"C{c} {v:+.2f} m" for c, v in sorted(excl.items())) + ")"
+                                    if excl else ""))
     # The climate forcing each cluster's balance is computed on (T-84): the
     # figure footnote and its caption quote it.
     P_mm = {cid: summary[cid]["P_m"] * 1000.0 for cid in summary}
@@ -939,9 +988,11 @@ def save_report_numbers(summary, path, recession=None, ddp=None):
     rr.add("water_balance_P_mm_yr_mean", float(np.mean(P_yr)), unit="mm/yr",
            note="mean across clusters of annual rainfall (Table 7 P_mm_yr): the approximate site "
                 "annual rainfall the report quotes")
-    rr.add("water_balance_closure_max_pct", worst[1], unit="%",
-           note=f"largest per-cluster residual as a share of total losses ({worst[0]}): "
-                f"the balance closes to within this at every cluster")
+    rr.add("water_balance_closure_max_pct", worst[1] if worst else np.nan, unit="%",
+           note=f"Model B (D-332): largest per-cluster residual as a share of total losses "
+                f"({worst[0] if worst else 'none'}): the balance closes to within this at every cluster")
+    rr.add("water_balance_closure_max_pct_model_a", worst_a[1], unit="%",
+           note=f"Model A at DRAINAGE_DATUM: largest per-cluster residual as a share of total losses ({worst_a[0]})")
     # 1.12.0 (D-283): the partition as quoted. Model B's drainage share of the modelled loss is the
     # headline; the range spans Model A, Model B, the depth-dependent model and the recession ratio.
     # Volumes are on the rain left after interception (FOREST_INTERCEPTION of P at C4, C5), as Table 7.
@@ -996,7 +1047,7 @@ def main():
     # ── Headspace balance ──
     summary = compute_headspace(df, betas, mb)
 
-    print("\n  HEAD-SPACE WATER BALANCE (m/month)")
+    print("\n  HEAD-SPACE WATER BALANCE (m/month), Model A at DRAINAGE_DATUM (the bracket)")
     print(f"  {'Cluster':<22} {'Rech':>8} {'ET':>8} {'Drain':>8} "
           f"{'Losses':>8} {'Resid':>9} {'D%':>5} {'ET%':>5}")
     for cid in sorted(summary.keys()):
@@ -1005,6 +1056,13 @@ def main():
               f"{s['recharge']:>8.4f} {s['et_draw']:>8.4f} {s['drainage']:>8.4f} "
               f"{s['total_loss']:>8.4f} {s['residual']:>+9.4f} "
               f"{s['drain_pct']:>4.0f}% {s['et_pct']:>4.0f}%")
+    print("\n  HEAD-SPACE WATER BALANCE (m/month), Model B at each implied base (the headline, D-332)")
+    for cid in sorted(summary.keys()):
+        s = summary[cid]
+        print(f"  {_CFG_LABELS[cid]:<22} "
+              f"{s['recharge_B']:>8.4f} {s['et_draw_B']:>8.4f} {s['drainage_B']:>8.4f} "
+              f"{s['total_loss_B']:>8.4f} {s['residual_B']:>+9.4f} "
+              f"{s['drain_pct_B']:>4.0f}% {s['et_pct_B']:>4.0f}%")
 
     save_headspace_table(summary, OUT_16_TABLE)
 
@@ -1026,7 +1084,8 @@ def main():
     save_volumetric_table(summary, recession, OUT_16_VOL_TABLE, site_P_m, site_PET_m, ddp=ddp)
     datum_range = load_datum_range()
     save_recession_table(summary, recession, OUT_16_REC_TABLE, datum_range, ddp=ddp)
-    save_report_numbers(summary, OUT_16_REPORT_NUMBERS, recession=recession, ddp=ddp)
+    save_report_numbers(summary, OUT_16_REPORT_NUMBERS, recession=recession, ddp=ddp,
+                        excluded_datum=mb.attrs.get("excluded_datum", {}))
 
     # ── Figure 8 ──
     # Manuscript version

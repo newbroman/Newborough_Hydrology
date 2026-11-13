@@ -10,7 +10,8 @@ WHAT THIS IS
   al., 2019): the response time is -1/ln(1 - beta_3) months, the steady gain
   beta_1/beta_3, the evaporation factor -beta_2/beta_1, and the fitted constant is
   the level at which the fitted drainage is zero, -(z0 - alpha_B/beta_3). The
-  published form, Model A (no intercept, drainage evaluated at DRAINAGE_DATUM), has
+  tested alternative, Model A (no intercept, drainage evaluated at DRAINAGE_DATUM; the published form
+  until D-332), has
   no Pastas counterpart: its beta_3 carries the datum (D-007, D-109).
 
   This step fits Pastas at each reference well on the same monthly record — once
@@ -28,10 +29,11 @@ WHAT THIS IS
 INPUTS — all committed
   01_wells_all.csv ................. monthly levels, m relative to ground
   01_climate.csv ................... monthly P_m and PET, m/month
-  03_master_data.csv ............... the 66 reference wells: cluster, Model A beta
+  03_master_data.csv ............... the 66 reference wells: cluster, Model A beta (its *_model_a
+                                     columns; the unsuffixed ones are Model B since Script 03 1.31.0)
   03_16_model_b_persistence.csv .... the per-well Model B rows (alpha_B, beta_i_B) and
                                      their window; the centroid rows for the synthetic wells
-  03_15_per_well_window_sensitivity.csv  Model A per well on the full record
+  03_15_per_well_window_sensitivity.csv  Model A per well on the full record (*_model_a columns)
 
 OUTPUTS — outputs/48_pastas_crosscheck/
   48_01_pastas_per_well.csv ........ per well: Pastas (no noise / AR1 noise) gain,
@@ -59,7 +61,12 @@ USAGE
   python3 src/48_pastas_crosscheck.py --no-fig
 """
 from __future__ import annotations
-__version__ = "1.8.0"  # Hollingham (2026) - 2026-10-27 (Martin 02:47 "Add the 3 spearman p values"). modelab_rho_datum_mhw_vs_*:
+__version__ = "1.9.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 writes Model B in the
+#   unsuffixed coefficient columns of 03_master_data and 03_15, and Model A beside them as *_model_a. The ssmA_*
+#   columns of 48_01 (and the ssmA rows of 48_02) read those *_model_a columns (beta_*_model_a, Model_R2_model_a;
+#   03_15 R2_model_a), so Model A stays Model A; ssmB is unchanged (03_16 and the full-record fit here). 48_01's
+#   schema is unchanged.
+# 1.8.0  # Hollingham (2026) - 2026-10-27 (Martin 02:47 "Add the 3 spearman p values"). modelab_rho_datum_mhw_vs_*:
 #   Spearman rho (and p) of each well's depth to MHW against beta_3 at the MHW datum, beta_3 at the network datum and the
 #   model-free e-folding time, so Paper M §5.5 can show the anchored datum carries the topography into beta_3. Additive.
 # 1.7.0  # Hollingham (2026) - 2026-10-12 (D-259; Martin 23:19 "lets go ahead"). The drainage share
@@ -271,11 +278,12 @@ def _betas_to_quantities(prefix: str, b1: float, b2: float, b3: float, base: flo
 
 
 def ssm_counterparts_window(master_row: pd.Series, mb_row: pd.Series | None) -> dict:
-    """Comparison-window basis: Model A from 03_master_data, Model B from 03_16."""
-    out = _betas_to_quantities("ssmA", float(master_row["beta_1_recharge"]),
-                               float(master_row["beta_2_atmospheric_draw"]),
-                               float(master_row["beta_3_drainage"]), -float(DRAINAGE_DATUM),
-                               float(master_row.get("Model_R2", np.nan)))
+    """Comparison-window basis: Model A from 03_master_data's *_model_a columns (1.9.0: the unsuffixed
+    columns carry Model B since Script 03 1.31.0, D-332), Model B from 03_16."""
+    out = _betas_to_quantities("ssmA", float(master_row["beta_1_recharge_model_a"]),
+                               float(master_row["beta_2_atmospheric_draw_model_a"]),
+                               float(master_row["beta_3_drainage_model_a"]), -float(DRAINAGE_DATUM),
+                               float(master_row.get("Model_R2_model_a", np.nan)))
     if mb_row is None:
         out.update({k: np.nan for k in _betas_to_quantities("ssmB", 1, 1, 0.5, 0, 0)})
         return out
@@ -288,16 +296,17 @@ def ssm_counterparts_window(master_row: pd.Series, mb_row: pd.Series | None) -> 
 
 
 def ssm_counterparts_full(ws_row: pd.Series | None, head_full: pd.Series, cl: pd.DataFrame) -> dict:
-    """Full-record basis: Model A from 03_15 (basis == full_record), Model B fitted
+    """Full-record basis: Model A from 03_15 (basis == full_record; its *_model_a columns since 1.9.0,
+    D-332 - the unsuffixed ones are Model B), Model B fitted
     here on the full record with the shared fit_ssm_intercept (Script 03 emits Model B
     per well on the comparison window only)."""
     if ws_row is None:
         out = {k: np.nan for k in _betas_to_quantities("ssmA", 1, 1, 0.5, 0, 0)}
     else:
-        out = _betas_to_quantities("ssmA", float(ws_row["beta_1_recharge"]),
-                                   float(ws_row["beta_2_atmospheric_draw"]),
-                                   float(ws_row["beta_3_drainage"]), -float(DRAINAGE_DATUM),
-                                   float(ws_row["R2"]))
+        out = _betas_to_quantities("ssmA", float(ws_row["beta_1_recharge_model_a"]),
+                                   float(ws_row["beta_2_atmospheric_draw_model_a"]),
+                                   float(ws_row["beta_3_drainage_model_a"]), -float(DRAINAGE_DATUM),
+                                   float(ws_row["R2_model_a"]))
     fb = fit_ssm_intercept(head_full, cl, lag=HEADLINE_LAG, window=None)
     if fb is None:
         out.update({k: np.nan for k in _betas_to_quantities("ssmB", 1, 1, 0.5, 0, 0)})

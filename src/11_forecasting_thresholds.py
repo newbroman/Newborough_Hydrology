@@ -27,10 +27,12 @@ Purpose:
         summer minimum to each cluster's historical peak-of-record month, with
         rainfall scaled by a multiplier λ and PET held at RAF Valley monthly
         climatology. Solves the resulting closed form for λ:
-            λ = (h_target - h_0·αⁿ + β₂·S_E + D·(1-αⁿ)) / (β₁·S_P)
+            λ = (h_target - h_0·ρⁿ + β₂·S_E + z·(1-ρⁿ)) / (β₁·S_P)
             P_flood = λ · Σ P̄ᵢ
-        where α = 1 - β₃, D is the drainage datum, S_P and S_E are the
-        α^(n-1-i)-weighted climatology sums, and n is the cluster-specific
+        where ρ = 1 - β₃ (the persistence), z = D - α/β₃ is the datum Model B
+        drains to (Script 03's implied_datum_m; D-332: Model B, with intercept
+        α, is exactly the fixed-datum form at z), S_P and S_E are the
+        ρ^(n-1-i)-weighted climatology sums, and n is the cluster-specific
         horizon length.
 
         Supersedes the earlier single-step formulation
@@ -99,7 +101,14 @@ Cluster scope (k=5 partition):
 ====================================================================================
 """
 
-__version__ = "1.4.0"  # Hollingham (2026) - 2026-09-28. D-207 (Martin: "oct to Apr"): the Section 5
+__version__ = "1.5.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B thresholds: 03_03 now
+#   carries Model B (free intercept alpha), so Section 3 runs pflood_lambda, the single-step P_flood_old and the
+#   printed/LaTeX equations at each cluster's implied datum z = DRAINAGE_DATUM - alpha/beta_3 (03_03 implied_datum_m),
+#   where Model B is exactly Model A; z replaces D in every formula. A cluster whose z is not below ground is left out
+#   of Section 3 and counted (none today). Table 8 gains alpha_intercept_m_month, implied_datum_m and
+#   beta_3_bound_binds; its `alpha` column stays the persistence 1 - beta_3 (printed now as rho). Moves every P_flood,
+#   lambda, slope_A and intercept_B.
+# 1.4.0  # Hollingham (2026) - 2026-09-28. D-207 (Martin: "oct to Apr"): the Section 5
 #   spring MSL transfer function's winter-to-spring climate window is October y-1 to April y
 #   (WINTER_TO_SPRING_MONTHS), not to May: spring closes with the reading dated 1 May (the bucketed
 #   April level), so May climate fell after the response. Years are grouped on
@@ -381,8 +390,11 @@ def run_state_space(df: pd.DataFrame) -> dict:
     Load cluster-level SSM coefficients from Script 03's mechanistic
     coefficients table (03_03_cluster_mechanistic_coefficients.csv).
 
-    Script 03 fits the SSM to each cluster centroid hydrograph:
-        dh_t = b1*P_t - b2*PET_t - b3*h_{t-1}
+    Script 03 fits the SSM to each cluster centroid hydrograph (Model B,
+    D-332):
+        dh_t = alpha + b1*P_t - b2*PET_t - b3*(D + h_{t-1})
+             = b1*P_t - b2*PET_t - b3*(z + h_{t-1}),   z = D - alpha/b3
+    z is the implied datum (03_03 implied_datum_m), carried as 'datum'.
 
     with rainfall and PET in metres (P_m, PET_m) and head in metres,
     so b1 and b2 are in m/m (dimensionless).  This function converts
@@ -398,10 +410,14 @@ def run_state_space(df: pd.DataFrame) -> dict:
     needed.
 
     Returns:
-        results_dict: {cluster_name: {beta1, beta2, beta3, r2, n}}
-            b1, b2 in m/mm;  b3 dimensionless (positive).
+        results_dict: {cluster_name: {beta1, beta2, beta3, alpha_B, datum,
+                                      bound_binds, r2, n}}
+            b1, b2 in m/mm;  b3 dimensionless (positive); alpha_B m/month;
+            datum = z, m below ground.  A cluster whose z is not below
+            ground is returned with datum_ok False (left out of Section 3).
     """
-    print(sep("SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  (dh = b1*P - b2*PET - b3*h_prev)"))
+    print(sep("SECTION 1: MECHANISTIC STATE-SPACE EQUATIONS  "
+              "(Model B: dh = alpha + b1*P - b2*PET - b3*(D + h_prev))"))
     print("  Cluster-centroid SSM coefficients from Script 03")
     print(f"  Source: {OUT_03_MECHANISTIC_TABLE.name}\n")
 
@@ -450,19 +466,37 @@ def run_state_space(df: pd.DataFrame) -> dict:
         pb2 = float(row["pvalue_beta_2"])
         pb3 = float(row["pvalue_beta_3"])
 
+        # 1.5.0 (D-332): Model B's intercept and the datum it implies,
+        # z = DRAINAGE_DATUM - alpha/beta_3 (Script 03 writes it).
+        a_B = float(row["alpha"])
+        z_B = float(row["implied_datum_m"])
+        binds = str(row.get("beta_3_bound_binds", "")).strip().lower() in ("true", "1", "1.0")
+        datum_ok = bool(pd.notna(z_B) and z_B > 0)
+
         label = cluster_labels.get(col, col)
         print(
-            f"  {label}:  dh = ({b1:.6f}*P) - ({b2:.6f}*PET) - ({b3:.4f}*h_prev)"
+            f"  {label}:  dh = {a_B:+.4f} + ({b1:.6f}*P) - ({b2:.6f}*PET) - ({b3:.4f}*({DRAINAGE_DATUM:g} + h_prev))"
             f"   |  R2 = {r2:.3f}   n = {n}"
         )
         print(
+            f"        = ({b1:.6f}*P) - ({b2:.6f}*PET) - ({b3:.4f}*(z + h_prev)),  "
+            f"z = {DRAINAGE_DATUM:g} - alpha/b3 = {z_B:.3f} m below ground"
+            + ("   [beta_3 at the Model B bound]" if binds else "")
+            + ("" if datum_ok else "   [z NOT below ground: left out of Section 3]")
+        )
+        print(
             f"        p-values:  P = {pb1:.4e}   PET = {pb2:.4e}   h_prev = {pb3:.4e}"
+            f"   alpha = {float(row['pvalue_alpha']):.4e}"
         )
 
         results_dict[col] = {
             'beta1': b1,
             'beta2': b2,
             'beta3': b3,
+            'alpha_B': a_B,
+            'datum': z_B,
+            'datum_ok': datum_ok,
+            'bound_binds': binds,
             'r2':    r2,
             'n':     n,
         }
@@ -564,23 +598,26 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
 
     Derivation (see Section 3.6.3 of Hollingham 2026):
 
-        Monthly recurrence (PET retained, displacement formulation):
-            h_t = \u03b1\u00b7h_{t-1} + \u03b2\u2081\u00b7P_t \u2212 \u03b2\u2082\u00b7E_t \u2212 \u03b2\u2083\u00b7D    (\u03b1 = 1 \u2212 \u03b2\u2083, D = drainage datum)
+        Monthly recurrence (Model B, D-332; PET retained):
+            h_t = h_{t-1} + \u03b1_B + \u03b2\u2081\u00b7P_t \u2212 \u03b2\u2082\u00b7E_t \u2212 \u03b2\u2083\u00b7(D + h_{t-1})
+                = \u03c1\u00b7h_{t-1} + \u03b2\u2081\u00b7P_t \u2212 \u03b2\u2082\u00b7E_t \u2212 \u03b2\u2083\u00b7z
+            (\u03c1 = 1 \u2212 \u03b2\u2083, z = D \u2212 \u03b1_B/\u03b2\u2083 = the implied datum, 03_03 implied_datum_m)
 
         With P_t = \u03bb\u00b7P_clim(t) and E_t = E_clim(t), iterating from h_0 over
         n monthly steps yields:
-            h_n = h_0\u00b7\u03b1\u207f + \u03b2\u2081\u00b7\u03bb\u00b7S_P \u2212 \u03b2\u2082\u00b7S_E \u2212 D\u00b7(1\u2212\u03b1\u207f)
+            h_n = h_0\u00b7\u03c1\u207f + \u03b2\u2081\u00b7\u03bb\u00b7S_P \u2212 \u03b2\u2082\u00b7S_E \u2212 z\u00b7(1\u2212\u03c1\u207f)
 
-        where S_P = \u03a3 \u03b1^(n-1-i)\u00b7P_clim(month_i),
-              S_E = \u03a3 \u03b1^(n-1-i)\u00b7E_clim(month_i),
+        where S_P = \u03a3 \u03c1^(n-1-i)\u00b7P_clim(month_i),
+              S_E = \u03a3 \u03c1^(n-1-i)\u00b7E_clim(month_i),
         summed over i = 0 \u2026 n\u22121 across the horizon.
 
         Solving h_n = h_target for \u03bb:
-            \u03bb = (h_target \u2212 h_0\u00b7\u03b1\u207f + \u03b2\u2082\u00b7S_E + D\u00b7(1\u2212\u03b1\u207f)) / (\u03b2\u2081\u00b7S_P)
+            \u03bb = (h_target \u2212 h_0\u00b7\u03c1\u207f + \u03b2\u2082\u00b7S_E + z\u00b7(1\u2212\u03c1\u207f)) / (\u03b2\u2081\u00b7S_P)
 
         This is the canonical form implemented by
-        `model_utils.pflood_lambda()`, which Section 3 calls; the \u03b1^(n-1-i)
-        weighting and the +D\u00b7(1\u2212\u03b1\u207f) datum-drain term are both part of it.
+        `model_utils.pflood_lambda()`, which Section 3 calls with
+        drainage_datum = z (its own \u03b1 is this \u03c1); the \u03c1^(n-1-i)
+        weighting and the +z\u00b7(1\u2212\u03c1\u207f) datum-drain term are both part of it.
 
         Cumulative rainfall threshold:
             P_flood = \u03bb \u00b7 \u03a3 P_clim(month_i)
@@ -601,7 +638,9 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
     - h_0 is the cluster long-term mean of the month-of-minimum head.
     - h_target = 0 m (surface flooding; slack-floor threshold).
     - Monthly rainfall scales uniformly by \u03bb; PET held at climatology.
-    - \u03b2\u2083 stored positive after sign-inversion; applied as \u03b1 = 1 \u2212 \u03b2\u2083.
+    - \u03b2\u2083 stored positive after sign-inversion; applied as \u03c1 = 1 \u2212 \u03b2\u2083.
+    - 1.5.0 (D-332): the datum is each cluster's implied datum z; a cluster
+      whose z is not below ground is left out and counted.
     """
     print(sep("SECTION 3: CRITICAL RAINFALL THRESHOLD EQUATIONS  (P_flood - iterated)"))
     print("  Iterated closed form from cluster-level SSM coefficients.")
@@ -624,9 +663,15 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
     H_TARGET = 0.0   # slack floor = ground surface
 
     table8_rows = []
+    excluded_datum = []    # 1.5.0 (D-332): clusters whose implied datum is not below ground
     for cluster in sorted(cluster_labels, key=lambda k: int(k[1:])):
         if cluster not in results_dict:
             print(f"  {cluster_labels[cluster]}: no fitted parameters - skipped.")
+            continue
+        if not results_dict[cluster]['datum_ok']:
+            excluded_datum.append(cluster)
+            print(f"  {cluster_labels[cluster]}: Model B implied datum "
+                  f"{results_dict[cluster]['datum']:+.3f} m is not below ground - left out (D-332).")
             continue
         if cluster not in h0_lookup:
             print(f"  {cluster_labels[cluster]}: no h_0 from regional averages - skipped.")
@@ -635,6 +680,7 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
         b1 = results_dict[cluster]['beta1']
         b2 = results_dict[cluster]['beta2']
         b3 = results_dict[cluster]['beta3']
+        z  = results_dict[cluster]['datum']      # 1.5.0 (D-332): Model B's implied datum
         h_0 = h0_lookup[cluster]
         peak_month = CLUSTER_PEAK_MONTH.get(cluster)
         if peak_month is None:
@@ -648,6 +694,7 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
             h_target=H_TARGET, h_0=h_0,
             b1=b1, b2=b2, b3=b3,
             months=months, P_clim=P_clim, PET_clim=PET_clim,
+            drainage_datum=z,
         )
         n          = pf['n']
         alpha      = pf['alpha']
@@ -664,15 +711,17 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
         # Spreadsheet formula assumes d is entered in cell A2 as positive metres.
         spreadsheet_formula = f"=({slope_A:.2f}*A2+{intercept_B:.2f})"
 
-        # Retained single-step value for continuity (also corrected for displacement)
-        D = DRAINAGE_DATUM
+        # Retained single-step value for continuity (also corrected for displacement),
+        # at Model B's implied datum z (1.5.0, D-332)
         h_gap      = H_TARGET - h_0
-        P_flood_old = (h_gap + b3 * (D + h_0)) / b1
+        P_flood_old = (h_gap + b3 * (z + h_0)) / b1
 
         print(f"  {cluster_labels[cluster]}")
         print(f"    h_0 = {h_0:+.3f} m  (long-term mean of month-of-minimum)")
         print(f"    horizon: {months}  (n = {n} months, peak = month {peak_month})")
-        print(f"    \u03b1 = {alpha:.4f}   \u03b1\u207f = {alpha_n:.4f}")
+        print(f"    z = {z:.3f} m below ground (Model B implied datum, D - \u03b1_B/\u03b2\u2083; "
+              f"\u03b1_B = {results_dict[cluster]['alpha_B']:+.4f} m/month)")
+        print(f"    \u03c1 = 1 - \u03b2\u2083 = {alpha:.4f}   \u03c1\u207f = {alpha_n:.4f}")
         print(f"    S_P = {S_P:7.1f} mm    S_E = {S_E:7.1f} mm")
         print(f"    climatological totals: P = {P_clim_total:.0f} mm   PET = {PET_clim_total:.0f} mm")
         print(f"    \u03bb = {lam:.3f}")
@@ -682,15 +731,17 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
               f"(d in m below ground)")
         print()
 
+        # 1.5.0 (D-332): Model B. z = D - alpha_B/beta_3 is the implied datum and
+        # rho = 1 - beta_3 the persistence (alpha now names Model B's intercept).
         latex_general = (
             r"P_{\mathrm{flood}} = \lambda \sum_{i=1}^{n} \bar P_i, \quad "
-            r"\lambda = \frac{h_{\mathrm{target}} - h_0 \alpha^n + \beta_2 S_E + D(1-\alpha^n)}"
-            r"{\beta_1 S_P}"
+            r"\lambda = \frac{h_{\mathrm{target}} - h_0 \rho^n + \beta_2 S_E + z(1-\rho^n)}"
+            r"{\beta_1 S_P}, \quad z = D - \alpha_B/\beta_3, \; \rho = 1 - \beta_3"
         )
         latex_numerical = (
             rf"P_{{\mathrm{{flood}}}}^{{{cluster}}} = "
             rf"\frac{{{H_TARGET:.2f} - ({h_0:+.3f})({alpha_n:.4f}) + "
-            rf"({b2:.5f})({S_E:.2f}) + {D}(1-{alpha_n:.4f})}}"
+            rf"({b2:.5f})({S_E:.2f}) + {z:.3f}(1-{alpha_n:.4f})}}"
             rf"{{({b1:.5f})({S_P:.2f})}} \cdot {P_clim_total:.0f}"
         )
         latex_collapsed = (
@@ -704,7 +755,10 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
             'beta_1_recharge':   float(b1),
             'beta_2_atmospheric_draw': float(b2),
             'beta_3_drainage':   float(b3),
-            'alpha':             float(alpha),
+            'alpha':             float(alpha),     # persistence rho = 1 - beta_3 (name kept: 11b reads it)
+            'alpha_intercept_m_month': float(results_dict[cluster]['alpha_B']),   # 1.5.0: Model B's alpha
+            'implied_datum_m':   float(z),
+            'beta_3_bound_binds': bool(results_dict[cluster]['bound_binds']),
             'horizon_months':    n,
             'peak_month':        peak_month,
             'months_in_horizon': ','.join(str(m) for m in months),
@@ -725,6 +779,9 @@ def run_critical_flood_thresholds(results_dict: dict, df: pd.DataFrame) -> None:
             'latex_collapsed':   latex_collapsed,
         })
 
+    print(f"Model B (D-332): every threshold is run at the cluster's implied datum z; "
+          f"{len(excluded_datum)} cluster(s) left out with z not below ground"
+          + (f" ({', '.join(excluded_datum)})" if excluded_datum else "") + ".")
     print("Note: P_flood_new supersedes the single-step formulation in prior drafts.")
     print("      See Section 3.6.3 of Hollingham (2026) for derivation.\n")
 

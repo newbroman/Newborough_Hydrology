@@ -76,7 +76,15 @@ Dependencies
     Skeletonisation: not required (map_utils handles DEM/IDW)
 """
 
-__version__ = "1.24.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.25.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B thresholds: 03_03 and
+#   03_master_data carry Model B (free intercept alpha), so every per-well and per-cluster P_flood runs pflood_lambda at
+#   the implied datum z = DRAINAGE_DATUM - alpha/beta_3 (implied_datum_m, per well from 03_master_data, per cluster from
+#   03_03), where Model B is exactly Model A. A well (or fallback cluster) whose z is not below ground is left out of the
+#   P_flood map and counted (pflood_n_wells_model_b_excluded_datum; ceh14 today), and wells whose beta_3 sits at
+#   MODEL_B_BETA3_MIN are kept and counted (pflood_n_wells_model_b_bound_binds). 11b_03_pflood_per_well.csv gains
+#   implied_datum_m. The forecaster bundle's cluster_coeffs gain alpha and implied_datum_m (the page's wet-area recurrence
+#   must run at them; drainage_datum stays DRAINAGE_DATUM for the template). Moves every P_flood value and count.
+# 1.24.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.24.0  # Hollingham (2026) - 2026-11-02 (D-297; Martin 2026-11-02 18:11 "amendment as above  keep the
 #   recoverable bands"). The summer- and winter-maxima maps label their class edges as the DEPTH of each Curreli et al.
 #   (2013) community mean ("0.61 m: SD15b community mean") and the scrape-recoverable edges as a planning assumption;
@@ -565,8 +573,17 @@ def _load_cluster_coefficients() -> dict:
             "b1": float(r["beta_1_recharge"]) / 1000.0,
             "b2": float(r["beta_2_atmospheric_draw"]) / 1000.0,
             "b3": abs(b3_val),
+            # 1.25.0 (D-332): Model B's intercept and the datum it implies (Script 03)
+            "alpha": float(r["alpha"]),
+            "z": float(r["implied_datum_m"]),
+            "bound_binds": _truthy(r.get("beta_3_bound_binds", False)),
         }
     return coeffs
+
+
+def _truthy(v) -> bool:
+    """A CSV boolean (True/'True'/1) as bool; NaN and anything else False."""
+    return str(v).strip().lower() in ("true", "1", "1.0")
 
 
 def _coerce_cluster_int(value) -> int | None:
@@ -610,11 +627,17 @@ def _p_flood_iterated(
     months:   list,
     P_clim:   dict,
     PET_clim: dict,
+    drainage_datum: float,
 ) -> dict:
-    """Thin wrapper around model_utils.pflood_lambda for backward compatibility."""
+    """Thin wrapper around model_utils.pflood_lambda for backward compatibility.
+
+    1.25.0 (D-332): the datum is required - Model B's implied datum
+    z = DRAINAGE_DATUM - alpha/beta_3 of the coefficients passed, never the
+    default DRAINAGE_DATUM (Model B's betas at D without alpha are neither form)."""
     return pflood_lambda(
         h_target=h_target, h_0=h_0, b1=b1, b2=b2, b3=b3,
         months=months, P_clim=P_clim, PET_clim=PET_clim,
+        drainage_datum=drainage_datum,
     )
 
 
@@ -694,6 +717,9 @@ def load_well_data() -> pd.DataFrame:
             "well_b1_mm":  float(mrow["beta_1_recharge"]),          # m/m
             "well_b2_mm":  float(mrow["beta_2_atmospheric_draw"]),  # m/m
             "well_b3":     float(mrow["beta_3_drainage"]),          # dimensionless
+            # 1.25.0 (D-332): Model B's implied datum (m below ground) and the beta_3 bound flag
+            "well_z":      float(mrow["implied_datum_m"]),
+            "well_bound":  _truthy(mrow.get("beta_3_bound_binds", False)),
             "well_r2":     float(mrow["Model_R2"]),
         })
 
@@ -734,6 +760,8 @@ def load_well_data() -> pd.DataFrame:
             "well_b1_mm":  np.nan,
             "well_b2_mm":  np.nan,
             "well_b3":     np.nan,
+            "well_z":      np.nan,
+            "well_bound":  False,
             "well_r2":     np.nan,
         })
 
@@ -1146,9 +1174,14 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
          03_03_cluster_mechanistic_coefficients.csv) — fallback for
          extended-network wells that lack per-well fits.
 
+    Both are Model B (D-332) and run at their own implied datum
+    z = DRAINAGE_DATUM - alpha/beta_3 (implied_datum_m).
+
     Wells are excluded from the map if:
       - their cluster lacks an entry in CLUSTER_PEAK_MONTH,
-      - neither per-well nor cluster-level coefficients are available.
+      - neither per-well nor cluster-level coefficients are available,
+      - the coefficients they would use imply a datum not below ground
+        (z <= 0; counted - Model B has no drainage base there, D-332).
     """
     DIR_11B.mkdir(parents=True, exist_ok=True)
 
@@ -1160,6 +1193,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     unreachable_n = 0
     skipped_cluster = 0
     skipped_beta = 0
+    excluded_datum = []    # 1.25.0 (D-332): wells whose Model B datum is not below ground
     for _, row in track(df.iterrows(), lambda r: r[1]["well"], total=len(df)):
         cluster = int(row["cluster"])
         if cluster not in CLUSTER_PEAK_MONTH:
@@ -1186,15 +1220,24 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
                 print(f"  [WARNING] {row.get('well', '?')}: β₃ = {wb3:.4f} is negative "
                       f"(expected positive under displacement formulation)")
             b3 = abs(wb3)            # dimensionless, ensure positive
+            z  = float(row.get("well_z", np.nan))
+            bound = bool(row.get("well_bound", False))
             coeff_source = "per-well"
         elif cluster in cluster_coeffs:
             cc = cluster_coeffs[cluster]
             b1 = cc["b1"]            # already m/mm from _load_cluster_coefficients
             b2 = cc["b2"]
             b3 = cc["b3"]
+            z  = cc["z"]
+            bound = cc["bound_binds"]
             coeff_source = "cluster"
         else:
             skipped_beta += 1
+            continue
+
+        # 1.25.0 (D-332): Model B runs at its implied datum; none below ground -> left out, counted.
+        if not (np.isfinite(z) and z > 0):
+            excluded_datum.append((row["well"], coeff_source, z, cluster, depth_bg))
             continue
 
         # SSM sign convention: h in metres, negative below surface
@@ -1205,6 +1248,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
             P_FLOOD_H_TARGET_M, h_0,
             b1, b2, b3,
             months, P_clim, PET_clim,
+            drainage_datum=z,
         )
 
         if not np.isfinite(res["P_flood_mm"]) or res["lam"] < 0:
@@ -1227,6 +1271,8 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
             "depth_bg":     depth_bg,
             "h_0_m":        h_0,
             "coeff_source": coeff_source,
+            "implied_datum_m": z,
+            "beta_3_bound_binds": bound,
             "horizon_n":    res["n"],
             "alpha":        res["alpha"],
             "S_P_mm":       res["S_P"],
@@ -1249,7 +1295,10 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
           f"({n_per_well} per-well, {n_cluster} cluster-level; "
           f"{n_reachable} reachable, {unreachable_n} unreachable; "
           f"{skipped_cluster} skipped — no peak month; "
-          f"{skipped_beta} skipped — invalid beta)")
+          f"{skipped_beta} skipped — invalid beta; "
+          f"{len(excluded_datum)} left out — Model B datum not below ground"
+          + (": " + ", ".join(f"{w} ({src}, {zz:+.2f} m)" for w, src, zz, *_ in excluded_datum)
+             if excluded_datum else "") + ")")
 
     # Export per-well CSV for citation in report
     pf.to_csv(OUT_11B_PFLOOD_PER_WELL, index=False)
@@ -1257,7 +1306,12 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
     # 1.21.0 (emit-first): report9's counts over this per-well table, and the assumed
     # scrape benefits behind the recovery limits, written by export_table10_spreadsheet().
     _PFLOOD_REPORT.clear()
-    _forest = pf[pf["cluster"].isin(FOREST_CIDS)]
+    # 1.25.0 (D-332): the forest counts are depth classes, not P_flood values, so a well left
+    # out of the map for its Model B datum (ceh14) still counts in them, as it did before.
+    _depth_pop = pd.concat([pf[["cluster", "depth_bg"]],
+                            pd.DataFrame([{"cluster": c, "depth_bg": d} for *_x, c, d in excluded_datum],
+                                         columns=["cluster", "depth_bg"])], ignore_index=True)
+    _forest = _depth_pop[_depth_pop["cluster"].isin(FOREST_CIDS)]
     _fd = _forest["depth_bg"]
     _forest_lbl = "+".join(f"C{c}" for c in FOREST_CIDS)
     for _par, _val, _unit, _era, _note in (
@@ -1269,7 +1323,7 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
              "planning assumption, not an excavation depth)"),
             ("pflood_n_forest_wells_c4_c5", int(len(_forest)), "wells", _forest_lbl,
              "Number of forest-cluster wells (config FOREST_CIDS) in the per-well P_flood table "
-             "(11b_03_pflood_per_well.csv)"),
+             "(11b_03_pflood_per_well.csv), with any well left out of it for its Model B datum"),
             ("forest_wells_sd16_recoverable_n", int(((_fd >= SD16) & (_fd < SD16_REC)).sum()), "wells",
              _forest_lbl,
              "Forest-cluster wells whose mean summer minimum lies in the SD16-recoverable band "
@@ -1279,7 +1333,17 @@ def plot_pflood_map(df: pd.DataFrame, dpi: int = 300) -> None:
              "ground (beyond scraping recovery); per-well P_flood table"),
             ("pflood_n_wells_mP_gt_1", int(pf["exceeds_mean"].sum()), "wells", f"All (n={len(pf)})",
              "Wells whose P_flood exceeds the recharge-horizon climatological total (m_P above 1, "
-             "unreachable wells included); per-well P_flood table exceeds_mean")):
+             "unreachable wells included); per-well P_flood table exceeds_mean"),
+            # 1.25.0 (D-332): how Model B is defined over the map's wells
+            ("pflood_n_wells_model_b_excluded_datum", int(len(excluded_datum)), "wells", "",
+             "Wells left out of the P_flood map: their Model B implied datum DRAINAGE_DATUM - alpha/beta_3 "
+             "is not below ground"
+             + (" (" + ", ".join(f"{w} {zz:+.2f} m" for w, _src, zz, *_ in excluded_datum) + ")"
+                if excluded_datum else "")),
+            ("pflood_n_wells_model_b_bound_binds", int(pf["beta_3_bound_binds"].astype(bool).sum()), "wells",
+             f"All (n={len(pf)})",
+             "Wells in the P_flood map whose Model B beta_3 sits at the lower bound MODEL_B_BETA3_MIN "
+             "(kept)")):
         _PFLOOD_REPORT.append(dict(parameter=_par, value=_val, unit=_unit, well="",
                                    era=_era, note=_note))
 
@@ -1731,8 +1795,8 @@ def export_table10_spreadsheet() -> None:
         rn.add("pflood_deficit_persistence", float(r["alpha"]) ** _n, unit="",
                well=str(r["Cluster"]),
                era=f"Oct-{peak_abbrev} ({_n} mo)",
-               note=f"alpha^n: share of the starting deficit h_0 surviving the {_n}-month "
-                    "P_flood recharge horizon (alpha = 1 - beta_3); source "
+               note=f"rho^n: share of the starting deficit h_0 surviving the {_n}-month "
+                    "P_flood recharge horizon (rho = 1 - beta_3, Model B; column alpha); source "
                     "outputs/11_forecast_pflood_threshold_equations.csv (alpha, horizon_months)")
     # 1.18.0: report8 SS3.6.3's worked example, from the committed linear form
     # P_flood = slope_A * h_0 + intercept_B (mm) at the configured cluster and
@@ -2042,6 +2106,11 @@ def _build_forecaster_data_bundle() -> dict:
             "b1":                float(r["beta_1_recharge"]) / 1000.0,
             "b2":                float(r["beta_2_atmospheric_draw"]) / 1000.0,
             "b3":                abs(b3_fc),
+            # 1.25.0 (D-332): Model B. The page's recurrence must use this cluster's
+            # implied datum z = DRAINAGE_DATUM - alpha/b3 in place of drainage_datum
+            # (b3*(z + h) = b3*(D + h) - alpha). slope_A / intercept_B are already at z.
+            "alpha":             float(r["alpha"]),
+            "implied_datum_m":   float(r["implied_datum_m"]),
             "peak_month":        int(pfr["peak_month"]),
             "slope_A":           float(pfr["slope_A"]),
             "intercept_B":       float(pfr["intercept_B"]),
@@ -2114,6 +2183,9 @@ def _build_forecaster_data_bundle() -> dict:
     # (model_utils.pflood_lambda, Section 3.6.3). The page now runs that
     # recurrence forward for the wet-area panel, so D has to travel with the
     # coefficients rather than being a constant only Python knows.
+    # 1.25.0 (D-332): the coefficients are Model B, which is this recurrence at each
+    # cluster's cluster_coeffs[c]["implied_datum_m"], not at DRAINAGE_DATUM. The
+    # project datum stays in the bundle for a template that has not yet switched.
     bundle["drainage_datum"] = float(DRAINAGE_DATUM)
 
     # ── The wet-area model (D-178): curves + provenance, cells fetched live ──

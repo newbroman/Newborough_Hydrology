@@ -123,7 +123,7 @@ check1_model_b_halflife_centroid,C4 (Main Forest),full_record,71.69180996834032,
 check1_model_b_halflife_median_well,C4 (Main Forest),comparison_window,22.799953025730535,months,median over n=9 member wells of Model B t½ (03_16_model_b_persistence.csv)
 check1_model_b_halflife_centroid,C3 (Western Residual),full_record,6.706684282091332,months,Model B t½ = ln(2)/β₃ at the cluster centroid (03_16_model_b_persistence.csv; β₃ p = 0.000)
 check1_model_b_halflife_median_well,C3 (Western Residual),comparison_window,5.34564801366437,months,median over n=26 member wells of Model B t½ (03_16_model_b_persistence.csv)
-recession_time_group_mean_of_per_well,Forest ctrl,,57.836406456038844,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"
-recession_time_group_reciprocal_mean_beta3,Forest ctrl,,46.71510992580266,months,"1 / (mean per-well β₃), n=5 wells — the alternative aggregation, shown beside the mean of per-well 1/β₃"
-recession_time_group_mean_of_per_well,Climate ctrl,,20.977188666268425,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"
-recession_time_group_reciprocal_mean_beta3,Climate ctrl,,20.13835723806515,months,"1 / (mean per-well β₃), n=5 wells — the alternative aggregation, shown beside the mean of per-well 1/β₃"
+recession_time_group_mean_of_per_well,Forest ctrl,,42.49859793313007,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"
+recession_time_group_reciprocal_mean_beta3,Forest ctrl,,37.55500223647959,months,"1 / (mean per-well β₃), n=5 wells — the alternative aggregation, shown beside the mean of per-well 1/β₃"
+recession_time_group_mean_of_per_well,Climate ctrl,,12.188035036841729,months,"mean over n=5 wells of per-well 1/β₃ (03_master_data.csv, comparison-window basis)"
+recession_time_group_reciprocal_mean_beta3,Climate ctrl,,11.601625448211626,months,"1 / (mean per-well β₃), n=5 wells — the alternative aggregation, shown beside the mean of per-well 1/β₃"

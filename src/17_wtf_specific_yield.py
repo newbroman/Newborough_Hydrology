@@ -30,7 +30,15 @@ S.12 §"Forest interception correction"; see also `wtf_interception_methodology.
 in the project store.
 """
 
-__version__ = "1.9.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.10.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b; Martin 2026-11-12: the drainage correction
+#   becomes Model B's own drainage flux). Approach A's correction was dh + |beta_3|*|h| with the cluster-median per-well
+#   beta_3 of 03_master_data, no datum, and the CURRENT month's head although the docstring said h_prev. It is now
+#   dh + [beta_3*(h_prev + DRAINAGE_DATUM) - alpha] = dh + beta_3*(h_prev + implied_datum_m), with h_prev the previous
+#   month's cluster-mean head (depth, negative below ground) and beta_3, alpha, implied_datum_m from Script 03's Model B
+#   CENTROID fit (03_03): the series corrected is that centroid hydrograph, and alpha/beta_3 must come from one fit (a
+#   per-well median of each is not a pair). A cluster whose implied base is not below ground gets no Approach A value
+#   and is counted (wtf_a_n_clusters_model_b_excluded_datum). Approaches B and C do not use beta_3 and do not move.
+# 1.9.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.9.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 SS4.2.4 quotes the event-selection funnel ranges across clusters; new rows in 17_report_numbers.csv,
 #   summarised from the Sy table export_csv() builds: sy_event_n_min/_max and sy_event_n_pass_dh_min/_max (all
@@ -112,7 +120,7 @@ from utils.config import (
     WTF_C_SY_MIN, WTF_C_SY_MAX, WTF_C_BOOTSTRAP_N, WTF_RAPID_BOOT_SEED,
 )
 from utils.paths import (
-    make_all_dirs, OUT_DIR, DIR_17, INT_MASTER_DATA, OUT_17_SY_TABLE,
+    make_all_dirs, OUT_DIR, DIR_17, INT_MASTER_DATA, OUT_17_SY_TABLE, OUT_03_MECHANISTIC_TABLE,
     OUT_17_REGRESSION, OUT_17_BOXPLOT, OUT_17_SUMMARY, OUT_17_RAPID_EVENTS,
     OUT_17_INTERCEPTION_SWEEP, OUT_17_REPORT_NUMBERS,
 )
@@ -206,6 +214,8 @@ def load_data(out_root):
     for cid in CLUSTER_LABELS.keys():
         if cid in df.columns:
             df[f"dh_{cid}"] = df[cid].diff()
+            # 1.10.0 (D-332): the previous month's head, the h_prev of the SSM's drainage term
+            df[f"hprev_{cid}"] = df[cid].shift(1)
 
     return df
 
@@ -214,15 +224,17 @@ def approach_a_ols(df):
     """
     Approach A: Corrected WTF regression accounting for storage decay.
 
-    The observed Δh reflects both recharge and drainage:
-        Δh = (R / S_a) − β₃·|h_prev|
-
-    Rearranging:
-        R = S_a · (Δh + β₃·|h_prev|)
-    so OLS regression of R against (Δh + β₃·|h_prev|) through the origin
-    recovers S_a as the slope itself (R is the dependent variable,
-    Δh + β₃·|h_prev| is the independent variable). β₃ is the cluster-median
-    drainage coefficient from the SSM master table (Script 03).
+    The observed Δh reflects both recharge and drainage. 1.10.0 (D-332; Martin 2026-11-12) takes the
+    drainage as Model B's own flux,
+        Δh = (R / S_a) − [β₃·(h_prev + DRAINAGE_DATUM) − α] = (R / S_a) − β₃·(h_prev + implied_datum_m)
+    with h_prev the previous month's cluster-mean head (depth below ground, negative) and implied_datum_m
+    = DRAINAGE_DATUM − α/β₃ the base Model B drains to. Rearranging:
+        R = S_a · (Δh + β₃·(h_prev + implied_datum_m))
+    so OLS regression of R against the corrected rise through the origin recovers S_a as the slope.
+    β₃ and α are the cluster CENTROID fit of Script 03 (03_03), the fit to the very hydrograph corrected
+    here; until 1.9.1 the correction was β₃·|h| with the cluster median of the per-well β₃, no datum and
+    no α (a median of α and a median of β₃ are not one fit, so that source cannot carry α).
+    A cluster whose implied base is not below ground gets no Approach A value (D-332).
 
     R² is reported in the uncentred (no-intercept) form 1 − SS_res / Σy²,
     appropriate for regression through the origin. The standard centred R²
@@ -233,17 +245,21 @@ def approach_a_ols(df):
     Approach A is fitted on uncorrected clusters only. Corrected-forest
     variants (Approach B only) are populated separately in approach_b_events.
     """
-    # Load cluster-median β₃ from the SSM master table. The defensive except
-    # is retained from v1.0.0 — under v1.1.0 the column name `beta_3_drainage`
-    # is current and the except block should not fire on a healthy main; if it
-    # ever does, Approach A falls back to uncorrected Δh with a console warning.
+    # 1.10.0 (D-332): Model B centroid coefficients. If they cannot be read, Approach A falls back to
+    # uncorrected Δh with a console warning (as before).
+    excluded_datum = {}
     try:
-        master = pd.read_csv(INT_MASTER_DATA)
-        b3 = master.groupby("Cluster")["beta_3_drainage"].median()
-        beta3 = {i: abs(b3[i]) for i in CLUSTER_IDS if i in b3.index}
+        mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE).set_index("Cluster")
+        mb = {int(i): (float(r["beta_3_drainage"]), float(r["alpha"]), float(r["implied_datum_m"]))
+              for i, r in mech.iterrows() if int(i) in CLUSTER_IDS}
+        for i, (_b3, _a, _z) in list(mb.items()):
+            if not _z > 0:
+                warn(f"C{i}: Model B implied base {_z:+.2f} m is not below ground; no Approach A S_a (D-332)")
+                excluded_datum[i] = _z
+                del mb[i]
     except Exception as e:
-        warn(f"Could not load β₃ values ({type(e).__name__}: {e}) — using uncorrected Δh")
-        beta3 = None
+        warn(f"Could not load Model B β₃/α ({type(e).__name__}: {e}) — using uncorrected Δh")
+        mb = None
 
     results = {}
     winter = df[
@@ -258,20 +274,24 @@ def approach_a_ols(df):
             results[rkey] = dict(sy=np.nan, r2=np.nan, n=0, se=np.nan)
             continue
 
-        sub = winter[["net_R", f"dh_{cid}", cid]].dropna()
+        sub = winter[["net_R", f"dh_{cid}", cid, f"hprev_{cid}"]].dropna()
         sub = sub[sub["net_R"] > 0]
 
         if len(sub) < 10:
             results[rkey] = dict(sy=np.nan, r2=np.nan, n=len(sub), se=np.nan)
             continue
 
-        # Correct Δh for drainage: Δh_corrected = Δh + β₃·|h_prev|
+        # Correct Δh for drainage (1.10.0, D-332): Model B's flux, β₃·(h_prev + implied_datum_m)
+        #   = β₃·(h_prev + DRAINAGE_DATUM) − α; h_prev is depth (negative below ground)
         cid_int = int(cid[1:])
-        if beta3 is not None and cid_int in beta3:
-            b3_val = beta3[cid_int]
-            dh_corrected = sub[f"dh_{cid}"] + b3_val * sub[cid].abs()
+        if cid_int in excluded_datum:
+            results[rkey] = dict(sy=np.nan, r2=np.nan, n=0, se=np.nan)
+            continue
+        if mb is not None and cid_int in mb:
+            b3_val, alpha_val, z_val = mb[cid_int]
+            dh_corrected = sub[f"dh_{cid}"] + b3_val * (sub[f"hprev_{cid}"] + z_val)
         else:
-            b3_val = None
+            b3_val, alpha_val, z_val = None, None, None
             dh_corrected = sub[f"dh_{cid}"]
 
         # Only use months where corrected Δh is positive (net recharge signal)
@@ -315,9 +335,9 @@ def approach_a_ols(df):
             sy=float(Sy), r2=float(r2), n=n,
             se=float(se_sy), data=sub,
             dh_corrected=dh_corrected[mask],
-            b3=b3_val,
+            b3=b3_val, alpha=alpha_val, implied_datum=z_val,
         )
-        b3_str = f"{b3_val:.3f}" if b3_val is not None else "n/a"
+        b3_str = (f"{b3_val:.3f}  α = {alpha_val:+.3f}  base {z_val:.2f} m" if b3_val is not None else "n/a")
         print(f"  {CLUSTER_LABELS[cid]:<32}  S_a = {Sy:.3f}  R² = {r2:.3f}  "
               f"n = {n}  SE = {se_sy:.4f}  β₃ = {b3_str}")
 
@@ -329,7 +349,7 @@ def approach_a_ols(df):
         results[f"{cid}_corr"] = dict(sy=np.nan, r2=np.nan, n=np.nan,
                                       se=np.nan)
 
-    return results
+    return results, excluded_datum
 
 
 def approach_b_events(df):
@@ -686,7 +706,7 @@ def plot_regression(df, a_results, out_path):
         ax.axline((0, 0), slope=SY_ASSUMED[cid], color="gray",
                   lw=1.2, ls="--", label=f"Assumed Sy = {SY_ASSUMED[cid]:.2f}")
 
-        ax.set_xlabel("Corrected water table rise Δh + β₃|h|  (mm/month)")
+        ax.set_xlabel("Corrected water table rise Δh + β₃(h_prev + z)  (mm/month)")
         ax.set_ylabel("Net recharge P − PET  (mm/month)")
         ax.set_title(CLUSTER_LABELS[cid], fontweight="bold")
         ax.legend(fontsize=8, framealpha=0.9)
@@ -707,7 +727,7 @@ def plot_regression(df, a_results, out_path):
     fig.suptitle(
         "Approach A — WTF apparent storage coefficient $S_a$: Drainage-Corrected OLS Regression\n"
         "Newborough Warren 2005–2026  |  Winter months (Nov–Mar, PET < 25 mm/month)\n"
-        "Δh corrected for storage decay: Δh_corr = Δh + β₃·|h_prev|",
+        "Δh corrected for Model B drainage: Δh_corr = Δh + β₃·(h_prev + z), z = implied base (D-332)",
         fontsize=10, fontweight="bold", y=1.02,
     )
     plt.tight_layout()
@@ -834,6 +854,10 @@ def export_csv(a_results, b_results, c_results, out_path):
             "Sy_OLS_SE":             a["se"],
             "Sy_OLS_R2":             a["r2"],
             "Sy_OLS_n":              a["n"],
+            # 1.10.0 (D-332): the Model B centroid drainage behind the Approach A correction
+            "OLS_beta_3_model_b":    a.get("b3", np.nan),
+            "OLS_alpha_model_b":     a.get("alpha", np.nan),
+            "OLS_implied_datum_m":   a.get("implied_datum", np.nan),
             "Sy_event_median":       b["sy_median"],
             "Sy_event_Q25":          b["q25"],
             "Sy_event_Q75":          b["q75"],
@@ -860,7 +884,7 @@ def export_csv(a_results, b_results, c_results, out_path):
     return table
 
 
-def write_report_numbers(table, out_path):
+def write_report_numbers(table, out_path, excluded_datum=None):
     """T-96: the estimator comparisons report9 SS4.2.4 quotes, one row per
     cluster from the uncorrected rows of the S_a table (the rapid-event
     estimator is interception-corrected internally at C4/C5, as in Table 8).
@@ -913,6 +937,12 @@ def write_report_numbers(table, out_path):
          f"n={n_base} uncorrected clusters"),
     ):
         rpt.add(key, float(getattr(frame[col].astype(float), how)()), unit=unit, note=note)
+    # 1.10.0 (D-332): clusters with no Approach A value because Model B's implied base is not below ground
+    excl = excluded_datum or {}
+    rpt.add("wtf_a_n_clusters_model_b_excluded_datum", len(excl), unit="clusters",
+            note="clusters with no Approach A S_a: Model B centroid implied base DRAINAGE_DATUM - alpha/beta_3 "
+                 "not below ground (D-332)" + (" (" + ", ".join(f"C{c} {v:+.2f} m" for c, v in
+                                                                 sorted(excl.items())) + ")" if excl else ""))
     n_saved = rpt.save(out_path)
     saved(f"{out_path.name} ({n_saved} rows)")
 
@@ -1074,7 +1104,7 @@ def main():
           f"{', '.join(CLUSTER_LABELS[k] for k in FOREST_KEYS)}")
 
     print("\nApproach A — OLS regression (winter months, drainage-corrected):")
-    a_results = approach_a_ols(df)
+    a_results, a_excluded_datum = approach_a_ols(df)
 
     print("\nApproach B — Event-based median:")
     b_results = approach_b_events(df)
@@ -1092,7 +1122,7 @@ def main():
 
     print("\nExporting outputs...")
     sy_table = export_csv(a_results, b_results, c_results, path_table)
-    write_report_numbers(sy_table, OUT_17_REPORT_NUMBERS)
+    write_report_numbers(sy_table, OUT_17_REPORT_NUMBERS, excluded_datum=a_excluded_datum)
     sweep.to_csv(OUT_17_INTERCEPTION_SWEEP, index=False)   # full precision (D-035)
     saved(OUT_17_INTERCEPTION_SWEEP)
     write_summary(a_results, b_results, c_results, path_summary)

@@ -53,7 +53,12 @@ References:
     Freeman, S. (2008) Hydrological impact of Corsican pine at Newborough Warren.
 """
 
-__version__ = "1.19.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.20.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0's 03_19 and
+#   03_master_data carry Model B: β₃ is bounded positive, so the "negative β₃" rule no longer removes CEH14. Its Model B is
+#   not defined (implied base DRAINAGE_DATUM − α/β₃ above ground), and a well like that is now left out of the t½, 1/β₃ and
+#   τ products with its own reason, counted in recession_n_excluded_datum. Everything else here is a rate (t½, 1/β₃,
+#   S_a/β₃) and uses no datum; it follows the switched β₃ unchanged in code.
+# 1.19.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.19.0  # Hollingham (2026) — 2026-11-05. D8 (spec NRG_spec_water_balance_diagnostic_2026-11-04,
 #   signed off Martin 23:20): a WINDOWED mode. wtf_windowed_wells() runs the same event rule over the months
 #   before and after config.MODEL_AB_SPLIT_DATE and writes per-well Sy for each side to
@@ -932,6 +937,16 @@ def _per_well_beta3() -> pd.DataFrame:
                          "expected 'full_record' or 'comparison_window'")
     df["basis"] = PER_WELL_RECESSION_BASIS
     df["well_norm"] = df["Name_Original"].str.lower().str.strip()
+    # 1.20.0 (D-332): Model B's implied base, from the same table when it carries one, else from
+    # 03_master_data by well. A well whose base is not below ground has no Model B (Scripts 39, 44).
+    src = rec if PER_WELL_RECESSION_BASIS == "full_record" else m
+    if "implied_datum_m" in src.columns:
+        df["implied_datum_m"] = pd.to_numeric(src["implied_datum_m"], errors="coerce").values
+    else:
+        _m = pd.read_csv(INT_MASTER_DATA)
+        _z = dict(zip(_m["Name_Original"].str.lower().str.strip(), _m.get("implied_datum_m", np.nan)))
+        df["implied_datum_m"] = df["well_norm"].map(_z)
+    df["model_b_undefined"] = df["implied_datum_m"].notna() & ~(df["implied_datum_m"] > 0)
     return df
 
 
@@ -950,9 +965,9 @@ def compute_storage_drainage_index(well_results):
     Excludes:
       - CEH12 (bedrock ridge — S_a not representative of sand aquifer)
       - CEH15 (forest slack floor — anomalous S_a)
-      - CEH14 (negative β₃ — index undefined)
+      - CEH14 (negative β₃ under Model A; under Model B, 1.20.0, its implied base is above ground)
       - CEH13 (near-zero β₃ — an outlier on either basis)
-      - Any well where β₃ ≤ 0
+      - Any well where β₃ ≤ 0, or whose Model B implied base is not below ground (D-332)
 
     Returns
     -------
@@ -970,7 +985,7 @@ def compute_storage_drainage_index(well_results):
 
     # Merge on normalised well name
     merged = wr.merge(
-        master[["well_norm", "beta_3_drainage", "basis"]],
+        master[["well_norm", "beta_3_drainage", "basis", "model_b_undefined"]],
         on="well_norm", how="inner"
     )
 
@@ -986,6 +1001,10 @@ def compute_storage_drainage_index(well_results):
     neg_b3 = merged["beta_3_drainage"] <= 0
     merged.loc[neg_b3 & ~merged["Excluded"], "Excluded"] = True
     merged.loc[neg_b3 & ~ridge_mask, "Exclude_Reason"] = "negative β₃"
+    # 1.20.0 (D-332): Model B not defined (implied base not below ground)
+    undef = merged["model_b_undefined"].astype(bool) & ~merged["Excluded"]
+    merged.loc[undef, "Excluded"] = True
+    merged.loc[undef, "Exclude_Reason"] = "Model B not defined (implied base above ground)"
 
     sdi_norms = [w.lower().strip() for w in TAU_EXCLUDE]
     sdi_mask = merged["well_norm"].isin(sdi_norms) & ~merged["Excluded"]
@@ -1066,7 +1085,8 @@ def compute_recip_beta3():
     master = _per_well_beta3()
 
     rb3_df = master[[
-        "Name_Original", "Cluster", "Easting", "Northing", "beta_3_drainage", "basis", "well_norm"
+        "Name_Original", "Cluster", "Easting", "Northing", "beta_3_drainage", "basis", "well_norm",
+        "model_b_undefined",
     ]].copy()
     rb3_df = rb3_df.rename(columns={"Name_Original": "Well", "beta_3_drainage": "beta_3"})
 
@@ -1077,6 +1097,10 @@ def compute_recip_beta3():
     neg_mask = rb3_df["beta_3"] <= 0
     rb3_df.loc[neg_mask, "Excluded"] = True
     rb3_df.loc[neg_mask, "Exclude_Reason"] = "negative or zero β₃"
+    # 1.20.0 (D-332): Model B not defined (implied base not below ground)
+    undef = rb3_df["model_b_undefined"].astype(bool) & ~rb3_df["Excluded"]
+    rb3_df.loc[undef, "Excluded"] = True
+    rb3_df.loc[undef, "Exclude_Reason"] = "Model B not defined (implied base above ground)"
 
     # CEH13 outlier (near-zero β₃ on either basis; not identified in either code, Script 48)
     ceh13_mask = rb3_df["well_norm"] == "ceh13"
@@ -1526,7 +1550,8 @@ def main(supplementary=True):
         # Excluded wells
         excl_notes = {
             "ceh13": "near-zero β₃ outlier (excluded from half-life map)",
-            "ceh14": "negative β₃ (excluded from half-life map)",
+            "ceh14": "Model B not defined, implied base above ground (excluded from half-life map; "
+                     "negative β₃ under Model A)",          # 1.20.0 (D-332)
         }
         for w, why in excl_notes.items():
             wr = rb3_df[rb3_df["Well"].str.lower() == w]
@@ -1537,6 +1562,13 @@ def main(supplementary=True):
                         unit="months", well=w.upper(),
                         era="excluded" if bool(wr["Excluded"].iloc[0]) else "",
                         note=why)
+
+        # 1.20.0 (D-332): wells left out because Model B's implied base is not below ground
+        _und = rb3_df[rb3_df["Exclude_Reason"].str.startswith("Model B not defined")]
+        rpt.add("recession_n_excluded_datum", int(len(_und)), unit="wells",
+                note="wells left out of the t½ and 1/β₃ products: Model B implied base DRAINAGE_DATUM - "
+                     "alpha/beta_3 not below ground (D-332)"
+                     + (" (" + ", ".join(_und["Well"].astype(str).str.upper()) + ")" if len(_und) else ""))
 
         # Per-well t½ at the Main Forest wells (D-192: the slow wells, by name)
         for _, wr in rb3_df[(rb3_df["Cluster"] == 4) & (~rb3_df["Excluded"])].iterrows():

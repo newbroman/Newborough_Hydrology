@@ -13,10 +13,11 @@ moved at each tier after felling, as a direction-and-pattern result.
 
 Method
 ------
-1. For each well in the 17-well network, fit the canonical no-intercept
-   SSM (contemporaneous rainfall, displacement formulation — Model A,
-   as used by Script 03 and the headline analysis) separately for the
-   Before and After eras.  "Before" is the record-length-balanced
+1. For each well in the 17-well network, fit the SSM (contemporaneous
+   rainfall, displacement formulation) in Model B form — free intercept
+   alpha, beta_3 bounded below, as Script 03 since 1.31.0 (D-332) —
+   separately for the Before and After eras. Model A (no intercept,
+   datum DRAINAGE_DATUM) is fitted beside it as a named sensitivity.  "Before" is the record-length-balanced
    pre-felling window (PRE_FELL_START → CLEARFELL_DATE) with a
    scraping dummy for the April 2015 event.  "After" covers
    CLEARFELL_DATE → end of record.
@@ -46,11 +47,12 @@ second estimator of that magnitude.
 
 Note on the model form
 ----------------------
-The era fits use the canonical no-intercept SSM (`fit_ssm()` with the
-default `intercept=False`), consistent with Script 03 and Methods
-Supplement S.3.  Versions 1.0.0–1.3.0 fitted the intercept-bearing
-Model B; the intercept existed only to serve the predicted-vs-observed
-comparison and is not needed once that comparison is removed.
+Since 1.21.0 the era fits are Model B (`fit_ssm(intercept=True)`), the
+form D-332 makes the model for every coefficient, consistent with
+Script 03 1.31.0. Model A (`intercept=False`) runs beside it and is
+reported as *_model_a. (Versions 1.0.0–1.3.0 also fitted Model B, for a
+predicted-vs-observed comparison removed at 1.4.0; 1.4.0–1.20.0 fitted
+Model A.)
 
 Outputs
 -------
@@ -71,7 +73,14 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.20.0"  # Hollingham (2026) - 2026-11-07 (Martin: "add the emit and edit the
+__version__ = "1.21.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The era fits are Model B
+#   (fit_ssm intercept=True, beta_3 bounded below), as Script 03's coefficient tables: every key and 10e_01 column
+#   keeps its name and now carries Model B. Model A (no intercept, DRAINAGE_DATUM) is fitted beside it on the same
+#   rows: 10e_01 gains *_model_a columns (and alpha_before/after, b3_bound_binds_before/after), 10e_report_numbers
+#   the tier-mean shifts, network db1, beta_2 multipliers and shielding ratios as <key>_model_a. The shielding test
+#   holds beta_3 AND alpha at the well's full-record Model B values (drainage term beta_3*h_disp - alpha);
+#   10e_04 gains a form column with Model A's rows beside.
+# 1.20.0  # Hollingham (2026) - 2026-11-07 (Martin: "add the emit and edit the
 #   prose to show no overall effect"). The beta1/beta2 shift correlation gains two well sets --
 #   Climate Ctrl (nothing was done to those wells, so any anti-correlation there is the fit
 #   trading variance, not management) and all controls together -- and a Fisher-z 95% CI on the
@@ -173,17 +182,20 @@ def tier_shift_p(td: pd.DataFrame, coeff: str) -> float:
     return float(2.0 * norm.sf(abs(td[f'd{coeff}'].mean() / se)))
 
 
-def shielding_seasonal_b2(wells, climate):
+def shielding_seasonal_b2(wells, climate, form="B"):
     """1.14.0 (T-97, D-239): canopy-on and canopy-off draw before and after the 2017 felling.
 
-    Per well of the Impact, Edge and Climate-control tiers, beta_3 is fixed at the well's full-record
-    Model A value (so the split cannot trade against drainage), and per era
+    Per well of the Impact, Edge and Climate-control tiers, the drainage term is fixed at the well's
+    full-record value (so the split cannot trade against drainage), and per era
 
-        Δh + β₃·h_disp_prev = β₁·P − β₂on·PET·[month in CANOPY_ON_MONTHS] − β₂off·PET·[otherwise]
-                              (+ the scraping dummy in the Before era, as the main era fits carry)
+        Δh + β₃·h_disp_prev − α = β₁·P − β₂on·PET·[month in CANOPY_ON_MONTHS] − β₂off·PET·[otherwise]
+                                  (+ the scraping dummy in the Before era, as the main era fits carry)
 
-    is fitted by least squares with no intercept. Loss of the canopy's shielding predicts β₂on rising
-    after felling at the felled well, relative to the climate controls."""
+    is fitted by least squares with no further intercept. Loss of the canopy's shielding predicts β₂on
+    rising after felling at the felled well, relative to the climate controls.
+
+    1.21.0 (D-332): form "B" (the headline) fixes β₃ and α at the full-record Model B fit, so the
+    drainage term is β₃·(h + implied datum); form "A" is the earlier Model A, α = 0."""
     import numpy as _np
     out = []
     tiers = ("Impact", "Edge", "Climate Ctrl")
@@ -192,7 +204,9 @@ def shielding_seasonal_b2(wells, climate):
             continue
         try:
             fr = build_ssm_frame(wells[w], climate)
-            b3 = fit_ssm(pre_built_frame=fr, min_obs=8)["beta_3_drainage"]
+            _ff = fit_ssm(pre_built_frame=fr, min_obs=8, intercept=(form == "B"))
+            b3 = _ff["beta_3_drainage"]
+            a0 = float(_ff.get("alpha", 0.0) or 0.0) if form == "B" else 0.0
         except Exception as e:
             warn(f"shielding fit skipped for {w}: {e}")
             continue
@@ -201,21 +215,23 @@ def shielding_seasonal_b2(wells, climate):
             if len(sub) < 24:
                 continue
             on = sub.index.month.isin(CANOPY_ON_MONTHS).astype(float)
-            y = (sub["Delta_h"] + b3 * sub["h_disp_prev"]).values
+            y = (sub["Delta_h"] + b3 * sub["h_disp_prev"] - a0).values
             cols = [sub["P"].values, -sub["PET"].values * on, -sub["PET"].values * (1 - on)]
             if era == "before":
                 cols.append((sub.index >= SCRAPING_DATE).astype(float))
             X = _np.column_stack(cols)
             coef, *_ = _np.linalg.lstsq(X, y, rcond=None)
             out.append({"well": w, "tier": get_tier(w), "era": era, "n": int(len(sub)),
-                        "beta_3_fixed": float(b3), "beta_1": float(coef[0]),
+                        "beta_3_fixed": float(b3), "alpha_fixed": a0,
+                        "form": ("model_b" if form == "B" else "model_a"), "beta_1": float(coef[0]),
                         "beta_2_canopy_on": float(coef[1]), "beta_2_canopy_off": float(coef[2])})
     return pd.DataFrame(out)
 
 
-def _shielding_report_numbers(rpt, sh):
+def _shielding_report_numbers(rpt, sh, sfx=""):
     """shield_* keys: per tier, the after/before ratio of tier-mean canopy-on and canopy-off draw, and the
-    Impact and Edge ratios net of the Climate controls (ratio − Climate Ctrl ratio + 1, as the multipliers)."""
+    Impact and Edge ratios net of the Climate controls (ratio − Climate Ctrl ratio + 1, as the multipliers).
+    sfx (1.21.0, D-332): "" for Model B, "_model_a" for the Model A sensitivity."""
     if sh.empty:
         return
     ratios = {}
@@ -226,15 +242,15 @@ def _shielding_report_numbers(rpt, sh):
             if len(b) and len(a) and b[col].mean() != 0:
                 r = a[col].mean() / b[col].mean()
                 ratios[(tier, part)] = r
-                rpt.add(f"shield_ratio_{part}", float(r), "", well=tier,
+                rpt.add(f"shield_ratio_{part}{sfx}", float(r), "", well=tier,
                         note=f"tier-mean {col} after / before the felling, beta_3 fixed (10e_04)")
     for tier in ("Impact", "Edge"):
         for part in ("canopy_on", "canopy_off"):
             if (tier, part) in ratios and ("Climate Ctrl", part) in ratios:
-                rpt.add(f"shield_ratio_{part}_net", float(ratios[(tier, part)] - ratios[("Climate Ctrl", part)] + 1.0),
+                rpt.add(f"shield_ratio_{part}_net{sfx}", float(ratios[(tier, part)] - ratios[("Climate Ctrl", part)] + 1.0),
                         "", well=tier, note="ratio − Climate Ctrl ratio + 1 (10e_04)")
                 if tier == "Impact" and part == "canopy_on":
-                    rpt.add("wmc3_b2_fall_canopy_on_pct",
+                    rpt.add(f"wmc3_b2_fall_canopy_on_pct{sfx}",
                             float((1.0 - (ratios[(tier, part)] - ratios[("Climate Ctrl", part)] + 1.0)) * 100.0),
                             "percentage points", well="WMC3",
                             note="(1 - shield_ratio_canopy_on_net at Impact) x 100: the canopy-on beta2 fall "
@@ -326,56 +342,50 @@ def main():
         # ── Before era: fit with scraping dummy ──────────────────────────
         before['D_scrape'] = (before.index >= SCRAPING_DATE).astype(float)
 
-        try:
-            # Canonical no-intercept SSM (Model A), consistent with Script 03
-            # and Methods Supplement S.3. The Before-era four-column design
-            # matrix carries a scraping_dummy via extra_regressors for the
-            # April 2015 event. Column names match 03_master_data.csv.
-            # (v1.4.0: intercept=True removed — see module changelog. The
-            # intercept-bearing Model B was used only for the now-removed
-            # predicted-vs-observed comparison.)
-            before_fit = fit_ssm(
-                pre_built_frame=before,
-                extra_regressors={'scraping_dummy': before['D_scrape'].values},
-                min_obs=8,
-            )
-            if before_fit is None:
-                warn(f"Before fit returned None for {w}")
-                continue
-            b1_before    = before_fit['beta_1_recharge']
-            b2_before    = before_fit['beta_2_atmospheric_draw']
-            b3_before    = before_fit['beta_3_drainage']
-            b1_se_before = before_fit['se_beta_1']
-            b2_se_before = before_fit['se_beta_2']
-            b3_se_before = before_fit['se_beta_3']
-        except Exception as e:
-            warn(f"Before fit_ssm failed for {w}: {e}")
+        # 1.21.0 (D-332): Model B (free intercept, beta_3 bounded below) is the headline, as Script 03
+        # 1.31.0's coefficient tables; Model A (no intercept, datum DRAINAGE_DATUM) is fitted beside it
+        # on the same rows and carried as the *_model_a columns. The Before era keeps its scraping dummy
+        # for the April 2015 event in both forms. Column names match 03_master_data.csv.
+        era_fits = {}
+        for form, icpt in (("B", True), ("A", False)):
+            try:
+                bf = fit_ssm(
+                    pre_built_frame=before,
+                    extra_regressors={'scraping_dummy': before['D_scrape'].values},
+                    min_obs=8, intercept=icpt,
+                )
+                af = fit_ssm(pre_built_frame=after, min_obs=6, intercept=icpt)
+            except Exception as e:
+                warn(f"Model {form} era fit failed for {w}: {e}")
+                bf = af = None
+            if bf is None or af is None:
+                warn(f"Model {form} era fit returned None for {w}")
+            era_fits[form] = (bf, af)
+        before_fit, after_fit = era_fits["B"]
+        if before_fit is None or after_fit is None:
             continue
-
-        # ── After era: canonical no-intercept SSM (Model A) ─────────────
-        try:
-            after_fit = fit_ssm(
-                pre_built_frame=after,
-                min_obs=6,
-            )
-            if after_fit is None:
-                warn(f"After fit returned None for {w}")
-                continue
-            b1_after    = after_fit['beta_1_recharge']
-            b2_after    = after_fit['beta_2_atmospheric_draw']
-            b3_after    = after_fit['beta_3_drainage']
-            b1_se_after = after_fit['se_beta_1']
-            b2_se_after = after_fit['se_beta_2']
-            b3_se_after = after_fit['se_beta_3']
-        except Exception as e:
-            warn(f"After fit_ssm failed for {w}: {e}")
-            continue
+        b1_before    = before_fit['beta_1_recharge']
+        b2_before    = before_fit['beta_2_atmospheric_draw']
+        b3_before    = before_fit['beta_3_drainage']
+        b1_se_before = before_fit['se_beta_1']
+        b2_se_before = before_fit['se_beta_2']
+        b3_se_before = before_fit['se_beta_3']
+        b1_after    = after_fit['beta_1_recharge']
+        b2_after    = after_fit['beta_2_atmospheric_draw']
+        b3_after    = after_fit['beta_3_drainage']
+        b1_se_after = after_fit['se_beta_1']
+        b2_se_after = after_fit['se_beta_2']
+        b3_se_after = after_fit['se_beta_3']
 
         # ── Compute deltas ───────────────────────────────────────────────
         db1 = b1_after - b1_before
         db2 = b2_after - b2_before
         db3 = b3_after - b3_before
 
+        _na = float('nan')
+        _ba, _aa = era_fits["A"]
+        _a_ok = _ba is not None and _aa is not None
+        _ga = lambda f, k: (round(float(f[k]), 4) if _a_ok else _na)
         rows.append({
             'Well': w.upper(),
             'Tier': tier,
@@ -396,8 +406,19 @@ def main():
             'db3': round(db3, 4),
             'b3_SE_before': round(b3_se_before, 4),
             'b3_SE_after': round(b3_se_after, 4),
+            # 1.21.0 (D-332): appended, so no existing column moves
+            'alpha_before': float(before_fit['alpha']),   # unrounded (D-035)
+            'alpha_after': float(after_fit['alpha']),
+            'b3_bound_binds_before': bool(before_fit.get('beta_3_bound_binds', False)),
+            'b3_bound_binds_after': bool(after_fit.get('beta_3_bound_binds', False)),
+            **{f'{c}_{era}_model_a': _ga(f, k)
+               for c, k in (('b1', 'beta_1_recharge'), ('b2', 'beta_2_atmospheric_draw'),
+                            ('b3', 'beta_3_drainage'))
+               for era, f in (('before', _ba), ('after', _aa))},
+            **{f'd{c}_model_a': (round(float(_aa[k]) - float(_ba[k]), 4) if _a_ok else _na)
+               for c, k in (('b1', 'beta_1_recharge'), ('b2', 'beta_2_atmospheric_draw'),
+                            ('b3', 'beta_3_drainage'))},
         })
-
         print(f"   {w.upper():<8}  Δβ₁={db1:+.3f}  Δβ₂={db2:+.3f}  "
               f"Δβ₃={db3:+.3f}")
 
@@ -746,10 +767,40 @@ def main():
 
     # 1.14.0 (T-97, D-239): the shielding test
     phase(4, "Shielding test: canopy-on and canopy-off draw, before and after felling")
-    sh = shielding_seasonal_b2(wells, climate)
-    sh.to_csv(OUT_10E_SHIELDING, index=False)
-    saved(f"{OUT_10E_SHIELDING.name} ({len(sh)} rows)")
+    sh = shielding_seasonal_b2(wells, climate, "B")
+    sh_a = shielding_seasonal_b2(wells, climate, "A")       # 1.21.0 (D-332): Model A beside it
+    pd.concat([sh, sh_a], ignore_index=True).to_csv(OUT_10E_SHIELDING, index=False)
+    saved(f"{OUT_10E_SHIELDING.name} ({len(sh) + len(sh_a)} rows)")
     _shielding_report_numbers(rpt, sh)
+    _shielding_report_numbers(rpt, sh_a, "_model_a")
+
+    # 1.21.0 (D-332): Model A at DRAINAGE_DATUM beside the Model B headline, from 10e_01's *_model_a
+    # columns: tier-mean shifts, the network mean beta_1 shift, and the beta_2 multipliers by the
+    # formulas of utils.clearfell_common (ratio of tier means; Edge or Impact ratio - Climate Ctrl + 1).
+    _A = "Model A at DRAINAGE_DATUM, sensitivity (D-332)"
+    for tier_name in ['Impact', 'Edge', 'Forest Ctrl', 'Coastal Ctrl', 'Climate Ctrl']:
+        td = shift_df[shift_df['Tier'] == tier_name]
+        if td.empty:
+            continue
+        for coeff in ['db1', 'db2', 'db3']:
+            rpt.add(f"CoeffShift_{tier_name}_mean_{coeff}_model_a", td[f'{coeff}_model_a'].mean(),
+                    well=tier_name, note=f"n_wells={int(td[f'{coeff}_model_a'].notna().sum())}; {_A}")
+    _net = shift_df[shift_df['Tier'] != 'Far-field Ctrl']
+    if not _net.empty:
+        rpt.add("CoeffShift_Network_mean_db1_model_a", _net['db1_model_a'].mean(),
+                well="Network", note=f"n_wells={int(_net['db1_model_a'].notna().sum())}; {_A}")
+    _ra = {}
+    for tier_name in ['Impact', 'Edge', 'Climate Ctrl']:
+        td = shift_df[shift_df['Tier'] == tier_name].dropna(subset=['b2_before_model_a', 'b2_after_model_a'])
+        if len(td) and td['b2_before_model_a'].mean() != 0:
+            _ra[tier_name] = td['b2_after_model_a'].mean() / td['b2_before_model_a'].mean()
+    if 'Climate Ctrl' in _ra:
+        for tier_name, key in (('Edge', 'B2_multiplier_clearfell'), ('Impact', 'B2_multiplier_clearfell_impact')):
+            if tier_name in _ra:
+                _m = float(_ra[tier_name] - _ra['Climate Ctrl'] + 1.0)
+                rpt.add(f"{key}_model_a", _m, "", note=f"{tier_name} ratio − Climate Ctrl ratio + 1.0; {_A}")
+                rpt.add(key.replace('clearfell', 'thinning') + "_model_a", 1.0 + (_m - 1.0) / 2.0, "",
+                        note=f"1 + ({key}_model_a − 1)/2; {_A}")
 
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")

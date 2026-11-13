@@ -108,7 +108,16 @@ References
   Curreli et al. (2013) — eco-hydrological thresholds (config.SD15b / config.SD16)
 """
 
-__version__ = "1.62.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.63.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The water-balance residual field
+#   (Figure 56, 20_residual_*) reads Script 03 1.31.0's Model B β's, so each well's displacement is now taken to its own
+#   implied base, h_disp = implied_datum_m + mean depth (= β₃·(DRAINAGE_DATUM + h) − α), never B's β₃ at the fixed datum.
+#   A well whose implied base is not below ground (ceh14) carries no residual and is counted
+#   (residual_n_excluded_datum). Model A at DRAINAGE_DATUM is kept beside it (residual_wb_model_a in 20_residual_perwell;
+#   the CEH14 β₃-independence keys, which exist only under A, become residual_ceh14_model_a,
+#   residual_c4_median_beta3_model_a, residual_ceh14_b3_c4median_model_a). residual_vs_wb16_gap now compares with Script
+#   16's Model B residual (Residual_B_m_month). The C3 β₃ of the drawdown reach and the recession times are rates and
+#   follow the switched columns with no change here.
+# 1.62.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.62.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the open-dune Sy behind the inferred CEH36 cut depth, the coastal toe drawdown at the 20-yr and
 #   5-yr horizons (horizon x delta0) and WMC3's beta_1 rise from partial retention of the local gain; new rows
@@ -725,14 +734,20 @@ def build_well_table(data):
         columns={"Match_ID": "well"}).copy()
 
     # Merge β coefficients and cluster
+    # 1.63.0 (D-332): the headline β's are Model B and carry their implied base; Model A's beside them.
     beta = md[["Name_Original", "Cluster",
                "beta_1_recharge", "beta_2_atmospheric_draw",
-               "beta_3_drainage"]].rename(columns={
+               "beta_3_drainage", "implied_datum_m",
+               "beta_1_recharge_model_a", "beta_2_atmospheric_draw_model_a",
+               "beta_3_drainage_model_a"]].rename(columns={
         "Name_Original":           "well",
         "Cluster":                 "cluster",
         "beta_1_recharge":         "beta1",
         "beta_2_atmospheric_draw": "beta2",
         "beta_3_drainage":         "beta3",
+        "beta_1_recharge_model_a":         "beta1_a",
+        "beta_2_atmospheric_draw_model_a": "beta2_a",
+        "beta_3_drainage_model_a":         "beta3_a",
     })
     wt = wt.merge(beta, on="well", how="left")
 
@@ -750,7 +765,15 @@ def build_well_table(data):
     # h_disp  = DRAINAGE_DATUM + h_depth (positive when water table is above
     #           the drainage base; matches Script 03 SSM fitting formulation).
     wt["mean_depth"] = wt["mean_head"] - wt["dem_elev"]
-    wt["h_disp"] = DRAINAGE_DATUM + wt["mean_depth"]
+    # 1.63.0 (D-332): Model B drains each well to its own implied base, implied_datum_m = DRAINAGE_DATUM −
+    # α/β₃, so h_disp = implied_datum_m + h_depth and β₃·h_disp = β₃·(DRAINAGE_DATUM + h) − α. A well whose
+    # implied base is not below ground is left out of the field and counted. Model A keeps DRAINAGE_DATUM.
+    _base_ok = wt["implied_datum_m"] > 0
+    _excl_datum = {str(w): float(z) for w, z in
+                                  zip(wt.loc[wt["implied_datum_m"].notna() & ~_base_ok, "well"],
+                                      wt.loc[wt["implied_datum_m"].notna() & ~_base_ok, "implied_datum_m"])}
+    wt["h_disp"] = np.where(_base_ok, wt["implied_datum_m"] + wt["mean_depth"], np.nan)
+    wt["h_disp_model_a"] = DRAINAGE_DATUM + wt["mean_depth"]
 
     # SSM water balance residual.
     # At steady state (Δh=0): 0 = β₁·P̄ − β₂·PET̄ − β₃·h̄_disp
@@ -777,6 +800,12 @@ def build_well_table(data):
         wt["beta1"].notna() & wt["h_disp"].notna(),
         wt["beta2"] * PET_bar + wt["beta3"] * wt["h_disp"]
         - wt["beta1"] * P_bar,
+        np.nan)
+    # 1.63.0 (D-332): Model A at DRAINAGE_DATUM, the sensitivity (the field until 1.62.1)
+    wt["residual_wb_model_a"] = np.where(
+        wt["beta1_a"].notna() & wt["h_disp_model_a"].notna(),
+        wt["beta2_a"] * PET_bar + wt["beta3_a"] * wt["h_disp_model_a"]
+        - wt["beta1_a"] * P_bar,
         np.nan)
 
     wt["network"] = "Reference"
@@ -837,6 +866,7 @@ def build_well_table(data):
     # 1.58.0 (T-96): the realised averaging window travels with the table so
     # plot_residual_ssm() can write it to 20_residual_report_numbers.csv, as the
     # comment above has always said it does.
+    wt.attrs["excluded_datum"] = _excl_datum          # 1.63.0 (D-332)
     wt.attrs["residual_window"] = {
         "start": _rec_start, "end": _rec_end, "n_months": int(len(clim_period)),
         "P_bar": float(P_bar), "PET_bar": float(PET_bar),
@@ -1104,7 +1134,8 @@ def plot_residual_ssm(wt, features, dpi=300):
     res_df   = wt.loc[ref, ["E", "N", "residual_wb"]].copy()
 
     # ── §4.9 traceable per-well residual CSV + report numbers (Fig 56) ────
-    _rcols = [c for c in ["well", "E", "N", "Cluster", "cluster", "residual_wb"] if c in wt.columns]
+    _rcols = [c for c in ["well", "E", "N", "Cluster", "cluster", "residual_wb", "implied_datum_m",
+                          "residual_wb_model_a"] if c in wt.columns]   # 1.63.0 (D-332): + implied base, Model A
     _resid = (wt.loc[ref, _rcols].copy().rename(columns={"cluster": "Cluster"})
               .sort_values("residual_wb", ascending=False))
     if "Cluster" in _resid.columns:
@@ -1117,31 +1148,38 @@ def plot_residual_ssm(wt, features, dpi=300):
     rrpt.add("residual_max", float(_top["residual_wb"]), unit="m/month",
              well=str(_top[_wcol]).upper(),
              note="largest individual SSM water-balance residual α")
-    _ceh14 = _resid[_resid[_wcol].astype(str).str.lower().str.replace(" ", "") == "ceh14"]
-    if len(_ceh14):
-        rrpt.add("residual_ceh14", float(_ceh14["residual_wb"].iloc[0]), unit="m/month",
-                 well="CEH14", note="ridge-flank residual (cited in §4.9)")
-    # β₃-independence check for the ridge-flank wells (D-037).
+    # 1.63.0 (D-332): wells left out of the Model B field because their implied base is not below ground
+    _excl = wt.attrs.get("excluded_datum", {}) or {}
+    rrpt.add("residual_n_excluded_datum", len(_excl), unit="wells",
+             note="wells with no Model B residual: implied base DRAINAGE_DATUM - alpha/beta_3 not below ground "
+                  "(D-332)" + (" (" + ", ".join(f"{w.upper()} {z:+.2f} m" for w, z in sorted(_excl.items())) + ")"
+                               if _excl else ""))
+    # β₃-independence check for the ridge-flank wells (D-037), under Model A at DRAINAGE_DATUM.
     # The residual expression carries β₃ directly, so at a well whose β₃ is
     # itself anomalous the residual is not independent evidence about that β₃.
     # Recompute CEH14's residual holding every other term at its own fitted
     # value and substituting the C4 per-well median β₃, and publish both the
     # substituted β₃ and the resulting residual so the supplement quotes a
     # committed number rather than asserting the comparison.
+    # 1.63.0 (D-332): CEH14 has no Model B residual (its implied base is above ground), so the check and
+    # its residual are Model A's and carry the _model_a suffix (until 1.62.1 residual_ceh14, ...).
     _c4_id = next((cid for cid, lbl in CLUSTER_LABELS.items()
                    if "Main Forest" in lbl), None)
-    _c4_b3 = (wt.loc[wt["cluster"] == _c4_id, "beta3"].median()
+    _c4_b3 = (wt.loc[(wt["cluster"] == _c4_id) & wt["residual_wb_model_a"].notna(), "beta3_a"].median()
               if _c4_id is not None else np.nan)
     _c14w = wt[wt["well"].astype(str).str.lower().str.replace(" ", "") == "ceh14"]
-    if len(_c14w) and np.isfinite(_c4_b3) and pd.notna(_c14w["residual_wb"].iloc[0]):
-        _r0 = float(_c14w["residual_wb"].iloc[0])
-        _hd = float(_c14w["h_disp"].iloc[0])
-        _b3 = float(_c14w["beta3"].iloc[0])
-        rrpt.add("residual_c4_median_beta3", float(_c4_b3), unit="1/month",
-                 note="C4 per-well median beta_3, substituted in the CEH14 check")
-        rrpt.add("residual_ceh14_b3_c4median", _r0 + (_c4_b3 - _b3) * _hd,
+    if len(_c14w) and pd.notna(_c14w["residual_wb_model_a"].iloc[0]):
+        rrpt.add("residual_ceh14_model_a", float(_c14w["residual_wb_model_a"].iloc[0]), unit="m/month",
+                 well="CEH14", note="ridge-flank residual under Model A at DRAINAGE_DATUM (cited in §4.9)")
+    if len(_c14w) and np.isfinite(_c4_b3) and pd.notna(_c14w["residual_wb_model_a"].iloc[0]):
+        _r0 = float(_c14w["residual_wb_model_a"].iloc[0])
+        _hd = float(_c14w["h_disp_model_a"].iloc[0])
+        _b3 = float(_c14w["beta3_a"].iloc[0])
+        rrpt.add("residual_c4_median_beta3_model_a", float(_c4_b3), unit="1/month",
+                 note="C4 per-well median Model A beta_3, substituted in the CEH14 check")
+        rrpt.add("residual_ceh14_b3_c4median_model_a", _r0 + (_c4_b3 - _b3) * _hd,
                  unit="m/month", well="CEH14",
-                 note="CEH14 residual recomputed with the C4 median beta_3, "
+                 note="CEH14 Model A residual recomputed with the C4 median Model A beta_3, "
                       "every other term unchanged (beta_3 independence check)")
     _n_band = int((_resid["residual_wb"] > 0.02).sum())
     rrpt.add("residual_n_gt_0p02", _n_band, unit="wells",
@@ -1181,14 +1219,17 @@ def plot_residual_ssm(wt, features, dpi=300):
         # cluster — |cluster-mean α − Script 16 Residual_m_month| — which report9
         # §4.9.6 and report10 §5.2.1 quote as "agrees to within N mm/month".
         if OUT_16_TABLE.exists():
-            _wb16 = pd.read_csv(OUT_16_TABLE)[["Cluster", "Residual_m_month"]]
+            # 1.63.0 (D-332): Script 16's Model B residual (Residual_B_m_month), the form of this field
+            _w16 = pd.read_csv(OUT_16_TABLE)
+            _rc16 = "Residual_B_m_month" if "Residual_B_m_month" in _w16.columns else "Residual_m_month"
+            _wb16 = _w16[["Cluster", _rc16]]
             _cm = _resid.groupby("Cluster")["residual_wb"].mean()
             _gap = {int(c): abs(float(_cm[c]) - float(r)) for c, r in
-                    zip(_wb16["Cluster"], _wb16["Residual_m_month"]) if c in _cm.index}
+                    zip(_wb16["Cluster"], _wb16[_rc16]) if c in _cm.index and pd.notna(r)}
             for _c, _g in _gap.items():
                 rrpt.add("residual_vs_wb16_gap", _g, unit="m/month",
                          well=CLUSTER_LABELS.get(_c, str(_c)),
-                         note="|cluster-mean residual field α − Script 16 Residual_m_month|")
+                         note=f"|cluster-mean residual field α − Script 16 {_rc16}| (Model B, D-332)")
             if _gap:
                 _cmax = max(_gap, key=_gap.get)
                 rrpt.add("residual_vs_wb16_gap_max", _gap[_cmax], unit="m/month",
@@ -1283,8 +1324,8 @@ def plot_residual_ssm(wt, features, dpi=300):
     ax.set_ylabel("Northing (m, OSGB36)", fontsize=9)
     ax.tick_params(labelsize=8)
     ax.set_title(
-        "SSM Water Balance Residual (m/month) — Newborough Warren 2005–2026\n"
-        "(β₂·PET̄ + β₃·h̄_disp − β₁·P̄)  |  β coefficients only  |  "
+        "SSM Water Balance Residual (m/month), Model B — Newborough Warren 2005–2026\n"
+        "(β₂·PET̄ + β₃·h̄_disp − β₁·P̄, h_disp to each well's implied base)  |  "
         "Flow direction arrows from head gradient",
         fontsize=10, fontweight="bold")
 
@@ -1299,10 +1340,16 @@ def plot_residual_ssm(wt, features, dpi=300):
     ]
     ax.legend(handles=leg_h, fontsize=7, loc="lower left", framealpha=0.9)
     _ceh14_alpha = wt.loc[wt["well"].str.lower() == "ceh14", "residual_wb"]
-    _ceh14_str = f"{float(_ceh14_alpha.iloc[0]):+.3f}" if len(_ceh14_alpha) > 0 else "N/A"
+    # 1.63.0 (D-332): a well whose Model B implied base is above ground carries no residual
+    _excl_n = len(wt.attrs.get("excluded_datum", {}) or {})
+    _ceh14_line = (f"CEH14 water balance residual α = {float(_ceh14_alpha.iloc[0]):+.3f} m/month."
+                   if len(_ceh14_alpha) > 0 and pd.notna(_ceh14_alpha.iloc[0]) else
+                   "CEH14: no Model B residual (implied drainage base above ground).")
+    if _excl_n:
+        _ceh14_line += f"\n{_excl_n} well(s) left out: implied base not below ground (D-332)."
     ax.annotate("Residual: SSM β coefficients only — independent of flow arrows.\n"
                 "Flow arrows: mean head gradient — independent of β coefficients.\n"
-                f"CEH14 water balance residual α = {_ceh14_str} m/month.",
+                + _ceh14_line,
                 xy=(0.02, 0.97), xycoords="axes fraction",
                 fontsize=7, va="top", color="dimgrey", zorder=10,
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=1.0))

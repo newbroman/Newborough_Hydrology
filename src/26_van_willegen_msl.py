@@ -105,7 +105,22 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.33.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.35.0"  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 2b; Martin 2026-11-12 "Model B, A beside").
+#   The persistence diagnostic's headline quantities are Model B: t_R_months = 1/beta_3 and beta_2 from the base (Model
+#   B) columns, so the spring-SD partial correlations, rho_lag1_vs_tR, beta2_vs_tR and the extended-tier beta_3
+#   precision keys carry Model B (the beta_2 / recession-time reading reverses). Model A's same quantities sit beside
+#   them as *_model_a columns (t_R_months_model_a, beta_2_model_a, beta_3_model_a, se_beta_3_model_a,
+#   rel_se_beta_3_model_a) and *_model_a report numbers. The docstring's finding 2 now says the reading is form-dependent.
+# 1.34.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The equilibrium wetness index is
+#   Model B: h_disp_eq = (b1*P - b2*PET + alpha)/b3, EWI = h_disp_eq - DRAINAGE_DATUM, i.e. the equilibrium level above
+#   Model B's implied datum (03 implied_datum_m); reference wells read Script 03's Model B columns, extended wells are
+#   fitted with fit_ssm(intercept=True); a well whose implied datum is not below ground has no EWI and is counted
+#   (ewi_n_wells_model_b_excluded_datum). The reference SE back-out uses 4-parameter dof (n - 4) and the full SE adds
+#   alpha's term (alpha-beta_3 covariance not carried: 03 does not publish it). Model A beside it: EWI_m_bg_model_a /
+#   beta_*_model_a columns, ewi_msl5_*_model_a, the Ellenberg-F row EWI_annual_model_a and ebf_*_model_a keys. The
+#   persistence diagnostics' Model A quantities (beta_3, se_beta_3, t_R_months, rho_ar1_expected_model_a) read the
+#   *_model_a columns, so they do not move; so does their beta_2, which the partial correlations pair with t_R_months.
+# 1.33.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.33.0  # Hollingham (2026) - 2026-11-03 (Martin 2026-11-03 "Let's add it"). Pass 7d, a
 #   sensitivity: the EWI open-dune calibration refitted on each well's latest MSL9, both calibrations on the wells
 #   carrying both metrics, and Ellenberg-F against MSL9 (ewi_msl9_*, ebf_msl9_*). No existing output moves.
@@ -1336,8 +1351,15 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     Setting the mean monthly change to zero in the SSM (report §3.4) and solving
     the head-dependent drainage term for the equilibrium displacement gives
 
-        h_disp_eq = (β₁·P̄ − β₂·PET̄) / β₃
+        h_disp_eq = (β₁·P̄ − β₂·PET̄ + α) / β₃
         EWI_bg = h_disp_eq − DRAINAGE_DATUM          (ground frame, no upstand term)
+               = (β₁·P̄ − β₂·PET̄) / β₃ − implied_datum_m
+
+    1.34.0 (D-332): the coefficients are Model B (free intercept α), so the
+    equilibrium is the level above Model B's implied datum DRAINAGE_DATUM − α/β₃.
+    A well whose implied datum is not below ground has no index and is counted.
+    Model A (α = 0, the datum DRAINAGE_DATUM) is carried beside it as
+    EWI_m_bg_model_a.
 
     P̄, PET̄ are the full-record monthly-mean rainfall and PET (the same long-term
     climatology basis as the Script 21 scenario normals), so the index is
@@ -1361,14 +1383,31 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     offset = el.set_index("well")["Upstand_m"]
     excluded = set(config.MSL5_EXCLUDED_WELLS)
 
+    excluded_datum = {}            # 1.34.0 (D-332): Model B's implied datum not below ground
+
+    def _ewi_a(b1, b2, b3):
+        """Model A's index (α = 0, datum DRAINAGE_DATUM), the named sensitivity."""
+        if not (np.isfinite(b1) and np.isfinite(b2) and np.isfinite(b3)) or b3 <= EWI_MIN_BETA3:
+            return np.nan
+        return (b1 * P_bar - b2 * PET_bar) / b3 - config.DRAINAGE_DATUM
+
     def _row(w, b1, b2, b3, network, cluster_id=np.nan,
-             se1=np.nan, se2=np.nan, se3=np.nan, n_obs=np.nan):
+             se1=np.nan, se2=np.nan, se3=np.nan, n_obs=np.nan,
+             alpha=0.0, se_alpha=np.nan):
         if not (np.isfinite(b1) and np.isfinite(b2) and np.isfinite(b3)):
             return None
         if b3 <= EWI_MIN_BETA3:
             warn(f"{w.upper()} β₃={b3:.4f} ≤ {EWI_MIN_BETA3} — EWI undefined, skipped")
             return None
-        h_disp_eq = (b1 * P_bar - b2 * PET_bar) / b3
+        alpha = float(alpha) if np.isfinite(alpha) else np.nan
+        implied = config.DRAINAGE_DATUM - alpha / b3
+        if not (np.isfinite(implied) and implied > 0):
+            warn(f"{w.upper()} Model B implied datum {implied:+.2f} m is not below ground — EWI undefined, "
+                 f"left out (D-332)")
+            excluded_datum[w] = implied
+            return None
+        # 1.34.0 (D-332): Model B's equilibrium, α in the numerator (= the level above implied_datum_m)
+        h_disp_eq = (b1 * P_bar - b2 * PET_bar + alpha) / b3
         ewi_bg = h_disp_eq - config.DRAINAGE_DATUM
         ups = offset.get(w, np.nan)
 
@@ -1386,10 +1425,14 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
         #             (C4, the worst case, has VIF ≈ 1.11), so this is a close
         #             approximation rather than an exact joint interval.
         se_b3_term = abs(h_disp_eq) * (se3 / b3) if np.isfinite(se3) else np.nan
-        if np.isfinite(se1) and np.isfinite(se2) and np.isfinite(se3):
-            num = b1 * P_bar - b2 * PET_bar
+        # 1.34.0 (D-332): Model B adds α's own term, se_α/β₃. The α-β₃ covariance is NOT carried
+        # (Script 03 does not publish it), so like the rest this is the independent approximation.
+        _sa = se_alpha if alpha != 0.0 else 0.0
+        if np.isfinite(se1) and np.isfinite(se2) and np.isfinite(se3) and np.isfinite(_sa):
+            num = b1 * P_bar - b2 * PET_bar + alpha
             var = ((P_bar * se1) ** 2
                    + (PET_bar * se2) ** 2
+                   + _sa ** 2
                    + (num * se3 / b3) ** 2) / (b3 ** 2)
             se_full = float(np.sqrt(var))
         else:
@@ -1398,19 +1441,20 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                     beta_1_recharge=b1, beta_2_atmospheric_draw=b2,
                     beta_3_drainage=b3,
                     se_beta_1=se1, se_beta_2=se2, se_beta_3=se3, n_obs=n_obs,
+                    alpha=alpha, se_alpha=se_alpha, implied_datum_m=implied,
                     h_disp_eq_m=h_disp_eq,
                     EWI_m_bg=ewi_bg,
                     EWI_se_m_beta3=se_b3_term, EWI_se_m_full=se_full,
                     cluster_id=cluster_id)
 
-    def _se_from_pvalue(beta, pval, n_obs, k=3):
+    def _se_from_pvalue(beta, pval, n_obs, k=4):
         """Recover an OLS standard error from a committed coefficient/p-value.
 
         03_master_data.csv carries β, its two-sided p-value and n but not the
-        standard error. For the no-intercept 3-predictor SSM the t statistic is
-        t = β/SE on n−k degrees of freedom, so SE = β/|t| inverts exactly. Used
-        only for the reference tier; extended-tier fits take se_beta_* straight
-        from fit_ssm().
+        standard error. The t statistic is t = β/SE on n−k degrees of freedom, so
+        SE = β/|t| inverts exactly. k = 4 for Model B (β₁, β₂, β₃ and α; 1.34.0,
+        D-332), k = 3 for the no-intercept Model A. Used only for the reference
+        tier; extended-tier fits take se_beta_* straight from fit_ssm().
         """
         if not (np.isfinite(beta) and np.isfinite(pval) and np.isfinite(n_obs)):
             return np.nan
@@ -1431,13 +1475,22 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
         _b2 = r.get("beta_2_atmospheric_draw", np.nan)
         _b3 = r.get("beta_3_drainage", np.nan)
         _n  = r.get("n", np.nan)
+        _al = float(r.get("alpha", np.nan))
         row = _row(r["well"], _b1, _b2, _b3,
                    "reference", r.get("Cluster", np.nan),
                    se1=_se_from_pvalue(_b1, r.get("pvalue_beta_1", np.nan), _n),
                    se2=_se_from_pvalue(_b2, r.get("pvalue_beta_2", np.nan), _n),
                    se3=_se_from_pvalue(_b3, r.get("pvalue_beta_3", np.nan), _n),
-                   n_obs=_n)
+                   n_obs=_n, alpha=_al,
+                   se_alpha=_se_from_pvalue(_al, r.get("pvalue_alpha", np.nan), _n))
         if row:
+            # Model A beside it (1.34.0, D-332): Script 03's *_model_a columns
+            _a = [float(r.get(f"{c}_model_a", np.nan))
+                  for c in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")]
+            row.update(beta_1_recharge_model_a=_a[0], beta_2_atmospheric_draw_model_a=_a[1],
+                       beta_3_drainage_model_a=_a[2],
+                       se_beta_3_model_a=float(r.get("se_beta_3_model_a", np.nan)),
+                       EWI_m_bg_model_a=_ewi_a(*_a))
             rows.append(row)
 
     # ── extended tier: fit β here via the shared fit_ssm() ────────────────
@@ -1452,8 +1505,10 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
             wl = str(w).strip().lower()
             if wl in excluded:
                 continue
+            # 1.34.0 (D-332): Model B (free intercept, beta_3 bounded below) is the index's fit;
+            # Model A (no intercept) is fitted beside it on the same record for the *_model_a columns.
             try:
-                fit = fit_ssm(h_series=ext[w], climate=clim)
+                fit = fit_ssm(h_series=ext[w], climate=clim, intercept=True)
             except Exception as e:
                 warn(f"extended {wl.upper()} SSM fit failed: {str(e)[:50]}")
                 continue
@@ -1465,21 +1520,32 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                        se1=fit.get("se_beta_1", np.nan),
                        se2=fit.get("se_beta_2", np.nan),
                        se3=fit.get("se_beta_3", np.nan),
-                       n_obs=fit.get("n", np.nan))
+                       n_obs=fit.get("n", np.nan),
+                       alpha=fit.get("alpha", np.nan), se_alpha=fit.get("se_alpha", np.nan))
             if row:
-                # Model B on the same record (1.23.0, D-216): the datum-free beta_3
+                # The persistence expectation's beta_3_B (1.23.0, D-216) is this same Model B fit
+                row.update(beta_3_B=fit.get("beta_3_drainage", np.nan),
+                           pvalue_beta_3_B=fit.get("pvalue_beta_3", np.nan),
+                           n_B=fit.get("n", np.nan))
                 try:
-                    fb = fit_ssm(h_series=ext[w], climate=clim, intercept=True)
+                    fa = fit_ssm(h_series=ext[w], climate=clim)
                 except Exception:
-                    fb = None
-                if fb:
-                    row.update(beta_3_B=fb.get("beta_3_drainage", np.nan),
-                               pvalue_beta_3_B=fb.get("pvalue_beta_3", np.nan),
-                               n_B=fb.get("n", np.nan))
+                    fa = None
+                _a = ([float(fa.get(c, np.nan)) for c in
+                       ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")]
+                      if fa else [np.nan] * 3)
+                row.update(beta_1_recharge_model_a=_a[0], beta_2_atmospheric_draw_model_a=_a[1],
+                           beta_3_drainage_model_a=_a[2],
+                           se_beta_3_model_a=float(fa.get("se_beta_3", np.nan)) if fa else np.nan,
+                           EWI_m_bg_model_a=_ewi_a(*_a))
                 rows.append(row); n_ext_fit += 1
         info(f"extended-network SSM fits contributing to EWI: {n_ext_fit}")
 
     ewi = pd.DataFrame(rows)
+    ewi.attrs["excluded_datum"] = dict(excluded_datum)     # 1.34.0 (D-332), counted in report numbers
+    if excluded_datum:
+        note("EWI left out where Model B's implied datum is not below ground: "
+             + ", ".join(f"{k.upper()} ({v:+.2f} m)" for k, v in sorted(excluded_datum.items())))
     if ewi.empty:
         return ewi
     # Model B for the reference tier (1.23.0, D-216): Script 03's per-well fits on the
@@ -1518,7 +1584,9 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     ewi["cluster_label"] = ewi["cluster_id"].map(config.CLUSTER_LABELS)
     locs = locations.copy()
     locs["well"] = locs["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
+    _excl = ewi.attrs.get("excluded_datum", {})
     ewi = ewi.merge(locs[["well", "E", "N"]], on="well", how="left")
+    ewi.attrs["excluded_datum"] = _excl                    # merge drops attrs
     return ewi
 
 
@@ -1681,12 +1749,18 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
     sp = clim[clim.index.month.isin(config.MSL_SPRING_MONTHS)]
     P_sp, PET_sp = sp["P_m"].mean(), sp["PET"].mean()
     md = pd.read_csv(paths.INT_MASTER_DATA); md["piezo"] = md["Name_Original"].str.lower()
+    # 1.34.0 (D-332): Model B, run at its implied datum (03 implied_datum_m); a well whose implied
+    # datum is not below ground has no index. Model A (DRAINAGE_DATUM, *_model_a) beside it.
+    _dd = md["implied_datum_m"].where(md["implied_datum_m"] > 0)
     md["EWI_annual"] = (md["beta_1_recharge"] * P_ann - md["beta_2_atmospheric_draw"] * PET_ann) \
-        / md["beta_3_drainage"] - config.DRAINAGE_DATUM
+        / md["beta_3_drainage"] - _dd
     md["EWI_spring"] = (md["beta_1_recharge"] * P_sp - md["beta_2_atmospheric_draw"] * PET_sp) \
-        / md["beta_3_drainage"] - config.DRAINAGE_DATUM
+        / md["beta_3_drainage"] - _dd
+    md["EWI_annual_model_a"] = (md["beta_1_recharge_model_a"] * P_ann
+                                - md["beta_2_atmospheric_draw_model_a"] * PET_ann) \
+        / md["beta_3_drainage_model_a"] - config.DRAINAGE_DATUM
     _coef_cols = ["beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage"]
-    md = md.set_index("piezo")[["EWI_annual", "EWI_spring", "Cluster"] + _coef_cols]
+    md = md.set_index("piezo")[["EWI_annual", "EWI_spring", "EWI_annual_model_a", "Cluster"] + _coef_cols]
 
     df = pd.DataFrame({"EbF": ebf}).join(msl5).join(md).dropna(subset=["EbF", "MSL5", "EWI_annual"])
     n = len(df)
@@ -1708,15 +1782,22 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
                     resid=res)
 
     fit = {c: _fit(c) for c in ["MSL5", "EWI_annual", "EWI_spring"]}
+    # 1.34.0 (D-332): Model A's annual index beside it, on the same piezometers where it is defined
+    if df["EWI_annual_model_a"].notna().all():
+        fit["EWI_annual_model_a"] = _fit("EWI_annual_model_a")
 
     # Williams' test: MSL5 vs annual EWI as EbF predictors (dependent)
-    r_ey = pearsonr(df["MSL5"], df["EbF"])[0]
-    r_ez = pearsonr(df["EWI_annual"], df["EbF"])[0]
-    r_yz = pearsonr(df["MSL5"], df["EWI_annual"])[0]
-    R = (1 - r_ey**2 - r_ez**2 - r_yz**2) + 2 * r_ey * r_ez * r_yz
-    t_w = (r_ey - r_ez) * np.sqrt((n - 1) * (1 + r_yz) /
-          (2 * ((n - 1) / (n - 3)) * R + ((r_ey + r_ez)**2 / 4) * (1 - r_yz)**3))
-    p_w = float(2 * (1 - _t.cdf(abs(t_w), n - 3)))
+    def _williams(col):
+        r_ey = pearsonr(df["MSL5"], df["EbF"])[0]
+        r_ez = pearsonr(df[col], df["EbF"])[0]
+        r_yz = pearsonr(df["MSL5"], df[col])[0]
+        R = (1 - r_ey**2 - r_ez**2 - r_yz**2) + 2 * r_ey * r_ez * r_yz
+        t_w = (r_ey - r_ez) * np.sqrt((n - 1) * (1 + r_yz) /
+              (2 * ((n - 1) / (n - 3)) * R + ((r_ey + r_ez)**2 / 4) * (1 - r_yz)**3))
+        return float(t_w), float(2 * (1 - _t.cdf(abs(t_w), n - 3)))
+    t_w, p_w = _williams("EWI_annual")
+    t_w_a, p_w_a = (_williams("EWI_annual_model_a") if "EWI_annual_model_a" in fit
+                    else (float("nan"), float("nan")))
 
     # A–D match bands (Ellenberg-F units), MSL5 vs annual EWI
     edges = [0, 0.15, 0.30, 0.50, np.inf]; labs = ["A", "B", "C", "D"]
@@ -1730,7 +1811,7 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
     out["resid_MSL5"] = fit["MSL5"]["resid"]
     out["resid_EWI_annual"] = fit["EWI_annual"]["resid"]
     out = out[["piezo", "Cluster", "EbF", "MSL5", "EWI_annual", "EWI_spring",
-               "resid_MSL5", "resid_EWI_annual"]]
+               "resid_MSL5", "resid_EWI_annual", "EWI_annual_model_a"]]
 
     # 1.20.0: Pearson r of Ellenberg-F with each SSM coefficient over the same
     # piezometers, so the "no single coefficient predicts it nearly as well"
@@ -1742,6 +1823,7 @@ def compute_ebf_crossvalidation(elev: pd.DataFrame):
             coef_r[c] = float(pearsonr(_pair[c], _pair["EbF"])[0])
 
     summary = dict(n=n, fit=fit, williams_t=float(t_w), williams_p=p_w, bands=bands,
+                   williams_t_model_a=t_w_a, williams_p_model_a=p_w_a,
                    coef_r=coef_r, coef_n=int(df[_coef_cols].notna().all(axis=1).sum()),
                    r_MSL5=fit["MSL5"]["r"], r_EWI_annual=fit["EWI_annual"]["r"])
     return out, summary
@@ -1937,11 +2019,12 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
        constant, not the mean-reversion time (D-109), and is kept as rho_ar1_expected_model_a.
        The five-year mean therefore behaves as intended.
 
-    2. Window sensitivity is nonetheless graded across the network, and it is a
-       matter of AMPLITUDE, not persistence. What governs the interannual spring
-       standard deviation — and hence the standard error of a window mean — is
-       β₂, not β₃. The two are themselves correlated across wells, which is why
-       the recession time looks diagnostic when examined alone.
+    2. Window sensitivity is nonetheless graded across the network. Which
+       coefficient governs the interannual spring standard deviation is
+       FORM-DEPENDENT (1.35.0, D-332): on Model A it is β₂ (partial r 0.58) and
+       not the recession time (0.10); on Model B, the headline, it reverses
+       (β₂ about 0.2, recession time about 0.7). Both are emitted (Model A as
+       *_model_a); the documents take the reading up in J-9 phase 3.
 
     3. The two indices fail at the same wells for opposite reasons: MSL5
        through the high β₂ that drives amplitude, the equilibrium index through
@@ -1978,9 +2061,14 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
         spread_mm = (float((pw["MSL5_m_bg"].max() - pw["MSL5_m_bg"].min()) * 1000.0)
                      if len(pw) > 2 else np.nan)
 
-        b3 = float(e["beta_3_drainage"])
-        se3 = e.get("se_beta_3", np.nan)
+        # 1.35.0 (D-332; Martin 2026-11-12 "Model B, A beside"): the headline quantities (t_R_months,
+        # beta_2, beta_3, se_beta_3) are Model B, read from the base columns; Model A's sit beside them
+        # as *_model_a, read from Model A's own columns.
+        b3 = float(e.get("beta_3_drainage_model_a", np.nan))
+        se3 = e.get("se_beta_3_model_a", np.nan)
         b3B = float(e.get("beta_3_B", np.nan))
+        b3Bc = float(e.get("beta_3_drainage", np.nan))      # Model B, the column the EWI uses
+        se3B = float(e.get("se_beta_3", np.nan))
         okB = np.isfinite(b3B) and 0.0 < b3B < 1.0
         msl5_se = sd_mm / np.sqrt(win) if np.isfinite(sd_mm) else np.nan
         ewi_se_b3 = (float(e["EWI_se_m_beta3"]) * 1000.0
@@ -2000,11 +2088,18 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
             t_efold_B_months=float(-1.0 / np.log(1.0 - b3B)) if okB else np.nan,
             beta_3_B=b3B,
             rho_ar1_expected_model_a=float((1.0 - b3) ** 12) if b3 < 1 else np.nan,  # D-221
-            t_R_months=1.0 / b3 if b3 > 0 else np.nan,
-            beta_2=float(e["beta_2_atmospheric_draw"]),
-            beta_3=b3,
-            se_beta_3=float(se3) if np.isfinite(se3) else np.nan,
-            rel_se_beta_3=float(se3) / b3 if (np.isfinite(se3) and b3 > 0) else np.nan,
+            # 1.35.0: Model B (beta_2 and t_R_months from the same form, so the partial correlations
+            # compare like with like); Model A beside it
+            t_R_months=1.0 / b3Bc if b3Bc > 0 else np.nan,
+            beta_2=float(e.get("beta_2_atmospheric_draw", np.nan)),
+            beta_3=b3Bc,
+            se_beta_3=se3B if np.isfinite(se3B) else np.nan,
+            rel_se_beta_3=se3B / b3Bc if (np.isfinite(se3B) and b3Bc > 0) else np.nan,
+            t_R_months_model_a=1.0 / b3 if b3 > 0 else np.nan,
+            beta_2_model_a=float(e.get("beta_2_atmospheric_draw_model_a", np.nan)),
+            beta_3_model_a=b3,
+            se_beta_3_model_a=float(se3) if np.isfinite(se3) else np.nan,
+            rel_se_beta_3_model_a=float(se3) / b3 if (np.isfinite(se3) and b3 > 0) else np.nan,
             msl5_window_se_mm=msl5_se,
             msl5_window_spread_mm=spread_mm,
             ewi_se_mm_beta3=ewi_se_b3,
@@ -2035,6 +2130,7 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
                 n_wells=int(len(g)),
                 n_wells_with_springs=int(len(gs)),
                 t_R_months_median=float(g["t_R_months"].median()),
+                t_R_months_model_a_median=float(g["t_R_months_model_a"].median()),
                 rho_ar1_expected_mean=float(g["rho_ar1_expected"].mean()),
                 rho_ar1_expected_model_a_mean=float(g["rho_ar1_expected_model_a"].mean()),
                 t_efold_B_months_median=float(g["t_efold_B_months"].median()),
@@ -2057,9 +2153,23 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
     nums = {"diag_min_springs": DIAG_MIN_SPRINGS, "diag_n_wells": int(len(d))}
 
     if len(d) >= 4:
-        r, p = stats.spearmanr(d["t_R_months"], d["rho_lag1"])
-        nums["rho_lag1_vs_tR_spearman_r"] = float(r)
-        nums["rho_lag1_vs_tR_spearman_p"] = float(p)
+        # 1.35.0 (D-332): Model B headline; Model A's same statistics as *_model_a
+        for sfx, tR, b2 in (("", "t_R_months", "beta_2"),
+                            ("_model_a", "t_R_months_model_a", "beta_2_model_a")):
+            dd = d.dropna(subset=[tR, b2])
+            if len(dd) < 4:
+                continue
+            r, p = stats.spearmanr(dd[tR], dd["rho_lag1"])
+            nums[f"rho_lag1_vs_tR_spearman_r{sfx}"] = float(r)
+            nums[f"rho_lag1_vs_tR_spearman_p{sfx}"] = float(p)
+            r, p = stats.spearmanr(dd[b2], dd[tR])
+            nums[f"beta2_vs_tR_spearman_r{sfx}"] = float(r)
+            nums[f"beta2_vs_tR_spearman_p{sfx}"] = float(p)
+            for lab, (x, z) in {"beta2_given_tR": (b2, tR),
+                                "tR_given_beta2": (tR, b2)}.items():
+                r, p, _ = _partial_spearman(dd, x, "spring_sd_mm", z)
+                nums[f"partial_springSD_vs_{lab}_r{sfx}"] = r
+                nums[f"partial_springSD_vs_{lab}_p{sfx}"] = p
         nums["rho_lag1_mean"] = float(d["rho_lag1"].mean())
         nums["rho_ar1_expected_mean"] = float(d["rho_ar1_expected"].mean())             # Model B (1.23.0)
         nums["rho_ar1_expected_median"] = float(d["rho_ar1_expected"].median())
@@ -2067,14 +2177,6 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
         nums["rho_ar1_expected_model_a_median"] = float(d["rho_ar1_expected_model_a"].median())
         nums["rho_lag1_median"] = float(d["rho_lag1"].median())
         nums["t_efold_B_months_median"] = float(d["t_efold_B_months"].median())
-        r, p = stats.spearmanr(d["beta_2"], d["t_R_months"])
-        nums["beta2_vs_tR_spearman_r"] = float(r)
-        nums["beta2_vs_tR_spearman_p"] = float(p)
-        for lab, (x, z) in {"beta2_given_tR": ("beta_2", "t_R_months"),
-                            "tR_given_beta2": ("t_R_months", "beta_2")}.items():
-            r, p, _ = _partial_spearman(d, x, "spring_sd_mm", z)
-            nums[f"partial_springSD_vs_{lab}_r"] = r
-            nums[f"partial_springSD_vs_{lab}_p"] = p
 
     # Site-mean spring series: the network-scale counterpart to the per-well
     # autocorrelation, free of per-well measurement noise.
@@ -2093,12 +2195,13 @@ def compute_metric_diagnostics(annual: pd.DataFrame,
         nums["n_wells_index_comparison"] = int(len(cmp_))
         nums["n_wells_ewi_more_precise_than_msl5"] = int(
             (cmp_["ewi_se_mm_beta3"] < cmp_["msl5_window_se_mm"]).sum())
-    ext = diag[(diag["network"] == "extended")].dropna(
-        subset=["rel_se_beta_3", "n_obs_ssm"])
-    if len(ext) >= 4:
-        r, p = stats.spearmanr(ext["n_obs_ssm"], ext["rel_se_beta_3"])
-        nums["extended_relSE_beta3_vs_nobs_spearman_r"] = float(r)
-        nums["extended_relSE_beta3_vs_nobs_spearman_p"] = float(p)
+    for sfx in ("", "_model_a"):                                  # 1.35.0: B headline, A beside
+        ext = diag[(diag["network"] == "extended")].dropna(
+            subset=[f"rel_se_beta_3{sfx}", "n_obs_ssm"])
+        if len(ext) >= 4:
+            r, p = stats.spearmanr(ext["n_obs_ssm"], ext[f"rel_se_beta_3{sfx}"])
+            nums[f"extended_relSE_beta3_vs_nobs_spearman_r{sfx}"] = float(r)
+            nums[f"extended_relSE_beta3_vs_nobs_spearman_p{sfx}"] = float(p)
 
     # T-91: per-cluster interannual spring SD (reference network), committed
     # so the §4.8.4 "182 mm at C1 through ... 404 mm at C4" sentence binds to
@@ -2839,6 +2942,13 @@ def main() -> int:
             # the Table S7.1 caption; until v1.5.0 they reached only the run
             # transcript and so had no committed-CSV trace.
             report_nums.update({f"ewi_msl5_{k}": v for k, v in calib.items()})
+            # 1.34.0 (D-332): Model B's index is the headline; the counted exclusions and Model A's
+            # open-dune calibration beside it (ewi_msl5_*_model_a)
+            report_nums["ewi_n_wells_model_b_excluded_datum"] = len(ewi.attrs.get("excluded_datum", {}))
+            if "EWI_m_bg_model_a" in ewi.columns:
+                _ea = ewi.drop(columns=["EWI_m_bg"]).rename(columns={"EWI_m_bg_model_a": "EWI_m_bg"})
+                _, _calib_a = compute_ewi_msl5_comparison(_ea, latest)
+                report_nums.update({f"ewi_msl5_{k}_model_a": v for k, v in _calib_a.items()})
             info(f"  open-dune calibration  MSL5 = {calib['intercept_a']:+.3f} + "
                  f"{calib['slope_b']:.3f}·EWI   "
                  f"(n={calib['n_calibration']}, r={calib['r']:.3f}, "
@@ -2917,6 +3027,13 @@ def main() -> int:
             })
             info("  EbF ~ SSM coefficients: " +
                  ", ".join(f"{k} r={v:+.3f}" for k, v in _cr.items()))
+        # 1.34.0 (D-332): Model A's annual index against Ellenberg-F, beside the Model B headline
+        if "EWI_annual_model_a" in ebf_summary["fit"]:
+            report_nums.update({
+                "ebf_r_ewi_annual_model_a": ebf_summary["fit"]["EWI_annual_model_a"]["r"],
+                "ebf_williams_t_model_a": ebf_summary["williams_t_model_a"],
+                "ebf_williams_p_model_a": ebf_summary["williams_p_model_a"],
+            })
         f = ebf_summary["fit"]
         info(f"  EbF ~ MSL5:  r={f['MSL5']['r']:+.3f} [{f['MSL5']['r_lo']:+.2f},{f['MSL5']['r_hi']:+.2f}]  "
              f"RMSE={f['MSL5']['rmse']:.3f} EbF-units")
@@ -3014,8 +3131,7 @@ def main() -> int:
                      f"over {diag_nums['site_mean_spring_n_years']} years")
             info(f"    ρ vs recession time: Spearman "
                  f"r={diag_nums.get('rho_lag1_vs_tR_spearman_r', float('nan')):+.3f}, "
-                 f"p={diag_nums.get('rho_lag1_vs_tR_spearman_p', float('nan')):.3f} "
-                 f"— no association")
+                 f"p={diag_nums.get('rho_lag1_vs_tR_spearman_p', float('nan')):.3f} (Model B)")
             info("  interannual spring SD (what drives window sensitivity):")
             info(f"    vs β₂ controlling for t_R: partial r="
                  f"{diag_nums.get('partial_springSD_vs_beta2_given_tR_r', float('nan')):+.3f}, "

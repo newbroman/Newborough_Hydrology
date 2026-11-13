@@ -88,7 +88,15 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.30.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a; Martin: "the hindcast film should be a
+__version__ = "1.31.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b; Martin: "essentially everything moves to
+#   model B"). The headline coefficient tables are Model B (fit_ssm(intercept=True), beta_3 bounded, model_utils 1.14.0):
+#   03_master_data, 03_03, 03_02 (and its bootstrap 03_05), both bases 03_14/03_15 (D-034), 03_19, and the checks on the
+#   headline (03_04 lag, 03_06 leave-one-out, 03_07 C1 split, 03_13 composition). Existing column names carry Model B;
+#   each row gains alpha, pvalue_alpha, implied_datum_m (DRAINAGE_DATUM - alpha/beta_3, the base B drains to) and
+#   beta_3_bound_binds; Model A is kept beside it as *_model_a columns. The datum family (03_08-03_12, 03_17-03_20) stays
+#   Model A: it is the record of testing A's datum. 03_16 unchanged. New report numbers model_b_n_wells_beta3_bound,
+#   model_b_n_wells_base_above_ground.
+# 1.30.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a; Martin: "the hindcast film should be a
 #   special version of model b that is based on the median of the warren"). warren_open_dune_fit(): the film's one rule is
 #   Model B (fit_ssm_intercept) on the MEDIAN hydrograph of the warren's member wells (was Model A on their mean); the
 #   seed comes from the same median. 03_22 gains form, alpha, pvalue_alpha, implied_datum_m, beta_3_bound_binds;
@@ -327,7 +335,7 @@ from utils.paths import (
     DATA_DIR,
 )
 from utils.config import (
-    FOREST_CIDS, R2_SPREAD_PCTL, FILM_WARREN_CLUSTERS, HINDCAST_SEED_MONTHS,
+    FOREST_CIDS, R2_SPREAD_PCTL, MODEL_B_BETA3_MIN, FILM_WARREN_CLUSTERS, HINDCAST_SEED_MONTHS,
     SSM_BOOT_SEED,
     CLUSTER_LABELS, CLUSTER_COLOURS, CLUSTER_COLOURS_BW, DRAINAGE_DATUM,
     HEADLINE_LAG, BW_MODE, BW_LINESTYLES, CENTROID_COMPOSITION_REF_DATE,
@@ -655,6 +663,42 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
     return centroids
 
 
+def _fit_b(h_series, climate, **kw):
+    """The headline fit (1.31.0, D-332): Model B, fit_ssm(intercept=True), beta_3 bounded below at
+    MODEL_B_BETA3_MIN inside model_utils. Same arguments as the Model A call it replaces."""
+    return fit_ssm(h_series, climate, intercept=True, **kw)
+
+
+def _b_extra(fit) -> dict:
+    """Model B's own columns (1.31.0): alpha, its p-value, the implied drainage base
+    DRAINAGE_DATUM - alpha/beta_3 (metres below ground; Model B is Model A at that datum, so a
+    consumer that uses beta_3 with a datum passes this in its place) and the bound flag."""
+    if fit is None:
+        return {"alpha": np.nan, "pvalue_alpha": np.nan, "implied_datum_m": np.nan,
+                "beta_3_bound_binds": np.nan}
+    b3, a = fit["beta_3_drainage"], fit.get("alpha", np.nan)
+    return {"alpha": a, "pvalue_alpha": fit.get("pvalue_alpha", np.nan),
+            "implied_datum_m": (DRAINAGE_DATUM - a / b3) if (np.isfinite(b3) and b3 > 0) else np.nan,
+            "beta_3_bound_binds": bool(fit.get("beta_3_bound_binds", False))}
+
+
+def _a_cols(fit_a, r2_key: str = "R2", lcsc_key: str | None = "LCSC_percent") -> dict:
+    """Model A beside Model B (1.31.0, D-332): the same coefficients suffixed _model_a."""
+    g = (lambda k: fit_a[k] if (fit_a is not None and k in fit_a) else np.nan)
+    out = {"beta_1_recharge_model_a": g("beta_1_recharge"),
+           "beta_2_atmospheric_draw_model_a": g("beta_2_atmospheric_draw"),
+           "beta_3_drainage_model_a": g("beta_3_drainage"),
+           "se_beta_3_model_a": g("se_beta_3"),
+           "pvalue_beta_1_model_a": g("pvalue_beta_1"),
+           "pvalue_beta_2_model_a": g("pvalue_beta_2"),
+           "pvalue_beta_3_model_a": g("pvalue_beta_3"),
+           f"{r2_key}_model_a": g("R2")}
+    if lcsc_key:
+        b1 = g("beta_1_recharge")
+        out[f"{lcsc_key}_model_a"] = (100.0 / b1) if (np.isfinite(b1) and b1 > 0) else np.nan
+    return out
+
+
 def _fit_span(fit: dict) -> tuple[str, str]:
     """
     First and last month actually entering a fit, as YYYY-MM.
@@ -704,10 +748,12 @@ def per_well_window_sensitivity(master_df: pd.DataFrame,
         h_series = wells_clean[target_col]
         for basis, window in (("full_record", None),
                               ("comparison_window", LCSC_DATA_LIMIT)):
-            fit = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=window,
-                          min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
+            fit = _fit_b(h_series, climate, lag=HEADLINE_LAG, window=window,
+                         min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
             if fit is None:
                 continue
+            fit_a = fit_ssm(h_series, climate, lag=HEADLINE_LAG, window=window,
+                            min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
             fit_start, fit_end = _fit_span(fit)
             rows.append({
                 "Name_Original": well_name,
@@ -728,6 +774,7 @@ def per_well_window_sensitivity(master_df: pd.DataFrame,
                 "LCSC_percent": 100.0 / fit["beta_1_recharge"],
                 "beta_3_significant_positive": bool(
                     fit["beta_3_drainage"] > 0 and fit["pvalue_beta_3"] < 0.05),
+                **_b_extra(fit), **_a_cols(fit_a),
             })
     return pd.DataFrame(rows)
 
@@ -760,10 +807,11 @@ def centroid_window_sensitivity(centroids: dict[int, pd.Series],
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
         for basis, window in (("full_record", None),
                               ("comparison_window", LCSC_DATA_LIMIT)):
-            fit = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=window)
+            fit = _fit_b(centroids[cid], climate, lag=HEADLINE_LAG, window=window)
             if fit is None:
                 warn(f"  {label}: no fit on the {basis} basis")
                 continue
+            fit_a = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=window)
             fit_start, fit_end = _fit_span(fit)
             rows.append({
                 "Cluster": cid,
@@ -782,6 +830,7 @@ def centroid_window_sensitivity(centroids: dict[int, pd.Series],
                 "pvalue_beta_3": fit["pvalue_beta_3"],
                 "R2": fit["R2"],
                 "LCSC_percent": 100.0 / fit["beta_1_recharge"],
+                **_b_extra(fit), **_a_cols(fit_a),
             })
     df = pd.DataFrame(rows)
 
@@ -858,7 +907,7 @@ def centroid_composition_sensitivity(cluster_df: pd.DataFrame,
         published_b3 = np.nan
         for basis, start in bases:
             s = series if start is None else series[series.index >= start]
-            fit = fit_ssm(s, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(s, climate, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
             b3 = fit["beta_3_drainage"]
@@ -929,9 +978,13 @@ def per_well_fits(cluster_df: pd.DataFrame,
 
         h_series = wells_clean[target_col]
 
-        fit = fit_ssm(h_series, climate, lag=HEADLINE_LAG,
-                      window=LCSC_DATA_LIMIT,
-                      min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
+        # 1.31.0 (D-332): the headline is Model B; Model A beside it as *_model_a columns.
+        fit = _fit_b(h_series, climate, lag=HEADLINE_LAG,
+                     window=LCSC_DATA_LIMIT,
+                     min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
+        fit_a = fit_ssm(h_series, climate, lag=HEADLINE_LAG,
+                        window=LCSC_DATA_LIMIT,
+                        min_obs=MIN_OBS_PER_WELL, dry_bound=_db(target_col))
 
         # Empirical LCSC — ratio of rainfall to water-table rise during
         # unambiguous recharge events. Kept for cross-comparison with the
@@ -978,6 +1031,8 @@ def per_well_fits(cluster_df: pd.DataFrame,
                 "pvalue_beta_3":           fit["pvalue_beta_3"],
                 "Model_R2":                fit["R2"],
                 "n":                       fit["n"],
+                **_b_extra(fit),
+                **_a_cols(fit_a, r2_key="Model_R2", lcsc_key="LCSC_Regression_Percent"),
             })
         else:
             results.append({
@@ -995,6 +1050,8 @@ def per_well_fits(cluster_df: pd.DataFrame,
                 "pvalue_beta_3":           np.nan,
                 "Model_R2":                np.nan,
                 "n":                       0,
+                **_b_extra(None),
+                **_a_cols(fit_a, r2_key="Model_R2", lcsc_key="LCSC_Regression_Percent"),
             })
 
     return pd.DataFrame(results)
@@ -1020,7 +1077,8 @@ def centroid_headline_fits(centroids: dict[int, pd.Series],
     violations = []
     warnings = []
     for cid in sorted(centroids):
-        fit = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
+        fit = _fit_b(centroids[cid], climate, lag=HEADLINE_LAG, window=None)   # 1.31.0: Model B
+        fit_a = fit_ssm(centroids[cid], climate, lag=HEADLINE_LAG, window=None)
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
 
         if fit is None:
@@ -1032,6 +1090,7 @@ def centroid_headline_fits(centroids: dict[int, pd.Series],
                 "R2": np.nan, "n": 0,
                 "LCSC_percent": np.nan,
                 "drainage_datum_m": DRAINAGE_DATUM,
+                **_b_extra(None), **_a_cols(fit_a),
             })
             continue
 
@@ -1049,6 +1108,7 @@ def centroid_headline_fits(centroids: dict[int, pd.Series],
             "n":             fit["n"],
             "LCSC_percent":  lcsc,
             "drainage_datum_m": DRAINAGE_DATUM,
+            **_b_extra(fit), **_a_cols(fit_a),
         })
         hard, soft = assert_physical_signs(fit, f"C{cid} {label}")
         violations.extend(hard)
@@ -1163,7 +1223,7 @@ def lag_diagnostic(centroids: dict[int, pd.Series],
     for cid in sorted(centroids):
         label = CLUSTER_LABELS.get(cid, f"C{cid}")
         for lag in LAGS:
-            fit = fit_ssm(centroids[cid], climate, lag=lag, window=None)
+            fit = _fit_b(centroids[cid], climate, lag=lag, window=None)
             if fit is None:
                 rows.append({
                     "Cluster": cid, "Cluster_Label": label, "Lag_months": lag,
@@ -1240,7 +1300,7 @@ def bootstrap_centroid_fits(cluster_df: pd.DataFrame,
                 cols[f"{col}__{i}"] = wells_clean[col]  # dedup with replacement
             centroid = pd.DataFrame(cols).mean(axis=1)
 
-            fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(centroid, climate, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
             beta_1s.append(fit["beta_1_recharge"])
@@ -1315,7 +1375,7 @@ def leave_one_out_fits(cluster_df: pd.DataFrame,
                 cols[col] = wells_clean[col]
             centroid = pd.DataFrame(cols).mean(axis=1)
 
-            fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(centroid, climate, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 rows.append({
                     "Cluster": cid, "Cluster_Label": label,
@@ -1368,7 +1428,7 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
     def fit_and_boot(series_window: pd.Series,
                       window_label: str,
                       bs_seed: int) -> dict:
-        headline = fit_ssm(series_window, climate, lag=HEADLINE_LAG, window=None)
+        headline = _fit_b(series_window, climate, lag=HEADLINE_LAG, window=None)
         if headline is None:
             return {"window": window_label,
                     "beta_1_recharge": np.nan, "beta_2_atmospheric_draw": np.nan, "beta_3_drainage": np.nan,
@@ -1402,7 +1462,7 @@ def c1_split_window_diagnostic(centroids: dict[int, pd.Series],
                     series = series[series.index >= split_date]
                 cols[f"{col}__{i}"] = series
             centroid = pd.DataFrame(cols).mean(axis=1)
-            fit = fit_ssm(centroid, climate, lag=HEADLINE_LAG, window=None)
+            fit = _fit_b(centroid, climate, lag=HEADLINE_LAG, window=None)
             if fit is None:
                 continue
             b1s.append(fit["beta_1_recharge"])
@@ -2696,6 +2756,10 @@ def build_summary_table(mech_df: pd.DataFrame,
         "beta_1_frac_positive",
         "amplitude_heterogeneous", "post2018_amp_lo_m", "post2018_amp_hi_m",
         "n",
+        # 1.31.0 (D-332): Model B's own terms, and Model A beside it
+        "alpha", "pvalue_alpha", "implied_datum_m", "beta_3_bound_binds",
+        "beta_1_recharge_model_a", "beta_2_atmospheric_draw_model_a", "beta_3_drainage_model_a",
+        "R2_model_a", "LCSC_percent_model_a",
     ]
     col_order = [c for c in col_order if c in m.columns]
     return m[col_order].sort_values("Cluster").reset_index(drop=True)
@@ -2834,6 +2898,23 @@ def export_regional_averages(centroids: dict[int, pd.Series],
     df_export["PET_mm"] *= 1000
     df_export.to_csv(INT_REGIONAL_AVG)
     saved(f"{INT_REGIONAL_AVG.name}")
+
+
+def _model_b_count_report_numbers(rpt, master_df: pd.DataFrame) -> None:
+    """1.31.0 (D-332): the per-well Model B fits (comparison window, 03_master_data) whose beta_3 sits at
+    the bound MODEL_B_BETA3_MIN, and those whose implied drainage base DRAINAGE_DATUM - alpha/beta_3 is
+    not below ground (left out of the forward uses downstream, as Scripts 39 and 44 do; coefficients kept)."""
+    _n = len(master_df)
+    bind = master_df["beta_3_bound_binds"].fillna(False).astype(bool)
+    above = pd.to_numeric(master_df["implied_datum_m"], errors="coerce") <= 0
+    rpt.add("model_b_n_wells_beta3_bound", int(bind.sum()), unit="wells",
+            note=f"reference wells whose Model B beta_3 sits at the lower bound {MODEL_B_BETA3_MIN} "
+                 f"(comparison window, 03_master_data; of {_n}); fit kept")
+    rpt.add("model_b_n_wells_base_above_ground", int(above.sum()), unit="wells",
+            note=f"reference wells whose Model B implied drainage base (DRAINAGE_DATUM - alpha/beta_3) is "
+                 f"not below ground, of {_n}: "
+                 + (", ".join(master_df.loc[above, "Name_Original"].astype(str)) or "none")
+                 + "; coefficients published, left out of forward uses")
 
 
 def _open_dune_r2_report_numbers(rpt, master_df: pd.DataFrame) -> None:
@@ -3072,6 +3153,7 @@ def export_regional_averages_maod(cluster_df: pd.DataFrame,
             _t96_report_numbers(rpt, extra["master_df"], extra["sens_df"], extra["inv_df"],
                                 extra["well_opt_df"], maod_df[_ref].mean(), cluster_df)
             _open_dune_r2_report_numbers(rpt, extra["master_df"])
+            _model_b_count_report_numbers(rpt, extra["master_df"])
             if extra.get("zero_df") is not None:
                 _datum_zero_report_numbers(rpt, extra["zero_df"])
             if extra.get("win_df") is not None:

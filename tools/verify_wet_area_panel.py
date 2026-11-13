@@ -15,7 +15,8 @@ WHAT IT CHECKS, AND WHY EACH CHECK IS WORTH MAKING
      them from the same code.
 
   2. THE RECURRENCE ITSELF, against the project's closed form. Both sides above
-     iterate h(t) = (1-b3)h(t-1) + b1*lam*P - b2*PET - b3*D forward, so a shared
+     iterate h(t) = (1-b3)h(t-1) + b1*lam*P - b2*PET - b3*z forward (z = the cluster's Model B
+     implied datum, D - alpha/b3; D-332), so a shared
      sign error would pass check 1 unnoticed. So each well's projected h_n is
      handed BACK to utils.model_utils.pflood_lambda as h_target: the lambda it
      returns must be the lambda the projection ran at. That function is the
@@ -56,7 +57,11 @@ USAGE
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) - 2026-09-17. Check 7: the per-mode
+__version__ = "1.3.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B: the Python projection and the
+#   closed-form inversion run each well at its cluster's implied datum z = cluster_coeffs[c].implied_datum_m
+#   (DRAINAGE_DATUM - alpha/b3; Script 11b 1.25.0, template v1.5.0), not the bundle's single drainage_datum, which is
+#   only the fallback for a pre-D-332 feed.
+# 1.2.0  # Hollingham (2026) - 2026-09-17. Check 7: the per-mode
 #   RMSE and rho the feed carries, recomputed here from data/sentinel/well_fit.csv, and the
 #   summary CSV's own fail condition (Mode R must beat Mode C) asserted. The page
 #   quotes these where it explains the two modes, so a wrong one is a wrong sentence
@@ -169,6 +174,12 @@ def run_page(core: str, bundle: str, scen: dict) -> dict:
 
 
 # ── the independent Python side ──────────────────────────────────────────────
+def _datum(c: dict, D: float) -> float:
+    """1.3.0 (D-332): the cluster's Model B implied datum z; D only for a pre-D-332 feed."""
+    z = c.get("implied_datum_m")
+    return float(z) if z is not None else float(D)
+
+
 def py_project(bundle: dict, feed: dict, lam: float, ref_month: int, ref_year: int,
                horizon: int) -> list[dict]:
     coeffs, P, E = bundle["cluster_coeffs"], bundle["P_clim"], bundle["PET_clim"]
@@ -197,7 +208,7 @@ def py_project(bundle: dict, feed: dict, lam: float, ref_month: int, ref_year: i
                 continue
             c = coeffs[w["cluster"]]
             p, e = P.get(str(m), P.get(m)), E.get(str(m), E.get(m))
-            h[n] = (1 - c["b3"]) * h[n] + c["b1"] * lam * p - c["b2"] * e - c["b3"] * D
+            h[n] = (1 - c["b3"]) * h[n] + c["b1"] * lam * p - c["b2"] * e - c["b3"] * _datum(c, D)
             vals.append(h[n])
         med = float(np.median(vals)) if vals else float("nan")
         hc = min(rng["max"], max(rng["min"], med))
@@ -297,7 +308,8 @@ def main() -> int:
             c = bundle["cluster_coeffs"][w["cluster"]]
             got = pflood_lambda(h_target=pg["final_levels"][n], h_0=starts[n],
                                 b1=c["b1"], b2=c["b2"], b3=c["b3"],
-                                months=months, P_clim=P, PET_clim=E, drainage_datum=D)["lam"]
+                                months=months, P_clim=P, PET_clim=E,
+                                drainage_datum=_datum(c, D))["lam"]
             checked += 1
             worst_lam = max(worst_lam, abs(got - sc["lambda"]))
             if abs(got - sc["lambda"]) > TOL_LAM:

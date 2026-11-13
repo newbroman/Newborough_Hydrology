@@ -2,13 +2,22 @@ Parameter,Well,Era,Value,Unit,Note
 scrape_window_months_post,,Apr 2015-Dec 2017,31.0,months,fitted months in the post-scrape window at CEH36 (scrape to clearfell): the 'N-month post-scraping record' the documents quote
 scrape_window_months_pre,,record start-Apr 2015,47.0,months,fitted months in the pre-scrape window at CEH36
 scrape_propagation_n_wells,,,18.0,count,"CEH36, the uphill transect and the controls fitted in both windows"
+scrape_propagation_n_fits_model_b_bound_binds,,,1.0,count,"split-window Model B fits (pre and post, over scrape_propagation_n_wells wells) whose beta_3 sits at the lower bound MODEL_B_BETA3_MIN (kept; D-332)"
 scrape_propagation_near_n_wells,,,8.0,count,uphill wells within 575 m of CEH36
-scrape_propagation_near_n_positive,,,7.0,count,uphill wells within 575 m of CEH36 with a positive BACI-corrected delta-beta3
-scrape_propagation_near_db3_mean,,,0.002930720825547111,per month,"mean BACI-corrected delta-beta3, uphill wells within 575 m of CEH36"
-scrape_propagation_near_db3_t,,,2.4740303288967653,-,"one-sample t against zero, df = 7"
-scrape_propagation_near_db3_p,,,0.042580817570413945,-,two-sided p of the one-sample t
-scrape_propagation_uphill_dist_r,,,-0.27995553107983073,-,"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10)"
-scrape_propagation_uphill_dist_p,,,0.43337945104883735,-,"two-sided p of Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10)"
+scrape_propagation_near_n_positive,,,1.0,count,"uphill wells within 575 m of CEH36 with a positive BACI-corrected delta-beta3 (Model B; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_near_db3_mean,,,-0.035856254037701776,per month,"mean BACI-corrected delta-beta3, uphill wells within 575 m of CEH36 (Model B; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_near_db3_t,,,-3.9362770691227285,-,"one-sample t against zero, df = 7 (Model B; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_near_db3_p,,,0.005630156358623044,-,"two-sided p of the one-sample t (Model B; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_uphill_dist_r,,,0.056159573356880044,-,"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10; Model B; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_uphill_dist_p,,,0.8775376540258649,-,"two-sided p of Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10; Model B; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_near_n_positive_model_a,,,7.0,count,"uphill wells within 575 m of CEH36 with a positive BACI-corrected delta-beta3 (Model A sensitivity; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_near_db3_mean_model_a,,,0.002930720825547111,per month,"mean BACI-corrected delta-beta3, uphill wells within 575 m of CEH36 (Model A sensitivity; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_near_db3_t_model_a,,,2.4740303288967653,-,"one-sample t against zero, df = 7 (Model A sensitivity; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_near_db3_p_model_a,,,0.042580817570413945,-,"two-sided p of the one-sample t (Model A sensitivity; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_uphill_dist_r_model_a,,,-0.27995553107983073,-,"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10; Model A sensitivity; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
+scrape_propagation_uphill_dist_p_model_a,,,0.43337945104883735,-,"two-sided p of Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = 10; Model A sensitivity; form-dependent (Model A and Model B disagree in sign), not established (D-333))"
 scrape_propagation_uphill_n_wells,,,10.0,count,uphill wells in the distance test
 scrape_propagation_uphill_dist_min_m,,,247.42675683927152,m,distance from CEH36 to the nearest uphill well of the propagation transect (minimum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m
 scrape_propagation_uphill_dist_max_m,,,775.693851155872,m,distance from CEH36 to the farthest uphill well of the propagation transect (maximum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m
+scrape_bar_n_b3_held_at_bound,,C4,1.0,count,"clusters whose 'Scraping (nearby)' bar (09b_04) would have a post-scrape beta_3 below MODEL_B_BETA3_MIN and is held at the bound (D-332); unbounded C4 -0.00327 — WITHDRAWN (D-333): built from a beta multiplier of single-well era refits, inside its noise; pending T-209"
+scenario_n_keys_withdrawn_d333,,,1.0,keys,"report keys in this file whose note carries the D-333 withdrawal; the 'Scraping (nearby)', 'Clearfell' and 'Thinning 50%' rows of 09b_04 and the Clearfell / Thinning 50% rows of 09b_05 carry status 'withdrawn (D-333)'"

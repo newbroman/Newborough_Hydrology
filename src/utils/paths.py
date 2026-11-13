@@ -11,7 +11,9 @@ Intermediate files (read by downstream scripts) live in OUT_DIR root.
 Final outputs (figures, tables, reports) live in per-script subfolders.
 """
 
-__version__ = "1.87.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). OUT_39_THREE_FORMS (Script 39 1.7.0):
+__version__ = "1.88.0"  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). OUT_09D_REPORT_NUMBERS (Script 09d
+#   3.13.0): the count of withdrawn scenario rows. Additive.
+# 1.87.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). OUT_39_THREE_FORMS (Script 39 1.7.0):
 #   the three forms per CCW well against 1989-96, dry months scored. Additive.
 # 1.86.0  # Hollingham (2026) - 2026-11-05. OUT_55_SHARE_FIG for Script 55 1.1.0:
 #   the §7.1 drainage share per cluster with the Stage I Sy bracket, asked for by Martin after reading 55_02. Additive.
@@ -728,6 +730,7 @@ OUT_09G_LAY_DRIVERS_SVG     = DIR_09 / "09g_mechanism_lay_drivers.svg"
 OUT_09G_LAY_DRIVERS_PNG     = DIR_09 / "09g_mechanism_lay_drivers.png"
 OUT_09D_SUMMER_SCENARIO     = DIR_09 / "09d_02_summer_scenario_comparison.png"
 OUT_09D_SUMMER_SCENARIO_CSV = DIR_09 / "09d_02_summer_scenario_comparison.csv"
+OUT_09D_REPORT_NUMBERS      = DIR_09 / "09d_report_numbers.csv"   # D-333: the count of scenario rows withdrawn (09d had no report numbers before)
 
 # Script 09e — CEH36 robustness analysis
 OUT_09E_REPORT_NUMBERS      = DIR_09 / "09e_report_numbers.csv"

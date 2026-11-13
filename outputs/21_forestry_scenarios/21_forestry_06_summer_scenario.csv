@@ -1,16 +1,16 @@
-Scenario,Cluster,Delta_vol_summer_mm_per_month
-Clearfell,C1,0.0
-Clearfell,C2,0.0
-Clearfell,C3,0.0
-Clearfell,C4,2.8
-Clearfell,C5,1.8
-Thinning 50%,C1,0.0
-Thinning 50%,C2,0.0
-Thinning 50%,C3,0.0
-Thinning 50%,C4,1.4
-Thinning 50%,C5,0.9
-Broadleaf,C1,0.0
-Broadleaf,C2,0.0
-Broadleaf,C3,0.0
-Broadleaf,C4,-4.4
-Broadleaf,C5,-2.8
+Scenario,Cluster,Delta_vol_summer_mm_per_month,status
+Clearfell,C1,0.0,withdrawn (D-333)
+Clearfell,C2,0.0,withdrawn (D-333)
+Clearfell,C3,0.0,withdrawn (D-333)
+Clearfell,C4,-3.7,withdrawn (D-333)
+Clearfell,C5,-2.4,withdrawn (D-333)
+Thinning 50%,C1,0.0,withdrawn (D-333)
+Thinning 50%,C2,0.0,withdrawn (D-333)
+Thinning 50%,C3,0.0,withdrawn (D-333)
+Thinning 50%,C4,-1.9,withdrawn (D-333)
+Thinning 50%,C5,-1.2,withdrawn (D-333)
+Broadleaf,C1,0.0,
+Broadleaf,C2,0.0,
+Broadleaf,C3,0.0,
+Broadleaf,C4,-4.3,
+Broadleaf,C5,-2.8,

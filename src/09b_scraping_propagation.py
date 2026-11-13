@@ -30,7 +30,29 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.11.0"  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The 'Scraping (nearby)' bars (built
+#   from the BACI centroid delta-beta_3 of split-window refits) and the Clearfell / Thinning 50% bars (a beta_2
+#   multiplier of single-well era refits, clearfell_common.load_clearfell_impact_b2_multiplier) are WITHDRAWN under
+#   D-333 pending T-209. No value changes: scrape_bar_n_b3_held_at_bound (a property of the scrape bars) gets
+#   config.D333_WITHDRAWN_NOTE appended to its note, a count key scenario_n_keys_withdrawn_d333 is written, one warn()
+#   names the withdrawn bars, 09b_04 and 09b_05 gain a `status` column ("withdrawn (D-333)" on those rows), and the
+#   two figures' legend entries say "withdrawn (D-333)" (legends moved outside the axes). The delta-beta_3 propagation
+#   tests (scrape_propagation_*) are not withdrawn but their notes say "form-dependent (Model A and Model B disagree
+#   in sign), not established (D-333)", as D-333 treats Script 33's correlation; the observed CEH36-type scraping bar,
+#   Broadleaf and the climate bars are not touched.
+# 1.13.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b, coordinator follow-up). A scrape bar's
+#   post-scrape b3_new = b3*(1 + baci_db3_pct) below config.MODEL_B_BETA3_MIN is held AT the bound (D-332 imposes
+#   beta_3 > 0 on Model B as a bound): not withheld, no delta-alpha. Flagged on the console, in the new column
+#   b3_held_at_bound of 09b_04_scenario_comparison.csv, and counted (scrape_bar_n_b3_held_at_bound; C4 today).
+# 1.12.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The split-window fits are Model B
+#   (fit_ssm(intercept=True), same windows and MIN_OBS_SPLIT; beta_3 bounded at MODEL_B_BETA3_MIN): every pre_/post_/
+#   raw_/baci_ coefficient column and the delta-beta3 report numbers now carry Model B. New columns pre_alpha,
+#   post_alpha, raw_dalpha, baci_dalpha, pre_/post_b3_bound_binds; Model A kept beside them as pre_b3_model_a,
+#   post_b3_model_a, raw_db3_model_a, baci_db3_model_a, baci_db3_pct_model_a, and as _model_a report numbers for every
+#   delta-beta3 key (scrape_propagation_near_*, scrape_propagation_uphill_dist_r/p). New key
+#   scrape_propagation_n_fits_model_b_bound_binds. The scrape bars run at each cluster's implied datum
+#   (scraping_common 1.13.0 h_disp): b3*h_disp against b3_new*(h_disp - GROUND_LOWERING), the base held fixed.
+# 1.11.0  # Hollingham (2026) - 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
 #   report9 quotes the nearest and farthest uphill-well distance from CEH36; new rows
 #   scrape_propagation_uphill_dist_min_m and scrape_propagation_uphill_dist_max_m. Emit-only.
 # 1.10.0  # Hollingham (2026) - 2026-10-05. T-108: emits the distance-decay test across the
@@ -70,7 +92,8 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N,
-                          SCRAPE_PROPAGATION_NEAR_M)
+                          SCRAPE_PROPAGATION_NEAR_M, MODEL_B_BETA3_MIN,
+                          D333_WITHDRAWN_NOTE, D333_WITHDRAWN_STATUS)   # 1.14.0 (D-333)
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
 
@@ -139,10 +162,17 @@ def _get_series(well_name, wells_clean, wells_ext):
     return None
 
 
-def _fit_era(series, climate, start, end):
+def _fit_era(series, climate, start, end, intercept=True):
+    """1.12.0 (D-332): Model B (free intercept, beta_3 bounded) by default;
+    intercept=False is the Model A sensitivity (fixed datum DRAINAGE_DATUM)."""
     era_series = series.copy()
     era_series[(era_series.index < start) | (era_series.index >= end)] = np.nan
-    return fit_ssm(era_series, climate, min_obs=MIN_OBS_SPLIT)
+    return fit_ssm(era_series, climate, min_obs=MIN_OBS_SPLIT, intercept=intercept)
+
+
+def _b3a(fit):
+    """beta_3 of a Model A fit, NaN when the fit is missing."""
+    return fit["beta_3_drainage"] if fit is not None else np.nan
 
 
 def _well_distance(well_name, locs):
@@ -206,6 +236,9 @@ def main():
                         pd.Timestamp("2005-01-01"), SCRAPE_DATE)
         post = _fit_era(series, climate,
                         SCRAPE_DATE, FELL_DATE)
+        # Model A sensitivity (D-332): the same windows at the fixed datum
+        pre_a  = _fit_era(series, climate, pd.Timestamp("2005-01-01"), SCRAPE_DATE, intercept=False)
+        post_a = _fit_era(series, climate, SCRAPE_DATE, FELL_DATE, intercept=False)
 
         if pre is None or post is None:
             warn(f"{well_name} \u2014 insufficient data in one or both windows")
@@ -235,6 +268,15 @@ def main():
             "raw_db1": post["beta_1_recharge"] - pre["beta_1_recharge"],
             "raw_db2": post["beta_2_atmospheric_draw"] - pre["beta_2_atmospheric_draw"],
             "raw_db3": post["beta_3_drainage"] - pre["beta_3_drainage"],
+            # 1.12.0 (D-332): Model B's intercept and bound flag, and Model A's beta_3 beside it
+            "pre_alpha":  pre["alpha"],
+            "post_alpha": post["alpha"],
+            "raw_dalpha": post["alpha"] - pre["alpha"],
+            "pre_b3_bound_binds":  bool(pre.get("beta_3_bound_binds", False)),
+            "post_b3_bound_binds": bool(post.get("beta_3_bound_binds", False)),
+            "pre_b3_model_a":  _b3a(pre_a),
+            "post_b3_model_a": _b3a(post_a),
+            "raw_db3_model_a": _b3a(post_a) - _b3a(pre_a),
         })
 
     df = pd.DataFrame(results)
@@ -247,6 +289,8 @@ def main():
     ctrl_db1 = ctrl["raw_db1"].mean()
     ctrl_db2 = ctrl["raw_db2"].mean()
     ctrl_db3 = ctrl["raw_db3"].mean()
+    ctrl_dalpha = ctrl["raw_dalpha"].mean()
+    ctrl_db3_a = ctrl["raw_db3_model_a"].mean()
 
     print(f"   Control centroid raw shifts (n={len(ctrl)} wells):")
     print(f"     \u0394\u03b2\u2081 = {ctrl_db1:+.3f}")
@@ -257,9 +301,15 @@ def main():
     df["baci_db1"] = df["raw_db1"] - ctrl_db1
     df["baci_db2"] = df["raw_db2"] - ctrl_db2
     df["baci_db3"] = df["raw_db3"] - ctrl_db3
+    df["baci_dalpha"] = df["raw_dalpha"] - ctrl_dalpha
     # Per-well percentage, on the same convention as the centroid rows below.
     df["baci_db3_pct"] = np.where(df["pre_b3"].abs() > 1e-6,
                                   df["baci_db3"] / df["pre_b3"].abs() * 100, np.nan)
+    df["baci_db3_model_a"] = df["raw_db3_model_a"] - ctrl_db3_a
+    df["baci_db3_pct_model_a"] = np.where(df["pre_b3_model_a"].abs() > 1e-6,
+                                          df["baci_db3_model_a"] / df["pre_b3_model_a"].abs() * 100, np.nan)
+    print(f"   Model B fits with beta_3 at the bound: "
+          f"{int(df['pre_b3_bound_binds'].sum() + df['post_b3_bound_binds'].sum())} of {2 * len(df)}")
 
     uphill = df[df["role"] == "uphill"].sort_values("dist_m")
     print("\n   Uphill wells (BACI-corrected):")
@@ -298,6 +348,8 @@ def main():
                         pd.Timestamp("2005-01-01"), SCRAPE_DATE)
         post = _fit_era(centroid_ts, climate,
                         SCRAPE_DATE, FELL_DATE)
+        pre_a  = _fit_era(centroid_ts, climate, pd.Timestamp("2005-01-01"), SCRAPE_DATE, intercept=False)
+        post_a = _fit_era(centroid_ts, climate, SCRAPE_DATE, FELL_DATE, intercept=False)
 
         if pre and post:
             db1 = (post["beta_1_recharge"] - pre["beta_1_recharge"]) - ctrl_db1
@@ -305,6 +357,10 @@ def main():
             db3 = (post["beta_3_drainage"] - pre["beta_3_drainage"]) - ctrl_db3
             pct_b3 = (db3 / abs(pre["beta_3_drainage"]) * 100
                       if abs(pre["beta_3_drainage"]) > 1e-6 else np.nan)
+            dalpha = (post["alpha"] - pre["alpha"]) - ctrl_dalpha
+            db3_a = (_b3a(post_a) - _b3a(pre_a)) - ctrl_db3_a
+            pct_b3_a = (db3_a / abs(_b3a(pre_a)) * 100
+                        if abs(_b3a(pre_a)) > 1e-6 else np.nan)
 
             centroid_rows.append({
                 "group":        group_name,
@@ -321,6 +377,16 @@ def main():
                 "baci_db2":     db2,
                 "baci_db3":     db3,
                 "baci_db3_pct": pct_b3,
+                # 1.12.0 (D-332)
+                "pre_alpha":    pre["alpha"],
+                "post_alpha":   post["alpha"],
+                "baci_dalpha":  dalpha,
+                "pre_b3_bound_binds":  bool(pre.get("beta_3_bound_binds", False)),
+                "post_b3_bound_binds": bool(post.get("beta_3_bound_binds", False)),
+                "pre_b3_model_a":  _b3a(pre_a),
+                "post_b3_model_a": _b3a(post_a),
+                "baci_db3_model_a": db3_a,
+                "baci_db3_pct_model_a": pct_b3_a,
             })
 
             print(f"   {group_name} ({len(group_df)} wells):")
@@ -348,29 +414,41 @@ def main():
            note="fitted months in the pre-scrape window at CEH36")
     rr.add("scrape_propagation_n_wells", int(len(df)), unit="count",
            note="CEH36, the uphill transect and the controls fitted in both windows")
+    rr.add("scrape_propagation_n_fits_model_b_bound_binds",
+           int(df["pre_b3_bound_binds"].sum() + df["post_b3_bound_binds"].sum()), unit="count",
+           note="split-window Model B fits (pre and post, over scrape_propagation_n_wells wells) whose beta_3 "
+                "sits at the lower bound MODEL_B_BETA3_MIN (kept; D-332)")
     # The near-band propagation test (report9 §4.5.5), on the unrounded frame.
     near = df[(df["role"] == "uphill") & (df["dist_m"] <= SCRAPE_PROPAGATION_NEAR_M)]
     band = f"uphill wells within {SCRAPE_PROPAGATION_NEAR_M:.0f} m of CEH36"
     rr.add("scrape_propagation_near_n_wells", int(len(near)), unit="count", note=band)
-    rr.add("scrape_propagation_near_n_positive", int((near["baci_db3"] > 0).sum()),
-           unit="count", note=f"{band} with a positive BACI-corrected delta-beta3")
-    rr.add("scrape_propagation_near_db3_mean", float(near["baci_db3"].mean()),
-           unit="per month", note=f"mean BACI-corrected delta-beta3, {band}")
-    if len(near) >= 3:
-        _t = _stats.ttest_1samp(near["baci_db3"], 0.0)
-        rr.add("scrape_propagation_near_db3_t", float(_t.statistic), unit="-",
-               note=f"one-sample t against zero, df = {len(near) - 1}")
-        rr.add("scrape_propagation_near_db3_p", float(_t.pvalue), unit="-",
-               note="two-sided p of the one-sample t")
-    else:
-        warn(f"only {len(near)} wells in the near band - t-test not written")
-    # T-108: distance decay across the uphill wells (report9 4.11).
+    # 1.12.0 (D-332): the headline keys are Model B; the same test on Model A's beta_3 is _model_a.
     _up = df[df["role"] == "uphill"]
+    # 1.14.0 (D-333): the two forms disagree in sign here, so the test is reported as form-dependent, not established.
+    _fd = "; form-dependent (Model A and Model B disagree in sign), not established (D-333)"
+    for _col, _sfx, _form in (("baci_db3", "", "Model B" + _fd), ("baci_db3_model_a", "_model_a", "Model A sensitivity" + _fd)):
+        _nb = near[_col].dropna()
+        rr.add(f"scrape_propagation_near_n_positive{_sfx}", int((_nb > 0).sum()),
+               unit="count", note=f"{band} with a positive BACI-corrected delta-beta3 ({_form})")
+        rr.add(f"scrape_propagation_near_db3_mean{_sfx}", float(_nb.mean()),
+               unit="per month", note=f"mean BACI-corrected delta-beta3, {band} ({_form})")
+        if len(_nb) >= 3:
+            _t = _stats.ttest_1samp(_nb, 0.0)
+            rr.add(f"scrape_propagation_near_db3_t{_sfx}", float(_t.statistic), unit="-",
+                   note=f"one-sample t against zero, df = {len(_nb) - 1} ({_form})")
+            rr.add(f"scrape_propagation_near_db3_p{_sfx}", float(_t.pvalue), unit="-",
+                   note=f"two-sided p of the one-sample t ({_form})")
+        else:
+            warn(f"only {len(_nb)} wells in the near band - {_form} t-test not written")
+        # T-108: distance decay across the uphill wells (report9 4.11).
+        _ub = _up[["dist_m", _col]].dropna()
+        if len(_ub) >= 3:
+            _pr = _stats.pearsonr(_ub["dist_m"], _ub[_col])
+            _n = (f"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells "
+                  f"(n = {len(_ub)}; {_form})")
+            rr.add(f"scrape_propagation_uphill_dist_r{_sfx}", float(_pr[0]), unit="-", note=_n)
+            rr.add(f"scrape_propagation_uphill_dist_p{_sfx}", float(_pr[1]), unit="-", note="two-sided p of " + _n)
     if len(_up) >= 3:
-        _pr = _stats.pearsonr(_up["dist_m"], _up["baci_db3"])
-        _n = f"Pearson r of BACI-corrected delta-beta3 against distance from CEH36, uphill wells (n = {len(_up)})"
-        rr.add("scrape_propagation_uphill_dist_r", float(_pr[0]), unit="-", note=_n)
-        rr.add("scrape_propagation_uphill_dist_p", float(_pr[1]), unit="-", note="two-sided p of " + _n)
         rr.add("scrape_propagation_uphill_n_wells", int(len(_up)), unit="count", note="uphill wells in the distance test")
     # Emit-first (report9): the span of the uphill transect, nearest and farthest well from CEH36.
     if len(_up):
@@ -380,6 +458,24 @@ def main():
         rr.add("scrape_propagation_uphill_dist_max_m", float(_up["dist_m"].max()), unit="m",
                note="distance from CEH36 to the farthest uphill well of the propagation transect "
                     "(maximum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m")
+    # 1.13.0 (D-332): scrape bars whose post-scrape beta_3 is held at the Model B bound
+    _compute_scraping_bars(centroids_df)
+    rr.add("scrape_bar_n_b3_held_at_bound", int(len(_SCRAPE_B3_HELD)), unit="count",
+           era=", ".join(sorted(_SCRAPE_B3_HELD)),
+           note="clusters whose 'Scraping (nearby)' bar (09b_04) would have a post-scrape beta_3 below "
+                "MODEL_B_BETA3_MIN and is held at the bound (D-332)"
+                + ("; unbounded " + ", ".join(f"{k} {v:+.5f}" for k, v in sorted(_SCRAPE_B3_HELD.items()))
+                   if _SCRAPE_B3_HELD else "")
+                + D333_WITHDRAWN_NOTE)                                     # 1.14.0 (D-333)
+    # 1.14.0 (D-333): the count of withdrawn keys, for the check tools, and the console warning
+    _n_wd = sum(1 for r in rr.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
+    rr.add("scenario_n_keys_withdrawn_d333", _n_wd, unit="keys",
+           note="report keys in this file whose note carries the D-333 withdrawal; the 'Scraping (nearby)', "
+                "'Clearfell' and 'Thinning 50%' rows of 09b_04 and the Clearfell / Thinning 50% rows of 09b_05 "
+                "carry status 'withdrawn (D-333)'")
+    warn("D-333: the 'Scraping (nearby)' scrape-propagation bars (BACI delta-beta_3 of split-window refits) and the "
+         "Clearfell / Thinning 50% bars (beta_2 multiplier of single-well era refits) of 09b_04 / 09b_05 are "
+         f"WITHDRAWN pending T-209 ({_n_wd} report key) - values unchanged, flagged, not results")
     n_rr = rr.save(OUT_09B_REPORT_NUMBERS)
     print(f"   \u2192 {OUT_09B_REPORT_NUMBERS.name} ({n_rr} rows)")
 
@@ -505,12 +601,37 @@ GROUND_LOWERING = 0.2
 FRAC_AFFECTED = {"C1": 0.0, "C2": 0.0, "C3": 0.2857, "C4": 0.7778, "C5": 1.00}
 
 
+_SCRAPE_B3_HELD: dict = {}   # 1.13.0: {cluster: unbounded b3_new} for bars held at MODEL_B_BETA3_MIN
+# 1.14.0 (D-333): bars built from era-refit beta multipliers, withdrawn pending T-209 (09b_04 and 09b_05 names)
+D333_WITHDRAWN_BARS = ("Clearfell", "Thinning 50%", "Scraping (nearby)")
+
+
+def _d333_status(name):
+    """1.14.0 (D-333): the `status` value for a scenario bar."""
+    return D333_WITHDRAWN_STATUS if name in D333_WITHDRAWN_BARS else ""
+
+
+def _d333_label(name):
+    """1.14.0 (D-333): a legend label, marked when the bar is withdrawn."""
+    return f"{name} (withdrawn, D-333)" if name in D333_WITHDRAWN_BARS else name
+
+
 def _compute_scraping_bars(centroids_df):
     """
     Compute scraping scenario bars from BACI-corrected centroid summaries.
     All three coefficient shifts applied. C5 uses C3+CEH31 shifts;
     C4 uses C4 shifts. C1 and C2 are zero.
+
+    1.12.0 (D-332): the shifts are Model B's, and h_disp is measured from the
+    cluster's implied datum (scraping_common.load_cluster_params), so
+    b3*h_disp is Model B's drainage term. The scrape changes beta_3 at a fixed
+    base: b3_new*(h_disp - GROUND_LOWERING). The BACI shift in alpha
+    (baci_dalpha) is not applied - the base, not alpha, is held.
+
+    1.13.0 (D-332): a b3_new below MODEL_B_BETA3_MIN is held at the bound and
+    recorded in _SCRAPE_B3_HELD.
     """
+    _SCRAPE_B3_HELD.clear()
     from utils.scraping_common import load_cluster_params, load_summer_climate
 
     cluster_params = load_cluster_params()
@@ -544,6 +665,11 @@ def _compute_scraping_bars(centroids_df):
         b1_new = c["b1"] + db1
         b2_new = c["b2"] + db2
         b3_new = c["b3"] * (1 + db3_pct)
+        if b3_new < MODEL_B_BETA3_MIN:
+            _SCRAPE_B3_HELD[cname] = b3_new
+            warn(f"{cname} scrape bar: post-scrape beta_3 {b3_new:+.5f} (BACI {db3_pct * 100:+.0f} %) is below "
+                 f"MODEL_B_BETA3_MIN - held at the bound {MODEL_B_BETA3_MIN:g} (D-332)")
+            b3_new = MODEL_B_BETA3_MIN
         h_new  = c["h_disp"] - GROUND_LOWERING
 
         flux_scen = b1_new * p_eff - b2_new * PET - b3_new * h_new
@@ -614,7 +740,7 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
         is_scrape = "Scraping" in scenario
         _col = bw_colour_map.get(scenario, colour) if BW_MODE else colour
         _hatch = bw_hatch_map.get(scenario, hatch or "") if BW_MODE else hatch
-        ax.bar(x + offsets[i], vals, width, label=scenario,
+        ax.bar(x + offsets[i], vals, width, label=_d333_label(scenario),   # 1.14.0 (D-333)
                color=_col,
                edgecolor="black",
                linewidth=1.5 if is_scrape else 0.5,
@@ -658,7 +784,7 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
                       alpha=0.85, edgecolor="#AAAAAA"),
             ha="right", va="top")
 
-    ax.legend(fontsize=10, loc="lower left", ncol=2, framealpha=0.9)
+    ax.legend(fontsize=10, loc="upper left", bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
 
@@ -671,7 +797,11 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     for scenario, (vals_dict, _, _) in scenarios.items():
         for c in clusters:
             rows.append({"Scenario": scenario, "Cluster": c,
-                         "Delta_vol_mm_per_month": round(vals_dict.get(c, 0), 1)})
+                         "Delta_vol_mm_per_month": round(vals_dict.get(c, 0), 1),
+                         # 1.13.0 (D-332): the bar's post-scrape beta_3 was held at MODEL_B_BETA3_MIN
+                         "b3_held_at_bound": bool(scenario == "Scraping (nearby)"
+                                                  and c in _SCRAPE_B3_HELD),
+                         "status": _d333_status(scenario)})                # 1.14.0 (D-333)
     pd.DataFrame(rows).to_csv(OUT_09B_SCENARIO_CSV, index=False,
                               float_format="%.1f")
     print(f"   \u2192 {OUT_09B_SCENARIO.name}")
@@ -812,7 +942,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
                color=_col,
                edgecolor='black',
                linewidth=0.8 if _hatch else 0.5,
-               hatch=_hatch, alpha=0.85, label=s_name, zorder=3)
+               hatch=_hatch, alpha=0.85, label=_d333_label(s_name), zorder=3)   # 1.14.0 (D-333)
         for j, v in enumerate(vals):
             if abs(v) > 5:
                 ax.text(x[j] + offset, v + (1.5 if v > 0 else -1.5),
@@ -828,7 +958,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         'Volumetric scenario comparison: forest management, scraping, and climate (k = 5)\n'
         'All bars: SSM equilibrium volumetric response  |  scraping = observed BACI \u00d7 Sy',
         fontsize=12, fontweight='bold')
-    ax.legend(fontsize=9, loc='lower left', framealpha=0.9, ncol=3)
+    ax.legend(fontsize=9, loc='upper left', bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
     ax.grid(axis='y', alpha=0.25, ls='--')
     for sp in ['top', 'right']:
         ax.spines[sp].set_visible(False)
@@ -856,7 +986,8 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         for c in clusters:
             rows.append({'Scenario': s_name.replace('\n', ' '),
                          'Cluster': c,
-                         'Delta_vol_summer_mm_per_month': summer_data[s_name].get(c, 0)})
+                         'Delta_vol_summer_mm_per_month': summer_data[s_name].get(c, 0),
+                         'status': _d333_status(s_name)})                   # 1.14.0 (D-333)
     pd.DataFrame(rows).to_csv(OUT_09B_SUMMER_SCENARIO_CSV, index=False)
     print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO_CSV.name}")
 

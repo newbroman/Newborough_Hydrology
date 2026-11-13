@@ -6,7 +6,8 @@ r"""
 Two independent robustness checks on the ANCOVA-BACI result (10a):
 
   1. SSM Residual Analysis (per-well forward prediction)
-     - Calibrate SSM on pre-scraping data for each network well
+     - Calibrate SSM on pre-scraping data for each network well (Model B,
+       free intercept, since 1.6.0 / D-332; Model A beside it as *_model_a)
      - Forward-iterate post-intervention to generate counterfactual trajectory
      - Residual = observed − predicted; normalise by subtracting control mean
      - Report era-mean residuals and Welch t-test (scraping vs felling eras)
@@ -58,7 +59,12 @@ from utils.clearfell_common import (
     SCRAPING_DATE, ALL_NETWORK_WELLS, CORE_NETWORK_WELLS, ReportNumbers,
 )
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-10-06. T-106 (D-240 extended): the synthetic-control and
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The SSM-residual calibration is
+#   Model B (fit_ssm intercept=True, beta_3 bounded below) and the forward run carries its alpha; every SSM_Resid_*
+#   key and 10f_01 column keeps its name and now carries Model B. Model A (no intercept, DRAINAGE_DATUM) runs beside
+#   it: 10f_01 gains *_model_a columns and Alpha_cal, 10f_report_numbers SSM_Resid_*_model_a. Synthetic control
+#   unchanged (no SSM).
+# 1.5.0  # Hollingham (2026) — 2026-10-06. T-106 (D-240 extended): the synthetic-control and
 #   SSM-residual steps carry a Newey-West p beside the Welch p. The Welch test treats every month as
 #   independent; the HAC test regresses the monthly series (scraping era + felling era, time order) on a
 #   post-felling indicator with config.BACI_HAC_MAXLAGS_MONTHS lags, whose coefficient is the same step.
@@ -153,9 +159,14 @@ def _p_sig(p):
 # ROBUSTNESS 1 — SSM RESIDUAL (per-well forward prediction)
 # ============================================================================
 
-def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
-    """Calibrate SSM on pre-scraping data, iterate forward, normalise."""
-    phase(2, "SSM Residual Analysis — per-well forward prediction")
+def ssm_residual_analysis(wells, climate, valid_tiers, rpt, form="B"):
+    """Calibrate SSM on pre-scraping data, iterate forward, normalise.
+
+    1.6.0 (D-332): form "B" (the headline) fits the free intercept and carries alpha into the forward
+    run; form "A" is the no-intercept fit at DRAINAGE_DATUM, its keys suffixed _model_a. Returns the
+    per-well table; the caller writes it."""
+    sfx = "" if form == "B" else "_model_a"
+    phase(2, f"SSM Residual Analysis — per-well forward prediction (Model {form})")
     print("   (calibrate on pre-scraping, iterate forward, normalise by control mean)")
 
     # Build zone map
@@ -187,7 +198,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
         # — model_utils consolidation).  df_cal is a pre-sliced SSM
         # frame, so we pass it through pre_built_frame= rather than
         # rebuilding from (h_series, climate).
-        cal_fit = fit_ssm(pre_built_frame=df_cal, min_obs=MIN_CAL_MONTHS)
+        cal_fit = fit_ssm(pre_built_frame=df_cal, min_obs=MIN_CAL_MONTHS, intercept=(form == "B"))
         if cal_fit is None:
             print(f"   {w.upper():<8} [{zone:<14}] SKIP — SSM fit failed")
             continue
@@ -196,6 +207,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
             cal_fit['beta_2_atmospheric_draw'],
             cal_fit['beta_3_drainage'],
         ])
+        alpha = float(cal_fit.get('alpha', 0.0) or 0.0) if form == "B" else 0.0
 
         # Forward-iterate from last calibration observation
         post = df_full[df_full.index >= SCRAPING_DATE].copy()
@@ -206,7 +218,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
         for _, row in post.iterrows():
             h_prev_pred = h_pred[-1]
             h_disp_pred = DRAINAGE_DATUM + h_prev_pred
-            dh_pred = (betas[0] * row['P']
+            dh_pred = (alpha + betas[0] * row['P']
                        - betas[1] * row['PET']
                        - betas[2] * h_disp_pred)
             h_pred.append(h_prev_pred + dh_pred)
@@ -227,7 +239,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
         resid_records.append({
             'well': w.upper(), 'zone': zone,
             'scrape_mean': scrape_mean, 'fell_mean': fell_mean,
-            'cal_months': len(df_cal), 'r2_cal': cal_fit['R2'],
+            'cal_months': len(df_cal), 'r2_cal': cal_fit['R2'], 'alpha_cal': alpha,
         })
 
     # ── Normalise by control mean residual ──────────────────────────────────
@@ -279,6 +291,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
             'Well': r['well'], 'Zone': r['zone'],
             'Cal_months': r['cal_months'],
             'R2_cal': round(r['r2_cal'], 3),
+            'Alpha_cal': float(r['alpha_cal']),   # unrounded (D-035)
             'Norm_scrape_m': round(norm_scrape, 4),
             'Norm_fell_m': round(norm_fell, 4),
             'Step_m': round(step, 4),
@@ -286,7 +299,7 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
             'P_value_hac': p_hac,
         })
         if r['zone'] in ('Impact', 'Edge') and pd.notna(p_hac):
-            rpt.add(f"SSM_Resid_{r['well']}_step_p_hac", p_hac, "",
+            rpt.add(f"SSM_Resid_{r['well']}_step_p_hac{sfx}", p_hac, "",
                     note=f"Newey-West ({BACI_HAC_MAXLAGS_MONTHS} lags) p of the {r['zone']} well's "
                          f"normalised-residual step; Welch p = {_p_fmt(p_val)} (D-240, T-106)")
 
@@ -303,24 +316,20 @@ def ssm_residual_analysis(wells, climate, valid_tiers, rpt):
             z_step = np.nanmean([r['Step_m'] for r in zr])
             zone_steps[tier] = (z_step, len(zr))
             print(f"   {'MEAN':8} [{tier:<14}] step={z_step:+.3f} m  (n={len(zr)})")
-            rpt.add(f"SSM_Resid_{tier.replace(' ', '_')}_mean_step",
-                    round(z_step, 4), "m", note=f"n={len(zr)}")
+            rpt.add(f"SSM_Resid_{tier.replace(' ', '_')}_mean_step{sfx}",
+                    round(z_step, 4), "m", note=f"n={len(zr)}" + ("" if form == "B" else
+                    "; Model A at DRAINAGE_DATUM, sensitivity (D-332)"))
 
     # T-96: the Impact step net of the Forest Ctrl drift (report9 Section
     # 4.6.7, report10 Section 5.5), from the unrounded zone means above.
     if 'Impact' in zone_steps and 'Forest Ctrl' in zone_steps:
-        rpt.add("SSM_Resid_Impact_minus_Forest_Ctrl_step",
+        rpt.add(f"SSM_Resid_Impact_minus_Forest_Ctrl_step{sfx}",
                 zone_steps['Impact'][0] - zone_steps['Forest Ctrl'][0], "m",
                 note=(f"SSM_Resid_Impact_mean_step (n={zone_steps['Impact'][1]}) "
                       f"minus SSM_Resid_Forest_Ctrl_mean_step "
                       f"(n={zone_steps['Forest Ctrl'][1]})"))
 
-    # Export
-    df_out = pd.DataFrame(norm_rows)
-    df_out.to_csv(OUT_10F_SSM_RESIDUAL, index=False, float_format="%.4f")
-    print(f"\n   -> Saved: {OUT_10F_SSM_RESIDUAL.name}")
-
-    return df_out
+    return pd.DataFrame(norm_rows)
 
 
 # ============================================================================
@@ -450,7 +459,14 @@ def main():
     rpt = ReportNumbers()
 
     # ── Run analyses ─────────────────────────────────────────────────────────
-    df_resid = ssm_residual_analysis(wells, climate, valid_tiers, rpt)
+    df_resid = ssm_residual_analysis(wells, climate, valid_tiers, rpt, "B")
+    # 1.6.0 (D-332): Model A beside it, as *_model_a columns on the same rows (10h reads the first Impact row)
+    df_a = ssm_residual_analysis(wells, climate, valid_tiers, rpt, "A")
+    _acols = ['R2_cal', 'Norm_scrape_m', 'Norm_fell_m', 'Step_m', 'P_value', 'P_value_hac']
+    df_resid = df_resid.merge(df_a[['Well'] + _acols].rename(columns={c: f"{c}_model_a" for c in _acols}),
+                              on='Well', how='left')
+    df_resid.to_csv(OUT_10F_SSM_RESIDUAL, index=False, float_format="%.4f")
+    print(f"\n   -> Saved: {OUT_10F_SSM_RESIDUAL.name}")
     df_synth = synthetic_control_analysis(wells, valid_tiers, rpt)
 
     # ── Export report numbers ────────────────────────────────────────────────

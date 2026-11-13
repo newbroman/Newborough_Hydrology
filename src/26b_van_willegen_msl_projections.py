@@ -82,7 +82,7 @@ Inputs
 ------
   03_16_model_b_persistence.csv               — Model B β coefficients (centroid and
                                                 per-well rows): the projection
-  03_03_cluster_mechanistic_coefficients.csv  — Model A cluster coefficients: the
+  03_03_cluster_mechanistic_coefficients.csv  — Model A cluster coefficients (*_model_a): the
                                                 _model_a sensitivity and the
                                                 one-month-rate diagnostic column only
   01_climate.csv                              — RAF Valley monthly P, PET
@@ -117,7 +117,11 @@ Cross-references
   Script 26 plot_cluster_trajectory()             — observed-trajectory layout this script extends
 """
 
-__version__ = "2.3.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the forecaster and the
+__version__ = "2.4.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+#   03_03 / 03_master_data / 03_15's unsuffixed coefficient columns and Model A in *_model_a; the Model A centroid
+#   set (coeffs_a) and compute_perwell_msl5_summary_model_a() now read *_model_a, so the _model_a sensitivity stays
+#   Model A. Model B still comes from 03_16 *_B; no Model B result changes.
+# 2.3.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2a). Model B is the forecaster and the
 #   figure's headline: its scenario lines take filled markers, and Model A's lines and bar-panel diamonds leave the
 #   figure (its values stay in 26b_msl5_ukcp18_projection_summary[_perwell]_model_a.csv and the _model_a keys, the
 #   sensitivity D-332 states as B's limitation). New count keys msl5_projection_n_clusters_beta3_bound and
@@ -584,23 +588,24 @@ def compute_perwell_msl5_summary_model_a(monthly_P_m, monthly_PET_m, out_csv_pat
     mb = pd.read_csv(paths.OUT_03_MODEL_B_PERSISTENCE)
     mb = mb[mb["level"] == "well"].set_index("well")
     ws = pd.read_csv(paths.OUT_03_PER_WELL_WINDOW_SENS)
-    pw = (ws[ws["basis"] == "comparison_window"].set_index("Name_Original")["pvalue_beta_3"])
+    # 2.4.0 (D-332, phase 2b): Script 03 1.31.0 holds Model A in the *_model_a columns.
+    pw = (ws[ws["basis"] == "comparison_window"].set_index("Name_Original")["pvalue_beta_3_model_a"])
     records = []
     for scen_key in ["2050s", "2080s"]:
         sP, sPET = _monthly_multipliers(scen_key)
         per_well = []
         for _, w in md.iterrows():
             p3 = pw.get(w["Name_Original"], np.nan)
-            ok = np.isfinite(p3) and response_identified(w["beta_3_drainage"], p3,
+            ok = np.isfinite(p3) and response_identified(w["beta_3_drainage_model_a"], p3,
                                                           config.LCSC_DATA_LIMIT, MODEL_A_N_PARAMS)[0]
             b_ = mb.loc[w["Name_Original"]] if w["Name_Original"] in mb.index else None
             ok = ok and b_ is not None and response_identified(b_["beta_3_B"], b_["pvalue_beta_3_B"],
                                                                b_["n"], MODEL_B_N_PARAMS)[0]   # D-224 pairing
             shift = np.nan
             if ok:
-                dF12 = climate_forcing_change_12(w["beta_1_recharge"], w["beta_2_atmospheric_draw"],
+                dF12 = climate_forcing_change_12(w["beta_1_recharge_model_a"], w["beta_2_atmospheric_draw_model_a"],
                                                  monthly_P_m, monthly_PET_m, sP, sPET)
-                shift = float(np.mean(sustained_monthly_response(w["beta_3_drainage"], dF12)[SPRING_IDX]))
+                shift = float(np.mean(sustained_monthly_response(w["beta_3_drainage_model_a"], dF12)[SPRING_IDX]))
             per_well.append((int(w["Cluster"]), shift))
         total, site_sum = 0, 0.0
         for cid in sorted(config.CLUSTER_LABELS.keys()):
@@ -693,10 +698,10 @@ def main() -> int:
         b3 = float(row["beta_3_B"])
         ident, efold, rel_se = response_identified(b3, row["pvalue_beta_3_B"], row["n"],
                                                    MODEL_B_N_PARAMS)
-        a1 = float(coeffs_a.loc[cid, "beta_1_recharge"])
-        a2 = float(coeffs_a.loc[cid, "beta_2_atmospheric_draw"])
-        a3 = float(coeffs_a.loc[cid, "beta_3_drainage"])
-        ident_a, efold_a, rel_se_a = response_identified(a3, coeffs_a.loc[cid, "pvalue_beta_3"],
+        a1 = float(coeffs_a.loc[cid, "beta_1_recharge_model_a"])           # 2.4.0: 03 1.31.0's Model A columns
+        a2 = float(coeffs_a.loc[cid, "beta_2_atmospheric_draw_model_a"])
+        a3 = float(coeffs_a.loc[cid, "beta_3_drainage_model_a"])
+        ident_a, efold_a, rel_se_a = response_identified(a3, coeffs_a.loc[cid, "pvalue_beta_3_model_a"],
                                                          coeffs_a.loc[cid, "n"], MODEL_A_N_PARAMS)
 
         # Observed MSL5 trajectory for this cluster (from Script 26)

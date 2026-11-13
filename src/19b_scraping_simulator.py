@@ -18,7 +18,12 @@ Usage:
     python 19b_scraping_simulator.py
 """
 
-__version__ = "1.2.0"   # Hollingham (2026) — 2026-05-07
+__version__ = "1.3.0"   # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Model B forward run: 03_master_data now
+#   carries Model B (free intercept alpha), so each well carries its implied datum zd = DRAINAGE_DATUM - alpha/beta_3
+#   (implied_datum_m) and the page's drainage term is b3*max(0, zd + depth) - drainage to the well's own implied base,
+#   clamped at that base - in place of DAT = DRAINAGE_DATUM. Model B is exactly Model A at zd. A well whose zd is not
+#   below ground is left out of the simulation (its betas are not sent; counted on the console; ceh14 today).
+# 1.2.0   # Hollingham (2026) — 2026-05-07
 #
 # Nothing in this module should restate a pipeline result as a literal: model
 # inputs come from utils/config.py, pipeline-derived quantities are read live
@@ -87,8 +92,16 @@ def build_well_data(loc, cl, md, elev, wells_bg, maod, clim, sy_df):
     wt = loc[["id", "E", "N"]].copy()
     wt = wt.merge(cl[["id", "Cluster"]], on="id", how="left")
     wt = wt.merge(md[["id", "beta_1_recharge", "beta_2_atmospheric_draw",
-        "beta_3_drainage"]].rename(columns={"beta_1_recharge":"b1",
-        "beta_2_atmospheric_draw":"b2","beta_3_drainage":"b3"}), on="id", how="left")
+        "beta_3_drainage", "implied_datum_m"]].rename(columns={"beta_1_recharge":"b1",
+        "beta_2_atmospheric_draw":"b2","beta_3_drainage":"b3",
+        "implied_datum_m":"zd"}), on="id", how="left")
+    # 1.3.0 (D-332): Model B runs at the well's implied datum zd; with none below
+    # ground it has no drainage base, so the well is left out of the forward run.
+    _no_base = wt["b1"].notna() & ~(wt["zd"] > 0)
+    if _no_base.any():
+        print(f"  Model B datum not below ground - left out of the simulation: "
+              + ", ".join(f"{r.id} ({r.zd:+.2f} m)" for r in wt[_no_base].itertuples()))
+    wt.loc[_no_base, ["b1", "b2", "b3", "zd"]] = np.nan
     if "ground_elev_m" in elev.columns:
         wt = wt.merge(elev[["id","ground_elev_m"]].rename(
             columns={"ground_elev_m":"dem_g"}), on="id", how="left")
@@ -124,6 +137,7 @@ def build_well_data(loc, cl, md, elev, wells_bg, maod, clim, sy_df):
             "b1":round(float(r["b1"]),6) if pd.notna(r["b1"]) else None,
             "b2":round(float(r["b2"]),6) if pd.notna(r["b2"]) else None,
             "b3":round(float(r["b3"]),6) if pd.notna(r["b3"]) else None,
+            "zd":round(float(r["zd"]),4) if pd.notna(r["zd"]) else None,
             "sy":round(float(r["sy"]),4) if pd.notna(r["sy"]) else 0.12,
             "dg":round(float(r["dem_g"]),2) if pd.notna(r["dem_g"]) else None,
             "cd":round(float(r["coast_dist"])),
@@ -131,7 +145,8 @@ def build_well_data(loc, cl, md, elev, wells_bg, maod, clim, sy_df):
             "ts":depth_ts})
     dates = [dt.strftime("%Y-%m") for dt in wells_bg.index]
     print(f"  Well table: {len(wells_list)} wells")
-    print(f"  Beta available: {sum(1 for w in wells_list if w['b1'] is not None)} wells")
+    print(f"  Beta available: {sum(1 for w in wells_list if w['b1'] is not None)} wells "
+          f"(Model B, run at each well's implied datum)")
     print(f"  Climate months: {len(climate_monthly)}, TS months: {len(dates)}")
     return wells_list, climate_monthly, mean_year, dates
 
@@ -252,7 +267,7 @@ footer{{text-align:center;padding:1rem;font-size:.65rem;color:var(--text-light);
 <label><input type="checkbox" id="chkLabels" onchange="drawMap()"> Well labels</label>
 <label><input type="checkbox" id="chkKml" checked onchange="drawMap()"> KML overlays</label>
 <label><input type="checkbox" id="chkCoastLine" checked onchange="drawMap()"> Coast reference</label>
-<div class="note" style="margin-top:12px"><strong>Model:</strong> Forward SSM with &beta;<sub>1</sub>/&beta;<sub>2</sub>/&beta;<sub>3</sub> from Script&nbsp;03. Coastal erosion via 1D diffusion (erfc). Depth relative to <em>new</em> surface at scraped well.</div>
+<div class="note" style="margin-top:12px"><strong>Model:</strong> Forward SSM (Model B) with &beta;<sub>1</sub>/&beta;<sub>2</sub>/&beta;<sub>3</sub> from Script&nbsp;03; each well drains to its own implied base z = {datum}&nbsp;m &minus; &alpha;/&beta;<sub>3</sub>. Coastal erosion via 1D diffusion (erfc). Depth relative to <em>new</em> surface at scraped well.</div>
 </div>
 <div class="content">
 <div class="mw" id="mwrap"><canvas id="mapBg"></canvas><canvas id="mapC"></canvas></div>
@@ -268,7 +283,7 @@ footer{{text-align:center;padding:1rem;font-size:.65rem;color:var(--text-light);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 var W={wells_json},CL={climate_json},MY={mean_year_json},DT={dates_json},PO={polys_json};
-var EMIN={emin},EMAX={emax},NMIN={nmin},NMAX={nmax},DAT={datum};
+var EMIN={emin},EMAX={emax},NMIN={nmin},NMAX={nmax};
 var SD15b={sd15b},SD16={sd16},FI={forest_i},SCN={s_coast_n},WCE={w_coast_e};
 var CC={{1:'#1a6faf',2:'#2ca02c',3:'#d62728',4:'#7f77dd',5:'#8B4513'}};
 var CL_L={{1:'C1 Lake',2:'C2 Dune',3:'C3 Western',4:'C4 Forest',5:'C5 Coastal'}};
@@ -309,7 +324,7 @@ function getCtrl(sw){{
 
 // Forward SSM for one well. sd=0 means no scrape.
 function fwd(well,sd,cOn,cRate,K,nM,cm){{
-  var b1=well.b1,b2=well.b2,b3=well.b3;if(b1==null||well.dg==null)return null;
+  var b1=well.b1,b2=well.b2,b3=well.b3,zd=well.zd;if(b1==null||zd==null||well.dg==null)return null;
   var iF=(well.cl===4||well.cl===5),dO=well.dg,dN=dO-sd;
   var ts=well.ts,lD=null;for(var k=ts.length-1;k>=0;k--)if(ts[k]!=null){{lD=ts[k];break;}}
   if(lD==null)return null;
@@ -318,7 +333,7 @@ function fwd(well,sd,cOn,cRate,K,nM,cm){{
   else for(var m=0;m<nM;m++)cs.push(MY[m%12]);
   var res=[];
   for(var t=0;t<nM;t++){{
-    var hp=h,hd=DAT+(hp-dO),P=cs[t].P,PET=cs[t].PET;
+    var hp=h,hd=zd+(hp-dO),P=cs[t].P,PET=cs[t].PET;
     var Pe=iF?P*(1-FI):P;var dh=b1*Pe-b2*PET-b3*Math.max(0,hd);h=hp+dh;
     var cdh=0;
     if(cOn&&cRate>0&&well.cd>0){{var td=(t+1)*30.44,D=K/(well.sy||.12),L=well.cd;cdh=-(cRate/1000)*(td/365.25)*erfc(L/(2*Math.sqrt(D*Math.max(td,1))));h+=cdh;}}

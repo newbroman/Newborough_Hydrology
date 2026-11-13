@@ -1,9 +1,9 @@
 {
   "page_sha256": "fc04711a322b47576f2323c4db64fba335ff8d4bc0de683884522bc055a33504",
-  "source_sha256": "f0031532270e17bd7053c572123107a7bfbb68de7cbbdcb68647dec873520388",
+  "source_sha256": "7bb76ca3ac6d6cf7247e222b2bde931500c3b48d694adee2ebc18d3e39396556",
   "artifact_url": "https://claude.ai/artifact/9RRuSzQWLFPQKNx3kGsNhc",
-  "version": "1794485053-0cc2",
-  "published": "2026-11-12",
+  "version": "1794545282-b943",
+  "published": "2026-11-13",
   "template": "chat_page_template.html 1.4.1",
-  "by": "claude session_0121bgnCUCdVs5HdsYfg8vLX (J-9 phase 2a: the Model B report numbers)"
+  "by": "claude session_0121bgnCUCdVs5HdsYfg8vLX (J-9 phase 2b: Model B coefficients; D-333 joins DECISIONS_PUBLIC)"
 }

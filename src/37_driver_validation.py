@@ -117,7 +117,11 @@ Observed Differential Change, Envelope, and Validation. Runs after Script 36
 in the driver-validation phase; step index in outputs/pipeline_manifest.json.
 """
 
-__version__ = "3.10.1"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "3.11.0"  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 3 first step; Martin 2026-11-13 "Leave
+#   it out of 37 too"). A well whose Model B implied drainage base is not below ground (03 implied_datum_m <= 0; today
+#   ceh14) is a named exclusion (exclude_reason says so), as in every forward use; Model A's negative beta_3 had excluded
+#   it, Model B's bounded one did not (n 40 -> 41 in phase 2b; back to 40). New key n_wells_excluded_base_above_ground.
+# 3.10.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 3.10.0  # Hollingham (2026) - 2026-10-05. T-108: emits coast_vs_easting_r per window, the
 #   Pearson r between the coastal signature (coast_i) and easting over the in-fit wells, which report9
 #   4.12.1 quotes as the collinearity that limits the scale-factor test. Emit-only.
@@ -256,6 +260,9 @@ EXCL_NAMED: dict[str, str] = {
     "ceh20": "forest hollow — topographic amplification of clearfell recovery",
     "ceh13": "rock ridge — near-zero β₃ indicating hydraulic decoupling from main dune aquifer",
 }
+# 3.11.0 (D-332): added at load, from 03_master_data's implied_datum_m (see load_master_b3)
+BASE_ABOVE_GROUND_REASON = "Model B implied drainage base not below ground (D-332)"
+BASE_ABOVE_GROUND: set = set()
 
 OUTLIER_THRESHOLD = 1.5
 
@@ -538,6 +545,19 @@ def load_master_b3(well_keys: list) -> dict:
         warn("03_master_data.csv: no Name_Original/key column")
         return {k: np.nan for k in well_keys}
     lut = dict(zip(master["key"], master["beta_3_drainage"]))
+    # 3.11.0 (D-332; Martin 2026-11-13 "Leave it out of 37 too"): a well whose Model B implied drainage
+    # base is not below ground (03 implied_datum_m <= 0; today ceh14) is left out of the fit by the same rule
+    # as every forward use. Under Model A its beta_3 was negative and b3_correction_valid excluded it; Model B's
+    # bounded beta_3 is positive, so the rule is applied here as a named exclusion, and counted.
+    if "implied_datum_m" in master.columns:
+        for k, z in zip(master["key"], master["implied_datum_m"]):
+            if k in well_keys and np.isfinite(z) and z <= 0 and k not in EXCL_NAMED:
+                EXCL_NAMED[k] = BASE_ABOVE_GROUND_REASON
+                BASE_ABOVE_GROUND.add(k)
+                warn(f"{k.upper()}: Model B implied drainage base {z:+.2f} m is not below ground — "
+                     f"left out of the fit (D-332)")
+    else:
+        warn("03_master_data.csv has no implied_datum_m — the base-above-ground rule cannot be applied")
     return {k: float(lut.get(k, np.nan)) for k in well_keys}
 
 
@@ -1377,6 +1397,9 @@ def main() -> int:
     # wells (the same selection fit_scale_regression is given), read from the
     # frame write_per_well_csv writes, so the "per-well residual scatter" in
     # report10 S5.7.5 is cited per window rather than as one range.
+    rpt.add("n_wells_excluded_base_above_ground", len(BASE_ABOVE_GROUND), unit="wells",
+            note="Wells left out of every window's fit because their Model B implied drainage base is not below "
+                 "ground (03 implied_datum_m <= 0; D-332): " + (", ".join(sorted(BASE_ABOVE_GROUND)) or "none"))
     for window, res in results.items():
         _frame = res["frame"]
         _sel = _frame["b3_correction_valid"] & ~_frame["exclude_named"]

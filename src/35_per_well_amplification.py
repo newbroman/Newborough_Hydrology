@@ -62,7 +62,11 @@ from utils.map_utils import load_dem_hillshade, add_kml_features, add_en_axes
 from utils.console_utils import banner, phase, step, info, saved, note, result, done, hr
 from utils.render_utils import render_figure
 
-__version__ = "1.5.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's betas are Model B since
+__version__ = "1.6.0"  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 3 first step; Martin 2026-11-13). CEH14 stays
+#   out of the beta calibration, now by the rule every forward use applies (03 implied_datum_m <= 0), and each dropped
+#   well's reason is written into the amp_vs_beta* notes (was "SSM-unreliable dropped: ceh13;ceh14", a Model A reason).
+#   No value moves.
+# 1.5.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). 03_master_data's betas are Model B since
 #   Script 03 1.31.0, so amp_vs_beta{2,3}_{r,p,n} now calibrate against Model B (notes say so). Model A's calibration
 #   is kept as the sensitivity: amp_vs_beta{2,3}_{r,p,n}_model_a, against master's *_model_a columns, same exclusions.
 # 1.4.0
@@ -145,8 +149,9 @@ def attach_cluster_loc_beta(df, loc, master, membership):
 def fig_calibration(df, out_path, calib_exclude=None):
     """amp coefficient vs the independently-fitted SSM beta_2 / beta_3 — the mechanistic
     grounding. The regression uses only wells with RELIABLE β; SSM-unreliable wells
-    (calib_exclude, e.g. CEH13/CEH14 whose fit failed) are shown as hollow markers but NOT
-    fitted — you cannot validate a coefficient against a failed fit. Metric-only wells (no
+    (calib_exclude: CEH13, near-zero β₃; CEH14, whose Model B implied drainage base is not below
+    ground, D-332) are shown as hollow markers but NOT fitted — you cannot validate a coefficient
+    against a fit that is not usable. Metric-only wells (no
     fitted β) are the extrapolation set."""
     from scipy.stats import pearsonr
     calib_exclude = set(calib_exclude or [])
@@ -279,6 +284,15 @@ def main() -> int:
     phase(4, "SSM calibration")
     from scipy.stats import pearsonr
     calib_exclude = set(config.ENVELOPE_METRIC_CALIB_EXCLUDE)
+    # 1.6.0 (D-332; Martin 2026-11-13): the calibration's beta is Model B, so a well whose Model B implied drainage
+    # base is not below ground (03 implied_datum_m <= 0; today ceh14) is dropped by that rule — the rule every
+    # forward use applies — and its reason says so. Other wells keep config's reason.
+    excl_reason = {k: str(config.MSL5_EXCLUDED_WELLS.get(k, "SSM-unreliable")) for k in calib_exclude}
+    if "implied_datum_m" in master.columns:
+        for k, z in zip(master["key"], master["implied_datum_m"]):
+            if np.isfinite(z) and z <= 0:
+                calib_exclude.add(k)
+                excl_reason[k] = "Model B implied drainage base not below ground (D-332)"
     calib = {}
     for b, lab in [("beta_2_atmospheric_draw", "β₂"), ("beta_3_drainage", "β₃")]:
         s = df[~df.key.isin(calib_exclude)].dropna(subset=[b, "amp_coefficient"])
@@ -297,7 +311,7 @@ def main() -> int:
             calib_a[lab] = (r, p, len(s))
             step(f"amp vs Model A {lab}: r={r:+.2f} (p={p:.3f}, n={len(s)}; sensitivity)")
     if calib_exclude:
-        step(f"calibration drops SSM-unreliable wells (β untrustworthy): {sorted(calib_exclude)}")
+        step("calibration drops: " + "; ".join(f"{k} ({excl_reason[k]})" for k in sorted(calib_exclude)))
 
     phase(5, "Render figures")
     fig_calibration(df, OUT_FIG_CALIB, calib_exclude=calib_exclude); saved(OUT_FIG_CALIB)
@@ -348,7 +362,7 @@ def main() -> int:
                 note="Mean bias, co-temporal vs matched-window VALIDATION check.")
         rpt.add("validation_cotemporal_vs_matched_max_dev", chk["max_dev"], unit="",
                 note="Max |deviation|, co-temporal vs matched-window VALIDATION check.")
-    _excl = ";".join(sorted(calib_exclude)) or "none"
+    _excl = "; ".join(f"{k} ({excl_reason[k]})" for k in sorted(calib_exclude)) or "none"
     for lab, key in [("β₂", "beta2"), ("β₃", "beta3")]:
         if lab not in calib:
             continue

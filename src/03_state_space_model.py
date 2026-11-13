@@ -88,7 +88,10 @@ Full per-script methodology: see chapter S.3 of the Methods Supplement
 (docs/report/Supplementary_Material_Methods.pdf).
 """
 
-__version__ = "1.31.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b; Martin: "essentially everything moves to
+__version__ = "1.32.0"  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
+#   questions"). Every Model B row also carries se_alpha and corr_alpha_beta_3 (fit_ssm's with_corr, now on for the
+#   Model B fits), so Script 26's EWI standard error can carry the alpha-beta_3 covariance. Additive: no coefficient moves.
+# 1.31.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b; Martin: "essentially everything moves to
 #   model B"). The headline coefficient tables are Model B (fit_ssm(intercept=True), beta_3 bounded, model_utils 1.14.0):
 #   03_master_data, 03_03, 03_02 (and its bootstrap 03_05), both bases 03_14/03_15 (D-034), 03_19, and the checks on the
 #   headline (03_04 lag, 03_06 leave-one-out, 03_07 C1 split, 03_13 composition). Existing column names carry Model B;
@@ -665,7 +668,9 @@ def build_cluster_centroids(cluster_df: pd.DataFrame,
 
 def _fit_b(h_series, climate, **kw):
     """The headline fit (1.31.0, D-332): Model B, fit_ssm(intercept=True), beta_3 bounded below at
-    MODEL_B_BETA3_MIN inside model_utils. Same arguments as the Model A call it replaces."""
+    MODEL_B_BETA3_MIN inside model_utils. Same arguments as the Model A call it replaces.
+    1.32.0: with_corr on by default, so the alpha-beta_3 correlation reaches _b_extra."""
+    kw.setdefault("with_corr", True)
     return fit_ssm(h_series, climate, intercept=True, **kw)
 
 
@@ -674,10 +679,15 @@ def _b_extra(fit) -> dict:
     DRAINAGE_DATUM - alpha/beta_3 (metres below ground; Model B is Model A at that datum, so a
     consumer that uses beta_3 with a datum passes this in its place) and the bound flag."""
     if fit is None:
-        return {"alpha": np.nan, "pvalue_alpha": np.nan, "implied_datum_m": np.nan,
-                "beta_3_bound_binds": np.nan}
+        return {"alpha": np.nan, "pvalue_alpha": np.nan, "se_alpha": np.nan, "corr_alpha_beta_3": np.nan,
+                "implied_datum_m": np.nan, "beta_3_bound_binds": np.nan}
     b3, a = fit["beta_3_drainage"], fit.get("alpha", np.nan)
+    # 1.32.0 (Martin 2026-11-13): se_alpha and the alpha-beta_3 correlation of the fit, so a consumer that
+    # propagates error through alpha and beta_3 together (Script 26's EWI) can carry their covariance
+    # (cov = corr * se_alpha * se_beta_3). NaN where beta_3 sits at the bound (it is then not estimated).
     return {"alpha": a, "pvalue_alpha": fit.get("pvalue_alpha", np.nan),
+            "se_alpha": fit.get("se_alpha", np.nan),
+            "corr_alpha_beta_3": fit.get("corr_alpha_beta_3", np.nan),
             "implied_datum_m": (DRAINAGE_DATUM - a / b3) if (np.isfinite(b3) and b3 > 0) else np.nan,
             "beta_3_bound_binds": bool(fit.get("beta_3_bound_binds", False))}
 
@@ -2758,6 +2768,7 @@ def build_summary_table(mech_df: pd.DataFrame,
         "n",
         # 1.31.0 (D-332): Model B's own terms, and Model A beside it
         "alpha", "pvalue_alpha", "implied_datum_m", "beta_3_bound_binds",
+        "se_alpha", "corr_alpha_beta_3",                                  # 1.32.0
         "beta_1_recharge_model_a", "beta_2_atmospheric_draw_model_a", "beta_3_drainage_model_a",
         "R2_model_a", "LCSC_percent_model_a",
     ]

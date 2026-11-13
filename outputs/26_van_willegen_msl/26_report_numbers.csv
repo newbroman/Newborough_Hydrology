@@ -121,6 +121,7 @@ ewi_msl9_r,0.9847394673483093
 ewi_msl9_rmse_mm,52.2275600874487
 ewi_msl9_slope_b,0.9838910560366508
 ewi_n_wells_model_b_excluded_datum,1
+ewi_n_wells_se_alpha_beta3_cov,84
 extended_relSE_beta3_vs_nobs_spearman_p,0.4455969634454723
 extended_relSE_beta3_vs_nobs_spearman_p_model_a,0.7058660378956783
 extended_relSE_beta3_vs_nobs_spearman_r,-0.1807899971235492

@@ -105,7 +105,12 @@ Version 2, Table 2 — SD15b/SD16 mean spring levels, drawn on the MSL5 figures
 
 from __future__ import annotations
 
-__version__ = "1.35.0"  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 2b; Martin 2026-11-12 "Model B, A beside").
+__version__ = "1.36.0"  # Hollingham (2026) - 2026-11-13 (J-9 phase 3, first step; Martin 2026-11-13 "Yes to both
+#   questions"). The full EWI standard error (EWI_se_m_full, ewi_se_mm_full) carries the alpha-beta_3 covariance,
+#   cov = corr_alpha_beta_3 * se_alpha * se_beta_3 (reference wells: Script 03 1.32.0's corr_alpha_beta_3; extended wells:
+#   fit_ssm(with_corr=True) here); new column corr_alpha_beta_3, new key ewi_n_wells_se_alpha_beta3_cov. The beta_3-only
+#   SE and the index itself do not move.
+# 1.35.0  # Hollingham (2026) - 2026-11-13 (D-332, J-9 phase 2b; Martin 2026-11-12 "Model B, A beside").
 #   The persistence diagnostic's headline quantities are Model B: t_R_months = 1/beta_3 and beta_2 from the base (Model
 #   B) columns, so the spring-SD partial correlations, rho_lag1_vs_tR, beta2_vs_tR and the extended-tier beta_3
 #   precision keys carry Model B (the beta_2 / recession-time reading reverses). Model A's same quantities sit beside
@@ -1384,6 +1389,7 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     excluded = set(config.MSL5_EXCLUDED_WELLS)
 
     excluded_datum = {}            # 1.34.0 (D-332): Model B's implied datum not below ground
+    n_cov_carried = [0]            # 1.36.0: wells whose full SE carries the alpha-beta_3 covariance
 
     def _ewi_a(b1, b2, b3):
         """Model A's index (α = 0, datum DRAINAGE_DATUM), the named sensitivity."""
@@ -1393,7 +1399,7 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
 
     def _row(w, b1, b2, b3, network, cluster_id=np.nan,
              se1=np.nan, se2=np.nan, se3=np.nan, n_obs=np.nan,
-             alpha=0.0, se_alpha=np.nan):
+             alpha=0.0, se_alpha=np.nan, corr_ab3=np.nan):
         if not (np.isfinite(b1) and np.isfinite(b2) and np.isfinite(b3)):
             return None
         if b3 <= EWI_MIN_BETA3:
@@ -1425,23 +1431,29 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
         #             (C4, the worst case, has VIF ≈ 1.11), so this is a close
         #             approximation rather than an exact joint interval.
         se_b3_term = abs(h_disp_eq) * (se3 / b3) if np.isfinite(se3) else np.nan
-        # 1.34.0 (D-332): Model B adds α's own term, se_α/β₃. The α-β₃ covariance is NOT carried
-        # (Script 03 does not publish it), so like the rest this is the independent approximation.
+        # 1.34.0 (D-332): Model B adds α's own term, se_α/β₃. 1.36.0 (Martin 2026-11-13): and the α-β₃
+        # covariance, cov = corr·se_α·se_β₃ (Script 03 1.32.0 publishes the correlation): with
+        # h = num/β₃, ∂h/∂α = 1/β₃ and ∂h/∂β₃ = −num/β₃², so the cross term is −2·num·cov/β₃³. Where the
+        # correlation is unavailable the term is left out (the independent approximation, as before);
+        # β₁ and β₂ stay treated as independent (their collinearity is mild, above).
         _sa = se_alpha if alpha != 0.0 else 0.0
         if np.isfinite(se1) and np.isfinite(se2) and np.isfinite(se3) and np.isfinite(_sa):
             num = b1 * P_bar - b2 * PET_bar + alpha
+            _cov = corr_ab3 * _sa * se3 if (alpha != 0.0 and np.isfinite(corr_ab3)) else 0.0
             var = ((P_bar * se1) ** 2
                    + (PET_bar * se2) ** 2
                    + _sa ** 2
-                   + (num * se3 / b3) ** 2) / (b3 ** 2)
-            se_full = float(np.sqrt(var))
+                   + (num * se3 / b3) ** 2
+                   - 2.0 * num * _cov / b3) / (b3 ** 2)
+            se_full = float(np.sqrt(var)) if var > 0 else np.nan
+            n_cov_carried[0] += int(_cov != 0.0)
         else:
             se_full = np.nan
         return dict(well=w, network=network,
                     beta_1_recharge=b1, beta_2_atmospheric_draw=b2,
                     beta_3_drainage=b3,
                     se_beta_1=se1, se_beta_2=se2, se_beta_3=se3, n_obs=n_obs,
-                    alpha=alpha, se_alpha=se_alpha, implied_datum_m=implied,
+                    alpha=alpha, se_alpha=se_alpha, corr_alpha_beta_3=corr_ab3, implied_datum_m=implied,
                     h_disp_eq_m=h_disp_eq,
                     EWI_m_bg=ewi_bg,
                     EWI_se_m_beta3=se_b3_term, EWI_se_m_full=se_full,
@@ -1482,7 +1494,8 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                    se2=_se_from_pvalue(_b2, r.get("pvalue_beta_2", np.nan), _n),
                    se3=_se_from_pvalue(_b3, r.get("pvalue_beta_3", np.nan), _n),
                    n_obs=_n, alpha=_al,
-                   se_alpha=_se_from_pvalue(_al, r.get("pvalue_alpha", np.nan), _n))
+                   se_alpha=_se_from_pvalue(_al, r.get("pvalue_alpha", np.nan), _n),
+                   corr_ab3=float(r.get("corr_alpha_beta_3", np.nan)))      # 1.36.0
         if row:
             # Model A beside it (1.34.0, D-332): Script 03's *_model_a columns
             _a = [float(r.get(f"{c}_model_a", np.nan))
@@ -1508,7 +1521,7 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
             # 1.34.0 (D-332): Model B (free intercept, beta_3 bounded below) is the index's fit;
             # Model A (no intercept) is fitted beside it on the same record for the *_model_a columns.
             try:
-                fit = fit_ssm(h_series=ext[w], climate=clim, intercept=True)
+                fit = fit_ssm(h_series=ext[w], climate=clim, intercept=True, with_corr=True)
             except Exception as e:
                 warn(f"extended {wl.upper()} SSM fit failed: {str(e)[:50]}")
                 continue
@@ -1521,7 +1534,8 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
                        se2=fit.get("se_beta_2", np.nan),
                        se3=fit.get("se_beta_3", np.nan),
                        n_obs=fit.get("n", np.nan),
-                       alpha=fit.get("alpha", np.nan), se_alpha=fit.get("se_alpha", np.nan))
+                       alpha=fit.get("alpha", np.nan), se_alpha=fit.get("se_alpha", np.nan),
+                       corr_ab3=fit.get("corr_alpha_beta_3", np.nan))           # 1.36.0
             if row:
                 # The persistence expectation's beta_3_B (1.23.0, D-216) is this same Model B fit
                 row.update(beta_3_B=fit.get("beta_3_drainage", np.nan),
@@ -1543,6 +1557,7 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
 
     ewi = pd.DataFrame(rows)
     ewi.attrs["excluded_datum"] = dict(excluded_datum)     # 1.34.0 (D-332), counted in report numbers
+    ewi.attrs["n_cov_carried"] = int(n_cov_carried[0])     # 1.36.0
     if excluded_datum:
         note("EWI left out where Model B's implied datum is not below ground: "
              + ", ".join(f"{k.upper()} ({v:+.2f} m)" for k, v in sorted(excluded_datum.items())))
@@ -1585,8 +1600,10 @@ def compute_equilibrium_wetness_index(elev: pd.DataFrame,
     locs = locations.copy()
     locs["well"] = locs["Name"].astype(str).str.strip().str.lower().str.replace(" ", "")
     _excl = ewi.attrs.get("excluded_datum", {})
+    _ncov = ewi.attrs.get("n_cov_carried", 0)
     ewi = ewi.merge(locs[["well", "E", "N"]], on="well", how="left")
     ewi.attrs["excluded_datum"] = _excl                    # merge drops attrs
+    ewi.attrs["n_cov_carried"] = _ncov
     return ewi
 
 
@@ -2945,6 +2962,8 @@ def main() -> int:
             # 1.34.0 (D-332): Model B's index is the headline; the counted exclusions and Model A's
             # open-dune calibration beside it (ewi_msl5_*_model_a)
             report_nums["ewi_n_wells_model_b_excluded_datum"] = len(ewi.attrs.get("excluded_datum", {}))
+            # 1.36.0: wells whose full EWI SE carries the alpha-beta_3 covariance
+            report_nums["ewi_n_wells_se_alpha_beta3_cov"] = int(ewi.attrs.get("n_cov_carried", 0))
             if "EWI_m_bg_model_a" in ewi.columns:
                 _ea = ewi.drop(columns=["EWI_m_bg"]).rename(columns={"EWI_m_bg_model_a": "EWI_m_bg"})
                 _, _calib_a = compute_ewi_msl5_comparison(_ea, latest)

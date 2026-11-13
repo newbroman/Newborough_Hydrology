@@ -294,6 +294,17 @@ _FORMER = "<!-- former path -->"
 _PATHISH = re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./-]*/[A-Za-z0-9_./-]*)`")
 
 
+# 2026-11-13 (J-9; the HQ daily pass's section 38 red of 2026-11-12/13): paths a TOOL CREATES, which a
+# signpost may name although a fresh clone does not hold them yet. Named one by one, each with the tool and the
+# moment it writes the path - the same rule as EXEMPT's "a path a tool CREATES is not a dangling reference", and
+# not the rejected "an untracked path is out of scope" (T-154). check_all.sh writes the gate summary at the END of a
+# run, so a fresh clone's first check_all reached this section before the file existed (the 2026-11-11 handover's
+# "Found, not fixed"), and the daily pass, which runs in a fresh tree, read red every day.
+CREATED = {
+    "scratch/check_all_summary.json": "written by tools/check_all.sh at the end of every run (its 1.34.0)",
+}
+
+
 def check_signposts() -> int:
     """Does every path a signpost names still exist?"""
     faults = []
@@ -342,6 +353,8 @@ def check_signposts() -> int:
                 # here, and CLAUDE.md's `venv/.bridge/`, which bridge_py.sh creates on
                 # the bridge VM and no other machine has.
                 if set(pathlib.Path(path).parts) & SKIP_PARTS:
+                    continue
+                if path in CREATED:            # 2026-11-13: a tool writes it (see CREATED)
                     continue
                 faults.append((rel, n, path))
     if faults:

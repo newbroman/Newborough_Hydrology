@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.39.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 2b). Script 08 2.0.0 renamed 08_lcsc_04's columns:
+__version__ = "1.40.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 3). Model A's beside-columns become citable:
+#   09b_02 baci_db3_pct_model_a and 08_perwell_nse SSM_NSE_model_a, so the Methods Supplement's Model A clauses bind as fields.
+# 1.39.0  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 2b). Script 08 2.0.0 renamed 08_lcsc_04's columns:
 #   Traditional_Model_A -> TLM, StateSpace_Model_B -> SSM_Model_B (now Model B; it held Model A), Delta_B_minus_A ->
 #   Delta_SSM_minus_TLM. Rebound to the successors so the documents' numbers surface as drift for phase 3.
 # 1.38.0  # Hollingham (2026) — 2026-11-03 (D-296 retirement pass). 14_winter_exceedance.csv and
@@ -580,7 +582,7 @@ EXTRA_VALUE_TABLES = [
     ("outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv", "Metric",    # report9 4.4, report10 5.2.4, report10 5.7.8
      ["TLM", "SSM_Model_B", "Delta_SSM_minus_TLM"]),
     ("outputs/08_model_benchmarking/08_perwell_nse.csv", "Well",    # report6 1, report9 4.4
-     ["TLM_NSE", "SSM_NSE", "dNSE", "ModelB_NSE", "dNSE_ModelB"]),
+     ["TLM_NSE", "SSM_NSE", "dNSE", "ModelB_NSE", "dNSE_ModelB", "SSM_NSE_model_a"]),
     ("outputs/09_scraping_intervention/09_scrape_02_beta3_significance.csv", ("Well", "Era"),    # report9 4.5.3, report10 5.8.2
      ["beta_3_drainage", "P_Value", "Conf_Low", "Conf_High"]),
     ("outputs/09_scraping_intervention/09b_01_individual_well_baci.csv", "well",    # report10 5.3.1, report10 5.4.3, report10 5.8.2
@@ -983,7 +985,7 @@ EXTRA_VALUE_TABLES = [
     ("outputs/09_scraping_intervention/09b_01_individual_well_baci.csv", "well",
      ["baci_db3_pct"]),
     ("outputs/09_scraping_intervention/09b_02_centroid_summaries.csv", "group",
-     ["baci_db3_pct"]),
+     ["baci_db3_pct", "baci_db3_pct_model_a"]),
     # Script 26's vegetation-prediction summary: the Figure 48 caption quotes each
     # metric's Pearson r and the sample size (T-84, 2026-09-27).
     ("outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv", "metric",

@@ -45,7 +45,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.40.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 3). Model A's beside-columns become citable:
+__version__ = "1.41.0"  # Hollingham (2026) — 2026-11-17 (D-334, T-213). 16_water_bal_table.csv registers Model B's
+#   head-space columns (Recharge_B ... ET_B_pct, LCSC_B_pct): Table 5 and report9's recharge sentence quote them.
+__version_prev__ = "1.40.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 3). Model A's beside-columns become citable:
 #   09b_02 baci_db3_pct_model_a and 08_perwell_nse SSM_NSE_model_a, so the Methods Supplement's Model A clauses bind as fields.
 # 1.39.0  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 2b). Script 08 2.0.0 renamed 08_lcsc_04's columns:
 #   Traditional_Model_A -> TLM, StateSpace_Model_B -> SSM_Model_B (now Model B; it held Model A), Delta_B_minus_A ->
@@ -948,7 +950,10 @@ EXTRA_VALUE_TABLES = [
     # percentages — exists only here and is quoted in report9 and report10.
     ("outputs/16_water_balance/16_water_bal_table.csv", "Label",
      ["Recharge_m_month", "ET_draw_m_month", "Drainage_m_month",
-      "Total_loss_m_month", "Residual_m_month", "Drainage_pct", "ET_pct"]),
+      "Total_loss_m_month", "Residual_m_month", "Drainage_pct", "ET_pct",
+      # 1.41.0 (D-334, T-213): Table 5 is Model B's since Script 16 1.14.0; its partition is quoted in report9
+      "Recharge_B_m_month", "ET_draw_B_m_month", "Drainage_B_m_month", "Total_loss_B_m_month",
+      "Residual_B_m_month", "Drainage_B_pct", "ET_B_pct", "LCSC_B_pct"]),
 
     # Per-well coefficient shifts across the clearfell. The SHIFTS are the
     # quantity — db1, db2, db3 — and they are quoted in report9; the before and

@@ -462,6 +462,7 @@ C4_Main_Forest_B_drain_frac_dp2,outputs/16_water_balance/16_water_bal_rec_table.
 C4_Main_Forest_Datum_max_m_dp0,outputs/16_water_balance/16_water_bal_rec_table.csv,C4 (Main Forest) · Datum_max_m,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C4_Main_Forest_Datum_min_m_dp1,outputs/16_water_balance/16_water_bal_rec_table.csv,C4 (Main Forest) · Datum_min_m,1,,1,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C4_Main_Forest_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C4 (Main Forest) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions
+C4_Main_Forest_ET_mid_mm_yr_dp0,outputs/16_water_balance/16_water_bal_vol_table.csv,C4 (Main Forest) · ET_mid_mm_yr,1,,0,,−,,bound by q3.bind.csv (report_edits/text/report9.md)
 C4_Main_Forest_ET_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C4 (Main Forest) · ET_pct,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C4_Main_Forest_ET_total_mid_mm_yr_dp0,outputs/16_water_balance/16_water_bal_vol_table.csv,C4 (Main Forest) · ET_total_mid_mm_yr,1,,0,,−,,D-262 (report9 §4.2.3 total evaporation)
 C4_Main_Forest_False_Sy_event_median_dp3,outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv,C4 (Main Forest) / False · Sy_event_median,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -2279,6 +2280,7 @@ water_balance_drain_share_lo_pct_C3_Western_Residual_dp0,outputs/16_water_balanc
 water_balance_drain_share_lo_pct_C4_Main_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_drain_share_lo_pct · C4 (Main Forest),1,,0,,−,,born a field 2026-10-28 (D-284)
 water_balance_drain_share_lo_pct_C5_Coastal_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_drain_share_lo_pct · C5 (Coastal Forest),1,,0,,−,,born a field 2026-10-28 (D-284)
 water_balance_et_share_pct_C4_Main_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_share_pct · C4 (Main Forest),1,,0,,−,,born a field 2026-10-28 (D-284)
+water_balance_et_total_over_pet_C4_Main_Forest_x100_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_total_over_pet · C4 (Main Forest),100,,0,,−,,bound by q3.bind.csv (report_edits/text/report9.md)
 water_balance_residual_pct_C4_Main_Forest_dp2,outputs/16_water_balance/16_report_numbers.csv,water_balance_residual_pct · C4 (Main Forest),1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wb_ccw_bias_line_m_dp2,outputs/55_water_balance_drainage/55_report_numbers.csv,wb_ccw_bias_line_m,1,,2,,−,,born a field in PaperM (D-303; spec NRG_spec_water_balance_diagnostic_2026-11-04)
 wb_drain_share_median_sy_hi_x100_dp0,outputs/55_water_balance_drainage/55_report_numbers.csv,wb_drain_share_median_sy_hi,100,,0,,−,,born a field in PaperM (D-303; spec NRG_spec_water_balance_diagnostic_2026-11-04)

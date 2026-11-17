@@ -1116,12 +1116,14 @@ TABLES = [
                    "Residual", "Drain % / ET %"],
         "columns": [
             {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
-            {"col": "Recharge_m_month",   "fmt": "fixed", "dp": 3},
-            {"col": "ET_draw_m_month",    "fmt": "fixed", "dp": 3},
-            {"col": "Drainage_m_month",   "fmt": "fixed", "dp": 3},
-            {"col": "Total_loss_m_month", "fmt": "fixed", "dp": 3},
-            {"col": "Residual_m_month",   "fmt": "fixed", "dp": 3, "sign": True, "zero_text": "<0.001"},
-            {"fmt": "template", "template": "{Drainage_pct:.0f} / {ET_pct:.0f}"},
+            # 2026-11-17 (T-213, D-334): Model B's columns (Script 16 1.14.0); Martin (review Q2): the C4 drainage
+            # and split cells print a dash, because Model B does not identify C4's beta_3 (p = 0.45)
+            {"col": "Recharge_B_m_month",   "fmt": "fixed", "dp": 3},
+            {"col": "ET_draw_B_m_month",    "fmt": "fixed", "dp": 3},
+            {"col": "Drainage_B_m_month",   "fmt": "fixed", "dp": 3, "unless": {"Cluster": ["4"]}, "else": "—"},
+            {"col": "Total_loss_B_m_month", "fmt": "fixed", "dp": 3},
+            {"col": "Residual_B_m_month",   "fmt": "fixed", "dp": 3, "sign": True, "zero_text": "<0.001"},
+            {"fmt": "template", "template": "{Drainage_B_pct:.0f} / {ET_B_pct:.0f}", "unless": {"Cluster": ["4"]}, "else": "—"},
         ],
     },
     {
@@ -1131,16 +1133,17 @@ TABLES = [
         "caption": "Paper 1 - annual volumetric water balance (Script 16)",
         "sources": {"vb": "outputs/16_water_balance/16_water_bal_vol_table.csv"},
         "rows": {"source": "vb"},
-        "header": ["Cluster", "P", "I", "P_net", "ET (mid)", "I + ET (mid)", "Drainage (mid)"],
+        "header": ["Cluster", "P", "I", "P_net", "ET", "I + ET", "Drainage"],   # T-213 P1-T3: "(mid)" dropped
         "columns": [
             {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
             # annual mm/yr are whole-mm quantities: integer, as report9 renders them
             {"col": "P_mm_yr",         "fmt": "fixed", "dp": 0},
             {"col": "I_mm_yr",         "fmt": "fixed", "dp": 0},
             {"col": "P_net_mm_yr",     "fmt": "fixed", "dp": 0},
-            {"col": "ET_mid_mm_yr",    "fmt": "fixed", "dp": 0},
-            {"col": "ET_total_mid_mm_yr", "fmt": "fixed", "dp": 0},   # D-262: I + ET
-            {"col": "Drain_mid_mm_yr", "fmt": "fixed", "dp": 0},
+            # Martin (review Q2): the C4 split cells print a dash (beta_3 not identified under Model B)
+            {"col": "ET_mid_mm_yr",    "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]}, "else": "—"},
+            {"col": "ET_total_mid_mm_yr", "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]}, "else": "—"},   # D-262: I + ET
+            {"col": "Drain_mid_mm_yr", "fmt": "fixed", "dp": 0, "unless": {"Cluster": ["4"]}, "else": "—"},
         ],
     },
     {

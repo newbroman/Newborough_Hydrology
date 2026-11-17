@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_3.odt — do not edit. source-sha256=7ae3bbf391f46a08 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_3.odt — do not edit. source-sha256=0c4149e1ea1a6a44 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -111,7 +111,7 @@ At individual wells the leftover (the **water-balance residual**) is small and s
 
 ## []{#anchor}Drainage or evaporation?
 
-With the floor at 3.7 m, drainage takes 85% of the water lost at the Lake Edge but only 24% in the Main Forest, where evaporation and the trees take most of it. This split depends on where the floor is put and cannot be read from water levels alone. Moving the floor from the shallowest workable depth to 8 m, the drainage share runs from 73% to 89% at the Lake Edge and from 4% to 28% in the Main Forest. The order of the groups never changes.
+The model puts drainage at 38% of the water lost at the Lake Edge, 45% in the Dune, 56% in the Western Residual and 61% in the Coastal Forest. In the Main Forest the record is too short to pin it down. The split cannot be read from water levels alone. A separate water budget, which uses how much water the sand appears to release as the water table falls, gives about 31% at a typical well. What the record does show is that, in the open dune, drainage must take at least the surplus of rain over evaporative demand, about 237 mm a year.
 
 ## []{#anchor}How quickly does it drain?
 
@@ -153,7 +153,7 @@ Two further points. Rising sea level, about 4 mm a year, pushes the water table 
 
 # []{#anchor}9. What the method cannot tell
 
--   **Where the floor is.** The drainage number, the half-life and the drainage--evaporation split depend on the chosen floor; the order of the groups does not. Fitting the record best does not find the real floor, because the best-fitting depth simply follows each well's usual water depth.
+-   **Where the floor is.** The drainage--evaporation split cannot be read from water levels; the paper gives the model's answer with the other readings beside it. Fitting the record best does not find the real floor, because the best-fitting depth simply follows each well's usual water depth.
 -   **How water moves between groups.** The model is fitted well by well and joined up on a map. It cannot say whether a change in one place would be felt in another; that needs a full flow model and the measurements behind it.
 -   **Exact amounts.** The numbers are reliable for ranking places, less so as exact rates. Turning them into millimetres of water needs an evaporative demand worked out from temperature, whose absolute size is uncertain.
 -   **The forest's reach.** One map shows how far the forest's effect might spread into the open dune. It alone needs a value for how easily water moves through the sand, from a single test, so it is an order-of-magnitude illustration.

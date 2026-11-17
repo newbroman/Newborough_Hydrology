@@ -70,7 +70,9 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # 2026-10-07 (Claude). First issue. Extends reembed_figures to the
+__version__ = "1.1.0"  # 2026-11-17 (T-213). --skip FILE leaves a STALE picture as it is, for a figure whose
+#   caption still describes the old output and changes with its text (Paper 1's half-life map waits for T-110).
+__version_prev__ = "1.0.0"  # 2026-10-07 (Claude). First issue. Extends reembed_figures to the
 #   papers, as Martin approved: the PAPER1_FIGURES.md and PAPER2_FIGURES.md tables are the map, pictures are paired
 #   by caption and compared by content, and a stale one is resampled to the paper's own
 #   embedded width (1600/1700 px). Needs odt_edit >= 1.9.0 (replace_image accepts JPEG).
@@ -487,6 +489,8 @@ def main() -> int:
     mode.add_argument("--dry-run", action="store_true", help="list only (the default)")
     mode.add_argument("--apply", action="store_true", help="replace STALE pictures")
     ap.add_argument("--only", choices=sorted(PAPERS))
+    ap.add_argument("--skip", action="append", default=[], metavar="FILE",
+                    help="1.1.0: leave the picture whose current output is FILE (basename) as it is")
     ap.add_argument("--odt", type=Path, help="use this ODT instead of the newest version "
                     "(testing); needs --only")
     args = ap.parse_args()
@@ -513,7 +517,10 @@ def main() -> int:
         for r in images:
             counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
         print("  " + ", ".join(f"{v} {k}" for k, v in sorted(counts.items())))
-        jobs = [r for r in images if r["verdict"] == "STALE"]
+        jobs = [r for r in images if r["verdict"] == "STALE"
+                and not (r.get("source") and Path(r["source"]).name in args.skip)]
+        if args.skip:
+            print("  skipped by --skip: " + ", ".join(args.skip))
         if not args.apply:
             continue
         if not jobs:

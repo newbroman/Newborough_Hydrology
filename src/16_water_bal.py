@@ -79,7 +79,12 @@ References:
       for water table depths. WRR 36(1), 181–188.
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 writes Model B in
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-17 (D-334, T-213; Martin: "drop the Model A column", "do it now").
+#   The partition range (Lo/Hi_drain_frac, Spread_pp, the report keys *_lo/_hi, the hatched band of Figure 11b) spans
+#   Model B, the depth-dependent model and the recession ratio; Model A's fraction stays in SSM_drain_frac and the
+#   *_A_pct keys as the robustness record but no longer widens the range. The figure drops the Model A datum bracket;
+#   the recession table keeps its datum columns. Table 5 (table_configs) now shows the Model B columns.
+__version_prev__ = "1.13.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 writes Model B in
 #   03_03's headline columns, so the Model A bracket now reads the *_model_a columns (beta_*_model_a, LCSC_percent_model_a;
 #   values unchanged) and Model B, the headline, is read from 03_03 itself (alpha, beta_*, implied_datum_m) in place of
 #   03_16 (the same centroid fit): its drainage is beta_3 * (h + implied_datum_m) = beta_3 * (DRAINAGE_DATUM + h) - alpha,
@@ -284,14 +289,15 @@ def load_model_b() -> pd.DataFrame:
     (implied_datum_m <= 0) is dropped here and counted by the caller, as Scripts 39 and 44 do."""
     mech = pd.read_csv(OUT_03_MECHANISTIC_TABLE)
     need = ["alpha", "beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage", "pvalue_beta_3",
-            "implied_datum_m"]
+            "implied_datum_m", "LCSC_percent"]
     missing = [c for c in need if c not in mech.columns]
     if missing:
         error(f"{OUT_03_MECHANISTIC_TABLE.name} lacks the Model B columns {missing}: re-run Script 03 (>= 1.31.0)")
         sys.exit(1)
     mb = mech.set_index("Cluster")[need].rename(columns={
         "alpha": "alpha_B", "beta_1_recharge": "beta_1_B", "beta_2_atmospheric_draw": "beta_2_B",
-        "beta_3_drainage": "beta_3_B", "pvalue_beta_3": "pvalue_beta_3_B", "implied_datum_m": "implied_datum_B"})
+        "beta_3_drainage": "beta_3_B", "pvalue_beta_3": "pvalue_beta_3_B", "implied_datum_m": "implied_datum_B",
+        "LCSC_percent": "LCSC_B"})
     mb.index = mb.index.astype(int)
     out = mb[~(mb["implied_datum_B"] > 0)]
     for cid, r in out.iterrows():
@@ -364,12 +370,12 @@ def compute_headspace(df, betas, mb=None):
                          et_pct_B=100.0 * eB / lB if lB > 0 else np.nan,
                          b1_B=m["beta_1_B"], b2_B=m["beta_2_B"], b3_B=m["beta_3_B"], alpha_B=m["alpha_B"],
                          p_b3_B=m["pvalue_beta_3_B"], implied_datum_B=m["implied_datum_B"],
-                         h_disp_mean_B=h_disp_B)
+                         h_disp_mean_B=h_disp_B, lcsc_B=m["LCSC_B"])
         else:
             bpart = dict(recharge_B=np.nan, et_draw_B=np.nan, drainage_B=np.nan, total_loss_B=np.nan,
                          residual_B=np.nan, drain_pct_B=np.nan, et_pct_B=np.nan, b1_B=np.nan, b2_B=np.nan,
                          b3_B=np.nan, alpha_B=np.nan, p_b3_B=np.nan, implied_datum_B=np.nan,
-                         h_disp_mean_B=np.nan)
+                         h_disp_mean_B=np.nan, lcsc_B=np.nan)
 
         summary[cid] = dict(**bpart,
             lcsc=lcsc, b1=b1, b2=b2, b3=b3,
@@ -463,9 +469,11 @@ def save_headspace_table(summary, path):
             "Recharge_B_m_month": s["recharge_B"],
             "ET_draw_B_m_month": s["et_draw_B"],
             "Drainage_B_m_month": s["drainage_B"],
+            "Total_loss_B_m_month": s["total_loss_B"],   # 1.14.0 (D-334): Table 5 is Model B's
             "Residual_B_m_month": s["residual_B"],
             "Drainage_B_pct": s["drain_pct_B"],
             "ET_B_pct": s["et_pct_B"],
+            "LCSC_B_pct": s["lcsc_B"],                   # 1.14.0: Script 03's headline (Model B) LCSC
         })
     pd.DataFrame(rows).to_csv(path, index=False, float_format="%.6f")
     saved(f"{path.name}")
@@ -486,10 +494,11 @@ def site_climate_means(df):
 def partition_estimates(s: dict, r: dict, ddp_frac=np.nan) -> dict:
     """1.12.0 (D-283): the drainage fraction of the loss by each estimator, the headline and its range.
     Headline: Model B (falls back to Model A where Model B is absent). Range: the lowest and highest
-    of Model A, Model B, the depth-dependent model and the recession ratio, wherever each exists."""
+    of Model B, the depth-dependent model and the recession ratio, wherever each exists. 1.14.0 (D-334):
+    Model A's fraction stays in est["A"] (the robustness record) but no longer widens the range."""
     est = {"A": s["drain_pct"] / 100.0, "B": s.get("drain_pct_B", np.nan) / 100.0,
            "DDP": ddp_frac, "Rec": r.get("drain_frac", np.nan)}
-    vals = [v for v in est.values() if pd.notna(v)]
+    vals = [v for k, v in est.items() if k != "A" and pd.notna(v)]
     head = est["B"] if pd.notna(est["B"]) else est["A"]
     return dict(est=est, mid=head, lo=min(vals), hi=max(vals))
 
@@ -894,7 +903,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
         Patch(facecolor=C_INTCP, edgecolor='white',
               label='Interception (Freeman 2008)', hatch='///'),
         Patch(facecolor='white', edgecolor='#333',
-              label='Partition range (Model A, Model B,\ndepth-dependent, recession)',
+              label='Partition range (Model B,\ndepth-dependent, recession)',
               hatch='\\\\\\', alpha=0.45, linewidth=0.8),
     ]
     if datum_range:
@@ -909,7 +918,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
     ax2.set_xticklabels([CLUSTER_LABELS_FIG[c] for c in cids], fontsize=9.5)
     ax2.set_ylabel("Annual flux (mm/yr)", fontsize=11)
     ax2.set_title("(b) Volumetric water balance: ET/drainage partition from Model B, "
-                  "bracketed by four estimators",
+                  "bracketed by three estimators",
                   fontsize=12, fontweight='bold')
     ax2.set_xlim(-0.8, len(cids) + 1.2)
     ax2.set_ylim(0, max(P_by_cid.values()) * 1.12)
@@ -922,7 +931,7 @@ def make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=N
              f"Rainfall P = {min(P_by_cid.values()):.0f}–{max(P_by_cid.values()):.0f} mm/yr by cluster "
              f"(each over its own months). At steady state, "
              f"total losses = P. The bars split the losses by Model B; the hatched band spans the ET/drainage\nboundary "
-             f"across Model A, Model B, the depth-dependent model and seasonal recession analysis. "
+             f"across Model B, the depth-dependent model and seasonal recession analysis. "
              f"Forest interception ({I_pct}% of P;\nFreeman 2008) "
              f"appears identically on both bars and cancels in the net surplus.",
              transform=ax2.transAxes, ha='center', va='top', fontsize=8.5,
@@ -1089,13 +1098,14 @@ def main():
 
     # ── Figure 8 ──
     # Manuscript version
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=datum_range, ddp=ddp)
+    # 1.14.0 (D-334): no Model A datum bracket in the figure; 16_water_bal_rec_table.csv keeps those columns
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=True, datum_range=None, ddp=ddp)
     fig.savefig(OUT_16_BAR_MS, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close(fig)
     saved(f"{OUT_16_BAR_MS.name}")
 
     # Lay version
-    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False, datum_range=datum_range, ddp=ddp)
+    fig = make_figure(summary, recession, site_P_m, site_PET_m, ms=False, datum_range=None, ddp=ddp)
     fig.savefig(OUT_16_BAR_LAY, dpi=150, bbox_inches='tight')
     plt.close(fig)
     saved(f"{OUT_16_BAR_LAY.name}")

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_2.odt — do not edit. source-sha256=d174184cd387152e pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_3.odt — do not edit. source-sha256=7ae3bbf391f46a08 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -91,21 +91,21 @@ The canopy is not the same everywhere. Measured from aerial photographs within 3
 
 When the water table falls by a metre, only part of that metre was water; the rest was sand grains. The share that drains out as the water table falls is the **specific yield**. Sand with a higher specific yield needs more rain to raise its water table.
 
-The paper estimates it simply (the **water-table-fluctuation method**): in months when the water rose, compare the rain that soaked in with how far the water rose. With monthly readings this tends to overestimate, so the results are treated as upper limits.
+The paper estimates it simply (the **water-table-fluctuation method**): in months when the water rose, compare the rain that soaked in with how far the water rose. With monthly readings this tends to overestimate, so the results are treated as upper limits. What this measures is more than the sand alone holds, so the paper calls it the apparent storage.
 
 ## []{#anchor}The forest puzzle
 
-Taken at face value, the forest wells seem to hold as much water as the wettest open dune, or more. But the method assumes all the rain reaches the ground, and under pine it does not: the canopy catches about a quarter of it (24%, from the one measurement made in the plantation). Allowing for that, the Main Forest's specific yield falls within the open-dune range. The Coastal Forest's sits just above the top of that range, but it is the least reliable estimate in the network, pressed against the limit of what the sand could physically hold, so the paper gives it little weight. Trying other values for the canopy's catch, the Main Forest result holds; the Coastal Forest result does not.
+Taken at face value, the forest wells seem to hold as much water as the wettest open dune, or more. But the method assumes all the rain reaches the ground, and under pine it does not: the canopy catches about a quarter of it (24%, from the one measurement made in the plantation). Allowing for that, the Main Forest's apparent storage falls within the open-dune range. The Coastal Forest's sits just above the top of that range, but it is the least reliable estimate in the network, pressed against the limit of what the sand could physically hold, so the paper gives it little weight. Trying other values for the canopy's catch, the Main Forest result holds; the Coastal Forest result does not.
 
 ## []{#anchor}What follows
 
-Mapped across the site, specific yield changes smoothly, with no step at the edges of the groups; in the open dune it rises steadily towards the south-west. The paper's reading, consistent with the evidence but not proven, is that the forest wells behave differently mainly because the canopy catches rain at the surface, not because the sand beneath is different.
+Mapped across the site, apparent storage changes smoothly, with no step at the edges of the groups; in the open dune it rises steadily towards the south-west. The paper's reading, consistent with the evidence but not proven, is that the forest wells behave differently mainly because the canopy catches rain at the surface, not because the sand beneath is different.
 
 # []{#anchor}6. Where the water goes
 
 ## []{#anchor}Does the account balance?
 
-The three numbers give a monthly budget for each group: rain in, evaporation and drainage out. Over the record the two sides agree to within 1.8% at every group, with no hidden extra source needed. The paper notes that this is partly built in, since a model fitted to water levels can be expected to balance on average; what it shows is that three terms are enough.
+The three numbers give a monthly budget for each group: rain in, evaporation and drainage out. Over the record the two sides agree to within 1.7% at every group, with no hidden extra source needed. The paper notes that this is partly built in, since a model fitted to water levels can be expected to balance on average; what it shows is that three terms are enough.
 
 At individual wells the leftover (the **water-balance residual**) is small and shows no pattern across the site. Tests for water seeping in from the ridge, and for missing summer evaporation, found nothing. But monthly readings are too coarse to catch quick seepage through cracked rock, so the ridge test limits what this record can see rather than ruling it out. The leftover does have a seasonal rhythm, highest in winter and spring, which the paper leaves unexplained.
 
@@ -155,7 +155,7 @@ Two further points. Rising sea level, about 4 mm a year, pushes the water table 
 
 -   **Where the floor is.** The drainage number, the half-life and the drainage--evaporation split depend on the chosen floor; the order of the groups does not. Fitting the record best does not find the real floor, because the best-fitting depth simply follows each well's usual water depth.
 -   **How water moves between groups.** The model is fitted well by well and joined up on a map. It cannot say whether a change in one place would be felt in another; that needs a full flow model and the measurements behind it.
--   **Exact amounts.** The numbers are reliable for ranking places, less so as exact rates. Turning them into millimetres of water needs the specific yield, known only as an upper limit, and an evaporative demand worked out from temperature, whose absolute size is uncertain.
+-   **Exact amounts.** The numbers are reliable for ranking places, less so as exact rates. Turning them into millimetres of water needs an evaporative demand worked out from temperature, whose absolute size is uncertain.
 -   **The forest's reach.** One map shows how far the forest's effect might spread into the open dune. It alone needs a value for how easily water moves through the sand, from a single test, so it is an order-of-magnitude illustration.
 -   **What lies beneath.** The ground under the forest has not been drilled, and drainage lines traced from the land surface are no guide to where the groundwater flows.
 
@@ -181,10 +181,12 @@ Any coastal dune with hand-read dipwells and a nearby weather station can be tre
 2.  Try the floor at many depths and choose one where the water budget stops changing. Do not reuse 3.7 m: the right depth follows the site's own water levels.
 3.  Fit the three-number model at each well and each group.
 4.  Run it freely against a model without drainage; where drainage helps most is where drainage governs.
-5.  Estimate specific yield from the rises, allowing for any canopy, as an upper limit.
+5.  Estimate the apparent storage from the rises, allowing for any canopy, as an upper limit.
 6.  Where a shore is eroding, fit the trend against distance from it and remove that before reading anything about climate.
 
 # []{#anchor}Glossary
+
+**Apparent storage.** What the water-table-fluctuation method measures: the rain that soaked in divided by the rise. It is more than the sand's specific yield, because it also counts water in the damp layer above the water table.
 
 **Aquifer.** The soaked sand below the water table.
 
@@ -212,7 +214,7 @@ Any coastal dune with hand-read dipwells and a nearby weather station can be tre
 
 **Water-balance residual.** What is left over when modelled losses are set against modelled input.
 
-**Water-table-fluctuation method.** Estimating specific yield by comparing the rain that soaked in with how far the water table rose.
+**Water-table-fluctuation method.** Estimating the apparent storage by comparing the rain that soaked in with how far the water table rose.
 
 # []{#anchor}Further reading
 

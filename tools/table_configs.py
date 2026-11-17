@@ -262,12 +262,14 @@ TABLES = [
         "columns": [
             {"fmt": "template", "template": "C{Cluster}"},
             {"col": "Label", "fmt": "text", "re": [r"^C\d \((.+)\)$", r"\1"]},
-            {"col": "LCSC_pct",         "fmt": "fixed", "dp": 1},   # PRECISION: 1 dp as published
-            {"col": "Recharge_m_month", "fmt": "fixed", "dp": 3},
-            {"col": "ET_draw_m_month",  "fmt": "fixed", "dp": 3},
-            {"col": "Drainage_m_month", "fmt": "fixed", "dp": 3},
-            {"col": "Total_loss_m_month", "fmt": "fixed", "dp": 3},
-            {"col": "Residual_m_month", "fmt": "fixed", "dp": 3, "sign": True},
+            # 2026-11-17 (D-334, T-213): Model B's decomposition at each centroid's implied base (Script 16 1.14.0);
+            # Model A's columns stay in the CSV as the robustness record
+            {"col": "LCSC_B_pct",         "fmt": "fixed", "dp": 1},   # PRECISION: 1 dp as published
+            {"col": "Recharge_B_m_month", "fmt": "fixed", "dp": 3},
+            {"col": "ET_draw_B_m_month",  "fmt": "fixed", "dp": 3},
+            {"col": "Drainage_B_m_month", "fmt": "fixed", "dp": 3},
+            {"col": "Total_loss_B_m_month", "fmt": "fixed", "dp": 3},
+            {"col": "Residual_B_m_month", "fmt": "fixed", "dp": 3, "sign": True},
         ],
     },
     {
@@ -602,7 +604,7 @@ TABLES = [
         # summer less winter is ET, and their ratio is the fraction.
         "header": ["Cluster", "Winter decline (mm/month)", "Summer decline (mm/month)",
                    "ET = summer \u2212 winter (mm/month)", "n months (winter/summer)",
-                   "Drainage fraction (recession)", "Drainage fraction: Model B; Model A (admissible datum range)"],   # D-283
+                   "Drainage fraction (recession)", "Drainage fraction: Model B; depth-dependent model"],   # D-334
         "columns": [
             {"col": "Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
             # declines are negative in the CSV; tabulated as positive magnitudes
@@ -616,7 +618,9 @@ TABLES = [
             # DRAINAGE_DATUM, with its value at the shallowest and deepest admissible datum (Script 16 1.8.0,
             # from Script 03's partition rows) in brackets
             # 2026-10-28 (D-283, D-284): Model B's fraction first, the one the split is quoted from, then Model A's with its datum range
-            {"fmt": "template", "template": "{B_drain_frac:.2f}; {SSM_drain_frac:.2f} ({SSM_drain_frac_min_datum:.2f}\u2013{SSM_drain_frac_max_datum:.2f})"},
+            # 2026-11-17 (D-334, T-213): the three estimators of the partition range; Model A's fraction and its
+            # datum range leave the table (they stay in the CSV as the robustness record)
+            {"fmt": "template", "template": "{B_drain_frac:.2f}; {DDP_drain_frac:.2f}"},
         ],
     },
     {

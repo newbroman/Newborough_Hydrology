@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=fbda68fe8e36b106 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=a3af6670293b13a1 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -116,61 +116,61 @@ The identifiability of the C4 drainage coefficient was tested directly (Script 3
 
   --------------------------- ---------------------- ------- ------- ------- --------- --------- ---------- -------
   Cluster                     Basis                  n       β₁      β₂      −β₃       p(β₃)     LCSC (%)   R²
-  C1 Lake Edge                full record (238 mo)   7       4.577   0.942   0.088     \<0.001   21.849     0.729
-  100-month window (100 mo)   7                      5.008   0.524   0.103   \<0.001   19.968    0.784      
-  C2 Dune                     full record (251 mo)   19      3.989   1.842   0.062     \<0.001   25.072     0.764
-  100-month window (100 mo)   19                     4.180   1.624   0.069   \<0.001   23.923    0.805      
-  C3 Western Residual         full record (251 mo)   26      3.808   1.833   0.062     \<0.001   26.263     0.827
-  100-month window (100 mo)   26                     3.836   1.713   0.063   \<0.001   26.071    0.854      
-  C4 Main Forest              full record (238 mo)   9       2.502   2.564   0.019     \<0.001   39.975     0.733
-  100-month window (100 mo)   9                      2.418   2.625   0.013   0.176     41.360    0.759      
-  C5 Coastal Forest           full record (240 mo)   5       2.462   1.336   0.045     \<0.001   40.621     0.706
-  100-month window (100 mo)   5                      2.341   1.158   0.045   \<0.001   42.718    0.765      
+  C1 Lake Edge                full record (238 mo)   7       3.715   3.144   0.354     \<0.001   26.918     0.818
+  100-month window (100 mo)   7                      3.970   2.866   0.333   \<0.001   25.188    0.840      
+  C2 Dune                     full record (251 mo)   19      3.500   2.619   0.167     \<0.001   28.571     0.789
+  100-month window (100 mo)   19                     3.527   2.629   0.182   \<0.001   28.354    0.827      
+  C3 Western Residual         full record (251 mo)   26      3.604   2.126   0.103     \<0.001   27.749     0.832
+  100-month window (100 mo)   26                     3.605   2.032   0.102   \<0.001   27.743    0.857      
+  C4 Main Forest              full record (238 mo)   9       2.578   2.499   0.010     0.447     38.790     0.733
+  100-month window (100 mo)   9                      2.401   2.639   0.015   0.516     41.642    0.758      
+  C5 Coastal Forest           full record (240 mo)   5       2.463   1.335   0.045     \<0.001   40.609     0.706
+  100-month window (100 mo)   5                      2.168   1.380   0.088   0.003     46.116    0.770      
   --------------------------- ---------------------- ------- ------- ------- --------- --------- ---------- -------
 
 Table 1.3: Cluster mechanistic characterization derived from the displacement-formulation SSM (Section 3.4). β₁ = recharge sensitivity (mm water table rise per mm rainfall); β₂ = atmospheric draw (mm water table decline per mm PET); β₃ = proportional drainage decay rate (fraction of displacement above the cluster\'s implied drainage base dissipated per month; Model B). LCSC = 100/β₁; values express the millimetres of rainfall required to raise the cluster average water table by 10 cm. R² is one-step diagnostic fit. Each cluster is shown on both fitting bases: its full record, which is the basis for every cluster coefficient used elsewhere in this report, and the 100-month comparison window used by the per-well analyses (Section 3.4.3). On the full record every coefficient is significant at p \< 0.01 except C4\'s drainage term (p = 0.45). On the comparison window C4\'s drainage term is not significant either (p = 0.516) --- its standard error is unremarkable, but the coefficient is 6.0 to 22.9 times smaller than any other cluster\'s, so the shorter record cannot resolve it from zero. Every other coefficient is significant on the window. (Source: 03_03_cluster_mechanistic_coefficients.csv; window basis from 03_14_centroid_window_sensitivity.csv).
 
 ### []{#anchor-7} **Recharge and Losses: A Cluster-Level Water Balance**
 
-  --------------------- ---- -------------- --------------- ---------------
-  C1 Lake Edge          7    4.267--6.237   −0.400--1.251   0.088--0.134
-  C2 Dune               19   3.425--4.876   1.039--2.531    0.057--0.094
-  C3 Western Residual   26   2.332--5.514   0.884--2.185    0.034--0.109
-  C4 Main Forest        9    2.101--3.493   2.084--3.880    −0.024--0.039
-  C5 Coastal Forest     5    2.151--2.752   0.776--1.359    0.039--0.061
-  --------------------- ---- -------------- --------------- ---------------
+  --------------------- ---- -------------- -------------- --------------
+  C1 Lake Edge          7    3.195--4.873   2.354--3.709   0.270--0.427
+  C2 Dune               19   2.583--4.312   2.447--3.411   0.148--0.261
+  C3 Western Residual   26   2.134--4.884   1.317--2.826   0.059--0.199
+  C4 Main Forest        9    1.671--3.566   2.153--4.185   0.010--0.043
+  C5 Coastal Forest     5    1.732--2.537   1.105--1.887   0.065--0.139
+  --------------------- ---- -------------- -------------- --------------
 
 **Table : **Within-cluster range of the per-well SSM coefficients, reference network (Script 07). Each range is the minimum and maximum across that cluster\'s member wells, from the per-well fits on the 100-month comparison window (Section 3.4.3), not the cluster-average hydrographs to which the centroid coefficients of Table 3 are fitted; n wells is the number of reference wells the range spans, so the narrow C5 range rests on five wells and the wide C3 range on twenty-six. Two ranges cross zero and are discussed where they matter: β₂ at C1 (Section 5.2.3, the CEH6 coefficient) and β₃ at C4 (Section 4.2.2, drainage identifiability). The β₃ ranges at C1 and C4 do not overlap. (Source: 07_coeff_05_cluster_ranges.csv)
 
 Water balance decomposition applied to all five clusters (Section 3.7.2) reveals markedly different recharge sensitivities across clusters receiving nearly identical climate forcing. The head-space decomposition is presented in Table 5 and Figure 11; an indicative volumetric conversion is presented in Table 7 and Figure 11b. The derivation and defence of the values of the apparent storage coefficient Sₐ (the 'apparent specific yield' of Healy and Cook, 2002) are addressed in Section 4.2.4.
 
-Recharge into the water table (β₁·Pl) declines systematically from the Lake Edge cluster (C1: 0.341 m/month) through the Dune (C2: 0.296 m/month) and Western Residual (C3: 0.282 m/month) to the forested clusters (C5: 0.183 m/month; C4: 0.186 m/month). Total losses (atmospheric draw plus drainage) track recharge closely in every cluster. Residuals are less than 1.7% of total losses in all clusters. The split varies markedly across clusters. Under Model B, the form it is quoted from, drainage takes 38% of losses at C1, 45% at C2, 56% at C3, 61% at C5 and 29% at C4, where atmospheric draw dominates. Model A at the network datum gives drainage more at the dune clusters (85, 66 and 65%) and about the same under the forest (61 and 25%).
+Recharge into the water table (β₁·P̄) is highest at the Lake Edge cluster (C1: 0.276 m/month), similar across the open dune (C2: 0.259 m/month; C3: 0.267 m/month) and lowest at the forested clusters (C4: 0.192 m/month; C5: 0.183 m/month). Total losses (atmospheric draw plus drainage) track recharge closely in every cluster. Residuals are less than 1.7% of total losses in all clusters. The split varies markedly across clusters. Drainage takes 38% of losses at C1, 45% at C2, 56% at C3, 61% at C5 and 29% at C4, where atmospheric draw dominates.
 
   --------- ------------------ ---------- -------------------- --------------------- -------------------- ---------------------- --------------------
   Cluster   Label              LCSC (%)   Recharge (m/month)   Atm. Draw (m/month)   Drainage (m/month)   Total Loss (m/month)   Residual (m/month)
-  C1        Lake Edge          21.8       0.341                0.051                 0.293                0.345                  −0.004
-  C2        Dune               25.1       0.296                0.100                 0.198                0.298                  −0.003
-  C3        Western Residual   26.3       0.282                0.100                 0.182                0.282                  +0.000
-  C4        Main Forest        40.0       0.186                0.140                 0.046                0.186                  +0.000
-  C5        Coastal Forest     40.6       0.183                0.073                 0.114                0.186                  −0.003
+  C1        Lake Edge          26.9       0.276                0.171                 0.105                0.277                  −0.000
+  C2        Dune               28.6       0.259                0.142                 0.117                0.259                  +0.000
+  C3        Western Residual   27.7       0.267                0.116                 0.150                0.266                  +0.002
+  C4        Main Forest        38.8       0.192                0.136                 0.056                0.192                  −0.000
+  C5        Coastal Forest     40.6       0.183                0.072                 0.114                0.186                  −0.003
   --------- ------------------ ---------- -------------------- --------------------- -------------------- ---------------------- --------------------
 
-**Table : **Mean monthly head-space water balance decomposition by hydrogeological cluster, Newborough Warren 2005--2026. Recharge (β₁·Pc), atmospheric draw (β₂·PETc) and gravity drainage (β₃·hc_disp) are expressed as metres of water table change per month (m/month), where hc_disp is the mean displacement above the 3.7 m drainage datum (Section 3.4). Coefficients are cluster-centroid fits from the no-intercept form (Model A, Table 3); the split quoted in the text is Model B\'s (Table 6, Figure 11a). Residuals are less than 1.7% of total losses in all clusters, consistent with the three-term formulation closing the water balance without requiring an unmeasured boundary contribution. All clusters receive nearly identical climate forcing: Pc = 74.4 mm/month, PETc = 54.5 mm/month. Drainage and ET percentages shown below. (Source: 16_water_bal_table.csv).
+**Table : **Mean monthly head-space water balance decomposition by hydrogeological cluster, Newborough Warren 2005--2026. Recharge (β₁·Pc), atmospheric draw (β₂·PETc) and gravity drainage (β₃·hc_disp − α) are expressed as metres of water table change per month (m/month), where hc_disp is the mean displacement above the 3.7 m drainage datum and α places each cluster\'s drainage base at its implied depth (Section 3.4). Coefficients are Model B\'s cluster-centroid fits (Table 3), as in Figure 11a. Residuals are less than 1.7% of total losses in all clusters, consistent with the three-term formulation closing the water balance without requiring an unmeasured boundary contribution. All clusters receive nearly identical climate forcing: Pc = 74.4 mm/month, PETc = 54.5 mm/month. Drainage and ET percentages shown below. (Source: 16_water_bal_table.csv).
 
-Model A\'s head-space decomposition of Table 5 is one way to split the losses into evapotranspiration and drainage, and it inherits whatever uncertainty attaches to β₂ and β₃ separately. A second, model-independent estimate comes from the observed seasonal recession of the cluster means themselves (Section 3.7.2): the mean month-on-month decline over winter months in which the water table fell (November--February, when potential evapotranspiration is small) as a share of the same quantity in summer (June--September) estimates the drainage fraction of summer losses. Both terms are head declines, so specific yield cancels in the ratio and the estimate is independent of the WTF Sₐ estimates of Section 4.2.4. Model A and the recession ratio are compared in Table 6, beside Model B. Across the four estimators of Table 6 the spread is 10 percentage points at C3, where Model A and the recession ratio sit closest (recession 0.66, Model A 0.65), and 12 points at C5 (recession 0.73, Model A 0.61), widening to 47 and 32 points at C1, C2 and C4. C4 Main Forest reverses the ordering: Model A\'s head-space ratio makes the forest interior much the most evapotranspiration-dominated cluster in the network (drainage fraction 0.25) while the recession ratio places it second-lowest of the five clusters (0.51). Two acknowledged biases in the recession estimator --- winter potential evapotranspiration is small but not zero, and head-dependent drainage is faster in winter when heads are high --- both act to inflate its drainage fraction, so it is read as leaning high rather than as a point estimate. Model B\'s fraction, the one the split is quoted from, is 0.38 at C1, 0.45 at C2, 0.56 at C3, 0.29 at C4 and 0.61 at C5. The range of the four estimators (Model A, Model B, the depth-dependent model and the recession ratio), not any one alone, is the partition uncertainty carried into Table 7 and drawn as the hatched band of Figure 11b.
+The head-space decomposition of Table 5 is one way to split the losses into evapotranspiration and drainage, and it inherits whatever uncertainty attaches to β₂ and β₃ separately. A second, model-independent estimate comes from the observed seasonal recession of the cluster means themselves (Section 3.7.2): the mean month-on-month decline over winter months in which the water table fell (November--February, when potential evapotranspiration is small) as a share of the same quantity in summer (June--September) estimates the drainage fraction of summer losses. Both terms are head declines, so specific yield cancels in the ratio and the estimate is independent of the WTF Sₐ estimates of Section 4.2.4. Table 6 sets the recession ratio beside Model B and the depth-dependent model. Across these three estimators the spread is 10 percentage points at C2 and C3 and 12 at C5, widening to 22 points at C1 and C4, where the recession ratio puts more of the loss into drainage than either model. At C4 Main Forest the difference matters most: Model B makes the forest interior the most evapotranspiration-dominated cluster in the network (drainage fraction 0.29), while the recession ratio places it second-lowest of the five clusters (0.51). Two acknowledged biases in the recession estimator --- winter potential evapotranspiration is small but not zero, and head-dependent drainage is faster in winter when heads are high --- both act to inflate its drainage fraction, so it is read as leaning high rather than as a point estimate. Model B\'s fraction, the one the split is quoted from, is 0.38 at C1, 0.45 at C2, 0.56 at C3, 0.29 at C4 and 0.61 at C5. The range of the three estimators (Model B, the depth-dependent model and the recession ratio), not any one alone, is the partition uncertainty carried into Table 7 and drawn as the hatched band of Figure 11b.
 
-  --------------------- --------------------------- --------------------------- --------------------------------- -------------------------- ------------------------------- --------------------------------------------------------------
-  Cluster               Winter decline (mm/month)   Summer decline (mm/month)   ET = summer − winter (mm/month)   n months (winter/summer)   Drainage fraction (recession)   Drainage fraction: Model B; Model A (admissible datum range)
-  C1 Lake Edge          98.0                        164.0                       66.0                              27 / 50                    0.60                            0.38; 0.85 (0.73--0.88)
-  C2 Dune               60.1                        172.4                       112.3                             19 / 60                    0.35                            0.45; 0.66 (0.54--0.69)
-  C3 Western Residual   92.5                        139.3                       46.9                              17 / 63                    0.66                            0.56; 0.65 (0.46--0.68)
-  C4 Main Forest        64.8                        127.8                       63.0                              15 / 72                    0.51                            0.29; 0.25 (0.04--0.29)
-  C5 Coastal Forest     67.0                        92.3                        25.3                              21 / 69                    0.73                            0.61; 0.61 (0.24--0.66)
-  --------------------- --------------------------- --------------------------- --------------------------------- -------------------------- ------------------------------- --------------------------------------------------------------
+  --------------------- --------------------------- --------------------------- --------------------------------- -------------------------- ------------------------------- ---------------------------------------------------
+  Cluster               Winter decline (mm/month)   Summer decline (mm/month)   ET = summer − winter (mm/month)   n months (winter/summer)   Drainage fraction (recession)   Drainage fraction: Model B; depth-dependent model
+  C1 Lake Edge          98.0                        164.0                       66.0                              27 / 50                    0.60                            0.38; 0.39
+  C2 Dune               60.1                        172.4                       112.3                             19 / 60                    0.35                            0.45; 0.45
+  C3 Western Residual   92.5                        139.3                       46.9                              17 / 63                    0.66                            0.56; 0.61
+  C4 Main Forest        64.8                        127.8                       63.0                              15 / 72                    0.51                            0.29; 0.30
+  C5 Coastal Forest     67.0                        92.3                        25.3                              21 / 69                    0.73                            0.61; 0.61
+  --------------------- --------------------------- --------------------------- --------------------------------- -------------------------- ------------------------------- ---------------------------------------------------
 
-**Table : **Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). Winter and summer figures are the mean month-on-month decline of the cluster-mean water table over months in which it fell (Δh \< 0), in the windows November--February and June--September; March is excluded as transitional. n months is the number of falling months behind each mean --- note the asymmetry, 15 to 27 winter months against 50 to 72 summer months. The recession drainage fraction is the winter mean divided by the summer mean; the evapotranspiration fraction is its complement. Both terms are head declines, so specific yield cancels in the ratio and the partition is Sₐ-free. The last column gives Model B\'s fraction, the one the split is quoted from, then Model A\'s, the head-space fraction implied by Table 5, with its value at the shallowest and deepest admissible datum (1.6 and 8 m) in brackets; the range of the four estimators (Model A, Model B, the depth-dependent model and the recession ratio) is the partition uncertainty in Table 7 and the hatched band of Figure 11b. (Source: 16_water_bal_rec_table.csv).
+**Table : **Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). Winter and summer figures are the mean month-on-month decline of the cluster-mean water table over months in which it fell (Δh \< 0), in the windows November--February and June--September; March is excluded as transitional. n months is the number of falling months behind each mean --- note the asymmetry, 15 to 27 winter months against 50 to 72 summer months. The recession drainage fraction is the winter mean divided by the summer mean; the evapotranspiration fraction is its complement. Both terms are head declines, so specific yield cancels in the ratio and the partition is Sₐ-free. The last column gives Model B\'s fraction, the one the split is quoted from, then the depth-dependent model\'s; the range of the three estimators (Model B, the depth-dependent model and the recession ratio) is the partition uncertainty in Table 7 and the hatched band of Figure 11b. (Source: 16_water_bal_rec_table.csv).
 
-An indicative volumetric expression of the water balance is presented in Table 7 and Figure 11b. Each cluster receives 889--893 mm/yr of rainfall over its own fitted months; for the forested clusters (C4, C5) canopy interception removes 214 mm/yr (24%; Freeman, 2008), leaving net rainfall of 678--679 mm/yr reaching the ground surface. The ET/drainage split is Model B\'s, and its range spans the four estimators of Table 6: Model A, Model B, the depth-dependent model and the recession ratio. At steady state, total losses equal total inputs (P or P_net for forest clusters) and the hatched band in Figure 11b spans that range. The ET column counts only what evaporates after the canopy has taken its share. Interception is itself evaporation, so a forest\'s total evaporative loss is I + ET: 695 mm/yr at C4, 6% above its PET (655 mm/yr), against 488 mm/yr at C2. That is not an error: PET is the demand on a transpiring surface, and rain held on a wet canopy evaporates faster, fed by wind and warm air drawn over the trees (Hudson, Crane and Blackie, 1997, at Plynlimon), so interception can carry a forest\'s total past PET. The evaporation from the soil and the trees\' transpiration alone (481 mm/yr) stays below it. At C5 the total (478 mm/yr) is similar to C2\'s. Across the four estimators, drainage takes 38--85% of the loss at C1, 35--66% at C2, 56--66% at C3, 25--51% at C4 and 61--73% at C5.
+An indicative volumetric expression of the water balance is presented in Table 7 and Figure 11b. Each cluster receives 889--893 mm/yr of rainfall over its own fitted months; for the forested clusters (C4, C5) canopy interception removes 214 mm/yr (24%; Freeman, 2008), leaving net rainfall of 678--679 mm/yr reaching the ground surface. The ET/drainage split is Model B\'s, and its range spans the three estimators of Table 6: Model B, the depth-dependent model and the recession ratio. At steady state, total losses equal total inputs (P or P_net for forest clusters) and the hatched band in Figure 11b spans that range. The ET column counts only what evaporates after the canopy has taken its share. Interception is itself evaporation, so a forest\'s total evaporative loss is I + ET: 695 mm/yr at C4, 6% above its PET (655 mm/yr), against 488 mm/yr at C2. That is not an error: PET is the demand on a transpiring surface, and rain held on a wet canopy evaporates faster, fed by wind and warm air drawn over the trees (Hudson, Crane and Blackie, 1997, at Plynlimon), so interception can carry a forest\'s total past PET. The evaporation from the soil and the trees\' transpiration alone (481 mm/yr) stays below it. At C5 the total (478 mm/yr) is similar to C2\'s. Across the three estimators, drainage takes 38--60% of the loss at C1, 35--45% at C2, 56--66% at C3, 29--51% at C4 and 61--73% at C5.
 
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
 | Cluster | Label            | P        | I (    | P_net   | ET, Model B ( | I + ET, Model B  | Drainage, Model B  |
@@ -188,9 +188,9 @@ An indicative volumetric expression of the water balance is presented in Table 7
 | C5      | Coastal Forest   | 892      | 214    | 678     | 264           | 478              | 414                |
 +---------+------------------+----------+--------+---------+---------------+------------------+--------------------+
 
-***Table ****: **Indicative annual volumetric water balance by cluster, 2005--2026. At steady state, total losses (ET + drainage) equal total inputs (P for open dune clusters; P − I for forested clusters). I = canopy interception (24% of P; Freeman, 2008), applied to C4 and C5 only. ET is the evaporative loss after interception, from net rainfall and the water table; because interception is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET and drainage are split by Model B, the free-intercept form; the range across Model A, Model B, the depth-dependent model and the seasonal recession ratio is shown graphically in Figure 11b as a hatched band. Interception appears identically on both input and loss bars of Figure 11b and cancels in the net surplus. (Source: 16_water_bal_vol_table.csv)*
+***Table ****: **Indicative annual volumetric water balance by cluster, 2005--2026. At steady state, total losses (ET + drainage) equal total inputs (P for open dune clusters; P − I for forested clusters). I = canopy interception (24% of P; Freeman, 2008), applied to C4 and C5 only. ET is the evaporative loss after interception, from net rainfall and the water table; because interception is itself evaporation, the total evaporative loss is I + ET, computed before rounding, so it can differ by one from the sum of the rounded columns. ET and drainage are split by Model B, the free-intercept form; the range across Model B, the depth-dependent model and the seasonal recession ratio is shown graphically in Figure 11b as a hatched band. Interception appears identically on both input and loss bars of Figure 11b and cancels in the net surplus. (Source: 16_water_bal_vol_table.csv)*
 
-![](Pictures/1000000100000CC600000DE531708043.png){width="6.2217in" height="6.8622in"}**Figure :** Water balance decomposition by hydrogeological cluster, Newborough Warren 2005--2026. (a) Model B\'s mean monthly head-space decomposition: for each cluster, the left bar shows recharge (β₁·P̄) and the right bar shows losses decomposed into drainage (β₃·h̄\_disp − α_B) and atmospheric draw (β₂·PET̄). Drainage and ET percentages are shown below each cluster label. All clusters receive near-identical climate forcing: P̄ = 74.1--74.4 mm/month, PET̄ = 54.4--54.5 mm/month. Drainage datum = 3.7 m b.g.s. (b) Indicative annual volumetric water balance. All clusters receive P ≈ 890 mm/yr (889--893 by cluster); for forested clusters (C4, C5) canopy interception (I = 214 mm/yr, 24% of P; Freeman, 2008) appears identically on both input and loss bars and cancels in the net surplus. The bars split the losses by Model B; the hatched band spans the four estimators (Model A, Model B, the depth-dependent model and the seasonal recession ratio). The black bracket beside each loss bar spans Model A\'s ET/drainage boundary across the admissible datum (1.6--8 m). (Source: 16_water_bal_bar_ms.png).
+![](Pictures/1000000100000CC600000DE531708043.png){width="6.2217in" height="6.8622in"}**Figure :** Water balance decomposition by hydrogeological cluster, Newborough Warren 2005--2026. (a) Model B\'s mean monthly head-space decomposition: for each cluster, the left bar shows recharge (β₁·P̄) and the right bar shows losses decomposed into drainage (β₃·h̄\_disp − α_B) and atmospheric draw (β₂·PET̄). Drainage and ET percentages are shown below each cluster label. All clusters receive near-identical climate forcing: P̄ = 74.1--74.4 mm/month, PET̄ = 54.4--54.5 mm/month. Drainage datum = 3.7 m b.g.s. (b) Indicative annual volumetric water balance. All clusters receive P ≈ 890 mm/yr (889--893 by cluster); for forested clusters (C4, C5) canopy interception (I = 214 mm/yr, 24% of P; Freeman, 2008) appears identically on both input and loss bars and cancels in the net surplus. The bars split the losses by Model B; the hatched band spans the three estimators (Model B, the depth-dependent model and the seasonal recession ratio). (Source: 16_water_bal_bar_ms.png).
 
 **
 
@@ -213,11 +213,11 @@ A third, independent WTF estimator --- the rapid-recharge-event method of Crosbi
 Individual well Sₐ values underlying the spatial mapping of Figure 13 are considered separately below. All five WTF medians exceed the literature specific yields for unconfined dune sand and, at C1, glacial till (C1: 0.08; C2--C5: 0.12; Fetter, 2001) --- benchmark values, not inputs to the Sₐ-free water balance of Section 4.2.3 --- by a factor of two to three, consistent with the known tendency of monthly WTF to conflate gravity drainage with capillary fringe release (Healy and Cook, 2002; Scanlon et al., 2002). The WTF estimates should therefore be interpreted as upper bounds on effective storage. Direct field measurement by slug test or pumping test at representative wells per cluster is identified as a priority for future work.
 
   ------------------------------- -------------- ------- ------------ --------------- ------------- --------------- -----
-  C1 Lake Edge                    ****0.08****   0.210   59           ****0.346****   ****41****    ****0.180****   19
-  C2 Dune                         0.12           0.270   62           ****0.332****   ****50****    ****0.274****   20
-  C3 Western Residual             ****0.12****   0.312   ****58****   ****0.349****   ****55****    ****0.314****   17
-  C4 Main Forest                  0.12           0.321   52           ****0.306****   49            ****0.306****   13
-  C5 Coastal Forest               0.12           0.364   36           ****0.418****   51            ****0.311****   14
+  C1 Lake Edge                    ****0.08****   0.210   59           ****0.236****   ****58****    ****0.180****   19
+  C2 Dune                         0.12           0.270   62           ****0.254****   ****64****    ****0.274****   20
+  C3 Western Residual             ****0.12****   0.312   ****58****   ****0.230****   ****64****    ****0.314****   17
+  C4 Main Forest                  0.12           0.321   52           ****0.273****   53            ****0.306****   13
+  C5 Coastal Forest               0.12           0.364   36           ****0.308****   59            ****0.311****   14
   C4 Main Forest (corrected)      0.12           0.256   ****64****   ---             ****---****   ****---****     ---
   C5 Coastal Forest (corrected)   0.12           0.316   52           ---             ---           ****---****     ---
   ------------------------------- -------------- ------- ------------ --------------- ------------- --------------- -----
@@ -274,13 +274,13 @@ The depth-dependent PET grid search (Section 3.7.1) provides an independent diag
 
   ------------------------------- --------- --------- ---------------
   Metric                          TLM       SSM       Improvement Δ
-  Median one-step R²              0.920     0.924     0.0026
-  Median iterative R²             0.631     0.788     0.1552
-  Median iterative NSE            0.433     0.770     0.3379
-  Wells with iterative NSE \> 0   56 / 64   63 / 64   ---
-  Max NSE improvement (D7)        −5.499    0.212     5.7107
-  CEH6 iterative NSE              −0.348    0.708     1.0561
-  CEH14 iterative NSE             −0.040    −12.874   −12.8340
+  Median one-step R²              0.920     0.925     0.0050
+  Median iterative R²             0.631     0.832     0.1905
+  Median iterative NSE            0.433     0.824     0.3907
+  Wells with iterative NSE \> 0   56 / 64   64 / 64   ---
+  Max NSE improvement (D7)        −5.499    0.858     6.3571
+  CEH6 iterative NSE              −0.348    0.894     1.2421
+  CEH14 iterative NSE             −0.040    0.380     0.4200
   ------------------------------- --------- --------- ---------------
 
 **Table : **Model benchmarking summary comparing the Traditional Linear Model (TLM) and State-Space Model (SSM) across the 64-well reference network. Performance evaluated over the most recent 100 months at each well. One-step R² uses observed h(t−1) at each step; iterative NSE uses simulated h(t−1) over the full 100-month evaluation window without observational correction. For the median rows, Δ is the median of the per-well improvements (not the difference of the column medians). D7 is the well recording the largest single NSE improvement; CEH6 is the illustrative C1 Lake Edge well shown in Figure 17; CEH14 is the sole well returning a negative SSM NSE, and with CEH13 one of the two where the SSM scores below the TLM. (Source: 08_lcsc_04_table3_benchmark_summary.csv).
@@ -512,23 +512,23 @@ The decomposition therefore identifies a recharge decline across the BACI networ
 
   ------- -------------- ----------- ---------- -------- ----------- ---------- -------- ----------- ---------- ---------
   Well    Tier           β₁ before   β₁ after   Δβ₁      β₂ before   β₂ after   Δβ₂      β₃ before   β₃ after   Δβ₃
-  WMC3    Impact         2.562       2.515      −0.047   1.955       1.685      −0.270   0.0352      0.0372     +0.0020
-  CEH31   Edge           2.686       2.128      −0.558   1.473       1.275      −0.199   0.0570      0.0408     −0.0163
-  CEH20   Edge           2.570       2.436      −0.134   2.159       2.066      −0.093   0.0309      0.0251     −0.0058
-  CEH30   Edge           2.521       2.249      −0.273   2.087       2.052      −0.034   0.0389      0.0260     −0.0129
-  CEH16   Edge           2.659       2.477      −0.182   1.317       1.344      +0.027   0.0463      0.0390     −0.0074
-  CEH32   Forest Ctrl    2.510       2.305      −0.206   2.329       2.473      +0.144   0.0274      0.0157     −0.0116
-  CEH34   Forest Ctrl    2.604       2.310      −0.294   2.319       2.571      +0.253   0.0230      0.0093     −0.0137
-  CEH33   Forest Ctrl    2.447       2.190      −0.257   2.076       2.114      +0.038   0.0355      0.0221     −0.0134
-  NW10    Forest Ctrl    3.252       3.500      +0.248   2.667       2.597      −0.070   0.0360      0.0425     +0.0065
-  CEH2    Forest Ctrl    2.644       2.702      +0.059   2.577       2.771      +0.194   0.0230      0.0189     −0.0042
-  CEH19   Coastal Ctrl   2.381       2.208      −0.173   0.966       0.756      −0.210   0.0462      0.0446     −0.0016
-  CEH17   Coastal Ctrl   2.440       2.099      −0.341   1.207       1.145      −0.061   0.0771      0.0594     −0.0176
-  CEH9    Climate Ctrl   3.357       3.016      −0.341   2.108       2.131      +0.023   0.0458      0.0348     −0.0110
-  NW7     Climate Ctrl   3.211       3.231      +0.020   2.196       2.125      −0.070   0.0540      0.0504     −0.0036
-  NW6     Climate Ctrl   3.388       3.781      +0.394   1.684       1.313      −0.371   0.0530      0.0640     +0.0109
-  NW5     Climate Ctrl   3.589       3.542      −0.047   2.151       1.978      −0.173   0.0518      0.0499     −0.0019
-  WMC2    Climate Ctrl   3.364       3.291      −0.073   2.067       1.740      −0.327   0.0480      0.0474     −0.0006
+  WMC3    Impact         2.408       2.212      −0.196   2.110       2.047      −0.062   0.0788      0.0986     +0.0198
+  CEH31   Edge           2.522       1.756      −0.766   1.711       1.762      +0.051   0.1050      0.1292     +0.0242
+  CEH20   Edge           2.556       2.468      −0.088   2.174       2.034      −0.139   0.0333      0.0204     −0.0128
+  CEH30   Edge           2.477       2.182      −0.295   2.135       2.117      −0.018   0.0464      0.0362     −0.0102
+  CEH16   Edge           2.553       2.396      −0.157   1.466       1.441      −0.025   0.0775      0.0572     −0.0203
+  CEH32   Forest Ctrl    2.519       2.351      −0.168   2.320       2.432      +0.112   0.0263      0.0103     −0.0160
+  CEH34   Forest Ctrl    2.483       2.283      −0.201   2.438       2.595      +0.157   0.0439      0.0131     −0.0308
+  CEH33   Forest Ctrl    2.464       2.186      −0.278   2.058       2.118      +0.060   0.0329      0.0226     −0.0102
+  NW10    Forest Ctrl    3.083       3.635      +0.553   2.836       2.457      −0.379   0.0694      0.0258     −0.0436
+  CEH2    Forest Ctrl    2.441       2.542      +0.101   2.777       2.922      +0.145   0.0646      0.0373     −0.0273
+  CEH19   Coastal Ctrl   2.223       2.030      −0.192   1.262       1.028      −0.234   0.1233      0.1039     −0.0194
+  CEH17   Coastal Ctrl   2.366       1.950      −0.416   1.314       1.338      +0.024   0.0983      0.0987     +0.0004
+  CEH9    Climate Ctrl   3.214       2.841      −0.373   2.273       2.331      +0.057   0.0763      0.0637     −0.0126
+  NW7     Climate Ctrl   3.038       3.186      +0.147   2.408       2.171      −0.237   0.0973      0.0587     −0.0386
+  NW6     Climate Ctrl   3.117       3.409      +0.292   2.183       1.882      −0.301   0.1440      0.1668     +0.0228
+  NW5     Climate Ctrl   3.362       3.335      −0.027   2.483       2.229      −0.254   0.1034      0.0830     −0.0204
+  WMC2    Climate Ctrl   3.122       3.022      −0.100   2.494       2.108      −0.387   0.1115      0.0951     −0.0163
   ------- -------------- ----------- ---------- -------- ----------- ---------- -------- ----------- ---------- ---------
 
 **Table : ** Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network, with per-well shifts Δβ. Before = record-length-balanced pre-felling window; After = felling to end of record. Coefficients are from the canonical no-intercept SSM (Section 3.5). (Source: 10e_01_coefficient_shifts.csv)
@@ -612,11 +612,11 @@ The summer minimum depth map (Figure 41; Section 3.6.5) classifies each well\'s 
 The P_flood map (Figure 51) quantifies the rainfall demand implied by these summer minima and reveals a progressive, cluster-ordered closure of the operational window (Table 18). Under Model B, 84 of the 87 wells in the classified network require winter rainfall above their climatological mean to reach the slack floor (CEH14 is left out: its implied drainage base lies above ground). The three that do not are lake-edge wells, CEH6 (m_P = 0.92), CEH25 (0.96) and CEH27 (0.98), which flood in an average winter. Under mildly wet winters ****(1.0 ≤ m_P \< 1.5), 58 wells (67%)**** become reachable; ****a further 24 (28%) require wet winters of varying rarity (1.5 ≤ m_P \< 2.5). The remaining 5 wells (6%) have m_P ≥ 2.5 --- they require at least 2.5 times the climatological mean winter rainfall, a total well beyond the wettest winter in the \~95-year RAF Valley record. For these wells the slack floor is not reachable under any winter rainfall yet observed: the wettest October--February on record (701 mm, in 1959/60, 1.52× the climatological mean over the same months) delivers only 61% of the m_P = 2.5 demand.****
 
   --------------------- ---- ------------ ------- ------
-  C1 Lake Edge          9    423--574     433     1.08
-  C2 Dune               24   498--823     535     1.16
-  C3 Western Residual   31   491--853     576     1.25
-  C4 Main Forest        13   681--1,205   820     1.78
-  C5 Coastal Forest     11   712--1,490   1,086   2.36
+  C1 Lake Edge          9    366--494     413     1.03
+  C2 Dune               24   476--905     534     1.16
+  C3 Western Residual   31   473--921     600     1.30
+  C4 Main Forest        12   674--1,244   819     1.78
+  C5 Coastal Forest     11   767--1,721   1,086   2.36
   --------------------- ---- ------------ ------- ------
 
 **Table :** Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood / Σ P_clim; values above 1.0 indicate rainfall above the climatological mean is required. (Source: 11b_06_pflood_cluster_summary.csv; m_P is the cluster median).
@@ -647,11 +647,11 @@ As a worked example, at a typical C3 well with a mean summer minimum of 1.0 m be
 
   --------- ------------------ ----------------- ----------------------- ---------------
   Cluster   Label              Horizon           P_flood equation (mm)   Σ P_clim (mm)
-  C1        Lake Edge          Oct--Jan (4 mo)   174.10·d_w + 311.31     400
-  C2        Dune               Oct--Feb (5 mo)   209.78·d_w + 351.31     461
-  C3        Western Residual   Oct--Feb (5 mo)   219.57·d_w + 368.94     461
-  C4        Main Forest        Oct--Feb (5 mo)   378.79·d_w + 278.83     461
-  C5        Coastal Forest     Oct--Feb (5 mo)   357.68·d_w + 411.04     461
+  C1        Lake Edge          Oct--Jan (4 mo)   84.50·d_w + 354.19      400
+  C2        Dune               Oct--Feb (5 mo)   168.14·d_w + 393.29     461
+  C3        Western Residual   Oct--Feb (5 mo)   203.53·d_w + 402.53     461
+  C4        Main Forest        Oct--Feb (5 mo)   377.68·d_w + 261.81     461
+  C5        Coastal Forest     Oct--Feb (5 mo)   357.71·d_w + 410.77     461
   --------- ------------------ ----------------- ----------------------- ---------------
 
 **Table : **Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Section 3.6.3, reduced by substituting fitted SSM coefficients (β₁, β₂, β₃), cluster recharge horizons (n = 4 for C1/C2, 5 for C3/C4/C5), and RAF Valley long-term monthly rainfall and PET climatology (2005--2026). Input variable d_w is the observed mean summer minimum water table depth below ground in metres, entered as a positive number (e.g. d_w = 1.26 for a water table 1.26 m below the surface). Output P_flood is the cumulative rainfall (mm) required over the cluster\'s recharge horizon (October to the historical mean peak month) to raise the water table to the slack floor (h_target = 0 m), assuming monthly rainfall scales uniformly by a multiplier m_P and monthly PET follows climatological means. The rainfall multiplier is m_P = P_flood / Σ P̄ᵢ; values above 1.0 indicate rainfall above the climatological mean is required. (Source: 11_forecast_pflood_summary.csv).
@@ -730,17 +730,17 @@ The state-space coefficients afford a structurally derived estimate of the same 
 
   -------------------------- ---------------------- ----------------------------
                              MSL5                   Equilibrium wetness index
-  r \[95% CI\]               +0.83 \[0.59, 0.93\]   +0.80 \[0.53, 0.92\]
-  RMSE (Ellenberg-F units)   0.337 \[0.20, 0.39\]   0.361 \[0.18, 0.46\]
+  r \[95% CI\]               +0.83 \[0.59, 0.93\]   +0.81 \[0.55, 0.93\]
+  RMSE (Ellenberg-F units)   0.337 \[0.20, 0.39\]   0.355 \[0.20, 0.45\]
   -------------------------- ---------------------- ----------------------------
 
 **Table : **Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibrium wetness index, across the van Willegen et al. (2025) piezometers with a valid state-space fit (n = 18: of the 20 wells at their seventeen stations, T41 counted as its four transect wells, the 18 that carry a valid state-space fit). Pearson r and residual root-mean-square error (in Ellenberg-F units) are given with 95% confidence intervals. The two predictors are statistically indistinguishable (Williams\' test for dependent correlations, p = 0.66; Williams, 1959). Ellenberg-F from van Willegen et al. (2024). Source: 26_ebf_prediction_summary.csv.
 
   ----------------- ------------------------------------ -------------- -------------
   Match band        Absolute error (Ellenberg-F units)   MSL5 (wells)   EWI (wells)
-  A --- excellent   ≤ 0.15                               4              7
-  B --- good        0.15--0.30                           7              5
-  C --- moderate    0.30--0.50                           5              2
+  A --- excellent   ≤ 0.15                               4              5
+  B --- good        0.15--0.30                           7              6
+  C --- moderate    0.30--0.50                           5              3
   D --- poor        \> 0.50                              2              4
   ----------------- ------------------------------------ -------------- -------------
 
@@ -840,9 +840,9 @@ Two individual wells merit comment. CEH14, at the highest elevation in the fores
 
   ---------------- -------------------- ---------------------- ------------------
   Coefficient      vs Elevation r (p)   vs Dist. ridge r (p)   vs Easting r (p)
-  β₁ (recharge)    0.130 (0.657)        −0.452 (0.104)         0.529 (0.052)
-  β₂ (atm. draw)   0.989 (\<0.001)      −0.909 (\<0.001)       0.743 (0.002)
-  β₃ (drainage)    −0.836 (\<0.001)     0.657 (0.011)          −0.487 (0.077)
+  β₁ (recharge)    0.157 (0.593)        −0.447 (0.109)         0.486 (0.078)
+  β₂ (atm. draw)   0.965 (\<0.001)      −0.871 (\<0.001)       0.720 (0.004)
+  β₃ (drainage)    −0.844 (\<0.001)     0.754 (0.002)          −0.563 (0.036)
   ---------------- -------------------- ---------------------- ------------------
 
 **Table : **Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main Forest and C5 Coastal Forest, n = 14). Pearson correlation coefficients and p-values for three spatial variables. Elevation dominates β₂ (R² = 0.932); β₁ shows no significant elevation dependence. (Source: 10c_forest_zone_correlations.csv).
@@ -1073,9 +1073,9 @@ A complementary analysis (Section 3.8.1) places the drivers on a common footing 
   Driver                  Equivalent depth (site-mean, 20 yr)   Relative to coastal retreat   Character
   Unexplained (uniform)   −170 mm                               199%                          assumed uniform
   Coastal retreat         −85 mm                                100%                          progressive
-  Dune scrape (net)       −21 mm                                25%                           redistributive
-  Clearfell (relief)      +6 mm                                 +7%                           step
-  Broadleaf restock       −4 mm                                 5%                            progressive
+  Dune scrape (net)       −15 mm                                17%                           redistributive
+  Clearfell (relief)      +4 mm                                 +5%                           step
+  Broadleaf restock       −3 mm                                 3%                            progressive
   ----------------------- ------------------------------------- ----------------------------- -----------------
 
 Table : Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha site at a common twenty-year horizon, expressed as a percentage of the coastal-retreat term --- the reference because it is the largest term the record resolves, not because it is the largest. The unexplained residual row is the balanced observed decline less the modelled coastal gradient, averaged over the three open-dune clusters, at −8.5 mm yr⁻¹ over the horizon and applied uniformly to every well by assumption; it is a central estimate and not a resolved rate, and the percentage against it should be read as an order of magnitude rather than a ratio. Character is the mechanism type carried in the source: assumed uniform, progressive (accumulating), step (settling to an equilibrium) or redistributive (an on-site gain against an off-site loss). Of the terms ranked, the coastal drawdown and the off-site scrape drawdown are modelled, the clearfell step and the on-site scrape rise are observed, and the residual term is applied uniformly by assumption. (Source: 37b_driver_footing.csv)

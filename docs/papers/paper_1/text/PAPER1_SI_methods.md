@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_33.odt — do not edit. source-sha256=9ab868c0962598ad pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_34.odt — do not edit. source-sha256=4c6402a63b0d1a95 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -31,23 +31,23 @@ The manuscript quotes the well basis. Each of the following is the delete-one es
 
 ## Contents
 
-  --------------------------------------------------------------- -----------------
-  S1. Field protocol, data preparation, and date semantics        2
-  S2. Constants and configuration                                 4
-  S3. Behavioural clustering and the *k* = 5 partition            5
-  S4. Pearson affinity audit and spatial confidence               7
-  S5. The state-space model --- displacement formulation          7
-  S6. SSM regression: per-well and cluster-mean fits, with LCSC   10
-  S7. Spatial interpolation of SSM coefficients                   12
-  S8. Residual-field diagnostics                                  13
-  S9. Water-balance decomposition                                 14
-  S10. Water-table-fluctuation specific yield                     15
-  S11. Mean water-table surface and the Darcy flow field          17
-  S12. Coastal-retreat gradient regression                        18
-  S13. Forest-interception drawdown reach (Figure 19)             20
-  S14. Software, parameters and reproducibility                   21
-  S15. Supplementary references                                   22[]{#contents}
-  --------------------------------------------------------------- -----------------
+  ---------------------------------------------------------------- -----------------
+  S1. Field protocol, data preparation, and date semantics         2
+  S2. Constants and configuration                                  4
+  S3. Behavioural clustering and the *k* = 5 partition             5
+  S4. Pearson affinity audit and spatial confidence                7
+  S5. The state-space model --- displacement formulation           7
+  S6. SSM regression: per-well and cluster-mean fits, with LCSC    10
+  S7. Spatial interpolation of SSM coefficients                    12
+  S8. Residual-field diagnostics                                   13
+  S9. Water-balance decomposition                                  14
+  S10. Water-table-fluctuation apparent storage coefficient (Sₐ)   15
+  S11. Mean water-table surface and the Darcy flow field           17
+  S12. Coastal-retreat gradient regression                         18
+  S13. Forest-interception drawdown reach (Figure 19)              20
+  S14. Software, parameters and reproducibility                    21
+  S15. Supplementary references                                    22[]{#contents}
+  ---------------------------------------------------------------- -----------------
 
 ## S1. Field protocol, data preparation, and date semantics
 
@@ -116,7 +116,7 @@ The 24% Corsican pine canopy-interception fraction is from Freeman (2008). It is
 
 ### []{#anchor-1}S2.2 Canonical pipeline parameters file
 
-The pipeline parameters are held in a single canonical table, pipeline_scenario_params.csv. The data-preparation step (Section S1) writes it. The downstream steps that fit new parameter values (the SSM regression, the BACI auxiliaries and the WTF specific-yield estimation) update it in place. Every downstream step reads its pipeline parameters from this file rather than from a hardcoded value. This rules out a category of inconsistencies that can otherwise propagate silently through long pipelines.
+The pipeline parameters are held in a single canonical table, pipeline_scenario_params.csv. The data-preparation step (Section S1) writes it. The downstream steps that fit new parameter values (the SSM regression, the BACI auxiliaries and the WTF Sₐ estimation) update it in place. Every downstream step reads its pipeline parameters from this file rather than from a hardcoded value. This rules out a category of inconsistencies that can otherwise propagate silently through long pipelines.
 
 ## []{#anchor-1}S3. Behavioural clustering and the *k* = 5 partition
 
@@ -182,7 +182,7 @@ All six margins are small (\|Δr\| \< 0.015), marking borderline assignments at 
 
 ## []{#anchor-3}S5. The state-space model --- displacement formulation
 
-The state-space model (SSM) is the methodological core of the analysis. All of the following rest on it: the cluster characterization, the specific-yield estimation, the water-balance decomposition, the residual field and the coastal-retreat gradient regression.
+The state-space model (SSM) is the methodological core of the analysis. All of the following rest on it: the cluster characterization, the Sₐ estimation, the water-balance decomposition, the residual field and the coastal-retreat gradient regression.
 
 ### []{#anchor-4}S5.1 Equation
 
@@ -254,7 +254,7 @@ Section S5.5 introduced the two levels of fit. Both are implemented in 03_state_
   Coastal-retreat panel regression (Section S12)                Per-well (cumulative water-balance covariate)            S12
   Residual-field diagnostics (cross-correlation, climatology)   Per-well (residual series)                               S8
   Pearson affinity audit (Figure 5)                             Independent of SSM --- operates on raw hydrographs       S4
-  Water-table-fluctuation specific yield                        Independent of SSM --- operates on recharge / Δ*h*       S10
+  Water-table-fluctuation apparent storage coefficient Sₐ       Independent of SSM --- operates on recharge / Δ*h*       S10
   Mean water-table head surface (Figure 16)                     Independent of SSM --- operates on observed mean heads   S11
   ------------------------------------------------------------- -------------------------------------------------------- -----------------------------------------------
 
@@ -264,7 +264,7 @@ Three of the Paper 1 outputs are entirely independent of the SSM regression.
 
 The first, the Pearson affinity audit, is the principal independent cross-check on the cluster structure. It tests, well by well, whether each dipwell sits closer to its assigned cluster centroid than to any other. It uses a Pearson correlation that does not depend on the SSM regression. Of the 66 reference-network wells, 60 sit in their assigned cluster as Core or Fuzzy members (91 %). Six (CEH21, CEH4, WMC3, D38, T41a, CEH40) are flagged as borderline cases, where the Pearson best match disagrees with Ward's assignment by small margins (\|Δr\| \< 0.015). They are documented but retained, since within-noise Pearson differences are not a defensible basis for re-partitioning.
 
-The second, the water-table-fluctuation specific-yield estimation, takes cluster identity as an input rather than testing it. It does not separate the clusters. Once canopy interception is corrected, the cluster-level Sy values (Section S10.2) and the per-well estimates (Section S10.4) converge across the clusters, with C5 Coastal Forest at the edge of the range. This indicates that the behavioural contrasts the clusters capture are surface- and land-cover-mediated, rather than differences in subsurface storage.
+The second, the WTF Sₐ estimation, takes cluster identity as an input rather than testing it. It does not separate the clusters. Once canopy interception is corrected, the cluster-level Sₐ values (Section S10.2) and the per-well estimates (Section S10.4) converge across the clusters, with C5 Coastal Forest at the edge of the range. This indicates that the behavioural contrasts the clusters capture are surface- and land-cover-mediated, rather than differences in subsurface storage.
 
 The third, the mean water-table head surface, is independent of the cluster structure by construction. Clusters describe behaviour (how hydrographs move together), while the head surface describes where the water table sits (geometry and discharge boundary positions). The head surface feeds the Darcy flow field in Section S11, not the cluster argument. The justification for the cluster framework rests on the Pearson affinity audit.
 
@@ -294,7 +294,7 @@ The Lumped Catchment Storage Coefficient (LCSC) is the reciprocal of the recharg
 
 The coefficient is *lumped* in the sense that it does not isolate drainable porosity. β₁ carries both the aquifer's storage response and the efficiency with which a month's rainfall reaches the water table. LCSC therefore rises when either the porosity is greater or the recharge is poorer, and this quantity does not separate the two.
 
-The contrast across the canopy boundary illustrates the distinction. The two forested clusters carry the highest values in the network (C4 40.4%, C5 41.5%), against 21.8% to 26.6% in the open dune. This is consistent with canopy interception reducing the proportion of rainfall that reaches the water table, rather than with the plantation overlying a more porous body. Specific yield estimated by the water-table-fluctuation method (Section S10.1 below; Section 3.8 of the main manuscript) is independent of β₁ and bears on this directly. Once corrected for interception, the C4 forest median of 0.256 falls within the open-dune range of 0.210 to 0.312. The C5 median of 0.316 sits just above its upper edge, although the C5 estimate is constrained by the physical-plausibility limit and is only weakly corroborative. The Lumped Catchment Storage Coefficient and the water-table-fluctuation specific yield are therefore related but not interchangeable, and they are reported separately. Section 5.2 of the main manuscript develops the reconciliation.
+The contrast across the canopy boundary illustrates the distinction. The two forested clusters carry the highest values in the network (C4 40.4%, C5 41.5%), against 21.8% to 26.6% in the open dune. This is consistent with canopy interception reducing the proportion of rainfall that reaches the water table, rather than with the plantation overlying a more porous body. The apparent storage coefficient Sₐ, estimated by the water-table-fluctuation method (Section S10.1 below; Section 3.8 of the main manuscript) is independent of β₁ and bears on this directly. Once corrected for interception, the C4 forest median of 0.256 falls within the open-dune range of 0.210 to 0.312. The C5 median of 0.316 sits just above its upper edge, although the C5 estimate is constrained by the physical-plausibility limit and is only weakly corroborative. The Lumped Catchment Storage Coefficient and Sₐ are therefore related but not interchangeable, and they are reported separately. Section 5.2 of the main manuscript develops the reconciliation.
 
 Per-cluster LCSC values are reported alongside the cluster-mean coefficients in Table 1 of the main manuscript, read live from 03_03_cluster_mechanistic_coefficients.csv. Section 5.2 interprets the relative ordering across clusters.
 
@@ -308,7 +308,7 @@ Each surface is piecewise-linear over the Delaunay triangulation of the 66 refer
 
 ### []{#anchor-9}S7.2 Masking
 
-Only one monitoring well (CEH12) lies on the northern rock-ridge bedrock outcrop (the area above the 20 m AOD contour), and it has a short record. Any interpolated coefficient values shown there are therefore extrapolations from the surrounding network, not values supported by data. In any case, the aquifer parameterization does not apply on bare metamorphic basement, so the interpretation in the manuscript does not rest on the ridge-zone cells. On the coefficient surfaces (Figures 12--14), a grid cell is masked as dune ridge where the LiDAR ground stands more than 1 m above the ground elevation interpolated between the wells. The surfaces thus describe the ground the wells sit on, not the ridges between them. The specific-yield surface (Figure 9, Section S10.4) is in addition clipped to the site outline. A per-well statistic is not given a surface at all if no interpolation between wells predicts a withheld well better than the network mean. The SSM water-balance residual (Figure 17, Section S8) is such a case, and is shown at the wells alone.
+Only one monitoring well (CEH12) lies on the northern rock-ridge bedrock outcrop (the area above the 20 m AOD contour), and it has a short record. Any interpolated coefficient values shown there are therefore extrapolations from the surrounding network, not values supported by data. In any case, the aquifer parameterization does not apply on bare metamorphic basement, so the interpretation in the manuscript does not rest on the ridge-zone cells. On the coefficient surfaces (Figures 12--14), a grid cell is masked as dune ridge where the LiDAR ground stands more than 1 m above the ground elevation interpolated between the wells. The surfaces thus describe the ground the wells sit on, not the ridges between them. The Sₐ surface (Figure 9, Section S10.4) is in addition clipped to the site outline. A per-well statistic is not given a surface at all if no interpolation between wells predicts a withheld well better than the network mean. The SSM water-balance residual (Figure 17, Section S8) is such a case, and is shown at the wells alone.
 
 ### S7.3 Bandwidth and edge effects
 
@@ -370,15 +370,15 @@ $${\text{recharge} = \beta_{1}}\cdot\overline{P}$$
 
 $${\text{atmospheric draw} = \beta_{2}}\cdot\overline{\mathit{PET}}$$
 
-$${\text{drainage} = \beta_{3}}\cdot\overline{h_{\text{disp}}}$$
+$${\text{drainage} = \beta_{3}}\cdot\overline{h_{\text{disp}}} - \alpha$$
 
-where *P̄* and PET̄ are the long-term means of the RAF Valley monthly climate forcing. They are computed as the sum across the record divided by the number of months observed, and are identical across clusters. *h̄*\<sub\>disp\</sub\> is the long-term monthly mean of the cluster centroid displacement. The β values come from the cluster-mean SSM fit (Section S6.2, 03_03_cluster_mechanistic_coefficients.csv). Each contribution is then scaled to annual units by multiplying by 12 (months per year), for reporting in Table 3 of the main manuscript and Figure 8. This is equivalent to multiplying the β coefficient by the long-term *annual* mean of the corresponding driver (record sum ÷ years on record). The two normalizations give the same annual contribution.
+where *P̄* and PET̄ are the long-term means of the RAF Valley monthly climate forcing. They are computed as the sum across the record divided by the number of months observed, and are identical across clusters. *h̄*\<sub\>disp\</sub\> is the long-term monthly mean of the cluster centroid displacement. α is Model B's fitted intercept. Drainage is thus β₃ times the mean height above the cluster's implied base level, 3.7 m − α/β₃ below ground. The β values come from the cluster-mean SSM fit (Section S6.2, 03_03_cluster_mechanistic_coefficients.csv). Each contribution is then scaled to annual units by multiplying by 12 (months per year), for reporting in Table 3 of the main manuscript and Figure 8. This is equivalent to multiplying the β coefficient by the long-term *annual* mean of the corresponding driver (record sum ÷ years on record). The two normalizations give the same annual contribution.
 
 The water-balance closure follows from the SSM equation evaluated at long-term means. Over the full record Δ*h̄* is approximately zero, because the cluster centroid hydrograph has no net trend. The four right-hand-side terms must therefore sum to approximately zero:
 
-> $$\Delta{\overline{h} = \beta_{1}}\cdot\overline{P}-\beta_{2}\cdot\overline{\mathit{PET}}-\beta_{3}\cdot{\overline{h_{\text{disp}}} + \overline{\epsilon}}\approx 0$$
+> $$\Delta{\overline{h} = \beta_{1}}\cdot\overline{P}-\beta_{2}\cdot\overline{\mathit{PET}}-{(\beta_{3}\cdot\overline{h_{\text{disp}}} - \alpha)}{+ \overline{\epsilon}}\approx 0$$
 
-The mean residual ε̄ is what the lumped SSM does not explain, and the closure result quantifies it. Across all five clusters this closure error is within 1.8 % of total losses. In other words, the three β-weighted long-term means account for at least 98 % of the long-term storage balance. The small remainder comes from whatever the lumped three-term balance does not represent, including residual nonlinearity, spatial heterogeneity within the cluster and error in the climate forcing. Section S8 examines its spatial structure and finds that the corrected per-well field carries none.
+The mean residual ε̄ is what the lumped SSM does not explain, and the closure result quantifies it. Across all five clusters this closure error is within 1.7 % of total losses. In other words, the three β-weighted long-term means account for at least 98 % of the long-term storage balance. The small remainder comes from whatever the lumped three-term balance does not represent, including residual nonlinearity, spatial heterogeneity within the cluster and error in the climate forcing. Section S8 examines its spatial structure and finds that the corrected per-well field carries none. The split of the loss between drainage and atmospheric draw is quoted from Model B and is not identified from heads alone (main text Section 4.5).
 
 ### []{#anchor-19}S9.2 Canopy interception at the forest clusters
 
@@ -392,41 +392,41 @@ For C4 Main Forest and C5 Coastal Forest, Freeman (2008) measured canopy interce
 
 # **S10. Water-table-fluctuation specific yield**
 
-Specific yield Sy is the drainable porosity of the saturated medium near the water table. It is estimated in 17_wtf_specific_yield.py, and it is required to convert per-well water-table behaviour into a volumetric storage interpretation. It is also a substrate-character diagnostic in its own right: a spatial gradient in Sy across an open dune-aquifer can indicate a corresponding gradient in sediment character (grain size, sorting, fines, weathering).
+Specific yield Sy is the drainable porosity of the saturated medium near the water table. The WTF method does not return it. At monthly scale it returns R/Δh, which lumps Sy with the state of the capillary fringe, drainage within the month and the recharge estimate. That quantity is the apparent storage coefficient Sₐ (the "apparent specific yield" of Healy and Cook, 2002), and it is the one reported here. It is estimated in 17_wtf_specific_yield.py, and it is required to convert per-well water-table behaviour into a volumetric storage interpretation. A spatial gradient in Sₐ can reflect one in sediment character, but Sₐ also depends on what lies above the sand: the interception correction moves C4 from 0.321 to 0.256.
 
 ## **S10.1 The water-table-fluctuation method**
 
-The water-table-fluctuation (WTF) method (Healy and Cook, 2002) estimates Sy from the relationship between net recharge and the corresponding water-table rise:
+The water-table-fluctuation (WTF) method (Healy and Cook, 2002) estimates Sₐ from the relationship between net recharge and the corresponding water-table rise:
 
-Sy = R / Δh
+Sₐ = R / Δh
 
 where R is the net recharge and Δh is the corresponding water-table rise. R is rainfall minus PET, restricted to winter months when PET is small (R \> 0). Three parallel implementations of the method are used here. They agree closely at C3 Western Residual and on the coarse cross-cluster ordering, but diverge at C1 Lake Edge (Section S10.3).
 
-**Approach A --- winter OLS.** The ratio above attributes the whole of the observed monthly change to recharge. Part of that change, however, is drainage occurring within the same month. Approach A removes that term first, using the state-space drainage coefficient. From Δh = (R / Sy) − β₃·\|h_prev\| it follows that R = Sy · (Δh + β₃·\|h_prev\|). A no-intercept ordinary-least-squares regression of net recharge R against the drainage-corrected rise (Δh + β₃·\|h_prev\|) therefore recovers Sy directly as the fitted slope. The fit is restricted to winter months (November--March), when Thornthwaite PET is below 25 mm month⁻¹ and net recharge approximates actual recharge well. This approach is statistically the most defensible, being a single regression with a clear assumption. It provides limited uncertainty information, however, beyond the regression standard error.
+**Approach A --- winter OLS.** The ratio above attributes the whole of the observed monthly change to recharge. Part of that change, however, is drainage occurring within the same month. Approach A removes that term first, using the state-space drainage coefficient. From Δh = (R / Sₐ) − β₃·\|h_prev\| it follows that R = Sₐ · (Δh + β₃·\|h_prev\|). A no-intercept ordinary-least-squares regression of net recharge R against the drainage-corrected rise (Δh + β₃·\|h_prev\|) therefore recovers Sₐ directly as the fitted slope. The fit is restricted to winter months (November--March), when Thornthwaite PET is below 25 mm month⁻¹ and net recharge approximates actual recharge well. This approach is statistically the most defensible, being a single regression with a clear assumption. It provides limited uncertainty information, however, beyond the regression standard error.
 
-**Approach B --- event median**. An event-detection step identifies rising-limb months, which are winter months with positive recharge and positive Δh. It computes Sy = R / Δh for each event and reports the cluster-level median, together with its 25th and 75th percentiles. This is noisier per event, but it provides empirical uncertainty bounds and shows the within-cluster variability of the estimate.
+**Approach B --- event median**. An event-detection step identifies rising-limb months, which are winter months with positive recharge and positive Δh. It computes Sₐ = R / Δh for each event and reports the cluster-level median, together with its 25th and 75th percentiles. This is noisier per event, but it provides empirical uncertainty bounds and shows the within-cluster variability of the estimate.
 
-**Approach C --- rapid recharge events**. A third estimator, after Crosbie et al. (2005), targets the same quantity by a route that shares the assumptions of neither of the first two. Approach A removes the drainage contribution to the observed rise mechanistically, using the fitted β₃. Approach B does not remove it at all, and is correspondingly biased low. Approach C instead selects episodes in which the drainage contribution over the rise is negligible by construction, so that the uncorrected ratio is approximately unbiased. A candidate episode requires at least two consecutive prior months of falling or static water table (Δh ≤ 0), which mark a drainage-dominated quasi-steady state. The episode begins at the first subsequent month with Δh \> 0 and continues for at most two further months while the rise persists. It must accumulate a cumulative rise of at least 50 mm. For each qualifying episode, Sy is the summed net recharge over the episode divided by the cumulative rise. It is retained only within the physically plausible interval 0.01 \< Sy \< 0.50, the same interval applied per event in Approach B and in the per-well fits of Section S10.4. Episodes are non-overlapping. The cluster estimate is the median of qualifying episodes, with a 95 per cent confidence interval from 1000 bootstrap resamples of the episode set. For the forested clusters the interception-corrected recharge of Section S10.2 is used, so the reported forest values are directly comparable with the corrected Approach B variant. Approach C is reported as an independent cross-check only, and it does not propagate to any downstream calculation.
+**Approach C --- rapid recharge events**. A third estimator, after Crosbie et al. (2005), targets the same quantity by a route that shares the assumptions of neither of the first two. Approach A removes the drainage contribution to the observed rise mechanistically, using the fitted β₃. Approach B does not remove it at all, and is correspondingly biased low. Approach C instead selects episodes in which the drainage contribution over the rise is negligible by construction, so that the uncorrected ratio is approximately unbiased. A candidate episode requires at least two consecutive prior months of falling or static water table (Δh ≤ 0), which mark a drainage-dominated quasi-steady state. The episode begins at the first subsequent month with Δh \> 0 and continues for at most two further months while the rise persists. It must accumulate a cumulative rise of at least 50 mm. For each qualifying episode, Sₐ is the summed net recharge over the episode divided by the cumulative rise. It is retained only within the physically plausible interval 0.01 \< Sₐ \< 0.50, the same interval applied per event in Approach B and in the per-well fits of Section S10.4. Episodes are non-overlapping. The cluster estimate is the median of qualifying episodes, with a 95 per cent confidence interval from 1000 bootstrap resamples of the episode set. For the forested clusters the interception-corrected recharge of Section S10.2 is used, so the reported forest values are directly comparable with the corrected Approach B variant. Approach C is reported as an independent cross-check only, and it does not propagate to any downstream calculation.
 
 ## **S10.2 Cluster-level estimates**
 
-Cluster-level event-median Sy estimates are reported as Table 4 of the main manuscript. All three approaches are read live from 17_wtf_01_sy_estimates.csv and compared in Section S10.3.
+Cluster-level event-median Sₐ estimates are reported as Table 4 of the main manuscript. All three approaches are read live from 17_wtf_01_sy_estimates.csv and compared in Section S10.3.
 
 For the forested clusters (C4, C5) an interception-corrected variant is also reported. The correction applies Reff = (1 − i) · P − PET, with i = 0.24 (Freeman, 2008). The corrected values are the ones used in the Table 1 interpretation. Approaches B (event median) and C (rapid-event) report the interception-corrected forest fits. Approach A is not used for the corrected variant. The winter-only filter combined with the interception correction reduces the C4 and C5 sample sizes so far that the no-intercept OLS becomes unstable. This sample-size limitation is specific to the corrected forest case. It is not a general property of Approach A, which is reliable across all five uncorrected fits.
 
 ## **S10.3 Caveats**
 
-Monthly resolution prevents isolation of individual storm events. The WTF estimates therefore conflate true gravity drainage with capillary-fringe release. They should be read as upper bounds on the storage coefficient, not as point estimates of the gravity Sy alone (Healy and Cook, 2002; Scanlon et al., 2002). Slug tests or pumping tests at representative wells per cluster remain the gold-standard alternative, and would be the priority future field measurement. As with the SSM coefficients (Section S6.3), the robust and used quantity is the cross-cluster ordering, not the absolute magnitude.
+Monthly resolution prevents isolation of individual storm events. The WTF estimates therefore conflate true gravity drainage with capillary-fringe release. They should be read as upper bounds on the storage coefficient Sₐ, not as point estimates of the gravity Sy alone (Healy and Cook, 2002; Scanlon et al., 2002). Slug tests or pumping tests at representative wells per cluster remain the gold-standard alternative, and would be the priority future field measurement. As with the SSM coefficients (Section S6.3), the robust and used quantity is the cross-cluster ordering, not the absolute magnitude.
 
-The three estimators converge closely at C3 Western Residual (0.35, 0.32, 0.31 for Approaches A, B, C). This is the value that anchors the Figure 19 forest-drawdown reach. Approaches B and C agree that C1 Lake Edge is the low-storage end (0.21 and 0.19). The higher winter-OLS estimate there (0.34) is consistent with the β₃ drainage correction over-correcting in the lake-buffered setting. Where an absolute Sᵧ nonetheless enters a downstream quantity, namely the Figure 19 reach λ = √(Kb⁄(Sᵧ·β₃)), it is used as an order-of-magnitude input and reported accordingly (Section S13). The one genuinely method-dependent feature is the top of the ranking. The uncorrected winter-OLS fit places C5 highest. The interception-corrected rapid-event estimate places C3 highest. The interception-corrected event estimate places C5 marginally above C3 (0.330 against 0.325).
+The three estimators converge closely at C3 Western Residual (0.35, 0.32, 0.31 for Approaches A, B, C). This is the value that anchors the Figure 19 forest-drawdown reach. Approaches B and C agree that C1 Lake Edge is the low-storage end (0.21 and 0.19). The higher winter-OLS estimate there (0.34) is consistent with the β₃ drainage correction over-correcting in the lake-buffered setting. Where an absolute Sₐ nonetheless enters a downstream quantity, namely the Figure 19 reach λ = √(Kb⁄(Sₐ·β₃)), it is used as an order-of-magnitude input and reported accordingly (Section S13). The one genuinely method-dependent feature is the top of the ranking. The uncorrected winter-OLS fit places C5 highest. The interception-corrected rapid-event estimate places C3 highest. The interception-corrected event estimate places C5 marginally above C3 (0.330 against 0.325).
 
-## **S10.4 Spatial Sy surface**
+## **S10.4 Spatial Sₐ surface**
 
-A per-well Sy field (18_wtf_spatial.py) is produced by computing per-event Sy = R / Δh at every well in the reference network. The field reports the per-well median across rising-limb events, retained within the same 0.01 \< Sy \< 0.50 interval. This is Approach B applied at the well level, with per-well 25th and 75th percentiles for uncertainty. Forest clusters (C4, C5) carry the interception correction directly in the recharge term, Reff = (1 − 0.24) · P − PET. Forest values therefore carry additional uncertainty associated with the canopy correction (Freeman, 2008).
+A per-well Sₐ field (18_wtf_spatial.py) is produced by computing per-event Sₐ = R / Δh at every well in the reference network. The field reports the per-well median across rising-limb events, retained within the same 0.01 \< Sₐ \< 0.50 interval. This is Approach B applied at the well level, with per-well 25th and 75th percentiles for uncertainty. Forest clusters (C4, C5) carry the interception correction directly in the recharge term, Reff = (1 − 0.24) · P − PET. Forest values therefore carry additional uncertainty associated with the canopy correction (Freeman, 2008).
 
 This differs from the SSM treatment in Section S9.2, but the difference is a consequence of the two methods' structure rather than an inconsistency. The WTF method estimates recharge directly, so the canopy loss must be removed from rainfall explicitly. The SSM is fitted on gross rainfall and above-canopy PET, and therefore already carries that loss inside the fitted β₂·PET̄ term.
 
-Two wells are excluded from the contour interpolation on physical grounds. CEH12 sits on the bedrock ridge in a forested area, where the WTF Sy reflects bedrock rather than the sand aquifer. CEH15 sits in a low-lying slack within the plantation, where the local hydrology is not representative of upland forest sand. The per-well Sy values are interpolated to a continuous surface (Figure 9 of the main manuscript) by the piecewise-linear procedure of Section S7, clipped to the site outline. Section 5.2 of the main manuscript develops the substrate-gradient interpretation of this pattern.
+Two wells are excluded from the contour interpolation on physical grounds. CEH12 sits on the bedrock ridge in a forested area, where the WTF Sₐ reflects bedrock rather than the sand aquifer. CEH15 sits in a low-lying slack within the plantation, where the local hydrology is not representative of upland forest sand. The per-well Sₐ values are interpolated to a continuous surface (Figure 9 of the main manuscript) by the piecewise-linear procedure of Section S7, clipped to the site outline. Section 5.2 of the main manuscript develops the substrate-gradient interpretation of this pattern.
 
 ## []{#anchor-20}S11. Mean water-table surface and the Darcy flow field
 
@@ -515,15 +515,15 @@ The C5 Coastal Forest well NW9 lies 419 m from the eroding shoreline. It shows a
 
 Section 4.11 of the main manuscript renders the inland reach of forest-interception drawdown as a physical decay length (20_spatial_figures.py for the figure). This reach is the distance over which interception-driven recharge suppression at the plantation boundary persists in the down-gradient open dune. The calculation is a Dupuit-style drainage length:
 
-> λ = √( *Kb* / (*S*y · β₃) )
+> λ = √( *Kb* / (Sₐ · β₃) )
 
-where λ is the inland decay length, *K* the hydraulic conductivity, *b* the saturated thickness, *S*y the specific yield and β₃ the drainage coefficient (in daily units). The expression is the characteristic length over which a head perturbation at the source decays in a homogeneous, fixed-base unconfined aquifer.
+where λ is the inland decay length, *K* the hydraulic conductivity, *b* the saturated thickness, *Sₐ* the apparent storage coefficient and β₃ the drainage coefficient (in daily units). The expression is the characteristic length over which a head perturbation at the source decays in a homogeneous, fixed-base unconfined aquifer.
 
-The parameters used in Figure 19 are taken from C3 Western Residual, the open-dune cluster immediately down-gradient of the plantation boundary. They are: *Sy = 0.298 (C3 per-well median of the Approach B event estimates, 18_wtf_01_well_sy_estimates.csv, Section S10.4); β₃ = 0.0616 month⁻¹ ≈ 2.02 × 10⁻³ day⁻¹* (C3 cluster-mean, Section S6.2); *K* = 6 m day⁻¹ (Betson et al., 2002, Section S2.1); and *b* = 5 m (nominal saturated thickness). The saturated thickness is uncertain by a factor of two or more, given the absence of cored aquifer-thickness data. The geophysics of Bristow, 2002, indicates 12--27 m in the forest interior, but the open-dune thickness immediately south of the plantation boundary may be lower.
+The parameters used in Figure 19 are taken from C3 Western Residual, the open-dune cluster immediately down-gradient of the plantation boundary. They are: *Sₐ = 0.298 (C3 per-well median of the Approach B event estimates, 18_wtf_01_well_sy_estimates.csv, Section S10.4); β₃ = 0.0616 month⁻¹ ≈ 2.02 × 10⁻³ day⁻¹* (C3 cluster-mean, Section S6.2); *K* = 6 m day⁻¹ (Betson et al., 2002, Section S2.1); and *b* = 5 m (nominal saturated thickness). The saturated thickness is uncertain by a factor of two or more, given the absence of cored aquifer-thickness data. The geophysics of Bristow, 2002, indicates 12--27 m in the forest interior, but the open-dune thickness immediately south of the plantation boundary may be lower.
 
 With these inputs, λ ≈ 220 m (drawdown_lambda in 20_report_numbers.csv, quoted to the nearest 10 m). The contours on Figure 19 should be read as an order-of-magnitude diagnostic of the inland reach, not as a calibrated prediction. λ scales as √(Kb). Across the conductivity range reported for dune sand (2--20 m day⁻¹) it spans roughly 130--410 m. Across a saturated thickness of 3--8 m it spans 170--280 m. The order-of-magnitude conclusion holds across that range: forest-interception drawdown reaches of order 200 m beyond the plantation boundary, not across the whole site. The calculation carries canopy interception alone. It is therefore an upper bound on the reach of the forest effect beyond the canopy, and a lower bound on its magnitude.
 
-This is the only output of the framework that depends on *K*. Every other coefficient surface, residual field, water-balance partition, *S*y estimate, coastal-retreat gradient and diagnostic synthesis presented in the manuscript is derived without a *K* estimate (Section 5.6 of the main manuscript). A measured *K* would tighten only the Figure 19 reach calculation. It would come from slug tests at representative wells per cluster, the priority future field measurement.
+This is the only output of the framework that depends on *K*. Every other coefficient surface, residual field, water-balance partition, *Sₐ* estimate, coastal-retreat gradient and diagnostic synthesis presented in the manuscript is derived without a *K* estimate (Section 5.6 of the main manuscript). A measured *K* would tighten only the Figure 19 reach calculation. It would come from slug tests at representative wells per cluster, the priority future field measurement.
 
 The empirically fitted coastal-retreat reach (Figure 20 of the manuscript) is *not* an analogue of the Figure 19 reach in this sense. The coastal-reach length *L_cg* is fitted directly from the panel regression (Section S12), and *K* and *b* do not enter its derivation. The forest and coastal reaches are therefore methodologically distinct. Figure 19 is a forward calculation from independent SSM and literature parameters. Figure 20 is a back-calculation from observed water-table trends. Section 5.6 of the main manuscript discusses the implications.
 
@@ -545,7 +545,7 @@ The full analysis pipeline is open source and version-controlled on GitHub at gi
   HEADLINE_LAG                                0                     pipeline_scenario_params.csv
   Forest interception                         0.24                  Freeman (2008), config.py
   C1--C5 β₁, β₂, β₃, *R*²                     (see Section S6.2)    03_03_cluster_mechanistic_coefficients.csv
-  Cluster *S*y                                (see Section S10.2)   17_wtf_01_sy_estimates.csv
+  Cluster *Sₐ*                                (see Section S10.2)   17_wtf_01_sy_estimates.csv
   Coastal δ₀, *L_cg*, *c_far* (forest-free)   (see Section S12)     25_01_panel_fit_parameters.csv
   NW9 decline                                 (see Section S12.5)   25_02_per_well_summer_min_slopes.csv
   Hydraulic conductivity *K*                  6 m day⁻¹             Betson et al. (2002)

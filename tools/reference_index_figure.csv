@@ -10,8 +10,8 @@ number,document,title
 9,report9.odt,"Cluster-mean relative water level hydrographs for the five hydrogeological clusters, Decem"
 10,report9.odt,"Per-well relative water level for the 66 reference wells, shown as one stacked panel per h"
 11,report9.odt,"Water balance decomposition by hydrogeological cluster, Newborough Warren 2005–2026. (a) M"
-12,report9.odt,"Distribution of event-level specific yield (Sy) from monthly rising-limb events, by cluste"
-13,report9.odt,"Interpolated WTF specific yield surface for the combined reference and extended networks, "
+12,report9.odt,Distribution of event-level apparent storage coefficient (Sₐ) from monthly rising-limb eve
+13,report9.odt,"Interpolated WTF Sₐ surface for the combined reference and extended networks, Newborough W"
 14,report9.odt,"Pearson affinity analysis of selected reference and extended network wells, showing the co"
 15,report9.odt,a: Spatial distribution of the five primary hydrogeological clusters checked by Pearson af
 16,report9.odt,Filling gaps from cluster-mates. (a) The error in the held-out spring level (MSL) for each
@@ -53,7 +53,7 @@ number,document,title
 52,report9.odt,Sentinel-2 switching levels tested against the kriged water table. Each wetted slack-floor
 53,report9.odt,"a: Per-well optimal SSM drainage datum across the 66-well reference network, Newborough Wa"
 54,report9.odt,"Spatial SSM coefficient atlas for the 66-well reference network, Newborough Warren. Per-we"
-55,report9.odt,"Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the network datum) across the "
+55,report9.odt,"Model B drainage decay half-life (t½ = ln(2)/β₃, months) across the 66-well reference netw"
 56,report9.odt,The water table of Newborough Warren kriged from the dipwells in (a) the wet state (the we
 57,report9.odt,"Mean water table against the ground surface, by DEM smoothing width. (a) The kriged mean-s"
 58,report9.odt,"Water-table transects across Newborough Warren. (a) Four coast-normal transects (C1–C4, re"

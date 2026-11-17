@@ -14,7 +14,7 @@ RB-09,MS,S.19.3 Script 30,Centroid fits use the shared model_utils.fit_ssm on th
 RB-09,MS,S.19.3 Script 30,Each reference well is fitted twice — on the comparison window used for the per-well coefficient table (§S.3) and on its full record,
 RB-10,report8,Spatial Coefficient Mapping,fitted independently to the pre- and post-felling windows at each BACI-network well,10a
 RB-10,report8,Dune Scraping Intervention,fitted independently to pre-scraping (start of record to March 2015) and post-scraping (April 2015 to November 2017) windows,09a
-RB-11,report8,Specific Yield Estimation,computes a per-month Sy = R / Δh for each rising-limb event in the record,
+RB-11,report8,Apparent Storage Coefficient Estimation,computes a per-month Sₐ = R / Δh for each rising-limb event in the record,heading and fragment renamed Sy -> S_a (D-320; T-213 2026-11-17)
 RB-12,report8,Five-Year Mean Spring,"The five-year mean spring water level MSL5, indexed by its closing year, is the unweighted mean of five consecutive annual spring means",an aggregation over the record; not a fitting window
 RB-13,report8,Network-Scale Coastal-Retreat,a non-linear panel regression was fitted to the full 21-year monthly record,
 RB-13,report8,Network-Scale Coastal-Retreat,Three nested specifications were fitted to test robustness to forest-cover inclusion: the full network (67 wells,25_01_panel_fit_parameters n_wells

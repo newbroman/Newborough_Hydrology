@@ -775,7 +775,7 @@ TABLES = [
         "caption": "Table S4.1 — per-well WTF specific yield (Script 18)",
         "sources": {"t": "outputs/18_wtf_spatial/18_wtf_01_well_sy_estimates.csv"},
         "rows": {"source": "t"},
-        "header": ["Well", "Cl.", "n", "Sy med", "Sy Q25", "Sy Q75", "Int. corr."],
+        "header": ["Well", "Cl.", "n", "Sₐ med", "Sₐ Q25", "Sₐ Q75", "Int. corr."],
         "columns": [
             {"col": "Well", "fmt": "text", "case": "upper"},
             {"fmt": "template", "template": "C{Cluster}"},

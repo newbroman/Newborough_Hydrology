@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_60.odt — do not edit. source-sha256=5adfa4a5a344d985 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_61.odt — do not edit. source-sha256=f6d82659cb47398b pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -39,15 +39,15 @@ The tracer test reported by Betson et al. (2002) provides the single direct esti
 
 The physical interpretation of β₁ is the fraction of a unit rainfall pulse that reaches the water table as a head rise, integrated over the monthly timestep. In an unconfined aquifer, this is governed by the depth of the unsaturated zone and the specific yield: a thick unsaturated zone above a large storage volume attenuates the rainfall-to-head transfer, producing a low β₁. A shallow, low-storage aquifer (thin unsaturated zone, low Sy) produces a high β₁ --- rainfall arrives at the water table quickly and raises it sharply. Although β₁ cannot be inverted algebraically to yield aquifer thickness without independent knowledge of the recharge flux and specific yield, its spatial pattern is a reliable proxy for the relative contrast in aquifer thickness across the site.
 
-The Eastern Block (C1: β₁ = 4.577; C2: β₁ = 3.989) and Western Residual cluster (C3: β₁ = 3.808) contrast is consistent with the geological interpretation of Stratford et al. (2007): the Eastern Block sits on shallow till and estuarine deposits, producing a thin, storage-limited aquifer with a flashy response; the Western Residual Cluster occupies deep, clean aeolian sand, producing a capacious, buffered aquifer with an attenuated response. The Forest cluster (C4: β₁ = 2.502) is anomalously low even relative to C3, reflecting canopy interception rather than additional aquifer depth --- consistent with the depth-dependent PET analysis (Script 15), which returns the weakest depth coupling in the network at C4 (best 1/L_E = 0.05 m⁻¹, against 2.30 m⁻¹ at C1), indicating that capillary disconnection at depth is not the primary control. C5 (Coastal Forest: β₁ = 2.462) shows a comparable value to C4, consistent with both clusters carrying the same Corsican pine canopy on the same deep sand substrate.
+The Eastern Block (C1: β₁ = 3.715; C2: β₁ = 3.500) and Western Residual cluster (C3: β₁ = 3.604) contrast is consistent with the geological interpretation of Stratford et al. (2007): the Eastern Block sits on shallow till and estuarine deposits, producing a thin, storage-limited aquifer with a flashy response; the Western Residual Cluster occupies deep, clean aeolian sand, producing a capacious, buffered aquifer with an attenuated response. The Forest cluster (C4: β₁ = 2.578) is anomalously low even relative to C3, reflecting canopy interception rather than additional aquifer depth --- consistent with the depth-dependent PET analysis (Script 15), which returns the weakest depth coupling in the network at C4 (best 1/L_E = 0.05 m⁻¹, against 2.30 m⁻¹ at C1), indicating that capillary disconnection at depth is not the primary control. C5 (Coastal Forest: β₁ = 2.463) shows a comparable value to C4, consistent with both clusters carrying the same Corsican pine canopy on the same deep sand substrate.
 
   --------- ------------------ ------- ------- ------- -----------------------------------------------------------------------------------
   Cluster   Label              β₁      β₂      β₃      Geological context
-  C1        Lake Edge          4.577   0.942   0.088   Shallow till/estuarine substrate (NH1, NH2 boreholes: 6.5 m); rapid lake exchange
-  C2        Dune               3.989   1.842   0.062   Shallow till substrate consistent with C1; mature open dune
-  C3        Western Residual   3.808   1.833   0.062   Deep aeolian sand; Water borehole ≥12.8 m; DEM ridge geometry
-  C4        Main Forest        2.502   2.564   0.019   Same deep sand substrate as C3; low β₁ reflects 24% canopy interception
-  C5        Coastal Forest     2.462   1.336   0.045   Pine canopy on coastal sand; geomorphological thinning toward Menai Strait
+  C1        Lake Edge          3.715   3.144   0.354   Shallow till/estuarine substrate (NH1, NH2 boreholes: 6.5 m); rapid lake exchange
+  C2        Dune               3.500   2.619   0.167   Shallow till substrate consistent with C1; mature open dune
+  C3        Western Residual   3.604   2.126   0.103   Deep aeolian sand; Water borehole ≥12.8 m; DEM ridge geometry
+  C4        Main Forest        2.578   2.499   0.010   Same deep sand substrate as C3; low β₁ reflects 24% canopy interception
+  C5        Coastal Forest     2.463   1.335   0.045   Pine canopy on coastal sand; geomorphological thinning toward Menai Strait
   --------- ------------------ ------- ------- ------- -----------------------------------------------------------------------------------
 
 **Table S2.2.*** Cluster mechanistic coefficients (from Table 3, displacement-formulation SSM) and geological context. The β₁ contrast between Eastern Block (C1/C2) and Western Residual cluster (C3) is consistent with the stratigraphic interpretation of Stratford et al. (2007). C3 and C4 share the same deep aeolian sand body, confirmed by β₁ similarity after correcting for canopy interception and by Pearson affinity persistence post-felling. Borehole 3 (3.65 m, eastern margin) confirms progressive thinning toward the coast.*
@@ -92,7 +92,7 @@ The scenario head change for each well is computed directly from the fitted SSM 
 
 Δh = (β₁·P_eff,sc − β₂,sc·PET_sc − β₃·h̄\_disp) − (β₁·P_eff,0 − β₂·PET₀ − β₃·h̄\_disp)
 
-where the β₃·h̄\_disp term cancels algebraically between scenario and baseline expressions, so β₃ does not materially affect the computed Δh. Specific yield does not appear in the equation because the fitted β coefficients already embed the aquifer storage response through the SSM fit to observed head data; the per-well WTF-derived Sy values (Section 3.7.3) are retained as supplementary display information in the interactive viewer, not as a divisor on Δh. The framework is honest about what it is: a geometric aggregator of SSM responses across the cluster structure, not a physical model of groundwater flow.
+where the β₃·h̄\_disp term cancels algebraically between scenario and baseline expressions, so β₃ does not materially affect the computed Δh. Specific yield does not appear in the equation because the fitted β coefficients already embed the aquifer storage response through the SSM fit to observed head data; the per-well WTF-derived Sₐ values (Section 3.7.3) are retained as supplementary display information in the interactive viewer, not as a divisor on Δh. The framework is honest about what it is: a geometric aggregator of SSM responses across the cluster structure, not a physical model of groundwater flow.
 
 The per-well framework has two important structural features that shape the interpretation of its outputs. First, scenario parameter changes for canopy interception and β₂ apply only to the C4 and C5 Forest cluster wells, because that is where the relevant physical changes occur under forest management. The framework therefore necessarily produces a response confined to the C4/C5 zone and its immediate interpolated surroundings, with effectively no propagation into C1, C2, or wider C3 clusters. Second, climate scenario parameter changes (ΔP, ΔPET) apply to all reference wells simultaneously, so the resulting Δh field is spatially continuous and reflects the site-wide β coefficient structure. The contrast between forest management and climate scenarios in the spatial outputs is therefore a direct consequence of which wells are affected by which perturbations, not an artefact of the numerical method.
 
@@ -128,11 +128,11 @@ Three limitations on the interpretation of these outputs apply. First, the pertu
 
 Forest management scenarios (full clearfell, 50% thinning, broadleaf conversion) apply canopy parameter changes only to the C4 and C5 Forest wells, and the framework correctly produces a response confined to the C4/C5 zone. This is a feature of the framework, not a bug: under the SSM parameterisation, canopy management directly affects only the wells beneath the canopy, and there is no structural mechanism for canopy effects to propagate into the open dune clusters beyond the hydraulic gradient already implicit in the baseline heads. The BACI monitoring record provides empirical corroboration of this structural feature: post-felling displacement is concentrated at the core impact wells, and wells outside the C4 cluster show no detectable felling-specific response once common-mode climate variability is accounted for (§4.6.4).
 
-The clearfell scenario applies a β₂ multiplier of ×0.952 at C4 and C5 wells: the felled well's own post-felling β₂ ratio net of the climate controls (Impact ratio 0.862 minus Climate Control drift 0.910, plus 1.0; Script 10e). Canopy interception is unchanged, because the felled well's recharge did not rise (D-239). The response is reported as the sustained change in level: +0.038 m (Model B) and +0.066 m (Model A) at C5, +0.217 m at C4 (Model A), and +0.060 m and +0.135 m at the felled well itself, against the +0.108 m measured there. This is the lower end of the clearfell range. The 4.2 ha compartment is narrower than the drawdown reach, so a recharge gain there would spread into the surrounding forest: at WMC3 a disc of its size keeps about 15% of a full local gain (Script 20), which the felled well's β₁ cannot distinguish from none. Returned in full, as for a felling wider than the reach, the intercepted rain gives the upper end: +0.435 m (Model B) and +0.986 m (Model A) at C5, and +1.891 m at C4 (Model A). Under Model A these exceed the open-dune end state (+0.490 m at C5, +0.777 m at C4), which bounds what removing the canopy can do.
+The clearfell scenario took a β₂ multiplier from the felled well's own post-felling β₂ ratio net of the climate controls (Script 10e), with canopy interception unchanged because the felled well's recharge did not rise. That ratio changes sign with the drainage floor, so the clearfell and 50% thinning scenarios built from it are withdrawn pending their rebuild on the observed BACI step, and are not quoted; the measured result is the +0.108 m step at the felled well. The 4.2 ha compartment is narrower than the drawdown reach, so a recharge gain there would spread into the surrounding forest: at WMC3 a disc of its size keeps about 15% of a full local gain (Script 20), which the felled well's β₁ cannot distinguish from none. Removing the canopy entirely is bounded by the open-dune end state (+0.498 m at C5, +0.898 m at C4).
 
 The thinning scenario applies half the clearfell perturbation (β₂ × 0.976), again with interception unchanged, giving half the clearfell response. That is an upper bound: after thinning the remaining trees and the understorey take up part of the water released, and the saving shrinks as the stand recovers (Gebhardt et al., 2014).
 
-The broadleaf conversion scenario applies the seasonal β₂ profile (winter ×0.882, summer ×1.075) with interception unchanged (D-239). Weighted by evaporative demand, the summer increase outweighs the winter saving, and the framework predicts a small fall in level at both forest clusters (−0.037 m at C5 and −0.121 m at C4 under Model A). With the lower interception of a broadleaf canopy (15%, following the temperate deciduous meta-analysis of Komatsu et al., 2011) returned as recharge, it predicts a rise instead (+0.308 m at C5 and +0.506 m at C4 under Model A); catchment modelling on sandy soils favours that end (Sonnenborg et al., 2017). The phenological mechanism of §5.5.2 --- a larger winter recharge pulse under leafless canopy, drained before summer --- is a dynamical trajectory response that the equilibrium framework does not resolve.
+The broadleaf conversion scenario applies the seasonal β₂ profile (winter ×0.882, summer ×1.075) with interception unchanged. Weighted by evaporative demand, the summer increase outweighs the winter saving, and the framework predicts a small fall in level at C5 (−0.021 m). With the lower interception of a broadleaf canopy (15%, following the temperate deciduous meta-analysis of Komatsu et al., 2011) returned as recharge, it predicts a rise instead (+0.125 m at C5). C4 is not projected, because its drainage term is not identified; catchment modelling on sandy soils favours that end (Sonnenborg et al., 2017). The phenological mechanism of §5.5.2 --- a larger winter recharge pulse under leafless canopy, drained before summer --- is a dynamical trajectory response that the equilibrium framework does not resolve.
 
 For the Figure 82 hydrograph (§5.7.4), a seasonally-varying β₂ is applied to the broadleaf scenario to represent the full-LAI summer canopy and leafless winter canopy. This seasonal parameterisation is a visualisation device and is not part of the §4.13 Results; it is used specifically to communicate the phenological argument from §5.5.2 alongside the BACI-observed record. The annual-mean output in 19_scenario_summary.csv remains the quantitatively citeable framework result.
 
@@ -170,7 +170,7 @@ The per-well equilibrium framework and climate/forestry scenario calculations ar
 
 ## S4.1 Per-Well Estimates
 
-**Table S4.1.** Individual Well WTF Specific Yield Estimates --- Newborough Warren 2005--2026: event-based median specific yield (Sy) derived from the water table fluctuation (WTF) method (Healy and Cook, 2002) for the 66 reference-network wells. Cl. = cluster under the k = 5 partition (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest). n = number of qualifying monthly rising-limb events (criteria: Δh \> 5 mm, net recharge P − PET \> 10 mm). Q25/Q75 = interquartile range; a wide IQR reflects month-to-month variability in event estimates rather than measurement error. Wells in the forest clusters C4 and C5, marked Int. corr. = Yes, have net recharge adjusted for 24% canopy interception (Freeman, 2008). CEH12 (bedrock ridge --- WTF response reflects fractured rock) and CEH15 (forest slack floor --- slack topography dominates water table dynamics) are excluded from the IDW interpolation surface and do not appear here. Source: 18_wtf_01_well_sy_estimates.csv.
+**Table S4.1.** Individual Well WTF Specific Yield Estimates --- Newborough Warren 2005--2026: event-based median apparent storage coefficient (Sₐ) derived from the water table fluctuation (WTF) method (Healy and Cook, 2002) for the 66 reference-network wells. Cl. = cluster under the k = 5 partition (C1 Lake Edge, C2 Dune, C3 Western Residual, C4 Main Forest, C5 Coastal Forest). n = number of qualifying monthly rising-limb events (criteria: Δh \> 5 mm, net recharge P − PET \> 10 mm). Q25/Q75 = interquartile range; a wide IQR reflects month-to-month variability in event estimates rather than measurement error. Wells in the forest clusters C4 and C5, marked Int. corr. = Yes, have net recharge adjusted for 24% canopy interception (Freeman, 2008). CEH12 (bedrock ridge --- WTF response reflects fractured rock) and CEH15 (forest slack floor --- slack topography dominates water table dynamics) are excluded from the IDW interpolation surface and do not appear here. Source: 18_wtf_01_well_sy_estimates.csv.
 
   ------- ---- ---- ------- ------- ------- -----
   CEH11   C1   56   0.236   0.164   0.311   
@@ -243,7 +243,7 @@ The per-well equilibrium framework and climate/forestry scenario calculations ar
 
 ## S4.2 Reproducibility
 
-The per-well WTF specific yield estimates tabulated in Table S4.1 are computed by 18_wtf_spatial.py (wtf_individual_wells), which identifies qualifying monthly rising-limb events, applies the canopy interception correction to the C4 and C5 forest wells, and exports the per-well statistics to 18_wtf_01_well_sy_estimates.csv --- the file the table\'s caption names. The same script performs the spatial interpolation of Sy and the exclusion of CEH12 and CEH15 from the interpolated surface. 17_wtf_specific_yield.py is the cluster-level estimator and exports 17_wtf_01_sy_estimates.csv; it does not produce the per-well table. Its earlier output name, 17_wtf_well_sy.csv, was retired under D-038 on 2026-08-19; the two files were byte-identical while both existed, and the name was superseded rather than the content changed. 18_wtf_spatial.py reads 01_wells_clean.csv, 01_climate.csv, 01_locations.csv and 02_cluster_stats.csv; both scripts are maintained in the canonical pipeline sequence.
+The per-well WTF specific yield estimates tabulated in Table S4.1 are computed by 18_wtf_spatial.py (wtf_individual_wells), which identifies qualifying monthly rising-limb events, applies the canopy interception correction to the C4 and C5 forest wells, and exports the per-well statistics to 18_wtf_01_well_sy_estimates.csv --- the file the table\'s caption names. The same script performs the spatial interpolation of Sₐ and the exclusion of CEH12 and CEH15 from the interpolated surface. 17_wtf_specific_yield.py is the cluster-level estimator and exports 17_wtf_01_sy_estimates.csv; it does not produce the per-well table. Its earlier output name, 17_wtf_well_sy.csv, was retired on 2026-08-19; the two files were byte-identical while both existed, and the name was superseded rather than the content changed. 18_wtf_spatial.py reads 01_wells_clean.csv, 01_climate.csv, 01_locations.csv and 02_cluster_stats.csv; both scripts are maintained in the canonical pipeline sequence.
 
 # Supplementary Note S5: Residual-Lag Test for Ridge-Derived Recharge
 
@@ -348,90 +348,90 @@ Standard errors propagate uncertainty in the fitted coefficients through the equ
 **Table S7.**1. Equilibrium wetness index and MSL5 reconstruction, per well (n = 84). Levels are metres below ground surface, negative below the surface. The index is reconstructed from the open-dune calibration MSL5 = +0.392 + 0.955·EWI (r = 0.96, RMSE = 76 mm), fitted on the 61 in-scope wells carrying an observed five-year mean spring level. A further 2 open-dune well(s) carry an index but no valid five-year spring window and are reconstructed only; the 21 C4/C5 forest wells are reconstructed but held out of scope, their coefficients being the least constrained on the site. Status reads: \'Calibration\', an in-scope well that entered the fit; \'Reconstructed\', in scope but with no observed spring level; \'Out of scope\', a forest well outside the calibration\'s scope. Standard errors on the index propagate the drainage coefficient alone, the dominant term; the full three-coefficient variant is carried in 26_equilibrium_wetness_index_per_well.csv. Source: 26_equilibrium_wetness_index_per_well.csv, 26_ewi_msl5_comparison.csv.
 
   ------- ----------- ----------------------- -------- -------- ------ -------- -------- ------ ---------------
-  CEH11   Reference   C1 (Lake Edge)          0.0925   -0.636   312    -0.233   -0.219   15     Calibration
-  CEH23   Reference   C1 (Lake Edge)          0.0940   -0.549   332    -0.159   -0.133   26     Calibration
-  CEH25   Reference   C1 (Lake Edge)          0.1343   -0.511   296    -0.107   -0.097   10     Calibration
-  CEH26   Reference   C1 (Lake Edge)          0.0876   -0.513   346    -0.149   -0.099   50     Calibration
-  CEH27   Reference   C1 (Lake Edge)          0.0984   -0.439   303    -0.045   -0.027   18     Calibration
-  CEH5    Reference   C1 (Lake Edge)          0.0983   -0.530   300    -0.114   -0.115   -1     Calibration
-  CEH6    Reference   C1 (Lake Edge)          0.1222   -0.407   263    -0.049   0.005    54     Calibration
-  CEH12   Extended    C1 (Lake Edge)          0.0880   -1.209   403             -0.776          Reconstructed
-  P2      Extended    C1 (Lake Edge)          0.1004   -0.487   350    -0.205   -0.073   132    Calibration
-  CEH24   Reference   C2 (Dune)               0.0745   -0.441   447    0.015    -0.029   -44    Calibration
-  CEH28   Reference   C2 (Dune)               0.0774   -0.619   415    -0.128   -0.202   -74    Calibration
-  D10     Reference   C2 (Dune)               0.0595   -0.487   447    -0.050   -0.074   -24    Calibration
-  D17     Reference   C2 (Dune)               0.0724   -0.430   485    -0.035   -0.017   18     Calibration
-  D41     Reference   C2 (Dune)               0.0713   -0.507   326    -0.097   -0.093   4      Calibration
-  D43     Reference   C2 (Dune)               0.0770   -0.667   312    -0.207   -0.249   -41    Calibration
-  D44     Reference   C2 (Dune)               0.0936   -0.758   296    -0.305   -0.337   -31    Calibration
-  D5      Reference   C2 (Dune)               0.0739   -0.619   327    -0.168   -0.201   -33    Calibration
-  D6      Reference   C2 (Dune)               0.0672   -0.602   397    -0.138   -0.185   -47    Calibration
-  D7      Reference   C2 (Dune)               0.0790   -0.578   298    -0.108   -0.162   -54    Calibration
-  D8      Reference   C2 (Dune)               0.0568   -0.456   491    -0.058   -0.043   15     Calibration
-  L7      Reference   C2 (Dune)               0.0853   -1.624   222    -1.137   -1.180   -43    Calibration
-  NW3     Reference   C2 (Dune)               0.0752   -0.684   330    -0.178   -0.265   -87    Calibration
-  NW4     Reference   C2 (Dune)               0.0592   -0.497   532    -0.102   -0.083   19     Calibration
-  NW4B    Reference   C2 (Dune)               0.0611   -0.489   530    -0.118   -0.075   43     Calibration
-  T41B    Reference   C2 (Dune)               0.0658   -0.414   390    -0.053   -0.002   51     Calibration
-  T41C    Reference   C2 (Dune)               0.0708   -0.450   387    -0.073   -0.037   36     Calibration
-  T41D    Reference   C2 (Dune)               0.0690   -0.680   353    -0.269   -0.261   8      Calibration
-  WMC1    Reference   C2 (Dune)               0.0582   -0.621   489    -0.235   -0.203   31     Calibration
-  CEH37   Extended    C2 (Dune)               0.0807   -0.602   291    0.037    -0.185   -222   Calibration
-  CEH7    Extended    C2 (Dune)               0.0536   -0.819   421    -0.162   -0.396   -234   Calibration
-  CEH8    Extended    C2 (Dune)               0.0334   -0.746   487    -0.299   -0.325   -26    Calibration
-  PE      Extended    C2 (Dune)               0.0723   -0.878   405    -0.511   -0.454   58     Calibration
-  CEH1    Reference   C3 (Western Residual)   0.0666   -0.682   413    -0.165   -0.263   -98    Calibration
-  CEH10   Reference   C3 (Western Residual)   0.1086   -1.345   280    -0.880   -0.908   -28    Calibration
-  CEH18   Reference   C3 (Western Residual)   0.0616   -0.966   393    -0.586   -0.540   46     Calibration
-  CEH21   Reference   C3 (Western Residual)   0.0437   -1.157   389    -0.848   -0.725   123    Calibration
-  CEH36   Reference   C3 (Western Residual)   0.0506   -0.722   429    -0.393   -0.302   91     Calibration
-  CEH39   Reference   C3 (Western Residual)   0.0335   -0.521   681    -0.174   -0.106   68     Calibration
-  CEH4    Reference   C3 (Western Residual)   0.0691   -0.848   290    -0.493   -0.425   68     Calibration
-  CEH40   Reference   C3 (Western Residual)   0.0371   -0.646   749    -0.309   -0.228   81     Calibration
-  CEH41   Reference   C3 (Western Residual)   0.0373   -0.535   705    -0.143   -0.120   22     Calibration
-  CEH42   Reference   C3 (Western Residual)   0.0518   -0.504   515    -0.082   -0.090   -8     Calibration
-  CEH9    Reference   C3 (Western Residual)   0.0350   -0.725   647    -0.371   -0.305   67     Calibration
-  D15     Reference   C3 (Western Residual)   0.0628   -0.423   417    0.055    -0.011   -65    Calibration
-  D25     Reference   C3 (Western Residual)   0.0658   -0.627   412    -0.133   -0.209   -76    Calibration
-  D38     Reference   C3 (Western Residual)   0.1089   -0.726   283    -0.257   -0.305   -49    Calibration
-  D9      Reference   C3 (Western Residual)   0.0623   -0.566   445    -0.130   -0.150   -20    Calibration
-  NW1     Reference   C3 (Western Residual)   0.1002   -1.626   281    -1.165   -1.182   -16    Calibration
-  NW11    Reference   C3 (Western Residual)   0.0756   -0.862   355    -0.382   -0.438   -56    Calibration
-  NW13    Reference   C3 (Western Residual)   0.0885   -0.799   301    -0.334   -0.377   -43    Calibration
-  NW2     Reference   C3 (Western Residual)   0.0816   -0.849   350    -0.348   -0.426   -78    Calibration
-  NW5     Reference   C3 (Western Residual)   0.0493   -0.741   535    -0.290   -0.320   -30    Calibration
-  NW6     Reference   C3 (Western Residual)   0.0660   -0.629   314    -0.199   -0.212   -13    Calibration
-  NW7     Reference   C3 (Western Residual)   0.0506   -1.374   374    -0.923   -0.937   -14    Calibration
-  T41A    Reference   C3 (Western Residual)   0.0963   -0.492   377    0.017    -0.078   -95    Calibration
-  WMC2    Reference   C3 (Western Residual)   0.0474   -0.657   499    -0.233   -0.239   -6     Calibration
-  WMC3    Reference   C3 (Western Residual)   0.0457   -1.249   480    -0.877   -0.815   62     Calibration
-  WMC4    Reference   C3 (Western Residual)   0.0889   -0.831   287    -0.369   -0.407   -39    Calibration
-  CEH22   Extended    C3 (Western Residual)   0.0560   -0.751   223    -0.473   -0.330   144    Calibration
-  CEH35   Extended    C3 (Western Residual)   0.0652   -0.799   394    -0.552   -0.377   175    Calibration
-  CEH38   Extended    C3 (Western Residual)   0.0600   -0.813   292    -0.499   -0.390   109    Calibration
-  P1      Extended    C3 (Western Residual)   0.0467   -0.290   698             0.118           Reconstructed
-  PW      Extended    C3 (Western Residual)   0.0550   -0.772   450    -0.402   -0.351   51     Calibration
-  CEH2    Reference   C4 (Main Forest)        0.0194   -1.206   1408   -0.733   -0.773   -40    Out of scope
-  CEH20   Reference   C4 (Main Forest)        0.0266   -1.215   882    -0.857   -0.782   75     Out of scope
-  CEH30   Reference   C4 (Main Forest)        0.0259   -1.665   831    -1.353   -1.219   134    Out of scope
-  CEH32   Reference   C4 (Main Forest)        0.0163   -1.507   1658   -1.281   -1.066   216    Out of scope
-  CEH33   Reference   C4 (Main Forest)        0.0226   -1.636   1014   -1.350   -1.192   158    Out of scope
-  CEH34   Reference   C4 (Main Forest)        0.0094   -0.519   2574   -0.411   -0.104   307    Out of scope
-  NW10    Reference   C4 (Main Forest)        0.0394   -1.049   618    -0.560   -0.620   -60    Out of scope
-  CEH15   Extended    C4 (Main Forest)        0.0354   -1.373   538    -0.698   -0.936   -237   Out of scope
-  FE1     Extended    C4 (Main Forest)        0.0156   -0.906   1298   -0.355   -0.481   -126   Out of scope
-  LIS1    Extended    C4 (Main Forest)        0.0274   -0.948   1046   -0.319   -0.521   -203   Out of scope
-  CEH16   Reference   C5 (Coastal Forest)     0.0390   -0.960   509    -0.646   -0.534   112    Out of scope
-  CEH17   Reference   C5 (Coastal Forest)     0.0605   -2.179   277    -1.893   -1.719   174    Out of scope
-  CEH19   Reference   C5 (Coastal Forest)     0.0445   -1.029   400    -0.761   -0.601   161    Out of scope
-  CEH31   Reference   C5 (Coastal Forest)     0.0405   -1.614   616    -1.300   -1.170   130    Out of scope
-  NW9     Reference   C5 (Coastal Forest)     0.0508   -0.913   415    -0.592   -0.488   104    Out of scope
-  CEH3    Extended    C5 (Coastal Forest)     0.0559   -1.168   256    -1.027   -0.736   291    Out of scope
-  FE2     Extended    C5 (Coastal Forest)     0.0473   -1.713   366    -1.269   -1.266   3      Out of scope
-  FE3     Extended    C5 (Coastal Forest)     0.0627   -2.031   316    -1.641   -1.575   66     Out of scope
-  FE4     Extended    C5 (Coastal Forest)     0.0475   -1.615   475    -1.153   -1.171   -18    Out of scope
-  NW8     Extended    C5 (Coastal Forest)     0.0522   -1.462   354    -1.322   -1.022   300    Out of scope
-  NW8B    Extended    C5 (Coastal Forest)     0.0609   -1.588   325    -1.125   -1.145   -20    Out of scope
+  CEH11   Reference   C1 (Lake Edge)          0.2699   -0.531   493    -0.233   -0.212   21     Calibration
+  CEH23   Reference   C1 (Lake Edge)          0.3613   -0.382   439    -0.159   -0.078   81     Calibration
+  CEH25   Reference   C1 (Lake Edge)          0.3991   -0.386   431    -0.107   -0.082   25     Calibration
+  CEH26   Reference   C1 (Lake Edge)          0.3625   -0.378   422    -0.149   -0.075   74     Calibration
+  CEH27   Reference   C1 (Lake Edge)          0.2982   -0.336   443    -0.045   -0.037   8      Calibration
+  CEH5    Reference   C1 (Lake Edge)          0.2824   -0.408   444    -0.114   -0.101   13     Calibration
+  CEH6    Reference   C1 (Lake Edge)          0.4274   -0.264   386    -0.049   0.027    76     Calibration
+  CEH12   Extended    C1 (Lake Edge)          0.1391   -1.207   1651            -0.817          Reconstructed
+  P2      Extended    C1 (Lake Edge)          0.5390   -0.336   408    -0.205   -0.037   168    Calibration
+  CEH24   Reference   C2 (Dune)               0.2056   -0.338   642    0.015    -0.039   -55    Calibration
+  CEH28   Reference   C2 (Dune)               0.2575   -0.421   548    -0.128   -0.113   15     Calibration
+  D10     Reference   C2 (Dune)               0.1653   -0.391   693    -0.050   -0.087   -37    Calibration
+  D17     Reference   C2 (Dune)               0.2154   -0.334   735    -0.035   -0.035   0      Calibration
+  D41     Reference   C2 (Dune)               0.2254   -0.397   512    -0.097   -0.092   5      Calibration
+  D43     Reference   C2 (Dune)               0.1704   -0.588   536    -0.207   -0.263   -55    Calibration
+  D44     Reference   C2 (Dune)               0.2599   -0.647   470    -0.305   -0.316   -11    Calibration
+  D5      Reference   C2 (Dune)               0.1763   -0.528   630    -0.168   -0.209   -41    Calibration
+  D6      Reference   C2 (Dune)               0.1829   -0.500   581    -0.138   -0.184   -46    Calibration
+  D7      Reference   C2 (Dune)               0.1587   -0.500   639    -0.108   -0.184   -76    Calibration
+  D8      Reference   C2 (Dune)               0.1760   -0.359   704    -0.058   -0.058   -0     Calibration
+  L7      Reference   C2 (Dune)               0.1477   -1.561   369    -1.137   -1.133   3      Calibration
+  NW3     Reference   C2 (Dune)               0.1804   -0.577   549    -0.178   -0.253   -75    Calibration
+  NW4     Reference   C2 (Dune)               0.2452   -0.344   631    -0.102   -0.045   57     Calibration
+  NW4B    Reference   C2 (Dune)               0.2607   -0.369   578    -0.118   -0.067   51     Calibration
+  T41B    Reference   C2 (Dune)               0.2171   -0.326   609    -0.053   -0.028   24     Calibration
+  T41C    Reference   C2 (Dune)               0.2067   -0.363   593    -0.073   -0.061   11     Calibration
+  T41D    Reference   C2 (Dune)               0.2395   -0.565   476    -0.269   -0.242   26     Calibration
+  WMC1    Reference   C2 (Dune)               0.1805   -0.525   673    -0.235   -0.206   28     Calibration
+  CEH37   Extended    C2 (Dune)               0.1699   -0.460   515    0.037    -0.148   -185   Calibration
+  CEH7    Extended    C2 (Dune)               0.2555   -0.476   460    -0.162   -0.163   -1     Calibration
+  CEH8    Extended    C2 (Dune)               0.1342   -0.537   609    -0.299   -0.217   82     Calibration
+  PE      Extended    C2 (Dune)               0.2082   -0.759   659    -0.511   -0.416   95     Calibration
+  CEH1    Reference   C3 (Western Residual)   0.0649   -0.684   1290   -0.165   -0.348   -184   Calibration
+  CEH10   Reference   C3 (Western Residual)   0.1395   -1.319   656    -0.880   -0.916   -36    Calibration
+  CEH18   Reference   C3 (Western Residual)   0.1375   -0.898   749    -0.586   -0.540   46     Calibration
+  CEH21   Reference   C3 (Western Residual)   0.0984   -1.108   796    -0.848   -0.728   120    Calibration
+  CEH36   Reference   C3 (Western Residual)   0.1535   -0.653   686    -0.393   -0.321   72     Calibration
+  CEH39   Reference   C3 (Western Residual)   0.0791   -0.495   1090   -0.174   -0.180   -6     Calibration
+  CEH4    Reference   C3 (Western Residual)   0.1361   -0.788   676    -0.493   -0.442   51     Calibration
+  CEH40   Reference   C3 (Western Residual)   0.1625   -0.565   727    -0.309   -0.242   67     Calibration
+  CEH41   Reference   C3 (Western Residual)   0.1400   -0.456   759    -0.143   -0.144   -2     Calibration
+  CEH42   Reference   C3 (Western Residual)   0.1410   -0.438   780    -0.082   -0.129   -47    Calibration
+  CEH9    Reference   C3 (Western Residual)   0.0706   -0.710   1121   -0.371   -0.372   -0     Calibration
+  D15     Reference   C3 (Western Residual)   0.1465   -0.343   701    0.055    -0.043   -98    Calibration
+  D25     Reference   C3 (Western Residual)   0.1252   -0.557   742    -0.133   -0.235   -102   Calibration
+  D38     Reference   C3 (Western Residual)   0.1988   -0.659   581    -0.257   -0.326   -69    Calibration
+  D9      Reference   C3 (Western Residual)   0.1230   -0.511   831    -0.130   -0.194   -64    Calibration
+  NW1     Reference   C3 (Western Residual)   0.1345   -1.595   576    -1.165   -1.163   2      Calibration
+  NW11    Reference   C3 (Western Residual)   0.1036   -0.832   884    -0.382   -0.481   -99    Calibration
+  NW13    Reference   C3 (Western Residual)   0.1473   -0.744   693    -0.334   -0.403   -69    Calibration
+  NW2     Reference   C3 (Western Residual)   0.1214   -0.801   814    -0.348   -0.453   -105   Calibration
+  NW5     Reference   C3 (Western Residual)   0.0956   -0.691   962    -0.290   -0.355   -65    Calibration
+  NW6     Reference   C3 (Western Residual)   0.1034   -0.579   904    -0.199   -0.255   -56    Calibration
+  NW7     Reference   C3 (Western Residual)   0.0594   -1.362   965    -0.923   -0.955   -32    Calibration
+  T41A    Reference   C3 (Western Residual)   0.1877   -0.412   683    0.017    -0.105   -122   Calibration
+  WMC2    Reference   C3 (Western Residual)   0.1020   -0.607   850    -0.233   -0.280   -47    Calibration
+  WMC3    Reference   C3 (Western Residual)   0.0873   -1.222   838    -0.877   -0.830   47     Calibration
+  WMC4    Reference   C3 (Western Residual)   0.1372   -0.784   701    -0.369   -0.438   -69    Calibration
+  CEH22   Extended    C3 (Western Residual)   0.1720   -0.607   411    -0.473   -0.280   194    Calibration
+  CEH35   Extended    C3 (Western Residual)   0.1671   -0.692   762    -0.552   -0.356   196    Calibration
+  CEH38   Extended    C3 (Western Residual)   0.1309   -0.714   640    -0.499   -0.375   124    Calibration
+  P1      Extended    C3 (Western Residual)   0.1474   -0.347   1115            -0.047          Reconstructed
+  PW      Extended    C3 (Western Residual)   0.1431   -0.669   780    -0.402   -0.335   67     Calibration
+  CEH2    Reference   C4 (Main Forest)        0.0383   -1.211   1710   -0.733   -0.820   -87    Out of scope
+  CEH20   Reference   C4 (Main Forest)        0.0341   -1.218   1934   -0.857   -0.826   31     Out of scope
+  CEH30   Reference   C4 (Main Forest)        0.0429   -1.670   1283   -1.353   -1.231   123    Out of scope
+  CEH32   Reference   C4 (Main Forest)        0.0159   -1.503   3676   -1.281   -1.081   200    Out of scope
+  CEH33   Reference   C4 (Main Forest)        0.0304   -1.651   1812   -1.350   -1.214   136    Out of scope
+  CEH34   Reference   C4 (Main Forest)        0.0170   -0.662   3866   -0.411   -0.329   82     Out of scope
+  NW10    Reference   C4 (Main Forest)        0.0316   -1.053   1955   -0.560   -0.679   -119   Out of scope
+  CEH15   Extended    C4 (Main Forest)        0.0436   -1.295   1250   -0.698   -0.895   -197   Out of scope
+  FE1     Extended    C4 (Main Forest)        0.0236   -0.857   2656   -0.355   -0.503   -149   Out of scope
+  LIS1    Extended    C4 (Main Forest)        0.0441   -0.871   2008   -0.319   -0.516   -197   Out of scope
+  CEH16   Reference   C5 (Coastal Forest)     0.0649   -0.943   1222   -0.646   -0.580   66     Out of scope
+  CEH17   Reference   C5 (Coastal Forest)     0.1075   -2.154   478    -1.893   -1.663   230    Out of scope
+  CEH19   Reference   C5 (Coastal Forest)     0.1169   -0.994   777    -0.761   -0.626   136    Out of scope
+  CEH31   Reference   C5 (Coastal Forest)     0.1385   -1.568   598    -1.300   -1.139   161    Out of scope
+  NW9     Reference   C5 (Coastal Forest)     0.1028   -0.874   946    -0.592   -0.519   73     Out of scope
+  CEH3    Extended    C5 (Coastal Forest)     0.0946   -1.091   582    -1.027   -0.713   314    Out of scope
+  FE2     Extended    C5 (Coastal Forest)     0.0502   -1.705   957    -1.269   -1.262   7      Out of scope
+  FE3     Extended    C5 (Coastal Forest)     0.1066   -1.984   539    -1.641   -1.511   130    Out of scope
+  FE4     Extended    C5 (Coastal Forest)     0.0385   -1.645   1645   -1.153   -1.208   -56    Out of scope
+  NW8     Extended    C5 (Coastal Forest)     0.0641   -1.413   903    -1.322   -1.001   321    Out of scope
+  NW8B    Extended    C5 (Coastal Forest)     0.0844   -1.544   670    -1.125   -1.118   7      Out of scope
   ------- ----------- ----------------------- -------- -------- ------ -------- -------- ------ ---------------
 
 ## S7.2 Datum offsets against the van Willegen quadrats
@@ -769,7 +769,7 @@ The counterpart of Curreli\'s Table 4 for the spring metric: for each NVC commun
 
 ## S12.3 Data in hand
 
-Three of the four inputs exist in the pipeline. First, the monthly water-level record at every van Willegen piezometer, 2005 to date (Script 01), from which Script 26 already computes the annual spring mean, the five-year MSL and, since D-190, the annual minimum and its four-year mean per well. Second, the fixed datum offset between each permanent quadrat\'s ground surface and its piezometer\'s, tabulated in Supplementary Table S7.2 (Script 26, Pass 7b): van Willegen\'s per-quadrat series are this network\'s readings shifted by that constant, so any hydrological metric at a quadrat is the piezometer\'s metric plus the offset, and every quadrat-level value in S12.2 is available from the committed outputs without new measurement. Third, the mean Ellenberg F of each relevé in each survey year, from the deposited dataset (van Willegen et al., Mendeley Data), which Script 26 reads for the vegetation cross-validation of report Section 4.8.4.
+Three of the four inputs exist in the pipeline. First, the monthly water-level record at every van Willegen piezometer, 2005 to date (Script 01), from which Script 26 already computes the annual spring mean, the five-year MSL and, since 2026-09-21, the annual minimum and its four-year mean per well. Second, the fixed datum offset between each permanent quadrat\'s ground surface and its piezometer\'s, tabulated in Supplementary Table S7.2 (Script 26, Pass 7b): van Willegen\'s per-quadrat series are this network\'s readings shifted by that constant, so any hydrological metric at a quadrat is the piezometer\'s metric plus the offset, and every quadrat-level value in S12.2 is available from the committed outputs without new measurement. Third, the mean Ellenberg F of each relevé in each survey year, from the deposited dataset (van Willegen et al., Mendeley Data), which Script 26 reads for the vegetation cross-validation of report Section 4.8.4.
 
 ## S12.4 The missing input
 
@@ -793,4 +793,4 @@ It would give MSL5 the reference table it lacks, on Curreli\'s own quadrats and 
 
 ## S12.7 Status
 
-Specified 2026-09-21 under decision D-190; not built. The one outstanding input is the NVC community of each permanent quadrat by survey year (S12.4). The code, the datum offsets and the hydrological metrics are in place; the pass is a short addition to Script 26 once the column exists.
+Specified 2026-09-21; not built. The one outstanding input is the NVC community of each permanent quadrat by survey year (S12.4). The code, the datum offsets and the hydrological metrics are in place; the pass is a short addition to Script 26 once the column exists.

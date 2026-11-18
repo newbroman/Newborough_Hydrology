@@ -1,20 +1,4 @@
 family,kind,number,title
-paper2,figure,1,Three-method robustness assessment of the scraping signal at
-paper2,figure,2,"Paired BACI summer-minimum analysis, CEH36 (scraped) versus "
-paper2,figure,3,Forest-control BACI time series and CUSUM for the Impact tie
-paper2,figure,4,Summer-minimum depth distributions by BACI tier across three
-paper2,figure,5,Before- and after-clearfell SSM coefficient estimates for th
-paper2,figure,6,"Forest-management and climate scenario responses by cluster,"
-paper2,figure,7,"Steady-state drawdown field of the existing plantation, illu"
-paper2,figure,8,Modelled steady-state drawdown field around the 2015 CEH36 s
-paper2,table,1,Three-counterfactual ANCOVA-BACI clearfell-step estimates (m
-paperM,figure,1,Datum sweep of the cluster-centroid no-intercept model. Top:
-paperM,figure,2,Per-well coefficients of Pastas’s exponential-response model
-paperM,figure,3,The residual drainage law. Left: each reference well’s drain
-paperM,figure,4,"Evapotranspiration backed out of the winter drainage law, as"
-paperM,figure,5,The drainage share of the mean annual loss per cluster under
-paperM,table,1,"Free-running skill of the traditional linear model (TLM), th"
-paperM,table,2,"The procedure applied at Newborough, per cluster, each quant"
 paper1,figure,1,"Site topography, geology and monitoring network at Newboroug"
 paper1,figure,2,Climate forcing over the monitoring period (2005–2026) from 
 paper1,figure,3,Summer-temperature record showing the post-2013 warming rela
@@ -44,3 +28,21 @@ paper1,table,5,Per-well SSM coefficient ranges by cluster. Cluster β₁ range
 paper1,table,6,Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster. 
 paper1,table,7,Within-forest spatial predictors of per-well SSM coefficient
 paper1,table,8,Decomposition of cluster summer-minimum decline (mm/yr) agai
+paper2,figure,1,Three-method robustness assessment of the scraping signal at
+paper2,figure,2,"Paired BACI summer-minimum analysis, CEH36 (scraped) versus "
+paper2,figure,3,Forest-control BACI time series and CUSUM for the Impact tie
+paper2,figure,4,Summer-minimum depth distributions by BACI tier across three
+paper2,figure,5,Before- and after-clearfell SSM coefficient estimates for th
+paper2,figure,6,"Forest-management and climate scenario responses by cluster,"
+paper2,figure,7,"Steady-state drawdown field of the existing plantation, illu"
+paper2,figure,8,Modelled steady-state drawdown field around the 2015 CEH36 s
+paper2,table,1,Three-counterfactual ANCOVA-BACI clearfell-step estimates (m
+paperM,figure,1,Per-well coefficients of Pastas’s exponential-response model
+paperM,figure,2,The residual drainage law. Left: each reference well’s drain
+paperM,figure,3,"Evapotranspiration backed out of the winter drainage law, as"
+paperM,figure,4,The drainage share of the mean annual loss per cluster under
+paperM,figure,5,The per-well hindcast of 1989–96. Each well free-runs from 1
+paperM,figure,6,One month of the warren hindcast (December 2000). The open-d
+paperM,table,1,Free-running skill of the traditional linear model (TLM) and
+paperM,table,2,"The drainage share of the mean loss per cluster, three ways "
+paperM,table,3,"The procedure applied at Newborough, per cluster. Coefficien"

@@ -1178,8 +1178,10 @@ TABLES = [
         # medians and the three positive-NSE counts beside the TLM median.
         "sources": {"nse": "outputs/08_model_benchmarking/08_cluster_nse_medians.csv"},
         "rows": {"source": "nse"},
-        "header": ["Cluster", "n", "Median NSE, TLM", "Median NSE, Model A", "Median NSE, Model B",
-                   "NSE > 0, TLM", "NSE > 0, Model A", "NSE > 0, Model B"],
+        # 2026-11-18 (J-18, D-334): Paper M v1_48 restructured on one model; the Model A columns leave the table
+        # (they stay in the CSV as the robustness record).
+        "header": ["Cluster", "n", "Median NSE, TLM", "Median NSE, Model B",
+                   "NSE > 0, TLM", "NSE > 0, Model B"],
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {
                 "C1": "C1 Lake Edge",
@@ -1189,28 +1191,27 @@ TABLES = [
                 "C5": "C5 Coastal Forest"}},
             {"col": "n",                   "fmt": "int"},
             {"col": "median_TLM_NSE",      "fmt": "fixed", "dp": 3},
-            {"col": "median_SSM_NSE",      "fmt": "fixed", "dp": 3},   # Model A (no intercept, z0 = DRAINAGE_DATUM)
             {"col": "median_ModelB_NSE",   "fmt": "fixed", "dp": 3},
             {"col": "positive_TLM_NSE",    "fmt": "int"},
-            {"col": "positive_SSM_NSE",    "fmt": "int"},
             {"col": "positive_ModelB_NSE", "fmt": "int"},
         ],
     },
     {
-        "id": "paperM/Table2",
+        "id": "paperM/Table3",
         "doc": "docs/papers/paper_M/PaperM_v*.odt",
-        "table_name": "Table2",
-        "caption": "Paper M - the procedure at Newborough, per cluster: each quantity under the form that identifies it",
-        # Rows: 16_water_bal_table.csv (Model A cluster centroids at DRAINAGE_DATUM, C1..C5 in CSV order).
-        # Mean-reversion times: Script 48 per-well medians (Model B and the model-free estimate); C4's
-        # Model B beta_3 is not identified (Paper M 5.2, 6.3), so its cell reads "n.i.". Stable record:
-        # Script 50 per-well medians over the wells that reach stability. No specific yield (D-next, T-k).
+        "table_name": "Table3",
+        "caption": "Paper M - the procedure at Newborough, per cluster, on Model B",
+        # 2026-11-18 (J-18, D-332/D-334): Paper M v1_48 is on one model. Rows: 16_water_bal_table.csv (cluster
+        # centroids, C1..C5 in CSV order), Model B's columns (beta_*_B, Drainage_B_pct, Residual_B_m_month).
+        # C4's beta_3 is not identified (p = 0.45), so its drainage share and mean-reversion time read "n.i.".
+        # Mean-reversion times: Script 48 per-well medians (Model B and the model-free estimate). Stable record:
+        # Script 50 per-well medians over the wells that reach stability (Model B only).
         "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv",
                     "r48": "outputs/48_pastas_crosscheck/48_report_numbers.csv",
                     "r50": "outputs/50_record_length/50_report_numbers.csv"},
         "rows": {"source": "wb"},
-        "header": ["Cluster", "β₁", "β₂", "β₃", "Drainage share, Model B (%)", "Residual (mm month⁻¹)",
-                   "τ_B / τ_obs (months)", "L_A / L_B (months)"],   # symbols defined in the caption
+        "header": ["Cluster", "β₁", "β₂", "β₃", "Drainage share (%)", "Residual (mm month⁻¹)",
+                   "τ_B / τ_obs (months)", "L_B (months)"],   # symbols defined in the caption
         "columns": [
             {"col": "Cluster", "fmt": "map", "map": {
                 "1": "C1 Lake Edge",
@@ -1218,18 +1219,43 @@ TABLES = [
                 "3": "C3 Western Residual",
                 "4": "C4 Main Forest",
                 "5": "C5 Coastal Forest"}},
-            {"col": "beta_1_recharge",         "fmt": "fixed", "dp": 3},
-            {"col": "beta_2_atmospheric_draw", "fmt": "fixed", "dp": 3},
-            {"col": "beta_3_drainage",         "fmt": "fixed", "dp": 3},
-            {"col": "Drainage_B_pct",          "fmt": "fixed", "dp": 0},   # D-283: Model B's split
-            {"col": "Residual_m_month",        "fmt": "fixed", "dp": 1, "scale": 1000},
+            {"col": "beta_1_B",           "fmt": "fixed", "dp": 3},
+            {"col": "beta_2_B",           "fmt": "fixed", "dp": 3},
+            {"col": "beta_3_B",           "fmt": "fixed", "dp": 3},
+            {"col": "Drainage_B_pct",     "fmt": "fixed", "dp": 0, "unless": {"Cluster": "4"}, "else": "n.i."},
+            {"col": "Residual_B_m_month", "fmt": "fixed", "dp": 1, "scale": 1000},
             {"fmt": "template", "template": "{b:.1f} / {o:.1f}",
              "params": {"b": {"source": "r48", "param": "modelab_efold_B_months_median_C{Cluster}"},
                         "o": {"source": "r48", "param": "modelab_efold_obs_months_median_C{Cluster}"}},
              "unless": {"Cluster": "4"}, "else": "n.i."},
-            {"fmt": "template", "template": "{a:.0f} / {b:.0f}",
-             "params": {"a": {"source": "r50", "param": "reclen_stable_length_months_A_median_C{Cluster}"},
-                        "b": {"source": "r50", "param": "reclen_stable_length_months_B_median_C{Cluster}"}}},
+            {"fmt": "template", "template": "{b:.0f}",
+             "params": {"b": {"source": "r50", "param": "reclen_stable_length_months_B_median_C{Cluster}"}}},
+        ],
+    },
+    {
+        "id": "paperM/Table2",
+        "doc": "docs/papers/paper_M/PaperM_v*.odt",
+        "table_name": "Table2",
+        "caption": "Paper M - the drainage share of the mean loss per cluster, three readings (Scripts 16 and 55)",
+        # 2026-11-18 (J-18): Paper M v1_48 section 6.2 (Table 2; the procedure table moved to Table 3). Rows: 16_water_bal_rec_table.csv (C1..C5). Model B: the
+        # centroid partition (B_drain_frac, = Table 2's share); recession ratio: winter over summer recession
+        # (Rec_drain_frac, no model); water balance: Script 55's drainage share with the fluctuation-method Sa
+        # (wb_drain_share_C{Cluster}). C4's Model B share is not identified (beta_3 p = 0.45).
+        "sources": {"rec": "outputs/16_water_balance/16_water_bal_rec_table.csv",
+                    "r55": "outputs/55_water_balance_drainage/55_report_numbers.csv"},
+        "rows": {"source": "rec"},
+        "header": ["Cluster", "Model B", "Recession ratio", "Water balance"],
+        "columns": [
+            {"col": "Cluster", "fmt": "map", "map": {
+                "1": "C1 Lake Edge",
+                "2": "C2 Dune",
+                "3": "C3 Western Residual",
+                "4": "C4 Main Forest",
+                "5": "C5 Coastal Forest"}},
+            {"col": "B_drain_frac",   "fmt": "fixed", "dp": 0, "scale": 100, "unless": {"Cluster": "4"}, "else": "—"},
+            {"col": "Rec_drain_frac", "fmt": "fixed", "dp": 0, "scale": 100},
+            {"fmt": "template", "template": "{w:.0f}",
+             "params": {"w": {"source": "r55", "param": "wb_drain_share_C{Cluster}", "scale": 100}}},
         ],
     },
     # paperM/Table3 retired 2026-10-28: D-279 (Paper M v1_27) moved the table to the Methods Supplement; no Table3 exists in Paper M since.

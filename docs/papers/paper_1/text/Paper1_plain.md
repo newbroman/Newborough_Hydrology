@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_3.odt — do not edit. source-sha256=0c4149e1ea1a6a44 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_4.odt — do not edit. source-sha256=092192eeb0df67a7 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -222,7 +222,7 @@ Hollingham, M. (2026a) A parameter-sparse state-space framework for characterizi
 
 Hollingham, M. (2026b) Companion paper on the dune scraping and partial clearfell at Newborough Warren. In preparation.
 
-Hollingham, M. (2026c) Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you. In preparation.
+Hollingham, M. (2026c) One model for a dune water table: what a monthly linear-reservoir model fitted to dipwell levels can forecast, and how far to trust it. In preparation.
 
 Ranwell, D.S. (1959) Newborough Warren, Anglesey. *Journal of Ecology*.
 

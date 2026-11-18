@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_1.odt — do not edit. source-sha256=789bbe442fb802a1 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_2.odt — do not edit. source-sha256=25bfe5ed6f92f4cd pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What felling and scraping did to the water table: a plain-language guide to the dune-restoration paper
@@ -249,7 +249,7 @@ Hollingham, M. (2026a) A parameter-sparse state-space framework for characterizi
 
 Hollingham, M. (2026b) Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record. In preparation.
 
-Hollingham, M. (2026c) Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you. In preparation.
+Hollingham, M. (2026c) One model for a dune water table: what a monthly linear-reservoir model fitted to dipwell levels can forecast, and how far to trust it. In preparation.
 
 Hollingham, M. (2026d) Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales. Technical report.
 

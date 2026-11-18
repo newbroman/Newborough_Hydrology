@@ -52,14 +52,24 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-06 (T-152, T-153, Martin's rulings).
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-18 (J-20, Martin: job sessions are started by HIM
+#   from the app, so the page has to hand him the prompt). renderJobs() shows each startable job's START
+#   PROMPT in a collapsed block with a Copy button, under the line that says how to use it: new session ->
+#   environment NRG -> select both repositories -> paste. The prompt is NOT composed here - it comes from
+#   the db, where hq_snapshot put the text job_queue composed from tools/job_start_prompt.md, so the page
+#   keeps its privacy design (the shell carries no data) and the wording has one home.
+#   AND A FIX WORTH ITS OWN LINE: line 62 re-assigned __version__ = "1.1.0" after this one, so the module
+#   reported 1.1.0, --check compared the published 1.1.0 against 1.1.0 and read OK, and T-152/T-153's shell
+#   changes were never flagged for republish - the published page has been a version behind since
+#   2026-11-06. The history lines below are comments now, like every other tool's.
+# 1.2.0  # Hollingham (2026) — 2026-11-06 (T-152, T-153, Martin's rulings).
 #   T-153: ofRun() filters BOTH findings bands on the snapshot's `generated`, so a superseded finding
 #   leaves the band without leaving the store - a read-time filter, never a delete, because pruning a
 #   findings store is rewriting a dated record. Fixing only renderNeeds() would have moved the noise
 #   into renderNoted(). No-snapshot fallback shows everything rather than a false all-clear.
 #   T-152: the launcher mints the seeded row id BEFORE the brief and quotes it, so the new chat's
 #   `chat_register register --adopt <id>` overwrites that row instead of opening a second one.
-__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-05 (T-142, Martin's call: "a band of its own").
+# 1.1.0  # Hollingham (2026) — 2026-11-05 (T-142, Martin's call: "a band of its own").
 #   renderNoted() renders the note-level findings rule_audit writes - every finding with serious === false,
 #   which renderNeeds() filters out and nothing else read, so they were stored and displayed nowhere.
 # 1.0.1  # Hollingham (2026) — 2026-11-05 (D-301, spec NRG_handover_HQ_page_2026-11-05,
@@ -205,6 +215,14 @@ textarea { min-height: 80px; resize: vertical; }
 .filters button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px;
   flex-wrap: wrap; }
+/* J-20: a startable job's prompt, collapsed. white-space: pre-wrap and no inner max-height, so it
+   wraps on a phone and the PAGE scrolls rather than a box inside it. */
+details.startp > summary { cursor: pointer; color: var(--ink-2); font-size: 0.86rem;
+  padding: 3px 0; }
+pre.prompt { font: 400 0.78rem/1.5 var(--mono); background: var(--panel-2);
+  border: 1px solid var(--rule); border-radius: 8px; padding: 10px; margin: 7px 0 0;
+  white-space: pre-wrap; overflow-wrap: anywhere; }
+.startp .copied { color: var(--ok); font-size: 0.82rem; }
 .cond { font: 400 0.82rem var(--mono); display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: 2px 6px; }
 .cond span { min-width: 0; overflow-wrap: anywhere; }
 .cond .y { color: var(--ok); } .cond .n { color: var(--warn); }
@@ -274,7 +292,8 @@ BODY = """
         <div id="jobs"><div class="empty">Loading&hellip;</div></div>
         <p class="muted">A job fires when every condition holds &mdash; on the release that frees
           its claim, or at HQ&rsquo;s next pass. Nothing fires while HQ cannot read the private
-          repository.</p>
+          repository. A job that is ready, or fired and not yet picked up, carries the prompt to
+          paste into its new session; the wording is <code>tools/job_start_prompt.md</code>.</p>
       </section>
 
       <section aria-labelledby="chatsH">
@@ -502,6 +521,44 @@ function renderNoted() {
     + '</li>').join('') + '</ul>' + olderLine(got.hidden);
 }
 
+/* ── a job's start prompt (J-20) ──────────────────────────────────────────────────────────────
+   Martin starts these sessions himself: new session -> environment NRG -> paste. The text is
+   hq_snapshot's, composed by job_queue from tools/job_start_prompt.md; the page only shows it.
+   The <pre> is the single source for the copy, so what is copied is exactly what is on screen. */
+function startBlock(j) {
+  const p = j.startPrompt || '';
+  if (!p) return '';
+  const id = 'pp-' + String(j.id).replace(/[^A-Za-z0-9_-]/g, '-');
+  return '<div class="muted" style="margin-top:5px">Ready to start: new session &rarr; environment '
+    + '<strong>NRG</strong> &rarr; select both repositories &rarr; paste.</div>'
+    + '<details class="startp"><summary>start prompt (' + p.split('\\n').length
+    + ' lines)</summary>'
+    + '<div class="row" style="margin-top:6px"><button type="button" data-copy="' + id + '">'
+    + 'Copy start prompt</button><span class="muted" data-said="' + id + '"></span></div>'
+    + '<pre class="prompt" id="' + id + '">' + esc(p) + '</pre></details>';
+}
+
+/* Copy, with a fallback that SELECTS the text: clipboard writes are refused without a secure
+   context or a user gesture the browser trusts, and a button that silently does nothing is worse
+   than one that hands you the selection. Same shape as the start console's fallback. */
+async function copyPrompt(id, said) {
+  const pre = document.getElementById(id);
+  if (!pre) return;
+  let done = false;
+  try { await navigator.clipboard.writeText(pre.textContent); done = true; } catch (_) {}
+  if (!done) {
+    try {
+      const r = document.createRange(); r.selectNodeContents(pre);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    } catch (_) {}
+  }
+  if (said) {
+    said.textContent = done ? 'Copied. Paste it into the new chat.'
+                            : 'Selected — press copy on your keyboard or tap Copy.';
+    said.className = done ? 'copied' : 'muted';
+  }
+}
+
 /* ── the job queue, condition by condition ───────────────────────────────────────────────── */
 function renderJobs() {
   if (!JOBS.length) { $('#jobs').innerHTML = '<div class="empty">The queue is empty.</div>'; return; }
@@ -522,6 +579,7 @@ function renderJobs() {
             + ' is active for the same claim</span>' : '')
         + (j.firedAt ? '<span class="muted">fired ' + fmt(j.firedAt) + ' by ' + esc(j.firedBy || '')
             + '</span>' : '')
+        + startBlock(j)
         + '</li>'; }).join('') + '</ul>';
 }
 
@@ -709,6 +767,8 @@ document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.k) { kind = b.dataset.k;
     try { localStorage.setItem('nrg.kind', kind); } catch (_) {} renderKinds(); }
+  if (b.dataset.copy) { copyPrompt(b.dataset.copy,
+      document.querySelector('[data-said="' + b.dataset.copy + '"]')); }
   if (b.dataset.f) { filter = b.dataset.f;
     try { localStorage.setItem('nrg.filter', filter); } catch (_) {} renderFilters(); renderChats(); }
 });

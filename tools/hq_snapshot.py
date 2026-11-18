@@ -12,7 +12,8 @@ WHAT IT GATHERS
   board          tools/work_board.py  - claims, both repositories, ships, uncommitted files
   tasks          tools/task_lint.py --json  (runs every row's check: the slow part, ~1-2 min)
   gate           scratch/check_all_summary.json + the tee'd log, for the advisory lines
-  queue          tools/job_queue.py   - jobs and which of their conditions hold
+  queue          tools/job_queue.py   - jobs, which of their conditions hold, and the START PROMPT
+                 of each job that would be started (J-20: tools/job_start_prompt.md, filled from the row)
   chats          tools/chat_register.py
   proof          tools/proof_copy.py --refresh (1.2.0, J-12): the proof page's bundle rebuilt from the
                  committed mirrors, its tasks tab fed from the task sweep above (so the checks are not
@@ -48,7 +49,13 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"  # Hollingham (2026) — 2026-11-11 (J-12, T-196; Martin 2026-11-09 on Q9 of the J-10
+__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-18 (J-20, Martin: "should I have an NRG app to
+#   manage this" - agreed to build it into the HQ page). Each job the queue would start now carries its
+#   START PROMPT into the db (jobs/<id>.startPrompt), composed by job_queue.start_prompt() from the one
+#   committed template tools/job_start_prompt.md. Nothing is composed here: the wording belongs to the
+#   template and the filling to job_queue, so `job_queue.py ready`, `job_queue.py prompt` and the page all
+#   show the same text. A job that starts no session (target notify) and a done or held job carry "".
+# 1.2.0  # Hollingham (2026) — 2026-11-11 (J-12, T-196; Martin 2026-11-09 on Q9 of the J-10
 #   review: "move to the hq daily pass"). The proof page's refresh moves here from check_all (1.41.0), where it
 #   took 249-269 s of every run, gated nothing and could not republish. collect() runs proof_copy --refresh
 #   after the task sweep, feeding it task_lint's --open text from the SAME evaluation (task_lint 1.3.0
@@ -456,6 +463,10 @@ def db_ops(payload: dict) -> list[dict]:
             "waitsFor": j.get("waits_for"), "conditions": j.get("conditions") or [],
             "allHold": j.get("all_hold"), "blockedBy": j.get("blocked_by"),
             "firedAt": j.get("fired_at"), "firedBy": j.get("fired_by"), "note": j.get("note"),
+            # J-20: the prompt Martin pastes into a new session for this job. It is composed in
+            # job_queue (one template, one filler) and carried here, so the page needs no wording
+            # of its own and a chat handing it over by hand hands over the same text.
+            "startPrompt": j.get("start_prompt") or "",
         })
     # findings (phase 3, T-137). The page's "Needs you" band renders f.serious !== false, so every
     # finding carries `serious` EXPLICITLY - a missing field would read as serious.

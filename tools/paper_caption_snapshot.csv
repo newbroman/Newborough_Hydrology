@@ -9,25 +9,23 @@ paper1,figure,7,Filling gaps from cluster-mates. (a) How far each method mis
 paper1,figure,8,Water-balance decomposition by cluster: head-space (recharge
 paper1,figure,9,"Specific yield at each reference well, water-table-fluctuati"
 paper1,figure,10,Spatial pattern of the SSM-over-TLM iterative Nash–Sutcliffe
-paper1,figure,11,Per-well optimal drainage datum (top) and the R² gain over t
+paper1,figure,11,Spatial SSM coefficient atlas for the 66-well reference netw
 paper1,figure,12,Spatial SSM coefficient atlas for the 66-well reference netw
 paper1,figure,13,Spatial SSM coefficient atlas for the 66-well reference netw
-paper1,figure,14,Spatial SSM coefficient atlas for the 66-well reference netw
-paper1,figure,15,Drainage decay half-life t½ = ln(2)/β₃ across the reference 
-paper1,figure,16,The water table kriged from the dipwells in (a) the wet stat
-paper1,figure,17,SSM water-balance residual at the 66 reference wells. Positi
-paper1,figure,18,Coastal-retreat gradient. (a) Per-well summer-minimum slope 
-paper1,figure,19,Illustrative forest reach. Forest-interception drawdown prop
-paper1,figure,20,Episodic coastal-retreat reach. Water-table drawdown contour
-paper1,figure,21,Conceptual reach of coastal retreat and the far-field term. 
+paper1,figure,14,Drainage decay half-life t½ = ln(2)/β₃ (months) across the r
+paper1,figure,15,The water table kriged from the dipwells in (a) the wet stat
+paper1,figure,16,SSM water-balance residual at the 66 reference wells. Positi
+paper1,figure,17,Coastal-retreat gradient. (a) Per-well summer-minimum slope 
+paper1,figure,18,Illustrative forest reach. Forest-interception drawdown prop
+paper1,figure,19,Episodic coastal-retreat reach. Water-table drawdown contour
+paper1,figure,20,Conceptual reach of coastal retreat and the far-field term. 
 paper1,table,1,Cluster mechanistic characterization. β₁ = recharge sensitiv
 paper1,table,2,"Mean monthly head-space water balance (m/month), Model B, 20"
 paper1,table,3,Indicative annual volumetric water balance (mm/yr). P is the
 paper1,table,4,"Apparent storage coefficient Sₐ by cluster, water-table-fluc"
 paper1,table,5,Per-well SSM coefficient ranges by cluster. Cluster β₁ range
-paper1,table,6,Drainage decay half-life t½ = ln(2)/β₃ (months) by cluster. 
-paper1,table,7,Within-forest spatial predictors of per-well SSM coefficient
-paper1,table,8,Decomposition of cluster summer-minimum decline (mm/yr) agai
+paper1,table,6,Within-forest spatial predictors of per-well SSM coefficient
+paper1,table,7,Decomposition of cluster summer-minimum decline (mm/yr) agai
 paper2,figure,1,Three-method robustness assessment of the scraping signal at
 paper2,figure,2,"Paired BACI summer-minimum analysis, CEH36 (scraped) versus "
 paper2,figure,3,Forest-control BACI time series and CUSUM for the Impact tie

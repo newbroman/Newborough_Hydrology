@@ -1,6 +1,23 @@
 kind,old,new,title
-table,16,20,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
-table,17,16,"Cluster-mean 5-year mean spring water level (MSL5) at window-end 2025, with counts of wind"
-table,18,17,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
-table,19,18,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
-table,20,19,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
+table,4,6,"Within-cluster range of the per-well SSM coefficients, reference network (Script 07). Each"
+table,5,7,"Mean monthly head-space water balance decomposition by hydrogeological cluster, Newborough"
+table,6,8,Seasonal-recession partition of water-table losses by cluster (Section 3.7.2). Winter and 
+table,7,9,"Indicative annual volumetric water balance by cluster, 2005–2026. At steady state, total l"
+table,8,10,Apparent storage coefficient (Sₐ) estimates by hydrogeological cluster derived from the wa
+table,9,11,Model benchmarking summary comparing the Traditional Linear Model (TLM) and State-Space Mo
+table,10,12,Era-specific β₃ storage decay coefficients at scraping treatment and control wells with 95
+table,11,13,Three-counterfactual ANCOVA-BACI results for the December 2017 clearfell. Each row reports
+table,12,14,The coastal-drift term fitted in each ANCOVA contrast (Section 4.6.3). ξ is the amplitude 
+table,13,15,Per-well pre- vs post-felling shifts in annual summer minimum depth gap (well minus Forest
+table,14,16,"Mixed-effects model results: pooled clearfell step by tier against Forest control, with ra"
+table,15,17,Before- and after-clearfell SSM coefficient estimates for all 17 wells in the BACI network
+table,16,18,"Winter peak prediction equations fitted at hydrological-year resolution (Section 3.6.2), o"
+table,17,19,Summer drought prediction equations (Section 3.6.2). P_summer = total April–September rain
+table,18,20,Per-cluster P_flood summary across the 88-well classified network. m_P = P_flood / Σ P_cli
+table,19,21,Cluster-specific linear forms derived from the iterated closed-form P_flood solution of Se
+table,20,22,Cluster five-year mean spring water level (MSL5) and four-year mean annual minimum water l
+table,21,23,Between-well prediction of mean Ellenberg-F moisture by observed MSL5 and by the equilibri
+table,22,24,"Ellenberg-F prediction accuracy by match band, MSL5 versus the equilibrium wetness index ("
+table,23,25,Per-well spatial predictors of SSM coefficient variation within the forest zone (C4 Main F
+table,24,26,Per-cluster decomposition of the observed summer-minimum decline under the forest-free lin
+table,25,27,Site-wide footing of each water-table driver. Equivalent depth averaged over the 949 ha si

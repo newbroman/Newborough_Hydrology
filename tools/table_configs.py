@@ -229,7 +229,7 @@ TABLES = [
         "id": "report9/Table23",
         "doc": 9,
         "table_name": "Table23",
-        "caption": "Table 1.4 \u2014 within-cluster range of the per-well SSM coefficients (Script 07)",
+        "caption": "Table 1.6 \u2014 within-cluster range of the per-well SSM coefficients (Script 07)",
         # Companion to Table 1.3: 1.3 gives the cluster CENTROID fit, this gives
         # the spread of the member wells the centroid summarises. Inserted
         # 2026-09-20 with odt_edit.insert_table, styled from Table19.
@@ -253,7 +253,7 @@ TABLES = [
         "id": "report9/Table4",
         "doc": 9,
         "table_name": "Table4",
-        "caption": "Table 1.5 — SSM water-balance partition per cluster, m/month",
+        "caption": "Table 1.7 — SSM water-balance partition per cluster, m/month",
         "sources": {"wb": "outputs/16_water_balance/16_water_bal_table.csv"},
         "rows": {"source": "wb"},
         "header": ["Cluster", "Label", "LCSC (%)", "Recharge (m/month)",
@@ -276,7 +276,7 @@ TABLES = [
         "id": "report9/Table5",
         "doc": 9,
         "table_name": "Table5",
-        "caption": "Table 1.7 — annual water-balance volumes per cluster, mm/yr",
+        "caption": "Table 1.9 — annual water-balance volumes per cluster, mm/yr",
         "sources": {"vol": "outputs/16_water_balance/16_water_bal_vol_table.csv"},
         "rows": {"source": "vol"},
         "header": ["Cluster", "Label", "P (mm/yr)", "I (mm/yr)", "P_net (mm/yr)",
@@ -296,7 +296,7 @@ TABLES = [
         "id": "report9/Table7",
         "doc": 9,
         "table_name": "Table7",
-        "caption": "Table 1.9 — TLM vs SSM benchmark summary (Script 08)",
+        "caption": "Table 1.11 — TLM vs SSM benchmark summary (Script 08)",
         # 08_lcsc_04_table3_benchmark_summary.csv IS this table row for row;
         # the declared 08_lcsc_model_stats.csv is the per-well file it summarises.
         "sources": {"bm": "outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv"},
@@ -313,7 +313,7 @@ TABLES = [
         "id": "report9/Table8",
         "doc": 9,
         "table_name": "Table8",
-        "caption": "Table 1.10 — per-era β₃ at the scraping treatment and control wells",
+        "caption": "Table 1.12 — per-era β₃ at the scraping treatment and control wells",
         "sources": {"era": "outputs/09_scraping_intervention/09_scrape_04b_beta3_era_summary.csv"},
         "rows": {"source": "era",
                  "order": {"col": "Well",
@@ -336,7 +336,7 @@ TABLES = [
         "id": "report9/Table9",
         "doc": 9,
         "table_name": "Table9",
-        "caption": "Table 1.11 — ANCOVA-BACI clearfell and scraping steps by control and zone",
+        "caption": "Table 1.13 — ANCOVA-BACI clearfell and scraping steps by control and zone",
         "sources": {"anc": "outputs/10_clearfell_baci/10a_01_ancova_comparison_table.csv"},
         "rows": {"source": "anc",
                  "filter": {"Control": ["Forest", "Climate", "Combined"]}},  # FarField rows not shown
@@ -361,7 +361,7 @@ TABLES = [
         "id": "report9/Table10",
         "doc": 9,
         "table_name": "Table10",
-        "caption": "Table 1.12 — BACI corroboration of the coastal differential (Script 25)",
+        "caption": "Table 1.14 — BACI corroboration of the coastal differential (Script 25)",
         "sources": {"cor": "outputs/25_coastal_gradient/25_04_baci_corroboration.csv"},
         "rows": {"source": "cor"},
         "header": ["Control tier", "Impact zone", "Coastal differential (mm yr⁻¹)",
@@ -382,7 +382,7 @@ TABLES = [
         "id": "report9/Table11",
         "doc": 9,
         "table_name": "Table11",
-        "caption": "Table 1.13 — summer-minimum shifts at the Impact and Edge wells vs the Forest control",
+        "caption": "Table 1.15 — summer-minimum shifts at the Impact and Edge wells vs the Forest control",
         "sources": {"sm": "outputs/10_clearfell_baci/10d_02_summer_minima_shifts.csv"},
         "rows": {"source": "sm",
                  "filter": {"Control": "Forest", "Tier": ["Impact", "Edge"]}},
@@ -405,7 +405,7 @@ TABLES = [
         "id": "report9/Table13",
         "doc": 9,
         "table_name": "Table13",
-        "caption": "Table 1.15 — before/after-clearfell SSM coefficients for the BACI network",
+        "caption": "Table 1.17 — before/after-clearfell SSM coefficients for the BACI network",
         "sources": {"cs": "outputs/10_clearfell_baci/10e_01_coefficient_shifts.csv"},
         "rows": {"source": "cs",
                  "filter": {"Tier": ["Impact", "Edge", "Forest Ctrl",
@@ -430,7 +430,7 @@ TABLES = [
         "id": "report9/Table14",
         "doc": 9,
         "table_name": "Table14",
-        "caption": "Table 1.16 — winter transfer functions per block (Script 11)",
+        "caption": "Table 1.18 — winter transfer functions per block (Script 11)",
         "sources": {"tf": "outputs/11_forecasting_thresholds/11_forecast_winter_transfer_functions.csv"},
         "rows": {"source": "tf"},
         "header": ["Block", "Equation", "R²", "n", "p(P_winter)", "p(h_min)"],
@@ -452,7 +452,7 @@ TABLES = [
         "id": "report9/Table15",
         "doc": 9,
         "table_name": "Table15",
-        "caption": "Table 1.17 — summer transfer functions per block (Script 11)",
+        "caption": "Table 1.19 — summer transfer functions per block (Script 11)",
         "sources": {"tf": "outputs/11_forecasting_thresholds/11_forecast_summer_transfer_functions.csv"},
         "rows": {"source": "tf"},
         "header": ["Block", "Equation", "R²", "p(P_summer)", "p(h_max)"],
@@ -595,7 +595,7 @@ TABLES = [
         "id": "report9/Table3",
         "doc": 9,
         "table_name": "Table3",
-        "caption": "Table 1.6 \u2014 seasonal-recession partition per cluster (Script 16)",
+        "caption": "Table 1.8 \u2014 seasonal-recession partition per cluster (Script 16)",
         "sources": {"rec": "outputs/16_water_balance/16_water_bal_rec_table.csv"},
         "rows": {"source": "rec"},
         # Cluster and Label are merged into one cell (as Table 1.4d does) to free
@@ -627,7 +627,7 @@ TABLES = [
         "id": "report9/Table6",
         "doc": 9,
         "table_name": "Table6",
-        "caption": "Table 1.8 \u2014 WTF specific-yield estimates by cluster, three estimators (Script 17)",
+        "caption": "Table 1.10 \u2014 WTF specific-yield estimates by cluster, three estimators (Script 17)",
         "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
         "rows": {"source": "sy"},
         # Symmetric layout: each estimator carries its estimate and the number
@@ -661,7 +661,7 @@ TABLES = [
         "id": "report9/Table12",
         "doc": 9,
         "table_name": "Table12",
-        "caption": "Table 1.14 — pooled mixed-effects clearfell step by tier vs the Forest control (Script 10d)",
+        "caption": "Table 1.16 — pooled mixed-effects clearfell step by tier vs the Forest control (Script 10d)",
         "sources": {"mm": "outputs/10_clearfell_baci/10d_03_mixed_model_results.csv"},
         "rows": {"source": "mm",
                  "filter": {"Control": "Forest",
@@ -684,7 +684,7 @@ TABLES = [
         "id": "report9/Table17",
         "doc": 9,
         "table_name": "Table17",
-        "caption": "Table 1.19 — cluster-specific P_flood linear forms and recharge-horizon Σ P_clim (Script 11)",
+        "caption": "Table 1.21 — cluster-specific P_flood linear forms and recharge-horizon Σ P_clim (Script 11)",
         "sources": {"pf": "outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv"},
         "rows": {"source": "pf"},
         "header": ["Cluster", "Label", "Horizon", "P_flood equation (mm)", "Σ P_clim (mm)"],
@@ -858,7 +858,7 @@ TABLES = [
         "id": "report9/Table19",
         "doc": 9,
         "table_name": "Table19",
-        "caption": "Table 1.20 — cluster MSL5 and four-year mean annual minimum at the latest "
+        "caption": "Table 1.22 — cluster MSL5 and four-year mean annual minimum at the latest "
                    "window-end (Script 26; D-296: no community-level counts)",
         "sources": {"th": "outputs/26_van_willegen_msl/26_curreli_min_cluster_threshold_summary.csv"},
         # the headline window only; the five-year sensitivity rows stay in the CSV
@@ -876,11 +876,45 @@ TABLES = [
             # D-296 (2026-11-02): the two community-level count columns were removed from the table
         ],
     },
+    # 2026-11-18 (J-16, comment 9-6): §4.2.2's identifiability comparison and the C4 exclusion sensitivity, which the
+    # prose carried as nineteen inline comparisons, are tables (Martin: "add and use tables"). Script 30 2.9.0.
+    {
+        "id": "report9/TableC4VIF",
+        "doc": 9,
+        "table_name": "TableC4VIF",
+        "caption": "Table 1.4 — collinearity of the drainage predictor at each cluster centroid (Script 30)",
+        "sources": {"id": "outputs/30_c4_drainage_identifiability/30_c4_identifiability_by_cluster.csv"},
+        "rows": {"source": "id"},
+        "header": ["Cluster", "VIF", "r (PET, displacement)", "Displacement SD (m)"],
+        "columns": [
+            {"col": "cluster", "fmt": "text", "re": [r"^(C\d) \((.+)\)$", r"\1 \2"]},
+            {"col": "VIF", "fmt": "fixed", "dp": 2},
+            {"col": "corr_PET_hd", "fmt": "fixed", "dp": 2},
+            {"col": "hd_sd", "fmt": "fixed", "dp": 2},
+        ],
+    },
+    {
+        "id": "report9/TableC4Excl",
+        "doc": 9,
+        "table_name": "TableC4Excl",
+        "caption": "Table 1.5 — C4 centroid refitted without the ridge-flank wells (Script 30; a sensitivity, not adopted)",
+        "sources": {"cs": "outputs/30_c4_drainage_identifiability/30_c4_centroid_sensitivity.csv"},
+        "rows": {"source": "cs"},
+        "header": ["C4 centroid fitted on", "Wells", "β₃", "p(β₃)", "1/β₃ (months)"],
+        "columns": [
+            {"col": "basis", "fmt": "map", "map": {"all_members": "All C4 wells", "drop_ceh14": "Without CEH14",
+                                                   "drop_msl5_excluded": "Without CEH13 and CEH14"}},
+            {"col": "n_members", "fmt": "int"},
+            {"col": "beta_3_drainage", "fmt": "fixed", "dp": 3},
+            {"col": "pvalue_beta_3", "fmt": "fixed", "dp": 3},
+            {"col": "recession_1_over_b3_months", "fmt": "fixed", "dp": 0},
+        ],
+    },
     {
         "id": "report9/T140087",
         "doc": 9,
         "table_name": "T140087",
-        "caption": "Table 1.21 — between-well prediction of mean Ellenberg-F by observed MSL5 "
+        "caption": "Table 1.23 — between-well prediction of mean Ellenberg-F by observed MSL5 "
                    "and by the equilibrium wetness index (Script 26)",
         "sources": {"ebf": "outputs/26_van_willegen_msl/26_ebf_prediction_summary.csv"},
         # the CSV is one row per METRIC and the table shows metrics ACROSS with
@@ -902,7 +936,7 @@ TABLES = [
         "id": "report9/T140087_1",
         "doc": 9,
         "table_name": "T140087_1",
-        "caption": "Table 1.22 — Ellenberg-F prediction accuracy by match band, MSL5 versus "
+        "caption": "Table 1.24 — Ellenberg-F prediction accuracy by match band, MSL5 versus "
                    "the equilibrium wetness index (Script 26)",
         "sources": {"bd": "outputs/26_van_willegen_msl/26_ebf_band_summary.csv"},
         "rows": {"source": "bd"},
@@ -921,7 +955,7 @@ TABLES = [
         "id": "report9/Table18",
         "doc": 9,
         "table_name": "Table18",
-        "caption": "Table 1.24 - per-cluster decomposition of the summer-minimum decline "
+        "caption": "Table 1.26 - per-cluster decomposition of the summer-minimum decline "
                    "under the forest-free linear-capped panel regression (Script 25)",
         "sources": {"dec": "outputs/25_coastal_gradient/25_03_cluster_partition.csv"},
         "rows": {"source": "dec"},
@@ -944,7 +978,7 @@ TABLES = [
         "id": "report9/Table20",
         "doc": 9,
         "table_name": "Table20",
-        "caption": "Table 1.23 - per-well spatial predictors of SSM coefficient "
+        "caption": "Table 1.25 - per-well spatial predictors of SSM coefficient "
                    "variation in the forest zone (Script 10c)",
         "sources": {"fz": "outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv"},
         # the CSV packs the correlation block and an R2 block (blank separator);
@@ -1418,7 +1452,7 @@ TABLES = [
         "id": "report9/Table16",
         "doc": 9,
         "table_name": "Table16",
-        "caption": "Table 1.18 \u2014 per-cluster P_flood summary across the 88-well classified network (Script 11b)",
+        "caption": "Table 1.20 \u2014 per-cluster P_flood summary across the 88-well classified network (Script 11b)",
         "sources": {"pf": "outputs/11b_spatial_thresholds/11b_06_pflood_cluster_summary.csv"},
         "rows": {"source": "pf"},
         "header": ["Cluster", "n", "P_flood range (mm)", "Median (mm)", "m_P"],

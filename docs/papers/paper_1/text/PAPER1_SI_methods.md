@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_34.odt — do not edit. source-sha256=4c6402a63b0d1a95 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_35.odt — do not edit. source-sha256=94c90e6fc02421c1 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -372,7 +372,7 @@ $${\text{atmospheric draw} = \beta_{2}}\cdot\overline{\mathit{PET}}$$
 
 $${\text{drainage} = \beta_{3}}\cdot\overline{h_{\text{disp}}} - \alpha$$
 
-where *P̄* and PET̄ are the long-term means of the RAF Valley monthly climate forcing. They are computed as the sum across the record divided by the number of months observed, and are identical across clusters. *h̄*\<sub\>disp\</sub\> is the long-term monthly mean of the cluster centroid displacement. α is Model B's fitted intercept. Drainage is thus β₃ times the mean height above the cluster's implied base level, 3.7 m − α/β₃ below ground. The β values come from the cluster-mean SSM fit (Section S6.2, 03_03_cluster_mechanistic_coefficients.csv). Each contribution is then scaled to annual units by multiplying by 12 (months per year), for reporting in Table 3 of the main manuscript and Figure 8. This is equivalent to multiplying the β coefficient by the long-term *annual* mean of the corresponding driver (record sum ÷ years on record). The two normalizations give the same annual contribution.
+where *P̄* and PET̄ are the long-term means of the RAF Valley monthly climate forcing. They are computed as the sum across the record divided by the number of months observed, and are identical across clusters. *h̄*\<sub\>disp\</sub\> is the long-term monthly mean of the cluster centroid displacement. α_B is Model B's fitted intercept. Drainage is thus β₃ times the mean height above the cluster's implied base level, 3.7 m − α_B/β₃ below ground. The β values come from the cluster-mean SSM fit (Section S6.2, 03_03_cluster_mechanistic_coefficients.csv). Each contribution is then scaled to annual units by multiplying by 12 (months per year), for reporting in Table 3 of the main manuscript and Figure 8. This is equivalent to multiplying the β coefficient by the long-term *annual* mean of the corresponding driver (record sum ÷ years on record). The two normalizations give the same annual contribution.
 
 The water-balance closure follows from the SSM equation evaluated at long-term means. Over the full record Δ*h̄* is approximately zero, because the cluster centroid hydrograph has no net trend. The four right-hand-side terms must therefore sum to approximately zero:
 

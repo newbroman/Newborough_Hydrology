@@ -42,11 +42,22 @@ Usage:
   python3 tools/job_queue.py ready                             # promote queued -> ready; print the fire line
   python3 tools/job_queue.py fire J-1 --by "control board" [--trigger-id ID]
   python3 tools/job_queue.py done J-1 | hold J-1 | unhold J-1
+  python3 tools/job_queue.py prompt J-1                        # the job's start prompt, to hand to Martin
   python3 tools/job_queue.py --json | --check | --selftest
 """
 from __future__ import annotations
 
-__version__ = "1.0.0"  # Hollingham (2026) — 2026-11-05 (D-301, spec §14, signed off). First issue:
+__version__ = "1.1.0"  # Hollingham (2026) — 2026-11-18 (J-20, Martin: jobs are started by HIM from the
+#   app, so the queue has to hand him the prompt). start_prompt() composes a job's START PROMPT from the one
+#   committed template tools/job_start_prompt.md, filled from the queue row; `ready` and the new `prompt <id>`
+#   print it, collect() carries it, and hq_snapshot writes it into the job's db row for the HQ page's Copy
+#   button. The wording lives in the template and nowhere else, so every job gets the same setup steps.
+#   WHICH JOBS GET ONE: target new_session, and ready, or fired. The brief asks for "ready, and fired with no
+#   session yet", and the queue has no record of a session - the row carries fired_at and fired_by, not a chat.
+#   Guessing it from chat names would HIDE a prompt Martin needs on a coincidence; a prompt shown beside the
+#   "fired <when> by <who>" line that the page already renders costs nothing. So the honest half is implemented
+#   and the guess is not. A `notify` job starts no session and gets no prompt.
+# 1.0.0  # Hollingham (2026) — 2026-11-05 (D-301, spec §14, signed off). First issue:
 #   the five condition kinds, the three guards (no store, claim held, one job per claim), and ready/fire/done.
 
 import argparse
@@ -54,6 +65,7 @@ import datetime
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -65,6 +77,7 @@ import register_io                                                    # noqa: E4
 import doc_lock                                                       # noqa: E402
 
 QUEUE = REPO / "working/job_queue.csv"
+TEMPLATE = REPO / "tools/job_start_prompt.md"      # the start prompt's wording, in one place (J-20)
 FIELDS = ["id", "title", "brief", "claim", "waits_for", "target", "status",
           "trigger_id", "fired_at", "fired_by", "note"]
 
@@ -120,6 +133,66 @@ def find(rs: list[dict], jid: str) -> dict | None:
 
 def conds(r: dict) -> list[str]:
     return [c.strip() for c in (r.get("waits_for") or "").split(";") if c.strip()]
+
+
+# ── the start prompt (J-20) ───────────────────────────────────────────────────────────────────
+# Martin starts a job's session himself, from the app: new session -> environment NRG (both
+# repositories attached, the Drive secret set) -> paste the job's prompt. So the queue composes
+# that prompt rather than leaving each chat to describe the setup in its own words - which is how
+# J-17 came to be told to call add_repo, a step the environment makes unnecessary and the auto-mode
+# check refuses when the prompt is not Martin's own.
+PROMPT_KINDS = "<pipeline|document|tools|readonly|fieldwork>"
+
+
+def kind_for(row: dict) -> str:
+    """The `chat_register --kind` the job's claim implies. A job with no claim does not imply one -
+    J-9 carries four phases and no claim - so the placeholder is left for the chat to answer."""
+    c = (row.get("claim") or "").strip()
+    if c.startswith("doc:"):
+        return "document"
+    if c in ("pipeline", "tools"):
+        return c
+    return PROMPT_KINDS
+
+
+def _fill(text: str, values: dict) -> str:
+    """Fill {{key}} and keep or drop <!--if key--> ... <!--end--> (and <!--if !key-->) blocks.
+
+    str.replace, never str.format: the template carries ${PIPESTATUS[0]} and other braces, and
+    format() would raise on them. Every HTML comment is stripped afterwards, so the template can
+    document itself in comments without any of it reaching a chat."""
+    def block(m: re.Match) -> str:
+        key, body = m.group(1), m.group(2)
+        want = not key.startswith("!")
+        key = key.lstrip("!")
+        return body if bool(str(values.get(key, "")).strip()) is want else ""
+    text = re.sub(r"<!--if (!?[a-z_]+)-->\n?(.*?)<!--end-->\n?", block, text, flags=re.S)
+    for k, v in values.items():
+        text = text.replace("{{" + k + "}}", str(v or ""))
+    text = re.sub(r"<!--.*?-->\n?", "", text, flags=re.S)
+    return re.sub(r"\n{3,}", "\n\n", text).strip() + "\n"
+
+
+def start_prompt(row: dict) -> str:
+    """The prompt Martin pastes into a new session for this job. Raises if the template is gone:
+    a silent fallback would put a prompt with no setup steps in front of a session."""
+    t = TEMPLATE.read_text(encoding="utf-8")
+    return _fill(t, {"id": (row.get("id") or "").strip(),
+                     "title": (row.get("title") or "").strip(),
+                     "brief": (row.get("brief") or "").strip(),
+                     "claim": (row.get("claim") or "").strip(),
+                     "kind": kind_for(row),
+                     "note": (row.get("note") or "").strip()})
+
+
+def wants_prompt(row: dict, all_hold: bool) -> bool:
+    """A prompt is for starting a SESSION, so a `notify` job never has one (nothing starts), and a
+    done or held job has nothing to start. `fired` keeps its prompt: see 1.1.0's note on why the
+    queue cannot tell a fired job with a session from one without."""
+    if (row.get("target") or "") != "new_session":
+        return False
+    st = (row.get("status") or "").strip()
+    return st == "fired" or st == "ready" or (st == "queued" and all_hold)
 
 
 def _git_has(path: str) -> bool:
@@ -222,6 +295,14 @@ def ready(promote: bool = True, quiet: bool = False) -> list[dict]:
             print(f"  READY  {r['id']}  {r.get('title','')[:66]}")
             print(f"           brief {r.get('brief','')}")
             print(f"           fire it: python3 tools/job_queue.py fire {r['id']} --by \"<this chat>\"")
+            # J-20: the same composed prompt the HQ page shows, so a chat can hand it to Martin
+            # here rather than writing the setup out in its own words.
+            if wants_prompt(r, True):
+                print("           --- start prompt: new session -> environment NRG -> select both "
+                      "repositories -> paste ---")
+                for line in start_prompt(r).splitlines():
+                    print(f"           {line}" if line else "")
+                print("           --- end of start prompt ---")
     return out
 
 
@@ -331,7 +412,8 @@ def collect() -> dict:
         b = blocking_job(r, rs)
         jobs.append(dict(r, conditions=[{"cond": c, "holds": h, "why": w} for c, h, w in detail],
                          all_hold=ok,
-                         blocked_by=(b["id"] if b is not None else None)))
+                         blocked_by=(b["id"] if b is not None else None),
+                         start_prompt=(start_prompt(r) if wants_prompt(r, ok) else "")))
     return {"store": state, "store_why": why, "jobs": jobs, "fires": True, "fires_why": ""}
 
 
@@ -399,13 +481,35 @@ def check() -> int:
     for cl, ids in byclaim.items():
         if len(ids) > 1:
             bad.append(f"{cl}: {len(ids)} active jobs ({', '.join(ids)}); one job per claim at a time")
+    # J-20: a start prompt nobody composes is a Copy button with nothing behind it, and the failure
+    # is silent - the page would simply not show the block. So the gate composes every prompt the
+    # queue would offer and fails on a template that has gone missing or stopped filling.
+    prompts = 0
+    if not TEMPLATE.exists():
+        bad.append(f"no {TEMPLATE.relative_to(REPO)}: no job can be given a start prompt")
+    else:
+        for r in rs:
+            if not wants_prompt(r, evaluate(r, rs)[0]):
+                continue
+            try:
+                txt = start_prompt(r)
+            except Exception as e:                                    # pragma: no cover
+                bad.append(f"{r['id']}: its start prompt will not compose: {e}")
+                continue
+            prompts += 1
+            left = [t for t in ("{{id}}", "{{title}}", "{{brief}}", "{{kind}}") if t in txt]
+            if left:
+                bad.append(f"{r['id']}: its start prompt still holds {', '.join(left)} unfilled")
+            if r.get("brief") and r["brief"] not in txt:
+                bad.append(f"{r['id']}: its start prompt does not name the brief {r['brief']}")
     if bad:
         print(f"  job_queue: FAIL — {len(bad)} problem(s):")
         for b in bad:
             print(f"      {b}")
         return 1
     n = {s: len([r for r in rs if r.get("status") == s]) for s in STATUSES}
-    print(f"  job_queue: OK — {len(rs)} job(s): " + ", ".join(f"{v} {k}" for k, v in n.items() if v))
+    print(f"  job_queue: OK — {len(rs)} job(s): " + ", ".join(f"{v} {k}" for k, v in n.items() if v)
+          + f"; {prompts} start prompt(s) compose")
     return 0
 
 
@@ -533,6 +637,29 @@ def _selftest() -> int:
         check_("7a on_main for a working/ path does not fire on a tree with no private main",
                rc == 1 and "not on main yet" in out, out)
 
+        # 8. The start prompt (J-20). The template is the real one - that is the point of the
+        #    case: a wording change that drops a placeholder or a block must fail here.
+        row = {"id": "J-99", "title": "A title", "brief": brief, "claim": "tools",
+               "waits_for": "", "target": "new_session", "status": "ready"}
+        txt = start_prompt(row)
+        check_("8a it names the job and its brief", "J-99" in txt and brief in txt, txt[:200])
+        check_("8b no placeholder is left unfilled", "{{" not in txt, txt[:400])
+        check_("8c the template's own comments are stripped", "<!--" not in txt, txt[:400])
+        check_("8d a claim gives the take line", "doc_lock.py take tools" in txt, txt[:400])
+        check_("8e and the kind the claim implies", "--kind tools" in txt, txt[:400])
+        noclaim = start_prompt(dict(row, claim=""))
+        check_("8f no claim: no take line, and the kinds are left open",
+               "doc_lock.py take " not in noclaim.split("documents lock")[0]
+               and PROMPT_KINDS in noclaim, noclaim[:600])
+        check_("8g a notify job gets no prompt at all",
+               not wants_prompt(dict(row, target="notify"), True))
+        check_("8h a done job gets none", not wants_prompt(dict(row, status="done"), True))
+        check_("8i a fired job keeps its prompt", wants_prompt(dict(row, status="fired"), False))
+        check_("8j a queued job whose conditions do not hold gets none",
+               not wants_prompt(dict(row, status="queued"), False))
+        check_("8k ${PIPESTATUS[0]} survives: the filler is replace(), not format()",
+               "${PIPESTATUS[0]}" in txt, txt[:400])
+
     print("job_queue selftest: " + ("OK" if ok else "FAIL"))
     return 0 if ok else 1
 
@@ -540,7 +667,8 @@ def _selftest() -> int:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", nargs="?",
-                    choices=["list", "add", "ready", "fire", "done", "hold", "unhold"], default="list")
+                    choices=["list", "add", "ready", "fire", "done", "hold", "unhold",
+                             "prompt"], default="list")
     ap.add_argument("job", nargs="?")
     ap.add_argument("--id", dest="jid", default="")
     ap.add_argument("--title", default="")
@@ -571,6 +699,17 @@ def main() -> int:
         return add(a.jid, a.title, a.brief, a.claim, a.waits_for, a.target, a.note)
     if a.cmd == "ready":
         ready()
+        return 0
+    if a.cmd == "prompt":
+        jid = a.job or a.jid
+        if not jid:
+            print("  REFUSED — name the job: job_queue.py prompt J-1", file=sys.stderr)
+            return 1
+        r = find(rows(), jid)
+        if r is None:
+            print(f"  REFUSED — {jid} is not in the queue", file=sys.stderr)
+            return 1
+        print(start_prompt(r), end="")
         return 0
     if a.cmd in ("fire", "done", "hold", "unhold"):
         jid = a.job or a.jid

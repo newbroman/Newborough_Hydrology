@@ -115,7 +115,11 @@ SCHEMA (one dict per table)
 """
 from __future__ import annotations
 
-__version__ = "1.21.0"  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 2b). Script 08 2.0.0 renamed 08_lcsc_04's columns:
+__version__ = "1.22.0"  # Hollingham (2026) — 2026-11-18 (J-19, T-110, D-334). paper1/Table7 (the per-cluster
+#   drainage decay half-life) removed: a recession time at a fixed floor is not a finding, and Script 18's CSV had
+#   moved to Model B's beta_3. paper1/Table4's header follows the ODT's S_a spelling (T-01 moved the document
+#   and left this config, which is what table_gen was refusing on.)
+# 1.21.0  # Hollingham (2026) — 2026-11-13 (D-332, J-9 phase 2b). Script 08 2.0.0 renamed 08_lcsc_04's columns:
 #   Traditional_Model_A -> TLM, StateSpace_Model_B -> SSM_Model_B (now Model B; it held Model A), Delta_B_minus_A ->
 #   Delta_SSM_minus_TLM. Rebound to the successors so the documents' numbers surface as drift for phase 3.
 # 1.20.0  # Hollingham (2026) — 2026-10-28 (D-283, D-284). report9/Table5 ET, I + ET and drainage columns are Model B; report9/Table3 leads with Model B's drainage fraction; paperM/Table2 drainage share is Model B (Drainage_B_pct); paperM/Table3 retired (D-279 moved it out of Paper M).
@@ -1189,8 +1193,9 @@ TABLES = [
         # median for C4/C5 is joined from the same CSV's `(corrected)` rows.
         "sources": {"sy": "outputs/17_wtf_specific_yield/17_wtf_01_sy_estimates.csv"},
         "rows": {"source": "sy", "filter": {"Corrected": "False"}},
-        "header": ["Cluster", "Sy assumed", "Sy WTF median (uncorr.)",
-                   "Sy WTF median (corrected)"],
+        # 2026-11-18 (J-19): the ODT header reads Sₐ since T-01 (D-335 pass); the config followed it here.
+        "header": ["Cluster", "Sy assumed", "Sₐ WTF median (uncorr.)",
+                   "Sₐ WTF median (corrected)"],
         "columns": [
             {"col": "Cluster", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
             {"col": "Sy_assumed",      "fmt": "fixed", "dp": 2},   # the assumed constants, as published
@@ -1406,22 +1411,10 @@ TABLES = [
             {"col": "N",             "fmt": "int"},
         ],
     },
-    {
-        "id": "paper1/Table7",
-        "doc": "docs/papers/paper_1/Paper1_v*.odt",
-        "table_name": "Table7",
-        "caption": "Paper 1 - drainage decay half-life t half by cluster (Script 18)",
-        "sources": {"hl": "outputs/18_wtf_spatial/18_wtf_08_cluster_half_life_summary.csv"},
-        "rows": {"source": "hl"},
-        "header": ["Cluster", "t½ min", "t½ median", "t½ max", "n "],   # "n " — trailing space is in the ODT header cell
-        "columns": [
-            {"col": "Cluster_Label", "fmt": "text", "re": [r"^(C\d) \(([^)]+)\)$", r"\1 \2"]},
-            {"col": "t_half_min",    "fmt": "fixed", "dp": 1},   # months, 1 dp (D-131 3dp is for coefficients; months to 3dp is spurious)
-            {"col": "t_half_median", "fmt": "fixed", "dp": 1},
-            {"col": "t_half_max",    "fmt": "fixed", "dp": 1},
-            {"col": "n_wells",       "fmt": "int"},
-        ],
-    },
+    # 2026-11-18 (J-19, T-110, D-334): paper1/Table7 (the per-cluster drainage decay half-life) removed.
+    # A recession time at a fixed floor is not a finding under D-334, and Script 18's CSV had moved to
+    # Model B's beta_3, so the published Model A values read as drift. Paper 1 now cites Hollingham (2026c)
+    # Table 3 for the per-cluster mean-reversion times; the per-well map stays as Paper 1 Figure 14.
     {
         # 2026-10-07: Paper 1 Table 9 had been hand-typed and was pre-D-196 in every row when
         # Script 25 1.33.0 moved the partition; registered so it regenerates and is gated.

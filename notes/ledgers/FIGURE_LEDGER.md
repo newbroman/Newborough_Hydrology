@@ -32,8 +32,8 @@
 | 9 | 4.2.1 | Cluster-mean relative water level hydrographs for the five hydrogeolog | `outputs/02_clustering/02_03_cluster_hydrographs_wb.png` | yes |
 | 10 | 4.2.1 | Per-well relative water level for the 66 reference wells, shown as one | `outputs/02_clustering/02_03b_cluster_spaghetti.png` | yes |
 | 11 | 4.2.3 | Water balance decomposition by hydrogeological cluster, Newborough War | `outputs/16_water_balance/16_water_bal_bar_ms.png` | yes |
-| 12 | 4.2.4 | Distribution of event-level specific yield (Sy) from monthly rising-li | `outputs/17_wtf_specific_yield/17_wtf_03_event_boxplot.png` | yes |
-| 13 | 4.2.4 | Interpolated WTF specific yield surface for the combined reference and | `outputs/18_wtf_spatial/18_wtf_04_sy_contour_extended.png` | yes |
+| 12 | 4.2.4 | Distribution of event-level apparent storage coefficient (Sₐ) from mon | `outputs/17_wtf_specific_yield/17_wtf_03_event_boxplot.png` | yes |
+| 13 | 4.2.4 | Interpolated WTF Sₐ surface for the combined reference and extended ne | `outputs/18_wtf_spatial/18_wtf_04_sy_contour_extended.png` | yes |
 | 14 | 4.3 | Pearson affinity analysis of selected reference and extended network w | `outputs/06_pearson_extended/06_pear_01_affinity_chart_extended.png` | yes |
 | 15 | 4.3 | Spatial distribution of the five primary hydrogeological clusters chec | `outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png` | yes |
 | 16 | 4.3 | Filling gaps from cluster-mates. (a) The error in the held-out spring  | `outputs/51_cluster_gap_fill/51_07_cluster_gap_fill.png` | yes |
@@ -75,7 +75,7 @@
 | 52 | 4.8.5 | Sentinel-2 switching levels tested against the kriged water table. Eac | `outputs/01b_water_table/01b_04_unexplained_wetness.png` | yes |
 | 53 | 4.9.1 | Per-well optimal SSM drainage datum across the 66-well reference netwo | `outputs/03_state_space_model/03_10_well_datum_r2max_map.png` | yes |
 | 54 | 4.9.2 | Spatial SSM coefficient atlas for the 66-well reference network, Newbo | `outputs/07_spatial_coefficients/07_coeff_04_r2_quality.png` | yes |
-| 55 | 4.9.3 | Model A drainage decay half-life (t½ = ln(2)/β₃, months, at the networ | `outputs/18_wtf_spatial/18_wtf_05_halflife_map.png` | yes |
+| 55 | 4.9.3 | Model B drainage decay half-life (t½ = ln(2)/β₃, months) across the 66 | `outputs/18_wtf_spatial/18_wtf_05_halflife_map.png` | yes |
 | 56 | 4.9.5 | The water table of Newborough Warren kriged from the dipwells in (a) t | `outputs/01b_water_table/01b_01_water_table_flow.png` | yes |
 | 57 | 4.9.5 | Mean water table against the ground surface, by DEM smoothing width. ( | `outputs/01b_water_table/01b_06_head_vs_dem.png` | yes |
 | 58 | 4.9.5 | Water-table transects across Newborough Warren. (a) Four coast-normal  | `outputs/01b_water_table/01b_02_transects.png` | yes |
@@ -112,4 +112,4 @@
 | 84 | 5.8.2 | Three drivers of water-table change and the undisturbed state — schema | `outputs/09_scraping_intervention/09g_mechanism_grid.png` | yes |
 | 85 | 5.9 | Per-well achievability categorization against the P_flood rainfall mul | `outputs/11b_spatial_thresholds/11c_pflood_achievability.png` | yes |
 
-*Generated 2026-11-11 by `tools/build_figure_ledger.py` v2.3.0.*
+*Generated 2026-11-18 by `tools/build_figure_ledger.py` v2.3.0.*

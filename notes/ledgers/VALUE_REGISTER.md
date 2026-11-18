@@ -5,7 +5,7 @@
 
 *Derived live from `tools/citation_index.csv` and `tools/symbol_register.csv`. Companion to `PROVENANCE_LEDGER.md`, which keys EXHIBITS by output file; this keys VALUES and SYMBOLS by output file.*
 
-**193 output file(s)** supply **3673 cited quantity(ies)**; **45 symbol sense(s)** registered, 23 bound to an output column, 22 not.
+**193 output file(s)** supply **3673 cited quantity(ies)**; **45 symbol sense(s)** registered, 24 bound to an output column, 21 not.
 
 ## Cited quantities by output file
 
@@ -744,26 +744,26 @@
 |  | C5 · median_SSM_NSE | PaperM.md |
 |  | C5 · median_TLM_NSE | Newborough_Methods_Supplement.md, PaperM.md, Supplementary_Material.md, report9.md |
 |  | C5 · median_dNSE | report9.md |
-| `08_lcsc_04_table3_benchmark_summary.csv` | CEH14 iterative NSE · Delta_B_minus_A | Newborough_Methods_Supplement.md, report9.md |
-|  | CEH14 iterative NSE · StateSpace_Model_B | Newborough_Methods_Supplement.md, PaperM.md, report10.md, report9.md |
-|  | CEH14 iterative NSE · Traditional_Model_A | report9.md |
-|  | CEH6 iterative NSE · Delta_B_minus_A | VALUE_REGISTER.md, report9.md |
-|  | CEH6 iterative NSE · StateSpace_Model_B | report9.md |
-|  | CEH6 iterative NSE · Traditional_Model_A | Newborough_Methods_Supplement.md, report9.md |
-|  | Max NSE improvement (CEH27) · Delta_B_minus_A | report9.md |
-|  | Max NSE improvement (CEH27) · StateSpace_Model_B | report9.md |
-|  | Max NSE improvement (CEH27) · Traditional_Model_A | report9.md |
-|  | Max NSE improvement (D7) · Delta_B_minus_A | report9.md |
-|  | Max NSE improvement (D7) · StateSpace_Model_B | report9.md |
-|  | Max NSE improvement (D7) · Traditional_Model_A | report9.md |
-|  | Median iterative NSE · Delta_B_minus_A | report9.md |
-|  | Median iterative NSE · StateSpace_Model_B | report9.md |
-|  | Median iterative NSE · Traditional_Model_A | report9.md |
-|  | Median iterative R2 · Delta_B_minus_A | Newborough_Methods_Supplement.md, report9.md |
-|  | Median iterative R2 · StateSpace_Model_B | report9.md |
-|  | Median iterative R2 · Traditional_Model_A | report9.md |
-|  | Median one-step R2 · StateSpace_Model_B | report9.md |
-|  | Median one-step R2 · Traditional_Model_A | report9.md |
+| `08_lcsc_04_table3_benchmark_summary.csv` | CEH14 iterative NSE · Delta_SSM_minus_TLM | Newborough_Methods_Supplement.md, report9.md |
+|  | CEH14 iterative NSE · SSM_Model_B | Newborough_Methods_Supplement.md, PaperM.md, report10.md, report9.md |
+|  | CEH14 iterative NSE · TLM | report9.md |
+|  | CEH6 iterative NSE · Delta_SSM_minus_TLM | VALUE_REGISTER.md, report9.md |
+|  | CEH6 iterative NSE · SSM_Model_B | report9.md |
+|  | CEH6 iterative NSE · TLM | Newborough_Methods_Supplement.md, report9.md |
+|  | Max NSE improvement (CEH27) · Delta_SSM_minus_TLM | report9.md |
+|  | Max NSE improvement (CEH27) · SSM_Model_B | report9.md |
+|  | Max NSE improvement (CEH27) · TLM | report9.md |
+|  | Max NSE improvement (D7) · Delta_SSM_minus_TLM | report9.md |
+|  | Max NSE improvement (D7) · SSM_Model_B | report9.md |
+|  | Max NSE improvement (D7) · TLM | report9.md |
+|  | Median iterative NSE · Delta_SSM_minus_TLM | report9.md |
+|  | Median iterative NSE · SSM_Model_B | report9.md |
+|  | Median iterative NSE · TLM | report9.md |
+|  | Median iterative R2 · Delta_SSM_minus_TLM | Newborough_Methods_Supplement.md, report9.md |
+|  | Median iterative R2 · SSM_Model_B | report9.md |
+|  | Median iterative R2 · TLM | report9.md |
+|  | Median one-step R2 · SSM_Model_B | report9.md |
+|  | Median one-step R2 · TLM | report9.md |
 | `08_perwell_nse.csv` | CEH1 · dNSE_ModelB | Supplementary_Material.md |
 |  | CEH13 · dNSE_ModelB | Supplementary_Material.md |
 |  | CEH14 · SSM_NSE | Newborough_Methods_Supplement.md, PaperM.md, report10.md, report9.md |
@@ -3689,7 +3689,7 @@
 
 | Glyph | Sense | Meaning | Output file(s) carrying it |
 |---|---|---|---|
-| D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `03_20_datum_aod_sweep.csv` … |
+| D | `D_datum` | drainage datum, the reference depth displacement is measured | `03_02_cluster_summary_table.csv`, `03_03_cluster_mechanistic_coefficients.csv`, `03_09_well_optimal_datums.csv`, `03_12_partition_vs_datum.csv`, `03_14_centroid_window_sensitivity.csv`, `03_15_per_well_window_sensitivity.csv` … |
 | L | `L_reach` | fitted inland reach of the coastal gradient | `01b_01_drift_selection.csv`, `01b_05_sensitivity.csv`, `03_regional_averages.csv`, `09f_01_reach_profile.csv`, `10a_09_coastal_scale_factor.csv`, `25_03_cluster_partition.csv` … |
 | Sy | `Sy_material` | specific yield of the sand: the volume fraction that drains  | `17_wtf_01_sy_estimates.csv` |
 | Sy | `Sy_wtf_apparent` | the water-table-fluctuation storage estimate (R/dh at event  | `29_within_c3_variance.csv`, `55_01_surplus_vs_dh.csv`, `55_04_water_balance.csv`, `55_08_interception_scan.csv`, `55_13_winter_sy_per_well.csv`, `55_14_winter_sy_by_cluster.csv` |
@@ -3697,9 +3697,10 @@
 | d | `d_days` | number of days in the month, Thornthwaite PET K-correction K | `50_19_event_stress_by_cluster.csv`, `50_31_pet_alternatives_monthly.csv`, `50_39_midas_annual_inputs.csv` |
 | d | `d_depth` | depth of the water table below ground (all uses: P_flood inp | `11_forecast_pflood_summary.csv`, `11_forecast_pflood_threshold_equations.csv`, `11b_05_table10_pflood_spreadsheet.csv`, `21_forestry_02_distributions_means.csv`, `21_forestry_03_scraping_era_means.csv`, `21_forestry_04_baci_zone_means.csv` |
 | z | `z_datum` | drainage datum, 3.7 m below ground — the replacement D_datum | `03_03_cluster_mechanistic_coefficients.csv`, `03_16_model_b_persistence.csv`, `03_18_datum_invariance.csv`, `03_22_warren_open_dune_coefficients.csv` |
+| α | `alpha_intercept` | SSM water-balance intercept (Model B) | `11_forecast_pflood_threshold_equations.csv` |
 | α | `alpha_ols_generic` | generic OLS intercept of a regression that is NOT the SSM: s | `01_observation_states.csv`, `01_wells_all.csv`, `01_wells_clean.csv`, `01_wells_clean_maod.csv`, `01_wells_provenance.csv`, `01_wells_reference.csv` … |
 | β | `beta_msl` | OLS slope on winter-to-spring rainfall in the Tool A spring- | `11_forecast_spring_transfer_functions.csv` |
-| β | `beta_ssm` | SSM coefficients, always subscripted: beta_1 recharge sensit | `08_cluster_nse_medians.csv`, `08_perwell_nse.csv`, `15_03_benchmark_table.csv`, `15_04_best_params.csv`, `16_water_bal_rec_table.csv`, `16_water_bal_vol_table.csv` … |
+| β | `beta_ssm` | SSM coefficients, always subscripted: beta_1 recharge sensit | `08_cluster_nse_medians.csv`, `08_lcsc_04_table3_benchmark_summary.csv`, `08_perwell_nse.csv`, `15_03_benchmark_table.csv`, `15_04_best_params.csv`, `16_water_bal_rec_table.csv` … |
 | β | `beta_transfer` | OLS slopes of the Script 11 Section 2/4 forecast transfer fu | `11_forecast_summer_transfer_functions.csv`, `11_forecast_winter_transfer_functions.csv` |
 | δ | `delta_cwb` | coefficient on CWB in the BACI ANCOVA, the centred cumulativ | `10a_03_baci_timeseries.csv`, `10h_04_baci_timeseries.csv`, `10k_01_four_zone_results.csv`, `25_03_cluster_partition.csv`, `25_03_cluster_partition_spring.csv`, `25_08_spring_vs_summer_comparison.csv` … |
 | δ | `delta_cwb_zone_interaction` | zone x CWB interaction coefficient in the two-zone scrape pa | `07_05_clusters_vs_covariates.csv`, `09f_01_reach_profile.csv`, `10b_spatial_step_data.csv`, `10f_01_ssm_residual_results.csv`, `10f_02_synthetic_control_results.csv`, `10g_03_clearfell_transect_steps.csv` … |
@@ -3713,7 +3714,7 @@
 | ψ | `psi_easting` | coefficient on the per-well Easting x Time interaction in th | `10a_01_ancova_comparison_table.csv`, `10a_02_ancova_full_coefficients.csv`, `10a_02b_drift_design_equivalence.csv`, `10a_03_baci_timeseries.csv`, `10a_09_coastal_scale_factor.csv`, `10a_09_control_well_spread.csv` … |
 | ψ | `psi_paired_easting` | coefficient on Easting(t) in the PAIRED BACI ANCOVA (Script  | `09c_01_summer_minima.csv`, `09c_05_spring_means.csv`, `44_09_slack_floor_datum.csv` |
 
-## Symbols with no output column (22)
+## Symbols with no output column (21)
 
 *Notation rather than data for most of these. Worth a look when a glyph here is one the pipeline is supposed to compute.*
 
@@ -3731,7 +3732,6 @@
 | c | `c_intercept` | the fitted intercept of a linear model; zero in the SSM, whi |
 | z | `z_DEM` | LiDAR DEM ground elevation at a grid cell (m AOD) |
 | z | `z_WT` | interpolated scenario water-table elevation at a grid cell ( |
-| α | `alpha_intercept` | SSM water-balance intercept (Model B) |
 | α | `alpha_persist` | head persistence factor 1 - b3 |
 | α | `alpha_sig` | significance level |
 | α | `alpha_vanwillegen` | van Willegen winter-maximum regression coefficient |

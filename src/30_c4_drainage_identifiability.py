@@ -78,7 +78,14 @@ This is a supplementary diagnostic (Phase 14, opt-in). It does NOT revise the
 canonical C4 coefficients; nothing downstream reads its outputs.
 """
 from __future__ import annotations
-__version__ = "2.8.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The tests run on Model B, the published
+__version__ = "2.9.0"  # Hollingham (2026) - 2026-11-18 (J-16). The canonical fits reproduce Script 03 again. Since
+#   Script 03 1.28.0 (D-281) the centroids are built from the dry-filled frame (fill_dry_members) and every per-well fit
+#   is censored at the well's dry months (dry_bound); this script still averaged the raw levels and fitted the wells
+#   uncensored, so its "canonical" C4 centroid was a different series (beta_3 0.0111, p 0.377, against Script 03's
+#   0.0097, p 0.447) and its per-well panel differed at 24 of 45 wells. Both now use Script 03's own machinery:
+#   s03.fill_dry_members for the centroids (and the exclusion sensitivity), dry_bound and SSM_MIN_OBS for the panel.
+#   Every output moves; no key, column or test changes.
+# 2.8.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). The tests run on Model B, the published
 #   form (fit_ssm intercept=True, beta_3 bounded below): every key and unsuffixed column keeps its name and now carries
 #   Model B; Model A (no intercept, DRAINAGE_DATUM) runs beside it as <key>_model_a and *_model_a columns. Tests A and
 #   C were already form-free (both regress with a constant). Test D under Model B: the intercept is refitted at each
@@ -144,12 +151,12 @@ from matplotlib.lines import Line2D
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from utils.console_utils import banner, phase, step, info, warn, saved
-from utils.model_utils import fit_ssm, build_ssm_frame, LCSC_DATA_LIMIT
+from utils.model_utils import fit_ssm, build_ssm_frame, dry_bounds, LCSC_DATA_LIMIT
 from utils.data_utils import normalize_well_name
 from utils.config import (HEADLINE_LAG, DRAINAGE_DATUM, CLUSTER_LABELS,
-                          CLUSTER_COLOURS, MSL5_EXCLUDED_WELLS)
+                          CLUSTER_COLOURS, MSL5_EXCLUDED_WELLS, SSM_MIN_OBS)
 from utils.paths import (
-    INT_CLUSTER_STATS, INT_CLIMATE, INT_WELLS_CLEAN,
+    INT_CLUSTER_STATS, INT_CLIMATE, INT_WELLS_CLEAN, INT_LOCATIONS,
     OUT_30_C4_IDENTIFIABILITY, OUT_30_C4_PERWELL, OUT_30_C4_REPORT_NUMBERS,
     OUT_30_C4_CENTROID_SENS, OUT_30_C4_FIG, DIR_30,
 )
@@ -241,7 +248,7 @@ def _sig_pos(beta, p):
     return (p < 0.05) & (beta > 0)
 
 
-def _panel_fit(series, climate, window, intercept=True):
+def _panel_fit(series, climate, window, intercept=True, dry_bound=None):
     """Fit one well on one basis for the per-well panel.
 
     Returns a dict of β₃, its SE, p, the VIF, the displacement leverage and n,
@@ -252,7 +259,11 @@ def _panel_fit(series, climate, window, intercept=True):
     fr = build_ssm_frame(series, climate, lag=HEADLINE_LAG, window=window)
     if len(fr) < 30:
         return None
-    f = fit_ssm(pre_built_frame=fr, intercept=intercept)
+    # 2.9.0: the fit Script 03 makes (per_well_window_sensitivity): dry months censored, same floor.
+    f = fit_ssm(series, climate, lag=HEADLINE_LAG, window=window, intercept=intercept,
+                min_obs=SSM_MIN_OBS, dry_bound=dry_bound)
+    if f is None:
+        return None
     vif, _, _ = _collinearity(fr)
     return dict(beta3=f["beta_3_drainage"], se3=f["se_beta_3"],
                 p3=f["pvalue_beta_3"], VIF=vif,
@@ -298,7 +309,14 @@ def main():
     wells_clean = pd.read_csv(INT_WELLS_CLEAN, index_col=0, parse_dates=True)
     cluster_df["Match_ID"] = cluster_df["Match_ID"].apply(normalize_well_name)
     well_col_lookup = {normalize_well_name(c): c for c in wells_clean.columns}
-    centroids = s03.build_cluster_centroids(cluster_df, wells_clean,
+    # 2.9.0: Script 03's dry-month handling (D-281), so the centroids are Script 03's centroids.
+    locs_clean = pd.read_csv(INT_LOCATIONS)
+    locs_clean["Match_ID"] = locs_clean["Match_ID"].apply(normalize_well_name)
+    s03._DRY.clear()
+    s03._DRY.update({c: dry_bounds(c) for c in wells_clean.columns})
+    wells_filled, _ = s03.fill_dry_members(cluster_df, wells_clean, climate,
+                                           well_col_lookup, locs_clean)
+    centroids = s03.build_cluster_centroids(cluster_df, wells_filled,
                                             well_col_lookup)
     info(f"Built {len(centroids)} cluster centroids.")
 
@@ -385,10 +403,11 @@ def main():
             continue
         series = wells_clean[col]
         try:
-            win = _panel_fit(series, climate, LCSC_DATA_LIMIT)
+            db = s03._db(col)
+            win = _panel_fit(series, climate, LCSC_DATA_LIMIT, dry_bound=db)
             if win is None:
                 continue
-            full = _panel_fit(series, climate, None)
+            full = _panel_fit(series, climate, None, dry_bound=db)
             row = dict(well=col, cid=cid, cluster=CLUSTER_LABELS[cid],
                        beta3=win["beta3"], se3=win["se3"], p3=win["p3"],
                        VIF=win["VIF"], hd_sd=win["hd_sd"], n=win["n"])
@@ -396,8 +415,8 @@ def main():
                         for k in ("beta3", "se3", "p3", "VIF", "hd_sd", "n")})
             # 2.8.0 (D-332): bound-held Model B fits, and Model A beside it
             row.update(binds=win["binds"], binds_full=(full["binds"] if full else False))
-            win_a = _panel_fit(series, climate, LCSC_DATA_LIMIT, intercept=False)
-            full_a = _panel_fit(series, climate, None, intercept=False)
+            win_a = _panel_fit(series, climate, LCSC_DATA_LIMIT, intercept=False, dry_bound=db)
+            full_a = _panel_fit(series, climate, None, intercept=False, dry_bound=db)
             row.update({f"{k}_model_a": (win_a[k] if win_a else np.nan) for k in ("beta3", "se3", "p3")})
             row.update({f"{k}_full_model_a": (full_a[k] if full_a else np.nan) for k in ("beta3", "se3", "p3")})
             pw.append(row)
@@ -459,8 +478,8 @@ def main():
     ]
     sens_rows = []
     for basis, removed, members in bases:
-        d = _c4_centroid_fit(members, wells_clean, well_col_lookup, climate)
-        da = _c4_centroid_fit(members, wells_clean, well_col_lookup, climate, intercept=False)
+        d = _c4_centroid_fit(members, wells_filled, well_col_lookup, climate)
+        da = _c4_centroid_fit(members, wells_filled, well_col_lookup, climate, intercept=False)
         d.update({f"{k}_model_a": da[k] for k in ("beta_3_drainage", "se_beta_3", "pvalue_beta_3",
                                                   "recession_1_over_b3_months", "half_life_months")})
         d.update(basis=basis, members_excluded=("; ".join(removed) or "none"))

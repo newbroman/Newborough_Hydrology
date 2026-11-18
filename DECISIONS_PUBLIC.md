@@ -2727,7 +2727,7 @@ Model A stays, demoted to three jobs (Martin, 2026-11-14). (1) **Tested alternat
 
 *2026-11-18*
 
-Α_B, all eight (Martin, 2026-11-18, J-17). The register is corrected to place them: `free intercept` is removed from `alpha_ols_generic`, and `alpha_intercept` gains `implied base`, `fit_ssm` and `β₃·(z₀ + h(t−1))`, three phrases that occur only beside Model B (the TLM's equation has no β₃ term, so W150's separation of the two models stands). The three F.3/output-description occurrences the register still cannot place alone, because a file name or "half-life" puts `alpha_persist`'s cues in the window too, are converted by counted `odt_edit` substitution rather than by weakening `alpha_persist`.
+All eight become α_B (Martin, 2026-11-18, J-17). The register is corrected to place them: `free intercept` is removed from `alpha_ols_generic`, and `alpha_intercept` gains `implied base`, `fit_ssm` and `β₃·(z₀ + h(t−1))`, three phrases that occur only beside Model B (the TLM's equation has no β₃ term, so W150's separation of the two models stands). The three F.3/output-description occurrences the register still cannot place alone, because a file name or "half-life" puts `alpha_persist`'s cues in the window too, are converted by counted `odt_edit` substitution rather than by weakening `alpha_persist`.
 
 **Revisit if** a generic (non-SSM) regression is described with the words "free intercept" beside a bare α; it would then be ambiguous rather than misplaced, and needs a cue of its own.
 

@@ -52,7 +52,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.10.0"  # Hollingham (2026) — 2026-10-10. Claims (spec NRG_spec_parallel_chats_2026-10-10):
+__version__ = "1.11.0"  # Hollingham (2026) — 2026-11-18 (J-18). add_pictures(): new image entries plus their
+#   manifest lines, with counted content.xml substitutions under the same guards as edit(). For a document whose
+#   figures are plain frames with typed captions (Paper M), where insert_figure's sequence-numbered markup would
+#   misnumber every typed caption. The archive check is edit()'s, with the new entries expected at the end.
+# 1.10.0  # Hollingham (2026) — 2026-10-10. Claims (spec NRG_spec_parallel_chats_2026-10-10):
 #   a write into a document family that ANOTHER chat has claimed (tools/doc_lock.py) is refused, naming
 #   the holder. This chat's name is NRG_CHAT. An unclaimed family is written as before, and a ship
 #   (NRG_SHIP set: field_sync and doc_version_sync regenerating numbers and stamps) is not gated.
@@ -668,6 +672,96 @@ def insert_figure(src, dst, image_path, before: str, caption: str,
           f"{len(names) + 1} entries)")
     print("      the caption carries a sequence FIELD; open in LibreOffice and "
           "Tools > Update > Fields to render its number")
+    return True
+
+
+def add_pictures(src, dst, images: dict, subs, expect: int) -> bool:
+    """1.11.0: add image members and apply counted substitutions that refer to them.
+
+    images   {"Pictures/<name>.png": path_on_disk} — each member must be new to the archive
+    subs     [(old, new, want), ...] as in edit(); the caller's markup references the members
+    expect   total substitutions, as in edit()
+    The tag sequence may change (the markup adds frames); _guards then checks that every style the
+    edit introduces is declared and that spans balance. The manifest gains one file-entry per member
+    and must still parse. The rebuilt archive keeps every existing entry in order, mimetype STORED
+    first, with the new members appended, and must pass testzip(). Returns True on success."""
+    import xml.etree.ElementTree as ET
+    src, dst = pathlib.Path(src), pathlib.Path(dst)
+    if not _tier_gate(dst, tag_change=True):
+        return False
+    zin = zipfile.ZipFile(src)
+    names = zin.namelist()
+    if names[0] != "mimetype":
+        print(f"  ABORT {src.name}: mimetype is not the first archive entry")
+        zin.close(); return False
+    media_of = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}
+    blobs = {}
+    for member, path in images.items():
+        path = pathlib.Path(path)
+        media = media_of.get(path.suffix.lower())
+        if not member.startswith("Pictures/") or media is None or not path.exists():
+            print(f"  ABORT: {member} <- {path}: not a Pictures/ member, an unsupported type or no such file")
+            zin.close(); return False
+        if member in names:
+            print(f"  ABORT: {member} is already in the archive")
+            zin.close(); return False
+        blobs[member] = (path.read_bytes(), media)
+    xml = orig_xml = zin.read("content.xml").decode("utf-8")
+    total = 0
+    for old, new, want in subs:
+        n = xml.count(old)
+        if n != want:
+            print(f"  ABORT {src.name}: {old[:60]!r} found {n}x, expected {want}x")
+            zin.close(); return False
+        xml = xml.replace(old, new)
+        total += n
+    if total != expect:
+        print(f"  ABORT {src.name}: {total} substitutions, expected {expect}")
+        zin.close(); return False
+    for member in blobs:
+        if xml.count(f'xlink:href="{member}"') != 1:
+            print(f"  ABORT: {member} is referenced {xml.count(member)}x in content.xml, expected once")
+            zin.close(); return False
+    if not _guards(orig_xml, xml, zin, src.name, True):
+        zin.close(); return False
+    man = zin.read("META-INF/manifest.xml").decode("utf-8")
+    entries = "".join(f'<manifest:file-entry manifest:full-path="{m}" manifest:media-type="{md}"/>'
+                      for m, (_, md) in blobs.items())
+    if man.count("</manifest:manifest>") != 1:
+        print("  ABORT: manifest has no single closing element")
+        zin.close(); return False
+    man_new = man.replace("</manifest:manifest>", entries + "</manifest:manifest>")
+    try:
+        ET.fromstring(man_new)
+    except ET.ParseError as exc:
+        print(f"  ABORT: manifest would not parse after the edit ({exc})")
+        zin.close(); return False
+    tmp = pathlib.Path(tempfile.gettempdir()) / (dst.name + ".ziptmp")
+    with zipfile.ZipFile(tmp, "w") as zout:
+        for info in zin.infolist():
+            payload = (xml.encode("utf-8") if info.filename == "content.xml"
+                       else man_new.encode("utf-8") if info.filename == "META-INF/manifest.xml"
+                       else zin.read(info.filename))
+            ni = zipfile.ZipInfo(info.filename, date_time=info.date_time)
+            ni.external_attr = info.external_attr
+            ni.compress_type = (zipfile.ZIP_STORED if info.filename == "mimetype"
+                                else zipfile.ZIP_DEFLATED)
+            zout.writestr(ni, payload)
+        for member, (blob, _) in blobs.items():
+            zout.writestr(zipfile.ZipInfo(member), blob, zipfile.ZIP_DEFLATED)
+    zo = zipfile.ZipFile(tmp)
+    ok = (zo.namelist() == names + list(blobs)
+          and zo.getinfo("mimetype").compress_type == zipfile.ZIP_STORED
+          and zo.testzip() is None)
+    zo.close()
+    zin.close()
+    if not ok:
+        print(f"  ABORT {src.name}: archive verification failed")
+        tmp.unlink(); return False
+    with open(tmp, "rb") as a, open(dst, "wb") as b:
+        shutil.copyfileobj(a, b)
+    tmp.unlink()
+    print(f"  OK  {dst.name}  (+{len(blobs)} picture(s), {total} substitution(s); {len(names) + len(blobs)} entries)")
     return True
 
 

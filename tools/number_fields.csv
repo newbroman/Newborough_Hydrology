@@ -1,4 +1,16 @@
 field,source_csv,key,scale,abs,dp,plus,minus,thousands,note
+07_C1_beta_1_recharge_max_dp1,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,1 · beta_1_recharge_max,1,,1,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C1_beta_1_recharge_max_dp2,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,1 · beta_1_recharge_max,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C1_beta_1_recharge_min_dp1,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,1 · beta_1_recharge_min,1,,1,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C1_beta_3_drainage_max_dp3,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,1 · beta_3_drainage_max,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C4_beta_2_atmospheric_draw_max_dp1,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,4 · beta_2_atmospheric_draw_max,1,,1,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C4_beta_2_atmospheric_draw_max_dp2,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,4 · beta_2_atmospheric_draw_max,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C4_beta_2_atmospheric_draw_min_dp1,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,4 · beta_2_atmospheric_draw_min,1,,1,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C4_beta_2_atmospheric_draw_min_dp2,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,4 · beta_2_atmospheric_draw_min,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C5_beta_2_atmospheric_draw_max_dp1,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,5 · beta_2_atmospheric_draw_max,1,,1,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C5_beta_2_atmospheric_draw_max_dp2,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,5 · beta_2_atmospheric_draw_max,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C5_beta_2_atmospheric_draw_min_dp1,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,5 · beta_2_atmospheric_draw_min,1,,1,,−,,"born a field in Paper 1 (T-110, J-19)"
+07_C5_beta_2_atmospheric_draw_min_dp2,outputs/07_spatial_coefficients/07_coeff_05_cluster_ranges.csv,5 · beta_2_atmospheric_draw_min,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
 10_consolidated_report_numbers__ANCOVA_B_WMC3_FE2_Forest_clearfell_step_dp3_plus,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,ANCOVA_B_WMC3+FE2_Forest_clearfell_step,1,,3,1,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 10_consolidated_report_numbers__CoeffShift_Impact_mean_db2_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Impact_mean_db2,1,,2,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 10_consolidated_report_numbers__SSM_Resid_Impact_mean_step_dp3_plus,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,SSM_Resid_Impact_mean_step,1,,3,1,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
@@ -9,6 +21,16 @@ field,source_csv,key,scale,abs,dp,plus,minus,thousands,note
 10a_report_numbers__ANCOVA_Forest_Impact_clearfell_step_dp3_plus,outputs/10_clearfell_baci/10a_report_numbers.csv,ANCOVA_Forest_Impact_clearfell_step,1,,3,1,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 10a_report_numbers__ANCOVA_Forest_Impact_coeff_cwb2_x_fell_p_dp2,outputs/10_clearfell_baci/10a_report_numbers.csv,ANCOVA_Forest_Impact_coeff_cwb2_x_fell_p,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 10a_report_numbers__ANCOVA_Forest_Impact_scraping_step_p_hac_dp3,outputs/10_clearfell_baci/10a_report_numbers.csv,ANCOVA_Forest_Impact_scraping_step_p_hac,1,,3,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
+10c_b1_p_vs_Dist_from_ridge_dp2,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₁_recharge · p_vs_Dist_from_ridge,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b1_p_vs_Easting_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₁_recharge · p_vs_Easting,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b1_p_vs_Elevation_dp2,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₁_recharge · p_vs_Elevation,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b1_r_vs_Dist_from_ridge_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₁_recharge · r_vs_Dist_from_ridge,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b1_r_vs_Easting_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₁_recharge · r_vs_Easting,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b2_Marginal_gain_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₂_atm_draw · Marginal_gain,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b2_R2_elevation_only_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₂_atm_draw · R2_elevation_only,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b2_r_vs_Elevation_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₂_atm_draw · r_vs_Elevation,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b3_Marginal_gain_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₃_drainage · Marginal_gain,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b3_r_vs_Elevation_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₃_drainage · r_vs_Elevation,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 10d_03_mixed_model_results__Forest_Edge_Clearfell_p_dp2,outputs/10_clearfell_baci/10d_03_mixed_model_results.csv,Forest / Edge · Clearfell_p,1,,2,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 10e_report_numbers__B2_multiplier_clearfell_impact_dp3,outputs/10_clearfell_baci/10e_report_numbers.csv,B2_multiplier_clearfell_impact,1,,3,,−,,bound by bind_ms129.csv (docs/report/text/Newborough_Methods_Supplement.md)
 10e_report_numbers__CoeffShift_corr_db1_db2_Forest_Ctrl_pine_dp2_plus,outputs/10_clearfell_baci/10e_report_numbers.csv,CoeffShift_corr_db1_db2 · Forest Ctrl pine,1,,2,1,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
@@ -99,6 +121,9 @@ field,source_csv,key,scale,abs,dp,plus,minus,thousands,note
 2022_P_PET_ratio_dp2,outputs/00_climate_summary/00_01_annual_climate_summary.csv,2022 · P_PET_ratio,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 2022_anomaly_vs_pre2013_dp2_plus,outputs/00_climate_summary/00_03_summer_warming_stats.csv,2022 · anomaly_vs_pre2013,1,,2,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 2025_anomaly_vs_pre2013_dp2_plus,outputs/00_climate_summary/00_03_summer_warming_stats.csv,2025 · anomaly_vs_pre2013,1,,2,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+29_C3_beta1_vs_inland_r_dp3_plus,outputs/29_within_c3_variance/29_report_numbers.csv,C3_beta1_vs_inland_r,1,,3,1,−,,"born a field in Paper 1 (T-110, J-19)"
+29_C3_beta3_vs_inland_p_dp2,outputs/29_within_c3_variance/29_report_numbers.csv,C3_beta3_vs_inland_p,1,,2,,−,,"born a field in Paper 1 (T-110, J-19)"
+29_C3_beta3_vs_inland_r_dp3_plus,outputs/29_within_c3_variance/29_report_numbers.csv,C3_beta3_vs_inland_r,1,,3,1,−,,"born a field in Paper 1 (T-110, J-19)"
 2_0_max_cluster_size_dp0,outputs/02_clustering/02_06_k_sweep_validation.csv,2.0 · max_cluster_size,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 2_0_merge_distance_dp2,outputs/02_clustering/02_06_k_sweep_validation.csv,2.0 · merge_distance,1,,2,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 2_metric_indep_ANOVA_dry_depth_statistic_dp2,outputs/31_cluster_validation/31_validation_summary.csv,2 metric-indep / ANOVA / dry depth · statistic,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -275,6 +300,7 @@ C1_Lake_Edge_amplitude_damping_pct_x-1_dp0,outputs/02_clustering/02_09_cluster_a
 C1_Lake_Edge_beta_1_recharge_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C1 (Lake Edge) · beta_1_recharge,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_beta_1_recharge_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C1 (Lake Edge) · beta_1_recharge,1,,3,,−,,bound by bind_report10.csv (report_edits/text/report10.md)
 C1_Lake_Edge_beta_2_atmospheric_draw_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C1 (Lake Edge) · beta_2_atmospheric_draw,1,,2,,−,,converted from citation_index (report_edits/text/report10.md)
+C1_Lake_Edge_beta_2_atmospheric_draw_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C1 (Lake Edge) · beta_2_atmospheric_draw,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 C1_Lake_Edge_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C1 (Lake Edge) · beta_3_drainage,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_coastal_gradient_mm_yr_dp1,outputs/25_coastal_gradient/25_03_cluster_partition.csv,C1 (Lake Edge) · coastal_gradient_mm_yr,1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_comparison_window_beta_3_pct_vs_full_record_dp0_plus,outputs/03_state_space_model/03_14_centroid_window_sensitivity.csv,C1 (Lake Edge) / comparison_window · beta_3_pct_vs_full_record,1,,0,1,−,,born a field in PaperM
@@ -320,6 +346,7 @@ C2_Dune_2025_MSL5_m_bg_mean_dp3,outputs/26_van_willegen_msl/26_msl_5yr_per_clust
 C2_Dune_2050s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C2 (Dune) / 2050s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_2080s_perwell_msl5_shift_sustained_mean_m_x1000_dp0,outputs/26b_van_willegen_msl_projections/26b_msl5_ukcp18_projection_summary_perwell.csv,C2 (Dune) / 2080s / perwell · msl5_shift_sustained_mean_m,1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_B_drain_frac_dp2,outputs/16_water_balance/16_water_bal_rec_table.csv,C2 (Dune) · B_drain_frac,1,,2,,−,,born a field 2026-10-28 (D-284)
+C2_Dune_Drainage_B_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C2 (Dune) · Drainage_B_pct,1,,0,,−,,"born a field in Paper 1 (T-110, J-19)"
 C2_Dune_Drainage_pct_dp0,outputs/16_water_balance/16_water_bal_table.csv,C2 (Dune) · Drainage_pct,1,,0,,−,,born a field in PaperM v1_11 (abstract and conclusions
 C2_Dune_ET_hi_mm_yr_dp0,outputs/16_water_balance/16_water_bal_vol_table.csv,C2 (Dune) · ET_hi_mm_yr,1,,0,,−,,D-262 (report9 §4.2.3 total evaporation)
 C2_Dune_ET_lo_mm_yr_dp0,outputs/16_water_balance/16_water_bal_vol_table.csv,C2 (Dune) · ET_lo_mm_yr,1,,0,,−,,D-262 (report9 §4.2.3 total evaporation)
@@ -340,6 +367,7 @@ C2_Dune_amplitude_damping_pct_climnorm_dp0,outputs/02_clustering/02_09_cluster_a
 C2_Dune_beta_1_recharge_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_1_recharge,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_beta_1_recharge_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_1_recharge,1,,3,,−,,converted from citation_index (docs/report/text/Supplementary_Material.md)
 C2_Dune_beta_2_atmospheric_draw_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_2_atmospheric_draw,1,,2,,−,,bound by manual_report10.csv (report_edits/text/report10.md)
+C2_Dune_beta_2_atmospheric_draw_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_2_atmospheric_draw,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 C2_Dune_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_3_drainage,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_comparison_window_beta_3_pct_vs_full_record_dp0_plus,outputs/03_state_space_model/03_14_centroid_window_sensitivity.csv,C2 (Dune) / comparison_window · beta_3_pct_vs_full_record,1,,0,1,−,,born a field in PaperM
 C2_Dune_corr_PET_hd_dp2,outputs/30_c4_drainage_identifiability/30_c4_identifiability_by_cluster.csv,C2 (Dune) · corr_PET_hd,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -410,6 +438,7 @@ C3_Western_Residual_aic_optimal_datum_m_dp1,outputs/03_state_space_model/03_18_d
 C3_Western_Residual_beta_1_recharge_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C3 (Western Residual) · beta_1_recharge,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_Western_Residual_beta_1_recharge_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C3 (Western Residual) · beta_1_recharge,1,,3,,−,,bound by bind_report10.csv (report_edits/text/report10.md)
 C3_Western_Residual_beta_2_atmospheric_draw_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C3 (Western Residual) · beta_2_atmospheric_draw,1,,2,,−,,bound by manual_report10.csv (report_edits/text/report10.md)
+C3_Western_Residual_beta_2_atmospheric_draw_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C3 (Western Residual) · beta_2_atmospheric_draw,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 C3_Western_Residual_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C3 (Western Residual) · beta_3_drainage,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_Western_Residual_beta_3_drainage_dp4,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C3 (Western Residual) · beta_3_drainage,1,,4,,−,,bound by bind_report8.csv (report_edits/text/report8.md)
 C3_Western_Residual_centroid_t_half_A_months_dp0,outputs/03_state_space_model/03_16_model_b_persistence.csv,centroid / C3 (Western Residual) / nan · t_half_A_months,1,,0,,−,,born a field 2026-10-28 (D-284)
@@ -490,6 +519,7 @@ C4_Main_Forest_aic_optimal_datum_m_dp1,outputs/03_state_space_model/03_18_datum_
 C4_Main_Forest_beta_1_recharge_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_1_recharge,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C4_Main_Forest_beta_1_recharge_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_1_recharge,1,,3,,−,,bound by bind_report10.csv (report_edits/text/report10.md)
 C4_Main_Forest_beta_2_atmospheric_draw_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_2_atmospheric_draw,1,,2,,−,,converted from citation_index (report_edits/text/report12.md)
+C4_Main_Forest_beta_2_atmospheric_draw_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_2_atmospheric_draw,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 C4_Main_Forest_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_3_drainage,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C4_Main_Forest_centroid_t_half_A_months_dp0,outputs/03_state_space_model/03_16_model_b_persistence.csv,centroid / C4 (Main Forest) / nan · t_half_A_months,1,,0,,−,,born a field 2026-10-28 (D-284)
 C4_Main_Forest_coastal_gradient_loo_max_pct_of_basis_dp0,outputs/25_coastal_gradient/25_03_cluster_partition.csv,C4 (Main Forest) · coastal_gradient_loo_max_pct_of_basis,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
@@ -574,6 +604,7 @@ C5_Coastal_Forest_amplitude_damping_pct_x-1_dp0,outputs/02_clustering/02_09_clus
 C5_Coastal_Forest_beta_1_recharge_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C5 (Coastal Forest) · beta_1_recharge,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_Coastal_Forest_beta_1_recharge_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C5 (Coastal Forest) · beta_1_recharge,1,,3,,−,,converted from citation_index (docs/report/text/Supplementary_Material.md)
 C5_Coastal_Forest_beta_2_atmospheric_draw_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C5 (Coastal Forest) · beta_2_atmospheric_draw,1,,2,,−,,bound by bind_report12.csv (report_edits/text/report12.md)
+C5_Coastal_Forest_beta_2_atmospheric_draw_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C5 (Coastal Forest) · beta_2_atmospheric_draw,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 C5_Coastal_Forest_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C5 (Coastal Forest) · beta_3_drainage,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_Coastal_Forest_centroid_t_half_A_months_dp0,outputs/03_state_space_model/03_16_model_b_persistence.csv,centroid / C5 (Coastal Forest) / nan · t_half_A_months,1,,0,,−,,born a field 2026-10-28 (D-284)
 C5_Coastal_Forest_coastal_gradient_mm_yr_dp1,outputs/25_coastal_gradient/25_03_cluster_partition.csv,C5 (Coastal Forest) · coastal_gradient_mm_yr,1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -685,10 +716,12 @@ CoeffShift_Climate_Ctrl_mean_db1_dp2,outputs/10_clearfell_baci/10e_report_number
 CoeffShift_Climate_Ctrl_mean_db1_pct_of_before_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Climate Ctrl_mean_db1_pct_of_before,1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_Coastal_Ctrl_mean_db1_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Coastal Ctrl_mean_db1,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_Edge_mean_db1_p_dp3,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Edge_mean_db1_p,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+CoeffShift_Edge_mean_db1_pct_of_before_abs_dp0,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Edge_mean_db1_pct_of_before,1,1,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
 CoeffShift_Edge_mean_db1_pct_of_before_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Edge_mean_db1_pct_of_before,1,,1,,−,,converted from citation_index (report_edits/text/report10.md)
 CoeffShift_Edge_mean_db2_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Edge_mean_db2,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_Edge_mean_db3_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Edge_mean_db3,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_Forest_Ctrl_mean_db1_dp2,outputs/10_clearfell_baci/10e_report_numbers.csv,CoeffShift_Forest Ctrl_mean_db1,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+CoeffShift_Forest_Ctrl_mean_db1_pct_of_before_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Forest Ctrl_mean_db1_pct_of_before,1,,1,,−,,born a field in PaperM v1_48 (J-18 restructure)
 CoeffShift_Forest_Ctrl_mean_db2_dp2_plus,outputs/10_clearfell_baci/10e_report_numbers.csv,CoeffShift_Forest Ctrl_mean_db2,1,,2,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_Forest_Ctrl_pine_mean_db2_dp3_plus,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Forest Ctrl_pine_mean_db2,1,,3,1,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 CoeffShift_Impact_mean_db1_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Impact_mean_db1,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -699,6 +732,7 @@ CoeffShift_Network_mean_b1_before_dp2,outputs/10_clearfell_baci/10_consolidated_
 CoeffShift_Network_mean_db1_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Network_mean_db1,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_Network_mean_db1_pct_of_before_abs_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Network_mean_db1_pct_of_before,1,1,1,,−,,converted from citation_index (report_edits/text/report10.md)
 CoeffShift_Network_mean_db1_pct_of_before_x-1_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Network_mean_db1_pct_of_before,-1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+CoeffShift_Network_n_wells_dp0,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Network_n_wells,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
 CoeffShift_WMC3_b1_after_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_WMC3_b1_after,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_WMC3_b1_before_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_WMC3_b1_before,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CoeffShift_WMC3_b2_after_dp2,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_WMC3_b2_after,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -1053,14 +1087,20 @@ basis_ranwell_nse_median_all_well_A_dp2,outputs/50_record_length/50_report_numbe
 basis_ranwell_nse_median_cluster_A_dp2,outputs/50_record_length/50_report_numbers.csv,basis_ranwell_nse_median_cluster_A,1,,2,,−,,bound by paperM_plain_v1_7.csv (docs/papers/paper_M/text/PaperM_plain.md)
 basis_ranwell_nse_median_cluster_B_dp2,outputs/50_record_length/50_report_numbers.csv,basis_ranwell_nse_median_cluster_B,1,,2,,−,,bound by paperM_plain_v1_7.csv (docs/papers/paper_M/text/PaperM_plain.md)
 basis_ranwell_nse_median_well_A_dp2,outputs/50_record_length/50_report_numbers.csv,basis_ranwell_nse_median_well_A,1,,2,,−,,bound by paperM_plain_v1_7.csv (docs/papers/paper_M/text/PaperM_plain.md)
+basis_ranwell_nse_median_well_B_dp2,outputs/50_record_length/50_report_numbers.csv,basis_ranwell_nse_median_well_B,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 basis_ranwell_range_ratio_median_cluster_A_dp2,outputs/50_record_length/50_report_numbers.csv,basis_ranwell_range_ratio_median_cluster_A,1,,2,,−,,born a field in PaperM v1_20 (D-268)
 basis_ranwell_range_ratio_median_well_A_dp2,outputs/50_record_length/50_report_numbers.csv,basis_ranwell_range_ratio_median_well_A,1,,2,,−,,born a field in PaperM v1_20 (D-268)
 basis_split_nse_median_cluster_A_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_cluster_A_fwd,1,,2,,−,,born a field in PaperM v1_20 (D-268)
 basis_split_nse_median_cluster_A_rev_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_cluster_A_rev,1,,2,,−,,born a field in PaperM v1_20 (D-268)
+basis_split_nse_median_cluster_B_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_cluster_B_fwd,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+basis_split_nse_median_cluster_B_rev_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_cluster_B_rev,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 basis_split_nse_median_well_A_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_well_A_fwd,1,,2,,−,,born a field in PaperM v1_20 (D-268)
 basis_split_nse_median_well_A_rev_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_well_A_rev,1,,2,,−,,born a field in PaperM v1_20 (D-268)
+basis_split_nse_median_well_B_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_well_B_fwd,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+basis_split_nse_median_well_B_rev_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_well_B_rev,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 benchmark_median_NSE_ModelB_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
 benchmark_median_NSE_SSM_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_SSM,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+benchmark_median_NSE_SSM_model_a_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_SSM_model_a,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 benchmark_median_NSE_TLM_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_TLM,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 benchmark_median_dNSE_ModelB_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_dNSE_ModelB,1,,2,,−,,born a field in PaperM (D-244)
 benchmark_median_dNSE_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_dNSE,1,,2,,−,,born a field in PaperM (D-244)
@@ -1087,6 +1127,8 @@ beta3_era_CEH4_2_Pure_Scraping_dp3,outputs/09_scraping_intervention/09_scrape_re
 beta_1_recharge_full_R2_dp2,outputs/29_within_c3_variance/29_headline_models.csv,beta_1_recharge · full_R2,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 beta_3_c3_dp3,outputs/20_spatial_figures/20_report_numbers.csv,beta_3_c3,1,,3,,−,,converted from citation_index (docs/report/text/Newborough_Methods_Supplement.md)
 beta_3_drainage_full_R2_dp2,outputs/29_within_c3_variance/29_headline_models.csv,beta_3_drainage · full_R2,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+bias_median_m_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,bias_median_m,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+bias_median_m_mhw_abs_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,bias_median_m_mhw,1,1,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 broadleaf_annual_C5_dh_mean_m_x-1_dp3,outputs/19_spatial_groundwater/19_scenario_summary.csv,broadleaf / annual / C5 · dh_mean_m,-1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 broadleaf_annual_level_sustained_model_a_C4_dh_mean_m_x-1_dp3,outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv,broadleaf / annual / level_sustained_model_a / C4 · dh_mean_m,-1,,3,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 broadleaf_annual_level_sustained_model_a_C5_dh_mean_m_x-1_dp3,outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv,broadleaf / annual / level_sustained_model_a / C5 · dh_mean_m,-1,,3,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
@@ -1485,8 +1527,11 @@ felling_experiment_2017_04_22_aerial22_4_2017_png_index_dp3,outputs/41_canopy_co
 felling_experiment_2018_06_28_aerial28_6_2018_png_index_dp3,outputs/41_canopy_cover/41_01_canopy_index.csv,felling_experiment / 2018-06-28 / aerial28-6-2018.png · index,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 fit_open_water_n_scenes_dp0,outputs/45_wet_area/45_report_numbers.csv,fit_open_water_n_scenes,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 fit_open_water_r2_log_dp2,outputs/45_wet_area/45_report_numbers.csv,fit_open_water_r2_log,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+fit_open_water_rho_dp2,outputs/45_wet_area/45_report_numbers.csv,fit_open_water_rho,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 fit_open_water_rho_dp2_plus,outputs/45_wet_area/45_report_numbers.csv,fit_open_water_rho,1,,2,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+fit_wet_floor_n_scenes_dp0,outputs/45_wet_area/45_report_numbers.csv,fit_wet_floor_n_scenes,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
 fit_wet_floor_r2_log_dp2,outputs/45_wet_area/45_report_numbers.csv,fit_wet_floor_r2_log,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+fit_wet_floor_rho_dp2,outputs/45_wet_area/45_report_numbers.csv,fit_wet_floor_rho,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 fit_wet_floor_rho_dp2_plus,outputs/45_wet_area/45_report_numbers.csv,fit_wet_floor_rho,1,,2,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 flood_freq_n_ever_C4_dp0,outputs/11b_spatial_thresholds/11b_report_numbers.csv,flood_freq_n_ever · C4,1,,0,,−,,bound by D296_report9_bind.csv (report_edits/text/report9.md)
 flood_freq_n_ever_C5_dp0,outputs/11b_spatial_thresholds/11b_report_numbers.csv,flood_freq_n_ever · C5,1,,0,,−,,bound by D296_report9_bind.csv (report_edits/text/report9.md)
@@ -1653,12 +1698,21 @@ modelab_efold_obs_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_n
 modelab_efold_obs_yw_months_median_all_dp1,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_efold_obs_yw_months_median_all,1,,1,,−,,born a field in PaperM v1_9 (D-255
 modelab_nse_fwd_A_median_C4_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_A_median_C4,1,,2,,−,,born a field in PaperM
 modelab_nse_fwd_A_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_A_median_all,1,,2,,−,,born a field in PaperM
+modelab_nse_fwd_B_median_C1_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C1,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+modelab_nse_fwd_B_median_C2_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C2,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+modelab_nse_fwd_B_median_C3_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C3,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 modelab_nse_fwd_B_median_C4_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C4,1,,2,,−,,born a field in PaperM
+modelab_nse_fwd_B_median_C5_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C5,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 modelab_nse_fwd_B_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_all,1,,2,,−,,born a field in PaperM
 modelab_nse_fwd_M_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_M_median_all,1,,2,,−,,born a field in PaperM
 modelab_nse_fwd_share_B_better_all_x100_dp0,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_share_B_better_all,100,,0,,−,,born a field in PaperM
 modelab_nse_fwd_share_M_better_all_x100_dp0,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_share_M_better_all,100,,0,,−,,born a field in PaperM
 modelab_nse_rev_A_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_A_median_all,1,,2,,−,,born a field in PaperM
+modelab_nse_rev_B_median_C1_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C1,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+modelab_nse_rev_B_median_C2_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C2,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+modelab_nse_rev_B_median_C3_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C3,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+modelab_nse_rev_B_median_C4_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C4,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+modelab_nse_rev_B_median_C5_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C5,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 modelab_nse_rev_B_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_all,1,,2,,−,,born a field in PaperM
 modelab_nse_rev_M_median_all_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_M_median_all,1,,2,,−,,born a field in PaperM
 modelab_nse_rev_share_B_better_all_x100_dp0,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_share_B_better_all,100,,0,,−,,born a field in PaperM
@@ -1742,6 +1796,7 @@ net_state_forest_interior_max_mm_dpm1,outputs/20_spatial_figures/20_report_numbe
 nse_bias_removed_max_excl_persistent_forest_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,nse_bias_removed_max_excl_persistent_forest,1,,2,,−,,bound by bind_ms129.csv (docs/report/text/Newborough_Methods_Supplement.md)
 nse_bias_removed_min_excl_persistent_forest_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,nse_bias_removed_min_excl_persistent_forest,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 nse_bias_removed_persistent_forest_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,nse_bias_removed_persistent_forest,1,,2,,−,,converted from citation_index (docs/report/text/Newborough_Methods_Supplement.md)
+nse_median_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,nse_median,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 nw10_beta_1_recharge_dp2,outputs/07_spatial_coefficients/07_coeff_maps_data.csv,nw10 · beta_1_recharge,1,,2,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 nw10_beta_1_recharge_dp3,outputs/03_master_data.csv,nw10 · beta_1_recharge,1,,3,,−,,converted from citation_index (report_edits/text/report10.md)
 nw10_beta_2_atmospheric_draw_dp2,outputs/07_spatial_coefficients/07_coeff_maps_data.csv,nw10 · beta_2_atmospheric_draw,1,,2,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
@@ -1836,6 +1891,12 @@ pflood_n_forest_wells_c4_c5_dp0,outputs/11b_spatial_thresholds/11b_report_number
 pflood_n_wells_mP_gt_1_dp0,outputs/11b_spatial_thresholds/11b_report_numbers.csv,pflood_n_wells_mP_gt_1,1,,0,,−,,bound by r9_emits.csv (report_edits/text/report9.md)
 pflood_recharge_horizon_P_clim_total_mm_C1_Oct_Jan_4_mo_dp0,outputs/11b_spatial_thresholds/11b_report_numbers.csv,pflood_recharge_horizon_P_clim_total_mm · C1 · Oct-Jan (4 mo),1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 pflood_recharge_horizon_P_clim_total_mm_C3_Oct_Feb_5_mo_dp0,outputs/11b_spatial_thresholds/11b_report_numbers.csv,pflood_recharge_horizon_P_clim_total_mm · C3 · Oct-Feb (5 mo),1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+placement_L24_ccw_absbias_median_B_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_ccw_absbias_median_B,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+placement_L24_ranwell_nse_median_B_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_ranwell_nse_median_B,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+placement_L24_share_correct_pct_dp0,outputs/50_record_length/50_report_numbers.csv,placement_L24_share_correct_pct,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
+placement_L24_split_nse_median_B_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_split_nse_median_B_fwd,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+placement_L24_split_nse_median_B_rev_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_split_nse_median_B_rev,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
+placement_L36_share_correct_pct_dp0,outputs/50_record_length/50_report_numbers.csv,placement_L36_share_correct_pct,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
 post2018_p90_p10_max_min_ratio_C3_Western_Residual_dp1,outputs/02_clustering/02_report_numbers.csv,post2018_p90_p10_max_min_ratio · C3 (Western Residual),1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 post_2013_anomaly_summer_max_mean_dp2,outputs/00_climate_summary/00_03_summer_warming_stats.csv,post_2013_anomaly · summer_max_mean,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 pre_2013_mean_C_summer_max_mean_dp2,outputs/00_climate_summary/00_03_summer_warming_stats.csv,pre_2013_mean_C · summer_max_mean,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -1896,6 +1957,7 @@ ranwell_floor_lowering_inland_median_m_dp2,outputs/44_ranwell_hindcast/44_report
 ranwell_floor_lowering_site8_m_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_floor_lowering_site8_m,1,,2,,−,,converted from citation_index (report_edits/text/report10.md)
 ranwell_forcing_r_1951_53_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_forcing_r_1951_53,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 ranwell_forcing_ratio_1951_53_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_forcing_ratio_1951_53,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+ranwell_hindcast_nse_median_all_pairings_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_hindcast_nse_median_all_pairings,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 ranwell_hindcast_r_max_all_pairings_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_hindcast_r_max_all_pairings,1,,2,,−,,bound by r9_emits.csv (report_edits/text/report9.md)
 ranwell_hindcast_r_median_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_hindcast_r_median,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 ranwell_hindcast_r_min_all_pairings_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_hindcast_r_min_all_pairings,1,,2,,−,,bound by r9_emits.csv (report_edits/text/report9.md)
@@ -2172,6 +2234,7 @@ sy_ols_to_event_ratio_mean_dp2,outputs/17_wtf_specific_yield/17_report_numbers.c
 sy_recip_beta3_correlation_n_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,sy_recip_beta3_correlation_n,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 sy_recip_beta3_correlation_p_dp2,outputs/18_wtf_spatial/18_report_numbers.csv,sy_recip_beta3_correlation_p,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 sy_recip_beta3_correlation_r_dp2,outputs/18_wtf_spatial/18_report_numbers.csv,sy_recip_beta3_correlation_r,1,,2,,−,,converted from citation_index (report_edits/text/report10.md)
+sy_recip_beta3_correlation_r_dp3,outputs/18_wtf_spatial/18_report_numbers.csv,sy_recip_beta3_correlation_r,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 synth_FE1_RMSE_mm_dp0,outputs/10_clearfell_baci/10h_report_numbers.csv,synth_FE1_RMSE_mm,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 synth_FE2_RMSE_mm_dp0,outputs/10_clearfell_baci/10h_report_numbers.csv,synth_FE2_RMSE_mm,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 synth_FE2_postfell_divergence_mm_dp0_plus,outputs/10_clearfell_baci/10h_report_numbers.csv,synth_FE2_postfell_divergence_mm,1,,0,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -2280,6 +2343,8 @@ water_balance_drain_share_lo_pct_C3_Western_Residual_dp0,outputs/16_water_balanc
 water_balance_drain_share_lo_pct_C4_Main_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_drain_share_lo_pct · C4 (Main Forest),1,,0,,−,,born a field 2026-10-28 (D-284)
 water_balance_drain_share_lo_pct_C5_Coastal_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_drain_share_lo_pct · C5 (Coastal Forest),1,,0,,−,,born a field 2026-10-28 (D-284)
 water_balance_et_share_pct_C4_Main_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_share_pct · C4 (Main Forest),1,,0,,−,,born a field 2026-10-28 (D-284)
+water_balance_et_total_mm_yr_C4_Main_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_total_mm_yr · C4 (Main Forest),1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
+water_balance_et_total_over_pet_C4_Main_Forest_dp2,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_total_over_pet · C4 (Main Forest),1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
 water_balance_et_total_over_pet_C4_Main_Forest_x100_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_total_over_pet · C4 (Main Forest),100,,0,,−,,bound by q3.bind.csv (report_edits/text/report9.md)
 water_balance_residual_pct_C4_Main_Forest_dp2,outputs/16_water_balance/16_report_numbers.csv,water_balance_residual_pct · C4 (Main Forest),1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wb_ccw_bias_line_m_dp2,outputs/55_water_balance_drainage/55_report_numbers.csv,wb_ccw_bias_line_m,1,,2,,−,,born a field in PaperM (D-303; spec NRG_spec_water_balance_diagnostic_2026-11-04)
@@ -2347,36 +2412,3 @@ wt_mean_elev_aod_network_mean_dp2,outputs/01_data_prep/01_report_numbers.csv,wt_
 wtf_n_events_per_well_max_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_max,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_mean_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_mean,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_min,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
-placement_L24_split_nse_median_B_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_split_nse_median_B_fwd,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-bias_median_m_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,bias_median_m,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_fwd_B_median_C1_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C1,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_rev_B_median_C1_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C1,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_fwd_B_median_C2_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C2,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_rev_B_median_C2_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C2,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_fwd_B_median_C3_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C3,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_rev_B_median_C3_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C3,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_fwd_B_median_C5_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_fwd_B_median_C5,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_rev_B_median_C5_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C5,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-modelab_nse_rev_B_median_C4_dp2,outputs/48_pastas_crosscheck/48_report_numbers.csv,modelab_nse_rev_B_median_C4,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-fit_wet_floor_n_scenes_dp0,outputs/45_wet_area/45_report_numbers.csv,fit_wet_floor_n_scenes,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
-fit_open_water_rho_dp2,outputs/45_wet_area/45_report_numbers.csv,fit_open_water_rho,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-fit_wet_floor_rho_dp2,outputs/45_wet_area/45_report_numbers.csv,fit_wet_floor_rho,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-nse_median_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,nse_median,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-ranwell_hindcast_nse_median_all_pairings_dp2,outputs/44_ranwell_hindcast/44_report_numbers.csv,ranwell_hindcast_nse_median_all_pairings,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-basis_split_nse_median_cluster_B_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_cluster_B_fwd,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-basis_split_nse_median_cluster_B_rev_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_cluster_B_rev,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-basis_split_nse_median_well_B_fwd_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_well_B_fwd,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-basis_split_nse_median_well_B_rev_dp2,outputs/50_record_length/50_report_numbers.csv,basis_split_nse_median_well_B_rev,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-basis_ranwell_nse_median_well_B_dp2,outputs/50_record_length/50_report_numbers.csv,basis_ranwell_nse_median_well_B,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-placement_L24_share_correct_pct_dp0,outputs/50_record_length/50_report_numbers.csv,placement_L24_share_correct_pct,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
-placement_L36_share_correct_pct_dp0,outputs/50_record_length/50_report_numbers.csv,placement_L36_share_correct_pct,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
-placement_L24_split_nse_median_B_rev_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_split_nse_median_B_rev,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-placement_L24_ranwell_nse_median_B_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_ranwell_nse_median_B,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-placement_L24_ccw_absbias_median_B_dp2,outputs/50_record_length/50_report_numbers.csv,placement_L24_ccw_absbias_median_B,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-CoeffShift_Network_n_wells_dp0,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Network_n_wells,1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
-CoeffShift_Edge_mean_db1_pct_of_before_abs_dp0,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Edge_mean_db1_pct_of_before,1,1,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
-CoeffShift_Forest_Ctrl_mean_db1_pct_of_before_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,CoeffShift_Forest Ctrl_mean_db1_pct_of_before,1,,1,,−,,born a field in PaperM v1_48 (J-18 restructure)
-water_balance_et_total_mm_yr_C4_Main_Forest_dp0,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_total_mm_yr · C4 (Main Forest),1,,0,,−,,born a field in PaperM v1_48 (J-18 restructure)
-water_balance_et_total_over_pet_C4_Main_Forest_dp2,outputs/16_water_balance/16_report_numbers.csv,water_balance_et_total_over_pet · C4 (Main Forest),1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-bias_median_m_mhw_abs_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,bias_median_m_mhw,1,1,2,,−,,born a field in PaperM v1_48 (J-18 restructure)
-benchmark_median_NSE_SSM_model_a_dp2,outputs/08_model_benchmarking/08_report_numbers.csv,benchmark_median_NSE_SSM_model_a,1,,2,,−,,born a field in PaperM v1_48 (J-18 restructure)

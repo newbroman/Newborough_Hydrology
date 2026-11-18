@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v46.odt — do not edit. source-sha256=d2be4c421f460118 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Hollingham_2026_Paper2_amended_v47.odt — do not edit. source-sha256=6f8ff8fd4c3379eb pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Hydrological response of a coastal dune aquifer to plantation clearfell and dune scraping: a BACI analysis of a 21-year manual record
@@ -372,7 +372,7 @@ Grootjans, A.P., Geelen, H.W.T., Jansen, A.J.M., Lammerts, E.J., 2002. Restorati
 
 Hollingham, M., 2026a. A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records. Companion paper, in preparation.
 
-Hollingham, M., 2026c. Intercept, datum and record: what a linear-reservoir model fitted to monthly groundwater levels can tell you. In preparation.
+Hollingham, M., 2026c. One model for a dune water table: what a monthly linear-reservoir model fitted to dipwell levels can forecast, and how far to trust it. In preparation.
 
 Hollingham, M., 2026d. Hydrogeological Dynamics, Behavioural Clustering and Management Intervention Analysis at Newborough Warren Coastal Sand Dune Aquifer, Wales. Technical report, October 2026. https://newbroman.github.io/Newborough_Hydrology/
 

@@ -37,7 +37,7 @@ report8.odt,3.6.5,Spatial Distribution of Threshold Metrics
 report8.odt,3.7,Characterizing Water Table Losses and Long-Term Trajectories
 report8.odt,3.7.1,Depth-Dependent Evapotranspiration Model
 report8.odt,3.7.2,Mean Monthly Water Balance Decomposition
-report8.odt,3.7.3,Specific Yield Estimation: Water Table Fluctuation Method
+report8.odt,3.7.3,Apparent Storage Coefficient Estimation: Water Table Fluctuation Method
 report8.odt,3.7.4,Network-Scale Coastal-Retreat Gradient Regression
 report8.odt,3.7.5,Five-Year Mean Spring Water Level (MSL5) and Associated Forecasting Tools
 report8.odt,3.7.6,Equilibrium Wetness Index and Vegetation Cross-Validation
@@ -60,7 +60,7 @@ report9.odt,4.2,Network Clustering and Spatial Architecture
 report9.odt,4.2.1,Cluster Hydrographs and Seasonal Amplitudes
 report9.odt,4.2.2,Cluster Mechanistic Characterization
 report9.odt,4.2.3,Recharge and Losses: A Cluster-Level Water Balance
-report9.odt,4.2.4,Specific Yield Estimation
+report9.odt,4.2.4,Apparent Storage Coefficient Estimation
 report9.odt,4.3,Checking the Clusters: Pearson Affinity Analysis
 report9.odt,4.4,Model Benchmarking: State-Space Model Comparison with Traditional Linear Models
 report9.odt,4.5,Dune Scraping Intervention Analysis
@@ -134,7 +134,7 @@ report10.odt,5.5,The Clearfell Experiment
 report10.odt,5.5.1,"Seasonal Asymmetry, the β₁ Decline, and the Confounded Baseline"
 report10.odt,5.5.2,Forest Management Scenario Responses
 report10.odt,5.6,Hydrological Effects of the Plantation
-report10.odt,5.6.1,"Atmospheric Draw, Specific Yield and the β₂ Coefficient"
+report10.odt,5.6.1,"Atmospheric Draw, Apparent Storage and the β₂ Coefficient"
 report10.odt,5.6.2,Summer Minimum Depths at the Forest Margin
 report10.odt,5.6.3,Broadleaf Conversion: The NW10 Natural Experiment
 report10.odt,5.6.4,"Stand Density, Thinning and the Dothistroma Natural Experiment"

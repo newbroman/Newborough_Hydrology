@@ -38,7 +38,7 @@
 | 15 | 4.3 | Spatial distribution of the five primary hydrogeological clusters chec | `outputs/05_pearson_affinity/05_pear_01_spatial_confidence_map.png` | yes |
 | 16 | 4.3 | Filling gaps from cluster-mates. (a) The error in the held-out spring  | `outputs/51_cluster_gap_fill/51_07_cluster_gap_fill.png` | yes |
 | 17 | 4.4 | Dual-model performance comparison at Lake Edge well CEH6. Upper panel: | `outputs/08_model_benchmarking/08_lcsc_01_ceh6_showdown.png` | yes |
-| 18 | 4.4 | SSM gain over TLM across all 66 reference wells. Iterative R² improvem | `outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png` | yes |
+| 18 | 4.4 | SSM gain over TLM across the 64 benchmark wells. Iterative R² improvem | `outputs/08_model_benchmarking/08_lcsc_02_r2_improvement_map.png` | yes |
 | 19 | 4.5.1 | Tier 1 background environmental drift analysis. CUSUM time series for  | `outputs/09_scraping_intervention/09_scrape_05_tier1_background_drift.png` | yes |
 | 20 | 4.5.2 | Tier 2 paired CUSUM analysis at treatment wells CEH36 (top), CEH18 (ce | `outputs/09_scraping_intervention/09_scrape_06_tier2_scraping_signal.png` | yes |
 | 21 | 4.5.2 | Three-method robustness assessment of the scraping signal at CEH36. (a | `outputs/09_scraping_intervention/09_scrape_08_ceh36_robustness.png` | yes |

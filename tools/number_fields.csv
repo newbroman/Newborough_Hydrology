@@ -265,8 +265,8 @@ BROADLEAF_INTERCEPTION_dp2,src/utils/config.py,BROADLEAF_INTERCEPTION,1,,2,,−,
 BROADLEAF_INTERCEPTION_x100_dp0,src/utils/config.py,BROADLEAF_INTERCEPTION,100,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 Broadleaf_C4_Delta_vol_mm_per_month_dp1,outputs/09_scraping_intervention/09b_04_scenario_comparison.csv,Broadleaf / C4 · Delta_vol_mm_per_month,1,,1,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 Broadleaf_C5_Delta_vol_mm_per_month_dp1,outputs/09_scraping_intervention/09b_04_scenario_comparison.csv,Broadleaf / C5 · Delta_vol_mm_per_month,1,,1,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
-Broadleaf_hypothetical_Delta_vol_mm_per_month_dp1,outputs/09_scraping_intervention/09d_01_scenario_comparison.csv,Broadleaf (hypothetical) · Delta_vol_mm_per_month,1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
-Broadleaf_hypothetical_Delta_vol_summer_mm_per_month_dp1,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,Broadleaf (hypothetical) · Delta_vol_summer_mm_per_month,1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+Broadleaf_hypothetical_Delta_vol_mm_per_month_dp1,outputs/09_scraping_intervention/09d_01_scenario_comparison.csv,Broadleaf (hypothetical) · Delta_vol_mm_per_month,1,,1,,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
+Broadleaf_hypothetical_Delta_vol_summer_mm_per_month_dp1,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,Broadleaf (hypothetical) · Delta_vol_summer_mm_per_month,1,,1,,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
 C1_2007_Summer_Min_Value_m_dp3,outputs/14_climate_projections/14_annual_extremes.csv,C1 / 2007 / Summer_Min · Value_m,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Delta_NSE_dp3_plus,outputs/15_depth_dependent_pet/15_03_benchmark_table.csv,C1 · Delta_NSE,1,,3,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C1_Lake_Edge_2011_MAX5_m_bg_mean_x-1000_dp0,outputs/26_van_willegen_msl/26_msl_5yr_per_cluster.csv,C1 (Lake Edge) / 2011 · MAX5_m_bg_mean,-1000,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -369,7 +369,7 @@ C2_Dune_beta_1_recharge_dp2,outputs/03_state_space_model/03_03_cluster_mechanist
 C2_Dune_beta_1_recharge_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_1_recharge,1,,3,,−,,converted from citation_index (docs/report/text/Supplementary_Material.md)
 C2_Dune_beta_2_atmospheric_draw_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_2_atmospheric_draw,1,,2,,−,,bound by manual_report10.csv (report_edits/text/report10.md)
 C2_Dune_beta_2_atmospheric_draw_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_2_atmospheric_draw,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
-C2_Dune_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_3_drainage,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C2_Dune_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C2 (Dune) · beta_3_drainage,1,,3,,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
 C2_Dune_comparison_window_beta_3_pct_vs_full_record_dp0_plus,outputs/03_state_space_model/03_14_centroid_window_sensitivity.csv,C2 (Dune) / comparison_window · beta_3_pct_vs_full_record,1,,0,1,−,,born a field in PaperM
 C2_Dune_corr_PET_hd_dp2,outputs/30_c4_drainage_identifiability/30_c4_identifiability_by_cluster.csv,C2 (Dune) · corr_PET_hd,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_Dune_delta_AIC_datum_vs_optimum_dp1,outputs/03_state_space_model/03_18_datum_invariance.csv,C2 (Dune) · delta_AIC_datum_vs_optimum,1,,1,,−,,bound by manual_report8.csv (report_edits/text/report8.md)
@@ -391,6 +391,7 @@ C2_halflife_min_dp1,outputs/18_wtf_spatial/18_report_numbers.csv,C2_halflife_min
 C2_intercept_B_dp0,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,C2 · intercept_B,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C2_intercept_B_dp2,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,C2 · intercept_B,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_mean_elevation_aod_dp2,outputs/03_state_space_model/03_report_numbers.csv,C2_mean_elevation_aod,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C2_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C2_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
 C2_median_dNSE_dp3_plus,outputs/08_model_benchmarking/08_cluster_nse_medians.csv,C2 · median_dNSE,1,,3,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_n_years_dp0,outputs/14_climate_projections/14_summer_trend_stats.csv,C2 · n_years,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C2_p_value_dp3,outputs/14_climate_projections/14_summer_trend_stats.csv,C2 · p_value,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -474,6 +475,7 @@ C3_horizon_n_months_dp0,outputs/11_forecasting_thresholds/11_forecast_pflood_sum
 C3_intercept_B_dp0,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,C3 · intercept_B,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C3_intercept_B_dp2,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,C3 · intercept_B,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_mean_elevation_aod_dp2,outputs/03_state_space_model/03_report_numbers.csv,C3_mean_elevation_aod,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C3_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C3_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
 C3_median_dNSE_dp3_plus,outputs/08_model_benchmarking/08_cluster_nse_medians.csv,C3 · median_dNSE,1,,3,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_n_years_dp0,outputs/14_climate_projections/14_summer_trend_stats.csv,C3 · n_years,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C3_p_value_dp3,outputs/14_climate_projections/14_summer_trend_stats.csv,C3 · p_value,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -522,7 +524,7 @@ C4_Main_Forest_beta_1_recharge_dp2,outputs/03_state_space_model/03_03_cluster_me
 C4_Main_Forest_beta_1_recharge_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_1_recharge,1,,3,,−,,bound by bind_report10.csv (report_edits/text/report10.md)
 C4_Main_Forest_beta_2_atmospheric_draw_dp2,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_2_atmospheric_draw,1,,2,,−,,converted from citation_index (report_edits/text/report12.md)
 C4_Main_Forest_beta_2_atmospheric_draw_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_2_atmospheric_draw,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
-C4_Main_Forest_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_3_drainage,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C4_Main_Forest_beta_3_drainage_dp3,outputs/03_state_space_model/03_03_cluster_mechanistic_coefficients.csv,C4 (Main Forest) · beta_3_drainage,1,,3,,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
 C4_Main_Forest_centroid_t_half_A_months_dp0,outputs/03_state_space_model/03_16_model_b_persistence.csv,centroid / C4 (Main Forest) / nan · t_half_A_months,1,,0,,−,,born a field 2026-10-28 (D-284)
 C4_Main_Forest_coastal_gradient_loo_max_pct_of_basis_dp0,outputs/25_coastal_gradient/25_03_cluster_partition.csv,C4 (Main Forest) · coastal_gradient_loo_max_pct_of_basis,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 C4_Main_Forest_coastal_gradient_loo_min_pct_of_basis_dp0,outputs/25_coastal_gradient/25_03_cluster_partition.csv,C4 (Main Forest) · coastal_gradient_loo_min_pct_of_basis,1,,0,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
@@ -643,6 +645,7 @@ C5_halflife_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,C5_halflife_min
 C5_halflife_min_dp1,outputs/18_wtf_spatial/18_report_numbers.csv,C5_halflife_min,1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_intercept_B_dp0,outputs/11_forecasting_thresholds/11_forecast_pflood_summary.csv,C5 · intercept_B,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_mean_elevation_aod_dp2,outputs/03_state_space_model/03_report_numbers.csv,C5_mean_elevation_aod,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C5_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C5_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
 C5_median_dNSE_dp3_plus,outputs/08_model_benchmarking/08_cluster_nse_medians.csv,C5 · median_dNSE,1,,3,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 C5_observed_per_well_mean_dp1,outputs/25_coastal_gradient/25_report_numbers.csv,C5_observed_per_well_mean,1,,1,,−,,converted from citation_index (docs/report/text/Newborough_Methods_Supplement.md)
 C5_p_value_dp3,outputs/14_climate_projections/14_summer_trend_stats.csv,C5 · p_value,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -675,6 +678,7 @@ CEH36_SSM_forward_residual_step_dp3_plus,outputs/09_scraping_intervention/09e_re
 CEH36_raw_BACI_step_dp3_plus,outputs/09_scraping_intervention/09e_report_numbers.csv,CEH36_raw_BACI_step,1,,3,1,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 CEH36_synthetic_control_step_dp3_plus,outputs/09_scraping_intervention/09e_report_numbers.csv,CEH36_synthetic_control_step,1,,3,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CEH4_Climate_p_value_dp2,outputs/09_scraping_intervention/09c_02_summer_minima_shifts.csv,CEH4 / Climate · p_value,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+CEH6_ModelB_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH6 · ModelB_NSE,1,,2,,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
 CEH6_SSM_NSE_dp2_plus,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH6 · SSM_NSE,1,,2,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CEH6_TLM_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH6 · TLM_NSE,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 CEH6_iterative_NSE_Delta_B_minus_A_dp2_plus,outputs/08_model_benchmarking/08_lcsc_04_table3_benchmark_summary.csv,CEH6 iterative NSE · Delta_SSM_minus_TLM,1,,2,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -704,10 +708,10 @@ Clearfell_hypothetical_Delta_vol_mm_per_month_dp1_plus,outputs/09_scraping_inter
 Clearfell_hypothetical_Delta_vol_summer_mm_per_month_dp1_plus,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,Clearfell (hypothetical) · Delta_vol_summer_mm_per_month,1,,1,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 Climate_dry_C3_Delta_vol_mm_per_month_dp0,outputs/09_scraping_intervention/09b_04_scenario_comparison.csv,Climate dry / C3 · Delta_vol_mm_per_month,1,,0,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
 Climate_dry_C5_Delta_vol_mm_per_month_dp0,outputs/09_scraping_intervention/09b_04_scenario_comparison.csv,Climate dry / C5 · Delta_vol_mm_per_month,1,,0,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
-Climate_dry_Delta_vol_mm_per_month_dp1,outputs/09_scraping_intervention/09d_01_scenario_comparison.csv,Climate dry · Delta_vol_mm_per_month,1,,1,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
-Climate_dry_Delta_vol_summer_mm_per_month_dp1,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,Climate dry · Delta_vol_summer_mm_per_month,1,,1,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
-Climate_wet_Delta_vol_mm_per_month_dp1_plus,outputs/09_scraping_intervention/09d_01_scenario_comparison.csv,Climate wet · Delta_vol_mm_per_month,1,,1,1,−,,bound by r9_traced.csv (report_edits/text/report9.md)
-Climate_wet_Delta_vol_summer_mm_per_month_dp1_plus,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,Climate wet · Delta_vol_summer_mm_per_month,1,,1,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+Climate_dry_Delta_vol_mm_per_month_dp1,outputs/09_scraping_intervention/09d_01_scenario_comparison.csv,Climate dry · Delta_vol_mm_per_month,1,,1,,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
+Climate_dry_Delta_vol_summer_mm_per_month_dp1,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,Climate dry · Delta_vol_summer_mm_per_month,1,,1,,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
+Climate_wet_Delta_vol_mm_per_month_dp1_plus,outputs/09_scraping_intervention/09d_01_scenario_comparison.csv,Climate wet · Delta_vol_mm_per_month,1,,1,1,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
+Climate_wet_Delta_vol_summer_mm_per_month_dp1_plus,outputs/09_scraping_intervention/09d_02_summer_scenario_comparison.csv,Climate wet · Delta_vol_summer_mm_per_month,1,,1,1,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
 Coastal_Forest_R2_dp3,outputs/11_forecasting_thresholds/11_forecast_winter_transfer_functions.csv,Coastal_Forest · R2,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 Coastal_Forest_p_value_P_summer_dp3,outputs/11_forecasting_thresholds/11_forecast_summer_transfer_functions.csv,Coastal_Forest · p_value_P_summer,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 Coastal_Forest_p_value_P_winter_dp3,outputs/11_forecasting_thresholds/11_forecast_winter_transfer_functions.csv,Coastal_Forest · p_value_P_winter,1,,3,,−,,converted from citation_index (report_edits/text/report10.md)
@@ -1795,6 +1799,7 @@ n_wells_mapped_2005_2025_dp0,outputs/36_absolute_climate_trend/36_report_numbers
 n_years_summer_max_mean_dp0,outputs/00_climate_summary/00_03_summer_warming_stats.csv,n_years · summer_max_mean,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 nearest_well_to_hwm_east_m_dp0,outputs/01b_water_table/01b_report_numbers.csv,nearest_well_to_hwm_east_m,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 nearest_well_to_hwm_south_west_m_dp0,outputs/01b_water_table/01b_report_numbers.csv,nearest_well_to_hwm_south_west_m,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+neg_control_c2_mean_residual_mm_full_record_dp1_plus,outputs/37_driver_validation/37_report_numbers.csv,neg_control_c2_mean_residual_mm_full_record,1,,1,1,−,,bound by bind_drift_ms.csv (docs/report/text/Newborough_Methods_Supplement.md)
 net_state_forest_interior_max_mm_dpm1,outputs/20_spatial_figures/20_report_numbers.csv,net_state_forest_interior_max_mm,1,,-1,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 nse_bias_removed_max_excl_persistent_forest_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,nse_bias_removed_max_excl_persistent_forest,1,,2,,−,,bound by bind_ms129.csv (docs/report/text/Newborough_Methods_Supplement.md)
 nse_bias_removed_min_excl_persistent_forest_dp2,outputs/39_ccw_hindcast/39_report_numbers.csv,nse_bias_removed_min_excl_persistent_forest,1,,2,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
@@ -1806,6 +1811,7 @@ nw10_beta_2_atmospheric_draw_dp2,outputs/07_spatial_coefficients/07_coeff_maps_d
 nw10_beta_2_atmospheric_draw_dp3,outputs/03_master_data.csv,nw10 · beta_2_atmospheric_draw,1,,3,,−,,converted from citation_index (report_edits/text/report10.md)
 nw10_beta_3_drainage_dp3,outputs/03_master_data.csv,nw10 · beta_3_drainage,1,,3,,−,,converted from citation_index (report_edits/text/report10.md)
 nw11_residual_wb_dp4,outputs/20_spatial_figures/20_residual_perwell.csv,nw11 · residual_wb,1,,4,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+nw2_residual_wb_dp4,outputs/20_spatial_figures/20_residual_perwell.csv,nw2 · residual_wb,1,,4,,−,,bound by bind_drift_r10.csv (report_edits/text/report10.md)
 nw3_residual_wb_dp4_plus,outputs/20_spatial_figures/20_residual_perwell.csv,nw3 · residual_wb,1,,4,1,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 nw4_dist_coast_m_x0p001_dp1,outputs/01_dist_coast_validation.csv,nw4 · dist_coast_m,0.001,,1,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 nw6_ar1_phi_dp2,outputs/22_residual_lag_analysis/22_05_ssm_residual_autocorrelation.csv,nw6 · ar1_phi,1,,2,,−,,converted from citation_index (docs/report/text/Newborough_Methods_Supplement.md)
@@ -2415,7 +2421,3 @@ wt_mean_elev_aod_network_mean_dp2,outputs/01_data_prep/01_report_numbers.csv,wt_
 wtf_n_events_per_well_max_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_max,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_mean_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_mean,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_min,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
-C2_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C2_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
-C3_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C3_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
-CEH6_ModelB_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH6 · ModelB_NSE,1,,2,,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
-C5_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C5_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"

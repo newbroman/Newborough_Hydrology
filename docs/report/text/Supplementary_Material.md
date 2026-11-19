@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_62.odt — do not edit. source-sha256=6b9b57c4c1008633 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Supplementary_Material_v1_63.odt — do not edit. source-sha256=b7c69627d1f71107 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Supplementary Material
@@ -50,7 +50,7 @@ The Eastern Block (C1: β₁ = 3.715; C2: β₁ = 3.500) and Western Residual cl
   C5        Coastal Forest     2.463   1.335   0.045   Pine canopy on coastal sand; geomorphological thinning toward Menai Strait
   --------- ------------------ ------- ------- ------- -----------------------------------------------------------------------------------
 
-**Table S2.2.*** Cluster mechanistic coefficients (from Table 3, displacement-formulation SSM) and geological context. The β₁ contrast between Eastern Block (C1/C2) and Western Residual cluster (C3) is consistent with the stratigraphic interpretation of Stratford et al. (2007). C3 and C4 share the same deep aeolian sand body, confirmed by β₁ similarity after correcting for canopy interception and by Pearson affinity persistence post-felling. Borehole 3 (3.65 m, eastern margin) confirms progressive thinning toward the coast.*
+**Table S2.2.*** Cluster mechanistic coefficients (from Table 4, displacement-formulation SSM) and geological context. The β₁ contrast between Eastern Block (C1/C2) and Western Residual cluster (C3) is consistent with the stratigraphic interpretation of Stratford et al. (2007). C3 and C4 share the same deep aeolian sand body, confirmed by β₁ similarity after correcting for canopy interception and by Pearson affinity persistence post-felling. Borehole 3 (3.65 m, eastern margin) confirms progressive thinning toward the coast.*
 
 ### ***S2.2.1 Aquifer Thickness Surface (Developed for the PDE Model)***
 
@@ -110,7 +110,7 @@ However, the PDE solver produced near-zero site-wide differences for forest mana
 
 First, the forest management scenarios modify β coefficients only for the C4 and C5 Forest wells. These per-well β values are then IDW-interpolated to the 4,235-cell grid. Because the forest wells constitute a small minority of the 88-dipwell network, the modified β values are heavily diluted by the surrounding clusters during interpolation. The source term β₁·P_eff − β₂·PET therefore changes by only a small amount at each cell, and the resulting change in the steady-state head solution is proportionally small.
 
-Second, the internal drainage term β₃·h provides a stabilising feedback in the Helmholtz equation. C4 has the lowest β₃ in the network (0.018, compared with 0.057 for C3 and 0.064 for C2; Table 3). This means that in the C4 zone the drainage feedback is weak, and a moderate source term change produces only a small equilibrium head change.
+Second, the internal drainage term β₃·h provides a stabilising feedback in the Helmholtz equation. C4 has the lowest β₃ in the network (0.018, compared with 0.057 for C3 and 0.064 for C2; Table 4). This means that in the C4 zone the drainage feedback is weak, and a moderate source term change produces only a small equilibrium head change.
 
 Third, and most fundamentally, the steady-state PDE does not represent the elevated boundary condition at the ridge margin. The observed mean head at C4 (9.24 m AOD) is substantially higher than the mean at C3 (7.00 m AOD), and this contrast is not a product of C4's β coefficients: the C4 wells occupy the highest topographic positions in the dune system, on and against the bedrock ridge flank. The PDE source terms are parameterised from the SSM β coefficients alone and carry no representation of that boundary, so the solution understates the C4 water table under both baseline and scenario conditions and the difference between the two solutions is correspondingly small. The argument rests on topographic position, which is directly observed. It does not rest on a ridge-derived lateral flux: the corrected water-balance residual field (§4.9.6, Figure 59) provides no evidence for one, since CEH14 --- the well most proximal to the ridge --- carries the most negative residual in the network (−0.010 m/month), no well exceeds +0.02 m/month, and residual magnitude is uncorrelated with position on either axis (Spearman ρ = −0.14 on easting, p = 0.27; ρ = +0.16 on northing, p = 0.20). Whether any lateral flux exists at all cannot be resolved from the water-level record, and the rejection of the PDE approach does not depend on it.
 
@@ -711,7 +711,7 @@ Figure S9.1 (03_12_datum_regime.png). Datum-regime diagnostic: fitted drainage f
 
 ## S9.4 Reproducibility
 
-Script 03 (v1.5.0); outputs 03_12_partition_vs_datum.csv and 03_12_datum_regime.png. The diagnostic is additive: all pre-existing Script 03 outputs reproduce byte-identically under the v1.5.0 edit. Shares evaluated at the 3.7 m datum reproduce the Table 8 partition of the main report to within about 0.1% (the h̄ window convention).
+Script 03 (v1.5.0); outputs 03_12_partition_vs_datum.csv and 03_12_datum_regime.png. The diagnostic is additive: all pre-existing Script 03 outputs reproduce byte-identically under the v1.5.0 edit. Shares evaluated at the 3.7 m datum reproduce the Table 9 partition of the main report to within about 0.1% (the h̄ window convention).
 
 # Supplementary Note S10: Reading the Network-Change Maps (Figures 73--76)
 
@@ -761,7 +761,7 @@ Script 34 (two-window sensitivity), reading the committed per-well annual spring
 
 ## S12.1 Why the values do not yet exist
 
-Van Willegen et al. (2025) established the five-year mean spring water level as the hydrological metric most strongly related to dune-slack community moisture at Newborough --- mean Ellenberg F, with Pearson r of 0.84 to 0.89 across their relevés --- and named reference values, or a community \"status\", on the five-year MSL as the next step. Curreli et al. (2013) supplied community reference values, but for a different quantity: their Table 4 gives, for each National Vegetation Classification community, the mean, standard error and range of the four-year (2006--09) average annual minimum and maximum water level across the quadrats assigned to that community, over a 1 June--31 May hydrological year. The report applies those values to the annual-minimum series (report Sections 4.8.1 and 4.8.3, Table 22, Figure 45b) and not to MSL5. No published source gives a community reference value for a spring mean, and the report does not construct one by transfer. This note specifies how such values would be derived on the same footing as Curreli\'s, what is already in hand, and the one input that is not.
+Van Willegen et al. (2025) established the five-year mean spring water level as the hydrological metric most strongly related to dune-slack community moisture at Newborough --- mean Ellenberg F, with Pearson r of 0.84 to 0.89 across their relevés --- and named reference values, or a community \"status\", on the five-year MSL as the next step. Curreli et al. (2013) supplied community reference values, but for a different quantity: their Table 4 gives, for each National Vegetation Classification community, the mean, standard error and range of the four-year (2006--09) average annual minimum and maximum water level across the quadrats assigned to that community, over a 1 June--31 May hydrological year. The report applies those values to the annual-minimum series (report Sections 4.8.1 and 4.8.3, Table 23, Figure 45b) and not to MSL5. No published source gives a community reference value for a spring mean, and the report does not construct one by transfer. This note specifies how such values would be derived on the same footing as Curreli\'s, what is already in hand, and the one input that is not.
 
 ## S12.2 What would be computed
 

@@ -389,7 +389,7 @@ src/
 
 #### Step 9 — 08_model_benchmarking
 
-**Purpose.** LCSC vs Traditional Linear Model benchmarking (NSE/R² improvement maps, CEH6 showdown figure, Table 11). The source CSV is named 08_lcsc_04_table3_benchmark_summary.csv for historical reasons; the table it fills is report Table 11.
+**Purpose.** LCSC vs Traditional Linear Model benchmarking (NSE/R² improvement maps, CEH6 showdown figure, Table 12). The source CSV is named 08_lcsc_04_table3_benchmark_summary.csv for historical reasons; the table it fills is report Table 12.
 
 **Reads.**
 
@@ -404,7 +404,7 @@ src/
 
 #### Step 9.1 — 09a_paired_baci
 
-**Purpose.** Hierarchical paired BACI for the scraping intervention (CEH36, CEH18, CEH21, CEH22). β₃ era testing, full parameters, Table 7.
+**Purpose.** Hierarchical paired BACI for the scraping intervention (CEH36, CEH18, CEH21, CEH22). β₃ era testing, full parameters, Table 8.
 
 **Writes.**
 
@@ -713,7 +713,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 12 — 11_forecasting_thresholds
 
-**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 12, 13, 14), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
+**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 13, 14, 15), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
 
 Section 5 is the predictive companion to Script 26's observational MSL5 monitoring metric. For each cluster, an OLS-with-intercept fit on `03_regional_averages.csv` produces an equation of the form
 
@@ -1433,7 +1433,7 @@ Phase 14 contains three diagnostic scripts that test post-Script-25 implications
 
 **Writes.** `30_c4_identifiability_by_cluster.csv`, `30_c4_perwell_beta3.csv`, `30_c4_report_numbers.csv`, `30_c4_drainage_identifiability.png`.
 
-**Where it lands.** §4.2.2 (results flag) and §5.6.1 (substrate decomposition) of the main report, the corrected-C4 column of Table 3, and Methods Supplement §S.19.3.
+**Where it lands.** §4.2.2 (results flag) and §5.6.1 (substrate decomposition) of the main report, the corrected-C4 column of Table 4, and Methods Supplement §S.19.3.
 
 ### Phase 15 — Observed Differential Change, Envelope, and Driver Validation (Scripts 32, 33, 35, 36, 37, 37b)
 

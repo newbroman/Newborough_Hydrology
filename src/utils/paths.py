@@ -614,6 +614,9 @@ OUT_02_AMP_BOXPLOT      = DIR_02 / "02_10_cluster_amplitude_boxplot.png"
 # record. Diagnostic tier — the figure is not a report figure.
 OUT_02_MONTH_STABILITY     = DIR_02 / "02_11_month_stability.csv"
 OUT_02_MONTH_STABILITY_FIG = DIR_02 / "02_12_month_stability_diagnostic.png"
+# Per-cluster mean level over the plotted window (02_03 panel b), one row per cluster: the
+# report9 §4.2.1 table (J-16, Martin 2026-11-19: "make a table output running from a script").
+OUT_02_CLUSTER_MEAN_LEVELS = DIR_02 / "02_13_cluster_mean_levels.csv"
 
 # Script 03 — State-space model
 OUT_03_SIGNATURES          = DIR_03 / "03_01_mechanistic_signatures.png"

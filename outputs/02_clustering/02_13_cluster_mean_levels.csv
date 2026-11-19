@@ -1,0 +1,6 @@
+Cluster,Cluster_Label,n_wells,n_months,mean_level_m,window_start,window_end
+1,C1 (Lake Edge),7,229,-0.3841960832677408,2006-12,2025-12
+2,C2 (Dune),19,229,-0.5036735920800156,2006-12,2025-12
+3,C3 (Western Residual),26,229,-0.7712467644728831,2006-12,2025-12
+4,C4 (Main Forest),9,229,-1.3378935451742917,2006-12,2025-12
+5,C5 (Coastal Forest),5,229,-1.1932893275586418,2006-12,2025-12

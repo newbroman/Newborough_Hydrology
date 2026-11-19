@@ -14,7 +14,10 @@ Outputs (final — outputs/02_clustering/):
     02_02_validation_plots.png
 """
 
-__version__ = "1.13.2"  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-19 (J-16). Writes 02_13_cluster_mean_levels.csv: one row per cluster with
+#   its reference-well count, months and mean level over the plotted window - the values cluster_mean_level_m already emits,
+#   as a table report9 §4.2.1 can carry (Martin, 2026-11-19: "make a table output running from a script"). No value changes.
+# 1.13.2  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.13.1  # Hollingham (2026) — 2026-10-25. The console banner said "k-Means Clustering"; the
 #   method is Ward's hierarchical clustering (linkage method="ward" throughout). Banner text only.
 # 1.13.0  # Hollingham (2026) — 2026-10-10. Emit-first (spec NRG_spec_emit_first_report9_2026-10-09):
@@ -154,6 +157,7 @@ from utils.paths import (
     OUT_02_AMP_PER_WELL, OUT_02_AMP_SUMMARY, OUT_02_AMP_BOXPLOT,
     OUT_02_K_SWEEP, OUT_02_REPORT_NUMBERS,
     OUT_02_MONTH_STABILITY, OUT_02_MONTH_STABILITY_FIG,
+    OUT_02_CLUSTER_MEAN_LEVELS,
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.pipeline_params import get_requested_n_clusters
@@ -1382,6 +1386,37 @@ def add_cluster_mean_level_numbers(rr: ReportNumbers, regional: pd.DataFrame) ->
                     f"02_03_cluster_hydrographs_wb.png panel (b), {len(series)} months; negative = below ground")
 
 
+def write_cluster_mean_level_table(regional: pd.DataFrame) -> None:
+    """
+    Write OUT_02_CLUSTER_MEAN_LEVELS (1.14.0): one row per canonical cluster - its reference
+    wells, the months behind its mean, and the mean of its cluster-mean hydrograph over the
+    plotted window (the same value cluster_mean_level_m emits). report9 §4.2.1 tabulates it.
+    Units are m relative to ground, negative below.
+    """
+    cluster_df_local = pd.read_csv(INT_CLUSTER_STATS)
+    wells_cols = set(pd.read_csv(INT_WELLS_CLEAN, index_col=0, nrows=1).columns)
+    rows = []
+    for col in sorted(c for c in regional.columns if c.startswith("C")):
+        cid = int(col[1:])
+        series = pd.to_numeric(regional[col], errors="coerce").dropna()
+        if series.empty:
+            continue
+        members = cluster_df_local[
+            pd.to_numeric(cluster_df_local["Cluster"], errors="coerce") == cid
+        ]["Name_Original"].astype(str).values
+        rows.append({
+            "Cluster": cid,
+            "Cluster_Label": CLUSTER_LABELS.get(cid, col),
+            "n_wells": sum(1 for m in members if m in wells_cols),
+            "n_months": len(series),
+            "mean_level_m": float(series.mean()),
+            "window_start": f"{pd.Timestamp(CLUSTER_HYDRO_WINDOW_START):%Y-%m}",
+            "window_end": f"{pd.Timestamp(CLUSTER_HYDRO_WINDOW_END):%Y-%m}",
+        })
+    pd.DataFrame(rows).to_csv(OUT_02_CLUSTER_MEAN_LEVELS, index=False)
+    saved(OUT_02_CLUSTER_MEAN_LEVELS.name)
+
+
 def make_cluster_spaghetti_figure() -> None:
     """Companion to the 02_03 cluster-mean hydrograph: one stacked panel per
     cluster, each showing that cluster's reference wells as thin lines with the
@@ -2007,6 +2042,7 @@ if __name__ == "__main__":
     regional_means = make_cluster_hydrograph_wb_figure()
     add_cluster_mean_level_numbers(rr, regional_means)
     add_cluster_mean_level_offsets(rr, regional_means)
+    write_cluster_mean_level_table(regional_means)
     n_saved = rr.save(OUT_02_REPORT_NUMBERS)          # rewritten with the cluster mean levels
     step(f"Saved report numbers: {OUT_02_REPORT_NUMBERS.name} ({n_saved} rows, with the cluster mean levels)")
 

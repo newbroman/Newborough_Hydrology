@@ -2412,3 +2412,7 @@ wt_mean_elev_aod_network_mean_dp2,outputs/01_data_prep/01_report_numbers.csv,wt_
 wtf_n_events_per_well_max_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_max,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_mean_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_mean,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wtf_n_events_per_well_min_dp0,outputs/18_wtf_spatial/18_report_numbers.csv,wtf_n_events_per_well_min,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
+C2_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C2_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
+C3_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C3_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
+CEH6_ModelB_NSE_dp2,outputs/08_model_benchmarking/08_perwell_nse.csv,CEH6 · ModelB_NSE,1,,2,,−,,"born a field in Paper1 v1_93 (J-19, T-110)"
+C5_median_dNSE_dp2_plus,outputs/08_model_benchmarking/08_report_numbers.csv,C5_median_dNSE,1,,2,1,−,,"born a field in Paper1 v1_93 (J-19, T-110)"

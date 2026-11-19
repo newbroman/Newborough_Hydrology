@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_4.odt — do not edit. source-sha256=092192eeb0df67a7 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_plain_v1_5.odt — do not edit. source-sha256=d15375ed83704305 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Reading the water table: a plain-language guide to the dune-aquifer paper
@@ -65,126 +65,126 @@ Think of the sand as a bath with a slow leak. Each month **rain** tops it up, **
 
 -   how far the water table rises for each millimetre of rain (the **recharge sensitivity**);
 -   how far it falls for each millimetre of evaporative demand (the **atmospheric draw**);
--   what fraction of the water standing above a chosen depth drains away each month (the **drainage coefficient**).
+-   how quickly the water table returns to its usual level after a wet or dry spell (the **drainage coefficient**).
 
 It needs nothing but monthly rain and temperature from one station. Nobody has to measure the sand.
 
-## []{#anchor}The imaginary floor
+## []{#anchor}A level found from the record
 
-Drainage needs something to drain *towards*. The model assumes an imaginary floor, the **datum**, at a fixed depth below ground: the higher the water stands above it, the faster it drains. The study uses 3.7 m below ground at every well. This is a modelling choice, not a measured base, and the numbers are reported for that choice. A sister paper (Hollingham, 2026c) tried many depths and explains this one. Some results depend on it and some do not (Section 9).
+Drainage needs something to drain *towards*. Rather than assume a floor, the model finds from each well's record the level the water table settles back to, its **base level**: the higher the water stands above it, the faster it drains. That level is worked out along with the three numbers, so nothing has to be measured or guessed. It is not a real floor in the ground; it sits near each well's usual water level. A sister paper (Hollingham, 2026c) sets the model out and tests how far its forecasts can be trusted. A fixed floor, 3.7 m below ground at every well, was tried as well; it forecast no better, and results that hold only with it are not reported.
 
-## []{#anchor}What the numbers say
+## []{#anchor-1}What the numbers say
 
-**Rain.** The Lake Edge responds most. About 22--26 mm of rain lifts the water table by 100 mm at the Lake Edge and Dune, but 40--41 mm under the pines: nearly twice as much rain for the same rise, consistent with the canopy catching part of it.
+**Rain.** The Lake Edge responds most. About 27--29 mm of rain lifts the water table by 100 mm in the open dune, but 39--41 mm under the pines: about two-fifths more rain for the same rise, consistent with the canopy catching part of it.
 
-**Evaporation.** Atmospheric draw is highest in the Main Forest, where the water table loses slightly more per millimetre of evaporative demand than it gains per millimetre of rain, and lowest at the Lake Edge. The Coastal Forest, under the same trees, has less than half the Main Forest's draw.
+**Evaporation.** Atmospheric draw is highest at the Lake Edge, where the water table stands shallowest, and lowest in the Coastal Forest, which loses only about half as much as the Main Forest under the same trees.
 
-**Drainage.** The strongest contrast of all: fastest at the Lake Edge, where the lake takes water quickly, similar in the Dune and Western Residual, slower in the Coastal Forest and slowest in the Main Forest.
+**Drainage.** The strongest contrast of all: the water table returns to its usual level fastest at the Lake Edge, where the lake takes water quickly, more slowly in the Dune and the Western Residual, and more slowly still in the Coastal Forest. In the Main Forest the record does not pin it down.
 
-## []{#anchor}Is it the trees or the ground?
+## []{#anchor-1}Is it the trees or the ground?
 
-The canopy is not the same everywhere. Measured from aerial photographs within 30 m of each forest well, its density varies widely from well to well. Yet it does not explain why the forest wells differ, and the Main Forest and Coastal Forest wells have much the same canopy. Height above sea level explains 98% of the difference in atmospheric draw between them: higher wells lose more. The paper reads this as the effect of a deeper water table under a thicker, drier layer of sand, and earlier measurements in the plantation (Freeman, 2008) found the water table about 1.07 m deeper than on the open Warren and the soil about half as moist. So the split between the two forest groups is best read as a difference of height and ground beneath one canopy. The ground under the plantation has not been drilled, so this rests on the shape of the land and the model's numbers.
+The canopy is not the same everywhere. Measured from aerial photographs within 30 m of each forest well, its density varies widely from well to well. Yet it does not explain why the forest wells differ, and the Main Forest and Coastal Forest wells have much the same canopy. Height above sea level explains 93% of the difference in atmospheric draw between them: higher wells lose more. The paper reads this as the effect of a deeper water table under a thicker, drier layer of sand, and earlier measurements in the plantation (Freeman, 2008) found the water table about 1.07 m deeper than on the open Warren and the soil about half as moist. So the split between the two forest groups is best read as a difference of height and ground beneath one canopy. The ground under the plantation has not been drilled, so this rests on the shape of the land and the model's numbers.
 
-# []{#anchor}5. Is the ground different under the forest?
+# []{#anchor-1}5. Is the ground different under the forest?
 
-## []{#anchor}How much water does the sand hold?
+## []{#anchor-1}How much water does the sand hold?
 
 When the water table falls by a metre, only part of that metre was water; the rest was sand grains. The share that drains out as the water table falls is the **specific yield**. Sand with a higher specific yield needs more rain to raise its water table.
 
 The paper estimates it simply (the **water-table-fluctuation method**): in months when the water rose, compare the rain that soaked in with how far the water rose. With monthly readings this tends to overestimate, so the results are treated as upper limits. What this measures is more than the sand alone holds, so the paper calls it the apparent storage.
 
-## []{#anchor}The forest puzzle
+## []{#anchor-1}The forest puzzle
 
 Taken at face value, the forest wells seem to hold as much water as the wettest open dune, or more. But the method assumes all the rain reaches the ground, and under pine it does not: the canopy catches about a quarter of it (24%, from the one measurement made in the plantation). Allowing for that, the Main Forest's apparent storage falls within the open-dune range. The Coastal Forest's sits just above the top of that range, but it is the least reliable estimate in the network, pressed against the limit of what the sand could physically hold, so the paper gives it little weight. Trying other values for the canopy's catch, the Main Forest result holds; the Coastal Forest result does not.
 
-## []{#anchor}What follows
+## []{#anchor-1}What follows
 
 Mapped across the site, apparent storage changes smoothly, with no step at the edges of the groups; in the open dune it rises steadily towards the south-west. The paper's reading, consistent with the evidence but not proven, is that the forest wells behave differently mainly because the canopy catches rain at the surface, not because the sand beneath is different.
 
-# []{#anchor}6. Where the water goes
+# []{#anchor-1}6. Where the water goes
 
-## []{#anchor}Does the account balance?
+## []{#anchor-1}Does the account balance?
 
 The three numbers give a monthly budget for each group: rain in, evaporation and drainage out. Over the record the two sides agree to within 1.7% at every group, with no hidden extra source needed. The paper notes that this is partly built in, since a model fitted to water levels can be expected to balance on average; what it shows is that three terms are enough.
 
 At individual wells the leftover (the **water-balance residual**) is small and shows no pattern across the site. Tests for water seeping in from the ridge, and for missing summer evaporation, found nothing. But monthly readings are too coarse to catch quick seepage through cracked rock, so the ridge test limits what this record can see rather than ruling it out. The leftover does have a seasonal rhythm, highest in winter and spring, which the paper leaves unexplained.
 
-## []{#anchor}Drainage or evaporation?
+## []{#anchor-1}Drainage or evaporation?
 
 The model puts drainage at 38% of the water lost at the Lake Edge, 45% in the Dune, 56% in the Western Residual and 61% in the Coastal Forest. In the Main Forest the record is too short to pin it down. The split cannot be read from water levels alone. A separate water budget, which uses how much water the sand appears to release as the water table falls, gives about 31% at a typical well. What the record does show is that, in the open dune, drainage must take at least the surplus of rain over evaporative demand, about 237 mm a year.
 
-## []{#anchor}How quickly does it drain?
+## []{#anchor-1}How quickly does it recover?
 
-One measure is the time the water above the floor takes to halve under drainage alone, the **half-life**: typically 8.0 months at the Lake Edge and 23.0 months in the Main Forest, with the others between. The order holds at every floor depth tested, but the values grow as the floor is set deeper.
+How quickly the water table settles back after a wet or dry spell is its **mean-reversion time**: the time a departure takes to shrink to about a third of its size. The model (Model B in the sister paper) gives 2.1 months at a typical Lake Edge well, 4.4 in the Dune, 7.4 in the Western Residual and 13.3 in the Coastal Forest; in the Main Forest it cannot say.
 
-The half-life is not the time the water table takes to settle back after a wet or dry spell. Measured straight from the readings, with no model, it is shorter: a wet or dry spell shrinks to about a third of its size in 2.0 months at the Lake Edge, 4.1 in the Dune, 6.3 in the Western Residual, 12.0 in the Coastal Forest and 15.6 in the Main Forest. The gap is widest in the open dune and narrowest in the Coastal Forest. The two describe different things.
+Measured straight from the readings, with no model, the same times are 2.0, 4.1, 6.3 and 12.0 months, and 15.6 in the Main Forest. The model and the readings agree group by group, so the drainage coefficient measures how fast the water table recovers, not drainage to a real floor (Hollingham, 2026c).
 
-# []{#anchor}7. How well does it forecast?
+# []{#anchor-2}7. How well does it forecast?
 
-The fair test is to give a model only the weather and the first reading, and let it run month after month without seeing the real levels, so that a weak model drifts away. The paper compared its model with a simpler one with rain and evaporation but no drainage. On a scale where 1 is perfect and 0 is no better than always guessing the average (the **Nash--Sutcliffe efficiency**), the typical well scores 0.42 with the simpler model and 0.77 with drainage added. The full model beats the average at 65 of the 66 wells, the simpler one at 55. Drainage stops the drift by pulling the water table back towards a normal level.
+The fair test is to give a model only the weather and the first reading, and let it run month after month without seeing the real levels, so that a weak model drifts away. The paper compared its model with a simpler one with rain and evaporation but no drainage. On a scale where 1 is perfect and 0 is no better than always guessing the average (the **Nash--Sutcliffe efficiency**), the typical well scores 0.43 with the simpler model and 0.82 with drainage added. The full model beats the average at all 64 wells tested, the simpler one at 56. Drainage stops the drift by pulling the water table back towards a normal level.
 
-The gain is largest at the Lake Edge, where drainage is strongest, and smallest in the Main Forest, where it is weakest. So a map of where the drainage term helps is a map of where drainage controls the aquifer, drawn without drilling a hole.
+The gain is largest at the Lake Edge, where drainage is strongest, and smallest under the forest, where it is weakest. So a map of where the drainage term helps is a map of where drainage controls the aquifer, drawn without drilling a hole.
 
-The model also held up far outside the years it learned from. Driven by the station's weather back to 1930, with no refitting, it reproduced the seasonal rise and fall that the ecologist D.S. Ranwell recorded in three pipes in 1951--53 (correlations of 0.74--0.91, and the seasonal range to within a tenth of a metre).
+The model also held up outside the years it learned from, with one warning. Driven by the station's weather back to 1930, with no refitting, it reproduced the seasonal rise and fall that the ecologist D.S. Ranwell recorded in three pipes in 1951--53. But for the drier years of 1989--96 it put the water table about 0.21 m too high at a typical well, so in a lastingly drier climate it probably understates how far the water table would fall (Hollingham, 2026c).
 
-# []{#anchor}8. The retreating coast
+# []{#anchor-2}8. The retreating coast
 
-## []{#anchor}Why a shrinking shore lowers the water table
+## []{#anchor-2}Why a shrinking shore lowers the water table
 
 The western shore, along Caernarfon Bay, is eroding. The sea edge is where the groundwater drains out, so as it moves inland the water table near it is drawn down, a little more each year, quite apart from the weather. The effect should be strongest near the shore and fade inland.
 
-## []{#anchor}What the record shows
+## []{#anchor-2}What the record shows
 
 The paper compared each open-dune well's long-term trend in its summer low with its distance from the shore. At 150 m from the shore the summer low has been falling by roughly 26 mm a year more than far inland, and the effect fades to nothing over about 900 m (at most about 1 km under other assumptions). The result is the same whether forest wells are included, left out or allowed for, so it is not the plantation's doing.
 
 A check needing no model points the same way. Between a well near the shore and one beyond the reach, the difference in spring level has grown by 27.8 mm a year, close to the modelled figure. A gap that widens over time is what a moving shore produces, rather than a fixed difference in the ground or a swing in the weather.
 
-## []{#anchor}Which groups does it touch?
+## []{#anchor-2}Which groups does it touch?
 
 The coast accounts for about half of the summer decline in the Coastal Forest, the group nearest the shore and falling more than twice as fast as any other. It accounts for most of the smaller decline in the Western Residual, half of whose wells lie within the reach. In the Main Forest, three of whose four wells lie within the reach, it accounts for about three-quarters of a small decline that the record does not measure firmly. It touches the Lake Edge negligibly and the Dune not at all.
 
 The Coastal Forest share is an indication, not a measured fraction: few wells lie near the shore, and the share shifts with which wells the group contains. The maturing canopy may also contribute there; the record cannot separate it, and the paper leaves that open.
 
-## []{#anchor}And climate?
+## []{#anchor-2}And climate?
 
 Removing the coastal effect does not leave a clean climate figure: the part of the trend common to the whole site shifts a lot with the years chosen, so the paper gives no climate rate. But the coastal effect must be taken out first, or it will be mistaken for a site-wide decline. At the Lake Edge and in the Dune, beyond the coast's reach, the model leaves the whole of the summer decline unexplained, and climate is the leading candidate for it. Warmer summers raising evaporative demand and a change in how rain falls within the month are both possible routes; the paper does not settle which dominates.
 
 Two further points. Rising sea level, about 4 mm a year, pushes the water table near the coast the other way, so the coastal figure is the net of the two and a cautious estimate of the erosion effect. And against Ranwell's readings, the open slacks beyond the coastal reach stand today within about a decimetre of their mid-century level once the weather of the two periods is allowed for: a dip within a near-steady century, not part of a long fall.
 
-# []{#anchor}9. What the method cannot tell
+# []{#anchor-2}9. What the method cannot tell
 
--   **Where the floor is.** The drainage--evaporation split cannot be read from water levels; the paper gives the model's answer with the other readings beside it. Fitting the record best does not find the real floor, because the best-fitting depth simply follows each well's usual water depth.
+-   **Where the water goes.** The drainage--evaporation split cannot be read from water levels; the paper gives the model's answer with the other readings beside it. The level the model drains towards is found from the record, not measured, so it is not a real floor in the ground.
 -   **How water moves between groups.** The model is fitted well by well and joined up on a map. It cannot say whether a change in one place would be felt in another; that needs a full flow model and the measurements behind it.
 -   **Exact amounts.** The numbers are reliable for ranking places, less so as exact rates. Turning them into millimetres of water needs an evaporative demand worked out from temperature, whose absolute size is uncertain.
 -   **The forest's reach.** One map shows how far the forest's effect might spread into the open dune. It alone needs a value for how easily water moves through the sand, from a single test, so it is an order-of-magnitude illustration.
 -   **What lies beneath.** The ground under the forest has not been drilled, and drainage lines traced from the land surface are no guide to where the groundwater flows.
 
-# []{#anchor}10. The questions people will ask
+# []{#anchor-2}10. The questions people will ask
 
-## []{#anchor}Is the forest drying the dunes?
+## []{#anchor-2}Is the forest drying the dunes?
 
 The paper reads the forest's different behaviour as a surface effect, the canopy catching rain, not a different kind of ground. How far that effect spreads into the open dune is shown only as an illustration, and what felling did is for the companion paper.
 
-## []{#anchor}Is it climate change or the coast?
+## []{#anchor-2}Is it climate change or the coast?
 
 Both, in different places. Near the western shore the retreating coast accounts for about half the summer decline in the Coastal Forest and most of it in the Western Residual. Away from it, the decline is left unexplained by the model; climate is the leading candidate, but no climate rate is measured. Against Ranwell's mid-century readings, the open slacks are close to where they were.
 
-## []{#anchor}Can the method replace boreholes?
+## []{#anchor-2}Can the method replace boreholes?
 
 For a first picture of how an aquifer is built and behaves, it goes a long way without them. It cannot answer questions about sideways flow between parts of the site. The paper names the next measurements: tests of how easily water moves through the sand at representative wells in each group, and a radar survey of how deep the sand is.
 
-# []{#anchor}11. Using the method elsewhere
+# []{#anchor-2}11. Using the method elsewhere
 
 Any coastal dune with hand-read dipwells and a nearby weather station can be treated the same way:
 
 1.  Sort the wells into groups by the shape of their records, before fitting anything.
-2.  Try the floor at many depths and choose one where the water budget stops changing. Do not reuse 3.7 m: the right depth follows the site's own water levels.
+2.  Use a model that finds its own base level from the record; no floor has to be chosen in advance (Hollingham, 2026c, sets out the steps).
 3.  Fit the three-number model at each well and each group.
 4.  Run it freely against a model without drainage; where drainage helps most is where drainage governs.
 5.  Estimate the apparent storage from the rises, allowing for any canopy, as an upper limit.
 6.  Where a shore is eroding, fit the trend against distance from it and remove that before reading anything about climate.
 
-# []{#anchor}Glossary
+# []{#anchor-2}Glossary
 
 **Apparent storage.** What the water-table-fluctuation method measures: the rain that soaked in divided by the rise. It is more than the sand's specific yield, because it also counts water in the damp layer above the water table.
 
@@ -192,15 +192,15 @@ Any coastal dune with hand-read dipwells and a nearby weather station can be tre
 
 **Atmospheric draw.** How far the water table falls for each millimetre of evaporative demand.
 
-**Datum (floor).** The imaginary depth below ground that the model assumes water drains towards.
+**Base level.** The level the water table settles back to, found from each well's record; the model's drainage runs towards it. It is not a real floor in the ground.
 
 **Dipwell.** A narrow perforated pipe in which the water level is measured by hand with a tape.
 
-**Drainage coefficient.** The fraction of the water above the datum that drains away each month.
-
-**Half-life.** The time the water above the datum takes to halve under drainage alone; it depends on the datum.
+**Drainage coefficient.** The fraction of a departure from the base level that is made good each month.
 
 **Hydraulic conductivity.** How easily water moves through the sand. The method does not need it.
+
+**Mean-reversion time.** The time a wet or dry spell takes to shrink to about a third of its size.
 
 **Nash--Sutcliffe efficiency.** A score of how well a model's free run matches the readings: 1 is perfect, 0 is no better than the average level.
 
@@ -216,7 +216,7 @@ Any coastal dune with hand-read dipwells and a nearby weather station can be tre
 
 **Water-table-fluctuation method.** Estimating the apparent storage by comparing the rain that soaked in with how far the water table rose.
 
-# []{#anchor}Further reading
+# []{#anchor-2}Further reading
 
 Hollingham, M. (2026a) A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records. In preparation.
 

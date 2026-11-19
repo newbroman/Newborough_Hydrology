@@ -1,10 +1,10 @@
 {
- "source_sha256": "60e7e6413fb4e0e1127d8e02e7074c98c88c411c9ffe0fbbeefdc77be3a26276",
+ "source_sha256": "8ecdce29ffbb9304917a5ad5cd863dbf0fbeb87986c0bad055fd8988498f55e2",
  "page_sha256": "fc04711a322b47576f2323c4db64fba335ff8d4bc0de683884522bc055a33504",
  "builder": "tools/build_chat_corpus.py 1.1.2",
  "counts": {
   "sources": 108,
-  "chunks": 1437,
+  "chunks": 1436,
   "numbers": 7908,
   "references": 18
  },

@@ -52,7 +52,15 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-18 (J-20, Martin: job sessions are started by HIM
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-19 (T-219, raised by J-20 against itself).
+#   The START CONSOLE's five briefs opened with two add_repo lines each, and the store-absent banner handed
+#   out a third - the step the environment makes unnecessary and the auto-mode check refuses in a prompt that
+#   is not Martin's own (J-17). They now carry the same setup as a job's prompt: no add_repo, cloud_setup.sh
+#   backgrounded with "$PWD" and a tee'd log, the D-143 start, registration BEFORE any claim, the claim and
+#   nothing else, and NRG_CHAT in every call - plus, per kind, the ODT rules and the Drive archive before the
+#   documents lock is released (document), the throwaway-tree rule (tools), and why both repositories matter
+#   even read-only (D-300). Wording only; no data and no db change.
+# 1.3.0  # Hollingham (2026) — 2026-11-18 (J-20, Martin: job sessions are started by HIM
 #   from the app, so the page has to hand him the prompt). renderJobs() shows each startable job's START
 #   PROMPT in a collapsed block with a Copy button, under the line that says how to use it: new session ->
 #   environment NRG -> select both repositories -> paste. The prompt is NOT composed here - it comes from
@@ -363,49 +371,92 @@ BODY = """
 # The five kinds of work the console offers (spec §4.2, D2 signed off). Each brief is
 # SELF-CONTAINED: the chat that receives it has no memory of this page or of Martin's request.
 KIND_BRIEFS = {
-    "Pipeline / analysis": ("pipeline", "pipeline", """Setup, in this order:
-1. add_repo newbroman/Newborough_Hydrology          access=push
-   add_repo newbroman/Newborough_Hydrology_working  access=push
-2. Run tools/cloud_setup.sh as notes/reference/SESSION_MODES.md describes, then the D-143 start:
-   read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py.
-3. Register this chat: python3 tools/chat_register.py register --chat "<a short name>" \\
-     --kind pipeline --claim pipeline --purpose "<one line>"
-4. python3 tools/work_board.py, then take the `pipeline` claim ONLY."""),
-    "Document edit": ("document", "doc:<family>", """Setup, in this order:
-1. add_repo newbroman/Newborough_Hydrology          access=push
-   add_repo newbroman/Newborough_Hydrology_working  access=push
-2. Run tools/cloud_setup.sh, then the D-143 start (working/HANDOVER_BOOTSTRAP.md,
-   python3 tools/session_handover.py).
-3. Register this chat: python3 tools/chat_register.py register --chat "<a short name>" \\
-     --kind document --claim doc:<family> --purpose "<one line>"
-4. python3 tools/work_board.py FIRST, and take only the doc: family you are editing.
+    'Pipeline / analysis': ('pipeline', 'pipeline', """Setup: both repositories are attached by this environment — do NOT call add_repo; a session
+that asks for one stalls on the auto-mode check (J-17). Run tools/cloud_setup.sh for the Drive
+copy of the ODTs and the pinned venv, in the background with its log tee'd, and read the log:
+
+    mkdir -p scratch && nohup bash tools/cloud_setup.sh "$PWD" > scratch/cloud_setup.log 2>&1 &
+
+Pass "$PWD" from the checkout: with no argument it builds a second tree at $HOME/NRG, which is
+not the one the environment attached. It takes a few minutes and must not be time-limited.
+
+Then, in this order:
+1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
+2. Register this chat — compulsory, before any claim or commit (D-301):
+   python3 tools/chat_register.py register --chat "<a short name>" --kind pipeline --claim pipeline --purpose "<one line>"
+3. python3 tools/work_board.py, then take the `pipeline` claim ONLY:
+   python3 tools/doc_lock.py take pipeline --chat "<a short name>" --note "<what>"
+4. export NRG_CHAT="<the name you registered>" in EVERY shell call."""),
+    'Document edit': ('document', 'doc:<family>', """Setup: both repositories are attached by this environment — do NOT call add_repo; a session
+that asks for one stalls on the auto-mode check (J-17). Run tools/cloud_setup.sh for the Drive
+copy of the ODTs and the pinned venv, in the background with its log tee'd, and read the log:
+
+    mkdir -p scratch && nohup bash tools/cloud_setup.sh "$PWD" > scratch/cloud_setup.log 2>&1 &
+
+Pass "$PWD" from the checkout: with no argument it builds a second tree at $HOME/NRG, which is
+not the one the environment attached. It takes a few minutes and must not be time-limited.
+
+Then, in this order:
+1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
+2. Register this chat — compulsory, before any claim or commit (D-301):
+   python3 tools/chat_register.py register --chat "<a short name>" --kind document --claim doc:<family> --purpose "<one line>"
+3. python3 tools/work_board.py FIRST, and take only the doc: family you are editing. Before any
+   ODT edit take the documents lock too: python3 tools/doc_lock.py take --chat "<a short name>"
+4. export NRG_CHAT="<the name you registered>" in EVERY shell call.
 ODTs are edited only through tools/odt_edit.py, never odfpy, and a document is versioned: edit
-Doc_v1_9_46.odt and WRITE Doc_v1_9_47.odt. Read the passage back from the saved file."""),
-    "Tools": ("tools", "tools", """Setup, in this order:
-1. add_repo newbroman/Newborough_Hydrology          access=push
-   add_repo newbroman/Newborough_Hydrology_working  access=push
-2. Run tools/cloud_setup.sh, then the D-143 start.
-3. Register this chat: python3 tools/chat_register.py register --chat "<a short name>" \\
-     --kind tools --claim tools --purpose "<one line>"
-4. python3 tools/work_board.py, then take the `tools` claim ONLY.
+Doc_v1_9_46.odt and WRITE Doc_v1_9_47.odt. Read the passage back from the SAVED file through
+headless LibreOffice with `txt:Text (encoded):UTF8` — plain `txt:Text` prints Greek as '?'.
+Archive the ODTs to Drive (working/nrg_git.sh option 11, or a ship) BEFORE releasing that lock."""),
+    'Tools': ('tools', 'tools', """Setup: both repositories are attached by this environment — do NOT call add_repo; a session
+that asks for one stalls on the auto-mode check (J-17). Run tools/cloud_setup.sh for the Drive
+copy of the ODTs and the pinned venv, in the background with its log tee'd, and read the log:
+
+    mkdir -p scratch && nohup bash tools/cloud_setup.sh "$PWD" > scratch/cloud_setup.log 2>&1 &
+
+Pass "$PWD" from the checkout: with no argument it builds a second tree at $HOME/NRG, which is
+not the one the environment attached. It takes a few minutes and must not be time-limited.
+
+Then, in this order:
+1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
+2. Register this chat — compulsory, before any claim or commit (D-301):
+   python3 tools/chat_register.py register --chat "<a short name>" --kind tools --claim tools --purpose "<one line>"
+3. python3 tools/work_board.py, then take the `tools` claim ONLY:
+   python3 tools/doc_lock.py take tools --chat "<a short name>" --note "<what>"
+4. export NRG_CHAT="<the name you registered>" in EVERY shell call.
 Test in throwaway trees through NRG_REPO_ROOT, never against the real lock or registers."""),
-    "Read-only / a question": ("readonly", "", """Setup:
-1. add_repo newbroman/Newborough_Hydrology          access=push
-   add_repo newbroman/Newborough_Hydrology_working  access=push
-   (both, so you can see what other chats hold; without the private one every claim reads
-   UNKNOWN, which is not the same as free - D-300.)
-2. Run tools/cloud_setup.sh, then the D-143 start.
-3. Register this chat: python3 tools/chat_register.py register --chat "<a short name>" \\
-     --kind readonly --purpose "<one line>"
+    'Read-only / a question': ('readonly', '', """Setup: both repositories are attached by this environment — do NOT call add_repo; a session
+that asks for one stalls on the auto-mode check (J-17). Run tools/cloud_setup.sh for the Drive
+copy of the ODTs and the pinned venv, in the background with its log tee'd, and read the log:
+
+    mkdir -p scratch && nohup bash tools/cloud_setup.sh "$PWD" > scratch/cloud_setup.log 2>&1 &
+
+Pass "$PWD" from the checkout: with no argument it builds a second tree at $HOME/NRG, which is
+not the one the environment attached. It takes a few minutes and must not be time-limited.
+
+Then, in this order:
+1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
+2. Register this chat — compulsory, before any claim or commit (D-301):
+   python3 tools/chat_register.py register --chat "<a short name>" --kind readonly --purpose "<one line>"
+3. export NRG_CHAT="<the name you registered>" in EVERY shell call.
 TAKE NO CLAIM AND COMMIT NOTHING. Read, measure, and report. If the answer turns out to need a
-change, say so and stop: that is a different chat, with a claim."""),
-    "Fieldwork / data in": ("fieldwork", "pipeline", """Setup, in this order:
-1. add_repo newbroman/Newborough_Hydrology          access=push
-   add_repo newbroman/Newborough_Hydrology_working  access=push
-2. Run tools/cloud_setup.sh, then the D-143 start.
-3. Register this chat: python3 tools/chat_register.py register --chat "<a short name>" \\
-     --kind fieldwork --claim pipeline --purpose "<one line>"
-4. Take `pipeline` before writing anything under data/ or outputs/.
+change, say so and stop: that is a different chat, with a claim. Both repositories matter even
+here: without the private one every claim reads UNKNOWN, which is not the same as free (D-300)."""),
+    'Fieldwork / data in': ('fieldwork', 'pipeline', """Setup: both repositories are attached by this environment — do NOT call add_repo; a session
+that asks for one stalls on the auto-mode check (J-17). Run tools/cloud_setup.sh for the Drive
+copy of the ODTs and the pinned venv, in the background with its log tee'd, and read the log:
+
+    mkdir -p scratch && nohup bash tools/cloud_setup.sh "$PWD" > scratch/cloud_setup.log 2>&1 &
+
+Pass "$PWD" from the checkout: with no argument it builds a second tree at $HOME/NRG, which is
+not the one the environment attached. It takes a few minutes and must not be time-limited.
+
+Then, in this order:
+1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
+2. Register this chat — compulsory, before any claim or commit (D-301):
+   python3 tools/chat_register.py register --chat "<a short name>" --kind fieldwork --claim pipeline --purpose "<one line>"
+3. Take `pipeline` before writing anything under data/ or outputs/:
+   python3 tools/doc_lock.py take pipeline --chat "<a short name>" --note "<what>"
+4. export NRG_CHAT="<the name you registered>" in EVERY shell call.
 New readings go in as data, never as an edited output. Third-party data that is not in either
 repository goes in the PRIVATE one (CLAUDE.md 4g), and the pipeline run that uses it comes after."""),
 }
@@ -442,7 +493,8 @@ function renderDigest() {
   if (s.store === 'ABSENT') {
     banner('HQ could not read the private repository when it last ran, so the claims and the queue '
          + 'below are UNKNOWN, not free, and nothing fired. ' + (s.storeWhy || ''),
-           'add_repo newbroman/Newborough_Hydrology_working  access=push');
+           'Start the session in the NRG environment, which attaches both '
+         + 'repositories; run tools/cloud_setup.sh, then the HQ pass again.');
   } else if (!s.generated) {
     banner('No snapshot yet. Run the HQ pass in a session with both repositories attached.');
   } else { banner(''); }
@@ -751,13 +803,13 @@ function renderFilters() {
   document.querySelectorAll('#filters button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.f === filter)));
 }
-/* T-152: the brief carries the id of the row this launcher is about to seed, so step 3's
+/* T-152: the brief carries the id of the row this launcher is about to seed, so step 2's
    register command ADOPTS that row instead of creating a second one. The id is made here, before
    the brief, because the brief has to quote it. A chat started by hand never sees this line and
    registers without --adopt, which hq_snapshot falls back to the slug for. */
 function makeBrief(what, rowId) {
   return 'New NRG chat: ' + kind + '.\\n\\n' + what.trim() + '\\n\\n' + BRIEFS[kind] + '\\n\\n'
-    + (rowId ? 'Add --adopt ' + rowId + ' to the chat_register.py register command in step 3, so this\\n'
+    + (rowId ? 'Add --adopt ' + rowId + ' to the chat_register.py register command in step 2, so this\\n'
                + 'chat adopts the row HQ has already opened for it rather than creating a second one\\n'
                + '(T-152). Everything else in the setup is unchanged.\\n\\n' : '')
     + RULES;

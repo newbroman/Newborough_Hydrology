@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=83957c31ceff8c3c pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report9.odt — do not edit. source-sha256=0ed716b6dd3b1bf0 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Results
@@ -528,7 +528,7 @@ The count measures how much of each hydrograph the clusters share (the rainfall 
   C5 Coastal Forest     0.779   0.801   +0.021   0.87
   --------------------- ------- ------- -------- ------
 
-**Table : **Depth-dependent PET grid search by cluster (Script 15, Model B): iterative NSE of the cluster SSM with a fixed β₂ and with the PET term attenuated as exp(−d / L_E), the gain ΔNSE, and the best-fit attenuation length L_E, the water table depth over which the PET signal falls by a factor of e. None: the best fit has no attenuation. (Source: 15_03_benchmark_table.csv; L_E from 15_report_numbers.csv).
+**Table : **Depth-dependent PET grid search by cluster (Script 15, Model B): iterative NSE of the cluster SSM with a fixed β₂ and with the PET term attenuated exponentially with water table depth, the gain ΔNSE, and the best-fit attenuation length L_E, the water table depth over which the PET signal falls by a factor of e. None: the best fit has no attenuation. (Source: 15_03_benchmark_table.csv; L_E from 15_report_numbers.csv).
 
 ## []{#anchor-11}Dune Scraping Intervention Analysis
 

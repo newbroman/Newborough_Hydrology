@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=90c14a950af9d733 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report8.odt — do not edit. source-sha256=2674c8c05c094055 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}Methods
@@ -322,7 +322,7 @@ To visualize the spatial structure of aquifer behaviour across the site, per-wel
 
 ### []{#anchor-15}Within-Forest Spatial Coefficient Analysis
 
-To test whether within-forest coefficient variation tracks topographic position (a proxy for the uncored substrate) or canopy differences, per-well SSM coefficients for the 14 forest zone wells (9 in C4, 5 in C5) were regressed against three spatial predictors: DEM ground elevation, Euclidean distance from the ridge crest (E = 241,750, N = 364,500), and Easting as a proxy for distance from the south-eastern coast (Menai Strait). Single-predictor Pearson correlations were computed for each coefficient against each spatial variable, and multiple regression was used to test whether distance from the ridge added explanatory power beyond elevation alone. The C4/C5 boundary was assessed for continuity or discontinuity using t-tests on elevation, β₁, β₂ and β₃ between the two clusters.* Results are reported in Section 4.9.4 (Table 26). The analysis is implemented in 10c_forest_zone_analysis.py.*
+To test whether within-forest coefficient variation tracks topographic position (a proxy for the uncored substrate) or canopy differences, per-well SSM coefficients for the 14 forest zone wells (9 in C4, 5 in C5) were regressed against three spatial predictors: DEM ground elevation, Euclidean distance from the ridge crest (E = 241,750, N = 364,500), and Easting as a proxy for distance from the south-eastern coast (Menai Strait). Single-predictor Pearson correlations were computed for each coefficient against each spatial variable, and multiple regression was used to test whether distance from the ridge added explanatory power beyond elevation alone. The C4/C5 boundary was assessed for continuity or discontinuity using t-tests on elevation, β₁, β₂ and β₃ between the two clusters.* Results are reported in Section 4.9.4 (Table 29). The analysis is implemented in 10c_forest_zone_analysis.py.*
 
 ### **Drainage Timescales**
 

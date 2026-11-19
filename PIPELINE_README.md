@@ -389,7 +389,7 @@ src/
 
 #### Step 9 — 08_model_benchmarking
 
-**Purpose.** LCSC vs Traditional Linear Model benchmarking (NSE/R² improvement maps, CEH6 showdown figure, Table 12). The source CSV is named 08_lcsc_04_table3_benchmark_summary.csv for historical reasons; the table it fills is report Table 12.
+**Purpose.** LCSC vs Traditional Linear Model benchmarking (NSE/R² improvement maps, CEH6 showdown figure, Table 15). The source CSV is named 08_lcsc_04_table3_benchmark_summary.csv for historical reasons; the table it fills is report Table 15.
 
 **Reads.**
 
@@ -713,7 +713,7 @@ Summer climate via `scraping_common.load_summer_climate()`. Scenario constants
 
 #### Step 12 — 11_forecasting_thresholds
 
-**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 13, 14, 15), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
+**Purpose.** Closed-form P_flood derivation, winter/summer transfer functions (Tables 16, 17, 18), and a per-cluster empirical spring MSL transfer function (Section 5, "Tool A").
 
 Section 5 is the predictive companion to Script 26's observational MSL5 monitoring metric. For each cluster, an OLS-with-intercept fit on `03_regional_averages.csv` produces an equation of the form
 

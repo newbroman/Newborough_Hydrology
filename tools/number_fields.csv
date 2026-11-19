@@ -28,6 +28,7 @@ field,source_csv,key,scale,abs,dp,plus,minus,thousands,note
 10c_b1_r_vs_Easting_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₁_recharge · r_vs_Easting,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 10c_b2_Marginal_gain_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₂_atm_draw · Marginal_gain,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 10c_b2_R2_elevation_only_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₂_atm_draw · R2_elevation_only,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
+10c_b2_R2_elevation_only_x100_dp0,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₂_atm_draw · R2_elevation_only,100,,0,,−,,bound by bind_drift_summary.csv (docs/academic_summaries/text/academic_Summary.md)
 10c_b2_r_vs_Elevation_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₂_atm_draw · r_vs_Elevation,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 10c_b3_Marginal_gain_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₃_drainage · Marginal_gain,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"
 10c_b3_r_vs_Elevation_dp3,outputs/10c_forest_zone_analysis/10c_forest_zone_correlations.csv,β₃_drainage · r_vs_Elevation,1,,3,,−,,"born a field in Paper 1 (T-110, J-19)"

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_136.odt — do not edit. source-sha256=f0102f113b2426a0 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/report/Newborough_Methods_Supplement_v2_0_136.odt — do not edit. source-sha256=e42a0caae7bb9026 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}[]{#anchor-1}[]{#anchor-2}Newborough Warren Methods Supplement
@@ -3890,7 +3890,7 @@ A methodological aside emerges from the regression: the Script 25 exponential co
 
 Step 36/64, Phase 14; tier X, but executed by default --- the committed *pipeline_manifest.json* gives *exec=\"default\"* at index 35 (cite the manifest rather than these counts). Added 2026-06-23 as a constrained-β₃ triangulation sensitivity (v1.0.0--v1.1.0); replaced 2026-07-24 (v2.1.0) by the direct identifiability diagnostic documented here, after the degeneracy premise the earlier script rested on was tested and not supported; per-well two-basis panel and centroid exclusion sensitivity added 2026-08-16 (v2.2.0); results removed from the script's own docstring, comments and console strings in favour of run-time derivation 2026-08-16 (v2.2.1). The retired script's archived outputs remain committed under *outputs/30_c4_constrained_fit/* but are produced by no live script.
 
-**Motivation.** C4 Main Forest returns the network's lowest drainage coefficient and its highest atmospheric draw. Because β₂·PET and β₃·h_disp are the two loss terms in the SSM, the obvious objection is that they are collinear at a cluster with a deep water table, so that the low β₃ is an artefact of the fit rather than a property of the cluster. The earlier version of this script accepted that premise and constrained β₃ to an open-dune anchor. This version tests the premise instead, at the cluster-centroid scale the report cites, and reports two sensitivities that bound the coefficient without revising it.
+**Motivation.** C4 Main Forest returns the network's lowest drainage coefficient and an elevated atmospheric draw (third in the network, after C1 and C2). Because β₂·PET and β₃·h_disp are the two loss terms in the SSM, the obvious objection is that they are collinear at a cluster with a deep water table, so that the low β₃ is an artefact of the fit rather than a property of the cluster. The earlier version of this script accepted that premise and constrained β₃ to an open-dune anchor. This version tests the premise instead, at the cluster-centroid scale the report cites, and reports two sensitivities that bound the coefficient without revising it.
 
 Inputs.
 

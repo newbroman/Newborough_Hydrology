@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_39.odt — do not edit. source-sha256=b8bc6c799ffb0b99 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/academic_summaries/academic_Summary_v1_40.odt — do not edit. source-sha256=26666483e7832754 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 Newborough Warren Groundwater Study
@@ -21,15 +21,15 @@ Figure 1. The five hydrogeological zones identified by cluster analysis (hierarc
 
 Aquifer characterisation
 
-The k=5 partition yields five zones with distinct SSM coefficient profiles (Table 1). The Main Forest (C4) exhibits the lowest recharge sensitivity and highest atmospheric draw, driven by pine interception and thin substrate over irregular bedrock. The Lake Edge (C1) has the highest recharge sensitivity and fastest drainage, buffered by the adjacent lake. Coastal Forest (C5) shows the steepest summer minimum decline of all zones. Ground elevation explains 98% of the variance in β₂ within the forested area, confirming that substrate thickness rather than canopy cover is the primary control on summer drawdown intensity.
+The k=5 partition yields five zones with distinct SSM coefficient profiles (Table 1). The two forest zones carry the lowest recharge sensitivity, consistent with pine interception. The Main Forest (C4) has an elevated atmospheric draw, third in the network after the two eastern open-dune zones, on the ridge flank over thin substrate and irregular bedrock. The Lake Edge (C1) has the highest recharge sensitivity and fastest drainage, buffered by the adjacent lake. Coastal Forest (C5) shows the steepest summer minimum decline of all zones. Ground elevation explains 93% of the variance in β₂ within the forested area, indicating topographic position, and the substrate inferred to underlie it, as the major control on summer drawdown intensity.
 
   ------------------- ---- ------------- -------------- ------------- -------
   Zone                n    β₁ recharge   β₂ atm. draw   β₃ drainage   LCSC
-  C1 Lake Edge        7    4.577         0.942          0.088         0.218
-  C2 Dune             19   3.989         1.842          0.062         0.251
-  C3 W. Residual      26   3.808         1.833          0.062         0.263
-  C4 Main Forest      9    2.502         2.564          0.019         0.400
-  C5 Coastal Forest   5    2.462         1.336          0.045         0.406
+  C1 Lake Edge        7    3.715         3.144          0.354         0.269
+  C2 Dune             19   3.500         2.619          0.167         0.286
+  C3 W. Residual      26   3.604         2.126          0.103         0.277
+  C4 Main Forest      9    2.578         2.499          0.010         0.388
+  C5 Coastal Forest   5    2.463         1.335          0.045         0.406
   ------------------- ---- ------------- -------------- ------------- -------
 
 Table 1. SSM mechanistic coefficients by cluster (cluster-centroid fits). β₁, β₂ dimensionless; β₃ month⁻¹. LCSC = Lumped Catchment Storage Coefficient (100/β₁), the reciprocal of recharge sensitivity.

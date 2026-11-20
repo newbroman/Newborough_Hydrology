@@ -5,11 +5,11 @@
 
 *Generated from `docs/PDF_MANIFEST.txt` with the live lag state from `tools/export_lag.py`. Living current-state; regenerate, do not hand-edit. `tools/export_lag.py` is the live authority.*
 
-**12 published PDFs** — 4 version-current, 3 lagging, 5 unversioned (mtime-only, not version-tracked).
+**12 published PDFs** — 3 version-current, 4 lagging, 5 unversioned (mtime-only, not version-tracked).
 
 | Published PDF | Source ODT (recorded) | Built (UTC) | State |
 |---|---|---|---|
-| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_39.odt` | 2026-11-05T13:51:30Z | current |
+| `docs/academic_summaries/academic_summary.pdf` | `academic_Summary_v1_39.odt` | 2026-11-05T13:51:30Z | **STALE** |
 | `docs/academic_summaries/crynodeb_academaidd.pdf` | `crynodeb_academaidd_v1_31.odt` | 2026-11-05T13:51:32Z | current |
 | `docs/papers/paper_1/PAPER1_SI_methods.pdf` | `PAPER1_SI_methods_v1_36.odt` | 2026-11-18T22:43:18Z | current |
 | `docs/papers/paper_1/Paper1.pdf` | `Paper1_v1_94.odt` | 2026-11-18T22:43:17Z | **STALE** |
@@ -32,4 +32,4 @@
 
 > `report.pdf` is deliberately **absent** from `PDF_MANIFEST.txt` and from this ledger: it is built from the `report.odm` master via `tools/export_master_pdf.py`, not `build_pdfs.sh`. See the project working rules.
 
-*Generated 2026-11-19 by `tools/build_doc_ledger.py` v1.1.0.*
+*Generated 2026-11-20 by `tools/build_doc_ledger.py` v1.1.0.*

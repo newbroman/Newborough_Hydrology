@@ -52,4 +52,4 @@ hydrograph_max_summer_separation_month,C4,thinning_50pct,Sep,,"month of hydrogra
 hydrograph_sep_at_baseline_trough_m,C4,broadleaf,-0.5444516461405655,m,"separation from the observed C4 baseline at the baseline trough month (Sep), positive = shallower (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_m,C4,broadleaf,-0.5444516461405655,m,"largest-magnitude Jun-Sep separation from the observed C4 baseline, in Sep; positive = shallower, negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)"
 hydrograph_max_summer_separation_month,C4,broadleaf,Sep,,month of hydrograph_max_summer_separation_m
-scenario_n_keys_withdrawn_d333,,,32.0,keys,"rows in this file whose note carries the D-333 withdrawal (the clearfell and thinning_50pct rows of scenario_head_shift_m, scenario_storage_change_mm, scenario_storage_change_ratio_C5_to_C4 and the hydrograph_* separations)"
+scenario_n_keys_withdrawn_d333_21,,,32.0,keys,"rows in this file whose note carries the D-333 withdrawal (the clearfell and thinning_50pct rows of scenario_head_shift_m, scenario_storage_change_mm, scenario_storage_change_ratio_C5_to_C4 and the hydrograph_* separations)"

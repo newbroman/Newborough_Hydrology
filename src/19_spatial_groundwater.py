@@ -26,7 +26,10 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.36.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and thinning scenarios
+__version__ = "2.36.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
+#   emitted as scenario_n_keys_withdrawn_d333_19: Scripts 09b, 19 and 21 each wrote the same name for their own
+#   count (1, 11, 32), which number_ledger reads as one quantity with three values. Nothing reads the key.
+# 2.36.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and thinning scenarios
 #   (and the clearfell interception bound, which carries the same beta_2 multiplier) are built from a beta_2 multiplier
 #   of single-well era refits (clearfell_common.load_clearfell_impact_b2_multiplier; the interception-form diagnostic
 #   from load_clearfell_b2_multiplier) and are WITHDRAWN under D-333 pending T-209. No value changes: every report key
@@ -3085,7 +3088,7 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
 
     # 2.36.0 (D-333): how many report keys are withdrawn, for the check tools; and the console warning
     _n_wd = sum(1 for r in rpt.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
-    rpt.add("scenario_n_keys_withdrawn_d333", _n_wd, unit="keys",
+    rpt.add("scenario_n_keys_withdrawn_d333_19", _n_wd, unit="keys",
             note="report keys in this file whose note carries the D-333 withdrawal (clearfell interception bound "
                  "and the interception-form diagnostic, both forms); the clearfell and thinning rows of "
                  "19_scenario_summary[_model_a] / _perwell[_model_a] carry status 'withdrawn (D-333)'")

@@ -31,7 +31,11 @@ WELL_ERAS           {well: {era_name: (start, end)}} for all analysis wells.
                     Start is inclusive, end is exclusive.
 """
 
-__version__ = "1.13.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). load_cluster_params() measures
+__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
+#   compute_scenario_bars(): Clearfell and Thinning 50% return a share of the interception
+#   (clearfell_common.clearfell_return_fraction, calibrated on the observed BACI step) instead of a beta_2
+#   multiplier; arguments clearfell_frac / thinning_frac replace clearfell_b2_mult / thinning_b2_mult.
+# 1.13.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). load_cluster_params() measures
 #   h_disp from each cluster's Model B implied datum (03_03 implied_datum_m = DRAINAGE_DATUM - alpha/beta_3) instead of
 #   DRAINAGE_DATUM, so b3*h_disp is Model B's drainage term with 03_03's (now Model B) betas, and returns alpha and
 #   implied_datum_m. compute_scenario_bars() differences two fluxes at one h_disp, so its bars do not depend on the datum.
@@ -471,7 +475,7 @@ def significance_stars(p):
 # ============================================================================
 
 def compute_scenario_bars(cluster_params, summer_P, summer_PET,
-                          clearfell_b2_mult=None, thinning_b2_mult=None):
+                          clearfell_frac=None, thinning_frac=None):
     """Compute per-cluster volumetric scenario bars (mm w.e./month).
 
     Uses the Option 3 seasonal perturbation formulation:
@@ -486,10 +490,12 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
         Mean summer rainfall (m/month) from climate data.
     summer_PET : float
         Mean summer PET (m/month) from climate data.
-    clearfell_b2_mult : float or None
-        If None, loaded dynamically from clearfell_common.
-    thinning_b2_mult : float or None
-        If None, loaded dynamically from clearfell_common.
+    clearfell_frac : float or None
+        1.14.0 (T-209, D-333): the share f of the canopy's interception the clearfell returns as recharge
+        (clearfell_common.clearfell_return_fraction(), calibrated on the observed BACI step at the felled
+        well). If None, loaded. The clearfell bar is that flux sensitivity, not a beta_2 multiplier.
+    thinning_frac : float or None
+        Half the clearfell's f if None: an upper bound (the remaining trees take up part of it).
 
     Returns
     -------
@@ -502,14 +508,13 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
         UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
     )
 
-    # β₂ multipliers: use passed values, or load from clearfell_common
-    if clearfell_b2_mult is None or thinning_b2_mult is None:
-        from utils.clearfell_common import load_clearfell_b2_multiplier
-        _cf, _thin, _ = load_clearfell_b2_multiplier()
-        if clearfell_b2_mult is None:
-            clearfell_b2_mult = _cf
-        if thinning_b2_mult is None:
-            thinning_b2_mult = _thin
+    # 1.14.0 (T-209, D-333): the clearfell returns a share f of the interception, calibrated on the observed
+    # BACI step; no beta_2 multiplier from era refits (withdrawn, D-333).
+    if clearfell_frac is None:
+        from utils.clearfell_common import clearfell_return_fraction
+        clearfell_frac = clearfell_return_fraction(verbose=False)["f"]
+    if thinning_frac is None:
+        thinning_frac = clearfell_frac / 2.0
 
     clusters = ["C1", "C2", "C3", "C4", "C5"]
     scenarios = {}
@@ -518,11 +523,11 @@ def compute_scenario_bars(cluster_params, summer_P, summer_PET,
         return b1 * P_eff - b2 * PET - b3 * h_disp
 
     for scenario_name, config in [
-        # 1.12.0 (D-239): no interception change (sI None keeps the canopy's) - the felled well's recharge
-        # did not rise; the draw takes the felled well's measured change.
-        ("Clearfell",    {"sI": None,                      "sB2": clearfell_b2_mult,
+        # 1.14.0 (T-209, D-333): the clearfell returns f of the interception (sI = I(1 - f)), the draw unchanged;
+        # thinning returns at most half that.
+        ("Clearfell",    {"sI": FOREST_INTERCEPTION * (1 - clearfell_frac), "sB2": 1.0,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
-        ("Thinning 50%", {"sI": None,                      "sB2": thinning_b2_mult,
+        ("Thinning 50%", {"sI": FOREST_INTERCEPTION * (1 - thinning_frac),  "sB2": 1.0,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
         ("Broadleaf",    {"sI": None,                      "sB2": BROADLEAF_B2_SUMMER,
                           "sP": 1.0, "sPET": 1.0,         "forest_only": True}),
@@ -586,14 +591,8 @@ def compute_scenario_bars_from_params():
     try:
         from utils.pipeline_params import load_params
         p = load_params()
-        from utils.clearfell_common import load_clearfell_impact_b2_multiplier
-        cf_imp, thin_imp, _ = load_clearfell_impact_b2_multiplier(verbose=False)   # 1.12.0 (D-239)
         return (
-            compute_scenario_bars(
-                p["clusters"], p["summer_P"], p["summer_PET"],
-                clearfell_b2_mult=cf_imp,
-                thinning_b2_mult=thin_imp,
-            ),
+            compute_scenario_bars(p["clusters"], p["summer_P"], p["summer_PET"]),   # 1.14.0 (T-209)
             p["clusters"],
             p["summer_P"],
             p["summer_PET"],
@@ -602,11 +601,8 @@ def compute_scenario_bars_from_params():
         # Fallback to individual loaders (first-ever run, no params file)
         cluster_params = load_cluster_params()
         summer_P, summer_PET = load_summer_climate()
-        from utils.clearfell_common import load_clearfell_impact_b2_multiplier
-        cf_imp, thin_imp, _ = load_clearfell_impact_b2_multiplier(verbose=False)   # 1.12.0 (D-239)
         return (
-            compute_scenario_bars(cluster_params, summer_P, summer_PET,
-                                  clearfell_b2_mult=cf_imp, thinning_b2_mult=thin_imp),
+            compute_scenario_bars(cluster_params, summer_P, summer_PET),   # 1.14.0 (T-209)
             cluster_params,
             summer_P,
             summer_PET,

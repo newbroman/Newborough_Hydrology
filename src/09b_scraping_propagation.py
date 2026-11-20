@@ -30,7 +30,14 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The 'Scraping (nearby)'
+#   bars of 09b_04 (BACI delta-beta_3 of split-window refits through 1/beta_3) are dropped: the scrape is detected
+#   by the paired contrast at CEH36 (09a) and its propagation is not quantified. _compute_scraping_bars,
+#   scrape_bar_n_b3_held_at_bound, the D-333 status column, labels and count key (scenario_n_keys_withdrawn_d333_09b)
+#   are gone. Clearfell / Thinning 50% bars now come from scraping_common.compute_scenario_bars 1.14.0 (a share f of
+#   the interception, calibrated on the observed BACI step). 09b_04 redrawn: the two text boxes over the C4/C5 bars
+#   are one note below the axes.
+# 1.14.1  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
 #   emitted as scenario_n_keys_withdrawn_d333_09b: Scripts 09b, 19 and 21 each wrote the same name for their own
 #   count (1, 11, 32), which number_ledger reads as one quantity with three values. Nothing reads the key.
 # 1.14.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The 'Scraping (nearby)' bars (built
@@ -95,8 +102,7 @@ from utils.paths import (
 )
 from utils.report_numbers_utils import ReportNumbers
 from utils.config import (FOREST_INTERCEPTION, BW_MODE, CEH36_E, CEH36_N,
-                          SCRAPE_PROPAGATION_NEAR_M, MODEL_B_BETA3_MIN,
-                          D333_WITHDRAWN_NOTE, D333_WITHDRAWN_STATUS)   # 1.14.0 (D-333)
+                          SCRAPE_PROPAGATION_NEAR_M)
 from utils.model_utils import fit_ssm
 from utils.data_utils import normalize_well_name
 
@@ -461,24 +467,9 @@ def main():
         rr.add("scrape_propagation_uphill_dist_max_m", float(_up["dist_m"].max()), unit="m",
                note="distance from CEH36 to the farthest uphill well of the propagation transect "
                     "(maximum of dist_m over role 'uphill'); report9 quotes it to the nearest 10 m")
-    # 1.13.0 (D-332): scrape bars whose post-scrape beta_3 is held at the Model B bound
-    _compute_scraping_bars(centroids_df)
-    rr.add("scrape_bar_n_b3_held_at_bound", int(len(_SCRAPE_B3_HELD)), unit="count",
-           era=", ".join(sorted(_SCRAPE_B3_HELD)),
-           note="clusters whose 'Scraping (nearby)' bar (09b_04) would have a post-scrape beta_3 below "
-                "MODEL_B_BETA3_MIN and is held at the bound (D-332)"
-                + ("; unbounded " + ", ".join(f"{k} {v:+.5f}" for k, v in sorted(_SCRAPE_B3_HELD.items()))
-                   if _SCRAPE_B3_HELD else "")
-                + D333_WITHDRAWN_NOTE)                                     # 1.14.0 (D-333)
-    # 1.14.0 (D-333): the count of withdrawn keys, for the check tools, and the console warning
-    _n_wd = sum(1 for r in rr.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
-    rr.add("scenario_n_keys_withdrawn_d333_09b", _n_wd, unit="keys",
-           note="report keys in this file whose note carries the D-333 withdrawal; the 'Scraping (nearby)', "
-                "'Clearfell' and 'Thinning 50%' rows of 09b_04 and the Clearfell / Thinning 50% rows of 09b_05 "
-                "carry status 'withdrawn (D-333)'")
-    warn("D-333: the 'Scraping (nearby)' scrape-propagation bars (BACI delta-beta_3 of split-window refits) and the "
-         "Clearfell / Thinning 50% bars (beta_2 multiplier of single-well era refits) of 09b_04 / 09b_05 are "
-         f"WITHDRAWN pending T-209 ({_n_wd} report key) - values unchanged, flagged, not results")
+    # 1.15.0 (T-209, D-333): the 'Scraping (nearby)' bars - a BACI delta-beta_3 of split-window refits propagated
+    # through 1/beta_3 - are dropped from 09b_04, with their held-at-bound count and the D-333 withdrawal count.
+    # The scrape's detection is the paired contrast at CEH36 (Script 09a); its propagation is not quantified.
     n_rr = rr.save(OUT_09B_REPORT_NUMBERS)
     print(f"   \u2192 {OUT_09B_REPORT_NUMBERS.name} ({n_rr} rows)")
 
@@ -597,97 +588,15 @@ def _plot_equilibration(wells_clean):
 # FIGURE 4 — SCENARIO COMPARISON BAR CHART
 # ============================================================================
 
-# Scraping ground-lowering depth (m)
-GROUND_LOWERING = 0.2
-
-# Fraction of each cluster's wells within 800 m uphill of CEH36.
-FRAC_AFFECTED = {"C1": 0.0, "C2": 0.0, "C3": 0.2857, "C4": 0.7778, "C5": 1.00}
-
-
-_SCRAPE_B3_HELD: dict = {}   # 1.13.0: {cluster: unbounded b3_new} for bars held at MODEL_B_BETA3_MIN
-# 1.14.0 (D-333): bars built from era-refit beta multipliers, withdrawn pending T-209 (09b_04 and 09b_05 names)
-D333_WITHDRAWN_BARS = ("Clearfell", "Thinning 50%", "Scraping (nearby)")
-
-
-def _d333_status(name):
-    """1.14.0 (D-333): the `status` value for a scenario bar."""
-    return D333_WITHDRAWN_STATUS if name in D333_WITHDRAWN_BARS else ""
-
-
-def _d333_label(name):
-    """1.14.0 (D-333): a legend label, marked when the bar is withdrawn."""
-    return f"{name} (withdrawn, D-333)" if name in D333_WITHDRAWN_BARS else name
-
-
-def _compute_scraping_bars(centroids_df):
-    """
-    Compute scraping scenario bars from BACI-corrected centroid summaries.
-    All three coefficient shifts applied. C5 uses C3+CEH31 shifts;
-    C4 uses C4 shifts. C1 and C2 are zero.
-
-    1.12.0 (D-332): the shifts are Model B's, and h_disp is measured from the
-    cluster's implied datum (scraping_common.load_cluster_params), so
-    b3*h_disp is Model B's drainage term. The scrape changes beta_3 at a fixed
-    base: b3_new*(h_disp - GROUND_LOWERING). The BACI shift in alpha
-    (baci_dalpha) is not applied - the base, not alpha, is held.
-
-    1.13.0 (D-332): a b3_new below MODEL_B_BETA3_MIN is held at the bound and
-    recorded in _SCRAPE_B3_HELD.
-    """
-    _SCRAPE_B3_HELD.clear()
-    from utils.scraping_common import load_cluster_params, load_summer_climate
-
-    cluster_params = load_cluster_params()
-    P, PET = load_summer_climate()
-
-    c3_row = centroids_df[centroids_df["group"].str.contains("C3")]
-    c4_row = centroids_df[centroids_df["group"].str.contains("C4")]
-
-    if len(c3_row) == 0 or len(c4_row) == 0:
-        warn("centroid summaries incomplete \u2014 scraping bars set to zero")
-        return {c: 0.0 for c in cluster_params}
-
-    c3_row = c3_row.iloc[0]
-    c4_row = c4_row.iloc[0]
-    shift_map = {"C3": c3_row, "C4": c4_row, "C5": c3_row}
-
-    scrape_unweighted = {}
-    for cname, c in cluster_params.items():
-        if cname not in shift_map:
-            scrape_unweighted[cname] = 0.0
-            continue
-
-        row = shift_map[cname]
-        db1 = row["baci_db1"]
-        db2 = row["baci_db2"]
-        db3_pct = row["baci_db3_pct"] / 100.0
-
-        p_eff = P * (1 - FOREST_INTERCEPTION) if c["forest"] else P
-        flux_base = c["b1"] * p_eff - c["b2"] * PET - c["b3"] * c["h_disp"]
-
-        b1_new = c["b1"] + db1
-        b2_new = c["b2"] + db2
-        b3_new = c["b3"] * (1 + db3_pct)
-        if b3_new < MODEL_B_BETA3_MIN:
-            _SCRAPE_B3_HELD[cname] = b3_new
-            warn(f"{cname} scrape bar: post-scrape beta_3 {b3_new:+.5f} (BACI {db3_pct * 100:+.0f} %) is below "
-                 f"MODEL_B_BETA3_MIN - held at the bound {MODEL_B_BETA3_MIN:g} (D-332)")
-            b3_new = MODEL_B_BETA3_MIN
-        h_new  = c["h_disp"] - GROUND_LOWERING
-
-        flux_scen = b1_new * p_eff - b2_new * PET - b3_new * h_new
-        scrape_unweighted[cname] = (flux_scen - flux_base) * c["Sy"] * 1000
-
-    scrape_weighted = {c: scrape_unweighted[c] * FRAC_AFFECTED[c]
-                       for c in scrape_unweighted}
-    return scrape_weighted
+# 1.15.0 (T-209): GROUND_LOWERING and FRAC_AFFECTED went with the 'Scraping (nearby)' bars.
 
 
 def _plot_scenario_comparison(centroids_df, dpi=200):
     """
-    Grouped bar chart: forest management, scraping, and climate scenarios.
-    Non-scraping values from compute_scenario_bars() (single source of truth).
-    Scraping bars from BACI centroid shifts.
+    Grouped bar chart: forest management and climate scenarios.
+    Values from compute_scenario_bars() (single source of truth).
+    1.15.0 (T-209): the 'Scraping (nearby)' bars are gone (propagation not quantified, D-333); the clearfell
+    and thinning bars return a share f of the interception calibrated on the observed BACI step.
     """
     from utils.scraping_common import compute_scenario_bars_from_params
 
@@ -698,22 +607,19 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     # Non-scraping scenarios from the consolidated pipeline params
     base_scenarios, _, _, _ = compute_scenario_bars_from_params()
 
-    # Scraping bars from centroid BACI shifts
-    scrape_w = _compute_scraping_bars(centroids_df)
-
     colour_map = {
         "Clearfell": "#8B4513", "Thinning 50%": "#D2691E",
-        "Broadleaf": "#228B22", "Scraping (nearby)": "#DAA520",
+        "Broadleaf": "#228B22",
         "Climate dry": "#FF6347", "Climate wet": "#4169E1",
     }
     bw_colour_map = {
         "Clearfell": "#333333", "Thinning 50%": "#666666",
-        "Broadleaf": "#999999", "Scraping (nearby)": "#bbbbbb",
+        "Broadleaf": "#999999",
         "Climate dry": "#444444", "Climate wet": "#cccccc",
     }
     bw_hatch_map = {
         "Clearfell": "xxx", "Thinning 50%": "///",
-        "Broadleaf": "...", "Scraping (nearby)": "///",
+        "Broadleaf": "...",
         "Climate dry": "\\\\\\", "Climate wet": "",
     }
 
@@ -723,7 +629,6 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
         if s_name in base_scenarios:
             scenarios[s_name] = (base_scenarios[s_name],
                                  colour_map.get(s_name, "#999"), None)
-    scenarios["Scraping (nearby)"] = (scrape_w, "#DAA520", "///")
     for s_name in ["Climate dry", "Climate wet"]:
         if s_name in base_scenarios:
             scenarios[s_name] = (base_scenarios[s_name],
@@ -731,29 +636,21 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
 
     n_scen = len(scenarios)
     x = np.arange(len(clusters))
-    width = 0.12
+    width = 0.15
     offsets = np.linspace(-(n_scen - 1) / 2 * width,
                            (n_scen - 1) / 2 * width, n_scen)
 
-    fig, ax = plt.subplots(1, 1, figsize=(14, 7.5))
+    fig, ax = plt.subplots(1, 1, figsize=(13, 7))
 
     for i, (scenario, (vals_dict, colour, hatch)) in enumerate(
             scenarios.items()):
         vals = [vals_dict.get(c, 0) for c in clusters]
-        is_scrape = "Scraping" in scenario
         _col = bw_colour_map.get(scenario, colour) if BW_MODE else colour
         _hatch = bw_hatch_map.get(scenario, hatch or "") if BW_MODE else hatch
-        ax.bar(x + offsets[i], vals, width, label=_d333_label(scenario),   # 1.14.0 (D-333)
-               color=_col,
-               edgecolor="black",
-               linewidth=1.5 if is_scrape else 0.5,
-               alpha=0.85, hatch=_hatch)
-        if is_scrape:
-            for j, v in enumerate(vals):
-                if abs(v) > 0.3:
-                    ax.text(x[j] + offsets[i], v - 1.5, f"{v:.1f}",
-                            ha="center", fontsize=12, fontweight="bold",
-                            color="#8B6914")
+        _lab = {"Clearfell": "Clearfell (flux sensitivity)",
+                "Thinning 50%": "Thinning 50% (at most half)"}.get(scenario, scenario)
+        ax.bar(x + offsets[i], vals, width, label=_lab, color=_col,
+               edgecolor="black", linewidth=0.5, alpha=0.85, hatch=_hatch)
 
     ax.axhline(0, color="black", linewidth=0.8)
     ax.set_xticks(x)
@@ -762,34 +659,22 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
                   "(mm water equiv. / month)", fontsize=15)
     ax.tick_params(axis="y", labelsize=13)
     ax.set_title(
-        "Scenario comparison: forest management, scraping, "
-        "and climate (k = 5)\n"
+        "Scenario comparison: forest management and climate (k = 5)\n"
         "Volumetric using WTF-derived, interception-corrected Sy",
         fontsize=15, fontweight="bold")
 
-    ax.text(0.98, 0.02,
-            "Scraping bars: cluster-average monthly impact\n"
-            "on unscraped areas, weighted by fraction of cluster\n"
-            "within 800 m uphill of CEH36 (C3: 29%, C4: 78%, C5: 100%)",
-            transform=ax.transAxes, fontsize=10,
-            va="bottom", ha="right",
-            bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow",
-                      alpha=0.9, edgecolor="#DAA520"))
-
-    ax.text(0.98, 0.98,
-            "C5 note: the BACI felling step\n"
-            "overstates decline due to western\n"
-            "positional confound vs C1+C2 control.\n"
-            "SSM scenario values are unaffected.",
-            transform=ax.transAxes,
-            fontsize=9, fontstyle="italic", color="#555555",
-            bbox=dict(boxstyle="round,pad=0.4", facecolor="#F5F5F5",
-                      alpha=0.85, edgecolor="#AAAAAA"),
-            ha="right", va="top")
+    # 1.15.0 (T-209): one note, below the axes, clear of the bars
+    ax.text(0.0, -0.20,
+            "Clearfell: the share of the canopy's interception returned that reproduces the observed BACI step at "
+            "the felled well (winter); thinning at most half of it.\n"
+            "Scraping is not shown: its effect is detected at CEH36 (paired contrast) and its spread to other "
+            "wells is not quantified.",
+            transform=ax.transAxes, fontsize=10, va="top", ha="left", color="#444444")
 
     ax.legend(fontsize=10, loc="upper left", bbox_to_anchor=(1.01, 1.0))   # 1.14.0: outside the axes, off the bars
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
+    fig.subplots_adjust(bottom=0.24)
 
     render_figure(fig, OUT_09B_SCENARIO, format="jpeg",
                   pil_kwargs={"quality": 85})
@@ -800,11 +685,7 @@ def _plot_scenario_comparison(centroids_df, dpi=200):
     for scenario, (vals_dict, _, _) in scenarios.items():
         for c in clusters:
             rows.append({"Scenario": scenario, "Cluster": c,
-                         "Delta_vol_mm_per_month": round(vals_dict.get(c, 0), 1),
-                         # 1.13.0 (D-332): the bar's post-scrape beta_3 was held at MODEL_B_BETA3_MIN
-                         "b3_held_at_bound": bool(scenario == "Scraping (nearby)"
-                                                  and c in _SCRAPE_B3_HELD),
-                         "status": _d333_status(scenario)})                # 1.14.0 (D-333)
+                         "Delta_vol_mm_per_month": round(vals_dict.get(c, 0), 1)})
     pd.DataFrame(rows).to_csv(OUT_09B_SCENARIO_CSV, index=False,
                               float_format="%.1f")
     print(f"   \u2192 {OUT_09B_SCENARIO.name}")
@@ -945,7 +826,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
                color=_col,
                edgecolor='black',
                linewidth=0.8 if _hatch else 0.5,
-               hatch=_hatch, alpha=0.85, label=_d333_label(s_name), zorder=3)   # 1.14.0 (D-333)
+               hatch=_hatch, alpha=0.85, label=s_name, zorder=3)
         for j, v in enumerate(vals):
             if abs(v) > 5:
                 ax.text(x[j] + offset, v + (1.5 if v > 0 else -1.5),
@@ -989,8 +870,7 @@ def _summer_scenario(wells_clean, wells_ext, climate):
         for c in clusters:
             rows.append({'Scenario': s_name.replace('\n', ' '),
                          'Cluster': c,
-                         'Delta_vol_summer_mm_per_month': summer_data[s_name].get(c, 0),
-                         'status': _d333_status(s_name)})                   # 1.14.0 (D-333)
+                         'Delta_vol_summer_mm_per_month': summer_data[s_name].get(c, 0)})
     pd.DataFrame(rows).to_csv(OUT_09B_SUMMER_SCENARIO_CSV, index=False)
     print(f"   \u2192 {OUT_09B_SUMMER_SCENARIO_CSV.name}")
 

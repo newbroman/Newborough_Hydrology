@@ -769,6 +769,7 @@ OUT_10A_REPLANT_PROXIMITY   = DIR_10 / "10a_11_replant_proximity.csv"
 OUT_10A_CONTROL_SUBSET      = DIR_10 / "10a_12_control_subset_sensitivity.csv"
 OUT_10A_ERA_SPLIT           = DIR_10 / "10a_13_era_split.csv"
 OUT_10A_ERA_FIG             = DIR_10 / "10a_14_era_split_decay.png"
+OUT_10A_PAIRED_ATTRIBUTION  = DIR_10 / "10a_15_paired_attribution.csv"   # 10a 1.25.0 (T-209, D-333)
 
 # Script 10b — Spatial step-change maps (scraping + clearfell)
 OUT_10B_SCRAPE_RAW          = DIR_10 / "10b_spatial_scrape_raw.png"

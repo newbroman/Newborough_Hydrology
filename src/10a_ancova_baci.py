@@ -33,7 +33,12 @@ Hollingham (2026), §4.6.  Part of the Script 10 clearfell analysis suite.
 ====================================================================================
 """
 
-__version__ = "1.24.0"  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
+__version__ = "1.25.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). paired_attribution():
+#   WMC3 minus each control tier (and every control against the rest of its tier, the placebos) on the monthly
+#   change, HAC; step, Oct-Mar / Apr-Sep, rain- and PET-scaled steps, monthly profile against the rain and PET
+#   climatologies -> 10a_15_paired_attribution.csv and paired_* report keys. Ported from the D-333 review (s3.py),
+#   whose figures it reproduces. Additive: no existing output or key changes.
+# 1.24.0  # Hollingham (2026) — 2026-10-17. T-125 (spec NRG_spec_paper2_emit_keys_2026-10-17,
 #   Martin 22:12 "3 yes"): the ordinary-error p of each zone's scraping step and clearfell step gets
 #   its own row (_scraping_step_p, _clearfell_step_p; the value each Note already prints), so Paper 2's
 #   robustness-table p is a field. Emit-only.
@@ -259,7 +264,7 @@ from utils.clearfell_common import (
     scraping_weight, ReportNumbers, print_network_summary,
     well_distances_to_coast, tier_distance_stats, far_field_tier_audit,
 )
-from utils.paths import (make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD,
+from utils.paths import (make_all_dirs, DIR_10, OUT_10A_CONTROL_WELL_SPREAD, OUT_10A_PAIRED_ATTRIBUTION,
                         OUT_10A_DRIFT_EQUIVALENCE,
                         OUT_10A_REPLANT_PROXIMITY, OUT_10A_CONTROL_SUBSET,
                         OUT_10A_ERA_SPLIT, OUT_10A_ERA_FIG, OUT_20_REPORT_NUMBERS, INT_LOCATIONS,
@@ -282,6 +287,110 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from scipy import stats as sp_stats
 import json
+
+
+# ============================================================================
+# 1.25.0 (T-209, D-333): the paired attribution test, ported from the D-333 review (s3.py)
+# ============================================================================
+def paired_attribution(wells, climate, rpt, out_path):
+    """WMC3's monthly water-table change minus the mean of a control tier, regressed on rain, PET and both
+    heads (centred, so the step is datum-free), with a post-felling step, a winter/summer split, a step that
+    scales with rain and one that scales with PET, the monthly profile, and the same test on every control
+    well against the rest of its tier (the placebos). D-333's attribution figures read from this output."""
+    from utils.model_utils import build_ssm_frame
+    win_months = list(WINTER_RECHARGE_MONTHS)
+
+    def frame(w):
+        f = build_ssm_frame(wells[w], climate)
+        f = f[f.index >= PRE_FELL_START].copy()
+        f["post"] = (f.index >= CLEARFELL_DATE).astype(float)
+        f["S"] = (f.index >= SCRAPING_DATE).astype(float)
+        return f
+
+    def paired(target, ctrl):
+        f = frame(target)
+        C = pd.concat([frame(c)[["Delta_h", "h_prev"]].add_suffix("_" + c) for c in ctrl], axis=1)
+        f = f.join(C, how="inner").dropna()
+        dC = f[[f"Delta_h_{c}" for c in ctrl]].mean(axis=1)
+        hC = f[[f"h_prev_{c}" for c in ctrl]].mean(axis=1)
+        y = f.Delta_h - dC
+        Pc, Ec = f.P - f.P.mean(), f.PET - f.PET.mean()
+        base = pd.DataFrame({"const": 1.0, "P": f.P, "mPET": -f.PET,
+                             "mhW": -(f.h_prev - f.h_prev.mean()), "mhC": -(hC - hC.mean()), "S": f.S},
+                            index=f.index)
+
+        def fit(extra):
+            X = base.assign(**extra)
+            return sm.OLS(y, X).fit(cov_type="HAC", cov_kwds={"maxlags": 6})
+        m0, ma = fit({}), fit({"post": f.post})
+        mP, mE = fit({"postP": f.post * f.P}), fit({"postPET": -f.post * f.PET})
+        win = f.index.month.isin(win_months).astype(float)
+        ms = fit({"post_winter": f.post * win, "post_summer": f.post * (1 - win)})
+        r = dict(n=len(f), step=ma.params["post"], p_step=ma.pvalues["post"],
+                 winter=ms.params["post_winter"], p_winter=ms.pvalues["post_winter"],
+                 summer=ms.params["post_summer"], p_summer=ms.pvalues["post_summer"],
+                 p_winter_eq_summer=float(ms.t_test("post_winter - post_summer = 0").pvalue),
+                 dB1_rain=mP.params["postP"], p_rain=mP.pvalues["postP"],
+                 dB2_pet=mE.params["postPET"], p_pet=mE.pvalues["postPET"],
+                 dAIC_step=ma.aic - m0.aic, dAIC_rain=mP.aic - m0.aic, dAIC_pet=mE.aic - m0.aic)
+        prof = None
+        X = base.copy()
+        for m in range(1, 13):
+            X[f"m{m}"] = f.post * (f.index.month == m)
+        mm = sm.OLS(y, X).fit()
+        prof = np.array([mm.params[f"m{m}"] for m in range(1, 13)])
+        Pcl = np.array([f.P[f.index.month == m].mean() for m in range(1, 13)])
+        Ecl = np.array([f.PET[f.index.month == m].mean() for m in range(1, 13)])
+        r["profile_corr_rain"] = float(np.corrcoef(prof, Pcl)[0, 1])
+        r["profile_corr_pet"] = float(np.corrcoef(prof, Ecl)[0, 1])
+        return r
+
+    FC = [w for w in FOREST_CONTROL_WELLS if w in wells.columns]
+    FCp = [w for w in FC if w != "nw10"]
+    CC = [w for w in CLIMATE_CONTROL_WELLS if w in wells.columns]
+    rows = []
+    for lab, ctrl in (("WMC3-Forest", FC), ("WMC3-Forest(pine)", FCp),
+                      ("WMC3-Climate", CC), ("WMC3-Forest+Climate", FC + CC)):
+        rows.append(dict(pair=lab, kind="impact", **paired("wmc3", ctrl)))
+    for grp, nm in ((FC, "Forest"), (CC, "Climate")):
+        for c in grp:
+            rows.append(dict(pair=f"{c.upper()}-{nm}(rest)", kind="placebo",
+                             **paired(c, [x for x in grp if x != c])))
+    R = pd.DataFrame(rows)
+    R.to_csv(out_path, index=False)
+    saved(f"{out_path.name} ({len(R)} rows)")
+
+    imp = R.set_index("pair").loc["WMC3-Forest"]
+    pl = R[R.kind == "placebo"]
+    src = "10a_15_paired_attribution.csv"
+    for col, unit, what in (("step", "m/month", "post-felling step in monthly change"),
+                            ("winter", "m/month", "Oct-Mar post-felling step"),
+                            ("summer", "m/month", "Apr-Sep post-felling step"),
+                            ("dB1_rain", "-", "post-felling change in the rain coefficient"),
+                            ("dB2_pet", "-", "post-felling change in the PET coefficient")):
+        rpt.add(f"paired_WMC3_Forest_{col}", float(imp[col]), unit=unit, well="WMC3",
+                note=f"{what}, WMC3 minus the Forest-control mean, HAC (6 lags) ({src})")
+        pcol = {"step": "p_step", "winter": "p_winter", "summer": "p_summer",
+                "dB1_rain": "p_rain", "dB2_pet": "p_pet"}[col]
+        rpt.add(f"paired_WMC3_Forest_{col}_p", float(imp[pcol]), unit="", well="WMC3",
+                note=f"HAC p of paired_WMC3_Forest_{col} ({src})")
+        n_big = int((pl[col].abs() >= abs(imp[col])).sum())
+        rpt.add(f"paired_placebo_{col}_n_as_large", n_big, unit="wells", well="placebos",
+                note=f"control wells (each against the rest of its tier, n={len(pl)}) whose {col} is at least "
+                     f"as large in magnitude as WMC3-Forest's ({src})")
+        rpt.add(f"paired_placebo_{col}_sd", float(pl[col].std(ddof=1)), unit=unit, well="placebos",
+                note=f"standard deviation of the placebo {col} values, n={len(pl)} ({src})")
+    rpt.add("paired_placebo_n", int(len(pl)), unit="wells", well="placebos",
+            note=f"placebo pairs: each Forest and Climate control well against the rest of its tier ({src})")
+    for k in ("dAIC_rain", "dAIC_pet", "profile_corr_rain", "profile_corr_pet", "p_winter_eq_summer"):
+        rpt.add(f"paired_WMC3_Forest_{k}", float(imp[k]), unit="", well="WMC3",
+                note={"dAIC_rain": "AIC change for a step that scales with rain, against no step",
+                      "dAIC_pet": "AIC change for a step that scales with PET, against no step",
+                      "profile_corr_rain": "correlation of the monthly post-felling profile with the rain climatology",
+                      "profile_corr_pet": "correlation of the monthly post-felling profile with the PET climatology",
+                      "p_winter_eq_summer": "HAC p that the winter and summer steps are equal"}[k] + f" ({src})")
+    return R
+
 
 def main():
     make_all_dirs()
@@ -2615,6 +2724,8 @@ def main():
                 note=f"Pearson r, well easting vs distance to coast, n={len(_pw)} "
                      f"wells (Impact + Edge + Forest control + Climate control: "
                      f"{', '.join(w.upper() for w in _pw)})")
+    # 1.25.0 (T-209, D-333): the paired attribution test, read by the scenario rebuild and the documents
+    paired_attribution(wells, climate, rpt, OUT_10A_PAIRED_ATTRIBUTION)
     n_saved = rpt.save(OUT_REPORT)
     saved(f"{OUT_REPORT.name} ({n_saved} rows)")
 

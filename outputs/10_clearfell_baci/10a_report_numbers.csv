@@ -330,3 +330,29 @@ Fell_centroid_distance_min,NW7,Climate control,214.83864659088218,m,"minimum acr
 Fell_centroid_distance_max,WMC2,Climate control,1009.9720198782555,m,"maximum across the Climate control tier (CEH9, NW7, NW6, NW5, WMC2)"
 Scraping_to_clearfell_months,,,32.0,months,SCRAPING_DATE (2015-04) to CLEARFELL_DATE (2017-12)
 Easting_vs_dist_coast_r,,primary design panel,0.02205955579264446,r,"Pearson r, well easting vs distance to coast, n=15 wells (Impact + Edge + Forest control + Climate control: WMC3, CEH31, CEH20, CEH30, CEH16, CEH32, CEH34, CEH33, NW10, CEH2, CEH9, NW7, NW6, NW5, WMC2)"
+paired_WMC3_Forest_step,WMC3,,0.01587250975116608,m/month,"post-felling step in monthly change, WMC3 minus the Forest-control mean, HAC (6 lags) (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_step_p,WMC3,,0.12441594121734108,,HAC p of paired_WMC3_Forest_step (10a_15_paired_attribution.csv)
+paired_placebo_step_n_as_large,placebos,,3.0,wells,"control wells (each against the rest of its tier, n=10) whose step is at least as large in magnitude as WMC3-Forest's (10a_15_paired_attribution.csv)"
+paired_placebo_step_sd,placebos,,0.01324489565188939,m/month,"standard deviation of the placebo step values, n=10 (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_winter,WMC3,,0.027458034482079806,m/month,"Oct-Mar post-felling step, WMC3 minus the Forest-control mean, HAC (6 lags) (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_winter_p,WMC3,,0.070047895064941,,HAC p of paired_WMC3_Forest_winter (10a_15_paired_attribution.csv)
+paired_placebo_winter_n_as_large,placebos,,2.0,wells,"control wells (each against the rest of its tier, n=10) whose winter is at least as large in magnitude as WMC3-Forest's (10a_15_paired_attribution.csv)"
+paired_placebo_winter_sd,placebos,,0.019710118014433363,m/month,"standard deviation of the placebo winter values, n=10 (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_summer,WMC3,,0.005090475556514257,m/month,"Apr-Sep post-felling step, WMC3 minus the Forest-control mean, HAC (6 lags) (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_summer_p,WMC3,,0.6414818837195417,,HAC p of paired_WMC3_Forest_summer (10a_15_paired_attribution.csv)
+paired_placebo_summer_n_as_large,placebos,,4.0,wells,"control wells (each against the rest of its tier, n=10) whose summer is at least as large in magnitude as WMC3-Forest's (10a_15_paired_attribution.csv)"
+paired_placebo_summer_sd,placebos,,0.009732955575865216,m/month,"standard deviation of the placebo summer values, n=10 (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_dB1_rain,WMC3,,0.13878483656201437,-,"post-felling change in the rain coefficient, WMC3 minus the Forest-control mean, HAC (6 lags) (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_dB1_rain_p,WMC3,,0.2687729825144397,,HAC p of paired_WMC3_Forest_dB1_rain (10a_15_paired_attribution.csv)
+paired_placebo_dB1_rain_n_as_large,placebos,,4.0,wells,"control wells (each against the rest of its tier, n=10) whose dB1_rain is at least as large in magnitude as WMC3-Forest's (10a_15_paired_attribution.csv)"
+paired_placebo_dB1_rain_sd,placebos,,0.18774061436730716,-,"standard deviation of the placebo dB1_rain values, n=10 (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_dB2_pet,WMC3,,-0.16473031272726202,-,"post-felling change in the PET coefficient, WMC3 minus the Forest-control mean, HAC (6 lags) (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_dB2_pet_p,WMC3,,0.14414138903584192,,HAC p of paired_WMC3_Forest_dB2_pet (10a_15_paired_attribution.csv)
+paired_placebo_dB2_pet_n_as_large,placebos,,3.0,wells,"control wells (each against the rest of its tier, n=10) whose dB2_pet is at least as large in magnitude as WMC3-Forest's (10a_15_paired_attribution.csv)"
+paired_placebo_dB2_pet_sd,placebos,,0.13683084067159357,-,"standard deviation of the placebo dB2_pet values, n=10 (10a_15_paired_attribution.csv)"
+paired_placebo_n,placebos,,10.0,wells,placebo pairs: each Forest and Climate control well against the rest of its tier (10a_15_paired_attribution.csv)
+paired_WMC3_Forest_dAIC_rain,WMC3,,0.3880996218198334,,"AIC change for a step that scales with rain, against no step (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_dAIC_pet,WMC3,,0.6844359547725389,,"AIC change for a step that scales with PET, against no step (10a_15_paired_attribution.csv)"
+paired_WMC3_Forest_profile_corr_rain,WMC3,,0.6121868957708252,,correlation of the monthly post-felling profile with the rain climatology (10a_15_paired_attribution.csv)
+paired_WMC3_Forest_profile_corr_pet,WMC3,,-0.08047112823619357,,correlation of the monthly post-felling profile with the PET climatology (10a_15_paired_attribution.csv)
+paired_WMC3_Forest_p_winter_eq_summer,WMC3,,0.14008659870881374,,HAC p that the winter and summer steps are equal (10a_15_paired_attribution.csv)

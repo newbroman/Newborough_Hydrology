@@ -87,11 +87,19 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
+__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b; Martin: "Both, flux as
+#   sensitivity", thinning "at most half"). The clearfell is rebuilt on the observed BACI step: its headline is the
+#   10a step at the felled well by season (clearfell_anchor_step_m*), drawn on the C4 hydrograph as a benchmark and
+#   not carried to C4 (beta_3 not identified); its flux sensitivity returns a share f of the interception
+#   (clearfell_return_fraction*, calibrated on the step through C3) and is carried to a level at C5 only
+#   (scenario_flux_sensitivity_head_m / _storage_mm, central / lo / hi); thinning returns f/2, an upper bound. The
+#   beta_2-multiplier values and their D-333 flags, status columns and count key are gone. No scenario level is
+#   carried through 1/beta_3 at C4 (D-333): broadleaf levels are given at C5 only, the C5:C4 ratio retired.
+# 1.14.1  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
 #   emitted as scenario_n_keys_withdrawn_d333_21: Scripts 09b, 19 and 21 each wrote the same name for their own
 #   count (1, 11, 32), which number_ledger reads as one quantity with three values. Nothing reads the key.
 # 1.14.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and 50 % thinning
-#   scenarios take a beta_2 multiplier of single-well era refits (clearfell_common.load_clearfell_impact_b2_multiplier)
+#   scenarios take a beta_2 multiplier of single-well era refits (the Impact-tier beta_2 multiplier loader of clearfell_common, retired by T-209)
 #   and are WITHDRAWN under D-333 pending T-209. No value changes: their 21_report_numbers rows (head shift, storage
 #   change, C5:C4 ratio, hydrograph separations) get config.D333_WITHDRAWN_NOTE appended to the note, a count key
 #   scenario_n_keys_withdrawn_d333 is written, one warn() names them, 21_forestry_01_hydrograph.csv (both blocks),
@@ -100,7 +108,7 @@ __version__ = "1.14.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-1
 # 1.13.1  # Hollingham (2026) - 2026-11-11. Docstring only: its first line now says what the script does, for pipeline_index.html (T-197 follow-up). No code change.
 # 1.13.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved"). The forestry scenarios
 #   are anchored to the December 2017 felling: the canopy's draw takes the felled well's measured beta_2 change
-#   (Impact tier net of the Climate controls, clearfell_common.load_clearfell_impact_b2_multiplier; thinning half;
+#   (Impact tier net of the Climate controls, the Impact-tier beta_2 multiplier loader of clearfell_common, retired by T-209; thinning half;
 #   broadleaf its monthly profile) and there is NO interception recharge term (P unchanged in every scenario) -
 #   the felled well's beta_1 did not rise. Each scenario is the sustained LEVEL response (model_utils
 #   .sustained_monthly_response on the cluster's beta_3), as the climate projections are (D-216), so the
@@ -182,7 +190,6 @@ from utils.config import (
     SD16, SD16_REC,
     SCRAPING_DATE_ISO as _SCRAPING_DATE_ISO,
     SCRAPING_DATE_2_ISO as _SCRAPING_DATE_2_ISO,
-    D333_WITHDRAWN_NOTE, D333_WITHDRAWN_STATUS,   # 1.14.0 (D-333)
 )
 from utils.model_utils import monthly_perturbation, sustained_monthly_response
 from utils.report_numbers_utils import ReportNumbers
@@ -198,165 +205,27 @@ from utils.report_numbers_utils import ReportNumbers
 # FOREST_INTERCEPTION, BROADLEAF_INTERCEPTION, SD15b, SD15b_REC, SD16,
 # SD16_REC all imported from config.py.
 
-# ── Dynamic BACI parameters from Script 10a/10e outputs ─────────────────────
-# These were previously hardcoded. Now read from Script 10a (ANCOVA report
-# numbers) and 10e (coefficient shifts) so that re-running the clearfell
-# suite automatically propagates into Script 21.
+# ── 1.15.0 (T-209, D-333): the clearfell's anchor and its flux sensitivity ─────
+# The clearfell scenario's headline is the observed control-differenced BACI step at the felled well
+# (Script 10a, Forest controls, HAC), by season, at the scale of the felled compartment. Its flux
+# sensitivity returns a share f of the canopy's interception as recharge (f calibrated on that step through
+# the felled well's own cluster, clearfell_common.clearfell_return_fraction) and is carried to a level only
+# where Model B's beta_3 is identified - C5, not C4 (D-333). Thinning is at most half of each.
+CF_STEP = None       # {season: (step_m, ci_lo, ci_hi)}  - set by _init_baci_params()
+CF_FRAC = None       # dict(f, f_lo, f_hi, ...)
+BETA3_UNIDENTIFIED_CLUSTERS = ("C4",)   # no clearfell level through 1/beta_3 here (D-333)
 
-def _load_baci_params():
-    """Load BACI displacement and β₂ multiplier from Script 10a/10e outputs.
+def _fmt_step(v):
+    """A step for a figure label: '≈ 0 m' when it rounds to zero at 2 dp."""
+    return "≈ 0 m" if round(v, 2) == 0 else f"{v:+.2f} m".replace("-", "−")
 
-    Reads from outputs/10_clearfell_baci/10a_report_numbers.csv:
-      - ANCOVA_Forest_Impact_clearfell_step         (annual headline)
-      - ANCOVA_Forest_Impact_clearfell_step_summer  (Jun-Sep, full ANCOVA
-                                                     spec; Script 10a v1.3+)
-    and from outputs/10_clearfell_baci/10e_01_coefficient_shifts.csv:
-      - before/after β₂ for WMC3 (Impact tier)
-
-    Returns (BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT).
-
-    Both BACI steps are directly fitted ANCOVA results from Script 10a.
-    The legacy arithmetic summer construct (BACI_ANNUAL × 1.5034) has
-    been removed (Defect 14 resolution, 2026-05-17): the old construct
-    differed from the directly-fitted summer step by ~80 mm and is no
-    longer a defensible reconstruction of the data.
-
-    Behaviour on missing input: any missing or unreadable required row
-    in 10a_report_numbers.csv raises FileNotFoundError / KeyError with
-    a remediation message instructing the user to rerun Script 10a
-    (v1.3.0+). Silent fallbacks have been deliberately removed to
-    prevent a recurrence of Defect 14.
-
-    All paths report which source was used so the figure provenance is
-    traceable from the console log.
-    """
-    # β₂ fallback retained because the β₂ load path is independent of
-    # Defect 14 and has its own multi-step resolution (pipeline_params
-    # → 10e CSV → fallback).  Only the BACI band fallbacks have been
-    # removed.
-    _FALLBACK_B2 = 1.20
-
-    b2_mult = _FALLBACK_B2
-
-    # 1. BACI clearfell steps from 10a report numbers — both annual and
-    # summer are required.  Hard-fail with a remediation message if
-    # either is missing; silent arithmetic fallbacks have been removed
-    # (Defect 14 resolution, 2026-05-17).
-    if not OUT_10A_REPORT.exists():
-        raise FileNotFoundError(
-            f"\n  Required input not found: {OUT_10A_REPORT}\n"
-            f"  Script 21 depends on directly-fitted ANCOVA BACI steps "
-            f"from Script 10a (v1.3.0+).\n"
-            f"  Remediation: run `python src/10a_ancova_baci.py` to "
-            f"generate the report numbers CSV."
-        )
-
-    try:
-        rpt = pd.read_csv(OUT_10A_REPORT)
-    except Exception as e:
-        raise RuntimeError(
-            f"\n  Could not read {OUT_10A_REPORT.name}: {type(e).__name__}: {e}\n"
-            f"  Remediation: verify file integrity or re-run Script 10a."
-        ) from e
-
-    # Forest-control Impact clearfell step = annual ANCOVA headline
-    row = rpt[rpt["Parameter"] == "ANCOVA_Forest_Impact_clearfell_step"]
-    if row.empty:
-        raise RuntimeError(
-            f"\n  Required row missing from {OUT_10A_REPORT.name}: "
-            f"ANCOVA_Forest_Impact_clearfell_step\n"
-            f"  Remediation: re-run `python src/10a_ancova_baci.py` "
-            f"(v1.3.0 or later)."
-        )
-    baci_annual = abs(float(row.iloc[0]["Value"]))
-    print(f"  BACI annual step from 10a: {baci_annual:.4f} m "
-          "(directly fitted, full record, full ANCOVA spec)")
-
-    # Summer BACI: directly-fitted Jun-Sep ANCOVA step.  No arithmetic
-    # fallback (Defect 14 resolution): the legacy BACI_ANNUAL × 1.5034
-    # construct differed materially from the fitted value and is not a
-    # defensible reconstruction; missing summer row → hard error.
-    summer_row = rpt[rpt["Parameter"] ==
-                     "ANCOVA_Forest_Impact_clearfell_step_summer"]
-    if summer_row.empty:
-        raise RuntimeError(
-            f"\n  Required row missing from {OUT_10A_REPORT.name}: "
-            f"ANCOVA_Forest_Impact_clearfell_step_summer\n"
-            f"  This row is emitted by Script 10a v1.3.0 and later. "
-            f"Older Script 10a versions used an arithmetic\n"
-            f"  BACI_ANNUAL × 1.5034 construct that has been retired "
-            f"(Defect 14, 2026-05-17): the construct differed from\n"
-            f"  the directly-fitted Jun-Sep step by ~80 mm and is no "
-            f"longer a defensible reconstruction of the data.\n"
-            f"  Remediation: re-run `python src/10a_ancova_baci.py` "
-            f"(v1.3.0 or later) to regenerate the report numbers."
-        )
-    baci_summer = abs(float(summer_row.iloc[0]["Value"]))
-    print(f"  BACI summer step from 10a: {baci_summer:.4f} m "
-          "(directly fitted, Jun-Sep, full ANCOVA spec)")
-
-    # 2. β₂ multiplier — prefer pipeline params, fall back to 10e CSV
-    try:
-        from utils.pipeline_params import load_params
-        _p = load_params(warn_defaults=False)
-        if _p["all_pipeline"] or _p["clearfell_b2_mult"] != 1.10:
-            b2_mult = _p["clearfell_b2_mult"]
-            print(f"  β₂ multiplier from pipeline params: {b2_mult:.4f}")
-        else:
-            raise ValueError("pipeline params has default B2")
-    except Exception:
-        if OUT_10E_COEFF_SHIFTS.exists():
-            try:
-                cs = pd.read_csv(OUT_10E_COEFF_SHIFTS)
-                impact = cs[cs["Tier"] == "Impact"]
-                if not impact.empty:
-                    b2_before = impact["b2_before"].dropna()
-                    b2_after  = impact["b2_after"].dropna()
-                    if len(b2_before) > 0 and len(b2_after) > 0 and b2_before.mean() > 0:
-                        b2_mult = b2_after.mean() / b2_before.mean()
-                        print(f"  β₂ multiplier from 10e: {b2_mult:.4f}")
-                    else:
-                        warn(f"Invalid β₂ values in 10e — using fallback: {b2_mult}")
-                else:
-                    warn("No Impact tier in 10e — using fallback β₂ multiplier")
-            except Exception as e:
-                warn(f"Could not read {OUT_10E_COEFF_SHIFTS.name}: {e}")
-                print(f"           Using fallback β₂ multiplier: {b2_mult}")
-        else:
-            warn(f"{OUT_10E_COEFF_SHIFTS.name} not found — using fallback β₂ multiplier")
-
-    return baci_annual, baci_summer, b2_mult
-
-
-# Deferred initialisation — called once in main() so that import doesn't
-# require the CSVs to exist (allows --help, testing, etc.)
-BACI_ANNUAL       = None   # set by _init_baci_params()
-BACI_SUMMER       = None
-CLEARFELL_B2_MULT = None
-THINNING_B2_MULT  = None
 
 def _init_baci_params():
-    """Call once at runtime to populate the module-level BACI constants."""
-    global BACI_ANNUAL, BACI_SUMMER, CLEARFELL_B2_MULT, THINNING_B2_MULT
-    BACI_ANNUAL, BACI_SUMMER, _edge_mult = _load_baci_params()
-    # 1.13.0 (T-97, D-239): the felled well's measured beta_2 change, not the Edge-tier multiplier.
-    from utils.clearfell_common import load_clearfell_impact_b2_multiplier
-    CLEARFELL_B2_MULT, THINNING_B2_MULT, _ = load_clearfell_impact_b2_multiplier()
-
-# 1.14.0 (D-333): the scenarios built from CLEARFELL_B2_MULT / THINNING_B2_MULT, under each of the names this
-# script gives them (hydrograph series, report-key era prefix, comparison-bar name). Withdrawn pending T-209.
-D333_WITHDRAWN_SCENARIOS = ("Full clearfell", "50% thinning", "clearfell", "thinning_50pct",
-                            "Clearfell", "Thinning 50%")
-
-
-def _d333_status(name):
-    """1.14.0 (D-333): the `status` value for a scenario row."""
-    return D333_WITHDRAWN_STATUS if name in D333_WITHDRAWN_SCENARIOS else ""
-
-
-def _d333_label(name):
-    """1.14.0 (D-333): a figure label, marked when the scenario is withdrawn."""
-    return f"{name} (withdrawn, D-333)" if name in D333_WITHDRAWN_SCENARIOS else name
+    """Call once at runtime to read the clearfell anchor and its interception-return fraction."""
+    global CF_STEP, CF_FRAC
+    from utils.clearfell_common import load_clearfell_observed_step, clearfell_return_fraction
+    CF_STEP = load_clearfell_observed_step()
+    CF_FRAC = clearfell_return_fraction()
 
 
 # Summer months (Jun-Sep inclusive, 1-based)
@@ -503,7 +372,7 @@ def cluster_summer_mins(cl, master, df, dates, well_names, elev,
 # ============================================================================
 
 
-def build_scenarios(master, climate, cluster="C4"):
+def build_scenarios(master, climate, cluster="C4", frac=None):
     """Build scenario monthly head perturbations for a forest cluster (C4 by
     default — the hydrograph figure; C5 for the report numbers).
 
@@ -533,36 +402,31 @@ def build_scenarios(master, climate, cluster="C4"):
     monthly_P   = clim.groupby(clim.index.month)["P_m"].mean().values
     monthly_PET = clim.groupby(clim.index.month)["PET"].mean().values
 
-    # P_eff: 1.13.0 (T-97, D-239) - the same in every scenario. The felled well's recharge did not
-    # rise after the 2017 felling, so no scenario returns intercepted rain as recharge.
+    # P_eff under the pine; broadleaf keeps it (no interception recharge, D-239)
     P_base = monthly_P * (1 - FOREST_INTERCEPTION)
-    P_cf = P_thin = P_bl = P_base
-
-    # β₂ arrays — uniform for pine/clearfell/thinning
-    b2_cf   = np.full(12, b2 * CLEARFELL_B2_MULT)
-    b2_thin = np.full(12, b2 * THINNING_B2_MULT)
+    b2_flat = np.full(12, b2)
 
     # Broadleaf: deciduous phenology — lower ET Nov-Apr (leaves off),
     # higher ET May-Oct (leaves on, full LAI). The 12-month profile below
     # averages to BROADLEAF_B2_WINTER=0.8817 over Nov-Apr and
     # BROADLEAF_B2_SUMMER=1.0750 over May-Oct (canonical config values).
-    # Broadleaf phenology: config.BROADLEAF_B2_MONTHLY_MULT, Jan..Dec (leaves
-    # off in winter below pine; full leaf in summer above it)
     b2_bl = b2 * np.asarray(BROADLEAF_B2_MONTHLY_MULT, dtype=float)
 
     # 1.13.0 (T-97): each scenario's one-month forcing change, carried to its sustained level
     # (the periodic steady state on the cluster's beta_3), as the climate projections are (D-216).
     def _level(f12):
         return sustained_monthly_response(b3, np.asarray(f12, dtype=float))
-    scenario_shifts = {
-        "Baseline (Corsican pine)": np.zeros(12),
-        "Full clearfell":  _level(monthly_perturbation(
-            b1, b2, b2_cf,   P_base, P_cf,   monthly_PET)),
-        "50% thinning":    _level(monthly_perturbation(
-            b1, b2, b2_thin, P_base, P_thin, monthly_PET)),
-        "Broadleaf conversion": _level(monthly_perturbation(
-            b1, b2, b2_bl,   P_base, P_bl,   monthly_PET)),
-    }
+    scenario_shifts = {"Baseline (Corsican pine)": np.zeros(12)}
+    # 1.15.0 (T-209, D-333): no level is carried through 1/beta_3 at a cluster whose beta_3 is not identified
+    # (C4) - for any scenario: there the clearfell is the observed step and the others are not quantified.
+    # Clearfell flux sensitivity: a share f of the interception returned as recharge, draw unchanged; thinning half.
+    if cluster not in BETA3_UNIDENTIFIED_CLUSTERS:
+        scenario_shifts["Broadleaf conversion"] = _level(monthly_perturbation(
+            b1, b2, b2_bl, P_base, P_base, monthly_PET))
+        f = CF_FRAC["f"] if frac is None else float(frac)
+        for name, share in (("Full clearfell", f), ("50% thinning", f / 2.0)):
+            P_s = monthly_P * (1 - FOREST_INTERCEPTION * (1 - share))
+            scenario_shifts[name] = _level(monthly_perturbation(b1, b2, b2_flat, P_base, P_s, monthly_PET))
 
     return scenario_shifts, monthly_P, monthly_PET, b1, b2, b3
 
@@ -591,71 +455,82 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
     seasons = {"annual": tuple(range(1, 13)),
                "winter": tuple(WINTER_RECHARGE_MONTHS),
                "summer": tuple(SUMMER_MINIMUM_MONTHS)}
+    # 1.15.0 (T-209, D-333): the clearfell's headline is the observed step at the felled well (10a), carried
+    # here so every scenario number reads from this file; its flux sensitivity, f, and the C5 levels follow.
+    for season, (st, lo, hi) in CF_STEP.items():
+        months = {"annual": "all months", "winter": "Oct-Mar", "summer": "Jun-Sep"}[season]
+        for tag, v in (("", st), ("_ci_lo", lo), ("_ci_hi", hi)):
+            rpt.add(f"clearfell_anchor_step_m{tag}", v, unit="m", well="WMC3", era=season,
+                    note=f"the clearfell scenario's headline (D-333): the control-differenced BACI step at the felled "
+                         f"well against the Forest controls, {months}"
+                         + ("" if not tag else f", HAC 95% CI {'lower' if tag.endswith('lo') else 'upper'} bound")
+                         + "; at the scale of the 4.2 ha compartment, not propagated (10a ANCOVA_Forest_Impact_clearfell_step*)")
+    for tag, k in (("", "f"), ("_lo", "f_lo"), ("_hi", "f_hi")):
+        rpt.add(f"clearfell_return_fraction{tag}", CF_FRAC[k], unit="-", well=CF_FRAC["cluster"],
+                note="flux sensitivity: share of the canopy interception returned as recharge that reproduces the "
+                     f"observed Oct-Mar step at WMC3 through {CF_FRAC['cluster']}'s state-space model"
+                     + ("" if not tag else f" (from the step's HAC {'lower' if tag == '_lo' else 'upper'} bound, floored at 0)"))
+    rpt.add("clearfell_full_return_winter_m", CF_FRAC["full_return_winter_m"], unit="m", well=CF_FRAC["cluster"],
+            note="sustained Oct-Mar level response of the felled well's cluster to returning all the interception "
+                 "(f = 1); f = observed winter step / this")
+
     names = {"Full clearfell": "clearfell", "50% thinning": "thinning_50pct",
              "Broadleaf conversion": "broadleaf"}
     print("  Scenario head shifts and water-equivalents (mean monthly, m / mm w.e. per month):")
-    we = {}   # (cluster, scenario key, season) -> mm/month, for the C5:C4 ratio (T-96)
+    we = {}   # (cluster, scenario key, season) -> mm, for the C5:C4 broadleaf ratio (T-96)
     for cluster in ("C4", "C5"):
-        shifts, _, _, _, _, _ = build_scenarios(master, climate, cluster=cluster)
         sy = float(params["clusters"][cluster]["Sy"])
         label = CLUSTER_LABELS.get(int(cluster[1]), cluster)
         rpt.add("scenario_sy_used", sy, unit="-", well=label,
                 note="specific yield the water-equivalent conversion uses (pipeline_scenario_params.csv)")
-        for scen, key in names.items():
-            arr = np.asarray(shifts[scen], dtype=float)
-            for season, months in seasons.items():
-                idx = [m - 1 for m in months]
-                head = float(np.mean(arr[idx]))
-                _wd = D333_WITHDRAWN_NOTE if key in D333_WITHDRAWN_SCENARIOS else ""   # 1.14.0 (D-333)
-                rpt.add("scenario_head_shift_m", head, unit="m", well=label,
-                        era=f"{key} · {season}",
-                        note="mean sustained level response (1.13.0, D-239), positive = shallower; "
-                             f"months {','.join(str(m) for m in months)}" + _wd)
-                # 1.13.0 (D-239): the head shift is a sustained level, so level × Sy is a change in
-                # stored water (mm), not a monthly rate; the key is renamed so no citation keeps the old meaning.
-                rpt.add("scenario_storage_change_mm", head * sy * 1000.0,
-                        unit="mm", well=label, era=f"{key} · {season}",
-                        note=f"sustained level × Sy ({sy:.3f}) × 1000: the change in stored water" + _wd)
-                we[(cluster, key, season)] = head * sy * 1000.0
-                if season == "annual" or key == "broadleaf":
-                    print(f"    {label:22s} {key:15s} {season:6s}  "
-                          f"{head:+.3f} m  {head * sy * 1000:+6.1f} mm w.e.")
-    # T-96: C5's annual water-equivalent gain as a multiple of C4's, per scenario —
-    # report10 §5.5.2 ("C5 capturing roughly 30% more recovery per unit area than C4").
-    for key in names.values():
-        c4, c5 = we.get(("C4", key, "annual")), we.get(("C5", key, "annual"))
-        if c4 is not None and c5 is not None and c4 != 0:
-            rpt.add("scenario_storage_change_ratio_C5_to_C4", c5 / c4, unit="",
-                    well="C5/C4", era=f"{key} · annual",
-                    note="C5 annual storage change ÷ C4's (scenario_storage_change_mm rows above)"
-                         + (D333_WITHDRAWN_NOTE if key in D333_WITHDRAWN_SCENARIOS else ""))   # 1.14.0 (D-333)
-    # T-91: C4 synthetic-hydrograph separations (report10 §5.7.4), as returned
-    # by plot_hydrograph() — scenario series only, unrounded.
+        bounds = {"central": None}
+        if cluster not in BETA3_UNIDENTIFIED_CLUSTERS:
+            bounds.update(lo=CF_FRAC["f_lo"], hi=CF_FRAC["f_hi"])
+        for bound, frac in bounds.items():
+            shifts, _, _, _, _, _ = build_scenarios(master, climate, cluster=cluster, frac=frac)
+            for scen, key in names.items():
+                if scen not in shifts or (key == "broadleaf" and bound != "central"):
+                    continue
+                arr = np.asarray(shifts[scen], dtype=float)
+                for season, months in seasons.items():
+                    head = float(np.mean(arr[[m - 1 for m in months]]))
+                    if key == "broadleaf":
+                        k_head, k_store = "scenario_head_shift_m", "scenario_storage_change_mm"
+                        era = f"{key} · {season}"
+                        why = "mean sustained level response (1.13.0, D-239), positive = shallower"
+                    else:
+                        # 1.15.0 (T-209): new keys, so no citation of the withdrawn multiplier values keeps its meaning
+                        k_head, k_store = "scenario_flux_sensitivity_head_m", "scenario_flux_sensitivity_storage_mm"
+                        era = f"{key} · {season} · {bound}"
+                        why = ("flux sensitivity (T-209): sustained level response to returning "
+                               + ("f" if key == "clearfell" else "f/2 (an upper bound)")
+                               + f" of the interception ({bound}); positive = shallower. The form spreads the gain "
+                                 "over the year; the observed step is Oct-Mar only")
+                    rpt.add(k_head, head, unit="m", well=label, era=era,
+                            note=f"{why}; months {','.join(str(m) for m in months)}")
+                    rpt.add(k_store, head * sy * 1000.0, unit="mm", well=label, era=era,
+                            note=f"sustained level × Sy ({sy:.3f}) × 1000: the change in stored water")
+                    we[(cluster, key, season, bound)] = head * sy * 1000.0
+                    if season == "annual":
+                        print(f"    {label:22s} {key:15s} {bound:7s} {season:6s}  {head:+.3f} m")
+        if cluster in BETA3_UNIDENTIFIED_CLUSTERS:
+            print(f"    {label:22s} scenario levels: not quantified (beta_3 not identified, D-333)")
+    # T-91: C4 synthetic-hydrograph separations (report10 §5.7.4), scenario series only, unrounded.
     for sep in (hydro_separations or []):
         key = names.get(sep["series"], sep["series"])
-        _wd = D333_WITHDRAWN_NOTE if key in D333_WITHDRAWN_SCENARIOS else ""   # 1.14.0 (D-333)
         rpt.add("hydrograph_sep_at_baseline_trough_m", sep["sep_at_base_trough_m"],
                 unit="m", well="C4", era=key,
                 note=f"separation from the observed C4 baseline at the baseline trough "
                      f"month ({sep['base_trough_month']}), positive = shallower "
-                     "(21_forestry_01_hydrograph.csv BLOCK 2)" + _wd)
+                     "(21_forestry_01_hydrograph.csv BLOCK 2)")
         rpt.add("hydrograph_max_summer_separation_m", sep["max_summer_sep_m"],
                 unit="m", well="C4", era=key,
                 note=f"largest-magnitude Jun-Sep separation from the observed C4 "
                      f"baseline, in {sep['max_summer_month']}; positive = shallower, "
-                     "negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)" + _wd)
+                     "negative = deeper (21_forestry_01_hydrograph.csv BLOCK 2)")
         rpt.add("hydrograph_max_summer_separation_month", sep["max_summer_month"],
                 unit="", well="C4", era=key,
-                note="month of hydrograph_max_summer_separation_m" + _wd)
-    # 1.14.0 (D-333): the count of withdrawn rows, for the check tools, and the console warning
-    _n_wd = sum(1 for r in rpt.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
-    rpt.add("scenario_n_keys_withdrawn_d333_21", _n_wd, unit="keys",
-            note="rows in this file whose note carries the D-333 withdrawal (the clearfell and thinning_50pct rows "
-                 "of scenario_head_shift_m, scenario_storage_change_mm, scenario_storage_change_ratio_C5_to_C4 and "
-                 "the hydrograph_* separations)")
-    warn(f"D-333: the clearfell and 50% thinning scenarios (21_report_numbers: {_n_wd} rows; the hydrograph series, "
-         f"21_forestry_05 / 06 bars) are built from a beta_2 multiplier of single-well era refits and are WITHDRAWN "
-         f"pending T-209 - values unchanged, flagged, not results")
+                note="month of hydrograph_max_summer_separation_m")
     n = rpt.save(OUT_21_REPORT_NUMBERS)
     print(f"  Saved → {OUT_21_REPORT_NUMBERS.name} ({n} rows)")
 
@@ -705,17 +580,18 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         for name, shift in scenario_shifts.items()
     }
 
-    # BACI benchmark — uniform annual shift as lower bound
-    baci_annual = obs_monthly + BACI_ANNUAL
-    # BACI summer-specific (applied only to summer months)
-    baci_summer = obs_monthly.copy()
-    for m in [5, 6, 7, 8]:   # 0-based Jun-Sep
-        baci_summer[m] += BACI_SUMMER
+    # 1.15.0 (T-209, D-333): the clearfell benchmark is the observed step at the felled well, by season
+    # (Oct-Mar winter step, Jun-Sep summer step, Apr-May the annual step); positive step = shallower.
+    anchor_step = np.array([CF_STEP["winter"][0] if m in WINTER_RECHARGE_MONTHS
+                            else CF_STEP["summer"][0] if m in SUMMER_MINIMUM_MONTHS
+                            else CF_STEP["annual"][0] for m in range(1, 13)])
+    anchor = obs_monthly - anchor_step
+    baci_annual = obs_monthly - CF_STEP["annual"][0]
 
     x    = np.arange(1, 13)
     YMIN = 0.35
     # Compute YMAX dynamically so the BACI benchmark line isn't clipped
-    all_depths = list(depths.values()) + [baci_summer, baci_annual]
+    all_depths = list(depths.values()) + [anchor, baci_annual]
     if obs_c1 is not None:
         all_depths.append(obs_c1)
     if obs_c2 is not None:
@@ -754,15 +630,12 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         ax1.axhline(thresh, color=col, lw=0.9, ls="--", alpha=0.85, zorder=1)
         ax1.text(12.25, thresh, lbl, fontsize=7, color=col, va="center")
 
-    # BACI benchmark band — annual shift
-    ax1.fill_between(x,
-                     depths["Full clearfell"],
-                     np.clip(baci_summer, YMIN, YMAX),
+    # Clearfell anchor band - the observed step at the felled well against the C4 baseline
+    ax1.fill_between(x, obs_monthly, np.clip(anchor, YMIN, YMAX),
                      color="#D73027", alpha=0.08, zorder=2)
-    ax1.plot(x, np.clip(baci_summer, YMIN, YMAX),
-             color="#D73027", lw=1.3, ls=(0, (3, 1, 1, 1)), alpha=0.6,
-             zorder=3,
-             label="Clearfell BACI observed (scraping + 2015–16 wet legacy)")
+    ax1.plot(x, np.clip(anchor, YMIN, YMAX),
+             color="#D73027", lw=1.6, ls=(0, (3, 1, 1, 1)), alpha=0.8, zorder=3,
+             label="Clearfell: observed step at the felled well (not propagated to C4)")
 
     # C1 and C2 observed for ecological context
     for obs_cl, lbl, col in [(obs_c1, "C1 Eastern lake-buffer (observed)", "#aaa"),
@@ -775,7 +648,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     for name, d in depths.items():
         ax1.plot(x, d, color=SCENARIO_COLOURS[name],
                  lw=SCENARIO_LW[name], ls=SCENARIO_STYLES[name],
-                 zorder=4, label=_d333_label(name))   # 1.14.0 (D-333)
+                 zorder=4, label=name)
 
     # Summer shading
     ax1.axvspan(5.5, 9.5, alpha=0.07, color="orange", zorder=0)
@@ -797,12 +670,11 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     ax1.grid(axis="y", alpha=0.25, lw=0.5)
 
     ax1.annotate(
-        "Modelled lines: equilibrium shift applied to observed C4 seasonal cycle.\n"
-        "BACI observed: post-felling depth vs full pre-felling baseline; the baseline\n"
-        "includes the wet 2015–16 years and 2015 scraping intervention, which inflate\n"
-        "the apparent post-felling deepening (Section 4.6.4).\n"
-        "Broadleaf: seasonally-varying β₂ (deciduous phenology) +\n"
-        f"{BROADLEAF_INTERCEPTION:.0%} annual-mean interception (Komatsu et al., 2011).\n"
+        "Clearfell: the control-differenced step at the felled well (WMC3 against the Forest controls),\n"
+        f"Oct-Mar {_fmt_step(CF_STEP['winter'][0])}, Jun-Sep {_fmt_step(CF_STEP['summer'][0])}, drawn on the observed C4 cycle. It is\n"
+        "measured at the scale of the 4.2 ha compartment; thinning is at most half of it.\n"
+        "No scenario is carried to a C4 level: its drainage coefficient is not identified\n"
+        "(broadleaf and the flux sensitivities are given at C5).\n"
         "C1 and C2 unaffected by any forest management scenario.",
         xy=(0.02, 0.03), xycoords="axes fraction", fontsize=7.0,
         color="dimgrey",
@@ -851,10 +723,8 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
         series[(name, "scenario")] = np.asarray(d, dtype=float)
     series[("Observed C4 baseline", "observed")] = np.asarray(obs_monthly,
                                                               dtype=float)
-    series[("BACI annual benchmark", "benchmark")] = np.asarray(baci_annual,
-                                                                dtype=float)
-    series[("BACI summer benchmark", "benchmark")] = np.asarray(baci_summer,
-                                                                dtype=float)
+    series[("Clearfell observed step, annual", "benchmark")] = np.asarray(baci_annual, dtype=float)
+    series[("Clearfell observed step, by season", "benchmark")] = np.asarray(anchor, dtype=float)
     if obs_c1 is not None:
         series[("C1 Eastern lake-buffer (observed)", "observed")] = \
             np.asarray(obs_c1, dtype=float)
@@ -871,7 +741,6 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
                 "Month_num":   m + 1,
                 "Month":       MONTHS[m],
                 "Depth_m":     round(float(arr[m]), 4),
-                "status":      _d333_status(name),   # 1.14.0 (D-333)
             })
     hydro_df = pd.DataFrame(rows)
 
@@ -913,7 +782,6 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
             "Max_summer_separation_m":
                 round(float(summer_seps[k]), 4),
             "Max_summer_separation_month": MONTHS[max_summer_idx],
-            "status":            _d333_status(name),   # 1.14.0 (D-333)
         })
         if stype == "scenario":
             separations.append({
@@ -961,7 +829,7 @@ def plot_hydrograph(scenario_shifts, obs_monthly, monthly_P, monthly_PET,
     for name, d in depths.items():
         shift = obs_monthly[7] - d[7]
         print(f"  {name:<30}: {d[7]:.3f}  (shift vs baseline: {shift:>+.3f} m)")
-    print(f"  {'BACI summer benchmark':<30}: {baci_summer[7]:.3f}")
+    print(f"  {'Clearfell observed step, Aug':<30}: {anchor[7]:.3f}")
     return separations
 
 
@@ -2101,7 +1969,9 @@ def plot_scenario_comparison(master, climate, dpi=300):
         vals = [scenario_values[s_name].get(c, 0) for c in clusters]
         _col = bw_colour_map.get(s_name, "#999") if BW_MODE else colour_map.get(s_name, "#999")
         _hatch = bw_hatch_map.get(s_name, "") if BW_MODE else ""
-        ax.bar(x + offsets[i], vals, width, label=_d333_label(s_name),   # 1.14.0 (D-333)
+        _lbl = {"Clearfell": "Clearfell (flux sensitivity)",
+                "Thinning 50%": "Thinning 50% (at most half)"}.get(s_name, s_name)   # 1.15.0 (T-209)
+        ax.bar(x + offsets[i], vals, width, label=_lbl,
                color=_col, alpha=0.85, hatch=_hatch,
                edgecolor="black", linewidth=0.5)
 
@@ -2129,8 +1999,7 @@ def plot_scenario_comparison(master, climate, dpi=300):
     for s_name in scenarios_order:
         for c in clusters:
             rows.append({"Scenario": s_name, "Cluster": c,
-                         "Delta_vol_mm_per_month": scenario_values[s_name].get(c, 0),
-                         "status": _d333_status(s_name)})   # 1.14.0 (D-333)
+                         "Delta_vol_mm_per_month": scenario_values[s_name].get(c, 0)})
     pd.DataFrame(rows).to_csv(OUT_21_SCENARIO_CSV, index=False,
                               float_format="%.1f")
     saved(f"{OUT_21_SCENARIO_CSV.name}")
@@ -2152,8 +2021,7 @@ def plot_scenario_comparison(master, climate, dpi=300):
         for c in clusters:
             vol = scenario_values.get(s_name, {}).get(c, 0.0)
             summer_rows.append({"Scenario": s_name, "Cluster": c,
-                                "Delta_vol_summer_mm_per_month": round(vol, 1),
-                                "status": _d333_status(s_name)})   # 1.14.0 (D-333)
+                                "Delta_vol_summer_mm_per_month": round(vol, 1)})
     pd.DataFrame(summer_rows).to_csv(OUT_21_SUMMER_SCENARIO_CSV, index=False)
     saved(f"{OUT_21_SUMMER_SCENARIO_CSV.name}")
 
@@ -2168,9 +2036,8 @@ def main(preview=False):
 
     print("\n[0/6] Loading BACI parameters from Script 10 outputs...")
     _init_baci_params()
-    print(f"  BACI_ANNUAL={BACI_ANNUAL:.3f}  BACI_SUMMER={BACI_SUMMER:.3f}")
-    print(f"  CLEARFELL_B2_MULT={CLEARFELL_B2_MULT:.4f}  "
-          f"THINNING_B2_MULT={THINNING_B2_MULT:.4f}")
+    print(f"  clearfell anchor (annual) {CF_STEP['annual'][0]:+.3f} m; interception-return fraction "
+          f"f = {CF_FRAC['f']:.3f} [{CF_FRAC['f_lo']:.3f}, {CF_FRAC['f_hi']:.3f}]")
 
     print("\n[1/6] Loading data...")
     master, elev, reg, climate = load_data()

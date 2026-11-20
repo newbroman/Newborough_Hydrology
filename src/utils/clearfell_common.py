@@ -70,7 +70,10 @@ provenance with ``_ = wells_prov``. Script 10d uses it to require
 >=2 measured Jun-Sep months in ``annual_summer_minimum``.
 """
 
-__version__ = "1.15.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). Docstrings only, no code change:
+__version__ = "1.16.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b).
+#   load_clearfell_observed_step() and clearfell_return_fraction(): the scenarios' anchor (the 10a step, its
+#   HAC interval, by season) and the flux sensitivity calibrated on it. Additive.
+# 1.15.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). Docstrings only, no code change:
 #   load_clearfell_b2_multiplier() and load_clearfell_impact_b2_multiplier() are RETIRED FROM SCENARIO USE by
 #   D-333 (a beta_2 multiplier of single-well era refits, inside its noise; the forestry scenarios are rebuilt
 #   on the observed BACI step under T-209). Both are still computed, for 10e's sensitivity reporting. The
@@ -1939,4 +1942,70 @@ def load_clearfell_impact_b2_multiplier(verbose=True):
               f"  (Impact {ratios['Impact']:.4f}, Climate Ctrl {ratios['Climate Ctrl']:.4f});"
               f" thinning {thinning_mult:.4f}")
     return clearfell_mult, thinning_mult, ratios
+
+
+# ============================================================================
+# 1.16.0 (T-209, D-333): the scenarios' anchor - the observed BACI step - and the
+# interception-return fraction that reproduces it (the flux sensitivity)
+# ============================================================================
+def load_clearfell_observed_step(verbose=True):
+    """The control-differenced clearfell step at the felled well, against the Forest controls (Script 10a):
+    {season: (step_m, ci_lo_m, ci_hi_m)} for 'annual', 'winter' (Oct-Mar) and 'summer' (Jun-Sep), with the
+    Newey-West intervals. This IS the clearfell scenario's headline (D-333): a level response at the scale
+    of the felled compartment, not propagated to the clusters."""
+    from utils.paths import OUT_10A_REPORT
+    rn = pd.read_csv(OUT_10A_REPORT)
+    base = "ANCOVA_Forest_Impact_clearfell_step"
+
+    def val(key):
+        hit = rn.loc[rn["Parameter"] == key, "Value"]
+        if hit.empty:
+            raise KeyError(f"{key} not in {OUT_10A_REPORT.name} - run Script 10a")
+        return float(hit.iloc[0])
+    out = {}
+    for season, suffix in (("annual", ""), ("winter", "_winter"), ("summer", "_summer")):
+        k = base + suffix
+        out[season] = (val(k), val(k + "_ci_lo_hac"), val(k + "_ci_hi_hac"))
+    if verbose:
+        print("  Clearfell observed step (WMC3 vs Forest controls, HAC 95% CI): " + "; ".join(
+            f"{s} {v[0]:+.3f} m [{v[1]:+.3f}, {v[2]:+.3f}]" for s, v in out.items()))
+    return out
+
+
+def clearfell_return_fraction(verbose=True):
+    """The share f of the canopy's interception (FOREST_INTERCEPTION) that, returned as recharge, reproduces
+    the observed winter step at the felled well through its own cluster's state-space model - the clearfell
+    FLUX SENSITIVITY (T-209; Martin 2026-11-20: the observed step is the headline, the flux a named
+    sensitivity). The felled well WMC3 sits in cluster C3, whose Model B beta_3 is identified. The
+    sustained level response to returning ALL the interception (f = 1), averaged over the winter months, is
+    linear in f, so f = winter step / that response, and the step's interval gives f's. f_lo is floored at 0.
+
+    Two limits travel with it: the return is spread over the year, so the form puts part of the gain in
+    summer where the record shows none; and it is calibrated on one well. Never applied through 1/beta_3 at
+    C4, where Model B's beta_3 is not identified (D-333).
+
+    Returns dict(f, f_lo, f_hi, cluster, b1, b3, full_return_winter_m, step_winter, ci_lo, ci_hi)."""
+    from utils.paths import INT_CLIMATE, INT_MASTER_DATA
+    from utils.config import FOREST_INTERCEPTION, WINTER_RECHARGE_MONTHS, REFERENCE_CUTOFF_DATE
+    from utils.model_utils import sustained_monthly_response
+    from utils.pipeline_params import load_params
+    step = load_clearfell_observed_step(verbose=False)["winter"]
+    master = pd.read_csv(INT_MASTER_DATA)
+    wcol = "Well" if "Well" in master.columns else master.columns[0]
+    row = master[master[wcol].astype(str).str.lower().str.replace(" ", "") == IMPACT_WELLS[0]]
+    cid = int(row["Cluster"].iloc[0]) if not row.empty else 3
+    cluster = f"C{cid}"
+    cp = load_params(warn_defaults=False)["clusters"][cluster]
+    b1, b3 = float(cp["b1"]), float(cp["b3"])
+    clim = pd.read_csv(INT_CLIMATE, index_col=0, parse_dates=True).sort_index()
+    clim = clim.loc["2005-04-01":REFERENCE_CUTOFF_DATE]
+    P12 = clim.groupby(clim.index.month)["P_m"].mean().values
+    full = sustained_monthly_response(b3, b1 * FOREST_INTERCEPTION * P12)
+    w = float(np.mean(full[[m - 1 for m in WINTER_RECHARGE_MONTHS]]))
+    f, f_lo, f_hi = step[0] / w, max(step[1] / w, 0.0), step[2] / w
+    if verbose:
+        print(f"  Clearfell interception-return fraction (flux sensitivity, {cluster}): f = {f:.3f} "
+              f"[{f_lo:.3f}, {f_hi:.3f}] of {FOREST_INTERCEPTION:.2f}")
+    return dict(f=f, f_lo=f_lo, f_hi=f_hi, cluster=cluster, b1=b1, b3=b3, full_return_winter_m=w,
+                step_winter=step[0], ci_lo=step[1], ci_hi=step[2])
 

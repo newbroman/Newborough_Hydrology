@@ -1,4 +1,93 @@
 Parameter,Well,Era,Value,Unit,Note
+transfer_B_median_r2_own_C1,,,0.8661752127244593,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_r2_neighbour_C1,,,0.8582160576906953,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_r2_centroid_C1,,,0.8621990835426838,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_abs_bias_m_own_C1,,,0.023210874859028077,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_abs_bias_m_neighbour_C1,,,0.06538773727520654,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_median_abs_bias_m_centroid_C1,,,0.13665451374579218,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 7 wells (C1)"
+transfer_B_d_r2_C1,,,-0.007959155033763987,,"median neighbour r2 less median own r2, Model B (C1)"
+transfer_B_d_abs_bias_m_C1,,,0.04217686241617846,m,"median neighbour |bias| less median own |bias|, Model B (C1)"
+transfer_B_shape_holds_C1,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C1,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C1,,,7.0,count,wells in the Model B transfer test (C1)
+transfer_B_median_r2_own_C2,,,0.8423967580757354,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_r2_neighbour_C2,,,0.8262107463228449,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_r2_centroid_C2,,,0.8227131039666251,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_abs_bias_m_own_C2,,,0.06750380067764185,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_abs_bias_m_neighbour_C2,,,0.09375154659825775,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_median_abs_bias_m_centroid_C2,,,0.22753143091907044,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 19 wells (C2)"
+transfer_B_d_r2_C2,,,-0.016186011752890583,,"median neighbour r2 less median own r2, Model B (C2)"
+transfer_B_d_abs_bias_m_C2,,,0.026247745920615906,m,"median neighbour |bias| less median own |bias|, Model B (C2)"
+transfer_B_shape_holds_C2,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C2,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C2,,,19.0,count,wells in the Model B transfer test (C2)
+transfer_B_median_r2_own_C3,,,0.8126774712648632,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_r2_neighbour_C3,,,0.8000512669481035,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_r2_centroid_C3,,,0.7422859806164745,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_abs_bias_m_own_C3,,,0.08069748735871309,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_abs_bias_m_neighbour_C3,,,0.130403865980321,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_median_abs_bias_m_centroid_C3,,,0.3977588000705738,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 26 wells (C3)"
+transfer_B_d_r2_C3,,,-0.01262620431675976,,"median neighbour r2 less median own r2, Model B (C3)"
+transfer_B_d_abs_bias_m_C3,,,0.04970637862160791,m,"median neighbour |bias| less median own |bias|, Model B (C3)"
+transfer_B_shape_holds_C3,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C3,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C3,,,26.0,count,wells in the Model B transfer test (C3)
+transfer_B_median_r2_own_C4,,,0.6522489282518446,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_r2_neighbour_C4,,,0.5601762755045305,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_r2_centroid_C4,,,0.6521345504947245,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_abs_bias_m_own_C4,,,0.2819798620806913,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_abs_bias_m_neighbour_C4,,,0.24267325244321927,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_median_abs_bias_m_centroid_C4,,,0.2982357252350553,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 9 wells (C4)"
+transfer_B_d_r2_C4,,,-0.09207265274731402,,"median neighbour r2 less median own r2, Model B (C4)"
+transfer_B_d_abs_bias_m_C4,,,-0.03930660963747204,m,"median neighbour |bias| less median own |bias|, Model B (C4)"
+transfer_B_shape_holds_C4,,,0.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C4,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C4,,,9.0,count,wells in the Model B transfer test (C4)
+transfer_B_median_r2_own_C5,,,0.8290091056178085,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_r2_neighbour_C5,,,0.6880237382471511,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_r2_centroid_C5,,,0.6952829247512143,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_abs_bias_m_own_C5,,,0.039273876308294514,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_abs_bias_m_neighbour_C5,,,0.4954391974609676,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_median_abs_bias_m_centroid_C5,,,0.33356182327367523,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 5 wells (C5)"
+transfer_B_d_r2_C5,,,-0.14098536737065737,,"median neighbour r2 less median own r2, Model B (C5)"
+transfer_B_d_abs_bias_m_C5,,,0.45616532115267305,m,"median neighbour |bias| less median own |bias|, Model B (C5)"
+transfer_B_shape_holds_C5,,,0.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_C5,,,0.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_C5,,,5.0,count,wells in the Model B transfer test (C5)
+transfer_B_median_r2_own_open_dune,,,0.8281312217302323,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_r2_neighbour_open_dune,,,0.8203337923151528,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_r2_centroid_open_dune,,,0.7998285082929173,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_abs_bias_m_own_open_dune,,,0.06738991069352818,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_abs_bias_m_neighbour_open_dune,,,0.10212987465599609,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_median_abs_bias_m_centroid_open_dune,,,0.2646296389616458,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 50 wells (open_dune)"
+transfer_B_d_r2_open_dune,,,-0.007797429415079549,,"median neighbour r2 less median own r2, Model B (open_dune)"
+transfer_B_d_abs_bias_m_open_dune,,,0.03473996396246791,m,"median neighbour |bias| less median own |bias|, Model B (open_dune)"
+transfer_B_shape_holds_open_dune,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_open_dune,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_open_dune,,,50.0,count,wells in the Model B transfer test (open_dune)
+transfer_B_median_r2_own_forest,,,0.717727686026967,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_r2_neighbour_forest,,,0.6759268807057286,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_r2_centroid_forest,,,0.6741673325160611,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_abs_bias_m_own_forest,,,0.19260682226900858,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_abs_bias_m_neighbour_forest,,,0.329190029397843,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_median_abs_bias_m_centroid_forest,,,0.294787447990522,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 16 wells (forest)"
+transfer_B_d_r2_forest,,,-0.04180080532123842,,"median neighbour r2 less median own r2, Model B (forest)"
+transfer_B_d_abs_bias_m_forest,,,0.1365832071288344,m,"median neighbour |bias| less median own |bias|, Model B (forest)"
+transfer_B_shape_holds_forest,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_forest,,,0.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_forest,,,16.0,count,wells in the Model B transfer test (forest)
+transfer_B_median_r2_own_all,,,0.8201320675980055,,"Model B neighbour transfer (T-173): median post-2018 r2, own coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_r2_neighbour_all,,,0.8099607657044685,,"Model B neighbour transfer (T-173): median post-2018 r2, neighbour coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_r2_centroid_all,,,0.7636569675931468,,"Model B neighbour transfer (T-173): median post-2018 r2, centroid coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_abs_bias_m_own_all,,,0.0702864569113304,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, own coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_abs_bias_m_neighbour_all,,,0.10910212330044458,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, neighbour coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_median_abs_bias_m_centroid_all,,,0.28340771957886424,m,"Model B neighbour transfer (T-173): median post-2018 |bias|, centroid coefficients (intercept borrowed with the betas); n = 66 wells (all)"
+transfer_B_d_r2_all,,,-0.010171301893536988,,"median neighbour r2 less median own r2, Model B (all)"
+transfer_B_d_abs_bias_m_all,,,0.038815666389114184,m,"median neighbour |bias| less median own |bias|, Model B (all)"
+transfer_B_shape_holds_all,,,1.0,flag,"1 if the median neighbour r2 is within 0.05 of own (Martin's criterion, 2026-11-20)"
+transfer_B_level_holds_all,,,1.0,flag,1 if the median neighbour |bias| is within 0.05 m of own (Martin's criterion)
+transfer_B_wells_n_all,,,66.0,count,wells in the Model B transfer test (all)
+transfer_B_neighbour_distance_median_m,,,122.55654625049569,m,median distance from a well to its borrowed neighbour (nearest other well with a pre-2018 fit)
 transfer_rho_d_mean_depth_m,,,-0.5092647768438825,,Spearman of this predictor against the change in NSE from borrowing
 transfer_rho_r_records,,,0.2135423739821285,,Spearman of this predictor against the change in NSE from borrowing
 transfer_rho_distance_m,,,-0.19195557388908888,,Spearman of this predictor against the change in NSE from borrowing

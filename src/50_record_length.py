@@ -77,7 +77,13 @@ Run directly:  python3 src/50_record_length.py [--no-fig]
 """
 from __future__ import annotations
 
-__version__ = "1.28.0"  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
+__version__ = "1.29.0"  # Hollingham (2026) - 2026-11-20 (J-23, T-173 under Model B; Martin's three decisions of 2026-11-20).
+#   neighbour_transfer(intercept=True): every fit Model B, the borrowed intercept travelling with the betas (full
+#   transfer, each set at its own implied datum), the centroid the median of betas and intercepts; the neighbour is
+#   still the nearest other well with a pre-2018 fit, any cluster. 50_50 gains form "B" rows. Report keys
+#   transfer_B_* per cluster, open dune, forest and all: median r2 and |bias| (own, neighbour, centroid), the
+#   neighbour-minus-own differences, and the criterion flags (config TRANSFER_R2_TOL, TRANSFER_BIAS_TOL_M).
+# 1.28.0  # Hollingham (2026) - 2026-11-12 (D-332, J-9 phase 2b). Script 03 1.31.0 puts Model B in
 #   03_master_data / 03_03 / 03_15's unsuffixed coefficient columns and Model A in *_model_a. Every read of them here
 #   means Model A, so all now go through _model_a_store(): the usable_codes admission (Script 39's Model A rule, in
 #   the record-length CCW hindcast, E5, E8, E8b/c, E12, E16/E17, E18 and E19), transfer_rule's coefficient
@@ -351,6 +357,7 @@ from utils.paths import (                                     # noqa: E402
 from utils.config import (                                    # noqa: E402
     DRAINAGE_DATUM, HEADLINE_LAG, CLUSTER_LABELS, CLUSTER_COLOURS, LCSC_DATA_LIMIT,
     MODEL_AB_SPLIT_DATE, MODEL_AB_MIN_TEST_MONTHS, PASTAS_IDENT_EFOLD_WINDOW_FRAC,
+    TRANSFER_R2_TOL, TRANSFER_BIAS_TOL_M,
     RECLEN_LENGTHS_MONTHS, RECLEN_MIN_FIT_MONTHS, RECLEN_STABLE_TOL,
     RECLEN_DATUM_NSE_TOL, DATUM_SWEEP_MIN_M, DATUM_SWEEP_MAX_M, DATUM_SWEEP_STEP_M,
     DATUM_AOD_SWEEP_MIN_M, DATUM_AOD_SWEEP_MAX_M, DATUM_AOD_SWEEP_STEP_M, E17_CANDIDATES, E17_PRIMARY_CANDIDATE,
@@ -778,8 +785,45 @@ def identity_checks(df: pd.DataFrame, ccw: pd.DataFrame) -> dict:
 # ──────────────────────────────────────────────────────────────────────────────
 # Report numbers
 # ──────────────────────────────────────────────────────────────────────────────
-def report_numbers(df, dev, stab, ccw, summ, checks, trule=None, nbt_mhw=None) -> ReportNumbers:
+def report_numbers(df, dev, stab, ccw, summ, checks, trule=None, nbt_mhw=None, nbt_b=None) -> ReportNumbers:
     rr = ReportNumbers()
+    # 1.29.0 (J-23, T-173 under Model B): per cluster and the open dune / forest, the median r2 and |bias| with
+    # own and neighbour coefficients, and the criterion Martin set before the numbers were seen (2026-11-20):
+    # shape transfers where the median neighbour r2 is within TRANSFER_R2_TOL of own, level where the median
+    # |bias| is within TRANSFER_BIAS_TOL_M of own. C4 is reported, not claimed (beta_3 not identified).
+    if nbt_b is not None and not nbt_b.empty:
+        _b = nbt_b.assign(abs_bias_m=nbt_b["bias_m"].abs())
+        _grp = [(f"C{int(c)}", g) for c, g in _b.groupby("cluster")]
+        _grp += [("open_dune", _b[~_b["in_forest"].astype(bool)]), ("forest", _b[_b["in_forest"].astype(bool)]),
+                 ("all", _b)]
+        for _g, _d in _grp:
+            _pv = _d.pivot_table(index="well", columns="source", values=["r2", "abs_bias_m"])
+            if ("r2", "own") not in _pv.columns or ("r2", "neighbour") not in _pv.columns:
+                continue
+            _pv = _pv.dropna(subset=[("r2", "own"), ("r2", "neighbour")])
+            if _pv.empty:
+                continue
+            _n = len(_pv)
+            med = {(m, s_): float(_pv[(m, s_)].median()) for m in ("r2", "abs_bias_m")
+                   for s_ in ("own", "neighbour", "centroid") if (m, s_) in _pv.columns}
+            for (m, s_), v in med.items():
+                rr.add(f"transfer_B_median_{m}_{s_}_{_g}", v, unit="m" if m == "abs_bias_m" else "",
+                       note=f"Model B neighbour transfer (T-173): median post-2018 {'|bias|' if m == 'abs_bias_m' else 'r2'}, "
+                            f"{s_} coefficients (intercept borrowed with the betas); n = {_n} wells ({_g})")
+            d_r2 = med[("r2", "neighbour")] - med[("r2", "own")]
+            d_b = med[("abs_bias_m", "neighbour")] - med[("abs_bias_m", "own")]
+            rr.add(f"transfer_B_d_r2_{_g}", d_r2, unit="", note=f"median neighbour r2 less median own r2, Model B ({_g})")
+            rr.add(f"transfer_B_d_abs_bias_m_{_g}", d_b, unit="m",
+                   note=f"median neighbour |bias| less median own |bias|, Model B ({_g})")
+            rr.add(f"transfer_B_shape_holds_{_g}", float(d_r2 >= -TRANSFER_R2_TOL), unit="flag",
+                   note=f"1 if the median neighbour r2 is within {TRANSFER_R2_TOL:g} of own (Martin's criterion, 2026-11-20)")
+            rr.add(f"transfer_B_level_holds_{_g}", float(d_b <= TRANSFER_BIAS_TOL_M), unit="flag",
+                   note=f"1 if the median neighbour |bias| is within {TRANSFER_BIAS_TOL_M:g} m of own (Martin's criterion)")
+            rr.add(f"transfer_B_wells_n_{_g}", float(_n), unit="count", note=f"wells in the Model B transfer test ({_g})")
+        _d = _b[_b["source"] == "neighbour"]["distance_m"].dropna()
+        if len(_d):
+            rr.add("transfer_B_neighbour_distance_median_m", float(_d.median()), unit="m",
+                   note="median distance from a well to its borrowed neighbour (nearest other well with a pre-2018 fit)")
     # T-173b (2026-11-08): the transfer rule's quotable values, so Paper 1 can carry them as
     # number fields rather than typed literals (D-220). Keys mirror 50_52's own columns.
     if trule is not None and not trule.empty:
@@ -1451,7 +1495,8 @@ def plot_neighbour_transfer(nbt) -> None:
     plt.close(fig)
 
 
-def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None) -> pd.DataFrame:
+def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None,
+                       intercept: bool = False) -> pd.DataFrame:
     """T-173: fit the model on a NEIGHBOURING well and run it here. Laurence Jones's test.
 
     Section 4.5 holds two results and neither is this one. Its paragraph 2 scores group numbers
@@ -1478,6 +1523,12 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None) 
     the median of its members' coefficients at their own floors, run at the target's floor: a centroid has no
     ground level, so no MHW floor of its own, and this is a design choice (brief, Addendum 3). Without
     `datum_of` every datum is DRAINAGE_DATUM and the test is unchanged.
+
+    1.29.0 (J-23, T-173 under Model B; Martin 2026-11-20): with intercept=True every fit is Model B and a
+    borrowed set carries its intercept with its betas (full transfer: each set runs at its own implied datum,
+    base - alpha/beta_3), so r2 says whether the shape transfers and bias whether the level does. The neighbour
+    is still the nearest other well with a pre-2018 fit, whatever its cluster; the centroid is the median of its
+    members' betas AND intercepts.
     """
     split = pd.Timestamp(MODEL_AB_SPLIT_DATE)
     if datum_of is not None:
@@ -1501,7 +1552,7 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None) 
             continue
         h = lev[col].dropna()
         pre, pst = h[h.index < split], h[h.index >= split]
-        f = fit_frame(build_ssm_frame(pre, cl, lag=HEADLINE_LAG, drainage_datum=dat(r["_n"])), False)
+        f = fit_frame(build_ssm_frame(pre, cl, lag=HEADLINE_LAG, drainage_datum=dat(r["_n"])), intercept)
         if f is None or len(pst.dropna()) < MODEL_AB_MIN_TEST_MONTHS + 1:
             continue
         fits[r["_n"]], post[r["_n"]], clust[r["_n"]] = f, pst, int(r["Cluster"])
@@ -1513,7 +1564,8 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None) 
             continue
         cent[cid] = {k: float(np.median([fits[w][k] for w in members]))
                      for k in ("beta_1_recharge", "beta_2_atmospheric_draw", "beta_3_drainage")}
-        cent[cid]["alpha"] = 0.0
+        cent[cid]["alpha"] = (float(np.median([fits[w]["alpha"] for w in members])) if intercept
+                              else 0.0)          # 1.29.0: Model B's centroid carries the median intercept
 
     rows = []
     for w, pst in post.items():
@@ -1534,7 +1586,7 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None) 
                                    ("centroid", cent.get(clust[w]), {})):
             if fit is None:
                 continue
-            res = free_run(pst, cl, fit, False, base=dat(w))
+            res = free_run(pst, cl, fit, intercept, base=dat(w))
             t = pst.dropna()
             months = pd.date_range(t.index[0], t.index[-1], freq="MS")
             clim = cl.reindex(months)
@@ -1542,7 +1594,8 @@ def neighbour_transfer(lev, lev_cols, cl, master, datum_of: dict | None = None) 
                 continue
             sim = pd.Series(simulate_ssm(float(t.iloc[0]), clim["P_m"].values[1:], clim["PET"].values[1:],
                                          fit["beta_1_recharge"], fit["beta_2_atmospheric_draw"],
-                                         fit["beta_3_drainage"], drainage_datum=dat(w)),
+                                         fit["beta_3_drainage"],
+                                         drainage_datum=run_datum(fit, intercept, dat(w))),   # 1.29.0
                             index=months[1:])
             obs = t.iloc[1:].reindex(sim.index).dropna()
             if len(obs) < MODEL_AB_MIN_TEST_MONTHS:
@@ -5817,8 +5870,12 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     # 1.25.0 (D-332): the same test with Model A at each well's depth to mean high water; 50_50 gains a form
     # column (A rows first, unchanged). The transfer rule and the figure stay on Model A at 3.7 m.
     nbt_m = neighbour_transfer(lev, lev_cols, cl, master, datum_of=mhw) if mhw else pd.DataFrame()
-    pd.concat([nbt.assign(form="A"), nbt_m.assign(form=FORM_MHW)], ignore_index=True).to_csv(OUT_50_NEIGHBOUR, index=False)
-    saved(f"{OUT_50_NEIGHBOUR.name} ({len(nbt)} rows at 3.7 m, {len(nbt_m)} at mean high water)")
+    # 1.29.0 (J-23): the same test under Model B, the borrowed intercept travelling with the betas
+    nbt_b = neighbour_transfer(lev, lev_cols, cl, master, intercept=True)
+    pd.concat([nbt.assign(form="A"), nbt_m.assign(form=FORM_MHW), nbt_b.assign(form="B")],
+              ignore_index=True).to_csv(OUT_50_NEIGHBOUR, index=False)
+    saved(f"{OUT_50_NEIGHBOUR.name} ({len(nbt)} rows at 3.7 m, {len(nbt_m)} at mean high water, "
+          f"{len(nbt_b)} Model B)")
     if len(nbt_m):
         _pm = nbt_m.pivot_table(index="well", columns="source", values="nse").median()
         step("T-173 at mean high water: median own " + ", ".join(f"{k} {_pm.get(k, np.nan):.2f}"
@@ -6047,7 +6104,7 @@ def main(no_fig: bool = False, only_e16: bool = False, only_e17: bool = False, o
     summ.to_csv(OUT_50_BY_CLUSTER, index=False); saved(f"{OUT_50_BY_CLUSTER.name} ({len(summ)} rows)")
     ccw.to_csv(OUT_50_CCW, index=False); saved(f"{OUT_50_CCW.name} ({len(ccw)} rows)")
     stab.to_csv(OUT_50_STABLE, index=False); saved(f"{OUT_50_STABLE.name} ({len(stab)} rows)")
-    rr = report_numbers(df, dev, stab, ccw, summ, checks, trule=trule, nbt_mhw=nbt_m)
+    rr = report_numbers(df, dev, stab, ccw, summ, checks, trule=trule, nbt_mhw=nbt_m, nbt_b=nbt_b)
     beta3_bound_report(rr, {   # 1.25.0 (D-332)
         "reclen_fits": (df, "beta_3", "every record-length fit (50_01: forecast, within-record hindcast, stability)"),
         "reclen_full_record": (df[(df["experiment"] == "stability") & (df["length"] == FULL)], "beta_3",

@@ -44,7 +44,9 @@ PIPELINE_RELEASE_DATE = "2026-10-02"    # ISO date this release string was cut
 #   result as a literal — "NSE -3.21" — against the no-hardcoded-values rule,
 #   and it had drifted. The reason string now names the condition without the
 #   number; the value lives in 08_perwell_nse.csv. Behaviour unchanged.
-__version__ = "1.128.0"  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). D333_WITHDRAWN_NOTE and
+__version__ = "1.129.0"  # Hollingham (2026) - 2026-11-20 (J-23). TRANSFER_R2_TOL, TRANSFER_BIAS_TOL_M: Martin's criterion
+#   for the Model B neighbour-transfer test (Script 50 1.29.0), set before the numbers were seen.
+# 1.128.0  # Hollingham (2026) - 2026-11-13 (D-333, J-9 phase 2b). D333_WITHDRAWN_NOTE and
 #   D333_WITHDRAWN_STATUS: the note and status Scripts 09b, 09d, 19 and 21 attach to the withdrawn beta-multiplier
 #   scenarios (pending T-209). Additive.
 # 1.127.0  # Hollingham (2026) - 2026-11-12. MODEL_B_BETA3_MIN (D-332, J-9 phase 2): the lower bound
@@ -737,6 +739,11 @@ PASTAS_IDENT_MAX_REL_SE        = 0.5
 # MODEL_AB_MIN_TEST_MONTHS observed months to score.
 MODEL_AB_SPLIT_DATE            = "2018-01-01"
 MODEL_AB_MIN_TEST_MONTHS       = 24
+# J-23 (T-173 under Model B), Martin 2026-11-20, set before the numbers were seen: a neighbour's coefficients
+# transfer the SHAPE in a group where the median neighbour r2 is within TRANSFER_R2_TOL of own, and the LEVEL where
+# the median |bias| is within TRANSFER_BIAS_TOL_M of own (Script 50, transfer_B_*_holds_*).
+TRANSFER_R2_TOL                = 0.05
+TRANSFER_BIAS_TOL_M            = 0.05
 # D-332 (J-9 phase 2, Martin 2026-11-12: "the bound as you propose"): Model B's drainage coefficient is
 # bounded below. Wherever the free-intercept form is fitted (fit_ssm(intercept=True), the censored fit
 # with an intercept, fit_ssm_intercept), a β₃ that would fall below this is held AT it and the others are

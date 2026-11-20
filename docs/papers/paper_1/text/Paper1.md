@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_95.odt — do not edit. source-sha256=f99bc9ab142b12a3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/Paper1_v1_96.odt — do not edit. source-sha256=9dc4aa73ccf2d098 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 A parameter-sparse state-space framework for characterizing coastal dune-aquifer architecture from manual dipwell records
@@ -87,7 +87,9 @@ Climate forcing is taken from the Royal Air Force Valley station. Monthly precip
 
 []{#anchor}The reference network is partitioned into hydrogeologically distinct zones by agglomerative hierarchical clustering with Ward's minimum-variance linkage (Ward, 1963). The distance metric is the Pearson correlation distance between standardized well hydrographs. This metric compares the *shape* of the seasonal and inter-annual water-table dynamics and discards absolute elevation. Two wells that fluctuate in synchrony are treated as similar, whatever their mean water-table depth. The clustering therefore isolates the dynamic hydrogeological signature --- the timing and relative amplitude of filling and draining --- from the topographic offset between wells.
 
-The number of clusters is selected by a dual-metric approach that combines two measures. The first is the Ward's merge-distance profile, which identifies the partition at which further agglomeration incurs a disproportionate increase in within-cluster variance. The second is the mean silhouette coefficient (Rousseeuw, 1987), which favours partitions with well-separated, internally coherent groups. Seasonal amplitude is the long-term mean difference between winter maximum and summer minimum at each cluster centroid. It is retained as a secondary descriptor characterizing each unit, but it is not used in the clustering itself.
+The number of clusters is selected by a dual-metric approach that combines two measures. The first is the Ward's merge-distance profile, which identifies the partition at which further agglomeration incurs a disproportionate increase in within-cluster variance. The second is the mean silhouette coefficient (Rousseeuw, 1987), computed on the same correlation distance, which favours partitions with well-separated, internally coherent groups.
+
+Each cluster is then described by its seasonal amplitude: the range between the 10th and 90th percentiles of each well's monthly water level, with the median taken over the cluster's wells (Figure 6). Amplitude plays no part in forming the clusters or in choosing their number: the correlation distance discards it.
 
 ## 3.3 Network extension by Pearson affinity analysis
 

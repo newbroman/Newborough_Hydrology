@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_36.odt — do not edit. source-sha256=59509bf27d1214a8 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_37.odt — do not edit. source-sha256=75f4aeb7f4427c23 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -282,7 +282,7 @@ Second, the SSM is linearized: it assumes additive superposition of recharge, at
 
 Third, at monthly timestep *P*, PET and *h* co-vary during recharge events. Collinearity between regressors widens the practical confidence interval on each individual coefficient relative to the OLS standard error, without inflating the point estimate in a known direction. The cluster-mean fits mitigate this by averaging over wells with slightly different individual covariances. The issue is nonetheless present in principle in any lumped state-space model fitted by OLS (Knotters and van Walsum, 1997; Healy and Cook, 2002).
 
-The practical implication is that the *ranking* of clusters by each coefficient is robust to all three caveats: C4 has the highest β₂, the forest clusters have the lowest β₁, and C1 has the highest β₃. Cross-cluster contrasts at this level reflect the substrate, vegetation and topographic differences between clusters, which the SSM is designed to detect. Absolute coefficient values should be interpreted as lumped cluster-mean responses, not as instrument-equivalent calibrated fluxes. Section 5.2 of the main manuscript notes the same scope for the β₂ ranking: cross-cluster β₂ comparisons rest on the ordering and the relative magnitudes, not on absolute flux interpretation.
+The practical implication is that the *ranking* of clusters is robust to all three caveats where the clusters are well separated: C1 has the highest β₂ and β₃, C5 the lowest β₂, and the forest clusters the lowest β₁. C4's β₂ is elevated, but its place between C2 and C3 is not resolved; its bootstrap interval overlaps both. Cross-cluster contrasts at this level reflect the substrate, vegetation and topographic differences between clusters, which the SSM is designed to detect. Absolute coefficient values should be interpreted as lumped cluster-mean responses, not as instrument-equivalent calibrated fluxes. Section 5.2 of the main manuscript notes the same scope for the β₂ ranking: cross-cluster β₂ comparisons rest on the ordering and the relative magnitudes, not on absolute flux interpretation.
 
 ### []{#anchor-7}S6.4 Lumped Catchment Storage Coefficient
 

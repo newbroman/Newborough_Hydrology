@@ -26,12 +26,19 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.36.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
+__version__ = "2.37.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The clearfell and thinning
+#   are rebuilt on the observed BACI step: the measured result is the 10a step at the felled well (scenario_clearfell_
+#   anchor_step_m, not mapped); the clearfell rows and viewer preset are its flux sensitivity, a share f of the
+#   interception returned (clearfell_common.clearfell_return_fraction), at C5 wells only (c5_only: no level where
+#   beta_3 is not identified), Model B only; thinning returns f/2. The clearfell interception bound is f = 1 on the
+#   same terms. The retired interception-form diagnostic at WMC3, the D-333 flags, status columns and count key
+#   are gone. Broadleaf, UKCP18 and the end state unchanged.
+# 2.36.1  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
 #   emitted as scenario_n_keys_withdrawn_d333_19: Scripts 09b, 19 and 21 each wrote the same name for their own
 #   count (1, 11, 32), which number_ledger reads as one quantity with three values. Nothing reads the key.
 # 2.36.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and thinning scenarios
 #   (and the clearfell interception bound, which carries the same beta_2 multiplier) are built from a beta_2 multiplier
-#   of single-well era refits (clearfell_common.load_clearfell_impact_b2_multiplier; the interception-form diagnostic
+#   of single-well era refits (the Impact-tier beta_2 multiplier loader of clearfell_common, retired by T-209; the interception-form diagnostic
 #   from load_clearfell_b2_multiplier) and are WITHDRAWN under D-333 pending T-209. No value changes: every report key
 #   built from them gets config.D333_WITHDRAWN_NOTE appended to its note (Model B and _model_a alike), a count key
 #   scenario_n_keys_withdrawn_d333 is written, one warn() names the withdrawn outputs, 19_scenario_summary[_model_a]
@@ -74,7 +81,7 @@ __version__ = "2.36.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-1
 # 2.31.0  # Hollingham (2026) - 2026-10-04 (T-97, D-239; Martin: "approved", spec
 #   NRG_spec_T97_forestry_measured_2026-10-04). The forestry scenarios are anchored to what the December 2017
 #   felling measured at WMC3: the canopy's draw scaled by the felled well's beta_2 change net of the Climate
-#   controls (clearfell_common.load_clearfell_impact_b2_multiplier; thinning half of it; broadleaf its seasonal
+#   controls (the Impact-tier beta_2 multiplier loader of clearfell_common, retired by T-209; thinning half of it; broadleaf its seasonal
 #   profile) and NO interception recharge term - the felled well's beta_1 did not rise. The forestry rows are the
 #   sustained LEVEL response under both forms (the held T-97 commit, ported onto D-238): Model B in the summary,
 #   Model A beside it, not paired, so C4 appears under Model A. open_dune_end_state() adds the cluster-basis bound
@@ -442,9 +449,8 @@ from utils.config import (
     VIEWER_KRIG_CHECK_TOL_M, VIEWER_KRIG_CHECK_POINTS, VIEWER_MAX_KB,
     END_STATE_OPEN_DUNE_COUNTERPART,
     MODEL_B_BETA3_MIN,                   # 2.33.0 (D-332): the beta_3 bound, for the count key
-    D333_WITHDRAWN_NOTE, D333_WITHDRAWN_STATUS,   # 2.36.0 (D-333)
 )
-from utils.clearfell_common import load_clearfell_impact_b2_multiplier
+from utils.clearfell_common import clearfell_return_fraction, load_clearfell_observed_step   # 2.37.0 (T-209)
 from utils.map_utils import load_site_outline
 
 from utils.console_utils import (
@@ -564,17 +570,20 @@ VIEWER_HILLSHADE_GREY_LEVELS = 64
 
 # Deferred initialisation — populated by _init_scenario_params() in main()
 SCENARIO_PARAMS = None
-CLEARFELL_B2_MULT = None
-THINNING_B2_MULT  = None
+CLEARFELL_FRAC = None   # 2.37.0 (T-209): clearfell_common.clearfell_return_fraction()
+CLEARFELL_STEP = None   # 2.37.0 (T-209): clearfell_common.load_clearfell_observed_step()
 
 
 def _init_scenario_params():
-    """Build SCENARIO_PARAMS with dynamically loaded β₂ multipliers."""
-    global SCENARIO_PARAMS, CLEARFELL_B2_MULT, THINNING_B2_MULT
+    """Build SCENARIO_PARAMS; 2.37.0 (T-209, D-333): the clearfell and thinning on the observed BACI step."""
+    global SCENARIO_PARAMS, CLEARFELL_FRAC, CLEARFELL_STEP
 
-    # 2.31.0 (T-97, D-239): the felled well's measured beta_2 change (Impact tier net of the Climate
-    # controls), read live from 10e_01 - not the Edge-tier multiplier the scraping suite keeps.
-    CLEARFELL_B2_MULT, THINNING_B2_MULT, _ = load_clearfell_impact_b2_multiplier()
+    # 2.37.0 (T-209, D-333): the clearfell's headline is the observed step at the felled well (Script 10a), not
+    # mapped; its flux sensitivity returns a share f of the interception (calibrated on that step) and is carried
+    # to a level at C5 wells only - C4's drainage coefficient is not identified, so no level there (c5_only).
+    CLEARFELL_STEP = load_clearfell_observed_step()
+    CLEARFELL_FRAC = clearfell_return_fraction()
+    _f = CLEARFELL_FRAC["f"]
 
     # Forest β₂ scaling: merged across C4/C5 (same management assumptions),
     # split by season (winter/summer). Clearfell and thinning are non-seasonal;
@@ -590,11 +599,9 @@ def _init_scenario_params():
                            "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
                            "sB2_w": 1.00, "sB2_s": 1.00},
         "clearfell":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                        # 2.31.0 (D-239): the canopy's interception term is left as it is - the felled
-                        # well's recharge did not rise - and its draw takes the felled well's change.
-                        "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,
-                        # sB2: the felled well's measured ratio net of the Climate controls, non-seasonal
-                        "sB2_w": CLEARFELL_B2_MULT, "sB2_s": CLEARFELL_B2_MULT},
+                        # 2.37.0 (T-209): flux sensitivity - a share f of the interception returned, at C5 only
+                        "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION * (1 - _f),
+                        "sB2_w": 1.00, "sB2_s": 1.00, "c5_only": True},
         "broadleaf":   {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
                         # sI: annual-mean interception (Komatsu et al. 2011),
                         # deliberately season-symmetric. Deciduous interception
@@ -608,9 +615,9 @@ def _init_scenario_params():
                         # sB2: deciduous phenology — Script 21 monthly profile
                         "sB2_w": BROADLEAF_B2_WINTER, "sB2_s": BROADLEAF_B2_SUMMER},
         "thinning":    {"sP_w": 1.00, "sP_s": 1.00, "sPET_w": 1.00, "sPET_s": 1.00,
-                        "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION,   # 2.31.0 (D-239)
-                        # sB2: half the clearfell perturbation, non-seasonal
-                        "sB2_w": THINNING_B2_MULT, "sB2_s": THINNING_B2_MULT},
+                        # 2.37.0 (T-209): at most half the clearfell's return, C5 only
+                        "sI_c4": FOREST_INTERCEPTION, "sI_c5": FOREST_INTERCEPTION * (1 - _f / 2.0),
+                        "sB2_w": 1.00, "sB2_s": 1.00, "c5_only": True},
     }
 SEASONS = ["annual", "winter", "summer"]
 
@@ -1592,10 +1599,10 @@ footer a:hover{{text-decoration:underline;}}
   <button class="sc on" id="btn_baseline"    onclick="loadSc('baseline')">Baseline (2005&#8211;2026)</button>
   <button class="sc"    id="btn_ukcp18_2050s" onclick="loadSc('ukcp18_2050s')">UKCP18 2050s (RCP8.5)</button>
   <button class="sc"    id="btn_ukcp18_2080s" onclick="loadSc('ukcp18_2080s')">UKCP18 2080s (RCP8.5)</button>
-  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (felled-well draw &#8595;) <span class="sc-wd">withdrawn (D-333)</span></button>
+  <button class="sc"    id="btn_clearfell"   onclick="loadSc('clearfell')">Clearfell (flux sensitivity, C5)</button>
   <button class="sc"    id="btn_broadleaf"   onclick="loadSc('broadleaf')">Broadleaf conversion</button>
-  <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%) <span class="sc-wd">withdrawn (D-333)</span></button>
-  <div class="sc-note sc-wd-note">Clearfell and thinning are withdrawn (D-333): their &#946;&#8322; multiplier comes from single-well era refits and sits inside its noise. Shown for reference only, not as results, until they are rebuilt on the observed felling step (T-209).</div>
+  <button class="sc"    id="btn_thinning"    onclick="loadSc('thinning')">Forest thinning (50%, at most half)</button>
+  <div class="sc-note">Clearfell: the measured result is the step at the felled well, {clearfell_step_text}. The preset is its flux sensitivity: {clearfell_f_pct}% of the canopy&#8217;s interception returned as recharge (the share that reproduces that step), at C5 wells only; C4 and the other forest wells are left unchanged, C4&#8217;s drainage coefficient not being identified. Thinning returns at most half.</div>
   <div class="sc-note">UKCP18 presets are central estimates (50th percentile) under RCP8.5 for Wales, with seasonally-structured perturbations applied to the paper's Winter (Nov&#8211;Mar) and Summer (May&#8211;Sep) climatologies. The equilibrium framework resolves seasonal Delta-h equilibria but not within-year dynamical trajectories.</div>
   <div class="hr"></div>
 
@@ -1813,13 +1820,13 @@ var SCEN={{
   baseline:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:1,    sB2_s:1}},
   ukcp18_2050s: {{sP_w:1.10, sP_s:0.85, sPET_w:1.05, sPET_s:1.20, sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:1,    sB2_s:1}},
   ukcp18_2080s: {{sP_w:1.20, sP_s:0.70, sPET_w:1.10, sPET_s:1.35, sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:1,    sB2_s:1}},
-  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:{clearfell_b2_mult}, sB2_s:{clearfell_b2_mult}}},
+  clearfell:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:{clearfell_si_c5}, sB2_w:1, sB2_s:1}},
   broadleaf:    {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:{broadleaf_b2_winter}, sB2_s:{broadleaf_b2_summer}}},
-  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:FOREST_INTERCEPTION,     sB2_w:{thinning_b2_mult}, sB2_s:{thinning_b2_mult}}},
+  thinning:     {{sP_w:1,    sP_s:1,    sPET_w:1,    sPET_s:1,    sI_c4:FOREST_INTERCEPTION,     sI_c5:{thinning_si_c5}, sB2_w:1, sB2_s:1}},
 }};
 var WARN={{
-  clearfell:    'WITHDRAWN (D-333): built from a beta multiplier of single-well era refits, inside its noise; pending T-209 \u2014 not a result. Clearfell, anchored to the December 2017 felling (D-239): the canopy\u2019s draw \u03b2\u2082 scaled by the felled well\u2019s measured change net of the climate controls ({clearfell_b2_mult}\u00d7), with no interception recharge gain \u2014 the felled well\u2019s recharge did not rise. One felled well (WMC3). Open-dune end state, a bound (each forest cluster on its open-dune counterpart\u2019s coefficients, cluster basis): {end_state_text}.',
-  thinning:     'WITHDRAWN (D-333): built from a beta multiplier of single-well era refits, inside its noise; pending T-209 \u2014 not a result. Thinning: half the clearfell\u2019s \u03b2\u2082 change ({thinning_b2_mult}\u00d7).',
+  clearfell:    'Clearfell. Measured: the control-differenced step at the felled well (WMC3 against the Forest controls), {clearfell_step_text}; at the scale of the 4.2 ha compartment. This preset is its flux sensitivity: {clearfell_f_pct}% (range {clearfell_f_range}) of the canopy\u2019s interception returned as recharge, at C5 wells only \u2014 C4 and the other forest wells are left unchanged, C4\u2019s drainage coefficient not being identified. The form spreads the gain over the year; the measured step is in October\u2013March only. Open-dune end state, a bound (each forest cluster on its open-dune counterpart\u2019s coefficients, cluster basis): {end_state_text}.',
+  thinning:     'Thinning (50%): at most half the clearfell\u2019s return ({thinning_f_pct}% of the interception), C5 wells only \u2014 an upper bound, since the remaining trees take up part of the water released.',
   broadleaf:    'Broadleaf conversion (seasonally-varying \u03b2\u2082: winter {broadleaf_b2_winter}\u00d7, summer {broadleaf_b2_summer}\u00d7; no interception recharge gain, as for the clearfell, D-239). The seasonal \u03b2\u2082 profile captures the first-order deciduous phenology effect (reduced winter ET, elevated summer ET). Second-order dynamical propagation of winter recharge surplus into summer minima is not resolved in this steady-state framework (see Section 5.4.4).',
   ukcp18_2050s: 'UKCP18 2050s central estimate, RCP8.5, Wales. Winter +10% P / +5% PET, summer \u221215% P / +20% PET. Steady-state equilibrium response to seasonally-perturbed forcing only; within-year dynamical propagation is not resolved.',
   ukcp18_2080s: 'UKCP18 2080s central estimate, RCP8.5, Wales. Winter +20% P / +10% PET, summer \u221230% P / +35% PET. Steady-state equilibrium response only. See Section 5.6 for interpretive caveats.',
@@ -2585,16 +2592,6 @@ def open_dune_end_state(P12, PET12):
 
 # 2.36.0 (D-333): the scenario rows built from the era-refit beta_2 multiplier (CLEARFELL_B2_MULT / THINNING_B2_MULT).
 # Broadleaf takes config.BROADLEAF_B2_* (a phenology profile), so it is not among them.
-D333_WITHDRAWN_SCENARIOS = ("clearfell", "thinning", "clearfell_interception_bound")
-
-
-def _d333_status(frame):
-    """2.36.0 (D-333): the frame with a `status` column, D333_WITHDRAWN_STATUS on the withdrawn scenarios' rows."""
-    if frame.empty or "scenario" not in frame.columns:
-        return frame
-    return frame.assign(status=np.where(frame["scenario"].isin(D333_WITHDRAWN_SCENARIOS), D333_WITHDRAWN_STATUS, ""))
-
-
 def compute_scenario_summary(wt, climate_stats, out_dir):
     """
     For each scenario x season x cluster, compute the mean Delta-h across all
@@ -2661,6 +2658,8 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         if B is None:
             return None
         cl_ = int(row["Cluster"]) if pd.notna(row["Cluster"]) else None
+        if forestry and sl.get("c5_only") and cl_ != 5:
+            return None                                 # 2.37.0 (T-209, D-333): not quantified off C5
         sP12, sPET12 = _expand_seasonal_to_monthly(sl["sP_w"], sl["sP_s"], sl["sPET_w"], sl["sPET_s"])
         if forestry:
             # 2.31.0 (T-97, D-239): a management change scales the canopy's draw (sB2) on forest wells, and
@@ -2855,7 +2854,9 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                 "dh_median_m": round(sub_all["_dh"].median(), 4) if len(sub_all) else np.nan,
                 **_water_equivalent(sub_all),
             })
-            if sc_name != "baseline":                  # D-224 / D-332: Model A, the sensitivity
+            if sc_name != "baseline" and not sl.get("c5_only"):   # D-224 / D-332: Model A, the sensitivity
+                # 2.37.0 (T-209, D-333): no Model A rows for the clearfell and thinning - the A form adds no
+                # detecting power and its level scales with the datum
                 dhA = wt.apply(lambda r: _well_level(r, sl, h_col, sea, form="A", forestry=forestry), axis=1)
                 _aggregate_level_a(wt.assign(_dh=dhA), sc_name, sea)
             if sc_name.startswith("ukcp18"):           # D-280: the depth-dependent form, UKCP18 rows only
@@ -2942,6 +2943,8 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
         _sl_bl = {**SCENARIO_PARAMS[_scn], "sI_c4": _Ib, "sI_c5": _Ib}
         for _sea in SEASONS:
             for form, sink in (("B", rows), ("A", rows_A)):
+                if form == "A" and _sl_bl.get("c5_only"):
+                    continue                            # 2.37.0 (T-209): the clearfell bound on Model B, C5 only
                 _dh = wt.apply(lambda r: _well_level(r, _sl_bl, h_col_map[_sea], _sea, form=form, forestry=True), axis=1)
                 _fr = wt.assign(_dh=_dh)
                 for cl_int in FOREST_CIDS:
@@ -2958,42 +2961,18 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                             era=f"{_scn}_interception_bound {_sea}",
                             note=f"cluster-mean sustained level response, Model {form}, {_scn} with its interception "
                                  f"difference returned as recharge ({FOREST_INTERCEPTION:g} -> {_Ib:g}): the "
-                                 f"upper end of the {_scn} range; n={len(_sub)} wells"
-                                 # 2.36.0 (D-333): the clearfell bound keeps the clearfell beta_2 multiplier
-                                 + (D333_WITHDRAWN_NOTE if f"{_scn}_interception_bound" in D333_WITHDRAWN_SCENARIOS
-                                    else ""))
+                                 f"upper end of the {_scn} range (f = 1); n={len(_sub)} wells")
 
-    # ── 2.31.0 (T-97, D-239): the retired interception form at the felled well, a diagnostic ──
-    # The form the documents used before D-239 (canopy interception returned as recharge, beta_2 on the
-    # Edge-tier multiplier), run as a sustained level at the Impact well, so the documents can quote how far
-    # it overshoots the observed clearfell step from a committed key.
-    from utils.clearfell_common import IMPACT_WELLS, load_clearfell_b2_multiplier
-    _cf_edge, _, _ = load_clearfell_b2_multiplier(verbose=False)
-    _sl_int = {**SCENARIO_PARAMS["clearfell"], "sI_c4": 0.0, "sI_c5": 0.0,
-               "sB2_w": _cf_edge, "sB2_s": _cf_edge}
-    for _w in IMPACT_WELLS:
-        _row = wt[wt["id"] == _norm(_w)]
-        if _row.empty:
-            continue
-        for form in ("B", "A"):
-            v = _well_level(_row.iloc[0], _sl_int, h_col_map["annual"], "annual", form=form, forestry=True)
-            if v is not None:
-                rpt.add(f"scenario_clearfell_interception_form_{_norm(_w)}" + ("_model_a" if form == "A" else ""),
-                        float(v), unit="m", well=_w.upper(), era="clearfell (interception form) annual",
-                        note=f"sustained annual level response, Model {form}, under the retired interception form "
-                             f"(interception to 0, beta_2 x Edge-tier {_cf_edge:.4f}) - a diagnostic of the overshoot "
-                             f"D-239 retired; not a scenario" + D333_WITHDRAWN_NOTE)   # 2.36.0 (D-333)
-
-    pw = _d333_status(pd.DataFrame(perwell))              # 2.36.0 (D-333): status column
+    pw = pd.DataFrame(perwell)
     pw.to_csv(OUT_19_SCENARIO_PERWELL, index=False)
     print(f"  Per-well scenario CSV: {OUT_19_SCENARIO_PERWELL.name} ({len(pw)} rows)")
 
-    out = _d333_status(pd.DataFrame(rows))
+    out = pd.DataFrame(rows)
     out_csv = out_dir / "19_scenario_summary.csv"
     out.to_csv(out_csv, index=False)
-    out_A = _d333_status(pd.DataFrame(rows_A))
+    out_A = pd.DataFrame(rows_A)
     out_A.to_csv(OUT_19_SCENARIO_SUMMARY_MODEL_A, index=False)
-    _d333_status(pd.DataFrame(perwell_A)).to_csv(OUT_19_SCENARIO_PERWELL_MODEL_A, index=False)
+    pd.DataFrame(perwell_A).to_csv(OUT_19_SCENARIO_PERWELL_MODEL_A, index=False)
     pd.DataFrame(rows_D).to_csv(OUT_19_SCENARIO_SUMMARY_DDP, index=False)          # D-280
     pd.DataFrame(perwell_D).to_csv(OUT_19_SCENARIO_PERWELL_DDP, index=False)
     print(f"  Depth-dependent scenario CSVs (D-280): {OUT_19_SCENARIO_SUMMARY_DDP.name} ({len(rows_D)} rows), "
@@ -3086,16 +3065,14 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
     else:
         print("  ΔMSL5 cross-check, Model A, skipped: 26b Model A per-well CSV not yet generated")
 
-    # 2.36.0 (D-333): how many report keys are withdrawn, for the check tools; and the console warning
-    _n_wd = sum(1 for r in rpt.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
-    rpt.add("scenario_n_keys_withdrawn_d333_19", _n_wd, unit="keys",
-            note="report keys in this file whose note carries the D-333 withdrawal (clearfell interception bound "
-                 "and the interception-form diagnostic, both forms); the clearfell and thinning rows of "
-                 "19_scenario_summary[_model_a] / _perwell[_model_a] carry status 'withdrawn (D-333)'")
-    warn(f"D-333: the clearfell and thinning scenarios (Model B and Model A rows of 19_scenario_summary / _perwell, "
-         f"the clearfell interception bound and the interception-form diagnostic; {_n_wd} report keys) are built "
-         f"from a beta_2 multiplier of single-well era refits and are WITHDRAWN pending T-209 - values unchanged, "
-         f"flagged, not results")
+    # 2.37.0 (T-209, D-333): the clearfell's anchor and its flux-sensitivity fraction, for the viewer's documents
+    for _sea, (_st, _lo, _hi) in CLEARFELL_STEP.items():
+        rpt.add("scenario_clearfell_anchor_step_m", _st, unit="m", well="WMC3", era=_sea,
+                note=f"the clearfell scenario's headline: observed BACI step at the felled well vs the Forest controls "
+                     f"(HAC 95% CI {_lo:+.3f} to {_hi:+.3f} m); not mapped (10a)")
+    rpt.add("scenario_clearfell_return_fraction", CLEARFELL_FRAC["f"], unit="-", well=CLEARFELL_FRAC["cluster"],
+            note=f"flux sensitivity f (range {CLEARFELL_FRAC['f_lo']:.3f}-{CLEARFELL_FRAC['f_hi']:.3f}): the share of the "
+                 "interception returned as recharge in the clearfell rows (C5 wells only); thinning returns f/2")
     n_rpt = rpt.save(OUT_19_REPORT_NUMBERS)  # T-91
     print(f"  Saved → {OUT_19_REPORT_NUMBERS.name} ({n_rpt} report numbers)")
     return out
@@ -3178,9 +3155,14 @@ def main(out_path=None):
         forest_interception=FOREST_INTERCEPTION,
         broadleaf_interception=BROADLEAF_INTERCEPTION,
         thinning_fraction=THINNING_FRACTION,
-        clearfell_b2_mult=round(CLEARFELL_B2_MULT, 4),
+        clearfell_si_c5=round(FOREST_INTERCEPTION * (1 - CLEARFELL_FRAC["f"]), 4),
+        thinning_si_c5=round(FOREST_INTERCEPTION * (1 - CLEARFELL_FRAC["f"] / 2.0), 4),
+        clearfell_f_pct=f'{100 * CLEARFELL_FRAC["f"]:.0f}',
+        thinning_f_pct=f'{50 * CLEARFELL_FRAC["f"]:.0f}',
+        clearfell_f_range=f'{100 * CLEARFELL_FRAC["f_lo"]:.0f}\u2013{100 * CLEARFELL_FRAC["f_hi"]:.0f}%',
+        clearfell_step_text=(f'{CLEARFELL_STEP["annual"][0]:+.2f} m a year, {CLEARFELL_STEP["winter"][0]:+.2f} m in '
+                             f'October\u2013March and none in June\u2013September').replace("-", "\u2212"),
         end_state_text=_end_state_text(climate_stats),
-        thinning_b2_mult=round(THINNING_B2_MULT, 4),
         broadleaf_b2_winter=BROADLEAF_B2_WINTER,
         broadleaf_b2_summer=BROADLEAF_B2_SUMMER,
         hillshade_b64=hillshade_b64,

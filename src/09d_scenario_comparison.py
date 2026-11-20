@@ -36,7 +36,12 @@ Hollingham (2026), §4.5.  Part of the Script 09 scraping analysis suite.
 ====================================================================================
 """
 
-__version__ = "3.13.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The hypothetical Clearfell and
+__version__ = "3.14.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The hypothetical Clearfell
+#   and Thinning 50% bars at CEH36 return a share f of the interception (clearfell_common.clearfell_return_fraction,
+#   calibrated on the observed BACI step at the felled well; thinning f/2) instead of a beta_2 multiplier. The D-333
+#   flags, status column and count key are gone; CLEARFELL_MATCH_HINT (282 m, set against the old bar) is now
+#   computed and emitted as scenario_clearfell_match_distance_m.
+# 3.13.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The hypothetical Clearfell and
 #   Thinning 50% bars at CEH36 take a beta_2 multiplier of single-well era refits
 #   (clearfell_common.load_clearfell_impact_b2_multiplier) and are WITHDRAWN under D-333 pending T-209. No value
 #   changes: 09d_01 / 09d_02 gain a `status` column ("withdrawn (D-333)" on those rows), their tick labels say so,
@@ -105,8 +110,7 @@ from utils.config import (
     UKCP18_WET_P_SUMMER, UKCP18_WET_PET_SUMMER,
     SCRAPE_RISE_BUFFER_M,
 )
-from utils.clearfell_common import load_clearfell_impact_b2_multiplier
-from utils.config import D333_WITHDRAWN_STATUS                # 3.13.0 (D-333)
+from utils.clearfell_common import clearfell_return_fraction   # 3.14.0 (T-209)
 from utils.paths import OUT_09D_REPORT_NUMBERS                # 3.13.0 (D-333)
 from utils.report_numbers_utils import ReportNumbers          # 3.13.0 (D-333)
 
@@ -155,7 +159,6 @@ OFFSITE_DIST_M       = 100.0
 OFFSITE_FAR_M        = 250.0    # marker line inside the OFFSITE_DIST_M bar
                                 # (near the nearest uphill well)
 # SCRAPE_RISE_BUFFER_M now imported from config.py
-CLEARFELL_MATCH_HINT = 282.0    # ~distance where off-site vol drawdown = clearfell bar
 
 
 def _load_drawdown_lambda():
@@ -323,18 +326,13 @@ def main():
     phase(4, "Plotting summer forcing scenario comparison")
     _plot_scenarios(scen_summer, params, forcing="summer")
 
-    # ── 5. D-333 (3.13.0): the withdrawn bars, counted and warned ──────────
-    n_wd = sum(1 for sc in (scen_annual, scen_summer) for k in sc if k in D333_WITHDRAWN_BARS)
+    # ── 5. 3.14.0 (T-209): the clearfell match distance the annual caption quotes ──────────
     rr = ReportNumbers()
-    rr.add("scenario_n_rows_withdrawn_d333", n_wd, unit="rows",
-           note="rows of 09d_01 + 09d_02 with status 'withdrawn (D-333)': the hypothetical Clearfell and Thinning "
-                "50% bars at CEH36, built from a beta multiplier of single-well era refits, inside its noise; "
-                "pending T-209 (values unchanged)")
+    rr.add("scenario_clearfell_match_distance_m", scen_annual.get("_cf_match_m", float("nan")), unit="m",
+           note="annual forcing: distance from the scrape at which the modelled off-site drawdown equals the "
+                "hypothetical clearfell bar (flux sensitivity) in magnitude (09d_01 caption)")
     rr.save(OUT_09D_REPORT_NUMBERS)
     step(f"{OUT_09D_REPORT_NUMBERS.name}")
-    warn(f"D-333: the hypothetical Clearfell and Thinning 50% bars at CEH36 (09d_01 / 09d_02, {n_wd} rows) are built "
-         f"from a beta_2 multiplier of single-well era refits and are WITHDRAWN pending T-209 - values unchanged, "
-         f"flagged, not results")
 
     print("\nDone.")
 
@@ -359,11 +357,10 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
     h_disp = params["h_disp"]
     Sy = params["Sy"]
 
-    # Load BACI-corrected β₂ multipliers — prefer pipeline params file
-    # 3.11.0 (D-239): the felled well's measured change, not the Edge-tier multiplier
-    clearfell_b2_mult, thinning_b2_mult, _ = load_clearfell_impact_b2_multiplier(verbose=False)
-    print(f"     β₂ multipliers: clearfell={clearfell_b2_mult:.4f}  "
-          f"thinning={thinning_b2_mult:.4f}")
+    # 3.14.0 (T-209, D-333): the clearfell returns a share f of the interception, calibrated on the observed
+    # BACI step at the felled well (the flux sensitivity); thinning at most half. No beta_2 multiplier.
+    cf_frac = clearfell_return_fraction(verbose=False)["f"]
+    print(f"     clearfell interception-return fraction f = {cf_frac:.3f} (thinning f/2)")
 
     # Baseline: CEH36 is unforested, so P_base = raw P
     P_base = P_force
@@ -397,13 +394,13 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
     # Hypothetical: if CEH36 had pine and was clearfelled
     P_pine_base = P_force * (1 - FOREST_INTERCEPTION)
     flux_pine_base = b1 * P_pine_base - b2 * PET_force - b3 * h_disp
-    # Clearfell (3.11.0, D-239): P as under the pine - no interception recharge - and the felled well's beta_2 change
-    flux_cf = b1 * P_pine_base - b2 * clearfell_b2_mult * PET_force - b3 * h_disp
+    # Clearfell (3.14.0, T-209): a share f of the interception returned as recharge, the draw unchanged
+    flux_cf = b1 * P_force * (1 - FOREST_INTERCEPTION * (1 - cf_frac)) - b2 * PET_force - b3 * h_disp
     scenarios["Clearfell\n(hypothetical)"] = round(
         (flux_cf - flux_pine_base) * Sy * 1000, 1)
 
-    # Thinning 50%
-    flux_thin = b1 * P_pine_base - b2 * thinning_b2_mult * PET_force - b3 * h_disp   # 3.11.0 (D-239)
+    # Thinning 50%: at most half the clearfell's return
+    flux_thin = b1 * P_force * (1 - FOREST_INTERCEPTION * (1 - cf_frac / 2.0)) - b2 * PET_force - b3 * h_disp
     scenarios["Thinning 50%\n(hypothetical)"] = round(
         (flux_thin - flux_pine_base) * Sy * 1000, 1)
 
@@ -412,6 +409,14 @@ def _compute_ceh36_scenarios(params, P_force, PET_force):
     flux_bl = b1 * P_pine_base - b2 * BROADLEAF_B2_SUMMER * PET_force - b3 * h_disp   # 3.11.0 (D-239)
     scenarios["Broadleaf\n(hypothetical)"] = round(
         (flux_bl - flux_pine_base) * Sy * 1000, 1)
+
+    # 3.14.0 (T-209): the distance at which the modelled off-site drawdown equals the clearfell bar in magnitude
+    # (was the constant CLEARFELL_MATCH_HINT = 282 m, set against the withdrawn multiplier bar)
+    _cf_bar = abs(scenarios["Clearfell\n(hypothetical)"])
+    _d = np.arange(OFFSITE_DIST_M, 2000.0, 1.0)
+    _vol = np.array([_offsite_scrape_head_mm(onsite_edge_head_mm, dist_m=x) / 1000 * Sy * 1000 for x in _d])
+    _hit = _d[_vol <= _cf_bar]
+    scenarios["_cf_match_m"] = float(_hit[0]) if _cf_bar > 0 and len(_hit) else float("nan")
 
     # Climate scenarios — applied to CEH36's actual (unforested) state
     scenarios["Climate dry"] = _scenario_dh(
@@ -443,8 +448,6 @@ _COLOURS = {
     "Climate wet": "#4169E1",
 }
 _HATCHES = {"Scraping\n(observed)": "///"}
-# 3.13.0 (D-333): bars built from the era-refit beta_2 multiplier, withdrawn pending T-209
-D333_WITHDRAWN_BARS = ("Clearfell\n(hypothetical)", "Thinning 50%\n(hypothetical)")
 
 
 def _plot_scenarios(scenarios, params, forcing):
@@ -469,8 +472,7 @@ def _plot_scenarios(scenarios, params, forcing):
     plot_items = [(k, v) for k, v in scenarios.items() if not k.startswith("_")]
     names = [k for k, _ in plot_items]
     vals = [v for _, v in plot_items]
-    display_names = [n + "\nWITHDRAWN" if n in D333_WITHDRAWN_BARS else n
-                     for n in names]                       # 3.13.0 (D-333)
+    display_names = list(names)
     offsite_idx = (names.index("Scraping\n(off-site 100 m)")
                    if "Scraping\n(off-site 100 m)" in names else None)
 
@@ -539,14 +541,12 @@ def _plot_scenarios(scenarios, params, forcing):
             "resolve the transient minimum)."
         )
     else:
-        caveat += (
-            f"\nOff-site drawdown decays with distance; at ~"
-            f"{CLEARFELL_MATCH_HINT:.0f} m it equals the clearfell bar in "
-            "magnitude \u2014 i.e. the recharge the standing forest itself "
-            "suppresses."
-        )
-    caveat += ("\nWITHDRAWN (D-333): the clearfell and thinning bars are built from a \u03b2\u2082 multiplier of "
-               "single-well era refits, inside its noise; pending T-209 \u2014 not results.")   # 3.13.0
+        _m = scenarios.get("_cf_match_m", float("nan"))
+        if np.isfinite(_m):
+            caveat += (
+                f"\nOff-site drawdown decays with distance; at ~{_m:.0f} m it equals the clearfell bar in magnitude.")
+    caveat += ("\nClearfell: flux sensitivity \u2014 the share of the interception returned that reproduces the "
+               "observed step at the felled well; thinning at most half.")   # 3.14.0 (T-209)
     ax.text(0.0, -0.16, caveat, transform=ax.transAxes, fontsize=8,
             ha="left", va="top", color="#555", style="italic")
 
@@ -560,11 +560,10 @@ def _plot_scenarios(scenarios, params, forcing):
     plt.close(fig)
     step(f"{out_fig.name}")
 
-    rows = [{"Scenario": n.replace("\n", " "), col_name: v,
-             "status": D333_WITHDRAWN_STATUS if n in D333_WITHDRAWN_BARS else ""}   # 3.13.0 (D-333)
+    rows = [{"Scenario": n.replace("\n", " "), col_name: v}
             for n, v in scenarios.items() if not n.startswith("_")]
     if far_vol is not None:
-        rows.append({"Scenario": "Scraping (off-site 250 m)", col_name: far_vol, "status": ""})
+        rows.append({"Scenario": "Scraping (off-site 250 m)", col_name: far_vol})
     pd.DataFrame(rows).to_csv(out_csv, index=False, float_format="%.1f")
     step(f"{out_csv.name}")
 

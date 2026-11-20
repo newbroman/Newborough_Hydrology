@@ -1,2 +1,2 @@
 Parameter,Well,Era,Value,Unit,Note
-scenario_n_rows_withdrawn_d333,,,4.0,rows,"rows of 09d_01 + 09d_02 with status 'withdrawn (D-333)': the hypothetical Clearfell and Thinning 50% bars at CEH36, built from a beta multiplier of single-well era refits, inside its noise; pending T-209 (values unchanged)"
+scenario_clearfell_match_distance_m,,,490.0,m,annual forcing: distance from the scrape at which the modelled off-site drawdown equals the hypothetical clearfell bar (flux sensitivity) in magnitude (09d_01 caption)

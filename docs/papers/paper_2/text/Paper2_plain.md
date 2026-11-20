@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_2.odt — do not edit. source-sha256=25bfe5ed6f92f4cd pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_3.odt — do not edit. source-sha256=c9f6954b41a1c014 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What felling and scraping did to the water table: a plain-language guide to the dune-restoration paper
@@ -91,7 +91,7 @@ The plantation has long been blamed for lowering the water table. The earlier st
 
 ## []{#anchor}Inside the model
 
-The aquifer paper describes each well by three numbers: how far the water table rises per millimetre of rain (the **recharge sensitivity**), how far it falls per millimetre of evaporative demand (the **atmospheric draw**), and how fast it drains. Fitting them before and after the felling shows what changed. At the felled well, the draw fell (by 4.8% beyond the Climate-control wells), but the recharge sensitivity did not rise: allowing for those wells, it was 0.98 of its earlier value. That is not the pattern expected if felling had simply returned the rain the trees used to catch.
+The aquifer paper describes each well by three numbers: how far the water table rises per millimetre of rain (the **recharge sensitivity**), how far it falls per millimetre of evaporative demand (the **atmospheric draw**), and how fast it drains. Fitting them before and after the felling shows what changed. At the felled well, the draw fell (by −6.5% beyond the Climate-control wells), but the recharge sensitivity did not rise: allowing for those wells, it was 0.92 of its earlier value. That is not the pattern expected if felling had simply returned the rain the trees used to catch.
 
 Recharge sensitivity declined at almost all wells, felled and unfelled forest alike, but hardly at all at the Climate-control wells. It is unlikely to be caused by the felling, but its independence of management is not established, and it is a candidate cause of the falling summer lows. Because it affects felled and unfelled wells alike, it cancels out in the BACI gap.
 
@@ -145,7 +145,7 @@ The paper describes the forest as both a **sink** and a **shield**. As a sink, i
 
 Neither role showed at the felled well as expected. Had the canopy been mainly a sink, recharge sensitivity should have risen after felling; it did not. Had it been mainly a shield, the bare ground should have dried faster; instead the draw fell.
 
-Two readings fit the record, and it does not choose between them. Either felling worked chiefly by reducing the draw, or it did return rain to the ground but the gain spread out into the surrounding forest, because a block of about 115 m radius is narrower than the forest's reach of about 220 m. The record rules out a full local gain, but is consistent with one that has dispersed.
+Two readings fit the record, and it does not choose between them. Either felling worked chiefly by reducing the draw, or it did return rain to the ground but the gain spread out into the surrounding forest, because a block of about 115 m radius is narrower than the forest's reach of about 170 m. The record rules out a full local gain, but is consistent with one that has dispersed.
 
 At the unfelled pine wells the draw rose over the same years, consistent either with the canopy maturing or with a by-product of fitting; the paper does not read it as a measured change in forest water use.
 
@@ -155,7 +155,7 @@ One well, NW10, sits in broadleaf woodland planted after a 1993 clearance. It re
 
 ## []{#anchor}How far does the forest's effect reach?
 
-Not to the eastern slacks. The drainage carries any change in the forest zone south-west towards Caernarfon Bay, not east. The modelled drawdown of the existing plantation fades over about 220 m; it reaches the lake-edge wells nearest the forest at 8--72 mm and the eastern wells furthest from it at 2 mm or less. This is a modelled illustration, not a measured drawdown; the felling record agrees, finding no response outside the forest zone.
+Not to the eastern slacks. The drainage carries any change in the forest zone south-west towards Caernarfon Bay, not east. The modelled drawdown of the existing plantation fades over about 170 m; it reaches the lake-edge wells nearest the forest at 3--58 mm and the eastern wells furthest from it at 2 mm or less. This is a modelled illustration, not a measured drawdown; the felling record agrees, finding no response outside the forest zone.
 
 At the Lake Edge and Dune clusters, where the stakes are highest, the summer lows follow the site-wide climate signal, with no detectable influence from the forest.
 
@@ -169,7 +169,7 @@ The second is a decline across the whole warren that the coast does not explain.
 
 ## []{#anchor}The ordering
 
-Set against the coastal term, the modelled net loss from scraping is about 25% and the clearfell gain about 7%. Both interventions are small beside a background they cannot stop. The summer drought trajectory is approaching the wet-slack and dry-slack levels within the next one to two decades. The paper therefore frames the task at Newborough as adapting to an increasingly seasonal climate, keeping slacks able to flood, rather than restoring them to a former state.
+Set against the coastal term, the modelled net loss from scraping is about 17% and the clearfell gain about 5%. Both interventions are small beside a background they cannot stop. The summer drought trajectory is approaching the wet-slack and dry-slack levels within the next one to two decades. The paper therefore frames the task at Newborough as adapting to an increasingly seasonal climate, keeping slacks able to flood, rather than restoring them to a former state.
 
 # []{#anchor}9. What the study cannot tell
 

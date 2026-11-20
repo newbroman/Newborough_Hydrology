@@ -30,7 +30,10 @@ Reads:
 ==========================================================================
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The 'Scraping (nearby)' bars (built
+__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
+#   emitted as scenario_n_keys_withdrawn_d333_09b: Scripts 09b, 19 and 21 each wrote the same name for their own
+#   count (1, 11, 32), which number_ledger reads as one quantity with three values. Nothing reads the key.
+# 1.14.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The 'Scraping (nearby)' bars (built
 #   from the BACI centroid delta-beta_3 of split-window refits) and the Clearfell / Thinning 50% bars (a beta_2
 #   multiplier of single-well era refits, clearfell_common.load_clearfell_impact_b2_multiplier) are WITHDRAWN under
 #   D-333 pending T-209. No value changes: scrape_bar_n_b3_held_at_bound (a property of the scrape bars) gets
@@ -469,7 +472,7 @@ def main():
                 + D333_WITHDRAWN_NOTE)                                     # 1.14.0 (D-333)
     # 1.14.0 (D-333): the count of withdrawn keys, for the check tools, and the console warning
     _n_wd = sum(1 for r in rr.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
-    rr.add("scenario_n_keys_withdrawn_d333", _n_wd, unit="keys",
+    rr.add("scenario_n_keys_withdrawn_d333_09b", _n_wd, unit="keys",
            note="report keys in this file whose note carries the D-333 withdrawal; the 'Scraping (nearby)', "
                 "'Clearfell' and 'Thinning 50%' rows of 09b_04 and the Clearfell / Thinning 50% rows of 09b_05 "
                 "carry status 'withdrawn (D-333)'")

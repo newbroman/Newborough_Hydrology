@@ -87,7 +87,10 @@ References
                           Impact tier) at runtime; see _load_baci_params().
 """
 
-__version__ = "1.14.0"  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and 50 % thinning
+__version__ = "1.14.1"  # Hollingham (2026) - 2026-11-19 (J-16, changelog 2026-11-19f). The D-333 withdrawn-key count is
+#   emitted as scenario_n_keys_withdrawn_d333_21: Scripts 09b, 19 and 21 each wrote the same name for their own
+#   count (1, 11, 32), which number_ledger reads as one quantity with three values. Nothing reads the key.
+# 1.14.0  # Hollingham (2026) - 2026-11-12 (D-333, J-9 phase 2b). The clearfell and 50 % thinning
 #   scenarios take a beta_2 multiplier of single-well era refits (clearfell_common.load_clearfell_impact_b2_multiplier)
 #   and are WITHDRAWN under D-333 pending T-209. No value changes: their 21_report_numbers rows (head shift, storage
 #   change, C5:C4 ratio, hydrograph separations) get config.D333_WITHDRAWN_NOTE appended to the note, a count key
@@ -646,7 +649,7 @@ def emit_scenario_report_numbers(master, climate, hydro_separations=None):
                 note="month of hydrograph_max_summer_separation_m" + _wd)
     # 1.14.0 (D-333): the count of withdrawn rows, for the check tools, and the console warning
     _n_wd = sum(1 for r in rpt.rows if str(r["Note"]).endswith(D333_WITHDRAWN_NOTE))
-    rpt.add("scenario_n_keys_withdrawn_d333", _n_wd, unit="keys",
+    rpt.add("scenario_n_keys_withdrawn_d333_21", _n_wd, unit="keys",
             note="rows in this file whose note carries the D-333 withdrawal (the clearfell and thinning_50pct rows "
                  "of scenario_head_shift_m, scenario_storage_change_mm, scenario_storage_change_ratio_C5_to_C4 and "
                  "the hydrograph_* separations)")

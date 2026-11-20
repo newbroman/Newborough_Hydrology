@@ -2417,7 +2417,7 @@ wmc3_2022_MSL5_m_bg_dp2,outputs/26_van_willegen_msl/26_msl_5yr_per_well.csv,wmc3
 wmc3_2024_MSL5_m_bg_dp2,outputs/26_van_willegen_msl/26_msl_5yr_per_well.csv,wmc3 / 2024 · MSL5_m_bg,1,,2,,−,,bound by r9_traced.csv (report_edits/text/report9.md)
 wmc3_b2_fall_beyond_climate_control_pct_abs_dp1,outputs/10_clearfell_baci/10e_report_numbers.csv,wmc3_b2_fall_beyond_climate_control_pct,1,1,1,,−,,bound by bind_pl.csv (docs/papers/paper_2/text/Paper2_plain.md)
 wmc3_b2_fall_beyond_climate_control_pct_dp1,outputs/10_clearfell_baci/10e_report_numbers.csv,wmc3_b2_fall_beyond_climate_control_pct,1,,1,,−,,bound by r9_emits.csv (report_edits/text/report9.md)
-wmc3_b2_fall_canopy_on_pct_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,wmc3_b2_fall_canopy_on_pct,1,,1,,−,,bound by p2_bindings_v40.csv (docs/papers/paper_2/text/Hollingham_2026_Paper2_amended.md)
+wmc3_b2_fall_canopy_on_pct_dp1,outputs/10_clearfell_baci/10_consolidated_report_numbers.csv,wmc3_b2_fall_canopy_on_pct,1,,1,,−,,bound by bind_r9c.csv (report_edits/text/report9.md)
 wmc3_baci_db3_pct_dp0_plus,outputs/09_scraping_intervention/09b_01_individual_well_baci.csv,wmc3 · baci_db3_pct,1,,0,1,−,,converted from citation_index (docs/report/text/Newborough_Methods_Supplement.md)
 wmc3_dist_ceh36_m_dp0,outputs/29_within_c3_variance/29_within_c3_variance.csv,wmc3 · dist_ceh36_m,1,,0,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)
 wmc3_r_C3_dp3,outputs/06_pear_membership_audit_sitewide.csv,wmc3 · r_C3,1,,3,,−,,bound by r9_bulk.csv (report_edits/text/report9.md)

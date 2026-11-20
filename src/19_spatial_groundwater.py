@@ -26,7 +26,10 @@ Usage:
     python 19_spatial_groundwater.py --out /path/to/custom.html
 """
 
-__version__ = "2.37.0"  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The clearfell and thinning
+__version__ = "2.38.0"  # Hollingham (2026) - 2026-11-20 (T-209; changelog 2026-11-20b). scenario_clearfell_full_return_<well>:
+#   all the interception returned at the felled well, Model B, draw unchanged (the f = 1 end of the flux sensitivity),
+#   replacing the interception-form diagnostic 2.37.0 removed, which carried the withdrawn Edge-tier multiplier.
+# 2.37.0  # Hollingham (2026) - 2026-11-20 (T-209, D-333; changelog 2026-11-20b). The clearfell and thinning
 #   are rebuilt on the observed BACI step: the measured result is the 10a step at the felled well (scenario_clearfell_
 #   anchor_step_m, not mapped); the clearfell rows and viewer preset are its flux sensitivity, a share f of the
 #   interception returned (clearfell_common.clearfell_return_fraction), at C5 wells only (c5_only: no level where
@@ -2963,7 +2966,31 @@ def compute_scenario_summary(wt, climate_stats, out_dir):
                                  f"difference returned as recharge ({FOREST_INTERCEPTION:g} -> {_Ib:g}): the "
                                  f"upper end of the {_scn} range (f = 1); n={len(_sub)} wells")
 
+    # 2.38.0 (T-209): all the interception returned at the felled well, Model B, draw unchanged - the f = 1 end
+    # of the flux sensitivity at WMC3, so report9 can say how far a full local return overshoots the observed step
+    # (replaces the retired interception-form diagnostic, which carried the withdrawn Edge-tier beta_2 multiplier).
+    from utils.clearfell_common import IMPACT_WELLS
+    _sl_full = {**SCENARIO_PARAMS["clearfell"], "sI_c4": 0.0, "sI_c5": 0.0, "c5_only": False}
+    for _w in IMPACT_WELLS:
+        _row = wt[wt["id"] == _norm(_w)]
+        if _row.empty:
+            continue
+        v = _well_level(_row.iloc[0], _sl_full, h_col_map["annual"], "annual", form="B", forestry=True)
+        if v is not None:
+            rpt.add(f"scenario_clearfell_full_return_{_norm(_w)}", float(v), unit="m", well=_w.upper(),
+                    era="clearfell, all interception returned, annual",
+                    note="sustained annual level response, Model B, to returning all the canopy interception "
+                         "as recharge with the draw unchanged (f = 1 of the flux sensitivity); not a scenario")
+
     pw = pd.DataFrame(perwell)
+    # 2.38.0 (T-209): the spread of the C5 wells' own clearfell responses, which report9 quotes beside the mean
+    _c5 = pw[(pw["scenario"] == "clearfell") & (pw["season"] == "annual") & (pw["cluster"] == "C5")
+             & (pw["response"] == "level_sustained_model_b")]["dh_m"].dropna()
+    if len(_c5):
+        for _stat, _v in (("min", _c5.min()), ("max", _c5.max())):
+            rpt.add(f"scenario_clearfell_C5_dh_{_stat}_m", float(_v), unit="m", well="C5",
+                    era="clearfell annual", note=f"{_stat} over the {len(_c5)} C5 wells of the sustained annual "
+                    "level response, Model B (the spread beside the cluster mean)")
     pw.to_csv(OUT_19_SCENARIO_PERWELL, index=False)
     print(f"  Per-well scenario CSV: {OUT_19_SCENARIO_PERWELL.name} ({len(pw)} rows)")
 

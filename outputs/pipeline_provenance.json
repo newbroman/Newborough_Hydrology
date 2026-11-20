@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20T12:32:56",
+ "generated": "2026-11-20T13:40:16",
  "orchestrator": "2.30.0",
  "steps": {
   "00_climate_summary.py": {
@@ -579,14 +579,14 @@
   },
   "19_spatial_groundwater.py": {
    "emitted": {
-    "outputs/19_spatial_groundwater/19_report_numbers.csv": "cb1f84d37a70dc7f3c2a69d5faa4e272e41f2c178c67251432ad53fc7bc7c269",
+    "outputs/19_spatial_groundwater/19_report_numbers.csv": "75683526c259ada332f98518987ec410082ad9eb92de13de8278285de0b3d3fc",
     "outputs/19_spatial_groundwater/19_scenario_perwell.csv": "aab790771768109c7944382f696a4805af5eabd7a2ac1d1ab354fa99628ac88d",
     "outputs/19_spatial_groundwater/19_scenario_perwell_ddp.csv": "8060b71f0611a7b4619e72159576da096904f2a83f89b8bd42dd91601056b161",
     "outputs/19_spatial_groundwater/19_scenario_perwell_model_a.csv": "85d372cc90e448b6637e15cb1c8559183cce25815a7cccc4a06b24e0c6e36594",
     "outputs/19_spatial_groundwater/19_scenario_summary.csv": "1505f4ee21bc3153f2e19b259bc74d1fd027f5b0335572d4a562d73e7431b2b4",
     "outputs/19_spatial_groundwater/19_scenario_summary_ddp.csv": "02c56f04665cdbe8a536f580f8ec243d780fd6f7a6f1696cd4c290da7f21d548",
     "outputs/19_spatial_groundwater/19_scenario_summary_model_a.csv": "33beb3b10d25ff114de6e7decf6891692a5c05543d60b3f05e78f559f6762161",
-    "outputs/19_spatial_groundwater/scenario_viewer.html": "e0e9b7d15c9b86374218cf1164b7660e2bfc90b87ad98fece1472a956ff151af"
+    "outputs/19_spatial_groundwater/scenario_viewer.html": "1c1f4dc6cff6f47ed636938545d4563a16263a59ec5c9fbfaccb0e6b6bcc869f"
    },
    "fallbacks": [],
    "inputs": {
@@ -612,9 +612,9 @@
    "inputs_unresolved": [
     "wet_area_model.json"
    ],
-   "seconds": 5.6,
-   "started": "2026-11-20T11:10:01",
-   "version": "2.37.0"
+   "seconds": 5.4,
+   "started": "2026-11-20T13:40:11",
+   "version": "2.38.0"
   },
   "20_spatial_figures.py": {
    "emitted": {

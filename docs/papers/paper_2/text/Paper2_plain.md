@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_3.odt — do not edit. source-sha256=c9f6954b41a1c014 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_2/Paper2_plain_v1_4.odt — do not edit. source-sha256=2baac657619e51fd pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What felling and scraping did to the water table: a plain-language guide to the dune-restoration paper
@@ -91,7 +91,7 @@ The plantation has long been blamed for lowering the water table. The earlier st
 
 ## []{#anchor}Inside the model
 
-The aquifer paper describes each well by three numbers: how far the water table rises per millimetre of rain (the **recharge sensitivity**), how far it falls per millimetre of evaporative demand (the **atmospheric draw**), and how fast it drains. Fitting them before and after the felling shows what changed. At the felled well, the draw fell (by −6.5% beyond the Climate-control wells), but the recharge sensitivity did not rise: allowing for those wells, it was 0.92 of its earlier value. That is not the pattern expected if felling had simply returned the rain the trees used to catch.
+The aquifer paper describes each well by three numbers: how far the water table rises per millimetre of rain (the **recharge sensitivity**), how far it falls per millimetre of evaporative demand (the **atmospheric draw**), and how fast it drains. Fitting them before and after the felling shows what changed. At the felled well, the draw fell, but by less than at the Climate-control wells, so allowing for them it rose (by 6.5%); and the recharge sensitivity did not rise: allowing for those wells, it was 0.92 of its earlier value. That is not the pattern expected if felling had simply returned the rain the trees used to catch.
 
 Recharge sensitivity declined at almost all wells, felled and unfelled forest alike, but hardly at all at the Climate-control wells. It is unlikely to be caused by the felling, but its independence of management is not established, and it is a candidate cause of the falling summer lows. Because it affects felled and unfelled wells alike, it cancels out in the BACI gap.
 
@@ -125,7 +125,7 @@ So siting matters. The coastal margin is the wrong target: there a scrape's draw
 
 The paper also models three forest treatments from each well's three numbers:
 
--   **Full clearfell** gives a small gain at both forest clusters, based on the fall in draw measured at the felled well.
+-   **Full clearfell** gives a small gain at both forest clusters, based on the share of the caught rain that reproduces the felled well's winter rise.
 -   **Thinning by half** gives at most half that, because the remaining trees take up part of the water released.
 -   **Broadleaf conversion**, if the leaves catch as much rain as the pines, gives a small loss: a canopy in full leaf draws more in summer than a leafless one saves in winter. If the broadleaf canopy catches less rain, the result would be a gain instead. The record cannot test either end.
 
@@ -143,9 +143,9 @@ The scenarios predict that felling would raise the Coastal Forest water table, y
 
 The paper describes the forest as both a **sink** and a **shield**. As a sink, it catches about a quarter of the rain (24%, from the one measurement made in the plantation) and draws water up through the trees. As a shield, it takes up the sun's drying energy at the canopy before it reaches the water table.
 
-Neither role showed at the felled well as expected. Had the canopy been mainly a sink, recharge sensitivity should have risen after felling; it did not. Had it been mainly a shield, the bare ground should have dried faster; instead the draw fell.
+Neither role showed at the felled well as expected. Had the canopy been mainly a sink, recharge sensitivity should have risen after felling; it did not. Had it been mainly a shield, the bare ground should have dried faster; allowing for the controls the draw rose over the year, but not in the summer months when a shield would matter most.
 
-Two readings fit the record, and it does not choose between them. Either felling worked chiefly by reducing the draw, or it did return rain to the ground but the gain spread out into the surrounding forest, because a block of about 115 m radius is narrower than the forest's reach of about 170 m. The record rules out a full local gain, but is consistent with one that has dispersed.
+One reading fits the record: felling did return rain to the ground, but the gain spread out into the surrounding forest, because a block of about 115 m radius is narrower than the forest's reach of about 170 m. The felled well's winter rise is about a fifth of what returning all the caught rain would give, which is about the share a block that size should keep. The record rules out a full local gain, but is consistent with one that has dispersed.
 
 At the unfelled pine wells the draw rose over the same years, consistent either with the canopy maturing or with a by-product of fitting; the paper does not read it as a measured change in forest water use.
 

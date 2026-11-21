@@ -18,6 +18,12 @@
 # mirrors regenerated before it would be stale the moment it ran.
 #
 # ============================================================================
+# VERSION 1.42.0 - 2026-11-21   chat_links joins the chats section (Martin: "I need to archive chats
+#                               that are complete. I can't tell which chat I should go back to").
+#                               Its SELFTEST gates; its --check fails on a link that is not a URL -
+#                               a bare session id renders as a relative href on the HQ page and goes
+#                               nowhere, which is what every populated row held - and only COUNTS the
+#                               rows with no link, because a chat cannot be compelled to leave one.
 # VERSION 1.41.0 - 2026-11-11   proof_copy --refresh moved to the HQ daily pass (J-12, T-196;
 #                               Martin 2026-11-09, Q9 of the J-10 review). Its section is renamed
 #                               "inequality claims" for the gate left in it, inequality_lint, which
@@ -654,6 +660,12 @@ _jr_out="$(python3 tools/job_runner.py --selftest 2>&1)" || {
   rc=1
 }
 python3 tools/chat_register.py --check || rc=1
+# 1.43.0 (2026-11-21, Martin: "I can't tell which chat I should go back to"): a chat's `link` is what
+# makes the HQ page's name clickable, and a BARE session id there renders as a relative href that goes
+# nowhere - which is what all three populated rows held. The gate fails on a malformed link (fixable,
+# and green once fixed) and only counts the missing ones, which no chat can be compelled to supply.
+python3 tools/chat_links.py --selftest >/dev/null || { echo "  FAIL chat_links selftest"; rc=1; }
+python3 tools/chat_links.py --check || rc=1
 python3 tools/job_queue.py --check || rc=1
 python3 tools/hq_snapshot.py --selftest >/dev/null || { echo "  FAIL hq_snapshot selftest"; rc=1; }
 python3 tools/hq_snapshot.py --check || rc=1

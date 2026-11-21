@@ -30,8 +30,10 @@ Then, in this order:
 1. Read working/HANDOVER_BOOTSTRAP.md and run `python3 tools/session_handover.py` (D-143).
 2. Mark the job fired: `python3 tools/job_queue.py fire {{id}} --by "<this chat>"`
 3. Register this chat — compulsory, before any claim or commit (D-301):
-   `python3 tools/chat_register.py register --chat "<short name> {{id}}" --kind {{kind}} <!--if claim-->--claim {{claim}} <!--end-->--purpose "{{id}}: <one line>"`
-   The kinds are pipeline, document, tools, readonly, fieldwork — "docs" is refused.
+   `python3 tools/chat_register.py register --chat "<short name> {{id}}" --kind {{kind}} <!--if claim-->--claim {{claim}} <!--end-->--purpose "{{id}}: <one line>" --link "<this chat's URL>"`
+   The kinds are pipeline, document, tools, readonly, fieldwork — "docs" is refused. The link is the
+   Claude-Session URL your harness gives you for commit messages: it is what makes this chat
+   clickable on the HQ page, so Martin can find it again to carry on or to archive it.
 <!--if claim-->
 4. Take this job's claim and nothing else:
    `python3 tools/doc_lock.py take {{claim}} --chat "<this chat>" --note "{{id}}"`

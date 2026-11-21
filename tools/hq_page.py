@@ -52,7 +52,12 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-19 (T-219, raised by J-20 against itself).
+__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-21 (Martin: "I need to archive chats that are
+#   complete. I can't tell which chat I should go back to in the project"). Each of the five briefs now asks
+#   the chat to register its own conversation URL (--link), which is the Claude-Session trailer it already
+#   puts in every commit. tools/chat_links.py backfilled the rows that had committed; this is what keeps
+#   the next one from needing it. Wording only.
+# 1.4.0  # Hollingham (2026) — 2026-11-19 (T-219, raised by J-20 against itself).
 #   The START CONSOLE's five briefs opened with two add_repo lines each, and the store-absent banner handed
 #   out a third - the step the environment makes unnecessary and the auto-mode check refuses in a prompt that
 #   is not Martin's own (J-17). They now carry the same setup as a job's prompt: no add_repo, cloud_setup.sh
@@ -383,7 +388,11 @@ not the one the environment attached. It takes a few minutes and must not be tim
 Then, in this order:
 1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
 2. Register this chat — compulsory, before any claim or commit (D-301):
-   python3 tools/chat_register.py register --chat "<a short name>" --kind pipeline --claim pipeline --purpose "<one line>"
+   python3 tools/chat_register.py register --chat "<a short name>" --kind pipeline --claim pipeline --purpose "<one line>" \\
+     --link "<this chat's URL>"
+   The link is the Claude-Session URL your harness gives you for commit messages. It is what
+   makes this chat clickable on the HQ page, so Martin can find it again to carry on or to
+   archive it; without it he is matching names to the sidebar by eye.
 3. python3 tools/work_board.py, then take the `pipeline` claim ONLY:
    python3 tools/doc_lock.py take pipeline --chat "<a short name>" --note "<what>"
 4. export NRG_CHAT="<the name you registered>" in EVERY shell call."""),
@@ -399,7 +408,11 @@ not the one the environment attached. It takes a few minutes and must not be tim
 Then, in this order:
 1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
 2. Register this chat — compulsory, before any claim or commit (D-301):
-   python3 tools/chat_register.py register --chat "<a short name>" --kind document --claim doc:<family> --purpose "<one line>"
+   python3 tools/chat_register.py register --chat "<a short name>" --kind document --claim doc:<family> --purpose "<one line>" \\
+     --link "<this chat's URL>"
+   The link is the Claude-Session URL your harness gives you for commit messages. It is what
+   makes this chat clickable on the HQ page, so Martin can find it again to carry on or to
+   archive it; without it he is matching names to the sidebar by eye.
 3. python3 tools/work_board.py FIRST, and take only the doc: family you are editing. Before any
    ODT edit take the documents lock too: python3 tools/doc_lock.py take --chat "<a short name>"
 4. export NRG_CHAT="<the name you registered>" in EVERY shell call.
@@ -419,7 +432,11 @@ not the one the environment attached. It takes a few minutes and must not be tim
 Then, in this order:
 1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
 2. Register this chat — compulsory, before any claim or commit (D-301):
-   python3 tools/chat_register.py register --chat "<a short name>" --kind tools --claim tools --purpose "<one line>"
+   python3 tools/chat_register.py register --chat "<a short name>" --kind tools --claim tools --purpose "<one line>" \\
+     --link "<this chat's URL>"
+   The link is the Claude-Session URL your harness gives you for commit messages. It is what
+   makes this chat clickable on the HQ page, so Martin can find it again to carry on or to
+   archive it; without it he is matching names to the sidebar by eye.
 3. python3 tools/work_board.py, then take the `tools` claim ONLY:
    python3 tools/doc_lock.py take tools --chat "<a short name>" --note "<what>"
 4. export NRG_CHAT="<the name you registered>" in EVERY shell call.
@@ -436,7 +453,11 @@ not the one the environment attached. It takes a few minutes and must not be tim
 Then, in this order:
 1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
 2. Register this chat — compulsory, before any claim or commit (D-301):
-   python3 tools/chat_register.py register --chat "<a short name>" --kind readonly --purpose "<one line>"
+   python3 tools/chat_register.py register --chat "<a short name>" --kind readonly --purpose "<one line>" \\
+     --link "<this chat's URL>"
+   The link is the Claude-Session URL your harness gives you for commit messages. It is what
+   makes this chat clickable on the HQ page, so Martin can find it again to carry on or to
+   archive it; without it he is matching names to the sidebar by eye.
 3. export NRG_CHAT="<the name you registered>" in EVERY shell call.
 TAKE NO CLAIM AND COMMIT NOTHING. Read, measure, and report. If the answer turns out to need a
 change, say so and stop: that is a different chat, with a claim. Both repositories matter even
@@ -453,7 +474,11 @@ not the one the environment attached. It takes a few minutes and must not be tim
 Then, in this order:
 1. Read working/HANDOVER_BOOTSTRAP.md and run python3 tools/session_handover.py (D-143).
 2. Register this chat — compulsory, before any claim or commit (D-301):
-   python3 tools/chat_register.py register --chat "<a short name>" --kind fieldwork --claim pipeline --purpose "<one line>"
+   python3 tools/chat_register.py register --chat "<a short name>" --kind fieldwork --claim pipeline --purpose "<one line>" \\
+     --link "<this chat's URL>"
+   The link is the Claude-Session URL your harness gives you for commit messages. It is what
+   makes this chat clickable on the HQ page, so Martin can find it again to carry on or to
+   archive it; without it he is matching names to the sidebar by eye.
 3. Take `pipeline` before writing anything under data/ or outputs/:
    python3 tools/doc_lock.py take pipeline --chat "<a short name>" --note "<what>"
 4. export NRG_CHAT="<the name you registered>" in EVERY shell call.

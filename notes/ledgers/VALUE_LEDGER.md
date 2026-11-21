@@ -484,7 +484,6 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | C4 (Main Forest) / 2018 · MSL5_m_bg_std |  |  | `26_msl_5yr_per_cluster.csv` | 0.363894 |  | INTERCEPTION_TREATMENT, report9 | ok |
 | C4 (Main Forest) / 2018 · n_wells |  |  | `26_msl_5yr_per_cluster.csv` | 7 |  | Supplementary_Material | ok |
 | C4 (Main Forest) / 2019 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.19133 |  | report9 | ok |
-| C4 (Main Forest) / 2019 · MSL5_m_bg_std |  |  | `26_msl_5yr_per_cluster.csv` | 0.358326 |  | Paper1 | ok |
 | C4 (Main Forest) / 2019 · n_wells |  |  | `26_msl_5yr_per_cluster.csv` | 7 |  | Supplementary_Material | ok |
 | C4 (Main Forest) / 2020 · MSL5_m_bg_median |  |  | `26_msl_5yr_per_cluster.csv` | -1.19933 |  | report9 | ok |
 | C4 (Main Forest) / 2021 · MSL5_m_bg_mean |  |  | `26_msl_5yr_per_cluster.csv` | -1.10367 |  | report9 | ok |
@@ -1580,7 +1579,6 @@ Drift agrees with `cite_check --index-only` by construction. `⚠` marks a CONFI
 | clearfell / annual / SITE · we_mean_mm | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 23.2972 |  | academic_Summary, report, report10 | ok |
 | clearfell_gain_n_wells |  |  | `20_clearfell_gain_report_numbers.csv` | 71 |  | report9 | ok |
 | clearfell_interception_bound / annual / C5 · dh_mean_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.389276 |  | report9 | ok |
-| clearfell_interception_bound / annual / C5 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.323013 |  | Paper1 | ok |
 | clearfell_interception_bound / summer / C5 · dh_median_m | Δh | water-level change / amplitude | `19_scenario_summary.csv` | 0.303011 |  | Supplementary_Material | ok |
 | clearfell_local_gain_b1_ratio |  |  | `20_report_numbers.csv` | 1.31579 |  | Hollingham_2026_Paper2_amended, Newborough_Methods_Supplement, report9 | ok |
 | clearfell_wmc3_b1_ratio_net_climate |  |  | `20_report_numbers.csv` | 0.922571 |  | report9 | ok |

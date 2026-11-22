@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_38.odt — do not edit. source-sha256=00c4ff384fffb234 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt — do not edit. source-sha256=c5c505ad3ad9f6d7 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -246,7 +246,7 @@ Section S5.5 introduced the two levels of fit. Both are implemented in 03_state_
   Table 1 cluster mechanistic coefficients                      Cluster-mean                                             S6.2
   Lumped Catchment Storage Coefficient (LCSC)                   Cluster-mean                                             S6.4
   Drainage decay half-life t½ = ln(2)/β₃ by cluster             Cluster-mean                                             S6.2, main text §4.7
-  Traditional-linear-model benchmarking                         Per-well, 100-month comparison window                    main text §3.5, Figure 10; Hollingham (2026c)
+  Traditional-linear-model benchmarking                         Per-well, 98-month comparison window                     main text §3.5, Figure 10; Hollingham (2026c)
   Substrate-gradient interpretation (Sections 5.1--5.2)         Cluster-mean                                             main text
   Coefficient atlas, Figures 11--13 (β₁, β₂, β₃ surfaces)       Per-well, interpolated                                   S7
   Per-well residuals, shown at the wells (Figure 16)            Per-well, interpolated                                   S8

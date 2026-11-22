@@ -1,17 +1,17 @@
 block,metric,value,n,unit
-corr_datum_meandepth,r,0.598649,66,Pearson r
+corr_datum_meandepth,r,0.603963,66,Pearson r
 corr_datum_meandepth,p,0.0,66,p
-datum_vs_easting,slope_m_per_km,-0.958278,66,m/km
-datum_vs_easting,p,9e-06,66,p
-datum_vs_easting,r2,0.267733,66,-
-datum_vs_easting_ctrl,slope_m_per_km,-0.425939,66,m/km
-datum_vs_easting_ctrl,p,0.075812,66,p
-datum_vs_easting_ctrl,p_mean_wt_depth,0.000729,66,p
-datum_vs_easting_ctrl,r2,0.389939,66,-
-datum_vs_elevation,slope_base_on_ground,0.850765,66,m/m
+datum_vs_easting,slope_m_per_km,-1.109162,66,m/km
+datum_vs_easting,p,3e-06,66,p
+datum_vs_easting,r2,0.287681,66,-
+datum_vs_easting_ctrl,slope_m_per_km,-0.529518,66,m/km
+datum_vs_easting_ctrl,p,0.046241,66,p
+datum_vs_easting_ctrl,p_mean_wt_depth,0.000848,66,p
+datum_vs_easting_ctrl,r2,0.40389,66,-
+datum_vs_elevation,slope_base_on_ground,0.831377,66,m/m
 datum_vs_elevation,p,0.0,66,p
-datum_vs_elevation,r2,0.796096,66,-
+datum_vs_elevation,r2,0.749936,66,-
 datum_vs_elevation,ground_elev_range_m,10.886,66,m
 below_mean_wt,n_below,65.0,66,wells
 below_mean_wt,n_total,66.0,66,wells
-below_mean_wt,exception_ceh13_pvalue_beta_3_at_max,0.707773,66,p
+below_mean_wt,exception_ceh13_pvalue_beta_3_at_max,0.715648,66,p

@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_11.odt — do not edit. source-sha256=b73f6a72a590d2d3 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_M/PaperM_plain_v1_11.odt — do not edit. source-sha256=e767fee700b00cd1 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 What monthly water levels can tell us: a plain-language guide to the methods paper
@@ -57,13 +57,13 @@ The study uses a reference network of 66 wells: those with at least 100 months o
 
 The wells fall into five groups that rise and fall together, found from the shape of their records before any model was fitted. Three groups are open dune (the Lake Edge, the Dune and the Western Residual) and two are under pine (the Main Forest and the Coastal Forest). The groups are stable when wells or months are left out at random, but groups built separately from two halves of the record agree only moderately (a score of 0.53 where 1 is identical). So they are a useful way of dividing one continuous aquifer, not sharply bounded units.
 
-The numbers a study reports belong to the stretch of record they were fitted on, so the paper says which applies to every result. One basis is the average hydrograph of each group, fitted on every month available. The other is each well on its own, on its full record or on a common window, the same 100 months at every well, ending in February 2026, so that wells are compared under the same weather. A month when a well was dry still counts, as a level too low for the pipe to read. The tests that split the record fit each well on the years before January 2018 and test it on the years after.
+The numbers a study reports belong to the stretch of record they were fitted on, so the paper says which applies to every result. One basis is the average hydrograph of each group, fitted on every month available. The other is each well on its own, on its full record or on a common window, the same 98 months at every well, ending in February 2026, so that wells are compared under the same weather. A month when a well was dry still counts, as a level too low for the pipe to read. The tests that split the record fit each well on the years before January 2018 and test it on the years after.
 
 # []{#anchor}4. How the model does
 
 ## []{#anchor}4.1 What the drainage term adds
 
-At each well the traditional linear model and Model B were fitted on the common window and run freely over the same months. Across 64 wells the traditional linear model scores 0.43 at the median well, and at 8 wells it does worse than simply guessing the average. Adding the drainage term lifts the median to 0.82, positive at all 64 wells. A model without drainage cannot forecast.
+At each well the traditional linear model and Model B were fitted on the common window and run freely over the same months. Across 64 wells the traditional linear model scores 0.38 at the median well, and at 11 wells it does worse than simply guessing the average. Adding the drainage term lifts the median to 0.83, positive at all 64 wells. A model without drainage cannot forecast.
 
 ## []{#anchor}4.2 Within the recorded climate
 
@@ -77,13 +77,13 @@ Less than you might expect for a forecast, more for the drainage number. Fitted 
 
 A **hindcast** runs the model over past years, using today's numbers. The paper uses two kinds, and they do different jobs: the well-by-well hindcasts test the model; the hindcast of the whole warren uses it.
 
-In the well-by-well hindcasts each well is run from 1930 on the RAF Valley weather with its own present-day numbers, and its levels are compared with the old readings, which no fit has seen. The early start just lets the model forget where it began. The question is whether today's ground, given that era's weather, reproduces the levels then recorded. For the dry decade of 1989--96 it does not quite: Model B puts the water table 0.21 metres too high at the median well. For Ranwell's seasons it does well, with a median skill of 0.86 at the three main sites and 0.69 over all eleven pairings with modern wells. The two results do not conflict: the seasons test scores the swing about the average, and the dry decade scores the average itself.
+In the well-by-well hindcasts each well is run from 1930 on the RAF Valley weather with its own present-day numbers, and its levels are compared with the old readings, which no fit has seen. The early start just lets the model forget where it began. The question is whether today's ground, given that era's weather, reproduces the levels then recorded. For the dry decade of 1989--96 it does not quite: Model B puts the water table 0.18 metres too high at the median well. For Ranwell's seasons it does well, with a median skill of 0.83 at the three main sites and 0.67 over all eleven pairings with modern wells. The two results do not conflict: the seasons test scores the swing about the average, and the dry decade scores the average itself.
 
 The warren hindcast shows how wet the open dune as a whole would have been under the weather of every month since 1930. One rule for the open dune is run from 1930, matched to the measured median of the wells over the years they were read, and turned into areas of open water and wet slack floor with two curves fitted to 43 Sentinel-2 satellite images. Because it is matched to the well record, it is a picture of the past, not evidence that the model is right.
 
 ## []{#anchor}4.5 Neighbouring wells
 
-The wells fall into groups from the shape of their records alone, so a new well can be placed in a group by comparing its record with the group averages, without fitting it. Can it then borrow the group's numbers? Across the 2018 split the group's numbers score 0.80 forward against 0.79 for each well's own, and on Ranwell's seasons 0.86 against 0.86. Two years of readings put a new well in the right group at 62 % of wells, and three years at 76 %. Placed from two years and given its group's numbers, it forecasts at 0.76.
+The wells fall into groups from the shape of their records alone, so a new well can be placed in a group by comparing its record with the group averages, without fitting it. Can it then borrow the group's numbers? Across the 2018 split the group's numbers score 0.80 forward against 0.79 for each well's own, and on Ranwell's seasons 0.84 against 0.83. Two years of readings put a new well in the right group at 62 % of wells, and three years at 76 %. Placed from two years and given its group's numbers, it forecasts at 0.76.
 
 Where a well's own record has a gap, it is better filled from a measured neighbour than from any model. With stretches of 54 months hidden in turn, each well's average spring level was put back from its nearest neighbour in the same group with a typical miss of 0.041 metres, against 0.139 metres from a model run on the weather. The direct test, one well's model run month by month at its neighbour, has still to be run with Model B.
 
@@ -111,7 +111,7 @@ The model's constant and its drainage number are almost interchangeable: their e
 
 ## []{#anchor}5.4 What the record projects
 
-Under the Met Office's high-emissions climate scenario (UKCP18), the typical lasting fall of the summer water level is 0.20 metres in the 2050s, a climate about as much drier as the 1989--96 decade, so within what the hindcast has tested. In the 2080s it is 0.37 metres, under a climate drier than anything in the record. Because the model is too wet in a drier climate, these falls are likely to be too small, so each is quoted with a bound: 0.28 and 0.52 metres, from a version of the model with a fixed floor (Section 7). The main forest is not projected.
+Under the Met Office's high-emissions climate scenario (UKCP18), the typical lasting fall of the summer water level is 0.20 metres in the 2050s, a climate about as much drier as the 1989--96 decade, so within what the hindcast has tested. In the 2080s it is 0.37 metres, under a climate drier than anything in the record. Because the model is too wet in a drier climate, these falls are likely to be too small, so each is quoted with a bound: 0.27 and 0.48 metres, from a version of the model with a fixed floor (Section 7). The main forest is not projected.
 
 # []{#anchor}6. Where the water goes
 
@@ -123,7 +123,7 @@ Under the pine forest the trees catch part of the rain, which evaporates before 
 
 # []{#anchor}7. A fixed floor: tried, and not adopted
 
-The obvious alternative is to fix the floor that drainage runs towards in advance, so that drainage runs to a real level: 3.7 metres below ground at every well, or each well's depth to the sea at mean high water, the one real drainage level that can be named. Neither was adopted. It forecast no better (0.61 and 0.46, against Model B's 0.79). Choosing the floor that fits best simply turns it into Model B. Its own results depend on where the floor is put, and nothing measured fixes that. And at one forest well, CEH14, it still gave drainage running the wrong way, and its forecast fell apart (a skill of −12.87, against 0.38 for Model B).
+The obvious alternative is to fix the floor that drainage runs towards in advance, so that drainage runs to a real level: 3.7 metres below ground at every well, or each well's depth to the sea at mean high water, the one real drainage level that can be named. Neither was adopted. It forecast no better (0.61 and 0.46, against Model B's 0.79). Choosing the floor that fits best simply turns it into Model B. Its own results depend on where the floor is put, and nothing measured fixes that. And at one forest well, CEH14, it still gave drainage running the wrong way, and its forecast fell apart (a skill of −11.54, against 0.38 for Model B).
 
 It keeps two jobs. It is a check: a result counts as a finding only if it holds with the fixed floor too, and several results that seemed to show what forest management does to drainage did not, so they are not reported. And it gives the bound on a drier climate, because its slower return carries a dry spell forward.
 
@@ -152,7 +152,7 @@ The weather comes from one station outside the site, at monthly resolution, and 
 
 A model fitted to a monthly water-level record, the standard Pastas model written one month at a time, forecasts that record's water table: within the recorded climate it does so from two years of readings, and a new well can borrow its group's numbers. Its drainage number measures how fast the water table returns to its usual level, which a check that uses no model confirms.
 
-Its main weakness is a lastingly drier climate, where it puts the water table about a fifth of a metre too high. At Newborough, under a high-emissions climate, it puts the typical fall of the summer water level at 0.20 metres in the 2050s and 0.37 metres in the 2080s, perhaps as much as 0.52 metres. The main forest is left out, because its drainage number cannot be worked out from the record. And water levels alone cannot say how much water drains away and how much evaporates: that needs a measurement.
+Its main weakness is a lastingly drier climate, where it puts the water table about a fifth of a metre too high. At Newborough, under a high-emissions climate, it puts the typical fall of the summer water level at 0.20 metres in the 2050s and 0.37 metres in the 2080s, perhaps as much as 0.48 metres. The main forest is left out, because its drainage number cannot be worked out from the record. And water levels alone cannot say how much water drains away and how much evaporates: that needs a measurement.
 
 # []{#anchor}Glossary
 

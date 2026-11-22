@@ -45,9 +45,9 @@ asserts without changing anything a proof-reader would notice.
 | report_edits/odt/report8.odt | Object 55 | c α | `{MSL} rsub {y} = {α} rsub {W} ⋅ {h} rsub {max , winter} + b ⋅ {P} rsub {win − spr} + γ ⋅ {PET} rsub {win − spr…` |
 | report_edits/odt/report8.odt | Object 60 | c | `c` |
 | report_edits/odt/report8.odt | Object 71 | α | `{α} rsub {B} = left ({β} rsub {2} ⋅ overline {PET} + {β} rsub {3} ⋅ overline {{h} rsub {disp}} right ) − {β} r…` |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt | Object 3 | α | `"drainage"   =   {β} rsub {3} ⋅ bar {{h} rsub {"disp"}} − α` |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt | Object 4 | α | `Δ bar {h}   =   {β} rsub {1} ⋅ bar {P} − {β} rsub {2} ⋅ overline {PET} − ( {β} rsub {3} ⋅ bar {{h} rsub {"disp…` |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt | Object 5 | d α δ | `{t} rsub {ij}   =   δ left ({d} rsub {i} right ) + {α} rsub {i} + {α} rsub {j} + γ ⋅ {W} rsub {ij} + {ϵ} rsub …` |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_41.odt | Object 3 | α | `"drainage"   =   {β} rsub {3} ⋅ bar {{h} rsub {"disp"}} − α` |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_41.odt | Object 4 | α | `Δ bar {h}   =   {β} rsub {1} ⋅ bar {P} − {β} rsub {2} ⋅ overline {PET} − ( {β} rsub {3} ⋅ bar {{h} rsub {"disp…` |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_41.odt | Object 5 | d α δ | `{t} rsub {ij}   =   δ left ({d} rsub {i} right ) + {α} rsub {i} + {α} rsub {j} + γ ⋅ {W} rsub {ij} + {ϵ} rsub …` |
 
 ## Variant codepoints — the same letter, spelled twice
 
@@ -67,12 +67,12 @@ equations sat outside the symbol register with neither side noticing.
 | report_edits/odt/report8.odt | Object 41 | ϵ U+03F5 | ε U+03B5 |
 | report_edits/odt/report8.odt | Object 42 | ϕ U+03D5 | φ U+03C6 |
 | report_edits/odt/report8.odt | Object 42 | ϵ U+03F5 | ε U+03B5 |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt | Object 4 | ϵ U+03F5 | ε U+03B5 |
-| docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt | Object 5 | ϵ U+03F5 | ε U+03B5 |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_41.odt | Object 4 | ϵ U+03F5 | ε U+03B5 |
+| docs/papers/paper_1/PAPER1_SI_methods_v1_41.odt | Object 5 | ϵ U+03F5 | ε U+03B5 |
 
 ## Inventory
 
-### docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt
+### docs/papers/paper_1/PAPER1_SI_methods_v1_41.odt
 
 | object | glyphs | StarMath |
 |---|---|---|

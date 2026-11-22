@@ -287,18 +287,18 @@ Each scenario also reports the modelled **slack-floor wet area** — open water 
 
 **Scenario definitions (JavaScript parameters in scenario_viewer.html):**
 
-Scenario parameters are injected at viewer generation time. The clearfell and thinning β₂ multipliers are loaded dynamically from Script 10e output via `clearfell_common.load_clearfell_impact_b2_multiplier()`: the felled well's (WMC3) measured β₂ change net of the Climate controls (D-239) — no hardcoded values remain.
+Scenario parameters are injected at viewer generation time. Since T-209 (D-333) the forestry presets take no β₂ multiplier. The clearfell is anchored on the observed control-differenced BACI step at the felled well (WMC3, Script 10a), and its preset is that step's flux sensitivity: a share f of the canopy interception returned as recharge, the share that reproduces the step (`clearfell_common.clearfell_return_fraction()`, about 20%), at C5 wells only, C4's drainage coefficient not being identified. Thinning returns at most half. No hardcoded values remain.
 
-| Scenario | sP_w | sP_s | sPET_w | sPET_s | sI | sB2 |
-|----------|------|------|--------|--------|----|-----|
-| Baseline | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 1.00 |
-| UKCP18 2050s | 1.10 | 0.85 | 1.05 | 1.20 | 0.24 | 1.00 |
-| UKCP18 2080s | 1.20 | 0.70 | 1.10 | 1.35 | 0.24 | 1.00 |
-| Full clearfell | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | felled-well change, 0.952 (loaded from 10e) |
-| Broadleaf conversion | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 0.882 winter / 1.075 summer |
-| Forest thinning | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | half the clearfell change, 0.976 (loaded from 10e) |
+| Scenario | sP_w | sP_s | sPET_w | sPET_s | sI | sB2 | interception returned |
+|----------|------|------|--------|--------|----|-----|-----|
+| Baseline | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 1.00 | none |
+| UKCP18 2050s | 1.10 | 0.85 | 1.05 | 1.20 | 0.24 | 1.00 | none |
+| UKCP18 2080s | 1.20 | 0.70 | 1.10 | 1.35 | 0.24 | 1.00 | none |
+| Full clearfell | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 1.00 | f, at C5 wells (loaded from Script 21) |
+| Broadleaf conversion | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 0.882 winter / 1.075 summer | none |
+| Forest thinning | 1.00 | 1.00 | 1.00 | 1.00 | 0.24 | 1.00 | at most f/2, at C5 wells |
 
-No preset returns intercepted rain as recharge (D-239): the felled well's recharge did not rise. Lowering the interception slider gives the upper end of each forestry range; the clearfell note gives the open-dune end state as a bound.
+Only the clearfell and thinning presets return intercepted rain, and only at C5 (D-333). Lowering the interception slider gives the upper end of the broadleaf range; the clearfell note gives the open-dune end state as a bound.
 
 The clearfell and thinning `sB2` multipliers are read dynamically from Script 10e's
 `10e_01_coefficient_shifts.csv` — they are not fixed constants and update whenever

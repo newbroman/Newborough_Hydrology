@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=0b804e2639e56538 pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of report_edits/odt/report10.odt — do not edit. source-sha256=ff5281e4feb871d6 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # []{#anchor}**Discussion**
@@ -51,7 +51,7 @@ The SSM is a lumped mass-balance model fitted independently at each well. It doe
 
 ### []{#anchor-4}Water Balance Residuals as a Model-Adequacy Diagnostic
 
-The water balance residual field (Section 4.9.6, Figure 59) makes this mismatch spatially explicit, and its result is largely negative: across the reference network the three-term balance closes without requiring an additional flux. No well exceeds +0.02 m/month, the fifteen positive residuals all fall below +0.01 m/month, and four of the five cluster medians are negative, C1 being slightly positive (Section 4.9.6). Residual magnitude is uncorrelated with position on either axis (Spearman ρ = −0.14 against Easting, p = 0.27; ρ = +0.16 against Northing, p = 0.20). The signed residual shows no gradient on either axis (ρ = +0.02 against Easting, p = 0.86; ρ = −0.10 against Northing, p = 0.40), including the ridge-to-dune axis on which a ridge-derived input would express itself.
+The water balance residual field (Section 4.9.6, Figure 59) makes this mismatch spatially explicit, and its result is largely negative: across the reference network the three-term balance closes without requiring an additional flux. One well exceeds +0.02 m/month (NW3, +0.0206), 16 residuals are positive, and the cluster medians are negative except at C5 Coastal Forest (Section 4.9.6). Residual magnitude is uncorrelated with position on either axis (Spearman ρ = 0.09 against Easting, p = 0.49; ρ = −0.10 against Northing, p = 0.43). The signed residual falls eastward (ρ = −0.35 against Easting, p = 0.005) but not with Northing (ρ = −0.10, p = 0.45), and no well in C4 Main Forest, the cluster nearest the ridge, is positive.
 
 The field is therefore a diagnostic of where the SSM\'s three terms are sufficient rather than a map of lateral inflow. It should not be read as the latter in any case, because the residual also absorbs nonlinear soil-moisture storage dynamics, β coefficient sensitivity and any systematic bias in the Thornthwaite PET estimate. On the present evidence no unmeasured boundary flux need be invoked to close the balance at any cluster, and the independent water balance of Script 16 agrees with the field to within ±6.7 mm/month at every cluster. The structure of the residuals themselves --- their lag structure, the ridge-recharge hypothesis and their seasonality (Scripts 22, 23 and 24) and the cluster-stratified residual climatology (Script 24b) --- is a diagnostic of the fit rather than of the site and is not repeated here.
 

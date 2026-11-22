@@ -1,4 +1,4 @@
-<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_39.odt — do not edit. source-sha256=330d85d1d3941c0d pandoc=3.1.3 -->
+<!-- GENERATED MIRROR of docs/papers/paper_1/PAPER1_SI_methods_v1_41.odt — do not edit. source-sha256=40d23b5195b78457 pandoc=3.1.3 -->
 <!--      Regenerate with: python3 tools/refresh_mirrors.py -->
 
 # Supporting Information
@@ -324,7 +324,7 @@ The state-space regression (Section S6) produces a per-month residual at every w
 
 Rainfall enters gross at every well, including the forested ones. The coefficients are fitted on gross rainfall and above-canopy PET, so the canopy interception loss is already carried inside the fitted β₂·PET̄ term. Subtracting it from rainfall as well would double-count it and insert a spurious positive residual at C4 and C5. The residual is not invariant to this choice, so the convention is stated explicitly here.
 
-The residual field carries no spatial structure, with a small systematic negative offset. Of the 66 reference wells, 65 fall within ±0.01 m/month and 51 are negative. Residual magnitude is uncorrelated with position on either axis (Spearman ρ = −0.14 against Easting, p = 0.27; ρ = +0.16 against Northing, p = 0.20). The signed residual shows no gradient on either axis (ρ = +0.02 against Easting, p = 0.86; ρ = −0.10 against Northing, p = 0.40). No well exceeds +0.02 m/month. The fifteen positive residuals all fall below +0.008 m/month (largest NW3, +0.0080 m/month). They lie in the open dune, at the lake edge and in the coastal forest, and none lies in C4 Main Forest. The most negative residual falls at the ridge-flank well CEH14 (−0.0105 m/month), with CEH32 (−0.0079 m/month) next. The balance closes without requiring an additional flux.
+The magnitude of the residual carries no spatial structure, but its sign tilts east--west, with a small systematic negative offset. Of the 65 reference wells carrying a residual, 61 fall within ±0.01 m/month and 49 are negative; CEH14 has no Model B residual (implied base above ground). Residual magnitude is uncorrelated with position on either axis (Spearman ρ = 0.09 against Easting, p = 0.49; ρ = −0.10 against Northing, p = 0.43). The signed residual falls eastward (ρ = −0.35 against Easting, p = 0.005) but not with Northing (ρ = −0.10, p = 0.45). One well exceeds +0.02 m/month, NW3 (+0.0206 m/month), and 16 residuals are positive, the next largest at CEH4 (+0.0117 m/month) and NW6 (+0.0103 m/month). They lie in the open dune, at the lake edge and in the coastal forest, and none lies in C4 Main Forest. The most negative residuals fall at the lake-edge wells CEH25 (−0.0114 m/month) and CEH27 (−0.0095 m/month). The balance closes without requiring an additional flux.
 
 The two diagnostic tests below were run when the field was believed to be spatially structured. They are retained for what they establish about the limits of the monitoring design, not as a discrimination among candidate mechanisms. Script 22 characterizes the residual series itself (per-well AR(1), Durbin--Watson and HAC standard errors, Section S5.6). It establishes that the network's residuals are close to white: the AR(1) coefficient is small and negative at most wells (network mean φ = −0.142, median −0.144) and only four of the 62 wells exceed \|φ\| = 0.3.
 
@@ -487,12 +487,12 @@ Four specifications are fitted to test robustness:
 Fitted parameters, read live from outputs/25_coastal_gradient/25_01_panel_fit_parameters.csv:
 
   ------------- ------------------------------- -------- ----------- --------------- ----------- --------------
-  Full          linear-capped                   12,006   −33,668.5   −31.73 ± 1.94   994 ± 57    −0.47 ± 0.56
-  Full          exponential                     12,006   −33,672.6   −41.30 ± 2.54   609 ± 99    +3.28 ± 1.52
-  Forest-free   linear-capped                   10,929   −31,848.8   −31.35 ± 1.97   894 ± 48    −0.10 ± 0.55
-  Forest-free   exponential                     10,929   −31,853.7   −40.63 ± 3.08   489 ± 76    +2.12 ± 1.09
-  C3-only       linear-capped (*c_far* fixed)   3,676    −10,254.1   −29.06 ± 2.75   928 ± 71    −0.10
-  C3-only       exponential (*c_far* fixed)     3,676    −10,269.6   −32.15 ± 3.33   713 ± 109   +2.12
+  Full          linear-capped                   11,982   −33,640.6   −31.58 ± 1.94   1005 ± 58   −0.65 ± 0.56
+  Full          exponential                     11,982   −33,645.6   −41.28 ± 2.54   617 ± 101   +3.21 ± 1.55
+  Forest-free   linear-capped                   10,909   −31,813.4   −31.28 ± 1.97   902 ± 49    −0.30 ± 0.55
+  Forest-free   exponential                     10,909   −31,819.4   −40.59 ± 3.08   498 ± 78    +2.01 ± 1.11
+  C3-only       linear-capped (*c_far* fixed)   4,772    −13,175.7   −28.28 ± 2.47   1019 ± 91   −0.30
+  C3-only       exponential (*c_far* fixed)     4,772    −13,185.5   −34.92 ± 3.33   640 ± 77    +2.01
   ------------- ------------------------------- -------- ----------- --------------- ----------- --------------
 
 Confidence intervals are 95% (1.96 SE). The ± values in the table are the fitted, row-basis standard errors. The uncertainties quoted in the manuscript are on the well basis (§S12.7). The forest-free linear-capped fit is the headline specification: δ₀ = −31.28 mm yr⁻¹, L_cg = 902 m, c_far = −0.30 mm yr⁻¹. The manuscript quotes the fitted trend at 150 m from the shoreline, −26.38 mm yr⁻¹ (well-basis SE 3.49, §S12.7; fitted SE 1.45), rather than δ₀ itself. No well sits at the shoreline, and the two decay forms disagree there by 9.3 mm yr⁻¹, against 1.6 mm yr⁻¹ at 150 m.

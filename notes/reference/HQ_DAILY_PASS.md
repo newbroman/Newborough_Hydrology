@@ -58,6 +58,12 @@ snapshot. A wrong report costs a conversation; a wrong release costs another cha
      first HQ write, 2026-11-05.
    - A write to a document that already exists needs `if_version`, the version you last read. Read
      the collection first (`action: "list"`) and pin each write, or set them one at a time.
+   - An op marked `only_if_exists` (hq_snapshot 1.4.0, J-28: today only `chats` deletes) retires a
+     chat's **slug twin**, the document a chat had before it adopted its seeded row. Drop it from the
+     batch if your `list` of `chats` does not show that document, and pin it if it does. Afterwards
+     the `chats` collection should hold exactly `meta/snapshot.chatsRegistered` documents. Report any
+     difference. Never delete a `chats` document the ops do not name: since hq_page 1.6.0 the launcher
+     seeds nothing, so a document outside the register is a finding to report, not a row to prune.
    If the `ArtifactData` tool is not available to you, say so plainly in your report rather than
    working around it: the payload is committed, so any session can write it, and the page will show
    the previous day's snapshot until one does. Do not try to publish the page itself — the shell

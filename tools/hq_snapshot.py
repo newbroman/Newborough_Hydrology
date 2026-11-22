@@ -49,7 +49,20 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-11-18 (J-20, Martin: "should I have an NRG app to
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-22 (J-28, option 4 of the brief, which Martin's
+#   ruling of option 3 left standing: "worth doing whichever is chosen"). A CHAT HAS ONE DOCUMENT. A chat that
+#   registered BEFORE it was linked to its seed got a document under the slug of its name, and when it later
+#   adopted the seed (hq_row) this pass began writing it at the seed's id instead - leaving the slug document
+#   behind, never written again. `Pipeline-Nov-5` read `active` with `pipeline` claimed a fortnight after
+#   that chat finished, beside its own `done` row (found 2026-11-21, fixed then in the data only). db_ops now
+#   emits a DELETE of that slug twin for every chat whose document lives at its hq_row, marked
+#   `only_if_exists` because the pass cannot see the store and a delete of a missing document must not sink
+#   an atomic batch (HQ_DAILY_PASS.md step 7). This is the pass's own derived copy of a chat's register row,
+#   not another chat's work (D-302): the register row it mirrors is untouched. meta/snapshot carries
+#   `chatsRegistered`, the count the store's chats collection should equal once the batch is written.
+#   With hq_page 1.6.0 the launcher no longer seeds, so no new hq_row ids are minted; the two adopted
+#   rows keep their ids.
+# 1.3.0  # Hollingham (2026) — 2026-11-18 (J-20, Martin: "should I have an NRG app to
 #   manage this" - agreed to build it into the HQ page). Each job the queue would start now carries its
 #   START PROMPT into the db (jobs/<id>.startPrompt), composed by job_queue.start_prompt() from the one
 #   committed template tools/job_start_prompt.md. Nothing is composed here: the wording belongs to the
@@ -404,6 +417,30 @@ def _slug(s: str) -> str:
     return (out.strip("-") or "x")[:200]
 
 
+def chat_doc_id(c: dict) -> str:
+    """The ONE document id a register row is written at: its hq_row if it adopted a seed (T-152),
+    else the slug of its name. `if seed else`, NOT `_slug(seed) or ...` - see db_ops."""
+    seed = (c.get("hq_row") or "").strip()
+    return _slug(seed) if seed else _slug(c.get("chat", ""))
+
+
+def chat_doc_ids(payload: dict) -> list[str]:
+    return sorted({chat_doc_id(c) for c in (payload.get("chats") or {}).get("chats") or []})
+
+
+def chat_twins(payload: dict) -> list[str]:
+    """1.4.0 (J-28): slug documents left behind by a chat that now lives at its hq_row. A slug that
+    is itself some register row's document is never a twin - deleting it would delete a live chat."""
+    live = set(chat_doc_ids(payload))
+    out = set()
+    for c in (payload.get("chats") or {}).get("chats") or []:
+        if (c.get("hq_row") or "").strip():
+            slug = _slug(c.get("chat", ""))
+            if slug not in live:
+                out.add(slug)
+    return sorted(out)
+
+
 def db_ops(payload: dict) -> list[dict]:
     """The batch a session writes with ArtifactData. Returns [{op, collection, doc_id, file_path}]."""
     DB_DIR.mkdir(parents=True, exist_ok=True)
@@ -423,6 +460,9 @@ def db_ops(payload: dict) -> list[dict]:
         "host": payload.get("host", ""), "historyRuns": payload.get("history_runs", 0),
         "gateNewlyRed": payload.get("gate_newly_red") or [],
         "warnings": (payload.get("board") or {}).get("warnings") or [],
+        # 1.4.0 (J-28): one chats document per register row, so the store's chats collection should
+        # hold exactly this many documents once the batch is written. A session compares the two.
+        "chatsRegistered": len(chat_doc_ids(payload)),
     })
     put("meta", "owed", {"items": payload.get("owed") or [], "generated": payload["generated"]})
     # meta/links is MERGED, never replaced: the HQ session link and the project link are Martin's to
@@ -507,7 +547,7 @@ def db_ops(payload: dict) -> list[dict]:
         # TRUTHY, so the or-form never reached the fallback and wrote EVERY hand-started chat to one
         # shared document called "x". Caught 2026-11-06 by asserting the id rather than that a
         # document existed - which is the whole point of the fallback having its own test.
-        put("chats", _slug(seed) if seed else _slug(c.get("chat", "")), {
+        put("chats", chat_doc_id(c), {
             "hqRow": seed, "seededBy": "the HQ page" if seed else "",
             "seededAt": at,
             "chat": c.get("chat"), "kind": c.get("kind"), "claim": c.get("claim"),
@@ -517,6 +557,12 @@ def db_ops(payload: dict) -> list[dict]:
             "registeredBy": c.get("registered_by"),
             "seeded": bool(c.get("registered_by")) and c.get("registered_by") != c.get("chat"),
         })
+    # 1.4.0 (J-28): retire each chat's twin. `only_if_exists`: the pass cannot see the store, a twin is
+    # usually already gone, and a batch is atomic - so the session drops this op when its `list` of the
+    # chats collection does not show the document, and pins it (if_version) when it does.
+    for twin in chat_twins(payload):
+        ops.append({"op": "delete", "collection": "chats", "doc_id": twin, "only_if_exists": True,
+                    "why": "slug twin of a chat whose document lives at its hq_row (J-28)"})
     (DB_DIR / "ops.json").write_text(json.dumps(ops, indent=2) + "\n", encoding="utf-8")
     return ops
 
@@ -636,6 +682,40 @@ def _selftest() -> int:
         pay = json.loads((t6 / "scratch/hq/payload.json").read_text())
         check_("6b a marker with a reason IS owed", any("HQ page" in o["what"] for o in pay["owed"]),
                str(pay["owed"]))
+
+        # 7. (1.4.0, J-28) One document per chat: a chat started by hand is written at its slug; an
+        #    adopted (seeded) chat at its hq_row, and its slug twin is retired with a guarded delete;
+        #    a slug that is ANOTHER live chat's document is never deleted; the count is carried.
+        t7 = doc_lock._mktree(T / "chats", private=True, lock={"holder": None, "claims": {}})
+        reg = t7 / "working/chat_register.csv"
+        reg.write_text(
+            "chat,kind,claim,mode,link,opened,touched,status,purpose,outcome,registered_by,hq_row\n"
+            "By hand,tools,tools,cloud,,2026-11-22T10:00:00Z,2026-11-22T10:00:00Z,active,p,,By hand,\n"
+            "Pipeline Nov 5,pipeline,pipeline,laptop,,2026-11-05T10:00:00Z,2026-11-06T10:00:00Z,done,p,o,"
+            "Pipeline Nov 5,starting-mw46kao7\n", encoding="utf-8")
+        rc, out = run(["--no-tasks", "--no-history", "--db-ops"], t7)
+        check_("7a with chats: the batch is written", rc == 0
+               and (t7 / "scratch/hq/db/ops.json").exists(), out)
+        ops7 = json.loads((t7 / "scratch/hq/db/ops.json").read_text()) if rc == 0 else []
+        sets = sorted(o["doc_id"] for o in ops7 if o["collection"] == "chats" and o["op"] == "set")
+        dels = [o for o in ops7 if o["collection"] == "chats" and o["op"] == "delete"]
+        check_("7b a hand-started chat is written at its slug, the adopted one at its hq_row",
+               sets == ["By-hand", "starting-mw46kao7"], str(sets))
+        check_("7c the adopted chat's slug twin is retired, guarded",
+               [(d["doc_id"], d.get("only_if_exists")) for d in dels] == [("Pipeline-Nov-5", True)],
+               str(dels))
+        seeded = json.loads((t7 / "scratch/hq/db/chats_starting-mw46kao7.json").read_text()) if rc == 0 else {}
+        check_("7d the adopted row keeps its seed as a property",
+               seeded.get("hqRow") == "starting-mw46kao7" and seeded.get("seededAt", "").startswith("2026-"),
+               str(seeded)[:200])
+        snap = json.loads((t7 / "scratch/hq/db/meta_snapshot.json").read_text()) if rc == 0 else {}
+        check_("7e meta/snapshot carries the count the store should hold", snap.get("chatsRegistered") == 2,
+               str(snap.get("chatsRegistered")))
+        check_("7f a slug that is another live chat's document is never a twin",
+               chat_twins({"chats": {"chats": [{"chat": "A", "hq_row": "s1"},
+                                               {"chat": "s2", "hq_row": ""},
+                                               {"chat": "Z", "hq_row": "A"}]}}) == ["Z"],
+               "A's slug is Z's live document, so only Z's own slug is retired")
 
     print("hq_snapshot selftest: " + ("OK" if ok else "FAIL"))
     return 0 if ok else 1

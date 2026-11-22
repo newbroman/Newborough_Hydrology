@@ -52,7 +52,17 @@ Usage
 """
 from __future__ import annotations
 
-__version__ = "1.5.0"  # Hollingham (2026) — 2026-11-21 (Martin: "I need to archive chats that are
+__version__ = "1.6.0"  # Hollingham (2026) — 2026-11-22 (J-28; Martin's ruling on the brief's open
+#   question: option 3, "stop seeding"). The start console NO LONGER WRITES A ROW to the chats store. Every
+#   press of "Copy brief and open the project" used to seed `chats/starting-<base36>`, and a press that never
+#   became a chat left that row behind with nothing to collect it: 9 seeded rows on 2026-11-21, 7 of them
+#   orphans, 3 identical from one afternoon, pruned by hand. Now a chat's row is created only when a real
+#   chat registers (hq_snapshot writes it from working/chat_register.csv), so nothing has to be deleted on a
+#   timer and the store stays the size of the register. The brief no longer mints an id or asks for
+#   `--adopt`; chat_register keeps the flag for a brief already in someone's clipboard, and hq_snapshot
+#   keeps writing the two adopted rows at their seeded ids. "A chat I started has not reported in" is the
+#   job queue's to show: it already knows a job was fired and no chat registered against it.
+# 1.5.0  # Hollingham (2026) — 2026-11-21 (Martin: "I need to archive chats that are
 #   complete. I can't tell which chat I should go back to in the project"). Each of the five briefs now asks
 #   the chat to register its own conversation URL (--link), which is the Claude-Session trailer it already
 #   puts in every commit. tools/chat_links.py backfilled the rows that had committed; this is what keeps
@@ -828,15 +838,12 @@ function renderFilters() {
   document.querySelectorAll('#filters button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.f === filter)));
 }
-/* T-152: the brief carries the id of the row this launcher is about to seed, so step 2's
-   register command ADOPTS that row instead of creating a second one. The id is made here, before
-   the brief, because the brief has to quote it. A chat started by hand never sees this line and
-   registers without --adopt, which hq_snapshot falls back to the slug for. */
-function makeBrief(what, rowId) {
+/* 1.6.0 (J-28, Martin's ruling): the launcher writes NOTHING to the store. The chat's row appears
+   when the chat registers itself and the HQ pass carries the register into the store, so a press
+   that never becomes a chat leaves nothing behind. Before this, every press seeded a
+   `starting-<id>` row and the brief asked for --adopt <id> (T-152); orphans were pruned by hand. */
+function makeBrief(what) {
   return 'New NRG chat: ' + kind + '.\\n\\n' + what.trim() + '\\n\\n' + BRIEFS[kind] + '\\n\\n'
-    + (rowId ? 'Add --adopt ' + rowId + ' to the chat_register.py register command in step 2, so this\\n'
-               + 'chat adopts the row HQ has already opened for it rather than creating a second one\\n'
-               + '(T-152). Everything else in the setup is unchanged.\\n\\n' : '')
     + RULES;
 }
 
@@ -856,9 +863,7 @@ $('#startForm').addEventListener('submit', async e => {
   const msg = $('#startMsg');
   if (!what.trim()) { $('#what').focus(); msg.hidden = false;
     msg.textContent = 'Say in a line what the chat is for.'; return; }
-  /* the seeded row's id is made first: the brief quotes it (T-152) and the write below uses it */
-  const rowId = db ? 'starting-' + Date.now().toString(36) : '';
-  const brief = makeBrief(what, rowId);
+  const brief = makeBrief(what);
   $('#brief').value = brief;
   let copied = false;
   try { await navigator.clipboard.writeText(brief); copied = true; } catch (_) {}
@@ -873,19 +878,8 @@ $('#startForm').addEventListener('submit', async e => {
   msg.hidden = false;
   msg.textContent = (copied ? 'Brief copied. Start a new chat in the project and paste it.'
     : 'Copy the brief below, then start a new chat in the project and paste it.')
-    + (href && href !== '#' ? '' : ' (No project link recorded yet — HQ adds it on its next pass.)');
-  if (db) {
-    const id = rowId;
-    try {
-      await db.collection('chats').doc(id).set({
-        chat: what.trim().split('\\n')[0].slice(0, 70), kind: KINDS[kind], claim: '',
-        purpose: what.trim().slice(0, 300), status: 'starting', seeded: true,
-        registeredBy: 'the HQ page', touched: new Date().toISOString(),
-        opened: new Date().toISOString() });
-    } catch (err) {
-      msg.textContent += ' (It could not be added to the index; HQ will pick it up.)';
-    }
-  }
+    + (href && href !== '#' ? '' : ' (No project link recorded yet — HQ adds it on its next pass.)')
+    + ' It appears under the chats once it registers itself.';
 });
 
 /* ── boot ────────────────────────────────────────────────────────────────────────────────── */

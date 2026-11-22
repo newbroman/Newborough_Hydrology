@@ -30,7 +30,11 @@ Usage:
 """
 from __future__ import annotations
 
-__version__ = "1.3.0"  # Hollingham (2026) — 2026-10-28 (after the D-281 rerun). --stale: a confirmed citation whose
+__version__ = "1.4.0"  # Hollingham (2026) — 2026-11-22 (D-337). --tables: a number in a HAND-BUILT table cell may be
+#   bound; its identity is tested on the whole table row (the stored context comes from the mirror, where a row is one line),
+#   and a table that table_gen owns is never touched. An already-registered field keeps its own note (it used to be
+#   overwritten with "bound by …", losing the field's provenance three times on 2026-11-22).
+# 1.3.0  # Hollingham (2026) — 2026-10-28 (after the D-281 rerun). --stale: a confirmed citation whose
 #   committed value has moved is converted in the quoted text's own rendering (dp, sign, separators; the scale that
 #   puts the new value within a factor of two of the old), logged old -> new for review; field_sync --write then
 #   prints the new value. Without --stale nothing changes.
@@ -141,8 +145,18 @@ def doc_for(stem: str):
     raise SystemExit(f"no document with mirror stem {stem!r}")
 
 
-def _occurrences(xml: str, quoted_x: str):
-    """Positions of quoted_x as a whole number in a text run, outside tables and fields."""
+def _table_name_at(xml: str, a: int):
+    """Name of the table enclosing position a, or None outside tables."""
+    t0 = xml.rfind("<table:table ", 0, a)
+    if t0 < 0 or t0 < xml.rfind("</table:table>", 0, a):
+        return None
+    m = re.match(r'<table:table [^>]*table:name="([^"]*)"', xml[t0:t0 + 400])
+    return m.group(1) if m else ""
+
+
+def _occurrences(xml: str, quoted_x: str, tables: bool = False, skip_tables=frozenset()):
+    """Positions of quoted_x as a whole number in a text run, outside fields; outside tables unless `tables`
+    (1.4.0), and never in a table named in `skip_tables` (the tables table_gen owns)."""
     out = []
     for m in re.finditer(re.escape(quoted_x), xml):
         a, b = m.start(), m.end()
@@ -154,8 +168,9 @@ def _occurrences(xml: str, quoted_x: str):
         last_lt, last_gt = xml.rfind("<", 0, a), xml.rfind(">", 0, a)
         if last_lt > last_gt:
             continue                                   # inside a tag
-        if xml.rfind("<table:table ", 0, a) > xml.rfind("</table:table>", 0, a):
-            continue                                   # inside a table
+        _tn = _table_name_at(xml, a)
+        if _tn is not None and (not tables or _tn in skip_tables):
+            continue                                   # inside a table (or a generated one)
         if xml.rfind("<text:user-field-get", 0, a) > xml.rfind("</text:user-field-get>", 0, a):
             continue                                   # already a field
         out.append((a, b))
@@ -163,6 +178,11 @@ def _occurrences(xml: str, quoted_x: str):
 
 
 def _plain_around(xml: str, a: int, b: int, width: int = 60):
+    if _table_name_at(xml, a) is not None:          # 1.4.0: a cell is identified by its whole row
+        r0 = xml.rfind("<table:table-row", 0, a)
+        r1 = xml.find("</table:table-row>", b)
+        _cells = lambda t: re.sub(r"<[^>]+>", "", t.replace("</table:table-cell>", " "))
+        return _norm(_cells(xml[r0:a]))[-width:], _norm(_cells(xml[b:r1]))[:width]
     p0 = xml.rfind("<text:p", 0, a)
     p0 = max(p0, xml.rfind("<text:h", 0, a))
     p1 = xml.find("</text:p>", b)
@@ -181,6 +201,9 @@ def main() -> int:
                     help="1.3.0: also convert confirmed citations whose committed value has MOVED since the text was "
                          "written, in the quoted text's own rendering; each is listed old -> new in "
                          "scratch/stale_rebinds_<stem>.csv, and field_sync --write then prints the new value")
+    ap.add_argument("--tables", action="store_true",
+                    help="1.4.0: also bind numbers in hand-built table cells, identified on their whole row; "
+                         "tables that table_gen owns are never touched")
     a = ap.parse_args()
     if a.content:      # 1.2.0: the ODT may not be on this machine; the mirror names the document
         src = None
@@ -200,6 +223,17 @@ def main() -> int:
         origin = f"converted from citation_index ({rel_mirror})"
     xml = pathlib.Path(a.content).read_text(encoding="utf-8") if a.content else fs.read_xml(src)
     _occ_cache: dict = {}
+    _gen_tables = frozenset()
+    if a.tables and src is not None:                 # 1.4.0: the tables table_gen owns in THIS document
+        import table_configs as _tc, table_gen as _tg
+        _gen = set()
+        for _c in _tc.TABLES:
+            try:
+                if _tg.resolve_doc(_c["doc"])[0].resolve() == pathlib.Path(src).resolve():
+                    _gen.add(_c["table_name"])
+            except LookupError:
+                pass
+        _gen_tables = frozenset(_gen)
     reg = fs.load_register()
     vals = fs.values()
     spans, new_fields, skipped = [], {}, []
@@ -228,7 +262,7 @@ def main() -> int:
             skipped.append((r, f"no rendering of {v!r} gives {r['quoted']!r} exactly")); continue
         _qx = html.escape(r["quoted"].strip(), quote=False)
         if _qx not in _occ_cache:
-            _occ_cache[_qx] = _occurrences(xml, _qx)
+            _occ_cache[_qx] = _occurrences(xml, _qx, tables=a.tables, skip_tables=_gen_tables)
         occ = _occ_cache[_qx]
         if not occ:
             skipped.append((r, "not found as one text run outside tables and fields")); continue
@@ -253,6 +287,8 @@ def main() -> int:
         row = dict(spec, field=name, source_csv=r["source_csv"], key=r["key"], note=origin)
         if name in reg and any(reg[name].get(k) != row.get(k) for k in ("source_csv", "key", "scale", "abs", "dp", "plus", "minus", "thousands")):
             skipped.append((r, f"field {name} already registered with a different spec")); continue
+        if name in reg and reg[name].get("note"):    # 1.4.0: a registered field keeps its provenance note
+            row["note"] = reg[name]["note"]
         new_fields[name] = row
         spans.append((x0, x1, f'<text:user-field-get text:name="{name}">{xml[x0:x1]}</text:user-field-get>'))
     # declarations
